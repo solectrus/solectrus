@@ -1,0 +1,10 @@
+de:
+  calculator:
+    last24h: Letzte 24 Stunden
+    inverter_power: Stromerzeugung
+    house_power: Hausverbrauch
+    grid_power_plus: Netzbezug
+    grid_power_minus: Einspeisung
+    solar_price: Solarpreis
+    traditional_price: Vergleichspreis
+    profit: Gewinn
