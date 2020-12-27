@@ -4,7 +4,8 @@
   "dependencies": {
     "@rails/actioncable": "^6.0.0",
     "@rails/ujs": "^6.0.0",
-    "@rails/webpacker": "5.2.1"
+    "@rails/webpacker": "5.2.1",
+    "tailwindcss": "2.0.1-compat"
   },
   "version": "0.1.0",
   "devDependencies": {
