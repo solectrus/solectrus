@@ -3,47 +3,50 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.7.2'
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
+# Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 6.1.0'
-# Use postgresql as the database for Active Record
-gem 'pg', '~> 1.1'
-# Use Puma as the app server
-gem 'puma', '~> 5.0'
-# Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
-gem 'webpacker', '~> 5.0'
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.7'
-# Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 4.0'
-# Use Active Model has_secure_password
-# gem 'bcrypt', '~> 3.1.7'
 
-# Reduces boot times through caching; required in config/boot.rb
+# Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/] (https://github.com/ged/ruby-pg)
+gem 'pg', '~> 1.1'
+
+# Puma is a simple, fast, threaded, and highly concurrent HTTP 1.1 server for Ruby/Rack applications (https://puma.io)
+gem 'puma', '~> 5.0'
+
+# Use webpack to manage app-like JavaScript modules in Rails (https://github.com/rails/webpacker)
+gem 'webpacker', '~> 5.0'
+
+# Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
 gem 'bootsnap', '>= 1.4.4', require: false
 
+# Timezone Data for TZInfo (https://tzinfo.github.io)
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+# Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
+gem 'influxdb-client'
+
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  # Ruby fast debugger - base + CLI (https://github.com/deivid-rodriguez/byebug)
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 
+  # Autoload dotenv in Rails. (https://github.com/bkeepers/dotenv)
   gem 'dotenv-rails'
 end
 
 group :development do
-  # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
+  # A debugging tool for your Ruby on Rails applications. (https://github.com/rails/web-console)
   gem 'web-console', '>= 4.1.0'
-  # Display performance information such as SQL time and flame graphs for each request in your browser.
-  # Can be configured to work on production as well see: https://github.com/MiniProfiler/rack-mini-profiler/blob/master/README.md
+
+  # Profiles loading speed for rack applications. (https://miniprofiler.com)
   gem 'rack-mini-profiler', '~> 2.0'
+
+  # Listen to file modifications (https://github.com/guard/listen)
   gem 'listen', '~> 3.3'
-  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+
+  # Rails application preloader (https://github.com/rails/spring)
   gem 'spring'
 end
 
 group :production do
+  # Lock staging servers from search engines and prying eyes. (http://lockupgem.com)
   gem 'lockup'
 end
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-
-gem 'influxdb-client'
