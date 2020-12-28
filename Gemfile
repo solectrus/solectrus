@@ -31,6 +31,9 @@ group :development, :test do
   # Autoload dotenv in Rails. (https://github.com/bkeepers/dotenv)
   gem 'dotenv-rails'
 
+  # RSpec for Rails (https://github.com/rspec/rspec-rails)
+  gem 'rspec-rails'
+
   # Automatic Ruby code style checking tool. (https://github.com/rubocop-hq/rubocop)
   gem 'rubocop', require: false
 
@@ -42,6 +45,12 @@ group :development, :test do
 
   # Code style checking for RSpec files (https://github.com/rubocop-hq/rubocop-rspec)
   gem 'rubocop-rspec', require: false
+
+  # Rails application preloader (https://github.com/rails/spring)
+  gem 'spring'
+
+  # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
+  gem 'spring-commands-rspec'
 end
 
 group :development do
@@ -54,8 +63,13 @@ group :development do
   # Listen to file modifications (https://github.com/guard/listen)
   gem 'listen', '~> 3.3'
 
-  # Rails application preloader (https://github.com/rails/spring)
-  gem 'spring'
+  # Guard gem for RSpec (https://github.com/guard/guard-rspec)
+  gem 'guard-rspec', require: false
+end
+
+group :test do
+  # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
+  gem 'simplecov', require: false
 end
 
 group :production do

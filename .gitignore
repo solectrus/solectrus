@@ -33,3 +33,6 @@ yarn-debug.log*
 
 # dotenv
 .env
+
+# SimpleCoverage report
+/coverage/*

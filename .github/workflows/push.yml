@@ -17,6 +17,8 @@ jobs:
       DB_USER: postgres
       DB_PASSWORD: postgres
       RAILS_ENV: test
+      CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      DISABLE_SPRING: 1
 
     steps:
       - uses: actions/checkout@v2
@@ -58,6 +60,16 @@ jobs:
 
       - name: Install Yarn packages
         run: yarn install --frozen-lockfile
+
+      - name: Run Tests
+        run: |
+          bundle exec rails db:create
+          bundle exec rspec
+
+      - name: Send test coverage to CodeClimate
+        uses: paambaati/codeclimate-action@v2.7.5
+        with:
+          coverageCommand: true
 
   deploy:
     runs-on: ubuntu-20.04
