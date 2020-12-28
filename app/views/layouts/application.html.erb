@@ -11,8 +11,26 @@
   <%= javascript_pack_tag 'application' %>
 </head>
 
-<body class="bg-gray-200 font-sans p-5">
-  <%= yield %>
+<body class="flex flex-col h-screen bg-gray-200 font-sans">
+  <header class="py-5 text-center">
+    <h1 class="text-5xl font-medium">
+      SENEC
+    </h1>
+  </header>
+
+  <main class="flex-1 overflow-y-auto px-5">
+    <%= yield %>
+  </main>
+
+  <footer class="py-5 text-center text-xs bg-gray-300">
+    SOLECTRUS
+    <%= link_to 'https://github.com/solectrus/solectrus',
+                target: '_blank',
+                rel: 'noopener',
+                title: Rails.configuration.x.git.commit_time do %>
+    <code class="ml-1 text-gray-500"><%= Rails.configuration.x.git.commit_sha.first(8) %></code>
+    <% end %>
+  </footer>
 </body>
 
 </html>

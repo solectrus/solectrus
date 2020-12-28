@@ -39,5 +39,8 @@ module Solectrus
     # the I18n.default_locale when a translation cannot be found).
     config.i18n.available_locales = [ :en, :de ]
     config.i18n.default_locale = :de
+
+    config.x.git.commit_sha  = ENV.fetch('COMMIT_SHA') { `git rev-parse HEAD` }
+    config.x.git.commit_time = ENV.fetch('COMMIT_TIME') { `git show -s --format=%cD` }
   end
 end
