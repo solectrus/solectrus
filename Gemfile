@@ -6,6 +6,9 @@ ruby '2.7.2'
 # Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 6.1.0'
 
+# The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
+gem 'turbo-rails'
+
 # Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/] (https://github.com/ged/ruby-pg)
 gem 'pg', '~> 1.1'
 

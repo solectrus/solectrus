@@ -6,5 +6,6 @@
 import Rails from "@rails/ujs"
 import "channels"
 import "stylesheets/application.scss"
+import { Turbo, cable } from "@hotwired/turbo-rails"
 
 Rails.start()
