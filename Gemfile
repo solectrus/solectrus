@@ -30,6 +30,18 @@ group :development, :test do
 
   # Autoload dotenv in Rails. (https://github.com/bkeepers/dotenv)
   gem 'dotenv-rails'
+
+  # Automatic Ruby code style checking tool. (https://github.com/rubocop-hq/rubocop)
+  gem 'rubocop', require: false
+
+  # Automatic performance checking tool for Ruby code. (https://github.com/rubocop-hq/rubocop-performance)
+  gem 'rubocop-performance', require: false
+
+  # Automatic Rails code style checking tool. (https://github.com/rubocop-hq/rubocop-rails)
+  gem 'rubocop-rails', require: false
+
+  # Code style checking for RSpec files (https://github.com/rubocop-hq/rubocop-rspec)
+  gem 'rubocop-rspec', require: false
 end
 
 group :development do

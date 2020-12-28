@@ -40,6 +40,9 @@ jobs:
           bundle config set without 'production development'
           bundle install --jobs 4 --retry 3
 
+      - name: Lint with RuboCop
+        run: bundle exec rubocop --parallel
+
       - name: Get Yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"

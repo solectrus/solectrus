@@ -5,10 +5,10 @@ class Calculator
   def initialize(timeframe)
     raise ArgumentError unless timeframe.in?([:last24h])
 
-    @inverter_power   = TimeSeries.new('inverter_power').send(timeframe)
-    @house_power      = TimeSeries.new('house_power').send(timeframe)
-    @grid_power_plus  = TimeSeries.new('grid_power_plus').send(timeframe)
-    @grid_power_minus = TimeSeries.new('grid_power_minus').send(timeframe)
+    @inverter_power   = TimeSeries.new('inverter_power').public_send(timeframe)
+    @house_power      = TimeSeries.new('house_power').public_send(timeframe)
+    @grid_power_plus  = TimeSeries.new('grid_power_plus').public_send(timeframe)
+    @grid_power_minus = TimeSeries.new('grid_power_minus').public_send(timeframe)
   end
 
   attr_reader :inverter_power, :house_power, :grid_power_plus, :grid_power_minus
