@@ -5,7 +5,7 @@ module ApplicationHelper
       class: value.negative? ? %w[text-red-500] : %w[text-green-500]
     }
 
-    tag.span string, options
+    tag.span string, **options
   end
 
   def number_to_kwh(value)
