@@ -71,6 +71,12 @@ jobs:
         with:
           coverageCommand: true
 
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: Screenshots
+          path: tmp/screenshots
+
   deploy:
     runs-on: ubuntu-20.04
     if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'

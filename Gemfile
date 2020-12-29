@@ -71,8 +71,23 @@ group :development do
 end
 
 group :test do
+  # Capybara aims to simplify the process of integration testing Rack applications, such as Rails, Sinatra or Merb (https://github.com/teamcapybara/capybara)
+  gem 'capybara', '>= 3.26'
+
+  # The next generation developer focused tool for automated testing of webapps (https://github.com/SeleniumHQ/selenium)
+  gem 'selenium-webdriver'
+
+  # Easy download and use of browser drivers. (https://github.com/titusfortner/webdrivers)
+  gem 'webdrivers'
+
   # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
   gem 'simplecov', require: false
+
+  # Library for stubbing HTTP requests in Ruby. (http://github.com/bblimke/webmock)
+  gem 'webmock'
+
+  # Record your test suite's HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests. (https://relishapp.com/vcr/vcr/docs)
+  gem 'vcr'
 end
 
 group :production do
