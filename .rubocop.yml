@@ -137,3 +137,8 @@ Lint/NumberConversion:
 
 Performance/ChainArrayAllocation:
   Enabled: false
+
+# RSpec
+
+RSpec/MultipleExpectations:
+  Enabled: false

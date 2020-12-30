@@ -3,7 +3,7 @@ class Calculator
   COMPENSATION = 0.0832
 
   def initialize(timeframe)
-    raise ArgumentError unless timeframe.in?([:last24h])
+    raise ArgumentError unless timeframe.in?([:last24h, :current])
 
     result = TimeSeries.new(
       :inverter_power,

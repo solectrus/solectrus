@@ -1,7 +1,8 @@
 <div class="text-center p-5 text-gray-500">
-  <%= t('calculator.last24h') %>
+  <%= link_to t('calculator.current'), root_path(timeframe: 'current'), class: 'mx-3 underline' %>
+  <%= link_to t('calculator.last24h'), root_path(timeframe: 'last24h'), class: 'mx-3 underline' %>
 </div>
 
-<%= tag.turbo_frame id: 'cards', src: cards_path do %>
+<%= tag.turbo_frame id: 'cards', src: cards_path(timeframe: params[:timeframe]) do %>
 <%= tag.div render('loading'), class: 'm-20' %>
 <% end %>

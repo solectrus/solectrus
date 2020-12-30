@@ -11,4 +11,8 @@ module ApplicationHelper
   def number_to_kwh(value)
     "#{number_with_precision(value, precision: 3)} kWh"
   end
+
+  def number_to_kw(value)
+    "#{number_with_precision(value, precision: 3)} kW"
+  end
 end
