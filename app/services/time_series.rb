@@ -1,14 +1,14 @@
 class TimeSeries
-  def initialize(field)
-    @field = field
+  def initialize(*fields)
+    @fields = fields
   end
 
   def last24h
-    query <<-QUERY
-      from(bucket: "#{influx_bucket}")
-      |> range(start: -24h)
-      |> filter(fn: (r) => r["_measurement"] == "#{measurement}")
-      |> filter(fn: (r) => r["_field"] == "#{@field}")
+    result = query <<-QUERY
+      #{from_bucket}
+      |> #{range_since('24h')}
+      |> #{measurement_filter}
+      |> #{fields_filter}
       |> aggregateWindow(
            every: 1h,
            fn: (tables=<-, column) =>
@@ -18,13 +18,39 @@ class TimeSeries
          )
       |> sum()
     QUERY
+
+    result.values.each_with_object({}) do |table, hash|
+      record = table.records.first
+
+      hash[record.values['_field'].to_sym] = record.values['_value']
+      hash[:time] ||= Time.zone.parse record.values['_stop']
+    end
   end
 
   private
 
+  def from_bucket
+    "from(bucket: \"#{influx_bucket}\")"
+  end
+
+  def fields_filter
+    filter = @fields.map do |field|
+      "r[\"_field\"] == \"#{field}\""
+    end
+
+    "filter(fn: (r) => #{filter.join(' or ')})"
+  end
+
+  def measurement_filter
+    "filter(fn: (r) => r[\"_measurement\"] == \"#{measurement}\")"
+  end
+
+  def range_since(value)
+    "range(start: -#{value})"
+  end
+
   def query(string)
-    tables = client.create_query_api.query(query: string, org: influx_org)
-    tables.first.second.records.first.values['_value']
+    client.create_query_api.query(query: string, org: influx_org)
   end
 
   def client
