@@ -16,9 +16,10 @@ class Calculator
     @house_power      = result[:house_power]
     @grid_power_plus  = result[:grid_power_plus]
     @grid_power_minus = result[:grid_power_minus]
+    @time             = result[:time]
   end
 
-  attr_reader :inverter_power, :house_power, :grid_power_plus, :grid_power_minus
+  attr_reader :inverter_power, :house_power, :grid_power_plus, :grid_power_minus, :time
 
   def paid
     -(@grid_power_plus * RATE).round(2)
@@ -38,5 +39,9 @@ class Calculator
 
   def profit
     solar_price - traditional_price
+  end
+
+  def live?
+    time > 10.seconds.ago
   end
 end

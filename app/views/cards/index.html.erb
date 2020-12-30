@@ -11,4 +11,17 @@
   <%= render 'card', title: t('calculator.traditional_price'), value: number_to_eur(calculator.traditional_price) %>
   <%= render 'card', title: t('calculator.profit'),            value: number_to_eur(calculator.profit) %>
 </div>
+
+<div class="mt-10 text-center">
+  <% if calculator.live? %>
+  <span class="bg-gradient-to-r from-yellow-500 to-red-400 font-bold tracking-widest text-white rounded py-2 px-3">
+    LIVE
+  </span>
+  <% else %>
+  <span class="bg-gray-300 rounded py-2 px-3">
+    <%= t('calculator.time') %>
+    <%= time_ago_in_words 3.days.ago, include_seconds: true %>
+  </span>
+  <% end %>
+</div>
 <% end %>
