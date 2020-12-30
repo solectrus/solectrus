@@ -1,5 +1,6 @@
 de:
   calculator:
+    current: Jetzt
     last24h: Letzte 24 Stunden
     inverter_power: Stromerzeugung
     house_power: Hausverbrauch

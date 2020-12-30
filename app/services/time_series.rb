@@ -3,6 +3,23 @@ class TimeSeries
     @fields = fields
   end
 
+  def current
+    result = query <<-QUERY
+      #{from_bucket}
+      |> #{range_since('5m')}
+      |> #{measurement_filter}
+      |> #{fields_filter}
+      |> last()
+    QUERY
+
+    result.values.each_with_object({}) do |table, hash|
+      record = table.records.first
+
+      hash[record.values['_field'].to_sym] = record.values['_value'] / 1000.0
+      hash[:time] ||= Time.zone.parse record.values['_time']
+    end
+  end
+
   def last24h
     result = query <<-QUERY
       #{from_bucket}

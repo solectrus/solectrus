@@ -1,27 +1,4 @@
 <%= tag.turbo_frame id: 'cards' do %>
-<div class="max-w-2xl mx-auto grid sm:grid-cols-2 gap-5">
-  <%= render 'card', title: t('calculator.inverter_power'),   value: number_to_kwh(calculator.inverter_power) %>
-  <%= render 'card', title: t('calculator.house_power'),      value: number_to_kwh(calculator.house_power) %>
-  <%= render 'card', title: t('calculator.grid_power_plus'),  value: number_to_kwh(calculator.grid_power_plus),  extra: number_to_eur(calculator.paid) %>
-  <%= render 'card', title: t('calculator.grid_power_minus'), value: number_to_kwh(calculator.grid_power_minus), extra: number_to_eur(calculator.got) %>
-</div>
-
-<div class="mt-5 max-w-2xl mx-auto grid sm:grid-cols-3 gap-5">
-  <%= render 'card', title: t('calculator.solar_price'),       value: number_to_eur(calculator.solar_price) %>
-  <%= render 'card', title: t('calculator.traditional_price'), value: number_to_eur(calculator.traditional_price) %>
-  <%= render 'card', title: t('calculator.profit'),            value: number_to_eur(calculator.profit) %>
-</div>
-
-<div class="mt-10 text-center">
-  <% if calculator.live? %>
-  <span class="bg-gradient-to-r from-yellow-500 to-red-400 font-bold tracking-widest text-white rounded py-2 px-3">
-    LIVE
-  </span>
-  <% else %>
-  <span class="bg-gray-300 rounded py-2 px-3">
-    <%= t('calculator.time') %>
-    <%= time_ago_in_words 3.days.ago, include_seconds: true %>
-  </span>
-  <% end %>
-</div>
+<%= render partial: params[:timeframe] || 'current' %>
+<%= render partial: 'live_indicator' %>
 <% end %>

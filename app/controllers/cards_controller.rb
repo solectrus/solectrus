@@ -4,6 +4,6 @@ class CardsController < ApplicationController
   private
 
   helper_method def calculator
-    @calculator ||= Calculator.new(:last24h)
+    @calculator ||= Calculator.new((params[:timeframe] || 'current').to_sym)
   end
 end
