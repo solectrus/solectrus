@@ -5,4 +5,4 @@
 
 import "channels"
 import "stylesheets/application.scss"
-import { Turbo, cable } from "@hotwired/turbo-rails"
+import "@hotwired/turbo-rails"
