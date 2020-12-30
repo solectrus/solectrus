@@ -836,9 +836,9 @@
     purgecss "^3.1.3"
 
 "@hotwired/turbo-rails@^7.0.0-beta.1":
-  version "7.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@hotwired/turbo-rails/-/turbo-rails-7.0.0-beta.1.tgz#90399dd43616efee263b4c8391aa302559c3a17e"
-  integrity sha512-5Y8rq4PUAAk3+yiTFJxOEMQbrfo9cY5E9+nQYUifColm/GdX1IHV6rJvj0+ND/jdniTL6E3eaI5biBkVis57dA==
+  version "7.0.0-beta.2"
+  resolved "https://registry.yarnpkg.com/@hotwired/turbo-rails/-/turbo-rails-7.0.0-beta.2.tgz#f481a5979916311dc1c9d5502a2c5444b0d8d0aa"
+  integrity sha512-g79cjM+rW9zF73DsP0o3XAvXjvIj52B4FYXOL4gO48rWV+0P2sfrOvE04GlvN0C4FsWNbrd6zGDo5Dd7siQZQg==
   dependencies:
     "@hotwired/turbo" "^7.0.0-beta.1"
     "@rails/actioncable" "^6.1.0"
