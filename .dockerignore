@@ -1,6 +1,6 @@
 .byebug_history
 .dockerignore
-.env.example
+.env*
 .eslintignore
 .eslintrc.js
 .foreman
