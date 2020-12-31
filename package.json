@@ -5,6 +5,7 @@
     "@hotwired/turbo-rails": "^7.0.0-beta.2",
     "@rails/actioncable": "^6.0.0",
     "@rails/webpacker": "5.2.1",
+    "@tailwindcss/forms": "^0.2.1",
     "tailwindcss": "2.0.1-compat"
   },
   "version": "0.1.0",

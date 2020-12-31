@@ -11,14 +11,14 @@
   <%= javascript_pack_tag 'application' %>
 </head>
 
-<body class="flex flex-col h-screen bg-gray-200 font-sans">
+<body class="flex flex-col h-screen bg-gray-100 font-sans">
   <header class="p-5 text-center">
     <h1 class="text-4xl font-medium uppercase tracking-wider">
-      <%= link_to 'Solectrus', root_path %>
+      <%= link_to t('layout.photovoltaics'), root_path %>
     </h1>
   </header>
 
-  <main class="flex-1 overflow-y-auto p-5">
+  <main class="flex-1 overflow-y-auto px-5">
     <%= yield %>
   </main>
 

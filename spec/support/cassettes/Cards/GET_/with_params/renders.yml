@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 31 Dec 2020 04:36:52 GMT
+      - Thu, 31 Dec 2020 06:15:58 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -35,13 +35,13 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - fad5d9d51c34daf6
+      - b1efd828d069280c
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-26T04:36:52.934489794Z,2020-12-31T04:36:52.934489794Z,2020-12-31T04:36:49Z,0,inverter_power,SENEC\r\n,,1,2020-12-26T04:36:52.934489794Z,2020-12-31T04:36:52.934489794Z,2020-12-31T04:36:49Z,398,grid_power_plus,SENEC\r\n,,2,2020-12-26T04:36:52.934489794Z,2020-12-31T04:36:52.934489794Z,2020-12-31T04:36:49Z,0,grid_power_minus,SENEC\r\n,,3,2020-12-26T04:36:52.934489794Z,2020-12-31T04:36:52.934489794Z,2020-12-31T04:36:49Z,402,house_power,SENEC\r\n\r\n"
-  recorded_at: Thu, 31 Dec 2020 04:36:52 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-26T06:15:58.793092273Z,2020-12-31T06:15:58.793092273Z,2020-12-31T06:15:56Z,466,grid_power_plus,SENEC\r\n,,1,2020-12-26T06:15:58.793092273Z,2020-12-31T06:15:58.793092273Z,2020-12-31T06:15:56Z,0,grid_power_minus,SENEC\r\n,,2,2020-12-26T06:15:58.793092273Z,2020-12-31T06:15:58.793092273Z,2020-12-31T06:15:56Z,473,house_power,SENEC\r\n,,3,2020-12-26T06:15:58.793092273Z,2020-12-31T06:15:58.793092273Z,2020-12-31T06:15:56Z,0,inverter_power,SENEC\r\n\r\n"
+  recorded_at: Thu, 31 Dec 2020 06:15:58 GMT
 recorded_with: VCR 6.0.0

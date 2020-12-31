@@ -1,4 +1,4 @@
 <%= tag.turbo_frame id: 'cards' do %>
-<%= render partial: params[:timeframe] || 'current' %>
-<%= render partial: 'live_indicator' %>
+<%= render timeframe %>
+<%= render 'live_indicator' %>
 <% end %>
