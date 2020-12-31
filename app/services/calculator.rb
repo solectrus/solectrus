@@ -42,6 +42,6 @@ class Calculator
   end
 
   def live?
-    time > 10.seconds.ago
+    time && time > 10.seconds.ago
   end
 end

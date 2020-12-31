@@ -6,7 +6,7 @@ class TimeSeries
   def current
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range_since('5m')}
+      |> #{range_since('5d')}
       |> #{measurement_filter}
       |> #{fields_filter}
       |> last()
@@ -31,7 +31,7 @@ class TimeSeries
            fn: (tables=<-, column) =>
              tables
                |> integral(unit: 1h)
-               |> map(fn: (r) => ({ r with _value: r._value / 1000.0 }))
+               |> map(fn: (r) => ({ r with _value: r._value }))
          )
       |> sum()
     QUERY
@@ -39,7 +39,7 @@ class TimeSeries
     result.values.each_with_object({}) do |table, hash|
       record = table.records.first
 
-      hash[record.values['_field'].to_sym] = record.values['_value']
+      hash[record.values['_field'].to_sym] = record.values['_value'] / 1000.0
       hash[:time] ||= Time.zone.parse record.values['_stop']
     end
   end
@@ -71,13 +71,11 @@ class TimeSeries
   end
 
   def client
-    @client ||= begin
-      InfluxDB2::Client.new(
-        influx_host,
-        influx_token,
-        precision: InfluxDB2::WritePrecision::SECOND
-      )
-    end
+    InfluxDB2::Client.new(
+      influx_host,
+      influx_token,
+      precision: InfluxDB2::WritePrecision::SECOND
+    )
   end
 
   def influx_token
