@@ -4,9 +4,9 @@
     LIVE
   </span>
   <% else %>
-  <span class="bg-gray-300 rounded py-2 px-3">
-    <%= t('calculator.time') %>
-    <%= time_ago_in_words 3.days.ago, include_seconds: true %>
-  </span>
+  <%= tag.span class: 'bg-gray-700 text-gray-100 rounded py-2 px-3', title: l(calculator.time) do %>
+  <%= t('calculator.time') %>
+  <%= time_ago_in_words calculator.time, include_seconds: true %>
+  <% end %>
   <% end %>
 </div>

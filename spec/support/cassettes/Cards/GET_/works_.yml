@@ -6,7 +6,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
-        -5m)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
+        -5d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
         filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
         == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
         == \"grid_power_minus\")\n      |\u003e last()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 30 Dec 2020 16:58:43 GMT
+      - Thu, 31 Dec 2020 04:36:52 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -35,13 +35,13 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - f7bb049e6881e75e
+      - fad5d9d51c34daf6
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-30T16:53:43.749631424Z,2020-12-30T16:58:43.749631424Z,2020-12-30T16:58:43Z,0,inverter_power,SENEC\r\n,,1,2020-12-30T16:53:43.749631424Z,2020-12-30T16:58:43.749631424Z,2020-12-30T16:58:43Z,454,grid_power_plus,SENEC\r\n,,2,2020-12-30T16:53:43.749631424Z,2020-12-30T16:58:43.749631424Z,2020-12-30T16:58:43Z,464,house_power,SENEC\r\n,,3,2020-12-30T16:53:43.749631424Z,2020-12-30T16:58:43.749631424Z,2020-12-30T16:58:43Z,0,grid_power_minus,SENEC\r\n\r\n"
-  recorded_at: Wed, 30 Dec 2020 16:58:43 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-26T04:36:52.934489794Z,2020-12-31T04:36:52.934489794Z,2020-12-31T04:36:49Z,0,inverter_power,SENEC\r\n,,1,2020-12-26T04:36:52.934489794Z,2020-12-31T04:36:52.934489794Z,2020-12-31T04:36:49Z,398,grid_power_plus,SENEC\r\n,,2,2020-12-26T04:36:52.934489794Z,2020-12-31T04:36:52.934489794Z,2020-12-31T04:36:49Z,0,grid_power_minus,SENEC\r\n,,3,2020-12-26T04:36:52.934489794Z,2020-12-31T04:36:52.934489794Z,2020-12-31T04:36:49Z,402,house_power,SENEC\r\n\r\n"
+  recorded_at: Thu, 31 Dec 2020 04:36:52 GMT
 recorded_with: VCR 6.0.0

@@ -6,7 +6,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
-        -5m)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
+        -5d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
         filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
         == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
         == \"grid_power_minus\")\n      |\u003e last()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 30 Dec 2020 16:58:45 GMT
+      - Thu, 31 Dec 2020 04:36:54 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -35,13 +35,104 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - ad2bc274487c18f6
+      - 57e483a4ceabf6d8
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-30T16:53:45.172155454Z,2020-12-30T16:58:45.172155454Z,2020-12-30T16:58:43Z,0,inverter_power,SENEC\r\n,,1,2020-12-30T16:53:45.172155454Z,2020-12-30T16:58:45.172155454Z,2020-12-30T16:58:43Z,0,grid_power_minus,SENEC\r\n,,2,2020-12-30T16:53:45.172155454Z,2020-12-30T16:58:45.172155454Z,2020-12-30T16:58:43Z,454,grid_power_plus,SENEC\r\n,,3,2020-12-30T16:53:45.172155454Z,2020-12-30T16:58:45.172155454Z,2020-12-30T16:58:43Z,464,house_power,SENEC\r\n\r\n"
-  recorded_at: Wed, 30 Dec 2020 16:58:45 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-26T04:36:54.662735265Z,2020-12-31T04:36:54.662735265Z,2020-12-31T04:36:49Z,398,grid_power_plus,SENEC\r\n,,1,2020-12-26T04:36:54.662735265Z,2020-12-31T04:36:54.662735265Z,2020-12-31T04:36:49Z,402,house_power,SENEC\r\n,,2,2020-12-26T04:36:54.662735265Z,2020-12-31T04:36:54.662735265Z,2020-12-31T04:36:49Z,0,grid_power_minus,SENEC\r\n,,3,2020-12-26T04:36:54.662735265Z,2020-12-31T04:36:54.662735265Z,2020-12-31T04:36:49Z,0,inverter_power,SENEC\r\n\r\n"
+  recorded_at: Thu, 31 Dec 2020 04:36:54 GMT
+- request:
+    method: post
+    uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
+    body:
+      encoding: UTF-8
+      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
+        -5d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
+        filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
+        == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
+        == \"grid_power_minus\")\n      |\u003e last()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - influxdb-client-ruby/1.10.0
+      Authorization:
+      - Token <INFLUX_TOKEN>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Dec 2020 04:36:54 GMT
+      Content-Type:
+      - text/csv; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Trace-Id:
+      - c831191f6bdb41dd
+      Vary:
+      - Accept-Encoding
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+    body:
+      encoding: UTF-8
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-26T04:36:54.834595944Z,2020-12-31T04:36:54.834595944Z,2020-12-31T04:36:49Z,398,grid_power_plus,SENEC\r\n,,1,2020-12-26T04:36:54.834595944Z,2020-12-31T04:36:54.834595944Z,2020-12-31T04:36:49Z,0,inverter_power,SENEC\r\n,,2,2020-12-26T04:36:54.834595944Z,2020-12-31T04:36:54.834595944Z,2020-12-31T04:36:49Z,402,house_power,SENEC\r\n,,3,2020-12-26T04:36:54.834595944Z,2020-12-31T04:36:54.834595944Z,2020-12-31T04:36:49Z,0,grid_power_minus,SENEC\r\n\r\n"
+  recorded_at: Thu, 31 Dec 2020 04:36:54 GMT
+- request:
+    method: post
+    uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
+    body:
+      encoding: UTF-8
+      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
+        -24h)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
+        filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
+        == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
+        == \"grid_power_minus\")\n      |\u003e aggregateWindow(\n           every:
+        1h,\n           fn: (tables=\u003c-, column) =\u003e\n             tables\n               |\u003e
+        integral(unit: 1h)\n               |\u003e map(fn: (r) =\u003e ({ r with _value:
+        r._value }))\n         )\n      |\u003e sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - influxdb-client-ruby/1.10.0
+      Authorization:
+      - Token <INFLUX_TOKEN>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Dec 2020 04:36:56 GMT
+      Content-Type:
+      - text/csv; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Trace-Id:
+      - bbd637523decde9a
+      Vary:
+      - Accept-Encoding
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+    body:
+      encoding: UTF-8
+      string: "#datatype,string,long,string,string,dateTime:RFC3339,dateTime:RFC3339,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_field,_measurement,_start,_stop,_value\r\n,,0,grid_power_minus,SENEC,2020-12-30T04:36:55.810417379Z,2020-12-31T04:36:55.810417379Z,333.61361111111114\r\n,,1,grid_power_plus,SENEC,2020-12-30T04:36:55.810417379Z,2020-12-31T04:36:55.810417379Z,8111.187777777777\r\n,,2,house_power,SENEC,2020-12-30T04:36:55.810417379Z,2020-12-31T04:36:55.810417379Z,13810.082916666666\r\n,,3,inverter_power,SENEC,2020-12-30T04:36:55.810417379Z,2020-12-31T04:36:55.810417379Z,5872.659444444445\r\n\r\n"
+  recorded_at: Thu, 31 Dec 2020 04:36:56 GMT
 recorded_with: VCR 6.0.0
