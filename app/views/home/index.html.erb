@@ -1,8 +1,12 @@
-<div class="text-center p-5 text-gray-500">
-  <%= link_to t('calculator.current'), root_path(timeframe: 'current'), class: 'mx-3 underline' %>
-  <%= link_to t('calculator.last24h'), root_path(timeframe: 'last24h'), class: 'mx-3 underline' %>
+<div class="flex justify-center">
+  <%= render 'shared/nav', items: [
+    [ t('calculator.current'), root_path(timeframe: 'current') ],
+    [ t('calculator.last24h'), root_path(timeframe: 'last24h') ]
+  ] %>
 </div>
 
-<%= tag.turbo_frame id: 'cards', src: cards_path(timeframe: params[:timeframe]) do %>
-<%= tag.div render('loading'), class: 'm-20' %>
-<% end %>
+<div class="mt-5">
+  <%= tag.turbo_frame id: 'cards', src: cards_path(timeframe: timeframe) do %>
+  <%= tag.div render('shared/loading'), class: 'm-20' %>
+  <% end %>
+</div>

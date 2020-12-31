@@ -1,4 +1,6 @@
 de:
+  layout:
+    photovoltaics: Photovoltaik
   calculator:
     current: Jetzt
     last24h: Letzte 24 Stunden

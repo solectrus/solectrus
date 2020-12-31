@@ -1,0 +1,26 @@
+<div>
+  <div class="sm:hidden">
+    <label for="tabs" class="sr-only">Select a tab</label>
+    <select id="tabs" name="tabs" class="block w-full focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md" onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);">
+      <% items.each do |item| %>
+      <%= tag.option item.first, value: item.second, selected: current_page?(item.second) %>
+      <% end %>
+    </select>
+  </div>
+
+  <div class="hidden sm:block">
+    <nav class="flex space-x-4" aria-label="Tabs">
+      <% items.each do |item| %>
+      <% if current_page?(item.second) %>
+      <a href="<%= item.second %>" class="bg-gray-200 text-gray-800 px-3 py-2 font-medium text-sm rounded-md" aria-current="page">
+        <%= item.first %>
+      </a>
+      <% else %>
+      <a href="<%= item.second %>" class="text-gray-600 hover:text-gray-800 px-3 py-2 font-medium text-sm rounded-md">
+        <%= item.first %>
+      </a>
+      <% end %>
+      <% end %>
+    </nav>
+  </div>
+</div>
