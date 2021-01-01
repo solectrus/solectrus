@@ -1,6 +1,14 @@
 class StatsController < ApplicationController
   def index
     redirect_to root_path(timeframe: 'current') unless timeframe
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace('stats', partial: timeframe == 'current' ? 'current' : 'last') +
+                             turbo_stream.replace('live', partial: 'live_indicator')
+      end
+      format.html
+    end
   end
 
   private
