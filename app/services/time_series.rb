@@ -26,13 +26,7 @@ class TimeSeries
       |> #{range_since('24h')}
       |> #{measurement_filter}
       |> #{fields_filter}
-      |> aggregateWindow(
-           every: 1h,
-           fn: (tables=<-, column) =>
-             tables
-               |> integral(unit: 1h)
-               |> map(fn: (r) => ({ r with _value: r._value }))
-         )
+      |> aggregateWindow(every: 1h, fn: mean)
       |> sum()
     QUERY
 
