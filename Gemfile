@@ -15,6 +15,9 @@ gem 'pg', '~> 1.1'
 # Puma is a simple, fast, threaded, and highly concurrent HTTP 1.1 server for Ruby/Rack applications (https://puma.io)
 gem 'puma', '~> 5.0'
 
+# A Ruby client library for Redis (https://github.com/redis/redis-rb)
+gem 'redis'
+
 # Use webpack to manage app-like JavaScript modules in Rails (https://github.com/rails/webpacker)
 gem 'webpacker', '~> 5.0'
 
