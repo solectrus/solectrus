@@ -10,6 +10,9 @@ de:
     house_power: Hausverbrauch
     grid_power_plus: Netzbezug
     grid_power_minus: Einspeisung
+    bat_power_minus: Akku-Entnahme
+    bat_power_plus: Akku-Beladung
+    bat_fuel_charge: Akku-Füllstand
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     profit: Gewinn

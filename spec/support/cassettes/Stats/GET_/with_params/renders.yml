@@ -9,7 +9,9 @@ http_interactions:
         -5d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
         filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
         == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
-        == \"grid_power_minus\")\n      |\u003e last()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+        == \"grid_power_minus\" or r[\"_field\"] == \"bat_fuel_charge\" or r[\"_field\"]
+        == \"bat_power_minus\" or r[\"_field\"] == \"bat_power_plus\")\n      |\u003e
+        last()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -27,7 +29,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 01 Jan 2021 11:27:51 GMT
+      - Fri, 01 Jan 2021 16:51:52 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -35,13 +37,13 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - cdac6b15c5798d2d
+      - 357677869e6f9dac
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
-      encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T11:27:51.964407293Z,2021-01-01T11:27:51.964407293Z,2021-01-01T11:27:51Z,1228,inverter_power,SENEC\r\n,,1,2020-12-27T11:27:51.964407293Z,2021-01-01T11:27:51.964407293Z,2021-01-01T11:27:51Z,32,grid_power_minus,SENEC\r\n,,2,2020-12-27T11:27:51.964407293Z,2021-01-01T11:27:51.964407293Z,2021-01-01T11:27:51Z,0,grid_power_plus,SENEC\r\n,,3,2020-12-27T11:27:51.964407293Z,2021-01-01T11:27:51.964407293Z,2021-01-01T11:27:51Z,483,house_power,SENEC\r\n\r\n"
-  recorded_at: Fri, 01 Jan 2021 11:27:51 GMT
+      encoding: ASCII-8BIT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,0,inverter_power,SENEC\r\n,,1,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,0,grid_power_plus,SENEC\r\n,,2,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,585,bat_power_minus,SENEC\r\n,,3,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,0,bat_power_plus,SENEC\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,4,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,51.5,bat_fuel_charge,SENEC\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,5,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,18,grid_power_minus,SENEC\r\n,,6,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,567,house_power,SENEC\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 16:51:52 GMT
 recorded_with: VCR 6.0.0
