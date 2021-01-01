@@ -1,0 +1,30 @@
+doctype html
+html
+  head
+    title Solectrus
+    meta[name="viewport" content="width=device-width,initial-scale=1"]
+
+    = csrf_meta_tags
+    = csp_meta_tag
+
+    = stylesheet_pack_tag 'application', media: 'all'
+    = javascript_pack_tag 'application'
+
+    = yield :head
+
+  body.flex.flex-col.h-screen.bg-gray-100.font-sans
+    header.p-5.text-center
+      h1.text-4xl.font-medium.uppercase.tracking-wider
+        = link_to t('layout.photovoltaics'), root_path
+
+    main.flex-1.overflow-y-auto.px-5
+      = yield
+
+    footer.py-5.text-center.text-xs.bg-gray-300
+      | SOLECTRUS
+      = link_to 'https://github.com/solectrus/solectrus',
+                target: '_blank',
+                rel: 'noopener',
+                title: Rails.configuration.x.git.commit_time do
+        code.ml-1.text-gray-500
+          = Rails.configuration.x.git.commit_sha.first(8)

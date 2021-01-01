@@ -45,6 +45,9 @@ jobs:
       - name: Lint with RuboCop
         run: bundle exec rubocop --parallel
 
+      - name: Lint with SlimLint
+        run: bundle exec slim-lint .
+
       - name: Get Yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
