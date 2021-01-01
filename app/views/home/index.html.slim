@@ -4,7 +4,9 @@
   = render 'shared/nav',
            items: [ \
              [ t('calculator.current'), root_path(timeframe: 'current') ],
-             [ t('calculator.last24h'), root_path(timeframe: 'last24h') ] \
+             [ t('calculator.last24h'), root_path(timeframe: 'last24h') ],
+             [ t('calculator.last7d'), root_path(timeframe: 'last7d') ],
+             [ t('calculator.last30d'), root_path(timeframe: 'last30d') ] \
            ]
 
 .mt-5
