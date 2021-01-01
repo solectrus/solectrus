@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 31 Dec 2020 06:16:00 GMT
+      - Fri, 01 Jan 2021 06:28:30 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -35,15 +35,15 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - d9f69c187b84ab4
+      - 6b6f2d5d94e024cd
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-26T06:16:00.244448632Z,2020-12-31T06:16:00.244448632Z,2020-12-31T06:15:56Z,466,grid_power_plus,SENEC\r\n,,1,2020-12-26T06:16:00.244448632Z,2020-12-31T06:16:00.244448632Z,2020-12-31T06:15:56Z,0,inverter_power,SENEC\r\n,,2,2020-12-26T06:16:00.244448632Z,2020-12-31T06:16:00.244448632Z,2020-12-31T06:15:56Z,0,grid_power_minus,SENEC\r\n,,3,2020-12-26T06:16:00.244448632Z,2020-12-31T06:16:00.244448632Z,2020-12-31T06:15:56Z,473,house_power,SENEC\r\n\r\n"
-  recorded_at: Thu, 31 Dec 2020 06:16:00 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T06:28:30.43575496Z,2021-01-01T06:28:30.43575496Z,2021-01-01T06:28:27Z,0,inverter_power,SENEC\r\n,,1,2020-12-27T06:28:30.43575496Z,2021-01-01T06:28:30.43575496Z,2021-01-01T06:28:27Z,360,grid_power_plus,SENEC\r\n,,2,2020-12-27T06:28:30.43575496Z,2021-01-01T06:28:30.43575496Z,2021-01-01T06:28:27Z,0,grid_power_minus,SENEC\r\n,,3,2020-12-27T06:28:30.43575496Z,2021-01-01T06:28:30.43575496Z,2021-01-01T06:28:27Z,367,house_power,SENEC\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 06:28:30 GMT
 - request:
     method: post
     uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
@@ -71,7 +71,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 31 Dec 2020 06:16:00 GMT
+      - Fri, 01 Jan 2021 06:28:30 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -79,15 +79,15 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - 3bb6beed9df630a7
+      - 876397a6ffe46e03
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-26T06:16:00.413814602Z,2020-12-31T06:16:00.413814602Z,2020-12-31T06:15:56Z,0,grid_power_minus,SENEC\r\n,,1,2020-12-26T06:16:00.413814602Z,2020-12-31T06:16:00.413814602Z,2020-12-31T06:15:56Z,0,inverter_power,SENEC\r\n,,2,2020-12-26T06:16:00.413814602Z,2020-12-31T06:16:00.413814602Z,2020-12-31T06:15:56Z,473,house_power,SENEC\r\n,,3,2020-12-26T06:16:00.413814602Z,2020-12-31T06:16:00.413814602Z,2020-12-31T06:15:56Z,466,grid_power_plus,SENEC\r\n\r\n"
-  recorded_at: Thu, 31 Dec 2020 06:16:00 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T06:28:30.573221639Z,2021-01-01T06:28:30.573221639Z,2021-01-01T06:28:27Z,0,inverter_power,SENEC\r\n,,1,2020-12-27T06:28:30.573221639Z,2021-01-01T06:28:30.573221639Z,2021-01-01T06:28:27Z,0,grid_power_minus,SENEC\r\n,,2,2020-12-27T06:28:30.573221639Z,2021-01-01T06:28:30.573221639Z,2021-01-01T06:28:27Z,360,grid_power_plus,SENEC\r\n,,3,2020-12-27T06:28:30.573221639Z,2021-01-01T06:28:30.573221639Z,2021-01-01T06:28:27Z,367,house_power,SENEC\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 06:28:30 GMT
 - request:
     method: post
     uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
@@ -118,7 +118,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 31 Dec 2020 06:16:01 GMT
+      - Fri, 01 Jan 2021 06:28:31 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -126,13 +126,13 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - 5006eb07180fa9e1
+      - bb7758ba8dfc3280
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,string,string,dateTime:RFC3339,dateTime:RFC3339,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_field,_measurement,_start,_stop,_value\r\n,,0,grid_power_minus,SENEC,2020-12-30T06:16:01.420808547Z,2020-12-31T06:16:01.420808547Z,307.0997222222223\r\n,,1,grid_power_plus,SENEC,2020-12-30T06:16:01.420808547Z,2020-12-31T06:16:01.420808547Z,8656.611944444443\r\n,,2,house_power,SENEC,2020-12-30T06:16:01.420808547Z,2020-12-31T06:16:01.420808547Z,14034.200972222223\r\n,,3,inverter_power,SENEC,2020-12-30T06:16:01.420808547Z,2020-12-31T06:16:01.420808547Z,5872.82013888889\r\n\r\n"
-  recorded_at: Thu, 31 Dec 2020 06:16:01 GMT
+      string: "#datatype,string,long,string,string,dateTime:RFC3339,dateTime:RFC3339,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_field,_measurement,_start,_stop,_value\r\n,,0,grid_power_minus,SENEC,2020-12-31T06:28:31.433648646Z,2021-01-01T06:28:31.433648646Z,255.59583333333327\r\n,,1,grid_power_plus,SENEC,2020-12-31T06:28:31.433648646Z,2021-01-01T06:28:31.433648646Z,8278.094722222226\r\n,,2,house_power,SENEC,2020-12-31T06:28:31.433648646Z,2021-01-01T06:28:31.433648646Z,11197.126805555556\r\n,,3,inverter_power,SENEC,2020-12-31T06:28:31.433648646Z,2021-01-01T06:28:31.433648646Z,3112.3522222222223\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 06:28:31 GMT
 recorded_with: VCR 6.0.0

@@ -1,4 +1,4 @@
-class CardsController < ApplicationController
+class StatsController < ApplicationController
   def index
     redirect_to root_path(timeframe: 'current') unless timeframe
   end
