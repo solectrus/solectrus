@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 01 Jan 2021 06:28:30 GMT
+      - Fri, 01 Jan 2021 11:27:53 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -35,15 +35,15 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - 6b6f2d5d94e024cd
+      - c7968b6486b281d3
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T06:28:30.43575496Z,2021-01-01T06:28:30.43575496Z,2021-01-01T06:28:27Z,0,inverter_power,SENEC\r\n,,1,2020-12-27T06:28:30.43575496Z,2021-01-01T06:28:30.43575496Z,2021-01-01T06:28:27Z,360,grid_power_plus,SENEC\r\n,,2,2020-12-27T06:28:30.43575496Z,2021-01-01T06:28:30.43575496Z,2021-01-01T06:28:27Z,0,grid_power_minus,SENEC\r\n,,3,2020-12-27T06:28:30.43575496Z,2021-01-01T06:28:30.43575496Z,2021-01-01T06:28:27Z,367,house_power,SENEC\r\n\r\n"
-  recorded_at: Fri, 01 Jan 2021 06:28:30 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T11:27:53.462703446Z,2021-01-01T11:27:53.462703446Z,2021-01-01T11:27:51Z,1228,inverter_power,SENEC\r\n,,1,2020-12-27T11:27:53.462703446Z,2021-01-01T11:27:53.462703446Z,2021-01-01T11:27:51Z,32,grid_power_minus,SENEC\r\n,,2,2020-12-27T11:27:53.462703446Z,2021-01-01T11:27:53.462703446Z,2021-01-01T11:27:51Z,0,grid_power_plus,SENEC\r\n,,3,2020-12-27T11:27:53.462703446Z,2021-01-01T11:27:53.462703446Z,2021-01-01T11:27:51Z,483,house_power,SENEC\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 11:27:53 GMT
 - request:
     method: post
     uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
@@ -71,7 +71,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 01 Jan 2021 06:28:30 GMT
+      - Fri, 01 Jan 2021 11:27:53 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -79,15 +79,15 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - 876397a6ffe46e03
+      - ebf955bf7ba6e42a
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T06:28:30.573221639Z,2021-01-01T06:28:30.573221639Z,2021-01-01T06:28:27Z,0,inverter_power,SENEC\r\n,,1,2020-12-27T06:28:30.573221639Z,2021-01-01T06:28:30.573221639Z,2021-01-01T06:28:27Z,0,grid_power_minus,SENEC\r\n,,2,2020-12-27T06:28:30.573221639Z,2021-01-01T06:28:30.573221639Z,2021-01-01T06:28:27Z,360,grid_power_plus,SENEC\r\n,,3,2020-12-27T06:28:30.573221639Z,2021-01-01T06:28:30.573221639Z,2021-01-01T06:28:27Z,367,house_power,SENEC\r\n\r\n"
-  recorded_at: Fri, 01 Jan 2021 06:28:30 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T11:27:53.607295483Z,2021-01-01T11:27:53.607295483Z,2021-01-01T11:27:51Z,1228,inverter_power,SENEC\r\n,,1,2020-12-27T11:27:53.607295483Z,2021-01-01T11:27:53.607295483Z,2021-01-01T11:27:51Z,32,grid_power_minus,SENEC\r\n,,2,2020-12-27T11:27:53.607295483Z,2021-01-01T11:27:53.607295483Z,2021-01-01T11:27:51Z,0,grid_power_plus,SENEC\r\n,,3,2020-12-27T11:27:53.607295483Z,2021-01-01T11:27:53.607295483Z,2021-01-01T11:27:51Z,483,house_power,SENEC\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 11:27:53 GMT
 - request:
     method: post
     uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
@@ -97,10 +97,8 @@ http_interactions:
         -24h)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
         filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
         == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
-        == \"grid_power_minus\")\n      |\u003e aggregateWindow(\n           every:
-        1h,\n           fn: (tables=\u003c-, column) =\u003e\n             tables\n               |\u003e
-        integral(unit: 1h)\n               |\u003e map(fn: (r) =\u003e ({ r with _value:
-        r._value }))\n         )\n      |\u003e sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+        == \"grid_power_minus\")\n      |\u003e aggregateWindow(every: 1h, fn: mean)\n      |\u003e
+        sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -118,7 +116,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 01 Jan 2021 06:28:31 GMT
+      - Fri, 01 Jan 2021 11:27:54 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -126,13 +124,103 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - bb7758ba8dfc3280
+      - 12b252c6f5041047
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,string,string,dateTime:RFC3339,dateTime:RFC3339,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_field,_measurement,_start,_stop,_value\r\n,,0,grid_power_minus,SENEC,2020-12-31T06:28:31.433648646Z,2021-01-01T06:28:31.433648646Z,255.59583333333327\r\n,,1,grid_power_plus,SENEC,2020-12-31T06:28:31.433648646Z,2021-01-01T06:28:31.433648646Z,8278.094722222226\r\n,,2,house_power,SENEC,2020-12-31T06:28:31.433648646Z,2021-01-01T06:28:31.433648646Z,11197.126805555556\r\n,,3,inverter_power,SENEC,2020-12-31T06:28:31.433648646Z,2021-01-01T06:28:31.433648646Z,3112.3522222222223\r\n\r\n"
-  recorded_at: Fri, 01 Jan 2021 06:28:31 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,2020-12-31T11:27:54.496530361Z,2021-01-01T11:27:54.496530361Z,grid_power_minus,SENEC,315.87683039154285\r\n,,1,2020-12-31T11:27:54.496530361Z,2021-01-01T11:27:54.496530361Z,grid_power_plus,SENEC,7716.836638738829\r\n,,2,2020-12-31T11:27:54.496530361Z,2021-01-01T11:27:54.496530361Z,house_power,SENEC,11573.857521546299\r\n,,3,2020-12-31T11:27:54.496530361Z,2021-01-01T11:27:54.496530361Z,inverter_power,SENEC,4907.88173878623\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 11:27:54 GMT
+- request:
+    method: post
+    uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
+    body:
+      encoding: UTF-8
+      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
+        -7d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
+        filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
+        == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
+        == \"grid_power_minus\")\n      |\u003e aggregateWindow(every: 1h, fn: mean)\n      |\u003e
+        sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - influxdb-client-ruby/1.10.0
+      Authorization:
+      - Token <INFLUX_TOKEN>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 01 Jan 2021 11:27:55 GMT
+      Content-Type:
+      - text/csv; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Trace-Id:
+      - 3b60bf1d31cfd95
+      Vary:
+      - Accept-Encoding
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+    body:
+      encoding: UTF-8
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,2020-12-25T11:27:55.318312Z,2021-01-01T11:27:55.318312Z,grid_power_minus,SENEC,9842.96449314847\r\n,,1,2020-12-25T11:27:55.318312Z,2021-01-01T11:27:55.318312Z,grid_power_plus,SENEC,34944.85676028246\r\n,,2,2020-12-25T11:27:55.318312Z,2021-01-01T11:27:55.318312Z,house_power,SENEC,83810.06499504419\r\n,,3,2020-12-25T11:27:55.318312Z,2021-01-01T11:27:55.318312Z,inverter_power,SENEC,60062.960844399124\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 11:27:55 GMT
+- request:
+    method: post
+    uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
+    body:
+      encoding: UTF-8
+      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
+        -30d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
+        filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
+        == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
+        == \"grid_power_minus\")\n      |\u003e aggregateWindow(every: 1h, fn: mean)\n      |\u003e
+        sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - influxdb-client-ruby/1.10.0
+      Authorization:
+      - Token <INFLUX_TOKEN>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 01 Jan 2021 11:27:55 GMT
+      Content-Type:
+      - text/csv; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Trace-Id:
+      - 9135579071cd6b56
+      Vary:
+      - Accept-Encoding
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+    body:
+      encoding: ASCII-8BIT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,2020-12-02T11:27:55.430014978Z,2021-01-01T11:27:55.430014978Z,grid_power_minus,SENEC,11753.955281070064\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,string,double\r\n#group,false,false,true,true,true,true,true,false\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,location,_value\r\n,,1,2020-12-02T11:27:55.430014978Z,2021-01-01T11:27:55.430014978Z,grid_power_minus,SENEC,w15,630.2131024244643\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,2,2020-12-02T11:27:55.430014978Z,2021-01-01T11:27:55.430014978Z,grid_power_plus,SENEC,71473.27284016728\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,string,double\r\n#group,false,false,true,true,true,true,true,false\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,location,_value\r\n,,3,2020-12-02T11:27:55.430014978Z,2021-01-01T11:27:55.430014978Z,grid_power_plus,SENEC,w15,37.85032680288798\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,4,2020-12-02T11:27:55.430014978Z,2021-01-01T11:27:55.430014978Z,house_power,SENEC,144332.64967788197\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,string,double\r\n#group,false,false,true,true,true,true,true,false\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,location,_value\r\n,,5,2020-12-02T11:27:55.430014978Z,2021-01-01T11:27:55.430014978Z,house_power,SENEC,w15,3698.172504637718\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,6,2020-12-02T11:27:55.430014978Z,2021-01-01T11:27:55.430014978Z,inverter_power,SENEC,84989.64478754494\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,string,double\r\n#group,false,false,true,true,true,true,true,false\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,location,_value\r\n,,7,2020-12-02T11:27:55.430014978Z,2021-01-01T11:27:55.430014978Z,inverter_power,SENEC,w15,7892.2990209881345\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 11:27:55 GMT
 recorded_with: VCR 6.0.0

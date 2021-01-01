@@ -21,9 +21,23 @@ class TimeSeries
   end
 
   def last24h
+    last('24h')
+  end
+
+  def last7d
+    last('7d')
+  end
+
+  def last30d
+    last('30d')
+  end
+
+  private
+
+  def last(timeframe)
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range_since('24h')}
+      |> #{range_since(timeframe)}
       |> #{measurement_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
@@ -37,8 +51,6 @@ class TimeSeries
       hash[:time] ||= Time.zone.parse record.values['_stop']
     end
   end
-
-  private
 
   def from_bucket
     "from(bucket: \"#{influx_bucket}\")"

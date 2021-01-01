@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 01 Jan 2021 06:28:29 GMT
+      - Fri, 01 Jan 2021 11:27:51 GMT
       Content-Type:
       - text/csv; charset=utf-8
       Transfer-Encoding:
@@ -35,13 +35,13 @@ http_interactions:
       Connection:
       - keep-alive
       Trace-Id:
-      - 4d77b94bad8e0471
+      - cdac6b15c5798d2d
       Vary:
       - Accept-Encoding
       Strict-Transport-Security:
       - max-age=15724800; includeSubDomains
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T06:28:29.077770477Z,2021-01-01T06:28:29.077770477Z,2021-01-01T06:28:27Z,0,inverter_power,SENEC\r\n,,1,2020-12-27T06:28:29.077770477Z,2021-01-01T06:28:29.077770477Z,2021-01-01T06:28:27Z,367,house_power,SENEC\r\n,,2,2020-12-27T06:28:29.077770477Z,2021-01-01T06:28:29.077770477Z,2021-01-01T06:28:27Z,360,grid_power_plus,SENEC\r\n,,3,2020-12-27T06:28:29.077770477Z,2021-01-01T06:28:29.077770477Z,2021-01-01T06:28:27Z,0,grid_power_minus,SENEC\r\n\r\n"
-  recorded_at: Fri, 01 Jan 2021 06:28:29 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T11:27:51.964407293Z,2021-01-01T11:27:51.964407293Z,2021-01-01T11:27:51Z,1228,inverter_power,SENEC\r\n,,1,2020-12-27T11:27:51.964407293Z,2021-01-01T11:27:51.964407293Z,2021-01-01T11:27:51Z,32,grid_power_minus,SENEC\r\n,,2,2020-12-27T11:27:51.964407293Z,2021-01-01T11:27:51.964407293Z,2021-01-01T11:27:51Z,0,grid_power_plus,SENEC\r\n,,3,2020-12-27T11:27:51.964407293Z,2021-01-01T11:27:51.964407293Z,2021-01-01T11:27:51Z,483,house_power,SENEC\r\n\r\n"
+  recorded_at: Fri, 01 Jan 2021 11:27:51 GMT
 recorded_with: VCR 6.0.0
