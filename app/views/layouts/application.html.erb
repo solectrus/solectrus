@@ -9,6 +9,8 @@
 
   <%= stylesheet_pack_tag 'application', media: 'all' %>
   <%= javascript_pack_tag 'application' %>
+
+  <%= yield :head %>
 </head>
 
 <body class="flex flex-col h-screen bg-gray-100 font-sans">
