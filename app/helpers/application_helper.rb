@@ -9,10 +9,19 @@ module ApplicationHelper
   end
 
   def number_to_kwh(value)
-    "#{number_with_precision(value, precision: 3)} kWh"
+    "#{number_with_precision(value / 1000.0, precision: 3)} kWh"
   end
 
   def number_to_kw(value)
-    "#{number_with_precision(value, precision: 3)} kW"
+    "#{number_with_precision(value / 1000.0, precision: 3)} kW"
+  end
+
+  def number_to_charge(value)
+    string = number_to_percentage(value, precision: 1)
+    options = {
+      class: value.positive? ? %w[text-green-500] : %w[text-red-500]
+    }
+
+    tag.span string, **options
   end
 end

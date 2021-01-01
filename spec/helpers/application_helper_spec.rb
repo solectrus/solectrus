@@ -18,7 +18,7 @@ describe ApplicationHelper do
   describe 'number_to_kwh' do
     subject { number_to_kwh(value) }
 
-    let(:value) { 1.234 }
+    let(:value) { 1234 }
 
     it { is_expected.to eq '1,234 kWh' }
   end

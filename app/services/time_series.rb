@@ -15,7 +15,7 @@ class TimeSeries
     result.values.each_with_object({}) do |table, hash|
       record = table.records.first
 
-      hash[record.values['_field'].to_sym] = record.values['_value'] / 1000.0
+      hash[record.values['_field'].to_sym] = record.values['_value']
       hash[:time] ||= Time.zone.parse record.values['_time']
     end
   end
@@ -47,7 +47,7 @@ class TimeSeries
     result.values.each_with_object({}) do |table, hash|
       record = table.records.first
 
-      hash[record.values['_field'].to_sym] = record.values['_value'] / 1000.0
+      hash[record.values['_field'].to_sym] = record.values['_value']
       hash[:time] ||= Time.zone.parse record.values['_stop']
     end
   end
