@@ -24,6 +24,10 @@ gem 'bootsnap', '>= 1.4.4', require: false
 # Timezone Data for TZInfo (https://tzinfo.github.io)
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
+# Template language whose goal is to reduce the syntax to the essential parts without becoming cryptic
+# Slim is a template language. (http://slim-lang.com/)
+gem 'slim'
+
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
 gem 'influxdb-client'
 
@@ -54,6 +58,10 @@ group :development, :test do
 
   # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
   gem 'spring-commands-rspec'
+
+  # Configurable tool for analyzing Slim templates
+  # Slim template linting tool (https://github.com/sds/slim-lint)
+  gem 'slim_lint'
 end
 
 group :development do
