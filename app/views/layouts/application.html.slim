@@ -13,18 +13,24 @@ html
     = yield :head
 
   body.flex.flex-col.h-screen.bg-gray-100.font-sans
-    header.p-5.text-center
-      h1.text-4xl.font-medium.uppercase.tracking-wider
-        = link_to t('layout.photovoltaics'), root_path
+    header.p-3
+      .flex.max-w-2xl.mx-auto.items-center.justify-center
+        h1.text-3xl.font-medium.uppercase.tracking-wider
+          = link_to t('layout.photovoltaics'), root_path
 
-    main.flex-1.overflow-y-auto.px-5
+        .text-sm.ml-3.w-8
+          = turbo_frame_tag 'live'
+
+    main.p-3.flex-1.overflow-y-auto
       = yield
 
-    footer.py-5.text-center.text-xs.bg-gray-300
-      | SOLECTRUS
-      = link_to 'https://github.com/solectrus/solectrus',
-                target: '_blank',
-                rel: 'noopener',
-                title: Rails.configuration.x.git.commit_time do
-        code.ml-1.text-gray-500
-          = Rails.configuration.x.git.commit_sha.first(8)
+    footer.bg-gray-300.p-3
+      .flex.max-w-2xl.mx-auto.justify-center.items-center.text-xs
+        div
+          | SOLECTRUS
+          = link_to 'https://github.com/solectrus/solectrus',
+                    target: '_blank',
+                    rel: 'noopener',
+                    title: Rails.configuration.x.git.commit_time do
+            code.ml-1.text-gray-500
+              = Rails.configuration.x.git.commit_sha.first(8)
