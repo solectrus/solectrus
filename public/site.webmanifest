@@ -1,0 +1,8 @@
+{
+  "name": "Solectrus",
+  "short_name": "Solectrus",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "Dashboard for SENEC photovoltaic"
+}
