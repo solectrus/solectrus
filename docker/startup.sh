@@ -4,6 +4,14 @@ echo "Starting Solectrus..."
 echo "Git commit: $COMMIT_SHA - $COMMIT_TIME"
 echo "----------------"
 
+# Wait for InfluxDB
+until nc -z -v -w30 $INFLUX_HOST 8086
+do
+  echo "Waiting for InfluxDB..."
+  sleep 1
+done
+echo "InfluxDB is up and running!"
+
 # Wait for PostgreSQL
 until nc -z -v -w30 $DB_HOST 5432
 do

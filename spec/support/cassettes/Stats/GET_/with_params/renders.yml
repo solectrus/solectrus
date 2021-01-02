@@ -2,11 +2,11 @@
 http_interactions:
 - request:
     method: post
-    uri: "<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>"
+    uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
     body:
       encoding: UTF-8
       string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
-        -5d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"SENEC\")\n      |\u003e
+        -5d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
         filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
         == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
         == \"grid_power_minus\" or r[\"_field\"] == \"bat_fuel_charge\" or r[\"_field\"]
@@ -28,22 +28,16 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Date:
-      - Fri, 01 Jan 2021 16:51:52 GMT
       Content-Type:
       - text/csv; charset=utf-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
-      Trace-Id:
-      - 357677869e6f9dac
+      Date:
+      - Sat, 02 Jan 2021 09:00:46 GMT
       Vary:
       - Accept-Encoding
-      Strict-Transport-Security:
-      - max-age=15724800; includeSubDomains
+      Content-Length:
+      - '1253'
     body:
-      encoding: ASCII-8BIT
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,0,inverter_power,SENEC\r\n,,1,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,0,grid_power_plus,SENEC\r\n,,2,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,585,bat_power_minus,SENEC\r\n,,3,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,0,bat_power_plus,SENEC\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,4,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,51.5,bat_fuel_charge,SENEC\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,5,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,18,grid_power_minus,SENEC\r\n,,6,2020-12-27T16:51:52.048031829Z,2021-01-01T16:51:52.048031829Z,2021-01-01T16:51:51Z,567,house_power,SENEC\r\n\r\n"
-  recorded_at: Fri, 01 Jan 2021 16:51:52 GMT
+      encoding: UTF-8
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2020-12-28T09:00:46.219073632Z,2021-01-02T09:00:46.219073632Z,2021-01-02T09:00:43Z,0,bat_fuel_charge,<INFLUX_BUCKET>\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,1,2020-12-28T09:00:46.219073632Z,2021-01-02T09:00:46.219073632Z,2021-01-02T09:00:43Z,7,bat_power_minus,<INFLUX_BUCKET>\r\n,,2,2020-12-28T09:00:46.219073632Z,2021-01-02T09:00:46.219073632Z,2021-01-02T09:00:43Z,0,bat_power_plus,<INFLUX_BUCKET>\r\n,,3,2020-12-28T09:00:46.219073632Z,2021-01-02T09:00:46.219073632Z,2021-01-02T09:00:43Z,0,grid_power_minus,<INFLUX_BUCKET>\r\n,,4,2020-12-28T09:00:46.219073632Z,2021-01-02T09:00:46.219073632Z,2021-01-02T09:00:43Z,117,grid_power_plus,<INFLUX_BUCKET>\r\n,,5,2020-12-28T09:00:46.219073632Z,2021-01-02T09:00:46.219073632Z,2021-01-02T09:00:43Z,350,house_power,<INFLUX_BUCKET>\r\n,,6,2020-12-28T09:00:46.219073632Z,2021-01-02T09:00:46.219073632Z,2021-01-02T09:00:43Z,227,inverter_power,<INFLUX_BUCKET>\r\n\r\n"
+  recorded_at: Sat, 02 Jan 2021 09:00:46 GMT
 recorded_with: VCR 6.0.0
