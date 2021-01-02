@@ -18,6 +18,10 @@ class StatsController < ApplicationController
   end
 
   helper_method def calculator
-    @calculator ||= Calculator.new(timeframe)
+    @calculator ||= if timeframe == 'current'
+      CurrentCalculator.new
+    else
+      RangeCalculator.new(timeframe)
+    end
   end
 end

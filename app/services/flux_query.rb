@@ -1,12 +1,38 @@
-class TimeSeries
+class FluxQuery
   def initialize(*fields)
     @fields = fields
   end
 
   def current
+    last('-1h')
+  end
+
+  def day
+    range('-24h')
+  end
+
+  def week
+    range('-7d')
+  end
+
+  def month
+    range('-30d')
+  end
+
+  def year
+    range('-365d')
+  end
+
+  def all
+    range('0')
+  end
+
+  private
+
+  def last(timeframe)
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range_since('5d')}
+      |> #{range_since(timeframe)}
       |> #{measurement_filter}
       |> #{fields_filter}
       |> last()
@@ -20,21 +46,7 @@ class TimeSeries
     end
   end
 
-  def last24h
-    last('24h')
-  end
-
-  def last7d
-    last('7d')
-  end
-
-  def last30d
-    last('30d')
-  end
-
-  private
-
-  def last(timeframe)
+  def range(timeframe)
     result = query <<-QUERY
       #{from_bucket}
       |> #{range_since(timeframe)}
@@ -69,7 +81,7 @@ class TimeSeries
   end
 
   def range_since(value)
-    "range(start: -#{value})"
+    "range(start: #{value})"
   end
 
   def query(string)

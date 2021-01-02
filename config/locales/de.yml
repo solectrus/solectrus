@@ -3,9 +3,11 @@ de:
     photovoltaics: Photovoltaik
   calculator:
     current: Jetzt
-    last24h: Letzte 24 Stunden
-    last7d: Letzte 7 Tage
-    last30d: Letzte 30 Tage
+    day: Tag
+    week: Woche
+    month: Monat
+    year: Jahr
+    all: Gesamt
     inverter_power: Stromerzeugung
     house_power: Hausverbrauch
     grid_power_plus: Netzbezug

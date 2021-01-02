@@ -3,7 +3,7 @@ Rails.application.routes.draw do
 
   mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
-  constraints timeframe: /current|last24h|last7d|last30d/ do
+  constraints timeframe: /current|day|week|month|year|all/ do
     get '/stats/(:timeframe)', to: 'stats#index', as: :stats
     get '/(:timeframe)', to: 'home#index', as: :root
   end
