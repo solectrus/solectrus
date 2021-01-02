@@ -7,12 +7,16 @@
 .git
 .github
 .gitignore
+.gitattributes
 .rspec
 .rubocop.yml
 .vscode
 .yarnclean
+.slim-lint.yml
 **/*.DS_Store
 Dockerfile
+Procfile*
+Guardfile
 log/*
 node_modules
 public/assets/*
@@ -22,3 +26,7 @@ tmp/*
 !/tmp/pids/
 !/tmp/pids/.keep
 yarn-error.log
+config/environments/test.rb
+config/environments/development.rb
+config/webpack/test.js
+config/webpack/development.js
