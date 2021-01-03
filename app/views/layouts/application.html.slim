@@ -2,8 +2,18 @@ doctype html
 html
   head
     title Solectrus
+
     meta name="viewport" content="width=device-width,initial-scale=1"
-    link rel="manifest" href="/site.webmanifest"
+    meta name="apple-mobile-web-app-title" content="Solectrus"
+    meta name="application-name" content="Solectrus"
+    meta name="msapplication-TileColor" content="#2b5797"
+    meta name="theme-color" content="#ffffff"
+
+    link rel="manifest" href="/manifest.webmanifest"
+    link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png"
+    link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"
+    link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"
+    link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"
 
     = csrf_meta_tags
     = csp_meta_tag
