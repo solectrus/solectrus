@@ -66,6 +66,7 @@ services:
       - INFLUX_BUCKET
       - LOCKUP_CODEWORD
       - REDIS_URL
+      - SENTRY_DNS
     deploy:
       update_config:
         order: start-first
