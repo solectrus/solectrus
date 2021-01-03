@@ -1,0 +1,11 @@
+div id="tab-#{timeframe}"
+  .max-w-2xl.mx-auto.grid.sm:grid-cols-2.gap-5
+    = render 'shared/card', title: t('calculator.inverter_power'),   value: number_to_kwh(calculator.inverter_power)
+    = render 'shared/card', title: t('calculator.house_power'),      value: number_to_kwh(calculator.house_power)
+    = render 'shared/card', title: t('calculator.grid_power_plus'),  value: number_to_kwh(calculator.grid_power_plus),  extra: number_to_eur(calculator.paid)
+    = render 'shared/card', title: t('calculator.grid_power_minus'), value: number_to_kwh(calculator.grid_power_minus), extra: number_to_eur(calculator.got)
+
+  .mt-5.max-w-2xl.mx-auto.grid.sm:grid-cols-3.gap-5
+    = render 'shared/card', title: t('calculator.solar_price'),       value: number_to_eur(calculator.solar_price)
+    = render 'shared/card', title: t('calculator.traditional_price'), value: number_to_eur(calculator.traditional_price)
+    = render 'shared/card', title: t('calculator.profit'),            value: number_to_eur(calculator.profit)

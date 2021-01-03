@@ -4,7 +4,7 @@ class StatsController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream do
-        render turbo_stream: turbo_stream.replace('stats', partial: timeframe == 'current' ? 'current' : 'last') +
+        render turbo_stream: turbo_stream.replace('stats', partial: timeframe == 'current' ? 'current' : 'range') +
                              turbo_stream.replace('live', partial: 'live_indicator')
       end
       format.html
