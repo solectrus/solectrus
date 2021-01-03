@@ -23,6 +23,11 @@ Rails.application.configure do
   # Disable serving static files from the `/public` folder by default since
   # Apache or NGINX already handles this.
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
+  config.public_file_server.headers = {
+    'X-Content-Type-Options' => 'nosniff',
+    'Cache-Control' => 'public, s-maxage=31536000, max-age=31536000, immutable',
+    'Expires' => 1.year.from_now.to_formatted_s(:rfc822)
+  }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = 'http://assets.example.com'
