@@ -5,6 +5,7 @@ Rails.application.routes.draw do
 
   constraints timeframe: /current|day|week|month|year|all/ do
     get '/stats/(:timeframe)', to: 'stats#index', as: :stats
+    get '/graphs/(:timeframe)', to: 'graphs#index', as: :graphs
     get '/(:timeframe)', to: 'home#index', as: :root
   end
 end

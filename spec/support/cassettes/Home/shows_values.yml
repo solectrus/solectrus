@@ -31,15 +31,52 @@ http_interactions:
       Content-Type:
       - text/csv; charset=utf-8
       Date:
-      - Sat, 02 Jan 2021 18:18:21 GMT
+      - Mon, 04 Jan 2021 07:27:20 GMT
       Vary:
       - Accept-Encoding
       Content-Length:
-      - '1252'
+      - '1237'
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2021-01-02T17:18:21.309031361Z,2021-01-02T18:18:21.309031361Z,2021-01-02T18:18:17Z,0,bat_fuel_charge,<INFLUX_BUCKET>\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,1,2021-01-02T17:18:21.309031361Z,2021-01-02T18:18:21.309031361Z,2021-01-02T18:18:17Z,10,bat_power_minus,<INFLUX_BUCKET>\r\n,,2,2021-01-02T17:18:21.309031361Z,2021-01-02T18:18:21.309031361Z,2021-01-02T18:18:17Z,0,bat_power_plus,<INFLUX_BUCKET>\r\n,,3,2021-01-02T17:18:21.309031361Z,2021-01-02T18:18:21.309031361Z,2021-01-02T18:18:17Z,0,grid_power_minus,<INFLUX_BUCKET>\r\n,,4,2021-01-02T17:18:21.309031361Z,2021-01-02T18:18:21.309031361Z,2021-01-02T18:18:17Z,441,grid_power_plus,<INFLUX_BUCKET>\r\n,,5,2021-01-02T17:18:21.309031361Z,2021-01-02T18:18:21.309031361Z,2021-01-02T18:18:17Z,451,house_power,<INFLUX_BUCKET>\r\n,,6,2021-01-02T17:18:21.309031361Z,2021-01-02T18:18:21.309031361Z,2021-01-02T18:18:17Z,0,inverter_power,<INFLUX_BUCKET>\r\n\r\n"
-  recorded_at: Sat, 02 Jan 2021 18:18:21 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2021-01-04T06:27:20.06493195Z,2021-01-04T07:27:20.06493195Z,2021-01-04T07:27:15Z,0,bat_fuel_charge,<INFLUX_BUCKET>\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,1,2021-01-04T06:27:20.06493195Z,2021-01-04T07:27:20.06493195Z,2021-01-04T07:27:15Z,7,bat_power_minus,<INFLUX_BUCKET>\r\n,,2,2021-01-04T06:27:20.06493195Z,2021-01-04T07:27:20.06493195Z,2021-01-04T07:27:15Z,0,bat_power_plus,<INFLUX_BUCKET>\r\n,,3,2021-01-04T06:27:20.06493195Z,2021-01-04T07:27:20.06493195Z,2021-01-04T07:27:15Z,0,grid_power_minus,<INFLUX_BUCKET>\r\n,,4,2021-01-04T06:27:20.06493195Z,2021-01-04T07:27:20.06493195Z,2021-01-04T07:27:15Z,481,grid_power_plus,<INFLUX_BUCKET>\r\n,,5,2021-01-04T06:27:20.06493195Z,2021-01-04T07:27:20.06493195Z,2021-01-04T07:27:15Z,487,house_power,<INFLUX_BUCKET>\r\n,,6,2021-01-04T06:27:20.06493195Z,2021-01-04T07:27:20.06493195Z,2021-01-04T07:27:15Z,0,inverter_power,<INFLUX_BUCKET>\r\n\r\n"
+  recorded_at: Mon, 04 Jan 2021 07:27:17 GMT
+- request:
+    method: post
+    uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
+    body:
+      encoding: UTF-8
+      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
+        -1h)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
+        filter(fn: (r) =\u003e r[\"_field\"] == \"house_power\")\n      |\u003e aggregateWindow(every:
+        1m, fn: mean)\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - influxdb-client-ruby/1.10.0
+      Authorization:
+      - Token <INFLUX_TOKEN>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/csv; charset=utf-8
+      Date:
+      - Mon, 04 Jan 2021 07:27:20 GMT
+      Vary:
+      - Accept-Encoding
+      Content-Length:
+      - '704'
+    body:
+      encoding: ASCII-8BIT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:28:00Z,409.875,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:29:00Z,412.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:30:00Z,397.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:31:00Z,403.1666666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:32:00Z,397.1818181818182,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:33:00Z,407.6363636363636,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:34:00Z,404.4166666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:35:00Z,402.72727272727275,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:36:00Z,439.6363636363636,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:37:00Z,473.75,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:38:00Z,467.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:39:00Z,466.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:40:00Z,483.3333333333333,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:41:00Z,467.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:42:00Z,438.1818181818182,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:43:00Z,539.0833333333334,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:44:00Z,445.8181818181818,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:45:00Z,572,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:46:00Z,516.25,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:47:00Z,534.9090909090909,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:48:00Z,515.4545454545455,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:49:00Z,512.3636363636364,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:50:00Z,503.5,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:51:00Z,503.72727272727275,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:52:00Z,1390.9166666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:53:00Z,2230.4545454545455,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:54:00Z,2101.4545454545455,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:55:00Z,482.75,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:56:00Z,431.3636363636364,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:57:00Z,451.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:58:00Z,412.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T06:59:00Z,586.3333333333334,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:00:00Z,366.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:01:00Z,1569.6363636363637,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:02:00Z,1383.9166666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:03:00Z,1466.090909090909,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:04:00Z,1207.2727272727273,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:05:00Z,401.4166666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:06:00Z,390.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:07:00Z,400.72727272727275,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:08:00Z,397.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:09:00Z,408.5833333333333,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:10:00Z,408.1818181818182,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:11:00Z,398.25,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:12:00Z,388,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:13:00Z,396.6363636363636,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:14:00Z,405.3333333333333,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:15:00Z,406.3636363636364,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:16:00Z,416,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:17:00Z,409,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:18:00Z,414.1666666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:19:00Z,435.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:20:00Z,456.5,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:21:00Z,455.3636363636364,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:22:00Z,507.72727272727275,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:23:00Z,531.1818181818181,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:24:00Z,507.3333333333333,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:25:00Z,519,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:26:00Z,487.75,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:27:00Z,506,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,2021-01-04T07:27:20.075369622Z,484.6666666666667,house_power,<INFLUX_BUCKET>\r\n\r\n"
+  recorded_at: Mon, 04 Jan 2021 07:27:17 GMT
 - request:
     method: post
     uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
@@ -71,15 +108,89 @@ http_interactions:
       Content-Type:
       - text/csv; charset=utf-8
       Date:
-      - Sat, 02 Jan 2021 18:18:21 GMT
+      - Mon, 04 Jan 2021 07:27:20 GMT
       Vary:
       - Accept-Encoding
       Content-Length:
-      - '1252'
+      - '1251'
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2021-01-02T17:18:21.522836154Z,2021-01-02T18:18:21.522836154Z,2021-01-02T18:18:17Z,0,bat_fuel_charge,<INFLUX_BUCKET>\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,1,2021-01-02T17:18:21.522836154Z,2021-01-02T18:18:21.522836154Z,2021-01-02T18:18:17Z,10,bat_power_minus,<INFLUX_BUCKET>\r\n,,2,2021-01-02T17:18:21.522836154Z,2021-01-02T18:18:21.522836154Z,2021-01-02T18:18:17Z,0,bat_power_plus,<INFLUX_BUCKET>\r\n,,3,2021-01-02T17:18:21.522836154Z,2021-01-02T18:18:21.522836154Z,2021-01-02T18:18:17Z,0,grid_power_minus,<INFLUX_BUCKET>\r\n,,4,2021-01-02T17:18:21.522836154Z,2021-01-02T18:18:21.522836154Z,2021-01-02T18:18:17Z,441,grid_power_plus,<INFLUX_BUCKET>\r\n,,5,2021-01-02T17:18:21.522836154Z,2021-01-02T18:18:21.522836154Z,2021-01-02T18:18:17Z,451,house_power,<INFLUX_BUCKET>\r\n,,6,2021-01-02T17:18:21.522836154Z,2021-01-02T18:18:21.522836154Z,2021-01-02T18:18:17Z,0,inverter_power,<INFLUX_BUCKET>\r\n\r\n"
-  recorded_at: Sat, 02 Jan 2021 18:18:21 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2021-01-04T06:27:20.511048122Z,2021-01-04T07:27:20.511048122Z,2021-01-04T07:27:15Z,0,bat_fuel_charge,<INFLUX_BUCKET>\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,1,2021-01-04T06:27:20.511048122Z,2021-01-04T07:27:20.511048122Z,2021-01-04T07:27:15Z,7,bat_power_minus,<INFLUX_BUCKET>\r\n,,2,2021-01-04T06:27:20.511048122Z,2021-01-04T07:27:20.511048122Z,2021-01-04T07:27:15Z,0,bat_power_plus,<INFLUX_BUCKET>\r\n,,3,2021-01-04T06:27:20.511048122Z,2021-01-04T07:27:20.511048122Z,2021-01-04T07:27:15Z,0,grid_power_minus,<INFLUX_BUCKET>\r\n,,4,2021-01-04T06:27:20.511048122Z,2021-01-04T07:27:20.511048122Z,2021-01-04T07:27:15Z,481,grid_power_plus,<INFLUX_BUCKET>\r\n,,5,2021-01-04T06:27:20.511048122Z,2021-01-04T07:27:20.511048122Z,2021-01-04T07:27:15Z,487,house_power,<INFLUX_BUCKET>\r\n,,6,2021-01-04T06:27:20.511048122Z,2021-01-04T07:27:20.511048122Z,2021-01-04T07:27:15Z,0,inverter_power,<INFLUX_BUCKET>\r\n\r\n"
+  recorded_at: Mon, 04 Jan 2021 07:27:18 GMT
+- request:
+    method: post
+    uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
+    body:
+      encoding: UTF-8
+      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
+        -1h)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
+        filter(fn: (r) =\u003e r[\"_field\"] == \"house_power\")\n      |\u003e aggregateWindow(every:
+        1m, fn: mean)\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - influxdb-client-ruby/1.10.0
+      Authorization:
+      - Token <INFLUX_TOKEN>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/csv; charset=utf-8
+      Date:
+      - Mon, 04 Jan 2021 07:27:20 GMT
+      Vary:
+      - Accept-Encoding
+      Content-Length:
+      - '701'
+    body:
+      encoding: ASCII-8BIT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:28:00Z,409.875,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:29:00Z,412.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:30:00Z,397.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:31:00Z,403.1666666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:32:00Z,397.1818181818182,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:33:00Z,407.6363636363636,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:34:00Z,404.4166666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:35:00Z,402.72727272727275,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:36:00Z,439.6363636363636,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:37:00Z,473.75,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:38:00Z,467.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:39:00Z,466.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:40:00Z,483.3333333333333,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:41:00Z,467.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:42:00Z,438.1818181818182,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:43:00Z,539.0833333333334,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:44:00Z,445.8181818181818,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:45:00Z,572,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:46:00Z,516.25,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:47:00Z,534.9090909090909,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:48:00Z,515.4545454545455,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:49:00Z,512.3636363636364,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:50:00Z,503.5,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:51:00Z,503.72727272727275,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:52:00Z,1390.9166666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:53:00Z,2230.4545454545455,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:54:00Z,2101.4545454545455,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:55:00Z,482.75,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:56:00Z,431.3636363636364,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:57:00Z,451.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:58:00Z,412.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T06:59:00Z,586.3333333333334,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:00:00Z,366.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:01:00Z,1569.6363636363637,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:02:00Z,1383.9166666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:03:00Z,1466.090909090909,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:04:00Z,1207.2727272727273,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:05:00Z,401.4166666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:06:00Z,390.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:07:00Z,400.72727272727275,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:08:00Z,397.45454545454544,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:09:00Z,408.5833333333333,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:10:00Z,408.1818181818182,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:11:00Z,398.25,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:12:00Z,388,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:13:00Z,396.6363636363636,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:14:00Z,405.3333333333333,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:15:00Z,406.3636363636364,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:16:00Z,416,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:17:00Z,409,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:18:00Z,414.1666666666667,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:19:00Z,435.90909090909093,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:20:00Z,456.5,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:21:00Z,455.3636363636364,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:22:00Z,507.72727272727275,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:23:00Z,531.1818181818181,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:24:00Z,507.3333333333333,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:25:00Z,519,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:26:00Z,487.75,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:27:00Z,506,house_power,<INFLUX_BUCKET>\r\n,,0,2021-01-04T06:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,2021-01-04T07:27:20.579292808Z,488,house_power,<INFLUX_BUCKET>\r\n\r\n"
+  recorded_at: Mon, 04 Jan 2021 07:27:18 GMT
+- request:
+    method: post
+    uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
+    body:
+      encoding: UTF-8
+      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
+        -24h)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
+        filter(fn: (r) =\u003e r[\"_field\"] == \"house_power\")\n      |\u003e aggregateWindow(every:
+        1h, fn: mean)\n      |\u003e aggregateWindow(every: 1h, fn: sum)\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - influxdb-client-ruby/1.10.0
+      Authorization:
+      - Token <INFLUX_TOKEN>
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/csv; charset=utf-8
+      Date:
+      - Mon, 04 Jan 2021 07:27:20 GMT
+      Vary:
+      - Accept-Encoding
+      Content-Length:
+      - '555'
+    body:
+      encoding: ASCII-8BIT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double,dateTime:RFC3339\r\n#group,false,false,true,true,true,true,false,false\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value,_time\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,,2021-01-03T08:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,457.46486486486486,2021-01-03T09:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,444.87776141384387,2021-01-03T10:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,465.3387334315169,2021-01-03T11:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,520.7256637168142,2021-01-03T12:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,453.2850812407681,2021-01-03T13:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,448.3402985074627,2021-01-03T14:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,1399.5294985250737,2021-01-03T15:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,391.3687315634218,2021-01-03T16:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,930.421207658321,2021-01-03T17:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,925.3805309734513,2021-01-03T18:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,1798.8232695139911,2021-01-03T19:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,1131.5794117647058,2021-01-03T20:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,554.3289085545723,2021-01-03T21:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,267.81563421828906,2021-01-03T22:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,219.90412979351032,2021-01-03T23:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,238.62297496318115,2021-01-04T00:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,209.39411764705883,2021-01-04T01:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,243.14558823529413,2021-01-04T02:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,207.63382352941176,2021-01-04T03:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,244.3514705882353,2021-01-04T04:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,212.59736456808199,2021-01-04T05:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,324.1659324522761,2021-01-04T06:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,433.33382352941175,2021-01-04T07:00:00Z\r\n,,0,2021-01-03T07:27:20.608425741Z,2021-01-04T07:27:20.608425741Z,house_power,<INFLUX_BUCKET>,1141.2368121442123,2021-01-04T07:27:20.608425741Z\r\n\r\n"
+  recorded_at: Mon, 04 Jan 2021 07:27:18 GMT
 - request:
     method: post
     uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
@@ -111,173 +222,13 @@ http_interactions:
       Content-Type:
       - text/csv; charset=utf-8
       Date:
-      - Sat, 02 Jan 2021 18:18:22 GMT
+      - Mon, 04 Jan 2021 07:27:20 GMT
       Vary:
       - Accept-Encoding
       Content-Length:
-      - '829'
+      - '848'
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,2021-01-01T18:18:22.469955624Z,2021-01-02T18:18:22.469955624Z,bat_power_minus,<INFLUX_BUCKET>,61.769591454789996\r\n,,1,2021-01-01T18:18:22.469955624Z,2021-01-02T18:18:22.469955624Z,bat_power_plus,<INFLUX_BUCKET>,0\r\n,,2,2021-01-01T18:18:22.469955624Z,2021-01-02T18:18:22.469955624Z,grid_power_minus,<INFLUX_BUCKET>,3.1787581699346408\r\n,,3,2021-01-01T18:18:22.469955624Z,2021-01-02T18:18:22.469955624Z,grid_power_plus,<INFLUX_BUCKET>,1989.6710089160422\r\n,,4,2021-01-01T18:18:22.469955624Z,2021-01-02T18:18:22.469955624Z,house_power,<INFLUX_BUCKET>,2561.879116352453\r\n,,5,2021-01-01T18:18:22.469955624Z,2021-01-02T18:18:22.469955624Z,inverter_power,<INFLUX_BUCKET>,513.1553989647057\r\n\r\n"
-  recorded_at: Sat, 02 Jan 2021 18:18:22 GMT
-- request:
-    method: post
-    uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
-    body:
-      encoding: UTF-8
-      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
-        -7d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
-        filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
-        == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
-        == \"grid_power_minus\" or r[\"_field\"] == \"bat_power_minus\" or r[\"_field\"]
-        == \"bat_power_plus\")\n      |\u003e aggregateWindow(every: 1h, fn: mean)\n      |\u003e
-        sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - influxdb-client-ruby/1.10.0
-      Authorization:
-      - Token <INFLUX_TOKEN>
-      Content-Type:
-      - application/json
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/csv; charset=utf-8
-      Date:
-      - Sat, 02 Jan 2021 18:18:23 GMT
-      Vary:
-      - Accept-Encoding
-      Content-Length:
-      - '843'
-    body:
-      encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,2020-12-26T18:18:23.249219687Z,2021-01-02T18:18:23.249219687Z,bat_power_minus,<INFLUX_BUCKET>,5062.609356580967\r\n,,1,2020-12-26T18:18:23.249219687Z,2021-01-02T18:18:23.249219687Z,bat_power_plus,<INFLUX_BUCKET>,27.84090909090909\r\n,,2,2020-12-26T18:18:23.249219687Z,2021-01-02T18:18:23.249219687Z,grid_power_minus,<INFLUX_BUCKET>,243.0537581699346\r\n,,3,2020-12-26T18:18:23.249219687Z,2021-01-02T18:18:23.249219687Z,grid_power_plus,<INFLUX_BUCKET>,9379.022460302822\r\n,,4,2020-12-26T18:18:23.249219687Z,2021-01-02T18:18:23.249219687Z,house_power,<INFLUX_BUCKET>,16440.60447529303\r\n,,5,2020-12-26T18:18:23.249219687Z,2021-01-02T18:18:23.249219687Z,inverter_power,<INFLUX_BUCKET>,2272.3094347236324\r\n\r\n"
-  recorded_at: Sat, 02 Jan 2021 18:18:23 GMT
-- request:
-    method: post
-    uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
-    body:
-      encoding: UTF-8
-      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
-        -30d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
-        filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
-        == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
-        == \"grid_power_minus\" or r[\"_field\"] == \"bat_power_minus\" or r[\"_field\"]
-        == \"bat_power_plus\")\n      |\u003e aggregateWindow(every: 1h, fn: mean)\n      |\u003e
-        sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - influxdb-client-ruby/1.10.0
-      Authorization:
-      - Token <INFLUX_TOKEN>
-      Content-Type:
-      - application/json
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/csv; charset=utf-8
-      Date:
-      - Sat, 02 Jan 2021 18:18:23 GMT
-      Vary:
-      - Accept-Encoding
-      Content-Length:
-      - '843'
-    body:
-      encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,2020-12-03T18:18:23.396022336Z,2021-01-02T18:18:23.396022336Z,bat_power_minus,<INFLUX_BUCKET>,80850.25620972786\r\n,,1,2020-12-03T18:18:23.396022336Z,2021-01-02T18:18:23.396022336Z,bat_power_plus,<INFLUX_BUCKET>,81058.11701631699\r\n,,2,2020-12-03T18:18:23.396022336Z,2021-01-02T18:18:23.396022336Z,grid_power_minus,<INFLUX_BUCKET>,31440.98248777366\r\n,,3,2020-12-03T18:18:23.396022336Z,2021-01-02T18:18:23.396022336Z,grid_power_plus,<INFLUX_BUCKET>,204150.4535209089\r\n,,4,2020-12-03T18:18:23.396022336Z,2021-01-02T18:18:23.396022336Z,house_power,<INFLUX_BUCKET>,296095.8877503512\r\n,,5,2020-12-03T18:18:23.396022336Z,2021-01-02T18:18:23.396022336Z,inverter_power,<INFLUX_BUCKET>,220847.62039043463\r\n\r\n"
-  recorded_at: Sat, 02 Jan 2021 18:18:23 GMT
-- request:
-    method: post
-    uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
-    body:
-      encoding: UTF-8
-      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
-        -365d)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
-        filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
-        == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
-        == \"grid_power_minus\" or r[\"_field\"] == \"bat_power_minus\" or r[\"_field\"]
-        == \"bat_power_plus\")\n      |\u003e aggregateWindow(every: 1h, fn: mean)\n      |\u003e
-        sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - influxdb-client-ruby/1.10.0
-      Authorization:
-      - Token <INFLUX_TOKEN>
-      Content-Type:
-      - application/json
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/csv; charset=utf-8
-      Date:
-      - Sat, 02 Jan 2021 18:18:24 GMT
-      Vary:
-      - Accept-Encoding
-      Content-Length:
-      - '847'
-    body:
-      encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,2020-01-03T18:18:24.242531027Z,2021-01-02T18:18:24.242531027Z,bat_power_minus,<INFLUX_BUCKET>,105927.23348245512\r\n,,1,2020-01-03T18:18:24.242531027Z,2021-01-02T18:18:24.242531027Z,bat_power_plus,<INFLUX_BUCKET>,104133.31398601396\r\n,,2,2020-01-03T18:18:24.242531027Z,2021-01-02T18:18:24.242531027Z,grid_power_minus,<INFLUX_BUCKET>,43160.012790803965\r\n,,3,2020-01-03T18:18:24.242531027Z,2021-01-02T18:18:24.242531027Z,grid_power_plus,<INFLUX_BUCKET>,232624.46867242403\r\n,,4,2020-01-03T18:18:24.242531027Z,2021-01-02T18:18:24.242531027Z,house_power,<INFLUX_BUCKET>,371028.08850792714\r\n,,5,2020-01-03T18:18:24.242531027Z,2021-01-02T18:18:24.242531027Z,inverter_power,<INFLUX_BUCKET>,277005.3703904345\r\n\r\n"
-  recorded_at: Sat, 02 Jan 2021 18:18:24 GMT
-- request:
-    method: post
-    uri: https://<INFLUX_HOST>/api/v2/query?org=<INFLUX_ORG>
-    body:
-      encoding: UTF-8
-      string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
-        0)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
-        filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
-        == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
-        == \"grid_power_minus\" or r[\"_field\"] == \"bat_power_minus\" or r[\"_field\"]
-        == \"bat_power_plus\")\n      |\u003e aggregateWindow(every: 1h, fn: mean)\n      |\u003e
-        sum()\n","dialect":{"header":true,"delimiter":",","annotations":["datatype","group","default"],"commentPrefix":"#","dateTimeFormat":"RFC3339"}}'
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - influxdb-client-ruby/1.10.0
-      Authorization:
-      - Token <INFLUX_TOKEN>
-      Content-Type:
-      - application/json
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/csv; charset=utf-8
-      Date:
-      - Sat, 02 Jan 2021 18:18:24 GMT
-      Vary:
-      - Accept-Encoding
-      Content-Length:
-      - '781'
-    body:
-      encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,1970-01-01T00:00:00Z,2021-01-02T18:18:24.35456073Z,bat_power_minus,<INFLUX_BUCKET>,105927.23348245512\r\n,,1,1970-01-01T00:00:00Z,2021-01-02T18:18:24.35456073Z,bat_power_plus,<INFLUX_BUCKET>,104133.31398601396\r\n,,2,1970-01-01T00:00:00Z,2021-01-02T18:18:24.35456073Z,grid_power_minus,<INFLUX_BUCKET>,43160.012790803965\r\n,,3,1970-01-01T00:00:00Z,2021-01-02T18:18:24.35456073Z,grid_power_plus,<INFLUX_BUCKET>,232624.46867242403\r\n,,4,1970-01-01T00:00:00Z,2021-01-02T18:18:24.35456073Z,house_power,<INFLUX_BUCKET>,371028.08850792714\r\n,,5,1970-01-01T00:00:00Z,2021-01-02T18:18:24.35456073Z,inverter_power,<INFLUX_BUCKET>,277005.3703904345\r\n\r\n"
-  recorded_at: Sat, 02 Jan 2021 18:18:24 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,string,string,double\r\n#group,false,false,true,true,true,true,false\r\n#default,_result,,,,,,\r\n,result,table,_start,_stop,_field,_measurement,_value\r\n,,0,2021-01-03T07:27:20.622963549Z,2021-01-04T07:27:20.622963549Z,bat_power_minus,<INFLUX_BUCKET>,187.7016995734112\r\n,,1,2021-01-03T07:27:20.622963549Z,2021-01-04T07:27:20.622963549Z,bat_power_plus,<INFLUX_BUCKET>,0.005908419497784343\r\n,,2,2021-01-03T07:27:20.622963549Z,2021-01-04T07:27:20.622963549Z,grid_power_minus,<INFLUX_BUCKET>,18.85093562656905\r\n,,3,2021-01-03T07:27:20.622963549Z,2021-01-04T07:27:20.622963549Z,grid_power_plus,<INFLUX_BUCKET>,11996.277931837158\r\n,,4,2021-01-03T07:27:20.622963549Z,2021-01-04T07:27:20.622963549Z,house_power,<INFLUX_BUCKET>,13663.665633397772\r\n,,5,2021-01-03T07:27:20.622963549Z,2021-01-04T07:27:20.622963549Z,inverter_power,<INFLUX_BUCKET>,1511.6278465787395\r\n\r\n"
+  recorded_at: Mon, 04 Jan 2021 07:27:18 GMT
 recorded_with: VCR 6.0.0
