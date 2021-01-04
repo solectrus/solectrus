@@ -29,6 +29,15 @@ class FluxQuery
 
   private
 
+  def empty_hash
+    result = {}
+    @fields.each do |field|
+      result[field] = nil
+    end
+    result[:time] = nil
+    result
+  end
+
   def last(timeframe)
     result = query <<-QUERY
       #{from_bucket}
@@ -38,7 +47,7 @@ class FluxQuery
       |> last()
     QUERY
 
-    result.values.each_with_object({}) do |table, hash|
+    result.values.each_with_object(empty_hash) do |table, hash|
       record = table.records.first
 
       hash[record.values['_field'].to_sym] = record.values['_value']
@@ -56,7 +65,7 @@ class FluxQuery
       |> sum()
     QUERY
 
-    result.values.each_with_object({}) do |table, hash|
+    result.values.each_with_object(empty_hash) do |table, hash|
       record = table.records.first
 
       hash[record.values['_field'].to_sym] = record.values['_value']

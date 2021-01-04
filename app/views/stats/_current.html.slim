@@ -6,8 +6,8 @@ div id="tab-#{timeframe}"
     = render 'shared/card', title: t('calculator.grid_power_minus'), value: number_to_kw(calculator.grid_power_minus)
 
   .mt-5.max-w-2xl.mx-auto.grid.grid-cols-2.gap-5
-    - if calculator.bat_power_minus > calculator.bat_power_plus
-      = render 'shared/card', title: t('calculator.bat_power_minus'), value: number_to_kw(calculator.bat_power_minus)
-    - else
+    - if calculator.bat_charging?
       = render 'shared/card', title: t('calculator.bat_power_plus'), value: number_to_kw(calculator.bat_power_plus)
+    - else
+      = render 'shared/card', title: t('calculator.bat_power_minus'), value: number_to_kw(calculator.bat_power_minus)
     = render 'shared/card', title: t('calculator.bat_fuel_charge'), value: number_to_charge(calculator.bat_fuel_charge)
