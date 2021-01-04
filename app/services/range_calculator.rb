@@ -6,7 +6,7 @@ class RangeCalculator < BaseCalculator
     super()
     raise ArgumentError unless timeframe.to_s.in?(%w[day week month year all])
 
-    build_context FluxQuery.new(
+    build_context FluxSum.new(
       :inverter_power,
       :house_power,
       :grid_power_plus,

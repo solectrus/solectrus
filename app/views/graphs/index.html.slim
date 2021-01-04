@@ -1,5 +1,5 @@
 = turbo_frame_tag 'graphs' do
-  - if timeframe == 'current'
+  - if timeframe == 'now'
     = line_chart @chart, ytitle: 'kW'
   - else
     = column_chart @chart, ytitle: 'kWh'

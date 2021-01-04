@@ -2,7 +2,7 @@ de:
   layout:
     photovoltaics: Photovoltaik
   calculator:
-    current: Jetzt
+    now: Jetzt
     day: Tag
     week: Woche
     month: Monat
