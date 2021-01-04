@@ -4,19 +4,19 @@ class FluxChart < FluxBase
   end
 
   def day
-    chart_sum('-24h', '1h')
+    chart_single(Time.current.beginning_of_day.to_i, '5m')
   end
 
   def week
-    chart_sum('-7d', '1d')
+    chart_sum(Time.current.beginning_of_week.to_i, '1d')
   end
 
   def month
-    chart_sum('-30d', '1d')
+    chart_sum(Time.current.beginning_of_month.to_i, '1d')
   end
 
   def year
-    chart_sum('-365d', '1mo')
+    chart_sum(Time.current.beginning_of_year.to_i, '1mo')
   end
 
   def all
@@ -52,7 +52,7 @@ class FluxChart < FluxBase
 
   def to_array(raw)
     # TODO: Get all fields, not only the first one
-    raw.values[0].records.map do |record|
+    raw.values[0].records.drop(1).map do |record|
       [
         Time.zone.parse(record.values['_time'] || ''),
         (record.values['_value'].to_f / 1_000).round(3)

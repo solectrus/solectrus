@@ -17,5 +17,4 @@
       = render 'shared/loading'
 
 .mt-10
-  = turbo_frame_tag 'graphs', src: graphs_path(timeframe: timeframe) do
-    = render 'shared/loading'
+  = turbo_frame_tag 'graphs', src: graphs_path(timeframe: timeframe)
