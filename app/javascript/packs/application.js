@@ -6,3 +6,6 @@
 import "channels"
 import "stylesheets/application.scss"
 import "@hotwired/turbo-rails"
+
+import "chartkick"
+import "chart.js"

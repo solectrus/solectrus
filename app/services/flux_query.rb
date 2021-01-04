@@ -1,4 +1,4 @@
-class FluxQuery
+class FluxQuery # rubocop:disable Metrics/ClassLength
   def initialize(*fields)
     @fields = fields
   end
@@ -25,6 +25,30 @@ class FluxQuery
 
   def all
     range('0')
+  end
+
+  def current_chart
+    chart('-1h', '1m')
+  end
+
+  def day_chart
+    chart_sum('-24h', '1h')
+  end
+
+  def week_chart
+    chart_sum('-7d', '1d')
+  end
+
+  def month_chart
+    chart_sum('-30d', '1d')
+  end
+
+  def year_chart
+    chart_sum('-365d', '1mo')
+  end
+
+  def all_chart
+    chart_sum('0', '1y')
   end
 
   private
@@ -70,6 +94,43 @@ class FluxQuery
 
       hash[record.values['_field'].to_sym] = record.values['_value']
       hash[:time] ||= Time.zone.parse record.values['_stop']
+    end
+  end
+
+  def chart(timeframe, window)
+    result = query <<-QUERY
+      #{from_bucket}
+      |> #{range_since(timeframe)}
+      |> #{measurement_filter}
+      |> #{fields_filter}
+      |> aggregateWindow(every: #{window}, fn: mean)
+    QUERY
+
+    # TODO: Get all fields, not only the first one
+    result.values[0].records.map do |record|
+      [
+        Time.zone.parse(record.values['_time']),
+        (record.values['_value'].to_f / 1_000).round(3)
+      ]
+    end
+  end
+
+  def chart_sum(timeframe, window)
+    result = query <<-QUERY
+      #{from_bucket}
+      |> #{range_since(timeframe)}
+      |> #{measurement_filter}
+      |> #{fields_filter}
+      |> aggregateWindow(every: 1h, fn: mean)
+      |> aggregateWindow(every: #{window}, fn: sum)
+    QUERY
+
+    # TODO: Get all fields, not only the first one
+    result.values[0].records.map do |record|
+      [
+        Time.zone.parse(record.values['_time'] || ''),
+        (record.values['_value'].to_f / 1_000).round(3)
+      ]
     end
   end
 
