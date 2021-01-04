@@ -1,5 +1,35 @@
+ruby:
+  animation_options = { easing: 'easeOutQuad', duration: 300 }
+  elements_options = { point: { radius: 1 } }
+
+  time_options = case timeframe
+                 when 'now'
+                   { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' } }
+                 when 'day'
+                   { unit: 'hour', displayFormats: { hour: 'HH:mm' } }
+                 when 'week', 'month'
+                   { unit: 'day', displayFormats: { day: 'DD.MM.' } }
+                 when 'year'
+                   { unit: 'month', displayFormats: { month: 'MM-YYYY' } }
+                 when 'all'
+                   { unit: 'year', displayFormats: { year: 'YYYY' } }
+  end
+
 = turbo_frame_tag 'graphs' do
-  - if timeframe == 'now'
-    = line_chart @chart, ytitle: 'kW'
+  - if timeframe.in? %w[now day]
+    = area_chart @chart,
+                ytitle: 'kW',
+                library: { \
+                  animation: animation_options,
+                  elements: elements_options,
+                  scales: { xAxes: [ { type: 'time', time: time_options } ] } \
+                }
+
   - else
-    = column_chart @chart, ytitle: 'kWh'
+    = column_chart @chart,
+                  ytitle: 'kWh',
+                  library: { \
+                    animation: animation_options,
+                    elements: elements_options,
+                    scales: { xAxes: [ { type: 'time', time: time_options } ] } \
+                  }

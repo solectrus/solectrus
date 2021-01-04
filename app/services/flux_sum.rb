@@ -4,19 +4,19 @@ class FluxSum < FluxBase
   end
 
   def day
-    range('-24h')
+    range(Time.current.beginning_of_day.to_i)
   end
 
   def week
-    range('-7d')
+    range(Time.current.beginning_of_week.to_i)
   end
 
   def month
-    range('-30d')
+    range(Time.current.beginning_of_month.to_i)
   end
 
   def year
-    range('-365d')
+    range(Time.current.beginning_of_year.to_i)
   end
 
   def all

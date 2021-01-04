@@ -7,3 +7,10 @@ linters:
 
   RuboCop:
     enabled: true
+
+    ignored_cops:
+      - Layout/FirstHashElementIndentation
+      - Layout/IndentationWidth
+      - Layout/ArgumentAlignment
+      - Layout/TrailingEmptyLines
+      - Layout/FirstArrayElementIndentation
