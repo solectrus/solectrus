@@ -17,22 +17,32 @@ class RangeCalculator < BaseCalculator
   end
 
   def paid
+    return unless grid_power_plus
+
     -(grid_power_plus * RATE / 1000.0).round(2)
   end
 
   def got
+    return unless grid_power_minus
+
     (grid_power_minus * COMPENSATION / 1000.0).round(2)
   end
 
   def solar_price
+    return unless got && paid
+
     got + paid
   end
 
   def traditional_price
+    return unless house_power
+
     -(house_power * RATE / 1000.0).round(2)
   end
 
   def profit
+    return unless solar_price && traditional_price
+
     solar_price - traditional_price
   end
 end
