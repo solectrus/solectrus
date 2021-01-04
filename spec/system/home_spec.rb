@@ -2,8 +2,8 @@ describe 'Home', type: :system, js: true, vcr: true do
   it 'shows values' do
     visit '/'
 
-    click_on I18n.t('calculator.current')
-    expect(page).to have_css('#tab-current')
+    click_on I18n.t('calculator.now')
+    expect(page).to have_css('#tab-now')
 
     click_on I18n.t('calculator.day')
     expect(page).to have_css('#tab-day')

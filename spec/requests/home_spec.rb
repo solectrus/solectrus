@@ -9,7 +9,7 @@ describe 'Home' do
 
     context 'with params' do
       it 'renders' do
-        get root_path(timeframe: 'current')
+        get root_path(timeframe: 'now')
         expect(response).to have_http_status(:ok)
       end
     end
