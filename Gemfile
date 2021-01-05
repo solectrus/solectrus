@@ -81,7 +81,7 @@ group :development do
   gem 'web-console', '>= 4.1.0'
 
   # Profiles loading speed for rack applications. (https://miniprofiler.com)
-  gem 'rack-mini-profiler', '~> 2.0'
+  # gem 'rack-mini-profiler', '~> 2.0'
 
   # Listen to file modifications (https://github.com/guard/listen)
   gem 'listen', '~> 3.3'
