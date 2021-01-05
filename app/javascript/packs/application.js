@@ -3,9 +3,10 @@
 // a relevant structure within app/javascript and only use these pack files to reference
 // that code so it'll be compiled.
 
-import "channels"
-import "stylesheets/application.scss"
 import "@hotwired/turbo-rails"
-
 import "chartkick"
 import "chart.js"
+
+import "channels"
+import "../controllers"
+import "stylesheets/application.scss"
