@@ -1,8 +1,18 @@
-.p-3.bg-white.rounded.shadow
-  h1.text-base.text-gray-600.uppercase.tracking-wider.text-center
-    = title
-  p.mt-5.text-3xl.text-center
-    = value
-  - if defined? extra
-    p.text-xl.text-gray-400.text-center
-      = extra
+ruby:
+  url_params ||= nil
+  is_current = url_params && url_params.with_indifferent_access <= request.parameters
+
+- content = capture do
+  .p-3.rounded.shadow class= (is_current ? 'bg-blue-50' : 'bg-white')
+    h1.text-base.text-gray-600.uppercase.tracking-wider.text-center
+      = title
+    p.mt-5.text-3xl.text-center
+      = value
+    - if defined? extra
+      p.text-xl.text-gray-400.text-center
+        = extra
+
+- if url_params
+  = link_to content, root_path(url_params)
+- else
+  = content
