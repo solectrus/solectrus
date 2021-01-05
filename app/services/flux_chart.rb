@@ -1,46 +1,47 @@
 class FluxChart < FluxBase
   def now
-    chart_single('-1h', '1m')
+    chart_single start: '-2h', window: '1m'
   end
 
   def day
-    chart_single(Time.current.beginning_of_day.to_i, '5m')
+    chart_single start: Time.current.beginning_of_day.to_i, stop: Time.current.end_of_day.to_i, window: '5m'
   end
 
   def week
-    chart_sum(Time.current.beginning_of_week.to_i, '1d')
+    chart_sum start: Time.current.beginning_of_week.to_i, stop: Time.current.end_of_week.to_i, window: '1d'
   end
 
   def month
-    chart_sum(Time.current.beginning_of_month.to_i, '1d')
+    chart_sum start: Time.current.beginning_of_month.to_i, stop: Time.current.end_of_month.to_i, window: '1d'
   end
 
   def year
-    chart_sum(Time.current.beginning_of_year.to_i, '1mo')
+    chart_sum start: Time.current.beginning_of_year.to_i, stop: Time.current.end_of_year.to_i, window: '1mo'
   end
 
   def all
-    chart_sum('0', '1y')
+    chart_sum start: '-10y', stop: Time.current.to_i, window: '1y'
   end
 
   private
 
-  def chart_single(timeframe, window)
+  def chart_single(start:, window:, stop: nil)
     raw = query <<-QUERY
       #{from_bucket}
-      |> #{range_since(timeframe)}
+      |> #{range(start: start, stop: stop)}
       |> #{measurement_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: #{window}, fn: mean)
+      #{stop.nil? && '|> fill(usePrevious: true)'}
     QUERY
 
     to_array(raw)
   end
 
-  def chart_sum(timeframe, window)
+  def chart_sum(start:, window:, stop: nil)
     raw = query <<-QUERY
       #{from_bucket}
-      |> #{range_since(timeframe)}
+      |> #{range(start: start, stop: stop)}
       |> #{measurement_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
@@ -52,11 +53,17 @@ class FluxChart < FluxBase
 
   def to_array(raw)
     # TODO: Get all fields, not only the first one
-    raw.values[0].records.drop(1).map do |record|
-      [
-        Time.zone.parse(record.values['_time'] || ''),
-        (record.values['_value'].to_f / 1_000).round(3)
-      ]
+    result = []
+    raw.values[0].records.each_with_index do |record, index|
+      # InfluxDB returns data one-off
+      next_record = raw.values[0].records[index + 1]
+      next unless next_record
+
+      time = Time.zone.parse(record.values['_time'] || '')
+      value = (next_record.values['_value'].to_f / 1_000).round(3)
+
+      result << [ time, value ]
     end
+    result
   end
 end

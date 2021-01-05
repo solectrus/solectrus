@@ -21,8 +21,12 @@ class FluxBase
     "filter(fn: (r) => r[\"_measurement\"] == \"#{measurement}\")"
   end
 
-  def range_since(value)
-    "range(start: #{value})"
+  def range(start:, stop: nil)
+    if stop
+      "range(start: #{start}, stop: #{stop})"
+    else
+      "range(start: #{start})"
+    end
   end
 
   def query(string)

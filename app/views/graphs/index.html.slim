@@ -1,29 +1,43 @@
 ruby:
-  animation_options = { easing: 'easeOutQuad', duration: 300 }
-  elements_options = { point: { radius: 1 } }
+  animation_options = {
+    easing: 'easeOutQuad',
+    duration: 300
+  }
+  elements_options = {
+    point: {
+      radius: 0,
+      hitRadius: 5,
+      hoverRadius: 5
+    }
+  }
+  tooltips_options = {
+    titleFontSize: 20,
+    bodyFontSize: 20
+  }
 
   time_options = case timeframe
                  when 'now'
-                   { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' } }
+                   { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm' }
                  when 'day'
-                   { unit: 'hour', displayFormats: { hour: 'HH:mm' } }
+                   { unit: 'hour', displayFormats: { hour: 'HH:mm' }, tooltipFormat: 'HH:mm' }
                  when 'week', 'month'
-                   { unit: 'day', displayFormats: { day: 'DD.MM.' } }
+                   { unit: 'day', displayFormats: { day: 'DD.MM.' }, tooltipFormat: 'dddd, DD.MM.YYYY' }
                  when 'year'
-                   { unit: 'month', displayFormats: { month: 'MM-YYYY' } }
+                   { unit: 'month', displayFormats: { month: 'MM-YYYY' }, tooltipFormat: 'MMMM YYYY' }
                  when 'all'
-                   { unit: 'year', displayFormats: { year: 'YYYY' } }
+                   { unit: 'year', displayFormats: { year: 'YYYY' }, tooltipFormat: 'YYYY' }
   end
 
 = turbo_frame_tag 'graphs' do
   - if timeframe.in? %w[now day]
     = area_chart @chart,
-                ytitle: 'kW',
-                library: { \
-                  animation: animation_options,
-                  elements: elements_options,
-                  scales: { xAxes: [ { type: 'time', time: time_options } ] } \
-                }
+                 ytitle: 'kW',
+                 library: { \
+                   animation: animation_options,
+                   elements: elements_options,
+                   tooltips: tooltips_options,
+                   scales: { xAxes: [ { type: 'time', time: time_options } ] } \
+                 }
 
   - else
     = column_chart @chart,
@@ -31,5 +45,6 @@ ruby:
                   library: { \
                     animation: animation_options,
                     elements: elements_options,
-                    scales: { xAxes: [ { type: 'time', time: time_options } ] } \
+                    tooltips: tooltips_options,
+                    scales: { xAxes: [ { offset: true, type: 'time', time: time_options } ] } \
                   }
