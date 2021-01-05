@@ -2,6 +2,7 @@ class FluxBase
   def initialize(*fields)
     @fields = fields
   end
+  attr_reader :fields
 
   private
 
@@ -10,7 +11,7 @@ class FluxBase
   end
 
   def fields_filter
-    filter = @fields.map do |field|
+    filter = fields.map do |field|
       "r[\"_field\"] == \"#{field}\""
     end
 

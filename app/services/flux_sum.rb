@@ -62,7 +62,7 @@ class FluxSum < FluxBase
 
   def empty_hash
     result = {}
-    @fields.each do |field|
+    fields.each do |field|
       result[field] = nil
     end
     result[:time] = nil
