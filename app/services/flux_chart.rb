@@ -4,23 +4,23 @@ class FluxChart < FluxBase
   end
 
   def day
-    chart_single start: Time.current.beginning_of_day.to_i, stop: Time.current.end_of_day.to_i, window: '5m'
+    chart_single start: Time.current.beginning_of_day.iso8601, stop: Time.current.end_of_day.iso8601, window: '5m'
   end
 
   def week
-    chart_sum start: Time.current.beginning_of_week.to_i, stop: Time.current.end_of_week.to_i, window: '1d'
+    chart_sum start: Time.current.beginning_of_week.iso8601, stop: Time.current.end_of_week.iso8601, window: '1d'
   end
 
   def month
-    chart_sum start: Time.current.beginning_of_month.to_i, stop: Time.current.end_of_month.to_i, window: '1d'
+    chart_sum start: Time.current.beginning_of_month.iso8601, stop: Time.current.end_of_month.iso8601, window: '1d'
   end
 
   def year
-    chart_sum start: Time.current.beginning_of_year.to_i, stop: Time.current.end_of_year.to_i, window: '1mo'
+    chart_sum start: Time.current.beginning_of_year.iso8601, stop: Time.current.end_of_year.iso8601, window: '1mo'
   end
 
   def all
-    chart_sum start: '-10y', stop: Time.current.to_i, window: '1y'
+    chart_sum start: '-10y', stop: Time.current.iso8601, window: '1y'
   end
 
   private

@@ -4,19 +4,19 @@ class FluxSum < FluxBase
   end
 
   def day
-    sum start: Time.current.beginning_of_day.to_i, stop: Time.current.end_of_day.to_i
+    sum start: Time.current.beginning_of_day.iso8601, stop: Time.current.end_of_day.iso8601
   end
 
   def week
-    sum start: Time.current.beginning_of_week.to_i, stop: Time.current.end_of_week.to_i
+    sum start: Time.current.beginning_of_week.iso8601, stop: Time.current.end_of_week.iso8601
   end
 
   def month
-    sum start: Time.current.beginning_of_month.to_i, stop: Time.current.end_of_month.to_i
+    sum start: Time.current.beginning_of_month.iso8601, stop: Time.current.end_of_month.iso8601
   end
 
   def year
-    sum start: Time.current.beginning_of_year.to_i, stop: Time.current.end_of_year.to_i
+    sum start: Time.current.beginning_of_year.iso8601, stop: Time.current.end_of_year.iso8601
   end
 
   def all
