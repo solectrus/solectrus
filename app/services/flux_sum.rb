@@ -4,31 +4,31 @@ class FluxSum < FluxBase
   end
 
   def day
-    range(Time.current.beginning_of_day.to_i)
+    sum start: Time.current.beginning_of_day.to_i, stop: Time.current.end_of_day.to_i
   end
 
   def week
-    range(Time.current.beginning_of_week.to_i)
+    sum start: Time.current.beginning_of_week.to_i, stop: Time.current.end_of_week.to_i
   end
 
   def month
-    range(Time.current.beginning_of_month.to_i)
+    sum start: Time.current.beginning_of_month.to_i, stop: Time.current.end_of_month.to_i
   end
 
   def year
-    range(Time.current.beginning_of_year.to_i)
+    sum start: Time.current.beginning_of_year.to_i, stop: Time.current.end_of_year.to_i
   end
 
   def all
-    range('0')
+    sum start: '-10y'
   end
 
   private
 
-  def last(timeframe)
+  def last(start)
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range_since(timeframe)}
+      |> #{range(start: start)}
       |> #{measurement_filter}
       |> #{fields_filter}
       |> last()
@@ -42,10 +42,10 @@ class FluxSum < FluxBase
     end
   end
 
-  def range(timeframe)
+  def sum(start:, stop: nil)
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range_since(timeframe)}
+      |> #{range(start: start, stop: stop)}
       |> #{measurement_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
