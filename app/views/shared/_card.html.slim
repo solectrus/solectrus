@@ -3,7 +3,7 @@ ruby:
   is_current = url_params && url_params.with_indifferent_access <= request.parameters
 
 - content = capture do
-  .p-3.rounded.shadow class= (is_current ? 'bg-blue-50' : 'bg-white')
+  .p-3.rounded-full.shadow class= (is_current ? 'bg-blue-50' : 'bg-white')
     h1.text-base.text-gray-600.uppercase.tracking-wider.text-center
       = title
     p.mt-5.text-3xl.text-center data-refresh-target= (is_current && timeframe == 'now' ? 'current' : nil)
