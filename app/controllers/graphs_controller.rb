@@ -1,7 +1,5 @@
 class GraphsController < ApplicationController
-  def index
-    @chart = FluxChart.new(field.to_sym).public_send(timeframe)
-  end
+  def index; end
 
   private
 
@@ -11,5 +9,9 @@ class GraphsController < ApplicationController
 
   helper_method def field
     params[:field]
+  end
+
+  helper_method def chart
+    @chart ||= FluxChart.new(field.to_sym).public_send(timeframe)
   end
 end
