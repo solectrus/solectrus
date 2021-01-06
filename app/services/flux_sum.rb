@@ -1,6 +1,6 @@
 class FluxSum < FluxBase
   def now
-    last('-1h')
+    last('-5m')
   end
 
   def day

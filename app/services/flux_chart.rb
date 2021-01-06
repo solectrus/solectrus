@@ -1,6 +1,6 @@
 class FluxChart < FluxBase
   def now
-    chart_single start: '-2h', window: '1m'
+    chart_single start: '-5m', window: '5s'
   end
 
   def day

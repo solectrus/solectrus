@@ -17,7 +17,7 @@ ruby:
 
   time_options = case timeframe
                  when 'now'
-                   { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm' }
+                   { unit: 'minute', stepSize: 1, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm' }
                  when 'day'
                    { unit: 'hour', displayFormats: { hour: 'HH:mm' }, tooltipFormat: 'HH:mm' }
                  when 'week', 'month'

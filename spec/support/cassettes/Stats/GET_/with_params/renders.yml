@@ -6,7 +6,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"query":"      from(bucket: \"<INFLUX_BUCKET>\")\n      |\u003e range(start:
-        -1h)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
+        -5m)\n      |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"<INFLUX_BUCKET>\")\n      |\u003e
         filter(fn: (r) =\u003e r[\"_field\"] == \"inverter_power\" or r[\"_field\"]
         == \"house_power\" or r[\"_field\"] == \"grid_power_plus\" or r[\"_field\"]
         == \"grid_power_minus\" or r[\"_field\"] == \"bat_power_minus\" or r[\"_field\"]
@@ -31,13 +31,13 @@ http_interactions:
       Content-Type:
       - text/csv; charset=utf-8
       Date:
-      - Tue, 05 Jan 2021 11:50:05 GMT
+      - Wed, 06 Jan 2021 12:48:59 GMT
       Vary:
       - Accept-Encoding
       Content-Length:
       - '1253'
     body:
       encoding: UTF-8
-      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2021-01-05T10:50:05.944478448Z,2021-01-05T11:50:05.944478448Z,2021-01-05T11:50:05Z,0,bat_fuel_charge,<INFLUX_BUCKET>\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,1,2021-01-05T10:50:05.944478448Z,2021-01-05T11:50:05.944478448Z,2021-01-05T11:50:05Z,10,bat_power_minus,<INFLUX_BUCKET>\r\n,,2,2021-01-05T10:50:05.944478448Z,2021-01-05T11:50:05.944478448Z,2021-01-05T11:50:05Z,0,bat_power_plus,<INFLUX_BUCKET>\r\n,,3,2021-01-05T10:50:05.944478448Z,2021-01-05T11:50:05.944478448Z,2021-01-05T11:50:05Z,44,grid_power_minus,<INFLUX_BUCKET>\r\n,,4,2021-01-05T10:50:05.944478448Z,2021-01-05T11:50:05.944478448Z,2021-01-05T11:50:05Z,0,grid_power_plus,<INFLUX_BUCKET>\r\n,,5,2021-01-05T10:50:05.944478448Z,2021-01-05T11:50:05.944478448Z,2021-01-05T11:50:05Z,475,house_power,<INFLUX_BUCKET>\r\n,,6,2021-01-05T10:50:05.944478448Z,2021-01-05T11:50:05.944478448Z,2021-01-05T11:50:05Z,509,inverter_power,<INFLUX_BUCKET>\r\n\r\n"
-  recorded_at: Tue, 05 Jan 2021 11:50:05 GMT
+      string: "#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,double,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,0,2021-01-06T12:43:59.284850313Z,2021-01-06T12:48:59.284850313Z,2021-01-06T12:48:56Z,0,bat_fuel_charge,<INFLUX_BUCKET>\r\n\r\n#datatype,string,long,dateTime:RFC3339,dateTime:RFC3339,dateTime:RFC3339,long,string,string\r\n#group,false,false,true,true,false,false,true,true\r\n#default,_result,,,,,,,\r\n,result,table,_start,_stop,_time,_value,_field,_measurement\r\n,,1,2021-01-06T12:43:59.284850313Z,2021-01-06T12:48:59.284850313Z,2021-01-06T12:48:56Z,7,bat_power_minus,<INFLUX_BUCKET>\r\n,,2,2021-01-06T12:43:59.284850313Z,2021-01-06T12:48:59.284850313Z,2021-01-06T12:48:56Z,0,bat_power_plus,<INFLUX_BUCKET>\r\n,,3,2021-01-06T12:43:59.284850313Z,2021-01-06T12:48:59.284850313Z,2021-01-06T12:48:56Z,0,grid_power_minus,<INFLUX_BUCKET>\r\n,,4,2021-01-06T12:43:59.284850313Z,2021-01-06T12:48:59.284850313Z,2021-01-06T12:48:56Z,360,grid_power_plus,<INFLUX_BUCKET>\r\n,,5,2021-01-06T12:43:59.284850313Z,2021-01-06T12:48:59.284850313Z,2021-01-06T12:48:56Z,529,house_power,<INFLUX_BUCKET>\r\n,,6,2021-01-06T12:43:59.284850313Z,2021-01-06T12:48:59.284850313Z,2021-01-06T12:48:56Z,163,inverter_power,<INFLUX_BUCKET>\r\n\r\n"
+  recorded_at: Wed, 06 Jan 2021 12:48:59 GMT
 recorded_with: VCR 6.0.0
