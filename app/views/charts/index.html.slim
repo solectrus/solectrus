@@ -28,7 +28,7 @@ ruby:
                    { unit: 'year', displayFormats: { year: 'YYYY' }, tooltipFormat: 'YYYY' }
   end
 
-= turbo_frame_tag 'graphs' do
+= turbo_frame_tag 'charts' do
   - if timeframe.in? %w[now day]
     = area_chart chart,
                  ytitle: 'kW',
