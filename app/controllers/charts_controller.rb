@@ -1,4 +1,4 @@
-class GraphsController < ApplicationController
+class ChartsController < ApplicationController
   def index; end
 
   private
