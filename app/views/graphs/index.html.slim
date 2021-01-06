@@ -30,7 +30,7 @@ ruby:
 
 = turbo_frame_tag 'graphs' do
   - if timeframe.in? %w[now day]
-    = area_chart @chart,
+    = area_chart chart,
                  ytitle: 'kW',
                  library: { \
                    animation: animation_options,
@@ -40,11 +40,11 @@ ruby:
                  }
 
   - else
-    = column_chart @chart,
-                  ytitle: 'kWh',
-                  library: { \
-                    animation: animation_options,
-                    elements: elements_options,
-                    tooltips: tooltips_options,
-                    scales: { xAxes: [ { offset: true, type: 'time', time: time_options } ] } \
-                  }
+    = column_chart chart,
+                   ytitle: 'kWh',
+                   library: { \
+                     animation: animation_options,
+                     elements: elements_options,
+                     tooltips: tooltips_options,
+                     scales: { xAxes: [ { offset: true, type: 'time', time: time_options } ] } \
+                   }

@@ -1,7 +1,5 @@
 class StatsController < ApplicationController
-  def index
-    redirect_to root_path(timeframe: 'now', field: 'inverter_power') unless timeframe || field
-  end
+  def index; end
 
   private
 
