@@ -32,6 +32,9 @@ ruby:
   - if timeframe.in? %w[now day]
     = area_chart chart,
                  ytitle: 'kW',
+                 decimal: I18n.t('number.format.separator'),
+                 thousands: I18n.t('number.format.delimiter'),
+                 download: true,
                  library: { \
                    animation: animation_options,
                    elements: elements_options,
@@ -42,6 +45,9 @@ ruby:
   - else
     = column_chart chart,
                    ytitle: 'kWh',
+                   decimal: I18n.t('number.format.separator'),
+                   thousands: I18n.t('number.format.delimiter'),
+                   download: true,
                    library: { \
                      animation: animation_options,
                      elements: elements_options,
