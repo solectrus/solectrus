@@ -1,5 +1,9 @@
 = turbo_stream.replace 'stats' do
-  = turbo_frame_tag 'stats', target: '_top' do
-    = render partial: timeframe == 'now' ? 'now' : 'range'
+  - if timeframe == 'now'
+    = turbo_frame_tag 'stats', target: '_top', data: { controller: 'refresh', refresh_src_value: request.path } do
+      = render partial: 'now'
+  - else
+    = turbo_frame_tag 'stats', target: '_top' do
+      = render partial: 'range'
 
 = turbo_stream.replace('live', partial: 'live_indicator')
