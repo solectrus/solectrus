@@ -12,7 +12,7 @@
            ]
 
 .mt-5
-  = turbo_frame_tag 'stats', src: stats_path(timeframe: timeframe, field: field) do
+  = turbo_frame_tag 'stats', src: stats_path(timeframe: timeframe, field: field), target: '_top' do
     .m-20
       = render 'shared/loading'
 

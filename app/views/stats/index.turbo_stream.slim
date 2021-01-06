@@ -1,0 +1,5 @@
+= turbo_stream.replace 'stats' do
+  = turbo_frame_tag 'stats', target: '_top' do
+    = render partial: timeframe == 'now' ? 'now' : 'range'
+
+= turbo_stream.replace('live', partial: 'live_indicator')

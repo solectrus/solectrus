@@ -1,14 +1,6 @@
 class StatsController < ApplicationController
   def index
     redirect_to root_path(timeframe: 'now', field: 'inverter_power') unless timeframe || field
-
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace('stats', partial: timeframe == 'now' ? 'now' : 'range') +
-                             turbo_stream.replace('live', partial: 'live_indicator')
-      end
-      format.html
-    end
   end
 
   private
