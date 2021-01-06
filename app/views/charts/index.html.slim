@@ -28,10 +28,18 @@ ruby:
                    { unit: 'year', displayFormats: { year: 'YYYY' }, tooltipFormat: 'YYYY' }
   end
 
+  color = case field
+          when 'house_power'                         then '#D97706'
+          when 'inverter_power'                      then '#FCD34D'
+          when 'grid_power_plus', 'grid_power_minus' then '#9CA3AF'
+          when 'bat_power_plus', 'bat_power_minus'   then '#93C5FD'
+  end
+
 = turbo_frame_tag 'charts' do
   - if timeframe.in? %w[now day]
     = area_chart chart,
                  ytitle: 'kW',
+                 colors: [ color ],
                  decimal: I18n.t('number.format.separator'),
                  thousands: I18n.t('number.format.delimiter'),
                  download: true,
@@ -45,6 +53,7 @@ ruby:
   - else
     = column_chart chart,
                    ytitle: 'kWh',
+                   colors: [ color ],
                    decimal: I18n.t('number.format.separator'),
                    thousands: I18n.t('number.format.delimiter'),
                    download: true,
