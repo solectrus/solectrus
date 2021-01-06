@@ -11,10 +11,9 @@
              [ t('calculator.all'),   root_path(field: field, timeframe: 'all')   ] \
            ]
 
-.mt-5
+.h-full.flex.flex-col.justify-between.py-12
   = turbo_frame_tag 'stats', src: stats_path(timeframe: timeframe, field: field), target: '_top' do
     .m-20
       = render 'shared/loading'
 
-.mt-10
   = turbo_frame_tag 'charts', src: charts_path(timeframe: timeframe, field: field)
