@@ -1,6 +1,6 @@
 ruby:
   url_params ||= nil
-  is_current = url_params && url_params.with_indifferent_access <= request.parameters
+  is_current = url_params && url_params[:field] == request.parameters[:field]
 
 - content = capture do
   .border-4.rounded-full.bg-white.shadow class= (is_current ? 'border-gray-200' : 'border-transparent')

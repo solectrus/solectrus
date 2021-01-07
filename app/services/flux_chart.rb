@@ -3,24 +3,24 @@ class FluxChart < FluxBase
     chart_single start: '-15m', window: '5s'
   end
 
-  def day
-    chart_single start: Time.current.beginning_of_day.iso8601, stop: Time.current.end_of_day.iso8601, window: '5m'
+  def day(start)
+    chart_single start: start.iso8601, stop: start.end_of_day.iso8601, window: '5m'
   end
 
-  def week
-    chart_sum start: Time.current.beginning_of_week.iso8601, stop: Time.current.end_of_week.iso8601, window: '1d'
+  def week(start)
+    chart_sum start: start.iso8601, stop: start.end_of_week.iso8601, window: '1d'
   end
 
-  def month
-    chart_sum start: Time.current.beginning_of_month.iso8601, stop: Time.current.end_of_month.iso8601, window: '1d'
+  def month(start)
+    chart_sum start: start.iso8601, stop: start.end_of_month.iso8601, window: '1d'
   end
 
-  def year
-    chart_sum start: Time.current.beginning_of_year.iso8601, stop: Time.current.end_of_year.iso8601, window: '1mo'
+  def year(start)
+    chart_sum start: start.iso8601, stop: start.end_of_year.iso8601, window: '1mo'
   end
 
-  def all
-    chart_sum start: '-10y', stop: Time.current.iso8601, window: '1y'
+  def all(start)
+    chart_sum start: start.iso8601, window: '1y'
   end
 
   private
@@ -53,16 +53,19 @@ class FluxChart < FluxBase
 
   def to_array(raw)
     # TODO: Get all fields, not only the first one
+
     result = []
-    raw.values[0].records.each_with_index do |record, index|
-      # InfluxDB returns data one-off
-      next_record = raw.values[0].records[index + 1]
-      next unless next_record
+    if (table = raw.values[0])
+      table.records.each_with_index do |record, index|
+        # InfluxDB returns data one-off
+        next_record = raw.values[0].records[index + 1]
+        next unless next_record
 
-      time = Time.zone.parse(record.values['_time'] || '')
-      value = (next_record.values['_value'].to_f / 1_000).round(3)
+        time = Time.zone.parse(record.values['_time'] || '')
+        value = (next_record.values['_value'].to_f / 1_000).round(3)
 
-      result << [ time, value ]
+        result << [ time, value ]
+      end
     end
     result
   end

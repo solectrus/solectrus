@@ -3,24 +3,24 @@ div id="tab-#{timeframe}"
     = render 'shared/card',
              title: t('calculator.inverter_power'),
              value: number_to_kwh(calculator.inverter_power),
-             url_params: { timeframe: timeframe, field: 'inverter_power' }
+             url_params: { timeframe: timeframe, field: 'inverter_power', timestamp: params[:timestamp] }
 
     = render 'shared/card',
              title: t('calculator.house_power'),
              value: number_to_kwh(calculator.house_power),
-             url_params: { timeframe: timeframe, field: 'house_power' }
+             url_params: { timeframe: timeframe, field: 'house_power', timestamp: params[:timestamp] }
 
     = render 'shared/card',
              title: t('calculator.grid_power_plus'),
              value: number_to_kwh(calculator.grid_power_plus),
              extra: number_to_eur(calculator.paid),
-             url_params: { timeframe: timeframe, field: 'grid_power_plus' }
+             url_params: { timeframe: timeframe, field: 'grid_power_plus', timestamp: params[:timestamp] }
 
     = render 'shared/card',
              title: t('calculator.grid_power_minus'),
              value: number_to_kwh(calculator.grid_power_minus),
              extra: number_to_eur(calculator.got),
-             url_params: { timeframe: timeframe, field: 'grid_power_minus' }
+             url_params: { timeframe: timeframe, field: 'grid_power_minus', timestamp: params[:timestamp] }
 
   .mt-5.max-w-2xl.mx-auto.grid.sm:grid-cols-3.gap-5
     = render 'shared/card',
