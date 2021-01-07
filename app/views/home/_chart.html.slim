@@ -35,10 +35,23 @@ ruby:
           when 'bat_power_plus', 'bat_power_minus'   then '#93C5FD'
   end
 
-= turbo_frame_tag 'charts' do
-  - if timeframe.in? %w[now day]
-    = area_chart chart,
-                 ytitle: 'kW',
+- if timeframe.in? %w[now day]
+  = area_chart charts_path(permitted_params.to_hash.symbolize_keys),
+               ytitle: 'kW',
+               colors: [ color ],
+               decimal: I18n.t('number.format.separator'),
+               thousands: I18n.t('number.format.delimiter'),
+               download: true,
+               library: { \
+                 animation: animation_options,
+                 elements: elements_options,
+                 tooltips: tooltips_options,
+                 scales: { xAxes: [ { type: 'time', time: time_options } ] } \
+               }
+
+- else
+  = column_chart charts_path(permitted_params.to_hash.symbolize_keys),
+                 ytitle: 'kWh',
                  colors: [ color ],
                  decimal: I18n.t('number.format.separator'),
                  thousands: I18n.t('number.format.delimiter'),
@@ -47,19 +60,5 @@ ruby:
                    animation: animation_options,
                    elements: elements_options,
                    tooltips: tooltips_options,
-                   scales: { xAxes: [ { type: 'time', time: time_options } ] } \
+                   scales: { xAxes: [ { offset: true, type: 'time', time: time_options } ] } \
                  }
-
-  - else
-    = column_chart chart,
-                   ytitle: 'kWh',
-                   colors: [ color ],
-                   decimal: I18n.t('number.format.separator'),
-                   thousands: I18n.t('number.format.delimiter'),
-                   download: true,
-                   library: { \
-                     animation: animation_options,
-                     elements: elements_options,
-                     tooltips: tooltips_options,
-                     scales: { xAxes: [ { offset: true, type: 'time', time: time_options } ] } \
-                   }
