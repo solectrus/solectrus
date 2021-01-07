@@ -3,24 +3,24 @@ class FluxSum < FluxBase
     last('-5m')
   end
 
-  def day
-    sum start: Time.current.beginning_of_day.iso8601, stop: Time.current.end_of_day.iso8601
+  def day(start)
+    sum start: start.iso8601, stop: start.end_of_day.iso8601
   end
 
-  def week
-    sum start: Time.current.beginning_of_week.iso8601, stop: Time.current.end_of_week.iso8601
+  def week(start)
+    sum start: start.iso8601, stop: start.end_of_week.iso8601
   end
 
-  def month
-    sum start: Time.current.beginning_of_month.iso8601, stop: Time.current.end_of_month.iso8601
+  def month(start)
+    sum start: start.iso8601, stop: start.end_of_month.iso8601
   end
 
-  def year
-    sum start: Time.current.beginning_of_year.iso8601, stop: Time.current.end_of_year.iso8601
+  def year(start)
+    sum start: start.iso8601, stop: start.end_of_year.iso8601
   end
 
-  def all
-    sum start: '-10y'
+  def all(start)
+    sum start: start.iso8601
   end
 
   private

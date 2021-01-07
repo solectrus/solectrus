@@ -2,7 +2,7 @@ class RangeCalculator < BaseCalculator
   RATE         = 0.2545
   COMPENSATION = 0.0832
 
-  def initialize(timeframe)
+  def initialize(timeframe, timestamp)
     super()
     raise ArgumentError unless timeframe.to_s.in?(%w[day week month year all])
 
@@ -13,7 +13,7 @@ class RangeCalculator < BaseCalculator
       :grid_power_minus,
       :bat_power_minus,
       :bat_power_plus
-    ).public_send(timeframe)
+    ).public_send(timeframe, timestamp)
   end
 
   def paid

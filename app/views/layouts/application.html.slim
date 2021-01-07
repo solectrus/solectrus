@@ -25,19 +25,16 @@ html lang="de"
     = yield :head
 
   body.flex.flex-col.h-screen.bg-gray-100.font-sans
-    header.p-3
-      .flex.max-w-2xl.mx-auto.items-center.justify-center
+    header
+      .flex.max-w-2xl.mx-auto.items-center.justify-center.p-3
         h1.text-3xl.font-medium.uppercase.tracking-wider
           = link_to t('layout.photovoltaics'), root_path
 
-        .text-sm.ml-3.w-8
-          = turbo_frame_tag 'live'
-
-    main.p-3.flex-1
+    main.flex-1
       = yield
 
-    footer.bg-gray-200.p-3
-      .flex.max-w-2xl.mx-auto.justify-center.items-center.text-xs
+    footer.bg-gray-200
+      .flex.max-w-2xl.mx-auto.justify-center.items-center.text-xs.p-3
         div
           | SOLECTRUS
           = link_to 'https://github.com/solectrus/solectrus',

@@ -1,19 +1,24 @@
 = turbo_exempts_page_from_cache
 
-.flex.justify-center
-  = render 'shared/nav',
-           items: [ \
-             [ t('calculator.now'),   root_path(field: field, timeframe: 'now')   ],
-             [ t('calculator.day'),   root_path(field: field, timeframe: 'day')   ],
-             [ t('calculator.week'),  root_path(field: field, timeframe: 'week')  ],
-             [ t('calculator.month'), root_path(field: field, timeframe: 'month') ],
-             [ t('calculator.year'),  root_path(field: field, timeframe: 'year')  ],
-             [ t('calculator.all'),   root_path(field: field, timeframe: 'all')   ] \
-           ]
+.h-full.flex.flex-col
+  .flex.justify-center
+    = render 'shared/nav',
+            items: [ \
+              [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
+              [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: timestamp? ? timestamp.beginning_of_day.to_date.iso8601 : nil)) ],
+              [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: timestamp? ? timestamp.beginning_of_week.to_date.iso8601 : nil)) ],
+              [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month', timestamp: timestamp? ? timestamp.beginning_of_month.to_date.iso8601 : nil)) ],
+              [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year',  timestamp: timestamp? ? timestamp.beginning_of_year.to_date.iso8601 : nil)) ],
+              [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ] \
+            ]
 
-.h-full.flex.flex-col.justify-between.py-12
-  = turbo_frame_tag 'stats', src: stats_path(timeframe: timeframe, field: field), target: '_top' do
-    .m-20
-      = render 'shared/loading'
+  .flex.justify-center.my-5.py-3.bg-gray-200
+    = turbo_frame_tag 'timestamp' do
+      '&nbsp;
 
-  = turbo_frame_tag 'charts', src: charts_path(timeframe: timeframe, field: field)
+  .flex-grow
+    = turbo_frame_tag 'stats', src: stats_path(permitted_params), target: '_top' do
+      .m-20
+        = render 'shared/loading'
+
+  = turbo_frame_tag 'charts', src: charts_path(permitted_params), class: 'py-10'

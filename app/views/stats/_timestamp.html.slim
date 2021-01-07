@@ -1,0 +1,71 @@
+ruby:
+  previous_link = case timeframe
+                  when 'day'
+                    root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp - 1.day).to_date.iso8601)
+                  when 'week'
+                    root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp - 1.week).to_date.iso8601)
+                  when 'month'
+                    root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp - 1.month).to_date.iso8601)
+                  when 'year'
+                    root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp - 1.year).to_date.iso8601)
+  end
+
+  next_link = case timeframe
+              when 'day'
+                root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.day).to_date.iso8601)
+              when 'week'
+                root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.week).to_date.iso8601)
+              when 'month'
+                root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.month).to_date.iso8601)
+              when 'year'
+                root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.year).to_date.iso8601)
+  end
+
+.flex.items-center.justify-between.w-full.max-w-2xl
+  div
+    - if previous_link
+      = link_to previous_link, class: 'px-2 rounded hover:bg-white' do
+        '&lsaquo;
+
+  div
+    - if timestamp
+      - case timeframe
+      - when 'now'
+        = l timestamp, format: :long
+
+      - when 'day'
+        = l timestamp.to_date, format: :long
+
+      - when 'week'
+        => timestamp.to_date.year
+        'KW
+        = timestamp.to_date.cweek
+        span.text-gray-500.ml-3
+          =<> l timestamp.beginning_of_week.to_date
+          'bis
+          =<> l timestamp.end_of_week.to_date
+
+      - when 'month'
+        = l timestamp.to_date, format: :month
+
+      - when 'year'
+        = timestamp.to_date.year
+
+      - when 'all'
+        'Seit Installation
+
+    - if timeframe == 'now'
+      span.text-xs.ml-5
+        - if calculator.live?
+          span.bg-gradient-to-r.from-yellow-500.to-red-400.font-bold.tracking-widest.text-white.rounded.py-1.px-2.cursor-default
+            | LIVE
+        - elsif calculator.time
+          span.bg-red-500.text-gray-100.font-bold.rounded.py-1.px-2.cursor-default[
+            title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
+          ]
+            | !
+
+  div
+    - if next_link
+      = link_to next_link, class: 'px-2 rounded hover:bg-white' do
+        '&rsaquo;
