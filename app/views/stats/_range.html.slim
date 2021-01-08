@@ -1,5 +1,5 @@
 div id="tab-#{timeframe}"
-  .max-w-2xl.mx-auto.grid.sm:grid-cols-2.gap-5
+  .max-w-2xl.mx-auto.grid.grid-cols-2.gap-5.md:gap-10
     = render CardComponent.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
     = render CardComponent.new calculator: calculator, field: 'house_power', timeframe: timeframe
 
@@ -11,7 +11,7 @@ div id="tab-#{timeframe}"
       = component.with :extra do
         = number_to_eur(calculator.got)
 
-  .mt-5.max-w-2xl.mx-auto.grid.sm:grid-cols-3.gap-5
+  .mt-5.md:mt-10.max-w-2xl.mx-auto.grid.grid-cols-3.gap-5.md:gap-10
     = render CardComponent.new calculator: calculator, field: 'solar_price', timeframe: timeframe
     = render CardComponent.new calculator: calculator, field: 'traditional_price', timeframe: timeframe
     = render CardComponent.new calculator: calculator, field: 'profit', timeframe: timeframe

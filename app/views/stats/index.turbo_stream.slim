@@ -5,7 +5,8 @@
                     target: '_top',
                     data: timeframe == 'now' ? { controller: 'refresh', refresh_src_value: url_for(permitted_params.merge(chart_wanted: false)) } : nil do
     - if calculator.present?
-      = render partial: timeframe == 'now' ? 'now' : 'range'
+      .px-5
+        = render partial: timeframe == 'now' ? 'now' : 'range'
     - else
       = render partial: 'blank'
 
