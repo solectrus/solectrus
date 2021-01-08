@@ -5,7 +5,7 @@ module ParamsHandling
     private
 
     helper_method def permitted_params
-      params.permit(:field, :timeframe, :timestamp)
+      params.permit(:field, :timeframe, :timestamp, :chart_wanted)
     end
 
     helper_method def timeframe
@@ -18,6 +18,10 @@ module ParamsHandling
 
     helper_method def timestamp?
       permitted_params[:timestamp].present?
+    end
+
+    helper_method def chart_wanted?
+      permitted_params[:chart_wanted] != false
     end
 
     helper_method def timestamp

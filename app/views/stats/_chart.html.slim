@@ -1,0 +1,61 @@
+ruby:
+  options = {
+    ytitle: timeframe.in?(%w[now day]) ? 'kW' : 'kWh',
+    colors: [
+      case field
+      when 'house_power'                         then '#D97706'
+      when 'inverter_power'                      then '#FCD34D'
+      when 'grid_power_plus', 'grid_power_minus' then '#9CA3AF'
+      when 'bat_power_plus', 'bat_power_minus'   then '#93C5FD'
+      end
+    ],
+    decimal: I18n.t('number.format.separator'),
+    thousands: I18n.t('number.format.delimiter'),
+    download: true,
+    library: {
+      animation: {
+        easing: 'easeOutQuad',
+        duration: 300
+      },
+      elements: {
+        point: {
+          radius: 0,
+          hitRadius: 5,
+          hoverRadius: 5
+        }
+      },
+      tooltips: {
+        titleFontSize: 20,
+        bodyFontSize: 20
+      },
+      scales: {
+        xAxes: [
+          {
+            offset: !timeframe.in?(%w[now day]),
+            type: 'time',
+            time: case timeframe
+                  when 'now'
+                    { unit: 'minute', stepSize: 1, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' }
+                  when 'day'
+                    { unit: 'hour', displayFormats: { hour: 'HH:mm' }, tooltipFormat: 'HH:mm' }
+                  when 'week', 'month'
+                    { unit: 'day', displayFormats: { day: 'DD.MM.' }, tooltipFormat: 'dddd, DD.MM.YYYY' }
+                  when 'year'
+                    { unit: 'month', displayFormats: { month: 'MM-YYYY' }, tooltipFormat: 'MMMM YYYY' }
+                  when 'all'
+                    { unit: 'year', displayFormats: { year: 'YYYY' }, tooltipFormat: 'YYYY' }
+                  end
+          }
+        ]
+      }
+    }
+  }
+
+= tag.div id: "chart-#{timeframe}",
+          data: { \
+            controller: 'chartkick',
+            chartkick_url_value: charts_path(permitted_params.to_hash.symbolize_keys),
+            chartkick_options_value: options.to_json,
+            chartkick_type_value: timeframe.in?(%w[now day]) ? 'AreaChart' : 'ColumnChart' \
+          },
+          style: 'width: 100%; height: 300px'
