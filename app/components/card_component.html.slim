@@ -1,0 +1,17 @@
+- inner = capture do
+  .border-4.rounded-full.bg-white.shadow class= (current? ? 'border-gray-200' : 'border-transparent')
+    .p-3.rounded-full.whitespace-nowrap
+      h1.text-base.text-gray-600.uppercase.tracking-wider.text-center
+        = title
+
+      p.mt-1.text-2xl.xl:text-3xl.text-center data-refresh-target= (current? && @timeframe == 'now' ? 'current' : nil)
+        = content.presence || default_content
+
+      - if extra
+        p.text-xl.text-gray-400.text-center
+          = extra
+
+- if url_params
+  = link_to inner, root_path(url_params)
+- else
+  = inner
