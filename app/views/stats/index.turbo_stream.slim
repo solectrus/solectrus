@@ -1,9 +1,15 @@
 = turbo_stream.replace 'stats' do
-  - if timeframe == 'now'
-    = turbo_frame_tag 'stats', target: '_top', data: { controller: 'refresh', refresh_src_value: request.path } do
-      = render partial: 'now'
+  - if calculator.present?
+    - if timeframe == 'now'
+      = turbo_frame_tag 'stats', target: '_top', data: { controller: 'refresh', refresh_src_value: request.path } do
+        = render partial: 'now'
+    - else
+      = turbo_frame_tag 'stats', target: '_top' do
+        = render partial: 'range'
   - else
     = turbo_frame_tag 'stats', target: '_top' do
-      = render partial: 'range'
+      = render partial: 'blank'
 
 = turbo_stream.replace('timestamp', partial: 'timestamp')
+
+= turbo_stream.remove('chart-1') if calculator.blank?

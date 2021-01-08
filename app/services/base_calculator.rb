@@ -9,8 +9,10 @@ class BaseCalculator
     end
   end
 
+  delegate :present?, :blank?, to: :time
+
   def live?
-    time && time > 10.seconds.ago
+    present? && time > 10.seconds.ago
   end
 
   def bat_charging?
