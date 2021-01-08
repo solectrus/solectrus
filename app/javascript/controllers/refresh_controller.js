@@ -13,7 +13,7 @@ export default class extends Controller {
 
       // Wait until the frame is loaded before updating the chart
       // TODO: Is there a callback for doing this?
-      setTimeout(() => { this.updateChart() }, 2500)
+      setTimeout(() => { this.updateChart() }, 250)
     }, 5000);
   }
 
@@ -22,11 +22,20 @@ export default class extends Controller {
   }
 
   updateChart() {
+    if (!this.chart) {
+      logger.warn('RefreshController: Chart not found!')
+      return
+    }
+
     const data = this.chart.data[0].data
+
+    // Remove first point
     data.shift()
+
+    // Add new point
     data.push(
       // Assume the value is from NOW, no need to get the real one
-      [new Date().toISOString(), this.latestValue]
+      [new Date().toISOString(), this.currentValue]
     )
 
     var options = this.chart.options
@@ -36,10 +45,10 @@ export default class extends Controller {
   }
 
   get chart() {
-    return Chartkick.charts["chart-1"]
+    return Chartkick.charts['chart-now']
   }
 
-  get latestValue() {
+  get currentValue() {
     return parseFloat(this.currentTarget.innerHTML.replace(',', '.'))
   }
 }
