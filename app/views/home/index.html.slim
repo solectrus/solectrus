@@ -14,7 +14,7 @@
 
   .flex.justify-center.my-5.py-3.bg-gray-200
     = turbo_frame_tag 'timestamp' do
-      '&nbsp;
+      .h-8
 
   .flex-grow
     = turbo_frame_tag 'stats', src: stats_path(permitted_params.to_hash.symbolize_keys), target: '_top' do

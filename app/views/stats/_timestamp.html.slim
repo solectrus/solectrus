@@ -21,11 +21,12 @@ ruby:
                 root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.year).to_date.iso8601)
   end
 
-.flex.items-center.justify-between.w-full.max-w-2xl
-  div
-    - if previous_link
-      = link_to previous_link, class: 'px-2 rounded hover:bg-white' do
-        '&lsaquo;
+.flex.items-center.justify-between.w-full.max-w-2xl.h-8
+  - if previous_link
+    = link_to previous_link, class: 'block px-2 py-1 rounded hover:bg-white' do
+      = render partial: 'icons/chevron_left'
+  - else
+    div
 
   div
     - if timestamp
@@ -63,7 +64,8 @@ ruby:
           title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
         ] &#x26A0;
 
-  div
-    - if next_link
-      = link_to next_link, class: 'px-2 rounded hover:bg-white' do
-        '&rsaquo;
+  - if next_link
+    = link_to next_link, class: 'block px-2 py-1 rounded hover:bg-white' do
+      = render partial: 'icons/chevron_right'
+  - else
+    div
