@@ -1,36 +1,17 @@
 div id="tab-#{timeframe}"
   .max-w-2xl.mx-auto.grid.sm:grid-cols-2.gap-5
-    = render 'shared/card',
-             title: t('calculator.inverter_power'),
-             value: number_to_kwh(calculator.inverter_power),
-             url_params: { timeframe: timeframe, field: 'inverter_power', timestamp: params[:timestamp] }
+    = render CardComponent.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
+    = render CardComponent.new calculator: calculator, field: 'house_power', timeframe: timeframe
 
-    = render 'shared/card',
-             title: t('calculator.house_power'),
-             value: number_to_kwh(calculator.house_power),
-             url_params: { timeframe: timeframe, field: 'house_power', timestamp: params[:timestamp] }
+    = render CardComponent.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe do |component|
+      = component.with :extra do
+        = number_to_eur(calculator.paid)
 
-    = render 'shared/card',
-             title: t('calculator.grid_power_plus'),
-             value: number_to_kwh(calculator.grid_power_plus),
-             extra: number_to_eur(calculator.paid),
-             url_params: { timeframe: timeframe, field: 'grid_power_plus', timestamp: params[:timestamp] }
-
-    = render 'shared/card',
-             title: t('calculator.grid_power_minus'),
-             value: number_to_kwh(calculator.grid_power_minus),
-             extra: number_to_eur(calculator.got),
-             url_params: { timeframe: timeframe, field: 'grid_power_minus', timestamp: params[:timestamp] }
+    = render CardComponent.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe do |component|
+      = component.with :extra do
+        = number_to_eur(calculator.got)
 
   .mt-5.max-w-2xl.mx-auto.grid.sm:grid-cols-3.gap-5
-    = render 'shared/card',
-             title: t('calculator.solar_price'),
-             value: number_to_eur(calculator.solar_price)
-
-    = render 'shared/card',
-             title: t('calculator.traditional_price'),
-             value: number_to_eur(calculator.traditional_price)
-
-    = render 'shared/card',
-             title: t('calculator.profit'),
-             value: number_to_eur(calculator.profit)
+    = render CardComponent.new calculator: calculator, field: 'solar_price', timeframe: timeframe
+    = render CardComponent.new calculator: calculator, field: 'traditional_price', timeframe: timeframe
+    = render CardComponent.new calculator: calculator, field: 'profit', timeframe: timeframe

@@ -40,6 +40,9 @@ gem 'sentry-ruby'
 # A gem that provides Rails integration for the Sentry error logger (https://github.com/getsentry/sentry-ruby)
 gem 'sentry-rails'
 
+# View components for Rails (https://github.com/github/view_component)
+gem 'view_component', require: 'view_component/engine'
+
 group :development, :test do
   # Ruby fast debugger - base + CLI (https://github.com/deivid-rodriguez/byebug)
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]

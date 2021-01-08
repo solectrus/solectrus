@@ -1,43 +1,26 @@
 div id="tab-#{timeframe}"
   .max-w-2xl.mx-auto.grid.sm:grid-cols-2.gap-10
-    = render 'shared/card',
-             title: t('calculator.inverter_power'),
-             value: number_to_kw(calculator.inverter_power),
-             url_params: { timeframe: timeframe, field: 'inverter_power' }
+    = render CardComponent.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
 
     - if calculator.feeding?
-      = render 'shared/card',
-              title: t('calculator.grid_power_plus'),
-              value: number_to_kw(calculator.grid_power_plus),
-              url_params: { timeframe: timeframe, field: 'grid_power_plus' }
+      = render CardComponent.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe
     - else
-      = render 'shared/card',
-              title: t('calculator.grid_power_minus'),
-              value: number_to_kw(calculator.grid_power_minus),
-              url_params: { timeframe: timeframe, field: 'grid_power_minus' }
+      = render CardComponent.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
 
   .mt-12.flex.justify-center
     .w-10.rounded-full.p-5.border-8.border-gray-200.bg-gradient-to-bl.from-gray-500.to-gray-200
 
-  .mt-12.max-w-4xl.mx-auto.grid.sm:grid-cols-3.gap-5
-    = render 'shared/card',
-             title: t('calculator.house_power'),
-             value: number_to_kw(calculator.house_power),
-             url_params: { timeframe: timeframe, field: 'house_power' }
+  .mt-12.max-w-2xl.mx-auto.grid.sm:grid-cols-2.gap-5
+    = render CardComponent.new calculator: calculator, field: 'house_power', timeframe: timeframe
 
     - if calculator.bat_charging?
-      = render 'shared/card',
-               title: t('calculator.bat_power_plus'),
-               value: sanitize("#{number_to_kw(calculator.bat_power_plus)} &nbsp; #{number_to_charge(calculator.bat_fuel_charge)}"),
-               url_params: { timeframe: timeframe, field: 'bat_power_plus' }
+      = render CardComponent.new calculator: calculator, field: 'bat_power_plus', timeframe: timeframe do
+        = number_to_kw(calculator.bat_power_plus)
+        |&nbsp;
+        = number_to_charge(calculator.bat_fuel_charge)
 
     - else
-      = render 'shared/card',
-               title: t('calculator.bat_power_minus'),
-               value: sanitize("#{number_to_kw(calculator.bat_power_minus)} &nbsp; #{number_to_charge(calculator.bat_fuel_charge)}"),
-               url_params: { timeframe: timeframe, field: 'bat_power_minus' }
-
-    = render 'shared/card',
-              title: 'Wallbox',
-              value: number_to_kw(0),
-              url_params: { timeframe: timeframe, field: 'wallbox' }
+      = render CardComponent.new calculator: calculator, field: 'bat_power_minus', timeframe: timeframe do
+        = number_to_kw(calculator.bat_power_minus)
+        |&nbsp;
+        = number_to_charge(calculator.bat_fuel_charge)
