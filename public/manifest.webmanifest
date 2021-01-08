@@ -1,7 +1,7 @@
 {
   "name": "Solectrus",
   "short_name": "Solectrus",
-  "description": "Dashboard for SENEC photovoltaic",
+  "description": "Photovoltaics Dashboard",
   "start_url": ".",
   "icons": [
     {

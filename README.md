@@ -4,4 +4,4 @@
 
 # Solectrus
 
-Dashboard for SENEC photovoltaic
+Photovoltaic Dashboard
