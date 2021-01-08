@@ -55,15 +55,13 @@ ruby:
         'Seit Installation
 
     - if timeframe == 'now'
-      span.text-xs.ml-5
-        - if calculator.live?
-          span.bg-gradient-to-r.from-yellow-500.to-red-400.font-bold.tracking-widest.text-white.rounded.py-1.px-2.cursor-default
-            | LIVE
-        - elsif calculator.time
-          span.bg-red-500.text-gray-100.font-bold.rounded.py-1.px-2.cursor-default[
-            title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
-          ]
-            | !
+      - if calculator.live?
+        span.text-xs.ml-5.bg-gradient-to-r.from-yellow-500.to-red-400.font-bold.tracking-widest.text-white.rounded.py-1.px-2.cursor-default
+          | LIVE
+      - elsif calculator.time
+        span.ml-5.bg-red-500.text-gray-100.font-light.rounded.py-1.px-2.cursor-default[
+          title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
+        ] &#x26A0;
 
   div
     - if next_link
