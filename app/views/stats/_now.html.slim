@@ -1,5 +1,5 @@
 div id="tab-#{timeframe}"
-  .max-w-2xl.mx-auto.grid.grid-cols-2.gap-10
+  .mt-5.max-w-2xl.mx-auto.grid.grid-cols-2.gap-10
     = render CardComponent.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
 
     - if calculator.feeding?
@@ -7,7 +7,7 @@ div id="tab-#{timeframe}"
     - else
       = render CardComponent.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
 
-  .my-6.md:my-16.flex.justify-center
+  .my-5.md:my-8.flex.justify-center
     .w-10.rounded-full.p-5.border-8.border-gray-200.bg-gradient-to-bl.from-gray-500.to-gray-200
 
   .max-w-2xl.mx-auto.grid.grid-cols-2.gap-5
