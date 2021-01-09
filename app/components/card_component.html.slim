@@ -4,10 +4,8 @@
       h1.text-xs.sm:text-base.text-gray-600.uppercase.sm:tracking-wider.text-center.truncate
         = title
 
-      p.mt-1.text-lg.sm:text-2xl.xl:text-3xl.text-center data-refresh-target= (current? && @timeframe == 'now' ? 'current' : nil)
+      p.mt-1.px-8.text-lg.sm:text-2xl.xl:text-3xl.text-center data-refresh-target= (current? && @timeframe == 'now' ? 'current' : nil)
         = content.presence || default_content
 
-- if url_params
-  = link_to inner, root_path(url_params)
-- else
+= link_to_if url.present?, inner, url do
   = inner
