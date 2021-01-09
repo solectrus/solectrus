@@ -20,6 +20,14 @@ describe ApplicationHelper do
 
     let(:value) { 1234 }
 
-    it { is_expected.to eq '1,234 kWh' }
+    it { is_expected.to eq '<span>1</span><span class="text-base">,2</span><span>&nbsp;kWh</span>' }
+  end
+
+  describe 'number_to_kw' do
+    subject { number_to_kw(value) }
+
+    let(:value) { 1234 }
+
+    it { is_expected.to eq '<span>1</span><span class="text-base">,234</span><span>&nbsp;kW</span>' }
   end
 end
