@@ -1,16 +1,15 @@
 = turbo_exempts_page_from_cache
 
 .h-full.flex.flex-col
-  .flex.justify-center
-    = render 'shared/nav',
-            items: [ \
-              [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
-              [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: timestamp? ? timestamp.beginning_of_day.to_date.iso8601 : nil)) ],
-              [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: timestamp? ? timestamp.beginning_of_week.to_date.iso8601 : nil)) ],
-              [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month', timestamp: timestamp? ? timestamp.beginning_of_month.to_date.iso8601 : nil)) ],
-              [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year',  timestamp: timestamp? ? timestamp.beginning_of_year.to_date.iso8601 : nil)) ],
-              [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ] \
-            ]
+  - cache permitted_params.slice(:field, :timeframe, :timestamp) do
+    = render NavComponent.new items: [ \
+        [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
+        [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: timestamp? ? timestamp.beginning_of_day.to_date.iso8601 : nil)) ],
+        [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: timestamp? ? timestamp.beginning_of_week.to_date.iso8601 : nil)) ],
+        [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month', timestamp: timestamp? ? timestamp.beginning_of_month.to_date.iso8601 : nil)) ],
+        [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year',  timestamp: timestamp? ? timestamp.beginning_of_year.to_date.iso8601 : nil)) ],
+        [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ] \
+      ]
 
   .flex.justify-center.my-5.py-3.bg-gray-200
     = turbo_frame_tag 'timestamp' do

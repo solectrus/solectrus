@@ -3,7 +3,9 @@
 // a relevant structure within app/javascript and only use these pack files to reference
 // that code so it'll be compiled.
 
-import "@hotwired/turbo-rails"
+import { Turbo } from "@hotwired/turbo-rails"
+window.Turbo = Turbo
+
 import "chartkick"
 import "chart.js"
 

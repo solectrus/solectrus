@@ -64,6 +64,8 @@ Rails.application.configure do
   # config.action_cable.disable_request_forgery_protection = true
 
   config.hosts << 'solectrus.test'
+
+  config.view_component.preview_paths << Rails.root.join('spec', 'components', 'previews')
 end
 
 # Indent html for pretty debugging and do not sort attributes
