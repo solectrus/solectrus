@@ -3,12 +3,14 @@ div id="tab-#{timeframe}"
     = render CardComponent.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
     = render CardComponent.new calculator: calculator, field: 'house_power', timeframe: timeframe
 
-    = render CardComponent.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe do |component|
-      = component.with :extra do
+    = render CardComponent.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe do
+      = number_to_kwh(calculator.grid_power_plus)
+      span.ml-3
         = number_to_eur(calculator.paid)
 
-    = render CardComponent.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe do |component|
-      = component.with :extra do
+    = render CardComponent.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe do
+      = number_to_kwh(calculator.grid_power_minus)
+      span.ml-3
         = number_to_eur(calculator.got)
 
   .mt-5.md:mt-10.max-w-2xl.mx-auto.grid.grid-cols-3.gap-5.md:gap-10

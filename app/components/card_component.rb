@@ -1,8 +1,6 @@
 class CardComponent < ViewComponent::Base
   include ApplicationHelper
 
-  with_content_areas :extra
-
   def initialize(calculator:, field:, timeframe:)
     super
     @calculator = calculator

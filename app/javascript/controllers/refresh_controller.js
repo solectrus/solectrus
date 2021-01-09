@@ -49,6 +49,6 @@ export default class extends Controller {
   }
 
   get currentValue() {
-    return parseFloat(this.currentTarget.innerHTML.replace(',', '.'))
+    return parseFloat(this.currentTarget.innerText.replace(',', '.'))
   }
 }

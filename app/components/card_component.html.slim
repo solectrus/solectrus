@@ -7,10 +7,6 @@
       p.mt-1.text-lg.sm:text-2xl.xl:text-3xl.text-center data-refresh-target= (current? && @timeframe == 'now' ? 'current' : nil)
         = content.presence || default_content
 
-      - if extra
-        p.text-xl.text-gray-400.text-center
-          = extra
-
 - if url_params
   = link_to inner, root_path(url_params)
 - else
