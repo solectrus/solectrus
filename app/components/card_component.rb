@@ -16,12 +16,18 @@ class CardComponent < ViewComponent::Base
     }.compact
   end
 
+  def url
+    Rails.application.routes.recognize_path(root_path(url_params))
+  rescue ActionController::RoutingError
+    nil
+  end
+
   def title
     @title ||= I18n.t("calculator.#{@field}")
   end
 
   def current?
-    url_params && url_params[:field] == request.parameters[:field]
+    url_params[:field] == request.parameters[:field]
   end
 
   def value
