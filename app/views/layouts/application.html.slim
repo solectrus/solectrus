@@ -40,6 +40,7 @@ html lang="de"
           = link_to Rails.configuration.x.git.home,
                     target: '_blank',
                     rel: 'noopener',
+                    data: { controller: 'tippy' },
                     title: l(Rails.configuration.x.git.commit_time) do
             code.ml-1.text-gray-500
               = Rails.configuration.x.git.commit_sha.first(7)
