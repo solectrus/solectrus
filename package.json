@@ -9,7 +9,8 @@
     "chart.js": "^2.9.4",
     "chartkick": "^3.2.1",
     "stimulus": "^2.0.0",
-    "tailwindcss": "2.0.1-compat"
+    "tailwindcss": "2.0.1-compat",
+    "tippy.js": "^6.2.7"
   },
   "version": "0.1.0",
   "devDependencies": {
