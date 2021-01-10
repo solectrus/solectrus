@@ -48,8 +48,7 @@ class FluxSum < FluxBase
       |> #{range(start: start, stop: stop)}
       |> #{measurement_filter}
       |> #{fields_filter}
-      |> aggregateWindow(every: 1h, fn: mean)
-      |> sum()
+      |> integral(unit:1h)
     QUERY
 
     result.values.each_with_object(empty_hash) do |table, hash|
