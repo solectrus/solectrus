@@ -13,17 +13,13 @@ module.exports = {
   variants: {
     extend: {},
   },
-  purge: {
-    mode: 'all',
-
-    content: [
-      './app/**/*.html',
-      './app/**/*.html.erb',
-      './app/**/*.html.slim',
-      './app/helpers/**/*.rb',
-      './app/javascript/**/*.js'
-    ],
-  },
+  purge: [
+    './app/**/*.html',
+    './app/**/*.html.erb',
+    './app/**/*.html.slim',
+    './app/helpers/**/*.rb',
+    './app/javascript/**/*.js'
+  ],
   plugins: [
     require('@tailwindcss/forms'),
   ]
