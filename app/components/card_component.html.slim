@@ -1,5 +1,7 @@
 - inner = capture do
-  .border-4.rounded-full.bg-white.shadow class= (current? ? 'border-gray-200' : 'border-transparent')
+  .border-4.rounded-full.bg-white.shadow[
+    class= (current? ? 'border-gray-200' : 'border-transparent')
+  ]
     .p-3.rounded-full.whitespace-nowrap
       h1.text-xs.sm:text-base.text-gray-600.uppercase.sm:tracking-wider.text-center.truncate
         = title
@@ -7,5 +9,10 @@
       p.mt-1.px-8.text-lg.sm:text-2xl.xl:text-3xl.text-center data-refresh-target= (current? && @timeframe == 'now' ? 'current' : nil)
         = content.presence || default_content
 
-= link_to_if url.present?, inner, url do
-  = inner
+div data-controller= (tippy.present? ? 'tippy' : nil)
+  = link_to_if url.present?, inner, url do
+    = inner
+
+  - if tippy.present?
+    template data-tippy-target="html"
+      = tippy

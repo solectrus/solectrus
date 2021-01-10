@@ -2,7 +2,7 @@ module ApplicationHelper
   def number_to_eur(value)
     return unless value
 
-    string = number_to_currency(value, unit: '€', format: '%n %u', precision: value.abs < 100 ? 2 : 0)
+    string = number_to_currency(value, unit: '€', format: '%n %u', precision: 2)
     options = {
       class: value.negative? ? %w[text-red-500] : %w[text-green-500]
     }

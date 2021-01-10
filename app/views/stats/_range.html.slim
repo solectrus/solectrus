@@ -6,16 +6,35 @@ div id="tab-#{timeframe}"
     = render CardComponent.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
 
   .mt-5.md:mt-10.flex.justify-center
-    = render CardComponent.new calculator: calculator, field: 'profit', timeframe: timeframe
+    = render CardComponent.new calculator: calculator, field: 'profit', timeframe: timeframe do |component|
+      - component.with :tippy do
+        dl
+          .grid.grid-cols-2.gap-4
+            dt = I18n.t('calculator.grid_power_plus')
+            dd.font-mono.text-right = number_to_eur(calculator.paid)
 
-    / details
-    /   summary
-    /   dl
-    /     dt = I18n.t('calculator.solar_price')
-    /     dd = number_to_eur(calculator.solar_price)
-    /     dt = I18n.t('calculator.traditional_price')
-    /     dd = number_to_eur(calculator.traditional_price)
-    /     dt = I18n.t('calculator.grid_power_minus')
-    /     dd = number_to_eur(calculator.got)
-    /     dt = I18n.t('calculator.grid_power_plus')
-    /     dd = number_to_eur(calculator.paid)
+          .grid.grid-cols-2.gap-4
+            dt
+              |&plus;&nbsp;
+              = I18n.t('calculator.grid_power_minus')
+            dd.font-mono.text-right = number_to_eur(calculator.got)
+
+          hr.my-2
+          .grid.grid-cols-2.gap-4
+            dt
+              |&#61;&nbsp;
+              = I18n.t('calculator.solar_price')
+            dd.font-mono.text-right = number_to_eur(calculator.solar_price)
+
+          .mt-5.grid.grid-cols-2.gap-4
+            dt
+              |&minus;&nbsp;
+              = I18n.t('calculator.traditional_price')
+            dd.font-mono.text-right = number_to_eur(calculator.traditional_price)
+
+          hr.my-2
+          .grid.grid-cols-2.gap-4
+            dt
+              |&#61;&nbsp;
+              = I18n.t('calculator.profit')
+            dd.font-mono.text-right = number_to_eur(calculator.profit)

@@ -1,6 +1,8 @@
 class CardComponent < ViewComponent::Base
   include ApplicationHelper
 
+  with_content_areas :tippy
+
   def initialize(calculator:, field:, timeframe:)
     super
     @calculator = calculator
