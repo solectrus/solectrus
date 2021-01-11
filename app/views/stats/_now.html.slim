@@ -1,26 +1,39 @@
-div id="tab-#{timeframe}"
-  .mt-5.max-w-2xl.mx-auto.grid.grid-cols-2.gap-10
+.max-w-2xl.h-96.mx-auto.relative.overflow-hidden.flex.flex-col.justify-center id="tab-#{timeframe}"
+  .absolute.top-0.left-0.mt-16.ml-24
+    .w-64.h-5.rounded.flow-animation-left-right.transform.rotate-45
+
+  .absolute.top-0.right-0.mt-16.mr-24
+    .w-64.h-5.rounded.flow-animation-right-left.transform.-rotate-45
+
+  .absolute.w-16.h-16.m-auto.left-0.right-0.top-0.bottom-0.z-10.rounded-full.p-8.border-8.border-gray-200.bg-gradient-to-bl.from-gray-500.to-gray-200
+
+  .absolute.bottom-0.left-0.mb-16.ml-24
+    .w-64.h-5.rounded.flow-animation-left-right.transform.-rotate-45
+
+  .absolute.right-0.mr-24.bg-white.rounded.shadow.py-2.px-3
+    = t('calculator.bat_fuel_charge')
+    =< number_to_charge(calculator.bat_fuel_charge)
+
+  .absolute.bottom-0.right-0.mb-16.mr-24
+    .w-64.h-5.rounded.flow-animation-right-left.transform.rotate-45
+
+  .absolute.top-0.left-0.ml-10
     = render CardComponent.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
 
+  .absolute.top-0.right-0.mr-10
     - if calculator.feeding?
       = render CardComponent.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe
     - else
       = render CardComponent.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
 
-  .my-5.md:my-8.flex.justify-center
-    .w-10.rounded-full.p-5.border-8.border-gray-200.bg-gradient-to-bl.from-gray-500.to-gray-200
-
-  .max-w-2xl.mx-auto.grid.grid-cols-2.gap-5
+  .absolute.bottom-0.left-0.ml-10
     = render CardComponent.new calculator: calculator, field: 'house_power', timeframe: timeframe
 
+  .absolute.bottom-0.right-0.mr-10
     - if calculator.bat_charging?
       = render CardComponent.new calculator: calculator, field: 'bat_power_plus', timeframe: timeframe do
         = number_to_kw(calculator.bat_power_plus)
-        |&nbsp;
-        = number_to_charge(calculator.bat_fuel_charge)
 
     - else
       = render CardComponent.new calculator: calculator, field: 'bat_power_minus', timeframe: timeframe do
         = number_to_kw(calculator.bat_power_minus)
-        |&nbsp;
-        = number_to_charge(calculator.bat_fuel_charge)
