@@ -1,13 +1,27 @@
-.animate-flow {
-  animation: flow 5s linear infinite;
+.animate-flow-left-to-right {
+  animation: flowLeftToRight 5s linear infinite;
 }
 
-@keyframes flow {
+@keyframes flowLeftToRight {
   0%,
   100% {
     transform: translateX(100%);
   }
   0% {
     transform: translateX(-5%);
+  }
+}
+
+.animate-flow-right-to-left {
+  animation: flowRightToLeft 5s linear infinite;
+}
+
+@keyframes flowRightToLeft {
+  0%,
+  100% {
+    transform: translateX(5%);
+  }
+  0% {
+    transform: translateX(100%);
   }
 }
