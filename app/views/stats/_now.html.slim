@@ -1,15 +1,15 @@
 .max-w-2xl.h-96.mx-auto.relative.overflow-hidden.flex.flex-col.justify-center id="tab-#{timeframe}"
   .absolute.top-0.left-0.w-48.h-8.transform.rotate-45.mt-24.ml-40.z-10
-    = render FlowComponent.new
+    = render Flow::Component.new
 
   .absolute.top-0.right-0.w-48.h-8.transform.-rotate-45.mt-24.mr-40.z-10
-    = render FlowComponent.new
+    = render Flow::Component.new
 
   .absolute.bottom-0.left-0.w-48.h-8.transform.-rotate-45.mb-24.ml-40.z-10
-    = render FlowComponent.new
+    = render Flow::Component.new
 
   .absolute.bottom-0.right-0.w-48.h-8.transform.rotate-45.mb-24.mr-40.z-10
-    = render FlowComponent.new
+    = render Flow::Component.new
 
   .absolute.w-8.h-8.m-auto.left-0.right-0.top-0.bottom-0.z-10.rounded-full.p-8.border-8.border-gray-200.bg-gradient-to-bl.from-gray-500.to-gray-200
 
@@ -18,22 +18,22 @@
     =< number_to_charge(calculator.bat_fuel_charge)
 
   .absolute.top-0.left-0.ml-10.z-10
-    = render CardComponent.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
+    = render Card::Component.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
 
   .absolute.top-0.right-0.mr-10.z-10
     - if calculator.feeding?
-      = render CardComponent.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe
+      = render Card::Component.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe
     - else
-      = render CardComponent.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
+      = render Card::Component.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
 
   .absolute.bottom-0.left-0.ml-10.z-10
-    = render CardComponent.new calculator: calculator, field: 'house_power', timeframe: timeframe
+    = render Card::Component.new calculator: calculator, field: 'house_power', timeframe: timeframe
 
   .absolute.bottom-0.right-0.mr-10.z-10
     - if calculator.bat_charging?
-      = render CardComponent.new calculator: calculator, field: 'bat_power_plus', timeframe: timeframe do
+      = render Card::Component.new calculator: calculator, field: 'bat_power_plus', timeframe: timeframe do
         = number_to_kw(calculator.bat_power_plus)
 
     - else
-      = render CardComponent.new calculator: calculator, field: 'bat_power_minus', timeframe: timeframe do
+      = render Card::Component.new calculator: calculator, field: 'bat_power_minus', timeframe: timeframe do
         = number_to_kw(calculator.bat_power_minus)

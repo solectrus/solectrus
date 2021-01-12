@@ -1,4 +1,4 @@
-class CardComponent < ViewComponent::Base
+class Card::Component < ViewComponent::Base
   include ApplicationHelper
 
   with_content_areas :tippy

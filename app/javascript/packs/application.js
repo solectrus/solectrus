@@ -10,5 +10,6 @@ import "chartkick"
 import "chart.js"
 
 import "channels"
-import "../controllers"
 import "stylesheets/application.scss"
+import "../controllers"
+import "../components"
