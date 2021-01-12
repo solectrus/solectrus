@@ -2,32 +2,16 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-.flow-animation-left-right {
-  animation: animateLeftRight 1s infinite linear;
-  background-image: linear-gradient(90deg, #da3287, #ffde5e, #da3287, #ffde5e);
-  background-size: 300% 100%;
+.animate-flow {
+  animation: flow 5s linear infinite;
 }
 
-.flow-animation-right-left {
-  animation: animateRightLeft 1s infinite linear;
-  background-image: linear-gradient(90deg, #ffde5e, #da3287, #ffde5e, #da3287);
-  background-size: 300% 100%;
-}
-
-@keyframes animateLeftRight {
-  0% {
-    background-position: 100% 0;
-  }
+@keyframes flow {
+  0%,
   100% {
-    background-position: 0 0;
+    transform: translateX(100%);
   }
-}
-
-@keyframes animateRightLeft {
   0% {
-    background-position: 0 0;
-  }
-  100% {
-    background-position: 100% 0;
+    transform: translateX(-5%);
   }
 }
