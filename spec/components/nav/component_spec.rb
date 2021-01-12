@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe NavComponent, type: :component do
+describe Nav::Component, type: :component do
   it 'renders menu' do
     items = [
       [ 'one', '/one' ],

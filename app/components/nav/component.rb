@@ -1,4 +1,4 @@
-class NavComponent < ViewComponent::Base
+class Nav::Component < ViewComponent::Base
   def initialize(items:)
     super
     @items = items

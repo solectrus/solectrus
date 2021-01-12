@@ -2,7 +2,7 @@
 
 .h-full.flex.flex-col
   - cache permitted_params.slice(:field, :timeframe, :timestamp) do
-    = render NavComponent.new items: [ \
+    = render Nav::Component.new items: [ \
         [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
         [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: timestamp? ? timestamp.beginning_of_day.to_date.iso8601 : nil)) ],
         [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: timestamp? ? timestamp.beginning_of_week.to_date.iso8601 : nil)) ],
@@ -19,7 +19,7 @@
     = turbo_frame_tag 'stats', src: stats_path(permitted_params.to_hash.symbolize_keys), target: '_top' do
       - cache do
         .flex.justify-center.m-20
-          = render LoadingComponent.new
+          = render Loading::Component.new
 
   .mt-5.mb-2
     = turbo_frame_tag 'chart'
