@@ -8,7 +8,7 @@ de:
     month: Monat
     year: Jahr
     all: Gesamt
-    inverter_power: Stromerzeugung
+    inverter_power: Erzeugung
     house_power: Hausverbrauch
     grid_power_plus: Netzbezug
     grid_power_minus: Einspeisung
