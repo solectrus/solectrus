@@ -10,6 +10,7 @@ de:
     all: Gesamt
     inverter_power: Erzeugung
     house_power: Hausverbrauch
+    wallbox_charge_power: Wallbox
     grid_power_plus: Netzbezug
     grid_power_minus: Einspeisung
     bat_power_minus: Akku-Entnahme

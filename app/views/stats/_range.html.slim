@@ -1,8 +1,11 @@
 div id="tab-#{timeframe}"
   .max-w-2xl.mx-auto.grid.grid-cols-2.gap-5.md:gap-10
     = render Card::Component.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
-    = render Card::Component.new calculator: calculator, field: 'house_power', timeframe: timeframe
     = render Card::Component.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe
+
+  .mt-5.md:mt-10.max-w-2xl.mx-auto.grid.grid-cols-3.gap-5
+    = render Card::Component.new calculator: calculator, field: 'house_power', timeframe: timeframe
+    = render Card::Component.new calculator: calculator, field: 'wallbox_charge_power', timeframe: timeframe
     = render Card::Component.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
 
   .mt-5.md:mt-10.flex.justify-center
