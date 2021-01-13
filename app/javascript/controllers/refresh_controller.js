@@ -8,7 +8,7 @@ export default class extends Controller {
   }
 
   connect() {
-    this.timeout = setTimeout(() => {
+    this.timeout = setInterval(() => {
       this.element.setAttribute('src', this.srcValue)
 
       // Wait until the frame is loaded before updating the chart
@@ -18,12 +18,27 @@ export default class extends Controller {
   }
 
   disconnect() {
-    clearTimeout(this.timeout)
+    clearInterval(this.timeout)
   }
 
   updateChart() {
     if (!this.chart) {
-      logger.warn('RefreshController: Chart not found!')
+      console.warn('RefreshController: Chart not found!')
+      return
+    }
+
+    if (!this.hasCurrentTarget) {
+      console.warn('RefreshController: Target "current" not found!')
+      return
+    }
+
+    if (!this.chart) {
+      console.warn('RefreshController: Chart not found!')
+      return
+    }
+
+    if (!this.chart.data) {
+      console.warn('RefreshController: Chart data not found!')
       return
     }
 
