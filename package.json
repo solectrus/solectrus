@@ -2,7 +2,7 @@
   "name": "solectrus",
   "private": true,
   "dependencies": {
-    "@hotwired/turbo-rails": "^7.0.0-beta.2",
+    "@hotwired/turbo-rails": "^7.0.0-beta.3",
     "@rails/actioncable": "^6.1.1",
     "@rails/webpacker": "5.2.1",
     "@tailwindcss/forms": "^0.2.1",
