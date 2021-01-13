@@ -9,8 +9,12 @@ class Flow::Component < ViewComponent::Base
   attr_accessor :direction
 
   def height_class # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    if quote < 0.02
+    if quote < 0.01
       'h-0 border'
+    elsif quote < 0.03
+      'h-1'
+    elsif quote < 0.05
+      'h-2'
     elsif quote < 0.1
       'h-3'
     elsif quote < 0.2
