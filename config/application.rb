@@ -40,6 +40,8 @@ module Solectrus
     config.i18n.available_locales = [ :en, :de ]
     config.i18n.default_locale = :de
 
+    config.x.app_host      = ENV['APP_HOST']
+    config.x.plausible_url = ENV['PLAUSIBLE_URL']
     config.x.sentry_dns    = ENV['SENTRY_DNS']
     config.x.sentry_host   = URI.parse(config.x.sentry_dns).host if config.x.sentry_dns.present?
   end

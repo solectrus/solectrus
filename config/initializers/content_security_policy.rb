@@ -18,6 +18,7 @@ Rails.application.config.content_security_policy do |policy|
     policy.connect_src(
       *[
         :self,
+        Rails.configuration.x.plausible_url.presence,
         Rails.configuration.x.sentry_host.presence
       ].compact
     )

@@ -11,5 +11,7 @@ import "chart.js"
 
 import "channels"
 import "stylesheets/application.scss"
-import "../controllers"
-import "../components"
+import "controllers"
+import "components"
+
+import "utils/plausible"
