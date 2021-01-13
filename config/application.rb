@@ -39,5 +39,8 @@ module Solectrus
     # the I18n.default_locale when a translation cannot be found).
     config.i18n.available_locales = [ :en, :de ]
     config.i18n.default_locale = :de
+
+    config.x.sentry_dns    = ENV['SENTRY_DNS']
+    config.x.sentry_host   = URI.parse(config.x.sentry_dns).host if config.x.sentry_dns.present?
   end
 end
