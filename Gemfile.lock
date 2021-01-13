@@ -275,7 +275,7 @@ GEM
     temple (0.8.2)
     thor (1.0.1)
     tilt (2.0.10)
-    turbo-rails (0.5.3)
+    turbo-rails (0.5.4)
       rails (>= 6.0.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
