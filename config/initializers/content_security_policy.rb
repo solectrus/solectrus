@@ -15,7 +15,12 @@ Rails.application.config.content_security_policy do |policy|
     policy.object_src  :none
     policy.script_src  :self, :https
     policy.style_src   :self, :https, :unsafe_inline # unsafe_inline is required by Turbo's progressbar
-    policy.connect_src :self
+    policy.connect_src(
+      *[
+        :self,
+        Rails.configuration.x.sentry_host.presence
+      ].compact
+    )
   end
   policy.base_uri :self
 
