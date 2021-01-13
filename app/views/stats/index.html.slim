@@ -1,0 +1,10 @@
+= turbo_frame_tag 'stats' do
+  .mt-5.flex.justify-center.py-3.bg-gray-200
+    = render partial: 'timestamp'
+
+  .mt-5.xl:mt-10
+    - if calculator.present?
+      .px-5
+        = render partial: timeframe == 'now' ? 'now' : 'range'
+    - else
+      = render partial: 'blank'

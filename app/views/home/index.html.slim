@@ -11,15 +11,13 @@
         [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ] \
       ]
 
-  .mt-5.flex.justify-center.py-3.bg-gray-200
-    = turbo_frame_tag 'timestamp' do
-      .h-8
-
-  .mt-5.xl:mt-10.flex-grow
-    = turbo_frame_tag 'stats', src: stats_path(permitted_params.to_hash.symbolize_keys), target: '_top' do
-      - cache do
-        .flex.justify-center.m-20
-          = render Loading::Component.new
+  .flex-grow
+    = turbo_frame_tag 'stats',
+                      src: stats_path(permitted_params.to_hash.symbolize_keys),
+                      target: '_top',
+                      data: timeframe == 'now' ? { controller: 'refresh', refresh_src_value: stats_path(permitted_params.to_hash.symbolize_keys) } : nil do
+      .flex.justify-center.m-20
+        = render Loading::Component.new
 
   .mt-5.mb-2
-    = turbo_frame_tag 'chart'
+    = render partial: 'stats/chart'
