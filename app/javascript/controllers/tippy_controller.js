@@ -9,7 +9,7 @@ export default class extends Controller {
   static targets = [ 'html' ]
 
   connect() {
-    tippy(
+    this.tippyInstance = tippy(
       this.element, {
         allowHTML: true,
         arrow: true,
@@ -31,5 +31,9 @@ export default class extends Controller {
         }
       }
     )
+  }
+
+  disconnect() {
+    this.tippyInstance.destroy()
   }
 }
