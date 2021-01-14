@@ -28,28 +28,19 @@
 
   .absolute.right-0.mr-24.bg-white.rounded.shadow.py-2.px-3
     = t('calculator.bat_fuel_charge')
-    =< number_to_charge(calculator.bat_fuel_charge)
+    =< Number::Component.new(value: calculator.bat_fuel_charge).to_percent
 
   .absolute.top-0.left-0.ml-10
     = render Card::Component.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
 
   .absolute.top-0.right-0.mr-10
-    - if calculator.feeding?
-      = render Card::Component.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe
-    - else
-      = render Card::Component.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
+    = render Card::Component.new calculator: calculator, field: (calculator.feeding? ? 'grid_power_plus' : 'grid_power_minus'), timeframe: timeframe
 
   .absolute.bottom-0.left-0.ml-10
     = render Card::Component.new calculator: calculator, field: 'house_power', timeframe: timeframe
 
   .absolute.bottom-0.right-0.mr-10
-    - if calculator.bat_charging?
-      = render Card::Component.new calculator: calculator, field: 'bat_power_plus', timeframe: timeframe do
-        = number_to_kw(calculator.bat_power_plus)
-
-    - else
-      = render Card::Component.new calculator: calculator, field: 'bat_power_minus', timeframe: timeframe do
-        = number_to_kw(calculator.bat_power_minus)
+    = render Card::Component.new calculator: calculator, field: (calculator.bat_charging? ? 'bat_power_plus' : 'bat_power_minus'), timeframe: timeframe
 
   .absolute.m-auto.left-0.right-0.bottom-0.w-48.-mb-20
     = render Card::Component.new calculator: calculator, field: 'wallbox_charge_power', timeframe: timeframe
