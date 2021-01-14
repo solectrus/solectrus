@@ -34,11 +34,11 @@ class Number::Component < ViewComponent::Base
     )
   end
 
-  def to_percent
+  def to_percent(max_precision: 1)
     return unless value
 
     styled_number(
-      formatted_number(value, max_precision: 1),
+      formatted_number(value, max_precision: max_precision),
       unit: '%',
       klass: value.positive? ? %w[text-green-500] : %w[text-red-500]
     )

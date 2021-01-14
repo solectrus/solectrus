@@ -26,4 +26,18 @@ class BaseCalculator
 
     grid_power_plus > grid_power_minus
   end
+
+  def consumption
+    house_power.to_f + wallbox_charge_power.to_f
+  end
+
+  def grid_quote
+    return 100 if consumption.zero?
+
+    100 * grid_power_plus / consumption
+  end
+
+  def autarky
+    100 - grid_quote
+  end
 end

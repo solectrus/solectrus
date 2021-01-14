@@ -1,0 +1,27 @@
+dl
+  .grid.grid-cols-2.gap-4
+    dt
+      = I18n.t('calculator.grid_power_plus')
+    dd.font-mono.text-right = Number::Component.new(value: calculator.grid_power_plus).to_kwh
+
+  .mt-2.grid.grid-cols-2.gap-4
+    dt
+      |&divide;&nbsp;
+      = I18n.t('calculator.consumption')
+    dd.font-mono.text-right = Number::Component.new(value: calculator.consumption).to_kwh
+
+  hr.my-2
+  .grid.grid-cols-2.gap-4
+    dt
+      |&#61;&nbsp;
+      = I18n.t('calculator.grid_quote')
+    dd.font-mono.text-right = Number::Component.new(value: calculator.grid_quote).to_percent
+
+  .mt-5.grid.grid-cols-2.gap-4
+    dt
+      = I18n.t('calculator.autarky')
+      |&nbsp;&#61;&nbsp;
+      |100 &minus;&nbsp;
+      = Number::Component.new(value: calculator.grid_quote).to_percent
+
+    dd.font-mono.text-right = Number::Component.new(value: calculator.autarky).to_percent

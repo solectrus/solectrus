@@ -11,6 +11,9 @@ de:
     inverter_power: Erzeugung
     house_power: Hausverbrauch
     wallbox_charge_power: Wallbox
+    autarky: Autarkie
+    consumption: Eigenverbrauch
+    grid_quote: Bezugsquote
     grid_power_plus: Netzbezug
     grid_power_minus: Einspeisung
     bat_power_minus: Akku-Entnahme

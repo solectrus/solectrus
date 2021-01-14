@@ -35,16 +35,6 @@ class RangeCalculator < BaseCalculator
     got + paid
   end
 
-  def consumption
-    if wallbox_charge_power && house_power
-      house_power + wallbox_charge_power
-    elsif house_power
-      house_power
-    elsif wallbox_charge_power
-      wallbox_charge_power
-    end
-  end
-
   def traditional_price
     return unless consumption
 
