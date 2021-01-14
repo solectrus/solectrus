@@ -8,36 +8,11 @@ div id="tab-#{timeframe}"
     = render Card::Component.new calculator: calculator, field: 'wallbox_charge_power', timeframe: timeframe
     = render Card::Component.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
 
-  .mt-5.md:mt-10.flex.justify-center
+  .mt-5.md:mt-10.max-w-2xl.mx-auto.grid.grid-cols-2.gap-5.md:gap-10
+    = render Card::Component.new calculator: calculator, field: 'autarky' do |component|
+      - component.with :tippy do
+        = render partial: 'calculate_autarky'
+
     = render Card::Component.new calculator: calculator, field: 'profit', timeframe: timeframe do |component|
       - component.with :tippy do
-        dl
-          .grid.grid-cols-2.gap-4
-            dt = I18n.t('calculator.grid_power_plus')
-            dd.font-mono.text-right = Number::Component.new(value: calculator.paid).to_eur
-
-          .grid.grid-cols-2.gap-4
-            dt
-              |&plus;&nbsp;
-              = I18n.t('calculator.grid_power_minus')
-            dd.font-mono.text-right = Number::Component.new(value: calculator.got).to_eur
-
-          hr.my-2
-          .grid.grid-cols-2.gap-4
-            dt
-              |&#61;&nbsp;
-              = I18n.t('calculator.solar_price')
-            dd.font-mono.text-right = Number::Component.new(value: calculator.solar_price).to_eur
-
-          .mt-5.grid.grid-cols-2.gap-4
-            dt
-              |&minus;&nbsp;
-              = I18n.t('calculator.traditional_price')
-            dd.font-mono.text-right = Number::Component.new(value: calculator.traditional_price).to_eur
-
-          hr.my-2
-          .grid.grid-cols-2.gap-4
-            dt
-              |&#61;&nbsp;
-              = I18n.t('calculator.profit')
-            dd.font-mono.text-right = Number::Component.new(value: calculator.profit).to_eur
+        = render partial: 'calculate_profit'

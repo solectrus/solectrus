@@ -40,6 +40,8 @@ class Card::Component < ViewComponent::Base
   def default_content
     if @field.in?(%w[bat_fuel_charge])
       Number::Component.new(value: value).to_percent
+    elsif @field.in?(%w[autarky])
+      Number::Component.new(value: value).to_percent(max_precision: 0)
     elsif @field.in?(%w[solar_price traditional_price profit])
       Number::Component.new(value: value).to_eur
     elsif @timeframe == 'now'

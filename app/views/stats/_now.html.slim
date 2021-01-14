@@ -26,6 +26,11 @@
 
   .absolute.w-8.h-8.m-auto.left-0.right-0.top-0.bottom-0.z-10.rounded-full.p-8.border-8.border-gray-200.bg-gradient-to-bl.from-gray-500.to-gray-200
 
+  .absolute.left-0.ml-24
+    = render Card::Component.new calculator: calculator, field: 'autarky', size: :small do |component|
+      - component.with :tippy do
+        = render partial: 'calculate_autarky'
+
   .absolute.right-0.mr-24
     = render Card::Component.new calculator: calculator, field: 'bat_fuel_charge', size: :small
 
