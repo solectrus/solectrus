@@ -1,13 +1,25 @@
 - inner = capture do
-  .border-4.rounded-full.bg-white.shadow[
-    class= (current? ? 'border-gray-200' : 'border-transparent')
-  ]
-    .p-3.rounded-full.whitespace-nowrap
-      h1.text-xs.sm:text-base.text-gray-600.uppercase.sm:tracking-wider.text-center.truncate
-        = title
+  - if size == :small
+    .border-4.bg-white.shadow.whitespace-nowrap.rounded[
+      class= (current? ? 'border-gray-200' : 'border-transparent')
+    ]
+      .p-1.text-center
+        h1.text-xs.text-gray-600.uppercase.sm:tracking-wider.truncate
+          = title
 
-      p.mt-1.px-8.text-lg.sm:text-2xl.xl:text-3xl.text-center data-refresh-target= (current? && @timeframe == 'now' ? 'current' : nil)
-        = content.presence || default_content
+        .mt-1.text-lg.leading-none data-refresh-target= (current? && timeframe == 'now' ? 'current' : nil)
+          = content.presence || default_content
+
+  - else
+    .border-4.bg-white.shadow.whitespace-nowrap.rounded-full[
+      class= (current? ? 'border-gray-200' : 'border-transparent')
+    ]
+      .py-2.px-6.text-center
+        h1.text-xs.sm:text-base.text-gray-600.uppercase.sm:tracking-wider.truncate
+          = title
+
+        .mt-1.text-lg.leading-none.sm:text-2xl.xl:text-3xl data-refresh-target= (current? && timeframe == 'now' ? 'current' : nil)
+          = content.presence || default_content
 
 div data-controller= (tippy.present? ? 'tippy' : nil)
   = link_to_if url.present?, inner, url do

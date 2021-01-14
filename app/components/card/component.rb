@@ -1,12 +1,15 @@
 class Card::Component < ViewComponent::Base
   with_content_areas :tippy
 
-  def initialize(calculator:, field:, timeframe:)
+  def initialize(calculator:, field:, timeframe: nil, size: :default)
     super
     @calculator = calculator
     @field = field
     @timeframe = timeframe
+    @size = size
   end
+
+  attr_accessor :size, :timeframe
 
   def url_params
     @url_params ||= {
@@ -35,7 +38,9 @@ class Card::Component < ViewComponent::Base
   end
 
   def default_content
-    if @field.in?(%w[solar_price traditional_price profit])
+    if @field.in?(%w[bat_fuel_charge])
+      Number::Component.new(value: value).to_percent
+    elsif @field.in?(%w[solar_price traditional_price profit])
       Number::Component.new(value: value).to_eur
     elsif @timeframe == 'now'
       Number::Component.new(value: value).to_kw
