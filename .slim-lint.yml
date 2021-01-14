@@ -14,3 +14,4 @@ linters:
       - Layout/ArgumentAlignment
       - Layout/TrailingEmptyLines
       - Layout/FirstArrayElementIndentation
+      - Style/IdenticalConditionalBranches
