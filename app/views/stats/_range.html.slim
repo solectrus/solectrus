@@ -1,18 +1,28 @@
 div id="tab-#{timeframe}"
   .max-w-2xl.mx-auto.grid.grid-cols-2.gap-5.md:gap-10
-    = render Card::Component.new calculator: calculator, field: 'inverter_power', timeframe: timeframe
-    = render Card::Component.new calculator: calculator, field: 'grid_power_plus', timeframe: timeframe
+    = render Card::Component.new field: 'inverter_power' do
+      = Number::Component.new(value: calculator.inverter_power).to_kwh
+
+    = render Card::Component.new field: 'grid_power_plus' do
+      = Number::Component.new(value: calculator.grid_power_plus).to_kw
 
   .mt-5.md:mt-10.max-w-2xl.mx-auto.grid.grid-cols-3.gap-5
-    = render Card::Component.new calculator: calculator, field: 'house_power', timeframe: timeframe
-    = render Card::Component.new calculator: calculator, field: 'wallbox_charge_power', timeframe: timeframe
-    = render Card::Component.new calculator: calculator, field: 'grid_power_minus', timeframe: timeframe
+    = render Card::Component.new field: 'house_power' do
+      = Number::Component.new(value: calculator.house_power).to_kwh
+
+    = render Card::Component.new field: 'wallbox_charge_power' do
+      = Number::Component.new(value: calculator.wallbox_charge_power).to_kwh
+
+    = render Card::Component.new field: 'grid_power_minus' do
+      = Number::Component.new(value: calculator.grid_power_minus).to_kw
 
   .mt-5.md:mt-10.max-w-2xl.mx-auto.grid.grid-cols-2.gap-5.md:gap-10
-    = render Card::Component.new calculator: calculator, field: 'autarky' do |component|
+    = render Card::Component.new field: 'autarky' do |component|
+      = Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0)
       - component.with :tippy do
         = render partial: 'calculate_autarky'
 
-    = render Card::Component.new calculator: calculator, field: 'profit', timeframe: timeframe do |component|
+    = render Card::Component.new field: 'profit' do |component|
+      = Number::Component.new(value: calculator.profit).to_eur
       - component.with :tippy do
         = render partial: 'calculate_profit'
