@@ -62,7 +62,13 @@ class FluxChart < FluxBase
         next unless next_record
 
         time = Time.zone.parse(record.values['_time'] || '')
-        value = (next_record.values['_value'].to_f / 1_000).round(3)
+        value = case record.values['_field']
+                when /power/
+                  # Fields with "power" in the name are given in W, so change them to kW
+                  (next_record.values['_value'].to_f / 1_000).round(3)
+                else
+                  next_record.values['_value'].to_f
+        end
 
         result << [ time, value ]
       end

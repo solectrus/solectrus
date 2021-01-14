@@ -1,6 +1,10 @@
 ruby:
   options = {
-    ytitle: timeframe.in?(%w[now day]) ? 'kW' : 'kWh',
+    ytitle: if field == 'bat_fuel_charge'
+              "#{I18n.t "calculator.#{field}"} in %"
+            else
+              "#{I18n.t "calculator.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
+            end,
     colors: [
       case field
       when 'house_power', 'wallbox_charge_power' then '#D97706'
