@@ -1,6 +1,4 @@
 class Card::Component < ViewComponent::Base
-  include ApplicationHelper
-
   with_content_areas :tippy
 
   def initialize(calculator:, field:, timeframe:)
@@ -38,11 +36,11 @@ class Card::Component < ViewComponent::Base
 
   def default_content
     if @field.in?(%w[solar_price traditional_price profit])
-      number_to_eur(value)
+      Number::Component.new(value: value).to_eur
     elsif @timeframe == 'now'
-      number_to_kw(value)
+      Number::Component.new(value: value).to_kw
     else
-      number_to_kwh(value)
+      Number::Component.new(value: value).to_kwh
     end
   end
 end
