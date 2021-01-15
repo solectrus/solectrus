@@ -88,6 +88,15 @@ Rails.application.configure do
     logger           = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
     config.logger    = ActiveSupport::TaggedLogging.new(logger)
+    config.log_tags  = [ :remote_ip ]
+
+    # Use lograge gem
+    config.lograge.enabled = true
+    config.lograge.custom_payload do |controller|
+      {
+        user_agent: controller.request.user_agent
+      }
+    end
   end
 
   # Do not dump schema after migrations.

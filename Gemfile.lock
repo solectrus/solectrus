@@ -121,6 +121,11 @@ GEM
       rb-inotify (~> 0.9, >= 0.9.10)
     lockup (1.6.1)
       rails (>= 3, < 7.0)
+    lograge (0.11.2)
+      actionpack (>= 4)
+      activesupport (>= 4)
+      railties (>= 4)
+      request_store (~> 1.0)
     loofah (2.9.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -193,6 +198,8 @@ GEM
       ffi (~> 1.0)
     redis (4.2.5)
     regexp_parser (1.8.2)
+    request_store (1.5.0)
+      rack (>= 1.4)
     rexml (3.2.4)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -320,6 +327,7 @@ DEPENDENCIES
   influxdb-client
   listen (~> 3.3)
   lockup
+  lograge
   pg (~> 1.1)
   puma (~> 5.0)
   rails (~> 6.1.1)

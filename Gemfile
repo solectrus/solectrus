@@ -31,6 +31,9 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # Slim is a template language. (http://slim-lang.com/)
 gem 'slim'
 
+# Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
+gem 'lograge'
+
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
 gem 'influxdb-client'
 
