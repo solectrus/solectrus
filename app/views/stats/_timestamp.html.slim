@@ -24,7 +24,7 @@ ruby:
 .flex.items-center.justify-between.w-full.max-w-2xl.h-8
   - if previous_link
     = link_to previous_link, class: 'block px-2 py-1 rounded hover:bg-white' do
-      = render partial: 'icons/chevron_left'
+      i.fas.fa-chevron-left.fa-lg
   - else
     div
 
@@ -66,6 +66,6 @@ ruby:
 
   - if next_link
     = link_to next_link, class: 'block px-2 py-1 rounded hover:bg-white' do
-      = render partial: 'icons/chevron_right'
+      i.fas.fa-chevron-right.fa-lg
   - else
     div
