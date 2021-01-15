@@ -24,23 +24,23 @@ class Number::Component < ViewComponent::Base
     )
   end
 
-  def to_eur
+  def to_eur(klass: nil)
     return unless value
 
     styled_number(
       formatted_number(value, max_precision: 2),
       unit: '€',
-      klass: value.negative? ? %w[text-red-500] : %w[text-green-500]
+      klass: klass || value.negative? ? %w[text-red-500] : %w[text-green-500]
     )
   end
 
-  def to_percent(max_precision: 1)
+  def to_percent(max_precision: 1, klass: nil)
     return unless value
 
     styled_number(
       formatted_number(value, max_precision: max_precision),
       unit: '%',
-      klass: value.positive? ? %w[text-green-500] : %w[text-red-500]
+      klass: klass || (value.positive? ? %w[text-green-500] : %w[text-red-500])
     )
   end
 

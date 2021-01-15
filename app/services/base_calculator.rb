@@ -21,10 +21,18 @@ class BaseCalculator
     bat_power_plus > bat_power_minus
   end
 
+  def battery_loaded?
+    bat_fuel_charge&.positive?
+  end
+
+  def producing?
+    inverter_power.to_f > 2
+  end
+
   def feeding?
     return unless grid_power_plus && grid_power_minus
 
-    grid_power_plus > grid_power_minus
+    grid_power_minus > grid_power_plus
   end
 
   def consumption
