@@ -1,4 +1,4 @@
-class Dashboard::Component < ViewComponent::Base
+class DashboardRange::Component < ViewComponent::Base
   def initialize(calculator:)
     super
     @calculator = calculator

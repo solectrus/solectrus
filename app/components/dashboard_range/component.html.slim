@@ -1,0 +1,69 @@
+.flex.flex-col.gap-3.md:gap-10.text-center.text-white
+  .grid.grid-cols-3.gap-3.md:gap-10
+    = render Card::Component.new field: 'inverter_power', signal: calculator.producing?, klasses: 'flex flex-col justify-center' do |component|
+      = component.icon
+
+      h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+        = component.title
+
+      = tag.div class: 'mt-5 text-2xl md:text-4xl', **component.value_options do
+        = Number::Component.new(value: calculator.inverter_power).to_kwh
+
+    .flex.flex-col.gap-3
+      = render Card::Component.new field: 'wallbox_charge_power', signal: calculator.wallbox_charge_power&.positive? ? false : nil, klasses: 'flex flex-col justify-center' do |component|
+        = component.icon
+
+        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+          = component.title
+
+        = tag.div class: 'mt-5 text-2xl md:text-4xl', **component.value_options do
+          = Number::Component.new(value: calculator.wallbox_charge_power).to_kwh
+
+      = render Card::Component.new field: 'house_power', signal: calculator.autarky == 100, klasses: 'flex flex-col justify-center' do |component|
+        = component.icon
+
+        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+          = component.title
+
+        = tag.div class: 'mt-5 text-2xl md:text-4xl', **component.value_options do
+          = Number::Component.new(value: calculator.house_power).to_kwh
+
+        h1.mt-2.text-xs.md:text-base
+          =t 'calculator.autarky'
+          =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
+
+        - component.with :tippy do
+          = render partial: 'calculate_autarky'
+
+    = render Card::Component.new field: 'grid_power_plus', signal: false, klasses: 'flex flex-col justify-center' do |component|
+      = component.icon
+
+      h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+        = component.title
+
+      = tag.div class: 'mt-5 text-2xl md:text-4xl', **component.value_options do
+        = Number::Component.new(value: calculator.grid_power_plus).to_kwh
+
+  .grid.grid-cols-2.gap-3.md:gap-10
+    = render Card::Component.new field: 'grid_power_minus', signal: true, klasses: 'flex flex-row justify-around items-center' do |component|
+      = component.icon
+
+      div
+        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+          = component.title
+
+        = tag.div class: 'text-2xl md:text-4xl', **component.value_options do
+          = Number::Component.new(value: calculator.grid_power_minus).to_kwh
+
+    = render Card::Component.new field: 'profit', signal: true, klasses: 'flex flex-row justify-around items-center' do |component|
+      i.fas.fa-money-bill-alt.fa-2x
+
+      div
+        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+          = component.title
+
+        = tag.div class: 'text-2xl md:text-4xl', **component.value_options do
+          = Number::Component.new(value: calculator.profit).to_eur(klass: 'text-current')
+
+      - component.with :tippy do
+        = render partial: 'calculate_profit'

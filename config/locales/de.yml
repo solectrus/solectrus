@@ -16,8 +16,10 @@ de:
     grid_quote: Bezugsquote
     grid_power_plus: Netzbezug
     grid_power_minus: Einspeisung
+    grid_power: Netz
     bat_power_minus: Akku-Entnahme
     bat_power_plus: Akku-Beladung
+    bat_power: Akku
     bat_fuel_charge: Akku-Füllstand
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
