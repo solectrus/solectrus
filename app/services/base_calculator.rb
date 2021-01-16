@@ -21,10 +21,30 @@ class BaseCalculator
     bat_power_plus > bat_power_minus
   end
 
+  def bat_power
+    [ bat_power_plus, bat_power_minus ].compact.max
+  end
+
+  def bat_power_field
+    bat_charging? ? 'bat_power_plus' : 'bat_power_minus'
+  end
+
+  def producing?
+    inverter_power.to_f > 2
+  end
+
   def feeding?
     return unless grid_power_plus && grid_power_minus
 
-    grid_power_plus > grid_power_minus
+    grid_power_minus > grid_power_plus
+  end
+
+  def grid_power
+    [ grid_power_plus, grid_power_minus ].compact.max
+  end
+
+  def grid_power_field
+    feeding? ? 'grid_power_minus' : 'grid_power_plus'
   end
 
   def consumption

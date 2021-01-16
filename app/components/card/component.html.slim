@@ -1,30 +1,17 @@
-- inner = capture do
-  - if size == :small
-    .border-4.bg-white.shadow.whitespace-nowrap.rounded[
-      class= (current? ? 'border-gray-200' : 'border-transparent')
-    ]
-      .p-1.text-center
-        h1.text-xs.text-gray-600.uppercase.sm:tracking-wider.truncate
-          = title
+- options = { data: { controller: (tippy.present? ? 'tippy' : nil) }, class: content_class }
 
-        .mt-1.text-lg.leading-none data-refresh-target= (current? && timeframe == 'now' ? 'current' : nil)
-          = content
+- if url.present?
+  = link_to url, options do
+    = content
 
-  - else
-    .border-4.bg-white.shadow.whitespace-nowrap.rounded-full[
-      class= (current? ? 'border-gray-200' : 'border-transparent')
-    ]
-      .py-2.px-6.text-center
-        h1.text-xs.sm:text-base.text-gray-600.uppercase.sm:tracking-wider.truncate
-          = title
+    - if tippy.present?
+      template data-tippy-target="html"
+        = tippy
 
-        .mt-1.text-lg.leading-none.sm:text-2xl.xl:text-3xl data-refresh-target= (current? && timeframe == 'now' ? 'current' : nil)
-          = content
+- else
+  = tag.div options do
+    = content
 
-div data-controller= (tippy.present? ? 'tippy' : nil)
-  = link_to_if url.present?, inner, url do
-    = inner
-
-  - if tippy.present?
-    template data-tippy-target="html"
-      = tippy
+    - if tippy.present?
+      template data-tippy-target="html"
+        = tippy
