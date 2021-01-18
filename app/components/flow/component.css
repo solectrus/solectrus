@@ -1,27 +1,28 @@
-.animate-flow-left-to-right {
-  animation: flowLeftToRight 5s linear infinite;
+.red-zebra {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #EF4444 0.1rem,
+    #B91C1C 0.1rem,
+    #EF4444 1rem
+  );
+  background-size: 200% 200%;
+  animation: barberpole 20s linear infinite;
 }
 
-@keyframes flowLeftToRight {
-  0%,
+.green-zebra {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    #10B981 0.1rem,
+    #047857 0.1rem,
+    #10B981 1rem
+  );
+  background-size: 200% 200%;
+  animation: barberpole 20s linear infinite;
+}
+
+
+@keyframes barberpole {
   100% {
-    transform: translateX(100%);
-  }
-  0% {
-    transform: translateX(-5%);
-  }
-}
-
-.animate-flow-right-to-left {
-  animation: flowRightToLeft 5s linear infinite;
-}
-
-@keyframes flowRightToLeft {
-  0%,
-  100% {
-    transform: translateX(5%);
-  }
-  0% {
-    transform: translateX(100%);
+    background-position: 100% 100%;
   }
 }

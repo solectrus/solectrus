@@ -1,12 +1,4 @@
-/ https://play.tailwindcss.com/mP0A57rdnA
-
-div class="flex items-center h-8"
-  - case direction
-  - when :left_to_right
-    div class="w-full #{height_class} overflow-hidden rounded-full bg-gradient-to-r from-yellow-400 to-yellow-600 shadow"
-      div class="flex items-center h-full animate-flow-left-to-right"
-        div class="border-yellow-400 border-t-8 border-r-8 p-6 transform rotate-45"
-  - when :right_to_left
-    div class="w-full #{height_class} overflow-hidden rounded-full bg-gradient-to-l from-yellow-400 to-yellow-600 shadow"
-      div class="flex items-center h-full animate-flow-right-to-left"
-        div class="border-yellow-400 border-t-8 border-l-8 p-6 transform -rotate-45"
+- if value.positive?
+  .w-full.h-24.bg-gray-200.shadow class= (signal ? 'green-zebra' : 'red-zebra')
+- else
+  .w-full.h-24

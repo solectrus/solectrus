@@ -1,12 +1,16 @@
+# TODO: Better styling
+# https://stackoverflow.com/questions/62212412/smooth-infinite-animation-flow-with-css
+# https://stackoverflow.com/questions/58660120/create-infinite-loop-with-css-keyframes
+
 class Flow::Component < ViewComponent::Base
-  def initialize(direction:, value:, max:)
+  def initialize(value:, max:, signal:)
     super
-    @direction = direction
     @value = value.to_f
     @max = max.to_f
+    @signal = signal
   end
 
-  attr_accessor :direction
+  attr_accessor :value, :signal
 
   def height_class # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     if quote < 0.01

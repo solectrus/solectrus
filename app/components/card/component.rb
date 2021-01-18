@@ -44,14 +44,6 @@ class Card::Component < ViewComponent::Base
     end
   end
 
-  def signal_class
-    if signal.nil?
-      'bg-gray-500'
-    else
-      signal ? 'bg-green-500' : 'bg-red-500'
-    end
-  end
-
   def current?
     params[:field] == field
   end
@@ -60,21 +52,33 @@ class Card::Component < ViewComponent::Base
     tag.i class: "#{icon_class} fa-2x"
   end
 
+  def signal_class
+    if signal.nil?
+      'bg-gray-500'
+    else
+      signal ? 'bg-green-500' : 'bg-red-500'
+    end
+  end
+
   def icon_class
     {
       'inverter_power'       => 'fas fa-sun',
       'wallbox_charge_power' => 'fas fa-car',
       'house_power'          => 'fas fa-home',
       'grid_power_plus'      => 'fas fa-plug',
-      'grid_power_minus'     => 'fas fa-bolt'
+      'grid_power_minus'     => 'fas fa-plug'
     }[field]
   end
 
-  def content_class
+  def border_class
     if current?
-      [ signal_class, 'p-2 md:p-3 rounded border-4 border-black shadow', klasses ]
+      case signal
+      when true  then 'border-green-700'
+      when false then 'border-red-700'
+      else            'border-gray-700'
+      end
     else
-      [ signal_class, 'p-2 md:p-3 rounded border-4 border-transparent', klasses ]
+      'border-transparent'
     end
   end
 end

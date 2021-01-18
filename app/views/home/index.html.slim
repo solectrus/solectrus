@@ -11,7 +11,7 @@
         [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ] \
       ]
 
-  .flex-grow
+  .flex-grow.overflow-hidden
     = turbo_frame_tag 'stats',
                       src: stats_path(permitted_params.to_hash.symbolize_keys),
                       target: '_top',
@@ -19,5 +19,5 @@
       .flex.justify-center.m-20
         = render Loading::Component.new
 
-  .mt-5.mb-2
+  .mt-5.mb-2.bg-gray-100.z-10
     = render partial: 'stats/chart'
