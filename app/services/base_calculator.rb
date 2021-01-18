@@ -1,4 +1,4 @@
-class BaseCalculator
+class BaseCalculator # rubocop:disable Metrics/ClassLength
   def build_context(hash)
     hash.each do |key, value|
       instance_variable_set(:"@#{key}", value)
@@ -60,15 +60,15 @@ class BaseCalculator
   def grid_quote
     return 100 if consumption.zero?
 
-    100 * grid_power_plus / consumption
+    100.0 * grid_power_plus / consumption
   end
 
   def autarky
-    100 - grid_quote
+    100 - grid_quote.round
   end
 
   def inverter_to_wallbox
-    if wallbox_charge_power.positive?
+    if producing? && wallbox_charge_power.positive?
       inverter_power
     else
       0
@@ -76,7 +76,11 @@ class BaseCalculator
   end
 
   def inverter_to_house
-    [ house_power, inverter_power ].min
+    if producing?
+      [ house_power, inverter_power ].min
+    else
+      0
+    end
   end
 
   def inverter_to_battery
@@ -100,7 +104,11 @@ class BaseCalculator
   end
 
   def battery_to_house
-    bat_power_minus
+    if bat_empty?
+      0
+    else
+      bat_power_minus
+    end
   end
 
   def grid_to_battery
@@ -112,6 +120,10 @@ class BaseCalculator
   end
 
   def house_to_grid
-    grid_power_minus
+    if feeding?
+      grid_power_minus
+    else
+      0
+    end
   end
 end
