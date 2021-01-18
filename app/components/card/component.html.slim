@@ -1,4 +1,4 @@
-- options = { data: { controller: (tippy.present? ? 'tippy' : nil) }, class: content_class }
+- options = { data: { controller: (tippy.present? ? 'tippy' : nil) }, class: [ 'p-2 md:p-3 rounded border-4 shadow-md z-10', signal_class, border_class, klasses ] }
 
 - if url.present?
   = link_to url, options do

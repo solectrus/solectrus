@@ -4,7 +4,11 @@ class BaseCalculator
       instance_variable_set(:"@#{key}", value)
 
       define_singleton_method(key) do
-        instance_variable_get(:"@#{key}")
+        if key == :time
+          instance_variable_get(:"@#{key}")
+        else
+          instance_variable_get(:"@#{key}").to_f
+        end
       end
     end
   end
@@ -16,25 +20,27 @@ class BaseCalculator
   end
 
   def bat_charging?
-    return unless bat_power_plus && bat_power_minus
-
     bat_power_plus > bat_power_minus
   end
 
   def bat_power
-    [ bat_power_plus, bat_power_minus ].compact.max
+    [ bat_power_plus, bat_power_minus ].max
   end
 
   def bat_power_field
     bat_charging? ? 'bat_power_plus' : 'bat_power_minus'
   end
 
+  def bat_empty?
+    bat_fuel_charge < 1
+  end
+
   def producing?
-    inverter_power.to_f > 2
+    inverter_power > 2
   end
 
   def feeding?
-    return unless grid_power_plus && grid_power_minus
+    return if grid_power < 20
 
     grid_power_minus > grid_power_plus
   end
@@ -48,7 +54,7 @@ class BaseCalculator
   end
 
   def consumption
-    house_power.to_f + wallbox_charge_power.to_f
+    house_power + wallbox_charge_power
   end
 
   def grid_quote
@@ -59,5 +65,49 @@ class BaseCalculator
 
   def autarky
     100 - grid_quote
+  end
+
+  def inverter_to_wallbox
+    if wallbox_charge_power.positive?
+      inverter_power
+    else
+      0
+    end
+  end
+
+  def inverter_to_house
+    [ house_power, inverter_power ].min
+  end
+
+  def inverter_to_battery
+    if bat_charging?
+      inverter_power - house_power
+    else
+      0
+    end
+  end
+
+  def grid_to_wallbox
+    if wallbox_charge_power&.positive?
+      grid_power_plus - grid_to_house
+    else
+      0
+    end
+  end
+
+  def grid_to_house
+    grid_power_plus
+  end
+
+  def grid_to_battery
+    if bat_charging? && grid_power_plus > (house_power + wallbox_charge_power)
+      bat_power_plus
+    else
+      0
+    end
+  end
+
+  def house_to_grid
+    grid_power_minus
   end
 end
