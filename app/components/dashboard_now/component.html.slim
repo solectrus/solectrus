@@ -23,12 +23,13 @@
 
     .grid.grid-cols-3.gap-3.md:gap-10
       .transform.-rotate-90
-        = render Flow::Component.new value: calculator.inverter_to_battery, max: 10_000, signal: true
+        = render Flow::Component.new value: calculator.inverter_to_battery, max: 2_500, signal: true
 
-      div
+      .transform.rotate-90
+        = render Flow::Component.new value: calculator.battery_to_house, max: 2_500, signal: true
 
       .transform.-rotate-90
-        = render Flow::Component.new value: calculator.grid_to_battery, max: 10_000, signal: false
+        = render Flow::Component.new value: calculator.grid_to_battery, max: 2_500, signal: false
 
   .grid.grid-cols-1.gap-3.md:gap-y-10.text-center.text-white
     = render Card::Component.new field: 'wallbox_charge_power' do |component|

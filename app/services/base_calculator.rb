@@ -99,6 +99,10 @@ class BaseCalculator
     grid_power_plus
   end
 
+  def battery_to_house
+    bat_power_minus
+  end
+
   def grid_to_battery
     if bat_charging? && grid_power_plus > (house_power + wallbox_charge_power)
       bat_power_plus
