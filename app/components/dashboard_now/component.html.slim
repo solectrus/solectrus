@@ -59,7 +59,7 @@
           br
 
       .grid.grid-cols-1.gap-3
-        = render Card::Component.new field: 'house_power', signal: calculator.autarky == 100, klasses: 'flex flex-col justify-center' do |component|
+        = render Card::Component.new field: 'house_power', signal: calculator.autarky, klasses: 'flex flex-col justify-center' do |component|
           = component.icon
 
           h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block

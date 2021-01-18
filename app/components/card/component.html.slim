@@ -1,8 +1,15 @@
-- options = { data: { controller: (tippy.present? ? 'tippy' : nil) }, class: [ 'p-2 md:p-3 rounded border-4 shadow-md z-10', signal_class, border_class, klasses ] }
+- options = { data: { controller: (tippy.present? ? 'tippy' : nil) }, class: [ 'rounded border-4 shadow-md z-10', signal_class, border_class, klasses ] }
+
+- wrapped_content = capture do
+  div class="relative"
+    div class="absolute left-0 right-0 bottom-0 bg-green-500" style="height: #{signal_percent}%"
+
+    div class="relative p-2 md:p-3"
+      = content
 
 - if url.present?
   = link_to url, options do
-    = content
+    = wrapped_content
 
     - if tippy.present?
       template data-tippy-target="html"
@@ -10,7 +17,7 @@
 
 - else
   = tag.div options do
-    = content
+    = wrapped_content
 
     - if tippy.present?
       template data-tippy-target="html"

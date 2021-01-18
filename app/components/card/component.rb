@@ -55,8 +55,18 @@ class Card::Component < ViewComponent::Base
   def signal_class
     if signal.nil?
       'bg-gray-500'
-    else
+    elsif signal.in?([true, false])
       signal ? 'bg-green-500' : 'bg-red-500'
+    elsif signal.is_a?(Integer)
+      'bg-red-500'
+    end
+  end
+
+  def signal_percent
+    case signal
+    when true then 100
+    when false then 0
+    else signal
     end
   end
 
@@ -72,13 +82,13 @@ class Card::Component < ViewComponent::Base
 
   def border_class
     if current?
-      case signal
-      when true  then 'border-green-700'
-      when false then 'border-red-700'
-      else            'border-gray-700'
+      case signal_percent
+      when 50..100 then 'border-green-700'
+      when 0..49   then 'border-red-700'
+      else              'border-gray-700'
       end
     else
-      'border-transparent'
+      'border-gray-100'
     end
   end
 end
