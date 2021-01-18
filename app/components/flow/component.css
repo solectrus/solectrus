@@ -1,21 +1,23 @@
 .red-zebra {
   background-image: repeating-linear-gradient(
-    -90deg,
-    #FEE2E2 0.1rem,
+    -85deg,
+    #EF4444 0.1rem,
+    #B91C1C 0.1rem,
     #EF4444 1rem
   );
   background-size: 200% 200%;
-  animation: barberpole 20s linear infinite;
+  animation: barberpole 10s linear infinite;
 }
 
 .green-zebra {
   background-image: repeating-linear-gradient(
-    -90deg,
-    #D1FAE5 0.1rem,
+    -80deg,
+    #10B981 0.1rem,
+    #047857 0.1rem,
     #10B981 1rem
   );
   background-size: 200% 200%;
-  animation: barberpole 20s linear infinite;
+  animation: barberpole 10s linear infinite;
 }
 
 
