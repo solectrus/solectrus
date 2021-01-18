@@ -54,6 +54,9 @@
         = tag.div class: 'mt-5 text-2xl md:text-4xl', **component.value_options do
           = Number::Component.new(value: calculator.inverter_power).to_kw
 
+        h1.mt-2.text-xs.md:text-base
+          br
+
       .grid.grid-cols-1.gap-3
         = render Card::Component.new field: 'house_power', signal: calculator.autarky == 100, klasses: 'flex flex-col justify-center' do |component|
           = component.icon
@@ -79,6 +82,9 @@
 
         = tag.div class: 'mt-5 text-2xl md:text-4xl', **component.value_options do
           = Number::Component.new(value: calculator.grid_power).to_kw
+
+        h1.mt-2.text-xs.md:text-base
+          br
 
     = render Card::Component.new field: calculator.bat_power_field, signal: !calculator.bat_empty? || nil do |component|
       .flex.flex-row.justify-around.items-center
