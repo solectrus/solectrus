@@ -40,7 +40,7 @@ class BaseCalculator
   end
 
   def feeding?
-    return if grid_power < 20
+    return if grid_power < 50
 
     grid_power_minus > grid_power_plus
   end

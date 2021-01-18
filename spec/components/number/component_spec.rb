@@ -29,7 +29,7 @@ describe Number::Component do
     context 'when small number (< 100 kW)' do
       let(:value) { 12_345.67 }
 
-      it { is_expected.to eq '<span><strong class="font-medium">12</strong><small>,346</small>&nbsp;<small>kW</small></span>' }
+      it { is_expected.to eq '<span><strong class="font-medium">12</strong><small>,3</small>&nbsp;<small>kW</small></span>' }
     end
 
     context 'when large number (>= 100 kW)' do

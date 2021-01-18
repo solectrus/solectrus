@@ -19,7 +19,7 @@ class Number::Component < ViewComponent::Base
     return unless value
 
     styled_number(
-      formatted_number(value / 1_000.0, max_precision: 3),
+      formatted_number(value / 1_000.0, max_precision: 1),
       unit: 'kW'
     )
   end
