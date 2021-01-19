@@ -1,4 +1,4 @@
-.flex.flex-col.gap-3.md:gap-10.text-center.text-white
+.grid.gap-3.md:gap-10.text-center.text-white
   .grid.grid-cols-3.gap-3.md:gap-10
     = render Card::Component.new field: 'inverter_power', signal: calculator.producing?, klasses: 'flex flex-col justify-center' do |component|
       = component.icon
@@ -9,7 +9,7 @@
       = tag.div class: 'mt-5 text-2xl md:text-4xl', **component.value_options do
         = Number::Component.new(value: calculator.inverter_power).to_kwh
 
-    .flex.flex-col.gap-3
+    .grid.gap-3
       = render Card::Component.new field: 'wallbox_charge_power', signal: calculator.wallbox_charge_power&.positive? ? false : nil, klasses: 'flex flex-col justify-center' do |component|
         = component.icon
 
