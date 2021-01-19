@@ -1,4 +1,3 @@
-- if value.positive?
-  .w-full.h-24.bg-gray-200.shadow class= (signal ? 'green-zebra' : 'red-zebra')
-- else
-  .w-full.h-24
+.h-24.flex.items-center
+  - if value.positive?
+    .w-full.bg-gray-200.shadow class= [ (signal ? 'green-zebra' : 'red-zebra') ] style="height: #{height}"
