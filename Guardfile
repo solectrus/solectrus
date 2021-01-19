@@ -28,7 +28,7 @@ ignore([%r{^bin/*}, %r{^db/*}, %r{^log/*}, %r{^public/*}, %r{^tmp/*}, %r{^node_m
 #  * zeus: 'zeus rspec' (requires the server to be started separately)
 #  * 'just' rspec: 'rspec'
 
-guard :rspec, cmd: 'bundle exec rspec --colour --format documentation --fail-fast' do
+guard :rspec, cmd: 'bin/rspec --colour --format documentation --fail-fast' do
   directories(%w[app config lib spec])
 
   require 'guard/rspec/dsl'
