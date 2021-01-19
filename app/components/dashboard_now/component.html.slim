@@ -1,5 +1,5 @@
 .relative
-  .absolute.w-full
+  .absolute.w-full.px-1
     .grid.grid-cols-3.gap-3.md:gap-10.mt-24.h-8.md:h-16
       .transform.rotate-90
         = render Flow::Component.new value: calculator.inverter_to_wallbox, max: 10_000, signal: true
