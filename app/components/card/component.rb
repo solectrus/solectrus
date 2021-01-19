@@ -49,6 +49,16 @@ class Card::Component < ViewComponent::Base
     tag.i class: "#{icon_class} fa-2x"
   end
 
+  def icon_class
+    {
+      'inverter_power'       => 'fas fa-sun',
+      'wallbox_charge_power' => 'fas fa-car',
+      'house_power'          => 'fas fa-home',
+      'grid_power_plus'      => 'fas fa-plug',
+      'grid_power_minus'     => 'fas fa-plug'
+    }[field]
+  end
+
   def signal_class
     if signal.nil?
       'bg-gray-500'
@@ -67,25 +77,11 @@ class Card::Component < ViewComponent::Base
     end
   end
 
-  def icon_class
-    {
-      'inverter_power'       => 'fas fa-sun',
-      'wallbox_charge_power' => 'fas fa-car',
-      'house_power'          => 'fas fa-home',
-      'grid_power_plus'      => 'fas fa-plug',
-      'grid_power_minus'     => 'fas fa-plug'
-    }[field]
-  end
-
   def border_class
-    if current?
-      case signal_percent
-      when 50..100 then 'border-green-700'
-      when 0..49   then 'border-red-700'
-      else              'border-gray-700'
-      end
-    else
-      'border-gray-100'
+    case signal_percent
+    when 50..100 then current? ? 'border-green-700' : 'border-green-500'
+    when 0..49   then current? ? 'border-red-700'   : 'border-red-500'
+    else              current? ? 'border-gray-700'  : 'border-gray-500'
     end
   end
 end
