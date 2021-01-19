@@ -2,30 +2,46 @@ describe BaseCalculator do
   let(:calculator) { described_class.new }
 
   describe '#autarky' do
-    subject { calculator.autarky.round }
+    subject { calculator.autarky.round(1) }
 
-    context 'when today' do
+    context 'with real data' do
       before do
-        calculator.build_context inverter_power:       4.5,
-                                 house_power:          6.8,
-                                 grid_power_plus:      3.9, grid_power_minus: 0.1,
-                                 bat_power_minus:      0.3, bat_power_plus:   1.7,
-                                 wallbox_charge_power: 0.0
+        calculator.build_context house_power:          6_800,
+                                 wallbox_charge_power: 0,
+                                 grid_power_plus:      3_900
       end
 
-      it { is_expected.to eq(43) }
+      it { is_expected.to eq(42.6) }
     end
 
-    context 'when example' do
+    context 'with simple example' do
       before do
-        calculator.build_context inverter_power:       2500,
-                                 house_power:          3500,
-                                 grid_power_plus:      2500, grid_power_minus: 1500,
-                                 bat_power_minus:      0,    bat_power_plus:    0,
-                                 wallbox_charge_power: 0
+        calculator.build_context house_power:          3_500,
+                                 wallbox_charge_power: 0,
+                                 grid_power_plus:      2_500
       end
 
-      it { is_expected.to eq(29) }
+      it { is_expected.to eq(28.6) }
+    end
+
+    context 'with rounding issues' do
+      before do
+        calculator.build_context house_power:          317,
+                                 wallbox_charge_power: 0,
+                                 grid_power_plus:      308
+      end
+
+      it { is_expected.to eq(2.8) }
+    end
+
+    context 'with wallbox' do
+      before do
+        calculator.build_context house_power:          500,
+                                 wallbox_charge_power: 9_000,
+                                 grid_power_plus:      5_000
+      end
+
+      it { is_expected.to eq(47.4) }
     end
   end
 end
