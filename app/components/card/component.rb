@@ -69,7 +69,7 @@ class Card::Component < ViewComponent::Base
     end
   end
 
-  def signal_percent
+  def percent_green
     case signal
     when true then 100
     when false then 0
@@ -77,11 +77,9 @@ class Card::Component < ViewComponent::Base
     end
   end
 
-  def border_class
-    case signal_percent
-    when 50..100 then current? ? 'border-green-700' : 'border-green-500'
-    when 0..49   then current? ? 'border-red-700'   : 'border-red-500'
-    else              current? ? 'border-gray-700'  : 'border-gray-500'
-    end
+  def percent_red
+    return unless percent_green
+
+    100 - percent_green
   end
 end
