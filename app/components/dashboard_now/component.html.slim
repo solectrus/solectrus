@@ -2,34 +2,34 @@
   .absolute.w-full.px-1
     .grid.grid-cols-3.gap-3.md:gap-10.mt-24.h-8.md:h-16
       .transform.rotate-90
-        = render Flow::Component.new value: calculator.inverter_to_wallbox, max: 10_000, signal: true
+        = render Flow::Component.new value: calculator.inverter_to_wallbox, signal: true
 
       div
 
       .transform.rotate-90
-        = render Flow::Component.new value: calculator.grid_to_wallbox, max: 10_000, signal: false
+        = render Flow::Component.new value: calculator.grid_to_wallbox, signal: false
 
     .flex.flex-row.items-center.-mt-10.md:mt-3
       .w-1/2.transform.rotate-180
-        = render Flow::Component.new value: calculator.inverter_to_house, max: 10_000, signal: true
+        = render Flow::Component.new value: calculator.inverter_to_house, signal: true
 
       - case calculator.feeding?
         - when true
           .w-1/2.transform.rotate-180
-            = render Flow::Component.new value: calculator.house_to_grid, max: 10_000, signal: true
+            = render Flow::Component.new value: calculator.house_to_grid, signal: true
         - when false
           .w-1/2
-            = render Flow::Component.new value: calculator.grid_to_house, max: 10_000, signal: false
+            = render Flow::Component.new value: calculator.grid_to_house, signal: false
 
     .grid.grid-cols-3.gap-3.md:gap-10
       .transform.-rotate-90
-        = render Flow::Component.new value: calculator.inverter_to_battery, max: 2_500, signal: true
+        = render Flow::Component.new value: calculator.inverter_to_battery, signal: true
 
       .transform.rotate-90
-        = render Flow::Component.new value: calculator.battery_to_house, max: 2_500, signal: true
+        = render Flow::Component.new value: calculator.battery_to_house, signal: true
 
       .transform.-rotate-90
-        = render Flow::Component.new value: calculator.grid_to_battery, max: 2_500, signal: false
+        = render Flow::Component.new value: calculator.grid_to_battery, signal: false
 
   .grid.gap-3.md:gap-y-10.text-center.text-white
     = render Card::Component.new field: 'wallbox_charge_power', value: calculator.wallbox_charge_power do |component|
