@@ -6,20 +6,20 @@ class Number::Component < ViewComponent::Base
 
   attr_accessor :value
 
-  def to_kwh
+  def to_kwh(max_precision: 1)
     return unless value
 
     styled_number(
-      formatted_number(value / 1_000.0, max_precision: 1),
+      formatted_number(value / 1_000.0, max_precision: max_precision),
       unit: 'kWh'
     )
   end
 
-  def to_kw
+  def to_kw(max_precision: 1)
     return unless value
 
     styled_number(
-      formatted_number(value / 1_000.0, max_precision: 1),
+      formatted_number(value / 1_000.0, max_precision: max_precision),
       unit: 'kW'
     )
   end

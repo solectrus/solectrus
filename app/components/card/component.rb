@@ -1,14 +1,15 @@
 class Card::Component < ViewComponent::Base
   with_content_areas :tippy, :extra
 
-  def initialize(field:, signal: nil, klasses: nil)
+  def initialize(field:, signal: nil, klasses: nil, value: nil)
     super
     @field = field
     @signal = signal
     @klasses = klasses
+    @value = value
   end
 
-  attr_accessor :field, :signal, :klasses
+  attr_accessor :field, :signal, :klasses, :value
 
   def url_params
     @url_params ||= {
@@ -36,12 +37,8 @@ class Card::Component < ViewComponent::Base
     @title ||= I18n.t("calculator.#{field}")
   end
 
-  def value_options
-    if current? && timeframe == 'now'
-      { data: { refresh_target: 'current' } }
-    else
-      {}
-    end
+  def current_value?
+    current? && timeframe == 'now'
   end
 
   def current?
@@ -57,7 +54,7 @@ class Card::Component < ViewComponent::Base
       'bg-gray-500'
     elsif signal.in?([true, false])
       signal ? 'bg-green-500' : 'bg-red-500'
-    elsif signal.is_a?(Integer)
+    elsif signal.is_a?(Numeric)
       'bg-red-500'
     end
   end
