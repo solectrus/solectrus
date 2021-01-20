@@ -1,3 +1,13 @@
+GIT
+  remote: https://github.com/rails/webpacker.git
+  revision: f56f8adf21a0238b9102cb6e4a20e7e18f5d3f28
+  specs:
+    webpacker (6.0.0.beta.2)
+      activesupport (>= 5.2)
+      rack-proxy (>= 0.6.1)
+      railties (>= 5.2)
+      semantic_range (>= 2.3.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -303,11 +313,6 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webpacker (5.2.1)
-      activesupport (>= 5.2)
-      rack-proxy (>= 0.6.1)
-      railties (>= 5.2)
-      semantic_range (>= 2.3.0)
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -352,7 +357,7 @@ DEPENDENCIES
   web-console (>= 4.1.0)
   webdrivers
   webmock
-  webpacker (~> 5.0)
+  webpacker!
 
 RUBY VERSION
    ruby 2.7.2p137
