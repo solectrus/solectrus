@@ -21,8 +21,8 @@ html lang="de"
     = csrf_meta_tags
     = csp_meta_tag
 
-    = stylesheet_pack_tag 'application', media: 'all', 'data-turbo-track': 'reload'
-    = javascript_pack_tag 'application', 'data-turbo-track': 'reload'
+    = javascript_packs_with_chunks_tag 'application', 'data-turbo-track': 'reload'
+    = stylesheet_packs_with_chunks_tag 'application', media: 'all', 'data-turbo-track': 'reload'
 
     = yield :head
 
