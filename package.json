@@ -5,7 +5,7 @@
     "@fortawesome/fontawesome-free": "^5.15.2",
     "@hotwired/turbo-rails": "^7.0.0-beta.4",
     "@rails/actioncable": "^6.1.1",
-    "@rails/webpacker": "rails/webpacker#f56f8adf21a0238b9102cb6e4a20e7e18f5d3f28",
+    "@rails/webpacker": "6.0.0.beta.3",
     "@tailwindcss/forms": "^0.2.1",
     "autoprefixer": "^10.1.0",
     "chart.js": "^2.9.4",

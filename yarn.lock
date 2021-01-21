@@ -876,9 +876,10 @@
   resolved "https://registry.yarnpkg.com/@rails/actioncable/-/actioncable-6.1.1.tgz#e980b2ea1c62cae17bcddad37deb6ba88d498b63"
   integrity sha512-A8toxvSuzK/wX9uMwyV6T1EYzlqzIJNrO8XiNCSNsmKresdX2cbAjxFdMu9haaPJPjl3aC2FKRJeVCUWVtLPAQ==
 
-"@rails/webpacker@rails/webpacker#f56f8adf21a0238b9102cb6e4a20e7e18f5d3f28":
-  version "6.0.0-beta.2"
-  resolved "https://codeload.github.com/rails/webpacker/tar.gz/f56f8adf21a0238b9102cb6e4a20e7e18f5d3f28"
+"@rails/webpacker@6.0.0.beta.3":
+  version "6.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/@rails/webpacker/-/webpacker-6.0.0-beta.3.tgz#7c6b767878c1100a956d449725bdd7d161ab53db"
+  integrity sha512-3njZ/kGUyqyiaDhoFlGl+sysWESz5Tlgnd5SCEWfRw3ViRWMKs8qz93k4DecU6C3TFtglf9eTL4s6vbZ+VuNFA==
   dependencies:
     "@babel/core" "^7.12.9"
     "@babel/plugin-proposal-class-properties" "^7.12.1"
