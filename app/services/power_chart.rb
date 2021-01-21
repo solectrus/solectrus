@@ -1,4 +1,4 @@
-class FluxChart < FluxBase
+class PowerChart < Flux::Reader
   def now
     chart_single start: '-15m', window: '5s'
   end
@@ -24,6 +24,10 @@ class FluxChart < FluxBase
   end
 
   private
+
+  def measurement
+    'SENEC'
+  end
 
   def chart_single(start:, window:, stop: nil)
     raw = query <<-QUERY

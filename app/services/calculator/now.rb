@@ -1,4 +1,19 @@
-module FlowCalculation
+class Calculator::Now < Calculator::Base
+  def initialize
+    super
+
+    build_context PowerSum.new(
+      :inverter_power,
+      :house_power,
+      :wallbox_charge_power,
+      :grid_power_plus,
+      :grid_power_minus,
+      :bat_power_minus,
+      :bat_power_plus,
+      :bat_fuel_charge
+    ).now
+  end
+
   def inverter_to_house
     if producing?
       [ house_power, inverter_power ].min
