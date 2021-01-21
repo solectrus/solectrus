@@ -1,4 +1,4 @@
-describe BaseCalculator do
+describe Calculator::Base do
   let(:calculator) { described_class.new }
 
   describe '#autarky' do

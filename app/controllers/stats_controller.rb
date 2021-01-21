@@ -7,9 +7,9 @@ class StatsController < ApplicationController
 
   helper_method def calculator
     @calculator ||= if timeframe == 'now'
-      NowCalculator.new
+      Calculator::Now.new
     else
-      RangeCalculator.new(timeframe, timestamp)
+      Calculator::Range.new(timeframe, timestamp)
     end
   end
 end

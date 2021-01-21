@@ -1,4 +1,4 @@
-class FluxSum < FluxBase
+class PowerSum < Flux::Reader
   def now
     last('-5m')
   end
@@ -24,6 +24,10 @@ class FluxSum < FluxBase
   end
 
   private
+
+  def measurement
+    'SENEC'
+  end
 
   def last(start)
     result = query <<-QUERY

@@ -1,4 +1,4 @@
-class RangeCalculator < BaseCalculator
+class Calculator::Range < Calculator::Base
   RATE         = 0.2545
   COMPENSATION = 0.0832
 
@@ -6,7 +6,7 @@ class RangeCalculator < BaseCalculator
     super()
     raise ArgumentError unless timeframe.to_s.in?(%w[day week month year all])
 
-    build_context FluxSum.new(
+    build_context PowerSum.new(
       :inverter_power,
       :house_power,
       :wallbox_charge_power,
