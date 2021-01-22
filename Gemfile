@@ -19,7 +19,7 @@ gem 'puma', '~> 5.0'
 gem 'redis'
 
 # Use webpack to manage app-like JavaScript modules in Rails (https://github.com/rails/webpacker)
-gem 'webpacker', github: 'rails/webpacker'
+gem 'webpacker', '6.0.0.beta.3'
 
 # Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
 gem 'bootsnap', '>= 1.4.4', require: false
