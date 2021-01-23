@@ -11,11 +11,13 @@ ruby:
       when 'inverter_power'                      then '#FCD34D'
       when 'grid_power_plus', 'grid_power_minus' then '#9CA3AF'
       when 'bat_power_plus', 'bat_power_minus'   then '#93C5FD'
-      end
+      end,
+      '#ddd'
     ],
     decimal: I18n.t('number.format.separator'),
     thousands: I18n.t('number.format.delimiter'),
     download: true,
+    legend: false,
     library: {
       animation: {
         easing: 'easeOutQuad',
