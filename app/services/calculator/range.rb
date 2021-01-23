@@ -7,13 +7,16 @@ class Calculator::Range < Calculator::Base
     raise ArgumentError unless timeframe.to_s.in?(%w[day week month year all])
 
     build_context PowerSum.new(
-      :inverter_power,
-      :house_power,
-      :wallbox_charge_power,
-      :grid_power_plus,
-      :grid_power_minus,
-      :bat_power_minus,
-      :bat_power_plus
+      measurements: [ 'SENEC' ],
+      fields: [
+        :inverter_power,
+        :house_power,
+        :wallbox_charge_power,
+        :grid_power_plus,
+        :grid_power_minus,
+        :bat_power_minus,
+        :bat_power_plus
+      ]
     ).public_send(timeframe, timestamp)
   end
 

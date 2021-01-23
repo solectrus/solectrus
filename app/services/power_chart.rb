@@ -25,15 +25,11 @@ class PowerChart < Flux::Reader
 
   private
 
-  def measurement
-    'SENEC'
-  end
-
   def chart_single(start:, window:, stop: nil)
     raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start: start, stop: stop)}
-      |> #{measurement_filter}
+      |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: #{window}, fn: mean)
       #{stop.nil? && '|> fill(usePrevious: true)'}
@@ -46,7 +42,7 @@ class PowerChart < Flux::Reader
     raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start: start, stop: stop)}
-      |> #{measurement_filter}
+      |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
       |> aggregateWindow(every: #{window}, fn: sum)
