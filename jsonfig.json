@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./app/packs",
+    "paths": {
+      "@/*": ["./app/packs/*"]
+    }
+  },
+  "exclude": ["node_modules", "public"]
+}

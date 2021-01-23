@@ -27,6 +27,7 @@ tmp/*
 !/tmp/pids/
 !/tmp/pids/.keep
 yarn-error.log
+jsconfig.json
 config/environments/test.rb
 config/environments/development.rb
 config/webpack/test.js
