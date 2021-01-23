@@ -11,9 +11,18 @@ class ChartsController < ApplicationController
 
   helper_method def chart
     @chart ||= if timeframe == 'now'
-      PowerChart.new(fields: [field], measurements: ['SENEC']).now
+      [
+        { name: field, data: PowerChart.new(measurements: ['SENEC'], fields: [field]).now }
+      ]
+    elsif timeframe == 'day' && field == 'inverter_power'
+      [
+        { name: 'inverter_power', data: PowerChart.new(measurements: %w[SENEC], fields: [:inverter_power]).day(timestamp) },
+        { name: 'forecast',       data: PowerChart.new(measurements: %w[Forecast], fields: [:watt]).day(timestamp, filled: true) }
+      ]
     else
-      PowerChart.new(fields: [field], measurements: ['SENEC']).public_send(timeframe, timestamp)
+      [
+        { name: field, data: PowerChart.new(measurements: ['SENEC'], fields: [field]).public_send(timeframe, timestamp) }
+      ]
     end
   end
 end

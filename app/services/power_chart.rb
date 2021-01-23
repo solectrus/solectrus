@@ -1,10 +1,10 @@
 class PowerChart < Flux::Reader
   def now
-    chart_single start: '-15m', window: '5s'
+    chart_single start: '-15m', window: '5s', filled: true
   end
 
-  def day(start)
-    chart_single start: start.iso8601, stop: start.end_of_day.iso8601, window: '5m'
+  def day(start, filled: false)
+    chart_single start: start.iso8601, stop: start.end_of_day.iso8601, window: '5m', filled: filled
   end
 
   def week(start)
@@ -25,14 +25,14 @@ class PowerChart < Flux::Reader
 
   private
 
-  def chart_single(start:, window:, stop: nil)
+  def chart_single(start:, window:, stop: nil, filled: false)
     raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start: start, stop: stop)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: #{window}, fn: mean)
-      #{stop.nil? && '|> fill(usePrevious: true)'}
+      #{filled && '|> fill(usePrevious: true)'}
     QUERY
 
     to_array(raw)
@@ -63,7 +63,7 @@ class PowerChart < Flux::Reader
 
         time = Time.zone.parse(record.values['_time'] || '')
         value = case record.values['_field']
-                when /power/
+                when /power/, 'watt'
                   # Fields with "power" in the name are given in W, so change them to kW
                   (next_record.values['_value'].to_f / 1_000).round(3)
                 else
