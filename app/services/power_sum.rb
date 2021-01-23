@@ -25,15 +25,11 @@ class PowerSum < Flux::Reader
 
   private
 
-  def measurement
-    'SENEC'
-  end
-
   def last(start)
     result = query <<-QUERY
       #{from_bucket}
       |> #{range(start: start)}
-      |> #{measurement_filter}
+      |> #{measurements_filter}
       |> #{fields_filter}
       |> last()
     QUERY
@@ -50,7 +46,7 @@ class PowerSum < Flux::Reader
     result = query <<-QUERY
       #{from_bucket}
       |> #{range(start: start, stop: stop)}
-      |> #{measurement_filter}
+      |> #{measurements_filter}
       |> #{fields_filter}
       |> integral(unit:1h)
     QUERY

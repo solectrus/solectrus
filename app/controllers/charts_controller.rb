@@ -11,9 +11,9 @@ class ChartsController < ApplicationController
 
   helper_method def chart
     @chart ||= if timeframe == 'now'
-      PowerChart.new(field.to_sym).now
+      PowerChart.new(fields: [field], measurements: ['SENEC']).now
     else
-      PowerChart.new(field.to_sym).public_send(timeframe, timestamp)
+      PowerChart.new(fields: [field], measurements: ['SENEC']).public_send(timeframe, timestamp)
     end
   end
 end

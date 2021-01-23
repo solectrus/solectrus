@@ -1,9 +1,10 @@
 class Flux::Reader < Flux::Base
-  def initialize(*fields)
+  def initialize(fields:, measurements:)
     super()
     @fields = fields
+    @measurements = measurements
   end
-  attr_reader :fields
+  attr_reader :fields, :measurements
 
   private
 
@@ -19,8 +20,12 @@ class Flux::Reader < Flux::Base
     "filter(fn: (r) => #{filter.join(' or ')})"
   end
 
-  def measurement_filter
-    "filter(fn: (r) => r[\"_measurement\"] == \"#{measurement}\")"
+  def measurements_filter
+    filter = measurements.map do |measurement|
+      "r[\"_measurement\"] == \"#{measurement}\""
+    end
+
+    "filter(fn: (r) => #{filter.join(' or ')})"
   end
 
   def range(start:, stop: nil)
@@ -33,9 +38,5 @@ class Flux::Reader < Flux::Base
 
   def query(string)
     client.create_query_api.query(query: string)
-  end
-
-  def measurement
-    raise NotImplementedError
   end
 end
