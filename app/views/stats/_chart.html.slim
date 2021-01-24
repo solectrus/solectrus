@@ -41,7 +41,7 @@ ruby:
             type: 'time',
             time: case timeframe
                   when 'now'
-                    { unit: 'minute', stepSize: 1, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' }
+                    { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' }
                   when 'day'
                     { unit: 'hour', displayFormats: { hour: 'HH:mm' }, tooltipFormat: 'HH:mm' }
                   when 'week', 'month'

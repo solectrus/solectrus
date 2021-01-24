@@ -1,6 +1,6 @@
 class PowerChart < Flux::Reader
   def now
-    chart_single start: '-15m', window: '5s', filled: true
+    chart_single start: '-60m', window: '5s', filled: true
   end
 
   def day(start, filled: false)
