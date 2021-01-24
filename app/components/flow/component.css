@@ -1,6 +1,6 @@
 .red-zebra {
   background-image: repeating-linear-gradient(
-    -85deg,
+    -60deg,
     #EF4444 0.1rem,
     #B91C1C 0.1rem,
     #EF4444 1rem
@@ -11,7 +11,7 @@
 
 .green-zebra {
   background-image: repeating-linear-gradient(
-    -80deg,
+    -60deg,
     #10B981 0.1rem,
     #047857 0.1rem,
     #10B981 1rem
