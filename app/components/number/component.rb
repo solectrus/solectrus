@@ -65,7 +65,7 @@ class Number::Component < ViewComponent::Base
     return unless value
 
     # Some numbers don't need fractional digits
-    need_fractional_digits = !value.zero? && value.abs < 100
+    need_fractional_digits = !value.round(max_precision).zero? && value.abs < 100
 
     number_with_precision(
       value,
