@@ -12,16 +12,16 @@ class ChartsController < ApplicationController
   helper_method def chart
     @chart ||= if timeframe == 'now'
       [
-        { name: field, data: PowerChart.new(measurements: ['SENEC'], fields: [field]).now }
+        { name: I18n.t("calculator.#{field}"), data: PowerChart.new(measurements: ['SENEC'], fields: [field]).now }
       ]
     elsif timeframe == 'day' && field == 'inverter_power'
       [
-        { name: 'inverter_power', data: PowerChart.new(measurements: %w[SENEC], fields: [:inverter_power]).day(timestamp) },
-        { name: 'forecast',       data: PowerChart.new(measurements: %w[Forecast], fields: [:watt]).day(timestamp, filled: true) }
+        { name: I18n.t('calculator.inverter_power'), data: PowerChart.new(measurements: %w[SENEC], fields: [:inverter_power]).day(timestamp) },
+        { name: I18n.t('calculator.forecast'),       data: PowerChart.new(measurements: %w[Forecast], fields: [:watt]).day(timestamp, filled: true) }
       ]
     else
       [
-        { name: field, data: PowerChart.new(measurements: ['SENEC'], fields: [field]).public_send(timeframe, timestamp) }
+        { name: I18n.t("calculator.#{field}"), data: PowerChart.new(measurements: ['SENEC'], fields: [field]).public_send(timeframe, timestamp) }
       ]
     end
   end
