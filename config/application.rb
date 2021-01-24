@@ -44,5 +44,8 @@ module Solectrus
     config.x.plausible_url = ENV['PLAUSIBLE_URL']
     config.x.sentry_dns    = ENV['SENTRY_DNS']
     config.x.sentry_host   = URI.parse(config.x.sentry_dns).host if config.x.sentry_dns.present?
+
+    # Set the default layout to app/views/layouts/component_preview.html.slim
+    config.view_component.default_preview_layout = 'component_preview'
   end
 end
