@@ -73,7 +73,7 @@
             =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
 
           - component.with :tippy do
-            = render partial: 'calculate_autarky'
+            = render AutarkyDetails::Component.new(calculator: calculator)
 
       = render Card::Component.new field: calculator.grid_power_field, value: calculator.grid_power, signal: calculator.feeding?, klasses: 'flex flex-col justify-center' do |component|
         = component.icon
