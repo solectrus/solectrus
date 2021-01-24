@@ -1,3 +1,8 @@
+.zebra {
+  background-size: 200% 200%;
+  animation: barberpole 10s linear infinite;
+}
+
 .red-zebra {
   background-image: repeating-linear-gradient(
     -60deg,
@@ -5,8 +10,6 @@
     #B91C1C 0.1rem,
     #EF4444 1rem
   );
-  background-size: 200% 200%;
-  animation: barberpole 10s linear infinite;
 }
 
 .green-zebra {
@@ -16,10 +19,7 @@
     #047857 0.1rem,
     #10B981 1rem
   );
-  background-size: 200% 200%;
-  animation: barberpole 10s linear infinite;
 }
-
 
 @keyframes barberpole {
   100% {
