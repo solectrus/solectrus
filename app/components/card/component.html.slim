@@ -13,20 +13,22 @@ ruby:
         - if percent_red == 100
           .w-full.rounded.bg-red-500.border-red-700.border-4 style="height: #{percent_red}%"
         - elsif percent_red&.positive?
-          .w-full.rounded.bg-red-500.border-red-700.border-l-4.border-t-4.border-r-4 style="height: #{percent_red}%"
+          .w-full.rounded-t.bg-red-500.border-red-700.border-l-4.border-t-4.border-r-4 style="height: #{percent_red}%"
         - elsif signal.nil?
           .w-full.rounded.bg-gray-500.border-gray-700.border-4.h-full
 
         - if percent_green == 100
           .w-full.rounded.bg-green-500.border-green-700.border-4 style="height: #{percent_green}%"
         - elsif percent_green&.positive?
-          .w-full.rounded.bg-green-500.border-green-700.border-l-4.border-b-4.border-r-4 style="height: #{percent_green}%"
+          .w-full.rounded-b.bg-green-500.border-green-700.border-l-4.border-b-4.border-r-4 style="height: #{percent_green}%"
 
       - else
         - if percent_red && percent_red < 100
-          .w-full.bg-red-500 style="height: #{percent_red}%"
-        - if percent_green&.positive?
-          .w-full.bg-green-500 style="height: #{percent_green}%"
+          .w-full.rounded-t.bg-red-500 style="height: #{percent_red}%"
+        - if percent_green == 100
+          .w-full.rounded.bg-green-500 style="height: #{percent_green}%"
+        - elsif percent_green&.positive?
+          .w-full.rounded-b.bg-green-500 style="height: #{percent_green}%"
 
     .relative.p-2.md:p-3 data= (current_value? ? { 'refresh-target': 'current', value: value / 1_000.0 } : nil)
       = content
