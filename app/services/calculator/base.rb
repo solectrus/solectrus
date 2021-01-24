@@ -30,7 +30,9 @@ class Calculator::Base
   # Grid
 
   def feeding?
-    grid_power >= 10 && grid_power_minus > grid_power_plus
+    return if grid_power < 50
+
+    grid_power_minus > grid_power_plus
   end
 
   def grid_power_field
