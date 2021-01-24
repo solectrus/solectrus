@@ -1,0 +1,22 @@
+doctype html
+html
+  head
+    title ViewComponent Preview
+
+    meta name="viewport" content="width=device-width,initial-scale=1"
+
+    link rel="manifest" href="/manifest.webmanifest"
+    link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon.png"
+    link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"
+    link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"
+    link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"
+
+    = javascript_packs_with_chunks_tag 'application'
+    = stylesheet_packs_with_chunks_tag 'application', media: 'all'
+
+  body.px-24.pt-5.bg-yellow-100
+    header.text-center.p-10
+      h1.text-4xl.font-semibold ViewComponent Preview
+
+    main.bg-gray-50.border-2.border-dashed.border-black.p-10.rounded.shadow
+      = yield
