@@ -9,6 +9,7 @@ de:
     year: Jahr
     all: Gesamt
     inverter_power: Erzeugung
+    forecast: Prognose
     house_power: Hausverbrauch
     wallbox_charge_power: Wallbox
     autarky: Autarkie
