@@ -46,16 +46,16 @@ class Card::Component < ViewComponent::Base
   end
 
   def icon
-    tag.i class: "#{icon_class} fa-2x"
+    tag.i class: "fa fa-#{icon_class} fa-2x"
   end
 
   def icon_class
     {
-      'inverter_power'       => 'fas fa-sun',
-      'wallbox_charge_power' => 'fas fa-car',
-      'house_power'          => 'fas fa-home',
-      'grid_power_plus'      => 'fas fa-plug',
-      'grid_power_minus'     => 'fas fa-plug'
+      'inverter_power'       => 'sun',
+      'wallbox_charge_power' => 'car',
+      'house_power'          => 'home',
+      'grid_power_plus'      => 'plug',
+      'grid_power_minus'     => 'plug'
     }[field]
   end
 
