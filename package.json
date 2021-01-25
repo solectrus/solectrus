@@ -2,7 +2,8 @@
   "name": "solectrus",
   "private": true,
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.2",
+    "@fortawesome/fontawesome-svg-core": "^1.2.34",
+    "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@hotwired/turbo-rails": "^7.0.0-beta.4",
     "@rails/actioncable": "^6.1.1",
     "@rails/webpacker": "^6.0.0-beta.4",
