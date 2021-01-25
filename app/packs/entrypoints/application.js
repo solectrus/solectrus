@@ -8,7 +8,6 @@ window.Turbo = Turbo
 
 import "chartkick"
 import "chart.js"
-import "@fortawesome/fontawesome-free/css/all"
 
 import "channels"
 import "stylesheets/application.scss"
