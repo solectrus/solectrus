@@ -24,7 +24,7 @@ class Calculator::Base
   # Inverter
 
   def producing?
-    inverter_power > 10
+    inverter_power >= 50
   end
 
   # Grid
