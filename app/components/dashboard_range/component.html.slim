@@ -1,69 +1,96 @@
-.grid.gap-3.md:gap-10.text-center.text-white
-  .grid.grid-cols-3.gap-3.md:gap-10
-    = render Card::Component.new field: 'inverter_power', signal: calculator.producing?, klasses: 'flex flex-col justify-center' do |component|
-      = component.icon
+.relative.text-center.text-white
+  .grid.gap-3.md:gap-y-10
+    = render Card::Component.new field: 'wallbox_charge_power', signal: calculator.wallbox_charge_power&.positive? ? false : nil do |component|
+      .flex.flex-row.justify-around.items-center
+        .w-1/3.pr-10
+          = tag.div class: 'text-2xl md:text-4xl' do
+            = Number::Component.new(value: calculator.wallbox_charge_power).to_kwh
 
-      h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-        = component.title
+        .w-1/3
+          = component.icon
+          h1.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+            = component.title
 
-      = tag.div class: 'mt-5 text-2xl md:text-4xl' do
-        = Number::Component.new(value: calculator.inverter_power).to_kwh
+        .w-1/3
 
-    .grid.gap-3
-      = render Card::Component.new field: 'wallbox_charge_power', signal: calculator.wallbox_charge_power&.positive? ? false : nil, klasses: 'flex flex-col justify-center' do |component|
+    .grid.grid-cols-3.gap-3.md:gap-10
+      = render Card::Component.new field: 'inverter_power', signal: calculator.producing? || nil, klasses: 'flex flex-col justify-center' do |component|
         = component.icon
 
         h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
           = component.title
 
         = tag.div class: 'mt-5 text-2xl md:text-4xl' do
-          = Number::Component.new(value: calculator.wallbox_charge_power).to_kwh
-
-      = render Card::Component.new field: 'house_power', signal: calculator.autarky, klasses: 'flex flex-col justify-center' do |component|
-        = component.icon
-
-        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-          = component.title
-
-        = tag.div class: 'mt-5 text-2xl md:text-4xl' do
-          = Number::Component.new(value: calculator.house_power).to_kwh
+          = Number::Component.new(value: calculator.inverter_power).to_kwh
 
         h1.mt-2.text-xs.md:text-base
-          =t 'calculator.autarky'
-          =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
+          br
 
-        - component.with :tippy do
-          = render AutarkyDetails::Component.new(calculator: calculator)
+      .grid.gap-3
+        = render Card::Component.new field: 'house_power', signal: calculator.autarky, klasses: 'flex flex-col justify-center' do |component|
+          = component.icon
 
-    = render Card::Component.new field: 'grid_power_plus', signal: false, klasses: 'flex flex-col justify-center' do |component|
-      = component.icon
+          h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+            = component.title
+
+          = tag.div class: 'mt-5 text-2xl md:text-4xl' do
+            = Number::Component.new(value: calculator.house_power).to_kwh
+
+          h1.mt-2.text-xs.md:text-base
+            =t 'calculator.autarky'
+            =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
+
+          - component.with :tippy do
+            = render AutarkyDetails::Component.new(calculator: calculator)
+
+      = render Card::Component.new field: 'grid_power_plus', signal: calculator.feeding?, klasses: 'flex flex-col justify-center' do |component|
+        = component.icon
+
+        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+          =t 'calculator.grid_power_minus'
+
+        = tag.div class: 'mt-1 text-2xl md:text-4xl' do
+          span.md:hidden &plus;
+          =< Number::Component.new(value: calculator.grid_power_minus).to_kwh
+
+        h1.mt-5.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+          =t 'calculator.grid_power_plus'
+
+        = tag.div class: 'mt-1 text-2xl md:text-4xl' do
+          span.md:hidden &minus;
+          =< Number::Component.new(value: calculator.grid_power_plus).to_kwh
+
+    = render Card::Component.new field: calculator.bat_power_field do
+      .flex.flex-row.justify-around.items-center
+        .w-1/3.pr-10.text-2xl.md:text-4xl
+          h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+            =t 'calculator.bat_power_plus'
+
+          div
+            span.md:hidden &plus;
+            =< Number::Component.new(value: calculator.bat_power_plus).to_kwh
+
+        .w-1/3
+          - if calculator.bat_charging?
+            i.fas.fa-battery-full.fa-2x
+          - else
+            i.fas.fa-battery-empty.fa-2x
+
+        .w-1/3.pl-10.text-2xl.md:text-4xl
+          h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+            =t 'calculator.bat_power_minus'
+
+          div
+            span.md:hidden &minus;
+            =< Number::Component.new(value: calculator.bat_power_minus).to_kwh
+
+  .absolute.top-0.right-0.z-10.-mr-20.mt-10
+    = render Card::Component.new field: 'profit', klasses: 'p-3 rounded-full border-yellow-500 border-4 bg-yellow-400' do |component|
+      = tag.div class: 'text-2xl md:text-4xl' do
+        = Number::Component.new(value: calculator.profit).to_eur(klass: 'text-current')
 
       h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
         = component.title
-
-      = tag.div class: 'mt-5 text-2xl md:text-4xl' do
-        = Number::Component.new(value: calculator.grid_power_plus).to_kwh
-
-  .grid.grid-cols-2.gap-3.md:gap-10
-    = render Card::Component.new field: 'grid_power_minus', signal: true, klasses: 'flex flex-row justify-around items-center' do |component|
-      = component.icon
-
-      div
-        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-          = component.title
-
-        = tag.div class: 'text-2xl md:text-4xl' do
-          = Number::Component.new(value: calculator.grid_power_minus).to_kwh
-
-    = render Card::Component.new field: 'profit', signal: true, klasses: 'flex flex-row justify-around items-center' do |component|
-      i.fas.fa-money-bill-alt.fa-2x
-
-      div
-        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-          = component.title
-
-        = tag.div class: 'text-2xl md:text-4xl' do
-          = Number::Component.new(value: calculator.profit).to_eur(klass: 'text-current')
 
       - component.with :tippy do
         = render ProfitDetails::Component.new(calculator: calculator)
