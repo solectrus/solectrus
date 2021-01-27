@@ -21,9 +21,9 @@ ruby:
                 root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.year).to_date.iso8601)
   end
 
-.flex.items-center.justify-between.w-full.max-w-2xl.h-8
+.flex.items-center.justify-between.w-full.max-w-2xl.h-8.px-4.md:px-0
   - if previous_link
-    = link_to previous_link, class: 'block px-2 py-1 rounded hover:bg-white' do
+    = link_to previous_link, class: 'block py-1 rounded hover:bg-white' do
       i.fas.fa-chevron-left.fa-lg
   - else
     div
@@ -38,13 +38,12 @@ ruby:
         = l timestamp.to_date, format: :long
 
       - when 'week'
-        => timestamp.to_date.year
         'KW
-        = timestamp.to_date.cweek
-        span.text-gray-500.ml-3
-          =<> l timestamp.beginning_of_week.to_date
+        = "#{timestamp.to_date.cweek}/#{timestamp.to_date.year}"
+        span.text-gray-500.ml-2.text-sm
+          =<> l timestamp.beginning_of_week.to_date, format: '%d.%m.'
           'bis
-          =<> l timestamp.end_of_week.to_date
+          =<> l timestamp.end_of_week.to_date, format: '%d.%m.'
 
       - when 'month'
         = l timestamp.to_date, format: :month
@@ -72,7 +71,7 @@ ruby:
         = render ProfitDetails::Component.new(calculator: calculator)
 
   - if next_link
-    = link_to next_link, class: 'block px-2 py-1 rounded hover:bg-white' do
+    = link_to next_link, class: 'block py-1 rounded hover:bg-white' do
       i.fas.fa-chevron-right.fa-lg
   - else
     div
