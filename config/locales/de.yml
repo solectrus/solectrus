@@ -25,5 +25,6 @@ de:
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     profit: Gewinn
+    battery_profit: Anteil Akku
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
