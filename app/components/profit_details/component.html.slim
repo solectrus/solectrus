@@ -28,3 +28,9 @@ dl
       |&#61;&nbsp;
       = I18n.t('calculator.profit')
     dd.font-mono.text-right = Number::Component.new(value: calculator.profit).to_eur
+
+    - if calculator.battery_profit_percent
+      dt
+        = I18n.t('calculator.battery_profit')
+        =< sanitize "(#{Number::Component.new(value: calculator.battery_profit_percent).to_percent(max_precision: 0, klass: 'text-current')})"
+      dd.font-mono.text-right = Number::Component.new(value: calculator.battery_profit).to_eur

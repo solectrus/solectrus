@@ -49,4 +49,17 @@ class Calculator::Range < Calculator::Base
 
     solar_price - traditional_price
   end
+
+  def battery_profit
+    return unless bat_power_minus && bat_power_plus
+
+    (bat_power_minus * RATE / 1000.0 - bat_power_plus * COMPENSATION / 1000.0).round(2)
+  end
+
+  def battery_profit_percent
+    return unless profit && battery_profit
+    return if profit.zero?
+
+    100.0 * battery_profit / profit
+  end
 end
