@@ -6,6 +6,9 @@
 import { Turbo } from "@hotwired/turbo-rails"
 window.Turbo = Turbo
 
+const images = require.context('../images', true)
+const imagePath = (name) => images(name, true)
+
 import "chartkick"
 import "chart.js"
 

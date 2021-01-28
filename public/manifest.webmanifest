@@ -5,13 +5,13 @@
   "start_url": ".",
   "icons": [
     {
-      "src": "/android-chrome-72x72.png",
-      "sizes": "72x72",
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/mstile-150x150.png",
-      "sizes": "178x178",
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ],
