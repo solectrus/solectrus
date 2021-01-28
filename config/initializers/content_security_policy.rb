@@ -22,6 +22,7 @@ Rails.application.config.content_security_policy do |policy|
         Rails.configuration.x.sentry_host.presence
       ].compact
     )
+    policy.frame_ancestors :none
   end
   policy.base_uri :self
 

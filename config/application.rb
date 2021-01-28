@@ -47,5 +47,10 @@ module Solectrus
 
     # Set the default layout to app/views/layouts/component_preview.html.slim
     config.view_component.default_preview_layout = 'component_preview'
+
+    # The 'X-Frame-Options' header should not be used.  A similar effect, with more consistent
+    # support and stronger checks, can be achieved with the 'Content-Security-Policy' header
+    # and 'frame-ancestors' directive.
+    config.action_dispatch.default_headers.delete 'X-Frame-Options'
   end
 end
