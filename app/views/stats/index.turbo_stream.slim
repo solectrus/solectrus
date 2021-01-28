@@ -1,0 +1,12 @@
+= turbo_stream.replace 'nav' do
+  = render partial: 'timestamp', formats: :html
+
+= turbo_stream.update 'stats' do
+  - if calculator.present?
+    = render partial: timeframe == 'now' ? 'now' : 'range', formats: :html
+  - else
+    = render partial: 'blank', formats: :html
+
+- if params[:chart] != 'false'
+  = turbo_stream.update 'chart' do
+    = render partial: 'stats/chart', formats: :html

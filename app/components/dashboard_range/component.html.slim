@@ -83,3 +83,12 @@
           .whitespace-nowrap
             span.md:hidden &minus;
             =< Number::Component.new(value: calculator.bat_power_minus).to_kwh
+
+    = render Card::Component.new field: 'profit', klasses: 'bg-gradient-to-r from-yellow-500 to-yellow-400' do |component|
+      h1.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
+        = component.title
+
+      = Number::Component.new(value: calculator.profit).to_eur klass: 'text-current text-3xl'
+
+      - component.with :tippy do
+        = render ProfitDetails::Component.new(calculator: calculator)

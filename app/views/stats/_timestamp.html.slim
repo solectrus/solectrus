@@ -21,57 +21,45 @@ ruby:
                 root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.year).to_date.iso8601)
   end
 
-.flex.items-center.justify-between.w-full.max-w-2xl.h-8.px-4.md:px-0
-  - if previous_link
-    = link_to previous_link, class: 'block py-1 rounded hover:bg-white' do
-      i.fas.fa-chevron-left.fa-lg
-  - else
-    div
+- if timestamp
+  .text-gray-200.text-xl
+    - case timeframe
+    - when 'now'
+      = l timestamp, format: 'Heute, %H:%M Uhr'
 
-  - if timestamp
-    .text-gray-600
-      - case timeframe
-      - when 'now'
-        = l timestamp, format: :long
+    - when 'day'
+      = l timestamp.to_date, format: :long
 
-      - when 'day'
-        = l timestamp.to_date, format: :long
+    - when 'week'
+      'KW
+      = "#{timestamp.to_date.cweek}, #{timestamp.to_date.year}"
+      small.ml-4
+        =<> l timestamp.beginning_of_week.to_date
+        span.text-indigo-300 &minus;
+        =<> l timestamp.end_of_week.to_date
 
-      - when 'week'
-        'KW
-        = "#{timestamp.to_date.cweek}/#{timestamp.to_date.year}"
-        span.text-gray-500.ml-2.text-sm
-          =<> l timestamp.beginning_of_week.to_date, format: '%d.%m.'
-          'bis
-          =<> l timestamp.end_of_week.to_date, format: '%d.%m.'
-
-      - when 'month'
+    - when 'month'
         = l timestamp.to_date, format: :month
 
-      - when 'year'
+    - when 'year'
         = timestamp.to_date.year
 
-      - when 'all'
-        'Seit Installation
+    - when 'all'
+      'Seit Installation
 
-  - if timeframe == 'now'
-    - if calculator.live?
-      .text-xs.bg-gradient-to-r.from-yellow-500.to-red-400.font-bold.tracking-widest.text-white.rounded.py-1.px-2.cursor-default
-        | LIVE
-    - elsif calculator.time
-      .bg-red-500.text-gray-100.font-light.rounded.py-1.px-2.cursor-default[
-        title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
-      ] &#x26A0;
+- if timeframe == 'now'
+  - if calculator.live?
+    .ml-5.text-xs.bg-gradient-to-r.from-yellow-500.to-red-400.font-bold.tracking-widest.text-white.rounded.py-1.px-2.cursor-default
+      | LIVE
+  - elsif calculator.time
+    .bg-red-500.text-gray-100.font-light.rounded.py-1.px-2.cursor-default[
+      title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
+    ] &#x26A0;
 
-  - else
-    .bg-yellow-400.rounded.px-2.bg-gradient-to-r.from-yellow-500.to-yellow-600 data-controller="tippy"
-      =< Number::Component.new(value: calculator.profit).to_eur klass: 'text-base text-white font-medium'
-
-      template data-tippy-target="html"
-        = render ProfitDetails::Component.new(calculator: calculator)
-
+.flex.ml-5
+  - if previous_link
+    = link_to previous_link, class: 'px-2 py-1 rounded text-gray-200 hover:text-white hover:bg-indigo-500' do
+      i.fas.fa-chevron-left.fa-lg
   - if next_link
-    = link_to next_link, class: 'block py-1 rounded hover:bg-white' do
+    = link_to next_link, class: 'px-2 py-1 rounded text-gray-200 hover:text-white hover:bg-indigo-500' do
       i.fas.fa-chevron-right.fa-lg
-  - else
-    div

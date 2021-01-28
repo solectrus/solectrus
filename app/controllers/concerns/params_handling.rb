@@ -5,7 +5,7 @@ module ParamsHandling
     private
 
     helper_method def permitted_params
-      @permitted_params ||= params.permit(:field, :timeframe, :timestamp)
+      @permitted_params ||= params.permit(:field, :timeframe, :timestamp, :chart)
     end
 
     helper_method def timeframe
