@@ -1,10 +1,5 @@
 ruby:
   options = {
-    ytitle: if field == 'bat_fuel_charge'
-              "#{I18n.t "calculator.#{field}"} in %"
-            else
-              "#{I18n.t "calculator.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
-            end,
     colors: [
       case field
       when 'house_power', 'wallbox_charge_power' then '#D97706'
@@ -19,6 +14,15 @@ ruby:
     download: true,
     legend: false,
     library: {
+      title: {
+        display: true,
+        fontColor: '#777',
+        text: if field == 'bat_fuel_charge'
+                "#{I18n.t "calculator.#{field}"} in %"
+              else
+                "#{I18n.t "calculator.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
+              end
+      },
       animation: {
         easing: 'easeOutQuad',
         duration: 300
@@ -39,18 +43,14 @@ ruby:
           {
             offset: !timeframe.in?(%w[now day]),
             type: 'time',
-            time: case timeframe
-                  when 'now'
-                    { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' }
-                  when 'day'
-                    { unit: 'hour', displayFormats: { hour: 'HH:mm' }, tooltipFormat: 'HH:mm' }
-                  when 'week', 'month'
-                    { unit: 'day', displayFormats: { day: 'DD.MM.' }, tooltipFormat: 'dddd, DD.MM.YYYY' }
-                  when 'year'
-                    { unit: 'month', displayFormats: { month: 'MM-YYYY' }, tooltipFormat: 'MMMM YYYY' }
-                  when 'all'
-                    { unit: 'year', displayFormats: { year: 'YYYY' }, tooltipFormat: 'YYYY' }
-                  end
+            time: {
+              'now'   => { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm'  }, tooltipFormat: 'HH:mm:ss' },
+              'day'   => { unit: 'hour',   stepSize: 2, displayFormats: { hour: 'HH:mm'    }, tooltipFormat: 'HH:mm' },
+              'week'  => { unit: 'day',                 displayFormats: { day: 'dddd'      }, tooltipFormat: 'dddd, DD.MM.YYYY' },
+              'month' => { unit: 'day',    stepSize: 4, displayFormats: { day: 'DD.MM.'    }, tooltipFormat: 'dddd, DD.MM.YYYY' },
+              'year'  => { unit: 'month',  stepSize: 2, displayFormats: { month: 'MM-YYYY' }, tooltipFormat: 'MMMM YYYY' },
+              'all'   => { unit: 'year',                displayFormats: { year: 'YYYY'     }, tooltipFormat: 'YYYY' }
+            }[timeframe]
           }
         ]
       }
@@ -64,4 +64,5 @@ ruby:
             chartkick_options_value: options.to_json,
             chartkick_type_value: timeframe.in?(%w[now day]) ? 'AreaChart' : 'ColumnChart' \
           },
-          style: 'width: 100%; height: 300px'
+          class: 'h-full w-full',
+          style: 'min-height: 300px'
