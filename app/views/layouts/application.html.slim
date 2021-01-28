@@ -26,23 +26,67 @@ html lang="de"
 
     = yield :head
 
-  body.flex.flex-col.h-screen.bg-gray-100.font-sans data-controller="icons"
-    header
-      .flex.max-w-2xl.mx-auto.items-center.justify-center.p-3
-        h1.text-3xl.font-medium.uppercase.tracking-wider
-          = link_to t('layout.photovoltaics'), root_path
+  body data-controller="icons"
+    .min-h-screen.bg-gray-100
+      .bg-indigo-600.pb-32
+        nav.bg-indigo-600.border-b.border-indigo-300.border-opacity-25.lg:border-none data-controller="toggle"
+          .max-w-7xl.mx-auto.px-2.sm:px-4.lg:px-8
+            .relative.h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-400.lg:border-opacity-25
+              .px-2.flex.items-center.lg:px-0
+                .flex-shrink-0
+                  svg.block.h-8.w-8 alt="Workflow" fill="none" viewBox="0 0 35 32"
+                    path fill="#a5b4fc" d="M15.258 26.865a4.043 4.043 0 01-1.133 2.917A4.006 4.006 0 0111.253 31a3.992 3.992 0 01-2.872-1.218 4.028 4.028 0 01-1.133-2.917c.009-.698.2-1.382.557-1.981.356-.6.863-1.094 1.47-1.433-.024.109.09-.055 0 0l1.86-1.652a8.495 8.495 0 002.304-5.793c0-2.926-1.711-5.901-4.17-7.457.094.055-.036-.094 0 0A3.952 3.952 0 017.8 7.116a3.975 3.975 0 01-.557-1.98 4.042 4.042 0 011.133-2.918A4.006 4.006 0 0111.247 1a3.99 3.99 0 012.872 1.218 4.025 4.025 0 011.133 2.917 8.521 8.521 0 002.347 5.832l.817.8c.326.285.668.551 1.024.798.621.33 1.142.826 1.504 1.431a3.902 3.902 0 01-1.504 5.442c.033-.067-.063.036 0 0a8.968 8.968 0 00-3.024 3.183 9.016 9.016 0 00-1.158 4.244zM19.741 5.123c0 .796.235 1.575.676 2.237a4.01 4.01 0 001.798 1.482 3.99 3.99 0 004.366-.873 4.042 4.042 0 00.869-4.386 4.02 4.02 0 00-1.476-1.806 3.994 3.994 0 00-5.058.501 4.038 4.038 0 00-1.175 2.845zM23.748 22.84c-.792 0-1.567.236-2.226.678a4.021 4.021 0 00-1.476 1.806 4.042 4.042 0 00.869 4.387 3.99 3.99 0 004.366.873A4.01 4.01 0 0027.08 29.1a4.039 4.039 0 00-.5-5.082 4 4 0 00-2.832-1.18zM34 15.994c0-.796-.235-1.574-.675-2.236a4.01 4.01 0 00-1.798-1.483 3.99 3.99 0 00-4.367.873 4.042 4.042 0 00-.869 4.387 4.02 4.02 0 001.476 1.806 3.993 3.993 0 002.226.678 4.003 4.003 0 002.832-1.18A4.04 4.04 0 0034 15.993z"
+                    path fill="#a5b4fc" d="M5.007 11.969c-.793 0-1.567.236-2.226.678a4.021 4.021 0 00-1.476 1.807 4.042 4.042 0 00.869 4.386 4.001 4.001 0 004.366.873 4.011 4.011 0 001.798-1.483 4.038 4.038 0 00-.5-5.08 4.004 4.004 0 00-2.831-1.181z"
 
-    main.flex-1
-      = yield
+                .hidden.lg:block.lg:ml-10
+                  .flex.space-x-4
+                    /! Current: "bg-indigo-700 text-white", Default: "text-white hover:bg-indigo-500 hover:bg-opacity-75"
+                    a.bg-indigo-700.text-white.rounded-md.py-2.px-3.text-sm.font-medium href= root_path
+                      | Dashboard
+              .flex-1.px-2.flex.justify-center.lg:ml-6.lg:justify-end
 
-    footer.bg-gray-200
-      .flex.max-w-2xl.mx-auto.justify-center.items-center.text-xs.p-3
-        div
-          | SOLECTRUS
-          = link_to Rails.configuration.x.git.home,
-                    target: '_blank',
-                    rel: 'noopener',
-                    data: { controller: 'tippy' },
-                    title: l(Rails.configuration.x.git.commit_time) do
-            code.ml-1.text-gray-500
-              = Rails.configuration.x.git.commit_sha.first(7)
+              .flex.lg:hidden
+                /! Mobile menu button
+                button.bg-indigo-600.p-2.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.hover:text-white.hover:bg-indigo-500.hover:bg-opacity-75.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white aria-expanded="false" data-action="click->toggle#toggle"
+                  span.sr-only Open main menu
+                  /! Heroicon: menu
+                  svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" data-toggle-target="element"
+                    path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  /! Heroicon: x
+                  svg.hidden.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" data-toggle-target="element"
+                    path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              .hidden.lg:block.lg:ml-4
+                .flex.items-center
+
+          .hidden.lg:hidden data-toggle-target="element"
+            .px-2.pt-2.pb-3.space-y-1
+              /! Current: "bg-indigo-700 text-white", Default: "text-white hover:bg-indigo-500 hover:bg-opacity-75"
+              a.bg-indigo-700.text-white.block.rounded-md.py-2.px-3.text-base.font-medium href="#"
+                | Dashboard
+
+        header.py-5
+          = yield :header
+
+      main.-mt-32
+        .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
+          .bg-white.rounded-lg.shadow.px-5.py-6.sm:px-6
+            = yield
+
+      footer.mt-5
+        .flex.max-w-7xl.mx-auto.justify-between.items-center.text-xs.px-4.sm:px-6.lg:px-8
+          div
+            | SOLECTRUS
+            = link_to Rails.configuration.x.git.home,
+                      target: '_blank',
+                      rel: 'noopener',
+                      data: { controller: 'tippy' },
+                      title: l(Rails.configuration.x.git.commit_time) do
+              code.ml-1.text-gray-500
+                = Rails.configuration.x.git.commit_sha.first(7)
+
+          div
+            = link_to 'https://ledermann.dev',
+                      target: '_blank',
+                      rel: 'noopener',
+                      class: 'bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded tracking-wider font-mono' do
+              'ledermann.dev
