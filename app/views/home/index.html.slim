@@ -22,7 +22,7 @@
                     src: stats_path(permitted_params.to_hash.symbolize_keys),
                     target: '_top',
                     data: timeframe == 'now' && { controller: 'refresh', refresh_src_value: stats_path(permitted_params.to_hash.symbolize_keys.merge(chart: false)) } do
-    .flex.justify-center.m-56
+    .flex.justify-center.m-40
       = render Loading::Component.new
 
   = turbo_frame_tag 'chart'
