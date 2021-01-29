@@ -52,7 +52,7 @@ class Calculator::Base
   def grid_quote
     return 100.0 if consumption.zero?
 
-    100.0 * grid_power_plus / consumption
+    [ 100.0 * grid_power_plus / consumption, 100].min
   end
 
   def autarky
