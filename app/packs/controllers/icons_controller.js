@@ -15,6 +15,8 @@ import { faBatteryQuarter }       from '@fortawesome/free-solid-svg-icons/faBatt
 import { faBatteryHalf }          from '@fortawesome/free-solid-svg-icons/faBatteryHalf'
 import { faBatteryThreeQuarters } from '@fortawesome/free-solid-svg-icons/faBatteryThreeQuarters'
 import { faBatteryFull }          from '@fortawesome/free-solid-svg-icons/faBatteryFull'
+
+import { faGithub }               from '@fortawesome/free-brands-svg-icons/faGithub'
 // -------------------------
 
 export default class extends Controller {
@@ -34,6 +36,7 @@ export default class extends Controller {
       faBatteryHalf,
       faBatteryThreeQuarters,
       faBatteryFull,
+      faGithub,
     )
   }
 

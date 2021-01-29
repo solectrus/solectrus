@@ -72,21 +72,24 @@ html lang="de"
           .bg-white.rounded-lg.shadow.px-5.py-6.sm:px-6
             = yield
 
-      footer.mt-5
-        .flex.max-w-7xl.mx-auto.justify-between.items-center.text-xs.px-4.sm:px-6.lg:px-8
-          div
-            | SOLECTRUS
-            = link_to Rails.configuration.x.git.home,
-                      target: '_blank',
-                      rel: 'noopener',
-                      data: { controller: 'tippy' },
-                      title: l(Rails.configuration.x.git.commit_time) do
-              code.ml-1.text-gray-500
-                = Rails.configuration.x.git.commit_sha.first(7)
+      footer.flex.max-w-7xl.mx-auto.justify-between.items-center.text-xs.py-3.px-4.sm:px-6.lg:px-8
+        div
+          span.tracking-wider SOLECTRUS
+          = link_to Rails.configuration.x.git.home,
+                    target: '_blank',
+                    rel: 'noopener',
+                    data: { controller: 'tippy' },
+                    title: l(Rails.configuration.x.git.commit_time) do
+            i.ml-1.fab.fa-github.fa-lg
+            code.ml-1.text-gray-500
+              = Rails.configuration.x.git.commit_sha.first(7)
 
-          div
-            = link_to 'https://ledermann.dev',
-                      target: '_blank',
-                      rel: 'noopener',
-                      class: 'bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded tracking-wider font-mono' do
-              'ledermann.dev
+        = link_to 'https://ledermann.dev',
+                  target: '_blank',
+                  rel: 'noopener',
+                  class: 'hover:underline',
+                  data: { controller: 'tippy' },
+                  title: 'Georg Ledermann &mdash; Full-Stack Web Developer' do
+          svg class="inline h-6 w-6" viewBox="0 0 276 276"
+            path d="M0 137l138 138 138-138-84-82-84 82 31 30 53-52 25 22-79 77-78-77L166 29 138 1"
+          span.ml-2.tracking-wider.font-mono ledermann.dev
