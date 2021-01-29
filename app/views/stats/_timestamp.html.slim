@@ -49,12 +49,19 @@ ruby:
 
 - if timeframe == 'now'
   - if calculator.live?
-    .ml-5.text-xs.bg-gradient-to-r.from-yellow-500.to-red-400.font-bold.tracking-widest.text-white.rounded.py-1.px-2.cursor-default
+    .ml-5.text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center
       | LIVE
+      span.ml-2.flex.h-3.w-3.relative
+        span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-green-400.opacity-75
+        span.relative.inline-flex.rounded-full.h-3.w-3.bg-green-500
+
   - elsif calculator.time
-    .bg-red-500.text-gray-100.font-light.rounded.py-1.px-2.cursor-default[
-      title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
-    ] &#x26A0;
+    .ml-5.text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center data-controller="tippy" title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
+      | FAIL
+      span.ml-2.flex.h-3.w-3.relative
+        span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-red-400.opacity-75
+        span.relative.inline-flex.rounded-full.h-3.w-3.bg-red-500
+
 - else
   .ml-5.text-sm.bg-yellow-500.font-medium.text-white.rounded.py-1.px-2.cursor-default data-controller="tippy"
     = number_to_currency(calculator.profit)
@@ -62,10 +69,11 @@ ruby:
     template data-tippy-target="html"
       = render ProfitDetails::Component.new(calculator: calculator)
 
-.flex.ml-5
-  - if previous_link
-    = link_to previous_link, class: 'px-2 py-1 rounded text-gray-200 hover:text-white hover:bg-indigo-500' do
-      i.fas.fa-chevron-left.fa-lg
-  - if next_link
-    = link_to next_link, class: 'px-2 py-1 rounded text-gray-200 hover:text-white hover:bg-indigo-500' do
-      i.fas.fa-chevron-right.fa-lg
+- if previous_link || next_link
+  .flex.ml-5
+    - if previous_link
+      = link_to previous_link, class: 'px-2 py-1 rounded text-gray-200 hover:text-white hover:bg-indigo-500' do
+        i.fas.fa-chevron-left.fa-lg
+    - if next_link
+      = link_to next_link, class: 'px-2 py-1 rounded text-gray-200 hover:text-white hover:bg-indigo-500' do
+        i.fas.fa-chevron-right.fa-lg
