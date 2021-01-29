@@ -55,6 +55,12 @@ ruby:
     .bg-red-500.text-gray-100.font-light.rounded.py-1.px-2.cursor-default[
       title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
     ] &#x26A0;
+- else
+  .ml-5.text-sm.bg-yellow-500.font-medium.text-white.rounded.py-1.px-2.cursor-default data-controller="tippy"
+    = number_to_currency(calculator.profit)
+
+    template data-tippy-target="html"
+      = render ProfitDetails::Component.new(calculator: calculator)
 
 .flex.ml-5
   - if previous_link
