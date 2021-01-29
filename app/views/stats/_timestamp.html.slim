@@ -22,7 +22,7 @@ ruby:
   end
 
 - if timestamp
-  .text-gray-200.text-xl
+  .text-gray-200
     - case timeframe
     - when 'now'
       = l timestamp, format: 'Heute, %H:%M Uhr'
@@ -33,7 +33,7 @@ ruby:
     - when 'week'
       'KW
       = "#{timestamp.to_date.cweek}, #{timestamp.to_date.year}"
-      small.ml-4
+      small.ml-4.hidden.md:inline
         =<> l timestamp.beginning_of_week.to_date
         span.text-indigo-300 &minus;
         =<> l timestamp.end_of_week.to_date
@@ -63,7 +63,7 @@ ruby:
         span.relative.inline-flex.rounded-full.h-3.w-3.bg-red-500
 
 - else
-  .ml-5.text-sm.bg-yellow-500.font-medium.text-white.rounded.py-1.px-2.cursor-default data-controller="tippy"
+  .ml-5.bg-yellow-500.font-medium.text-white.rounded.py-1.px-2.cursor-default.whitespace-nowrap data-controller="tippy"
     = number_to_currency(calculator.profit)
 
     template data-tippy-target="html"
