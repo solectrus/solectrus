@@ -1,12 +1,7 @@
 ruby:
   options = {
     colors: [
-      case field
-      when 'house_power', 'wallbox_charge_power' then '#D97706'
-      when 'inverter_power'                      then '#FCD34D'
-      when 'grid_power_plus', 'grid_power_minus' then '#9CA3AF'
-      when 'bat_power_plus', 'bat_power_minus'   then '#93C5FD'
-      end,
+      '#4F46E5',
       '#ddd'
     ],
     decimal: I18n.t('number.format.separator'),
