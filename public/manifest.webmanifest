@@ -3,10 +3,9 @@
   "short_name": "Solectrus",
   "description": "Photovoltaics Dashboard",
   "lang": "de",
-  "start_url": ".",
+  "start_url": "/",
   "background_color": "#4f46e5",
   "theme_color": "#a5b4fc",
-  "dir": "ltr",
   "display": "standalone",
   "orientation": "portrait",
   "icons": [
@@ -23,5 +22,4 @@
       "purpose": "maskable any"
     }
   ],
-  "prefer_related_applications": "false"
 }
