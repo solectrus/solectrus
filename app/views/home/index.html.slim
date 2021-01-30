@@ -1,21 +1,27 @@
 = turbo_exempts_page_from_cache
 
-- content_for :header do
-  - cache permitted_params.slice(:field, :timeframe, :timestamp) do
-    .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
-      .flex.flex-col.justify-center.lg:justify-between.lg:flex-row
-        .mx-auto.lg:mx-0
-          = render Nav::Component.new items: [ \
-              [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
-              [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: timestamp? ? timestamp.beginning_of_day.to_date.iso8601 : nil)) ],
-              [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: timestamp? ? timestamp.beginning_of_week.to_date.iso8601 : nil)) ],
-              [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month', timestamp: timestamp? ? timestamp.beginning_of_month.to_date.iso8601 : nil)) ],
-              [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year',  timestamp: timestamp? ? timestamp.beginning_of_year.to_date.iso8601 : nil)) ],
-              [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ] \
-            ]
+ruby:
+  nav_items = [
+    [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
+    [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: timestamp? ? timestamp.beginning_of_day.to_date.iso8601 : nil)) ],
+    [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: timestamp? ? timestamp.beginning_of_week.to_date.iso8601 : nil)) ],
+    [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month', timestamp: timestamp? ? timestamp.beginning_of_month.to_date.iso8601 : nil)) ],
+    [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year',  timestamp: timestamp? ? timestamp.beginning_of_year.to_date.iso8601 : nil)) ],
+    [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ]
+  ]
 
-        .mx-auto.mt-5.lg:mx-0.lg:mt-0.flex.items-center
-          = turbo_frame_tag 'nav'
+- content_for :header do
+  .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
+    .flex.flex-col.justify-between.lg:flex-row
+      .mx-auto.lg:mx-0.hidden.lg:block
+        = render Nav::Component.new items: nav_items
+
+      .mt-5.lg:mt-0.flex.items-center.justify-between.lg:justify-end.w-full
+        = turbo_frame_tag 'nav', class: 'h-8'
+
+- content_for :bottom_nav do
+  .w-full.px-4
+    = render Nav::Component.new items: nav_items
 
 .grid.grid-cols-1.xl:grid-cols-2.gap-5
   = turbo_frame_tag 'stats',

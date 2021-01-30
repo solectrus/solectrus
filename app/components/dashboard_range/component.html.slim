@@ -24,7 +24,11 @@
           = Number::Component.new(value: calculator.inverter_power).to_kwh
 
         h1.mt-2.text-xs.md:text-base
-          br
+          =t 'calculator.profit'
+          =< Number::Component.new(value: calculator.profit).to_eur(klass: 'text-current')
+
+        - component.with :tippy do
+          = render ProfitDetails::Component.new(calculator: calculator)
 
       .grid.gap-3
         = render Card::Component.new field: 'house_power', signal: calculator.autarky, klasses: 'flex flex-col justify-center' do |component|
@@ -36,7 +40,7 @@
           = tag.div class: 'mt-5 text-xl sm:text-2xl md:text-4xl' do
             = Number::Component.new(value: calculator.house_power).to_kwh
 
-          h1.mt-2.text-xs.md:text-base
+          h1.mt-2.text-xs.md:text-base.whitespace-nowrap
             =t 'calculator.autarky'
             =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
 
