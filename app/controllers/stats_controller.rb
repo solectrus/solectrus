@@ -1,7 +1,9 @@
 class StatsController < ApplicationController
   include ParamsHandling
 
-  def index; end
+  def index
+    render formats: :turbo_stream
+  end
 
   private
 
