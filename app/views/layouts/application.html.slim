@@ -52,69 +52,68 @@ html lang="de"
 
     = yield :head
 
-  body data-controller="icons"
-    .min-h-screen.bg-gray-100
-      .bg-indigo-600.pb-32
-        nav.bg-indigo-600.border-b.border-indigo-300.border-opacity-25.lg:border-none data-controller="toggle"
-          .max-w-7xl.mx-auto.px-2.sm:px-4.lg:px-8
-            .relative.h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-400.lg:border-opacity-25
-              .px-2.flex.items-center.lg:px-0
-                .flex-shrink-0
-                  svg.w-10.h-10 viewBox="0 0 1200 1200"
-                    path fill="#a5b4fc" d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
+  body.h-screen.flex.flex-col.bg-gray-100 data-controller="icons"
+    header.bg-indigo-600.pb-32
+      nav.bg-indigo-600.border-b.border-indigo-300.border-opacity-25.lg:border-none data-controller="toggle"
+        .max-w-7xl.mx-auto.px-2.sm:px-4.lg:px-8
+          .relative.h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-400.lg:border-opacity-25
+            .px-2.flex.items-center.lg:px-0
+              a.flex-shrink-0 href= root_path
+                svg.w-10.h-10 viewBox="0 0 1200 1200"
+                  path fill="#a5b4fc" d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
 
-                .hidden.lg:block.lg:ml-10
-                  .flex.space-x-4
-                    /! Current: "bg-indigo-700 text-white", Default: "text-white hover:bg-indigo-500 hover:bg-opacity-75"
-                    a.bg-indigo-700.text-white.rounded-md.py-2.px-3.text-sm.font-medium href= root_path
-                      | Dashboard
-              .flex-1.px-2.flex.justify-center.lg:ml-6.lg:justify-end
+              .hidden.lg:block.lg:ml-10
+                .flex.space-x-4
+                  /! Current: "bg-indigo-700 text-white", Default: "text-white hover:bg-indigo-500 hover:bg-opacity-75"
+                  a.bg-indigo-700.text-white.rounded-md.py-2.px-3.text-sm.font-medium href= root_path
+                    | Dashboard
 
-              .flex.lg:hidden
-                /! Mobile menu button
-                button.bg-indigo-600.p-2.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.hover:text-white.hover:bg-indigo-500.hover:bg-opacity-75.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white aria-expanded="false" data-action="click->toggle#toggle"
-                  span.sr-only Open main menu
-                  /! Heroicon: menu
-                  svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" data-toggle-target="element"
-                    path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  /! Heroicon: x
-                  svg.hidden.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" data-toggle-target="element"
-                    path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              .hidden.lg:block.lg:ml-4
-                .flex.items-center
+            .flex.lg:hidden
+              /! Mobile menu button
+              button.bg-indigo-600.p-2.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.hover:text-white.hover:bg-indigo-500.hover:bg-opacity-75.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white aria-expanded="false" data-action="click->toggle#toggle"
+                span.sr-only Open main menu
+                /! Heroicon: menu
+                svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" data-toggle-target="element"
+                  path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                /! Heroicon: x
+                svg.hidden.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" data-toggle-target="element"
+                  path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 
-          .hidden.lg:hidden data-toggle-target="element"
-            .px-2.pt-2.pb-3.space-y-1
-              /! Current: "bg-indigo-700 text-white", Default: "text-white hover:bg-indigo-500 hover:bg-opacity-75"
-              a.bg-indigo-700.text-white.block.rounded-md.py-2.px-3.text-base.font-medium href="#"
-                | Dashboard
+        .hidden data-toggle-target="element"
+          .px-2.pt-2.pb-3.space-y-1
+            /! Current: "bg-indigo-700 text-white", Default: "text-white hover:bg-indigo-500 hover:bg-opacity-75"
+            a.bg-indigo-700.text-white.block.rounded-md.py-2.px-3.text-base.font-medium href="#"
+              | Dashboard
 
-        header.py-5
-          = yield :header
+      .pb-5.lg:pt-5
+        = yield :header
 
-      main.-mt-32
-        .max-w-7xl.mx-auto.sm:px-6.lg:px-8
-          .bg-white.rounded-lg.shadow.px-5.py-6.sm:px-6
-            = yield
+    main.-mt-32.flex-grow.lg:flex-none.pb-16.lg:pb-0
+      .max-w-7xl.mx-auto.sm:px-6.lg:px-8
+        .bg-white.sm:rounded-lg.lg:shadow.px-5.py-6.sm:px-6
+          = yield
 
-      footer.flex.max-w-7xl.mx-auto.justify-between.items-center.text-xs.py-3.px-4.sm:px-6.lg:px-8
-        div
-          span.tracking-wider SOLECTRUS
-          = link_to Rails.configuration.x.git.home,
-                    target: '_blank',
-                    rel: 'noopener',
-                    data: { controller: 'tippy' },
-                    title: l(Rails.configuration.x.git.commit_time) do
-            i.ml-1.fab.fa-github.fa-lg
-            code.ml-1.text-gray-500
-              = Rails.configuration.x.git.commit_sha.first(7)
+    nav.fixed.bottom-0.w-full.bg-indigo-600.py-4.lg:hidden
+      = yield :bottom_nav
 
-        = link_to 'https://ledermann.dev',
+    footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
+      div
+        span.tracking-wider SOLECTRUS
+        = link_to Rails.configuration.x.git.home,
                   target: '_blank',
                   rel: 'noopener',
-                  class: 'hover:underline',
                   data: { controller: 'tippy' },
-                  title: 'Georg Ledermann &mdash; Full-Stack Web Developer' do
-          svg class="inline h-6 w-6" viewBox="0 0 276 276"
-            path d="M0 137l138 138 138-138-84-82-84 82 31 30 53-52 25 22-79 77-78-77L166 29 138 1"
-          span.ml-2.tracking-wider.font-mono ledermann.dev
+                  title: l(Rails.configuration.x.git.commit_time) do
+          i.ml-1.fab.fa-github.fa-lg
+          code.ml-1.text-gray-500
+            = Rails.configuration.x.git.commit_sha.first(7)
+
+      = link_to 'https://ledermann.dev',
+                target: '_blank',
+                rel: 'noopener',
+                class: 'hover:underline',
+                data: { controller: 'tippy' },
+                title: 'Georg Ledermann &mdash; Full-Stack Web Developer' do
+        svg class="inline h-6 w-6" viewBox="0 0 276 276"
+          path d="M0 137l138 138 138-138-84-82-84 82 31 30 53-52 25 22-79 77-78-77L166 29 138 1"
+        span.ml-2.tracking-wider.font-mono ledermann.dev

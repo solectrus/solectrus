@@ -21,59 +21,56 @@ ruby:
                 root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.year).to_date.iso8601)
   end
 
-- if timestamp
-  .text-gray-200
+.flex.items-center.justify-between.space-x-4.w-full.lg:w-auto.text-base.text-gray-200.tracking-wider
+  - if previous_link
+    = link_to previous_link, class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500' do
+      i.fas.fa-chevron-left.fa-lg
+
+  - if timestamp
     - case timeframe
     - when 'now'
-      = l timestamp, format: 'Heute, %H:%M Uhr'
+      span.py-1
+        = l timestamp, format: 'Heute, %H:%M Uhr'
 
     - when 'day'
-      = l timestamp.to_date, format: :long
+      .w-64.text-center
+        = l timestamp.to_date, format: :long
 
     - when 'week'
-      'KW
-      = "#{timestamp.to_date.cweek}, #{timestamp.to_date.year}"
-      small.ml-4.hidden.md:inline
-        =<> l timestamp.beginning_of_week.to_date
-        span.text-indigo-300 &minus;
-        =<> l timestamp.end_of_week.to_date
+      .w-80.text-center
+        'KW
+        = "#{timestamp.to_date.cweek}, #{timestamp.to_date.year}"
+        small.ml-4.hidden.md:inline
+          =<> l timestamp.beginning_of_week.to_date
+          span.text-indigo-300 &minus;
+          =<> l timestamp.end_of_week.to_date
 
     - when 'month'
+      .w-36.text-center
         = l timestamp.to_date, format: :month
 
     - when 'year'
+      .w-16.text-center
         = timestamp.to_date.year
 
     - when 'all'
       'Seit Installation
 
-- if timeframe == 'now'
-  - if calculator.live?
-    .ml-5.text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center
-      | LIVE
-      span.ml-2.flex.h-3.w-3.relative
-        span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-green-400.opacity-75
-        span.relative.inline-flex.rounded-full.h-3.w-3.bg-green-500
+  - if timeframe == 'now'
+    - if calculator.live?
+      .text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center
+        | LIVE
+        span.ml-2.flex.h-3.w-3.relative
+          span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-green-400.opacity-75
+          span.relative.inline-flex.rounded-full.h-3.w-3.bg-green-500
 
-  - elsif calculator.time
-    .ml-5.text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center data-controller="tippy" title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
-      | FAIL
-      span.ml-2.flex.h-3.w-3.relative
-        span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-red-400.opacity-75
-        span.relative.inline-flex.rounded-full.h-3.w-3.bg-red-500
+    - elsif calculator.time
+      .text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center data-controller="tippy" title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
+        | FAIL
+        span.ml-2.flex.h-3.w-3.relative
+          span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-red-400.opacity-75
+          span.relative.inline-flex.rounded-full.h-3.w-3.bg-red-500
 
-- else
-  .ml-5.bg-yellow-500.font-medium.text-white.rounded.py-1.px-2.cursor-default.whitespace-nowrap data-controller="tippy"
-    = number_to_currency(calculator.profit)
-
-    template data-tippy-target="html"
-      = render ProfitDetails::Component.new(calculator: calculator)
-
-- if previous_link || next_link
-  .flex.ml-5
-    - if previous_link
-      = link_to previous_link, class: 'px-2 py-1 rounded text-gray-200 hover:text-white hover:bg-indigo-500' do
-        i.fas.fa-chevron-left.fa-lg
-    - if next_link
-      = link_to next_link, class: 'px-2 py-1 rounded text-gray-200 hover:text-white hover:bg-indigo-500' do
-        i.fas.fa-chevron-right.fa-lg
+  - if next_link
+    = link_to next_link, class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500' do
+      i.fas.fa-chevron-right.fa-lg
