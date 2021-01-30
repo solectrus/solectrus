@@ -1,11 +1,4 @@
 module.exports = {
-  purge: [
-    './app/**/*.html.erb',
-    './app/helpers/**/*.rb',
-    './src/**/*.html',
-    './src/**/*.js'
-  ],
-
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {},
@@ -17,8 +10,7 @@ module.exports = {
     './app/**/*.html',
     './app/**/*.html.erb',
     './app/**/*.html.slim',
-    './app/helpers/**/*.rb',
-    './app/components/**/*.rb',
+    './app/**/*.rb',
     './app/packs/**/*.js'
   ],
   plugins: [
