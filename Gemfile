@@ -37,7 +37,7 @@ gem 'lograge'
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
 gem 'influxdb-client'
 
-# A gem that provides a client interface for the Sentry error logger (https://github.com/getsentry/raven-ruby)
+# A gem that provides a client interface for the Sentry error logger (https://github.com/getsentry/sentry-ruby)
 gem 'sentry-ruby'
 
 # A gem that provides Rails integration for the Sentry error logger (https://github.com/getsentry/sentry-ruby)
@@ -96,6 +96,9 @@ end
 group :test do
   # Capybara aims to simplify the process of integration testing Rack applications, such as Rails, Sinatra or Merb (https://github.com/teamcapybara/capybara)
   gem 'capybara', '>= 3.26'
+
+  # Automatically create snapshots when Cucumber steps fail with Capybara and Rails (http://github.com/mattheworiordan/capybara-screenshot)
+  gem 'capybara-screenshot'
 
   # The next generation developer focused tool for automated testing of webapps (https://github.com/SeleniumHQ/selenium)
   gem 'selenium-webdriver'
