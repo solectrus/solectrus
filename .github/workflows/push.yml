@@ -6,6 +6,11 @@ jobs:
     runs-on: ubuntu-20.04
 
     services:
+      influxdb:
+        image: quay.io/influxdb/influxdb:v2.0.3
+        ports: ["8086:8086"]
+        env:
+          INFLUXD_HTTP_BIND_ADDRESS: :8086
       postgres:
         image: postgres:13-alpine
         ports: ["5432:5432"]
@@ -53,6 +58,7 @@ jobs:
       - name: Run Tests
         run: |
           bundle exec rails db:create
+          bin/influxdb-onboarding.sh
           bundle exec rspec
 
       - name: Send test coverage to CodeClimate
