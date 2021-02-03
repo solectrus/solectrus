@@ -20,7 +20,7 @@
     "postcss": "^8.2.2",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^14.0.0",
-    "postcss-loader": "^4.1.0",
+    "postcss-loader": "^5.0.0",
     "postcss-preset-env": "^6.7.0",
     "sass": "^1.32.0",
     "sass-loader": "^10.1.0",
