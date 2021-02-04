@@ -16,8 +16,10 @@ ruby:
       .mx-auto.lg:mx-0.hidden.lg:block
         = render Nav::Component.new items: nav_items
 
-      .mt-5.lg:mt-0.flex.items-center.justify-between.lg:justify-end.w-full
-        = turbo_frame_tag 'nav', class: 'h-8'
+      .mt-5.lg:mt-0
+        = turbo_frame_tag 'nav',
+                          target: '_top',
+                          class: 'h-8 flex items-center justify-between lg:justify-end'
 
 - content_for :bottom_nav do
   .w-full.px-4
