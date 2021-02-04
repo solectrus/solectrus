@@ -18,11 +18,7 @@ class Calculator::Now < Calculator::Base
   end
 
   def inverter_to_house
-    if producing?
-      [ house_power, inverter_power ].min
-    else
-      0
-    end
+    inverter_power - inverter_to_battery - inverter_to_wallbox
   end
 
   def inverter_to_battery
@@ -42,7 +38,7 @@ class Calculator::Now < Calculator::Base
   end
 
   def grid_to_house
-    grid_power_plus
+    house_power - inverter_to_house - battery_to_house
   end
 
   def grid_to_wallbox
