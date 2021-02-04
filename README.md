@@ -6,4 +6,6 @@
 
 Photovoltaic Dashboard
 
+![Screenshot](screenshot.png)
+
 Copyright (c) 2020-2021 Georg Ledermann, released under the AGPL-3.0 License
