@@ -33,3 +33,5 @@ config/environments/development.rb
 config/webpack/test.js
 config/webpack/development.js
 screenshot.png
+logo.svg
+jsconfig.json
