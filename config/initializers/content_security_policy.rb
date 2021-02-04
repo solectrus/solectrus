@@ -6,15 +6,15 @@
 
 Rails.application.config.content_security_policy do |policy|
   if Rails.env.development?
-    policy.script_src :self, :https, :unsafe_eval, :unsafe_inline
-    policy.connect_src :self, :https, 'http://localhost:3035', 'ws://localhost:3035'
+    policy.script_src :self, :unsafe_eval, :unsafe_inline
+    policy.connect_src :self, 'http://localhost:3035', 'ws://localhost:3035'
   else
-    policy.default_src :self, :https
-    policy.font_src    :self, :https, :data
-    policy.img_src     :self, :https, :data
+    policy.default_src :none
+    policy.font_src    :self, :data
+    policy.img_src     :self, :data
     policy.object_src  :none
-    policy.script_src  :self, :https
-    policy.style_src   :self, :https, :unsafe_inline # unsafe_inline is required by Turbo's progressbar
+    policy.script_src  :self
+    policy.style_src   :self, :unsafe_inline # unsafe_inline is required by Turbo's progressbar
     policy.connect_src(
       *[
         :self,
@@ -22,9 +22,11 @@ Rails.application.config.content_security_policy do |policy|
         Rails.configuration.x.sentry_host.presence
       ].compact
     )
+    policy.manifest_src :self
     policy.frame_ancestors :none
   end
   policy.base_uri :self
+  policy.form_action :self
 
   # Specify URI for violation reports
   # policy.report_uri "/csp-violation-report-endpoint"
