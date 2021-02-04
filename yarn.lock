@@ -888,9 +888,9 @@
   integrity sha512-A8toxvSuzK/wX9uMwyV6T1EYzlqzIJNrO8XiNCSNsmKresdX2cbAjxFdMu9haaPJPjl3aC2FKRJeVCUWVtLPAQ==
 
 "@rails/webpacker@^6.0.0-beta.4":
-  version "6.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@rails/webpacker/-/webpacker-6.0.0-beta.4.tgz#22085c6daa91e050649997dc061ea65a4985966d"
-  integrity sha512-b3gN6EVh7GyvG6dfkTyIbFGZqbrTnxRmkJ+g94zHh9gVX//e2F7Gi6W9nsd4wPJDupkInlKZfV7nIPIEeeY1hA==
+  version "6.0.0-beta.5"
+  resolved "https://registry.yarnpkg.com/@rails/webpacker/-/webpacker-6.0.0-beta.5.tgz#85576645d016b5c25a481e69a5bb74056f8a297c"
+  integrity sha512-jIrQU1CMCh3tFTzMqIMDCIl9aVk50k8yYac+cOsiGYgdFIkuw6oC6nOJr1JvpBx4gXljWqXbHdLLN91EKHJfFA==
   dependencies:
     "@babel/core" "^7.12.9"
     "@babel/plugin-proposal-class-properties" "^7.12.1"
