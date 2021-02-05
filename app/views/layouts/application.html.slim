@@ -13,6 +13,8 @@ html lang="de"
     meta name="description" content="Photovoltaics Dashboard"
     meta name="plausible-url" content= Rails.configuration.x.plausible_url
     meta name="app-host" content= Rails.configuration.x.app_host
+    meta name="sentry-dns" content= Rails.configuration.x.sentry_dns
+    meta name="release" content= Rails.configuration.x.git.commit_sha
 
     link rel="manifest" href="/manifest.webmanifest"
     link rel="icon" type="image/png" sizes="196x196" href="/favicon-196.png"
@@ -106,7 +108,7 @@ html lang="de"
                   title: l(Rails.configuration.x.git.commit_time) do
           i.ml-1.fab.fa-github.fa-lg
           code.ml-1.text-gray-500
-            = Rails.configuration.x.git.commit_sha.first(7)
+            = Rails.configuration.x.git.commit_sha
 
       = link_to 'https://ledermann.dev',
                 target: '_blank',

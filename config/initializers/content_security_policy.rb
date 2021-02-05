@@ -19,7 +19,7 @@ Rails.application.config.content_security_policy do |policy|
       *[
         :self,
         Rails.configuration.x.plausible_url.presence,
-        Rails.configuration.x.sentry_host.presence
+        Rails.configuration.x.sentry_dns ? URI.parse(Rails.configuration.x.sentry_dns).host : nil
       ].compact
     )
     policy.manifest_src :self
@@ -29,7 +29,7 @@ Rails.application.config.content_security_policy do |policy|
   policy.form_action :self
 
   # Specify URI for violation reports
-  # policy.report_uri "/csp-violation-report-endpoint"
+  policy.report_uri(Rails.configuration.x.sentry_csp) if Rails.configuration.x.sentry_csp
 end
 
 # If you are using UJS then enable automatic nonce generation

@@ -67,6 +67,7 @@ services:
       - LOCKUP_CODEWORD
       - REDIS_URL
       - SENTRY_DNS
+      - SENTRY_CSP
       - PLAUSIBLE_URL
     deploy:
       update_config:
