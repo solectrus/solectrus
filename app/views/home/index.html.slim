@@ -1,6 +1,18 @@
 = turbo_exempts_page_from_cache
 
 ruby:
+  set_meta_tags title: title,
+                description: 'Solarstrom aus der Photovoltaik-Anlage',
+                keywords: 'photovoltaik, strom, solar, energiewende',
+                og: {
+                  title:       :title,
+                  description: :description,
+                  site_name:   :site,
+                  url:         request.url,
+                  type:        'website',
+                  image:       asset_url('og-image.png')
+                }
+
   nav_items = [
     [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
     [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: timestamp? ? timestamp.beginning_of_day.to_date.iso8601 : nil)) ],

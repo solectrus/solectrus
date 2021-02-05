@@ -46,6 +46,9 @@ gem 'sentry-rails'
 # View components for Rails (https://github.com/github/view_component)
 gem 'view_component', require: 'view_component/engine'
 
+# Collection of SEO helpers for Ruby on Rails. (http://github.com/kpumuk/meta-tags)
+gem 'meta-tags'
+
 group :development, :test do
   # Ruby fast debugger - base + CLI (https://github.com/deivid-rodriguez/byebug)
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]

@@ -3,14 +3,13 @@ html lang="de"
   head
     meta charset="utf-8"
 
-    title Solectrus
+    = display_meta_tags site: 'Solectrus'
 
     meta name="viewport" content="width=device-width,initial-scale=1"
     meta name="apple-mobile-web-app-title" content="Solectrus"
     meta name="apple-mobile-web-app-capable" content="yes"
     meta name="application-name" content="Solectrus"
     meta name="theme-color" content="#a5b4fc"
-    meta name="description" content="Photovoltaics Dashboard"
     meta name="plausible-url" content= Rails.configuration.x.plausible_url
     meta name="app-host" content= Rails.configuration.x.app_host
     meta name="sentry-dns" content= Rails.configuration.x.sentry_dns
