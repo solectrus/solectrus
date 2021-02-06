@@ -19,9 +19,6 @@ if (sentry_dns) {
 import { Turbo } from "@hotwired/turbo-rails"
 window.Turbo = Turbo
 
-import "chartkick"
-import "chart.js"
-
 import "channels"
 import "stylesheets/application.scss"
 import "controllers"
