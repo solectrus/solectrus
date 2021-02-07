@@ -1,4 +1,5 @@
 import { Controller } from "stimulus"
+import Chart from "chart.js"
 
 export default class extends Controller {
   static targets = ['current']
@@ -42,25 +43,24 @@ export default class extends Controller {
       return
     }
 
-    const data = this.chart.data[0].data
+    let data = this.chart.data
 
     // Remove first point
-    data.shift()
+    data.labels.shift()
+    data.datasets[0].data.shift()
 
     // Add new point
-    data.push(
-      // Assume the value is from NOW, no need to get the real one
-      [new Date().toISOString(), this.currentValue]
-    )
+    // Assume the value is from NOW, no need to get the real one
+    data.labels.push(new Date().toISOString())
+    data.datasets[0].data.push(this.currentValue)
 
-    var options = this.chart.options
-    options.library.animation.duration = 0
-
-    this.chart.updateData(data, options)
+    this.chart.data = data
+    this.chart.options.animation.duration = 0
+    this.chart.update()
   }
 
   get chart() {
-    return Chartkick.charts['chart-now']
+    return Chart.instances[0]
   }
 
   get currentValue() {

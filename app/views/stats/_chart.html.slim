@@ -1,63 +1,76 @@
 ruby:
   options = {
-    colors: [
-      '#4F46E5',
-      '#ddd'
-    ],
-    decimal: I18n.t('number.format.separator'),
-    thousands: I18n.t('number.format.delimiter'),
-    download: true,
+    maintainAspectRatio: false,
     legend: false,
-    library: {
-      title: {
-        display: true,
-        fontColor: '#777',
-        text: if field == 'bat_fuel_charge'
-                "#{I18n.t "calculator.#{field}"} in %"
-              else
-                "#{I18n.t "calculator.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
-              end
-      },
-      animation: {
-        easing: 'easeOutQuad',
-        duration: 300
-      },
-      elements: {
-        point: {
-          radius: 0,
-          hitRadius: 5,
-          hoverRadius: 5
-        }
-      },
-      tooltips: {
-        titleFontSize: 20,
-        bodyFontSize: 20
-      },
-      scales: {
-        xAxes: [
-          {
-            offset: !timeframe.in?(%w[now day]),
-            type: 'time',
-            time: {
-              'now'   => { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm'  }, tooltipFormat: 'HH:mm:ss' },
-              'day'   => { unit: 'hour',   stepSize: 2, displayFormats: { hour: 'HH:mm'    }, tooltipFormat: 'HH:mm' },
-              'week'  => { unit: 'day',                 displayFormats: { day: 'dddd'      }, tooltipFormat: 'dddd, DD.MM.YYYY' },
-              'month' => { unit: 'day',    stepSize: 4, displayFormats: { day: 'DD.MM.'    }, tooltipFormat: 'dddd, DD.MM.YYYY' },
-              'year'  => { unit: 'month',  stepSize: 2, displayFormats: { month: 'MM-YYYY' }, tooltipFormat: 'MMMM YYYY' },
-              'all'   => { unit: 'year',                displayFormats: { year: 'YYYY'     }, tooltipFormat: 'YYYY' }
-            }[timeframe]
-          }
-        ]
+    title: {
+      fontSize: 20,
+      display: true,
+      fontColor: '#777',
+      text: if field == 'bat_fuel_charge'
+              "#{I18n.t "calculator.#{field}"} in %"
+            else
+              "#{I18n.t "calculator.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
+            end
+    },
+    animation: {
+      easing: 'easeOutQuad',
+      duration: 300
+    },
+    elements: {
+      point: {
+        radius: 0,
+        hitRadius: 5,
+        hoverRadius: 5
       }
+    },
+    tooltips: {
+      displayColors: false,
+      callbacks: {},
+      titleFontSize: 20,
+      bodyFontSize: 20
+    },
+    scales: {
+      xAxes: [
+        {
+          gridLines: {
+            drawOnChartArea: false
+          },
+          scaleLabel: {
+            fontSize: 16,
+            fontColor: '#333'
+          },
+          offset: !timeframe.in?(%w[now day]),
+          type: 'time',
+          time: {
+            'now'   => { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' },
+            'day'   => { unit: 'hour',   stepSize: 2, displayFormats: { hour:   'HH:mm' }, tooltipFormat: 'HH:mm' },
+            'week'  => { unit: 'day',                 displayFormats: { day:    'dddd'  }, tooltipFormat: 'dddd, DD.MM.YYYY' },
+            'month' => { unit: 'day',    stepSize: 2, displayFormats: { day:    'DD'    }, tooltipFormat: 'dddd, DD.MM.YYYY' },
+            'year'  => { unit: 'month',  stepSize: 1, displayFormats: { month:  'MMM'   }, tooltipFormat: 'MMMM YYYY' },
+            'all'   => { unit: 'year',                displayFormats: { year:   'YYYY'  }, tooltipFormat: 'YYYY' }
+          }[timeframe]
+        }
+      ],
+      yAxes: [
+        {
+          ticks: {
+            maxTicksLimit: 4
+          },
+          scaleLabel: {
+            fontSize: 16,
+            fontColor: '#333'
+          }
+        }
+      ]
     }
   }
 
-= tag.div id: "chart-#{timeframe}",
-          data: { \
-            controller: 'chartkick',
-            chartkick_url_value: charts_path(permitted_params.to_hash.symbolize_keys),
-            chartkick_options_value: options.to_json,
-            chartkick_type_value: timeframe.in?(%w[now day]) ? 'AreaChart' : 'ColumnChart' \
-          },
-          class: 'h-full w-full',
-          style: 'min-height: 250px'
+= tag.canvas id: "chart-#{timeframe}",
+             data: { \
+               controller: 'charts',
+               charts_url_value: charts_path(permitted_params.to_hash.symbolize_keys),
+               charts_options_value: options.to_json,
+               charts_type_value: timeframe.in?(%w[now day]) ? 'line' : 'bar' \
+             },
+             class: 'w-full h-full',
+             style: 'min-height: 250px'
