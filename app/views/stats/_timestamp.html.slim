@@ -23,7 +23,7 @@ ruby:
 
 .flex.items-center.justify-between.space-x-4.w-full.lg:w-auto.text-base.text-gray-200.tracking-wider
   - if previous_link
-    = link_to previous_link, class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500' do
+    = link_to previous_link, class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'prev nofollow' do
       i.fas.fa-chevron-left.fa-lg
 
   - if timestamp
@@ -73,5 +73,5 @@ ruby:
           span.relative.inline-flex.rounded-full.h-3.w-3.bg-red-500
 
   - if next_link
-    = link_to next_link, class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500' do
+    = link_to next_link, class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'next nofollow' do
       i.fas.fa-chevron-right.fa-lg
