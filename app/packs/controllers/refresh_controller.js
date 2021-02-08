@@ -9,7 +9,7 @@ export default class extends Controller {
   }
 
   connect() {
-    this.timeout = setInterval(() => {
+    this.interval = setInterval(() => {
       this.element.setAttribute('src', this.srcValue)
 
       // Wait until the frame is loaded before updating the chart
@@ -19,7 +19,7 @@ export default class extends Controller {
   }
 
   disconnect() {
-    clearInterval(this.timeout)
+    clearInterval(this.interval)
   }
 
   updateChart() {
@@ -28,33 +28,26 @@ export default class extends Controller {
       return
     }
 
-    if (!this.chart) {
+    let chart = this.chartNow
+
+    if (!chart) {
       console.warn('RefreshController: Chart not found!')
       return
     }
 
-    if (!this.chart.data) {
-      console.warn('RefreshController: Chart data not found!')
-      return
-    }
+    // Remove first point (label + value)
+    chart.data.labels.shift()
+    chart.data.datasets[0].data.shift()
 
-    let data = this.chart.data
-
-    // Remove first point
-    data.labels.shift()
-    data.datasets[0].data.shift()
-
-    // Add new point
+    // Add new point (label + value)
     // Assume the value is from NOW, no need to get the real one
-    data.labels.push(new Date().toISOString())
-    data.datasets[0].data.push(this.currentValue)
+    chart.data.labels.push(new Date().toISOString())
+    chart.data.datasets[0].data.push(this.currentValue)
 
-    this.chart.data = data
-    this.chart.options.animation.duration = 0
-    this.chart.update()
+    chart.update()
   }
 
-  get chart() {
+  get chartNow() {
     return Object.values(Chart.instances).find((c) => c.canvas.id == 'chart-now')
   }
 
