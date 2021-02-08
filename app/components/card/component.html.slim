@@ -34,7 +34,7 @@ ruby:
       = content
 
 - if url.present?
-  = link_to url, options do
+  = link_to url, options, rel: 'nofollow' do
     = wrapped_content
 
     - if tippy.present?
