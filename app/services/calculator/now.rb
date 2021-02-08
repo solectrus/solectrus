@@ -23,7 +23,7 @@ class Calculator::Now < Calculator::Base
 
   def inverter_to_battery
     if bat_charging?
-      inverter_power - house_power
+      [ inverter_power - house_power, 0 ].max
     else
       0
     end
@@ -38,7 +38,7 @@ class Calculator::Now < Calculator::Base
   end
 
   def grid_to_house
-    house_power - inverter_to_house - battery_to_house
+    [ house_power - inverter_to_house - battery_to_house, 0 ].max
   end
 
   def grid_to_wallbox
