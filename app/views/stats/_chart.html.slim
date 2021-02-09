@@ -5,7 +5,6 @@ ruby:
     title: {
       fontSize: 20,
       display: true,
-      fontColor: '#777',
       text: if field == 'bat_fuel_charge'
               "#{I18n.t "calculator.#{field}"} in %"
             else
@@ -25,8 +24,7 @@ ruby:
     },
     tooltips: {
       displayColors: false,
-      callbacks: {},
-      titleFontSize: 20,
+      titleFontSize: 16,
       bodyFontSize: 20
     },
     scales: {
@@ -35,30 +33,27 @@ ruby:
           gridLines: {
             drawOnChartArea: false
           },
-          scaleLabel: {
-            fontSize: 16,
-            fontColor: '#333'
+          ticks: {
+            maxRotation: 0
           },
           offset: !timeframe.in?(%w[now day]),
+          distribution: timeframe.in?(%w[now day]) ? 'linear' : 'series',
           type: 'time',
           time: {
             'now'   => { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' },
             'day'   => { unit: 'hour',   stepSize: 2, displayFormats: { hour:   'HH:mm' }, tooltipFormat: 'HH:mm' },
-            'week'  => { unit: 'day',                 displayFormats: { day:    'dddd'  }, tooltipFormat: 'dddd, DD.MM.YYYY' },
-            'month' => { unit: 'day',    stepSize: 2, displayFormats: { day:    'DD'    }, tooltipFormat: 'dddd, DD.MM.YYYY' },
+            'week'  => { unit: 'day',    stepSize: 1, displayFormats: { day:    'dddd'  }, tooltipFormat: 'dddd, DD.MM.YYYY' },
+            'month' => { unit: 'day',    stepSize: 2, displayFormats: { day:    'D'     }, tooltipFormat: 'dddd, DD.MM.YYYY' },
             'year'  => { unit: 'month',  stepSize: 1, displayFormats: { month:  'MMM'   }, tooltipFormat: 'MMMM YYYY' },
-            'all'   => { unit: 'year',                displayFormats: { year:   'YYYY'  }, tooltipFormat: 'YYYY' }
+            'all'   => { unit: 'year',   stepSize: 1, displayFormats: { year:   'YYYY'  }, tooltipFormat: 'YYYY' }
           }[timeframe]
         }
       ],
       yAxes: [
         {
           ticks: {
+            beginAtZero: true,
             maxTicksLimit: 4
-          },
-          scaleLabel: {
-            fontSize: 16,
-            fontColor: '#333'
           }
         }
       ]

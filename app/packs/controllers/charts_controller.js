@@ -26,12 +26,14 @@ export default class extends Controller {
         }
 
         // Format numbers in tooltips
-        options.tooltips.callbacks.label = function (tooltipItem, data) {
-          let label = data.datasets[tooltipItem.datasetIndex].label || ''
-          if (label) {
-            label += ': '
+        options.tooltips.callbacks = {
+          label: (tooltipItem, data) => {
+            let label = data.datasets[tooltipItem.datasetIndex].label || ''
+            if (label) {
+              label += ': '
+            }
+            return label + that.formattedNumber(tooltipItem['yLabel'])
           }
-          return label + that.formattedNumber(tooltipItem['yLabel'])
         }
 
         this.chart = new Chart(this.element, {
