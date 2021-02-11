@@ -166,7 +166,7 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
     it 'calculates power flow' do
       expect(calculator.battery_to_house).to eq(0)
       expect(calculator.grid_to_house).to eq(0)
-      expect(calculator.inverter_to_house).to eq(500)
+      expect(calculator.inverter_to_house).to eq(400)
       expect(calculator.inverter_to_battery).to eq(0)
       expect(calculator.inverter_to_wallbox).to eq(0)
       expect(calculator.grid_to_wallbox).to eq(0)

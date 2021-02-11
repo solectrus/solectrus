@@ -18,7 +18,7 @@ class Calculator::Now < Calculator::Base
   end
 
   def inverter_to_house
-    inverter_power - inverter_to_battery - inverter_to_wallbox
+    [ inverter_power - inverter_to_battery - inverter_to_wallbox, house_power ].min
   end
 
   def inverter_to_battery
