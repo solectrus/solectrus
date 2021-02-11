@@ -80,29 +80,30 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Login to GitLab Docker Registry
-        run: echo ${{ secrets.GITLAB_TOKEN }} | docker login -u gitlab-ci-token --password-stdin ${{ secrets.GITLAB_REGISTRY }}
-
-      - name: Login to Docker Hub
-        run: echo ${{ secrets.DOCKER_TOKEN }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT2 }}
 
       - name: Build the production image
         run: |
-          export COMMIT_TIME=$(git show -s --format=%cD ${GITHUB_SHA})
+          export COMMIT_TIME=$(git show -s --format=%ci ${GITHUB_SHA})
           export COMMIT_SHA=${GITHUB_SHA}
           docker build --build-arg COMMIT_TIME --build-arg COMMIT_SHA -t app .
 
-      - name: Push the image tagged as LATEST to the container registry
+      - name: Push the image tagged as DEVELOP to the container registry
         if: github.ref == 'refs/heads/develop'
         run: |
-          docker tag app ${{ secrets.GITLAB_REGISTRY }}/${{ secrets.GITLAB_REPO }}:latest
-          docker push ${{ secrets.GITLAB_REGISTRY }}/${{ secrets.GITLAB_REPO }}:latest
+          docker tag app ghcr.io/${{ github.repository_owner }}/solectrus:develop
+          docker push ghcr.io/${{ github.repository_owner }}/solectrus:develop
 
-      - name: Push the image tagged as STABLE to the container registry
+      - name: Push the image tagged as LATEST to the container registry
         if: github.ref == 'refs/heads/main'
         run: |
-          docker tag app ${{ secrets.GITLAB_REGISTRY }}/${{ secrets.GITLAB_REPO }}:stable
-          docker push ${{ secrets.GITLAB_REGISTRY }}/${{ secrets.GITLAB_REPO }}:stable
+          docker tag app ghcr.io/${{ github.repository_owner }}/solectrus:latest
+          docker push ghcr.io/${{ github.repository_owner }}/solectrus:latest
 
       - name: Send notification
         run: curl -X POST ${{ secrets.DEPLOY_HOOK }}

@@ -51,7 +51,7 @@ services:
 
   app:
     hostname: app.${APP_HOST}
-    image: registry.gitlab.com/solectrus/solectrus:stable
+    image: ghcr.io/solectrus/solectrus:latest
     environment:
       - APP_HOST
       - DB_HOST=db
