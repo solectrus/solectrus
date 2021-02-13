@@ -8,4 +8,29 @@ Photovoltaic Dashboard
 
 ![Screenshot](screenshot.png)
 
+
+## Development
+
+```bash
+git clone git@github.com:solectrus/solectrus.git
+cd solectrus
+cp .env.example .env
+bin/setup
+foreman start
+```
+
+Then open http://localhost:3000 in your browser.
+
+
+## Test
+
+After preparing development environment (see above):
+
+```bash
+bin/rspec
+```
+
+
+## License
+
 Copyright (c) 2020-2021 Georg Ledermann, released under the AGPL-3.0 License
