@@ -1,7 +1,4 @@
 class Calculator::Range < Calculator::Base
-  RATE         = 0.2545
-  COMPENSATION = 0.0832
-
   def initialize(timeframe, timestamp)
     super()
     raise ArgumentError unless timeframe.to_s.in?(%w[day week month year all])
@@ -23,13 +20,13 @@ class Calculator::Range < Calculator::Base
   def paid
     return unless grid_power_plus
 
-    -(grid_power_plus * RATE / 1000.0).round(2)
+    -(grid_power_plus * electricity_price / 1000.0).round(2)
   end
 
   def got
     return unless grid_power_minus
 
-    (grid_power_minus * COMPENSATION / 1000.0).round(2)
+    (grid_power_minus * feed_in_tariff / 1000.0).round(2)
   end
 
   def solar_price
@@ -41,7 +38,7 @@ class Calculator::Range < Calculator::Base
   def traditional_price
     return unless consumption
 
-    -(consumption * RATE / 1000.0).round(2)
+    -(consumption * electricity_price / 1000.0).round(2)
   end
 
   def profit
@@ -53,7 +50,7 @@ class Calculator::Range < Calculator::Base
   def battery_profit
     return unless bat_power_minus && bat_power_plus
 
-    (bat_power_minus * RATE / 1000.0 - bat_power_plus * COMPENSATION / 1000.0).round(2)
+    (bat_power_minus * electricity_price / 1000.0 - bat_power_plus * feed_in_tariff / 1000.0).round(2)
   end
 
   def battery_profit_percent
@@ -61,5 +58,13 @@ class Calculator::Range < Calculator::Base
     return if profit.zero?
 
     100.0 * battery_profit / profit
+  end
+
+  def electricity_price
+    Rails.configuration.x.electricity_price
+  end
+
+  def feed_in_tariff
+    Rails.configuration.x.feed_in_tariff
   end
 end

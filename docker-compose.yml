@@ -69,6 +69,9 @@ services:
       - SENTRY_DNS
       - SENTRY_CSP
       - PLAUSIBLE_URL
+      - INSTALLATION_DATE
+      - ELECTRICITY_PRICE
+      - FEED_IN_TARIFF
     deploy:
       update_config:
         order: start-first

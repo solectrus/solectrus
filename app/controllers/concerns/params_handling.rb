@@ -35,7 +35,7 @@ module ParamsHandling
       when 'week'  then Time.current.beginning_of_week
       when 'month' then Time.current.beginning_of_month
       when 'year'  then Time.current.beginning_of_year
-      when 'all'   then 10.years.ago.beginning_of_year
+      when 'all'   then Rails.configuration.x.installation_date.beginning_of_year.in_time_zone
       end
     end
   end

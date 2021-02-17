@@ -40,10 +40,14 @@ module Solectrus
     config.i18n.available_locales = [ :en, :de ]
     config.i18n.default_locale = :de
 
-    config.x.app_host      = ENV['APP_HOST']
-    config.x.plausible_url = ENV['PLAUSIBLE_URL']
-    config.x.sentry_dns    = ENV['SENTRY_DNS']
-    config.x.sentry_csp    = ENV['SENTRY_CSP']
+    config.x.app_host          = ENV['APP_HOST']
+    config.x.plausible_url     = ENV['PLAUSIBLE_URL']
+    config.x.sentry_dns        = ENV['SENTRY_DNS']
+    config.x.sentry_csp        = ENV['SENTRY_CSP']
+
+    config.x.installation_date = Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
+    config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
+    config.x.feed_in_tariff    = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
 
     # Set the default layout to app/views/layouts/component_preview.html.slim
     config.view_component.default_preview_layout = 'component_preview'
