@@ -40,12 +40,12 @@ ruby:
           distribution: timeframe.in?(%w[now day]) ? 'linear' : 'series',
           type: 'time',
           time: {
-            'now'   => { unit: 'minute', stepSize: 5, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' },
-            'day'   => { unit: 'hour',   stepSize: 2, displayFormats: { hour:   'HH:mm' }, tooltipFormat: 'HH:mm' },
-            'week'  => { unit: 'day',    stepSize: 1, displayFormats: { day:    'dddd'  }, tooltipFormat: 'dddd, DD.MM.YYYY' },
-            'month' => { unit: 'day',    stepSize: 2, displayFormats: { day:    'D'     }, tooltipFormat: 'dddd, DD.MM.YYYY' },
-            'year'  => { unit: 'month',  stepSize: 1, displayFormats: { month:  'MMM'   }, tooltipFormat: 'MMMM YYYY' },
-            'all'   => { unit: 'year',   stepSize: 1, displayFormats: { year:   'YYYY'  }, tooltipFormat: 'YYYY' }
+            'now'   => { unit: 'minute', stepSize: 15, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' },
+            'day'   => { unit: 'hour',   stepSize: 3,  displayFormats: { hour:   'HH:mm' }, tooltipFormat: 'HH:mm' },
+            'week'  => { unit: 'day',    stepSize: 1,  displayFormats: { day:    'ddd'   }, tooltipFormat: 'dddd, DD.MM.YYYY' },
+            'month' => { unit: 'day',    stepSize: 2,  displayFormats: { day:    'D'     }, tooltipFormat: 'dddd, DD.MM.YYYY' },
+            'year'  => { unit: 'month',  stepSize: 1,  displayFormats: { month:  'MMM'   }, tooltipFormat: 'MMMM YYYY' },
+            'all'   => { unit: 'year',   stepSize: 1,  displayFormats: { year:   'YYYY'  }, tooltipFormat: 'YYYY' }
           }[timeframe]
         }
       ],
