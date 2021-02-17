@@ -4,7 +4,8 @@
 
 # SOLECTRUS
 
-Photovoltaic Dashboard
+Photovoltaic Dashboard, read here about the motivation (in german):
+https://ledermann.dev/blog/2021/02/03/photovoltaik-dashboard-als-web-applikation/
 
 ![Screenshot](screenshot.png)
 
