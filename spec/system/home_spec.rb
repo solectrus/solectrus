@@ -60,10 +60,10 @@ describe 'Home', type: :system, js: true do
     click_on I18n.t('calculator.day')
     expect(page).to have_css('#tab-day')
 
-    find(:xpath, ".//a[contains(@rel, 'next')]").click
+    find(:xpath, ".//a[contains(@rel, 'prev')]").click
     expect(page).to have_css('#tab-day')
 
-    find(:xpath, ".//a[contains(@rel, 'prev')]").click
+    find(:xpath, ".//a[contains(@rel, 'next')]").click
     expect(page).to have_css('#tab-day')
   end
 
@@ -71,10 +71,10 @@ describe 'Home', type: :system, js: true do
     click_on I18n.t('calculator.week')
     expect(page).to have_css('#tab-week')
 
-    find(:xpath, ".//a[contains(@rel, 'next')]").click
+    find(:xpath, ".//a[contains(@rel, 'prev')]").click
     expect(page).to have_css('#tab-week')
 
-    find(:xpath, ".//a[contains(@rel, 'prev')]").click
+    find(:xpath, ".//a[contains(@rel, 'next')]").click
     expect(page).to have_css('#tab-week')
   end
 
@@ -82,10 +82,10 @@ describe 'Home', type: :system, js: true do
     click_on I18n.t('calculator.month')
     expect(page).to have_css('#tab-month')
 
-    find(:xpath, ".//a[contains(@rel, 'next')]").click
+    find(:xpath, ".//a[contains(@rel, 'prev')]").click
     expect(page).to have_css('#tab-month')
 
-    find(:xpath, ".//a[contains(@rel, 'prev')]").click
+    find(:xpath, ".//a[contains(@rel, 'next')]").click
     expect(page).to have_css('#tab-month')
   end
 
@@ -93,10 +93,10 @@ describe 'Home', type: :system, js: true do
     click_on I18n.t('calculator.year')
     expect(page).to have_css('#tab-year')
 
-    find(:xpath, ".//a[contains(@rel, 'next')]").click
+    find(:xpath, ".//a[contains(@rel, 'prev')]").click
     expect(page).to have_css('#tab-year')
 
-    find(:xpath, ".//a[contains(@rel, 'prev')]").click
+    find(:xpath, ".//a[contains(@rel, 'next')]").click
     expect(page).to have_css('#tab-year')
   end
 

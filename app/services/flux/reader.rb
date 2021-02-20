@@ -29,6 +29,9 @@ class Flux::Reader < Flux::Base
   end
 
   def range(start:, stop: nil)
+    start = start.iso8601 if start.respond_to?(:iso8601)
+    stop  = stop.iso8601  if stop.respond_to?(:iso8601)
+
     if stop
       "range(start: #{start}, stop: #{stop})"
     else

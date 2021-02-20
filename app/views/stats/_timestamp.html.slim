@@ -1,30 +1,12 @@
-ruby:
-  previous_link = case timeframe
-                  when 'day'
-                    root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp - 1.day).to_date.iso8601)
-                  when 'week'
-                    root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp - 1.week).to_date.iso8601)
-                  when 'month'
-                    root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp - 1.month).to_date.iso8601)
-                  when 'year'
-                    root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp - 1.year).to_date.iso8601)
-  end
-
-  next_link = case timeframe
-              when 'day'
-                root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.day).to_date.iso8601)
-              when 'week'
-                root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.week).to_date.iso8601)
-              when 'month'
-                root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.month).to_date.iso8601)
-              when 'year'
-                root_path(timeframe: params[:timeframe], field: params[:field], timestamp: (timestamp + 1.year).to_date.iso8601)
-  end
-
 .flex.items-center.justify-between.space-x-4.w-full.lg:w-auto.text-base.text-gray-200.tracking-wider
-  - if previous_link
-    = link_to previous_link, class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'prev nofollow' do
-      i.fas.fa-chevron-left.fa-lg
+  - if can_paginate?
+    - if previous_timestamp
+      = link_to root_path(timeframe: params[:timeframe], field: params[:field], timestamp: previous_timestamp),
+                class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'prev nofollow' do
+        i.fas.fa-chevron-left.fa-lg
+    - else
+      .px-2.py-1
+        i.fas.fa-chevron-left.fa-lg.opacity-50
 
   - if timestamp
     - case timeframe
@@ -33,25 +15,25 @@ ruby:
         = l timestamp, format: 'Heute, %H:%M Uhr'
 
     - when 'day'
-      .w-64.text-center
-        = l timestamp.to_date, format: :long
+      .w-72.text-center
+        = l timestamp, format: :long
 
     - when 'week'
       .w-80.text-center
         'KW
-        = "#{timestamp.to_date.cweek}, #{timestamp.to_date.year}"
+        = "#{timestamp.cweek}, #{timestamp.year}"
         small.ml-4.hidden.md:inline
-          =<> l timestamp.beginning_of_week.to_date
+          =<> l timestamp.beginning_of_week
           span.text-indigo-300 &minus;
-          =<> l timestamp.end_of_week.to_date
+          =<> l timestamp.end_of_week
 
     - when 'month'
       .w-36.text-center
-        = l timestamp.to_date, format: :month
+        = l timestamp, format: :month
 
     - when 'year'
       .w-16.text-center
-        = timestamp.to_date.year
+        = timestamp.year
 
     - when 'all'
       .mx-auto
@@ -72,6 +54,11 @@ ruby:
           span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-red-400.opacity-75
           span.relative.inline-flex.rounded-full.h-3.w-3.bg-red-500
 
-  - if next_link
-    = link_to next_link, class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'next nofollow' do
-      i.fas.fa-chevron-right.fa-lg
+  - if can_paginate?
+    - if next_timestamp
+      = link_to root_path(timeframe: params[:timeframe], field: params[:field], timestamp: next_timestamp),
+                class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'next nofollow' do
+        i.fas.fa-chevron-right.fa-lg
+    - else
+      .px-2.py-1
+        i.fas.fa-chevron-right.fa-lg.opacity-50

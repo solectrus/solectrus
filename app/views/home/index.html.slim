@@ -16,10 +16,10 @@ ruby:
 
   nav_items = [
     [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
-    [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: timestamp? ? timestamp.beginning_of_day.to_date.iso8601 : nil)) ],
-    [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: timestamp? ? timestamp.beginning_of_week.to_date.iso8601 : nil)) ],
-    [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month', timestamp: timestamp? ? timestamp.beginning_of_month.to_date.iso8601 : nil)) ],
-    [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year',  timestamp: timestamp? ? timestamp.beginning_of_year.to_date.iso8601 : nil)) ],
+    [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: corresponding_day)) ],
+    [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: corresponding_week)) ],
+    [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month', timestamp: corresponding_month)) ],
+    [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year',  timestamp: corresponding_year)) ],
     [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ]
   ]
 

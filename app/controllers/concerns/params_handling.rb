@@ -21,8 +21,10 @@ module ParamsHandling
     end
 
     helper_method def timestamp
-      if (result = permitted_params[:timestamp])
-        Date.iso8601(result).beginning_of_day
+      if timeframe == 'now'
+        Time.current
+      elsif (param = permitted_params[:timestamp])
+        Date.iso8601(param)
       else
         default_timestamp
       end
@@ -30,13 +32,77 @@ module ParamsHandling
 
     def default_timestamp
       case timeframe
-      when 'now'   then Time.current
-      when 'day'   then Time.current.beginning_of_day
-      when 'week'  then Time.current.beginning_of_week
-      when 'month' then Time.current.beginning_of_month
-      when 'year'  then Time.current.beginning_of_year
-      when 'all'   then Rails.configuration.x.installation_date.beginning_of_year.in_time_zone
+      when 'now', 'day' then Date.current
+      when 'week'       then Date.current.beginning_of_week
+      when 'month'      then Date.current.beginning_of_month
+      when 'year'       then Date.current.beginning_of_year
+      when 'all'        then Rails.configuration.x.installation_date.beginning_of_year
       end
+    end
+
+    def min_timestamp
+      case timeframe
+      when 'day'   then Rails.configuration.x.installation_date.beginning_of_day
+      when 'week'  then Rails.configuration.x.installation_date.beginning_of_week
+      when 'month' then Rails.configuration.x.installation_date.beginning_of_month
+      when 'year'  then Rails.configuration.x.installation_date.beginning_of_year
+      end
+    end
+
+    def out_of_range?(date = timestamp)
+      return unless date && min_timestamp
+
+      date < min_timestamp || date > default_timestamp
+    end
+
+    helper_method def corresponding_day
+      return unless timestamp
+
+      [ Rails.configuration.x.installation_date, timestamp.to_date ].max
+    end
+
+    helper_method def corresponding_month
+      return unless timestamp
+
+      [ Rails.configuration.x.installation_date.beginning_of_month, timestamp.beginning_of_month.to_date ].max
+    end
+
+    helper_method def corresponding_year
+      return unless timestamp
+
+      [ Rails.configuration.x.installation_date.beginning_of_year, timestamp.beginning_of_year.to_date ].max
+    end
+
+    helper_method def corresponding_week
+      return unless timestamp
+
+      [ Rails.configuration.x.installation_date.beginning_of_week, timestamp.beginning_of_week.to_date ].max
+    end
+
+    helper_method def previous_timestamp
+      result = case timeframe
+               when 'day'   then timestamp - 1.day
+               when 'week'  then timestamp - 1.week
+               when 'month' then timestamp - 1.month
+               when 'year'  then timestamp - 1.year
+      end
+
+      out_of_range?(result) ? nil : result
+    end
+
+    helper_method def next_timestamp
+      result = case timeframe
+               when 'day'   then timestamp + 1.day
+               when 'week'  then timestamp + 1.week
+               when 'month' then timestamp + 1.month
+               when 'year'  then timestamp + 1.year
+      end
+
+      out_of_range?(result) ? nil : result
+    end
+
+    helper_method def can_paginate?
+      timeframe.in?(%w[day week month year])
     end
   end
 end
