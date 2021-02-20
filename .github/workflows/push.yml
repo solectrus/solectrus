@@ -55,11 +55,14 @@ jobs:
       - name: Install Yarn packages
         run: yarn install --frozen-lockfile
 
+      - name: Setup InfluxDB
+        run: bin/influxdb-onboarding.sh
+
+      - name: Setup PostgreSQL
+        run: bin/rails db:create
+
       - name: Run Tests
-        run: |
-          bundle exec rails db:create
-          bin/influxdb-onboarding.sh
-          bundle exec rspec
+        run: bin/rspec
 
       - name: Send test coverage to CodeClimate
         uses: paambaati/codeclimate-action@v2.7.5
