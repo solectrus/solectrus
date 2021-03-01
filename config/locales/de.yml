@@ -1,20 +1,10 @@
 de:
   layout:
     photovoltaics: Photovoltaik
-  calculator:
-    now: Jetzt
-    day: Tag
-    week: Woche
-    month: Monat
-    year: Jahr
-    all: Gesamt
+  senec:
     inverter_power: Erzeugung
-    forecast: Prognose
     house_power: Hausverbrauch
     wallbox_charge_power: Wallbox
-    autarky: Autarkie
-    consumption: Eigenverbrauch
-    grid_quote: Bezugsquote
     grid_power_plus: Netzbezug
     grid_power_minus: Einspeisung
     grid_power: Netz
@@ -22,6 +12,17 @@ de:
     bat_power_plus: Akku-Beladung
     bat_power: Akku
     bat_fuel_charge: Akku-Füllstand
+  calculator:
+    now: Jetzt
+    day: Tag
+    week: Woche
+    month: Monat
+    year: Jahr
+    all: Gesamt
+    forecast: Prognose
+    autarky: Autarkie
+    consumption: Eigenverbrauch
+    grid_quote: Bezugsquote
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     profit: Gewinn

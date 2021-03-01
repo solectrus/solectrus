@@ -6,9 +6,9 @@ ruby:
       fontSize: 20,
       display: true,
       text: if field == 'bat_fuel_charge'
-              "#{I18n.t "calculator.#{field}"} in %"
+              "#{I18n.t "senec.#{field}"} in %"
             else
-              "#{I18n.t "calculator.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
+              "#{I18n.t "senec.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
             end
     },
     animation: {

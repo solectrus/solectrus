@@ -26,7 +26,7 @@ class ChartsController < ApplicationController
       labels: chart.map { |element| element[0] },
       datasets: [
         {
-          label: I18n.t("calculator.#{field}"),
+          label: I18n.t("senec.#{field}"),
           data: chart.map { |element| element[1] },
           backgroundColor: 'rgba(79, 70, 229, 0.5)',
           borderColor: '#4F46E5',
@@ -44,7 +44,7 @@ class ChartsController < ApplicationController
       labels: chart_power.map(&:first).presence || chart_forecast.map(&:first),
       datasets: [
         {
-          label: I18n.t('calculator.inverter_power'),
+          label: I18n.t('senec.inverter_power'),
           data: chart_power.map { |element| element[1] },
           backgroundColor: 'rgba(79, 70, 229, 0.5)',
           borderColor: '#4F46E5',
@@ -69,7 +69,7 @@ class ChartsController < ApplicationController
       labels: chart.map { |element| element[0] },
       datasets: [
         {
-          label: I18n.t("calculator.#{field}"),
+          label: I18n.t("senec.#{field}"),
           data: chart.map { |element| element[1] },
           backgroundColor: 'rgba(79, 70, 229, 0.5)',
           borderColor: '#4F46E5',

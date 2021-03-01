@@ -34,7 +34,7 @@ class Card::Component < ViewComponent::Base
   end
 
   def title
-    @title ||= I18n.t("calculator.#{field}")
+    @title ||= I18n.t("senec.#{field}")
   end
 
   def current_value?
