@@ -24,7 +24,7 @@ describe 'Home', type: :system, js: true do
 
   it 'presents data and allows navigation' do
     visit '/'
-    expect(page).to have_text('Dashboard')
+    expect(page).to have_text(I18n.t('layout.stats').upcase)
 
     navigate_now
     navigate_days

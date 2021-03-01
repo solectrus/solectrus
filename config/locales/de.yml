@@ -1,6 +1,7 @@
 de:
   layout:
-    photovoltaics: Photovoltaik
+    stats: Verlauf
+    top10: Top 10
   senec:
     inverter_power: Erzeugung
     house_power: Hausverbrauch
