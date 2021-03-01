@@ -53,6 +53,11 @@ html lang="de"
 
     = yield :head
 
+  ruby:
+    nav_items = [
+      { name: t('layout.stats'), href: root_path }
+    ]
+
   body.h-screen.flex.flex-col.bg-gray-100 data-controller="icons"
     header.bg-indigo-600.pb-32
       nav.bg-indigo-600.border-b.border-indigo-300.border-opacity-25.lg:border-none data-controller="toggle"
@@ -64,10 +69,9 @@ html lang="de"
                   path fill="#a5b4fc" d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
 
               .hidden.lg:block.lg:ml-10
-                .flex.space-x-4
-                  /! Current: "bg-indigo-700 text-white", Default: "text-white hover:bg-indigo-500 hover:bg-opacity-75"
-                  a.bg-indigo-700.text-white.rounded-md.py-2.px-3.text-sm.font-medium href= root_path
-                    | Dashboard
+                .flex.space-x-4.text-sm.font-medium
+                  = render TopNav::Component.new do |c|
+                    = c.links(nav_items)
 
             .flex.lg:hidden
               /! Mobile menu button
@@ -81,10 +85,9 @@ html lang="de"
                   path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 
         .hidden data-toggle-target="element"
-          .px-2.pt-2.pb-3.space-y-1
-            /! Current: "bg-indigo-700 text-white", Default: "text-white hover:bg-indigo-500 hover:bg-opacity-75"
-            a.bg-indigo-700.text-white.block.rounded-md.py-2.px-3.text-base.font-medium href="#"
-              | Dashboard
+          .px-2.pt-2.pb-3.space-y-1.text-base.font-medium
+            = render TopNav::Component.new do |c|
+              = c.links(nav_items)
 
       .pb-5.lg:pt-5
         = yield :header
