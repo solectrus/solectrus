@@ -1,8 +1,8 @@
 describe 'Home', type: :system, js: true do
   before do
     add_influx_point(
-      'SENEC',
-      {
+      name: 'SENEC',
+      fields: {
         inverter_power:       5_000,
         house_power:          430,
         bat_power_plus:       2_500,
@@ -15,8 +15,8 @@ describe 'Home', type: :system, js: true do
     )
 
     add_influx_point(
-      'Forecast',
-      {
+      name: 'Forecast',
+      fields: {
         watt: 6_000
       }
     )
