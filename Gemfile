@@ -59,6 +59,9 @@ group :development, :test do
   # RSpec for Rails (https://github.com/rspec/rspec-rails)
   gem 'rspec-rails'
 
+  # rspec-collection_matchers-1.2.0 (https://github.com/rspec/rspec-collection_matchers)
+  gem 'rspec-collection_matchers'
+
   # Automatic Ruby code style checking tool. (https://github.com/rubocop-hq/rubocop)
   gem 'rubocop', require: false
 

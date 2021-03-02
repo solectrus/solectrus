@@ -9,4 +9,6 @@ module Senec
     bat_fuel_charge
     wallbox_charge_power
   ].freeze
+
+  POWER_FIELDS = FIELDS.select { |field| field.include?('power') }
 end

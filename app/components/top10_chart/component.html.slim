@@ -1,0 +1,8 @@
+.table.w-full id= "chart-#{timeframe}"
+  - top10_for_timeframe.each do |record|
+    = link_to link_to_timestamp(record), class: 'table-row hover:bg-gray-100' do
+      .table-cell.align-middle.p-2.tabular-nums.w-1.whitespace-nowrap.text-gray-600.text-right
+        = formatted_date(record.first)
+      .table-cell.align-middle.p-2
+        .h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
+          = Number::Component.new(value: record.second).to_kwh if percent(record) > 7
