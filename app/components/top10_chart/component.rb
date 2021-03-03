@@ -13,7 +13,6 @@ class Top10Chart::Component < ViewComponent::Base
   def top10_for_timeframe
     @top10_for_timeframe ||= case timeframe
                              when 'day'   then top10.days
-                             when 'week'  then top10.weeks
                              when 'month' then top10.months
                              when 'year'  then top10.years
     end
@@ -43,13 +42,6 @@ class Top10Chart::Component < ViewComponent::Base
     )
   end
 
-  def corresponding_week(value)
-    [
-      Rails.configuration.x.installation_date.beginning_of_week,
-      value.beginning_of_week
-    ].max
-  end
-
   def corresponding_month(value)
     [
       Rails.configuration.x.installation_date.beginning_of_month,
@@ -67,7 +59,6 @@ class Top10Chart::Component < ViewComponent::Base
   def corresponding_date(value)
     case timeframe
     when 'day'   then value
-    when 'week'  then corresponding_week(value)
     when 'month' then corresponding_month(value)
     when 'year'  then corresponding_year(value)
     end
@@ -76,7 +67,6 @@ class Top10Chart::Component < ViewComponent::Base
   def formatted_date(value)
     case timeframe
     when 'day'   then l(value, format: :default)
-    when 'week'  then "KW #{value.cweek}, #{value.year}"
     when 'month' then l(value, format: :month)
     when 'year'  then value.year.to_s
     end

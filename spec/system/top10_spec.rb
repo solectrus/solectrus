@@ -15,7 +15,6 @@ describe 'Top10', type: :system, js: true do
     expect(page).to have_text(I18n.t('layout.top10').upcase)
 
     navigate_day
-    navigate_week
     navigate_month
     navigate_year
 
@@ -24,7 +23,6 @@ describe 'Top10', type: :system, js: true do
     click_on I18n.t('senec.house_power')
 
     navigate_day
-    navigate_week
     navigate_month
     navigate_year
   end
@@ -34,11 +32,6 @@ describe 'Top10', type: :system, js: true do
   def navigate_day
     click_on I18n.t('calculator.day')
     expect(page).to have_css('#chart-day', visible: :all)
-  end
-
-  def navigate_week
-    click_on I18n.t('calculator.week')
-    expect(page).to have_css('#chart-week', visible: :all)
   end
 
   def navigate_month

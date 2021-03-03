@@ -30,7 +30,6 @@ class Top10Controller < ApplicationController
   helper_method def timeframe_items
     [
       [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day')) ],
-      [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week')) ],
       [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month')) ],
       [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year')) ]
     ]

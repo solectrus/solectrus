@@ -56,7 +56,7 @@ html lang="de"
   ruby:
     nav_items = [
       { name: t('layout.stats'), href: root_path },
-      { name: t('layout.top10'), href: top10_path(field: field, timeframe: timeframe.in?(%w[day week month year]) ? timeframe : 'day') }
+      { name: t('layout.top10'), href: top10_path(field: field, timeframe: timeframe.in?(%w[day month year]) ? timeframe : 'day') }
     ]
 
   body.h-screen.flex.flex-col.bg-gray-100 data-controller="icons"

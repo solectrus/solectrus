@@ -3,10 +3,6 @@ class PowerTop10 < Flux::Reader
     top start: first_day, stop: last_day, window: '1d'
   end
 
-  def weeks
-    top start: first_day, stop: last_day, window: '1w'
-  end
-
   def months
     top start: first_day, stop: last_day, window: '1mo'
   end

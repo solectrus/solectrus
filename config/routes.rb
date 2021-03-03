@@ -11,7 +11,7 @@ Rails.application.routes.draw do
     get '/(:timeframe)(/:field)(/:timestamp)', to: 'home#index', as: :root
   end
 
-  constraints timeframe: /day|week|month|year/,
+  constraints timeframe: /day|month|year/,
               field: Regexp.new(Senec::POWER_FIELDS.join('|'), false) do
     get '/top10/:timeframe/:field', to: 'top10#index', as: :top10
     get '/top10-chart/:timeframe/:field', to: 'top10_chart#index', as: :top10_chart
