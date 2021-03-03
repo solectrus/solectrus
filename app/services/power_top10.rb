@@ -1,28 +1,28 @@
 class PowerTop10 < Flux::Reader
   def days
-    top start: first_full_day, stop: last_full_day, window: '1d'
+    top start: first_day, stop: last_day, window: '1d'
   end
 
   def weeks
-    top start: first_full_day, stop: last_full_day, window: '1w'
+    top start: first_day, stop: last_day, window: '1w'
   end
 
   def months
-    top start: first_full_day, stop: last_full_day, window: '1mo'
+    top start: first_day, stop: last_day, window: '1mo'
   end
 
   def years
-    top start: first_full_day, stop: last_full_day, window: '1y'
+    top start: first_day, stop: last_day, window: '1y'
   end
 
   private
 
-  def first_full_day
-    Rails.configuration.x.installation_date.beginning_of_day + 1.day
+  def first_day
+    Rails.configuration.x.installation_date.beginning_of_day
   end
 
-  def last_full_day
-    Time.current.beginning_of_day
+  def last_day
+    Time.current
   end
 
   def top(start:, stop:, window:, limit: 10)
