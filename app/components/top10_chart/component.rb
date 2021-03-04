@@ -34,6 +34,16 @@ class Top10Chart::Component < ViewComponent::Base
     end
   end
 
+  def value_classes(record)
+    if percent(record) < 5
+      'hidden'
+    elsif percent(record) < 12
+      'hidden xl:inline'
+    elsif percent(record) < 40
+      'hidden sm:inline'
+    end
+  end
+
   def link_to_timestamp(record)
     root_path(
       timeframe: timeframe,

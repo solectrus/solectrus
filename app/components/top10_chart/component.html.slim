@@ -1,8 +1,11 @@
 .table.w-full id= "chart-#{timeframe}"
-  - top10_for_timeframe.each do |record|
+  - top10_for_timeframe.each_with_index do |record, index|
     = link_to link_to_timestamp(record), class: 'table-row hover:bg-gray-100' do
-      .table-cell.align-middle.p-2.tabular-nums.w-1.whitespace-nowrap.text-gray-600.text-right
+      .table-cell.align-middle.p-2.tabular-nums.w-1.text-gray-600.text-right.font-bold
+        = "#{index + 1}."
+      .table-cell.align-middle.p-2.tabular-nums.w-1.whitespace-nowrap.text-gray-600.text-left
         = formatted_date(record.first)
       .table-cell.align-middle.p-2
         .h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
-          = Number::Component.new(value: record.second).to_kwh if percent(record) > 7
+          span class= value_classes(record)
+            = Number::Component.new(value: record.second).to_kwh
