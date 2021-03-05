@@ -115,7 +115,7 @@ GEM
       rspec (>= 2.99.0, < 4.0)
     i18n (1.8.9)
       concurrent-ruby (~> 1.0)
-    influxdb-client (1.11.0)
+    influxdb-client (1.12.0)
     launchy (2.5.0)
       addressable (~> 2.7)
     listen (3.4.1)
