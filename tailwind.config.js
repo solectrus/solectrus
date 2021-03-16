@@ -3,9 +3,6 @@ module.exports = {
   theme: {
     extend: {},
   },
-  variants: {
-    extend: {},
-  },
   purge: [
     './app/**/*.html',
     './app/**/*.html.erb',
