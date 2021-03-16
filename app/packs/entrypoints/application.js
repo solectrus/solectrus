@@ -20,7 +20,7 @@ import { Turbo } from "@hotwired/turbo-rails"
 window.Turbo = Turbo
 
 import "channels"
-import "stylesheets/application.scss"
+import "stylesheets/application.css"
 import "controllers"
 import "components"
 
