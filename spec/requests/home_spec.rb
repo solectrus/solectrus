@@ -31,7 +31,7 @@ describe 'Home' do
     context 'when timestamp is in the future' do
       it 'fails for day' do
         expect do
-          get root_path(timeframe: 'day', field: 'house_power', timestamp: Date.current + 1.day)
+          get root_path(timeframe: 'day', field: 'house_power', timestamp: Date.current + 2.days)
         end.to raise_error(ActionController::RoutingError)
       end
 

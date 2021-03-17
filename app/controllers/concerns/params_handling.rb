@@ -52,7 +52,7 @@ module ParamsHandling
     def out_of_range?(date = timestamp)
       return unless date && min_timestamp
 
-      date < min_timestamp || date > default_timestamp
+      date < min_timestamp || date > default_timestamp + 1.day
     end
 
     helper_method def corresponding_day
