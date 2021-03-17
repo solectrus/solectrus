@@ -1,6 +1,4 @@
 class TopNav::Component < ViewComponent::Base
-  include ViewComponent::SlotableV2
-
   renders_many :links, 'LinkComponent'
 
   class LinkComponent < ViewComponent::Base
