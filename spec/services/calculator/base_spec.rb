@@ -2,7 +2,7 @@ describe Calculator::Base do
   let(:calculator) { described_class.new }
 
   describe '#autarky' do
-    subject { calculator.autarky.round(1) }
+    subject { calculator.autarky }
 
     context 'with real data' do
       before do
@@ -42,6 +42,16 @@ describe Calculator::Base do
       end
 
       it { is_expected.to eq(47.4) }
+    end
+
+    context 'with zero values' do
+      before do
+        calculator.build_context house_power:          0,
+                                 wallbox_charge_power: 0,
+                                 grid_power_plus:      0
+      end
+
+      it { is_expected.to eq(nil) }
     end
   end
 end

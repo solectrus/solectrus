@@ -40,12 +40,13 @@
           = tag.div class: 'mt-5 text-xl sm:text-2xl md:text-4xl' do
             = Number::Component.new(value: calculator.house_power).to_kwh
 
-          h1.mt-2.text-xs.md:text-base.whitespace-nowrap
-            =t 'calculator.autarky'
-            =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
+          - if calculator.autarky
+            h1.mt-2.text-xs.md:text-base.whitespace-nowrap
+              =t 'calculator.autarky'
+              =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
 
-          - component.with :tippy do
-            = render AutarkyDetails::Component.new(calculator: calculator)
+            - component.with :tippy do
+              = render AutarkyDetails::Component.new(calculator: calculator)
 
       = render Card::Component.new field: 'grid_power_plus', signal: calculator.feeding?, klasses: 'flex flex-col justify-center' do |component|
         = component.icon
