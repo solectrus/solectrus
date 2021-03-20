@@ -26,6 +26,14 @@ class Top10Chart::Component < ViewComponent::Base
     (100 * record[:value] / maximum).round(1)
   end
 
+  def text_classes(record)
+    if corresponding_date(record[:date]) == corresponding_date(Date.current)
+      'text-yellow-700'
+    else
+      'text-gray-700'
+    end
+  end
+
   def bar_classes
     if field.in?(%w[inverter_power grid_power_minus bat_power_plus])
       'from-green-500 to-green-300 text-green-800'
