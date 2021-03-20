@@ -40,7 +40,10 @@ class PowerTop10 < Flux::Reader
       time = Time.zone.parse(record.values['_time'] || '').utc - 1.second
       value = record.values['_value'].to_f
 
-      [ time.to_date, value ]
+      {
+        date: time.to_date,
+        value: value
+      }
     end
   end
 end

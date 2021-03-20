@@ -19,11 +19,11 @@ class Top10Chart::Component < ViewComponent::Base
   end
 
   def maximum
-    @maximum ||= top10_for_timeframe.map(&:second).max
+    @maximum ||= top10_for_timeframe.pluck(:value).max
   end
 
   def percent(record)
-    (100 * record.second / maximum).round(1)
+    (100 * record[:value] / maximum).round(1)
   end
 
   def bar_classes
@@ -48,7 +48,7 @@ class Top10Chart::Component < ViewComponent::Base
     root_path(
       timeframe: timeframe,
       field: field,
-      timestamp: corresponding_date(record.first)
+      timestamp: corresponding_date(record[:date])
     )
   end
 

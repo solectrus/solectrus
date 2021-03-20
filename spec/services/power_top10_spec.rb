@@ -20,17 +20,20 @@ describe PowerTop10 do
     subject { chart.years }
 
     it { is_expected.to have(1).items }
+    it { is_expected.to all(be_a(Hash)) }
   end
 
   describe '#months' do
     subject { chart.months }
 
     it { is_expected.to have(2).items }
+    it { is_expected.to all(be_a(Hash)) }
   end
 
   describe '#days' do
     subject { chart.days }
 
     it { is_expected.to have(3).items }
+    it { is_expected.to all(be_a(Hash)) }
   end
 end
