@@ -139,7 +139,7 @@ GEM
     meta-tags (2.14.0)
       actionpack (>= 3.2.0, < 6.2)
     method_source (1.0.0)
-    mimemagic (0.3.5)
+    mimemagic (0.3.6)
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
     minitest (5.14.4)
@@ -259,11 +259,11 @@ GEM
     sentry-rails (4.3.2)
       rails (>= 5.0)
       sentry-ruby-core (~> 4.3.0)
-    sentry-ruby (4.3.0)
+    sentry-ruby (4.3.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       faraday (>= 1.0)
-      sentry-ruby-core (= 4.3.0)
-    sentry-ruby-core (4.3.0)
+      sentry-ruby-core (= 4.3.1)
+    sentry-ruby-core (4.3.1)
       concurrent-ruby
       faraday
     shellany (0.0.1)
