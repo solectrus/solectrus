@@ -1,5 +1,5 @@
 class Top10Chart::Component < ViewComponent::Base
-  def initialize(field, timeframe)
+  def initialize(field:, timeframe:)
     super
     @field = field
     @timeframe = timeframe

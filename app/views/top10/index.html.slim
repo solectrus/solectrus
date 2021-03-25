@@ -14,7 +14,7 @@
       = c.items timeframe_items
 
 = turbo_frame_tag 'top10',
-                  src: top10_chart_path(permitted_params.to_hash.symbolize_keys),
+                  src: top10_chart_path(permitted_params),
                   target: '_top'
   .flex.justify-center.m-40
     = render Loading::Component.new

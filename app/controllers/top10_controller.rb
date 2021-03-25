@@ -1,21 +1,11 @@
 class Top10Controller < ApplicationController
+  include ParamsHandling
+
   def index
     set_meta_tags title: 'Top 10', noindex: true, nofollow: true
   end
 
   private
-
-  helper_method def permitted_params
-    @permitted_params ||= params.permit(:field, :timeframe)
-  end
-
-  helper_method def timeframe
-    permitted_params[:timeframe]
-  end
-
-  helper_method def field
-    permitted_params[:field]
-  end
 
   helper_method def field_items
     Senec::POWER_FIELDS.map do |field|
