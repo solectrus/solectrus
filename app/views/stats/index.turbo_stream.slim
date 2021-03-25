@@ -3,10 +3,17 @@
 
 = turbo_stream.update 'stats' do
   - if calculator.present?
-    = render partial: timeframe == 'now' ? 'now' : 'range', formats: :html
+    div id="tab-#{timeframe}"
+      - if timeframe == 'now'
+        = render DashboardNow::Component.new calculator: calculator
+      - else
+        = render DashboardRange::Component.new calculator: calculator
+
   - else
-    = render partial: 'blank', formats: :html
+    .m-20.flex.justify-center
+      .px-3.md:px-5.py-2.rounded-full.text-xl.text-gray-500.bg-white
+        = t('calculator.blank')
 
 - if params[:chart] != 'false'
   = turbo_stream.update 'chart' do
-    = render partial: 'stats/chart', formats: :html
+    = render Chart::Component.new(field: field, timeframe: timeframe, url: charts_path(permitted_params))

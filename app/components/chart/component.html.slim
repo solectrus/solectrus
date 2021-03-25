@@ -1,0 +1,9 @@
+= tag.canvas id: "chart-#{timeframe}",
+             data: { \
+               controller: 'chart--component',
+               chart__component_url_value: url,
+               chart__component_options_value: options.to_json,
+               chart__component_type_value: chart_type \
+             },
+             class: 'w-full h-full',
+             style: 'min-height: 250px'
