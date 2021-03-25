@@ -49,7 +49,7 @@ module ParamsHandling
       end
     end
 
-    def out_of_range?(date = timestamp)
+    helper_method def out_of_range?(date = timestamp)
       return unless date && min_timestamp
 
       date < min_timestamp || date > default_timestamp + 1.day
@@ -77,32 +77,6 @@ module ParamsHandling
       return unless timestamp
 
       [ Rails.configuration.x.installation_date.beginning_of_week, timestamp.beginning_of_week.to_date ].max
-    end
-
-    helper_method def previous_timestamp
-      result = case timeframe
-               when 'day'   then timestamp - 1.day
-               when 'week'  then timestamp - 1.week
-               when 'month' then timestamp - 1.month
-               when 'year'  then timestamp - 1.year
-      end
-
-      out_of_range?(result) ? nil : result
-    end
-
-    helper_method def next_timestamp
-      result = case timeframe
-               when 'day'   then timestamp + 1.day
-               when 'week'  then timestamp + 1.week
-               when 'month' then timestamp + 1.month
-               when 'year'  then timestamp + 1.year
-      end
-
-      out_of_range?(result) ? nil : result
-    end
-
-    helper_method def can_paginate?
-      timeframe.in?(%w[day week month year])
     end
   end
 end

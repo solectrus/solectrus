@@ -1,5 +1,6 @@
 = turbo_stream.update 'nav' do
-  = render partial: 'timestamp', formats: :html
+  = render Timestamp::Component.new(timeframe: timeframe, timestamp: timestamp)
+  = render Status::Component.new(live: calculator.live?, time: calculator.time) if timeframe == 'now'
 
 = turbo_stream.update 'stats' do
   - if calculator.present?

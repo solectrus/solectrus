@@ -39,21 +39,6 @@
       .mx-auto
         'Seit Installation
 
-  - if timeframe == 'now'
-    - if calculator.live?
-      .text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center
-        | LIVE
-        span.ml-2.flex.h-3.w-3.relative
-          span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-green-400.opacity-75
-          span.relative.inline-flex.rounded-full.h-3.w-3.bg-green-500
-
-    - elsif calculator.time
-      .text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center data-controller="tippy" title= "#{t('calculator.time')} #{time_ago_in_words(calculator.time, include_seconds: true)}"
-        | FAIL
-        span.ml-2.flex.h-3.w-3.relative
-          span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-red-400.opacity-75
-          span.relative.inline-flex.rounded-full.h-3.w-3.bg-red-500
-
   - if can_paginate?
     - if next_timestamp
       = link_to root_path(timeframe: params[:timeframe], field: params[:field], timestamp: next_timestamp),
