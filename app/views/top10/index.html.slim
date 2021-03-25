@@ -1,16 +1,17 @@
 = turbo_exempts_page_from_cache
 
-- content_for :header do
-  .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
-    .flex.flex-col.items-center.justify-between.lg:flex-row
-      .hidden.lg:block
-        = render Nav::Component.new items: timeframe_items
-      .mt-5.lg:mt-0
-        = render Dropdown::Component.new items: field_items, selected: field
+- content_for :sub_nav do
+  .flex.flex-col.lg:items-center.justify-between.lg:flex-row
+    .hidden.lg:block
+      = render Nav::Sub::Component.new do |c|
+        = c.items timeframe_items
+    .mt-5.lg:mt-0
+      = render Dropdown::Component.new items: field_items, selected: field
 
 - content_for :bottom_nav do
   .w-full.px-4
-    = render Nav::Component.new items: timeframe_items
+    = render Nav::Sub::Component.new do |c|
+      = c.items timeframe_items
 
 = turbo_frame_tag 'top10',
                   src: top10_chart_path(permitted_params.to_hash.symbolize_keys),

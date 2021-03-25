@@ -19,19 +19,19 @@ class Top10Controller < ApplicationController
 
   helper_method def field_items
     Senec::POWER_FIELDS.map do |field|
-      [
-        I18n.t("senec.#{field}"),
-        field,
-        url_for(**permitted_params.merge(field: field), only_path: true)
-      ]
+      {
+        name: I18n.t("senec.#{field}"),
+        field: field,
+        href: url_for(**permitted_params.merge(field: field), only_path: true)
+      }
     end
   end
 
   helper_method def timeframe_items
     [
-      [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day')) ],
-      [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month')) ],
-      [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year')) ]
+      { name: t('calculator.day'),   href: url_for(permitted_params.merge(timeframe: 'day')) },
+      { name: t('calculator.month'), href: url_for(permitted_params.merge(timeframe: 'month')) },
+      { name: t('calculator.year'),  href: url_for(permitted_params.merge(timeframe: 'year')) }
     ]
   end
 end

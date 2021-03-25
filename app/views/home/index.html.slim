@@ -14,29 +14,21 @@ ruby:
                   image:       asset_url('og-image.png')
                 }
 
-  nav_items = [
-    [ t('calculator.now'),   url_for(permitted_params.merge(timeframe: 'now',   timestamp: nil)) ],
-    [ t('calculator.day'),   url_for(permitted_params.merge(timeframe: 'day',   timestamp: corresponding_day)) ],
-    [ t('calculator.week'),  url_for(permitted_params.merge(timeframe: 'week',  timestamp: corresponding_week)) ],
-    [ t('calculator.month'), url_for(permitted_params.merge(timeframe: 'month', timestamp: corresponding_month)) ],
-    [ t('calculator.year'),  url_for(permitted_params.merge(timeframe: 'year',  timestamp: corresponding_year)) ],
-    [ t('calculator.all'),   url_for(permitted_params.merge(timeframe: 'all',   timestamp: nil)) ]
-  ]
+- content_for :sub_nav do
+  .flex.flex-col.lg:items-center.justify-between.lg:flex-row
+    .mx-auto.lg:mx-0.hidden.lg:block
+      = render Nav::Sub::Component.new do |c|
+        = c.items nav_items
 
-- content_for :header do
-  .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
-    .flex.flex-col.justify-between.lg:flex-row
-      .mx-auto.lg:mx-0.hidden.lg:block
-        = render Nav::Component.new items: nav_items
-
-      .mt-5.lg:mt-0
-        = turbo_frame_tag 'nav',
-                          target: '_top',
-                          class: 'h-8 flex items-center justify-between lg:justify-end'
+    .mt-5.lg:mt-0
+      = turbo_frame_tag 'nav',
+                        target: '_top',
+                        class: 'h-8 flex items-center justify-between lg:justify-end'
 
 - content_for :bottom_nav do
   .w-full.px-4
-    = render Nav::Component.new items: nav_items
+    = render Nav::Sub::Component.new do |c|
+      = c.items nav_items
 
 .grid.grid-cols-1.xl:grid-cols-2.gap-5
   = turbo_frame_tag 'stats',

@@ -5,7 +5,7 @@ class Dropdown::Component < ViewComponent::Base
     @selected = selected
   end
 
-  def selected_text
-    @items.find { |item| item.second == @selected }.first
+  def selected_item
+    @selected_item ||= @items.find { |item| item[:field] == @selected }
   end
 end
