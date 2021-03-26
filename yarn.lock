@@ -1037,9 +1037,9 @@
     mini-svg-data-uri "^1.2.3"
 
 "@tailwindcss/jit@^0.1.1":
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/@tailwindcss/jit/-/jit-0.1.9.tgz#6d476191ae57a20ca97ba85fc3d28d08bcd7f209"
-  integrity sha512-OewItZG9qYBkHT+s7sykbro8cu+tfF+PoluSmwOXQew8PV/EeWY8vq6gM3cCp8lF4cqYGBr6we8gJ/M9R96UXw==
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/jit/-/jit-0.1.10.tgz#3bbc4eac9e6ace63f59983412279de90f726ada6"
+  integrity sha512-fmNJQE7clhauVcmYWJ2C4En5X6BF5ZsKqeIjl7UzbM37fvPHmrhgMzc5K4/l32LV8aPX2dRS/0XsbnZ4mrcSHg==
   dependencies:
     chokidar "^3.5.1"
     dlv "^1.1.3"
