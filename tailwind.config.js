@@ -10,7 +10,5 @@ module.exports = {
     './app/**/*.rb',
     './app/packs/**/*.js'
   ],
-  plugins: [
-    require('@tailwindcss/forms'),
-  ]
+  plugins: []
 }
