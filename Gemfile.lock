@@ -139,7 +139,7 @@ GEM
     meta-tags (2.14.0)
       actionpack (>= 3.2.0, < 6.2)
     method_source (1.0.0)
-    mimemagic (0.3.9)
+    mimemagic (0.3.10)
       nokogiri (~> 1)
       rake
     mini_mime (1.0.3)
