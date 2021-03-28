@@ -16,4 +16,6 @@ Rails.application.routes.draw do
     get '/top10/:timeframe/:field', to: 'top10#index', as: :top10
     get '/top10-chart/:timeframe/:field', to: 'top10_chart#index', as: :top10_chart
   end
+
+  get '/:page' => 'pages#show', as: :pages
 end

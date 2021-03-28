@@ -25,3 +25,6 @@ import "controllers"
 import "components"
 
 import "utils/plausible"
+
+// import all image files in a folder:
+require.context('../images', true)

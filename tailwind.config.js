@@ -10,5 +10,8 @@ module.exports = {
     './app/**/*.rb',
     './app/packs/**/*.js'
   ],
-  plugins: []
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/aspect-ratio')
+  ]
 }

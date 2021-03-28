@@ -1,0 +1,67 @@
+ruby:
+  set_meta_tags title: 'Über Solectrus',
+                description: 'Solectrus ist ein alternatives Photovoltaik-Dashboard, das Ertrag und Verbrauch einer PV-Anlage visualisiert.',
+                og: {
+                  title:       :title,
+                  description: :description,
+                  site_name:   :site,
+                  url:         request.url,
+                  type:        'website',
+                  image:       asset_url('og-image.png')
+                }
+
+.bg-white.overflow-hidden
+  .relative.max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
+    .mx-auto.text-base.max-w-prose.lg:grid.lg:grid-cols-2.lg:gap-8.lg:max-w-none
+      h1.mt-2.text-3xl.leading-8.font-extrabold.tracking-tight.text-gray-900.sm:text-4xl Über Solectrus
+    .lg:grid.lg:grid-cols-2.lg:gap-16.mt-8
+      .relative.lg:row-start-1.lg:col-start-2
+        svg.hidden.lg:block.absolute.top-0.right-0.-mt-20.-mr-20 aria-hidden="true" fill="none" height="384" viewbox="0 0 404 384" width="404"
+          defs
+            pattern#dots height="20" patternunits="userSpaceOnUse" width="20" x="0" y="0"
+              rect.text-gray-200 fill="currentColor" height="4" width="4" x="0" y="0"
+          rect fill="url(#dots)" height="384" width="404"
+        .relative.mx-auto.max-w-prose.lg:max-w-none
+          figure.aspect-w-12.aspect-h-7
+            = image_tag image_pack_path('logo-full.svg'), class: 'rounded-lg shadow-lg object-cover object-center', alt: 'Logo'
+      .mt-8.lg:mt-0
+        .prose.prose-indigo.text-gray-500.mx-auto.lg:max-w-none.lg:row-start-1.lg:col-start-1
+          p Solectrus ist ein alternatives Photovoltaik-Dashboard, das Ertrag und Verbrauch einer PV-Anlage visualisiert.
+
+          p
+            | Unterstützt wird das System
+            =< link_to 'SENEC.Home', 'https://senec.com/de/produkte/senec-home'
+            |. Die Anbindung erfolgt über einen Collector, der auf dem Einplatinencomputer <em>Raspberry Pi</em> läuft und laufend die Messwerte vom Webserver des Stromspeichers abholt und in eine Zeitreihendatenbank überträgt.
+
+          p Solectrus bietet gegenüber der offiziellen App von SENEC weitere Features:
+
+          ul
+            li Alternative Visualisierung des Stromflusses
+            li Live-Darstellung mit einem Zeitverzug von nur wenigen Sekunden
+            li Wirtschaftlichkeitsberechnung anhand von Einspeisevergütung und Einsparung durch Eigenverbrauch
+            li Top-10 der besten Tage, Monate und Jahre
+            li
+              | Ertragsvorhersage für zwei Tage mittels Anbindung an
+              =< link_to 'Forecast.Solar',
+                        'https://forecast.solar',
+                        target: '_blank',
+                        rel: 'noopener'
+
+          h2 Open Source
+
+          p
+            | Der Quelltext aller Komponenten (auf Basis von
+            =<> link_to 'Ruby on Rails',
+                        'https://rubyonrails.org/',
+                        target: '_blank',
+                        rel: 'noopener'
+            | und
+            =< link_to 'InfluxDB',
+                      'https://www.influxdata.com/',
+                      target: '_blank',
+                      rel: 'noopener'
+            | ) steht auf GitHub bereit:
+
+          ul
+            li
+              = link_to nil, 'https://github.com/solectrus'

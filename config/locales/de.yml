@@ -2,6 +2,7 @@ de:
   layout:
     stats: Verlauf
     top10: Top 10
+    about: Über
   senec:
     inverter_power: Erzeugung
     house_power: Hausverbrauch
