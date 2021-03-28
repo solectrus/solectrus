@@ -1044,9 +1044,9 @@
   integrity sha512-v5LyHkwXj/4lI74B06zUrmWEdmSqS43+jw717pkt3fAXqb7ALwu77A8t7j+Bej+ZbdlIIqNMYheGN7wSGV1A6w==
 
 "@tailwindcss/jit@^0.1.1":
-  version "0.1.15"
-  resolved "https://registry.yarnpkg.com/@tailwindcss/jit/-/jit-0.1.15.tgz#9b734f7567773e5bf2b69f4fa1ee93933c914500"
-  integrity sha512-jqYaVs5XLI8ub/Yv2iIFXF2okc2S9asow0M5Jxm7d221LUEoMN1Q3KGZNQsYf9qdl5iEEkrC0oAybk5XbFDHHQ==
+  version "0.1.17"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/jit/-/jit-0.1.17.tgz#0fe54a6bd9473c3c1a5cb622ba771d69117a3d49"
+  integrity sha512-Of3NbM2Peex6iPkOap5JBmAPq6oVjKEKMysy6iH/9Vl0TjuEuB094Uc7yzJz8q6j6AQEImlaOGxwF+sdBlG2pw==
   dependencies:
     chokidar "^3.5.1"
     dlv "^1.1.3"
