@@ -28,6 +28,7 @@ header.bg-indigo-600.pb-32
         - items.each do |item|
           = item
 
-  .pb-5.lg:pt-5
-    .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
-      = sub_nav
+  - if sub_nav
+    .pb-5.lg:pt-5
+      .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8
+        = sub_nav
