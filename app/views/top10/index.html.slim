@@ -1,7 +1,7 @@
 = turbo_exempts_page_from_cache
 
 - content_for :sub_nav do
-  .flex.flex-col.lg:items-center.justify-between.lg:flex-row
+  .flex.justify-center.lg:justify-between.lg:items-center
     .hidden.lg:block
       = render Nav::Sub::Component.new do |c|
         = c.items timeframe_items
