@@ -118,7 +118,7 @@ GEM
     influxdb-client (1.12.1)
     launchy (2.5.0)
       addressable (~> 2.7)
-    listen (3.5.0)
+    listen (3.5.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
     lockup (1.6.1)
