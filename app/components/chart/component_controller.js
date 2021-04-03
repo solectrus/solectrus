@@ -15,7 +15,7 @@ import {
 } from 'chart.js'
 
 import 'chartjs-adapter-date-fns'
-import { de } from 'date-fns/locale'
+import de from 'date-fns/locale/de'
 
 Chart.register(
   LineElement,
