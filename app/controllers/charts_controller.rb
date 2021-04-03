@@ -74,6 +74,7 @@ class ChartsController < ApplicationController
         {
           label: I18n.t("senec.#{field}"),
           data: chart.map { |element| element[1] },
+          fill: 'origin',
           backgroundColor: 'rgba(79, 70, 229, 0.5)',
           borderColor: '#4F46E5',
           borderWidth: 2
