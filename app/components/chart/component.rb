@@ -10,11 +10,24 @@ class Chart::Component < ViewComponent::Base
   def options # rubocop:disable Metrics/MethodLength
     {
       maintainAspectRatio: false,
-      legend: false,
-      title: {
-        fontSize: 20,
-        display: true,
-        text: title
+      plugins: {
+        legend: false,
+        title: {
+          display: true,
+          font: {
+            size: 20
+          },
+          text: title
+        },
+        tooltip: {
+          displayColors: false,
+          titleFont: {
+            size: 16
+          },
+          bodyFont: {
+            size: 20
+          }
+        }
       },
       animation: {
         easing: 'easeOutQuad',
@@ -27,41 +40,30 @@ class Chart::Component < ViewComponent::Base
           hoverRadius: 5
         }
       },
-      tooltips: {
-        displayColors: false,
-        titleFontSize: 16,
-        bodyFontSize: 20
-      },
       scales: {
-        xAxes: [
-          {
-            gridLines: {
-              drawOnChartArea: false
-            },
-            ticks: {
-              maxRotation: 0
-            },
-            offset: chart_type.bar?,
-            distribution: chart_type.line? ? 'linear' : 'series',
-            type: 'time',
-            time: {
-              'now'   => { unit: 'minute', stepSize: 15, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' },
-              'day'   => { unit: 'hour',   stepSize: 3,  displayFormats: { hour:   'HH:mm' }, tooltipFormat: 'HH:mm' },
-              'week'  => { unit: 'day',    stepSize: 1,  displayFormats: { day:    'ddd'   }, tooltipFormat: 'dddd, DD.MM.YYYY' },
-              'month' => { unit: 'day',    stepSize: 2,  displayFormats: { day:    'D'     }, tooltipFormat: 'dddd, DD.MM.YYYY' },
-              'year'  => { unit: 'month',  stepSize: 1,  displayFormats: { month:  'MMM'   }, tooltipFormat: 'MMMM YYYY' },
-              'all'   => { unit: 'year',   stepSize: 1,  displayFormats: { year:   'YYYY'  }, tooltipFormat: 'YYYY' }
-            }[timeframe]
+        x: {
+          grid: {
+            drawOnChartArea: false
+          },
+          ticks: {
+            maxRotation: 0
+          },
+          type: 'timeseries',
+          time: {
+            'now'   => { unit: 'minute', stepSize: 15, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' },
+            'day'   => { unit: 'hour',   stepSize: 3,  displayFormats: { hour:   'HH:mm' }, tooltipFormat: 'HH:mm' },
+            'week'  => { unit: 'day',    stepSize: 1,  displayFormats: { day:    'eee'   }, tooltipFormat: 'eeee  , dd.MM.yyyy' },
+            'month' => { unit: 'day',    stepSize: 2,  displayFormats: { day:    'd'     }, tooltipFormat: 'eeee, dd.MM.yyyy' },
+            'year'  => { unit: 'month',  stepSize: 1,  displayFormats: { month:  'MMM'   }, tooltipFormat: 'MMMM yyyy' },
+            'all'   => { unit: 'year',   stepSize: 1,  displayFormats: { year:   'yyyy'  }, tooltipFormat: 'yyyy' }
+          }[timeframe]
+        },
+        y: {
+          ticks: {
+            beginAtZero: true,
+            maxTicksLimit: 4
           }
-        ],
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true,
-              maxTicksLimit: 4
-            }
-          }
-        ]
+        }
       }
     }
   end

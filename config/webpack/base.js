@@ -6,10 +6,6 @@ const customConfig = {
     extensions: ['.css']
   },
   plugins: [
-    new webpack.IgnorePlugin({
-      resourceRegExp: /^\.\/locale$/,
-      contextRegExp: /moment$/
-    })
   ]
 }
 
