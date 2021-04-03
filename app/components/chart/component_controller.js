@@ -1,8 +1,34 @@
 import { Controller } from "stimulus"
 
-import moment from "moment"
-import "moment/locale/de"
-import Chart from "chart.js"
+import {
+  Chart,
+  LineElement,
+  BarElement,
+  PointElement,
+  BarController,
+  LineController,
+  LinearScale,
+  TimeSeriesScale,
+  Filler,
+  Title,
+  Tooltip
+} from 'chart.js'
+
+import 'chartjs-adapter-date-fns'
+import { de } from 'date-fns/locale'
+
+Chart.register(
+  LineElement,
+  BarElement,
+  PointElement,
+  BarController,
+  LineController,
+  LinearScale,
+  TimeSeriesScale,
+  Filler,
+  Title,
+  Tooltip
+)
 
 export default class extends Controller {
   static values = {
@@ -12,27 +38,28 @@ export default class extends Controller {
   }
 
   connect() {
-    moment.locale(window.navigator.userLanguage || window.navigator.language)
-
     var that = this
     fetch(this.urlValue)
       .then(response => response.json())
       .then(data => {
         var options = this.optionsValue
 
+        // I18n
+        options.scales.x.adapters = {
+          date: {
+            locale: de
+          }
+        }
+
         // Format numbers on y-axis
-        options.scales.yAxes[0].ticks.callback = function(value, index, values) {
+        options.scales.y.ticks.callback = function(value, index, values) {
           return that.formattedNumber(value)
         }
 
         // Format numbers in tooltips
-        options.tooltips.callbacks = {
-          label: (tooltipItem, data) => {
-            let label = data.datasets[tooltipItem.datasetIndex].label || ''
-            if (label) {
-              label += ': '
-            }
-            return label + that.formattedNumber(tooltipItem['yLabel'])
+        options.plugins.tooltip.callbacks = {
+          label: (context) => {
+            return context.dataset.label + ': ' + that.formattedNumber(context.parsed.y)
           }
         }
 
