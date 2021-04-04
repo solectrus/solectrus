@@ -15,6 +15,7 @@
     "autoprefixer": "^10.1.0",
     "chart.js": "^3.0.1",
     "chartjs-adapter-date-fns": "^2.0.0",
+    "chartjs-plugin-annotation": "^1.0.0-rc",
     "css-loader": "^5.0.1",
     "css-minimizer-webpack-plugin": "^1.1.5",
     "date-fns": "^2.19.0",

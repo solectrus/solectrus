@@ -16,6 +16,7 @@ import {
 
 import 'chartjs-adapter-date-fns'
 import de from 'date-fns/locale/de'
+import annotationPlugin from 'chartjs-plugin-annotation'
 
 Chart.register(
   LineElement,
@@ -27,7 +28,8 @@ Chart.register(
   TimeSeriesScale,
   Filler,
   Title,
-  Tooltip
+  Tooltip,
+  annotationPlugin
 )
 
 export default class extends Controller {
@@ -63,6 +65,17 @@ export default class extends Controller {
           }
         }
 
+        // Average line
+        console.log(data)
+        let avg = this.average(data.datasets[0].data)
+        if (avg) {
+          options.plugins.annotation.annotations.line1.yMin = avg
+          options.plugins.annotation.annotations.line1.yMax = avg
+          options.plugins.annotation.annotations.line1.label.content = () => { return this.formattedNumber(avg) }
+        } else {
+          options.plugins.annotation.annotations.line1.label.enabled = false
+        }
+
         this.chart = new Chart(this.element, {
           type: this.typeValue,
           data: data,
@@ -78,5 +91,12 @@ export default class extends Controller {
 
   formattedNumber(number) {
     return new Intl.NumberFormat().format(number)
+  }
+
+  average(data) {
+    if (data.length) {
+      let sum = data.reduce((a, b) => { return a + b })
+      return sum / data.length
+    }
   }
 }

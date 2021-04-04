@@ -27,6 +27,20 @@ class Chart::Component < ViewComponent::Base
           bodyFont: {
             size: 20
           }
+        },
+        annotation: {
+          annotations: {
+            line1: {
+              type: 'line',
+              yMin: 0,
+              yMax: 0,
+              borderWidth: 1,
+              borderDash: [ 2, 2 ],
+              label: {
+                enabled: chart_type.bar?
+              }
+            }
+          }
         }
       },
       animation: {
