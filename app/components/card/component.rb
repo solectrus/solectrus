@@ -1,5 +1,5 @@
 class Card::Component < ViewComponent::Base
-  with_content_areas :tippy, :extra
+  renders_one :tippy
 
   def initialize(field:, signal: nil, klasses: nil, value: nil)
     super
