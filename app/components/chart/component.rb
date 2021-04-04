@@ -52,7 +52,7 @@ class Chart::Component < ViewComponent::Base
           time: {
             'now'   => { unit: 'minute', stepSize: 15, displayFormats: { minute: 'HH:mm' }, tooltipFormat: 'HH:mm:ss' },
             'day'   => { unit: 'hour',   stepSize: 3,  displayFormats: { hour:   'HH:mm' }, tooltipFormat: 'HH:mm' },
-            'week'  => { unit: 'day',    stepSize: 1,  displayFormats: { day:    'eee'   }, tooltipFormat: 'eeee  , dd.MM.yyyy' },
+            'week'  => { unit: 'day',    stepSize: 1,  displayFormats: { day:    'eee'   }, tooltipFormat: 'eeee, dd.MM.yyyy' },
             'month' => { unit: 'day',    stepSize: 2,  displayFormats: { day:    'd'     }, tooltipFormat: 'eeee, dd.MM.yyyy' },
             'year'  => { unit: 'month',  stepSize: 1,  displayFormats: { month:  'MMM'   }, tooltipFormat: 'MMMM yyyy' },
             'all'   => { unit: 'year',   stepSize: 1,  displayFormats: { year:   'yyyy'  }, tooltipFormat: 'yyyy' }
