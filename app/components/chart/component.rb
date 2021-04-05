@@ -31,13 +31,15 @@ class Chart::Component < ViewComponent::Base
         annotation: {
           annotations: {
             line1: {
+              display: chart_type.bar?,
               type: 'line',
-              yMin: 0,
-              yMax: 0,
+              yMin: 0, # will be set in component_controller.js
+              yMax: 0, # will be set in component_controller.js
               borderWidth: 1,
               borderDash: [ 2, 2 ],
               label: {
-                enabled: chart_type.bar?
+                content: '', # will be set in component_controller.js
+                enabled: true
               }
             }
           }

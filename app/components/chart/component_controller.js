@@ -66,14 +66,11 @@ export default class extends Controller {
         }
 
         // Average line
-        console.log(data)
         let avg = this.average(data.datasets[0].data)
         if (avg) {
           options.plugins.annotation.annotations.line1.yMin = avg
           options.plugins.annotation.annotations.line1.yMax = avg
-          options.plugins.annotation.annotations.line1.label.content = () => { return this.formattedNumber(avg) }
-        } else {
-          options.plugins.annotation.annotations.line1.label.enabled = false
+          options.plugins.annotation.annotations.line1.label.content = this.formattedNumber(avg)
         }
 
         this.chart = new Chart(this.element, {
