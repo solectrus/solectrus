@@ -66,7 +66,7 @@ export default class extends Controller {
         }
 
         // Average line
-        let avg = this.average(data.datasets[0].data)
+        let avg = data.datasets[0].average
         if (avg) {
           options.plugins.annotation.annotations.line1.yMin = avg
           options.plugins.annotation.annotations.line1.yMax = avg
@@ -88,12 +88,5 @@ export default class extends Controller {
 
   formattedNumber(number) {
     return new Intl.NumberFormat().format(number)
-  }
-
-  average(data) {
-    if (data.length) {
-      let sum = data.reduce((a, b) => { return a + b })
-      return sum / data.length
-    }
   }
 }

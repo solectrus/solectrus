@@ -73,7 +73,8 @@ class ChartsController < ApplicationController
       datasets: [
         {
           label: I18n.t("senec.#{field}"),
-          data: chart.map { |element| element[1] },
+          data: chart.map(&:second),
+          average: average(chart),
           fill: 'origin',
           backgroundColor: 'rgba(79, 70, 229, 0.5)',
           borderColor: '#4F46E5',
@@ -81,5 +82,27 @@ class ChartsController < ApplicationController
         }
       ]
     }
+  end
+
+  def average(chart) # rubocop:disable Metrics/CyclomaticComplexity
+    length_completed = if timestamp == default_timestamp
+      # In current range: Use only items from the past
+      case timeframe
+      when 'week'
+        Time.current.wday
+      when 'month'
+        Time.current.day - 1
+      when 'year'
+        Time.current.month - 1
+      when 'all'
+        chart.length
+      end
+    else
+      # Not in current range, so use all items
+      chart.length
+    end
+    return if length_completed.zero?
+
+    chart.sum(&:second) / length_completed
   end
 end
