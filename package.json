@@ -10,7 +10,6 @@
     "@rails/webpacker": "^6.0.0-beta.6",
     "@sentry/browser": "^6.1.0",
     "@tailwindcss/aspect-ratio": "^0.2.0",
-    "@tailwindcss/jit": "^0.1.1",
     "@tailwindcss/typography": "^0.4.0",
     "autoprefixer": "^10.1.0",
     "chart.js": "^3.0.1",
@@ -25,7 +24,7 @@
     "postcss": "^8.2.8",
     "postcss-loader": "^5.0.0",
     "stimulus": "^2.0.0",
-    "tailwindcss": "^2.0.3",
+    "tailwindcss": "^2.1.1",
     "tippy.js": "^6.2.7",
     "webpack": "^5.20.1",
     "webpack-cli": "^4.2.0"
