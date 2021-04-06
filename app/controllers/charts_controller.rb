@@ -101,7 +101,7 @@ class ChartsController < ApplicationController
       # Not in current range, so use all items
       chart.length
     end
-    return if length_completed.zero?
+    return if length_completed.nil? || length_completed.zero?
 
     chart.sum(&:second) / length_completed
   end
