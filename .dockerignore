@@ -14,7 +14,6 @@
 .yarnclean
 .slim-lint.yml
 **/*.DS_Store
-docker-compose.yml
 Dockerfile
 Procfile*
 Guardfile
