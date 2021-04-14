@@ -44,6 +44,7 @@ module Solectrus
     config.x.plausible_url     = ENV['PLAUSIBLE_URL']
     config.x.sentry_dns        = ENV['SENTRY_DNS']
     config.x.sentry_csp        = ENV['SENTRY_CSP']
+    config.x.force_ssl         = ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', true)
 
     config.x.installation_date = Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
     config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
