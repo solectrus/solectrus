@@ -59,3 +59,6 @@ module Solectrus
     config.action_dispatch.default_headers.delete 'X-Frame-Options'
   end
 end
+
+# Makes sure the TailwindCSS JIT doesn't run forever
+Webpacker::Compiler.env['TAILWIND_MODE'] = 'build'
