@@ -10,6 +10,8 @@ export default class extends Controller {
 
   connect() {
     this.interval = setInterval(() => {
+      // Reload frame by using this hack: Remove "src" attribute and re-add it again
+      this.element.removeAttribute('src')
       this.element.setAttribute('src', this.srcValue)
 
       // Wait until the frame is loaded before updating the chart
