@@ -18,6 +18,12 @@ class Calculator::Range < Calculator::Base
     ).public_send(timeframe, timestamp)
   end
 
+  def forecast_quality
+    return if watt.zero?
+
+    100 * inverter_power / watt - 100
+  end
+
   def paid
     return unless grid_power_plus
 

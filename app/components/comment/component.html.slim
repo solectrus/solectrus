@@ -1,0 +1,26 @@
+- if field == 'inverter_power' && timeframe != 'now' && calculator.forecast_quality
+  .mt-2.text-center.text-sm.bg-gray-100.text-gray-600.py-1.rounded
+    - if timeframe == 'day' && timestamp >= Date.current
+      - if calculator.inverter_power.positive?
+        'Bis jetzt
+        = Number::Component.new(value: calculator.inverter_power).to_kwh
+        ', erwartet werden
+      - else
+        'Erwartet werden
+      =< Number::Component.new(value: calculator.watt).to_kwh(max_precision: 0)
+
+    - elsif calculator.forecast_quality.positive?
+      => Number::Component.new(value: calculator.inverter_power).to_kwh
+      'sind
+      span.text-green-500
+        => Number::Component.new(value: calculator.forecast_quality.abs).to_percent(max_precision: 0, klass: 'text-current')
+        'mehr
+      'als erwartet
+
+    - else
+      => Number::Component.new(value: calculator.inverter_power).to_kwh
+      'sind
+      span.text-red-500
+        => Number::Component.new(value: calculator.forecast_quality.abs).to_percent(max_precision: 0, klass: 'text-current')
+        'weniger
+      'als erwartet
