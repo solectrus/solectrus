@@ -75,6 +75,7 @@ class Chart::Component < ViewComponent::Base
           }[timeframe]
         },
         y: {
+          min: 0,
           ticks: {
             beginAtZero: true,
             maxTicksLimit: 4
