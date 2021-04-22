@@ -97,7 +97,7 @@ jobs:
         run: |
           export COMMIT_TIME=$(git show -s --format=%ci ${GITHUB_SHA})
           export COMMIT_SHA=${GITHUB_SHA}
-          docker build --build-arg COMMIT_TIME --build-arg COMMIT_SHA -t app .
+          docker buildx build --build-arg COMMIT_TIME --build-arg COMMIT_SHA -t app .
 
       - name: Push the image tagged as DEVELOP to the container registry
         if: github.ref == 'refs/heads/develop'
