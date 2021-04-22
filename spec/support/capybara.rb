@@ -8,9 +8,9 @@ RSpec.configure do |config|
   end
 
   config.after :each, type: :system, js: true do
-    messages = page.driver.browser.manage.logs.get(:browser).map do |log|
+    messages = page.driver.browser.manage.logs.get(:browser).filter_map do |log|
       "[#{log.level}] #{log.message}"
-    end.compact
+    end
 
     expect(messages.length).to be_zero, messages.join("\n")
   end
