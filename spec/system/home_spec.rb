@@ -3,6 +3,29 @@ describe 'Home', type: :system, js: true do
     add_influx_point(
       name: 'SENEC',
       fields: {
+        inverter_power:       4_000,
+        house_power:          500,
+        bat_power_plus:       0,
+        bat_power_minus:      0,
+        bat_fuel_charge:      40.0,
+        wallbox_charge_power: 0,
+        grid_power_plus:      0,
+        grid_power_minus:     3_500
+      },
+      time: 1.hour.ago
+    )
+
+    add_influx_point(
+      name: 'Forecast',
+      fields: {
+        watt: 4_000
+      },
+      time: 1.hour.ago
+    )
+
+    add_influx_point(
+      name: 'SENEC',
+      fields: {
         inverter_power:       5_000,
         house_power:          430,
         bat_power_plus:       2_500,
@@ -59,45 +82,57 @@ describe 'Home', type: :system, js: true do
   def navigate_days
     click_on I18n.t('calculator.day')
     expect(page).to have_css('#tab-day')
+    expect(page).to have_css('#chart-day')
 
     find(:xpath, ".//a[contains(@rel, 'prev')]").click
     expect(page).to have_css('#tab-day')
+    expect(page).to have_css('#chart-day')
 
     find(:xpath, ".//a[contains(@rel, 'next')]").click
     expect(page).to have_css('#tab-day')
+    expect(page).to have_css('#chart-day')
   end
 
   def navigate_weeks
     click_on I18n.t('calculator.week')
     expect(page).to have_css('#tab-week')
+    expect(page).to have_css('#chart-week')
 
     find(:xpath, ".//a[contains(@rel, 'prev')]").click
     expect(page).to have_css('#tab-week')
+    expect(page).to have_css('#chart-week')
 
     find(:xpath, ".//a[contains(@rel, 'next')]").click
     expect(page).to have_css('#tab-week')
+    expect(page).to have_css('#chart-week')
   end
 
   def navigate_months
     click_on I18n.t('calculator.month')
     expect(page).to have_css('#tab-month')
+    expect(page).to have_css('#chart-month')
 
     find(:xpath, ".//a[contains(@rel, 'prev')]").click
     expect(page).to have_css('#tab-month')
+    expect(page).to have_css('#chart-month')
 
     find(:xpath, ".//a[contains(@rel, 'next')]").click
     expect(page).to have_css('#tab-month')
+    expect(page).to have_css('#chart-month')
   end
 
   def navigate_years
     click_on I18n.t('calculator.year')
     expect(page).to have_css('#tab-year')
+    expect(page).to have_css('#chart-year')
 
     find(:xpath, ".//a[contains(@rel, 'prev')]").click
     expect(page).to have_css('#tab-year')
+    expect(page).to have_css('#chart-year')
 
     find(:xpath, ".//a[contains(@rel, 'next')]").click
     expect(page).to have_css('#tab-year')
+    expect(page).to have_css('#chart-year')
   end
 
   def navigate_all
