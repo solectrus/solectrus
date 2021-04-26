@@ -1730,9 +1730,9 @@ chartjs-adapter-date-fns@^2.0.0:
   integrity sha512-rmZINGLe+9IiiEB0kb57vH3UugAtYw33anRiw5kS2Tu87agpetDDoouquycWc9pRsKtQo5j+vLsYHyr8etAvFw==
 
 chartjs-plugin-annotation@^1.0.0-rc:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/chartjs-plugin-annotation/-/chartjs-plugin-annotation-1.0.0.tgz#6d1b7f909bda2ed13f8012481a9484dfabdc77c3"
-  integrity sha512-muemrSFOTX5JZLYhJV8twbRfgxLbORUtaVFxV+9rL6e+jRA2zIX4Gebwg+o0HDzNgh4ylXTlbvLCBvvA+HAmHQ==
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/chartjs-plugin-annotation/-/chartjs-plugin-annotation-1.0.1.tgz#4221d06925171f4bad1538ac42f45dd15a1b0cf5"
+  integrity sha512-yTPzIuyi8Fn0ZXynlcyv0NPc8iI6C22wWStmp3cWFUCrbkwBLzPTuUL3t4fUzIdz14mGCaWcPSfzqGQMDJHfyQ==
 
 chokidar@^2.1.8:
   version "2.1.8"
