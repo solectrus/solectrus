@@ -1,5 +1,4 @@
 const { webpackConfig, merge } = require('@rails/webpacker')
-const webpack = require('webpack')
 
 const customConfig = {
   resolve: {
