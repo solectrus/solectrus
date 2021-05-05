@@ -28,6 +28,9 @@ Rails/SaveBang:
 Rails/FilePath:
   EnforcedStyle: arguments
 
+Rails/ReversibleMigrationMethodDefinition:
+  Enabled: false
+
 ### Bundler
 
 Bundler/OrderedGems:
