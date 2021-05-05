@@ -46,6 +46,13 @@ module Solectrus
     config.x.sentry_csp        = ENV['SENTRY_CSP']
     config.x.force_ssl         = ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', true)
 
+    config.x.influx.token      = ENV.fetch('INFLUX_TOKEN')
+    config.x.influx.schema     = ENV.fetch('INFLUX_SCHEMA', 'http')
+    config.x.influx.host       = ENV.fetch('INFLUX_HOST')
+    config.x.influx.port       = ENV.fetch('INFLUX_PORT', 8086)
+    config.x.influx.bucket     = ENV.fetch('INFLUX_BUCKET')
+    config.x.influx.org        = ENV.fetch('INFLUX_ORG')
+
     config.x.installation_date = Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
     config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
     config.x.feed_in_tariff    = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
