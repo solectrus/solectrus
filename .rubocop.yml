@@ -36,6 +36,9 @@ Rails/ReversibleMigrationMethodDefinition:
 Bundler/OrderedGems:
   Enabled: false
 
+Bundler/GemVersion:
+  Enabled: false
+
 ### Metrics
 
 Metrics/AbcSize:
