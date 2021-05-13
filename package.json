@@ -16,7 +16,7 @@
     "chartjs-adapter-date-fns": "^2.0.0",
     "chartjs-plugin-annotation": "^1.0.0-rc",
     "css-loader": "^5.2.4",
-    "css-minimizer-webpack-plugin": "^2.0.0",
+    "css-minimizer-webpack-plugin": "^3.0.0",
     "date-fns": "^2.21.1",
     "el-transition": "^0.0.7",
     "mini-css-extract-plugin": "^1.5.0",
