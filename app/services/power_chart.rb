@@ -4,23 +4,23 @@ class PowerChart < Flux::Reader
   end
 
   def day(start, filled: false)
-    chart_single start: start.iso8601, stop: start.end_of_day.iso8601, window: '5m', filled: filled
+    chart_single start: start.beginning_of_day, stop: start.end_of_day, window: '5m', filled: filled
   end
 
   def week(start)
-    chart_sum start: start.iso8601, stop: start.end_of_week.iso8601, window: '1d'
+    chart_sum start: start.beginning_of_week.beginning_of_day, stop: start.end_of_week.end_of_day, window: '1d'
   end
 
   def month(start)
-    chart_sum start: start.iso8601, stop: start.end_of_month.iso8601, window: '1d'
+    chart_sum start: start.beginning_of_month.beginning_of_day, stop: start.end_of_month.end_of_day, window: '1d'
   end
 
   def year(start)
-    chart_sum start: start.iso8601, stop: start.end_of_year.iso8601, window: '1mo'
+    chart_sum start: start.beginning_of_year.beginning_of_day, stop: start.end_of_year.end_of_day, window: '1mo'
   end
 
   def all(start)
-    chart_sum start: start.iso8601, window: '1y'
+    chart_sum start: start.beginning_of_day, window: '1y'
   end
 
   private

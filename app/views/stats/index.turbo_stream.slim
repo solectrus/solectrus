@@ -1,12 +1,24 @@
 = turbo_stream.update 'nav' do
-  = render partial: 'timestamp', formats: :html
+  = render Timestamp::Component.new(timeframe: timeframe, timestamp: timestamp)
+  = render Status::Component.new(live: calculator.live?, time: calculator.time) if timeframe == 'now'
 
 = turbo_stream.update 'stats' do
   - if calculator.present?
-    = render partial: timeframe == 'now' ? 'now' : 'range', formats: :html
+    div id="tab-#{timeframe}"
+      - if timeframe == 'now'
+        = render DashboardNow::Component.new calculator: calculator
+      - else
+        = render DashboardRange::Component.new calculator: calculator
+
   - else
-    = render partial: 'blank', formats: :html
+    .m-20.flex.justify-center
+      .px-3.md:px-5.py-2.rounded-full.text-xl.text-gray-500.bg-white
+        = t('calculator.blank')
 
 - if params[:chart] != 'false'
   = turbo_stream.update 'chart' do
-    = render partial: 'stats/chart', formats: :html
+    .flex.flex-col.h-full
+      .flex-grow
+         = render Chart::Component.new(field: field, timeframe: timeframe, url: charts_path(permitted_params))
+
+      = render Comment::Component.new(calculator: calculator, field: field, timeframe: timeframe, timestamp: timestamp)

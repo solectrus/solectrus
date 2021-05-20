@@ -27,7 +27,7 @@
           =t 'calculator.profit'
           =< Number::Component.new(value: calculator.profit).to_eur(klass: 'text-current')
 
-        - component.with :tippy do
+        - component.tippy do
           = render ProfitDetails::Component.new(calculator: calculator)
 
       .grid.gap-3
@@ -40,25 +40,26 @@
           = tag.div class: 'mt-5 text-xl sm:text-2xl md:text-4xl' do
             = Number::Component.new(value: calculator.house_power).to_kwh
 
-          h1.mt-2.text-xs.md:text-base.whitespace-nowrap
-            =t 'calculator.autarky'
-            =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
+          - if calculator.autarky
+            h1.mt-2.text-xs.md:text-base.whitespace-nowrap
+              =t 'calculator.autarky'
+              =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
 
-          - component.with :tippy do
-            = render AutarkyDetails::Component.new(calculator: calculator)
+            - component.tippy do
+              = render AutarkyDetails::Component.new(calculator: calculator)
 
       = render Card::Component.new field: 'grid_power_plus', signal: calculator.feeding?, klasses: 'flex flex-col justify-center' do |component|
         = component.icon
 
         h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-          =t 'calculator.grid_power_minus'
+          =t 'senec.grid_power_minus'
 
         = tag.div class: 'mt-1 text-xl sm:text-2xl md:text-4xl whitespace-nowrap' do
           span.md:hidden &plus;
           =< Number::Component.new(value: calculator.grid_power_minus).to_kwh
 
         h1.mt-5.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-          =t 'calculator.grid_power_plus'
+          =t 'senec.grid_power_plus'
 
         = tag.div class: 'mt-1 text-xl sm:text-2xl md:text-4xl whitespace-nowrap' do
           span.md:hidden &minus;
@@ -68,7 +69,7 @@
       .flex.flex-row.justify-around.items-center
         .w-1/3.md:pr-10.text-xl.sm:text-2xl.md:text-4xl
           h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-            =t 'calculator.bat_power_plus'
+            =t 'senec.bat_power_plus'
 
           .whitespace-nowrap
             span.md:hidden &plus;
@@ -82,7 +83,7 @@
 
         .w-1/3.md:pl-10.text-xl.sm:text-2xl.md:text-4xl
           h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-            =t 'calculator.bat_power_minus'
+            =t 'senec.bat_power_minus'
 
           .whitespace-nowrap
             span.md:hidden &minus;

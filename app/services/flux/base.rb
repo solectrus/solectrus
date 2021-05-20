@@ -13,26 +13,26 @@ class Flux::Base
   private
 
   def influx_token
-    ENV.fetch('INFLUX_TOKEN')
+    Rails.configuration.x.influx.token
   end
 
   def influx_schema
-    ENV.fetch('INFLUX_SCHEMA', 'http')
+    Rails.configuration.x.influx.schema
   end
 
   def influx_host
-    ENV.fetch('INFLUX_HOST')
+    Rails.configuration.x.influx.host
   end
 
   def influx_port
-    ENV.fetch('INFLUX_PORT', 8086)
+    Rails.configuration.x.influx.port
   end
 
   def influx_bucket
-    ENV.fetch('INFLUX_BUCKET')
+    Rails.configuration.x.influx.bucket
   end
 
   def influx_org
-    ENV.fetch('INFLUX_ORG')
+    Rails.configuration.x.influx.org
   end
 end

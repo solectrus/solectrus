@@ -28,9 +28,15 @@ Rails/SaveBang:
 Rails/FilePath:
   EnforcedStyle: arguments
 
+Rails/ReversibleMigrationMethodDefinition:
+  Enabled: false
+
 ### Bundler
 
 Bundler/OrderedGems:
+  Enabled: false
+
+Bundler/GemVersion:
   Enabled: false
 
 ### Metrics
@@ -124,6 +130,9 @@ Layout/MultilineAssignmentLayout:
 Layout/LineLength:
   Max: 190
   IgnoredPatterns: ['\A#'] # Allow long comments
+
+Layout/RedundantLineBreak:
+  Enabled: false
 
 # Lint
 

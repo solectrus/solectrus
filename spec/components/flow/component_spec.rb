@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 describe Flow::Component, type: :component do
   let(:component) { described_class.new(value: value, signal: true) }
 

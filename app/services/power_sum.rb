@@ -4,23 +4,23 @@ class PowerSum < Flux::Reader
   end
 
   def day(start)
-    sum start: start.iso8601, stop: start.end_of_day.iso8601
+    sum start: start.beginning_of_day, stop: start.end_of_day
   end
 
   def week(start)
-    sum start: start.iso8601, stop: start.end_of_week.iso8601
+    sum start: start.beginning_of_week.beginning_of_day, stop: start.end_of_week.end_of_day
   end
 
   def month(start)
-    sum start: start.iso8601, stop: start.end_of_month.iso8601
+    sum start: start.beginning_of_month.beginning_of_day, stop: start.end_of_month.end_of_day
   end
 
   def year(start)
-    sum start: start.iso8601, stop: start.end_of_year.iso8601
+    sum start: start.beginning_of_year.beginning_of_day, stop: start.end_of_year.end_of_day
   end
 
   def all(start)
-    sum start: start.iso8601
+    sum start: start
   end
 
   private

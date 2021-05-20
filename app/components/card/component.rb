@@ -1,5 +1,5 @@
 class Card::Component < ViewComponent::Base
-  with_content_areas :tippy, :extra
+  renders_one :tippy
 
   def initialize(field:, signal: nil, klasses: nil, value: nil)
     super
@@ -34,7 +34,7 @@ class Card::Component < ViewComponent::Base
   end
 
   def title
-    @title ||= I18n.t("calculator.#{field}")
+    @title ||= I18n.t("senec.#{field}")
   end
 
   def current_value?

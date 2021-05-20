@@ -4,7 +4,7 @@ class Calculator::Range < Calculator::Base
     raise ArgumentError unless timeframe.to_s.in?(%w[day week month year all])
 
     build_context PowerSum.new(
-      measurements: [ 'SENEC' ],
+      measurements: %w[SENEC Forecast],
       fields: [
         :inverter_power,
         :house_power,
@@ -12,9 +12,16 @@ class Calculator::Range < Calculator::Base
         :grid_power_plus,
         :grid_power_minus,
         :bat_power_minus,
-        :bat_power_plus
+        :bat_power_plus,
+        :watt
       ]
     ).public_send(timeframe, timestamp)
+  end
+
+  def forecast_quality
+    return if watt.zero?
+
+    100 * inverter_power / watt - 100
   end
 
   def paid

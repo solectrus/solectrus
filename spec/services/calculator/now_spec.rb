@@ -4,8 +4,8 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
   context 'when no sun and battery is empty' do
     before do
       add_influx_point(
-        'SENEC',
-        {
+        name: 'SENEC',
+        fields: {
           inverter_power:       0,
           house_power:          430,
           bat_power_plus:       0,
@@ -33,8 +33,8 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
   context 'when no sun and battery is full' do
     before do
       add_influx_point(
-        'SENEC',
-        {
+        name: 'SENEC',
+        fields: {
           inverter_power:       0,
           house_power:          400,
           bat_power_plus:       0,
@@ -62,8 +62,8 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
   context 'when no sun and battery is empty and wallbox is charging' do
     before do
       add_influx_point(
-        'SENEC',
-        {
+        name: 'SENEC',
+        fields: {
           inverter_power:       0,
           house_power:          400,
           bat_power_plus:       0,
@@ -91,8 +91,8 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
   context 'when there is sun (less than used in the house)' do
     before do
       add_influx_point(
-        'SENEC',
-        {
+        name: 'SENEC',
+        fields: {
           inverter_power:       100,
           house_power:          400,
           bat_power_plus:       0,
@@ -120,8 +120,8 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
   context 'when there is sun (more than used in the house) and battery is empty' do
     before do
       add_influx_point(
-        'SENEC',
-        {
+        name: 'SENEC',
+        fields: {
           inverter_power:       500,
           house_power:          400,
           bat_power_plus:       100,
@@ -149,8 +149,8 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
   context 'when there is sun (more than used in the house) and battery is full' do
     before do
       add_influx_point(
-        'SENEC',
-        {
+        name: 'SENEC',
+        fields: {
           inverter_power:       500,
           house_power:          400,
           bat_power_plus:       0,
@@ -178,8 +178,8 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
   context 'when emergency charge' do
     before do
       add_influx_point(
-        'SENEC',
-        {
+        name: 'SENEC',
+        fields: {
           inverter_power:       300,
           house_power:          400,
           bat_power_plus:       2_500,
@@ -207,8 +207,8 @@ describe Calculator::Now do # rubocop:disable Metrics/BlockLength
   context 'when feeding' do
     before do
       add_influx_point(
-        'SENEC',
-        {
+        name: 'SENEC',
+        fields: {
           inverter_power:       5_000,
           house_power:          400,
           bat_power_plus:       2_500,

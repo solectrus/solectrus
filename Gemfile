@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.0.0'
+ruby '3.0.1'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 6.1.2', '>= 6.1.2.1'
+gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
 
 # The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
 gem 'turbo-rails'
@@ -19,7 +19,7 @@ gem 'puma', '~> 5.0'
 gem 'redis'
 
 # Use webpack to manage app-like JavaScript modules in Rails (https://github.com/rails/webpacker)
-gem 'webpacker', '6.0.0.beta.5'
+gem 'webpacker', '6.0.0.beta.7'
 
 # Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
 gem 'bootsnap', '>= 1.4.4', require: false
@@ -58,6 +58,9 @@ group :development, :test do
 
   # RSpec for Rails (https://github.com/rspec/rspec-rails)
   gem 'rspec-rails'
+
+  # rspec-collection_matchers-1.2.0 (https://github.com/rspec/rspec-collection_matchers)
+  gem 'rspec-collection_matchers'
 
   # Automatic Ruby code style checking tool. (https://github.com/rubocop-hq/rubocop)
   gem 'rubocop', require: false

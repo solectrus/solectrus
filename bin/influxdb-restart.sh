@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Start InfluxDB via Docker
-# Taken from https://github.com/influxdata/influxdb-client-ruby/blob/v1.11.0/bin/influxdb-restart.sh
+# Taken from https://github.com/influxdata/influxdb-client-ruby/blob/v1.12.0/bin/influxdb-restart.sh
 
 #
 # The MIT License
@@ -27,14 +27,9 @@
 
 set -e
 
-DEFAULT_DOCKER_REGISTRY="quay.io/influxdb/"
-DOCKER_REGISTRY="${DOCKER_REGISTRY:-$DEFAULT_DOCKER_REGISTRY}"
-
-DEFAULT_INFLUXDB_V2_REPOSITORY="influxdb"
-DEFAULT_INFLUXDB_V2_VERSION="v2.0.4"
-INFLUXDB_V2_REPOSITORY="${INFLUXDB_V2_REPOSITORY:-$DEFAULT_INFLUXDB_V2_REPOSITORY}"
+DEFAULT_INFLUXDB_V2_VERSION="2.0.6-alpine"
 INFLUXDB_V2_VERSION="${INFLUXDB_V2_VERSION:-$DEFAULT_INFLUXDB_V2_VERSION}"
-INFLUXDB_V2_IMAGE=${DOCKER_REGISTRY}${INFLUXDB_V2_REPOSITORY}:${INFLUXDB_V2_VERSION}
+INFLUXDB_V2_IMAGE=influxdb:${INFLUXDB_V2_VERSION}
 
 SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
 

@@ -1,11 +1,16 @@
 module.exports = {
   darkMode: false, // or 'media' or 'class'
+
+  mode: 'jit', // https://tailwindcss.com/docs/just-in-time-mode
+
   theme: {
     extend: {},
   },
+
   variants: {
     extend: {},
   },
+
   purge: [
     './app/**/*.html',
     './app/**/*.html.erb',
@@ -13,7 +18,9 @@ module.exports = {
     './app/**/*.rb',
     './app/packs/**/*.js'
   ],
+
   plugins: [
-    require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/aspect-ratio')
   ]
 }
