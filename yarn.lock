@@ -1748,9 +1748,9 @@ chalk@^4.0, chalk@^4.1.0:
     supports-color "^7.1.0"
 
 chart.js@^3.1.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.3.1.tgz#714cf466806e927d81caeb8df65b926f096c7c6a"
-  integrity sha512-yApN5uxxHnzH3ohLe9ZfSqs8JBgrfpTRJcWBhkm0G0vZzSBc74X2LipOQ1h+w64/3rmUidQjOoUqRFNfkHxbcA==
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.3.2.tgz#667f3a0b6371b9719d8949c04a5bcbaec0d8c615"
+  integrity sha512-H0hSO7xqTIrwxoACqnSoNromEMfXvfuVnrbuSt2TuXfBDDofbnto4zuZlRtRvC73/b37q3wGAWZyUU41QPvNbA==
 
 chartjs-adapter-date-fns@^2.0.0:
   version "2.0.0"
