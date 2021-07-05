@@ -1,12 +1,18 @@
 module ApplicationHelper
   def title
     case timeframe
-    when 'now'   then 'Live'
-    when 'day'   then l(timestamp, format: :default)
-    when 'week'  then "KW #{timestamp.cweek}, #{timestamp.year}"
-    when 'month' then l(timestamp, format: :month)
-    when 'year'  then timestamp.year.to_s
-    when 'all'   then 'Seit Installation'
+    when 'now'
+      'Live'
+    when 'day'
+      l(timestamp, format: :default)
+    when 'week'
+      "KW #{timestamp.cweek}, #{timestamp.year}"
+    when 'month'
+      l(timestamp, format: :month)
+    when 'year'
+      timestamp.year.to_s
+    when 'all'
+      'Seit Installation'
     end
   end
 end

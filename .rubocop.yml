@@ -47,17 +47,20 @@ Bundler/GemVersion:
 Metrics/AbcSize:
   Max: 35
 
-Metrics/BlockLength:
-  Max: 140
-
 Metrics/MethodLength:
-  Max: 40
+  Max: 50
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
 
 ### Style
 
 Style/BlockComments:
   Exclude:
-    - "spec/spec_helper.rb"
+    - 'spec/spec_helper.rb'
 
 Style/FrozenStringLiteralComment:
   Enabled: false
@@ -105,6 +108,9 @@ Style/DisableCopsWithinSourceCodeDirective:
   Enabled: false
 
 Style/ConstantVisibility:
+  Enabled: false
+
+Style/IfUnlessModifier:
   Enabled: false
 
 ### Layout
@@ -157,3 +163,12 @@ RSpec/MultipleExpectations:
 
 RSpec/ExampleLength:
   Max: 20
+
+RSpec/AlignLeftLetBrace:
+  Enabled: false
+
+RSpec/AlignRightLetBrace:
+  Enabled: false
+
+RSpec/ImplicitSubject:
+  Enabled: false

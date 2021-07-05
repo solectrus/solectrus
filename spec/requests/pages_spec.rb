@@ -8,9 +8,9 @@ describe 'Pages' do
 
   describe 'GET /unknown-page' do
     it 'raises error' do
-      expect do
-        get '/unknown-page'
-      end.to raise_error(ActionController::RoutingError)
+      expect { get '/unknown-page' }.to raise_error(
+        ActionController::RoutingError,
+      )
     end
   end
 end

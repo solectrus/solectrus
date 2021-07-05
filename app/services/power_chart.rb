@@ -4,19 +4,28 @@ class PowerChart < Flux::Reader
   end
 
   def day(start, filled: false)
-    chart_single start: start.beginning_of_day, stop: start.end_of_day, window: '5m', filled: filled
+    chart_single start: start.beginning_of_day,
+                 stop: start.end_of_day,
+                 window: '5m',
+                 filled: filled
   end
 
   def week(start)
-    chart_sum start: start.beginning_of_week.beginning_of_day, stop: start.end_of_week.end_of_day, window: '1d'
+    chart_sum start: start.beginning_of_week.beginning_of_day,
+              stop: start.end_of_week.end_of_day,
+              window: '1d'
   end
 
   def month(start)
-    chart_sum start: start.beginning_of_month.beginning_of_day, stop: start.end_of_month.end_of_day, window: '1d'
+    chart_sum start: start.beginning_of_month.beginning_of_day,
+              stop: start.end_of_month.end_of_day,
+              window: '1d'
   end
 
   def year(start)
-    chart_sum start: start.beginning_of_year.beginning_of_day, stop: start.end_of_year.end_of_day, window: '1mo'
+    chart_sum start: start.beginning_of_year.beginning_of_day,
+              stop: start.end_of_year.end_of_day,
+              window: '1mo'
   end
 
   def all(start)
@@ -62,15 +71,16 @@ class PowerChart < Flux::Reader
         next unless next_record
 
         time = Time.zone.parse(record.values['_time'] || '')
-        value = case record.values['_field']
-                when /power/, 'watt'
-                  # Fields with "power" in the name are given in W, so change them to kW
-                  (next_record.values['_value'].to_f / 1_000).round(3)
-                else
-                  next_record.values['_value'].to_f
-        end
+        value =
+          case record.values['_field']
+          when /power/, 'watt'
+            # Fields with "power" in the name are given in W, so change them to kW
+            (next_record.values['_value'].to_f / 1_000).round(3)
+          else
+            next_record.values['_value'].to_f
+          end
 
-        result << [ time, value ]
+        result << [time, value]
       end
     end
     result

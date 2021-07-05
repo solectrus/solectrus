@@ -1,14 +1,24 @@
 describe PowerChart do
   let(:measurement) { "Test#{described_class}" }
 
-  let(:chart) { described_class.new(fields: ['inverter_power'], measurements: [measurement]) }
+  let(:chart) do
+    described_class.new(fields: ['inverter_power'], measurements: [measurement])
+  end
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
     (0..11).each do |index|
-      add_influx_point name: measurement, fields: { inverter_power: (index + 1) * 1000 }, time: (beginning + index.month).end_of_month
-      add_influx_point name: measurement, fields: { inverter_power: (index + 1) * 1000 }, time: (beginning + index.month).beginning_of_month
+      add_influx_point name: measurement,
+                       fields: {
+                         inverter_power: (index + 1) * 1000,
+                       },
+                       time: (beginning + index.month).end_of_month
+      add_influx_point name: measurement,
+                       fields: {
+                         inverter_power: (index + 1) * 1000,
+                       },
+                       time: (beginning + index.month).beginning_of_month
     end
 
     add_influx_point name: measurement, fields: { inverter_power: 14_000 }
@@ -36,7 +46,9 @@ describe PowerChart do
 
     it 'contains last and first data point' do
       expect(result.first).to eq([beginning + 1.hour, 2.0])
-      expect(result.last).to eq([beginning.end_of_year.beginning_of_month + 1.hour, 12.0])
+      expect(result.last).to eq(
+        [beginning.end_of_year.beginning_of_month + 1.hour, 12.0],
+      )
     end
   end
 end

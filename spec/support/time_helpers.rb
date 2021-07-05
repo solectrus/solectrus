@@ -1,3 +1,1 @@
-RSpec.configure do |config|
-  config.include ActiveSupport::Testing::TimeHelpers
-end
+RSpec.configure { |config| config.include ActiveSupport::Testing::TimeHelpers }

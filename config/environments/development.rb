@@ -22,7 +22,7 @@ Rails.application.configure do
 
     config.cache_store = :memory_store
     config.public_file_server.headers = {
-      'Cache-Control' => "public, max-age=#{2.days.to_i}"
+      'Cache-Control' => "public, max-age=#{2.days.to_i}",
     }
   else
     config.action_controller.perform_caching = false
@@ -65,7 +65,8 @@ Rails.application.configure do
 
   config.hosts << 'solectrus.test'
 
-  config.view_component.preview_paths << Rails.root.join('spec', 'components', 'previews')
+  config.view_component.preview_paths <<
+    Rails.root.join('spec', 'components', 'previews')
 end
 
 # Indent html for pretty debugging and do not sort attributes

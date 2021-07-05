@@ -30,6 +30,7 @@ module Solectrus
     # in config/environments, which are processed later.
     #
     config.time_zone = 'Europe/Berlin'
+
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Don't generate system test files.
@@ -37,25 +38,27 @@ module Solectrus
 
     # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
     # the I18n.default_locale when a translation cannot be found).
-    config.i18n.available_locales = [ :en, :de ]
+    config.i18n.available_locales = %i[en de]
     config.i18n.default_locale = :de
 
-    config.x.app_host          = ENV['APP_HOST']
-    config.x.plausible_url     = ENV['PLAUSIBLE_URL']
-    config.x.sentry_dns        = ENV['SENTRY_DNS']
-    config.x.sentry_csp        = ENV['SENTRY_CSP']
-    config.x.force_ssl         = ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', true)
+    config.x.app_host = ENV['APP_HOST']
+    config.x.plausible_url = ENV['PLAUSIBLE_URL']
+    config.x.sentry_dns = ENV['SENTRY_DNS']
+    config.x.sentry_csp = ENV['SENTRY_CSP']
+    config.x.force_ssl =
+      ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', true)
 
-    config.x.influx.token      = ENV.fetch('INFLUX_TOKEN', nil)
-    config.x.influx.schema     = ENV.fetch('INFLUX_SCHEMA', 'http')
-    config.x.influx.host       = ENV.fetch('INFLUX_HOST', nil)
-    config.x.influx.port       = ENV.fetch('INFLUX_PORT', 8086)
-    config.x.influx.bucket     = ENV.fetch('INFLUX_BUCKET', nil)
-    config.x.influx.org        = ENV.fetch('INFLUX_ORG', nil)
+    config.x.influx.token = ENV.fetch('INFLUX_TOKEN', nil)
+    config.x.influx.schema = ENV.fetch('INFLUX_SCHEMA', 'http')
+    config.x.influx.host = ENV.fetch('INFLUX_HOST', nil)
+    config.x.influx.port = ENV.fetch('INFLUX_PORT', 8086)
+    config.x.influx.bucket = ENV.fetch('INFLUX_BUCKET', nil)
+    config.x.influx.org = ENV.fetch('INFLUX_ORG', nil)
 
-    config.x.installation_date = Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
+    config.x.installation_date =
+      Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
     config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
-    config.x.feed_in_tariff    = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
+    config.x.feed_in_tariff = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
 
     # Set the default layout to app/views/layouts/component_preview.html.slim
     config.view_component.default_preview_layout = 'component_preview'

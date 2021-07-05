@@ -7,10 +7,10 @@ module InfluxHelper
       data: {
         name: name,
         fields: fields,
-        time: time.to_i
+        time: time.to_i,
       },
       bucket: ENV['INFLUX_BUCKET'],
-      org:    ENV['INFLUX_ORG']
+      org: ENV['INFLUX_ORG'],
     )
   end
 

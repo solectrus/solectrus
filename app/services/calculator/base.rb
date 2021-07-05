@@ -40,7 +40,7 @@ class Calculator::Base
   end
 
   def grid_power
-    [ grid_power_plus, grid_power_minus ].compact.max
+    [grid_power_plus, grid_power_minus].compact.max
   end
 
   # House
@@ -52,7 +52,7 @@ class Calculator::Base
   def grid_quote
     return if consumption.zero?
 
-    [ 100.0 * grid_power_plus / consumption, 100].min
+    [100.0 * grid_power_plus / consumption, 100].min
   end
 
   def autarky
@@ -72,7 +72,7 @@ class Calculator::Base
   end
 
   def bat_power
-    [ bat_power_plus, bat_power_minus ].max
+    [bat_power_plus, bat_power_minus].max
   end
 
   def bat_power_field

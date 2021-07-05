@@ -2,9 +2,7 @@ class ChartsController < ApplicationController
   include ParamsHandling
 
   def index
-    respond_to do |format|
-      format.json { render json: chart_options }
-    end
+    respond_to { |format| format.json { render json: chart_options } }
   end
 
   private
@@ -31,15 +29,21 @@ class ChartsController < ApplicationController
           fill: 'origin',
           backgroundColor: 'rgba(79, 70, 229, 0.5)',
           borderColor: '#4F46E5',
-          borderWidth: 2
-        }
-      ]
+          borderWidth: 2,
+        },
+      ],
     }
   end
 
   def chart_options_day_inverter_power
-    chart_power = PowerChart.new(measurements: %w[SENEC], fields: [:inverter_power]).day(timestamp)
-    chart_forecast = PowerChart.new(measurements: %w[Forecast], fields: [:watt]).day(timestamp, filled: true)
+    chart_power =
+      PowerChart
+        .new(measurements: %w[SENEC], fields: [:inverter_power])
+        .day(timestamp)
+    chart_forecast =
+      PowerChart
+        .new(measurements: %w[Forecast], fields: [:watt])
+        .day(timestamp, filled: true)
 
     {
       labels: chart_power.map(&:first).presence || chart_forecast.map(&:first),
@@ -50,23 +54,25 @@ class ChartsController < ApplicationController
           fill: 'origin',
           backgroundColor: 'rgba(79, 70, 229, 0.5)',
           borderColor: '#4F46E5',
-          borderWidth: 2
+          borderWidth: 2,
         },
-
         {
           label: I18n.t('calculator.forecast'),
           data: chart_forecast.map { |element| element[1] },
           fill: 'origin',
           backgroundColor: '#dddddd',
           borderColor: '#dddddd',
-          borderWidth: 2
-        }
-      ]
+          borderWidth: 2,
+        },
+      ],
     }
   end
 
   def chart_options_range
-    chart = PowerChart.new(measurements: ['SENEC'], fields: [field]).public_send(timeframe, timestamp)
+    chart =
+      PowerChart
+        .new(measurements: ['SENEC'], fields: [field])
+        .public_send(timeframe, timestamp)
 
     {
       labels: chart.map { |element| element[0] },
@@ -78,29 +84,30 @@ class ChartsController < ApplicationController
           fill: 'origin',
           backgroundColor: 'rgba(79, 70, 229, 0.5)',
           borderColor: '#4F46E5',
-          borderWidth: 2
-        }
-      ]
+          borderWidth: 2,
+        },
+      ],
     }
   end
 
   def average(chart) # rubocop:disable Metrics/CyclomaticComplexity
-    length_completed = if timestamp == default_timestamp
-      # In current range: Use only items from the past
-      case timeframe
-      when 'week'
-        Time.current.wday
-      when 'month'
-        Time.current.day - 1
-      when 'year'
-        Time.current.month - 1
-      when 'all'
+    length_completed =
+      if timestamp == default_timestamp
+        # In current range: Use only items from the past
+        case timeframe
+        when 'week'
+          Time.current.wday
+        when 'month'
+          Time.current.day - 1
+        when 'year'
+          Time.current.month - 1
+        when 'all'
+          chart.length
+        end
+      else
+        # Not in current range, so use all items
         chart.length
       end
-    else
-      # Not in current range, so use all items
-      chart.length
-    end
     return if length_completed.nil? || length_completed.zero?
 
     chart.sum(&:second) / length_completed

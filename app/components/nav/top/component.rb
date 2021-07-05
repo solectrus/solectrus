@@ -14,7 +14,15 @@ class Nav::Top::Component < ViewComponent::Base
     end
 
     def call
-      classes = %w[text-white rounded-md py-2 px-3 uppercase tracking-wider block]
+      classes = %w[
+        text-white
+        rounded-md
+        py-2
+        px-3
+        uppercase
+        tracking-wider
+        block
+      ]
 
       if current?
         link_to @name,

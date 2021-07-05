@@ -8,12 +8,12 @@ jobs:
     services:
       influxdb:
         image: influxdb:2.0.7-alpine
-        ports: ["8086:8086"]
+        ports: ['8086:8086']
         env:
           INFLUXD_HTTP_BIND_ADDRESS: :8086
       postgres:
         image: postgres:13-alpine
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
 
