@@ -1,10 +1,23 @@
 {
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+
+  "files.trimTrailingWhitespace": true,
   "files.watcherExclude": {
     "**/tmp/**": true
   },
+
   "search.exclude": {
-    "**/tmp": true
+    "**/tmp": true,
+    "**/public": true,
+    "**/node_modules": true
   },
-  "files.exclude": {
+
+  "eslint.validate": ["javascript"],
+
+  "[ruby]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
   }
 }

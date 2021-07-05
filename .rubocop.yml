@@ -1,3 +1,6 @@
+inherit_from:
+  - node_modules/@prettier/plugin-ruby/rubocop.yml
+
 require:
   - rubocop-performance
   - rubocop-rails
@@ -6,11 +9,11 @@ require:
 AllCops:
   TargetRubyVersion: 3.0
   Exclude:
+    - app/packs/**/*
     - bin/**/*
     - coverage/**/*
     - db/schema.rb
     - log/**/*
-    - minio/**/*
     - node_modules/**/*
     - public/**/*
     - tmp/**/*
