@@ -263,7 +263,7 @@ GEM
       rubocop-ast (>= 1.1.0)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.4)
-    rubyzip (2.3.1)
+    rubyzip (2.3.2)
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
