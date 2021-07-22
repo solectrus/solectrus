@@ -24,7 +24,7 @@
     "postcss": "^8.3.6",
     "postcss-loader": "^6.1.1",
     "stimulus": "^2.0.0",
-    "tailwindcss": "^2.2.4",
+    "tailwindcss": "^2.2.6",
     "tippy.js": "^6.3.1",
     "webpack": "^5.45.1",
     "webpack-cli": "^4.7.2"
