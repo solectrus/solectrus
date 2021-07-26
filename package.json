@@ -12,7 +12,7 @@
     "@tailwindcss/aspect-ratio": "^0.2.1",
     "@tailwindcss/typography": "^0.4.1",
     "autoprefixer": "^10.3.1",
-    "chart.js": "^3.4.1",
+    "chart.js": "^3.5.0",
     "chartjs-adapter-date-fns": "^2.0.0",
     "chartjs-plugin-annotation": "^1.0.2",
     "css-loader": "^6.2.0",
