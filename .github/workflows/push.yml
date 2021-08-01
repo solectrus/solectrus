@@ -69,6 +69,7 @@ jobs:
 
       - name: Send test coverage to CodeClimate
         uses: paambaati/codeclimate-action@v2.7.5
+        if: ${{ env.CC_TEST_REPORTER_ID }}
         with:
           coverageCommand: true
 
