@@ -14,7 +14,7 @@ class Flow::Component < ViewComponent::Base
   attr_accessor :value, :signal
 
   def quote
-    [ @value.to_f / MAXIMUM, 1 ].min
+    [@value.to_f / MAXIMUM, 1].min
   end
 
   def ease_out_cubic

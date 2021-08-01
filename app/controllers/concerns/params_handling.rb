@@ -5,7 +5,8 @@ module ParamsHandling
     private
 
     helper_method def permitted_params
-      @permitted_params ||= params.permit(:field, :timeframe, :timestamp, :chart)
+      @permitted_params ||=
+        params.permit(:field, :timeframe, :timestamp, :chart)
     end
 
     helper_method def timeframe
@@ -32,20 +33,29 @@ module ParamsHandling
 
     def default_timestamp
       case timeframe
-      when 'now', 'day' then Date.current
-      when 'week'       then Date.current.beginning_of_week
-      when 'month'      then Date.current.beginning_of_month
-      when 'year'       then Date.current.beginning_of_year
-      when 'all'        then Rails.configuration.x.installation_date.beginning_of_year
+      when 'now', 'day'
+        Date.current
+      when 'week'
+        Date.current.beginning_of_week
+      when 'month'
+        Date.current.beginning_of_month
+      when 'year'
+        Date.current.beginning_of_year
+      when 'all'
+        Rails.configuration.x.installation_date.beginning_of_year
       end
     end
 
     def min_timestamp
       case timeframe
-      when 'day'   then Rails.configuration.x.installation_date.beginning_of_day
-      when 'week'  then Rails.configuration.x.installation_date.beginning_of_week
-      when 'month' then Rails.configuration.x.installation_date.beginning_of_month
-      when 'year'  then Rails.configuration.x.installation_date.beginning_of_year
+      when 'day'
+        Rails.configuration.x.installation_date.beginning_of_day
+      when 'week'
+        Rails.configuration.x.installation_date.beginning_of_week
+      when 'month'
+        Rails.configuration.x.installation_date.beginning_of_month
+      when 'year'
+        Rails.configuration.x.installation_date.beginning_of_year
       end
     end
 
@@ -58,25 +68,34 @@ module ParamsHandling
     helper_method def corresponding_day
       return unless timestamp
 
-      [ Rails.configuration.x.installation_date, timestamp.to_date ].max
+      [Rails.configuration.x.installation_date, timestamp.to_date].max
     end
 
     helper_method def corresponding_month
       return unless timestamp
 
-      [ Rails.configuration.x.installation_date.beginning_of_month, timestamp.beginning_of_month.to_date ].max
+      [
+        Rails.configuration.x.installation_date.beginning_of_month,
+        timestamp.beginning_of_month.to_date,
+      ].max
     end
 
     helper_method def corresponding_year
       return unless timestamp
 
-      [ Rails.configuration.x.installation_date.beginning_of_year, timestamp.beginning_of_year.to_date ].max
+      [
+        Rails.configuration.x.installation_date.beginning_of_year,
+        timestamp.beginning_of_year.to_date,
+      ].max
     end
 
     helper_method def corresponding_week
       return unless timestamp
 
-      [ Rails.configuration.x.installation_date.beginning_of_week, timestamp.beginning_of_week.to_date ].max
+      [
+        Rails.configuration.x.installation_date.beginning_of_week,
+        timestamp.beginning_of_week.to_date,
+      ].max
     end
   end
 end

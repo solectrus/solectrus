@@ -12,16 +12,25 @@ class Top10Controller < ApplicationController
       {
         name: I18n.t("senec.#{field}"),
         field: field,
-        href: url_for(**permitted_params.merge(field: field), only_path: true)
+        href: url_for(**permitted_params.merge(field: field), only_path: true),
       }
     end
   end
 
   helper_method def timeframe_items
     [
-      { name: t('calculator.day'),   href: url_for(permitted_params.merge(timeframe: 'day')) },
-      { name: t('calculator.month'), href: url_for(permitted_params.merge(timeframe: 'month')) },
-      { name: t('calculator.year'),  href: url_for(permitted_params.merge(timeframe: 'year')) }
+      {
+        name: t('calculator.day'),
+        href: url_for(permitted_params.merge(timeframe: 'day')),
+      },
+      {
+        name: t('calculator.month'),
+        href: url_for(permitted_params.merge(timeframe: 'month')),
+      },
+      {
+        name: t('calculator.year'),
+        href: url_for(permitted_params.merge(timeframe: 'year')),
+      },
     ]
   end
 end

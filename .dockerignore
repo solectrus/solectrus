@@ -13,6 +13,8 @@
 .vscode
 .yarnclean
 .slim-lint.yml
+.prettierignore
+.prettierrc.json
 **/*.DS_Store
 Dockerfile
 Procfile*

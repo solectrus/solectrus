@@ -7,13 +7,13 @@ jobs:
 
     services:
       influxdb:
-        image: influxdb:2.0.6-alpine
-        ports: ["8086:8086"]
+        image: influxdb:2.0.7-alpine
+        ports: ['8086:8086']
         env:
-          INFLUXD_HTTP_BIND_ADDRESS: :8086
+          INFLUXD_HTTP_BIND_ADDRESS: ':8086'
       postgres:
         image: postgres:13-alpine
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
 
@@ -33,12 +33,6 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Lint with RuboCop
-        run: bundle exec rubocop --parallel
-
-      - name: Lint with SlimLint
-        run: bundle exec slim-lint .
-
       - name: Get Yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -55,6 +49,12 @@ jobs:
       - name: Install Yarn packages
         run: yarn install --frozen-lockfile
 
+      - name: Lint with RuboCop
+        run: bundle exec rubocop --parallel
+
+      - name: Lint with SlimLint
+        run: bundle exec slim-lint .
+
       - name: Setup InfluxDB
         run: bin/influxdb-onboarding.sh
 
@@ -69,6 +69,7 @@ jobs:
 
       - name: Send test coverage to CodeClimate
         uses: paambaati/codeclimate-action@v2.7.5
+        if: ${{ env.CC_TEST_REPORTER_ID }}
         with:
           coverageCommand: true
 
@@ -114,8 +115,8 @@ jobs:
       - name: Push the image tagged with version to the container registry
         if: startsWith(github.ref, 'refs/tags')
         run: |
-          docker tag app ghcr.io/${{ github.repository }}:${GITHUB_REF/refs\/tags\//}
-          docker push ghcr.io/${{ github.repository }}/:${GITHUB_REF/refs\/tags\//}
+          docker tag app ghcr.io/${{ github.repository }}:${GITHUB_REF#refs/tags/}
+          docker push ghcr.io/${{ github.repository }}/:${GITHUB_REF#refs/tags/}
 
       - name: Send deploy notification
         env:

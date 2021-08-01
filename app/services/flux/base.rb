@@ -6,7 +6,7 @@ class Flux::Base
       bucket: influx_bucket,
       org: influx_org,
       precision: InfluxDB2::WritePrecision::SECOND,
-      use_ssl: influx_schema == 'https'
+      use_ssl: influx_schema == 'https',
     )
   end
 

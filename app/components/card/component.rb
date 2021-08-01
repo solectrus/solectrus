@@ -12,11 +12,8 @@ class Card::Component < ViewComponent::Base
   attr_accessor :field, :signal, :klasses, :value
 
   def url_params
-    @url_params ||= {
-      field:     field,
-      timeframe: timeframe,
-      timestamp: timestamp
-    }.compact
+    @url_params ||=
+      { field: field, timeframe: timeframe, timestamp: timestamp }.compact
   end
 
   def timeframe
@@ -51,12 +48,14 @@ class Card::Component < ViewComponent::Base
 
   def icon_class
     {
-      'inverter_power'       => 'sun',
+      'inverter_power' => 'sun',
       'wallbox_charge_power' => 'car',
-      'house_power'          => 'home',
-      'grid_power_plus'      => 'plug',
-      'grid_power_minus'     => 'plug'
-    }[field]
+      'house_power' => 'home',
+      'grid_power_plus' => 'plug',
+      'grid_power_minus' => 'plug',
+    }[
+      field
+    ]
   end
 
   def signal_class
@@ -71,9 +70,12 @@ class Card::Component < ViewComponent::Base
 
   def percent_green
     case signal
-    when true then 100
-    when false then 0
-    else signal
+    when true
+      100
+    when false
+      0
+    else
+      signal
     end
   end
 

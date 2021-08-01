@@ -3,19 +3,21 @@ class Calculator::Range < Calculator::Base
     super()
     raise ArgumentError unless timeframe.to_s.in?(%w[day week month year all])
 
-    build_context PowerSum.new(
-      measurements: %w[SENEC Forecast],
-      fields: [
-        :inverter_power,
-        :house_power,
-        :wallbox_charge_power,
-        :grid_power_plus,
-        :grid_power_minus,
-        :bat_power_minus,
-        :bat_power_plus,
-        :watt
-      ]
-    ).public_send(timeframe, timestamp)
+    build_context PowerSum
+                    .new(
+                      measurements: %w[SENEC Forecast],
+                      fields: %i[
+                        inverter_power
+                        house_power
+                        wallbox_charge_power
+                        grid_power_plus
+                        grid_power_minus
+                        bat_power_minus
+                        bat_power_plus
+                        watt
+                      ],
+                    )
+                    .public_send(timeframe, timestamp)
   end
 
   def forecast_quality
@@ -57,7 +59,10 @@ class Calculator::Range < Calculator::Base
   def battery_profit
     return unless bat_power_minus && bat_power_plus
 
-    (bat_power_minus * electricity_price / 1000.0 - bat_power_plus * feed_in_tariff / 1000.0).round(2)
+    (
+      bat_power_minus * electricity_price / 1000.0 -
+        bat_power_plus * feed_in_tariff / 1000.0
+    ).round(2)
   end
 
   def battery_profit_percent

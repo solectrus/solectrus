@@ -8,6 +8,11 @@ class PagesController < ApplicationController
   private
 
   def valid_page?
-    File.exist? Rails.root.join('app', 'views', 'pages', "#{params[:page]}.html.slim")
+    File.exist? Rails.root.join(
+                  'app',
+                  'views',
+                  'pages',
+                  "#{params[:page]}.html.slim",
+                )
   end
 end

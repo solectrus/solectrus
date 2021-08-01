@@ -54,7 +54,7 @@ export default class extends Controller {
         }
 
         // Format numbers on y-axis
-        options.scales.y.ticks.callback = function(value, index, values) {
+        options.scales.y.ticks.callback = function (value, index, values) {
           return that.formattedNumber(value)
         }
 

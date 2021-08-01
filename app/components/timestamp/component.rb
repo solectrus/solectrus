@@ -11,23 +11,33 @@ class Timestamp::Component < ViewComponent::Base
   end
 
   def previous_timestamp
-    result = case timeframe
-             when 'day'   then timestamp - 1.day
-             when 'week'  then timestamp - 1.week
-             when 'month' then timestamp - 1.month
-             when 'year'  then timestamp - 1.year
-    end
+    result =
+      case timeframe
+      when 'day'
+        timestamp - 1.day
+      when 'week'
+        timestamp - 1.week
+      when 'month'
+        timestamp - 1.month
+      when 'year'
+        timestamp - 1.year
+      end
 
     helpers.out_of_range?(result) ? nil : result
   end
 
   def next_timestamp
-    result = case timeframe
-             when 'day'   then timestamp + 1.day
-             when 'week'  then timestamp + 1.week
-             when 'month' then timestamp + 1.month
-             when 'year'  then timestamp + 1.year
-    end
+    result =
+      case timeframe
+      when 'day'
+        timestamp + 1.day
+      when 'week'
+        timestamp + 1.week
+      when 'month'
+        timestamp + 1.month
+      when 'year'
+        timestamp + 1.year
+      end
 
     helpers.out_of_range?(result) ? nil : result
   end

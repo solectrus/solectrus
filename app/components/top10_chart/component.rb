@@ -7,15 +7,19 @@ class Top10Chart::Component < ViewComponent::Base
   attr_accessor :field, :timeframe
 
   def top10
-    @top10 ||= PowerTop10.new(fields: [ field ], measurements: [ 'SENEC' ])
+    @top10 ||= PowerTop10.new(fields: [field], measurements: ['SENEC'])
   end
 
   def top10_for_timeframe
-    @top10_for_timeframe ||= case timeframe
-                             when 'day'   then top10.days
-                             when 'month' then top10.months
-                             when 'year'  then top10.years
-    end
+    @top10_for_timeframe ||=
+      case timeframe
+      when 'day'
+        top10.days
+      when 'month'
+        top10.months
+      when 'year'
+        top10.years
+      end
   end
 
   def maximum
@@ -56,37 +60,43 @@ class Top10Chart::Component < ViewComponent::Base
     root_path(
       timeframe: timeframe,
       field: field,
-      timestamp: corresponding_date(record[:date])
+      timestamp: corresponding_date(record[:date]),
     )
   end
 
   def corresponding_month(value)
     [
       Rails.configuration.x.installation_date.beginning_of_month,
-      value.beginning_of_month
+      value.beginning_of_month,
     ].max
   end
 
   def corresponding_year(value)
     [
       Rails.configuration.x.installation_date.beginning_of_year,
-      value.beginning_of_year
+      value.beginning_of_year,
     ].max
   end
 
   def corresponding_date(value)
     case timeframe
-    when 'day'   then value
-    when 'month' then corresponding_month(value)
-    when 'year'  then corresponding_year(value)
+    when 'day'
+      value
+    when 'month'
+      corresponding_month(value)
+    when 'year'
+      corresponding_year(value)
     end
   end
 
   def formatted_date(value)
     case timeframe
-    when 'day'   then l(value, format: :default)
-    when 'month' then l(value, format: :month)
-    when 'year'  then value.year.to_s
+    when 'day'
+      l(value, format: :default)
+    when 'month'
+      l(value, format: :month)
+    when 'year'
+      value.year.to_s
     end
   end
 end
