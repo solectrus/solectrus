@@ -158,7 +158,7 @@ GEM
     msgpack (1.4.2)
     multipart-post (2.1.1)
     nenv (0.3.0)
-    nio4r (2.5.7)
+    nio4r (2.5.8)
     nokogiri (1.12.0)
       mini_portile2 (~> 2.6.1)
       racc (~> 1.4)
