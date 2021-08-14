@@ -1,31 +1,23 @@
 {
   "version": "2.0.0",
-  "tasks": [{
+  "tasks": [
+    {
       "label": "foreman",
       "command": "foreman",
-      "args": [
-        "start"
-      ],
+      "args": ["start"],
       "isBackground": true
     },
     {
       "label": "guard-rspec",
       "command": "rbenv",
-      "args": [
-        "exec",
-        "bundle",
-        "exec",
-        "guard"
-      ],
+      "args": ["exec", "bundle", "exec", "guard"],
       "isBackground": true,
       "problemMatcher": {
         "applyTo": "allDocuments",
         "owner": "Ruby",
-        "fileLocation": [
-          "relative",
-          "${workspaceRoot}"
-        ],
-        "pattern": [{
+        "fileLocation": ["relative", "${workspaceRoot}"],
+        "pattern": [
+          {
             "regexp": "^(Error|Warning|Info):.*$",
             "severity": 1
           },
