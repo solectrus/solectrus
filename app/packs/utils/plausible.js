@@ -1,8 +1,8 @@
-import Plausible from "plausible-tracker";
+import Plausible from 'plausible-tracker';
 
-document.addEventListener("turbo:load", () => {
+document.addEventListener('turbo:load', () => {
   const plausibleUrl = document.querySelector(
-    'meta[name="plausible-url"]'
+    'meta[name="plausible-url"]',
   ).content;
   if (plausibleUrl) {
     let plausible = Plausible({

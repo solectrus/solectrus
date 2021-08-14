@@ -14,6 +14,8 @@ html lang="de"
     meta name="app-host" content= Rails.configuration.x.app_host
     meta name="sentry-dns" content= Rails.configuration.x.sentry_dns
     meta name="release" content= Rails.configuration.x.git.commit_sha
+    meta name="date" content= Rails.configuration.x.git.commit_time
+    meta name="author" content="Georg Ledermann"
 
     link rel="manifest" href="/manifest.webmanifest"
     link rel="icon" type="image/png" sizes="196x196" href="/favicon-196.png"
@@ -46,7 +48,6 @@ html lang="de"
     link rel="apple-touch-startup-image" href="/apple-splash-1136-640.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
 
     = csrf_meta_tags
-    = csp_meta_tag
 
     = stylesheet_pack_tag 'application', media: 'all', 'data-turbo-track': 'reload'
     = javascript_pack_tag 'application', 'data-turbo-track': 'reload', defer: true
@@ -69,7 +70,7 @@ html lang="de"
 
     footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
       div
-        span.tracking-wider SOLECTRUS
+        span.tracking-wider Solectrus
         = link_to Rails.configuration.x.git.home,
                   target: '_blank',
                   rel: 'noopener',

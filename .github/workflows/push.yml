@@ -7,7 +7,7 @@ jobs:
 
     services:
       influxdb:
-        image: influxdb:2.0.7-alpine
+        image: influxdb:2.0.8-alpine
         ports: ['8086:8086']
         env:
           INFLUXD_HTTP_BIND_ADDRESS: ':8086'
@@ -115,8 +115,8 @@ jobs:
       - name: Push the image tagged with version to the container registry
         if: startsWith(github.ref, 'refs/tags')
         run: |
-          docker tag app ghcr.io/${{ github.repository }}:${GITHUB_REF#refs/tags/}
-          docker push ghcr.io/${{ github.repository }}/:${GITHUB_REF#refs/tags/}
+          docker tag app ghcr.io/${{ github.repository }}:${GITHUB_REF##*/}
+          docker push ghcr.io/${{ github.repository }}/:${GITHUB_REF##*/}
 
       - name: Send deploy notification
         env:

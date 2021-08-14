@@ -3,7 +3,7 @@
 // a relevant structure within app/packs and only use these pack files to reference
 // that code so it'll be compiled.
 
-import * as Sentry from "@sentry/browser";
+import * as Sentry from '@sentry/browser';
 
 const sentry_dns = document.querySelector('meta[name="sentry-dns"]').content;
 if (sentry_dns) {
@@ -16,15 +16,15 @@ if (sentry_dns) {
   });
 }
 
-import { Turbo } from "@hotwired/turbo-rails";
+import { Turbo } from '@hotwired/turbo-rails';
 window.Turbo = Turbo;
 
-import "channels";
-import "stylesheets/application.css";
-import "controllers";
-import "components";
+import 'channels';
+import 'stylesheets/application.css';
+import 'controllers';
+import 'components';
 
-import "utils/plausible";
+import 'utils/plausible';
 
 // import all image files in a folder:
-require.context("../images", true);
+require.context('../images', true);
