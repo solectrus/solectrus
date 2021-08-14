@@ -116,7 +116,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags')
         run: |
           docker tag app ghcr.io/${{ github.repository }}:${GITHUB_REF##*/}
-          docker push ghcr.io/${{ github.repository }}/:${GITHUB_REF##*/}
+          docker push ghcr.io/${{ github.repository }}:${GITHUB_REF##*/}
 
       - name: Send deploy notification
         env:
