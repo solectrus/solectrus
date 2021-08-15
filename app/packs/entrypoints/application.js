@@ -7,11 +7,11 @@ import * as Sentry from '@sentry/browser';
 
 const sentry_dns = document.querySelector('meta[name="sentry-dns"]').content;
 if (sentry_dns) {
-  const release = document.querySelector('meta[name="release"]').content;
+  const version = document.querySelector('meta[name="version"]').content;
 
   Sentry.init({
     dsn: sentry_dns,
-    release: release,
+    release: version,
     autoSessionTracking: false,
   });
 }
