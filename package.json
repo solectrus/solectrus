@@ -32,7 +32,7 @@
   "version": "0.1.0",
   "devDependencies": {
     "@prettier/plugin-ruby": "^1.6.1",
-    "@webpack-cli/serve": "^1.5.1",
+    "@webpack-cli/serve": "^1.5.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "prettier": "^2.3.2",
