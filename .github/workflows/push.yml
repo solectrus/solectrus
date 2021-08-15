@@ -124,3 +124,12 @@ jobs:
           DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
         if: env.DEPLOY_HOOK != null
         run: curl -X POST ${{ env.DEPLOY_HOOK }}
+
+      - name: Notify Honeybadger about deployment
+        env:
+          DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
+          HONEYBADGER_API_KEY: ${{ secrets.HONEYBADGER_API_KEY }}
+        if: env.DEPLOY_HOOK != null && env.HONEYBADGER_API_KEY != null
+        uses: honeybadger-io/github-notify-deploy-action@v1
+        with:
+          api_key: ${{ secrets.HONEYBADGER_API_KEY }}

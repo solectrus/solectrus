@@ -37,11 +37,8 @@ gem 'lograge'
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
 gem 'influxdb-client'
 
-# A gem that provides a client interface for the Sentry error logger (https://github.com/getsentry/sentry-ruby)
-gem 'sentry-ruby'
-
-# A gem that provides Rails integration for the Sentry error logger (https://github.com/getsentry/sentry-ruby)
-gem 'sentry-rails'
+# Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
+gem 'honeybadger'
 
 # View components for Rails (https://github.com/github/view_component)
 gem 'view_component', require: 'view_component/engine'
