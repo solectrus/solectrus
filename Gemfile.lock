@@ -134,7 +134,7 @@ GEM
     meta-tags (2.15.0)
       actionpack (>= 3.2.0, < 6.2)
     method_source (1.0.0)
-    mini_mime (1.1.0)
+    mini_mime (1.1.1)
     mini_portile2 (2.6.1)
     minitest (5.14.4)
     msgpack (1.4.2)
