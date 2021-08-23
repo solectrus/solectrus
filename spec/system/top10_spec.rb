@@ -22,17 +22,21 @@ describe 'Top10', type: :system, js: true do
     visit '/top10/day/inverter_power'
     expect(page).to have_text(I18n.t('layout.top10').upcase)
 
-    navigate_day
-    navigate_month
     navigate_year
+    navigate_month
+    navigate_day
 
     click_on I18n.t('senec.inverter_power')
     expect(page).to have_text(I18n.t('senec.house_power'))
-    click_on I18n.t('senec.house_power')
 
-    navigate_day
-    navigate_month
+    click_on I18n.t('senec.house_power')
+    within 'button#options-menu' do
+      expect(page).to have_text(I18n.t('senec.house_power'))
+    end
+
     navigate_year
+    navigate_month
+    navigate_day
   end
 
   private
