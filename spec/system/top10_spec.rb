@@ -3,8 +3,16 @@ describe 'Top10', type: :system, js: true do
 
   before do
     (0..11).each do |index|
-      add_influx_point name: 'SENEC', fields: { inverter_power: (index + 1) * 1000 }, time: (beginning + index.month).end_of_month
-      add_influx_point name: 'SENEC', fields: { inverter_power: (index + 1) * 1000 }, time: (beginning + index.month).beginning_of_month
+      add_influx_point name: 'SENEC',
+                       fields: {
+                         inverter_power: (index + 1) * 1000,
+                       },
+                       time: (beginning + index.month).end_of_month
+      add_influx_point name: 'SENEC',
+                       fields: {
+                         inverter_power: (index + 1) * 1000,
+                       },
+                       time: (beginning + index.month).beginning_of_month
     end
 
     add_influx_point name: 'SENEC', fields: { inverter_power: 14_000 }

@@ -3,46 +3,41 @@ describe 'Home', type: :system, js: true do
     add_influx_point(
       name: 'SENEC',
       fields: {
-        inverter_power:       4_000,
-        house_power:          500,
-        bat_power_plus:       0,
-        bat_power_minus:      0,
-        bat_fuel_charge:      40.0,
+        inverter_power: 4_000,
+        house_power: 500,
+        bat_power_plus: 0,
+        bat_power_minus: 0,
+        bat_fuel_charge: 40.0,
         wallbox_charge_power: 0,
-        grid_power_plus:      0,
-        grid_power_minus:     3_500
+        grid_power_plus: 0,
+        grid_power_minus: 3_500,
       },
-      time: 1.hour.ago
+      time: 1.hour.ago,
     )
 
     add_influx_point(
       name: 'Forecast',
       fields: {
-        watt: 4_000
+        watt: 4_000,
       },
-      time: 1.hour.ago
+      time: 1.hour.ago,
     )
 
     add_influx_point(
       name: 'SENEC',
       fields: {
-        inverter_power:       5_000,
-        house_power:          430,
-        bat_power_plus:       2_500,
-        bat_power_minus:      0,
-        bat_fuel_charge:      56.3,
+        inverter_power: 5_000,
+        house_power: 430,
+        bat_power_plus: 2_500,
+        bat_power_minus: 0,
+        bat_fuel_charge: 56.3,
         wallbox_charge_power: 10_000,
-        grid_power_plus:      8_000,
-        grid_power_minus:     0
-      }
+        grid_power_plus: 8_000,
+        grid_power_minus: 0,
+      },
     )
 
-    add_influx_point(
-      name: 'Forecast',
-      fields: {
-        watt: 6_000
-      }
-    )
+    add_influx_point(name: 'Forecast', fields: { watt: 6_000 })
   end
 
   it 'presents data and allows navigation' do
