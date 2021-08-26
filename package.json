@@ -10,7 +10,7 @@
     "@rails/webpacker": "6.0.0-rc.5",
     "@tailwindcss/aspect-ratio": "^0.2.1",
     "@tailwindcss/typography": "^0.4.1",
-    "autoprefixer": "^10.3.2",
+    "autoprefixer": "^10.3.3",
     "chart.js": "^3.5.1",
     "chartjs-adapter-date-fns": "^2.0.0",
     "chartjs-plugin-annotation": "^1.0.2",
