@@ -23,6 +23,7 @@
     "postcss": "^8.3.6",
     "postcss-loader": "^6.1.1",
     "stimulus": "^2.0.0",
+    "style-loader": "^3.2.1",
     "tailwindcss": "^2.2.7",
     "tippy.js": "^6.3.1",
     "webpack": "^5.51.1",
@@ -35,7 +36,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.1",
     "prettier": "^2.3.2",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^4.0.0"
   },
   "babel": {
     "presets": [
