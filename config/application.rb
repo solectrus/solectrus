@@ -43,8 +43,7 @@ module Solectrus
 
     config.x.app_host = ENV['APP_HOST']
     config.x.plausible_url = ENV['PLAUSIBLE_URL']
-    config.x.sentry_dns = ENV['SENTRY_DNS']
-    config.x.sentry_csp = ENV['SENTRY_CSP']
+    config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY']
     config.x.force_ssl =
       ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', true)
 

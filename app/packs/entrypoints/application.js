@@ -3,16 +3,18 @@
 // a relevant structure within app/packs and only use these pack files to reference
 // that code so it'll be compiled.
 
-import * as Sentry from '@sentry/browser';
+import Honeybadger from '@honeybadger-io/js';
 
-const sentry_dns = document.querySelector('meta[name="sentry-dns"]').content;
-if (sentry_dns) {
-  const release = document.querySelector('meta[name="release"]').content;
+const honeybadgerApiKey = document.querySelector(
+  'meta[name="honeybadger-api-key"]',
+).content;
+if (honeybadgerApiKey) {
+  const version = document.querySelector('meta[name="version"]').content;
 
-  Sentry.init({
-    dsn: sentry_dns,
-    release: release,
-    autoSessionTracking: false,
+  Honeybadger.configure({
+    apiKey: honeybadgerApiKey,
+    environment: 'production',
+    revision: version,
   });
 }
 

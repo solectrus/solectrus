@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.0.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
+gem 'rails', '~> 6.1.4', '>= 6.1.4.1'
 
 # The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
 gem 'turbo-rails'
@@ -19,7 +19,7 @@ gem 'puma', '~> 5.0'
 gem 'redis'
 
 # Use webpack to manage app-like JavaScript modules in Rails (https://github.com/rails/webpacker)
-gem 'webpacker', '6.0.0.beta.7'
+gem 'webpacker', '6.0.0.rc.5'
 
 # Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
 gem 'bootsnap', '>= 1.4.4', require: false
@@ -37,11 +37,8 @@ gem 'lograge'
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
 gem 'influxdb-client'
 
-# A gem that provides a client interface for the Sentry error logger (https://github.com/getsentry/sentry-ruby)
-gem 'sentry-ruby'
-
-# A gem that provides Rails integration for the Sentry error logger (https://github.com/getsentry/sentry-ruby)
-gem 'sentry-rails'
+# Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
+gem 'honeybadger'
 
 # View components for Rails (https://github.com/github/view_component)
 gem 'view_component', require: 'view_component/engine'

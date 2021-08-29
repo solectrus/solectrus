@@ -23,8 +23,8 @@ Rails
           :self,
           Rails.configuration.x.plausible_url.presence,
           (
-            if Rails.configuration.x.sentry_dns
-              URI.parse(Rails.configuration.x.sentry_dns).host
+            if Rails.configuration.x.honeybadger.api_key
+              'https://api.honeybadger.io'
             end
           ),
         ].compact,
@@ -36,8 +36,10 @@ Rails
     policy.form_action :self
 
     # Specify URI for violation reports
-    if Rails.configuration.x.sentry_csp
-      policy.report_uri(Rails.configuration.x.sentry_csp)
+    if Rails.configuration.x.honeybadger.api_key
+      policy.report_uri(
+        "https://api.honeybadger.io/v1/browser/csp?api_key=#{Rails.configuration.x.honeybadger.api_key}&report_only=true",
+      )
     end
   end
 

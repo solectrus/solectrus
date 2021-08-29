@@ -5,14 +5,13 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "@hotwired/turbo-rails": "^7.0.0-rc.1",
-    "@rails/actioncable": "^6.1.4",
-    "@rails/webpacker": "6.0.0-beta.7",
-    "@sentry/browser": "^6.11.0",
+    "@honeybadger-io/js": "^3.2.3",
+    "@hotwired/turbo-rails": "^7.0.0-rc.2",
+    "@rails/webpacker": "6.0.0-rc.5",
     "@tailwindcss/aspect-ratio": "^0.2.1",
     "@tailwindcss/typography": "^0.4.1",
-    "autoprefixer": "^10.3.1",
-    "chart.js": "^3.5.0",
+    "autoprefixer": "^10.3.3",
+    "chart.js": "^3.5.1",
     "chartjs-adapter-date-fns": "^2.0.0",
     "chartjs-plugin-annotation": "^1.0.2",
     "css-loader": "^6.2.0",
@@ -24,19 +23,20 @@
     "postcss": "^8.3.6",
     "postcss-loader": "^6.1.1",
     "stimulus": "^2.0.0",
-    "tailwindcss": "^2.2.7",
+    "style-loader": "^3.2.1",
+    "tailwindcss": "^2.2.8",
     "tippy.js": "^6.3.1",
-    "webpack": "^5.50.0",
-    "webpack-cli": "^4.7.2"
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
   },
   "version": "0.1.0",
   "devDependencies": {
     "@prettier/plugin-ruby": "^1.6.1",
-    "@webpack-cli/serve": "^1.5.1",
+    "@webpack-cli/serve": "^1.5.2",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-prettier": "^3.4.1",
     "prettier": "^2.3.2",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^4.0.0"
   },
   "babel": {
     "presets": [
