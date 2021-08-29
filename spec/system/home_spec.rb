@@ -44,20 +44,20 @@ describe 'Home', type: :system, js: true do
     visit '/'
     expect(page).to have_text(I18n.t('layout.stats').upcase)
 
-    navigate_now
     navigate_days
-
     navigate_now
+
     navigate_weeks
-
     navigate_now
+
     navigate_months
-
     navigate_now
+
     navigate_years
-
     navigate_now
+
     navigate_all
+    navigate_now
   end
 
   private
