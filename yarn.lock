@@ -954,9 +954,9 @@
     fastq "^1.6.0"
 
 "@popperjs/core@^2.8.3":
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.10.0.tgz#6f2f845cbb8f8f897236d9bf221379f14429c608"
-  integrity sha512-QWvCHtYwNIR3C/mxW9jGzOu1gbaZkq/6is2OedayPH7HsxI4CVuVzAZ1PmxRElXLwwwCN7aMjRhxtTAGLEZ8IQ==
+  version "2.10.1"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.10.1.tgz#728ecd95ab207aab8a9a4e421f0422db329232be"
+  integrity sha512-HnUhk1Sy9IuKrxEMdIRCxpIqPw6BFsbYSEUO9p/hNw5sMld/+3OLMWQP80F8/db9qsv3qUjs7ZR5bS/R+iinXw==
 
 "@prettier/plugin-ruby@^1.6.1":
   version "1.6.1"
@@ -2153,9 +2153,9 @@ el-transition@^0.0.7:
   integrity sha512-a23pEa7ahqLmBIEqtxi8CdL6CRLF52ZoAwawDFTD1IDkegrL4iValQAj6IMEgIEXPSrXZtx/Nr/ej6ebov4uoA==
 
 electron-to-chromium@^1.3.811:
-  version "1.3.828"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.828.tgz#0dee975b5bf45d6357af266f350fcdb6736a5e40"
-  integrity sha512-2kx537tLqIVfUpx7LRknZce5PcCyxyBB1YUVOhxlkrDoCqFITGJGYfBAvSxGOdqlp+R9pHeU9Ai/dsHgsqjrvQ==
+  version "1.3.830"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.830.tgz#40e3144204f8ca11b2cebec83cf14c20d3499236"
+  integrity sha512-gBN7wNAxV5vl1430dG+XRcQhD4pIeYeak6p6rjdCtlz5wWNwDad8jwvphe5oi1chL5MV6RNRikfffBBiFuj+rQ==
 
 emojis-list@^3.0.0:
   version "3.0.0"
@@ -4405,9 +4405,9 @@ tapable@^2.0, tapable@^2.1.1, tapable@^2.2.0:
   integrity sha512-FBk4IesMV1rBxX2tfiK8RAmogtWn53puLOQlvO8XuwlgxcYbP4mVPS9Ph4aeamSyyVjOl24aYWAuc8U5kCVwMw==
 
 terser-webpack-plugin@^5.1.3, terser-webpack-plugin@^5.1.4:
-  version "5.2.2"
-  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/-/terser-webpack-plugin-5.2.2.tgz#d7fd08109d47b8d4ec7dbfeee6b18fe1a9142d8c"
-  integrity sha512-/SNcbgI4Igd0E02R6HY7BnKkQBfAdV6BHcYYXk++QrGXpQoayMt79eaOtTrghtdRoDL5w3hgyMh+AippkuOEFg==
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/-/terser-webpack-plugin-5.2.3.tgz#4852c91f709a4ea2bcf324cf48e7e88124cda0cc"
+  integrity sha512-eDbuaDlXhVaaoKuLD3DTNTozKqln6xOG6Us0SzlKG5tNlazG+/cdl8pm9qiF1Di89iWScTI0HcO+CDcf2dkXiw==
   dependencies:
     jest-worker "^27.0.6"
     p-limit "^3.1.0"
