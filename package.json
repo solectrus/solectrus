@@ -35,7 +35,7 @@
     "@webpack-cli/serve": "^1.5.2",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.3.2",
+    "prettier": "^2.4.0",
     "webpack-dev-server": "^4.1.1"
   },
   "babel": {
