@@ -8,4 +8,4 @@
       .table-cell.align-middle.p-2
         .h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
           span class= value_classes(record)
-            = Number::Component.new(value: record[:value]).to_kwh
+            = Number::Component.new(value: record[:value]).to_wh

@@ -2,13 +2,13 @@ dl
   .grid.grid-cols-2.gap-4
     dt
       = I18n.t('senec.grid_power_plus')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.grid_power_plus).to_kwh(max_precision: 3)
+    dd.font-mono.text-right = Number::Component.new(value: calculator.grid_power_plus).to_wh(max_precision: 3, unit: :kilo)
 
   .mt-2.grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&divide;&nbsp;
       = I18n.t('calculator.consumption')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.consumption).to_kwh(max_precision: 3)
+    dd.font-mono.text-right = Number::Component.new(value: calculator.consumption).to_wh(max_precision: 3, unit: :kilo)
 
   hr.my-2
   .grid.grid-cols-2.gap-4

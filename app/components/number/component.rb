@@ -6,16 +6,24 @@ class Number::Component < ViewComponent::Base
 
   attr_accessor :value
 
-  def to_kwh(max_precision: 1)
+  def to_wh(max_precision: 1, unit: nil)
+    raise ArgumentError unless unit.in?([:kilo, :mega, nil])
     return unless value
 
-    styled_number(
-      formatted_number(value / 1_000.0, max_precision: max_precision),
-      unit: 'kWh',
-    )
+    if unit == :mega || unit.nil? && value >= 1_000_000
+      styled_number(
+        formatted_number(value / 1_000.0 / 1_000.0, max_precision: 1),
+        unit: 'MWh',
+      )
+    else
+      styled_number(
+        formatted_number(value / 1_000.0, max_precision: max_precision),
+        unit: 'kWh',
+      )
+    end
   end
 
-  def to_kw(max_precision: 1)
+  def to_w(max_precision: 1)
     return unless value
 
     styled_number(

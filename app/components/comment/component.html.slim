@@ -5,7 +5,7 @@
       'mehr als erwartet
     - elsif timeframe == 'day' && timestamp >= Date.current
       'Erwartet werden
-      =< Number::Component.new(value: calculator.watt).to_kwh(max_precision: 0)
+      =< Number::Component.new(value: calculator.watt).to_wh(max_precision: 0)
     - else
       => Number::Component.new(value: calculator.forecast_quality.abs).to_percent(max_precision: 0, klass: 'text-current')
       'weniger als erwartet
