@@ -44,6 +44,9 @@ jobs:
       - name: Lint with RuboCop
         run: bundle exec rubocop --parallel
 
+      - name: Lint with ESLint
+        run: bin/yarn lint
+
       - name: Lint with SlimLint
         run: bundle exec slim-lint .
 

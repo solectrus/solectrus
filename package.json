@@ -1,6 +1,9 @@
 {
   "name": "solectrus",
   "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js app"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
@@ -31,8 +34,11 @@
   },
   "version": "0.1.0",
   "devDependencies": {
+    "@babel/core": "^7.15.5",
+    "@babel/eslint-parser": "^7.15.4",
     "@prettier/plugin-ruby": "^1.6.1",
     "@webpack-cli/serve": "^1.5.2",
+    "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.0",
