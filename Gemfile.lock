@@ -111,7 +111,7 @@ GEM
     honeybadger (4.9.0)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
-    influxdb-client (1.17.0)
+    influxdb-client (2.0.0)
     launchy (2.5.0)
       addressable (~> 2.7)
     listen (3.7.0)
