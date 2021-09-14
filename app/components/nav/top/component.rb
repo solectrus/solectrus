@@ -10,7 +10,7 @@ class Nav::Top::Component < ViewComponent::Base
     end
 
     def current?
-      current_page?(@href) || @href == root_path && controller_name == 'home'
+      current_page?(@href) || (@href == root_path && controller_name == 'home')
     end
 
     def call

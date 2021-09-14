@@ -23,7 +23,7 @@ class Calculator::Range < Calculator::Base
   def forecast_quality
     return if watt.zero?
 
-    100 * inverter_power / watt - 100
+    (100 * inverter_power / watt) - 100
   end
 
   def paid
@@ -60,8 +60,8 @@ class Calculator::Range < Calculator::Base
     return unless bat_power_minus && bat_power_plus
 
     (
-      bat_power_minus * electricity_price / 1000.0 -
-        bat_power_plus * feed_in_tariff / 1000.0
+      (bat_power_minus * electricity_price / 1000.0) -
+        (bat_power_plus * feed_in_tariff / 1000.0)
     ).round(2)
   end
 

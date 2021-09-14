@@ -10,7 +10,7 @@ class Number::Component < ViewComponent::Base
     raise ArgumentError unless unit.in?([:kilo, :mega, nil])
     return unless value
 
-    if unit == :mega || unit.nil? && value >= 1_000_000
+    if unit == :mega || (unit.nil? && value >= 1_000_000)
       styled_number(
         formatted_number(value / 1_000.0 / 1_000.0, max_precision: 1),
         unit: 'MWh',

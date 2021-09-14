@@ -18,7 +18,7 @@ class Flow::Component < ViewComponent::Base
   end
 
   def ease_out_cubic
-    (quote - 1)**3 + 1
+    ((quote - 1)**3) + 1
   end
 
   def height
