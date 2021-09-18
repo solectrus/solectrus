@@ -35,7 +35,7 @@
   "version": "0.1.0",
   "devDependencies": {
     "@babel/core": "^7.15.5",
-    "@babel/eslint-parser": "^7.15.4",
+    "@babel/eslint-parser": "^7.15.7",
     "@prettier/plugin-ruby": "^1.6.1",
     "@webpack-cli/serve": "^1.5.2",
     "eslint": "^7.32.0",
