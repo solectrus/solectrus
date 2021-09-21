@@ -26,7 +26,7 @@
     "postcss": "^8.3.6",
     "postcss-loader": "^6.1.1",
     "stimulus": "^2.0.0",
-    "style-loader": "^3.2.1",
+    "style-loader": "^3.3.0",
     "tailwindcss": "^2.2.15",
     "tippy.js": "^6.3.1",
     "webpack": "^5.53.0",
