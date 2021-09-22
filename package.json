@@ -23,7 +23,7 @@
     "el-transition": "^0.0.7",
     "mini-css-extract-plugin": "^2.3.0",
     "plausible-tracker": "^0.3.1",
-    "postcss": "^8.3.6",
+    "postcss": "^8.3.7",
     "postcss-loader": "^6.1.1",
     "stimulus": "^2.0.0",
     "style-loader": "^3.3.0",
