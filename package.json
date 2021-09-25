@@ -9,7 +9,9 @@
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@honeybadger-io/js": "^3.2.5",
-    "@hotwired/turbo-rails": "^7.0.0-rc.5",
+    "@hotwired/stimulus": "^3.0.0",
+    "@hotwired/stimulus-webpack-helpers": "^1.0.1",
+    "@hotwired/turbo-rails": "^7.0.0",
     "@rails/webpacker": "6.0.0-rc.5",
     "@tailwindcss/aspect-ratio": "^0.2.1",
     "@tailwindcss/typography": "^0.4.1",
@@ -25,7 +27,7 @@
     "plausible-tracker": "^0.3.1",
     "postcss": "^8.3.7",
     "postcss-loader": "^6.1.1",
-    "stimulus": "^2.0.0",
+    "stimulus": "^3.0.0",
     "style-loader": "^3.3.0",
     "tailwindcss": "^2.2.15",
     "tippy.js": "^6.3.1",
@@ -43,11 +45,6 @@
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1",
     "webpack-dev-server": "^4.2.1"
-  },
-  "babel": {
-    "presets": [
-      "./node_modules/@rails/webpacker/package/babel/preset.js"
-    ]
   },
   "browserslist": [
     "defaults"
