@@ -11,7 +11,7 @@
     "@honeybadger-io/js": "^3.2.5",
     "@hotwired/stimulus": "^3.0.0",
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
-    "@hotwired/turbo-rails": "^7.0.0",
+    "@hotwired/turbo-rails": "^7.0.1",
     "@rails/webpacker": "6.0.0-rc.5",
     "@tailwindcss/aspect-ratio": "^0.2.1",
     "@tailwindcss/typography": "^0.4.1",
