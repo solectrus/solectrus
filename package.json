@@ -27,7 +27,6 @@
     "plausible-tracker": "^0.3.1",
     "postcss": "^8.3.7",
     "postcss-loader": "^6.1.1",
-    "stimulus": "^3.0.0",
     "style-loader": "^3.3.0",
     "tailwindcss": "^2.2.15",
     "tippy.js": "^6.3.1",
