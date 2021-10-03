@@ -42,7 +42,7 @@ jobs:
         run: bin/yarn install --frozen-lockfile
 
       - name: Lint with RuboCop
-        run: bundle exec rubocop --parallel
+        run: bin/rubocop --parallel
 
       - name: Lint with ESLint
         run: bin/yarn lint
