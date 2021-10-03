@@ -1048,10 +1048,10 @@
     webpack-merge "^5.8.0"
     webpack-sources "^3.2.0"
 
-"@tailwindcss/aspect-ratio@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@tailwindcss/aspect-ratio/-/aspect-ratio-0.2.1.tgz#a7ce776688b8218d9559a6918f0bccc58f0f16dd"
-  integrity sha512-aDFi80aHQ3JM3symJ5iKU70lm151ugIGFCI0yRZGpyjgQSDS+Fbe93QwypC1tCEllQE8p0S7TUu20ih1b9IKLA==
+"@tailwindcss/aspect-ratio@^0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@tailwindcss/aspect-ratio/-/aspect-ratio-0.2.2.tgz#68819ac65bc91c1833fec1f4af5cc3bfb3f25922"
+  integrity sha512-yjvYH1qKQapYUVz0rCRAQ29KlKuiDsWJF/0d24lpTPWtTKBimcKWHiAMjZOILbnRd25PogILsbOyFFVOjFd6Ow==
 
 "@tailwindcss/typography@^0.4.1":
   version "0.4.1"
