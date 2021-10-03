@@ -1,7 +1,7 @@
 #! /bin/sh
 
 echo "Starting Solectrus..."
-echo "Git commit: $COMMIT_SHA - $COMMIT_TIME"
+echo "Version: $COMMIT_VERSION - $COMMIT_TIME"
 echo "----------------"
 
 # Wait for InfluxDB

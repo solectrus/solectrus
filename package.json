@@ -1,47 +1,49 @@
 {
   "name": "solectrus",
   "private": true,
+  "scripts": {
+    "lint": "eslint --ext .js app"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "@honeybadger-io/js": "^3.2.3",
-    "@hotwired/turbo-rails": "^7.0.0-rc.2",
+    "@honeybadger-io/js": "^3.2.5",
+    "@hotwired/stimulus": "^3.0.0",
+    "@hotwired/stimulus-webpack-helpers": "^1.0.1",
+    "@hotwired/turbo-rails": "^7.0.1",
     "@rails/webpacker": "6.0.0-rc.5",
-    "@tailwindcss/aspect-ratio": "^0.2.1",
+    "@tailwindcss/aspect-ratio": "^0.2.2",
     "@tailwindcss/typography": "^0.4.1",
-    "autoprefixer": "^10.3.3",
+    "autoprefixer": "^10.3.6",
     "chart.js": "^3.5.1",
     "chartjs-adapter-date-fns": "^2.0.0",
     "chartjs-plugin-annotation": "^1.0.2",
-    "css-loader": "^6.2.0",
+    "css-loader": "^6.3.0",
     "css-minimizer-webpack-plugin": "^3.0.2",
-    "date-fns": "^2.23.0",
+    "date-fns": "^2.24.0",
     "el-transition": "^0.0.7",
-    "mini-css-extract-plugin": "^2.2.0",
+    "mini-css-extract-plugin": "^2.3.0",
     "plausible-tracker": "^0.3.1",
-    "postcss": "^8.3.6",
+    "postcss": "^8.3.8",
     "postcss-loader": "^6.1.1",
-    "stimulus": "^2.0.0",
-    "style-loader": "^3.2.1",
-    "tailwindcss": "^2.2.8",
-    "tippy.js": "^6.3.1",
-    "webpack": "^5.51.1",
+    "style-loader": "^3.3.0",
+    "tailwindcss": "^2.2.16",
+    "tippy.js": "^6.3.2",
+    "webpack": "^5.56.0",
     "webpack-cli": "^4.8.0"
   },
   "version": "0.1.0",
   "devDependencies": {
+    "@babel/core": "^7.15.5",
+    "@babel/eslint-parser": "^7.15.7",
     "@prettier/plugin-ruby": "^1.6.1",
     "@webpack-cli/serve": "^1.5.2",
+    "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.1",
-    "prettier": "^2.3.2",
-    "webpack-dev-server": "^4.0.0"
-  },
-  "babel": {
-    "presets": [
-      "./node_modules/@rails/webpacker/package/babel/preset.js"
-    ]
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1",
+    "webpack-dev-server": "^4.3.0"
   },
   "browserslist": [
     "defaults"

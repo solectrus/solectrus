@@ -1,4 +1,4 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import { config, library, dom } from '@fortawesome/fontawesome-svg-core';
 
 // ------------------------- Add new icons here
