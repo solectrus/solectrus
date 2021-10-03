@@ -11,6 +11,7 @@ jobs:
         ports: ['8086:8086']
         env:
           INFLUXD_HTTP_BIND_ADDRESS: ':8086'
+
       postgres:
         image: postgres:13-alpine
         ports: ['5432:5432']
@@ -59,7 +60,7 @@ jobs:
       - name: Compile assets
         run: bin/rails webpacker:compile
 
-      - name: Run Tests
+      - name: Run tests
         run: bin/rspec
 
       - name: Send test coverage to CodeClimate
@@ -99,6 +100,9 @@ jobs:
         run: |
           export COMMIT_TIME=$(git show -s --format=%cI ${GITHUB_SHA})
           export COMMIT_VERSION=$(git describe)
+          echo $GITHUB_SHA
+          echo $COMMIT_TIME
+          echo $COMMIT_VERSION
           docker buildx build --build-arg COMMIT_TIME --build-arg COMMIT_VERSION -t app .
 
       - name: Push the image tagged as DEVELOP to the container registry
@@ -119,7 +123,7 @@ jobs:
           docker tag app ghcr.io/${{ github.repository }}:${GITHUB_REF##*/}
           docker push ghcr.io/${{ github.repository }}:${GITHUB_REF##*/}
 
-      - name: Send deploy notification
+      - name: Send webhook to start deployment
         env:
           DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
         if: env.DEPLOY_HOOK != null
