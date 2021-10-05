@@ -1330,9 +1330,9 @@ accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
     negotiator "0.6.2"
 
 acorn-import-assertions@^1.7.6:
-  version "1.7.6"
-  resolved "https://registry.yarnpkg.com/acorn-import-assertions/-/acorn-import-assertions-1.7.6.tgz#580e3ffcae6770eebeec76c3b9723201e9d01f78"
-  integrity sha512-FlVvVFA1TX6l3lp8VjDnYYq7R1nyW6x3svAt4nDgrWQ9SBaSh9CnbwgSUTasgfNfOG5HlM1ehugCvM+hjo56LA==
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/acorn-import-assertions/-/acorn-import-assertions-1.8.0.tgz#ba2b5939ce62c238db6d93d81c9b111b29b855e9"
+  integrity sha512-m7VZ3jwz4eK6A4Vtt8Ew1/mNbP24u0FhdyfA7fSvnJR6LMdfOYnmuIrrJAgrYfYJ10F/otaHTtrtrtmHdMNzEw==
 
 acorn-jsx@^5.3.1:
   version "5.3.2"
@@ -1789,9 +1789,9 @@ colorette@^1.2.1:
   integrity sha512-Y2oEozpomLn7Q3HFP7dpww7AtMJplbM9lGZP6RDfHqmbeRjiwRg4n6VM6j4KLmRke85uWEI7JqF17f3pqdRA0g==
 
 colorette@^2.0.10:
-  version "2.0.13"
-  resolved "https://registry.yarnpkg.com/colorette/-/colorette-2.0.13.tgz#c8d3c7a1b57fbddb0b6b681ee51f8105c4e86eaf"
-  integrity sha512-lvA4NbohpqUypdfTtJpb5BwhdUrwi1ACLM6uW3lEj0CWKOXrCSJlexv9IgUUN6obat0YGTSy7wfLDLEfOvzFLA==
+  version "2.0.14"
+  resolved "https://registry.yarnpkg.com/colorette/-/colorette-2.0.14.tgz#1629bb27a13cd719ff37d66bc341234af564122e"
+  integrity sha512-TLcu0rCLNjDIdKGLGqMtPEAOAZmavC1QCX4mEs3P0mrA/DDoU/tA+Y4UQK/862FkX2TTlbyVIkREZNbf7Y9YwA==
 
 commander@^2.20.0:
   version "2.20.3"
@@ -2243,9 +2243,9 @@ el-transition@^0.0.7:
   integrity sha512-a23pEa7ahqLmBIEqtxi8CdL6CRLF52ZoAwawDFTD1IDkegrL4iValQAj6IMEgIEXPSrXZtx/Nr/ej6ebov4uoA==
 
 electron-to-chromium@^1.3.857:
-  version "1.3.858"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.858.tgz#49eb5be51faa85fc85d153e8be527eef7ff99121"
-  integrity sha512-EZ0dTXxTX+rgZC8YDVqKNMyp1Ty3hi1LyQwVBBioV7iiYYjFakokumRsIUhNz5ho+QlNKf7iNY5KLdpdH3yqBw==
+  version "1.3.859"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.859.tgz#4e0abc918e1c22b306ba13b4c3649f78295f5937"
+  integrity sha512-gXRXKNWedfdiKIzwr0Mg/VGCvxXzy+4SuK9hp1BDvfbCwx0O5Ot+2f4CoqQkqEJ3Zj/eAV/GoAFgBVFgkBLXuQ==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -2932,9 +2932,9 @@ import-from@^3.0.0:
     resolve-from "^5.0.0"
 
 import-local@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/import-local/-/import-local-3.0.2.tgz#a8cfd0431d1de4a2199703d003e3e62364fa6db6"
-  integrity sha512-vjL3+w0oulAVZ0hBHnxa/Nm5TAurf9YLQJDhqRZyqb+VKGOB6LU8t9H1Nr5CIo16vh9XfJTOoHwU0B71S557gA==
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/import-local/-/import-local-3.0.3.tgz#4d51c2c495ca9393da259ec66b62e022920211e0"
+  integrity sha512-bE9iaUY3CXH8Cwfan/abDKAxe1KGT9kyGsBPqf6DMK/z0a2OzAsrukeYNgIH6cH5Xr452jb1TUL8rSfCLjZ9uA==
   dependencies:
     pkg-dir "^4.2.0"
     resolve-cwd "^3.0.0"
