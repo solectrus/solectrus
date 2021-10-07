@@ -30,6 +30,7 @@ class PowerTop10 < Flux::Reader
       |> aggregateWindow(every: 1h, fn: mean)
       |> aggregateWindow(every: #{window}, fn: sum)
       |> filter(fn: (r) => r._value > 0)
+      |> keep(columns: ["_time","_field","_value"])
       |> sort(desc: true)
       |> limit(n: #{limit})
     QUERY

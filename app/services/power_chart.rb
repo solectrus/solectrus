@@ -41,6 +41,7 @@ class PowerChart < Flux::Reader
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: #{window}, fn: mean)
+      |> keep(columns: ["_time","_field","_value"])
       #{filled && '|> fill(usePrevious: true)'}
     QUERY
 
@@ -55,6 +56,7 @@ class PowerChart < Flux::Reader
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
       |> aggregateWindow(every: #{window}, fn: sum)
+      |> keep(columns: ["_time","_field","_value"])
     QUERY
 
     to_array(raw)
