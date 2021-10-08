@@ -12,7 +12,7 @@ gem 'turbo-rails'
 # Pg is the Ruby interface to the {PostgreSQL RDBMS}[http://www.postgresql.org/] (https://github.com/ged/ruby-pg)
 gem 'pg', '~> 1.1'
 
-# Puma is a simple, fast, threaded, and highly concurrent HTTP 1.1 server for Ruby/Rack applications (https://puma.io)
+# Puma is a simple, fast, threaded, and highly parallel HTTP 1.1 server for Ruby/Rack applications (https://puma.io)
 gem 'puma', '~> 5.0'
 
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
@@ -40,7 +40,7 @@ gem 'influxdb-client'
 # View components for Rails (https://github.com/github/view_component)
 gem 'view_component', require: 'view_component/engine'
 
-# Collection of SEO helpers for Ruby on Rails. (http://github.com/kpumuk/meta-tags)
+# Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
 
 group :development, :test do
@@ -56,16 +56,16 @@ group :development, :test do
   # rspec-collection_matchers-1.2.0 (https://github.com/rspec/rspec-collection_matchers)
   gem 'rspec-collection_matchers'
 
-  # Automatic Ruby code style checking tool. (https://github.com/rubocop-hq/rubocop)
+  # Automatic Ruby code style checking tool. (https://github.com/rubocop/rubocop)
   gem 'rubocop', require: false
 
-  # Automatic performance checking tool for Ruby code. (https://github.com/rubocop-hq/rubocop-performance)
+  # Automatic performance checking tool for Ruby code. (https://github.com/rubocop/rubocop-performance)
   gem 'rubocop-performance', require: false
 
-  # Automatic Rails code style checking tool. (https://github.com/rubocop-hq/rubocop-rails)
+  # Automatic Rails code style checking tool. (https://github.com/rubocop/rubocop-rails)
   gem 'rubocop-rails', require: false
 
-  # Code style checking for RSpec files (https://github.com/rubocop-hq/rubocop-rspec)
+  # Code style checking for RSpec files (https://github.com/rubocop/rubocop-rspec)
   gem 'rubocop-rspec', require: false
 
   # Rails application preloader (https://github.com/rails/spring)
