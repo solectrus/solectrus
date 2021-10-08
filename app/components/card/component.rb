@@ -51,8 +51,7 @@ class Card::Component < ViewComponent::Base
       'inverter_power' => 'sun',
       'wallbox_charge_power' => 'car',
       'house_power' => 'home',
-      'grid_power_plus' => 'plug',
-      'grid_power_minus' => 'plug',
+      'grid_power' => 'plug',
     }[
       field
     ]

@@ -7,6 +7,8 @@ class ChartsController < ApplicationController
 
   private
 
+  # TODO: Refactor and move code to Chart::Component
+
   def chart_options
     if timeframe == 'now'
       chart_options_now
@@ -17,53 +19,44 @@ class ChartsController < ApplicationController
     end
   end
 
+  def fields
+    case field
+    when 'bat_power'
+      %w[bat_power_plus bat_power_minus]
+    when 'grid_power'
+      %w[grid_power_plus grid_power_minus]
+    else
+      [field]
+    end
+  end
+
   def chart_options_now
-    chart = PowerChart.new(measurements: ['SENEC'], fields: [field]).now
+    chart = PowerChart.new(measurements: ['SENEC'], fields: fields).now
 
     {
-      labels: chart.map { |element| element[0] },
-      datasets: [
-        {
-          label: I18n.t("senec.#{field}"),
-          data: chart.map { |element| element[1] },
-          fill: 'origin',
-          backgroundColor: 'rgba(79, 70, 229, 0.5)',
-          borderColor: '#4F46E5',
-          borderWidth: 2,
-        },
-      ],
+      labels: chart[chart.keys.first].map(&:first),
+      datasets:
+        chart.map do |chart_field, data|
+          {
+            label: I18n.t("senec.#{chart_field}"),
+            data: mapped_data(data, chart_field),
+          }.merge(style_options(chart_field))
+        end,
     }
   end
 
-  def chart_options_day_inverter_power
-    chart_power =
-      PowerChart
-        .new(measurements: %w[SENEC], fields: [:inverter_power])
-        .day(timestamp)
-    chart_forecast =
-      PowerChart
-        .new(measurements: %w[Forecast], fields: [:watt])
-        .day(timestamp, filled: true)
-
+  def chart_options_day_inverter_power # rubocop:disable Metrics/CyclomaticComplexity
     {
-      labels: chart_power.map(&:first).presence || chart_forecast.map(&:first),
+      labels: (chart_inverter_power || chart_forecast)&.map(&:first),
       datasets: [
         {
           label: I18n.t('senec.inverter_power'),
-          data: chart_power.map { |element| element[1] },
-          fill: 'origin',
-          backgroundColor: 'rgba(79, 70, 229, 0.5)',
-          borderColor: '#4F46E5',
-          borderWidth: 2,
-        },
+          data: chart_inverter_power&.map(&:second),
+        }.merge(style_options('inverter_power')),
         {
           label: I18n.t('calculator.forecast'),
-          data: chart_forecast.map { |element| element[1] },
-          fill: 'origin',
-          backgroundColor: '#dddddd',
-          borderColor: '#dddddd',
-          borderWidth: 2,
-        },
+          data: chart_forecast&.map(&:second),
+        }.merge(style_options('forecast')),
       ],
     }
   end
@@ -71,45 +64,72 @@ class ChartsController < ApplicationController
   def chart_options_range
     chart =
       PowerChart
-        .new(measurements: ['SENEC'], fields: [field])
+        .new(measurements: ['SENEC'], fields: fields)
         .public_send(timeframe, timestamp)
 
     {
-      labels: chart.map { |element| element[0] },
-      datasets: [
-        {
-          label: I18n.t("senec.#{field}"),
-          data: chart.map(&:second),
-          average: average(chart),
-          fill: 'origin',
-          backgroundColor: 'rgba(79, 70, 229, 0.5)',
-          borderColor: '#4F46E5',
-          borderWidth: 2,
-        },
-      ],
+      labels: chart[chart.keys.first]&.map(&:first),
+      datasets:
+        chart.map do |chart_field, data|
+          {
+            label: I18n.t("senec.#{chart_field}"),
+            data: mapped_data(data, chart_field),
+          }.merge(style_options(chart_field))
+        end,
     }
   end
 
-  def average(chart) # rubocop:disable Metrics/CyclomaticComplexity
-    length_completed =
-      if timestamp == default_timestamp
-        # In current range: Use only items from the past
-        case timeframe
-        when 'week'
-          Time.current.wday
-        when 'month'
-          Time.current.day - 1
-        when 'year'
-          Time.current.month - 1
-        when 'all'
-          chart.length
-        end
-      else
-        # Not in current range, so use all items
-        chart.length
-      end
-    return if length_completed.nil? || length_completed.zero?
+  def style_options(chart_field)
+    {
+      fill:
+        if chart_field.in?(%w[grid_power_minus grid_power_plus])
+          {
+            target: 'origin',
+            above: 'rgb(16, 185, 129)',
+            below: 'rgb(239, 68, 68)',
+          }
+        else
+          'origin'
+        end,
+      backgroundColor:
+        case chart_field
+        when 'forecast'
+          '#ddd'
+        when 'grid_power_minus'
+          'rgb(16, 185, 129)'
+        when 'grid_power_plus'
+          'rgb(239, 68, 68)'
+        else
+          'rgba(79, 70, 229, 0.5)'
+        end,
+      borderWidth: 0,
+    }
+  end
 
-    chart.sum(&:second) / length_completed
+  def mapped_data(data, chart_field)
+    if fields.length == 1 ||
+         chart_field.in?(%w[grid_power_minus bat_power_plus])
+      data.map(&:second)
+    else
+      data.map { |x| -x.second }
+    end
+  end
+
+  def chart_inverter_power
+    @chart_inverter_power ||=
+      PowerChart
+        .new(measurements: %w[SENEC], fields: %w[inverter_power])
+        .day(timestamp)[
+        'inverter_power'
+      ]
+  end
+
+  def chart_forecast
+    @chart_forecast ||=
+      PowerChart
+        .new(measurements: %w[Forecast], fields: %w[watt])
+        .day(timestamp, filled: true)[
+        'watt'
+      ]
   end
 end

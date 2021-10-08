@@ -28,22 +28,6 @@ class Chart::Component < ViewComponent::Base
             size: 20,
           },
         },
-        annotation: {
-          annotations: {
-            line1: {
-              display: chart_type.bar?,
-              type: 'line',
-              yMin: 0, # will be set in component_controller.js
-              yMax: 0, # will be set in component_controller.js
-              borderWidth: 1,
-              borderDash: [2, 2],
-              label: {
-                content: '', # will be set in component_controller.js
-                enabled: true,
-              },
-            },
-          },
-        },
       },
       animation: {
         easing: 'easeOutQuad',
@@ -58,6 +42,7 @@ class Chart::Component < ViewComponent::Base
       },
       scales: {
         x: {
+          stacked: true,
           grid: {
             drawOnChartArea: false,
           },
@@ -120,7 +105,6 @@ class Chart::Component < ViewComponent::Base
             ],
         },
         y: {
-          min: 0,
           ticks: {
             beginAtZero: true,
             maxTicksLimit: 4,
