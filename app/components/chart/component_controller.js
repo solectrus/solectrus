@@ -56,13 +56,19 @@ export default class extends Controller {
           return that.formattedNumber(value);
         };
 
-        options.scales.y.max = that.maxOf(data);
-        options.scales.y.min = that.minOf(data);
-        options.scales.y.grid = {
-          color: (context) => {
-            if (context.tick.value === 0) return '#000';
-          },
-        };
+        const min = that.minOf(data);
+        if (min < 0) {
+          // Disable auto-scaling if there are negative values
+          options.scales.y.max = that.maxOf(data);
+          options.scales.y.min = min;
+
+          // Draw x-axis in black
+          options.scales.y.grid = {
+            color: (context) => {
+              if (context.tick.value === 0) return '#000';
+            },
+          };
+        }
 
         // Format numbers in tooltips
         options.plugins.tooltip.callbacks = {
