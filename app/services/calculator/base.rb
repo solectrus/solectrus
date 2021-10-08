@@ -35,10 +35,6 @@ class Calculator::Base
     grid_power_minus > grid_power_plus
   end
 
-  def grid_power_field
-    feeding? ? 'grid_power_minus' : 'grid_power_plus'
-  end
-
   def grid_power
     [grid_power_plus, grid_power_minus].compact.max
   end
@@ -73,9 +69,5 @@ class Calculator::Base
 
   def bat_power
     [bat_power_plus, bat_power_minus].max
-  end
-
-  def bat_power_field
-    bat_charging? ? 'bat_power_plus' : 'bat_power_minus'
   end
 end

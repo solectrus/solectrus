@@ -62,29 +62,36 @@ class PowerChart < Flux::Reader
     to_array(raw)
   end
 
-  def to_array(raw)
-    # TODO: Get all fields, not only the first one
-
+  def value_to_array(raw)
     result = []
-    if (table = raw.values[0])
-      table.records.each_with_index do |record, index|
-        # InfluxDB returns data one-off
-        next_record = raw.values[0].records[index + 1]
-        next unless next_record
+    raw&.records&.each_with_index do |record, index|
+      # InfluxDB returns data one-off
+      next_record = raw.records[index + 1]
+      next unless next_record
 
-        time = Time.zone.parse(record.values['_time'] || '')
-        value =
-          case record.values['_field']
-          when /power/, 'watt'
-            # Fields with "power" in the name are given in W, so change them to kW
-            (next_record.values['_value'].to_f / 1_000).round(3)
-          else
-            next_record.values['_value'].to_f
-          end
+      time = Time.zone.parse(record.values['_time'] || '')
+      value =
+        case record.values['_field']
+        when /power/, 'watt'
+          # Fields with "power" in the name are given in W, so change them to kW
+          (next_record.values['_value'].to_f / 1_000).round(3)
+        else
+          next_record.values['_value'].to_f
+        end
 
-        result << [time, value]
-      end
+      result << [time, value]
     end
+
+    result
+  end
+
+  def to_array(raw)
+    result = {}
+    raw.each_key do |k|
+      key = raw[k].records.first.values['_field']
+      result[key] = value_to_array(raw[k])
+    end
+
     result
   end
 end
