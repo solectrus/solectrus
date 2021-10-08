@@ -21,7 +21,7 @@ Rails
       policy.connect_src(
         *[
           :self,
-          Rails.configuration.x.plausible_url.presence,
+          Rails.configuration.x.plausible_url,
           (
             if Rails.configuration.x.honeybadger.api_key
               'https://api.honeybadger.io'

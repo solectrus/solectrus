@@ -37,9 +37,6 @@ gem 'lograge'
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
 gem 'influxdb-client'
 
-# Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
-gem 'honeybadger'
-
 # View components for Rails (https://github.com/github/view_component)
 gem 'view_component', require: 'view_component/engine'
 
@@ -116,4 +113,7 @@ end
 group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockupgem.com)
   gem 'lockup'
+
+  # Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
+  gem 'honeybadger'
 end

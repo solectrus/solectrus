@@ -7,7 +7,7 @@ import Honeybadger from '@honeybadger-io/js';
 
 const honeybadgerApiKey = document.querySelector(
   'meta[name="honeybadger-api-key"]',
-).content;
+)?.content;
 if (honeybadgerApiKey) {
   const version = document.querySelector('meta[name="version"]').content;
 
