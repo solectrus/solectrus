@@ -1,13 +1,14 @@
 class PowerChart < Flux::Reader
   def now
-    chart_single start: '-60m', window: '5s', filled: true
+    chart_single start: '-60m', window: '5s', fill: true
   end
 
-  def day(start, filled: false)
+  def day(start, fill: false, interpolate: false)
     chart_single start: start.beginning_of_day,
                  stop: start.end_of_day,
                  window: '5m',
-                 filled: filled
+                 fill: fill,
+                 interpolate: interpolate
   end
 
   def week(start)
@@ -34,17 +35,25 @@ class PowerChart < Flux::Reader
 
   private
 
-  def chart_single(start:, window:, stop: nil, filled: false)
-    raw = query <<-QUERY
-      #{from_bucket}
-      |> #{range(start: start, stop: stop)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
-      |> aggregateWindow(every: #{window}, fn: mean)
-      |> keep(columns: ["_time","_field","_value"])
-      #{filled && '|> fill(usePrevious: true)'}
-    QUERY
+  def chart_single(start:, window:, stop: nil, fill: false, interpolate: false)
+    q = []
 
+    q << 'import "interpolate"' if interpolate
+    q << from_bucket
+    q << "|> #{range(start: start, stop: stop)}"
+    q << "|> #{measurements_filter}"
+    q << "|> #{fields_filter}"
+
+    if interpolate
+      q << '|> map(fn:(r) => ({ r with _value: float(v: r._value) }))'
+      q << "|> interpolate.linear(every: #{window})"
+    end
+
+    q << "|> aggregateWindow(every: #{window}, fn: mean)"
+    q << '|> keep(columns: ["_time","_field","_value"])'
+    q << '|> fill(usePrevious: true)' if fill
+
+    raw = query(q.join)
     to_array(raw)
   end
 

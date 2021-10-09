@@ -78,7 +78,7 @@ class ChartData::Component < ViewComponent::Base
     @forecast ||=
       PowerChart
         .new(measurements: %w[Forecast], fields: %w[watt])
-        .day(timestamp, filled: true)[
+        .day(timestamp, fill: false, interpolate: true)[
         'watt'
       ]
   end
