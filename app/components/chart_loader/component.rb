@@ -1,4 +1,4 @@
-class Chart::Component < ViewComponent::Base
+class ChartLoader::Component < ViewComponent::Base
   def initialize(field:, timeframe:, url:)
     super
     @field = field
@@ -114,7 +114,7 @@ class Chart::Component < ViewComponent::Base
     }
   end
 
-  def chart_type
+  def type
     (timeframe.in?(%w[now day]) ? 'line' : 'bar').inquiry
   end
 
