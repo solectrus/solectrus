@@ -82,7 +82,7 @@
           =t 'senec.grid_power'
 
         = tag.div class: 'mt-5 text-2xl md:text-4xl' do
-          = Number::Component.new(value: calculator.grid_power).to_w
+          = Number::Component.new(value: calculator.grid_power.abs).to_w
 
         h1.mt-2.text-xs.md:text-base
           br
@@ -91,7 +91,7 @@
       .flex.flex-row.justify-around.items-center
         .w-1/3.pr-10
           = tag.div class: 'text-2xl md:text-4xl' do
-            = Number::Component.new(value: calculator.bat_power).to_w
+            = Number::Component.new(value: calculator.bat_power.abs).to_w
 
         .w-1/3
           - case calculator.bat_fuel_charge
