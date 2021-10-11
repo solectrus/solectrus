@@ -30,7 +30,7 @@ ruby:
         - elsif percent_green&.positive?
           .w-full.rounded-b.bg-green-500 style="height: #{percent_green}%"
 
-    .relative.p-2.md:p-3 data= (current_value? ? { 'refresh-target': 'current', value: value / 1_000.0 } : nil)
+    .relative.p-2.md:p-3 data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
       = content
 
 - if url.present?

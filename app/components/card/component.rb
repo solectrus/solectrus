@@ -83,4 +83,8 @@ class Card::Component < ViewComponent::Base
 
     100 - percent_green
   end
+
+  def masked_value
+    field.include?('power') ? value / 1_000.0 : value
+  end
 end
