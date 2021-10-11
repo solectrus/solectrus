@@ -40,24 +40,26 @@ describe 'Home', type: :system, js: true do
     add_influx_point(name: 'Forecast', fields: { watt: 6_000 })
   end
 
-  it 'presents data and allows navigation' do
-    visit '/'
-    expect(page).to have_text(I18n.t('layout.stats').upcase)
+  Senec::FIELDS_COMBINED.each do |field|
+    it "presents data and allows navigation for #{field}" do
+      visit "/now/#{field}"
+      expect(page).to have_text(I18n.t('layout.stats').upcase)
 
-    navigate_days
-    navigate_now
+      navigate_days
+      navigate_now
 
-    navigate_weeks
-    navigate_now
+      navigate_weeks
+      navigate_now
 
-    navigate_months
-    navigate_now
+      navigate_months
+      navigate_now
 
-    navigate_years
-    navigate_now
+      navigate_years
+      navigate_now
 
-    navigate_all
-    navigate_now
+      navigate_all
+      navigate_now
+    end
   end
 
   private
