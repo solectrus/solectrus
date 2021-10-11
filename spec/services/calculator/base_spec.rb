@@ -1,6 +1,46 @@
 describe Calculator::Base do
   let(:calculator) { described_class.new }
 
+  describe '#grid_power' do
+    subject { calculator.grid_power }
+
+    context 'when grid_power_plus > grid_power_minus' do
+      before do
+        calculator.build_context grid_power_plus: 3_900, grid_power_minus: 0
+      end
+
+      it { is_expected.to eq(-3_900) }
+    end
+
+    context 'when grid_power_plus < grid_power_minus' do
+      before do
+        calculator.build_context grid_power_minus: 3_900, grid_power_plus: 0
+      end
+
+      it { is_expected.to eq(3_900) }
+    end
+  end
+
+  describe '#bat_power' do
+    subject { calculator.bat_power }
+
+    context 'when bat_power_plus > bat_power_minus' do
+      before do
+        calculator.build_context bat_power_plus: 1_500, bat_power_minus: 0
+      end
+
+      it { is_expected.to eq(1_500) }
+    end
+
+    context 'when bat_power_plus < bat_power_minus' do
+      before do
+        calculator.build_context bat_power_minus: 1_500, bat_power_plus: 0
+      end
+
+      it { is_expected.to eq(-1_500) }
+    end
+  end
+
   describe '#autarky' do
     subject { calculator.autarky }
 
