@@ -36,14 +36,25 @@ export default class extends Controller {
       return;
     }
 
-    // Remove first point (label + value)
+    // Remove oldest point (label + value in all datasets)
     chart.data.labels.shift();
-    chart.data.datasets[0].data.shift();
+    chart.data.datasets.forEach((dataset) => {
+      dataset.data.shift();
+    });
 
     // Add new point (label + value)
     // Assume the value is from NOW, no need to get the real one
     chart.data.labels.push(new Date().toISOString());
-    chart.data.datasets[0].data.push(this.currentValue);
+
+    // There may be two datasets: One for positive, one for negative values.
+    // Write currentValue to the appropriate dataset
+    if (this.currentValue > 0) {
+      this.positiveDataset(chart)?.data.push(this.currentValue);
+      this.negativeDataset(chart)?.data.push(0);
+    } else {
+      this.negativeDataset(chart)?.data.push(this.currentValue);
+      this.positiveDataset(chart)?.data.push(0);
+    }
 
     chart.update();
   }
@@ -56,5 +67,19 @@ export default class extends Controller {
 
   get currentValue() {
     return parseFloat(this.currentTarget.dataset.value);
+  }
+
+  // The positive dataset is where at least one positive value exist
+  positiveDataset(chart) {
+    return chart.data.datasets.find((dataset) =>
+      dataset.data.some((v) => v > 0),
+    );
+  }
+
+  // The negative dataset is where at least one negative value exist
+  negativeDataset(chart) {
+    return chart.data.datasets.find((dataset) =>
+      dataset.data.some((v) => v < 0),
+    );
   }
 }
