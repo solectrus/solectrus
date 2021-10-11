@@ -68,6 +68,8 @@ export default class extends Controller {
               if (context.tick.value === 0) return '#000';
             },
           };
+        } else {
+          options.scales.y.min = 0;
         }
 
         // Format numbers in tooltips
