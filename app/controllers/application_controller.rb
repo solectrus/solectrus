@@ -14,9 +14,9 @@ class ApplicationController < ActionController::Base
               else
                 'inverter_power'
               end,
-            timeframe:
-              if respond_to?(:timeframe) && timeframe.in?(%w[day month year])
-                timeframe
+            period:
+              if respond_to?(:period) && period.in?(%w[day month year])
+                period
               else
                 'day'
               end,

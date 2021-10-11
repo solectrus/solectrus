@@ -13,11 +13,11 @@ class Card::Component < ViewComponent::Base
 
   def url_params
     @url_params ||=
-      { field: field, timeframe: timeframe, timestamp: timestamp }.compact
+      { field: field, period: period, timestamp: timestamp }.compact
   end
 
-  def timeframe
-    params[:timeframe]
+  def period
+    params[:period]
   end
 
   def timestamp
@@ -35,7 +35,7 @@ class Card::Component < ViewComponent::Base
   end
 
   def current_value?
-    current? && timeframe == 'now'
+    current? && period == 'now'
   end
 
   def current?

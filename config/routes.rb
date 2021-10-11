@@ -6,20 +6,18 @@ Rails
   .draw do
     mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
-    constraints timeframe: /now|day|week|month|year|all/,
+    constraints period: /now|day|week|month|year|all/,
                 field: Regexp.new(Senec::FIELDS_COMBINED.join('|'), false),
                 timestamp: /\d{4}-\d{2}-\d{2}/ do
-      get '/stats/:timeframe/:field(/:timestamp)', to: 'stats#index', as: :stats
-      get '/charts/:timeframe/:field(/:timestamp)',
-          to: 'charts#index',
-          as: :charts
-      get '/(:timeframe)(/:field)(/:timestamp)', to: 'home#index', as: :root
+      get '/stats/:period/:field(/:timestamp)', to: 'stats#index', as: :stats
+      get '/charts/:period/:field(/:timestamp)', to: 'charts#index', as: :charts
+      get '/(:period)(/:field)(/:timestamp)', to: 'home#index', as: :root
     end
 
-    constraints timeframe: /day|month|year/,
+    constraints period: /day|month|year/,
                 field: Regexp.new(Senec::POWER_FIELDS.join('|'), false) do
-      get '/top10/:timeframe/:field', to: 'top10#index', as: :top10
-      get '/top10-chart/:timeframe/:field',
+      get '/top10/:period/:field', to: 'top10#index', as: :top10
+      get '/top10-chart/:period/:field',
           to: 'top10_chart#index',
           as: :top10_chart
     end

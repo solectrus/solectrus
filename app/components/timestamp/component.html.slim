@@ -1,7 +1,7 @@
 .flex.items-center.justify-between.space-x-4.w-full.lg:w-auto.text-base.text-gray-200.tracking-wider
   - if can_paginate?
     - if previous_timestamp
-      = link_to root_path(timeframe: params[:timeframe], field: params[:field], timestamp: previous_timestamp),
+      = link_to root_path(period: params[:period], field: params[:field], timestamp: previous_timestamp),
                 class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'prev nofollow' do
         i.fas.fa-chevron-left.fa-lg
     - else
@@ -9,7 +9,7 @@
         i.fas.fa-chevron-left.fa-lg.opacity-50
 
   - if timestamp
-    - case timeframe
+    - case period
     - when 'now'
       span.py-1
         = l timestamp, format: 'Heute, %H:%M Uhr'
@@ -41,7 +41,7 @@
 
   - if can_paginate?
     - if next_timestamp
-      = link_to root_path(timeframe: params[:timeframe], field: params[:field], timestamp: next_timestamp),
+      = link_to root_path(period: params[:period], field: params[:field], timestamp: next_timestamp),
                 class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'next nofollow' do
         i.fas.fa-chevron-right.fa-lg
     - else

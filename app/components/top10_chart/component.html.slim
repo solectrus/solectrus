@@ -1,5 +1,5 @@
-.table.w-full id= "chart-#{timeframe}"
-  - top10_for_timeframe.each_with_index do |record, index|
+.table.w-full id= "chart-#{period}"
+  - top10_for_period.each_with_index do |record, index|
     = link_to link_to_timestamp(record), class: 'table-row hover:bg-gray-100' do
       .table-cell.align-middle.p-2.tabular-nums.w-1.text-right.font-bold class= text_classes(record)
         = "#{index + 1}."

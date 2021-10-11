@@ -1,16 +1,16 @@
 class ChartData::Component < ViewComponent::Base
-  def initialize(field:, timeframe:, timestamp:)
+  def initialize(field:, period:, timestamp:)
     super
     @field = field
-    @timeframe = timeframe
+    @period = period
     @timestamp = timestamp
   end
-  attr_reader :field, :timeframe, :timestamp
+  attr_reader :field, :period, :timestamp
 
   def call
-    if timeframe == 'now'
+    if period == 'now'
       data_now
-    elsif timeframe == 'day' && field == 'inverter_power'
+    elsif period == 'day' && field == 'inverter_power'
       data_day_inverter_power
     else
       data_range
@@ -87,7 +87,7 @@ class ChartData::Component < ViewComponent::Base
     @range ||=
       PowerChart
         .new(measurements: ['SENEC'], fields: fields)
-        .public_send(timeframe, timestamp)
+        .public_send(period, timestamp)
   end
 
   def style(chart_field)

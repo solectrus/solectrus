@@ -1,18 +1,18 @@
 class Top10Chart::Component < ViewComponent::Base
-  def initialize(field:, timeframe:)
+  def initialize(field:, period:)
     super
     @field = field
-    @timeframe = timeframe
+    @period = period
   end
-  attr_accessor :field, :timeframe
+  attr_accessor :field, :period
 
   def top10
     @top10 ||= PowerTop10.new(fields: [field], measurements: ['SENEC'])
   end
 
-  def top10_for_timeframe
-    @top10_for_timeframe ||=
-      case timeframe
+  def top10_for_period
+    @top10_for_period ||=
+      case period
       when 'day'
         top10.days
       when 'month'
@@ -23,7 +23,7 @@ class Top10Chart::Component < ViewComponent::Base
   end
 
   def maximum
-    @maximum ||= top10_for_timeframe.pluck(:value).max
+    @maximum ||= top10_for_period.pluck(:value).max
   end
 
   def percent(record)
@@ -58,7 +58,7 @@ class Top10Chart::Component < ViewComponent::Base
 
   def link_to_timestamp(record)
     root_path(
-      timeframe: timeframe,
+      period: period,
       field: field,
       timestamp: corresponding_date(record[:date]),
     )
@@ -79,7 +79,7 @@ class Top10Chart::Component < ViewComponent::Base
   end
 
   def corresponding_date(value)
-    case timeframe
+    case period
     when 'day'
       value
     when 'month'
@@ -90,7 +90,7 @@ class Top10Chart::Component < ViewComponent::Base
   end
 
   def formatted_date(value)
-    case timeframe
+    case period
     when 'day'
       l(value, format: :default)
     when 'month'

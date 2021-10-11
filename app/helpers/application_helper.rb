@@ -1,6 +1,6 @@
 module ApplicationHelper
   def title
-    case timeframe
+    case period
     when 'now'
       'Live'
     when 'day'

@@ -4,14 +4,14 @@
   .flex.justify-center.lg:justify-between.lg:items-center
     .hidden.lg:block
       = render Nav::Sub::Component.new do |c|
-        = c.items timeframe_items
+        = c.items period_items
     .mt-5.lg:mt-0
       = render Dropdown::Component.new items: field_items, selected: field
 
 - content_for :bottom_nav do
   .w-full.px-4
     = render Nav::Sub::Component.new do |c|
-      = c.items timeframe_items
+      = c.items period_items
 
 = turbo_frame_tag 'top10',
                   src: top10_chart_path(permitted_params),

@@ -17,19 +17,19 @@ class Top10Controller < ApplicationController
     end
   end
 
-  helper_method def timeframe_items
+  helper_method def period_items
     [
       {
         name: t('calculator.day'),
-        href: url_for(permitted_params.merge(timeframe: 'day')),
+        href: url_for(permitted_params.merge(period: 'day')),
       },
       {
         name: t('calculator.month'),
-        href: url_for(permitted_params.merge(timeframe: 'month')),
+        href: url_for(permitted_params.merge(period: 'month')),
       },
       {
         name: t('calculator.year'),
-        href: url_for(permitted_params.merge(timeframe: 'year')),
+        href: url_for(permitted_params.merge(period: 'year')),
       },
     ]
   end

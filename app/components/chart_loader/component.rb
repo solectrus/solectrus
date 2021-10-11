@@ -1,11 +1,11 @@
 class ChartLoader::Component < ViewComponent::Base
-  def initialize(field:, timeframe:, url:)
+  def initialize(field:, period:, url:)
     super
     @field = field
-    @timeframe = timeframe
+    @period = period
     @url = url
   end
-  attr_reader :field, :timeframe, :url
+  attr_reader :field, :period, :url
 
   def options # rubocop:disable Metrics/MethodLength
     {
@@ -101,7 +101,7 @@ class ChartLoader::Component < ViewComponent::Base
                 tooltipFormat: 'yyyy',
               },
             }[
-              timeframe
+              period
             ],
         },
         y: {
@@ -115,14 +115,14 @@ class ChartLoader::Component < ViewComponent::Base
   end
 
   def type
-    (timeframe.in?(%w[now day]) ? 'line' : 'bar').inquiry
+    (period.in?(%w[now day]) ? 'line' : 'bar').inquiry
   end
 
   def title
     if field == 'bat_fuel_charge'
       "#{I18n.t "senec.#{field}"} in %"
     else
-      "#{I18n.t "senec.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
+      "#{I18n.t "senec.#{field}"} in #{period.in?(%w[now day]) ? 'kW' : 'kWh'}"
     end
   end
 end
