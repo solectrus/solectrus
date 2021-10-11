@@ -6,11 +6,23 @@ describe 'Top10', type: :system, js: true do
       add_influx_point name: 'SENEC',
                        fields: {
                          inverter_power: (index + 1) * 1000,
+                         house_power: (index + 1) * 100,
+                         grid_power_plus: (index + 1) * 200,
+                         grid_power_minus: (index + 1) * 300,
+                         bat_power_plus: (index + 1) * 400,
+                         bat_power_minus: (index + 1) * 500,
+                         wallbox_charge_power: (index + 1) * 600,
                        },
                        time: (beginning + index.month).end_of_month
       add_influx_point name: 'SENEC',
                        fields: {
                          inverter_power: (index + 1) * 1000,
+                         house_power: (index + 1) * 100,
+                         grid_power_plus: (index + 1) * 200,
+                         grid_power_minus: (index + 1) * 300,
+                         bat_power_plus: (index + 1) * 400,
+                         bat_power_minus: (index + 1) * 500,
+                         wallbox_charge_power: (index + 1) * 600,
                        },
                        time: (beginning + index.month).beginning_of_month
     end
@@ -18,25 +30,16 @@ describe 'Top10', type: :system, js: true do
     add_influx_point name: 'SENEC', fields: { inverter_power: 14_000 }
   end
 
-  it 'presents data and allows navigation' do
-    visit '/top10/day/inverter_power'
-    expect(page).to have_text(I18n.t('layout.top10').upcase)
+  Senec::POWER_FIELDS.each do |field|
+    it "presents data and allows navigation for #{field}" do
+      visit "/top10/day/#{field}"
+      expect(page).to have_css('#chart-day')
+      expect(page).to have_text(I18n.t('layout.top10').upcase)
 
-    navigate_year
-    navigate_month
-    navigate_day
-
-    click_on I18n.t('senec.inverter_power')
-    expect(page).to have_text(I18n.t('senec.house_power'))
-
-    click_on I18n.t('senec.house_power')
-    within 'button#options-menu' do
-      expect(page).to have_text(I18n.t('senec.house_power'))
+      navigate_year
+      navigate_month
+      navigate_day
     end
-
-    navigate_year
-    navigate_month
-    navigate_day
   end
 
   private
