@@ -38,7 +38,7 @@
     "@babel/eslint-parser": "^7.15.8",
     "@prettier/plugin-ruby": "^1.6.1",
     "@webpack-cli/serve": "^1.6.0",
-    "eslint": "^8.0.0",
+    "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1",
