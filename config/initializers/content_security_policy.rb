@@ -36,11 +36,11 @@ Rails
     policy.form_action :self
 
     # Specify URI for violation reports
-    if Rails.configuration.x.honeybadger.api_key
-      policy.report_uri(
-        "https://api.honeybadger.io/v1/browser/csp?api_key=#{Rails.configuration.x.honeybadger.api_key}&report_only=true",
-      )
-    end
+    # if Rails.configuration.x.honeybadger.api_key
+    #   policy.report_uri(
+    #     "https://api.honeybadger.io/v1/browser/csp?api_key=#{Rails.configuration.x.honeybadger.api_key}&report_only=true",
+    #   )
+    # end
   end
 
 # If you are using UJS then enable automatic nonce generation
