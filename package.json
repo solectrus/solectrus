@@ -45,6 +45,7 @@
     "webpack-dev-server": "^4.3.1"
   },
   "browserslist": [
-    "defaults"
+    "defaults",
+    "not IE 11"
   ]
 }
