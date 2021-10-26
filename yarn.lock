@@ -3746,10 +3746,10 @@ pkg-dir@^4.1.0, pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-plausible-tracker@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/plausible-tracker/-/plausible-tracker-0.3.1.tgz#dd4e1f59cafc7bf1b00e30890567287b3f204efd"
-  integrity sha512-oXnVyfTF2gzkfK3iOZCRZEnf8sH4gBASaJhY+clwWW1orIybfQpfbgg4U5Bwj5dW/4iNstM4tx4jMCVUfMCUbg==
+plausible-tracker@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/plausible-tracker/-/plausible-tracker-0.3.2.tgz#bc29e9437eafe5ede619776576e7f2e2e2663b3a"
+  integrity sha512-afYQ17KgauDXtDu7bNvbY4xT8Eyr5ROGCvhfzav83tesvOQZUUPsfu77AgTjwz3tfYi/mfpz8Xt+ENh8U3ijXQ==
 
 pnp-webpack-plugin@^1.7.0:
   version "1.7.0"
