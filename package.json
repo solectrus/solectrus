@@ -42,7 +42,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1",
-    "webpack-dev-server": "^4.3.1"
+    "webpack-dev-server": "^4.4.0"
   },
   "browserslist": [
     "defaults",
