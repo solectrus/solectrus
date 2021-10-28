@@ -38,11 +38,11 @@ export default class extends Controller {
   };
 
   connect() {
-    var that = this;
+    const that = this;
     fetch(this.urlValue)
       .then((response) => response.json())
       .then((data) => {
-        var options = this.optionsValue;
+        const options = this.optionsValue;
 
         // I18n
         options.scales.x.adapters = {
@@ -52,9 +52,8 @@ export default class extends Controller {
         };
 
         // Format numbers on y-axis
-        options.scales.y.ticks.callback = function (value) {
-          return that.formattedNumber(value);
-        };
+        options.scales.y.ticks.callback = (value) =>
+          that.formattedNumber(value);
 
         const min = that.minOf(data);
         if (min < 0) {
@@ -74,19 +73,16 @@ export default class extends Controller {
 
         // Format numbers in tooltips
         options.plugins.tooltip.callbacks = {
-          label: (context) => {
-            return (
-              context.dataset.label +
-              ': ' +
-              that.formattedNumber(context.parsed.y)
-            );
-          },
+          label: (context) =>
+            context.dataset.label +
+            ': ' +
+            that.formattedNumber(context.parsed.y),
         };
 
         this.chart = new Chart(this.element, {
           type: this.typeValue,
-          data: data,
-          options: options,
+          data,
+          options,
         });
       });
   }
