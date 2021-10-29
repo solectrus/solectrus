@@ -25,7 +25,7 @@ gem 'webpacker', '6.0.0.rc.5'
 gem 'bootsnap', '>= 1.4.4', require: false
 
 # Timezone Data for TZInfo (https://tzinfo.github.io)
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 # Template language whose goal is to reduce the syntax to the essential parts without becoming cryptic
 # Slim is a template language. (http://slim-lang.com/)
@@ -45,7 +45,7 @@ gem 'meta-tags'
 
 group :development, :test do
   # Ruby fast debugger - base + CLI (https://github.com/deivid-rodriguez/byebug)
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'byebug', platforms: %i[mri mingw x64_mingw]
 
   # Autoload dotenv in Rails. (https://github.com/bkeepers/dotenv)
   gem 'dotenv-rails'

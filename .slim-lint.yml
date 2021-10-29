@@ -1,5 +1,5 @@
 exclude:
-  - "vendor/**/*.slim"
+  - 'vendor/**/*.slim'
 
 linters:
   LineLength:
