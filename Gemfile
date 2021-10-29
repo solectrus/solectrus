@@ -100,7 +100,7 @@ group :test do
   # Automatically create snapshots when Cucumber steps fail with Capybara and Rails (http://github.com/mattheworiordan/capybara-screenshot)
   gem 'capybara-screenshot'
 
-  # The next generation developer focused tool for automated testing of webapps (https://github.com/SeleniumHQ/selenium)
+  # Selenium is a browser automation tool for automated testing of webapps and more (https://selenium.dev)
   gem 'selenium-webdriver'
 
   # Easy download and use of browser drivers. (https://github.com/titusfortner/webdrivers)
