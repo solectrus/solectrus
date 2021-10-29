@@ -1006,12 +1006,12 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.10.2.tgz#0798c03351f0dea1a5a4cabddf26a55a7cbee590"
   integrity sha512-IXf3XA7+XyN7CP9gGh/XB0UxVMlvARGEgGXLubFICsUMGz6Q+DU+i4gGlpOxTjKvXjkJDJC8YdqdKkDj9qZHEQ==
 
-"@prettier/plugin-ruby@^1.6.1":
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/@prettier/plugin-ruby/-/plugin-ruby-1.6.1.tgz#14489985513a72e052b57c1cf9beae288880faa8"
-  integrity sha512-PGDCATgVTQz0s/NB9nStiXVCIr+hG/XnKeAO/kguaHrNf8VwCpP5Ul+/KQao0z0QFBy2PDY8kWptfDQCa7WMXg==
+"@prettier/plugin-ruby@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@prettier/plugin-ruby/-/plugin-ruby-2.0.0.tgz#a9f2d4183b56a9db9f80bbc685832a3b78685793"
+  integrity sha512-pA0rjTi5J7cT86XPNhXp7CpdV2Tlyj5oqDIsnQRxMu2P7LY2KJI/pyOSM8pzTH8BgRyQfe1P1NPCcTwxUnUWtQ==
   dependencies:
-    prettier ">=1.10"
+    prettier ">=2.3.0"
 
 "@rails/actioncable@^6.0.0":
   version "6.1.4"
@@ -4070,7 +4070,7 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@>=1.10, prettier@^2.4.1:
+prettier@>=2.3.0, prettier@^2.4.1:
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.4.1.tgz#671e11c89c14a4cfc876ce564106c4a6726c9f5c"
   integrity sha512-9fbDAXSBcc6Bs1mZrDYb3XKzDLm4EXXL9sC1LqKP5rZkT6KRr/rf9amVUcODVXgguK/isJz0d0hP72WeaKWsvA==
