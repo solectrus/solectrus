@@ -18,9 +18,7 @@ if (honeybadgerApiKey) {
   });
 }
 
-import { Turbo } from '@hotwired/turbo-rails';
-window.Turbo = Turbo;
-
+import '@hotwired/turbo-rails';
 import 'channels';
 import 'stylesheets/application.css';
 import 'controllers';
