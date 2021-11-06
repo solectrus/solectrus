@@ -16,7 +16,7 @@ module.exports = {
     './app/**/*.html.erb',
     './app/**/*.html.slim',
     './app/**/*.rb',
-    './app/packs/**/*.js',
+    './app/javascript/**/*.js',
   ],
 
   plugins: [
