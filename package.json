@@ -28,7 +28,7 @@
     "postcss-loader": "^6.2.0",
     "style-loader": "^3.3.1",
     "tailwindcss": "^2.2.19",
-    "tippy.js": "^6.3.5",
+    "tippy.js": "^6.3.6",
     "webpack": "^5.62.1"
   },
   "version": "0.1.0",
