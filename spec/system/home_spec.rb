@@ -44,19 +44,12 @@ describe 'Home', type: :system, js: true do
     it "presents data and allows navigation for #{field}" do
       visit "/now/#{field}"
       expect(page).to have_text(I18n.t('layout.stats').upcase)
+      expect(page).to have_css('#chart-now')
 
       navigate_days
-      navigate_now
-
       navigate_weeks
-      navigate_now
-
       navigate_months
-      navigate_now
-
       navigate_years
-      navigate_now
-
       navigate_all
       navigate_now
     end
