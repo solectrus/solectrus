@@ -29,7 +29,7 @@
     "style-loader": "^3.3.1",
     "tailwindcss": "^2.2.19",
     "tippy.js": "^6.3.7",
-    "webpack": "^5.64.2"
+    "webpack": "^5.64.3"
   },
   "version": "0.1.0",
   "devDependencies": {
