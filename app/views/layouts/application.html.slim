@@ -10,12 +10,14 @@ html lang="de"
     meta name="apple-mobile-web-app-capable" content="yes"
     meta name="application-name" content="Solectrus"
     meta name="theme-color" content="#a5b4fc"
-    meta name="plausible-url" content= Rails.configuration.x.plausible_url
     meta name="app-host" content= Rails.configuration.x.app_host
-    meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key
     meta name="version" content= Rails.configuration.x.git.version
     meta name="date" content= Rails.configuration.x.git.commit_time
     meta name="author" content="Georg Ledermann"
+    - if Rails.configuration.x.plausible_url
+      meta name="plausible-url" content= Rails.configuration.x.plausible_url
+    - if Rails.configuration.x.honeybadger.api_key
+      meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key
 
     link rel="manifest" href="/manifest.webmanifest"
     link rel="icon" type="image/png" sizes="196x196" href="/favicon-196.png"
@@ -85,7 +87,7 @@ html lang="de"
                 rel: 'noopener',
                 class: 'hover:underline',
                 data: { controller: 'tippy' },
-                title: 'Georg Ledermann &mdash; Full-Stack Web Developer' do
+                title: 'Georg Ledermann &mdash; Full Stack Developer' do
         svg class="inline h-6 w-6" viewBox="0 0 276 276"
           path d="M0 137l138 138 138-138-84-82-84 82 31 30 53-52 25 22-79 77-78-77L166 29 138 1"
         span.ml-2.tracking-wider.font-mono ledermann.dev

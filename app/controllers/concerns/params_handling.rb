@@ -5,12 +5,11 @@ module ParamsHandling
     private
 
     helper_method def permitted_params
-      @permitted_params ||=
-        params.permit(:field, :timeframe, :timestamp, :chart)
+      @permitted_params ||= params.permit(:field, :period, :timestamp, :chart)
     end
 
-    helper_method def timeframe
-      permitted_params[:timeframe]
+    helper_method def period
+      permitted_params[:period]
     end
 
     helper_method def field
@@ -22,7 +21,7 @@ module ParamsHandling
     end
 
     helper_method def timestamp
-      if timeframe == 'now'
+      if period == 'now'
         Time.current
       elsif (param = permitted_params[:timestamp])
         Date.iso8601(param)
@@ -32,7 +31,7 @@ module ParamsHandling
     end
 
     def default_timestamp
-      case timeframe
+      case period
       when 'now', 'day'
         Date.current
       when 'week'
@@ -47,7 +46,7 @@ module ParamsHandling
     end
 
     def min_timestamp
-      case timeframe
+      case period
       when 'day'
         Rails.configuration.x.installation_date.beginning_of_day
       when 'week'

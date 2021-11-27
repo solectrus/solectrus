@@ -12,7 +12,6 @@ RSpec.configure do |config|
       page
         .driver
         .browser
-        .manage
         .logs
         .get(:browser)
         .filter_map { |log| "[#{log.level}] #{log.message}" }

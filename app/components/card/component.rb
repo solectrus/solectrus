@@ -13,11 +13,11 @@ class Card::Component < ViewComponent::Base
 
   def url_params
     @url_params ||=
-      { field: field, timeframe: timeframe, timestamp: timestamp }.compact
+      { field: field, period: period, timestamp: timestamp }.compact
   end
 
-  def timeframe
-    params[:timeframe]
+  def period
+    params[:period]
   end
 
   def timestamp
@@ -35,7 +35,7 @@ class Card::Component < ViewComponent::Base
   end
 
   def current_value?
-    current? && timeframe == 'now'
+    current? && period == 'now'
   end
 
   def current?
@@ -51,8 +51,7 @@ class Card::Component < ViewComponent::Base
       'inverter_power' => 'sun',
       'wallbox_charge_power' => 'car',
       'house_power' => 'home',
-      'grid_power_plus' => 'plug',
-      'grid_power_minus' => 'plug',
+      'grid_power' => 'plug',
     }[
       field
     ]
@@ -83,5 +82,9 @@ class Card::Component < ViewComponent::Base
     return unless percent_green
 
     100 - percent_green
+  end
+
+  def masked_value
+    field.include?('power') ? value / 1_000.0 : value
   end
 end

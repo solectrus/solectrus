@@ -26,6 +26,9 @@ FileUtils.chdir APP_ROOT do
   #   FileUtils.cp 'config/database.yml.sample', 'config/database.yml'
   # end
 
+  puts "\n== Copying env file =="
+  FileUtils.cp '.env.example', '.env' unless File.exist?('.env')
+
   puts "\n== Preparing database =="
   system! 'bin/rails db:prepare'
 

@@ -16,7 +16,6 @@ import {
 
 import 'chartjs-adapter-date-fns';
 import de from 'date-fns/locale/de';
-import annotationPlugin from 'chartjs-plugin-annotation';
 
 Chart.register(
   LineElement,
@@ -29,7 +28,6 @@ Chart.register(
   Filler,
   Title,
   Tooltip,
-  annotationPlugin,
 );
 
 export default class extends Controller {
@@ -40,11 +38,11 @@ export default class extends Controller {
   };
 
   connect() {
-    var that = this;
+    const that = this;
     fetch(this.urlValue)
       .then((response) => response.json())
       .then((data) => {
-        var options = this.optionsValue;
+        const options = this.optionsValue;
 
         // I18n
         options.scales.x.adapters = {
@@ -54,34 +52,37 @@ export default class extends Controller {
         };
 
         // Format numbers on y-axis
-        options.scales.y.ticks.callback = function (value) {
-          return that.formattedNumber(value);
-        };
+        options.scales.y.ticks.callback = (value) =>
+          that.formattedNumber(value);
+
+        const min = that.minOf(data);
+        if (min < 0) {
+          // Disable auto-scaling if there are negative values
+          options.scales.y.max = that.maxOf(data);
+          options.scales.y.min = min;
+
+          // Draw x-axis in black
+          options.scales.y.grid = {
+            color: (context) => {
+              if (context.tick.value === 0) return '#000';
+            },
+          };
+        } else {
+          options.scales.y.min = 0;
+        }
 
         // Format numbers in tooltips
         options.plugins.tooltip.callbacks = {
-          label: (context) => {
-            return (
-              context.dataset.label +
-              ': ' +
-              that.formattedNumber(context.parsed.y)
-            );
-          },
+          label: (context) =>
+            context.dataset.label +
+            ': ' +
+            that.formattedNumber(context.parsed.y),
         };
-
-        // Average line
-        let avg = data.datasets[0].average;
-        if (avg) {
-          options.plugins.annotation.annotations.line1.yMin = avg;
-          options.plugins.annotation.annotations.line1.yMax = avg;
-          options.plugins.annotation.annotations.line1.label.content =
-            this.formattedNumber(avg);
-        }
 
         this.chart = new Chart(this.element, {
           type: this.typeValue,
-          data: data,
-          options: options,
+          data,
+          options,
         });
       });
   }
@@ -92,5 +93,19 @@ export default class extends Controller {
 
   formattedNumber(number) {
     return new Intl.NumberFormat().format(number);
+  }
+
+  // Get maximum value of all datasets, rounded up to next integer
+  maxOf(data) {
+    return Math.ceil(
+      Math.max(...data.datasets.flatMap((dataset) => dataset.data)),
+    );
+  }
+
+  // Get minium value of all datasets, rounded down to next integer
+  minOf(data) {
+    return Math.floor(
+      Math.min(...data.datasets.flatMap((dataset) => dataset.data)),
+    );
   }
 }

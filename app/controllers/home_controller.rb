@@ -2,9 +2,9 @@ class HomeController < ApplicationController
   include ParamsHandling
 
   def index
-    unless timeframe && field
+    unless period && field
       redirect_to root_path(
-                    timeframe: timeframe || 'now',
+                    period: period || 'now',
                     field: field || 'inverter_power',
                   )
     end
@@ -17,16 +17,13 @@ class HomeController < ApplicationController
     [
       {
         name: t('calculator.now'),
-        href: url_for(permitted_params.merge(timeframe: 'now', timestamp: nil)),
+        href: url_for(permitted_params.merge(period: 'now', timestamp: nil)),
       },
       {
         name: t('calculator.day'),
         href:
           url_for(
-            permitted_params.merge(
-              timeframe: 'day',
-              timestamp: corresponding_day,
-            ),
+            permitted_params.merge(period: 'day', timestamp: corresponding_day),
           ),
       },
       {
@@ -34,7 +31,7 @@ class HomeController < ApplicationController
         href:
           url_for(
             permitted_params.merge(
-              timeframe: 'week',
+              period: 'week',
               timestamp: corresponding_week,
             ),
           ),
@@ -44,7 +41,7 @@ class HomeController < ApplicationController
         href:
           url_for(
             permitted_params.merge(
-              timeframe: 'month',
+              period: 'month',
               timestamp: corresponding_month,
             ),
           ),
@@ -54,14 +51,14 @@ class HomeController < ApplicationController
         href:
           url_for(
             permitted_params.merge(
-              timeframe: 'year',
+              period: 'year',
               timestamp: corresponding_year,
             ),
           ),
       },
       {
         name: t('calculator.all'),
-        href: url_for(permitted_params.merge(timeframe: 'all', timestamp: nil)),
+        href: url_for(permitted_params.merge(period: 'all', timestamp: nil)),
       },
     ]
   end

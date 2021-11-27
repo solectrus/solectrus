@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "foreman",
-      "command": "foreman",
-      "args": ["start"],
+      "label": "Development server",
+      "command": "bin/dev",
+      "args": [],
       "isBackground": true
     },
     {

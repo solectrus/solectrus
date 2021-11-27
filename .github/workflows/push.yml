@@ -7,13 +7,13 @@ jobs:
 
     services:
       influxdb:
-        image: influxdb:2.0.8-alpine
+        image: influxdb:2.1.1-alpine
         ports: ['8086:8086']
         env:
           INFLUXD_HTTP_BIND_ADDRESS: ':8086'
 
       postgres:
-        image: postgres:13-alpine
+        image: postgres:14-alpine
         ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
@@ -99,7 +99,7 @@ jobs:
       - name: Build the production image
         run: |
           export COMMIT_TIME=$(git show -s --format=%cI ${GITHUB_SHA})
-          export COMMIT_VERSION=$(git describe)
+          export COMMIT_VERSION=$(git describe --always)
           echo $GITHUB_SHA
           echo $COMMIT_TIME
           echo $COMMIT_VERSION

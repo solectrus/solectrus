@@ -4,31 +4,31 @@ describe 'Home' do
       it 'redirects' do
         get root_path
         expect(response).to redirect_to(
-          root_path(timeframe: 'now', field: 'inverter_power'),
+          root_path(period: 'now', field: 'inverter_power'),
         )
       end
     end
 
-    context 'with timeframe only' do
+    context 'with period only' do
       it 'redirects' do
-        get root_path(timeframe: 'now')
+        get root_path(period: 'now')
         expect(response).to redirect_to(
-          root_path(timeframe: 'now', field: 'inverter_power'),
+          root_path(period: 'now', field: 'inverter_power'),
         )
       end
     end
 
-    context 'with timeframe and field only' do
+    context 'with period and field only' do
       it 'renders' do
-        get root_path(timeframe: 'now', field: 'house_power')
+        get root_path(period: 'now', field: 'house_power')
         expect(response).to have_http_status(:ok)
       end
     end
 
-    context 'with timeframe, field and timestamp' do
+    context 'with period, field and timestamp' do
       it 'renders' do
         get root_path(
-              timeframe: 'now',
+              period: 'now',
               field: 'house_power',
               timestamp: Date.yesterday,
             )
@@ -40,7 +40,7 @@ describe 'Home' do
       it 'fails for day' do
         expect do
           get root_path(
-                timeframe: 'day',
+                period: 'day',
                 field: 'house_power',
                 timestamp: Date.current + 2.days,
               )
@@ -50,7 +50,7 @@ describe 'Home' do
       it 'fails for week' do
         expect do
           get root_path(
-                timeframe: 'week',
+                period: 'week',
                 field: 'house_power',
                 timestamp: Date.current + 1.week,
               )
@@ -60,7 +60,7 @@ describe 'Home' do
       it 'fails for month' do
         expect do
           get root_path(
-                timeframe: 'month',
+                period: 'month',
                 field: 'house_power',
                 timestamp: Date.current + 1.month,
               )
@@ -70,7 +70,7 @@ describe 'Home' do
       it 'fails for year' do
         expect do
           get root_path(
-                timeframe: 'year',
+                period: 'year',
                 field: 'house_power',
                 timestamp: Date.current + 1.year,
               )
@@ -82,7 +82,7 @@ describe 'Home' do
       it 'fails for day' do
         expect do
           get root_path(
-                timeframe: 'day',
+                period: 'day',
                 field: 'house_power',
                 timestamp:
                   Rails.configuration.x.installation_date.beginning_of_year -
@@ -94,7 +94,7 @@ describe 'Home' do
       it 'fails for week' do
         expect do
           get root_path(
-                timeframe: 'week',
+                period: 'week',
                 field: 'house_power',
                 timestamp:
                   Rails.configuration.x.installation_date.beginning_of_year -
@@ -106,7 +106,7 @@ describe 'Home' do
       it 'fails for month' do
         expect do
           get root_path(
-                timeframe: 'month',
+                period: 'month',
                 field: 'house_power',
                 timestamp:
                   Rails.configuration.x.installation_date.beginning_of_year -
@@ -118,7 +118,7 @@ describe 'Home' do
       it 'fails for year' do
         expect do
           get root_path(
-                timeframe: 'year',
+                period: 'year',
                 field: 'house_power',
                 timestamp:
                   Rails.configuration.x.installation_date.beginning_of_year -

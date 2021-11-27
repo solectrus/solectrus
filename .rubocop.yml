@@ -9,7 +9,7 @@ require:
 AllCops:
   TargetRubyVersion: 3.0
   Exclude:
-    - app/packs/**/*
+    - app/javascript/**/*
     - bin/**/*
     - coverage/**/*
     - db/schema.rb
@@ -171,4 +171,7 @@ RSpec/AlignRightLetBrace:
   Enabled: false
 
 RSpec/ImplicitSubject:
+  Enabled: false
+
+RSpec/NestedGroups:
   Enabled: false

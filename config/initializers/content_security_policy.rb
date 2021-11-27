@@ -4,44 +4,41 @@
 # For further information see the following documentation
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
 
-Rails
-  .application
-  .config
-  .content_security_policy do |policy|
-    if Rails.env.development?
-      policy.script_src :self, :unsafe_eval, :unsafe_inline
-      policy.connect_src :self, 'http://localhost:3035', 'ws://localhost:3035'
-    else
-      policy.default_src :none
-      policy.font_src :self, :data
-      policy.img_src :self, :data
-      policy.object_src :none
-      policy.script_src :self
-      policy.style_src :self, :unsafe_inline # unsafe_inline is required by Turbo's progressbar
-      policy.connect_src(
-        *[
-          :self,
-          Rails.configuration.x.plausible_url.presence,
-          (
-            if Rails.configuration.x.honeybadger.api_key
-              'https://api.honeybadger.io'
-            end
-          ),
-        ].compact,
-      )
-      policy.manifest_src :self
-      policy.frame_ancestors :none
-    end
-    policy.base_uri :self
-    policy.form_action :self
-
-    # Specify URI for violation reports
-    if Rails.configuration.x.honeybadger.api_key
-      policy.report_uri(
-        "https://api.honeybadger.io/v1/browser/csp?api_key=#{Rails.configuration.x.honeybadger.api_key}&report_only=true",
-      )
-    end
+Rails.application.config.content_security_policy do |policy|
+  if Rails.env.development?
+    policy.script_src :self, :unsafe_eval, :unsafe_inline
+    policy.connect_src :self, 'http://localhost:3035', 'ws://localhost:3035'
+  else
+    policy.default_src :none
+    policy.font_src :self, :data
+    policy.img_src :self, :data
+    policy.object_src :none
+    policy.script_src :self
+    policy.style_src :self, :unsafe_inline # unsafe_inline is required by Turbo's progressbar
+    policy.connect_src(
+      *[
+        :self,
+        Rails.configuration.x.plausible_url,
+        (
+          if Rails.configuration.x.honeybadger.api_key
+            'https://api.honeybadger.io'
+          end
+        ),
+      ].compact,
+    )
+    policy.manifest_src :self
+    policy.frame_ancestors :none
   end
+  policy.base_uri :self
+  policy.form_action :self
+
+  # Specify URI for violation reports
+  # if Rails.configuration.x.honeybadger.api_key
+  #   policy.report_uri(
+  #     "https://api.honeybadger.io/v1/browser/csp?api_key=#{Rails.configuration.x.honeybadger.api_key}&report_only=true",
+  #   )
+  # end
+end
 
 # If you are using UJS then enable automatic nonce generation
 # Rails.application.config.content_security_policy_nonce_generator = -> request { SecureRandom.base64(16) }

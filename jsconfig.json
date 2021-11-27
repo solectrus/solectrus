@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "baseUrl": "./app/packs",
+    "baseUrl": "./app/javascript",
     "paths": {
-      "@/*": ["./app/packs/*"]
+      "@/*": ["./app/javascript/*"]
     }
   },
   "exclude": ["node_modules", "public"]

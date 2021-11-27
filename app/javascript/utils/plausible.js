@@ -3,7 +3,7 @@ import Plausible from 'plausible-tracker';
 document.addEventListener('turbo:load', () => {
   const plausibleUrl = document.querySelector(
     'meta[name="plausible-url"]',
-  ).content;
+  )?.content;
   if (plausibleUrl) {
     let plausible = Plausible({
       domain: document.querySelector('meta[name="app-host"]').content,

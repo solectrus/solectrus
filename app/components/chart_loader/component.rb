@@ -1,11 +1,11 @@
-class Chart::Component < ViewComponent::Base
-  def initialize(field:, timeframe:, url:)
+class ChartLoader::Component < ViewComponent::Base
+  def initialize(field:, period:, url:)
     super
     @field = field
-    @timeframe = timeframe
+    @period = period
     @url = url
   end
-  attr_reader :field, :timeframe, :url
+  attr_reader :field, :period, :url
 
   def options # rubocop:disable Metrics/MethodLength
     {
@@ -28,22 +28,6 @@ class Chart::Component < ViewComponent::Base
             size: 20,
           },
         },
-        annotation: {
-          annotations: {
-            line1: {
-              display: chart_type.bar?,
-              type: 'line',
-              yMin: 0, # will be set in component_controller.js
-              yMax: 0, # will be set in component_controller.js
-              borderWidth: 1,
-              borderDash: [2, 2],
-              label: {
-                content: '', # will be set in component_controller.js
-                enabled: true,
-              },
-            },
-          },
-        },
       },
       animation: {
         easing: 'easeOutQuad',
@@ -58,6 +42,7 @@ class Chart::Component < ViewComponent::Base
       },
       scales: {
         x: {
+          stacked: true,
           grid: {
             drawOnChartArea: false,
           },
@@ -116,11 +101,10 @@ class Chart::Component < ViewComponent::Base
                 tooltipFormat: 'yyyy',
               },
             }[
-              timeframe
+              period
             ],
         },
         y: {
-          min: 0,
           ticks: {
             beginAtZero: true,
             maxTicksLimit: 4,
@@ -130,15 +114,15 @@ class Chart::Component < ViewComponent::Base
     }
   end
 
-  def chart_type
-    (timeframe.in?(%w[now day]) ? 'line' : 'bar').inquiry
+  def type
+    (period.in?(%w[now day]) ? 'line' : 'bar').inquiry
   end
 
   def title
     if field == 'bat_fuel_charge'
       "#{I18n.t "senec.#{field}"} in %"
     else
-      "#{I18n.t "senec.#{field}"} in #{timeframe.in?(%w[now day]) ? 'kW' : 'kWh'}"
+      "#{I18n.t "senec.#{field}"} in #{period.in?(%w[now day]) ? 'kW' : 'kWh'}"
     end
   end
 end

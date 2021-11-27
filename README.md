@@ -18,9 +18,8 @@ For self-hosting Solectrus, please look at https://github.com/solectrus/hosting
 ```bash
 git clone git@github.com:solectrus/solectrus.git
 cd solectrus
-cp .env.example .env
 bin/setup
-foreman start
+bin/dev
 ```
 
 Then open http://localhost:3000 in your browser.

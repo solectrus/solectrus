@@ -42,8 +42,8 @@ module Solectrus
     config.i18n.default_locale = :de
 
     config.x.app_host = ENV['APP_HOST']
-    config.x.plausible_url = ENV['PLAUSIBLE_URL']
-    config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY']
+    config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
+    config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
     config.x.force_ssl =
       ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', true)
 

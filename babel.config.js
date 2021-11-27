@@ -44,10 +44,10 @@ module.exports = function config(api) {
       ['@babel/plugin-proposal-class-properties', {}],
       ['@babel/plugin-transform-runtime', { helpers: false }],
       isProductionEnv &&
-      moduleExists('babel-plugin-transform-react-remove-prop-types') && [
-        'babel-plugin-transform-react-remove-prop-types',
-        { removeImport: true },
-      ],
+        moduleExists('babel-plugin-transform-react-remove-prop-types') && [
+          'babel-plugin-transform-react-remove-prop-types',
+          { removeImport: true },
+        ],
     ].filter(Boolean),
   };
 };

@@ -34,7 +34,7 @@ ruby:
   = turbo_frame_tag 'stats',
                     src: stats_path(permitted_params),
                     target: '_top',
-                    data: timeframe == 'now' && { controller: 'refresh', refresh_src_value: stats_path(permitted_params.merge(chart: false)) } do
+                    data: period == 'now' && { controller: 'refresh', refresh_src_value: stats_path(permitted_params.merge(chart: false)) } do
     .flex.justify-center.m-40
       = render Loading::Component.new
 

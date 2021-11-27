@@ -7,7 +7,7 @@ import Honeybadger from '@honeybadger-io/js';
 
 const honeybadgerApiKey = document.querySelector(
   'meta[name="honeybadger-api-key"]',
-).content;
+)?.content;
 if (honeybadgerApiKey) {
   const version = document.querySelector('meta[name="version"]').content;
 
@@ -18,9 +18,7 @@ if (honeybadgerApiKey) {
   });
 }
 
-import { Turbo } from '@hotwired/turbo-rails';
-window.Turbo = Turbo;
-
+import '@hotwired/turbo-rails';
 import 'channels';
 import 'stylesheets/application.css';
 import 'controllers';
@@ -29,4 +27,4 @@ import 'components';
 import 'utils/plausible';
 
 // import all image files in a folder:
-require.context('../images', true);
+require.context('./images', true);

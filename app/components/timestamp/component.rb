@@ -1,18 +1,18 @@
 class Timestamp::Component < ViewComponent::Base
-  def initialize(timestamp:, timeframe:)
+  def initialize(timestamp:, period:)
     super
     @timestamp = timestamp
-    @timeframe = timeframe
+    @period = period
   end
-  attr_reader :timestamp, :timeframe
+  attr_reader :timestamp, :period
 
   def can_paginate?
-    timeframe.in?(%w[day week month year])
+    period.in?(%w[day week month year])
   end
 
   def previous_timestamp
     result =
-      case timeframe
+      case period
       when 'day'
         timestamp - 1.day
       when 'week'
@@ -28,7 +28,7 @@ class Timestamp::Component < ViewComponent::Base
 
   def next_timestamp
     result =
-      case timeframe
+      case period
       when 'day'
         timestamp + 1.day
       when 'week'

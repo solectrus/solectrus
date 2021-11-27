@@ -1,7 +1,7 @@
 class Calculator::Range < Calculator::Base
-  def initialize(timeframe, timestamp)
+  def initialize(period, timestamp)
     super()
-    raise ArgumentError unless timeframe.to_s.in?(%w[day week month year all])
+    raise ArgumentError unless period.to_s.in?(%w[day week month year all])
 
     build_context PowerSum
                     .new(
@@ -17,7 +17,7 @@ class Calculator::Range < Calculator::Base
                         watt
                       ],
                     )
-                    .public_send(timeframe, timestamp)
+                    .public_send(period, timestamp)
   end
 
   def forecast_quality
