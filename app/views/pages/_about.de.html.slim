@@ -15,17 +15,8 @@ ruby:
     .mx-auto.text-base.max-w-prose.lg:grid.lg:grid-cols-2.lg:gap-8.lg:max-w-none
       h1.mt-2.text-3xl.leading-8.font-extrabold.tracking-tight.text-gray-900.sm:text-4xl Über Solectrus
     .lg:grid.lg:grid-cols-2.lg:gap-16.mt-8
-      .relative.lg:row-start-1.lg:col-start-2
-        svg.hidden.lg:block.absolute.top-0.right-0.-mt-20.-mr-20 aria-hidden="true" fill="none" height="384" viewbox="0 0 404 384" width="404"
-          defs
-            pattern#dots height="20" patternunits="userSpaceOnUse" width="20" x="0" y="0"
-              rect.text-gray-200 fill="currentColor" height="4" width="4" x="0" y="0"
-          rect fill="url(#dots)" height="384" width="404"
-        .relative.mx-auto.max-w-prose.lg:max-w-none
-          figure.aspect-w-12.aspect-h-7
-            = image_tag image_pack_path('logo-full.svg'), class: 'rounded-lg shadow-lg object-cover object-center', alt: 'Logo'
-      .mt-8.lg:mt-0
-        .prose.prose-indigo.text-gray-500.mx-auto.lg:max-w-none.lg:row-start-1.lg:col-start-1
+      .mt-8.lg:mt-0.lg:max-w-none
+        .prose.prose-indigo.text-gray-500.mx-auto
           p Solectrus ist ein alternatives Photovoltaik-Dashboard, das Ertrag und Verbrauch einer PV-Anlage visualisiert.
 
           p
@@ -47,10 +38,22 @@ ruby:
                         target: '_blank',
                         rel: 'noopener'
 
+      .mx-auto.max-w-prose.lg:max-w-none.mt-5.lg:mt-0
+        .relative
+          svg.hidden.lg:block.absolute.top-0.right-0.-mt-20.-mr-20 aria-hidden="true" fill="none" height="384" viewbox="0 0 404 384" width="404"
+            defs
+              pattern#dots height="20" patternunits="userSpaceOnUse" width="20" x="0" y="0"
+                rect.text-gray-200 fill="currentColor" height="4" width="4" x="0" y="0"
+            rect fill="url(#dots)" height="384" width="404"
+
+        figure.aspect-w-12.aspect-h-7
+          = image_tag image_pack_path('logo-full.svg'), class: 'rounded-lg shadow-lg object-cover object-center', alt: 'Logo'
+
+        .prose.prose-indigo.text-gray-500.mt-8
           h2 Open Source
 
           p
-            | Der Quelltext aller Komponenten (auf Basis von
+            | Solectrus basiert auf
             =<> link_to 'Ruby on Rails',
                         'https://rubyonrails.org/',
                         target: '_blank',
@@ -60,8 +63,11 @@ ruby:
                       'https://www.influxdata.com/',
                       target: '_blank',
                       rel: 'noopener'
-            | ) steht auf GitHub bereit:
+            |. Der Quelltext aller Komponenten steht auf GitHub bereit:
+            br
+            = link_to nil, 'https://github.com/solectrus', target: '_blank', rel: 'noopener'
 
-          ul
-            li
-              = link_to nil, 'https://github.com/solectrus'
+          p.text-xs
+            | Copyright (c) 2020-2021
+            =< link_to 'Georg Ledermann', 'https://ledermann.dev', target: '_blank', rel: 'noopener'
+            |, veröffentlicht unter der AGPL-3.0-Lizenz
