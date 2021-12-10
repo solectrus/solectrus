@@ -1,17 +1,17 @@
+const colors = require('tailwindcss/colors');
+
 module.exports = {
-  darkMode: false, // or 'media' or 'class'
-
-  mode: 'jit', // https://tailwindcss.com/docs/just-in-time-mode
-
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        green: colors.emerald,
+        yellow: colors.amber,
+        purple: colors.violet,
+      },
+    },
   },
 
-  variants: {
-    extend: {},
-  },
-
-  purge: [
+  content: [
     './app/**/*.html',
     './app/**/*.html.erb',
     './app/**/*.html.slim',
