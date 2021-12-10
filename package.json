@@ -13,7 +13,7 @@
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "@hotwired/turbo-rails": "^7.1.0",
     "@rails/webpacker": "6.0.0-rc.6",
-    "@tailwindcss/aspect-ratio": "^0.3.0",
+    "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/typography": "^0.4.1",
     "autoprefixer": "^10.4.0",
     "chart.js": "^3.6.2",
