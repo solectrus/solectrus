@@ -38,7 +38,7 @@ gem 'lograge'
 gem 'influxdb-client'
 
 # View components for Rails (https://github.com/github/view_component)
-gem 'view_component', require: 'view_component/engine'
+gem 'view_component'
 
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
