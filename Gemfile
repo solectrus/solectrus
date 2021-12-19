@@ -103,7 +103,7 @@ end
 
 group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockupgem.com)
-  # gem 'lockup'
+  gem 'lockup', github: 'ledermann/lockup', branch: 'rails-7' # https://github.com/interdiscipline/lockup/pull/67
 
   # Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
   gem 'honeybadger'

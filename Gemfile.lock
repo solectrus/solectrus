@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/ledermann/lockup.git
+  revision: 60cade163f1dbe16ae9917a4cedcefe19bd8aca5
+  branch: rails-7
+  specs:
+    lockup (1.6.1)
+      rails (>= 3, < 7.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -307,6 +315,7 @@ DEPENDENCIES
   guard-rspec
   honeybadger
   influxdb-client
+  lockup!
   lograge
   meta-tags
   pg (~> 1.1)
