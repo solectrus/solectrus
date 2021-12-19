@@ -1,5 +1,5 @@
 name: Continuous integration
-on: push
+on: [push, pull_request]
 
 jobs:
   test:
@@ -24,7 +24,7 @@ jobs:
       DB_PASSWORD: postgres
       RAILS_ENV: test
       CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-      DISABLE_SPRING: 1
+      CI: true
 
     steps:
       - uses: actions/checkout@v2

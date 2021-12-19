@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.0.3'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 6.1.4', '>= 6.1.4.1'
+gem 'rails', '~> 7.0.0'
 
 # The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
 gem 'turbo-rails'
@@ -22,12 +22,11 @@ gem 'redis'
 gem 'webpacker', '6.0.0.rc.6'
 
 # Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
-gem 'bootsnap', '>= 1.4.4', require: false
+gem 'bootsnap', require: false
 
 # Timezone Data for TZInfo (https://tzinfo.github.io)
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
-# Template language whose goal is to reduce the syntax to the essential parts without becoming cryptic
 # Slim is a template language. (http://slim-lang.com/)
 gem 'slim'
 
@@ -38,14 +37,14 @@ gem 'lograge'
 gem 'influxdb-client'
 
 # View components for Rails (https://github.com/github/view_component)
-gem 'view_component', require: 'view_component/engine'
+gem 'view_component'
 
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
 
 group :development, :test do
-  # Ruby fast debugger - base + CLI (https://github.com/deivid-rodriguez/byebug)
-  gem 'byebug', platforms: %i[mri mingw x64_mingw]
+  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
+  # gem 'debug', platforms: %i[ mri mingw x64_mingw ]
 
   # Autoload dotenv in Rails. (https://github.com/bkeepers/dotenv)
   gem 'dotenv-rails'
@@ -68,29 +67,25 @@ group :development, :test do
   # Code style checking for RSpec files (https://github.com/rubocop/rubocop-rspec)
   gem 'rubocop-rspec', require: false
 
-  # Rails application preloader (https://github.com/rails/spring)
-  gem 'spring'
-
-  # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
-  gem 'spring-commands-rspec'
-
-  # Configurable tool for analyzing Slim templates
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
 end
 
 group :development do
   # A debugging tool for your Ruby on Rails applications. (https://github.com/rails/web-console)
-  gem 'web-console', '>= 4.1.0'
+  gem 'web-console'
 
   # Profiles loading speed for rack applications. (https://miniprofiler.com)
-  # gem 'rack-mini-profiler', '~> 2.0'
-
-  # Listen to file modifications (https://github.com/guard/listen)
-  gem 'listen', '~> 3.3'
+  # gem 'rack-mini-profiler'
 
   # Guard gem for RSpec (https://github.com/guard/guard-rspec)
   gem 'guard-rspec', require: false
+
+  # Rails application preloader (https://github.com/rails/spring)
+  gem 'spring'
+
+  # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
+  gem 'spring-commands-rspec'
 end
 
 group :test do
@@ -112,7 +107,7 @@ end
 
 group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockupgem.com)
-  gem 'lockup'
+  gem 'lockup', github: 'ledermann/lockup', branch: 'rails-7' # https://github.com/interdiscipline/lockup/pull/67
 
   # Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
   gem 'honeybadger'

@@ -1,34 +1,34 @@
 .relative.overflow-hidden.lg:overflow-visible
   .absolute.w-full.px-1
     .grid.grid-cols-3.gap-5.md:gap-10.mt-24.h-8.md:h-16
-      .transform.rotate-90
+      .rotate-90
         = render Flow::Component.new value: calculator.inverter_to_wallbox, signal: true
 
       div
 
-      .transform.rotate-90
+      .rotate-90
         = render Flow::Component.new value: calculator.grid_to_wallbox, signal: false
 
     .flex.flex-row.items-center.-mt-10.md:mt-3
-      .w-1/2.transform.rotate-180
+      .w-1/2.rotate-180
         = render Flow::Component.new value: calculator.inverter_to_house, signal: true
 
       - case calculator.feeding?
         - when true
-          .w-1/2.transform.rotate-180
+          .w-1/2.rotate-180
             = render Flow::Component.new value: calculator.house_to_grid, signal: true
         - when false
           .w-1/2
             = render Flow::Component.new value: calculator.grid_to_house, signal: false
 
     .grid.grid-cols-3.gap-5.md:gap-10
-      .transform.-rotate-90
+      .-rotate-90
         = render Flow::Component.new value: calculator.inverter_to_battery, signal: true
 
-      .transform.rotate-90
+      .rotate-90
         = render Flow::Component.new value: calculator.battery_to_house, signal: true
 
-      .transform.-rotate-90
+      .-rotate-90
         = render Flow::Component.new value: calculator.grid_to_battery, signal: false
 
   .grid.gap-5.md:gap-y-10.text-center.text-white

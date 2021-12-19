@@ -1,7 +1,7 @@
-# For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
-
 Rails.application.routes.draw do
-  mount Lockup::Engine, at: '/lockup' if Rails.env.production?
+  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+
+  # mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
   constraints period: /now|day|week|month|year|all/,
               field: Regexp.new(Senec::FIELDS_COMBINED.join('|'), false),
