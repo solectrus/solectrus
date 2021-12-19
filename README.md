@@ -29,6 +29,7 @@ Then open http://localhost:3000 in your browser.
 After preparing development environment (see above):
 
 ```bash
+bin/influxdb-restart.sh
 bin/rspec
 ```
 
