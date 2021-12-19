@@ -27,7 +27,6 @@ gem 'bootsnap', require: false
 # Timezone Data for TZInfo (https://tzinfo.github.io)
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
-# Template language whose goal is to reduce the syntax to the essential parts without becoming cryptic
 # Slim is a template language. (http://slim-lang.com/)
 gem 'slim'
 
@@ -68,7 +67,6 @@ group :development, :test do
   # Code style checking for RSpec files (https://github.com/rubocop/rubocop-rspec)
   gem 'rubocop-rspec', require: false
 
-  # Configurable tool for analyzing Slim templates
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
 end
