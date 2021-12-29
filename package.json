@@ -2,7 +2,10 @@
   "name": "solectrus",
   "private": true,
   "scripts": {
-    "lint": "eslint --ext .js app"
+    "lint": "eslint --ext .js --cache .",
+    "start": "node esbuild-dev.config.js",
+    "build": "node esbuild.config.js",
+    "build:css": "tailwindcss --postcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
@@ -10,37 +13,32 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@honeybadger-io/js": "^3.2.7",
     "@hotwired/stimulus": "^3.0.1",
-    "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "@hotwired/turbo-rails": "^7.1.0",
-    "@rails/webpacker": "6.0.0-rc.6",
+    "@rails/actioncable": "^7.0.0",
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/typography": "^0.5.0",
     "autoprefixer": "^10.4.0",
     "chart.js": "^3.7.0",
     "chartjs-adapter-date-fns": "^2.0.0",
-    "css-loader": "^6.5.1",
-    "css-minimizer-webpack-plugin": "^3.3.1",
     "date-fns": "^2.28.0",
     "el-transition": "^0.0.7",
-    "mini-css-extract-plugin": "^2.4.5",
+    "esbuild": "^0.14.9",
+    "esbuild-rails": "^1.0.3",
     "plausible-tracker": "^0.3.4",
     "postcss": "^8.4.5",
-    "postcss-loader": "^6.2.1",
-    "style-loader": "^3.3.1",
+    "postcss-easy-import": "^3.0.0",
     "tailwindcss": "^3.0.8",
-    "tippy.js": "^6.3.7",
-    "webpack": "^5.65.0"
+    "tippy.js": "^6.3.7"
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@babel/core": "^7.16.5",
-    "@babel/eslint-parser": "^7.16.5",
     "@prettier/plugin-ruby": "^2.0.0",
+    "chokidar": "^3.5.2",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.5.1",
-    "webpack-dev-server": "^4.7.1"
+    "eslint-plugin-tailwindcss": "^3.0.1",
+    "prettier": "^2.5.1"
   },
   "browserslist": [
     "defaults",

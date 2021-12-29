@@ -12,7 +12,7 @@ require 'action_mailer/railtie'
 # require "action_text/engine"
 require 'action_view/railtie'
 require 'action_cable/engine'
-# require "sprockets/railtie"
+require 'sprockets/railtie'
 # require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
@@ -68,6 +68,3 @@ module Solectrus
     config.action_dispatch.default_headers.delete 'X-Frame-Options'
   end
 end
-
-# Makes sure the TailwindCSS JIT doesn't run forever
-Webpacker::Compiler.env['TAILWIND_MODE'] = 'build'
