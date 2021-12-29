@@ -29,7 +29,4 @@ end
 require 'rubygems'
 require 'bundler/setup'
 
-# Disable Tailwind JIT compiler
-ENV['TAILWIND_MODE'] ||= 'build'
-
 load Gem.bin_path('rspec-core', 'rspec')

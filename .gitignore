@@ -23,12 +23,12 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-/public/packs
-/public/packs-test
+/public/assets
 /node_modules
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+.eslintcache
 
 # dotenv
 .env
@@ -36,3 +36,6 @@ yarn-debug.log*
 
 # SimpleCoverage report
 /coverage/*
+
+/app/assets/builds/*
+!/app/assets/builds/.keep

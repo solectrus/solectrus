@@ -51,8 +51,13 @@ html lang="de"
 
     = csrf_meta_tags
 
-    = stylesheet_pack_tag 'application', media: 'all', 'data-turbo-track': 'reload'
-    = javascript_pack_tag 'application', 'data-turbo-track': 'reload'
+    = javascript_include_tag 'application',
+                             'data-turbo-track': 'reload',
+                             integrity: true,
+                             crossorigin: 'anonymous',
+                             defer: true
+    = stylesheet_link_tag 'application',
+                          'data-turbo-track': 'reload'
 
     = yield :head
 
