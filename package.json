@@ -37,7 +37,7 @@
     "eslint": "^8.6.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-tailwindcss": "^3.0.3",
+    "eslint-plugin-tailwindcss": "^3.0.4",
     "prettier": "^2.5.1"
   },
   "browserslist": [
