@@ -122,7 +122,7 @@ GEM
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
     influxdb-client (2.1.0)
-    io-wait (0.2.1)
+    io-wait (0.2.0)
     jsbundling-rails (1.0.0)
       railties (>= 6.0.0)
     launchy (2.5.0)
