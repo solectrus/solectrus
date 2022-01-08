@@ -9,4 +9,4 @@
 @import 'tippy.js/themes/light-border.css';
 
 /* Import styles from View components */
-@import '../../components/**/*.css';
+@import-glob '../../components/**/*.css';
