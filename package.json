@@ -27,7 +27,7 @@
     "plausible-tracker": "^0.3.4",
     "postcss": "^8.4.5",
     "postcss-easy-import": "^3.0.0",
-    "tailwindcss": "^3.0.11",
+    "tailwindcss": "^3.0.12",
     "tippy.js": "^6.3.7"
   },
   "version": "0.1.0",
