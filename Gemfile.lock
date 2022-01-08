@@ -93,7 +93,7 @@ GEM
     cssbundling-rails (1.0.0)
       railties (>= 6.0.0)
     diff-lcs (1.5.0)
-    digest (3.0.0)
+    digest (3.1.0)
     docile (1.4.0)
     dotenv (2.7.6)
     dotenv-rails (2.7.6)
@@ -122,7 +122,7 @@ GEM
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
     influxdb-client (2.1.0)
-    io-wait (0.2.0)
+    io-wait (0.2.1)
     jsbundling-rails (1.0.0)
       railties (>= 6.0.0)
     launchy (2.5.0)
@@ -377,7 +377,7 @@ DEPENDENCIES
   webdrivers
 
 RUBY VERSION
-   ruby 3.0.3p157
+   ruby 3.1.0p0
 
 BUNDLED WITH
-   2.2.32
+   2.3.4
