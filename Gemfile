@@ -118,7 +118,7 @@ group :test do
 end
 
 group :production do
-  # Lock staging servers from search engines and prying eyes. (http://lockupgem.com)
+  # Lock staging servers from search engines and prying eyes. (http://lockup.interdiscipline.com)
   gem 'lockup'
 
   # Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
