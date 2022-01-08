@@ -1,14 +1,14 @@
 = turbo_stream.update 'nav' do
-  = render Timestamp::Component.new(period: period, timestamp: timestamp)
+  = render Timestamp::Component.new(period:, timestamp:)
   = render Status::Component.new(live: calculator.live?, time: calculator.time) if period == 'now'
 
 = turbo_stream.update 'stats' do
   - if calculator.present?
     div id="tab-#{period}"
       - if period == 'now'
-        = render DashboardNow::Component.new calculator: calculator
+        = render DashboardNow::Component.new calculator:
       - else
-        = render DashboardRange::Component.new calculator: calculator
+        = render DashboardRange::Component.new calculator:
 
   - else
     .m-20.flex.justify-center
@@ -19,6 +19,6 @@
   = turbo_stream.update 'chart' do
     .flex.flex-col.h-full
       .flex-grow
-         = render ChartLoader::Component.new(field: field, period: period, url: charts_path(permitted_params))
+         = render ChartLoader::Component.new(field:, period:, url: charts_path(permitted_params))
 
-      = render Comment::Component.new(calculator: calculator, field: field, period: period, timestamp: timestamp)
+      = render Comment::Component.new(calculator:, field:, period:, timestamp:)

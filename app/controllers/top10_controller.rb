@@ -11,8 +11,8 @@ class Top10Controller < ApplicationController
     Senec::POWER_FIELDS.map do |field|
       {
         name: I18n.t("senec.#{field}"),
-        field: field,
-        href: url_for(**permitted_params.merge(field: field), only_path: true),
+        field:,
+        href: url_for(**permitted_params.merge(field:), only_path: true),
       }
     end
   end

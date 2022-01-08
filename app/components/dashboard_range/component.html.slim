@@ -28,7 +28,7 @@
           =< Number::Component.new(value: calculator.profit).to_eur(klass: 'text-current')
 
         - component.tippy do
-          = render ProfitDetails::Component.new(calculator: calculator)
+          = render ProfitDetails::Component.new(calculator:)
 
       .grid.gap-3
         = render Card::Component.new field: 'house_power', signal: calculator.autarky, klasses: 'flex flex-col justify-center' do |component|
@@ -46,7 +46,7 @@
               =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
 
             - component.tippy do
-              = render AutarkyDetails::Component.new(calculator: calculator)
+              = render AutarkyDetails::Component.new(calculator:)
 
       = render Card::Component.new field: 'grid_power', signal: calculator.feeding?, klasses: 'flex flex-col justify-center' do |component|
         = component.icon

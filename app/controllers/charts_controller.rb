@@ -5,9 +5,9 @@ class ChartsController < ApplicationController
     respond_to do |format|
       format.json do
         render ChartData::Component.new(
-                 field: field,
-                 period: period,
-                 timestamp: timestamp,
+                 field:,
+                 period:,
+                 timestamp:,
                )
       end
     end

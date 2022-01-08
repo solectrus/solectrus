@@ -13,7 +13,7 @@ class Card::Component < ViewComponent::Base
 
   def url_params
     @url_params ||=
-      { field: field, period: period, timestamp: timestamp }.compact
+      { field:, period:, timestamp: }.compact
   end
 
   def period

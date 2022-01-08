@@ -62,7 +62,7 @@ class ChartData::Component < ViewComponent::Base
   end
 
   def now
-    @now ||= PowerChart.new(measurements: ['SENEC'], fields: fields).now
+    @now ||= PowerChart.new(measurements: ['SENEC'], fields:).now
   end
 
   def inverter_power
@@ -86,7 +86,7 @@ class ChartData::Component < ViewComponent::Base
   def range
     @range ||=
       PowerChart
-        .new(measurements: ['SENEC'], fields: fields)
+        .new(measurements: ['SENEC'], fields:)
         .public_send(period, timestamp)
   end
 

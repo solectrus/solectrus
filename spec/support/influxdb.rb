@@ -5,8 +5,8 @@ module InfluxHelper
 
     write_api.write(
       data: {
-        name: name,
-        fields: fields,
+        name:,
+        fields:,
         time: time.to_i,
       },
       bucket: ENV['INFLUX_BUCKET'],
