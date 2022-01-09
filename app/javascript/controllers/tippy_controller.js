@@ -20,8 +20,10 @@ export default class extends Controller {
           reference.removeAttribute('title');
 
           return title;
-        } else if (this.hasHtmlTarget) return this.htmlTarget.innerHTML;
-        else console.warn('TippyController: Title or HTML target required!');
+        }
+        if (this.hasHtmlTarget) return this.htmlTarget.innerHTML;
+
+        console.warn('TippyController: Title or HTML target required!');
       },
     });
   }
