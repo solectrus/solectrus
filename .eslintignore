@@ -6,5 +6,4 @@
 /log
 /db
 /config
-/*.config.js
 /app/assets/builds
