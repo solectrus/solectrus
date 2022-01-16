@@ -22,8 +22,6 @@ Guardfile
 log/*
 node_modules
 public/assets/*
-public/packs-test
-public/packs/*
 tmp/*
 !/tmp/pids/
 !/tmp/pids/.keep
@@ -31,8 +29,6 @@ yarn-error.log
 jsconfig.json
 config/environments/test.rb
 config/environments/development.rb
-config/webpack/test.js
-config/webpack/development.js
 screenshot.png
 logo.svg
 jsconfig.json

@@ -17,7 +17,7 @@ class Number::Component < ViewComponent::Base
       )
     else
       styled_number(
-        formatted_number(value / 1_000.0, max_precision: max_precision),
+        formatted_number(value / 1_000.0, max_precision:),
         unit: 'kWh',
       )
     end
@@ -27,7 +27,7 @@ class Number::Component < ViewComponent::Base
     return unless value
 
     styled_number(
-      formatted_number(value / 1_000.0, max_precision: max_precision),
+      formatted_number(value / 1_000.0, max_precision:),
       unit: 'kW',
     )
   end
@@ -46,7 +46,7 @@ class Number::Component < ViewComponent::Base
     return unless value
 
     styled_number(
-      formatted_number(value, max_precision: max_precision),
+      formatted_number(value, max_precision:),
       unit: '%',
       klass: klass || (value.positive? ? %w[text-green-500] : %w[text-red-500]),
     )

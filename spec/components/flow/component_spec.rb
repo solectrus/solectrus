@@ -1,5 +1,5 @@
 describe Flow::Component, type: :component do
-  let(:component) { described_class.new(value: value, signal: true) }
+  let(:component) { described_class.new(value:, signal: true) }
 
   describe '#height' do
     subject { component.height }

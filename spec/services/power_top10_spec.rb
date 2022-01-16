@@ -26,7 +26,9 @@ describe PowerTop10 do
     add_influx_point name: measurement, fields: { inverter_power: 14_000 }
   end
 
-  around { |example| freeze_time(&example) }
+  around do |example|
+    travel_to Time.zone.local(2021, 12, 31, 12, 0, 0), &example
+  end
 
   describe '#years' do
     subject { chart.years }

@@ -5,7 +5,7 @@ document.addEventListener('turbo:load', () => {
     'meta[name="plausible-url"]',
   )?.content;
   if (plausibleUrl) {
-    let plausible = Plausible({
+    const plausible = Plausible({
       domain: document.querySelector('meta[name="app-host"]').content,
       apiHost: plausibleUrl,
     });

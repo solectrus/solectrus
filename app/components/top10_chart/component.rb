@@ -58,8 +58,8 @@ class Top10Chart::Component < ViewComponent::Base
 
   def link_to_timestamp(record)
     root_path(
-      period: period,
-      field: field,
+      period:,
+      field:,
       timestamp: corresponding_date(record[:date]),
     )
   end

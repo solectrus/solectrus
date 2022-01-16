@@ -1,9 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 
 import tippy from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/animations/scale.css';
-import 'tippy.js/themes/light-border.css';
 
 export default class extends Controller {
   static targets = ['html'];
@@ -23,8 +20,10 @@ export default class extends Controller {
           reference.removeAttribute('title');
 
           return title;
-        } else if (this.hasHtmlTarget) return this.htmlTarget.innerHTML;
-        else console.warn('TippyController: Title or HTML target required!');
+        }
+        if (this.hasHtmlTarget) return this.htmlTarget.innerHTML;
+
+        console.warn('TippyController: Title or HTML target required!');
       },
     });
   }

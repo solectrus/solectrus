@@ -29,7 +29,7 @@ export default class extends Controller {
       return;
     }
 
-    let chart = this.chartNow;
+    const chart = this.chartNow;
 
     if (!chart) {
       console.warn('RefreshController: Chart not found!');

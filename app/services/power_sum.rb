@@ -23,7 +23,7 @@ class PowerSum < Flux::Reader
   end
 
   def all(start)
-    sum start: start
+    sum start:
   end
 
   private
@@ -31,7 +31,7 @@ class PowerSum < Flux::Reader
   def last(start)
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range(start: start)}
+      |> #{range(start:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> last()
@@ -50,7 +50,7 @@ class PowerSum < Flux::Reader
   def sum(start:, stop: nil)
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range(start: start, stop: stop)}
+      |> #{range(start:, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> integral(unit:1h)

@@ -1,5 +1,5 @@
 describe Number::Component do
-  let(:component) { described_class.new(value: value) }
+  let(:component) { described_class.new(value:) }
 
   describe 'to_wh' do
     subject { component.to_wh }

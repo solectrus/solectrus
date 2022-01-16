@@ -7,8 +7,8 @@ class PowerChart < Flux::Reader
     chart_single start: start.beginning_of_day,
                  stop: start.end_of_day,
                  window: '5m',
-                 fill: fill,
-                 interpolate: interpolate
+                 fill:,
+                 interpolate:
   end
 
   def week(start)
@@ -40,7 +40,7 @@ class PowerChart < Flux::Reader
 
     q << 'import "interpolate"' if interpolate
     q << from_bucket
-    q << "|> #{range(start: start, stop: stop)}"
+    q << "|> #{range(start:, stop:)}"
     q << "|> #{measurements_filter}"
     q << "|> #{fields_filter}"
 
@@ -60,7 +60,7 @@ class PowerChart < Flux::Reader
   def chart_sum(start:, window:, stop: nil)
     raw = query <<-QUERY
       #{from_bucket}
-      |> #{range(start: start, stop: stop)}
+      |> #{range(start:, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)

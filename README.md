@@ -15,14 +15,44 @@ For self-hosting Solectrus, please look at https://github.com/solectrus/hosting
 
 ## Development
 
+1. Clone the repo locally:
+
 ```bash
 git clone git@github.com:solectrus/solectrus.git
 cd solectrus
+```
+
+2. Install PostgreSQL, Redis, and puma-dev (if not already present). On a Mac with HomeBrew, run this to install from the `Brewfile`:
+
+```bash
+brew bundle
+```
+
+3. Install and set up [puma-dev](https://github.com/puma/puma-dev) to use HTTPS for development. Do this on macOS:
+
+```bash
+sudo puma-dev -setup
+puma-dev -install
+puma-dev link
+
+# Auto-reload esbuild via puma-dev proxy
+# https://github.com/puma/puma-dev#webpack-dev-server
+echo 8082 > ~/.puma-dev/esbuild.solectrus
+```
+
+4. Setup the application to install gems and NPM packages and create the database:
+
+```bash
 bin/setup
+```
+
+5. Start the application locally:
+
+```bash
 bin/dev
 ```
 
-Then open http://localhost:3000 in your browser.
+Then open https://solectrus.test in your browser.
 
 ## Test
 
@@ -31,8 +61,21 @@ After preparing development environment (see above):
 ```bash
 bin/influxdb-restart.sh
 bin/rspec
+open coverage/index.html
+```
+
+RuboCop:
+
+```
+bin/rubocop
+```
+
+ESLint:
+
+```
+bin/yarn lint
 ```
 
 ## License
 
-Copyright (c) 2020-2021 Georg Ledermann, released under the AGPL-3.0 License
+Copyright (c) 2020-2022 Georg Ledermann, released under the AGPL-3.0 License

@@ -24,7 +24,7 @@ class PowerTop10 < Flux::Reader
   def top(start:, stop:, window:, limit: 10)
     raw = query <<-QUERY
       #{from_bucket}
-      |> #{range(start: start, stop: stop)}
+      |> #{range(start:, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
@@ -41,7 +41,7 @@ class PowerTop10 < Flux::Reader
       time = Time.zone.parse(record.values['_time'] || '').utc - 1.second
       value = record.values['_value'].to_f
 
-      { date: time.to_date, value: value }
+      { date: time.to_date, value: }
     end
   end
 end

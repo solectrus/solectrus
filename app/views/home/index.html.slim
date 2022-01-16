@@ -1,7 +1,7 @@
 = turbo_exempts_page_from_cache
 
 ruby:
-  set_meta_tags title: title,
+  set_meta_tags title:,
                 description: 'Solarstrom aus der Photovoltaik-Anlage',
                 keywords: 'photovoltaik, strom, solar, energiewende',
                 noindex: timestamp?,
@@ -11,7 +11,7 @@ ruby:
                   site_name:   :site,
                   url:         request.url,
                   type:        'website',
-                  image:       asset_url('og-image.png')
+                  image:       '/og-image.png'
                 }
 
 - content_for :sub_nav do

@@ -7,7 +7,7 @@ ruby:
                   site_name:   :site,
                   url:         request.url,
                   type:        'website',
-                  image:       asset_url('og-image.png')
+                  image:       '/og-image.png'
                 }
 
 .bg-white.overflow-hidden
@@ -47,7 +47,7 @@ ruby:
             rect fill="url(#dots)" height="384" width="404"
 
         figure.aspect-w-12.aspect-h-7
-          = image_tag image_pack_path('logo-full.svg'), class: 'rounded-lg shadow-lg object-cover object-center', alt: 'Logo'
+          = image_tag asset_path('logo-full.svg'), class: 'rounded-lg shadow-lg object-cover object-center', alt: 'Logo'
 
         .prose.prose-indigo.text-gray-500.mt-8
           h2 Open Source
@@ -68,6 +68,6 @@ ruby:
             = link_to nil, 'https://github.com/solectrus', target: '_blank', rel: 'noopener'
 
           p.text-xs
-            | Copyright (c) 2020-2021
+            | Copyright (c) 2020-2022
             =< link_to 'Georg Ledermann', 'https://ledermann.dev', target: '_blank', rel: 'noopener'
             |, veröffentlicht unter der AGPL-3.0-Lizenz

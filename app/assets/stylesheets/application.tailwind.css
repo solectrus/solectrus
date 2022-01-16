@@ -1,0 +1,12 @@
+/* Import Tailwind CSS */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Import styles from external libraries */
+@import 'tippy.js/dist/tippy.css';
+@import 'tippy.js/animations/scale.css';
+@import 'tippy.js/themes/light-border.css';
+
+/* Import styles from View components */
+@import-glob '../../components/**/*.css';
