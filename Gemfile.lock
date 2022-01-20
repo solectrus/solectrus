@@ -118,7 +118,7 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
-    honeybadger (4.9.0)
+    honeybadger (4.10.0)
     i18n (1.8.11)
       concurrent-ruby (~> 1.0)
     influxdb-client (2.1.0)
