@@ -39,8 +39,8 @@ gem 'bootsnap', require: false
 # Timezone Data for TZInfo (https://tzinfo.github.io)
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
-# Slim is a template language. (http://slim-lang.com/)
-gem 'slim'
+# Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
+gem 'slim-rails'
 
 # Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
 gem 'lograge'
