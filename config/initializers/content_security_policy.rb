@@ -15,7 +15,7 @@ Rails.application.configure do
       policy.img_src :self, :data
       policy.object_src :none
       policy.script_src :self
-      policy.style_src :self, :unsafe_inline # unsafe_inline is required by Turbo's progressbar
+      policy.style_src :self, :unsafe_inline
       policy.connect_src(
         *[
           :self,
