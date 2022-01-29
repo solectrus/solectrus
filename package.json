@@ -15,7 +15,7 @@
     "@hotwired/turbo-rails": "^7.1.1",
     "@rails/actioncable": "^7.0.1",
     "@tailwindcss/aspect-ratio": "^0.4.0",
-    "@tailwindcss/typography": "^0.5.0",
+    "@tailwindcss/typography": "^0.5.1",
     "autoprefixer": "^10.4.2",
     "chart.js": "^3.7.0",
     "chartjs-adapter-date-fns": "^2.0.0",
