@@ -27,7 +27,7 @@
     "postcss": "^8.4.6",
     "postcss-import": "^14.0.2",
     "postcss-import-ext-glob": "^2.0.1",
-    "tailwindcss": "^3.0.18",
+    "tailwindcss": "^3.0.19",
     "tippy.js": "^6.3.7"
   },
   "version": "0.1.0",
