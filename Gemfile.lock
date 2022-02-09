@@ -357,7 +357,7 @@ DEPENDENCIES
   meta-tags
   pg (~> 1.1)
   puma (~> 5.0)
-  rails (~> 7.0.1)
+  rails (~> 7.0.2)
   redis
   rspec-collection_matchers
   rspec-rails
