@@ -7,6 +7,7 @@
 @import 'tippy.js/dist/tippy.css';
 @import 'tippy.js/animations/scale.css';
 @import 'tippy.js/themes/light-border.css';
+@import '@fortawesome/fontawesome-svg-core/styles.css';
 
 /* Import styles from View components */
 @import-glob '../../components/**/*.css';

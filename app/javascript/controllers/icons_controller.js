@@ -21,6 +21,8 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 
 export default class extends Controller {
   initialize() {
+    config.autoAddCss = false;
+
     // Fix flash of missing icons
     config.mutateApproach = 'sync';
 
