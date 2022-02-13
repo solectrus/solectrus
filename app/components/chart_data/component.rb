@@ -21,7 +21,7 @@ class ChartData::Component < ViewComponent::Base
 
   def data_now
     {
-      labels: now[now.keys.first].map(&:first),
+      labels: now[now.keys.first]&.map(&:first),
       datasets:
         now.map do |chart_field, data|
           {
