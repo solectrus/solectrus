@@ -115,6 +115,7 @@ group :test do
 
   # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
   gem 'simplecov', require: false
+  gem 'simplecov_json_formatter', '!= 0.1.4' # https://github.com/codeclimate-community/simplecov_json_formatter/issues/4
 end
 
 group :production do
