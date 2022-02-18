@@ -121,7 +121,7 @@ GEM
     honeybadger (4.11.0)
     i18n (1.10.0)
       concurrent-ruby (~> 1.0)
-    influxdb-client (2.1.0)
+    influxdb-client (2.2.0)
     io-wait (0.2.1)
     jsbundling-rails (1.0.0)
       railties (>= 6.0.0)
