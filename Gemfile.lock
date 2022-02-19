@@ -123,7 +123,7 @@ GEM
       concurrent-ruby (~> 1.0)
     influxdb-client (2.2.0)
     io-wait (0.2.1)
-    jsbundling-rails (1.0.0)
+    jsbundling-rails (1.0.1)
       railties (>= 6.0.0)
     launchy (2.5.0)
       addressable (~> 2.7)
