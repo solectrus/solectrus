@@ -35,7 +35,7 @@
     "@prettier/plugin-ruby": "^2.0.0",
     "chokidar": "^3.5.3",
     "eslint": "^8.9.0",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-tailwindcss": "^3.4.4",
     "prettier": "^2.5.1"
