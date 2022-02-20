@@ -8,7 +8,9 @@ class ChartData::Component < ViewComponent::Base
   attr_reader :field, :period, :timestamp
 
   def call
-    if period == 'now'
+    if field == 'autarky'
+      data_autarky
+    elsif period == 'now'
       data_now
     elsif period == 'day' && field == 'inverter_power'
       data_day_inverter_power
@@ -48,6 +50,18 @@ class ChartData::Component < ViewComponent::Base
     }
   end
 
+  def data_autarky
+    {
+      labels: autarky&.map(&:first),
+      datasets: [
+        {
+          label: I18n.t('senec.autarky'),
+          data: autarky&.map(&:second),
+        }.merge(style('autarky')),
+      ]
+    }
+  end
+
   def data_range
     {
       labels: range[range.keys.first]&.map(&:first),
@@ -72,6 +86,19 @@ class ChartData::Component < ViewComponent::Base
         .day(timestamp)[
         'inverter_power'
       ]
+  end
+
+  def autarky
+    @autarky ||=
+      if period == 'now'
+        AutarkyChart
+        .new(measurements: %w[SENEC])
+        .now
+      else
+        AutarkyChart
+          .new(measurements: %w[SENEC])
+          .public_send(period, timestamp)
+      end
   end
 
   def forecast
