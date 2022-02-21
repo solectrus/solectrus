@@ -1,0 +1,8 @@
+div class="w-5/12 flex flex-col"
+  div class="p-4 flex-1 rounded-lg bg-slate-300 text-white divide-y divide-slate-300"
+    - existing_segments.each_with_index do |segment, index|
+      - segment.index = index
+      = segment
+
+  h3.text-slate-500.mx-auto.uppercase.tracking-wider.pt-2
+    = title

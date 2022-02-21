@@ -1,29 +1,17 @@
-# TODO: Better styling
-# https://stackoverflow.com/questions/62212412/smooth-infinite-animation-flow-with-css
-# https://stackoverflow.com/questions/58660120/create-infinite-loop-with-css-keyframes
-
 class Flow::Component < ViewComponent::Base
-  MAXIMUM = 10_000
+  renders_one :top
+  renders_one :bottom
 
-  private_constant :MAXIMUM
-
-  def initialize(value:, signal:)
+  def initialize(calculator:)
     super
-    @value = Float(value)
-    @signal = signal
+    @calculator = calculator
   end
 
-  attr_accessor :value, :signal
+  attr_reader :calculator
 
-  def quote
-    [@value / MAXIMUM, 1].min
-  end
-
-  def ease_out_cubic
-    ((quote - 1)**3) + 1
-  end
+  delegate :total, to: :calculator
 
   def height
-    "#{(100 * ease_out_cubic).round}%"
+    (total / 35.0).round
   end
 end

@@ -8,15 +8,15 @@ de:
     logout: Abmelden
   senec:
     inverter_power: Erzeugung
-    house_power: Hausverbrauch
-    wallbox_charge_power: Wallbox
+    house_power: Haus
+    wallbox_charge_power: E-Auto
     grid_power_plus: Netzbezug
     grid_power_minus: Einspeisung
     grid_power: Netz
     bat_power_minus: Akku-Entnahme
     bat_power_plus: Akku-Beladung
     bat_power: Akku
-    bat_fuel_charge: Akku-Füllstand
+    bat_fuel_charge: Akku
     autarky: Autarkie
   calculator:
     now: Jetzt

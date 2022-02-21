@@ -14,6 +14,7 @@ import { faSun } from '@fortawesome/free-solid-svg-icons/faSun';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faCar } from '@fortawesome/free-solid-svg-icons/faCar';
 import { faPlug } from '@fortawesome/free-solid-svg-icons/faPlug';
+import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt';
 
 import { faBatteryEmpty } from '@fortawesome/free-solid-svg-icons/faBatteryEmpty';
 import { faBatteryQuarter } from '@fortawesome/free-solid-svg-icons/faBatteryQuarter';
@@ -40,6 +41,7 @@ export default class extends Controller {
       faHome,
       faCar,
       faPlug,
+      faBolt,
       faChevronLeft,
       faChevronRight,
       faPlus,

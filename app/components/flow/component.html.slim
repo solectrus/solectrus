@@ -1,3 +1,8 @@
-.h-24.flex.items-center
-  - if value.positive?
-    .w-full.bg-gray-200.shadow.zebra class= [ (signal ? 'green-zebra' : 'red-zebra') ] style="height: #{height}"
+div class="flex flex-col items-center justify-center h-full text-center"
+  = top
+
+  div class="w-full zebra zebra-slate transform rotate-180" style="height: #{height}px"
+
+  = bottom
+
+  h3 class="pt-2" &nbsp;

@@ -45,6 +45,10 @@ class Calculator::Base
     inverter_power >= 50
   end
 
+  def inverter_power_percent
+    (100.0 * inverter_power / total_plus).round(1)
+  end
+
   # Grid
 
   def feeding?
@@ -55,6 +59,14 @@ class Calculator::Base
 
   def grid_power
     feeding? ? grid_power_minus : -grid_power_plus
+  end
+
+  def grid_power_plus_percent
+    (100.0 * grid_power_plus / total_plus).round(1)
+  end
+
+  def grid_power_minus_percent
+    (100.0 * grid_power_minus / total_minus).round(1)
   end
 
   # House
@@ -81,6 +93,16 @@ class Calculator::Base
     (100.0 - grid_quote).round(1)
   end
 
+  def house_power_percent
+    (100.0 * house_power / total_minus).round(1)
+  end
+
+  # Wallbox
+
+  def wallbox_charge_power_percent
+    (100.0 * wallbox_charge_power / total_minus).round(1)
+  end
+
   # Battery
 
   def bat_empty?
@@ -93,5 +115,27 @@ class Calculator::Base
 
   def bat_power
     bat_charging? ? bat_power_plus : -bat_power_minus
+  end
+
+  def bat_power_minus_percent
+    (100.0 * bat_power_minus / total_plus).round(1)
+  end
+
+  def bat_power_plus_percent
+    (100.0 * bat_power_plus / total_minus).round(1)
+  end
+
+  # Total
+
+  def total_plus
+    grid_power_plus + bat_power_minus + inverter_power
+  end
+
+  def total_minus
+    grid_power_minus + bat_power_plus + house_power + wallbox_charge_power
+  end
+
+  def total
+    [total_minus, total_plus].max
   end
 end

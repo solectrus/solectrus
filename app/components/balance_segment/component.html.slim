@@ -1,0 +1,8 @@
+dl class= [ 'flex flex-col items-center justify-center text-center px-4', border_class, color_class ] style="height: #{percent}%"
+  dt class= title_class
+    i.fa class= icon_class title= t("senec.#{field}")
+  dd class= value_class data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
+    - if now?
+      = Number::Component.new(value:).to_w
+    - else
+      = Number::Component.new(value:).to_wh
