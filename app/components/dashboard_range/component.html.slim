@@ -42,7 +42,7 @@
 
           - if calculator.autarky
             h1.mt-2.text-xs.md:text-base.whitespace-nowrap
-              =t 'calculator.autarky'
+              =t 'senec.autarky'
               =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
 
             - component.tippy do
