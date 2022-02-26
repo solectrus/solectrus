@@ -57,14 +57,14 @@ html lang="de"
 
     = yield :head
 
-  body.h-screen.flex.flex-col.bg-gray-100 data-controller="icons"
+  body.min-h-screen.flex.flex-col.bg-gray-100 data-controller="icons"
     = render Nav::Top::Component.new do |c|
       = c.with_items topnav_items
       = c.sub_nav { yield :sub_nav } if content_for?(:sub_nav)
 
-    main.-mt-32.flex-grow.lg:flex-none.pb-16.lg:pb-0
-      .max-w-7xl.mx-auto.sm:px-6.lg:px-8
-        .bg-white.sm:rounded-lg.lg:shadow.px-5.py-6.sm:px-6
+    main.-mt-32.flex-1.pb-16.lg:pb-0.flex
+      .max-w-7xl.mx-auto.sm:px-6.lg:px-8.flex-1.flex
+        .bg-white.sm:rounded-lg.lg:shadow.p-5.sm:px-6.flex-1
           = yield
       = turbo_frame_tag 'modal', target: '_top'
 

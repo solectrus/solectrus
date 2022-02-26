@@ -29,12 +29,13 @@ ruby:
     = render Nav::Sub::Component.new do |c|
       = c.items nav_items
 
-.grid.grid-cols-1.xl:grid-cols-2.gap-5
+div class="h-full w-full flex flex-col xl:flex-row gap-x-10 gap-y-5"
   = turbo_frame_tag 'stats',
                     src: stats_path(permitted_params),
+                    class: 'flex-1',
                     target: '_top',
                     data: period == 'now' && { controller: 'refresh', refresh_src_value: stats_path(permitted_params.merge(chart: false)) } do
     .flex.justify-center.m-40
       = render Loading::Component.new
 
-  = turbo_frame_tag 'chart'
+  = turbo_frame_tag 'chart', class: 'flex-1'

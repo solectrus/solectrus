@@ -1,5 +1,5 @@
 - if field == 'inverter_power' && period != 'now' && calculator.forecast_quality
-  .mt-2.text-center.text-sm.bg-indigo-100.text-gray-600.py-1.rounded
+  .mt-2.text-center.text-sm.text-slate-500
     - if calculator.forecast_quality.positive?
       => Number::Component.new(value: calculator.forecast_quality.abs).to_percent(max_precision: 0, klass: 'text-current')
       'mehr als erwartet

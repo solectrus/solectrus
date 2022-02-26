@@ -91,36 +91,6 @@ class BalanceSegment::Component < ViewComponent::Base
     end
   end
 
-  def title_class
-    if percent < 5
-      'hidden'
-    elsif percent < 8
-      'text-sm'
-    elsif percent < 10
-      'text-xl'
-    elsif percent < 20
-      'text-2xl'
-    else
-      'text-3xl'
-    end
-  end
-
-  def value_class
-    if value < 80 || percent <= 7
-      'hidden'
-    elsif percent < 8
-      'text-xs'
-    elsif percent < 11
-      'text-sm'
-    elsif percent < 15
-      'text-lg'
-    elsif percent < 20
-      'text-xl'
-    else
-      'text-2xl'
-    end
-  end
-
   def exist?
     percent.positive?
   end

@@ -1,7 +1,10 @@
-dl class= [ 'flex flex-col items-center justify-center text-center px-4', border_class, color_class ] style="height: #{percent}%"
-  dt class= title_class
+dl[
+  class= [ 'flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden', border_class, color_class ]
+  style= "height: #{percent}%; font-size: #{percent < 6 ? 0 : percent + 70}%;"
+]
+  dt.leading-none
     i.fa class= icon_class title= t("senec.#{field}")
-  dd class= value_class data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
+  dd.leading-none data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
     - if now?
       = Number::Component.new(value:).to_w
     - else

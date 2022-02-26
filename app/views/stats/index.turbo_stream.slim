@@ -4,7 +4,7 @@
 
 = turbo_stream.update 'stats' do
   - if calculator.present?
-    div id="tab-#{period}"
+    div id="tab-#{period}" class="h-full"
       - if period == 'now'
         = render DashboardNow::Component.new calculator:
       - else
@@ -18,7 +18,7 @@
 - if params[:chart] != 'false'
   = turbo_stream.update 'chart' do
     .flex.flex-col.h-full
-      .flex-grow
+      .flex-grow.flex
          = render ChartLoader::Component.new(field:, period:, url: charts_path(permitted_params))
 
       = render Comment::Component.new(calculator:, field:, period:, timestamp:)
