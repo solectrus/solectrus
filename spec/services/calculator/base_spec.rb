@@ -91,7 +91,7 @@ describe Calculator::Base do
                                  grid_power_plus: 0
       end
 
-      it { is_expected.to eq(nil) }
+      it { is_expected.to be_nil }
     end
   end
 end
