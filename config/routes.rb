@@ -17,5 +17,5 @@ Rails.application.routes.draw do
     get '/top10-chart/:period/:field', to: 'top10_chart#index', as: :top10_chart
   end
 
-  get '/:page' => 'pages#show', :as => :pages
+  get '/about' => 'pages#about', :as => :about
 end
