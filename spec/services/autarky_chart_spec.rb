@@ -32,7 +32,6 @@ describe AutarkyChart do
 
   around { |example| freeze_time(&example) }
 
-
   describe '#now' do
     subject(:result) { chart.now }
 
