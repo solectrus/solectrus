@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
               end,
           ),
       },
-      { name: t('layout.about'), href: pages_path('about') },
+      { name: t('layout.about'), href: about_path },
     ]
   end
 end
