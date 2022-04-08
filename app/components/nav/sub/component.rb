@@ -20,12 +20,13 @@ class Nav::Sub::Component < ViewComponent::Base
         link_to @name,
                 @href,
                 class:
-                  classes + %w[
-                    text-gray-300
-                    hover:text-gray-200
-                    hover:bg-indigo-500
-                    rounded
-                  ]
+                  classes +
+                    %w[
+                      text-gray-300
+                      hover:text-gray-200
+                      hover:bg-indigo-500
+                      rounded
+                    ]
       end
     end
   end
