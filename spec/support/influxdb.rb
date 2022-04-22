@@ -9,8 +9,8 @@ module InfluxHelper
         fields:,
         time: time.to_i,
       },
-      bucket: ENV['INFLUX_BUCKET'],
-      org: ENV['INFLUX_ORG'],
+      bucket: ENV.fetch('INFLUX_BUCKET', nil),
+      org: ENV.fetch('INFLUX_ORG', nil),
     )
   end
 
