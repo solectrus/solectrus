@@ -1,6 +1,9 @@
 .zebra {
   background-size: 200% 200%;
   animation: barberpole 10s linear infinite;
+
+  /* Reduce CPU load */
+  will-change: transform;
 }
 
 .red-zebra {
