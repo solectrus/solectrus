@@ -54,7 +54,7 @@ class ChartLoader::Component < ViewComponent::Base
             {
               'now' => {
                 unit: 'minute',
-                stepSize: 15,
+                stepSize: 2,
                 displayFormats: {
                   minute: 'HH:mm',
                 },
