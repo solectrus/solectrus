@@ -42,7 +42,7 @@ describe PowerChart do
     describe '#now' do
       subject(:result) { chart.now['inverter_power'] }
 
-      it { is_expected.to have(1.hour / 5.seconds).items }
+      it { is_expected.to have(10.minutes / 5.seconds).items }
 
       it 'contains last data point' do
         last = result.last
@@ -84,7 +84,7 @@ describe PowerChart do
       describe 'bat_power_plus' do
         subject(:result) { now['bat_power_plus'] }
 
-        it { is_expected.to have(1.hour / 5.seconds).items }
+        it { is_expected.to have(10.minutes / 5.seconds).items }
 
         it 'contains last data point' do
           last = result.last
