@@ -6,6 +6,7 @@ RUN rm -r package.json yarn.lock postcss.config.js tailwind.config.js esbuild.co
 
 FROM ghcr.io/ledermann/rails-base-final:3.1.2-alpine
 LABEL maintainer="georg@ledermann.dev"
+LABEL org.opencontainers.image.description="Solectrus Photovoltaic Dashboard"
 
 # Workaround to trigger Builder's ONBUILDs to finish:
 COPY --from=Builder /etc/alpine-release /tmp/dummy
