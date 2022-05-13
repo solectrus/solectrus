@@ -32,7 +32,7 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@prettier/plugin-ruby": "^2.1.0",
+    "@prettier/plugin-ruby": "^3.1.1",
     "chokidar": "^3.5.3",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
