@@ -71,7 +71,8 @@ jobs:
         if: failure()
         with:
           name: Screenshots
-          path: tmp/screenshots
+          path: tmp/capybara/
+          if-no-files-found: ignore
 
   deploy:
     runs-on: ubuntu-20.04
