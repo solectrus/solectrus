@@ -4,11 +4,7 @@ class ChartsController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        render ChartData::Component.new(
-                 field:,
-                 period:,
-                 timestamp:,
-               )
+        render ChartData::Component.new(field:, period:, timestamp:)
       end
     end
   end

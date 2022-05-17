@@ -12,8 +12,7 @@ class Card::Component < ViewComponent::Base
   attr_accessor :field, :signal, :klasses, :value
 
   def url_params
-    @url_params ||=
-      { field:, period:, timestamp: }.compact
+    @url_params ||= { field:, period:, timestamp: }.compact
   end
 
   def period

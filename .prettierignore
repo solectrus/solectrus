@@ -1,1 +1,5 @@
 db/schema.rb
+app/assets/builds/*
+public/assets/*
+coverage/*
+tmp/*

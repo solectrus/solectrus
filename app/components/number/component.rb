@@ -26,10 +26,7 @@ class Number::Component < ViewComponent::Base
   def to_w(max_precision: 1)
     return unless value
 
-    styled_number(
-      formatted_number(value / 1_000.0, max_precision:),
-      unit: 'kW',
-    )
+    styled_number(formatted_number(value / 1_000.0, max_precision:), unit: 'kW')
   end
 
   def to_eur(klass: nil)

@@ -113,6 +113,15 @@ Style/ConstantVisibility:
 Style/IfUnlessModifier:
   Enabled: false
 
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: single_quotes
+
+Style/QuotedSymbols:
+  EnforcedStyle: single_quotes
+
 ### Layout
 
 Layout/DotPosition:

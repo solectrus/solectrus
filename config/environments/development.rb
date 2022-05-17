@@ -67,8 +67,11 @@ Rails.application.configure do
 
   config.hosts << 'solectrus.test'
 
-  config.view_component.preview_paths <<
-    Rails.root.join('spec', 'components', 'previews')
+  config.view_component.preview_paths << Rails.root.join(
+    'spec',
+    'components',
+    'previews',
+  )
 end
 
 # Indent html for pretty debugging and do not sort attributes

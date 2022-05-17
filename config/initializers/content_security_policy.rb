@@ -15,7 +15,7 @@ Rails.application.configure do
       policy.img_src :self, :data
       policy.object_src :none
       policy.script_src :self,
-                        "'sha256-W49+qLXTvblxo3uhW+zCJ7W79iSK1/XLC2fBoPuDgHM='" # Lockup
+                        '\'sha256-W49+qLXTvblxo3uhW+zCJ7W79iSK1/XLC2fBoPuDgHM=\'' # Lockup
       policy.style_src :self, :unsafe_inline
       policy.connect_src(
         *[
