@@ -2,7 +2,7 @@ class AutarkyChart < Flux::Reader
   def initialize(measurements:)
     super(
       measurements:,
-      fields: %i[house_power wallbox_charge_power grid_power_plus]
+      fields: %i[house_power wallbox_charge_power grid_power_plus],
     )
   end
 

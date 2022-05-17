@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.1.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.0.2', '>= 7.0.2.4'
+gem 'rails', '~> 7.0.3'
 
 # Sprockets Rails integration (https://github.com/rails/sprockets-rails)
 gem 'sprockets-rails'
@@ -98,6 +98,20 @@ group :development do
 
   # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
   gem 'spring-commands-rspec'
+
+  ############# Used by prettier-ruby
+  # A drop-in replacement for the prettyprint gem with more functionality. (https://github.com/ruby-syntax-tree/prettier_print)
+  gem 'prettier_print'
+
+  # A parser based on ripper (https://github.com/kddnewton/syntax_tree)
+  gem 'syntax_tree'
+
+  # Syntax Tree support for Haml (https://github.com/ruby-syntax-tree/syntax_tree-haml)
+  gem 'syntax_tree-haml'
+
+  # Syntax Tree support for RBS (https://github.com/ruby-syntax-tree/syntax_tree-rbs)
+  gem 'syntax_tree-rbs'
+  ##################################
 end
 
 group :test do

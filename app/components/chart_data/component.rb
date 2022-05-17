@@ -54,11 +54,10 @@ class ChartData::Component < ViewComponent::Base
     {
       labels: autarky&.map(&:first),
       datasets: [
-        {
-          label: I18n.t('senec.autarky'),
-          data: autarky&.map(&:second),
-        }.merge(style('autarky')),
-      ]
+        { label: I18n.t('senec.autarky'), data: autarky&.map(&:second) }.merge(
+          style('autarky'),
+        ),
+      ],
     }
   end
 
@@ -81,9 +80,9 @@ class ChartData::Component < ViewComponent::Base
 
   def inverter_power
     @inverter_power ||=
-      PowerChart
-        .new(measurements: %w[SENEC], fields: %w[inverter_power])
-        .day(timestamp)[
+      PowerChart.new(measurements: %w[SENEC], fields: %w[inverter_power]).day(
+        timestamp,
+      )[
         'inverter_power'
       ]
   end
@@ -91,30 +90,29 @@ class ChartData::Component < ViewComponent::Base
   def autarky
     @autarky ||=
       if period == 'now'
-        AutarkyChart
-        .new(measurements: %w[SENEC])
-        .now
+        AutarkyChart.new(measurements: %w[SENEC]).now
       else
-        AutarkyChart
-          .new(measurements: %w[SENEC])
-          .public_send(period, timestamp)
+        AutarkyChart.new(measurements: %w[SENEC]).public_send(period, timestamp)
       end
   end
 
   def forecast
     @forecast ||=
-      PowerChart
-        .new(measurements: %w[Forecast], fields: %w[watt])
-        .day(timestamp, fill: false, interpolate: true)[
+      PowerChart.new(measurements: %w[Forecast], fields: %w[watt]).day(
+        timestamp,
+        fill: false,
+        interpolate: true,
+      )[
         'watt'
       ]
   end
 
   def range
     @range ||=
-      PowerChart
-        .new(measurements: ['SENEC'], fields:)
-        .public_send(period, timestamp)
+      PowerChart.new(measurements: ['SENEC'], fields:).public_send(
+        period,
+        timestamp,
+      )
   end
 
   def style(chart_field)

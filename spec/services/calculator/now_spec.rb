@@ -226,7 +226,7 @@ describe Calculator::Now do
       expect(calculator.grid_to_house).to eq(0)
       expect(calculator.inverter_to_house).to eq(400)
 
-      # FIX: expect(calculator.inverter_to_battery).to eq(2_500)
+      expect(calculator.inverter_to_battery).to eq(2_500)
       expect(calculator.inverter_to_wallbox).to eq(0)
       expect(calculator.grid_to_wallbox).to eq(0)
       expect(calculator.grid_to_battery).to eq(0)

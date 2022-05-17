@@ -19,8 +19,9 @@ describe PowerTop10 do
                          inverter_power: (index + 1) * 1000,
                        },
                        time:
-                         (beginning + index.month).beginning_of_month
-                           .beginning_of_day
+                         (
+                           beginning + index.month
+                         ).beginning_of_month.beginning_of_day
     end
 
     add_influx_point name: measurement, fields: { inverter_power: 14_000 }

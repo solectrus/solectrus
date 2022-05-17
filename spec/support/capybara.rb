@@ -15,8 +15,7 @@ RSpec.configure do |config|
         .logs
         .get(:browser)
         .reject do |log|
-          log
-            .message.include? 'Uncaught DOMException: The user aborted a request'
+          log.message.include? 'Uncaught DOMException: The user aborted a request'
         end
         .filter_map { |log| "[#{log.level}] #{log.message}" }
 

@@ -1,8 +1,8 @@
 # Be sure to restart your server when you modify this file.
 
-# Define an application-wide content security policy
-# For further information see the following documentation
-# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+# Define an application-wide content security policy.
+# See the Securing Rails Applications Guide for more information:
+# https://guides.rubyonrails.org/security.html#content-security-policy-header
 
 Rails.application.configure do
   config.content_security_policy do |policy|
@@ -15,7 +15,7 @@ Rails.application.configure do
       policy.img_src :self, :data
       policy.object_src :none
       policy.script_src :self,
-                        "'sha256-W49+qLXTvblxo3uhW+zCJ7W79iSK1/XLC2fBoPuDgHM='" # Lockup
+                        '\'sha256-W49+qLXTvblxo3uhW+zCJ7W79iSK1/XLC2fBoPuDgHM=\'' # Lockup
       policy.style_src :self, :unsafe_inline
       policy.connect_src(
         *[
@@ -45,8 +45,7 @@ Rails.application.configure do
     #  config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
     #  config.content_security_policy_nonce_directives = %w(script-src)
 
-    # Report CSP violations to a specified URI. See:
-    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy-Report-Only
+    # Report violations without enforcing the policy.
     # config.content_security_policy_report_only = true
   end
 end

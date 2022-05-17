@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js --cache .",
+    "size": "yarn run size-limit",
     "build": "node esbuild.config.js",
     "build:css": "tailwindcss --postcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify"
   },
@@ -10,18 +11,18 @@
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-brands-svg-icons": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
-    "@honeybadger-io/js": "^3.2.9",
+    "@honeybadger-io/js": "^4.0.2",
     "@hotwired/stimulus": "^3.0.1",
     "@hotwired/turbo-rails": "^7.1.1",
-    "@rails/actioncable": "^7.0.2",
+    "@rails/actioncable": "^7.0.3",
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/typography": "^0.5.2",
-    "autoprefixer": "^10.4.5",
+    "autoprefixer": "^10.4.7",
     "chart.js": "^3.7.1",
     "chartjs-adapter-date-fns": "^2.0.0",
     "date-fns": "^2.28.0",
     "el-transition": "^0.0.7",
-    "esbuild": "^0.14.38",
+    "esbuild": "^0.14.39",
     "esbuild-rails": "^1.0.3",
     "plausible-tracker": "^0.3.5",
     "postcss": "^8.4.13",
@@ -32,14 +33,22 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "@prettier/plugin-ruby": "^2.1.0",
+    "@prettier/plugin-ruby": "^3.1.2",
+    "@size-limit/file": "^7.0.8",
     "chokidar": "^3.5.3",
-    "eslint": "^8.14.0",
+    "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-tailwindcss": "^3.5.0",
-    "prettier": "^2.6.2"
+    "prettier": "^2.6.2",
+    "size-limit": "^7.0.8"
   },
+  "size-limit": [
+    {
+      "limit": "155 kB",
+      "path": "app/assets/builds/application.js"
+    }
+  ],
   "browserslist": [
     "defaults",
     "not IE 11"

@@ -25,7 +25,7 @@ class Calculator::Now < Calculator::Base
   end
 
   def inverter_to_battery
-    bat_charging? ? [inverter_power - house_power, 0].max : 0
+    bat_charging? && inverter_power >= bat_power_plus ? bat_power_plus : 0
   end
 
   def inverter_to_wallbox

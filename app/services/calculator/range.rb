@@ -3,21 +3,19 @@ class Calculator::Range < Calculator::Base
     super()
     raise ArgumentError unless period.to_s.in?(%w[day week month year all])
 
-    build_context PowerSum
-                    .new(
-                      measurements: %w[SENEC Forecast],
-                      fields: %i[
-                        inverter_power
-                        house_power
-                        wallbox_charge_power
-                        grid_power_plus
-                        grid_power_minus
-                        bat_power_minus
-                        bat_power_plus
-                        watt
-                      ],
-                    )
-                    .public_send(period, timestamp)
+    build_context PowerSum.new(
+                    measurements: %w[SENEC Forecast],
+                    fields: %i[
+                      inverter_power
+                      house_power
+                      wallbox_charge_power
+                      grid_power_plus
+                      grid_power_minus
+                      bat_power_minus
+                      bat_power_plus
+                      watt
+                    ],
+                  ).public_send(period, timestamp)
   end
 
   def forecast_quality

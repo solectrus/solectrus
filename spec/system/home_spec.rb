@@ -74,11 +74,11 @@ describe 'Home', type: :system, js: true do
     expect(page).to have_css('#tab-day')
     expect(page).to have_css('#chart-day')
 
-    find(:xpath, ".//a[contains(@rel, 'prev')]").click
+    find(:xpath, './/a[contains(@rel, \'prev\')]').click
     expect(page).to have_css('#tab-day')
     expect(page).to have_css('#chart-day')
 
-    find(:xpath, ".//a[contains(@rel, 'next')]").click
+    find(:xpath, './/a[contains(@rel, \'next\')]').click
     expect(page).to have_css('#tab-day')
     expect(page).to have_css('#chart-day')
   end
@@ -88,11 +88,11 @@ describe 'Home', type: :system, js: true do
     expect(page).to have_css('#tab-week')
     expect(page).to have_css('#chart-week')
 
-    find(:xpath, ".//a[contains(@rel, 'prev')]").click
+    find(:xpath, './/a[contains(@rel, \'prev\')]').click
     expect(page).to have_css('#tab-week')
     expect(page).to have_css('#chart-week')
 
-    find(:xpath, ".//a[contains(@rel, 'next')]").click
+    find(:xpath, './/a[contains(@rel, \'next\')]').click
     expect(page).to have_css('#tab-week')
     expect(page).to have_css('#chart-week')
   end
@@ -102,11 +102,11 @@ describe 'Home', type: :system, js: true do
     expect(page).to have_css('#tab-month')
     expect(page).to have_css('#chart-month')
 
-    find(:xpath, ".//a[contains(@rel, 'prev')]").click
+    find(:xpath, './/a[contains(@rel, \'prev\')]').click
     expect(page).to have_css('#tab-month')
     expect(page).to have_css('#chart-month')
 
-    find(:xpath, ".//a[contains(@rel, 'next')]").click
+    find(:xpath, './/a[contains(@rel, \'next\')]').click
     expect(page).to have_css('#tab-month')
     expect(page).to have_css('#chart-month')
   end
@@ -116,11 +116,11 @@ describe 'Home', type: :system, js: true do
     expect(page).to have_css('#tab-year')
     expect(page).to have_css('#chart-year')
 
-    find(:xpath, ".//a[contains(@rel, 'prev')]").click
+    find(:xpath, './/a[contains(@rel, \'prev\')]').click
     expect(page).to have_css('#tab-year')
     expect(page).to have_css('#chart-year')
 
-    find(:xpath, ".//a[contains(@rel, 'next')]").click
+    find(:xpath, './/a[contains(@rel, \'next\')]').click
     expect(page).to have_css('#tab-year')
     expect(page).to have_css('#chart-year')
   end
