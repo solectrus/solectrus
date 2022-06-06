@@ -24,7 +24,7 @@
     "el-transition": "^0.0.7",
     "esbuild": "^0.14.42",
     "esbuild-rails": "^1.0.3",
-    "plausible-tracker": "^0.3.5",
+    "plausible-tracker": "^0.3.7",
     "postcss": "^8.4.14",
     "postcss-import": "^14.1.0",
     "postcss-import-ext-glob": "^2.0.1",
