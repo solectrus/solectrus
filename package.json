@@ -22,7 +22,7 @@
     "chartjs-adapter-date-fns": "^2.0.0",
     "date-fns": "^2.28.0",
     "el-transition": "^0.0.7",
-    "esbuild": "^0.14.42",
+    "esbuild": "^0.14.43",
     "esbuild-rails": "^1.0.3",
     "plausible-tracker": "^0.3.8",
     "postcss": "^8.4.14",
