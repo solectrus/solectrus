@@ -45,6 +45,9 @@ gem 'view_component'
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
 
+# Brotli compression for Rack responses (http://github.com/marcotc/rack-brotli/)
+gem 'rack-brotli'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   # gem 'debug', platforms: %i[ mri mingw x64_mingw ]

@@ -72,6 +72,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.12.0)
       msgpack (~> 1.2)
+    brotli (0.4.0)
     builder (3.2.4)
     capybara (3.37.1)
       addressable
@@ -187,6 +188,9 @@ GEM
       nio4r (~> 2.0)
     racc (1.6.0)
     rack (2.2.3.1)
+    rack-brotli (1.2.0)
+      brotli (>= 0.1.7)
+      rack (>= 1.4)
     rack-proxy (0.7.2)
       rack
     rack-test (1.1.0)
@@ -367,6 +371,7 @@ DEPENDENCIES
   pg (~> 1.1)
   prettier_print
   puma (~> 5.0)
+  rack-brotli
   rails (~> 7.0.3)
   redis
   rspec-collection_matchers
