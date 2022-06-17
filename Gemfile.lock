@@ -191,6 +191,8 @@ GEM
     rack-brotli (1.2.0)
       brotli (>= 0.1.7)
       rack (>= 1.4)
+    rack-cors (1.1.1)
+      rack (>= 2.0.0)
     rack-proxy (0.7.2)
       rack
     rack-test (1.1.0)
@@ -372,6 +374,7 @@ DEPENDENCIES
   prettier_print
   puma (~> 5.0)
   rack-brotli
+  rack-cors
   rails (~> 7.0.3)
   redis
   rspec-collection_matchers
