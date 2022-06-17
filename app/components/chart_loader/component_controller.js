@@ -84,6 +84,9 @@ export default class extends Controller {
           data,
           options,
         });
+      })
+      .catch((err) => {
+        console.warn(err);
       });
   }
 
