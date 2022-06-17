@@ -51,13 +51,9 @@ html lang="de"
 
     = csrf_meta_tags
 
-    = javascript_include_tag 'application',
-                             'data-turbo-track': 'reload',
-                             integrity: true,
-                             crossorigin: 'anonymous',
-                             defer: true
-    = stylesheet_link_tag 'application',
-                          'data-turbo-track': 'reload'
+    = vite_client_tag
+    = vite_javascript_tag 'application', 'data-turbo-track': 'reload'
+    = vite_stylesheet_tag 'application', 'data-turbo-track': 'reload'
 
     = yield :head
 

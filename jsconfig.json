@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "baseUrl": "./app/javascript",
-    "paths": {
-      "@/*": ["./app/javascript/*"]
-    }
-  },
-  "exclude": ["node_modules", "public"]
-}

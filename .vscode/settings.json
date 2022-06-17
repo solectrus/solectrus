@@ -5,12 +5,13 @@
 
   "files.trimTrailingWhitespace": true,
   "files.watcherExclude": {
-    "**/tmp/**": true
+    "**/tmp/**": true,
+    "**/public/vite*": true
   },
 
   "search.exclude": {
     "**/tmp": true,
-    "**/public": true,
+    "**/public/vite*": true,
     "**/node_modules": true
   },
 

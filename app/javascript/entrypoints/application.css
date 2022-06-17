@@ -10,4 +10,4 @@
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
 /* Import styles from View components */
-@import-glob '../../components/**/*.css';
+@import '../../components/flow/component.css';
