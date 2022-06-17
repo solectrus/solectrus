@@ -43,8 +43,6 @@ module Solectrus
     config.x.app_host = ENV.fetch('APP_HOST', nil)
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
-    config.x.force_ssl =
-      ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', true)
 
     config.x.influx.token = ENV.fetch('INFLUX_TOKEN', nil)
     config.x.influx.schema = ENV.fetch('INFLUX_SCHEMA', 'http')
