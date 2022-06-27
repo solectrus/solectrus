@@ -31,7 +31,7 @@
     "@size-limit/file": "^7.0.8",
     "eslint": "^8.18.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^4.1.0",
     "eslint-plugin-tailwindcss": "^3.5.2",
     "prettier": "^2.7.1",
     "rollup": "^2.75.7",
