@@ -16,6 +16,7 @@
 .prettierignore
 .prettierrc.json
 **/*.DS_Store
+Brewfile
 Dockerfile
 Procfile*
 Guardfile
