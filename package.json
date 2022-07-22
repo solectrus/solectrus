@@ -18,7 +18,7 @@
     "autoprefixer": "^10.4.7",
     "chart.js": "^3.8.0",
     "chartjs-adapter-date-fns": "^2.0.0",
-    "date-fns": "^2.28.0",
+    "date-fns": "^2.29.0",
     "el-transition": "^0.0.7",
     "plausible-tracker": "^0.3.8",
     "postcss": "^8.4.14",
