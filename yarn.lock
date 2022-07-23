@@ -351,10 +351,10 @@ cssesc@^3.0.0:
   resolved "https://registry.yarnpkg.com/cssesc/-/cssesc-3.0.0.tgz#37741919903b868565e1c09ea747445cd18983ee"
   integrity sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
 
-date-fns@^2.29.0:
-  version "2.29.0"
-  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.29.0.tgz#0abb17a5f224d5d91cc1fe02e847ce80ab7372a5"
-  integrity sha512-itxguwZHwBR0ats0VpYAVyY65dq1DEsDsfsGxFG11Rrho+zQJTCcjKbxQ7LiU5M2omLJ272bnn63yYFk/YGuVw==
+date-fns@^2.29.1:
+  version "2.29.1"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.29.1.tgz#9667c2615525e552b5135a3116b95b1961456e60"
+  integrity sha512-dlLD5rKaKxpFdnjrs+5azHDFOPEu4ANy/LTh04A1DTzMM7qoajmKCBc8pkKRFT41CNzw+4gQh79X5C+Jq27HAw==
 
 debug@^4.1.1, debug@^4.3, debug@^4.3.2, debug@^4.3.4:
   version "4.3.4"
