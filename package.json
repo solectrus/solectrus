@@ -22,7 +22,7 @@
     "el-transition": "^0.0.7",
     "plausible-tracker": "^0.3.8",
     "postcss": "^8.4.14",
-    "tailwindcss": "^3.1.6",
+    "tailwindcss": "^3.1.7",
     "tippy.js": "^6.3.7"
   },
   "version": "0.1.0",
