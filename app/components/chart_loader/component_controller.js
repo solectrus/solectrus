@@ -116,15 +116,15 @@ export default class extends Controller {
 
   // Get maximum value of all datasets, rounded up to next integer
   maxOf(data) {
-    return Math.ceil(
-      Math.max(...data.datasets.flatMap((dataset) => dataset.data)),
-    );
+    return Math.ceil(Math.max(...this.flatMapped(data)));
   }
 
   // Get minium value of all datasets, rounded down to next integer
   minOf(data) {
-    return Math.floor(
-      Math.min(...data.datasets.flatMap((dataset) => dataset.data)),
-    );
+    return Math.floor(Math.min(...this.flatMapped(data)));
+  }
+
+  flatMapped(data) {
+    return data.datasets.flatMap((dataset) => dataset.data);
   }
 }
