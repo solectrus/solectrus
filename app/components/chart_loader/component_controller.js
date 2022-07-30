@@ -47,6 +47,8 @@ export default class extends Controller {
 
   async process() {
     const data = await this.loadData();
+    if (!data) return;
+
     const options = this.optionsValue;
 
     // I18n
