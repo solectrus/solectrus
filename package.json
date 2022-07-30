@@ -15,7 +15,7 @@
     "@rails/actioncable": "^7.0.3",
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/typography": "^0.5.4",
-    "autoprefixer": "^10.4.7",
+    "autoprefixer": "^10.4.8",
     "chart.js": "^3.8.2",
     "chartjs-adapter-date-fns": "^2.0.0",
     "date-fns": "^2.29.1",
