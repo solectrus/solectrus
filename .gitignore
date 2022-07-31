@@ -37,7 +37,7 @@ yarn-debug.log*
 # SimpleCoverage report
 /coverage/*
 
-/app/assets/builds/*
-!/app/assets/builds/.keep
+# Vite Ruby
+/public/vite*
 
 Brewfile.lock.json

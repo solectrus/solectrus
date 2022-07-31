@@ -11,8 +11,9 @@ html
     link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"
     link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"
 
-    = javascript_include_tag 'application'
-    = stylesheet_link_tag 'application'
+    = vite_client_tag
+    = vite_javascript_tag 'application', 'data-turbo-track': 'reload'
+    = vite_stylesheet_tag 'application', 'data-turbo-track': 'reload'
 
   body.px-24.pt-5.bg-yellow-100 data-controller="icons"
     header.text-center.p-10

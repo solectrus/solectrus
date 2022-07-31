@@ -3,6 +3,7 @@ class Flux::Reader < Flux::Base
     super()
     @fields = fields
     @measurements = measurements
+    @cacheable = false
   end
   attr_reader :fields, :measurements
 
@@ -28,6 +29,9 @@ class Flux::Reader < Flux::Base
   end
 
   def range(start:, stop: nil)
+    # Cache only if the range is in the past, so the query result will not change
+    @cacheable = stop&.past?
+
     start = start.iso8601 if start.respond_to?(:iso8601)
     stop = stop.iso8601 if stop.respond_to?(:iso8601)
 
@@ -35,6 +39,14 @@ class Flux::Reader < Flux::Base
   end
 
   def query(string)
+    if @cacheable
+      Rails.cache.fetch("flux/#{string}") { query_without_cache(string) }
+    else
+      query_without_cache(string)
+    end
+  end
+
+  def query_without_cache(string)
     client.create_query_api.query(query: string)
   end
 end

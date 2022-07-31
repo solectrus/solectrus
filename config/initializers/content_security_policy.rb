@@ -7,20 +7,53 @@
 Rails.application.configure do
   config.content_security_policy do |policy|
     if Rails.env.development?
-      policy.script_src :self, :unsafe_eval, :unsafe_inline
-      policy.connect_src :self, 'https://esbuild.solectrus.test'
+      policy.connect_src :self,
+                         # Allow ActionCable connection
+                         "wss://#{ENV.fetch('APP_HOST', nil)}",
+                         # Allow @vite/client to hot reload CSS changes
+                         "wss://#{ViteRuby.config.host}"
+
+      policy.style_src :self,
+                       # Allow @vite/client to hot reload style changes
+                       :unsafe_inline
+
+      policy.script_src :self,
+                        :unsafe_inline,
+                        # Allow Lookbook to build component previews
+                        :unsafe_eval,
+                        # Allow @vite/client to hot reload JavaScript changes
+                        "https://#{ViteRuby.config.host}"
     else
       policy.default_src :none
-      policy.font_src :self, :data
-      policy.img_src :self, :data
+      policy.font_src(
+        *[:self, :data, Rails.configuration.asset_host.presence].compact,
+      )
+      policy.img_src(
+        *[:self, :data, Rails.configuration.asset_host.presence].compact,
+      )
       policy.object_src :none
-      policy.script_src :self,
-                        '\'sha256-W49+qLXTvblxo3uhW+zCJ7W79iSK1/XLC2fBoPuDgHM=\'' # Lockup
-      policy.style_src :self, :unsafe_inline
+      policy.script_src(
+        *[
+          :self,
+          Rails.configuration.asset_host.presence,
+          '\'sha256-W49+qLXTvblxo3uhW+zCJ7W79iSK1/XLC2fBoPuDgHM=\'', # Lockup
+        ].compact,
+      )
+      policy.style_src(
+        *[
+          :self,
+          :unsafe_inline,
+          Rails.configuration.asset_host.presence,
+        ].compact,
+      )
+      policy.frame_src(
+        *[:self, Rails.configuration.asset_host.presence].compact,
+      )
       policy.connect_src(
         *[
           :self,
-          Rails.configuration.x.plausible_url,
+          Rails.configuration.x.plausible_url.presence,
+          "wss://#{ENV.fetch('APP_HOST', nil)}",
           (
             if Rails.configuration.x.honeybadger.api_key
               'https://api.honeybadger.io'

@@ -43,9 +43,6 @@ export default class extends Controller {
   }
 
   connect() {
-    dom.watch({
-      autoReplaceSvgRoot: this.element,
-      observeMutationsRoot: this.element,
-    });
+    dom.watch();
   }
 }

@@ -53,9 +53,6 @@ Rails.application.configure do
   # Highlight code that triggered database queries in logs.
   config.active_record.verbose_query_logs = true
 
-  # Suppress logger output for asset requests.
-  config.assets.quiet = true
-
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
 
@@ -64,6 +61,23 @@ Rails.application.configure do
 
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
+
+  # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  config.force_ssl =
+    ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', true)
+
+  if config.force_ssl
+    config.ssl_options = {
+      # Ensure that http://localhost:3000 redirects to https://{APP_HOST},
+      # because there is no https://localhost:3000
+      redirect: {
+        host: ENV.fetch('APP_HOST', nil),
+        port: 80,
+      },
+      # Don't cache the HTTPS redirect to avoid conflicts with other apps
+      hsts: false,
+    }
+  end
 
   config.hosts << 'solectrus.test'
 

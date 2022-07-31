@@ -5,16 +5,18 @@
 class Flow::Component < ViewComponent::Base
   MAXIMUM = 10_000
 
+  private_constant :MAXIMUM
+
   def initialize(value:, signal:)
     super
-    @value = value.to_f
+    @value = Float(value)
     @signal = signal
   end
 
   attr_accessor :value, :signal
 
   def quote
-    [@value.to_f / MAXIMUM, 1].min
+    [@value / MAXIMUM, 1].min
   end
 
   def ease_out_cubic

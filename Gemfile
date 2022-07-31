@@ -6,23 +6,14 @@ ruby '3.1.2'
 # Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 7.0.3'
 
-# Sprockets Rails integration (https://github.com/rails/sprockets-rails)
-gem 'sprockets-rails'
-
-# Adds multiple exporters to Sprockets (https://github.com/hansottowirtz/sprockets-exporters_pack)
-gem 'sprockets-exporters_pack'
+# Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
+gem 'vite_rails'
 
 # The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
 gem 'turbo-rails'
 
 # A modest JavaScript framework for the HTML you already have. (https://stimulus.hotwired.dev)
 gem 'stimulus-rails'
-
-# Bundle and transpile JavaScript in Rails with esbuild, rollup.js, or Webpack. (https://github.com/rails/jsbundling-rails)
-gem 'jsbundling-rails'
-
-# Bundle and process CSS with Tailwind, Bootstrap, PostCSS, Sass in Rails via Node.js. (https://github.com/rails/cssbundling-rails)
-gem 'cssbundling-rails'
 
 # Pg is the Ruby interface to the PostgreSQL RDBMS (https://github.com/ged/ruby-pg)
 gem 'pg', '~> 1.1'
@@ -42,6 +33,9 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 # Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
 gem 'slim-rails'
 
+# Middleware for enabling Cross-Origin Resource Sharing in Rack apps (https://github.com/cyu/rack-cors)
+gem 'rack-cors', require: 'rack/cors'
+
 # Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
 gem 'lograge'
 
@@ -53,6 +47,9 @@ gem 'view_component'
 
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
+
+# Brotli compression for Rack responses (http://github.com/marcotc/rack-brotli/)
+gem 'rack-brotli'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
