@@ -1,12 +1,11 @@
 import { Controller } from '@hotwired/stimulus';
-
 import tippy from 'tippy.js';
 
 export default class extends Controller {
   static targets = ['html'];
 
   connect() {
-    this.tippyInstance = tippy(this.element, {
+    tippy(this.element, {
       allowHTML: true,
       arrow: true,
       placement: 'bottom',
@@ -29,6 +28,6 @@ export default class extends Controller {
   }
 
   disconnect() {
-    this.tippyInstance.destroy();
+    this.element._tippy.destroy();
   }
 }
