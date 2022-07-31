@@ -2,6 +2,10 @@ class Nav::Top::Component < ViewComponent::Base
   renders_many :items, 'ItemComponent'
   renders_one :sub_nav
 
+  def current_item
+    items.find(&:current?)
+  end
+
   class ItemComponent < ViewComponent::Base
     def initialize(name:, href:)
       super
@@ -9,10 +13,11 @@ class Nav::Top::Component < ViewComponent::Base
       @href = href
     end
 
+    attr_reader :name, :href
+
     def current?
-      current_page?(@href) ||
-        (@href == root_path && controller_name == 'home') ||
-        (@href.include?('top10') && controller_name == 'top10')
+      current_page?(href) || (href == root_path && controller_name == 'home') ||
+        (href.include?('top10') && controller_name == 'top10')
     end
 
     def call
@@ -27,13 +32,13 @@ class Nav::Top::Component < ViewComponent::Base
       ]
 
       if current?
-        link_to @name,
-                @href,
+        link_to name,
+                href,
                 class: classes + %w[bg-indigo-700],
                 'aria-current': 'page'
       else
-        link_to @name,
-                @href,
+        link_to name,
+                href,
                 class: classes + %w[hover:bg-indigo-500 hover:bg-opacity-75]
       end
     end
