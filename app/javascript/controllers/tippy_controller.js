@@ -21,8 +21,6 @@ export default class extends Controller {
           return title;
         }
         if (this.hasHtmlTarget) return this.htmlTarget.innerHTML;
-
-        console.warn('TippyController: Title or HTML target required!');
       },
     });
   }
