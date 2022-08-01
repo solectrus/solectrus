@@ -123,6 +123,9 @@ group :test do
 
   # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
   gem 'simplecov', require: false
+
+  # Simple one-liner tests for common Rails functionality (https://matchers.shoulda.io/)
+  gem 'shoulda-matchers'
 end
 
 group :production do
