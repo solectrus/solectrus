@@ -1,0 +1,42 @@
+- if turbo_frame_request?
+  = turbo_frame_tag 'modal' do
+    div[
+      role= 'dialog'
+      aria-modal= 'true'
+      aria-labelledby= @title
+      data-controller= 'turbo-modal--component'
+      data-turbo-modal--component-target= 'dialog'
+      data-transition-enter="ease-out duration-300"
+      data-transition-enter-start="opacity-0"
+      data-transition-enter-end="opacity-100"
+      data-transition-leave="ease-in duration-200"
+      data-transition-leave-start="opacity-100"
+      data-transition-leave-end="opacity-0"
+      class= 'z-50 relative'
+    ]
+      div[
+        class= 'fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity'
+        data-action= 'click->turbo-modal--component#closeBackground'
+      ]
+
+      div class= 'fixed z-50 inset-0 bottom-20 overflow-y-auto'
+        div class= 'flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0'
+          div[
+            class= 'relative bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-sm sm:w-full sm:p-6'
+            data-turbo-modal--component-target= 'inner'
+          ]
+            h1 class='font-bold text-2xl leading-none'
+              = @title
+
+            = content
+
+            = button_tag type: 'button',
+                         class: 'absolute top-5 right-5 text-gray-600',
+                         'aria-label': 'Schließen',
+                         data: { action: 'turbo-modal--component#closeDialog' } do
+              i.fa.fa-times.fa-lg
+
+- else
+  h1 class='font-bold text-2xl'
+    = @title
+  = content

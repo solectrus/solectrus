@@ -5,6 +5,7 @@ import { config, library, dom } from '@fortawesome/fontawesome-svg-core';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
 
+import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 import { faSun } from '@fortawesome/free-solid-svg-icons/faSun';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faCar } from '@fortawesome/free-solid-svg-icons/faCar';
@@ -33,6 +34,7 @@ export default class extends Controller {
       faPlug,
       faChevronLeft,
       faChevronRight,
+      faTimes,
       faBatteryEmpty,
       faBatteryQuarter,
       faBatteryHalf,
