@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  default_form_builder TailwindFormBuilder
+
   private
 
   helper_method def topnav_items
