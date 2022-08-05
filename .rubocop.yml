@@ -52,7 +52,6 @@ Metrics/MethodLength:
   Max: 50
 
 Metrics/BlockLength:
-  IgnoredMethods: ['configure', 'content_security_policy']
   Max: 100
 
 Metrics/ClassLength:
