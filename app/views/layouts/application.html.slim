@@ -58,7 +58,7 @@ html lang="de"
 
   body.h-screen.flex.flex-col.bg-gray-100 data-controller="icons"
     = render Nav::Top::Component.new do |c|
-      = c.items topnav_items
+      = c.with_items topnav_items
       = c.sub_nav { yield :sub_nav } if content_for?(:sub_nav)
 
     main.-mt-32.flex-grow.lg:flex-none.pb-16.lg:pb-0
