@@ -21,5 +21,9 @@ Rails.application.routes.draw do
   post '/login', to: 'sessions#create', as: :sessions
   delete '/logout', to: 'sessions#destroy', as: :session
 
+  scope :settings do
+    resources :prices
+  end
+
   get '/about' => 'pages#about', :as => :about
 end

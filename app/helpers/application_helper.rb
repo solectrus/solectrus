@@ -37,6 +37,12 @@ module ApplicationHelper
               end,
           ),
       },
+      {
+        name: t('layout.settings'),
+        icon: 'cog',
+        href: prices_path,
+        alignment: :right,
+      },
       { name: t('layout.about'), href: about_path },
       session_item,
     ]

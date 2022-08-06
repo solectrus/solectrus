@@ -5,7 +5,11 @@ import { config, library, dom } from '@fortawesome/fontawesome-svg-core';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
 
+import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
+import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
+
 import { faSun } from '@fortawesome/free-solid-svg-icons/faSun';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faCar } from '@fortawesome/free-solid-svg-icons/faCar';
@@ -21,6 +25,7 @@ import { faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons/faArrow
 import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons/faArrowRightFromBracket';
 
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
+import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
 // -------------------------
 
 export default class extends Controller {
@@ -37,6 +42,9 @@ export default class extends Controller {
       faPlug,
       faChevronLeft,
       faChevronRight,
+      faPlus,
+      faPencil,
+      faTrash,
       faTimes,
       faBatteryEmpty,
       faBatteryQuarter,
@@ -46,6 +54,7 @@ export default class extends Controller {
       faArrowRightToBracket,
       faArrowRightFromBracket,
       faGithub,
+      faCog,
     );
   }
 

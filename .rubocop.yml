@@ -139,3 +139,6 @@ RSpec/AlignRightLetBrace:
 
 RSpec/NestedGroups:
   Enabled: false
+
+RSpec/ImplicitSubject:
+  Enabled: false
