@@ -35,7 +35,7 @@ describe AutarkyChart do
   describe '#now' do
     subject(:result) { chart.now }
 
-    it { is_expected.to have(10.minutes / 5.seconds).items }
+    it { is_expected.to have(1.hour / 5.seconds).items }
 
     it 'contains last data point' do
       last = result.last
