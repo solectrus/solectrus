@@ -3,6 +3,8 @@ de:
     stats: Verlauf
     top10: Top 10
     about: Über
+    login: Anmelden
+    logout: Abmelden
   senec:
     inverter_power: Erzeugung
     house_power: Hausverbrauch
@@ -31,3 +33,12 @@ de:
     battery_profit: Anteil Akku
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
+  login:
+    missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
+    missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code class="bg-slate-100 p-1 rounded">ADMIN_PASSWORD</code> ergänzt werden.
+    submit: Anmelden
+
+  activemodel:
+    attributes:
+      admin_user:
+        password: Passwort

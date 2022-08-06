@@ -56,6 +56,8 @@ module Solectrus
     config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
     config.x.feed_in_tariff = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
 
+    config.x.admin_password = ENV.fetch('ADMIN_PASSWORD', nil)
+
     # Set the default layout to app/views/layouts/component_preview.html.slim
     config.view_component.default_preview_layout = 'component_preview'
 
