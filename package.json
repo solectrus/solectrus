@@ -21,7 +21,7 @@
     "date-fns": "^2.29.1",
     "el-transition": "^0.0.7",
     "plausible-tracker": "^0.3.8",
-    "postcss": "^8.4.14",
+    "postcss": "^8.4.16",
     "tailwindcss": "^3.1.8",
     "tippy.js": "^6.3.7"
   },
