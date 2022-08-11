@@ -397,7 +397,6 @@ DEPENDENCIES
   syntax_tree-haml
   syntax_tree-rbs
   turbo-rails
-  tzinfo-data
   view_component
   vite_rails
   web-console
