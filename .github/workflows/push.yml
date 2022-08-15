@@ -142,6 +142,25 @@ jobs:
             COMMIT_TIME=${{ env.COMMIT_TIME }}
             COMMIT_VERSION=${{ env.COMMIT_VERSION }}
 
+      - name: Purge untagged packages from GitHub Container Registry
+        uses: actions/github-script@v6
+        env:
+          DELETE_PACKAGES_TOKEN: ${{ secrets.DELETE_PACKAGES_TOKEN }}
+        if: env.DELETE_PACKAGES_TOKEN != null
+        with:
+          github-token: ${{ secrets.DELETE_PACKAGES_TOKEN }}
+          script: |
+            const response = await github.request("GET /orgs/solectrus/packages/container/solectrus/versions",
+              { per_page: 100 }
+            );
+            for(version of response.data) {
+                if (version.metadata.container.tags.length == 0) {
+                    console.log("delete package " + version.id)
+                    const deleteResponse = await github.request("DELETE /orgs/solectrus/packages/container/solectrus/versions/" + version.id, {});
+                    console.log("status " + deleteResponse.status)
+                }
+            }
+
       - name: Send webhook to start deployment
         env:
           DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
