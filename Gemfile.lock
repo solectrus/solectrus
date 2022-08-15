@@ -120,7 +120,7 @@ GEM
     haml (5.2.2)
       temple (>= 0.8.0)
       tilt
-    honeybadger (4.12.1)
+    honeybadger (4.12.2)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     influxdb-client (2.7.0)
