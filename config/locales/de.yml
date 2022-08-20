@@ -43,6 +43,7 @@ de:
     edit: Bearbeiten
     delete: Löschen
     save: Speichern
+    confirm_delete: Wirklich löschen?
   settings:
     prices:
       description:
