@@ -2,7 +2,10 @@ de:
   layout:
     stats: Verlauf
     top10: Top 10
+    settings: Einstellungen
     about: Über
+    login: Anmelden
+    logout: Abmelden
   senec:
     inverter_power: Erzeugung
     house_power: Hausverbrauch
@@ -31,3 +34,35 @@ de:
     battery_profit: Anteil Akku
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
+  login:
+    missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
+    missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code class="bg-slate-100 p-1 rounded">ADMIN_PASSWORD</code> ergänzt werden.
+    submit: Anmelden
+  crud:
+    new: Neu
+    edit: Bearbeiten
+    delete: Löschen
+    save: Speichern
+  settings:
+    prices:
+      description:
+        electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
+        feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
+
+  activemodel:
+    attributes:
+      admin_user:
+        password: Passwort
+
+  activerecord:
+    models:
+      price: Preis
+    attributes:
+      price:
+        name: Name
+        names:
+          electricity: Strompreis
+          feed_in: Einspeisevergütung
+        starts_at: Gültig ab
+        value: Betrag
+        note: Notiz

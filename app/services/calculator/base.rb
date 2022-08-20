@@ -1,20 +1,38 @@
 class Calculator::Base
-  def build_context(hash)
-    hash.each do |key, value|
-      instance_variable_set(:"@#{key}", value)
+  def build_context(hash_or_array) # rubocop:disable Metrics/CyclomaticComplexity
+    case hash_or_array
+    when Array
+      array = hash_or_array
+      hash = array.first
+    when Hash
+      array = [hash_or_array]
+      hash = hash_or_array
+    else
+      # :nocov:
+      raise ArgumentError, 'Argument must be Hash or Array'
+      # :nocov:
+    end
 
-      # TODO: Extract to new base class and define static methods
-      define_singleton_method(key) do
-        case key
-        when :time
-          instance_variable_get(:"@#{key}")
-        when :bat_fuel_charge
-          instance_variable_get(:"@#{key}").to_f
-        else
-          instance_variable_get(:"@#{key}").to_i
-        end
+    # TODO: Extract to new base class and define static methods
+    hash.each_key do |key|
+      case key
+      when :time
+        value = array.map { |v| v[key] }.last
+
+        define_singleton_method(key) { value }
+      when :feed_in_tariff, :electricity_price
+        values = array.map { |v| v[key] }
+
+        define_singleton_method(key) { values }
+      else
+        values = array.map { |v| v[key].to_f }
+
+        define_singleton_method(key) { values.sum }
+        define_singleton_method("#{key}_array") { values }
       end
     end
+
+    define_singleton_method(:sections) { array }
   end
 
   def live?
@@ -43,6 +61,12 @@ class Calculator::Base
 
   def consumption
     house_power + wallbox_charge_power
+  end
+
+  def consumption_array
+    sections.each_with_index.map do |_section, index|
+      house_power_array[index] + wallbox_charge_power_array[index]
+    end
   end
 
   def grid_quote

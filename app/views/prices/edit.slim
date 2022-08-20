@@ -1,0 +1,5 @@
+- if request.get?
+  = render TurboModal::Component.new(title: 'Preis bearbeiten') do
+    = render 'form', price: @price
+- else
+  = turbo_stream.replace(dom_id(@price, :form), partial: 'form', locals: { price: @price })
