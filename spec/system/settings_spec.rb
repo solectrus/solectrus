@@ -1,4 +1,4 @@
-describe 'Settings', type: :system do
+describe 'Settings', type: :system, js: true do
   let!(:price1) do
     Price.electricity.create! starts_at: Date.new(2020, 10, 1),
                               value: 0.2545,
@@ -14,8 +14,7 @@ describe 'Settings', type: :system do
   it 'can render prices list' do
     visit prices_path
 
-    expect(page).to have_text(I18n.t('layout.settings'))
-    expect(page).to have_text(Price.human_enum_name(:name, :electricity))
+    expect(page).to have_text(Price.human_enum_name(:name, :electricity).upcase)
 
     expect(page).to have_text(price1.note)
     expect(page).not_to have_text(price2.note)

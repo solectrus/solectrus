@@ -5,6 +5,16 @@ class Price < ApplicationRecord
 
   enum :name, electricity: 'electricity', feed_in: 'feed_in'
 
+  after_commit ->(price) {
+                 broadcast_update_to "prices_#{price.name}",
+                                     partial: 'prices/list',
+                                     target: 'list',
+                                     locals: {
+                                       prices: Price.list_for(price.name),
+                                       name: price.name,
+                                     }
+               }
+
   # Don't allow deleting last price of a scope
   def destroyable?
     Price.where.not(id:).exists?(name:)
@@ -17,5 +27,9 @@ class Price < ApplicationRecord
 
     Price.feed_in.create! starts_at: Rails.configuration.x.installation_date,
                           value: Rails.configuration.x.feed_in_tariff
+  end
+
+  def self.list_for(name)
+    Price.where(name:).order(starts_at: :desc).to_a
   end
 end

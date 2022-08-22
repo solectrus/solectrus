@@ -24,4 +24,6 @@
                                      'aria-label': t('crud.new'),
                                   }
 
-= render PriceList::Component.new(prices: @prices, name:)
+= turbo_stream_from "prices_#{name}"
+= turbo_frame_tag 'list' do
+  = render 'list', prices: @prices, name:

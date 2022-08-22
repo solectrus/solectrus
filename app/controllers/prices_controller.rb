@@ -10,7 +10,7 @@ class PricesController < ApplicationController
       return
     end
 
-    @prices = ordered_prices(name)
+    @prices = Price.list_for(name)
   end
 
   def new
@@ -18,7 +18,7 @@ class PricesController < ApplicationController
 
   def create
     if @price.save
-      redirect_to prices_path(name:)
+      head :created
     else
       render :new, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class PricesController < ApplicationController
 
   def update
     if @price.update(permitted_params)
-      redirect_to prices_path(name:)
+      head :ok
     else
       render :edit, status: :unprocessable_entity
     end
@@ -37,8 +37,7 @@ class PricesController < ApplicationController
 
   def destroy
     @price.destroy!
-
-    redirect_to prices_path(name:)
+    head :ok
   end
 
   private
@@ -62,10 +61,6 @@ class PricesController < ApplicationController
         href: prices_path(name: 'feed_in'),
       },
     ]
-  end
-
-  def ordered_prices(name)
-    Price.where(name:).order(starts_at: :desc).to_a
   end
 
   def load_price
