@@ -39,7 +39,7 @@ gem 'lograge'
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
 gem 'influxdb-client'
 
-# View components for Rails (https://github.com/github/view_component)
+# A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
 
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
