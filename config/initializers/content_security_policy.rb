@@ -9,7 +9,11 @@ Rails.application.configure do
     if Rails.env.development?
       policy.connect_src :self,
                          # Allow ActionCable connection
-                         "wss://#{ENV.fetch('APP_HOST', nil)}",
+                         (
+                           if Rails.configuration.x.app_host
+                             "wss://#{Rails.configuration.x.app_host}"
+                           end
+                         ),
                          # Allow @vite/client to hot reload CSS changes
                          "wss://#{ViteRuby.config.host}"
 
@@ -51,7 +55,11 @@ Rails.application.configure do
         *[
           :self,
           Rails.configuration.x.plausible_url.presence,
-          "wss://#{ENV.fetch('APP_HOST', nil)}",
+          (
+            if Rails.configuration.x.app_host
+              "wss://#{Rails.configuration.x.app_host}"
+            end
+          ),
           (
             if Rails.configuration.x.honeybadger.api_key
               'https://api.honeybadger.io'

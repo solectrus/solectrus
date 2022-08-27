@@ -10,7 +10,8 @@ html lang="de"
     meta name="apple-mobile-web-app-capable" content="yes"
     meta name="application-name" content="Solectrus"
     meta name="theme-color" content="#a5b4fc"
-    meta name="app-host" content= Rails.configuration.x.app_host
+    - if Rails.configuration.x.app_host
+      meta name="app-host" content= Rails.configuration.x.app_host
     meta name="version" content= Rails.configuration.x.git.version
     meta name="date" content= Rails.configuration.x.git.commit_time
     meta name="author" content="Georg Ledermann"

@@ -1,12 +1,11 @@
 import Plausible from 'plausible-tracker';
+import { metaContent } from './metaContent';
 
 document.addEventListener('turbo:load', () => {
-  const plausibleUrl = document.querySelector(
-    'meta[name="plausible-url"]',
-  )?.content;
+  const plausibleUrl = metaContent('plausible-url');
   if (plausibleUrl) {
     const plausible = Plausible({
-      domain: document.querySelector('meta[name="app-host"]').content,
+      domain: metaContent('app-host') || window.location.host,
       apiHost: plausibleUrl,
     });
 
