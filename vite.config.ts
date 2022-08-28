@@ -12,7 +12,12 @@ export default defineConfig({
     splitVendorChunkPlugin(),
     RubyPlugin(),
     StimulusHMR(),
-    FullReload(['config/routes.rb', 'app/views/**/*', 'app/components/**/*']),
+    FullReload([
+      'config/routes.rb',
+      'app/views/**/*',
+      'app/components/**/*',
+      'config/locales/**/*.yml',
+    ]),
     // Create gzip copies of relevant assets
     gzipPlugin(),
     // Create brotli copies of relevant assets

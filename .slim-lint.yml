@@ -15,4 +15,5 @@ linters:
       - Layout/TrailingEmptyLines
       - Layout/FirstArrayElementIndentation
       - Style/IdenticalConditionalBranches
+      - Style/Next
       - Lint/Void

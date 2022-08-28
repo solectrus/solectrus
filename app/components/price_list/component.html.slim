@@ -1,0 +1,47 @@
+.table.w-full data-controller="price-list--component"
+  .table-header-group
+    .table-row
+      .table-cell.align-middle.p-2.tabular-nums.text-left.font-bold
+        = Price.human_attribute_name(:starts_at)
+      .md:table-cell.hidden
+      .table-cell.align-middle.p-2.tabular-nums.text-right.font-bold
+        = Price.human_attribute_name(:value)
+      .table-cell
+      .table-cell data-price-list--component-target="adminOnly"
+
+  .table-row-group
+    - prices.each_with_index do |price, index|
+      .table-row.hover:bg-gray-100
+        .table-cell.align-middle.p-2.tabular-nums.text-left.w-1.whitespace-nowrap
+          time datetime= price.starts_at.iso8601
+            = l price.starts_at
+        .md:table-cell.align-middle.p-2.text-gray-500.text-sm.pl-5.hidden
+          = price.note
+        .table-cell.align-middle.p-2.tabular-nums.text-right.w-1.whitespace-nowrap
+          = number_to_currency(price.value, precision: 4)
+        .table-cell.align-middle.p-2.tabular-nums.w-10.text-right.text-sm.whitespace-nowrap
+          = relative_change(price, index)
+
+        .table-cell.align-middle.w-1.p-2.pl-8 data-price-list--component-target="adminOnly"
+          .flex.space-x-1
+            = render Button::Component.new path: edit_price_path(price),
+                                            icon: 'pencil',
+                                            type: :button,
+                                            style: :secondary,
+                                            options: { \
+                                              method: :get,
+                                              data: { turbo_frame: 'modal' },
+                                              'aria-label': t('crud.edit'),
+                                            }
+
+            - if price.destroyable?
+              = render Button::Component.new path: price_path(price),
+                                            icon: 'trash',
+                                            type: :button,
+                                            style: :secondary,
+                                            options: { \
+                                              method: :delete,
+                                              'aria-label': t('crud.delete'),
+                                              form: { data: { 'turbo-confirm': t('crud.confirm_delete') } },
+                                              class: 'hover:text-red-600',
+                                            }

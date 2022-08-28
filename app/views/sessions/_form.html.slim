@@ -1,0 +1,14 @@
+- if Rails.application.config.x.admin_password.present?
+  = form_for(@admin_user, url: sessions_path) do |f|
+    = f.group do
+      .hidden
+        = f.text_field :username, value: 'admin', autocomplete: 'username'
+      = f.password_field :password, autofocus: true, autocomplete: 'current-password', required: true
+
+    = f.actions do
+      = f.submit t('login.submit')
+- else
+  p.mt-5.text-red-500
+    = t('login.missing_password_error')
+  p.mt-5.text-sm
+    == t('login.missing_password_hint')

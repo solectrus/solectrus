@@ -48,6 +48,25 @@ class PowerSum < Flux::Reader
   end
 
   def sum(start:, stop: nil)
+    price_sections(start:, stop:).map do |section|
+      sum_query(
+        start: section[:starts_at],
+        stop: section[:ends_at],
+      ).tap do |query|
+        query[:feed_in_tariff] = section[:feed_in]
+        query[:electricity_price] = section[:electricity]
+      end
+    end
+  end
+
+  def price_sections(start:, stop:)
+    TimeInterval.new(
+      starts_at: start.to_time,
+      ends_at: stop&.to_time,
+    ).price_sections
+  end
+
+  def sum_query(start:, stop: nil)
     result = query <<-QUERY
       #{from_bucket}
       |> #{range(start:, stop:)}

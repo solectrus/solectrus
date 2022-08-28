@@ -1,28 +1,20 @@
-class ApplicationController < ActionController::Base
-  private
+ApplicationNotAuthenticated = Class.new(StandardError)
 
-  helper_method def topnav_items
-    [
-      { name: t('layout.stats'), href: root_path },
-      {
-        name: t('layout.top10'),
-        href:
-          top10_path(
-            field:
-              if respond_to?(:field) && field.in?(Senec::POWER_FIELDS)
-                field
-              else
-                'inverter_power'
-              end,
-            period:
-              if respond_to?(:period) && period.in?(%w[day month year])
-                period
-              else
-                'day'
-              end,
-          ),
-      },
-      { name: t('layout.about'), href: about_path },
-    ]
+class ApplicationController < ActionController::Base
+  default_form_builder TailwindFormBuilder
+
+  rescue_from ApplicationNotAuthenticated do
+    respond_to do |format|
+      format.html { redirect_to new_session_path }
+      format.any { head :unauthorized }
+    end
+  end
+
+  def admin_required!
+    admin? || raise(ApplicationNotAuthenticated)
+  end
+
+  helper_method def admin?
+    cookies.signed[:admin] == true
   end
 end

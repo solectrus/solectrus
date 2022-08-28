@@ -27,9 +27,6 @@ gem 'redis'
 # Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
 gem 'bootsnap', require: false
 
-# Timezone Data for TZInfo (https://tzinfo.github.io)
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
-
 # Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
 gem 'slim-rails'
 
@@ -42,7 +39,7 @@ gem 'lograge'
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
 gem 'influxdb-client'
 
-# View components for Rails (https://github.com/github/view_component)
+# A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
 
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
@@ -126,6 +123,9 @@ group :test do
 
   # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
   gem 'simplecov', require: false
+
+  # Simple one-liner tests for common Rails functionality (https://matchers.shoulda.io/)
+  gem 'shoulda-matchers'
 end
 
 group :production do

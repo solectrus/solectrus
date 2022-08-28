@@ -1,12 +1,11 @@
 - turbo_exempts_page_from_cache
 
 - content_for :sub_nav do
-  .flex.justify-center.lg:justify-between.lg:items-center
+  .flex.justify-center.lg:justify-between.lg:items-center.py-5
     .hidden.lg:block
       = render Nav::Sub::Component.new do |c|
         = c.items period_items
-    .mt-5.lg:mt-0
-      = render Dropdown::Component.new items: field_items, selected: field
+    = render Dropdown::Component.new items: field_items, selected: field
 
 - content_for :bottom_nav do
   .w-full.px-4

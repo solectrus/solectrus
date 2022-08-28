@@ -2,39 +2,59 @@ class Nav::Top::Component < ViewComponent::Base
   renders_many :items, 'ItemComponent'
   renders_one :sub_nav
 
+  def current_item
+    items.find(&:current?)
+  end
+
   class ItemComponent < ViewComponent::Base
-    def initialize(name:, href:)
+    def initialize(name:, href:, data: nil, icon: nil, alignment: :left)
       super
       @name = name
       @href = href
+      @data = data || {}
+      @icon = icon
+      @alignment = alignment
     end
+
+    def before_render
+      @is_current =
+        current_page?(@href) ||
+          # TODO: Move this out of the component!
+          (@href == root_path && controller_name == 'home') ||
+          (@href.include?('top10') && controller_name == 'top10')
+    end
+
+    attr_reader :name
 
     def current?
-      current_page?(@href) ||
-        (@href == root_path && controller_name == 'home') ||
-        (@href.include?('top10') && controller_name == 'top10')
+      @is_current
     end
 
-    def call
-      classes = %w[
-        text-white
-        rounded-md
-        py-2
-        px-3
-        uppercase
-        tracking-wider
-        block
-      ]
+    def left?
+      @alignment == :left
+    end
+
+    def right?
+      @alignment == :right
+    end
+
+    def css_classes
+      base = %w[text-white rounded-md py-2 px-3 uppercase tracking-wider block]
 
       if current?
-        link_to @name,
-                @href,
-                class: classes + %w[bg-indigo-700],
-                'aria-current': 'page'
+        base + %w[bg-indigo-700]
       else
-        link_to @name,
-                @href,
-                class: classes + %w[hover:bg-indigo-500 hover:bg-opacity-75]
+        base + %w[hover:bg-indigo-500 hover:bg-opacity-75]
+      end
+    end
+
+    def call(icon: @icon)
+      link_to @href,
+              class: css_classes,
+              title: icon && name,
+              data: @data.merge(controller: icon && 'tippy'),
+              'aria-current': current? ? 'page' : nil do
+        icon ? tag.i(class: "fa fa-#{@icon} fa-lg") : name
       end
     end
   end

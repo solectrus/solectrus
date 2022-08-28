@@ -17,5 +17,13 @@ Rails.application.routes.draw do
     get '/top10-chart/:period/:field', to: 'top10_chart#index', as: :top10_chart
   end
 
+  get '/login', to: 'sessions#new', as: :new_session
+  post '/login', to: 'sessions#create', as: :sessions
+  delete '/logout', to: 'sessions#destroy', as: :session
+
+  scope :settings do
+    resources :prices
+  end
+
   get '/about' => 'pages#about', :as => :about
 end

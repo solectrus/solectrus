@@ -1,0 +1,10 @@
+= form_with(model: price, id: dom_id(price, :form)) do |f|
+  = f.hidden_field :name
+
+  = f.group do
+    = f.date_field :starts_at, autofocus: true
+    = f.text_field :value, type: 'number', min: 0, max: 2, step: '0.00001'
+    = f.text_field :note
+
+  = f.actions do
+    = f.submit t('crud.save')
