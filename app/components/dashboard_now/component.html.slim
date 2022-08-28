@@ -7,13 +7,14 @@
   = render Flow::Component.new(calculator:) do |flow|
     - flow.top do
       div class="flex-1 flex flex-col items-center justify-center px-2 sm:px-4"
-        dl data-controller="tippy"
-          dd.text-xl.sm:text-3xl.font-medium.text-slate-900
-            = Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
-          dt.font-light.text-sm.sm:text-lg.uppercase.text-slate-500.tracking-wide
-            =t 'senec.autarky'
-          template data-tippy-target="html"
-            = render AutarkyDetails::Component.new(calculator:)
+        = link_to root_path(field: 'autarky', period: helpers.permitted_params[:period], timestamp: helpers.permitted_params[:timestamp]) do
+          dl data-controller="tippy"
+            dd.text-xl.sm:text-3xl.font-medium.text-slate-900
+              = Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
+            dt.font-light.text-sm.sm:text-lg.uppercase.text-slate-500.tracking-wide
+              =t 'senec.autarky'
+            template data-tippy-target="html"
+              = render AutarkyDetails::Component.new(calculator:)
 
     - flow.bottom do
       dl class="flex-1 flex flex-col items-center justify-center px-4"

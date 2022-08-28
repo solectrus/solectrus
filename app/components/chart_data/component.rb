@@ -147,7 +147,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
       'rgba(22, 163, 74, 0.5)' # bg-green-600, 0.5 transparent
     when 'wallbox_charge_power'
       '#475569' # bg-slate-600
-    when 'bat_power_minus', 'bat_power_plus'
+    when 'bat_power_minus', 'bat_power_plus', 'autarky'
       '#15803d' # bg-green-700
     end
   end
