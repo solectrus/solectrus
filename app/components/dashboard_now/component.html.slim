@@ -1,5 +1,5 @@
 .flex.h-full
-  = render Balance::Component.new title: 'Herkunft', calculator: do |balance|
+  = render Balance::Component.new side: :left, calculator: do |balance|
     - balance.segment :grid_power_plus
     - balance.segment :inverter_power
     - balance.segment :bat_power_minus
@@ -23,7 +23,7 @@
         dt.font-light.text-sm.sm:text-lg.uppercase.text-slate-500.tracking-wide
           =t 'senec.bat_fuel_charge'
 
-  = render Balance::Component.new title: 'Verwendung', calculator: do |balance|
+  = render Balance::Component.new side: :right, calculator: do |balance|
     - balance.segment :wallbox_charge_power
     - balance.segment :house_power
     - balance.segment :grid_power_minus

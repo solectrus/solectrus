@@ -62,7 +62,7 @@ html lang="de"
       = c.with_items topnav_items
       = c.sub_nav { yield :sub_nav } if content_for?(:sub_nav)
 
-    main.-mt-32.pb-16.lg:pb-0.flex class= (content_for?(:full_height) && 'flex-auto max-h-[700px]').presence
+    main.-mt-32.pb-16.lg:pb-0.flex class= (content_for?(:full_height) && 'flex-auto lg:max-h-[700px]').presence
       .max-w-7xl.mx-auto.sm:px-6.lg:px-8.flex-1.flex
         .bg-white.sm:rounded-lg.lg:shadow.p-5.sm:px-6.flex-1
           = yield

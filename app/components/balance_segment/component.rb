@@ -10,6 +10,14 @@ class BalanceSegment::Component < ViewComponent::Base
 
   delegate :calculator, to: :parent
 
+  def url
+    root_path(
+      period: helpers.permitted_params[:period],
+      field: field.to_s.sub(/_plus|_minus/, ''),
+      timestamp: helpers.permitted_params[:timestamp],
+    )
+  end
+
   def first?
     index.zero?
   end
@@ -91,7 +99,17 @@ class BalanceSegment::Component < ViewComponent::Base
     end
   end
 
+  def font_size
+    return 0 if percent < 6
+
+    percent + 80
+  end
+
   def exist?
     percent.positive?
+  end
+
+  def big?
+    percent > 18
   end
 end

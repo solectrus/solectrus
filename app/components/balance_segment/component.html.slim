@@ -1,11 +1,24 @@
-dl[
-  class= [ 'flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden', border_class, color_class ]
-  style= "height: #{percent}%; font-size: #{percent < 6 ? 0 : percent + 70}%;"
-]
-  dt.leading-none
-    i.fa class= icon_class title= t("senec.#{field}")
-  dd.leading-none data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
-    - if now?
-      = Number::Component.new(value:).to_w
-    - else
-      = Number::Component.new(value:).to_wh
+= link_to url,
+          class: [ 'leading-none flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden', border_class, color_class ],
+          style: "height: #{percent}%; font-size: #{font_size}%",
+          data: { controller: ('tippy' unless big?), tippy_placement_value: (parent.side == :left ? 'right' : 'left') } do
+  div class= "flex gap-1 md:gap-2 lg:gap-3 #{'flex-col' if big?}"
+    i.fa class= icon_class
+
+    - if big?
+      .font-extralight.uppercase.tracking-wider.hidden.lg:block
+        = t("senec.#{field}")
+
+    div data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
+      = Number::Component.new(value:).public_send(now? ? :to_w : :to_wh)
+
+    - unless big?
+      template data-tippy-target="html"
+        .flex.flex-col.items-center.justify-center
+          i.fa class= icon_class
+          = I18n.t("senec.#{field}")
+          br
+          - if now?
+            = Number::Component.new(value:).to_w max_precision: 3
+          - else
+            = Number::Component.new(value:).to_wh max_precision: 3
