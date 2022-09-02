@@ -5,7 +5,7 @@ describe AutarkyChart do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
-    (0..11).each do |index|
+    12.times do |index|
       add_influx_point name: measurement,
                        fields: {
                          house_power: (index + 1) * 100,
