@@ -42,6 +42,9 @@ gem 'influxdb-client'
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
 
+# A native development UI for ViewComponent (https://github.com/allmarkedup/lookbook)
+gem 'lookbook'
+
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
 

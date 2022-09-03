@@ -86,6 +86,8 @@ Rails.application.configure do
     'components',
     'previews',
   )
+  config.view_component.default_preview_layout = 'component_preview'
+  config.view_component.show_previews = true
 end
 
 # Indent html for pretty debugging and do not sort attributes

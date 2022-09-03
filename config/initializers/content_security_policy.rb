@@ -23,6 +23,8 @@ Rails.application.configure do
 
       policy.script_src :self,
                         :unsafe_inline,
+                        # Required by Lookbook
+                        :unsafe_eval,
                         # Allow @vite/client to hot reload JavaScript changes
                         "https://#{ViteRuby.config.host}"
     else
