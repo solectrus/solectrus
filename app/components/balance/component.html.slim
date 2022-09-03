@@ -1,5 +1,5 @@
-div class="flex-auto w-32 flex flex-col"
-  div class="p-2 sm:p-4 flex-1 rounded-lg bg-slate-300 text-white divide-y divide-slate-300"
+div class="h-full w-32 md:w-64 flex-auto flex flex-col"
+  div class="p-2 md:p-4 flex-auto rounded-lg bg-slate-300 text-white divide-y divide-slate-300"
     - existing_segments.each_with_index do |segment, index|
       - segment.index = index
       = segment

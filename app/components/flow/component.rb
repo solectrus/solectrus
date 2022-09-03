@@ -2,16 +2,14 @@ class Flow::Component < ViewComponent::Base
   renders_one :top
   renders_one :bottom
 
-  def initialize(calculator:)
+  def initialize(value:)
     super
-    @calculator = calculator
+    @value = value
   end
 
-  attr_reader :calculator
-
-  delegate :total, to: :calculator
+  attr_reader :value
 
   def height
-    (total / 35.0).round
+    value / 35
   end
 end

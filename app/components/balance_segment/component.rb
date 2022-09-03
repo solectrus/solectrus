@@ -12,9 +12,9 @@ class BalanceSegment::Component < ViewComponent::Base
 
   def url
     root_path(
-      period: helpers.permitted_params[:period],
+      period: parent.period,
       field: field.to_s.sub(/_plus|_minus/, ''),
-      timestamp: helpers.permitted_params[:timestamp],
+      timestamp: parent.timestamp,
     )
   end
 

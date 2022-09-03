@@ -2,7 +2,7 @@
           class: [ 'leading-none flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden', border_class, color_class ],
           style: "height: #{percent}%; font-size: #{font_size}%",
           data: { controller: ('tippy' unless big?), tippy_placement_value: (parent.side == :left ? 'right' : 'left') } do
-  div class= "flex gap-1 md:gap-2 lg:gap-3 #{'flex-col' if big?}"
+  div class= "flex gap-2 lg:gap-3 #{'flex-col' if big?}"
     i.fa class= icon_class
 
     - if big?

@@ -1,30 +1,36 @@
 .flex.h-full
-  = render Balance::Component.new side: :left, calculator: do |balance|
+  = render Balance::Component.new side: :left,
+                                  calculator:,
+                                  period:,
+                                  timestamp: do |balance|
     - balance.segment :grid_power_plus
     - balance.segment :inverter_power
     - balance.segment :bat_power_minus
 
   div class="px-2 sm:px-4"
     div class="h-1/2 flex flex-col items-center justify-center text-center"
-      = link_to root_path(field: 'autarky', period: helpers.permitted_params[:period], timestamp: helpers.permitted_params[:timestamp]) do
+      = link_to root_path(field: 'autarky', period:, timestamp:) do
         dl data-controller="tippy"
-          dd.text-xl.sm:text-3xl.font-medium.text-slate-900
+          dd.text-lg.sm:text-3xl.font-medium.text-slate-900
             = Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
-          dt.font-light.text-sm.sm:text-lg.uppercase.text-slate-500.tracking-wide
+          dt.font-light.text-xs.sm:text-lg.uppercase.text-slate-500.tracking-wide
             =t 'senec.autarky'
           template data-tippy-target="html"
             = render AutarkyDetails::Component.new(calculator:)
 
     div class="h-1/2 flex flex-col items-center justify-center text-center"
       dl data-controller="tippy"
-        dd.text-xl.sm:text-3xl.font-medium.text-slate-900
+        dd.text-lg.sm:text-3xl.font-medium.text-slate-900
           = Number::Component.new(value: calculator.profit).to_eur(klass: 'text-current')
-        dt.font-light.text-sm.sm:text-lg.uppercase.text-slate-500.tracking-wide
+        dt.font-light.text-xs.sm:text-lg.uppercase.text-slate-500.tracking-wide
           =t 'calculator.profit'
         template data-tippy-target="html"
           = render ProfitDetails::Component.new(calculator:)
 
-  = render Balance::Component.new side: :right, calculator: do |balance|
+  = render Balance::Component.new side: :right,
+                                  calculator:,
+                                  period:,
+                                  timestamp: do |balance|
     - balance.segment :wallbox_charge_power
     - balance.segment :house_power
     - balance.segment :grid_power_minus

@@ -1,13 +1,15 @@
 .flex.h-full
-  = render Balance::Component.new side: :left, calculator: do |balance|
+  = render Balance::Component.new side: :left,
+                                  calculator:,
+                                  period: 'now' do |balance|
     - balance.segment :grid_power_plus
     - balance.segment :inverter_power
     - balance.segment :bat_power_minus
 
-  = render Flow::Component.new(calculator:) do |flow|
+  = render Flow::Component.new(value: calculator.total) do |flow|
     - flow.top do
       div class="flex-1 flex flex-col items-center justify-center px-2 sm:px-4"
-        = link_to root_path(field: 'autarky', period: helpers.permitted_params[:period], timestamp: helpers.permitted_params[:timestamp]) do
+        = link_to root_path(field: 'autarky', period: 'now') do
           dl data-controller="tippy"
             dd.text-xl.sm:text-3xl.font-medium.text-slate-900
               = Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
@@ -23,7 +25,9 @@
         dt.font-light.text-sm.sm:text-lg.uppercase.text-slate-500.tracking-wide
           =t 'senec.bat_fuel_charge'
 
-  = render Balance::Component.new side: :right, calculator: do |balance|
+  = render Balance::Component.new side: :right,
+                                  calculator:,
+                                  period: 'now' do |balance|
     - balance.segment :wallbox_charge_power
     - balance.segment :house_power
     - balance.segment :grid_power_minus

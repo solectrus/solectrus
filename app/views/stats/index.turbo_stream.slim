@@ -8,7 +8,9 @@
       - if period == 'now'
         = render DashboardNow::Component.new calculator:
       - else
-        = render DashboardRange::Component.new calculator:
+        = render DashboardRange::Component.new calculator:,
+                                               period: permitted_params[:period],
+                                               timestamp: permitted_params[:timestamp]
 
   - else
     .m-20.flex.justify-center
