@@ -7,11 +7,7 @@
 }
 
 .zebra-slate {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    #cbd5e1 0.5rem,
-    #94a3b8 1rem
-  );
+  background-image: repeating-linear-gradient(-45deg, #cbd5e1 0, #94a3b8 2rem);
 }
 
 @keyframes barberpole {

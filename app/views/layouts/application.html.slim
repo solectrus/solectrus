@@ -57,7 +57,7 @@ html lang="de"
 
     = yield :head
 
-  body.min-h-screen.flex.flex-col.bg-gray-100 data-controller="icons"
+  body.min-h-screen.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white data-controller="icons"
     = render Nav::Top::Component.new do |c|
       = c.with_items topnav_items
       = c.sub_nav { yield :sub_nav } if content_for?(:sub_nav)
