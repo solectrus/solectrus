@@ -102,7 +102,7 @@ class BalanceSegment::Component < ViewComponent::Base
   def font_size
     return 0 if percent < 6
 
-    percent + 80
+    [percent + 90, 140].min
   end
 
   def exist?

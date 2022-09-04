@@ -6,7 +6,7 @@
     i.fa class= icon_class
 
     - if big?
-      .font-extralight.uppercase.tracking-wider.hidden.lg:block
+      .font-extralight.uppercase.tracking-wider.hidden.lg:block.leading-tight
         = t("senec.#{field}")
 
     div data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
