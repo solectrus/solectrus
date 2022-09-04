@@ -10,6 +10,8 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
   def call
     if field == 'autarky'
       data_autarky
+    elsif field == 'consumption'
+      data_consumption
     elsif period == 'now'
       data_now
     elsif period == 'day' && field == 'inverter_power'
@@ -61,6 +63,18 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
     }
   end
 
+  def data_consumption
+    {
+      labels: consumption&.map(&:first),
+      datasets: [
+        {
+          label: I18n.t('calculator.consumption_quote'),
+          data: consumption&.map(&:second),
+        }.merge(style('consumption')),
+      ],
+    }
+  end
+
   def data_range
     {
       labels: range[range.keys.first]&.map(&:first),
@@ -93,6 +107,18 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
         AutarkyChart.new(measurements: %w[SENEC]).now
       else
         AutarkyChart.new(measurements: %w[SENEC]).public_send(period, timestamp)
+      end
+  end
+
+  def consumption
+    @consumption ||=
+      if period == 'now'
+        ConsumptionChart.new(measurements: %w[SENEC]).now
+      else
+        ConsumptionChart.new(measurements: %w[SENEC]).public_send(
+          period,
+          timestamp,
+        )
       end
   end
 
@@ -147,7 +173,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
       'rgba(22, 163, 74, 0.5)' # bg-green-600, 0.5 transparent
     when 'wallbox_charge_power'
       '#475569' # bg-slate-600
-    when 'bat_power_minus', 'bat_power_plus', 'autarky'
+    when 'bat_power_minus', 'bat_power_plus', 'autarky', 'consumption'
       '#15803d' # bg-green-700
     end
   end

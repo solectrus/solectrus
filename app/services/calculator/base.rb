@@ -81,6 +81,16 @@ class Calculator::Base
     end
   end
 
+  def consumption_alt
+    inverter_power - grid_power_minus
+  end
+
+  def consumption_quote
+    return 0.0 if inverter_power.zero?
+
+    [100.0 * consumption_alt / inverter_power, 0.0].max.round(1)
+  end
+
   def grid_quote
     return if consumption.zero?
 

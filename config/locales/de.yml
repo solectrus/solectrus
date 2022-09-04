@@ -18,6 +18,7 @@ de:
     bat_power: Akku
     bat_fuel_charge: Akku
     autarky: Autarkie
+    consumption: Eigen-Verbrauch
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -29,8 +30,9 @@ de:
     year: Jahr
     all: Gesamt
     forecast: Prognose
-    consumption: Eigenverbrauch
     grid_quote: Bezugsquote
+    consumption: Eigenverbrauch
+    consumption_quote: Eigenverbrauchsquote
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     profit: Gewinn

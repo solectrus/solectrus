@@ -119,7 +119,7 @@ class ChartLoader::Component < ViewComponent::Base
   end
 
   def title
-    if field.in?(%w[bat_fuel_charge autarky])
+    if field.in?(%w[bat_fuel_charge autarky consumption])
       "#{I18n.t "senec.#{field}"} in %"
     else
       "#{I18n.t "senec.#{field}"} in #{period.in?(%w[now day]) ? 'kW' : 'kWh'}"
