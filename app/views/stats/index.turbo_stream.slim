@@ -1,26 +1,29 @@
-= turbo_stream.update 'nav' do
-  = render Timestamp::Component.new(period:, timestamp:)
-  = render Status::Component.new(live: calculator.live?, time: calculator.time) if period == 'now'
+turbo-stream action="morph" target="nav" children-only= true
+  template
+    = render Timestamp::Component.new(period:, timestamp:)
+    = render Status::Component.new(live: calculator.live?, time: calculator.time) if period == 'now'
 
-= turbo_stream.update 'stats' do
-  - if calculator.present?
-    div id="tab-#{period}" class="h-full"
-      - if period == 'now'
-        = render DashboardNow::Component.new calculator:
-      - else
-        = render DashboardRange::Component.new calculator:,
-                                               period: permitted_params[:period],
-                                               timestamp: permitted_params[:timestamp]
+turbo-stream action="morph" target="stats" children-only= true
+  template
+    - if calculator.present?
+      div id="tab-#{period}" class="h-full"
+        - if period == 'now'
+          = render DashboardNow::Component.new calculator:
+        - else
+          = render DashboardRange::Component.new calculator:,
+                                                period: permitted_params[:period],
+                                                timestamp: permitted_params[:timestamp]
 
-  - else
-    .m-20.flex.justify-center
-      .px-3.md:px-5.py-2.rounded-full.text-xl.text-gray-500.bg-white
-        = t('calculator.blank')
+    - else
+      .m-20.flex.justify-center
+        .px-3.md:px-5.py-2.rounded-full.text-xl.text-gray-500.bg-white
+          = t('calculator.blank')
 
 - if params[:chart] != 'false'
-  = turbo_stream.update 'chart' do
-    .flex.flex-col.h-full
-      .flex-grow.flex
-         = render ChartLoader::Component.new(field:, period:, url: charts_path(permitted_params))
+  turbo-stream action="morph" target="chart" children-only= true
+    template
+      .flex.flex-col.h-full
+        .flex-grow.flex
+          = render ChartLoader::Component.new(field:, period:, url: charts_path(permitted_params))
 
-      = render Comment::Component.new(calculator:, field:, period:, timestamp:)
+        = render Comment::Component.new(calculator:, field:, period:, timestamp:)
