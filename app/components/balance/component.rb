@@ -12,10 +12,6 @@ class Balance::Component < ViewComponent::Base
 
   attr_reader :calculator, :side, :period, :timestamp
 
-  def existing_segments
-    @existing_segments ||= segments.select(&:exist?)
-  end
-
   def title
     I18n.t "balance_sheet.#{side}"
   end

@@ -1,8 +1,8 @@
-div class="w-32 md:w-80 flex-auto flex flex-col"
-  div class="p-2 md:p-4 flex-auto rounded-lg bg-slate-300 text-white divide-y divide-slate-300"
-    - existing_segments.each_with_index do |segment, index|
-      - segment.index = index
-      = segment
+div class="w-full h-full flex flex-col"
+  div class="p-2 md:p-4 flex-auto bg-slate-300 rounded-lg"
+    div class="rounded-lg overflow-hidden flex-auto h-full text-white divide-y divide-slate-300"
+      - segments.each do |segment|
+        = segment
 
   h3.text-slate-500.mx-auto.uppercase.tracking-wider.pt-2.text-sm.sm:text-base
     = title

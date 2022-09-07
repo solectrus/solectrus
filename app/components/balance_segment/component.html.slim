@@ -1,24 +1,36 @@
 = link_to url,
-          class: [ 'leading-none flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden', border_class, color_class ],
-          style: "height: #{percent}%; font-size: #{font_size}%",
+          id: "segment-#{field}",
+          class: [ 'leading-none flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] duration-[5000ms]', color_class ],
+          style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
           data: { controller: ('tippy' unless big?), tippy_placement_value: (parent.side == :left ? 'right' : 'left') } do
+
+  css:
+    #segment-#{field} {
+      --segment-font-size: #{font_size(max: 90)}%;
+      --segment-height: #{percent}%;
+    }
+
+    @media (min-width: 640px) {
+      #segment-#{field} {
+        --segment-font-size: #{font_size(max: 140)}%;
+      }
+    }
+
   div class= "flex gap-2 lg:gap-3 #{'flex-col' if big?}"
     i.fa class= icon_class
 
-    - if big?
-      .font-extralight.uppercase.tracking-wider.hidden.lg:block.leading-tight
-        = t("senec.#{field}")
+    .font-extralight.uppercase.tracking-wider.leading-tight class= (big? ? 'lg:block' : 'hidden')
+      = t("senec.#{field}")
 
     div data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
       = Number::Component.new(value:).public_send(now? ? :to_w : :to_wh)
 
-    - unless big?
-      template data-tippy-target="html"
-        .flex.flex-col.items-center.justify-center
-          i.fa class= icon_class
-          = I18n.t("senec.#{field}")
-          br
-          - if now?
-            = Number::Component.new(value:).to_w max_precision: 3
-          - else
-            = Number::Component.new(value:).to_wh max_precision: 3
+    template data-tippy-target="html"
+      .flex.flex-col.items-center.justify-center
+        i.fa class= icon_class
+        = I18n.t("senec.#{field}")
+        br
+        - if now?
+          = Number::Component.new(value:).to_w max_precision: 3
+        - else
+          = Number::Component.new(value:).to_wh max_precision: 3

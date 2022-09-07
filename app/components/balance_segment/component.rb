@@ -6,7 +6,6 @@ class BalanceSegment::Component < ViewComponent::Base
   end
 
   attr_reader :field, :parent
-  attr_accessor :index
 
   delegate :calculator, to: :parent
 
@@ -18,27 +17,12 @@ class BalanceSegment::Component < ViewComponent::Base
     )
   end
 
-  def first?
-    index.zero?
-  end
-
-  def last?
-    index == parent.existing_segments.size - 1
-  end
-
   def value
     @value ||= calculator.public_send(field)
   end
 
   def percent
     @percent ||= calculator.public_send(:"#{field}_percent")
-  end
-
-  def border_class
-    [].tap do |result|
-      result << 'rounded-t-lg' if first?
-      result << 'rounded-b-lg' if last?
-    end
   end
 
   def now?
@@ -99,14 +83,10 @@ class BalanceSegment::Component < ViewComponent::Base
     end
   end
 
-  def font_size
+  def font_size(max:)
     return 0 if percent < 6
 
-    [percent + 90, 140].min
-  end
-
-  def exist?
-    percent.positive?
+    [percent + 90, max].min
   end
 
   def big?
