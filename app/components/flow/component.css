@@ -1,17 +1,22 @@
-.zebra {
-  background-size: 200% 200%;
-  animation: barberpole 5s linear infinite;
+.animated-gradient {
+  background: repeating-linear-gradient(
+    to right,
+    #cbd5e1 0%,
+    #fef9c3 50%,
+    #cbd5e1 100%
+  );
+  background-size: 200% auto;
+  animation: flow 2s linear infinite;
 
   /* Reduce CPU load */
-  will-change: transform;
+  will-change: contents;
 }
 
-.zebra-slate {
-  background-image: repeating-linear-gradient(-45deg, #cbd5e1 0, #94a3b8 2rem);
-}
-
-@keyframes barberpole {
+@keyframes flow {
+  0% {
+    background-position: 0 0;
+  }
   100% {
-    background-position: 100% 100%;
+    background-position: -200% 0;
   }
 }
