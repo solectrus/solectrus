@@ -12,7 +12,7 @@
     "@honeybadger-io/js": "^4.1.3",
     "@hotwired/stimulus": "^3.1.0",
     "@hotwired/turbo-rails": "^7.1.3",
-    "@rails/actioncable": "^7.0.3",
+    "@rails/actioncable": "^7.0.4",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/typography": "^0.5.7",
     "autoprefixer": "^10.4.8",
