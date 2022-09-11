@@ -8,31 +8,23 @@
     - balance.segment :bat_power_minus
 
   div class="px-2 sm:px-3"
-    div class="h-1/2 flex flex-col items-center justify-center text-center gap-y-5"
+    div class="h-2/3 flex flex-col items-center justify-center gap-y-5"
       = link_to root_path(field: 'autarky', period:, timestamp:) do
         dl data-controller="tippy"
-          dd.text-lg.sm:text-3xl.font-medium.text-slate-900
-            = Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
-          dt.font-light.text-xs.sm:text-base.uppercase.text-slate-500.tracking-wide
-            =t 'senec.autarky'
+          = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
           template data-tippy-target="html"
             = render AutarkyDetails::Component.new(calculator:)
 
       = link_to root_path(field: 'consumption', period:, timestamp:) do
         dl data-controller="tippy"
-          dd.text-lg.sm:text-3xl.font-medium.text-slate-900
-            = Number::Component.new(value: calculator.consumption_quote).to_percent(max_precision: 0, klass: 'text-current')
-          dt.font-light.text-xs.sm:text-base.uppercase.text-slate-500.tracking-wide
-            =t 'senec.consumption'
+          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
           template data-tippy-target="html"
             = render ConsumptionDetails::Component.new(calculator:)
 
-    div class="h-1/2 flex flex-col items-center justify-center text-center"
-      dl data-controller="tippy"
-        dd.text-lg.sm:text-3xl.font-medium.text-slate-900
+    div class="h-1/3"
+      div data-controller="tippy"
+        = render RadialBadge::Component.new(title: t('calculator.profit')) do
           = Number::Component.new(value: calculator.profit).to_eur(klass: 'text-current')
-        dt.font-light.text-xs.sm:text-base.uppercase.text-slate-500.tracking-wide
-          =t 'calculator.profit'
         template data-tippy-target="html"
           = render ProfitDetails::Component.new(calculator:)
 

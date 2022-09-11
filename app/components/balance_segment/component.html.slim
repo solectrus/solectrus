@@ -23,7 +23,7 @@
       = t("senec.#{field}")
 
     div data= (current_value? ? { 'refresh-target': 'current', value: masked_value } : nil)
-      = Number::Component.new(value:).public_send(now? ? :to_w : :to_wh)
+      = Number::Component.new(value:).public_send(now? ? :to_w : :to_wh) if value > 50
 
     template data-tippy-target="html"
       .flex.flex-col.items-center.justify-center

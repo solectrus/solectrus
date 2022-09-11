@@ -18,7 +18,7 @@ de:
     bat_power: Akku
     bat_fuel_charge: Akku
     autarky: Autarkie
-    consumption: Eigen-Verbrauch
+    consumption: Verbrauch
   balance_sheet:
     left: Herkunft
     right: Verwendung

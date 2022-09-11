@@ -90,6 +90,6 @@ class BalanceSegment::Component < ViewComponent::Base
   end
 
   def big?
-    percent > 18
+    percent > 33
   end
 end

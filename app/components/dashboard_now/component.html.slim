@@ -10,29 +10,20 @@
     - flow.top do
       div class="flex-auto flex flex-col items-center justify-center px-2 sm:px-4 gap-y-5"
         = link_to root_path(field: 'autarky', period: 'now') do
-          dl data-controller="tippy"
-            dd.text-xl.sm:text-3xl.font-medium.text-slate-900
-              = Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
-            dt.font-light.text-xs.sm:text-base.uppercase.text-slate-500.tracking-wide
-              =t 'senec.autarky'
+          div data-controller="tippy"
+            = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
             template data-tippy-target="html"
               = render AutarkyDetails::Component.new(calculator:)
 
         = link_to root_path(field: 'consumption', period: 'now') do
-          dl data-controller="tippy"
-            dd.text-lg.sm:text-3xl.font-medium.text-slate-900
-              = Number::Component.new(value: calculator.consumption_quote).to_percent(max_precision: 0, klass: 'text-current')
-            dt.font-light.text-xs.sm:text-base.uppercase.text-slate-500.tracking-wide
-              =t 'senec.consumption'
+          div data-controller="tippy"
+            = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
             template data-tippy-target="html"
               = render ConsumptionDetails::Component.new(calculator:)
 
     - flow.bottom do
-      dl class="flex-auto flex flex-col items-center justify-center px-4"
-        dd.text-xl.sm:text-3xl.font-medium.text-slate-900
-          = Number::Component.new(value: calculator.bat_fuel_charge).to_percent(klass: 'text-current')
-        dt.font-light.text-xs.sm:text-base.uppercase.text-slate-500.tracking-wide
-          =t 'senec.bat_fuel_charge'
+      div class="flex-auto flex flex-col items-center justify-center px-4"
+        = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
 
   = render Balance::Component.new side: :right,
                                   calculator:,
