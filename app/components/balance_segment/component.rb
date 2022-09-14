@@ -1,11 +1,12 @@
 class BalanceSegment::Component < ViewComponent::Base
-  def initialize(field:, parent:)
+  def initialize(field:, parent:, peak:)
     super
     @field = field
+    @peak = peak
     @parent = parent
   end
 
-  attr_reader :field, :parent
+  attr_reader :field, :parent, :peak
 
   delegate :calculator, to: :parent
 
@@ -35,6 +36,12 @@ class BalanceSegment::Component < ViewComponent::Base
 
   def masked_value
     field.to_s.include?('power') ? value / 1_000.0 : value
+  end
+
+  def icon_size
+    return 100 if peak.nil?
+
+    Scale.new(target: 80..300, max: peak).result(value)
   end
 
   def icon_class

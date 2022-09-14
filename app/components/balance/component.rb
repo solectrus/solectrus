@@ -1,6 +1,8 @@
 class Balance::Component < ViewComponent::Base
   renders_many :segments,
-               ->(field) { BalanceSegment::Component.new field:, parent: self }
+               ->(field, peak = nil) {
+                 BalanceSegment::Component.new field:, peak:, parent: self
+               }
 
   def initialize(side:, calculator:, period:, timestamp: nil)
     super
