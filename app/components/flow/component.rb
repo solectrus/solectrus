@@ -1,15 +1,15 @@
 class Flow::Component < ViewComponent::Base
-  renders_one :top
-  renders_one :bottom
-
-  def initialize(value:)
+  def initialize(value:, max:)
     super
     @value = value
+    @max = max
   end
 
-  attr_reader :value
+  attr_reader :value, :max
 
   def height
-    value / 35
+    return 0 if value.zero?
+
+    [Scale.new(max:).result(value), 100].min
   end
 end
