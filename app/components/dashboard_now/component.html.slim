@@ -1,4 +1,4 @@
-.flex.h-full
+.flex.h-full.w-full
   = render Balance::Component.new side: :left,
                                   calculator:,
                                   period: 'now' do |balance|
@@ -8,14 +8,14 @@
 
   div class="h-full pb-8"
     div class="h-full flex flex-col"
-      div class="px-2 sm:px-4 py-3 sm:pt-8"
+      div class="px-2 sm:px-4 py-3"
         = link_to root_path(field: 'autarky', period: 'now') do
           div data-controller="tippy"
             = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
             template data-tippy-target="html"
               = render AutarkyDetails::Component.new(calculator:)
 
-      div class="px-2 sm:px-4 sm:pb-8"
+      div class="px-2 sm:px-4"
         = link_to root_path(field: 'consumption', period: 'now') do
           div data-controller="tippy"
             = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
@@ -25,7 +25,7 @@
       div class="flex-1 flex flex-col justify-center"
         = render Flow::Component.new value: calculator.total, max: max_flow
 
-      div class="px-2 sm:px-4 pt-3 sm:py-8"
+      div class="px-2 sm:px-4 py-3"
         = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
 
   = render Balance::Component.new side: :right,

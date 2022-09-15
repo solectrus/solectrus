@@ -6,7 +6,7 @@ turbo-stream action="morph" target="nav" children-only= true
 turbo-stream action="morph" target="stats" children-only= true
   template
     - if calculator.present?
-      div id="tab-#{period}" class="h-full"
+      div id="tab-#{period}" class="flex-auto w-full"
         - if period == 'now'
           = render DashboardNow::Component.new calculator:
         - else
@@ -22,8 +22,8 @@ turbo-stream action="morph" target="stats" children-only= true
 - if params[:chart] != 'false'
   turbo-stream action="morph" target="chart" children-only= true
     template
-      .flex.flex-col.h-full
-        .flex-grow.flex
+      .flex.flex-col.flex-auto
+        .flex-auto
           = render ChartLoader::Component.new(field:, period:, url: charts_path(permitted_params))
 
         = render Comment::Component.new(calculator:, field:, period:, timestamp:)
