@@ -21,6 +21,6 @@ class Scale
 
   # Damping factor, play around to find the best one
   def factor
-    4
+    6
   end
 end
