@@ -121,7 +121,7 @@ GEM
       temple (>= 0.8.2)
       thor
       tilt
-    honeybadger (4.12.2)
+    honeybadger (5.0.0)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     influxdb-client (2.7.0)
