@@ -16,15 +16,15 @@ class PricesController < ApplicationController
   def new
   end
 
+  def edit
+  end
+
   def create
     if @price.save
       head :created
     else
       render :new, status: :unprocessable_entity
     end
-  end
-
-  def edit
   end
 
   def update

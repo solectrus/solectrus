@@ -1,5 +1,5 @@
 class Calculator::Base
-  def build_context(hash_or_array) # rubocop:disable Metrics/CyclomaticComplexity
+  def build_context(hash_or_array)
     case hash_or_array
     when Array
       array = hash_or_array
@@ -17,11 +17,11 @@ class Calculator::Base
     hash.each_key do |key|
       case key
       when :time
-        value = array.map { |v| v[key] }.last
+        value = array.pluck(key).last
 
         define_singleton_method(key) { value }
       when :feed_in_tariff, :electricity_price
-        values = array.map { |v| v[key] }
+        values = array.pluck(key)
 
         define_singleton_method(key) { values }
       else
