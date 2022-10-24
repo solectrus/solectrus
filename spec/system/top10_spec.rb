@@ -1,4 +1,4 @@
-describe 'Top10', type: :system, js: true do
+describe 'Top10', js: true do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
