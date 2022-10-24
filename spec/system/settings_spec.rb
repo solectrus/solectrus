@@ -1,4 +1,4 @@
-describe 'Settings', type: :system, js: true do
+describe 'Settings', js: true do
   let!(:price1) do
     Price.electricity.create! starts_at: Date.new(2020, 10, 1),
                               value: 0.2545,
