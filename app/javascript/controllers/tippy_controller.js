@@ -2,13 +2,16 @@ import { Controller } from '@hotwired/stimulus';
 import tippy from 'tippy.js';
 
 export default class extends Controller {
+  static values = {
+    placement: String,
+  };
   static targets = ['html'];
 
   connect() {
     tippy(this.element, {
       allowHTML: true,
       arrow: true,
-      placement: 'bottom',
+      placement: this.placementValue || 'bottom',
       theme: 'light-border',
       animation: 'scale',
       content: (reference) => {

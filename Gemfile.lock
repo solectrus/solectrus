@@ -91,6 +91,8 @@ GEM
     concurrent-ruby (1.1.10)
     connection_pool (2.3.0)
     crass (1.0.6)
+    css_parser (1.12.0)
+      addressable
     diff-lcs (1.5.0)
     docile (1.4.0)
     dotenv (2.8.1)
@@ -122,6 +124,8 @@ GEM
       thor
       tilt
     honeybadger (5.0.1)
+    htmlbeautifier (1.4.2)
+    htmlentities (4.3.4)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     influxdb-client (2.8.0)
@@ -141,6 +145,19 @@ GEM
     loofah (2.19.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
+    lookbook (1.2.1)
+      actioncable
+      activemodel
+      css_parser
+      htmlbeautifier (~> 1.3)
+      htmlentities (~> 4.3.4)
+      listen (~> 3.0)
+      railties (>= 5.0)
+      redcarpet (~> 3.5)
+      rouge (>= 3.26, < 5.0)
+      view_component (~> 2.0)
+      yard (~> 0.9.25)
+      zeitwerk (~> 2.5)
     lumberjack (1.2.8)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
@@ -229,6 +246,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rbs (2.7.0)
+    redcarpet (3.5.1)
     redis (5.0.5)
       redis-client (>= 0.9.0)
     redis-client (0.10.0)
@@ -237,6 +255,7 @@ GEM
     request_store (1.5.1)
       rack (>= 1.4)
     rexml (3.2.5)
+    rouge (4.0.0)
     rspec (3.12.0)
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
@@ -353,12 +372,15 @@ GEM
       nokogiri (~> 1.6)
       rubyzip (>= 1.3.0)
       selenium-webdriver (~> 4.0)
+    webrick (1.7.0)
     websocket (1.2.9)
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
+    yard (0.9.28)
+      webrick (~> 1.7.0)
     zeitwerk (2.6.1)
 
 PLATFORMS
@@ -375,6 +397,7 @@ DEPENDENCIES
   influxdb-client
   lockup
   lograge
+  lookbook
   meta-tags
   pg (~> 1.1)
   prettier

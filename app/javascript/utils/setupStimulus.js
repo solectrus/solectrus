@@ -20,3 +20,6 @@ registerControllers(
   application,
   import.meta.globEager('../../components/**/*_controller.js'),
 );
+
+import TurboMorph from 'turbo-morph';
+TurboMorph.initialize(window.Turbo.StreamActions);

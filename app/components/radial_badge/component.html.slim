@@ -1,0 +1,13 @@
+.radial-badge[
+  class= [ border_color, background_color, text_color, variant_class ]
+  style= "--value: #{percent}; --size: #{size}rem;"
+]
+  .inside
+    .value
+      - if percent
+        = "#{percent}%"
+      - else
+        = content
+
+    .title
+      = title

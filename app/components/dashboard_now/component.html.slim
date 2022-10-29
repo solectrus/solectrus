@@ -1,115 +1,39 @@
-.relative.overflow-hidden.lg:overflow-visible
-  .absolute.w-full.px-1
-    .grid.grid-cols-3.gap-5.md:gap-10.mt-24.h-8.md:h-16
-      .rotate-90
-        = render Flow::Component.new value: calculator.inverter_to_wallbox, signal: true
+.flex.h-full.w-full
+  = render Balance::Component.new side: :left,
+                                  calculator:,
+                                  period: 'now' do |balance|
+    ruby:
+      balance.segment :grid_power_plus, peak['grid_power_plus']
+      balance.segment :inverter_power, peak['inverter_power']
+      balance.segment :bat_power_minus, peak['bat_power_minus']
 
-      div
+  div class="h-full pb-8"
+    div class="h-full flex flex-col"
+      div class="px-2 sm:px-4 py-3"
+        = link_to root_path(field: 'autarky', period: 'now') do
+          div data-controller="tippy"
+            = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
+            template data-tippy-target="html"
+              = render AutarkyDetails::Component.new(calculator:)
 
-      .rotate-90
-        = render Flow::Component.new value: calculator.grid_to_wallbox, signal: false
+      div class="px-2 sm:px-4"
+        = link_to root_path(field: 'consumption', period: 'now') do
+          div data-controller="tippy"
+            = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
+            template data-tippy-target="html"
+              = render ConsumptionDetails::Component.new(calculator:)
 
-    .flex.flex-row.items-center.-mt-10.md:mt-3
-      .w-1/2.rotate-180
-        = render Flow::Component.new value: calculator.inverter_to_house, signal: true
+      div class="flex-1 flex flex-col justify-center"
+        = render Flow::Component.new value: calculator.total, max: max_flow
 
-      - case calculator.feeding?
-        - when true
-          .w-1/2.rotate-180
-            = render Flow::Component.new value: calculator.house_to_grid, signal: true
-        - when false
-          .w-1/2
-            = render Flow::Component.new value: calculator.grid_to_house, signal: false
+      div class="px-2 sm:px-4 py-3"
+        = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
 
-    .grid.grid-cols-3.gap-5.md:gap-10
-      .-rotate-90
-        = render Flow::Component.new value: calculator.inverter_to_battery, signal: true
-
-      .rotate-90
-        = render Flow::Component.new value: calculator.battery_to_house, signal: true
-
-      .-rotate-90
-        = render Flow::Component.new value: calculator.grid_to_battery, signal: false
-
-  .grid.gap-5.md:gap-y-10.text-center.text-white
-    = render Card::Component.new field: 'wallbox_charge_power', value: calculator.wallbox_charge_power, signal: calculator.wallbox_charge_power&.positive? ? false : nil do |component|
-      .flex.flex-row.justify-around.items-center
-        .w-1/3.pr-10
-          = tag.div class: 'text-2xl md:text-4xl' do
-            = Number::Component.new(value: calculator.wallbox_charge_power).to_w
-
-        .w-1/3
-          = component.icon
-          h1.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-            = component.title
-
-        .w-1/3
-
-    .grid.grid-cols-3.gap-5.md:gap-10
-      = render Card::Component.new field: 'inverter_power', value: calculator.inverter_power, signal: calculator.producing? || nil, klasses: 'flex flex-col justify-center' do |component|
-        = component.icon
-
-        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-          = component.title
-
-        = tag.div class: 'mt-5 text-2xl md:text-4xl' do
-          = Number::Component.new(value: calculator.inverter_power).to_w
-
-        h1.mt-2.text-xs.md:text-base
-          br
-
-      .grid.gap-3
-        = render Card::Component.new field: 'house_power', value: calculator.house_power, signal: calculator.autarky, klasses: 'flex flex-col justify-center' do |component|
-          = component.icon
-
-          h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-            = component.title
-
-          = tag.div class: 'mt-5 text-2xl md:text-4xl' do
-            = Number::Component.new(value: calculator.house_power).to_w
-
-          h1.mt-2.text-xs.md:text-base.whitespace-nowrap
-            =t 'senec.autarky'
-            =< Number::Component.new(value: calculator.autarky).to_percent(max_precision: 0, klass: 'text-current')
-
-          - component.tippy do
-            = render AutarkyDetails::Component.new(calculator:)
-
-      = render Card::Component.new field: 'grid_power', value: calculator.grid_power, signal: calculator.feeding?, klasses: 'flex flex-col justify-center' do |component|
-        = component.icon
-
-        h1.mt-2.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-          =t 'senec.grid_power'
-
-        = tag.div class: 'mt-5 text-2xl md:text-4xl' do
-          = Number::Component.new(value: calculator.grid_power.abs).to_w
-
-        h1.mt-2.text-xs.md:text-base
-          br
-
-    = render Card::Component.new field: params[:field] == 'bat_fuel_charge' ? 'bat_fuel_charge' : 'bat_power',
-                                 value: params[:field] == 'bat_fuel_charge' ? calculator.bat_fuel_charge : calculator.bat_power,
-                                 signal: !calculator.bat_empty? || nil do
-      .flex.flex-row.justify-around.items-center
-        .w-1/3.pr-10
-          = tag.div class: 'text-2xl md:text-4xl' do
-            = Number::Component.new(value: calculator.bat_power.abs).to_w
-
-        .w-1/3
-          - case calculator.bat_fuel_charge
-            - when 0..9
-              i.fas.fa-battery-empty.fa-2x
-            - when 10..40
-              i.fas.fa-battery-quarter.fa-2x
-            - when 41..60
-              i.fas.fa-battery-half.fa-2x
-            - when 61..94
-              i.fas.fa-battery-three-quarters.fa-2x
-            - when 95..100
-              i.fas.fa-battery-full.fa-2x
-
-          h1.text-xs.md:text-sm.uppercase.md:tracking-wider.hidden.md:block
-            =t 'senec.bat_power'
-
-        .w-1/3.text-2xl.pl-10
-          = Number::Component.new(value: calculator.bat_fuel_charge).to_percent(klass: 'text-current')
+  = render Balance::Component.new side: :right,
+                                  calculator:,
+                                  period: 'now' do |balance|
+    ruby:
+      balance.segment :wallbox_charge_power, peak['wallbox_charge_power']
+      balance.segment :house_power, peak['house_power']
+      balance.segment :grid_power_minus, peak['grid_power_power_minus']
+      balance.segment :bat_power_plus, peak['bat_power_plus']

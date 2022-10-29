@@ -8,16 +8,20 @@ de:
     logout: Abmelden
   senec:
     inverter_power: Erzeugung
-    house_power: Hausverbrauch
-    wallbox_charge_power: Wallbox
+    house_power: Haus-Verbrauch
+    wallbox_charge_power: E-Auto
     grid_power_plus: Netzbezug
     grid_power_minus: Einspeisung
     grid_power: Netz
     bat_power_minus: Akku-Entnahme
     bat_power_plus: Akku-Beladung
     bat_power: Akku
-    bat_fuel_charge: Akku-Füllstand
+    bat_fuel_charge: Akku
     autarky: Autarkie
+    consumption: Verbrauch
+  balance_sheet:
+    left: Herkunft
+    right: Verwendung
   calculator:
     now: Jetzt
     day: Tag
@@ -26,8 +30,9 @@ de:
     year: Jahr
     all: Gesamt
     forecast: Prognose
-    consumption: Eigenverbrauch
     grid_quote: Bezugsquote
+    consumption: Eigenverbrauch
+    consumption_quote: Eigenverbrauchsquote
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     profit: Gewinn

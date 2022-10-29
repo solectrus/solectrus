@@ -67,7 +67,6 @@ describe 'Home', js: true do
     expect(page).to have_text('5,0 kW')
     expect(page).to have_text('0,4 kW')
     expect(page).to have_text('2,5 kW')
-    expect(page).to have_text('56,3 %')
     expect(page).to have_text('10,0 kW')
     expect(page).to have_text('8,0 kW')
   end

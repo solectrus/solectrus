@@ -38,9 +38,11 @@ class Flux::Reader < Flux::Base
     stop ? "range(start: #{start}, stop: #{stop})" : "range(start: #{start})"
   end
 
-  def query(string)
-    if @cacheable
-      Rails.cache.fetch("flux/#{string}") { query_without_cache(string) }
+  def query(string, cache_options: {})
+    if @cacheable || cache_options.present?
+      Rails
+        .cache
+        .fetch("flux/#{string}", cache_options) { query_without_cache(string) }
     else
       query_without_cache(string)
     end

@@ -1,0 +1,102 @@
+class BalanceSegment::Component < ViewComponent::Base
+  def initialize(field:, parent:, peak:)
+    super
+    @field = field
+    @peak = peak
+    @parent = parent
+  end
+
+  attr_reader :field, :parent, :peak
+
+  delegate :calculator, to: :parent
+
+  def url
+    root_path(
+      period: parent.period,
+      field: field.to_s.sub(/_plus|_minus/, ''),
+      timestamp: parent.timestamp,
+    )
+  end
+
+  def value
+    @value ||= calculator.public_send(field)
+  end
+
+  def percent
+    @percent ||= calculator.public_send(:"#{field}_percent")
+  end
+
+  def now?
+    params[:period] == 'now'
+  end
+
+  def current_value?
+    now? && params[:field] == field.to_s
+  end
+
+  def masked_value
+    field.to_s.include?('power') ? value / 1_000.0 : value
+  end
+
+  def icon_size
+    return 100 if peak.nil?
+
+    Scale.new(target: 80..300, max: peak).result(value)
+  end
+
+  def icon_class
+    case field
+    when :grid_power_minus, :grid_power_plus
+      'fa-bolt'
+    when :inverter_power
+      'fa-sun'
+    when :bat_power_minus, :bat_power_plus
+      battery_class
+    when :house_power
+      'fa-home'
+    when :wallbox_charge_power
+      'fa-car'
+    end
+  end
+
+  def battery_class
+    return 'fa-battery-half' unless calculator.respond_to?(:bat_fuel_charge)
+
+    if calculator.bat_fuel_charge < 15
+      'fa-battery-empty'
+    elsif calculator.bat_fuel_charge < 30
+      'fa-battery-quarter'
+    elsif calculator.bat_fuel_charge < 60
+      'fa-battery-half'
+    elsif calculator.bat_fuel_charge < 85
+      'fa-battery-three-quarters'
+    else
+      'fa-battery-full'
+    end
+  end
+
+  def color_class
+    case field
+    when :grid_power_minus, :inverter_power
+      'bg-green-600'
+    when :bat_power_minus, :bat_power_plus
+      'bg-green-700'
+    when :house_power
+      'bg-slate-500'
+    when :wallbox_charge_power
+      'bg-slate-600'
+    when :grid_power_plus
+      'bg-red-600'
+    end
+  end
+
+  def font_size(max:)
+    return 0 if percent < 6
+
+    [percent + 90, max].min
+  end
+
+  def big?
+    percent > 33
+  end
+end
