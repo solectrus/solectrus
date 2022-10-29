@@ -2,9 +2,10 @@
   = render Balance::Component.new side: :left,
                                   calculator:,
                                   period: 'now' do |balance|
-    - balance.segment :grid_power_plus, peak['grid_power_plus']
-    - balance.segment :inverter_power, peak['inverter_power']
-    - balance.segment :bat_power_minus, peak['bat_power_minus']
+    ruby:
+      balance.segment :grid_power_plus, peak['grid_power_plus']
+      balance.segment :inverter_power, peak['inverter_power']
+      balance.segment :bat_power_minus, peak['bat_power_minus']
 
   div class="h-full pb-8"
     div class="h-full flex flex-col"
@@ -31,7 +32,8 @@
   = render Balance::Component.new side: :right,
                                   calculator:,
                                   period: 'now' do |balance|
-    - balance.segment :wallbox_charge_power, peak['wallbox_charge_power']
-    - balance.segment :house_power, peak['house_power']
-    - balance.segment :grid_power_minus, peak['grid_power_power_minus']
-    - balance.segment :bat_power_plus, peak['bat_power_plus']
+    ruby:
+      balance.segment :wallbox_charge_power, peak['wallbox_charge_power']
+      balance.segment :house_power, peak['house_power']
+      balance.segment :grid_power_minus, peak['grid_power_power_minus']
+      balance.segment :bat_power_plus, peak['bat_power_plus']

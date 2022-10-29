@@ -5,9 +5,6 @@ linters:
   LineLength:
     enabled: false
 
-  ConsecutiveControlStatements:
-    enabled: false
-
   RuboCop:
     enabled: true
 

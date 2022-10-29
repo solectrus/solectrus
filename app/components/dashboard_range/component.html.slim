@@ -3,9 +3,10 @@
                                   calculator:,
                                   period:,
                                   timestamp: do |balance|
-    - balance.segment :grid_power_plus
-    - balance.segment :inverter_power
-    - balance.segment :bat_power_minus
+    ruby:
+      balance.segment :grid_power_plus
+      balance.segment :inverter_power
+      balance.segment :bat_power_minus
 
   div class="px-2 sm:px-3 pb-12 pt-3"
     div class="h-2/3 flex flex-col gap-y-5"
@@ -32,7 +33,8 @@
                                   calculator:,
                                   period:,
                                   timestamp: do |balance|
-    - balance.segment :wallbox_charge_power
-    - balance.segment :house_power
-    - balance.segment :grid_power_minus
-    - balance.segment :bat_power_plus
+    ruby:
+      balance.segment :wallbox_charge_power
+      balance.segment :house_power
+      balance.segment :grid_power_minus
+      balance.segment :bat_power_plus
