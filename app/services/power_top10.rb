@@ -22,7 +22,7 @@ class PowerTop10 < Flux::Reader
   end
 
   def top(start:, stop:, window:, limit: 10)
-    raw = query <<-QUERY
+    raw = query <<-QUERY, cache_options: { expires_in: 10.minutes }
       #{from_bucket}
       |> #{range(start:, stop:)}
       |> #{measurements_filter}
