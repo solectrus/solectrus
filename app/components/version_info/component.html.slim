@@ -1,0 +1,26 @@
+.inline-flex.gap-x-2.items-center
+  = link_to github_url,
+            target: '_blank',
+            rel: 'noopener',
+            data: { controller: 'tippy' },
+            title: l(commit_time) do
+    i.ml-2.fab.fa-github.fa-lg
+    code.ml-2
+      = current_version
+
+  - case outdated?
+  - when true
+    = link_to latest_release_url,
+              class: 'relative flex',
+              data: { controller: 'tippy' },
+              title: t('layout.version_outdated', latest_version:),
+              target: '_blank', rel: 'noopener' do
+      span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-indigo-600.opacity-75
+      span.relative.inline-flex.rounded-full.h-3.w-3.bg-indigo-500
+
+  - when false
+    = link_to latest_release_url,
+              data: { controller: 'tippy' },
+              title: t('layout.version_uptodate'),
+              target: '_blank', rel: 'noopener' do
+      i.fa.far.fa-circle-check

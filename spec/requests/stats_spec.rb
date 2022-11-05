@@ -1,4 +1,4 @@
-describe 'Stats' do
+describe 'Stats', vcr: { cassette_name: 'github' } do
   describe 'GET /' do
     context 'with params' do
       it 'renders' do

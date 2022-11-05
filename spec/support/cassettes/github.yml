@@ -1,0 +1,79 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.github.com/repos/solectrus/solectrus/releases/latest
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - api.github.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Sat, 05 Nov 2022 18:16:36 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Cache-Control:
+      - public, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - W/"c7c69fd95e19559ab1dfa990c24c2e9ee72e454588d1295353a8e918dd3fd278"
+      Last-Modified:
+      - Tue, 11 Oct 2022 05:55:32 GMT
+      X-Github-Media-Type:
+      - github.v3; format=json
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Resource, X-RateLimit-Reset, X-OAuth-Scopes,
+        X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, X-GitHub-SSO,
+        X-GitHub-Request-Id, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      X-Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining:
+      - '20'
+      X-Ratelimit-Reset:
+      - '1667675229'
+      X-Ratelimit-Resource:
+      - core
+      X-Ratelimit-Used:
+      - '40'
+      Accept-Ranges:
+      - bytes
+      Content-Length:
+      - '589'
+      X-Github-Request-Id:
+      - DE38:51D9:690FA76:6A94647:6366A883
+    body:
+      encoding: ASCII-8BIT
+      string: '{"url":"https://api.github.com/repos/solectrus/solectrus/releases/79491531","assets_url":"https://api.github.com/repos/solectrus/solectrus/releases/79491531/assets","upload_url":"https://uploads.github.com/repos/solectrus/solectrus/releases/79491531/assets{?name,label}","html_url":"https://github.com/solectrus/solectrus/releases/tag/v0.6.1","id":79491531,"author":{"login":"ledermann","id":3557,"node_id":"MDQ6VXNlcjM1NTc=","avatar_url":"https://avatars.githubusercontent.com/u/3557?v=4","gravatar_id":"","url":"https://api.github.com/users/ledermann","html_url":"https://github.com/ledermann","followers_url":"https://api.github.com/users/ledermann/followers","following_url":"https://api.github.com/users/ledermann/following{/other_user}","gists_url":"https://api.github.com/users/ledermann/gists{/gist_id}","starred_url":"https://api.github.com/users/ledermann/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/ledermann/subscriptions","organizations_url":"https://api.github.com/users/ledermann/orgs","repos_url":"https://api.github.com/users/ledermann/repos","events_url":"https://api.github.com/users/ledermann/events{/privacy}","received_events_url":"https://api.github.com/users/ledermann/received_events","type":"User","site_admin":false},"node_id":"RE_kwDOEz9AiM4EvPHL","tag_name":"v0.6.1","target_commitish":"develop","name":"v0.6.1","draft":false,"prerelease":false,"created_at":"2022-10-11T05:47:44Z","published_at":"2022-10-11T05:55:32Z","assets":[],"tarball_url":"https://api.github.com/repos/solectrus/solectrus/tarball/v0.6.1","zipball_url":"https://api.github.com/repos/solectrus/solectrus/zipball/v0.6.1","body":"-
+        Updated dependencies, no new features\r\n"}'
+  recorded_at: Sat, 05 Nov 2022 18:16:36 GMT
+recorded_with: VCR 6.1.0

@@ -118,6 +118,12 @@ group :test do
 
   # Simple one-liner tests for common Rails functionality (https://matchers.shoulda.io/)
   gem 'shoulda-matchers'
+
+  # Record your test suite's HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests. (https://relishapp.com/vcr/vcr/docs)
+  gem 'vcr'
+
+  # Library for stubbing HTTP requests in Ruby. (https://github.com/bblimke/webmock)
+  gem 'webmock'
 end
 
 group :production do

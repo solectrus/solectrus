@@ -90,6 +90,8 @@ GEM
     coderay (1.1.3)
     concurrent-ruby (1.1.10)
     connection_pool (2.3.0)
+    crack (0.4.5)
+      rexml
     crass (1.0.6)
     css_parser (1.12.0)
       addressable
@@ -123,6 +125,7 @@ GEM
       temple (>= 0.8.2)
       thor
       tilt
+    hashdiff (1.0.1)
     honeybadger (5.0.2)
     htmlbeautifier (1.4.2)
     htmlentities (4.3.4)
@@ -352,6 +355,7 @@ GEM
     tzinfo (2.0.5)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.3.0)
+    vcr (6.1.0)
     view_component (2.75.0)
       activesupport (>= 5.0.0, < 8.0)
       concurrent-ruby (~> 1.0)
@@ -372,6 +376,10 @@ GEM
       nokogiri (~> 1.6)
       rubyzip (>= 1.3.0)
       selenium-webdriver (~> 4.0)
+    webmock (3.18.1)
+      addressable (>= 2.8.0)
+      crack (>= 0.3.2)
+      hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.7.0)
     websocket (1.2.9)
     websocket-driver (0.7.5)
@@ -421,10 +429,12 @@ DEPENDENCIES
   spring-commands-rspec
   stimulus-rails
   turbo-rails
+  vcr
   view_component
   vite_rails
   web-console
   webdrivers
+  webmock
 
 RUBY VERSION
    ruby 3.1.2p20

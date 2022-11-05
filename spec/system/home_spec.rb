@@ -1,4 +1,4 @@
-describe 'Home', js: true do
+describe 'Home', js: true, vcr: { cassette_name: 'github' } do
   before do
     Price.electricity.create! starts_at: 2.years.ago, value: 0.20
     Price.feed_in.create! starts_at: 2.years.ago, value: 0.08

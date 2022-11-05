@@ -27,6 +27,7 @@ import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons/faArr
 
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
+import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck';
 // -------------------------
 
 export default class extends Controller {
@@ -57,6 +58,7 @@ export default class extends Controller {
       faArrowRightFromBracket,
       faGithub,
       faCog,
+      faCircleCheck,
     );
   }
 

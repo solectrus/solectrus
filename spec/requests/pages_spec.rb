@@ -1,4 +1,4 @@
-describe 'Pages' do
+describe 'Pages', vcr: { cassette_name: 'github' } do
   describe 'GET /about' do
     it 'is successful' do
       get '/about'

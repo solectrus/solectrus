@@ -6,6 +6,8 @@ de:
     about: Über
     login: Anmelden
     logout: Abmelden
+    version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
+    version_uptodate: Dies ist die neueste Version
   senec:
     inverter_power: Erzeugung
     house_power: Haus-Verbrauch
