@@ -128,7 +128,7 @@ GEM
     htmlentities (4.3.4)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
-    influxdb-client (2.8.0)
+    influxdb-client (2.7.0)
     json (2.6.2)
     launchy (2.5.0)
       addressable (~> 2.7)
@@ -394,7 +394,7 @@ DEPENDENCIES
   dotenv-rails
   guard-rspec
   honeybadger
-  influxdb-client
+  influxdb-client (!= 2.8.0)
   lockup
   lograge
   lookbook
