@@ -19,11 +19,14 @@ class PowerSum < Flux::Reader
 
   def year(start)
     sum start: start.beginning_of_year.beginning_of_day,
-        stop: start.end_of_year.end_of_day
+        stop: start.end_of_year.end_of_day,
+        cache_options: {
+          expires_in: 1.day,
+        }
   end
 
   def all(start)
-    sum start:
+    sum start:, cache_options: { expires_in: 1.day }
   end
 
   private
@@ -47,11 +50,12 @@ class PowerSum < Flux::Reader
       end
   end
 
-  def sum(start:, stop: nil)
+  def sum(start:, stop: nil, cache_options: nil)
     price_sections(start:, stop:).map do |section|
       sum_query(
         start: section[:starts_at],
         stop: section[:ends_at],
+        cache_options:,
       ).tap do |query|
         query[:feed_in_tariff] = section[:feed_in]
         query[:electricity_price] = section[:electricity]
@@ -66,8 +70,8 @@ class PowerSum < Flux::Reader
     ).price_sections
   end
 
-  def sum_query(start:, stop: nil)
-    result = query <<-QUERY
+  def sum_query(start:, stop: nil, cache_options: nil)
+    result = query <<-QUERY, cache_options: cache_options
       #{from_bucket}
       |> #{range(start:, stop:)}
       |> #{measurements_filter}
