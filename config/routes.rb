@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
+  mount Lookbook::Engine, at: '/lookbook' if Rails.env.development?
   mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
   constraints period: /now|day|week|month|year|all/,

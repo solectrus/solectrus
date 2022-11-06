@@ -1,31 +1,22 @@
-.zebra {
-  background-size: 200% 200%;
-  animation: barberpole 10s linear infinite;
+.animated-gradient {
+  background: repeating-linear-gradient(
+    to right,
+    #cbd5e1 0%,
+    #fef9c3 50%,
+    #cbd5e1 100%
+  );
+  background-size: 200% auto;
+  animation: flow 2s linear infinite;
 
   /* Reduce CPU load */
-  will-change: transform;
+  will-change: contents;
 }
 
-.red-zebra {
-  background-image: repeating-linear-gradient(
-    -60deg,
-    #ef4444 0.1rem,
-    #b91c1c 0.1rem,
-    #ef4444 1rem
-  );
-}
-
-.green-zebra {
-  background-image: repeating-linear-gradient(
-    -60deg,
-    #10b981 0.1rem,
-    #047857 0.1rem,
-    #10b981 1rem
-  );
-}
-
-@keyframes barberpole {
+@keyframes flow {
+  0% {
+    background-position: 0 0;
+  }
   100% {
-    background-position: 100% 100%;
+    background-position: -200% 0;
   }
 }

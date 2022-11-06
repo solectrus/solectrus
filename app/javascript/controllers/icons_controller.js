@@ -14,6 +14,7 @@ import { faSun } from '@fortawesome/free-solid-svg-icons/faSun';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faCar } from '@fortawesome/free-solid-svg-icons/faCar';
 import { faPlug } from '@fortawesome/free-solid-svg-icons/faPlug';
+import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt';
 
 import { faBatteryEmpty } from '@fortawesome/free-solid-svg-icons/faBatteryEmpty';
 import { faBatteryQuarter } from '@fortawesome/free-solid-svg-icons/faBatteryQuarter';
@@ -26,6 +27,7 @@ import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons/faArr
 
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
+import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck';
 // -------------------------
 
 export default class extends Controller {
@@ -40,6 +42,7 @@ export default class extends Controller {
       faHome,
       faCar,
       faPlug,
+      faBolt,
       faChevronLeft,
       faChevronRight,
       faPlus,
@@ -55,6 +58,7 @@ export default class extends Controller {
       faArrowRightFromBracket,
       faGithub,
       faCog,
+      faCircleCheck,
     );
   }
 

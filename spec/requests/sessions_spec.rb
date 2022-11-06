@@ -1,4 +1,4 @@
-describe 'Sessions' do
+describe 'Sessions', vcr: { cassette_name: 'github' } do
   before do
     allow(Rails.configuration.x).to receive(:admin_password).and_return(
       't0ps3cr3t',

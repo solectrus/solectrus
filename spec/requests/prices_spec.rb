@@ -1,4 +1,4 @@
-describe 'Prices' do
+describe 'Prices', vcr: { cassette_name: 'github' } do
   describe 'GET /index' do
     context 'when name is "electricity"' do
       it 'returns http success' do

@@ -22,6 +22,7 @@ require 'rspec/rails'
 
 require 'capybara-screenshot/rspec'
 require 'rspec/collection_matchers'
+require 'webmock/rspec'
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are

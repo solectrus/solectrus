@@ -103,8 +103,7 @@ export default class extends Controller {
         throw new Error(`Error! status: ${response.status}`);
       }
 
-      const result = await response.json();
-      return result;
+      return await response.json();
     } catch (err) {
       console.warn(err);
     }

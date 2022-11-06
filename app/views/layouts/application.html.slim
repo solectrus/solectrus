@@ -57,37 +57,31 @@ html lang="de"
 
     = yield :head
 
-  body.h-screen.flex.flex-col.bg-gray-100 data-controller="icons"
+  body.min-h-screen.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white data-controller="icons"
     = render Nav::Top::Component.new do |c|
       = c.with_items topnav_items
       = c.sub_nav { yield :sub_nav } if content_for?(:sub_nav)
 
-    main.-mt-32.flex-grow.lg:flex-none.pb-16.lg:pb-0
-      .max-w-7xl.mx-auto.sm:px-6.lg:px-8
-        .bg-white.sm:rounded-lg.lg:shadow.px-5.py-6.sm:px-6
+    main.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:max-h-[700px]' : 'lg:flex-initial')
+      .max-w-7xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
+        .bg-white.sm:rounded-lg.lg:shadow.p-5.sm:px-6.flex-auto.flex.flex-col
           = yield
       = turbo_frame_tag 'modal', target: '_top'
 
     - if content_for?(:bottom_nav)
-      nav.fixed.bottom-0.w-full.bg-indigo-600.py-4.z-10.lg:hidden
+      nav.w-full.bg-indigo-600.py-4.z-10.lg:hidden
         = yield :bottom_nav
 
     footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
       div
         span.tracking-wider.uppercase Solectrus
-        = link_to Rails.configuration.x.git.home,
-                  target: '_blank',
-                  rel: 'noopener',
-                  data: { controller: 'tippy' },
-                  title: l(Rails.configuration.x.git.commit_time) do
-          i.ml-1.fab.fa-github.fa-lg
-          code.ml-1.text-gray-600
-            = Rails.configuration.x.git.commit_version
+        = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
+                                            commit_time: Rails.configuration.x.git.commit_time,
+                                            github_url: Rails.configuration.x.git.home)
 
       = link_to 'https://ledermann.dev',
                 target: '_blank',
                 rel: 'noopener',
-                class: 'hover:underline',
                 data: { controller: 'tippy' },
                 title: 'Georg Ledermann &mdash; Full Stack Developer' do
         svg class="inline h-6 w-6" viewBox="0 0 276 276"

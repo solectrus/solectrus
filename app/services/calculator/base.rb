@@ -1,5 +1,5 @@
 class Calculator::Base
-  def build_context(hash_or_array) # rubocop:disable Metrics/CyclomaticComplexity
+  def build_context(hash_or_array)
     case hash_or_array
     when Array
       array = hash_or_array
@@ -17,11 +17,11 @@ class Calculator::Base
     hash.each_key do |key|
       case key
       when :time
-        value = array.map { |v| v[key] }.last
+        value = array.pluck(key).last
 
         define_singleton_method(key) { value }
       when :feed_in_tariff, :electricity_price
-        values = array.map { |v| v[key] }
+        values = array.pluck(key)
 
         define_singleton_method(key) { values }
       else
@@ -45,6 +45,12 @@ class Calculator::Base
     inverter_power >= 50
   end
 
+  def inverter_power_percent
+    return 0 if total_plus.nan? || total_plus.zero?
+
+    (100.0 * inverter_power / total_plus).round(1)
+  end
+
   # Grid
 
   def feeding?
@@ -55,6 +61,18 @@ class Calculator::Base
 
   def grid_power
     feeding? ? grid_power_minus : -grid_power_plus
+  end
+
+  def grid_power_plus_percent
+    return 0 if total_plus.nan? || total_plus.zero?
+
+    (100.0 * grid_power_plus / total_plus).round(1)
+  end
+
+  def grid_power_minus_percent
+    return 0 if total_minus.nan? || total_minus.zero?
+
+    (100.0 * grid_power_minus / total_minus).round(1)
   end
 
   # House
@@ -69,6 +87,16 @@ class Calculator::Base
     end
   end
 
+  def consumption_alt
+    inverter_power - grid_power_minus
+  end
+
+  def consumption_quote
+    return 0.0 if inverter_power.zero?
+
+    [100.0 * consumption_alt / inverter_power, 0.0].max.round(1)
+  end
+
   def grid_quote
     return if consumption.zero?
 
@@ -79,6 +107,20 @@ class Calculator::Base
     return unless grid_quote
 
     (100.0 - grid_quote).round(1)
+  end
+
+  def house_power_percent
+    return 0 if total_minus.nan? || total_minus.zero?
+
+    (100.0 * house_power / total_minus).round(1)
+  end
+
+  # Wallbox
+
+  def wallbox_charge_power_percent
+    return 0 if total_minus.nan? || total_minus.zero?
+
+    (100.0 * wallbox_charge_power / total_minus).round(1)
   end
 
   # Battery
@@ -93,5 +135,31 @@ class Calculator::Base
 
   def bat_power
     bat_charging? ? bat_power_plus : -bat_power_minus
+  end
+
+  def bat_power_minus_percent
+    return 0 if total_plus.nan? || total_plus.zero?
+
+    (100.0 * bat_power_minus / total_plus).round(1)
+  end
+
+  def bat_power_plus_percent
+    return 0 if total_minus.nan? || total_minus.zero?
+
+    (100.0 * bat_power_plus / total_minus).round(1)
+  end
+
+  # Total
+
+  def total_plus
+    grid_power_plus + bat_power_minus + inverter_power
+  end
+
+  def total_minus
+    grid_power_minus + bat_power_plus + house_power + wallbox_charge_power
+  end
+
+  def total
+    [total_minus, total_plus].max
   end
 end

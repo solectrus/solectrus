@@ -9,6 +9,16 @@ module.exports = {
         yellow: colors.amber,
         purple: colors.violet,
       },
+
+      typography: {
+        DEFAULT: {
+          css: {
+            a: {
+              textUnderlineOffset: 2,
+            },
+          },
+        },
+      },
     },
   },
 

@@ -34,7 +34,11 @@ class TimeInterval
   private
 
   def prices
-    Price.where(starts_at: ..ends_at).order(:starts_at).to_a
+    Price
+      .where(starts_at: ..ends_at)
+      .where(starts_at: ..Date.current)
+      .order(:starts_at)
+      .to_a
   end
 
   def last_section

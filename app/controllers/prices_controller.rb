@@ -16,6 +16,9 @@ class PricesController < ApplicationController
   def new
   end
 
+  def edit
+  end
+
   def create
     if @price.save
       head :created
@@ -24,12 +27,9 @@ class PricesController < ApplicationController
     end
   end
 
-  def edit
-  end
-
   def update
     if @price.update(permitted_params)
-      head :ok
+      head :no_content
     else
       render :edit, status: :unprocessable_entity
     end
@@ -37,7 +37,7 @@ class PricesController < ApplicationController
 
   def destroy
     @price.destroy!
-    head :ok
+    head :no_content
   end
 
   private

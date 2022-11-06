@@ -20,9 +20,12 @@ ruby:
           p Solectrus ist ein alternatives Photovoltaik-Dashboard, das Ertrag und Verbrauch einer PV-Anlage visualisiert.
 
           p
-            | Unterstützt wird das System
-            =< link_to 'SENEC.Home', 'https://senec.com/de/produkte/senec-home'
-            |. Die Anbindung erfolgt über einen Collector, der auf dem Einplatinencomputer <em>Raspberry Pi</em> läuft und laufend die Messwerte vom Webserver des Stromspeichers abholt und in eine Zeitreihendatenbank überträgt.
+            | Unterstützt wird der Stromspeicher
+            =< link_to 'SENEC.Home',
+                       'https://senec.com/de/produkte/senec-home',
+                       target: '_blank',
+                       rel: 'noopener'
+            |. Die Anbindung erfolgt über einen Collector, der auch auf dem Einplatinencomputer <em>Raspberry Pi</em> läuft und laufend die Messwerte vom Webserver des Speichers abholt und in eine Zeitreihendatenbank überträgt.
 
           p Solectrus bietet gegenüber der offiziellen App von SENEC weitere Features:
 

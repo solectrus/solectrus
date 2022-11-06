@@ -1,4 +1,4 @@
-class ChartData::Component < ViewComponent::Base
+class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(field:, period:, timestamp:)
     super
     @field = field
@@ -10,6 +10,8 @@ class ChartData::Component < ViewComponent::Base
   def call
     if field == 'autarky'
       data_autarky
+    elsif field == 'consumption'
+      data_consumption
     elsif period == 'now'
       data_now
     elsif period == 'day' && field == 'inverter_power'
@@ -61,6 +63,18 @@ class ChartData::Component < ViewComponent::Base
     }
   end
 
+  def data_consumption
+    {
+      labels: consumption&.map(&:first),
+      datasets: [
+        {
+          label: I18n.t('calculator.consumption_quote'),
+          data: consumption&.map(&:second),
+        }.merge(style('consumption')),
+      ],
+    }
+  end
+
   def data_range
     {
       labels: range[range.keys.first]&.map(&:first),
@@ -96,6 +110,18 @@ class ChartData::Component < ViewComponent::Base
       end
   end
 
+  def consumption
+    @consumption ||=
+      if period == 'now'
+        ConsumptionChart.new(measurements: %w[SENEC]).now
+      else
+        ConsumptionChart.new(measurements: %w[SENEC]).public_send(
+          period,
+          timestamp,
+        )
+      end
+  end
+
   def forecast
     @forecast ||=
       PowerChart.new(measurements: %w[Forecast], fields: %w[watt]).day(
@@ -117,29 +143,39 @@ class ChartData::Component < ViewComponent::Base
 
   def style(chart_field)
     {
-      fill:
-        if chart_field.in?(%w[grid_power_minus grid_power_plus])
-          {
-            target: 'origin',
-            above: 'rgb(16, 185, 129)',
-            below: 'rgb(239, 68, 68)',
-          }
-        else
-          'origin'
-        end,
-      backgroundColor:
-        case chart_field
-        when 'forecast'
-          '#ddd'
-        when 'grid_power_minus'
-          'rgb(16, 185, 129)'
-        when 'grid_power_plus'
-          'rgb(239, 68, 68)'
-        else
-          'rgba(79, 70, 229, 0.5)'
-        end,
+      fill: fill(chart_field),
+      backgroundColor: background_color(chart_field),
       borderWidth: 0,
     }
+  end
+
+  def fill(chart_field)
+    if chart_field.in?(%w[grid_power_minus grid_power_plus])
+      {
+        target: 'origin',
+        above: '#16a34a', # bg-green-600
+        below: '#dc2626', # bg-red-600
+      }
+    else
+      'origin'
+    end
+  end
+
+  def background_color(chart_field)
+    case chart_field
+    when 'forecast'
+      '#ddd'
+    when 'house_power'
+      '#64748b' # bg-slate-500
+    when 'grid_power_plus'
+      '#dc2626' # bg-red-600
+    when 'grid_power_minus', 'inverter_power'
+      'rgba(22, 163, 74, 0.5)' # bg-green-600, 0.5 transparent
+    when 'wallbox_charge_power'
+      '#475569' # bg-slate-600
+    when 'bat_power_minus', 'bat_power_plus', 'autarky', 'consumption'
+      '#15803d' # bg-green-700
+    end
   end
 
   def mapped_data(data, chart_field)

@@ -10,6 +10,10 @@ describe TimeInterval do
                               value: 0.30,
                               note: 'Second price'
 
+    Price.electricity.create! starts_at: 2.months.since,
+                              value: 0.40,
+                              note: 'Future price'
+
     Price.feed_in.create! starts_at: Date.new(2021, 1, 1),
                           value: 0.08,
                           note: 'Second price'

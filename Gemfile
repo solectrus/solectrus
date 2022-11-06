@@ -37,10 +37,13 @@ gem 'rack-cors', require: 'rack/cors'
 gem 'lograge'
 
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
-gem 'influxdb-client'
+gem 'influxdb-client', '!= 2.8.0'
 
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
+
+# A native development UI for ViewComponent (https://github.com/allmarkedup/lookbook)
+gem 'lookbook'
 
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
@@ -115,6 +118,12 @@ group :test do
 
   # Simple one-liner tests for common Rails functionality (https://matchers.shoulda.io/)
   gem 'shoulda-matchers'
+
+  # Record your test suite's HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests. (https://relishapp.com/vcr/vcr/docs)
+  gem 'vcr'
+
+  # Library for stubbing HTTP requests in Ruby. (https://github.com/bblimke/webmock)
+  gem 'webmock'
 end
 
 group :production do

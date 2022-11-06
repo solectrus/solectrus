@@ -24,17 +24,10 @@ export default class extends Controller {
   }
 
   updateChart() {
-    if (!this.hasCurrentTarget) {
-      console.warn('RefreshController: Target "current" not found!');
-      return;
-    }
+    if (!this.hasCurrentTarget) return;
 
     const chart = this.chartNow;
-
-    if (!chart) {
-      console.warn('RefreshController: Chart not found!');
-      return;
-    }
+    if (!chart) return;
 
     // Remove oldest point (label + value in all datasets)
     chart.data.labels.shift();

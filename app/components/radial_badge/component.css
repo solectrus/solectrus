@@ -1,0 +1,66 @@
+/* Based on https://daisyui.com/components/radial-progress/ */
+
+.radial-badge {
+  --value: 0;
+  --size: 5rem;
+  --thickness: calc(var(--size) / 15);
+}
+
+.radial-badge {
+  @apply relative inline-grid place-content-center rounded-full w-full;
+}
+
+.radial-badge .inside {
+  @apply flex flex-col items-center;
+}
+
+.radial-badge .value {
+  @apply font-light;
+
+  font-size: calc(var(--size) / 6);
+}
+
+.radial-badge .title {
+  @apply uppercase font-normal;
+
+  font-size: calc(var(--size) / 10);
+}
+
+@media screen and (min-width: 640px) {
+  .radial-badge {
+    @apply box-content border-4 bg-transparent h-[var(--size)] w-[var(--size)];
+  }
+
+  .radial-badge:before,
+  .radial-badge:after {
+    @apply absolute rounded-full;
+    content: '';
+  }
+
+  .radial-badge.percent:before {
+    @apply inset-0;
+
+    background: radial-gradient(farthest-side, currentColor 98%, #0000)
+        top/var(--thickness) var(--thickness) no-repeat,
+      conic-gradient(currentColor calc(var(--value) * 1%), #0000 0);
+    mask: radial-gradient(
+      farthest-side,
+      #0000 calc(99% - var(--thickness)),
+      #000 calc(100% - var(--thickness))
+    );
+  }
+
+  .radial-badge.percent:after {
+    @apply bg-current;
+
+    inset: calc(50% - var(--thickness) / 2);
+    transform: rotate(calc(var(--value) * 3.6deg - 90deg))
+      translate(calc(var(--size) / 2 - 50%));
+  }
+
+  .radial-badge .value {
+    @apply font-light;
+
+    font-size: calc(var(--size) / 4);
+  }
+}

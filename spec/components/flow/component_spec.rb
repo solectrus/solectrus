@@ -1,49 +1,13 @@
 describe Flow::Component, type: :component do
-  let(:component) { described_class.new(value:, signal: true) }
-
-  describe '#height' do
-    subject { component.height }
-
-    context 'when 150%' do
-      let(:value) { 15_000 }
-
-      it { is_expected.to eq('100%') }
-    end
-
-    context 'when 100%' do
-      let(:value) { 10_000 }
-
-      it { is_expected.to eq('100%') }
-    end
-
-    context 'when 3/4' do
-      let(:value) { 7_500 }
-
-      it { is_expected.to eq('98%') }
-    end
-
-    context 'when 1/2' do
-      let(:value) { 5_000 }
-
-      it { is_expected.to eq('88%') }
-    end
-
-    context 'when 1/3' do
-      let(:value) { 3_333 }
-
-      it { is_expected.to eq('70%') }
-    end
-
-    context 'when 5%' do
-      let(:value) { 500 }
-
-      it { is_expected.to eq('14%') }
-    end
-
-    context 'when 0' do
-      let(:value) { 0 }
-
-      it { is_expected.to eq('0%') }
-    end
+  it 'calculates relative height' do
+    expect(described_class.new(max: 10_000, value: 0).height).to eq 0
+    expect(described_class.new(max: 10_000, value: 100).height).to eq 2
+    expect(described_class.new(max: 10_000, value: 200).height).to eq 4
+    expect(described_class.new(max: 10_000, value: 2000).height).to eq 32
+    expect(described_class.new(max: 10_000, value: 4000).height).to eq 53
+    expect(described_class.new(max: 10_000, value: 6000).height).to eq 71
+    expect(described_class.new(max: 10_000, value: 9000).height).to eq 93
+    expect(described_class.new(max: 10_000, value: 15_000).height).to eq 100
+    expect(described_class.new(max: 10_000, value: 30_000).height).to eq 100
   end
 end

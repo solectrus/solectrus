@@ -58,9 +58,6 @@ module Solectrus
 
     config.x.admin_password = ENV.fetch('ADMIN_PASSWORD', nil)
 
-    # Set the default layout to app/views/layouts/component_preview.html.slim
-    config.view_component.default_preview_layout = 'component_preview'
-
     # The 'X-Frame-Options' header should not be used.  A similar effect, with more consistent
     # support and stronger checks, can be achieved with the 'Content-Security-Policy' header
     # and 'frame-ancestors' directive.
