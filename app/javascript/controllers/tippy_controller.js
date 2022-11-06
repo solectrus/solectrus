@@ -3,7 +3,10 @@ import tippy from 'tippy.js';
 
 export default class extends Controller {
   static values = {
-    placement: String,
+    placement: {
+      type: String,
+      default: 'bottom',
+    },
   };
   static targets = ['html'];
 
@@ -11,7 +14,7 @@ export default class extends Controller {
     tippy(this.element, {
       allowHTML: true,
       arrow: true,
-      placement: this.placementValue || 'bottom',
+      placement: this.placementValue,
       theme: 'light-border',
       animation: 'scale',
       content: (reference) => {
