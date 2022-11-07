@@ -1,4 +1,4 @@
-# @label ConsumptionDetails::Component
+# @label ConsumptionDetails Component
 class ConsumptionDetailsComponentPreview < ViewComponent::Preview
   def default
     render ConsumptionDetails::Component.new calculator:

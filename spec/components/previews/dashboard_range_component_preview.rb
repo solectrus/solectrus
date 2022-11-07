@@ -1,4 +1,4 @@
-# @label DashboardRange::Component
+# @label DashboardRange Component
 class DashboardRangeComponentPreview < ViewComponent::Preview
   def default
     render DashboardRange::Component.new calculator:, period:, timestamp:

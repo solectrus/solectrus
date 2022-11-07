@@ -1,4 +1,4 @@
-# @label Balance::Component
+# @label Balance Component
 class BalanceComponentPreview < ViewComponent::Preview
   def left
     render Balance::Component.new side: :left,
