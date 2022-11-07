@@ -27,11 +27,12 @@ class VersionInfo::Component < ViewComponent::Base
   private
 
   def latest_release
-    Rails
-      .cache
-      .fetch([:github_latest_release, current_version], expires_in: 1.day) do
-        GithubApi.new.latest_release
-      end
+    @latest_release ||=
+      Rails
+        .cache
+        .fetch([:github_latest_release, current_version], expires_in: 1.day) do
+          GithubApi.new.latest_release
+        end
   end
 
   def valid?(version)
