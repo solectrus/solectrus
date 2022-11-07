@@ -31,6 +31,7 @@ class VersionInfo::Component < ViewComponent::Base
       Rails
         .cache
         .fetch([:github_latest_release, current_version], expires_in: 1.day) do
+          Rails.logger.info('VersionInfo: Fetching latest release from GitHub')
           GithubApi.new.latest_release
         end
   end
