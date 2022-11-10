@@ -7,6 +7,7 @@ class Flux::Base
       org: influx_org,
       precision: InfluxDB2::WritePrecision::SECOND,
       use_ssl: influx_schema == 'https',
+      read_timeout: 30,
     )
   end
 
