@@ -1,0 +1,437 @@
+describe Timeframe do
+  subject(:decoder) do
+    described_class.new(
+      string,
+      min_date: Date.new(2019, 5, 2),
+      max_date: Date.new(2022, 10, 14),
+    )
+  end
+
+  around do |example|
+    travel_to Time.zone.local(2022, 10, 13, 10, 0, 0) do
+      example.run
+    end
+  end
+
+  describe 'static methods' do
+    describe '.now' do
+      subject { described_class.now }
+
+      it { is_expected.to be_now }
+    end
+
+    describe '.all' do
+      subject { described_class.all }
+
+      it { is_expected.to be_all }
+    end
+
+    describe '.regex' do
+      subject { described_class.regex }
+
+      it { is_expected.to match('2022-02-02') }
+      it { is_expected.to match('2022-W42') }
+      it { is_expected.to match('2022-02') }
+      it { is_expected.to match('2022') }
+      it { is_expected.to match('all') }
+      it { is_expected.to match('now') }
+
+      it { is_expected.not_to match('foo') }
+      it { is_expected.not_to match('42') }
+    end
+  end
+
+  context 'when string is "now"' do
+    let(:string) { 'now' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:now)
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2022-10-13 10:00:00 +0200')
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq('2022-10-13 10:00:00 +0200')
+    end
+
+    it 'returns the correct next' do
+      expect(decoder.next).to be_nil
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to be_nil
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('Heute, 10:00 Uhr')
+    end
+
+    it 'returns the correct corresponding_day' do
+      expect(decoder.corresponding_day).to eq('2022-10-13')
+    end
+
+    it 'returns the correct corresponding_week' do
+      expect(decoder.corresponding_week).to eq('2022-W41')
+    end
+
+    it 'returns the correct corresponding_month' do
+      expect(decoder.corresponding_month).to eq('2022-10')
+    end
+
+    it 'returns the correct corresponding_year' do
+      expect(decoder.corresponding_year).to eq('2022')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(true)
+      expect(decoder.day?).to be(false)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(false)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is not out_of_range' do
+      expect(decoder.out_of_range?).to be(false)
+    end
+  end
+
+  context 'when string is a day' do
+    let(:string) { '2022-05-13' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:day)
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2022-05-13 00:00:00.000000000 +0200')
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq('2022-05-13 23:59:59.999999999 +0200')
+    end
+
+    it 'returns the correct next' do
+      expect(decoder.next).to eq('2022-05-14')
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to eq('2022-05-12')
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('Freitag, 13. Mai 2022')
+    end
+
+    it 'returns the correct corresponding_day' do
+      expect(decoder.corresponding_day).to eq(string)
+    end
+
+    it 'returns the correct corresponding_week' do
+      expect(decoder.corresponding_week).to eq('2022-W19')
+    end
+
+    it 'returns the correct corresponding_month' do
+      expect(decoder.corresponding_month).to eq('2022-05')
+    end
+
+    it 'returns the correct corresponding_year' do
+      expect(decoder.corresponding_year).to eq('2022')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.day?).to be(true)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(false)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is not out_of_range' do
+      expect(decoder.out_of_range?).to be(false)
+    end
+  end
+
+  context 'when string is a week' do
+    let(:string) { '2022-W19' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:week)
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2022-05-09 00:00:00.000000000 +0200')
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq('2022-05-15 23:59:59.999999999 +0200')
+    end
+
+    it 'returns the correct next' do
+      expect(decoder.next).to eq('2022-W20')
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to eq('2022-W18')
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('KW 19, 2022')
+    end
+
+    it 'returns the correct corresponding_day' do
+      expect(decoder.corresponding_day).to eq('2022-05-15')
+    end
+
+    it 'returns the correct corresponding_week' do
+      expect(decoder.corresponding_week).to eq(string)
+    end
+
+    it 'returns the correct corresponding_month' do
+      expect(decoder.corresponding_month).to eq('2022-05')
+    end
+
+    it 'returns the correct corresponding_year' do
+      expect(decoder.corresponding_year).to eq('2022')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.day?).to be(false)
+      expect(decoder.week?).to be(true)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(false)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is not out_of_range' do
+      expect(decoder.out_of_range?).to be(false)
+    end
+  end
+
+  context 'when string is a month' do
+    let(:string) { '2022-05' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:month)
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2022-05-01 00:00:00.000000000 +0200')
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq('2022-05-31 23:59:59.999999999 +0200')
+    end
+
+    it 'returns the correct next' do
+      expect(decoder.next).to eq('2022-06')
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to eq('2022-04')
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('Mai 2022')
+    end
+
+    it 'returns the correct corresponding_day' do
+      expect(decoder.corresponding_day).to eq('2022-05-31')
+    end
+
+    it 'returns the correct corresponding_week' do
+      expect(decoder.corresponding_week).to eq('2022-W22')
+    end
+
+    it 'returns the correct corresponding_month' do
+      expect(decoder.corresponding_month).to eq(string)
+    end
+
+    it 'returns the correct corresponding_year' do
+      expect(decoder.corresponding_year).to eq('2022')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.day?).to be(false)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(true)
+      expect(decoder.year?).to be(false)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is not out_of_range' do
+      expect(decoder.out_of_range?).to be(false)
+    end
+  end
+
+  context 'when string is a year' do
+    let(:string) { '2021' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:year)
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2021-01-01 00:00:00.000000000 +0100')
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq('2021-12-31 23:59:59.999999999 +0100')
+    end
+
+    it 'returns the correct next' do
+      expect(decoder.next).to eq('2022')
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to eq('2020')
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('2021')
+    end
+
+    it 'returns the correct corresponding_day' do
+      expect(decoder.corresponding_day).to eq('2021-12-31')
+    end
+
+    it 'returns the correct corresponding_week' do
+      expect(decoder.corresponding_week).to eq('2021-W52')
+    end
+
+    it 'returns the correct corresponding_month' do
+      expect(decoder.corresponding_month).to eq('2021-12')
+    end
+
+    it 'returns the correct corresponding_year' do
+      expect(decoder.corresponding_year).to eq(string)
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.day?).to be(false)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(true)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is not out_of_range' do
+      expect(decoder.out_of_range?).to be(false)
+    end
+  end
+
+  context 'when string is "all"' do
+    let(:string) { 'all' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:all)
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2019-01-01 00:00:00.000000000 +0100')
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq('2022-10-13 23:59:59.999999999 +0200')
+    end
+
+    it 'returns the correct next' do
+      expect(decoder.next).to be_nil
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to be_nil
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('Seit Inbetriebnahme')
+    end
+
+    it 'returns the correct corresponding_day' do
+      expect(decoder.corresponding_day).to eq('2022-10-13')
+    end
+
+    it 'returns the correct corresponding_week' do
+      expect(decoder.corresponding_week).to eq('2022-W41')
+    end
+
+    it 'returns the correct corresponding_month' do
+      expect(decoder.corresponding_month).to eq('2022-10')
+    end
+
+    it 'returns the correct corresponding_year' do
+      expect(decoder.corresponding_year).to eq('2022')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.day?).to be(false)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(false)
+      expect(decoder.all?).to be(true)
+    end
+
+    it 'is not out_of_range' do
+      expect(decoder.out_of_range?).to be(false)
+    end
+  end
+
+  context 'when string is invalid' do
+    %w[foo 123 2022-09-99 2022-99-09 2022-99 2022-W99].each do |string|
+      context "given #{string}" do
+        let(:string) { string }
+
+        it 'raises an error' do
+          expect { decoder.beginning }.to raise_error(ArgumentError)
+        end
+      end
+    end
+  end
+
+  context 'when date is after max_date' do
+    let(:string) { '2022-10-15' }
+
+    it 'is out_of_range' do
+      expect(decoder.out_of_range?).to be(true)
+    end
+  end
+
+  context 'when date is before min_date' do
+    let(:string) { '2019-05-01' }
+
+    it 'is out_of_range' do
+      expect(decoder.out_of_range?).to be(true)
+    end
+  end
+end
