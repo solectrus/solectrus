@@ -1,4 +1,4 @@
-describe TimeInterval do
+describe DateInterval do
   subject { described_class.new(starts_at:, ends_at:) }
 
   before do

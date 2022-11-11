@@ -64,7 +64,7 @@ class PowerSum < Flux::Reader
   end
 
   def price_sections(start:, stop:)
-    TimeInterval.new(
+    DateInterval.new(
       starts_at: start.to_time,
       ends_at: stop&.to_time,
     ).price_sections

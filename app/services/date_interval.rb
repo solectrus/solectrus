@@ -1,4 +1,4 @@
-class TimeInterval
+class DateInterval
   def initialize(starts_at:, ends_at:)
     @starts_at = starts_at
     @ends_at = ends_at
