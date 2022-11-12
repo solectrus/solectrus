@@ -12,9 +12,8 @@ class BalanceSegment::Component < ViewComponent::Base
 
   def url
     root_path(
-      period: parent.period,
       field: field.to_s.sub(/_plus|_minus/, ''),
-      timestamp: parent.timestamp,
+      timeframe: parent.timeframe,
     )
   end
 
@@ -27,7 +26,7 @@ class BalanceSegment::Component < ViewComponent::Base
   end
 
   def now?
-    params[:period] == 'now'
+    parent.timeframe.now?
   end
 
   def current_value?

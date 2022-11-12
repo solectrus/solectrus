@@ -1,5 +1,8 @@
 class Top10Chart::Component < ViewComponent::Base
   def initialize(field:, period:)
+    raise ArgumentError, 'field must be present' if field.blank?
+    raise ArgumentError, 'period must be present' if period.blank?
+
     super
     @field = field
     @period = period
@@ -56,11 +59,10 @@ class Top10Chart::Component < ViewComponent::Base
     end
   end
 
-  def link_to_timestamp(record)
+  def link_to_timeframe(record)
     root_path(
-      period:,
       field: field.gsub(/_plus|_minus/, ''),
-      timestamp: corresponding_date(record[:date]),
+      timeframe: corresponding_date(record[:date]),
     )
   end
 
@@ -83,9 +85,9 @@ class Top10Chart::Component < ViewComponent::Base
     when 'day'
       value
     when 'month'
-      corresponding_month(value)
+      corresponding_month(value).strftime('%Y-%m')
     when 'year'
-      corresponding_year(value)
+      corresponding_year(value).strftime('%Y')
     end
   end
 

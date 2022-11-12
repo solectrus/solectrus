@@ -1,20 +1,19 @@
 class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
-  def initialize(field:, period:, timestamp:)
+  def initialize(field:, timeframe:)
     super
     @field = field
-    @period = period
-    @timestamp = timestamp
+    @timeframe = timeframe
   end
-  attr_reader :field, :period, :timestamp
+  attr_reader :field, :timeframe
 
   def call
     if field == 'autarky'
       data_autarky
     elsif field == 'consumption'
       data_consumption
-    elsif period == 'now'
+    elsif timeframe.now?
       data_now
-    elsif period == 'day' && field == 'inverter_power'
+    elsif timeframe.day? && field == 'inverter_power'
       data_day_inverter_power
     else
       data_range
@@ -89,43 +88,31 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
   end
 
   def now
-    @now ||= PowerChart.new(measurements: ['SENEC'], fields:).now
+    @now ||= PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
   end
 
   def inverter_power
     @inverter_power ||=
-      PowerChart.new(measurements: %w[SENEC], fields: %w[inverter_power]).day(
-        timestamp,
+      PowerChart.new(measurements: %w[SENEC], fields: %w[inverter_power]).call(
+        timeframe,
       )[
         'inverter_power'
       ]
   end
 
   def autarky
-    @autarky ||=
-      if period == 'now'
-        AutarkyChart.new(measurements: %w[SENEC]).now
-      else
-        AutarkyChart.new(measurements: %w[SENEC]).public_send(period, timestamp)
-      end
+    @autarky ||= AutarkyChart.new(measurements: %w[SENEC]).call(timeframe)
   end
 
   def consumption
     @consumption ||=
-      if period == 'now'
-        ConsumptionChart.new(measurements: %w[SENEC]).now
-      else
-        ConsumptionChart.new(measurements: %w[SENEC]).public_send(
-          period,
-          timestamp,
-        )
-      end
+      ConsumptionChart.new(measurements: %w[SENEC]).call(timeframe)
   end
 
   def forecast
     @forecast ||=
-      PowerChart.new(measurements: %w[Forecast], fields: %w[watt]).day(
-        timestamp,
+      PowerChart.new(measurements: %w[Forecast], fields: %w[watt]).call(
+        timeframe,
         fill: false,
         interpolate: true,
       )[
@@ -134,11 +121,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
   end
 
   def range
-    @range ||=
-      PowerChart.new(measurements: ['SENEC'], fields:).public_send(
-        period,
-        timestamp,
-      )
+    @range ||= PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
   end
 
   def style(chart_field)

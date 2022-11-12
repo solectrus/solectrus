@@ -3,7 +3,7 @@ describe Timeframe do
     described_class.new(
       string,
       min_date: Date.new(2019, 5, 2),
-      max_date: Date.new(2022, 10, 14),
+      allowed_days_in_future: 1,
     )
   end
 
@@ -421,6 +421,14 @@ describe Timeframe do
 
   context 'when date is after max_date' do
     let(:string) { '2022-10-15' }
+
+    it 'is out_of_range' do
+      expect(decoder.out_of_range?).to be(true)
+    end
+  end
+
+  context 'when week is after max_date' do
+    let(:string) { '2022-W42' }
 
     it 'is out_of_range' do
       expect(decoder.out_of_range?).to be(true)

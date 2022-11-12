@@ -39,29 +39,33 @@ describe PowerChart do
       )
     end
 
-    describe '#now' do
-      subject(:result) { chart.now['inverter_power'] }
+    describe '#call' do
+      subject(:result) { chart.call(timeframe)['inverter_power'] }
 
-      it { is_expected.to have(1.hour / 5.seconds).items }
+      context 'when timeframe is "now"' do
+        let(:timeframe) { Timeframe.now }
 
-      it 'contains last data point' do
-        last = result.last
+        it { is_expected.to have(1.hour / 5.seconds).items }
 
-        expect(last[1]).to eq(14.0)
-        expect(last[0]).to be_within(5.seconds).of(Time.current)
+        it 'contains last data point' do
+          last = result.last
+
+          expect(last[1]).to eq(14.0)
+          expect(last[0]).to be_within(5.seconds).of(Time.current)
+        end
       end
-    end
 
-    describe '#year' do
-      subject(:result) { chart.year(beginning)['inverter_power'] }
+      context 'when timeframe is a year' do
+        let(:timeframe) { Timeframe.new(beginning.year.to_s) }
 
-      it { is_expected.to have(12).items }
+        it { is_expected.to have(12).items }
 
-      it 'contains last and first data point' do
-        expect(result.first).to eq([beginning + 1.hour, 2.0])
-        expect(result.last).to eq(
-          [beginning.end_of_year.beginning_of_month + 1.hour, 12.0],
-        )
+        it 'contains last and first data point' do
+          expect(result.first).to eq([beginning + 1.hour, 2.0])
+          expect(result.last).to eq(
+            [beginning.end_of_year.beginning_of_month + 1.hour, 12.0],
+          )
+        end
       end
     end
   end
@@ -74,44 +78,48 @@ describe PowerChart do
       )
     end
 
-    describe '#now' do
-      subject(:now) { chart.now }
+    describe '#call' do
+      subject(:call) { chart.call(timeframe) }
 
-      it 'returns key for each requested field' do
-        expect(now.keys).to eq(%w[bat_power_minus bat_power_plus])
-      end
+      context 'when timeframe is "now"' do
+        let(:timeframe) { Timeframe.now }
 
-      describe 'bat_power_plus' do
-        subject(:result) { now['bat_power_plus'] }
+        it 'returns key for each requested field' do
+          expect(call.keys).to eq(%w[bat_power_minus bat_power_plus])
+        end
 
-        it { is_expected.to have(1.hour / 5.seconds).items }
+        describe 'bat_power_plus' do
+          subject(:result) { call['bat_power_plus'] }
 
-        it 'contains last data point' do
-          last = result.last
+          it { is_expected.to have(1.hour / 5.seconds).items }
 
-          expect(last[1]).to eq(2.0)
-          expect(last[0]).to be_within(5.seconds).of(Time.current)
+          it 'contains last data point' do
+            last = result.last
+
+            expect(last[1]).to eq(2.0)
+            expect(last[0]).to be_within(5.seconds).of(Time.current)
+          end
         end
       end
-    end
 
-    describe '#year' do
-      subject(:year) { chart.year(beginning) }
+      context 'when timeframe is a year' do
+        let(:timeframe) { Timeframe.new(beginning.year.to_s) }
 
-      it 'returns key for each requested field' do
-        expect(year.keys).to eq(%w[bat_power_minus bat_power_plus])
-      end
+        it 'returns key for each requested field' do
+          expect(call.keys).to eq(%w[bat_power_minus bat_power_plus])
+        end
 
-      describe 'bat_power_plus' do
-        subject(:result) { year['bat_power_plus'] }
+        describe 'bat_power_plus' do
+          subject(:result) { call['bat_power_plus'] }
 
-        it { is_expected.to have(12).items }
+          it { is_expected.to have(12).items }
 
-        it 'contains last and first data point' do
-          expect(result.first).to eq([beginning + 1.hour, 0.2])
-          expect(result.last).to eq(
-            [beginning.end_of_year.beginning_of_month + 1.hour, 1.2],
-          )
+          it 'contains last and first data point' do
+            expect(result.first).to eq([beginning + 1.hour, 0.2])
+            expect(result.last).to eq(
+              [beginning.end_of_year.beginning_of_month + 1.hour, 1.2],
+            )
+          end
         end
       end
     end

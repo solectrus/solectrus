@@ -1,10 +1,9 @@
 class DashboardRange::Component < ViewComponent::Base
-  def initialize(calculator:, period:, timestamp:)
+  def initialize(calculator:, timeframe:)
     super
     @calculator = calculator
-    @period = period
-    @timestamp = timestamp
+    @timeframe = timeframe
   end
 
-  attr_accessor :calculator, :period, :timestamp
+  attr_accessor :calculator, :timeframe
 end
