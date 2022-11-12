@@ -9,10 +9,6 @@ class StatsController < ApplicationController
 
   helper_method def calculator
     @calculator ||=
-      if period == 'now'
-        Calculator::Now.new
-      else
-        Calculator::Range.new(period, timestamp)
-      end
+      (timeframe.now? ? Calculator::Now.new : Calculator::Range.new(timeframe))
   end
 end

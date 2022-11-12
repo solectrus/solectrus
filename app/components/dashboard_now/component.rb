@@ -11,6 +11,10 @@ class DashboardNow::Component < ViewComponent::Base
     @max_flow ||= peak.values.max
   end
 
+  def timeframe
+    Timeframe.now
+  end
+
   def peak
     @peak ||=
       PowerPeak.new(

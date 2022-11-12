@@ -1,42 +1,12 @@
 module ApplicationHelper
   def title
-    case period
-    when 'now'
-      'Live'
-    when 'day'
-      l(timestamp, format: :default)
-    when 'week'
-      "KW #{timestamp.cweek}, #{timestamp.year}"
-    when 'month'
-      l(timestamp, format: :month)
-    when 'year'
-      timestamp.year.to_s
-    when 'all'
-      'Seit Installation'
-    end
+    timeframe.now? ? 'Live' : timeframe.localized
   end
 
   def topnav_items
     [
       { name: t('layout.stats'), href: root_path },
-      {
-        name: t('layout.top10'),
-        href:
-          top10_path(
-            field:
-              if respond_to?(:field) && field.in?(Senec::POWER_FIELDS)
-                field
-              else
-                'inverter_power'
-              end,
-            period:
-              if respond_to?(:period) && period.in?(%w[day month year])
-                period
-              else
-                'day'
-              end,
-          ),
-      },
+      top10_item,
       {
         name: t('layout.settings'),
         icon: 'cog',
@@ -46,6 +16,27 @@ module ApplicationHelper
       { name: t('layout.about'), href: about_path },
       session_item,
     ]
+  end
+
+  def top10_item
+    {
+      name: t('layout.top10'),
+      href:
+        top10_path(
+          field:
+            if respond_to?(:field) && field.in?(Senec::POWER_FIELDS)
+              field
+            else
+              'inverter_power'
+            end,
+          period:
+            if respond_to?(:timeframe) && timeframe.id.in?(%i[day month year])
+              timeframe.id
+            else
+              'day'
+            end,
+        ),
+    }
   end
 
   def session_item

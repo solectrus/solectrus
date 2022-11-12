@@ -1,11 +1,10 @@
 class Comment::Component < ViewComponent::Base
-  def initialize(calculator:, field:, period:, timestamp:)
+  def initialize(calculator:, field:, timeframe:)
     super
     @calculator = calculator
     @field = field
-    @period = period
-    @timestamp = timestamp
+    @timeframe = timeframe
   end
 
-  attr_accessor :calculator, :field, :period, :timestamp
+  attr_accessor :calculator, :field, :timeframe
 end

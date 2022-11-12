@@ -11,22 +11,23 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     new('all')
   end
 
-  def initialize(string, min_date: nil, max_date: nil)
+  def initialize(string, min_date: nil, allowed_days_in_future: nil)
     unless string.match?(self.class.regex)
       raise ArgumentError, "'#{string}' is not a valid timeframe"
     end
 
     @string = string
     @min_date = min_date
-    @max_date = max_date
+    @allowed_days_in_future = allowed_days_in_future
   end
 
-  attr_reader :string, :min_date, :max_date
+  attr_reader :string, :min_date, :allowed_days_in_future
   delegate :to_s, to: :string
 
   def out_of_range?
-    return true if max_date && beginning.to_date > max_date
     return true if min_date && ending.to_date < min_date
+    return true if max_date && beginning.to_date > max_date
+
     false
   end
 
@@ -184,9 +185,13 @@ class Timeframe # rubocop:disable Metrics/ClassLength
         date + amount.year
       end
 
-    return min_date if new_date < min_date
-    return max_date if new_date > max_date
+    return if new_date < min_date
+    return if new_date > max_date
     new_date
+  end
+
+  def max_date
+    day? ? (Date.current + allowed_days_in_future.days) : Date.current
   end
 
   FORMAT = {

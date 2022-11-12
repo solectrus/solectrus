@@ -1,7 +1,6 @@
 class Calculator::Range < Calculator::Base
-  def initialize(period, timestamp)
+  def initialize(timeframe)
     super()
-    raise ArgumentError unless period.to_s.in?(%w[day week month year all])
 
     sums =
       PowerSum.new(
@@ -18,7 +17,7 @@ class Calculator::Range < Calculator::Base
           feed_in_tariff
           electricity_price
         ],
-      ).public_send(period, timestamp)
+      ).call(timeframe)
 
     build_context sums
   end

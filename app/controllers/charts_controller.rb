@@ -3,9 +3,7 @@ class ChartsController < ApplicationController
 
   def index
     respond_to do |format|
-      format.json do
-        render ChartData::Component.new(field:, period:, timestamp:)
-      end
+      format.json { render ChartData::Component.new(field:, timeframe:) }
     end
   end
 end

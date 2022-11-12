@@ -1,0 +1,48 @@
+.flex.items-center.justify-between.space-x-4.w-full.lg:w-auto.text-base.text-gray-200.tracking-wider
+  - if can_paginate?
+    - if timeframe.previous
+      = link_to root_path(field: params[:field], timeframe: timeframe.previous),
+                class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'prev nofollow' do
+        i.fas.fa-chevron-left.fa-lg
+    - else
+      .px-2.py-1
+        i.fas.fa-chevron-left.fa-lg.opacity-50
+
+  - case timeframe.id
+  - when :now, :all
+    .py-1
+      = timeframe.localized
+
+  - when :day
+    .py-1.w-72.text-center
+      time datetime= timeframe
+        = timeframe.localized
+
+  - when :week
+    .py-1.w-80.text-center
+      time datetime= timeframe
+        span
+          = timeframe.localized
+        span.hidden.md:inline
+          =<> l timeframe.beginning.to_date, format: :default
+          span.text-indigo-300 &minus;
+          =<> l timeframe.ending.to_date, format: :default
+
+  - when :month
+    .py-1.w-36.text-center
+      time datetime= timeframe
+        = timeframe.localized
+
+  - when :year
+    .py-1.w-16.text-center
+      time datetime= timeframe
+        = timeframe.localized
+
+  - if can_paginate?
+    - if timeframe.next
+      = link_to root_path(field: params[:field], timeframe: timeframe.next),
+                class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'next nofollow' do
+        i.fas.fa-chevron-right.fa-lg
+    - else
+      .px-2.py-1
+        i.fas.fa-chevron-right.fa-lg.opacity-50
