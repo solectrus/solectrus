@@ -35,10 +35,6 @@ class Calculator::Base
     define_singleton_method(:sections) { array }
   end
 
-  def live?
-    time && time > 10.seconds.ago
-  end
-
   # Inverter
 
   def producing?
