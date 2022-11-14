@@ -9,6 +9,9 @@ Rails.application.routes.draw do
     get '/(/:field)(/:timeframe)', to: 'home#index', as: :root
     get '/stats/:field(/:timeframe)', to: 'stats#index', as: :stats
     get '/charts/:field(/:timeframe)', to: 'charts#index', as: :charts
+
+    # Redirect old routes
+    get '/:period/:field/(:timestamp)', to: redirect('/%{field}')
   end
 
   constraints period: /day|month|year/,
