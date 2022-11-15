@@ -28,7 +28,7 @@ class DateInterval
       end
     end
 
-    @price_sections
+    normalized_sections(@price_sections)
   end
 
   private
@@ -61,5 +61,14 @@ class DateInterval
       electricity: price.electricity? ? price.value : fallback[:electricity],
       feed_in: price.feed_in? ? price.value : fallback[:feed_in],
     }.compact
+  end
+
+  # Ensure that there is no nil value
+  def normalized_sections(sections)
+    sections.map do |section|
+      section[:electricity] ||= 0.0
+      section[:feed_in] ||= 0.0
+      section
+    end
   end
 end
