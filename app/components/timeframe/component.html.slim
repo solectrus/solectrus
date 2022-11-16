@@ -20,10 +20,10 @@
 
   - when :week
     .py-1.w-80.text-center
-      time datetime= timeframe
+      time.space-x-4 datetime= timeframe
         span
           = timeframe.localized
-        span.hidden.md:inline
+        small.hidden.md:inline
           =<> l timeframe.beginning.to_date, format: :default
           span.text-indigo-300 &minus;
           =<> l timeframe.ending.to_date, format: :default
