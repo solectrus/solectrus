@@ -46,15 +46,40 @@ class ChartLoader::Component < ViewComponent::Base
           grid: {
             drawOnChartArea: false,
           },
-          ticks: {
-            maxRotation: 0,
-          },
           type: 'timeseries',
+          ticks:
+            {
+              now: {
+                stepSize: 15,
+                maxRotation: 0,
+              },
+              day: {
+                stepSize: 3,
+                maxRotation: 0,
+              },
+              week: {
+                stepSize: 1,
+                maxRotation: 0,
+              },
+              month: {
+                stepSize: 2,
+                maxRotation: 0,
+              },
+              year: {
+                stepSize: 1,
+                maxRotation: 0,
+              },
+              all: {
+                stepSize: 1,
+                maxRotation: 0,
+              },
+            }[
+              timeframe.id
+            ],
           time:
             {
               now: {
                 unit: 'minute',
-                stepSize: 15,
                 displayFormats: {
                   minute: 'HH:mm',
                 },
@@ -62,7 +87,6 @@ class ChartLoader::Component < ViewComponent::Base
               },
               day: {
                 unit: 'hour',
-                stepSize: 3,
                 displayFormats: {
                   hour: 'HH:mm',
                 },
@@ -70,7 +94,6 @@ class ChartLoader::Component < ViewComponent::Base
               },
               week: {
                 unit: 'day',
-                stepSize: 1,
                 displayFormats: {
                   day: 'eee',
                 },
@@ -78,7 +101,6 @@ class ChartLoader::Component < ViewComponent::Base
               },
               month: {
                 unit: 'day',
-                stepSize: 2,
                 displayFormats: {
                   day: 'd',
                 },
@@ -86,7 +108,6 @@ class ChartLoader::Component < ViewComponent::Base
               },
               year: {
                 unit: 'month',
-                stepSize: 1,
                 displayFormats: {
                   month: 'MMM',
                 },
@@ -94,7 +115,6 @@ class ChartLoader::Component < ViewComponent::Base
               },
               all: {
                 unit: 'year',
-                stepSize: 1,
                 displayFormats: {
                   year: 'yyyy',
                 },
