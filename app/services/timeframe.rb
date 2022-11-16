@@ -197,7 +197,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   FORMAT = {
     now: 'Heute, %H:%M Uhr',
     day: '%Y-%m-%d',
-    week: '%Y-W%W',
+    week: '%Y-W%V',
     month: '%Y-%m',
     year: '%Y',
   }.freeze

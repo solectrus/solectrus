@@ -38,7 +38,7 @@ describe 'Home', vcr: { cassette_name: 'github' } do
         expect do
           get root_path(
                 field: 'house_power',
-                timeframe: (Date.current + 1.week).strftime('%Y-W%W'),
+                timeframe: (Date.current + 1.week).strftime('%Y-W%V'),
               )
         end.to raise_error(ActionController::RoutingError)
       end
@@ -84,7 +84,7 @@ describe 'Home', vcr: { cassette_name: 'github' } do
                   (
                     Rails.configuration.x.installation_date.beginning_of_year -
                       1.week
-                  ).strftime('%Y-W%W'),
+                  ).strftime('%Y-W%V'),
               )
         end.to raise_error(ActionController::RoutingError)
       end

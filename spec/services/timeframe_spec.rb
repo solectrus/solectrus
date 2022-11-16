@@ -224,6 +224,18 @@ describe Timeframe do
     end
   end
 
+  context 'when string is a week at end of year' do
+    let(:string) { '2020-W50' }
+
+    it 'returns the correct next' do
+      expect(decoder.next).to eq('2020-W51')
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to eq('2020-W49')
+    end
+  end
+
   context 'when string is a month' do
     let(:string) { '2022-05' }
 
