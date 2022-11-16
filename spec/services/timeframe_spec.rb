@@ -236,6 +236,18 @@ describe Timeframe do
     end
   end
 
+  context 'when string is a week at min_date' do
+    let(:string) { '2019-W19' }
+
+    it 'returns the correct next' do
+      expect(decoder.next).to eq('2019-W20')
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to eq('2019-W18')
+    end
+  end
+
   context 'when string is a month' do
     let(:string) { '2022-05' }
 
@@ -297,6 +309,18 @@ describe Timeframe do
     end
   end
 
+  context 'when string is a month at min_date' do
+    let(:string) { '2019-06' }
+
+    it 'returns the correct next' do
+      expect(decoder.next).to eq('2019-07')
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to eq('2019-05')
+    end
+  end
+
   context 'when string is a year' do
     let(:string) { '2021' }
 
@@ -355,6 +379,18 @@ describe Timeframe do
 
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
+    end
+  end
+
+  context 'when string is a year at min_date' do
+    let(:string) { '2020' }
+
+    it 'returns the correct next' do
+      expect(decoder.next).to eq('2021')
+    end
+
+    it 'returns the correct previous' do
+      expect(decoder.previous).to eq('2019')
     end
   end
 

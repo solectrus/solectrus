@@ -176,18 +176,45 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     new_date =
       case id
       when :day
-        date + amount.day
+        change_day(amount)
       when :week
-        date + amount.week
+        change_week(amount)
       when :month
-        date + amount.month
+        change_month(amount)
       when :year
-        date + amount.year
+        change_year(amount)
       end
 
     return if new_date < min_date
     return if new_date > max_date
     new_date
+  end
+
+  def change_day(amount)
+    raise RuntimeError unless day?
+
+    date + amount.day
+  end
+
+  def change_week(amount)
+    raise RuntimeError unless week?
+
+    result = date + amount.week
+    amount.positive? ? result.beginning_of_week : result.end_of_week
+  end
+
+  def change_month(amount)
+    raise RuntimeError unless month?
+
+    result = date + amount.month
+    amount.positive? ? result.beginning_of_month : result.end_of_month
+  end
+
+  def change_year(amount)
+    raise RuntimeError unless year?
+
+    result = date + amount.year
+    amount.positive? ? result.beginning_of_year : result.end_of_year
   end
 
   def max_date
