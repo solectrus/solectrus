@@ -19,7 +19,7 @@
     "@tailwindcss/typography": "^0.5.8",
     "autoprefixer": "^10.4.13",
     "chart.js": "^4.0.1",
-    "chartjs-adapter-date-fns": "^2.0.0",
+    "chartjs-adapter-date-fns": "^2.0.1",
     "date-fns": "^2.29.3",
     "el-transition": "^0.0.7",
     "morphdom": "^2.6.1",
