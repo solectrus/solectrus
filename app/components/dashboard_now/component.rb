@@ -17,9 +17,15 @@ class DashboardNow::Component < ViewComponent::Base
 
   def peak
     @peak ||=
-      PowerPeak.new(
-        fields: Senec::POWER_FIELDS,
-        measurements: %w[SENEC],
-      ).result(start: 30.days.ago.beginning_of_day)
+      begin
+        result =
+          PowerPeak.new(
+            fields: Senec::POWER_FIELDS,
+            measurements: %w[SENEC],
+          ).result(start: 30.days.ago.beginning_of_day)
+        Rails.logger.info "Peak: #{result.inspect}"
+
+        result
+      end
   end
 end
