@@ -19,16 +19,25 @@ describe Scale do
     let(:max) { nil }
 
     it { expect_result(0, 0) }
-    it { expect_result(1000, 0) }
-    it { expect_result(10_000, 0) }
+    it { expect_result(1000, 100) }
+    it { expect_result(10_000, 100) }
   end
 
   context 'when initialized with a max value of 0' do
     let(:max) { 0 }
 
     it { expect_result(0, 0) }
-    it { expect_result(1000, 0) }
-    it { expect_result(10_000, 0) }
+    it { expect_result(1000, 100) }
+    it { expect_result(10_000, 100) }
+  end
+
+  context 'when values are greater than max' do
+    let(:max) { 500 }
+
+    it { expect_result(0, 0) }
+    it { expect_result(250, 49) }
+    it { expect_result(1000, 100) } # 1000 > 500
+    it { expect_result(10_000, 100) } # 10000 > 500
   end
 
   private

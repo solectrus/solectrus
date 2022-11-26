@@ -9,6 +9,10 @@ class Scale
   def result(value)
     return 0 if value.nil? || value.zero?
 
+    # Never exceed the upper bound!
+    # This can happen if there is too little data to calculate the peak values.
+    return upper_bound if value > max
+
     lower_bound +
       (extent * (Math.log(value)**FACTOR) / (Math.log(max)**FACTOR)).round
   end
@@ -17,6 +21,10 @@ class Scale
 
   def lower_bound
     target.first
+  end
+
+  def upper_bound
+    target.last
   end
 
   def extent
