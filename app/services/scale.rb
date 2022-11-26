@@ -4,7 +4,7 @@ class Scale
     @target = target
   end
 
-  attr_reader :max, :target, :value
+  attr_reader :max, :target
 
   def result(value)
     return 0 if value.nil? || value.zero?
