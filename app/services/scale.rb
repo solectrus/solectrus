@@ -9,21 +9,21 @@ class Scale
   def result(value)
     return 0 if value.nil? || value.zero?
 
-    target.first +
-      (extent * (Math.log(value)**factor) / (Math.log(max)**factor)).round
-  rescue StandardError => e
-    Rails.logger.info "WARNING: Invalid input, cannot scale: value: #{value}, max: #{max}, error: #{e}"
-    0
+    lower_bound +
+      (extent * (Math.log(value)**FACTOR) / (Math.log(max)**FACTOR)).round
   end
 
   private
+
+  def lower_bound
+    target.first
+  end
 
   def extent
     target.size - 1
   end
 
   # Damping factor, play around to find the best one
-  def factor
-    6
-  end
+  FACTOR = 6
+  private_constant :FACTOR
 end
