@@ -48,7 +48,7 @@ describe 'Home', js: true, vcr: { cassette_name: 'github' } do
 
   Senec::FIELDS_COMBINED.each do |field|
     it "presents data and allows navigation for #{field}" do
-      visit "/now/#{field}"
+      visit "/#{field}"
       expect(page).to have_text(I18n.t('layout.stats').upcase)
       expect(page).to have_css('#chart-now')
       navigate_days

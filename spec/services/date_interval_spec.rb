@@ -1,4 +1,4 @@
-describe TimeInterval do
+describe DateInterval do
   subject { described_class.new(starts_at:, ends_at:) }
 
   before do
@@ -22,12 +22,60 @@ describe TimeInterval do
   describe '#price_sections' do
     subject { super().price_sections }
 
-    context 'when before first year' do
+    context 'when completely before first year' do
       let(:starts_at) { Date.new(2020, 1, 1) }
       let(:ends_at) { Date.new(2020, 12, 31) }
 
       it 'returns blank sections' do
         is_expected.to eq([])
+      end
+    end
+
+    context 'when partly in first year' do
+      let(:starts_at) { Date.new(2020, 12, 1) }
+      let(:ends_at) { Date.new(2021, 2, 1) }
+
+      it 'returns one section' do
+        is_expected.to eq(
+          [
+            {
+              starts_at: Date.new(2021, 1, 1),
+              ends_at: Date.new(2021, 2, 1),
+              electricity: 0.20,
+              feed_in: 0.08,
+            },
+          ],
+        )
+      end
+    end
+
+    context 'when one old price exits' do
+      let(:starts_at) { Date.new(2020, 12, 1) }
+      let(:ends_at) { Date.new(2021, 2, 1) }
+
+      before do
+        Price.electricity.create! starts_at: Date.new(2000, 1, 1),
+                                  value: 0.10,
+                                  note: 'Very old price'
+      end
+
+      it 'returns two sections with complete prices' do
+        is_expected.to eq(
+          [
+            {
+              starts_at: Date.new(2020, 12, 1),
+              ends_at: Date.new(2020, 12, 31).end_of_day,
+              electricity: 0.10,
+              feed_in: 0.0, # filled up!
+            },
+            {
+              starts_at: Date.new(2021, 1, 1),
+              ends_at: Date.new(2021, 2, 1),
+              electricity: 0.20,
+              feed_in: 0.08,
+            },
+          ],
+        )
       end
     end
 

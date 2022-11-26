@@ -6,37 +6,24 @@ class AutarkyChart < Flux::Reader
     )
   end
 
-  def now
-    chart_single start: '-60m', window: '5s', fill: true
-  end
-
-  def day(start, fill: false)
-    chart_single start: start.beginning_of_day,
-                 stop: start.end_of_day,
-                 window: '5m',
-                 fill:
-  end
-
-  def week(start)
-    chart_sum start: start.beginning_of_week.beginning_of_day,
-              stop: start.end_of_week.end_of_day,
-              window: '1d'
-  end
-
-  def month(start)
-    chart_sum start: start.beginning_of_month.beginning_of_day,
-              stop: start.end_of_month.end_of_day,
-              window: '1d'
-  end
-
-  def year(start)
-    chart_sum start: start.beginning_of_year.beginning_of_day,
-              stop: start.end_of_year.end_of_day,
-              window: '1mo'
-  end
-
-  def all(start)
-    chart_sum start: start.beginning_of_day, window: '1y'
+  def call(timeframe, fill: false)
+    case timeframe.id
+    when :now
+      chart_single start: '-60m', window: '5s', fill: true
+    when :day
+      chart_single start: timeframe.beginning,
+                   stop: timeframe.ending,
+                   window: '5m',
+                   fill:
+    when :week, :month
+      chart_sum start: timeframe.beginning, stop: timeframe.ending, window: '1d'
+    when :year
+      chart_sum start: timeframe.beginning,
+                stop: timeframe.ending,
+                window: '1mo'
+    when :all
+      chart_sum start: timeframe.beginning, stop: timeframe.ending, window: '1y'
+    end
   end
 
   private

@@ -2,7 +2,7 @@ describe 'Stats', vcr: { cassette_name: 'github' } do
   describe 'GET /' do
     context 'with params' do
       it 'renders' do
-        get stats_path(period: 'now', field: 'house_power'),
+        get stats_path(field: 'house_power'),
             headers: {
               'ACCEPT' =>
                 'text/vnd.turbo-stream.html, text/html, application/xhtml+xml',

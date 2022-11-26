@@ -1,8 +1,7 @@
 .flex.h-full.w-full
   = render Balance::Component.new side: :left,
                                   calculator:,
-                                  period:,
-                                  timestamp: do |balance|
+                                  timeframe: do |balance|
     ruby:
       balance.segment :grid_power_plus
       balance.segment :inverter_power
@@ -10,13 +9,13 @@
 
   div class="px-2 sm:px-3 pb-12 pt-3"
     div class="h-2/3 flex flex-col gap-y-5"
-      = link_to root_path(field: 'autarky', period:, timestamp:) do
+      = link_to root_path(field: 'autarky', timeframe:) do
         dl data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
           template data-tippy-target="html"
             = render AutarkyDetails::Component.new(calculator:)
 
-      = link_to root_path(field: 'consumption', period:, timestamp:) do
+      = link_to root_path(field: 'consumption', timeframe:) do
         dl data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
           template data-tippy-target="html"
@@ -31,8 +30,7 @@
 
   = render Balance::Component.new side: :right,
                                   calculator:,
-                                  period:,
-                                  timestamp: do |balance|
+                                  timeframe: do |balance|
     ruby:
       balance.segment :wallbox_charge_power
       balance.segment :house_power

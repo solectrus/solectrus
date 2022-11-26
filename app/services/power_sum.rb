@@ -1,32 +1,14 @@
 class PowerSum < Flux::Reader
-  def now
-    last('-5m')
-  end
-
-  def day(start)
-    sum start: start.beginning_of_day, stop: start.end_of_day
-  end
-
-  def week(start)
-    sum start: start.beginning_of_week.beginning_of_day,
-        stop: start.end_of_week.end_of_day
-  end
-
-  def month(start)
-    sum start: start.beginning_of_month.beginning_of_day,
-        stop: start.end_of_month.end_of_day
-  end
-
-  def year(start)
-    sum start: start.beginning_of_year.beginning_of_day,
-        stop: start.end_of_year.end_of_day,
-        cache_options: {
-          expires_in: 1.day,
-        }
-  end
-
-  def all(start)
-    sum start:, cache_options: { expires_in: 1.day }
+  def call(timeframe)
+    case timeframe.id
+    when :now
+      last('-5m')
+    else
+      sum start: timeframe.beginning,
+          stop: timeframe.ending,
+          cache_options:
+            timeframe.year? || timeframe.all? ? { expires_in: 1.day } : nil
+    end
   end
 
   private
@@ -64,7 +46,7 @@ class PowerSum < Flux::Reader
   end
 
   def price_sections(start:, stop:)
-    TimeInterval.new(
+    DateInterval.new(
       starts_at: start.to_time,
       ends_at: stop&.to_time,
     ).price_sections

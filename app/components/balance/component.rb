@@ -4,15 +4,14 @@ class Balance::Component < ViewComponent::Base
                  BalanceSegment::Component.new field:, peak:, parent: self
                }
 
-  def initialize(side:, calculator:, period:, timestamp: nil)
+  def initialize(side:, calculator:, timeframe:)
     super
     @side = side
     @calculator = calculator
-    @period = period
-    @timestamp = timestamp
+    @timeframe = timeframe
   end
 
-  attr_reader :calculator, :side, :period, :timestamp
+  attr_reader :calculator, :side, :timeframe
 
   def title
     I18n.t "balance_sheet.#{side}"

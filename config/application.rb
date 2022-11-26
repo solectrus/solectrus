@@ -35,6 +35,8 @@ module Solectrus
     # Don't generate system test files.
     config.generators.system_tests = nil
 
+    config.exceptions_app = ->(env) { ErrorsController.action(:show).call(env) }
+
     # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
     # the I18n.default_locale when a translation cannot be found).
     config.i18n.available_locales = %i[en de]

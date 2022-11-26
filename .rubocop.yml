@@ -115,6 +115,10 @@ Style/StringLiteralsInInterpolation:
 Style/QuotedSymbols:
   EnforcedStyle: single_quotes
 
+Style/FormatStringToken:
+  Exclude:
+    - config/routes.rb
+
 # Lint
 
 Lint/ConstantResolution:

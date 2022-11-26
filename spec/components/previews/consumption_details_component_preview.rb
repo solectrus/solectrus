@@ -1,4 +1,4 @@
-# @label ConsumptionDetails::Component
+# @label ConsumptionDetails Component
 class ConsumptionDetailsComponentPreview < ViewComponent::Preview
   def default
     render ConsumptionDetails::Component.new calculator:
@@ -7,14 +7,10 @@ class ConsumptionDetailsComponentPreview < ViewComponent::Preview
   private
 
   def calculator
-    Calculator::Range.new(period, timestamp)
+    Calculator::Range.new(timeframe)
   end
 
-  def period
-    'month'
-  end
-
-  def timestamp
-    Date.current
+  def timeframe
+    Timeframe.new Date.current.strftime('%Y-%m')
   end
 end

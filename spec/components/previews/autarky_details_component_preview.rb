@@ -1,4 +1,4 @@
-# @label AutarkyDetails::Component
+# @label AutarkyDetails Component
 class AutarkyDetailsComponentPreview < ViewComponent::Preview
   def default
     render AutarkyDetails::Component.new calculator:
@@ -7,14 +7,10 @@ class AutarkyDetailsComponentPreview < ViewComponent::Preview
   private
 
   def calculator
-    Calculator::Range.new(period, timestamp)
+    Calculator::Range.new(timeframe)
   end
 
-  def period
-    'month'
-  end
-
-  def timestamp
-    Date.current
+  def timeframe
+    Timeframe.new Date.current.strftime('%Y-%m')
   end
 end

@@ -1,11 +1,11 @@
 class ChartLoader::Component < ViewComponent::Base
-  def initialize(field:, period:, url:)
+  def initialize(field:, timeframe:, url:)
     super
     @field = field
-    @period = period
+    @timeframe = timeframe
     @url = url
   end
-  attr_reader :field, :period, :url
+  attr_reader :field, :timeframe, :url
 
   def options # rubocop:disable Metrics/MethodLength
     {
@@ -46,62 +46,82 @@ class ChartLoader::Component < ViewComponent::Base
           grid: {
             drawOnChartArea: false,
           },
-          ticks: {
-            maxRotation: 0,
-          },
           type: 'timeseries',
+          ticks:
+            {
+              now: {
+                stepSize: 15,
+                maxRotation: 0,
+              },
+              day: {
+                stepSize: 3,
+                maxRotation: 0,
+              },
+              week: {
+                stepSize: 1,
+                maxRotation: 0,
+              },
+              month: {
+                stepSize: 2,
+                maxRotation: 0,
+              },
+              year: {
+                stepSize: 1,
+                maxRotation: 0,
+              },
+              all: {
+                stepSize: 1,
+                maxRotation: 0,
+              },
+            }[
+              timeframe.id
+            ],
           time:
             {
-              'now' => {
+              now: {
                 unit: 'minute',
-                stepSize: 15,
                 displayFormats: {
                   minute: 'HH:mm',
                 },
                 tooltipFormat: 'HH:mm:ss',
               },
-              'day' => {
+              day: {
                 unit: 'hour',
-                stepSize: 3,
                 displayFormats: {
                   hour: 'HH:mm',
                 },
                 tooltipFormat: 'HH:mm',
               },
-              'week' => {
+              week: {
                 unit: 'day',
-                stepSize: 1,
                 displayFormats: {
                   day: 'eee',
                 },
                 tooltipFormat: 'eeee, dd.MM.yyyy',
               },
-              'month' => {
+              month: {
                 unit: 'day',
-                stepSize: 2,
                 displayFormats: {
                   day: 'd',
                 },
                 tooltipFormat: 'eeee, dd.MM.yyyy',
               },
-              'year' => {
+              year: {
                 unit: 'month',
-                stepSize: 1,
                 displayFormats: {
                   month: 'MMM',
                 },
                 tooltipFormat: 'MMMM yyyy',
               },
-              'all' => {
+              all: {
                 unit: 'year',
-                stepSize: 1,
                 displayFormats: {
                   year: 'yyyy',
                 },
                 tooltipFormat: 'yyyy',
               },
             }[
-              period
+              timeframe.id
             ],
         },
         y: {
@@ -115,14 +135,18 @@ class ChartLoader::Component < ViewComponent::Base
   end
 
   def type
-    (period.in?(%w[now day]) ? 'line' : 'bar').inquiry
+    (power? ? 'line' : 'bar').inquiry
   end
 
   def title
     if field.in?(%w[bat_fuel_charge autarky consumption])
       "#{I18n.t "senec.#{field}"} in %"
     else
-      "#{I18n.t "senec.#{field}"} in #{period.in?(%w[now day]) ? 'kW' : 'kWh'}"
+      "#{I18n.t "senec.#{field}"} in #{power? ? 'kW' : 'kWh'}"
     end
+  end
+
+  def power?
+    timeframe.now? || timeframe.day?
   end
 end

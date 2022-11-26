@@ -1,4 +1,4 @@
-# @label DashboardNow::Component
+# @label DashboardNow Component
 class DashboardNowComponentPreview < ViewComponent::Preview
   def default
     render DashboardNow::Component.new calculator:

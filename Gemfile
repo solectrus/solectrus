@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.1.2'
+ruby '3.1.3'
 
 # Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 7.0.4'
@@ -42,7 +42,7 @@ gem 'influxdb-client', '!= 2.8.0'
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
 
-# A native development UI for ViewComponent (https://github.com/allmarkedup/lookbook)
+# A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
 gem 'lookbook'
 
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)

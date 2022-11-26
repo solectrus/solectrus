@@ -14,7 +14,7 @@ class Calculator::Now < Calculator::Base
                       bat_power_plus
                       bat_fuel_charge
                     ],
-                  ).now
+                  ).call(Timeframe.now)
   end
 
   def inverter_to_house

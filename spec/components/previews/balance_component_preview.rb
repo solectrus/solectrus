@@ -1,9 +1,8 @@
-# @label Balance::Component
+# @label Balance Component
 class BalanceComponentPreview < ViewComponent::Preview
   def left
     render Balance::Component.new side: :left,
-                                  period:,
-                                  timestamp:,
+                                  timeframe:,
                                   calculator: do |balance|
       balance.segment :grid_power_plus
       balance.segment :inverter_power
@@ -13,8 +12,7 @@ class BalanceComponentPreview < ViewComponent::Preview
 
   def right
     render Balance::Component.new side: :right,
-                                  period:,
-                                  timestamp:,
+                                  timeframe:,
                                   calculator: do |balance|
       balance.segment :wallbox_charge_power
       balance.segment :house_power
@@ -26,14 +24,10 @@ class BalanceComponentPreview < ViewComponent::Preview
   private
 
   def calculator
-    Calculator::Range.new(period, timestamp)
+    Calculator::Range.new(timeframe)
   end
 
-  def period
-    'month'
-  end
-
-  def timestamp
-    Date.current
+  def timeframe
+    Timeframe.new Date.current.strftime('%Y-%m')
   end
 end

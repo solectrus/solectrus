@@ -29,29 +29,33 @@ describe ConsumptionChart do
 
   around { |example| freeze_time(&example) }
 
-  describe '#now' do
-    subject(:result) { chart.now }
+  describe '#call' do
+    subject(:result) { chart.call(timeframe) }
 
-    it { is_expected.to have(1.hour / 5.seconds).items }
+    context 'when timeframe is "now"' do
+      let(:timeframe) { Timeframe.now }
 
-    it 'contains last data point' do
-      last = result.last
+      it { is_expected.to have(1.hour / 5.seconds).items }
 
-      expect(last[1]).to eq(75.0)
-      expect(last[0]).to be_within(5.seconds).of(Time.current)
+      it 'contains last data point' do
+        last = result.last
+
+        expect(last[1]).to eq(75.0)
+        expect(last[0]).to be_within(5.seconds).of(Time.current)
+      end
     end
-  end
 
-  describe '#year' do
-    subject(:result) { chart.year(beginning) }
+    context 'when timeframe is a year' do
+      let(:timeframe) { Timeframe.new(beginning.year.to_s) }
 
-    it { is_expected.to have(12).items }
+      it { is_expected.to have(12).items }
 
-    it 'contains last and first data point' do
-      expect(result.first).to eq([beginning + 1.hour, 50.0])
-      expect(result.last).to eq(
-        [beginning.end_of_year.beginning_of_month + 1.hour, 50.0],
-      )
+      it 'contains last and first data point' do
+        expect(result.first).to eq([beginning + 1.hour, 50.0])
+        expect(result.last).to eq(
+          [beginning.end_of_year.beginning_of_month + 1.hour, 50.0],
+        )
+      end
     end
   end
 end

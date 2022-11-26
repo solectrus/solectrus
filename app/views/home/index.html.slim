@@ -5,7 +5,7 @@ ruby:
   set_meta_tags title:,
                 description: 'Solarstrom aus der Photovoltaik-Anlage',
                 keywords: 'photovoltaik, strom, solar, energiewende',
-                noindex: timestamp?,
+                noindex: timeframe?,
                 og: {
                   title:       :title,
                   description: :description,
@@ -31,11 +31,12 @@ ruby:
       = c.items nav_items
 
 div class="flex-auto flex flex-wrap gap-x-5 gap-y-5"
+  - stats_params = permitted_params.to_hash.symbolize_keys
   = turbo_frame_tag 'stats',
-                    src: stats_path(permitted_params),
+                    src: stats_path(stats_params),
                     class: 'w-64 md:w-96 flex-auto h-3/5 lg:h-auto flex',
                     target: '_top',
-                    data: period == 'now' && { controller: 'refresh', refresh_src_value: stats_path(permitted_params.merge(chart: false)) } do
+                    data: (timeframe.now? && { controller: 'refresh', refresh_src_value: stats_path(stats_params.merge(chart: false))}) do
     .flex.justify-center.m-40
       = render Loading::Component.new
 
