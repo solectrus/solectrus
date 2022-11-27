@@ -13,7 +13,7 @@ class HomeController < ApplicationController
     [
       {
         name: t('calculator.now'),
-        href: url_for(permitted_params.merge(timeframe: nil)),
+        href: url_for(permitted_params.merge(timeframe: 'now')),
       },
       {
         name: t('calculator.day'),
