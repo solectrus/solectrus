@@ -2,7 +2,9 @@ class HomeController < ApplicationController
   include ParamsHandling
 
   def index
-    redirect_to root_path(field: 'inverter_power') unless field
+    unless field
+      redirect_to root_path(field: 'inverter_power', timeframe: 'now')
+    end
 
     raise ActionController::RoutingError, 'Not Found' if timeframe.out_of_range?
   end
