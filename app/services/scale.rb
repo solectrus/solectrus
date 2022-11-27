@@ -4,26 +4,34 @@ class Scale
     @target = target
   end
 
-  attr_reader :max, :target, :value
+  attr_reader :max, :target
 
   def result(value)
     return 0 if value.nil? || value.zero?
 
-    target.first +
-      (extent * (Math.log(value)**factor) / (Math.log(max)**factor)).round
-  rescue StandardError => e
-    Rails.logger.info "WARNING: Invalid input, cannot scale: value: #{value}, max: #{max}, error: #{e}"
-    0
+    # Never exceed the upper bound!
+    # This can happen if there is too little data to calculate the peak values.
+    return upper_bound if value > max
+
+    lower_bound +
+      (extent * (Math.log(value)**FACTOR) / (Math.log(max)**FACTOR)).round
   end
 
   private
+
+  def lower_bound
+    target.first
+  end
+
+  def upper_bound
+    target.last
+  end
 
   def extent
     target.size - 1
   end
 
   # Damping factor, play around to find the best one
-  def factor
-    6
-  end
+  FACTOR = 6
+  private_constant :FACTOR
 end
