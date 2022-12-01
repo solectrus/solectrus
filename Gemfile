@@ -37,7 +37,7 @@ gem 'rack-cors', require: 'rack/cors'
 gem 'lograge'
 
 # Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
-gem 'influxdb-client', '!= 2.8.0'
+gem 'influxdb-client', '>= 2.9.0'
 
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
