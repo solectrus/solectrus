@@ -51,7 +51,7 @@ class PowerSum < Flux::Reader
   end
 
   def sum_query(start:, stop: nil, cache_options: nil)
-    result = query <<-QUERY, cache_options: cache_options
+    result = query(<<-QUERY, cache_options:)
       #{from_bucket}
       |> #{range(start:, stop:)}
       |> #{measurements_filter}
