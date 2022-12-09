@@ -12,25 +12,20 @@ class Top10Controller < ApplicationController
       {
         name: I18n.t("senec.#{field}"),
         field:,
-        href: url_for(**permitted_params.merge(field:), only_path: true),
+        href: url_for(**permitted_params.merge(field:, only_path: true)),
       }
     end
   end
 
   helper_method def period_items
     [
-      {
-        name: t('calculator.day'),
-        href: url_for(permitted_params.merge(period: 'day')),
-      },
-      {
-        name: t('calculator.month'),
-        href: url_for(permitted_params.merge(period: 'month')),
-      },
-      {
-        name: t('calculator.year'),
-        href: url_for(permitted_params.merge(period: 'year')),
-      },
+      { name: t('calculator.day'), href: path_with_period('day') },
+      { name: t('calculator.month'), href: path_with_period('month') },
+      { name: t('calculator.year'), href: path_with_period('year') },
     ]
+  end
+
+  def path_with_period(period)
+    url_for(permitted_params.merge(period:, only_path: true))
   end
 end
