@@ -1385,13 +1385,6 @@ rollup-plugin-gzip@^3.0:
   resolved "https://registry.yarnpkg.com/rollup-plugin-gzip/-/rollup-plugin-gzip-3.1.0.tgz#ce439ba9cd212c0e2c131d91e6214044e8972485"
   integrity sha512-PFS9s6/w6dCra6/Z8PGD+ug3aaaqKLDCbr5y1Ek71Wd4rQSmMnOqCIIMgwbYxZ9A/gjP3pCN6rA4pAG47jxF0w==
 
-rollup@^2.79.1:
-  version "2.79.1"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.79.1.tgz#bedee8faef7c9f93a2647ac0108748f497f081c7"
-  integrity sha512-uKxbd0IhMZOhjAiD5oAFp7BqvkA4Dv47qpOCtaNvng4HBwdbWtdOh8f5nZNuk2rp51PMGk3bzfWu5oayNEuYnw==
-  optionalDependencies:
-    fsevents "~2.3.2"
-
 rollup@^3.7.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-3.7.0.tgz#7c4310378cf28764abb6b7611c9ccec081ff6d97"
@@ -1581,9 +1574,9 @@ vite-plugin-environment@^1.1:
   integrity sha512-9LBhB0lx+2lXVBEWxFZC+WO7PKEyE/ykJ7EPWCq95NEcCpblxamTbs5Dm3DLBGzwODpJMEnzQywJU8fw6XGGGA==
 
 vite-plugin-full-reload@^1.0:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/vite-plugin-full-reload/-/vite-plugin-full-reload-1.0.4.tgz#3fecd446f9accd5af01eb0328f6d161dca7cfc45"
-  integrity sha512-9WejQII6zJ++m/YE173Zvl2jq4cqa404KNrVT+JDzDnqaGRq5UvOvA48fnsSWPIMXFV7S0dq5+sZqcSB+tKBgA==
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/vite-plugin-full-reload/-/vite-plugin-full-reload-1.0.5.tgz#6cddfa94e51909843bc7156ab728dbac972b8560"
+  integrity sha512-kVZFDFWr0DxiHn6MuDVTQf7gnWIdETGlZh0hvTiMXzRN80vgF4PKbONSq8U1d0WtHsKaFODTQgJeakLacoPZEQ==
   dependencies:
     picocolors "^1.0.0"
     picomatch "^2.3.1"
