@@ -119,6 +119,9 @@ Style/FormatStringToken:
   Exclude:
     - config/routes.rb
 
+Style/RequireOrder:
+  Enabled: false
+
 # Lint
 
 Lint/ConstantResolution:

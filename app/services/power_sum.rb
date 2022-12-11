@@ -22,14 +22,12 @@ class PowerSum < Flux::Reader
       |> last()
     QUERY
 
-    result
-      .values
-      .each_with_object(empty_hash) do |table, hash|
-        record = table.records.first
+    result.each_with_object(empty_hash) do |table, hash|
+      record = table.records.first
 
-        hash[record.values['_field'].to_sym] = record.values['_value']
-        hash[:time] ||= Time.zone.parse record.values['_time']
-      end
+      hash[record.values['_field'].to_sym] = record.values['_value']
+      hash[:time] ||= Time.zone.parse record.values['_time']
+    end
   end
 
   def sum(start:, stop: nil, cache_options: nil)
@@ -53,7 +51,7 @@ class PowerSum < Flux::Reader
   end
 
   def sum_query(start:, stop: nil, cache_options: nil)
-    result = query <<-QUERY, cache_options: cache_options
+    result = query(<<-QUERY, cache_options:)
       #{from_bucket}
       |> #{range(start:, stop:)}
       |> #{measurements_filter}
@@ -61,14 +59,12 @@ class PowerSum < Flux::Reader
       |> integral(unit:1h)
     QUERY
 
-    result
-      .values
-      .each_with_object(empty_hash) do |table, hash|
-        record = table.records.first
+    result.each_with_object(empty_hash) do |table, hash|
+      record = table.records.first
 
-        hash[record.values['_field'].to_sym] = record.values['_value']
-        hash[:time] ||= Time.zone.parse record.values['_stop']
-      end
+      hash[record.values['_field'].to_sym] = record.values['_value']
+      hash[:time] ||= Time.zone.parse record.values['_stop']
+    end
   end
 
   def empty_hash

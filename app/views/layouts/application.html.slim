@@ -10,13 +10,9 @@ html lang="de"
     meta name="apple-mobile-web-app-capable" content="yes"
     meta name="application-name" content="Solectrus"
     meta name="theme-color" content="#a5b4fc"
-    - if Rails.configuration.x.app_host
-      meta name="app-host" content= Rails.configuration.x.app_host
     meta name="version" content= Rails.configuration.x.git.commit_version
     meta name="date" content= Rails.configuration.x.git.commit_time
     meta name="author" content="Georg Ledermann"
-    - if Rails.configuration.x.plausible_url
-      meta name="plausible-url" content= Rails.configuration.x.plausible_url
     - if Rails.configuration.x.honeybadger.api_key
       meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key
 
@@ -57,7 +53,11 @@ html lang="de"
 
     = yield :head
 
-  body.min-h-screen.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white data-controller="icons"
+  body.min-h-screen.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white[
+    data-controller= ['icons', ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
+    data-plausible-url-value= Rails.configuration.x.plausible_url
+    data-plausible-domain-value= (Rails.configuration.x.plausible_url && Rails.configuration.x.app_host)
+  ]
     = render Nav::Top::Component.new do |c|
       = c.with_items topnav_items
       = c.sub_nav { yield :sub_nav } if content_for?(:sub_nav)

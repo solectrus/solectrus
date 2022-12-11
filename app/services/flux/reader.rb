@@ -42,7 +42,9 @@ class Flux::Reader < Flux::Base
     if @cacheable || cache_options.present?
       Rails
         .cache
-        .fetch("flux/#{string}", cache_options) { query_without_cache(string) }
+        .fetch("flux/v2/#{string}", cache_options) do
+          query_without_cache(string)
+        end
     else
       query_without_cache(string)
     end

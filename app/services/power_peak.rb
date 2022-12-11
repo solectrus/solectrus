@@ -9,7 +9,7 @@ class PowerPeak < Flux::Reader
       |> max()
     QUERY
 
-    array = raw.values
+    array = raw
     array.map!(&:records)
     array.map!(&:first)
     array.map!(&:values)

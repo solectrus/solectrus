@@ -31,23 +31,21 @@ class Calculator::Range < Calculator::Base
   def paid
     return unless grid_power_plus
 
-    sections
-      .each_with_index
-      .sum do |_section, index|
-        -(grid_power_plus_array[index] * electricity_price[index] / 1000.0)
-      end
-      .round(2)
+    (
+      sections.each_with_index.sum do |_section, index|
+        -(grid_power_plus_array[index] * electricity_price[index])
+      end / 1_000.0
+    ).round(2)
   end
 
   def got
     return unless grid_power_minus
 
-    sections
-      .each_with_index
-      .sum do |_section, index|
-        (grid_power_minus_array[index] * feed_in_tariff[index] / 1000.0)
-      end
-      .round(2)
+    (
+      sections.each_with_index.sum do |_section, index|
+        (grid_power_minus_array[index] * feed_in_tariff[index])
+      end / 1_000.0
+    ).round(2)
   end
 
   def solar_price
@@ -59,12 +57,11 @@ class Calculator::Range < Calculator::Base
   def traditional_price
     return unless consumption
 
-    sections
-      .each_with_index
-      .sum do |_section, index|
-        -(consumption_array[index] * electricity_price[index] / 1000.0)
-      end
-      .round(2)
+    (
+      sections.each_with_index.sum do |_section, index|
+        -(consumption_array[index] * electricity_price[index])
+      end / 1_000.0
+    ).round(2)
   end
 
   def profit
@@ -76,21 +73,20 @@ class Calculator::Range < Calculator::Base
   def battery_profit
     return unless bat_power_minus && bat_power_plus
 
-    sections
-      .each_with_index
-      .sum do |_section, index|
+    (
+      sections.each_with_index.sum do |_section, index|
         (
-          (bat_power_minus_array[index] * electricity_price[index] / 1000.0) -
-            (bat_power_plus_array[index] * feed_in_tariff[index] / 1000.0)
+          (bat_power_minus_array[index] * electricity_price[index]) -
+            (bat_power_plus_array[index] * feed_in_tariff[index])
         )
-      end
-      .round(2)
+      end / 1_000.0
+    ).round(2)
   end
 
   def battery_profit_percent
     return unless profit && battery_profit
     return if profit.zero?
 
-    100.0 * battery_profit / profit
+    (100.0 * battery_profit / profit).round
   end
 end

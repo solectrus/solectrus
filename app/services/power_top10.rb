@@ -35,9 +35,9 @@ class PowerTop10 < Flux::Reader
       |> limit(n: #{limit})
     QUERY
 
-    return [] unless raw.values[0]
+    return [] unless raw[0]
 
-    raw.values[0].records.map do |record|
+    raw[0].records.map do |record|
       time = Time.zone.parse(record.values['_time'] || '').utc - 1.second
       value = record.values['_value'].to_f
 

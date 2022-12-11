@@ -10,14 +10,14 @@
   div class="h-full pb-8"
     div class="h-full flex flex-col"
       div class="px-2 sm:px-4 py-3"
-        = link_to root_path(field: 'autarky') do
+        = link_to root_path(field: 'autarky', timeframe:) do
           div data-controller="tippy"
             = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
             template data-tippy-target="html"
               = render AutarkyDetails::Component.new(calculator:)
 
       div class="px-2 sm:px-4"
-        = link_to root_path(field: 'consumption') do
+        = link_to root_path(field: 'consumption', timeframe:) do
           div data-controller="tippy"
             = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
             template data-tippy-target="html"
