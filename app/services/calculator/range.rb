@@ -31,21 +31,17 @@ class Calculator::Range < Calculator::Base
   def paid
     return unless grid_power_plus
 
-    (
-      sections.each_with_index.sum do |_section, index|
-        -(grid_power_plus_array[index] * electricity_price[index])
-      end / 1_000.0
-    ).round(2)
+    -section_sum do |index|
+      grid_power_plus_array[index] * electricity_price[index]
+    end
   end
 
   def got
     return unless grid_power_minus
 
-    (
-      sections.each_with_index.sum do |_section, index|
-        (grid_power_minus_array[index] * feed_in_tariff[index])
-      end / 1_000.0
-    ).round(2)
+    section_sum do |index|
+      grid_power_minus_array[index] * feed_in_tariff[index]
+    end
   end
 
   def solar_price
@@ -57,11 +53,7 @@ class Calculator::Range < Calculator::Base
   def traditional_price
     return unless consumption
 
-    (
-      sections.each_with_index.sum do |_section, index|
-        -(consumption_array[index] * electricity_price[index])
-      end / 1_000.0
-    ).round(2)
+    -section_sum { |index| consumption_array[index] * electricity_price[index] }
   end
 
   def profit
@@ -73,14 +65,10 @@ class Calculator::Range < Calculator::Base
   def battery_profit
     return unless bat_power_minus && bat_power_plus
 
-    (
-      sections.each_with_index.sum do |_section, index|
-        (
-          (bat_power_minus_array[index] * electricity_price[index]) -
-            (bat_power_plus_array[index] * feed_in_tariff[index])
-        )
-      end / 1_000.0
-    ).round(2)
+    section_sum do |index|
+      (bat_power_minus_array[index] * electricity_price[index]) -
+        (bat_power_plus_array[index] * feed_in_tariff[index])
+    end
   end
 
   def battery_profit_percent
@@ -88,5 +76,13 @@ class Calculator::Range < Calculator::Base
     return if profit.zero?
 
     (100.0 * battery_profit / profit).round
+  end
+
+  private
+
+  def section_sum(&)
+    (
+      sections.each_with_index.sum { |_section, index| yield(index) } / 1_000.0
+    ).round(2)
   end
 end
