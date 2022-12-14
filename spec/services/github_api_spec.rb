@@ -5,7 +5,7 @@ describe GithubApi do
     subject { api.latest_release }
 
     context 'when the request succeeds', vcr: { cassette_name: 'github' } do
-      it { is_expected.to include({ 'tag_name' => 'v0.6.1' }) }
+      it { is_expected.to include({ 'tag_name' => 'v0.7.3' }) }
     end
 
     context 'when the request fails' do
