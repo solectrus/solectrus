@@ -31,3 +31,5 @@ config/environments/test.rb
 config/environments/development.rb
 screenshot.png
 logo.svg
+spec
+coverage
