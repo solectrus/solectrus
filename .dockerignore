@@ -22,7 +22,6 @@ Procfile*
 Guardfile
 log/*
 node_modules
-public/assets/*
 tmp/*
 !/tmp/pids/
 !/tmp/pids/.keep
