@@ -1,12 +1,22 @@
 import { Controller } from '@hotwired/stimulus';
+import { FrameElement } from '@hotwired/turbo';
 import { Chart } from 'chart.js';
 
-export default class extends Controller {
+export default class extends Controller<FrameElement> {
   static targets = ['current'];
 
   static values = {
     src: String,
   };
+
+  private interval: ReturnType<typeof setInterval> | undefined;
+
+  declare srcValue: string;
+  declare readonly hasSrcValue: boolean;
+
+  declare readonly hasCurrentTarget: boolean;
+  declare readonly currentTarget: HTMLElement;
+  declare readonly currentTargets: HTMLElement[];
 
   connect() {
     this.interval = setInterval(async () => {
@@ -30,14 +40,14 @@ export default class extends Controller {
     if (!chart) return;
 
     // Remove oldest point (label + value in all datasets)
-    chart.data.labels.shift();
+    chart.data.labels?.shift();
     chart.data.datasets.forEach((dataset) => {
       dataset.data.shift();
     });
 
     // Add new point (label + value)
     // Assume the value is from NOW, no need to get the real one
-    chart.data.labels.push(new Date().toISOString());
+    chart.data.labels?.push(new Date().toISOString());
 
     // There may be two datasets: One for positive, one for negative values.
     // Write currentValue to the appropriate dataset
@@ -59,20 +69,20 @@ export default class extends Controller {
   }
 
   get currentValue() {
-    return parseFloat(this.currentTarget.dataset.value);
+    return parseFloat(this.currentTarget.dataset.value ?? '');
   }
 
   // The positive dataset is where at least one positive value exist
-  positiveDataset(chart) {
+  positiveDataset(chart: Chart) {
     return chart.data.datasets.find((dataset) =>
-      dataset.data.some((v) => v > 0),
+      dataset.data.some((v) => v && v > 0),
     );
   }
 
   // The negative dataset is where at least one negative value exist
-  negativeDataset(chart) {
+  negativeDataset(chart: Chart) {
     return chart.data.datasets.find((dataset) =>
-      dataset.data.some((v) => v < 0),
+      dataset.data.some((v) => v && v < 0),
     );
   }
 }

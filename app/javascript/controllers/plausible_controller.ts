@@ -7,6 +7,14 @@ export default class extends Controller {
     domain: String,
   };
 
+  declare urlValue: string;
+  declare readonly hasUrlValue: boolean;
+
+  declare domainValue: string;
+  declare readonly hasDomainValue: boolean;
+
+  private plausible: ReturnType<typeof Plausible> | undefined;
+
   initialize() {
     if (this.hasUrlValue) {
       this.plausible = Plausible({

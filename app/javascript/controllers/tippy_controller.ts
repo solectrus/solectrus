@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import tippy from 'tippy.js';
+import tippy, { BasePlacement, Instance } from 'tippy.js';
 
 export default class extends Controller {
   static values = {
@@ -8,16 +8,26 @@ export default class extends Controller {
       default: 'bottom',
     },
   };
+
   static targets = ['html'];
 
+  declare placementValue: BasePlacement;
+  declare readonly hasPlacementValue: boolean;
+
+  declare readonly hasHtmlTarget: boolean;
+  declare readonly htmlTarget: HTMLElement;
+  declare readonly htmlTargets: HTMLElement[];
+
+  private instance: Instance | undefined;
+
   connect() {
-    tippy(this.element, {
+    this.instance = tippy(this.element, {
       allowHTML: true,
       arrow: true,
       placement: this.placementValue,
       theme: 'light-border',
       animation: 'scale',
-      content: (reference) => {
+      content: (reference): string => {
         const title = reference.getAttribute('title');
 
         if (title) {
@@ -26,12 +36,15 @@ export default class extends Controller {
 
           return title;
         }
+
         if (this.hasHtmlTarget) return this.htmlTarget.innerHTML;
+
+        throw new Error('Tippy: No title or html target found!');
       },
     });
   }
 
   disconnect() {
-    this.element._tippy.destroy();
+    if (this.instance) this.instance.destroy();
   }
 }

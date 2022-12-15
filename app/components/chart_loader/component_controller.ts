@@ -12,6 +12,9 @@ import {
   Filler,
   Title,
   Tooltip,
+  ChartOptions,
+  ChartType,
+  ChartData,
 } from 'chart.js';
 
 import 'chartjs-adapter-date-fns';
@@ -30,12 +33,23 @@ Chart.register(
   Tooltip,
 );
 
-export default class extends Controller {
+export default class extends Controller<HTMLCanvasElement> {
   static values = {
     type: String,
     url: String,
     options: Object,
   };
+
+  declare typeValue: ChartType;
+  declare readonly hasTypeValue: boolean;
+
+  declare urlValue: string;
+  declare readonly hasUrlValue: boolean;
+
+  declare optionsValue: ChartOptions;
+  declare readonly hasOptionsValue: boolean;
+
+  private chart: Chart | undefined;
 
   connect() {
     this.process();
@@ -50,8 +64,11 @@ export default class extends Controller {
     if (!data) return;
 
     const options = this.optionsValue;
+    if (!options.scales?.x) return;
+    if (!options.scales?.y) return;
 
     // I18n
+    // @ts-ignore
     options.scales.x.adapters = {
       date: {
         locale: de,
@@ -59,7 +76,9 @@ export default class extends Controller {
     };
 
     // Format numbers on y-axis
-    options.scales.y.ticks.callback = (value) => this.formattedNumber(value);
+    if (options.scales.y.ticks)
+      options.scales.y.ticks.callback = (value) =>
+        typeof value === 'number' ? this.formattedNumber(value) : value;
 
     const min = this.minOf(data);
     if (min < 0) {
@@ -78,10 +97,11 @@ export default class extends Controller {
     }
 
     // Format numbers in tooltips
-    options.plugins.tooltip.callbacks = {
-      label: (context) =>
-        context.dataset.label + ': ' + this.formattedNumber(context.parsed.y),
-    };
+    if (options.plugins?.tooltip)
+      options.plugins.tooltip.callbacks = {
+        label: (context) =>
+          context.dataset.label + ': ' + this.formattedNumber(context.parsed.y),
+      };
 
     this.chart = new Chart(this.element, {
       type: this.typeValue,
@@ -90,7 +110,7 @@ export default class extends Controller {
     });
   }
 
-  async loadData() {
+  async loadData(): Promise<ChartData | undefined> {
     try {
       const response = await fetch(this.urlValue, {
         method: 'GET',
@@ -109,21 +129,21 @@ export default class extends Controller {
     }
   }
 
-  formattedNumber(number) {
+  formattedNumber(number: number) {
     return new Intl.NumberFormat().format(number);
   }
 
   // Get maximum value of all datasets, rounded up to next integer
-  maxOf(data) {
+  maxOf(data: ChartData) {
     return Math.ceil(Math.max(...this.flatMapped(data)));
   }
 
   // Get minium value of all datasets, rounded down to next integer
-  minOf(data) {
+  minOf(data: ChartData) {
     return Math.floor(Math.min(...this.flatMapped(data)));
   }
 
-  flatMapped(data) {
-    return data.datasets.flatMap((dataset) => dataset.data);
+  flatMapped(data: ChartData) {
+    return data.datasets.flatMap((dataset) => dataset.data as number[]);
   }
 }
