@@ -16,7 +16,7 @@ describe GithubApi do
         ).to_return(status: [500, 'Internal Server Error'])
       end
 
-      it { is_expected.to be_empty }
+      it { is_expected.to be_nil }
     end
   end
 end
