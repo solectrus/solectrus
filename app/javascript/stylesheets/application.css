@@ -8,3 +8,8 @@
 @import 'tippy.js/animations/scale.css';
 @import 'tippy.js/themes/light-border.css';
 @import '@fortawesome/fontawesome-svg-core/styles.css';
+
+.turbo-progress-bar {
+  height: 5px;
+  background-color: #a5b4fc;
+}
