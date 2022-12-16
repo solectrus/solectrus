@@ -37,8 +37,8 @@ de:
     consumption_quote: Eigenverbrauchsquote
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
-    profit: Gewinn
-    battery_profit: Anteil Akku
+    savings: Einsparung
+    battery_savings: Anteil Akku
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
   login:

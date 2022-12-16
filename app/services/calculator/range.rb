@@ -56,13 +56,13 @@ class Calculator::Range < Calculator::Base
     -section_sum { |index| consumption_array[index] * electricity_price[index] }
   end
 
-  def profit
+  def savings
     return unless solar_price && traditional_price
 
     solar_price - traditional_price
   end
 
-  def battery_profit
+  def battery_savings
     return unless bat_power_minus && bat_power_plus
 
     section_sum do |index|
@@ -71,11 +71,11 @@ class Calculator::Range < Calculator::Base
     end
   end
 
-  def battery_profit_percent
-    return unless profit && battery_profit
-    return if profit.zero?
+  def battery_savings_percent
+    return unless savings && battery_savings
+    return if savings.zero?
 
-    (100.0 * battery_profit / profit).round
+    (100.0 * battery_savings / savings).round
   end
 
   private
