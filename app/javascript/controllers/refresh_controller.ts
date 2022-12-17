@@ -57,13 +57,14 @@ export default class extends Controller<FrameElement> {
 
     // There may be two datasets: One for positive, one for negative values.
     // Write currentValue to the appropriate dataset
-    if (this.currentValue > 0) {
-      this.positiveDataset(chart)?.data.push(this.currentValue);
-      this.negativeDataset(chart)?.data.push(0);
-    } else {
-      this.negativeDataset(chart)?.data.push(this.currentValue);
-      this.positiveDataset(chart)?.data.push(0);
-    }
+    if (this.currentValue)
+      if (this.currentValue > 0) {
+        this.positiveDataset(chart)?.data.push(this.currentValue);
+        this.negativeDataset(chart)?.data.push(0);
+      } else {
+        this.negativeDataset(chart)?.data.push(this.currentValue);
+        this.positiveDataset(chart)?.data.push(0);
+      }
 
     chart.update();
   }
@@ -74,8 +75,9 @@ export default class extends Controller<FrameElement> {
     );
   }
 
-  get currentValue() {
-    return parseFloat(this.currentTarget.dataset.value ?? '');
+  get currentValue(): number | undefined {
+    if (this.currentTarget.dataset.value)
+      return parseFloat(this.currentTarget.dataset.value);
   }
 
   // The positive dataset is where at least one positive value exist
