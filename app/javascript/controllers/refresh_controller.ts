@@ -10,6 +10,7 @@ export default class extends Controller<FrameElement> {
   };
 
   private interval: ReturnType<typeof setInterval> | undefined;
+  private lastTime: Date | undefined;
 
   declare srcValue: string;
   declare readonly hasSrcValue: boolean;
@@ -41,9 +42,19 @@ export default class extends Controller<FrameElement> {
 
   updateChart() {
     if (!this.hasCurrentTarget) return;
+    if (!this.currentTime || !this.currentValue) return;
 
     const chart = this.chartNow;
     if (!chart) return;
+
+    if (this.chartIsStale) {
+      // Updating an old chart is not possible, so reload the page
+      location.reload();
+      return;
+    }
+
+    // Remember the current time for the next check
+    this.lastTime = this.currentTime;
 
     // Remove oldest point (label + value in all datasets)
     chart.data.labels?.shift();
@@ -51,21 +62,22 @@ export default class extends Controller<FrameElement> {
       dataset.data.shift();
     });
 
-    // Add new point (label + value)
-    // Assume the value is from NOW, no need to get the real one
-    chart.data.labels?.push(new Date().toISOString());
+    // Add new point
+    // First, add the current time as a label
+    chart.data.labels?.push(this.currentTime.toISOString());
 
+    // Second, add the current value to the appropriate dataset
     // There may be two datasets: One for positive, one for negative values.
     // Write currentValue to the appropriate dataset
-    if (this.currentValue)
-      if (this.currentValue > 0) {
-        this.positiveDataset(chart)?.data.push(this.currentValue);
-        this.negativeDataset(chart)?.data.push(0);
-      } else {
-        this.negativeDataset(chart)?.data.push(this.currentValue);
-        this.positiveDataset(chart)?.data.push(0);
-      }
+    if (this.currentValue > 0) {
+      this.positiveDataset(chart)?.data.push(this.currentValue);
+      this.negativeDataset(chart)?.data.push(0);
+    } else {
+      this.negativeDataset(chart)?.data.push(this.currentValue);
+      this.positiveDataset(chart)?.data.push(0);
+    }
 
+    // Redraw the chart
     chart.update();
   }
 
@@ -78,6 +90,23 @@ export default class extends Controller<FrameElement> {
   get currentValue(): number | undefined {
     if (this.currentTarget.dataset.value)
       return parseFloat(this.currentTarget.dataset.value);
+  }
+
+  get currentTime(): Date | undefined {
+    if (this.currentTarget.dataset.time)
+      return new Date(this.currentTarget.dataset.time);
+  }
+
+  get chartIsStale(): boolean {
+    if (this.lastTime && this.currentTime)
+      // The chart is stale if the last time is more than 10 seconds ago
+      return this.currentTime > this.addSeconds(this.lastTime, 10);
+
+    return false;
+  }
+
+  addSeconds(date: Date, seconds: number): Date {
+    return new Date(date.getTime() + seconds * 1000);
   }
 
   // The positive dataset is where at least one positive value exist
