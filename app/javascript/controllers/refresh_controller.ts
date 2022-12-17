@@ -23,7 +23,13 @@ export default class extends Controller<FrameElement> {
       // Reload frame
       this.element.src = null;
       this.element.src = this.srcValue;
-      await this.element.loaded;
+
+      try {
+        await this.element.loaded;
+      } catch (error) {
+        console.log(error);
+        // Ignore error
+      }
 
       this.updateChart();
     }, 5000);
