@@ -7,7 +7,7 @@ describe Status::Component, type: :component do
     it { is_expected.not_to be_live }
 
     it 'renders the FAIL text' do
-      expect(render_inline(component).css('div').text).to eq('FAIL')
+      expect(render_inline(component).css('time').text).to eq('FAIL')
     end
   end
 
@@ -17,7 +17,7 @@ describe Status::Component, type: :component do
     it { is_expected.to be_live }
 
     it 'renders the LIVE text' do
-      expect(render_inline(component).css('div').text).to eq('LIVE')
+      expect(render_inline(component).css('time').text).to eq('LIVE')
     end
   end
 end
