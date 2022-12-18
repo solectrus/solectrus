@@ -29,12 +29,15 @@ class BalanceSegment::Component < ViewComponent::Base
     parent.timeframe.now?
   end
 
-  def current_value?
-    now? && params[:field] == field.to_s
-  end
-
   def masked_value
-    field.to_s.include?('power') ? value / 1_000.0 : value
+    unsigned_value = field.to_s.include?('power') ? value / 1_000.0 : value
+
+    case field
+    when :grid_power_plus, :bat_power_minus
+      -unsigned_value
+    else
+      unsigned_value
+    end
   end
 
   def icon_size
