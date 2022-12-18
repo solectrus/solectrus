@@ -29,10 +29,6 @@ class BalanceSegment::Component < ViewComponent::Base
     parent.timeframe.now?
   end
 
-  def current_value?
-    now? && params[:field] == field.to_s
-  end
-
   def masked_value
     field.to_s.include?('power') ? value / 1_000.0 : value
   end

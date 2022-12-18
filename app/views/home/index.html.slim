@@ -30,13 +30,15 @@ ruby:
     = render Nav::Sub::Component.new do |c|
       = c.items nav_items
 
-div class="flex-auto flex flex-wrap gap-5 lg:flex-nowrap"
+.flex-auto.flex.flex-wrap.gap-5.lg:flex-nowrap[
+  data= (timeframe.now? && { controller: 'refresh', refresh_field_value: field })
+]
   - stats_params = permitted_params.to_hash.symbolize_keys
   = turbo_frame_tag 'stats',
                     src: stats_path(stats_params),
                     class: 'w-full lg:w-1/2 flex-auto h-3/5 lg:h-auto flex',
                     target: '_top',
-                    data: (timeframe.now? && { controller: 'refresh', refresh_src_value: stats_path(stats_params.merge(chart: false))}) do
+                    data: { refresh_target: 'stats' }  do
     .flex.justify-center.m-40
       = render Loading::Component.new
 

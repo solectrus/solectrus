@@ -2,30 +2,56 @@ import { Controller } from '@hotwired/stimulus';
 import { FrameElement } from '@hotwired/turbo';
 import { Chart } from 'chart.js';
 
-export default class extends Controller<FrameElement> {
-  static targets = ['current'];
-
-  static values = {
-    src: String,
-  };
-
-  private interval: ReturnType<typeof setInterval> | undefined;
-
-  declare srcValue: string;
-  declare readonly hasSrcValue: boolean;
+export default class extends Controller {
+  static targets = ['current', 'stats', 'chart'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTarget: HTMLElement;
   declare readonly currentTargets: HTMLElement[];
 
-  connect() {
-    this.interval = setInterval(async () => {
-      // Reload frame
-      this.element.src = null;
-      this.element.src = this.srcValue;
+  declare readonly hasChartTarget: boolean;
+  declare readonly chartTarget: HTMLCanvasElement;
+  declare readonly chartTargets: HTMLCanvasElement[];
 
+  declare readonly hasStatsTarget: boolean;
+  declare readonly statsTarget: FrameElement;
+  declare readonly statsTargets: FrameElement[];
+
+  static values = {
+    field: String,
+  };
+  declare readonly fieldValue: string;
+
+  private interval: ReturnType<typeof setInterval> | undefined;
+
+  connect() {
+    window.addEventListener('blur', this.handleBlur.bind(this));
+    window.addEventListener('focus', this.handleFocus.bind(this));
+    document.addEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange.bind(this),
+    );
+
+    this.startLoop();
+  }
+
+  disconnect() {
+    this.stopLoop();
+
+    document.removeEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange.bind(this),
+    );
+    window.removeEventListener('focus', this.handleFocus.bind(this));
+    window.removeEventListener('blur', this.handleBlur.bind(this));
+  }
+
+  startLoop() {
+    this.stopLoop();
+
+    this.interval = setInterval(async () => {
       try {
-        await this.element.loaded;
+        await this.reloadFrame({ chart: false });
       } catch (error) {
         console.log(error);
         // Ignore error
@@ -35,59 +61,109 @@ export default class extends Controller<FrameElement> {
     }, 5000);
   }
 
-  disconnect() {
-    clearInterval(this.interval);
+  stopLoop() {
+    if (this.isInLoop) clearInterval(this.interval);
+    this.interval = undefined;
+  }
+
+  get isInLoop() {
+    return !!this.interval;
+  }
+
+  handleBlur() {
+    this.stopLoop();
+  }
+
+  handleFocus() {
+    this.reloadFrame({ chart: true });
+    this.startLoop();
+  }
+
+  handleVisibilityChange() {
+    if (document.hidden) this.stopLoop();
+    else {
+      this.reloadFrame({ chart: true });
+      this.startLoop();
+    }
   }
 
   updateChart() {
     if (!this.hasCurrentTarget) return;
-
-    const chart = this.chartNow;
-    if (!chart) return;
+    if (!this.currentValue) return;
+    if (!this.chart) return;
 
     // Remove oldest point (label + value in all datasets)
-    chart.data.labels?.shift();
-    chart.data.datasets.forEach((dataset) => {
+    this.chart.data.labels?.shift();
+    this.chart.data.datasets.forEach((dataset) => {
       dataset.data.shift();
     });
 
-    // Add new point (label + value)
-    // Assume the value is from NOW, no need to get the real one
-    chart.data.labels?.push(new Date().toISOString());
+    // Add new point
+    // First, add the current time as a label
+    this.chart.data.labels?.push(new Date().toISOString());
 
+    // Second, add the current value to the appropriate dataset
     // There may be two datasets: One for positive, one for negative values.
     // Write currentValue to the appropriate dataset
     if (this.currentValue > 0) {
-      this.positiveDataset(chart)?.data.push(this.currentValue);
-      this.negativeDataset(chart)?.data.push(0);
+      this.positiveDataset?.data.push(this.currentValue);
+      this.negativeDataset?.data.push(0);
     } else {
-      this.negativeDataset(chart)?.data.push(this.currentValue);
-      this.positiveDataset(chart)?.data.push(0);
+      this.negativeDataset?.data.push(this.currentValue);
+      this.positiveDataset?.data.push(0);
     }
 
-    chart.update();
+    // Redraw the chart
+    this.chart.update();
   }
 
-  get chartNow() {
-    return Object.values(Chart.instances).find(
-      (c) => c.canvas.id == 'chart-now',
+  async reloadFrame(options: { chart: boolean }) {
+    if (!this.statsTarget.src) {
+      return;
+    }
+
+    const url = new URL(this.statsTarget.src, location.origin);
+    url.searchParams.set('chart', options.chart.toString());
+
+    this.statsTarget.src = null;
+    this.statsTarget.src = url.toString();
+
+    await this.statsTarget.loaded;
+  }
+
+  get chart() {
+    if (this.hasChartTarget) return Chart.getChart(this.chartTarget);
+  }
+
+  get currentValue(): number | undefined {
+    if (this.currentElement?.dataset.value)
+      return parseFloat(this.currentElement.dataset.value);
+  }
+
+  get currentElement(): HTMLElement | undefined {
+    // Select the current element from the currentTargets (by comparing field)
+    const targets = this.currentTargets.filter((t) =>
+      t.dataset.field?.startsWith(this.fieldValue),
     );
-  }
 
-  get currentValue() {
-    return parseFloat(this.currentTarget.dataset.value ?? '');
+    if (targets.length)
+      // Return the first element with a non-zero value, or the first element
+      return (
+        targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ||
+        targets[0]
+      );
   }
 
   // The positive dataset is where at least one positive value exist
-  positiveDataset(chart: Chart) {
-    return chart.data.datasets.find((dataset) =>
+  get positiveDataset() {
+    return this.chart?.data.datasets.find((dataset) =>
       dataset.data.some((v) => v && v > 0),
     );
   }
 
   // The negative dataset is where at least one negative value exist
-  negativeDataset(chart: Chart) {
-    return chart.data.datasets.find((dataset) =>
+  get negativeDataset() {
+    return this.chart?.data.datasets.find((dataset) =>
       dataset.data.some((v) => v && v < 0),
     );
   }
