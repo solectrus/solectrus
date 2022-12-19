@@ -6,6 +6,14 @@ import { enter, leave } from 'el-transition';
 export default class extends Controller {
   static targets = ['menu', 'button'];
 
+  declare readonly hasMenuTarget: boolean;
+  declare readonly menuTarget: HTMLElement;
+  declare readonly menuTargets: HTMLElement[];
+
+  declare readonly hasButtonTarget: boolean;
+  declare readonly buttonTarget: HTMLElement;
+  declare readonly buttonTargets: HTMLElement[];
+
   connect() {
     document.addEventListener('click', this.handleClickOutside.bind(this));
   }
@@ -22,7 +30,9 @@ export default class extends Controller {
     }
   }
 
-  handleClickOutside(event) {
+  handleClickOutside(event: Event) {
+    if (!(event.target instanceof HTMLElement)) return;
+
     const menuClicked = this.menuTarget.contains(event.target);
     const buttonClicked = this.buttonTarget.contains(event.target);
     const hidden = this.menuTarget.classList.contains('hidden');

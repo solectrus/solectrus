@@ -22,7 +22,6 @@ Procfile*
 Guardfile
 log/*
 node_modules
-public/assets/*
 tmp/*
 !/tmp/pids/
 !/tmp/pids/.keep
@@ -31,3 +30,5 @@ config/environments/test.rb
 config/environments/development.rb
 screenshot.png
 logo.svg
+spec
+coverage

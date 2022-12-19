@@ -18,12 +18,9 @@
 !/tmp/pids/
 !/tmp/pids/.keep
 
-/public/assets
-
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-/public/assets
 /node_modules
 /yarn-error.log
 yarn-debug.log*

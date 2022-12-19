@@ -3,7 +3,11 @@ import { Controller } from '@hotwired/stimulus';
 export default class extends Controller {
   static targets = ['element'];
 
-  toggle(event) {
+  declare readonly hasElementTarget: boolean;
+  declare readonly elementTarget: HTMLElement;
+  declare readonly elementTargets: HTMLElement[];
+
+  toggle(event: Event) {
     event.preventDefault();
 
     this.elementTargets.forEach((element) => {

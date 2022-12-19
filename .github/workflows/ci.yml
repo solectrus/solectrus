@@ -53,6 +53,7 @@ jobs:
         uses: actions/setup-node@v3.5.1
         with:
           cache: yarn
+          node-version-file: 'package.json'
 
       - name: Install Yarn packages
         run: bin/yarn install --frozen-lockfile
@@ -62,6 +63,9 @@ jobs:
 
       - name: Lint with ESLint
         run: bin/yarn lint
+
+      - name: Check for TypeScript errors
+        run: bin/yarn tsc
 
       - name: Lint with SlimLint
         run: bundle exec slim-lint .

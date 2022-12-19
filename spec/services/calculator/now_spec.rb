@@ -1,6 +1,16 @@
 describe Calculator::Now do
   let(:calculator) { described_class.new }
 
+  describe '#time' do
+    around { |example| freeze_time(&example) }
+
+    before { add_influx_point(name: 'SENEC', fields: { inverter_power: 0 }) }
+
+    it 'returns time of measurement' do
+      expect(calculator.time).to eq(Time.current)
+    end
+  end
+
   context 'when no sun and battery is empty' do
     before do
       add_influx_point(

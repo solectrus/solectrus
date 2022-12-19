@@ -40,8 +40,8 @@ describe Calculator::Range do
     expect(calculator.solar_price).to eq(-44.53)
     expect(calculator.traditional_price).to eq(-176.15)
 
-    expect(calculator.profit).to eq(131.62)
-    expect(calculator.battery_profit).to eq(41.02)
-    expect(calculator.battery_profit_percent).to eq(31)
+    expect(calculator.savings).to eq(131.62)
+    expect(calculator.battery_savings).to eq(41.02)
+    expect(calculator.battery_savings_percent).to eq(31)
   end
 end

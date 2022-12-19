@@ -1,11 +1,10 @@
 class GithubApi
   def latest_release
-    res =
+    response =
       Net::HTTP.get_response(
         URI('https://api.github.com/repos/solectrus/solectrus/releases/latest'),
       )
-    return {} unless res.is_a?(Net::HTTPSuccess)
 
-    JSON.parse(res.body)
+    JSON.parse(response.body) if response.is_a?(Net::HTTPSuccess)
   end
 end

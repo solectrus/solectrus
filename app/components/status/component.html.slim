@@ -1,6 +1,7 @@
-.text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center[
-  data-controller= (live? ? nil : 'tippy')
+time.text-xs.bg-indigo-50.font-bold.tracking-widest.text-black.rounded.py-1.px-2.cursor-default.flex.items-center[
+  data-controller= (message.present? ? 'tippy' : nil)
   title= message
+  datetime= time&.iso8601
 ]
   = text
   span.ml-2.flex.h-3.w-3.relative

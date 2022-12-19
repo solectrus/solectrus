@@ -9,7 +9,7 @@ describe VersionInfo::Component, type: :component do
 
   describe '#latest_version' do
     it 'returns the latest version', vcr: { cassette_name: 'github' } do
-      expect(component.latest_version).to eq 'v0.6.1'
+      expect(component.latest_version).to eq 'v0.7.3'
     end
   end
 
@@ -47,7 +47,7 @@ describe VersionInfo::Component, type: :component do
     subject { component.latest_release_url }
 
     it do
-      is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.6.1'
+      is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.7.3'
     end
   end
 end

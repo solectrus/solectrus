@@ -1,7 +1,7 @@
-# @label ProfitDetails Component
-class ProfitDetailsComponentPreview < ViewComponent::Preview
+# @label SavingsDetails Component
+class SavingsDetailsComponentPreview < ViewComponent::Preview
   def default
-    render ProfitDetails::Component.new calculator:
+    render SavingsDetails::Component.new calculator:
   end
 
   private

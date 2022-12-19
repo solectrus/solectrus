@@ -1,5 +1,5 @@
 import '@hotwired/turbo-rails';
-import.meta.globEager('../channels/**/*_channel.js');
+import.meta.glob('../channels/**/*_channel.{js,ts}', { eager: true });
 
 import '../utils/setupHoneyBadger';
 import '../utils/setupStimulus';

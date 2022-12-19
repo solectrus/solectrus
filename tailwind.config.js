@@ -22,7 +22,10 @@ module.exports = {
     },
   },
 
-  content: ['./app/**/*.{html.erb,html.slim,rb}', './app/javascript/**/*.js'],
+  content: [
+    './app/**/*.{html.erb,html.slim,rb}',
+    './app/javascript/**/*.{js,ts}',
+  ],
 
   plugins: [
     require('@tailwindcss/typography'),

@@ -1,5 +1,4 @@
 db/schema.rb
-app/assets/builds/*
 public/*
 coverage/*
 tmp/*

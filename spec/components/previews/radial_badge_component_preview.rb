@@ -27,13 +27,13 @@ class RadialBadgeComponentPreview < ViewComponent::Preview
   # @!endgroup
 
   # @!group Money
-  def money_low(title: 'Profit')
+  def money_low(title: 'Savings')
     render RadialBadge::Component.new(title:) do
       '€ 1<small>,23</small>'.html_safe
     end
   end
 
-  def money_high(title: 'Profit')
+  def money_high(title: 'Savings')
     render RadialBadge::Component.new(title:) do
       '€ 1.429'
     end

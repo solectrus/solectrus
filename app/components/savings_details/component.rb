@@ -1,4 +1,4 @@
-class ProfitDetails::Component < ViewComponent::Base
+class SavingsDetails::Component < ViewComponent::Base
   def initialize(calculator:)
     super
     @calculator = calculator
