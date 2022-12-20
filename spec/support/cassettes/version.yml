@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://update.solectrus.de/
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Solectrus
+      X-Version:
+      - v0.7.4-1-gaaefa7d
+      Referer:
+      - solectrus.test
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"57746c85788e7e43b351ab3c88fb99bf"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept, Accept-Encoding, Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 1b8218fd-034c-4e9d-abc2-a33511250ea7
+      X-Xss-Protection:
+      - 1; mode=block
+      Date:
+      - Tue, 20 Dec 2022 13:44:40 GMT
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"version":"v0.7.4"}'
+  recorded_at: Tue, 20 Dec 2022 13:44:40 GMT
+recorded_with: VCR 6.1.0

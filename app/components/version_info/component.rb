@@ -14,27 +14,20 @@ class VersionInfo::Component < ViewComponent::Base
     comparable(latest_version) > comparable(current_version)
   end
 
-  def latest_version
-    return unless latest_release
-
-    latest_release['tag_name']
-  end
-
   def latest_release_url
     "#{Rails.configuration.x.git.home}/releases/tag/#{latest_version}"
   end
 
-  private
-
-  def latest_release
-    @latest_release ||=
+  def latest_version
+    @latest_version ||=
       Rails
         .cache
-        .fetch([:github_latest_release, current_version], expires_in: 1.day) do
-          Rails.logger.info('VersionInfo: Fetching latest release from GitHub')
-          GithubApi.new.latest_release
+        .fetch([:latest_version, current_version], expires_in: 1.day) do
+          Version.latest
         end
   end
+
+  private
 
   def valid?(version)
     version&.start_with?('v')

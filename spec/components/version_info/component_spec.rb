@@ -8,8 +8,8 @@ describe VersionInfo::Component, type: :component do
   end
 
   describe '#latest_version' do
-    it 'returns the latest version', vcr: { cassette_name: 'github' } do
-      expect(component.latest_version).to eq 'v0.7.3'
+    it 'returns the latest version', vcr: { cassette_name: 'version' } do
+      expect(component.latest_version).to eq 'v0.7.4'
     end
   end
 
@@ -17,11 +17,9 @@ describe VersionInfo::Component, type: :component do
     subject { component.outdated? }
 
     before do
-      api = instance_double(GithubApi)
-      allow(GithubApi).to receive(:new).and_return(api)
-      allow(api).to receive(:latest_release).and_return(
-        { 'tag_name' => latest_version },
-      )
+      api = instance_double(Version)
+      allow(Version).to receive(:new).and_return(api)
+      allow(api).to receive(:latest).and_return(latest_version)
     end
 
     context 'when the latest version matches the current version' do
@@ -43,11 +41,11 @@ describe VersionInfo::Component, type: :component do
     end
   end
 
-  describe '#latest_release_url', vcr: { cassette_name: 'github' } do
+  describe '#latest_release_url', vcr: { cassette_name: 'version' } do
     subject { component.latest_release_url }
 
     it do
-      is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.7.3'
+      is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.7.4'
     end
   end
 end

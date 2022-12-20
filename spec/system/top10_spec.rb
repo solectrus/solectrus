@@ -1,4 +1,4 @@
-describe 'Top10', js: true, vcr: { cassette_name: 'github' } do
+describe 'Top10', js: true, vcr: { cassette_name: 'version' } do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do

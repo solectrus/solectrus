@@ -1,4 +1,4 @@
-describe 'Error pages', vcr: { cassette_name: 'github' } do
+describe 'Error pages', vcr: { cassette_name: 'version' } do
   describe 'error 404' do
     it 'renders a custom 404 error page' do
       without_detailed_exceptions { get '/non-existing-route' }

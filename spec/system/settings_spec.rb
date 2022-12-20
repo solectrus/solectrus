@@ -1,4 +1,4 @@
-describe 'Settings', js: true, vcr: { cassette_name: 'github' } do
+describe 'Settings', js: true, vcr: { cassette_name: 'version' } do
   let!(:price1) do
     Price.electricity.create! starts_at: Date.new(2020, 10, 1),
                               value: 0.2545,
