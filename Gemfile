@@ -19,7 +19,7 @@ gem 'stimulus-rails'
 gem 'pg', '~> 1.1'
 
 # Puma is a simple, fast, threaded, and highly parallel HTTP 1.1 server for Ruby/Rack applications (https://puma.io)
-gem 'puma', '~> 5.0'
+gem 'puma', '~> 6'
 
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
 gem 'redis'

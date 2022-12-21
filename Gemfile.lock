@@ -208,7 +208,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     public_suffix (5.0.1)
-    puma (5.6.5)
+    puma (6.0.1)
       nio4r (~> 2.0)
     racc (1.6.1)
     rack (2.2.4)
@@ -412,7 +412,7 @@ DEPENDENCIES
   meta-tags
   pg (~> 1.1)
   prettier
-  puma (~> 5.0)
+  puma (~> 6)
   rack-brotli
   rack-cors
   rails (~> 7.0.4)
