@@ -307,6 +307,8 @@ GEM
       rubocop (>= 1.33.0, < 2.0)
     rubocop-rspec (2.16.0)
       rubocop (~> 1.33)
+    rubocop-thread_safety (0.4.4)
+      rubocop (>= 0.53.0)
     ruby-progressbar (1.11.0)
     rubyzip (2.3.2)
     selenium-webdriver (4.7.1)
@@ -423,6 +425,7 @@ DEPENDENCIES
   rubocop-performance
   rubocop-rails
   rubocop-rspec
+  rubocop-thread_safety
   selenium-webdriver
   shoulda-matchers
   simplecov
