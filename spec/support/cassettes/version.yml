@@ -12,9 +12,9 @@ http_interactions:
       User-Agent:
       - Solectrus
       X-Version:
-      - v0.7.4-1-gaaefa7d
+      - v0.7.4-30-gbd07747
       Referer:
-      - solectrus.test
+      - https://solectrus.test
   response:
     status:
       code: 200
@@ -25,7 +25,7 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Etag:
-      - W/"57746c85788e7e43b351ab3c88fb99bf"
+      - W/"8ad810d8c41c699e28091c42419e5b8a"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -41,15 +41,15 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - 1b8218fd-034c-4e9d-abc2-a33511250ea7
+      - 55438bba-032c-44df-8bb9-f137c2f5dd62
       X-Xss-Protection:
       - 1; mode=block
       Date:
-      - Tue, 20 Dec 2022 13:44:40 GMT
+      - Sat, 24 Dec 2022 06:27:06 GMT
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: '{"version":"v0.7.4"}'
-  recorded_at: Tue, 20 Dec 2022 13:44:40 GMT
+  recorded_at: Sat, 24 Dec 2022 06:27:06 GMT
 recorded_with: VCR 6.1.0
