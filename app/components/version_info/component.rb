@@ -19,12 +19,7 @@ class VersionInfo::Component < ViewComponent::Base
   end
 
   def latest_version
-    @latest_version ||=
-      Rails
-        .cache
-        .fetch([:latest_version, current_version], expires_in: 1.day) do
-          Version.latest
-        end
+    @latest_version ||= Version.latest
   end
 
   private
