@@ -7,6 +7,8 @@ class Version
   end
 
   def latest
+    return cached_version if cached?
+
     uri = URI(CHECK_URL)
     response =
       Net::HTTP.start(
@@ -27,13 +29,36 @@ class Version
         http.request(request)
       end
 
-    JSON.parse(response.body)['version'] if response.is_a?(Net::HTTPSuccess)
+    version_from(response) if response.is_a?(Net::HTTPSuccess)
   rescue StandardError
     # Mainly ignore timeout errors, but other errors must not throw an exception
     nil
   end
 
+  def cached?
+    Rails.cache.exist?(cache_key)
+  end
+
   private
+
+  def version_from(response)
+    version = JSON.parse(response.body)['version']
+    expires_in = expiration_from(response) || 12.hours
+    Rails.cache.write(cache_key, version, expires_in:)
+    version
+  end
+
+  def cached_version
+    Rails.cache.read(cache_key)
+  end
+
+  def expiration_from(response)
+    response['Cache-Control'].match(/max-age=(\d+)/)&.captures&.first&.to_i
+  end
+
+  def cache_key
+    'Version.latest'
+  end
 
   def app_url
     return unless Rails.configuration.x.app_host
