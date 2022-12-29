@@ -42,9 +42,6 @@ gem 'influxdb-client', '>= 2.9.0'
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
 
-# A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
-gem 'lookbook'
-
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
 
@@ -101,6 +98,9 @@ group :development do
 
   # prettier plugin for the Ruby programming language (https://github.com/prettier/plugin-ruby#readme)
   gem 'prettier'
+
+  # A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
+  gem 'lookbook'
 end
 
 group :test do
