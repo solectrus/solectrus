@@ -42,7 +42,7 @@ module Solectrus
     config.i18n.available_locales = %i[en de]
     config.i18n.default_locale = :de
 
-    config.x.app_host = ENV.fetch('APP_HOST', nil)
+    config.x.app_host = ENV.fetch('APP_HOST', nil).presence
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
 
@@ -58,7 +58,7 @@ module Solectrus
     config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
     config.x.feed_in_tariff = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
 
-    config.x.admin_password = ENV.fetch('ADMIN_PASSWORD', nil)
+    config.x.admin_password = ENV.fetch('ADMIN_PASSWORD', nil).presence
 
     # The 'X-Frame-Options' header should not be used.  A similar effect, with more consistent
     # support and stronger checks, can be achieved with the 'Content-Security-Policy' header
