@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Setup InfluxDB with user, org and bucket
-# Taken from https://github.com/influxdata/influxdb-client-ruby/blob/v1.11.0/bin/influxdb-onboarding.sh
+# Taken from https://github.com/influxdata/influxdb-client-ruby/blob/v2.9.0/bin/influxdb-onboarding.sh
 
 #
 # The MIT License
@@ -27,7 +27,7 @@
 
 set -e
 
-echo "Wait to start InfluxDB 2.0"
+echo "Wait to start InfluxDB 2.x"
 wget -S --spider --tries=20 --retry-connrefused --waitretry=5 http://localhost:8086/metrics
 
 echo
