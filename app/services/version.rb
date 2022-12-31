@@ -55,7 +55,7 @@ class Version
   end
 
   def cache_key
-    'Version.latest'
+    ['Version.latest', Rails.configuration.x.git.commit_version]
   end
 
   def setup_id
