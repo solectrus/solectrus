@@ -16,9 +16,7 @@
     = render Nav::Sub::Component.new do |c|
       = c.items nav_items
 
-.flex-auto.flex.flex-wrap.gap-5.lg:flex-nowrap[
-  data= (timeframe.now? && { controller: 'refresh', 'refresh-field-value': field })
-]
+.flex-auto.flex.flex-wrap.gap-5.lg:flex-nowrap data= @stimulus_data
   - stats_params = permitted_params.to_hash.symbolize_keys
   = turbo_frame_tag 'stats',
                     src: stats_path(stats_params),

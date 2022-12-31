@@ -6,7 +6,6 @@ class HomeController < ApplicationController
       redirect_to root_path(field: 'inverter_power', timeframe: 'now')
     end
 
-    raise ActionController::RoutingError, 'Not Found' if timeframe.out_of_range?
     set_meta_tags title: helpers.title,
                   description: 'Solarstrom aus der Photovoltaik-Anlage',
                   keywords: 'photovoltaik, strom, solar, energiewende',
@@ -19,6 +18,19 @@ class HomeController < ApplicationController
                     type: 'website',
                     image: '/og-image.png',
                   }
+
+    @stimulus_data =
+      timeframe.current? &&
+        {
+          controller: 'refresh',
+          'refresh-field-value': field,
+          'refresh-interval-value': (timeframe.now? ? 5.seconds : 5.minutes),
+          'refresh-reload-chart-value': !timeframe.now?,
+          'refresh-next-path-value':
+            root_path(field:, timeframe: timeframe.next(force: true)),
+          'refresh-boundary-value':
+            timeframe.next_date(force: true)&.to_time&.iso8601,
+        }
   end
 
   private

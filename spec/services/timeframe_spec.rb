@@ -100,9 +100,13 @@ describe Timeframe do
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
     end
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
   end
 
-  context 'when string is a day' do
+  context 'when string is a day in the past' do
     let(:string) { '2022-05-13' }
 
     it 'returns the correct id' do
@@ -161,6 +165,10 @@ describe Timeframe do
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
     end
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
   end
 
   context 'when string is first day of the year' do
@@ -171,7 +179,15 @@ describe Timeframe do
     end
   end
 
-  context 'when string is a week' do
+  context 'when string is today' do
+    let(:string) { '2022-10-13' }
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
+  end
+
+  context 'when string is a week in the past' do
     let(:string) { '2022-W19' }
 
     it 'returns the correct id' do
@@ -229,6 +245,18 @@ describe Timeframe do
 
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
+    end
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+  end
+
+  context 'when string is current week' do
+    let(:string) { '2022-W41' }
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
     end
   end
 
@@ -327,6 +355,18 @@ describe Timeframe do
     it 'returns the correct previous' do
       expect(decoder.previous).to eq('2019-05')
     end
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+  end
+
+  context 'when string is current month' do
+    let(:string) { '2022-10' }
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
   end
 
   context 'when string is a year' do
@@ -387,6 +427,18 @@ describe Timeframe do
 
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
+    end
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+  end
+
+  context 'when string is current year' do
+    let(:string) { '2022' }
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
     end
   end
 
@@ -460,6 +512,10 @@ describe Timeframe do
 
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
+    end
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
     end
   end
 

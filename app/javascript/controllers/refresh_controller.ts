@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { FrameElement } from '@hotwired/turbo';
+import * as Turbo from '@hotwired/turbo';
 import { Chart } from 'chart.js';
 
 export default class extends Controller {
@@ -14,13 +14,31 @@ export default class extends Controller {
   declare readonly chartTargets: HTMLCanvasElement[];
 
   declare readonly hasStatsTarget: boolean;
-  declare readonly statsTarget: FrameElement;
-  declare readonly statsTargets: FrameElement[];
+  declare readonly statsTarget: Turbo.FrameElement;
+  declare readonly statsTargets: Turbo.FrameElement[];
 
   static values = {
+    // Field to display in the chart
     field: String,
+
+    // Refresh interval in seconds
+    interval: { type: Number, default: 5 },
+
+    // Should the chart be reloaded when the page is reloaded?
+    // If false, the chart will be updated by adding a new point
+    reloadChart: { type: Boolean, default: false },
+
+    // Path to the next page
+    nextPath: String,
+
+    // After this time (ISO 8601 decoded), nextPath will be loaded instead of the current page
+    boundary: String,
   };
   declare readonly fieldValue: string;
+  declare readonly intervalValue: number;
+  declare readonly reloadChartValue: boolean;
+  declare readonly nextPathValue: string;
+  declare readonly boundaryValue: string;
 
   private interval: ReturnType<typeof setInterval> | undefined;
 
@@ -50,15 +68,27 @@ export default class extends Controller {
     this.stopLoop();
 
     this.interval = setInterval(async () => {
+      // Move to next page if boundary is reached
+      if (
+        this.boundaryValue &&
+        this.nextPathValue &&
+        new Date() > new Date(this.boundaryValue)
+      ) {
+        Turbo.visit(this.nextPathValue);
+        return;
+      }
+
+      // Otherwise, just reload the frame
       try {
-        await this.reloadFrame({ chart: false });
+        await this.reloadFrame({ chart: this.reloadChartValue });
       } catch (error) {
         console.log(error);
         // Ignore error
       }
 
-      this.updateChart();
-    }, 5000);
+      // If no new chart has been loaded, add a new point to the existing diagram
+      if (!this.reloadChartValue) this.addPointToChart();
+    }, this.intervalValue * 1000);
   }
 
   stopLoop() {
@@ -87,7 +117,7 @@ export default class extends Controller {
     }
   }
 
-  updateChart() {
+  addPointToChart() {
     if (!this.hasCurrentTarget) return;
     if (!this.currentValue) return;
     if (!this.chart) return;
