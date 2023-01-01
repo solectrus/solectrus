@@ -30,7 +30,7 @@ class Top10Chart::Component < ViewComponent::Base
   end
 
   def percent(record)
-    (100 * record[:value] / maximum).round(1)
+    (record[:value] * 100 / maximum).round(1)
   end
 
   def text_classes(record)
