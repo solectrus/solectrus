@@ -79,4 +79,4 @@ bin/yarn lint
 
 ## License
 
-Copyright (c) 2020-2022 Georg Ledermann, released under the AGPL-3.0 License
+Copyright (c) 2020-2023 Georg Ledermann, released under the AGPL-3.0 License
