@@ -44,7 +44,7 @@ class Calculator::Base
   def inverter_power_percent
     return 0 if total_plus.nan? || total_plus.zero?
 
-    (100.0 * inverter_power / total_plus).round(1)
+    (inverter_power * 100.0 / total_plus).round(1)
   end
 
   # Grid
@@ -62,13 +62,13 @@ class Calculator::Base
   def grid_power_plus_percent
     return 0 if total_plus.nan? || total_plus.zero?
 
-    (100.0 * grid_power_plus / total_plus).round(1)
+    (grid_power_plus * 100.0 / total_plus).round(1)
   end
 
   def grid_power_minus_percent
     return 0 if total_minus.nan? || total_minus.zero?
 
-    (100.0 * grid_power_minus / total_minus).round(1)
+    (grid_power_minus * 100.0 / total_minus).round(1)
   end
 
   # House
@@ -90,13 +90,13 @@ class Calculator::Base
   def consumption_quote
     return 0.0 if inverter_power.zero?
 
-    [100.0 * consumption_alt / inverter_power, 0.0].max.round(1)
+    [consumption_alt * 100.0 / inverter_power, 0.0].max.round(1)
   end
 
   def grid_quote
     return if consumption.zero?
 
-    [100.0 * grid_power_plus / consumption, 100].min
+    [grid_power_plus * 100.0 / consumption, 100].min
   end
 
   def autarky
@@ -108,7 +108,7 @@ class Calculator::Base
   def house_power_percent
     return 0 if total_minus.nan? || total_minus.zero?
 
-    (100.0 * house_power / total_minus).round(1)
+    (house_power * 100.0 / total_minus).round(1)
   end
 
   # Wallbox
@@ -116,7 +116,7 @@ class Calculator::Base
   def wallbox_charge_power_percent
     return 0 if total_minus.nan? || total_minus.zero?
 
-    (100.0 * wallbox_charge_power / total_minus).round(1)
+    (wallbox_charge_power * 100.0 / total_minus).round(1)
   end
 
   # Battery
@@ -136,13 +136,13 @@ class Calculator::Base
   def bat_power_minus_percent
     return 0 if total_plus.nan? || total_plus.zero?
 
-    (100.0 * bat_power_minus / total_plus).round(1)
+    (bat_power_minus * 100.0 / total_plus).round(1)
   end
 
   def bat_power_plus_percent
     return 0 if total_minus.nan? || total_minus.zero?
 
-    (100.0 * bat_power_plus / total_minus).round(1)
+    (bat_power_plus * 100.0 / total_minus).round(1)
   end
 
   # Total
