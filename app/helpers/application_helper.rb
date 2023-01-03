@@ -13,7 +13,7 @@ module ApplicationHelper
         href: prices_path,
         alignment: :right,
       },
-      { name: t('layout.about'), href: about_path },
+      { name: t('layout.about'), href: 'https://solectrus.de' },
       session_item,
     ]
   end
