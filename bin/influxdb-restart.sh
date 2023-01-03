@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Start InfluxDB via Docker
-# Taken from https://github.com/influxdata/influxdb-client-ruby/blob/v1.12.0/bin/influxdb-restart.sh
+# Taken from https://github.com/influxdata/influxdb-client-ruby/blob/v2.9.0/bin/influxdb-restart.sh
 
 #
 # The MIT License
@@ -27,7 +27,7 @@
 
 set -e
 
-DEFAULT_INFLUXDB_V2_VERSION="2.5-alpine"
+DEFAULT_INFLUXDB_V2_VERSION="latest"
 INFLUXDB_V2_VERSION="${INFLUXDB_V2_VERSION:-$DEFAULT_INFLUXDB_V2_VERSION}"
 INFLUXDB_V2_IMAGE=influxdb:${INFLUXDB_V2_VERSION}
 
@@ -39,10 +39,10 @@ docker network rm influx_network || true
 docker network create -d bridge influx_network --subnet 192.168.0.0/24 --gateway 192.168.0.1
 
 #
-# InfluxDB 2.0
+# InfluxDB 2.x
 #
 echo
-echo "Restarting InfluxDB 2.0 [${INFLUXDB_V2_IMAGE}] ... "
+echo "Restarting InfluxDB 2.x [${INFLUXDB_V2_IMAGE}] ... "
 echo
 
 docker pull "${INFLUXDB_V2_IMAGE}" || true

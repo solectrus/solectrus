@@ -1,20 +1,6 @@
 - turbo_exempts_page_from_cache
 - content_for :full_height, true
 
-ruby:
-  set_meta_tags title:,
-                description: 'Solarstrom aus der Photovoltaik-Anlage',
-                keywords: 'photovoltaik, strom, solar, energiewende',
-                noindex: timeframe?,
-                og: {
-                  title:       :title,
-                  description: :description,
-                  site_name:   :site,
-                  url:         request.url,
-                  type:        'website',
-                  image:       '/og-image.png'
-                }
-
 - content_for :sub_nav do
   .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-5
     .mx-auto.lg:mx-0.hidden.lg:block

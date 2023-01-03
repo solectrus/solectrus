@@ -50,12 +50,17 @@ class Nav::Top::Component < ViewComponent::Base
 
     def call(icon: @icon)
       link_to @href,
+              target:,
               class: css_classes,
               title: icon && name,
               data: @data.merge(controller: icon && 'tippy'),
               'aria-current': current? ? 'page' : nil do
         icon ? tag.i(class: "fa fa-#{@icon} fa-lg") : name
       end
+    end
+
+    def target
+      @href.start_with?('http') ? '_blank' : nil
     end
   end
 end

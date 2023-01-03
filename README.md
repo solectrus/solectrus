@@ -61,7 +61,7 @@ After preparing development environment (see above):
 
 ```bash
 bin/influxdb-restart.sh
-bin/rspec
+DISABLE_SPRING=1 bin/rspec
 open coverage/index.html
 ```
 
@@ -79,4 +79,4 @@ bin/yarn lint
 
 ## License
 
-Copyright (c) 2020-2022 Georg Ledermann, released under the AGPL-3.0 License
+Copyright (c) 2020-2023 Georg Ledermann, released under the AGPL-3.0 License

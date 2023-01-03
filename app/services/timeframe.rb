@@ -161,10 +161,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     case id
     when :now
       Time.current
-    when :day
+    when :day, :week
       Date.parse(string)
-    when :week
-      Date.commercial(*string.split('-W').map(&:to_i))
     when :month
       Date.parse("#{string}-01")
     when :year
@@ -224,7 +222,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   FORMAT = {
     now: 'Heute, %H:%M Uhr',
     day: '%Y-%m-%d',
-    week: '%Y-W%V',
+    week: '%G-W%V',
     month: '%Y-%m',
     year: '%Y',
   }.freeze

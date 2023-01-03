@@ -163,6 +163,14 @@ describe Timeframe do
     end
   end
 
+  context 'when string is first day of the year' do
+    let(:string) { '2022-01-01' }
+
+    it 'returns the corresponding_week with week-based year' do
+      expect(decoder.corresponding_week).to eq('2021-W52')
+    end
+  end
+
   context 'when string is a week' do
     let(:string) { '2022-W19' }
 

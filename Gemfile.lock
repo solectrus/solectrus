@@ -92,7 +92,7 @@ GEM
     crack (0.4.5)
       rexml
     crass (1.0.6)
-    css_parser (1.12.0)
+    css_parser (1.13.0)
       addressable
     date (3.3.3)
     diff-lcs (1.5.0)
@@ -101,8 +101,8 @@ GEM
     dotenv-rails (2.8.1)
       dotenv (= 2.8.1)
       railties (>= 3.2)
-    dry-cli (0.7.0)
-    erubi (1.11.0)
+    dry-cli (1.0.0)
+    erubi (1.12.0)
     ffi (1.15.5)
     formatador (1.1.0)
     globalid (1.0.0)
@@ -133,8 +133,8 @@ GEM
       concurrent-ruby (~> 1.0)
     influxdb-client (2.9.0)
     json (2.6.3)
-    launchy (2.5.0)
-      addressable (~> 2.7)
+    launchy (2.5.2)
+      addressable (~> 2.8)
     listen (3.7.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -148,7 +148,7 @@ GEM
     loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    lookbook (1.4.4)
+    lookbook (1.4.5)
       actioncable
       activemodel
       css_parser
@@ -173,11 +173,11 @@ GEM
       actionpack (>= 3.2.0, < 7.1)
     method_source (1.0.0)
     mini_mime (1.1.2)
-    mini_portile2 (2.8.0)
-    minitest (5.16.3)
+    mini_portile2 (2.8.1)
+    minitest (5.17.0)
     msgpack (1.6.0)
     nenv (0.3.0)
-    net-imap (0.3.2)
+    net-imap (0.3.4)
       date
       net-protocol
     net-pop (0.1.2)
@@ -189,6 +189,8 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.13.10)
       mini_portile2 (~> 2.8.0)
+      racc (~> 1.4)
+    nokogiri (1.13.10-aarch64-linux)
       racc (~> 1.4)
     nokogiri (1.13.10-x86_64-linux)
       racc (~> 1.4)
@@ -203,18 +205,21 @@ GEM
       syntax_tree (>= 2.7.1)
       syntax_tree-haml (>= 1.1.0)
       syntax_tree-rbs (>= 0.2.0)
-    prettier_print (1.1.0)
+    prettier_print (1.2.0)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
     public_suffix (5.0.1)
-    puma (5.6.5)
+    puma (6.0.2)
       nio4r (~> 2.0)
-    racc (1.6.1)
-    rack (2.2.4)
+    racc (1.6.2)
+    rack (2.2.5)
     rack-brotli (1.2.0)
       brotli (>= 0.1.7)
       rack (>= 1.4)
+    rack-canonical-host (1.1.0)
+      addressable (> 0, < 3)
+      rack (>= 1.0.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
     rack-proxy (0.7.4)
@@ -252,7 +257,7 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
-    rbs (2.8.1)
+    rbs (2.8.2)
     redcarpet (3.5.1)
     redis (5.0.5)
       redis-client (>= 0.9.0)
@@ -286,27 +291,29 @@ GEM
       rspec-mocks (~> 3.11)
       rspec-support (~> 3.11)
     rspec-support (3.12.0)
-    rubocop (1.40.0)
+    rubocop (1.42.0)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.1.2.1)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.23.0, < 2.0)
+      rubocop-ast (>= 1.24.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 3.0)
-    rubocop-ast (1.24.0)
+    rubocop-ast (1.24.1)
       parser (>= 3.1.1.0)
-    rubocop-performance (1.15.1)
+    rubocop-performance (1.15.2)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
-    rubocop-rails (2.17.3)
+    rubocop-rails (2.17.4)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
     rubocop-rspec (2.16.0)
       rubocop (~> 1.33)
+    rubocop-thread_safety (0.4.4)
+      rubocop (>= 0.53.0)
     ruby-progressbar (1.11.0)
     rubyzip (2.3.2)
     selenium-webdriver (4.7.1)
@@ -316,7 +323,7 @@ GEM
     shellany (0.0.1)
     shoulda-matchers (5.3.0)
       activesupport (>= 5.2.0)
-    simplecov (0.21.2)
+    simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
       simplecov_json_formatter (~> 0.1)
@@ -337,12 +344,12 @@ GEM
       spring (>= 0.9.1)
     stimulus-rails (1.2.1)
       railties (>= 6.0.0)
-    syntax_tree (5.0.1)
-      prettier_print (>= 1.1.0)
-    syntax_tree-haml (2.0.0)
+    syntax_tree (5.1.0)
+      prettier_print (>= 1.2.0)
+    syntax_tree-haml (3.0.0)
       haml (>= 5.2, != 6.0.0)
       prettier_print (>= 1.0.0)
-      syntax_tree (>= 4.0.0)
+      syntax_tree (>= 5.0.1)
     syntax_tree-rbs (0.5.1)
       prettier_print
       rbs
@@ -359,15 +366,15 @@ GEM
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.3.0)
     vcr (6.1.0)
-    view_component (2.79.0)
-      activesupport (>= 5.0.0, < 8.0)
+    view_component (2.80.0)
+      activesupport (>= 5.2.0, < 8.0)
       concurrent-ruby (~> 1.0)
       method_source (~> 1.0)
     vite_rails (3.0.13)
       railties (>= 5.1, < 8)
       vite_ruby (~> 3.0, >= 3.2.2)
-    vite_ruby (3.2.13)
-      dry-cli (~> 0.7.0)
+    vite_ruby (3.2.14)
+      dry-cli (>= 0.7, < 2)
       rack-proxy (~> 0.6, >= 0.6.1)
       zeitwerk (~> 2.2)
     web-console (4.2.0)
@@ -395,8 +402,9 @@ GEM
     zeitwerk (2.6.6)
 
 PLATFORMS
+  aarch64-linux-musl
   ruby
-  x86_64-linux
+  x86_64-linux-musl
 
 DEPENDENCIES
   bootsnap
@@ -412,8 +420,9 @@ DEPENDENCIES
   meta-tags
   pg (~> 1.1)
   prettier
-  puma (~> 5.0)
+  puma (~> 6)
   rack-brotli
+  rack-canonical-host
   rack-cors
   rails (~> 7.0.4)
   redis
@@ -423,6 +432,7 @@ DEPENDENCIES
   rubocop-performance
   rubocop-rails
   rubocop-rspec
+  rubocop-thread_safety
   selenium-webdriver
   shoulda-matchers
   simplecov
@@ -443,4 +453,4 @@ RUBY VERSION
    ruby 3.1.3p185
 
 BUNDLED WITH
-   2.3.26
+   2.4.2

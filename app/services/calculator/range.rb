@@ -25,7 +25,7 @@ class Calculator::Range < Calculator::Base
   def forecast_quality
     return if watt.zero?
 
-    (100 * inverter_power / watt) - 100
+    (inverter_power * 100 / watt) - 100
   end
 
   def paid
@@ -75,7 +75,7 @@ class Calculator::Range < Calculator::Base
     return unless savings && battery_savings
     return if savings.zero?
 
-    (100.0 * battery_savings / savings).round
+    (battery_savings * 100.0 / savings).round
   end
 
   private

@@ -27,6 +27,4 @@ Rails.application.routes.draw do
   scope :settings do
     resources :prices
   end
-
-  get '/about' => 'pages#about', :as => :about
 end

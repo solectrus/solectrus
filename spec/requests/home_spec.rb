@@ -1,4 +1,4 @@
-describe 'Home', vcr: { cassette_name: 'github' } do
+describe 'Home', vcr: { cassette_name: 'version' } do
   describe 'GET /' do
     context 'without params' do
       it 'redirects' do

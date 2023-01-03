@@ -7,6 +7,18 @@ class HomeController < ApplicationController
     end
 
     raise ActionController::RoutingError, 'Not Found' if timeframe.out_of_range?
+    set_meta_tags title: helpers.title,
+                  description: 'Solarstrom aus der Photovoltaik-Anlage',
+                  keywords: 'photovoltaik, strom, solar, energiewende',
+                  noindex: timeframe?,
+                  og: {
+                    title: :title,
+                    description: :description,
+                    site_name: :site,
+                    url: request.url,
+                    type: 'website',
+                    image: '/og-image.png',
+                  }
   end
 
   private

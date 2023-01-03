@@ -37,10 +37,12 @@ header.bg-indigo-600.pb-32
         - items.select(&:right?).each do |item|
           = item.call icon: false
 
-        .px-2.py-5.text-white.text-xs.text-center
-          = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
-                                              commit_time: Rails.configuration.x.git.commit_time,
-                                              github_url: Rails.configuration.x.git.home)
+      .flex.justify-between.items-center.text-indigo-100.text-xs.px-3.py-4
+        = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
+                                            commit_time: Rails.configuration.x.git.commit_time,
+                                            github_url: Rails.configuration.x.git.home)
+
+        = render AuthorLogo::Component.new
 
   - if sub_nav
     .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8

@@ -19,7 +19,7 @@ gem 'stimulus-rails'
 gem 'pg', '~> 1.1'
 
 # Puma is a simple, fast, threaded, and highly parallel HTTP 1.1 server for Ruby/Rack applications (https://puma.io)
-gem 'puma', '~> 5.0'
+gem 'puma', '~> 6'
 
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
 gem 'redis'
@@ -33,6 +33,9 @@ gem 'slim-rails'
 # Middleware for enabling Cross-Origin Resource Sharing in Rack apps (https://github.com/cyu/rack-cors)
 gem 'rack-cors', require: 'rack/cors'
 
+# Rack middleware for defining a canonical host name. (https://github.com/tylerhunt/rack-canonical-host)
+gem 'rack-canonical-host'
+
 # Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
 gem 'lograge'
 
@@ -41,9 +44,6 @@ gem 'influxdb-client', '>= 2.9.0'
 
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
-
-# A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
-gem 'lookbook'
 
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
@@ -76,6 +76,9 @@ group :development, :test do
   # Code style checking for RSpec files (https://github.com/rubocop/rubocop-rspec)
   gem 'rubocop-rspec', require: false
 
+  # Thread-safety checks via static analysis (https://github.com/covermymeds/rubocop-thread_safety)
+  gem 'rubocop-thread_safety', require: false
+
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
 end
@@ -98,6 +101,9 @@ group :development do
 
   # prettier plugin for the Ruby programming language (https://github.com/prettier/plugin-ruby#readme)
   gem 'prettier'
+
+  # A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
+  gem 'lookbook'
 end
 
 group :test do

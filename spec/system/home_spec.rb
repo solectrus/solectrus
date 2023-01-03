@@ -1,4 +1,4 @@
-describe 'Home', js: true, vcr: { cassette_name: 'github' } do
+describe 'Home', js: true, vcr: { cassette_name: 'version' } do
   before do
     Price.electricity.create! starts_at:
                                 Rails.configuration.x.installation_date,
