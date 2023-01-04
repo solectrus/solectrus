@@ -5,10 +5,10 @@
 
 # Solectrus
 
-Photovoltaic Dashboard, read here about the motivation (in german):
+Photovoltaic Dashboard, read here about the motivation (in German):
 https://ledermann.dev/blog/2021/02/03/photovoltaik-dashboard-als-web-applikation/
 
-![Screenshot](screenshot.png)
+![Screenshot](screenshot.webp)
 
 ## Installation
 
