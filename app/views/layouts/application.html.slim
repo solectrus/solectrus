@@ -3,12 +3,12 @@ html lang="de"
   head
     meta charset="utf-8"
 
-    = display_meta_tags site: 'Solectrus'
+    = display_meta_tags site: 'SOLECTRUS'
 
     meta name="viewport" content="width=device-width,initial-scale=1"
-    meta name="apple-mobile-web-app-title" content="Solectrus"
+    meta name="apple-mobile-web-app-title" content="SOLECTRUS"
     meta name="apple-mobile-web-app-capable" content="yes"
-    meta name="application-name" content="Solectrus"
+    meta name="application-name" content="SOLECTRUS"
     meta name="theme-color" content="#a5b4fc"
     meta name="version" content= Rails.configuration.x.git.commit_version
     meta name="date" content= Rails.configuration.x.git.commit_time
@@ -74,7 +74,7 @@ html lang="de"
 
     footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
       div
-        span.tracking-wider.uppercase Solectrus
+        span.tracking-wider SOLECTRUS
         = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
                                             commit_time: Rails.configuration.x.git.commit_time,
                                             github_url: Rails.configuration.x.git.home)

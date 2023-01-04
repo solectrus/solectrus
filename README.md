@@ -3,7 +3,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/10d74fb7665c045afcf4/test_coverage)](https://codeclimate.com/repos/5fe98897e985f4018b001e7d/test_coverage)
 [![wakatime](https://wakatime.com/badge/user/697af4f5-617a-446d-ba58-407e7f3e0243/project/ce8d6e54-7457-42e5-94a3-33a9d4021d45.svg)](https://wakatime.com/badge/user/697af4f5-617a-446d-ba58-407e7f3e0243/project/ce8d6e54-7457-42e5-94a3-33a9d4021d45)
 
-# Solectrus
+# SOLECTRUS
 
 Photovoltaic Dashboard, read here about the motivation (in German):
 https://ledermann.dev/blog/2021/02/03/photovoltaik-dashboard-als-web-applikation/
@@ -12,7 +12,7 @@ https://ledermann.dev/blog/2021/02/03/photovoltaik-dashboard-als-web-applikation
 
 ## Installation
 
-For self-hosting Solectrus, please look at https://github.com/solectrus/hosting
+For self-hosting SOLECTRUS, please look at https://github.com/solectrus/hosting
 
 ## Development
 
