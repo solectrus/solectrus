@@ -217,9 +217,6 @@ GEM
     rack-brotli (1.2.0)
       brotli (>= 0.1.7)
       rack (>= 1.4)
-    rack-canonical-host (1.1.0)
-      addressable (> 0, < 3)
-      rack (>= 1.0.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
     rack-proxy (0.7.4)
@@ -422,7 +419,6 @@ DEPENDENCIES
   prettier
   puma (~> 6)
   rack-brotli
-  rack-canonical-host
   rack-cors
   rails (~> 7.0.4)
   redis
