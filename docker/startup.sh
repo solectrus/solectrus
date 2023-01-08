@@ -1,6 +1,6 @@
 #! /bin/sh
 
-echo "Starting Solectrus..."
+echo "Starting SOLECTRUS..."
 echo "Version: $COMMIT_VERSION - $COMMIT_TIME"
 echo "----------------"
 

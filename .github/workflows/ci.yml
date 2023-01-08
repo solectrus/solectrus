@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - main
     tags:
       - v*
   pull_request:
@@ -50,7 +49,7 @@ jobs:
           bundler-cache: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3.5.1
+        uses: actions/setup-node@v3.6.0
         with:
           cache: yarn
           node-version-file: 'package.json'

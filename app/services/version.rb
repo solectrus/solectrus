@@ -65,6 +65,6 @@ class Version
   end
 
   def user_agent
-    "Solectrus/#{Rails.configuration.x.git.commit_version} (#{setup_id})"
+    "SOLECTRUS/#{Rails.configuration.x.git.commit_version} (#{setup_id})"
   end
 end

@@ -1,7 +1,7 @@
 {
-  "name": "Solectrus",
-  "short_name": "Solectrus",
-  "description": "Photovoltaics Dashboard",
+  "name": "SOLECTRUS",
+  "short_name": "SOLECTRUS",
+  "description": "Photovoltaic Dashboard",
   "lang": "de",
   "start_url": "/",
   "background_color": "#4f46e5",

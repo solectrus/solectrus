@@ -6,7 +6,7 @@ RUN rm -r package.json postcss.config.js tailwind.config.js vite.config.ts tscon
 
 FROM ghcr.io/ledermann/rails-base-final:3.1.3-alpine
 LABEL maintainer="georg@ledermann.dev"
-LABEL org.opencontainers.image.description="Solectrus Photovoltaic Dashboard"
+LABEL org.opencontainers.image.description="SOLECTRUS Photovoltaic Dashboard"
 
 # Workaround to trigger Builder's ONBUILDs to finish:
 COPY --from=Builder /etc/alpine-release /tmp/dummy
