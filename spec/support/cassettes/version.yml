@@ -10,7 +10,7 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - Solectrus/v0.7.4-53-ga120828 (1672469276)
+      - SOLECTRUS/v0.7.5-20-g34fab60 (1673165820)
   response:
     status:
       code: 200
@@ -21,9 +21,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 31 Dec 2022 06:47:56 GMT
+      - Sun, 08 Jan 2023 08:17:01 GMT
       Etag:
-      - W/"9766b8c955144aaa3d4c53cc0ad7a789"
+      - W/"d84be0a10b32baffaa108d4489d3b715"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -39,13 +39,13 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - b7c3f16e-b436-4218-9e5c-0d980dbbf002
+      - f979437a-06bb-4636-90f7-3092aa8cfcc9
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"version":"v0.7.4"}'
-  recorded_at: Sat, 31 Dec 2022 06:47:56 GMT
+      string: '{"version":"v0.7.5"}'
+  recorded_at: Sun, 08 Jan 2023 08:17:01 GMT
 recorded_with: VCR 6.1.0
