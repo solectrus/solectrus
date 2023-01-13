@@ -74,7 +74,11 @@ html lang="de"
 
     footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
       div
-        span.tracking-wider SOLECTRUS
+        = link_to 'https://solectrus.de',
+                  class: 'tracking-wider',
+                  target: '_blank',
+                  rel: 'noopener' do
+          | SOLECTRUS.de
         = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
                                             commit_time: Rails.configuration.x.git.commit_time,
                                             github_url: Rails.configuration.x.git.home)
