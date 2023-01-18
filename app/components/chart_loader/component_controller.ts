@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { debounce } from 'throttle-debounce';
 
 import {
   Chart,
@@ -53,10 +54,30 @@ export default class extends Controller<HTMLCanvasElement> {
 
   connect() {
     this.process();
+
+    window.addEventListener(
+      'resize',
+      debounce(100, this.handleResize.bind(this)),
+    );
   }
 
   disconnect() {
+    window.removeEventListener('resize', this.handleResize.bind(this));
+
     if (this.chart) this.chart.destroy();
+  }
+
+  handleResize() {
+    // Disable animation when resizing
+    document.body.classList.add('animation-stopper');
+
+    if (this.chart) this.chart.destroy();
+    this.process();
+
+    setTimeout(() => {
+      // Re-enable animation
+      document.body.classList.remove('animation-stopper');
+    }, 200);
   }
 
   async process() {
