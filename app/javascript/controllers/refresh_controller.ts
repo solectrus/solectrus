@@ -68,7 +68,7 @@ export default class extends Controller {
     this.stopLoop();
 
     this.interval = setInterval(async () => {
-      // Move to next page if boundary is reached
+      // Move to next page when boundary is reached
       if (
         this.boundaryValue &&
         this.nextPathValue &&
@@ -86,7 +86,7 @@ export default class extends Controller {
         // Ignore error
       }
 
-      // If no new chart has been loaded, add a new point to the existing diagram
+      // When no new chart has been loaded, add a new point to the existing diagram
       if (!this.reloadChartValue) this.addPointToChart();
     }, this.intervalValue * 1000);
   }

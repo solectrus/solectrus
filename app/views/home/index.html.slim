@@ -25,7 +25,7 @@
       = render Timeframe::Component.new(timeframe:)
 
 - else
-  .flex-auto.flex.flex-wrap.gap-5.lg:flex-nowrap data= @stimulus_data
+  .flex-auto.flex.flex-wrap.gap-5.lg:flex-nowrap data= refresh_options
     - stats_params = permitted_params.to_hash.symbolize_keys
     = turbo_frame_tag 'stats',
                       src: stats_path(stats_params),
