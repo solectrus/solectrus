@@ -25,5 +25,89 @@ describe 'Home', vcr: { cassette_name: 'version' } do
         expect(response).to have_http_status(:ok)
       end
     end
+
+    context 'when timeframe is in the future' do
+      it 'renders for day' do
+        get root_path(
+              timeframe: (Date.current + 2.days).strftime('%Y-%m-%d'),
+              field: 'house_power',
+            )
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'renders for week' do
+        get root_path(
+              field: 'house_power',
+              timeframe: (Date.current + 1.week).strftime('%Y-W%V'),
+            )
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'renders for month' do
+        get root_path(
+              field: 'house_power',
+              timeframe: (Date.current + 1.month).strftime('%Y-%m'),
+            )
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'renders for year' do
+        get root_path(
+              field: 'house_power',
+              timeframe: (Date.current + 1.year).strftime('%Y'),
+            )
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when timeframe is before installation date' do
+      it 'renders for day' do
+        get root_path(
+              field: 'house_power',
+              timeframe:
+                (
+                  Rails.configuration.x.installation_date.beginning_of_year -
+                    1.day
+                ).strftime('%Y-%m-%d'),
+            )
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'renders for week' do
+        get root_path(
+              field: 'house_power',
+              timeframe:
+                (
+                  Rails.configuration.x.installation_date.beginning_of_year -
+                    1.week
+                ).strftime('%Y-W%V'),
+            )
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'renders for month' do
+        get root_path(
+              field: 'house_power',
+              timeframe:
+                (
+                  Rails.configuration.x.installation_date.beginning_of_year -
+                    1.month
+                ).strftime('%Y-%m'),
+            )
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'renders for year' do
+        get root_path(
+              field: 'house_power',
+              timeframe:
+                (
+                  Rails.configuration.x.installation_date.beginning_of_year -
+                    1.year
+                ).strftime('%Y'),
+            )
+        expect(response).to have_http_status(:ok)
+      end
+    end
   end
 end

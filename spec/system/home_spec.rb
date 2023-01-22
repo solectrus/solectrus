@@ -81,62 +81,76 @@ describe 'Home', js: true, vcr: { cassette_name: 'version' } do
     expect(page).to have_text('2,5 kW')
     expect(page).to have_text('10,0 kW')
     expect(page).to have_text('8,0 kW')
+
+    expect(page).to have_css("[data-controller='refresh']")
   end
 
   def navigate_days
     click_on I18n.t('calculator.day')
     expect(page).to have_css('#tab-day')
     expect_time(Date.current, '%Y-%m-%d')
+    expect(page).to have_css("[data-controller='refresh']")
 
     click_prev
     expect(page).to have_css('#tab-day')
     expect_time(Date.yesterday, '%Y-%m-%d')
+    expect(page).not_to have_css("[data-controller='refresh']")
 
     click_next
     expect(page).to have_css('#tab-day')
     expect_time(Date.current, '%Y-%m-%d')
+    expect(page).to have_css("[data-controller='refresh']")
   end
 
   def navigate_weeks
     click_on I18n.t('calculator.week')
     expect(page).to have_css('#tab-week')
     expect_time(Date.current, '%G-W%V')
+    expect(page).to have_css("[data-controller='refresh']")
 
     click_prev
     expect(page).to have_css('#tab-week')
     expect_time(1.week.ago, '%G-W%V')
+    expect(page).not_to have_css("[data-controller='refresh']")
 
     click_next
     expect(page).to have_css('#tab-week')
     expect_time(Date.current, '%G-W%V')
+    expect(page).to have_css("[data-controller='refresh']")
   end
 
   def navigate_months
     click_on I18n.t('calculator.month')
     expect(page).to have_css('#tab-month')
     expect_time(Date.current, '%Y-%m')
+    expect(page).to have_css("[data-controller='refresh']")
 
     click_prev
     expect(page).to have_css('#tab-month')
     expect_time(1.month.ago, '%Y-%m')
+    expect(page).not_to have_css("[data-controller='refresh']")
 
     click_next
     expect(page).to have_css('#tab-month')
     expect_time(Date.current, '%Y-%m')
+    expect(page).to have_css("[data-controller='refresh']")
   end
 
   def navigate_years
     click_on I18n.t('calculator.year')
     expect(page).to have_css('#tab-year')
     expect_time(Date.current, '%Y')
+    expect(page).to have_css("[data-controller='refresh']")
 
     click_prev
     expect(page).to have_css('#tab-year')
     expect_time(1.year.ago, '%Y')
+    expect(page).not_to have_css("[data-controller='refresh']")
 
     click_next
     expect(page).to have_css('#tab-year')
     expect_time(Date.current, '%Y')
+    expect(page).to have_css("[data-controller='refresh']")
   end
 
   def navigate_all
@@ -145,6 +159,7 @@ describe 'Home', js: true, vcr: { cassette_name: 'version' } do
 
     expect(page).not_to have_xpath('.//a[contains(@rel, \'prev\')]')
     expect(page).not_to have_xpath('.//a[contains(@rel, \'next\')]')
+    expect(page).to have_css("[data-controller='refresh']")
   end
 
   def click_prev
