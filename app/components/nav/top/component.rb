@@ -52,8 +52,8 @@ class Nav::Top::Component < ViewComponent::Base
       link_to @href,
               target:,
               class: css_classes,
-              title: icon && name,
-              data: @data.merge(controller: icon && 'tippy'),
+              title: icon ? name : nil,
+              data: @data.merge(controller: icon ? 'tippy' : nil),
               'aria-current': current? ? 'page' : nil do
         icon ? tag.i(class: "fa fa-#{@icon} fa-lg") : name
       end

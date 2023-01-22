@@ -13,3 +13,9 @@
   height: 5px;
   background-color: #a5b4fc;
 }
+
+/* Allow animations to be disabled */
+.animation-stopper * {
+  animation: none !important;
+  transition: none !important;
+}

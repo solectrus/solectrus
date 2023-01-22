@@ -22,10 +22,10 @@
   - stats_params = permitted_params.to_hash.symbolize_keys
   = turbo_frame_tag 'stats',
                     src: stats_path(stats_params),
-                    class: 'w-full lg:w-1/2 flex-auto h-3/5 lg:h-auto flex',
+                    class: 'w-full lg:w-1/2 h-3/5 lg:h-auto flex',
                     target: '_top',
                     data: { refresh_target: 'stats' }  do
     .flex.justify-center.m-40
       = render Loading::Component.new
 
-  = turbo_frame_tag 'chart', class: 'w-full lg:w-1/2 flex-auto h-2/5 lg:h-auto flex'
+  = turbo_frame_tag 'chart', class: 'flex-auto h-2/5 lg:h-auto flex'

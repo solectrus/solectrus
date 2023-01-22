@@ -98,6 +98,7 @@ class ChartLoader::Component < ViewComponent::Base
                   day: 'eee',
                 },
                 tooltipFormat: 'eeee, dd.MM.yyyy',
+                round: 'day',
               },
               month: {
                 unit: 'day',
@@ -105,6 +106,7 @@ class ChartLoader::Component < ViewComponent::Base
                   day: 'd',
                 },
                 tooltipFormat: 'eeee, dd.MM.yyyy',
+                round: 'day',
               },
               year: {
                 unit: 'month',
@@ -112,6 +114,7 @@ class ChartLoader::Component < ViewComponent::Base
                   month: 'MMM',
                 },
                 tooltipFormat: 'MMMM yyyy',
+                round: 'month',
               },
               all: {
                 unit: 'year',
@@ -119,6 +122,7 @@ class ChartLoader::Component < ViewComponent::Base
                   year: 'yyyy',
                 },
                 tooltipFormat: 'yyyy',
+                round: 'year',
               },
             }[
               timeframe.id
