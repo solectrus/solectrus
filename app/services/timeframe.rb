@@ -130,24 +130,32 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def next(force: false)
+    date = next_date(force:)
+    return unless date
+
+    self.class.new date.strftime(format), min_date:, allowed_days_in_future:
+  end
+
+  def prev
+    date = prev_date
+    return unless date
+
+    self.class.new prev_date.strftime(format),
+                   min_date:,
+                   allowed_days_in_future:
+  end
+
   def next_date(force: false)
     return if id.in?(%i[now all])
 
     change(+1, force:)
   end
 
-  def next(force: false)
-    next_date(force:)&.strftime(format)
-  end
-
-  def previous_date
+  def prev_date
     return if id.in?(%i[now all])
 
     change(-1)
-  end
-
-  def previous
-    previous_date&.strftime(format)
   end
 
   def corresponding_day
@@ -166,13 +174,6 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     trimmed_ending.strftime(format(target_id: :year))
   end
 
-  private
-
-  # Ending, but not further than max_date and current date
-  def trimmed_ending
-    [ending, max_date, Date.current].compact.min
-  end
-
   def date
     case id
     when :now
@@ -184,6 +185,13 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :year
       Date.parse("#{string}-01-01")
     end
+  end
+
+  private
+
+  # Ending, but not further than max_date and current date
+  def trimmed_ending
+    [ending, max_date, Date.current].compact.min
   end
 
   def change(amount, force: false)

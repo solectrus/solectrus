@@ -1,7 +1,7 @@
 .flex.items-center.justify-between.space-x-4.w-full.lg:w-auto.text-base.text-gray-200.tracking-wider
   - if can_paginate?
-    - if timeframe.previous
-      = link_to root_path(field: params[:field], timeframe: timeframe.previous),
+    - if timeframe.prev
+      = link_to root_path(field: params[:field], timeframe: timeframe.prev),
                 class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'prev nofollow' do
         i.fas.fa-chevron-left.fa-lg
     - else

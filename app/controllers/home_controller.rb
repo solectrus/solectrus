@@ -22,6 +22,10 @@ class HomeController < ApplicationController
 
   private
 
+  def path_with_timeframe(timeframe)
+    url_for(permitted_params.merge(timeframe:, only_path: true))
+  end
+
   helper_method def nav_items
     [
       { name: t('calculator.now'), href: path_with_timeframe('now') },
@@ -43,24 +47,5 @@ class HomeController < ApplicationController
       },
       { name: t('calculator.all'), href: path_with_timeframe('all') },
     ]
-  end
-
-  helper_method def refresh_options
-    return unless timeframe.current?
-
-    {
-      controller: 'refresh',
-      'refresh-field-value': field,
-      'refresh-interval-value': (timeframe.now? ? 5.seconds : 5.minutes),
-      'refresh-reload-chart-value': !timeframe.now?,
-      'refresh-next-path-value':
-        root_path(field:, timeframe: timeframe.next(force: true)),
-      'refresh-boundary-value':
-        timeframe.next_date(force: true)&.to_time&.iso8601,
-    }
-  end
-
-  def path_with_timeframe(timeframe)
-    url_for(permitted_params.merge(timeframe:, only_path: true))
   end
 end
