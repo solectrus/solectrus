@@ -29,7 +29,7 @@ class StatsWithChart::Component < ViewComponent::Base
   def boundary
     return unless forced_next_timeframe
 
-    forced_next_timeframe.date.to_time.iso8601
+    forced_next_timeframe.date.beginning_of_day.iso8601
   end
 
   def forced_next_timeframe
