@@ -22,15 +22,15 @@ module CypressRails::InfluxDB
         )
       end
 
-    add_influx_point(name: 'Forecast', fields: { watt: 8000 }, time: 2.hour.ago)
-    add_influx_point(name: 'Forecast', fields: { watt: 9000 })
-    add_influx_point(
-      name: 'Forecast',
-      fields: {
-        watt: 7000,
-      },
-      time: 1.hour.since,
-    )
+    {
+      5.hours.ago => 3000,
+      2.hours.ago => 8000,
+      1.hour.ago => 9000,
+      1.hour.since => 7000,
+      4.hours.since => 4000,
+    }.each do |time, watt|
+      add_influx_point(name: 'Forecast', fields: { watt: }, time:)
+    end
   end
 
   def influx_purge
