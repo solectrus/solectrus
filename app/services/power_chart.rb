@@ -2,7 +2,10 @@ class PowerChart < Flux::Reader
   def call(timeframe, fill: false, interpolate: false)
     case timeframe.id
     when :now
-      chart_single start: '-60m', window: '5s', fill: true
+      chart_single start: 1.hour.ago,
+                   stop: 1.second.since,
+                   window: '5s',
+                   fill: true
     when :day
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,

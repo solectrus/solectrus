@@ -14,7 +14,7 @@ module InfluxHelper
     )
   end
 
-  def delete_influx_data(start: Time.zone.at(0), stop: Time.current)
+  def delete_influx_data(start: Time.zone.at(0), stop: 1.second.since)
     influx_client = Flux::Base.new.client
     delete_api = influx_client.create_delete_api
 
