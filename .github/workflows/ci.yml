@@ -75,8 +75,11 @@ jobs:
       - name: Setup PostgreSQL
         run: bin/rails db:create
 
-      - name: Run tests
+      - name: Run Unit tests with RSpec
         run: bin/rspec
+
+      - name: Run End-to-End tests with Cypress
+        run: bin/rake cypress:run
 
       - name: Send test coverage to CodeClimate
         uses: paambaati/codeclimate-action@v3.2.0
@@ -90,8 +93,11 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: Screenshots
-          path: tmp/capybara/
+          name: Artifacts
+          path: |
+            tmp/capybara/
+            tmp/cypress_screenshots/
+            tmp/cypress_videos/
           if-no-files-found: ignore
 
   build:

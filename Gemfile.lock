@@ -94,6 +94,9 @@ GEM
     crass (1.0.6)
     css_parser (1.14.0)
       addressable
+    cypress-rails (0.5.5)
+      puma (>= 3.8.0)
+      railties (>= 5.2.0)
     date (3.3.3)
     diff-lcs (1.5.0)
     docile (1.4.0)
@@ -410,6 +413,7 @@ DEPENDENCIES
   bootsnap
   capybara (>= 3.26)
   capybara-screenshot
+  cypress-rails
   dotenv-rails
   guard-rspec
   honeybadger

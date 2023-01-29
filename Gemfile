@@ -78,6 +78,9 @@ group :development, :test do
 
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
+
+  # Helps you write Cypress tests of your Rails app (https://github.com/testdouble/cypress-rails)
+  gem 'cypress-rails'
 end
 
 group :development do

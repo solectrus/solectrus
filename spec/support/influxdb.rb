@@ -25,5 +25,5 @@ end
 RSpec.configure do |config|
   config.include InfluxHelper
 
-  config.before { delete_influx_data }
+  config.after { delete_influx_data }
 end
