@@ -20,7 +20,6 @@ end
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
-require 'capybara-screenshot/rspec'
 require 'rspec/collection_matchers'
 require 'webmock/rspec'
 

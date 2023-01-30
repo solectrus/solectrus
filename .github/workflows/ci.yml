@@ -93,9 +93,8 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: Artifacts
+          name: Cypress artifacts
           path: |
-            tmp/capybara/
             tmp/cypress_screenshots/
             tmp/cypress_videos/
           if-no-files-found: ignore

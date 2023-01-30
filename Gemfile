@@ -110,15 +110,6 @@ group :test do
   # Capybara aims to simplify the process of integration testing Rack applications, such as Rails, Sinatra or Merb (https://github.com/teamcapybara/capybara)
   gem 'capybara', '>= 3.26'
 
-  # Automatically create snapshots when Cucumber steps fail with Capybara and Rails (http://github.com/mattheworiordan/capybara-screenshot)
-  gem 'capybara-screenshot'
-
-  # Selenium is a browser automation tool for automated testing of webapps and more (https://selenium.dev)
-  gem 'selenium-webdriver'
-
-  # Easy download and use of browser drivers. (https://github.com/titusfortner/webdrivers)
-  gem 'webdrivers'
-
   # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
   gem 'simplecov', require: false
 
