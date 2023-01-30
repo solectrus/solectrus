@@ -1,3 +1,8 @@
+if ENV['RAILS_ENV'] == 'test'
+  # Enable code coverage
+  require 'simplecov'
+end
+
 return unless Rails.env.test?
 return unless Rails.configuration.x.influx.host == 'localhost'
 
@@ -11,6 +16,9 @@ end
 
 CypressRails.hooks.before_server_start do
   # Called once, before either the transaction or the server is started
+
+  # Write coverage data to separate namespace so it can be merged with the RSpec coverage
+  SimpleCov.command_name 'Cypress'
 
   # Time traveling
   include ActiveSupport::Testing::TimeHelpers

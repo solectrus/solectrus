@@ -1,13 +1,5 @@
 require 'simplecov'
-SimpleCov.start 'rails' do
-  add_group 'Services', 'app/services'
-
-  add_filter 'app/jobs/application_job.rb'
-  add_filter 'app/mailers/application_mailer.rb'
-  add_filter 'app/channels/application_cable/connection.rb'
-  add_filter 'app/channels/application_cable/channel.rb'
-  add_filter 'app/models/application_record.rb'
-end
+SimpleCov.command_name 'RSpec'
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'

@@ -56,10 +56,10 @@ group :development, :test do
   gem 'dotenv-rails'
 
   # RSpec for Rails (https://github.com/rspec/rspec-rails)
-  gem 'rspec-rails'
+  gem 'rspec-rails', require: false
 
   # rspec-collection_matchers-1.2.0 (https://github.com/rspec/rspec-collection_matchers)
-  gem 'rspec-collection_matchers'
+  gem 'rspec-collection_matchers', require: false
 
   # Automatic Ruby code style checking tool. (https://github.com/rubocop/rubocop)
   gem 'rubocop', require: false
@@ -97,7 +97,7 @@ group :development do
   gem 'spring'
 
   # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
-  gem 'spring-commands-rspec'
+  gem 'spring-commands-rspec', require: false
 
   # prettier plugin for the Ruby programming language (https://github.com/prettier/plugin-ruby#readme)
   gem 'prettier'
