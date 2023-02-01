@@ -133,6 +133,6 @@ group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockup.interdiscipline.com)
   gem 'lockup'
 
-  # Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
+  # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger'
 end
