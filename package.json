@@ -35,7 +35,7 @@
     "@tailwindcss/typography": "^0.5.9",
     "@types/throttle-debounce": "^5.0.0",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
-    "@typescript-eslint/parser": "^5.49.0",
+    "@typescript-eslint/parser": "^5.50.0",
     "autoprefixer": "^10.4.13",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
