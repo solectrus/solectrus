@@ -5,7 +5,7 @@ class DateInterval
   end
   attr_reader :starts_at, :ends_at
 
-  def price_sections # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  def price_sections # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
     return @price_sections if @price_sections
 
     @price_sections = []
@@ -28,7 +28,11 @@ class DateInterval
       end
     end
 
-    normalized_sections(@price_sections)
+    normalized_sections(@price_sections.presence || default)
+  end
+
+  def default
+    [{ starts_at:, ends_at: }]
   end
 
   private

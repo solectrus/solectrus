@@ -26,8 +26,10 @@ describe DateInterval do
       let(:starts_at) { Date.new(2020, 1, 1) }
       let(:ends_at) { Date.new(2020, 12, 31) }
 
-      it 'returns blank sections' do
-        is_expected.to eq([])
+      it 'returns one section with null values' do
+        is_expected.to eq(
+          [{ starts_at:, ends_at:, electricity: 0.0, feed_in: 0.0 }],
+        )
       end
     end
 
