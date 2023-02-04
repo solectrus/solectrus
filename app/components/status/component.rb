@@ -1,16 +1,21 @@
 class Status::Component < ViewComponent::Base
-  def initialize(time:)
+  def initialize(time:, current_state:)
     super
     @time = time
+    @current_state = current_state
   end
-  attr_reader :time
+  attr_reader :time, :current_state
 
   def live?
     time && time > 10.seconds.ago
   end
 
   def text
-    live? ? 'LIVE' : 'FAIL'
+    live? ? live_text : 'FAIL'
+  end
+
+  def live_text
+    current_state.presence || 'LIVE'
   end
 
   def message
