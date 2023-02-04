@@ -5,6 +5,7 @@ class Calculator::Now < Calculator::Base
     build_context PowerSum.new(
                     measurements: ['SENEC'],
                     fields: %i[
+                      current_state
                       inverter_power
                       house_power
                       wallbox_charge_power
