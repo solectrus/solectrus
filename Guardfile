@@ -66,7 +66,6 @@ guard :rspec, cmd: 'bin/rspec --colour --format documentation --fail-fast' do
       rspec.spec.call("routing/#{m[1]}_routing"),
       rspec.spec.call("controllers/#{m[1]}_controller"),
       rspec.spec.call("requests/#{m[1]}_request"),
-      rspec.spec.call("system/#{m[1]}"),
     ]
   end
 
@@ -74,8 +73,4 @@ guard :rspec, cmd: 'bin/rspec --colour --format documentation --fail-fast' do
   watch(rails.spec_helper) { rspec.spec_dir }
   watch(rails.routes) { "#{rspec.spec_dir}/routing" }
   watch(rails.app_controller) { "#{rspec.spec_dir}/controllers" }
-
-  # Capybara system specs
-  watch(rails.view_dirs) { |m| rspec.spec.call("system/#{m[1]}") }
-  watch(rails.layouts) { |m| rspec.spec.call("system/#{m[1]}") }
 end
