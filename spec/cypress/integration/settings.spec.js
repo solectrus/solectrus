@@ -1,0 +1,62 @@
+describe('Settings', () => {
+  beforeEach(() => {
+    cy.visit('/settings/prices');
+  });
+
+  it('can list prices', () => {
+    cy.location('pathname').should('equal', `/settings/prices`);
+    cy.location('search').should('equal', '?name=electricity');
+
+    cy.get('#list')
+      .should('contain', '27.11.2020')
+      .should('contain', '0,2545 €');
+  });
+
+  context('when no admin user is logged in', () => {
+    it('cannot see buttons for add/edit/delete', () => {
+      cy.get('button[aria-label="Neu"]').should('not.exist');
+      cy.get('button[aria-label="Bearbeiten"]').should('not.exist');
+      cy.get('button[aria-label="Löschen"]').should('not.exist');
+    });
+
+    it('cannot create price', () => {
+      cy.visit('/settings/prices/new');
+
+      cy.location('pathname').should('equal', `/login`);
+    });
+  });
+
+  context('when admin user is logged in', () => {
+    beforeEach(() => {
+      cy.login();
+      cy.visit('/settings/prices');
+    });
+
+    it('can see buttons for add/edit, but not delete', () => {
+      cy.get('button[aria-label="Neu"]').should('be.exist');
+      cy.get('button[aria-label="Bearbeiten"]').should('be.exist');
+
+      cy.get('button[aria-label="Löschen"]').should('not.exist');
+    });
+
+    it('can create and delete a price', () => {
+      cy.get('button[aria-label="Neu"]').click();
+
+      cy.get('#form_price button').click();
+      cy.get('#form_price').should('contain', 'muss ausgefüllt werden');
+
+      cy.get('#price_starts_at').type('2023-01-01');
+      cy.get('#price_value').type('0.1234');
+      cy.get('#price_note').type('Das ist ein Test');
+      cy.get('#form_price button').click();
+
+      cy.get('#list')
+        .should('contain', '01.01.2023')
+        .should('contain', '0,1234 €')
+        .should('contain', 'Das ist ein Test');
+
+      cy.get("button[aria-label='Löschen']").first().click();
+      cy.get('#list').should('not.contain', '01.01.2023');
+    });
+  });
+});
