@@ -16,5 +16,8 @@ ENV HONEYBADGER_LOGGING_PATH=STDOUT
 
 USER app
 
+# Enable YJIT
+ENV RUBY_YJIT_ENABLE=1
+
 # Script to be executed every time the container starts
 ENTRYPOINT ["docker/startup.sh"]
