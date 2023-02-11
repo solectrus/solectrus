@@ -7,7 +7,7 @@ class StatsWithChart::Component < ViewComponent::Base
   attr_reader :field, :timeframe
 
   def refresh_options
-    return unless timeframe.current?
+    return if timeframe.past?
 
     {
       controller: 'stats-with-chart--component',

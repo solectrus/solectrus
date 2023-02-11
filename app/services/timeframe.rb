@@ -39,6 +39,12 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     return date.year == Date.current.year if year?
   end
 
+  def past?
+    return false if now? || all?
+
+    ending.to_date < Date.current
+  end
+
   def id
     @id ||=
       case string

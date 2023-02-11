@@ -104,6 +104,10 @@ describe Timeframe do
     it 'is current' do
       expect(decoder.current?).to be(true)
     end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
   context 'when string is a day in the past' do
@@ -169,6 +173,22 @@ describe Timeframe do
     it 'is not current' do
       expect(decoder.current?).to be(false)
     end
+
+    it 'is past' do
+      expect(decoder.past?).to be(true)
+    end
+  end
+
+  context 'when string is a day in the future' do
+    let(:string) { '2022-10-14' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
   context 'when string is first day of the year' do
@@ -184,6 +204,10 @@ describe Timeframe do
 
     it 'is current' do
       expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
     end
   end
 
@@ -250,6 +274,22 @@ describe Timeframe do
     it 'is not current' do
       expect(decoder.current?).to be(false)
     end
+
+    it 'is past' do
+      expect(decoder.past?).to be(true)
+    end
+  end
+
+  context 'when string is a week in the future' do
+    let(:string) { '2022-W42' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
   context 'when string is current week' do
@@ -257,6 +297,10 @@ describe Timeframe do
 
     it 'is current' do
       expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
     end
   end
 
@@ -359,6 +403,22 @@ describe Timeframe do
     it 'is not current' do
       expect(decoder.current?).to be(false)
     end
+
+    it 'is past' do
+      expect(decoder.past?).to be(true)
+    end
+  end
+
+  context 'when string is a month in the future' do
+    let(:string) { '2022-11' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
   context 'when string is current month' do
@@ -366,6 +426,10 @@ describe Timeframe do
 
     it 'is current' do
       expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
     end
   end
 
@@ -432,6 +496,22 @@ describe Timeframe do
     it 'is not current' do
       expect(decoder.current?).to be(false)
     end
+
+    it 'is past' do
+      expect(decoder.past?).to be(true)
+    end
+  end
+
+  context 'when string is future year' do
+    let(:string) { '2023' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
   context 'when string is current year' do
@@ -439,6 +519,10 @@ describe Timeframe do
 
     it 'is current' do
       expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
     end
   end
 
@@ -516,6 +600,10 @@ describe Timeframe do
 
     it 'is current' do
       expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
     end
   end
 
