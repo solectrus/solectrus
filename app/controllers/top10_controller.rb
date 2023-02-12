@@ -2,7 +2,7 @@ class Top10Controller < ApplicationController
   include ParamsHandling
 
   def index
-    set_meta_tags title: 'Top 10', noindex: true, nofollow: true
+    set_meta_tags title: 'Top 10', noindex: true
   end
 
   private
