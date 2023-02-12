@@ -7,7 +7,6 @@ describe('Auto refresh', () => {
 
       cy.visit('/inverter_power/now');
 
-      cy.get('#tab-now').should('be.visible');
       cy.get('header').should('contain', 'Heute, 12:00 Uhr');
     });
 

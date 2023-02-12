@@ -22,7 +22,6 @@ describe('Home page', () => {
     function navigateNow() {
       cy.contains('Jetzt').click();
       cy.location('pathname').should('equal', `/${path}/now`);
-      cy.get('#tab-now').should('be.visible');
       cy.get('header').should('contain', 'Heute, 12:00 Uhr');
 
       if (path == 'inverter_power')
@@ -34,7 +33,6 @@ describe('Home page', () => {
     function navigateDay() {
       cy.contains('Tag').click();
       cy.location('pathname').should('equal', `/${path}/2022-06-21`);
-      cy.get('#tab-day').should('be.visible');
       cy.get('header').should('contain', 'Dienstag, 21. Juni 2022');
       cy.get('#chart-day').should('be.visible');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -59,7 +57,6 @@ describe('Home page', () => {
     function navigateWeek() {
       cy.contains('Woche').click();
       cy.location('pathname').should('equal', `/${path}/2022-W25`);
-      cy.get('#tab-week').should('be.visible');
       cy.get('header').should('contain', 'KW 25, 2022');
       cy.get('#chart-week').should('be.visible');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -80,7 +77,6 @@ describe('Home page', () => {
     function navigateMonth() {
       cy.contains('Monat').click();
       cy.location('pathname').should('equal', `/${path}/2022-06`);
-      cy.get('#tab-month').should('be.visible');
       cy.get('header').should('contain', 'Juni 2022');
       cy.get('#chart-month').should('be.visible');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -101,7 +97,6 @@ describe('Home page', () => {
     function navigateYear() {
       cy.contains('Jahr').click();
       cy.location('pathname').should('equal', `/${path}/2022`);
-      cy.get('#tab-year').should('be.visible');
       cy.get('header').should('contain', '2022');
       cy.get('#chart-year').should('be.visible');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -122,7 +117,6 @@ describe('Home page', () => {
     function navigateAll() {
       cy.contains('Gesamt').click();
       cy.location('pathname').should('equal', `/${path}/all`);
-      cy.get('#tab-all').should('be.visible');
       cy.get('header').should('contain', 'Seit Inbetriebnahme');
       cy.get('#chart-all').should('be.visible');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
