@@ -1,52 +1,59 @@
 describe('Auto refresh', () => {
   context('when on "now" view', () => {
     beforeEach(() => {
+      cy.intercept('GET', '/stats/inverter_power/now?chart=false').as(
+        'getStatsWithoutChart',
+      );
+
       cy.visit('/inverter_power/now');
 
       cy.get('#tab-now').should('be.visible');
       cy.get('header').should('contain', 'Heute, 12:00 Uhr');
     });
 
-    it('refreshes the page after 5 seconds', () => {
+    it('refreshes the stats after 5 seconds', () => {
       // Fast forward time by 5 seconds, which is the refresh interval
       cy.window().then((win) => win.clock.tick(5 * 1000));
 
-      cy.intercept({
-        url: 'stats/inverter_power/now?chart=false',
-      }).as('getStats');
-
-      cy.wait('@getStats').then((interception) => {
+      cy.wait('@getStatsWithoutChart').then((interception) => {
         assert.isNotNull(interception.response.body);
       });
     });
   });
 
   context('when on "day" view', () => {
-    before(() => {
-      cy.intercept({
-        url: 'stats/inverter_power/2022-06-21',
-      }).as('getStatsDay1');
-
-      cy.intercept({
-        url: '/inverter_power/2022-06-22',
-      }).as('getDay2');
-
-      cy.intercept({
-        url: '/stats/inverter_power/2022-06-22',
-      }).as('getStatsDay2');
-    });
-
     beforeEach(() => {
+      cy.intercept('GET', '/stats/inverter_power/2022-06-21').as(
+        'getStatsDay1',
+      );
+      cy.intercept('GET', '/stats/inverter_power/2022-06-21').as(
+        'getStatsDay1Refresh',
+      );
+      cy.intercept('GET', '/inverter_power/2022-06-22').as('getDay2');
+      cy.intercept('GET', '/stats/inverter_power/2022-06-22').as(
+        'getStatsDay2',
+      );
+
       cy.visit('/inverter_power/2022-06-21');
-      cy.get('header').should('contain', 'Dienstag, 21. Juni 2022');
 
       // Wait for this days's stats to be loaded
       cy.wait('@getStatsDay1').then((interception) => {
         assert.isNotNull(interception.response.body);
       });
+
+      cy.get('header').should('contain', 'Dienstag, 21. Juni 2022');
     });
 
-    it('moves to next day', () => {
+    it('refreshes the stats after 5 minutes', () => {
+      // Fast forward time by 5 minutes, which is the refresh interval
+      cy.window().then((win) => win.clock.tick(5 * 60 * 1000));
+
+      cy.wait('@getStatsDay1Refresh').then((interception) => {
+        assert.isNotNull(interception.response.body);
+      });
+    });
+
+    it('moves to next day when reaching end', () => {
       // Fast forward time by 12 hours + 5 minutes (= end of day)
       cy.window().then((win) => win.clock.tick((12 * 60 + 5) * 60 * 1000));
 
@@ -65,21 +72,14 @@ describe('Auto refresh', () => {
   });
 
   context('when on "week" view', () => {
-    before(() => {
-      cy.intercept({
-        url: 'stats/inverter_power/2022-W25',
-      }).as('getStatsWeek1');
-
-      cy.intercept({
-        url: '/inverter_power/2022-W26',
-      }).as('getWeek2');
-
-      cy.intercept({
-        url: '/stats/inverter_power/2022-W26',
-      }).as('getStatsWeek2');
-    });
-
     beforeEach(() => {
+      cy.intercept('GET', '/stats/inverter_power/2022-W25').as('getStatsWeek1');
+      cy.intercept('GET', '/stats/inverter_power/2022-W25').as(
+        'getStatsWeek1Refresh',
+      );
+      cy.intercept('GET', '/inverter_power/2022-W26').as('getWeek2');
+      cy.intercept('GET', '/stats/inverter_power/2022-W26').as('getStatsWeek2');
+
       cy.visit('/inverter_power/2022-W25');
       cy.get('header').should('contain', 'KW 25, 2022');
 
@@ -89,7 +89,16 @@ describe('Auto refresh', () => {
       });
     });
 
-    it('moves to next week', () => {
+    it('refreshes the stats after 5 minutes', () => {
+      // Fast forward time by 5 minutes, which is the refresh interval
+      cy.window().then((win) => win.clock.tick(5 * 60 * 1000));
+
+      cy.wait('@getStatsWeek1Refresh').then((interception) => {
+        assert.isNotNull(interception.response.body);
+      });
+    });
+
+    it('moves to next week when reaching end', () => {
       // Fast forward time by 5 days + 12 hours + 5 minutes (= end of week)
       cy.window().then((win) =>
         win.clock.tick((5 * 24 * 60 + 12 * 60 + 5) * 60 * 1000),
@@ -110,21 +119,14 @@ describe('Auto refresh', () => {
   });
 
   context('when on "month" view', () => {
-    before(() => {
-      cy.intercept({
-        url: 'stats/inverter_power/2022-06',
-      }).as('getStatsMonth1');
-
-      cy.intercept({
-        url: '/inverter_power/2022-07',
-      }).as('getMonth2');
-
-      cy.intercept({
-        url: '/stats/inverter_power/2022-07',
-      }).as('getStatsMonth2');
-    });
-
     beforeEach(() => {
+      cy.intercept('GET', '/stats/inverter_power/2022-06').as('getStatsMonth1');
+      cy.intercept('GET', '/stats/inverter_power/2022-06').as(
+        'getStatsMonth1Refresh',
+      );
+      cy.intercept('GET', '/inverter_power/2022-07').as('getMonth2');
+      cy.intercept('GET', '/stats/inverter_power/2022-07').as('getStatsMonth2');
+
       cy.visit('/inverter_power/2022-06');
       cy.get('header').should('contain', 'Juni 2022');
 
@@ -134,7 +136,16 @@ describe('Auto refresh', () => {
       });
     });
 
-    it('moves to next month', () => {
+    it('refreshes the stats after 5 minutes', () => {
+      // Fast forward time by 5 minutes, which is the refresh interval
+      cy.window().then((win) => win.clock.tick(5 * 60 * 1000));
+
+      cy.wait('@getStatsMonth1Refresh').then((interception) => {
+        assert.isNotNull(interception.response.body);
+      });
+    });
+
+    it('moves to next month when reaching end', () => {
       // Fast forward time by 9 days + 12 hours + 5 minutes (= end of month)
       cy.window().then((win) =>
         win.clock.tick((9 * 24 * 60 + 12 * 60 + 5) * 60 * 1000),
