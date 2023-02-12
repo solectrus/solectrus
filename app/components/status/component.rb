@@ -1,5 +1,5 @@
 class Status::Component < ViewComponent::Base
-  def initialize(time:, current_state:)
+  def initialize(time:, current_state: nil)
     super
     @time = time
     @current_state = current_state
