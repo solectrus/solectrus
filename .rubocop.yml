@@ -62,6 +62,9 @@ Layout/LineLength:
   Max: 190
   AllowedPatterns: ['\A#'] # Allow long comments
 
+Metrics/ParameterLists:
+  Max: 6
+
 ### Style
 
 Style/BlockComments:

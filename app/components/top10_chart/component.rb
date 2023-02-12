@@ -59,7 +59,7 @@ class Top10Chart::Component < ViewComponent::Base
     end
   end
 
-  def link_to_timeframe(record)
+  def timeframe_path(record)
     root_path(
       field: field.gsub(/_plus|_minus/, ''),
       timeframe: corresponding_date(record[:date]),

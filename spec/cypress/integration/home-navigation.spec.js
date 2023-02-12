@@ -133,12 +133,12 @@ describe('Home page', () => {
     }
 
     function clickPrev(expectedHeader) {
-      cy.get('header a[rel="prev nofollow"]').click();
+      cy.get('header a[rel="prev"]').click();
       cy.get('header').should('contain', expectedHeader);
     }
 
     function clickNext(expectedHeader) {
-      cy.get('header a[rel="next nofollow"]').click();
+      cy.get('header a[rel="next"]').click();
       cy.get('header').should('contain', expectedHeader);
     }
   });
