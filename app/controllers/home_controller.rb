@@ -10,7 +10,6 @@ class HomeController < ApplicationController
     set_meta_tags title: helpers.title,
                   description: 'Solarstrom aus der Photovoltaik-Anlage',
                   keywords: 'photovoltaik, strom, solar, energiewende',
-                  noindex: timeframe?,
                   og: {
                     title: :title,
                     description: :description,
