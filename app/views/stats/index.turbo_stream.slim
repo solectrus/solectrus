@@ -5,7 +5,7 @@ turbo-stream action="update" target="nav"
 
 turbo-stream action="morph" target="stats" children-only= true
   template
-    div id="tab-#{timeframe.id}" class="flex-auto w-full"
+    div class="flex-auto w-full"
       - if timeframe.now?
         = render DashboardNow::Component.new calculator:
       - else
