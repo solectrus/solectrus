@@ -12,7 +12,7 @@ class PricesController < ApplicationController
 
     @prices = Price.list_for(name)
 
-    set_meta_tags title: Price.human_enum_name(:name, name), noindex: true
+    set_meta_tags title: Price.human_enum_name(:name, name)
   end
 
   def new
