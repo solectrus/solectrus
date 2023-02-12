@@ -7,11 +7,10 @@ class Nav::Top::Component < ViewComponent::Base
   end
 
   class ItemComponent < ViewComponent::Base
-    def initialize(name:, href:, rel: nil, data: nil, icon: nil, alignment: nil)
+    def initialize(name:, href:, data: nil, icon: nil, alignment: nil)
       super
       @name = name
       @href = href
-      @rel = rel
       @data = data || {}
       @icon = icon
       @alignment = alignment || :left
@@ -51,7 +50,6 @@ class Nav::Top::Component < ViewComponent::Base
 
     def call(icon: @icon)
       link_to @href,
-              rel: @rel,
               target:,
               class: css_classes,
               title: icon ? name : nil,

@@ -11,7 +11,6 @@ module ApplicationHelper
         name: t('layout.settings'),
         icon: 'cog',
         href: prices_path,
-        rel: 'nofollow',
         alignment: :right,
       },
       { name: t('layout.about'), href: 'https://solectrus.de' },
@@ -37,7 +36,6 @@ module ApplicationHelper
               'day'
             end,
         ),
-      rel: 'nofollow',
     }
   end
 
@@ -47,7 +45,6 @@ module ApplicationHelper
         name: t('layout.logout'),
         icon: 'arrow-right-from-bracket',
         href: session_path,
-        rel: 'nofollow',
         data: {
           'turbo-method': :delete,
         },
@@ -58,7 +55,6 @@ module ApplicationHelper
         name: t('layout.login'),
         icon: 'arrow-right-to-bracket',
         href: new_session_path,
-        rel: 'nofollow',
         data: {
           turbo_frame: 'modal',
         },

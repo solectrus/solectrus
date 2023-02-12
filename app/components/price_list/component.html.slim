@@ -32,7 +32,6 @@
                                              method: :get,
                                              data: { turbo_frame: 'modal' },
                                              'aria-label': t('crud.edit'),
-                                             rel: 'nofollow',
                                            }
 
             - if price.destroyable?
@@ -45,5 +44,4 @@
                                                'aria-label': t('crud.delete'),
                                                form: { data: { 'turbo-confirm': t('crud.confirm_delete') } },
                                                class: 'hover:text-red-600',
-                                               rel: 'nofollow',
                                              }

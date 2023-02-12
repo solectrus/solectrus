@@ -25,36 +25,24 @@ class HomeController < ApplicationController
 
   helper_method def nav_items
     [
-      {
-        name: t('calculator.now'),
-        href: path_with_timeframe('now'),
-        rel: 'nofollow',
-      },
+      { name: t('calculator.now'), href: path_with_timeframe('now') },
       {
         name: t('calculator.day'),
         href: path_with_timeframe(timeframe.corresponding_day),
-        rel: 'nofollow',
       },
       {
         name: t('calculator.week'),
         href: path_with_timeframe(timeframe.corresponding_week),
-        rel: 'nofollow',
       },
       {
         name: t('calculator.month'),
         href: path_with_timeframe(timeframe.corresponding_month),
-        rel: 'nofollow',
       },
       {
         name: t('calculator.year'),
         href: path_with_timeframe(timeframe.corresponding_year),
-        rel: 'nofollow',
       },
-      {
-        name: t('calculator.all'),
-        href: path_with_timeframe('all'),
-        rel: 'nofollow',
-      },
+      { name: t('calculator.all'), href: path_with_timeframe('all') },
     ]
   end
 

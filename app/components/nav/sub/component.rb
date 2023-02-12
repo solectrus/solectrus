@@ -2,11 +2,10 @@ class Nav::Sub::Component < ViewComponent::Base
   renders_many :items, 'ItemComponent'
 
   class ItemComponent < ViewComponent::Base
-    def initialize(name:, href:, rel: nil)
+    def initialize(name:, href:)
       super
       @name = name
       @href = href
-      @rel = rel
     end
 
     def call
@@ -15,13 +14,11 @@ class Nav::Sub::Component < ViewComponent::Base
       if current_page?(@href)
         link_to @name,
                 @href,
-                rel: @rel,
                 class: classes + %w[bg-gray-200 text-gray-800 rounded-md],
                 'aria-current': 'location'
       else
         link_to @name,
                 @href,
-                rel: @rel,
                 class:
                   classes +
                     %w[
