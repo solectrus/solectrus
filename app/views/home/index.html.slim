@@ -1,6 +1,12 @@
 - turbo_exempts_page_from_cache
 - content_for :full_height, true
 
+= content_for :head do
+  - if timeframe.prev
+    = tag.link rel: 'prev', href: root_path(field:, timeframe: timeframe.prev)
+  - if timeframe.next
+    = tag.link rel: 'next', href: root_path(field:, timeframe: timeframe.next)
+
 - content_for :sub_nav do
   .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-5
     .mx-auto.lg:mx-0.hidden.lg:block
@@ -16,16 +22,4 @@
     = render Nav::Sub::Component.new do |c|
       = c.items nav_items
 
-.flex-auto.flex.flex-wrap.gap-5.lg:flex-nowrap[
-  data= (timeframe.now? && { controller: 'refresh', 'refresh-field-value': field })
-]
-  - stats_params = permitted_params.to_hash.symbolize_keys
-  = turbo_frame_tag 'stats',
-                    src: stats_path(stats_params),
-                    class: 'w-full lg:w-1/2 h-3/5 lg:h-auto flex',
-                    target: '_top',
-                    data: { refresh_target: 'stats' }  do
-    .flex.justify-center.m-40
-      = render Loading::Component.new
-
-  = turbo_frame_tag 'chart', class: 'flex-auto h-2/5 lg:h-auto flex'
+= render StatsWithChart::Component.new(field:, timeframe:)

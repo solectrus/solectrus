@@ -60,12 +60,12 @@ describe Timeframe do
       expect(decoder.ending).to eq('2022-10-13 10:00:00 +0200')
     end
 
-    it 'returns the correct next' do
+    it 'returns the correct next timeframe' do
       expect(decoder.next).to be_nil
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to be_nil
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev).to be_nil
     end
 
     it 'returns the correct localized' do
@@ -100,9 +100,17 @@ describe Timeframe do
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
     end
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
-  context 'when string is a day' do
+  context 'when string is a day in the past' do
     let(:string) { '2022-05-13' }
 
     it 'returns the correct id' do
@@ -121,12 +129,12 @@ describe Timeframe do
       expect(decoder.ending).to eq('2022-05-13 23:59:59.999999999 +0200')
     end
 
-    it 'returns the correct next' do
-      expect(decoder.next).to eq('2022-05-14')
+    it 'returns the correct next timeframe' do
+      expect(decoder.next.to_s).to eq('2022-05-14')
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to eq('2022-05-12')
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev.to_s).to eq('2022-05-12')
     end
 
     it 'returns the correct localized' do
@@ -161,6 +169,26 @@ describe Timeframe do
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
     end
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is past' do
+      expect(decoder.past?).to be(true)
+    end
+  end
+
+  context 'when string is a day in the future' do
+    let(:string) { '2022-10-14' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
   context 'when string is first day of the year' do
@@ -171,7 +199,19 @@ describe Timeframe do
     end
   end
 
-  context 'when string is a week' do
+  context 'when string is today' do
+    let(:string) { '2022-10-13' }
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
+  end
+
+  context 'when string is a week in the past' do
     let(:string) { '2022-W19' }
 
     it 'returns the correct id' do
@@ -190,12 +230,12 @@ describe Timeframe do
       expect(decoder.ending).to eq('2022-05-15 23:59:59.999999999 +0200')
     end
 
-    it 'returns the correct next' do
-      expect(decoder.next).to eq('2022-W20')
+    it 'returns the correct next timeframe' do
+      expect(decoder.next.to_s).to eq('2022-W20')
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to eq('2022-W18')
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev.to_s).to eq('2022-W18')
     end
 
     it 'returns the correct localized' do
@@ -230,29 +270,61 @@ describe Timeframe do
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
     end
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is past' do
+      expect(decoder.past?).to be(true)
+    end
+  end
+
+  context 'when string is a week in the future' do
+    let(:string) { '2022-W42' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
+  end
+
+  context 'when string is current week' do
+    let(:string) { '2022-W41' }
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
   context 'when string is a week at end of year' do
     let(:string) { '2020-W50' }
 
-    it 'returns the correct next' do
-      expect(decoder.next).to eq('2020-W51')
+    it 'returns the correct next timeframe' do
+      expect(decoder.next.to_s).to eq('2020-W51')
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to eq('2020-W49')
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev.to_s).to eq('2020-W49')
     end
   end
 
   context 'when string is a week at min_date' do
     let(:string) { '2019-W19' }
 
-    it 'returns the correct next' do
-      expect(decoder.next).to eq('2019-W20')
+    it 'returns the correct next timeframe' do
+      expect(decoder.next.to_s).to eq('2019-W20')
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to eq('2019-W18')
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev.to_s).to eq('2019-W18')
     end
   end
 
@@ -275,12 +347,12 @@ describe Timeframe do
       expect(decoder.ending).to eq('2022-05-31 23:59:59.999999999 +0200')
     end
 
-    it 'returns the correct next' do
-      expect(decoder.next).to eq('2022-06')
+    it 'returns the correct next timeframe' do
+      expect(decoder.next.to_s).to eq('2022-06')
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to eq('2022-04')
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev.to_s).to eq('2022-04')
     end
 
     it 'returns the correct localized' do
@@ -320,12 +392,44 @@ describe Timeframe do
   context 'when string is a month at min_date' do
     let(:string) { '2019-06' }
 
-    it 'returns the correct next' do
-      expect(decoder.next).to eq('2019-07')
+    it 'returns the correct next timeframe' do
+      expect(decoder.next.to_s).to eq('2019-07')
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to eq('2019-05')
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev.to_s).to eq('2019-05')
+    end
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is past' do
+      expect(decoder.past?).to be(true)
+    end
+  end
+
+  context 'when string is a month in the future' do
+    let(:string) { '2022-11' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
+  end
+
+  context 'when string is current month' do
+    let(:string) { '2022-10' }
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
     end
   end
 
@@ -348,12 +452,12 @@ describe Timeframe do
       expect(decoder.ending).to eq('2021-12-31 23:59:59.999999999 +0100')
     end
 
-    it 'returns the correct next' do
-      expect(decoder.next).to eq('2022')
+    it 'returns the correct next timeframe' do
+      expect(decoder.next.to_s).to eq('2022')
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to eq('2020')
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev.to_s).to eq('2020')
     end
 
     it 'returns the correct localized' do
@@ -388,17 +492,49 @@ describe Timeframe do
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
     end
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is past' do
+      expect(decoder.past?).to be(true)
+    end
+  end
+
+  context 'when string is future year' do
+    let(:string) { '2023' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
+  end
+
+  context 'when string is current year' do
+    let(:string) { '2022' }
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
   end
 
   context 'when string is a year at min_date' do
     let(:string) { '2020' }
 
-    it 'returns the correct next' do
-      expect(decoder.next).to eq('2021')
+    it 'returns the correct next timeframe' do
+      expect(decoder.next.to_s).to eq('2021')
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to eq('2019')
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev.to_s).to eq('2019')
     end
   end
 
@@ -421,12 +557,12 @@ describe Timeframe do
       expect(decoder.ending).to eq('2022-10-13 23:59:59.999999999 +0200')
     end
 
-    it 'returns the correct next' do
+    it 'returns the correct next timeframe' do
       expect(decoder.next).to be_nil
     end
 
-    it 'returns the correct previous' do
-      expect(decoder.previous).to be_nil
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev).to be_nil
     end
 
     it 'returns the correct localized' do
@@ -460,6 +596,14 @@ describe Timeframe do
 
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
+    end
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
     end
   end
 

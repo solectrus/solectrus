@@ -27,6 +27,8 @@ describe('Home page', () => {
 
       if (path == 'inverter_power')
         cy.get('#segment-inverter_power').should('contain', '9,0\u00a0kW');
+
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
     }
 
     function navigateDay() {
@@ -35,6 +37,7 @@ describe('Home page', () => {
       cy.get('#tab-day').should('be.visible');
       cy.get('header').should('contain', 'Dienstag, 21. Juni 2022');
       cy.get('#chart-day').should('be.visible');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
 
       if (path == 'inverter_power') {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
@@ -45,7 +48,12 @@ describe('Home page', () => {
       }
 
       clickPrev('Montag, 20. Juni 2022');
+      cy.get("[data-controller='stats-with-chart--component']").should(
+        'not.exist',
+      );
+
       clickNext('Dienstag, 21. Juni 2022');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
     }
 
     function navigateWeek() {
@@ -54,13 +62,19 @@ describe('Home page', () => {
       cy.get('#tab-week').should('be.visible');
       cy.get('header').should('contain', 'KW 25, 2022');
       cy.get('#chart-week').should('be.visible');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
 
       if (path == 'inverter_power') {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
       }
 
       clickPrev('KW 24, 2022');
+      cy.get("[data-controller='stats-with-chart--component']").should(
+        'not.exist',
+      );
+
       clickNext('KW 25, 2022');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
     }
 
     function navigateMonth() {
@@ -69,13 +83,19 @@ describe('Home page', () => {
       cy.get('#tab-month').should('be.visible');
       cy.get('header').should('contain', 'Juni 2022');
       cy.get('#chart-month').should('be.visible');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
 
       if (path == 'inverter_power') {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
       }
 
       clickPrev('Mai 2022');
+      cy.get("[data-controller='stats-with-chart--component']").should(
+        'not.exist',
+      );
+
       clickNext('Juni 2022');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
     }
 
     function navigateYear() {
@@ -84,13 +104,19 @@ describe('Home page', () => {
       cy.get('#tab-year').should('be.visible');
       cy.get('header').should('contain', '2022');
       cy.get('#chart-year').should('be.visible');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
 
       if (path == 'inverter_power') {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
       }
 
       clickPrev('2021');
+      cy.get("[data-controller='stats-with-chart--component']").should(
+        'not.exist',
+      );
+
       clickNext('2022');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
     }
 
     function navigateAll() {
@@ -99,6 +125,7 @@ describe('Home page', () => {
       cy.get('#tab-all').should('be.visible');
       cy.get('header').should('contain', 'Seit Inbetriebnahme');
       cy.get('#chart-all').should('be.visible');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
 
       if (path == 'inverter_power') {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
