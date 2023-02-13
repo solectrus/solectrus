@@ -226,7 +226,7 @@
     "@hotwired/turbo" "^7.2.5"
     "@rails/actioncable" "^7.0"
 
-"@hotwired/turbo@^7.2.4", "@hotwired/turbo@^7.2.5":
+"@hotwired/turbo@^7.2.5":
   version "7.2.5"
   resolved "https://registry.yarnpkg.com/@hotwired/turbo/-/turbo-7.2.5.tgz#2d9d6bde8a9549c3aea8970445ade16ffd56719a"
   integrity sha512-o5PByC/mWkmTe4pWnKrixhPECJUxIT/NHtxKqjq7n9Fj6JlNza1pgxdTCJVIq+PI0j95U+7mA3N4n4A/QYZtZQ==
@@ -903,7 +903,7 @@ cssesc@^3.0.0:
   resolved "https://registry.yarnpkg.com/cssesc/-/cssesc-3.0.0.tgz#37741919903b868565e1c09ea747445cd18983ee"
   integrity sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
 
-cypress@^12.5.0:
+cypress@^12.5.1:
   version "12.5.1"
   resolved "https://registry.yarnpkg.com/cypress/-/cypress-12.5.1.tgz#effdcccdd5a6187d61d497300903d4f3b5b21b6e"
   integrity sha512-ZmCmJ3lsyeOpBfh410m5+AO2CO1AxAzFBt7k6/uVbNcrNZje1vdiwYTpj2ksPKg9mjr9lR6V8tmlDNMvr4H/YQ==
