@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/slim-template/slim.git
+  revision: e7412233eb6edb8aece5af58356e456cd8d7359b
+  specs:
+    slim (5.0.0)
+      temple (~> 0.10.0)
+      tilt (>= 2.0.6, < 2.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -322,13 +330,10 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
-    slim (4.1.0)
-      temple (>= 0.7.6, < 0.9)
-      tilt (>= 2.0.6, < 2.1)
-    slim-rails (3.5.1)
+    slim-rails (3.6.0)
       actionpack (>= 3.1)
       railties (>= 3.1)
-      slim (>= 3.0, < 5.0)
+      slim (>= 3.0, < 6.0)
     slim_lint (0.24.0)
       rubocop (>= 1.0, < 2.0)
       slim (>= 3.0, < 6.0)
@@ -347,7 +352,7 @@ GEM
       prettier_print
       rbs
       syntax_tree (>= 2.0.1)
-    temple (0.8.2)
+    temple (0.10.0)
     thor (1.2.1)
     tilt (2.0.11)
     timeout (0.3.1)
@@ -422,6 +427,7 @@ DEPENDENCIES
   rubocop-thread_safety
   shoulda-matchers
   simplecov
+  slim!
   slim-rails
   slim_lint
   spring
