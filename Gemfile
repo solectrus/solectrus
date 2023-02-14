@@ -30,9 +30,6 @@ gem 'bootsnap', require: false
 # Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
 gem 'slim-rails'
 
-# Slim is a template language. (http://github.com/slim-template/slim/)
-gem 'slim', github: 'slim-template/slim'
-
 # Middleware for enabling Cross-Origin Resource Sharing in Rack apps (https://github.com/cyu/rack-cors)
 gem 'rack-cors', require: 'rack/cors'
 
