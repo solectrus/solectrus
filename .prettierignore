@@ -2,3 +2,4 @@ db/schema.rb
 public/*
 coverage/*
 tmp/*
+spec/support/cassettes/*

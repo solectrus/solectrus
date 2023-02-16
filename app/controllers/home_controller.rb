@@ -6,11 +6,9 @@ class HomeController < ApplicationController
       redirect_to root_path(field: 'inverter_power', timeframe: 'now')
     end
 
-    raise ActionController::RoutingError, 'Not Found' if timeframe.out_of_range?
     set_meta_tags title: helpers.title,
                   description: 'Solarstrom aus der Photovoltaik-Anlage',
                   keywords: 'photovoltaik, strom, solar, energiewende',
-                  noindex: timeframe?,
                   og: {
                     title: :title,
                     description: :description,
@@ -22,6 +20,10 @@ class HomeController < ApplicationController
   end
 
   private
+
+  def path_with_timeframe(timeframe)
+    url_for(permitted_params.merge(timeframe:, only_path: true))
+  end
 
   helper_method def nav_items
     [
@@ -44,9 +46,5 @@ class HomeController < ApplicationController
       },
       { name: t('calculator.all'), href: path_with_timeframe('all') },
     ]
-  end
-
-  def path_with_timeframe(timeframe)
-    url_for(permitted_params.merge(timeframe:, only_path: true))
   end
 end

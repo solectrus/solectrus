@@ -4,13 +4,14 @@ module.exports = {
     browser: true,
     node: true,
   },
-  plugins: ['tailwindcss'],
+  plugins: ['tailwindcss', 'cypress'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'plugin:prettier/recommended',
     'plugin:tailwindcss/recommended',
+    'plugin:cypress/recommended',
   ],
   globals: {},
   rules: {

@@ -3,7 +3,6 @@ class SessionsController < ApplicationController
     redirect_to(root_path) and return if admin?
 
     @admin_user = AdminUser.new
-    set_meta_tags noindex: true, nofollow: true
   end
 
   def create

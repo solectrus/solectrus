@@ -31,6 +31,20 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     false
   end
 
+  def current?
+    return true if now? || all?
+    return date.today? if day?
+    return date.cweek == Date.current.cweek if week?
+    return date.month == Date.current.month if month?
+    return date.year == Date.current.year if year?
+  end
+
+  def past?
+    return false if now? || all?
+
+    ending.to_date < Date.current
+  end
+
   def id
     @id ||=
       case string
@@ -122,16 +136,32 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def next
-    return if id.in?(%i[now all])
+  def next(force: false)
+    date = next_date(force:)
+    return unless date
 
-    change(+1)&.strftime(format)
+    self.class.new date.strftime(format), min_date:, allowed_days_in_future:
   end
 
-  def previous
+  def prev
+    date = prev_date
+    return unless date
+
+    self.class.new prev_date.strftime(format),
+                   min_date:,
+                   allowed_days_in_future:
+  end
+
+  def next_date(force: false)
     return if id.in?(%i[now all])
 
-    change(-1)&.strftime(format)
+    change(+1, force:)
+  end
+
+  def prev_date
+    return if id.in?(%i[now all])
+
+    change(-1)
   end
 
   def corresponding_day
@@ -150,13 +180,6 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     trimmed_ending.strftime(format(target_id: :year))
   end
 
-  private
-
-  # Ending, but not further than max_date and current date
-  def trimmed_ending
-    [ending, max_date, Date.current].compact.min
-  end
-
   def date
     case id
     when :now
@@ -170,22 +193,35 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def change(amount)
-    new_date =
-      case id
-      when :day
-        change_day(amount)
-      when :week
-        change_week(amount)
-      when :month
-        change_month(amount)
-      when :year
-        change_year(amount)
-      end
+  private
 
-    return if new_date < min_date
-    return if new_date > max_date
+  # Ending, but not further than max_date and current date
+  def trimmed_ending
+    [ending, max_date, Date.current].compact.min
+  end
+
+  def change(amount, force: false)
+    new_date = raw_change(amount)
+
+    unless force
+      return if new_date < min_date
+      return if new_date > max_date
+    end
+
     new_date
+  end
+
+  def raw_change(amount)
+    case id
+    when :day
+      change_day(amount)
+    when :week
+      change_week(amount)
+    when :month
+      change_month(amount)
+    when :year
+      change_year(amount)
+    end
   end
 
   def change_day(amount)

@@ -2,7 +2,7 @@ class PowerSum < Flux::Reader
   def call(timeframe)
     case timeframe.id
     when :now
-      last('-5m')
+      last(5.minutes.ago)
     else
       sum start: timeframe.beginning,
           stop: timeframe.ending,
@@ -16,7 +16,7 @@ class PowerSum < Flux::Reader
   def last(start)
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range(start:)}
+      |> #{range(start:, stop: 1.second.since)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> last()

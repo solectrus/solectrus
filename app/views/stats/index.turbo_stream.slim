@@ -1,27 +1,21 @@
 turbo-stream action="update" target="nav"
   template
     = render Timeframe::Component.new(timeframe:)
-    = render Status::Component.new(time: calculator.time) if timeframe.now?
+    = render Status::Component.new(time: calculator.time, current_state: calculator.current_state) if timeframe.now?
 
 turbo-stream action="morph" target="stats" children-only= true
   template
-    - if calculator.present?
-      div id="tab-#{timeframe.id}" class="flex-auto w-full"
-        - if timeframe.now?
-          = render DashboardNow::Component.new calculator:
-        - else
-          = render DashboardRange::Component.new calculator:, timeframe:
-
-    - else
-      .m-20.flex.justify-center
-        .px-3.md:px-5.py-2.rounded-full.text-xl.text-gray-500.bg-white
-          = t('calculator.blank')
+    div class="flex-auto w-full"
+      - if timeframe.now?
+        = render DashboardNow::Component.new calculator:
+      - else
+        = render DashboardRange::Component.new calculator:, timeframe:
 
 - if params[:chart] != 'false'
   turbo-stream action="update" target="chart"
     template
       .flex.flex-col.flex-auto
-        .flex-auto
-          = render ChartLoader::Component.new(field:, timeframe:, url: charts_path(permitted_params.to_hash.symbolize_keys))
-
-        = render Comment::Component.new(calculator:, field:, timeframe:)
+        - unless timeframe.out_of_range?
+          .flex-auto
+            = render ChartLoader::Component.new(field:, timeframe:, url: charts_path(permitted_params.to_hash.symbolize_keys))
+          = render Comment::Component.new(calculator:, field:, timeframe:)

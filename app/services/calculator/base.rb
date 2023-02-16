@@ -16,7 +16,7 @@ class Calculator::Base
     # TODO: Extract to new base class and define static methods
     hash.each_key do |key|
       case key
-      when :time
+      when :time, :current_state
         value = array.pluck(key).last
 
         define_singleton_method(key) { value }

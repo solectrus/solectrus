@@ -32,8 +32,8 @@ class Flux::Reader < Flux::Base
     # Cache only if the range is in the past, so the query result will not change
     @cacheable = stop&.past?
 
-    start = start.iso8601 if start.respond_to?(:iso8601)
-    stop = stop.iso8601 if stop.respond_to?(:iso8601)
+    start = start&.iso8601
+    stop = stop&.iso8601
 
     stop ? "range(start: #{start}, stop: #{stop})" : "range(start: #{start})"
   end

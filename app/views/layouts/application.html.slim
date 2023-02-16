@@ -51,6 +51,23 @@ html lang="de"
     = vite_client_tag
     = vite_typescript_tag 'application', 'data-turbo-track': 'reload'
 
+    - if Rails.env.test?
+      // Load Sinon from CDN
+      script[
+        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/15.0.1/sinon.min.js'
+        integrity= 'sha512-SeqEu3dS3pliMwwTLf1c1zVkNmowPrr1mJtafw7sLLg0sFhAkHeIwFT+ru/dBgwlujEnu0u3+xREKDqBhwpNpg=='
+        crossorigin= 'anonymous'
+        referrerpolicy= 'no-referrer'
+      ]
+
+      javascript:
+        // Sync browser time with server time
+        window.clock = sinon.useFakeTimers({
+          now: #{Time.current.to_i * 1000},
+          shouldAdvanceTime: true,
+        });
+        console.log('Sinon installed', new Date());
+
     = yield :head
 
   body.min-h-screen.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white[

@@ -7,13 +7,13 @@ class Nav::Top::Component < ViewComponent::Base
   end
 
   class ItemComponent < ViewComponent::Base
-    def initialize(name:, href:, data: nil, icon: nil, alignment: :left)
+    def initialize(name:, href:, data: nil, icon: nil, alignment: nil)
       super
       @name = name
       @href = href
       @data = data || {}
       @icon = icon
-      @alignment = alignment
+      @alignment = alignment || :left
     end
 
     def before_render

@@ -1,8 +1,9 @@
-.flex.items-center.justify-between.space-x-4.w-full.lg:w-auto.text-base.text-gray-200.tracking-wider
+.flex-auto.max-w-full.flex.items-center.justify-between.space-x-4.text-base.text-gray-200.tracking-wider.whitespace-nowrap
   - if can_paginate?
-    - if timeframe.previous
-      = link_to root_path(field: params[:field], timeframe: timeframe.previous),
-                class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'prev nofollow' do
+    - if timeframe.prev
+      = link_to root_path(field: params[:field], timeframe: timeframe.prev),
+                class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500',
+                rel: 'prev' do
         i.fas.fa-chevron-left.fa-lg
     - else
       .px-2.py-1
@@ -41,7 +42,8 @@
   - if can_paginate?
     - if timeframe.next
       = link_to root_path(field: params[:field], timeframe: timeframe.next),
-                class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500', rel: 'next nofollow' do
+                class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500',
+                rel: 'next' do
         i.fas.fa-chevron-right.fa-lg
     - else
       .px-2.py-1

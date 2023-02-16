@@ -1,10 +1,10 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.0'
+ruby '3.2.1'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.0.4', '>= 7.0.4.1'
+gem 'rails', '~> 7.0.4', '>= 7.0.4.2'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -56,10 +56,10 @@ group :development, :test do
   gem 'dotenv-rails'
 
   # RSpec for Rails (https://github.com/rspec/rspec-rails)
-  gem 'rspec-rails'
+  gem 'rspec-rails', require: false
 
   # rspec-collection_matchers-1.2.0 (https://github.com/rspec/rspec-collection_matchers)
-  gem 'rspec-collection_matchers'
+  gem 'rspec-collection_matchers', require: false
 
   # Automatic Ruby code style checking tool. (https://github.com/rubocop/rubocop)
   gem 'rubocop', require: false
@@ -78,6 +78,9 @@ group :development, :test do
 
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
+
+  # Helps you write Cypress tests of your Rails app (https://github.com/testdouble/cypress-rails)
+  gem 'cypress-rails'
 end
 
 group :development do
@@ -94,7 +97,7 @@ group :development do
   gem 'spring'
 
   # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
-  gem 'spring-commands-rspec'
+  gem 'spring-commands-rspec', require: false
 
   # prettier plugin for the Ruby programming language (https://github.com/prettier/plugin-ruby#readme)
   gem 'prettier'
@@ -106,15 +109,6 @@ end
 group :test do
   # Capybara aims to simplify the process of integration testing Rack applications, such as Rails, Sinatra or Merb (https://github.com/teamcapybara/capybara)
   gem 'capybara', '>= 3.26'
-
-  # Automatically create snapshots when Cucumber steps fail with Capybara and Rails (http://github.com/mattheworiordan/capybara-screenshot)
-  gem 'capybara-screenshot'
-
-  # Selenium is a browser automation tool for automated testing of webapps and more (https://selenium.dev)
-  gem 'selenium-webdriver'
-
-  # Easy download and use of browser drivers. (https://github.com/titusfortner/webdrivers)
-  gem 'webdrivers'
 
   # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
   gem 'simplecov', require: false
@@ -133,6 +127,6 @@ group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockup.interdiscipline.com)
   gem 'lockup'
 
-  # Error reports you can be happy about. (https://github.com/honeybadger-io/honeybadger-ruby)
+  # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger'
 end
