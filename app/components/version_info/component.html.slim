@@ -15,8 +15,8 @@
               data: { controller: 'tippy' },
               title: t('layout.version_outdated', latest_version:),
               target: '_blank', rel: 'noopener' do
-      span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-indigo-600.opacity-75
-      span.relative.inline-flex.rounded-full.h-3.w-3.bg-indigo-500
+      span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-white.opacity-75.lg:bg-red-700
+      span.relative.inline-flex.rounded-full.h-2.w-2.bg-red-400
 
   - when false
     = link_to latest_release_url,
