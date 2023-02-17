@@ -5,11 +5,10 @@ turbo-stream action="update" target="nav"
 
 turbo-stream action="morph" target="stats" children-only= true
   template
-    div class="flex-auto w-full"
-      - if timeframe.now?
-        = render DashboardNow::Component.new calculator:
-      - else
-        = render DashboardRange::Component.new calculator:, timeframe:
+    - if timeframe.now?
+      = render DashboardNow::Component.new calculator:
+    - else
+      = render DashboardRange::Component.new calculator:, timeframe:
 
 - if params[:chart] != 'false'
   turbo-stream action="update" target="chart"
