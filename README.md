@@ -78,6 +78,12 @@ ESLint:
 bin/yarn lint
 ```
 
+There is a shortcut to run **all** test and linting tools:
+
+```bash
+bin/test
+```
+
 ## License
 
 Copyright (c) 2020-2023 Georg Ledermann, released under the AGPL-3.0 License
