@@ -41,7 +41,7 @@ class AutarkyChart < Flux::Reader
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
     q << '|> fill(usePrevious: true)' if fill
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
-    q << '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.grid_power_plus / (r.house_power + r.wallbox_charge_power))) }))'
+    q << '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.grid_power_plus / (r.house_power + (if r.wallbox_charge_power > 0 then r.wallbox_charge_power else 0.0)))) }))'
     q << '|> keep(columns: ["_time", "autarky"])'
 
     raw = query(q.join)
@@ -57,7 +57,7 @@ class AutarkyChart < Flux::Reader
       |> aggregateWindow(every: 1h, fn: mean)
       |> aggregateWindow(every: #{window}, fn: sum)
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-      |> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.grid_power_plus / (r.house_power + r.wallbox_charge_power))) }))
+      |> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.grid_power_plus / (r.house_power + (if r.wallbox_charge_power > 0 then r.wallbox_charge_power else 0.0)))) }))
       |> keep(columns: ["_time", "autarky"])
     QUERY
 
