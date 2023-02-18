@@ -15,6 +15,9 @@ class Scale
 
     lower_bound +
       (extent * (Math.log(value)**FACTOR) / (Math.log(max)**FACTOR)).round
+  rescue StandardError => e
+    Rails.logger.info "WARNING: Invalid input, cannot scale: value: #{value}, max: #{max}, error: #{e}"
+    0
   end
 
   private
