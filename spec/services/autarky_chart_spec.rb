@@ -24,9 +24,12 @@ describe AutarkyChart do
 
     add_influx_point name: measurement,
                      fields: {
-                       house_power: 1_000,
+                       house_power: 6_000,
                        grid_power_plus: 3000,
-                       wallbox_charge_power: 5000,
+                       # NOTE: There is no `wallbox_charge_power` in this data point.
+                       # This happens when the `senec-importer` was used to import CSV data,
+                       # which do not contain the `wallbox_charge_power`.
+                       # The missing value tests the `if` statement in the query.
                      }
   end
 
