@@ -15,7 +15,7 @@ class ChartLoader::Component < ViewComponent::Base
         title: {
           display: true,
           font: {
-            size: 20,
+            size: 18,
           },
           text: title,
         },
