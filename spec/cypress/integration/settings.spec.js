@@ -42,19 +42,32 @@ describe('Settings', () => {
     it('can create and delete a price', () => {
       cy.get('button[aria-label="Neu"]').click();
 
+      // Save without filling out the form
       cy.get('#form_price button').click();
       cy.get('#form_price').should('contain', 'muss ausgefüllt werden');
 
+      // Fill out the form, save and check if the price is listed
       cy.get('#price_starts_at').type('2023-01-01');
       cy.get('#price_value').type('0.1234');
       cy.get('#price_note').type('Das ist ein Test');
       cy.get('#form_price button').click();
-
       cy.get('#list')
         .should('contain', '01.01.2023')
         .should('contain', '0,1234 €')
         .should('contain', 'Das ist ein Test');
 
+      // Edit the price and try to save with empty price value
+      cy.get("button[aria-label='Bearbeiten']").first().click();
+      cy.get('#price_value').type('{selectall}{backspace}');
+      cy.get('form button').contains('Speichern').click();
+      cy.get('form').should('contain', 'muss ausgefüllt werden');
+
+      // Change the price value and check if the price is updated
+      cy.get('#price_value').type('0.5678');
+      cy.get('form button').contains('Speichern').click();
+      cy.get('#list').should('contain', '0,5678 €');
+
+      // Delete the price and check if the price is not listed anymore
       cy.get("button[aria-label='Löschen']").first().click();
       cy.get('#list').should('not.contain', '01.01.2023');
     });

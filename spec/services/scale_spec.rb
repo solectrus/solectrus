@@ -26,6 +26,8 @@ describe Scale do
   context 'when initialized with a max value of 0' do
     let(:max) { 0 }
 
+    it { expect_result(nil, 0) }
+
     it { expect_result(0, 0) }
     it { expect_result(1000, 100) }
     it { expect_result(10_000, 100) }

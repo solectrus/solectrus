@@ -21,9 +21,8 @@ export default class extends Controller {
   private instance: Instance | undefined;
 
   connect() {
-    const content =
-      (this.hasHtmlTarget && this.htmlTarget.innerHTML) ||
-      this.element.getAttribute('title');
+    const title = this.element.getAttribute('title');
+    const content = (this.hasHtmlTarget && this.htmlTarget.innerHTML) || title;
     if (!content) return;
 
     this.instance = tippy(this.element, {
@@ -37,6 +36,9 @@ export default class extends Controller {
 
     // Remove title from DOM element to avoid native browser tooltips
     this.element.removeAttribute('title');
+
+    // Set aria-label to keep a discernible text
+    this.element.ariaLabel = title;
   }
 
   disconnect() {
