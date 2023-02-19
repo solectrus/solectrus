@@ -42,18 +42,6 @@ describe Scale do
     it { expect_result(10_000, 100) } # 10000 > 500
   end
 
-  context 'when exception is raised' do
-    before { allow(Math).to receive(:log).and_raise(StandardError) }
-
-    let(:max) { 42 }
-
-    it 'catches exception and returns 0' do
-      allow(Rails.logger).to receive(:info)
-      expect_result(10, 0)
-      expect(Rails.logger).to have_received(:info).with(/Invalid input/).once
-    end
-  end
-
   private
 
   def expect_result(value, percent)

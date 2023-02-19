@@ -13,11 +13,16 @@ class Scale
     # This can happen if there is too little data to calculate the peak values.
     return upper_bound if value > max
 
-    lower_bound +
-      (extent * (Math.log(value)**FACTOR) / (Math.log(max)**FACTOR)).round
-  rescue StandardError => e
-    Rails.logger.info "WARNING: Invalid input, cannot scale: value: #{value}, max: #{max}, error: #{e}"
-    0
+    result =
+      lower_bound +
+        (extent * (Math.log(value)**FACTOR) / (Math.log(max)**FACTOR))
+
+    if result.nan?
+      Rails.logger.info "WARNING: Invalid input, cannot scale: value=#{value}, max=#{max}, target=#{target}"
+      lower_bound
+    else
+      result.round
+    end
   end
 
   private
