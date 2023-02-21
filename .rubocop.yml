@@ -153,3 +153,6 @@ RSpec/NestedGroups:
 
 RSpec/ImplicitSubject:
   Enabled: false
+
+RSpec/VerifiedDoubles:
+  Enabled: false

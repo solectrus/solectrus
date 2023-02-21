@@ -32,7 +32,7 @@ describe Calculator::Range do
   end
 
   it 'calculates' do
-    expect(calculator.forecast_quality).to eq(4)
+    expect(calculator.forecast_deviation).to eq(4)
 
     expect(calculator.paid).to eq(-55.47)
     expect(calculator.got).to eq(10.94)

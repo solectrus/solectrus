@@ -22,10 +22,10 @@ class Calculator::Range < Calculator::Base
     build_context sums
   end
 
-  def forecast_quality
+  def forecast_deviation
     return if watt.zero?
 
-    (inverter_power * 100 / watt) - 100
+    ((inverter_power * 100.0 / watt) - 100).round
   end
 
   def paid

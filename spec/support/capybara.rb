@@ -1,3 +1,5 @@
+Capybara.default_normalize_ws = true
+
 RSpec.configure do |config|
   Capybara.enable_aria_label = true
 
