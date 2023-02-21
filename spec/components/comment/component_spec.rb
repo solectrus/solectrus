@@ -14,6 +14,14 @@ describe Comment::Component, type: :component do
   context 'when timeframe is completed' do
     let(:date) { Date.yesterday.to_s }
 
+    context 'when deviation is zero' do
+      let(:forecast_deviation) { 0 }
+
+      it 'comments correctly' do
+        expect(page).to have_text I18n.t('forecast.exactly')
+      end
+    end
+
     context 'when deviation is positive' do
       let(:forecast_deviation) { 10 }
 

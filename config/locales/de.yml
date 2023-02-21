@@ -42,6 +42,7 @@ de:
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
   forecast:
+    exactly: Genau wie erwartet
     better_html: '%{percent} mehr als erwartet'
     worse_html: '%{percent} weniger als erwartet'
     expect_html: Erwartet werden %{value}
