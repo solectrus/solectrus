@@ -21,7 +21,7 @@ class DateInterval
       else
         new_section = attributes(price, last_section)
 
-        last_section[:ends_at] = (price.starts_at - 1.day).end_of_day
+        last_section[:ends_at] = price.starts_at - 1.day
         @price_sections.pop if last_section[:ends_at] < last_section[:starts_at]
 
         @price_sections << new_section

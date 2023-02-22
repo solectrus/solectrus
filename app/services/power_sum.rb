@@ -33,8 +33,8 @@ class PowerSum < Flux::Reader
   def sum(start:, stop: nil, cache_options: nil)
     price_sections(start:, stop:).map do |section|
       sum_query(
-        start: section[:starts_at],
-        stop: section[:ends_at],
+        start: section[:starts_at].beginning_of_day,
+        stop: section[:ends_at].end_of_day,
         cache_options:,
       ).tap do |query|
         query[:feed_in_tariff] = section[:feed_in]
@@ -45,8 +45,8 @@ class PowerSum < Flux::Reader
 
   def price_sections(start:, stop:)
     DateInterval.new(
-      starts_at: start.to_time,
-      ends_at: stop&.to_time,
+      starts_at: start.to_date,
+      ends_at: stop&.to_date,
     ).price_sections
   end
 
