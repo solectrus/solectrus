@@ -18,3 +18,11 @@ import './commands';
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+// Always request German language
+beforeEach(() => {
+  cy.intercept({ url: '*', middleware: true }, (req) => {
+    req.headers['Accept-Language'] =
+      'de-DE,de;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6';
+  });
+});

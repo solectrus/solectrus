@@ -40,6 +40,7 @@ jobs:
       DISABLE_SPRING: 1
       CI: true
       RUBY_YJIT_ENABLE: 1
+      LANG: de_DE.UTF-8
 
     steps:
       - uses: actions/checkout@v3
