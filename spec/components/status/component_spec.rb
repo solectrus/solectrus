@@ -13,7 +13,7 @@ describe Status::Component, type: :component do
     it 'renders the FAIL message' do
       expect(
         render_inline(component).at_css('time')['title'],
-      ).to eq "#{I18n.t('calculator.time')} 5 Minuten"
+      ).to eq "#{I18n.t('calculator.time')} 5 minutes"
     end
   end
 

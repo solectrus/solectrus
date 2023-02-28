@@ -69,7 +69,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Heute, 10:00 Uhr')
+      expect(decoder.localized).to eq('Today, 10:00')
     end
 
     it 'returns the correct corresponding_day' do
@@ -138,7 +138,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Freitag, 13. Mai 2022')
+      expect(decoder.localized).to eq('Friday, 13. May 2022')
     end
 
     it 'returns the correct corresponding_day' do
@@ -356,7 +356,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Mai 2022')
+      expect(decoder.localized).to eq('May 2022')
     end
 
     it 'returns the correct corresponding_day' do
@@ -566,7 +566,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Seit Inbetriebnahme')
+      expect(decoder.localized).to eq(I18n.t('timeframe.all'))
     end
 
     it 'returns the correct corresponding_day' do

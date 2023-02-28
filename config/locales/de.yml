@@ -8,6 +8,8 @@ de:
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
+  timeframe:
+    all: Seit Inbetriebnahme
   senec:
     inverter_power: Erzeugung
     house_power: Haus-Verbrauch
@@ -58,6 +60,8 @@ de:
     confirm_delete: Wirklich löschen?
   settings:
     prices:
+      edit: Preis bearbeiten
+      new: Neuer Preis
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
