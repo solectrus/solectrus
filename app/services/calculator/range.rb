@@ -63,12 +63,15 @@ class Calculator::Range < Calculator::Base
   end
 
   def battery_savings
-    return unless bat_power_minus && bat_power_plus
+    return unless bat_power_minus && bat_power_plus && savings
 
-    section_sum do |index|
-      (bat_power_minus_array[index] * electricity_price[index]) -
-        (bat_power_plus_array[index] * feed_in_tariff[index])
-    end
+    [
+      section_sum do |index|
+        (bat_power_minus_array[index] * electricity_price[index]) -
+          (bat_power_plus_array[index] * feed_in_tariff[index])
+      end,
+      savings,
+    ].min
   end
 
   def battery_savings_percent
