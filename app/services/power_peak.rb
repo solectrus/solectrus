@@ -1,6 +1,6 @@
 class PowerPeak < Flux::Reader
   def result(start:, stop: nil)
-    raw = query <<-QUERY, cache_options: { expires_in: 24.hours }
+    raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start:, stop:)}
       |> #{measurements_filter}
@@ -17,5 +17,11 @@ class PowerPeak < Flux::Reader
     array.reduce({}) do |total, current|
       total.merge(current['_field'] => current['_value'].round)
     end
+  end
+
+  private
+
+  def default_cache_options
+    { expires_in: 1.day }
   end
 end

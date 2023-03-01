@@ -22,7 +22,7 @@ class PowerTop10 < Flux::Reader
   end
 
   def top(start:, stop:, window:, limit: 10)
-    raw = query <<-QUERY, cache_options: { expires_in: 10.minutes }
+    raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start:, stop:)}
       |> #{measurements_filter}
@@ -43,5 +43,9 @@ class PowerTop10 < Flux::Reader
 
       { date: time.to_date, value: }
     end
+  end
+
+  def default_cache_options
+    { expires_in: 10.minutes }
   end
 end
