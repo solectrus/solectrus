@@ -15,7 +15,7 @@
 }
 
 .radial-badge .value {
-  @apply font-light;
+  @apply font-medium;
 
   font-size: calc(var(--size) / 6);
 }
