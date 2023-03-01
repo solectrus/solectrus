@@ -18,7 +18,7 @@ class PowerTop10 < Flux::Reader
   end
 
   def last_day
-    Time.current
+    Time.current.end_of_day
   end
 
   def top(start:, stop:, window:, limit: 10)
