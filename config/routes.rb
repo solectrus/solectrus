@@ -4,14 +4,33 @@ Rails.application.routes.draw do
   mount Lookbook::Engine, at: '/lookbook' if Rails.env.development?
   mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
-  constraints field: Regexp.new(Senec::FIELDS_COMBINED.join('|'), false),
-              timeframe: Timeframe.regex do
-    get '/(/:field)(/:timeframe)', to: 'home#index', as: :root
-    get '/stats/:field(/:timeframe)', to: 'stats#index', as: :stats
-    get '/charts/:field(/:timeframe)', to: 'charts#index', as: :charts
+  constraints field: Regexp.new(Senec::FIELDS_COMBINED.join('|'), false) do
+    constraints timeframe: Timeframe.regex do
+      get '/(/:field)(/:timeframe)', to: 'home#index', as: :root
+      get '/stats/:field(/:timeframe)', to: 'stats#index', as: :stats
+      get '/charts/:field(/:timeframe)', to: 'charts#index', as: :charts
 
-    # Redirect old routes
-    get '/:period/:field/(:timestamp)', to: redirect('/%{field}')
+      # Redirect old routes
+      get '/:period/:field/(:timestamp)', to: redirect('/%{field}')
+    end
+
+    # Redirect time shortcut routes
+    constraints timeframe: /day|week|month|year/ do
+      get '/(:field)/(:timeframe)',
+          to:
+            redirect(status: 302) { |path_params, _req|
+              case path_params[:timeframe]
+              when 'day'
+                "/#{path_params[:field]}/#{Date.current.strftime('%Y-%m-%d')}"
+              when 'week'
+                "/#{path_params[:field]}/#{Date.current.strftime('%Y-W%V')}"
+              when 'month'
+                "/#{path_params[:field]}/#{Date.current.strftime('%Y-%m')}"
+              when 'year'
+                "/#{path_params[:field]}/#{Date.current.strftime('%Y')}"
+              end
+            }
+    end
   end
 
   constraints period: /day|month|year/,
