@@ -16,10 +16,6 @@ module ParamsHandling
       permitted_params[:field]
     end
 
-    helper_method def timeframe?
-      permitted_params[:timeframe].present?
-    end
-
     helper_method def timeframe
       @timeframe ||=
         Timeframe.new(
