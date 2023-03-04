@@ -1,5 +1,5 @@
 - if field == 'inverter_power' && !timeframe.now? && calculator.forecast_deviation
-  .text-center.text-sm.text-slate-500
+  .text-center.text-sm.text-slate-500 data-controller= 'tippy'
     - if calculator.forecast_deviation.zero?
       = t 'forecast.exactly'
     - elsif calculator.forecast_deviation.positive?
@@ -8,3 +8,6 @@
       = t 'forecast.expect_html', value: Number::Component.new(value: calculator.watt).to_wh(max_precision: 0)
     - else
       = t 'forecast.worse_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
+
+    template data-tippy-target= 'html'
+      = t 'forecast.expectation_html', value: Number::Component.new(value: calculator.watt).to_wh(max_precision: 0)
