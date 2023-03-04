@@ -7,4 +7,16 @@ class Comment::Component < ViewComponent::Base
   end
 
   attr_accessor :calculator, :field, :timeframe
+
+  def today_before_sunset?
+    timeframe.day? && timeframe.current? && sunset && Time.current < sunset
+  end
+
+  def future?
+    !timeframe.past? && !timeframe.current?
+  end
+
+  def sunset
+    @sunset ||= Sunset.new(timeframe.date)&.time
+  end
 end
