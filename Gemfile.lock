@@ -313,7 +313,7 @@ GEM
       rubocop-capybara (~> 2.17)
     rubocop-thread_safety (0.4.4)
       rubocop (>= 0.53.0)
-    ruby-progressbar (1.12.0)
+    ruby-progressbar (1.13.0)
     shellany (0.0.1)
     shoulda-matchers (5.3.0)
       activesupport (>= 5.2.0)
