@@ -1,7 +1,7 @@
 ApplicationNotAuthenticated = Class.new(StandardError)
 
 class ApplicationController < ActionController::Base
-  include HttpAcceptLanguage::AutoLocale
+  include AutoLocale
   default_form_builder TailwindFormBuilder
 
   rescue_from ApplicationNotAuthenticated do

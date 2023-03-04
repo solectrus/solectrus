@@ -1,5 +1,7 @@
 describe 'Home', vcr: { cassette_name: 'version' } do
   describe 'GET /' do
+    it_behaves_like 'localized request', '/'
+
     context 'without params' do
       it 'redirects' do
         get root_path

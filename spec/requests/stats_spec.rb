@@ -1,5 +1,7 @@
 describe 'Stats', vcr: { cassette_name: 'version' } do
-  describe 'GET /' do
+  describe 'GET /stats' do
+    it_behaves_like 'localized request', '/stats/house_power/now'
+
     context 'with params' do
       it 'renders' do
         get stats_path(field: 'house_power'),

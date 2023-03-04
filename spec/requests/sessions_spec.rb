@@ -5,6 +5,8 @@ describe 'Sessions', vcr: { cassette_name: 'version' } do
     )
   end
 
+  it_behaves_like 'localized request', '/login'
+
   describe 'GET /login' do
     it 'is successful' do
       get '/login'
