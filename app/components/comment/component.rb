@@ -19,4 +19,12 @@ class Comment::Component < ViewComponent::Base
   def sunset
     @sunset ||= Sunset.new(timeframe.date)&.time
   end
+
+  def tooltip_required?
+    calculator.forecast_deviation.positive? ||
+      (
+        !(future? || today_before_sunset?) &&
+          calculator.forecast_deviation.negative?
+      )
+  end
 end
