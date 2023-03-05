@@ -1,0 +1,4 @@
+= link_to url_for(**helpers.permitted_params.merge(sort: desc? ? 'asc' : 'desc', only_path: true)),
+          title: (desc? ? t('.title.desc') : t('.title.asc')),
+          data: { controller: 'tippy' } do
+  i.fas.fa-lg.text-white class= (desc? ? 'fa-arrow-down-wide-short' : 'fa-arrow-down-short-wide')

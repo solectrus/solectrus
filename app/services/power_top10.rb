@@ -1,24 +1,49 @@
 class PowerTop10 < Flux::Reader
+  def initialize(fields:, measurements:, desc:)
+    super(fields:, measurements:)
+    @desc = desc
+  end
+
+  attr_reader :desc
+
   def days
-    top start: first_day, stop: last_day, window: '1d'
+    top start: start(:day), stop: stop(:day), window: '1d'
   end
 
   def months
-    top start: first_day, stop: last_day, window: '1mo'
+    top start: start(:month), stop: stop(:month), window: '1mo'
   end
 
   def years
-    top start: first_day, stop: last_day, window: '1y'
+    top start: start(:year), stop: stop(:year), window: '1y'
   end
 
   private
 
-  def first_day
-    Rails.configuration.x.installation_date.beginning_of_day
+  def start(period)
+    raw = Rails.configuration.x.installation_date
+
+    case period
+    when :day
+      desc ? raw.beginning_of_day : (raw + 1.day).beginning_of_day
+    when :month
+      desc ? raw.beginning_of_month : (raw + 1.month).beginning_of_month
+    when :year
+      desc ? raw.beginning_of_year : (raw + 1.year).beginning_of_year
+    end
   end
 
-  def last_day
-    Time.current.end_of_day
+  def stop(period)
+    raw = Date.current
+
+    case period
+    when :day
+      desc ? raw.end_of_day : (raw - 1.day).end_of_day
+    when :month
+      desc ? raw.end_of_month : (raw - 1.month).end_of_month
+    when :year
+      desc ? raw.end_of_year : (raw - 1.year).end_of_year
+    end
   end
 
   def top(start:, stop:, window:, limit: 10)
@@ -31,7 +56,7 @@ class PowerTop10 < Flux::Reader
       |> aggregateWindow(every: #{window}, fn: sum)
       |> filter(fn: (r) => r._value > 0)
       |> keep(columns: ["_time","_field","_value"])
-      |> sort(desc: true)
+      |> sort(desc: #{desc})
       |> limit(n: #{limit})
     QUERY
 

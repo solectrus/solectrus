@@ -5,6 +5,9 @@ import { config, library, dom } from '@fortawesome/fontawesome-svg-core';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
 
+import { faArrowDownWideShort } from '@fortawesome/free-solid-svg-icons/faArrowDownWideShort';
+import { faArrowDownShortWide } from '@fortawesome/free-solid-svg-icons/faArrowDownShortWide';
+
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
@@ -28,6 +31,7 @@ import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons/faArr
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
 import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons/faCircleInfo';
 // -------------------------
 
 export default class extends Controller {
@@ -46,6 +50,8 @@ export default class extends Controller {
       faBolt,
       faChevronLeft,
       faChevronRight,
+      faArrowDownWideShort,
+      faArrowDownShortWide,
       faPlus,
       faPencil,
       faTrash,
@@ -60,6 +66,7 @@ export default class extends Controller {
       faGithub,
       faCog,
       faCircleCheck,
+      faCircleInfo,
     );
   }
 

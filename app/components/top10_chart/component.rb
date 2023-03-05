@@ -1,16 +1,18 @@
 class Top10Chart::Component < ViewComponent::Base
-  def initialize(field:, period:)
+  def initialize(field:, period:, sort:)
     raise ArgumentError, 'field must be present' if field.blank?
     raise ArgumentError, 'period must be present' if period.blank?
 
     super
     @field = field
     @period = period
+    @sort = sort
   end
-  attr_accessor :field, :period
+  attr_accessor :field, :period, :sort
 
   def top10
-    @top10 ||= PowerTop10.new(fields: [field], measurements: ['SENEC'])
+    @top10 ||=
+      PowerTop10.new(fields: [field], measurements: ['SENEC'], desc: sort.desc?)
   end
 
   def top10_for_period

@@ -34,9 +34,12 @@ Rails.application.routes.draw do
   end
 
   constraints period: /day|month|year/,
+              sort: /asc|desc/,
               field: Regexp.new(Senec::POWER_FIELDS.join('|'), false) do
-    get '/top10/:period/:field', to: 'top10#index', as: :top10
-    get '/top10-chart/:period/:field', to: 'top10_chart#index', as: :top10_chart
+    get '/top10/:period/:field/(:sort)', to: 'top10#index', as: :top10
+    get '/top10-chart/:period/:field/(:sort)',
+        to: 'top10_chart#index',
+        as: :top10_chart
   end
 
   get '/login', to: 'sessions#new', as: :new_session
