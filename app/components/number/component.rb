@@ -6,24 +6,24 @@ class Number::Component < ViewComponent::Base
 
   attr_accessor :value
 
-  def to_wh(max_precision: 1, unit: nil)
+  def to_watt_hour(max_precision: 1, unit: nil) # rubocop:disable Metrics/CyclomaticComplexity
     raise ArgumentError unless unit.in?([:kilo, :mega, nil])
     return unless value
 
-    if unit == :mega || (unit.nil? && value >= 1_000_000)
-      styled_number(
-        formatted_number(value / 1_000.0 / 1_000.0, max_precision: 1),
-        unit: 'MWh',
-      )
+    unit ||= :mega if value >= 1_000_000
+    unit ||= :kilo if value >= 100
+
+    case unit
+    when :mega
+      to_mwh(max_precision:)
+    when :kilo
+      to_kwh(max_precision:)
     else
-      styled_number(
-        formatted_number(value / 1_000.0, max_precision:),
-        unit: 'kWh',
-      )
+      to_wh(max_precision: 0)
     end
   end
 
-  def to_w(max_precision: 1)
+  def to_watt(max_precision: 1)
     return unless value
 
     styled_number(formatted_number(value / 1_000.0, max_precision:), unit: 'kW')
@@ -52,6 +52,24 @@ class Number::Component < ViewComponent::Base
   end
 
   private
+
+  def to_wh(max_precision:)
+    styled_number(formatted_number(value, max_precision:), unit: 'Wh')
+  end
+
+  def to_kwh(max_precision:)
+    styled_number(
+      formatted_number(value / 1_000.0, max_precision:),
+      unit: 'kWh',
+    )
+  end
+
+  def to_mwh(max_precision:)
+    styled_number(
+      formatted_number(value / 1_000.0 / 1_000.0, max_precision:),
+      unit: 'MWh',
+    )
+  end
 
   def styled_number(number_as_string, unit:, klass: nil)
     return unless number_as_string

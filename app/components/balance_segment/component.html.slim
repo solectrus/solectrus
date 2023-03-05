@@ -24,7 +24,7 @@
       = t("senec.#{field}")
 
     div data= { 'stats-with-chart--component-target': 'current', field: field, value: masked_value }
-      = Number::Component.new(value:).public_send(now? ? :to_w : :to_wh) if value > 50
+      = Number::Component.new(value:).public_send(now? ? :to_watt : :to_watt_hour) if value > 50
 
     template data-tippy-target="html"
       .flex.flex-col.items-center.justify-center
@@ -32,6 +32,6 @@
         = I18n.t("senec.#{field}")
         br
         - if now?
-          = Number::Component.new(value:).to_w max_precision: 3
+          = Number::Component.new(value:).to_watt(max_precision: 3)
         - else
-          = Number::Component.new(value:).to_wh max_precision: 3
+          = Number::Component.new(value:).to_watt_hour(max_precision: 3)

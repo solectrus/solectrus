@@ -1,15 +1,15 @@
 describe Number::Component do
   let(:component) { described_class.new(value:) }
 
-  describe 'to_wh' do
-    subject(:to_wh) { component.to_wh }
+  describe 'to_watt_hour' do
+    subject(:to_watt_hour) { component.to_watt_hour }
 
     context 'when small number (< 100 kWh)' do
       let(:value) { 12_345.67 }
 
       it 'renders kWh with decimal' do
         expect(
-          to_wh,
+          to_watt_hour,
         ).to eq '<span><strong class="font-medium">12</strong><small>.3</small>&nbsp;<small>kWh</small></span>'
       end
     end
@@ -19,7 +19,7 @@ describe Number::Component do
 
       it 'renders kWh without decimal' do
         expect(
-          to_wh,
+          to_watt_hour,
         ).to eq '<span><strong class="font-medium">123</strong>&nbsp;<small>kWh</small></span>'
       end
     end
@@ -29,21 +29,21 @@ describe Number::Component do
 
       it 'renders MWh' do
         expect(
-          to_wh,
+          to_watt_hour,
         ).to eq '<span><strong class="font-medium">1</strong><small>.2</small>&nbsp;<small>MWh</small></span>'
       end
     end
   end
 
-  describe 'to_w' do
-    subject(:to_w) { component.to_w }
+  describe 'to_watt(' do
+    subject(:to_watt) { component.to_watt }
 
     context 'when small number (< 100 kW)' do
       let(:value) { 12_345.67 }
 
       it do
         expect(
-          to_w,
+          to_watt,
         ).to eq '<span><strong class="font-medium">12</strong><small>.3</small>&nbsp;<small>kW</small></span>'
       end
     end
@@ -53,7 +53,7 @@ describe Number::Component do
 
       it do
         expect(
-          to_w,
+          to_watt,
         ).to eq '<span><strong class="font-medium">123</strong>&nbsp;<small>kW</small></span>'
       end
     end
@@ -63,7 +63,7 @@ describe Number::Component do
 
       it do
         expect(
-          to_w,
+          to_watt,
         ).to eq '<span><strong class="font-medium">1,235</strong>&nbsp;<small>kW</small></span>'
       end
     end
