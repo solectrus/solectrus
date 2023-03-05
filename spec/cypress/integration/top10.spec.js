@@ -21,11 +21,11 @@ describe('Top 10', () => {
       cy.location('pathname').should('equal', `/top10/year/${path}`);
       cy.get('#chart-year').should('exist');
 
-      cy.get('[aria-label="Wechsel zu aufsteigender Sortierung"]').click();
+      cy.get('[aria-label="Sortierung wechseln"]').click();
       cy.location('pathname').should('equal', `/top10/year/${path}/asc`);
       cy.get('#chart-year').should('exist');
 
-      cy.get('[aria-label="Wechsel zu absteigender Sortierung"]').click();
+      cy.get('[aria-label="Sortierung wechseln"]').click();
       cy.location('pathname').should('equal', `/top10/year/${path}/desc`);
       cy.get('#chart-year').should('exist');
     });

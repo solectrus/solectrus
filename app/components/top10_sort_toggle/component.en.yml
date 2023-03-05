@@ -1,4 +1,2 @@
 en:
-  title:
-    desc: Switch to ascending order
-    asc: Switch to descending order
+  title: Toggle order
