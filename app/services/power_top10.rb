@@ -21,7 +21,7 @@ class PowerTop10 < Flux::Reader
   private
 
   def start(period)
-    raw = Rails.configuration.x.installation_date
+    raw = Rails.configuration.x.installation_date.beginning_of_day
 
     case period
     when :day
@@ -34,7 +34,7 @@ class PowerTop10 < Flux::Reader
   end
 
   def stop(period)
-    raw = Date.current
+    raw = Date.current.end_of_day
 
     case period
     when :day
