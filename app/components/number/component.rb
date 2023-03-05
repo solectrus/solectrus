@@ -32,7 +32,7 @@ class Number::Component < ViewComponent::Base
   def to_eur(klass: nil)
     return unless value
 
-    max_precision = value < 10 ? 2 : 0
+    max_precision = value.abs < 10 ? 2 : 0
 
     styled_number(
       formatted_number(value, max_precision:),

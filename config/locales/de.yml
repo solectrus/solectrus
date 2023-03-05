@@ -41,6 +41,9 @@ de:
     traditional_price: Vergleichspreis
     savings: Einsparung
     battery_savings: Anteil Akku
+    house_costs: Anteil Haus
+    wallbox_costs: Anteil E-Auto
+    total_costs: Kosten
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
   forecast:

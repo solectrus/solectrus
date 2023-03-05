@@ -41,6 +41,9 @@ en:
     traditional_price: Comparative price
     savings: Savings
     battery_savings: Battery share
+    house_costs: House costs
+    wallbox_costs: EV costs
+    total_costs: Total costs
     time: Last measurement taken
     blank: No data available!
   forecast:
