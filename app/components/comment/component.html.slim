@@ -4,10 +4,11 @@
       = t 'forecast.expect_html', value: Number::Component.new(value: calculator.watt).to_watt_hour(max_precision: 0)
     - elsif calculator.forecast_deviation.zero?
       = t 'forecast.exactly'
-    - elsif calculator.forecast_deviation.positive?
-      = t 'forecast.better_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
     - else
-      = t 'forecast.worse_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
+      - if calculator.forecast_deviation.positive?
+        = t 'forecast.better_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
+      - else
+        = t 'forecast.worse_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
 
-    template data-tippy-target= 'html'
-      = t 'forecast.expectation_html', value: Number::Component.new(value: calculator.watt).to_watt_hour(max_precision: 0)
+      template data-tippy-target= 'html'
+        = t 'forecast.expectation_html', value: Number::Component.new(value: calculator.watt).to_watt_hour(max_precision: 0)
