@@ -7,11 +7,7 @@ describe Timeframe do
     )
   end
 
-  around do |example|
-    travel_to Time.zone.local(2022, 10, 13, 10, 0, 0) do
-      example.run
-    end
-  end
+  before { travel_to Time.zone.local(2022, 10, 13, 10, 0, 0) }
 
   describe 'static methods' do
     describe '.now' do
@@ -609,7 +605,7 @@ describe Timeframe do
 
   context 'when string is invalid' do
     %w[foo 123 2022-09-99 2022-99-09 2022-99 2022-W99].each do |string|
-      context "given #{string}" do
+      context "when given #{string}" do
         let(:string) { string }
 
         it 'raises an error' do
