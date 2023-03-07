@@ -1,31 +1,33 @@
 h3.font-bold
   = t('.title')
 
-dl.mt-5
-  .grid.grid-cols-2.gap-4
-    dt
-      = I18n.t('calculator.house_costs')
-    dd.font-mono.text-right
-      = Number::Component.new(value: calculator.house_costs).to_eur
+  - if calculator.wallbox_costs.nonzero?
+    dl.mt-5
+      .grid.grid-cols-2.gap-4
+        dt
+          = I18n.t('calculator.house_costs')
+        dd.font-mono.text-right
+          = Number::Component.new(value: calculator.house_costs).to_eur(klass: 'text-red-500', max_precision: 2)
 
-  .grid.grid-cols-2.gap-4
-    dt
-      |&plus;&nbsp;
-      = I18n.t('calculator.wallbox_costs')
-    dd.font-mono.text-right
-      = Number::Component.new(value: calculator.wallbox_costs).to_eur
+      .grid.grid-cols-2.gap-4
+        dt
+          |&plus;&nbsp;
+          = I18n.t('calculator.wallbox_costs')
+        dd.font-mono.text-right
+          = Number::Component.new(value: calculator.wallbox_costs).to_eur(klass: 'text-red-500', max_precision: 2)
 
-  hr.my-2
+      hr.my-2
 
-  .grid.grid-cols-2.gap-4
-    dt
-      |&#61;&nbsp;
-      = I18n.t('calculator.total_costs')
-    dd.font-mono.text-right
-      = Number::Component.new(value: calculator.total_costs).to_eur
+      .grid.grid-cols-2.gap-4
+        dt
+          |&#61;&nbsp;
+          = I18n.t('calculator.total_costs')
+        dd.font-mono.text-right
+          = Number::Component.new(value: calculator.total_costs).to_eur(klass: 'text-red-500', max_precision: 2)
 
 p.mt-5.text-gray-400.text-sm
-  = t('.explanation1')
+  = t('.explanation')
 
-p.mt-2.text-gray-400.text-sm
-  = t('.explanation2')
+- if calculator.wallbox_costs.nonzero?
+  p.mt-2.text-gray-400.text-sm
+    = t('.explanation_wallbox')
