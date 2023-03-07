@@ -84,46 +84,48 @@ class Calculator::Range < Calculator::Base
   def wallbox_costs
     return unless wallbox_charge_power && grid_power_plus
 
-    -section_sum do |index|
-      if wallbox_charge_power_array[index] > grid_power_plus_array[index]
-        # Part 1: Paid to the power supplier
-        grid_costs = grid_power_plus_array[index] * electricity_price[index]
+    @wallbox_costs ||=
+      -section_sum do |index|
+        if wallbox_charge_power_array[index] > grid_power_plus_array[index]
+          # Part 1: Paid to the power supplier
+          grid_costs = grid_power_plus_array[index] * electricity_price[index]
 
-        # Part 2: Lost feed-in tariff
-        opportunity_costs =
-          (wallbox_charge_power_array[index] - grid_power_plus_array[index]) *
-            feed_in_tariff[index]
+          # Part 2: Lost feed-in tariff
+          opportunity_costs =
+            (wallbox_charge_power_array[index] - grid_power_plus_array[index]) *
+              feed_in_tariff[index]
 
-        grid_costs + opportunity_costs
-      else
-        # It all comes from the grid
-        wallbox_charge_power_array[index] * electricity_price[index]
+          grid_costs + opportunity_costs
+        else
+          # It all comes from the grid
+          wallbox_charge_power_array[index] * electricity_price[index]
+        end
       end
-    end
   end
 
   def house_costs
     return unless house_power
 
-    -section_sum do |index|
-      if wallbox_charge_power_array[index] < grid_power_plus_array[index]
-        # Part 1: Paid to the power supplier
-        grid_costs =
-          (grid_power_plus_array[index] - wallbox_charge_power_array[index]) *
-            electricity_price[index]
+    @house_costs ||=
+      -section_sum do |index|
+        if wallbox_charge_power_array[index] < grid_power_plus_array[index]
+          # Part 1: Paid to the power supplier
+          grid_costs =
+            (grid_power_plus_array[index] - wallbox_charge_power_array[index]) *
+              electricity_price[index]
 
-        # Part 2: Lost feed-in tariff
-        opportunity_costs =
-          (house_power_array[index] - grid_power_plus_array[index]) *
-            feed_in_tariff[index]
+          # Part 2: Lost feed-in tariff
+          consume = wallbox_charge_power_array[index] + house_power_array[index]
+          opportunity_costs =
+            (consume - grid_power_plus_array[index]) * feed_in_tariff[index]
 
-        grid_costs + opportunity_costs
-      else
-        # It all comes from the inverter, so we don't have to pay for it,
-        # but we lose the feed-in tariff
-        house_power_array[index] * feed_in_tariff[index]
+          grid_costs + opportunity_costs
+        else
+          # It all comes from the inverter, so we don't have to pay for it,
+          # but we loose the feed-in tariff
+          house_power_array[index] * feed_in_tariff[index]
+        end
       end
-    end
   end
 
   def total_costs
