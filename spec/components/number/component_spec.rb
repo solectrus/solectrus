@@ -70,7 +70,9 @@ describe Number::Component do
   end
 
   describe 'to_eur' do
-    subject(:to_eur) { component.to_eur }
+    subject(:to_eur) { component.to_eur(**options) }
+
+    let(:options) { {} }
 
     context 'when positive' do
       let(:value) { 1.234 }
@@ -89,6 +91,28 @@ describe Number::Component do
         expect(
           to_eur,
         ).to eq '<span class="text-red-500"><strong class="font-medium">-1</strong><small>.23</small>&nbsp;<small>€</small></span>'
+      end
+    end
+
+    context 'with :max_precision option' do
+      let(:value) { 10 }
+      let(:options) { { max_precision: 2 } }
+
+      it do
+        expect(
+          to_eur,
+        ).to eq '<span class="text-green-500"><strong class="font-medium">10</strong><small>.00</small>&nbsp;<small>€</small></span>'
+      end
+    end
+
+    context 'with :klass option' do
+      let(:value) { 10 }
+      let(:options) { { klass: 'foo' } }
+
+      it do
+        expect(
+          to_eur,
+        ).to eq '<span class="foo"><strong class="font-medium">10</strong>&nbsp;<small>€</small></span>'
       end
     end
   end

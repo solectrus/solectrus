@@ -29,10 +29,10 @@ class Number::Component < ViewComponent::Base
     styled_number(formatted_number(value / 1_000.0, max_precision:), unit: 'kW')
   end
 
-  def to_eur(klass: nil)
+  def to_eur(klass: nil, max_precision: nil)
     return unless value
 
-    max_precision = value.abs < 10 ? 2 : 0
+    max_precision ||= value.abs < 10 ? 2 : 0
 
     styled_number(
       formatted_number(value, max_precision:),
@@ -91,7 +91,7 @@ class Number::Component < ViewComponent::Base
 
     # Some numbers don't need fractional digits
     need_fractional_digits =
-      !value.round(max_precision).zero? && value.abs < 100
+      value.round(max_precision).nonzero? && value.abs < 100
 
     number_with_precision(
       value,
