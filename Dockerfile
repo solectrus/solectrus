@@ -14,5 +14,7 @@ COPY --from=Builder /etc/alpine-release /tmp/dummy
 ENV HONEYBADGER_LOGGING_LEVEL=WARN
 ENV HONEYBADGER_LOGGING_PATH=STDOUT
 
+USER app
+
 # Script to be executed every time the container starts
 ENTRYPOINT ["docker/startup.sh"]
