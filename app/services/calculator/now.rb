@@ -14,6 +14,7 @@ class Calculator::Now < Calculator::Base
                       bat_power_minus
                       bat_power_plus
                       bat_fuel_charge
+                      case_temp
                     ],
                   ).call(Timeframe.now)
   end

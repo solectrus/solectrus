@@ -1,4 +1,4 @@
-.flex.h-full.w-full
+.h-full.w-full
   = render Balance::Component.new side: :left,
                                   calculator:,
                                   timeframe: do |balance|
@@ -7,33 +7,32 @@
       balance.segment :inverter_power
       balance.segment :bat_power_minus
 
-  div class="px-2 sm:px-3 pb-12 pt-3"
-    div class="h-full flex flex-col gap-y-5 justify-between"
-      .flex.flex-col.space-y-5
-        = link_to root_path(field: 'autarky', timeframe:) do
-          dl data-controller="tippy"
-            = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
-            template data-tippy-target="html"
-              = render AutarkyDetails::Component.new(calculator:)
+  div class="h-full flex flex-col px-2 sm:px-4 gap-4 pb-8"
+    = link_to root_path(field: 'autarky', timeframe:) do
+      dl data-controller="tippy"
+        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
+        template data-tippy-target="html"
+          = render AutarkyDetails::Component.new(calculator:)
 
-        = link_to root_path(field: 'consumption', timeframe:) do
-          dl data-controller="tippy"
-            = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
-            template data-tippy-target="html"
-              = render ConsumptionDetails::Component.new(calculator:)
+    = link_to root_path(field: 'consumption', timeframe:) do
+      dl data-controller="tippy"
+        = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
+        template data-tippy-target="html"
+          = render ConsumptionDetails::Component.new(calculator:)
 
-      .flex.flex-col.space-y-5
-        div data-controller="tippy"
-          = render RadialBadge::Component.new(title: t('calculator.total_costs')) do
-            = Number::Component.new(value: -calculator.total_costs).to_eur(klass: 'text-red-700')
-          template data-tippy-target="html"
-            = render ConsumeDetails::Component.new(calculator:)
+    div class="flex-1"
 
-        div data-controller="tippy"
-          = render RadialBadge::Component.new(title: t('calculator.savings')) do
-            = Number::Component.new(value: calculator.savings).to_eur(klass: 'text-green-700')
-          template data-tippy-target="html"
-            = render SavingsDetails::Component.new(calculator:)
+    div data-controller="tippy"
+      = render RadialBadge::Component.new(title: t('calculator.total_costs')) do
+        = Number::Component.new(value: -calculator.total_costs).to_eur(klass: 'text-red-700')
+      template data-tippy-target="html"
+        = render ConsumeDetails::Component.new(calculator:)
+
+    div data-controller="tippy"
+      = render RadialBadge::Component.new(title: t('calculator.savings')) do
+        = Number::Component.new(value: calculator.savings).to_eur(klass: 'text-green-700')
+      template data-tippy-target="html"
+        = render SavingsDetails::Component.new(calculator:)
 
   = render Balance::Component.new side: :right,
                                   calculator:,

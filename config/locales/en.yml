@@ -23,6 +23,7 @@ en:
     bat_fuel_charge: Battery
     autarky: Autarky
     consumption: Consume
+    case_temp: Temperature
   balance_sheet:
     left: Origin
     right: Usage

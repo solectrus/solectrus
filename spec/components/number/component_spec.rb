@@ -116,4 +116,35 @@ describe Number::Component do
       end
     end
   end
+
+  describe 'to_grad_celsius' do
+    subject(:to_grad_celsius) { component.to_grad_celsius(**options) }
+
+    let(:options) { {} }
+
+    context 'when positive' do
+      let(:value) { 1.234 }
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">1</strong><small>.2</small>&nbsp;<small>°C</small></span>'
+      end
+    end
+
+    context 'when negative' do
+      let(:value) { -1.234 }
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">-1</strong><small>.2</small>&nbsp;<small>°C</small></span>'
+      end
+    end
+
+    context 'with :max_precision option' do
+      let(:value) { 10 }
+      let(:options) { { max_precision: 0 } }
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">10</strong>&nbsp;<small>°C</small></span>'
+      end
+    end
+  end
 end

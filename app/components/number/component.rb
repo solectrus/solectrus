@@ -51,6 +51,12 @@ class Number::Component < ViewComponent::Base
     )
   end
 
+  def to_grad_celsius(max_precision: 1)
+    return unless value
+
+    styled_number(formatted_number(value, max_precision:), unit: '°C')
+  end
+
   private
 
   def to_wh(max_precision:)
