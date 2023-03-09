@@ -13,14 +13,16 @@ class RadialBadge::Component < ViewComponent::Base
   attr_reader :percent, :title, :size, :neutral
 
   def variant_class
-    'percent' if percent
+    'percent' if percent&.nonzero?
   end
 
   def border_color
     return 'border-slate-200' if neutral
 
     case percent
-    when 0..33
+    when 0
+      'border-transparent'
+    when 1..33
       'border-red-200'
     when 34..66
       'border-orange-200'
