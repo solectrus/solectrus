@@ -11,7 +11,19 @@
       --segment-height: #{percent}%;
     }
 
-    @media (min-width: 640px) {
+    @media (min-width: 768px) {
+      #segment-#{field} {
+        --segment-font-size: #{font_size(max: 140)}%;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      #segment-#{field} {
+        --segment-font-size: #{font_size(max: 115)}%;
+      }
+    }
+
+    @media (min-width: 1280px) {
       #segment-#{field} {
         --segment-font-size: #{font_size(max: 140)}%;
       }
