@@ -26,8 +26,15 @@
   font-size: calc(var(--size) / 10);
 }
 
-@media screen and (min-width: 640px) {
+@media screen(lg) {
   .radial-badge {
+    --size: 8rem;
+  }
+}
+
+@media screen(xl) {
+  .radial-badge {
+    --size: 6rem;
     @apply box-content border-4 bg-transparent h-[var(--size)] w-[var(--size)];
   }
 
