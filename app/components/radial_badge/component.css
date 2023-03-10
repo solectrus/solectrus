@@ -2,7 +2,7 @@
 
 .radial-badge {
   --value: 0;
-  --size: 5rem;
+  --size: 6rem;
   --thickness: calc(var(--size) / 15);
 }
 
