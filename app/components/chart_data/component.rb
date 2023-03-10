@@ -147,7 +147,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
   def background_color(chart_field)
     case chart_field
     when 'forecast'
-      '#ddd'
+      '#cbd5e1' # bg-slate-300
     when 'house_power'
       '#64748b' # bg-slate-500
     when 'grid_power_plus'
