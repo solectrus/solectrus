@@ -45,6 +45,12 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     ending.to_date < Date.current
   end
 
+  def future?
+    return false if now? || all?
+
+    beginning.to_date > Date.current
+  end
+
   def id
     @id ||=
       case string

@@ -11,28 +11,34 @@
     = link_to root_path(field: 'autarky', timeframe:) do
       dl data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
-        template data-tippy-target="html"
-          = render AutarkyDetails::Component.new(calculator:)
+        - unless timeframe.future?
+          template data-tippy-target="html"
+            = render AutarkyDetails::Component.new(calculator:)
 
     = link_to root_path(field: 'consumption', timeframe:) do
       dl data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
-        template data-tippy-target="html"
-          = render ConsumptionDetails::Component.new(calculator:)
+        - unless timeframe.future?
+          template data-tippy-target="html"
+            = render ConsumptionDetails::Component.new(calculator:)
 
     div class="flex-1"
 
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.total_costs')) do
-        = Number::Component.new(value: -calculator.total_costs).to_eur(klass: 'text-red-700')
-      template data-tippy-target="html"
-        = render ConsumeDetails::Component.new(calculator:)
+        - unless timeframe.future?
+          = Number::Component.new(value: -calculator.total_costs).to_eur(klass: 'text-red-700')
+      - unless timeframe.future?
+        template data-tippy-target="html"
+          = render ConsumeDetails::Component.new(calculator:)
 
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.savings')) do
-        = Number::Component.new(value: calculator.savings).to_eur(klass: 'text-green-700')
-      template data-tippy-target="html"
-        = render SavingsDetails::Component.new(calculator:)
+        - unless timeframe.future?
+          = Number::Component.new(value: calculator.savings).to_eur(klass: 'text-green-700')
+      - unless timeframe.future?
+        template data-tippy-target="html"
+          = render SavingsDetails::Component.new(calculator:)
 
   = render Balance::Component.new side: :right,
                                   calculator:,

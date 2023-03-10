@@ -2,12 +2,13 @@
   class= [ border_color, background_color, text_color, variant_class ]
   style= "--value: #{percent};"
 ]
-  .inside
-    .value
-      - if percent
-        = "#{percent}%"
-      - else
-        = content
+  - if percent || content
+    .inside
+      .value
+        - if percent
+          = "#{percent}%"
+        - else
+          = content
 
-    .title
-      = title
+      .title
+        = title

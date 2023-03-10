@@ -129,6 +129,8 @@ class Calculator::Range < Calculator::Base
   end
 
   def total_costs
+    return unless wallbox_costs && house_costs
+
     wallbox_costs + house_costs
   end
 
