@@ -1,14 +1,17 @@
-div class="flex-1 flex flex-col tabular-nums h-44 w-full"
-  div class="text-center text-sm xl:text-lg" class= temperature_color
+div class="flex flex-col h-48"
+  div class= ["text-center text-sm xl:text-lg", temperature_color]
     = Number::Component.new(value: temperature).to_grad_celsius(max_precision: 0)
 
-  div class="mx-auto h-4 md:h-5 w-1/2 translate-y-2 rounded border-2 md:border-4 border-slate-300 bg-slate-100"
+  div class="mx-auto h-4 xl:h-5 w-1/2 translate-y-2 rounded border-4 border-slate-300 bg-slate-100"
 
-  div class="flex-1 relative flex items-end rounded-lg border-2 md:border-4 border-slate-300 bg-slate-100"
-    div class="w-full rounded-b-lg border-4 border-slate-100 bg-slate-300" style="height: #{fuel_charge}%"
+  div class="flex-1 relative flex items-end rounded border-4 border-slate-300 bg-slate-100 p-1"
+    div[
+      class="w-full bg-green-600 rounded"
+      style="height: #{fuel_charge}%"
+    ]
 
     div[
-      class= "absolute w-full text-center text-xs md:text-md xl:text-lg text-slate-100 leading-0"
-      style= (fuel_charge >= 50 ? 'bottom: 2rem' : "bottom: #{fuel_charge}%")
+      class="absolute w-full text-center text-xs md:text-md xl:text-lg leading-0"
+      style= (fuel_charge >= 50 ? 'bottom: 1rem' : "bottom: calc(#{fuel_charge}% + 5px)")
     ]
-      = Number::Component.new(value: fuel_charge).to_percent(max_precision: 0, klass: 'text-slate-600')
+      = Number::Component.new(value: fuel_charge).to_percent(max_precision: 0, klass: fuel_charge_color)

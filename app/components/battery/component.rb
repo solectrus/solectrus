@@ -16,4 +16,14 @@ class Battery::Component < ViewComponent::Base
       'text-green-600'
     end
   end
+
+  def fuel_charge_color
+    if fuel_charge < 5
+      'text-slate-500'
+    elsif fuel_charge >= 50
+      'text-green-100'
+    else
+      'text-green-600'
+    end
+  end
 end
