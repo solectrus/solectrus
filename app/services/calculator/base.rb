@@ -88,7 +88,7 @@ class Calculator::Base
   end
 
   def consumption_quote
-    return if inverter_power.zero?
+    return if inverter_power < 50
 
     [consumption_alt * 100.0 / inverter_power, 0.0].max.round(1)
   end
