@@ -40,6 +40,9 @@ Rails.application.routes.draw do
     get '/top10-chart/:period/:field/:sort',
         to: 'top10_chart#index',
         as: :top10_chart
+
+    # Redirect old routes
+    get '/top10/:period/:field', to: redirect('/top10/%{period}/%{field}/desc')
   end
 
   get '/login', to: 'sessions#new', as: :new_session
