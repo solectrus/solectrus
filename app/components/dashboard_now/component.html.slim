@@ -1,4 +1,4 @@
-.flex.h-full.w-full
+.h-full.w-full
   = render Balance::Component.new side: :left,
                                   calculator:,
                                   timeframe: do |balance|
@@ -7,27 +7,28 @@
       balance.segment :inverter_power, peak['inverter_power']
       balance.segment :bat_power_minus, peak['bat_power_minus']
 
-  div class="h-full pb-8"
-    div class="h-full flex flex-col"
-      div class="px-2 sm:px-4 py-3"
-        = link_to root_path(field: 'autarky', timeframe:) do
-          div data-controller="tippy"
-            = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
-            template data-tippy-target="html"
-              = render AutarkyDetails::Component.new(calculator:)
+  div class="h-full flex flex-col px-2 sm:px-4 gap-4 pb-8"
+    = link_to root_path(field: 'autarky', timeframe:) do
+      div data-controller="tippy"
+        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
+        template data-tippy-target="html"
+          = render AutarkyDetails::Component.new(calculator:)
 
-      div class="px-2 sm:px-4"
-        = link_to root_path(field: 'consumption', timeframe:) do
-          div data-controller="tippy"
-            = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
-            template data-tippy-target="html"
-              = render ConsumptionDetails::Component.new(calculator:)
+    - if calculator.consumption_quote
+      = link_to root_path(field: 'consumption', timeframe:) do
+        div data-controller="tippy"
+          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
+          template data-tippy-target="html"
+            = render ConsumptionDetails::Component.new(calculator:)
 
-      div class="flex-1 flex flex-col justify-center"
-        = render Flow::Component.new value: calculator.total, max: max_flow
+    div class="flex-1 flex flex-col justify-center -mx-2 sm:-mx-4"
+      = render Flow::Component.new value: calculator.total, max: max_flow
 
-      div class="px-2 sm:px-4 py-3"
-        = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
+    - if calculator.case_temp.nonzero?
+      = render RadialBadge::Component.new(title: t('senec.case_temp')) do
+        = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
+
+    = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
 
   = render Balance::Component.new side: :right,
                                   calculator:,

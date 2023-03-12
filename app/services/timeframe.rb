@@ -45,6 +45,12 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     ending.to_date < Date.current
   end
 
+  def future?
+    return false if now? || all?
+
+    beginning.to_date > Date.current
+  end
+
   def id
     @id ||=
       case string
@@ -98,7 +104,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :year
       date.year.to_s
     when :all
-      'Seit Inbetriebnahme'
+      I18n.t('timeframe.all')
     end
   end
 
@@ -256,7 +262,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   FORMAT = {
-    now: 'Heute, %H:%M Uhr',
+    now: :now,
     day: '%Y-%m-%d',
     week: '%G-W%V',
     month: '%Y-%m',

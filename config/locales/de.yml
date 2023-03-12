@@ -8,6 +8,8 @@ de:
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
+  timeframe:
+    all: Seit Inbetriebnahme
   senec:
     inverter_power: Erzeugung
     house_power: Haus-Verbrauch
@@ -21,6 +23,7 @@ de:
     bat_fuel_charge: Akku
     autarky: Autarkie
     consumption: Verbrauch
+    case_temp: Temperatur
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -39,8 +42,17 @@ de:
     traditional_price: Vergleichspreis
     savings: Einsparung
     battery_savings: Anteil Akku
+    house_costs: Anteil Haus
+    wallbox_costs: Anteil E-Auto
+    total_costs: Kosten
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
+  forecast:
+    exactly: Genau wie erwartet
+    better_html: '%{percent} mehr als erwartet'
+    worse_html: '%{percent} weniger als erwartet'
+    expect_html: Erwartet werden %{value}
+    expectation_html: Erwartet wurden %{value}
   login:
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code class="bg-slate-100 p-1 rounded">ADMIN_PASSWORD</code> ergänzt werden.
@@ -53,6 +65,8 @@ de:
     confirm_delete: Wirklich löschen?
   settings:
     prices:
+      edit: Preis bearbeiten
+      new: Neuer Preis
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.

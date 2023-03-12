@@ -35,6 +35,7 @@ module ApplicationHelper
             else
               'day'
             end,
+          sort: 'desc',
         ),
     }
   end

@@ -7,18 +7,26 @@ describe('Top 10', () => {
     'bat_power_minus',
     'bat_power_plus',
     'wallbox_charge_power',
-  ].forEach((path) => {
-    it(`${path} is clickable`, () => {
-      cy.visit(`/top10/day/${path}`);
+  ].forEach((field) => {
+    it(`${field} is clickable`, () => {
+      cy.visit(`/top10/day/${field}/desc`);
 
       cy.get('#chart-day').should('exist');
 
       cy.contains('Monat').click();
-      cy.location('pathname').should('equal', `/top10/month/${path}`);
+      cy.location('pathname').should('equal', `/top10/month/${field}/desc`);
       cy.get('#chart-month').should('exist');
 
       cy.contains('Jahr').click();
-      cy.location('pathname').should('equal', `/top10/year/${path}`);
+      cy.location('pathname').should('equal', `/top10/year/${field}/desc`);
+      cy.get('#chart-year').should('exist');
+
+      cy.get('[aria-label="Sortierung wechseln"]').click();
+      cy.location('pathname').should('equal', `/top10/year/${field}/asc`);
+      cy.get('#chart-year').should('exist');
+
+      cy.get('[aria-label="Sortierung wechseln"]').click();
+      cy.location('pathname').should('equal', `/top10/year/${field}/desc`);
       cy.get('#chart-year').should('exist');
     });
   });

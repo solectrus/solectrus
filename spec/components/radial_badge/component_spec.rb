@@ -1,6 +1,16 @@
 describe RadialBadge::Component, type: :component do
   subject(:component) { described_class.new(percent:, title: 'Test') }
 
+  context 'when percent is 0' do
+    before { render_inline(component) }
+
+    let(:percent) { 0 }
+
+    it 'renders component' do
+      expect(page).to have_css '.radial-badge.border-transparent', text: '0%'
+    end
+  end
+
   context 'when percent is low' do
     before { render_inline(component) }
 

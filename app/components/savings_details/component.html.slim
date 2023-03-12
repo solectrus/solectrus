@@ -1,4 +1,7 @@
-dl
+h3.font-bold
+  = t('.title')
+
+dl.mt-5
   .grid.grid-cols-2.gap-4
     dt = I18n.t('senec.grid_power_plus')
     dd.font-mono.text-right = Number::Component.new(value: calculator.paid).to_eur
@@ -34,3 +37,6 @@ dl
         = I18n.t('calculator.battery_savings')
         =< sanitize "(#{Number::Component.new(value: calculator.battery_savings_percent).to_percent(max_precision: 0, klass: 'text-current')})"
       dd.font-mono.text-right = Number::Component.new(value: calculator.battery_savings).to_eur
+
+p.mt-5.text-gray-400.text-sm
+  = t('.explanation')

@@ -1,16 +1,16 @@
 describe Number::Component do
   let(:component) { described_class.new(value:) }
 
-  describe 'to_wh' do
-    subject(:to_wh) { component.to_wh }
+  describe 'to_watt_hour' do
+    subject(:to_watt_hour) { component.to_watt_hour }
 
     context 'when small number (< 100 kWh)' do
       let(:value) { 12_345.67 }
 
       it 'renders kWh with decimal' do
         expect(
-          to_wh,
-        ).to eq '<span><strong class="font-medium">12</strong><small>,3</small>&nbsp;<small>kWh</small></span>'
+          to_watt_hour,
+        ).to eq '<span><strong class="font-medium">12</strong><small>.3</small>&nbsp;<small>kWh</small></span>'
       end
     end
 
@@ -19,7 +19,7 @@ describe Number::Component do
 
       it 'renders kWh without decimal' do
         expect(
-          to_wh,
+          to_watt_hour,
         ).to eq '<span><strong class="font-medium">123</strong>&nbsp;<small>kWh</small></span>'
       end
     end
@@ -29,22 +29,22 @@ describe Number::Component do
 
       it 'renders MWh' do
         expect(
-          to_wh,
-        ).to eq '<span><strong class="font-medium">1</strong><small>,2</small>&nbsp;<small>MWh</small></span>'
+          to_watt_hour,
+        ).to eq '<span><strong class="font-medium">1</strong><small>.2</small>&nbsp;<small>MWh</small></span>'
       end
     end
   end
 
-  describe 'to_w' do
-    subject(:to_w) { component.to_w }
+  describe 'to_watt(' do
+    subject(:to_watt) { component.to_watt }
 
     context 'when small number (< 100 kW)' do
       let(:value) { 12_345.67 }
 
       it do
         expect(
-          to_w,
-        ).to eq '<span><strong class="font-medium">12</strong><small>,3</small>&nbsp;<small>kW</small></span>'
+          to_watt,
+        ).to eq '<span><strong class="font-medium">12</strong><small>.3</small>&nbsp;<small>kW</small></span>'
       end
     end
 
@@ -53,7 +53,7 @@ describe Number::Component do
 
       it do
         expect(
-          to_w,
+          to_watt,
         ).to eq '<span><strong class="font-medium">123</strong>&nbsp;<small>kW</small></span>'
       end
     end
@@ -63,14 +63,16 @@ describe Number::Component do
 
       it do
         expect(
-          to_w,
-        ).to eq '<span><strong class="font-medium">1.235</strong>&nbsp;<small>kW</small></span>'
+          to_watt,
+        ).to eq '<span><strong class="font-medium">1,235</strong>&nbsp;<small>kW</small></span>'
       end
     end
   end
 
   describe 'to_eur' do
-    subject(:to_eur) { component.to_eur }
+    subject(:to_eur) { component.to_eur(**options) }
+
+    let(:options) { {} }
 
     context 'when positive' do
       let(:value) { 1.234 }
@@ -78,7 +80,7 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="text-green-500"><strong class="font-medium">1</strong><small>,23</small>&nbsp;<small>€</small></span>'
+        ).to eq '<span class="text-green-500"><strong class="font-medium">1</strong><small>.23</small>&nbsp;<small>€</small></span>'
       end
     end
 
@@ -88,7 +90,60 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="text-red-500"><strong class="font-medium">-1</strong><small>,23</small>&nbsp;<small>€</small></span>'
+        ).to eq '<span class="text-red-500"><strong class="font-medium">-1</strong><small>.23</small>&nbsp;<small>€</small></span>'
+      end
+    end
+
+    context 'with :max_precision option' do
+      let(:value) { 10 }
+      let(:options) { { max_precision: 2 } }
+
+      it do
+        expect(
+          to_eur,
+        ).to eq '<span class="text-green-500"><strong class="font-medium">10</strong><small>.00</small>&nbsp;<small>€</small></span>'
+      end
+    end
+
+    context 'with :klass option' do
+      let(:value) { 10 }
+      let(:options) { { klass: 'foo' } }
+
+      it do
+        expect(
+          to_eur,
+        ).to eq '<span class="foo"><strong class="font-medium">10</strong>&nbsp;<small>€</small></span>'
+      end
+    end
+  end
+
+  describe 'to_grad_celsius' do
+    subject(:to_grad_celsius) { component.to_grad_celsius(**options) }
+
+    let(:options) { {} }
+
+    context 'when positive' do
+      let(:value) { 1.234 }
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">1</strong><small>.2</small>&nbsp;<small>°C</small></span>'
+      end
+    end
+
+    context 'when negative' do
+      let(:value) { -1.234 }
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">-1</strong><small>.2</small>&nbsp;<small>°C</small></span>'
+      end
+    end
+
+    context 'with :max_precision option' do
+      let(:value) { 10 }
+      let(:options) { { max_precision: 0 } }
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">10</strong>&nbsp;<small>°C</small></span>'
       end
     end
   end

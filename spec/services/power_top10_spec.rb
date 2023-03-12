@@ -2,7 +2,11 @@ describe PowerTop10 do
   let(:measurement) { "Test#{described_class}" }
 
   let(:chart) do
-    described_class.new(fields: ['inverter_power'], measurements: [measurement])
+    described_class.new(
+      fields: ['inverter_power'],
+      measurements: [measurement],
+      desc: true,
+    )
   end
 
   let(:beginning) { 1.year.ago.beginning_of_year }
@@ -34,21 +38,21 @@ describe PowerTop10 do
   describe '#years' do
     subject { chart.years }
 
-    it { is_expected.to have(1).items }
+    it { is_expected.to have(2).items }
     it { is_expected.to all(be_a(Hash)) }
   end
 
   describe '#months' do
     subject { chart.months }
 
-    it { is_expected.to have(2).items }
+    it { is_expected.to have(3).items }
     it { is_expected.to all(be_a(Hash)) }
   end
 
   describe '#days' do
     subject { chart.days }
 
-    it { is_expected.to have(3).items }
+    it { is_expected.to have(4).items }
     it { is_expected.to all(be_a(Hash)) }
   end
 end

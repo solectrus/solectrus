@@ -5,6 +5,7 @@ require:
   - rubocop-performance
   - rubocop-rails
   - rubocop-rspec
+  - rubocop-capybara
   - rubocop-thread_safety
 
 AllCops:
@@ -152,4 +153,7 @@ RSpec/NestedGroups:
   Enabled: false
 
 RSpec/ImplicitSubject:
+  Enabled: false
+
+RSpec/VerifiedDoubles:
   Enabled: false

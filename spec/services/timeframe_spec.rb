@@ -7,11 +7,7 @@ describe Timeframe do
     )
   end
 
-  around do |example|
-    travel_to Time.zone.local(2022, 10, 13, 10, 0, 0) do
-      example.run
-    end
-  end
+  before { travel_to Time.zone.local(2022, 10, 13, 10, 0, 0) }
 
   describe 'static methods' do
     describe '.now' do
@@ -69,7 +65,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Heute, 10:00 Uhr')
+      expect(decoder.localized).to eq('Today, 10:00')
     end
 
     it 'returns the correct corresponding_day' do
@@ -108,6 +104,10 @@ describe Timeframe do
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
+    end
   end
 
   context 'when string is a day in the past' do
@@ -138,7 +138,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Freitag, 13. Mai 2022')
+      expect(decoder.localized).to eq('Friday, 13. May 2022')
     end
 
     it 'returns the correct corresponding_day' do
@@ -177,6 +177,10 @@ describe Timeframe do
     it 'is past' do
       expect(decoder.past?).to be(true)
     end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
+    end
   end
 
   context 'when string is a day in the future' do
@@ -188,6 +192,10 @@ describe Timeframe do
 
     it 'is not past' do
       expect(decoder.past?).to be(false)
+    end
+
+    it 'is future' do
+      expect(decoder.future?).to be(true)
     end
   end
 
@@ -208,6 +216,10 @@ describe Timeframe do
 
     it 'is not past' do
       expect(decoder.past?).to be(false)
+    end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
     end
   end
 
@@ -278,6 +290,10 @@ describe Timeframe do
     it 'is past' do
       expect(decoder.past?).to be(true)
     end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
+    end
   end
 
   context 'when string is a week in the future' do
@@ -290,6 +306,10 @@ describe Timeframe do
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
+
+    it 'is future' do
+      expect(decoder.future?).to be(true)
+    end
   end
 
   context 'when string is current week' do
@@ -301,6 +321,10 @@ describe Timeframe do
 
     it 'is not past' do
       expect(decoder.past?).to be(false)
+    end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
     end
   end
 
@@ -356,7 +380,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Mai 2022')
+      expect(decoder.localized).to eq('May 2022')
     end
 
     it 'returns the correct corresponding_day' do
@@ -407,6 +431,10 @@ describe Timeframe do
     it 'is past' do
       expect(decoder.past?).to be(true)
     end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
+    end
   end
 
   context 'when string is a month in the future' do
@@ -419,6 +447,10 @@ describe Timeframe do
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
+
+    it 'is future' do
+      expect(decoder.future?).to be(true)
+    end
   end
 
   context 'when string is current month' do
@@ -430,6 +462,10 @@ describe Timeframe do
 
     it 'is not past' do
       expect(decoder.past?).to be(false)
+    end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
     end
   end
 
@@ -500,6 +536,10 @@ describe Timeframe do
     it 'is past' do
       expect(decoder.past?).to be(true)
     end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
+    end
   end
 
   context 'when string is future year' do
@@ -512,6 +552,10 @@ describe Timeframe do
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
+
+    it 'is future' do
+      expect(decoder.future?).to be(true)
+    end
   end
 
   context 'when string is current year' do
@@ -523,6 +567,10 @@ describe Timeframe do
 
     it 'is not past' do
       expect(decoder.past?).to be(false)
+    end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
     end
   end
 
@@ -566,7 +614,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Seit Inbetriebnahme')
+      expect(decoder.localized).to eq(I18n.t('timeframe.all'))
     end
 
     it 'returns the correct corresponding_day' do
@@ -605,11 +653,15 @@ describe Timeframe do
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
+    end
   end
 
   context 'when string is invalid' do
     %w[foo 123 2022-09-99 2022-99-09 2022-99 2022-W99].each do |string|
-      context "given #{string}" do
+      context "when given #{string}" do
         let(:string) { string }
 
         it 'raises an error' do

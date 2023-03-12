@@ -66,7 +66,7 @@ describe DateInterval do
           [
             {
               starts_at: Date.new(2020, 12, 1),
-              ends_at: Date.new(2020, 12, 31).end_of_day,
+              ends_at: Date.new(2020, 12, 31),
               electricity: 0.10,
               feed_in: 0.0, # filled up!
             },
@@ -126,7 +126,7 @@ describe DateInterval do
           [
             {
               starts_at: Date.new(2021, 11, 1),
-              ends_at: Date.new(2021, 12, 31).end_of_day,
+              ends_at: Date.new(2021, 12, 31),
               electricity: 0.20,
               feed_in: 0.08,
             },
@@ -186,7 +186,7 @@ describe DateInterval do
           [
             {
               starts_at: Date.new(2021, 1, 1),
-              ends_at: Date.new(2021, 12, 31).end_of_day,
+              ends_at: Date.new(2021, 12, 31),
               electricity: 0.20,
               feed_in: 0.08,
             },
@@ -246,7 +246,7 @@ describe DateInterval do
           [
             {
               starts_at: Date.new(2021, 1, 1),
-              ends_at: Date.new(2021, 12, 31).end_of_day,
+              ends_at: Date.new(2021, 12, 31),
               electricity: 0.20,
               feed_in: 0.08,
             },

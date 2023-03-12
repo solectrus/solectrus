@@ -1,5 +1,7 @@
 describe 'Prices', vcr: { cassette_name: 'version' } do
-  describe 'GET /index' do
+  describe 'GET /settings/prices' do
+    it_behaves_like 'localized request', '/settings/prices'
+
     context 'when name is "electricity"' do
       it 'returns http success' do
         get '/settings/prices?name=electricity'

@@ -8,6 +8,7 @@ module Senec
     bat_power_plus
     bat_fuel_charge
     wallbox_charge_power
+    case_temp
   ].freeze
   public_constant :FIELDS
 

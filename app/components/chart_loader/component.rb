@@ -1,4 +1,4 @@
-class ChartLoader::Component < ViewComponent::Base
+class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(field:, timeframe:, url:)
     super
     @field = field
@@ -145,6 +145,8 @@ class ChartLoader::Component < ViewComponent::Base
   def title
     if field.in?(%w[bat_fuel_charge autarky consumption])
       "#{I18n.t "senec.#{field}"} in %"
+    elsif field.in?(%w[case_temp])
+      "#{I18n.t "senec.#{field}"} in °C"
     else
       "#{I18n.t "senec.#{field}"} in #{power? ? 'kW' : 'kWh'}"
     end

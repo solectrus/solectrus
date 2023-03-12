@@ -2,7 +2,7 @@
 
 .radial-badge {
   --value: 0;
-  --size: 5rem;
+  --size: 6rem;
   --thickness: calc(var(--size) / 15);
 }
 
@@ -15,7 +15,7 @@
 }
 
 .radial-badge .value {
-  @apply font-light;
+  @apply font-medium;
 
   font-size: calc(var(--size) / 6);
 }
@@ -26,8 +26,15 @@
   font-size: calc(var(--size) / 10);
 }
 
-@media screen and (min-width: 640px) {
+@media screen(lg) {
   .radial-badge {
+    --size: 8rem;
+  }
+}
+
+@media screen(xl) {
+  .radial-badge {
+    --size: 6rem;
     @apply box-content border-4 bg-transparent h-[var(--size)] w-[var(--size)];
   }
 

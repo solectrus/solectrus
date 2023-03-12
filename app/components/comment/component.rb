@@ -7,4 +7,24 @@ class Comment::Component < ViewComponent::Base
   end
 
   attr_accessor :calculator, :field, :timeframe
+
+  def today_before_sunset?
+    timeframe.day? && timeframe.current? && sunset && Time.current < sunset
+  end
+
+  def future?
+    !timeframe.past? && !timeframe.current?
+  end
+
+  def sunset
+    @sunset ||= Sunset.new(timeframe.date)&.time
+  end
+
+  def tooltip_required?
+    calculator.forecast_deviation.positive? ||
+      (
+        !(future? || today_before_sunset?) &&
+          calculator.forecast_deviation.negative?
+      )
+  end
 end

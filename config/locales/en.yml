@@ -1,33 +1,101 @@
-# Files in the config/locales directory are used for internationalization
-# and are automatically loaded by Rails. If you want to use locales other
-# than English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t 'hello'
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t('hello') %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# The following keys must be escaped otherwise they will not be retrieved by
-# the default I18n backend:
-#
-# true, false, on, off, yes, no
-#
-# Instead, surround them with single quotes.
-#
-# en:
-#   'true': 'foo'
-#
-# To learn more, please read the Rails Internationalization guide
-# available at https://guides.rubyonrails.org/i18n.html.
-
 en:
-  hello: 'Hello world'
+  layout:
+    stats: Time
+    top10: Top 10
+    settings: Settings
+    about: About
+    login: Login
+    logout: Logout
+    version_outdated: New version <strong>%{latest_version}</strong> available!
+    version_uptodate: This is the latest version
+  timeframe:
+    all: Since commissioning
+  senec:
+    inverter_power: PV generated
+    house_power: Home consumption
+    wallbox_charge_power: EV charging
+    grid_power_plus: Grid import
+    grid_power_minus: Grid export
+    grid_power: Grid
+    bat_power_minus: Battery discharge
+    bat_power_plus: Battery charge
+    bat_power: Battery
+    bat_fuel_charge: Battery
+    autarky: Autarky
+    consumption: Consume
+    case_temp: Temperature
+  balance_sheet:
+    left: Origin
+    right: Usage
+  calculator:
+    now: Now
+    day: Day
+    week: Week
+    month: Month
+    year: Year
+    all: Overall
+    forecast: Forecast
+    grid_quote: Grid consumption rate
+    consumption: Self-consumption
+    consumption_quote: Self-consumption rate
+    solar_price: Solar price
+    traditional_price: Comparative price
+    savings: Savings
+    battery_savings: Battery share
+    house_costs: House costs
+    wallbox_costs: EV costs
+    total_costs: Total costs
+    time: Last measurement taken
+    blank: No data available!
+  forecast:
+    exactly: Exactly as expected
+    better_html: '%{percent} more than expected'
+    worse_html: '%{percent} less than expected'
+    expect_html: '%{value} expected'
+    expectation_html: Expected %{value}
+  login:
+    missing_password_error: Unable to log in because no password has been configured.
+    missing_password_hint: To enable administrator login, an entry for <code class="bg-slate-100 p-1 rounded">ADMIN_PASSWORD</code> must be added to the environment variables.
+    submit: Login
+  crud:
+    new: New
+    edit: Edit
+    delete: Delete
+    save: Save
+    confirm_delete: Are you sure you want to delete?
+  settings:
+    prices:
+      edit: Edit price
+      new: Add price
+      description:
+        electricity: Price per consumed kWh paid to the electricity supplier. Changes regularly, usually annually.
+        feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
+  errors:
+    404:
+      title: Not Found
+      description: The requested page could not be found.
+    422:
+      title: Unprocessable Entity
+      description: The requested change was rejected.
+    500:
+      title: Internal Server Error
+      description: Sorry, something went wrong.
+    back_to_home: Back to homepage
+
+  activemodel:
+    attributes:
+      admin_user:
+        password: Password
+
+  activerecord:
+    models:
+      price: Price
+    attributes:
+      price:
+        name: Name
+        names:
+          electricity: Electricity price
+          feed_in: Feed-in tariff
+        starts_at: Effective from
+        value: Amount
+        note: Note
