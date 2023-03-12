@@ -16,8 +16,6 @@
       = c.items period_items
 
 = turbo_frame_tag 'top10',
-                  src: top10_chart_path(permitted_params),
-                  class: 'flex-auto',
-                  target: '_top'
-  .flex.justify-center.m-40
+                  src: top10_chart_path(permitted_params) do
+  .flex.items-center.justify-center.h-96
     = render Loading::Component.new
