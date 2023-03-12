@@ -18,7 +18,7 @@ module ParamsHandling
     end
 
     helper_method def sort
-      ActiveSupport::StringInquirer.new(permitted_params[:sort] || 'desc')
+      ActiveSupport::StringInquirer.new(permitted_params[:sort])
     end
 
     helper_method def timeframe
