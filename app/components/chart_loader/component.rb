@@ -33,6 +33,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
         easing: 'easeOutQuad',
         duration: 300,
       },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
       elements: {
         point: {
           radius: 0,
