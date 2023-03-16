@@ -5,7 +5,7 @@ describe PowerTop10 do
     described_class.new(
       fields: ['inverter_power'],
       measurements: [measurement],
-      desc: true,
+      desc:,
     )
   end
 
@@ -32,27 +32,55 @@ describe PowerTop10 do
   end
 
   around do |example|
-    travel_to Time.zone.local(2021, 12, 31, 12, 0, 0), &example
+    travel_to Time.zone.local(2021, 12, 1, 12, 0, 0), &example
   end
 
-  describe '#years' do
-    subject { chart.years }
+  context 'when descending' do
+    let(:desc) { true }
 
-    it { is_expected.to have(2).items }
-    it { is_expected.to all(be_a(Hash)) }
+    describe '#years' do
+      subject { chart.years }
+
+      it { is_expected.to have(2).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
+    describe '#months' do
+      subject { chart.months }
+
+      it { is_expected.to have(3).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
+    describe '#days' do
+      subject { chart.days }
+
+      it { is_expected.to have(4).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
   end
 
-  describe '#months' do
-    subject { chart.months }
+  context 'when ascending' do
+    let(:desc) { false }
 
-    it { is_expected.to have(3).items }
-    it { is_expected.to all(be_a(Hash)) }
-  end
+    describe '#years' do
+      subject { chart.years }
 
-  describe '#days' do
-    subject { chart.days }
+      it { is_expected.to have(0).items }
+    end
 
-    it { is_expected.to have(4).items }
-    it { is_expected.to all(be_a(Hash)) }
+    describe '#months' do
+      subject { chart.months }
+
+      it { is_expected.to have(1).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
+    describe '#days' do
+      subject { chart.days }
+
+      it { is_expected.to have(3).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
   end
 end

@@ -23,7 +23,8 @@ describe('Top 10', () => {
 
       cy.get('[aria-label="Sortierung wechseln"]').click();
       cy.location('pathname').should('equal', `/top10/year/${field}/asc`);
-      cy.get('#chart-year').should('exist');
+      cy.contains('Nicht genügend Daten vorhanden.').should('be.visible');
+      cy.get('#chart-year').should('not.exist');
 
       cy.get('[aria-label="Sortierung wechseln"]').click();
       cy.location('pathname').should('equal', `/top10/year/${field}/desc`);

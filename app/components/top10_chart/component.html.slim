@@ -1,14 +1,18 @@
-.table.w-full id= "chart-#{period}"
-  - top10_for_period.each_with_index do |record, index|
-    = link_to timeframe_path(record), class: 'table-row hover:bg-gray-100' do
-      .table-cell.align-middle.p-2.tabular-nums.w-1.text-right.font-bold class= text_classes(record)
-        = "#{index + 1}."
-      .table-cell.align-middle.p-2.tabular-nums.w-1.whitespace-nowrap.text-left class= text_classes(record)
-        = formatted_date(record[:date])
-      .table-cell.align-middle.p-2
-        .h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
-          span class= value_classes(record)
-            = Number::Component.new(value: record[:value]).to_watt_hour
+- if top10_for_period.blank?
+  .h-64.flex.items-center.justify-center.text-xl
+    = t('.blank')
+- else
+  .table.w-full id= "chart-#{period}"
+    - top10_for_period.each_with_index do |record, index|
+      = link_to timeframe_path(record), class: 'table-row hover:bg-gray-100' do
+        .table-cell.align-middle.p-2.tabular-nums.w-1.text-right.font-bold class= text_classes(record)
+          = "#{index + 1}."
+        .table-cell.align-middle.p-2.tabular-nums.w-1.whitespace-nowrap.text-left class= text_classes(record)
+          = formatted_date(record[:date])
+        .table-cell.align-middle.p-2
+          .h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
+            span class= value_classes(record)
+              = Number::Component.new(value: record[:value]).to_watt_hour
 
 - unless sort.desc?
   p.mt-5.text-slate-400.text-right.text-sm
