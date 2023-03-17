@@ -187,14 +187,14 @@ export default class extends Controller {
   // The positive dataset is where at least one positive value exist
   get positiveDataset() {
     return this.chart?.data.datasets.find((dataset) =>
-      dataset.data.some((v) => v && v > 0),
+      dataset.data.some((v) => typeof v === 'number' && v > 0),
     );
   }
 
   // The negative dataset is where at least one negative value exist
   get negativeDataset() {
     return this.chart?.data.datasets.find((dataset) =>
-      dataset.data.some((v) => v && v < 0),
+      dataset.data.some((v) => typeof v === 'number' && v < 0),
     );
   }
 }
