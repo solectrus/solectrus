@@ -27,6 +27,8 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
           bodyFont: {
             size: 20,
           },
+          caretPadding: 15,
+          caretSize: 10,
         },
       },
       animation: {
