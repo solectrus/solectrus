@@ -135,6 +135,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             ],
         },
         y: {
+          suggestedMax: field == 'bat_fuel_charge' ? 100 : nil,
           ticks: {
             beginAtZero: true,
             maxTicksLimit: 4,

@@ -88,7 +88,12 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
   end
 
   def now
-    @now ||= PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
+    @now ||=
+      if field == 'bat_fuel_charge'
+        BatteryChart.new(measurements: %w[SENEC]).call(timeframe)
+      else
+        PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
+      end
   end
 
   def inverter_power
@@ -121,7 +126,12 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
   end
 
   def range
-    @range ||= PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
+    @range ||=
+      if field == 'bat_fuel_charge'
+        BatteryChart.new(measurements: %w[SENEC]).call(timeframe)
+      else
+        PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
+      end
   end
 
   def style(chart_field)
@@ -157,6 +167,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
       'bat_power_plus' => '#15803d', # bg-green-700
       'autarky' => '#15803d', # bg-green-700
       'consumption' => '#15803d', # bg-green-700
+      'bat_fuel_charge' => '#60a5fa', # bg-blue-400
     }[
       chart_field
     ]

@@ -121,7 +121,14 @@ export default class extends Controller<HTMLCanvasElement> {
     if (options.plugins?.tooltip)
       options.plugins.tooltip.callbacks = {
         label: (context) =>
-          context.dataset.label + ': ' + this.formattedNumber(context.parsed.y),
+          `${context.dataset.label}: ${
+            context.parsed._custom
+              ? this.formattedInterval(
+                  context.parsed._custom.min,
+                  context.parsed._custom.max,
+                )
+              : this.formattedNumber(context.parsed.y)
+          }`,
       };
 
     this.chart = new Chart(this.element, {
@@ -152,6 +159,10 @@ export default class extends Controller<HTMLCanvasElement> {
 
   formattedNumber(number: number) {
     return new Intl.NumberFormat().format(number);
+  }
+
+  formattedInterval(min: number, max: number) {
+    return `${this.formattedNumber(min)} - ${this.formattedNumber(max)}`;
   }
 
   // Get maximum value of all datasets, rounded up to next integer
