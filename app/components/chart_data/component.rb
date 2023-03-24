@@ -145,20 +145,20 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
   end
 
   def background_color(chart_field)
-    case chart_field
-    when 'forecast'
-      '#cbd5e1' # bg-slate-300
-    when 'house_power'
-      '#64748b' # bg-slate-500
-    when 'grid_power_plus'
-      '#dc2626' # bg-red-600
-    when 'grid_power_minus', 'inverter_power'
-      'rgba(22, 163, 74, 0.5)' # bg-green-600, 0.5 transparent
-    when 'wallbox_charge_power'
-      '#475569' # bg-slate-600
-    when 'bat_power_minus', 'bat_power_plus', 'autarky', 'consumption'
-      '#15803d' # bg-green-700
-    end
+    {
+      'forecast' => '#cbd5e1', # bg-slate-300
+      'house_power' => '#64748b', # bg-slate-500
+      'grid_power_plus' => '#dc2626', # bg-red-600
+      'grid_power_minus' => 'rgba(22, 163, 74, 0.5)', # bg-green-600, 50% transparent
+      'inverter_power' => 'rgba(22, 163, 74, 0.5)', # bg-green-600, 50% transparent
+      'wallbox_charge_power' => '#475569', # bg-slate-600
+      'bat_power_minus' => '#15803d', # bg-green-700
+      'bat_power_plus' => '#15803d', # bg-green-700
+      'autarky' => '#15803d', # bg-green-700
+      'consumption' => '#15803d', # bg-green-700
+    }[
+      chart_field
+    ]
   end
 
   def mapped_data(data, chart_field)
