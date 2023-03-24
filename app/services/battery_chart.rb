@@ -19,13 +19,11 @@ class BatteryChart < Flux::Reader
                    stop: timeframe.ending,
                    window: '1d'
     when :year
-      # TODO: Use mean(min) and mean(max)
-      chart_minmax start: timeframe.beginning,
-                   stop: timeframe.ending,
-                   window: '1mo'
+      chart_minmax_average start: timeframe.beginning,
+                           stop: timeframe.ending,
+                           window: '1mo'
     when :all
-      # TODO: Use mean(min) and mean(max)
-      chart_minmax start: timeframe.beginning, window: '1y'
+      chart_minmax_average start: timeframe.beginning, window: '1y'
     end
   end
 
@@ -63,6 +61,32 @@ class BatteryChart < Flux::Reader
       |> #{fields_filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: #{window}, fn: max)
+      |> keep(columns: ["_time","_field","_value"])
+      |> yield(name: "max")
+    QUERY
+
+    to_array(raw)
+  end
+
+  def chart_minmax_average(start:, window:, stop: nil)
+    raw = query <<-QUERY
+      #{from_bucket}
+      |> #{range(start:, stop:)}
+      |> #{measurements_filter}
+      |> #{fields_filter}
+      |> aggregateWindow(every: 5m, fn: mean)
+      |> aggregateWindow(every: 1d, fn: min)
+      |> aggregateWindow(every: #{window}, fn: mean)
+      |> keep(columns: ["_time","_field","_value"])
+      |> yield(name: "min")
+
+      #{from_bucket}
+      |> #{range(start:, stop:)}
+      |> #{measurements_filter}
+      |> #{fields_filter}
+      |> aggregateWindow(every: 5m, fn: mean)
+      |> aggregateWindow(every: 1d, fn: max)
+      |> aggregateWindow(every: #{window}, fn: mean)
       |> keep(columns: ["_time","_field","_value"])
       |> yield(name: "max")
     QUERY
