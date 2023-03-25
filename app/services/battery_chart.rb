@@ -4,6 +4,8 @@ class BatteryChart < Flux::Reader
   end
 
   def call(timeframe)
+    @timeframe = timeframe
+
     case timeframe.id
     when :now
       chart_single start: 1.hour.ago,
@@ -130,5 +132,14 @@ class BatteryChart < Flux::Reader
     end
 
     result
+  end
+
+  def default_cache_options
+    return unless @timeframe
+
+    # Cache larger timeframes, but just for a short time
+    return { expires_in: 10.minutes } if @timeframe.month? || @timeframe.week?
+    return { expires_in: 1.hour } if @timeframe.year?
+    return { expires_in: 1.day } if @timeframe.all?
   end
 end
