@@ -23,7 +23,9 @@ class BatteryChart < Flux::Reader
                            stop: timeframe.ending,
                            window: '1mo'
     when :all
-      chart_minmax_average start: timeframe.beginning, window: '1y'
+      chart_minmax_average start: timeframe.beginning,
+                           stop: timeframe.ending,
+                           window: '1y'
     end
   end
 
@@ -41,7 +43,7 @@ class BatteryChart < Flux::Reader
     q << '|> keep(columns: ["_time","_field","_value"])'
 
     raw = query(q.join)
-    to_array(raw)
+    formatted(raw)
   end
 
   def chart_minmax(start:, window:, stop: nil)
@@ -65,7 +67,7 @@ class BatteryChart < Flux::Reader
       |> yield(name: "max")
     QUERY
 
-    to_array(raw)
+    formatted(raw)
   end
 
   def chart_minmax_average(start:, window:, stop: nil)
@@ -91,10 +93,10 @@ class BatteryChart < Flux::Reader
       |> yield(name: "max")
     QUERY
 
-    to_array(raw)
+    formatted(raw)
   end
 
-  def to_array(raw)
+  def formatted(raw)
     result = {}
 
     raw.each do |table|
@@ -104,7 +106,7 @@ class BatteryChart < Flux::Reader
       result[key] = if result[key]
         # Merge the two tables
         merged_array = result[key].zip(array)
-        merged_array.map! { |a, b| [a[0], [a[1], b[1]]] }
+        merged_array.map! { |a, b| [a[0], [a[1], b[1]].sort] }
       else
         array
       end
