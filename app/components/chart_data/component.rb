@@ -89,8 +89,15 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
 
   def now
     @now ||=
-      if field == 'bat_fuel_charge'
-        BatteryChart.new(measurements: %w[SENEC]).call(timeframe)
+      case field
+      when 'bat_fuel_charge'
+        MinMaxChart.new(measurements: %w[SENEC], fields:, average: true).call(
+          timeframe,
+        )
+      when 'case_temp'
+        MinMaxChart.new(measurements: %w[SENEC], fields:, average: false).call(
+          timeframe,
+        )
       else
         PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
       end
@@ -127,8 +134,15 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
 
   def range
     @range ||=
-      if field == 'bat_fuel_charge'
-        BatteryChart.new(measurements: %w[SENEC]).call(timeframe)
+      case field
+      when 'bat_fuel_charge'
+        MinMaxChart.new(measurements: %w[SENEC], fields:, average: true).call(
+          timeframe,
+        )
+      when 'case_temp'
+        MinMaxChart.new(measurements: %w[SENEC], fields:, average: false).call(
+          timeframe,
+        )
       else
         PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
       end
@@ -167,6 +181,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
       'autarky' => '#15803d', # bg-green-700
       'consumption' => '#15803d', # bg-green-700
       'bat_fuel_charge' => '#60a5fa', # bg-blue-400
+      'case_temp' => '#991b1b', # bg-red-800
     }[
       chart_field
     ]

@@ -1,7 +1,10 @@
-class BatteryChart < Flux::Reader
-  def initialize(measurements:)
-    super(measurements:, fields: %i[bat_fuel_charge])
+class MinMaxChart < Flux::Reader
+  def initialize(measurements:, fields:, average:)
+    super(measurements:, fields:)
+    @average = average
   end
+
+  attr_reader :average
 
   def call(timeframe)
     case timeframe.id
@@ -19,13 +22,13 @@ class BatteryChart < Flux::Reader
                    stop: timeframe.ending,
                    window: '1d'
     when :year
-      chart_minmax_average start: timeframe.beginning,
-                           stop: timeframe.ending,
-                           window: '1mo'
+      chart_minmax_global start: timeframe.beginning,
+                          stop: timeframe.ending,
+                          window: '1mo'
     when :all
-      chart_minmax_average start: timeframe.beginning,
-                           stop: timeframe.ending,
-                           window: '1y'
+      chart_minmax_global start: timeframe.beginning,
+                          stop: timeframe.ending,
+                          window: '1y'
     end
   end
 
@@ -70,7 +73,7 @@ class BatteryChart < Flux::Reader
     formatted(raw)
   end
 
-  def chart_minmax_average(start:, window:, stop: nil)
+  def chart_minmax_global(start:, window:, stop: nil)
     raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start:, stop:)}
@@ -78,7 +81,7 @@ class BatteryChart < Flux::Reader
       |> #{fields_filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: 1d, fn: min)
-      |> aggregateWindow(every: #{window}, fn: mean)
+      |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'min'})
       |> keep(columns: ["_time","_field","_value"])
       |> yield(name: "min")
 
@@ -88,7 +91,7 @@ class BatteryChart < Flux::Reader
       |> #{fields_filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: 1d, fn: max)
-      |> aggregateWindow(every: #{window}, fn: mean)
+      |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'max'})
       |> keep(columns: ["_time","_field","_value"])
       |> yield(name: "max")
     QUERY

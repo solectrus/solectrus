@@ -1,6 +1,12 @@
-describe BatteryChart do
+describe MinMaxChart do
   let(:measurement) { "Test#{described_class}" }
-  let(:chart) { described_class.new(measurements: [measurement]) }
+  let(:chart) do
+    described_class.new(
+      measurements: [measurement],
+      fields: %w[bat_fuel_charge],
+      average: true,
+    )
+  end
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
