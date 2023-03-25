@@ -131,4 +131,8 @@ class BatteryChart < Flux::Reader
 
     result
   end
+
+  def default_cache_options
+    { expires_in: 1.day }
+  end
 end
