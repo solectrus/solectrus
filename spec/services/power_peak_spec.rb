@@ -11,14 +11,16 @@ describe PowerPeak do
   let(:beginning) { 3.months.ago.beginning_of_month }
 
   before do
-    3.times do |index|
-      add_influx_point name: measurement,
-                       fields: {
-                         inverter_power: (index + 1) * 1000,
-                         house_power: 500,
-                         wallbox_charge_power: (index + 1) * 3000,
-                       },
-                       time: (beginning + index.month)
+    influx_batch do
+      3.times do |index|
+        add_influx_point name: measurement,
+                         fields: {
+                           inverter_power: (index + 1) * 1000,
+                           house_power: 500,
+                           wallbox_charge_power: (index + 1) * 3000,
+                         },
+                         time: (beginning + index.month)
+      end
     end
   end
 

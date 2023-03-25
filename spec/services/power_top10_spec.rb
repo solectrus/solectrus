@@ -12,23 +12,25 @@ describe PowerTop10 do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
-    12.times do |index|
-      add_influx_point name: measurement,
-                       fields: {
-                         inverter_power: (index + 1) * 1000,
-                       },
-                       time: (beginning + index.month).end_of_month.end_of_day
-      add_influx_point name: measurement,
-                       fields: {
-                         inverter_power: (index + 1) * 1000,
-                       },
-                       time:
-                         (
-                           beginning + index.month
-                         ).beginning_of_month.beginning_of_day
-    end
+    influx_batch do
+      12.times do |index|
+        add_influx_point name: measurement,
+                         fields: {
+                           inverter_power: (index + 1) * 1000,
+                         },
+                         time: (beginning + index.month).end_of_month.end_of_day
+        add_influx_point name: measurement,
+                         fields: {
+                           inverter_power: (index + 1) * 1000,
+                         },
+                         time:
+                           (
+                             beginning + index.month
+                           ).beginning_of_month.beginning_of_day
+      end
 
-    add_influx_point name: measurement, fields: { inverter_power: 14_000 }
+      add_influx_point name: measurement, fields: { inverter_power: 14_000 }
+    end
   end
 
   around do |example|

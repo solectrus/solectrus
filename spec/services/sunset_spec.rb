@@ -4,15 +4,17 @@ describe Sunset do
   let(:date) { Date.new(2023, 3, 4) }
 
   before do
-    [
-      # Sunrise
-      Time.new(date.year, date.month, date.day, 7, 10, 0, '+01:00'),
-      # Somtime during the day
-      Time.new(date.year, date.month, date.day, 9, 30, 0, '+01:00'),
-      # Sunset
-      Time.new(date.year, date.month, date.day, 18, 21, 0, '+01:00'),
-    ].each do |time|
-      add_influx_point name: 'Forecast', fields: { watt: rand(1000) }, time:
+    influx_batch do
+      [
+        # Sunrise
+        Time.new(date.year, date.month, date.day, 7, 10, 0, '+01:00'),
+        # Somtime during the day
+        Time.new(date.year, date.month, date.day, 9, 30, 0, '+01:00'),
+        # Sunset
+        Time.new(date.year, date.month, date.day, 18, 21, 0, '+01:00'),
+      ].each do |time|
+        add_influx_point name: 'Forecast', fields: { watt: rand(1000) }, time:
+      end
     end
   end
 
