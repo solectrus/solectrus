@@ -1,7 +1,9 @@
+import type { Config } from 'tailwindcss';
 const colors = require('tailwindcss/colors');
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
+  content: ['./app/**/*.{slim,rb}', './app/javascript/**/*.{js,ts}'],
+
   theme: {
     extend: {
       colors: {
@@ -22,11 +24,9 @@ module.exports = {
     },
   },
 
-  content: ['./app/**/*.{slim,rb}', './app/javascript/**/*.{js,ts}'],
-
   plugins: [
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/forms'),
   ],
-};
+} satisfies Config;
