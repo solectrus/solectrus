@@ -28,7 +28,7 @@ tmp/*
 yarn-error.log
 config/environments/test.rb
 config/environments/development.rb
-cypress.config.js
+cypress.config.mjs
 screenshot.png
 logo.svg
 spec

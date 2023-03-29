@@ -2,7 +2,7 @@
   "name": "solectrus",
   "private": true,
   "scripts": {
-    "lint": "eslint --ext .js,.ts --cache .",
+    "lint": "eslint --ext .js,.mjs,.ts --cache .",
     "tsc": "tsc --noEmit",
     "size": "yarn run size-limit"
   },
