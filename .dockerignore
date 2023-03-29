@@ -29,7 +29,7 @@ yarn-error.log
 config/environments/test.rb
 config/environments/development.rb
 cypress.config.mjs
-screenshot.png
+screenshot.webp
 logo.svg
 spec
 coverage
