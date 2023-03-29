@@ -20,7 +20,7 @@ de:
     bat_power_minus: Akku-Entnahme
     bat_power_plus: Akku-Beladung
     bat_power: Akku
-    bat_fuel_charge: Akku
+    bat_fuel_charge: Ladestand
     autarky: Autarkie
     consumption: Verbrauch
     case_temp: Temperatur
