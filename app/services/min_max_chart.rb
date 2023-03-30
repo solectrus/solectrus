@@ -1,12 +1,10 @@
 class MinMaxChart < Flux::Reader
-  def initialize(measurements:, fields:, average:, drop_nil: false)
+  def initialize(measurements:, fields:, average:)
     super(measurements:, fields:)
     @average = average
-    @timeframe = timeframe
-    @drop_nil = drop_nil
   end
 
-  attr_reader :average, :timeframe, :drop_nil
+  attr_reader :average
 
   def call(timeframe)
     @timeframe = timeframe
@@ -33,23 +31,6 @@ class MinMaxChart < Flux::Reader
       chart_minmax_global start: timeframe.beginning,
                           stop: timeframe.ending,
                           window: '1y'
-    end
-  end
-
-  def condensed(timeframe) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-    raw = call(timeframe)
-    return if raw.blank?
-
-    values = raw[fields.first.to_s].map(&:last)
-    values.reject! { |value| value == [0, 0] }
-    return if values.blank?
-
-    if timeframe.day?
-      values.minmax
-    elsif average
-      [avg(values.map(&:first)), avg(values.map(&:last))]
-    else
-      [values.map(&:first).min, values.map(&:last).max]
     end
   end
 
@@ -148,19 +129,12 @@ class MinMaxChart < Flux::Reader
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'] || '')
-      value = next_record.values['_value']
-      next if value.nil? && drop_nil
+      value = next_record.values['_value'].to_f.round
 
-      result << [time, value.to_f.round]
+      result << [time, value]
     end
 
     result
-  end
-
-  def avg(array)
-    return if array.blank?
-
-    array.sum.to_f / array.size
   end
 
   def default_cache_options
