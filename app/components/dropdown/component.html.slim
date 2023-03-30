@@ -1,4 +1,9 @@
-.relative.inline-block.text-left data-controller="dropdown--component"
+select.block.lg:hidden.border-0.focus:ring-0.text-gray-700.text-sm data-controller="select" data-action="select#onChange"
+  - @items.each do |item|
+    option value= item[:href] selected= (item == selected_item)
+      = item[:name]
+
+.hidden.relative.lg:inline-block.text-left data-controller="dropdown--component"
   div data-dropdown--component-target="button" data-action="click->dropdown--component#toggleMenu"
     button#options-menu.inline-flex.justify-center.w-full.rounded-md.px-4.py-2.bg-white.text-sm.font-medium.text-gray-700.hover:bg-gray-50.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-gray-100.focus:ring-indigo-500 aria-expanded="true" aria-haspopup="true" type="button"
       = selected_item[:name]
