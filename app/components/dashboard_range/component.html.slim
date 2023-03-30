@@ -23,7 +23,26 @@
             template data-tippy-target="html"
               = render ConsumptionDetails::Component.new(calculator:)
 
-    div class="flex-1"
+    div class="flex-1 flex flex-col justify-center gap-3 sm:gap-6"
+      - if calculator.bat_fuel_charge_minmax
+        div data-controller="tippy"
+          = link_to root_path(field: 'bat_fuel_charge', timeframe:) do
+            = render MinMaxBar::Component.new(title: t('senec.bat_fuel_charge'),
+                                              minmax: calculator.bat_fuel_charge_minmax,
+                                              color: :blue,
+                                              range: 0..100)
+          template data-tippy-target="html"
+            = calculator.bat_fuel_charge_minmax
+
+      - if calculator.case_temp_minmax
+        div data-controller="tippy"
+          = link_to root_path(field: 'case_temp', timeframe:) do
+            = render MinMaxBar::Component.new(title: t('senec.case_temp'),
+                                              minmax: calculator.case_temp_minmax,
+                                              color: :red,
+                                              range: 5..40)
+          template data-tippy-target="html"
+            = calculator.case_temp_minmax
 
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.total_costs')) do

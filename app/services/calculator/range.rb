@@ -1,6 +1,7 @@
 class Calculator::Range < Calculator::Base
   def initialize(timeframe)
     super()
+    @timeframe = timeframe
 
     sums =
       PowerSum.new(
@@ -20,6 +21,16 @@ class Calculator::Range < Calculator::Base
       ).call(timeframe)
 
     build_context sums
+  end
+
+  attr_reader :timeframe
+
+  def bat_fuel_charge_minmax
+    minmax(:bat_fuel_charge, average: true)
+  end
+
+  def case_temp_minmax
+    minmax(:case_temp, average: false)
   end
 
   def forecast_deviation
@@ -140,5 +151,15 @@ class Calculator::Range < Calculator::Base
     (
       sections.each_with_index.sum { |_section, index| yield(index) } / 1_000.0
     ).round(2)
+  end
+
+  def minmax(field, average:)
+    @minmax ||= {}
+    @minmax[field] ||= MinMaxChart.new(
+      measurements: %w[SENEC],
+      fields: [field],
+      average:,
+      drop_nil: true,
+    ).condensed(timeframe)
   end
 end

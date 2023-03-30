@@ -1,0 +1,15 @@
+div class= 'w-full h-3 md:h-6 md:p-1 md:space-y-1'
+  div class= ['w-full h-full p-1 rounded-full border-gray-400', outer_class]
+    - if width_in_percent.zero?
+      div[
+        class= ['h-full rounded-full w-1 md:w-4', inner_class]
+        style= (start_in_percent == 100 ? 'margin-left: auto; margin-right: 0' : "margin-left: #{start_in_percent}%")
+      ]
+    - else
+      div[
+        class= ['h-full rounded-full', inner_class]
+        style= "width: #{width_in_percent}%; margin-left: #{start_in_percent}%"
+      ]
+
+  div class= ['uppercase text-center text-xs hidden sm:block', text_class]
+    = title
