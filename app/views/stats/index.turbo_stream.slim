@@ -15,6 +15,6 @@ turbo-stream action="morph" target="stats" children-only= true
     template
       .flex.flex-col.flex-auto.sm:gap-2
         - unless timeframe.out_of_range?
-          .flex-auto
-            = render ChartLoader::Component.new(field:, timeframe:, url: charts_path(permitted_params.to_hash.symbolize_keys))
+          = render ChartSelector::Component.new(field:, timeframe:)
+          = render ChartLoader::Component.new(field:, timeframe:, url: charts_path(permitted_params.to_hash.symbolize_keys))
           = render Comment::Component.new(calculator:, field:, timeframe:)
