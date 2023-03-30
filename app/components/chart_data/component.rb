@@ -129,6 +129,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
       fill: fill(chart_field),
       backgroundColor: background_color(chart_field),
       borderWidth: 0,
+      borderColor: 'black',
     }
   end
 
