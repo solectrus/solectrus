@@ -1,5 +1,5 @@
 - if field == 'inverter_power' && !timeframe.now? && calculator.forecast_deviation
-  .text-center.text-sm.text-slate-500 data-controller= 'tippy'
+  .text-center.text-xs.sm:text-sm.text-slate-500 data-controller= 'tippy'
     - if calculator.forecast_deviation.positive?
       = t 'forecast.better_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
     - elsif future? || today_before_sunset?

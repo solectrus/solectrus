@@ -81,12 +81,12 @@ html lang="de"
 
     main.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:max-h-[700px]' : 'lg:flex-initial')
       .max-w-7xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
-        .bg-white.sm:rounded-lg.lg:shadow.p-5.sm:px-6.flex-auto.flex.flex-col
+        .bg-white.sm:rounded-lg.lg:shadow.p-4.pb-2.sm:p-5.sm:px-6.flex-auto.flex.flex-col
           = yield
       = turbo_frame_tag 'modal', target: '_top'
 
     - if content_for?(:bottom_nav)
-      nav.w-full.bg-indigo-600.py-4.z-10.lg:hidden
+      nav.w-full.bg-indigo-600.py-2.sm:py-4.z-10.lg:hidden
         = yield :bottom_nav
 
     footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
