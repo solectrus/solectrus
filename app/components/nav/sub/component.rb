@@ -9,7 +9,7 @@ class Nav::Sub::Component < ViewComponent::Base
     end
 
     def call
-      classes = %w[p-2 md:px-3]
+      classes = %w[py-3 px-2 sm:py-2 sm:px-3]
 
       if current_page?(@href)
         link_to @name,
