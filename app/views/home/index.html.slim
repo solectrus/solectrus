@@ -18,8 +18,7 @@
                       class: 'h-8 space-x-4 flex items-center justify-between lg:justify-end'
 
 - content_for :bottom_nav do
-  .w-full.px-4
-    = render Nav::Sub::Component.new do |c|
-      = c.items nav_items
+  = render Nav::Sub::Component.new do |c|
+    = c.items nav_items
 
 = render StatsWithChart::Component.new(field:, timeframe:)

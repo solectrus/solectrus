@@ -5,26 +5,28 @@ describe ConsumptionChart do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
-    12.times do |index|
-      add_influx_point name: measurement,
-                       fields: {
-                         inverter_power: (index + 1) * 100,
-                         grid_power_minus: (index + 1) * 50,
-                       },
-                       time: (beginning + index.month).end_of_month
-      add_influx_point name: measurement,
-                       fields: {
-                         inverter_power: (index + 1) * 100,
-                         grid_power_minus: (index + 1) * 50,
-                       },
-                       time: (beginning + index.month).beginning_of_month
-    end
+    influx_batch do
+      12.times do |index|
+        add_influx_point name: measurement,
+                         fields: {
+                           inverter_power: (index + 1) * 100,
+                           grid_power_minus: (index + 1) * 50,
+                         },
+                         time: (beginning + index.month).end_of_month
+        add_influx_point name: measurement,
+                         fields: {
+                           inverter_power: (index + 1) * 100,
+                           grid_power_minus: (index + 1) * 50,
+                         },
+                         time: (beginning + index.month).beginning_of_month
+      end
 
-    add_influx_point name: measurement,
-                     fields: {
-                       inverter_power: 2_000,
-                       grid_power_minus: 500,
-                     }
+      add_influx_point name: measurement,
+                       fields: {
+                         inverter_power: 2_000,
+                         grid_power_minus: 500,
+                       }
+    end
   end
 
   around { |example| freeze_time(&example) }

@@ -15,12 +15,13 @@
           template data-tippy-target="html"
             = render AutarkyDetails::Component.new(calculator:)
 
-    = link_to root_path(field: 'consumption', timeframe:) do
-      dl data-controller="tippy"
-        = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
-        - unless timeframe.future?
-          template data-tippy-target="html"
-            = render ConsumptionDetails::Component.new(calculator:)
+    - if calculator.consumption_quote
+      = link_to root_path(field: 'consumption', timeframe:) do
+        dl data-controller="tippy"
+          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
+          - unless timeframe.future?
+            template data-tippy-target="html"
+              = render ConsumptionDetails::Component.new(calculator:)
 
     div class="flex-1"
 

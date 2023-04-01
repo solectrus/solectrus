@@ -28,8 +28,8 @@ tmp/*
 yarn-error.log
 config/environments/test.rb
 config/environments/development.rb
-cypress.config.js
-screenshot.png
+cypress.config.mjs
+screenshot.webp
 logo.svg
 spec
 coverage

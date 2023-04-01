@@ -1,14 +1,30 @@
 module InfluxHelper
+  @in_batch = false
+
+  def influx_batch(&)
+    @points = []
+    @in_batch = true
+    begin
+      yield
+    ensure
+      @in_batch = false
+    end
+
+    add_influx_points(@points)
+  end
+
   def add_influx_point(name:, fields:, time: Time.current)
+    point = { name:, fields:, time: time.to_i }
+
+    @in_batch ? @points << point : add_influx_points([point])
+  end
+
+  def add_influx_points(points)
     influx_client = Flux::Base.new.client
     write_api = influx_client.create_write_api
 
     write_api.write(
-      data: {
-        name:,
-        fields:,
-        time: time.to_i,
-      },
+      data: points,
       bucket: ENV.fetch('INFLUX_BUCKET', nil),
       org: ENV.fetch('INFLUX_ORG', nil),
     )

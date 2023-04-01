@@ -25,10 +25,12 @@
       = render Flow::Component.new value: calculator.total, max: max_flow
 
     - if calculator.case_temp.nonzero?
-      = render RadialBadge::Component.new(title: t('senec.case_temp')) do
-        = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
+      = link_to root_path(field: 'case_temp', timeframe:) do
+        = render RadialBadge::Component.new(title: t('senec.case_temp')) do
+          = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
 
-    = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
+    = link_to root_path(field: 'bat_fuel_charge', timeframe:) do
+      = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
 
   = render Balance::Component.new side: :right,
                                   calculator:,

@@ -1,4 +1,4 @@
-class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
+class ChartLoader::Component < ViewComponent::Base
   def initialize(field:, timeframe:, url:)
     super
     @field = field
@@ -12,13 +12,6 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
       maintainAspectRatio: false,
       plugins: {
         legend: false,
-        title: {
-          display: true,
-          font: {
-            size: 18,
-          },
-          text: title,
-        },
         tooltip: {
           displayColors: false,
           titleFont: {
@@ -27,11 +20,17 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
           bodyFont: {
             size: 20,
           },
+          caretPadding: 15,
+          caretSize: 10,
         },
       },
       animation: {
         easing: 'easeOutQuad',
         duration: 300,
+      },
+      interaction: {
+        intersect: false,
+        mode: 'index',
       },
       elements: {
         point: {
@@ -129,6 +128,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             ],
         },
         y: {
+          suggestedMax: field == 'bat_fuel_charge' ? 100 : nil,
           ticks: {
             beginAtZero: true,
             maxTicksLimit: 4,
@@ -140,16 +140,6 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
 
   def type
     (power? ? 'line' : 'bar').inquiry
-  end
-
-  def title
-    if field.in?(%w[bat_fuel_charge autarky consumption])
-      "#{I18n.t "senec.#{field}"} in %"
-    elsif field.in?(%w[case_temp])
-      "#{I18n.t "senec.#{field}"} in °C"
-    else
-      "#{I18n.t "senec.#{field}"} in #{power? ? 'kW' : 'kWh'}"
-    end
   end
 
   def power?

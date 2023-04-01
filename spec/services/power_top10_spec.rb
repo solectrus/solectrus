@@ -5,54 +5,84 @@ describe PowerTop10 do
     described_class.new(
       fields: ['inverter_power'],
       measurements: [measurement],
-      desc: true,
+      desc:,
     )
   end
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
-    12.times do |index|
-      add_influx_point name: measurement,
-                       fields: {
-                         inverter_power: (index + 1) * 1000,
-                       },
-                       time: (beginning + index.month).end_of_month.end_of_day
-      add_influx_point name: measurement,
-                       fields: {
-                         inverter_power: (index + 1) * 1000,
-                       },
-                       time:
-                         (
-                           beginning + index.month
-                         ).beginning_of_month.beginning_of_day
-    end
+    influx_batch do
+      12.times do |index|
+        add_influx_point name: measurement,
+                         fields: {
+                           inverter_power: (index + 1) * 1000,
+                         },
+                         time: (beginning + index.month).end_of_month.end_of_day
+        add_influx_point name: measurement,
+                         fields: {
+                           inverter_power: (index + 1) * 1000,
+                         },
+                         time:
+                           (
+                             beginning + index.month
+                           ).beginning_of_month.beginning_of_day
+      end
 
-    add_influx_point name: measurement, fields: { inverter_power: 14_000 }
+      add_influx_point name: measurement, fields: { inverter_power: 14_000 }
+    end
   end
 
   around do |example|
-    travel_to Time.zone.local(2021, 12, 31, 12, 0, 0), &example
+    travel_to Time.zone.local(2021, 12, 1, 12, 0, 0), &example
   end
 
-  describe '#years' do
-    subject { chart.years }
+  context 'when descending' do
+    let(:desc) { true }
 
-    it { is_expected.to have(2).items }
-    it { is_expected.to all(be_a(Hash)) }
+    describe '#years' do
+      subject { chart.years }
+
+      it { is_expected.to have(2).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
+    describe '#months' do
+      subject { chart.months }
+
+      it { is_expected.to have(3).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
+    describe '#days' do
+      subject { chart.days }
+
+      it { is_expected.to have(4).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
   end
 
-  describe '#months' do
-    subject { chart.months }
+  context 'when ascending' do
+    let(:desc) { false }
 
-    it { is_expected.to have(3).items }
-    it { is_expected.to all(be_a(Hash)) }
-  end
+    describe '#years' do
+      subject { chart.years }
 
-  describe '#days' do
-    subject { chart.days }
+      it { is_expected.to have(0).items }
+    end
 
-    it { is_expected.to have(4).items }
-    it { is_expected.to all(be_a(Hash)) }
+    describe '#months' do
+      subject { chart.months }
+
+      it { is_expected.to have(1).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
+    describe '#days' do
+      subject { chart.days }
+
+      it { is_expected.to have(3).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
   end
 end

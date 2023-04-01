@@ -7,6 +7,8 @@ describe('Home page', () => {
     'consumption',
     'house_power',
     'wallbox_charge_power',
+    'case_temp',
+    'bat_fuel_charge',
   ].forEach((path) => {
     it(`${path} is clickable`, () => {
       cy.visit(`/${path}`);

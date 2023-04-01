@@ -58,13 +58,39 @@ class Top10Chart::Component < ViewComponent::Base
     end
   end
 
-  def value_classes(record)
-    if percent(record) < 5
+  # CSS classes to HIDE the value inside the bar when the bar is too small
+  def value_classes_inside(record)
+    case percent(record)
+    when ..5
       'hidden'
-    elsif percent(record) < 12
+    when 5..10
       'hidden xl:inline'
-    elsif percent(record) < 40
+    when 10..20
+      'hidden lg:inline'
+    when 20..40
+      'hidden md:inline'
+    when 40..50
       'hidden sm:inline'
+    else
+      'inline'
+    end
+  end
+
+  # CSS classes to SHOW the value outside the bar when the bar is too small
+  def value_classes_outside(record)
+    case percent(record)
+    when ..5
+      'inline'
+    when 5..10
+      'inline xl:hidden'
+    when 10..20
+      'inline lg:hidden'
+    when 20..40
+      'inline md:hidden'
+    when 40..50
+      'inline sm:hidden'
+    else
+      'hidden'
     end
   end
 

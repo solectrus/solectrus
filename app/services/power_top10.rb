@@ -47,6 +47,8 @@ class PowerTop10 < Flux::Reader
   end
 
   def top(start:, stop:, window:, limit: 10)
+    return [] if start > stop
+
     raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start:, stop:)}
