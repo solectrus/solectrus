@@ -17,6 +17,7 @@ module CypressRails::InfluxDB
             wallbox_charge_power: 6000,
             grid_power_plus: 10,
             grid_power_minus: 1100,
+            case_temp: 30.0,
             current_state: 'LADEN',
           },
           time: i.seconds.ago,
