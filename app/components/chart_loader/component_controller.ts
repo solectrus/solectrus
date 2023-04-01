@@ -57,7 +57,7 @@ export default class extends Controller<HTMLCanvasElement> {
   declare optionsValue: ChartOptions;
   declare readonly hasOptionsValue: boolean;
 
-  private chart: Chart | undefined;
+  private chart?: Chart;
   private isLoading = false;
 
   connect() {
@@ -75,7 +75,7 @@ export default class extends Controller<HTMLCanvasElement> {
     if (this.chart) this.chart.destroy();
   }
 
-  handleResize() {
+  private handleResize() {
     // Disable animation when resizing
     document.body.classList.add('animation-stopper');
 
@@ -88,7 +88,7 @@ export default class extends Controller<HTMLCanvasElement> {
     }, 200);
   }
 
-  async process() {
+  private async process() {
     this.isLoading = true;
 
     // Show loading indicator when chart takes longer than 300ms to load
@@ -108,8 +108,7 @@ export default class extends Controller<HTMLCanvasElement> {
     this.containerTarget.classList.remove('hidden');
 
     const options = this.optionsValue;
-    if (!options.scales?.x) return;
-    if (!options.scales?.y) return;
+    if (!options.scales?.x || !options.scales?.y) return;
 
     // I18n
     // @ts-ignore
@@ -161,7 +160,7 @@ export default class extends Controller<HTMLCanvasElement> {
     });
   }
 
-  async loadData(): Promise<ChartData | undefined> {
+  private async loadData(): Promise<ChartData | undefined> {
     try {
       const response = await fetch(this.urlValue, {
         method: 'GET',
@@ -180,25 +179,25 @@ export default class extends Controller<HTMLCanvasElement> {
     }
   }
 
-  formattedNumber(number: number) {
+  private formattedNumber(number: number) {
     return new Intl.NumberFormat().format(number);
   }
 
-  formattedInterval(min: number, max: number) {
+  private formattedInterval(min: number, max: number) {
     return `${this.formattedNumber(min)} - ${this.formattedNumber(max)}`;
   }
 
   // Get maximum value of all datasets, rounded up to next integer
-  maxOf(data: ChartData) {
+  private maxOf(data: ChartData) {
     return Math.ceil(Math.max(...this.flatMapped(data)));
   }
 
   // Get minium value of all datasets, rounded down to next integer
-  minOf(data: ChartData) {
+  private minOf(data: ChartData) {
     return Math.floor(Math.min(...this.flatMapped(data)));
   }
 
-  flatMapped(data: ChartData) {
+  private flatMapped(data: ChartData) {
     return data.datasets.flatMap((dataset) => dataset.data as number[]);
   }
 }
