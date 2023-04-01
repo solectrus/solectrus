@@ -41,6 +41,13 @@ export default class extends Controller<HTMLCanvasElement> {
     options: Object,
   };
 
+  static targets = ['container', 'canvas', 'loading', 'blank'];
+
+  declare readonly containerTarget: HTMLDivElement;
+  declare readonly canvasTarget: HTMLCanvasElement;
+  declare readonly loadingTarget: HTMLDivElement;
+  declare readonly blankTarget: HTMLParagraphElement;
+
   declare typeValue: ChartType;
   declare readonly hasTypeValue: boolean;
 
@@ -51,6 +58,7 @@ export default class extends Controller<HTMLCanvasElement> {
   declare readonly hasOptionsValue: boolean;
 
   private chart: Chart | undefined;
+  private isLoading = false;
 
   connect() {
     this.process();
@@ -81,8 +89,23 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   async process() {
+    this.isLoading = true;
+
+    // Show loading indicator when chart takes longer than 300ms to load
+    setTimeout(() => {
+      if (this.isLoading) this.loadingTarget.classList.remove('hidden');
+    }, 300);
+
     const data = await this.loadData();
-    if (!data) return;
+    this.isLoading = false;
+    this.loadingTarget.classList.add('hidden');
+
+    if (!data || data.datasets.length === 0) {
+      this.blankTarget.classList.remove('hidden');
+      return;
+    }
+
+    this.containerTarget.classList.remove('hidden');
 
     const options = this.optionsValue;
     if (!options.scales?.x) return;
@@ -131,7 +154,7 @@ export default class extends Controller<HTMLCanvasElement> {
           }`,
       };
 
-    this.chart = new Chart(this.element, {
+    this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
       data,
       options,
