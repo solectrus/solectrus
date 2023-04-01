@@ -41,6 +41,13 @@ export default class extends Controller<HTMLCanvasElement> {
     options: Object,
   };
 
+  static targets = ['container', 'canvas', 'loading', 'blank'];
+
+  declare readonly containerTarget: HTMLDivElement;
+  declare readonly canvasTarget: HTMLCanvasElement;
+  declare readonly loadingTarget: HTMLDivElement;
+  declare readonly blankTarget: HTMLParagraphElement;
+
   declare typeValue: ChartType;
   declare readonly hasTypeValue: boolean;
 
@@ -51,6 +58,7 @@ export default class extends Controller<HTMLCanvasElement> {
   declare readonly hasOptionsValue: boolean;
 
   private chart: Chart | undefined;
+  private isLoading = false;
 
   connect() {
     this.process();
@@ -81,8 +89,23 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   async process() {
+    this.isLoading = true;
+
+    // Show loading indicator when chart takes longer than 300ms to load
+    setTimeout(() => {
+      if (this.isLoading) this.loadingTarget.classList.remove('hidden');
+    }, 300);
+
     const data = await this.loadData();
-    if (!data) return;
+    this.isLoading = false;
+    this.loadingTarget.classList.add('hidden');
+
+    if (!data || data.datasets.length === 0) {
+      this.blankTarget.classList.remove('hidden');
+      return;
+    }
+
+    this.containerTarget.classList.remove('hidden');
 
     const options = this.optionsValue;
     if (!options.scales?.x) return;
@@ -121,10 +144,17 @@ export default class extends Controller<HTMLCanvasElement> {
     if (options.plugins?.tooltip)
       options.plugins.tooltip.callbacks = {
         label: (context) =>
-          context.dataset.label + ': ' + this.formattedNumber(context.parsed.y),
+          `${context.dataset.label}: ${
+            context.parsed._custom
+              ? this.formattedInterval(
+                  context.parsed._custom.min,
+                  context.parsed._custom.max,
+                )
+              : this.formattedNumber(context.parsed.y)
+          }`,
       };
 
-    this.chart = new Chart(this.element, {
+    this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
       data,
       options,
@@ -152,6 +182,10 @@ export default class extends Controller<HTMLCanvasElement> {
 
   formattedNumber(number: number) {
     return new Intl.NumberFormat().format(number);
+  }
+
+  formattedInterval(min: number, max: number) {
+    return `${this.formattedNumber(min)} - ${this.formattedNumber(max)}`;
   }
 
   // Get maximum value of all datasets, rounded up to next integer
