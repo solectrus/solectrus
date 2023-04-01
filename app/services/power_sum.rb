@@ -68,10 +68,7 @@ class PowerSum < Flux::Reader
   end
 
   def empty_hash
-    result = {}
-    fields.each { |field| result[field] = nil }
-    result[:time] = nil
-    result
+    fields.index_with(nil).merge(time: nil)
   end
 
   def default_cache_options

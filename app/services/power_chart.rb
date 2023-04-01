@@ -85,12 +85,9 @@ class PowerChart < Flux::Reader
   end
 
   def to_array(raw)
-    result = {}
-    raw.each do |r|
+    raw.each_with_object({}) do |r, result|
       key = r.records.first.values['_field']
       result[key] = value_to_array(r)
     end
-
-    result
   end
 end
