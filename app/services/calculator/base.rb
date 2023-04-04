@@ -42,7 +42,7 @@ class Calculator::Base
   end
 
   def inverter_power_percent
-    return 0 if total_plus.nan? || total_plus.zero?
+    return 0 if total_plus.zero?
 
     (inverter_power * 100.0 / total_plus).round(1)
   end
@@ -60,13 +60,13 @@ class Calculator::Base
   end
 
   def grid_power_plus_percent
-    return 0 if total_plus.nan? || total_plus.zero?
+    return 0 if total_plus.zero?
 
     (grid_power_plus * 100.0 / total_plus).round(1)
   end
 
   def grid_power_minus_percent
-    return 0 if total_minus.nan? || total_minus.zero?
+    return 0 if total_minus.zero?
 
     (grid_power_minus * 100.0 / total_minus).round(1)
   end
@@ -106,7 +106,7 @@ class Calculator::Base
   end
 
   def house_power_percent
-    return 0 if total_minus.nan? || total_minus.zero?
+    return 0 if total_minus.zero?
 
     (house_power * 100.0 / total_minus).round(1)
   end
@@ -114,7 +114,7 @@ class Calculator::Base
   # Wallbox
 
   def wallbox_charge_power_percent
-    return 0 if total_minus.nan? || total_minus.zero?
+    return 0 if total_minus.zero?
 
     (wallbox_charge_power * 100.0 / total_minus).round(1)
   end
@@ -134,13 +134,13 @@ class Calculator::Base
   end
 
   def bat_power_minus_percent
-    return 0 if total_plus.nan? || total_plus.zero?
+    return 0 if total_plus.zero?
 
     (bat_power_minus * 100.0 / total_plus).round(1)
   end
 
   def bat_power_plus_percent
-    return 0 if total_minus.nan? || total_minus.zero?
+    return 0 if total_minus.zero?
 
     (bat_power_plus * 100.0 / total_minus).round(1)
   end

@@ -69,14 +69,14 @@ class PowerChart < Flux::Reader
         # InfluxDB returns data one-off
         value = next_record.values['_value']
 
-        time = Time.zone.parse(record.values['_time'] || '')
-        value =
+        time = Time.zone.parse(record.values['_time'])
+        value &&=
           case record.values['_field']
           when /power/, 'watt'
             # Fields with "power" in the name are given in W, so change them to kW
-            (value.to_f / 1_000).round(3)
+            (value / 1_000).round(3)
           else
-            value.to_f
+            value
           end
 
         result << [time, value]

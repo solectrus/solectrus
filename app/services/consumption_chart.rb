@@ -73,8 +73,8 @@ class ConsumptionChart < Flux::Reader
       next_record = raw.records[index + 1]
       next unless next_record
 
-      time = Time.zone.parse(record.values['_time'] || '')
-      value = next_record.values['consumption'].to_f
+      time = Time.zone.parse(record.values['_time'])
+      value = next_record.values['consumption']
 
       result << [time, value]
     end

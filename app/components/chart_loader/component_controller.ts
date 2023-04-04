@@ -140,7 +140,15 @@ export default class extends Controller<HTMLCanvasElement> {
     }
 
     // Format numbers in tooltips
-    if (options.plugins?.tooltip)
+    if (options.plugins?.tooltip) {
+      // Hide tooltip if value is null
+      options.plugins.tooltip.filter = (tooltipItem): boolean => {
+        if (Array.isArray(tooltipItem.raw))
+          return tooltipItem.raw.filter((x) => x !== null).length > 0;
+
+        return tooltipItem.raw !== null;
+      };
+
       options.plugins.tooltip.callbacks = {
         label: (context) =>
           `${context.dataset.label}: ${
@@ -152,6 +160,7 @@ export default class extends Controller<HTMLCanvasElement> {
               : this.formattedNumber(context.parsed.y)
           }`,
       };
+    }
 
     this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
