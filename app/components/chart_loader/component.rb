@@ -129,6 +129,7 @@ class ChartLoader::Component < ViewComponent::Base
         },
         y: {
           suggestedMax: field == 'bat_fuel_charge' ? 100 : nil,
+          suggestedMin: field == 'case_temp' ? 20 : nil,
           ticks: {
             beginAtZero: true,
             maxTicksLimit: 4,

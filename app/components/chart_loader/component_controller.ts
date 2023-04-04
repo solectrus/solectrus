@@ -136,7 +136,10 @@ export default class extends Controller<HTMLCanvasElement> {
         },
       };
     } else {
-      options.scales.y.min = 0;
+      options.scales.y.min =
+        'suggestedMin' in options.scales.y && options.scales.y.suggestedMin
+          ? Math.min(+options.scales.y.suggestedMin, min)
+          : 0;
     }
 
     // Format numbers in tooltips
@@ -198,15 +201,25 @@ export default class extends Controller<HTMLCanvasElement> {
 
   // Get maximum value of all datasets, rounded up to next integer
   private maxOf(data: ChartData) {
-    return Math.ceil(Math.max(...this.flatMapped(data)));
+    const flatData = this.flatMapped(data).map((value) =>
+      Array.isArray(value) ? Math.max(...value) : value,
+    );
+
+    return Math.ceil(Math.max(...flatData));
   }
 
   // Get minium value of all datasets, rounded down to next integer
   private minOf(data: ChartData) {
-    return Math.floor(Math.min(...this.flatMapped(data)));
+    const flatData = this.flatMapped(data).map((value) =>
+      Array.isArray(value) ? Math.min(...value) : value,
+    );
+
+    return Math.floor(Math.min(...flatData));
   }
 
   private flatMapped(data: ChartData) {
-    return data.datasets.flatMap((dataset) => dataset.data as number[]);
+    return data.datasets.flatMap((dataset) => dataset.data).filter(Number) as
+      | number[]
+      | number[][];
   }
 }
