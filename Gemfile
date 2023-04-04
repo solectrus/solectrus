@@ -111,7 +111,7 @@ end
 
 group :test do
   # Capybara aims to simplify the process of integration testing Rack applications, such as Rails, Sinatra or Merb (https://github.com/teamcapybara/capybara)
-  gem 'capybara', '>= 3.26'
+  gem 'capybara', '>= 3.39.0'
 
   # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
   gem 'simplecov', require: false
