@@ -79,7 +79,7 @@ de:
       description: Die gewünschte Änderung wurde abgelehnt.
     500:
       title: Interner Server-Fehler
-      description: Sorry, da ist etwas schief gelaufen.
+      description: Sorry, da ist etwas schief gelaufen. Im Server-Protokoll finden sich weitere Details.
     back_to_home: Zurück zur Startseite
 
   activemodel:

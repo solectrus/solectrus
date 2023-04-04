@@ -1,6 +1,7 @@
 import { Application } from '@hotwired/stimulus';
 import { registerControllers } from 'stimulus-vite-helpers';
 import * as Turbo from '@hotwired/turbo';
+import type { TurboFrameMissingEvent } from '@hotwired/turbo';
 
 // Start Stimulus application
 const application = Application.start();
@@ -22,3 +23,12 @@ registerControllers(
 
 import TurboMorph from 'turbo-morph';
 TurboMorph.initialize(Turbo.StreamActions);
+
+// Error handling for missing Turbo frames
+document.addEventListener('turbo:frame-missing', (event) => {
+  const {
+    detail: { response, visit },
+  } = event as TurboFrameMissingEvent;
+  event.preventDefault();
+  visit(response.url, {});
+});
