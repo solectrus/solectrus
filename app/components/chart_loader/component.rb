@@ -139,10 +139,6 @@ class ChartLoader::Component < ViewComponent::Base
   end
 
   def type
-    (power? ? 'line' : 'bar').inquiry
-  end
-
-  def power?
-    timeframe.now? || timeframe.day?
+    (timeframe.now? || timeframe.day? ? 'line' : 'bar').inquiry
   end
 end
