@@ -20,7 +20,7 @@ jobs:
 
     services:
       influxdb:
-        image: influxdb:2.6-alpine
+        image: influxdb:2.7-alpine
         ports: ['8086:8086']
         env:
           INFLUXD_HTTP_BIND_ADDRESS: ':8086'
