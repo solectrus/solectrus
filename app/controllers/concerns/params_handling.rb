@@ -26,7 +26,7 @@ module ParamsHandling
         Timeframe.new(
           permitted_params[:timeframe] || 'now',
           min_date: Rails.application.config.x.installation_date,
-          allowed_days_in_future: 1,
+          allowed_days_in_future: 6,
         )
     end
   end
