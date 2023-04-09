@@ -20,10 +20,10 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^2.29.3",
     "el-transition": "^0.0.7",
+    "morphdom": "^2.7.0",
     "plausible-tracker": "^0.3.8",
     "throttle-debounce": "^5.0.0",
-    "tippy.js": "^6.3.7",
-    "turbo-morph": "^0.2.0"
+    "tippy.js": "^6.3.7"
   },
   "version": "0.1.0",
   "devDependencies": {
