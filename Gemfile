@@ -131,5 +131,5 @@ group :production do
   gem 'lockup'
 
   # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
-  gem 'honeybadger'
+  gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')
 end
