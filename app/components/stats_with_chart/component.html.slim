@@ -6,7 +6,7 @@
                     class: 'w-full lg:w-1/2 h-3/5 lg:h-auto flex',
                     target: '_top',
                     data: { stats_with_chart__component_target: 'stats' }  do
-    .flex.justify-center.items-center.flex-1
+    .flex-1.flex.justify-center.items-center
       = render Loading::Component.new
 
   = tag.turbo_frame id: 'chart',
