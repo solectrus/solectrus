@@ -2,8 +2,4 @@
   = render TurboModal::Component.new(title:t('settings.prices.new')) do
     = render 'form', price: @price
 - else
-  = turbo_stream.replace( \
-      dom_id(@price, :form),
-      partial: 'form',
-      locals: { price: @price } \
-    )
+  = turbo_stream.replace(dom_id(@price, :form), partial: 'form', locals: { price: @price })
