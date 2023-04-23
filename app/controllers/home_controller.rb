@@ -7,7 +7,8 @@ class HomeController < ApplicationController
     end
 
     set_meta_tags title: helpers.title,
-                  description: 'Solarstrom aus der Photovoltaik-Anlage',
+                  description:
+                    'Alternatives Dashboard zur übersichtlichen Darstellung und Analyse von Messwerten einer Photovoltaik-Anlage zur optimierten Leistungskontrolle',
                   keywords: 'photovoltaik, strom, solar, energiewende',
                   og: {
                     title: :title,
