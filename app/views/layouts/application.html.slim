@@ -77,7 +77,7 @@ html lang="de"
   ]
     = render Nav::Top::Component.new do |c|
       = c.with_items topnav_items
-      = c.sub_nav { yield :sub_nav } if content_for?(:sub_nav)
+      = c.with_sub_nav { yield :sub_nav } if content_for?(:sub_nav)
 
     main.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:max-h-[700px]' : 'lg:flex-initial')
       .max-w-7xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex

@@ -4,7 +4,7 @@
   .flex.justify-center.lg:justify-between.lg:items-center.py-5
     .hidden.lg:block
       = render Nav::Sub::Component.new do |c|
-        = c.items period_items
+        = c.with_items period_items
 
     .flex.gap-5.items-center
       = render Top10SortToggle::Component.new
@@ -13,7 +13,7 @@
 - content_for :bottom_nav do
   .w-full.px-4
     = render Nav::Sub::Component.new do |c|
-      = c.items period_items
+      = c.with_items period_items
 
 = turbo_frame_tag 'top10',
                   target: '_top',
