@@ -147,7 +147,7 @@ GEM
     loofah (2.20.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    lookbook (1.5.3)
+    lookbook (1.5.5)
       actioncable
       activemodel
       css_parser
