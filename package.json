@@ -16,7 +16,7 @@
     "@hotwired/turbo": "^7.2.5",
     "@hotwired/turbo-rails": "^7.3.0",
     "@rails/actioncable": "^7.0.4",
-    "chart.js": "^4.2.1",
+    "chart.js": "^4.3.0",
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^2.29.3",
     "el-transition": "^0.0.7",
