@@ -3,7 +3,7 @@
     div[
       role= 'dialog'
       aria-modal= 'true'
-      aria-labelledby= @title
+      aria-labelledby= 'modal-title'
       data-controller= 'turbo-modal--component'
       data-turbo-modal--component-target= 'dialog'
       data-transition-enter="ease-out duration-300"
@@ -25,7 +25,7 @@
             class= 'relative bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-sm sm:w-full sm:p-6'
             data-turbo-modal--component-target= 'inner'
           ]
-            h1 class='font-bold text-2xl leading-none'
+            h1#modal-title class='font-bold text-2xl leading-none'
               = @title
 
             = content
