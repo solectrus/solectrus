@@ -129,7 +129,7 @@ class MinMaxChart < Flux::Reader
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['_value']
+      value = next_record.values['_value']&.round(1)
 
       result << [time, value]
     end
