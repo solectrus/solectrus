@@ -19,3 +19,20 @@
   animation: none !important;
   transition: none !important;
 }
+
+/* Minimalistic form styling, inspired by DaisyUI */
+.form-control {
+  @apply flex flex-col;
+}
+
+.label {
+  @apply p-1;
+}
+
+.label-text {
+  @apply text-sm;
+}
+
+.input-error {
+  @apply !border-red-500 !ring-red-500;
+}
