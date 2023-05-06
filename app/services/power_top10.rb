@@ -65,8 +65,8 @@ class PowerTop10 < Flux::Reader
     return [] unless raw[0]
 
     raw[0].records.map do |record|
-      time = Time.zone.parse(record.values['_time'] || '').utc - 1.second
-      value = record.values['_value'].to_f
+      time = Time.zone.parse(record.values['_time']).utc - 1.second
+      value = record.values['_value']
 
       { date: time.to_date, value: }
     end

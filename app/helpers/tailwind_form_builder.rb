@@ -54,7 +54,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   delegate :tag, :link_to, :safe_join, :render, to: :template
 
   def input_html_classes(method)
-    ['input input-bordered', ('input-error' if object.errors[method].present?)]
+    ['form-input', ('input-error' if object.errors[method].present?)]
   end
 
   def label_text(method, options)

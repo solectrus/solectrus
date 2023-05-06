@@ -15,7 +15,6 @@ describe Calculator::Range do
 
     before do
       allow(calculator).to receive(:inverter_power).and_return(476_000)
-      allow(calculator).to receive(:watt).and_return(457_000)
 
       allow(calculator).to receive(:grid_power_plus).and_return(171_000)
       allow(calculator).to receive(:grid_power_plus_array).and_return([171_000])
@@ -41,7 +40,7 @@ describe Calculator::Range do
     end
 
     it 'calculates' do
-      expect(calculator.forecast_deviation).to eq(4)
+      expect(calculator.forecast_deviation).to be_nil
 
       expect(calculator.paid).to eq(-47.90)
       expect(calculator.got).to eq(10.94)
@@ -132,7 +131,6 @@ describe Calculator::Range do
 
     before do
       allow(calculator).to receive(:inverter_power).and_return(1_500_000)
-      allow(calculator).to receive(:watt).and_return(1_570_000)
 
       allow(calculator).to receive(:grid_power_plus).and_return(12_816)
       allow(calculator).to receive(:grid_power_plus_array).and_return([12_816])
@@ -158,7 +156,7 @@ describe Calculator::Range do
     end
 
     it 'calculates' do
-      expect(calculator.forecast_deviation).to eq(-4)
+      expect(calculator.forecast_deviation).to be_nil
 
       expect(calculator.wallbox_costs).to eq(-12.76)
       expect(calculator.house_costs).to eq(-29.09)

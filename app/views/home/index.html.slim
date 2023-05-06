@@ -11,7 +11,7 @@
   .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-5
     .mx-auto.lg:mx-0.hidden.lg:block
       = render Nav::Sub::Component.new do |c|
-        = c.items nav_items
+        = c.with_items nav_items
 
     = turbo_frame_tag 'nav',
                       target: '_top',
@@ -19,6 +19,6 @@
 
 - content_for :bottom_nav do
   = render Nav::Sub::Component.new do |c|
-    = c.items nav_items
+    = c.with_items nav_items
 
 = render StatsWithChart::Component.new(field:, timeframe:)

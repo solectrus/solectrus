@@ -79,7 +79,7 @@ en:
       description: The requested change was rejected.
     500:
       title: Internal Server Error
-      description: Sorry, something went wrong.
+      description: Sorry, something went wrong. See the server log for more details.
     back_to_home: Back to homepage
 
   activemodel:

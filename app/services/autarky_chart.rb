@@ -76,8 +76,8 @@ class AutarkyChart < Flux::Reader
       next_record = raw.records[index + 1]
       next unless next_record
 
-      time = Time.zone.parse(record.values['_time'] || '')
-      value = next_record.values['autarky'].to_f
+      time = Time.zone.parse(record.values['_time'])
+      value = next_record.values['autarky']
 
       result << [time, value]
     end

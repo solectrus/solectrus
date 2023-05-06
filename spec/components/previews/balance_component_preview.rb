@@ -4,9 +4,9 @@ class BalanceComponentPreview < ViewComponent::Preview
     render Balance::Component.new side: :left,
                                   timeframe:,
                                   calculator: do |balance|
-      balance.segment :grid_power_plus
-      balance.segment :inverter_power
-      balance.segment :bat_power_minus
+      balance.with_segment :grid_power_plus
+      balance.with_segment :inverter_power
+      balance.with_segment :bat_power_minus
     end
   end
 
@@ -14,10 +14,10 @@ class BalanceComponentPreview < ViewComponent::Preview
     render Balance::Component.new side: :right,
                                   timeframe:,
                                   calculator: do |balance|
-      balance.segment :wallbox_charge_power
-      balance.segment :house_power
-      balance.segment :grid_power_minus
-      balance.segment :bat_power_plus
+      balance.with_segment :wallbox_charge_power
+      balance.with_segment :house_power
+      balance.with_segment :grid_power_minus
+      balance.with_segment :bat_power_plus
     end
   end
 

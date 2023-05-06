@@ -4,7 +4,7 @@ describe Nav::Sub::Component, type: :component do
 
     expect(
       render_inline(described_class.new) do |component|
-        component.items(items)
+        component.with_items(items)
       end.css('a').to_html,
     ).to include('href="/one"', 'href="/two"')
   end

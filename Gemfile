@@ -76,7 +76,7 @@ group :development, :test do
   # Code style checking for RSpec files (https://github.com/rubocop/rubocop-rspec)
   gem 'rubocop-rspec', require: false
 
-  # Thread-safety checks via static analysis (https://github.com/covermymeds/rubocop-thread_safety)
+  # Thread-safety checks via static analysis (https://github.com/rubocop/rubocop-thread_safety)
   gem 'rubocop-thread_safety', require: false
 
   # Slim template linting tool (https://github.com/sds/slim-lint)
@@ -131,5 +131,5 @@ group :production do
   gem 'lockup'
 
   # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
-  gem 'honeybadger'
+  gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')
 end

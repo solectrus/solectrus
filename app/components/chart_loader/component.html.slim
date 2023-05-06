@@ -3,7 +3,7 @@
             controller: 'chart-loader--component',
             chart_loader__component_url_value: url,
             chart_loader__component_options_value: options.to_json,
-            chart_loader__component_type_value: type, \
+            chart_loader__component_type_value: type,
           } do
 
   .hidden.h-full.w-full.flex.items-center.justify-center data-chart-loader--component-target= 'loading'
@@ -17,5 +17,5 @@
     = tag.canvas id: "chart-#{timeframe.id}",
                  data: { \
                    chart_loader__component_target: 'canvas',
-                   stats_with_chart__component_target: 'chart', \
+                   stats_with_chart__component_target: 'chart',
                  }

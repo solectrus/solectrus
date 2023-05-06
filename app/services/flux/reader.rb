@@ -50,6 +50,8 @@ class Flux::Reader < Flux::Base
   end
 
   def query_without_cache(string)
+    Rails.logger.debug { "Flux query: #{string}" }
+
     client.create_query_api.query(query: string)
   end
 

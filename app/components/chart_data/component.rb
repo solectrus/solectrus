@@ -193,7 +193,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
          chart_field.in?(%w[grid_power_minus bat_power_plus])
       data.map(&:second)
     else
-      data.map { |x| -x.second }
+      data.map { |x| x.second ? -x.second : nil }
     end
   end
 

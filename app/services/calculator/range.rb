@@ -5,24 +5,33 @@ class Calculator::Range < Calculator::Base
     sums =
       PowerSum.new(
         measurements: %w[SENEC Forecast],
-        fields: %i[
-          inverter_power
-          house_power
-          wallbox_charge_power
-          grid_power_plus
-          grid_power_minus
-          bat_power_minus
-          bat_power_plus
-          watt
-          feed_in_tariff
-          electricity_price
-        ],
+        fields: fields(timeframe),
       ).call(timeframe)
 
     build_context sums
   end
 
+  def fields(timeframe)
+    result = %i[
+      inverter_power
+      house_power
+      wallbox_charge_power
+      grid_power_plus
+      grid_power_minus
+      bat_power_minus
+      bat_power_plus
+      feed_in_tariff
+      electricity_price
+    ]
+
+    # Include forecast for days only
+    result << :watt if timeframe.day?
+
+    result
+  end
+
   def forecast_deviation
+    return unless respond_to?(:watt)
     return if watt.zero?
 
     ((inverter_power * 100.0 / watt) - 100).round
