@@ -218,8 +218,12 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private flatMapped(data: ChartData) {
-    return data.datasets.flatMap((dataset) => dataset.data).filter(Number) as
-      | number[]
-      | number[][];
+    return (
+      data.datasets
+        // Map all data into a single array
+        .flatMap((dataset) => dataset.data)
+        // Remove NULL values
+        .filter((x) => x) as number[] | number[][]
+    );
   }
 }

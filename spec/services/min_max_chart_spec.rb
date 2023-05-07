@@ -95,8 +95,9 @@ describe MinMaxChart do
       before do
         influx_batch do
           # On every day of the week, battery is first 80%, then 40%
+          # (except on Sunday, when it's nil)
           date = start
-          while date.cweek == start.cweek
+          while date < start.end_of_week
             time = date.beginning_of_day
             23.times do |hour|
               add_influx_point(
@@ -113,16 +114,17 @@ describe MinMaxChart do
       end
 
       it 'returns points' do
-        expect(result).to be_a(Hash)
-
-        expect(result['bat_fuel_charge']).to be_a(Array)
-        expect(result['bat_fuel_charge'].size).to eq(7)
-
-        first_point = result['bat_fuel_charge'].first
-        expect(first_point).to eq([start, [40, 80]])
-
-        last_point = result['bat_fuel_charge'].last
-        expect(last_point).to eq([(start + 6.days).to_date, [40, 80]])
+        expect(result['bat_fuel_charge']).to eq(
+          [
+            ['2023-03-13', [40, 80]],
+            ['2023-03-14', [40, 80]],
+            ['2023-03-15', [40, 80]],
+            ['2023-03-16', [40, 80]],
+            ['2023-03-17', [40, 80]],
+            ['2023-03-18', [40, 80]],
+            ['2023-03-19', nil],
+          ],
+        )
       end
     end
 

@@ -111,7 +111,15 @@ class MinMaxChart < Flux::Reader
       result[key] = if result[key]
         # Merge the two tables
         merged_array = result[key].zip(array)
-        merged_array.map! { |a, b| [a[0], [a[1], b[1]].sort] }
+        # Return array with [time, [min, max]] or [time, nil]
+        merged_array.map! do |a, b|
+          time = a[0]
+          minmax = [a[1], b[1]]
+          minmax.sort!
+          minmax.compact!
+
+          [time, minmax.presence]
+        end
       else
         array
       end
