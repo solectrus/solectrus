@@ -1,33 +1,51 @@
-h3.font-bold
-  = t('.title')
+.flex.flex-col.gap-5
+  div
+    h3.font-bold.text-base
+      = t('.title')
 
-  - if calculator.wallbox_costs.nonzero?
-    dl.mt-5
-      .grid.grid-cols-2.gap-4
+    dl.mt-1
+      .grid.grid-cols-2.gap-2
         dt
-          = I18n.t('calculator.house_costs')
+          = I18n.t('senec.grid_power_plus')
         dd.font-mono.text-right
-          = Number::Component.new(value: calculator.house_costs).to_eur(klass: 'text-red-500', max_precision: 2)
+          = Number::Component.new(value: calculator.grid_power_plus).to_watt_hour
 
-      .grid.grid-cols-2.gap-4
         dt
-          |&plus;&nbsp;
-          = I18n.t('calculator.wallbox_costs')
+          = Price.human_enum_name(:name, :electricity)
         dd.font-mono.text-right
-          = Number::Component.new(value: calculator.wallbox_costs).to_eur(klass: 'text-red-500', max_precision: 2)
+          - if calculator.electricity_prices.uniq.length == 1
+            = Number::Component.new(value: calculator.electricity_prices.first).to_eur(klass: 'text-red-500', max_precision: 4)
+          - else
+            span.text-xs
+              = 'von '
+            = Number::Component.new(value: calculator.electricity_prices.first).to_eur(klass: 'text-red-500', max_precision: 4)
+            br
+            span.text-xs
+              = ' bis '
+            = Number::Component.new(value: calculator.electricity_prices.last).to_eur(klass: 'text-red-500', max_precision: 4)
 
-      hr.my-2
-
-      .grid.grid-cols-2.gap-4
         dt
-          |&#61;&nbsp;
           = I18n.t('calculator.total_costs')
         dd.font-mono.text-right
-          = Number::Component.new(value: calculator.total_costs).to_eur(klass: 'text-red-500', max_precision: 2)
+          = Number::Component.new(value: calculator.paid).to_eur(klass: 'text-red-500', max_precision: 2)
 
-p.mt-5.text-gray-400.text-sm
-  = t('.explanation')
+  - if calculator.wallbox_costs.nonzero?
+    div
+      h3.font-bold.text-base
+        = t('.breakdown.title')
 
-- if calculator.wallbox_costs.nonzero?
-  p.mt-2.text-gray-400.text-sm
-    = t('.explanation_wallbox')
+      dl.mt-1
+        .grid.grid-cols-2.gap-4
+          dt
+            = I18n.t('calculator.house_costs')
+          dd.font-mono.text-right
+            = Number::Component.new(value: calculator.house_costs).to_eur(klass: 'text-red-500', max_precision: 2)
+
+        .grid.grid-cols-2.gap-4
+          dt
+            = I18n.t('calculator.wallbox_costs')
+          dd.font-mono.text-right
+            = Number::Component.new(value: calculator.wallbox_costs).to_eur(klass: 'text-red-500', max_precision: 2)
+
+      p.mt-2.text-gray-400.text-sm
+        = t('.breakdown.explanation')
