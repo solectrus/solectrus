@@ -11,7 +11,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.4.0",
     "@fortawesome/free-regular-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
-    "@honeybadger-io/js": "^5.3.0",
+    "@honeybadger-io/js": "^5.4.1",
     "@hotwired/stimulus": "^3.2.1",
     "@hotwired/turbo": "^7.2.5",
     "@hotwired/turbo-rails": "^7.3.0",
