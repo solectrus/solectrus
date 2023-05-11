@@ -5,7 +5,7 @@ describe Version do
     before { Rails.application.load_seed }
 
     context 'when the request succeeds', vcr: { cassette_name: 'version' } do
-      it { is_expected.to eq('v0.7.5') }
+      it { is_expected.to eq('v0.10.1') }
     end
 
     context 'when the request fails' do
@@ -37,12 +37,12 @@ describe Version do
     it 'caches the version' do
       # The first request will be cached
       VCR.use_cassette('version') do
-        expect(described_class.latest).to eq('v0.7.5')
+        expect(described_class.latest).to eq('v0.10.1')
       end
 
       # The second request is cached, so the cassette is not used
       expect(described_class.new.cached?).to be true
-      expect(described_class.latest).to eq('v0.7.5')
+      expect(described_class.latest).to eq('v0.10.1')
 
       # The cache expires after some time
       travel 2.days do
