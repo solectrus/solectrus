@@ -24,7 +24,12 @@ class PowerSum < Flux::Reader
       record = table.records.first
 
       hash[record.values['_field'].to_sym] = record.values['_value']
-      hash[:time] ||= Time.zone.parse record.values['_time']
+
+      # Get the latest time from all measurements
+      # This is useful when the measurements are not in sync
+      # The time is used to determine the "live" status of the system
+      time = Time.zone.parse record.values['_time']
+      hash[:time] = time if hash[:time].nil? || time > hash[:time]
     end
   end
 
