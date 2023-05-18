@@ -5,6 +5,6 @@ class ErrorsController < ApplicationController
       exception.try(:status_code) ||
         ActionDispatch::ExceptionWrapper.new(request.env, exception).status_code
 
-    render 'show', status: @status_code
+    render 'show', status: @status_code, formats: [:html]
   end
 end

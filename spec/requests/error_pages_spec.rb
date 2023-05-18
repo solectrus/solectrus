@@ -6,6 +6,13 @@ describe 'Error pages', vcr: { cassette_name: 'version' } do
       expect(response).to have_http_status(:not_found)
       expect(response.body).to include(I18n.t('errors.404.title'))
     end
+
+    it 'ignores given format' do
+      without_detailed_exceptions { get '/ads.txt' }
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.body).to include(I18n.t('errors.404.title'))
+    end
   end
 
   describe 'error 500' do
