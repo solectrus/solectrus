@@ -49,6 +49,8 @@ Rails.application.routes.draw do
   post '/login', to: 'sessions#create', as: :sessions
   delete '/logout', to: 'sessions#destroy', as: :session
 
+  get '/favicon.ico', to: redirect('/favicon-196.png')
+
   scope :settings do
     resources :prices
   end
