@@ -36,3 +36,8 @@
 .input-error {
   @apply !border-red-500 !ring-red-500;
 }
+
+/* Disable default callouts for touch targets on iOS */
+* {
+  -webkit-touch-callout: none;
+}
