@@ -32,6 +32,7 @@ export default class extends Controller {
       placement: this.placementValue,
       theme: 'light-border',
       animation: 'scale',
+      touch: 'hold',
     });
 
     // Remove title from DOM element to avoid native browser tooltips
