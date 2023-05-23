@@ -79,7 +79,7 @@ Rails.application.configure do
     }
   end
 
-  config.hosts << 'solectrus.test'
+  config.hosts.clear
 
   config.view_component.preview_paths << Rails.root.join(
     'spec',
