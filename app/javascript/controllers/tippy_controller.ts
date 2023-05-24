@@ -3,16 +3,23 @@ import tippy, { BasePlacement, Instance } from 'tippy.js';
 
 export default class extends Controller {
   static values = {
+    // Where to place the tooltip relative to the target element
     placement: {
       type: String,
       default: 'bottom',
     },
+
+    // Show tooltip only on non-touch devices
+    nonTouchOnly: {
+      type: Boolean,
+      default: false,
+    },
   };
 
-  static targets = ['html'];
-
   declare placementValue: BasePlacement;
-  declare readonly hasPlacementValue: boolean;
+  declare nonTouchOnlyValue: boolean;
+
+  static targets = ['html'];
 
   declare readonly hasHtmlTarget: boolean;
   declare readonly htmlTarget: HTMLElement;
@@ -22,6 +29,8 @@ export default class extends Controller {
   private onClick: ((event: Event) => void) | undefined;
 
   connect() {
+    if (this.nonTouchOnlyValue && 'ontouchstart' in window) return;
+
     const title = this.element.getAttribute('title');
     const content = (this.hasHtmlTarget && this.htmlTarget.innerHTML) || title;
     if (!content) return;
