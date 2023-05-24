@@ -2,12 +2,17 @@
   data= refresh_options
 ]
   = tag.turbo_frame id: 'stats',
-                    src: stats_path,
                     class: 'w-full lg:w-1/2 h-3/5 lg:h-auto flex',
+                    src: stats_path,
                     target: '_top',
                     data: { stats_with_chart__component_target: 'stats' }  do
     .flex-1.flex.justify-center.items-center
       = render Loading::Component.new
 
   = tag.turbo_frame id: 'chart',
-                    class: 'flex-auto flex'
+                    class: 'flex-auto flex',
+                    src: charts_path,
+                    target: '_top',
+                    data: { stats_with_chart__component_target: 'chart' } do
+    .flex-1.flex.justify-center.items-center
+      = render Loading::Component.new

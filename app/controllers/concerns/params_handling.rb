@@ -5,8 +5,7 @@ module ParamsHandling
     private
 
     helper_method def permitted_params
-      @permitted_params ||=
-        params.permit(:field, :timeframe, :period, :sort, :chart)
+      @permitted_params ||= params.permit(:field, :timeframe, :period, :sort)
     end
 
     helper_method def period

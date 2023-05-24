@@ -37,28 +37,23 @@ Chart.register(
 export default class extends Controller<HTMLCanvasElement> {
   static values = {
     type: String,
-    url: String,
     options: Object,
   };
 
-  static targets = ['container', 'canvas', 'loading', 'blank'];
+  static targets = ['container', 'canvas', 'blank', 'json'];
 
   declare readonly containerTarget: HTMLDivElement;
   declare readonly canvasTarget: HTMLCanvasElement;
-  declare readonly loadingTarget: HTMLDivElement;
   declare readonly blankTarget: HTMLParagraphElement;
+  declare readonly jsonTarget: HTMLScriptElement;
 
   declare typeValue: ChartType;
   declare readonly hasTypeValue: boolean;
-
-  declare urlValue: string;
-  declare readonly hasUrlValue: boolean;
 
   declare optionsValue: ChartOptions;
   declare readonly hasOptionsValue: boolean;
 
   private chart?: Chart;
-  private isLoading = false;
 
   connect() {
     this.process();
@@ -88,17 +83,8 @@ export default class extends Controller<HTMLCanvasElement> {
     }, 200);
   }
 
-  private async process() {
-    this.isLoading = true;
-
-    // Show loading indicator when chart takes longer than 300ms to load
-    setTimeout(() => {
-      if (this.isLoading) this.loadingTarget.classList.remove('hidden');
-    }, 300);
-
-    const data = await this.loadData();
-    this.isLoading = false;
-    this.loadingTarget.classList.add('hidden');
+  private process() {
+    const data = this.getData();
 
     if (!data || data.datasets.length === 0) {
       this.blankTarget.classList.remove('hidden');
@@ -172,23 +158,8 @@ export default class extends Controller<HTMLCanvasElement> {
     });
   }
 
-  private async loadData(): Promise<ChartData | undefined> {
-    try {
-      const response = await fetch(this.urlValue, {
-        method: 'GET',
-        headers: {
-          accept: 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (err) {
-      console.warn(err);
-    }
+  private getData(): ChartData {
+    return JSON.parse(this.jsonTarget.textContent || '');
   }
 
   private formattedNumber(number: number) {

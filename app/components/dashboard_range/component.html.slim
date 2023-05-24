@@ -8,7 +8,11 @@
       balance.with_segment :bat_power_minus
 
   div class="flex flex-col px-2 sm:px-4 gap-4 pb-8"
-    = link_to root_path(field: 'autarky', timeframe:) do
+    = link_to root_path(field: 'autarky', timeframe:),
+              data: { \
+                turbo_frame: 'chart',
+                turbo_action: 'replace',
+              } do
       dl data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
         - unless timeframe.future?
@@ -16,7 +20,11 @@
             = render AutarkyDetails::Component.new(calculator:)
 
     - if calculator.consumption_quote
-      = link_to root_path(field: 'consumption', timeframe:) do
+      = link_to root_path(field: 'consumption', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                } do
         dl data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
           - unless timeframe.future?

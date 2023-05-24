@@ -9,12 +9,3 @@ turbo-stream action="morph" target="stats" children-only= true
       = render DashboardNow::Component.new calculator:
     - else
       = render DashboardRange::Component.new calculator:, timeframe:
-
-- if params[:chart] != 'false'
-  turbo-stream action="update" target="chart"
-    template
-      .flex.flex-col.flex-auto.sm:gap-2
-        - unless timeframe.out_of_range?
-          = render ChartSelector::Component.new(field:, timeframe:)
-          = render ChartLoader::Component.new(field:, timeframe:, url: charts_path(permitted_params.to_hash.symbolize_keys))
-          = render Comment::Component.new(calculator:, field:, timeframe:)

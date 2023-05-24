@@ -1,13 +1,12 @@
 = tag.div class: 'flex-1',
           data: { \
             controller: 'chart-loader--component',
-            chart_loader__component_url_value: url,
             chart_loader__component_options_value: options.to_json,
             chart_loader__component_type_value: type,
           } do
 
-  .hidden.h-full.w-full.flex.items-center.justify-center data-chart-loader--component-target= 'loading'
-    = render Loading::Component.new
+  script type= 'application/json' data-chart-loader--component-target= 'json'
+    == ChartData.new(field:, timeframe:).call
 
   .hidden.h-full.w-full.flex.items-center.justify-center data-chart-loader--component-target= 'blank'
     p.text-gray-900.bg-gray-200.px-2.py-1.rounded
@@ -17,5 +16,5 @@
     = tag.canvas id: "chart-#{timeframe.id}",
                  data: { \
                    chart_loader__component_target: 'canvas',
-                   stats_with_chart__component_target: 'chart',
+                   stats_with_chart__component_target: 'canvas',
                  }

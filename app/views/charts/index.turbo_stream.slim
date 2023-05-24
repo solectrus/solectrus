@@ -1,0 +1,7 @@
+turbo-stream action="update" target="chart"
+  template
+    .flex.flex-col.flex-auto.sm:gap-2
+      - unless timeframe.out_of_range?
+        = render ChartSelector::Component.new(field:, timeframe:)
+        = render ChartLoader::Component.new(field:, timeframe:)
+        = render Comment::Component.new(calculator:, field:, timeframe:)

@@ -3,19 +3,23 @@ import * as Turbo from '@hotwired/turbo';
 import { Chart } from 'chart.js';
 
 export default class extends Controller {
-  static targets = ['current', 'stats', 'chart'];
+  static targets = ['current', 'stats', 'chart', 'canvas'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTarget: HTMLElement;
   declare readonly currentTargets: HTMLElement[];
 
   declare readonly hasChartTarget: boolean;
-  declare readonly chartTarget: HTMLCanvasElement;
-  declare readonly chartTargets: HTMLCanvasElement[];
+  declare readonly chartTarget: Turbo.FrameElement;
+  declare readonly chartTargets: Turbo.FrameElement[];
 
   declare readonly hasStatsTarget: boolean;
   declare readonly statsTarget: Turbo.FrameElement;
   declare readonly statsTargets: Turbo.FrameElement[];
+
+  declare readonly hasCanvasTarget: boolean;
+  declare readonly canvasTarget: HTMLCanvasElement;
+  declare readonly canvasTargets: HTMLCanvasElement[];
 
   static values = {
     // Field to display in the chart
@@ -80,9 +84,9 @@ export default class extends Controller {
 
       // Otherwise, just reload the frame
       try {
-        await this.reloadFrame({ chart: this.reloadChartValue });
+        await this.reloadFrames({ chart: this.reloadChartValue });
       } catch (error) {
-        console.log(error);
+        console.error(error);
         // Ignore error
       }
 
@@ -104,16 +108,24 @@ export default class extends Controller {
     this.stopLoop();
   }
 
-  handleFocus() {
-    this.reloadFrame({ chart: true });
-    this.startLoop();
+  async handleFocus() {
+    try {
+      await this.reloadFrames({ chart: true });
+      this.startLoop();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  handleVisibilityChange() {
-    if (document.hidden) this.stopLoop();
-    else {
-      this.reloadFrame({ chart: true });
-      this.startLoop();
+  async handleVisibilityChange() {
+    try {
+      if (document.hidden) this.stopLoop();
+      else {
+        await this.reloadFrames({ chart: true });
+        this.startLoop();
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -147,22 +159,21 @@ export default class extends Controller {
     this.chart.update();
   }
 
-  async reloadFrame(options: { chart: boolean }) {
-    if (!this.statsTarget.src) {
-      return;
+  async reloadFrames(options: { chart: boolean }) {
+    try {
+      if (options.chart)
+        await Promise.all([
+          this.chartTarget.reload(),
+          this.statsTarget.reload(),
+        ]);
+      else await this.statsTarget.reload();
+    } catch (error) {
+      console.error(error);
     }
-
-    const url = new URL(this.statsTarget.src, location.origin);
-    url.searchParams.set('chart', options.chart.toString());
-
-    this.statsTarget.src = null;
-    this.statsTarget.src = url.toString();
-
-    await this.statsTarget.loaded;
   }
 
-  get chart() {
-    if (this.hasChartTarget) return Chart.getChart(this.chartTarget);
+  get chart(): Chart | undefined {
+    if (this.hasCanvasTarget) return Chart.getChart(this.canvasTarget);
   }
 
   get currentValue(): number | undefined {

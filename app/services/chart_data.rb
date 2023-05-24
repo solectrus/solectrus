@@ -1,6 +1,5 @@
-class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
+class ChartData # rubocop:disable Metrics/ClassLength
   def initialize(field:, timeframe:)
-    super
     @field = field
     @timeframe = timeframe
   end

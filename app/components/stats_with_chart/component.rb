@@ -39,4 +39,8 @@ class StatsWithChart::Component < ViewComponent::Base
   def stats_path
     helpers.stats_path(helpers.permitted_params.to_hash.symbolize_keys)
   end
+
+  def charts_path
+    helpers.charts_path(helpers.permitted_params.to_hash.symbolize_keys)
+  end
 end
