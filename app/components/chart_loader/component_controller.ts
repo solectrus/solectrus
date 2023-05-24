@@ -47,6 +47,8 @@ export default class extends Controller<HTMLCanvasElement> {
   declare readonly blankTarget: HTMLParagraphElement;
   declare readonly jsonTarget: HTMLScriptElement;
 
+  declare readonly hasJsonTarget: boolean;
+
   declare typeValue: ChartType;
   declare readonly hasTypeValue: boolean;
 
@@ -158,8 +160,9 @@ export default class extends Controller<HTMLCanvasElement> {
     });
   }
 
-  private getData(): ChartData {
-    return JSON.parse(this.jsonTarget.textContent || '');
+  private getData(): ChartData | undefined {
+    if (this.hasJsonTarget)
+      return JSON.parse(this.jsonTarget.textContent ?? '');
   }
 
   private formattedNumber(number: number) {
