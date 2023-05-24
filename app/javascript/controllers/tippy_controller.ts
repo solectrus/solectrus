@@ -29,7 +29,7 @@ export default class extends Controller {
   private onClick: ((event: Event) => void) | undefined;
 
   connect() {
-    if (this.nonTouchOnlyValue && 'ontouchstart' in window) return;
+    if (this.nonTouchOnlyValue && this.isTouchDevice) return;
 
     const title = this.element.getAttribute('title');
     const content = (this.hasHtmlTarget && this.htmlTarget.innerHTML) || title;
@@ -43,6 +43,10 @@ export default class extends Controller {
       theme: 'light-border',
       animation: 'scale',
       hideOnClick: false,
+
+      // Prevent click on tooltip from triggering click on target
+      onShown: () => this.toggleActiveTippy(true),
+      onHidden: () => this.toggleActiveTippy(false),
     });
 
     // Remove title from DOM element to avoid native browser tooltips
@@ -57,5 +61,15 @@ export default class extends Controller {
 
     // Remove click listener
     if (this.onClick) this.element.removeEventListener('click', this.onClick);
+  }
+
+  toggleActiveTippy = (value: boolean) => {
+    if (!this.isTouchDevice) return;
+
+    document.body.classList.toggle('active-tippy', value);
+  };
+
+  get isTouchDevice() {
+    return 'ontouchstart' in window;
   }
 }

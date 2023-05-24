@@ -43,3 +43,8 @@
   /* Disable dragging on iOS */
   -webkit-user-drag: none;
 }
+
+/* Disable pointer events when Tooltip is shown (see tippy_controller.ts) */
+body.active-tippy * {
+  @apply pointer-events-none;
+}
