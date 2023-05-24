@@ -71,7 +71,7 @@ export default class extends Controller {
   startLoop() {
     this.stopLoop();
 
-    this.interval = setInterval(async () => {
+    this.interval = setInterval(() => {
       // Move to next page when boundary is reached
       if (
         this.boundaryValue &&
@@ -83,15 +83,15 @@ export default class extends Controller {
       }
 
       // Otherwise, just reload the frame
-      try {
-        await this.reloadFrames({ chart: this.reloadChartValue });
-      } catch (error) {
-        console.error(error);
-        // Ignore error
-      }
-
-      // When no new chart has been loaded, add a new point to the existing diagram
-      if (!this.reloadChartValue) this.addPointToChart();
+      this.reloadFrames({ chart: this.reloadChartValue })
+        .then(() => {
+          // When no new chart has been loaded, add a new point to the existing chart
+          if (!this.reloadChartValue) this.addPointToChart();
+        })
+        .catch((error) => {
+          console.error(error);
+          // Ignore error
+        });
     }, this.intervalValue * 1000);
   }
 
@@ -108,25 +108,18 @@ export default class extends Controller {
     this.stopLoop();
   }
 
-  async handleFocus() {
-    try {
-      await this.reloadFrames({ chart: true });
-      this.startLoop();
-    } catch (error) {
-      console.error(error);
-    }
+  handleFocus(): void {
+    this.reloadFrames({ chart: true })
+      .then(() => this.startLoop())
+      .catch((error) => console.error(error));
   }
 
-  async handleVisibilityChange() {
-    try {
-      if (document.hidden) this.stopLoop();
-      else {
-        await this.reloadFrames({ chart: true });
-        this.startLoop();
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  handleVisibilityChange(): void {
+    if (document.hidden) this.stopLoop();
+    else
+      this.reloadFrames({ chart: true })
+        .then(() => this.startLoop())
+        .catch((error) => console.error(error));
   }
 
   addPointToChart() {
