@@ -17,11 +17,23 @@ class Top10Controller < ApplicationController
     end
   end
 
-  helper_method def period_items
+  helper_method def nav_items
     [
-      { name: t('calculator.day'), href: path_with_period('day') },
-      { name: t('calculator.month'), href: path_with_period('month') },
-      { name: t('calculator.year'), href: path_with_period('year') },
+      {
+        name: t('calculator.day'),
+        href: path_with_period('day'),
+        current: period == 'day',
+      },
+      {
+        name: t('calculator.month'),
+        href: path_with_period('month'),
+        current: period == 'month',
+      },
+      {
+        name: t('calculator.year'),
+        href: path_with_period('year'),
+        current: period == 'year',
+      },
     ]
   end
 

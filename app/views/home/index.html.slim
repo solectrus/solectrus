@@ -9,7 +9,7 @@
 
 - content_for :sub_nav do
   .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-5
-    .hidden.lg:block
+    = turbo_frame_tag 'second-nav-desktop', target: '_top', class: 'hidden lg:block' do
       = render Nav::Sub::Component.new do |c|
         = c.with_items nav_items
 
@@ -18,7 +18,8 @@
                       class: 'h-8 space-x-4 flex items-center justify-between lg:justify-end'
 
 - content_for :bottom_nav do
-  = render Nav::Sub::Component.new do |c|
-    = c.with_items nav_items
+  = turbo_frame_tag 'second-nav-mobile', target: '_top' do
+    = render Nav::Sub::Component.new do |c|
+      = c.with_items nav_items
 
 = render StatsWithChart::Component.new(field:, timeframe:)
