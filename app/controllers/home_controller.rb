@@ -2,8 +2,9 @@ class HomeController < ApplicationController
   include ParamsHandling
 
   def index
-    unless field
-      redirect_to root_path(field: 'inverter_power', timeframe: 'now')
+    unless field && timeframe
+      redirect_to root_path(field: field || 'inverter_power', timeframe: 'now')
+      return
     end
 
     set_meta_tags title: helpers.title,

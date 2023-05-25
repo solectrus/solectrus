@@ -30,7 +30,7 @@ module ApplicationHelper
               'inverter_power'
             end,
           period:
-            if respond_to?(:timeframe) && timeframe.id.in?(%i[day month year])
+            if respond_to?(:timeframe) && timeframe&.id.in?(%i[day month year])
               timeframe.id
             else
               'day'

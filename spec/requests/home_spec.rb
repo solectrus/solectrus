@@ -2,7 +2,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
   describe 'GET /' do
     it_behaves_like 'localized request', '/'
 
-    context 'without params' do
+    context 'without params :fields and :timeframe' do
       it 'redirects' do
         get root_path
         expect(response).to redirect_to(
@@ -11,14 +11,16 @@ describe 'Home', vcr: { cassette_name: 'version' } do
       end
     end
 
-    context 'with field' do
-      it 'renders' do
+    context 'without param :timeframe' do
+      it 'redirects' do
         get root_path(field: 'house_power')
-        expect(response).to have_http_status(:ok)
+        expect(response).to redirect_to(
+          root_path(field: 'house_power', timeframe: 'now'),
+        )
       end
     end
 
-    context 'with field and timeframe' do
+    context 'with params :field and :timeframe' do
       it 'renders' do
         get root_path(
               field: 'house_power',
@@ -28,7 +30,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
       end
     end
 
-    context 'when timeframe is in the future' do
+    context 'when param :timeframe is in the future' do
       it 'renders for day' do
         get root_path(
               timeframe: (Date.current + 2.days).strftime('%Y-%m-%d'),
