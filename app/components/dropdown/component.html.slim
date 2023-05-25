@@ -4,8 +4,12 @@ div
       data-select-target= 'select'
       data-action= 'select#onChange'
     ]
-      - @items.each do |item|
-        option value= item[:href] selected= (item == selected_item)
+      - items.each do |item|
+        option[
+          value= item[:href]
+          data= item[:data]
+          selected= (item == selected_item)
+        ]
           = item[:name]
 
     select.absolute.invisible.text-sm.font-medium data-select-target= 'temp'
@@ -32,6 +36,6 @@ div
       data-transition-leave-end="opacity-0 scale-95"
     ]
       .py-1 aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
-        - @items.each do |item|
+        - items.each do |item|
           a.block.px-6.py-2.text-sm.text-gray-700.hover:bg-gray-100.hover:text-gray-900.whitespace-nowrap href= item[:href] data= item[:data] role="menuitem"
             = item[:name]
