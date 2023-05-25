@@ -413,7 +413,7 @@ DEPENDENCIES
   puma (~> 6)
   rack-brotli
   rack-cors
-  rails (~> 7.0.4, >= 7.0.4.3)
+  rails (~> 7.0.5)
   redis
   rspec-collection_matchers
   rspec-rails

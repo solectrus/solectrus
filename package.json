@@ -25,7 +25,6 @@
     "throttle-debounce": "^5.0.0",
     "tippy.js": "^6.3.7"
   },
-  "version": "0.1.0",
   "devDependencies": {
     "@prettier/plugin-ruby": "^3.2.2",
     "@size-limit/file": "^8.2.4",
