@@ -9,7 +9,7 @@
 
 - content_for :sub_nav do
   .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-5
-    .mx-auto.lg:mx-0.hidden.lg:block
+    .hidden.lg:block
       = render Nav::Sub::Component.new do |c|
         = c.with_items nav_items
 

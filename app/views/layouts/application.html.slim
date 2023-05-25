@@ -86,7 +86,7 @@ html lang="de"
       = turbo_frame_tag 'modal', target: '_top'
 
     - if content_for?(:bottom_nav)
-      nav.w-full.bg-indigo-600.z-10.lg:hidden
+      .w-full.bg-indigo-600.z-10.lg:hidden
         = yield :bottom_nav
 
     footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
