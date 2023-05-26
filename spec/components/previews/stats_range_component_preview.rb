@@ -1,7 +1,7 @@
-# @label DashboardRange Component
-class DashboardRangeComponentPreview < ViewComponent::Preview
+# @label StatsRange
+class StatsRangeComponentPreview < ViewComponent::Preview
   def default
-    render DashboardRange::Component.new calculator:, timeframe:
+    render StatsRange::Component.new calculator:, timeframe:
   end
 
   private

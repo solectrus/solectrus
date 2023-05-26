@@ -1,4 +1,4 @@
-class DashboardRange::Component < ViewComponent::Base
+class StatsRange::Component < ViewComponent::Base
   def initialize(calculator:, timeframe:)
     super
     @calculator = calculator

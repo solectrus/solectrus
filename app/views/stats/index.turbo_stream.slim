@@ -5,6 +5,6 @@
 turbo-stream action="morph" target="stats" children-only= true
   template
     - if timeframe.now?
-      = render DashboardNow::Component.new calculator:
+      = render StatsNow::Component.new calculator:
     - else
-      = render DashboardRange::Component.new calculator:, timeframe:
+      = render StatsRange::Component.new calculator:, timeframe:
