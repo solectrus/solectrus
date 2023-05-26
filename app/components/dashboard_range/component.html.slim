@@ -1,13 +1,7 @@
-.flex-1.flex
-  = render Balance::Component.new side: :left,
-                                  calculator:,
-                                  timeframe: do |balance|
-    ruby:
-      balance.with_segment :grid_power_plus
-      balance.with_segment :inverter_power
-      balance.with_segment :bat_power_minus
+= render Balance::Component.new calculator:,
+                                timeframe: do |balance|
 
-  div class="flex flex-col px-2 sm:px-4 gap-4 pb-8"
+  = balance.with_center do
     = link_to root_path(field: 'autarky', timeframe:),
               data: { \
                 turbo_frame: 'chart',
@@ -48,12 +42,3 @@
       - unless timeframe.future?
         template data-tippy-target="html"
           = render SavingsDetails::Component.new(calculator:)
-
-  = render Balance::Component.new side: :right,
-                                  calculator:,
-                                  timeframe: do |balance|
-    ruby:
-      balance.with_segment :wallbox_charge_power
-      balance.with_segment :house_power
-      balance.with_segment :grid_power_minus
-      balance.with_segment :bat_power_plus

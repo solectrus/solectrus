@@ -1,13 +1,8 @@
-.flex-1.flex
-  = render Balance::Component.new side: :left,
-                                  calculator:,
-                                  timeframe: do |balance|
-    ruby:
-      balance.with_segment :grid_power_plus, peak['grid_power_plus']
-      balance.with_segment :inverter_power, peak['inverter_power']
-      balance.with_segment :bat_power_minus, peak['bat_power_minus']
+= render Balance::Component.new calculator:,
+                                timeframe:,
+                                peak: do |balance|
 
-  div class="flex flex-col px-2 sm:px-4 gap-4 pb-8"
+  = balance.with_center do
     = link_to root_path(field: 'autarky', timeframe:),
               data: { \
                 turbo_frame: 'chart',
@@ -47,12 +42,3 @@
                 turbo_action: 'replace',
               } do
       = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
-
-  = render Balance::Component.new side: :right,
-                                  calculator:,
-                                  timeframe: do |balance|
-    ruby:
-      balance.with_segment :wallbox_charge_power, peak['wallbox_charge_power']
-      balance.with_segment :house_power, peak['house_power']
-      balance.with_segment :grid_power_minus, peak['grid_power_power_minus']
-      balance.with_segment :bat_power_plus, peak['bat_power_plus']
