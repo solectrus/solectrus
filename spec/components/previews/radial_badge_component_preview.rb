@@ -1,4 +1,4 @@
-# @label RadialBadge Component
+# @label RadialBadge
 class RadialBadgeComponentPreview < ViewComponent::Preview
   # @!group Percent
   def percent_min(percent: 0, title: 'Value')

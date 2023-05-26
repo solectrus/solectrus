@@ -1,4 +1,4 @@
-# @label AuthorLogo Component
+# @label AuthorLogo
 class AuthorLogoComponentPreview < ViewComponent::Preview
   def outdated
     render AuthorLogo::Component.new

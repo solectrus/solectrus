@@ -1,4 +1,4 @@
-# @label Balance Component
+# @label Balance
 class BalanceComponentPreview < ViewComponent::Preview
   def default
     render Balance::Component.new timeframe:, calculator:
