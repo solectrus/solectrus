@@ -25,8 +25,8 @@ module InfluxHelper
 
     write_api.write(
       data: points,
-      bucket: ENV.fetch('INFLUX_BUCKET', nil),
-      org: ENV.fetch('INFLUX_ORG', nil),
+      bucket: Rails.configuration.x.influx.bucket,
+      org: Rails.configuration.x.influx.org,
     )
   end
 

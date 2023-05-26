@@ -19,7 +19,7 @@ class StatsNow::Component < ViewComponent::Base
     @peak ||=
       PowerPeak.new(
         fields: Senec::POWER_FIELDS,
-        measurements: %w[SENEC],
+        measurements: [Rails.configuration.x.influx.measurement_pv],
       ).result(start: 30.days.ago.beginning_of_day)
   end
 end

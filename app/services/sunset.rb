@@ -1,6 +1,9 @@
 class Sunset < Flux::Reader
   def initialize(date)
-    super(fields: ['watt'], measurements: ['Forecast'])
+    super(
+      fields: ['watt'],
+      measurements: [Rails.configuration.x.influx.measurement_forecast],
+    )
     @date = date
   end
 

@@ -4,7 +4,14 @@ describe Calculator::Now do
   describe '#time' do
     around { |example| freeze_time(&example) }
 
-    before { add_influx_point(name: 'SENEC', fields: { inverter_power: 0 }) }
+    before do
+      add_influx_point(
+        name: Rails.configuration.x.influx.measurement_pv,
+        fields: {
+          inverter_power: 0,
+        },
+      )
+    end
 
     it 'returns time of measurement' do
       expect(calculator.time).to eq(Time.current)
@@ -14,7 +21,7 @@ describe Calculator::Now do
   context 'when no sun and battery is empty' do
     before do
       add_influx_point(
-        name: 'SENEC',
+        name: Rails.configuration.x.influx.measurement_pv,
         fields: {
           inverter_power: 0,
           house_power: 430,
@@ -43,7 +50,7 @@ describe Calculator::Now do
   context 'when no sun and battery is full' do
     before do
       add_influx_point(
-        name: 'SENEC',
+        name: Rails.configuration.x.influx.measurement_pv,
         fields: {
           inverter_power: 0,
           house_power: 400,
@@ -72,7 +79,7 @@ describe Calculator::Now do
   context 'when no sun and battery is empty and wallbox is charging' do
     before do
       add_influx_point(
-        name: 'SENEC',
+        name: Rails.configuration.x.influx.measurement_pv,
         fields: {
           inverter_power: 0,
           house_power: 400,
@@ -101,7 +108,7 @@ describe Calculator::Now do
   context 'when there is sun (less than used in the house)' do
     before do
       add_influx_point(
-        name: 'SENEC',
+        name: Rails.configuration.x.influx.measurement_pv,
         fields: {
           inverter_power: 100,
           house_power: 400,
@@ -130,7 +137,7 @@ describe Calculator::Now do
   context 'when there is sun (more than used in the house) and battery is empty' do
     before do
       add_influx_point(
-        name: 'SENEC',
+        name: Rails.configuration.x.influx.measurement_pv,
         fields: {
           inverter_power: 500,
           house_power: 400,
@@ -159,7 +166,7 @@ describe Calculator::Now do
   context 'when there is sun (more than used in the house) and battery is full' do
     before do
       add_influx_point(
-        name: 'SENEC',
+        name: Rails.configuration.x.influx.measurement_pv,
         fields: {
           inverter_power: 500,
           house_power: 400,
@@ -188,7 +195,7 @@ describe Calculator::Now do
   context 'when emergency charge' do
     before do
       add_influx_point(
-        name: 'SENEC',
+        name: Rails.configuration.x.influx.measurement_pv,
         fields: {
           inverter_power: 300,
           house_power: 400,
@@ -217,7 +224,7 @@ describe Calculator::Now do
   context 'when feeding' do
     before do
       add_influx_point(
-        name: 'SENEC',
+        name: Rails.configuration.x.influx.measurement_pv,
         fields: {
           inverter_power: 5_000,
           house_power: 400,

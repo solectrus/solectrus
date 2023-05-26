@@ -12,7 +12,11 @@ class Top10Chart::Component < ViewComponent::Base
 
   def top10
     @top10 ||=
-      PowerTop10.new(fields: [field], measurements: ['SENEC'], desc: sort.desc?)
+      PowerTop10.new(
+        fields: [field],
+        measurements: [Rails.configuration.x.influx.measurement_pv],
+        desc: sort.desc?,
+      )
   end
 
   def top10_for_period

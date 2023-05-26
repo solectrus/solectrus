@@ -51,6 +51,9 @@ module Solectrus
     config.x.influx.host = ENV.fetch('INFLUX_HOST', nil)
     config.x.influx.port = ENV.fetch('INFLUX_PORT', 8086)
     config.x.influx.bucket = ENV.fetch('INFLUX_BUCKET', nil)
+    config.x.influx.measurement_pv = ENV.fetch('INFLUX_MEASUREMENT_PV', 'SENEC')
+    config.x.influx.measurement_forecast =
+      ENV.fetch('INFLUX_MEASUREMENT_FORECAST', 'Forecast')
     config.x.influx.org = ENV.fetch('INFLUX_ORG', nil)
 
     config.x.installation_date =

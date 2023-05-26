@@ -3,7 +3,7 @@ class Calculator::Now < Calculator::Base
     super
 
     build_context PowerSum.new(
-                    measurements: ['SENEC'],
+                    measurements: [Rails.configuration.x.influx.measurement_pv],
                     fields: %i[
                       current_state
                       inverter_power

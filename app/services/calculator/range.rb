@@ -4,7 +4,10 @@ class Calculator::Range < Calculator::Base
 
     sums =
       PowerSum.new(
-        measurements: %w[SENEC Forecast],
+        measurements: [
+          Rails.configuration.x.influx.measurement_pv,
+          Rails.configuration.x.influx.measurement_forecast,
+        ],
         fields: fields(timeframe),
       ).call(timeframe)
 
