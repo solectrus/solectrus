@@ -7,27 +7,29 @@
       .grid.grid-cols-2.gap-2
         dt
           = I18n.t('senec.grid_power_plus')
-        dd.font-mono.text-right
+        dd.font-mono.text-right.text-red-500
           = Number::Component.new(value: calculator.grid_power_plus).to_watt_hour
 
         dt
           = Price.human_enum_name(:name, :electricity)
         dd.font-mono.text-right
           - if calculator.electricity_prices.uniq.length == 1
-            = Number::Component.new(value: calculator.electricity_prices.first).to_eur(klass: 'text-red-500', max_precision: 4)
+            = Number::Component.new(value: calculator.electricity_prices.first).to_eur_per_kwh(klass: 'text-red-500')
           - else
             span.text-xs
               = 'von '
-            = Number::Component.new(value: calculator.electricity_prices.first).to_eur(klass: 'text-red-500', max_precision: 4)
+            = Number::Component.new(value: calculator.electricity_prices.first).to_eur_per_kwh(klass: 'text-red-500')
             br
             span.text-xs
               = ' bis '
-            = Number::Component.new(value: calculator.electricity_prices.last).to_eur(klass: 'text-red-500', max_precision: 4)
+            = Number::Component.new(value: calculator.electricity_prices.last).to_eur_per_kwh(klass: 'text-red-500')
 
         dt
-          = I18n.t('calculator.total_costs')
+          span.text-xl
+            = '⇒ '
+          =< I18n.t('calculator.total_costs')
         dd.font-mono.text-right
-          = Number::Component.new(value: calculator.paid).to_eur(klass: 'text-red-500', max_precision: 2)
+          = Number::Component.new(value: calculator.paid.abs).to_eur(klass: 'text-red-500', max_precision: 2)
 
   - if calculator.wallbox_costs.nonzero?
     div
@@ -39,13 +41,13 @@
           dt
             = I18n.t('calculator.house_costs')
           dd.font-mono.text-right
-            = Number::Component.new(value: calculator.house_costs).to_eur(klass: 'text-red-500', max_precision: 2)
+            = Number::Component.new(value: calculator.house_costs.abs).to_eur(klass: 'text-red-500', max_precision: 2)
 
         .grid.grid-cols-2.gap-4
           dt
             = I18n.t('calculator.wallbox_costs')
           dd.font-mono.text-right
-            = Number::Component.new(value: calculator.wallbox_costs).to_eur(klass: 'text-red-500', max_precision: 2)
+            = Number::Component.new(value: calculator.wallbox_costs.abs).to_eur(klass: 'text-red-500', max_precision: 2)
 
       p.mt-2.text-gray-400.text-sm
         = t('.breakdown.explanation')

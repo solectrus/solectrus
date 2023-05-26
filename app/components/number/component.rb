@@ -41,6 +41,16 @@ class Number::Component < ViewComponent::Base
     )
   end
 
+  def to_eur_per_kwh(klass: nil)
+    return unless value
+
+    styled_number(
+      formatted_number(value, max_precision: 4),
+      unit: '€/kWh',
+      klass: klass || (value.negative? ? %w[text-red-500] : %w[text-green-500]),
+    )
+  end
+
   def to_percent(max_precision: 1, klass: nil)
     return unless value
 
