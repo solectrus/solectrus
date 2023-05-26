@@ -8,7 +8,7 @@
         dt
           = I18n.t('senec.grid_power_plus')
         dd.font-mono.text-right.text-red-500
-          = Number::Component.new(value: calculator.grid_power_plus).to_watt_hour
+          = Number::Component.new(value: calculator.grid_power_plus).to_watt_hour(unit: :kilo)
 
         dt
           = Price.human_enum_name(:name, :electricity)
