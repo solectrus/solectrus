@@ -53,21 +53,23 @@ class MinMaxChart < Flux::Reader
 
   def chart_minmax(start:, window:, stop: nil)
     raw = query <<-QUERY
+      import "timezone"
+
       #{from_bucket}
-      |> #{range(start:, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 5m, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: min)
+      |> aggregateWindow(every: #{window}, fn: min, location: #{location})
       |> keep(columns: ["_time","_field","_value"])
       |> yield(name: "min")
 
       #{from_bucket}
-      |> #{range(start:, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 5m, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: max)
+      |> aggregateWindow(every: #{window}, fn: max, location: #{location})
       |> keep(columns: ["_time","_field","_value"])
       |> yield(name: "max")
     QUERY
@@ -77,23 +79,25 @@ class MinMaxChart < Flux::Reader
 
   def chart_minmax_global(start:, window:, stop: nil)
     raw = query <<-QUERY
+      import "timezone"
+
       #{from_bucket}
-      |> #{range(start:, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: 1d, fn: min)
-      |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'min'})
+      |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'min'}, location: #{location})
       |> keep(columns: ["_time","_field","_value"])
       |> yield(name: "min")
 
       #{from_bucket}
-      |> #{range(start:, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: 1d, fn: max)
-      |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'max'})
+      |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'max'}, location: #{location})
       |> keep(columns: ["_time","_field","_value"])
       |> yield(name: "max")
     QUERY

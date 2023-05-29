@@ -50,12 +50,14 @@ class AutarkyChart < Flux::Reader
 
   def chart_sum(start:, window:, stop: nil)
     raw = query <<-QUERY
+      import "timezone"
+
       #{from_bucket}
-      |> #{range(start:, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: sum)
+      |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.grid_power_plus / (r.house_power + (if r.wallbox_charge_power > 0 then r.wallbox_charge_power else 0.0)))) }))
       |> keep(columns: ["_time", "autarky"])

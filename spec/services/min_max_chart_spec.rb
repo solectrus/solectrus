@@ -89,7 +89,7 @@ describe MinMaxChart do
     end
 
     context 'when timeframe is "week"' do
-      let(:start) { '2023-03-13'.to_date }
+      let(:start) { Time.zone.parse('2023-03-13') }
       let(:timeframe) { Timeframe.new('2023-W11') }
 
       before do
@@ -116,20 +116,20 @@ describe MinMaxChart do
       it 'returns points' do
         expect(result['bat_fuel_charge']).to eq(
           [
-            ['2023-03-13', [40, 80]],
-            ['2023-03-14', [40, 80]],
-            ['2023-03-15', [40, 80]],
-            ['2023-03-16', [40, 80]],
-            ['2023-03-17', [40, 80]],
-            ['2023-03-18', [40, 80]],
-            ['2023-03-19', nil],
+            [Time.zone.parse('2023-03-13'), [40, 80]],
+            [Time.zone.parse('2023-03-14'), [40, 80]],
+            [Time.zone.parse('2023-03-15'), [40, 80]],
+            [Time.zone.parse('2023-03-16'), [40, 80]],
+            [Time.zone.parse('2023-03-17'), [40, 80]],
+            [Time.zone.parse('2023-03-18'), [40, 80]],
+            [Time.zone.parse('2023-03-19'), [40, 80]],
           ],
         )
       end
     end
 
     context 'when timeframe is "month"' do
-      let(:start) { '2023-02-01'.to_date }
+      let(:start) { Time.zone.parse('2023-02-01') }
       let(:timeframe) { Timeframe.new('2023-02') }
 
       before do
@@ -162,12 +162,12 @@ describe MinMaxChart do
         expect(first_point).to eq([start, [40, 80]])
 
         last_point = result['bat_fuel_charge'].last
-        expect(last_point).to eq([(start + 27.days).to_date, [40, 80]])
+        expect(last_point).to eq([start + 27.days, [40, 80]])
       end
     end
 
     context 'when timeframe is "year"' do
-      let(:start) { '2022-01-01'.to_date }
+      let(:start) { Time.zone.parse('2022-01-01') }
       let(:timeframe) { Timeframe.new('2022') }
 
       before do
@@ -202,12 +202,12 @@ describe MinMaxChart do
         expect(first_point).to eq([start, [40, 80]])
 
         last_point = result['bat_fuel_charge'].last
-        expect(last_point).to eq([(start + 11.months).to_date, [40, 80]])
+        expect(last_point).to eq([start + 11.months, [40, 80]])
       end
     end
 
     context 'when timeframe is "all"' do
-      let(:start) { 1.year.ago.beginning_of_year.to_date }
+      let(:start) { 1.year.ago.beginning_of_year.beginning_of_day }
       let(:timeframe) { Timeframe.new('all', min_date: start) }
 
       before do
@@ -242,7 +242,7 @@ describe MinMaxChart do
         expect(first_point).to eq([start, [40, 80]])
 
         last_point = result['bat_fuel_charge'].last
-        expect(last_point).to eq([(start + 1.year).to_date, [40, 80]])
+        expect(last_point).to eq([start + 1.year, [40, 80]])
       end
     end
   end

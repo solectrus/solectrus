@@ -49,12 +49,14 @@ class PowerChart < Flux::Reader
 
   def chart_sum(start:, window:, stop: nil)
     raw = query <<-QUERY
+      import "timezone"
+
       #{from_bucket}
-      |> #{range(start:, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: sum)
+      |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
       |> keep(columns: ["_time","_field","_value"])
     QUERY
 

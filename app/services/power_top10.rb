@@ -1,10 +1,11 @@
 class PowerTop10 < Flux::Reader
-  def initialize(fields:, measurements:, desc:)
-    super(fields:, measurements:)
+  def initialize(field:, measurements:, desc:)
+    super(fields: [field], measurements:)
     @desc = desc
+    @field = field
   end
 
-  attr_reader :desc
+  attr_reader :field, :desc
 
   def days
     top start: start(:day), stop: stop(:day), window: '1d'
@@ -49,19 +50,7 @@ class PowerTop10 < Flux::Reader
   def top(start:, stop:, window:, limit: 10)
     return [] if start > stop
 
-    raw = query <<-QUERY
-      #{from_bucket}
-      |> #{range(start:, stop:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
-      |> aggregateWindow(every: 1h, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: sum)
-      |> filter(fn: (r) => r._value > 0)
-      |> keep(columns: ["_time","_field","_value"])
-      |> sort(desc: #{desc})
-      |> limit(n: #{limit})
-    QUERY
-
+    raw = query(build_query(start:, stop:, window:, limit:))
     return [] unless raw[0]
 
     raw[0].records.map do |record|
@@ -74,5 +63,21 @@ class PowerTop10 < Flux::Reader
 
   def default_cache_options
     { expires_in: 10.minutes }
+  end
+
+  def build_query(start:, stop:, window:, limit:)
+    <<-QUERY
+      import "timezone"
+
+      #{from_bucket}
+        |> #{range(start:, stop:)}
+        |> #{measurements_filter}
+        |> #{fields_filter}
+        |> aggregateWindow(every: 1h, fn: mean)
+        |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
+        |> filter(fn: (r) => r._value > 0)
+        |> sort(columns: ["_value"], desc: #{desc})
+        |> limit(n: #{limit})
+    QUERY
   end
 end

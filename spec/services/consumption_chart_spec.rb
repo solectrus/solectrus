@@ -53,9 +53,9 @@ describe ConsumptionChart do
       it { is_expected.to have(12).items }
 
       it 'contains last and first data point' do
-        expect(result.first).to eq([beginning + 1.hour, 50.0])
+        expect(result.first).to eq([beginning, 50.0])
         expect(result.last).to eq(
-          [beginning.end_of_year.beginning_of_month + 1.hour, 50.0],
+          [beginning.end_of_year.beginning_of_month, 50.0],
         )
       end
     end

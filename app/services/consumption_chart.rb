@@ -47,12 +47,14 @@ class ConsumptionChart < Flux::Reader
 
   def chart_sum(start:, window:, stop: nil)
     raw = query <<-QUERY
+      import "timezone"
+
       #{from_bucket}
-      |> #{range(start:, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> aggregateWindow(every: 1h, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: sum)
+      |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({ r with consumption: if r.grid_power_minus > r.inverter_power then 0.0 else 100.0 * (r.inverter_power - r.grid_power_minus) / r.inverter_power }))
       |> keep(columns: ["_time", "consumption"])
