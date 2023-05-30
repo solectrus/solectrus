@@ -56,37 +56,40 @@ class PowerSum < Flux::Reader
   end
 
   def sum_query(start:, stop: nil)
-    result =
-      if stop && stop < Time.current
-        # Range from the past, use more precise query
-        query(<<-QUERY)
-          import "timezone"
-
-          #{from_bucket}
-          |> #{range(start: start - 1.hour, stop:)}
-          |> #{measurements_filter}
-          |> #{fields_filter}
-          |> aggregateWindow(every: 1h, fn: mean)
-          |> aggregateWindow(every: 1d, fn: sum, location: #{location})
-          |> sum()
-          QUERY
-      else
-        # Current range, use "integral" because aggregateWindow(1h/mean)
-        # is not correct for incomplete measurements
-        query(<<-QUERY)
-          #{from_bucket}
-          |> #{range(start:, stop:)}
-          |> #{measurements_filter}
-          |> #{fields_filter}
-          |> integral(unit: 1h)
-        QUERY
-      end
-
-    result.each_with_object(empty_hash) do |table, hash|
+    query(build_query(start:, stop:)).each_with_object(
+      empty_hash,
+    ) do |table, hash|
       record = table.records.first
 
       hash[record.values['_field'].to_sym] = record.values['_value']
       hash[:time] ||= Time.zone.parse record.values['_stop']
+    end
+  end
+
+  def build_query(start:, stop:)
+    if stop && stop < Time.current
+      # Range from the past, use more precise query
+      <<-QUERY
+        import "timezone"
+
+        #{from_bucket}
+        |> #{range(start: start - 1.hour, stop:)}
+        |> #{measurements_filter}
+        |> #{fields_filter}
+        |> aggregateWindow(every: 1h, fn: mean)
+        |> aggregateWindow(every: 1d, fn: sum, location: #{location})
+        |> sum()
+      QUERY
+    else
+      # Current range, use "integral" because aggregateWindow(1h/mean) is
+      # not correct for incomplete measurements
+      <<-QUERY
+        #{from_bucket}
+        |> #{range(start:, stop:)}
+        |> #{measurements_filter}
+        |> #{fields_filter}
+        |> integral(unit: 1h)
+      QUERY
     end
   end
 
