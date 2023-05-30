@@ -1,7 +1,7 @@
 class Flux::Base
   def client
     InfluxDB2::Client.new(
-      "#{influx_schema}://#{influx_host}:#{influx_port}",
+      influx_url,
       influx_token,
       bucket: influx_bucket,
       org: influx_org,
@@ -13,8 +13,8 @@ class Flux::Base
 
   private
 
-  def influx_token
-    Rails.configuration.x.influx.token
+  def influx_url
+    "#{influx_schema}://#{influx_host}:#{influx_port}"
   end
 
   def influx_schema
@@ -27,6 +27,10 @@ class Flux::Base
 
   def influx_port
     Rails.configuration.x.influx.port
+  end
+
+  def influx_token
+    Rails.configuration.x.influx.token
   end
 
   def influx_bucket
