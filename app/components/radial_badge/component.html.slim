@@ -12,3 +12,7 @@
 
       .title
         = title
+
+      - if info_link
+        = link_to info_link, class: 'hidden xl:block' do
+          i.fa.fas.fa-circle-info.fa-xs
