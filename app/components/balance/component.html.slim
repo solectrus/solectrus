@@ -1,20 +1,21 @@
-div class= 'flex-1 flex h-full'
-  = render BalanceSide::Component.new side: :left,
-                                      calculator:,
-                                      timeframe: do |balance|
-    ruby:
-      balance.with_segment :grid_power_plus, peak&.dig('grid_power_plus')
-      balance.with_segment :inverter_power, peak&.dig('inverter_power')
-      balance.with_segment :bat_power_minus, peak&.dig('bat_power_minus')
+div
+  div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
+    = render BalanceSide::Component.new side: :left,
+                                        calculator:,
+                                        timeframe: do |balance|
+      ruby:
+        balance.with_segment :grid_power_plus, peak&.dig('grid_power_plus')
+        balance.with_segment :inverter_power, peak&.dig('inverter_power')
+        balance.with_segment :bat_power_minus, peak&.dig('bat_power_minus')
 
-  div class= 'flex flex-col px-2 sm:px-4 gap-4 pb-8'
-    = center
+    div class= 'flex flex-col px-2 sm:px-4 gap-4 pb-8'
+      = center
 
-  = render BalanceSide::Component.new side: :right,
-                                      calculator:,
-                                      timeframe: do |balance|
-    ruby:
-      balance.with_segment :wallbox_charge_power, peak&.dig('wallbox_charge_power')
-      balance.with_segment :house_power, peak&.dig('house_power')
-      balance.with_segment :grid_power_minus, peak&.dig('grid_power_power_minus')
-      balance.with_segment :bat_power_plus, peak&.dig('bat_power_plus')
+    = render BalanceSide::Component.new side: :right,
+                                        calculator:,
+                                        timeframe: do |balance|
+      ruby:
+        balance.with_segment :wallbox_charge_power, peak&.dig('wallbox_charge_power')
+        balance.with_segment :house_power, peak&.dig('house_power')
+        balance.with_segment :grid_power_minus, peak&.dig('grid_power_power_minus')
+        balance.with_segment :bat_power_plus, peak&.dig('bat_power_plus')
