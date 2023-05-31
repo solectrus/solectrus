@@ -23,7 +23,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
 
   def data_now
     {
-      labels: now[now.keys.first]&.map(&:first),
+      labels: now[now.keys.first]&.map { |x| x.first.to_i * 1000 },
       datasets:
         now.map do |chart_field, data|
           {
@@ -36,7 +36,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
 
   def data_day_inverter_power # rubocop:disable Metrics/CyclomaticComplexity
     {
-      labels: (inverter_power || forecast)&.map(&:first),
+      labels: (inverter_power || forecast)&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
           label: I18n.t('senec.inverter_power'),
@@ -52,7 +52,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
 
   def data_autarky
     {
-      labels: autarky&.map(&:first),
+      labels: autarky&.map { |x| x.first.to_i * 1000 },
       datasets: [
         { label: I18n.t('senec.autarky'), data: autarky&.map(&:second) }.merge(
           style('autarky'),
@@ -63,7 +63,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
 
   def data_consumption
     {
-      labels: consumption&.map(&:first),
+      labels: consumption&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
           label: I18n.t('calculator.consumption_quote'),
@@ -75,7 +75,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
 
   def data_range
     {
-      labels: range[range.keys.first]&.map(&:first),
+      labels: range[range.keys.first]&.map { |x| x.first.to_i * 1000 },
       datasets:
         range.map do |chart_field, data|
           {
