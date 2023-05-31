@@ -1,14 +1,17 @@
-- if field == 'inverter_power' && !timeframe.now? && calculator.forecast_deviation
+- if field == 'inverter_power' && timeframe.day?
   .text-center.text-xs.sm:text-sm.text-slate-500 data-controller= 'tippy'
-    - if calculator.forecast_deviation.positive?
-      = t 'forecast.better_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
-    - elsif future? || today_before_sunset?
-      = t 'forecast.expect_html', value: Number::Component.new(value: calculator.watt).to_watt_hour(max_precision: 0)
-    - elsif calculator.forecast_deviation.zero?
-      = t 'forecast.exactly'
-    - else
-      = t 'forecast.worse_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
+    - if calculator.forecast_deviation
+      - if calculator.forecast_deviation.positive?
+        = t 'forecast.better_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
+      - elsif future? || today_before_sunset?
+        = t 'forecast.expect_html', value: Number::Component.new(value: calculator.watt).to_watt_hour(max_precision: 0)
+      - elsif calculator.forecast_deviation.zero?
+        = t 'forecast.exactly'
+      - else
+        = t 'forecast.worse_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
 
-    - if tooltip_required?
-      template data-tippy-target= 'html'
-        = t 'forecast.expectation_html', value: Number::Component.new(value: calculator.watt).to_watt_hour(max_precision: 0)
+      - if tooltip_required?
+        template data-tippy-target= 'html'
+          = t 'forecast.expectation_html', value: Number::Component.new(value: calculator.watt).to_watt_hour(max_precision: 0)
+    - elsif future?
+      = t 'forecast.unknown'

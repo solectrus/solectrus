@@ -53,6 +53,7 @@ de:
     worse_html: '%{percent} weniger als erwartet'
     expect_html: Erwartet werden %{value}
     expectation_html: Erwartet wurden %{value}
+    unknown: Keine Prognose verfügbar
   login:
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code class="bg-slate-100 p-1 rounded">ADMIN_PASSWORD</code> ergänzt werden.
