@@ -233,10 +233,10 @@
   dependencies:
     stacktrace-parser "^0.1.10"
 
-"@honeybadger-io/js@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-6.0.0.tgz#0f50707e9380d05f1b0105e0439cb29dc8492348"
-  integrity sha512-NGEkg1mhJGHmbRG4VuhX9fvvntrQnbepairRyHa9ycXyQTPrpbP8hLcBRGSSLwOpk92ke++uFQROyYCMO8Lc6g==
+"@honeybadger-io/js@^6.1.0":
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/@honeybadger-io/js/-/js-6.1.0.tgz#8f42262b51d1edd2b1f00dac201f68862c5b6302"
+  integrity sha512-GwSKeMUDrLlP8FA7Ng2QayvxfhvNlvDnS60siSHCo6gmsllpoesDfJYEehfigCfdNN4Z4hNCfzAFXFVEK4QpMQ==
   dependencies:
     "@honeybadger-io/core" "^5.2.0"
     "@types/aws-lambda" "^8.10.89"
@@ -828,9 +828,9 @@ camelcase-css@^2.0.1:
   integrity sha512-QOSvevhslijgYwRx6Rv7zKdMF8lbRmx+uQGx2+vDc+KI/eBnsy9kit5aj23AgGu3pa4t9AgwbnXWqS+iOY+2aA==
 
 caniuse-lite@^1.0.30001464, caniuse-lite@^1.0.30001489:
-  version "1.0.30001491"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001491.tgz#eab0e0f392de6f7411751d148de9b5bd6b203e46"
-  integrity sha512-17EYIi4TLnPiTzVKMveIxU5ETlxbSO3B6iPvMbprqnKh4qJsQGk5Nh1Lp4jIMAE0XfrujsJuWZAM3oJdMHaKBA==
+  version "1.0.30001492"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001492.tgz#4a06861788a52b4c81fd3344573b68cc87fe062b"
+  integrity sha512-2efF8SAZwgAX1FJr87KWhvuJxnGJKOnctQa8xLOskAXNXq8oiuqgl6u1kk3fFpsp3GgvzlRjiK1sl63hNtFADw==
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -1103,9 +1103,9 @@ el-transition@^0.0.7:
   integrity sha512-a23pEa7ahqLmBIEqtxi8CdL6CRLF52ZoAwawDFTD1IDkegrL4iValQAj6IMEgIEXPSrXZtx/Nr/ej6ebov4uoA==
 
 electron-to-chromium@^1.4.411:
-  version "1.4.413"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.413.tgz#0067c3122946ae234cbefb9401ecefde851cdcf2"
-  integrity sha512-Gd+/OAhRca06dkVxIQo/W7dr6Nmk9cx6lQdZ19GvFp51k5B/lUAokm6SJfNkdV8kFLsC3Z4sLTyEHWCnB1Efbw==
+  version "1.4.414"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.414.tgz#f9eedb6fb01b50439d8228d8ee3a6fa5e0108437"
+  integrity sha512-RRuCvP6ekngVh2SAJaOKT/hxqc9JAsK+Pe0hP5tGQIfonU2Zy9gMGdJ+mBdyl/vNucMG6gkXYtuM4H/1giws5w==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -1188,10 +1188,10 @@ eslint-plugin-prettier@^4.2.1:
   dependencies:
     prettier-linter-helpers "^1.0.0"
 
-eslint-plugin-tailwindcss@^3.12.0:
-  version "3.12.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-tailwindcss/-/eslint-plugin-tailwindcss-3.12.0.tgz#cb386920ae9d15d4bd1d3f250357062cec17ccb5"
-  integrity sha512-DMfg8NcSV04V1v3iBgJGEhmRuapW36XZXyRV8WHdNFGEXGUkBwM9R8MujguKXeQKBG6VhjiX4t98rhzXdIlUFw==
+eslint-plugin-tailwindcss@^3.12.1:
+  version "3.12.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-tailwindcss/-/eslint-plugin-tailwindcss-3.12.1.tgz#ab7fc554b97872208460aac6921f391683c992f1"
+  integrity sha512-LyIRV0rx6prTpJZsSCXSNJ34Yry3Nj9OJwvzh1xTsiG6+UCnAPW1Bx41s7vZzUDKMlwFgpUN9Me+NK12T4DHYg==
   dependencies:
     fast-glob "^3.2.5"
     postcss "^8.4.4"
