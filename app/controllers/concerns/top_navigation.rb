@@ -11,6 +11,7 @@ module TopNavigation
         top10_item,
         about_item,
         # Right
+        faq_item,
         settings_item,
         session_item,
       ]
@@ -45,6 +46,15 @@ module TopNavigation
 
     def about_item
       { name: t('layout.about'), href: 'https://solectrus.de' }
+    end
+
+    def faq_item
+      {
+        name: t('layout.faq'),
+        icon: 'circle-question',
+        href: 'https://solectrus.de/faq',
+        alignment: :right,
+      }
     end
 
     def settings_item
