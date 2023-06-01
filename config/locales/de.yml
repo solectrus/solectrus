@@ -2,8 +2,8 @@ de:
   layout:
     stats: Verlauf
     top10: Top 10
+    about: Über SOLECTRUS
     settings: Einstellungen
-    about: Über
     login: Anmelden
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!

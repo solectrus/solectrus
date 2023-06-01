@@ -2,8 +2,8 @@ en:
   layout:
     stats: Time
     top10: Top 10
+    about: About SOLECTRUS
     settings: Settings
-    about: About
     login: Login
     logout: Logout
     version_outdated: New version <strong>%{latest_version}</strong> available!
