@@ -4,6 +4,10 @@ module TimeframeNavigation
   included do
     private
 
+    def title
+      timeframe.now? ? 'Live' : timeframe.localized
+    end
+
     def path_with_timeframe(timeframe)
       root_path(field:, timeframe:)
     end
