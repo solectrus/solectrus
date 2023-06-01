@@ -1,23 +1,19 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static targets = ['element'];
+  static targets = ['dropdown', 'button', 'icon'];
 
-  declare readonly hasElementTarget: boolean;
-  declare readonly elementTarget: HTMLElement;
-  declare readonly elementTargets: HTMLElement[];
+  declare readonly dropdownTarget: HTMLElement;
+  declare readonly buttonTarget: HTMLElement;
+  declare readonly iconTargets: HTMLElement[];
 
-  toggle(event: Event) {
-    event.preventDefault();
+  toggle() {
+    this.dropdownTarget.classList.toggle('max-h-0');
+    this.dropdownTarget.classList.toggle('max-h-96');
 
-    this.elementTargets.forEach((element) => {
-      if (element.classList.contains('hidden')) {
-        element.classList.remove('hidden');
-        element.classList.add('block');
-      } else {
-        element.classList.add('hidden');
-        element.classList.remove('block');
-      }
-    });
+    this.iconTargets.forEach((icon) => icon.classList.toggle('hidden'));
+
+    this.buttonTarget.ariaExpanded =
+      this.buttonTarget.ariaExpanded === 'true' ? 'false' : 'true';
   }
 }
