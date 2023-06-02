@@ -1,5 +1,5 @@
 class RadialBadge::Component < ViewComponent::Base
-  def initialize(percent: nil, title: nil, neutral: false, info_link: nil)
+  def initialize(percent: nil, title: nil, neutral: false)
     if percent && (percent.negative? || percent > 100)
       raise ArgumentError, 'percent must be between 0 and 100'
     end
@@ -8,9 +8,8 @@ class RadialBadge::Component < ViewComponent::Base
     @percent = percent&.round
     @title = title
     @neutral = neutral || !percent
-    @info_link = info_link
   end
-  attr_reader :percent, :title, :neutral, :info_link
+  attr_reader :percent, :title, :neutral
 
   def variant_class
     'percent' if percent&.nonzero?

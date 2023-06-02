@@ -28,7 +28,7 @@
     div class="flex-1"
 
     div data-controller="tippy"
-      = render RadialBadge::Component.new(title: t('calculator.total_costs'), info_link: 'https://solectrus.de/faq/kosten-berechnung/') do
+      = render RadialBadge::Component.new(title: t('calculator.total_costs')) do
         - unless timeframe.future?
           = Number::Component.new(value: -calculator.paid).to_eur(klass: 'text-red-700')
       - unless timeframe.future?
@@ -36,7 +36,7 @@
           = render ConsumeDetails::Component.new(calculator:)
 
     div data-controller="tippy"
-      = render RadialBadge::Component.new(title: t('calculator.savings'), info_link: 'https://solectrus.de/faq/ersparnis-berechnung/') do
+      = render RadialBadge::Component.new(title: t('calculator.savings')) do
         - unless timeframe.future?
           = Number::Component.new(value: calculator.savings).to_eur(klass: 'text-green-700')
       - unless timeframe.future?
