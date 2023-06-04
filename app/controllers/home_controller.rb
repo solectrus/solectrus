@@ -8,7 +8,7 @@ class HomeController < ApplicationController
       return
     end
 
-    set_meta_tags title: helpers.title,
+    set_meta_tags title:,
                   description:
                     'Alternatives Dashboard zur übersichtlichen Darstellung und Analyse von Messwerten einer Photovoltaik-Anlage zur optimierten Leistungskontrolle',
                   keywords: 'photovoltaik, strom, solar, energiewende',

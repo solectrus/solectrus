@@ -30,6 +30,7 @@ describe('Home page', () => {
       cy.get('#stats-now').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/now`);
+      cy.title().should('contain', 'Live');
       cy.get('header').should('contain', 'Heute, 12:00 Uhr');
 
       if (path == 'inverter_power')
@@ -46,6 +47,7 @@ describe('Home page', () => {
       cy.get('#stats-day').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/2022-06-21`);
+      cy.title().should('contain', 'Dienstag, 21. Juni 2022');
       cy.get('header').should('contain', 'Dienstag, 21. Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-day').should('be.visible');
@@ -75,6 +77,7 @@ describe('Home page', () => {
       cy.get('#stats-week').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/2022-W25`);
+      cy.title().should('contain', 'KW 25, 2022');
       cy.get('header').should('contain', 'KW 25, 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-week').should('be.visible');
@@ -100,6 +103,7 @@ describe('Home page', () => {
       cy.get('#stats-month').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/2022-06`);
+      cy.title().should('contain', 'Juni 2022');
       cy.get('header').should('contain', 'Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-month').should('be.visible');
@@ -125,6 +129,7 @@ describe('Home page', () => {
       cy.get('#stats-year').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/2022`);
+      cy.title().should('contain', '2022');
       cy.get('header').should('contain', '2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-year').should('be.visible');
@@ -150,6 +155,7 @@ describe('Home page', () => {
       cy.get('#stats-all').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/all`);
+      cy.title().should('contain', 'Seit Inbetriebnahme');
       cy.get('header').should('contain', 'Seit Inbetriebnahme');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-all').should('be.visible');
