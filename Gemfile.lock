@@ -131,7 +131,7 @@ GEM
     htmlbeautifier (1.4.2)
     htmlentities (4.3.4)
     http_accept_language (2.1.1)
-    i18n (1.14.0)
+    i18n (1.14.1)
       concurrent-ruby (~> 1.0)
     influxdb-client (2.9.0)
     json (2.6.3)
