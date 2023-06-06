@@ -21,10 +21,10 @@ class Nav::Sub::Component < ViewComponent::Base
     private
 
     def css_classes
-      base_classes = %w[py-3 px-2 sm:py-2 sm:px-3]
+      base_classes = %w[pt-3 pb-5 px-3 md:py-2]
 
       if current
-        base_classes + %w[bg-gray-200 text-gray-800 rounded-md]
+        base_classes + %w[bg-white text-gray-800]
       else
         base_classes +
           %w[text-gray-300 hover:text-gray-200 hover:bg-indigo-500 rounded]
