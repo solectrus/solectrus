@@ -7,6 +7,10 @@ export default class extends Controller {
   declare readonly buttonTarget: HTMLElement;
   declare readonly iconTargets: HTMLElement[];
 
+  hide() {
+    if (this.buttonTarget.ariaExpanded === 'true') this.toggle();
+  }
+
   toggle() {
     this.dropdownTarget.classList.toggle('max-h-0');
     this.dropdownTarget.classList.toggle('max-h-96');
