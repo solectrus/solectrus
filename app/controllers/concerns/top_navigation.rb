@@ -27,15 +27,16 @@ module TopNavigation
         href:
           top10_path(
             field:
-              if respond_to?(:field) && field.in?(Senec::POWER_FIELDS)
-                field
+              if helpers.respond_to?(:field) &&
+                   helpers.field.in?(Senec::POWER_FIELDS)
+                helpers.field
               else
                 'inverter_power'
               end,
             period:
-              if respond_to?(:timeframe) &&
-                   timeframe&.id.in?(%i[day month year])
-                timeframe.id
+              if helpers.respond_to?(:timeframe) &&
+                   helpers.timeframe&.id.in?(%i[day month year])
+                helpers.timeframe.id
               else
                 'day'
               end,
