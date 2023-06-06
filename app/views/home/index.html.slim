@@ -2,7 +2,7 @@
 - content_for :full_height, true
 
 - content_for :sub_nav do
-  .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-5
+  .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-2.md:py-5
     = turbo_frame_tag 'second-nav-desktop', target: '_top', class: 'hidden lg:block' do
       = render Nav::Sub::Component.new do |c|
         = c.with_items nav_items

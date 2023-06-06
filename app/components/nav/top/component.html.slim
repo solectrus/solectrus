@@ -1,7 +1,7 @@
 header.relative.bg-indigo-600.pb-32
   nav.absolute.w-full.z-40.bg-indigo-600.border-b.border-indigo-300.border-opacity-25.lg:border-none data-controller="toggle"
     .max-w-7xl.mx-auto.px-2.sm:px-4.lg:px-8
-      .relative.h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-400.lg:border-opacity-25
+      .relative.h-14.md:h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-400.lg:border-opacity-25
         .px-2.flex.items-center.lg:px-0.space-x-6.flex-1
           /! Desktop menu
           a.flex-shrink-0 href= root_path aria-label="Home"
@@ -54,5 +54,5 @@ header.relative.bg-indigo-600.pb-32
         = render AuthorLogo::Component.new
 
   - if sub_nav
-    .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8.pt-16
+    .max-w-7xl.mx-auto.px-4.sm:px-6.lg:px-8.pt-14.md:pt-16
       = sub_nav
