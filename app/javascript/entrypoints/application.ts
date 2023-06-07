@@ -3,6 +3,5 @@ import.meta.glob('../channels/**/*_channel.{js,ts}', { eager: true });
 
 import '../utils/setupHoneyBadger';
 import '../utils/setupStimulus';
-import '../utils/setupMisc';
 
 import '../stylesheets/application.css';
