@@ -36,7 +36,16 @@ class Nav::Sub::Component < ViewComponent::Base
       ]
 
       if current
-        base_classes + %w[bg-white text-gray-800 lg:bg-gray-200 lg:rounded-md]
+        base_classes +
+          %w[
+            from-white
+            to-indigo-100
+            bg-gradient-to-b
+            text-gray-800
+            lg:rounded-md
+            lg:bg-gray-200
+            lg:bg-none
+          ]
       else
         base_classes +
           %w[
