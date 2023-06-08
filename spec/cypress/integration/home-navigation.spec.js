@@ -60,12 +60,12 @@ describe('Home page', () => {
           .should('contain', 'kWh');
       }
 
-      clickPrev('Montag, 20. Juni 2022');
+      clickPrevAndExpect('Montag, 20. Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should(
         'not.exist',
       );
 
-      clickNext('Dienstag, 21. Juni 2022');
+      clickNextAndExpect('Dienstag, 21. Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-day').should('be.visible');
     }
@@ -86,12 +86,12 @@ describe('Home page', () => {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
       }
 
-      clickPrev('KW 24, 2022');
+      clickPrevAndExpect('KW 24, 2022');
       cy.get("[data-controller='stats-with-chart--component']").should(
         'not.exist',
       );
 
-      clickNext('KW 25, 2022');
+      clickNextAndExpect('KW 25, 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-week').should('be.visible');
     }
@@ -112,12 +112,12 @@ describe('Home page', () => {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
       }
 
-      clickPrev('Mai 2022');
+      clickPrevAndExpect('Mai 2022');
       cy.get("[data-controller='stats-with-chart--component']").should(
         'not.exist',
       );
 
-      clickNext('Juni 2022');
+      clickNextAndExpect('Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-month').should('be.visible');
     }
@@ -138,12 +138,12 @@ describe('Home page', () => {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
       }
 
-      clickPrev('2021');
+      clickPrevAndExpect('2021');
       cy.get("[data-controller='stats-with-chart--component']").should(
         'not.exist',
       );
 
-      clickNext('2022');
+      clickNextAndExpect('2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-year').should('be.visible');
     }
@@ -165,14 +165,14 @@ describe('Home page', () => {
       }
     }
 
-    function clickPrev(expectedTime) {
+    function clickPrevAndExpect(expectedTime) {
       cy.get('header a[rel="prev"]').click();
       cy.get('svg.loading').should('exist');
       cy.get('svg.loading').should('not.exist');
       cy.get('header time').should('contain', expectedTime);
     }
 
-    function clickNext(expectedTime) {
+    function clickNextAndExpect(expectedTime) {
       cy.get('header a[rel="next"]').click();
       cy.get('svg.loading').should('exist');
       cy.get('svg.loading').should('not.exist');
