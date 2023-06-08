@@ -24,9 +24,6 @@ describe('Home page', () => {
     });
 
     function navigateNow() {
-      cy.contains('Jetzt').click();
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
       cy.get('#stats-now').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/now`);
@@ -64,6 +61,7 @@ describe('Home page', () => {
       cy.get("[data-controller='stats-with-chart--component']").should(
         'not.exist',
       );
+      cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('Dienstag, 21. Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -90,6 +88,7 @@ describe('Home page', () => {
       cy.get("[data-controller='stats-with-chart--component']").should(
         'not.exist',
       );
+      cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('KW 25, 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -116,6 +115,7 @@ describe('Home page', () => {
       cy.get("[data-controller='stats-with-chart--component']").should(
         'not.exist',
       );
+      cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -142,6 +142,7 @@ describe('Home page', () => {
       cy.get("[data-controller='stats-with-chart--component']").should(
         'not.exist',
       );
+      cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
