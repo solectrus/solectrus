@@ -1,7 +1,7 @@
 # @label Balance
 class BalanceComponentPreview < ViewComponent::Preview
   def default
-    render Balance::Component.new timeframe:, calculator:
+    render Balance::Component.new timeframe:, calculator:, field:
   end
 
   private
@@ -12,5 +12,8 @@ class BalanceComponentPreview < ViewComponent::Preview
 
   def timeframe
     Timeframe.new Date.current.strftime('%Y-%m')
+  end
+  def field
+    'inverter_power'
   end
 end

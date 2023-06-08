@@ -1,7 +1,7 @@
 # @label StatsRange
 class StatsRangeComponentPreview < ViewComponent::Preview
   def default
-    render StatsRange::Component.new calculator:, timeframe:
+    render StatsRange::Component.new calculator:, timeframe:, field:
   end
 
   private
@@ -12,5 +12,9 @@ class StatsRangeComponentPreview < ViewComponent::Preview
 
   def timeframe
     Timeframe.new Date.current.strftime('%Y-%m')
+  end
+
+  def field
+    'grid_power_plus'
   end
 end

@@ -1,5 +1,6 @@
 = render Balance::Component.new calculator:,
-                                timeframe: do |balance|
+                                timeframe:,
+                                field: do |balance|
 
   = balance.with_center do
     = link_to root_path(field: 'autarky', timeframe:),

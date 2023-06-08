@@ -1,4 +1,4 @@
-import { Controller } from '@hotwired/stimulus';
+import { Controller, ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart } from 'chart.js';
 
@@ -45,6 +45,7 @@ export default class extends Controller {
   declare readonly boundaryValue: string;
 
   private interval: ReturnType<typeof setInterval> | undefined;
+  private selectedField?: string;
 
   connect() {
     window.addEventListener('blur', this.handleBlur.bind(this));
@@ -68,8 +69,10 @@ export default class extends Controller {
     window.removeEventListener('blur', this.handleBlur.bind(this));
   }
 
-  startLoop() {
+  startLoop(event?: ActionEvent) {
     this.stopLoop();
+
+    if (event?.params?.field) this.selectedField = event.params.field;
 
     this.interval = setInterval(() => {
       // Move to next page when boundary is reached
@@ -177,7 +180,7 @@ export default class extends Controller {
   get currentElement(): HTMLElement | undefined {
     // Select the current element from the currentTargets (by comparing field)
     const targets = this.currentTargets.filter((t) =>
-      t.dataset.field?.startsWith(this.fieldValue),
+      t.dataset.field?.startsWith(this.effectiveField),
     );
 
     if (targets.length)
@@ -200,5 +203,9 @@ export default class extends Controller {
     return this.chart?.data.datasets.find((dataset) =>
       dataset.data.some((v) => typeof v === 'number' && v < 0),
     );
+  }
+
+  get effectiveField(): string {
+    return this.selectedField || this.fieldValue;
   }
 }

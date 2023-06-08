@@ -1,10 +1,11 @@
 class StatsNow::Component < ViewComponent::Base
-  def initialize(calculator:)
+  def initialize(calculator:, field:)
     super
     @calculator = calculator
+    @field = field
   end
 
-  attr_accessor :calculator
+  attr_accessor :calculator, :field
 
   def max_flow
     # Heuristic: The peak flow is the highest value of all fields

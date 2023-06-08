@@ -2,7 +2,8 @@ div
   div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
     = render BalanceSide::Component.new side: :left,
                                         calculator:,
-                                        timeframe: do |balance|
+                                        timeframe:,
+                                        field: do |balance|
       ruby:
         balance.with_segment :grid_power_plus, peak&.dig('grid_power_plus')
         balance.with_segment :inverter_power, peak&.dig('inverter_power')
@@ -13,7 +14,8 @@ div
 
     = render BalanceSide::Component.new side: :right,
                                         calculator:,
-                                        timeframe: do |balance|
+                                        timeframe:,
+                                        field: do |balance|
       ruby:
         balance.with_segment :wallbox_charge_power, peak&.dig('wallbox_charge_power')
         balance.with_segment :house_power, peak&.dig('house_power')
