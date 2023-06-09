@@ -50,6 +50,7 @@ html lang="de"
 
     = vite_client_tag
     = vite_typescript_tag 'application', 'data-turbo-track': 'reload'
+    = vite_stylesheet_tag 'application.css', 'data-turbo-track': 'reload', media: 'screen'
 
     - if Rails.env.test?
       // Load Sinon from CDN

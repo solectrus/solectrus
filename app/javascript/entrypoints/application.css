@@ -9,6 +9,9 @@
 @import 'tippy.js/themes/light-border.css';
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
+@import '../stylesheets/flow.css';
+@import '../stylesheets/radial_badge.css';
+
 .turbo-progress-bar {
   height: 5px;
   background-color: #a5b4fc;
