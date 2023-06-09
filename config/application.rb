@@ -67,5 +67,9 @@ module Solectrus
     # support and stronger checks, can be achieved with the 'Content-Security-Policy' header
     # and 'frame-ancestors' directive.
     config.action_dispatch.default_headers.delete 'X-Frame-Options'
+
+    # Disable preloading JS/CSS via Link header to avoid browser warnings like this one:
+    # "... was preloaded using link preload but not used within a few seconds ..."
+    config.action_view.preload_links_header = false
   end
 end
