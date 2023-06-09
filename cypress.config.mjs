@@ -14,4 +14,12 @@ export default defineConfig({
   },
   viewportWidth: 1280,
   viewportHeight: 800,
+  retries: {
+    // Configure retry attempts for `cypress run`
+    // Default is 0
+    runMode: 2,
+    // Configure retry attempts for `cypress open`
+    // Default is 0
+    openMode: 0,
+  },
 });
