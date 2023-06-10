@@ -251,7 +251,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('KW 19, 2022')
+      expect(decoder.localized).to eq('CW 19, 2022')
     end
 
     it 'returns the correct corresponding_day' do

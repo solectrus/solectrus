@@ -98,7 +98,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :day
       I18n.l(date, format: :long)
     when :week
-      "KW #{date.cweek}, #{date.year}"
+      I18n.l(date, format: :week)
     when :month
       I18n.l(date, format: :month)
     when :year
