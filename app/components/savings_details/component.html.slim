@@ -4,33 +4,33 @@ h3.font-bold
 dl.mt-5
   .grid.grid-cols-2.gap-4
     dt = I18n.t('senec.grid_power_plus')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.paid).to_eur
+    dd.font-mono.text-right = Number::Component.new(value: calculator.paid).to_eur(max_precision: 2)
 
   .grid.grid-cols-2.gap-4
     dt
       |&plus;&nbsp;
       = I18n.t('senec.grid_power_minus')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.got).to_eur
+    dd.font-mono.text-right = Number::Component.new(value: calculator.got).to_eur(max_precision: 2)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
     dt
       |&#61;&nbsp;
       = I18n.t('calculator.solar_price')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.solar_price).to_eur
+    dd.font-mono.text-right = Number::Component.new(value: calculator.solar_price).to_eur(max_precision: 2)
 
   .mt-5.grid.grid-cols-2.gap-4
     dt
       |&minus;&nbsp;
       = I18n.t('calculator.traditional_price')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.traditional_price).to_eur
+    dd.font-mono.text-right = Number::Component.new(value: calculator.traditional_price).to_eur(max_precision: 2)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
     dt
       |&#61;&nbsp;
       = I18n.t('calculator.savings')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.savings).to_eur
+    dd.font-mono.text-right = Number::Component.new(value: calculator.savings).to_eur(max_precision: 2)
 
     - if calculator.battery_savings_percent
       dt

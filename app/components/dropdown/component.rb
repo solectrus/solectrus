@@ -5,7 +5,9 @@ class Dropdown::Component < ViewComponent::Base
     @selected = selected
   end
 
+  attr_reader :items, :selected
+
   def selected_item
-    @selected_item ||= @items.find { |item| item[:field] == @selected }
+    @selected_item ||= items.find { |item| item[:field] == selected }
   end
 end

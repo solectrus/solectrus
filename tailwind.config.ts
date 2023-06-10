@@ -6,6 +6,10 @@ export default {
 
   theme: {
     extend: {
+      transitionProperty: {
+        'max-height': 'max-height',
+      },
+
       colors: {
         green: colors.emerald,
         yellow: colors.amber,

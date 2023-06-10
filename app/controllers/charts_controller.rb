@@ -1,9 +1,15 @@
 class ChartsController < ApplicationController
   include ParamsHandling
+  include TimeframeNavigation
 
   def index
-    respond_to do |format|
-      format.json { render ChartData::Component.new(field:, timeframe:) }
-    end
+    render formats: :turbo_stream
+  end
+
+  private
+
+  helper_method def calculator
+    @calculator ||=
+      (timeframe.now? ? Calculator::Now.new : Calculator::Range.new(timeframe))
   end
 end

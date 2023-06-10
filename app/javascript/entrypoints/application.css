@@ -9,6 +9,9 @@
 @import 'tippy.js/themes/light-border.css';
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
+@import '../stylesheets/flow.css';
+@import '../stylesheets/radial_badge.css';
+
 .turbo-progress-bar {
   height: 5px;
   background-color: #a5b4fc;
@@ -35,4 +38,16 @@
 
 .input-error {
   @apply !border-red-500 !ring-red-500;
+}
+
+* {
+  /* Disable default callouts for touch targets on iOS */
+  -webkit-touch-callout: none;
+  /* Disable dragging on iOS */
+  -webkit-user-drag: none;
+}
+
+/* Disable pointer events when Tooltip is shown (see tippy_controller.ts) */
+body.active-tippy * {
+  @apply pointer-events-none;
 }

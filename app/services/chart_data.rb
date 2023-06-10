@@ -1,6 +1,5 @@
-class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
+class ChartData # rubocop:disable Metrics/ClassLength
   def initialize(field:, timeframe:)
-    super
     @field = field
     @timeframe = timeframe
   end
@@ -24,7 +23,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
 
   def data_now
     {
-      labels: now[now.keys.first]&.map(&:first),
+      labels: now[now.keys.first]&.map { |x| x.first.to_i * 1000 },
       datasets:
         now.map do |chart_field, data|
           {
@@ -37,7 +36,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
 
   def data_day_inverter_power # rubocop:disable Metrics/CyclomaticComplexity
     {
-      labels: (inverter_power || forecast)&.map(&:first),
+      labels: (inverter_power || forecast)&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
           label: I18n.t('senec.inverter_power'),
@@ -53,7 +52,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
 
   def data_autarky
     {
-      labels: autarky&.map(&:first),
+      labels: autarky&.map { |x| x.first.to_i * 1000 },
       datasets: [
         { label: I18n.t('senec.autarky'), data: autarky&.map(&:second) }.merge(
           style('autarky'),
@@ -64,7 +63,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
 
   def data_consumption
     {
-      labels: consumption&.map(&:first),
+      labels: consumption&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
           label: I18n.t('calculator.consumption_quote'),
@@ -76,7 +75,7 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
 
   def data_range
     {
-      labels: range[range.keys.first]&.map(&:first),
+      labels: range[range.keys.first]&.map { |x| x.first.to_i * 1000 },
       datasets:
         range.map do |chart_field, data|
           {
@@ -91,43 +90,55 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
     @now ||=
       case field
       when 'bat_fuel_charge'
-        MinMaxChart.new(measurements: %w[SENEC], fields:, average: true).call(
-          timeframe,
-        )
+        MinMaxChart.new(
+          measurements: [Rails.configuration.x.influx.measurement_pv],
+          fields:,
+          average: true,
+        ).call(timeframe)
       when 'case_temp'
-        MinMaxChart.new(measurements: %w[SENEC], fields:, average: false).call(
-          timeframe,
-        )
+        MinMaxChart.new(
+          measurements: [Rails.configuration.x.influx.measurement_pv],
+          fields:,
+          average: false,
+        ).call(timeframe)
       else
-        PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
+        PowerChart.new(
+          measurements: [Rails.configuration.x.influx.measurement_pv],
+          fields:,
+        ).call(timeframe)
       end
   end
 
   def inverter_power
     @inverter_power ||=
-      PowerChart.new(measurements: %w[SENEC], fields: %w[inverter_power]).call(
-        timeframe,
-      )[
+      PowerChart.new(
+        measurements: [Rails.configuration.x.influx.measurement_pv],
+        fields: %w[inverter_power],
+      ).call(timeframe)[
         'inverter_power'
       ]
   end
 
   def autarky
-    @autarky ||= AutarkyChart.new(measurements: %w[SENEC]).call(timeframe)
+    @autarky ||=
+      AutarkyChart.new(
+        measurements: [Rails.configuration.x.influx.measurement_pv],
+      ).call(timeframe)
   end
 
   def consumption
     @consumption ||=
-      ConsumptionChart.new(measurements: %w[SENEC]).call(timeframe)
+      ConsumptionChart.new(
+        measurements: [Rails.configuration.x.influx.measurement_pv],
+      ).call(timeframe)
   end
 
   def forecast
     @forecast ||=
-      PowerChart.new(measurements: %w[Forecast], fields: %w[watt]).call(
-        timeframe,
-        fill: false,
-        interpolate: true,
-      )[
+      PowerChart.new(
+        measurements: [Rails.configuration.x.influx.measurement_forecast],
+        fields: %w[watt],
+      ).call(timeframe, fill: false, interpolate: true)[
         'watt'
       ]
   end
@@ -136,15 +147,22 @@ class ChartData::Component < ViewComponent::Base # rubocop:disable Metrics/Class
     @range ||=
       case field
       when 'bat_fuel_charge'
-        MinMaxChart.new(measurements: %w[SENEC], fields:, average: true).call(
-          timeframe,
-        )
+        MinMaxChart.new(
+          measurements: [Rails.configuration.x.influx.measurement_pv],
+          fields:,
+          average: true,
+        ).call(timeframe)
       when 'case_temp'
-        MinMaxChart.new(measurements: %w[SENEC], fields:, average: false).call(
-          timeframe,
-        )
+        MinMaxChart.new(
+          measurements: [Rails.configuration.x.influx.measurement_pv],
+          fields:,
+          average: false,
+        ).call(timeframe)
       else
-        PowerChart.new(measurements: ['SENEC'], fields:).call(timeframe)
+        PowerChart.new(
+          measurements: [Rails.configuration.x.influx.measurement_pv],
+          fields:,
+        ).call(timeframe)
       end
   end
 

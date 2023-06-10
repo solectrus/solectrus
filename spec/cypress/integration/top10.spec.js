@@ -13,6 +13,10 @@ describe('Top 10', () => {
 
       cy.get('#chart-day').should('exist');
 
+      cy.contains('Woche').click();
+      cy.location('pathname').should('equal', `/top10/week/${field}/desc`);
+      cy.get('#chart-week').should('exist');
+
       cy.contains('Monat').click();
       cy.location('pathname').should('equal', `/top10/month/${field}/desc`);
       cy.get('#chart-month').should('exist');

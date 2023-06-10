@@ -3,7 +3,7 @@ describe PowerTop10 do
 
   let(:chart) do
     described_class.new(
-      fields: ['inverter_power'],
+      field: 'inverter_power',
       measurements: [measurement],
       desc:,
     )
@@ -18,14 +18,16 @@ describe PowerTop10 do
                          fields: {
                            inverter_power: (index + 1) * 1000,
                          },
-                         time: (beginning + index.month).end_of_month.end_of_day
+                         time:
+                           (beginning + index.months).end_of_month.end_of_day -
+                             12.hours
         add_influx_point name: measurement,
                          fields: {
                            inverter_power: (index + 1) * 1000,
                          },
                          time:
                            (
-                             beginning + index.month
+                             beginning + index.months
                            ).beginning_of_month.beginning_of_day
       end
 
@@ -54,6 +56,13 @@ describe PowerTop10 do
       it { is_expected.to all(be_a(Hash)) }
     end
 
+    describe '#weeks' do
+      subject { chart.weeks }
+
+      it { is_expected.to have(3).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
     describe '#days' do
       subject { chart.days }
 
@@ -75,6 +84,13 @@ describe PowerTop10 do
       subject { chart.months }
 
       it { is_expected.to have(1).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
+    describe '#weeks' do
+      subject { chart.weeks }
+
+      it { is_expected.to have(2).items }
       it { is_expected.to all(be_a(Hash)) }
     end
 

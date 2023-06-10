@@ -1,4 +1,5 @@
 de:
-  title: Durch Stromverbrauch entstandene Kosten
-  explanation: Berücksichtigt sind Netzbezugskosten und entgangene Einspeisevergütung. Verglichen wird die tatsächliche Situation mit einem theoretischen Szenario ohne jeden Verbrauch (und somit Volleinspeisung).
-  explanation_wallbox: Ein Netzbezug wird zunächst dem E-Auto zugerechnet, der Rest dem Haus-Verbrauch.
+  title: Strombezugskosten
+  breakdown:
+    title: Abgeschätzte Aufteilung
+    explanation: Der Netzbezug wird zunächst dem E-Auto zugerechnet, der Rest dem Haus-Verbrauch.

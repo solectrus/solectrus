@@ -117,6 +117,43 @@ describe Number::Component do
     end
   end
 
+  describe 'to_eur_per_kwh' do
+    subject(:to_eur_per_kwh) { component.to_eur_per_kwh(**options) }
+
+    let(:options) { {} }
+
+    context 'when positive' do
+      let(:value) { 0.2208 }
+
+      it do
+        expect(
+          to_eur_per_kwh,
+        ).to eq '<span class="text-green-500"><strong class="font-medium">0</strong><small>.2208</small>&nbsp;<small>€/kWh</small></span>'
+      end
+    end
+
+    context 'when negative' do
+      let(:value) { -0.2208 }
+
+      it do
+        expect(
+          to_eur_per_kwh,
+        ).to eq '<span class="text-red-500"><strong class="font-medium">-0</strong><small>.2208</small>&nbsp;<small>€/kWh</small></span>'
+      end
+    end
+
+    context 'with :klass option' do
+      let(:value) { 0.5 }
+      let(:options) { { klass: 'foo' } }
+
+      it do
+        expect(
+          to_eur_per_kwh,
+        ).to eq '<span class="foo"><strong class="font-medium">0</strong><small>.5000</small>&nbsp;<small>€/kWh</small></span>'
+      end
+    end
+  end
+
   describe 'to_grad_celsius' do
     subject(:to_grad_celsius) { component.to_grad_celsius(**options) }
 

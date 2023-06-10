@@ -1,4 +1,4 @@
-# @label SavingsDetails Component
+# @label SavingsDetails
 class SavingsDetailsComponentPreview < ViewComponent::Preview
   def default
     render SavingsDetails::Component.new calculator:

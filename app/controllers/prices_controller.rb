@@ -52,15 +52,17 @@ class PricesController < ApplicationController
     params[:name] || @price&.name
   end
 
-  helper_method def name_items
+  helper_method def nav_items
     [
       {
         name: Price.human_enum_name(:name, :electricity),
         href: prices_path(name: 'electricity'),
+        current: name == 'electricity',
       },
       {
         name: Price.human_enum_name(:name, :feed_in),
         href: prices_path(name: 'feed_in'),
+        current: name == 'feed_in',
       },
     ]
   end

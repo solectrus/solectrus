@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.2.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.0.4', '>= 7.0.4.3'
+gem 'rails', '~> 7.0.5'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -107,6 +107,9 @@ group :development do
 
   # A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
   gem 'lookbook'
+
+  # A gem for generating annotations for Rails projects. (https://github.com/drwl/annotaterb)
+  gem 'annotaterb'
 end
 
 group :test do

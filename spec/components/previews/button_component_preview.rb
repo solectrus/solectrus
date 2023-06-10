@@ -1,4 +1,4 @@
-# @label Button Component
+# @label Button
 class ButtonComponentPreview < ViewComponent::Preview
   # @param title
   def primary(title: 'Click me')

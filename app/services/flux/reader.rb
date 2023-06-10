@@ -37,6 +37,10 @@ class Flux::Reader < Flux::Base
     stop ? "range(start: #{start}, stop: #{stop})" : "range(start: #{start})"
   end
 
+  def location
+    "timezone.location(name: \"#{Rails.application.config.time_zone}\")"
+  end
+
   def query(string)
     if @cache_options
       Rails

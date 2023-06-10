@@ -33,7 +33,7 @@ Rails.application.routes.draw do
     end
   end
 
-  constraints period: /day|month|year/,
+  constraints period: /day|week|month|year/,
               sort: /asc|desc/,
               field: Regexp.new(Senec::POWER_FIELDS.join('|'), false) do
     get '/top10/:period/:field/:sort', to: 'top10#index', as: :top10
@@ -48,6 +48,8 @@ Rails.application.routes.draw do
   get '/login', to: 'sessions#new', as: :new_session
   post '/login', to: 'sessions#create', as: :sessions
   delete '/logout', to: 'sessions#destroy', as: :session
+
+  get '/favicon.ico', to: redirect('/favicon-196.png')
 
   scope :settings do
     resources :prices

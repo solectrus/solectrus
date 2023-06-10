@@ -12,7 +12,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def initialize(string, min_date: nil, allowed_days_in_future: nil)
-    unless string.match?(self.class.regex)
+    unless string.respond_to?(:match?) && string.match?(self.class.regex)
       raise ArgumentError, "'#{string}' is not a valid timeframe"
     end
 
@@ -98,7 +98,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :day
       I18n.l(date, format: :long)
     when :week
-      "KW #{date.cweek}, #{date.year}"
+      I18n.l(date, format: :week)
     when :month
       I18n.l(date, format: :month)
     when :year

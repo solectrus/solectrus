@@ -53,7 +53,11 @@ class Nav::Top::Component < ViewComponent::Base
               target:,
               class: css_classes,
               title: icon ? name : nil,
-              data: @data.merge(controller: icon ? 'tippy' : nil),
+              data:
+                @data.merge(
+                  controller: icon ? 'tippy' : nil,
+                  action: 'toggle#hide',
+                ),
               'aria-current' => current? ? 'page' : nil do
         icon ? tag.i(class: "fa fa-#{@icon} fa-lg") : name
       end

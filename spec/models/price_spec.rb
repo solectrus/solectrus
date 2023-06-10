@@ -1,3 +1,19 @@
+# == Schema Information
+#
+# Table name: prices
+#
+#  id         :bigint           not null, primary key
+#  name       :string           not null
+#  note       :string
+#  starts_at  :date             not null
+#  value      :decimal(8, 5)    not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_prices_on_name_and_starts_at  (name,starts_at) UNIQUE
+#
 describe Price do
   describe 'database' do
     it do

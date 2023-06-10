@@ -1,4 +1,4 @@
-# @label Flow Component
+# @label Flow
 class FlowComponentPreview < ViewComponent::Preview
   # @!group Misc
 

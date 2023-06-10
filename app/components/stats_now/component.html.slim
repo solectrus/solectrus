@@ -1,0 +1,45 @@
+= render Balance::Component.new calculator:,
+                                timeframe:,
+                                field:,
+                                peak: do |balance|
+
+  = balance.with_center do
+    = link_to root_path(field: 'autarky', timeframe:),
+              data: { \
+                turbo_frame: 'chart',
+                turbo_action: 'replace',
+              } do
+      div data-controller="tippy"
+        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
+        template data-tippy-target="html"
+          = render AutarkyDetails::Component.new(calculator:)
+
+    - if calculator.consumption_quote
+      = link_to root_path(field: 'consumption', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                } do
+        div data-controller="tippy"
+          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
+          template data-tippy-target="html"
+            = render ConsumptionDetails::Component.new(calculator:)
+
+    div class="flex-1 flex flex-col justify-center -mx-2 sm:-mx-4"
+      = render Flow::Component.new value: calculator.total, max: max_flow
+
+    - if calculator.case_temp.nonzero?
+      = link_to root_path(field: 'case_temp', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                } do
+        = render RadialBadge::Component.new(title: t('senec.case_temp')) do
+          = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
+
+    = link_to root_path(field: 'bat_fuel_charge', timeframe:),
+              data: { \
+                turbo_frame: 'chart',
+                turbo_action: 'replace',
+              } do
+      = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))

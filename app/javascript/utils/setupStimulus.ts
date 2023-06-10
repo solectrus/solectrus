@@ -46,8 +46,8 @@ Turbo.StreamActions.morph = function (this) {
 // Error handling for missing Turbo frames
 document.addEventListener('turbo:frame-missing', (event) => {
   const {
-    detail: { response, visit },
+    detail: { response },
   } = event as TurboFrameMissingEvent;
   event.preventDefault();
-  visit(response.url, {});
+  window.location.href = response.url;
 });

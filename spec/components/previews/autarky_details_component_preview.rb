@@ -1,4 +1,4 @@
-# @label AutarkyDetails Component
+# @label AutarkyDetails
 class AutarkyDetailsComponentPreview < ViewComponent::Preview
   def default
     render AutarkyDetails::Component.new calculator:

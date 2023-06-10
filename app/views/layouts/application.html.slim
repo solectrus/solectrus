@@ -50,12 +50,13 @@ html lang="de"
 
     = vite_client_tag
     = vite_typescript_tag 'application', 'data-turbo-track': 'reload'
+    = vite_stylesheet_tag 'application.css', 'data-turbo-track': 'reload', media: 'screen'
 
     - if Rails.env.test?
       // Load Sinon from CDN
       script[
-        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/15.0.1/sinon.min.js'
-        integrity= 'sha512-SeqEu3dS3pliMwwTLf1c1zVkNmowPrr1mJtafw7sLLg0sFhAkHeIwFT+ru/dBgwlujEnu0u3+xREKDqBhwpNpg=='
+        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/15.1.0/sinon.min.js'
+        integrity= 'sha512-OHdvQ+mR64d52bYAfnIPJ2rl3uiWjRH/50SWMUlm2i+L1L8zJlkrWRpBUqb0WqmUddWR+Rp2lgS1NTSEjbA12Q=='
         crossorigin= 'anonymous'
         referrerpolicy= 'no-referrer'
       ]
@@ -70,7 +71,7 @@ html lang="de"
 
     = yield :head
 
-  body.min-h-screen.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white[
+  body.min-h-screen.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none[
     data-controller= ['icons', ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url && Rails.configuration.x.app_host)
@@ -79,14 +80,14 @@ html lang="de"
       = c.with_items topnav_items
       = c.with_sub_nav { yield :sub_nav } if content_for?(:sub_nav)
 
-    main.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:max-h-[700px]' : 'lg:flex-initial')
+    main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:max-h-[700px]' : 'lg:flex-initial')
       .max-w-7xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
-        .bg-white.sm:rounded-lg.lg:shadow.p-4.pb-2.sm:p-5.sm:px-6.flex-auto.flex.flex-col
+        .bg-white.sm:rounded-t-lg.lg:rounded-lg.lg:shadow.p-4.pb-2.sm:p-5.sm:px-6.flex-auto.flex.flex-col
           = yield
       = turbo_frame_tag 'modal', target: '_top'
 
     - if content_for?(:bottom_nav)
-      nav.w-full.bg-indigo-600.z-10.lg:hidden
+      .w-full.bg-indigo-600.z-10.lg:hidden
         = yield :bottom_nav
 
     footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8

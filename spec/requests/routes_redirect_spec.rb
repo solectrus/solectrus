@@ -36,4 +36,11 @@ describe 'Routes redirection' do
       expect(response).to have_http_status :moved_permanently
     end
   end
+
+  describe 'favicon request' do
+    it 'redirects to existing file' do
+      get '/favicon.ico'
+      expect(response).to redirect_to('/favicon-196.png')
+    end
+  end
 end

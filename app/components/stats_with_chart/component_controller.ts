@@ -1,21 +1,25 @@
-import { Controller } from '@hotwired/stimulus';
+import { Controller, ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart } from 'chart.js';
 
 export default class extends Controller {
-  static targets = ['current', 'stats', 'chart'];
+  static targets = ['current', 'stats', 'chart', 'canvas'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTarget: HTMLElement;
   declare readonly currentTargets: HTMLElement[];
 
   declare readonly hasChartTarget: boolean;
-  declare readonly chartTarget: HTMLCanvasElement;
-  declare readonly chartTargets: HTMLCanvasElement[];
+  declare readonly chartTarget: Turbo.FrameElement;
+  declare readonly chartTargets: Turbo.FrameElement[];
 
   declare readonly hasStatsTarget: boolean;
   declare readonly statsTarget: Turbo.FrameElement;
   declare readonly statsTargets: Turbo.FrameElement[];
+
+  declare readonly hasCanvasTarget: boolean;
+  declare readonly canvasTarget: HTMLCanvasElement;
+  declare readonly canvasTargets: HTMLCanvasElement[];
 
   static values = {
     // Field to display in the chart
@@ -41,6 +45,7 @@ export default class extends Controller {
   declare readonly boundaryValue: string;
 
   private interval: ReturnType<typeof setInterval> | undefined;
+  private selectedField?: string;
 
   connect() {
     window.addEventListener('blur', this.handleBlur.bind(this));
@@ -64,10 +69,12 @@ export default class extends Controller {
     window.removeEventListener('blur', this.handleBlur.bind(this));
   }
 
-  startLoop() {
+  startLoop(event?: ActionEvent) {
     this.stopLoop();
 
-    this.interval = setInterval(async () => {
+    if (event?.params?.field) this.selectedField = event.params.field;
+
+    this.interval = setInterval(() => {
       // Move to next page when boundary is reached
       if (
         this.boundaryValue &&
@@ -79,15 +86,15 @@ export default class extends Controller {
       }
 
       // Otherwise, just reload the frame
-      try {
-        await this.reloadFrame({ chart: this.reloadChartValue });
-      } catch (error) {
-        console.log(error);
-        // Ignore error
-      }
-
-      // When no new chart has been loaded, add a new point to the existing diagram
-      if (!this.reloadChartValue) this.addPointToChart();
+      this.reloadFrames({ chart: this.reloadChartValue })
+        .then(() => {
+          // When no new chart has been loaded, add a new point to the existing chart
+          if (!this.reloadChartValue) this.addPointToChart();
+        })
+        .catch((error) => {
+          console.error(error);
+          // Ignore error
+        });
     }, this.intervalValue * 1000);
   }
 
@@ -104,17 +111,18 @@ export default class extends Controller {
     this.stopLoop();
   }
 
-  handleFocus() {
-    this.reloadFrame({ chart: true });
-    this.startLoop();
+  handleFocus(): void {
+    this.reloadFrames({ chart: true })
+      .then(() => this.startLoop())
+      .catch((error) => console.error(error));
   }
 
-  handleVisibilityChange() {
+  handleVisibilityChange(): void {
     if (document.hidden) this.stopLoop();
-    else {
-      this.reloadFrame({ chart: true });
-      this.startLoop();
-    }
+    else
+      this.reloadFrames({ chart: true })
+        .then(() => this.startLoop())
+        .catch((error) => console.error(error));
   }
 
   addPointToChart() {
@@ -147,22 +155,21 @@ export default class extends Controller {
     this.chart.update();
   }
 
-  async reloadFrame(options: { chart: boolean }) {
-    if (!this.statsTarget.src) {
-      return;
+  async reloadFrames(options: { chart: boolean }) {
+    try {
+      if (options.chart)
+        await Promise.all([
+          this.chartTarget.reload(),
+          this.statsTarget.reload(),
+        ]);
+      else await this.statsTarget.reload();
+    } catch (error) {
+      console.error(error);
     }
-
-    const url = new URL(this.statsTarget.src, location.origin);
-    url.searchParams.set('chart', options.chart.toString());
-
-    this.statsTarget.src = null;
-    this.statsTarget.src = url.toString();
-
-    await this.statsTarget.loaded;
   }
 
-  get chart() {
-    if (this.hasChartTarget) return Chart.getChart(this.chartTarget);
+  get chart(): Chart | undefined {
+    if (this.hasCanvasTarget) return Chart.getChart(this.canvasTarget);
   }
 
   get currentValue(): number | undefined {
@@ -173,7 +180,7 @@ export default class extends Controller {
   get currentElement(): HTMLElement | undefined {
     // Select the current element from the currentTargets (by comparing field)
     const targets = this.currentTargets.filter((t) =>
-      t.dataset.field?.startsWith(this.fieldValue),
+      t.dataset.field?.startsWith(this.effectiveField),
     );
 
     if (targets.length)
@@ -196,5 +203,9 @@ export default class extends Controller {
     return this.chart?.data.datasets.find((dataset) =>
       dataset.data.some((v) => typeof v === 'number' && v < 0),
     );
+  }
+
+  get effectiveField(): string {
+    return this.selectedField || this.fieldValue;
   }
 }

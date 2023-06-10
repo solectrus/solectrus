@@ -2,8 +2,9 @@ en:
   layout:
     stats: Time
     top10: Top 10
+    about: About SOLECTRUS
+    faq: FAQ
     settings: Settings
-    about: About
     login: Login
     logout: Logout
     version_outdated: New version <strong>%{latest_version}</strong> available!
@@ -53,6 +54,7 @@ en:
     worse_html: '%{percent} less than expected'
     expect_html: '%{value} expected'
     expectation_html: Expected %{value}
+    unknown: No forecast available
   login:
     missing_password_error: Unable to log in because no password has been configured.
     missing_password_hint: To enable administrator login, an entry for <code class="bg-slate-100 p-1 rounded">ADMIN_PASSWORD</code> must be added to the environment variables.

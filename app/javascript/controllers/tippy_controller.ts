@@ -3,24 +3,34 @@ import tippy, { BasePlacement, Instance } from 'tippy.js';
 
 export default class extends Controller {
   static values = {
+    // Where to place the tooltip relative to the target element
     placement: {
       type: String,
       default: 'bottom',
     },
+
+    // Show tooltip only on non-touch devices
+    nonTouchOnly: {
+      type: Boolean,
+      default: false,
+    },
   };
 
-  static targets = ['html'];
-
   declare placementValue: BasePlacement;
-  declare readonly hasPlacementValue: boolean;
+  declare nonTouchOnlyValue: boolean;
+
+  static targets = ['html'];
 
   declare readonly hasHtmlTarget: boolean;
   declare readonly htmlTarget: HTMLElement;
   declare readonly htmlTargets: HTMLElement[];
 
   private instance: Instance | undefined;
+  private onClick: ((event: Event) => void) | undefined;
 
   connect() {
+    if (this.nonTouchOnlyValue && this.isTouchDevice) return;
+
     const title = this.element.getAttribute('title');
     const content = (this.hasHtmlTarget && this.htmlTarget.innerHTML) || title;
     if (!content) return;
@@ -32,6 +42,11 @@ export default class extends Controller {
       placement: this.placementValue,
       theme: 'light-border',
       animation: 'scale',
+      hideOnClick: false,
+
+      // Prevent click on tooltip from triggering click on target
+      onShown: () => this.toggleActiveTippy(true),
+      onHidden: () => this.toggleActiveTippy(false),
     });
 
     // Remove title from DOM element to avoid native browser tooltips
@@ -43,5 +58,18 @@ export default class extends Controller {
 
   disconnect() {
     if (this.instance) this.instance.destroy();
+
+    // Remove click listener
+    if (this.onClick) this.element.removeEventListener('click', this.onClick);
+  }
+
+  toggleActiveTippy = (value: boolean) => {
+    if (!this.isTouchDevice) return;
+
+    document.body.classList.toggle('active-tippy', value);
+  };
+
+  get isTouchDevice() {
+    return 'ontouchstart' in window;
   }
 }

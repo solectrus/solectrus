@@ -21,7 +21,7 @@ class Version
         request = Net::HTTP::Get.new(uri.request_uri)
         request.initialize_http_header(
           'Accept' => 'application/json',
-          'User-Agent' => user_agent,
+          'User-Agent' => UserAgent.instance.to_s,
         )
 
         http.request(request)
@@ -56,15 +56,5 @@ class Version
 
   def cache_key
     ['Version.latest', Rails.configuration.x.git.commit_version]
-  end
-
-  def setup_id
-    return unless (record = Price.first)
-
-    record.created_at.to_i
-  end
-
-  def user_agent
-    "SOLECTRUS/#{Rails.configuration.x.git.commit_version} (#{setup_id})"
   end
 end

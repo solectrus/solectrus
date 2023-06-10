@@ -13,7 +13,8 @@ class ChartSelector::Component < ViewComponent::Base
         field:,
         href: root_path(field:, timeframe:),
         data: {
-          'turbo-frame' => '_top',
+          'turbo-frame' => 'chart',
+          'turbo-action' => 'replace',
         },
       }
     end

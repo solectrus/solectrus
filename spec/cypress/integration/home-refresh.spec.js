@@ -1,9 +1,7 @@
 describe('Auto refresh', () => {
   context('when on "now" view', () => {
     beforeEach(() => {
-      cy.intercept('GET', '/stats/inverter_power/now?chart=false').as(
-        'getStatsWithoutChart',
-      );
+      cy.intercept('GET', '/stats/inverter_power/now').as('getStats');
 
       cy.visit('/inverter_power/now');
 
@@ -14,7 +12,7 @@ describe('Auto refresh', () => {
       // Fast forward time by 5 seconds, which is the refresh interval
       cy.window().then((win) => win.clock.tick(5 * 1000));
 
-      cy.wait('@getStatsWithoutChart').then((interception) => {
+      cy.wait('@getStats').then((interception) => {
         assert.isNotNull(interception.response.body);
       });
     });

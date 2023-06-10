@@ -51,6 +51,9 @@ module Solectrus
     config.x.influx.host = ENV.fetch('INFLUX_HOST', nil)
     config.x.influx.port = ENV.fetch('INFLUX_PORT', 8086)
     config.x.influx.bucket = ENV.fetch('INFLUX_BUCKET', nil)
+    config.x.influx.measurement_pv = ENV.fetch('INFLUX_MEASUREMENT_PV', 'SENEC')
+    config.x.influx.measurement_forecast =
+      ENV.fetch('INFLUX_MEASUREMENT_FORECAST', 'Forecast')
     config.x.influx.org = ENV.fetch('INFLUX_ORG', nil)
 
     config.x.installation_date =
@@ -64,5 +67,9 @@ module Solectrus
     # support and stronger checks, can be achieved with the 'Content-Security-Policy' header
     # and 'frame-ancestors' directive.
     config.action_dispatch.default_headers.delete 'X-Frame-Options'
+
+    # Disable preloading JS/CSS via Link header to avoid browser warnings like this one:
+    # "... was preloaded using link preload but not used within a few seconds ..."
+    config.action_view.preload_links_header = false
   end
 end

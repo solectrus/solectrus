@@ -1,4 +1,4 @@
-# @label Dropdown Component
+# @label Dropdown
 class DropdownComponentPreview < ViewComponent::Preview
   def default
     render Dropdown::Component.new items: [

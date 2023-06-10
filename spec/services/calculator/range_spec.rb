@@ -52,9 +52,9 @@ describe Calculator::Range do
       expect(calculator.battery_savings).to eq(33.57)
       expect(calculator.battery_savings_percent).to eq(29)
 
-      expect(calculator.wallbox_costs).to eq(-52.14)
-      expect(calculator.house_costs).to eq(-27.31)
-      expect(calculator.total_costs).to eq(-79.45)
+      expect(calculator.wallbox_costs).to eq(-47.90)
+      expect(calculator.house_costs).to eq(0)
+      expect(calculator.paid).to eq(-47.90)
     end
   end
 
@@ -87,8 +87,8 @@ describe Calculator::Range do
 
     it 'calculates' do
       expect(calculator.wallbox_costs).to eq(-47.68)
-      expect(calculator.house_costs).to eq(-59.9)
-      expect(calculator.total_costs).to eq(-107.58)
+      expect(calculator.house_costs).to eq(-44.01)
+      expect(calculator.paid).to eq(-91.69)
     end
   end
 
@@ -121,8 +121,8 @@ describe Calculator::Range do
 
     it 'calculates' do
       expect(calculator.wallbox_costs).to eq(-10.13)
-      expect(calculator.house_costs).to eq(-4.27)
-      expect(calculator.total_costs).to eq(-14.4)
+      expect(calculator.house_costs).to eq(-4.25)
+      expect(calculator.paid).to eq(-14.37)
     end
   end
 
@@ -158,9 +158,9 @@ describe Calculator::Range do
     it 'calculates' do
       expect(calculator.forecast_deviation).to be_nil
 
-      expect(calculator.wallbox_costs).to eq(-12.76)
-      expect(calculator.house_costs).to eq(-29.09)
-      expect(calculator.total_costs).to eq(-41.85)
+      expect(calculator.wallbox_costs).to eq(-3.59)
+      expect(calculator.house_costs).to eq(0)
+      expect(calculator.paid).to eq(-3.59)
     end
   end
 end

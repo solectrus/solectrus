@@ -5,8 +5,7 @@ module ParamsHandling
     private
 
     helper_method def permitted_params
-      @permitted_params ||=
-        params.permit(:field, :timeframe, :period, :sort, :chart)
+      @permitted_params ||= params.permit(:field, :timeframe, :period, :sort)
     end
 
     helper_method def period
@@ -22,9 +21,11 @@ module ParamsHandling
     end
 
     helper_method def timeframe
+      return if permitted_params[:timeframe].blank?
+
       @timeframe ||=
         Timeframe.new(
-          permitted_params[:timeframe] || 'now',
+          permitted_params[:timeframe],
           min_date: Rails.application.config.x.installation_date,
           allowed_days_in_future: 6,
         )

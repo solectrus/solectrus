@@ -7,7 +7,7 @@ module CypressRails::InfluxDB
       .hours
       .step(0, -5) do |i|
         add_influx_point(
-          name: 'SENEC',
+          name: Rails.configuration.x.influx.measurement_pv,
           fields: {
             inverter_power: 9000,
             house_power: 900,
@@ -31,7 +31,13 @@ module CypressRails::InfluxDB
       1.hour.since => 7000,
       4.hours.since => 4000,
     }.each do |time, watt|
-      add_influx_point(name: 'Forecast', fields: { watt: }, time:)
+      add_influx_point(
+        name: Rails.configuration.x.influx.measurement_forecast,
+        fields: {
+          watt:,
+        },
+        time:,
+      )
     end
   end
 
@@ -51,8 +57,8 @@ module CypressRails::InfluxDB
         fields:,
         time: time.to_i,
       },
-      bucket: ENV.fetch('INFLUX_BUCKET', nil),
-      org: ENV.fetch('INFLUX_ORG', nil),
+      bucket: Rails.configuration.x.influx.bucket,
+      org: Rails.configuration.x.influx.org,
     )
   end
 

@@ -1,4 +1,4 @@
-# @label Status Component
+# @label Status
 class StatusComponentPreview < ViewComponent::Preview
   # @!group Misc
 

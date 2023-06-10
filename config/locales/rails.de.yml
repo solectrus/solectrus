@@ -45,6 +45,7 @@ de:
       long: '%A, %e. %B %Y'
       short: '%e. %b'
       month: '%B %Y'
+      week: 'KW %W, %Y'
     month_names:
       -
       - Januar

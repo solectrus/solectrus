@@ -3,8 +3,15 @@
           class: [ 'leading-none flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] duration-[1000ms]', color_class ],
           style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
           'aria-label': t("senec.#{field}"),
-          data: { controller: 'tippy', tippy_placement_value: (parent.side == :left ? 'right' : 'left') } do
-
+          data: { \
+            controller: 'tippy',
+            tippy_placement_value: (parent.side == :left ? 'right' : 'left'),
+            tippy_non_touch_only_value: true,
+            turbo_frame: 'chart',
+            turbo_action: 'replace',
+            action: 'stats-with-chart--component#startLoop',
+            stats_with_chart__component_field_param: field,
+          } do
   css:
     #segment-#{field} {
       --segment-font-size: #{font_size(max: 90)}%;

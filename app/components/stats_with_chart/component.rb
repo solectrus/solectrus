@@ -39,4 +39,13 @@ class StatsWithChart::Component < ViewComponent::Base
   def stats_path
     helpers.stats_path(helpers.permitted_params.to_hash.symbolize_keys)
   end
+
+  def charts_path
+    helpers.charts_path(helpers.permitted_params.to_hash.symbolize_keys)
+  end
+
+  def chart_loading_animation?
+    # Show loading animation for frame requests only, not for the first request
+    request.headers.key?('Turbo-Frame')
+  end
 end

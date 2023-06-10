@@ -1,4 +1,4 @@
-# @label VersionInfo Component
+# @label VersionInfo
 class VersionInfoComponentPreview < ViewComponent::Preview
   # @!group Misc
 

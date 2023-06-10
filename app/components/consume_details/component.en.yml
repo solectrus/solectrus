@@ -1,4 +1,5 @@
 en:
-  title: Costs caused by electricity consumption
-  explanation: Grid procurement costs and lost feed-in tariffs are taken into account. The actual situation is compared with a theoretical scenario without any consumption (and thus full feed-in).
-  explanation_wallbox: The grid consumption is primarily attributed to the EV, the remaining to the home consumption.
+  title: Electricity consumption costs
+  breakdown:
+    title: Estimated breakdown
+    explanation: The grid consumption is primarily attributed to the EV, the remaining to the home consumption.

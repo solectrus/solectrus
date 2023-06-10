@@ -1,15 +1,9 @@
 - turbo_exempts_page_from_cache
 - content_for :full_height, true
 
-= content_for :head do
-  - if timeframe.prev
-    = tag.link rel: 'prev', href: root_path(field:, timeframe: timeframe.prev)
-  - if timeframe.next
-    = tag.link rel: 'next', href: root_path(field:, timeframe: timeframe.next)
-
 - content_for :sub_nav do
-  .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-5
-    .mx-auto.lg:mx-0.hidden.lg:block
+  .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-2.md:py-5
+    = turbo_frame_tag 'second-nav-desktop', target: '_top', class: 'hidden lg:block' do
       = render Nav::Sub::Component.new do |c|
         = c.with_items nav_items
 
@@ -18,7 +12,8 @@
                       class: 'h-8 space-x-4 flex items-center justify-between lg:justify-end'
 
 - content_for :bottom_nav do
-  = render Nav::Sub::Component.new do |c|
-    = c.with_items nav_items
+  = turbo_frame_tag 'second-nav-mobile', target: '_top' do
+    = render Nav::Sub::Component.new do |c|
+      = c.with_items nav_items
 
 = render StatsWithChart::Component.new(field:, timeframe:)

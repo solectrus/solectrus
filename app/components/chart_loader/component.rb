@@ -1,11 +1,10 @@
 class ChartLoader::Component < ViewComponent::Base
-  def initialize(field:, timeframe:, url:)
+  def initialize(field:, timeframe:)
     super
     @field = field
     @timeframe = timeframe
-    @url = url
   end
-  attr_reader :field, :timeframe, :url
+  attr_reader :field, :timeframe
 
   def options # rubocop:disable Metrics/MethodLength
     {
