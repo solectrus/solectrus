@@ -56,6 +56,13 @@ describe PowerTop10 do
       it { is_expected.to all(be_a(Hash)) }
     end
 
+    describe '#weeks' do
+      subject { chart.weeks }
+
+      it { is_expected.to have(3).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
     describe '#days' do
       subject { chart.days }
 
@@ -77,6 +84,13 @@ describe PowerTop10 do
       subject { chart.months }
 
       it { is_expected.to have(1).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
+
+    describe '#weeks' do
+      subject { chart.weeks }
+
+      it { is_expected.to have(2).items }
       it { is_expected.to all(be_a(Hash)) }
     end
 

@@ -35,7 +35,7 @@ module TopNavigation
               end,
             period:
               if helpers.respond_to?(:timeframe) &&
-                   helpers.timeframe&.id.in?(%i[day month year])
+                   helpers.timeframe&.id.in?(%i[day week month year])
                 helpers.timeframe.id
               else
                 'day'

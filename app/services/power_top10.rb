@@ -11,6 +11,12 @@ class PowerTop10 < Flux::Reader
     top start: start(:day), stop: stop(:day), window: '1d'
   end
 
+  def weeks
+    # In InfluxDB the weeks start on Thursday (!) by default, so we have to shift by 3 days to get the weeks starting on Monday
+    # https://docs.influxdata.com/flux/v0.x/stdlib/universe/aggregatewindow/#downsample-by-calendar-week-starting-on-monday
+    top start: start(:week), stop: stop(:week), window: '1w', offset: '-3d'
+  end
+
   def months
     top start: start(:month), stop: stop(:month), window: '1mo'
   end
@@ -37,10 +43,10 @@ class PowerTop10 < Flux::Reader
     (raw - adjustment).public_send("end_of_#{period}")
   end
 
-  def top(start:, stop:, window:, limit: 10)
+  def top(start:, stop:, window:, limit: 10, offset: '0s')
     return [] if start > stop
 
-    raw = query(build_query(start:, stop:, window:, limit:))
+    raw = query(build_query(start:, stop:, window:, limit:, offset:))
     return [] unless raw[0]
 
     raw[0].records.map do |record|
@@ -55,7 +61,7 @@ class PowerTop10 < Flux::Reader
     { expires_in: 10.minutes }
   end
 
-  def build_query(start:, stop:, window:, limit:)
+  def build_query(start:, stop:, window:, limit:, offset:)
     <<-QUERY
       import "timezone"
 
@@ -64,7 +70,7 @@ class PowerTop10 < Flux::Reader
         |> #{measurements_filter}
         |> #{fields_filter}
         |> aggregateWindow(every: 1h, fn: mean)
-        |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
+        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: sum, location: #{location})
         |> filter(fn: (r) => r._value > 0)
         |> sort(columns: ["_value"], desc: #{desc})
         |> limit(n: #{limit})

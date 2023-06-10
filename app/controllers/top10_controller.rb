@@ -25,6 +25,11 @@ class Top10Controller < ApplicationController
         current: period == 'day',
       },
       {
+        name: t('calculator.week'),
+        href: path_with_period('week'),
+        current: period == 'week',
+      },
+      {
         name: t('calculator.month'),
         href: path_with_period('month'),
         current: period == 'month',

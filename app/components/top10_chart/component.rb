@@ -24,6 +24,8 @@ class Top10Chart::Component < ViewComponent::Base
       case period
       when 'day'
         top10.days
+      when 'week'
+        top10.weeks
       when 'month'
         top10.months
       when 'year'
@@ -105,6 +107,13 @@ class Top10Chart::Component < ViewComponent::Base
     )
   end
 
+  def corresponding_week(value)
+    [
+      Rails.configuration.x.installation_date.beginning_of_week,
+      value.beginning_of_week,
+    ].max
+  end
+
   def corresponding_month(value)
     [
       Rails.configuration.x.installation_date.beginning_of_month,
@@ -123,6 +132,8 @@ class Top10Chart::Component < ViewComponent::Base
     case period
     when 'day'
       value
+    when 'week'
+      corresponding_week(value).strftime('%Y-W%W')
     when 'month'
       corresponding_month(value).strftime('%Y-%m')
     when 'year'
@@ -134,6 +145,8 @@ class Top10Chart::Component < ViewComponent::Base
     case period
     when 'day'
       l(value, format: :default)
+    when 'week'
+      l(value, format: :week)
     when 'month'
       l(value, format: :month)
     when 'year'
