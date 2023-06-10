@@ -23,28 +23,18 @@ class PowerTop10 < Flux::Reader
 
   def start(period)
     raw = Rails.configuration.x.installation_date.beginning_of_day
+    # In ascending order, the first period may not be included because it is (most likely) not complete
+    adjustment = desc ? 0 : 1.public_send(period)
 
-    case period
-    when :day
-      desc ? raw.beginning_of_day : (raw + 1.day).beginning_of_day
-    when :month
-      desc ? raw.beginning_of_month : (raw + 1.month).beginning_of_month
-    when :year
-      desc ? raw.beginning_of_year : (raw + 1.year).beginning_of_year
-    end
+    (raw + adjustment).public_send("beginning_of_#{period}")
   end
 
   def stop(period)
     raw = Date.current.end_of_day
+    # In ascending order, the current period may not be included because it is not yet complete
+    adjustment = desc ? 0 : 1.public_send(period)
 
-    case period
-    when :day
-      desc ? raw.end_of_day : (raw - 1.day).end_of_day
-    when :month
-      desc ? raw.end_of_month : (raw - 1.month).end_of_month
-    when :year
-      desc ? raw.end_of_year : (raw - 1.year).end_of_year
-    end
+    (raw - adjustment).public_send("end_of_#{period}")
   end
 
   def top(start:, stop:, window:, limit: 10)
