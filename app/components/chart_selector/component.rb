@@ -26,7 +26,7 @@ class ChartSelector::Component < ViewComponent::Base
     if field.in?(%w[bat_fuel_charge autarky consumption])
       "#{I18n.t "senec.#{field}"} in %"
     elsif field.in?(%w[case_temp])
-      "#{I18n.t "senec.#{field}"} in °C"
+      "#{I18n.t "senec.#{field}"} in &deg;C".html_safe
     else
       "#{I18n.t "senec.#{field}"} in #{power? ? 'kW' : 'kWh'}"
     end
