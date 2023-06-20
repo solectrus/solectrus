@@ -1,5 +1,4 @@
-import { defineConfig } from 'vite';
-import { splitVendorChunkPlugin } from 'vite';
+import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import ViteRails from 'vite-plugin-rails';
 import { fileURLToPath, URL } from 'url';
 
