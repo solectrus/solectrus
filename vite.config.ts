@@ -1,6 +1,6 @@
 import { defineConfig, splitVendorChunkPlugin } from 'vite';
 import ViteRails from 'vite-plugin-rails';
-import { fileURLToPath, URL } from 'url';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
@@ -18,7 +18,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./app/javascript/src', import.meta.url)),
+      '@': resolve(__dirname, 'app/javascript'),
     },
   },
   server: {
