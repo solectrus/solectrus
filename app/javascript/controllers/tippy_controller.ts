@@ -14,10 +14,17 @@ export default class extends Controller {
       type: Boolean,
       default: false,
     },
+
+    // Force second tap (on touch device) to close tooltip
+    forceTapToClose: {
+      type: Boolean,
+      default: true,
+    },
   };
 
   declare placementValue: BasePlacement;
   declare nonTouchOnlyValue: boolean;
+  declare forceTapToCloseValue: boolean;
 
   static targets = ['html'];
 
@@ -65,6 +72,7 @@ export default class extends Controller {
 
   toggleActiveTippy = (value: boolean) => {
     if (!this.isTouchDevice) return;
+    if (!this.forceTapToCloseValue) return;
 
     document.body.classList.toggle('active-tippy', value);
   };
