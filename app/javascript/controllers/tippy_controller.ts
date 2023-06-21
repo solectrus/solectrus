@@ -9,10 +9,10 @@ export default class extends Controller {
       default: 'bottom',
     },
 
-    // Show tooltip only on non-touch devices
-    nonTouchOnly: {
-      type: Boolean,
-      default: false,
+    // Show tooltip only on touch devices, can be "true", "false" or "long"
+    touch: {
+      type: String,
+      default: 'true',
     },
 
     // Force second tap (on touch device) to close tooltip
@@ -23,7 +23,7 @@ export default class extends Controller {
   };
 
   declare placementValue: BasePlacement;
-  declare nonTouchOnlyValue: boolean;
+  declare touchValue: 'true' | 'false' | 'long';
   declare forceTapToCloseValue: boolean;
 
   static targets = ['html'];
@@ -36,8 +36,6 @@ export default class extends Controller {
   private onClick: ((event: Event) => void) | undefined;
 
   connect() {
-    if (this.nonTouchOnlyValue && this.isTouchDevice) return;
-
     const title = this.element.getAttribute('title');
     const content = (this.hasHtmlTarget && this.htmlTarget.innerHTML) || title;
     if (!content) return;
@@ -50,6 +48,7 @@ export default class extends Controller {
       theme: 'light-border',
       animation: 'scale',
       hideOnClick: false,
+      touch: this.touch,
 
       // Prevent click on tooltip from triggering click on target
       onShown: () => this.toggleActiveTippy(true),
@@ -79,5 +78,16 @@ export default class extends Controller {
 
   get isTouchDevice() {
     return 'ontouchstart' in window;
+  }
+
+  get touch(): boolean | ['hold', number] {
+    switch (this.touchValue) {
+      case 'true':
+        return true;
+      case 'false':
+        return false;
+      case 'long':
+        return ['hold', 500];
+    }
   }
 }
