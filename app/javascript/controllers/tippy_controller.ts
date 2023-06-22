@@ -33,7 +33,6 @@ export default class extends Controller {
   declare readonly htmlTargets: HTMLElement[];
 
   private instance: Instance | undefined;
-  private onClick: ((event: Event) => void) | undefined;
 
   connect() {
     const title = this.element.getAttribute('title');
@@ -64,9 +63,6 @@ export default class extends Controller {
 
   disconnect() {
     if (this.instance) this.instance.destroy();
-
-    // Remove click listener
-    if (this.onClick) this.element.removeEventListener('click', this.onClick);
   }
 
   toggleActiveTippy = (value: boolean) => {
@@ -76,7 +72,7 @@ export default class extends Controller {
     document.body.classList.toggle('active-tippy', value);
   };
 
-  get isTouchDevice() {
+  get isTouchDevice(): boolean {
     return 'ontouchstart' in window;
   }
 
@@ -88,6 +84,8 @@ export default class extends Controller {
         return false;
       case 'long':
         return ['hold', 500];
+      default:
+        return false;
     }
   }
 }
