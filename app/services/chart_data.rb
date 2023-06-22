@@ -168,23 +168,14 @@ class ChartData # rubocop:disable Metrics/ClassLength
 
   def style(chart_field)
     {
-      fill: fill(chart_field),
+      fill: 'origin',
+      # Base color, will be changed to gradient in JS
       backgroundColor: background_color(chart_field),
-      borderWidth: 0,
-      borderColor: 'black',
+      borderWidth: 0.5,
+      # In min-max charts, show border around the **whole** bar (don't skip)
+      borderSkipped:
+        chart_field.in?(%w[bat_fuel_charge case_temp]) ? false : 'start',
     }
-  end
-
-  def fill(chart_field)
-    if chart_field.in?(%w[grid_power_minus grid_power_plus])
-      {
-        target: 'origin',
-        above: '#16a34a', # bg-green-600
-        below: '#dc2626', # bg-red-600
-      }
-    else
-      'origin'
-    end
   end
 
   def background_color(chart_field)
@@ -192,8 +183,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       'forecast' => '#cbd5e1', # bg-slate-300
       'house_power' => '#64748b', # bg-slate-500
       'grid_power_plus' => '#dc2626', # bg-red-600
-      'grid_power_minus' => 'rgba(22, 163, 74, 0.5)', # bg-green-600, 50% transparent
-      'inverter_power' => 'rgba(22, 163, 74, 0.5)', # bg-green-600, 50% transparent
+      'grid_power_minus' => '#16a34a', # bg-green-600
+      'inverter_power' => '#16a34a', # bg-green-600
       'wallbox_charge_power' => '#475569', # bg-slate-600
       'bat_power_minus' => '#15803d', # bg-green-700
       'bat_power_plus' => '#15803d', # bg-green-700
