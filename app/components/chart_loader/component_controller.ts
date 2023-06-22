@@ -156,9 +156,10 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
-    data.datasets.forEach((dataset: ChartDataset) =>
-      this.setBackgroundGradient(dataset, min, max),
-    );
+    if (max > min)
+      data.datasets.forEach((dataset: ChartDataset) => {
+        this.setBackgroundGradient(dataset, min, max);
+      });
 
     this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
