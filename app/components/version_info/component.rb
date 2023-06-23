@@ -9,7 +9,7 @@ class VersionInfo::Component < ViewComponent::Base
   attr_reader :current_version, :commit_time, :github_url
 
   def outdated?
-    return unless valid?(latest_version) && valid?(current_version)
+    return false unless valid?(latest_version) && valid?(current_version)
 
     comparable(latest_version) > comparable(current_version)
   end
