@@ -188,6 +188,9 @@ export default class extends Controller<HTMLCanvasElement> {
       isNegative,
       basePosition,
       datasetExtent / extent,
+
+      // Line charts should have a larger gradient (means lower opacity)
+      this.typeValue === 'line' ? 0 : 0.4,
     );
 
     // Replace background color with gradient

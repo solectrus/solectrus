@@ -5,6 +5,7 @@ export default class ChartBackgroundGradient {
   private isNegative: boolean;
   private basePosition: number; // Vertical position of the x-Axis in the given Chart (between 0 and 1)
   private extent: number; // Extent of the dataset in the given Chart (between 0 and 1)
+  private minAlpha: number;
 
   // For caching the gradient so we don't have to recreate it every time
   private width?: number;
@@ -16,11 +17,13 @@ export default class ChartBackgroundGradient {
     isNegative: boolean,
     basePosition: number,
     extent: number,
+    minAlpha: number,
   ) {
     this.originalColor = originalColor;
     this.isNegative = isNegative;
     this.basePosition = basePosition;
     this.extent = extent;
+    this.minAlpha = minAlpha;
   }
 
   canvasGradient(
@@ -53,9 +56,9 @@ export default class ChartBackgroundGradient {
 
     const colorOpaque = this.hexToRGBA(
       this.originalColor,
-      Math.max(this.extent, 0.1),
+      Math.max(this.extent, this.minAlpha),
     );
-    const colorTransparent = this.hexToRGBA(this.originalColor, 0.1);
+    const colorTransparent = this.hexToRGBA(this.originalColor, this.minAlpha);
 
     if (this.isNegative) {
       gradient.addColorStop(0, colorTransparent);

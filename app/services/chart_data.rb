@@ -171,7 +171,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
       fill: 'origin',
       # Base color, will be changed to gradient in JS
       backgroundColor: background_color(chart_field),
-      borderWidth: 0.5,
+      borderWidth: 1,
       # In min-max charts, show border around the **whole** bar (don't skip)
       borderSkipped:
         chart_field.in?(%w[bat_fuel_charge case_temp]) ? false : 'start',
