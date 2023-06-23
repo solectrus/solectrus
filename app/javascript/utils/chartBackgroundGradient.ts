@@ -1,30 +1,18 @@
 import { ChartArea } from 'chart.js';
 
 export default class ChartBackgroundGradient {
-  private originalColor: string;
-  private isNegative: boolean;
-  private basePosition: number; // Vertical position of the x-Axis in the given Chart (between 0 and 1)
-  private extent: number; // Extent of the dataset in the given Chart (between 0 and 1)
-  private minAlpha: number;
+  constructor(
+    private originalColor: string,
+    private isNegative: boolean,
+    private basePosition: number, // Vertical position of the x-Axis in the given Chart (between 0 and 1)
+    private extent: number, // Extent of the dataset in the given Chart (between 0 and 1)
+    private minAlpha: number,
+  ) {}
 
   // For caching the gradient so we don't have to recreate it every time
   private width?: number;
   private height?: number;
   private gradient?: CanvasGradient;
-
-  constructor(
-    originalColor: string,
-    isNegative: boolean,
-    basePosition: number,
-    extent: number,
-    minAlpha: number,
-  ) {
-    this.originalColor = originalColor;
-    this.isNegative = isNegative;
-    this.basePosition = basePosition;
-    this.extent = extent;
-    this.minAlpha = minAlpha;
-  }
 
   canvasGradient(
     ctx: CanvasRenderingContext2D,
@@ -84,7 +72,7 @@ export default class ChartBackgroundGradient {
   }
 
   // Function to convert hex color code to RGB
-  hexToRGBA(hex: string, alpha: number): string {
+  private hexToRGBA(hex: string, alpha: number): string {
     if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex))
       throw new Error(`"${hex}" is not a valid hex color!`);
     if (alpha < 0 || alpha > 1)
