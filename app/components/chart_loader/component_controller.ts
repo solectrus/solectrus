@@ -161,7 +161,7 @@ export default class extends Controller<HTMLCanvasElement> {
         // Non-Overlapping line charts should have a larger gradient (means lower opacity)
         const minAlpha =
           this.typeValue === 'line' && !this.isOverlapping(data.datasets)
-            ? 0
+            ? 0.04
             : 0.4;
 
         if (dataset.data)
