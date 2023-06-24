@@ -156,7 +156,7 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
-    if (max > min)
+    if (max >= min)
       data.datasets.forEach((dataset: ChartDataset) => {
         // Non-Overlapping line charts should have a larger gradient (means lower opacity)
         const minAlpha =
@@ -274,6 +274,8 @@ export default class extends Controller<HTMLCanvasElement> {
   private isOverlapping(datasets: ChartDataset[]) {
     if (datasets.length <= 1) return false;
     if (datasets.length > 2) return true;
+
+    if (!datasets[0].data || !datasets[1].data) return false;
 
     const data1 = datasets[0].data.filter((x) => x);
     const data2 = datasets[1].data.filter((x) => x);
