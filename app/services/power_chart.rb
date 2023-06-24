@@ -4,22 +4,20 @@ class PowerChart < Flux::Reader
     when :now
       chart_single start: 1.hour.ago,
                    stop: 1.second.since,
-                   window: '5s',
+                   window: WINDOW[timeframe.id],
                    fill: true
     when :day
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
-                   window: '5m',
+                   window: WINDOW[timeframe.id],
                    fill:,
                    interpolate:
-    when :week, :month
-      chart_sum start: timeframe.beginning, stop: timeframe.ending, window: '1d'
-    when :year
+    when :week, :month, :year
       chart_sum start: timeframe.beginning,
                 stop: timeframe.ending,
-                window: '1mo'
+                window: WINDOW[timeframe.id]
     when :all
-      chart_sum start: timeframe.beginning, window: '1y'
+      chart_sum start: timeframe.beginning, window: WINDOW[timeframe.id]
     end
   end
 

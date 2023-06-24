@@ -9,6 +9,16 @@ class Flux::Reader < Flux::Base
 
   private
 
+  WINDOW = {
+    now: '5s',
+    day: '5m',
+    week: '1d',
+    month: '1d',
+    year: '1mo',
+    all: '1y',
+  }.freeze
+  private_constant :WINDOW
+
   def from_bucket
     "from(bucket: \"#{influx_bucket}\")"
   end
