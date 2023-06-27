@@ -4,7 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.2.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.0.5'
+gem 'rails', '~> 7.0.5', '>= 7.0.5.1'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -122,7 +122,7 @@ group :test do
   # Simple one-liner tests for common Rails functionality (https://matchers.shoulda.io/)
   gem 'shoulda-matchers'
 
-  # Record your test suite's HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests. (https://relishapp.com/vcr/vcr/docs)
+  # Record your test suite's HTTP interactions and replay them during future test runs for fast, deterministic, accurate tests. (https://benoittgt.github.io/vcr)
   gem 'vcr'
 
   # Library for stubbing HTTP requests in Ruby. (https://github.com/bblimke/webmock)
