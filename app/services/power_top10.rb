@@ -7,6 +7,10 @@ class PowerTop10 < Flux::Reader
 
   attr_reader :field, :desc
 
+  def daily_peak
+    top start: start(:day), stop: stop(:day), window: '1d', wfn: %w[max max]
+  end
+
   def days
     top start: start(:day), stop: stop(:day), window: '1d'
   end
@@ -43,10 +47,10 @@ class PowerTop10 < Flux::Reader
     (raw - adjustment).public_send("end_of_#{period}")
   end
 
-  def top(start:, stop:, window:, limit: 10, offset: '0s')
+  def top(start:, stop:, window:, limit: 10, offset: '0s', wfn: %w[mean sum])
     return [] if start > stop
 
-    raw = query(build_query(start:, stop:, window:, limit:, offset:))
+    raw = query(build_query(start:, stop:, window:, limit:, offset:, wfn:))
     return [] unless raw[0]
 
     raw[0].records.map do |record|
@@ -61,7 +65,7 @@ class PowerTop10 < Flux::Reader
     { expires_in: 10.minutes }
   end
 
-  def build_query(start:, stop:, window:, limit:, offset:)
+  def build_query(start:, stop:, window:, limit:, offset:, wfn:)
     <<-QUERY
       import "timezone"
 
@@ -69,8 +73,8 @@ class PowerTop10 < Flux::Reader
         |> #{range(start:, stop:)}
         |> #{measurements_filter}
         |> #{fields_filter}
-        |> aggregateWindow(every: 1h, fn: mean)
-        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: sum, location: #{location})
+        |> aggregateWindow(every: 1h, fn: #{wfn.first})
+        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{wfn.last}, location: #{location})
         |> filter(fn: (r) => r._value > 0)
         |> sort(columns: ["_value"], desc: #{desc})
         |> limit(n: #{limit})

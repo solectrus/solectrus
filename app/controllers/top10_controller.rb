@@ -20,6 +20,11 @@ class Top10Controller < ApplicationController
   helper_method def nav_items
     [
       {
+        name: t('calculator.peak'),
+        href: path_with_period('peak'),
+        current: period == 'peak',
+      },
+      {
         name: t('calculator.day'),
         href: path_with_period('day'),
         current: period == 'day',

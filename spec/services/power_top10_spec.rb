@@ -69,6 +69,13 @@ describe PowerTop10 do
       it { is_expected.to have(4).items }
       it { is_expected.to all(be_a(Hash)) }
     end
+
+    describe '#daily_peak' do
+      subject { chart.daily_peak }
+
+      it { is_expected.to have(4).items }
+      it { is_expected.to all(be_a(Hash)) }
+    end
   end
 
   context 'when ascending' do

@@ -33,16 +33,23 @@ module TopNavigation
               else
                 'inverter_power'
               end,
-            period:
-              if helpers.respond_to?(:timeframe) &&
-                   helpers.timeframe&.id.in?(%i[day week month year])
-                helpers.timeframe.id
-              else
-                'day'
-              end,
+            period: corresponding_top10_period,
             sort: 'desc',
           ),
       }
+    end
+
+    def corresponding_top10_period
+      return 'day' unless helpers.respond_to?(:timeframe)
+
+      case helpers.timeframe&.id
+      when :day, :week, :month, :year
+        helpers.timeframe.id
+      when :now
+        'peak'
+      else
+        'day'
+      end
     end
 
     def about_item

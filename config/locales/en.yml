@@ -30,6 +30,7 @@ en:
     right: Usage
   calculator:
     now: Now
+    peak: Peak
     day: Day
     week: Week
     month: Month

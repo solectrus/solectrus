@@ -22,6 +22,8 @@ class Top10Chart::Component < ViewComponent::Base
   def top10_for_period
     @top10_for_period ||=
       case period
+      when 'peak'
+        top10.daily_peak
       when 'day'
         top10.days
       when 'week'
@@ -130,7 +132,7 @@ class Top10Chart::Component < ViewComponent::Base
 
   def corresponding_date(value)
     case period
-    when 'day'
+    when 'peak', 'day'
       value
     when 'week'
       corresponding_week(value).strftime('%Y-W%W')
@@ -143,7 +145,7 @@ class Top10Chart::Component < ViewComponent::Base
 
   def formatted_date(value)
     case period
-    when 'day'
+    when 'day', 'peak'
       l(value, format: :default)
     when 'week'
       l(value, format: :week)
