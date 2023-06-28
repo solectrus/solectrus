@@ -29,15 +29,6 @@ class Number::Component < ViewComponent::Base
     styled_number(formatted_number(value / 1_000.0, max_precision:), unit: 'kW')
   end
 
-  def to_watt_peak(max_precision: 2)
-    return unless value
-
-    styled_number(
-      formatted_number(value / 1_000.0, max_precision:),
-      unit: 'kWp',
-    )
-  end
-
   def to_eur(klass: nil, max_precision: nil)
     return unless value
 
