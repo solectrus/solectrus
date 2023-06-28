@@ -3,9 +3,9 @@
 
 
 "@aashutoshrathi/word-wrap@^1.2.3":
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.5.tgz#383aeebd5c176c320d6364fb869669559bbdbac9"
-  integrity sha512-plhoNEfSVdHMKXQyAxvH0Zyv3/4NL8r6pwgMQdmHR2vBUXn2t74PN2pBRppqKUa6RMT0yldyvOHG5Dbjwy2mBQ==
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz#bd9154aec9983f77b3a034ecaa015c2e4201f6cf"
+  integrity sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==
 
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
