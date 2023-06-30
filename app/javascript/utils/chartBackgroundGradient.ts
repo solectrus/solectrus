@@ -75,8 +75,8 @@ export default class ChartBackgroundGradient {
   private hexToRGBA(hex: string, alpha: number): string {
     if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex))
       throw new Error(`"${hex}" is not a valid hex color!`);
-    if (alpha < 0 || alpha > 1)
-      throw new Error(`"${alpha}" is not a valid alpha value!`);
+    if (alpha < 0) alpha = 0;
+    if (alpha > 1) alpha = 1;
 
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
