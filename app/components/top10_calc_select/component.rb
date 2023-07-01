@@ -1,9 +1,8 @@
 class Top10CalcSelect::Component < ViewComponent::Base
-  def peak?
-    helpers.calc == 'peak'
+  def initialize(calc:)
+    super
+    @calc = ActiveSupport::StringInquirer.new(calc)
   end
 
-  def sum?
-    helpers.calc == 'sum'
-  end
+  attr_reader :calc
 end
