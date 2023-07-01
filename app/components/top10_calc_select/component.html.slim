@@ -1,0 +1,12 @@
+div class= "flex items-center justify-center bg-white rounded-md divide-x divide-gray-300 overflow-hidden font-medium shadow-sm border border-gray-300 text-gray-700 "
+  .py-2.px-2.md:px-4 class= ('bg-indigo-200' if sum?)
+    - if sum?
+      = t('.sum')
+    - else
+      = link_to t('.sum'), url_for(**helpers.permitted_params.merge(calc: 'sum', only_path: true)), class: ''
+
+  .py-2.px-2.md:px-4 class= ('bg-indigo-200' if peak?)
+    - if peak?
+      = t('.max')
+    - else
+      = link_to t('.max'), url_for(**helpers.permitted_params.merge(calc: 'peak', only_path: true)), class: ''

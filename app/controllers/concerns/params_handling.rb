@@ -5,7 +5,8 @@ module ParamsHandling
     private
 
     helper_method def permitted_params
-      @permitted_params ||= params.permit(:field, :timeframe, :period, :sort)
+      @permitted_params ||=
+        params.permit(:field, :timeframe, :period, :sort, :calc)
     end
 
     helper_method def period
@@ -16,7 +17,13 @@ module ParamsHandling
       permitted_params[:field]
     end
 
+    helper_method def calc
+      permitted_params[:calc]
+    end
+
     helper_method def sort
+      return if permitted_params[:sort].blank?
+
       ActiveSupport::StringInquirer.new(permitted_params[:sort])
     end
 

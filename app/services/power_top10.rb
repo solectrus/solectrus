@@ -1,15 +1,12 @@
 class PowerTop10 < Flux::Reader
-  def initialize(field:, measurements:, desc:)
+  def initialize(field:, measurements:, desc:, calc:)
     super(fields: [field], measurements:)
-    @desc = desc
     @field = field
+    @calc = calc
+    @desc = desc
   end
 
-  attr_reader :field, :desc
-
-  def daily_peak
-    top start: start(:day), stop: stop(:day), window: '1d', wfn: %w[max max]
-  end
+  attr_reader :field, :calc, :desc
 
   def days
     top start: start(:day), stop: stop(:day), window: '1d'
@@ -31,6 +28,24 @@ class PowerTop10 < Flux::Reader
 
   private
 
+  def first_aggregate
+    case calc.to_s
+    when 'sum'
+      'mean'
+    when 'peak'
+      'max'
+    end
+  end
+
+  def second_aggregate
+    case calc.to_s
+    when 'sum'
+      'sum'
+    when 'peak'
+      'max'
+    end
+  end
+
   def start(period)
     raw = Rails.configuration.x.installation_date.beginning_of_day
     # In ascending order, the first period may not be included because it is (most likely) not complete
@@ -47,10 +62,10 @@ class PowerTop10 < Flux::Reader
     (raw - adjustment).public_send("end_of_#{period}")
   end
 
-  def top(start:, stop:, window:, limit: 10, offset: '0s', wfn: %w[mean sum])
+  def top(start:, stop:, window:, limit: 10, offset: '0s')
     return [] if start > stop
 
-    raw = query(build_query(start:, stop:, window:, limit:, offset:, wfn:))
+    raw = query(build_query(start:, stop:, window:, limit:, offset:))
     return [] unless raw[0]
 
     raw[0].records.map do |record|
@@ -65,7 +80,7 @@ class PowerTop10 < Flux::Reader
     { expires_in: 10.minutes }
   end
 
-  def build_query(start:, stop:, window:, limit:, offset:, wfn:)
+  def build_query(start:, stop:, window:, limit:, offset:)
     <<-QUERY
       import "timezone"
 
@@ -73,8 +88,8 @@ class PowerTop10 < Flux::Reader
         |> #{range(start:, stop:)}
         |> #{measurements_filter}
         |> #{fields_filter}
-        |> aggregateWindow(every: 1h, fn: #{wfn.first})
-        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{wfn.last}, location: #{location})
+        |> aggregateWindow(every: 1h, fn: #{first_aggregate})
+        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
         |> filter(fn: (r) => r._value > 0)
         |> sort(columns: ["_value"], desc: #{desc})
         |> limit(n: #{limit})

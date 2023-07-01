@@ -5,6 +5,7 @@ describe PowerTop10 do
     described_class.new(
       field: 'inverter_power',
       measurements: [measurement],
+      calc:,
       desc:,
     )
   end
@@ -41,6 +42,7 @@ describe PowerTop10 do
 
   context 'when descending' do
     let(:desc) { true }
+    let(:calc) { :sum }
 
     describe '#years' do
       subject { chart.years }
@@ -69,17 +71,11 @@ describe PowerTop10 do
       it { is_expected.to have(4).items }
       it { is_expected.to all(be_a(Hash)) }
     end
-
-    describe '#daily_peak' do
-      subject { chart.daily_peak }
-
-      it { is_expected.to have(4).items }
-      it { is_expected.to all(be_a(Hash)) }
-    end
   end
 
   context 'when ascending' do
     let(:desc) { false }
+    let(:calc) { :peak }
 
     describe '#years' do
       subject { chart.years }

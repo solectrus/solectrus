@@ -1,20 +1,24 @@
 class Top10Chart::Component < ViewComponent::Base
-  def initialize(field:, period:, sort:)
+  def initialize(field:, period:, sort:, calc:)
     raise ArgumentError, 'field must be present' if field.blank?
     raise ArgumentError, 'period must be present' if period.blank?
+    raise ArgumentError, 'sort must be present' if sort.blank?
+    raise ArgumentError, 'calc must be present' if calc.blank?
 
     super
     @field = field
     @period = period
     @sort = sort
+    @calc = calc
   end
-  attr_accessor :field, :period, :sort
+  attr_accessor :field, :period, :sort, :calc
 
   def top10
     @top10 ||=
       PowerTop10.new(
         field:,
         measurements: [Rails.configuration.x.influx.measurement_pv],
+        calc:,
         desc: sort.desc?,
       )
   end
@@ -22,8 +26,6 @@ class Top10Chart::Component < ViewComponent::Base
   def top10_for_period
     @top10_for_period ||=
       case period
-      when 'peak'
-        top10.daily_peak
       when 'day'
         top10.days
       when 'week'
@@ -132,7 +134,7 @@ class Top10Chart::Component < ViewComponent::Base
 
   def corresponding_date(value)
     case period
-    when 'peak', 'day'
+    when 'day'
       value
     when 'week'
       corresponding_week(value).strftime('%Y-W%W')
@@ -145,7 +147,7 @@ class Top10Chart::Component < ViewComponent::Base
 
   def formatted_date(value)
     case period
-    when 'day', 'peak'
+    when 'day'
       l(value, format: :default)
     when 'week'
       l(value, format: :week)

@@ -29,14 +29,6 @@ describe 'Routes redirection' do
     end
   end
 
-  describe 'old routes redirection' do
-    it 'redirects top10 when sort is missing' do
-      get '/top10/year/house_power'
-      expect(response).to redirect_to('/top10/year/house_power/desc')
-      expect(response).to have_http_status :moved_permanently
-    end
-  end
-
   describe 'favicon request' do
     it 'redirects to existing file' do
       get '/favicon.ico'

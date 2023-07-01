@@ -35,6 +35,7 @@ module TopNavigation
               end,
             period: corresponding_top10_period,
             sort: 'desc',
+            calc: 'sum',
           ),
       }
     end
@@ -45,10 +46,8 @@ module TopNavigation
       case helpers.timeframe&.id
       when :day, :week, :month, :year
         helpers.timeframe.id
-      when :now
-        'peak'
       else
-        'day'
+        :day
       end
     end
 
