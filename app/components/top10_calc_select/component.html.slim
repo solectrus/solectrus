@@ -2,24 +2,24 @@ div[
   class= "p-1 flex items-center justify-center bg-white rounded-md shadow-sm border border-gray-300 text-gray-700"
 ]
   = link_to url_for(**helpers.permitted_params.merge(calc: 'sum', only_path: true)),
-            class: ['py-1 px-2 md:px-3', ('rounded-md bg-indigo-300/50' if calc.sum?)],
+            class: ['py-1 px-2 sm:px-3', ('rounded-md bg-indigo-300/50' if calc.sum?)],
             data: { \
               controller: 'tippy',
               tippy_touch_value: false,
             },
             title: t('.sum') do
-    svg.h-4.md:h-5 viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+    svg.h-4.sm:h-5 viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
       path stroke="none" d="M0 0h24v24H0z" fill="none"
       path d="M18 16v2a1 1 0 0 1 -1 1h-11l6 -7l-6 -7h11a1 1 0 0 1 1 1v2"
 
   = link_to url_for(**helpers.permitted_params.merge(calc: 'peak', only_path: true)),
-            class: ['py-1 px-2 md:px-3', ('rounded-md bg-indigo-300/50' if calc.peak?)],
+            class: ['py-1 px-2 sm:px-3', ('rounded-md bg-indigo-300/50' if calc.peak?)],
             data: { \
               controller: 'tippy',
               tippy_touch_value: false,
             },
             title: t('.max') do
-    svg.h-4.md:h-5 viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
+    svg.h-4.sm:h-5 viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
       path stroke="none" d="M0 0h24v24H0z" fill="none"
       path d="M12 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"
       path d="M3 20c0 -8.75 4 -14 7 -14.5m4 0c3 .5 7 5.75 7 14.5"
