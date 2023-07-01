@@ -42,7 +42,7 @@ describe PowerTop10 do
 
   context 'when descending' do
     let(:desc) { true }
-    let(:calc) { :sum }
+    let(:calc) { 'sum' }
 
     describe '#years' do
       subject { chart.years }
@@ -75,7 +75,7 @@ describe PowerTop10 do
 
   context 'when ascending' do
     let(:desc) { false }
-    let(:calc) { :peak }
+    let(:calc) { 'peak' }
 
     describe '#years' do
       subject { chart.years }
