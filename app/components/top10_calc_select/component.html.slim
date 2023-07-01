@@ -3,7 +3,10 @@ div[
 ]
   = link_to url_for(**helpers.permitted_params.merge(calc: 'sum', only_path: true)),
             class: ['py-1 px-2 md:px-3', ('rounded-md bg-indigo-300/50' if calc.sum?)],
-            data: { controller: 'tippy' },
+            data: { \
+              controller: 'tippy',
+              tippy_touch_value: false,
+            },
             title: t('.sum') do
     svg.h-4.md:h-5 viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
       path stroke="none" d="M0 0h24v24H0z" fill="none"
@@ -11,7 +14,10 @@ div[
 
   = link_to url_for(**helpers.permitted_params.merge(calc: 'peak', only_path: true)),
             class: ['py-1 px-2 md:px-3', ('rounded-md bg-indigo-300/50' if calc.peak?)],
-            data: { controller: 'tippy' },
+            data: { \
+              controller: 'tippy',
+              tippy_touch_value: false,
+            },
             title: t('.max') do
     svg.h-4.md:h-5 viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"
       path stroke="none" d="M0 0h24v24H0z" fill="none"
