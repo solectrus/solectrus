@@ -1,5 +1,5 @@
 div[
-  class= "p-1 flex items-center justify-center bg-white rounded-md shadow-sm border border-gray-300 text-gray-700"
+  class= "p-1 flex items-center justify-center bg-gray-200 hover:bg-gray-50 rounded-md shadow-sm border border-gray-300 text-gray-700"
 ]
   = link_to url_for(**helpers.permitted_params.merge(calc: 'sum', only_path: true)),
             class: ['py-1 px-2 sm:px-3', ('rounded-md bg-indigo-300/50' if calc.sum?)],
