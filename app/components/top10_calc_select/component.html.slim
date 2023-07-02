@@ -1,8 +1,8 @@
 div[
-  class= 'p-1 h-full flex items-center justify-center bg-gray-200 hover:bg-gray-50 rounded-md shadow-sm border border-gray-300 text-gray-700'
+  class= 'p-1 px-2 h-full flex items-center justify-center bg-transparent hover:bg-indigo-500 hover:bg-opacity-75 rounded-md shadow-sm text-gray-300'
 ]
   = link_to url_for(**helpers.permitted_params.merge(calc: 'sum', only_path: true)),
-            class: ['py-1 px-3', ('rounded-md bg-indigo-300/50' if calc.sum?)],
+            class: ['py-1 px-3', ('rounded-md bg-indigo-300/40' if calc.sum?)],
             data: { \
               controller: 'tippy',
               tippy_touch_value: false,
@@ -13,7 +13,7 @@ div[
       path d="M18 16v2a1 1 0 0 1 -1 1h-11l6 -7l-6 -7h11a1 1 0 0 1 1 1v2"
 
   = link_to url_for(**helpers.permitted_params.merge(calc: 'peak', only_path: true)),
-            class: ['py-1 px-3', ('rounded-md bg-indigo-300/50' if calc.peak?)],
+            class: ['py-1 px-3', ('rounded-md bg-indigo-300/40' if calc.peak?)],
             data: { \
               controller: 'tippy',
               tippy_touch_value: false,
