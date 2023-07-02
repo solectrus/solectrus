@@ -1,15 +1,17 @@
 - turbo_exempts_page_from_cache
 
 - content_for :sub_nav do
-  .flex.justify-between.items-center.py-3.md:py-5
+  .flex.justify-between.items-center.py-5
     .hidden.lg:block
       = render Nav::Sub::Component.new do |c|
         = c.with_items nav_items
 
-    .flex-1.flex.gap-5.justify-between.items-center.text-xs.sm:text-sm.sm:justify-center.lg:justify-end
+    .flex-1.flex.gap-4.lg:gap-5.items-center.justify-between.sm:justify-center.lg:justify-end.text-sm.h-10
       = render Dropdown::Component.new items: field_items, selected: field
-      = render Top10CalcSelect::Component.new(calc:)
-      = render Top10SortToggle::Component.new
+
+      .flex.gap-4.lg:gap-5.items-center.h-full
+        = render Top10CalcSelect::Component.new(calc:)
+        = render Top10SortToggle::Component.new
 
 - content_for :bottom_nav do
   = render Nav::Sub::Component.new do |c|
