@@ -1,6 +1,6 @@
 div
   div data-controller= 'select'
-    select.block.lg:hidden.border-0.focus:ring-0.font-medium.text-sm.rounded[
+    select.block.lg:hidden.border-0.focus:ring-0.font-medium.rounded[
       data-select-target= 'select'
       data-action= 'select#onChange'
       class= select_class
@@ -13,19 +13,19 @@ div
         ]
           = item[:name]
 
-    select.absolute.invisible.text-sm.font-medium data-select-target= 'temp'
+    select.absolute.invisible.font-medium data-select-target= 'temp' class= select_class
       option
 
   .hidden.relative.lg:inline-block.text-left data-controller="dropdown--component"
     div data-dropdown--component-target="button" data-action="click->dropdown--component#toggleMenu"
-      button#options-menu.inline-flex.justify-center.w-full.rounded-md.px-2.sm:px-4.py-2.bg-transparent.text-xs.sm:text-sm.font-medium.focus:outline-none.focus:ring-2.focus:ring-indigo-500[
+      button#options-menu.inline-flex.justify-center.items-end.w-full.rounded-md.px-2.sm:px-4.py-2.bg-transparent.font-medium.focus:outline-none.focus:ring-2.focus:ring-indigo-500[
         class= button_class
         aria-expanded="true"
         aria-haspopup="true"
         type="button"
       ]
         = selected_item[:name]
-        svg.-mr-1.ml-2.h-5.w-5 aria-hidden="true" fill="currentColor" viewbox="0 0 20 20"
+        svg.-mr-1.ml-2.h-5 aria-hidden="true" fill="currentColor" viewbox="0 0 20 20"
           path[
             clip-rule="evenodd"
             fill-rule="evenodd"
@@ -43,5 +43,5 @@ div
     ]
       .py-1 aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
         - items.each do |item|
-          a.block.px-6.py-2.text-xs.sm:text-sm.text-gray-700.hover:bg-gray-100.hover:text-gray-900.whitespace-nowrap href= item[:href] data= item[:data] role="menuitem"
+          a.block.px-6.py-2.text-gray-700.hover:bg-gray-100.hover:text-gray-900.whitespace-nowrap href= item[:href] data= item[:data] role="menuitem"
             = item[:name]
