@@ -1,14 +1,10 @@
-/* Import Tailwind CSS */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-
 /* Import styles from external libraries */
 @import 'tippy.js/dist/tippy.css';
 @import 'tippy.js/animations/scale.css';
 @import 'tippy.js/themes/light-border.css';
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
+/* Import app specific styles */
 @import '../stylesheets/flow.css';
 @import '../stylesheets/radial_badge.css';
 
@@ -51,3 +47,8 @@
 body.active-tippy * {
   @apply pointer-events-none;
 }
+
+/* Import Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

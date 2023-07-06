@@ -85,6 +85,6 @@ class Button::Component < ViewComponent::Base
   end
 
   def icon_class
-    "fa fa-#{icon_name} w-8 h-8"
+    "fa fa-#{icon_name} w-8"
   end
 end
