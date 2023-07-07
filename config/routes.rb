@@ -34,7 +34,7 @@ Rails.application.routes.draw do
   end
 
   constraints period: /day|week|month|year/,
-              calc: /sum|peak/,
+              calc: /sum|max/,
               sort: /asc|desc/,
               field: Regexp.new(Senec::POWER_FIELDS.join('|'), false) do
     get '/top10/(:period)/(:field)/(:calc)/(:sort)',

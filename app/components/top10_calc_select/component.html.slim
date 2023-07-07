@@ -1,4 +1,4 @@
-- if calc.peak?
+- if calc.max?
   = link_to url_for(**helpers.permitted_params.merge(calc: 'sum', only_path: true)),
             class: 'flex items-center px-4 py-2 bg-gray-200 text-gray-900 rounded-md shadow-sm font-medium text-sm ' \
                    'hover:bg-white ' \
@@ -14,7 +14,7 @@
       path d="M3 20c0 -8.75 4 -14 7 -14.5m4 0c3 .5 7 5.75 7 14.5"
 
 - if calc.sum?
-  = link_to url_for(**helpers.permitted_params.merge(calc: 'peak', only_path: true)),
+  = link_to url_for(**helpers.permitted_params.merge(calc: 'max', only_path: true)),
             class: 'flex items-center px-4 py-2 bg-gray-200 text-gray-900 rounded-md shadow-sm font-medium text-sm ' \
                    'hover:bg-white ' \
                    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500',

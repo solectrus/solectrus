@@ -75,7 +75,7 @@ describe PowerTop10 do
 
   context 'when ascending' do
     let(:desc) { false }
-    let(:calc) { 'peak' }
+    let(:calc) { 'max' }
 
     describe '#years' do
       subject { chart.years }

@@ -9,7 +9,7 @@ class Top10Chart::Component < ViewComponent::Base
     @field = field
     @period = period
     @sort = sort
-    @calc = calc
+    @calc = ActiveSupport::StringInquirer.new(calc)
   end
   attr_accessor :field, :period, :sort, :calc
 

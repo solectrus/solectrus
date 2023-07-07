@@ -61,14 +61,14 @@ class PowerTop10 < Flux::Reader
 
   def default_cache_options
     # Performing the peak query is slow, so we cache the results for longer
-    { expires_in: calc.peak? ? 2.hours : 10.minutes }
+    { expires_in: calc.max? ? 2.hours : 10.minutes }
   end
 
   def first_aggregate_window
     if calc.sum?
       # Average per hour (to get kWh)
       'aggregateWindow(every: 1h, fn: mean)'
-    elsif calc.peak?
+    elsif calc.max?
       # Average per 5 minutes (unfortunately this is a bit slow)
       'aggregateWindow(every: 5m, fn: mean)'
     end
@@ -78,7 +78,7 @@ class PowerTop10 < Flux::Reader
     if calc.sum?
       # Sum up the hours for the given period
       'sum'
-    elsif calc.peak?
+    elsif calc.max?
       # Calc maximum for the given period
       'max'
     end
