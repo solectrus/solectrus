@@ -18,7 +18,6 @@
             span class= value_classes_outside(record)
               = Number::Component.new(value: record[:value]).to_watt_hour
 
-- unless sort.desc?
-  p.mt-5.text-slate-400.text-right.text-sm
-    i.fa.fas.fa-circle-info.fa-lg.mr-2
-    = t('.note')
+p.mt-5.text-slate-400.text-right.text-sm
+  i.fa.fas.fa-circle-info.fa-lg.mr-2
+  = note

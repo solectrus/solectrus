@@ -157,4 +157,12 @@ class Top10Chart::Component < ViewComponent::Base
       value.year.to_s
     end
   end
+
+  def note
+    result = []
+    result << t('.note_max') if calc.max?
+    result << t('.note_sum') if calc.sum?
+    result << t('.note_asc') if sort.asc?
+    safe_join(result, '. ')
+  end
 end
