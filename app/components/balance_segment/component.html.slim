@@ -6,7 +6,8 @@
           data: { \
             controller: 'tippy',
             tippy_placement_value: (parent.side == :left ? 'right' : 'left'),
-            tippy_non_touch_only_value: true,
+            tippy_force_tap_to_close_value: false,
+            tippy_touch_value: 'long',
             turbo_frame: 'chart',
             turbo_action: 'replace',
             action: 'stats-with-chart--component#startLoop',

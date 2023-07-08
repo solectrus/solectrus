@@ -1,20 +1,24 @@
 class Top10Chart::Component < ViewComponent::Base
-  def initialize(field:, period:, sort:)
+  def initialize(field:, period:, sort:, calc:)
     raise ArgumentError, 'field must be present' if field.blank?
     raise ArgumentError, 'period must be present' if period.blank?
+    raise ArgumentError, 'sort must be present' if sort.blank?
+    raise ArgumentError, 'calc must be present' if calc.blank?
 
     super
     @field = field
     @period = period
     @sort = sort
+    @calc = ActiveSupport::StringInquirer.new(calc)
   end
-  attr_accessor :field, :period, :sort
+  attr_accessor :field, :period, :sort, :calc
 
   def top10
     @top10 ||=
       PowerTop10.new(
         field:,
         measurements: [Rails.configuration.x.influx.measurement_pv],
+        calc:,
         desc: sort.desc?,
       )
   end
@@ -152,5 +156,13 @@ class Top10Chart::Component < ViewComponent::Base
     when 'year'
       value.year.to_s
     end
+  end
+
+  def note
+    result = []
+    result << t('.note_max') if calc.max?
+    result << t('.note_sum') if calc.sum?
+    result << t('.note_asc') if sort.asc?
+    safe_join(result, '. ')
   end
 end

@@ -36,7 +36,7 @@ class Number::Component < ViewComponent::Base
 
     styled_number(
       formatted_number(value, max_precision:),
-      unit: '€',
+      unit: '&euro;'.html_safe,
       klass: klass || (value.negative? ? %w[text-red-500] : %w[text-green-500]),
     )
   end
@@ -46,7 +46,7 @@ class Number::Component < ViewComponent::Base
 
     styled_number(
       formatted_number(value, max_precision: 4),
-      unit: '€/kWh',
+      unit: '&euro;/kWh'.html_safe,
       klass: klass || (value.negative? ? %w[text-red-500] : %w[text-green-500]),
     )
   end
@@ -64,7 +64,10 @@ class Number::Component < ViewComponent::Base
   def to_grad_celsius(max_precision: 1)
     return unless value
 
-    styled_number(formatted_number(value, max_precision:), unit: '°C')
+    styled_number(
+      formatted_number(value, max_precision:),
+      unit: '&deg;C'.html_safe,
+    )
   end
 
   private

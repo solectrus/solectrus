@@ -47,13 +47,13 @@ describe PowerChart do
       context 'when timeframe is "now"' do
         let(:timeframe) { Timeframe.now }
 
-        it { is_expected.to have(1.hour / 5.seconds).items }
+        it { is_expected.to have(1.hour / 20.seconds).items }
 
         it 'contains last data point' do
           last = result.last
 
           expect(last[1]).to eq(14.0)
-          expect(last[0]).to be_within(5.seconds).of(Time.current)
+          expect(last[0]).to be_within(20.seconds).of(Time.current)
         end
       end
 
@@ -93,13 +93,13 @@ describe PowerChart do
         describe 'bat_power_plus' do
           subject(:result) { call['bat_power_plus'] }
 
-          it { is_expected.to have(1.hour / 5.seconds).items }
+          it { is_expected.to have(1.hour / 20.seconds).items }
 
           it 'contains last data point' do
             last = result.last
 
             expect(last[1]).to eq(2.0)
-            expect(last[0]).to be_within(5.seconds).of(Time.current)
+            expect(last[0]).to be_within(20.seconds).of(Time.current)
           end
         end
       end

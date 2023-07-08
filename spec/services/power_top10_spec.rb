@@ -5,6 +5,7 @@ describe PowerTop10 do
     described_class.new(
       field: 'inverter_power',
       measurements: [measurement],
+      calc:,
       desc:,
     )
   end
@@ -41,6 +42,7 @@ describe PowerTop10 do
 
   context 'when descending' do
     let(:desc) { true }
+    let(:calc) { 'sum' }
 
     describe '#years' do
       subject { chart.years }
@@ -73,6 +75,7 @@ describe PowerTop10 do
 
   context 'when ascending' do
     let(:desc) { false }
+    let(:calc) { 'max' }
 
     describe '#years' do
       subject { chart.years }

@@ -21,7 +21,7 @@ en:
     bat_power_minus: Battery discharge
     bat_power_plus: Battery charge
     bat_power: Battery
-    bat_fuel_charge: Battery level
+    bat_fuel_charge: Battery
     autarky: Autarky
     consumption: Consume
     case_temp: Temperature

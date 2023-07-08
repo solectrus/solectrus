@@ -16,10 +16,12 @@ import {
   ChartOptions,
   ChartType,
   ChartData,
+  ChartDataset,
 } from 'chart.js';
 
 import 'chartjs-adapter-date-fns';
 import de from 'date-fns/locale/de';
+import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
 
 Chart.register(
   LineElement,
@@ -111,10 +113,11 @@ export default class extends Controller<HTMLCanvasElement> {
       options.scales.y.ticks.callback = (value) =>
         typeof value === 'number' ? this.formattedNumber(value) : value;
 
+    const max = this.maxOf(data);
     const min = this.minOf(data);
     if (min < 0) {
       // Disable auto-scaling if there are negative values
-      options.scales.y.max = this.maxOf(data);
+      options.scales.y.max = max;
       options.scales.y.min = min;
 
       // Draw x-axis in black
@@ -153,11 +156,62 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
+    if (max >= min)
+      data.datasets.forEach((dataset: ChartDataset) => {
+        // Non-Overlapping line charts should have a larger gradient (means lower opacity)
+        const minAlpha =
+          this.typeValue === 'line' && !this.isOverlapping(data.datasets)
+            ? 0.04
+            : 0.4;
+
+        if (dataset.data)
+          this.setBackgroundGradient(dataset, min, max, minAlpha);
+      });
+
     this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
       data,
       options,
     });
+  }
+
+  setBackgroundGradient(
+    dataset: ChartDataset,
+    min: number,
+    max: number,
+    minAlpha: number,
+  ) {
+    // Remmeber original color
+    const originalColor = dataset.backgroundColor as string;
+
+    const extent = min < 0 ? Math.abs(max) + Math.abs(min) : max;
+    const basePosition = max / extent;
+    const isNegative = dataset.data.some(
+      (value) => typeof value === 'number' && value < 0,
+    );
+
+    const datasetMin = this.minOfDataset(dataset);
+    const datasetMax = this.maxOfDataset(dataset);
+    const datasetExtent =
+      datasetMin < 0 ? Math.abs(datasetMax) + Math.abs(datasetMin) : datasetMax;
+
+    const backgroundGradient = new ChartBackgroundGradient(
+      originalColor,
+      isNegative,
+      basePosition,
+      datasetExtent / extent,
+      minAlpha,
+    );
+
+    // Replace background color with gradient
+    dataset.backgroundColor = (context: { chart: Chart; type: string }) => {
+      const { ctx, chartArea } = context.chart;
+
+      if (chartArea) return backgroundGradient.canvasGradient(ctx, chartArea);
+    };
+
+    // Use original color for border
+    dataset.borderColor = originalColor;
   }
 
   private getData(): ChartData | undefined {
@@ -197,7 +251,51 @@ export default class extends Controller<HTMLCanvasElement> {
         // Map all data into a single array
         .flatMap((dataset) => dataset.data)
         // Remove NULL values
-        .filter((x) => x) as number[] | number[][]
+        .filter((x) => x) as number[]
     );
+  }
+
+  private minOfDataset(dataset: ChartDataset) {
+    const mapped = dataset.data
+      .map((value) => (Array.isArray(value) ? Math.min(...value) : value))
+      .filter((x) => x) as number[];
+
+    return Math.min(...mapped);
+  }
+
+  private maxOfDataset(dataset: ChartDataset) {
+    const mapped = dataset.data
+      .map((value) => (Array.isArray(value) ? Math.max(...value) : value))
+      .filter((x) => x) as number[];
+
+    return Math.max(...mapped);
+  }
+
+  private isOverlapping(datasets: ChartDataset[]) {
+    if (datasets.length <= 1) return false;
+    if (datasets.length > 2) return true;
+
+    if (!datasets[0].data || !datasets[1].data) return false;
+
+    const data1 = datasets[0].data.filter((x) => x);
+    const data2 = datasets[1].data.filter((x) => x);
+
+    const firstAllPositive = data1.every(
+      (value) => typeof value === 'number' && value >= 0,
+    );
+    const secondAllNegative = data2.every(
+      (value) => typeof value === 'number' && value <= 0,
+    );
+    if (firstAllPositive && secondAllNegative) return false;
+
+    const firstAllNegative = data1.every(
+      (value) => typeof value === 'number' && value <= 0,
+    );
+    const secondAllPositive = data2.every(
+      (value) => typeof value === 'number' && value >= 0,
+    );
+    if (firstAllNegative && secondAllPositive) return false;
+
+    return true;
   }
 }

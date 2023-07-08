@@ -13,24 +13,20 @@ class MinMaxChart < Flux::Reader
     when :now
       chart_single start: 1.hour.ago,
                    stop: 1.second.since,
-                   window: '5s',
+                   window: WINDOW[timeframe.id],
                    fill: true
     when :day
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
-                   window: '5m'
+                   window: WINDOW[timeframe.id]
     when :week, :month
       chart_minmax start: timeframe.beginning,
                    stop: timeframe.ending,
-                   window: '1d'
-    when :year
+                   window: WINDOW[timeframe.id]
+    when :year, :all
       chart_minmax_global start: timeframe.beginning,
                           stop: timeframe.ending,
-                          window: '1mo'
-    when :all
-      chart_minmax_global start: timeframe.beginning,
-                          stop: timeframe.ending,
-                          window: '1y'
+                          window: WINDOW[timeframe.id]
     end
   end
 

@@ -39,7 +39,7 @@ describe MinMaxChart do
         expect(result).to be_a(Hash)
 
         expect(result['bat_fuel_charge']).to be_a(Array)
-        expect(result['bat_fuel_charge'].size).to eq(60.minutes / 5.seconds)
+        expect(result['bat_fuel_charge'].size).to eq(60.minutes / 20.seconds)
 
         first_point = result['bat_fuel_charge'].first
         expect(first_point.last).to eq(60)

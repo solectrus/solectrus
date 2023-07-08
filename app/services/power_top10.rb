@@ -1,11 +1,13 @@
 class PowerTop10 < Flux::Reader
-  def initialize(field:, measurements:, desc:)
-    super(fields: [field], measurements:)
-    @desc = desc
+  def initialize(field:, measurements:, desc:, calc:)
     @field = field
+    @calc = ActiveSupport::StringInquirer.new(calc)
+    @desc = desc
+
+    super(fields: [field], measurements:)
   end
 
-  attr_reader :field, :desc
+  attr_reader :field, :calc, :desc
 
   def days
     top start: start(:day), stop: stop(:day), window: '1d'
@@ -58,7 +60,28 @@ class PowerTop10 < Flux::Reader
   end
 
   def default_cache_options
-    { expires_in: 10.minutes }
+    # Performing the peak query is slow, so we cache the results for longer
+    { expires_in: calc.max? ? 2.hours : 10.minutes }
+  end
+
+  def first_aggregate_window
+    if calc.sum?
+      # Average per hour (to get kWh)
+      'aggregateWindow(every: 1h, fn: mean)'
+    elsif calc.max?
+      # Average per 5 minutes (unfortunately this is a bit slow)
+      'aggregateWindow(every: 5m, fn: mean)'
+    end
+  end
+
+  def second_aggregate
+    if calc.sum?
+      # Sum up the hours for the given period
+      'sum'
+    elsif calc.max?
+      # Calc maximum for the given period
+      'max'
+    end
   end
 
   def build_query(start:, stop:, window:, limit:, offset:)
@@ -69,8 +92,8 @@ class PowerTop10 < Flux::Reader
         |> #{range(start:, stop:)}
         |> #{measurements_filter}
         |> #{fields_filter}
-        |> aggregateWindow(every: 1h, fn: mean)
-        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: sum, location: #{location})
+        |> #{first_aggregate_window}
+        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
         |> filter(fn: (r) => r._value > 0)
         |> sort(columns: ["_value"], desc: #{desc})
         |> limit(n: #{limit})

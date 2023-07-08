@@ -11,21 +11,17 @@ class AutarkyChart < Flux::Reader
     when :now
       chart_single start: 60.minutes.ago,
                    stop: 1.second.since,
-                   window: '5s',
+                   window: WINDOW[timeframe.id],
                    fill: true
     when :day
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
-                   window: '5m',
+                   window: WINDOW[timeframe.id],
                    fill:
-    when :week, :month
-      chart_sum start: timeframe.beginning, stop: timeframe.ending, window: '1d'
-    when :year
+    when :week, :month, :year, :all
       chart_sum start: timeframe.beginning,
                 stop: timeframe.ending,
-                window: '1mo'
-    when :all
-      chart_sum start: timeframe.beginning, stop: timeframe.ending, window: '1y'
+                window: WINDOW[timeframe.id]
     end
   end
 

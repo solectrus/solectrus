@@ -130,11 +130,7 @@ export default class extends Controller {
     if (!this.currentValue) return;
     if (!this.chart) return;
 
-    // Remove oldest point (label + value in all datasets)
-    this.chart.data.labels?.shift();
-    this.chart.data.datasets.forEach((dataset) => {
-      dataset.data.shift();
-    });
+    this.removeOutdatedPoints();
 
     // Add new point
     // First, add the current time as a label
@@ -153,6 +149,23 @@ export default class extends Controller {
 
     // Redraw the chart
     this.chart.update();
+  }
+
+  // Remove oldest point (when older than one hour)
+  removeOutdatedPoints() {
+    if (!this.chart?.data.labels) return;
+
+    const oldestLabel = this.chart.data.labels[0];
+    const oldestDate = new Date(oldestLabel as Date).getTime();
+    const now = new Date().getTime();
+    const diffInSeconds = (now - oldestDate) / 1000;
+    if (diffInSeconds <= 3600) return;
+
+    // Remove label + value in all datasets
+    this.chart.data.labels?.shift();
+    this.chart.data.datasets.forEach((dataset) => {
+      dataset.data.shift();
+    });
   }
 
   async reloadFrames(options: { chart: boolean }) {

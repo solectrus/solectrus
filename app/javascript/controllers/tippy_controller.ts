@@ -9,15 +9,22 @@ export default class extends Controller {
       default: 'bottom',
     },
 
-    // Show tooltip only on non-touch devices
-    nonTouchOnly: {
+    // Show tooltip only on touch devices, can be "true", "false" or "long"
+    touch: {
+      type: String,
+      default: 'true',
+    },
+
+    // Force second tap (on touch device) to close tooltip
+    forceTapToClose: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   };
 
   declare placementValue: BasePlacement;
-  declare nonTouchOnlyValue: boolean;
+  declare touchValue: 'true' | 'false' | 'long';
+  declare forceTapToCloseValue: boolean;
 
   static targets = ['html'];
 
@@ -26,11 +33,8 @@ export default class extends Controller {
   declare readonly htmlTargets: HTMLElement[];
 
   private instance: Instance | undefined;
-  private onClick: ((event: Event) => void) | undefined;
 
   connect() {
-    if (this.nonTouchOnlyValue && this.isTouchDevice) return;
-
     const title = this.element.getAttribute('title');
     const content = (this.hasHtmlTarget && this.htmlTarget.innerHTML) || title;
     if (!content) return;
@@ -43,6 +47,7 @@ export default class extends Controller {
       theme: 'light-border',
       animation: 'scale',
       hideOnClick: false,
+      touch: this.touch,
 
       // Prevent click on tooltip from triggering click on target
       onShown: () => this.toggleActiveTippy(true),
@@ -58,18 +63,29 @@ export default class extends Controller {
 
   disconnect() {
     if (this.instance) this.instance.destroy();
-
-    // Remove click listener
-    if (this.onClick) this.element.removeEventListener('click', this.onClick);
   }
 
   toggleActiveTippy = (value: boolean) => {
     if (!this.isTouchDevice) return;
+    if (!this.forceTapToCloseValue) return;
 
     document.body.classList.toggle('active-tippy', value);
   };
 
-  get isTouchDevice() {
+  get isTouchDevice(): boolean {
     return 'ontouchstart' in window;
+  }
+
+  get touch(): boolean | ['hold', number] {
+    switch (this.touchValue) {
+      case 'true':
+        return true;
+      case 'false':
+        return false;
+      case 'long':
+        return ['hold', 500];
+      default:
+        return false;
+    }
   }
 }

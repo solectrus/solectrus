@@ -54,9 +54,10 @@ html lang="de"
 
     - if Rails.env.test?
       // Load Sinon from CDN
+      // https://cdnjs.com/libraries/sinon.js
       script[
-        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/15.1.0/sinon.min.js'
-        integrity= 'sha512-OHdvQ+mR64d52bYAfnIPJ2rl3uiWjRH/50SWMUlm2i+L1L8zJlkrWRpBUqb0WqmUddWR+Rp2lgS1NTSEjbA12Q=='
+        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/15.2.0/sinon.min.js'
+        integrity= 'sha512-Wx4TyMUiY+gKzeAK7+u5f0ZMN2OEFtOKB5RttIPOH9iP3hYAck3PgdgXy+j8aNP0c4IdQOoyf5d/ApV+N8LptQ=='
         crossorigin= 'anonymous'
         referrerpolicy= 'no-referrer'
       ]
@@ -81,7 +82,7 @@ html lang="de"
       = c.with_sub_nav { yield :sub_nav } if content_for?(:sub_nav)
 
     main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:max-h-[700px]' : 'lg:flex-initial')
-      .max-w-7xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
+      .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
         .bg-white.sm:rounded-t-lg.lg:rounded-lg.lg:shadow.p-4.pb-2.sm:p-5.sm:px-6.flex-auto.flex.flex-col
           = yield
       = turbo_frame_tag 'modal', target: '_top'
@@ -90,7 +91,7 @@ html lang="de"
       .w-full.bg-indigo-600.z-10.lg:hidden
         = yield :bottom_nav
 
-    footer.hidden.lg:flex.max-w-7xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
+    footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
       div
         = link_to 'https://solectrus.de',
                   class: 'tracking-wider',

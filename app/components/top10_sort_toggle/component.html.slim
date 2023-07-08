@@ -1,7 +1,10 @@
 = link_to url_for(**helpers.permitted_params.merge(sort: desc? ? 'asc' : 'desc', only_path: true)),
-          class: 'px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm text-sm font-medium ' \
-                 'hover:bg-gray-50 ' \
+          class: 'h-full flex items-center px-4 py-2 bg-gray-200 text-gray-900 rounded-md shadow-sm font-medium text-sm ' \
+                 'hover:bg-white ' \
                  'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500',
           title: t('.title'),
-          data: { controller: 'tippy' } do
+          data: { \
+            controller: 'tippy',
+            tippy_touch_value: false,
+          } do
   i.fas.fa-lg class= (desc? ? 'fa-arrow-down-wide-short' : 'fa-arrow-down-short-wide')

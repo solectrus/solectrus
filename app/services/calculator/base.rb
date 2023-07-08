@@ -50,7 +50,7 @@ class Calculator::Base
   # Grid
 
   def feeding?
-    return if [grid_power_plus, grid_power_minus].compact.max < 50
+    return false if [grid_power_plus, grid_power_minus].compact.max < 50
 
     grid_power_minus > grid_power_plus
   end
