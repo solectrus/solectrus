@@ -1,5 +1,5 @@
 de:
   note_asc: Es werden nur vollständige Perioden berücksichtigt.
   note_sum: Aufsummierte Energie
-  note_max: Maximale Leistung
+  note_max: Maximale Leistung (Mittelwert über fünf Minuten)
   blank: Nicht genügend Daten vorhanden.

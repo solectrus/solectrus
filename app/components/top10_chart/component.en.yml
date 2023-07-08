@@ -1,5 +1,5 @@
 en:
   note_asc: Only complete periods are considered.
   note_sum: Summed energy
-  note_max: Maximum power
+  note_max: Maximum power (average over five minutes)
   blank: Not enough data available.
