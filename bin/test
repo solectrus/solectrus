@@ -1,5 +1,53 @@
-yarn lint && \
-slim-lint . && \
-bin/rubocop && \
-DISABLE_SPRING=1 bin/rspec && \
+#!/bin/bash
+
+# ESLint
+bin/yarn lint &
+eslint_pid=$!
+
+# Slim-Lint
+bundle exec slim-lint . &
+slimlint_pid=$!
+
+# RuboCop
+bin/rubocop --parallel &
+rubocop_pid=$!
+
+# RSpec
+DISABLE_SPRING=1 bin/rspec &
+rspec_pid=$!
+
+# Wait for all background processes to finish
+wait $eslint_pid
+eslint_exit_code=$?
+
+wait $slimlint_pid
+slimlint_exit_code=$?
+
+wait $rubocop_pid
+rubocop_exit_code=$?
+
+wait $rspec_pid
+rspec_exit_code=$?
+
+# Check exit codes and exit with the first non-zero exit code encountered
+if [ $eslint_exit_code -ne 0 ]; then
+    echo "ESLint failed"
+    exit $eslint_exit_code
+fi
+
+if [ $slimlint_exit_code -ne 0 ]; then
+    echo "Slim-Lint failed"
+    exit $slimlint_exit_code
+fi
+
+if [ $rubocop_exit_code -ne 0 ]; then
+    echo "RuboCop failed!"
+    exit $rubocop_exit_code
+fi
+
+if [ $rspec_exit_code -ne 0 ]; then
+    echo "RSpec failed"
+    exit $rspec_exit_code
+fi
+
 DISABLE_SPRING=1 RAILS_ENV=test bin/rake cypress:run
