@@ -78,6 +78,12 @@ ESLint:
 bin/yarn lint
 ```
 
+TypeScript:
+
+```
+bin/yarn tsc
+```
+
 There is a shortcut to run **all** test and linting tools:
 
 ```bash
