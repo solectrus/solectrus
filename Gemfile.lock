@@ -92,7 +92,7 @@ GEM
     crass (1.0.6)
     css_parser (1.14.0)
       addressable
-    cypress-rails (0.6.0)
+    cypress-rails (0.6.1)
       puma (>= 3.8.0)
       railties (>= 5.2.0)
     date (3.3.3)
