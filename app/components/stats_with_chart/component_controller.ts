@@ -192,8 +192,8 @@ export default class extends Controller {
 
   get currentElement(): HTMLElement | undefined {
     // Select the current element from the currentTargets (by comparing field)
-    const targets = this.currentTargets.filter((t) =>
-      t.dataset.field?.startsWith(this.effectiveField),
+    const targets = this.currentTargets.filter(
+      (t) => t.dataset.field?.startsWith(this.effectiveField),
     );
 
     if (targets.length)
