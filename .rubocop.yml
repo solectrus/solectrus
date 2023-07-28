@@ -1,3 +1,6 @@
+inherit_from:
+  - node_modules/@prettier/plugin-ruby/rubocop.yml
+
 require:
   - rubocop-performance
   - rubocop-rails
@@ -56,17 +59,12 @@ Metrics/BlockLength:
 Metrics/ClassLength:
   Max: 150
 
-Metrics/ParameterLists:
-  Max: 6
-
-### Layout
-
-Layout:
-  Enabled: false
-
 Layout/LineLength:
   Max: 190
   AllowedPatterns: ['\A#'] # Allow long comments
+
+Metrics/ParameterLists:
+  Max: 6
 
 ### Style
 
@@ -127,21 +125,6 @@ Style/FormatStringToken:
     - config/routes.rb
 
 Style/RequireOrder:
-  Enabled: false
-
-Style/TrailingCommaInArrayLiteral:
-  Enabled: false
-
-Style/TrailingCommaInArguments:
-  Enabled: false
-
-Style/TrailingCommaInHashLiteral:
-  Enabled: false
-
-Style/EmptyMethod:
-  EnforcedStyle: expanded
-
-Style/Lambda:
   Enabled: false
 
 # Lint
