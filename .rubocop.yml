@@ -54,10 +54,13 @@ Metrics/MethodLength:
   Max: 50
 
 Metrics/BlockLength:
-  Max: 100
+  Max: 110
 
 Metrics/ClassLength:
   Max: 150
+
+Metrics/ModuleLength:
+  Max: 110
 
 Layout/LineLength:
   Max: 190
@@ -125,6 +128,9 @@ Style/FormatStringToken:
     - config/routes.rb
 
 Style/RequireOrder:
+  Enabled: false
+
+Style/MultilineMethodSignature:
   Enabled: false
 
 # Lint

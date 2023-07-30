@@ -1,5 +1,4 @@
 class Button::Component < ViewComponent::Base
-  # rubocop:disable Style/MultilineMethodSignature
   def initialize(
     path: nil,
     title: nil,
@@ -8,7 +7,6 @@ class Button::Component < ViewComponent::Base
     style: nil,
     options: {}
   )
-    # rubocop:enable Style/MultilineMethodSignature
     super
 
     if title.nil? && icon.nil?

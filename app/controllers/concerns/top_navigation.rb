@@ -52,7 +52,11 @@ module TopNavigation
     end
 
     def about_item
-      { name: t('layout.about'), href: 'https://solectrus.de' }
+      {
+        name: t('layout.about'),
+        href: 'https://solectrus.de',
+        target: '_blank',
+      }
     end
 
     def faq_item
@@ -60,6 +64,7 @@ module TopNavigation
         name: t('layout.faq'),
         icon: 'circle-question',
         href: 'https://solectrus.de/faq',
+        target: '_blank',
         alignment: :right,
       }
     end

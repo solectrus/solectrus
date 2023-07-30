@@ -7,10 +7,18 @@ class Nav::Top::Component < ViewComponent::Base
   end
 
   class ItemComponent < ViewComponent::Base
-    def initialize(name:, href:, data: nil, icon: nil, alignment: nil)
+    def initialize(
+      name:,
+      href:,
+      target: nil,
+      data: nil,
+      icon: nil,
+      alignment: nil
+    )
       super
       @name = name
       @href = href
+      @target = target
       @data = data || {}
       @icon = icon
       @alignment = alignment || :left
@@ -24,7 +32,7 @@ class Nav::Top::Component < ViewComponent::Base
           (@href.include?('top10') && controller_name == 'top10')
     end
 
-    attr_reader :name
+    attr_reader :name, :target
 
     def current?
       @is_current
@@ -61,10 +69,6 @@ class Nav::Top::Component < ViewComponent::Base
               'aria-current' => current? ? 'page' : nil do
         icon ? tag.i(class: "fa fa-#{@icon} fa-lg") : name
       end
-    end
-
-    def target
-      @href.start_with?('http') ? '_blank' : nil
     end
   end
 end
