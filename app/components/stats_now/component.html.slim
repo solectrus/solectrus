@@ -8,6 +8,11 @@
               data: { \
                 turbo_frame: 'chart',
                 turbo_action: 'replace',
+                'stats-with-chart--component-target': 'current',
+                field: 'autarky',
+                value: calculator.autarky,
+                action: 'stats-with-chart--component#startLoop',
+                stats_with_chart__component_field_param: 'autarky',
               } do
       div data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
@@ -19,6 +24,11 @@
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',
+                  'stats-with-chart--component-target': 'current',
+                  field: 'consumption',
+                  value: calculator.consumption_quote,
+                  action: 'stats-with-chart--component#startLoop',
+                  stats_with_chart__component_field_param: 'consumption',
                 } do
         div data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
@@ -33,6 +43,11 @@
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',
+                  'stats-with-chart--component-target': 'current',
+                  field: 'case_temp',
+                  value: calculator.case_temp,
+                  action: 'stats-with-chart--component#startLoop',
+                  stats_with_chart__component_field_param: 'case_temp',
                 } do
         = render RadialBadge::Component.new(title: t('senec.case_temp')) do
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
@@ -41,5 +56,10 @@
               data: { \
                 turbo_frame: 'chart',
                 turbo_action: 'replace',
+                'stats-with-chart--component-target': 'current',
+                field: 'bat_fuel_charge',
+                value: calculator.bat_fuel_charge,
+                action: 'stats-with-chart--component#startLoop',
+                stats_with_chart__component_field_param: 'bat_fuel_charge',
               } do
       = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
