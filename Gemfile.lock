@@ -73,6 +73,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.16.0)
       msgpack (~> 1.2)
+    brakeman (6.0.1)
     brotli (0.4.0)
     builder (3.2.4)
     capybara (3.39.2)
@@ -404,6 +405,7 @@ PLATFORMS
 DEPENDENCIES
   annotaterb
   bootsnap
+  brakeman
   capybara (>= 3.26)
   cypress-rails
   dotenv-rails

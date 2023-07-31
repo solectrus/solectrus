@@ -87,6 +87,9 @@ group :development, :test do
 end
 
 group :development do
+  # Security vulnerability scanner for Ruby on Rails. (https://brakemanscanner.org)
+  gem 'brakeman'
+
   # A debugging tool for your Ruby on Rails applications. (https://github.com/rails/web-console)
   gem 'web-console'
 
