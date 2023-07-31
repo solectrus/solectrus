@@ -13,8 +13,9 @@ module TopNavigation
         # Right
         faq_item,
         settings_item,
+        registration_item,
         session_item,
-      ]
+      ].compact
     end
 
     def stats_item
@@ -56,6 +57,18 @@ module TopNavigation
         name: t('layout.about'),
         href: 'https://solectrus.de',
         target: '_blank',
+      }
+    end
+
+    def registration_item
+      return unless Rails.configuration.x.registration_required
+      return unless helpers.admin?
+
+      {
+        name: t('layout.registration'),
+        href: registration_path,
+        icon: 'id-card',
+        alignment: :right,
       }
     end
 

@@ -6,6 +6,10 @@ class Version
     new.latest
   end
 
+  def self.clear_cache
+    new.clear_cache
+  end
+
   def latest
     return cached_version if cached?
 
@@ -35,6 +39,10 @@ class Version
 
   def cached?
     Rails.cache.exist?(cache_key)
+  end
+
+  def clear_cache
+    Rails.cache.delete(cache_key)
   end
 
   private

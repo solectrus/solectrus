@@ -5,6 +5,10 @@ class UserAgent
     "#{app_name}/#{version} (#{sysname}; #{machine}; #{kernel_release}; #{setup_id})"
   end
 
+  def setup_id
+    @setup_id ||= fetch_setup_id
+  end
+
   private
 
   def app_name
@@ -25,10 +29,6 @@ class UserAgent
 
   def machine
     Etc.uname[:machine]
-  end
-
-  def setup_id
-    @setup_id ||= fetch_setup_id
   end
 
   def fetch_setup_id

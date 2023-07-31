@@ -1,12 +1,8 @@
-describe UserAgent do
+describe UserAgent, with_setup_id: true do
   let(:user_agent) { described_class.instance }
 
   describe '#to_s' do
     before do
-      Price.electricity.create! created_at: '1970-01-01 00:00:00 +00:00',
-                                starts_at: '2020-01-01',
-                                value: 0.30
-
       allow(Etc).to receive(:uname).and_return(
         sysname: 'Linux',
         release: '6.1.0',
@@ -22,6 +18,12 @@ describe UserAgent do
       expect(user_agent.to_s).to eq(
         'SOLECTRUS/v1.0.0 (Linux; aarch64; 6.1.0; 0)',
       )
+    end
+  end
+
+  describe '#setup_id' do
+    it 'returns the id' do
+      expect(user_agent.setup_id).to eq(0)
     end
   end
 end

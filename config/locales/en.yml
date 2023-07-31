@@ -5,6 +5,7 @@ en:
     about: About SOLECTRUS
     faq: FAQ
     settings: Settings
+    registration: My registration
     login: Login
     logout: Logout
     version_outdated: New version <strong>%{latest_version}</strong> available!

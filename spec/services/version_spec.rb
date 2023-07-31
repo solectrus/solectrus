@@ -49,5 +49,14 @@ describe Version do
         expect(described_class.new.cached?).to be false
       end
     end
+
+    it 'can be reset' do
+      # Fill the cache
+      VCR.use_cassette('version') { described_class.latest }
+
+      expect { described_class.clear_cache }.to change {
+        described_class.new.cached?
+      }.from(true).to(false)
+    end
   end
 end
