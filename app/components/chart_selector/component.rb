@@ -15,6 +15,8 @@ class ChartSelector::Component < ViewComponent::Base
         data: {
           'turbo-frame' => 'chart',
           'turbo-action' => 'replace',
+          'action' => 'stats-with-chart--component#startLoop',
+          'stats-with-chart--component-field-param' => field,
         },
       }
     end
