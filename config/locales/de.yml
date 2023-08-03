@@ -5,7 +5,7 @@ de:
     about: Über SOLECTRUS
     faq: Fragen & Antworten
     settings: Einstellungen
-    registration: Meine Registrierung
+    registration: Registrierung
     login: Anmelden
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!

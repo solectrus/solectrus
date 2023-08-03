@@ -1,19 +1,18 @@
-class Version
-  CHECK_URL = 'https://update.solectrus.de'.freeze
-  public_constant :CHECK_URL
+class UpdateCheck
+  include Singleton
 
-  def self.latest
-    new.latest
+  def version
+    latest['version']
   end
 
-  def self.clear_cache
-    new.clear_cache
+  def registration_status
+    latest['registration_status'].to_s.inquiry
   end
 
   def latest
-    return cached_version if cached?
+    return cached_latest if cached?
 
-    uri = URI(CHECK_URL)
+    uri = URI(URL)
     response =
       Net::HTTP.start(
         uri.host,
@@ -31,10 +30,10 @@ class Version
         http.request(request)
       end
 
-    version_from(response) if response.is_a?(Net::HTTPSuccess)
+    json_from(response)
   rescue StandardError
     # Mainly ignore timeout errors, but other errors must not throw an exception
-    nil
+    {}
   end
 
   def cached?
@@ -45,17 +44,28 @@ class Version
     Rails.cache.delete(cache_key)
   end
 
-  private
+  def skip_registration
+    data = latest.merge!('registration_status' => 'skipped')
 
-  def version_from(response)
-    version = JSON.parse(response.body)['version']
-    expires_in = expiration_from(response) || 12.hours
-    Rails.cache.write(cache_key, version, expires_in:)
-    version
+    Rails.cache.write(cache_key, data, expires_in: 12.hours)
   end
 
-  def cached_version
+  private
+
+  URL = 'https://update.solectrus.de'.freeze
+  public_constant :URL
+
+  def cached_latest
     Rails.cache.read(cache_key)
+  end
+
+  def json_from(response)
+    return {} unless response.is_a?(Net::HTTPSuccess)
+
+    parsed_body = JSON.parse(response.body)
+    expires_in = expiration_from(response) || 12.hours
+    Rails.cache.write(cache_key, parsed_body, expires_in:)
+    parsed_body
   end
 
   def expiration_from(response)
@@ -63,6 +73,6 @@ class Version
   end
 
   def cache_key
-    ['Version.latest', Rails.configuration.x.git.commit_version]
+    ['UpdateCheck', Rails.configuration.x.git.commit_version]
   end
 end

@@ -63,12 +63,16 @@ module TopNavigation
     def registration_item
       return unless Rails.configuration.x.registration_required
       return unless helpers.admin?
+      return if helpers.registration_banner?
 
       {
         name: t('layout.registration'),
         href: registration_path,
         icon: 'id-card',
         alignment: :right,
+        data: {
+          turbo: 'false',
+        },
       }
     end
 

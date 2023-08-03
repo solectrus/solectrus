@@ -1,11 +1,15 @@
 class RegistrationController < ApplicationController
   def show
     if admin? && Rails.configuration.x.registration_required
-      if status_present?
-        Version.clear_cache
-        redirect_to(root_path)
-      else
+      case params[:status]
+      when nil
         redirect_to(registration_url, allow_other_host: true)
+      when 'skipped'
+        UpdateCheck.instance.skip_registration
+        redirect_back(fallback_location: root_path)
+      else
+        UpdateCheck.instance.clear_cache
+        redirect_to(root_path)
       end
     else
       redirect_to(root_path)
@@ -25,9 +29,5 @@ class RegistrationController < ApplicationController
   def return_to
     Base64.urlsafe_encode64 "#{request.protocol}#{request.host_with_port}",
                             padding: false
-  end
-
-  def status_present?
-    params[:status].present?
   end
 end
