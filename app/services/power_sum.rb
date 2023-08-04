@@ -3,7 +3,7 @@ class PowerSum < Flux::Reader
     @timeframe = timeframe
 
     if timeframe.id == :now
-      last(5.minutes.ago)
+      last(30.days.ago)
     else
       sum(timeframe:)
     end
@@ -14,7 +14,7 @@ class PowerSum < Flux::Reader
   def last(start)
     result = query <<-QUERY
       #{from_bucket}
-      |> #{range(start:, stop: 1.second.since)}
+      |> #{range(start:)}
       |> #{measurements_filter}
       |> #{fields_filter}
       |> last()
