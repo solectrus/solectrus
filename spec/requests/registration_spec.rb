@@ -1,4 +1,4 @@
-describe 'Registration', with_setup_id: true do
+describe 'Registration', with_setup_id: 0 do
   describe 'GET /registration' do
     context 'when registration required' do
       before do
