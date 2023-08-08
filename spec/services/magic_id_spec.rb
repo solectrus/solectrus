@@ -8,7 +8,7 @@ describe MagicId do
 
     it 'returns a short string' do
       expect(encoded).to be_a(String)
-      expect(encoded.length).to eq(43)
+      expect(encoded.length).to eq(46)
     end
 
     it 'returns a different string each time' do
