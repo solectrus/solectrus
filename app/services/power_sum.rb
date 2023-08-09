@@ -101,5 +101,7 @@ class PowerSum < Flux::Reader
     # Cache larger timeframes, but just for a short time
     return { expires_in: 1.day } if @timeframe&.all?
     return { expires_in: 1.hour } if @timeframe&.year?
+
+    nil
   end
 end

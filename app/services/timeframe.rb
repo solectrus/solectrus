@@ -32,11 +32,18 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def current?
-    return true if now? || all?
-    return date.today? if day?
-    return date.cweek == Date.current.cweek if week?
-    return date.month == Date.current.month if month?
-    return date.year == Date.current.year if year?
+    case id
+    when :now, :all
+      true
+    when :day
+      date.today?
+    when :week
+      date.cweek == Date.current.cweek
+    when :month
+      date.month == Date.current.month
+    when :year
+      date.year == Date.current.year
+    end
   end
 
   def past?
