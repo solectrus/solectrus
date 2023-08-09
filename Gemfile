@@ -3,6 +3,9 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.2.2'
 
+# URI is a module providing classes to handle Uniform Resource Identifiers (https://github.com/ruby/uri)
+gem 'uri', '>= 0.12.2'
+
 # Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 7.0.6'
 

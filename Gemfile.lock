@@ -370,6 +370,7 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.4.2)
+    uri (0.12.2)
     vcr (6.2.0)
     view_component (3.5.0)
       activesupport (>= 5.2.0, < 8.0)
@@ -441,6 +442,7 @@ DEPENDENCIES
   spring-commands-rspec
   stimulus-rails
   turbo-rails
+  uri (>= 0.12.2)
   vcr
   view_component
   vite_rails
