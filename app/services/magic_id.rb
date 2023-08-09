@@ -1,8 +1,9 @@
 class MagicId
-  def encode(number)
+  def encode(number, secret)
     raise ArgumentError unless number.is_a?(Integer)
+    raise ArgumentError unless secret.is_a?(String)
 
-    payload = number.to_s(36)
+    payload = [number.to_s(36), secret].compact.join(':')
     encrypt(payload)
   end
 

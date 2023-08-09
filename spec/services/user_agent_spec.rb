@@ -20,10 +20,4 @@ describe UserAgent, with_setup_id: 0 do
       )
     end
   end
-
-  describe '#setup_id' do
-    it 'returns the id' do
-      expect(user_agent.setup_id).to eq(0)
-    end
-  end
 end

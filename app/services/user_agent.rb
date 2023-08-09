@@ -5,10 +5,6 @@ class UserAgent
     "#{app_name}/#{version} (#{sysname}; #{machine}; #{kernel_release}; #{setup_id})"
   end
 
-  def setup_id
-    @setup_id ||= fetch_setup_id
-  end
-
   private
 
   def app_name
@@ -31,9 +27,7 @@ class UserAgent
     Etc.uname[:machine]
   end
 
-  def fetch_setup_id
-    return unless (record = Price.first)
-
-    record.created_at.to_i
+  def setup_id
+    Setting.setup_id
   end
 end

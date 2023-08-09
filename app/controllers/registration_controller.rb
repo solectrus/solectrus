@@ -23,7 +23,7 @@ class RegistrationController < ApplicationController
   end
 
   def magic_id
-    MagicId.new.encode(UserAgent.instance.setup_id)
+    MagicId.new.encode(Setting.setup_id, Setting.setup_token)
   end
 
   def return_to
