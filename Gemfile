@@ -114,8 +114,8 @@ group :development do
   # A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
   gem 'lookbook'
 
-  # A gem for generating annotations for Rails projects. (https://github.com/drwl/annotaterb)
-  gem 'annotaterb'
+  # Annotates Rails Models, routes, fixtures, and others based on the database schema. (https://github.com/ctran/annotate_models)
+  gem 'annotate'
 end
 
 group :test do

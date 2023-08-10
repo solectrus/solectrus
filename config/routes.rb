@@ -1,3 +1,23 @@
+# == Route Map
+#
+#      Prefix Verb   URI Pattern                                         Controller#Action
+#        root GET    /(:field)(/:timeframe)(.:format)                    home#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
+#       stats GET    /stats/:field(/:timeframe)(.:format)                stats#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
+#      charts GET    /charts/:field(/:timeframe)(.:format)               charts#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
+#       top10 GET    /top10(/:period)(/:field)(/:calc)(/:sort)(.:format) top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
+# top10_chart GET    /top10-chart/:period/:field/:calc/:sort(.:format)   top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
+# new_session GET    /login(.:format)                                    sessions#new
+#    sessions POST   /login(.:format)                                    sessions#create
+#     session DELETE /logout(.:format)                                   sessions#destroy
+#      prices GET    /settings/prices(.:format)                          prices#index
+#             POST   /settings/prices(.:format)                          prices#create
+#   new_price GET    /settings/prices/new(.:format)                      prices#new
+#  edit_price GET    /settings/prices/:id/edit(.:format)                 prices#edit
+#       price GET    /settings/prices/:id(.:format)                      prices#show
+#             PATCH  /settings/prices/:id(.:format)                      prices#update
+#             PUT    /settings/prices/:id(.:format)                      prices#update
+#             DELETE /settings/prices/:id(.:format)                      prices#destroy
+
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
