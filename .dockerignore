@@ -41,3 +41,4 @@ bin/setup
 bin/vite
 bin/yarn
 bin/test
+bin/open
