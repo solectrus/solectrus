@@ -68,6 +68,7 @@ Rails.application.routes.draw do
   get '/login', to: 'sessions#new', as: :new_session
   post '/login', to: 'sessions#create', as: :sessions
   delete '/logout', to: 'sessions#destroy', as: :session
+  get '/registration/(:status)', to: 'registration#show', as: :registration
 
   get '/favicon.ico', to: redirect('/favicon-196.png')
 

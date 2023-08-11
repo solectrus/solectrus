@@ -249,6 +249,9 @@ GEM
     rails-html-sanitizer (1.6.0)
       loofah (~> 2.21)
       nokogiri (~> 1.14)
+    rails-settings-cached (2.9.2)
+      activerecord (>= 5.0.0)
+      railties (>= 5.0.0)
     railties (7.0.7)
       actionpack (= 7.0.7)
       activesupport (= 7.0.7)
@@ -428,6 +431,7 @@ DEPENDENCIES
   rack-brotli
   rack-cors
   rails (~> 7.0.7)
+  rails-settings-cached
   redis
   rspec-collection_matchers
   rspec-rails

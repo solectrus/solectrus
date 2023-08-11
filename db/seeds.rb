@@ -7,3 +7,4 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 Price.seed! if Price.none?
+Setting.seed!

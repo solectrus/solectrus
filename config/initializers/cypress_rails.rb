@@ -36,8 +36,8 @@ CypressRails.hooks.after_server_start do
   # Called once, after the server has booted
 
   # Stub the version check so we don't have to hit the network
-  Version.class_eval do
-    def self.latest
+  UpdateCheck.class_eval do
+    def latest_version
       '1.0.0'
     end
   end

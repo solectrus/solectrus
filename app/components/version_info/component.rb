@@ -19,7 +19,7 @@ class VersionInfo::Component < ViewComponent::Base
   end
 
   def latest_version
-    @latest_version ||= Version.latest
+    @latest_version ||= UpdateCheck.instance.latest_version
   end
 
   private
