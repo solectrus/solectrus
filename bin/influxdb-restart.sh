@@ -31,7 +31,10 @@ DEFAULT_INFLUXDB_V2_VERSION="2.7-alpine"
 INFLUXDB_V2_VERSION="${INFLUXDB_V2_VERSION:-$DEFAULT_INFLUXDB_V2_VERSION}"
 INFLUXDB_V2_IMAGE=influxdb:${INFLUXDB_V2_VERSION}
 
-SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+SCRIPT_PATH="$(
+       cd "$(dirname "$0")"
+       pwd -P
+)"
 
 docker kill influxdb_v2 || true
 docker rm influxdb_v2 || true
