@@ -1,12 +1,8 @@
-describe UserAgent do
+describe UserAgent, with_setup_id: 0 do
   let(:user_agent) { described_class.instance }
 
   describe '#to_s' do
     before do
-      Price.electricity.create! created_at: '1970-01-01 00:00:00 +00:00',
-                                starts_at: '2020-01-01',
-                                value: 0.30
-
       allow(Etc).to receive(:uname).and_return(
         sysname: 'Linux',
         release: '6.1.0',

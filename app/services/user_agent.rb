@@ -28,12 +28,6 @@ class UserAgent
   end
 
   def setup_id
-    @setup_id ||= fetch_setup_id
-  end
-
-  def fetch_setup_id
-    return unless (record = Price.first)
-
-    record.created_at.to_i
+    Setting.setup_id
   end
 end

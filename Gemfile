@@ -30,6 +30,9 @@ gem 'redis'
 # Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
 gem 'bootsnap', require: false
 
+# The best solution for store global settings in Rails applications. (https://github.com/huacnlee/rails-settings-cached)
+gem 'rails-settings-cached'
+
 # Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
 gem 'slim-rails'
 
