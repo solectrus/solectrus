@@ -77,6 +77,10 @@ html lang="de"
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url && Rails.configuration.x.app_host)
   ]
+    - if registration_banner?
+      = render RegistrationBanner::Component.new registration_status: UpdateCheck.instance.registration_status,
+                                                 admin: admin?
+
     = render Nav::Top::Component.new do |c|
       = c.with_items topnav_items
       = c.with_sub_nav { yield :sub_nav } if content_for?(:sub_nav)

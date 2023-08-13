@@ -7,7 +7,7 @@
 }
 
 .radial-badge {
-  @apply relative inline-grid place-content-center rounded-full w-full;
+  @apply relative inline-grid w-full place-content-center rounded-full;
 }
 
 .radial-badge .inside {
@@ -21,7 +21,7 @@
 }
 
 .radial-badge .title {
-  @apply uppercase font-normal;
+  @apply font-normal uppercase;
 
   font-size: calc(var(--size) / 10);
 }
@@ -35,7 +35,7 @@
 @media screen(xl) {
   .radial-badge {
     --size: 6rem;
-    @apply box-content border-4 bg-transparent h-[var(--size)] w-[var(--size)];
+    @apply box-content h-[var(--size)] w-[var(--size)] border-4 bg-transparent;
   }
 
   .radial-badge:before,
@@ -47,7 +47,8 @@
   .radial-badge.percent:before {
     @apply inset-0;
 
-    background: radial-gradient(farthest-side, currentColor 98%, #0000)
+    background:
+      radial-gradient(farthest-side, currentColor 98%, #0000)
         top/var(--thickness) var(--thickness) no-repeat,
       conic-gradient(currentColor calc(var(--value) * 1%), #0000 0);
     mask: radial-gradient(

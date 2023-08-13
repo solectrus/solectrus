@@ -62,6 +62,10 @@ module Solectrus
     config.x.feed_in_tariff = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
 
     config.x.admin_password = ENV.fetch('ADMIN_PASSWORD', nil).presence
+    config.x.registration_required =
+      ActiveModel::Type::Boolean.new.cast(
+        ENV.fetch('REGISTRATION_REQUIRED', 'true'),
+      )
 
     # The 'X-Frame-Options' header should not be used.  A similar effect, with more consistent
     # support and stronger checks, can be achieved with the 'Content-Security-Policy' header

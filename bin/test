@@ -16,6 +16,9 @@ slimlint_pid=$!
 bin/rubocop --parallel &
 rubocop_pid=$!
 
+bundle exec brakeman &
+brakeman_pid=$!
+
 # RSpec
 DISABLE_SPRING=1 bin/rspec &
 rspec_pid=$!
@@ -32,6 +35,9 @@ slimlint_exit_code=$?
 
 wait $rubocop_pid
 rubocop_exit_code=$?
+
+wait $brakeman_pid
+brakeman_exit_code=$?
 
 wait $rspec_pid
 rspec_exit_code=$?
@@ -55,6 +61,11 @@ fi
 if [ $rubocop_exit_code -ne 0 ]; then
     echo "RuboCop failed!"
     exit $rubocop_exit_code
+fi
+
+if [ $brakeman_exit_code -ne 0 ]; then
+    echo "Brakeman failed!"
+    exit $brakeman_exit_code
 fi
 
 if [ $rspec_exit_code -ne 0 ]; then

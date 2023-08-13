@@ -13,8 +13,9 @@ module TopNavigation
         # Right
         faq_item,
         settings_item,
+        registration_item,
         session_item,
-      ]
+      ].compact
     end
 
     def stats_item
@@ -52,7 +53,27 @@ module TopNavigation
     end
 
     def about_item
-      { name: t('layout.about'), href: 'https://solectrus.de' }
+      {
+        name: t('layout.about'),
+        href: 'https://solectrus.de',
+        target: '_blank',
+      }
+    end
+
+    def registration_item
+      return unless Rails.configuration.x.registration_required
+      return unless helpers.admin?
+      return if helpers.registration_banner?
+
+      {
+        name: t('layout.registration'),
+        href: registration_path,
+        icon: 'id-card',
+        alignment: :right,
+        data: {
+          turbo: 'false',
+        },
+      }
     end
 
     def faq_item
@@ -60,6 +81,7 @@ module TopNavigation
         name: t('layout.faq'),
         icon: 'circle-question',
         href: 'https://solectrus.de/faq',
+        target: '_blank',
         alignment: :right,
       }
     end

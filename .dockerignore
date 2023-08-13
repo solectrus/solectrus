@@ -3,7 +3,6 @@
 .env*
 .eslintignore
 .eslintrc.js
-.foreman
 .git
 .github
 .gitignore
@@ -15,6 +14,7 @@
 .slim-lint.yml
 .prettierignore
 .prettierrc.json
+.simplecov
 **/*.DS_Store
 Brewfile
 Dockerfile
@@ -42,3 +42,4 @@ bin/setup
 bin/vite
 bin/yarn
 bin/test
+bin/open

@@ -44,7 +44,7 @@ class ChartLoader::Component < ViewComponent::Base
           grid: {
             drawOnChartArea: false,
           },
-          type: 'timeseries',
+          type: 'time',
           ticks:
             {
               now: {

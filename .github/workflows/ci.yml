@@ -62,6 +62,9 @@ jobs:
       - name: Lint with RuboCop
         run: bin/rubocop --parallel
 
+      - name: Brakeman security scan
+        run: bundle exec brakeman
+
       - name: Lint with ESLint
         run: bin/yarn lint
 

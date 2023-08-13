@@ -3,8 +3,11 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.2.2'
 
+# URI is a module providing classes to handle Uniform Resource Identifiers (https://github.com/ruby/uri)
+gem 'uri', '>= 0.12.2'
+
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.0.6'
+gem 'rails', '~> 7.0.7'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -26,6 +29,9 @@ gem 'redis'
 
 # Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
 gem 'bootsnap', require: false
+
+# The best solution for store global settings in Rails applications. (https://github.com/huacnlee/rails-settings-cached)
+gem 'rails-settings-cached'
 
 # Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
 gem 'slim-rails'
@@ -87,6 +93,9 @@ group :development, :test do
 end
 
 group :development do
+  # Security vulnerability scanner for Ruby on Rails. (https://brakemanscanner.org)
+  gem 'brakeman'
+
   # A debugging tool for your Ruby on Rails applications. (https://github.com/rails/web-console)
   gem 'web-console'
 
@@ -108,8 +117,8 @@ group :development do
   # A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
   gem 'lookbook'
 
-  # A gem for generating annotations for Rails projects. (https://github.com/drwl/annotaterb)
-  gem 'annotaterb'
+  # Annotates Rails Models, routes, fixtures, and others based on the database schema. (https://github.com/ctran/annotate_models)
+  gem 'annotate'
 end
 
 group :test do

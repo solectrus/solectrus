@@ -152,5 +152,7 @@ class MinMaxChart < Flux::Reader
     return { expires_in: 10.minutes } if @timeframe.month? || @timeframe.week?
     return { expires_in: 1.hour } if @timeframe.year?
     return { expires_in: 1.day } if @timeframe.all?
+
+    nil
   end
 end
