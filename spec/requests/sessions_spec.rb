@@ -1,7 +1,9 @@
 describe 'Sessions', vcr: { cassette_name: 'version' } do
+  let(:password) { 't0ps3cr3t' }
+
   before do
     allow(Rails.configuration.x).to receive(:admin_password).and_return(
-      't0ps3cr3t',
+      password,
     )
   end
 
@@ -21,14 +23,14 @@ describe 'Sessions', vcr: { cassette_name: 'version' } do
 
       expect(response).to have_http_status(:unauthorized)
       expect(response.body).to include(I18n.t('errors.messages.invalid'))
-      expect(response.body).not_to include('t0ps3cr3t')
+      expect(response.body).not_to include(password)
 
       jar = ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
       expect(jar.signed[:admin]).to be_nil
     end
 
     it 'set session and redirects for valid password' do
-      post '/login', params: { admin_user: { password: 't0ps3cr3t' } }
+      post '/login', params: { admin_user: { username: 'admin', password: } }
 
       expect(response).to redirect_to(root_path)
 
