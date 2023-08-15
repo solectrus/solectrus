@@ -41,7 +41,7 @@
     "eslint-plugin-cypress": "^2.14.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-tailwindcss": "^3.13.0",
-    "postcss": "^8.4.27",
+    "postcss": "^8.4.28",
     "prettier": "^3.0.1",
     "prettier-plugin-tailwindcss": "^0.5.3",
     "rollup": "^3.28.0",
