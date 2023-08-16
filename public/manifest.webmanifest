@@ -3,6 +3,7 @@
   "short_name": "SOLECTRUS",
   "description": "Photovoltaic Dashboard",
   "lang": "de",
+  "scope": "/",
   "start_url": "/",
   "background_color": "#4f46e5",
   "theme_color": "#a5b4fc",
