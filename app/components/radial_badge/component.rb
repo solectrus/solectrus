@@ -1,7 +1,8 @@
 class RadialBadge::Component < ViewComponent::Base
   def initialize(percent: nil, title: nil, neutral: false)
     if percent && (percent.negative? || percent > 100)
-      raise ArgumentError, 'percent must be between 0 and 100'
+      raise ArgumentError,
+            "percent must be between 0 and 100, got #{percent.inspect}"
     end
 
     super
