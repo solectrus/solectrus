@@ -7,7 +7,7 @@ ruby '3.2.2'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.0.7'
+gem 'rails', '~> 7.0.7', '>= 7.0.7.2'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
