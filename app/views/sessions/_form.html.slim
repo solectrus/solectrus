@@ -5,6 +5,9 @@
         = f.text_field :username, value: 'admin', autocomplete: 'username'
       = f.password_field :password, autofocus: true, autocomplete: 'current-password', required: true
 
+    p.text-xs.mt-3.text-gray-500
+      == t('login.password_hint')
+
     = f.actions do
       = f.submit t('login.submit')
 - else

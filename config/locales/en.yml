@@ -59,6 +59,7 @@ en:
   login:
     missing_password_error: Unable to log in because no password has been configured.
     missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
+    password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on the Docker host.
     submit: Login
   crud:
     new: New

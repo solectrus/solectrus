@@ -59,6 +59,7 @@ de:
   login:
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code>ADMIN_PASSWORD</code> ergänzt werden.
+    password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf dem Docker-Host.
     submit: Anmelden
   crud:
     new: Neu
