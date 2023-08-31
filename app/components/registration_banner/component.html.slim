@@ -1,7 +1,7 @@
 .bg-yellow-200.p-3.text-indigo-800.text-base
   .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8
-    - if admin
-      .flex.justify-between.items-center
+    .flex.justify-between.items-center
+      - if admin
         - if pending?
           = t('.pending')
 
@@ -12,6 +12,7 @@
           = render Button::Component.new(path: registration_path(status: 'skipped'), title: t('.skip'), style: :secondary)
           = render Button::Component.new(path: registration_path, title: t('.button'), icon: 'id-card', options: { data: { turbo: 'false' } })
 
-    - else
-      .text-center
+      - else
         = t('.login_to_register')
+
+        = render Button::Component.new(path: new_session_path, title: t('layout.login'), options: { data: { turbo_frame: 'modal' }})
