@@ -86,12 +86,25 @@ describe Calculator::Base do
 
     context 'with zero values' do
       before do
-        calculator.build_context house_power: 0,
+        calculator.build_context inverter_power: 0,
+                                 house_power: 0,
                                  wallbox_charge_power: 0,
                                  grid_power_plus: 0
       end
 
       it { is_expected.to be_nil }
+    end
+
+    context 'with zero grid_power_plus (maybe caused by balcony power plant)' do
+      before do
+        calculator.build_context house_power: 0,
+                                 wallbox_charge_power: 0,
+                                 inverter_power: 8_600,
+                                 grid_power_plus: 0,
+                                 grid_power_minus: 8_700
+      end
+
+      it { is_expected.to eq(100) }
     end
   end
 end
