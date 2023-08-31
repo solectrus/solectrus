@@ -58,7 +58,7 @@ en:
     unknown: No forecast available
   login:
     missing_password_error: Unable to log in because no password has been configured.
-    missing_password_hint: To enable administrator login, an entry for <code class="bg-slate-100 p-1 rounded">ADMIN_PASSWORD</code> must be added to the environment variables.
+    missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
     submit: Login
   crud:
     new: New
