@@ -48,7 +48,7 @@ body.active-tippy * {
   @apply pointer-events-none;
 }
 
-code {
+#modal code {
   @apply rounded bg-slate-100 px-1 py-px;
 }
 
