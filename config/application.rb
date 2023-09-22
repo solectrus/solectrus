@@ -28,7 +28,7 @@ module Solectrus
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    config.time_zone = 'Europe/Berlin'
+    config.time_zone = ENV.fetch('TZ', 'Europe/Berlin')
 
     # config.eager_load_paths << Rails.root.join("extras")
 
