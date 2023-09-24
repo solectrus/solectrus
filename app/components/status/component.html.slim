@@ -1,10 +1,11 @@
-time.flex.items-center.py-1.px-2.rounded.text-xs.bg-indigo-50.text-black.font-bold.tracking-wider.cursor-default.truncate[
+time.flex.items-center.py-1.px-2.rounded.text-xs.font-bold.tracking-wider.cursor-default.truncate[
   data-controller= (message.present? ? 'tippy' : nil)
   title= message
   datetime= time&.iso8601
+  class= outer_class
 ]
   span.whitespace-nowrap.uppercase.truncate
     = text
   span.ml-2.flex.h-3.w-3.relative
-    span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.opacity-75 class= background_classes[0]
-    span.relative.inline-flex.rounded-full.h-3.w-3 class= background_classes[1]
+    span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.opacity-75 class= ping_classes[0]
+    span.relative.inline-flex.rounded-full.h-3.w-3 class= ping_classes[1]

@@ -20,7 +20,7 @@ class Calculator::Base
         value = array.pluck(key).last
 
         define_singleton_method(key) { value }
-      when :feed_in_tariff, :electricity_price
+      when :feed_in_tariff, :electricity_price, :current_state_ok
         values = array.pluck(key)
 
         define_singleton_method(key) { values }

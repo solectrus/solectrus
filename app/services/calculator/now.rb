@@ -6,6 +6,7 @@ class Calculator::Now < Calculator::Base
                     measurements: [Rails.configuration.x.influx.measurement_pv],
                     fields: %i[
                       current_state
+                      current_state_ok
                       inverter_power
                       house_power
                       wallbox_charge_power

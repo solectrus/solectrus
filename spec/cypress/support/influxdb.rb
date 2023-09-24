@@ -19,6 +19,7 @@ module CypressRails::InfluxDB
             grid_power_minus: 1100,
             case_temp: 30.0,
             current_state: 'LADEN',
+            current_state_ok: true,
           },
           time: i.seconds.ago,
         )
