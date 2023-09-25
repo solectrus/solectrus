@@ -11,6 +11,7 @@
                 'stats-with-chart--component-target': 'current',
                 field: 'autarky',
                 value: calculator.autarky,
+                time: calculator.time.to_i,
                 action: 'stats-with-chart--component#startLoop',
                 stats_with_chart__component_field_param: 'autarky',
               } do
@@ -27,6 +28,7 @@
                   'stats-with-chart--component-target': 'current',
                   field: 'consumption',
                   value: calculator.consumption_quote,
+                  time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
                   stats_with_chart__component_field_param: 'consumption',
                 } do
@@ -46,6 +48,7 @@
                   'stats-with-chart--component-target': 'current',
                   field: 'case_temp',
                   value: calculator.case_temp,
+                  time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
                   stats_with_chart__component_field_param: 'case_temp',
                 } do
@@ -59,6 +62,7 @@
                 'stats-with-chart--component-target': 'current',
                 field: 'bat_fuel_charge',
                 value: calculator.bat_fuel_charge,
+                time: calculator.time.to_i,
                 action: 'stats-with-chart--component#startLoop',
                 stats_with_chart__component_field_param: 'bat_fuel_charge',
               } do

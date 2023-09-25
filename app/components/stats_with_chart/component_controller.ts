@@ -134,7 +134,7 @@ export default class extends Controller {
 
     // Add new point
     // First, add the current time as a label
-    this.chart.data.labels?.push(new Date().toISOString());
+    this.chart.data.labels?.push(this.currentTime);
 
     // Second, add the current value to the appropriate dataset
     // There may be two datasets: One for positive, one for negative values.
@@ -188,6 +188,11 @@ export default class extends Controller {
   get currentValue(): number | undefined {
     if (this.currentElement?.dataset.value)
       return parseFloat(this.currentElement.dataset.value);
+  }
+
+  get currentTime(): number | undefined {
+    if (this.currentElement?.dataset.time)
+      return parseInt(this.currentElement.dataset.time) * 1000;
   }
 
   get currentElement(): HTMLElement | undefined {

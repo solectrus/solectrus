@@ -43,7 +43,7 @@
     .font-extralight.uppercase.tracking-wider.leading-tight class= (big? ? 'lg:block' : 'hidden')
       = t("senec.#{field}")
 
-    div data= { 'stats-with-chart--component-target': 'current', field: field, value: masked_value }
+    div data= { 'stats-with-chart--component-target': 'current', field: field, value: masked_value, time: calculator.time.to_i }
       = Number::Component.new(value:).public_send(now? ? :to_watt : :to_watt_hour) if value > 50
 
     template data-tippy-target="html"
