@@ -56,6 +56,8 @@ module Solectrus
       ENV.fetch('INFLUX_MEASUREMENT_FORECAST', 'Forecast')
     config.x.influx.org = ENV.fetch('INFLUX_ORG', nil)
 
+    config.x.influx.poll_interval = ENV.fetch('INFLUX_POLL_INTERVAL', '5').to_i
+
     config.x.installation_date =
       Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
     config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
