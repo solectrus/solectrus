@@ -4,10 +4,10 @@
 source .env.development
 
 # Set the protocol based on FORCE_SSL value
-if [ "$FORCE_SSL" == "false" ]; then
-    PROTOCOL="http"
-else
+if [ "$FORCE_SSL" == "true" ]; then
     PROTOCOL="https"
+else
+    PROTOCOL="http"
 fi
 
 # Set the application URL
