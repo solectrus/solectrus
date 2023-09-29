@@ -16,6 +16,7 @@ class Calculator::Now < Calculator::Base
                       bat_power_plus
                       bat_fuel_charge
                       case_temp
+                      power_ratio
                     ],
                   ).call(Timeframe.now)
   end
@@ -53,6 +54,12 @@ class Calculator::Now < Calculator::Base
     else
       0
     end
+  end
+
+  def power_ratio_limited?
+    return false if power_ratio.nil?
+
+    power_ratio < 100
   end
 
   def house_to_grid

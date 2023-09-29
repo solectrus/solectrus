@@ -46,6 +46,9 @@
     div data= { 'stats-with-chart--component-target': 'current', field: field, value: masked_value, time: calculator.time.to_i }
       = Number::Component.new(value:).public_send(now? ? :to_watt : :to_watt_hour) if value > 50
 
+    - if field == :grid_power_minus && calculator.respond_to?(:power_ratio_limited?) && calculator.power_ratio_limited?
+      i.fa.fa-circle-exclamation.fa-xs
+
     template data-tippy-target="html"
       .flex.flex-col.items-center.justify-center
         i.fa class= icon_class
@@ -53,5 +56,12 @@
         br
         - if now?
           = Number::Component.new(value:).to_watt(max_precision: 3)
+
+          - if field == :grid_power_minus && calculator.respond_to?(:power_ratio_limited?) && calculator.power_ratio_limited?
+            .text-xs.text-center.mt-2
+              = I18n.t('senec.power_ratio')
+              br
+              = Number::Component.new(value: calculator.power_ratio).to_percent(max_precision: 0, klass: 'text-xs')
+
         - else
           = Number::Component.new(value:).to_watt_hour(max_precision: 3)

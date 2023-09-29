@@ -26,6 +26,7 @@ en:
     autarky: Autarky
     consumption: Consume
     case_temp: Temperature
+    power_ratio: Limitation
   balance_sheet:
     left: Origin
     right: Usage

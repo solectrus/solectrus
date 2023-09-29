@@ -33,6 +33,7 @@ import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
 import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck';
 import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons/faCircleQuestion';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons/faCircleInfo';
+import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
 
 import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard';
 // -------------------------
@@ -70,6 +71,7 @@ export default class extends Controller {
       faCog,
       faCircleCheck,
       faCircleQuestion,
+      faCircleExclamation,
       faCircleInfo,
       faIdCard,
     );

@@ -26,6 +26,7 @@ de:
     autarky: Autarkie
     consumption: Verbrauch
     case_temp: Temperatur
+    power_ratio: Begrenzung
   balance_sheet:
     left: Herkunft
     right: Verwendung
