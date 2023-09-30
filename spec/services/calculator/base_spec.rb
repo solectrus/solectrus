@@ -106,5 +106,21 @@ describe Calculator::Base do
 
       it { is_expected.to eq(100) }
     end
+
+    describe '#current_state_ok' do
+      subject { calculator.current_state_ok }
+
+      context 'when false' do
+        before { calculator.build_context current_state_ok: false }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'when true' do
+        before { calculator.build_context current_state_ok: true }
+
+        it { is_expected.to be(true) }
+      end
+    end
   end
 end
