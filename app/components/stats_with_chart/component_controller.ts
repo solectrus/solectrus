@@ -129,12 +129,18 @@ export default class extends Controller {
     if (!this.hasCurrentTarget) return;
     if (!this.currentValue) return;
     if (!this.chart) return;
+    if (!this.chart.data.labels) return;
+    if (!this.currentTime) return;
+
+    // Never add a point with a time older than the last time in the chart
+    const lastTime = this.chart.data.labels.slice(-1)[0] as number;
+    if (this.currentTime < lastTime) return;
 
     this.removeOutdatedPoints();
 
     // Add new point
     // First, add the current time as a label
-    this.chart.data.labels?.push(this.currentTime);
+    this.chart.data.labels.push(this.currentTime);
 
     // Second, add the current value to the appropriate dataset
     // There may be two datasets: One for positive, one for negative values.
