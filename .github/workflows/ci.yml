@@ -93,7 +93,7 @@ jobs:
           coverageCommand: true
 
       - name: Check JS size limit
-        run: yarn size
+        run: yarn size-limit
 
       - uses: actions/upload-artifact@v3
         if: failure()
