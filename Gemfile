@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.2'
+ruby file: '.ruby-version'
 
 # URI is a module providing classes to handle Uniform Resource Identifiers (https://github.com/ruby/uri)
 gem 'uri', '>= 0.12.2'
