@@ -45,7 +45,7 @@ class UpdateCheck
   end
 
   def skip_registration
-    data = latest.merge!('registration_status' => 'skipped')
+    data = latest.merge('registration_status' => 'skipped')
 
     Rails.cache.write(cache_key, data, expires_in: 24.hours)
   end

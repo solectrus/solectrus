@@ -28,7 +28,7 @@ module Solectrus
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    config.time_zone = 'Europe/Berlin'
+    config.time_zone = ENV.fetch('TZ', 'Europe/Berlin')
 
     # config.eager_load_paths << Rails.root.join("extras")
 
@@ -55,6 +55,8 @@ module Solectrus
     config.x.influx.measurement_forecast =
       ENV.fetch('INFLUX_MEASUREMENT_FORECAST', 'Forecast')
     config.x.influx.org = ENV.fetch('INFLUX_ORG', nil)
+
+    config.x.influx.poll_interval = ENV.fetch('INFLUX_POLL_INTERVAL', '5').to_i
 
     config.x.installation_date =
       Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')

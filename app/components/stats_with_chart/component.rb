@@ -13,7 +13,13 @@ class StatsWithChart::Component < ViewComponent::Base
       controller: 'stats-with-chart--component',
       'stats-with-chart--component-field-value': field,
       'stats-with-chart--component-interval-value':
-        (timeframe.now? ? 5.seconds : 5.minutes),
+        (
+          if timeframe.now?
+            Rails.configuration.x.influx.poll_interval
+          else
+            5.minutes
+          end
+        ),
       'stats-with-chart--component-reload-chart-value': !timeframe.now?,
       'stats-with-chart--component-next-path-value': next_path,
       'stats-with-chart--component-boundary-value': boundary,

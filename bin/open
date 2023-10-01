@@ -4,18 +4,18 @@
 source .env.development
 
 # Set the protocol based on FORCE_SSL value
-if [ "$FORCE_SSL" == "false" ]; then
-    PROTOCOL="http"
-else
+if [ "$FORCE_SSL" == "true" ]; then
     PROTOCOL="https"
+else
+    PROTOCOL="http"
 fi
 
 # Set the application URL
 URL="$PROTOCOL://$APP_HOST"
 
-# Open the URL in Google Chrome
+# Open the URL in Brave
 osascript <<EOD
-tell application "Google Chrome"
+tell application "Brave"
     if it is running then
         set tabFound to false
 

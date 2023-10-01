@@ -1,13 +1,12 @@
 source 'https://rubygems.org'
-git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.2'
+ruby file: '.ruby-version'
 
 # URI is a module providing classes to handle Uniform Resource Identifiers (https://github.com/ruby/uri)
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.0.7'
+gem 'rails', '~> 7.0.8'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -67,7 +66,7 @@ group :development, :test do
   # RSpec for Rails (https://github.com/rspec/rspec-rails)
   gem 'rspec-rails', require: false
 
-  # rspec-collection_matchers-1.2.0 (https://github.com/rspec/rspec-collection_matchers)
+  # rspec-collection_matchers-1.2.1 (https://github.com/rspec/rspec-collection_matchers)
   gem 'rspec-collection_matchers', require: false
 
   # Automatic Ruby code style checking tool. (https://github.com/rubocop/rubocop)

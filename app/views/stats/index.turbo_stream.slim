@@ -1,6 +1,6 @@
 = turbo_stream.update 'nav' do
   = render Timeframe::Component.new(timeframe:)
-  = render Status::Component.new(time: calculator.time, current_state: calculator.current_state) if timeframe.now?
+  = render Status::Component.new(time: calculator.time, current_state: calculator.current_state, current_state_ok: calculator.current_state_ok) if timeframe.now?
 
 turbo-stream action="morph" target="stats" children-only= true
   template

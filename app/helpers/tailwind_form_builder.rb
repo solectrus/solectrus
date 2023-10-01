@@ -58,7 +58,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def label_text(method, options)
-    options.fetch(:label, object.class.human_attribute_name(method))
+    options.fetch(:label) { object.class.human_attribute_name(method) }
   end
 
   def errors(method)

@@ -3,7 +3,7 @@ class PowerSum < Flux::Reader
     @timeframe = timeframe
 
     if timeframe.id == :now
-      last(30.days.ago)
+      last(1.hour.ago)
     else
       sum(timeframe:)
     end

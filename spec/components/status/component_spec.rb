@@ -7,7 +7,7 @@ describe Status::Component, type: :component do
     it { is_expected.not_to be_live }
 
     it 'renders the FAIL text' do
-      expect(render_inline(component).css('time').text).to eq('FAIL')
+      expect(render_inline(component).css('time').text).to eq('Disconnected')
     end
 
     it 'renders the FAIL message' do

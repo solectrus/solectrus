@@ -6,6 +6,7 @@ class Calculator::Now < Calculator::Base
                     measurements: [Rails.configuration.x.influx.measurement_pv],
                     fields: %i[
                       current_state
+                      current_state_ok
                       inverter_power
                       house_power
                       wallbox_charge_power
@@ -15,6 +16,7 @@ class Calculator::Now < Calculator::Base
                       bat_power_plus
                       bat_fuel_charge
                       case_temp
+                      power_ratio
                     ],
                   ).call(Timeframe.now)
   end
@@ -52,6 +54,12 @@ class Calculator::Now < Calculator::Base
     else
       0
     end
+  end
+
+  def power_ratio_limited?
+    return false if power_ratio.nil?
+
+    power_ratio < 100
   end
 
   def house_to_grid

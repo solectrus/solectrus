@@ -16,7 +16,7 @@ class Calculator::Base
     # TODO: Extract to new base class and define static methods
     hash.each_key do |key|
       case key
-      when :time, :current_state
+      when :time, :current_state, :current_state_ok
         value = array.pluck(key).last
 
         define_singleton_method(key) { value }
@@ -94,7 +94,15 @@ class Calculator::Base
   end
 
   def grid_quote
-    return if consumption.zero?
+    if consumption.zero?
+      # Producing without any consumption
+      #  => Maybe there is a balkony power plant
+      #  => 0% grid quote
+      return 0 if producing?
+
+      # No consumption and no production => nil
+      return
+    end
 
     [grid_power_plus * 100.0 / consumption, 100].min
   end

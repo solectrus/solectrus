@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
 
     if @admin_user.valid?
       cookies.permanent.signed[:admin] = true
-      redirect_to request.referer || root_path
+      redirect_to referer_path || root_path
     else
       @admin_user.password = nil
       render :new, status: :unauthorized
@@ -20,12 +20,19 @@ class SessionsController < ApplicationController
   def destroy
     cookies.delete :admin
 
-    redirect_to request.referer || root_path, status: :see_other
+    redirect_to referer_path || root_path, status: :see_other
   end
 
   private
 
   def permitted_params
     params.require(:admin_user).permit(:username, :password)
+  end
+
+  def referer_path
+    return unless request.referer
+
+    uri = URI.parse(request.referer)
+    [uri.path, uri.query].compact.join('?')
   end
 end
