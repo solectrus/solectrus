@@ -6,20 +6,16 @@ export default class extends Controller {
   static targets = ['current', 'stats', 'chart', 'canvas'];
 
   declare readonly hasCurrentTarget: boolean;
-  declare readonly currentTarget: HTMLElement;
   declare readonly currentTargets: HTMLElement[];
 
   declare readonly hasChartTarget: boolean;
   declare readonly chartTarget: Turbo.FrameElement;
-  declare readonly chartTargets: Turbo.FrameElement[];
 
   declare readonly hasStatsTarget: boolean;
   declare readonly statsTarget: Turbo.FrameElement;
-  declare readonly statsTargets: Turbo.FrameElement[];
 
   declare readonly hasCanvasTarget: boolean;
   declare readonly canvasTarget: HTMLCanvasElement;
-  declare readonly canvasTargets: HTMLCanvasElement[];
 
   static values = {
     // Field to display in the chart
@@ -126,35 +122,40 @@ export default class extends Controller {
   }
 
   addPointToChart() {
-    if (!this.hasCurrentTarget) return;
-    if (!this.currentValue) return;
-    if (!this.chart) return;
-    if (!this.chart.data.labels) return;
-    if (!this.currentTime) return;
+    if (
+      !this.chart ||
+      !this.currentValue ||
+      !this.currentTime ||
+      !this.lastTime
+    )
+      return;
 
     // Never add a point with a time older than the last time in the chart
-    const lastTime = this.chart.data.labels.slice(-1)[0] as number;
-    if (this.currentTime < lastTime) return;
+    if (this.currentTime < this.lastTime) return;
 
     this.removeOutdatedPoints();
-
-    // Add new point
-    // First, add the current time as a label
-    this.chart.data.labels.push(this.currentTime);
-
-    // Second, add the current value to the appropriate dataset
-    // There may be two datasets: One for positive, one for negative values.
-    // Write currentValue to the appropriate dataset
-    if (this.currentValue > 0) {
-      this.positiveDataset?.data.push(this.currentValue);
-      this.negativeDataset?.data.push(0);
-    } else {
-      this.negativeDataset?.data.push(this.currentValue);
-      this.positiveDataset?.data.push(0);
-    }
+    this.addCurrentPoint(this.currentTime, this.currentValue);
 
     // Redraw the chart
     this.chart.update();
+  }
+
+  addCurrentPoint(time: number, value: number) {
+    if (!this.chart?.data.labels) return;
+
+    // First, add the time as a label
+    this.chart.data.labels.push(time);
+
+    // Second, add the value to the appropriate dataset
+    // There may be two datasets: One for positive, one for negative values.
+    // Write value to the appropriate dataset
+    if (value > 0) {
+      this.positiveDataset?.data.push(value);
+      this.negativeDataset?.data.push(0);
+    } else {
+      this.negativeDataset?.data.push(value);
+      this.positiveDataset?.data.push(0);
+    }
   }
 
   // Remove oldest point (when older than one hour)
@@ -188,17 +189,27 @@ export default class extends Controller {
   }
 
   get chart(): Chart | undefined {
-    if (this.hasCanvasTarget) return Chart.getChart(this.canvasTarget);
+    if (!this.hasCanvasTarget) return undefined;
+
+    return Chart.getChart(this.canvasTarget);
   }
 
   get currentValue(): number | undefined {
-    if (this.currentElement?.dataset.value)
-      return parseFloat(this.currentElement.dataset.value);
+    if (!this.currentElement?.dataset.value) return undefined;
+
+    return parseFloat(this.currentElement.dataset.value);
   }
 
   get currentTime(): number | undefined {
-    if (this.currentElement?.dataset.time)
-      return parseInt(this.currentElement.dataset.time) * 1000;
+    if (!this.currentElement?.dataset.time) return undefined;
+
+    return parseInt(this.currentElement.dataset.time) * 1000;
+  }
+
+  get lastTime(): number | undefined {
+    if (!this.chart?.data.labels) return undefined;
+
+    return this.chart.data.labels.slice(-1)[0] as number;
   }
 
   get currentElement(): HTMLElement | undefined {
@@ -206,13 +217,12 @@ export default class extends Controller {
     const targets = this.currentTargets.filter(
       (t) => t.dataset.field?.startsWith(this.effectiveField),
     );
+    if (!targets.length) return undefined;
 
-    if (targets.length)
-      // Return the first element with a non-zero value, or the first element
-      return (
-        targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ||
-        targets[0]
-      );
+    // Return the first element with a non-zero value, or the first element
+    return (
+      targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ?? targets[0]
+    );
   }
 
   // The positive dataset is where at least one positive value exist
@@ -230,6 +240,6 @@ export default class extends Controller {
   }
 
   get effectiveField(): string {
-    return this.selectedField || this.fieldValue;
+    return this.selectedField ?? this.fieldValue;
   }
 }
