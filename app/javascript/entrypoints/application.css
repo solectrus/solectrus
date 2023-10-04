@@ -5,7 +5,6 @@
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
 /* Import app specific styles */
-@import '../stylesheets/flow.css';
 @import '../stylesheets/radial_badge.css';
 
 .turbo-progress-bar {
