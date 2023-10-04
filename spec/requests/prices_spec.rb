@@ -1,4 +1,11 @@
 describe 'Prices', vcr: { cassette_name: 'version' } do
+  describe 'GET /settings' do
+    it 'redirects to /settings/prices' do
+      get '/settings'
+      expect(response).to redirect_to('/settings/prices')
+    end
+  end
+
   describe 'GET /settings/prices' do
     it_behaves_like 'localized request', '/settings/prices'
 

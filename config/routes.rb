@@ -73,6 +73,7 @@ Rails.application.routes.draw do
 
   get '/favicon.ico', to: redirect('/favicon-196.png')
 
+  get '/settings', to: redirect('/settings/prices')
   scope :settings do
     resources :prices
   end
