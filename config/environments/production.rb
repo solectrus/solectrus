@@ -96,9 +96,4 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
-
-  # Enable gzip compression
-  if ENV['RAILS_SERVE_STATIC_FILES'].present?
-    config.middleware.insert_after ActionDispatch::Static, Rack::Deflater
-  end
 end
