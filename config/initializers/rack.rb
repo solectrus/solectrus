@@ -9,9 +9,6 @@ Rack::Mime::MIME_TYPES['.webmanifest'] = 'application/manifest+json'
 Rails.application.config.middleware.insert(0, Rack::Brotli)
 Rails.application.config.middleware.insert(0, Rack::Deflater)
 
-# Enable HTTP Accept-Language header parsing
-Rails.application.config.middleware.use HttpAcceptLanguage::Middleware
-
 if Rails.application.config.x.app_host
   # Allow serving of images, stylesheets, and JavaScripts from the app_host only
   Rails.application.config.middleware.insert_before 0, Rack::Cors do
