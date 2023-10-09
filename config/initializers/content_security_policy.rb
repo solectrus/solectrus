@@ -59,7 +59,8 @@ Rails.application.configure do
         ].compact,
       )
       policy.manifest_src :self
-      policy.frame_ancestors :none
+      policy.frame_ancestors Rails.configuration.x.frame_ancestors.presence ||
+                               :none
     end
     policy.base_uri :self
     policy.form_action :self

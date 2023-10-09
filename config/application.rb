@@ -43,6 +43,7 @@ module Solectrus
     config.i18n.default_locale = :en
 
     config.x.app_host = ENV.fetch('APP_HOST', nil).presence
+    config.x.frame_ancestors = ENV.fetch('FRAME_ANCESTORS', nil).presence
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
 
