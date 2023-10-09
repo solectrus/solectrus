@@ -77,7 +77,6 @@ GEM
     bootsnap (1.16.0)
       msgpack (~> 1.2)
     brakeman (6.0.1)
-    brotli (0.4.0)
     builder (3.2.4)
     capybara (3.39.2)
       addressable
@@ -219,9 +218,6 @@ GEM
       nio4r (~> 2.0)
     racc (1.7.1)
     rack (2.2.8)
-    rack-brotli (1.2.0)
-      brotli (>= 0.1.7)
-      rack (>= 1.4)
     rack-cors (2.0.1)
       rack (>= 2.0.0)
     rack-proxy (0.7.7)
@@ -428,7 +424,6 @@ DEPENDENCIES
   pg (~> 1.1)
   prettier
   puma (~> 6)
-  rack-brotli
   rack-cors
   rails (~> 7.0.8)
   rails-settings-cached

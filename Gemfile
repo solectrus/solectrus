@@ -50,9 +50,6 @@ gem 'view_component'
 # Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
 gem 'meta-tags'
 
-# Brotli compression for Rack responses (http://github.com/marcotc/rack-brotli/)
-gem 'rack-brotli'
-
 # Find out which locale the user preferes by reading the languages they specified in their browser (https://github.com/iain/http_accept_language)
 gem 'http_accept_language'
 

@@ -7,14 +7,6 @@ describe 'Rack compression' do
     end
   end
 
-  it 'compresses with brotli if requested' do
-    ['br', 'deflate, br', 'gzip, deflate, br'].each do |compression_method|
-      get root_path, headers: { HTTP_ACCEPT_ENCODING: compression_method }
-
-      expect(response.headers['Content-Encoding']).to eq('br')
-    end
-  end
-
   it 'does not compress if not requested' do
     get root_path
 
