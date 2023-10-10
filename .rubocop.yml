@@ -133,6 +133,9 @@ Style/RequireOrder:
 Style/MultilineMethodSignature:
   Enabled: false
 
+Style/ReturnNilInPredicateMethodDefinition:
+  Enabled: false
+
 # Lint
 
 Lint/ConstantResolution:

@@ -18,11 +18,11 @@ class BalanceSegment::Component < ViewComponent::Base
   end
 
   def value
-    @value ||= calculator.public_send(field)
+    @value ||= calculator.public_send(field).to_f
   end
 
   def percent
-    @percent ||= calculator.public_send(:"#{field}_percent")
+    @percent ||= calculator.public_send(:"#{field}_percent").to_f
   end
 
   def now?
@@ -62,7 +62,10 @@ class BalanceSegment::Component < ViewComponent::Base
   end
 
   def battery_class
-    return 'fa-battery-half' unless calculator.respond_to?(:bat_fuel_charge)
+    unless calculator.respond_to?(:bat_fuel_charge) &&
+             calculator.bat_fuel_charge
+      return 'fa-battery-half'
+    end
 
     if calculator.bat_fuel_charge < 15
       'fa-battery-empty'

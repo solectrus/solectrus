@@ -40,7 +40,7 @@
     div class="flex-1 flex flex-col justify-center -mx-2 sm:-mx-4"
       = render Flow::Component.new value: calculator.total, max: max_flow
 
-    - if calculator.case_temp.nonzero?
+    - if calculator.case_temp&.nonzero?
       = link_to root_path(field: 'case_temp', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
