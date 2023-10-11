@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.0.8'
+gem 'rails', '~> 7.1.1'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -21,16 +21,19 @@ gem 'stimulus-rails'
 gem 'pg', '~> 1.1'
 
 # Puma is a simple, fast, threaded, and highly parallel HTTP 1.1 server for Ruby/Rack applications (https://puma.io)
-gem 'puma', '~> 6'
+gem 'puma', '>= 5.0'
 
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
-gem 'redis'
+gem 'redis', '>= 4.0.1'
 
 # Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
 gem 'bootsnap', require: false
 
 # The best solution for store global settings in Rails applications. (https://github.com/huacnlee/rails-settings-cached)
 gem 'rails-settings-cached'
+
+# Slim is a template language. (http://github.com/slim-template/slim/)
+gem 'slim', github: 'slim-template/slim'
 
 # Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
 gem 'slim-rails'
@@ -55,7 +58,7 @@ gem 'http_accept_language'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  # gem 'debug', platforms: %i[ mri mingw x64_mingw ]
+  # gem 'debug', platforms: %i[ mri windows ]
 
   # Autoload dotenv in Rails. (https://github.com/bkeepers/dotenv)
   gem 'dotenv-rails'
@@ -136,7 +139,7 @@ end
 
 group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockup.interdiscipline.com)
-  gem 'lockup'
+  gem 'lockup', github: 'ledermann/lockup', branch: 'rails-7-1'
 
   # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')
