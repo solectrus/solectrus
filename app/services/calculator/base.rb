@@ -125,12 +125,6 @@ class Calculator::Base
 
   # Battery
 
-  def bat_empty?
-    return unless bat_fuel_charge
-
-    bat_fuel_charge < 1
-  end
-
   def bat_charging?
     return unless bat_power_plus && bat_power_minus
 
