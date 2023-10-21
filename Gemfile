@@ -139,7 +139,8 @@ end
 
 group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockup.interdiscipline.com)
-  gem 'lockup', github: 'ledermann/lockup', branch: 'rails-7-1'
+  # Use the latest version from GitHub to support Rails 7.1
+  gem 'lockup', github: 'interdiscipline/lockup'
 
   # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')
