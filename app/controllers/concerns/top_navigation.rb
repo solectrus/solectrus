@@ -90,7 +90,7 @@ module TopNavigation
       {
         name: t('layout.settings'),
         icon: 'cog',
-        href: prices_path,
+        href: settings_path,
         alignment: :right,
       }
     end

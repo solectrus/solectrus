@@ -68,6 +68,12 @@ de:
     save: Speichern
     confirm_delete: Wirklich löschen?
   settings:
+    general:
+      name: Allgemein
+      plant_name:
+        placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
+      operator_name:
+        placeholder: z.B. Max Mustermann in Musterstadt
     prices:
       edit: Preis bearbeiten
       new: Neuer Preis
@@ -94,6 +100,7 @@ de:
   activerecord:
     models:
       price: Preis
+      settings: Einstellungen
     attributes:
       price:
         name: Name
@@ -103,3 +110,6 @@ de:
         starts_at: Gültig ab
         value: Betrag
         note: Notiz
+      setting:
+        plant_name: Bezeichung der Anlage
+        operator_name: Name des Betreibers

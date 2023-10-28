@@ -24,7 +24,7 @@
 }
 
 .label {
-  @apply p-1;
+  @apply p-1 text-gray-600;
 }
 
 .label-text {

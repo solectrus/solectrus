@@ -10,6 +10,9 @@
 #     sessions POST   /login(.:format)                                    sessions#create
 #      session DELETE /logout(.:format)                                   sessions#destroy
 # registration GET    /registration(/:status)(.:format)                   registration#show
+#     settings GET    /settings(.:format)                                 settings#show
+#              PATCH  /settings(.:format)                                 settings#update
+#              PUT    /settings(.:format)                                 settings#update
 #       prices GET    /settings/prices(.:format)                          prices#index
 #              POST   /settings/prices(.:format)                          prices#create
 #    new_price GET    /settings/prices/new(.:format)                      prices#new
@@ -77,7 +80,7 @@ Rails.application.routes.draw do
 
   get '/favicon.ico', to: redirect('/favicon-196.png')
 
-  get '/settings', to: redirect('/settings/prices')
+  resource :settings, only: %i[show update]
   scope :settings do
     resources :prices
   end

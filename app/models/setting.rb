@@ -18,6 +18,9 @@ class Setting < RailsSettings::Base
   field :setup_id, type: :integer
   field :setup_token, type: :string
 
+  field :plant_name, type: :string
+  field :operator_name, type: :string
+
   def self.seed!
     Setting.setup_id ||= Price.first&.created_at&.to_i || Time.current.to_i
     Setting.setup_token ||= SecureRandom.alphanumeric(16)

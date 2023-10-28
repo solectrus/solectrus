@@ -54,6 +54,7 @@ class PricesController < ApplicationController
 
   helper_method def nav_items
     [
+      { name: t('settings.general.name'), href: settings_path, current: false },
       {
         name: Price.human_enum_name(:name, :electricity),
         href: prices_path(name: 'electricity'),
