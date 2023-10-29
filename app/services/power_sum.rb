@@ -97,11 +97,20 @@ class PowerSum < Flux::Reader
     fields.index_with(nil).merge(time: nil)
   end
 
-  def default_cache_options
-    # Cache larger timeframes, but just for a short time
-    return { expires_in: 1.day } if @timeframe&.all?
-    return { expires_in: 1.hour } if @timeframe&.year?
+  # Cache expires depends on the timeframe
+  DEFAULT_CACHE_EXPIRES = {
+    day: 1.minute,
+    week: 5.minutes,
+    month: 10.minutes,
+    year: 1.hour,
+    all: 1.day,
+  }.freeze
 
-    nil
+  private_constant :DEFAULT_CACHE_EXPIRES
+
+  def default_cache_options
+    return unless @timeframe
+
+    { expires_in: DEFAULT_CACHE_EXPIRES[@timeframe.id] }
   end
 end
