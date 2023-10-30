@@ -10,7 +10,8 @@ describe MinMaxChart do
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
-  around { |example| freeze_time(&example) }
+  # Travel to a specific date and time to avoid summer/winter time issues
+  before { travel_to '2023-04-09 14:00:00' }
 
   describe '#call' do
     subject(:result) { chart.call(timeframe) }
