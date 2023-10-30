@@ -64,7 +64,7 @@ describe Number::Component do
       it do
         expect(
           to_watt,
-        ).to eq '<span><strong class="font-medium">1,235</strong>&nbsp;<small>kW</small></span>'
+        ).to eq '<span><strong class="font-medium">1</strong><small>.2</small>&nbsp;<small>MW</small></span>'
       end
     end
   end
