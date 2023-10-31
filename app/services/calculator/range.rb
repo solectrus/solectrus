@@ -22,8 +22,6 @@ class Calculator::Range < Calculator::Base
       grid_power_minus
       bat_power_minus
       bat_power_plus
-      feed_in_tariff
-      electricity_price
     ]
 
     # Include forecast for days only
