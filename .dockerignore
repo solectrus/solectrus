@@ -39,7 +39,6 @@ bin/influxdb-restart.sh
 bin/rspec
 bin/rubocop
 bin/setup
-bin/vite
 bin/yarn
 bin/test
 bin/open
