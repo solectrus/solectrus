@@ -1,6 +1,7 @@
 en:
   layout:
-    stats: Time
+    balance: Power balance
+    essentials: Essentials
     top10: Top 10
     about: About SOLECTRUS
     faq: FAQ

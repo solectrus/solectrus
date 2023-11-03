@@ -22,6 +22,34 @@ describe Timeframe do
       it { is_expected.to be_all }
     end
 
+    describe '.today' do
+      subject { described_class.today }
+
+      it { is_expected.to be_day }
+      it { is_expected.to be_current }
+    end
+
+    describe '.week' do
+      subject { described_class.week }
+
+      it { is_expected.to be_week }
+      it { is_expected.to be_current }
+    end
+
+    describe '.month' do
+      subject { described_class.month }
+
+      it { is_expected.to be_month }
+      it { is_expected.to be_current }
+    end
+
+    describe '.year' do
+      subject { described_class.year }
+
+      it { is_expected.to be_year }
+      it { is_expected.to be_current }
+    end
+
     describe '.regex' do
       subject { described_class.regex }
 

@@ -8,6 +8,7 @@ module TopNavigation
       [
         # Left
         stats_item,
+        essentials_item,
         top10_item,
         about_item,
         # Right
@@ -19,7 +20,11 @@ module TopNavigation
     end
 
     def stats_item
-      { name: t('layout.stats'), href: root_path }
+      { name: t('layout.balance'), href: root_path }
+    end
+
+    def essentials_item
+      { name: t('layout.essentials'), href: essentials_path }
     end
 
     def top10_item

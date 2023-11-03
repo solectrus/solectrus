@@ -1,0 +1,23 @@
+- turbo_exempts_page_from_cache
+- content_for :full_height, true
+
+- content_for :sub_nav do
+  .md:py-3
+
+.hidden.md:flex.flex-col.md:items-center.md:justify-between.md:flex-row.pb-4.text-gray-500
+  - if Setting.plant_name.present?
+    h1.text-xl.md:text-2xl.leading-none.pb-3
+      = Setting.plant_name
+
+  - if Setting.operator_name.present?
+    h2.text-lg.md:text-xl.leading-none
+      = Setting.operator_name
+
+div class= 'grid grid-cols-2 lg:grid-cols-3 gap-5 md:gap-10 h-full text-white text-center'
+  - tiles.each do |tile|
+    = tag.turbo_frame id: "tile-#{tile[:field]}-#{tile[:timeframe]}",
+                      class: [ 'rounded flex items-center justify-center bg-gray-300 overflow-hidden h-64'],
+                      src: tiles_path(field: tile[:field], timeframe: tile[:timeframe]),
+                      target: '_top' do
+      .fade-in-slow
+        = render Loading::Component.new

@@ -1,9 +1,11 @@
 # == Route Map
 #
 #       Prefix Verb   URI Pattern                                         Controller#Action
-#         root GET    /(:field)(/:timeframe)(.:format)                    home#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
-#        stats GET    /stats/:field(/:timeframe)(.:format)                stats#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
-#       charts GET    /charts/:field(/:timeframe)(.:format)               charts#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
+#         root GET    /(:field)(/:timeframe)(.:format)                    home#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
+#        stats GET    /stats/:field(/:timeframe)(.:format)                stats#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
+#       charts GET    /charts/:field(/:timeframe)(.:format)               charts#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
+#        tiles GET    /tiles/:field(/:timeframe)(.:format)                tiles#show {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/}
+#   essentials GET    /essentials(.:format)                               essentials#index
 #        top10 GET    /top10(/:period)(/:field)(/:calc)(/:sort)(.:format) top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
 #  top10_chart GET    /top10-chart/:period/:field/:calc/:sort(.:format)   top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
 #  new_session GET    /login(.:format)                                    sessions#new
@@ -37,6 +39,7 @@ Rails.application.routes.draw do
       get '/(/:field)(/:timeframe)', to: 'home#index', as: :root
       get '/stats/:field(/:timeframe)', to: 'stats#index', as: :stats
       get '/charts/:field(/:timeframe)', to: 'charts#index', as: :charts
+      get '/tiles/:field(/:timeframe)', to: 'tiles#show', as: :tiles
 
       # Redirect old routes
       get '/:period/:field/(:timestamp)', to: redirect('/%{field}')
@@ -60,6 +63,8 @@ Rails.application.routes.draw do
             }
     end
   end
+
+  resources :essentials, only: :index
 
   constraints period: /day|week|month|year/,
               calc: /sum|max/,

@@ -11,6 +11,22 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     new('all')
   end
 
+  def self.today
+    new(Date.current.strftime('%Y-%m-%d'))
+  end
+
+  def self.week
+    new(Date.current.strftime('%G-W%V'))
+  end
+
+  def self.month
+    new(Date.current.strftime('%Y-%m'))
+  end
+
+  def self.year
+    new(Date.current.strftime('%Y'))
+  end
+
   def initialize(string, min_date: nil, allowed_days_in_future: nil)
     unless string.respond_to?(:match?) && string.match?(self.class.regex)
       raise ArgumentError, "'#{string}' is not a valid timeframe"

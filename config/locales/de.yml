@@ -1,6 +1,7 @@
 de:
   layout:
-    stats: Verlauf
+    balance: Strombilanz
+    essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS
     faq: Fragen & Antworten
