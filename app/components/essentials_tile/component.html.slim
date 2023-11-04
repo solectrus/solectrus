@@ -1,13 +1,13 @@
 = link_to path,
-          class: [ 'h-full w-full flex flex-col items-center justify-center gap-5 py-5', background_color ],
+          class: [ 'flex-1 h-full flex flex-col justify-around py-2', background_color ],
           data: { controller: 'essentials-tile--component', 'essentials-tile--component-interval-value' => refresh_interval } do
   - if icon_class
     i.fa.fa-2xl class= [icon_class, text_secondary_color]
   - else
-    span.text-2xl class= [text_secondary_color]
+    .text-2xl.leading-none class= [text_secondary_color]
       = t("calculator.#{field}")
 
-  div class= ['font-bold text-4xl md:text-7xl', text_primary_color, 'scale-pop']
+  div class= ['font-bold text-4xl md:text-7xl leading-none', text_primary_color, 'scale-pop']
     = formatted_value
 
   div class= [ 'text-base md:text-2xl px-5 h-14 w-full flex items-center justify-center', text_secondary_color ]

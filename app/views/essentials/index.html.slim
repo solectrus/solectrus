@@ -13,10 +13,10 @@
     h2.text-lg.md:text-xl.leading-none
       = Setting.operator_name
 
-div class= 'grid grid-cols-2 lg:grid-cols-3 gap-5 md:gap-10 h-full text-white text-center'
+div class= 'flex-auto grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-10 text-center'
   - tiles.each do |tile|
     = tag.turbo_frame id: "tile-#{tile[:field]}-#{tile[:timeframe]}",
-                      class: [ 'rounded flex items-center justify-center bg-gray-300 overflow-hidden h-64'],
+                      class: [ 'rounded flex items-center justify-center bg-gray-300 overflow-hidden'],
                       src: tiles_path(field: tile[:field], timeframe: tile[:timeframe]),
                       target: '_top' do
       .fade-in-slow
