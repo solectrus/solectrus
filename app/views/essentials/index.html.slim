@@ -2,7 +2,7 @@
 - content_for :full_height, true
 
 - content_for :sub_nav do
-  .md:py-3
+  .sm:py-3
 
 .hidden.md:flex.flex-col.md:items-center.md:justify-between.md:flex-row.pb-4.text-gray-500
   - if Setting.plant_name.present?
@@ -13,10 +13,10 @@
     h2.text-lg.md:text-xl.leading-none
       = Setting.operator_name
 
-div class= 'flex-auto grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-10 text-center'
+div class= 'flex-auto grid grid-flow-row auto-rows-fr grid-cols-2 lg:grid-cols-3 gap-4 md:gap-10 text-center '
   - tiles.each do |tile|
     = tag.turbo_frame id: "tile-#{tile[:field]}-#{tile[:timeframe]}",
-                      class: [ 'rounded flex items-center justify-center bg-gray-300 overflow-hidden'],
+                      class: [ 'flex-1 flex items-center justify-center bg-gray-200 rounded-lg overflow-hidden'],
                       src: tiles_path(field: tile[:field], timeframe: tile[:timeframe]),
                       target: '_top' do
       .fade-in-slow
