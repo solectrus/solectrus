@@ -44,24 +44,6 @@ Rails.application.routes.draw do
       # Redirect old routes
       get '/:period/:field/(:timestamp)', to: redirect('/%{field}')
     end
-
-    # Redirect time shortcut routes
-    constraints timeframe: /day|week|month|year/ do
-      get '/(:field)/(:timeframe)',
-          to:
-            redirect(status: 302) { |path_params, _req|
-              case path_params[:timeframe]
-              when 'day'
-                "/#{path_params[:field]}/#{Date.current.strftime('%Y-%m-%d')}"
-              when 'week'
-                "/#{path_params[:field]}/#{Date.current.strftime('%Y-W%V')}"
-              when 'month'
-                "/#{path_params[:field]}/#{Date.current.strftime('%Y-%m')}"
-              when 'year'
-                "/#{path_params[:field]}/#{Date.current.strftime('%Y')}"
-              end
-            }
-    end
   end
 
   resources :essentials, only: :index

@@ -7,11 +7,11 @@ class EssentialsController < ApplicationController
   helper_method def tiles
     [
       { field: 'inverter_power', timeframe: 'now' },
-      { field: 'inverter_power', timeframe: Date.current.strftime('%Y-%m-%d') },
-      { field: 'inverter_power', timeframe: Date.current.strftime('%Y-%m') },
-      { field: 'inverter_power', timeframe: Date.current.strftime('%Y') },
+      { field: 'inverter_power', timeframe: 'day' },
+      { field: 'inverter_power', timeframe: 'month' },
+      { field: 'inverter_power', timeframe: 'year' },
       { field: 'inverter_power', timeframe: 'all' },
-      { field: 'savings', timeframe: Date.current.strftime('%Y') },
+      { field: 'savings', timeframe: 'year' },
     ]
   end
 end

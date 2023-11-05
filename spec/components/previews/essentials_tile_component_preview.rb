@@ -8,7 +8,7 @@ class EssentialsTileComponentPreview < ViewComponent::Preview
 
   def day
     render EssentialsTile::Component.new field: 'inverter_power',
-                                         timeframe: Timeframe.today
+                                         timeframe: Timeframe.day
   end
 
   def month
