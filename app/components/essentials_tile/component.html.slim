@@ -2,9 +2,9 @@
           class: [ 'flex-1 h-full flex flex-col justify-around py-2', background_color ],
           data: { controller: 'essentials-tile--component', 'essentials-tile--component-interval-value' => refresh_interval } do
   - if icon_class
-    i.fa.fa-2xl class= [icon_class, text_secondary_color]
+    i.fa.h-12 class= [icon_class, text_secondary_color]
   - else
-    .text-2xl.leading-none class= [text_secondary_color]
+    .text-3xl.lg:text-4xl.leading-none.h-12 class= [text_secondary_color]
       = t("calculator.#{field}")
 
   div class= ['font-bold text-3xl md:text-5xl lg:text-6xl xl:text-7xl leading-none', text_primary_color, 'scale-pop']

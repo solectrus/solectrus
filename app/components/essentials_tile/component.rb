@@ -44,12 +44,12 @@ class EssentialsTile::Component < ViewComponent::Base
       'fa-bolt'
     when :inverter_power
       'fa-sun'
-    when :bat_power_minus, :bat_power_plus
-      battery_class
     when :house_power
       'fa-home'
     when :wallbox_charge_power
       'fa-car'
+    when :savings
+      'fa-piggy-bank'
     end
   end
 

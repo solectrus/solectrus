@@ -36,6 +36,7 @@ import { faCircleInfo } from '@fortawesome/free-solid-svg-icons/faCircleInfo';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
 
 import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard';
+import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank';
 // -------------------------
 
 export default class extends Controller {
@@ -74,6 +75,7 @@ export default class extends Controller {
       faCircleExclamation,
       faCircleInfo,
       faIdCard,
+      faPiggyBank,
     );
   }
 
