@@ -33,6 +33,8 @@ class ChartSelector::Component < ViewComponent::Base
       "#{I18n.t "calculator.#{field}"} in &euro;".html_safe
     elsif field.in?(%w[case_temp])
       "#{I18n.t "senec.#{field}"} in &deg;C".html_safe
+    elsif field.in?(%w[savings])
+      "#{I18n.t "calculator.#{field}"} in &euro;".html_safe
     else
       "#{I18n.t "senec.#{field}"} in #{power? ? 'kW' : 'kWh'}"
     end
