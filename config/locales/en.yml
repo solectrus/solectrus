@@ -12,6 +12,11 @@ en:
     version_outdated: New version <strong>%{latest_version}</strong> available!
     version_uptodate: This is the latest version
   timeframe:
+    now: Now
+    day: Today
+    week: This week
+    month: This month
+    year: This year
     all: Since commissioning
   senec:
     inverter_power: PV generated

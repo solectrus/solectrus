@@ -12,6 +12,11 @@ de:
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
   timeframe:
+    now: Aktuell
+    day: Heute
+    week: Diese Woche
+    month: Dieser Monat
+    year: Dieses Jahr
     all: Seit Inbetriebnahme
   senec:
     inverter_power: Erzeugung
