@@ -1,11 +1,12 @@
 class EssentialsTile::Component < ViewComponent::Base
-  def initialize(field:, timeframe:)
+  def initialize(calculator:, field:, timeframe:)
     super
+    @calculator = calculator
     @field = field.to_sym
     @timeframe = timeframe
   end
 
-  attr_reader :field, :timeframe
+  attr_reader :calculator, :field, :timeframe
 
   def path
     if field == :savings
@@ -21,7 +22,7 @@ class EssentialsTile::Component < ViewComponent::Base
   end
 
   def color
-    return :gray if value.round.zero?
+    return :gray if value.nil? || value.round.zero?
 
     case field
     when :savings
@@ -45,20 +46,14 @@ class EssentialsTile::Component < ViewComponent::Base
     TEXT_SECONDARY_COLOR[color]
   end
 
-  def icon_class
-    case field
-    when :grid_power_minus, :grid_power_plus
-      'fa-bolt'
-    when :inverter_power
-      'fa-sun'
-    when :house_power
-      'fa-home'
-    when :wallbox_charge_power
-      'fa-car'
-    when :savings
-      'fa-piggy-bank'
-    end
-  end
+  ICONS = {
+    grid_power_minus: 'fa-bolt',
+    grid_power_plus: 'fa-bolt',
+    inverter_power: 'fa-sun',
+    house_power: 'fa-home',
+    wallbox_charge_power: 'fa-car',
+    savings: 'fa-piggy-bank',
+  }.freeze
 
   BACKGROUND_COLOR = {
     green: 'bg-green-600',
@@ -81,10 +76,16 @@ class EssentialsTile::Component < ViewComponent::Base
   private_constant :BACKGROUND_COLOR
   private_constant :TEXT_PRIMARY_COLOR
   private_constant :TEXT_SECONDARY_COLOR
+  private_constant :ICONS
+
+  def icon_class
+    ICONS[field]
+  end
 
   def formatted_value
-    number = Number::Component.new(value:)
+    return '---' unless value
 
+    number = Number::Component.new(value:)
     case field
     when :savings
       number.to_eur(klass: 'text-inherit')
@@ -93,11 +94,6 @@ class EssentialsTile::Component < ViewComponent::Base
     else
       timeframe.now? ? number.to_watt : number.to_watt_hour
     end
-  end
-
-  def calculator
-    @calculator ||=
-      (timeframe.now? ? Calculator::Now.new : Calculator::Range.new(timeframe))
   end
 
   def refresh_interval
