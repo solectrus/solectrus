@@ -165,6 +165,7 @@ jobs:
           build-args: |
             COMMIT_TIME=${{ env.COMMIT_TIME }}
             COMMIT_VERSION=${{ env.COMMIT_VERSION }}
+            COMMIT_BRANCH=${{ github.head_ref || github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

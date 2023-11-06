@@ -1,7 +1,7 @@
 #! /bin/sh
 
 echo "Starting SOLECTRUS..."
-echo "Version: $COMMIT_VERSION - $COMMIT_TIME"
+echo "Version: $COMMIT_VERSION - $COMMIT_TIME - $COMMIT_BRANCH"
 echo "----------------"
 
 # Wait for InfluxDB
