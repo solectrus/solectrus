@@ -24,6 +24,10 @@ export default {
         c4: '21rem',
       },
 
+      spacing: {
+        '128': '32rem',
+      },
+
       transitionProperty: {
         'max-height': 'max-height',
       },
