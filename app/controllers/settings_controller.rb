@@ -11,7 +11,7 @@ class SettingsController < ApplicationController
       end
     end
 
-    head :no_content
+    respond_with_flash notice: t('crud.success')
   end
 
   private

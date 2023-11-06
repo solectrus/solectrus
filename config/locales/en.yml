@@ -73,6 +73,8 @@ en:
     delete: Delete
     save: Save
     confirm_delete: Are you sure you want to delete?
+    success: Successfully performed
+    error: An error occurred
   settings:
     general:
       name: General

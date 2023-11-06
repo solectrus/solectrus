@@ -19,4 +19,23 @@ class ApplicationController < ActionController::Base
   helper_method def admin?
     cookies.signed[:admin] == true
   end
+
+  def respond_with_flash(notice: nil, alert: nil)
+    flash.now[:notice] = notice
+    flash.now[:alert] = alert
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream do
+        render turbo_stream: [
+                 turbo_stream.update('flash') do
+                   ApplicationController.render(
+                     AppFlash::Component.new(notice:, alert:),
+                     layout: false,
+                   )
+                 end,
+               ]
+      end
+    end
+  end
 end

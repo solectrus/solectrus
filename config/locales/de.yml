@@ -73,6 +73,8 @@ de:
     delete: Löschen
     save: Speichern
     confirm_delete: Wirklich löschen?
+    success: Erfolgreich durchgeführt
+    error: Es ist ein Fehler aufgetreten
   settings:
     general:
       name: Allgemein
