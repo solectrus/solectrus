@@ -1,6 +1,6 @@
 .bg-yellow-200.p-3.text-indigo-800.text-base
-  .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8
-    .flex.justify-between.items-center
+  .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6
+    .flex.flex-col.justify-between.items-center.lg:flex-row.gap-2
       - if admin
         - if pending?
           = t('.pending')
@@ -8,7 +8,7 @@
         - elsif unregistered?
           = t('.unregistered')
 
-        .flex.gap-10
+        .flex.gap-5
           = render Button::Component.new(path: registration_path(status: 'skipped'), title: t('.skip'), style: :secondary)
           = render Button::Component.new(path: registration_path, title: t('.button'), icon: 'id-card', options: { data: { turbo: 'false' } })
 
