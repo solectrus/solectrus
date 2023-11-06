@@ -16,6 +16,8 @@ class EssentialsTile::Component < ViewComponent::Base
   end
 
   def color
+    return :gray if value.round.zero?
+
     case field
     when :savings
       :blue
