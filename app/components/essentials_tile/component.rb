@@ -8,7 +8,12 @@ class EssentialsTile::Component < ViewComponent::Base
   attr_reader :field, :timeframe
 
   def path
-    root_path(field:, timeframe:)
+    if field == :savings
+      # Currently, there is no chart for savings, so link to inverter_power chart
+      root_path(field: 'inverter_power', timeframe:)
+    else
+      root_path(field:, timeframe:)
+    end
   end
 
   def value
