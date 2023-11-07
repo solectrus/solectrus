@@ -3,7 +3,7 @@ commit_branch =
   ENV.fetch('COMMIT_BRANCH') { `git rev-parse --abbrev-ref HEAD`.chomp }
 
 Rails.configuration.x.git.commit_version =
-  if commit_branch.present? && commit_branch != 'main'
+  if commit_branch.present? && %w[main develop].exclude?(commit_branch)
     parts = commit_version.split('-')
     [commit_branch, parts.second, parts.third].join('-')
   else
