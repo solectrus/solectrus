@@ -73,7 +73,7 @@ html lang="de"
 
     = yield :head
 
-  body.min-h-screen.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none[
+  body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none[
     data-controller= ['icons', ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url && Rails.configuration.x.app_host)
