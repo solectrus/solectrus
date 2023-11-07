@@ -23,8 +23,6 @@ de:
     bat_power_plus: Akku-Beladung
     bat_power: Akku
     bat_fuel_charge: Ladestand
-    autarky: Autarkie
-    consumption: Verbrauch
     case_temp: Temperatur
     power_ratio: Begrenzung
   balance_sheet:
@@ -39,7 +37,7 @@ de:
     all: Gesamt
     forecast: Prognose
     grid_quote: Bezugsquote
-    consumption: Eigenverbrauch
+    consumption: Verbrauch
     consumption_quote: Eigenverbrauchsquote
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
@@ -48,6 +46,7 @@ de:
     house_costs: Anteil Haus
     wallbox_costs: Anteil E-Auto
     total_costs: Kosten
+    autarky: Autarkie
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
   forecast:

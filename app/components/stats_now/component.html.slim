@@ -16,7 +16,7 @@
                 stats_with_chart__component_field_param: 'autarky',
               } do
       div data-controller="tippy"
-        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
+        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
         template data-tippy-target="html"
           = render AutarkyDetails::Component.new(calculator:)
 
@@ -33,7 +33,7 @@
                   stats_with_chart__component_field_param: 'consumption',
                 } do
         div data-controller="tippy"
-          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
+          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
           template data-tippy-target="html"
             = render ConsumptionDetails::Component.new(calculator:)
 

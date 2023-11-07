@@ -25,8 +25,12 @@ class ChartSelector::Component < ViewComponent::Base
   private
 
   def title(field)
-    if field.in?(%w[bat_fuel_charge autarky consumption])
-      "#{I18n.t "senec.#{field}"} in %"
+    if field.in?(%w[bat_fuel_charge])
+      "#{I18n.t "senec.#{field}"} in &percnt;".html_safe
+    elsif field.in?(%w[autarky consumption])
+      "#{I18n.t "calculator.#{field}"} in &percnt;".html_safe
+    elsif field.in?(%w[savings])
+      "#{I18n.t "calculator.#{field}"} in &euro;".html_safe
     elsif field.in?(%w[case_temp])
       "#{I18n.t "senec.#{field}"} in &deg;C".html_safe
     else

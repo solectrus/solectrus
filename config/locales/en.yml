@@ -23,8 +23,6 @@ en:
     bat_power_plus: Battery charge
     bat_power: Battery
     bat_fuel_charge: Battery
-    autarky: Autarky
-    consumption: Consume
     case_temp: Temperature
     power_ratio: Limitation
   balance_sheet:
@@ -39,7 +37,7 @@ en:
     all: Overall
     forecast: Forecast
     grid_quote: Grid consumption rate
-    consumption: Self-consumption
+    consumption: Consume
     consumption_quote: Self-consumption rate
     solar_price: Solar price
     traditional_price: Comparative price
@@ -48,6 +46,7 @@ en:
     house_costs: House costs
     wallbox_costs: EV costs
     total_costs: Total costs
+    autarky: Autarky
     time: Last measurement taken
     blank: No data available!
   forecast:
