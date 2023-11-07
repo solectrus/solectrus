@@ -1,6 +1,7 @@
 de:
   layout:
-    stats: Verlauf
+    balance: Strombilanz
+    essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS
     faq: Fragen & Antworten
@@ -11,6 +12,11 @@ de:
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
   timeframe:
+    now: Aktuell
+    day: Heute
+    week: Diese Woche
+    month: Dieser Monat
+    year: Dieses Jahr
     all: Seit Inbetriebnahme
   senec:
     inverter_power: Erzeugung
@@ -29,7 +35,7 @@ de:
     left: Herkunft
     right: Verwendung
   calculator:
-    now: Jetzt
+    now: Aktuell
     day: Tag
     week: Woche
     month: Monat
@@ -67,7 +73,15 @@ de:
     delete: Löschen
     save: Speichern
     confirm_delete: Wirklich löschen?
+    success: Erfolgreich durchgeführt
+    error: Es ist ein Fehler aufgetreten
   settings:
+    general:
+      name: Allgemein
+      plant_name:
+        placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
+      operator_name:
+        placeholder: z.B. Max Mustermann in Musterstadt
     prices:
       edit: Preis bearbeiten
       new: Neuer Preis
@@ -94,6 +108,7 @@ de:
   activerecord:
     models:
       price: Preis
+      settings: Einstellungen
     attributes:
       price:
         name: Name
@@ -103,3 +118,6 @@ de:
         starts_at: Gültig ab
         value: Betrag
         note: Notiz
+      setting:
+        plant_name: Bezeichung der Anlage
+        operator_name: Name des Betreibers

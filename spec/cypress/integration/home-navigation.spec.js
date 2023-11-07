@@ -28,7 +28,7 @@ describe('Home page', () => {
 
       cy.location('pathname').should('equal', `/${path}/now`);
       cy.title().should('contain', 'Live');
-      cy.get('header').should('contain', 'Heute, 12:00 Uhr');
+      cy.get('header').should('contain', 'Aktuell, 12:00 Uhr');
 
       if (path == 'inverter_power')
         cy.get('#segment-inverter_power').should('contain', '9,0\u00a0kW');

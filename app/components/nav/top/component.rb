@@ -29,7 +29,8 @@ class Nav::Top::Component < ViewComponent::Base
         current_page?(@href) ||
           # TODO: Move this out of the component!
           (@href == root_path && controller_name == 'home') ||
-          (@href.include?('top10') && controller_name == 'top10')
+          (@href.include?('top10') && controller_name == 'top10') ||
+          (@href.include?('settings') && controller_name == 'prices')
     end
 
     attr_reader :name, :target

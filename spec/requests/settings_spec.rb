@@ -1,8 +1,26 @@
-describe 'Prices', vcr: { cassette_name: 'version' } do
+describe 'Settings', vcr: { cassette_name: 'version' } do
   describe 'GET /settings' do
-    it 'redirects to /settings/prices' do
+    it 'returns http success' do
       get '/settings'
-      expect(response).to redirect_to('/settings/prices')
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe 'PATCH /settings' do
+    context 'when not logged in' do
+      it 'fails' do
+        patch '/settings', params: { setting: { plant_name: 'Test' } }
+        expect(response).to have_http_status(:redirect)
+      end
+    end
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'returns http success' do
+        patch '/settings', params: { setting: { plant_name: 'Test' } }
+        expect(response).to have_http_status(:success)
+      end
     end
   end
 

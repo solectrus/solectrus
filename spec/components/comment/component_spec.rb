@@ -59,7 +59,7 @@ describe Comment::Component, type: :component do
     end
   end
 
-  context 'when timeframe is today, before sunset' do
+  context 'when timeframe is current day, before sunset' do
     let(:date) { Date.current.to_s }
     let(:sunset) { instance_double(Sunset, time: 5.minutes.since) }
 
@@ -103,7 +103,7 @@ describe Comment::Component, type: :component do
     end
   end
 
-  context 'when timeframe is today, after sunset' do
+  context 'when timeframe is current day, after sunset' do
     let(:date) { Date.current.to_s }
     let(:sunset) { instance_double(Sunset, time: 5.minutes.ago) }
 

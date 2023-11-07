@@ -7,7 +7,8 @@ class ChartSelector::Component < ViewComponent::Base
   attr_reader :field, :timeframe
 
   def field_items
-    Senec::FIELDS_COMBINED.map do |field|
+    # TODO: Add savings chart
+    (Senec::FIELDS_COMBINED - ['savings']).map do |field|
       {
         name: title(field),
         field:,

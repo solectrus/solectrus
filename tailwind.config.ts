@@ -16,6 +16,18 @@ export default {
         dvh: '100dvh',
       },
 
+      containers: {
+        c0: '10rem',
+        c1: '12rem',
+        c2: '15rem',
+        c3: '18rem',
+        c4: '21rem',
+      },
+
+      spacing: {
+        '128': '32rem',
+      },
+
       transitionProperty: {
         'max-height': 'max-height',
       },
@@ -39,8 +51,9 @@ export default {
   },
 
   plugins: [
-    require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/container-queries'),
     require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
   ],
 } satisfies Config;
