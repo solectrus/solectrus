@@ -46,6 +46,11 @@ body.active-tippy * {
   @apply rounded bg-slate-100 px-1 py-px;
 }
 
+.min-h-dvh {
+  /* Fallback for browsers that do not support Dynamic viewport units */
+  min-height: 100vh;
+}
+
 /* Import Tailwind CSS */
 @tailwind base;
 @tailwind components;
