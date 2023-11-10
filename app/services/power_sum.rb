@@ -3,7 +3,7 @@ class PowerSum < Flux::Reader
     @timeframe = timeframe
 
     if timeframe.id == :now
-      last(1.hour.ago.beginning_of_hour)
+      last(1.hour.ago)
     else
       sum(timeframe:)
     end
@@ -99,7 +99,6 @@ class PowerSum < Flux::Reader
 
   # Cache expires depends on the timeframe
   DEFAULT_CACHE_EXPIRES = {
-    now: 5.seconds,
     day: 1.minute,
     week: 5.minutes,
     month: 10.minutes,
@@ -112,11 +111,6 @@ class PowerSum < Flux::Reader
   def default_cache_options
     return unless @timeframe
 
-    expires_in = [
-      DEFAULT_CACHE_EXPIRES[@timeframe.id],
-      Rails.configuration.x.influx.poll_interval.seconds,
-    ].max
-
-    { expires_in: }
+    { expires_in: DEFAULT_CACHE_EXPIRES[@timeframe.id] }
   end
 end
