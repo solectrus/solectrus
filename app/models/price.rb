@@ -39,10 +39,10 @@ class Price < ApplicationRecord
   def self.seed!
     Price.electricity.create! starts_at:
                                 Rails.configuration.x.installation_date,
-                              value: Rails.configuration.x.electricity_price
+                              value: 0.2545
 
     Price.feed_in.create! starts_at: Rails.configuration.x.installation_date,
-                          value: Rails.configuration.x.feed_in_tariff
+                          value: 0.0832
   end
 
   def self.list_for(name)

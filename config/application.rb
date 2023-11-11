@@ -66,8 +66,6 @@ module Solectrus
 
     config.x.installation_date =
       Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
-    config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
-    config.x.feed_in_tariff = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
 
     config.x.admin_password = ENV.fetch('ADMIN_PASSWORD', nil).presence
     config.x.registration_required =
