@@ -463,7 +463,7 @@ DEPENDENCIES
   prettier
   puma (>= 5.0)
   rack-cors
-  rails (~> 7.1.1)
+  rails (~> 7.1.2)
   rails-settings-cached
   redis (>= 4.0.1)
   rspec-collection_matchers
