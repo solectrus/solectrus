@@ -32,9 +32,6 @@ gem 'bootsnap', require: false
 # The best solution for store global settings in Rails applications. (https://github.com/huacnlee/rails-settings-cached)
 gem 'rails-settings-cached'
 
-# Slim is a template language. (http://github.com/slim-template/slim/)
-gem 'slim', github: 'slim-template/slim'
-
 # Slim templates generator for Rails (https://github.com/slim-template/slim-rails)
 gem 'slim-rails'
 

@@ -1,11 +1,3 @@
-GIT
-  remote: https://github.com/slim-template/slim.git
-  revision: 03492f3f50ae3c8f30586aab7d8a8c41ff584b71
-  specs:
-    slim (5.1.1)
-      temple (~> 0.10.0)
-      tilt (>= 2.1.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -374,6 +366,9 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
+    slim (5.2.0)
+      temple (~> 0.10.0)
+      tilt (>= 2.1.0)
     slim-rails (3.6.3)
       actionpack (>= 3.1)
       railties (>= 3.1)
@@ -475,7 +470,6 @@ DEPENDENCIES
   rubocop-thread_safety
   shoulda-matchers
   simplecov
-  slim!
   slim-rails
   slim_lint
   spring
