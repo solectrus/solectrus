@@ -14,8 +14,4 @@ class EssentialsController < ApplicationController
       { field: 'savings', timeframe: 'year' },
     ]
   end
-
-  helper_method def static?
-    params[:static] == 'true'
-  end
 end

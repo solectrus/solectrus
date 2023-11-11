@@ -17,15 +17,7 @@ div class= 'flex-auto grid grid-flow-row auto-rows-fr grid-cols-2 lg:grid-cols-3
   - tiles.each do |tile|
     = tag.turbo_frame id: "tile-#{tile[:field]}-#{tile[:timeframe]}",
                       class: [ 'flex-1 flex items-center justify-center bg-gray-200 rounded-lg overflow-hidden'],
-                      src: static? ? nil : tiles_path(field: tile[:field], timeframe: tile[:timeframe]),
+                      src: tiles_path(field: tile[:field], timeframe: tile[:timeframe]),
                       target: '_top' do
-      - if static?
-        - timeframe = Timeframe.new(tile[:timeframe], min_date: Rails.application.config.x.installation_date)
-        = render EssentialsTile::Component.new( \
-                   calculator: timeframe.now? ? Calculator::Now.new : Calculator::Range.new(timeframe),
-                   field: tile[:field], \
-                   timeframe: \
-                 )
-      - else
-        .fade-in-slow
-          = render Loading::Component.new
+      .fade-in-slow
+        = render Loading::Component.new
