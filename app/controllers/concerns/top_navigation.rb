@@ -1,7 +1,7 @@
-module TopNavigation
+module TopNavigation # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
 
-  included do
+  included do # rubocop:disable Metrics/BlockLength
     private
 
     helper_method def topnav_items
@@ -14,6 +14,8 @@ module TopNavigation
         # Right
         faq_item,
         settings_item,
+        expand_item,
+        compress_item,
         registration_item,
         session_item,
       ].compact
@@ -77,6 +79,30 @@ module TopNavigation
         alignment: :right,
         data: {
           turbo: 'false',
+        },
+      }
+    end
+
+    def expand_item
+      {
+        name: t('layout.fullscreen_on'),
+        icon: 'expand',
+        alignment: :right,
+        data: {
+          'fullscreen-target' => 'btnOn',
+          :action => 'click->fullscreen#on',
+        },
+      }
+    end
+
+    def compress_item
+      {
+        name: t('layout.fullscreen_off'),
+        icon: 'compress',
+        alignment: :right,
+        data: {
+          'fullscreen-target' => 'btnOff',
+          :action => 'click->fullscreen#off',
         },
       }
     end

@@ -9,7 +9,7 @@ class Nav::Top::Component < ViewComponent::Base
   class ItemComponent < ViewComponent::Base
     def initialize(
       name:,
-      href:,
+      href: nil,
       target: nil,
       data: nil,
       icon: nil,
@@ -25,12 +25,15 @@ class Nav::Top::Component < ViewComponent::Base
     end
 
     def before_render
-      @is_current =
-        current_page?(@href) ||
-          # TODO: Move this out of the component!
-          (@href == root_path && controller_name == 'home') ||
-          (@href.include?('top10') && controller_name == 'top10') ||
-          (@href.include?('settings') && controller_name == 'prices')
+      @is_current = @href && href_current?
+    end
+
+    def href_current?
+      current_page?(@href) ||
+        # TODO: Move this out of the component!
+        (@href == root_path && controller_name == 'home') ||
+        (@href.include?('top10') && controller_name == 'top10') ||
+        (@href.include?('settings') && controller_name == 'prices')
     end
 
     attr_reader :name, :target
@@ -58,6 +61,10 @@ class Nav::Top::Component < ViewComponent::Base
     end
 
     def call(icon: @icon)
+      @href ? render_link(icon:) : render_button(icon:)
+    end
+
+    def render_link(icon:)
       link_to @href,
               target:,
               class: css_classes,
@@ -68,6 +75,18 @@ class Nav::Top::Component < ViewComponent::Base
                   action: 'toggle#hide',
                 ),
               'aria-current' => current? ? 'page' : nil do
+        icon ? tag.i(class: "fa fa-#{@icon} fa-lg") : name
+      end
+    end
+
+    def render_button(icon:)
+      tag.button class: css_classes,
+                 title: icon ? name : nil,
+                 data:
+                   @data.merge(
+                     controller: icon ? 'tippy' : nil,
+                     action: "toggle#hide #{@data[:action]}",
+                   ) do
         icon ? tag.i(class: "fa fa-#{@icon} fa-lg") : name
       end
     end
