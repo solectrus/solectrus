@@ -1,8 +1,9 @@
 describe('Administrator', () => {
   context('when not logged in', () => {
     beforeEach(() => {
-      cy.visit('/');
+      cy.visit('/settings');
 
+      cy.get('header nav button').first().click();
       cy.get('header a[href="/login"]').first().click();
       cy.get('#new_admin_user').should('be.visible');
     });
@@ -27,8 +28,9 @@ describe('Administrator', () => {
 
   context('when logged in', () => {
     beforeEach(() => {
-      cy.visit('/');
+      cy.visit('/settings');
 
+      cy.get('header nav button').first().click();
       cy.get('header a[href="/login"]').first().click();
       cy.get('#new_admin_user').should('be.visible');
       cy.get('#admin_user_password').type('secret');
@@ -36,7 +38,10 @@ describe('Administrator', () => {
     });
 
     it('can logout', () => {
+      cy.get('header nav button').first().click();
       cy.get('a[href="/logout"]').first().click();
+
+      cy.get('header nav button').first().click();
       cy.get('a[href="/login"]').should('be.exist');
       cy.get('a[href="/logout"]').should('not.exist');
     });

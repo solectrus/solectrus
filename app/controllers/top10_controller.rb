@@ -23,11 +23,12 @@ class Top10Controller < ApplicationController
 
   helper_method def field_items
     Senec::POWER_FIELDS.map do |field|
-      {
+      MenuItem::Component.new(
         name: I18n.t("senec.#{field}"),
-        field:,
         href: url_for(**permitted_params.merge(field:, only_path: true)),
-      }
+        field:,
+        current: field == self.field,
+      )
     end
   end
 

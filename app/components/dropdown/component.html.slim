@@ -7,29 +7,40 @@ div
     ]
       - items.each do |item|
         option[
-          value= item[:href]
-          data= item[:data]
+          value= item.href
+          data= item.data
           selected= (item == selected_item)
         ]
-          = item[:name]
+          = item.name
 
-    select.absolute.invisible.font-medium data-select-target= 'temp'
+    select.absolute.invisible.font-medium[
+      data-select-target= 'temp'
+    ]
       option
 
   .hidden.relative.lg:inline-block.text-left data-controller="dropdown--component"
-    div data-dropdown--component-target="button" data-action="click->dropdown--component#toggleMenu"
-      button#options-menu.inline-flex.justify-center.items-end.w-full.rounded-md.px-2.sm:px-4.py-2.text-gray-900.font-medium.focus:outline-none.focus:ring-2.focus:ring-indigo-500.text-sm[
-        aria-expanded="true"
-        aria-haspopup="true"
-        type="button"
+    - if button
+      = button
+    - else
+      button#options-menu.flex.rounded-md.px-2.sm:px-4.py-2.text-gray-900.font-medium.focus:outline-none.focus:ring-2.focus:ring-indigo-500.text-sm.gap-2[
+        type= 'button'
         class= button_class
+        data-dropdown--component-target="button"
+        data-action="click->dropdown--component#toggleMenu"
+        aria-haspopup= 'true'
+        aria-expanded= 'false'
       ]
-        = selected_item[:name]
-        svg.-mr-1.ml-2.h-5 aria-hidden="true" fill="currentColor" viewbox="0 0 20 20"
+        = selected_item&.name
+
+        svg.h-5[
+          viewbox= '0 0 20 20'
+          fill= 'currentColor'
+          aria-hidden= 'true'
+        ]
           path[
-            clip-rule="evenodd"
-            fill-rule="evenodd"
-            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clip-rule= 'evenodd'
+            fill-rule= 'evenodd'
+            d= 'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
           ]
 
     .z-10.origin-top-right.absolute.right-0.mt-2.rounded-md.shadow-lg.bg-white.ring-1.ring-black.ring-opacity-5.hidden[
@@ -41,7 +52,6 @@ div
       data-transition-leave-start="opacity-100 scale-100"
       data-transition-leave-end="opacity-0 scale-95"
     ]
-      .py-1 aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
+      .py-1.whitespace-nowrap aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
         - items.each do |item|
-          a.block.px-6.py-2.text-gray-700.hover:bg-gray-100.hover:text-gray-900.whitespace-nowrap href= item[:href] data= item[:data] role="menuitem"
-            = item[:name]
+          = item.call(with_icon: icons?, css_extra: item.current ? 'font-bold' : nil)

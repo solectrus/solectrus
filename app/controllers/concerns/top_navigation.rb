@@ -4,29 +4,43 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
   included do # rubocop:disable Metrics/BlockLength
     private
 
-    helper_method def topnav_items
+    helper_method def topnav_primary_items
+      [stats_item, essentials_item, top10_item]
+    end
+
+    helper_method def topnav_secondary_items
       [
-        # Left
-        stats_item,
-        essentials_item,
-        top10_item,
-        about_item,
-        # Right
-        faq_item,
         settings_item,
+        registration_item,
+        ___,
         expand_item,
         compress_item,
-        registration_item,
+        ___,
+        faq_item,
+        about_item,
+        ___,
         session_item,
       ].compact
     end
 
+    def ___
+      { name: '-' }
+    end
+
     def stats_item
-      { name: t('layout.balance'), href: root_path }
+      {
+        name: t('layout.balance'),
+        href: root_path,
+        current: helpers.controller.is_a?(HomeController),
+      }
     end
 
     def essentials_item
-      { name: t('layout.essentials'), href: essentials_path }
+      {
+        name: t('layout.essentials'),
+        href: essentials_path,
+        current: helpers.controller.is_a?(EssentialsController),
+      }
     end
 
     def top10_item
@@ -45,6 +59,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
             sort: 'desc',
             calc: 'sum',
           ),
+        current: helpers.controller.is_a?(Top10Controller),
       }
     end
 
@@ -63,7 +78,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.about'),
         href: 'https://solectrus.de',
-        target: '_blank',
+        icon: 'circle-info',
       }
     end
 
@@ -76,7 +91,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.registration'),
         href: registration_path,
         icon: 'id-card',
-        alignment: :right,
         data: {
           turbo: 'false',
         },
@@ -87,7 +101,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.fullscreen_on'),
         icon: 'expand',
-        alignment: :right,
         data: {
           'fullscreen-target' => 'btnOn',
           :action => 'click->fullscreen#on',
@@ -99,7 +112,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.fullscreen_off'),
         icon: 'compress',
-        alignment: :right,
         data: {
           'fullscreen-target' => 'btnOff',
           :action => 'click->fullscreen#off',
@@ -112,8 +124,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.faq'),
         icon: 'circle-question',
         href: 'https://solectrus.de/faq',
-        target: '_blank',
-        alignment: :right,
       }
     end
 
@@ -122,7 +132,9 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.settings'),
         icon: 'cog',
         href: settings_path,
-        alignment: :right,
+        current:
+          helpers.controller.is_a?(SettingsController) ||
+            helpers.controller.is_a?(PricesController),
       }
     end
 
@@ -135,7 +147,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           data: {
             'turbo-method': :delete,
           },
-          alignment: :right,
         }
       else
         {
@@ -145,7 +156,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           data: {
             turbo_frame: 'modal',
           },
-          alignment: :right,
         }
       end
     end

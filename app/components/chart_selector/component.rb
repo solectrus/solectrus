@@ -9,7 +9,7 @@ class ChartSelector::Component < ViewComponent::Base
   def field_items
     # TODO: Add savings chart
     (Senec::FIELDS_COMBINED - ['savings']).map do |field|
-      {
+      MenuItem::Component.new(
         name: title(field),
         field:,
         href: root_path(field:, timeframe:),
@@ -19,7 +19,8 @@ class ChartSelector::Component < ViewComponent::Base
           'action' => 'stats-with-chart--component#startLoop',
           'stats-with-chart--component-field-param' => field,
         },
-      }
+        current: field == @field,
+      )
     end
   end
 

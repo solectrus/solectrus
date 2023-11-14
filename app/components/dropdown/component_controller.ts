@@ -25,8 +25,10 @@ export default class extends Controller {
   toggleMenu() {
     if (this.menuTarget.classList.contains('hidden')) {
       enter(this.menuTarget);
+      this.buttonTarget.ariaExpanded = 'true';
     } else {
       leave(this.menuTarget);
+      this.buttonTarget.ariaExpanded = 'false';
     }
   }
 
