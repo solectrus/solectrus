@@ -23,7 +23,7 @@ class MenuItem::Component < ViewComponent::Base
 
   attr_reader :name, :href, :icon, :current, :data, :field
 
-  CSS_CLASSES = %w[rounded-md py-2 px-3 block w-full].freeze
+  CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
 
   def call(with_icon: false, css_extra: nil)
@@ -40,7 +40,7 @@ class MenuItem::Component < ViewComponent::Base
     link_to href,
             target:,
             class: [CSS_CLASSES, css_extra],
-            data: @data.merge(action: 'dropdown--component#toggleMenu'),
+            data: @data,
             'aria-current' => current ? 'page' : nil do
       tag.div class: 'flex items-center justify-between gap-2' do
         render_inner(with_icon:)
@@ -49,11 +49,7 @@ class MenuItem::Component < ViewComponent::Base
   end
 
   def render_button(with_icon:, css_extra:)
-    tag.button class: [CSS_CLASSES, css_extra],
-               data:
-                 @data.merge(
-                   action: "dropdown--component#toggleMenu #{@data[:action]}",
-                 ) do
+    tag.button class: [CSS_CLASSES, css_extra], data: @data do
       render_inner(with_icon:)
     end
   end

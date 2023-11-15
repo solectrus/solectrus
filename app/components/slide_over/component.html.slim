@@ -1,0 +1,58 @@
+.relative.z-50.hidden[
+  aria-labelledby= 'slide-over-title'
+  role= 'dialog'
+  aria-modal= 'true'
+  data-slide-over--component-target= 'outer'
+]
+  .fixed.inset-0.bg-gray-500.bg-opacity-75.transition-opacity[
+    data-slide-over--component-target= 'overlay'
+
+    data-transition-enter=       'ease-in-out duration-500'
+    data-transition-enter-start= 'opacity-0'
+    data-transition-enter-end=   'opacity-100'
+    data-transition-leave=       'ease-in-out duration-500'
+    data-transition-leave-start= 'opacity-100'
+    data-transition-leave-end=   'opacity-0'
+  ]
+
+  .fixed.inset-0.overflow-hidden[
+    data-action= 'click->slide-over--component#close keydown.esc@document->slide-over--component#close'
+  ]
+    .absolute.inset-0.overflow-hidden
+      .pointer-events-none.fixed.inset-y-0.right-0.flex.max-w-full.pl-10[
+        data-slide-over--component-target= 'panel'
+        data-transition-enter=       'transform transition ease-in-out duration-500'
+        data-transition-enter-start= 'translate-x-full'
+        data-transition-enter-end=   'translate-x-0'
+        data-transition-leave=       'transform transition ease-in-out duration-500'
+        data-transition-leave-start= 'translate-x-0'
+        data-transition-leave-end=   'translate-x-full'
+      ]
+        .pointer-events-auto.w-screen.max-w-md
+          .flex.h-full.flex-col.overflow-y-scroll.bg-white.py-6.shadow-xl
+            .px-4.sm:px-6
+              .flex.items-start.justify-between
+                h2#slide-over-title.text-base.font-semibold.leading-6.text-gray-900
+                  | SOLECTRUS
+
+                .ml-3.flex.h-7.items-center
+                  button.relative.rounded-md.bg-white.text-gray-400.hover:text-gray-500.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:ring-offset-2[
+                    type= 'button'
+                    data-action= 'click->slide-over--component#close'
+                  ]
+                    span.absolute.-inset-2.5
+
+                    span.sr-only
+                      | Close panel
+
+                    svg.h-6.w-6[
+                      fill= 'none'
+                      viewbox= '0 0 24 24'
+                      stroke-width= '1.5'
+                      stroke= 'currentColor'
+                      aria-hidden= 'true'
+                    ]
+                      path stroke-linecap= 'round' stroke-linejoin= 'round' d= 'M6 18L18 6M6 6l12 12'
+
+            .relative.mt-6.flex-1
+              = content

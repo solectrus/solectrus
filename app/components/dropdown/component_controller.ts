@@ -22,7 +22,7 @@ export default class extends Controller {
     document.removeEventListener('click', this.handleClickOutside.bind(this));
   }
 
-  toggleMenu() {
+  toggle() {
     if (this.menuTarget.classList.contains('hidden')) {
       enter(this.menuTarget);
       this.buttonTarget.ariaExpanded = 'true';

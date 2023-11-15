@@ -26,6 +26,9 @@ class Top10Controller < ApplicationController
       MenuItem::Component.new(
         name: I18n.t("senec.#{field}"),
         href: url_for(**permitted_params.merge(field:, only_path: true)),
+        data: {
+          action: 'dropdown--component#toggle',
+        },
         field:,
         current: field == self.field,
       )
