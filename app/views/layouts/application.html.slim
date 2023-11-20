@@ -86,7 +86,7 @@ html lang="de"
     = render Nav::Top::Component.new do |c|
       = c.with_primary_items topnav_primary_items
       = c.with_secondary_items topnav_secondary_items
-      = c.with_sub_nav { yield :sub_nav } if content_for?(:sub_nav)
+      = c.with_sub_nav { yield :sub_nav }
 
     = turbo_frame_tag 'flash' do
       - if flash.present?

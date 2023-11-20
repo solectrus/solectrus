@@ -61,6 +61,8 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
   - if sub_nav
     .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-4.sm:px-6.lg:px-8.pt-14.md:pt-16
       = sub_nav
+  - else
+    .sm:py-3
 
   = render SlideOver::Component.new do
     - secondary_items.each do |item|
