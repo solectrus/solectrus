@@ -1,5 +1,5 @@
 class SettingsController < ApplicationController
-  before_action :admin_required!, except: %i[show]
+  before_action :admin_required!
 
   def show
   end

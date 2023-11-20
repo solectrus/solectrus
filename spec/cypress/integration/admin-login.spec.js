@@ -1,7 +1,7 @@
 describe('Administrator', () => {
   context('when not logged in', () => {
     beforeEach(() => {
-      cy.visit('/settings');
+      cy.visit('/');
 
       cy.get('header nav button[aria-haspopup="true"').first().click();
       cy.get('header a[href="/login"]').first().click({ force: true });
@@ -28,7 +28,7 @@ describe('Administrator', () => {
 
   context('when logged in', () => {
     beforeEach(() => {
-      cy.visit('/settings');
+      cy.visit('/');
 
       cy.get('header nav button[aria-haspopup="true"').first().click();
       cy.get('header a[href="/login"]').first().click({ force: true });

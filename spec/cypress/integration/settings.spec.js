@@ -1,35 +1,15 @@
 describe('Settings', () => {
-  beforeEach(() => {
-    cy.visit('/settings/prices');
-  });
-
-  it('can list prices', () => {
-    cy.location('pathname').should('equal', `/settings/prices`);
-    cy.location('search').should('equal', '?name=electricity');
-
-    cy.get('#list')
-      .should('contain', '27.11.2020')
-      .should('contain', '0,2545 €');
-
-    cy.contains('Einspeisevergütung').click();
-    cy.location('pathname').should('equal', `/settings/prices`);
-    cy.location('search').should('equal', '?name=feed_in');
-    cy.get('#list')
-      .should('contain', '27.11.2020')
-      .should('contain', '0,0832 €');
-  });
-
   context('when no admin user is logged in', () => {
-    it('cannot see buttons for add/edit/delete', () => {
-      cy.get('button[aria-label="Neu"]').should('not.exist');
-      cy.get('button[aria-label="Bearbeiten"]').should('not.exist');
-      cy.get('button[aria-label="Löschen"]').should('not.exist');
+    it('cannot see prices', () => {
+      cy.request({ url: '/settings/prices', failOnStatusCode: false }).then(
+        (resp) => expect(resp.status).to.eq(403),
+      );
     });
 
     it('cannot create price', () => {
-      cy.visit('/settings/prices/new');
-
-      cy.location('pathname').should('equal', `/login`);
+      cy.request({ url: '/settings/prices/new', failOnStatusCode: false }).then(
+        (resp) => expect(resp.status).to.eq(403),
+      );
     });
   });
 
@@ -37,6 +17,22 @@ describe('Settings', () => {
     beforeEach(() => {
       cy.login();
       cy.visit('/settings/prices');
+    });
+
+    it('can list prices', () => {
+      cy.location('pathname').should('equal', `/settings/prices`);
+      cy.location('search').should('equal', '?name=electricity');
+
+      cy.get('#list')
+        .should('contain', '27.11.2020')
+        .should('contain', '0,2545 €');
+
+      cy.contains('Einspeisevergütung').click();
+      cy.location('pathname').should('equal', `/settings/prices`);
+      cy.location('search').should('equal', '?name=feed_in');
+      cy.get('#list')
+        .should('contain', '27.11.2020')
+        .should('contain', '0,0832 €');
     });
 
     it('can see buttons for add/edit, but not delete', () => {

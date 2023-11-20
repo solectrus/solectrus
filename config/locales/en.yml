@@ -91,6 +91,9 @@ en:
         electricity: Price per consumed kWh paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
   errors:
+    403:
+      title: Access denied
+      description: You are not authorized to access this page.
     404:
       title: Not Found
       description: The requested page could not be found.
@@ -100,7 +103,8 @@ en:
     500:
       title: Internal Server Error
       description: Sorry, something went wrong. See the server log for more details.
-    back_to_home: Back to homepage
+    back_to_home: ← Back to homepage
+    login: Login as administrator
 
   activemodel:
     attributes:

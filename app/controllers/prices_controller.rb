@@ -1,5 +1,5 @@
 class PricesController < ApplicationController
-  before_action :admin_required!, except: %i[index]
+  before_action :admin_required!
 
   before_action :load_price, only: %i[edit update destroy]
   before_action :new_price, only: %i[new create]

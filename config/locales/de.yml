@@ -91,16 +91,20 @@ de:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
   errors:
+    403:
+      title: Zugriff verweigert
+      description: Du hast nicht die erforderliche Berechtigung für diese Seite.
     404:
       title: Nicht gefunden
-      description: Die angeforderte Seite konnte leider nicht gefunden werden.
+      description: Die angeforderte Seite konnte nicht gefunden werden.
     422:
       title: Verarbeitung nicht möglich
       description: Die gewünschte Änderung wurde abgelehnt.
     500:
       title: Interner Server-Fehler
       description: Sorry, da ist etwas schief gelaufen. Im Server-Protokoll finden sich weitere Details.
-    back_to_home: Zurück zur Startseite
+    back_to_home: ← Zurück zur Startseite
+    login: Als Administrator anmelden
 
   activemodel:
     attributes:

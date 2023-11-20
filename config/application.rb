@@ -42,6 +42,9 @@ module Solectrus
 
     config.exceptions_app = ->(env) { ErrorsController.action(:show).call(env) }
 
+    # Add custom error status codes
+    config.action_dispatch.rescue_responses['ForbiddenError'] = :forbidden
+
     # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
     # the I18n.default_locale when a translation cannot be found).
     config.i18n.available_locales = %i[en de]

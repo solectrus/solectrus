@@ -10,9 +10,8 @@
 
 = form_for(Setting.new, method: :patch) do |f|
   = f.group do
-    = f.text_field :plant_name, autofocus: true, value: Setting.plant_name, placeholder: t('settings.general.plant_name.placeholder'), disabled: !admin?
-    = f.text_field :operator_name, autofocus: true, value: Setting.operator_name, placeholder: t('settings.general.operator_name.placeholder'), disabled: !admin?
+    = f.text_field :plant_name, autofocus: true, value: Setting.plant_name, placeholder: t('settings.general.plant_name.placeholder')
+    = f.text_field :operator_name, autofocus: true, value: Setting.operator_name, placeholder: t('settings.general.operator_name.placeholder')
 
-  - if admin?
-    = f.actions do
-      = f.submit t('crud.save')
+  = f.actions do
+    = f.submit t('crud.save')
