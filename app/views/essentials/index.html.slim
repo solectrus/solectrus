@@ -1,14 +1,15 @@
 - turbo_exempts_page_from_cache
 - content_for :full_height, true
 
-.flex.items-baseline.justify-between.pb-4.text-gray-500
-  - if Setting.plant_name.present?
-    h1 class="text-base sm:text-lg md:text-xl lg:text-2xl leading-none"
-      = Setting.plant_name
+- if Setting.plant_name.present? || Setting.operator_name.present?
+  .flex.items-baseline.justify-between.pb-4.text-gray-500
+    - if Setting.plant_name.present?
+      h1 class="text-base sm:text-lg md:text-xl lg:text-2xl leading-none"
+        = Setting.plant_name
 
-  - if Setting.operator_name.present?
-    h2 class="text-sm sm:text-base md:text-lg lg:text-xl leading-none"
-      = Setting.operator_name
+    - if Setting.operator_name.present?
+      h2 class="text-sm sm:text-base md:text-lg lg:text-xl leading-none"
+        = Setting.operator_name
 
 div class= 'flex-auto grid grid-flow-row auto-rows-fr grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8'
   - tiles.each do |tile|

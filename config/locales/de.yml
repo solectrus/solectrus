@@ -84,6 +84,7 @@ de:
         placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
       operator_name:
         placeholder: z.B. Max Mustermann in Musterstadt
+      description: Optionale Angaben zur Photovoltaik-Anlage und zum Betreiber. Wird nur auf der Seite der Einzelwerte angezeigt.
     prices:
       edit: Preis bearbeiten
       new: Neuer Preis
