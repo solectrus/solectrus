@@ -1,7 +1,7 @@
 class SettingsController < ApplicationController
   before_action :admin_required!
 
-  def show
+  def edit
   end
 
   def update
