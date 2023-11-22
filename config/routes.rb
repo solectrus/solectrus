@@ -1,28 +1,29 @@
 # == Route Map
 #
-#       Prefix Verb   URI Pattern                                         Controller#Action
-#         root GET    /(:field)(/:timeframe)(.:format)                    home#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#        stats GET    /stats/:field(/:timeframe)(.:format)                stats#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#       charts GET    /charts/:field(/:timeframe)(.:format)               charts#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#        tiles GET    /tiles/:field(/:timeframe)(.:format)                tiles#show {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#   essentials GET    /essentials(.:format)                               essentials#index
-#        top10 GET    /top10(/:period)(/:field)(/:calc)(/:sort)(.:format) top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
-#  top10_chart GET    /top10-chart/:period/:field/:calc/:sort(.:format)   top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
-#  new_session GET    /login(.:format)                                    sessions#new
-#     sessions POST   /login(.:format)                                    sessions#create
-#      session DELETE /logout(.:format)                                   sessions#destroy
-# registration GET    /registration(/:status)(.:format)                   registration#show
-#     settings GET    /settings(.:format)                                 settings#show
-#              PATCH  /settings(.:format)                                 settings#update
-#              PUT    /settings(.:format)                                 settings#update
-#       prices GET    /settings/prices(.:format)                          prices#index
-#              POST   /settings/prices(.:format)                          prices#create
-#    new_price GET    /settings/prices/new(.:format)                      prices#new
-#   edit_price GET    /settings/prices/:id/edit(.:format)                 prices#edit
-#        price GET    /settings/prices/:id(.:format)                      prices#show
-#              PATCH  /settings/prices/:id(.:format)                      prices#update
-#              PUT    /settings/prices/:id(.:format)                      prices#update
-#              DELETE /settings/prices/:id(.:format)                      prices#destroy
+#        Prefix Verb   URI Pattern                                         Controller#Action
+#          root GET    /(:field)(/:timeframe)(.:format)                    home#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#         stats GET    /stats/:field(/:timeframe)(.:format)                stats#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#        charts GET    /charts/:field(/:timeframe)(.:format)               charts#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#         tiles GET    /tiles/:field(/:timeframe)(.:format)                tiles#show {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#    essentials GET    /essentials(.:format)                               essentials#index
+#         top10 GET    /top10(/:period)(/:field)(/:calc)(/:sort)(.:format) top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
+#   top10_chart GET    /top10-chart/:period/:field/:calc/:sort(.:format)   top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
+#   new_session GET    /login(.:format)                                    sessions#new
+#      sessions POST   /login(.:format)                                    sessions#create
+#       session DELETE /logout(.:format)                                   sessions#destroy
+#  registration GET    /registration(/:status)(.:format)                   registration#show
+# edit_settings GET    /settings(.:format)                                 settings#edit
+#      settings PATCH  /settings(.:format)                                 settings#update
+#               PUT    /settings(.:format)                                 settings#update
+#        prices GET    /settings/prices(/:name)(.:format)                  prices#index {:name=>/electricity|feed_in/}
+#               GET    /settings/prices(.:format)                          prices#index
+#               POST   /settings/prices(.:format)                          prices#create
+#     new_price GET    /settings/prices/new(.:format)                      prices#new
+#    edit_price GET    /settings/prices/:id/edit(.:format)                 prices#edit
+#         price GET    /settings/prices/:id(.:format)                      prices#show
+#               PATCH  /settings/prices/:id(.:format)                      prices#update
+#               PUT    /settings/prices/:id(.:format)                      prices#update
+#               DELETE /settings/prices/:id(.:format)                      prices#destroy
 
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -69,6 +70,8 @@ Rails.application.routes.draw do
 
   resource :settings, only: %i[edit update], path_names: { edit: '' }
   scope :settings do
-    resources :prices
+    resources :prices, constraints: { name: Regexp.union(Price.names.keys) } do
+      get '(:name)', on: :collection, action: :index, as: ''
+    end
   end
 end

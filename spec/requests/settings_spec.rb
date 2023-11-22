@@ -50,20 +50,20 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
 
       context 'when name is "electricity"' do
         it 'returns http success' do
-          get '/settings/prices?name=electricity'
+          get '/settings/prices/electricity'
           expect(response).to have_http_status(:success)
         end
       end
 
       context 'when name is "feed_in"' do
         it 'returns http success' do
-          get '/settings/prices?name=feed_in'
+          get '/settings/prices/feed_in'
           expect(response).to have_http_status(:success)
         end
       end
 
       context 'when name is not given' do
-        it 'returns http redirect' do
+        it 'redirects' do
           get '/settings/prices'
           expect(response).to have_http_status(:redirect)
         end
