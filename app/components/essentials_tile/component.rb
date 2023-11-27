@@ -9,7 +9,7 @@ class EssentialsTile::Component < ViewComponent::Base
   attr_reader :calculator, :field, :timeframe
 
   def path
-    if field == :savings
+    if field.in? %i[savings co2_savings]
       # Currently, there is no chart for savings, so link to inverter_power chart
       root_path(field: 'inverter_power', timeframe:)
     else
@@ -53,6 +53,7 @@ class EssentialsTile::Component < ViewComponent::Base
     house_power: 'fa-home',
     wallbox_charge_power: 'fa-car',
     savings: 'fa-piggy-bank',
+    co2_savings: 'fa-seedling',
   }.freeze
 
   BACKGROUND_COLOR = {
@@ -89,6 +90,8 @@ class EssentialsTile::Component < ViewComponent::Base
     case field
     when :savings
       number.to_eur(klass: 'text-inherit')
+    when :co2_savings
+      number.to_weight
     when :autarky, :bat_fuel_charge
       number.to_percent(klass: 'text-inherit')
     else

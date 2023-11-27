@@ -10,7 +10,7 @@ class EssentialsController < ApplicationController
       { field: 'inverter_power', timeframe: 'day' },
       { field: 'inverter_power', timeframe: 'month' },
       { field: 'inverter_power', timeframe: 'year' },
-      { field: 'inverter_power', timeframe: 'all' },
+      { field: 'co2_savings', timeframe: 'year' },
       { field: 'savings', timeframe: 'year' },
     ]
   end

@@ -12,7 +12,7 @@ module Senec
   ].freeze
   public_constant :FIELDS
 
-  CALCULATED_FIELDS = %w[autarky consumption savings].freeze
+  CALCULATED_FIELDS = %w[autarky consumption savings co2_savings].freeze
   public_constant :CALCULATED_FIELDS
 
   # All fields related to power (= all but `bat_fuel_charge`)

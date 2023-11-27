@@ -1,4 +1,7 @@
 class Calculator::Range < Calculator::Base
+  CO2_EMISION_FACTOR = 401 # g / kWh
+  public_constant :CO2_EMISION_FACTOR
+
   def initialize(timeframe)
     super()
 
@@ -88,6 +91,12 @@ class Calculator::Range < Calculator::Base
     return unless solar_price && traditional_price
 
     solar_price - traditional_price
+  end
+
+  def co2_savings
+    return unless inverter_power
+
+    inverter_power / 1000 * CO2_EMISION_FACTOR
   end
 
   def battery_savings

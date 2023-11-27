@@ -50,6 +50,7 @@ de:
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     savings: Einsparung
+    co2_savings: CO₂-Einsparung
     battery_savings: Anteil Akku
     house_costs: Anteil Haus
     wallbox_costs: Anteil E-Auto
