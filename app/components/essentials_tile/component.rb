@@ -25,7 +25,7 @@ class EssentialsTile::Component < ViewComponent::Base
     return :gray if value.nil? || value.round.zero?
 
     case field
-    when :savings
+    when :savings, :co2_savings
       :blue
     when :house_power
       :gray
@@ -53,7 +53,7 @@ class EssentialsTile::Component < ViewComponent::Base
     house_power: 'fa-home',
     wallbox_charge_power: 'fa-car',
     savings: 'fa-piggy-bank',
-    co2_savings: 'fa-seedling',
+    co2_savings: 'fa-tree-city',
   }.freeze
 
   BACKGROUND_COLOR = {

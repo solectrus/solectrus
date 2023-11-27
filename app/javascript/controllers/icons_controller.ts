@@ -37,7 +37,7 @@ import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleE
 
 import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard';
 import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank';
-import { faSeedling } from '@fortawesome/free-solid-svg-icons/faSeedling';
+import { faTreeCity } from '@fortawesome/free-solid-svg-icons/faTreeCity';
 import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
 import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
 // -------------------------
@@ -79,7 +79,7 @@ export default class extends Controller {
       faCircleInfo,
       faIdCard,
       faPiggyBank,
-      faSeedling,
+      faTreeCity,
       faCompress,
       faExpand,
     );
