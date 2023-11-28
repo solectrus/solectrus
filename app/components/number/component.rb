@@ -42,7 +42,7 @@ class Number::Component < ViewComponent::Base
     styled_number(
       formatted_number(value, max_precision:),
       unit: '&euro;'.html_safe,
-      klass: klass || (value.negative? ? %w[text-red-500] : %w[text-green-500]),
+      klass: klass || (value.negative? ? %w[text-red-700] : %w[text-green-700]),
     )
   end
 
@@ -66,7 +66,7 @@ class Number::Component < ViewComponent::Base
     styled_number(
       formatted_number(value, max_precision: 4),
       unit: '&euro;/kWh'.html_safe,
-      klass: klass || (value.negative? ? %w[text-red-500] : %w[text-green-500]),
+      klass: klass || (value.negative? ? %w[text-red-700] : %w[text-green-700]),
     )
   end
 

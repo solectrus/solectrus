@@ -39,7 +39,7 @@
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.savings')) do
         - unless timeframe.future?
-          = Number::Component.new(value: calculator.savings).to_eur(klass: 'text-green-700')
+          = Number::Component.new(value: calculator.savings).to_eur
       - unless timeframe.future?
         template data-tippy-target="html"
           = render SavingsDetails::Component.new(calculator:)
