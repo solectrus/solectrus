@@ -25,7 +25,7 @@
     "tippy.js": "^6.3.7"
   },
   "devDependencies": {
-    "@prettier/plugin-ruby": "^4.0.2",
+    "@prettier/plugin-ruby": "^4.0.3",
     "@size-limit/file": "^11.0.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/container-queries": "^0.1.1",
