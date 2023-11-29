@@ -3,13 +3,14 @@
     h3.font-bold.text-base
       = t('.title')
 
-    dl.mt-1
-      .grid.grid-cols-2.gap-2
+    dl.mt-1.space-y-2
+      .flex.items-center.justify-between.gap-4
         dt
           = I18n.t('senec.grid_power_plus')
         dd.font-mono.text-right.text-red-700
           = Number::Component.new(value: calculator.grid_power_plus).to_watt_hour(unit: :kilo)
 
+      .flex.items-center.justify-between.gap-4
         dt
           = Price.human_enum_name(:name, :electricity)
         dd.font-mono.text-right
@@ -24,6 +25,7 @@
               = ' bis '
             = Number::Component.new(value: calculator.electricity_prices.last).to_eur_per_kwh(klass: 'text-red-700')
 
+      .flex.items-center.justify-between.gap-4
         dt
           span.text-xl
             = "\u21D2 "
@@ -36,14 +38,14 @@
       h3.font-bold.text-base
         = t('.breakdown.title')
 
-      dl.mt-1
-        .grid.grid-cols-2.gap-4
+      dl.mt-1.space-y-2
+        .flex.items-center.justify-between.gap-4
           dt
             = I18n.t('calculator.house_costs')
           dd.font-mono.text-right
             = Number::Component.new(value: calculator.house_costs.abs).to_eur(klass: 'text-red-700', max_precision: 2)
 
-        .grid.grid-cols-2.gap-4
+        .flex.items-center.justify-between.gap-4
           dt
             = I18n.t('calculator.wallbox_costs')
           dd.font-mono.text-right
