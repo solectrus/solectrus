@@ -36,6 +36,11 @@ Rails.application.configure do
   # config.action_dispatch.x_sendfile_header = 'X-Sendfile' # for Apache
   # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for NGINX
 
+  # The 'X-Frame-Options' header should not be used.  A similar effect, with more consistent
+  # support and stronger checks, can be achieved with the 'Content-Security-Policy' header
+  # and 'frame-ancestors' directive.
+  config.action_dispatch.default_headers.delete 'X-Frame-Options'
+
   # Mount Action Cable outside main process or domain.
   # config.action_cable.mount_path = nil
   # config.action_cable.url = 'wss://example.com/cable'
