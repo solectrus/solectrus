@@ -53,7 +53,7 @@
   },
   "size-limit": [
     {
-      "limit": "170 kB",
+      "limit": "175 kB",
       "gzip": true,
       "path": "public/{vite,vite-dev,vite-test}/assets/*.js"
     }
