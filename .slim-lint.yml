@@ -16,4 +16,5 @@ linters:
       - Layout/FirstArrayElementIndentation
       - Style/IdenticalConditionalBranches
       - Style/Next
+      - Style/RedundantLineContinuation
       - Lint/Void

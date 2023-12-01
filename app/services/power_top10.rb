@@ -49,9 +49,9 @@ class PowerTop10 < Flux::Reader
     return [] if start > stop
 
     raw = query(build_query(start:, stop:, window:, limit:, offset:))
-    return [] unless raw[0]
+    return [] unless raw.first
 
-    raw[0].records.map do |record|
+    raw.first.records.map do |record|
       time = Time.zone.parse(record.values['_time']).utc - 1.second
       value = record.values['_value']
 

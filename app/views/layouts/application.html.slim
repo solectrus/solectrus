@@ -77,7 +77,7 @@ html lang="de"
   body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none[
     data-controller= ['icons', 'fullscreen', ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
-    data-plausible-domain-value= (Rails.configuration.x.plausible_url && Rails.configuration.x.app_host)
+    data-plausible-domain-value= Rails.configuration.x.plausible_url && Rails.configuration.x.app_host
   ]
     - if registration_banner?
       = render RegistrationBanner::Component.new registration_status: UpdateCheck.instance.registration_status,
