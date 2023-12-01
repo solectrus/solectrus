@@ -13,6 +13,9 @@ class Scale
     # This can happen if there is too little data to calculate the peak values.
     return upper_bound if value > max
 
+    # Natural logarithm is not defined for negative numbers
+    return lower_bound if value.negative?
+
     result =
       lower_bound +
         (extent * (Math.log(value)**FACTOR) / (Math.log(max)**FACTOR))
