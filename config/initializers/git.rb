@@ -5,7 +5,7 @@ commit_branch =
 Rails.configuration.x.git.commit_version =
   if commit_branch.present? && %w[main develop].exclude?(commit_branch)
     parts = commit_version.split('-')
-    [commit_branch, parts.second, parts.third].join('-')
+    [commit_branch, parts.second, parts.third].compact.join('-')
   else
     commit_version
   end
