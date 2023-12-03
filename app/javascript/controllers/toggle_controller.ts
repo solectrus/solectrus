@@ -13,7 +13,7 @@ export default class extends Controller {
 
   toggle() {
     this.dropdownTarget.classList.toggle('max-h-0');
-    this.dropdownTarget.classList.toggle('max-h-96');
+    this.dropdownTarget.classList.toggle('max-h-128');
 
     this.iconTargets.forEach((icon) => icon.classList.toggle('hidden'));
 

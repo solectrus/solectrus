@@ -21,7 +21,12 @@ Bundler.require(*Rails.groups)
 module Solectrus
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 7.1
+
+    # Please, add to the `ignore` list any other `lib` subdirectories that do
+    # not contain `.rb` files, or that should not be reloaded or eager loaded.
+    # Common ones are `templates`, `generators`, or `middleware`, for example.
+    config.autoload_lib(ignore: %w[assets tasks middleware])
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -37,12 +42,16 @@ module Solectrus
 
     config.exceptions_app = ->(env) { ErrorsController.action(:show).call(env) }
 
+    # Add custom error status codes
+    config.action_dispatch.rescue_responses['ForbiddenError'] = :forbidden
+
     # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
     # the I18n.default_locale when a translation cannot be found).
     config.i18n.available_locales = %i[en de]
     config.i18n.default_locale = :en
 
     config.x.app_host = ENV.fetch('APP_HOST', nil).presence
+    config.x.frame_ancestors = ENV.fetch('FRAME_ANCESTORS', nil).presence
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
 
@@ -60,19 +69,12 @@ module Solectrus
 
     config.x.installation_date =
       Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
-    config.x.electricity_price = ENV.fetch('ELECTRICITY_PRICE', '0.25').to_f
-    config.x.feed_in_tariff = ENV.fetch('FEED_IN_TARIFF', '0.08').to_f
 
     config.x.admin_password = ENV.fetch('ADMIN_PASSWORD', nil).presence
     config.x.registration_required =
       ActiveModel::Type::Boolean.new.cast(
         ENV.fetch('REGISTRATION_REQUIRED', 'true'),
       )
-
-    # The 'X-Frame-Options' header should not be used.  A similar effect, with more consistent
-    # support and stronger checks, can be achieved with the 'Content-Security-Policy' header
-    # and 'frame-ancestors' directive.
-    config.action_dispatch.default_headers.delete 'X-Frame-Options'
 
     # Disable preloading JS/CSS via Link header to avoid browser warnings like this one:
     # "... was preloaded using link preload but not used within a few seconds ..."

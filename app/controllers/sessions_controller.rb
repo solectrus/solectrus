@@ -20,7 +20,7 @@ class SessionsController < ApplicationController
   def destroy
     cookies.delete :admin
 
-    redirect_to referer_path || root_path, status: :see_other
+    redirect_to root_path, status: :see_other
   end
 
   private

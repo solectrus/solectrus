@@ -1,8 +1,11 @@
 de:
   layout:
-    stats: Verlauf
+    balance: Strombilanz
+    essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS
+    fullscreen_on: Vollbild
+    fullscreen_off: Vollbild beenden
     faq: Fragen & Antworten
     settings: Einstellungen
     registration: Registrierung
@@ -11,6 +14,11 @@ de:
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
   timeframe:
+    now: Aktuell
+    day: Heute
+    week: Diese Woche
+    month: Dieser Monat
+    year: Dieses Jahr
     all: Seit Inbetriebnahme
   senec:
     inverter_power: Erzeugung
@@ -23,15 +31,13 @@ de:
     bat_power_plus: Akku-Beladung
     bat_power: Akku
     bat_fuel_charge: Ladestand
-    autarky: Autarkie
-    consumption: Verbrauch
     case_temp: Temperatur
     power_ratio: Begrenzung
   balance_sheet:
     left: Herkunft
     right: Verwendung
   calculator:
-    now: Jetzt
+    now: Aktuell
     day: Tag
     week: Woche
     month: Monat
@@ -39,15 +45,17 @@ de:
     all: Gesamt
     forecast: Prognose
     grid_quote: Bezugsquote
-    consumption: Eigenverbrauch
+    consumption: Verbrauch
     consumption_quote: Eigenverbrauchsquote
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     savings: Einsparung
+    co2_savings: CO₂-Einsparung
     battery_savings: Anteil Akku
     house_costs: Anteil Haus
     wallbox_costs: Anteil E-Auto
     total_costs: Kosten
+    autarky: Autarkie
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
   forecast:
@@ -68,7 +76,16 @@ de:
     delete: Löschen
     save: Speichern
     confirm_delete: Wirklich löschen?
+    success: Erfolgreich durchgeführt
+    error: Es ist ein Fehler aufgetreten
   settings:
+    general:
+      name: Allgemein
+      plant_name:
+        placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
+      operator_name:
+        placeholder: z.B. Max Mustermann in Musterstadt
+      description: Optionale Angaben zur Photovoltaik-Anlage und zum Betreiber. Wird nur auf der Seite der Einzelwerte angezeigt.
     prices:
       edit: Preis bearbeiten
       new: Neuer Preis
@@ -76,16 +93,20 @@ de:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
   errors:
+    403:
+      title: Zugriff verweigert
+      description: Du hast nicht die erforderliche Berechtigung für diese Seite.
     404:
       title: Nicht gefunden
-      description: Die angeforderte Seite konnte leider nicht gefunden werden.
+      description: Die angeforderte Seite konnte nicht gefunden werden.
     422:
       title: Verarbeitung nicht möglich
       description: Die gewünschte Änderung wurde abgelehnt.
     500:
       title: Interner Server-Fehler
       description: Sorry, da ist etwas schief gelaufen. Im Server-Protokoll finden sich weitere Details.
-    back_to_home: Zurück zur Startseite
+    back_to_home: ← Zurück zur Startseite
+    login: Als Administrator anmelden
 
   activemodel:
     attributes:
@@ -95,6 +116,7 @@ de:
   activerecord:
     models:
       price: Preis
+      settings: Einstellungen
     attributes:
       price:
         name: Name
@@ -104,3 +126,8 @@ de:
         starts_at: Gültig ab
         value: Betrag
         note: Notiz
+        electricity_amount: Arbeitspreis in €/kWh
+        feed_in_amount: Vergütungssatz in €/kWh
+      setting:
+        plant_name: Bezeichung der Anlage
+        operator_name: Name des Betreibers

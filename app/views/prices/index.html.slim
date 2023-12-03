@@ -12,16 +12,15 @@
   p.text-gray-500.text-sm.md:text-base
     = t "settings.prices.description.#{name}"
 
-  - if admin?
-    = render Button::Component.new path: new_price_path,
-                                   icon: 'plus',
-                                   type: :button,
-                                   options: { \
-                                     method: :get,
-                                     params: { price: { name: } },
-                                     data: { turbo_frame: 'modal' },
-                                     'aria-label': t('crud.new'),
-                                  }
+  = render Button::Component.new path: new_price_path,
+                                  icon: 'plus',
+                                  type: :button,
+                                  options: { \
+                                    method: :get,
+                                    params: { price: { name: } },
+                                    data: { turbo_frame: 'modal' },
+                                    'aria-label': t('crud.new'),
+                                }
 
 = turbo_stream_from "prices_#{name}"
 = turbo_frame_tag 'list' do

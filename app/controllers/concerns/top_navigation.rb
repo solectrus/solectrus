@@ -1,25 +1,46 @@
-module TopNavigation
+module TopNavigation # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
 
-  included do
+  included do # rubocop:disable Metrics/BlockLength
     private
 
-    helper_method def topnav_items
+    helper_method def topnav_primary_items
+      [stats_item, essentials_item, top10_item]
+    end
+
+    helper_method def topnav_secondary_items
       [
-        # Left
-        stats_item,
-        top10_item,
-        about_item,
-        # Right
-        faq_item,
         settings_item,
         registration_item,
+        ___,
+        expand_item,
+        compress_item,
+        ___,
+        faq_item,
+        about_item,
+        ___,
         session_item,
       ].compact
     end
 
+    def ___
+      { name: '-' }
+    end
+
     def stats_item
-      { name: t('layout.stats'), href: root_path }
+      {
+        name: t('layout.balance'),
+        href: root_path,
+        current: helpers.controller.is_a?(HomeController),
+      }
+    end
+
+    def essentials_item
+      {
+        name: t('layout.essentials'),
+        href: essentials_path,
+        current: helpers.controller.is_a?(EssentialsController),
+      }
     end
 
     def top10_item
@@ -38,6 +59,7 @@ module TopNavigation
             sort: 'desc',
             calc: 'sum',
           ),
+        current: helpers.controller.is_a?(Top10Controller),
       }
     end
 
@@ -56,7 +78,7 @@ module TopNavigation
       {
         name: t('layout.about'),
         href: 'https://solectrus.de',
-        target: '_blank',
+        icon: 'circle-info',
       }
     end
 
@@ -69,9 +91,30 @@ module TopNavigation
         name: t('layout.registration'),
         href: registration_path,
         icon: 'id-card',
-        alignment: :right,
         data: {
           turbo: 'false',
+        },
+      }
+    end
+
+    def expand_item
+      {
+        name: t('layout.fullscreen_on'),
+        icon: 'expand',
+        data: {
+          'fullscreen-target' => 'btnOn',
+          :action => 'click->fullscreen#on',
+        },
+      }
+    end
+
+    def compress_item
+      {
+        name: t('layout.fullscreen_off'),
+        icon: 'compress',
+        data: {
+          'fullscreen-target' => 'btnOff',
+          :action => 'click->fullscreen#off',
         },
       }
     end
@@ -81,8 +124,6 @@ module TopNavigation
         name: t('layout.faq'),
         icon: 'circle-question',
         href: 'https://solectrus.de/faq',
-        target: '_blank',
-        alignment: :right,
       }
     end
 
@@ -90,8 +131,10 @@ module TopNavigation
       {
         name: t('layout.settings'),
         icon: 'cog',
-        href: prices_path,
-        alignment: :right,
+        href: settings_path,
+        current:
+          helpers.controller.is_a?(SettingsController) ||
+            helpers.controller.is_a?(PricesController),
       }
     end
 
@@ -104,7 +147,6 @@ module TopNavigation
           data: {
             'turbo-method': :delete,
           },
-          alignment: :right,
         }
       else
         {
@@ -114,7 +156,6 @@ module TopNavigation
           data: {
             turbo_frame: 'modal',
           },
-          alignment: :right,
         }
       end
     end

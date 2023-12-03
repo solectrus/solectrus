@@ -1,31 +1,23 @@
 describe 'Routes redirection' do
-  around do |example|
-    travel_to Time.zone.local(2021, 6, 21, 12, 0, 0), &example
-  end
-
   describe 'URL shortcuts' do
-    it 'redirects /day' do
+    it 'accepts /day' do
       get '/house_power/day'
-      expect(response).to redirect_to('/house_power/2021-06-21')
-      expect(response).to have_http_status :found
+      expect(response).to be_successful
     end
 
-    it 'redirects /week' do
+    it 'accepts /week' do
       get '/house_power/week'
-      expect(response).to redirect_to('/house_power/2021-W25')
-      expect(response).to have_http_status :found
+      expect(response).to be_successful
     end
 
-    it 'redirects /month' do
+    it 'accepts /month' do
       get '/house_power/month'
-      expect(response).to redirect_to('/house_power/2021-06')
-      expect(response).to have_http_status :found
+      expect(response).to be_successful
     end
 
-    it 'redirects /year' do
+    it 'accepts /year' do
       get '/house_power/year'
-      expect(response).to redirect_to('/house_power/2021')
-      expect(response).to have_http_status :found
+      expect(response).to be_successful
     end
   end
 

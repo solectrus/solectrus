@@ -54,9 +54,10 @@ class ChartData # rubocop:disable Metrics/ClassLength
     {
       labels: autarky&.map { |x| x.first.to_i * 1000 },
       datasets: [
-        { label: I18n.t('senec.autarky'), data: autarky&.map(&:second) }.merge(
-          style('autarky'),
-        ),
+        {
+          label: I18n.t('calculator.autarky'),
+          data: autarky&.map(&:second),
+        }.merge(style('autarky')),
       ],
     }
   end

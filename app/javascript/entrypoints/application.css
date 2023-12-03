@@ -5,18 +5,12 @@
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
 /* Import app specific styles */
-@import '../stylesheets/flow.css';
 @import '../stylesheets/radial_badge.css';
+@import '../stylesheets/animations.css';
 
 .turbo-progress-bar {
   height: 5px;
   background-color: #a5b4fc;
-}
-
-/* Allow animations to be disabled */
-.animation-stopper * {
-  animation: none !important;
-  transition: none !important;
 }
 
 /* Minimalistic form styling, inspired by DaisyUI */
@@ -25,7 +19,7 @@
 }
 
 .label {
-  @apply p-1;
+  @apply p-1 text-gray-600;
 }
 
 .label-text {
@@ -50,6 +44,11 @@ body.active-tippy * {
 
 #modal code {
   @apply rounded bg-slate-100 px-1 py-px;
+}
+
+.min-h-dvh {
+  /* Fallback for browsers that do not support Dynamic viewport units */
+  min-height: 100vh;
 }
 
 /* Import Tailwind CSS */

@@ -55,7 +55,7 @@ class Flux::Reader < Flux::Base
     if @cache_options
       Rails
         .cache
-        .fetch("flux/v2/#{string}", @cache_options) do
+        .fetch(cache_key(string), @cache_options) do
           query_without_cache(string)
         end
     else
@@ -69,6 +69,11 @@ class Flux::Reader < Flux::Base
     client.create_query_api.query(query: string)
   end
 
+  # Build a short cache key from the query string to avoid hitting the 250 chars
+  def cache_key(string)
+    Digest::SHA2.hexdigest("flux/v2/#{string}")
+  end
+
   def cache_options(stop:)
     # Cache forever if the result cannot change anymore
     return {} if stop&.past?
@@ -76,6 +81,7 @@ class Flux::Reader < Flux::Base
     default_cache_options
   end
 
+  # Default cache options, can be overridden in subclasses
   def default_cache_options
     # Don't cache at all
   end

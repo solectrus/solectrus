@@ -8,7 +8,7 @@ class Flow::Component < ViewComponent::Base
   attr_reader :value, :max
 
   def height
-    return 0 if value.zero?
+    return 0 unless value&.nonzero?
 
     [Scale.new(max:).result(value), 100].min
   end

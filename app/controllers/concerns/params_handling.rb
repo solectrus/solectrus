@@ -37,5 +37,14 @@ module ParamsHandling
           allowed_days_in_future: 6,
         )
     end
+
+    helper_method def calculator
+      @calculator ||=
+        if timeframe.now?
+          Calculator::Now.new
+        else
+          Calculator::Range.new(timeframe)
+        end
+    end
   end
 end

@@ -53,7 +53,7 @@ describe PowerChart do
           last = result.last
 
           expect(last[1]).to eq(14.0)
-          expect(last[0]).to be_within(20.seconds).of(Time.current)
+          expect(last.first).to be_within(20.seconds).of(Time.current)
         end
       end
 
@@ -99,7 +99,7 @@ describe PowerChart do
             last = result.last
 
             expect(last[1]).to eq(2.0)
-            expect(last[0]).to be_within(20.seconds).of(Time.current)
+            expect(last.first).to be_within(20.seconds).of(Time.current)
           end
         end
       end

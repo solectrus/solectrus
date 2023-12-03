@@ -5,12 +5,8 @@ Rails.application.config.middleware.delete(Rack::Runtime)
 # list of defaults: https://github.com/rack/rack/blob/master/lib/rack/mime.rb
 Rack::Mime::MIME_TYPES['.webmanifest'] = 'application/manifest+json'
 
-# Enable gzip and brotli compression
-Rails.application.config.middleware.insert(0, Rack::Brotli)
+# Enable gzip compression
 Rails.application.config.middleware.insert(0, Rack::Deflater)
-
-# Enable HTTP Accept-Language header parsing
-Rails.application.config.middleware.use HttpAcceptLanguage::Middleware
 
 if Rails.application.config.x.app_host
   # Allow serving of images, stylesheets, and JavaScripts from the app_host only
@@ -23,7 +19,7 @@ if Rails.application.config.x.app_host
 
   # CDN: Allow Cloudfront for assets only
   if Rails.application.config.asset_host
-    require 'cloudfront_denier'
+    require './app/middleware/cloudfront_denier'
 
     Rails.application.config.middleware.use CloudfrontDenier,
                     target: "https://#{Rails.application.config.x.app_host}"

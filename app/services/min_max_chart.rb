@@ -113,7 +113,7 @@ class MinMaxChart < Flux::Reader
         merged_array = result[key].zip(array)
         # Return array with [time, [min, max]] or [time, nil]
         merged_array.map! do |a, b|
-          time = a[0]
+          time = a.first
           minmax = [a[1], b[1]]
           minmax.sort!
           minmax.compact!

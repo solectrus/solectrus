@@ -39,7 +39,7 @@ export default class ChartBackgroundGradient {
     chartArea: ChartArea,
   ): CanvasGradient {
     const start = this.gradientStart(chartArea.height);
-    const end = this.gradientEnd(chartArea.height);
+    const end = this.gradientEnd(chartArea.height) || 0;
     const gradient = ctx.createLinearGradient(0, start, 0, end);
 
     const colorOpaque = this.hexToRGBA(

@@ -1,20 +1,22 @@
 class Calculator::Range < Calculator::Base
+  CO2_EMISION_FACTOR = 401 # g / kWh
+  public_constant :CO2_EMISION_FACTOR
+
   def initialize(timeframe)
     super()
 
-    sums =
-      PowerSum.new(
-        measurements: [
-          Rails.configuration.x.influx.measurement_pv,
-          Rails.configuration.x.influx.measurement_forecast,
-        ],
-        fields: fields(timeframe),
-      ).call(timeframe)
+    @timeframe = timeframe
 
-    build_context sums
+    build_context PowerSum.new(
+                    measurements: [
+                      Rails.configuration.x.influx.measurement_pv,
+                      Rails.configuration.x.influx.measurement_forecast,
+                    ],
+                    fields:,
+                  ).call(timeframe)
   end
 
-  def fields(timeframe)
+  def fields
     result = %i[
       inverter_power
       house_power
@@ -23,14 +25,29 @@ class Calculator::Range < Calculator::Base
       grid_power_minus
       bat_power_minus
       bat_power_plus
-      feed_in_tariff
-      electricity_price
     ]
 
     # Include forecast for days only
-    result << :watt if timeframe.day?
+    result << :watt if @timeframe.day?
 
     result
+  end
+
+  def build_context(data)
+    build_method(:sections) { data }
+    build_method(:time) { data.pluck(:time).last }
+
+    build_method_from_array(:feed_in_tariff, data)
+    build_method_from_array(:electricity_price, data)
+
+    build_method_from_array(:inverter_power, data)
+    build_method_from_array(:house_power, data)
+    build_method_from_array(:wallbox_charge_power, data)
+    build_method_from_array(:grid_power_plus, data)
+    build_method_from_array(:grid_power_minus, data)
+    build_method_from_array(:bat_power_minus, data)
+    build_method_from_array(:bat_power_plus, data)
+    build_method_from_array(:watt, data) if @timeframe.day?
   end
 
   def forecast_deviation
@@ -44,7 +61,7 @@ class Calculator::Range < Calculator::Base
     return unless grid_power_plus
 
     -section_sum do |index|
-      grid_power_plus_array[index] * electricity_price[index]
+      grid_power_plus_array[index] * electricity_price_array[index]
     end
   end
 
@@ -52,7 +69,7 @@ class Calculator::Range < Calculator::Base
     return unless grid_power_minus
 
     section_sum do |index|
-      grid_power_minus_array[index] * feed_in_tariff[index]
+      grid_power_minus_array[index] * feed_in_tariff_array[index]
     end
   end
 
@@ -65,7 +82,9 @@ class Calculator::Range < Calculator::Base
   def traditional_price
     return unless consumption
 
-    -section_sum { |index| consumption_array[index] * electricity_price[index] }
+    -section_sum do |index|
+      consumption_array[index] * electricity_price_array[index]
+    end
   end
 
   def savings
@@ -74,13 +93,19 @@ class Calculator::Range < Calculator::Base
     solar_price - traditional_price
   end
 
+  def co2_savings
+    return unless inverter_power
+
+    inverter_power / 1000 * CO2_EMISION_FACTOR
+  end
+
   def battery_savings
     return unless bat_power_minus && bat_power_plus && savings
 
     [
       section_sum do |index|
-        (bat_power_minus_array[index] * electricity_price[index]) -
-          (bat_power_plus_array[index] * feed_in_tariff[index])
+        (bat_power_minus_array[index] * electricity_price_array[index]) -
+          (bat_power_plus_array[index] * feed_in_tariff_array[index])
       end,
       savings,
     ].min
@@ -99,7 +124,7 @@ class Calculator::Range < Calculator::Base
     @wallbox_costs ||=
       -section_sum do |index|
         [wallbox_charge_power_array[index], grid_power_plus_array[index]].min *
-          electricity_price[index]
+          electricity_price_array[index]
       end
   end
 
@@ -108,13 +133,14 @@ class Calculator::Range < Calculator::Base
 
     @house_costs ||=
       -section_sum do |index|
-        total_costs = (grid_power_plus_array[index] * electricity_price[index])
+        total_costs =
+          (grid_power_plus_array[index] * electricity_price_array[index])
 
         wallbox_costs =
           [
             wallbox_charge_power_array[index],
             grid_power_plus_array[index],
-          ].min * electricity_price[index]
+          ].min * electricity_price_array[index]
 
         total_costs - wallbox_costs
       end

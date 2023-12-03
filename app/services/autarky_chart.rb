@@ -63,7 +63,7 @@ class AutarkyChart < Flux::Reader
   end
 
   def to_array(raw)
-    value_to_array(raw[0])
+    value_to_array(raw.first)
   end
 
   def value_to_array(raw)

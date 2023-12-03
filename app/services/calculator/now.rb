@@ -21,48 +21,26 @@ class Calculator::Now < Calculator::Base
                   ).call(Timeframe.now)
   end
 
-  def inverter_to_house
-    [
-      inverter_power - inverter_to_battery - inverter_to_wallbox,
-      house_power,
-    ].min
-  end
+  def build_context(data)
+    build_method(:time, data)
+    build_method(:current_state, data)
+    build_method(:current_state_ok, data)
 
-  def inverter_to_battery
-    bat_charging? && inverter_power >= bat_power_plus ? bat_power_plus : 0
-  end
-
-  def inverter_to_wallbox
-    producing? && wallbox_charge_power.positive? ? inverter_power : 0
-  end
-
-  def grid_to_house
-    [house_power - inverter_to_house - battery_to_house, 0].max
-  end
-
-  def grid_to_wallbox
-    wallbox_charge_power&.positive? ? grid_power_plus - grid_to_house : 0
-  end
-
-  def battery_to_house
-    bat_empty? ? 0 : bat_power_minus
-  end
-
-  def grid_to_battery
-    if bat_charging? && grid_power_plus > (house_power + wallbox_charge_power)
-      bat_power_plus
-    else
-      0
-    end
+    build_method(:inverter_power, data)
+    build_method(:house_power, data)
+    build_method(:wallbox_charge_power, data)
+    build_method(:grid_power_plus, data)
+    build_method(:grid_power_minus, data)
+    build_method(:bat_power_minus, data)
+    build_method(:bat_power_plus, data)
+    build_method(:bat_fuel_charge, data)
+    build_method(:case_temp, data)
+    build_method(:power_ratio, data)
   end
 
   def power_ratio_limited?
-    return false if power_ratio.nil?
+    return unless power_ratio
 
     power_ratio < 100
-  end
-
-  def house_to_grid
-    feeding? ? grid_power_minus : 0
   end
 end

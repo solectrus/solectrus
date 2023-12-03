@@ -25,6 +25,17 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     end
   end
 
+  def number_field(method, options = {}) # rubocop:disable Style/OptionHash
+    default_options = { class: input_html_classes(method) }
+    default_options[:class] << (options[:maxlength] ? 'w-20' : 'w-full')
+    merged_options = default_options.merge(options)
+
+    tag.div class: 'form-control' do
+      label(method, class: 'label') do
+        tag.span(label_text(method, merged_options), class: 'label-text')
+      end + super(method, merged_options) + errors(method)
+    end
+  end
   def password_field(method, options = {}) # rubocop:disable Style/OptionHash
     default_options = { class: input_html_classes(method) }
     default_options[:class] << (options[:maxlength] ? 'w-20' : 'w-full')

@@ -9,7 +9,7 @@
                 turbo_action: 'replace',
               } do
       dl data-controller="tippy"
-        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('senec.autarky'))
+        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
         - unless timeframe.future?
           template data-tippy-target="html"
             = render AutarkyDetails::Component.new(calculator:)
@@ -21,7 +21,7 @@
                   turbo_action: 'replace',
                 } do
         dl data-controller="tippy"
-          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('senec.consumption'))
+          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
           - unless timeframe.future?
             template data-tippy-target="html"
               = render ConsumptionDetails::Component.new(calculator:)
@@ -39,7 +39,7 @@
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.savings')) do
         - unless timeframe.future?
-          = Number::Component.new(value: calculator.savings).to_eur(klass: 'text-green-700')
+          = Number::Component.new(value: calculator.savings).to_eur
       - unless timeframe.future?
         template data-tippy-target="html"
           = render SavingsDetails::Component.new(calculator:)

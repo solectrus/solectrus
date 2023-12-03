@@ -10,6 +10,24 @@ export default {
         '3xl': '1920px',
       },
 
+      // TODO: Remove this when Tailwind CSS 3.4 is out
+      // https://github.com/tailwindlabs/tailwindcss/pull/11317
+      minHeight: {
+        dvh: '100dvh',
+      },
+
+      containers: {
+        c0: '10rem',
+        c1: '12rem',
+        c2: '15rem',
+        c3: '18rem',
+        c4: '21rem',
+      },
+
+      spacing: {
+        '128': '32rem',
+      },
+
       transitionProperty: {
         'max-height': 'max-height',
       },
@@ -33,8 +51,9 @@ export default {
   },
 
   plugins: [
-    require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
+    require('@tailwindcss/container-queries'),
     require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
   ],
 } satisfies Config;

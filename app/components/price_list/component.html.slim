@@ -1,4 +1,4 @@
-.table.w-full.select-text data-controller="price-list--component"
+.table.w-full.select-text
   .table-header-group
     .table-row
       .table-cell.align-middle.p-2.tabular-nums.text-left.font-bold
@@ -7,7 +7,7 @@
       .table-cell.align-middle.p-2.tabular-nums.text-right.font-bold
         = Price.human_attribute_name(:value)
       .table-cell
-      .table-cell data-price-list--component-target="adminOnly"
+      .table-cell
 
   .table-row-group
     - prices.each_with_index do |price, index|
@@ -22,7 +22,7 @@
         .table-cell.align-middle.p-2.tabular-nums.w-10.text-right.text-sm.whitespace-nowrap
           = relative_change(price, index)
 
-        .table-cell.align-middle.w-1.p-2 data-price-list--component-target="adminOnly"
+        .table-cell.align-middle.w-1.p-2
           .flex.space-x-1
             = render Button::Component.new path: edit_price_path(price),
                                            icon: 'pencil',

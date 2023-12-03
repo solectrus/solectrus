@@ -1,8 +1,11 @@
 en:
   layout:
-    stats: Time
+    balance: Power balance
+    essentials: Essentials
     top10: Top 10
     about: About SOLECTRUS
+    fullscreen_on: Fullscreen
+    fullscreen_off: Exit Fullscreen
     faq: FAQ
     settings: Settings
     registration: Registration
@@ -11,6 +14,11 @@ en:
     version_outdated: New version <strong>%{latest_version}</strong> available!
     version_uptodate: This is the latest version
   timeframe:
+    now: Now
+    day: Today
+    week: This week
+    month: This month
+    year: This year
     all: Since commissioning
   senec:
     inverter_power: PV generated
@@ -23,8 +31,6 @@ en:
     bat_power_plus: Battery charge
     bat_power: Battery
     bat_fuel_charge: Battery
-    autarky: Autarky
-    consumption: Consume
     case_temp: Temperature
     power_ratio: Limitation
   balance_sheet:
@@ -39,15 +45,17 @@ en:
     all: Overall
     forecast: Forecast
     grid_quote: Grid consumption rate
-    consumption: Self-consumption
+    consumption: Consume
     consumption_quote: Self-consumption rate
     solar_price: Solar price
     traditional_price: Comparative price
     savings: Savings
+    co2_savings: CO₂ savings
     battery_savings: Battery share
     house_costs: House costs
     wallbox_costs: EV costs
     total_costs: Total costs
+    autarky: Autarky
     time: Last measurement taken
     blank: No data available!
   forecast:
@@ -68,7 +76,16 @@ en:
     delete: Delete
     save: Save
     confirm_delete: Are you sure you want to delete?
+    success: Successfully performed
+    error: An error occurred
   settings:
+    general:
+      name: General
+      plant_name:
+        placeholder: e.g. SENEC.Home V3, 28 modules on the house roof in south orientation with 9.24 kWp
+      operator_name:
+        placeholder: e.g. John Doe from Foo City
+      description: Optional information on the photovoltaic system and the operator. Displayed on the essentials page only.
     prices:
       edit: Edit price
       new: Add price
@@ -76,6 +93,9 @@ en:
         electricity: Price per consumed kWh paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
   errors:
+    403:
+      title: Access denied
+      description: You are not authorized to access this page.
     404:
       title: Not Found
       description: The requested page could not be found.
@@ -85,7 +105,8 @@ en:
     500:
       title: Internal Server Error
       description: Sorry, something went wrong. See the server log for more details.
-    back_to_home: Back to homepage
+    back_to_home: ← Back to homepage
+    login: Login as administrator
 
   activemodel:
     attributes:
@@ -95,6 +116,7 @@ en:
   activerecord:
     models:
       price: Price
+      settings: Settings
     attributes:
       price:
         name: Name
@@ -104,3 +126,8 @@ en:
         starts_at: Effective from
         value: Amount
         note: Note
+        electricity_amount: Rate in €/kWh
+        feed_in_amount: Rate in €/kWh
+      setting:
+        plant_name: Name of the plant
+        operator_name: Name of the operator

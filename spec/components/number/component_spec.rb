@@ -64,7 +64,7 @@ describe Number::Component do
       it do
         expect(
           to_watt,
-        ).to eq '<span><strong class="font-medium">1,235</strong>&nbsp;<small>kW</small></span>'
+        ).to eq '<span><strong class="font-medium">1</strong><small>.2</small>&nbsp;<small>MW</small></span>'
       end
     end
   end
@@ -80,7 +80,7 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="text-green-500"><strong class="font-medium">1</strong><small>.23</small>&nbsp;<small>&euro;</small></span>'
+        ).to eq '<span class="text-green-700"><strong class="font-medium">1</strong><small>.23</small>&nbsp;<small>&euro;</small></span>'
       end
     end
 
@@ -90,7 +90,7 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="text-red-500"><strong class="font-medium">-1</strong><small>.23</small>&nbsp;<small>&euro;</small></span>'
+        ).to eq '<span class="text-red-700"><strong class="font-medium">-1</strong><small>.23</small>&nbsp;<small>&euro;</small></span>'
       end
     end
 
@@ -101,7 +101,7 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="text-green-500"><strong class="font-medium">10</strong><small>.00</small>&nbsp;<small>&euro;</small></span>'
+        ).to eq '<span class="text-green-700"><strong class="font-medium">10</strong><small>.00</small>&nbsp;<small>&euro;</small></span>'
       end
     end
 
@@ -128,7 +128,7 @@ describe Number::Component do
       it do
         expect(
           to_eur_per_kwh,
-        ).to eq '<span class="text-green-500"><strong class="font-medium">0</strong><small>.2208</small>&nbsp;<small>&euro;/kWh</small></span>'
+        ).to eq '<span class="text-green-700"><strong class="font-medium">0</strong><small>.2208</small>&nbsp;<small>&euro;/kWh</small></span>'
       end
     end
 
@@ -138,7 +138,7 @@ describe Number::Component do
       it do
         expect(
           to_eur_per_kwh,
-        ).to eq '<span class="text-red-500"><strong class="font-medium">-0</strong><small>.2208</small>&nbsp;<small>&euro;/kWh</small></span>'
+        ).to eq '<span class="text-red-700"><strong class="font-medium">-0</strong><small>.2208</small>&nbsp;<small>&euro;/kWh</small></span>'
       end
     end
 

@@ -1,5 +1,12 @@
 class Dropdown::Component < ViewComponent::Base
-  def initialize(items:, selected:, button_class: 'bg-gray-200 hover:bg-white')
+  renders_many :items, MenuItem::Component
+  renders_one :button
+
+  def initialize(
+    items:,
+    selected: nil,
+    button_class: 'bg-gray-200 hover:bg-white'
+  )
     super
     @items = items
     @selected = selected
@@ -9,6 +16,11 @@ class Dropdown::Component < ViewComponent::Base
   attr_reader :items, :selected, :button_class
 
   def selected_item
-    @selected_item ||= items.find { |item| item[:field] == selected }
+    @selected_item ||=
+      items.find { |item| item.respond_to?(:field) && item.field == selected }
+  end
+
+  def icons?
+    items.any?(&:icon)
   end
 end

@@ -42,6 +42,12 @@ describe Scale do
     it { expect_result(10_000, 100) } # 10000 > 500
   end
 
+  context 'when values are negative' do
+    let(:max) { 500 }
+
+    it { expect_result(-1, 0) }
+  end
+
   private
 
   def expect_result(value, percent)

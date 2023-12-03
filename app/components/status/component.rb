@@ -48,15 +48,11 @@ class Status::Component < ViewComponent::Base
     end
   end
 
-  def ping_classes
+  def dot_class
     if live?
-      if current_state_ok?
-        %w[bg-green-400 bg-green-500]
-      else
-        %w[bg-orange-300 bg-orange-400]
-      end
+      current_state_ok? ? 'bg-green-500' : 'bg-orange-400'
     else
-      %w[bg-red-400 bg-red-500]
+      'bg-red-500'
     end
   end
 end

@@ -22,6 +22,34 @@ describe Timeframe do
       it { is_expected.to be_all }
     end
 
+    describe '.day' do
+      subject { described_class.day }
+
+      it { is_expected.to be_day }
+      it { is_expected.to be_current }
+    end
+
+    describe '.week' do
+      subject { described_class.week }
+
+      it { is_expected.to be_week }
+      it { is_expected.to be_current }
+    end
+
+    describe '.month' do
+      subject { described_class.month }
+
+      it { is_expected.to be_month }
+      it { is_expected.to be_current }
+    end
+
+    describe '.year' do
+      subject { described_class.year }
+
+      it { is_expected.to be_year }
+      it { is_expected.to be_current }
+    end
+
     describe '.regex' do
       subject { described_class.regex }
 
@@ -29,8 +57,12 @@ describe Timeframe do
       it { is_expected.to match('2022-W42') }
       it { is_expected.to match('2022-02') }
       it { is_expected.to match('2022') }
-      it { is_expected.to match('all') }
       it { is_expected.to match('now') }
+      it { is_expected.to match('day') }
+      it { is_expected.to match('week') }
+      it { is_expected.to match('month') }
+      it { is_expected.to match('year') }
+      it { is_expected.to match('all') }
 
       it { is_expected.not_to match('foo') }
       it { is_expected.not_to match('42') }
@@ -65,7 +97,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Today, 10:00')
+      expect(decoder.localized).to eq('10:00')
     end
 
     it 'returns the correct corresponding_day' do
@@ -207,7 +239,7 @@ describe Timeframe do
     end
   end
 
-  context 'when string is today' do
+  context 'when string is current day' do
     let(:string) { '2022-10-13' }
 
     it 'is current' do
@@ -220,6 +252,15 @@ describe Timeframe do
 
     it 'is not future' do
       expect(decoder.future?).to be(false)
+    end
+  end
+
+  context 'when string is "day"' do
+    let(:string) { 'day' }
+
+    it 'is current day' do
+      expect(decoder.current?).to be(true)
+      expect(decoder.day?).to be(true)
     end
   end
 
@@ -325,6 +366,15 @@ describe Timeframe do
 
     it 'is not future' do
       expect(decoder.future?).to be(false)
+    end
+  end
+
+  context 'when string is "week"' do
+    let(:string) { 'week' }
+
+    it 'is current week' do
+      expect(decoder.current?).to be(true)
+      expect(decoder.week?).to be(true)
     end
   end
 
@@ -469,6 +519,15 @@ describe Timeframe do
     end
   end
 
+  context 'when string is "month"' do
+    let(:string) { 'month' }
+
+    it 'is current month' do
+      expect(decoder.current?).to be(true)
+      expect(decoder.month?).to be(true)
+    end
+  end
+
   context 'when string is a year' do
     let(:string) { '2021' }
 
@@ -571,6 +630,15 @@ describe Timeframe do
 
     it 'is not future' do
       expect(decoder.future?).to be(false)
+    end
+  end
+
+  context 'when string is "year"' do
+    let(:string) { 'year' }
+
+    it 'is current year' do
+      expect(decoder.current?).to be(true)
+      expect(decoder.year?).to be(true)
     end
   end
 

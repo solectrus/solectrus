@@ -1,14 +1,13 @@
 class Timeframe # rubocop:disable Metrics/ClassLength
   def self.regex
-    /(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|all|now/
+    /(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/
   end
 
-  def self.now
-    new('now')
-  end
-
-  def self.all
-    new('all')
+  # Shortcut methods
+  %i[now all day week month year].each do |method|
+    define_singleton_method method do
+      new(method.to_s)
+    end
   end
 
   def initialize(string, min_date: nil, allowed_days_in_future: nil)
@@ -16,13 +15,28 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       raise ArgumentError, "'#{string}' is not a valid timeframe"
     end
 
-    @string = string
+    @original_string = string
+
+    @string =
+      case string
+      when 'day'
+        Date.current.strftime('%Y-%m-%d')
+      when 'week'
+        Date.current.strftime('%G-W%V')
+      when 'month'
+        Date.current.strftime('%Y-%m')
+      when 'year'
+        Date.current.strftime('%Y')
+      else
+        string
+      end
+
     @min_date = min_date
     @allowed_days_in_future = allowed_days_in_future
   end
 
   attr_reader :string, :min_date, :allowed_days_in_future
-  delegate :to_s, to: :string
+  delegate :to_s, to: :@original_string
 
   def out_of_range?
     return true if min_date && ending.to_date < min_date
