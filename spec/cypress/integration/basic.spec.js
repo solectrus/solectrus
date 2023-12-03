@@ -8,6 +8,6 @@ describe('Basic', () => {
       .should('contain', 'SOLECTRUS.de')
       .should('contain', 'ledermann.dev');
 
-    cy.get('header').should('contain', 'Aktuell, 12:00 Uhr');
+    cy.get('header').should('contain', '12:00 Uhr');
   });
 });

@@ -5,7 +5,7 @@ describe('Auto refresh', () => {
 
       cy.visit('/inverter_power/now');
 
-      cy.get('header').should('contain', 'Aktuell, 12:00 Uhr');
+      cy.get('header').should('contain', '12:00 Uhr');
     });
 
     it('refreshes the stats after 5 seconds', () => {

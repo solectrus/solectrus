@@ -225,5 +225,5 @@ de:
       default: '%A, %d. %B %Y, %H:%M Uhr'
       long: '%A, %e. %B %Y, %H:%M Uhr'
       short: '%d. %B, %H:%M Uhr'
-      now: 'Aktuell, %H:%M Uhr'
+      now: '%H:%M Uhr'
     pm: nachmittags
