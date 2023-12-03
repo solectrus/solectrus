@@ -163,6 +163,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
+            COMMIT_SHA=${{ github.sha }}
             COMMIT_TIME=${{ env.COMMIT_TIME }}
             COMMIT_VERSION=${{ env.COMMIT_VERSION }}
             COMMIT_BRANCH=${{ github.head_ref || github.ref_name }}
