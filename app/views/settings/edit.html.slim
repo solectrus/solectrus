@@ -15,7 +15,7 @@
 = form_for(Setting.new, method: :patch, html: { class: 'px-2' }) do |f|
   = f.group do
     = f.text_field :plant_name, autofocus: true, value: Setting.plant_name, placeholder: t('settings.general.plant_name.placeholder')
-    = f.text_field :operator_name, autofocus: true, value: Setting.operator_name, placeholder: t('settings.general.operator_name.placeholder')
+    = f.text_field :operator_name, value: Setting.operator_name, placeholder: t('settings.general.operator_name.placeholder')
 
   = f.actions do
     = f.submit t('crud.save')
