@@ -16,6 +16,10 @@ export default {
         dvh: '100dvh',
       },
 
+      aspectRatio: {
+        square: '1 / 1',
+      },
+
       containers: {
         c0: '10rem',
         c1: '12rem',
