@@ -19,7 +19,7 @@
 }
 
 .label {
-  @apply p-1 text-gray-600;
+  @apply py-1 text-gray-600;
 }
 
 .label-text {
