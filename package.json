@@ -33,7 +33,7 @@
     "@tailwindcss/typography": "^0.5.10",
     "@types/throttle-debounce": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
-    "@typescript-eslint/parser": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.2",
     "autoprefixer": "^10.4.16",
     "cypress": "^13.6.0",
     "eslint": "^8.55.0",
