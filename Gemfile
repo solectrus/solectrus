@@ -53,6 +53,9 @@ gem 'meta-tags'
 # Find out which locale the user preferes by reading the languages they specified in their browser (https://github.com/iain/http_accept_language)
 gem 'http_accept_language'
 
+# Ruby on Rails applications monitoring (https://www.rorvswild.com)
+gem 'rorvswild'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   # gem 'debug', platforms: %i[ mri windows ]
