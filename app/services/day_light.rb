@@ -1,4 +1,11 @@
 class DayLight < Flux::Reader
+  def self.active?
+    day_light = DayLight.new(Date.current)
+    return true unless day_light.sunrise && day_light.sunset
+
+    Time.current > day_light.sunrise && Time.current < day_light.sunset
+  end
+
   def initialize(date)
     super(
       fields: ['watt'],

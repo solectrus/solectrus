@@ -4,7 +4,7 @@ class HomeController < ApplicationController
 
   def index
     unless field && timeframe
-      redirect_to root_path(field: field || 'inverter_power', timeframe: 'now')
+      redirect_to root_path(field: field || redirect_field, timeframe: 'now')
       return
     end
 
@@ -20,5 +20,13 @@ class HomeController < ApplicationController
                     type: 'website',
                     image: '/og-image.png',
                   }
+  end
+
+  private
+
+  # By default we want to show the current production, so we redirect to the inverter_power field.
+  # But at night this does not make sense, so in this case we redirect to the house_power field.
+  def redirect_field
+    DayLight.active? ? 'inverter_power' : 'house_power'
   end
 end

@@ -3,11 +3,26 @@ describe 'Home', vcr: { cassette_name: 'version' } do
     it_behaves_like 'localized request', '/'
 
     context 'without params :fields and :timeframe' do
-      it 'redirects' do
-        get root_path
-        expect(response).to redirect_to(
-          root_path(field: 'inverter_power', timeframe: 'now'),
-        )
+      context 'when day' do
+        before { allow(DayLight).to receive(:active?).and_return(true) }
+
+        it 'redirects' do
+          get root_path
+          expect(response).to redirect_to(
+            root_path(field: 'inverter_power', timeframe: 'now'),
+          )
+        end
+      end
+
+      context 'when night' do
+        before { allow(DayLight).to receive(:active?).and_return(false) }
+
+        it 'redirects' do
+          get root_path
+          expect(response).to redirect_to(
+            root_path(field: 'house_power', timeframe: 'now'),
+          )
+        end
       end
     end
 
