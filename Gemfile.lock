@@ -142,7 +142,7 @@ GEM
       temple (>= 0.8.2)
       thor
       tilt
-    hashdiff (1.0.1)
+    hashdiff (1.1.0)
     honeybadger (5.4.0)
     htmlbeautifier (1.4.2)
     htmlentities (4.3.4)
