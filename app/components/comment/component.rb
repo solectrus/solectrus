@@ -17,7 +17,7 @@ class Comment::Component < ViewComponent::Base
   end
 
   def sunset
-    @sunset ||= Sunset.new(timeframe.date)&.time
+    @sunset ||= DayLight.new(timeframe.date)&.sunset
   end
 
   def tooltip_required?
