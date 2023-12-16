@@ -48,7 +48,7 @@ describe Calculator::Base do
       end
 
       it 'defines a method for array' do
-        expect(calculator.public_send("#{method}_array")).to eq([42, 43])
+        expect(calculator.public_send(:"#{method}_array")).to eq([42, 43])
       end
     end
   end

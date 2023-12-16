@@ -34,7 +34,7 @@ class PowerTop10 < Flux::Reader
     # In ascending order, the first period may not be included because it is (most likely) not complete
     adjustment = desc ? 0 : 1.public_send(period)
 
-    (raw + adjustment).public_send("beginning_of_#{period}")
+    (raw + adjustment).public_send(:"beginning_of_#{period}")
   end
 
   def stop(period)
@@ -42,7 +42,7 @@ class PowerTop10 < Flux::Reader
     # In ascending order, the current period may not be included because it is not yet complete
     adjustment = desc ? 0 : 1.public_send(period)
 
-    (raw - adjustment).public_send("end_of_#{period}")
+    (raw - adjustment).public_send(:"end_of_#{period}")
   end
 
   def top(start:, stop:, window:, limit: 10, offset: '0s')
