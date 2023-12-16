@@ -27,13 +27,15 @@ class DayLight < Flux::Reader
   def time_range
     @time_range ||=
       begin
-        records = raw.map(&:records)
+        records = raw.filter_map(&:records)
 
         if records.present?
-          sunrise_time = records.map { |x| x.first.values }.last['_time']
-          sunset_time = records.map { |x| x.last.values }.last['_time']
+          times = [
+            records.first.first.values['_time'],
+            records.last.last.values['_time'],
+          ].sort
 
-          [sunrise_time, sunset_time].map { |time| Time.zone.parse(time) }
+          times.map { |time| Time.zone.parse(time) }
         end
       end
   end
