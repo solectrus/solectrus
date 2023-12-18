@@ -17,7 +17,7 @@
     "@rails/actioncable": "^7.1.2",
     "chart.js": "^4.4.1",
     "chartjs-adapter-date-fns": "^3.0.0",
-    "date-fns": "^2.30.0",
+    "date-fns": "^3.0.0",
     "el-transition": "^0.0.7",
     "morphdom": "^2.7.1",
     "plausible-tracker": "^0.3.8",
