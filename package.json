@@ -46,7 +46,7 @@
     "prettier-plugin-tailwindcss": "^0.5.9",
     "rollup": "^4.9.1",
     "size-limit": "^11.0.1",
-    "tailwindcss": "^3.3.6",
+    "tailwindcss": "^3.3.7",
     "typescript": "^5.3.3",
     "vite": "^5.0.10",
     "vite-plugin-rails": "^0.5.0"
