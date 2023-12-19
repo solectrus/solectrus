@@ -22,10 +22,4 @@ class PowerPeak < Flux::Reader
       total.merge(sensor => current['_value'].round)
     end
   end
-
-  private
-
-  def default_cache_options
-    { expires_in: 1.day }
-  end
 end
