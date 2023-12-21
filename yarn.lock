@@ -1209,10 +1209,10 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-date-fns@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-3.0.1.tgz#a95b3e8296e72cf57c99819f37679aa27ca65ec4"
-  integrity sha512-cr9igCUa0QSqgAMj7JOrYTY6Nh1rmyGrFDko7ADqfmaQqP/I2N4rlfrLl7AWuzDaoIpz6MNjoEcTPzgZYIrhnA==
+date-fns@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-3.0.2.tgz#3e8f3d52273aadad4af02947a1f7c9fe44ab0786"
+  integrity sha512-HbGldFfQ9V5djjYVesX9rckgUXJJ0y3bMlaYMSyo56DTL5MtCEbCtJWEi7ah//1bc9TySX3bsaCdWO7BbvUZ2w==
 
 dayjs@^1.10.4:
   version "1.11.10"
