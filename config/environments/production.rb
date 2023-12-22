@@ -64,13 +64,10 @@ Rails.application.configure do
       .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
 
   # Prepend all log lines with the following tags.
-  config.log_tags = [:request_id]
+  config.log_tags = [:remote_ip]
 
   # Use lograge gem
   config.lograge.enabled = true
-  config.lograge.custom_payload do |controller|
-    { user_agent: controller.request.user_agent }
-  end
 
   # Info include generic and useful information about system operation, but avoids logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII). If you
