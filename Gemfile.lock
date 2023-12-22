@@ -143,7 +143,7 @@ GEM
       thor
       tilt
     hashdiff (1.1.0)
-    honeybadger (5.4.0)
+    honeybadger (5.4.1)
     htmlbeautifier (1.4.2)
     htmlentities (4.3.4)
     http_accept_language (2.1.1)
@@ -490,4 +490,4 @@ RUBY VERSION
    ruby 3.2.2p53
 
 BUNDLED WITH
-   2.5.1
+   2.5.2
