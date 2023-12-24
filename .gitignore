@@ -22,9 +22,6 @@
 /config/master.key
 
 /node_modules
-/yarn-error.log
-yarn-debug.log*
-.yarn-integrity
 .eslintcache
 
 # dotenv
@@ -38,3 +35,12 @@ yarn-debug.log*
 /public/vite*
 
 Brewfile.lock.json
+
+# https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

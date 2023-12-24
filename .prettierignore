@@ -3,3 +3,5 @@ public/*
 coverage/*
 tmp/*
 spec/support/cassettes/*
+.yarn/*
+.ruby-lsp
