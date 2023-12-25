@@ -16,5 +16,8 @@ ENV HONEYBADGER_LOGGING_PATH=STDOUT
 
 USER app
 
-# Script to be executed every time the container starts
-ENTRYPOINT ["docker/startup.sh"]
+# Entrypoint prepares the database.
+ENTRYPOINT ["docker/entrypoint.sh"]
+
+# Start the server by default, this can be overwritten at runtime
+CMD ["./bin/rails", "server"]
