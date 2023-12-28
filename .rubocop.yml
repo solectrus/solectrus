@@ -9,7 +9,7 @@ require:
   - rubocop-thread_safety
 
 AllCops:
-  TargetRubyVersion: 3.3
+  TargetRubyVersion: 3.2
   Exclude:
     - app/javascript/**/*
     - bin/**/*
