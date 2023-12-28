@@ -16,6 +16,18 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          // creating a chunk to chart.js deps. Reducing the vendor chunk size
+          if (id.includes('chart') || id.includes('date-fns')) {
+            return 'chart';
+          }
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'app/javascript'),
