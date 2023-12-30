@@ -6,12 +6,14 @@
   "files.trimTrailingWhitespace": true,
   "files.watcherExclude": {
     "**/tmp/**": true,
+    "**/.yarn": true,
     "**/public/vite*": true
   },
 
   "search.exclude": {
     "**/tmp": true,
     "**/public/vite*": true,
+    "**/.yarn": true,
     "**/node_modules": true
   },
 
