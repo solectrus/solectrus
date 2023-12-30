@@ -17,12 +17,6 @@
 
   "eslint.validate": ["javascript"],
 
-  "ruby.lint": {
-    "rubocop": {
-      "forceExclusion": true
-    }
-  },
-
   "[ruby]": {
     "editor.defaultFormatter": "ruby-syntax-tree.vscode-syntax-tree",
     "editor.formatOnSave": true
