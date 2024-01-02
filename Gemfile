@@ -38,6 +38,9 @@ gem 'slim-rails'
 # Middleware for enabling Cross-Origin Resource Sharing in Rack apps (https://github.com/cyu/rack-cors)
 gem 'rack-cors', require: 'rack/cors'
 
+# Block & throttle abusive requests (https://github.com/rack/rack-attack)
+gem 'rack-attack'
+
 # Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
 gem 'lograge'
 
