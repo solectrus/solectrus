@@ -37,17 +37,17 @@ class Calculator::Range < Calculator::Base
     build_method(:sections) { data }
     build_method(:time) { data.pluck(:time).last }
 
-    build_method_from_array(:feed_in_tariff, data)
-    build_method_from_array(:electricity_price, data)
+    build_method_from_array(:feed_in_tariff, data, :to_f)
+    build_method_from_array(:electricity_price, data, :to_f)
 
-    build_method_from_array(:inverter_power, data)
-    build_method_from_array(:house_power, data)
-    build_method_from_array(:wallbox_charge_power, data)
-    build_method_from_array(:grid_power_plus, data)
-    build_method_from_array(:grid_power_minus, data)
-    build_method_from_array(:bat_power_minus, data)
-    build_method_from_array(:bat_power_plus, data)
-    build_method_from_array(:watt, data) if @timeframe.day?
+    build_method_from_array(:inverter_power, data, :to_f)
+    build_method_from_array(:house_power, data, :to_f)
+    build_method_from_array(:wallbox_charge_power, data, :to_f)
+    build_method_from_array(:grid_power_plus, data, :to_f)
+    build_method_from_array(:grid_power_minus, data, :to_f)
+    build_method_from_array(:bat_power_minus, data, :to_f)
+    build_method_from_array(:bat_power_plus, data, :to_f)
+    build_method_from_array(:watt, data, :to_f) if @timeframe.day?
   end
 
   def forecast_deviation
