@@ -191,8 +191,6 @@ GEM
       net-smtp
     marcel (1.0.2)
     matrix (0.4.2)
-    meta-tags (2.20.0)
-      actionpack (>= 6.0.0, < 7.2)
     method_source (1.0.0)
     mini_mime (1.1.5)
     mini_portile2 (2.8.5)
@@ -460,7 +458,6 @@ DEPENDENCIES
   lockup
   lograge
   lookbook
-  meta-tags
   pg (~> 1.1)
   prettier
   puma (>= 5.0)

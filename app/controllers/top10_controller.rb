@@ -2,15 +2,14 @@ class Top10Controller < ApplicationController
   include ParamsHandling
 
   def index
-    unless period && field && calc && sort
-      redirect_to default_path
-      return
-    end
-
-    set_meta_tags title: 'Top 10'
+    redirect_to(default_path) unless period && field && calc && sort
   end
 
   private
+
+  helper_method def title
+    t('layout.top10')
+  end
 
   def default_path
     top10_path(

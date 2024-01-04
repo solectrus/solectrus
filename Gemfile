@@ -50,9 +50,6 @@ gem 'influxdb-client', '>= 2.9.0'
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
 
-# Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
-gem 'meta-tags'
-
 # Find out which locale the user preferes by reading the languages they specified in their browser (https://github.com/iain/http_accept_language)
 gem 'http_accept_language'
 

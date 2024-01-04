@@ -5,6 +5,10 @@ class ErrorsController < ApplicationController
 
   private
 
+  helper_method def title
+    status_code
+  end
+
   helper_method def status_code
     @status_code ||=
       begin

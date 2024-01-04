@@ -4,6 +4,10 @@ class EssentialsController < ApplicationController
 
   private
 
+  helper_method def title
+    t('layout.essentials')
+  end
+
   helper_method def tiles
     [
       { field: 'inverter_power', timeframe: 'now' },

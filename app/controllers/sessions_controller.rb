@@ -25,6 +25,10 @@ class SessionsController < ApplicationController
 
   private
 
+  helper_method def title
+    t('layout.login')
+  end
+
   def permitted_params
     params.require(:admin_user).permit(:username, :password)
   end

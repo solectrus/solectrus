@@ -11,8 +11,6 @@ class PricesController < ApplicationController
     end
 
     @prices = Price.list_for(name)
-
-    set_meta_tags title: Price.human_enum_name(:name, name)
   end
 
   def new
@@ -43,6 +41,10 @@ class PricesController < ApplicationController
   end
 
   private
+
+  helper_method def title
+    Price.human_enum_name(:name, name)
+  end
 
   def permitted_params
     params.require(:price).permit(:name, :starts_at, :value, :note)

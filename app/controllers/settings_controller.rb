@@ -16,6 +16,10 @@ class SettingsController < ApplicationController
 
   private
 
+  helper_method def title
+    t('layout.settings')
+  end
+
   def permitted_params
     params.require(:setting).permit(:plant_name, :operator_name)
   end
