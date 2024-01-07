@@ -19,6 +19,12 @@
   transition-timing-function: ease-in-out;
 }
 
+@media (prefers-reduced-motion) {
+  .scale-pop {
+    animation: none;
+  }
+}
+
 @keyframes pop {
   0%,
   100% {

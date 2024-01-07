@@ -38,6 +38,9 @@ gem 'slim-rails'
 # Middleware for enabling Cross-Origin Resource Sharing in Rack apps (https://github.com/cyu/rack-cors)
 gem 'rack-cors', require: 'rack/cors'
 
+# Block & throttle abusive requests (https://github.com/rack/rack-attack)
+gem 'rack-attack'
+
 # Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
 gem 'lograge'
 
@@ -47,11 +50,11 @@ gem 'influxdb-client', '>= 2.9.0'
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
 
-# Collection of SEO helpers for Ruby on Rails. (https://github.com/kpumuk/meta-tags)
-gem 'meta-tags'
-
 # Find out which locale the user preferes by reading the languages they specified in their browser (https://github.com/iain/http_accept_language)
 gem 'http_accept_language'
+
+# Ruby on Rails applications monitoring (https://www.rorvswild.com)
+gem 'rorvswild'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -115,6 +118,9 @@ group :development do
 
   # Annotates Rails Models, routes, fixtures, and others based on the database schema. (https://github.com/ctran/annotate_models)
   gem 'annotate'
+
+  # Pretty print Ruby objects with proper indentation and colors (https://github.com/amazing-print/amazing_print)
+  gem 'amazing_print'
 end
 
 group :test do

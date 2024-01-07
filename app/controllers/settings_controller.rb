@@ -7,7 +7,7 @@ class SettingsController < ApplicationController
   def update
     permitted_params.each_key do |key|
       unless permitted_params[key].nil?
-        Setting.public_send("#{key}=", permitted_params[key].strip)
+        Setting.public_send(:"#{key}=", permitted_params[key].strip)
       end
     end
 
@@ -15,6 +15,10 @@ class SettingsController < ApplicationController
   end
 
   private
+
+  helper_method def title
+    t('layout.settings')
+  end
 
   def permitted_params
     params.require(:setting).permit(:plant_name, :operator_name)

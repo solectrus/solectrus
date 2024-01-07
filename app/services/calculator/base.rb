@@ -1,14 +1,23 @@
 class Calculator::Base
-  def build_method(key, data = nil, &)
+  def build_method(key, data = nil, modifier = nil, &)
     if data.nil? ^ block_given?
       raise ArgumentError, 'Either data or block must be given, not both'
     end
 
-    define_singleton_method(key) { data ? data[key] : yield }
+    define_singleton_method(key) do
+      result = (data ? data[key] : yield)
+      result = result.public_send(modifier) if modifier
+      result
+    end
   end
 
-  def build_method_from_array(key, data)
-    values = data.pluck(key).map(&:to_f)
+  def build_method_from_array(key, data, modifier = nil)
+    values =
+      if modifier
+        data.pluck(key).map { |value| value.public_send(modifier) }
+      else
+        data.pluck(key)
+      end
 
     build_method("#{key}_array") { values }
     build_method(key) { values.sum }

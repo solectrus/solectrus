@@ -1,5 +1,5 @@
-describe Sunset do
-  subject(:sunset) { described_class.new(date) }
+describe DayLight do
+  subject(:day_light) { described_class.new(date) }
 
   let(:date) { Date.new(2023, 3, 4) }
 
@@ -23,8 +23,18 @@ describe Sunset do
     end
   end
 
-  describe '#time' do
-    subject { sunset.time }
+  describe '#sunrise' do
+    subject { day_light.sunrise }
+
+    it do
+      is_expected.to eq(
+        Time.new(date.year, date.month, date.day, 7, 10, 0, '+01:00'),
+      )
+    end
+  end
+
+  describe '#sunset' do
+    subject { day_light.sunset }
 
     it do
       is_expected.to eq(

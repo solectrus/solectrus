@@ -4,7 +4,7 @@ module TimeframeNavigation
   included do
     private
 
-    def title
+    helper_method def title
       timeframe.now? ? 'Live' : timeframe.localized
     end
 

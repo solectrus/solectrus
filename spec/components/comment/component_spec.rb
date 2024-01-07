@@ -11,7 +11,7 @@ describe Comment::Component, type: :component do
   end
 
   before do
-    allow(Sunset).to receive(:new).and_return(sunset)
+    allow(DayLight).to receive(:new).and_return(sunset)
 
     render_inline(component)
   end
@@ -61,7 +61,7 @@ describe Comment::Component, type: :component do
 
   context 'when timeframe is current day, before sunset' do
     let(:date) { Date.current.to_s }
-    let(:sunset) { instance_double(Sunset, time: 5.minutes.since) }
+    let(:sunset) { instance_double(DayLight, sunset: 5.minutes.since) }
 
     context 'when deviation is zero' do
       let(:forecast_deviation) { 0 }
@@ -105,7 +105,7 @@ describe Comment::Component, type: :component do
 
   context 'when timeframe is current day, after sunset' do
     let(:date) { Date.current.to_s }
-    let(:sunset) { instance_double(Sunset, time: 5.minutes.ago) }
+    let(:sunset) { instance_double(DayLight, sunset: 5.minutes.ago) }
 
     context 'when deviation is zero' do
       let(:forecast_deviation) { 0 }

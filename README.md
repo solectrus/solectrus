@@ -10,6 +10,10 @@ https://ledermann.dev/blog/2021/02/03/photovoltaik-dashboard-als-web-applikation
 
 ![Screenshot](screenshot.webp)
 
+## Live Demo
+
+A live demo with realtime data from my own personal photovoltaic system is available at https://solectrus.ledermann.dev
+
 ## Installation
 
 For self-hosting SOLECTRUS, please look at https://github.com/solectrus/hosting
@@ -90,6 +94,11 @@ There is a shortcut to run **all** test and linting tools:
 bin/test
 ```
 
+## Performance monitoring
+
+The [Live Demo](https://solectrus.ledermann.dev) is hosted at Hetzner Cloud. For performance monitoring, it uses [RorVsWild](https://www.rorvswild.com), which is free for OpenSource projects. You can see internal metrics like CPU, memory, and disk usage, as well as request times and errors here:
+https://www.rorvswild.com/applications/136101/requests
+
 ## License
 
-Copyright (c) 2020-2023 Georg Ledermann, released under the AGPL-3.0 License
+Copyright (c) 2020-2024 Georg Ledermann, released under the AGPL-3.0 License

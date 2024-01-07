@@ -7,10 +7,10 @@
   .fixed.inset-0.bg-gray-500.bg-opacity-75.transition-opacity[
     data-slide-over--component-target= 'overlay'
 
-    data-transition-enter=       'ease-in-out duration-500'
+    data-transition-enter=       'motion-safe:ease-in-out motion-safe:duration-500'
     data-transition-enter-start= 'opacity-0'
     data-transition-enter-end=   'opacity-100'
-    data-transition-leave=       'ease-in-out duration-500'
+    data-transition-leave=       'motion-safe:ease-in-out motion-safe:duration-500'
     data-transition-leave-start= 'opacity-100'
     data-transition-leave-end=   'opacity-0'
   ]
@@ -21,10 +21,10 @@
     .absolute.inset-0.overflow-hidden
       .pointer-events-none.fixed.inset-y-0.right-0.flex.max-w-full.pl-10[
         data-slide-over--component-target= 'panel'
-        data-transition-enter=       'transform transition ease-in-out duration-500'
+        data-transition-enter=       'transform motion-safe:transition motion-safe:ease-in-out motion-safe:duration-500'
         data-transition-enter-start= 'translate-x-full'
         data-transition-enter-end=   'translate-x-0'
-        data-transition-leave=       'transform transition ease-in-out duration-500'
+        data-transition-leave=       'transform motion-safe:transition motion-safe:ease-in-out motion-safe:duration-500'
         data-transition-leave-start= 'translate-x-0'
         data-transition-leave-end=   'translate-x-full'
       ]

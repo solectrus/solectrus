@@ -10,6 +10,7 @@ class UpdateCheck
   end
 
   def latest
+    return {} if Rails.env.development?
     return cached_latest if cached?
 
     uri = URI(URL)

@@ -98,6 +98,11 @@ export default class extends Controller<HTMLCanvasElement> {
     this.containerTarget.classList.remove('hidden');
 
     const options = this.optionsValue;
+
+    // Disable animation when user prefers reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      options.animation = false;
+
     if (!options.scales?.x || !options.scales?.y) return;
 
     // I18n

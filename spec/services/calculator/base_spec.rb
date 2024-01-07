@@ -20,6 +20,14 @@ describe Calculator::Base do
       it { is_expected.to eq(42) }
     end
 
+    context 'when modifier is given' do
+      let(:data) { { method => nil } }
+
+      before { calculator.build_method(method, data, :to_f) }
+
+      it { is_expected.to eq(0.0) }
+    end
+
     context 'when neither data nor block is given' do
       it 'raises an ArgumentError' do
         expect { calculator.build_method(:foo) }.to raise_error(ArgumentError)
@@ -48,7 +56,7 @@ describe Calculator::Base do
       end
 
       it 'defines a method for array' do
-        expect(calculator.public_send("#{method}_array")).to eq([42, 43])
+        expect(calculator.public_send(:"#{method}_array")).to eq([42, 43])
       end
     end
   end

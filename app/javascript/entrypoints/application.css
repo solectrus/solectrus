@@ -5,6 +5,7 @@
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
 /* Import app specific styles */
+@import '../stylesheets/flow.css';
 @import '../stylesheets/radial_badge.css';
 @import '../stylesheets/animations.css';
 
@@ -19,7 +20,7 @@
 }
 
 .label {
-  @apply p-1 text-gray-600;
+  @apply py-1 text-gray-600;
 }
 
 .label-text {

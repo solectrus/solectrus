@@ -64,13 +64,10 @@ Rails.application.configure do
       .then { |logger| ActiveSupport::TaggedLogging.new(logger) }
 
   # Prepend all log lines with the following tags.
-  config.log_tags = [:request_id]
+  config.log_tags = [:remote_ip]
 
   # Use lograge gem
   config.lograge.enabled = true
-  config.lograge.custom_payload do |controller|
-    { user_agent: controller.request.user_agent }
-  end
 
   # Info include generic and useful information about system operation, but avoids logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII). If you
@@ -79,9 +76,7 @@ Rails.application.configure do
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
-  config.cache_store =
-    :redis_cache_store,
-    { url: ENV.fetch('REDIS_URL') { 'redis://localhost:6379/1' } }
+  config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', nil) }
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter     = :resque

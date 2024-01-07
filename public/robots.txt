@@ -1,4 +1,2 @@
 User-agent: *
-Allow: /$
-Allow: /inverter_power/now
 Disallow: /

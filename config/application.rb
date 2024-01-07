@@ -54,6 +54,7 @@ module Solectrus
     config.x.frame_ancestors = ENV.fetch('FRAME_ANCESTORS', nil).presence
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
+    config.x.rorvswild.api_key = ENV['RORVSWILD_API_KEY'].presence
 
     config.x.influx.token = ENV.fetch('INFLUX_TOKEN', nil)
     config.x.influx.schema = ENV.fetch('INFLUX_SCHEMA', 'http')

@@ -31,4 +31,8 @@ class ApplicationController < ActionController::Base
       end
     end
   end
+
+  # Override this method to set a custom page title
+  helper_method def title
+  end
 end
