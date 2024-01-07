@@ -219,7 +219,7 @@ GEM
       nenv (~> 0.1)
       shellany (~> 0.0)
     parallel (1.24.0)
-    parser (3.3.0.1)
+    parser (3.3.0.2)
       ast (~> 2.4.1)
       racc
     pg (1.5.4)
@@ -297,7 +297,7 @@ GEM
       redis-client (>= 0.17.0)
     redis-client (0.19.1)
       connection_pool
-    regexp_parser (2.9.0)
+    regexp_parser (2.8.3)
     reline (0.4.2)
       io-console (~> 0.5)
     request_store (1.5.1)
