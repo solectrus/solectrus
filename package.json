@@ -44,7 +44,7 @@
     "postcss": "^8.4.33",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.11",
-    "rollup": "^4.9.4",
+    "rollup": "^4.9.5",
     "size-limit": "^11.0.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.3.3",
