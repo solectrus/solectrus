@@ -3865,12 +3865,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.2.3":
-  version: 3.2.3
-  resolution: "prettier@npm:3.2.3"
+"prettier@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "prettier@npm:3.2.4"
   bin:
     prettier: bin/prettier.cjs
-  checksum: 210ad7faa80ebaa285573b1f72cbf852ee5efdf9ec67d4f480af64fcd0510f0c0ba4d92db538bba91bd0aec69772279937ccd30d8482fefb734d38e55173d4e8
+  checksum: 88dfeb78ac6096522c9a5b81f1413d875f568420d9bb6a5e5103527912519b993f2bcdcac311fcff5718d5869671d44e4f85827d3626f3a6ce32b9abc65d88e0
   languageName: node
   linkType: hard
 
@@ -4343,7 +4343,7 @@ __metadata:
     morphdom: "npm:^2.7.2"
     plausible-tracker: "npm:^0.3.8"
     postcss: "npm:^8.4.33"
-    prettier: "npm:^3.2.3"
+    prettier: "npm:^3.2.4"
     prettier-plugin-tailwindcss: "npm:^0.5.11"
     rollup: "npm:^4.9.5"
     size-limit: "npm:^11.0.2"
