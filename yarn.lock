@@ -3373,10 +3373,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"morphdom@npm:^2.7.1":
-  version: 2.7.1
-  resolution: "morphdom@npm:2.7.1"
-  checksum: b3d44565ef6d635faa7a744b3c65012ee130309a6d0c070580868a49ae1fffdac8560734e5d41687468fbd0c716f541b61b2c9e09c9df50cd629bf310fcffc93
+"morphdom@npm:^2.7.2":
+  version: 2.7.2
+  resolution: "morphdom@npm:2.7.2"
+  checksum: 9be3e495024a4d74375cf58ff8c62606da84f0fe2e5eebd4c366638510a43be440eb834830d230a626679d6872e1bdc6632f8630c32a21f2bea7b8208e105332
   languageName: node
   linkType: hard
 
@@ -4340,7 +4340,7 @@ __metadata:
     eslint-plugin-cypress: "npm:^2.15.1"
     eslint-plugin-prettier: "npm:^5.1.3"
     eslint-plugin-tailwindcss: "npm:^3.14.0"
-    morphdom: "npm:^2.7.1"
+    morphdom: "npm:^2.7.2"
     plausible-tracker: "npm:^0.3.8"
     postcss: "npm:^8.4.33"
     prettier: "npm:^3.2.3"

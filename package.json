@@ -19,7 +19,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^3.2.0",
     "el-transition": "^0.0.7",
-    "morphdom": "^2.7.1",
+    "morphdom": "^2.7.2",
     "plausible-tracker": "^0.3.8",
     "throttle-debounce": "^5.0.0",
     "tippy.js": "^6.3.7"
