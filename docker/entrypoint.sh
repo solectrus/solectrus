@@ -4,6 +4,9 @@ echo "Starting SOLECTRUS..."
 echo "Version: $COMMIT_VERSION - $COMMIT_TIME - $COMMIT_BRANCH"
 echo "----------------"
 
+# Remove PID in case of restart after container crash
+rm -f /app/tmp/pids/server.pid
+
 # If running the rails server then wait for services
 # and create or migrate existing database
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
