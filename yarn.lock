@@ -680,9 +680,9 @@ __metadata:
   linkType: hard
 
 "@types/aws-lambda@npm:^8.10.89":
-  version: 8.10.132
-  resolution: "@types/aws-lambda@npm:8.10.132"
-  checksum: 83b8b5c2994fbe7dac5a50c34890902fe41e9b184d3e87f0aaff920c280436186f493c1381d300218639b7c05cec09439df18d2c00b267e8279fa29b3787763e
+  version: 8.10.133
+  resolution: "@types/aws-lambda@npm:8.10.133"
+  checksum: fee091dec3df6b491a53d5472c63a58eadc99715b61e53c3ed4bcdb1b16eec92b5f79352e72d5acaefe999f3ab79aa08983ae35064bbfbe95cc61345bbde6bf1
   languageName: node
   linkType: hard
 
@@ -765,11 +765,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 20.11.8
-  resolution: "@types/node@npm:20.11.8"
+  version: 20.11.10
+  resolution: "@types/node@npm:20.11.10"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: cd4eff91ff2291b909cf8ce81f3117effcfd59c435a9d42a9a085f5de8f414eabfbe4558f53a275eedc280a97393d71084812d91cf31fba436a01369d80133b5
+  checksum: aced8595c2786d4e60471772659add1e2e0d1f2b73d119820b2e1815426d6e52c6a77f1c7fca8ea46490c36f7959cc46b0dc609fa2e80b7fd24f9a7d696c2210
   languageName: node
   linkType: hard
 
@@ -1747,9 +1747,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.648":
-  version: 1.4.648
-  resolution: "electron-to-chromium@npm:1.4.648"
-  checksum: 9f9ab328744a9d593e170c46743c76b41052341176310d481ba184098cea2541d8e04a9bd309e1d77e6e9e010ee27a4f573b149f6f23404d239613816d1d072a
+  version: 1.4.650
+  resolution: "electron-to-chromium@npm:1.4.650"
+  checksum: 30633acb595e2b59ac9212aa93cfaf52e74bbe398ae651117b4d8da8d9be6df554af88530cf54c2eed184b9e30c01ef2284752a6bc971b8c1b5eda9d34bb1f44
   languageName: node
   linkType: hard
 
