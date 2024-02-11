@@ -23,7 +23,7 @@ class Nav::Sub::Component < ViewComponent::Base
     def css_classes
       base_classes = %w[
         pt-3
-        pb-5
+        pb-8
         px-2
         first:pl-6
         last:pr-6
