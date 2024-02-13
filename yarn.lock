@@ -621,9 +621,9 @@ __metadata:
   linkType: hard
 
 "@sindresorhus/merge-streams@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@sindresorhus/merge-streams@npm:2.1.0"
-  checksum: 10c0/009e2fcd0d554aec33d30525c23bb31419319c164cf23dc74eb6255107d2f4f7c2b82936b7cbf0a3e62bbc219bed6f86900f778a5a717e72daef8dedfe80eef8
+  version: 2.2.0
+  resolution: "@sindresorhus/merge-streams@npm:2.2.0"
+  checksum: 10c0/27b00a97a2c15ab7e8db1fe9008b0b87260e14a449f2e1039ceecaa83737651909ff0aff90126ecdd1885ecff3591efe5d27b34bd42b0eb34314ca38e3525ed4
   languageName: node
   linkType: hard
 
@@ -1674,14 +1674,14 @@ __metadata:
   linkType: hard
 
 "define-data-property@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "define-data-property@npm:1.1.2"
+  version: 1.1.3
+  resolution: "define-data-property@npm:1.1.3"
   dependencies:
     es-errors: "npm:^1.3.0"
-    get-intrinsic: "npm:^1.2.2"
+    get-intrinsic: "npm:^1.2.4"
     gopd: "npm:^1.0.1"
     has-property-descriptors: "npm:^1.0.1"
-  checksum: 10c0/c496512a9b37c0a1708931a7ef419c120d23e672758fd41903f0593d6c48b2366976a484ad97bd45ed636da712dfa886c0908bf2c77b3f7ca36d7299b23a24bb
+  checksum: 10c0/918836b0ddcbefe9f351d35529bcbba5b00e4d867d1698b676eacfe50c0e479fb830dd4dd17988d3a0d2328707ef47a24d570cfcae9085b3e331f6236034256a
   languageName: node
   linkType: hard
 
@@ -1749,9 +1749,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.648":
-  version: 1.4.665
-  resolution: "electron-to-chromium@npm:1.4.665"
-  checksum: 10c0/c97e00510f4a3f9dfa213957b997cd3f759fedece2627716b39f72294214f45e30f7e2ee3cc58a0ddb4b9b60e4ef07fd505200619c2f9aa31b89ce0bfc558679
+  version: 1.4.667
+  resolution: "electron-to-chromium@npm:1.4.667"
+  checksum: 10c0/52150413c692470c0fcc9da9eaf020e7c8999f188dcf057d2cde032535d59f4a5201d1cffdffe3d5c86f44dd8feead67e42a509af9fe9055d74dedc491eb62e6
   languageName: node
   linkType: hard
 
@@ -2574,12 +2574,12 @@ __metadata:
   linkType: hard
 
 "http-proxy-agent@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "http-proxy-agent@npm:7.0.0"
+  version: 7.0.1
+  resolution: "http-proxy-agent@npm:7.0.1"
   dependencies:
     agent-base: "npm:^7.1.0"
     debug: "npm:^4.3.4"
-  checksum: 10c0/a11574ff39436cee3c7bc67f259444097b09474605846ddd8edf0bf4ad8644be8533db1aa463426e376865047d05dc22755e638632819317c0c2f1b2196657c8
+  checksum: 10c0/09bc7ea134a133caeb57c9487e6ee59c61aebdc8f531a86c4638cffc0d04cf7415b9d74d32e6e7781e1e931e882d1163c953430aefd6fbd1465b5e033432a040
   languageName: node
   linkType: hard
 
@@ -2595,12 +2595,12 @@ __metadata:
   linkType: hard
 
 "https-proxy-agent@npm:^7.0.1":
-  version: 7.0.2
-  resolution: "https-proxy-agent@npm:7.0.2"
+  version: 7.0.3
+  resolution: "https-proxy-agent@npm:7.0.3"
   dependencies:
     agent-base: "npm:^7.0.2"
     debug: "npm:4"
-  checksum: 10c0/7735eb90073db087e7e79312e3d97c8c04baf7ea7ca7b013382b6a45abbaa61b281041a98f4e13c8c80d88f843785bcc84ba189165b4b4087b1e3496ba656d77
+  checksum: 10c0/0a5d4beb8f3e71755e3dc62e421aceb3df8bf0d20892dfbdc54de7791f9d34be222c6acb8c83930b138a4bab9387a9f4e06ea0b171cda8e167c3aa72d437f8d8
   languageName: node
   linkType: hard
 
