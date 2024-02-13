@@ -116,9 +116,6 @@ GEM
     diff-lcs (1.5.1)
     docile (1.4.0)
     dotenv (3.0.0)
-    dotenv-rails (3.0.0)
-      dotenv (= 3.0.0)
-      railties (>= 6.1)
     drb (2.2.0)
       ruby2_keywords
     dry-cli (1.0.0)
@@ -451,7 +448,7 @@ DEPENDENCIES
   brakeman
   capybara (>= 3.26)
   cypress-rails
-  dotenv-rails
+  dotenv
   guard-rspec
   honeybadger
   http_accept_language
