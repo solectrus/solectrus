@@ -72,10 +72,6 @@ module Solectrus
       Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
 
     config.x.admin_password = ENV.fetch('ADMIN_PASSWORD', nil).presence
-    config.x.registration_required =
-      ActiveModel::Type::Boolean.new.cast(
-        ENV.fetch('REGISTRATION_REQUIRED', 'true'),
-      )
 
     # Disable preloading JS/CSS via Link header to avoid browser warnings like this one:
     # "... was preloaded using link preload but not used within a few seconds ..."

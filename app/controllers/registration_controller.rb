@@ -1,6 +1,6 @@
 class RegistrationController < ApplicationController
   def show
-    if admin? && Rails.configuration.x.registration_required
+    if admin?
       case params[:status]
       when nil
         redirect_to(registration_url, allow_other_host: true)
