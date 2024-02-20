@@ -621,9 +621,9 @@ __metadata:
   linkType: hard
 
 "@sindresorhus/merge-streams@npm:^2.1.0":
-  version: 2.2.1
-  resolution: "@sindresorhus/merge-streams@npm:2.2.1"
-  checksum: 10c0/bc22d5bf3a28c098e161a11646123dc1f672b4e7ad1da9cc9430a4851e29ef978ff4ea1d14e5e91a71f6d272619a746ba710e588f20bc53de1bbe5f1e416e578
+  version: 2.3.0
+  resolution: "@sindresorhus/merge-streams@npm:2.3.0"
+  checksum: 10c0/69ee906f3125fb2c6bb6ec5cdd84e8827d93b49b3892bce8b62267116cc7e197b5cccf20c160a1d32c26014ecd14470a72a5e3ee37a58f1d6dadc0db1ccf3894
   languageName: node
   linkType: hard
 
@@ -1749,9 +1749,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.668":
-  version: 1.4.673
-  resolution: "electron-to-chromium@npm:1.4.673"
-  checksum: 10c0/3e01365ee9b5b32b772ac6437ad4395e4367a2ffb23d651caab67802dbe65e91fca677681c38fa8e14f04ba8e8c79463520ab29b9e5fadf9028e1b1e97772d69
+  version: 1.4.676
+  resolution: "electron-to-chromium@npm:1.4.676"
+  checksum: 10c0/f135dab8b3aab360cfdf63a2fba42faf149b5ca9dbe1688c4a4245c9a2a93b388e0e47644359977726d89f5cb9bf5c0a3b95ad30f5bf0889d49e576d148c2dfb
   languageName: node
   linkType: hard
 
@@ -2553,9 +2553,9 @@ __metadata:
   linkType: hard
 
 "has-proto@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "has-proto@npm:1.0.1"
-  checksum: 10c0/c8a8fe411f810b23a564bd5546a8f3f0fff6f1b692740eb7a2fdc9df716ef870040806891e2f23ff4653f1083e3895bf12088703dd1a0eac3d9202d3a4768cd0
+  version: 1.0.3
+  resolution: "has-proto@npm:1.0.3"
+  checksum: 10c0/35a6989f81e9f8022c2f4027f8b48a552de714938765d019dbea6bb547bd49ce5010a3c7c32ec6ddac6e48fc546166a3583b128f5a7add8b058a6d8b4afec205
   languageName: node
   linkType: hard
 
@@ -2974,9 +2974,9 @@ __metadata:
   linkType: hard
 
 "lilconfig@npm:^3.0.0":
-  version: 3.1.0
-  resolution: "lilconfig@npm:3.1.0"
-  checksum: 10c0/cd126834a0e964f4798a0f87245529acc6b3c163ee2dbf6b95b23f024d0a18a361f706ead21052a7f4aefc3a55d6d67217ad3aded30de5b564c19941ec80ea35
+  version: 3.1.1
+  resolution: "lilconfig@npm:3.1.1"
+  checksum: 10c0/311b559794546894e3fe176663427326026c1c644145be9e8041c58e268aa9328799b8dfe7e4dd8c6a4ae305feae95a1c9e007db3569f35b42b6e1bc8274754c
   languageName: node
   linkType: hard
 
