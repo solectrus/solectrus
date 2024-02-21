@@ -93,7 +93,7 @@ class Number::Component < ViewComponent::Base
 
   def determine_watt_unit
     return :mega if value >= 1_000_000
-    return :kilo if value >= 100
+    return :kilo if value >= 1000
     :single
   end
 
