@@ -17,7 +17,11 @@
 class Price < ApplicationRecord
   validates :name, presence: true
   validates :starts_at, presence: true, uniqueness: { scope: :name }
-  validates :value, presence: true, numericality: { greater_than: 0 }
+  validates :value,
+            presence: true,
+            numericality: {
+              greater_than_or_equal_to: 0,
+            }
 
   enum :name, electricity: 'electricity', feed_in: 'feed_in'
 

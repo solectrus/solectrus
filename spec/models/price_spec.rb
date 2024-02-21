@@ -57,7 +57,12 @@ describe Price do
     it { is_expected.to validate_presence_of(:starts_at) }
     it { is_expected.to validate_presence_of(:value) }
 
-    it { is_expected.to validate_numericality_of(:value).is_greater_than(0) }
+    it do
+      is_expected.to validate_numericality_of(
+        :value,
+      ).is_greater_than_or_equal_to(0)
+    end
+
     it { is_expected.to validate_uniqueness_of(:starts_at).scoped_to(:name) }
   end
 
