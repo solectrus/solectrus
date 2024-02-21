@@ -25,4 +25,38 @@ describe Calculator::Now do
       expect(calculator.wallbox_charge_power).to eq(0)
     end
   end
+
+  describe '#power_ratio_limited?' do
+    subject { calculator.power_ratio_limited? }
+
+    context 'when power_ratio is 100' do
+      before do
+        add_influx_point(
+          name: Rails.configuration.x.influx.measurement_pv,
+          fields: {
+            power_ratio: 100,
+          },
+        )
+      end
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when power_ratio is 70' do
+      before do
+        add_influx_point(
+          name: Rails.configuration.x.influx.measurement_pv,
+          fields: {
+            power_ratio: 70,
+          },
+        )
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when power_ratio is missing' do
+      it { is_expected.to be(false) }
+    end
+  end
 end

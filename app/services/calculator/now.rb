@@ -35,11 +35,11 @@ class Calculator::Now < Calculator::Base
     build_method(:bat_power_plus, data, :to_f)
     build_method(:bat_fuel_charge, data, :to_f)
     build_method(:case_temp, data, :to_f)
-    build_method(:power_ratio, data, :to_f)
+    build_method(:power_ratio, data)
   end
 
   def power_ratio_limited?
-    return unless power_ratio
+    return false unless power_ratio
 
     power_ratio < 100
   end
