@@ -18,7 +18,7 @@
         .md:table-cell.align-middle.p-2.text-gray-500.text-sm.pl-5.hidden
           = price.note
         .table-cell.align-middle.p-2.tabular-nums.text-right.w-1.whitespace-nowrap
-          = number_to_currency(price.value, precision: 4)
+          = number_to_currency(price.value, precision: nil)
         .table-cell.align-middle.p-2.tabular-nums.w-10.text-right.text-sm.whitespace-nowrap
           = relative_change(price, index)
 
