@@ -22,8 +22,9 @@ describe UpdateCheck do
     context 'when the request fails' do
       before do
         stub_request(:get, UpdateCheck::URL).to_return(
-          status: [500, 'Internal Server Error'],
+          status: [500, 'Something went wrong'],
         )
+        allow(Rails.logger).to receive(:error)
       end
 
       it { is_expected.to be_blank }
@@ -31,11 +32,22 @@ describe UpdateCheck do
       it 'has blank shortcuts' do
         expect(instance.latest_version).to be_blank
         expect(instance.registration_status).to be_blank
+      end
+
+      it 'logs the error' do
+        latest
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UpdateCheck failed: Error 500 - Something went wrong',
+        ).once
       end
     end
 
     context 'when the request timeouts' do
-      before { stub_request(:get, UpdateCheck::URL).to_timeout }
+      before do
+        stub_request(:get, UpdateCheck::URL).to_timeout
+        allow(Rails.logger).to receive(:error)
+      end
 
       it { is_expected.to be_blank }
 
@@ -43,16 +55,35 @@ describe UpdateCheck do
         expect(instance.latest_version).to be_blank
         expect(instance.registration_status).to be_blank
       end
+
+      it 'logs the error' do
+        latest
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UpdateCheck failed: execution expired',
+        ).once
+      end
     end
 
     context 'when response is invalid', vcr: { cassette_name: 'version' } do
-      before { allow(JSON).to receive(:parse).and_raise(JSON::ParserError) }
+      before do
+        allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
+        allow(Rails.logger).to receive(:error)
+      end
 
       it { is_expected.to be_blank }
 
       it 'has blank shortcuts' do
         expect(instance.latest_version).to be_blank
         expect(instance.registration_status).to be_blank
+      end
+
+      it 'logs the error' do
+        latest
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UpdateCheck failed: JSON::ParserError',
+        ).once
       end
     end
   end
