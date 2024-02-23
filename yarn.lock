@@ -772,11 +772,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 20.11.19
-  resolution: "@types/node@npm:20.11.19"
+  version: 20.11.20
+  resolution: "@types/node@npm:20.11.20"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/f451ef0a1d78f29c57bad7b77e49ebec945f2a6d0d7a89851d7e185ee9fe7ad94d651c0dfbcb7858c9fa791310c8b40a881e2260f56bd3c1b7e7ae92723373ae
+  checksum: 10c0/8e8de211e6d54425c603388a9b5cc9c434101985d0a1c88aabbf65d10df2b1fccd71855c20e61ae8a75c7aea56cb0f64e722cf7914cff1247d0b62ce21996ac4
   languageName: node
   linkType: hard
 
@@ -1756,9 +1756,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.668":
-  version: 1.4.679
-  resolution: "electron-to-chromium@npm:1.4.679"
-  checksum: 10c0/6f1385e080360f19ec7b6e9d1072a13325cc110ca6fc10c0bb5f4c427003abecc66074c85509bedae8352ce28557fc26f5a1f238d11f0ee0c481c42a55c9fda4
+  version: 1.4.680
+  resolution: "electron-to-chromium@npm:1.4.680"
+  checksum: 10c0/f5877042ee84fce419b1c475ca1f75d1c19c0ecf358572635dffed97d8591a25c169ee1b5abfb8a14d741c699fcc4a92b1ef1f771fbd7887f3a18499a8eaf260
   languageName: node
   linkType: hard
 
@@ -4206,12 +4206,12 @@ __metadata:
   linkType: hard
 
 "socks@npm:^2.7.1":
-  version: 2.8.0
-  resolution: "socks@npm:2.8.0"
+  version: 2.8.1
+  resolution: "socks@npm:2.8.1"
   dependencies:
     ip-address: "npm:^9.0.5"
     smart-buffer: "npm:^4.2.0"
-  checksum: 10c0/208fa5d5ae47857653c4fc039d47e4c1e76313b24052151a949aa98f027f9aaba8fc6c5dc0f7f2d9ceeb94e9940217581f2d9798436563c1494b67a6cb68611f
+  checksum: 10c0/ac77b515c260473cc7c4452f09b20939e22510ce3ae48385c516d1d5784374d5cc75be3cb18ff66cc985a7f4f2ef8fef84e984c5ec70aad58355ed59241f40a8
   languageName: node
   linkType: hard
 
