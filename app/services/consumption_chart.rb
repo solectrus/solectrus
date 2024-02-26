@@ -42,7 +42,7 @@ class ConsumptionChart < Flux::Reader
   end
 
   def chart_sum(start:, window:, stop: nil)
-    raw = query <<-QUERY
+    raw = query <<~QUERY
       import "timezone"
 
       #{from_bucket}

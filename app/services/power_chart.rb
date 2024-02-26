@@ -41,12 +41,12 @@ class PowerChart < Flux::Reader
     q << '|> keep(columns: ["_time","_field","_value"])'
     q << '|> fill(usePrevious: true)' if fill
 
-    raw = query(q.join)
+    raw = query(q.join("\n"))
     to_array(raw)
   end
 
   def chart_sum(start:, window:, stop: nil)
-    raw = query <<-QUERY
+    raw = query <<~QUERY
       import "timezone"
 
       #{from_bucket}

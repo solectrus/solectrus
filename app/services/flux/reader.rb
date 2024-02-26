@@ -63,10 +63,27 @@ class Flux::Reader < Flux::Base
     end
   end
 
-  def query_without_cache(string)
-    Rails.logger.debug { "Flux query: #{string}" }
+  def query_with_time
+    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    result = yield
+    end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    duration = end_time - start_time
 
-    client.create_query_api.query(query: string)
+    [result, duration]
+  end
+
+  def query_without_cache(string)
+    result, duration =
+      query_with_time { client.create_query_api.query(query: string) }
+
+    ActiveSupport::Notifications.instrument(
+      'query.flux_reader',
+      class: self.class.name,
+      query: string,
+      duration:,
+    )
+
+    result
   end
 
   # Build a short cache key from the query string to avoid hitting the 250 chars
