@@ -7,28 +7,23 @@ class Calculator::Range < Calculator::Base
 
     @timeframe = timeframe
 
-    build_context PowerSum.new(
-                    measurements: [
-                      Rails.configuration.x.influx.measurement_pv,
-                      Rails.configuration.x.influx.measurement_forecast,
-                    ],
-                    fields:,
-                  ).call(timeframe)
+    build_context PowerSum.new(sensors:).call(timeframe)
   end
 
-  def fields
+  def sensors
     result = %i[
       inverter_power
       house_power
-      wallbox_charge_power
-      grid_power_plus
-      grid_power_minus
-      bat_power_minus
-      bat_power_plus
+      wallbox_power
+      grid_power_import
+      grid_power_export
+      battery_discharging_power
+      battery_charging_power
+      heatpump_power
     ]
 
     # Include forecast for days only
-    result << :watt if @timeframe.day?
+    result << :inverter_power_forecast if @timeframe.day?
 
     result
   end
@@ -41,35 +36,48 @@ class Calculator::Range < Calculator::Base
     build_method_from_array(:electricity_price, data, :to_f)
 
     build_method_from_array(:inverter_power, data, :to_f)
-    build_method_from_array(:house_power, data, :to_f)
-    build_method_from_array(:wallbox_charge_power, data, :to_f)
-    build_method_from_array(:grid_power_plus, data, :to_f)
-    build_method_from_array(:grid_power_minus, data, :to_f)
-    build_method_from_array(:bat_power_minus, data, :to_f)
-    build_method_from_array(:bat_power_plus, data, :to_f)
-    build_method_from_array(:watt, data, :to_f) if @timeframe.day?
+    build_house_power_from_array(data)
+    build_method_from_array(:wallbox_power, data, :to_f)
+    build_method_from_array(:grid_power_import, data, :to_f)
+    build_method_from_array(:grid_power_export, data, :to_f)
+    build_method_from_array(:battery_discharging_power, data, :to_f)
+    build_method_from_array(:battery_charging_power, data, :to_f)
+    build_method_from_array(:heatpump_power, data, :to_f)
+    return unless @timeframe.day?
+
+    build_method_from_array(:inverter_power_forecast, data, :to_f)
+  end
+
+  def build_house_power_from_array(data)
+    values =
+      data
+        .pluck(:house_power, :heatpump_power)
+        .map { |v| v.reduce { |acc, elem| acc.to_f - elem.to_f } }
+
+    build_method('house_power_array') { values }
+    build_method(:house_power) { values.sum }
   end
 
   def forecast_deviation
-    return unless respond_to?(:watt)
-    return if watt.zero?
+    return unless respond_to?(:inverter_power_forecast)
+    return if inverter_power_forecast.zero?
 
-    ((inverter_power * 100.0 / watt) - 100).round
+    ((inverter_power * 100.0 / inverter_power_forecast) - 100).round
   end
 
   def paid
-    return unless grid_power_plus
+    return unless grid_power_import
 
     -section_sum do |index|
-      grid_power_plus_array[index] * electricity_price_array[index]
+      grid_power_import_array[index] * electricity_price_array[index]
     end
   end
 
   def got
-    return unless grid_power_minus
+    return unless grid_power_export
 
     section_sum do |index|
-      grid_power_minus_array[index] * feed_in_tariff_array[index]
+      grid_power_export_array[index] * feed_in_tariff_array[index]
     end
   end
 
@@ -100,12 +108,14 @@ class Calculator::Range < Calculator::Base
   end
 
   def battery_savings
-    return unless bat_power_minus && bat_power_plus && savings
+    return unless battery_discharging_power && battery_charging_power && savings
 
     [
       section_sum do |index|
-        (bat_power_minus_array[index] * electricity_price_array[index]) -
-          (bat_power_plus_array[index] * feed_in_tariff_array[index])
+        (
+          battery_discharging_power_array[index] *
+            electricity_price_array[index]
+        ) - (battery_charging_power_array[index] * feed_in_tariff_array[index])
       end,
       savings,
     ].min
@@ -119,11 +129,11 @@ class Calculator::Range < Calculator::Base
   end
 
   def wallbox_costs
-    return unless wallbox_charge_power && grid_power_plus
+    return unless wallbox_power && grid_power_import
 
     @wallbox_costs ||=
       -section_sum do |index|
-        [wallbox_charge_power_array[index], grid_power_plus_array[index]].min *
+        [wallbox_power_array[index], grid_power_import_array[index]].min *
           electricity_price_array[index]
       end
   end
@@ -134,13 +144,11 @@ class Calculator::Range < Calculator::Base
     @house_costs ||=
       -section_sum do |index|
         total_costs =
-          (grid_power_plus_array[index] * electricity_price_array[index])
+          (grid_power_import_array[index] * electricity_price_array[index])
 
         wallbox_costs =
-          [
-            wallbox_charge_power_array[index],
-            grid_power_plus_array[index],
-          ].min * electricity_price_array[index]
+          [wallbox_power_array[index], grid_power_import_array[index]].min *
+            electricity_price_array[index]
 
         total_costs - wallbox_costs
       end

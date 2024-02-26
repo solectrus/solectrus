@@ -1,29 +1,29 @@
 # == Route Map
 #
-#        Prefix Verb   URI Pattern                                         Controller#Action
-#          root GET    /(:field)(/:timeframe)(.:format)                    home#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings|co2_savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#         stats GET    /stats/:field(/:timeframe)(.:format)                stats#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings|co2_savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#        charts GET    /charts/:field(/:timeframe)(.:format)               charts#index {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings|co2_savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#         tiles GET    /tiles/:field(/:timeframe)(.:format)                tiles#show {:field=>/inverter_power|house_power|grid_power|bat_power|bat_fuel_charge|wallbox_charge_power|case_temp|autarky|consumption|savings|co2_savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#    essentials GET    /essentials(.:format)                               essentials#index
-#         top10 GET    /top10(/:period)(/:field)(/:calc)(/:sort)(.:format) top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
-#   top10_chart GET    /top10-chart/:period/:field/:calc/:sort(.:format)   top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :field=>/inverter_power|house_power|grid_power_plus|grid_power_minus|bat_power_minus|bat_power_plus|wallbox_charge_power/}
-#   new_session GET    /login(.:format)                                    sessions#new
-#      sessions POST   /login(.:format)                                    sessions#create
-#       session DELETE /logout(.:format)                                   sessions#destroy
-#  registration GET    /registration(/:status)(.:format)                   registration#show
-# edit_settings GET    /settings(.:format)                                 settings#edit
-#      settings PATCH  /settings(.:format)                                 settings#update
-#               PUT    /settings(.:format)                                 settings#update
-#        prices GET    /settings/prices(/:name)(.:format)                  prices#index {:name=>/electricity|feed_in/}
-#               GET    /settings/prices(.:format)                          prices#index
-#               POST   /settings/prices(.:format)                          prices#create
-#     new_price GET    /settings/prices/new(.:format)                      prices#new
-#    edit_price GET    /settings/prices/:id/edit(.:format)                 prices#edit
-#         price GET    /settings/prices/:id(.:format)                      prices#show
-#               PATCH  /settings/prices/:id(.:format)                      prices#update
-#               PUT    /settings/prices/:id(.:format)                      prices#update
-#               DELETE /settings/prices/:id(.:format)                      prices#destroy
+#        Prefix Verb   URI Pattern                                          Controller#Action
+#          root GET    /(:sensor)(/:timeframe)(.:format)                    home#index {:sensor=>/inverter_power|inverter_power_forecast|house_power|heatpump_power|grid_power|grid_limit|battery_power|battery_soc|wallbox_power|case_temp|system_status|system_status_ok|autarky|consumption|savings|co2_savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#         stats GET    /stats/:sensor(/:timeframe)(.:format)                stats#index {:sensor=>/inverter_power|inverter_power_forecast|house_power|heatpump_power|grid_power|grid_limit|battery_power|battery_soc|wallbox_power|case_temp|system_status|system_status_ok|autarky|consumption|savings|co2_savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#        charts GET    /charts/:sensor(/:timeframe)(.:format)               charts#index {:sensor=>/inverter_power|inverter_power_forecast|house_power|heatpump_power|grid_power|grid_limit|battery_power|battery_soc|wallbox_power|case_temp|system_status|system_status_ok|autarky|consumption|savings|co2_savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#         tiles GET    /tiles/:sensor(/:timeframe)(.:format)                tiles#show {:sensor=>/inverter_power|inverter_power_forecast|house_power|heatpump_power|grid_power|grid_limit|battery_power|battery_soc|wallbox_power|case_temp|system_status|system_status_ok|autarky|consumption|savings|co2_savings/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#    essentials GET    /essentials(.:format)                                essentials#index
+#         top10 GET    /top10(/:period)(/:sensor)(/:calc)(/:sort)(.:format) top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :sensor=>/inverter_power|inverter_power_forecast|house_power|heatpump_power|grid_power_import|grid_power_export|battery_charging_power|battery_discharging_power|wallbox_power/}
+#   top10_chart GET    /top10-chart/:period/:sensor/:calc/:sort(.:format)   top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :sensor=>/inverter_power|inverter_power_forecast|house_power|heatpump_power|grid_power_import|grid_power_export|battery_charging_power|battery_discharging_power|wallbox_power/}
+#   new_session GET    /login(.:format)                                     sessions#new
+#      sessions POST   /login(.:format)                                     sessions#create
+#       session DELETE /logout(.:format)                                    sessions#destroy
+#  registration GET    /registration(/:status)(.:format)                    registration#show
+# edit_settings GET    /settings(.:format)                                  settings#edit
+#      settings PATCH  /settings(.:format)                                  settings#update
+#               PUT    /settings(.:format)                                  settings#update
+#        prices GET    /settings/prices(/:name)(.:format)                   prices#index {:name=>/electricity|feed_in/}
+#               GET    /settings/prices(.:format)                           prices#index
+#               POST   /settings/prices(.:format)                           prices#create
+#     new_price GET    /settings/prices/new(.:format)                       prices#new
+#    edit_price GET    /settings/prices/:id/edit(.:format)                  prices#edit
+#         price GET    /settings/prices/:id(.:format)                       prices#show
+#               PATCH  /settings/prices/:id(.:format)                       prices#update
+#               PUT    /settings/prices/:id(.:format)                       prices#update
+#               DELETE /settings/prices/:id(.:format)                       prices#destroy
 
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -35,15 +35,16 @@ Rails.application.routes.draw do
   mount Lookbook::Engine, at: '/lookbook' if Rails.env.development?
   mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
-  constraints field: Regexp.new(Senec::FIELDS_COMBINED.join('|'), false) do
+  constraints sensor:
+                Regexp.new(SensorConfig::COMBINED_SENSORS.join('|'), false) do
     constraints timeframe: Timeframe.regex do
-      get '/(/:field)(/:timeframe)', to: 'home#index', as: :root
-      get '/stats/:field(/:timeframe)', to: 'stats#index', as: :stats
-      get '/charts/:field(/:timeframe)', to: 'charts#index', as: :charts
-      get '/tiles/:field(/:timeframe)', to: 'tiles#show', as: :tiles
+      get '/(/:sensor)(/:timeframe)', to: 'home#index', as: :root
+      get '/stats/:sensor(/:timeframe)', to: 'stats#index', as: :stats
+      get '/charts/:sensor(/:timeframe)', to: 'charts#index', as: :charts
+      get '/tiles/:sensor(/:timeframe)', to: 'tiles#show', as: :tiles
 
       # Redirect old routes
-      get '/:period/:field/(:timestamp)', to: redirect('/%{field}')
+      get '/:period/:sensor/(:timestamp)', to: redirect('/%{sensor}')
     end
   end
 
@@ -52,11 +53,12 @@ Rails.application.routes.draw do
   constraints period: /day|week|month|year/,
               calc: /sum|max/,
               sort: /asc|desc/,
-              field: Regexp.new(Senec::POWER_FIELDS.join('|'), false) do
-    get '/top10/(:period)/(:field)/(:calc)/(:sort)',
+              sensor:
+                Regexp.new(SensorConfig::POWER_SENSORS.join('|'), false) do
+    get '/top10/(:period)/(:sensor)/(:calc)/(:sort)',
         to: 'top10#index',
         as: :top10
-    get '/top10-chart/:period/:field/:calc/:sort',
+    get '/top10-chart/:period/:sensor/:calc/:sort',
         to: 'top10_chart#index',
         as: :top10_chart
   end

@@ -3,8 +3,7 @@ class PowerPeak < Flux::Reader
     raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start:, stop:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{filter}
       |> aggregateWindow(every: 30s, fn: mean)
       |> max()
     QUERY
@@ -15,7 +14,13 @@ class PowerPeak < Flux::Reader
     array.map!(&:values)
 
     array.reduce({}) do |total, current|
-      total.merge(current['_field'] => current['_value'].round)
+      sensor =
+        Rails.application.config.x.influx.sensors.find_by(
+          current['_measurement'],
+          current['_field'],
+        )
+
+      total.merge(sensor => current['_value'].round)
     end
   end
 

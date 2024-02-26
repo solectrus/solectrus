@@ -6,9 +6,9 @@ describe Calculator::Now do
 
     before do
       add_influx_point(
-        name: Rails.configuration.x.influx.measurement_pv,
+        name: measurement_inverter_power,
         fields: {
-          inverter_power: 10,
+          field_inverter_power => 10,
         },
       )
     end
@@ -22,19 +22,91 @@ describe Calculator::Now do
     end
 
     it 'returns missing value as 0' do
-      expect(calculator.wallbox_charge_power).to eq(0)
+      expect(calculator.wallbox_power).to eq(0)
     end
   end
 
-  describe '#power_ratio_limited?' do
-    subject { calculator.power_ratio_limited? }
+  describe '#house_power' do
+    subject { calculator.house_power }
 
-    context 'when power_ratio is 100' do
+    context 'when heatpump is on' do
       before do
         add_influx_point(
-          name: Rails.configuration.x.influx.measurement_pv,
+          name: measurement_house_power,
           fields: {
-            power_ratio: 100,
+            field_house_power => 1500,
+          },
+        )
+
+        add_influx_point(
+          name: measurement_heatpump_power,
+          fields: {
+            field_heatpump_power => 500,
+          },
+        )
+      end
+
+      it { is_expected.to eq(1000) }
+    end
+
+    context 'when heatpump is not present' do
+      before do
+        add_influx_point(
+          name: measurement_house_power,
+          fields: {
+            field_house_power => 1500,
+          },
+        )
+      end
+
+      it { is_expected.to eq(1500) }
+    end
+
+    context 'when house_power is zero because of SENEC wallbox (with heatpump)' do
+      before do
+        add_influx_point(
+          name: measurement_house_power,
+          fields: {
+            field_house_power => 0,
+            field_wallbox_power => 5000,
+          },
+        )
+
+        add_influx_point(
+          name: measurement_heatpump_power,
+          fields: {
+            field_heatpump_power => 500,
+          },
+        )
+      end
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'when house_power is zero because of SENEC wallbox (without heatpump)' do
+      before do
+        add_influx_point(
+          name: measurement_house_power,
+          fields: {
+            field_house_power => 0,
+            field_wallbox_power => 5000,
+          },
+        )
+      end
+
+      it { is_expected.to eq(0) }
+    end
+  end
+
+  describe '#grid_export_limit_active?' do
+    subject { calculator.grid_export_limit_active? }
+
+    context 'when grid_export_limit is 100' do
+      before do
+        add_influx_point(
+          name: measurement_grid_export_limit,
+          fields: {
+            field_grid_export_limit => 100,
           },
         )
       end
@@ -42,12 +114,12 @@ describe Calculator::Now do
       it { is_expected.to be(false) }
     end
 
-    context 'when power_ratio is 70' do
+    context 'when grid_export_limit is 70' do
       before do
         add_influx_point(
-          name: Rails.configuration.x.influx.measurement_pv,
+          name: measurement_grid_export_limit,
           fields: {
-            power_ratio: 70,
+            field_grid_export_limit => 70,
           },
         )
       end
@@ -55,7 +127,7 @@ describe Calculator::Now do
       it { is_expected.to be(true) }
     end
 
-    context 'when power_ratio is missing' do
+    context 'when grid_export_limit is missing' do
       it { is_expected.to be(false) }
     end
   end

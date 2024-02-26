@@ -1,10 +1,10 @@
 describe EssentialsTile::Component, type: :component do
-  subject(:component) { described_class.new calculator:, field:, timeframe: }
+  subject(:component) { described_class.new calculator:, sensor:, timeframe: }
 
   context "when year's savings" do
     let(:calculator) { double(Calculator::Range, savings: 500) }
 
-    let(:field) { :savings }
+    let(:sensor) { :savings }
     let(:timeframe) { Timeframe.year }
 
     it 'returns the correct value' do
@@ -39,7 +39,7 @@ describe EssentialsTile::Component, type: :component do
   context "when day's inverter_power" do
     let(:calculator) { double(Calculator::Range, inverter_power: 20_000) }
 
-    let(:field) { :inverter_power }
+    let(:sensor) { :inverter_power }
     let(:timeframe) { Timeframe.day }
 
     it 'returns the correct value' do
@@ -74,7 +74,7 @@ describe EssentialsTile::Component, type: :component do
   context 'when current inverter_power (present)' do
     let(:calculator) { double(Calculator::Range, inverter_power: 1_800) }
 
-    let(:field) { :inverter_power }
+    let(:sensor) { :inverter_power }
     let(:timeframe) { Timeframe.now }
 
     it 'returns the correct value' do
@@ -109,7 +109,7 @@ describe EssentialsTile::Component, type: :component do
   context 'when current inverter_power (blank)' do
     let(:calculator) { double(Calculator::Range, inverter_power: nil) }
 
-    let(:field) { :inverter_power }
+    let(:sensor) { :inverter_power }
     let(:timeframe) { Timeframe.now }
 
     it 'returns the correct value' do
@@ -144,7 +144,7 @@ describe EssentialsTile::Component, type: :component do
   context "when this week's house power" do
     let(:calculator) { double(Calculator::Range, house_power: 100) }
 
-    let(:field) { :house_power }
+    let(:sensor) { :house_power }
     let(:timeframe) { Timeframe.week }
 
     it 'returns the correct value' do
@@ -176,10 +176,10 @@ describe EssentialsTile::Component, type: :component do
     end
   end
 
-  context 'when overall bat_fuel_charge' do
-    let(:calculator) { double(Calculator::Range, bat_fuel_charge: 50) }
+  context 'when overall battery_soc' do
+    let(:calculator) { double(Calculator::Range, battery_soc: 50) }
 
-    let(:field) { :bat_fuel_charge }
+    let(:sensor) { :battery_soc }
     let(:timeframe) { Timeframe.all }
 
     it 'returns the correct value' do

@@ -1,30 +1,30 @@
 class EssentialsTile::Component < ViewComponent::Base
-  def initialize(calculator:, field:, timeframe:)
+  def initialize(calculator:, sensor:, timeframe:)
     super
     @calculator = calculator
-    @field = field.to_sym
+    @sensor = sensor.to_sym
     @timeframe = timeframe
   end
 
-  attr_reader :calculator, :field, :timeframe
+  attr_reader :calculator, :sensor, :timeframe
 
   def path
-    if field.in? %i[savings co2_savings]
+    if sensor.in? %i[savings co2_savings]
       # Currently, there is no chart for savings, so link to inverter_power chart
-      root_path(field: 'inverter_power', timeframe:)
+      root_path(sensor: 'inverter_power', timeframe:)
     else
-      root_path(field:, timeframe:)
+      root_path(sensor:, timeframe:)
     end
   end
 
   def value
-    @value ||= calculator.public_send(field)
+    @value ||= calculator.public_send(sensor)
   end
 
   def color
     return :gray if value.nil? || value.round.zero?
 
-    case field
+    case sensor
     when :savings, :co2_savings
       :blue
     when :house_power
@@ -47,14 +47,14 @@ class EssentialsTile::Component < ViewComponent::Base
   end
 
   ICONS = {
-    grid_power_minus: 'fa-bolt',
-    grid_power_plus: 'fa-bolt',
+    grid_power_export: 'fa-bolt',
+    grid_power_import: 'fa-bolt',
     inverter_power: 'fa-sun',
     house_power: 'fa-home',
-    wallbox_charge_power: 'fa-car',
+    wallbox_power: 'fa-car',
     savings: 'fa-piggy-bank',
     co2_savings: 'fa-tree-city',
-    bat_fuel_charge: 'fa-battery-half',
+    battery_soc: 'fa-battery-half',
   }.freeze
 
   BACKGROUND_COLOR = {
@@ -81,19 +81,19 @@ class EssentialsTile::Component < ViewComponent::Base
   private_constant :ICONS
 
   def icon_class
-    ICONS[field]
+    ICONS[sensor]
   end
 
   def formatted_value
     return '---' unless value
 
     number = Number::Component.new(value:)
-    case field
+    case sensor
     when :savings
       number.to_eur(klass: 'text-inherit')
     when :co2_savings
       number.to_weight
-    when :autarky, :bat_fuel_charge
+    when :autarky, :battery_soc
       number.to_percent(klass: 'text-inherit')
     else
       timeframe.now? ? number.to_watt : number.to_watt_hour

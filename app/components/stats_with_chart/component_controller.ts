@@ -21,7 +21,7 @@ export default class extends Controller {
 
   static values = {
     // Field to display in the chart
-    field: String,
+    sensor: String,
 
     // Refresh interval in seconds
     interval: { type: Number, default: 5 },
@@ -36,14 +36,14 @@ export default class extends Controller {
     // After this time (ISO 8601 decoded), nextPath will be loaded instead of the current page
     boundary: String,
   };
-  declare readonly fieldValue: string;
+  declare readonly sensorValue: string;
   declare readonly intervalValue: number;
   declare readonly reloadChartValue: boolean;
   declare readonly nextPathValue: string;
   declare readonly boundaryValue: string;
 
   private interval: ReturnType<typeof setInterval> | undefined;
-  private selectedField?: string;
+  private selectedSensor?: string;
 
   connect() {
     window.addEventListener('blur', this.handleBlur.bind(this));
@@ -70,7 +70,7 @@ export default class extends Controller {
   startLoop(event?: ActionEvent) {
     this.stopLoop();
 
-    if (event?.params?.field) this.selectedField = event.params.field;
+    if (event?.params?.sensor) this.selectedSensor = event.params.sensor;
 
     this.interval = setInterval(() => {
       // Move to next page when boundary is reached
@@ -221,9 +221,9 @@ export default class extends Controller {
   }
 
   get currentElement(): HTMLElement | undefined {
-    // Select the current element from the currentTargets (by comparing field)
+    // Select the current element from the currentTargets (by comparing sensor)
     const targets = this.currentTargets.filter((t) =>
-      t.dataset.field?.startsWith(this.effectiveField),
+      t.dataset.sensor?.startsWith(this.effectiveSensor),
     );
     if (!targets.length) return undefined;
 
@@ -247,7 +247,7 @@ export default class extends Controller {
     );
   }
 
-  get effectiveField(): string {
-    return this.selectedField ?? this.fieldValue;
+  get effectiveSensor(): string {
+    return this.selectedSensor ?? this.sensorValue;
   }
 }

@@ -1,11 +1,11 @@
 class StatsNow::Component < ViewComponent::Base
-  def initialize(calculator:, field:)
+  def initialize(calculator:, sensor:)
     super
     @calculator = calculator
-    @field = field
+    @sensor = sensor
   end
 
-  attr_accessor :calculator, :field
+  attr_accessor :calculator, :sensor
 
   def max_flow
     # Heuristic: The peak flow is the highest value of all fields
@@ -18,9 +18,8 @@ class StatsNow::Component < ViewComponent::Base
 
   def peak
     @peak ||=
-      PowerPeak.new(
-        fields: Senec::POWER_FIELDS,
-        measurements: [Rails.configuration.x.influx.measurement_pv],
-      ).result(start: 30.days.ago.beginning_of_day)
+      PowerPeak.new(sensors: SensorConfig::POWER_SENSORS).result(
+        start: 30.days.ago.beginning_of_day,
+      )
   end
 end

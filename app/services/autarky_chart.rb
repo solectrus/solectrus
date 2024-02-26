@@ -1,9 +1,6 @@
 class AutarkyChart < Flux::Reader
-  def initialize(measurements:)
-    super(
-      measurements:,
-      fields: %i[house_power wallbox_charge_power grid_power_plus],
-    )
+  def initialize
+    super(sensors: %i[house_power wallbox_power grid_power_import])
   end
 
   def call(timeframe, fill: false)
@@ -27,17 +24,29 @@ class AutarkyChart < Flux::Reader
 
   private
 
+  def house_power_field
+    Rails.application.config.x.influx.sensors.field(:house_power)
+  end
+
+  def wallbox_power_field
+    Rails.application.config.x.influx.sensors.field(:wallbox_power)
+  end
+
+  def grid_power_import_field
+    Rails.application.config.x.influx.sensors.field(:grid_power_import)
+  end
+
   def chart_single(start:, window:, stop: nil, fill: false)
     q = []
 
     q << from_bucket
     q << "|> #{range(start:, stop:)}"
-    q << "|> #{measurements_filter}"
-    q << "|> #{fields_filter}"
+    q << "|> #{filter}"
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
     q << '|> fill(usePrevious: true)' if fill
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
-    q << '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.grid_power_plus / (r.house_power + (if r.wallbox_charge_power > 0 then r.wallbox_charge_power else 0.0)))) }))'
+    q << '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
+      "(r.#{grid_power_import_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))"
     q << '|> keep(columns: ["_time", "autarky"])'
 
     raw = query(q.join)
@@ -50,12 +59,11 @@ class AutarkyChart < Flux::Reader
 
       #{from_bucket}
       |> #{range(start: start - 1.hour, stop:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{filter}
       |> aggregateWindow(every: 1h, fn: mean)
       |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-      |> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.grid_power_plus / (r.house_power + (if r.wallbox_charge_power > 0 then r.wallbox_charge_power else 0.0)))) }))
+      |> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.#{grid_power_import_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))
       |> keep(columns: ["_time", "autarky"])
     QUERY
 

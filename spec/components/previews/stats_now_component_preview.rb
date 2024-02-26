@@ -1,7 +1,7 @@
 # @label StatsNow
 class StatsNowComponentPreview < ViewComponent::Preview
   def default
-    render StatsNow::Component.new calculator:, field:
+    render StatsNow::Component.new calculator:, sensor:
   end
 
   private
@@ -10,7 +10,7 @@ class StatsNowComponentPreview < ViewComponent::Preview
     Calculator::Now.new
   end
 
-  def field
+  def sensor
     'inverter_power'
   end
 end

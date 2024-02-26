@@ -4,11 +4,15 @@ class DropdownComponentPreview < ViewComponent::Preview
     render Dropdown::Component.new items: [
                                      {
                                        name: 'This is the first item',
-                                       field: 'f1',
+                                       sensor: 'f1',
                                        href: '#',
                                      },
-                                     { name: 'Second', field: 'f2', href: '#' },
-                                     { name: 'Third', field: 'f3', href: '#' },
+                                     {
+                                       name: 'Second',
+                                       sensor: 'f2',
+                                       href: '#',
+                                     },
+                                     { name: 'Third', sensor: 'f3', href: '#' },
                                    ],
                                    selected: 'f1'
   end

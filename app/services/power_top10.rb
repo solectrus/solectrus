@@ -1,13 +1,13 @@
 class PowerTop10 < Flux::Reader
-  def initialize(field:, measurements:, desc:, calc:)
-    @field = field
+  def initialize(sensor:, desc:, calc:)
+    @sensor = sensor
     @calc = ActiveSupport::StringInquirer.new(calc)
     @desc = desc
 
-    super(fields: [field], measurements:)
+    super(sensors: [sensor])
   end
 
-  attr_reader :field, :calc, :desc
+  attr_reader :sensor, :calc, :desc
 
   def days
     top start: start(:day), stop: stop(:day), window: '1d'
@@ -85,13 +85,41 @@ class PowerTop10 < Flux::Reader
   end
 
   def build_query(start:, stop:, window:, limit:, offset:)
-    <<-QUERY
+    return <<~QUERY if sensor == :house_power
+      import "timezone"
+
+      house = #{from_bucket}
+        |> #{range(start:, stop:)}
+        |> #{filter(selected_sensors: [:house_power])}
+        |> #{first_aggregate_window}
+        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
+        |> filter(fn: (r) => r._value > 0)
+        |> map(fn: (r) => ({ _time: r._time, _field: "housePower", _value: r._value }))
+
+      heatpump = #{from_bucket}
+        |> #{range(start:, stop:)}
+        |> #{filter(selected_sensors: [:heatpump_power])}
+        |> #{first_aggregate_window}
+        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
+        |> filter(fn: (r) => r._value > 0)
+        |> map(fn: (r) => ({ _time: r._time, _field: "heatpumpPower", _value: r._value }))
+
+      union(tables: [house, heatpump])
+        |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+        |> map(fn: (r) => ({
+            _time: r._time,
+            _value: r.housePower - (if exists r.heatpumpPower then r.heatpumpPower else 0.0)
+        }))
+        |> sort(columns: ["_value"], desc: #{desc})
+        |> limit(n: #{limit})
+    QUERY
+
+    <<~QUERY
       import "timezone"
 
       #{from_bucket}
         |> #{range(start:, stop:)}
-        |> #{measurements_filter}
-        |> #{fields_filter}
+        |> #{filter}
         |> #{first_aggregate_window}
         |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
         |> filter(fn: (r) => r._value > 0)

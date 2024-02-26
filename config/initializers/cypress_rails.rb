@@ -26,14 +26,23 @@ CypressRails.hooks.before_server_start do
 
   # Seed database
   Rake::Task['db:seed'].invoke
-
-  # Seed InfluxDB
-  include CypressRails::InfluxDB
-  influx_seed
 end
 
 CypressRails.hooks.after_server_start do
   # Called once, after the server has booted
+
+  # Seed InfluxDB
+  Rails.configuration.x.influx.sensors.class::SENSOR_NAMES.each do |name|
+    define_method(:"field_#{name}") do
+      Rails.application.config.x.influx.sensors.field(name)
+    end
+
+    define_method(:"measurement_#{name}") do
+      Rails.application.config.x.influx.sensors.measurement(name)
+    end
+  end
+  include CypressRails::InfluxDB
+  influx_seed
 
   # Stub the version check so we don't have to hit the network
   UpdateCheck.class_eval do

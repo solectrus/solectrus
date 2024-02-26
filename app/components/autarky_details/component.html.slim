@@ -1,8 +1,8 @@
 dl
   .grid.grid-cols-2.gap-4
     dt
-      = I18n.t('senec.grid_power_plus')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.grid_power_plus).to_watt_hour(max_precision: 3, unit: :kilo)
+      = I18n.t('sensors.grid_power_import')
+    dd.font-mono.text-right = Number::Component.new(value: calculator.grid_power_import).to_watt_hour(max_precision: 3, unit: :kilo)
 
   .mt-2.grid.grid-cols-2.gap-4
     dt.whitespace-nowrap

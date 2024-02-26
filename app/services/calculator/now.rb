@@ -3,44 +3,48 @@ class Calculator::Now < Calculator::Base
     super
 
     build_context PowerSum.new(
-                    measurements: [Rails.configuration.x.influx.measurement_pv],
-                    fields: %i[
-                      current_state
-                      current_state_ok
+                    sensors: %i[
                       inverter_power
                       house_power
-                      wallbox_charge_power
-                      grid_power_plus
-                      grid_power_minus
-                      bat_power_minus
-                      bat_power_plus
-                      bat_fuel_charge
+                      heatpump_power
+                      grid_power_import
+                      grid_power_export
+                      grid_export_limit
+                      battery_charging_power
+                      battery_discharging_power
+                      battery_soc
+                      wallbox_power
                       case_temp
-                      power_ratio
+                      system_status
+                      system_status_ok
                     ],
                   ).call(Timeframe.now)
   end
 
   def build_context(data)
     build_method(:time, data)
-    build_method(:current_state, data)
-    build_method(:current_state_ok, data)
+    build_method(:system_status, data)
+    build_method(:system_status_ok, data)
 
     build_method(:inverter_power, data, :to_f)
-    build_method(:house_power, data, :to_f)
-    build_method(:wallbox_charge_power, data, :to_f)
-    build_method(:grid_power_plus, data, :to_f)
-    build_method(:grid_power_minus, data, :to_f)
-    build_method(:bat_power_minus, data, :to_f)
-    build_method(:bat_power_plus, data, :to_f)
-    build_method(:bat_fuel_charge, data, :to_f)
+    build_method(:wallbox_power, data, :to_f)
+    build_method(:grid_power_import, data, :to_f)
+    build_method(:grid_power_export, data, :to_f)
+    build_method(:battery_charging_power, data, :to_f)
+    build_method(:battery_discharging_power, data, :to_f)
+    build_method(:battery_soc, data, :to_f)
     build_method(:case_temp, data, :to_f)
-    build_method(:power_ratio, data)
+    build_method(:grid_export_limit, data)
+    build_method(:heatpump_power, data, :to_f)
+
+    define_singleton_method(:house_power) do
+      [0, data[:house_power].to_f - data[:heatpump_power].to_f].max
+    end
   end
 
-  def power_ratio_limited?
-    return false unless power_ratio
+  def grid_export_limit_active?
+    return false unless grid_export_limit
 
-    power_ratio < 100
+    grid_export_limit < 100
   end
 end
