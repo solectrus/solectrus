@@ -1,13 +1,17 @@
 describe Comment::Component, type: :component do
   subject(:component) do
-    described_class.new calculator:, field: 'inverter_power', timeframe:
+    described_class.new calculator:, sensor: :inverter_power, timeframe:
   end
 
   let(:timeframe) { Timeframe.new(date) }
   let(:sunset) { nil }
 
   let(:calculator) do
-    double(Calculator::Range, forecast_deviation:, watt: 1000)
+    double(
+      Calculator::Range,
+      forecast_deviation:,
+      inverter_power_forecast: 1000,
+    )
   end
 
   before do

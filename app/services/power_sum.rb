@@ -15,15 +15,20 @@ class PowerSum < Flux::Reader
     result = query <<~QUERY
       #{from_bucket}
       |> #{range(start:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{filter}
       |> last()
     QUERY
 
     result.each_with_object(empty_hash) do |table, hash|
       record = table.records.first
 
-      hash[record.values['_field'].to_sym] = record.values['_value']
+      sensor =
+        Rails.application.config.x.influx.sensors.find_by(
+          record.values['_measurement'],
+          record.values['_field'],
+        )
+
+      hash[sensor] = record.values['_value']
 
       # Get the latest time from all measurements
       # This is useful when the measurements are not in sync
@@ -61,7 +66,14 @@ class PowerSum < Flux::Reader
     ) do |table, hash|
       record = table.records.first
 
-      hash[record.values['_field'].to_sym] = record.values['_value']
+      sensor =
+        Rails.application.config.x.influx.sensors.find_by(
+          record.values['_measurement'],
+          record.values['_field'],
+        )
+
+      hash[sensor] = record.values['_value']
+
       hash[:time] ||= Time.zone.parse record.values['_stop']
     end
   end
@@ -74,8 +86,7 @@ class PowerSum < Flux::Reader
 
         #{from_bucket}
         |> #{range(start: start - 1.hour, stop:)}
-        |> #{measurements_filter}
-        |> #{fields_filter}
+        |> #{filter}
         |> aggregateWindow(every: 1h, fn: mean)
         |> aggregateWindow(every: 1d, fn: sum, location: #{location})
         |> sum()
@@ -86,15 +97,14 @@ class PowerSum < Flux::Reader
       <<~QUERY
         #{from_bucket}
         |> #{range(start:, stop:)}
-        |> #{measurements_filter}
-        |> #{fields_filter}
+        |> #{filter}
         |> integral(unit: 1h)
       QUERY
     end
   end
 
   def empty_hash
-    fields.index_with(nil).merge(time: nil)
+    sensors.index_with(nil).merge(time: nil)
   end
 
   # Cache expires depends on the timeframe

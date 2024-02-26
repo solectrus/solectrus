@@ -1,41 +1,57 @@
 class ChartSelector::Component < ViewComponent::Base
-  def initialize(field:, timeframe:)
+  def initialize(sensor:, timeframe:)
     super
-    @field = field
+    @sensor = sensor
     @timeframe = timeframe
   end
-  attr_reader :field, :timeframe
+  attr_reader :sensor, :timeframe
 
-  def field_items
-    # TODO: Add savings and co2_savings chart
-    (Senec::FIELDS_COMBINED - %w[savings co2_savings]).map do |field|
+  # Sensors available for charting
+  def sensor_names
+    %i[
+      inverter_power
+      grid_power
+      house_power
+      heatpump_power
+      wallbox_power
+      battery_power
+      battery_soc
+      case_temp
+      autarky
+      consumption
+    ]
+    # TODO: Add savings and co2_savings
+  end
+
+  def sensor_items
+    sensor_names.map do |sensor|
       MenuItem::Component.new(
-        name: title(field),
-        field:,
-        href: root_path(field:, timeframe:),
+        name: title(sensor),
+        sensor:,
+        href: root_path(sensor:, timeframe:),
         data: {
           'turbo-frame' => 'chart',
           'turbo-action' => 'replace',
           'action' =>
             'stats-with-chart--component#startLoop dropdown--component#toggle',
-          'stats-with-chart--component-field-param' => field,
+          'stats-with-chart--component-sensor-param' => sensor,
         },
-        current: field == @field,
+        current: sensor == @sensor,
       )
     end
   end
 
   private
 
-  def title(field)
-    if field.in?(%w[bat_fuel_charge])
-      "#{I18n.t "senec.#{field}"} in &percnt;".html_safe
-    elsif field.in?(%w[autarky consumption])
-      "#{I18n.t "calculator.#{field}"} in &percnt;".html_safe
-    elsif field.in?(%w[case_temp])
-      "#{I18n.t "senec.#{field}"} in &deg;C".html_safe
+  def title(sensor)
+    if sensor.in?(%i[battery_soc])
+      "#{I18n.t "sensors.#{sensor}"} in &percnt;".html_safe
+    elsif sensor.in?(%i[autarky consumption])
+      "#{I18n.t "calculator.#{sensor}"} in &percnt;".html_safe
+    elsif sensor.in?(%i[case_temp])
+      "#{I18n.t "sensors.#{sensor}"} in &deg;C".html_safe
     else
-      "#{I18n.t "senec.#{field}"} in #{power? ? 'kW' : 'kWh'}"
+      "#{I18n.t "sensors.#{sensor}"} in #{power? ? 'kW' : 'kWh'}"
     end
   end
 

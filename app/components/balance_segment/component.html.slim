@@ -1,8 +1,8 @@
 = link_to url,
-          id: "segment-#{field}",
+          id: "segment-#{sensor}",
           class: [ 'leading-none flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000', color_class ],
           style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
-          title: t("senec.#{field}"),
+          title: t("sensors.#{sensor}"),
           data: { \
             controller: 'tippy',
             tippy_placement_value: (parent.side == :left ? 'right' : 'left'),
@@ -12,28 +12,28 @@
             turbo_action: 'replace',
             turbo_prefetch: 'false',
             action: 'stats-with-chart--component#startLoop',
-            stats_with_chart__component_field_param: field,
+            stats_with_chart__component_field_param: sensor,
           } do
   css:
-    #segment-#{field} {
+    #segment-#{sensor} {
       --segment-font-size: #{font_size(max: 90)}%;
       --segment-height: #{percent}%;
     }
 
     @media (min-width: 768px) {
-      #segment-#{field} {
+      #segment-#{sensor} {
         --segment-font-size: #{font_size(max: 140)}%;
       }
     }
 
     @media (min-width: 1024px) {
-      #segment-#{field} {
+      #segment-#{sensor} {
         --segment-font-size: #{font_size(max: 115)}%;
       }
     }
 
     @media (min-width: 1280px) {
-      #segment-#{field} {
+      #segment-#{sensor} {
         --segment-font-size: #{font_size(max: 140)}%;
       }
     }
@@ -42,25 +42,25 @@
     i.fa class= icon_class style="font-size: #{icon_size}%;"
 
     .font-extralight.uppercase.tracking-wider.leading-tight class= (big? ? 'lg:block' : 'hidden')
-      = t("senec.#{field}")
+      = t("sensors.#{sensor}")
 
-    div data= { 'stats-with-chart--component-target': 'current', field: field, value: masked_value, time: calculator.time.to_i }
+    div data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time.to_i }
       = Number::Component.new(value:).public_send(now? ? :to_watt : :to_watt_hour) if value > 50
 
-    - if field == :grid_power_minus && calculator.respond_to?(:power_ratio_limited?) && calculator.power_ratio_limited?
+    - if sensor == :grid_power_export && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
       i.fa.fa-circle-exclamation.fa-xs
 
-    .hidden id="tippy-tooltip-#{field}" data-tippy-target="html"
+    .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
       .flex.flex-col.items-center.justify-center
         i.fa class= icon_class
-        = I18n.t("senec.#{field}")
+        = I18n.t("sensors.#{sensor}")
         br
         - if now?
           = Number::Component.new(value:).to_watt(max_precision: 3)
 
-          - if field == :grid_power_minus && calculator.respond_to?(:power_ratio_limited?) && calculator.power_ratio_limited?
+          - if sensor == :grid_power_export && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
             .text-xs.text-center.mt-2
-              = I18n.t('senec.power_ratio')
+              = I18n.t('sensors.power_ratio')
               br
               = Number::Component.new(value: calculator.power_ratio).to_percent(max_precision: 0, klass: 'text-xs')
 

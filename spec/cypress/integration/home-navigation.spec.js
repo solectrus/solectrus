@@ -1,14 +1,15 @@
 describe('Home page', () => {
   [
     'inverter_power',
-    'bat_power',
+    'battery_power',
     'grid_power',
     'autarky',
     'consumption',
     'house_power',
-    'wallbox_charge_power',
+    'heatpump_power',
+    'wallbox_power',
     'case_temp',
-    'bat_fuel_charge',
+    'battery_soc',
   ].forEach((path) => {
     it(`${path} is clickable`, () => {
       cy.visit(`/${path}`);
