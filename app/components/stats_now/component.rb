@@ -18,7 +18,7 @@ class StatsNow::Component < ViewComponent::Base
 
   def peak
     @peak ||=
-      PowerPeak.new(sensors: SensorConfig::POWER_SENSORS).result(
+      PowerPeak.new(sensors: SensorConfig::POWER_SENSORS).call(
         start: 30.days.ago.beginning_of_day,
       )
   end

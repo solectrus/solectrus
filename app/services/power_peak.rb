@@ -1,5 +1,5 @@
 class PowerPeak < Flux::Reader
-  def result(start:, stop: nil)
+  def call(start:, stop: nil)
     raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start:, stop:)}

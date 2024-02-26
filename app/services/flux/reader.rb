@@ -5,7 +5,12 @@ class Flux::Reader < Flux::Base
     @sensors = sensors
     @cache_options = default_cache_options
   end
-  attr_reader :fields, :measurements, :sensors
+
+  def call(timeframe)
+    @timeframe = timeframe
+  end
+
+  attr_reader :fields, :measurements, :sensors, :timeframe
 
   private
 
@@ -108,8 +113,20 @@ class Flux::Reader < Flux::Base
     default_cache_options
   end
 
+  # Cache expires depends on the timeframe
+  DEFAULT_CACHE_EXPIRES = {
+    day: 1.minute,
+    week: 5.minutes,
+    month: 10.minutes,
+    year: 1.hour,
+    all: 1.day,
+  }.freeze
+  private_constant :DEFAULT_CACHE_EXPIRES
+
   # Default cache options, can be overridden in subclasses
   def default_cache_options
-    # Don't cache at all
+    return unless timeframe
+
+    { expires_in: DEFAULT_CACHE_EXPIRES[timeframe.id] }
   end
 end
