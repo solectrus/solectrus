@@ -19,8 +19,8 @@ describe PowerPeak do
     end
   end
 
-  describe '#result' do
-    subject { peak.result(start: beginning) }
+  describe '#call' do
+    subject { peak.call(start: beginning) }
 
     it do
       is_expected.to eq(
