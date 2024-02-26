@@ -1,5 +1,7 @@
 class PowerChart < Flux::Reader
   def call(timeframe, fill: false, interpolate: false)
+    super(timeframe)
+
     case timeframe.id
     when :now
       chart_single start: 1.hour.ago,

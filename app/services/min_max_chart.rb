@@ -7,7 +7,7 @@ class MinMaxChart < Flux::Reader
   attr_reader :average
 
   def call(timeframe)
-    @timeframe = timeframe
+    super(timeframe)
 
     case timeframe.id
     when :now
@@ -145,12 +145,12 @@ class MinMaxChart < Flux::Reader
   end
 
   def default_cache_options
-    return unless @timeframe
+    return unless timeframe
 
     # Cache larger timeframes, but just for a short time
-    return { expires_in: 10.minutes } if @timeframe.month? || @timeframe.week?
-    return { expires_in: 1.hour } if @timeframe.year?
-    return { expires_in: 1.day } if @timeframe.all?
+    return { expires_in: 10.minutes } if timeframe.month? || timeframe.week?
+    return { expires_in: 1.hour } if timeframe.year?
+    return { expires_in: 1.day } if timeframe.all?
 
     nil
   end

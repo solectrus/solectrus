@@ -4,6 +4,8 @@ class AutarkyChart < Flux::Reader
   end
 
   def call(timeframe, fill: false)
+    super(timeframe)
+
     case timeframe.id
     when :now
       chart_single start: 60.minutes.ago,

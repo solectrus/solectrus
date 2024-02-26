@@ -1,12 +1,8 @@
 class PowerSum < Flux::Reader
   def call(timeframe)
-    @timeframe = timeframe
+    super(timeframe)
 
-    if timeframe.id == :now
-      last(1.hour.ago)
-    else
-      sum(timeframe:)
-    end
+    timeframe.now? ? last(1.hour.ago) : sum(timeframe:)
   end
 
   private
@@ -105,22 +101,5 @@ class PowerSum < Flux::Reader
 
   def empty_hash
     sensors.index_with(nil).merge(time: nil)
-  end
-
-  # Cache expires depends on the timeframe
-  DEFAULT_CACHE_EXPIRES = {
-    day: 1.minute,
-    week: 5.minutes,
-    month: 10.minutes,
-    year: 1.hour,
-    all: 1.day,
-  }.freeze
-
-  private_constant :DEFAULT_CACHE_EXPIRES
-
-  def default_cache_options
-    return unless @timeframe
-
-    { expires_in: DEFAULT_CACHE_EXPIRES[@timeframe.id] }
   end
 end
