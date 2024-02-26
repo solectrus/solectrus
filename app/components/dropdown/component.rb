@@ -19,7 +19,7 @@ class Dropdown::Component < ViewComponent::Base
 
   def selected_item
     @selected_item ||=
-      items.find { |item| item.respond_to?(:field) && item.field == selected }
+      items.find { |item| item.respond_to?(:sensor) && item.sensor == selected }
   end
 
   def icons?

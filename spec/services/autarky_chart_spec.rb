@@ -1,35 +1,34 @@
 describe AutarkyChart do
-  let(:measurement) { "Test#{described_class}" }
-  let(:chart) { described_class.new(measurements: [measurement]) }
+  let(:chart) { described_class.new }
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
     influx_batch do
       12.times do |index|
-        add_influx_point name: measurement,
+        add_influx_point name: measurement_inverter_power,
                          fields: {
-                           house_power: (index + 1) * 100,
-                           grid_power_plus: (index + 1) * 300,
-                           wallbox_charge_power: (index + 1) * 500,
+                           field_house_power => (index + 1) * 100,
+                           field_grid_power_import => (index + 1) * 300,
+                           field_wallbox_power => (index + 1) * 500,
                          },
                          time: (beginning + index.month).end_of_month
-        add_influx_point name: measurement,
+        add_influx_point name: measurement_inverter_power,
                          fields: {
-                           house_power: (index + 1) * 100,
-                           grid_power_plus: (index + 1) * 300,
-                           wallbox_charge_power: (index + 1) * 500,
+                           field_house_power => (index + 1) * 100,
+                           field_grid_power_import => (index + 1) * 300,
+                           field_wallbox_power => (index + 1) * 500,
                          },
                          time: (beginning + index.month).beginning_of_month
       end
 
-      add_influx_point name: measurement,
+      add_influx_point name: measurement_inverter_power,
                        fields: {
-                         house_power: 6_000,
-                         grid_power_plus: 3000,
-                         # NOTE: There is no `wallbox_charge_power` in this data point.
-                         # This happens when the `senec-importer` was used to import CSV data,
-                         # which do not contain the `wallbox_charge_power`.
+                         field_house_power => 6_000,
+                         field_grid_power_import => 3000,
+                         # NOTE: There is no `wallbox_power` in this data point.
+                         # This happens when the `csv-importer` was used to import CSV data from SENEC,
+                         # which do not contain the `wallbox_power`.
                          # The missing value tests the `if` statement in the query.
                        }
     end

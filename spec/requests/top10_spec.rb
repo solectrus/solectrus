@@ -14,7 +14,7 @@ describe 'Top 10' do
       expect(response).to redirect_to('/top10/year/house_power/sum/desc')
     end
 
-    it 'redirects top10 when field is missing' do
+    it 'redirects top10 when sensor is missing' do
       get '/top10/year/'
       expect(response).to redirect_to('/top10/year/inverter_power/sum/desc')
     end

@@ -1,7 +1,7 @@
 .flex-auto.max-w-full.flex.items-center.justify-between.space-x-4.text-gray-200.tracking-wider.whitespace-nowrap.text-sm.md:text-base
   - if can_paginate?
     - if timeframe.prev
-      = link_to root_path(field: params[:field], timeframe: timeframe.prev),
+      = link_to root_path(sensor: params[:sensor], timeframe: timeframe.prev),
                 class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500',
                 'aria-label': t('.previous'),
                 rel: 'prev' do
@@ -42,7 +42,7 @@
 
   - if can_paginate?
     - if timeframe.next
-      = link_to root_path(field: params[:field], timeframe: timeframe.next),
+      = link_to root_path(sensor: params[:sensor], timeframe: timeframe.next),
                 class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500',
                 'aria-label': t('.next'),
                 rel: 'next' do

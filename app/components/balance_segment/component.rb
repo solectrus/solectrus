@@ -1,28 +1,28 @@
 class BalanceSegment::Component < ViewComponent::Base
-  def initialize(field:, parent:, peak:)
+  def initialize(sensor:, parent:, peak:)
     super
-    @field = field
+    @sensor = sensor
     @peak = peak
     @parent = parent
   end
 
-  attr_reader :field, :parent, :peak
+  attr_reader :sensor, :parent, :peak
 
   delegate :calculator, to: :parent
 
   def url
     root_path(
-      field: field.to_s.sub(/_plus|_minus/, ''),
+      sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
       timeframe: parent.timeframe,
     )
   end
 
   def value
-    @value ||= calculator.public_send(field).to_f
+    @value ||= calculator.public_send(sensor).to_f
   end
 
   def percent
-    @percent ||= calculator.public_send(:"#{field}_percent").to_f
+    @percent ||= calculator.public_send(:"#{sensor}_percent").to_f
   end
 
   def now?
@@ -30,10 +30,10 @@ class BalanceSegment::Component < ViewComponent::Base
   end
 
   def masked_value
-    unsigned_value = field.to_s.include?('power') ? value / 1_000.0 : value
+    unsigned_value = sensor.to_s.include?('power') ? value / 1_000.0 : value
 
-    case field
-    when :grid_power_plus, :bat_power_minus
+    case sensor
+    when :grid_power_import, :battery_discharging_power
       -unsigned_value
     else
       unsigned_value
@@ -47,33 +47,34 @@ class BalanceSegment::Component < ViewComponent::Base
   end
 
   def icon_class
-    case field
-    when :grid_power_minus, :grid_power_plus
+    case sensor
+    when :grid_power_export, :grid_power_import
       'fa-bolt'
     when :inverter_power
       'fa-sun'
-    when :bat_power_minus, :bat_power_plus
+    when :battery_discharging_power, :battery_charging_power
       battery_class
     when :house_power
       'fa-home'
-    when :wallbox_charge_power
+    when :heatpump_power
+      'fa-fan'
+    when :wallbox_power
       'fa-car'
     end
   end
 
   def battery_class
-    unless calculator.respond_to?(:bat_fuel_charge) &&
-             calculator.bat_fuel_charge
+    unless calculator.respond_to?(:battery_soc) && calculator.battery_soc
       return 'fa-battery-half'
     end
 
-    if calculator.bat_fuel_charge < 15
+    if calculator.battery_soc < 15
       'fa-battery-empty'
-    elsif calculator.bat_fuel_charge < 30
+    elsif calculator.battery_soc < 30
       'fa-battery-quarter'
-    elsif calculator.bat_fuel_charge < 60
+    elsif calculator.battery_soc < 60
       'fa-battery-half'
-    elsif calculator.bat_fuel_charge < 85
+    elsif calculator.battery_soc < 85
       'fa-battery-three-quarters'
     else
       'fa-battery-full'
@@ -81,16 +82,18 @@ class BalanceSegment::Component < ViewComponent::Base
   end
 
   def color_class
-    case field
-    when :grid_power_minus, :inverter_power
+    case sensor
+    when :grid_power_export, :inverter_power
       'bg-green-600'
-    when :bat_power_minus, :bat_power_plus
+    when :battery_discharging_power, :battery_charging_power
       'bg-green-700'
     when :house_power
       'bg-slate-500'
-    when :wallbox_charge_power
+    when :wallbox_power
+      'bg-slate-700'
+    when :heatpump_power
       'bg-slate-600'
-    when :grid_power_plus
+    when :grid_power_import
       'bg-red-600'
     end
   end

@@ -1,11 +1,11 @@
 class Flux::Reader < Flux::Base
-  def initialize(fields:, measurements:)
+  def initialize(sensors:)
     super()
-    @fields = fields
-    @measurements = measurements
+
+    @sensors = sensors
     @cache_options = default_cache_options
   end
-  attr_reader :fields, :measurements
+  attr_reader :fields, :measurements, :sensors
 
   private
 
@@ -23,16 +23,25 @@ class Flux::Reader < Flux::Base
     "from(bucket: \"#{influx_bucket}\")"
   end
 
-  def fields_filter
-    filter = fields.map { |field| "r[\"_field\"] == \"#{field}\"" }
+  def filter(selected_sensors: sensors)
+    raw =
+      selected_sensors.filter_map do |sensor|
+        [
+          Rails.application.config.x.influx.sensors.measurement(sensor),
+          Rails.application.config.x.influx.sensors.field(sensor),
+        ].compact.presence
+      end
 
-    "filter(fn: (r) => #{filter.join(' or ')})"
-  end
+    # Build hash: Key is measurement, value is array of fields
+    hash = raw.group_by(&:first).transform_values { |v| v.map(&:last) }
 
-  def measurements_filter
+    # Build filter string
     filter =
-      measurements.map do |measurement|
-        "r[\"_measurement\"] == \"#{measurement}\""
+      hash.map do |measurement, fields|
+        field_filter =
+          fields.map { |field| "r[\"_field\"] == \"#{field}\"" }.join(' or ')
+
+        "r[\"_measurement\"] == \"#{measurement}\" and (#{field_filter})"
       end
 
     "filter(fn: (r) => #{filter.join(' or ')})"
@@ -80,6 +89,7 @@ class Flux::Reader < Flux::Base
       'query.flux_reader',
       class: self.class.name,
       query: string,
+      sensors:,
       duration:,
     )
 

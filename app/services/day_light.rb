@@ -7,10 +7,7 @@ class DayLight < Flux::Reader
   end
 
   def initialize(date)
-    super(
-      fields: ['watt'],
-      measurements: [Rails.configuration.x.influx.measurement_forecast],
-    )
+    super(sensors: ['inverter_power_forecast'])
     @date = date
   end
 
@@ -44,8 +41,7 @@ class DayLight < Flux::Reader
     query <<~QUERY
       data = #{from_bucket}
       |> #{range(start: @date.beginning_of_day, stop: @date.end_of_day)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{filter}
 
       firstValue = data |> first()
       lastValue = data |> last()

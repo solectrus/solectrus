@@ -9,23 +9,23 @@ class StatusComponentPreview < ViewComponent::Preview
   def with_state
     render Status::Component.new(
              time: 3.seconds.ago,
-             current_state: 'BATTERY FULL',
+             system_status: 'BATTERY FULL',
            )
   end
 
   def with_state_ok
     render Status::Component.new(
              time: 3.seconds.ago,
-             current_state: 'PV + DISCHARGE',
-             current_state_ok: true,
+             system_status: 'PV + DISCHARGE',
+             system_status_ok: true,
            )
   end
 
   def with_state_not_ok
     render Status::Component.new(
              time: 3.seconds.ago,
-             current_state: 'NPU-ERROR',
-             current_state_ok: false,
+             system_status: 'NPU-ERROR',
+             system_status_ok: false,
            )
   end
 

@@ -1,10 +1,10 @@
 class ChartLoader::Component < ViewComponent::Base
-  def initialize(field:, timeframe:)
+  def initialize(sensor:, timeframe:)
     super
-    @field = field
+    @sensor = sensor
     @timeframe = timeframe
   end
-  attr_reader :field, :timeframe
+  attr_reader :sensor, :timeframe
 
   def options # rubocop:disable Metrics/MethodLength
     {
@@ -127,8 +127,8 @@ class ChartLoader::Component < ViewComponent::Base
             ],
         },
         y: {
-          suggestedMax: field == 'bat_fuel_charge' ? 100 : nil,
-          suggestedMin: field == 'case_temp' ? 20 : nil,
+          suggestedMax: sensor == :battery_soc ? 100 : nil,
+          suggestedMin: sensor == :case_temp ? 20 : nil,
           ticks: {
             beginAtZero: true,
             maxTicksLimit: 4,

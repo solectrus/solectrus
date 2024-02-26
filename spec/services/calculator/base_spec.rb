@@ -123,16 +123,16 @@ describe Calculator::Base do
   describe '#feeding?' do
     subject { calculator.feeding? }
 
-    context 'when grid_power_plus is nil' do
-      before { calculator.build_method(:grid_power_plus) { nil } }
+    context 'when grid_power_import is nil' do
+      before { calculator.build_method(:grid_power_import) { nil } }
 
       it { is_expected.to be_nil }
     end
 
-    context 'when grid_power_minus is nil' do
+    context 'when grid_power_export is nil' do
       before do
-        calculator.build_method(:grid_power_plus) { 100 }
-        calculator.build_method(:grid_power_minus) { nil }
+        calculator.build_method(:grid_power_import) { 100 }
+        calculator.build_method(:grid_power_export) { nil }
       end
 
       it { is_expected.to be_nil }
@@ -140,8 +140,8 @@ describe Calculator::Base do
 
     context 'when values are very small' do
       before do
-        calculator.build_method(:grid_power_plus) { 20 }
-        calculator.build_method(:grid_power_minus) { 30 }
+        calculator.build_method(:grid_power_import) { 20 }
+        calculator.build_method(:grid_power_export) { 30 }
       end
 
       it { is_expected.to be false }
@@ -149,8 +149,8 @@ describe Calculator::Base do
 
     context 'when minus > plus' do
       before do
-        calculator.build_method(:grid_power_plus) { 200 }
-        calculator.build_method(:grid_power_minus) { 300 }
+        calculator.build_method(:grid_power_import) { 200 }
+        calculator.build_method(:grid_power_export) { 300 }
       end
 
       it { is_expected.to be true }
@@ -158,8 +158,8 @@ describe Calculator::Base do
 
     context 'when minus < plus' do
       before do
-        calculator.build_method(:grid_power_plus) { 300 }
-        calculator.build_method(:grid_power_minus) { 200 }
+        calculator.build_method(:grid_power_import) { 300 }
+        calculator.build_method(:grid_power_export) { 200 }
       end
 
       it { is_expected.to be false }
@@ -169,41 +169,41 @@ describe Calculator::Base do
   describe '#grid_power' do
     subject { calculator.grid_power }
 
-    context 'when grid_power_plus > grid_power_minus' do
+    context 'when grid_power_import > grid_power_export' do
       before do
-        calculator.build_method(:grid_power_plus) { 3_900 }
-        calculator.build_method(:grid_power_minus) { 0 }
+        calculator.build_method(:grid_power_import) { 3_900 }
+        calculator.build_method(:grid_power_export) { 0 }
       end
 
       it { is_expected.to eq(-3_900) }
     end
 
-    context 'when grid_power_plus < grid_power_minus' do
+    context 'when grid_power_import < grid_power_export' do
       before do
-        calculator.build_method(:grid_power_plus) { 0 }
-        calculator.build_method(:grid_power_minus) { 3_900 }
+        calculator.build_method(:grid_power_import) { 0 }
+        calculator.build_method(:grid_power_export) { 3_900 }
       end
 
       it { is_expected.to eq(3_900) }
     end
   end
 
-  describe '#bat_power' do
-    subject { calculator.bat_power }
+  describe '#battery_power' do
+    subject { calculator.battery_power }
 
-    context 'when bat_power_plus > bat_power_minus' do
+    context 'when battery_charging_power > battery_discharging_power' do
       before do
-        calculator.build_method(:bat_power_plus) { 1_500 }
-        calculator.build_method(:bat_power_minus) { 0 }
+        calculator.build_method(:battery_charging_power) { 1_500 }
+        calculator.build_method(:battery_discharging_power) { 0 }
       end
 
       it { is_expected.to eq(1_500) }
     end
 
-    context 'when bat_power_plus < bat_power_minus' do
+    context 'when battery_charging_power < battery_discharging_power' do
       before do
-        calculator.build_method(:bat_power_plus) { 0 }
-        calculator.build_method(:bat_power_minus) { 1_500 }
+        calculator.build_method(:battery_charging_power) { 0 }
+        calculator.build_method(:battery_discharging_power) { 1_500 }
       end
 
       it { is_expected.to eq(-1_500) }
@@ -215,8 +215,8 @@ describe Calculator::Base do
 
     context 'when all is nil' do
       before do
-        calculator.build_method(:grid_power_plus, {})
-        calculator.build_method(:bat_power_minus, {})
+        calculator.build_method(:grid_power_import, {})
+        calculator.build_method(:battery_discharging_power, {})
         calculator.build_method(:inverter_power, {})
       end
 
@@ -229,10 +229,10 @@ describe Calculator::Base do
 
     context 'when all is nil' do
       before do
-        calculator.build_method(:grid_power_minus, {})
-        calculator.build_method(:bat_power_plus, {})
+        calculator.build_method(:grid_power_export, {})
+        calculator.build_method(:battery_charging_power, {})
         calculator.build_method(:house_power, {})
-        calculator.build_method(:wallbox_charge_power, {})
+        calculator.build_method(:wallbox_power, {})
       end
 
       it { is_expected.to be_nil }
@@ -240,10 +240,11 @@ describe Calculator::Base do
 
     context 'when values are present' do
       before do
-        calculator.build_method(:grid_power_minus) { 1 }
-        calculator.build_method(:bat_power_plus) { 2 }
+        calculator.build_method(:grid_power_export) { 1 }
+        calculator.build_method(:battery_charging_power) { 2 }
         calculator.build_method(:house_power) { 3 }
-        calculator.build_method(:wallbox_charge_power) { 4 }
+        calculator.build_method(:heatpump_power) { 0 }
+        calculator.build_method(:wallbox_power) { 4 }
       end
 
       it { is_expected.to eq(10) }
@@ -256,8 +257,9 @@ describe Calculator::Base do
     context 'with real data' do
       before do
         calculator.build_method(:house_power) { 6_800 }
-        calculator.build_method(:wallbox_charge_power) { 0 }
-        calculator.build_method(:grid_power_plus) { 3_900 }
+        calculator.build_method(:heatpump_power) { 0 }
+        calculator.build_method(:wallbox_power) { 0 }
+        calculator.build_method(:grid_power_import) { 3_900 }
       end
 
       it { is_expected.to eq(42.6) }
@@ -266,8 +268,9 @@ describe Calculator::Base do
     context 'with simple example' do
       before do
         calculator.build_method(:house_power) { 3_500 }
-        calculator.build_method(:wallbox_charge_power) { 0 }
-        calculator.build_method(:grid_power_plus) { 2_500 }
+        calculator.build_method(:heatpump_power) { 0 }
+        calculator.build_method(:wallbox_power) { 0 }
+        calculator.build_method(:grid_power_import) { 2_500 }
       end
 
       it { is_expected.to eq(28.6) }
@@ -276,8 +279,9 @@ describe Calculator::Base do
     context 'with rounding issues' do
       before do
         calculator.build_method(:house_power) { 317 }
-        calculator.build_method(:wallbox_charge_power) { 0 }
-        calculator.build_method(:grid_power_plus) { 308 }
+        calculator.build_method(:heatpump_power) { 0 }
+        calculator.build_method(:wallbox_power) { 0 }
+        calculator.build_method(:grid_power_import) { 308 }
       end
 
       it { is_expected.to eq(2.8) }
@@ -286,8 +290,9 @@ describe Calculator::Base do
     context 'with wallbox' do
       before do
         calculator.build_method(:house_power) { 500 }
-        calculator.build_method(:wallbox_charge_power) { 9_000 }
-        calculator.build_method(:grid_power_plus) { 5_000 }
+        calculator.build_method(:heatpump_power) { 0 }
+        calculator.build_method(:wallbox_power) { 9_000 }
+        calculator.build_method(:grid_power_import) { 5_000 }
       end
 
       it { is_expected.to eq(47.4) }
@@ -297,36 +302,38 @@ describe Calculator::Base do
       before do
         calculator.build_method(:inverter_power) { 0 }
         calculator.build_method(:house_power) { 0 }
-        calculator.build_method(:wallbox_charge_power) { 0 }
-        calculator.build_method(:grid_power_plus) { 0 }
+        calculator.build_method(:heatpump_power) { 0 }
+        calculator.build_method(:wallbox_power) { 0 }
+        calculator.build_method(:grid_power_import) { 0 }
       end
 
       it { is_expected.to be_nil }
     end
 
-    context 'with zero grid_power_plus (maybe caused by balcony power plant)' do
+    context 'with zero grid_power_import (maybe caused by balcony heatpump_power plant)' do
       before do
         calculator.build_method(:house_power) { 0 }
-        calculator.build_method(:wallbox_charge_power) { 0 }
+        calculator.build_method(:heatpump_power) { 0 }
+        calculator.build_method(:wallbox_power) { 0 }
         calculator.build_method(:inverter_power) { 8_600 }
-        calculator.build_method(:grid_power_plus) { 0 }
-        calculator.build_method(:grid_power_minus) { 8_700 }
+        calculator.build_method(:grid_power_import) { 0 }
+        calculator.build_method(:grid_power_export) { 8_700 }
       end
 
       it { is_expected.to eq(100) }
     end
 
-    describe '#current_state_ok' do
-      subject { calculator.current_state_ok }
+    describe '#system_status_ok' do
+      subject { calculator.system_status_ok }
 
       context 'when false' do
-        before { calculator.build_method(:current_state_ok) { false } }
+        before { calculator.build_method(:system_status_ok) { false } }
 
         it { is_expected.to be(false) }
       end
 
       context 'when true' do
-        before { calculator.build_method(:current_state_ok) { true } }
+        before { calculator.build_method(:system_status_ok) { true } }
 
         it { is_expected.to be(true) }
       end
