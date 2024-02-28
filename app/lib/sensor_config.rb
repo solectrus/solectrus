@@ -55,6 +55,8 @@ class SensorConfig
       validate!(sensor_name, value)
       define(sensor_name, value)
     end
+
+    define_exclude_from_house_power(env['INFLUX_EXCLUDE_FROM_HOUSE_POWER'])
   end
 
   def measurement(sensor_name)
@@ -76,6 +78,19 @@ class SensorConfig
   end
 
   private
+
+  def define_exclude_from_house_power(value)
+    value ||= heatpump_power ? 'HEATPUMP_POWER' : ''
+    sensors_to_exclude =
+      value.split(',').map { |sensor| sensor.strip.downcase.to_sym }
+
+    if sensors_to_exclude.any? { |sensor| SENSOR_NAMES.exclude?(sensor) }
+      raise Error,
+            "Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: #{value}"
+    end
+
+    define :exclude_from_house_power, sensors_to_exclude
+  end
 
   def var_for(sensor_name)
     "INFLUX_SENSOR_#{sensor_name.upcase}"
