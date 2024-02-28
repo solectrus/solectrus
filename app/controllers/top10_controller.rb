@@ -20,8 +20,14 @@ class Top10Controller < ApplicationController
     )
   end
 
+  def sensor_names
+    SensorConfig::POWER_SENSORS.select do |sensor|
+      Rails.application.config.x.influx.sensors.exists?(sensor)
+    end
+  end
+
   helper_method def sensor_items
-    SensorConfig::POWER_SENSORS.map do |sensor|
+    sensor_names.map do |sensor|
       MenuItem::Component.new(
         name: I18n.t("sensors.#{sensor}"),
         href: url_for(**permitted_params.merge(sensor:, only_path: true)),
