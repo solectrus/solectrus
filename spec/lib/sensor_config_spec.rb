@@ -85,6 +85,28 @@ describe SensorConfig do
         expect(sensor_config.exclude_from_house_power).to eq([:heatpump_power])
       end
     end
+
+    describe '#exists?' do
+      it 'returns true for existing sensor' do
+        expect(sensor_config.exists?(:inverter_power)).to be(true)
+        expect(sensor_config.exists?(:wallbox_power)).to be(true)
+        expect(sensor_config.exists?(:heatpump_power)).to be(true)
+      end
+
+      it 'returns true for combined sensors' do
+        expect(sensor_config.exists?(:grid_power)).to be(true)
+        expect(sensor_config.exists?(:battery_power)).to be(true)
+      end
+
+      it 'returns true for calculated sensors' do
+        expect(sensor_config.exists?(:autarky)).to be(true)
+        expect(sensor_config.exists?(:consumption)).to be(true)
+      end
+
+      it 'returns false for invalid sensor' do
+        expect(sensor_config.exists?(:invalid)).to be(false)
+      end
+    end
   end
 
   context 'with new configuration (without heatpump)' do
@@ -110,6 +132,12 @@ describe SensorConfig do
     describe '#exclude_from_house_power' do
       it 'returns blank array' do
         expect(sensor_config.exclude_from_house_power).to eq([])
+      end
+    end
+
+    describe '#exists?' do
+      it 'returns false for non-existing sensor' do
+        expect(sensor_config.exists?(:heatpump_power)).to be(false)
       end
     end
   end
@@ -175,6 +203,12 @@ describe SensorConfig do
     describe '#exclude_from_house_power' do
       it 'returns blank array' do
         expect(sensor_config.exclude_from_house_power).to eq([])
+      end
+    end
+
+    describe '#exists?' do
+      it 'returns false for non-existing sensor' do
+        expect(sensor_config.exists?(:heatpump_power)).to be(false)
       end
     end
   end

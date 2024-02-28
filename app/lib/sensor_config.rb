@@ -77,6 +77,18 @@ class SensorConfig
     end
   end
 
+  def exists?(sensor_name)
+    if sensor_name.in?(SENSOR_NAMES)
+      measurement(sensor_name).present? && field(sensor_name).present?
+    elsif sensor_name == :grid_power
+      exists?(:grid_power_import) && exists?(:grid_power_export)
+    elsif sensor_name == :battery_power
+      exists?(:battery_charging_power) && exists?(:battery_discharging_power)
+    else
+      sensor_name.in?(CALCULATED_SENSORS)
+    end
+  end
+
   private
 
   def define_exclude_from_house_power(value)
