@@ -14,7 +14,7 @@
                 value: calculator.autarky,
                 time: calculator.time.to_i,
                 action: 'stats-with-chart--component#startLoop',
-                stats_with_chart__component_field_param: 'autarky',
+                stats_with_chart__component_sensor_param: 'autarky',
               } do
       div data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
@@ -32,7 +32,7 @@
                   value: calculator.consumption_quote,
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_field_param: 'consumption',
+                  stats_with_chart__component_sensor_param: 'consumption',
                 } do
         div data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
@@ -53,7 +53,7 @@
                   value: calculator.case_temp,
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_field_param: 'case_temp',
+                  stats_with_chart__component_sensor_param: 'case_temp',
                 } do
         = render RadialBadge::Component.new(title: t('sensors.case_temp')) do
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
@@ -68,6 +68,6 @@
                 value: calculator.battery_soc,
                 time: calculator.time.to_i,
                 action: 'stats-with-chart--component#startLoop',
-                stats_with_chart__component_field_param: 'battery_soc',
+                stats_with_chart__component_sensor_param: 'battery_soc',
               } do
       = render RadialBadge::Component.new(percent: calculator.battery_soc, neutral: true, title: t('sensors.battery_soc'))
