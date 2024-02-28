@@ -75,10 +75,6 @@ class SensorConfig
     end
   end
 
-  def to_h
-    SENSOR_NAMES.index_with { |sensor_name| public_send(sensor_name) }
-  end
-
   private
 
   def var_for(sensor_name)
