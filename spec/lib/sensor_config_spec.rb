@@ -1,7 +1,7 @@
 describe SensorConfig do
   let(:sensor_config) { described_class.new(env) }
 
-  context 'with new configuration' do
+  context 'with new configuration (including heatpump)' do
     let(:env) do
       {
         'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
@@ -79,6 +79,39 @@ describe SensorConfig do
         )
       end
     end
+
+    describe '#exclude_from_house_power' do
+      it 'returns heatpump' do
+        expect(sensor_config.exclude_from_house_power).to eq([:heatpump_power])
+      end
+    end
+  end
+
+  context 'with new configuration (without heatpump)' do
+    let(:env) do
+      {
+        'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
+        'INFLUX_SENSOR_INVERTER_POWER_FORECAST' => 'forecast:watt',
+        'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
+        'INFLUX_SENSOR_GRID_POWER_IMPORT' => 'pv:grid_power_import',
+        'INFLUX_SENSOR_GRID_POWER_EXPORT' => 'pv:grid_power_export',
+        'INFLUX_SENSOR_GRID_EXPORT_LIMIT' => 'pv:grid_export_limit',
+        'INFLUX_SENSOR_BATTERY_CHARGING_POWER' => 'pv:battery_charging_power',
+        'INFLUX_SENSOR_BATTERY_DISCHARGING_POWER' =>
+          'pv:battery_discharging_power',
+        'INFLUX_SENSOR_BATTERY_SOC' => 'pv:battery_soc',
+        'INFLUX_SENSOR_WALLBOX_POWER' => 'pv:wallbox_power',
+        'INFLUX_SENSOR_CASE_TEMP' => 'pv:case_temp',
+        'INFLUX_SENSOR_SYSTEM_STATUS' => 'pv:system_status',
+        'INFLUX_SENSOR_SYSTEM_STATUS_OK' => 'pv:system_status_ok',
+      }
+    end
+
+    describe '#exclude_from_house_power' do
+      it 'returns blank array' do
+        expect(sensor_config.exclude_from_house_power).to eq([])
+      end
+    end
   end
 
   context 'with deprecated configuration' do
@@ -138,6 +171,12 @@ describe SensorConfig do
         end
       end
     end
+
+    describe '#exclude_from_house_power' do
+      it 'returns blank array' do
+        expect(sensor_config.exclude_from_house_power).to eq([])
+      end
+    end
   end
 
   context 'with invalid sensor value' do
@@ -145,8 +184,43 @@ describe SensorConfig do
 
     it 'raises an error' do
       expect { sensor_config }.to raise_error(
-        SensorConfig::Error,
+        described_class::Error,
         "Sensor 'inverter_power' must be in format 'measurement:field'. Got this instead: 'invalid'",
+      )
+    end
+  end
+
+  context 'with valid INFLUX_EXCLUDE_FROM_HOUSE_POWER' do
+    let(:env) do
+      {
+        'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
+        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'heatpump_power',
+      }
+    end
+
+    it 'initializes the sensor configuration' do
+      expect(sensor_config).to be_a(described_class)
+    end
+
+    describe '#exclude_from_house_power' do
+      it 'returns the given sensor field' do
+        expect(sensor_config.exclude_from_house_power).to eq([:heatpump_power])
+      end
+    end
+  end
+
+  context 'with invalid INFLUX_EXCLUDE_FROM_HOUSE_POWER' do
+    let(:env) do
+      {
+        'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
+        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'foo',
+      }
+    end
+
+    it 'failes at initialization' do
+      expect { sensor_config }.to raise_error(
+        described_class::Error,
+        'Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: foo',
       )
     end
   end

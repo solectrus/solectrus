@@ -50,9 +50,21 @@ class Calculator::Range < Calculator::Base
 
   def build_house_power_from_array(data)
     values =
-      data
-        .pluck(:house_power, :heatpump_power)
-        .map { |v| v.reduce { |acc, elem| acc.to_f - elem.to_f } }
+      data.map do |value|
+        [
+          Rails
+            .application
+            .config
+            .x
+            .influx
+            .sensors
+            .exclude_from_house_power
+            .reduce(value[:house_power].to_f) do |acc, elem|
+              acc - value[elem].to_f
+            end,
+          0,
+        ].max
+      end
 
     build_method('house_power_array') { values }
     build_method(:house_power) { values.sum }

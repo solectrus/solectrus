@@ -38,7 +38,19 @@ class Calculator::Now < Calculator::Base
     build_method(:heatpump_power, data, :to_f)
 
     define_singleton_method(:house_power) do
-      [0, data[:house_power].to_f - data[:heatpump_power].to_f].max
+      [
+        Rails
+          .application
+          .config
+          .x
+          .influx
+          .sensors
+          .exclude_from_house_power
+          .reduce(data[:house_power].to_f) do |acc, elem|
+            acc - data[elem].to_f
+          end,
+        0,
+      ].max
     end
   end
 

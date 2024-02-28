@@ -100,9 +100,32 @@ class ChartData # rubocop:disable Metrics/ClassLength
   end
 
   def house_power
-    house_power_without_heatpump_power(
-      PowerChart.new(sensors: %i[house_power heatpump_power]).call(timeframe),
-    )
+    exclude_from_house_power =
+      Rails.application.config.x.influx.sensors.exclude_from_house_power
+
+    chart =
+      PowerChart.new(sensors: [:house_power, *exclude_from_house_power]).call(
+        timeframe,
+      )
+    return chart if chart[:house_power].nil? || exclude_from_house_power.blank?
+
+    # Exclude sensors from house_power
+    {
+      house_power:
+        chart[:house_power].map.with_index do |house_power, index|
+          [
+            house_power.first,
+            if house_power.second
+              [
+                0,
+                exclude_from_house_power.reduce(
+                  house_power.second,
+                ) { |acc, elem| acc - chart.dig(elem, index)&.second.to_f },
+              ].max
+            end,
+          ]
+        end,
+    }
   end
 
   def heatpump_power
@@ -140,26 +163,6 @@ class ChartData # rubocop:disable Metrics/ClassLength
       )[
         :inverter_power_forecast
       ]
-  end
-
-  def house_power_without_heatpump_power(raw)
-    return raw unless raw[:house_power] && raw[:heatpump_power]
-
-    {
-      house_power:
-        raw[:house_power].map.with_index do |house_power, index|
-          [
-            house_power.first,
-            if house_power.second
-              [
-                0,
-                house_power.second -
-                  raw.dig(:heatpump_power, index)&.second.to_f,
-              ].max
-            end,
-          ]
-        end,
-    }
   end
 
   def style(chart_sensor)
