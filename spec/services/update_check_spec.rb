@@ -21,7 +21,7 @@ describe UpdateCheck do
 
     context 'when the request fails' do
       before do
-        stub_request(:get, UpdateCheck::URL).to_return(
+        stub_request(:get, described_class::URL).to_return(
           status: [500, 'Something went wrong'],
         )
         allow(Rails.logger).to receive(:error)
@@ -45,7 +45,7 @@ describe UpdateCheck do
 
     context 'when the request timeouts' do
       before do
-        stub_request(:get, UpdateCheck::URL).to_timeout
+        stub_request(:get, described_class::URL).to_timeout
         allow(Rails.logger).to receive(:error)
       end
 
@@ -120,9 +120,10 @@ describe UpdateCheck do
       # Fill the cache
       VCR.use_cassette('version') { instance.latest }
 
-      expect { instance.clear_cache }.to change(instance, :cached?).from(
-        true,
-      ).to(false)
+      expect { described_class.instance.clear_cache }.to change(
+        instance,
+        :cached?,
+      ).from(true).to(false)
     end
   end
 end

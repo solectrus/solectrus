@@ -46,12 +46,18 @@ describe Setting do
       before { described_class.seed! }
 
       it 'does not create further records' do
-        expect { seed! }.not_to change(described_class, :count)
+        expect { described_class.seed! }.not_to change(described_class, :count)
       end
 
       it 'does not change existing reords' do
-        expect { seed! }.not_to change(described_class, :setup_id)
-        expect { seed! }.not_to change(described_class, :setup_token)
+        expect { described_class.seed! }.not_to change(
+          described_class,
+          :setup_id,
+        )
+        expect { described_class.seed! }.not_to change(
+          described_class,
+          :setup_token,
+        )
       end
     end
   end
