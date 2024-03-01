@@ -1,7 +1,9 @@
 class BalanceSide::Component < ViewComponent::Base
   renders_many :segments,
                ->(sensor, peak = nil) do
-                 BalanceSegment::Component.new sensor:, peak:, parent: self
+                 if Rails.application.config.x.influx.sensors.exists?(sensor)
+                   BalanceSegment::Component.new sensor:, peak:, parent: self
+                 end
                end
 
   def initialize(side:, calculator:, timeframe:, sensor:)
