@@ -148,7 +148,7 @@ GEM
     http_accept_language (2.1.1)
     i18n (1.14.1)
       concurrent-ruby (~> 1.0)
-    influxdb-client (3.0.0)
+    influxdb-client (3.1.0)
     io-console (0.7.2)
     irb (1.11.2)
       rdoc
