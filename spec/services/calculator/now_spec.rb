@@ -54,8 +54,8 @@ describe Calculator::Now do
         )
       end
 
-      it 'returns existing value with replaced chars' do
-        expect(calculator.system_status).to eq('????')
+      it 'returns existing value with fixed encoding' do
+        expect(calculator.system_status).to eq('🌞')
       end
     end
 
