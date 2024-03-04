@@ -26,6 +26,46 @@ describe Calculator::Now do
     end
   end
 
+  describe '#system_status' do
+    around { |example| freeze_time(&example) }
+
+    context 'when system_status is present' do
+      before do
+        add_influx_point(
+          name: measurement_inverter_power,
+          fields: {
+            field_system_status => 'Sleeping',
+          },
+        )
+      end
+
+      it 'returns existing value' do
+        expect(calculator.system_status).to eq('Sleeping')
+      end
+    end
+
+    context 'when system_status has invalid encoding' do
+      before do
+        add_influx_point(
+          name: measurement_inverter_power,
+          fields: {
+            field_system_status => '🌞'.force_encoding('ASCII-8BIT'),
+          },
+        )
+      end
+
+      it 'returns existing value with replaced chars' do
+        expect(calculator.system_status).to eq('????')
+      end
+    end
+
+    context 'when system_status is missing' do
+      it 'returns existing value' do
+        expect(calculator.system_status).to be_nil
+      end
+    end
+  end
+
   describe '#house_power' do
     subject { calculator.house_power }
 
