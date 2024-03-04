@@ -23,7 +23,7 @@ class Calculator::Now < Calculator::Base
 
   def build_context(data)
     build_method(:time, data)
-    build_method(:system_status, data)
+    build_method(:system_status, data, :to_utf8)
     build_method(:system_status_ok, data)
 
     build_method(:inverter_power, data, :to_f)
