@@ -32,7 +32,7 @@ de:
     battery_power: Akku
     battery_soc: Ladestand
     case_temp: Temperatur
-    power_ratio: Begrenzung
+    grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
   balance_sheet:
     left: Herkunft

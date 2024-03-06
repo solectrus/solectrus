@@ -32,7 +32,7 @@ en:
     battery_power: Battery
     battery_soc: Battery
     case_temp: Temperature
-    power_ratio: Limitation
+    grid_power_export: Limitation
     heatpump_power: Heat pump
   balance_sheet:
     left: Origin
