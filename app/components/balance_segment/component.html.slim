@@ -60,9 +60,9 @@
 
           - if sensor == :grid_power_export && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
             .text-xs.text-center.mt-2
-              = I18n.t('sensors.power_ratio')
+              = I18n.t('sensors.grid_export_limit')
               br
-              = Number::Component.new(value: calculator.power_ratio).to_percent(max_precision: 0, klass: 'text-xs')
+              = Number::Component.new(value: calculator.grid_export_limit).to_percent(max_precision: 0, klass: 'text-xs')
 
         - else
           = Number::Component.new(value:).to_watt_hour(max_precision: 3)
