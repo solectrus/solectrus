@@ -46,6 +46,7 @@ export default class extends Controller {
       placement: this.placementValue,
       theme: 'light-border',
       animation: 'scale',
+      inertia: true,
       hideOnClick: false,
       touch: this.touch,
 
