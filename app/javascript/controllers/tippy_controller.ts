@@ -66,6 +66,13 @@ export default class extends Controller {
     if (this.instance) this.instance.destroy();
   }
 
+  refresh() {
+    if (!this.instance) return;
+
+    const content = this.hasHtmlTarget && this.htmlTarget.innerHTML;
+    this.instance.setContent(content || '');
+  }
+
   toggleActiveTippy = (value: boolean) => {
     if (!this.isTouchDevice) return;
     if (!this.forceTapToCloseValue) return;

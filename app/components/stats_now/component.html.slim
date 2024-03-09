@@ -18,7 +18,7 @@
               } do
       div data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
-        template data-tippy-target="html"
+        .hidden#autarky-details-tooltip data-tippy-target="html"
           = render AutarkyDetails::Component.new(calculator:)
 
     - if calculator.consumption_quote
@@ -36,7 +36,7 @@
                 } do
         div data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
-          template data-tippy-target="html"
+          .hidden#consumption-details-tooltip data-tippy-target="html"
             = render ConsumptionDetails::Component.new(calculator:)
 
     div class="flex-1 flex flex-col justify-center -mx-2 sm:-mx-4"

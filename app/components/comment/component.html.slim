@@ -11,7 +11,7 @@
         = t 'forecast.worse_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
 
       - if tooltip_required?
-        template data-tippy-target= 'html'
+        .hidden id="forecast-expectation" data-tippy-target= 'html'
           = t 'forecast.expectation_html', value: Number::Component.new(value: calculator.watt).to_watt_hour(max_precision: 0)
     - elsif future?
       = t 'forecast.unknown'

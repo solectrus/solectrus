@@ -50,7 +50,7 @@
     - if field == :grid_power_minus && calculator.respond_to?(:power_ratio_limited?) && calculator.power_ratio_limited?
       i.fa.fa-circle-exclamation.fa-xs
 
-    template data-tippy-target="html"
+    .hidden id="tippy-tooltip-#{field}" data-tippy-target="html"
       .flex.flex-col.items-center.justify-center
         i.fa class= icon_class
         = I18n.t("senec.#{field}")

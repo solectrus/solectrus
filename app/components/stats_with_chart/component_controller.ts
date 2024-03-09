@@ -1,6 +1,8 @@
 import { Controller, ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart } from 'chart.js';
+import { application } from '@/utils/setupStimulus';
+import TippyController from '@/controllers/tippy_controller';
 
 export default class extends Controller {
   static targets = ['current', 'stats', 'chart', 'canvas'];
@@ -186,6 +188,12 @@ export default class extends Controller {
     } catch (error) {
       console.error(error);
     }
+
+    setTimeout(() => {
+      application.controllers.forEach((controller) => {
+        if (controller instanceof TippyController) controller.refresh();
+      });
+    }, 100);
   }
 
   get chart(): Chart | undefined {
