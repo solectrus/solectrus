@@ -9,7 +9,7 @@ require:
   - rubocop-thread_safety
 
 AllCops:
-  TargetRubyVersion: 3.2
+  TargetRubyVersion: 3.3
   Exclude:
     - app/javascript/**/*
     - bin/**/*
@@ -36,6 +36,9 @@ Rails/SchemaComment:
 
 Rails/DefaultScope:
   Enabled: false
+
+Rails/EnvironmentVariableAccess:
+  AllowReads: true
 
 ### Bundler
 

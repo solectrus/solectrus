@@ -6,8 +6,8 @@
                    autofocus: true
     = f.number_field :value,
                      in: 0..2,
-                     step: '0.0001',
-                     label: t("activerecord.attributes.price.#{price.name}_amount")
+                     step: '0.00001',
+                     label: t("activerecord.attributes.price.#{price.name}_amount").html_safe
     = f.text_field :note
 
   = f.actions do

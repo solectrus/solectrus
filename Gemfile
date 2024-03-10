@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.1.2'
+gem 'rails', '~> 7.1.3', '>= 7.1.3.2'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -60,8 +60,8 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   # gem 'debug', platforms: %i[ mri windows ]
 
-  # Autoload dotenv in Rails. (https://github.com/bkeepers/dotenv)
-  gem 'dotenv-rails'
+  # Loads environment variables from `.env`. (https://github.com/bkeepers/dotenv)
+  gem 'dotenv'
 
   # RSpec for Rails (https://github.com/rspec/rspec-rails)
   gem 'rspec-rails', require: false

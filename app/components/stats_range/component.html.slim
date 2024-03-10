@@ -7,6 +7,7 @@
               data: { \
                 turbo_frame: 'chart',
                 turbo_action: 'replace',
+                turbo_prefetch: 'false',
               } do
       dl data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
@@ -19,6 +20,7 @@
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',
+                  turbo_prefetch: 'false',
                 } do
         dl data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))

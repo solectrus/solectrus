@@ -7,6 +7,9 @@ echo "----------------"
 # If running the rails server then wait for services
 # and create or migrate existing database
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
+  # Remove PID in case of restart after container crash
+  rm -f /app/tmp/pids/server.pid
+
   # Check for necessary environment variables
   if [ -z "$REDIS_URL" ] || [ -z "$INFLUX_HOST" ] || [ -z "$DB_HOST" ]; then
     echo "Error: One or more required environment variables (REDIS_URL, INFLUX_HOST, DB_HOST) are not set. Stopping..."

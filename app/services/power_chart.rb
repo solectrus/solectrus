@@ -41,12 +41,12 @@ class PowerChart < Flux::Reader
     q << '|> keep(columns: ["_time","_field","_value"])'
     q << '|> fill(usePrevious: true)' if fill
 
-    raw = query(q.join)
+    raw = query(q.join("\n"))
     to_array(raw)
   end
 
   def chart_sum(start:, window:, stop: nil)
-    raw = query <<-QUERY
+    raw = query <<~QUERY
       import "timezone"
 
       #{from_bucket}
@@ -69,16 +69,10 @@ class PowerChart < Flux::Reader
         # InfluxDB returns data one-off
         value = next_record.values['_value']
 
-        time = Time.zone.parse(record.values['_time'])
-        value &&=
-          case record.values['_field']
-          when /power/, 'watt'
-            # Fields with "power" in the name are given in W, so change them to kW
-            (value / 1_000).round(3)
-          else
-            value
-          end
+        # Values are given in W, so change them to kW
+        value &&= (value / 1_000).round(3)
 
+        time = Time.zone.parse(record.values['_time'])
         result << [time, value]
       end
     result

@@ -6,7 +6,7 @@ class ErrorsController < ApplicationController
   private
 
   helper_method def title
-    status_code
+    t('errors.title')
   end
 
   helper_method def status_code

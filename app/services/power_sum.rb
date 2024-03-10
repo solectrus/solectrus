@@ -12,7 +12,7 @@ class PowerSum < Flux::Reader
   private
 
   def last(start)
-    result = query <<-QUERY
+    result = query <<~QUERY
       #{from_bucket}
       |> #{range(start:)}
       |> #{measurements_filter}
@@ -69,7 +69,7 @@ class PowerSum < Flux::Reader
   def build_query(start:, stop:)
     if stop && stop < Time.current
       # Range from the past, use more precise query
-      <<-QUERY
+      <<~QUERY
         import "timezone"
 
         #{from_bucket}
@@ -83,7 +83,7 @@ class PowerSum < Flux::Reader
     else
       # Current range, use "integral" because aggregateWindow(1h/mean) is
       # not correct for incomplete measurements
-      <<-QUERY
+      <<~QUERY
         #{from_bucket}
         |> #{range(start:, stop:)}
         |> #{measurements_filter}

@@ -61,6 +61,111 @@ describe Calculator::Base do
     end
   end
 
+  describe '#producing?' do
+    subject { calculator.producing? }
+
+    context 'when inverter_power is nil' do
+      before { calculator.build_method(:inverter_power) { nil } }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when inverter_power is below 50' do
+      before { calculator.build_method(:inverter_power) { 20 } }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when inverter_power is greater than 50' do
+      before { calculator.build_method(:inverter_power) { 60 } }
+
+      it { is_expected.to be(true) }
+    end
+  end
+
+  describe '#inverter_power_percent' do
+    subject { calculator.inverter_power_percent }
+
+    context 'when inverter_power is nil' do
+      before { calculator.build_method(:inverter_power) { nil } }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when total_plus is nil' do
+      before do
+        calculator.build_method(:total_plus) { nil }
+        calculator.build_method(:inverter_power) { 60 }
+      end
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when total_plus is zero' do
+      before do
+        calculator.build_method(:inverter_power) { 60 }
+        calculator.build_method(:total_plus) { 0 }
+      end
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'when inverter_power and total_plus are present' do
+      before do
+        calculator.build_method(:inverter_power) { 60 }
+        calculator.build_method(:total_plus) { 100 }
+      end
+
+      it { is_expected.to eq(60) }
+    end
+  end
+
+  describe '#feeding?' do
+    subject { calculator.feeding? }
+
+    context 'when grid_power_plus is nil' do
+      before { calculator.build_method(:grid_power_plus) { nil } }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when grid_power_minus is nil' do
+      before do
+        calculator.build_method(:grid_power_plus) { 100 }
+        calculator.build_method(:grid_power_minus) { nil }
+      end
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when values are very small' do
+      before do
+        calculator.build_method(:grid_power_plus) { 20 }
+        calculator.build_method(:grid_power_minus) { 30 }
+      end
+
+      it { is_expected.to be false }
+    end
+
+    context 'when minus > plus' do
+      before do
+        calculator.build_method(:grid_power_plus) { 200 }
+        calculator.build_method(:grid_power_minus) { 300 }
+      end
+
+      it { is_expected.to be true }
+    end
+
+    context 'when minus < plus' do
+      before do
+        calculator.build_method(:grid_power_plus) { 300 }
+        calculator.build_method(:grid_power_minus) { 200 }
+      end
+
+      it { is_expected.to be false }
+    end
+  end
+
   describe '#grid_power' do
     subject { calculator.grid_power }
 
@@ -116,6 +221,32 @@ describe Calculator::Base do
       end
 
       it { is_expected.to be_nil }
+    end
+  end
+
+  describe '#total_minus' do
+    subject { calculator.total_minus }
+
+    context 'when all is nil' do
+      before do
+        calculator.build_method(:grid_power_minus, {})
+        calculator.build_method(:bat_power_plus, {})
+        calculator.build_method(:house_power, {})
+        calculator.build_method(:wallbox_charge_power, {})
+      end
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when values are present' do
+      before do
+        calculator.build_method(:grid_power_minus) { 1 }
+        calculator.build_method(:bat_power_plus) { 2 }
+        calculator.build_method(:house_power) { 3 }
+        calculator.build_method(:wallbox_charge_power) { 4 }
+      end
+
+      it { is_expected.to eq(10) }
     end
   end
 

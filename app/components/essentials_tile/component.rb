@@ -54,6 +54,7 @@ class EssentialsTile::Component < ViewComponent::Base
     wallbox_charge_power: 'fa-car',
     savings: 'fa-piggy-bank',
     co2_savings: 'fa-tree-city',
+    bat_fuel_charge: 'fa-battery-half',
   }.freeze
 
   BACKGROUND_COLOR = {

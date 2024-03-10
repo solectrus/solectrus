@@ -140,4 +140,74 @@ describe EssentialsTile::Component, type: :component do
       expect(component.text_secondary_color).to eq 'text-gray-100'
     end
   end
+
+  context "when this week's house power" do
+    let(:calculator) { double(Calculator::Range, house_power: 100) }
+
+    let(:field) { :house_power }
+    let(:timeframe) { Timeframe.week }
+
+    it 'returns the correct value' do
+      expect(component.value).to eq 100
+    end
+
+    it 'returns the correct refresh_interval' do
+      expect(component.refresh_interval).to eq 5.minutes
+    end
+
+    it 'returns the correct icon_class' do
+      expect(component.icon_class).to eq 'fa-home'
+    end
+
+    it 'returns the correct color' do
+      expect(component.color).to eq :gray
+    end
+
+    it 'returns the correct background color' do
+      expect(component.background_color).to eq 'bg-gray-600'
+    end
+
+    it 'returns the correct text primary color' do
+      expect(component.text_primary_color).to eq 'text-white'
+    end
+
+    it 'returns the correct text secondary color' do
+      expect(component.text_secondary_color).to eq 'text-gray-100'
+    end
+  end
+
+  context 'when overall bat_fuel_charge' do
+    let(:calculator) { double(Calculator::Range, bat_fuel_charge: 50) }
+
+    let(:field) { :bat_fuel_charge }
+    let(:timeframe) { Timeframe.all }
+
+    it 'returns the correct value' do
+      expect(component.value).to eq 50
+    end
+
+    it 'returns the correct refresh_interval' do
+      expect(component.refresh_interval).to eq 1.day
+    end
+
+    it 'returns the correct icon_class' do
+      expect(component.icon_class).to eq 'fa-battery-half'
+    end
+
+    it 'returns the correct color' do
+      expect(component.color).to eq :green
+    end
+
+    it 'returns the correct background color' do
+      expect(component.background_color).to eq 'bg-green-600'
+    end
+
+    it 'returns the correct text primary color' do
+      expect(component.text_primary_color).to eq 'text-white'
+    end
+
+    it 'returns the correct text secondary color' do
+      expect(component.text_secondary_color).to eq 'text-green-100'
+    end
+  end
 end

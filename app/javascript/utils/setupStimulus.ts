@@ -5,7 +5,7 @@ import type { TurboFrameMissingEvent } from '@hotwired/turbo';
 import morphdom from 'morphdom';
 
 // Start Stimulus application
-const application = Application.start();
+export const application = Application.start();
 
 // Configure Stimulus development experience
 application.debug = false; // process.env.NODE_ENV === 'development';

@@ -46,6 +46,7 @@ export default class extends Controller {
       placement: this.placementValue,
       theme: 'light-border',
       animation: 'scale',
+      inertia: true,
       hideOnClick: false,
       touch: this.touch,
 
@@ -63,6 +64,13 @@ export default class extends Controller {
 
   disconnect() {
     if (this.instance) this.instance.destroy();
+  }
+
+  refresh() {
+    if (!this.instance) return;
+
+    const content = this.hasHtmlTarget && this.htmlTarget.innerHTML;
+    this.instance.setContent(content || '');
   }
 
   toggleActiveTippy = (value: boolean) => {

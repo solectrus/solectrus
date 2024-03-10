@@ -41,7 +41,7 @@ class DayLight < Flux::Reader
   end
 
   def raw
-    query <<-QUERY
+    query <<~QUERY
       data = #{from_bucket}
       |> #{range(start: @date.beginning_of_day, stop: @date.end_of_day)}
       |> #{measurements_filter}

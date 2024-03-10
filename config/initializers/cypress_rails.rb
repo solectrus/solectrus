@@ -40,6 +40,10 @@ CypressRails.hooks.after_server_start do
     def latest_version
       '1.0.0'
     end
+
+    def registration_status
+      'registered'
+    end
   end
 end
 

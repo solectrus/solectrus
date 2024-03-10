@@ -32,8 +32,9 @@ class UpdateCheck
       end
 
     json_from(response)
-  rescue StandardError
+  rescue StandardError => e
     # Mainly ignore timeout errors, but other errors must not throw an exception
+    Rails.logger.error "UpdateCheck failed: #{e}"
     {}
   end
 
@@ -61,7 +62,10 @@ class UpdateCheck
   end
 
   def json_from(response)
-    return {} unless response.is_a?(Net::HTTPSuccess)
+    unless response.is_a?(Net::HTTPSuccess)
+      Rails.logger.error "UpdateCheck failed: Error #{response.code} - #{response.message}"
+      return {}
+    end
 
     parsed_body = JSON.parse(response.body)
     expires_in = expiration_from(response) || 12.hours

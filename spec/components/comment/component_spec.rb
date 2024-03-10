@@ -42,7 +42,7 @@ describe Comment::Component, type: :component do
       end
 
       it 'has tippy-tooltip' do
-        expect(page.native.inner_html).to include('<template')
+        expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
 
@@ -54,7 +54,7 @@ describe Comment::Component, type: :component do
       end
 
       it 'has tippy-tooltip' do
-        expect(page.native.inner_html).to include('<template')
+        expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
   end
@@ -71,7 +71,7 @@ describe Comment::Component, type: :component do
       end
 
       it 'has no tippy-tooltip' do
-        expect(page.native.inner_html).not_to include('<template')
+        expect(page).to have_no_css('div', id: 'forecast-expectation')
       end
     end
 
@@ -86,7 +86,7 @@ describe Comment::Component, type: :component do
       end
 
       it 'has tippy-tooltip' do
-        expect(page.native.inner_html).to include('<template')
+        expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
 
@@ -130,7 +130,7 @@ describe Comment::Component, type: :component do
       end
 
       it 'has tippy-tooltip' do
-        expect(page.native.inner_html).to include('<template')
+        expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
 
@@ -142,7 +142,7 @@ describe Comment::Component, type: :component do
       end
 
       it 'has tippy-tooltip' do
-        expect(page.native.inner_html).to include('<template')
+        expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
   end

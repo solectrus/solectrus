@@ -43,7 +43,7 @@ class MinMaxChart < Flux::Reader
     q << '|> fill(usePrevious: true)' if fill
     q << '|> keep(columns: ["_time","_field","_value"])'
 
-    raw = query(q.join)
+    raw = query(q.join("\n"))
     formatted(raw)
   end
 
