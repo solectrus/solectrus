@@ -37,7 +37,7 @@ describe MinMaxChart do
         expect(result).to be_a(Hash)
 
         expect(result[:battery_soc]).to be_a(Array)
-        expect(result[:battery_soc].size).to eq(60.minutes / 20.seconds)
+        expect(result[:battery_soc].size).to eq(60.minutes / 30.seconds)
 
         first_point = result[:battery_soc].first
         expect(first_point.last).to eq(60)

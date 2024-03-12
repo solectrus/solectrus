@@ -15,7 +15,7 @@ class Flux::Reader < Flux::Base
   private
 
   WINDOW = {
-    now: '20s',
+    now: '30s',
     day: '5m',
     week: '1d',
     month: '1d',
