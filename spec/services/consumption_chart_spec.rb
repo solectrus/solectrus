@@ -36,13 +36,13 @@ describe ConsumptionChart do
     context 'when timeframe is "now"' do
       let(:timeframe) { Timeframe.now }
 
-      it { is_expected.to have(1.hour / 20.seconds).items }
+      it { is_expected.to have(1.hour / 30.seconds).items }
 
       it 'contains last data point' do
         last = result.last
 
         expect(last[1]).to eq(75.0)
-        expect(last.first).to be_within(20.seconds).of(Time.current)
+        expect(last.first).to be_within(30.seconds).of(Time.current)
       end
     end
 
