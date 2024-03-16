@@ -77,7 +77,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def about_item
       {
         name: t('layout.about'),
-        href: 'https://solectrus.de',
+        href: 'https://dennerlohr.de',
         icon: 'circle-info',
       }
     end
@@ -122,7 +122,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.faq'),
         icon: 'circle-question',
-        href: 'https://solectrus.de/faq',
+        href: 'https://dennerlohr.de.de/faq',
       }
     end
 
