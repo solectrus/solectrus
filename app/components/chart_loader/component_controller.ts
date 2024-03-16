@@ -21,6 +21,7 @@ import {
 
 import 'chartjs-adapter-date-fns';
 import de from 'date-fns/locale/de';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
 
 Chart.register(
@@ -34,6 +35,7 @@ Chart.register(
   Filler,
   Title,
   Tooltip,
+  zoomPlugin,
 );
 
 export default class extends Controller<HTMLCanvasElement> {
