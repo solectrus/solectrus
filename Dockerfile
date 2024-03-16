@@ -17,7 +17,8 @@ ENV HONEYBADGER_LOGGING_PATH=STDOUT
 USER app
 
 # Check whether the internal web server is running properly
-HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:3000/up || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
+  CMD wget --quiet --tries=1 --spider http://localhost:3000/up || exit 1
 
 # Entrypoint prepares the database.
 ENTRYPOINT ["docker/entrypoint.sh"]
