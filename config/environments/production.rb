@@ -69,6 +69,12 @@ Rails.application.configure do
   # Use lograge gem
   config.lograge.enabled = true
 
+  # Don't log Docker health checks
+  config.lograge.ignore_custom =
+    lambda do |event|
+      event.payload[:ip] == '127.0.0.1' && event.payload[:path] == '/up'
+    end
+
   # "info" includes generic and useful information about system operation, but avoids logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII). If you
   # want to log everything, set the level to "debug".
