@@ -26,15 +26,17 @@ if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
   echo "Redis is up and running!"
 
   # Wait for InfluxDB
-  until nc -z -v -w30 "$INFLUX_HOST" ${INFLUX_PORT:-8086}; do
-    echo "Waiting for InfluxDB on $INFLUX_HOST:${INFLUX_PORT:-8086} ..."
+  INFLUX_PORT=${INFLUX_PORT:-8086}
+  until nc -z -v -w30 "$INFLUX_HOST" ${INFLUX_PORT}; do
+    echo "Waiting for InfluxDB on $INFLUX_HOST:${INFLUX_PORT} ..."
     sleep 1
   done
   echo "InfluxDB is up and running!"
 
   # Wait for PostgreSQL
-  until nc -z -v -w30 "$DB_HOST" 5432; do
-    echo "Waiting for PostgreSQL on $DB_HOST:5432 ..."
+  DB_PORT=${DB_PORT:-5432}
+  until nc -z -v -w30 "$DB_HOST" ${DB_PORT}; do
+    echo "Waiting for PostgreSQL on $DB_HOST:$DB_PORT ..."
     sleep 1
   done
   echo "PostgreSQL is up and running!"
