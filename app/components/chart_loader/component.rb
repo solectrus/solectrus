@@ -30,7 +30,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             pinch: {
               enabled: true,
             },
-            mode: 'xy',
+            mode: 'x',
           },
         },
       },
