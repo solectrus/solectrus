@@ -27,11 +27,16 @@ describe UpdateCheck do
         allow(Rails.logger).to receive(:error)
       end
 
-      it { is_expected.to be_blank }
+      it do
+        is_expected.to eq(
+          'registration_status' => 'unknown',
+          'version' => 'unknown',
+        )
+      end
 
-      it 'has blank shortcuts' do
-        expect(instance.latest_version).to be_blank
-        expect(instance.registration_status).to be_blank
+      it 'has unknown shortcuts' do
+        expect(instance.latest_version).to eq('unknown')
+        expect(instance.registration_status).to be_unknown
       end
 
       it 'logs the error' do
@@ -49,11 +54,16 @@ describe UpdateCheck do
         allow(Rails.logger).to receive(:error)
       end
 
-      it { is_expected.to be_blank }
+      it do
+        is_expected.to eq(
+          'registration_status' => 'unknown',
+          'version' => 'unknown',
+        )
+      end
 
       it 'has blank shortcuts' do
-        expect(instance.latest_version).to be_blank
-        expect(instance.registration_status).to be_blank
+        expect(instance.latest_version).to eq('unknown')
+        expect(instance.registration_status).to be_unknown
       end
 
       it 'logs the error' do
@@ -71,11 +81,16 @@ describe UpdateCheck do
         allow(Rails.logger).to receive(:error)
       end
 
-      it { is_expected.to be_blank }
+      it do
+        is_expected.to eq(
+          'registration_status' => 'unknown',
+          'version' => 'unknown',
+        )
+      end
 
       it 'has blank shortcuts' do
-        expect(instance.latest_version).to be_blank
-        expect(instance.registration_status).to be_blank
+        expect(instance.latest_version).to eq('unknown')
+        expect(instance.registration_status).to be_unknown
       end
 
       it 'logs the error' do
