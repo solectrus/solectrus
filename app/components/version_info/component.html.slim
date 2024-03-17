@@ -1,26 +1,27 @@
-.inline-flex.gap-x-2.items-center
+.flex.items-center.gap-2
   = link_to github_url,
             target: '_blank',
             rel: 'noopener',
             data: { controller: 'tippy' },
             title: l(commit_time) do
-    i.ml-2.fab.fa-github.fa-lg
+    i.fab.fa-github.fa-lg
     code.ml-2
       = current_version
 
-  - case outdated?
-  - when true
-    = link_to latest_release_url,
-              class: 'relative flex',
-              data: { controller: 'tippy' },
-              title: t('layout.version_outdated', latest_version:),
-              target: '_blank', rel: 'noopener' do
-      span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-white.opacity-75.lg:bg-red-700
-      span.relative.inline-flex.rounded-full.h-2.w-2.bg-red-400
+  - if version_valid?
+    - case outdated?
+    - when true
+      = link_to latest_release_url,
+                class: 'relative flex',
+                data: { controller: 'tippy' },
+                title: t('layout.version_outdated', latest_version:),
+                target: '_blank', rel: 'noopener' do
+        span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-white.opacity-75.lg:bg-red-700
+        span.relative.inline-flex.rounded-full.h-2.w-2.bg-red-400
 
-  - when false
-    = link_to latest_release_url,
-              data: { controller: 'tippy' },
-              title: t('layout.version_uptodate'),
-              target: '_blank', rel: 'noopener' do
-      i.fa.far.fa-circle-check
+    - when false
+      = link_to latest_release_url,
+                data: { controller: 'tippy' },
+                title: t('layout.version_uptodate'),
+                target: '_blank', rel: 'noopener' do
+        i.fa.far.fa-circle-check

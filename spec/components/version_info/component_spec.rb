@@ -34,8 +34,36 @@ describe VersionInfo::Component, type: :component do
       it { is_expected.to be true }
     end
 
-    context 'when the latest is older' do
+    context 'when the latest version is older' do
       let(:latest_version) { 'v0.11.0' }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when the latest version is unknown' do
+      let(:latest_version) { 'unknown' }
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '#version_valid?' do
+    subject { component.version_valid? }
+
+    before do
+      api = instance_double(UpdateCheck)
+      allow(UpdateCheck).to receive(:instance).and_return(api)
+      allow(api).to receive(:latest_version).and_return(latest_version)
+    end
+
+    context 'when the latest version is present' do
+      let(:latest_version) { 'v1.2.3' }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when the latest version is unknown' do
+      let(:latest_version) { 'unknown' }
 
       it { is_expected.to be false }
     end
