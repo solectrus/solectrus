@@ -65,7 +65,11 @@ module Solectrus
 
     config.x.influx.poll_interval = ENV.fetch('INFLUX_POLL_INTERVAL', '5').to_i
 
-    config.after_initialize { config.x.influx.sensors = SensorConfig.new(ENV) }
+    unless ENV['DB_PREPARE']
+      config.after_initialize do
+        config.x.influx.sensors = SensorConfig.new(ENV)
+      end
+    end
 
     config.x.installation_date =
       Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
