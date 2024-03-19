@@ -35,7 +35,7 @@ class SensorConfig
   CALCULATED_SENSORS = %i[autarky consumption savings co2_savings].freeze
   public_constant :CALCULATED_SENSORS
 
-  # Combine plus/minus and import/export fields
+  # Combine charging/discharging and import/export fields
   # - `grid_power` instead of `grid_power_import` and `grid_power_export`
   # - `battery_power` instead of `battery_charging_power` and `battery_discharging_power`
   COMBINED_SENSORS =
@@ -125,7 +125,7 @@ class SensorConfig
           "Sensor '#{sensor_name}' must be in format 'measurement:field'. Got this instead: '#{value}'"
   end
 
-  # Sensors didn't exist in v0.14.2 and earlier, so we need to provide a fallback
+  # Sensors didn't exist in v0.14.3 and earlier, so we need to provide a fallback
   # based on the old environment variables INFLUX_MEASUREMENT_PV and INFLUX_MEASUREMENT_FORECAST
   FALLBACK_SENSORS = {
     inverter_power: %w[INFLUX_MEASUREMENT_PV inverter_power],
@@ -144,7 +144,7 @@ class SensorConfig
   }.freeze
   private_constant :FALLBACK_SENSORS
 
-  # In v0.14.2 and earlier, the measurements had default values
+  # In v0.14.3 and earlier, the measurements had default values
   FALLBACK_MEASUREMENTS = {
     'INFLUX_MEASUREMENT_PV' => 'SENEC',
     'INFLUX_MEASUREMENT_FORECAST' => 'Forecast',
