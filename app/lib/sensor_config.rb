@@ -47,16 +47,18 @@ class SensorConfig
   public_constant :COMBINED_SENSORS
 
   def initialize(env)
+    Rails.logger.info 'Sensor initialization started'
     SENSOR_NAMES.each do |sensor_name|
       var_sensor = var_for(sensor_name)
       value =
         env.fetch(var_sensor) { build_from_deprecated_config(sensor_name, env) }
 
       validate!(sensor_name, value)
-      define(sensor_name, value)
+      define_sensor(sensor_name, value)
     end
 
     define_exclude_from_house_power(env['INFLUX_EXCLUDE_FROM_HOUSE_POWER'])
+    Rails.logger.info 'Sensor initialization completed'
   end
 
   def measurement(sensor_name)
@@ -91,6 +93,11 @@ class SensorConfig
 
   private
 
+  def define_sensor(sensor_name, value)
+    Rails.logger.info "  Setting #{sensor_name} to #{value}"
+    define(sensor_name, value)
+  end
+
   def define_exclude_from_house_power(value)
     value ||= heatpump_power ? 'HEATPUMP_POWER' : ''
     sensors_to_exclude =
@@ -101,7 +108,8 @@ class SensorConfig
             "Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: #{value}"
     end
 
-    define :exclude_from_house_power, sensors_to_exclude
+    Rails.logger.info "  Excluding from house_power: #{sensors_to_exclude.join(',')}"
+    define(:exclude_from_house_power, sensors_to_exclude)
   end
 
   def var_for(sensor_name)
