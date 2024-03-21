@@ -5,6 +5,7 @@ class UpdateCheck
     latest['version']
   end
 
+  # One of: unregistered, pending, complete, skipped, unknown
   def registration_status
     latest['registration_status'].to_s.inquiry
   end
@@ -35,7 +36,7 @@ class UpdateCheck
   rescue StandardError => e
     # Mainly ignore timeout errors, but other errors must not throw an exception
     Rails.logger.error "UpdateCheck failed: #{e}"
-    {}
+    unknown
   end
 
   def cached?
@@ -64,13 +65,19 @@ class UpdateCheck
   def json_from(response)
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error "UpdateCheck failed: Error #{response.code} - #{response.message}"
-      return {}
+      return unknown
     end
 
     parsed_body = JSON.parse(response.body)
     expires_in = expiration_from(response) || 12.hours
     Rails.cache.write(cache_key, parsed_body, expires_in:)
     parsed_body
+  end
+
+  def unknown
+    data = { 'registration_status' => 'unknown', 'version' => 'unknown' }
+    Rails.cache.write(cache_key, data, expires_in: 5.minutes)
+    data
   end
 
   def expiration_from(response)

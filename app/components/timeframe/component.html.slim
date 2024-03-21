@@ -3,6 +3,7 @@
     - if timeframe.prev
       = link_to root_path(field: params[:field], timeframe: timeframe.prev),
                 class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500',
+                'aria-label': t('.previous'),
                 rel: 'prev' do
         i.fas.fa-chevron-left.fa-lg
     - else
@@ -43,6 +44,7 @@
     - if timeframe.next
       = link_to root_path(field: params[:field], timeframe: timeframe.next),
                 class: 'px-2 py-1 rounded hover:text-white hover:bg-indigo-500',
+                'aria-label': t('.next'),
                 rel: 'next' do
         i.fas.fa-chevron-right.fa-lg
     - else

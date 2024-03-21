@@ -36,8 +36,7 @@ default: &default
   host: "<%= ENV['DB_HOST'] %>"
 
   # The TCP port the server listens on. Defaults to 5432.
-  # If your server runs on a different port number, change accordingly.
-  #port: 5432
+  port: <%= ENV.fetch("DB_PORT") { 5432 } %>
 
   # Schema search path. The server defaults to $user,public
   #schema_search_path: myapp,sharedapp,public

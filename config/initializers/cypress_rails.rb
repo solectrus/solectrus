@@ -37,12 +37,8 @@ CypressRails.hooks.after_server_start do
 
   # Stub the version check so we don't have to hit the network
   UpdateCheck.class_eval do
-    def latest_version
-      '1.0.0'
-    end
-
-    def registration_status
-      'registered'
+    def latest
+      { 'registration_status' => 'registered', 'version' => '1.0.0' }
     end
   end
 end

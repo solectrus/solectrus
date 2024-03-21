@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import * as Turbo from '@hotwired/turbo';
 
 export default class extends Controller<HTMLSelectElement> {
   static targets = ['select', 'temp'];
@@ -11,10 +12,7 @@ export default class extends Controller<HTMLSelectElement> {
   }
 
   onChange() {
-    // Sadly, we can't use Turbo.visit() here, because it doesn't support
-    // dispatching Aaction and ActionParameter options. So we have to do
-    // a full page refresh
-    location.href = this.selectTarget.value;
+    Turbo.visit(this.selectTarget.value);
   }
 
   autoWidth() {

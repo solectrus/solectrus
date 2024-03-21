@@ -106,7 +106,7 @@ html lang="de"
         = yield :bottom_nav
 
     footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
-      div
+      .flex.items-center.gap-2
         = link_to 'https://solectrus.de',
                   class: 'tracking-wider',
                   target: '_blank',
@@ -115,5 +115,8 @@ html lang="de"
         = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
                                             commit_time: Rails.configuration.x.git.commit_time,
                                             github_url: Rails.configuration.x.git.home)
+
+        = render RegistrationStatus::Component.new(registration_status: UpdateCheck.instance.registration_status,
+                                                   admin: admin?)
 
       = render AuthorLogo::Component.new

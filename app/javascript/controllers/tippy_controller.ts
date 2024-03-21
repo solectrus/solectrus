@@ -69,8 +69,12 @@ export default class extends Controller {
   refresh() {
     if (!this.instance) return;
 
-    const content = this.hasHtmlTarget && this.htmlTarget.innerHTML;
-    this.instance.setContent(content || '');
+    const content =
+      (this.hasHtmlTarget && this.htmlTarget.innerHTML) ||
+      this.element.ariaLabel ||
+      '';
+
+    this.instance.setContent(content);
   }
 
   toggleActiveTippy = (value: boolean) => {

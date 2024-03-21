@@ -1,5 +1,9 @@
 describe Status::Component, type: :component do
-  subject(:component) { described_class.new(time:, current_state: 'TEST') }
+  subject(:component) do
+    described_class.new(time:, current_state: 'TEST', current_state_ok:)
+  end
+
+  let(:current_state_ok) { nil }
 
   context 'when time is more than 10 seconds ago' do
     let(:time) { 5.minutes.ago }
@@ -17,13 +21,38 @@ describe Status::Component, type: :component do
     end
   end
 
-  context 'when time is a few seconds ago' do
+  context 'when time is a few seconds ago and ok is unknown' do
     let(:time) { 3.seconds.ago }
 
     it { is_expected.to be_live }
 
-    it 'renders the current state' do
+    it 'renders the current state in green' do
       expect(render_inline(component).css('time').text).to eq('TEST')
+      expect(render_inline(component).css('time .bg-green-500')).to be_present
+    end
+  end
+
+  context 'when time is a few seconds ago and ok' do
+    let(:time) { 3.seconds.ago }
+    let(:current_state_ok) { true }
+
+    it { is_expected.to be_live }
+
+    it 'renders the current state in green' do
+      expect(render_inline(component).css('time').text).to eq('TEST')
+      expect(render_inline(component).css('time .bg-green-500')).to be_present
+    end
+  end
+
+  context 'when time is a few seconds ago and not ok' do
+    let(:time) { 3.seconds.ago }
+    let(:current_state_ok) { false }
+
+    it { is_expected.to be_live }
+
+    it 'renders the current state in orange' do
+      expect(render_inline(component).css('time').text).to eq('TEST')
+      expect(render_inline(component).css('time .bg-orange-400')).to be_present
     end
   end
 end

@@ -9,13 +9,19 @@ class VersionInfo::Component < ViewComponent::Base
   attr_reader :current_version, :commit_time, :github_url
 
   def outdated?
-    return false unless valid?(latest_version) && valid?(current_version)
+    version_valid? && comparable(latest_version) > comparable(current_version)
+  end
 
-    comparable(latest_version) > comparable(current_version)
+  def version_valid?
+    valid?(latest_version) && valid?(current_version)
   end
 
   def latest_release_url
-    "#{Rails.configuration.x.git.home}/releases/tag/#{latest_version}"
+    if latest_version
+      "#{Rails.configuration.x.git.home}/releases/tag/#{latest_version}"
+    else
+      "#{Rails.configuration.x.git.home}/releases"
+    end
   end
 
   def latest_version
