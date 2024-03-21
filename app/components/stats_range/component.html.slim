@@ -9,7 +9,7 @@
                 turbo_action: 'replace',
                 turbo_prefetch: 'false',
               } do
-      dl data-controller="tippy"
+      div data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
         - unless timeframe.future?
           template data-tippy-target="html"
@@ -22,7 +22,7 @@
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                 } do
-        dl data-controller="tippy"
+        div data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
           - unless timeframe.future?
             template data-tippy-target="html"
