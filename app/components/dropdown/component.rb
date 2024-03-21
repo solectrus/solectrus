@@ -3,17 +3,19 @@ class Dropdown::Component < ViewComponent::Base
   renders_one :button
 
   def initialize(
+    name:,
     items:,
     selected: nil,
     button_class: 'bg-gray-200 hover:bg-white'
   )
     super
+    @name = name
     @items = items
     @selected = selected
     @button_class = button_class
   end
 
-  attr_reader :items, :selected, :button_class
+  attr_reader :name, :items, :selected, :button_class
 
   def selected_item
     @selected_item ||=

@@ -4,6 +4,7 @@ div
       data-select-target= 'select'
       data-action= 'select#onChange'
       class= button_class
+      name= name
     ]
       - items.each do |item|
         option[
@@ -15,6 +16,7 @@ div
 
     select.absolute.invisible.font-medium[
       data-select-target= 'temp'
+      name= "#{name}-temp"
     ]
       option
 
