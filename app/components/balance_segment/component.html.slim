@@ -2,7 +2,7 @@
           id: "segment-#{field}",
           class: [ 'leading-none flex flex-wrap gap-x-5 items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000', color_class ],
           style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
-          'aria-label': t("senec.#{field}"),
+          title: t("senec.#{field}"),
           data: { \
             controller: 'tippy',
             tippy_placement_value: (parent.side == :left ? 'right' : 'left'),
