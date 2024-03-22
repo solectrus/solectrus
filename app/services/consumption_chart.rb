@@ -1,6 +1,6 @@
 class ConsumptionChart < Flux::Reader
   def initialize
-    super(sensors: %i[inverter_power grid_power_export])
+    super(sensors: %i[inverter_power grid_export_power])
   end
 
   def call(timeframe, fill: false)
@@ -30,8 +30,8 @@ class ConsumptionChart < Flux::Reader
     Rails.application.config.x.influx.sensors.field(:inverter_power)
   end
 
-  def grid_power_export_field
-    Rails.application.config.x.influx.sensors.field(:grid_power_export)
+  def grid_export_power_field
+    Rails.application.config.x.influx.sensors.field(:grid_export_power)
   end
 
   def chart_single(start:, window:, stop: nil, fill: false)
@@ -45,10 +45,10 @@ class ConsumptionChart < Flux::Reader
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
     q << "|> map(fn: (r) => (
               { r with consumption:
-                  if r.#{grid_power_export_field} > r.#{inverter_power_field} then
+                  if r.#{grid_export_power_field} > r.#{inverter_power_field} then
                     0.0
                   else
-                    (100.0 * (r.#{inverter_power_field} - r.#{grid_power_export_field}) / r.#{inverter_power_field})
+                    (100.0 * (r.#{inverter_power_field} - r.#{grid_export_power_field}) / r.#{inverter_power_field})
               }
              ))"
     q << '|> keep(columns: ["_time", "consumption"])'
@@ -67,7 +67,7 @@ class ConsumptionChart < Flux::Reader
       |> aggregateWindow(every: 1h, fn: mean)
       |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-      |> map(fn: (r) => ({ r with consumption: if r.#{grid_power_export_field} > r.#{inverter_power_field} then 0.0 else 100.0 * (r.#{inverter_power_field} - r.#{grid_power_export_field}) / r.#{inverter_power_field} }))
+      |> map(fn: (r) => ({ r with consumption: if r.#{grid_export_power_field} > r.#{inverter_power_field} then 0.0 else 100.0 * (r.#{inverter_power_field} - r.#{grid_export_power_field}) / r.#{inverter_power_field} }))
       |> keep(columns: ["_time", "consumption"])
     QUERY
 

@@ -24,15 +24,15 @@ en:
     inverter_power: PV generated
     house_power: Home consumption
     wallbox_power: EV charging
-    grid_power_import: Grid import
-    grid_power_export: Grid export
+    grid_import_power: Grid import
+    grid_export_power: Grid export
     grid_power: Grid
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
     battery_power: Battery
     battery_soc: Battery
     case_temp: Temperature
-    grid_power_export: Limitation
+    grid_export_power: Limitation
     heatpump_power: Heat pump
   balance_sheet:
     left: Origin

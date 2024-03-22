@@ -7,8 +7,8 @@ class SensorConfig
     inverter_power_forecast
     house_power
     heatpump_power
-    grid_power_import
-    grid_power_export
+    grid_import_power
+    grid_export_power
     grid_export_limit
     battery_charging_power
     battery_discharging_power
@@ -24,8 +24,8 @@ class SensorConfig
     inverter_power
     house_power
     heatpump_power
-    grid_power_import
-    grid_power_export
+    grid_import_power
+    grid_export_power
     battery_charging_power
     battery_discharging_power
     wallbox_power
@@ -36,7 +36,7 @@ class SensorConfig
   public_constant :CALCULATED_SENSORS
 
   # Combine charging/discharging and import/export fields
-  # - `grid_power` instead of `grid_power_import` and `grid_power_export`
+  # - `grid_power` instead of `grid_import_power` and `grid_export_power`
   # - `battery_power` instead of `battery_charging_power` and `battery_discharging_power`
   COMBINED_SENSORS =
     (
@@ -83,7 +83,7 @@ class SensorConfig
     if sensor_name.in?(SENSOR_NAMES)
       measurement(sensor_name).present? && field(sensor_name).present?
     elsif sensor_name == :grid_power
-      exists?(:grid_power_import) && exists?(:grid_power_export)
+      exists?(:grid_import_power) && exists?(:grid_export_power)
     elsif sensor_name == :battery_power
       exists?(:battery_charging_power) && exists?(:battery_discharging_power)
     else
@@ -133,14 +133,14 @@ class SensorConfig
           "Sensor '#{sensor_name}' must be in format 'measurement:field'. Got this instead: '#{value}'"
   end
 
-  # Sensors didn't exist in v0.14.3 and earlier, so we need to provide a fallback
+  # Sensors didn't exist in v0.14.4 and earlier, so we need to provide a fallback
   # based on the old environment variables INFLUX_MEASUREMENT_PV and INFLUX_MEASUREMENT_FORECAST
   FALLBACK_SENSORS = {
     inverter_power: %w[INFLUX_MEASUREMENT_PV inverter_power],
     inverter_power_forecast: %w[INFLUX_MEASUREMENT_FORECAST watt],
     house_power: %w[INFLUX_MEASUREMENT_PV house_power],
-    grid_power_import: %w[INFLUX_MEASUREMENT_PV grid_power_plus],
-    grid_power_export: %w[INFLUX_MEASUREMENT_PV grid_power_minus],
+    grid_import_power: %w[INFLUX_MEASUREMENT_PV grid_power_plus],
+    grid_export_power: %w[INFLUX_MEASUREMENT_PV grid_power_minus],
     grid_export_limit: %w[INFLUX_MEASUREMENT_PV power_ratio],
     battery_charging_power: %w[INFLUX_MEASUREMENT_PV bat_power_plus],
     battery_discharging_power: %w[INFLUX_MEASUREMENT_PV bat_power_minus],
@@ -152,7 +152,7 @@ class SensorConfig
   }.freeze
   private_constant :FALLBACK_SENSORS
 
-  # In v0.14.3 and earlier, the measurements had default values
+  # In v0.14.4 and earlier, the measurements had default values
   FALLBACK_MEASUREMENTS = {
     'INFLUX_MEASUREMENT_PV' => 'SENEC',
     'INFLUX_MEASUREMENT_FORECAST' => 'Forecast',

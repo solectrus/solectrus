@@ -9,13 +9,13 @@ describe ConsumptionChart do
         add_influx_point name: measurement_inverter_power,
                          fields: {
                            field_inverter_power => (index + 1) * 100,
-                           field_grid_power_export => (index + 1) * 50,
+                           field_grid_export_power => (index + 1) * 50,
                          },
                          time: (beginning + index.month).end_of_month
         add_influx_point name: measurement_inverter_power,
                          fields: {
                            field_inverter_power => (index + 1) * 100,
-                           field_grid_power_export => (index + 1) * 50,
+                           field_grid_export_power => (index + 1) * 50,
                          },
                          time: (beginning + index.month).beginning_of_month
       end
@@ -23,7 +23,7 @@ describe ConsumptionChart do
       add_influx_point name: measurement_inverter_power,
                        fields: {
                          field_inverter_power => 2_000,
-                         field_grid_power_export => 500,
+                         field_grid_export_power => 500,
                        }
     end
   end

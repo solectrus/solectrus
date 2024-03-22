@@ -184,8 +184,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       house_power: '#64748b', # bg-slate-500
       heatpump_power: '#475569', # bg-slate-600
       wallbox_power: '#334155', # bg-slate-700
-      grid_power_import: '#dc2626', # bg-red-600
-      grid_power_export: '#16a34a', # bg-green-600
+      grid_import_power: '#dc2626', # bg-red-600
+      grid_export_power: '#16a34a', # bg-green-600
       inverter_power: '#16a34a', # bg-green-600
       battery_discharging_power: '#15803d', # bg-green-700
       battery_charging_power: '#15803d', # bg-green-700
@@ -200,7 +200,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
 
   def mapped_data(data, chart_sensor)
     if sensors.length == 1 ||
-         chart_sensor.in?(%i[grid_power_export battery_charging_power])
+         chart_sensor.in?(%i[grid_export_power battery_charging_power])
       data.map(&:second)
     else
       data.map { |x| x.second ? -x.second : nil }
@@ -212,7 +212,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
     when :battery_power
       %i[battery_charging_power battery_discharging_power]
     when :grid_power
-      %i[grid_power_import grid_power_export]
+      %i[grid_import_power grid_export_power]
     else
       [sensor]
     end

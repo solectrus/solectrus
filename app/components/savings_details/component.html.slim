@@ -3,13 +3,13 @@ h3.font-bold
 
 dl.mt-5
   .grid.grid-cols-2.gap-4
-    dt = I18n.t('sensors.grid_power_import')
+    dt = I18n.t('sensors.grid_import_power')
     dd.font-mono.text-right = Number::Component.new(value: calculator.paid).to_eur(max_precision: 2)
 
   .grid.grid-cols-2.gap-4
     dt
       |&plus;&nbsp;
-      = I18n.t('sensors.grid_power_export')
+      = I18n.t('sensors.grid_export_power')
     dd.font-mono.text-right = Number::Component.new(value: calculator.got).to_eur(max_precision: 2)
 
   hr.my-2

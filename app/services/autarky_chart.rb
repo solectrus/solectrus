@@ -1,6 +1,6 @@
 class AutarkyChart < Flux::Reader
   def initialize
-    super(sensors: %i[house_power wallbox_power grid_power_import])
+    super(sensors: %i[house_power wallbox_power grid_import_power])
   end
 
   def call(timeframe, fill: false)
@@ -34,8 +34,8 @@ class AutarkyChart < Flux::Reader
     Rails.application.config.x.influx.sensors.field(:wallbox_power)
   end
 
-  def grid_power_import_field
-    Rails.application.config.x.influx.sensors.field(:grid_power_import)
+  def grid_import_power_field
+    Rails.application.config.x.influx.sensors.field(:grid_import_power)
   end
 
   def chart_single(start:, window:, stop: nil, fill: false)
@@ -48,7 +48,7 @@ class AutarkyChart < Flux::Reader
     q << '|> fill(usePrevious: true)' if fill
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
     q << '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
-      "(r.#{grid_power_import_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))"
+      "(r.#{grid_import_power_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))"
     q << '|> keep(columns: ["_time", "autarky"])'
 
     raw = query(q.join)
@@ -65,7 +65,7 @@ class AutarkyChart < Flux::Reader
       |> aggregateWindow(every: 1h, fn: mean)
       |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-      |> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.#{grid_power_import_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))
+      |> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.#{grid_import_power_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))
       |> keep(columns: ["_time", "autarky"])
     QUERY
 

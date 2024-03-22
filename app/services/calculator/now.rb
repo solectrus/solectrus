@@ -7,8 +7,8 @@ class Calculator::Now < Calculator::Base
                       inverter_power
                       house_power
                       heatpump_power
-                      grid_power_import
-                      grid_power_export
+                      grid_import_power
+                      grid_export_power
                       grid_export_limit
                       battery_charging_power
                       battery_discharging_power
@@ -28,8 +28,8 @@ class Calculator::Now < Calculator::Base
 
     build_method(:inverter_power, data, :to_f)
     build_method(:wallbox_power, data, :to_f)
-    build_method(:grid_power_import, data, :to_f)
-    build_method(:grid_power_export, data, :to_f)
+    build_method(:grid_import_power, data, :to_f)
+    build_method(:grid_export_power, data, :to_f)
     build_method(:battery_charging_power, data, :to_f)
     build_method(:battery_discharging_power, data, :to_f)
     build_method(:battery_soc, data, :to_f)

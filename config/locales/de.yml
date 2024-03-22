@@ -24,8 +24,8 @@ de:
     inverter_power: Erzeugung
     house_power: Haus-Verbrauch
     wallbox_power: E-Auto
-    grid_power_import: Netzbezug
-    grid_power_export: Einspeisung
+    grid_import_power: Netzbezug
+    grid_export_power: Einspeisung
     grid_power: Netz
     battery_discharging_power: Akku-Entnahme
     battery_charging_power: Akku-Beladung
