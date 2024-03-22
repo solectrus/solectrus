@@ -33,7 +33,7 @@ class BalanceSegment::Component < ViewComponent::Base
     unsigned_value = sensor.to_s.include?('power') ? value / 1_000.0 : value
 
     case sensor
-    when :grid_power_import, :battery_discharging_power
+    when :grid_import_power, :battery_discharging_power
       -unsigned_value
     else
       unsigned_value
@@ -48,7 +48,7 @@ class BalanceSegment::Component < ViewComponent::Base
 
   def icon_class
     case sensor
-    when :grid_power_export, :grid_power_import
+    when :grid_export_power, :grid_import_power
       'fa-bolt'
     when :inverter_power
       'fa-sun'
@@ -83,7 +83,7 @@ class BalanceSegment::Component < ViewComponent::Base
 
   def color_class
     case sensor
-    when :grid_power_export, :inverter_power
+    when :grid_export_power, :inverter_power
       'bg-green-600'
     when :battery_discharging_power, :battery_charging_power
       'bg-green-700'
@@ -93,7 +93,7 @@ class BalanceSegment::Component < ViewComponent::Base
       'bg-slate-700'
     when :heatpump_power
       'bg-slate-600'
-    when :grid_power_import
+    when :grid_import_power
       'bg-red-600'
     end
   end

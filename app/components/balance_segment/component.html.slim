@@ -47,7 +47,7 @@
     div data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time.to_i }
       = Number::Component.new(value:).public_send(now? ? :to_watt : :to_watt_hour) if value > 50
 
-    - if sensor == :grid_power_export && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
+    - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
       i.fa.fa-circle-exclamation.fa-xs
 
     .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
@@ -58,7 +58,7 @@
         - if now?
           = Number::Component.new(value:).to_watt(max_precision: 3)
 
-          - if sensor == :grid_power_export && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
+          - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
             .text-xs.text-center.mt-2
               = I18n.t('sensors.grid_export_limit')
               br

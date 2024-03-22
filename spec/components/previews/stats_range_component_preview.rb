@@ -15,6 +15,6 @@ class StatsRangeComponentPreview < ViewComponent::Preview
   end
 
   def sensor
-    'grid_power_import'
+    'grid_import_power'
   end
 end
