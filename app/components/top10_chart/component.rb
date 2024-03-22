@@ -49,7 +49,7 @@ class Top10Chart::Component < ViewComponent::Base
 
   def bar_classes
     case sensor.to_sym
-    when :grid_power_export, :inverter_power
+    when :grid_export_power, :inverter_power
       'from-green-500 to-green-300 text-green-800'
     when :battery_discharging_power, :battery_charging_power
       'from-green-700 to-green-300 text-green-800'
@@ -59,7 +59,7 @@ class Top10Chart::Component < ViewComponent::Base
       'from-slate-600 to-slate-300 text-slate-800'
     when :heatpump_power
       'from-slate-700 to-slate-300 text-slate-800'
-    when :grid_power_import
+    when :grid_import_power
       'from-red-600 to-red-300 text-red-800'
     end
   end

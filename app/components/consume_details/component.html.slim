@@ -6,9 +6,9 @@
     dl.mt-1.space-y-2
       .flex.items-center.justify-between.gap-4
         dt
-          = I18n.t('sensors.grid_power_import')
+          = I18n.t('sensors.grid_import_power')
         dd.font-mono.text-right.text-red-700
-          = Number::Component.new(value: calculator.grid_power_import).to_watt_hour(unit: :kilo)
+          = Number::Component.new(value: calculator.grid_import_power).to_watt_hour(unit: :kilo)
 
       .flex.items-center.justify-between.gap-4
         dt

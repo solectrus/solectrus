@@ -47,8 +47,8 @@ class EssentialsTile::Component < ViewComponent::Base
   end
 
   ICONS = {
-    grid_power_export: 'fa-bolt',
-    grid_power_import: 'fa-bolt',
+    grid_export_power: 'fa-bolt',
+    grid_import_power: 'fa-bolt',
     inverter_power: 'fa-sun',
     house_power: 'fa-home',
     wallbox_power: 'fa-car',

@@ -41,30 +41,30 @@ class Calculator::Base
   # Grid
 
   def feeding?
-    return unless grid_power_import && grid_power_export
-    return false if [grid_power_import, grid_power_export].compact.max < 50
+    return unless grid_import_power && grid_export_power
+    return false if [grid_import_power, grid_export_power].compact.max < 50
 
-    grid_power_export > grid_power_import
+    grid_export_power > grid_import_power
   end
 
   def grid_power
-    return unless grid_power_import && grid_power_export
+    return unless grid_import_power && grid_export_power
 
-    feeding? ? grid_power_export : -grid_power_import
+    feeding? ? grid_export_power : -grid_import_power
   end
 
-  def grid_power_import_percent
-    return unless grid_power_import && total_plus
+  def grid_import_power_percent
+    return unless grid_import_power && total_plus
     return 0 if total_plus.zero?
 
-    (grid_power_import * 100.0 / total_plus).round(1)
+    (grid_import_power * 100.0 / total_plus).round(1)
   end
 
-  def grid_power_export_percent
-    return unless grid_power_export && total_minus
+  def grid_export_power_percent
+    return unless grid_export_power && total_minus
     return 0 if total_minus.zero?
 
-    (grid_power_export * 100.0 / total_minus).round(1)
+    (grid_export_power * 100.0 / total_minus).round(1)
   end
 
   # House
@@ -83,9 +83,9 @@ class Calculator::Base
   end
 
   def consumption_alt
-    return unless inverter_power && grid_power_export
+    return unless inverter_power && grid_export_power
 
-    inverter_power - grid_power_export
+    inverter_power - grid_export_power
   end
 
   def consumption_quote
@@ -96,7 +96,7 @@ class Calculator::Base
   end
 
   def grid_quote
-    return unless consumption && grid_power_import
+    return unless consumption && grid_import_power
 
     if consumption.zero?
       # Producing without any consumption
@@ -108,7 +108,7 @@ class Calculator::Base
       return
     end
 
-    [grid_power_import * 100.0 / consumption, 100].min
+    [grid_import_power * 100.0 / consumption, 100].min
   end
 
   def autarky
@@ -171,20 +171,20 @@ class Calculator::Base
   # Total
 
   def total_plus
-    unless grid_power_import && battery_discharging_power && inverter_power
+    unless grid_import_power && battery_discharging_power && inverter_power
       return
     end
 
-    grid_power_import + battery_discharging_power + inverter_power
+    grid_import_power + battery_discharging_power + inverter_power
   end
 
   def total_minus
-    unless grid_power_export && battery_charging_power && house_power &&
+    unless grid_export_power && battery_charging_power && house_power &&
              wallbox_power
       return
     end
 
-    grid_power_export + battery_charging_power + house_power +
+    grid_export_power + battery_charging_power + house_power +
       heatpump_power.to_f + wallbox_power
   end
 

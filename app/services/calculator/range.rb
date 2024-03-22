@@ -15,8 +15,8 @@ class Calculator::Range < Calculator::Base
       inverter_power
       house_power
       wallbox_power
-      grid_power_import
-      grid_power_export
+      grid_import_power
+      grid_export_power
       battery_discharging_power
       battery_charging_power
       heatpump_power
@@ -38,8 +38,8 @@ class Calculator::Range < Calculator::Base
     build_method_from_array(:inverter_power, data, :to_f)
     build_house_power_from_array(data)
     build_method_from_array(:wallbox_power, data, :to_f)
-    build_method_from_array(:grid_power_import, data, :to_f)
-    build_method_from_array(:grid_power_export, data, :to_f)
+    build_method_from_array(:grid_import_power, data, :to_f)
+    build_method_from_array(:grid_export_power, data, :to_f)
     build_method_from_array(:battery_discharging_power, data, :to_f)
     build_method_from_array(:battery_charging_power, data, :to_f)
     build_method_from_array(:heatpump_power, data, :to_f)
@@ -78,18 +78,18 @@ class Calculator::Range < Calculator::Base
   end
 
   def paid
-    return unless grid_power_import
+    return unless grid_import_power
 
     -section_sum do |index|
-      grid_power_import_array[index] * electricity_price_array[index]
+      grid_import_power_array[index] * electricity_price_array[index]
     end
   end
 
   def got
-    return unless grid_power_export
+    return unless grid_export_power
 
     section_sum do |index|
-      grid_power_export_array[index] * feed_in_tariff_array[index]
+      grid_export_power_array[index] * feed_in_tariff_array[index]
     end
   end
 
@@ -141,11 +141,11 @@ class Calculator::Range < Calculator::Base
   end
 
   def wallbox_costs
-    return unless wallbox_power && grid_power_import
+    return unless wallbox_power && grid_import_power
 
     @wallbox_costs ||=
       -section_sum do |index|
-        [wallbox_power_array[index], grid_power_import_array[index]].min *
+        [wallbox_power_array[index], grid_import_power_array[index]].min *
           electricity_price_array[index]
       end
   end
@@ -156,10 +156,10 @@ class Calculator::Range < Calculator::Base
     @house_costs ||=
       -section_sum do |index|
         total_costs =
-          (grid_power_import_array[index] * electricity_price_array[index])
+          (grid_import_power_array[index] * electricity_price_array[index])
 
         wallbox_costs =
-          [wallbox_power_array[index], grid_power_import_array[index]].min *
+          [wallbox_power_array[index], grid_import_power_array[index]].min *
             electricity_price_array[index]
 
         total_costs - wallbox_costs

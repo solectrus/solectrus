@@ -9,14 +9,14 @@ describe AutarkyChart do
         add_influx_point name: measurement_inverter_power,
                          fields: {
                            field_house_power => (index + 1) * 100,
-                           field_grid_power_import => (index + 1) * 300,
+                           field_grid_import_power => (index + 1) * 300,
                            field_wallbox_power => (index + 1) * 500,
                          },
                          time: (beginning + index.month).end_of_month
         add_influx_point name: measurement_inverter_power,
                          fields: {
                            field_house_power => (index + 1) * 100,
-                           field_grid_power_import => (index + 1) * 300,
+                           field_grid_import_power => (index + 1) * 300,
                            field_wallbox_power => (index + 1) * 500,
                          },
                          time: (beginning + index.month).beginning_of_month
@@ -25,7 +25,7 @@ describe AutarkyChart do
       add_influx_point name: measurement_inverter_power,
                        fields: {
                          field_house_power => 6_000,
-                         field_grid_power_import => 3000,
+                         field_grid_import_power => 3000,
                          # NOTE: There is no `wallbox_power` in this data point.
                          # This happens when the `csv-importer` was used to import CSV data from SENEC,
                          # which do not contain the `wallbox_power`.
