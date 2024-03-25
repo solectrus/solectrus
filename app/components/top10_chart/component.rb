@@ -1,26 +1,20 @@
 class Top10Chart::Component < ViewComponent::Base
-  def initialize(field:, period:, sort:, calc:)
-    raise ArgumentError, 'field must be present' if field.blank?
+  def initialize(sensor:, period:, sort:, calc:)
+    raise ArgumentError, 'sensor must be present' if sensor.blank?
     raise ArgumentError, 'period must be present' if period.blank?
     raise ArgumentError, 'sort must be present' if sort.blank?
     raise ArgumentError, 'calc must be present' if calc.blank?
 
     super
-    @field = field
+    @sensor = sensor
     @period = period
     @sort = sort
     @calc = ActiveSupport::StringInquirer.new(calc)
   end
-  attr_accessor :field, :period, :sort, :calc
+  attr_accessor :sensor, :period, :sort, :calc
 
   def top10
-    @top10 ||=
-      PowerTop10.new(
-        field:,
-        measurements: [Rails.configuration.x.influx.measurement_pv],
-        calc:,
-        desc: sort.desc?,
-      )
+    @top10 ||= PowerTop10.new(sensor:, calc:, desc: sort.desc?)
   end
 
   def top10_for_period
@@ -54,16 +48,18 @@ class Top10Chart::Component < ViewComponent::Base
   end
 
   def bar_classes
-    case field.to_sym
-    when :grid_power_minus, :inverter_power
+    case sensor.to_sym
+    when :grid_export_power, :inverter_power
       'from-green-500 to-green-300 text-green-800'
-    when :bat_power_minus, :bat_power_plus
+    when :battery_discharging_power, :battery_charging_power
       'from-green-700 to-green-300 text-green-800'
     when :house_power
       'from-slate-500 to-slate-300 text-slate-800'
-    when :wallbox_charge_power
+    when :wallbox_power
       'from-slate-600 to-slate-300 text-slate-800'
-    when :grid_power_plus
+    when :heatpump_power
+      'from-slate-700 to-slate-300 text-slate-800'
+    when :grid_import_power
       'from-red-600 to-red-300 text-red-800'
     end
   end
@@ -106,7 +102,7 @@ class Top10Chart::Component < ViewComponent::Base
 
   def timeframe_path(record)
     root_path(
-      field: field.gsub(/_plus|_minus/, ''),
+      sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
       timeframe: corresponding_date(record[:date]),
     )
   end

@@ -41,50 +41,51 @@ class Calculator::Base
   # Grid
 
   def feeding?
-    return unless grid_power_plus && grid_power_minus
-    return false if [grid_power_plus, grid_power_minus].compact.max < 50
+    return unless grid_import_power && grid_export_power
+    return false if [grid_import_power, grid_export_power].compact.max < 50
 
-    grid_power_minus > grid_power_plus
+    grid_export_power > grid_import_power
   end
 
   def grid_power
-    return unless grid_power_plus && grid_power_minus
+    return unless grid_import_power && grid_export_power
 
-    feeding? ? grid_power_minus : -grid_power_plus
+    feeding? ? grid_export_power : -grid_import_power
   end
 
-  def grid_power_plus_percent
-    return unless grid_power_plus && total_plus
+  def grid_import_power_percent
+    return unless grid_import_power && total_plus
     return 0 if total_plus.zero?
 
-    (grid_power_plus * 100.0 / total_plus).round(1)
+    (grid_import_power * 100.0 / total_plus).round(1)
   end
 
-  def grid_power_minus_percent
-    return unless grid_power_minus && total_minus
+  def grid_export_power_percent
+    return unless grid_export_power && total_minus
     return 0 if total_minus.zero?
 
-    (grid_power_minus * 100.0 / total_minus).round(1)
+    (grid_export_power * 100.0 / total_minus).round(1)
   end
 
   # House
 
   def consumption
-    return unless house_power && wallbox_charge_power
+    return unless house_power && wallbox_power
 
-    house_power + wallbox_charge_power
+    house_power + wallbox_power + heatpump_power.to_f
   end
 
   def consumption_array
     sections.each_with_index.map do |_section, index|
-      house_power_array[index] + wallbox_charge_power_array[index]
+      house_power_array[index] + wallbox_power_array[index] +
+        heatpump_power_array[index]
     end
   end
 
   def consumption_alt
-    return unless inverter_power && grid_power_minus
+    return unless inverter_power && grid_export_power
 
-    inverter_power - grid_power_minus
+    inverter_power - grid_export_power
   end
 
   def consumption_quote
@@ -95,11 +96,11 @@ class Calculator::Base
   end
 
   def grid_quote
-    return unless consumption && grid_power_plus
+    return unless consumption && grid_import_power
 
     if consumption.zero?
       # Producing without any consumption
-      #  => Maybe there is a balkony power plant
+      #  => Maybe there is a balkony heatpump_power plant
       #  => 0% grid quote
       return 0 if producing?
 
@@ -107,7 +108,7 @@ class Calculator::Base
       return
     end
 
-    [grid_power_plus * 100.0 / consumption, 100].min
+    [grid_import_power * 100.0 / consumption, 100].min
   end
 
   def autarky
@@ -123,58 +124,68 @@ class Calculator::Base
     (house_power * 100.0 / total_minus).round(1)
   end
 
-  # Wallbox
-
-  def wallbox_charge_power_percent
-    return unless wallbox_charge_power && total_minus
+  def heatpump_power_percent
+    return unless heatpump_power && total_minus
     return 0 if total_minus.zero?
 
-    (wallbox_charge_power * 100.0 / total_minus).round(1)
+    (heatpump_power * 100.0 / total_minus).round(1)
+  end
+
+  # Wallbox
+
+  def wallbox_power_percent
+    return unless wallbox_power && total_minus
+    return 0 if total_minus.zero?
+
+    (wallbox_power * 100.0 / total_minus).round(1)
   end
 
   # Battery
 
   def bat_charging?
-    return unless bat_power_plus && bat_power_minus
+    return unless battery_charging_power && battery_discharging_power
 
-    bat_power_plus > bat_power_minus
+    battery_charging_power > battery_discharging_power
   end
 
-  def bat_power
-    return unless bat_power_plus && bat_power_minus
+  def battery_power
+    return unless battery_charging_power && battery_discharging_power
 
-    bat_charging? ? bat_power_plus : -bat_power_minus
+    bat_charging? ? battery_charging_power : -battery_discharging_power
   end
 
-  def bat_power_minus_percent
-    return unless bat_power_minus && total_plus
+  def battery_discharging_power_percent
+    return unless battery_discharging_power && total_plus
     return 0 if total_plus.zero?
 
-    (bat_power_minus * 100.0 / total_plus).round(1)
+    (battery_discharging_power * 100.0 / total_plus).round(1)
   end
 
-  def bat_power_plus_percent
-    return unless bat_power_plus && total_minus
+  def battery_charging_power_percent
+    return unless battery_charging_power && total_minus
     return 0 if total_minus.zero?
 
-    (bat_power_plus * 100.0 / total_minus).round(1)
+    (battery_charging_power * 100.0 / total_minus).round(1)
   end
 
   # Total
 
   def total_plus
-    return unless grid_power_plus && bat_power_minus && inverter_power
-
-    grid_power_plus + bat_power_minus + inverter_power
-  end
-
-  def total_minus
-    unless grid_power_minus && bat_power_plus && house_power &&
-             wallbox_charge_power
+    unless grid_import_power && battery_discharging_power && inverter_power
       return
     end
 
-    grid_power_minus + bat_power_plus + house_power + wallbox_charge_power
+    grid_import_power + battery_discharging_power + inverter_power
+  end
+
+  def total_minus
+    unless grid_export_power && battery_charging_power && house_power &&
+             wallbox_power
+      return
+    end
+
+    grid_export_power + battery_charging_power + house_power +
+      heatpump_power.to_f + wallbox_power
   end
 
   def total

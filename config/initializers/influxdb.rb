@@ -4,12 +4,13 @@ class FluxQueryLogSubscriber < ActiveSupport::LogSubscriber
   def query(event)
     class_name = event.payload[:class]
     query_string = event.payload[:query]
+    sensors = event.payload[:sensors].join(',')
     duration = (event.payload[:duration] * 1000).round
 
     colored_class = color(class_name, :magenta)
     colored_query = color(query_string, :yellow, { bold: true })
 
     # Colorize, indent query
-    debug "#{colored_class} (#{duration}ms)\n  #{colored_query.gsub("\n", "\n  ")}"
+    debug "#{colored_class} (#{duration}ms) sensors=#{sensors}\n  #{colored_query.gsub("\n", "\n  ")}"
   end
 end
