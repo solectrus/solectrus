@@ -69,6 +69,15 @@ export default class extends Controller {
   refresh() {
     if (!this.instance) return;
 
+    const title = this.element.getAttribute('title');
+    if (title) {
+      // Remove title from DOM element to avoid native browser tooltips
+      this.element.removeAttribute('title');
+
+      // Set aria-label to keep a discernible text
+      this.element.ariaLabel = title;
+    }
+
     const content =
       (this.hasHtmlTarget && this.htmlTarget.innerHTML) ||
       this.element.ariaLabel ||
