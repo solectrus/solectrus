@@ -1,30 +1,29 @@
 describe ConsumptionChart do
-  let(:measurement) { "Test#{described_class}" }
-  let(:chart) { described_class.new(measurements: [measurement]) }
+  let(:chart) { described_class.new }
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
     influx_batch do
       12.times do |index|
-        add_influx_point name: measurement,
+        add_influx_point name: measurement_inverter_power,
                          fields: {
-                           inverter_power: (index + 1) * 100,
-                           grid_power_minus: (index + 1) * 50,
+                           field_inverter_power => (index + 1) * 100,
+                           field_grid_export_power => (index + 1) * 50,
                          },
                          time: (beginning + index.month).end_of_month
-        add_influx_point name: measurement,
+        add_influx_point name: measurement_inverter_power,
                          fields: {
-                           inverter_power: (index + 1) * 100,
-                           grid_power_minus: (index + 1) * 50,
+                           field_inverter_power => (index + 1) * 100,
+                           field_grid_export_power => (index + 1) * 50,
                          },
                          time: (beginning + index.month).beginning_of_month
       end
 
-      add_influx_point name: measurement,
+      add_influx_point name: measurement_inverter_power,
                        fields: {
-                         inverter_power: 2_000,
-                         grid_power_minus: 500,
+                         field_inverter_power => 2_000,
+                         field_grid_export_power => 500,
                        }
     end
   end
@@ -37,13 +36,13 @@ describe ConsumptionChart do
     context 'when timeframe is "now"' do
       let(:timeframe) { Timeframe.now }
 
-      it { is_expected.to have(1.hour / 20.seconds).items }
+      it { is_expected.to have(1.hour / 30.seconds).items }
 
       it 'contains last data point' do
         last = result.last
 
         expect(last[1]).to eq(75.0)
-        expect(last.first).to be_within(20.seconds).of(Time.current)
+        expect(last.first).to be_within(30.seconds).of(Time.current)
       end
     end
 

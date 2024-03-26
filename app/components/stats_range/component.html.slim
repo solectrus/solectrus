@@ -1,9 +1,9 @@
 = render Balance::Component.new calculator:,
                                 timeframe:,
-                                field: do |balance|
+                                sensor: do |balance|
 
   = balance.with_center do
-    = link_to root_path(field: 'autarky', timeframe:),
+    = link_to root_path(sensor: 'autarky', timeframe:),
               data: { \
                 turbo_frame: 'chart',
                 turbo_action: 'replace',
@@ -16,7 +16,7 @@
             = render AutarkyDetails::Component.new(calculator:)
 
     - if calculator.consumption_quote
-      = link_to root_path(field: 'consumption', timeframe:),
+      = link_to root_path(sensor: 'consumption', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',

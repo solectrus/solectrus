@@ -1,15 +1,15 @@
 dl
   .grid.grid-cols-2.gap-2
     dt
-      = I18n.t('senec.inverter_power')
+      = I18n.t('sensors.inverter_power')
     dd.font-mono.text-right
       = Number::Component.new(value: calculator.inverter_power).to_watt_hour(max_precision: 3, unit: :kilo)
 
     dt.whitespace-nowrap
       |&minus;&nbsp;
-      = I18n.t('senec.grid_power_minus')
+      = I18n.t('sensors.grid_export_power')
     dd.font-mono.text-right
-      = Number::Component.new(value: calculator.grid_power_minus).to_watt_hour(max_precision: 3, unit: :kilo)
+      = Number::Component.new(value: calculator.grid_export_power).to_watt_hour(max_precision: 3, unit: :kilo)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
@@ -21,7 +21,7 @@ dl
   .mt-2.grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&divide;&nbsp;
-      = I18n.t('senec.inverter_power')
+      = I18n.t('sensors.inverter_power')
     dd.font-mono.text-right = Number::Component.new(value: calculator.inverter_power).to_watt_hour(max_precision: 3, unit: :kilo)
 
   hr.my-2

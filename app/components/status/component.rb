@@ -1,11 +1,11 @@
 class Status::Component < ViewComponent::Base
-  def initialize(time:, current_state: nil, current_state_ok: nil)
+  def initialize(time:, system_status: nil, system_status_ok: nil)
     super
     @time = time
-    @current_state = current_state
-    @current_state_ok = current_state_ok
+    @system_status = system_status
+    @system_status_ok = system_status_ok
   end
-  attr_reader :time, :current_state
+  attr_reader :time, :system_status
 
   def live?
     time && time > tolerated_delay.seconds.ago
@@ -20,7 +20,7 @@ class Status::Component < ViewComponent::Base
   end
 
   def live_text
-    current_state.presence || t('.connect')
+    system_status.presence || t('.connect')
   end
 
   def message
@@ -33,15 +33,15 @@ class Status::Component < ViewComponent::Base
     end
   end
 
-  def current_state_ok?
-    # Fallback when current_state_ok is not present
-    return true if @current_state_ok.nil?
+  def system_status_ok?
+    # Fallback when system_status_ok is not present
+    return true if @system_status_ok.nil?
 
-    @current_state_ok
+    @system_status_ok
   end
 
   def outer_class
-    if current_state_ok?
+    if system_status_ok?
       'bg-indigo-50 text-black'
     else
       'bg-orange-100 text-orange-800'
@@ -50,7 +50,7 @@ class Status::Component < ViewComponent::Base
 
   def dot_class
     if live?
-      current_state_ok? ? 'bg-green-500' : 'bg-orange-400'
+      system_status_ok? ? 'bg-green-500' : 'bg-orange-400'
     else
       'bg-red-500'
     end

@@ -13,10 +13,9 @@ describe DayLight do
         # Sunset
         Time.new(date.year, date.month, date.day, 18, 21, 0, '+01:00'),
       ].each do |time|
-        add_influx_point name:
-                           Rails.configuration.x.influx.measurement_forecast,
+        add_influx_point name: measurement_inverter_power_forecast,
                          fields: {
-                           watt: rand(1000),
+                           field_inverter_power_forecast => rand(1000),
                          },
                          time:
       end
