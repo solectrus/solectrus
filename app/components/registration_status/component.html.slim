@@ -1,7 +1,7 @@
 - if registration_status && !complete?
   - icon = capture do
     div data-controller= 'tippy' title= t(".#{registration_status}")
-      - if unregistered?
+      - if unregistered? || skipped?
         i.fa.fas.fa-id-card.text-red-500
       - elsif pending?
         i.fa.fas.fa-id-card.text-red-400
