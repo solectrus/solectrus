@@ -41,16 +41,6 @@ export default {
         yellow: colors.amber,
         purple: colors.violet,
       },
-
-      typography: {
-        DEFAULT: {
-          css: {
-            a: {
-              textUnderlineOffset: 2,
-            },
-          },
-        },
-      },
     },
   },
 
@@ -58,7 +48,6 @@ export default {
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/container-queries'),
     require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
     require('tailwindcss-displaymodes'),
   ],
 } satisfies Config;
