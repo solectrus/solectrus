@@ -132,8 +132,7 @@ class SensorConfig
   private_constant :SENSOR_REGEX
 
   def validate!(sensor_name, value)
-    return if value.nil?
-    return if value.match?(SENSOR_REGEX)
+    return if value.nil? || value.match?(SENSOR_REGEX)
 
     raise Error,
           "Sensor '#{sensor_name}' must be in format 'measurement:field'. Got this instead: '#{value}'"
