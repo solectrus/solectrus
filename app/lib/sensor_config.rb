@@ -93,6 +93,12 @@ class SensorConfig
 
   private
 
+  def deprecated_config?(env)
+    env.none? { |key, _| key.starts_with?('INFLUX_SENSOR_') } ||
+      env.key?('INFLUX_MEASUREMENT_PV') ||
+      env.key?('INFLUX_MEASUREMENT_FORECAST')
+  end
+
   def define_sensor(sensor_name, value)
     Rails.logger.info "  Setting #{sensor_name} to #{value}"
     define(sensor_name, value)
@@ -160,6 +166,8 @@ class SensorConfig
   private_constant :FALLBACK_MEASUREMENTS
 
   def build_from_deprecated_config(sensor_name, env)
+    return unless deprecated_config?(env)
+
     var_measurement, field = FALLBACK_SENSORS[sensor_name]
     return unless var_measurement
 
@@ -169,9 +177,11 @@ class SensorConfig
       env.fetch(var_measurement, FALLBACK_MEASUREMENTS[var_measurement])
 
     result = [measurement, field].join(':')
-    Rails.logger.warn "\nMissing environment var #{missing_var}. " \
+    Rails.logger.warn "\nDeprecated configuration detected. Environment variable #{missing_var} is not found. " \
                         "To fix this warning, add the following to your environment:\n" \
-                        "#{missing_var}=#{result}"
+                        "#{missing_var}=#{result}\n" \
+                        "and remove the following environment variables:\n" \
+                        'INFLUX_MEASUREMENT_PV and INFLUX_MEASUREMENT_FORECAST'
 
     result
   end
