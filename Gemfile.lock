@@ -107,7 +107,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    css_parser (1.16.0)
+    css_parser (1.17.0)
       addressable
     cypress-rails (0.7.0)
       puma (>= 3.8.0)
