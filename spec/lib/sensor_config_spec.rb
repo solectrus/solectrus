@@ -142,6 +142,47 @@ describe SensorConfig do
     end
   end
 
+  context 'with some blank sensors' do
+    let(:env) do
+      {
+        'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
+        'INFLUX_SENSOR_INVERTER_POWER_FORECAST' => '',
+        'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
+        'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'pv:grid_import_power',
+        'INFLUX_SENSOR_GRID_EXPORT_POWER' => 'pv:grid_export_power',
+        'INFLUX_SENSOR_GRID_EXPORT_LIMIT' => 'pv:grid_export_limit',
+        'INFLUX_SENSOR_BATTERY_CHARGING_POWER' => 'pv:battery_charging_power',
+        'INFLUX_SENSOR_BATTERY_DISCHARGING_POWER' =>
+          'pv:battery_discharging_power',
+        'INFLUX_SENSOR_BATTERY_SOC' => 'pv:battery_soc',
+        'INFLUX_SENSOR_WALLBOX_POWER' => '',
+        'INFLUX_SENSOR_CASE_TEMP' => '',
+        'INFLUX_SENSOR_SYSTEM_STATUS' => '',
+        'INFLUX_SENSOR_SYSTEM_STATUS_OK' => '',
+      }
+    end
+
+    describe '#exists?' do
+      it 'returns false for blank sensor' do
+        expect(sensor_config.exists?(:inverter_power_forecast)).to be(false)
+        expect(sensor_config.exists?(:case_temp)).to be(false)
+        expect(sensor_config.exists?(:system_status)).to be(false)
+        expect(sensor_config.exists?(:system_status_ok)).to be(false)
+      end
+
+      it 'returns true for non-blank sensor' do
+        expect(sensor_config.exists?(:inverter_power)).to be(true)
+        expect(sensor_config.exists?(:house_power)).to be(true)
+        expect(sensor_config.exists?(:grid_import_power)).to be(true)
+        expect(sensor_config.exists?(:grid_export_power)).to be(true)
+        expect(sensor_config.exists?(:grid_export_limit)).to be(true)
+        expect(sensor_config.exists?(:battery_charging_power)).to be(true)
+        expect(sensor_config.exists?(:battery_discharging_power)).to be(true)
+        expect(sensor_config.exists?(:battery_soc)).to be(true)
+      end
+    end
+  end
+
   context 'with deprecated configuration' do
     let(:env) do
       {

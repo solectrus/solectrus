@@ -48,16 +48,22 @@ class SensorConfig
 
   def initialize(env)
     Rails.logger.info 'Sensor initialization started'
+
+    @sensor_logs = []
+
     SENSOR_NAMES.each do |sensor_name|
       var_sensor = var_for(sensor_name)
       value =
-        env.fetch(var_sensor) { build_from_deprecated_config(sensor_name, env) }
+        env
+          .fetch(var_sensor) { build_from_deprecated_config(sensor_name, env) }
+          .presence
 
       validate!(sensor_name, value)
       define_sensor(sensor_name, value)
     end
-
     define_exclude_from_house_power(env['INFLUX_EXCLUDE_FROM_HOUSE_POWER'])
+
+    @sensor_logs.each { |log| Rails.logger.info(log) }
     Rails.logger.info 'Sensor initialization completed'
   end
 
@@ -94,7 +100,8 @@ class SensorConfig
   private
 
   def define_sensor(sensor_name, value)
-    Rails.logger.info "  Setting #{sensor_name} to #{value}"
+    @sensor_logs << "  - Sensor '#{sensor_name}' #{value ? "mapped to '#{value}'" : 'ignored'}"
+
     define(sensor_name, value)
   end
 
@@ -108,7 +115,7 @@ class SensorConfig
             "Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: #{value}"
     end
 
-    Rails.logger.info "  Excluding from house_power: #{sensors_to_exclude.join(',')}"
+    @sensor_logs << "  - Excluding from house_power: #{sensors_to_exclude.join(',')}"
     define(:exclude_from_house_power, sensors_to_exclude)
   end
 
@@ -168,9 +175,11 @@ class SensorConfig
       env.fetch(var_measurement, FALLBACK_MEASUREMENTS[var_measurement])
 
     result = [measurement, field].join(':')
-    Rails.logger.warn "\nMissing environment var #{missing_var}. " \
-                        "To fix this warning, add the following to your environment:\n" \
-                        "#{missing_var}=#{result}"
+    Rails.logger.warn "  DEPRECATION WARNING: Missing environment variable #{missing_var}.\n" \
+                        "  To remove this warning, add the following to your environment:\n" \
+                        "    #{missing_var}=#{result}\n" \
+                        "  or, when you want to ignore this sensor:\n" \
+                        "    #{missing_var}=\n"
 
     result
   end
