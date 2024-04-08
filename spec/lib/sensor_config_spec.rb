@@ -19,7 +19,7 @@ describe SensorConfig do
         'INFLUX_SENSOR_CASE_TEMP' => 'pv:case_temp',
         'INFLUX_SENSOR_SYSTEM_STATUS' => 'pv:system_status',
         'INFLUX_SENSOR_SYSTEM_STATUS_OK' => 'pv:system_status_ok',
-        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'heatpump_power',
+        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'HEATPUMP_POWER',
       }
     end
 
@@ -298,12 +298,27 @@ describe SensorConfig do
     let(:env) do
       {
         'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
-        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'heatpump_power',
+        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'HEATPUMP_POWER',
       }
     end
 
     it 'initializes the sensor configuration' do
       expect(sensor_config).to be_a(described_class)
+    end
+
+    describe '#exclude_from_house_power' do
+      it 'returns the given sensor field' do
+        expect(sensor_config.exclude_from_house_power).to eq([:heatpump_power])
+      end
+    end
+  end
+
+  context 'with lowercase INFLUX_EXCLUDE_FROM_HOUSE_POWER (still valid)' do
+    let(:env) do
+      {
+        'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
+        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'heatpump_power',
+      }
     end
 
     describe '#exclude_from_house_power' do
@@ -327,14 +342,14 @@ describe SensorConfig do
     let(:env) do
       {
         'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
-        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'foo',
+        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'FOO',
       }
     end
 
     it 'failes at initialization' do
       expect { sensor_config }.to raise_error(
         described_class::Error,
-        'Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: foo',
+        'Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: FOO',
       )
     end
   end
