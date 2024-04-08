@@ -1,4 +1,4 @@
-class SensorConfig
+class SensorConfig # rubocop:disable Metrics/ClassLength
   class Error < RuntimeError
   end
 
@@ -61,7 +61,10 @@ class SensorConfig
       validate!(sensor_name, value)
       define_sensor(sensor_name, value)
     end
-    define_exclude_from_house_power(env['INFLUX_EXCLUDE_FROM_HOUSE_POWER'])
+
+    define_exclude_from_house_power(
+      env.fetch('INFLUX_EXCLUDE_FROM_HOUSE_POWER', nil).presence,
+    )
 
     @sensor_logs.each { |log| Rails.logger.info(log) }
     Rails.logger.info 'Sensor initialization completed'
@@ -106,7 +109,12 @@ class SensorConfig
   end
 
   def define_exclude_from_house_power(value)
-    value ||= heatpump_power ? 'HEATPUMP_POWER' : ''
+    unless value
+      @sensor_logs << "  - Sensor 'house_power' remains unchanged"
+      define(:exclude_from_house_power, [])
+      return
+    end
+
     sensors_to_exclude =
       value.split(',').map { |sensor| sensor.strip.downcase.to_sym }
 
@@ -115,7 +123,7 @@ class SensorConfig
             "Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: #{value}"
     end
 
-    @sensor_logs << "  - Excluding from house_power: #{sensors_to_exclude.join(',')}"
+    @sensor_logs << "  - Sensor 'house_power' excluded #{sensors_to_exclude.join(', ')}"
     define(:exclude_from_house_power, sensors_to_exclude)
   end
 
