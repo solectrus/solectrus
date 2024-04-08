@@ -72,7 +72,7 @@ describe PowerChart do
   context 'when two fields are requested' do
     let(:chart) do
       described_class.new(
-        sensors: %w[battery_charging_power battery_discharging_power],
+        sensors: %i[battery_charging_power battery_discharging_power],
       )
     end
 

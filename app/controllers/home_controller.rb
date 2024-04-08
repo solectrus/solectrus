@@ -15,6 +15,6 @@ class HomeController < ApplicationController
   # By default we want to show the current production, so we redirect to the inverter_power sensor.
   # But at night this does not make sense, so in this case we redirect to the house_power sensor.
   def redirect_sensor
-    DayLight.active? ? 'inverter_power' : 'house_power'
+    DayLight.active? ? :inverter_power : :house_power
   end
 end

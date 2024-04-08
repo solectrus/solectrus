@@ -7,7 +7,7 @@ class DayLight < Flux::Reader
   end
 
   def initialize(date)
-    super(sensors: ['inverter_power_forecast'])
+    super(sensors: [:inverter_power_forecast])
     @date = date
   end
 
