@@ -1,4 +1,13 @@
 class SensorConfig # rubocop:disable Metrics/ClassLength
+  # Allow global access to the sensor configuration via Rails.application.config
+  def self.setup(env)
+    Rails.application.config.sensors = SensorConfig.new(env)
+  end
+
+  def self.x
+    Rails.application.config.sensors
+  end
+
   class Error < RuntimeError
   end
 

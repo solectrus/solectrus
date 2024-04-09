@@ -15,10 +15,7 @@ class PowerPeak < Flux::Reader
 
     array.reduce({}) do |total, current|
       sensor =
-        Rails.application.config.x.influx.sensors.find_by(
-          current['_measurement'],
-          current['_field'],
-        )
+        SensorConfig.x.find_by(current['_measurement'], current['_field'])
 
       total.merge(sensor => current['_value'].round)
     end

@@ -46,7 +46,7 @@ class PowerTop10 < Flux::Reader
   end
 
   def exclude_from_house_power
-    Rails.application.config.x.influx.sensors.exclude_from_house_power
+    SensorConfig.x.exclude_from_house_power
   end
 
   def top(start:, stop:, window:, limit: 10, offset: '0s')

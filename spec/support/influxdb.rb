@@ -38,13 +38,9 @@ module InfluxHelper
   end
 
   SensorConfig::SENSOR_NAMES.each do |name|
-    define_method(:"field_#{name}") do
-      Rails.application.config.x.influx.sensors.field(name)
-    end
+    define_method(:"field_#{name}") { SensorConfig.x.field(name) }
 
-    define_method(:"measurement_#{name}") do
-      Rails.application.config.x.influx.sensors.measurement(name)
-    end
+    define_method(:"measurement_#{name}") { SensorConfig.x.measurement(name) }
   end
 end
 

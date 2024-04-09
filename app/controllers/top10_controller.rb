@@ -22,7 +22,7 @@ class Top10Controller < ApplicationController
 
   def sensor_names
     SensorConfig::POWER_SENSORS.select do |sensor|
-      Rails.application.config.x.influx.sensors.exists?(sensor)
+      SensorConfig.x.exists?(sensor)
     end
   end
 

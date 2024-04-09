@@ -52,12 +52,8 @@ class Calculator::Range < Calculator::Base
     values =
       data.map do |value|
         [
-          Rails
-            .application
-            .config
+          SensorConfig
             .x
-            .influx
-            .sensors
             .exclude_from_house_power
             .reduce(value[:house_power].to_f) do |acc, elem|
               acc - value[elem].to_f

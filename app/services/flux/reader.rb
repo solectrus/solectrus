@@ -32,8 +32,8 @@ class Flux::Reader < Flux::Base
     raw =
       selected_sensors.filter_map do |sensor|
         [
-          Rails.application.config.x.influx.sensors.measurement(sensor),
-          Rails.application.config.x.influx.sensors.field(sensor),
+          SensorConfig.x.measurement(sensor),
+          SensorConfig.x.field(sensor),
         ].compact.presence
       end
 

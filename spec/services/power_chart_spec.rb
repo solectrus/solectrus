@@ -2,7 +2,7 @@ describe PowerChart do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   def measurement
-    Rails.application.config.x.influx.sensors.measurement(:inverter_power)
+    SensorConfig.x.measurement(:inverter_power)
   end
 
   before do

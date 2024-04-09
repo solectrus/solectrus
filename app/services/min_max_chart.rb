@@ -102,8 +102,7 @@ class MinMaxChart < Flux::Reader
     raw.each do |table|
       field = table.records.first.values['_field']
       measurement = table.records.first.values['_measurement']
-      sensor =
-        Rails.application.config.x.influx.sensors.find_by(measurement, field)
+      sensor = SensorConfig.x.find_by(measurement, field)
 
       array = table_to_array(table)
 

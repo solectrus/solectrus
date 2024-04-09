@@ -39,12 +39,8 @@ class Calculator::Now < Calculator::Base
 
     define_singleton_method(:house_power) do
       [
-        Rails
-          .application
-          .config
+        SensorConfig
           .x
-          .influx
-          .sensors
           .exclude_from_house_power
           .reduce(data[:house_power].to_f) do |acc, elem|
             acc - data[elem].to_f

@@ -4,7 +4,7 @@ describe MinMaxChart do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   def measurement
-    Rails.application.config.x.influx.sensors.measurement(:battery_soc)
+    SensorConfig.x.measurement(:battery_soc)
   end
 
   # Travel to a specific date and time to avoid summer/winter time issues

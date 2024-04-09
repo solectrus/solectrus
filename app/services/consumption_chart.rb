@@ -27,11 +27,11 @@ class ConsumptionChart < Flux::Reader
   private
 
   def inverter_power_field
-    Rails.application.config.x.influx.sensors.field(:inverter_power)
+    SensorConfig.x.field(:inverter_power)
   end
 
   def grid_export_power_field
-    Rails.application.config.x.influx.sensors.field(:grid_export_power)
+    SensorConfig.x.field(:grid_export_power)
   end
 
   def chart_single(start:, window:, stop: nil, fill: false)

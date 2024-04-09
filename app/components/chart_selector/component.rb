@@ -19,9 +19,7 @@ class ChartSelector::Component < ViewComponent::Base
       case_temp
       autarky
       consumption
-    ].select do |sensor|
-      Rails.application.config.x.influx.sensors.exists?(sensor)
-    end
+    ].select { |sensor| SensorConfig.x.exists?(sensor) }
     # TODO: Add savings and co2_savings
   end
 

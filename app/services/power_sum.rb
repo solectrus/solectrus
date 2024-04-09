@@ -19,7 +19,7 @@ class PowerSum < Flux::Reader
       record = table.records.first
 
       sensor =
-        Rails.application.config.x.influx.sensors.find_by(
+        SensorConfig.x.find_by(
           record.values['_measurement'],
           record.values['_field'],
         )
@@ -63,7 +63,7 @@ class PowerSum < Flux::Reader
       record = table.records.first
 
       sensor =
-        Rails.application.config.x.influx.sensors.find_by(
+        SensorConfig.x.find_by(
           record.values['_measurement'],
           record.values['_field'],
         )

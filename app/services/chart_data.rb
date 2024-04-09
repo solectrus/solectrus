@@ -100,8 +100,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
   end
 
   def house_power
-    exclude_from_house_power =
-      Rails.application.config.x.influx.sensors.exclude_from_house_power
+    exclude_from_house_power = SensorConfig.x.exclude_from_house_power
 
     chart =
       PowerChart.new(sensors: [:house_power, *exclude_from_house_power]).call(

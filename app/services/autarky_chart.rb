@@ -27,15 +27,15 @@ class AutarkyChart < Flux::Reader
   private
 
   def house_power_field
-    Rails.application.config.x.influx.sensors.field(:house_power)
+    SensorConfig.x.field(:house_power)
   end
 
   def wallbox_power_field
-    Rails.application.config.x.influx.sensors.field(:wallbox_power)
+    SensorConfig.x.field(:wallbox_power)
   end
 
   def grid_import_power_field
-    Rails.application.config.x.influx.sensors.field(:grid_import_power)
+    SensorConfig.x.field(:grid_import_power)
   end
 
   def chart_single(start:, window:, stop: nil, fill: false)

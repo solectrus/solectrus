@@ -83,8 +83,7 @@ class PowerChart < Flux::Reader
       first_record = r.records.first
       field = first_record.values['_field']
       measurement = first_record.values['_measurement']
-      sensor =
-        Rails.application.config.x.influx.sensors.find_by(measurement, field)
+      sensor = SensorConfig.x.find_by(measurement, field)
 
       result[sensor] = value_to_array(r)
     end
