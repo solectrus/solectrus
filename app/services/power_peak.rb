@@ -1,5 +1,7 @@
 class PowerPeak < Flux::Reader
   def call(start:, stop: nil)
+    return {} unless SensorConfig.x.exists_any?(*sensors)
+
     raw = query <<-QUERY
       #{from_bucket}
       |> #{range(start:, stop:)}

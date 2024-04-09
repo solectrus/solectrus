@@ -1,5 +1,7 @@
 class PowerChart < Flux::Reader
   def call(timeframe, fill: false, interpolate: false)
+    return {} unless SensorConfig.x.exists_any?(*sensors)
+
     super(timeframe)
 
     case timeframe.id

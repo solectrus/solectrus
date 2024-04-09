@@ -1,6 +1,10 @@
 = turbo_stream.update 'nav' do
   = render Timeframe::Component.new(timeframe:)
-  = render Status::Component.new(time: calculator.time, system_status: calculator.system_status, system_status_ok: calculator.system_status_ok) if timeframe.now?
+
+  - if timeframe.now? && SensorConfig.x.exists?(:system_status)
+    = render Status::Component.new time: calculator.time,
+                                   system_status: calculator.system_status,
+                                   system_status_ok: calculator.system_status_ok
 
 = turbo_stream.update 'second-nav-desktop' do
   = render Nav::Sub::Component.new do |c|

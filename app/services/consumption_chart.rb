@@ -4,6 +4,8 @@ class ConsumptionChart < Flux::Reader
   end
 
   def call(timeframe, fill: false)
+    return {} unless SensorConfig.x.exists_all?(*sensors)
+
     super(timeframe)
 
     case timeframe.id

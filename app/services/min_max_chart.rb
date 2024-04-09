@@ -7,6 +7,8 @@ class MinMaxChart < Flux::Reader
   attr_reader :average
 
   def call(timeframe)
+    return {} unless SensorConfig.x.exists_any?(*sensors)
+
     super(timeframe)
 
     case timeframe.id

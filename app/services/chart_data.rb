@@ -154,6 +154,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
   end
 
   def inverter_power_forecast
+    return unless SensorConfig.x.exists?(:inverter_power_forecast)
+
     @inverter_power_forecast ||=
       PowerChart.new(sensors: %i[inverter_power_forecast]).call(
         timeframe,

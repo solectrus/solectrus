@@ -102,10 +102,12 @@ describe SensorConfig do
       it 'returns true for calculated sensors' do
         expect(sensor_config.exists?(:autarky)).to be(true)
         expect(sensor_config.exists?(:consumption)).to be(true)
+        expect(sensor_config.exists?(:savings)).to be(true)
+        expect(sensor_config.exists?(:co2_savings)).to be(true)
       end
 
-      it 'returns false for invalid sensor' do
-        expect(sensor_config.exists?(:invalid)).to be(false)
+      it 'fails for invalid sensor' do
+        expect { sensor_config.exists?(:invalid) }.to raise_error(ArgumentError)
       end
     end
   end
@@ -208,6 +210,62 @@ describe SensorConfig do
         expect(sensor_config.exists?(:battery_charging_power)).to be(true)
         expect(sensor_config.exists?(:battery_discharging_power)).to be(true)
         expect(sensor_config.exists?(:battery_soc)).to be(true)
+      end
+
+      it 'fails for invalid sensor name' do
+        # Symbol, but unknown
+        expect { sensor_config.exists?(:foo) }.to raise_error(
+          ArgumentError,
+          'Unknown or invalid sensor name: :foo',
+        )
+
+        # String is not supported, only Symbol
+        expect { sensor_config.exists?('inverter_power') }.to raise_error(
+          ArgumentError,
+          'Unknown or invalid sensor name: "inverter_power"',
+        )
+
+        # Array is not supported, only single sensor
+        expect { sensor_config.exists?([:inverter_power]) }.to raise_error(
+          ArgumentError,
+          'Unknown or invalid sensor name: [:inverter_power]',
+        )
+      end
+    end
+
+    describe '#exists_all?' do
+      it 'returns true when all exists' do
+        expect(sensor_config.exists_all?(:battery_soc, :house_power)).to be(
+          true,
+        )
+      end
+
+      it 'returns false when mixed' do
+        expect(sensor_config.exists_all?(:battery_soc, :case_temp)).to be(false)
+      end
+
+      it 'returns false when all not exists' do
+        expect(sensor_config.exists_all?(:case_temp, :system_status)).to be(
+          false,
+        )
+      end
+    end
+
+    describe '#exists_any?' do
+      it 'returns true when all exists' do
+        expect(sensor_config.exists_any?(:battery_soc, :house_power)).to be(
+          true,
+        )
+      end
+
+      it 'returns true when mixed' do
+        expect(sensor_config.exists_any?(:battery_soc, :case_temp)).to be(true)
+      end
+
+      it 'returns false when all not exists' do
+        expect(sensor_config.exists_any?(:case_temp, :system_status)).to be(
+          false,
+        )
       end
     end
   end

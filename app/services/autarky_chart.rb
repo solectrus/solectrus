@@ -4,6 +4,8 @@ class AutarkyChart < Flux::Reader
   end
 
   def call(timeframe, fill: false)
+    return {} unless SensorConfig.x.exists?(:autarky)
+
     super(timeframe)
 
     case timeframe.id
@@ -47,8 +49,15 @@ class AutarkyChart < Flux::Reader
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
     q << '|> fill(usePrevious: true)' if fill
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
-    q << '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
-      "(r.#{grid_import_power_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))"
+
+    q << if wallbox_power_field
+      '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
+        "(r.#{grid_import_power_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))"
+    else
+      '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
+        "(r.#{grid_import_power_field} / (r.#{house_power_field}))) }))"
+    end
+
     q << '|> keep(columns: ["_time", "autarky"])'
 
     raw = query(q.join)
@@ -56,19 +65,26 @@ class AutarkyChart < Flux::Reader
   end
 
   def chart_sum(start:, window:, stop: nil)
-    raw = query <<~QUERY
-      import "timezone"
+    q = []
 
-      #{from_bucket}
-      |> #{range(start: start - 1.hour, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 1h, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
-      |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-      |> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - (r.#{grid_import_power_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))
-      |> keep(columns: ["_time", "autarky"])
-    QUERY
+    q << 'import "timezone"'
+    q << from_bucket
+    q << "|> #{range(start: start - 1.hour, stop:)}"
+    q << "|> #{filter}"
+    q << '|> aggregateWindow(every: 1h, fn: mean)'
+    q << "|> aggregateWindow(every: #{window}, fn: sum, location: #{location})"
+    q << "|> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")"
 
+    q << if wallbox_power_field
+      '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
+        "(r.#{grid_import_power_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))"
+    else
+      '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
+        "(r.#{grid_import_power_field} / (r.#{house_power_field}))) }))"
+    end
+    q << '|> keep(columns: ["_time", "autarky"])'
+
+    raw = query(q.join)
     to_array(raw)
   end
 

@@ -50,6 +50,7 @@ class PowerTop10 < Flux::Reader
   end
 
   def top(start:, stop:, window:, limit: 10, offset: '0s')
+    return [] unless SensorConfig.x.exists_any?(*sensors)
     return [] if start > stop
 
     query_string =

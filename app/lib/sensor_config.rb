@@ -97,16 +97,34 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def exists?(sensor_name)
-    if sensor_name.in?(SENSOR_NAMES)
+  def exists?(sensor_name) # rubocop:disable Metrics/CyclomaticComplexity
+    case sensor_name
+    when :grid_power
+      exists_any? :grid_import_power, :grid_export_power
+    when :battery_power
+      exists_any? :battery_charging_power, :battery_discharging_power
+    when :autarky
+      exists_all? :house_power, :grid_import_power
+    when :consumption
+      exists_all? :inverter_power, :grid_export_power
+    when :savings
+      exists_all? :inverter_power, :house_power, :grid_power
+    when :co2_savings
+      exists? :inverter_power
+    when *SENSOR_NAMES
       measurement(sensor_name).present? && field(sensor_name).present?
-    elsif sensor_name == :grid_power
-      exists?(:grid_import_power) && exists?(:grid_export_power)
-    elsif sensor_name == :battery_power
-      exists?(:battery_charging_power) && exists?(:battery_discharging_power)
     else
-      sensor_name.in?(CALCULATED_SENSORS)
+      raise ArgumentError,
+            "Unknown or invalid sensor name: #{sensor_name.inspect}"
     end
+  end
+
+  def exists_any?(*sensor_names)
+    sensor_names.any? { |sensor_name| exists?(sensor_name) }
+  end
+
+  def exists_all?(*sensor_names)
+    sensor_names.all? { |sensor_name| exists?(sensor_name) }
   end
 
   private

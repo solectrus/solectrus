@@ -1,5 +1,7 @@
 class DayLight < Flux::Reader
   def self.active?
+    return true unless SensorConfig.x.exists?(:inverter_power_forecast)
+
     day_light = DayLight.new(Date.current)
     return true unless day_light.sunrise && day_light.sunset
 
