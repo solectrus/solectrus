@@ -11,9 +11,6 @@ LABEL org.opencontainers.image.description="SOLECTRUS Photovoltaic Dashboard"
 # Workaround to trigger Builder's ONBUILDs to finish:
 COPY --from=Builder /etc/alpine-release /tmp/dummy
 
-ENV HONEYBADGER_LOGGING_LEVEL=WARN
-ENV HONEYBADGER_LOGGING_PATH=STDOUT
-
 USER app
 
 # Entrypoint prepares the database.
