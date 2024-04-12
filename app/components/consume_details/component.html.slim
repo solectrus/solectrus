@@ -32,24 +32,3 @@
           =< I18n.t('calculator.total_costs')
         dd.font-mono.text-right
           = Number::Component.new(value: calculator.paid.abs).to_eur(klass: 'text-red-700', max_precision: 2)
-
-  - if calculator.wallbox_costs.nonzero?
-    div
-      h3.font-bold.text-base
-        = t('.breakdown.title')
-
-      dl.mt-1.space-y-2
-        .flex.items-center.justify-between.gap-4
-          dt
-            = I18n.t('calculator.house_costs')
-          dd.font-mono.text-right
-            = Number::Component.new(value: calculator.house_costs.abs).to_eur(klass: 'text-red-700', max_precision: 2)
-
-        .flex.items-center.justify-between.gap-4
-          dt
-            = I18n.t('calculator.wallbox_costs')
-          dd.font-mono.text-right
-            = Number::Component.new(value: calculator.wallbox_costs.abs).to_eur(klass: 'text-red-700', max_precision: 2)
-
-      p.mt-2.text-gray-400.text-sm
-        = t('.breakdown.explanation')

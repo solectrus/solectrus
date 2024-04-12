@@ -136,32 +136,6 @@ class Calculator::Range < Calculator::Base
     (battery_savings * 100.0 / savings).round
   end
 
-  def wallbox_costs
-    return unless wallbox_power && grid_import_power
-
-    @wallbox_costs ||=
-      -section_sum do |index|
-        [wallbox_power_array[index], grid_import_power_array[index]].min *
-          electricity_price_array[index]
-      end
-  end
-
-  def house_costs
-    return unless house_power
-
-    @house_costs ||=
-      -section_sum do |index|
-        total_costs =
-          (grid_import_power_array[index] * electricity_price_array[index])
-
-        wallbox_costs =
-          [wallbox_power_array[index], grid_import_power_array[index]].min *
-            electricity_price_array[index]
-
-        total_costs - wallbox_costs
-      end
-  end
-
   def electricity_prices
     @electricity_prices ||= sections.pluck(:electricity_price).sort
   end
