@@ -26,6 +26,9 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     case_temp
     system_status
     system_status_ok
+    house_power_grid
+    wallbox_power_grid
+    heatpump_power_grid
   ].freeze
   public_constant :SENSOR_NAMES
 
