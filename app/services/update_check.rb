@@ -32,6 +32,10 @@ class UpdateCheck
     subscription_plan.present?
   end
 
+  def eligible_for_free?
+    registration_status.complete? && !prompt? && !sponsoring?
+  end
+
   def prompt?
     registration_status.complete? && latest[:prompt].present?
   end
