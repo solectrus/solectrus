@@ -61,8 +61,6 @@ de:
     co2_reduction: CO₂-Reduktion
     co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Anteil Akku
-    house_costs: Anteil Haus
-    wallbox_costs: Anteil E-Auto
     total_costs: Kosten
     autarky: Autarkie
     time: Letzte Messung vor

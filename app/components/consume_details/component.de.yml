@@ -1,7 +1,15 @@
 de:
-  title: Strombezugskosten
-  breakdown:
-    title: Abgeschätzte Aufteilung
-    explanation: Der Netzbezug wird zunächst dem E-Auto zugerechnet, der Rest dem Haus-Verbrauch.
+  grid:
+    header: Kosten durch Netzbezug
+    import_power: Aus dem Netz bezogene Energie
+    import_costs: Netzbezugskosten
+
+  pv:
+    header: Kosten durch Eigenverbrauch
+    self_consumption: Eigenverbrauchte Energie
+    opportunity_costs: Entgangene Einspeisevergütung
+
+  total_costs: Gesamtkosten
+
   from: von
   to: bis
