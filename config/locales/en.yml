@@ -61,8 +61,6 @@ en:
     co2_reduction: CO₂ reduction
     co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share
-    house_costs: House costs
-    wallbox_costs: EV costs
     total_costs: Total costs
     autarky: Autarky
     time: Last measurement taken

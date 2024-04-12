@@ -87,6 +87,23 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def direct_consumption
+    return unless consumption && grid_import_power
+
+    consumption - grid_import_power
+  end
+
+  def opportunity_costs
+    section_sum do |index|
+      (consumption_array[index] - grid_import_power_array[index]) *
+        feed_in_tariff_array[index]
+    end
+  end
+
+  def total_costs
+    paid.abs + opportunity_costs.abs
+  end
+
   def got
     return unless grid_export_power
 
@@ -142,87 +159,19 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     (battery_savings * 100.0 / savings).round
   end
 
-  def wallbox_costs
-    return unless wallbox_power && grid_import_power
-
-    @wallbox_costs ||=
-      -section_sum do |index|
-        [wallbox_power_array[index], grid_import_power_array[index]].min *
-          electricity_price_array[index]
-      end
-  end
-
-  def house_costs
-    return unless house_power
-
-    @house_costs ||=
-      -section_sum do |index|
-        total_costs =
-          (grid_import_power_array[index] * electricity_price_array[index])
-
-        wallbox_costs =
-          [wallbox_power_array[index], grid_import_power_array[index]].min *
-            electricity_price_array[index]
-
-        total_costs - wallbox_costs
-      end
-  end
-
   def electricity_prices
     @electricity_prices ||= sections.pluck(:electricity_price).sort
   end
 
-  # Total
-
-  def total_power
-    wallbox_power + heatpump_power + house_power
-  end
-
-  def total_power_pv
-    wallbox_power_pv + heatpump_power_pv + house_power_pv
-  end
-
-  def total_power_grid
-    return unless wallbox_power_grid || heatpump_power_grid || house_power_grid
-
-    wallbox_power_grid.to_i + heatpump_power_grid.to_i + house_power_grid.to_i
-  end
-
-  def total_power_grid_ratio
-    if total_power.zero?
-      0
-    else
-      (total_power_grid.fdiv(total_power) * 100).round.clamp(0, 100)
-    end
-  end
-
-  def total_power_pv_ratio
-    100 - total_power_grid_ratio
-  end
-
-  def total_costs_ratio
-    (total_costs.fdiv(max_costs) * 100).round
-  end
-
-  def total_costs_grid
-    wallbox_costs_grid + heatpump_costs_grid + house_costs_grid
-  end
-
-  def total_costs_pv
-    wallbox_costs_pv + heatpump_costs_pv + house_costs_pv
-  end
-
-  def total_costs
-    wallbox_costs + heatpump_costs + house_costs
+  def feed_in_tariffs
+    @feed_in_tariffs ||= sections.pluck(:feed_in_tariff).sort
   end
 
   # Wallbox
 
-  def wallbox_power_pv
-    wallbox_power - wallbox_power_grid
-  end
-
   def wallbox_power_grid_ratio
+    return unless wallbox_power_grid
+
     if wallbox_power.zero?
       0
     else
@@ -231,11 +180,9 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def wallbox_power_pv_ratio
-    100 - wallbox_power_grid_ratio
-  end
+    return unless wallbox_power_grid_ratio
 
-  def wallbox_costs_ratio
-    (wallbox_costs.fdiv(max_costs) * 100).round
+    100 - wallbox_power_grid_ratio
   end
 
   def wallbox_costs_grid
@@ -256,6 +203,8 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def wallbox_costs
+    return unless wallbox_costs_grid && wallbox_costs_pv
+
     wallbox_costs_grid + wallbox_costs_pv
   end
 
@@ -275,12 +224,6 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     return unless heatpump_power_grid_ratio
 
     100 - heatpump_power_grid_ratio
-  end
-
-  def heatpump_costs_ratio
-    return unless heatpump_costs
-
-    (heatpump_costs.fdiv(max_costs) * 100).round
   end
 
   def heatpump_costs_grid
@@ -322,12 +265,6 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     return unless house_power_grid_ratio
 
     100 - house_power_grid_ratio
-  end
-
-  def house_costs_ratio
-    return unless house_costs
-
-    (house_costs.fdiv(max_costs) * 100).round
   end
 
   def house_costs_grid
