@@ -135,6 +135,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             ],
         },
         y: {
+          stacked: sensor.in?(%i[house_power heatpump_power wallbox_power]),
           suggestedMax: sensor == :battery_soc ? 100 : nil,
           suggestedMin: sensor == :case_temp ? 20 : nil,
           ticks: {
