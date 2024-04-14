@@ -141,4 +141,15 @@ class ChartLoader::Component < ViewComponent::Base
   def type
     (timeframe.now? || timeframe.day? ? 'line' : 'bar').inquiry
   end
+
+  def unit
+    case field
+    when 'bat_fuel_charge', 'autarky', 'consumption'
+      '&percnt;'.html_safe
+    when 'case_temp'
+      '&deg;C'.html_safe
+    else
+      timeframe.now? || timeframe.day? ? 'kW' : 'kWh'
+    end
+  end
 end
