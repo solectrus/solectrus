@@ -141,4 +141,15 @@ class ChartLoader::Component < ViewComponent::Base
   def type
     (timeframe.now? || timeframe.day? ? 'line' : 'bar').inquiry
   end
+
+  def unit
+    case sensor
+    when :battery_soc, :autarky, :consumption
+      '&percnt;'.html_safe
+    when :case_temp
+      '&deg;C'.html_safe
+    else
+      timeframe.now? || timeframe.day? ? 'kW' : 'kWh'
+    end
+  end
 end

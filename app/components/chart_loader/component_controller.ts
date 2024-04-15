@@ -40,6 +40,7 @@ export default class extends Controller<HTMLCanvasElement> {
   static values = {
     type: String,
     options: Object,
+    unit: String,
   };
 
   static targets = ['container', 'canvas', 'blank', 'json'];
@@ -56,6 +57,9 @@ export default class extends Controller<HTMLCanvasElement> {
 
   declare optionsValue: ChartOptions;
   declare readonly hasOptionsValue: boolean;
+
+  declare unitValue: string;
+  declare readonly hasUnitValue: boolean;
 
   private chart?: Chart;
 
@@ -150,7 +154,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
       options.plugins.tooltip.callbacks = {
         label: (context) =>
-          `${context.dataset.label}: ${
+          `${data.datasets.length > 1 ? context.dataset.label + ': ' : ''}${
             context.parsed._custom
               ? this.formattedInterval(
                   context.parsed._custom.min,
@@ -225,7 +229,7 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private formattedNumber(number: number) {
-    return new Intl.NumberFormat().format(number);
+    return `${new Intl.NumberFormat().format(number)} ${this.unitValue}`;
   }
 
   private formattedInterval(min: number, max: number) {

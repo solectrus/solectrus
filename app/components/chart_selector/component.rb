@@ -44,18 +44,10 @@ class ChartSelector::Component < ViewComponent::Base
   private
 
   def title(sensor)
-    if sensor.in?(%i[battery_soc])
-      "#{I18n.t "sensors.#{sensor}"} in &percnt;".html_safe
-    elsif sensor.in?(%i[autarky consumption])
-      "#{I18n.t "calculator.#{sensor}"} in &percnt;".html_safe
-    elsif sensor.in?(%i[case_temp])
-      "#{I18n.t "sensors.#{sensor}"} in &deg;C".html_safe
+    if sensor.in?(%i[autarky consumption])
+      I18n.t "calculator.#{sensor}"
     else
-      "#{I18n.t "sensors.#{sensor}"} in #{power? ? 'kW' : 'kWh'}"
+      I18n.t "sensors.#{sensor}"
     end
-  end
-
-  def power?
-    timeframe.now? || timeframe.day?
   end
 end
