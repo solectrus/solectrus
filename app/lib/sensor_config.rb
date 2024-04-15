@@ -49,8 +49,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   # - `battery_power` instead of `battery_charging_power` and `battery_discharging_power`
   COMBINED_SENSORS =
     (
-      SENSOR_NAMES.map do |field|
-        field.to_s.gsub(/_import|_export|_discharging|_charging/, '').to_sym
+      SENSOR_NAMES.map do |sensor_name|
+        sensor_name
+          .to_s
+          .gsub(/_import|_export|_discharging|_charging/, '')
+          .to_sym
       end + CALCULATED_SENSORS
     ).uniq.freeze
   public_constant :COMBINED_SENSORS
