@@ -34,7 +34,7 @@
     "@typescript-eslint/eslint-plugin": "^7.7.0",
     "@typescript-eslint/parser": "^7.7.0",
     "autoprefixer": "^10.4.19",
-    "cypress": "^13.7.3",
+    "cypress": "^13.8.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-cypress": "^2.15.2",
@@ -48,7 +48,7 @@
     "tailwindcss": "^3.4.3",
     "tailwindcss-displaymodes": "^1.0.8",
     "typescript": "^5.4.5",
-    "vite": "^5.2.8",
+    "vite": "^5.2.9",
     "vite-plugin-rails": "^0.5.0"
   },
   "size-limit": [
