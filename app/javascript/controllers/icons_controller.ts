@@ -48,7 +48,6 @@ export default class extends Controller {
     config.autoAddCss = false;
 
     // Fix flash of missing icons
-    // @ts-ignore
     config.mutateApproach = 'sync';
 
     library.add(
