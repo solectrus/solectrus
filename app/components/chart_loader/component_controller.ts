@@ -110,7 +110,7 @@ export default class extends Controller<HTMLCanvasElement> {
     if (!options.scales?.x || !options.scales?.y) return;
 
     // I18n
-    // @ts-ignore
+    // @ts-expect-error Property does not exist on type
     options.scales.x.adapters = {
       date: {
         locale: de,
