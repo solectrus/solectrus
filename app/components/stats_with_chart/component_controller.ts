@@ -208,15 +208,32 @@ export default class extends Controller {
 
   get currentElement(): HTMLElement | undefined {
     // Select the current element from the currentTargets (by comparing sensor)
-    const targets = this.currentTargets.filter((t) =>
-      t.dataset.sensor?.startsWith(this.effectiveSensor),
-    );
-    if (!targets.length) return undefined;
+    const targets = this.currentTargets.filter((target) => {
+      if (target.dataset.sensor)
+        switch (this.effectiveSensor) {
+          case 'battery_power':
+            return (
+              target.dataset.sensor === 'battery_charging_power' ||
+              target.dataset.sensor === 'battery_discharging_power'
+            );
+            break;
+          case 'grid_power':
+            return (
+              target.dataset.sensor === 'grid_import_power' ||
+              target.dataset.sensor === 'grid_export_power'
+            );
+            break;
+          default:
+            return target.dataset.sensor.startsWith(this.effectiveSensor);
+        }
+    });
 
-    // Return the first element with a non-zero value, or the first element
-    return (
-      targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ?? targets[0]
-    );
+    if (targets.length)
+      // Return the first element with a non-zero value, or the first element otherwise
+      return (
+        targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ??
+        targets[0]
+      );
   }
 
   // The positive dataset is where at least one positive value exist
