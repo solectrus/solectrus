@@ -55,7 +55,7 @@ class MenuItem::Component < ViewComponent::Base
   end
 
   def render_inner(with_icon:)
-    tag.div class: 'flex items-center gap-3' do
+    tag.span class: 'flex items-center gap-3' do
       if with_icon
         concat(
           if icon
@@ -66,7 +66,7 @@ class MenuItem::Component < ViewComponent::Base
         )
       end
 
-      concat(tag.div(class: 'flex-1 text-left') { name })
+      concat(tag.span(class: 'flex-1 text-left') { name })
     end
   end
 end

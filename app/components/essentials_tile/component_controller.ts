@@ -4,7 +4,7 @@ import * as Turbo from '@hotwired/turbo';
 export default class extends Controller {
   intervalId: number | NodeJS.Timeout = 0;
 
-  static values = {
+  static readonly values = {
     interval: { type: Number, default: 5 },
   };
 

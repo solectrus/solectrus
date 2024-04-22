@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 import Plausible from 'plausible-tracker';
 
 export default class extends Controller {
-  static values = {
+  static readonly values = {
     url: String,
     domain: String,
   };
