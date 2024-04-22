@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 
 export default class extends Controller<HTMLSelectElement> {
-  static targets = ['select', 'temp'];
+  static readonly targets = ['select', 'temp'];
 
   declare readonly selectTarget: HTMLSelectElement;
   declare readonly tempTarget: HTMLSelectElement;

@@ -4,7 +4,7 @@ import { Controller } from '@hotwired/stimulus';
 import { enter, leave } from 'el-transition';
 
 export default class extends Controller {
-  static targets = ['menu', 'button'];
+  static readonly targets = ['menu', 'button'];
 
   declare readonly hasMenuTarget: boolean;
   declare readonly menuTarget: HTMLElement;

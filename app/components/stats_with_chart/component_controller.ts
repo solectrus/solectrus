@@ -5,7 +5,7 @@ import { application } from '@/utils/setupStimulus';
 import TippyController from '@/controllers/tippy_controller';
 
 export default class extends Controller {
-  static targets = ['current', 'stats', 'chart', 'canvas'];
+  static readonly targets = ['current', 'stats', 'chart', 'canvas'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTargets: HTMLElement[];
@@ -19,7 +19,7 @@ export default class extends Controller {
   declare readonly hasCanvasTarget: boolean;
   declare readonly canvasTarget: HTMLCanvasElement;
 
-  static values = {
+  static readonly values = {
     // Field to display in the chart
     field: String,
 
