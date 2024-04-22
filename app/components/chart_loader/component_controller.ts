@@ -37,13 +37,13 @@ Chart.register(
 );
 
 export default class extends Controller<HTMLCanvasElement> {
-  static values = {
+  static readonly values = {
     type: String,
     options: Object,
     unit: String,
   };
 
-  static targets = ['container', 'canvas', 'blank', 'json'];
+  static readonly targets = ['container', 'canvas', 'blank', 'json'];
 
   declare readonly containerTarget: HTMLDivElement;
   declare readonly canvasTarget: HTMLCanvasElement;
