@@ -95,7 +95,7 @@ html lang="de"
       - if flash.present?
         = render AppFlash::Component.new(notice:, alert:)
 
-    main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:max-h-[700px]' : 'lg:flex-initial')
+    main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
       .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
         .bg-white.sm:rounded-t-lg.lg:rounded-lg.lg:shadow.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col
           = yield
