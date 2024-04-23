@@ -10,12 +10,6 @@ export default {
         '3xl': '1920px',
       },
 
-      // TODO: Remove this when Tailwind CSS 3.4 is out
-      // https://github.com/tailwindlabs/tailwindcss/pull/11317
-      minHeight: {
-        dvh: '100dvh',
-      },
-
       aspectRatio: {
         square: '1 / 1',
       },
