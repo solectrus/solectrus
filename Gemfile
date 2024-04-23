@@ -64,7 +64,7 @@ group :development, :test do
   gem 'dotenv'
 
   # RSpec for Rails (https://github.com/rspec/rspec-rails)
-  gem 'rspec-rails', require: false
+  gem 'rspec-rails'
 
   # rspec-collection_matchers-1.2.1 (https://github.com/rspec/rspec-collection_matchers)
   gem 'rspec-collection_matchers', require: false
