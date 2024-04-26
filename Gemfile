@@ -56,6 +56,9 @@ gem 'http_accept_language'
 # Ruby on Rails applications monitoring (https://www.rorvswild.com)
 gem 'rorvswild'
 
+# CSV Reading and Writing (https://github.com/ruby/csv)
+gem 'csv'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   # gem 'debug', platforms: %i[ mri windows ]

@@ -109,6 +109,7 @@ GEM
     crass (1.0.6)
     css_parser (1.17.1)
       addressable
+    csv (3.3.0)
     cypress-rails (0.7.0)
       puma (>= 3.8.0)
       railties (>= 5.2.0)
@@ -190,7 +191,6 @@ GEM
     matrix (0.4.2)
     method_source (1.1.0)
     mini_mime (1.1.5)
-    mini_portile2 (2.8.6)
     minitest (5.22.3)
     msgpack (1.7.2)
     mutex_m (0.2.0)
@@ -205,10 +205,9 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     nio4r (2.7.1)
-    nokogiri (1.16.4)
-      mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
     nokogiri (1.16.4-aarch64-linux)
+      racc (~> 1.4)
+    nokogiri (1.16.4-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.16.4-x86_64-linux)
       racc (~> 1.4)
@@ -438,9 +437,9 @@ GEM
     zeitwerk (2.6.13)
 
 PLATFORMS
-  aarch64-linux-musl
-  ruby
-  x86_64-linux-musl
+  aarch64-linux
+  arm64-darwin-23
+  x86_64-linux
 
 DEPENDENCIES
   amazing_print
@@ -448,6 +447,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   capybara (>= 3.26)
+  csv
   cypress-rails
   dotenv
   guard-rspec
