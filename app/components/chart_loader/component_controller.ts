@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { debounce } from 'throttle-debounce';
+import { isReducedMotion } from '@/utils/device';
 
 import {
   Chart,
@@ -106,8 +107,7 @@ export default class extends Controller<HTMLCanvasElement> {
     const options = this.optionsValue;
 
     // Disable animation when user prefers reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-      options.animation = false;
+    if (isReducedMotion()) options.animation = false;
 
     if (!options.scales?.x || !options.scales?.y) return;
 
