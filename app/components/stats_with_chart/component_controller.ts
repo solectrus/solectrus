@@ -5,7 +5,7 @@ import { application } from '@/utils/setupStimulus';
 import TippyController from '@/controllers/tippy_controller';
 
 export default class extends Controller {
-  static targets = ['current', 'stats', 'chart', 'canvas'];
+  static readonly targets = ['current', 'stats', 'chart', 'canvas'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTargets: HTMLElement[];
@@ -19,7 +19,7 @@ export default class extends Controller {
   declare readonly hasCanvasTarget: boolean;
   declare readonly canvasTarget: HTMLCanvasElement;
 
-  static values = {
+  static readonly values = {
     // Field to display in the chart
     field: String,
 
@@ -46,12 +46,11 @@ export default class extends Controller {
   private selectedField?: string;
 
   connect() {
-    window.addEventListener('blur', this.handleBlur.bind(this));
-    window.addEventListener('focus', this.handleFocus.bind(this));
     document.addEventListener(
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
     );
+    document.addEventListener('dblclick', this.handleDblClick.bind(this));
 
     this.startLoop();
   }
@@ -59,12 +58,11 @@ export default class extends Controller {
   disconnect() {
     this.stopLoop();
 
+    document.removeEventListener('dblclick', this.handleDblClick.bind(this));
     document.removeEventListener(
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
     );
-    window.removeEventListener('focus', this.handleFocus.bind(this));
-    window.removeEventListener('blur', this.handleBlur.bind(this));
   }
 
   startLoop(event?: ActionEvent) {
@@ -105,22 +103,16 @@ export default class extends Controller {
     return !!this.interval;
   }
 
-  handleBlur() {
-    this.stopLoop();
-  }
-
-  handleFocus(): void {
-    this.reloadFrames({ chart: true })
-      .then(() => this.startLoop())
-      .catch((error) => console.error(error));
-  }
-
   handleVisibilityChange(): void {
     if (document.hidden) this.stopLoop();
     else
       this.reloadFrames({ chart: true })
         .then(() => this.startLoop())
         .catch((error) => console.error(error));
+  }
+
+  handleDblClick(event: MouseEvent) {
+    if (event.target == this.canvasTarget) this.chart?.resetZoom();
   }
 
   addPointToChart() {

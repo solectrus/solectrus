@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 import { enter, leave } from 'el-transition';
 
 export default class extends Controller {
-  static targets = ['outer', 'panel', 'overlay'];
+  static readonly targets = ['outer', 'panel', 'overlay'];
 
   declare readonly outerTarget: HTMLElement;
   declare readonly panelTarget: HTMLElement;

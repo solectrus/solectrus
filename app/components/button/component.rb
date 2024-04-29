@@ -75,7 +75,7 @@ class Button::Component < ViewComponent::Base
   end
 
   def btn_secondary_class
-    %w[hover:scale-125]
+    ['hover:scale-125']
   end
 
   def icon_name

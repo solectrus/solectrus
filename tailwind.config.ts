@@ -10,12 +10,6 @@ export default {
         '3xl': '1920px',
       },
 
-      // TODO: Remove this when Tailwind CSS 3.4 is out
-      // https://github.com/tailwindlabs/tailwindcss/pull/11317
-      minHeight: {
-        dvh: '100dvh',
-      },
-
       aspectRatio: {
         square: '1 / 1',
       },
@@ -41,16 +35,6 @@ export default {
         yellow: colors.amber,
         purple: colors.violet,
       },
-
-      typography: {
-        DEFAULT: {
-          css: {
-            a: {
-              textUnderlineOffset: 2,
-            },
-          },
-        },
-      },
     },
   },
 
@@ -58,7 +42,6 @@ export default {
     require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/container-queries'),
     require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
     require('tailwindcss-displaymodes'),
   ],
 } satisfies Config;

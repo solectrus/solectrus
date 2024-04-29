@@ -1,3 +1,7 @@
 exceptions:
   ignore:
     - 'ForbiddenError'
+
+logging:
+  path: 'STDOUT'
+  level: 'WARN'

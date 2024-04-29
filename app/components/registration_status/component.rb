@@ -11,6 +11,7 @@ class RegistrationStatus::Component < ViewComponent::Base
            :unregistered?,
            :unknown?,
            :complete?,
+           :skipped?,
            to: :registration_status,
            allow_nil: true
 end

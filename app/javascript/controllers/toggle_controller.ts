@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static targets = ['dropdown', 'button', 'icon'];
+  static readonly targets = ['dropdown', 'button', 'icon'];
 
   declare readonly dropdownTarget: HTMLElement;
   declare readonly buttonTarget: HTMLElement;

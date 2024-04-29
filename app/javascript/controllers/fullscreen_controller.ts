@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static targets = ['btnOn', 'btnOff'];
+  static readonly targets = ['btnOn', 'btnOff'];
 
   declare readonly btnOnTargets: HTMLElement[];
   declare readonly btnOffTargets: HTMLElement[];

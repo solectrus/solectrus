@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 import { enter, leave } from 'el-transition';
 
 export default class extends Controller<HTMLElement> {
-  static targets = ['dialog', 'inner'];
+  static readonly targets = ['dialog', 'inner'];
 
   declare readonly hasDialogTarget: boolean;
   declare readonly dialogTarget: HTMLElement;
@@ -14,10 +14,10 @@ export default class extends Controller<HTMLElement> {
 
   connect() {
     this.element.dataset.action =
-      'turbo:submit-end->turbo-modal--component#submitEnd \
-       turbo:before-render@document->turbo-modal--component#closeBeforeRender \
-       keyup@window->turbo-modal--component#closeWithKeyboard \
-       click@window->turbo-modal--component#closeBackground';
+      'turbo:submit-end->turbo-modal--component#submitEnd ' +
+      'turbo:before-render@document->turbo-modal--component#closeBeforeRender ' +
+      'keyup@window->turbo-modal--component#closeWithKeyboard ' +
+      'click@window->turbo-modal--component#closeBackground ';
 
     enter(this.dialogTarget);
   }

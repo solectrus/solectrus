@@ -41,4 +41,12 @@ describe RegistrationStatus::Component, type: :component do
       expect(page).to have_css('div i.text-red-500')
     end
   end
+
+  context 'when registration status is skipped' do
+    let(:registration_status) { 'skipped' }
+
+    it 'renders red icon' do
+      expect(page).to have_css('div i.text-red-500')
+    end
+  end
 end

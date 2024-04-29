@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 import tippy, { BasePlacement, Instance } from 'tippy.js';
 
 export default class extends Controller {
-  static values = {
+  static readonly values = {
     // Where to place the tooltip relative to the target element
     placement: {
       type: String,
@@ -26,7 +26,7 @@ export default class extends Controller {
   declare touchValue: 'true' | 'false' | 'long';
   declare forceTapToCloseValue: boolean;
 
-  static targets = ['html'];
+  static readonly targets = ['html'];
 
   declare readonly hasHtmlTarget: boolean;
   declare readonly htmlTarget: HTMLElement;
@@ -68,6 +68,15 @@ export default class extends Controller {
 
   refresh() {
     if (!this.instance) return;
+
+    const title = this.element.getAttribute('title');
+    if (title) {
+      // Remove title from DOM element to avoid native browser tooltips
+      this.element.removeAttribute('title');
+
+      // Set aria-label to keep a discernible text
+      this.element.ariaLabel = title;
+    }
 
     const content =
       (this.hasHtmlTarget && this.htmlTarget.innerHTML) ||

@@ -1,4 +1,5 @@
 en:
   pending: Incomplete registration
   unregistered: Registration required
+  skipped: Registration required
   unknown: Registration status unknown

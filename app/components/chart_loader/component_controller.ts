@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { debounce } from 'throttle-debounce';
+import { isTouchEnabled, isReducedMotion } from '@/utils/device';
 
 import {
   Chart,
@@ -21,6 +22,7 @@ import {
 
 import 'chartjs-adapter-date-fns';
 import de from 'date-fns/locale/de';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
 
 Chart.register(
@@ -34,15 +36,17 @@ Chart.register(
   Filler,
   Title,
   Tooltip,
+  zoomPlugin,
 );
 
 export default class extends Controller<HTMLCanvasElement> {
-  static values = {
+  static readonly values = {
     type: String,
     options: Object,
+    unit: String,
   };
 
-  static targets = ['container', 'canvas', 'blank', 'json'];
+  static readonly targets = ['container', 'canvas', 'blank', 'json'];
 
   declare readonly containerTarget: HTMLDivElement;
   declare readonly canvasTarget: HTMLCanvasElement;
@@ -56,6 +60,9 @@ export default class extends Controller<HTMLCanvasElement> {
 
   declare optionsValue: ChartOptions;
   declare readonly hasOptionsValue: boolean;
+
+  declare unitValue: string;
+  declare readonly hasUnitValue: boolean;
 
   private chart?: Chart;
 
@@ -99,14 +106,16 @@ export default class extends Controller<HTMLCanvasElement> {
 
     const options = this.optionsValue;
 
+    // Disable zoom on touch devices (does not work well)
+    if (isTouchEnabled() && options.plugins) options.plugins.zoom = undefined;
+
     // Disable animation when user prefers reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-      options.animation = false;
+    if (isReducedMotion()) options.animation = false;
 
     if (!options.scales?.x || !options.scales?.y) return;
 
     // I18n
-    // @ts-ignore
+    // @ts-expect-error Property does not exist on type
     options.scales.x.adapters = {
       date: {
         locale: de,
@@ -150,7 +159,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
       options.plugins.tooltip.callbacks = {
         label: (context) =>
-          `${context.dataset.label}: ${
+          `${data.datasets.length > 1 ? context.dataset.label + ': ' : ''}${
             context.parsed._custom
               ? this.formattedInterval(
                   context.parsed._custom.min,
@@ -225,7 +234,7 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private formattedNumber(number: number) {
-    return new Intl.NumberFormat().format(number);
+    return `${new Intl.NumberFormat().format(number)} ${this.unitValue}`;
   }
 
   private formattedInterval(min: number, max: number) {

@@ -4,7 +4,7 @@ import * as Turbo from '@hotwired/turbo';
 export default class extends Controller {
   intervalId: number | NodeJS.Timeout = 0;
 
-  static values = {
+  static readonly values = {
     interval: { type: Number, default: 5 },
   };
 
@@ -21,8 +21,6 @@ export default class extends Controller {
   }
 
   addListeners(): void {
-    window.addEventListener('blur', this.handleBlur.bind(this));
-    window.addEventListener('focus', this.handleFocus.bind(this));
     document.addEventListener(
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
@@ -34,8 +32,6 @@ export default class extends Controller {
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
     );
-    window.removeEventListener('focus', this.handleFocus.bind(this));
-    window.removeEventListener('blur', this.handleBlur.bind(this));
   }
 
   startLoop() {
@@ -46,15 +42,6 @@ export default class extends Controller {
 
   stopLoop() {
     clearTimeout(this.intervalId);
-  }
-
-  handleBlur() {
-    this.stopLoop();
-  }
-
-  handleFocus(): void {
-    this.reload();
-    this.startLoop();
   }
 
   handleVisibilityChange(): void {
