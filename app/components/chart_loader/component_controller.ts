@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { debounce } from 'throttle-debounce';
+import { isTouchEnabled, isReducedMotion } from '@/utils/device';
 
 import {
   Chart,
@@ -21,6 +22,7 @@ import {
 
 import 'chartjs-adapter-date-fns';
 import de from 'date-fns/locale/de';
+import zoomPlugin from 'chartjs-plugin-zoom';
 import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
 
 Chart.register(
@@ -34,6 +36,7 @@ Chart.register(
   Filler,
   Title,
   Tooltip,
+  zoomPlugin,
 );
 
 export default class extends Controller<HTMLCanvasElement> {
@@ -103,9 +106,11 @@ export default class extends Controller<HTMLCanvasElement> {
 
     const options = this.optionsValue;
 
+    // Disable zoom on touch devices (does not work well)
+    if (isTouchEnabled() && options.plugins) options.plugins.zoom = undefined;
+
     // Disable animation when user prefers reduced motion
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-      options.animation = false;
+    if (isReducedMotion()) options.animation = false;
 
     if (!options.scales?.x || !options.scales?.y) return;
 

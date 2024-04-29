@@ -16,6 +16,7 @@
     "@hotwired/turbo-rails": "^8.0.4",
     "chart.js": "^4.4.2",
     "chartjs-adapter-date-fns": "^3.0.0",
+    "chartjs-plugin-zoom": "^2.0.1",
     "date-fns": "^3.6.0",
     "el-transition": "^0.0.7",
     "morphdom": "^2.7.2",
@@ -40,7 +41,7 @@
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.14",
-    "rollup": "^4.17.0",
+    "rollup": "^4.17.1",
     "size-limit": "^11.1.2",
     "tailwindcss": "^3.4.3",
     "tailwindcss-displaymodes": "^1.0.8",
@@ -51,7 +52,7 @@
   },
   "size-limit": [
     {
-      "limit": "180 kB",
+      "limit": "190 kB",
       "gzip": true,
       "path": "public/{vite,vite-dev,vite-test}/assets/*.js"
     }
