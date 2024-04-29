@@ -89,7 +89,7 @@ jobs:
         run: bin/rake cypress:run
 
       - name: Send test coverage to CodeClimate
-        uses: paambaati/codeclimate-action@v5.0.0
+        uses: paambaati/codeclimate-action@v6.0.0
         if: ${{ env.CC_TEST_REPORTER_ID }}
         with:
           coverageCommand: true
