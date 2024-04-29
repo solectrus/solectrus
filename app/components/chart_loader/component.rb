@@ -1,4 +1,4 @@
-class ChartLoader::Component < ViewComponent::Base
+class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(field:, timeframe:)
     super
     @field = field
@@ -21,6 +21,17 @@ class ChartLoader::Component < ViewComponent::Base
           },
           caretPadding: 15,
           caretSize: 10,
+        },
+        zoom: {
+          zoom: {
+            drag: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
+            mode: 'x',
+          },
         },
       },
       animation: {

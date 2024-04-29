@@ -50,6 +50,7 @@ export default class extends Controller {
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
     );
+    document.addEventListener('dblclick', this.handleDblClick.bind(this));
 
     this.startLoop();
   }
@@ -57,6 +58,7 @@ export default class extends Controller {
   disconnect() {
     this.stopLoop();
 
+    document.removeEventListener('dblclick', this.handleDblClick.bind(this));
     document.removeEventListener(
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
@@ -107,6 +109,10 @@ export default class extends Controller {
       this.reloadFrames({ chart: true })
         .then(() => this.startLoop())
         .catch((error) => console.error(error));
+  }
+
+  handleDblClick(event: MouseEvent) {
+    if (event.target == this.canvasTarget) this.chart?.resetZoom();
   }
 
   addPointToChart() {
