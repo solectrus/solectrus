@@ -57,7 +57,8 @@
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
                   stats_with_chart__component_sensor_param: 'case_temp',
-                } do
+                },
+                class: 'click-animation' do
         = render RadialBadge::Component.new(title: t('sensors.case_temp')) do
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
 
