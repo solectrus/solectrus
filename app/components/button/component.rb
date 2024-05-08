@@ -53,7 +53,7 @@ class Button::Component < ViewComponent::Base
       focus:ring-2
       focus:ring-offset-2
       focus:ring-indigo-500
-      transition
+      click-animation
     ] +
       case style
       when :primary

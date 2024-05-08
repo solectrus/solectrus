@@ -1,6 +1,6 @@
 = link_to url,
           id: "segment-#{field}",
-          class: [ 'leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000', color_class ],
+          class: [ 'leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class ],
           style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
           title: t("senec.#{field}"),
           data: { \
@@ -38,7 +38,7 @@
       }
     }
 
-  div class= "flex gap-2 lg:gap-3 #{'flex-col' if big?} items-center"
+  div class= "flex gap-2 lg:gap-3 #{'flex-col' if big?} items-center click-animation"
     i.fa class= icon_class style="font-size: #{icon_size}%;"
 
     .font-extralight.uppercase.tracking-wider.leading-tight class= (big? ? 'lg:block' : 'hidden')

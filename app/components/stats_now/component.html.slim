@@ -15,7 +15,8 @@
                 time: calculator.time.to_i,
                 action: 'stats-with-chart--component#startLoop',
                 stats_with_chart__component_field_param: 'autarky',
-              } do
+              },
+              class: 'click-animation' do
       div data-controller="tippy"
         = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
         .hidden#autarky-details-tooltip data-tippy-target="html"
@@ -33,7 +34,8 @@
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
                   stats_with_chart__component_field_param: 'consumption',
-                } do
+                },
+                class: 'click-animation' do
         div data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
           .hidden#consumption-details-tooltip data-tippy-target="html"
@@ -54,7 +56,8 @@
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
                   stats_with_chart__component_field_param: 'case_temp',
-                } do
+                },
+                class: 'click-animation' do
         = render RadialBadge::Component.new(title: t('senec.case_temp')) do
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
 
@@ -69,5 +72,6 @@
                 time: calculator.time.to_i,
                 action: 'stats-with-chart--component#startLoop',
                 stats_with_chart__component_field_param: 'bat_fuel_charge',
-              } do
+              },
+              class: 'click-animation' do
       = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
