@@ -35,6 +35,7 @@ class Nav::Sub::Component < ViewComponent::Base
         lg:py-2
         flex-auto
         text-center
+        click-animation
       ]
 
       if current

@@ -52,6 +52,10 @@ main code {
   min-height: 100vh;
 }
 
+.click-animation {
+  @apply transition-transform duration-100 active:scale-95 group-active:scale-95;
+}
+
 /* Import Tailwind CSS */
 @tailwind base;
 @tailwind components;

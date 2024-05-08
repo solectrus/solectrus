@@ -16,7 +16,8 @@
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
                   stats_with_chart__component_sensor_param: 'autarky',
-                } do
+                },
+                class: 'click-animation' do
         div data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
           .hidden#autarky-details-tooltip data-tippy-target="html"
@@ -34,7 +35,8 @@
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
                   stats_with_chart__component_sensor_param: 'consumption',
-                } do
+                },
+                class: 'click-animation' do
         div data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
           .hidden#consumption-details-tooltip data-tippy-target="html"
@@ -71,5 +73,6 @@
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
                   stats_with_chart__component_sensor_param: 'battery_soc',
-                } do
+                },
+                class: 'click-animation' do
         = render RadialBadge::Component.new(percent: calculator.battery_soc, neutral: true, title: t('sensors.battery_soc'))
