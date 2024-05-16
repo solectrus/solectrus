@@ -1,5 +1,8 @@
 en:
   pending: Incomplete registration
   unregistered: Registration required
+  complete: A subscription ensures further development!
   skipped: Registration required
   unknown: Registration status unknown
+  free: Become a sponsor!
+  sponsoring: Thanks for your support!

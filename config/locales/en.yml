@@ -9,10 +9,13 @@ en:
     faq: FAQ
     settings: Settings
     registration: Registration
+    registration_and_sponsoring: Registration & Sponsoring
     login: Login
     logout: Logout
     version_outdated: New version <strong>%{latest_version}</strong> available!
     version_uptodate: This is the latest version
+    thanks_for_sponsoring: Thank you for sponsoring!
+    prompt_for_sponsoring: If you like SOLECTRUS, support development with a sponsorship. Selected features will be available exclusively to sponsors in the future.
   timeframe:
     now: Now
     day: Today

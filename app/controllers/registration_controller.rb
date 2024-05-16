@@ -18,8 +18,16 @@ class RegistrationController < ApplicationController
 
   private
 
+  def registration_domain
+    if Rails.env.development?
+      'registration.solectrus.test'
+    else
+      'registration.solectrus.de'
+    end
+  end
+
   def registration_url
-    "https://registration.solectrus.de/?id=#{magic_id}&return_to=#{return_to}"
+    "https://#{registration_domain}/?id=#{magic_id}&return_to=#{return_to}"
   end
 
   def magic_id

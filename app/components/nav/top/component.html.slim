@@ -13,20 +13,35 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
               - primary_items.each do |item|
                 = item.call(css_extra: ['rounded-md py-2 px-3 click-animation', item.current ? 'bg-indigo-700' : 'hover:bg-indigo-500 hover:bg-opacity-75'])
 
-            button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-indigo-200.hover:bg-indigo-500.hover:bg-opacity-75[
-              data-action="click->slide-over--component#open"
-              aria-haspopup= 'true'
-              aria-expanded= 'false'
-              aria-label= 'Navigation'
-              type= 'button'
-            ]
-              svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
-                path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            .flex.items-center.gap-3
+              = render SetupStatus::Component.new( \
+                  registration_status: UpdateCheck.instance.registration_status,
+                  subscription_plan: UpdateCheck.instance.subscription_plan,
+                  prompt: UpdateCheck.instance.prompt?,
+                  admin: helpers.admin?,
+                )
+
+              button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-indigo-200.hover:bg-indigo-500.hover:bg-opacity-75[
+                data-action="click->slide-over--component#open"
+                aria-haspopup= 'true'
+                aria-expanded= 'false'
+                aria-label= 'Navigation'
+                type= 'button'
+              ]
+                svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
+                  path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 
           h1.text-gray-200.text-base.uppercase.tracking-wider.md:text-lg.lg:hidden
             = current_item&.name
 
-        .flex.lg:hidden
+        .flex.items-center.gap-2.lg:hidden
+          = render SetupStatus::Component.new( \
+                  registration_status: UpdateCheck.instance.registration_status,
+                  subscription_plan: UpdateCheck.instance.subscription_plan,
+                  prompt: UpdateCheck.instance.prompt?,
+                  admin: helpers.admin?,
+                )
+
           /! Mobile menu button
           button.bg-indigo-600.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.hover:text-white.hover:bg-indigo-500.hover:bg-opacity-75.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white[
             type="button"

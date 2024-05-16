@@ -87,13 +87,35 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       return if helpers.registration_banner?
 
       {
-        name: t('layout.registration'),
+        name:
+          (
+            if UpdateCheck.instance.prompt?
+              t('layout.registration_and_sponsoring')
+            else
+              t('layout.registration')
+            end
+          ),
         href: registration_path,
         icon: 'id-card',
         data: {
           turbo: 'false',
         },
+        extra: registration_extra,
       }
+    end
+
+    def registration_extra
+      if UpdateCheck.instance.sponsoring?
+        helpers.tag.p(
+          I18n.t('layout.thanks_for_sponsoring'),
+          class: 'text-green-600',
+        )
+      elsif UpdateCheck.instance.prompt?
+        helpers.tag.p(
+          I18n.t('layout.prompt_for_sponsoring'),
+          class: 'text-yellow-600',
+        )
+      end
     end
 
     def expand_item

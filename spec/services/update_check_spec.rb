@@ -9,12 +9,12 @@ describe UpdateCheck do
     context 'when the request succeeds', vcr: { cassette_name: 'version' } do
       it do
         is_expected.to eq(
-          { 'version' => 'v0.12.0', 'registration_status' => 'unregistered' },
+          { version: 'v0.14.5', registration_status: 'unregistered' },
         )
       end
 
       it 'has shortcuts' do
-        expect(instance.latest_version).to eq('v0.12.0')
+        expect(instance.latest_version).to eq('v0.14.5')
         expect(instance.registration_status).to be_unregistered
       end
     end
@@ -28,10 +28,7 @@ describe UpdateCheck do
       end
 
       it do
-        is_expected.to eq(
-          'registration_status' => 'unknown',
-          'version' => 'unknown',
-        )
+        is_expected.to eq(registration_status: 'unknown', version: 'unknown')
       end
 
       it 'has unknown shortcuts' do
@@ -55,10 +52,7 @@ describe UpdateCheck do
       end
 
       it do
-        is_expected.to eq(
-          'registration_status' => 'unknown',
-          'version' => 'unknown',
-        )
+        is_expected.to eq(registration_status: 'unknown', version: 'unknown')
       end
 
       it 'has blank shortcuts' do
@@ -82,10 +76,7 @@ describe UpdateCheck do
       end
 
       it do
-        is_expected.to eq(
-          'registration_status' => 'unknown',
-          'version' => 'unknown',
-        )
+        is_expected.to eq(registration_status: 'unknown', version: 'unknown')
       end
 
       it 'has blank shortcuts' do

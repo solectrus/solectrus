@@ -2,16 +2,31 @@ class UpdateCheck
   include Singleton
 
   def latest_version
-    latest['version']
+    latest[:version]
   end
 
   # One of: unregistered, pending, complete, skipped, unknown
   def registration_status
-    latest['registration_status'].to_s.inquiry
+    latest[:registration_status].to_s.inquiry
+  end
+
+  def subscription_plan
+    latest[:subscription_plan].to_s.inquiry
+  end
+
+  def sponsoring?
+    subscription_plan.present?
+  end
+
+  def prompt?
+    latest[:prompt].present?
   end
 
   def latest
-    return {} if Rails.env.development?
+    if Rails.env.development?
+      return({ registration_status: 'complete', version: '0.14.5' })
+    end
+
     return cached_latest if cached?
 
     uri = URI(URL)
@@ -48,7 +63,7 @@ class UpdateCheck
   end
 
   def skip_registration
-    data = latest.merge('registration_status' => 'skipped')
+    data = latest.merge(registration_status: 'skipped')
 
     Rails.cache.write(cache_key, data, expires_in: 24.hours)
   end
@@ -68,14 +83,14 @@ class UpdateCheck
       return unknown
     end
 
-    parsed_body = JSON.parse(response.body)
+    parsed_body = JSON.parse(response.body, symbolize_names: true)
     expires_in = expiration_from(response) || 12.hours
     Rails.cache.write(cache_key, parsed_body, expires_in:)
     parsed_body
   end
 
   def unknown
-    data = { 'registration_status' => 'unknown', 'version' => 'unknown' }
+    data = { registration_status: 'unknown', version: 'unknown' }
     Rails.cache.write(cache_key, data, expires_in: 5.minutes)
     data
   end

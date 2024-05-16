@@ -1,11 +1,12 @@
 class MenuItem::Component < ViewComponent::Base
-  def initialize(
+  def initialize( # rubocop:disable Metrics/ParameterLists
     name:,
     href: nil,
     data: {},
     field: nil,
     icon: nil,
-    current: false
+    current: false,
+    extra: nil
   )
     super
     @name = name
@@ -15,13 +16,14 @@ class MenuItem::Component < ViewComponent::Base
 
     @icon = icon
     @current = current
+    @extra = extra
   end
 
   def target
     href&.start_with?('http') ? '_blank' : nil
   end
 
-  attr_reader :name, :href, :icon, :current, :data, :field
+  attr_reader :name, :href, :icon, :current, :data, :field, :extra
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
@@ -36,21 +38,27 @@ class MenuItem::Component < ViewComponent::Base
     end
   end
 
+  def render_extra
+    return '' unless extra
+
+    tag.div class: 'mt-2 mx-8 pl-1 text-xs text-gray-500' do
+      extra
+    end
+  end
+
   def render_link(with_icon:, css_extra:)
     link_to href,
             target:,
             class: [CSS_CLASSES, css_extra],
             data: @data,
             'aria-current' => current ? 'page' : nil do
-      tag.div class: 'flex items-center justify-between gap-2' do
-        render_inner(with_icon:)
-      end
+      render_inner(with_icon:) + render_extra
     end
   end
 
   def render_button(with_icon:, css_extra:)
     tag.button class: [CSS_CLASSES, css_extra], data: @data do
-      render_inner(with_icon:)
+      render_inner(with_icon:) + render_extra
     end
   end
 
