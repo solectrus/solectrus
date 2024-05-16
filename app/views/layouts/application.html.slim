@@ -116,7 +116,4 @@ html lang="de"
                                             commit_time: Rails.configuration.x.git.commit_time,
                                             github_url: Rails.configuration.x.git.home)
 
-        = render RegistrationStatus::Component.new(registration_status: UpdateCheck.instance.registration_status,
-                                                   admin: admin?)
-
       = render AuthorLogo::Component.new
