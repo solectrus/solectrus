@@ -82,9 +82,10 @@ html lang="de"
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]
-    - if registration_banner?
-      = render RegistrationBanner::Component.new registration_status: UpdateCheck.instance.registration_status,
-                                                 admin: admin?
+    - if banner?
+      = render Banner::Component.new registration_status: UpdateCheck.instance.registration_status,
+                                     prompt: UpdateCheck.instance.prompt?,
+                                     admin: admin?
 
     = render Nav::Top::Component.new do |c|
       = c.with_primary_items topnav_primary_items

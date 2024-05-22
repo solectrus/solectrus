@@ -4,8 +4,8 @@ class RegistrationController < ApplicationController
       case params[:status]
       when nil
         redirect_to(registration_url, allow_other_host: true)
-      when 'skipped'
-        UpdateCheck.instance.skip_registration
+      when 'skip'
+        UpdateCheck.instance.skip_prompt!
         redirect_back(fallback_location: root_path)
       else
         UpdateCheck.instance.clear_cache
@@ -20,7 +20,9 @@ class RegistrationController < ApplicationController
 
   def registration_domain
     if Rails.env.development?
+      # :nocov:
       'registration.solectrus.test'
+      # :nocov:
     else
       'registration.solectrus.de'
     end

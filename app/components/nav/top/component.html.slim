@@ -14,12 +14,13 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
                 = item.call(css_extra: ['rounded-md py-2 px-3 click-animation', item.current ? 'bg-indigo-700' : 'hover:bg-indigo-500 hover:bg-opacity-75'])
 
             .flex.items-center.gap-3
-              = render SetupStatus::Component.new( \
-                  registration_status: UpdateCheck.instance.registration_status,
-                  subscription_plan: UpdateCheck.instance.subscription_plan,
-                  prompt: UpdateCheck.instance.prompt?,
-                  admin: helpers.admin?,
-                )
+              - unless helpers.banner?
+                = render SetupStatus::Component.new( \
+                    registration_status: UpdateCheck.instance.registration_status,
+                    subscription_plan: UpdateCheck.instance.subscription_plan,
+                    prompt: UpdateCheck.instance.prompt?,
+                    admin: helpers.admin?,
+                  )
 
               button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-indigo-200.hover:bg-indigo-500.hover:bg-opacity-75[
                 data-action="click->slide-over--component#open"
@@ -35,12 +36,13 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
             = current_item&.name
 
         .flex.items-center.gap-2.lg:hidden
-          = render SetupStatus::Component.new( \
-                  registration_status: UpdateCheck.instance.registration_status,
-                  subscription_plan: UpdateCheck.instance.subscription_plan,
-                  prompt: UpdateCheck.instance.prompt?,
-                  admin: helpers.admin?,
-                )
+          - unless helpers.banner?
+            = render SetupStatus::Component.new( \
+                    registration_status: UpdateCheck.instance.registration_status,
+                    subscription_plan: UpdateCheck.instance.subscription_plan,
+                    prompt: UpdateCheck.instance.prompt?,
+                    admin: helpers.admin?,
+                  )
 
           /! Mobile menu button
           button.bg-indigo-600.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.hover:text-white.hover:bg-indigo-500.hover:bg-opacity-75.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white[
@@ -67,6 +69,19 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
       .px-2.pt-2.pb-3.space-y-1.text-sm.font-medium.border-t.border-indigo-300.border-opacity-25.mt-3
         - secondary_items.each do |item|
           = item.call(css_extra: ['py-2 px-3 uppercase tracking-wider', item.current ? 'rounded-md bg-indigo-700' : ''])
+
+      - if UpdateCheck.instance.prompt? && !helpers.banner?
+        .bg-yellow-100.px-5.py-2.text-sm.font-light.text-yellow-800
+          - if helpers.admin?
+            = I18n.t('layout.prompt_for_sponsoring')
+            br
+            = link_to I18n.t('layout.missing_sponsoring_cta'), registration_path, class: 'text-yellow-800 underline underline-offset-2 font-medium'
+          - else
+            = I18n.t('layout.missing_sponsoring')
+
+      - elsif UpdateCheck.instance.sponsoring?
+        .py-1.bg-green-600.text-white.text-center.text-xs
+          = I18n.t('layout.active_sponsoring_header')
 
       .flex.justify-between.items-center.text-indigo-100.text-xs.px-3.py-4
         = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,

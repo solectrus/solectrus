@@ -10,12 +10,16 @@ de:
     settings: Einstellungen
     registration: Registrierung
     registration_and_sponsoring: Registrierung & Sponsoring
-    login: Anmelden
+    login: Admin-Login
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
-    thanks_for_sponsoring: Danke für deine Unterstützung!
-    prompt_for_sponsoring: Gefällt dir SOLECTRUS? Dann unterstütze die Entwicklung mit einem Sponsoring. Ausgewählte Funktionen werden zukünftig exklusiv für Sponsoren verfügbar sein.
+    prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Weiterentwicklung mit einem Sponsoring! Ausgewählte Funktionen werden zukünftig exklusiv für Sponsoren verfügbar sein.
+    missing_sponsoring_header: Noch ohne Sponsoring
+    missing_sponsoring: Durch Sponsoren kann die Weiterentwicklung von SOLECTRUS sichergestellt werden.
+    missing_sponsoring_cta: Ja, ich möchte Sponsor werden!
+    active_sponsoring_header: Sponsoring aktiv
+    active_sponsoring: Herzlichen Dank für deine Unterstützung!
   timeframe:
     now: Aktuell
     day: Heute

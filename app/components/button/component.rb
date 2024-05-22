@@ -45,7 +45,8 @@ class Button::Component < ViewComponent::Base
     %w[
       inline-flex
       items-center
-      py-2
+      py-1
+      md:py-2
       border
       border-transparent
       rounded
@@ -60,6 +61,8 @@ class Button::Component < ViewComponent::Base
         btn_primary_class
       when :secondary
         btn_secondary_class
+      when :tertiary
+        btn_tertiary_class
       end
   end
 
@@ -76,6 +79,10 @@ class Button::Component < ViewComponent::Base
 
   def btn_secondary_class
     ['hover:scale-125']
+  end
+
+  def btn_tertiary_class
+    []
   end
 
   def icon_name

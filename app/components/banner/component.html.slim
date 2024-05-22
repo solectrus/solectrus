@@ -1,0 +1,28 @@
+.bg-yellow-200.p-3.text-indigo-800.text-xs.md:text-base
+  .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6
+    .flex.justify-between.items-center.gap-2
+      - if admin
+        .flex.items-center.gap-2
+          = render Button::Component.new(path: registration_path(status: 'skip'), icon: 'times', style: :tertiary, options: { class: 'text-gray-600 text-lg', data: { turbo_prefetch: false } })
+
+          - if pending?
+            = t('.pending')
+
+          - elsif unregistered?
+            = t('.unregistered')
+
+          - elsif prompt?
+            = t('.prompt_for_sponsoring')
+
+        - if prompt?
+          = render Button::Component.new(path: registration_path, title: t('.button_to_sponsor'), icon: 'id-card', options: { data: { turbo: 'false' } })
+        - else
+          = render Button::Component.new(path: registration_path, title: t('.button_to_register'), icon: 'id-card', options: { data: { turbo: 'false' } })
+
+      - else
+        - if prompt?
+          = t('.login_to_sponsor')
+        - else
+          = t('.login_to_register')
+
+        = render Button::Component.new(path: new_session_path, title: t('layout.login'), options: { data: { turbo_frame: 'modal' }})
