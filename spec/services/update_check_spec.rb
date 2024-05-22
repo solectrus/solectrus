@@ -21,7 +21,7 @@ describe UpdateCheck do
 
     context 'when the request fails' do
       before do
-        stub_request(:get, described_class::URL).to_return(
+        stub_request(:get, 'https://update.solectrus.de').to_return(
           status: [500, 'Something went wrong'],
         )
         allow(Rails.logger).to receive(:error)
@@ -47,7 +47,7 @@ describe UpdateCheck do
 
     context 'when the request timeouts' do
       before do
-        stub_request(:get, described_class::URL).to_timeout
+        stub_request(:get, 'https://update.solectrus.de').to_timeout
         allow(Rails.logger).to receive(:error)
       end
 
@@ -94,14 +94,14 @@ describe UpdateCheck do
     end
   end
 
-  describe '.skip_registration' do
+  describe '.skip_prompt!' do
     include_context 'with cache'
 
     it 'sets status' do
-      expect { instance.skip_registration }.to change(
+      expect { instance.skip_prompt! }.to change(
         instance,
-        :registration_status,
-      ).to('skipped')
+        :skipped_prompt?,
+      ).from(false).to(true)
     end
   end
 

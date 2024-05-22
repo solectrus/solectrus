@@ -13,7 +13,6 @@ class SetupStatus::Component < ViewComponent::Base
            :unregistered?,
            :unknown?,
            :complete?,
-           :skipped?,
            to: :registration_status,
            allow_nil: true
 
@@ -26,6 +25,10 @@ class SetupStatus::Component < ViewComponent::Base
   end
 
   def tooltip
-    sponsoring? ? t('.sponsoring') : t(".#{registration_status}")
+    if prompt?
+      t('.prompt')
+    else
+      t(".#{registration_status}")
+    end
   end
 end

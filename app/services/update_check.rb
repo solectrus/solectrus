@@ -5,7 +5,7 @@ class UpdateCheck
     latest[:version]
   end
 
-  # One of: unregistered, pending, complete, skipped, unknown
+  # One of: unregistered, pending, complete, unknown
   def registration_status
     latest[:registration_status].to_s.inquiry
   end
@@ -19,22 +19,23 @@ class UpdateCheck
   end
 
   def prompt?
-    latest[:prompt].present?
+    !registration_status.complete? || latest[:prompt].present?
+  end
+
+  def skipped_prompt?
+    latest[:prompt] == 'skipped'
   end
 
   def latest
-    if Rails.env.development?
-      return({ registration_status: 'complete', version: '0.14.5' })
-    end
-
     return cached_latest if cached?
 
-    uri = URI(URL)
+    uri = URI(update_url)
     response =
       Net::HTTP.start(
         uri.host,
         uri.port,
         use_ssl: true,
+        verify_mode:,
         open_timeout: 3,
         read_timeout: 5,
       ) do |http|
@@ -62,16 +63,27 @@ class UpdateCheck
     Rails.cache.delete(cache_key)
   end
 
-  def skip_registration
-    data = latest.merge(registration_status: 'skipped')
+  def skip_prompt!
+    data = latest.merge(prompt: 'skipped')
 
     Rails.cache.write(cache_key, data, expires_in: 24.hours)
   end
 
   private
 
-  URL = 'https://update.solectrus.de'.freeze
-  public_constant :URL
+  def update_url
+    if Rails.env.development?
+      # :nocov:
+      'https://update.solectrus.test'
+      # :nocov:
+    else
+      'https://update.solectrus.de'
+    end
+  end
+
+  def verify_mode
+    Rails.env.production? ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
+  end
 
   def cached_latest
     Rails.cache.read(cache_key)

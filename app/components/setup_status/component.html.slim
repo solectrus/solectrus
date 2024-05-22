@@ -2,9 +2,6 @@
   - markup = capture do
     div data-controller= 'tippy' title= tooltip
       - if prompt?
-        span.text-yellow-300.px-2.py-1.rounded.text-xs.border-yellow-300.border.border-dashed
-          = t('.free')
-      - elsif skipped?
         i.fa.fas.fa-lg.fa-circle-exclamation.text-yellow-300
       - elsif unknown?
         i.fa.fas.fa-lg.fa-circle-exclamation.text-red-300

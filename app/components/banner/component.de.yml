@@ -1,6 +1,8 @@
 de:
   pending: Deine Registrierung ist noch nicht abgeschlossen. Bitte klicken auf auf den Link in der erhaltenen E-Mail.
   unregistered: Bitte registriere deine SOLECTRUS-Installation.
+  prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Entwicklung mit einem Sponsoring!
   login_to_register: Bitte melde Dich als Administrator an, um die Registrierung dieser Installation durchzuführen.
-  button: Jetzt registrieren
-  skip: Später
+  login_to_sponsor: Mit einem Sponsoring kann die Weiterentwicklung von SOLECTRUS sichergestellt werden.
+  button_to_register: Jetzt registrieren
+  button_to_sponsor: Sponsor werden
