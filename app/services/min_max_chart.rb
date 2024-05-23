@@ -9,7 +9,7 @@ class MinMaxChart < Flux::Reader
   def call(timeframe)
     return {} unless SensorConfig.x.exists_any?(*sensors)
 
-    super(timeframe)
+    super
 
     case timeframe.id
     when :now

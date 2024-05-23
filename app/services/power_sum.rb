@@ -2,7 +2,7 @@ class PowerSum < Flux::Reader
   def call(timeframe)
     return {} unless SensorConfig.x.exists_any?(*sensors)
 
-    super(timeframe)
+    super
 
     timeframe.now? ? last(1.hour.ago) : sum(timeframe:)
   end

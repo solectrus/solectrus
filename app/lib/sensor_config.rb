@@ -162,7 +162,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   end
 
   def define(sensor_name, value)
-    self.class.public_send(:attr_accessor, sensor_name)
+    self.class.attr_accessor(sensor_name)
     instance_variable_set(:"@#{sensor_name}", value)
   end
 
