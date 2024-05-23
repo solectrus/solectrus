@@ -94,6 +94,14 @@ describe UpdateCheck do
     end
   end
 
+  describe '#prompt?' do
+    subject { instance.prompt? }
+
+    context 'when not registered' do
+      it { is_expected.to be false }
+    end
+  end
+
   describe '.skip_prompt!' do
     include_context 'with cache'
 

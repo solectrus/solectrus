@@ -25,10 +25,6 @@ class SetupStatus::Component < ViewComponent::Base
   end
 
   def tooltip
-    if prompt?
-      t('.prompt')
-    else
-      t(".#{registration_status}")
-    end
+    prompt? ? t('.prompt') : t(".#{registration_status}")
   end
 end

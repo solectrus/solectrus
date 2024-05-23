@@ -19,7 +19,7 @@ class UpdateCheck
   end
 
   def prompt?
-    !registration_status.complete? || latest[:prompt].present?
+    !registration_status.complete? && latest[:prompt].present?
   end
 
   def skipped_prompt?
@@ -82,7 +82,11 @@ class UpdateCheck
   end
 
   def verify_mode
-    Rails.env.production? ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
+    if Rails.env.production?
+      OpenSSL::SSL::VERIFY_PEER
+    else
+      OpenSSL::SSL::VERIFY_NONE
+    end
   end
 
   def cached_latest
