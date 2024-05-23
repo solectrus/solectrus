@@ -82,7 +82,11 @@ class UpdateCheck
   end
 
   def verify_mode
-    Rails.env.production? ? OpenSSL::SSL::VERIFY_PEER : OpenSSL::SSL::VERIFY_NONE
+    if Rails.env.production?
+      OpenSSL::SSL::VERIFY_PEER
+    else
+      OpenSSL::SSL::VERIFY_NONE
+    end
   end
 
   def cached_latest
