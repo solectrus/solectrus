@@ -20,7 +20,7 @@
     "date-fns": "^3.6.0",
     "el-transition": "^0.0.7",
     "morphdom": "^2.7.2",
-    "plausible-tracker": "^0.3.8",
+    "plausible-tracker": "^0.3.9",
     "throttle-debounce": "^5.0.0",
     "tippy.js": "^6.3.7"
   },
