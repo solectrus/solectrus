@@ -45,12 +45,27 @@ class UpdateCheck
           'User-Agent' => UserAgent.instance.to_s,
         )
 
+        http.verify_callback =
+          lambda do |preverify_ok, ssl_context|
+            if !preverify_ok || ssl_context.error != 0
+              Rails.logger.error "UpateCheck failed during SSL verification: #{ssl_context.error_string}"
+              false
+            else
+              true
+            end
+          end
+
         http.request(request)
       end
 
     json_from(response)
+  rescue Net::OpenTimeout, Net::ReadTimeout => e
+    Rails.logger.error "UpdateCheck failed with timeout: #{e}"
+    unknown
+  rescue OpenSSL::SSL::SSLError => e
+    Rails.logger.error "UpdateCheck failed with SSL error: #{e}"
+    unknown
   rescue StandardError => e
-    # Mainly ignore timeout errors, but other errors must not throw an exception
     Rails.logger.error "UpdateCheck failed: #{e}"
     unknown
   end
