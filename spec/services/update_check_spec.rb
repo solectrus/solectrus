@@ -64,7 +64,7 @@ describe UpdateCheck do
         latest
 
         expect(Rails.logger).to have_received(:error).with(
-          'UpdateCheck failed: execution expired',
+          'UpdateCheck failed with timeout: execution expired',
         ).once
       end
     end
