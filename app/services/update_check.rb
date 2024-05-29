@@ -36,7 +36,7 @@ class UpdateCheck
         uri.port,
         use_ssl: true,
         verify_mode:,
-        open_timeout: 3,
+        open_timeout: 10,
         read_timeout: 5,
       ) do |http|
         request = Net::HTTP::Get.new(uri.request_uri)
