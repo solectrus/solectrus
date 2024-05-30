@@ -720,14 +720,14 @@ __metadata:
   linkType: hard
 
 "@types/express-serve-static-core@npm:^4.17.33":
-  version: 4.19.1
-  resolution: "@types/express-serve-static-core@npm:4.19.1"
+  version: 4.19.2
+  resolution: "@types/express-serve-static-core@npm:4.19.2"
   dependencies:
     "@types/node": "npm:*"
     "@types/qs": "npm:*"
     "@types/range-parser": "npm:*"
     "@types/send": "npm:*"
-  checksum: 10c0/8e202374a7013fbbc5a3abd5111dd7ab73c4a6e9da4ffc1808d6e68be7a1dbd37e013b74e47aa6febc8efa459120058a1cbde6f2d509b2ad28fac301e1ee353a
+  checksum: 10c0/471060bbab7be4bbf2c24f5628e1fa2edbfd29fb47a99ba77984e9c0ac33b105a660cfc384ddd1e6fb6f45d9515e70422eefc9a7ba317565919ebcd5db251107
   languageName: node
   linkType: hard
 
@@ -758,11 +758,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 20.12.12
-  resolution: "@types/node@npm:20.12.12"
+  version: 20.12.13
+  resolution: "@types/node@npm:20.12.13"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 10c0/f374b763c744e8f16e4f38cf6e2c0eef31781ec9228c9e43a6f267880fea420fab0a238b59f10a7cb3444e49547c5e3785787e371fc242307310995b21988812
+  checksum: 10c0/2ac92bb631dbddfb560eb3ba4eedbb1c688044a0130bc1ef032f5c0f20148ac7c9aa3c5aaa5a9787b6c4c6299847d754b96ee8c9def951481ba6628c46b683f5
   languageName: node
   linkType: hard
 
@@ -1337,9 +1337,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001587, caniuse-lite@npm:^1.0.30001599":
-  version: 1.0.30001624
-  resolution: "caniuse-lite@npm:1.0.30001624"
-  checksum: 10c0/534fe35cacee745c08689a6a045ee1a9ca525b38f707746088b768bee06c71df5f13875787389648a134d82848d33a375e56590dde3cc86033d0350c2838f978
+  version: 1.0.30001625
+  resolution: "caniuse-lite@npm:1.0.30001625"
+  checksum: 10c0/26752c65c775ce24b8cfd39a241a4ce33accf2d2e2982f37827c2f94caac3520a3493419e096c42578d372073a2e9f4359f0122ca4c00e51cb02463c512fc6b3
   languageName: node
   linkType: hard
 
@@ -1725,9 +1725,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.668":
-  version: 1.4.783
-  resolution: "electron-to-chromium@npm:1.4.783"
-  checksum: 10c0/d112e5602e2ee7516ead648e2d2449027f1106147858442781ac475f9a3861a783cb6c8f4638316800f5eff2c4a1f046cd412704678c90479c5417bf204de572
+  version: 1.4.786
+  resolution: "electron-to-chromium@npm:1.4.786"
+  checksum: 10c0/ba07145a675d4fefda595cc263d4410d7ab49a35c269daa4bebb43993170f4a77942a0b1d80c5de41ac72aa2f595f15ddc129917e0a0ea6a817bed0ddbfd52dd
   languageName: node
   linkType: hard
 
