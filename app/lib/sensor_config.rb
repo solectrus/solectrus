@@ -177,7 +177,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
           "Sensor '#{sensor_name}' must be in format 'measurement:field'. Got this instead: '#{value}'"
   end
 
-  # Sensors didn't exist in v0.14.4 and earlier, so we need to provide a fallback
+  # Sensors didn't exist in v0.14.5 and earlier, so we need to provide a fallback
   # based on the old environment variables INFLUX_MEASUREMENT_PV and INFLUX_MEASUREMENT_FORECAST
   FALLBACK_SENSORS = {
     inverter_power: %w[INFLUX_MEASUREMENT_PV inverter_power],
@@ -196,7 +196,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   }.freeze
   private_constant :FALLBACK_SENSORS
 
-  # In v0.14.4 and earlier, the measurements had default values
+  # In v0.14.5 and earlier, the measurements had default values
   FALLBACK_MEASUREMENTS = {
     'INFLUX_MEASUREMENT_PV' => 'SENEC',
     'INFLUX_MEASUREMENT_FORECAST' => 'Forecast',
