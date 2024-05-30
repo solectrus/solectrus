@@ -7,7 +7,7 @@
           } do
 
   script type= 'application/json' data-chart-loader--component-target= 'json'
-    == ChartData.new(field:, timeframe:).call
+    == ChartData.new(sensor:, timeframe:).call
 
   .hidden.h-full.w-full.flex.items-center.justify-center data-chart-loader--component-target= 'blank'
     p.text-gray-900.bg-gray-200.px-2.py-1.rounded

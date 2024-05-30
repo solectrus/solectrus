@@ -1,14 +1,11 @@
 describe MinMaxChart do
-  let(:measurement) { "Test#{described_class}" }
-  let(:chart) do
-    described_class.new(
-      measurements: [measurement],
-      fields: %w[bat_fuel_charge],
-      average: true,
-    )
-  end
+  let(:chart) { described_class.new(sensors: %i[battery_soc], average: true) }
 
   let(:beginning) { 1.year.ago.beginning_of_year }
+
+  def measurement
+    SensorConfig.x.measurement(:battery_soc)
+  end
 
   # Travel to a specific date and time to avoid summer/winter time issues
   before { travel_to '2023-04-09 14:00:00' }
@@ -26,7 +23,7 @@ describe MinMaxChart do
               add_influx_point(
                 name: measurement,
                 fields: {
-                  bat_fuel_charge: i,
+                  field_battery_soc => i,
                 },
                 time: i.minutes.ago,
               )
@@ -39,13 +36,13 @@ describe MinMaxChart do
       it 'returns points' do
         expect(result).to be_a(Hash)
 
-        expect(result['bat_fuel_charge']).to be_a(Array)
-        expect(result['bat_fuel_charge'].size).to eq(60.minutes / 20.seconds)
+        expect(result[:battery_soc]).to be_a(Array)
+        expect(result[:battery_soc].size).to eq(60.minutes / 30.seconds)
 
-        first_point = result['bat_fuel_charge'].first
+        first_point = result[:battery_soc].first
         expect(first_point.last).to eq(60)
 
-        last_point = result['bat_fuel_charge'].last
+        last_point = result[:battery_soc].last
         expect(last_point.last).to eq(0)
       end
     end
@@ -61,7 +58,7 @@ describe MinMaxChart do
               add_influx_point(
                 name: measurement,
                 fields: {
-                  bat_fuel_charge: i,
+                  field_battery_soc => i,
                 },
                 time: (time += 5.minutes),
               )
@@ -74,15 +71,15 @@ describe MinMaxChart do
       it 'returns points' do
         expect(result).to be_a(Hash)
 
-        expect(result['bat_fuel_charge']).to be_a(Array)
-        expect(result['bat_fuel_charge'].size).to eq((24.hours / 5.minutes) - 1)
+        expect(result[:battery_soc]).to be_a(Array)
+        expect(result[:battery_soc].size).to eq((24.hours / 5.minutes) - 1)
 
-        first_point = result['bat_fuel_charge'].first
+        first_point = result[:battery_soc].first
         expect(first_point).to eq(
           [Date.yesterday.beginning_of_day + 5.minutes, 80],
         )
 
-        last_point = result['bat_fuel_charge'].last
+        last_point = result[:battery_soc].last
         expect(last_point).to eq(
           [Date.yesterday.beginning_of_day + 1435.minutes, nil], # 1435 = 23:55
         )
@@ -104,7 +101,7 @@ describe MinMaxChart do
               add_influx_point(
                 name: measurement,
                 fields: {
-                  bat_fuel_charge: hour < 12 ? 80 : 40,
+                  field_battery_soc => hour < 12 ? 80 : 40,
                 },
                 time: (time += 1.hour),
               )
@@ -115,7 +112,7 @@ describe MinMaxChart do
       end
 
       it 'returns points' do
-        expect(result['bat_fuel_charge']).to eq(
+        expect(result[:battery_soc]).to eq(
           [
             [Time.zone.parse('2023-03-13'), [40, 80]],
             [Time.zone.parse('2023-03-14'), [40, 80]],
@@ -143,7 +140,7 @@ describe MinMaxChart do
               add_influx_point(
                 name: measurement,
                 fields: {
-                  bat_fuel_charge: hour < 12 ? 80 : 40,
+                  field_battery_soc => hour < 12 ? 80 : 40,
                 },
                 time: (time += 1.hour),
               )
@@ -156,13 +153,13 @@ describe MinMaxChart do
       it 'returns points' do
         expect(result).to be_a(Hash)
 
-        expect(result['bat_fuel_charge']).to be_a(Array)
-        expect(result['bat_fuel_charge'].size).to eq(28)
+        expect(result[:battery_soc]).to be_a(Array)
+        expect(result[:battery_soc].size).to eq(28)
 
-        first_point = result['bat_fuel_charge'].first
+        first_point = result[:battery_soc].first
         expect(first_point).to eq([start, [40, 80]])
 
-        last_point = result['bat_fuel_charge'].last
+        last_point = result[:battery_soc].last
         expect(last_point).to eq([start + 27.days, [40, 80]])
       end
     end
@@ -182,7 +179,7 @@ describe MinMaxChart do
               add_influx_point(
                 name: measurement,
                 fields: {
-                  bat_fuel_charge: hour < 12 ? 80 : 40,
+                  field_battery_soc => hour < 12 ? 80 : 40,
                 },
                 time: (time += 1.hour),
               )
@@ -196,13 +193,13 @@ describe MinMaxChart do
       it 'returns points' do
         expect(result).to be_a(Hash)
 
-        expect(result['bat_fuel_charge']).to be_a(Array)
-        expect(result['bat_fuel_charge'].size).to eq(12)
+        expect(result[:battery_soc]).to be_a(Array)
+        expect(result[:battery_soc].size).to eq(12)
 
-        first_point = result['bat_fuel_charge'].first
+        first_point = result[:battery_soc].first
         expect(first_point).to eq([start, [40, 80]])
 
-        last_point = result['bat_fuel_charge'].last
+        last_point = result[:battery_soc].last
         expect(last_point).to eq([start + 11.months, [40, 80]])
       end
     end
@@ -222,7 +219,7 @@ describe MinMaxChart do
               add_influx_point(
                 name: measurement,
                 fields: {
-                  bat_fuel_charge: hour < 12 ? 80 : 40,
+                  field_battery_soc => hour < 12 ? 80 : 40,
                 },
                 time: (time += 1.hour),
               )
@@ -236,13 +233,13 @@ describe MinMaxChart do
       it 'returns points' do
         expect(result).to be_a(Hash)
 
-        expect(result['bat_fuel_charge']).to be_a(Array)
-        expect(result['bat_fuel_charge'].size).to eq(2)
+        expect(result[:battery_soc]).to be_a(Array)
+        expect(result[:battery_soc].size).to eq(2)
 
-        first_point = result['bat_fuel_charge'].first
+        first_point = result[:battery_soc].first
         expect(first_point).to eq([start, [40, 80]])
 
-        last_point = result['bat_fuel_charge'].last
+        last_point = result[:battery_soc].last
         expect(last_point).to eq([start + 1.year, [40, 80]])
       end
     end

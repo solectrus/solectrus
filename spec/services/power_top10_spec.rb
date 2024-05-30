@@ -1,30 +1,21 @@
 describe PowerTop10 do
-  let(:measurement) { "Test#{described_class}" }
-
-  let(:chart) do
-    described_class.new(
-      field: 'inverter_power',
-      measurements: [measurement],
-      calc:,
-      desc:,
-    )
-  end
+  let(:chart) { described_class.new(sensor: :inverter_power, calc:, desc:) }
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
     influx_batch do
       12.times do |index|
-        add_influx_point name: measurement,
+        add_influx_point name: measurement_inverter_power,
                          fields: {
-                           inverter_power: (index + 1) * 1000,
+                           field_inverter_power => (index + 1) * 1000,
                          },
                          time:
                            (beginning + index.months).end_of_month.end_of_day -
                              12.hours
-        add_influx_point name: measurement,
+        add_influx_point name: measurement_inverter_power,
                          fields: {
-                           inverter_power: (index + 1) * 1000,
+                           field_inverter_power => (index + 1) * 1000,
                          },
                          time:
                            (
@@ -32,7 +23,10 @@ describe PowerTop10 do
                            ).beginning_of_month.beginning_of_day
       end
 
-      add_influx_point name: measurement, fields: { inverter_power: 14_000 }
+      add_influx_point name: measurement_inverter_power,
+                       fields: {
+                         field_inverter_power => 14_000,
+                       }
     end
   end
 

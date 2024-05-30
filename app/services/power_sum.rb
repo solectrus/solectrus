@@ -1,12 +1,10 @@
 class PowerSum < Flux::Reader
   def call(timeframe)
-    @timeframe = timeframe
+    return {} unless SensorConfig.x.exists_any?(*sensors)
 
-    if timeframe.id == :now
-      last(1.hour.ago)
-    else
-      sum(timeframe:)
-    end
+    super
+
+    timeframe.now? ? last(1.hour.ago) : sum(timeframe:)
   end
 
   private
@@ -15,15 +13,20 @@ class PowerSum < Flux::Reader
     result = query <<~QUERY
       #{from_bucket}
       |> #{range(start:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{filter}
       |> last()
     QUERY
 
     result.each_with_object(empty_hash) do |table, hash|
       record = table.records.first
 
-      hash[record.values['_field'].to_sym] = record.values['_value']
+      sensor =
+        SensorConfig.x.find_by(
+          record.values['_measurement'],
+          record.values['_field'],
+        )
+
+      hash[sensor] = record.values['_value']
 
       # Get the latest time from all measurements
       # This is useful when the measurements are not in sync
@@ -61,7 +64,14 @@ class PowerSum < Flux::Reader
     ) do |table, hash|
       record = table.records.first
 
-      hash[record.values['_field'].to_sym] = record.values['_value']
+      sensor =
+        SensorConfig.x.find_by(
+          record.values['_measurement'],
+          record.values['_field'],
+        )
+
+      hash[sensor] = record.values['_value']
+
       hash[:time] ||= Time.zone.parse record.values['_stop']
     end
   end
@@ -74,8 +84,7 @@ class PowerSum < Flux::Reader
 
         #{from_bucket}
         |> #{range(start: start - 1.hour, stop:)}
-        |> #{measurements_filter}
-        |> #{fields_filter}
+        |> #{filter}
         |> aggregateWindow(every: 1h, fn: mean)
         |> aggregateWindow(every: 1d, fn: sum, location: #{location})
         |> sum()
@@ -86,31 +95,13 @@ class PowerSum < Flux::Reader
       <<~QUERY
         #{from_bucket}
         |> #{range(start:, stop:)}
-        |> #{measurements_filter}
-        |> #{fields_filter}
+        |> #{filter}
         |> integral(unit: 1h)
       QUERY
     end
   end
 
   def empty_hash
-    fields.index_with(nil).merge(time: nil)
-  end
-
-  # Cache expires depends on the timeframe
-  DEFAULT_CACHE_EXPIRES = {
-    day: 1.minute,
-    week: 5.minutes,
-    month: 10.minutes,
-    year: 1.hour,
-    all: 1.day,
-  }.freeze
-
-  private_constant :DEFAULT_CACHE_EXPIRES
-
-  def default_cache_options
-    return unless @timeframe
-
-    { expires_in: DEFAULT_CACHE_EXPIRES[@timeframe.id] }
+    sensors.index_with(nil).merge(time: nil)
   end
 end

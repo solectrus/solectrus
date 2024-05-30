@@ -1,23 +1,24 @@
 = render Balance::Component.new calculator:,
                                 timeframe:,
-                                field: do |balance|
+                                sensor: do |balance|
 
   = balance.with_center do
-    = link_to root_path(field: 'autarky', timeframe:),
-              data: { \
-                turbo_frame: 'chart',
-                turbo_action: 'replace',
-                turbo_prefetch: 'false',
-              },
-              class: 'click-animation' do
-      div data-controller="tippy"
-        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
-        - unless timeframe.future?
-          template data-tippy-target="html"
-            = render AutarkyDetails::Component.new(calculator:)
+    - if SensorConfig.x.exists?(:autarky)
+      = link_to root_path(sensor: 'autarky', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                  turbo_prefetch: 'false',
+                },
+                class: 'click-animation' do
+        div data-controller="tippy"
+          = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
+          - unless timeframe.future?
+            template data-tippy-target="html"
+              = render AutarkyDetails::Component.new(calculator:)
 
-    - if calculator.consumption_quote
-      = link_to root_path(field: 'consumption', timeframe:),
+    - if SensorConfig.x.exists?(:consumption) && calculator.consumption_quote
+      = link_to root_path(sensor: 'consumption', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',

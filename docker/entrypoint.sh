@@ -43,7 +43,7 @@ if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
 
   # Create or migrate database
   echo "Preparing database..."
-  ./bin/rails db:prepare
+  DB_PREPARE=true ./bin/rails db:prepare
   echo "Database is ready!"
 fi
 

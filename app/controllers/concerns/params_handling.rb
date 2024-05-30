@@ -6,15 +6,15 @@ module ParamsHandling
 
     helper_method def permitted_params
       @permitted_params ||=
-        params.permit(:field, :timeframe, :period, :sort, :calc)
+        params.permit(:sensor, :timeframe, :period, :sort, :calc)
     end
 
     helper_method def period
       permitted_params[:period]
     end
 
-    helper_method def field
-      permitted_params[:field]
+    helper_method def sensor
+      permitted_params[:sensor]&.to_sym
     end
 
     helper_method def calc

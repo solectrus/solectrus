@@ -1,5 +1,6 @@
-.justify-center.flex.items-center
-  = render Dropdown::Component.new name: 'field-selector',
-                                   items: field_items,
-                                   selected: field,
-                                   button_class: 'bg-transparent hover:bg-gray-100'
+- if sensor_items.present?
+  .justify-center.flex.items-center
+    = render Dropdown::Component.new name: 'sensor-selector',
+                                    items: sensor_items,
+                                    selected: sensor,
+                                    button_class: 'bg-transparent hover:bg-gray-100'

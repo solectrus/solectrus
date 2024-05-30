@@ -27,19 +27,20 @@ en:
     month: This month
     year: This year
     all: Since commissioning
-  senec:
+  sensors:
     inverter_power: PV generated
     house_power: Home consumption
-    wallbox_charge_power: EV charging
-    grid_power_plus: Grid import
-    grid_power_minus: Grid export
+    wallbox_power: EV charging
+    grid_import_power: Grid import
+    grid_export_power: Grid export
     grid_power: Grid
-    bat_power_minus: Battery discharge
-    bat_power_plus: Battery charge
-    bat_power: Battery
-    bat_fuel_charge: Battery
+    battery_discharging_power: Battery discharge
+    battery_charging_power: Battery charge
+    battery_power: Battery
+    battery_soc: Battery
     case_temp: Temperature
-    power_ratio: Limitation
+    grid_export_limit: Limitation
+    heatpump_power: Heat pump
   balance_sheet:
     left: Origin
     right: Usage
@@ -50,7 +51,7 @@ en:
     month: Month
     year: Year
     all: Overall
-    forecast: Forecast
+    inverter_power_forecast: Forecast
     grid_quote: Grid consumption rate
     consumption: Consume
     consumption_quote: Self-consumption rate

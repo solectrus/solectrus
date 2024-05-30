@@ -9,7 +9,7 @@ module TimeframeNavigation
     end
 
     def path_with_timeframe(timeframe)
-      root_path(field:, timeframe:)
+      root_path(sensor:, timeframe:)
     end
 
     helper_method def nav_items

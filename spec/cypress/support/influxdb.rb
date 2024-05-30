@@ -2,40 +2,53 @@ module CypressRails::InfluxDB
   def influx_seed
     puts 'Seeding InfluxDB with data...'
 
+    seed_pv
+    seed_heatpump
+    seed_forecast
+  end
+
+  def seed_pv
     # Fill 2 hour window with 5 second intervals
     2
       .hours
       .step(0, -5) do |i|
         add_influx_point(
-          name: Rails.configuration.x.influx.measurement_pv,
+          name: measurement_inverter_power,
           fields: {
-            inverter_power: 9000,
-            mpp1_power: 6000,
-            mpp2_power: 2000,
-            mpp3_power: 1000,
-            house_power: 900,
-            bat_power_plus: 1000,
-            bat_power_minus: 10,
-            bat_fuel_charge: 40.0,
-            wallbox_charge_power: 6000,
-            wallbox_charge_power0: 6000,
-            wallbox_charge_power1: 0,
-            wallbox_charge_power2: 0,
-            wallbox_charge_power3: 0,
-            grid_power_plus: 10,
-            grid_power_minus: 1100,
-            power_ratio: 100,
-            case_temp: 30.0,
-            current_state: 'LADEN',
-            current_state_code: 14,
-            current_state_ok: true,
-            application_version: '0825',
-            response_duration: rand(8..20),
+            field_inverter_power => 9000,
+            field_house_power => 900,
+            field_battery_charging_power => 1000,
+            field_battery_discharging_power => 10,
+            field_battery_soc => 40.0,
+            field_wallbox_power => 6000,
+            field_grid_import_power => 10,
+            field_grid_export_power => 1100,
+            field_grid_export_limit => 100,
+            field_case_temp => 30.0,
+            field_system_status => 'LADEN',
+            field_system_status_ok => true,
           },
           time: i.seconds.ago,
         )
       end
+  end
 
+  def seed_heatpump
+    # Fill 2 hour window with 5 second intervals
+    2
+      .hours
+      .step(0, -5) do |i|
+        add_influx_point(
+          name: measurement_heatpump_power,
+          fields: {
+            field_heatpump_power => 400,
+          },
+          time: i.seconds.ago,
+        )
+      end
+  end
+
+  def seed_forecast
     {
       5.hours.ago => 3000,
       2.hours.ago => 8000,
@@ -44,9 +57,9 @@ module CypressRails::InfluxDB
       4.hours.since => 4000,
     }.each do |time, watt|
       add_influx_point(
-        name: Rails.configuration.x.influx.measurement_forecast,
+        name: measurement_inverter_power_forecast,
         fields: {
-          watt:,
+          field_inverter_power_forecast => watt,
         },
         time:,
       )
@@ -66,7 +79,7 @@ module CypressRails::InfluxDB
     write_api.write(
       data: {
         name:,
-        fields:,
+        fields: fields.symbolize_keys,
         time: time.to_i,
       },
       bucket: Rails.configuration.x.influx.bucket,

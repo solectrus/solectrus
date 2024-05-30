@@ -4,35 +4,35 @@ class EssentialsTileComponentPreview < ViewComponent::Preview
   def now
     timeframe Timeframe.now
     render EssentialsTile::Component.new calculator:,
-                                         field: 'inverter_power',
+                                         sensor: 'inverter_power',
                                          timeframe:
   end
 
   def day
     timeframe Timeframe.day
     render EssentialsTile::Component.new calculator:,
-                                         field: 'inverter_power',
+                                         sensor: 'inverter_power',
                                          timeframe:
   end
 
   def month
     timeframe Timeframe.month
     render EssentialsTile::Component.new calculator:,
-                                         field: 'inverter_power',
+                                         sensor: 'inverter_power',
                                          timeframe:
   end
 
   def year
     timeframe Timeframe.year
     render EssentialsTile::Component.new calculator:,
-                                         field: 'inverter_power',
+                                         sensor: 'inverter_power',
                                          timeframe:
   end
 
   def savings
     timeframe Timeframe.year
     render EssentialsTile::Component.new calculator:,
-                                         field: 'savings',
+                                         sensor: 'savings',
                                          timeframe:
   end
   # @!endgroup

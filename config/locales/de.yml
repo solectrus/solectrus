@@ -27,19 +27,20 @@ de:
     month: Dieser Monat
     year: Dieses Jahr
     all: Seit Inbetriebnahme
-  senec:
+  sensors:
     inverter_power: Erzeugung
     house_power: Haus-Verbrauch
-    wallbox_charge_power: E-Auto
-    grid_power_plus: Netzbezug
-    grid_power_minus: Einspeisung
+    wallbox_power: E-Auto
+    grid_import_power: Netzbezug
+    grid_export_power: Einspeisung
     grid_power: Netz
-    bat_power_minus: Akku-Entnahme
-    bat_power_plus: Akku-Beladung
-    bat_power: Akku
-    bat_fuel_charge: Ladestand
+    battery_discharging_power: Akku-Entnahme
+    battery_charging_power: Akku-Beladung
+    battery_power: Akku
+    battery_soc: Ladestand
     case_temp: Temperatur
-    power_ratio: Begrenzung
+    grid_export_limit: Begrenzung
+    heatpump_power: Wärmepumpe
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -50,7 +51,7 @@ de:
     month: Monat
     year: Jahr
     all: Gesamt
-    forecast: Prognose
+    inverter_power_forecast: Prognose
     grid_quote: Bezugsquote
     consumption: Verbrauch
     consumption_quote: Eigenverbrauchsquote

@@ -1,51 +1,52 @@
 class ChartData # rubocop:disable Metrics/ClassLength
-  def initialize(field:, timeframe:)
-    @field = field
+  def initialize(sensor:, timeframe:)
+    @sensor = sensor
     @timeframe = timeframe
   end
-  attr_reader :field, :timeframe
+  attr_reader :sensor, :timeframe
 
   def call
-    if field == 'autarky'
+    if sensor == :autarky
       data_autarky
-    elsif field == 'consumption'
+    elsif sensor == :consumption
       data_consumption
-    elsif timeframe.now?
-      data_now
-    elsif timeframe.day? && field == 'inverter_power'
+    elsif timeframe.day? && sensor == :inverter_power
       data_day_inverter_power
     else
-      data_range
+      data_generic
     end.to_json
   end
 
   private
 
-  def data_now
+  def data_generic
     {
-      labels: now[now.keys.first]&.map { |x| x.first.to_i * 1000 },
+      labels: chart[chart.keys.first]&.map { |x| x.first.to_i * 1000 },
       datasets:
-        now.map do |chart_field, data|
+        chart.map do |chart_sensor, data|
           {
-            label: I18n.t("senec.#{chart_field}"),
-            data: mapped_data(data, chart_field),
-          }.merge(style(chart_field))
+            label: I18n.t("sensors.#{chart_sensor}"),
+            data: mapped_data(data, chart_sensor),
+          }.merge(style(chart_sensor))
         end,
     }
   end
 
   def data_day_inverter_power # rubocop:disable Metrics/CyclomaticComplexity
     {
-      labels: (inverter_power || forecast)&.map { |x| x.first.to_i * 1000 },
+      labels:
+        (inverter_power || inverter_power_forecast)&.map do |x|
+          x.first.to_i * 1000
+        end,
       datasets: [
         {
-          label: I18n.t('senec.inverter_power'),
+          label: I18n.t('sensors.inverter_power'),
           data: inverter_power&.map(&:second),
-        }.merge(style('inverter_power')),
+        }.merge(style(:inverter_power)),
         {
-          label: I18n.t('calculator.forecast'),
-          data: forecast&.map(&:second),
-        }.merge(style('forecast')),
+          label: I18n.t('calculator.inverter_power_forecast'),
+          data: inverter_power_forecast&.map(&:second),
+        }.merge(style(:inverter_power_forecast)),
       ],
     }
   end
@@ -57,7 +58,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
         {
           label: I18n.t('calculator.autarky'),
           data: autarky&.map(&:second),
-        }.merge(style('autarky')),
+        }.merge(style(:autarky)),
       ],
     }
   end
@@ -69,153 +70,152 @@ class ChartData # rubocop:disable Metrics/ClassLength
         {
           label: I18n.t('calculator.consumption_quote'),
           data: consumption&.map(&:second),
-        }.merge(style('consumption')),
+        }.merge(style(:consumption)),
       ],
     }
   end
 
-  def data_range
+  def chart
+    @chart ||=
+      case sensor
+      when :battery_soc
+        battery_soc
+      when :case_temp
+        case_temp
+      when :house_power
+        house_power
+      when :heatpump_power
+        heatpump_power
+      else
+        generic
+      end
+  end
+
+  def battery_soc
+    MinMaxChart.new(sensors: %i[battery_soc], average: true).call(timeframe)
+  end
+
+  def case_temp
+    MinMaxChart.new(sensors: %i[case_temp], average: false).call(timeframe)
+  end
+
+  def house_power
+    exclude_from_house_power = SensorConfig.x.exclude_from_house_power
+
+    chart =
+      PowerChart.new(sensors: [:house_power, *exclude_from_house_power]).call(
+        timeframe,
+      )
+    return chart if chart[:house_power].nil? || exclude_from_house_power.blank?
+
+    # Exclude sensors from house_power
     {
-      labels: range[range.keys.first]&.map { |x| x.first.to_i * 1000 },
-      datasets:
-        range.map do |chart_field, data|
-          {
-            label: I18n.t("senec.#{chart_field}"),
-            data: mapped_data(data, chart_field),
-          }.merge(style(chart_field))
+      house_power:
+        chart[:house_power].map.with_index do |house_power, index|
+          [
+            house_power.first,
+            if house_power.second
+              [
+                0,
+                exclude_from_house_power.reduce(
+                  house_power.second,
+                ) { |acc, elem| acc - chart.dig(elem, index)&.second.to_f },
+              ].max
+            end,
+          ]
         end,
     }
   end
 
-  def now
-    @now ||=
-      case field
-      when 'bat_fuel_charge'
-        MinMaxChart.new(
-          measurements: [Rails.configuration.x.influx.measurement_pv],
-          fields:,
-          average: true,
-        ).call(timeframe)
-      when 'case_temp'
-        MinMaxChart.new(
-          measurements: [Rails.configuration.x.influx.measurement_pv],
-          fields:,
-          average: false,
-        ).call(timeframe)
-      else
-        PowerChart.new(
-          measurements: [Rails.configuration.x.influx.measurement_pv],
-          fields:,
-        ).call(timeframe)
-      end
+  def heatpump_power
+    PowerChart.new(sensors: %i[heatpump_power]).call(
+      timeframe,
+      fill: !timeframe.current?,
+    )
+  end
+
+  def generic
+    PowerChart.new(sensors:).call(timeframe)
   end
 
   def inverter_power
     @inverter_power ||=
-      PowerChart.new(
-        measurements: [Rails.configuration.x.influx.measurement_pv],
-        fields: %w[inverter_power],
-      ).call(timeframe)[
-        'inverter_power'
+      PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
+        :inverter_power
       ]
   end
 
   def autarky
-    @autarky ||=
-      AutarkyChart.new(
-        measurements: [Rails.configuration.x.influx.measurement_pv],
-      ).call(timeframe)
+    @autarky ||= AutarkyChart.new.call(timeframe)
   end
 
   def consumption
-    @consumption ||=
-      ConsumptionChart.new(
-        measurements: [Rails.configuration.x.influx.measurement_pv],
-      ).call(timeframe)
+    @consumption ||= ConsumptionChart.new.call(timeframe)
   end
 
-  def forecast
-    @forecast ||=
-      PowerChart.new(
-        measurements: [Rails.configuration.x.influx.measurement_forecast],
-        fields: %w[watt],
-      ).call(timeframe, fill: false, interpolate: true)[
-        'watt'
+  def inverter_power_forecast
+    return unless SensorConfig.x.exists?(:inverter_power_forecast)
+
+    @inverter_power_forecast ||=
+      PowerChart.new(sensors: %i[inverter_power_forecast]).call(
+        timeframe,
+        fill: false,
+        interpolate: true,
+      )[
+        :inverter_power_forecast
       ]
   end
 
-  def range
-    @range ||=
-      case field
-      when 'bat_fuel_charge'
-        MinMaxChart.new(
-          measurements: [Rails.configuration.x.influx.measurement_pv],
-          fields:,
-          average: true,
-        ).call(timeframe)
-      when 'case_temp'
-        MinMaxChart.new(
-          measurements: [Rails.configuration.x.influx.measurement_pv],
-          fields:,
-          average: false,
-        ).call(timeframe)
-      else
-        PowerChart.new(
-          measurements: [Rails.configuration.x.influx.measurement_pv],
-          fields:,
-        ).call(timeframe)
-      end
-  end
-
-  def style(chart_field)
+  def style(chart_sensor)
     {
       fill: 'origin',
       # Base color, will be changed to gradient in JS
-      backgroundColor: background_color(chart_field),
+      backgroundColor: background_color(chart_sensor),
       borderWidth: 1,
       borderRadius: 5,
       # In min-max charts, show border around the **whole** bar (don't skip)
       borderSkipped:
-        chart_field.in?(%w[bat_fuel_charge case_temp]) ? false : 'start',
+        chart_sensor.in?(%i[battery_soc case_temp]) ? false : 'start',
     }
   end
 
-  def background_color(chart_field)
+  def background_color(chart_sensor)
     {
-      'forecast' => '#cbd5e1', # bg-slate-300
-      'house_power' => '#64748b', # bg-slate-500
-      'grid_power_plus' => '#dc2626', # bg-red-600
-      'grid_power_minus' => '#16a34a', # bg-green-600
-      'inverter_power' => '#16a34a', # bg-green-600
-      'wallbox_charge_power' => '#475569', # bg-slate-600
-      'bat_power_minus' => '#15803d', # bg-green-700
-      'bat_power_plus' => '#15803d', # bg-green-700
-      'autarky' => '#15803d', # bg-green-700
-      'consumption' => '#15803d', # bg-green-700
-      'bat_fuel_charge' => '#38bdf8', # bg-sky-400
-      'case_temp' => '#f87171', # bg-red-400
+      inverter_power_forecast: '#cbd5e1', # bg-slate-300
+      house_power: '#64748b', # bg-slate-500
+      heatpump_power: '#475569', # bg-slate-600
+      wallbox_power: '#334155', # bg-slate-700
+      grid_import_power: '#dc2626', # bg-red-600
+      grid_export_power: '#16a34a', # bg-green-600
+      inverter_power: '#16a34a', # bg-green-600
+      battery_discharging_power: '#15803d', # bg-green-700
+      battery_charging_power: '#15803d', # bg-green-700
+      autarky: '#15803d', # bg-green-700
+      consumption: '#15803d', # bg-green-700
+      battery_soc: '#38bdf8', # bg-sky-400
+      case_temp: '#f87171', # bg-red-400
     }[
-      chart_field
+      chart_sensor
     ]
   end
 
-  def mapped_data(data, chart_field)
-    if fields.length == 1 ||
-         chart_field.in?(%w[grid_power_minus bat_power_plus])
+  def mapped_data(data, chart_sensor)
+    if sensors.length == 1 ||
+         chart_sensor.in?(%i[grid_export_power battery_charging_power])
       data.map(&:second)
     else
       data.map { |x| x.second ? -x.second : nil }
     end
   end
 
-  def fields
-    case field
-    when 'bat_power'
-      %w[bat_power_plus bat_power_minus]
-    when 'grid_power'
-      %w[grid_power_plus grid_power_minus]
+  def sensors
+    case sensor
+    when :battery_power
+      %i[battery_charging_power battery_discharging_power]
+    when :grid_power
+      %i[grid_import_power grid_export_power]
     else
-      [field]
+      [sensor]
     end
   end
 end

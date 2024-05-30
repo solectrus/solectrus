@@ -48,10 +48,10 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.top10'),
         href:
           top10_path(
-            field:
-              if helpers.respond_to?(:field) &&
-                   helpers.field.in?(Senec::POWER_FIELDS)
-                helpers.field
+            sensor:
+              if helpers.respond_to?(:sensor) &&
+                   helpers.sensor.in?(SensorConfig::POWER_SENSORS)
+                helpers.sensor
               else
                 'inverter_power'
               end,

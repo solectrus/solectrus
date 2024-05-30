@@ -1,39 +1,40 @@
 = render Balance::Component.new calculator:,
                                 timeframe:,
-                                field:,
+                                sensor:,
                                 peak: do |balance|
 
   = balance.with_center do
-    = link_to root_path(field: 'autarky', timeframe:),
-              data: { \
-                turbo_frame: 'chart',
-                turbo_action: 'replace',
-                turbo_prefetch: 'false',
-                'stats-with-chart--component-target': 'current',
-                field: 'autarky',
-                value: calculator.autarky,
-                time: calculator.time.to_i,
-                action: 'stats-with-chart--component#startLoop',
-                stats_with_chart__component_field_param: 'autarky',
-              },
-              class: 'click-animation' do
-      div data-controller="tippy"
-        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
-        .hidden#autarky-details-tooltip data-tippy-target="html"
-          = render AutarkyDetails::Component.new(calculator:)
-
-    - if calculator.consumption_quote
-      = link_to root_path(field: 'consumption', timeframe:),
+    - if SensorConfig.x.exists?(:autarky)
+      = link_to root_path(sensor: 'autarky', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  field: 'consumption',
+                  sensor: 'autarky',
+                  value: calculator.autarky,
+                  time: calculator.time.to_i,
+                  action: 'stats-with-chart--component#startLoop',
+                  stats_with_chart__component_sensor_param: 'autarky',
+                },
+                class: 'click-animation' do
+        div data-controller="tippy"
+          = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
+          .hidden#autarky-details-tooltip data-tippy-target="html"
+            = render AutarkyDetails::Component.new(calculator:)
+
+    - if SensorConfig.x.exists?(:consumption) && calculator.consumption_quote
+      = link_to root_path(sensor: 'consumption', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                  turbo_prefetch: 'false',
+                  'stats-with-chart--component-target': 'current',
+                  sensor: 'consumption',
                   value: calculator.consumption_quote,
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_field_param: 'consumption',
+                  stats_with_chart__component_sensor_param: 'consumption',
                 },
                 class: 'click-animation' do
         div data-controller="tippy"
@@ -45,33 +46,34 @@
       = render Flow::Component.new value: calculator.total, max: max_flow
 
     - if calculator.case_temp&.nonzero?
-      = link_to root_path(field: 'case_temp', timeframe:),
+      = link_to root_path(sensor: 'case_temp', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  field: 'case_temp',
+                  sensor: 'case_temp',
                   value: calculator.case_temp,
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_field_param: 'case_temp',
+                  stats_with_chart__component_sensor_param: 'case_temp',
                 },
                 class: 'click-animation' do
-        = render RadialBadge::Component.new(title: t('senec.case_temp')) do
+        = render RadialBadge::Component.new(title: t('sensors.case_temp')) do
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
 
-    = link_to root_path(field: 'bat_fuel_charge', timeframe:),
-              data: { \
-                turbo_frame: 'chart',
-                turbo_action: 'replace',
-                turbo_prefetch: 'false',
-                'stats-with-chart--component-target': 'current',
-                field: 'bat_fuel_charge',
-                value: calculator.bat_fuel_charge,
-                time: calculator.time.to_i,
-                action: 'stats-with-chart--component#startLoop',
-                stats_with_chart__component_field_param: 'bat_fuel_charge',
-              },
-              class: 'click-animation' do
-      = render RadialBadge::Component.new(percent: calculator.bat_fuel_charge, neutral: true, title: t('senec.bat_fuel_charge'))
+    - if SensorConfig.x.exists?(:battery_soc)
+      = link_to root_path(sensor: 'battery_soc', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                  turbo_prefetch: 'false',
+                  'stats-with-chart--component-target': 'current',
+                  sensor: 'battery_soc',
+                  value: calculator.battery_soc,
+                  time: calculator.time.to_i,
+                  action: 'stats-with-chart--component#startLoop',
+                  stats_with_chart__component_sensor_param: 'battery_soc',
+                },
+                class: 'click-animation' do
+        = render RadialBadge::Component.new(percent: calculator.battery_soc, neutral: true, title: t('sensors.battery_soc'))

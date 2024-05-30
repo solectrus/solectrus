@@ -14,7 +14,7 @@ module InfluxHelper
   end
 
   def add_influx_point(name:, fields:, time: Time.current)
-    point = { name:, fields:, time: time.to_i }
+    point = { name:, fields: fields.symbolize_keys, time: time.to_i }
 
     @in_batch ? @points << point : add_influx_points([point])
   end
@@ -35,6 +35,12 @@ module InfluxHelper
     delete_api = influx_client.create_delete_api
 
     delete_api.delete(start, stop)
+  end
+
+  SensorConfig::SENSOR_NAMES.each do |name|
+    define_method(:"field_#{name}") { SensorConfig.x.field(name) }
+
+    define_method(:"measurement_#{name}") { SensorConfig.x.measurement(name) }
   end
 end
 
