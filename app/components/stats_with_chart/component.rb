@@ -7,14 +7,14 @@ class StatsWithChart::Component < ViewComponent::Base
   attr_reader :sensor, :timeframe
 
   def refresh_options
-    return if timeframe.past?
-
     {
       controller: 'stats-with-chart--component',
       'stats-with-chart--component-sensor-value': sensor,
       'stats-with-chart--component-interval-value':
         (
-          if timeframe.now?
+          if timeframe.past?
+            0
+          elsif timeframe.now?
             Rails.configuration.x.influx.poll_interval.seconds
           else
             5.minutes
