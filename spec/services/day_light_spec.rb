@@ -5,17 +5,21 @@ describe DayLight do
 
   before do
     influx_batch do
-      [
+      {
+        # Before sunrise
+        Time.new(date.year, date.month, date.day, 1, 0, 0, '+01:00') => 0,
         # Sunrise
-        Time.new(date.year, date.month, date.day, 7, 10, 0, '+01:00'),
-        # Somtime during the day
-        Time.new(date.year, date.month, date.day, 9, 30, 0, '+01:00'),
+        Time.new(date.year, date.month, date.day, 7, 10, 0, '+01:00') => 100,
+        # High noon
+        Time.new(date.year, date.month, date.day, 12, 0, 0, '+01:00') => 5000,
         # Sunset
-        Time.new(date.year, date.month, date.day, 18, 21, 0, '+01:00'),
-      ].each do |time|
+        Time.new(date.year, date.month, date.day, 18, 21, 0, '+01:00') => 50,
+        # After sunset
+        Time.new(date.year, date.month, date.day, 22, 0, 0, '+01:00') => 0,
+      }.each_pair do |time, value|
         add_influx_point name: measurement_inverter_power_forecast,
                          fields: {
-                           field_inverter_power_forecast => rand(1000),
+                           field_inverter_power_forecast => value,
                          },
                          time:
       end

@@ -44,6 +44,7 @@ class DayLight < Flux::Reader
       data = #{from_bucket}
       |> #{range(start: @date.beginning_of_day, stop: @date.end_of_day)}
       |> #{filter}
+      |> filter(fn: (r) => r["_value"] > 0)
 
       firstValue = data |> first()
       lastValue = data |> last()
