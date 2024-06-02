@@ -46,29 +46,23 @@ export default class extends Controller {
   private selectedSensor?: string;
 
   connect() {
-    if (this.intervalValue) {
-      document.addEventListener(
-        'visibilitychange',
-        this.handleVisibilityChange.bind(this),
-      );
-
-      this.startLoop();
-    }
-
+    document.addEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange.bind(this),
+    );
     document.addEventListener('dblclick', this.handleDblClick.bind(this));
+
+    this.startLoop();
   }
 
   disconnect() {
+    this.stopLoop();
+
     document.removeEventListener('dblclick', this.handleDblClick.bind(this));
-
-    if (this.intervalValue) {
-      this.stopLoop();
-
-      document.removeEventListener(
-        'visibilitychange',
-        this.handleVisibilityChange.bind(this),
-      );
-    }
+    document.removeEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange.bind(this),
+    );
   }
 
   startLoop(event?: ActionEvent) {
