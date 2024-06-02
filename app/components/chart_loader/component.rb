@@ -22,17 +22,24 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
           caretPadding: 15,
           caretSize: 10,
         },
-        zoom: {
-          zoom: {
-            drag: {
-              enabled: true,
-            },
-            pinch: {
-              enabled: true,
-            },
-            mode: 'x',
-          },
-        },
+        zoom:
+          (
+            if timeframe.now? || timeframe.day?
+              {
+                zoom: {
+                  drag: {
+                    enabled: true,
+                  },
+                  pinch: {
+                    enabled: true,
+                  },
+                  mode: 'x',
+                },
+              }
+            else
+              {}
+            end
+          ),
       },
       animation: {
         easing: 'easeOutQuad',
