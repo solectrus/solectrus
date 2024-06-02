@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { debounce } from 'throttle-debounce';
-import { isTouchEnabled, isReducedMotion } from '@/utils/device';
+import { isReducedMotion } from '@/utils/device';
 
 import {
   Chart,
@@ -105,9 +105,6 @@ export default class extends Controller<HTMLCanvasElement> {
     this.containerTarget.classList.remove('hidden');
 
     const options = this.optionsValue;
-
-    // Disable zoom on touch devices (does not work well)
-    if (isTouchEnabled() && options.plugins) options.plugins.zoom = undefined;
 
     // Disable animation when user prefers reduced motion
     if (isReducedMotion()) options.animation = false;
