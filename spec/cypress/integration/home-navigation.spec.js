@@ -59,9 +59,7 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('Montag, 20. Juni 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should(
-        'not.exist',
-      );
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('Dienstag, 21. Juni 2022');
@@ -86,9 +84,7 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('KW 24, 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should(
-        'not.exist',
-      );
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('KW 25, 2022');
@@ -113,9 +109,7 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('Mai 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should(
-        'not.exist',
-      );
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('Juni 2022');
@@ -140,9 +134,7 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('2021');
-      cy.get("[data-controller='stats-with-chart--component']").should(
-        'not.exist',
-      );
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('2022');
