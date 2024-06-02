@@ -53,7 +53,7 @@ class PowerChart < Flux::Reader
       import "timezone"
 
       #{from_bucket}
-      |> #{range(start: start - 1.hour, stop:)}
+      |> #{range(start: start - 1.second, stop:)}
       |> #{filter}
       |> aggregateWindow(every: 1h, fn: mean)
       |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
