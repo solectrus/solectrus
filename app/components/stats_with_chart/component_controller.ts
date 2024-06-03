@@ -123,10 +123,10 @@ export default class extends Controller {
 
   addPointToChart() {
     if (
-      !this.chart ||
-      !this.currentValue ||
-      !this.currentTime ||
-      !this.lastTime
+      this.chart == null ||
+      this.currentValue == null ||
+      this.currentTime == null ||
+      this.lastTime == null
     )
       return;
 
@@ -201,7 +201,7 @@ export default class extends Controller {
   }
 
   get currentValue(): number | undefined {
-    if (!this.currentElement?.dataset.value) return undefined;
+    if (this.currentElement?.dataset.value == null) return undefined;
 
     return parseFloat(this.currentElement.dataset.value);
   }
