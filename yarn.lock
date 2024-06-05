@@ -1337,9 +1337,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001587, caniuse-lite@npm:^1.0.30001599":
-  version: 1.0.30001627
-  resolution: "caniuse-lite@npm:1.0.30001627"
-  checksum: 10c0/67d39ca4bead791876c42220b4fe5bd22ba03dbec42f102f0ea9271be3df21bfdb6ba2b0f0dd9eb339eebfc96de3a42a3a5f3fc179ef47229ee5055301217572
+  version: 1.0.30001628
+  resolution: "caniuse-lite@npm:1.0.30001628"
+  checksum: 10c0/7f3e198d30220e02d54ea9de1562725d65e89e4318e16b5addd550a8cd6d240de4d42eecb97506c5eafdf5193ad39624729e12b6385fc63b2a2b8e8c430cbcb1
   languageName: node
   linkType: hard
 
@@ -1725,9 +1725,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.668":
-  version: 1.4.788
-  resolution: "electron-to-chromium@npm:1.4.788"
-  checksum: 10c0/62ad89f153a68b3d231f4e4e681ac0fc130b2f6ff4538fe835d712acdf253a46c8282919396177ddb028246d5f91fbc60b6b23d74d214e729345c585995e476d
+  version: 1.4.790
+  resolution: "electron-to-chromium@npm:1.4.790"
+  checksum: 10c0/2af48c4fef7009c0dea272ce5878a3655e7f6ed0b2e63f3e38f3ef59b21eaa3fbacd7c33c9e120b90e6d6543ef2587daf38daf1fd75cb22bd18c9fda79d4ca81
   languageName: node
   linkType: hard
 
@@ -2781,24 +2781,24 @@ __metadata:
   linkType: hard
 
 "jackspeak@npm:^3.1.2":
-  version: 3.2.3
-  resolution: "jackspeak@npm:3.2.3"
+  version: 3.3.0
+  resolution: "jackspeak@npm:3.3.0"
   dependencies:
     "@isaacs/cliui": "npm:^8.0.2"
     "@pkgjs/parseargs": "npm:^0.11.0"
   dependenciesMeta:
     "@pkgjs/parseargs":
       optional: true
-  checksum: 10c0/eed7a5056ac8cdafcadeb1fedbfbe96aef4e7fea7cf6f536f48696df7ef4d423c323ba03320860b886ecf1e59d0478bb3d0f8ed7d464932c7e3c0712095425f1
+  checksum: 10c0/e0d604cd9f360f0589149be3392a4815a78316bd57136339ffe3c430aa011a2cc92647f824a521366dd15482833c6ce4f32c232f0a919187a58ced820a23c1ee
   languageName: node
   linkType: hard
 
 "jiti@npm:^1.21.0":
-  version: 1.21.0
-  resolution: "jiti@npm:1.21.0"
+  version: 1.21.1
+  resolution: "jiti@npm:1.21.1"
   bin:
     jiti: bin/jiti.js
-  checksum: 10c0/7f361219fe6c7a5e440d5f1dba4ab763a5538d2df8708cdc22561cf25ea3e44b837687931fca7cdd8cdd9f567300e90be989dd1321650045012d8f9ed6aab07f
+  checksum: 10c0/b6091da94a6e51c7eafee0b7de94324fde5fa7b31574cefd5e70be5c690af3336128a9cf83675048c49003a65c7d78963d4ce79881e3b31d63719c821c541e6e
   languageName: node
   linkType: hard
 
@@ -4499,9 +4499,9 @@ __metadata:
   linkType: hard
 
 "tslib@npm:^2.1.0, tslib@npm:^2.6.2":
-  version: 2.6.2
-  resolution: "tslib@npm:2.6.2"
-  checksum: 10c0/e03a8a4271152c8b26604ed45535954c0a45296e32445b4b87f8a5abdb2421f40b59b4ca437c4346af0f28179780d604094eb64546bee2019d903d01c6c19bdb
+  version: 2.6.3
+  resolution: "tslib@npm:2.6.3"
+  checksum: 10c0/2598aef53d9dbe711af75522464b2104724d6467b26a60f2bdac8297d2b5f1f6b86a71f61717384aa8fd897240467aaa7bcc36a0700a0faf751293d1331db39a
   languageName: node
   linkType: hard
 
