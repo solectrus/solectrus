@@ -44,3 +44,10 @@ Brewfile.lock.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Alpenflizzer specific
+.env.*
+/bin/*
+/config/*
+!/config/locales/*
+vite.config.mts
