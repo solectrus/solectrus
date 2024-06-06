@@ -83,7 +83,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
       datasets: [
         {
           label: I18n.t('calculator.co2_savings'),
-          data: co2_savings&.map(&:second),
+          data: co2_savings&.map { |x| x.second ? (x.second * Calculator::Range::CO2_EMISION_FACTOR.to_f / 1000.0) : nil },
         }.merge(style(:co2_savings)),
       ],
     }
@@ -168,7 +168,10 @@ class ChartData # rubocop:disable Metrics/ClassLength
   end
 
   def co2_savings
-    @co2_savings ||= Co2SavingsChart.new.call(timeframe)
+    @co2_savings ||=
+      PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
+        :inverter_power
+      ]
   end
 
   def inverter_power_forecast
