@@ -10,6 +10,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       data_autarky
     elsif sensor == :consumption
       data_consumption
+    elsif sensor == :co2_savings
+      data_co2_savings
     elsif timeframe.day? && sensor == :inverter_power
       data_day_inverter_power
     else
@@ -71,6 +73,18 @@ class ChartData # rubocop:disable Metrics/ClassLength
           label: I18n.t('calculator.consumption_quote'),
           data: consumption&.map(&:second),
         }.merge(style(:consumption)),
+      ],
+    }
+  end
+
+  def data_co2_savings
+    {
+      labels: co2_savings&.map { |x| x.first.to_i * 1000 },
+      datasets: [
+        {
+          label: I18n.t('calculator.co2_savings'),
+          data: co2_savings&.map { |x| x.second ? (x.second * Calculator::Range::CO2_EMISION_FACTOR.to_f / 1000.0) : nil },
+        }.merge(style(:co2_savings)),
       ],
     }
   end
@@ -153,6 +167,13 @@ class ChartData # rubocop:disable Metrics/ClassLength
     @consumption ||= ConsumptionChart.new.call(timeframe)
   end
 
+  def co2_savings
+    @co2_savings ||=
+      PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
+        :inverter_power
+      ]
+  end
+
   def inverter_power_forecast
     return unless SensorConfig.x.exists?(:inverter_power_forecast)
 
@@ -194,6 +215,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
       consumption: '#15803d', # bg-green-700
       battery_soc: '#38bdf8', # bg-sky-400
       case_temp: '#f87171', # bg-red-400
+      co2_savings: '#15803d', # bg-green-700
     }[
       chart_sensor
     ]
