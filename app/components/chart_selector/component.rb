@@ -19,7 +19,7 @@ class ChartSelector::Component < ViewComponent::Base
       case_temp
       autarky
       consumption
-      savings
+      co2_savings
     ].select { |sensor| SensorConfig.x.exists?(sensor) }
     # TODO: Add savings
   end
