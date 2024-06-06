@@ -41,6 +41,7 @@ en:
     case_temp: Temperature
     grid_export_limit: Limitation
     heatpump_power: Heat pump
+    combined_overview_day: Daily view - combined
   balance_sheet:
     left: Origin
     right: Usage

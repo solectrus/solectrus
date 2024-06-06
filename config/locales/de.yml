@@ -41,6 +41,7 @@ de:
     case_temp: Temperatur
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
+    combined_overview_day: Tagesansicht - kombiniert
   balance_sheet:
     left: Herkunft
     right: Verwendung

@@ -14,6 +14,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       data_co2_savings
     elsif timeframe.day? && sensor == :inverter_power
       data_day_inverter_power
+    elsif timeframe.day? && sensor == :combined_overview_day
+      data_combined_overview_day
     else
       data_generic
     end.to_json
@@ -49,6 +51,29 @@ class ChartData # rubocop:disable Metrics/ClassLength
           label: I18n.t('calculator.inverter_power_forecast'),
           data: inverter_power_forecast&.map(&:second),
         }.merge(style(:inverter_power_forecast)),
+      ],
+    }
+  end
+
+  def data_combined_overview_day # rubocop:disable Metrics/CyclomaticComplexity
+    {
+      labels:
+        (house_power || inverter_power || grid_import_power)&.map do |x|
+          x.first.to_i * 1000
+        end,
+      datasets: [
+        {
+          label: I18n.t('sensors.house_power'),
+          data: house_power&.map(&:second),
+        }.merge(style(:house_power)),
+        {
+          label: I18n.t('sensors.inverter_power'),
+          data: inverter_power&.map(&:second),
+        }.merge(style(:inverter_power)),
+        {
+          label: I18n.t('sensors.grid_import_power'),
+          data: grid_import_power&.map{ |x| x.second * -1 },
+        }.merge(style(:grid_import_power)),
       ],
     }
   end
@@ -213,6 +238,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       battery_charging_power: '#15803d', # bg-green-700
       autarky: '#15803d', # bg-green-700
       consumption: '#15803d', # bg-green-700
+      co2_savings: '#15803d', # bg-green-700
+      savings: '#15803d', # bg-green-700
       battery_soc: '#38bdf8', # bg-sky-400
       case_temp: '#f87171', # bg-red-400
       co2_savings: '#15803d', # bg-green-700
