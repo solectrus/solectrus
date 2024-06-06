@@ -65,7 +65,17 @@ module Solectrus
 
     config.x.influx.poll_interval = ENV.fetch('INFLUX_POLL_INTERVAL', '5').to_i
 
-    config.after_initialize { SensorConfig.setup(ENV) } unless ENV['DB_PREPARE']
+    config.after_initialize do
+      def rake_task_running?(*tasks)
+        tasks.any? do |task|
+          defined?(Rake) && Rake.application.top_level_tasks.include?(task)
+        end
+      end
+
+      unless rake_task_running?('assets:precompile', 'db:migrate', 'db:prepare')
+        SensorConfig.setup(ENV)
+      end
+    end
 
     config.x.installation_date =
       Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')
