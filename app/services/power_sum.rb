@@ -77,7 +77,7 @@ class PowerSum < Flux::Reader
   end
 
   def build_query(start:, stop:)
-    if stop && stop < Time.current
+    if stop&.past?
       # Range from the past, use more precise query
       <<~QUERY
         #{from_bucket}
