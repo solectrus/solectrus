@@ -5,7 +5,7 @@ class DayLight < Flux::Reader
     day_light = DayLight.new(Date.current)
     return true unless day_light.sunrise && day_light.sunset
 
-    Time.current > day_light.sunrise && Time.current < day_light.sunset
+    day_light.sunrise.past? && day_light.sunset.future?
   end
 
   def initialize(date)

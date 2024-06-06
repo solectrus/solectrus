@@ -9,7 +9,7 @@ class Comment::Component < ViewComponent::Base
   attr_accessor :calculator, :sensor, :timeframe
 
   def today_before_sunset?
-    timeframe.day? && timeframe.current? && sunset && Time.current < sunset
+    timeframe.day? && timeframe.current? && sunset&.future?
   end
 
   def future?
