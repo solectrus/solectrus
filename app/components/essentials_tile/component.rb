@@ -9,7 +9,7 @@ class EssentialsTile::Component < ViewComponent::Base
   attr_reader :calculator, :sensor, :timeframe
 
   def path
-    if sensor.in? %i[savings co2_savings]
+    if sensor.in? %i[savings]
       # Currently, there is no chart for savings, so link to inverter_power chart
       root_path(sensor: 'inverter_power', timeframe:)
     else
