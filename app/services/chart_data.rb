@@ -10,8 +10,14 @@ class ChartData # rubocop:disable Metrics/ClassLength
       data_autarky
     elsif sensor == :consumption
       data_consumption
+    elsif sensor == :co2_savings
+      data_co2_savings
+    elsif sensor == :savings
+      data_savings
     elsif timeframe.day? && sensor == :inverter_power
       data_day_inverter_power
+    elsif timeframe.day? && sensor == :combined_overview_day
+      data_combined_overview_day
     else
       data_generic
     end.to_json
@@ -51,6 +57,29 @@ class ChartData # rubocop:disable Metrics/ClassLength
     }
   end
 
+  def data_combined_overview_day # rubocop:disable Metrics/CyclomaticComplexity
+    {
+      labels:
+        (house_power || inverter_power || grid_import_power)&.map do |x|
+          x.first.to_i * 1000
+        end,
+      datasets: [
+        {
+          label: I18n.t('sensors.house_power'),
+          data: house_power&.map(&:second),
+        }.merge(style(:house_power)),
+        {
+          label: I18n.t('sensors.inverter_power'),
+          data: inverter_power&.map(&:second),
+        }.merge(style(:inverter_power)),
+        {
+          label: I18n.t('sensors.grid_import_power'),
+          data: grid_import_power&.map{ |x| x.second * -1 },
+        }.merge(style(:grid_import_power)),
+      ],
+    }
+  end
+
   def data_autarky
     {
       labels: autarky&.map { |x| x.first.to_i * 1000 },
@@ -71,6 +100,30 @@ class ChartData # rubocop:disable Metrics/ClassLength
           label: I18n.t('calculator.consumption_quote'),
           data: consumption&.map(&:second),
         }.merge(style(:consumption)),
+      ],
+    }
+  end
+
+  def data_co2_savings
+    {
+      labels: co2_savings&.map { |x| x.first.to_i * 1000 },
+      datasets: [
+        {
+          label: I18n.t('calculator.co2_savings'),
+          data: co2_savings&.map(&:second),
+        }.merge(style(:co2_savings)),
+      ],
+    }
+  end
+
+  def data_savings
+    {
+      labels: savings&.map { |x| x.first.to_i * 1000 },
+      datasets: [
+        {
+          label: I18n.t('calculator.savings'),
+          data: savings&.map(&:second),
+        }.merge(style(:savings)),
       ],
     }
   end
@@ -144,13 +197,28 @@ class ChartData # rubocop:disable Metrics/ClassLength
         :inverter_power
       ]
   end
-
+#
+#  def grid_import_power
+#    @grid_import_power ||=
+#      PowerChart.new(sensors: %i[grid_import_power]).call(timeframe)[
+#        :grid_import_power
+#      ]
+#  end
+#
   def autarky
     @autarky ||= AutarkyChart.new.call(timeframe)
   end
 
   def consumption
     @consumption ||= ConsumptionChart.new.call(timeframe)
+  end
+
+  def co2_savings
+    @co2_savings ||= Co2SavingsChart.new.call(timeframe)
+  end
+
+  def savings
+    @savings ||= SavingsChart.new.call(timeframe)
   end
 
   def inverter_power_forecast
@@ -192,6 +260,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       battery_charging_power: '#15803d', # bg-green-700
       autarky: '#15803d', # bg-green-700
       consumption: '#15803d', # bg-green-700
+      co2_savings: '#15803d', # bg-green-700
+      savings: '#15803d', # bg-green-700
       battery_soc: '#38bdf8', # bg-sky-400
       case_temp: '#f87171', # bg-red-400
     }[

@@ -4,6 +4,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     @sensor = sensor
     @timeframe = timeframe
   end
+
   attr_reader :sensor, :timeframe
 
   def options # rubocop:disable Metrics/MethodLength
@@ -152,10 +153,14 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
 
   def unit
     case sensor
-    when :battery_soc, :autarky, :consumption
+    when :battery_soc, :autarky, :consumption,
       '&percnt;'.html_safe
     when :case_temp
       '&deg;C'.html_safe
+    when :co2_savings
+      'kg'.html_safe
+    when :savings
+      '&euro;'.html_safe
     else
       timeframe.now? || timeframe.day? ? 'kW' : 'kWh'
     end
