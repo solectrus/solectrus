@@ -144,7 +144,7 @@ GEM
       thor
       tilt
     hashdiff (1.1.0)
-    honeybadger (5.11.0)
+    honeybadger (5.11.1)
     htmlbeautifier (1.4.3)
     htmlentities (4.3.4)
     http_accept_language (2.1.1)
