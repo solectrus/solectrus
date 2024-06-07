@@ -96,6 +96,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     id == :day
   end
 
+  def short?
+    now? || day?
+  end
+
   def week?
     id == :week
   end

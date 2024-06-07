@@ -119,6 +119,7 @@ describe Timeframe do
     it 'returns the correct inquirer' do
       expect(decoder.now?).to be(true)
       expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(true)
       expect(decoder.week?).to be(false)
       expect(decoder.month?).to be(false)
       expect(decoder.year?).to be(false)
@@ -192,6 +193,7 @@ describe Timeframe do
     it 'returns the correct inquirer' do
       expect(decoder.now?).to be(false)
       expect(decoder.day?).to be(true)
+      expect(decoder.short?).to be(true)
       expect(decoder.week?).to be(false)
       expect(decoder.month?).to be(false)
       expect(decoder.year?).to be(false)
@@ -314,6 +316,7 @@ describe Timeframe do
     it 'returns the correct inquirer' do
       expect(decoder.now?).to be(false)
       expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(false)
       expect(decoder.week?).to be(true)
       expect(decoder.month?).to be(false)
       expect(decoder.year?).to be(false)
@@ -452,6 +455,7 @@ describe Timeframe do
     it 'returns the correct inquirer' do
       expect(decoder.now?).to be(false)
       expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(false)
       expect(decoder.week?).to be(false)
       expect(decoder.month?).to be(true)
       expect(decoder.year?).to be(false)
@@ -578,6 +582,7 @@ describe Timeframe do
     it 'returns the correct inquirer' do
       expect(decoder.now?).to be(false)
       expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(false)
       expect(decoder.week?).to be(false)
       expect(decoder.month?).to be(false)
       expect(decoder.year?).to be(true)
@@ -704,6 +709,7 @@ describe Timeframe do
     it 'returns the correct inquirer' do
       expect(decoder.now?).to be(false)
       expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(false)
       expect(decoder.week?).to be(false)
       expect(decoder.month?).to be(false)
       expect(decoder.year?).to be(false)

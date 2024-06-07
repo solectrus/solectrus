@@ -24,7 +24,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
         },
         zoom:
           (
-            if timeframe.now? || timeframe.day?
+            if timeframe.short?
               { zoom: { drag: { enabled: true }, mode: 'x' } }
             else
               {}
@@ -147,7 +147,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
 
   def type
-    (timeframe.now? || timeframe.day? ? 'line' : 'bar').inquiry
+    (timeframe.short? ? 'line' : 'bar').inquiry
   end
 
   def unit
@@ -159,7 +159,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     when :co2_savings
       'kg'
     else
-      timeframe.now? || timeframe.day? ? 'kW' : 'kWh'
+      timeframe.short? ? 'kWh' : 'kW'
     end
   end
 end
