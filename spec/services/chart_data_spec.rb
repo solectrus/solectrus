@@ -79,6 +79,19 @@ describe ChartData do
       end
     end
 
+    context 'when sensor is co2_savings' do
+      let(:sensor) { :co2_savings }
+
+      it 'returns JSON' do
+        expect(chart_data_hash).to be_a(Hash)
+        expect(chart_data_hash).to include('datasets', 'labels')
+
+        expect(chart_data_hash.dig('datasets', 0, 'data', now.day - 1)).to eq(
+          11, # 28 kW * 401 g/kWh / 1000
+        )
+      end
+    end
+
     context 'when sensor is wallbox_power' do
       let(:sensor) { :wallbox_power }
 
@@ -130,6 +143,19 @@ describe ChartData do
         expect(chart_data_hash.dig('datasets', 0, 'data').last).to be_within(
           0.001,
         ).of(28)
+      end
+    end
+
+    context 'when sensor is co2_savings' do
+      let(:sensor) { :co2_savings }
+
+      it 'returns JSON' do
+        expect(chart_data_hash).to be_a(Hash)
+        expect(chart_data_hash).to include('datasets', 'labels')
+
+        expect(chart_data_hash.dig('datasets', 0, 'data').last).to eq(
+          468, # 28 kW * 401 g/kWh / 24
+        )
       end
     end
 
