@@ -83,10 +83,26 @@ class ChartData # rubocop:disable Metrics/ClassLength
       datasets: [
         {
           label: I18n.t('calculator.co2_savings'),
-          data: co2_savings&.map { |x| x.second ? (x.second * Calculator::Range::CO2_EMISION_FACTOR.to_f / 1000.0) : nil },
+          data:
+            co2_savings&.map do |x|
+              (x.second * co2_savings_factor).round if x.second
+            end,
         }.merge(style(:co2_savings)),
       ],
     }
+  end
+
+  def co2_savings_factor
+    Calculator::Range::CO2_EMISION_FACTOR.to_f /
+      (
+        if timeframe.short?
+          # g per hour
+          24.0
+        else
+          # kg
+          1000.0
+        end
+      )
   end
 
   def chart
