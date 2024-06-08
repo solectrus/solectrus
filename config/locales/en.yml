@@ -59,6 +59,7 @@ en:
     traditional_price: Comparative price
     savings: Savings
     co2_savings: CO₂ savings
+    co2_savings_note: Reduction in CO₂ emissions from PV generation compared to the German electricity mix (401 g/kWh)
     battery_savings: Battery share
     house_costs: House costs
     wallbox_costs: EV costs

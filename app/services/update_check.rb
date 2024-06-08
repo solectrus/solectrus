@@ -98,7 +98,9 @@ class UpdateCheck
 
   def verify_mode
     if Rails.env.production?
+      # :nocov:
       OpenSSL::SSL::VERIFY_PEER
+      # :nocov:
     else
       OpenSSL::SSL::VERIFY_NONE
     end

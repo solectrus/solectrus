@@ -53,7 +53,7 @@ class EssentialsTile::Component < ViewComponent::Base
     house_power: 'fa-home',
     wallbox_power: 'fa-car',
     savings: 'fa-piggy-bank',
-    co2_savings: 'fa-tree-city',
+    co2_savings: 'fa-leaf',
     battery_soc: 'fa-battery-half',
   }.freeze
 
@@ -82,6 +82,17 @@ class EssentialsTile::Component < ViewComponent::Base
 
   def icon_class
     ICONS[sensor]
+  end
+
+  def title
+    case sensor
+    when :savings
+      t("calculator.#{sensor}")
+    when :co2_savings
+      t('calculator.co2_savings_note')
+    else
+      t("sensors.#{sensor}")
+    end
   end
 
   def formatted_value
