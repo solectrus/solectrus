@@ -53,7 +53,7 @@ class EssentialsTile::Component < ViewComponent::Base
     house_power: 'fa-home',
     wallbox_power: 'fa-car',
     savings: 'fa-piggy-bank',
-    co2_savings: 'fa-tree-city',
+    co2_savings: 'fa-leaf',
     battery_soc: 'fa-battery-half',
   }.freeze
 
