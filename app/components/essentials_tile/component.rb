@@ -86,8 +86,10 @@ class EssentialsTile::Component < ViewComponent::Base
 
   def title
     case sensor
-    when :savings, :co2_savings
+    when :savings
       t("calculator.#{sensor}")
+    when :co2_savings
+      t('calculator.co2_savings_note')
     else
       t("sensors.#{sensor}")
     end
