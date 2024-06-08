@@ -1,6 +1,7 @@
 = link_to path,
           class: [ '@container flex-1 h-full text-center py-2 group', background_color ],
-          data: { controller: 'essentials-tile--component', 'essentials-tile--component-interval-value' => refresh_interval } do
+          title:,
+          data: { controller: 'tippy essentials-tile--component', 'essentials-tile--component-interval-value' => refresh_interval } do
   .click-animation.flex.flex-col.justify-around.h-full
     i.fa.h-10 class= [icon_class, text_secondary_color]
 

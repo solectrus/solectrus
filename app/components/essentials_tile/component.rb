@@ -84,6 +84,15 @@ class EssentialsTile::Component < ViewComponent::Base
     ICONS[sensor]
   end
 
+  def title
+    case sensor
+    when :savings, :co2_savings
+      t("calculator.#{sensor}")
+    else
+      t("sensors.#{sensor}")
+    end
+  end
+
   def formatted_value
     return '---' unless value
 
