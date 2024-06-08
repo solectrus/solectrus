@@ -41,6 +41,9 @@ gem 'rack-cors', require: 'rack/cors'
 # Block & throttle abusive requests (https://github.com/rack/rack-attack)
 gem 'rack-attack'
 
+# Brotli compression for Rack responses (http://github.com/marcotc/rack-brotli/)
+gem 'rack-brotli'
+
 # Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
 gem 'lograge'
 
