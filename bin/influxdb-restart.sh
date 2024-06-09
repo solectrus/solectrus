@@ -2,6 +2,7 @@
 
 # Start InfluxDB via Docker
 # Taken from https://github.com/influxdata/influxdb-client-ruby/blob/v2.9.0/bin/influxdb-restart.sh
+# Simplified by using DOCKER_INFLUXDB_INIT_MODE=setup
 
 #
 # The MIT License
@@ -52,12 +53,13 @@ docker pull "${INFLUXDB_V2_IMAGE}" || true
 docker run \
        --detach \
        --env INFLUXD_HTTP_BIND_ADDRESS=:8086 \
+       --env DOCKER_INFLUXDB_INIT_MODE=setup \
+       --env DOCKER_INFLUXDB_INIT_USERNAME=my-user \
+       --env DOCKER_INFLUXDB_INIT_PASSWORD=my-password \
+       --env DOCKER_INFLUXDB_INIT_ORG=my-org \
+       --env DOCKER_INFLUXDB_INIT_BUCKET=my-bucket \
+       --env DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-token \
        --name influxdb_v2 \
        --network influx_network \
        --publish 8086:8086 \
        "${INFLUXDB_V2_IMAGE}"
-
-#
-# Post onBoarding request to InfluxDB 2
-#
-"${SCRIPT_PATH}"/influxdb-onboarding.sh

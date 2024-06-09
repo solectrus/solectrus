@@ -34,7 +34,6 @@ logo.svg
 spec
 coverage
 bin/dev
-bin/influxdb-onboarding.sh
 bin/influxdb-restart.sh
 bin/rspec
 bin/rubocop

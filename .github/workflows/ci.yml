@@ -26,6 +26,12 @@ jobs:
         ports: ['8086:8086']
         env:
           INFLUXD_HTTP_BIND_ADDRESS: ':8086'
+          DOCKER_INFLUXDB_INIT_MODE: setup
+          DOCKER_INFLUXDB_INIT_USERNAME: my-user
+          DOCKER_INFLUXDB_INIT_PASSWORD: my-password
+          DOCKER_INFLUXDB_INIT_ORG: my-org
+          DOCKER_INFLUXDB_INIT_BUCKET: my-bucket
+          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-token
 
       postgres:
         image: postgres:16-alpine
@@ -75,9 +81,6 @@ jobs:
 
       - name: Lint with SlimLint
         run: bundle exec slim-lint .
-
-      - name: Setup InfluxDB
-        run: bin/influxdb-onboarding.sh
 
       - name: Setup PostgreSQL
         run: bin/rails db:create
