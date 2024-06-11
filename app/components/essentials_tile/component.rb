@@ -25,7 +25,7 @@ class EssentialsTile::Component < ViewComponent::Base
     return :gray if value.nil? || value.round.zero?
 
     case sensor
-    when :savings, :co2_savings
+    when :savings, :co2_reduction
       :blue
     when :house_power
       :gray
@@ -53,7 +53,7 @@ class EssentialsTile::Component < ViewComponent::Base
     house_power: 'fa-home',
     wallbox_power: 'fa-car',
     savings: 'fa-piggy-bank',
-    co2_savings: 'fa-leaf',
+    co2_reduction: 'fa-leaf',
     battery_soc: 'fa-battery-half',
   }.freeze
 
@@ -88,8 +88,8 @@ class EssentialsTile::Component < ViewComponent::Base
     case sensor
     when :savings
       t("calculator.#{sensor}")
-    when :co2_savings
-      t('calculator.co2_savings_note')
+    when :co2_reduction
+      t('calculator.co2_reduction_note')
     else
       t("sensors.#{sensor}")
     end
@@ -102,7 +102,7 @@ class EssentialsTile::Component < ViewComponent::Base
     case sensor
     when :savings
       number.to_eur(klass: 'text-inherit')
-    when :co2_savings
+    when :co2_reduction
       number.to_weight
     when :autarky, :battery_soc
       number.to_percent(klass: 'text-inherit')

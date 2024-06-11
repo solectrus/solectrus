@@ -14,7 +14,7 @@ class EssentialsController < ApplicationController
       { sensor: 'inverter_power', timeframe: 'day' },
       { sensor: 'inverter_power', timeframe: 'month' },
       { sensor: 'inverter_power', timeframe: 'year' },
-      { sensor: 'co2_savings', timeframe: 'year' },
+      { sensor: 'co2_reduction', timeframe: 'year' },
       { sensor: 'savings', timeframe: 'year' },
     ]
   end

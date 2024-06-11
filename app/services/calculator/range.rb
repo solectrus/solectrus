@@ -109,7 +109,7 @@ class Calculator::Range < Calculator::Base
     solar_price - traditional_price
   end
 
-  def co2_savings
+  def co2_reduction
     return unless inverter_power
 
     inverter_power / 1000 * CO2_EMISION_FACTOR

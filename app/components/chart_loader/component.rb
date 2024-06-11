@@ -156,7 +156,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
       '&percnt;'.html_safe
     when :case_temp
       '&deg;C'.html_safe
-    when :co2_savings
+    when :co2_reduction
       timeframe.short? ? 'g/h' : 'kg'
     else
       timeframe.short? ? 'kWh' : 'kW'

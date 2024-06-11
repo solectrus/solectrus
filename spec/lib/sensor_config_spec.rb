@@ -103,7 +103,7 @@ describe SensorConfig do
         expect(sensor_config.exists?(:autarky)).to be(true)
         expect(sensor_config.exists?(:consumption)).to be(true)
         expect(sensor_config.exists?(:savings)).to be(true)
-        expect(sensor_config.exists?(:co2_savings)).to be(true)
+        expect(sensor_config.exists?(:co2_reduction)).to be(true)
       end
 
       it 'fails for invalid sensor' do

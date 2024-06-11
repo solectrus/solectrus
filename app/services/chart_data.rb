@@ -10,8 +10,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       data_autarky
     elsif sensor == :consumption
       data_consumption
-    elsif sensor == :co2_savings
-      data_co2_savings
+    elsif sensor == :co2_reduction
+      data_co2_reduction
     elsif timeframe.day? && sensor == :inverter_power
       data_day_inverter_power
     else
@@ -77,22 +77,22 @@ class ChartData # rubocop:disable Metrics/ClassLength
     }
   end
 
-  def data_co2_savings
+  def data_co2_reduction
     {
-      labels: co2_savings&.map { |x| x.first.to_i * 1000 },
+      labels: co2_reduction&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
-          label: I18n.t('calculator.co2_savings'),
+          label: I18n.t('calculator.co2_reduction'),
           data:
-            co2_savings&.map do |x|
-              (x.second * co2_savings_factor).round if x.second
+            co2_reduction&.map do |x|
+              (x.second * co2_reduction_factor).round if x.second
             end,
-        }.merge(style(:co2_savings)),
+        }.merge(style(:co2_reduction)),
       ],
     }
   end
 
-  def co2_savings_factor
+  def co2_reduction_factor
     Calculator::Range::CO2_EMISION_FACTOR.to_f /
       (
         if timeframe.short?
@@ -183,8 +183,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
     @consumption ||= ConsumptionChart.new.call(timeframe)
   end
 
-  def co2_savings
-    @co2_savings ||=
+  def co2_reduction
+    @co2_reduction ||=
       PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
         :inverter_power
       ]
@@ -231,7 +231,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
       consumption: '#15803d', # bg-green-700
       battery_soc: '#38bdf8', # bg-sky-400
       case_temp: '#f87171', # bg-red-400
-      co2_savings: '#2563eb', # bg-blue-600
+      co2_reduction: '#2563eb', # bg-blue-600
     }[
       chart_sensor
     ]
