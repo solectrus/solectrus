@@ -23,7 +23,7 @@ class PricesController < ApplicationController
     if @price.save
       respond_with_flash notice: t('crud.success')
     else
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
@@ -31,7 +31,7 @@ class PricesController < ApplicationController
     if @price.update(permitted_params)
       respond_with_flash notice: t('crud.success')
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 

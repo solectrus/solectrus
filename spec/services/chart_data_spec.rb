@@ -79,8 +79,8 @@ describe ChartData do
       end
     end
 
-    context 'when sensor is co2_savings' do
-      let(:sensor) { :co2_savings }
+    context 'when sensor is co2_reduction' do
+      let(:sensor) { :co2_reduction }
 
       it 'returns JSON' do
         expect(chart_data_hash).to be_a(Hash)
@@ -146,8 +146,8 @@ describe ChartData do
       end
     end
 
-    context 'when sensor is co2_savings' do
-      let(:sensor) { :co2_savings }
+    context 'when sensor is co2_reduction' do
+      let(:sensor) { :co2_reduction }
 
       it 'returns JSON' do
         expect(chart_data_hash).to be_a(Hash)

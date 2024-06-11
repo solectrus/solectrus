@@ -10,7 +10,7 @@ describe('Home page', () => {
     'wallbox_power',
     'case_temp',
     'battery_soc',
-    'co2_savings',
+    'co2_reduction',
   ].forEach((path) => {
     it(`${path} is clickable`, () => {
       cy.visit(`/${path}`);

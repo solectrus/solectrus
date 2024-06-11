@@ -58,8 +58,8 @@ de:
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     savings: Einsparung
-    co2_savings: CO₂-Einsparung
-    co2_savings_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung gegenüber dem deutschen Strommix (401 g/kWh).
+    co2_reduction: CO₂-Reduktion
+    co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung gegenüber dem deutschen Strommix (401 g/kWh).
     battery_savings: Anteil Akku
     house_costs: Anteil Haus
     wallbox_costs: Anteil E-Auto

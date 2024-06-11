@@ -41,7 +41,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   ].freeze
   public_constant :POWER_SENSORS
 
-  CALCULATED_SENSORS = %i[autarky consumption savings co2_savings].freeze
+  CALCULATED_SENSORS = %i[autarky consumption savings co2_reduction].freeze
   public_constant :CALCULATED_SENSORS
 
   # Combine charging/discharging and import/export fields
@@ -112,7 +112,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists_all? :inverter_power, :grid_export_power
     when :savings
       exists_all? :inverter_power, :house_power, :grid_power
-    when :co2_savings
+    when :co2_reduction
       exists? :inverter_power
     when *SENSOR_NAMES
       measurement(sensor_name).present? && field(sensor_name).present?

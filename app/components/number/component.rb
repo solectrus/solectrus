@@ -46,17 +46,17 @@ class Number::Component < ViewComponent::Base
     )
   end
 
-  def to_weight(max_precision: 1, unit: determine_weight_unit)
+  def to_weight(max_precision: 1, unit: determine_weight_unit, klass: nil)
     raise ArgumentError unless unit.in?(%i[single kilo tons])
     return unless value
 
     case unit
     when :single
-      to_g(max_precision: 0)
+      to_g(max_precision: 0, klass:)
     when :kilo
-      to_kg(max_precision:)
+      to_kg(max_precision: 0, klass:)
     when :tons
-      to_t(max_precision:)
+      to_t(max_precision:, klass:)
     end
   end
 
@@ -139,16 +139,16 @@ class Number::Component < ViewComponent::Base
     styled_number(mega(max_precision:), unit: 'MWh')
   end
 
-  def to_g(max_precision:)
-    styled_number(single(max_precision:), unit: 'g')
+  def to_g(max_precision:, klass: nil)
+    styled_number(single(max_precision:), unit: 'g', klass:)
   end
 
-  def to_kg(max_precision:)
-    styled_number(kilo(max_precision:), unit: 'kg')
+  def to_kg(max_precision:, klass: nil)
+    styled_number(kilo(max_precision:), unit: 'kg', klass:)
   end
 
-  def to_t(max_precision:)
-    styled_number(mega(max_precision:), unit: 't')
+  def to_t(max_precision:, klass: nil)
+    styled_number(mega(max_precision:), unit: 't', klass:)
   end
 
   def styled_number(number_as_string, unit:, klass: nil)
