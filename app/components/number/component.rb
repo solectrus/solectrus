@@ -54,7 +54,7 @@ class Number::Component < ViewComponent::Base
     when :single
       to_g(max_precision: 0)
     when :kilo
-      to_kg(max_precision:)
+      to_kg(max_precision: 0)
     when :tons
       to_t(max_precision:)
     end

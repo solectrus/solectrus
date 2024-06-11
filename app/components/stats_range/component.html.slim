@@ -33,6 +33,18 @@
 
     div class="flex-1"
 
+    - unless timeframe.future?
+      = link_to root_path(sensor: 'co2_savings', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                  turbo_prefetch: 'false',
+                },
+                class: 'click-animation' do
+        div data-controller="tippy" title= t('calculator.co2_savings_note')
+          = render RadialBadge::Component.new(title: t('calculator.co2_savings')) do
+            = Number::Component.new(value: calculator.co2_savings).to_weight
+
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.total_costs')) do
         - unless timeframe.future?
