@@ -25,8 +25,10 @@ class EssentialsTile::Component < ViewComponent::Base
     return :gray if value.nil? || value.round.zero?
 
     case sensor
-    when :savings, :co2_reduction
-      :blue
+    when :savings
+      :violet
+    when :co2_reduction
+      :sky
     when :house_power
       :gray
     else
@@ -62,7 +64,8 @@ class EssentialsTile::Component < ViewComponent::Base
     yellow: 'bg-yellow-600',
     red: 'bg-red-600',
     gray: 'bg-gray-600',
-    blue: 'bg-blue-600',
+    sky: 'bg-sky-600',
+    violet: 'bg-violet-600',
   }.freeze
 
   TEXT_PRIMARY_COLOR = 'text-white'.freeze
@@ -72,7 +75,8 @@ class EssentialsTile::Component < ViewComponent::Base
     yellow: 'text-yellow-100',
     red: 'text-red-100',
     gray: 'text-gray-100',
-    blue: 'text-blue-100',
+    sky: 'text-sky-100',
+    violet: 'text-violet-100',
   }.freeze
 
   private_constant :BACKGROUND_COLOR

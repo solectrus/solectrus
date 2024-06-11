@@ -231,7 +231,7 @@ class ChartData # rubocop:disable Metrics/ClassLength
       consumption: '#15803d', # bg-green-700
       battery_soc: '#38bdf8', # bg-sky-400
       case_temp: '#f87171', # bg-red-400
-      co2_reduction: '#2563eb', # bg-blue-600
+      co2_reduction: '#0369a1', # bg-sky-700
     }[
       chart_sensor
     ]

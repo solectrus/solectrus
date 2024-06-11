@@ -43,7 +43,7 @@
                 class: 'click-animation' do
         div data-controller="tippy" title= t('calculator.co2_reduction_note')
           = render RadialBadge::Component.new(title: t('calculator.co2_reduction')) do
-            = Number::Component.new(value: calculator.co2_reduction).to_weight
+            = Number::Component.new(value: calculator.co2_reduction).to_weight(klass: 'text-sky-700')
 
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.total_costs')) do

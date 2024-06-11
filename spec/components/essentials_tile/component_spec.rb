@@ -20,11 +20,11 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct color' do
-      expect(component.color).to eq :blue
+      expect(component.color).to eq :violet
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-blue-600'
+      expect(component.background_color).to eq 'bg-violet-600'
     end
 
     it 'returns the correct text primary color' do
@@ -32,7 +32,7 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct text secondary color' do
-      expect(component.text_secondary_color).to eq 'text-blue-100'
+      expect(component.text_secondary_color).to eq 'text-violet-100'
     end
   end
 
