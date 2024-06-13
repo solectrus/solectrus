@@ -78,6 +78,9 @@ group :development, :test do
   # Automatic Ruby code style checking tool. (https://github.com/rubocop/rubocop)
   gem 'rubocop', require: false
 
+  # Code style checking for Capybara test files (https://github.com/rubocop/rubocop-capybara)
+  gem 'rubocop-capybara', require: false
+
   # Automatic performance checking tool for Ruby code. (https://github.com/rubocop/rubocop-performance)
   gem 'rubocop-performance', require: false
 
@@ -86,6 +89,9 @@ group :development, :test do
 
   # Code style checking for RSpec files (https://github.com/rubocop/rubocop-rspec)
   gem 'rubocop-rspec', require: false
+
+  # Code style checking for RSpec Rails files (https://github.com/rubocop/rubocop-rspec_rails)
+  gem 'rubocop-rspec_rails', require: false
 
   # Thread-safety checks via static analysis (https://github.com/rubocop/rubocop-thread_safety)
   gem 'rubocop-thread_safety', require: false
