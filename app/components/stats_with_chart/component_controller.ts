@@ -183,15 +183,18 @@ export default class extends Controller {
           this.statsTarget.reload(),
         ]);
       else await this.statsTarget.reload();
+
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          application.controllers.forEach((controller) => {
+            if (controller instanceof TippyController) controller.refresh();
+          });
+          resolve();
+        }, 100);
+      });
     } catch (error) {
       console.error(error);
     }
-
-    setTimeout(() => {
-      application.controllers.forEach((controller) => {
-        if (controller instanceof TippyController) controller.refresh();
-      });
-    }, 100);
   }
 
   get chart(): Chart | undefined {
