@@ -228,13 +228,13 @@ export default class extends Controller {
               target.dataset.sensor === 'battery_charging_power' ||
               target.dataset.sensor === 'battery_discharging_power'
             );
-            break;
+
           case 'grid_power':
             return (
               target.dataset.sensor === 'grid_import_power' ||
               target.dataset.sensor === 'grid_export_power'
             );
-            break;
+
           default:
             return target.dataset.sensor.startsWith(this.effectiveSensor);
         }
@@ -246,6 +246,8 @@ export default class extends Controller {
         targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ??
         targets[0]
       );
+
+    return undefined;
   }
 
   // The positive dataset is where at least one positive value exist
