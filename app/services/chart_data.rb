@@ -167,11 +167,20 @@ class ChartData # rubocop:disable Metrics/ClassLength
     PowerChart.new(sensors:).call(timeframe)
   end
 
+  def inverter_power_with_forecast
+    @inverter_power_with_forecast ||=
+      PowerChart.new(sensors: %i[inverter_power inverter_power_forecast]).call(
+        timeframe,
+        interpolate: true,
+      )
+  end
+
   def inverter_power
-    @inverter_power ||=
-      PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
-        :inverter_power
-      ]
+    inverter_power_with_forecast[:inverter_power]
+  end
+
+  def inverter_power_forecast
+    inverter_power_with_forecast[:inverter_power_forecast]
   end
 
   def autarky
@@ -186,19 +195,6 @@ class ChartData # rubocop:disable Metrics/ClassLength
     @co2_reduction ||=
       PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
         :inverter_power
-      ]
-  end
-
-  def inverter_power_forecast
-    return unless SensorConfig.x.exists?(:inverter_power_forecast)
-
-    @inverter_power_forecast ||=
-      PowerChart.new(sensors: %i[inverter_power_forecast]).call(
-        timeframe,
-        fill: false,
-        interpolate: true,
-      )[
-        :inverter_power_forecast
       ]
   end
 
