@@ -93,16 +93,15 @@ class ChartData # rubocop:disable Metrics/ClassLength
   end
 
   def co2_reduction_factor
-    Calculator::Range::CO2_EMISION_FACTOR.to_f /
-      (
-        if timeframe.short?
-          # g per hour
-          24.0
-        else
-          # kg
-          1000.0
-        end
-      )
+    Calculator::Range::CO2_EMISION_FACTOR.fdiv(
+      if timeframe.short?
+        # g per hour
+        24.0
+      else
+        # kg
+        1000.0
+      end,
+    )
   end
 
   def chart
