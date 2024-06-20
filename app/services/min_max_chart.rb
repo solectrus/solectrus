@@ -53,7 +53,7 @@ class MinMaxChart < Flux::Reader
       import "timezone"
 
       #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: #{window}, fn: min, location: #{location})
@@ -61,7 +61,7 @@ class MinMaxChart < Flux::Reader
       |> yield(name: "min")
 
       #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: #{window}, fn: max, location: #{location})
@@ -77,7 +77,7 @@ class MinMaxChart < Flux::Reader
       import "timezone"
 
       #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: 1d, fn: min)
@@ -86,7 +86,7 @@ class MinMaxChart < Flux::Reader
       |> yield(name: "min")
 
       #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
+      |> #{range(start: start - 1.hour, stop:)}
       |> #{filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: 1d, fn: max)
