@@ -116,7 +116,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     when :co2_reduction
       exists? :inverter_power
     when :mixed_chart
-      exists_all? :inverter_power, :house_power, :grid_import_power
+      exists_all?(:inverter_power, :grid_export_power) && exists_any?(:house_power, :heatpump_power, :wallbox_power)
     when *SENSOR_NAMES
       measurement(sensor_name).present? && field(sensor_name).present?
     else
