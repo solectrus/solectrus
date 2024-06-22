@@ -41,6 +41,9 @@ en:
     case_temp: Temperature
     grid_export_limit: Limitation
     heatpump_power: Heat pump
+    mixed_chart: Combined View
+    house_power_total_consumed: Total Consumption
+    house_power_self_consumed: Self Consumption
   balance_sheet:
     left: Origin
     right: Usage

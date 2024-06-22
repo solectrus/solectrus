@@ -14,6 +14,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       data_co2_reduction
     elsif timeframe.day? && sensor == :inverter_power
       data_day_inverter_power
+    elsif sensor == :mixed_chart
+      data_mixed_chart
     else
       data_generic
     end.to_json
@@ -88,6 +90,29 @@ class ChartData # rubocop:disable Metrics/ClassLength
               (x.second * co2_reduction_factor).round if x.second
             end,
         }.merge(style(:co2_reduction)),
+      ],
+    }
+  end
+
+  def data_mixed_chart # rubocop:disable Metrics/CyclomaticComplexity
+    {
+      labels:
+        (inverter_power || house_power_total_consumed || house_power_self_consumed)&.map do |x|
+          x.first.to_i * 1000
+        end,
+      datasets: [
+        {
+          label: I18n.t('sensors.house_power_self_consumed'),
+          data: house_power_self_consumed&.map(&:second),
+        }.merge(style(:house_power_self_consumed)),
+        {
+          label: I18n.t('sensors.house_power_total_consumed'),
+          data: house_power_total_consumed&.map(&:second),
+        }.merge(style(:house_power_total_consumed)),
+        {
+          label: I18n.t('sensors.inverter_power'),
+          data: inverter_power&.map(&:second),
+        }.merge(style(:inverter_power)),
       ],
     }
   end
@@ -175,6 +200,43 @@ class ChartData # rubocop:disable Metrics/ClassLength
       ]
   end
 
+  def house_power_total_consumed
+    @house_power_total_consumed ||= 
+      house_power_aggregator(PowerChart.new(sensors: %i[house_power heatpump_power wallbox_power]).call(timeframe),"total")
+  end
+
+  def house_power_self_consumed
+    @house_power_self_consumed ||= 
+      house_power_aggregator(PowerChart.new(sensors: %i[grid_export_power inverter_power]).call(timeframe),"self")
+  end
+
+  def house_power_aggregator(power_chart, house_power_variant)    
+    aggregated_data = {}
+    # Iterate over each sensor's data in power_chart
+    power_chart.each do |sensor_name, sensor_data|
+      sensor_data.each do |timestamp, power_value|
+        # Convert timestamp to string for consistent format
+        timestamp_str = timestamp.to_s
+        # Initialize or add/subtract to/from the aggregated_data hash
+        if aggregated_data[timestamp_str]
+          case house_power_variant
+            when "total"
+              aggregated_data[timestamp_str] += power_value
+            when "self"
+              aggregated_data[timestamp_str] -= power_value
+          end
+        else
+          aggregated_data[timestamp_str] = power_value
+        end
+      end
+    end
+    # Convert aggregated_data hash to the desired output format
+    house_power_aggregated = aggregated_data.map do |timestamp_str, total_power|
+      [timestamp_str, (total_power)&.abs]
+    end
+    house_power_aggregated
+  end
+  
   def autarky
     @autarky ||= AutarkyChart.new.call(timeframe)
   end
@@ -232,6 +294,8 @@ class ChartData # rubocop:disable Metrics/ClassLength
       battery_soc: '#38bdf8', # bg-sky-400
       case_temp: '#f87171', # bg-red-400
       co2_reduction: '#0369a1', # bg-sky-700
+      house_power_total_consumed: '#dc2626', # bg-red-600
+      house_power_self_consumed: '#0369a1', # bg-sky-700
     }[
       chart_sensor
     ]

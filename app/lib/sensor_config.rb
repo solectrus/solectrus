@@ -26,6 +26,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     case_temp
     system_status
     system_status_ok
+    mixed_chart
   ].freeze
   public_constant :SENSOR_NAMES
 
@@ -114,6 +115,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists_all? :inverter_power, :house_power, :grid_power
     when :co2_reduction
       exists? :inverter_power
+    when :mixed_chart
+      exists_all? :inverter_power, :house_power, :grid_import_power
     when *SENSOR_NAMES
       measurement(sensor_name).present? && field(sensor_name).present?
     else

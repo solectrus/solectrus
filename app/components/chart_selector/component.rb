@@ -20,6 +20,7 @@ class ChartSelector::Component < ViewComponent::Base
       autarky
       consumption
       co2_reduction
+      mixed_chart
     ].select { |sensor| SensorConfig.x.exists?(sensor) }
     # TODO: Add savings
   end
