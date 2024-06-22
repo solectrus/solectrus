@@ -2,7 +2,9 @@ describe Number::Component do
   let(:component) { described_class.new(value:) }
 
   describe 'to_watt_hour' do
-    subject(:to_watt_hour) { component.to_watt_hour }
+    subject(:to_watt_hour) { component.to_watt_hour(precision:) }
+
+    let(:precision) { nil }
 
     context 'when small number (< 100 kWh)' do
       let(:value) { 12_345.67 }
@@ -33,15 +35,28 @@ describe Number::Component do
         ).to eq '<span><strong class="font-medium">1</strong><small>.2</small>&nbsp;<small>MWh</small></span>'
       end
     end
+
+    context 'when large number with precision' do
+      let(:value) { 123_456.78 }
+      let(:precision) { 3 }
+
+      it 'renders kWh with decimal places' do
+        expect(
+          to_watt_hour,
+        ).to eq '<span><strong class="font-medium">123</strong><small>.457</small>&nbsp;<small>kWh</small></span>'
+      end
+    end
   end
 
-  describe 'to_watt(' do
-    subject(:to_watt) { component.to_watt }
+  describe 'to_watt' do
+    subject(:to_watt) { component.to_watt(precision:) }
+
+    let(:precision) { nil }
 
     context 'when small number (< 100 kW)' do
       let(:value) { 12_345.67 }
 
-      it do
+      it 'renders kW' do
         expect(
           to_watt,
         ).to eq '<span><strong class="font-medium">12</strong><small>.3</small>&nbsp;<small>kW</small></span>'
@@ -51,7 +66,7 @@ describe Number::Component do
     context 'when large number (>= 100 kW)' do
       let(:value) { 123_456.78 }
 
-      it do
+      it 'renders kW' do
         expect(
           to_watt,
         ).to eq '<span><strong class="font-medium">123</strong>&nbsp;<small>kW</small></span>'
@@ -61,10 +76,21 @@ describe Number::Component do
     context 'when very large number (>= 1000 kW)' do
       let(:value) { 1_234_567.89 }
 
-      it do
+      it 'renders MW' do
         expect(
           to_watt,
         ).to eq '<span><strong class="font-medium">1</strong><small>.2</small>&nbsp;<small>MW</small></span>'
+      end
+    end
+
+    context 'when large number with precision' do
+      let(:value) { 123_456.78 }
+      let(:precision) { 3 }
+
+      it 'renders kW with decimal places' do
+        expect(
+          to_watt,
+        ).to eq '<span><strong class="font-medium">123</strong><small>.457</small>&nbsp;<small>kW</small></span>'
       end
     end
   end

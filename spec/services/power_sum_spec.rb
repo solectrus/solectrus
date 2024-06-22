@@ -4,7 +4,8 @@ describe PowerSum do
   before do
     travel_to '2024-06-05 12:00' # Wednesday
 
-    sample_data beginning: Date.yesterday.beginning_of_day, range: 24.hours
+    sample_data beginning: Date.yesterday.beginning_of_day - 1.second,
+                range: 24.hours
     sample_data beginning: Date.current.beginning_of_day, range: 12.hours
   end
 

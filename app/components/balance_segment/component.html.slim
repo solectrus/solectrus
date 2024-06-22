@@ -56,13 +56,13 @@
         = I18n.t("sensors.#{sensor}")
         br
         - if now?
-          = Number::Component.new(value:).to_watt(max_precision: 3)
+          = Number::Component.new(value:).to_watt(precision: 3)
 
           - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
             .text-xs.text-center.mt-2
               = I18n.t('sensors.grid_export_limit')
               br
-              = Number::Component.new(value: calculator.grid_export_limit).to_percent(max_precision: 0, klass: 'text-xs')
+              = Number::Component.new(value: calculator.grid_export_limit).to_percent(precision: 0, klass: 'text-xs')
 
         - else
-          = Number::Component.new(value:).to_watt_hour(max_precision: 3)
+          = Number::Component.new(value:).to_watt_hour(precision: 3)

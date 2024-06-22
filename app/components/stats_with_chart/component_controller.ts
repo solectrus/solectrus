@@ -118,7 +118,8 @@ export default class extends Controller {
   }
 
   handleDblClick(event: MouseEvent) {
-    if (event.target == this.canvasTarget) this.chart?.resetZoom();
+    if (this.hasCanvasTarget && event.target == this.canvasTarget)
+      this.chart?.resetZoom();
   }
 
   addPointToChart() {
@@ -183,15 +184,18 @@ export default class extends Controller {
           this.statsTarget.reload(),
         ]);
       else await this.statsTarget.reload();
+
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          application.controllers.forEach((controller) => {
+            if (controller instanceof TippyController) controller.refresh();
+          });
+          resolve();
+        }, 100);
+      });
     } catch (error) {
       console.error(error);
     }
-
-    setTimeout(() => {
-      application.controllers.forEach((controller) => {
-        if (controller instanceof TippyController) controller.refresh();
-      });
-    }, 100);
   }
 
   get chart(): Chart | undefined {
@@ -228,13 +232,13 @@ export default class extends Controller {
               target.dataset.sensor === 'battery_charging_power' ||
               target.dataset.sensor === 'battery_discharging_power'
             );
-            break;
+
           case 'grid_power':
             return (
               target.dataset.sensor === 'grid_import_power' ||
               target.dataset.sensor === 'grid_export_power'
             );
-            break;
+
           default:
             return target.dataset.sensor.startsWith(this.effectiveSensor);
         }
@@ -246,6 +250,8 @@ export default class extends Controller {
         targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ??
         targets[0]
       );
+
+    return undefined;
   }
 
   // The positive dataset is where at least one positive value exist
