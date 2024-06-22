@@ -118,7 +118,8 @@ export default class extends Controller {
   }
 
   handleDblClick(event: MouseEvent) {
-    if (event.target == this.canvasTarget) this.chart?.resetZoom();
+    if (this.hasCanvasTarget && event.target == this.canvasTarget)
+      this.chart?.resetZoom();
   }
 
   addPointToChart() {
