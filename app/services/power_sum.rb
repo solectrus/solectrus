@@ -80,10 +80,13 @@ class PowerSum < Flux::Reader
     if stop&.past?
       # Range from the past, use more precise query
       <<~QUERY
+        import "timezone"
+
         #{from_bucket}
-        |> #{range(start:, stop:)}
+        |> #{range(start: start - 1.hour, stop:)}
         |> #{filter}
         |> aggregateWindow(every: 1h, fn: mean)
+        |> aggregateWindow(every: 1d, fn: sum, location: #{location})
         |> sum()
       QUERY
     else

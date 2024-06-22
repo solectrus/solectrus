@@ -118,16 +118,15 @@ class ChartData # rubocop:disable Metrics/ClassLength
   end
 
   def co2_reduction_factor
-    Calculator::Range::CO2_EMISION_FACTOR.to_f /
-      (
-        if timeframe.short?
-          # g per hour
-          24.0
-        else
-          # kg
-          1000.0
-        end
-      )
+    Calculator::Range::CO2_EMISION_FACTOR.fdiv(
+      if timeframe.short?
+        # g per hour
+        24.0
+      else
+        # kg
+        1000.0
+      end,
+    )
   end
 
   def chart
@@ -193,11 +192,20 @@ class ChartData # rubocop:disable Metrics/ClassLength
     PowerChart.new(sensors:).call(timeframe)
   end
 
+  def inverter_power_with_forecast
+    @inverter_power_with_forecast ||=
+      PowerChart.new(sensors: %i[inverter_power inverter_power_forecast]).call(
+        timeframe,
+        interpolate: true,
+      )
+  end
+
   def inverter_power
-    @inverter_power ||=
-      PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
-        :inverter_power
-      ]
+    inverter_power_with_forecast[:inverter_power]
+  end
+
+  def inverter_power_forecast
+    inverter_power_with_forecast[:inverter_power_forecast]
   end
 
   def house_power_total_consumed
@@ -249,19 +257,6 @@ class ChartData # rubocop:disable Metrics/ClassLength
     @co2_reduction ||=
       PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
         :inverter_power
-      ]
-  end
-
-  def inverter_power_forecast
-    return unless SensorConfig.x.exists?(:inverter_power_forecast)
-
-    @inverter_power_forecast ||=
-      PowerChart.new(sensors: %i[inverter_power_forecast]).call(
-        timeframe,
-        fill: false,
-        interpolate: true,
-      )[
-        :inverter_power_forecast
       ]
   end
 
