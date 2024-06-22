@@ -94,27 +94,32 @@ class ChartData # rubocop:disable Metrics/ClassLength
     }
   end
 
-  def data_mixed_chart # rubocop:disable Metrics/CyclomaticComplexity
+  def data_mixed_chart
     {
-      labels:
-        (inverter_power || house_power_total_consumed || house_power_self_consumed)&.map do |x|
-          x.first.to_i * 1000
-        end,
-      datasets: [
-        {
-          label: I18n.t('sensors.house_power_self_consumed'),
-          data: house_power_self_consumed&.map(&:second),
-        }.merge(style(:house_power_self_consumed)),
-        {
-          label: I18n.t('sensors.house_power_total_consumed'),
-          data: house_power_total_consumed&.map(&:second),
-        }.merge(style(:house_power_total_consumed)),
-        {
-          label: I18n.t('sensors.inverter_power'),
-          data: inverter_power&.map(&:second),
-        }.merge(style(:inverter_power)),
-      ],
+      labels: common_labels_for_mixed_chart,
+      datasets: mixed_chart_datasets,
     }
+  end
+
+  def common_labels_for_mixed_chart
+    (inverter_power || house_power_total_consumed || house_power_self_consumed)&.map do |x|
+      x.first.to_i * 1000
+    end
+  end
+
+  def mixed_chart_datasets
+    [
+      build_dataset(:house_power_self_consumed),
+      build_dataset(:house_power_total_consumed),
+      build_dataset(:inverter_power),
+    ]
+  end
+
+  def build_dataset(sensor_type)
+    {
+      label: I18n.t("sensors.#{sensor_type}"),
+      data: __send__(sensor_type)&.map(&:second),
+    }.merge(style(sensor_type))
   end
 
   def co2_reduction_factor
@@ -217,34 +222,28 @@ class ChartData # rubocop:disable Metrics/ClassLength
     @house_power_self_consumed ||= 
       house_power_aggregator(PowerChart.new(sensors: %i[grid_export_power inverter_power]).call(timeframe),"self")
   end
-
-  def house_power_aggregator(power_chart, house_power_variant)    
+ 
+  def house_power_aggregator(power_chart, house_power_variant) # rubocop:disable Metrics/CyclomaticComplexity  
     aggregated_data = {}
-    # Iterate over each sensor's data in power_chart
-    power_chart.each do |sensor_name, sensor_data|
+    
+    power_chart.each_value do |sensor_data|
       sensor_data.each do |timestamp, power_value|
-        # Convert timestamp to string for consistent format
-        timestamp_str = timestamp.to_s
-        # Initialize or add/subtract to/from the aggregated_data hash
-        if aggregated_data[timestamp_str]
+        if aggregated_data[timestamp]
           case house_power_variant
-            when "total"
-              aggregated_data[timestamp_str] += power_value
-            when "self"
-              aggregated_data[timestamp_str] -= power_value
+          when "total"
+            aggregated_data[timestamp] += power_value
+          when "self"
+            aggregated_data[timestamp] -= power_value
           end
         else
-          aggregated_data[timestamp_str] = power_value
+          aggregated_data[timestamp] = power_value
         end
       end
     end
-    # Convert aggregated_data hash to the desired output format
-    house_power_aggregated = aggregated_data.map do |timestamp_str, total_power|
-      [timestamp_str, (total_power)&.abs]
-    end
-    house_power_aggregated
+
+    aggregated_data.map { |timestamp, computed_value| [timestamp, computed_value&.abs] }
   end
-  
+
   def autarky
     @autarky ||= AutarkyChart.new.call(timeframe)
   end
