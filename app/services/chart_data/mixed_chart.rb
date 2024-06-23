@@ -92,10 +92,12 @@ class ChartData::MixedChart < ChartData::Base
     end
   end
 
+  # Colors taken temporary (!) from SolarEdge
+  # https://github.com/solectrus/solectrus/issues/2056#issuecomment-2144282438
   COLORS = {
-    house_power_self_consumed: '#0369a1', # bg-sky-700
-    inverter_power: '#16a34a', # bg-green-600
-    house_power_total_consumed: '#dc2626', # bg-red-600
+    house_power_self_consumed: '#4b75e0',
+    inverter_power: '#16a34a',
+    house_power_total_consumed: '#f09b39',
   }.freeze
   private_constant :COLORS
 
