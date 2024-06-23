@@ -6,7 +6,6 @@ import morphdom from 'morphdom';
 
 // Start Stimulus application
 export const application = Application.start();
-console.log("Stimulus application started:", application);
 // Configure Stimulus development experience
 application.debug = false; // process.env.NODE_ENV === 'development';
 
