@@ -1,5 +1,2 @@
 en:
   title: Electricity consumption costs
-  breakdown:
-    title: Estimated breakdown
-    explanation: The grid consumption is primarily attributed to the EV, the remaining to the home consumption.

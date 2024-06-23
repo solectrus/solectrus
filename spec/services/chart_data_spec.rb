@@ -4,11 +4,11 @@ describe ChartData do
     JSON.parse(call)
   end
 
-  let(:now) { Time.new('2024-04-17 11:00:00+02:00') }
-
-  around { |example| travel_to(now, &example) }
+  let(:now) { Time.new('2024-04-17 11:00:00 +02:00') }
 
   before do
+    travel_to(now)
+
     influx_batch do
       # Fill last hour with data
       12.times do |i|
@@ -40,15 +40,33 @@ describe ChartData do
                          },
                          time: 1.hour.ago + (5.minutes * i)
 
+        add_influx_point name: measurement_wallbox_power_grid,
+                         fields: {
+                           field_wallbox_power_grid => 9000,
+                         },
+                         time: 1.hour.ago + (5.minutes * i)
+
         add_influx_point name: measurement_heatpump_power,
                          fields: {
                            field_heatpump_power => 10_000,
                          },
                          time: 1.hour.ago + (5.minutes * i)
 
+        add_influx_point name: measurement_heatpump_power_grid,
+                         fields: {
+                           field_heatpump_power_grid => 900,
+                         },
+                         time: 1.hour.ago + (5.minutes * i)
+
         add_influx_point name: measurement_house_power,
                          fields: {
                            field_house_power => 15_000, # Includes heatpump of 10_000
+                         },
+                         time: 1.hour.ago + (5.minutes * i)
+
+        add_influx_point name: measurement_house_power_grid,
+                         fields: {
+                           field_house_power_grid => 300,
                          },
                          time: 1.hour.ago + (5.minutes * i)
 
@@ -101,7 +119,11 @@ describe ChartData do
         expect(chart_data_hash).to include('datasets', 'labels')
         expect(
           chart_data_hash.dig('datasets', 0, 'data', now.day - 1),
-        ).to be_within(0.001).of(27)
+        ).to be_within(0.001).of(18)
+
+        expect(
+          chart_data_hash.dig('datasets', 1, 'data', now.day - 1),
+        ).to be_within(0.001).of(9)
       end
     end
 
@@ -113,7 +135,11 @@ describe ChartData do
         expect(chart_data_hash).to include('datasets', 'labels')
         expect(
           chart_data_hash.dig('datasets', 0, 'data', now.day - 1),
-        ).to be_within(0.001).of(10)
+        ).to be_within(0.001).of(9.1)
+
+        expect(
+          chart_data_hash.dig('datasets', 1, 'data', now.day - 1),
+        ).to be_within(0.001).of(0.9)
       end
     end
 
@@ -125,7 +151,10 @@ describe ChartData do
         expect(chart_data_hash).to include('datasets', 'labels')
         expect(
           chart_data_hash.dig('datasets', 0, 'data', now.day - 1),
-        ).to be_within(0.001).of(5)
+        ).to be_within(0.001).of(4.7)
+        expect(
+          chart_data_hash.dig('datasets', 1, 'data', now.day - 1),
+        ).to be_within(0.001).of(0.3)
       end
     end
   end
