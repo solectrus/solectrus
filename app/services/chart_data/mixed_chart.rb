@@ -39,11 +39,17 @@ class ChartData::MixedChart < ChartData::Base
   def house_power_total_consumed
     @house_power_total_consumed ||=
       house_power_aggregator(
-        PowerChart.new(
-          sensors: %i[house_power heatpump_power wallbox_power],
-        ).call(timeframe),
+        PowerChart.new(sensors: consumer_sensors).call(timeframe),
         'total',
       )
+  end
+
+  def consumer_sensors
+    # All consumers - Except the ones that are already included in house_power
+    %i[house_power heatpump_power wallbox_power].select do |sensor|
+      SensorConfig.x.exists?(sensor) &&
+        SensorConfig.x.exclude_from_house_power.exclude?(sensor)
+    end
   end
 
   def house_power_self_consumed
