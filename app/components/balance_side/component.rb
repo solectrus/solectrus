@@ -1,10 +1,10 @@
 class BalanceSide::Component < ViewComponent::Base
   renders_many :segments,
-               ->(sensor, peak = nil) do
+               lambda { |sensor, peak = nil|
                  if SensorConfig.x.exists?(sensor)
                    BalanceSegment::Component.new sensor:, peak:, parent: self
                  end
-               end
+               }
 
   def initialize(side:, calculator:, timeframe:, sensor:)
     super
