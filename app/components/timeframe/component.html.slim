@@ -1,4 +1,6 @@
-.flex-auto.max-w-full.flex.items-center.justify-between.space-x-4.text-gray-200.tracking-wider.whitespace-nowrap.text-sm.md:text-base
+.flex-auto.max-w-full.flex.items-center.justify-between.space-x-4.text-gray-200.tracking-wider.whitespace-nowrap.text-sm.md:text-base[
+  data=options
+]
   - if can_paginate?
     - if timeframe.prev
       = link_to root_path(sensor: params[:sensor], timeframe: timeframe.prev),

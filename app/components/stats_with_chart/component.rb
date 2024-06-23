@@ -8,9 +8,9 @@ class StatsWithChart::Component < ViewComponent::Base
 
   def refresh_options
     {
-      controller: 'stats-with-chart--component',
-      'stats-with-chart--component-sensor-value': sensor,
-      'stats-with-chart--component-interval-value':
+      controller: "stats-with-chart--component, swipe",
+      "stats-with-chart--component-sensor-value": sensor,
+      "stats-with-chart--component-interval-value":
         (
           if timeframe.past?
             0
@@ -20,9 +20,9 @@ class StatsWithChart::Component < ViewComponent::Base
             5.minutes
           end
         ),
-      'stats-with-chart--component-reload-chart-value': !timeframe.now?,
-      'stats-with-chart--component-next-path-value': next_path,
-      'stats-with-chart--component-boundary-value': boundary,
+      "stats-with-chart--component-reload-chart-value": !timeframe.now?,
+      "stats-with-chart--component-next-path-value": next_path,
+      "stats-with-chart--component-boundary-value": boundary
     }
   end
 
@@ -52,6 +52,6 @@ class StatsWithChart::Component < ViewComponent::Base
 
   def chart_loading_animation?
     # Show loading animation for frame requests only, not for the first request
-    request.headers.key?('Turbo-Frame')
+    request.headers.key?("Turbo-Frame")
   end
 end
