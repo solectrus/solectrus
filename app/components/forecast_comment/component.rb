@@ -1,4 +1,4 @@
-class Comment::Component < ViewComponent::Base
+class ForecastComment::Component < ViewComponent::Base
   def initialize(calculator:, sensor:, timeframe:)
     super
     @calculator = calculator
