@@ -46,7 +46,12 @@ class ChartData::MixedChart < ChartData::Base
 
   def consumer_sensors
     # All consumers - Except the ones that are already included in house_power
-    %i[house_power heatpump_power wallbox_power].select do |sensor|
+    %i[
+      house_power
+      heatpump_power
+      wallbox_power
+      battery_charging_power
+    ].select do |sensor|
       SensorConfig.x.exists?(sensor) &&
         SensorConfig.x.exclude_from_house_power.exclude?(sensor)
     end
