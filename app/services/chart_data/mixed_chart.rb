@@ -14,8 +14,8 @@ class ChartData::MixedChart < ChartData::Base
   def mixed_chart_datasets
     [
       build_dataset(:house_power_self_consumed),
-      build_dataset(:house_power_total_consumed),
       build_dataset(:inverter_power),
+      build_dataset(:house_power_total_consumed),
     ]
   end
 
@@ -93,13 +93,20 @@ class ChartData::MixedChart < ChartData::Base
   end
 
   COLORS = {
+    house_power_self_consumed: '#0369a1', # bg-sky-700
     inverter_power: '#16a34a', # bg-green-600
     house_power_total_consumed: '#dc2626', # bg-red-600
-    house_power_self_consumed: '#0369a1', # bg-sky-700
   }.freeze
   private_constant :COLORS
 
+  FILL = {
+    house_power_self_consumed: 'origin',
+    inverter_power: '-1',
+    house_power_total_consumed: 'stack',
+  }.freeze
+  private_constant :FILL
+
   def style(sensor_name)
-    super().merge(backgroundColor: COLORS[sensor_name])
+    super().merge(backgroundColor: COLORS[sensor_name], fill: FILL[sensor_name])
   end
 end
