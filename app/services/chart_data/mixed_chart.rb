@@ -19,11 +19,11 @@ class ChartData::MixedChart < ChartData::Base
     ]
   end
 
-  def build_dataset(sensor_type)
+  def build_dataset(sensor_name)
     {
-      label: I18n.t("sensors.#{sensor_type}"),
-      data: __send__(sensor_type)&.map(&:second),
-    }.merge(style(sensor_type))
+      label: I18n.t("sensors.#{sensor_name}"),
+      data: __send__(sensor_name)&.map(&:second),
+    }.merge(style(sensor_name))
   end
 
   def inverter_power
