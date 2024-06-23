@@ -8,7 +8,7 @@ class StatsWithChart::Component < ViewComponent::Base
 
   def refresh_options
     {
-      controller: 'stats-with-chart--component',
+      controller: 'stats-with-chart--component, swipe',
       'stats-with-chart--component-sensor-value': sensor,
       'stats-with-chart--component-interval-value':
         (
