@@ -73,7 +73,7 @@ class AutarkyChart < Flux::Reader
     q << "|> #{filter}"
     q << '|> aggregateWindow(every: 1h, fn: mean)'
     q << "|> aggregateWindow(every: #{window}, fn: sum, location: #{location})"
-    q << "|> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")"
+    q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
 
     q << if wallbox_power_field
       '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \

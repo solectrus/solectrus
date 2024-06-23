@@ -29,6 +29,7 @@ en:
     all: Since commissioning
   sensors:
     inverter_power: PV generated
+    inverter_power_forecast: Forecast
     house_power: Home consumption
     wallbox_power: EV charging
     grid_import_power: Grid import
@@ -54,7 +55,6 @@ en:
     month: Month
     year: Year
     all: Overall
-    inverter_power_forecast: Forecast
     grid_quote: Grid consumption rate
     consumption: Consume
     consumption_quote: Self-consumption rate

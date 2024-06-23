@@ -1,4 +1,4 @@
-describe Comment::Component, type: :component do
+describe ForecastComment::Component, type: :component do
   subject(:component) do
     described_class.new calculator:, sensor: :inverter_power, timeframe:
   end

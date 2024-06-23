@@ -6,6 +6,20 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
   attr_reader :sensor, :timeframe
 
+  def chart_data
+    class_name = "ChartData::#{sensor.to_s.camelize}"
+    # Example: :inverter_power -> ChartData::InverterPower
+
+    if Object.const_defined?(class_name)
+      Object.const_get(class_name).new(timeframe:).call
+    else
+      # :nocov:
+      raise NotImplementedError,
+            "ChartData::#{sensor.to_s.camelize} not implemented"
+      # :nocov:
+    end
+  end
+
   def options # rubocop:disable Metrics/MethodLength
     {
       maintainAspectRatio: false,
@@ -159,7 +173,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     when :co2_reduction
       timeframe.short? ? 'g/h' : 'kg'
     else
-      timeframe.short? ? 'kWh' : 'kW'
+      timeframe.short? ? 'kW' : 'kWh'
     end
   end
 end

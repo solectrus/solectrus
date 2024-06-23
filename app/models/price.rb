@@ -25,15 +25,15 @@ class Price < ApplicationRecord
 
   enum :name, electricity: 'electricity', feed_in: 'feed_in'
 
-  after_commit ->(price) do
-                 broadcast_update_to "prices_#{price.name}",
-                                     partial: 'prices/list',
-                                     target: 'list',
-                                     locals: {
-                                       prices: Price.list_for(price.name),
-                                       name: price.name,
-                                     }
-               end
+  after_commit do |price|
+    broadcast_update_to "prices_#{price.name}",
+                        partial: 'prices/list',
+                        target: 'list',
+                        locals: {
+                          prices: Price.list_for(price.name),
+                          name: price.name,
+                        }
+  end
 
   # Don't allow deleting last price of a scope
   def destroyable?
