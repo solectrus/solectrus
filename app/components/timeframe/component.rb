@@ -10,6 +10,6 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def options
-    { controller: "swipe" }
+    { controller: 'swipe' }
   end
 end
