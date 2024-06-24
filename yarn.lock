@@ -734,13 +734,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hammerjs@npm:^2":
-  version: 2.0.45
-  resolution: "@types/hammerjs@npm:2.0.45"
-  checksum: 10c0/1f01e3d0260e3cb824fd0ae32c9a8e1b3727e53ef31682612a0a282c4a84bb758dd30b04749b2ae91e621443c80bfe541b38e91e33308f9dea5d9ac92bd0e854
-  languageName: node
-  linkType: hard
-
 "@types/http-errors@npm:*":
   version: 2.0.4
   resolution: "@types/http-errors@npm:2.0.4"
@@ -4152,7 +4145,6 @@ __metadata:
     "@tailwindcss/aspect-ratio": "npm:^0.4.2"
     "@tailwindcss/container-queries": "npm:^0.1.1"
     "@tailwindcss/forms": "npm:^0.5.7"
-    "@types/hammerjs": "npm:^2"
     "@types/throttle-debounce": "npm:^5.0.2"
     autoprefixer: "npm:^10.4.19"
     chart.js: "npm:^4.4.3"
@@ -4166,7 +4158,6 @@ __metadata:
     eslint-plugin-cypress: "npm:^3.3.0"
     eslint-plugin-prettier: "npm:^5.1.3"
     eslint-plugin-tailwindcss: "npm:^3.17.4"
-    hammerjs: "npm:^2.0.8"
     morphdom: "npm:^2.7.3"
     plausible-tracker: "npm:^0.3.9"
     postcss: "npm:^8.4.38"
