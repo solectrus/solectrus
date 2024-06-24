@@ -110,7 +110,7 @@ en:
       title: Not Found
       description: The requested page could not be found.
     422:
-      title: Unprocessable Entity
+      title: Unprocessable Content
       description: The requested change was rejected.
     500:
       title: Internal Server Error
