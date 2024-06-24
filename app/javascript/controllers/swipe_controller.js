@@ -35,14 +35,14 @@ export default class extends Controller {
   }
 
   swipeLeft() {
-    const nextLink = document.querySelector('[rel="next"]');
+    const nextLink = document.querySelector('a[rel="next"]');
     if (nextLink) {
       nextLink.click();
     }
   }
 
   swipeRight() {
-    const prevLink = document.querySelector('[rel="prev"]');
+    const prevLink = document.querySelector('a[rel="prev"]');
     if (prevLink) {
       prevLink.click();
     }
