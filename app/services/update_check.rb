@@ -19,7 +19,7 @@ class UpdateCheck
   end
 
   def prompt?
-    !registration_status.complete? && latest[:prompt].present?
+    registration_status.complete? && latest[:prompt].present?
   end
 
   def skipped_prompt?
