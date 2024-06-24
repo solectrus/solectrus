@@ -1,10 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 
-export default class extends Controller {
-  connect() {
-    this.touchStartX = 0;
-    this.touchEndX = 0;
+export default class extends Controller<HTMLElement> {
+  private touchStartX: number = 0;
+  private touchEndX: number = 0;
 
+  connect() {
     this.element.addEventListener(
       'touchstart',
       this.handleTouchStart.bind(this),
@@ -17,11 +17,11 @@ export default class extends Controller {
     );
   }
 
-  handleTouchStart(event) {
+  handleTouchStart(event: TouchEvent) {
     this.touchStartX = event.changedTouches[0].screenX;
   }
 
-  handleTouchEnd(event) {
+  handleTouchEnd(event: TouchEvent) {
     this.touchEndX = event.changedTouches[0].screenX;
     this.handleGesture();
   }
@@ -35,14 +35,14 @@ export default class extends Controller {
   }
 
   swipeLeft() {
-    const nextLink = document.querySelector('a[rel="next"]');
+    const nextLink = document.querySelector<HTMLAnchorElement>('a[rel="next"]');
     if (nextLink) {
       nextLink.click();
     }
   }
 
   swipeRight() {
-    const prevLink = document.querySelector('a[rel="prev"]');
+    const prevLink = document.querySelector<HTMLAnchorElement>('a[rel="prev"]');
     if (prevLink) {
       prevLink.click();
     }
