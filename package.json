@@ -20,7 +20,7 @@
     "el-transition": "^0.0.7",
     "morphdom": "^2.7.3",
     "plausible-tracker": "^0.3.9",
-    "throttle-debounce": "^5.0.0",
+    "throttle-debounce": "^5.0.2",
     "tippy.js": "^6.3.7"
   },
   "devDependencies": {

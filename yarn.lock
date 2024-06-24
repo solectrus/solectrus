@@ -1716,9 +1716,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.796":
-  version: 1.4.809
-  resolution: "electron-to-chromium@npm:1.4.809"
-  checksum: 10c0/5f6ea1f3253e3be5b0e6c4f2e820de7b26d3e9f133972d6fd65a16fc550b17dbcfd6bee953b8edc9f5b39c98e094bbefb92e7b057be3c3367a9153d79371ebbb
+  version: 1.4.810
+  resolution: "electron-to-chromium@npm:1.4.810"
+  checksum: 10c0/0fed53e156aab30d71f2d6fd3bcd818755cee6aab3316e497c1f92424b4ef628f9faf1cf3cc2b4bcacc91c6a58d4e610202c4aa23cf91d7fbe77f82144bdc0ba
   languageName: node
   linkType: hard
 
@@ -4167,7 +4167,7 @@ __metadata:
     size-limit: "npm:^11.1.4"
     tailwindcss: "npm:^3.4.4"
     tailwindcss-displaymodes: "npm:^1.0.8"
-    throttle-debounce: "npm:^5.0.0"
+    throttle-debounce: "npm:^5.0.2"
     tippy.js: "npm:^6.3.7"
     typescript: "npm:^5.5.2"
     typescript-eslint: "npm:^7.13.1"
@@ -4422,10 +4422,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"throttle-debounce@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "throttle-debounce@npm:5.0.0"
-  checksum: 10c0/666d5b73bfa7340c5186b244416ce965cd276e4bc91a12453ff6eddcc62f02a19c6f532305601d90c809dd5acbd45dd6eea5eb43e0a879a0b3d66d0886a4d8d2
+"throttle-debounce@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "throttle-debounce@npm:5.0.2"
+  checksum: 10c0/9a10ac51400b353562770721718486847adb5d7287c94a0c0d47df5326e8d47e5d92fcb74dac53d6734efb9344a2d46d68c7f996c2d0aedfd11446522e4bb356
   languageName: node
   linkType: hard
 
