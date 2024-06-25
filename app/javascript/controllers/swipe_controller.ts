@@ -1,8 +1,13 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller<HTMLElement> {
+  private readonly swipeThreshold: number = 50; // Minimum distance in pixels for a swipe
+  private readonly swipeTimeThreshold: number = 300; // Maximum duration in milliseconds for a swipe
+
   private touchStartX: number = 0;
   private touchEndX: number = 0;
+  private touchStartTime: number = 0;
+  private touchEndTime: number = 0;
 
   connect() {
     this.element.addEventListener(
@@ -18,20 +23,43 @@ export default class extends Controller<HTMLElement> {
   }
 
   handleTouchStart(event: TouchEvent) {
+    // Record the starting position and time of the touch event
     this.touchStartX = event.changedTouches[0].screenX;
+    this.touchStartTime = new Date().getTime();
   }
 
   handleTouchEnd(event: TouchEvent) {
+    // Record the ending position of the touch event
     this.touchEndX = event.changedTouches[0].screenX;
-    this.handleGesture();
+    this.touchEndTime = new Date().getTime();
+
+    if (this.isSwipe()) {
+      this.doSwipe(event);
+    }
   }
 
-  handleGesture() {
-    if (this.touchEndX < this.touchStartX) {
+  isSwipe(): boolean {
+    const deltaX = this.touchEndX - this.touchStartX;
+    const touchDuration = this.touchEndTime - this.touchStartTime;
+
+    // Check if the gesture meets the distance threshold and is within the time threshold
+    return (
+      Math.abs(deltaX) > this.swipeThreshold &&
+      touchDuration <= this.swipeTimeThreshold
+    );
+  }
+
+  doSwipe(event: TouchEvent) {
+    const deltaX = this.touchEndX - this.touchStartX;
+
+    if (deltaX < 0) {
       this.swipeLeft();
-    } else if (this.touchEndX > this.touchStartX) {
+    } else {
       this.swipeRight();
     }
+
+    // Prevent default behavior if a swipe is recognized
+    event.preventDefault();
   }
 
   swipeLeft() {
