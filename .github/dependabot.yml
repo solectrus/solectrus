@@ -18,7 +18,6 @@ updates:
       - dependency-type: indirect
     labels:
       - 'dependencies'
-      - 'ruby'
 
   - package-ecosystem: npm
     directory: '/'
@@ -30,7 +29,6 @@ updates:
     versioning-strategy: auto
     labels:
       - 'dependencies'
-      - 'javascript'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
@@ -40,4 +38,3 @@ updates:
       timezone: Europe/Berlin
     labels:
       - 'dependencies'
-      - 'gh-action'
