@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { isTouchEnabled } from '@/utils/device';
 
 export default class extends Controller<HTMLElement> {
   private readonly swipeThreshold: number = 50; // Minimum distance in pixels for a swipe
@@ -10,6 +11,7 @@ export default class extends Controller<HTMLElement> {
   private touchEndTime: number = 0;
 
   connect() {
+    if (!isTouchEnabled()) return;
     this.element.addEventListener(
       'touchstart',
       this.handleTouchStart.bind(this),
@@ -77,6 +79,8 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect() {
+    if (!isTouchEnabled()) return;
+
     this.element.removeEventListener(
       'touchstart',
       this.handleTouchStart.bind(this),
