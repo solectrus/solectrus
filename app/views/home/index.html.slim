@@ -1,5 +1,6 @@
 - turbo_exempts_page_from_cache
 - content_for :full_height, true
+- extra_stimulus_controllers 'swipe' if timeframe&.can_paginate?
 
 - content_for :sub_nav do
   .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-2.md:py-5

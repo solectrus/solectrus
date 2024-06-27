@@ -72,6 +72,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     beginning.to_date > Date.current
   end
 
+  def can_paginate?
+    id.in?(%i[day week month year])
+  end
+
   def id
     @id ||=
       case string

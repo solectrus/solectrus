@@ -141,6 +141,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'cannot paginate' do
+      expect(decoder.can_paginate?).to be(false)
+    end
   end
 
   context 'when string is a day in the past' do
@@ -215,6 +219,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is a day in the future' do
@@ -230,6 +238,10 @@ describe Timeframe do
 
     it 'is future' do
       expect(decoder.future?).to be(true)
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -255,6 +267,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is "day"' do
@@ -263,6 +279,10 @@ describe Timeframe do
     it 'is current day' do
       expect(decoder.current?).to be(true)
       expect(decoder.day?).to be(true)
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -338,6 +358,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is a week in the future' do
@@ -353,6 +377,10 @@ describe Timeframe do
 
     it 'is future' do
       expect(decoder.future?).to be(true)
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -370,6 +398,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is "week"' do
@@ -378,6 +410,10 @@ describe Timeframe do
     it 'is current week' do
       expect(decoder.current?).to be(true)
       expect(decoder.week?).to be(true)
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -391,6 +427,10 @@ describe Timeframe do
     it 'returns the correct previous timeframe' do
       expect(decoder.prev.to_s).to eq('2020-W49')
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is a week at min_date' do
@@ -402,6 +442,10 @@ describe Timeframe do
 
     it 'returns the correct previous timeframe' do
       expect(decoder.prev.to_s).to eq('2019-W18')
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -465,6 +509,10 @@ describe Timeframe do
     it 'is not out_of_range' do
       expect(decoder.out_of_range?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is a month at min_date' do
@@ -489,6 +537,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is a month in the future' do
@@ -504,6 +556,10 @@ describe Timeframe do
 
     it 'is future' do
       expect(decoder.future?).to be(true)
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -521,6 +577,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is "month"' do
@@ -529,6 +589,10 @@ describe Timeframe do
     it 'is current month' do
       expect(decoder.current?).to be(true)
       expect(decoder.month?).to be(true)
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -604,6 +668,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is future year' do
@@ -619,6 +687,10 @@ describe Timeframe do
 
     it 'is future' do
       expect(decoder.future?).to be(true)
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -636,6 +708,10 @@ describe Timeframe do
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
+    end
   end
 
   context 'when string is "year"' do
@@ -644,6 +720,10 @@ describe Timeframe do
     it 'is current year' do
       expect(decoder.current?).to be(true)
       expect(decoder.year?).to be(true)
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -656,6 +736,10 @@ describe Timeframe do
 
     it 'returns the correct previous timeframe' do
       expect(decoder.prev.to_s).to eq('2019')
+    end
+
+    it 'can paginate' do
+      expect(decoder.can_paginate?).to be(true)
     end
   end
 
@@ -730,6 +814,10 @@ describe Timeframe do
 
     it 'is not future' do
       expect(decoder.future?).to be(false)
+    end
+
+    it 'cannot paginate' do
+      expect(decoder.can_paginate?).to be(false)
     end
   end
 
