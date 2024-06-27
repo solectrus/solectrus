@@ -1,4 +1,4 @@
-describe 'Routes redirection' do
+describe 'Routing' do
   describe 'URL shortcuts' do
     it 'accepts /day' do
       get '/house_power/day'
@@ -21,10 +21,12 @@ describe 'Routes redirection' do
     end
   end
 
-  describe 'favicon request' do
-    it 'redirects to existing file' do
-      get '/favicon.ico'
-      expect(response).to redirect_to('/favicon-196.png')
+  describe 'redirects' do
+    describe 'favicon request' do
+      it 'redirects to existing file' do
+        get '/favicon.ico'
+        expect(response).to redirect_to('/favicon-196.png')
+      end
     end
   end
 end
