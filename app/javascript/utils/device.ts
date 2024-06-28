@@ -5,7 +5,3 @@ export function isTouchEnabled(): boolean {
 export function isReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
-
-export function isIOS(): boolean {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent || '');
-}

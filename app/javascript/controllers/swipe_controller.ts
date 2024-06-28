@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { isIOS, isTouchEnabled } from '@/utils/device';
+import { isTouchEnabled } from '@/utils/device';
 
 export default class extends Controller<HTMLElement> {
   private readonly swipeThreshold: number = 50; // Minimum distance in pixels for a swipe
@@ -14,10 +14,7 @@ export default class extends Controller<HTMLElement> {
     if (!isTouchEnabled()) return;
 
     // Prevent rubber-band scrolling when swiping
-    // It seems this has side-effects on Android (see issue #3220), so let's do it on iOS only
-    if (isIOS()) {
-      document.body.classList.add('overflow-hidden');
-    }
+    document.body.classList.add('overflow-hidden');
 
     this.element.addEventListener(
       'touchstart',
