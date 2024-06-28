@@ -5,17 +5,17 @@
             chart_loader__component_type_value: type,
             chart_loader__component_unit_value: unit,
           } do
+  - if blank?
+    .h-full.w-full.flex.items-center.justify-center data-chart-loader--component-target= 'blank'
+      p.text-gray-900.bg-gray-200.px-2.py-1.rounded
+        = t('calculator.blank')
+  - else
+    script type= 'application/json' data-chart-loader--component-target= 'json'
+      == chart_data.to_json
 
-  script type= 'application/json' data-chart-loader--component-target= 'json'
-    == chart_data.to_json
-
-  .hidden.h-full.w-full.flex.items-center.justify-center data-chart-loader--component-target= 'blank'
-    p.text-gray-900.bg-gray-200.px-2.py-1.rounded
-      = t('calculator.blank')
-
-  .hidden.h-full.w-full data-chart-loader--component-target= 'container'
-    = tag.canvas id: "chart-#{timeframe.id}",
-                 data: { \
-                   chart_loader__component_target: 'canvas',
-                   stats_with_chart__component_target: 'canvas',
-                 }
+    .h-full.w-full data-chart-loader--component-target= 'container'
+      = tag.canvas id: "chart-#{timeframe.id}",
+                  data: { \
+                    chart_loader__component_target: 'canvas',
+                    stats_with_chart__component_target: 'canvas',
+                  }

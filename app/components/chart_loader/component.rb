@@ -20,6 +20,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     end
   end
 
+  def blank?
+    chart_data[:datasets].all? { |dataset| dataset[:data].blank? }
+  end
+
   def options # rubocop:disable Metrics/MethodLength
     {
       maintainAspectRatio: false,

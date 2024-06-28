@@ -46,11 +46,10 @@ export default class extends Controller<HTMLCanvasElement> {
     unit: String,
   };
 
-  static readonly targets = ['container', 'canvas', 'blank', 'json'];
+  static readonly targets = ['container', 'canvas', 'json'];
 
   declare readonly containerTarget: HTMLDivElement;
   declare readonly canvasTarget: HTMLCanvasElement;
-  declare readonly blankTarget: HTMLParagraphElement;
   declare readonly jsonTarget: HTMLScriptElement;
 
   declare readonly hasJsonTarget: boolean;
@@ -67,7 +66,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private chart?: Chart;
 
   connect() {
-    this.process();
+    if (this.hasJsonTarget) this.process();
 
     window.addEventListener(
       'resize',
@@ -96,13 +95,6 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private process() {
     const data = this.getData();
-
-    if (!data || data.datasets.length === 0) {
-      this.blankTarget.classList.remove('hidden');
-      return;
-    }
-
-    this.containerTarget.classList.remove('hidden');
 
     const options = this.optionsValue;
 
@@ -226,9 +218,8 @@ export default class extends Controller<HTMLCanvasElement> {
     dataset.borderColor = originalColor;
   }
 
-  private getData(): ChartData | undefined {
-    if (this.hasJsonTarget)
-      return JSON.parse(this.jsonTarget.textContent ?? '');
+  private getData(): ChartData {
+    return JSON.parse(this.jsonTarget.textContent ?? '');
   }
 
   private formattedNumber(number: number) {
