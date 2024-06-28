@@ -5,7 +5,7 @@ class ChartData::Base
   attr_reader :timeframe
 
   def call
-    data.to_json
+    data
   end
 
   private

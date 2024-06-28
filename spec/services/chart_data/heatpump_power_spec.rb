@@ -1,8 +1,5 @@
 describe ChartData::HeatpumpPower do
-  subject(:chart_data_hash) do
-    call = described_class.new(timeframe:).call
-    JSON.parse(call)
-  end
+  subject(:chart_data_hash) { described_class.new(timeframe:).call }
 
   let(:now) { Time.new('2024-04-17 11:00:00 +02:00') }
 
@@ -24,20 +21,20 @@ describe ChartData::HeatpumpPower do
   context 'when timeframe is current MONTH' do
     let(:timeframe) { Timeframe.month }
 
-    it 'returns JSON' do
+    it 'returns Hash' do
       expect(chart_data_hash).to be_a(Hash)
-      expect(chart_data_hash).to include('datasets', 'labels')
-      expect(chart_data_hash.dig('datasets', 0, 'data', now.day - 1)).to eq(10)
+      expect(chart_data_hash).to include(:datasets, :labels)
+      expect(chart_data_hash.dig(:datasets, 0, :data, now.day - 1)).to eq(10)
     end
   end
 
   context 'when timeframe is NOW' do
     let(:timeframe) { Timeframe.now }
 
-    it 'returns JSON' do
+    it 'returns Hash' do
       expect(chart_data_hash).to be_a(Hash)
-      expect(chart_data_hash).to include('datasets', 'labels')
-      expect(chart_data_hash.dig('datasets', 0, 'data').last).to eq(10)
+      expect(chart_data_hash).to include(:datasets, :labels)
+      expect(chart_data_hash.dig(:datasets, 0, :data).last).to eq(10)
     end
   end
 end
