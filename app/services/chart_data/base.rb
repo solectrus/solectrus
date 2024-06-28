@@ -4,8 +4,15 @@ class ChartData::Base
   end
   attr_reader :timeframe
 
-  def call
+  def to_h
     data
+  end
+
+  delegate :to_json, to: :to_h
+
+  def blank?
+    data[:datasets].blank? ||
+      data[:datasets].all? { |dataset| dataset[:data].blank? }
   end
 
   private

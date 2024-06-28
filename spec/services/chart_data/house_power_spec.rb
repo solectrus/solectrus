@@ -1,5 +1,5 @@
 describe ChartData::HousePower do
-  subject(:chart_data_hash) { described_class.new(timeframe:).call }
+  subject(:to_h) { described_class.new(timeframe:).to_h }
 
   let(:now) { Time.new('2024-04-17 11:00:00+02:00') }
 
@@ -27,20 +27,16 @@ describe ChartData::HousePower do
   context 'when timeframe is current MONTH' do
     let(:timeframe) { Timeframe.month }
 
-    it 'returns Hash' do
-      expect(chart_data_hash).to be_a(Hash)
-      expect(chart_data_hash).to include(:datasets, :labels)
-      expect(chart_data_hash.dig(:datasets, 0, :data, now.day - 1)).to eq(5)
+    it 'returns value' do
+      expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(5)
     end
   end
 
   context 'when timeframe is NOW' do
     let(:timeframe) { Timeframe.now }
 
-    it 'returns Hash' do
-      expect(chart_data_hash).to be_a(Hash)
-      expect(chart_data_hash).to include(:datasets, :labels)
-      expect(chart_data_hash.dig(:datasets, 0, :data).last).to eq(5)
+    it 'returns value' do
+      expect(to_h.dig(:datasets, 0, :data).last).to eq(5)
     end
   end
 end

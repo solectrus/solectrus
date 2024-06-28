@@ -7,21 +7,20 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   attr_reader :sensor, :timeframe
 
   def chart_data
-    class_name = "ChartData::#{sensor.to_s.camelize}"
-    # Example: :inverter_power -> ChartData::InverterPower
+    @chart_data ||=
+      begin
+        class_name = "ChartData::#{sensor.to_s.camelize}"
+        # Example: :inverter_power -> ChartData::InverterPower
 
-    if Object.const_defined?(class_name)
-      Object.const_get(class_name).new(timeframe:).call
-    else
-      # :nocov:
-      raise NotImplementedError,
-            "ChartData::#{sensor.to_s.camelize} not implemented"
-      # :nocov:
-    end
-  end
-
-  def blank?
-    chart_data[:datasets].all? { |dataset| dataset[:data].blank? }
+        if Object.const_defined?(class_name)
+          Object.const_get(class_name).new(timeframe:)
+        else
+          # :nocov:
+          raise NotImplementedError,
+                "ChartData::#{sensor.to_s.camelize} not implemented"
+          # :nocov:
+        end
+      end
   end
 
   def options # rubocop:disable Metrics/MethodLength
