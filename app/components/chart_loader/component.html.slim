@@ -15,7 +15,9 @@
 
     .h-full.w-full data-chart-loader--component-target= 'container'
       = tag.canvas id: "chart-#{timeframe.id}",
-                  data: { \
-                    chart_loader__component_target: 'canvas',
-                    stats_with_chart__component_target: 'canvas',
-                  }
+                   width: 0,
+                   height: 0,
+                   data: { \
+                     chart_loader__component_target: 'canvas',
+                     stats_with_chart__component_target: 'canvas',
+                   }

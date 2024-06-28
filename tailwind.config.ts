@@ -8,6 +8,8 @@ export default {
     extend: {
       screens: {
         '3xl': '1920px',
+
+        tall: { raw: '(min-height: 800px)' },
       },
 
       aspectRatio: {
