@@ -130,7 +130,6 @@ export default class extends Controller<HTMLCanvasElement> {
         },
       };
     } else {
-      options.scales.y.max = max;
       options.scales.y.min =
         'suggestedMin' in options.scales.y && options.scales.y.suggestedMin
           ? Math.min(+options.scales.y.suggestedMin, min)
