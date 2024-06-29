@@ -105,11 +105,16 @@ describe UpdateCheck do
   describe '.skip_prompt!' do
     include_context 'with cache'
 
-    it 'sets status' do
+    it 'sets status for some time' do
       expect { instance.skip_prompt! }.to change(
         instance,
         :skipped_prompt?,
       ).from(false).to(true)
+
+      # The cache expires after some time
+      travel 24.hours + 1 do
+        expect(instance.skipped_prompt?).to be false
+      end
     end
   end
 
@@ -125,7 +130,7 @@ describe UpdateCheck do
       expect(instance.latest).to be_present
 
       # The cache expires after some time
-      travel 2.days do
+      travel 12.hours + 1 do
         expect(instance.cached?).to be false
       end
     end
