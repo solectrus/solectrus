@@ -3,7 +3,10 @@
     .flex.justify-between.items-center.gap-2
       - if admin
         .flex.items-center.gap-2
-          = render Button::Component.new(path: registration_path(status: 'skip'), icon: 'times', style: :tertiary, options: { class: 'text-gray-600 text-lg', data: { turbo_prefetch: false } })
+          = render Button::Component.new(path: registration_path(status: 'skip'),
+                                         icon: 'times',
+                                         style: :tertiary,
+                                         options: { class: 'text-gray-600 text-lg', data: { turbo_prefetch: false } })
 
           - if pending?
             = t('.pending')
@@ -14,10 +17,10 @@
           - elsif prompt?
             = t('.prompt_for_sponsoring')
 
-        - if prompt?
-          = render Button::Component.new(path: registration_path, title: t('.button_to_sponsor'), icon: 'id-card', options: { data: { turbo: 'false' } })
-        - else
-          = render Button::Component.new(path: registration_path, title: t('.button_to_register'), icon: 'id-card', options: { data: { turbo: 'false' } })
+        = render Button::Component.new(path: registration_path,
+                                       title: (prompt? ? t('.button_to_sponsor') : t('.button_to_register')),
+                                       icon: 'id-card',
+                                       options: { data: { turbo: 'false' } })
 
       - else
         - if prompt?
@@ -25,4 +28,6 @@
         - else
           = t('.login_to_register')
 
-        = render Button::Component.new(path: new_session_path, title: t('layout.login'), options: { data: { turbo_frame: 'modal' }})
+        = render Button::Component.new(path: new_session_path,
+                                       title: t('layout.login'),
+                                       options: { data: { turbo_frame: 'modal' }})
