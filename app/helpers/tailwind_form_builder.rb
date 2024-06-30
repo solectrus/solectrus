@@ -2,11 +2,11 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   attr_reader :template, :options, :object_name
 
   def group(&)
-    tag.div class: 'mt-5 grid grid-cols-1 gap-6', &
+    tag.div(class: 'mt-5 grid grid-cols-1 gap-6', &)
   end
 
   def actions(&)
-    tag.div class: 'mt-10 flex justify-between', &
+    tag.div(class: 'mt-10 flex justify-between', &)
   end
 
   def submit(title)
