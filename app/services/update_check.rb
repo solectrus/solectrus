@@ -45,16 +45,6 @@ class UpdateCheck
           'User-Agent' => UserAgent.instance.to_s,
         )
 
-        http.verify_callback =
-          lambda do |preverify_ok, ssl_context|
-            if !preverify_ok || ssl_context.error != 0
-              Rails.logger.error "UpdateCheck failed during SSL verification: #{ssl_context.error_string}"
-              false
-            else
-              true
-            end
-          end
-
         http.request(request)
       end
 

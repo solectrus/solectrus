@@ -69,6 +69,32 @@ describe UpdateCheck do
       end
     end
 
+    context 'when the request fails with SSL error' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_raise(
+          OpenSSL::SSL::SSLError,
+        )
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it do
+        is_expected.to eq(registration_status: 'unknown', version: 'unknown')
+      end
+
+      it 'has blank shortcuts' do
+        expect(instance.latest_version).to eq('unknown')
+        expect(instance.registration_status).to be_unknown
+      end
+
+      it 'logs the error' do
+        latest
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UpdateCheck failed with SSL error: Exception from WebMock',
+        ).once
+      end
+    end
+
     context 'when response is invalid', vcr: { cassette_name: 'version' } do
       before do
         allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
