@@ -1,4 +1,4 @@
-class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
+class Number::Component < ViewComponent::Base
   # TODO: Refactor this class to make it more readable and maintainable
   #
   # It would be better if the component would receive the number and unit and then
@@ -52,12 +52,7 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
     )
   end
 
-  def to_weight(
-    max_precision: 1,
-    precision: nil,
-    unit: determine_weight_unit,
-    klass: nil
-  )
+  def to_weight(precision: nil, unit: determine_weight_unit, klass: nil)
     raise ArgumentError unless unit.in?(%i[single kilo tons])
     return unless value
 
@@ -65,9 +60,9 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
     when :single
       to_g(max_precision: 0, klass:)
     when :kilo
-      to_kg(max_precision:, precision:, klass:)
+      to_kg(max_precision: 0, klass:)
     when :tons
-      to_t(max_precision:, precision:, klass:)
+      to_t(max_precision: 1, precision:, klass:)
     end
   end
 

@@ -210,4 +210,34 @@ describe Number::Component do
       end
     end
   end
+
+  describe 'to_weight' do
+    subject(:to_weight) { component.to_weight(**options) }
+
+    let(:options) { {} }
+
+    context 'when small' do
+      let(:value) { 5 } # 5 g
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">5</strong>&nbsp;<small>g</small></span>'
+      end
+    end
+
+    context 'when medium' do
+      let(:value) { 5234 } # ~ 5 kg
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">5</strong>&nbsp;<small>kg</small></span>'
+      end
+    end
+
+    context 'when large' do
+      let(:value) { 5_234_567 } # ~ 5,2 tons
+
+      it do
+        is_expected.to eq '<span><strong class="font-medium">5</strong><small>.2</small>&nbsp;<small>t</small></span>'
+      end
+    end
+  end
 end
