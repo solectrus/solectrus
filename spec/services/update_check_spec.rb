@@ -27,12 +27,13 @@ describe UpdateCheck do
         allow(Rails.logger).to receive(:error)
       end
 
-      it do
-        is_expected.to eq(registration_status: 'unknown', version: 'unknown')
+      it { is_expected.to eq(registration_status: 'unknown') }
+
+      it 'has no version' do
+        expect(instance.latest_version).to be_nil
       end
 
       it 'has unknown shortcuts' do
-        expect(instance.latest_version).to eq('unknown')
         expect(instance.registration_status).to be_unknown
       end
 
@@ -51,12 +52,13 @@ describe UpdateCheck do
         allow(Rails.logger).to receive(:error)
       end
 
-      it do
-        is_expected.to eq(registration_status: 'unknown', version: 'unknown')
+      it { is_expected.to eq(registration_status: 'unknown') }
+
+      it 'has no version' do
+        expect(instance.latest_version).to be_nil
       end
 
       it 'has blank shortcuts' do
-        expect(instance.latest_version).to eq('unknown')
         expect(instance.registration_status).to be_unknown
       end
 
@@ -77,12 +79,13 @@ describe UpdateCheck do
         allow(Rails.logger).to receive(:error)
       end
 
-      it do
-        is_expected.to eq(registration_status: 'unknown', version: 'unknown')
+      it { is_expected.to eq(registration_status: 'unknown') }
+
+      it 'has no version' do
+        expect(instance.latest_version).to be_nil
       end
 
       it 'has blank shortcuts' do
-        expect(instance.latest_version).to eq('unknown')
         expect(instance.registration_status).to be_unknown
       end
 
@@ -101,12 +104,13 @@ describe UpdateCheck do
         allow(Rails.logger).to receive(:error)
       end
 
-      it do
-        is_expected.to eq(registration_status: 'unknown', version: 'unknown')
+      it { is_expected.to eq(registration_status: 'unknown') }
+
+      it 'has no version' do
+        expect(instance.latest_version).to be_nil
       end
 
       it 'has blank shortcuts' do
-        expect(instance.latest_version).to eq('unknown')
         expect(instance.registration_status).to be_unknown
       end
 

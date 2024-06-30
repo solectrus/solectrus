@@ -113,7 +113,7 @@ class UpdateCheck
   end
 
   def unknown
-    data = { registration_status: 'unknown', version: 'unknown' }
+    data = { registration_status: 'unknown' }
     Rails.cache.write(cache_key, data, expires_in: 5.minutes)
     data
   end
