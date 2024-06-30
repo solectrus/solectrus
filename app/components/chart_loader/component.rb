@@ -6,8 +6,8 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
   attr_reader :sensor, :timeframe
 
-  def chart_data
-    @chart_data ||=
+  def data
+    @data ||=
       begin
         class_name = "ChartData::#{sensor.to_s.camelize}"
         # Example: :inverter_power -> ChartData::InverterPower

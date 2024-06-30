@@ -42,23 +42,21 @@ Chart.register(
 export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
-    options: Object,
     unit: String,
   };
 
-  static readonly targets = ['container', 'canvas', 'json'];
+  static readonly targets = ['container', 'canvas', 'data', 'options'];
 
   declare readonly containerTarget: HTMLDivElement;
   declare readonly canvasTarget: HTMLCanvasElement;
-  declare readonly jsonTarget: HTMLScriptElement;
+  declare readonly dataTarget: HTMLScriptElement;
+  declare readonly optionsTarget: HTMLScriptElement;
 
-  declare readonly hasJsonTarget: boolean;
+  declare readonly hasDataTarget: boolean;
+  declare readonly hasOptionsTarget: boolean;
 
   declare typeValue: ChartType;
   declare readonly hasTypeValue: boolean;
-
-  declare optionsValue: ChartOptions;
-  declare readonly hasOptionsValue: boolean;
 
   declare unitValue: string;
   declare readonly hasUnitValue: boolean;
@@ -66,7 +64,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private chart?: Chart;
 
   connect() {
-    if (this.hasJsonTarget) this.process();
+    if (this.hasDataTarget) this.process();
 
     window.addEventListener(
       'resize',
@@ -95,8 +93,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private process() {
     const data = this.getData();
-
-    const options = this.optionsValue;
+    const options = this.getOptions();
 
     // Disable animation when user prefers reduced motion
     if (isReducedMotion()) options.animation = false;
@@ -218,7 +215,11 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private getData(): ChartData {
-    return JSON.parse(this.jsonTarget.textContent ?? '');
+    return JSON.parse(this.dataTarget.textContent ?? '');
+  }
+
+  private getOptions(): ChartOptions {
+    return JSON.parse(this.optionsTarget.textContent ?? '');
   }
 
   private formattedNumber(number: number) {
