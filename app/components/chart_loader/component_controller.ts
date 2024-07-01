@@ -64,7 +64,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private chart?: Chart;
 
   connect() {
-    if (this.hasDataTarget) this.process();
+    this.process();
 
     window.addEventListener(
       'resize',
@@ -93,7 +93,10 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private process() {
     const data = this.getData();
+    if (!data) return;
+
     const options = this.getOptions();
+    if (!options) return;
 
     // Disable animation when user prefers reduced motion
     if (isReducedMotion()) options.animation = false;
@@ -214,12 +217,14 @@ export default class extends Controller<HTMLCanvasElement> {
     dataset.borderColor = originalColor;
   }
 
-  private getData(): ChartData {
-    return JSON.parse(this.dataTarget.textContent ?? '');
+  private getData(): ChartData | undefined {
+    if (this.hasDataTarget && this.dataTarget.textContent)
+      return JSON.parse(this.dataTarget.textContent);
   }
 
-  private getOptions(): ChartOptions {
-    return JSON.parse(this.optionsTarget.textContent ?? '');
+  private getOptions(): ChartOptions | undefined {
+    if (this.hasOptionsTarget && this.optionsTarget.textContent)
+      return JSON.parse(this.optionsTarget.textContent);
   }
 
   private formattedNumber(number: number) {
