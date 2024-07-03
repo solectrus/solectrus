@@ -64,9 +64,9 @@ class ConsumptionChart < Flux::Reader
       import "timezone"
 
       #{from_bucket}
-      |> #{range(start: start - 1.hour, stop:)}
+      |> #{range(start: start - 1.second, stop:)}
       |> #{filter}
-      |> aggregateWindow(every: 1h, fn: mean)
+      |> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")
       |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
       |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
       |> map(fn: (r) => ({ r with consumption: if r.#{grid_export_power_field} > r.#{inverter_power_field} then 0.0 else 100.0 * (r.#{inverter_power_field} - r.#{grid_export_power_field}) / r.#{inverter_power_field} }))

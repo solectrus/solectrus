@@ -69,9 +69,9 @@ class AutarkyChart < Flux::Reader
 
     q << 'import "timezone"'
     q << from_bucket
-    q << "|> #{range(start: start - 1.hour, stop:)}"
+    q << "|> #{range(start: start - 1.second, stop:)}"
     q << "|> #{filter}"
-    q << '|> aggregateWindow(every: 1h, fn: mean)'
+    q << '|> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")'
     q << "|> aggregateWindow(every: #{window}, fn: sum, location: #{location})"
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
 
