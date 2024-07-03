@@ -64,7 +64,7 @@ class PowerTop10 < Flux::Reader
     return [] unless raw.first
 
     raw.first.records.map do |record|
-      time = Time.zone.parse(record.values['_time']).utc - 1.second
+      time = Time.zone.parse(record.values['_time'])
       value = record.values['_value']
 
       { date: time.to_date, value: }
@@ -79,7 +79,7 @@ class PowerTop10 < Flux::Reader
   def first_aggregate_window
     if calc.sum?
       # Average per hour (to get kWh)
-      'aggregateWindow(every: 1h, fn: mean)'
+      'aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")'
     elsif calc.max?
       # Average per 5 minutes (unfortunately this is a bit slow)
       'aggregateWindow(every: 5m, fn: mean)'
@@ -104,7 +104,7 @@ class PowerTop10 < Flux::Reader
         |> #{range(start:, stop:)}
         |> #{filter}
         |> #{first_aggregate_window}
-        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
+        |> aggregateWindow(every: #{window}, offset: #{offset}, timeSrc: "_start", fn: #{second_aggregate}, location: #{location})
         |> filter(fn: (r) => r._value > 0)
         |> sort(columns: ["_value"], desc: #{desc})
         |> limit(n: #{limit})
@@ -120,7 +120,7 @@ class PowerTop10 < Flux::Reader
         |> #{range(start:, stop:)}
         |> #{filter(selected_sensors: [:house_power])}
         |> #{first_aggregate_window}
-        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
+        |> aggregateWindow(every: #{window}, offset: #{offset}, timeSrc: "_start", fn: #{second_aggregate}, location: #{location})
         |> filter(fn: (r) => r._value > 0)
         |> map(fn: (r) => ({ _time: r._time, _field: "housePower", _value: r._value }))
     QUERY
@@ -135,7 +135,7 @@ class PowerTop10 < Flux::Reader
           |> #{range(start:, stop:)}
           |> #{filter(selected_sensors: [sensor_name_to_exclude])}
           |> #{first_aggregate_window}
-          |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
+          |> aggregateWindow(every: #{window}, offset: #{offset}, timeSrc: "_start", fn: #{second_aggregate}, location: #{location})
           |> filter(fn: (r) => r._value > 0)
           |> map(fn: (r) => ({ _time: r._time, _field: "#{field_name}", _value: r._value }))
       QUERY
