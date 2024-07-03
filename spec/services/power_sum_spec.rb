@@ -2,81 +2,94 @@ describe PowerSum do
   let(:power_sum) { described_class.new(sensors: %i[inverter_power]) }
 
   before do
-    travel_to '2024-06-05 12:00' # Wednesday
+    travel_to '2024-06-05 12:30 +02:00' # Wednesday
 
-    # A day in previous year, must not affect the result
+    # A day in previous year, must NOT affect the result
     sample_data beginning: Date.new(2023, 12, 31).beginning_of_day,
-                range: 24.hours
+                range: 24.hours,
+                value: 5
 
-    # Monday (high value)
+    # Monday, 2024-06-03 (high value)
     sample_data beginning: Date.new(2024, 6, 3).beginning_of_day,
                 range: 24.hours,
-                value: 10
+                value: 100
 
-    # Tuesday
+    # Tuesday, 2024-06-04 (medium value)
     sample_data beginning: Date.new(2024, 6, 4).beginning_of_day,
-                range: 24.hours
+                range: 24.hours,
+                value: 50
 
-    # Wednesday
+    # Wednesday, 2024-06-05 (very high value)
     sample_data beginning: Date.new(2024, 6, 5).beginning_of_day,
-                range: 12.hours
+                range: 12.5.hours,
+                value: 200
   end
 
   describe '#call' do
     subject do
-      power_sum.call(timeframe).first[:inverter_power].fdiv(1000).round(1)
+      power_sum.call(timeframe).first[:inverter_power].fdiv(1000).round
     end
 
-    context 'when past day' do
-      let(:timeframe) { Timeframe.new(date) }
-      let(:date) { Date.yesterday.to_fs(:iso8601) }
+    context 'when Monday' do
+      let(:timeframe) { Timeframe.new('2024-06-03') }
 
-      it { is_expected.to eq(24) } # 1 kW for 24 hours
+      it { is_expected.to eq(2400) } # 100 kW for 24 hours
     end
 
-    context 'when current day' do
-      let(:timeframe) { Timeframe.day }
+    context 'when Tuesday' do
+      let(:timeframe) { Timeframe.new('2024-06-04') }
 
-      it { is_expected.to eq(12) } # 1 kW for 12 hours
+      it { is_expected.to eq(1200) } # 50 kW for 24 hours
     end
 
-    context 'when yesterday' do
-      let(:timeframe) { Timeframe.new(Date.yesterday.iso8601) }
+    context 'when Wednesday' do
+      let(:timeframe) { Timeframe.new('2024-06-05') }
 
-      it { is_expected.to eq(24) } # 1 kW for 24 hours
+      it { is_expected.to eq(2500) } # 200 kW for 12.5 hours
     end
 
     context 'when current week' do
-      let(:timeframe) { Timeframe.week }
+      let(:timeframe) { Timeframe.new('2024-W23') }
 
-      it { is_expected.to eq(276) } # 1 kW for 24+12 hours and 10 kW for 24 hours
+      it { is_expected.to eq(6100) } # Mo + Tu + We = 2400 + 1200 + 2500
     end
 
     context 'when current month' do
-      let(:timeframe) { Timeframe.month }
+      let(:timeframe) { Timeframe.new('2024-06') }
 
-      it { is_expected.to eq(276) } # 1 kW for 24+12 hours and 10 kW for 24 hours
+      it { is_expected.to eq(6100) } # Mo + Tu + We = 2400 + 1200 + 2500
+    end
+
+    context 'when last year' do
+      let(:timeframe) { Timeframe.new('2023') }
+
+      it { is_expected.to eq(120) } # 5 kW in the last 24 hours of 2023
     end
 
     context 'when current year' do
-      let(:timeframe) { Timeframe.year }
+      let(:timeframe) { Timeframe.new('2024') }
 
-      it { is_expected.to eq(276) } # 1 kW for 24+12 hours and 10 kW for 24 hours
+      it { is_expected.to eq(6100) } # Mo + Tu + We = 2400 + 1200 + 2500
     end
   end
 
   private
 
-  def sample_data(beginning:, range:, value: 1)
+  def sample_data(beginning:, range:, value:)
     influx_batch do
-      0.step(range, 5.seconds) do |index|
+      time = beginning
+      ending = beginning + range
+
+      while time < ending
         add_influx_point(
           name: measurement_inverter_power,
-          time: beginning + (index - 1).seconds,
+          time:,
           fields: {
             field_inverter_power => value * 1000,
           },
         )
+
+        time += 5.seconds
       end
     end
   end

@@ -55,8 +55,8 @@ class Flux::Reader < Flux::Base
   def range(start:, stop: nil)
     @cache_options = cache_options(stop:)
 
-    start = start&.iso8601
-    stop = stop&.iso8601
+    start = start&.rfc3339(9)
+    stop = stop&.rfc3339(9)
 
     stop ? "range(start: #{start}, stop: #{stop})" : "range(start: #{start})"
   end
