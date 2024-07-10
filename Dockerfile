@@ -1,10 +1,10 @@
-FROM ghcr.io/ledermann/rails-base-builder:3.3.3-alpine AS Builder
+FROM ghcr.io/ledermann/rails-base-builder:3.3.4-alpine AS Builder
 
 # Remove some files not needed in resulting image.
 # Because they are required for building the image, they can't be added to .dockerignore
 RUN rm -r package.json postcss.config.js tailwind.config.ts vite.config.mts tsconfig.json bin/vite
 
-FROM ghcr.io/ledermann/rails-base-final:3.3.3-alpine
+FROM ghcr.io/ledermann/rails-base-final:3.3.4-alpine
 LABEL maintainer="georg@ledermann.dev"
 LABEL org.opencontainers.image.description="SOLECTRUS Photovoltaic Dashboard"
 
