@@ -4,9 +4,9 @@ echo "Copyright (C) 2020-2024 Georg Ledermann"
 echo "License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html"
 
 if [ "${COMMIT_BRANCH}" == "${COMMIT_VERSION}" ]; then
-  echo "Version ${COMMIT_VERSION}, built at ${COMMIT_TIME}"
+  echo "Version ${COMMIT_VERSION}, built on ${COMMIT_TIME}"
 else
-  echo "Version ${COMMIT_VERSION} (${COMMIT_BRANCH}), built at ${COMMIT_TIME}"
+  echo "Version ${COMMIT_VERSION} (${COMMIT_BRANCH}), built on ${COMMIT_TIME}"
 fi
 echo "Using $(ruby -v)"
 echo "Based on Alpine Linux $(cat /etc/alpine-release)"
