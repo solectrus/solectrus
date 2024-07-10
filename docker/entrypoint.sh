@@ -9,6 +9,7 @@ else
   echo "Version ${COMMIT_VERSION} (${COMMIT_BRANCH}), built at ${COMMIT_TIME}"
 fi
 echo "Using $(ruby -v)"
+echo "Based on Alpine Linux $(cat /etc/alpine-release)"
 
 # If running the rails server then wait for services
 # and create or migrate existing database
