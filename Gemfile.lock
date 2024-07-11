@@ -118,9 +118,10 @@ GEM
     drb (2.2.1)
     dry-cli (1.0.0)
     erubi (1.13.0)
-    ffi (1.17.0-aarch64-linux-gnu)
+    ffi (1.17.0-aarch64-linux-musl)
     ffi (1.17.0-arm64-darwin)
     ffi (1.17.0-x86_64-linux-gnu)
+    ffi (1.17.0-x86_64-linux-musl)
     formatador (1.1.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
@@ -417,9 +418,10 @@ GEM
     zeitwerk (2.6.16)
 
 PLATFORMS
-  aarch64-linux
+  aarch64-linux-musl
   arm64-darwin-23
   x86_64-linux
+  x86_64-linux-musl
 
 DEPENDENCIES
   amazing_print
