@@ -9,7 +9,7 @@ updates:
     directory: '/'
     schedule:
       interval: daily
-      time: '01:00'
+      time: '03:30'
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     versioning-strategy: lockfile-only
@@ -23,7 +23,7 @@ updates:
     directory: '/'
     schedule:
       interval: daily
-      time: '01:00'
+      time: '03:30'
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     versioning-strategy: auto
