@@ -1,0 +1,73 @@
+name: Bug Report
+description: Report a bug in SOLECTRUS
+labels: ['bug']
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description (in German or English)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: What version of SOLECTRUS are you using?
+      placeholder: e.g. v0.14.5
+    validations:
+      required: true
+
+  - type: input
+    id: machine
+    attributes:
+      label: What machine are you running SOLECTRUS on?
+      placeholder: e.g. Raspberry Pi 4
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: If applicable (e.g. in case of error 500), please provide logs
+      description: You can get them by running `docker compose logs`, but try to show only the relevant parts.
+      render: text
+
+  - type: textarea
+    id: compose
+    attributes:
+      label: Please provide your `docker-compose.yml` file
+      render: yaml
+      placeholder: |
+        e.g.:
+
+        services:
+          dashboard:
+            image: ghcr.io/solectrus/solectrus:latest
+        ...
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Please provide your `.env` file
+      description: Don't forget to anonymise all sensitive information (e.g. passwords, API keys, geo-location, etc.)
+      render: text
+      placeholder: |
+        e.g.:
+
+        # Domain name or IP address of your host
+        APP_HOST=raspberrypi
+
+        # Date of commissioning of your photovoltaic system
+        INSTALLATION_DATE=2023-04-03
+        ...
+
+  - type: textarea
+    attributes:
+      label: Anything else?
+      description: |
+        Anything that will give us more context about the issue you are encountering!
+
+        Tip: You can attach images or other files by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: false
