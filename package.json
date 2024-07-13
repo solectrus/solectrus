@@ -31,7 +31,7 @@
     "@types/throttle-debounce": "^5.0.2",
     "autoprefixer": "^10.4.19",
     "cypress": "^13.13.0",
-    "eslint": "^9.6.0",
+    "eslint": "^9.7.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-cypress": "^3.3.0",
     "eslint-plugin-prettier": "^5.1.3",
