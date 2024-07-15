@@ -16,6 +16,8 @@ describe Setting do
   describe 'seed!' do
     subject(:seed!) { described_class.seed! }
 
+    before { described_class.delete_all }
+
     around { |example| freeze_time(&example) }
 
     context 'when there is no price' do

@@ -72,8 +72,16 @@ module Solectrus
         end
       end
 
-      unless rake_task_running?('assets:precompile', 'db:migrate', 'db:prepare')
+      unless rake_task_running?(
+               'assets:precompile',
+               'db:create',
+               'db:migrate',
+               'db:prepare',
+             )
         SensorConfig.setup(ENV)
+
+        # Ensure settings are seeded on every start
+        Setting.seed! if ActiveRecord::Base.connection.table_exists?(:settings)
       end
     end
 
