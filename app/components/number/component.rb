@@ -1,4 +1,10 @@
 class Number::Component < ViewComponent::Base
+  # TODO: Refactor this class to make it more readable and maintainable
+  #
+  # It would be better if the component would receive the number and unit and then
+  # do the formatting via a method  like `to_html`, which is told the details
+  # via parameters (precision, auto-precision, coloring, mega/kilo etc).
+
   def initialize(value:)
     super
     @value = value
@@ -6,57 +12,57 @@ class Number::Component < ViewComponent::Base
 
   attr_accessor :value
 
-  def to_watt_hour(max_precision: 1, unit: determine_watt_unit)
+  def to_watt_hour(max_precision: 1, unit: determine_watt_unit, precision: nil)
     raise ArgumentError unless unit.in?(%i[single kilo mega])
     return unless value
 
     case unit
     when :single
-      to_wh(max_precision: 0)
+      to_wh
     when :kilo
-      to_kwh(max_precision:)
+      to_kwh(max_precision:, precision:)
     when :mega
-      to_mwh(max_precision:)
+      to_mwh(max_precision:, precision:)
     end
   end
 
-  def to_watt(max_precision: 1, unit: determine_watt_unit)
+  def to_watt(max_precision: 1, unit: determine_watt_unit, precision: nil)
     raise ArgumentError unless unit.in?(%i[single kilo mega])
     return unless value
 
     case unit
     when :single
-      to_w(max_precision: 0)
+      to_w
     when :kilo
-      to_kw(max_precision:)
+      to_kw(max_precision:, precision:)
     when :mega
-      to_mw(max_precision:)
+      to_mw(max_precision:, precision:)
     end
   end
 
-  def to_eur(max_precision: nil, klass: nil)
+  def to_eur(max_precision: nil, precision: nil, klass: nil)
     return unless value
 
-    max_precision ||= value.abs < 10 ? 2 : 0
+    max_precision ||= value.abs < 10 ? 2 : 0 unless precision
 
     styled_number(
-      formatted_number(value, max_precision:),
+      formatted_number(value, max_precision:, precision:),
       unit: '&euro;'.html_safe,
       klass: klass || (value.negative? ? %w[text-red-700] : %w[text-green-700]),
     )
   end
 
-  def to_weight(max_precision: 1, unit: determine_weight_unit)
+  def to_weight(precision: nil, unit: determine_weight_unit, klass: nil)
     raise ArgumentError unless unit.in?(%i[single kilo tons])
     return unless value
 
     case unit
     when :single
-      to_g(max_precision: 0)
+      to_g(max_precision: 0, klass:)
     when :kilo
-      to_kg(max_precision:)
+      to_kg(max_precision: 0, klass:)
     when :tons
-      to_t(max_precision:)
+      to_t(max_precision: 1, precision:, klass:)
     end
   end
 
@@ -70,21 +76,21 @@ class Number::Component < ViewComponent::Base
     )
   end
 
-  def to_percent(max_precision: 1, klass: nil)
+  def to_percent(max_precision: 1, precision: nil, klass: nil)
     return unless value
 
     styled_number(
-      formatted_number(value, max_precision:),
+      formatted_number(value, max_precision:, precision:),
       unit: '%',
       klass: klass || (value.positive? ? %w[text-green-500] : %w[text-red-500]),
     )
   end
 
-  def to_grad_celsius(max_precision: 1)
+  def to_grad_celsius(max_precision: 1, precision: nil)
     return unless value
 
     styled_number(
-      formatted_number(value, max_precision:),
+      formatted_number(value, max_precision:, precision:),
       unit: '&deg;C'.html_safe,
     )
   end
@@ -103,52 +109,52 @@ class Number::Component < ViewComponent::Base
     :single
   end
 
-  def single(max_precision:)
-    formatted_number(value, max_precision:)
+  def single(max_precision:, precision: nil)
+    formatted_number(value, max_precision:, precision:)
   end
 
-  def kilo(max_precision:)
-    formatted_number(value / 1_000.0, max_precision:)
+  def kilo(max_precision:, precision: nil)
+    formatted_number(value / 1_000.0, max_precision:, precision:)
   end
 
-  def mega(max_precision:)
-    formatted_number(value / 1_000.0 / 1_000.0, max_precision:)
+  def mega(max_precision:, precision: nil)
+    formatted_number(value / 1_000.0 / 1_000.0, max_precision:, precision:)
   end
 
-  def to_w(max_precision:)
-    styled_number(single(max_precision:), unit: 'W')
+  def to_w
+    styled_number(single(max_precision: 0, precision: 0), unit: 'W')
   end
 
-  def to_kw(max_precision:)
-    styled_number(kilo(max_precision:), unit: 'kW')
+  def to_kw(max_precision:, precision: nil)
+    styled_number(kilo(max_precision:, precision:), unit: 'kW')
   end
 
-  def to_mw(max_precision:)
-    styled_number(mega(max_precision:), unit: 'MW')
+  def to_mw(max_precision:, precision: nil)
+    styled_number(mega(max_precision:, precision:), unit: 'MW')
   end
 
-  def to_wh(max_precision:)
-    styled_number(single(max_precision:), unit: 'Wh')
+  def to_wh
+    styled_number(single(max_precision: 0, precision: 0), unit: 'Wh')
   end
 
-  def to_kwh(max_precision:)
-    styled_number(kilo(max_precision:), unit: 'kWh')
+  def to_kwh(max_precision:, precision: nil)
+    styled_number(kilo(max_precision:, precision:), unit: 'kWh')
   end
 
-  def to_mwh(max_precision:)
-    styled_number(mega(max_precision:), unit: 'MWh')
+  def to_mwh(max_precision:, precision: nil)
+    styled_number(mega(max_precision:, precision:), unit: 'MWh')
   end
 
-  def to_g(max_precision:)
-    styled_number(single(max_precision:), unit: 'g')
+  def to_g(max_precision:, precision: nil, klass: nil)
+    styled_number(single(max_precision:, precision:), unit: 'g', klass:)
   end
 
-  def to_kg(max_precision:)
-    styled_number(kilo(max_precision:), unit: 'kg')
+  def to_kg(max_precision:, precision: nil, klass: nil)
+    styled_number(kilo(max_precision:, precision:), unit: 'kg', klass:)
   end
 
-  def to_t(max_precision:)
-    styled_number(mega(max_precision:), unit: 't')
+  def to_t(max_precision:, precision: nil, klass: nil)
+    styled_number(mega(max_precision:, precision:), unit: 't', klass:)
   end
 
   def styled_number(number_as_string, unit:, klass: nil)
@@ -166,16 +172,20 @@ class Number::Component < ViewComponent::Base
     end
   end
 
-  def formatted_number(value, max_precision:)
+  def formatted_number(value, max_precision:, precision: nil)
     return unless value
 
-    # Some numbers don't need fractional digits
-    need_fractional_digits =
-      value.round(max_precision).nonzero? && value.abs < 100
+    unless precision
+      # Some numbers don't need fractional digits
+      need_fractional_digits =
+        value.round(max_precision).nonzero? && value.abs < 100
+
+      precision = need_fractional_digits ? max_precision : 0
+    end
 
     number_with_precision(
       value,
-      precision: need_fractional_digits ? max_precision : 0,
+      precision:,
       delimiter: I18n.t('number.format.delimiter'),
       separator: I18n.t('number.format.separator'),
     )

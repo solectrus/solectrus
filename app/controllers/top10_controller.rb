@@ -2,7 +2,7 @@ class Top10Controller < ApplicationController
   include ParamsHandling
 
   def index
-    redirect_to(default_path) unless period && field && calc && sort
+    redirect_to(default_path) unless period && sensor && calc && sort
   end
 
   private
@@ -14,22 +14,28 @@ class Top10Controller < ApplicationController
   def default_path
     top10_path(
       period: period || 'day',
-      field: field || 'inverter_power',
+      sensor: sensor || 'inverter_power',
       calc: calc || 'sum',
       sort: sort || 'desc',
     )
   end
 
-  helper_method def field_items
-    Senec::POWER_FIELDS.map do |field|
+  def sensor_names
+    SensorConfig::POWER_SENSORS.select do |sensor|
+      SensorConfig.x.exists?(sensor)
+    end
+  end
+
+  helper_method def sensor_items
+    sensor_names.map do |sensor|
       MenuItem::Component.new(
-        name: I18n.t("senec.#{field}"),
-        href: url_for(**permitted_params.merge(field:, only_path: true)),
+        name: I18n.t("sensors.#{sensor}"),
+        href: url_for(**permitted_params.merge(sensor:, only_path: true)),
         data: {
           action: 'dropdown--component#toggle',
         },
-        field:,
-        current: field == self.field,
+        sensor:,
+        current: sensor == self.sensor,
       )
     end
   end

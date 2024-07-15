@@ -1,13 +1,15 @@
 class MinMaxChart < Flux::Reader
-  def initialize(measurements:, fields:, average:)
-    super(measurements:, fields:)
+  def initialize(sensors:, average:)
+    super(sensors:)
     @average = average
   end
 
   attr_reader :average
 
   def call(timeframe)
-    @timeframe = timeframe
+    return {} unless SensorConfig.x.exists_any?(*sensors)
+
+    super
 
     case timeframe.id
     when :now
@@ -37,11 +39,10 @@ class MinMaxChart < Flux::Reader
 
     q << from_bucket
     q << "|> #{range(start:, stop:)}"
-    q << "|> #{measurements_filter}"
-    q << "|> #{fields_filter}"
+    q << "|> #{filter}"
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
     q << '|> fill(usePrevious: true)' if fill
-    q << '|> keep(columns: ["_time","_field","_value"])'
+    q << '|> keep(columns: ["_time","_field","_measurement","_value"])'
 
     raw = query(q.join("\n"))
     formatted(raw)
@@ -52,21 +53,19 @@ class MinMaxChart < Flux::Reader
       import "timezone"
 
       #{from_bucket}
-      |> #{range(start: start - 1.hour, stop:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{range(start: start - 1.second, stop:)}
+      |> #{filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: #{window}, fn: min, location: #{location})
-      |> keep(columns: ["_time","_field","_value"])
+      |> keep(columns: ["_time","_field","_measurement","_value"])
       |> yield(name: "min")
 
       #{from_bucket}
-      |> #{range(start: start - 1.hour, stop:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{range(start: start - 1.second, stop:)}
+      |> #{filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: #{window}, fn: max, location: #{location})
-      |> keep(columns: ["_time","_field","_value"])
+      |> keep(columns: ["_time","_field","_measurement","_value"])
       |> yield(name: "max")
     QUERY
 
@@ -78,23 +77,21 @@ class MinMaxChart < Flux::Reader
       import "timezone"
 
       #{from_bucket}
-      |> #{range(start: start - 1.hour, stop:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{range(start: start - 1.second, stop:)}
+      |> #{filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: 1d, fn: min)
       |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'min'}, location: #{location})
-      |> keep(columns: ["_time","_field","_value"])
+      |> keep(columns: ["_time","_field","_measurement","_value"])
       |> yield(name: "min")
 
       #{from_bucket}
-      |> #{range(start: start - 1.hour, stop:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
+      |> #{range(start: start - 1.second, stop:)}
+      |> #{filter}
       |> aggregateWindow(every: 5m, fn: mean)
       |> aggregateWindow(every: 1d, fn: max)
       |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'max'}, location: #{location})
-      |> keep(columns: ["_time","_field","_value"])
+      |> keep(columns: ["_time","_field","_measurement","_value"])
       |> yield(name: "max")
     QUERY
 
@@ -105,12 +102,15 @@ class MinMaxChart < Flux::Reader
     result = {}
 
     raw.each do |table|
-      key = table.records.first.values['_field']
+      field = table.records.first.values['_field']
+      measurement = table.records.first.values['_measurement']
+      sensor = SensorConfig.x.find_by(measurement, field)
+
       array = table_to_array(table)
 
-      result[key] = if result[key]
+      result[sensor] = if result[sensor]
         # Merge the two tables
-        merged_array = result[key].zip(array)
+        merged_array = result[sensor].zip(array)
         # Return array with [time, [min, max]] or [time, nil]
         merged_array.map! do |a, b|
           time = a.first
@@ -146,12 +146,12 @@ class MinMaxChart < Flux::Reader
   end
 
   def default_cache_options
-    return unless @timeframe
+    return unless timeframe
 
     # Cache larger timeframes, but just for a short time
-    return { expires_in: 10.minutes } if @timeframe.month? || @timeframe.week?
-    return { expires_in: 1.hour } if @timeframe.year?
-    return { expires_in: 1.day } if @timeframe.all?
+    return { expires_in: 10.minutes } if timeframe.month? || timeframe.week?
+    return { expires_in: 1.hour } if timeframe.year?
+    return { expires_in: 1.day } if timeframe.all?
 
     nil
   end

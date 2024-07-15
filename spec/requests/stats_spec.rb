@@ -4,7 +4,7 @@ describe 'Stats', vcr: { cassette_name: 'version' } do
 
     context 'with params' do
       it 'renders' do
-        get stats_path(field: 'house_power', timeframe: 'now'),
+        get stats_path(sensor: 'house_power', timeframe: 'now'),
             headers: {
               'ACCEPT' =>
                 'text/vnd.turbo-stream.html, text/html, application/xhtml+xml',

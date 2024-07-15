@@ -1,9 +1,9 @@
 describe Status::Component, type: :component do
   subject(:component) do
-    described_class.new(time:, current_state: 'TEST', current_state_ok:)
+    described_class.new(time:, system_status: 'TEST', system_status_ok:)
   end
 
-  let(:current_state_ok) { nil }
+  let(:system_status_ok) { nil }
 
   context 'when time is more than 10 seconds ago' do
     let(:time) { 5.minutes.ago }
@@ -34,7 +34,7 @@ describe Status::Component, type: :component do
 
   context 'when time is a few seconds ago and ok' do
     let(:time) { 3.seconds.ago }
-    let(:current_state_ok) { true }
+    let(:system_status_ok) { true }
 
     it { is_expected.to be_live }
 
@@ -46,7 +46,7 @@ describe Status::Component, type: :component do
 
   context 'when time is a few seconds ago and not ok' do
     let(:time) { 3.seconds.ago }
-    let(:current_state_ok) { false }
+    let(:system_status_ok) { false }
 
     it { is_expected.to be_live }
 

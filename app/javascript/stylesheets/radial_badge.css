@@ -32,7 +32,7 @@
   }
 }
 
-@media screen(xl) {
+@media screen(xl) and screen(tall) {
   .radial-badge {
     --size: 6rem;
     @apply box-content h-[var(--size)] w-[var(--size)] border-4 bg-transparent;

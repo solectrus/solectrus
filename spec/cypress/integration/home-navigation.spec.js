@@ -1,14 +1,16 @@
 describe('Home page', () => {
   [
     'inverter_power',
-    'bat_power',
+    'battery_power',
     'grid_power',
     'autarky',
     'consumption',
     'house_power',
-    'wallbox_charge_power',
+    'heatpump_power',
+    'wallbox_power',
     'case_temp',
-    'bat_fuel_charge',
+    'battery_soc',
+    'co2_reduction',
   ].forEach((path) => {
     it(`${path} is clickable`, () => {
       cy.visit(`/${path}`);
@@ -58,9 +60,7 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('Montag, 20. Juni 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should(
-        'not.exist',
-      );
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('Dienstag, 21. Juni 2022');
@@ -85,9 +85,7 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('KW 24, 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should(
-        'not.exist',
-      );
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('KW 25, 2022');
@@ -112,9 +110,7 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('Mai 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should(
-        'not.exist',
-      );
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('Juni 2022');
@@ -139,9 +135,7 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('2021');
-      cy.get("[data-controller='stats-with-chart--component']").should(
-        'not.exist',
-      );
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('2022');

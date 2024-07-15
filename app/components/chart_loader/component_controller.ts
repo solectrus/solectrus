@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { debounce } from 'throttle-debounce';
-import { isTouchEnabled, isReducedMotion } from '@/utils/device';
+import { isReducedMotion } from '@/utils/device';
 
 import {
   Chart,
@@ -42,24 +42,21 @@ Chart.register(
 export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
-    options: Object,
     unit: String,
   };
 
-  static readonly targets = ['container', 'canvas', 'blank', 'json'];
+  static readonly targets = ['container', 'canvas', 'data', 'options'];
 
   declare readonly containerTarget: HTMLDivElement;
   declare readonly canvasTarget: HTMLCanvasElement;
-  declare readonly blankTarget: HTMLParagraphElement;
-  declare readonly jsonTarget: HTMLScriptElement;
+  declare readonly dataTarget: HTMLScriptElement;
+  declare readonly optionsTarget: HTMLScriptElement;
 
-  declare readonly hasJsonTarget: boolean;
+  declare readonly hasDataTarget: boolean;
+  declare readonly hasOptionsTarget: boolean;
 
   declare typeValue: ChartType;
   declare readonly hasTypeValue: boolean;
-
-  declare optionsValue: ChartOptions;
-  declare readonly hasOptionsValue: boolean;
 
   declare unitValue: string;
   declare readonly hasUnitValue: boolean;
@@ -96,18 +93,10 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private process() {
     const data = this.getData();
+    if (!data) return;
 
-    if (!data || data.datasets.length === 0) {
-      this.blankTarget.classList.remove('hidden');
-      return;
-    }
-
-    this.containerTarget.classList.remove('hidden');
-
-    const options = this.optionsValue;
-
-    // Disable zoom on touch devices (does not work well)
-    if (isTouchEnabled() && options.plugins) options.plugins.zoom = undefined;
+    const options = this.getOptions();
+    if (!options) return;
 
     // Disable animation when user prefers reduced motion
     if (isReducedMotion()) options.animation = false;
@@ -229,8 +218,13 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private getData(): ChartData | undefined {
-    if (this.hasJsonTarget)
-      return JSON.parse(this.jsonTarget.textContent ?? '');
+    if (this.hasDataTarget && this.dataTarget.textContent)
+      return JSON.parse(this.dataTarget.textContent);
+  }
+
+  private getOptions(): ChartOptions | undefined {
+    if (this.hasOptionsTarget && this.optionsTarget.textContent)
+      return JSON.parse(this.optionsTarget.textContent);
   }
 
   private formattedNumber(number: number) {

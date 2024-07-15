@@ -48,10 +48,10 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.top10'),
         href:
           top10_path(
-            field:
-              if helpers.respond_to?(:field) &&
-                   helpers.field.in?(Senec::POWER_FIELDS)
-                helpers.field
+            sensor:
+              if helpers.respond_to?(:sensor) &&
+                   helpers.sensor.in?(SensorConfig::POWER_SENSORS)
+                helpers.sensor
               else
                 'inverter_power'
               end,
@@ -84,10 +84,17 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
 
     def registration_item
       return unless helpers.admin?
-      return if helpers.registration_banner?
+      return if helpers.banner?
 
       {
-        name: t('layout.registration'),
+        name:
+          (
+            if UpdateCheck.instance.prompt?
+              t('layout.registration_and_sponsoring')
+            else
+              t('layout.registration')
+            end
+          ),
         href: registration_path,
         icon: 'id-card',
         data: {

@@ -1,16 +1,21 @@
 class Flux::Reader < Flux::Base
-  def initialize(fields:, measurements:)
+  def initialize(sensors:)
     super()
-    @fields = fields
-    @measurements = measurements
+
+    @sensors = sensors
     @cache_options = default_cache_options
   end
-  attr_reader :fields, :measurements
+
+  def call(timeframe)
+    @timeframe = timeframe
+  end
+
+  attr_reader :fields, :measurements, :sensors, :timeframe
 
   private
 
   WINDOW = {
-    now: '20s',
+    now: '30s',
     day: '5m',
     week: '1d',
     month: '1d',
@@ -23,16 +28,25 @@ class Flux::Reader < Flux::Base
     "from(bucket: \"#{influx_bucket}\")"
   end
 
-  def fields_filter
-    filter = fields.map { |field| "r[\"_field\"] == \"#{field}\"" }
+  def filter(selected_sensors: sensors)
+    raw =
+      selected_sensors.filter_map do |sensor|
+        [
+          SensorConfig.x.measurement(sensor),
+          SensorConfig.x.field(sensor),
+        ].compact.presence
+      end
 
-    "filter(fn: (r) => #{filter.join(' or ')})"
-  end
+    # Build hash: Key is measurement, value is array of fields
+    hash = raw.group_by(&:first).transform_values { |v| v.map(&:last) }
 
-  def measurements_filter
+    # Build filter string
     filter =
-      measurements.map do |measurement|
-        "r[\"_measurement\"] == \"#{measurement}\""
+      hash.map do |measurement, fields|
+        field_filter =
+          fields.map { |field| "r[\"_field\"] == \"#{field}\"" }.join(' or ')
+
+        "r[\"_measurement\"] == \"#{measurement}\" and (#{field_filter})"
       end
 
     "filter(fn: (r) => #{filter.join(' or ')})"
@@ -41,8 +55,8 @@ class Flux::Reader < Flux::Base
   def range(start:, stop: nil)
     @cache_options = cache_options(stop:)
 
-    start = start&.iso8601
-    stop = stop&.iso8601
+    start = start&.rfc3339(9)
+    stop = stop&.rfc3339(9)
 
     stop ? "range(start: #{start}, stop: #{stop})" : "range(start: #{start})"
   end
@@ -80,6 +94,7 @@ class Flux::Reader < Flux::Base
       'query.flux_reader',
       class: self.class.name,
       query: string,
+      sensors:,
       duration:,
     )
 
@@ -98,8 +113,20 @@ class Flux::Reader < Flux::Base
     default_cache_options
   end
 
+  # Cache expires depends on the timeframe
+  DEFAULT_CACHE_EXPIRES = {
+    day: 1.minute,
+    week: 5.minutes,
+    month: 10.minutes,
+    year: 1.hour,
+    all: 1.day,
+  }.freeze
+  private_constant :DEFAULT_CACHE_EXPIRES
+
   # Default cache options, can be overridden in subclasses
   def default_cache_options
-    # Don't cache at all
+    return unless timeframe
+
+    { expires_in: DEFAULT_CACHE_EXPIRES[timeframe.id] }
   end
 end

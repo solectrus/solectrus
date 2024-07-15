@@ -1,15 +1,15 @@
 describe VersionInfo::Component, type: :component do
   subject(:component) do
     described_class.new(
-      current_version: 'v0.12.0-89-gc0ffee',
-      commit_time: Time.current,
-      github_url: 'https://github.com/user/repo',
+      current_version: 'v0.14.4',
+      commit_time: Time.new(2024, 3, 21, 11, 11, 0, '+01:00'),
+      github_url: 'https://github.com/solectrus/solectrus',
     )
   end
 
   describe '#latest_version' do
     it 'returns the latest version', vcr: { cassette_name: 'version' } do
-      expect(component.latest_version).to eq 'v0.12.0'
+      expect(component.latest_version).to eq 'v0.14.5'
     end
   end
 
@@ -69,11 +69,17 @@ describe VersionInfo::Component, type: :component do
     end
   end
 
-  describe '#latest_release_url', vcr: { cassette_name: 'version' } do
+  describe '#latest_release_url' do
     subject { component.latest_release_url }
 
-    it do
-      is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.12.0'
+    context 'when latest version is present', vcr: 'version' do
+      it do
+        is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.14.5'
+      end
+    end
+
+    context 'when latest version is missing' do
+      it { is_expected.to eq 'https://github.com/solectrus/solectrus/releases' }
     end
   end
 end

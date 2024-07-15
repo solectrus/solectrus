@@ -1,20 +1,20 @@
 class StatsWithChart::Component < ViewComponent::Base
-  def initialize(field:, timeframe:)
+  def initialize(sensor:, timeframe:)
     super
-    @field = field
+    @sensor = sensor
     @timeframe = timeframe
   end
-  attr_reader :field, :timeframe
+  attr_reader :sensor, :timeframe
 
   def refresh_options
-    return if timeframe.past?
-
     {
       controller: 'stats-with-chart--component',
-      'stats-with-chart--component-field-value': field,
+      'stats-with-chart--component-sensor-value': sensor,
       'stats-with-chart--component-interval-value':
         (
-          if timeframe.now?
+          if timeframe.past?
+            0
+          elsif timeframe.now?
             Rails.configuration.x.influx.poll_interval.seconds
           else
             5.minutes
@@ -29,7 +29,7 @@ class StatsWithChart::Component < ViewComponent::Base
   def next_path
     return unless forced_next_timeframe
 
-    root_path(field:, timeframe: forced_next_timeframe)
+    root_path(sensor:, timeframe: forced_next_timeframe)
   end
 
   def boundary

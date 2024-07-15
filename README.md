@@ -57,7 +57,7 @@ bin/setup
 bin/dev
 ```
 
-Then open https://solectrus.test in your browser.
+This starts the app and opens https://solectrus.test in your default browser (see `Procfile.dev`).
 
 ## Test
 

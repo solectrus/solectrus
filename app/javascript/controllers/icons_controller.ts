@@ -18,6 +18,7 @@ import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faCar } from '@fortawesome/free-solid-svg-icons/faCar';
 import { faPlug } from '@fortawesome/free-solid-svg-icons/faPlug';
 import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt';
+import { faFan } from '@fortawesome/free-solid-svg-icons/faFan';
 
 import { faBatteryEmpty } from '@fortawesome/free-solid-svg-icons/faBatteryEmpty';
 import { faBatteryQuarter } from '@fortawesome/free-solid-svg-icons/faBatteryQuarter';
@@ -37,7 +38,7 @@ import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleE
 
 import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard';
 import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank';
-import { faTreeCity } from '@fortawesome/free-solid-svg-icons/faTreeCity';
+import { faLeaf } from '@fortawesome/free-solid-svg-icons/faLeaf';
 import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
 import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
 // -------------------------
@@ -55,6 +56,7 @@ export default class extends Controller {
       faCar,
       faPlug,
       faBolt,
+      faFan,
       faChevronLeft,
       faChevronRight,
       faArrowDownWideShort,
@@ -78,7 +80,7 @@ export default class extends Controller {
       faCircleInfo,
       faIdCard,
       faPiggyBank,
-      faTreeCity,
+      faLeaf,
       faCompress,
       faExpand,
     );

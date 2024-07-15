@@ -9,10 +9,17 @@ de:
     faq: Fragen & Antworten
     settings: Einstellungen
     registration: Registrierung
-    login: Anmelden
+    registration_and_sponsoring: Registrierung & Sponsoring
+    login: Admin-Login
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
+    prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Weiterentwicklung mit einem Sponsoring! Ausgewählte Funktionen werden zukünftig exklusiv für Sponsoren verfügbar sein.
+    missing_sponsoring_header: Noch ohne Sponsoring
+    missing_sponsoring: Durch Sponsoren kann die Weiterentwicklung von SOLECTRUS sichergestellt werden.
+    missing_sponsoring_cta: Ja, ich möchte Sponsor werden!
+    active_sponsoring_header: Sponsoring aktiv
+    active_sponsoring: Herzlichen Dank für deine Unterstützung!
   timeframe:
     now: Aktuell
     day: Heute
@@ -20,19 +27,21 @@ de:
     month: Dieser Monat
     year: Dieses Jahr
     all: Seit Inbetriebnahme
-  senec:
+  sensors:
     inverter_power: Erzeugung
+    inverter_power_forecast: Prognose
     house_power: Haus-Verbrauch
-    wallbox_charge_power: E-Auto
-    grid_power_plus: Netzbezug
-    grid_power_minus: Einspeisung
+    wallbox_power: E-Auto
+    grid_import_power: Netzbezug
+    grid_export_power: Einspeisung
     grid_power: Netz
-    bat_power_minus: Akku-Entnahme
-    bat_power_plus: Akku-Beladung
-    bat_power: Akku
-    bat_fuel_charge: Ladestand
+    battery_discharging_power: Akku-Entnahme
+    battery_charging_power: Akku-Beladung
+    battery_power: Akku
+    battery_soc: Ladestand
     case_temp: Temperatur
-    power_ratio: Begrenzung
+    grid_export_limit: Begrenzung
+    heatpump_power: Wärmepumpe
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -43,14 +52,14 @@ de:
     month: Monat
     year: Jahr
     all: Gesamt
-    forecast: Prognose
     grid_quote: Bezugsquote
     consumption: Verbrauch
     consumption_quote: Eigenverbrauchsquote
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     savings: Einsparung
-    co2_savings: CO₂-Einsparung
+    co2_reduction: CO₂-Reduktion
+    co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung gegenüber dem deutschen Strommix (401 g/kWh).
     battery_savings: Anteil Akku
     house_costs: Anteil Haus
     wallbox_costs: Anteil E-Auto

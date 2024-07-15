@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.1.3', '>= 7.1.3.2'
+gem 'rails', '~> 7.1.3', '>= 7.1.3.4'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -40,6 +40,9 @@ gem 'rack-cors', require: 'rack/cors'
 
 # Block & throttle abusive requests (https://github.com/rack/rack-attack)
 gem 'rack-attack'
+
+# Brotli compression for Rack responses (http://github.com/marcotc/rack-brotli/)
+gem 'rack-brotli'
 
 # Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
 gem 'lograge'
@@ -75,6 +78,9 @@ group :development, :test do
   # Automatic Ruby code style checking tool. (https://github.com/rubocop/rubocop)
   gem 'rubocop', require: false
 
+  # Code style checking for Capybara test files (https://github.com/rubocop/rubocop-capybara)
+  gem 'rubocop-capybara', require: false
+
   # Automatic performance checking tool for Ruby code. (https://github.com/rubocop/rubocop-performance)
   gem 'rubocop-performance', require: false
 
@@ -83,6 +89,9 @@ group :development, :test do
 
   # Code style checking for RSpec files (https://github.com/rubocop/rubocop-rspec)
   gem 'rubocop-rspec', require: false
+
+  # Code style checking for RSpec Rails files (https://github.com/rubocop/rubocop-rspec_rails)
+  gem 'rubocop-rspec_rails', require: false
 
   # Thread-safety checks via static analysis (https://github.com/rubocop/rubocop-thread_safety)
   gem 'rubocop-thread_safety', require: false
@@ -113,14 +122,11 @@ group :development do
   # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
   gem 'spring-commands-rspec', require: false
 
-  # prettier plugin for the Ruby programming language (https://github.com/prettier/plugin-ruby#readme)
-  gem 'prettier'
-
-  # A native development UI for ViewComponent (https://github.com/ViewComponent/lookbook)
+  # A native development UI for ViewComponent (https://github.com/lookbook-hq/lookbook)
   gem 'lookbook'
 
-  # Annotates Rails Models, routes, fixtures, and others based on the database schema. (https://github.com/ctran/annotate_models)
-  gem 'annotate'
+  # A gem for generating annotations for Rails projects. (https://github.com/drwl/annotaterb)
+  gem 'annotaterb'
 
   # Pretty print Ruby objects with proper indentation and colors (https://github.com/amazing-print/amazing_print)
   gem 'amazing_print'

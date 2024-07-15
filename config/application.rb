@@ -7,7 +7,7 @@ require 'active_job/railtie'
 require 'active_record/railtie'
 # require "active_storage/engine"
 require 'action_controller/railtie'
-require 'action_mailer/railtie'
+# require 'action_mailer/railtie'
 # require "action_mailbox/engine"
 # require "action_text/engine"
 require 'action_view/railtie'
@@ -61,12 +61,21 @@ module Solectrus
     config.x.influx.host = ENV.fetch('INFLUX_HOST', nil)
     config.x.influx.port = ENV.fetch('INFLUX_PORT', 8086)
     config.x.influx.bucket = ENV.fetch('INFLUX_BUCKET', nil)
-    config.x.influx.measurement_pv = ENV.fetch('INFLUX_MEASUREMENT_PV', 'SENEC')
-    config.x.influx.measurement_forecast =
-      ENV.fetch('INFLUX_MEASUREMENT_FORECAST', 'Forecast')
     config.x.influx.org = ENV.fetch('INFLUX_ORG', nil)
 
     config.x.influx.poll_interval = ENV.fetch('INFLUX_POLL_INTERVAL', '5').to_i
+
+    config.after_initialize do
+      def rake_task_running?(*tasks)
+        tasks.any? do |task|
+          defined?(Rake) && Rake.application.top_level_tasks.include?(task)
+        end
+      end
+
+      unless rake_task_running?('assets:precompile', 'db:migrate', 'db:prepare')
+        SensorConfig.setup(ENV)
+      end
+    end
 
     config.x.installation_date =
       Date.parse ENV.fetch('INSTALLATION_DATE', '2020-01-01')

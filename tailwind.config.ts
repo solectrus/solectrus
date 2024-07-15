@@ -8,6 +8,8 @@ export default {
     extend: {
       screens: {
         '3xl': '1920px',
+
+        tall: { raw: '(min-height: 800px)' },
       },
 
       aspectRatio: {
@@ -23,7 +25,7 @@ export default {
       },
 
       spacing: {
-        '128': '32rem',
+        '144': '36rem',
       },
 
       transitionProperty: {

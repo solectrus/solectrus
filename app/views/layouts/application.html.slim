@@ -1,5 +1,5 @@
 doctype html
-html lang="de"
+html lang= I18n.locale
   head
     meta charset="utf-8"
 
@@ -15,6 +15,7 @@ html lang="de"
     meta name="theme-color" content="#a5b4fc"
     meta name="version" content= Rails.configuration.x.git.commit_version
     meta name="date" content= Rails.configuration.x.git.commit_time
+    meta name="env" content= Rails.env
     meta name="author" content="Georg Ledermann"
     meta name="robots" content= "noindex, nofollow, noarchive"
 
@@ -61,8 +62,8 @@ html lang="de"
       // Load Sinon from CDN
       // https://cdnjs.com/libraries/sinon.js
       script[
-        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/17.0.1/sinon.min.js'
-        integrity= 'sha512-ycKS9wvmD9WodSh37q5bmUBGczwW1iPlqQxBHKI0Rd68+C+bIYtZ2yfTx3auJC6gkuWL5t4+2SfvMFN91tUGQw=='
+        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/18.0.0/sinon.min.js'
+        integrity= 'sha512-ebemzvvjpDp3QU8hypGJA17UC5tY93lneJEHkVON9Rg9knDxczLxY7yABNHOOHauNSUfGnKTiD74pVMHKrdWgw=='
         crossorigin= 'anonymous'
         referrerpolicy= 'no-referrer'
       ]
@@ -78,13 +79,14 @@ html lang="de"
     = yield :head
 
   body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none[
-    data-controller= ['icons', 'fullscreen', ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
+    data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]
-    - if registration_banner?
-      = render RegistrationBanner::Component.new registration_status: UpdateCheck.instance.registration_status,
-                                                 admin: admin?
+    - if banner?
+      = render Banner::Component.new registration_status: UpdateCheck.instance.registration_status,
+                                     prompt: UpdateCheck.instance.prompt?,
+                                     admin: admin?
 
     = render Nav::Top::Component.new do |c|
       = c.with_primary_items topnav_primary_items
@@ -115,8 +117,5 @@ html lang="de"
         = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
                                             commit_time: Rails.configuration.x.git.commit_time,
                                             github_url: Rails.configuration.x.git.home)
-
-        = render RegistrationStatus::Component.new(registration_status: UpdateCheck.instance.registration_status,
-                                                   admin: admin?)
 
       = render AuthorLogo::Component.new

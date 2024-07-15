@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Ensure InfluxDB is ready
+bin/influxdb-restart.sh
+
 # ESLint
 bin/yarn lint &
 eslint_pid=$!

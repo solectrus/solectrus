@@ -1,10 +1,14 @@
 = turbo_stream.update 'nav' do
   = render Timeframe::Component.new(timeframe:)
-  = render Status::Component.new(time: calculator.time, current_state: calculator.current_state, current_state_ok: calculator.current_state_ok) if timeframe.now?
+
+  - if timeframe.now? && SensorConfig.x.exists?(:system_status)
+    = render Status::Component.new time: calculator.time,
+                                   system_status: calculator.system_status,
+                                   system_status_ok: calculator.system_status_ok
 
 turbo-stream action="morph" target="stats" children-only= true
   template
     - if timeframe.now?
-      = render StatsNow::Component.new calculator:, field:
+      = render StatsNow::Component.new calculator:, sensor:
     - else
-      = render StatsRange::Component.new calculator:, timeframe:, field:
+      = render StatsRange::Component.new calculator:, timeframe:, sensor:

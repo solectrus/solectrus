@@ -3,21 +3,22 @@ div
     = render BalanceSide::Component.new side: :left,
                                         calculator:,
                                         timeframe:,
-                                        field: do |balance|
+                                        sensor: do |balance|
       ruby:
-        balance.with_segment :grid_power_plus, peak&.dig('grid_power_plus')
-        balance.with_segment :inverter_power, peak&.dig('inverter_power')
-        balance.with_segment :bat_power_minus, peak&.dig('bat_power_minus')
+        balance.with_segment :grid_import_power, peak&.dig(:grid_import_power)
+        balance.with_segment :inverter_power, peak&.dig(:inverter_power)
+        balance.with_segment :battery_discharging_power, peak&.dig(:battery_discharging_power)
 
-    div class= 'flex flex-col px-2 sm:px-4 gap-4 pb-8'
+    div class= 'flex flex-col px-2 sm:px-4 gap-2 tall:gap-4 pb-8'
       = center
 
     = render BalanceSide::Component.new side: :right,
                                         calculator:,
                                         timeframe:,
-                                        field: do |balance|
+                                        sensor: do |balance|
       ruby:
-        balance.with_segment :wallbox_charge_power, peak&.dig('wallbox_charge_power')
-        balance.with_segment :house_power, peak&.dig('house_power')
-        balance.with_segment :grid_power_minus, peak&.dig('grid_power_power_minus')
-        balance.with_segment :bat_power_plus, peak&.dig('bat_power_plus')
+        balance.with_segment :wallbox_power, peak&.dig(:wallbox_power)
+        balance.with_segment :heatpump_power, peak&.dig(:heatpump_power)
+        balance.with_segment :house_power, peak&.dig(:house_power)
+        balance.with_segment :grid_export_power, peak&.dig(:grid_power_power_minus)
+        balance.with_segment :battery_charging_power, peak&.dig(:battery_charging_power)

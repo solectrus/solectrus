@@ -9,10 +9,17 @@ en:
     faq: FAQ
     settings: Settings
     registration: Registration
-    login: Login
+    registration_and_sponsoring: Registration & Sponsoring
+    login: Admin login
     logout: Logout
     version_outdated: New version <strong>%{latest_version}</strong> available!
     version_uptodate: This is the latest version
+    prompt_for_sponsoring: If you like SOLECTRUS, support development with a sponsorship! Selected features will be available exclusively to sponsors in the future.
+    missing_sponsoring_header: Not sponsoring yet
+    missing_sponsoring: Sponsorship can ensure the further development of SOLECTRUS.
+    missing_sponsoring_cta: Yes, I want to become a sponsor!
+    active_sponsoring_header: Sponsoring aktiv
+    active_sponsoring: Thank you very much for your support!
   timeframe:
     now: Now
     day: Today
@@ -20,19 +27,21 @@ en:
     month: This month
     year: This year
     all: Since commissioning
-  senec:
+  sensors:
     inverter_power: PV generated
+    inverter_power_forecast: Forecast
     house_power: Home consumption
-    wallbox_charge_power: EV charging
-    grid_power_plus: Grid import
-    grid_power_minus: Grid export
+    wallbox_power: EV charging
+    grid_import_power: Grid import
+    grid_export_power: Grid export
     grid_power: Grid
-    bat_power_minus: Battery discharge
-    bat_power_plus: Battery charge
-    bat_power: Battery
-    bat_fuel_charge: Battery
+    battery_discharging_power: Battery discharge
+    battery_charging_power: Battery charge
+    battery_power: Battery
+    battery_soc: Battery
     case_temp: Temperature
-    power_ratio: Limitation
+    grid_export_limit: Limitation
+    heatpump_power: Heat pump
   balance_sheet:
     left: Origin
     right: Usage
@@ -43,14 +52,14 @@ en:
     month: Month
     year: Year
     all: Overall
-    forecast: Forecast
     grid_quote: Grid consumption rate
     consumption: Consume
     consumption_quote: Self-consumption rate
     solar_price: Solar price
     traditional_price: Comparative price
     savings: Savings
-    co2_savings: CO₂ savings
+    co2_reduction: CO₂ reduction
+    co2_reduction_note: Reduction in CO₂ emissions from PV generation compared to the German electricity mix (401 g/kWh)
     battery_savings: Battery share
     house_costs: House costs
     wallbox_costs: EV costs
@@ -101,7 +110,7 @@ en:
       title: Not Found
       description: The requested page could not be found.
     422:
-      title: Unprocessable Entity
+      title: Unprocessable Content
       description: The requested change was rejected.
     500:
       title: Internal Server Error

@@ -1,32 +1,34 @@
 class EssentialsTile::Component < ViewComponent::Base
-  def initialize(calculator:, field:, timeframe:)
+  def initialize(calculator:, sensor:, timeframe:)
     super
     @calculator = calculator
-    @field = field.to_sym
+    @sensor = sensor.to_sym
     @timeframe = timeframe
   end
 
-  attr_reader :calculator, :field, :timeframe
+  attr_reader :calculator, :sensor, :timeframe
 
   def path
-    if field.in? %i[savings co2_savings]
+    if sensor.in? %i[savings]
       # Currently, there is no chart for savings, so link to inverter_power chart
-      root_path(field: 'inverter_power', timeframe:)
+      root_path(sensor: 'inverter_power', timeframe:)
     else
-      root_path(field:, timeframe:)
+      root_path(sensor:, timeframe:)
     end
   end
 
   def value
-    @value ||= calculator.public_send(field)
+    @value ||= calculator.public_send(sensor)
   end
 
   def color
     return :gray if value.nil? || value.round.zero?
 
-    case field
-    when :savings, :co2_savings
-      :blue
+    case sensor
+    when :savings
+      :violet
+    when :co2_reduction
+      :sky
     when :house_power
       :gray
     else
@@ -47,14 +49,14 @@ class EssentialsTile::Component < ViewComponent::Base
   end
 
   ICONS = {
-    grid_power_minus: 'fa-bolt',
-    grid_power_plus: 'fa-bolt',
+    grid_export_power: 'fa-bolt',
+    grid_import_power: 'fa-bolt',
     inverter_power: 'fa-sun',
     house_power: 'fa-home',
-    wallbox_charge_power: 'fa-car',
+    wallbox_power: 'fa-car',
     savings: 'fa-piggy-bank',
-    co2_savings: 'fa-tree-city',
-    bat_fuel_charge: 'fa-battery-half',
+    co2_reduction: 'fa-leaf',
+    battery_soc: 'fa-battery-half',
   }.freeze
 
   BACKGROUND_COLOR = {
@@ -62,7 +64,8 @@ class EssentialsTile::Component < ViewComponent::Base
     yellow: 'bg-yellow-600',
     red: 'bg-red-600',
     gray: 'bg-gray-600',
-    blue: 'bg-blue-600',
+    sky: 'bg-sky-600',
+    violet: 'bg-violet-600',
   }.freeze
 
   TEXT_PRIMARY_COLOR = 'text-white'.freeze
@@ -72,7 +75,8 @@ class EssentialsTile::Component < ViewComponent::Base
     yellow: 'text-yellow-100',
     red: 'text-red-100',
     gray: 'text-gray-100',
-    blue: 'text-blue-100',
+    sky: 'text-sky-100',
+    violet: 'text-violet-100',
   }.freeze
 
   private_constant :BACKGROUND_COLOR
@@ -81,19 +85,30 @@ class EssentialsTile::Component < ViewComponent::Base
   private_constant :ICONS
 
   def icon_class
-    ICONS[field]
+    ICONS[sensor]
+  end
+
+  def title
+    case sensor
+    when :savings
+      t("calculator.#{sensor}")
+    when :co2_reduction
+      t('calculator.co2_reduction_note')
+    else
+      t("sensors.#{sensor}")
+    end
   end
 
   def formatted_value
     return '---' unless value
 
     number = Number::Component.new(value:)
-    case field
+    case sensor
     when :savings
       number.to_eur(klass: 'text-inherit')
-    when :co2_savings
+    when :co2_reduction
       number.to_weight
-    when :autarky, :bat_fuel_charge
+    when :autarky, :battery_soc
       number.to_percent(klass: 'text-inherit')
     else
       timeframe.now? ? number.to_watt : number.to_watt_hour

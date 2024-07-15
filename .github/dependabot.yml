@@ -9,7 +9,7 @@ updates:
     directory: '/'
     schedule:
       interval: daily
-      time: '01:00'
+      time: '03:30'
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     versioning-strategy: lockfile-only
@@ -18,19 +18,62 @@ updates:
       - dependency-type: indirect
     labels:
       - 'dependencies'
-      - 'ruby'
+    groups:
+      rails:
+        patterns:
+          - 'actioncable'
+          - 'actionmailbox'
+          - 'actionmailer'
+          - 'actionpack'
+          - 'actiontext'
+          - 'actionview'
+          - 'activejob'
+          - 'activemodel'
+          - 'activerecord'
+          - 'activestorage'
+          - 'activesupport'
+          - 'rails'
+          - 'railties'
+          - 'turbo-rails'
+          - 'stimulus-rails'
+      rubocop:
+        patterns:
+          - 'rubocop'
+          - 'rubocop-*'
+      rspec:
+        patterns:
+          - 'rspec'
+          - 'rspec-*'
 
   - package-ecosystem: npm
     directory: '/'
     schedule:
       interval: daily
-      time: '01:00'
+      time: '03:30'
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     versioning-strategy: auto
     labels:
       - 'dependencies'
-      - 'javascript'
+    groups:
+      vite:
+        patterns:
+          - 'vite'
+          - 'vite-plugin-rails'
+      eslint:
+        patterns:
+          - 'eslint*'
+      hotwired:
+        patterns:
+          - '@hotwired*'
+      tailwindcss:
+        patterns:
+          - '@tailwindcss/*'
+          - tailwindcss
+      charts:
+        patterns:
+          - 'chart.js'
+          - 'chartkick'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
@@ -40,4 +83,3 @@ updates:
       timezone: Europe/Berlin
     labels:
       - 'dependencies'
-      - 'gh-action'

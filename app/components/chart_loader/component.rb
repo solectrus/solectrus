@@ -1,10 +1,27 @@
 class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
-  def initialize(field:, timeframe:)
+  def initialize(sensor:, timeframe:)
     super
-    @field = field
+    @sensor = sensor
     @timeframe = timeframe
   end
-  attr_reader :field, :timeframe
+  attr_reader :sensor, :timeframe
+
+  def data
+    @data ||=
+      begin
+        class_name = "ChartData::#{sensor.to_s.camelize}"
+        # Example: :inverter_power -> ChartData::InverterPower
+
+        if Object.const_defined?(class_name)
+          Object.const_get(class_name).new(timeframe:)
+        else
+          # :nocov:
+          raise NotImplementedError,
+                "ChartData::#{sensor.to_s.camelize} not implemented"
+          # :nocov:
+        end
+      end
+  end
 
   def options # rubocop:disable Metrics/MethodLength
     {
@@ -22,17 +39,14 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
           caretPadding: 15,
           caretSize: 10,
         },
-        zoom: {
-          zoom: {
-            drag: {
-              enabled: true,
-            },
-            pinch: {
-              enabled: true,
-            },
-            mode: 'x',
-          },
-        },
+        zoom:
+          (
+            if timeframe.short?
+              { zoom: { drag: { enabled: true }, mode: 'x' } }
+            else
+              {}
+            end
+          ),
       },
       animation: {
         easing: 'easeOutQuad',
@@ -138,8 +152,8 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             ],
         },
         y: {
-          suggestedMax: field == 'bat_fuel_charge' ? 100 : nil,
-          suggestedMin: field == 'case_temp' ? 20 : nil,
+          suggestedMax: sensor == :battery_soc ? 100 : nil,
+          suggestedMin: sensor == :case_temp ? 20 : nil,
           ticks: {
             beginAtZero: true,
             maxTicksLimit: 4,
@@ -150,17 +164,19 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
 
   def type
-    (timeframe.now? || timeframe.day? ? 'line' : 'bar').inquiry
+    (timeframe.short? ? 'line' : 'bar').inquiry
   end
 
   def unit
-    case field
-    when 'bat_fuel_charge', 'autarky', 'consumption'
+    case sensor
+    when :battery_soc, :autarky, :consumption
       '&percnt;'.html_safe
-    when 'case_temp'
+    when :case_temp
       '&deg;C'.html_safe
+    when :co2_reduction
+      timeframe.short? ? 'g/h' : 'kg'
     else
-      timeframe.now? || timeframe.day? ? 'kW' : 'kWh'
+      timeframe.short? ? 'kW' : 'kWh'
     end
   end
 end

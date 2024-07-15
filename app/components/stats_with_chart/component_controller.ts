@@ -21,7 +21,7 @@ export default class extends Controller {
 
   static readonly values = {
     // Field to display in the chart
-    field: String,
+    sensor: String,
 
     // Refresh interval in seconds
     interval: { type: Number, default: 5 },
@@ -36,20 +36,22 @@ export default class extends Controller {
     // After this time (ISO 8601 decoded), nextPath will be loaded instead of the current page
     boundary: String,
   };
-  declare readonly fieldValue: string;
+  declare readonly sensorValue: string;
   declare readonly intervalValue: number;
   declare readonly reloadChartValue: boolean;
   declare readonly nextPathValue: string;
   declare readonly boundaryValue: string;
 
   private interval: ReturnType<typeof setInterval> | undefined;
-  private selectedField?: string;
+  private selectedSensor?: string;
 
   connect() {
-    document.addEventListener(
-      'visibilitychange',
-      this.handleVisibilityChange.bind(this),
-    );
+    if (this.intervalValue)
+      document.addEventListener(
+        'visibilitychange',
+        this.handleVisibilityChange.bind(this),
+      );
+
     document.addEventListener('dblclick', this.handleDblClick.bind(this));
 
     this.startLoop();
@@ -59,16 +61,20 @@ export default class extends Controller {
     this.stopLoop();
 
     document.removeEventListener('dblclick', this.handleDblClick.bind(this));
-    document.removeEventListener(
-      'visibilitychange',
-      this.handleVisibilityChange.bind(this),
-    );
+
+    if (this.intervalValue)
+      document.removeEventListener(
+        'visibilitychange',
+        this.handleVisibilityChange.bind(this),
+      );
   }
 
   startLoop(event?: ActionEvent) {
+    if (!this.intervalValue) return;
+
     this.stopLoop();
 
-    if (event?.params?.field) this.selectedField = event.params.field;
+    if (event?.params?.sensor) this.selectedSensor = event.params.sensor;
 
     this.interval = setInterval(() => {
       // Move to next page when boundary is reached
@@ -112,15 +118,16 @@ export default class extends Controller {
   }
 
   handleDblClick(event: MouseEvent) {
-    if (event.target == this.canvasTarget) this.chart?.resetZoom();
+    if (this.hasCanvasTarget && event.target == this.canvasTarget)
+      this.chart?.resetZoom();
   }
 
   addPointToChart() {
     if (
-      !this.chart ||
-      !this.currentValue ||
-      !this.currentTime ||
-      !this.lastTime
+      this.chart == null ||
+      this.currentValue == null ||
+      this.currentTime == null ||
+      this.lastTime == null
     )
       return;
 
@@ -177,15 +184,18 @@ export default class extends Controller {
           this.statsTarget.reload(),
         ]);
       else await this.statsTarget.reload();
+
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          application.controllers.forEach((controller) => {
+            if (controller instanceof TippyController) controller.refresh();
+          });
+          resolve();
+        }, 100);
+      });
     } catch (error) {
       console.error(error);
     }
-
-    setTimeout(() => {
-      application.controllers.forEach((controller) => {
-        if (controller instanceof TippyController) controller.refresh();
-      });
-    }, 100);
   }
 
   get chart(): Chart | undefined {
@@ -195,7 +205,7 @@ export default class extends Controller {
   }
 
   get currentValue(): number | undefined {
-    if (!this.currentElement?.dataset.value) return undefined;
+    if (this.currentElement?.dataset.value == null) return undefined;
 
     return parseFloat(this.currentElement.dataset.value);
   }
@@ -213,16 +223,35 @@ export default class extends Controller {
   }
 
   get currentElement(): HTMLElement | undefined {
-    // Select the current element from the currentTargets (by comparing field)
-    const targets = this.currentTargets.filter((t) =>
-      t.dataset.field?.startsWith(this.effectiveField),
-    );
-    if (!targets.length) return undefined;
+    // Select the current element from the currentTargets (by comparing sensor)
+    const targets = this.currentTargets.filter((target) => {
+      if (target.dataset.sensor)
+        switch (this.effectiveSensor) {
+          case 'battery_power':
+            return (
+              target.dataset.sensor === 'battery_charging_power' ||
+              target.dataset.sensor === 'battery_discharging_power'
+            );
 
-    // Return the first element with a non-zero value, or the first element
-    return (
-      targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ?? targets[0]
-    );
+          case 'grid_power':
+            return (
+              target.dataset.sensor === 'grid_import_power' ||
+              target.dataset.sensor === 'grid_export_power'
+            );
+
+          default:
+            return target.dataset.sensor.startsWith(this.effectiveSensor);
+        }
+    });
+
+    if (targets.length)
+      // Return the first element with a non-zero value, or the first element otherwise
+      return (
+        targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ??
+        targets[0]
+      );
+
+    return undefined;
   }
 
   // The positive dataset is where at least one positive value exist
@@ -239,7 +268,7 @@ export default class extends Controller {
     );
   }
 
-  get effectiveField(): string {
-    return this.selectedField ?? this.fieldValue;
+  get effectiveSensor(): string {
+    return this.selectedSensor ?? this.sensorValue;
   }
 }

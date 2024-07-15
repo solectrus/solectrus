@@ -1,5 +1,9 @@
 class PowerChart < Flux::Reader
   def call(timeframe, fill: false, interpolate: false)
+    return {} unless SensorConfig.x.exists_any?(*sensors)
+
+    super(timeframe)
+
     case timeframe.id
     when :now
       chart_single start: 1.hour.ago,
@@ -29,8 +33,7 @@ class PowerChart < Flux::Reader
     q << 'import "interpolate"' if interpolate
     q << from_bucket
     q << "|> #{range(start:, stop:)}"
-    q << "|> #{measurements_filter}"
-    q << "|> #{fields_filter}"
+    q << "|> #{filter}"
 
     if interpolate
       q << '|> map(fn:(r) => ({ r with _value: float(v: r._value) }))'
@@ -38,7 +41,7 @@ class PowerChart < Flux::Reader
     end
 
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
-    q << '|> keep(columns: ["_time","_field","_value"])'
+    q << '|> keep(columns: ["_time","_field","_measurement","_value"])'
     q << '|> fill(usePrevious: true)' if fill
 
     raw = query(q.join("\n"))
@@ -50,12 +53,11 @@ class PowerChart < Flux::Reader
       import "timezone"
 
       #{from_bucket}
-      |> #{range(start: start - 1.hour, stop:)}
-      |> #{measurements_filter}
-      |> #{fields_filter}
-      |> aggregateWindow(every: 1h, fn: mean)
+      |> #{range(start: start - 1.second, stop:)}
+      |> #{filter}
+      |> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")
       |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
-      |> keep(columns: ["_time","_field","_value"])
+      |> keep(columns: ["_time","_field","_measurement","_value"])
     QUERY
 
     to_array(raw)
@@ -80,8 +82,12 @@ class PowerChart < Flux::Reader
 
   def to_array(raw)
     raw.each_with_object({}) do |r, result|
-      key = r.records.first.values['_field']
-      result[key] = value_to_array(r)
+      first_record = r.records.first
+      field = first_record.values['_field']
+      measurement = first_record.values['_measurement']
+      sensor = SensorConfig.x.find_by(measurement, field)
+
+      result[sensor] = value_to_array(r)
     end
   end
 end

@@ -1,27 +1,30 @@
 = render Balance::Component.new calculator:,
                                 timeframe:,
-                                field: do |balance|
+                                sensor: do |balance|
 
   = balance.with_center do
-    = link_to root_path(field: 'autarky', timeframe:),
-              data: { \
-                turbo_frame: 'chart',
-                turbo_action: 'replace',
-                turbo_prefetch: 'false',
-              } do
-      div data-controller="tippy"
-        = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
-        - unless timeframe.future?
-          template data-tippy-target="html"
-            = render AutarkyDetails::Component.new(calculator:)
-
-    - if calculator.consumption_quote
-      = link_to root_path(field: 'consumption', timeframe:),
+    - if SensorConfig.x.exists?(:autarky)
+      = link_to root_path(sensor: 'autarky', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
-                } do
+                },
+                class: 'click-animation' do
+        div data-controller="tippy"
+          = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
+          - unless timeframe.future?
+            template data-tippy-target="html"
+              = render AutarkyDetails::Component.new(calculator:)
+
+    - if SensorConfig.x.exists?(:consumption) && calculator.consumption_quote
+      = link_to root_path(sensor: 'consumption', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                  turbo_prefetch: 'false',
+                },
+                class: 'click-animation' do
         div data-controller="tippy"
           = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
           - unless timeframe.future?
@@ -29,6 +32,18 @@
               = render ConsumptionDetails::Component.new(calculator:)
 
     div class="flex-1"
+
+    - unless timeframe.future?
+      = link_to root_path(sensor: 'co2_reduction', timeframe:),
+                data: { \
+                  turbo_frame: 'chart',
+                  turbo_action: 'replace',
+                  turbo_prefetch: 'false',
+                },
+                class: 'click-animation' do
+        div data-controller="tippy" title= t('calculator.co2_reduction_note')
+          = render RadialBadge::Component.new(title: t('calculator.co2_reduction')) do
+            = Number::Component.new(value: calculator.co2_reduction).to_weight(klass: 'text-sky-700')
 
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.total_costs')) do

@@ -1,13 +1,13 @@
 class PowerTop10 < Flux::Reader
-  def initialize(field:, measurements:, desc:, calc:)
-    @field = field
+  def initialize(sensor:, desc:, calc:)
+    @sensor = sensor
     @calc = ActiveSupport::StringInquirer.new(calc)
     @desc = desc
 
-    super(fields: [field], measurements:)
+    super(sensors: [sensor])
   end
 
-  attr_reader :field, :calc, :desc
+  attr_reader :sensor, :calc, :desc
 
   def days
     top start: start(:day), stop: stop(:day), window: '1d'
@@ -45,14 +45,26 @@ class PowerTop10 < Flux::Reader
     (raw - adjustment).public_send(:"end_of_#{period}")
   end
 
+  def exclude_from_house_power
+    SensorConfig.x.exclude_from_house_power
+  end
+
   def top(start:, stop:, window:, limit: 10, offset: '0s')
+    return [] unless SensorConfig.x.exists_any?(*sensors)
     return [] if start > stop
 
-    raw = query(build_query(start:, stop:, window:, limit:, offset:))
+    query_string =
+      if sensor == :house_power && exclude_from_house_power.any?
+        build_query_house_power(start:, stop:, window:, limit:, offset:)
+      else
+        build_query_simple(start:, stop:, window:, limit:, offset:)
+      end
+
+    raw = query(query_string)
     return [] unless raw.first
 
     raw.first.records.map do |record|
-      time = Time.zone.parse(record.values['_time']).utc - 1.second
+      time = Time.zone.parse(record.values['_time'])
       value = record.values['_value']
 
       { date: time.to_date, value: }
@@ -67,7 +79,7 @@ class PowerTop10 < Flux::Reader
   def first_aggregate_window
     if calc.sum?
       # Average per hour (to get kWh)
-      'aggregateWindow(every: 1h, fn: mean)'
+      'aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")'
     elsif calc.max?
       # Average per 5 minutes (unfortunately this is a bit slow)
       'aggregateWindow(every: 5m, fn: mean)'
@@ -84,19 +96,87 @@ class PowerTop10 < Flux::Reader
     end
   end
 
-  def build_query(start:, stop:, window:, limit:, offset:)
-    <<-QUERY
+  def build_query_simple(start:, stop:, window:, limit:, offset:)
+    <<~QUERY
       import "timezone"
 
       #{from_bucket}
         |> #{range(start:, stop:)}
-        |> #{measurements_filter}
-        |> #{fields_filter}
+        |> #{filter}
         |> #{first_aggregate_window}
-        |> aggregateWindow(every: #{window}, offset: #{offset}, fn: #{second_aggregate}, location: #{location})
+        |> aggregateWindow(every: #{window}, offset: #{offset}, timeSrc: "_start", fn: #{second_aggregate}, location: #{location})
         |> filter(fn: (r) => r._value > 0)
         |> sort(columns: ["_value"], desc: #{desc})
         |> limit(n: #{limit})
     QUERY
+  end
+
+  def build_query_house_power(start:, stop:, window:, limit:, offset:)
+    # First, we build the table for the house power
+    result = <<~QUERY
+      import "timezone"
+
+      houseTable = #{from_bucket}
+        |> #{range(start:, stop:)}
+        |> #{filter(selected_sensors: [:house_power])}
+        |> #{first_aggregate_window}
+        |> aggregateWindow(every: #{window}, offset: #{offset}, timeSrc: "_start", fn: #{second_aggregate}, location: #{location})
+        |> filter(fn: (r) => r._value > 0)
+        |> map(fn: (r) => ({ _time: r._time, _field: "housePower", _value: r._value }))
+    QUERY
+
+    # Then, we build a table for each sensor that should be excluded from the house power
+    exclude_from_house_power.each do |sensor_name_to_exclude|
+      table_name = sensor_name_to_exclude.to_s.sub('_power', 'Table')
+      field_name = sensor_name_to_exclude.to_s.sub('_power', 'Power')
+
+      result << <<~QUERY
+        #{table_name} = #{from_bucket}
+          |> #{range(start:, stop:)}
+          |> #{filter(selected_sensors: [sensor_name_to_exclude])}
+          |> #{first_aggregate_window}
+          |> aggregateWindow(every: #{window}, offset: #{offset}, timeSrc: "_start", fn: #{second_aggregate}, location: #{location})
+          |> filter(fn: (r) => r._value > 0)
+          |> map(fn: (r) => ({ _time: r._time, _field: "#{field_name}", _value: r._value }))
+      QUERY
+    end
+
+    # Finally, we combine the tables and calculate the house power without the excluded sensors
+
+    # List of all tables that should be combined
+    # e.g. ["houseTable", "heatpumpTable", "washingmachineTable"]
+    tables = [
+      'houseTable',
+      *exclude_from_house_power.map do |sensor|
+        sensor.to_s.sub('_power', 'Table')
+      end,
+    ]
+
+    # Calculate formular for subtracting the excluded sensors from the house power
+    # "r.housePower
+    #   - (if r.heatpumpPower > 0 then r.heatpumpPower else 0.0)
+    #   - (if r.washingmachinePower > 0 then r.washingmachinePower else 0.0)"
+    formula =
+      "r.housePower - #{
+        exclude_from_house_power
+          .map do |sensor_name|
+            field_name = sensor_name.to_s.sub('_power', 'Power')
+            "(if r.#{field_name} > 0 then r.#{field_name} else 0.0)"
+          end
+          .join(' - ')
+      }"
+
+    result << <<~QUERY
+      union(tables: [#{tables.join(', ')}])
+        |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+        |> map(fn: (r) => ({
+            _time: r._time,
+            _value: #{formula}
+        }))
+        |> sort(columns: ["_value"], desc: #{desc})
+        |> limit(n: #{limit})
+    QUERY
+
+    result
   end
 end

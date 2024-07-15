@@ -1,0 +1,11 @@
+name: Feature Request
+description: Suggest a feature for SOLECTRUS
+labels: ['enhancement']
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description (in German or English)
+    validations:
+      required: true

@@ -9,7 +9,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
         it 'redirects' do
           get root_path
           expect(response).to redirect_to(
-            root_path(field: 'inverter_power', timeframe: 'now'),
+            root_path(sensor: 'inverter_power', timeframe: 'now'),
           )
         end
       end
@@ -20,7 +20,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
         it 'redirects' do
           get root_path
           expect(response).to redirect_to(
-            root_path(field: 'house_power', timeframe: 'now'),
+            root_path(sensor: 'house_power', timeframe: 'now'),
           )
         end
       end
@@ -28,17 +28,17 @@ describe 'Home', vcr: { cassette_name: 'version' } do
 
     context 'without param :timeframe' do
       it 'redirects' do
-        get root_path(field: 'house_power')
+        get root_path(sensor: 'house_power')
         expect(response).to redirect_to(
-          root_path(field: 'house_power', timeframe: 'now'),
+          root_path(sensor: 'house_power', timeframe: 'now'),
         )
       end
     end
 
-    context 'with params :field and :timeframe' do
+    context 'with params :sensor and :timeframe' do
       it 'renders' do
         get root_path(
-              field: 'house_power',
+              sensor: 'house_power',
               timeframe: Date.yesterday.strftime('%Y-%m'),
             )
         expect(response).to have_http_status(:ok)
@@ -49,14 +49,14 @@ describe 'Home', vcr: { cassette_name: 'version' } do
       it 'renders for day' do
         get root_path(
               timeframe: (Date.current + 2.days).strftime('%Y-%m-%d'),
-              field: 'house_power',
+              sensor: 'house_power',
             )
         expect(response).to have_http_status(:ok)
       end
 
       it 'renders for week' do
         get root_path(
-              field: 'house_power',
+              sensor: 'house_power',
               timeframe: (Date.current + 1.week).strftime('%Y-W%V'),
             )
         expect(response).to have_http_status(:ok)
@@ -64,7 +64,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
 
       it 'renders for month' do
         get root_path(
-              field: 'house_power',
+              sensor: 'house_power',
               timeframe: (Date.current + 1.month).strftime('%Y-%m'),
             )
         expect(response).to have_http_status(:ok)
@@ -72,7 +72,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
 
       it 'renders for year' do
         get root_path(
-              field: 'house_power',
+              sensor: 'house_power',
               timeframe: (Date.current + 1.year).strftime('%Y'),
             )
         expect(response).to have_http_status(:ok)
@@ -82,7 +82,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
     context 'when timeframe is before installation date' do
       it 'renders for day' do
         get root_path(
-              field: 'house_power',
+              sensor: 'house_power',
               timeframe:
                 (
                   Rails.configuration.x.installation_date.beginning_of_year -
@@ -94,7 +94,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
 
       it 'renders for week' do
         get root_path(
-              field: 'house_power',
+              sensor: 'house_power',
               timeframe:
                 (
                   Rails.configuration.x.installation_date.beginning_of_year -
@@ -106,7 +106,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
 
       it 'renders for month' do
         get root_path(
-              field: 'house_power',
+              sensor: 'house_power',
               timeframe:
                 (
                   Rails.configuration.x.installation_date.beginning_of_year -
@@ -118,7 +118,7 @@ describe 'Home', vcr: { cassette_name: 'version' } do
 
       it 'renders for year' do
         get root_path(
-              field: 'house_power',
+              sensor: 'house_power',
               timeframe:
                 (
                   Rails.configuration.x.installation_date.beginning_of_year -

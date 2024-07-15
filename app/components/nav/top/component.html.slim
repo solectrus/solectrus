@@ -4,29 +4,46 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
       .relative.h-14.md:h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-400.lg:border-opacity-25
         .px-2.flex.items-center.lg:px-0.space-x-6.flex-1
           /! Desktop menu
-          a.flex-shrink-0 href= root_path aria-label="Home"
+          a.flex-shrink-0.click-animation href= root_path aria-label="Home"
             svg.w-10.h-10 viewBox="0 0 1200 1200"
               path fill="#a5b4fc" d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
 
           .hidden.lg:flex.lg:ml-10.justify-between.items-center.flex-1.text-sm.font-medium
             .flex.space-x-4.text-white.uppercase.tracking-wider.whitespace-nowrap
               - primary_items.each do |item|
-                = item.call(css_extra: ['rounded-md py-2 px-3', item.current ? 'bg-indigo-700' : 'hover:bg-indigo-500 hover:bg-opacity-75'])
+                = item.call(css_extra: ['rounded-md py-2 px-3 click-animation', item.current ? 'bg-indigo-700' : 'hover:bg-indigo-500 hover:bg-opacity-75'])
 
-            button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-indigo-200.hover:bg-indigo-500.hover:bg-opacity-75[
-              data-action="click->slide-over--component#open"
-              aria-haspopup= 'true'
-              aria-expanded= 'false'
-              aria-label= 'Navigation'
-              type= 'button'
-            ]
-              svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
-                path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            .flex.items-center.gap-3
+              - unless helpers.banner?
+                = render SetupStatus::Component.new( \
+                    registration_status: UpdateCheck.instance.registration_status,
+                    subscription_plan: UpdateCheck.instance.subscription_plan,
+                    prompt: UpdateCheck.instance.prompt?,
+                    admin: helpers.admin?,
+                  )
+
+              button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-indigo-200.hover:bg-indigo-500.hover:bg-opacity-75[
+                data-action="click->slide-over--component#open"
+                aria-haspopup= 'true'
+                aria-expanded= 'false'
+                aria-label= 'Navigation'
+                type= 'button'
+              ]
+                svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
+                  path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 
           h1.text-gray-200.text-base.uppercase.tracking-wider.md:text-lg.lg:hidden
             = current_item&.name
 
-        .flex.lg:hidden
+        .flex.items-center.gap-2.lg:hidden
+          - unless helpers.banner?
+            = render SetupStatus::Component.new( \
+                    registration_status: UpdateCheck.instance.registration_status,
+                    subscription_plan: UpdateCheck.instance.subscription_plan,
+                    prompt: UpdateCheck.instance.prompt?,
+                    admin: helpers.admin?,
+                  )
+
           /! Mobile menu button
           button.bg-indigo-600.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.hover:text-white.hover:bg-indigo-500.hover:bg-opacity-75.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white[
             type="button"
@@ -52,6 +69,19 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
       .px-2.pt-2.pb-3.space-y-1.text-sm.font-medium.border-t.border-indigo-300.border-opacity-25.mt-3
         - secondary_items.each do |item|
           = item.call(css_extra: ['py-2 px-3 uppercase tracking-wider', item.current ? 'rounded-md bg-indigo-700' : ''])
+
+      - if UpdateCheck.instance.prompt? && !helpers.banner?
+        .bg-yellow-100.px-5.py-2.text-sm.font-light.text-yellow-800
+          - if helpers.admin?
+            = I18n.t('layout.prompt_for_sponsoring')
+            br
+            = link_to I18n.t('layout.missing_sponsoring_cta'), registration_path, class: 'text-yellow-800 underline underline-offset-2 font-medium'
+          - else
+            = I18n.t('layout.missing_sponsoring')
+
+      - elsif UpdateCheck.instance.sponsoring?
+        .py-1.bg-green-600.text-white.text-center.text-xs
+          = I18n.t('layout.active_sponsoring_header')
 
       .flex.justify-between.items-center.text-indigo-100.text-xs.px-3.py-4
         = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,

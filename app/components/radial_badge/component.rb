@@ -32,15 +32,15 @@ class RadialBadge::Component < ViewComponent::Base
   end
 
   def background_color
-    return 'xl:bg-slate-200' if neutral
+    return 'xl:tall:bg-slate-200' if neutral
 
     case percent
     when 0..33
-      'xl:bg-red-200'
+      'xl:tall:bg-red-200'
     when 34..66
-      'xl:bg-orange-200'
+      'xl:tall:bg-orange-200'
     when 66..100
-      'xl:bg-green-200'
+      'xl:tall:bg-green-200'
     end
   end
 
