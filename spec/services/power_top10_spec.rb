@@ -131,6 +131,68 @@ describe PowerTop10 do
     end
   end
 
+  context 'when calculating max' do
+    let(:desc) { true }
+    let(:calc) { 'max' }
+
+    describe '#years' do
+      subject { power_top10.years }
+
+      it do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 1, 1), value: 200_000 },
+            { date: Date.new(2023, 1, 1), value: 5000 },
+          ],
+        )
+      end
+    end
+
+    describe '#months' do
+      subject { power_top10.months }
+
+      it do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 1), value: 200_000 },
+            { date: Date.new(2023, 12, 1), value: 5000 },
+            { date: Date.new(2024, 1, 1), value: 5000 },
+          ],
+        )
+      end
+    end
+
+    describe '#weeks' do
+      subject { power_top10.weeks }
+
+      it do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 3), value: 200_000 },
+            { date: Date.new(2023, 12, 25), value: 5000 },
+            { date: Date.new(2024, 1, 1), value: 5000 },
+          ],
+        )
+      end
+    end
+
+    describe '#days' do
+      subject { power_top10.days }
+
+      it do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 5), value: 200_000 },
+            { date: Date.new(2024, 6, 3), value: 100_000 },
+            { date: Date.new(2024, 6, 4), value: 100_000 },
+            { date: Date.new(2023, 12, 31), value: 5_000 },
+            { date: Date.new(2024, 1, 1), value: 5_000 },
+          ],
+        )
+      end
+    end
+  end
+
   private
 
   def sample_data(beginning:, range:, value:)
