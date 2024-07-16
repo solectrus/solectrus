@@ -44,6 +44,16 @@ describe Setting do
       end
     end
 
+    context 'when setup_id is zero' do
+      before { described_class.setup_id = 0 }
+
+      it 'regenerates setup_id from current time' do
+        expect { seed! }.to change(described_class, :count).from(1).to(2)
+
+        expect(described_class.setup_id).to eq(Time.current.to_i)
+      end
+    end
+
     context 'when records already exist' do
       before { described_class.seed! }
 
