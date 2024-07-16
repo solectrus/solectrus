@@ -66,10 +66,6 @@ updates:
       hotwired:
         patterns:
           - '@hotwired*'
-      tailwindcss:
-        patterns:
-          - '@tailwindcss/*'
-          - tailwindcss
       charts:
         patterns:
           - 'chart.js'
