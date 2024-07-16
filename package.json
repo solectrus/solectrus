@@ -48,9 +48,6 @@
     "vite": "^5.3.4",
     "vite-plugin-rails": "^0.5.0"
   },
-  "resolutions": {
-    "tailwindcss": "^3 <3.4.5 || >3.4.5"
-  },
   "size-limit": [
     {
       "limit": "190 kB",
