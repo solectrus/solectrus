@@ -17,12 +17,12 @@
           - if calculator.electricity_prices.uniq.length == 1
             = Number::Component.new(value: calculator.electricity_prices.first).to_eur_per_kwh(klass: 'text-red-700')
           - else
-            span.text-xs
-              = 'von '
+            span.text-xs>
+              = t('.from')
             = Number::Component.new(value: calculator.electricity_prices.first).to_eur_per_kwh(klass: 'text-red-700')
             br
-            span.text-xs
-              = ' bis '
+            span.text-xs>
+              = t('.to')
             = Number::Component.new(value: calculator.electricity_prices.last).to_eur_per_kwh(klass: 'text-red-700')
 
       .flex.items-center.justify-between.gap-4
