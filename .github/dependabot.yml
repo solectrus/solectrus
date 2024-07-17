@@ -70,6 +70,9 @@ updates:
         patterns:
           - 'chart.js'
           - 'chartkick'
+      fortawesome:
+        patterns:
+          - '@fortawesome/*'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
