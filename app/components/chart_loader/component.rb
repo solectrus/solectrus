@@ -152,6 +152,9 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             ],
         },
         y: {
+          stacked:
+            type.bar? &&
+              sensor.in?(%i[house_power heatpump_power wallbox_power]),
           max: max_y,
           min: min_y,
           suggestedMax: suggested_max_y,
