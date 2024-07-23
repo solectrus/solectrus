@@ -55,6 +55,7 @@ module Solectrus
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
     config.x.rorvswild.api_key = ENV['RORVSWILD_API_KEY'].presence
+    config.x.co2_emission_factor = ENV.fetch('CO2_EMISSION_FACTOR', 401).to_i # g / kWh
 
     config.x.influx.token = ENV.fetch('INFLUX_TOKEN', nil)
     config.x.influx.schema = ENV.fetch('INFLUX_SCHEMA', 'http')
