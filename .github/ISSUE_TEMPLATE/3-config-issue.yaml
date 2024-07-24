@@ -1,6 +1,6 @@
-name: Bug Report
-description: Report a bug in SOLECTRUS
-labels: ['bug']
+name: Configuration issue
+description: Use this if you have problems installing or configuring SOLECTRUS
+labels: ['help wanted']
 
 body:
   - type: textarea
@@ -29,7 +29,7 @@ body:
   - type: textarea
     id: logs
     attributes:
-      label: If applicable (e.g. in case of error 500), please provide logs
+      label: Please provide logs, if applicable
       description: You can get them by running `docker compose logs`, but try to show only the relevant parts.
       render: text
 
@@ -45,6 +45,8 @@ body:
           dashboard:
             image: ghcr.io/solectrus/solectrus:latest
         ...
+    validations:
+      required: true
 
   - type: textarea
     id: environment
@@ -61,13 +63,5 @@ body:
         # Date of commissioning of your photovoltaic system
         INSTALLATION_DATE=2023-04-03
         ...
-
-  - type: textarea
-    attributes:
-      label: Anything else?
-      description: |
-        Anything that will give us more context about the issue you are encountering!
-
-        Tip: You can attach images or other files by clicking this area to highlight it and then dragging files in.
     validations:
-      required: false
+      required: true
