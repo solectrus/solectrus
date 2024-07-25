@@ -1,6 +1,6 @@
 class Calculator::Range < Calculator::Base
-  CO2_EMISION_FACTOR = 401 # g / kWh
-  public_constant :CO2_EMISION_FACTOR
+  CO2_EMISSION_FACTOR = Rails.application.config.x.co2_emission_factor
+  public_constant :CO2_EMISSION_FACTOR
 
   def initialize(timeframe)
     super()
@@ -112,7 +112,7 @@ class Calculator::Range < Calculator::Base
   def co2_reduction
     return unless inverter_power
 
-    inverter_power / 1000 * CO2_EMISION_FACTOR
+    inverter_power / 1000 * CO2_EMISSION_FACTOR
   end
 
   def battery_savings

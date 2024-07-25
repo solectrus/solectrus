@@ -93,7 +93,7 @@ class EssentialsTile::Component < ViewComponent::Base
     when :savings
       t("calculator.#{sensor}")
     when :co2_reduction
-      t('calculator.co2_reduction_note')
+      t('calculator.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor)
     else
       t("sensors.#{sensor}")
     end

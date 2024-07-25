@@ -17,7 +17,7 @@ class ChartData::Co2Reduction < ChartData::Base
   end
 
   def co2_reduction_factor
-    Calculator::Range::CO2_EMISION_FACTOR.fdiv(
+    Calculator::Range::CO2_EMISSION_FACTOR.fdiv(
       if timeframe.short?
         # g per hour
         24.0
