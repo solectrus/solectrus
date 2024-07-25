@@ -17,7 +17,7 @@ class ChartData::Co2Reduction < ChartData::Base
   end
 
   def co2_reduction_factor
-    Calculator::Range::CO2_EMISSION_FACTOR.fdiv(
+    Rails.application.config.x.co2_emission_factor.fdiv(
       if timeframe.short?
         # g per hour
         24.0
