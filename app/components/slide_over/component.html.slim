@@ -1,12 +1,10 @@
-div[
-  class= 'relative z-50 hidden'
+.relative.z-50.hidden[
   aria-labelledby= 'slide-over-title'
   role= 'dialog'
   aria-modal= 'true'
   data-slide-over--component-target= 'outer'
 ]
-  div[
-    class= 'fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity'
+  .fixed.inset-0.bg-gray-500.bg-opacity-75.transition-opacity[
     data-slide-over--component-target= 'overlay'
 
     data-transition-enter=       'motion-safe:ease-in-out motion-safe:duration-500'
@@ -17,13 +15,11 @@ div[
     data-transition-leave-end=   'opacity-0'
   ]
 
-  div[
-    class= 'fixed inset-0 overflow-hidden'
+  .fixed.inset-0.overflow-hidden[
     data-action= 'click->slide-over--component#close keydown.esc@document->slide-over--component#close'
   ]
     .absolute.inset-0.overflow-hidden
-      div[
-        class= 'pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10'
+      .pointer-events-none.fixed.inset-y-0.right-0.flex.max-w-full.pl-10[
         data-slide-over--component-target= 'panel'
         data-transition-enter=       'transform motion-safe:transition motion-safe:ease-in-out motion-safe:duration-500'
         data-transition-enter-start= 'translate-x-full'
@@ -40,8 +36,7 @@ div[
                   | SOLECTRUS
 
                 .ml-3.flex.h-7.items-center
-                  button[
-                    class= 'relative rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                  button.relative.rounded-md.bg-white.text-gray-400.hover:text-gray-500.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:ring-offset-2[
                     type= 'button'
                     data-action= 'click->slide-over--component#close'
                   ]
@@ -50,8 +45,7 @@ div[
                     span.sr-only
                       | Close panel
 
-                    svg[
-                      class= 'h-6 w-6'
+                    svg.h-6.w-6[
                       fill= 'none'
                       viewbox= '0 0 24 24'
                       stroke-width= '1.5'

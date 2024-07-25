@@ -1,8 +1,8 @@
-time[
+time.flex.items-center.py-1.px-2.rounded.text-xs.font-bold.tracking-wider.cursor-default.truncate[
   data-controller= (message.present? ? 'tippy' : nil)
   title= message
   datetime= time&.iso8601
-  class= [outer_class, 'flex items-center py-1 px-2 rounded text-xs font-bold tracking-wider cursor-default truncate']
+  class= outer_class
 ]
   span.whitespace-nowrap.uppercase.truncate
     = text
