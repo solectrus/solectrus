@@ -7,6 +7,7 @@ declare module 'el-transition' {
 // Dummy declaration for Turbo 8
 declare module '@hotwired/turbo' {
   export class FrameElement extends HTMLElement {
+    src: string | undefined;
     reload(): Promise<void>;
   }
 
