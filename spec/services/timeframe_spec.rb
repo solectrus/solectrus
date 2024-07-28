@@ -216,6 +216,10 @@ describe Timeframe do
       expect(decoder.past?).to be(true)
     end
 
+    it 'is not today' do
+      expect(decoder.today?).to be(false)
+    end
+
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
@@ -238,6 +242,10 @@ describe Timeframe do
 
     it 'is future' do
       expect(decoder.future?).to be(true)
+    end
+
+    it 'is not today' do
+      expect(decoder.today?).to be(false)
     end
 
     it 'can paginate' do
@@ -268,6 +276,10 @@ describe Timeframe do
       expect(decoder.future?).to be(false)
     end
 
+    it 'is today' do
+      expect(decoder.today?).to be(true)
+    end
+
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
     end
@@ -279,6 +291,10 @@ describe Timeframe do
     it 'is current day' do
       expect(decoder.current?).to be(true)
       expect(decoder.day?).to be(true)
+    end
+
+    it 'is today' do
+      expect(decoder.today?).to be(true)
     end
 
     it 'can paginate' do

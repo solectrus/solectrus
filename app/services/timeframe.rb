@@ -60,6 +60,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def today?
+    day? && current?
+  end
+
   def past?
     return false if now? || all?
 
