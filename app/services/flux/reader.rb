@@ -113,20 +113,22 @@ class Flux::Reader < Flux::Base
     default_cache_options
   end
 
-  # Cache expires depends on the timeframe
-  DEFAULT_CACHE_EXPIRES = {
-    day: 1.minute,
-    week: 5.minutes,
-    month: 10.minutes,
-    year: 1.hour,
-    all: 1.day,
-  }.freeze
-  private_constant :DEFAULT_CACHE_EXPIRES
-
   # Default cache options, can be overridden in subclasses
   def default_cache_options
     return unless timeframe
 
-    { expires_in: DEFAULT_CACHE_EXPIRES[timeframe.id] }
+    # The cache expiry should depend on how long the observed timeframe is.
+    #
+    # The result of a query that summarises half of the year is unlikely to
+    # change a few minutes later, so we can cache it for a longer time.
+    #
+    # But the result of a query that only summarises the past hours of
+    # today can change considerably in just a few minutes.
+    #
+    # So we use a sliding scale of cache expiry times:
+    # For each day in the timeframe, we add 2 minutes to the cache expiry time.
+    # Minimum cache expiry time is 1 minute
+    #
+    { expires_in: ((timeframe.days_passed * 2) + 1).minutes }
   end
 end
