@@ -1,5 +1,9 @@
 import type { Config } from 'tailwindcss';
 import colors from 'tailwindcss/colors';
+import aspectRatio from '@tailwindcss/aspect-ratio';
+import containerQueries from '@tailwindcss/container-queries';
+import forms from '@tailwindcss/forms';
+import displayModes from 'tailwindcss-displaymodes';
 
 export default {
   content: ['./app/**/*.{slim,rb}', './app/javascript/**/*.{js,ts}'],
@@ -40,10 +44,5 @@ export default {
     },
   },
 
-  plugins: [
-    require('@tailwindcss/aspect-ratio'),
-    require('@tailwindcss/container-queries'),
-    require('@tailwindcss/forms'),
-    require('tailwindcss-displaymodes'),
-  ],
+  plugins: [aspectRatio, containerQueries, forms, displayModes],
 } satisfies Config;
