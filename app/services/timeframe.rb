@@ -76,6 +76,19 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     beginning.to_date > Date.current
   end
 
+  # Number of days that have passed since the beginning of the timeframe
+  def days_passed
+    return 0 if now? || today? || beginning.nil?
+
+    if past?
+      (ending.to_date - beginning.to_date + 1)
+    elsif beginning.past?
+      (Date.current - beginning.to_date)
+    else
+      0
+    end
+  end
+
   def can_paginate?
     id.in?(%i[day week month year])
   end
