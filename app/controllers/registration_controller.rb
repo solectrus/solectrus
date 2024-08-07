@@ -5,10 +5,10 @@ class RegistrationController < ApplicationController
       when nil
         redirect_to(registration_url, allow_other_host: true)
       when 'skip'
-        UpdateCheck.instance.skip_prompt!
+        UpdateCheck.skip_prompt!
         redirect_back(fallback_location: root_path)
       else
-        UpdateCheck.instance.clear_cache
+        UpdateCheck.clear_cache!
         redirect_to(root_path)
       end
     else
