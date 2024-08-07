@@ -89,7 +89,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name:
           (
-            if UpdateCheck.instance.prompt?
+            if UpdateCheck.prompt?
               t('layout.registration_and_sponsoring')
             else
               t('layout.registration')

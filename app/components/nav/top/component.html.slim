@@ -16,9 +16,9 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
             .flex.items-center.gap-3
               - unless helpers.banner?
                 = render SetupStatus::Component.new( \
-                    registration_status: UpdateCheck.instance.registration_status,
-                    subscription_plan: UpdateCheck.instance.subscription_plan,
-                    prompt: UpdateCheck.instance.prompt?,
+                    registration_status: UpdateCheck.registration_status,
+                    subscription_plan: UpdateCheck.subscription_plan,
+                    prompt: UpdateCheck.prompt?,
                     admin: helpers.admin?,
                   )
 
@@ -38,9 +38,9 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
         .flex.items-center.gap-2.lg:hidden
           - unless helpers.banner?
             = render SetupStatus::Component.new( \
-                    registration_status: UpdateCheck.instance.registration_status,
-                    subscription_plan: UpdateCheck.instance.subscription_plan,
-                    prompt: UpdateCheck.instance.prompt?,
+                    registration_status: UpdateCheck.registration_status,
+                    subscription_plan: UpdateCheck.subscription_plan,
+                    prompt: UpdateCheck.prompt?,
                     admin: helpers.admin?,
                   )
 
@@ -70,7 +70,7 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
         - secondary_items.each do |item|
           = item.call(css_extra: ['py-2 px-3 uppercase tracking-wider', item.current ? 'rounded-md bg-indigo-700' : ''])
 
-      - if UpdateCheck.instance.prompt? && !helpers.banner?
+      - if UpdateCheck.prompt? && !helpers.banner?
         .bg-yellow-100.px-5.py-2.text-sm.font-light.text-yellow-800
           - if helpers.admin?
             = I18n.t('layout.prompt_for_sponsoring')
@@ -79,7 +79,7 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
           - else
             = I18n.t('layout.missing_sponsoring')
 
-      - elsif UpdateCheck.instance.sponsoring?
+      - elsif UpdateCheck.sponsoring?
         .py-1.bg-green-600.text-white.text-center.text-xs
           = I18n.t('layout.active_sponsoring_header')
 
