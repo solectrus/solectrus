@@ -167,7 +167,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :year
       date.beginning_of_year.beginning_of_day
     when :all
-      min_date&.beginning_of_year&.beginning_of_day
+      min_date&.beginning_of_day
     end
   end
 
