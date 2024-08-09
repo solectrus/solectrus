@@ -14,7 +14,7 @@
             action: 'stats-with-chart--component#startLoop',
             stats_with_chart__component_sensor_param: sensor,
           } do
-  css:
+  css[nonce= content_security_policy_nonce]:
     #segment-#{sensor} {
       --segment-font-size: #{font_size(max: 90)}%;
       --segment-height: #{percent}%;
@@ -39,7 +39,7 @@
     }
 
   div class= "flex gap-2 lg:gap-3 #{'flex-col' if big?} items-center click-animation"
-    i.fa class= icon_class style="font-size: #{icon_size}%;"
+    i.fa class= icon_class style="font-size: #{icon_size}%;" nonce= content_security_policy_nonce
 
     .font-extralight.uppercase.tracking-wider.leading-tight class= (big? ? 'lg:block' : 'hidden')
       = t("sensors.#{sensor}")

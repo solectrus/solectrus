@@ -11,7 +11,7 @@
           = formatted_date(record[:date])
         .table-cell.align-middle.p-2
           .flex.items-center.gap-3
-            .h-7.sm:h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
+            .h-7.sm:h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes nonce= content_security_policy_nonce
               span class= value_classes_inside(record)
                 = Number::Component.new(value: record[:value]).public_send(calc.max? ? :to_watt : :to_watt_hour)
 

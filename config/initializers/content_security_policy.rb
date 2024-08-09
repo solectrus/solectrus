@@ -38,11 +38,7 @@ Rails.application.configure do
         ].compact,
       )
       policy.style_src(
-        *[
-          :self,
-          :unsafe_inline,
-          Rails.configuration.asset_host.presence,
-        ].compact,
+        *[:self, Rails.configuration.asset_host.presence].compact,
       )
       policy.frame_src(
         *[:self, Rails.configuration.asset_host.presence].compact,
@@ -73,8 +69,12 @@ Rails.application.configure do
     # end
 
     #  # Generate session nonces for permitted importmap, inline scripts, and inline styles.
-    #  config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-    #  config.content_security_policy_nonce_directives = %w(script-src style-src)
+    config.content_security_policy_nonce_generator =
+      lambda do |request|
+        request.session.__send__(:load_for_write!) # ensure session is loaded so we *always* get an id
+        request.session.id.to_s
+      end
+    config.content_security_policy_nonce_directives = %w[script-src style-src]
 
     # Report violations without enforcing the policy.
     # config.content_security_policy_report_only = true
