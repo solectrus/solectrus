@@ -18,6 +18,7 @@ import {
   ChartType,
   ChartData,
   ChartDataset,
+  CartesianScaleOptions,
 } from 'chart.js';
 
 import 'chartjs-adapter-date-fns';
@@ -146,16 +147,48 @@ export default class extends Controller<HTMLCanvasElement> {
         return tooltipItem.raw !== null;
       };
 
+      const isStacked = (options.scales.y as CartesianScaleOptions).stacked;
+
+      // Increase font size of tooltip footer (used for sum of stacked values)
+      options.plugins.tooltip.footerFont = { size: 20 };
+
       options.plugins.tooltip.callbacks = {
-        label: (context) =>
-          `${data.datasets.length > 1 ? context.dataset.label + ': ' : ''}${
-            context.parsed._custom
+        label: (tooltipItem) => {
+          // Add dataset label if there are multiple datasets
+          let result =
+            data.datasets.length > 1 ? `${tooltipItem.dataset.label} ` : '';
+
+          if (isStacked) {
+            // Calculate percentage of total sum
+            const sum = data.datasets
+              .map((dataset) => dataset.data[tooltipItem.dataIndex])
+              .reduce((total: number, item) => total + (item as number), 0);
+
+            if (sum !== 0)
+              result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+          } else {
+            // Format value number
+            result += tooltipItem.parsed._custom
               ? this.formattedInterval(
-                  context.parsed._custom.min,
-                  context.parsed._custom.max,
+                  tooltipItem.parsed._custom.min,
+                  tooltipItem.parsed._custom.max,
                 )
-              : this.formattedNumber(context.parsed.y)
-          }`,
+              : this.formattedNumber(tooltipItem.parsed.y);
+          }
+
+          return result;
+        },
+
+        footer: (tooltipItems) => {
+          if (isStacked) {
+            const sum = tooltipItems.reduce(
+              (total, item) => total + item.parsed.y,
+              0,
+            );
+
+            if (sum !== 0) return this.formattedNumber(sum);
+          }
+        },
       };
     }
 

@@ -19,3 +19,4 @@ linters:
       - Style/Next
       - Style/RedundantLineContinuation
       - Lint/Void
+      - Metrics/BlockLength

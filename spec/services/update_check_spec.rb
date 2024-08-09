@@ -169,7 +169,7 @@ describe UpdateCheck do
       # Fill the cache
       VCR.use_cassette('version') { instance.latest }
 
-      expect { described_class.instance.clear_cache }.to change(
+      expect { described_class.instance.clear_cache! }.to change(
         instance,
         :cached?,
       ).from(true).to(false)

@@ -84,8 +84,8 @@ html lang= I18n.locale
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]
     - if banner?
-      = render Banner::Component.new registration_status: UpdateCheck.instance.registration_status,
-                                     prompt: UpdateCheck.instance.prompt?,
+      = render Banner::Component.new registration_status: UpdateCheck.registration_status,
+                                     prompt: UpdateCheck.prompt?,
                                      admin: admin?
 
     = render Nav::Top::Component.new do |c|

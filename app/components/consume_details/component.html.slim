@@ -1,55 +1,70 @@
-.flex.flex-col.gap-5
-  div
-    h3.font-bold.text-base
-      = t('.title')
+h3.font-bold.text-base
+  = t('.grid.header')
 
-    dl.mt-1.space-y-2
-      .flex.items-center.justify-between.gap-4
-        dt
-          = I18n.t('sensors.grid_import_power')
-        dd.font-mono.text-right.text-red-700
-          = Number::Component.new(value: calculator.grid_import_power).to_watt_hour(unit: :kilo)
+dl.mt-2.space-y-2
+  .flex.items-center.justify-between.gap-4
+    dt
+      = t('.grid.import_power')
+    dd.font-mono.text-right.text-red-700
+      = Number::Component.new(value: calculator.grid_import_power).to_watt_hour(unit: :kilo)
 
-      .flex.items-start.justify-between.gap-4
-        dt
-          = Price.human_enum_name(:name, :electricity)
-        dd.font-mono.text-right
-          - if calculator.electricity_prices.uniq.length == 1
-            = Number::Component.new(value: calculator.electricity_prices.first).to_eur_per_kwh(klass: 'text-red-700')
-          - else
-            span.text-xs>
-              = t('.from')
-            = Number::Component.new(value: calculator.electricity_prices.first).to_eur_per_kwh(klass: 'text-red-700')
-            br
-            span.text-xs>
-              = t('.to')
-            = Number::Component.new(value: calculator.electricity_prices.last).to_eur_per_kwh(klass: 'text-red-700')
+  .flex.items-start.justify-between.gap-4
+    dt
+      = Price.human_enum_name(:name, :electricity)
+    dd.font-mono.text-right
+      - if calculator.electricity_prices.uniq.length == 1
+        = Number::Component.new(value: calculator.electricity_prices.first).to_eur_per_kwh(klass: 'text-red-700')
+      - else
+        span.text-xs>
+          = t('.from')
+        = Number::Component.new(value: calculator.electricity_prices.first).to_eur_per_kwh(klass: 'text-red-700')
+        br
+        span.text-xs>
+          = t('.to')
+        = Number::Component.new(value: calculator.electricity_prices.last).to_eur_per_kwh(klass: 'text-red-700')
 
-      .flex.items-center.justify-between.gap-4
-        dt
-          span.text-xl
-            = "\u21D2 "
-          =< I18n.t('calculator.total_costs')
-        dd.font-mono.text-right
-          = Number::Component.new(value: calculator.paid.abs).to_eur(klass: 'text-red-700', max_precision: 2)
+  .flex.items-center.justify-between.gap-4
+    dt
+      => "\u21D2"
+      = t('.grid.import_costs')
+    dd.font-mono.text-right
+      = Number::Component.new(value: calculator.paid.abs).to_eur(klass: 'text-red-700')
 
-  - if calculator.wallbox_costs.nonzero?
-    div
-      h3.font-bold.text-base
-        = t('.breakdown.title')
+h3.mt-5.font-bold.text-base
+  = t('.pv.header')
 
-      dl.mt-1.space-y-2
-        .flex.items-center.justify-between.gap-4
-          dt
-            = I18n.t('calculator.house_costs')
-          dd.font-mono.text-right
-            = Number::Component.new(value: calculator.house_costs.abs).to_eur(klass: 'text-red-700', max_precision: 2)
+dl.mt-2.space-y-2
+  .flex.items-center.justify-between.gap-4
+    dt
+      = t('.pv.self_consumption')
+    dd.font-mono.text-right.text-red-700
+      = Number::Component.new(value: calculator.direct_consumption).to_watt_hour(unit: :kilo)
 
-        .flex.items-center.justify-between.gap-4
-          dt
-            = I18n.t('calculator.wallbox_costs')
-          dd.font-mono.text-right
-            = Number::Component.new(value: calculator.wallbox_costs.abs).to_eur(klass: 'text-red-700', max_precision: 2)
+  .flex.items-start.justify-between.gap-4
+    dt
+      = Price.human_enum_name(:name, :feed_in)
+    dd.font-mono.text-right
+      - if calculator.feed_in_tariffs.uniq.length == 1
+        = Number::Component.new(value: calculator.feed_in_tariffs.first).to_eur_per_kwh(klass: 'text-red-700')
+      - else
+        span.text-xs>
+          = t('.from')
+        = Number::Component.new(value: calculator.feed_in_tariffs.first).to_eur_per_kwh(klass: 'text-red-700')
+        br
+        span.text-xs>
+          = t('.to')
+        = Number::Component.new(value: calculator.feed_in_tariffs.last).to_eur_per_kwh(klass: 'text-red-700')
 
-      p.mt-2.text-gray-400.text-sm
-        = t('.breakdown.explanation')
+  .flex.items-center.justify-between.gap-4
+    dt
+      => "\u21D2"
+      = t('.pv.opportunity_costs')
+    dd.font-mono.text-right
+      = Number::Component.new(value: calculator.opportunity_costs.abs).to_eur(klass: 'text-red-700')
+
+dl.mt-5
+  .flex.items-center.justify-between.gap-4
+    dt.font-bold.text-base
+      = t('.total_costs')
+    dd.font-mono.text-right.text-red-700
+      = Number::Component.new(value: calculator.total_costs).to_eur(klass: 'text-red-700')

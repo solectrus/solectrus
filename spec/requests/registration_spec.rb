@@ -12,20 +12,20 @@ describe 'Registration', with_setup_id: 0 do
       end
 
       it 'can complete registration' do
-        allow(UpdateCheck.instance).to receive(:clear_cache)
+        allow(UpdateCheck).to receive(:clear_cache!)
 
         get '/registration/complete'
 
-        expect(UpdateCheck.instance).to have_received(:clear_cache)
+        expect(UpdateCheck).to have_received(:clear_cache!)
         expect(response).to redirect_to(root_path)
       end
 
       it 'can skip registration' do
-        allow(UpdateCheck.instance).to receive(:skip_prompt!)
+        allow(UpdateCheck).to receive(:skip_prompt!)
 
         get '/registration/skip'
 
-        expect(UpdateCheck.instance).to have_received(:skip_prompt!)
+        expect(UpdateCheck).to have_received(:skip_prompt!)
         expect(response).to redirect_to(root_path)
       end
     end

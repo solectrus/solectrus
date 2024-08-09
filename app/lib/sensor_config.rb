@@ -26,6 +26,9 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     case_temp
     system_status
     system_status_ok
+    house_power_grid
+    wallbox_power_grid
+    heatpump_power_grid
   ].freeze
   public_constant :SENSOR_NAMES
 
@@ -58,16 +61,28 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     ).uniq.freeze
   public_constant :COMBINED_SENSORS
 
+  POWER_SPLITTER_SENSOR_CONFIG = {
+    'INFLUX_SENSOR_WALLBOX_POWER_GRID' => 'power_splitter:wallbox_power_grid',
+    'INFLUX_SENSOR_HEATPUMP_POWER_GRID' => 'power_splitter:heatpump_power_grid',
+    'INFLUX_SENSOR_HOUSE_POWER_GRID' => 'power_splitter:house_power_grid',
+  }.freeze
+  private_constant :POWER_SPLITTER_SENSOR_CONFIG
+
   def initialize(env)
     Rails.logger.info 'Sensor initialization started'
 
     @sensor_logs = []
 
+    env_hash = env.to_h
+    env_hash.reverse_merge!(POWER_SPLITTER_SENSOR_CONFIG)
+
     SENSOR_NAMES.each do |sensor_name|
       var_sensor = var_for(sensor_name)
       value =
-        env
-          .fetch(var_sensor) { build_from_deprecated_config(sensor_name, env) }
+        env_hash
+          .fetch(var_sensor) do
+            build_from_deprecated_config(sensor_name, env_hash)
+          end
           .presence
 
       validate!(sensor_name, value)
@@ -75,7 +90,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     end
 
     define_exclude_from_house_power(
-      env.fetch('INFLUX_EXCLUDE_FROM_HOUSE_POWER', nil).presence,
+      env_hash.fetch('INFLUX_EXCLUDE_FROM_HOUSE_POWER', nil).presence,
     )
 
     @sensor_logs.each { |log| Rails.logger.info(log) }
@@ -114,6 +129,9 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists_all? :inverter_power, :house_power, :grid_power
     when :co2_reduction
       exists? :inverter_power
+    when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid
+      ApplicationPolicy.power_splitter? && measurement(sensor_name).present? &&
+        field(sensor_name).present?
     when *SENSOR_NAMES
       measurement(sensor_name).present? && field(sensor_name).present?
     else
