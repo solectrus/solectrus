@@ -73,8 +73,8 @@ class ChartData::HousePower < ChartData::Base
   def background_color(chart_sensor)
     {
       house_power: '#64748b', # bg-slate-500
-      house_power_grid: '#7f1d1d', # bg-red-900
-      house_power_pv: '#14532d', # bg-green-900
+      house_power_grid: '#dc2626', # bg-red-600
+      house_power_pv: '#16a34a', # bg-green-600
     }[
       chart_sensor
     ]
@@ -86,7 +86,8 @@ class ChartData::HousePower < ChartData::Base
       # Base color, will be changed to gradient in JS
       backgroundColor: background_color(chart_sensor),
       borderWidth: 1,
-      borderRadius: 5,
+      borderRadius: 3,
+      borderSkipped: 'start',
     }
   end
 
