@@ -61,8 +61,8 @@ class ChartData::HeatpumpPower < ChartData::Base
   def background_color(chart_sensor)
     {
       heatpump_power: '#475569', # bg-slate-600
-      heatpump_power_grid: '#7f1d1d', # bg-red-900
-      heatpump_power_pv: '#14532d', # bg-green-900
+      heatpump_power_grid: '#dc2626', # bg-red-600
+      heatpump_power_pv: '#16a34a', # bg-green-600
     }[
       chart_sensor
     ]
@@ -74,7 +74,8 @@ class ChartData::HeatpumpPower < ChartData::Base
       # Base color, will be changed to gradient in JS
       backgroundColor: background_color(chart_sensor),
       borderWidth: 1,
-      borderRadius: 5,
+      borderRadius: 3,
+      borderSkipped: 'start',
     }
   end
 
