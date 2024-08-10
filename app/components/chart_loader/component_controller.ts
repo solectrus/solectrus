@@ -18,7 +18,6 @@ import {
   ChartType,
   ChartData,
   ChartDataset,
-  CartesianScaleOptions,
 } from 'chart.js';
 
 import 'chartjs-adapter-date-fns';
@@ -147,25 +146,29 @@ export default class extends Controller<HTMLCanvasElement> {
         return tooltipItem.raw !== null;
       };
 
-      const isStacked = (options.scales.y as CartesianScaleOptions).stacked;
+      const isStacked = data.datasets.some((dataset) => dataset.stack);
 
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
 
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
-          // Add dataset label if there are multiple datasets
-          let result =
-            data.datasets.length > 1 ? `${tooltipItem.dataset.label} ` : '';
+          let result: string =
+            !(isStacked && !tooltipItem.dataset.stack) &&
+            data.datasets.length > 1
+              ? `${tooltipItem.dataset.label} `
+              : '';
 
           if (isStacked) {
-            // Calculate percentage of total sum
-            const sum = data.datasets
-              .map((dataset) => dataset.data[tooltipItem.dataIndex])
-              .reduce((total: number, item) => total + (item as number), 0);
+            if (tooltipItem.dataset.stack && data.datasets.length) {
+              // Sum is the value of the first dataset
+              const sum = data.datasets[0].data[
+                tooltipItem.dataIndex
+              ] as number;
 
-            if (sum !== 0)
-              result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+              if (sum)
+                result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+            }
           } else {
             // Format value number
             result += tooltipItem.parsed._custom
@@ -180,13 +183,10 @@ export default class extends Controller<HTMLCanvasElement> {
         },
 
         footer: (tooltipItems) => {
-          if (isStacked) {
-            const sum = tooltipItems.reduce(
-              (total, item) => total + item.parsed.y,
-              0,
-            );
+          if (isStacked && tooltipItems.length) {
+            const sum = tooltipItems[0].parsed.y;
 
-            if (sum !== 0) return this.formattedNumber(sum);
+            if (sum) return this.formattedNumber(sum);
           }
         },
       };
@@ -237,6 +237,9 @@ export default class extends Controller<HTMLCanvasElement> {
       basePosition,
       datasetExtent / extent,
       minAlpha,
+
+      // Stacked bar must not be gradiented, just use the given Alpha
+      dataset.stack ? minAlpha : 1,
     );
 
     // Replace background color with gradient

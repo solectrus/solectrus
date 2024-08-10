@@ -9,6 +9,7 @@ class ChartData::HeatpumpPower < ChartData::Base
           {
             label: I18n.t("sensors.#{chart_sensor}"),
             data: data.map(&:second),
+            stack: chart_sensor == :heatpump_power ? nil : 'Power-Splitter',
           }.merge(style(chart_sensor))
         end,
     }
@@ -34,6 +35,7 @@ class ChartData::HeatpumpPower < ChartData::Base
 
     if chart.key?(:heatpump_power) && chart.key?(:heatpump_power_grid)
       {
+        heatpump_power: chart[:heatpump_power],
         heatpump_power_pv:
           chart[:heatpump_power].map.with_index do |heatpump_power, index|
             # heatpump_power_pv = heatpump_power - heatpump_power_grid
@@ -69,14 +71,40 @@ class ChartData::HeatpumpPower < ChartData::Base
   end
 
   def style(chart_sensor)
-    {
-      fill: 'origin',
-      # Base color, will be changed to gradient in JS
-      backgroundColor: background_color(chart_sensor),
-      borderWidth: 1,
-      borderRadius: 3,
-      borderSkipped: 'start',
-    }
+    if splitted_chart?
+      {
+        fill: 'origin',
+        # Base color, will be changed to gradient in JS
+        backgroundColor: background_color(chart_sensor),
+        barPercentage: chart_sensor == :heatpump_power ? 1.3 : 0.7,
+        categoryPercentage: 0.7,
+        borderRadius:
+          if chart_sensor == :heatpump_power
+            { topLeft: 5, bottomLeft: 0, topRight: 0, bottomRight: 0 }
+          else
+            0
+          end,
+        borderWidth:
+          case chart_sensor # rubocop:disable Style/HashLikeCase
+          when :heatpump_power
+            { top: 1, left: 1 }
+          when :heatpump_power_grid
+            { top: 1, right: 1 }
+          when :heatpump_power_pv
+            { right: 1 }
+          end,
+        borderColor: background_color(chart_sensor),
+      }
+    else
+      {
+        fill: 'origin',
+        # Base color, will be changed to gradient in JS
+        backgroundColor: background_color(chart_sensor),
+        borderWidth: 1,
+        borderRadius: 5,
+        borderSkipped: 'start',
+      }
+    end
   end
 
   def splitted_chart?
