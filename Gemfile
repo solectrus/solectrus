@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.1.3', '>= 7.1.3.4'
+gem 'rails', '~> 7.2.0'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -64,7 +64,7 @@ gem 'csv'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  # gem 'debug', platforms: %i[ mri windows ]
+  # gem 'debug', platforms: %i[ mri windows ], require: 'debug/prelude'
 
   # Loads environment variables from `.env`. (https://github.com/bkeepers/dotenv)
   gem 'dotenv'
@@ -100,18 +100,17 @@ group :development, :test do
   gem 'slim_lint'
 
   # Helps you write Cypress tests of your Rails app (https://github.com/testdouble/cypress-rails)
-  gem 'cypress-rails'
+  # Fork for Rails 7.2 compatibility.
+  # Change this line when https://github.com/testdouble/cypress-rails/pull/165 is merged.
+  gem 'cypress-rails', github: 'ledermann/cypress-rails', branch: 'rails-7-2'
 end
 
 group :development do
   # Security vulnerability scanner for Ruby on Rails. (https://brakemanscanner.org)
-  gem 'brakeman'
+  gem 'brakeman', require: false
 
   # A debugging tool for your Ruby on Rails applications. (https://github.com/rails/web-console)
   gem 'web-console'
-
-  # Profiles loading speed for rack applications. (https://miniprofiler.com)
-  # gem 'rack-mini-profiler'
 
   # Guard gem for RSpec (https://github.com/guard/guard-rspec)
   gem 'guard-rspec', require: false
@@ -151,7 +150,9 @@ end
 
 group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockup.interdiscipline.com)
-  gem 'lockup'
+  # Fork for Rails 7.2 compatibility.
+  # Change this line when https://github.com/interdiscipline/lockup/pull/75 is merged.
+  gem 'lockup', github: 'ledermann/lockup', branch: 'rails-7-2'
 
   # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')

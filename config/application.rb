@@ -21,7 +21,7 @@ Bundler.require(*Rails.groups)
 module Solectrus
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.1
+    config.load_defaults 7.2
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -94,5 +94,10 @@ module Solectrus
     # Disable preloading JS/CSS via Link header to avoid browser warnings like this one:
     # "... was preloaded using link preload but not used within a few seconds ..."
     config.action_view.preload_links_header = false
+
+    # End2End tests with Cypress uses time traveling to a date BEFORE the migrations.
+    # This does not work with Rails 7.2 by default, so we disable the timestamp check.
+    # TODO: Fix the time traveling in the Cypress tests and remove this line.
+    config.active_record.validate_migration_timestamps = false
   end
 end
