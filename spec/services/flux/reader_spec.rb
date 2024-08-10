@@ -72,13 +72,13 @@ describe Flux::Reader do
       context 'when shortly after commissioning' do
         before { travel_to Time.zone.local(2023, 3, 6, 8, 0, 0) }
 
-        it { is_expected.to eq({ expires_in: 67.minutes }) }
+        it { is_expected.to eq({ expires_in: 129.minutes }) }
       end
 
       context 'when long after commissioning' do
         before { travel_to Time.zone.local(2026, 12, 6, 8, 0, 0) }
 
-        it { is_expected.to eq({ expires_in: 2809.minutes }) }
+        it { is_expected.to eq({ expires_in: 2871.minutes }) }
       end
     end
   end

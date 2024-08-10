@@ -823,7 +823,7 @@ describe Timeframe do
     end
 
     it 'returns the correct beginning' do
-      expect(decoder.beginning).to eq('2019-05-02 00:00:00.000000000 +0200')
+      expect(decoder.beginning).to eq('2019-01-01 00:00:00.000000000 +0100')
     end
 
     it 'returns the correct ending' do
@@ -888,8 +888,8 @@ describe Timeframe do
       expect(decoder.can_paginate?).to be(false)
     end
 
-    it 'has passed 1260 days' do
-      expect(decoder.days_passed).to eq(1260)
+    it 'has passed 1381 days' do
+      expect(decoder.days_passed).to eq(1381)
     end
   end
 
