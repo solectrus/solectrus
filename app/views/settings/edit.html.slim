@@ -12,12 +12,12 @@
   = f.group title: t('settings.general.plant.description') do
     = f.text_field :plant_name,
                    value: Setting.plant_name,
-                   placeholder: t('settings.general.plant_name.placeholder'),
+                   placeholder: t('settings.general.plant.plant_name.placeholder'),
                    autofocus: true
 
     = f.text_field :operator_name,
                    value: Setting.operator_name,
-                   placeholder: t('settings.general.operator_name.placeholder')
+                   placeholder: t('settings.general.plant.operator_name.placeholder')
 
   = f.group title: t('settings.general.options.description') do
     = f.check_box :opportunity_costs,
