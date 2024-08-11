@@ -76,7 +76,7 @@ class ChartData::WallboxPower < ChartData::Base
         fill: 'origin',
         # Base color, will be changed to gradient in JS
         backgroundColor: background_color(chart_sensor),
-        barPercentage: chart_sensor == :wallbox_power ? 1.3 : 0.7,
+        barPercentage: chart_sensor == :wallbox_power ? 0.7 : 1.3,
         categoryPercentage: 0.7,
         borderRadius:
           if chart_sensor == :wallbox_power
