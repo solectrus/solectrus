@@ -39,6 +39,10 @@
   @apply text-sm;
 }
 
+.label-hint {
+  @apply mt-1 text-xs text-gray-500;
+}
+
 .input-error {
   @apply !border-red-500 !ring-red-500;
 }
