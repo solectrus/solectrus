@@ -47,11 +47,11 @@ describe ChartData::WallboxPower do
 
           expect(to_h.dig(:datasets, 1, :data, now.day - 1)).to be_within(
             0.001,
-          ).of(26.1)
+          ).of(0.9)
 
           expect(to_h.dig(:datasets, 2, :data, now.day - 1)).to be_within(
             0.001,
-          ).of(0.9)
+          ).of(26.1)
         end
       end
 

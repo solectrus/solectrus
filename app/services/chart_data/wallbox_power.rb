@@ -36,6 +36,7 @@ class ChartData::WallboxPower < ChartData::Base
     if chart.key?(:wallbox_power) && chart.key?(:wallbox_power_grid)
       {
         wallbox_power: chart[:wallbox_power],
+        wallbox_power_grid: chart[:wallbox_power_grid],
         wallbox_power_pv:
           chart[:wallbox_power].map.with_index do |wallbox_power, index|
             # wallbox_power_pv = wallbox_power - wallbox_power_grid
@@ -52,7 +53,6 @@ class ChartData::WallboxPower < ChartData::Base
               end,
             ]
           end,
-        wallbox_power_grid: chart[:wallbox_power_grid],
       }
     else
       # No data for wallbox_power_grid is present, return simple chart instead
@@ -89,9 +89,9 @@ class ChartData::WallboxPower < ChartData::Base
           when :wallbox_power
             { top: 1, left: 1 }
           when :wallbox_power_grid
-            { top: 1, right: 1 }
-          when :wallbox_power_pv
             { right: 1 }
+          when :wallbox_power_pv
+            { top: 1, right: 1 }
           end,
         borderColor: background_color(chart_sensor),
       }

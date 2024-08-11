@@ -36,6 +36,7 @@ class ChartData::HeatpumpPower < ChartData::Base
     if chart.key?(:heatpump_power) && chart.key?(:heatpump_power_grid)
       {
         heatpump_power: chart[:heatpump_power],
+        heatpump_power_grid: chart[:heatpump_power_grid],
         heatpump_power_pv:
           chart[:heatpump_power].map.with_index do |heatpump_power, index|
             # heatpump_power_pv = heatpump_power - heatpump_power_grid
@@ -52,7 +53,6 @@ class ChartData::HeatpumpPower < ChartData::Base
               end,
             ]
           end,
-        heatpump_power_grid: chart[:heatpump_power_grid],
       }
     else
       # No data for heatpump_power_grid is present, return simple chart instead
@@ -89,9 +89,9 @@ class ChartData::HeatpumpPower < ChartData::Base
           when :heatpump_power
             { top: 1, left: 1 }
           when :heatpump_power_grid
-            { top: 1, right: 1 }
-          when :heatpump_power_pv
             { right: 1 }
+          when :heatpump_power_pv
+            { top: 1, right: 1 }
           end,
         borderColor: background_color(chart_sensor),
       }

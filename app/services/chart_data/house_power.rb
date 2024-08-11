@@ -40,8 +40,8 @@ class ChartData::HousePower < ChartData::Base
       if chart.key?(:house_power) && chart.key?(:house_power_grid)
         {
           house_power: adjusted_house_power(chart, exclude_grid: false),
-          house_power_pv: adjusted_house_power(chart, exclude_grid: true),
           house_power_grid: chart[:house_power_grid],
+          house_power_pv: adjusted_house_power(chart, exclude_grid: true),
         }
       else
         # No data for house_power_grid is present, return simple chart instead
@@ -120,9 +120,9 @@ class ChartData::HousePower < ChartData::Base
           when :house_power
             { top: 1, left: 1 }
           when :house_power_grid
-            { top: 1, right: 1 }
-          when :house_power_pv
             { right: 1 }
+          when :house_power_pv
+            { top: 1, right: 1 }
           end,
         borderColor: background_color(chart_sensor),
       }

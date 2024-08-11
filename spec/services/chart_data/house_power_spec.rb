@@ -58,12 +58,14 @@ describe ChartData::HousePower do
           expect(to_h[:datasets].length).to eq(3)
 
           expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(5)
+
           expect(to_h.dig(:datasets, 1, :data, now.day - 1)).to be_within(
             0.001,
-          ).of(4.7)
+          ).of(0.3)
+
           expect(to_h.dig(:datasets, 2, :data, now.day - 1)).to be_within(
             0.001,
-          ).of(0.3)
+          ).of(4.7)
         end
       end
 
