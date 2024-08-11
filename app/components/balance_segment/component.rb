@@ -29,6 +29,8 @@ class BalanceSegment::Component < ViewComponent::Base
     return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
 
     costs_field = "#{sensor}_costs".sub('_power', '')
+    costs_field << '_grid' unless Setting.opportunity_costs
+
     calculator.public_send(costs_field)
   end
 

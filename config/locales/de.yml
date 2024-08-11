@@ -95,11 +95,16 @@ de:
   settings:
     general:
       name: Allgemein
-      plant_name:
-        placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
-      operator_name:
-        placeholder: z.B. Max Mustermann in Musterstadt
-      description: Optionale Angaben zur Photovoltaik-Anlage und zum Betreiber. Wird nur auf der Seite der Einzelwerte angezeigt.
+      plant:
+        description: Angaben zur Photovoltaik-Anlage und zum Betreiber. Wird nur auf der Seite der Einzelwerte angezeigt.
+        plant_name:
+          placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
+        operator_name:
+          placeholder: z.B. Max Mustermann in Musterstadt
+      options:
+        description: Optionen
+        opportunity_costs:
+          hint: Entgangene Einspeisevergütung als Teil der Stromkosten betrachten
     prices:
       edit: Preis bearbeiten
       new: Neuer Preis
@@ -149,3 +154,4 @@ de:
       setting:
         plant_name: Bezeichung der Anlage
         operator_name: Name des Betreibers
+        opportunity_costs: Opportunitätskosten

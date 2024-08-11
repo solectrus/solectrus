@@ -29,8 +29,19 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
       before { login_as_admin }
 
       it 'returns http success' do
-        patch '/settings', params: { setting: { plant_name: 'Test' } }
+        patch '/settings',
+              params: {
+                setting: {
+                  plant_name: 'Test',
+                  operator_name: 'John',
+                  opportunity_costs: true,
+                },
+              }
         expect(response).to have_http_status(:success)
+
+        expect(Setting.plant_name).to eq('Test')
+        expect(Setting.operator_name).to eq('John')
+        expect(Setting.opportunity_costs).to be_truthy
       end
     end
   end
