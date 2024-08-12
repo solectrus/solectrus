@@ -19,7 +19,7 @@ describe Flux::Reader do
     end
 
     context 'when timeframe is week' do
-      let(:timeframe) { Timeframe.week }
+      let(:timeframe) { Timeframe.new('2024-W32') }
 
       context "when it's Tuesday" do
         before { travel_to Time.zone.local(2024, 8, 6, 8, 0, 0) }
@@ -35,7 +35,7 @@ describe Flux::Reader do
     end
 
     context 'when timeframe is month' do
-      let(:timeframe) { Timeframe.month }
+      let(:timeframe) { Timeframe.new('2024-08') }
 
       context 'when it is the beginning of the month' do
         before { travel_to Time.zone.local(2024, 8, 3, 8, 0, 0) }
@@ -51,7 +51,7 @@ describe Flux::Reader do
     end
 
     context 'when timeframe is year' do
-      let(:timeframe) { Timeframe.year }
+      let(:timeframe) { Timeframe.new('2024') }
 
       context 'when it is the beginning of the year' do
         before { travel_to Time.zone.local(2024, 1, 6, 8, 0, 0) }
