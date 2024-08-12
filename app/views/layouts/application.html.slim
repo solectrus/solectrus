@@ -78,7 +78,7 @@ html lang= I18n.locale
 
     = yield :head
 
-  body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none[
+  body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none.font-sans[
     data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)

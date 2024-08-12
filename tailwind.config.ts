@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import * as defaultTheme from 'tailwindcss/defaultTheme';
 import colors from 'tailwindcss/colors';
 import aspectRatio from '@tailwindcss/aspect-ratio';
 import containerQueries from '@tailwindcss/container-queries';
@@ -10,6 +11,10 @@ export default {
 
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+      },
+
       screens: {
         '3xl': '1920px',
 
