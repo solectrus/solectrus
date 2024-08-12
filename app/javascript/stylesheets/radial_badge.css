@@ -21,7 +21,7 @@
 }
 
 .radial-badge .title {
-  @apply font-normal uppercase;
+  @apply font-medium uppercase;
 
   font-size: calc(var(--size) / 10);
 }
