@@ -42,7 +42,8 @@ en:
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
     battery_power: Battery
-    battery_soc: Battery
+    battery_soc: SOC battery
+    car_battery_soc: SOC EV
     case_temp: Temperature
     grid_export_limit: Limitation
     heatpump_power: Heat pump
@@ -51,6 +52,7 @@ en:
   balance_sheet:
     left: Source
     right: Usage
+    soc: Battery level
   calculator:
     now: Now
     day: Day

@@ -18,7 +18,7 @@ export default {
       screens: {
         '3xl': '1920px',
 
-        tall: { raw: '(min-height: 900px)' },
+        tall: { raw: '(min-height: 860px)' },
       },
 
       aspectRatio: {

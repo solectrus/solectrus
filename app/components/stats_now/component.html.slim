@@ -62,7 +62,36 @@
         = render RadialBadge::Component.new(title: t('sensors.case_temp')) do
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
 
-    - if SensorConfig.x.exists?(:battery_soc)
+    - if SensorConfig.x.exists_all?(:battery_soc, :car_battery_soc)
+      div class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 xl:tall:py-3 text-slate-500'
+        - %i[battery_soc car_battery_soc].each do |soc_sensor|
+          = link_to root_path(sensor: soc_sensor, timeframe:),
+                    data: { \
+                      turbo_frame: 'chart',
+                      turbo_action: 'replace',
+                      turbo_prefetch: 'false',
+                      'stats-with-chart--component-target': 'current',
+                      sensor: 'battery_soc',
+                      value: calculator.public_send(soc_sensor),
+                      time: calculator.time.to_i,
+                      action: 'stats-with-chart--component#startLoop',
+                      stats_with_chart__component_sensor_param: soc_sensor,
+                    },
+                    class: 'click-animation' do
+            div class= 'w-full flex items-center justify-between gap-2 px-1 xl:px-5'
+              - case soc_sensor
+              - when :battery_soc
+                i.fa.fa-house
+              - when :car_battery_soc
+                i.fa.fa-car
+
+              div class= 'text-base md:text-xl font-normal tabular-nums'
+                = "#{calculator.public_send(soc_sensor).round}%"
+
+        div class= 'font-normal text-center uppercase tracking-tight text-[0.65rem]'
+          = t('balance_sheet.soc')
+
+    - elsif SensorConfig.x.exists?(:battery_soc)
       = link_to root_path(sensor: 'battery_soc', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
@@ -76,4 +105,4 @@
                   stats_with_chart__component_sensor_param: 'battery_soc',
                 },
                 class: 'click-animation' do
-        = render RadialBadge::Component.new(percent: calculator.battery_soc, neutral: true, title: t('sensors.battery_soc'))
+        = render RadialBadge::Component.new(percent: calculator.battery_soc, neutral: true, title: t('balance_sheet.soc'))

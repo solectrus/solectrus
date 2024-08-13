@@ -22,6 +22,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     battery_charging_power
     battery_discharging_power
     battery_soc
+    car_battery_soc
     wallbox_power
     case_temp
     system_status

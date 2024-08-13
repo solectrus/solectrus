@@ -17,6 +17,7 @@ class Calculator::Now < Calculator::Base
                       case_temp
                       system_status
                       system_status_ok
+                      car_battery_soc
                     ],
                   ).call(Timeframe.now)
   end
@@ -36,6 +37,7 @@ class Calculator::Now < Calculator::Base
     build_method(:case_temp, data, :to_f)
     build_method(:grid_export_limit, data)
     build_method(:heatpump_power, data, :to_f)
+    build_method(:car_battery_soc, data, :to_i)
 
     define_singleton_method(:house_power) do
       [

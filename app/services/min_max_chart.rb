@@ -15,8 +15,7 @@ class MinMaxChart < Flux::Reader
     when :now
       chart_single start: 1.hour.ago,
                    stop: 1.second.since,
-                   window: WINDOW[timeframe.id],
-                   fill: true
+                   window: WINDOW[timeframe.id]
     when :day
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
@@ -34,14 +33,14 @@ class MinMaxChart < Flux::Reader
 
   private
 
-  def chart_single(start:, window:, stop: nil, fill: false)
+  def chart_single(start:, window:, stop: nil)
     q = []
 
     q << from_bucket
     q << "|> #{range(start:, stop:)}"
     q << "|> #{filter}"
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
-    q << '|> fill(usePrevious: true)' if fill
+    q << '|> fill(usePrevious: true)'
     q << '|> keep(columns: ["_time","_field","_measurement","_value"])'
 
     raw = query(q.join("\n"))
@@ -131,18 +130,41 @@ class MinMaxChart < Flux::Reader
   def table_to_array(table)
     result = []
 
+    first_non_nil_record = table.records.find(&:value)
+
     table.records&.each_with_index do |record, index|
       # InfluxDB returns data one-off
       next_record = table.records[index + 1]
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['_value']&.round(1)
+      value =
+        value_from_record(
+          time:,
+          record: next_record,
+          future_record: first_non_nil_record,
+        )
 
       result << [time, value]
     end
 
     result
+  end
+
+  def value_from_record(time:, record:, future_record: nil)
+    if time.future?
+      # Becaue of fill(previous: true) we need to remove future values
+      nil
+    else
+      original = record.values['_value']
+
+      # In case of missing data at the beginning, fill in the first non-nil value
+      if original.nil? && time < record.time
+        future_record&.value
+      else
+        original
+      end
+    end
   end
 
   def default_cache_options

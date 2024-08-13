@@ -81,7 +81,7 @@ describe MinMaxChart do
 
         last_point = result[:battery_soc].last
         expect(last_point).to eq(
-          [Date.yesterday.beginning_of_day + 1435.minutes, nil], # 1435 = 23:55
+          [Date.yesterday.beginning_of_day + 1435.minutes, 0], # 1435 = 23:55
         )
       end
     end
