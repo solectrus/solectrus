@@ -41,7 +41,7 @@
   div class= "flex gap-2 lg:gap-3 #{'flex-col' if big?} items-center click-animation"
     i.fa class= icon_class style="font-size: #{icon_size}%;"
 
-    .font-light.uppercase.tracking-wider.leading-tight class= (big? ? 'lg:block' : 'hidden')
+    .font-light.uppercase.leading-tight class= (big? ? 'lg:block' : 'hidden')
       = t("sensors.#{sensor}")
 
     div data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time.to_i }
