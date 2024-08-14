@@ -5,6 +5,7 @@ class UpdateCheck
     sponsoring?
     eligible_for_free?
     prompt?
+    unregistered?
     skipped_prompt?
     skip_prompt!
     latest_version
@@ -38,6 +39,10 @@ class UpdateCheck
 
   def prompt?
     registration_status.complete? && latest[:prompt].present?
+  end
+
+  def unregistered?
+    registration_status.in?(%w[unregistered pending])
   end
 
   def skipped_prompt?
