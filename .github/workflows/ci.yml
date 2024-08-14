@@ -71,7 +71,7 @@ jobs:
         run: bin/rubocop --parallel
 
       - name: Brakeman security scan
-        run: bundle exec brakeman
+        run: bin/brakeman
 
       - name: Lint with ESLint
         run: bin/yarn lint

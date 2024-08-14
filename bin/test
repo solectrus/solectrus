@@ -19,7 +19,7 @@ slimlint_pid=$!
 bin/rubocop --parallel &
 rubocop_pid=$!
 
-bundle exec brakeman &
+bin/brakeman &
 brakeman_pid=$!
 
 # RSpec
