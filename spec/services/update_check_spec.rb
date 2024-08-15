@@ -16,6 +16,7 @@ describe UpdateCheck do
       it 'has shortcuts' do
         expect(instance.latest_version).to eq('v0.15.1')
         expect(instance.registration_status).to be_unregistered
+        expect(instance).to be_unregistered
       end
     end
 
