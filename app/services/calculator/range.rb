@@ -186,19 +186,15 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def wallbox_costs_grid
-    return unless wallbox_power_grid_array.all?(&:present?)
-
     sections.each_with_index.sum do |section, index|
-      wallbox_power_grid_array[index] / 1000 * section[:electricity_price]
+      wallbox_power_grid_array[index].to_f * section[:electricity_price] / 1000
     end
   end
 
   def wallbox_costs_pv
-    return unless wallbox_power_grid_array.all?(&:present?)
-
     sections.each_with_index.sum do |section, index|
-      (wallbox_power_array[index] - wallbox_power_grid_array[index]) / 1000 *
-        section[:feed_in_tariff]
+      (wallbox_power_array[index] - wallbox_power_grid_array[index].to_f) *
+        section[:feed_in_tariff] / 1000
     end
   end
 
@@ -227,19 +223,15 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def heatpump_costs_grid
-    return unless heatpump_power_grid_array.all?(&:present?)
-
     sections.each_with_index.sum do |section, index|
-      heatpump_power_grid_array[index] / 1000 * section[:electricity_price]
+      heatpump_power_grid_array[index].to_f * section[:electricity_price] / 1000
     end
   end
 
   def heatpump_costs_pv
-    return unless heatpump_power_grid_array.all?(&:present?)
-
     sections.each_with_index.sum do |section, index|
-      (heatpump_power_array[index] - heatpump_power_grid_array[index]) / 1000 *
-        section[:feed_in_tariff]
+      (heatpump_power_array[index] - heatpump_power_grid_array[index].to_f) *
+        section[:feed_in_tariff] / 1000
     end
   end
 
@@ -268,19 +260,15 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def house_costs_grid
-    return unless house_power_grid_array.all?(&:present?)
-
     sections.each_with_index.sum do |section, index|
-      house_power_grid_array[index] / 1000 * section[:electricity_price]
+      house_power_grid_array[index].to_f * section[:electricity_price] / 1000
     end
   end
 
   def house_costs_pv
-    return unless house_power_grid_array.all?(&:present?)
-
     sections.each_with_index.sum do |section, index|
-      (house_power_array[index] - house_power_grid_array[index]) / 1000 *
-        section[:feed_in_tariff]
+      (house_power_array[index] - house_power_grid_array[index].to_f) *
+        section[:feed_in_tariff] / 1000
     end
   end
 

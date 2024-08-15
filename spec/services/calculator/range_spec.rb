@@ -163,7 +163,7 @@ describe Calculator::Range do
 
       expect(calculator.heatpump_power_grid_ratio).to eq(50)
       expect(calculator.heatpump_power_pv_ratio).to eq(50)
-      expect(calculator.heatpump_costs).to eq(0.5299)
+      expect(calculator.heatpump_costs).to eq(0.79485)
     end
   end
 
