@@ -78,15 +78,16 @@
                       stats_with_chart__component_sensor_param: soc_sensor,
                     },
                     class: 'click-animation' do
-            div class= 'w-full flex items-center justify-between px-1 xl:px-4'
+            div class= 'w-full flex items-center justify-between gap-2 px-1 xl:px-4'
               - case soc_sensor
               - when :battery_soc
                 i.fa.fa-house.fa-sm
               - when :car_battery_soc
                 i.fa.fa-car.fa-sm
 
-              div class= 'text-base xl:text-lg font-normal tabular-nums'
-                = "#{calculator.public_send(soc_sensor).round}%"
+              - percent = calculator.public_send(soc_sensor)
+              - klass = [percent < 25 ? 'text-red-700' : 'text-green-700']
+              = Number::Component.new(value: percent).to_percent(precision: 0, klass:)
 
         div class= 'font-normal text-center uppercase tracking-tight text-[0.65rem]'
           = t('balance_sheet.soc')
