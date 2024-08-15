@@ -1,12 +1,12 @@
 .bg-yellow-200.p-3.text-indigo-800.text-xs.md:text-base
-  .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6
+  .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8
     .flex.justify-between.items-center.gap-2
       - if admin
-        .flex.items-center.gap-2
+        .flex.items-center
           = render Button::Component.new(path: registration_path(status: 'skip'),
                                          icon: 'times',
                                          style: :tertiary,
-                                         options: { class: 'text-gray-600 text-lg', data: { turbo_prefetch: false } })
+                                         options: { class: 'text-gray-500 text-lg', data: { turbo_prefetch: false } })
 
           - if pending?
             = t('.pending')
