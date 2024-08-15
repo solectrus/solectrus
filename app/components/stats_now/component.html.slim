@@ -78,12 +78,12 @@
                       stats_with_chart__component_sensor_param: soc_sensor,
                     },
                     class: 'click-animation' do
-            div class= 'w-full flex items-center justify-between px-1 xl:px-3'
+            div class= 'w-full flex items-center justify-between px-1 xl:px-4'
               - case soc_sensor
               - when :battery_soc
-                i.fa.fa-house
+                i.fa.fa-house.fa-sm
               - when :car_battery_soc
-                i.fa.fa-car
+                i.fa.fa-car.fa-sm
 
               div class= 'text-base md:text-xl font-normal tabular-nums'
                 = "#{calculator.public_send(soc_sensor).round}%"
