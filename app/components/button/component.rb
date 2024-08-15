@@ -90,6 +90,6 @@ class Button::Component < ViewComponent::Base
   end
 
   def icon_class
-    "fa fa-#{icon_name} w-8"
+    ['fa', "fa-#{icon_name}", ('w-8' unless title)]
   end
 end
