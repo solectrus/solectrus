@@ -1,8 +1,8 @@
 en:
   pending: Your registration is not yet complete. Please click on the link in the email you received.
   unregistered: SOLECTRUS has been successfully installed. Please proceed with the registration.
-  prompt_for_sponsoring: Do you like SOLECTRUS? Support its development with a sponsorship!
-  login_to_register: Not registered. Please log in as administrator to register this installation.
-  login_to_sponsor: Sponsorship missing. Please log in as administrator to set up sponsoring for this installation.
+  prompt_for_sponsoring: Do you like SOLECTRUS? Become a sponsor and get additional features!
+  login_to_register: Not registered. Please log in to register this installation.
+  login_to_sponsor: SOLECTRUS needs your support. Please login and become a sponsor!
   button_to_register: Register now
-  button_to_sponsor: Sponsor now
+  button_to_sponsor: Sponsoring
