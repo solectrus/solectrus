@@ -42,7 +42,7 @@ class UpdateCheck
         request = Net::HTTP::Get.new(uri.request_uri)
         request.initialize_http_header(
           'Accept' => 'application/json',
-          'User-Agent' => UserAgent.instance.to_s,
+          'User-Agent' => UserAgentBuilder.instance.to_s,
         )
 
         http.request(request)

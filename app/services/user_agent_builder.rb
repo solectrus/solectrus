@@ -1,4 +1,4 @@
-class UserAgent
+class UserAgentBuilder
   include Singleton
 
   def to_s
