@@ -34,6 +34,8 @@ class MinMaxChart < Flux::Reader
   private
 
   def chart_single(start:, window:, stop: nil)
+    remember_start(start)
+
     q = []
 
     q << from_bucket
@@ -48,6 +50,8 @@ class MinMaxChart < Flux::Reader
   end
 
   def chart_minmax(start:, window:, stop: nil)
+    remember_start(start)
+
     raw = query <<-QUERY
       import "timezone"
 
@@ -72,6 +76,8 @@ class MinMaxChart < Flux::Reader
   end
 
   def chart_minmax_global(start:, window:, stop: nil)
+    remember_start(start)
+
     raw = query <<-QUERY
       import "timezone"
 
@@ -95,6 +101,27 @@ class MinMaxChart < Flux::Reader
     QUERY
 
     formatted(raw)
+  end
+
+  def remember_start(start)
+    @start = start
+  end
+
+  # Get the last value BEFORE the start time
+  def previous_value
+    return unless @start
+
+    @previous_value ||=
+      begin
+        raw = query <<-QUERY
+          #{from_bucket}
+          |> #{range(start: @start - 1.day, stop: @start)}
+          |> #{filter}
+          |> last()
+        QUERY
+
+        raw.first&.records&.first&.value
+      end
   end
 
   def formatted(raw)
@@ -130,20 +157,13 @@ class MinMaxChart < Flux::Reader
   def table_to_array(table)
     result = []
 
-    first_non_nil_record = table.records.find(&:value)
-
     table.records&.each_with_index do |record, index|
       # InfluxDB returns data one-off
       next_record = table.records[index + 1]
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'])
-      value =
-        value_from_record(
-          time:,
-          record: next_record,
-          future_record: first_non_nil_record,
-        )
+      value = value_from_record(time:, record: next_record)
 
       result << [time, value]
     end
@@ -151,16 +171,16 @@ class MinMaxChart < Flux::Reader
     result
   end
 
-  def value_from_record(time:, record:, future_record: nil)
+  def value_from_record(time:, record:)
     if time.future?
       # Becaue of fill(previous: true) we need to remove future values
       nil
     else
       original = record.values['_value']
 
-      # In case of missing data at the beginning, fill in the first non-nil value
+      # In case of missing data at the beginning, fill in previous value
       if original.nil? && time < record.time
-        future_record&.value
+        previous_value
       else
         original
       end
