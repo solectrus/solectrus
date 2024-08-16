@@ -1,23 +1,9 @@
 ForbiddenError = Class.new(StandardError)
-NotAcceptableError = Class.new(StandardError)
 
 class ApplicationController < ActionController::Base
   include AutoLocale
   include TopNavigation
   default_form_builder TailwindFormBuilder
-
-  allow_browser versions: {
-                  safari: 17.2,
-                  chrome: 118,
-                  firefox: 121,
-                  opera: 106,
-                  ie: false,
-                }, # TODO: Change to :modern when Cypress was updated to Electron 120+
-                block:
-                  lambda {
-                    raise NotAcceptableError, t('errors.unsupported_browser')
-                  },
-                unless: -> { is_a?(ErrorsController) }
 
   def admin_required!
     admin? || raise(ForbiddenError)
