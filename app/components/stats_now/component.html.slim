@@ -65,29 +65,29 @@
     - if SensorConfig.x.exists_all?(:battery_soc, :car_battery_soc)
       div class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 xl:tall:py-3 text-slate-500'
         - %i[battery_soc car_battery_soc].each do |soc_sensor|
-          = link_to root_path(sensor: soc_sensor, timeframe:),
-                    data: { \
-                      turbo_frame: 'chart',
-                      turbo_action: 'replace',
-                      turbo_prefetch: 'false',
-                      'stats-with-chart--component-target': 'current',
-                      sensor: 'battery_soc',
-                      value: calculator.public_send(soc_sensor),
-                      time: calculator.time.to_i,
-                      action: 'stats-with-chart--component#startLoop',
-                      stats_with_chart__component_sensor_param: soc_sensor,
-                    },
-                    class: 'click-animation' do
-            div class= 'w-full flex items-center justify-between gap-2 px-1 xl:px-4'
-              - case soc_sensor
-              - when :battery_soc
-                i.fa.fa-house.fa-sm
-              - when :car_battery_soc
-                i.fa.fa-car.fa-sm
+          - if (value = calculator.public_send(soc_sensor))
+            = link_to root_path(sensor: soc_sensor, timeframe:),
+                      data: { \
+                        turbo_frame: 'chart',
+                        turbo_action: 'replace',
+                        turbo_prefetch: 'false',
+                        'stats-with-chart--component-target': 'current',
+                        sensor: 'battery_soc',
+                        value:,
+                        time: calculator.time.to_i,
+                        action: 'stats-with-chart--component#startLoop',
+                        stats_with_chart__component_sensor_param: soc_sensor,
+                      },
+                      class: 'click-animation' do
+              div class= 'w-full flex items-center justify-between gap-2 px-1 xl:px-4'
+                - case soc_sensor
+                - when :battery_soc
+                  i.fa.fa-house.fa-sm
+                - when :car_battery_soc
+                  i.fa.fa-car.fa-sm
 
-              - percent = calculator.public_send(soc_sensor)
-              - klass = [percent < 25 ? 'text-red-700' : 'text-green-700']
-              = Number::Component.new(value: percent).to_percent(precision: 0, klass:)
+                = Number::Component.new(value:).to_percent(precision: 0,
+                                                           klass: value.round < 25 ? 'text-red-700' : 'text-green-700')
 
         div class= 'font-normal text-center uppercase tracking-tight text-[0.65rem]'
           = t('balance_sheet.soc')
