@@ -110,6 +110,9 @@ en:
     404:
       title: Not Found
       description: The requested page could not be found.
+    406:
+      title: Not Acceptable
+      description: The requested page is not available in the desired form.
     422:
       title: Unprocessable Content
       description: The requested change was rejected.
@@ -121,6 +124,7 @@ en:
         <code>docker compose logs app</code>
     back_to_home: ← Back to homepage
     login: Login as administrator
+    unsupported_browser: Your browser is not supported
 
   activemodel:
     attributes:

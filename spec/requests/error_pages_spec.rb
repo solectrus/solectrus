@@ -15,6 +15,22 @@ describe 'Error pages', vcr: { cassette_name: 'version' } do
     end
   end
 
+  describe 'error 406' do
+    it 'renders a custom 406 error page' do
+      without_detailed_exceptions do
+        get '/',
+            headers: {
+              'HTTP_USER_AGENT' =>
+                'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
+            }
+      end
+
+      expect(response).to have_http_status(:not_acceptable)
+      expect(response.body).to include(I18n.t('errors.406.title'))
+      expect(response.body).to include(I18n.t('errors.unsupported_browser'))
+    end
+  end
+
   describe 'error 500' do
     let(:failing_controller) { instance_double(HomeController) }
 

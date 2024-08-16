@@ -1,6 +1,7 @@
 exceptions:
   ignore:
     - 'ForbiddenError'
+    - 'NotAcceptableError'
 
 logging:
   path: 'STDOUT'

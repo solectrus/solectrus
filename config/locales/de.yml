@@ -110,6 +110,9 @@ de:
     404:
       title: Nicht gefunden
       description: Die angeforderte Seite konnte nicht gefunden werden.
+    406:
+      title: Nicht akzeptiert
+      description: Die angeforderte Seite steht nicht in der gewünschten Form zur Verfügung.
     422:
       title: Verarbeitung nicht möglich
       description: Die gewünschte Änderung wurde abgelehnt.
@@ -121,6 +124,7 @@ de:
         <code>docker compose logs app</code>
     back_to_home: ← Zurück zur Startseite
     login: Als Administrator anmelden
+    unsupported_browser: Dein Browser wird nicht unterstützt
 
   activemodel:
     attributes:
