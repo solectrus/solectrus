@@ -36,6 +36,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   attr_reader :string, :min_date, :allowed_days_in_future
+
   delegate :to_s, to: :@original_string
 
   def out_of_range?

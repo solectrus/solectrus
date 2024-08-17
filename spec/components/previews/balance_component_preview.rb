@@ -13,6 +13,7 @@ class BalanceComponentPreview < ViewComponent::Preview
   def timeframe
     Timeframe.new Date.current.strftime('%Y-%m')
   end
+
   def sensor
     'inverter_power'
   end

@@ -34,7 +34,7 @@ Rails.application.configure do
         *[
           :self,
           Rails.configuration.asset_host.presence,
-          '\'sha256-W49+qLXTvblxo3uhW+zCJ7W79iSK1/XLC2fBoPuDgHM=\'', # Lockup
+          "'sha256-W49+qLXTvblxo3uhW+zCJ7W79iSK1/XLC2fBoPuDgHM='", # Lockup
         ].compact,
       )
       policy.style_src(
