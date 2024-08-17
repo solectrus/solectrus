@@ -1,45 +1,45 @@
-name: Configuration issue
-description: Use this if you have problems installing or configuring SOLECTRUS
+name: Installationsproblem
+description: Problem beim Installieren oder Konfigurieren von SOLECTRUS klären
 labels: ['help wanted']
 
 body:
   - type: textarea
     id: description
     attributes:
-      label: Description (in German or English)
+      label: Beschreibung (auf Deutsch oder Englisch)
     validations:
       required: true
 
   - type: input
     id: version
     attributes:
-      label: What version of SOLECTRUS are you using?
-      placeholder: e.g. v0.15.0
+      label: Welche Version von SOLECTRUS verwendest du?
+      placeholder: z.B. v0.15.0
     validations:
       required: true
 
   - type: input
     id: machine
     attributes:
-      label: What machine are you running SOLECTRUS on?
-      placeholder: e.g. Raspberry Pi 4
+      label: Auf welchem Gerät läuft bei dir SOLECTRUS?
+      placeholder: z.B. Raspberry Pi 4
     validations:
       required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: Please provide logs, if applicable
-      description: You can get them by running `docker compose logs`, but try to show only the relevant parts.
+      label: Auszug aus dem Logfile, sofern zum Verständnis sinnvoll (z.B. bei einem Fehler 500)
+      description: Kann abgerufen werden mit `docker compose logs`, aber beschränke dich auf die relevanten Zeilen.
       render: text
 
   - type: textarea
     id: compose
     attributes:
-      label: Please provide your `docker-compose.yml` or `compose.yml` file
+      label: Dein vollständiges `docker-compose.yml` oder `compose.yml`
       render: yaml
       placeholder: |
-        e.g.:
+        z.B.:
 
         services:
           dashboard:
@@ -51,11 +51,11 @@ body:
   - type: textarea
     id: environment
     attributes:
-      label: Please provide your `.env` file
-      description: Don't forget to anonymise all sensitive information (e.g. passwords, API keys, geo-location, etc.)
+      label: Dein vollständiges `.env`
+      description: Aus Datenschutzgründen bitte alle sensiblen Informationen unkenntlich machen (Passwörter, API-Schlüssel, Geodaten, etc.)
       render: text
       placeholder: |
-        e.g.:
+        z.B:
 
         # Domain name or IP address of your host
         APP_HOST=raspberrypi

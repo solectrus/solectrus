@@ -1,45 +1,45 @@
-name: Bug Report
-description: Report a bug in SOLECTRUS
+name: Fehlerbericht
+description: Fehler in SOLECTRUS melden
 labels: ['bug']
 
 body:
   - type: textarea
     id: description
     attributes:
-      label: Description (in German or English)
+      label: Beschreibung (auf Deutsch oder Englisch)
     validations:
       required: true
 
   - type: input
     id: version
     attributes:
-      label: What version of SOLECTRUS are you using?
-      placeholder: e.g. v0.15.0
+      label: Welche Version von SOLECTRUS verwendest du?
+      placeholder: z.B. v0.15.0
     validations:
       required: true
 
   - type: input
     id: machine
     attributes:
-      label: What machine are you running SOLECTRUS on?
-      placeholder: e.g. Raspberry Pi 4
+      label: Auf welchem Gerät läuft bei dir SOLECTRUS?
+      placeholder: z.B. Raspberry Pi 4
     validations:
       required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: If applicable (e.g. in case of error 500), please provide logs
-      description: You can get them by running `docker compose logs`, but try to show only the relevant parts.
+      label: Auszug aus dem Logfile, sofern zum Verständnis sinnvoll (z.B. bei einem Fehler 500)
+      description: Kann abgerufen werden mit `docker compose logs`, aber beschränke dich auf die relevanten Zeilen.
       render: text
 
   - type: textarea
     id: compose
     attributes:
-      label: Please provide your `docker-compose.yml` or `compose.yml` file
+      label: Dein vollständiges `docker-compose.yml` oder `compose.yml`
       render: yaml
       placeholder: |
-        e.g.:
+        z.B.:
 
         services:
           dashboard:
@@ -49,11 +49,11 @@ body:
   - type: textarea
     id: environment
     attributes:
-      label: Please provide your `.env` file
-      description: Don't forget to anonymise all sensitive information (e.g. passwords, API keys, geo-location, etc.)
+      label: Dein vollständiges `.env`
+      description: Aus Datenschutzgründen bitte alle sensiblen Informationen unkenntlich machen (Passwörter, API-Schlüssel, Geodaten, etc.)
       render: text
       placeholder: |
-        e.g.:
+        z.B:
 
         # Domain name or IP address of your host
         APP_HOST=raspberrypi
@@ -64,10 +64,10 @@ body:
 
   - type: textarea
     attributes:
-      label: Anything else?
+      label: Gibt es sonst noch etwas?
       description: |
-        Anything that will give us more context about the issue you are encountering!
+        Alles, was noch wissenswert ist, um den Fehler verstehen und nachvollziehen zu können!
 
-        Tip: You can attach images or other files by clicking this area to highlight it and then dragging files in.
+        Tipp: Du kannst Bilder oder andere Dateien anhängen, indem du diesen Bereich markierst und dann Dateien hineinziehst.
     validations:
       required: false
