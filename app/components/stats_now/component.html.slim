@@ -86,8 +86,10 @@
                 - when :car_battery_soc
                   i.fa.fa-car.fa-sm
 
-                = Number::Component.new(value:).to_percent(precision: 0,
-                                                           klass: value.round < 25 ? 'text-red-700' : 'text-green-700')
+                = Number::Component.new(value:).to_percent( \
+                    precision: 0,
+                    klass: value.round < 25 ? 'text-red-700' : 'text-green-700',
+                  )
 
         div class= 'font-normal text-center uppercase tracking-tight text-[0.65rem]'
           = t('balance_sheet.soc')
