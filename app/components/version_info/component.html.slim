@@ -15,7 +15,8 @@
                 class: 'relative flex',
                 data: { controller: 'tippy' },
                 title: t('layout.version_outdated', latest_version:),
-                target: '_blank', rel: 'noopener' do
+                target: '_blank',
+                rel: 'noopener' do
         span.animate-ping.absolute.inline-flex.h-full.w-full.rounded-full.bg-white.opacity-75.lg:bg-red-700
         span.relative.inline-flex.rounded-full.h-2.w-2.bg-red-400
 
@@ -23,5 +24,6 @@
       = link_to latest_release_url,
                 data: { controller: 'tippy' },
                 title: t('layout.version_uptodate'),
-                target: '_blank', rel: 'noopener' do
+                target: '_blank',
+                rel: 'noopener' do
         i.fa.far.fa-circle-check

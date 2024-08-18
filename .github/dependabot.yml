@@ -66,14 +66,13 @@ updates:
       hotwired:
         patterns:
           - '@hotwired*'
-      tailwindcss:
-        patterns:
-          - '@tailwindcss/*'
-          - tailwindcss
       charts:
         patterns:
           - 'chart.js'
           - 'chartkick'
+      fortawesome:
+        patterns:
+          - '@fortawesome/*'
 
   - package-ecosystem: 'github-actions'
     directory: '/'

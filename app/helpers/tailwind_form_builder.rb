@@ -36,6 +36,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
       end + super(method, merged_options) + errors(method)
     end
   end
+
   def password_field(method, options = {}) # rubocop:disable Style/OptionHash
     default_options = { class: input_html_classes(method) }
     default_options[:class] << (options[:maxlength] ? 'w-20' : 'w-full')

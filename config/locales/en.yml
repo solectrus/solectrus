@@ -10,15 +10,15 @@ en:
     settings: Settings
     registration: Registration
     registration_and_sponsoring: Registration & Sponsoring
-    login: Admin login
+    login: Login
     logout: Logout
     version_outdated: New version <strong>%{latest_version}</strong> available!
     version_uptodate: This is the latest version
-    prompt_for_sponsoring: If you like SOLECTRUS, support development with a sponsorship! Selected features will be available exclusively to sponsors in the future.
-    missing_sponsoring_header: Not sponsoring yet
-    missing_sponsoring: Sponsorship can ensure the further development of SOLECTRUS.
-    missing_sponsoring_cta: Yes, I want to become a sponsor!
-    active_sponsoring_header: Sponsoring aktiv
+    prompt_for_sponsoring: Do you like SOLECTRUS? Support the further development with a sponsorship and get more features!
+    missing_sponsoring_header: Still without sponsoring
+    missing_sponsoring: Only sponsors can ensure the further development of SOLECTRUS.
+    missing_sponsoring_cta: About sponsoring
+    active_sponsoring_header: Sponsoring is active
     active_sponsoring: Thank you very much for your support!
   timeframe:
     now: Now
@@ -59,7 +59,7 @@ en:
     traditional_price: Comparative price
     savings: Savings
     co2_reduction: CO₂ reduction
-    co2_reduction_note: Reduction in CO₂ emissions from PV generation compared to the German electricity mix (401 g/kWh)
+    co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share
     house_costs: House costs
     wallbox_costs: EV costs
@@ -75,6 +75,7 @@ en:
     expectation_html: Expected %{value}
     unknown: No forecast available
   login:
+    title: Login as admin
     missing_password_error: Unable to log in because no password has been configured.
     missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
     password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on the Docker host.

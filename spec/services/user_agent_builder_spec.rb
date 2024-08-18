@@ -1,4 +1,4 @@
-describe UserAgent, with_setup_id: 0 do
+describe UserAgentBuilder, with_setup_id: 0 do
   let(:user_agent) { described_class.instance }
 
   describe '#to_s' do

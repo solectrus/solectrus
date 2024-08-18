@@ -4,7 +4,7 @@ html lang= I18n.locale
     meta charset="utf-8"
 
     title
-      = [ 'SOLECTRUS', title.presence ].compact.join(' | ')
+      = ['SOLECTRUS', title.presence].compact.join(' | ')
 
     meta name="viewport" content="width=device-width,initial-scale=1"
     meta name="disabled-adaptations" content="watch"
@@ -78,7 +78,7 @@ html lang= I18n.locale
 
     = yield :head
 
-  body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none[
+  body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none.font-sans.antialiased[
     data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
@@ -114,8 +114,10 @@ html lang= I18n.locale
                   target: '_blank',
                   rel: 'noopener' do
           | SOLECTRUS.de
-        = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
-                                            commit_time: Rails.configuration.x.git.commit_time,
-                                            github_url: Rails.configuration.x.git.home)
+        = render VersionInfo::Component.new( \
+            current_version: Rails.configuration.x.git.commit_version,
+            commit_time: Rails.configuration.x.git.commit_time,
+            github_url: Rails.configuration.x.git.home,
+          )
 
       = render AuthorLogo::Component.new

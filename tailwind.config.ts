@@ -1,15 +1,24 @@
 import type { Config } from 'tailwindcss';
+import * as defaultTheme from 'tailwindcss/defaultTheme';
 import colors from 'tailwindcss/colors';
+import aspectRatio from '@tailwindcss/aspect-ratio';
+import containerQueries from '@tailwindcss/container-queries';
+import forms from '@tailwindcss/forms';
+import displayModes from 'tailwindcss-displaymodes';
 
 export default {
   content: ['./app/**/*.{slim,rb}', './app/javascript/**/*.{js,ts}'],
 
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+      },
+
       screens: {
         '3xl': '1920px',
 
-        tall: { raw: '(min-height: 800px)' },
+        tall: { raw: '(min-height: 900px)' },
       },
 
       aspectRatio: {
@@ -40,10 +49,5 @@ export default {
     },
   },
 
-  plugins: [
-    require('@tailwindcss/aspect-ratio'),
-    require('@tailwindcss/container-queries'),
-    require('@tailwindcss/forms'),
-    require('tailwindcss-displaymodes'),
-  ],
+  plugins: [aspectRatio, containerQueries, forms, displayModes],
 } satisfies Config;

@@ -10,14 +10,14 @@ de:
     settings: Einstellungen
     registration: Registrierung
     registration_and_sponsoring: Registrierung & Sponsoring
-    login: Admin-Login
+    login: Anmelden
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
-    prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Weiterentwicklung mit einem Sponsoring! Ausgewählte Funktionen werden zukünftig exklusiv für Sponsoren verfügbar sein.
+    prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Weiterentwicklung mit einem Sponsoring und erhalte weitere Features!
     missing_sponsoring_header: Noch ohne Sponsoring
-    missing_sponsoring: Durch Sponsoren kann die Weiterentwicklung von SOLECTRUS sichergestellt werden.
-    missing_sponsoring_cta: Ja, ich möchte Sponsor werden!
+    missing_sponsoring: Nur durch Sponsoren kann die Weiterentwicklung von SOLECTRUS sichergestellt werden.
+    missing_sponsoring_cta: Zum Sponsoring
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
   timeframe:
@@ -59,7 +59,7 @@ de:
     traditional_price: Vergleichspreis
     savings: Einsparung
     co2_reduction: CO₂-Reduktion
-    co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung gegenüber dem deutschen Strommix (401 g/kWh).
+    co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Anteil Akku
     house_costs: Anteil Haus
     wallbox_costs: Anteil E-Auto
@@ -75,6 +75,7 @@ de:
     expectation_html: Erwartet wurden %{value}
     unknown: Keine Prognose verfügbar
   login:
+    title: Als Admin anmelden
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code>ADMIN_PASSWORD</code> ergänzt werden.
     password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf dem Docker-Host.

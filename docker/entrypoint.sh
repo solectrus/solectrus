@@ -14,11 +14,6 @@ echo "Based on Alpine Linux $(cat /etc/alpine-release)"
 # If running the rails server then wait for services
 # and create or migrate existing database
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
-  # Remove PID in case of restart after container crash
-  # TODO: Remove this line (and change puma.rb) after upgrading to Rails 7.2
-  # https://github.com/rails/rails/pull/50644
-  rm -f /app/tmp/pids/server.pid
-
   # Check for necessary environment variables
   if [ -z "${REDIS_URL}" ] || [ -z "${INFLUX_HOST}" ] || [ -z "${DB_HOST}" ]; then
     echo "Error: One or more required environment variables (REDIS_URL, INFLUX_HOST, DB_HOST) are not set. Stopping..." >&2

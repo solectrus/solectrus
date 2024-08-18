@@ -3,3 +3,5 @@ de:
   breakdown:
     title: Abgeschätzte Aufteilung
     explanation: Der Netzbezug wird zunächst dem E-Auto zugerechnet, der Rest dem Haus-Verbrauch.
+  from: von
+  to: bis

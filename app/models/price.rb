@@ -35,11 +35,6 @@ class Price < ApplicationRecord
                         }
   end
 
-  # Don't allow deleting last price of a scope
-  def destroyable?
-    Price.where.not(id:).exists?(name:)
-  end
-
   def self.seed!
     Price.electricity.create! starts_at:
                                 Rails.configuration.x.installation_date,
@@ -51,5 +46,10 @@ class Price < ApplicationRecord
 
   def self.list_for(name)
     Price.where(name:).order(starts_at: :desc).to_a
+  end
+
+  # Don't allow deleting last price of a scope
+  def destroyable?
+    Price.where.not(id:).exists?(name:)
   end
 end

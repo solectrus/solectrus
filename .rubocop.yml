@@ -48,8 +48,65 @@ Bundler/GemVersion:
 
 ### Layout
 
-Layout:
+Layout/CommentIndentation:
+  Exclude:
+    - 'spec/spec_helper.rb'
+
+Layout/ClassStructure:
   Enabled: false
+
+Layout/ArgumentAlignment:
+  Enabled: false
+
+Layout/LineEndStringConcatenationIndentation:
+  Enabled: false
+
+Layout/RedundantLineBreak:
+  Enabled: false
+
+Layout/SingleLineBlockChain:
+  Enabled: false
+
+Layout/EmptyLineAfterMultilineCondition:
+  Enabled: false
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/FirstArgumentIndentation:
+  Enabled: false
+
+Layout/EndAlignment:
+  Enabled: false
+
+Layout/IndentationWidth:
+  Enabled: false
+
+Layout/ElseAlignment:
+  Enabled: false
+
+Layout/MultilineOperationIndentation:
+  Enabled: false
+
+Layout/FirstArrayElementIndentation:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
+  Enabled: false
+
+Layout/MultilineAssignmentLayout:
+  Enabled: false
+
+Layout/LineContinuationLeadingSpace:
+  Enabled: false
+
+Layout/EmptyComment:
+  Enabled: false
+
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: true
+  EnforcedStyle: space
+  EnforcedStyleForEmptyBraces: no_space
 
 ### Metrics
 

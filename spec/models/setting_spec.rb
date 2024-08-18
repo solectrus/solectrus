@@ -16,6 +16,8 @@ describe Setting do
   describe 'seed!' do
     subject(:seed!) { described_class.seed! }
 
+    before { described_class.delete_all }
+
     around { |example| freeze_time(&example) }
 
     context 'when there is no price' do
@@ -39,6 +41,16 @@ describe Setting do
 
         expect(described_class.setup_id).to eq(42)
         expect(described_class.setup_token).to be_present
+      end
+    end
+
+    context 'when setup_id is zero' do
+      before { described_class.setup_id = 0 }
+
+      it 'regenerates setup_id from current time' do
+        expect { seed! }.to change(described_class, :count).from(1).to(2)
+
+        expect(described_class.setup_id).to eq(Time.current.to_i)
       end
     end
 

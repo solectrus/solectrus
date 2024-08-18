@@ -21,7 +21,7 @@ Bundler.require(*Rails.groups)
 module Solectrus
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.1
+    config.load_defaults 7.2
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -55,6 +55,7 @@ module Solectrus
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
     config.x.rorvswild.api_key = ENV['RORVSWILD_API_KEY'].presence
+    config.x.co2_emission_factor = ENV.fetch('CO2_EMISSION_FACTOR', 401).to_i # g / kWh
 
     config.x.influx.token = ENV.fetch('INFLUX_TOKEN', nil)
     config.x.influx.schema = ENV.fetch('INFLUX_SCHEMA', 'http')
@@ -72,8 +73,16 @@ module Solectrus
         end
       end
 
-      unless rake_task_running?('assets:precompile', 'db:migrate', 'db:prepare')
+      unless rake_task_running?(
+               'assets:precompile',
+               'db:create',
+               'db:migrate',
+               'db:prepare',
+             )
         SensorConfig.setup(ENV)
+
+        # Ensure settings are seeded on every start
+        Setting.seed! if ActiveRecord::Base.connection.table_exists?(:settings)
       end
     end
 
@@ -85,5 +94,10 @@ module Solectrus
     # Disable preloading JS/CSS via Link header to avoid browser warnings like this one:
     # "... was preloaded using link preload but not used within a few seconds ..."
     config.action_view.preload_links_header = false
+
+    # End2End tests with Cypress uses time traveling to a date BEFORE the migrations.
+    # This does not work with Rails 7.2 by default, so we disable the timestamp check.
+    # TODO: Fix the time traveling in the Cypress tests and remove this line.
+    config.active_record.validate_migration_timestamps = false
   end
 end

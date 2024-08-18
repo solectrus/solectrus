@@ -28,6 +28,7 @@ tmp/*
 yarn-error.log
 config/environments/test.rb
 config/environments/development.rb
+config/rorvswild.yml
 cypress.config.mjs
 screenshot.webp
 logo.svg
@@ -41,3 +42,5 @@ bin/setup
 bin/yarn
 bin/test
 bin/open
+bin/brakeman
+eslint.config.mjs

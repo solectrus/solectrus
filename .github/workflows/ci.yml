@@ -71,7 +71,7 @@ jobs:
         run: bin/rubocop --parallel
 
       - name: Brakeman security scan
-        run: bundle exec brakeman
+        run: bin/brakeman
 
       - name: Lint with ESLint
         run: bin/yarn lint
@@ -139,7 +139,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=raw,value=next,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
+            type=raw,value=next,enable=${{ github.ref == format('refs/heads/{0}', 'next') }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

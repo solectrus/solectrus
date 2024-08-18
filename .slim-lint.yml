@@ -10,12 +10,8 @@ linters:
 
     ignored_cops:
       - Layout/FirstHashElementIndentation
-      - Layout/IndentationWidth
-      - Layout/ArgumentAlignment
+      - Layout/HashAlignment
       - Layout/TrailingEmptyLines
-      - Layout/FirstArrayElementIndentation
-      - Layout/LineLength
-      - Style/IdenticalConditionalBranches
       - Style/Next
       - Style/RedundantLineContinuation
       - Lint/Void

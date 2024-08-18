@@ -36,6 +36,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   attr_reader :string, :min_date, :allowed_days_in_future
+
   delegate :to_s, to: :@original_string
 
   def out_of_range?
@@ -60,6 +61,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def today?
+    day? && current?
+  end
+
   def past?
     return false if now? || all?
 
@@ -70,6 +75,19 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     return false if now? || all?
 
     beginning.to_date > Date.current
+  end
+
+  # Number of days that have passed since the beginning of the timeframe
+  def days_passed
+    return 0 if now? || today? || beginning.nil?
+
+    if past?
+      (ending.to_date - beginning.to_date + 1)
+    elsif beginning.past?
+      (Date.current - beginning.to_date)
+    else
+      0
+    end
   end
 
   def can_paginate?

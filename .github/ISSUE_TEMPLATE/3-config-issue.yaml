@@ -1,6 +1,6 @@
-name: Fehlerbericht
-description: Fehler in SOLECTRUS melden
-labels: ['bug']
+name: Installationsproblem
+description: Problem beim Installieren oder Konfigurieren von SOLECTRUS klären
+labels: ['help wanted']
 
 body:
   - type: textarea
@@ -45,6 +45,8 @@ body:
           dashboard:
             image: ghcr.io/solectrus/solectrus:latest
         ...
+    validations:
+      required: true
 
   - type: textarea
     id: environment
@@ -61,13 +63,5 @@ body:
         # Date of commissioning of your photovoltaic system
         INSTALLATION_DATE=2023-04-03
         ...
-
-  - type: textarea
-    attributes:
-      label: Gibt es sonst noch etwas?
-      description: |
-        Alles, was noch wissenswert ist, um den Fehler verstehen und nachvollziehen zu können!
-
-        Tipp: Du kannst Bilder oder andere Dateien anhängen, indem du diesen Bereich markierst und dann Dateien hineinziehst.
     validations:
-      required: false
+      required: true

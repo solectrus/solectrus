@@ -216,12 +216,20 @@ describe Timeframe do
       expect(decoder.past?).to be(true)
     end
 
+    it 'is not today' do
+      expect(decoder.today?).to be(false)
+    end
+
     it 'is not future' do
       expect(decoder.future?).to be(false)
     end
 
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
+    end
+
+    it 'has passed 1 day' do
+      expect(decoder.days_passed).to eq(1)
     end
   end
 
@@ -240,8 +248,16 @@ describe Timeframe do
       expect(decoder.future?).to be(true)
     end
 
+    it 'is not today' do
+      expect(decoder.today?).to be(false)
+    end
+
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
+    end
+
+    it 'has passed 0 days' do
+      expect(decoder.days_passed).to eq(0)
     end
   end
 
@@ -268,8 +284,16 @@ describe Timeframe do
       expect(decoder.future?).to be(false)
     end
 
+    it 'is today' do
+      expect(decoder.today?).to be(true)
+    end
+
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
+    end
+
+    it 'has passed 0 days' do
+      expect(decoder.days_passed).to eq(0)
     end
   end
 
@@ -281,8 +305,16 @@ describe Timeframe do
       expect(decoder.day?).to be(true)
     end
 
+    it 'is today' do
+      expect(decoder.today?).to be(true)
+    end
+
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
+    end
+
+    it 'has passed 0 days' do
+      expect(decoder.days_passed).to eq(0)
     end
   end
 
@@ -362,6 +394,10 @@ describe Timeframe do
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
     end
+
+    it 'has passed 7 days' do
+      expect(decoder.days_passed).to eq(7)
+    end
   end
 
   context 'when string is a week in the future' do
@@ -382,6 +418,10 @@ describe Timeframe do
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
     end
+
+    it 'has passed 0 days' do
+      expect(decoder.days_passed).to eq(0)
+    end
   end
 
   context 'when string is current week' do
@@ -401,6 +441,10 @@ describe Timeframe do
 
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
+    end
+
+    it 'has passed 3 days' do
+      expect(decoder.days_passed).to eq(3)
     end
   end
 
@@ -513,6 +557,10 @@ describe Timeframe do
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
     end
+
+    it 'has passed 31 days' do
+      expect(decoder.days_passed).to eq(31)
+    end
   end
 
   context 'when string is a month at min_date' do
@@ -561,6 +609,10 @@ describe Timeframe do
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
     end
+
+    it 'has passed 0 days' do
+      expect(decoder.days_passed).to eq(0)
+    end
   end
 
   context 'when string is current month' do
@@ -580,6 +632,10 @@ describe Timeframe do
 
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
+    end
+
+    it 'has passed 12 days' do
+      expect(decoder.days_passed).to eq(12)
     end
   end
 
@@ -672,6 +728,10 @@ describe Timeframe do
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
     end
+
+    it 'has passed 365 days' do
+      expect(decoder.days_passed).to eq(365)
+    end
   end
 
   context 'when string is future year' do
@@ -692,6 +752,10 @@ describe Timeframe do
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
     end
+
+    it 'has passed 0 days' do
+      expect(decoder.days_passed).to eq(0)
+    end
   end
 
   context 'when string is current year' do
@@ -711,6 +775,10 @@ describe Timeframe do
 
     it 'can paginate' do
       expect(decoder.can_paginate?).to be(true)
+    end
+
+    it 'has passed 285 days' do
+      expect(decoder.days_passed).to eq(285)
     end
   end
 
@@ -818,6 +886,10 @@ describe Timeframe do
 
     it 'cannot paginate' do
       expect(decoder.can_paginate?).to be(false)
+    end
+
+    it 'has passed 1381 days' do
+      expect(decoder.days_passed).to eq(1381)
     end
   end
 

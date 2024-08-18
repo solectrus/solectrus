@@ -84,9 +84,11 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
           = I18n.t('layout.active_sponsoring_header')
 
       .flex.justify-between.items-center.text-indigo-100.text-xs.px-3.py-4
-        = render VersionInfo::Component.new(current_version: Rails.configuration.x.git.commit_version,
-                                            commit_time: Rails.configuration.x.git.commit_time,
-                                            github_url: Rails.configuration.x.git.home)
+        = render VersionInfo::Component.new( \
+            current_version: Rails.configuration.x.git.commit_version,
+            commit_time: Rails.configuration.x.git.commit_time,
+            github_url: Rails.configuration.x.git.home,
+          )
 
         = render AuthorLogo::Component.new
 
