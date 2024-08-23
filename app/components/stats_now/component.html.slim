@@ -63,7 +63,7 @@
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
 
     - if SensorConfig.x.exists_all?(:battery_soc, :car_battery_soc)
-      div class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 xl:tall:py-3 text-slate-500'
+      div class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 xl:tall:py-3 '
         - %i[battery_soc car_battery_soc].each do |soc_sensor|
           - if (value = calculator.public_send(soc_sensor))
             = link_to root_path(sensor: soc_sensor, timeframe:),
@@ -82,9 +82,11 @@
               div class= 'w-full flex items-center justify-between gap-2 px-1 xl:px-4'
                 - case soc_sensor
                 - when :battery_soc
-                  i.fa.fa-house.fa-sm
+                  i.fa.fa-house.fa-sm.text-slate-500
                 - when :car_battery_soc
-                  i.fa.fa-car.fa-sm
+                  i.fa.fa-car.fa-sm[
+                    class= (calculator.wallbox_ev_connected || calculator.wallbox_ev_connected.nil? ? 'text-slate-500' : 'text-slate-400')
+                  ]
 
                 = Number::Component.new(value:).to_percent( \
                     precision: 0,
