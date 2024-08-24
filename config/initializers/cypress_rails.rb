@@ -10,7 +10,7 @@ Rails.application.load_tasks unless defined?(Rake::Task)
 
 # Load the support files
 require 'active_support/testing/time_helpers'
-Dir[Rails.root.join('spec', 'cypress', 'support', '**', '*.rb')].each do |f|
+Rails.root.glob('spec/cypress/support/**/*.rb').each do |f|
   require f
 end
 
