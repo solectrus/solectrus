@@ -1,50 +1,50 @@
 /* Based on https://daisyui.com/components/radial-progress/ */
 
-.radial-badge {
+.badge {
   --value: 0;
   --size: 6rem;
   --thickness: calc(var(--size) / 15);
 }
 
-.radial-badge {
+.badge {
   @apply relative inline-grid w-full place-content-center rounded-full;
 }
 
-.radial-badge .inside {
+.badge .inside {
   @apply flex flex-col items-center;
 }
 
-.radial-badge .value {
+.badge .value {
   @apply font-medium;
 
   font-size: calc(var(--size) / 6);
 }
 
-.radial-badge .title {
+.badge .title {
   @apply font-medium uppercase;
 
   font-size: calc(var(--size) / 10);
 }
 
 @media screen(lg) {
-  .radial-badge {
+  .badge {
     --size: 8rem;
   }
 }
 
 @media screen(xl) and screen(tall) {
-  .radial-badge {
+  .badge {
     --size: 6rem;
     @apply box-content h-[var(--size)] w-[var(--size)] border-4 bg-transparent;
   }
 
-  .radial-badge:before,
-  .radial-badge:after {
+  .badge:before,
+  .badge:after {
     @apply absolute rounded-full;
     content: '';
   }
 
-  .radial-badge.percent:before {
+  .badge.percent:before {
     @apply inset-0;
 
     background:
@@ -58,7 +58,7 @@
     );
   }
 
-  .radial-badge.percent:after {
+  .badge.percent:after {
     @apply bg-current;
 
     inset: calc(50% - var(--thickness) / 2);
@@ -66,7 +66,7 @@
       translate(calc(var(--size) / 2 - 50%));
   }
 
-  .radial-badge .value {
+  .badge .value {
     @apply font-light;
 
     font-size: calc(var(--size) / 4);

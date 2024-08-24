@@ -52,7 +52,6 @@ de:
   balance_sheet:
     left: Herkunft
     right: Verwendung
-    soc: Ladestand
   calculator:
     now: Aktuell
     day: Tag

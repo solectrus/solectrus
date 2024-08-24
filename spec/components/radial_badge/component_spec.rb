@@ -7,7 +7,7 @@ describe RadialBadge::Component, type: :component do
     let(:percent) { 0 }
 
     it 'renders component' do
-      expect(page).to have_css '.radial-badge.border-transparent', text: '0%'
+      expect(page).to have_css '.badge.border-transparent', text: '0%'
     end
   end
 
@@ -17,7 +17,7 @@ describe RadialBadge::Component, type: :component do
     let(:percent) { 10 }
 
     it 'renders component' do
-      expect(page).to have_css '.radial-badge.border-red-200', text: '10%'
+      expect(page).to have_css '.badge.border-red-200', text: '10%'
     end
   end
 
@@ -27,7 +27,7 @@ describe RadialBadge::Component, type: :component do
     let(:percent) { 50 }
 
     it 'renders component' do
-      expect(page).to have_css '.radial-badge.border-orange-200', text: '50%'
+      expect(page).to have_css '.badge.border-orange-200', text: '50%'
     end
   end
 
@@ -37,7 +37,7 @@ describe RadialBadge::Component, type: :component do
     let(:percent) { 80 }
 
     it 'renders component' do
-      expect(page).to have_css '.radial-badge.border-green-200', text: '80%'
+      expect(page).to have_css '.badge.border-green-200', text: '80%'
     end
   end
 
@@ -47,7 +47,7 @@ describe RadialBadge::Component, type: :component do
     let(:percent) { nil }
 
     it 'renders component' do
-      expect(page).to have_css '.radial-badge.border-slate-200'
+      expect(page).to have_css '.badge.border-slate-200'
     end
   end
 

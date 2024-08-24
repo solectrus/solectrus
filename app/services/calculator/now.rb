@@ -13,7 +13,7 @@ class Calculator::Now < Calculator::Base
                       battery_charging_power
                       battery_discharging_power
                       battery_soc
-                      wallbox_ev_connected
+                      wallbox_car_connected
                       wallbox_power
                       case_temp
                       system_status
@@ -29,7 +29,7 @@ class Calculator::Now < Calculator::Base
     build_method(:system_status_ok, data, :to_b, allow_nil: true)
 
     build_method(:inverter_power, data, :to_f)
-    build_method(:wallbox_ev_connected, data, :to_b, allow_nil: true)
+    build_method(:wallbox_car_connected, data, :to_b, allow_nil: true)
     build_method(:wallbox_power, data, :to_f)
     build_method(:grid_import_power, data, :to_f)
     build_method(:grid_export_power, data, :to_f)

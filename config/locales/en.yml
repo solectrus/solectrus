@@ -52,7 +52,6 @@ en:
   balance_sheet:
     left: Source
     right: Usage
-    soc: Battery level
   calculator:
     now: Now
     day: Day
