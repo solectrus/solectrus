@@ -84,7 +84,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
 
     def registration_item
       return unless helpers.admin?
-      return if helpers.banner?
 
       {
         name:
