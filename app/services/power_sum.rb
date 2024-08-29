@@ -77,8 +77,9 @@ class PowerSum < Flux::Reader
   end
 
   def build_query(start:, stop:)
-    if stop&.past?
-      # Range from the past, use fast query
+    if stop&.past? && (stop - start) > 31.days
+      # Long period of time that is completely in the past:
+      # Use fast query (with aggregateWindow(1h/mean))
       <<~QUERY
         #{from_bucket}
         |> #{range(start:, stop:)}
@@ -87,8 +88,8 @@ class PowerSum < Flux::Reader
         |> sum()
       QUERY
     else
-      # Current range, use "integral" because aggregateWindow(1h/mean) is
-      # not correct for incomplete measurements
+      # Short period of time OR NOT completely in the past:
+      # Use precise query (with "integral")
       <<~QUERY
         #{from_bucket}
         |> #{range(start:, stop:)}
