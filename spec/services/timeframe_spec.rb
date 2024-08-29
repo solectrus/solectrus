@@ -888,8 +888,9 @@ describe Timeframe do
       expect(decoder.can_paginate?).to be(false)
     end
 
-    it 'has passed 1381 days' do
-      expect(decoder.days_passed).to eq(1381)
+    it 'has passed 1260 days' do
+      # 2019-05-02 (min_ate) to 2022-10-13 (current date) = 1260 days
+      expect(decoder.days_passed).to eq(1260)
     end
   end
 

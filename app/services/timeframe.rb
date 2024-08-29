@@ -82,9 +82,9 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     return 0 if now? || today? || beginning.nil?
 
     if past?
-      (ending.to_date - beginning.to_date + 1)
+      (ending.to_date - effective_beginning_date + 1)
     elsif beginning.past?
-      (Date.current - beginning.to_date)
+      (Date.current - effective_beginning_date)
     else
       0
     end
@@ -170,6 +170,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :all
       min_date&.beginning_of_year&.beginning_of_day
     end
+  end
+
+  def effective_beginning_date
+    [beginning.to_date, min_date].compact.max
   end
 
   def ending
