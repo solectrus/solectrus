@@ -130,14 +130,18 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     when :co2_reduction
       exists? :inverter_power
     when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid
-      ApplicationPolicy.power_splitter? && measurement(sensor_name).present? &&
-        field(sensor_name).present?
+      exists_with_policy? sensor_name, :power_splitter?
     when *SENSOR_NAMES
       measurement(sensor_name).present? && field(sensor_name).present?
     else
       raise ArgumentError,
             "Unknown or invalid sensor name: #{sensor_name.inspect}"
     end
+  end
+
+  def exists_with_policy?(sensor_name, policy_name)
+    ApplicationPolicy.public_send(policy_name) &&
+      measurement(sensor_name).present? && field(sensor_name).present?
   end
 
   def exists_any?(*sensor_names)
