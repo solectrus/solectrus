@@ -25,6 +25,41 @@ class BalanceSegment::Component < ViewComponent::Base
     @percent ||= calculator.public_send(:"#{sensor}_percent").to_f
   end
 
+  def costs
+    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
+
+    costs_field = "#{sensor}_costs".sub('_power', '')
+    costs_field << '_grid' unless Setting.opportunity_costs
+
+    calculator.public_send(costs_field)
+  end
+
+  def power_pv_ratio
+    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
+
+    calculator.public_send(:"#{sensor}_pv_ratio")
+  end
+
+  def power_grid_ratio
+    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
+
+    calculator.public_send(:"#{sensor}_grid_ratio")
+  end
+
+  def costs_grid
+    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
+
+    costs_field = "#{sensor}_costs_grid".sub('_power', '')
+    calculator.public_send(costs_field)
+  end
+
+  def costs_pv
+    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
+
+    costs_field = "#{sensor}_costs_pv".sub('_power', '')
+    calculator.public_send(costs_field)
+  end
+
   def now?
     parent.timeframe.now?
   end

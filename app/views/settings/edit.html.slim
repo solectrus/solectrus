@@ -8,14 +8,21 @@
   = render Nav::Sub::Component.new do |c|
     = c.with_items nav_items
 
-.pb-6.px-2
-  p.text-gray-500.text-sm.md:text-base
-    = t 'settings.general.description'
-
 = form_for(Setting.new, method: :patch, html: { class: 'px-2' }) do |f|
-  = f.group do
-    = f.text_field :plant_name, autofocus: true, value: Setting.plant_name, placeholder: t('settings.general.plant_name.placeholder')
-    = f.text_field :operator_name, value: Setting.operator_name, placeholder: t('settings.general.operator_name.placeholder')
+  = f.group title: t('settings.general.plant.description') do
+    = f.text_field :plant_name,
+                   value: Setting.plant_name,
+                   placeholder: t('settings.general.plant.plant_name.placeholder'),
+                   autofocus: true
+
+    = f.text_field :operator_name,
+                   value: Setting.operator_name,
+                   placeholder: t('settings.general.plant.operator_name.placeholder')
+
+  = f.group title: t('settings.general.options.description') do
+    = f.check_box :opportunity_costs,
+                  value: Setting.opportunity_costs,
+                  hint: t('settings.general.options.opportunity_costs.hint')
 
   = f.actions do
     = f.submit t('crud.save')

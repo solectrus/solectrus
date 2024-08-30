@@ -1,6 +1,21 @@
 class UpdateCheck
   include Singleton
 
+  %i[
+    sponsoring?
+    eligible_for_free?
+    prompt?
+    unregistered?
+    skipped_prompt?
+    skip_prompt!
+    latest_version
+    registration_status
+    subscription_plan
+    clear_cache!
+  ].each do |method|
+    define_singleton_method(method) { instance.public_send(method) }
+  end
+
   def latest_version
     latest[:version]
   end
@@ -18,8 +33,16 @@ class UpdateCheck
     subscription_plan.present?
   end
 
+  def eligible_for_free?
+    registration_status.complete? && !prompt? && !sponsoring?
+  end
+
   def prompt?
     registration_status.complete? && latest[:prompt].present?
+  end
+
+  def unregistered?
+    registration_status.in?(%w[unregistered pending])
   end
 
   def skipped_prompt?
@@ -64,7 +87,7 @@ class UpdateCheck
     Rails.cache.exist?(cache_key)
   end
 
-  def clear_cache
+  def clear_cache!
     Rails.cache.delete(cache_key)
   end
 

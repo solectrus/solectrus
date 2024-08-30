@@ -1,8 +1,9 @@
 class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   attr_reader :template, :options, :object_name
 
-  def group(&)
-    tag.div(class: 'mt-5 grid grid-cols-1 gap-6', &)
+  def group(title: nil, &)
+    tag.div(class: 'text-gray-500 text-sm md:text-base') { title } +
+      tag.div(class: 'mb-10 pt-4 grid grid-cols-1 gap-4', &)
   end
 
   def actions(&)
@@ -45,7 +46,9 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     tag.div class: 'form-control' do
       label(method, class: 'label') do
         tag.span(label_text(method, merged_options), class: 'label-text')
-      end + super(method, merged_options) + errors(method)
+      end + super(method, merged_options) +
+        tag.span(merged_options[:hint], class: 'mt-3 label-hint') +
+        errors(method)
     end
   end
 
@@ -58,6 +61,19 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
       label(method, class: 'label') do
         tag.span(label_text(method, merged_options), class: 'label-text')
       end + super(method, merged_options) + errors(method)
+    end
+  end
+
+  def check_box(method, options = {}) # rubocop:disable Style/OptionHash
+    default_options = { class: 'form-checkbox mt-1' }
+    merged_options = default_options.merge(options)
+
+    tag.div class: 'form-control flex-row items-start gap-3' do
+      super(method, merged_options) +
+        label(method, class: 'label flex flex-col py-0') do
+          tag.span(label_text(method, merged_options), class: 'label-text') +
+            tag.span(merged_options[:hint], class: 'label-hint')
+        end + errors(method)
     end
   end
 

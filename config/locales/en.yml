@@ -31,7 +31,11 @@ en:
     inverter_power: PV generated
     inverter_power_forecast: Forecast
     house_power: Home consumption
+    house_power_grid: Grid
+    house_power_pv: PV
     wallbox_power: EV charging
+    wallbox_power_grid: Grid
+    wallbox_power_pv: PV
     grid_import_power: Grid import
     grid_export_power: Grid export
     grid_power: Grid
@@ -42,6 +46,8 @@ en:
     case_temp: Temperature
     grid_export_limit: Limitation
     heatpump_power: Heat pump
+    heatpump_power_grid: Grid
+    heatpump_power_pv: PV
   balance_sheet:
     left: Origin
     right: Usage
@@ -61,8 +67,6 @@ en:
     co2_reduction: CO₂ reduction
     co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share
-    house_costs: House costs
-    wallbox_costs: EV costs
     total_costs: Total costs
     autarky: Autarky
     time: Last measurement taken
@@ -91,11 +95,16 @@ en:
   settings:
     general:
       name: General
-      plant_name:
-        placeholder: e.g. SENEC.Home V3, 28 modules on the house roof in south orientation with 9.24 kWp
-      operator_name:
-        placeholder: e.g. John Doe from Foo City
-      description: Optional information on the photovoltaic system and the operator. Displayed on the essentials page only.
+      plant:
+        description: Information on the photovoltaic system and the operator. Displayed on the essentials page only.
+        plant_name:
+          placeholder: e.g. SENEC.Home V3, 28 modules on the house roof in south orientation with 9.24 kWp
+        operator_name:
+          placeholder: e.g. John Doe from Foo City
+      options:
+        description: Options
+        opportunity_costs:
+          hint: Consider missed feed-in compensation as part of electricity costs
     prices:
       edit: Edit price
       new: Add price
@@ -145,3 +154,4 @@ en:
       setting:
         plant_name: Name of the plant
         operator_name: Name of the operator
+        opportunity_costs: Opportunity costs

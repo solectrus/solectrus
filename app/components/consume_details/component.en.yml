@@ -1,7 +1,15 @@
 en:
-  title: Electricity consumption costs
-  breakdown:
-    title: Estimated breakdown
-    explanation: The grid consumption is primarily attributed to the EV, the remaining to the home consumption.
+  grid:
+    header: Costs from grid-consumption
+    import_power: Imported from the grid
+    import_costs: Import costs
+
+  pv:
+    header: Costs from self-consumption
+    self_consumption: Direct consumption
+    opportunity_costs: Lost feed-in tariff
+
+  total_costs: Total costs
+
   from: from
   to: to

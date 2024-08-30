@@ -1,4 +1,4 @@
-class Calculator::Range < Calculator::Base
+class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   def initialize(timeframe)
     super()
 
@@ -18,6 +18,10 @@ class Calculator::Range < Calculator::Base
       battery_charging_power
       heatpump_power
     ]
+
+    %i[house_power_grid wallbox_power_grid heatpump_power_grid].each do |sensor|
+      result << sensor if SensorConfig.x.exists?(sensor)
+    end
 
     # Include forecast for days only
     result << :inverter_power_forecast if @timeframe.day?
@@ -40,6 +44,11 @@ class Calculator::Range < Calculator::Base
     build_method_from_array(:battery_discharging_power, data, :to_f)
     build_method_from_array(:battery_charging_power, data, :to_f)
     build_method_from_array(:heatpump_power, data, :to_f)
+
+    build_method_from_array(:house_power_grid, data)
+    build_method_from_array(:wallbox_power_grid, data)
+    build_method_from_array(:heatpump_power_grid, data)
+
     return unless @timeframe.day?
 
     build_method_from_array(:inverter_power_forecast, data, :to_f)
@@ -76,6 +85,23 @@ class Calculator::Range < Calculator::Base
     -section_sum do |index|
       grid_import_power_array[index] * electricity_price_array[index]
     end
+  end
+
+  def direct_consumption
+    return unless consumption && grid_import_power
+
+    consumption - grid_import_power
+  end
+
+  def opportunity_costs
+    section_sum do |index|
+      (consumption_array[index] - grid_import_power_array[index]) *
+        feed_in_tariff_array[index]
+    end
+  end
+
+  def total_costs
+    paid.abs + opportunity_costs.abs
   end
 
   def got
@@ -133,34 +159,123 @@ class Calculator::Range < Calculator::Base
     (battery_savings * 100.0 / savings).round
   end
 
-  def wallbox_costs
-    return unless wallbox_power && grid_import_power
+  def electricity_prices
+    @electricity_prices ||= sections.pluck(:electricity_price).sort
+  end
 
-    @wallbox_costs ||=
-      -section_sum do |index|
-        [wallbox_power_array[index], grid_import_power_array[index]].min *
-          electricity_price_array[index]
-      end
+  def feed_in_tariffs
+    @feed_in_tariffs ||= sections.pluck(:feed_in_tariff).sort
+  end
+
+  # Wallbox
+
+  def wallbox_power_grid_ratio
+    return unless wallbox_power_grid
+
+    if wallbox_power.zero?
+      0
+    else
+      (wallbox_power_grid.fdiv(wallbox_power) * 100).round.clamp(0, 100)
+    end
+  end
+
+  def wallbox_power_pv_ratio
+    return unless wallbox_power_grid_ratio
+
+    100 - wallbox_power_grid_ratio
+  end
+
+  def wallbox_costs_grid
+    sections.each_with_index.sum do |section, index|
+      wallbox_power_grid_array[index].to_f * section[:electricity_price] / 1000
+    end
+  end
+
+  def wallbox_costs_pv
+    sections.each_with_index.sum do |section, index|
+      (wallbox_power_array[index] - wallbox_power_grid_array[index].to_f) *
+        section[:feed_in_tariff] / 1000
+    end
+  end
+
+  def wallbox_costs
+    return unless wallbox_costs_grid && wallbox_costs_pv
+
+    wallbox_costs_grid + wallbox_costs_pv
+  end
+
+  # Heat pump
+
+  def heatpump_power_grid_ratio
+    return unless heatpump_power_grid
+
+    if heatpump_power.zero?
+      0
+    else
+      (heatpump_power_grid.fdiv(heatpump_power) * 100).round.clamp(0, 100)
+    end
+  end
+
+  def heatpump_power_pv_ratio
+    return unless heatpump_power_grid_ratio
+
+    100 - heatpump_power_grid_ratio
+  end
+
+  def heatpump_costs_grid
+    sections.each_with_index.sum do |section, index|
+      heatpump_power_grid_array[index].to_f * section[:electricity_price] / 1000
+    end
+  end
+
+  def heatpump_costs_pv
+    sections.each_with_index.sum do |section, index|
+      (heatpump_power_array[index] - heatpump_power_grid_array[index].to_f) *
+        section[:feed_in_tariff] / 1000
+    end
+  end
+
+  def heatpump_costs
+    return unless heatpump_costs_grid && heatpump_costs_pv
+
+    heatpump_costs_grid + heatpump_costs_pv
+  end
+
+  # House Power
+
+  def house_power_grid_ratio
+    return unless house_power_grid
+
+    if house_power.zero?
+      0
+    else
+      (house_power_grid.fdiv(house_power) * 100).round.clamp(0, 100)
+    end
+  end
+
+  def house_power_pv_ratio
+    return unless house_power_grid_ratio
+
+    100 - house_power_grid_ratio
+  end
+
+  def house_costs_grid
+    sections.each_with_index.sum do |section, index|
+      house_power_grid_array[index].to_f * section[:electricity_price] / 1000
+    end
+  end
+
+  def house_costs_pv
+    sections.each_with_index.sum do |section, index|
+      (house_power_array[index] - house_power_grid_array[index].to_f) *
+        section[:feed_in_tariff] / 1000
+    end
   end
 
   def house_costs
-    return unless house_power
+    return unless house_costs_grid && house_costs_pv
 
-    @house_costs ||=
-      -section_sum do |index|
-        total_costs =
-          (grid_import_power_array[index] * electricity_price_array[index])
-
-        wallbox_costs =
-          [wallbox_power_array[index], grid_import_power_array[index]].min *
-            electricity_price_array[index]
-
-        total_costs - wallbox_costs
-      end
-  end
-
-  def electricity_prices
-    @electricity_prices ||= sections.pluck(:electricity_price).sort
+    house_costs_grid + house_costs_pv
   end
 
   private

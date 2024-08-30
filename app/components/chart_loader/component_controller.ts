@@ -146,16 +146,49 @@ export default class extends Controller<HTMLCanvasElement> {
         return tooltipItem.raw !== null;
       };
 
+      const isStacked = data.datasets.some((dataset) => dataset.stack);
+
+      // Increase font size of tooltip footer (used for sum of stacked values)
+      options.plugins.tooltip.footerFont = { size: 20 };
+
       options.plugins.tooltip.callbacks = {
-        label: (context) =>
-          `${data.datasets.length > 1 ? context.dataset.label + ': ' : ''}${
-            context.parsed._custom
+        label: (tooltipItem) => {
+          let result: string =
+            !(isStacked && !tooltipItem.dataset.stack) &&
+            data.datasets.length > 1
+              ? `${tooltipItem.dataset.label} `
+              : '';
+
+          if (isStacked) {
+            if (tooltipItem.dataset.stack && data.datasets.length) {
+              // Sum is the value of the first dataset
+              const sum = data.datasets[0].data[
+                tooltipItem.dataIndex
+              ] as number;
+
+              if (sum)
+                result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+            }
+          } else {
+            // Format value number
+            result += tooltipItem.parsed._custom
               ? this.formattedInterval(
-                  context.parsed._custom.min,
-                  context.parsed._custom.max,
+                  tooltipItem.parsed._custom.min,
+                  tooltipItem.parsed._custom.max,
                 )
-              : this.formattedNumber(context.parsed.y)
-          }`,
+              : this.formattedNumber(tooltipItem.parsed.y);
+          }
+
+          return result;
+        },
+
+        footer: (tooltipItems) => {
+          if (isStacked && tooltipItems.length) {
+            const sum = tooltipItems[0].parsed.y;
+
+            if (sum) return this.formattedNumber(sum);
+          }
+        },
       };
     }
 
@@ -204,6 +237,9 @@ export default class extends Controller<HTMLCanvasElement> {
       basePosition,
       datasetExtent / extent,
       minAlpha,
+
+      // Stacked bar must not be gradiented, just use the given Alpha
+      dataset.stack ? minAlpha : 1,
     );
 
     // Replace background color with gradient
