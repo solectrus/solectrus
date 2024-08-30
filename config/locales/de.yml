@@ -42,6 +42,9 @@ de:
     case_temp: Temperatur
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
+    mixed_chart: Kombinierte Ansicht
+    house_power_total_consumed: Gesamtverbrauch
+    house_power_self_consumed: Eigenverbrauch
   balance_sheet:
     left: Herkunft
     right: Verwendung
