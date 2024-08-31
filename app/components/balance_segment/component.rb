@@ -27,6 +27,7 @@ class BalanceSegment::Component < ViewComponent::Base
 
   def costs
     return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
+    return unless ApplicationPolicy.power_splitter?
 
     costs_field = "#{sensor}_costs".sub('_power', '')
     costs_field << '_grid' unless Setting.opportunity_costs
