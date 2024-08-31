@@ -9,13 +9,14 @@ describe UpdateCheck do
     context 'when the request succeeds', vcr: { cassette_name: 'version' } do
       it do
         is_expected.to eq(
-          { version: 'v0.15.0', registration_status: 'unregistered' },
+          { version: 'v0.15.1', registration_status: 'unregistered' },
         )
       end
 
       it 'has shortcuts' do
-        expect(instance.latest_version).to eq('v0.15.0')
+        expect(instance.latest_version).to eq('v0.15.1')
         expect(instance.registration_status).to be_unregistered
+        expect(instance).to be_unregistered
       end
     end
 
@@ -169,7 +170,7 @@ describe UpdateCheck do
       # Fill the cache
       VCR.use_cassette('version') { instance.latest }
 
-      expect { described_class.instance.clear_cache }.to change(
+      expect { described_class.instance.clear_cache! }.to change(
         instance,
         :cached?,
       ).from(true).to(false)

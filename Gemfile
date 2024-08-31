@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.2.0'
+gem 'rails', '~> 7.2.1'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -150,9 +150,9 @@ end
 
 group :production do
   # Lock staging servers from search engines and prying eyes. (http://lockup.interdiscipline.com)
-  # Fork for Rails 7.2 compatibility.
-  # Change this line when https://github.com/interdiscipline/lockup/pull/75 is merged.
-  gem 'lockup', github: 'ledermann/lockup', branch: 'rails-7-2'
+  # Use unreleased version from GitHub to support Rails 7.2
+  # TODO: Change this line after the next release
+  gem 'lockup', github: 'interdiscipline/lockup'
 
   # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')

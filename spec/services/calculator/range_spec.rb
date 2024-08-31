@@ -44,8 +44,6 @@ describe Calculator::Range do
       expect(calculator.battery_savings).to eq(33.57)
       expect(calculator.battery_savings_percent).to eq(29)
 
-      expect(calculator.wallbox_costs).to eq(-47.90)
-      expect(calculator.house_costs).to eq(0)
       expect(calculator.paid).to eq(-47.90)
     end
   end
@@ -72,8 +70,6 @@ describe Calculator::Range do
     end
 
     it 'calculates' do
-      expect(calculator.wallbox_costs).to eq(-47.68)
-      expect(calculator.house_costs).to eq(-44.01)
       expect(calculator.paid).to eq(-91.69)
     end
   end
@@ -100,8 +96,6 @@ describe Calculator::Range do
     end
 
     it 'calculates' do
-      expect(calculator.wallbox_costs).to eq(-10.13)
-      expect(calculator.house_costs).to eq(-4.25)
       expect(calculator.paid).to eq(-14.37)
     end
   end
@@ -130,9 +124,85 @@ describe Calculator::Range do
     it 'calculates' do
       expect(calculator.forecast_deviation).to be_nil
 
-      expect(calculator.wallbox_costs).to eq(-3.59)
-      expect(calculator.house_costs).to eq(0)
       expect(calculator.paid).to eq(-3.59)
+    end
+  end
+
+  context 'when power-splitter values are present' do
+    let(:timeframe) { Timeframe.new('2024-03-07') }
+
+    before do
+      allow(calculator).to receive_messages(
+        grid_import_power_array: [3000],
+        #
+        house_power: 10_000,
+        house_power_array: [10_000],
+        house_power_grid: 5000,
+        house_power_grid_array: [5000],
+        #
+        heatpump_power: 3000,
+        heatpump_power_array: [3000],
+        heatpump_power_grid: 1500,
+        heatpump_power_grid_array: [1500],
+        #
+        wallbox_power: 20_000,
+        wallbox_power_array: [20_000],
+        wallbox_power_grid: 10_000,
+        wallbox_power_grid_array: [10_000],
+      )
+    end
+
+    it 'calculates' do
+      expect(calculator.wallbox_power_grid_ratio).to eq(50)
+      expect(calculator.wallbox_power_pv_ratio).to eq(50)
+      expect(calculator.wallbox_costs).to eq(5.299)
+
+      expect(calculator.house_power_grid_ratio).to eq(50)
+      expect(calculator.house_power_pv_ratio).to eq(50)
+      expect(calculator.house_costs).to eq(2.6495)
+
+      expect(calculator.heatpump_power_grid_ratio).to eq(50)
+      expect(calculator.heatpump_power_pv_ratio).to eq(50)
+      expect(calculator.heatpump_costs).to eq(0.79485)
+    end
+  end
+
+  context 'when power-splitter values are present, but zero' do
+    let(:timeframe) { Timeframe.new('2024-03-07') }
+
+    before do
+      allow(calculator).to receive_messages(
+        grid_import_power_array: [0],
+        #
+        house_power: 0,
+        house_power_array: [0],
+        house_power_grid: 0,
+        house_power_grid_array: [0],
+        #
+        heatpump_power: 0,
+        heatpump_power_array: [0],
+        heatpump_power_grid: 0,
+        heatpump_power_grid_array: [0],
+        #
+        wallbox_power: 0,
+        wallbox_power_array: [0],
+        wallbox_power_grid: 0,
+        wallbox_power_grid_array: [0],
+      )
+    end
+
+    it 'calculates' do
+      expect(calculator.wallbox_power_grid_ratio).to eq(0)
+      expect(calculator.wallbox_power_pv_ratio).to eq(100)
+      expect(calculator.wallbox_costs).to eq(0)
+
+      expect(calculator.house_power_grid_ratio).to eq(0)
+      expect(calculator.house_power_pv_ratio).to eq(100)
+      expect(calculator.house_costs).to eq(0)
+
+      expect(calculator.heatpump_power_grid_ratio).to eq(0)
+      expect(calculator.heatpump_power_pv_ratio).to eq(100)
+      expect(calculator.heatpump_costs).to eq(0)
     end
   end
 end

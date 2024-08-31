@@ -31,7 +31,11 @@ de:
     inverter_power: Erzeugung
     inverter_power_forecast: Prognose
     house_power: Haus-Verbrauch
+    house_power_grid: Netzbezug
+    house_power_pv: Photovoltaik
     wallbox_power: E-Auto
+    wallbox_power_grid: Netzbezug
+    wallbox_power_pv: Photovoltaik
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
     grid_power: Netz
@@ -42,6 +46,8 @@ de:
     case_temp: Temperatur
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
+    heatpump_power_grid: Netzbezug
+    heatpump_power_pv: Photovoltaik
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -61,8 +67,6 @@ de:
     co2_reduction: CO₂-Reduktion
     co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Anteil Akku
-    house_costs: Anteil Haus
-    wallbox_costs: Anteil E-Auto
     total_costs: Kosten
     autarky: Autarkie
     time: Letzte Messung vor
@@ -91,11 +95,16 @@ de:
   settings:
     general:
       name: Allgemein
-      plant_name:
-        placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
-      operator_name:
-        placeholder: z.B. Max Mustermann in Musterstadt
-      description: Optionale Angaben zur Photovoltaik-Anlage und zum Betreiber. Wird nur auf der Seite der Einzelwerte angezeigt.
+      plant:
+        description: Angaben zur Photovoltaik-Anlage und zum Betreiber. Wird nur auf der Seite der Einzelwerte angezeigt.
+        plant_name:
+          placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
+        operator_name:
+          placeholder: z.B. Max Mustermann in Musterstadt
+      options:
+        description: Optionen
+        opportunity_costs:
+          hint: Entgangene Einspeisevergütung als Teil der Stromkosten betrachten
     prices:
       edit: Preis bearbeiten
       new: Neuer Preis
@@ -145,3 +154,4 @@ de:
       setting:
         plant_name: Bezeichung der Anlage
         operator_name: Name des Betreibers
+        opportunity_costs: Opportunitätskosten

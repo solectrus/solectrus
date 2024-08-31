@@ -11,6 +11,8 @@ class PriceList::Component < ViewComponent::Base
     return if index == prices.length - 1
 
     previous_price = prices[index + 1]
+    return if previous_price.value.zero?
+
     value = ((price.value / previous_price.value) - 1) * 100
 
     ChangeComponent.new(name:, value:).call

@@ -1,10 +1,9 @@
 module ApplicationHelper
   def banner?
     return false if controller.is_a?(ErrorsController)
-    return false if UpdateCheck.instance.skipped_prompt?
+    return false if UpdateCheck.skipped_prompt?
 
-    UpdateCheck.instance.prompt? ||
-      UpdateCheck.instance.registration_status.in?(%w[unregistered pending])
+    UpdateCheck.prompt? || UpdateCheck.unregistered?
   end
 
   def extra_stimulus_controllers(*controller_names)

@@ -51,10 +51,13 @@
       i.fa.fa-circle-exclamation.fa-xs
 
     .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
-      .flex.flex-col.items-center.justify-center
-        i.fa class= icon_class
-        = I18n.t("sensors.#{sensor}")
-        br
+      .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
+        div
+          i.fa.fa-2xl class= icon_class
+
+        .uppercase
+          = I18n.t("sensors.#{sensor}")
+
         - if now?
           = Number::Component.new(value:).to_watt(precision: 3)
 
@@ -66,3 +69,26 @@
 
         - else
           = Number::Component.new(value:).to_watt_hour(precision: 3)
+
+          - if costs
+            div
+              small
+                = Number::Component.new(value: power_pv_ratio).to_percent(max_precision: 0, klass: 'text-black')
+                =< t('.generated')
+              .w-full.flex.gap-px.rounded.overflow-hidden
+                - if power_pv_ratio.positive?
+                  .h-2.bg-green-600[
+                    style= "width: #{power_pv_ratio}%;"
+                  ]
+                - if power_grid_ratio.positive?
+                  .h-2.bg-red-600[
+                    style= "width: #{power_grid_ratio}%;"
+                  ]
+
+            = Number::Component.new(value: costs).to_eur(klass: 'text-red-700 text-xl')
+
+          - elsif sensor == :grid_export_power
+            = Number::Component.new(value: calculator.got).to_eur(klass: 'text-green-700 text-xl')
+
+          - elsif sensor == :grid_import_power
+            = Number::Component.new(value: calculator.paid.abs).to_eur(klass: 'text-red-700 text-xl')

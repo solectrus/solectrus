@@ -20,6 +20,7 @@ class Setting < RailsSettings::Base
 
   field :plant_name, type: :string
   field :operator_name, type: :string
+  field :opportunity_costs, type: :boolean, default: false
 
   def self.seed!
     Setting.setup_id = nil if Setting.setup_id.to_i.zero?

@@ -84,12 +84,11 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
 
     def registration_item
       return unless helpers.admin?
-      return if helpers.banner?
 
       {
         name:
           (
-            if UpdateCheck.instance.prompt?
+            if UpdateCheck.prompt?
               t('layout.registration_and_sponsoring')
             else
               t('layout.registration')

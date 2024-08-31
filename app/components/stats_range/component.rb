@@ -7,4 +7,8 @@ class StatsRange::Component < ViewComponent::Base
   end
 
   attr_accessor :calculator, :timeframe, :sensor
+
+  def costs
+    Setting.opportunity_costs ? calculator.total_costs : calculator.paid.abs
+  end
 end

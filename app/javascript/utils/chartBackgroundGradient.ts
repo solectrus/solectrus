@@ -7,6 +7,7 @@ export default class ChartBackgroundGradient {
     private basePosition: number, // Vertical position of the x-Axis in the given Chart (between 0 and 1)
     private extent: number, // Extent of the dataset in the given Chart (between 0 and 1)
     private minAlpha: number,
+    private maxAlpha: number,
   ) {}
 
   // For caching the gradient so we don't have to recreate it every time
@@ -44,7 +45,7 @@ export default class ChartBackgroundGradient {
 
     const colorOpaque = this.hexToRGBA(
       this.originalColor,
-      Math.max(this.extent, this.minAlpha),
+      Math.min(Math.max(this.extent, this.minAlpha), this.maxAlpha),
     );
     const colorTransparent = this.hexToRGBA(this.originalColor, this.minAlpha);
 
