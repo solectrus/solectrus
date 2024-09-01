@@ -20,7 +20,7 @@ class Calculator::Base
       end
 
     build_method("#{key}_array") { values }
-    build_method(key) { values.compact.sum }
+    build_method(key) { values.compact.presence&.sum }
   end
 
   # Inverter
