@@ -5,12 +5,12 @@ class UpdateCheck
     sponsoring?
     eligible_for_free?
     prompt?
+    simple_prompt?
     unregistered?
     skipped_prompt?
     skip_prompt!
     latest_version
     registration_status
-    subscription_plan
     clear_cache!
   ].each do |method|
     define_singleton_method(method) { instance.public_send(method) }
@@ -39,6 +39,10 @@ class UpdateCheck
 
   def prompt?
     registration_status.complete? && latest[:prompt].present?
+  end
+
+  def simple_prompt?
+    !sponsoring? && !eligible_for_free?
   end
 
   def unregistered?

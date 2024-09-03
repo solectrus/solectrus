@@ -1,10 +1,7 @@
-- unless sponsoring?
+- if prompt?
   - markup = capture do
     div data-controller= 'tippy' title= tooltip
-      - if unregistered? || pending? || prompt?
-        i.fa.fas.fa-lg.fa-circle-exclamation.text-yellow-300
-      - elsif unknown?
-        i.fa.fas.fa-lg.fa-circle-exclamation.text-red-300
+      i.fa.fas.fa-lg.fa-circle-exclamation class= (unknown? ? 'text-red-300' : 'text-yellow-300')
 
   - if admin
     = link_to markup, registration_path
