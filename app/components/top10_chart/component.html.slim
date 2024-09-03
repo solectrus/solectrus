@@ -4,7 +4,7 @@
 - else
   .table.w-full id= "chart-#{period}"
     - top10_for_period.each_with_index do |record, index|
-      = link_to timeframe_path(record), class: 'table-row hover:bg-gray-100' do
+      = link_to timeframe_path(record), class: 'table-row hover:bg-gray-100 dark:hover:bg-gray-900' do
         .table-cell.align-middle.p-2.tabular-nums.w-1.text-right.font-bold class= text_classes(record)
           = "#{index + 1}."
         .table-cell.align-middle.p-2.tabular-nums.w-1.whitespace-nowrap.text-left class= text_classes(record)

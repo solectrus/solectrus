@@ -78,7 +78,7 @@ html lang= I18n.locale
 
     = yield :head
 
-  body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none.font-sans.antialiased[
+  body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none.font-sans.antialiased.dark:from-gray-800.dark:to-black[
     data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
@@ -99,15 +99,15 @@ html lang= I18n.locale
 
     main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
       .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
-        .bg-white.sm:rounded-t-lg.lg:rounded-lg.lg:shadow.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col
+        .bg-white.dark:bg-gray-800.sm:rounded-t-lg.lg:rounded-lg.lg:shadow.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col
           = yield
       = turbo_frame_tag 'modal', target: '_top'
 
     - if content_for?(:bottom_nav)
-      .w-full.bg-indigo-600.z-10.lg:hidden
+      .w-full.bg-indigo-600.dark:bg-indigo-900.z-10.lg:hidden
         = yield :bottom_nav
 
-    footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8
+    footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
       .flex.items-center.gap-2
         = link_to 'https://solectrus.de',
                   class: 'tracking-wider',

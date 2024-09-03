@@ -1,4 +1,4 @@
-.relative.z-50.hidden[
+.relative.z-50.hidden.text-gray-900.dark:text-gray-400[
   aria-labelledby= 'slide-over-title'
   role= 'dialog'
   aria-modal= 'true'
@@ -29,14 +29,14 @@
         data-transition-leave-end=   'translate-x-full'
       ]
         .pointer-events-auto.w-screen.max-w-md
-          .flex.h-full.flex-col.overflow-y-scroll.bg-white.pt-6.shadow-xl
+          .flex.h-full.flex-col.overflow-y-scroll.bg-white.dark:bg-slate-800.pt-6.shadow-xl
             .px-4.sm:px-6
               .flex.items-start.justify-between
-                h2#slide-over-title.text-base.font-semibold.leading-6.text-gray-900
+                h2#slide-over-title.text-base.font-semibold.leading-6.text-gray-900.dark:text-gray-300
                   | SOLECTRUS
 
                 .ml-3.flex.h-7.items-center
-                  button.relative.rounded-md.bg-white.text-gray-400.hover:text-gray-500.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:ring-offset-2[
+                  button.relative.rounded-md.bg-transparent.text-gray-400.hover:text-gray-500.dark:hover:text-gray-300.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:ring-offset-2[
                     type= 'button'
                     data-action= 'click->slide-over--component#close'
                   ]

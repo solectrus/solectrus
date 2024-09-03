@@ -60,23 +60,23 @@ class EssentialsTile::Component < ViewComponent::Base
   }.freeze
 
   BACKGROUND_COLOR = {
-    green: 'bg-green-600',
-    yellow: 'bg-yellow-600',
-    red: 'bg-red-600',
-    gray: 'bg-gray-600',
-    sky: 'bg-sky-600',
-    violet: 'bg-violet-600',
+    green: 'bg-green-600 dark:bg-green-800',
+    yellow: 'bg-yellow-600 dark:bg-yellow-800',
+    red: 'bg-red-600 dark:bg-red-800',
+    gray: 'bg-gray-600 dark:bg-gray-800',
+    sky: 'bg-sky-600 dark:bg-sky-800',
+    violet: 'bg-violet-600 dark:bg-violet-800',
   }.freeze
 
-  TEXT_PRIMARY_COLOR = 'text-white'.freeze
+  TEXT_PRIMARY_COLOR = 'text-white dark:opacity-75'.freeze
 
   TEXT_SECONDARY_COLOR = {
-    green: 'text-green-100',
-    yellow: 'text-yellow-100',
-    red: 'text-red-100',
-    gray: 'text-gray-100',
-    sky: 'text-sky-100',
-    violet: 'text-violet-100',
+    green: 'text-green-100 dark:text-green-400',
+    yellow: 'text-yellow-100 dark:text-yellow-400',
+    red: 'text-red-100 dark:text-red-400',
+    gray: 'text-gray-100 dark:text-gray-400',
+    sky: 'text-sky-100 dark:text-sky-400',
+    violet: 'text-violet-100 dark:text-violet-400',
   }.freeze
 
   private_constant :BACKGROUND_COLOR
@@ -93,7 +93,10 @@ class EssentialsTile::Component < ViewComponent::Base
     when :savings
       t("calculator.#{sensor}")
     when :co2_reduction
-      t('calculator.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor)
+      t(
+        'calculator.co2_reduction_note',
+        co2_emission_factor: Rails.configuration.x.co2_emission_factor,
+      )
     else
       t("sensors.#{sensor}")
     end
@@ -105,11 +108,11 @@ class EssentialsTile::Component < ViewComponent::Base
     number = Number::Component.new(value:)
     case sensor
     when :savings
-      number.to_eur(klass: 'text-inherit')
+      number.to_eur(klass: '!text-inherit')
     when :co2_reduction
       number.to_weight
     when :autarky, :battery_soc
-      number.to_percent(klass: 'text-inherit')
+      number.to_percent(klass: '!text-inherit')
     else
       timeframe.now? ? number.to_watt : number.to_watt_hour
     end

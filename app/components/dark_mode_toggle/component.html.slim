@@ -1,0 +1,19 @@
+- if available?
+  div[
+    data-controller= 'dark-mode-toggle--component'
+    data-dark-mode-toggle--component-light-value= t('.enable_light_mode')
+    data-dark-mode-toggle--component-dark-value= t('.enable_dark_mode')
+  ]
+    button.text-gray-300.dark:text-gray-400[
+      type= 'button'
+      data-dark-mode-toggle--component-target= 'button'
+      data-action= 'dark-mode-toggle--component#toggle'
+    ]
+      i.fa.fa-solid.fa-lightbulb.fa-lg.inline.dark:hidden
+      i.fa.fa-regular.fa-lightbulb.fa-lg.hidden.dark:inline
+- else
+  = link_to registration_url,
+            class: 'text-gray-300',
+            title: t('.enable_dark_mode'),
+            data: { controller: 'tippy' } do
+    i.fa.fa-solid.fa-lightbulb.fa-lg

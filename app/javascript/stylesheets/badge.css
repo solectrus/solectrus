@@ -35,7 +35,7 @@
 @media screen(xl) and screen(tall) {
   .badge {
     --size: 6rem;
-    @apply box-content h-[var(--size)] w-[var(--size)] border-4 bg-transparent;
+    @apply box-content h-[var(--size)] w-[var(--size)] border-4 border-transparent;
   }
 
   .badge:before,

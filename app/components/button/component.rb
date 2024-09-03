@@ -54,6 +54,7 @@ class Button::Component < ViewComponent::Base
       focus:ring-2
       focus:ring-offset-2
       focus:ring-indigo-500
+      dark:focus:ring-offset-slate-800
       click-animation
     ] +
       case style
@@ -69,7 +70,9 @@ class Button::Component < ViewComponent::Base
   def btn_primary_class
     %w[
       text-white
+      dark:text-gray-300
       bg-indigo-600
+      dark:bg-indigo-800
       hover:bg-indigo-700
       shadow-sm
       px-3

@@ -9,6 +9,8 @@ import displayModes from 'tailwindcss-displaymodes';
 export default {
   content: ['./app/**/*.{slim,rb}', './app/javascript/**/*.{js,ts}'],
 
+  darkMode: 'selector',
+
   theme: {
     extend: {
       fontFamily: {

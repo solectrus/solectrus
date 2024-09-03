@@ -1,4 +1,4 @@
-class Number::Component < ViewComponent::Base
+class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   # TODO: Refactor this class to make it more readable and maintainable
   #
   # It would be better if the component would receive the number and unit and then
@@ -40,15 +40,25 @@ class Number::Component < ViewComponent::Base
     end
   end
 
-  def to_eur(max_precision: nil, precision: nil, klass: nil)
+  def to_eur(max_precision: nil, precision: nil, klass: nil, negative: false)
     return unless value
 
     max_precision ||= value.abs < 10 ? 2 : 0 unless precision
+    negative ||= value.negative?
 
     styled_number(
       formatted_number(value, max_precision:, precision:),
       unit: '&euro;'.html_safe,
-      klass: klass || (value.negative? ? %w[text-red-700] : %w[text-green-700]),
+      klass: [
+        klass,
+        (
+          if negative
+            %w[text-red-700 dark:text-red-400]
+          else
+            %w[text-green-700 dark:text-green-400]
+          end
+        ),
+      ],
     )
   end
 
@@ -66,13 +76,24 @@ class Number::Component < ViewComponent::Base
     end
   end
 
-  def to_eur_per_kwh(klass: nil)
+  def to_eur_per_kwh(negative: nil, klass: nil)
     return unless value
+
+    negative ||= value.negative?
 
     styled_number(
       formatted_number(value, max_precision: 4),
       unit: '&euro;/kWh'.html_safe,
-      klass: klass || (value.negative? ? %w[text-red-700] : %w[text-green-700]),
+      klass: [
+        klass,
+        (
+          if negative
+            %w[text-red-700 dark:text-red-400]
+          else
+            %w[text-green-700 dark:text-green-400]
+          end
+        ),
+      ],
     )
   end
 
@@ -82,7 +103,15 @@ class Number::Component < ViewComponent::Base
     styled_number(
       formatted_number(value, max_precision:, precision:),
       unit: '%',
-      klass: klass || (value.positive? ? %w[text-green-500] : %w[text-red-500]),
+      klass:
+        klass ||
+          (
+            if value.positive?
+              %w[text-green-500 dark:text-green-400]
+            else
+              %w[text-red-500 dark:text-red-400]
+            end
+          ),
     )
   end
 

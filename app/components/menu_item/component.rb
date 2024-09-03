@@ -27,7 +27,13 @@ class MenuItem::Component < ViewComponent::Base
   private_constant :CSS_CLASSES
 
   def call(with_icon: false, css_extra: nil)
-    return tag.hr(class: 'my-2 hidden lg:block') if name == '-'
+    if name == '-'
+      return(
+        tag.hr(
+          class: 'my-2 hidden lg:block border-gray-200 dark:border-gray-700',
+        )
+      )
+    end
 
     if href
       render_link(with_icon:, css_extra:)
