@@ -749,11 +749,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 22.5.2
-  resolution: "@types/node@npm:22.5.2"
+  version: 22.5.3
+  resolution: "@types/node@npm:22.5.3"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/624a7fd76229eacc6c158eb3b9afd55b811d7f01976c5f92c630d5b9d47047cc218928c343988484a165ac400e5eb6fe70ea300fc7242deeb0e920c7724290f6
+  checksum: 10c0/a068e31dd424a0eadfba7d9a5c5b415b76cfd729f3caa299674ad257f59df85c5fe77f1d0a343e811864c790baefb9003d7627618ee3cf85400af338481ba29f
   languageName: node
   linkType: hard
 
@@ -4835,11 +4835,11 @@ __metadata:
   linkType: hard
 
 "yaml@npm:^2.3.4":
-  version: 2.5.0
-  resolution: "yaml@npm:2.5.0"
+  version: 2.5.1
+  resolution: "yaml@npm:2.5.1"
   bin:
     yaml: bin.mjs
-  checksum: 10c0/771a1df083c8217cf04ef49f87244ae2dd7d7457094425e793b8f056159f167602ce172aa32d6bca21f787d24ec724aee3cecde938f6643564117bd151452631
+  checksum: 10c0/40fba5682898dbeeb3319e358a968fe886509fab6f58725732a15f8dda3abac509f91e76817c708c9959a15f786f38ff863c1b88062d7c1162c5334a7d09cb4a
   languageName: node
   linkType: hard
 
