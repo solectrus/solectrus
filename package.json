@@ -30,7 +30,7 @@
     "@tailwindcss/forms": "^0.5.8",
     "@types/throttle-debounce": "^5.0.2",
     "autoprefixer": "^10.4.20",
-    "cypress": "^13.14.1",
+    "cypress": "^13.14.2",
     "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-cypress": "^3.5.0",
