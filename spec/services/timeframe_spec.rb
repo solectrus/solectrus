@@ -839,7 +839,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq(I18n.t('timeframe.all'))
+      expect(decoder.localized).to eq('Since commissioning over 3 years ago')
     end
 
     it 'returns the correct corresponding_day' do

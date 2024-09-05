@@ -1,4 +1,6 @@
 class Timeframe # rubocop:disable Metrics/ClassLength
+  include ActionView::Helpers::DateHelper
+
   def self.regex
     /(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/
   end
@@ -151,7 +153,15 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :year
       date.year.to_s
     when :all
-      I18n.t('timeframe.all')
+      I18n.t(
+        'timeframe.all',
+        since:
+          distance_of_time_in_words_to_now(
+            min_date,
+            only: :years,
+            scope: 'datetime.distance_in_words.dativ',
+          ),
+      )
     end
   end
 

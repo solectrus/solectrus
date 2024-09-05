@@ -11,9 +11,13 @@
         i.fas.fa-chevron-left.fa-lg.opacity-50
 
   - case timeframe.id
-  - when :now, :all
+  - when :now
     .py-1
       = timeframe.localized
+
+  - when :all
+    .py-1 data-controller= 'tippy' title= I18n.l(timeframe.min_date)
+      == timeframe.localized
 
   - when :day
     .py-1.w-72.text-center

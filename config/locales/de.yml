@@ -26,7 +26,7 @@ de:
     week: Diese Woche
     month: Dieser Monat
     year: Dieses Jahr
-    all: Seit Inbetriebnahme
+    all: Seit Inbetriebnahme vor %{since}
   sensors:
     inverter_power: Erzeugung
     inverter_power_forecast: Prognose
