@@ -63,7 +63,7 @@ class EssentialsTile::Component < ViewComponent::Base
     green: 'bg-green-600 dark:bg-green-800',
     yellow: 'bg-yellow-600 dark:bg-yellow-800',
     red: 'bg-red-600 dark:bg-red-800',
-    gray: 'bg-gray-600 dark:bg-gray-800',
+    gray: 'bg-gray-600 dark:bg-gray-700',
     sky: 'bg-sky-600 dark:bg-sky-800',
     violet: 'bg-violet-600 dark:bg-violet-800',
   }.freeze

@@ -137,7 +137,7 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-gray-600 dark:bg-gray-800'
+      expect(component.background_color).to eq 'bg-gray-600 dark:bg-gray-700'
     end
 
     it 'returns the correct text primary color' do
@@ -174,7 +174,7 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-gray-600 dark:bg-gray-800'
+      expect(component.background_color).to eq 'bg-gray-600 dark:bg-gray-700'
     end
 
     it 'returns the correct text primary color' do
