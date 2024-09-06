@@ -91,4 +91,4 @@
             = Number::Component.new(value: calculator.got).to_eur(klass: 'text-xl')
 
           - elsif sensor == :grid_import_power
-            = Number::Component.new(value: calculator.paid.abs).to_eur(klass: 'text-xl')
+            = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
