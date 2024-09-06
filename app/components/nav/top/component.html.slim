@@ -21,8 +21,6 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
                     admin: helpers.admin?,
                   )
 
-              = render DarkModeToggle::Component.new
-
               button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-indigo-200.hover:bg-indigo-500.hover:bg-opacity-75.dark:text-gray-400.dark:hover:bg-indigo-800[
                 data-action="click->slide-over--component#open"
                 aria-haspopup= 'true'
@@ -43,8 +41,6 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
                     prompt: UpdateCheck.simple_prompt?,
                     admin: helpers.admin?,
                   )
-
-          = render DarkModeToggle::Component.new
 
           /! Mobile menu button
           button.bg-indigo-600.dark:bg-indigo-900.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.dark:hover:text-white.dark:hover:text-gray-200.hover:bg-indigo-500.hover:bg-opacity-75.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white.dark:focus:ring-indigo-950[

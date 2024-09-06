@@ -44,6 +44,7 @@ import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
 
 import { faLightbulb as faLightbulbOn } from '@fortawesome/free-regular-svg-icons/faLightbulb';
 import { faLightbulb as faLightbulbOff } from '@fortawesome/free-solid-svg-icons/faLightbulb';
+import { faDisplay } from '@fortawesome/free-solid-svg-icons/faDisplay';
 
 // -------------------------
 
@@ -89,6 +90,7 @@ export default class extends Controller {
       faExpand,
       faLightbulbOn,
       faLightbulbOff,
+      faDisplay,
     );
   }
 

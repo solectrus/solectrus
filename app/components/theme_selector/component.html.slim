@@ -1,0 +1,29 @@
+.text-base.space-y-2.py-2[
+  data-controller= 'theme-selector--component'
+]
+  button.block.w-full[
+    type= 'button'
+    data-theme-selector--component-target= 'btnOn'
+    data-action= 'theme-selector--component#on toggle#toggle'
+    class= 'flex items-center gap-3'
+  ]
+    i.fa.fas.fa-lightbulb.fa-lg.fa-fw.w-6
+    = t('.dark')
+
+  button.block.w-full[
+    type= 'button'
+    data-theme-selector--component-target= 'btnOff'
+    data-action= 'theme-selector--component#off toggle#toggle'
+    class= 'flex items-center gap-3'
+  ]
+    i.fa.far.fa-lightbulb.fa-lg.fa-fw.w-6
+    = t('.light')
+
+  button.block.w-full[
+    type= 'button'
+    data-theme-selector--component-target= 'btnAuto'
+    data-action= 'theme-selector--component#auto toggle#toggle'
+    class= 'flex items-center gap-3'
+  ]
+    i.fa.fas.fa-display.fa-lg.fa-fw.w-6
+    = t('.auto')
