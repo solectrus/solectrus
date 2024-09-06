@@ -4,36 +4,42 @@ export default class extends Controller<HTMLElement> {
   static readonly targets = ['button'];
 
   static readonly values = {
-    dark: { type: String },
-    light: { type: String },
-    darkThemeColor: { type: String, default: '#1e1b4b' },
-    lightThemeColor: { type: String, default: '#a5b4fc' },
+    dark: { type: String, default: 'Dark mode' },
+    light: { type: String, default: 'Light mode' },
   };
 
   declare readonly buttonTarget: HTMLButtonElement;
-
   declare readonly darkValue: string;
   declare readonly lightValue: string;
-  declare readonly darkThemeColorValue: string;
-  declare readonly lightThemeColorValue: string;
 
-  connect(): void {
-    if (this.preference) document.documentElement.classList.add('dark');
-    this.updateTooltip();
-    this.updateThemeColor();
+  readonly darkThemeColor = '#1e1b4b';
+  readonly lightThemeColor = '#a5b4fc';
+  private isCurrentlyDark = false;
+
+  connect() {
+    this.isCurrentlyDark = this.preference;
+    this.apply();
   }
 
   toggle() {
-    this.apply(!this.isCurrentlyDark);
+    this.isCurrentlyDark = !this.isCurrentlyDark;
+    this.apply();
   }
 
-  apply(isDark: boolean) {
-    if (isDark) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
-
-    this.preference = isDark;
+  apply() {
+    this.updateHtmlClass();
     this.updateTooltip();
     this.updateThemeColor();
+
+    this.preference = this.isCurrentlyDark;
+  }
+
+  updateHtmlClass() {
+    if (this.isCurrentlyDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }
 
   updateTooltip() {
@@ -52,19 +58,14 @@ export default class extends Controller<HTMLElement> {
   }
 
   updateThemeColor() {
-    const themeMetaTag = document.querySelector(
-      'meta[name="theme-color"]',
-    ) as HTMLMetaElement;
-
     const color = this.isCurrentlyDark
-      ? this.darkThemeColorValue
-      : this.lightThemeColorValue;
+      ? this.darkThemeColor
+      : this.lightThemeColor;
 
-    themeMetaTag.setAttribute('content', color);
-  }
-
-  get isCurrentlyDark(): boolean {
-    return document.documentElement.classList.contains('dark');
+    const themeMetaTag = document.querySelector('meta[name="theme-color"]');
+    if (themeMetaTag) {
+      themeMetaTag.setAttribute('content', color);
+    }
   }
 
   get preference() {
