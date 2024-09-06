@@ -49,7 +49,7 @@ en:
     heatpump_power_grid: Grid
     heatpump_power_pv: PV
   balance_sheet:
-    left: Origin
+    left: Source
     right: Usage
   calculator:
     now: Now
