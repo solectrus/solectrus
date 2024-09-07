@@ -17,7 +17,7 @@ class RadialBadge::Component < ViewComponent::Base
   end
 
   def border_color
-    return 'border-slate-200 dark:border-slate-500' if neutral
+    return 'border-slate-200 dark:border-slate-800' if neutral
 
     case percent
     when 0
@@ -32,15 +32,15 @@ class RadialBadge::Component < ViewComponent::Base
   end
 
   def background_color
-    return 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-600' if neutral
+    return 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800' if neutral
 
     case percent
     when 0..33
-      'xl:tall:bg-red-200 dark:xl:tall:bg-red-800'
+      'xl:tall:bg-red-200 dark:xl:tall:bg-red-950'
     when 34..66
-      'xl:tall:bg-orange-200 dark:xl:tall:bg-orange-900'
+      'xl:tall:bg-orange-200 dark:xl:tall:bg-orange-950'
     when 66..100
-      'xl:tall:bg-green-200 dark:xl:tall:bg-green-900'
+      'xl:tall:bg-green-200 dark:xl:tall:bg-green-950'
     end
   end
 
@@ -49,9 +49,9 @@ class RadialBadge::Component < ViewComponent::Base
 
     case percent
     when 0..33
-      'text-red-600 dark:text-red-700 xl:tall:dark:text-red-400'
+      'text-red-600 dark:text-red-700 xl:tall:dark:text-red-600'
     when 34..66
-      'text-orange-600 dark:text-orange-700 xl:tall:dark:text-orange-600'
+      'text-orange-600 dark:text-orange-700 xl:tall:dark:text-orange-700'
     when 66..100
       'text-green-600 dark:text-green-700 xl:tall:dark:text-green-600'
     end
