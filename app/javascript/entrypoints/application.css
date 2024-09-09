@@ -24,6 +24,14 @@
   background-color: #a5b4fc;
 }
 
+/* Chart.js */
+
+.dark {
+  canvas {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}
+
 /* Minimalistic form styling, inspired by DaisyUI */
 
 .form-control {
