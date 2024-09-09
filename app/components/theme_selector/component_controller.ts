@@ -27,9 +27,19 @@ export default class extends Controller<HTMLElement> {
       'change',
       this.handleColorSchemeChange.bind(this),
     );
+
+    document.addEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange.bind(this),
+    );
   }
 
   disconnect() {
+    document.removeEventListener(
+      'visibilitychange',
+      this.handleVisibilityChange.bind(this),
+    );
+
     this.prefersDarkScheme.removeEventListener(
       'change',
       this.handleColorSchemeChange.bind(this),
@@ -38,6 +48,12 @@ export default class extends Controller<HTMLElement> {
 
   handleColorSchemeChange() {
     if (this.theme === 'auto') this.apply();
+  }
+
+  handleVisibilityChange(): void {
+    if (!document.hidden) {
+      this.apply();
+    }
   }
 
   on() {
