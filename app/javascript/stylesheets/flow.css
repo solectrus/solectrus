@@ -15,7 +15,7 @@
 
 @media (prefers-reduced-motion) {
   .flow {
-    @apply bg-gradient-to-r from-slate-300 via-white to-slate-300;
+    @apply bg-gradient-to-r from-slate-300 via-white to-slate-300 dark:from-slate-800 dark:via-slate-600 dark:to-slate-800;
   }
 
   .arrow span {
