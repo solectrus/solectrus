@@ -133,6 +133,68 @@ describe UpdateCheck do
     end
   end
 
+  describe '#simple_prompt?' do
+    subject { instance.simple_prompt? }
+
+    let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
+
+    context 'when unregistered' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: {
+            version: 'v0.16.0',
+            registration_status: 'unregistered',
+            prompt: true,
+          }.to_json,
+        )
+      end
+
+      it { is_expected.to be true }
+    end
+
+    context 'when registered only' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: {
+            version: 'v0.16.0',
+            registration_status: 'complete',
+            prompt: true,
+          }.to_json,
+        )
+      end
+
+      it { is_expected.to be true }
+    end
+
+    context 'when registered and eligible for free' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: { version: 'v0.16.0', registration_status: 'complete' }.to_json,
+        )
+      end
+
+      it { is_expected.to be false }
+    end
+
+    context 'when registered and sponsoring' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: {
+            version: 'v0.16.0',
+            registration_status: 'complete',
+            subscription_plan: 'sponsoring',
+          }.to_json,
+        )
+      end
+
+      it { is_expected.to be false }
+    end
+  end
+
   describe '.skip_prompt!' do
     include_context 'with cache'
 

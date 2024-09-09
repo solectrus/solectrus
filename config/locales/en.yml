@@ -26,7 +26,7 @@ en:
     week: This week
     month: This month
     year: This year
-    all: Since commissioning
+    all: Since commissioning %{since} ago
   sensors:
     inverter_power: PV generated
     inverter_power_forecast: Forecast
@@ -49,7 +49,7 @@ en:
     heatpump_power_grid: Grid
     heatpump_power_pv: PV
   balance_sheet:
-    left: Origin
+    left: Source
     right: Usage
   calculator:
     now: Now

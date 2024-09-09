@@ -1,16 +1,10 @@
 describe SetupStatus::Component, type: :component do
   subject(:component) do
-    described_class.new(
-      registration_status:,
-      subscription_plan:,
-      prompt:,
-      admin:,
-    )
+    described_class.new(registration_status:, prompt:, admin:)
   end
 
-  let(:subscription_plan) { nil }
   let(:admin) { false }
-  let(:prompt) { false }
+  let(:prompt) { true }
 
   before { render_inline(component) }
 
@@ -23,9 +17,9 @@ describe SetupStatus::Component, type: :component do
     end
   end
 
-  context 'when registration status is complete and plan is sponsoring' do
+  context 'when registration status is complete and no prompt' do
     let(:registration_status) { 'complete' }
-    let(:subscription_plan) { 'sponsoring' }
+    let(:prompt) { false }
 
     it 'renders nothing' do
       expect(page).to have_no_css('div')

@@ -205,4 +205,40 @@ describe Calculator::Range do
       expect(calculator.heatpump_costs).to eq(0)
     end
   end
+
+  context 'when power-splitter values are missing' do
+    let(:timeframe) { Timeframe.new('2024-03-07') }
+
+    before do
+      allow(calculator).to receive_messages(
+        grid_import_power_array: [0],
+        #
+        house_power: 1000,
+        house_power_array: [1000],
+        #
+        heatpump_power: 2000,
+        heatpump_power_array: [2000],
+        #
+        wallbox_power: 5000,
+        wallbox_power_array: [5000],
+      )
+    end
+
+    it 'calculates' do
+      expect(calculator.wallbox_power).to eq(5000)
+      expect(calculator.wallbox_power_grid_ratio).to be_nil
+      expect(calculator.wallbox_power_pv_ratio).to be_nil
+      expect(calculator.wallbox_costs).to be_nil
+
+      expect(calculator.house_power).to eq(1000)
+      expect(calculator.house_power_grid_ratio).to be_nil
+      expect(calculator.house_power_pv_ratio).to be_nil
+      expect(calculator.house_costs).to be_nil
+
+      expect(calculator.heatpump_power).to eq(2000)
+      expect(calculator.heatpump_power_grid_ratio).to be_nil
+      expect(calculator.heatpump_power_pv_ratio).to be_nil
+      expect(calculator.heatpump_costs).to be_nil
+    end
+  end
 end

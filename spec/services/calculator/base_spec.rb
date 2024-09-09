@@ -59,6 +59,20 @@ describe Calculator::Base do
         expect(calculator.public_send(:"#{method}_array")).to eq([42, 43])
       end
     end
+
+    context 'when data is missing' do
+      let(:data) { [{ method => nil }, { method => nil }] }
+
+      before { calculator.build_method_from_array(method, data) }
+
+      it 'defines a method for sum (returning nil)' do
+        expect(calculator.public_send(method)).to be_nil
+      end
+
+      it 'defines a method for array' do
+        expect(calculator.public_send(:"#{method}_array")).to eq([nil, nil])
+      end
+    end
   end
 
   describe '#producing?' do

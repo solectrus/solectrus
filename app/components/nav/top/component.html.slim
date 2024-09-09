@@ -17,8 +17,7 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
               - unless helpers.banner?
                 = render SetupStatus::Component.new( \
                     registration_status: UpdateCheck.registration_status,
-                    subscription_plan: UpdateCheck.subscription_plan,
-                    prompt: UpdateCheck.prompt?,
+                    prompt: UpdateCheck.simple_prompt?,
                     admin: helpers.admin?,
                   )
 
@@ -39,8 +38,7 @@ header.relative.bg-indigo-600.pb-32 data-controller= 'slide-over--component'
           - unless helpers.banner?
             = render SetupStatus::Component.new( \
                     registration_status: UpdateCheck.registration_status,
-                    subscription_plan: UpdateCheck.subscription_plan,
-                    prompt: UpdateCheck.prompt?,
+                    prompt: UpdateCheck.simple_prompt?,
                     admin: helpers.admin?,
                   )
 
