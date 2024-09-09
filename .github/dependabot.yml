@@ -73,6 +73,10 @@ updates:
       fortawesome:
         patterns:
           - '@fortawesome/*'
+      size-limit:
+        patterns:
+          - '@size-limit/file'
+          - 'size-limit'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
