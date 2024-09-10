@@ -58,12 +58,12 @@
               = content
 
             - if UpdateCheck.prompt?
-              .bg-yellow-100
-                .bg-yellow-600.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
+              .bg-yellow-100.dark:bg-pink-800
+                .bg-yellow-600.dark:bg-pink-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
                   = I18n.t('layout.missing_sponsoring_header')
 
-                .p-5
-                  .text-yellow-700
+                .p-5.text-gray-800.dark:text-gray-200
+                  .text-yellow-700.dark:text-pink-200
                     - if helpers.admin?
                       = I18n.t('layout.prompt_for_sponsoring')
                     - else

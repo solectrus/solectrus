@@ -69,11 +69,12 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
           = item.call(css_extra: ['py-2 px-3 uppercase tracking-wider', item.current ? 'rounded-md bg-indigo-700' : ''])
 
       - if UpdateCheck.prompt? && !helpers.banner?
-        .bg-yellow-100.px-5.py-2.text-sm.font-light.text-yellow-800
+        .bg-yellow-100.dark:bg-pink-700.px-5.py-4.text-sm.font-normal.text-yellow-800.dark:text-pink-200
           - if helpers.admin?
             = I18n.t('layout.prompt_for_sponsoring')
             br
-            = link_to I18n.t('layout.missing_sponsoring_cta'), registration_path, class: 'text-yellow-800 underline underline-offset-2 font-medium'
+            br
+            = link_to I18n.t('layout.missing_sponsoring_cta'), registration_path, class: 'text-yellow-800 dark:text-gray-300 underline underline-offset-2 font-medium'
           - else
             = I18n.t('layout.missing_sponsoring')
 
