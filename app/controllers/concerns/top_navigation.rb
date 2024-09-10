@@ -15,7 +15,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         ___,
         expand_item,
         compress_item,
-        theme_item,
         ___,
         faq_item,
         about_item,
@@ -123,16 +122,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           :action => 'click->fullscreen#off',
         },
       }
-    end
-
-    def theme_item
-      item = { name: t('layout.theme'), icon: 'lightbulb' }
-
-      if ApplicationPolicy.dark_mode?
-        item.merge(content: helpers.render(ThemeSelector::Component.new))
-      else
-        item.merge(href: registration_url)
-      end
     end
 
     def faq_item

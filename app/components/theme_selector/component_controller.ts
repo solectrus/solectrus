@@ -3,16 +3,16 @@ import { Controller } from '@hotwired/stimulus';
 type Theme = 'auto' | 'light' | 'dark';
 
 export default class extends Controller<HTMLElement> {
-  static readonly targets = ['btnToggle', 'btnOn', 'btnOff', 'btnAuto'];
+  static readonly targets = ['inputDark', 'inputLight', 'inputAuto'];
 
   static readonly values = {
     dark: { type: String, default: 'Dark mode' },
     light: { type: String, default: 'Light mode' },
   };
 
-  declare readonly btnOnTargets: HTMLButtonElement[];
-  declare readonly btnOffTargets: HTMLButtonElement[];
-  declare readonly btnAutoTargets: HTMLButtonElement[];
+  declare readonly inputDarkTargets: HTMLInputElement[];
+  declare readonly inputLightTargets: HTMLInputElement[];
+  declare readonly inputAutoTargets: HTMLInputElement[];
 
   declare readonly darkValue: string;
   declare readonly lightValue: string;
@@ -65,12 +65,12 @@ export default class extends Controller<HTMLElement> {
     }
   }
 
-  on() {
+  dark() {
     this.theme = 'dark';
     this.apply();
   }
 
-  off() {
+  light() {
     this.theme = 'light';
     this.apply();
   }
@@ -87,16 +87,16 @@ export default class extends Controller<HTMLElement> {
   }
 
   updateButtons() {
-    this.btnOnTargets.forEach((btn) => {
-      btn.classList.toggle('font-bold', this.theme === 'dark');
+    this.inputDarkTargets.forEach((input) => {
+      input.checked = this.theme === 'dark';
     });
 
-    this.btnOffTargets.forEach((btn) => {
-      btn.classList.toggle('font-bold', this.theme === 'light');
+    this.inputLightTargets.forEach((input) => {
+      input.checked = this.theme === 'light';
     });
 
-    this.btnAutoTargets.forEach((btn) => {
-      btn.classList.toggle('font-bold', this.theme === 'auto');
+    this.inputAutoTargets.forEach((input) => {
+      input.checked = this.theme === 'auto';
     });
   }
 

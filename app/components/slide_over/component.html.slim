@@ -57,6 +57,9 @@
             .relative.mt-6.flex-1
               = content
 
+            .mx-auto.mb-10
+              = render ThemeSelector::Component.new
+
             - if UpdateCheck.prompt?
               .bg-yellow-100.dark:bg-pink-800
                 .bg-yellow-600.dark:bg-pink-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
