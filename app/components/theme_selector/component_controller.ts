@@ -10,9 +10,9 @@ export default class extends Controller<HTMLElement> {
     light: { type: String, default: 'Light mode' },
   };
 
-  declare readonly btnOnTarget: HTMLButtonElement;
-  declare readonly btnOffTarget: HTMLButtonElement;
-  declare readonly btnAutoTarget: HTMLButtonElement;
+  declare readonly btnOnTargets: HTMLButtonElement[];
+  declare readonly btnOffTargets: HTMLButtonElement[];
+  declare readonly btnAutoTargets: HTMLButtonElement[];
 
   declare readonly darkValue: string;
   declare readonly lightValue: string;
@@ -22,7 +22,14 @@ export default class extends Controller<HTMLElement> {
 
   connect() {
     this.apply();
+    this.addListeners();
+  }
 
+  disconnect() {
+    this.removeListeners();
+  }
+
+  addListeners() {
     this.prefersDarkScheme.addEventListener(
       'change',
       this.handleColorSchemeChange.bind(this),
@@ -34,7 +41,7 @@ export default class extends Controller<HTMLElement> {
     );
   }
 
-  disconnect() {
+  removeListeners() {
     document.removeEventListener(
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
@@ -47,11 +54,13 @@ export default class extends Controller<HTMLElement> {
   }
 
   handleColorSchemeChange() {
-    if (this.theme === 'auto') this.apply();
+    if (this.theme === 'auto') {
+      this.apply();
+    }
   }
 
-  handleVisibilityChange(): void {
-    if (!document.hidden) {
+  handleVisibilityChange() {
+    if (!document.hidden && this.theme === 'auto') {
       this.apply();
     }
   }
@@ -78,17 +87,21 @@ export default class extends Controller<HTMLElement> {
   }
 
   updateButtons() {
-    this.btnOnTarget.classList.toggle('font-bold', this.theme === 'dark');
-    this.btnOffTarget.classList.toggle('font-bold', this.theme === 'light');
-    this.btnAutoTarget.classList.toggle('font-bold', this.theme === 'auto');
+    this.btnOnTargets.forEach((btn) => {
+      btn.classList.toggle('font-bold', this.theme === 'dark');
+    });
+
+    this.btnOffTargets.forEach((btn) => {
+      btn.classList.toggle('font-bold', this.theme === 'light');
+    });
+
+    this.btnAutoTargets.forEach((btn) => {
+      btn.classList.toggle('font-bold', this.theme === 'auto');
+    });
   }
 
   updateHtmlClass() {
-    if (this.isCurrentlyDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+    document.documentElement.classList.toggle('dark', this.isCurrentlyDark);
   }
 
   updateMetaTag() {
