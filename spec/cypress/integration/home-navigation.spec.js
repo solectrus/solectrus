@@ -10,6 +10,7 @@ describe('Home page', () => {
     'wallbox_power',
     'case_temp',
     'battery_soc',
+    'car_battery_soc',
     'co2_reduction',
   ].forEach((path) => {
     it(`${path} is clickable`, () => {

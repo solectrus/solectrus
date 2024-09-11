@@ -22,6 +22,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     battery_charging_power
     battery_discharging_power
     battery_soc
+    car_battery_soc
+    wallbox_car_connected
     wallbox_power
     case_temp
     system_status
@@ -131,6 +133,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists? :inverter_power
     when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid
       exists_with_policy? sensor_name, :power_splitter?
+    when :car_battery_soc, :wallbox_car_connected
+      exists_with_policy? sensor_name, :car?
     when *SENSOR_NAMES
       measurement(sensor_name).present? && field(sensor_name).present?
     else

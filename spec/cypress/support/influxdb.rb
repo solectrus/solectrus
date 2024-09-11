@@ -5,6 +5,7 @@ module CypressRails::InfluxDB
     seed_pv
     seed_heatpump
     seed_forecast
+    seed_car_battery_soc
   end
 
   def seed_pv
@@ -42,6 +43,21 @@ module CypressRails::InfluxDB
           name: measurement_heatpump_power,
           fields: {
             field_heatpump_power => 400,
+          },
+          time: i.seconds.ago,
+        )
+      end
+  end
+
+  def seed_car_battery_soc
+    # Fill 2 hour window with 15min intervals
+    2
+      .hours
+      .step(0, -5.minutes) do |i|
+        add_influx_point(
+          name: measurement_car_battery_soc,
+          fields: {
+            field_car_battery_soc => 70,
           },
           time: i.seconds.ago,
         )

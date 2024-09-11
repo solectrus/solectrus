@@ -16,6 +16,7 @@ class ChartSelector::Component < ViewComponent::Base
       wallbox_power
       battery_power
       battery_soc
+      car_battery_soc
       case_temp
       autarky
       consumption

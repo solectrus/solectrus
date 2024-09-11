@@ -15,8 +15,7 @@ class MinMaxChart < Flux::Reader
     when :now
       chart_single start: 1.hour.ago,
                    stop: 1.second.since,
-                   window: WINDOW[timeframe.id],
-                   fill: true
+                   window: WINDOW[timeframe.id]
     when :day
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
@@ -34,14 +33,16 @@ class MinMaxChart < Flux::Reader
 
   private
 
-  def chart_single(start:, window:, stop: nil, fill: false)
+  def chart_single(start:, window:, stop: nil)
+    remember_start(start)
+
     q = []
 
     q << from_bucket
     q << "|> #{range(start:, stop:)}"
     q << "|> #{filter}"
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
-    q << '|> fill(usePrevious: true)' if fill
+    q << '|> fill(usePrevious: true)'
     q << '|> keep(columns: ["_time","_field","_measurement","_value"])'
 
     raw = query(q.join("\n"))
@@ -49,6 +50,8 @@ class MinMaxChart < Flux::Reader
   end
 
   def chart_minmax(start:, window:, stop: nil)
+    remember_start(start)
+
     raw = query <<-QUERY
       import "timezone"
 
@@ -73,6 +76,8 @@ class MinMaxChart < Flux::Reader
   end
 
   def chart_minmax_global(start:, window:, stop: nil)
+    remember_start(start)
+
     raw = query <<-QUERY
       import "timezone"
 
@@ -96,6 +101,27 @@ class MinMaxChart < Flux::Reader
     QUERY
 
     formatted(raw)
+  end
+
+  def remember_start(start)
+    @start = start
+  end
+
+  # Get the last value BEFORE the start time
+  def previous_value
+    return unless @start
+
+    @previous_value ||=
+      begin
+        raw = query <<-QUERY
+          #{from_bucket}
+          |> #{range(start: @start - 1.day, stop: @start)}
+          |> #{filter}
+          |> last()
+        QUERY
+
+        raw.first&.records&.first&.value
+      end
   end
 
   def formatted(raw)
@@ -137,12 +163,28 @@ class MinMaxChart < Flux::Reader
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['_value']&.round(1)
+      value = value_from_record(time:, record: next_record)
 
       result << [time, value]
     end
 
     result
+  end
+
+  def value_from_record(time:, record:)
+    if time.future?
+      # Becaue of fill(previous: true) we need to remove future values
+      nil
+    else
+      original = record.values['_value']
+
+      # In case of missing data at the beginning, fill in previous value
+      if original.nil? && time < record.time
+        previous_value
+      else
+        original
+      end
+    end
   end
 
   def default_cache_options

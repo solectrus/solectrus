@@ -62,7 +62,16 @@
         = render RadialBadge::Component.new(title: t('sensors.case_temp')) do
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
 
-    - if SensorConfig.x.exists?(:battery_soc)
+    - if SensorConfig.x.exists_all?(:battery_soc, :car_battery_soc)
+      = render SocBadge::Component.new( \
+          battery_soc: calculator.battery_soc,
+          car_battery_soc: calculator.car_battery_soc,
+          time: calculator.time,
+          timeframe:,
+          car_connected: calculator.wallbox_car_connected,
+        )
+
+    - elsif SensorConfig.x.exists?(:battery_soc)
       = link_to root_path(sensor: 'battery_soc', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
@@ -76,4 +85,4 @@
                   stats_with_chart__component_sensor_param: 'battery_soc',
                 },
                 class: 'click-animation' do
-        = render RadialBadge::Component.new(percent: calculator.battery_soc, neutral: true, title: t('sensors.battery_soc'))
+        = render RadialBadge::Component.new(percent: calculator.battery_soc, neutral: true, title: t('balance_sheet.soc'))

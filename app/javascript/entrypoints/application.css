@@ -6,7 +6,7 @@
 
 /* Import app specific styles */
 @import '../stylesheets/flow.css';
-@import '../stylesheets/radial_badge.css';
+@import '../stylesheets/badge.css';
 @import '../stylesheets/animations.css';
 
 /* Import the Inter font */
