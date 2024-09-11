@@ -87,7 +87,7 @@
 }
 
 main code {
-  @apply rounded bg-slate-100 px-1 py-px dark:bg-slate-950;
+  @apply rounded border border-dotted border-slate-500 bg-slate-100 px-1 py-px dark:bg-slate-900;
 }
 
 .min-h-dvh {
