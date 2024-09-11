@@ -1,10 +1,13 @@
 form.flex.items-center.justify-between.w-40.px-2.py-1.rounded-full.bg-indigo-200.lg:bg-gray-200.dark:bg-gray-950.focus:outline-none.opacity-80[
-  data-controller= 'theme-selector--component'
+  data-controller= (ApplicationPolicy.dark_mode? ? 'theme-selector--component' : 'tippy')
+  title= (t('.sponsors_only') unless ApplicationPolicy.dark_mode?)
+  data-tippy-placement-value= 'top'
 ]
   label.text-gray-800.dark:text-gray-400.hover:bg-gray-100.dark:hover:bg-gray-800.p-2.rounded-full[
     title= t('.dark')
     data-controller= 'tippy'
     data-tippy-touch-value= 'false'
+    class= ('pointer-events-none' unless ApplicationPolicy.dark_mode?)
   ]
     input.sr-only.peer[
       type= 'radio'
@@ -29,6 +32,7 @@ form.flex.items-center.justify-between.w-40.px-2.py-1.rounded-full.bg-indigo-200
     title= t('.auto')
     data-controller= 'tippy'
     data-tippy-touch-value= 'false'
+    class= ('pointer-events-none' unless ApplicationPolicy.dark_mode?)
   ]
     input.sr-only.peer[
       type= 'radio'
@@ -53,6 +57,7 @@ form.flex.items-center.justify-between.w-40.px-2.py-1.rounded-full.bg-indigo-200
     title= t('.light')
     data-controller= 'tippy'
     data-tippy-touch-value= 'false'
+    class= ('pointer-events-none' unless ApplicationPolicy.dark_mode?)
   ]
     input.sr-only.peer[
       type= 'radio'
