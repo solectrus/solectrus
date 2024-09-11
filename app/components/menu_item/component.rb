@@ -5,8 +5,7 @@ class MenuItem::Component < ViewComponent::Base
     data: {},
     sensor: nil,
     icon: nil,
-    current: false,
-    content: nil
+    current: false
   )
     super
     @name = name
@@ -16,14 +15,13 @@ class MenuItem::Component < ViewComponent::Base
 
     @icon = icon
     @current = current
-    @content = content
   end
 
   def target
     href&.start_with?('http') ? '_blank' : nil
   end
 
-  attr_reader :name, :href, :icon, :current, :content, :data, :sensor
+  attr_reader :name, :href, :icon, :current, :data, :sensor
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
@@ -38,15 +36,13 @@ class MenuItem::Component < ViewComponent::Base
     end
 
     if href
-      render_link(with_icon:, css_extra:, data:)
-    elsif content
-      render_content(with_icon:, css_extra:)
+      render_link(with_icon:, css_extra:)
     else
-      render_button(with_icon:, css_extra:, data:)
+      render_button(with_icon:, css_extra:)
     end
   end
 
-  def render_link(with_icon:, css_extra:, data: nil)
+  def render_link(with_icon:, css_extra:)
     link_to href,
             target:,
             class: [CSS_CLASSES, css_extra],
@@ -56,35 +52,9 @@ class MenuItem::Component < ViewComponent::Base
     end
   end
 
-  def render_button(with_icon:, css_extra:, data: nil)
-    tag.button(class: [CSS_CLASSES, css_extra], data:) do
+  def render_button(with_icon:, css_extra:)
+    tag.button class: [CSS_CLASSES, css_extra], data: @data do
       render_inner(with_icon:)
-    end
-  end
-
-  def render_content(with_icon:, css_extra:)
-    tag.div(
-      data: {
-        'controller' => 'toggle',
-        'toggle-max-height-class-value' => 'max-h-28',
-      },
-    ) do
-      render_button(
-        with_icon:,
-        css_extra: [css_extra],
-        data: {
-          'toggle-target' => 'button',
-          'action' => 'click->toggle#toggle:prevent:stop',
-        },
-      ) +
-        tag.div(
-          content,
-          data: {
-            'toggle-target' => 'dropdown',
-          },
-          class:
-            'max-h-0 transition-max-height ease-out duration-200 overflow-hidden px-6',
-        )
     end
   end
 

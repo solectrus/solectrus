@@ -126,7 +126,7 @@ Metrics/ModuleLength:
   Max: 110
 
 Metrics/ParameterLists:
-  Enabled: false
+  Max: 6
 
 ### Style
 
