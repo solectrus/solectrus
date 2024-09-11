@@ -33,6 +33,12 @@ cd solectrus
 brew bundle
 ```
 
+Ensure that PostgreSQL is running:
+
+```bash
+brew services start postgresql@16
+```
+
 3. Install and set up [puma-dev](https://github.com/puma/puma-dev) to use HTTPS for development. Do this on macOS:
 
 ```bash
