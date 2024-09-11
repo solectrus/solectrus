@@ -9,7 +9,7 @@ body.active-tippy * {
 
 /* Modify existing theme for Dark mode */
 .tippy-box[data-theme~='light-border'] {
-  @apply dark:border-slate-400 dark:bg-slate-800 dark:text-slate-300;
+  @apply dark:border-slate-400 dark:bg-slate-900 dark:text-slate-300;
 
   &[data-placement^='top'] .tippy-arrow::before {
     @apply dark:border-t-slate-800;

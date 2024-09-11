@@ -29,12 +29,20 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
       plugins: {
         legend: false,
         tooltip: {
+          # Match colors to Tippy theme
+          backgroundColor: 'rgba(255, 255, 255, 1.0)',
+          titleColor: '#222',
+          bodyColor: '#222',
+          footerColor: '#222',
+          borderColor: 'rgba(0, 8, 16, 0.6)',
+          borderWidth: 1,
+          #
           displayColors: false,
           titleFont: {
-            size: 16,
+            size: 15,
           },
           bodyFont: {
-            size: 20,
+            size: 18,
           },
           caretPadding: 15,
           caretSize: 10,
