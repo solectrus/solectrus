@@ -39,9 +39,13 @@ export default class extends Controller<HTMLElement> {
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
     );
+
+    document.addEventListener('focus', this.handleFocus.bind(this));
   }
 
   removeListeners() {
+    document.removeEventListener('focus', this.handleFocus.bind(this));
+
     document.removeEventListener(
       'visibilitychange',
       this.handleVisibilityChange.bind(this),
@@ -57,6 +61,10 @@ export default class extends Controller<HTMLElement> {
     if (this.theme === 'auto') {
       this.apply();
     }
+  }
+
+  handleFocus() {
+    this.apply();
   }
 
   handleVisibilityChange() {
