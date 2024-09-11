@@ -1,12 +1,12 @@
-.flex.min-h-full.flex-col.bg-white.pt-16.pb-12
+.flex.min-h-full.flex-col.bg-white.dark:bg-slate-900.pt-16.pb-12
   .mx-auto.flex.w-full.max-w-screen-xl.3xl:max-w-screen-2xl.flex-grow.flex-col.justify-center.px-4.sm:px-6.lg:px-8
     .py-16
       .text-center
-        p.text-7xl.font-semibold.text-indigo-600
+        p.text-7xl.font-semibold.text-indigo-600.dark:text-indigo-400.select-text
           = status_code
-        h1.mt-8.text-4xl.font-bold.tracking-tight.text-gray-900.sm:text-5xl
+        h1.mt-8.text-4xl.font-bold.tracking-tight.text-gray-900.dark:text-gray-300.sm:text-5xl.select-text
           = t("errors.#{status_code}.title")
-        p.mt-4.text-base.text-gray-500
+        p.mt-4.text-base.text-gray-500.dark:text-gray-400.select-text
           == t("errors.#{status_code}.description")
         .mt-6
           - if status_code == 403
