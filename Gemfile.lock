@@ -7,10 +7,10 @@ GIT
 
 GIT
   remote: https://github.com/ledermann/cypress-rails.git
-  revision: 5429e5d71aada3606be0c14329fe64893a9a77f5
+  revision: 59c459063b8e7e06a50f3e0afd90d670fbc5d156
   branch: rails-7-2
   specs:
-    cypress-rails (0.7.0)
+    cypress-rails (0.7.1)
       puma (>= 3.8.0)
       railties (>= 5.2.0)
 
