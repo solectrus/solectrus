@@ -38,7 +38,7 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy"
-          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption'))
+          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption_quote_short'))
           .hidden#consumption-details-tooltip data-tippy-target="html"
             = render ConsumptionDetails::Component.new(calculator:)
 
