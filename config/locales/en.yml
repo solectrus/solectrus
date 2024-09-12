@@ -52,6 +52,7 @@ en:
   balance_sheet:
     left: Source
     right: Usage
+    soc: Charge
   calculator:
     now: Now
     day: Day
