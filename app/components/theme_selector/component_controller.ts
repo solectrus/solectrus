@@ -141,8 +141,9 @@ export default class extends Controller<HTMLElement> {
   }
 
   get theme(): Theme {
-    if ('theme' in localStorage) {
-      return localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme === 'dark' || storedTheme === 'light') {
+      return storedTheme;
     }
 
     return 'auto';
