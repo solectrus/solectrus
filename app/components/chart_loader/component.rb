@@ -171,7 +171,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
 
   def unit
     case sensor
-    when :battery_soc, :car_battery_soc, :autarky, :consumption
+    when :battery_soc, :car_battery_soc, :autarky, :self_consumption
       '&percnt;'.html_safe
     when :case_temp
       '&deg;C'.html_safe
@@ -183,7 +183,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
 
   def max_y
-    sensor.in?(%i[consumption autarky]) ? 100 : nil
+    sensor.in?(%i[self_consumption autarky]) ? 100 : nil
   end
 
   def suggested_max_y
@@ -191,7 +191,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
 
   def min_y
-    sensor.in?(%i[battery_soc car_battery_soc consumption autarky]) ? 0 : nil
+    0 if sensor.in?(%i[battery_soc car_battery_soc self_consumption autarky])
   end
 
   def suggested_min_y

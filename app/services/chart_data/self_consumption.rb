@@ -1,4 +1,4 @@
-class ChartData::Consumption < ChartData::Base
+class ChartData::SelfConsumption < ChartData::Base
   private
 
   def data
@@ -6,7 +6,7 @@ class ChartData::Consumption < ChartData::Base
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
-          label: I18n.t('calculator.consumption_quote'),
+          label: I18n.t('calculator.self_consumption_quote'),
           data: chart&.map(&:second),
         }.merge(style),
       ],

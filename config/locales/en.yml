@@ -62,9 +62,9 @@ en:
     all: Overall
     grid_quote: Grid consumption rate
     consumption: Total consumption
-    consumption_quote: Self-consumption rate
-    consumption_quote_short: Self-use
     self_consumption: Self consumption
+    self_consumption_quote: Self-consumption rate
+    self_consumption_quote_short: Self-use
     solar_price: Solar price
     traditional_price: Comparative price
     savings: Savings

@@ -87,7 +87,7 @@ class Calculator::Base
     inverter_power - grid_export_power
   end
 
-  def consumption_quote
+  def self_consumption_quote
     return unless consumption_alt && inverter_power
     return if inverter_power < 50
 

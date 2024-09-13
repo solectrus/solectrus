@@ -62,9 +62,9 @@ de:
     all: Gesamt
     grid_quote: Bezugsquote
     consumption: Gesamtverbrauch
-    consumption_quote: Eigenverbrauchsquote
-    consumption_quote_short: Verbrauch
     self_consumption: Eigenverbrauch
+    self_consumption_quote: Eigenverbrauchsquote
+    self_consumption_quote_short: Verbrauch
     solar_price: Solarpreis
     traditional_price: Vergleichspreis
     savings: Einsparung

@@ -101,7 +101,7 @@ describe SensorConfig do
 
       it 'returns true for calculated sensors' do
         expect(sensor_config.exists?(:autarky)).to be(true)
-        expect(sensor_config.exists?(:consumption)).to be(true)
+        expect(sensor_config.exists?(:self_consumption)).to be(true)
         expect(sensor_config.exists?(:savings)).to be(true)
         expect(sensor_config.exists?(:co2_reduction)).to be(true)
       end

@@ -23,22 +23,22 @@
           .hidden#autarky-details-tooltip data-tippy-target="html"
             = render AutarkyDetails::Component.new(calculator:)
 
-    - if SensorConfig.x.exists?(:consumption) && calculator.consumption_quote
+    - if SensorConfig.x.exists?(:self_consumption) && calculator.self_consumption_quote
       = link_to root_path(sensor: 'consumption', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  sensor: 'consumption',
-                  value: calculator.consumption_quote,
+                  sensor: 'self_consumption',
+                  value: calculator.self_consumption_quote,
                   time: calculator.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: 'consumption',
+                  stats_with_chart__component_sensor_param: 'self_consumption',
                 },
                 class: 'click-animation' do
         div data-controller="tippy"
-          = render RadialBadge::Component.new(percent: calculator.consumption_quote, neutral: true, title: t('calculator.consumption_quote_short'))
+          = render RadialBadge::Component.new(percent: calculator.self_consumption_quote, neutral: true, title: t('calculator.self_consumption_quote_short'))
           .hidden#consumption-details-tooltip data-tippy-target="html"
             = render ConsumptionDetails::Component.new(calculator:)
 

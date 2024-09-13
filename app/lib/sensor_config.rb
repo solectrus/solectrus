@@ -46,7 +46,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   ].freeze
   public_constant :POWER_SENSORS
 
-  CALCULATED_SENSORS = %i[autarky consumption savings co2_reduction].freeze
+  CALCULATED_SENSORS = %i[autarky self_consumption savings co2_reduction].freeze
   public_constant :CALCULATED_SENSORS
 
   # Combine charging/discharging and import/export fields
@@ -125,7 +125,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists_any? :battery_charging_power, :battery_discharging_power
     when :autarky
       exists_all? :house_power, :grid_import_power
-    when :consumption
+    when :self_consumption
       exists_all? :inverter_power, :grid_export_power
     when :savings
       exists_all? :inverter_power, :house_power, :grid_power

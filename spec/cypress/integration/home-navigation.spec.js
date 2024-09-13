@@ -4,7 +4,7 @@ describe('Home page', () => {
     'battery_power',
     'grid_power',
     'autarky',
-    'consumption',
+    'self_consumption',
     'house_power',
     'heatpump_power',
     'wallbox_power',

@@ -28,5 +28,5 @@ dl
   .grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&#61;&nbsp;
-      = I18n.t('calculator.consumption_quote')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.consumption_quote).to_percent(max_precision: 1)
+      = I18n.t('calculator.self_consumption_quote')
+    dd.font-mono.text-right = Number::Component.new(value: calculator.self_consumption_quote).to_percent(max_precision: 1)
