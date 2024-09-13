@@ -149,10 +149,6 @@ export default class extends Controller<HTMLElement> {
     return 'auto';
   }
 
-  get prefersDarkScheme(): MediaQueryList {
-    return window.matchMedia('(prefers-color-scheme: dark)');
-  }
-
   set theme(value: Theme) {
     if (value === 'auto') {
       localStorage.removeItem('theme');
@@ -160,5 +156,15 @@ export default class extends Controller<HTMLElement> {
     }
 
     localStorage.setItem('theme', value);
+  }
+
+  get prefersDarkScheme(): MediaQueryList {
+    return window.matchMedia
+      ? window.matchMedia('(prefers-color-scheme: dark)')
+      : ({
+          matches: false,
+          addEventListener: () => {},
+          removeEventListener: () => {},
+        } as unknown as MediaQueryList);
   }
 }
