@@ -20,6 +20,10 @@ export default class extends Controller<HTMLElement> {
   readonly darkThemeColor = '#1e1b4b';
   readonly lightThemeColor = '#a5b4fc';
 
+  private boundHandleColorSchemeChange?: () => void;
+  private boundHandleVisibilityChange?: () => void;
+  private boundHandleFocus?: () => void;
+
   connect() {
     this.apply();
     this.addListeners();
@@ -30,31 +34,37 @@ export default class extends Controller<HTMLElement> {
   }
 
   addListeners() {
+    this.boundHandleColorSchemeChange = this.handleColorSchemeChange.bind(this);
     this.prefersDarkScheme.addEventListener(
       'change',
-      this.handleColorSchemeChange.bind(this),
+      this.boundHandleColorSchemeChange,
     );
 
+    this.boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
     document.addEventListener(
       'visibilitychange',
-      this.handleVisibilityChange.bind(this),
+      this.boundHandleVisibilityChange,
     );
 
-    document.addEventListener('focus', this.handleFocus.bind(this));
+    this.boundHandleFocus = this.handleFocus.bind(this);
+    document.addEventListener('focus', this.boundHandleFocus);
   }
 
   removeListeners() {
-    document.removeEventListener('focus', this.handleFocus.bind(this));
+    if (this.boundHandleFocus)
+      document.removeEventListener('focus', this.boundHandleFocus);
 
-    document.removeEventListener(
-      'visibilitychange',
-      this.handleVisibilityChange.bind(this),
-    );
+    if (this.boundHandleVisibilityChange)
+      document.removeEventListener(
+        'visibilitychange',
+        this.boundHandleVisibilityChange,
+      );
 
-    this.prefersDarkScheme.removeEventListener(
-      'change',
-      this.handleColorSchemeChange.bind(this),
-    );
+    if (this.boundHandleColorSchemeChange)
+      this.prefersDarkScheme.removeEventListener(
+        'change',
+        this.boundHandleColorSchemeChange,
+      );
   }
 
   handleColorSchemeChange() {
