@@ -10,6 +10,8 @@ export default class extends Controller {
 
   declare intervalValue: number;
 
+  private boundHandleVisibilityChange?: () => void;
+
   connect() {
     this.startLoop();
     this.addListeners();
@@ -21,17 +23,19 @@ export default class extends Controller {
   }
 
   addListeners(): void {
+    this.boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
     document.addEventListener(
       'visibilitychange',
-      this.handleVisibilityChange.bind(this),
+      this.boundHandleVisibilityChange,
     );
   }
 
   removeListeners(): void {
-    document.removeEventListener(
-      'visibilitychange',
-      this.handleVisibilityChange.bind(this),
-    );
+    if (this.boundHandleVisibilityChange)
+      document.removeEventListener(
+        'visibilitychange',
+        this.boundHandleVisibilityChange,
+      );
   }
 
   startLoop() {

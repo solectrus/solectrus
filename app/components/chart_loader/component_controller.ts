@@ -61,19 +61,19 @@ export default class extends Controller<HTMLCanvasElement> {
   declare unitValue: string;
   declare readonly hasUnitValue: boolean;
 
+  private boundHandleResize?: () => void;
   private chart?: Chart;
 
   connect() {
     this.process();
 
-    window.addEventListener(
-      'resize',
-      debounce(100, this.handleResize.bind(this)),
-    );
+    this.boundHandleResize = debounce(100, this.handleResize.bind(this));
+    window.addEventListener('resize', this.boundHandleResize);
   }
 
   disconnect() {
-    window.removeEventListener('resize', this.handleResize.bind(this));
+    if (this.boundHandleResize)
+      window.removeEventListener('resize', this.boundHandleResize);
 
     if (this.chart) this.chart.destroy();
   }
