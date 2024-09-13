@@ -47,12 +47,12 @@ export default class extends Controller<HTMLElement> {
     );
 
     this.boundHandleFocus = this.handleFocus.bind(this);
-    document.addEventListener('focus', this.boundHandleFocus);
+    window.addEventListener('focus', this.boundHandleFocus);
   }
 
   removeListeners() {
     if (this.boundHandleFocus)
-      document.removeEventListener('focus', this.boundHandleFocus);
+      window.removeEventListener('focus', this.boundHandleFocus);
 
     if (this.boundHandleVisibilityChange)
       document.removeEventListener(
