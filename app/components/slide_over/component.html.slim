@@ -60,7 +60,7 @@
             .mx-auto.mb-10
               = render ThemeSelector::Component.new
 
-            - if UpdateCheck.prompt?
+            - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
               .bg-yellow-100.dark:bg-pink-800
                 .bg-yellow-600.dark:bg-pink-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
                   = I18n.t('layout.missing_sponsoring_header')
@@ -74,8 +74,7 @@
 
                   .mt-2
                     - if helpers.admin?
-                      i.fa.fa-id-card.mr-2
-                      = link_to I18n.t('layout.missing_sponsoring_cta'), registration_path, class: 'underline underline-offset-2'
+                      = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'underline underline-offset-2'
                     - else
                       i.fa.fa-arrow-right-to-bracket.mr-2
                       = link_to I18n.t('layout.login'), new_session_path, class: 'underline underline-offset-2', data: { turbo_frame: 'modal' }

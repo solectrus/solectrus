@@ -16,21 +16,15 @@
           - elsif unregistered?
             = t('.unregistered')
 
-          - elsif prompt?
-            = t('.prompt_for_sponsoring')
-
         = render Button::Component.new( \
-            path: registration_path,
-            title: (prompt? ? t('.button_to_sponsor') : t('.button_to_register')),
+            path: sponsoring_path,
+            title: t('.button_to_register'),
             icon: 'id-card',
             options: { data: { turbo: 'false' } },
           )
 
       - else
-        - if prompt?
-          = t('.login_to_sponsor')
-        - else
-          = t('.login_to_register')
+        = t('.login_to_register')
 
         = render Button::Component.new( \
             path: new_session_path,

@@ -1,9 +1,4 @@
 - if prompt?
-  - markup = capture do
+  = link_to sponsoring_path do
     div data-controller= 'tippy' title= tooltip
       i.fa.fas.fa-lg.fa-circle-exclamation class= (unknown? ? 'text-red-300' : 'text-yellow-300 dark:text-pink-400')
-
-  - if admin
-    = link_to markup, registration_path
-  - else
-    = markup

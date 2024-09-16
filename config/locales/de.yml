@@ -15,10 +15,10 @@ de:
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
-    prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Weiterentwicklung mit einem Sponsoring und erhalte weitere Features!
-    missing_sponsoring_header: Noch ohne Sponsoring
+    prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Weiterentwicklung mit einem Sponsoring und erhalte weitere Features.
+    missing_sponsoring_header: Sponsoring benötigt
     missing_sponsoring: Nur durch Sponsoren kann die Weiterentwicklung von SOLECTRUS sichergestellt werden.
-    missing_sponsoring_cta: Zum Sponsoring
+    missing_sponsoring_cta: Mehr erfahren...
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
   timeframe:
@@ -89,6 +89,17 @@ de:
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code>ADMIN_PASSWORD</code> ergänzt werden.
     password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf deinem Docker-Host.
     submit: Anmelden
+  sponsoring:
+    show:
+      headline: SOLECTRUS benötigt Sponsoren!
+      p1: SOLECTRUS ist Open Source – das bedeutet Freiheit für dich, aber auch harte Arbeit für den Entwickler. Wenn du möchtest, dass weiter an Updates und neuen Features gearbeitet wird, dann geht das nur mit deiner finanziellen Unterstützung.
+      p2: Mit dem Abschluss eines <strong>Sponsoring-Abos</strong> stellst du nicht nur die weitere Entwicklung sicher, sondern erhältst außerdem Zugriff auf <strong>exklusive Funktionen</strong>, wie z.B. den Power-Splitter oder den Dunkelmodus. Weitere Features, die nur für Sponsoren verfügbar sein werden, sind in Planung.
+      p3: Klingt das nach einem fairen Angebot?
+      more: Mehr über das Sponsoring erfahren
+      continue: Weiter
+      skip: Vielleicht später
+      p4: Du kannst SOLECTRUS weiterhin kostenfrei nutzen, dieser Hinweis erscheint jedoch gelegentlich als Erinnerung an die Möglichkeit eines Sponsorings.
+      login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Admin an.
   crud:
     new: Neu
     edit: Bearbeiten

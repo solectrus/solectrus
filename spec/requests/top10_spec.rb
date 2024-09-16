@@ -1,6 +1,7 @@
 describe 'Top 10' do
   describe 'GET /top10' do
     it_behaves_like 'localized request', '/top10/day/inverter_power/desc'
+    it_behaves_like 'sponsoring redirects', '/top10/day/inverter_power/desc'
   end
 
   describe 'redirection' do

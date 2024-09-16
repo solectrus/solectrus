@@ -85,7 +85,6 @@ html lang= I18n.locale
   ]
     - if banner?
       = render Banner::Component.new registration_status: UpdateCheck.registration_status,
-                                     prompt: UpdateCheck.prompt?,
                                      admin: admin?
 
     = render Nav::Top::Component.new do |c|
