@@ -21,7 +21,7 @@ import {
 } from 'chart.js';
 
 import 'chartjs-adapter-date-fns';
-import de from 'date-fns/locale/de';
+import { de } from 'date-fns/locale/de';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
 
