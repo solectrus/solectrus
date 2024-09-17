@@ -1,6 +1,7 @@
 module ApplicationHelper
   def banner?
     return false if controller.is_a?(ErrorsController)
+    return false if UpdateCheck.skipped_prompt?
 
     UpdateCheck.unregistered?
   end

@@ -16,12 +16,19 @@
           - elsif unregistered?
             = t('.unregistered')
 
-        = render Button::Component.new( \
-            path: sponsoring_path,
-            title: t('.button_to_register'),
-            icon: 'id-card',
-            options: { data: { turbo: 'false' } },
-          )
+        - if unregistered? || pending?
+           = render Button::Component.new( \
+              path: registration_path,
+              title: t('.button_to_register'),
+              icon: 'id-card',
+              options: { data: { turbo: 'false' } },
+            )
+        - else
+          = render Button::Component.new( \
+              path: sponsoring_path,
+              title: t('.button_to_sponsor'),
+              options: { data: { turbo: 'false' } },
+            )
 
       - else
         = t('.login_to_register')
