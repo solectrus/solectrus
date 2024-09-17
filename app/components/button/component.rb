@@ -50,12 +50,6 @@ class Button::Component < ViewComponent::Base
       border
       border-transparent
       rounded
-      focus:outline-none
-      focus:ring-2
-      focus:ring-offset-2
-      focus:ring-indigo-500
-      dark:focus:ring-offset-slate-800
-      click-animation
     ] +
       case style
       when :primary
@@ -77,11 +71,29 @@ class Button::Component < ViewComponent::Base
       shadow-sm
       px-3
       hover:scale-105
+      focus:outline-none
+      focus:ring-2
+      focus:ring-offset-2
+      focus:ring-indigo-500
+      dark:focus:ring-offset-slate-800
+      click-animation
     ]
   end
 
   def btn_secondary_class
-    ['hover:scale-125']
+    if icon
+      %w[
+        hover:scale-125
+        focus:outline-none
+        focus:ring-2
+        focus:ring-offset-2
+        focus:ring-indigo-500
+        dark:focus:ring-offset-slate-800
+        click-animation
+      ]
+    else
+      %w[underline underline-offset-4]
+    end
   end
 
   def btn_tertiary_class
