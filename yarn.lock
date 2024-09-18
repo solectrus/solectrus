@@ -369,9 +369,9 @@ __metadata:
   linkType: hard
 
 "@hotwired/turbo@npm:^8.0.6":
-  version: 8.0.6
-  resolution: "@hotwired/turbo@npm:8.0.6"
-  checksum: 10c0/d4f63dae16e84e78dc121e6174dd3c5dc85034b90adf9922666fe2050ce643209465a3acc894f7e1f20c9415c404e18c5717191b836ef9f3b096c3f5142ee6ff
+  version: 8.0.10
+  resolution: "@hotwired/turbo@npm:8.0.10"
+  checksum: 10c0/db79d87f6a4d659cdba2915e85c0851e7c7e838968f360a5c7d0bbe5c9ede6b1909d6fce485a92886238954f020adb2028cd2231f552ea7019039b971af876e8
   languageName: node
   linkType: hard
 
@@ -1700,9 +1700,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.4":
-  version: 1.5.23
-  resolution: "electron-to-chromium@npm:1.5.23"
-  checksum: 10c0/a2f76d3ffae24635ff13597a7e4ddd73bd7ee2124e021d34a60faafc5a1afda567e6d26c0c84abc5c2d7622d9daf9bb25ed7dd2970019dcf4b9a28c02c13cab4
+  version: 1.5.25
+  resolution: "electron-to-chromium@npm:1.5.25"
+  checksum: 10c0/2ea818d22592754b902df70d48b82c5d9e3cc2a221d3d0c39d7a7967780601a5cebd5fa10628c6d0ba918582c268a20392279e8bee93edba2e499681056ae143
   languageName: node
   linkType: hard
 
