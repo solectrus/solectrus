@@ -72,7 +72,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
         = render ThemeSelector::Component.new
 
       - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
-        .bg-yellow-100.dark:bg-pink-700.px-5.py-4.text-sm.font-normal.text-yellow-800.dark:text-pink-200
+        .bg-yellow-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-yellow-800.dark:text-pink-200
           - if helpers.admin?
             = I18n.t('layout.prompt_for_sponsoring')
             br

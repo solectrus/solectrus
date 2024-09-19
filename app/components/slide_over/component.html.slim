@@ -73,11 +73,7 @@
                       = I18n.t('layout.missing_sponsoring')
 
                   .mt-2
-                    - if helpers.admin?
-                      = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'underline underline-offset-2'
-                    - else
-                      i.fa.fa-arrow-right-to-bracket.mr-2
-                      = link_to I18n.t('layout.login'), new_session_path, class: 'underline underline-offset-2', data: { turbo_frame: 'modal' }
+                    = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'underline underline-offset-2'
 
             - elsif UpdateCheck.sponsoring?
               .bg-green-100

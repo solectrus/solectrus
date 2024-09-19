@@ -99,7 +99,7 @@ en:
       continue: Continue
       skip: Maybe later
       p4: You can continue to use SOLECTRUS for free, but this notice will occasionally appear as a reminder of the sponsorship opportunity.
-      login_required: To sponsor or see more options, please log in as an admin.
+      login_required: To sponsor or see more options, please log in as an administrator.
   crud:
     new: New
     edit: Edit

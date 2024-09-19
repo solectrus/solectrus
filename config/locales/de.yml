@@ -99,7 +99,7 @@ de:
       continue: Weiter
       skip: Vielleicht später
       p4: Du kannst SOLECTRUS weiterhin kostenfrei nutzen, dieser Hinweis erscheint jedoch gelegentlich als Erinnerung an die Möglichkeit eines Sponsorings.
-      login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Admin an.
+      login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Administrator an.
   crud:
     new: Neu
     edit: Bearbeiten
