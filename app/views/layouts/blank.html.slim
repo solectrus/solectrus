@@ -1,0 +1,59 @@
+doctype html
+html lang= I18n.locale
+  head
+    meta charset="utf-8"
+
+    title
+      = ['SOLECTRUS', title.presence].compact.join(' | ')
+
+    meta name="viewport" content="width=device-width,initial-scale=1"
+    meta name="disabled-adaptations" content="watch"
+    meta name="apple-mobile-web-app-title" content="SOLECTRUS"
+    meta name="apple-mobile-web-app-capable" content="yes"
+    meta name="mobile-web-app-capable" content="yes"
+    meta name="application-name" content="SOLECTRUS"
+    meta name="theme-color" content="#a5b4fc"
+    meta name="version" content= Rails.configuration.x.git.commit_version
+    meta name="date" content= Rails.configuration.x.git.commit_time
+    meta name="env" content= Rails.env
+    meta name="author" content="Georg Ledermann"
+    meta name="robots" content= "noindex, nofollow, noarchive"
+
+    - if Rails.configuration.x.honeybadger.api_key
+      meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key
+
+    link rel="manifest" href="/manifest.webmanifest"
+    link rel="icon" type="image/png" sizes="196x196" href="/favicon-196.png"
+    link rel="apple-touch-icon" href="/apple-icon-180.png"
+
+    = csrf_meta_tags
+
+    = vite_client_tag
+    = vite_typescript_tag 'application', 'data-turbo-track': 'reload'
+    = vite_stylesheet_tag 'application.css', 'data-turbo-track': 'reload', media: 'screen'
+
+    = yield :head
+
+  body.min-h-dvh.flex.flex-col.justify-center.bg-indigo-600.select-none.font-sans.antialiased[
+    data-controller= 'icons'
+  ]
+    svg.absolute viewBox="0 0 1200 1200" class= "opacity-10"
+      path fill="#a5b4fc" d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
+
+    main.relative
+      = yield
+
+    footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.text-white
+      .flex.items-center.gap-2
+        = link_to 'https://solectrus.de',
+                  class: 'tracking-wider',
+                  target: '_blank',
+                  rel: 'noopener' do
+          | SOLECTRUS.de
+        = render VersionInfo::Component.new( \
+            current_version: Rails.configuration.x.git.commit_version,
+            commit_time: Rails.configuration.x.git.commit_time,
+            github_url: Rails.configuration.x.git.home,
+          )
+
+      = render AuthorLogo::Component.new
