@@ -10,7 +10,7 @@ de:
     settings: Einstellungen
     registration: Registrierung
     registration_and_sponsoring: Registrierung & Sponsoring
-    login: Anmelden
+    login: Als Admin anmelden
     logout: Abmelden
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
@@ -86,7 +86,7 @@ de:
     title: Als Admin anmelden
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code>ADMIN_PASSWORD</code> ergänzt werden.
-    password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf dem Docker-Host.
+    password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf deinem Docker-Host.
     submit: Anmelden
   crud:
     new: Neu
