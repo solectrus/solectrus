@@ -1,4 +1,6 @@
 class ErrorsController < ApplicationController
+  skip_before_action :check_for_sponsoring
+
   def show
     render 'show', status: status_code, formats: [:html]
   end

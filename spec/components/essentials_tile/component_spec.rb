@@ -24,15 +24,19 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-violet-600'
+      expect(
+        component.background_color,
+      ).to eq 'bg-violet-600 dark:bg-violet-800'
     end
 
     it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white'
+      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
     end
 
     it 'returns the correct text secondary color' do
-      expect(component.text_secondary_color).to eq 'text-violet-100'
+      expect(
+        component.text_secondary_color,
+      ).to eq 'text-violet-100 dark:text-violet-400'
     end
   end
 
@@ -59,15 +63,17 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-green-600'
+      expect(component.background_color).to eq 'bg-green-600 dark:bg-green-800'
     end
 
     it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white'
+      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
     end
 
     it 'returns the correct text secondary color' do
-      expect(component.text_secondary_color).to eq 'text-green-100'
+      expect(
+        component.text_secondary_color,
+      ).to eq 'text-green-100 dark:text-green-400'
     end
   end
 
@@ -94,15 +100,17 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-green-600'
+      expect(component.background_color).to eq 'bg-green-600 dark:bg-green-800'
     end
 
     it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white'
+      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
     end
 
     it 'returns the correct text secondary color' do
-      expect(component.text_secondary_color).to eq 'text-green-100'
+      expect(
+        component.text_secondary_color,
+      ).to eq 'text-green-100 dark:text-green-400'
     end
   end
 
@@ -129,15 +137,17 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-gray-600'
+      expect(component.background_color).to eq 'bg-gray-600 dark:bg-gray-700'
     end
 
     it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white'
+      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
     end
 
     it 'returns the correct text secondary color' do
-      expect(component.text_secondary_color).to eq 'text-gray-100'
+      expect(
+        component.text_secondary_color,
+      ).to eq 'text-gray-100 dark:text-gray-400'
     end
   end
 
@@ -164,15 +174,17 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-gray-600'
+      expect(component.background_color).to eq 'bg-gray-600 dark:bg-gray-700'
     end
 
     it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white'
+      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
     end
 
     it 'returns the correct text secondary color' do
-      expect(component.text_secondary_color).to eq 'text-gray-100'
+      expect(
+        component.text_secondary_color,
+      ).to eq 'text-gray-100 dark:text-gray-400'
     end
   end
 
@@ -199,15 +211,17 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-green-600'
+      expect(component.background_color).to eq 'bg-green-600 dark:bg-green-800'
     end
 
     it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white'
+      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
     end
 
     it 'returns the correct text secondary color' do
-      expect(component.text_secondary_color).to eq 'text-green-100'
+      expect(
+        component.text_secondary_color,
+      ).to eq 'text-green-100 dark:text-green-400'
     end
   end
 end

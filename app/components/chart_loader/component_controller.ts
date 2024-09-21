@@ -217,7 +217,7 @@ export default class extends Controller<HTMLCanvasElement> {
     max: number,
     minAlpha: number,
   ) {
-    // Remmeber original color
+    // Remember original color
     const originalColor = dataset.backgroundColor as string;
 
     const extent = min < 0 ? Math.abs(max) + Math.abs(min) : max;

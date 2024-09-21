@@ -106,7 +106,7 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="text-green-700"><strong class="font-medium">1</strong><small>.23</small>&nbsp;<small>&euro;</small></span>'
+        ).to eq '<span class="text-green-700 dark:text-green-400"><strong class="font-medium">1</strong><small>.23</small>&nbsp;<small>&euro;</small></span>'
       end
     end
 
@@ -116,7 +116,7 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="text-red-700"><strong class="font-medium">-1</strong><small>.23</small>&nbsp;<small>&euro;</small></span>'
+        ).to eq '<span class="text-red-700 dark:text-red-400"><strong class="font-medium">-1</strong><small>.23</small>&nbsp;<small>&euro;</small></span>'
       end
     end
 
@@ -127,7 +127,7 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="text-green-700"><strong class="font-medium">10</strong><small>.00</small>&nbsp;<small>&euro;</small></span>'
+        ).to eq '<span class="text-green-700 dark:text-green-400"><strong class="font-medium">10</strong><small>.00</small>&nbsp;<small>&euro;</small></span>'
       end
     end
 
@@ -138,7 +138,7 @@ describe Number::Component do
       it do
         expect(
           to_eur,
-        ).to eq '<span class="foo"><strong class="font-medium">10</strong>&nbsp;<small>&euro;</small></span>'
+        ).to eq '<span class="foo text-green-700 dark:text-green-400"><strong class="font-medium">10</strong>&nbsp;<small>&euro;</small></span>'
       end
     end
   end
@@ -154,7 +154,7 @@ describe Number::Component do
       it do
         expect(
           to_eur_per_kwh,
-        ).to eq '<span class="text-green-700"><strong class="font-medium">0</strong><small>.2208</small>&nbsp;<small>&euro;/kWh</small></span>'
+        ).to eq '<span class="text-green-700 dark:text-green-400"><strong class="font-medium">0</strong><small>.2208</small>&nbsp;<small>&euro;/kWh</small></span>'
       end
     end
 
@@ -164,7 +164,7 @@ describe Number::Component do
       it do
         expect(
           to_eur_per_kwh,
-        ).to eq '<span class="text-red-700"><strong class="font-medium">-0</strong><small>.2208</small>&nbsp;<small>&euro;/kWh</small></span>'
+        ).to eq '<span class="text-red-700 dark:text-red-400"><strong class="font-medium">-0</strong><small>.2208</small>&nbsp;<small>&euro;/kWh</small></span>'
       end
     end
 
@@ -175,7 +175,7 @@ describe Number::Component do
       it do
         expect(
           to_eur_per_kwh,
-        ).to eq '<span class="foo"><strong class="font-medium">0</strong><small>.5000</small>&nbsp;<small>&euro;/kWh</small></span>'
+        ).to eq '<span class="foo text-green-700 dark:text-green-400"><strong class="font-medium">0</strong><small>.5000</small>&nbsp;<small>&euro;/kWh</small></span>'
       end
     end
   end

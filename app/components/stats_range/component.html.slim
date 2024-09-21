@@ -43,12 +43,12 @@
                 class: 'click-animation' do
         div data-controller="tippy" title= t('calculator.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor)
           = render RadialBadge::Component.new(title: t('calculator.co2_reduction')) do
-            = Number::Component.new(value: calculator.co2_reduction).to_weight(klass: 'text-sky-700')
+            = Number::Component.new(value: calculator.co2_reduction).to_weight(klass: 'text-sky-700 dark:text-sky-400')
 
     div data-controller="tippy"
       = render RadialBadge::Component.new(title: t('calculator.total_costs')) do
         - unless timeframe.future?
-          = Number::Component.new(value: costs).to_eur(klass: 'text-red-700')
+          = Number::Component.new(value: costs).to_eur(negative: true)
       - unless timeframe.future?
         template data-tippy-target="html"
           = render ConsumeDetails::Component.new(calculator:)

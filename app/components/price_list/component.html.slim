@@ -1,5 +1,5 @@
 .table.w-full.select-text
-  .table-header-group
+  .table-header-group.text-gray-800.dark:text-gray-400
     .table-row
       .table-cell.align-middle.p-2.tabular-nums.text-left.font-bold
         = Price.human_attribute_name(:starts_at)
@@ -9,9 +9,9 @@
       .table-cell
       .table-cell
 
-  .table-row-group
+  .table-row-group.text-gray-800.dark:text-gray-400
     - prices.each_with_index do |price, index|
-      .table-row.hover:bg-gray-100
+      .table-row.hover:bg-gray-100.dark:hover:bg-gray-700
         .table-cell.align-middle.p-2.tabular-nums.text-left.w-1.whitespace-nowrap
           time datetime= price.starts_at.iso8601
             = l price.starts_at
@@ -43,5 +43,5 @@
                                                method: :delete,
                                                'aria-label': t('crud.delete'),
                                                form: { data: { 'turbo-confirm': t('crud.confirm_delete') } },
-                                               class: 'hover:text-red-600',
+                                               class: 'hover:text-orange-500',
                                              }

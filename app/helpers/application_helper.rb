@@ -3,7 +3,7 @@ module ApplicationHelper
     return false if controller.is_a?(ErrorsController)
     return false if UpdateCheck.skipped_prompt?
 
-    UpdateCheck.prompt? || UpdateCheck.unregistered?
+    UpdateCheck.unregistered?
   end
 
   def extra_stimulus_controllers(*controller_names)

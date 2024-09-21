@@ -30,7 +30,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def stats_item
       {
         name: t('layout.balance'),
-        href: root_path,
+        href: root_path(sensor: 'inverter_power', timeframe: 'now'),
         current: helpers.controller.is_a?(HomeController),
       }
     end

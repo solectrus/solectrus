@@ -1,5 +1,5 @@
 .badge[
-  class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 '
+  class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 dark:xl:tall:bg-slate-800'
   style= "--value: #{percent};"
 ]
   - %i[battery_soc car_battery_soc].each do |soc_sensor|
@@ -20,14 +20,14 @@
         div class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'
           - case soc_sensor
           - when :battery_soc
-            i.fa.fa-house.fa-sm.text-slate-500
+            i.fa.fa-house.fa-sm.text-slate-500.dark:text-slate-400
           - when :car_battery_soc
             i.fa.fa-car.fa-sm[
-              class= (car_connected || car_connected.nil? ? 'text-slate-500' : 'text-slate-400')
+              class= (car_connected || car_connected.nil? ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400 dark:text-slate-500')
             ]
 
           span class= (value.round < 25 ? 'text-red-600' : 'text-green-600')
             = "#{value.round}%"
 
-  .title class= 'text-center uppercase tracking-tight text-slate-500'
+  .title class= 'text-center uppercase tracking-tight text-slate-500 dark:text-slate-400'
     = t('.soc')

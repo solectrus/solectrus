@@ -35,4 +35,15 @@ class ApplicationController < ActionController::Base
   # Override this method to set a custom page title
   helper_method def title
   end
+
+  before_action :check_for_sponsoring
+
+  private
+
+  def check_for_sponsoring
+    return unless UpdateCheck.prompt?
+    return if UpdateCheck.skipped_prompt?
+
+    redirect_to(sponsoring_path)
+  end
 end
