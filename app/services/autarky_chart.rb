@@ -44,7 +44,12 @@ class AutarkyChart < Flux::Reader
     q = []
 
     q << from_bucket
-    q << "|> #{range(start:, stop:)}"
+
+    # To ensure that we capture data even when measurements are sparse (e.g. every 15 minutes),
+    # we extend the time period backwards by one hour. From the data received,
+    # everything outside the desired range is then filtered out.
+    q << "|> #{range(start: start - 1.hour, stop:)}"
+
     q << "|> #{filter}"
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
     q << '|> fill(usePrevious: true)' if fill
@@ -61,7 +66,7 @@ class AutarkyChart < Flux::Reader
     q << '|> keep(columns: ["_time", "autarky"])'
 
     raw = query(q.join)
-    to_array(raw)
+    to_array(raw, start:)
   end
 
   def chart_sum(start:, window:, stop: nil)
@@ -85,14 +90,14 @@ class AutarkyChart < Flux::Reader
     q << '|> keep(columns: ["_time", "autarky"])'
 
     raw = query(q.join)
-    to_array(raw)
+    to_array(raw, start:)
   end
 
-  def to_array(raw)
-    value_to_array(raw.first)
+  def to_array(raw, start:)
+    value_to_array(raw.first, start:)
   end
 
-  def value_to_array(raw)
+  def value_to_array(raw, start:)
     result = []
 
     raw&.records&.each_with_index do |record, index|
@@ -103,7 +108,9 @@ class AutarkyChart < Flux::Reader
       time = Time.zone.parse(record.values['_time'])
       value = next_record.values['autarky']
 
-      result << [time, value]
+      # Take only values that are after the desired start
+      # (needed because the start was extended by one hour)
+      result << [time, value] if time >= start
     end
 
     result
