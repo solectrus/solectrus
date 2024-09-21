@@ -1,4 +1,5 @@
 {
+  "id": "solectrus",
   "name": "SOLECTRUS",
   "short_name": "SOLECTRUS",
   "description": "Photovoltaic Dashboard",
@@ -9,6 +10,11 @@
   "theme_color": "#a5b4fc",
   "display": "standalone",
   "orientation": "portrait",
+  "author": "Georg Ledermann",
+  "developer": {
+    "name": "Georg Ledermann",
+    "url": "https://ledermann.dev"
+  },
   "icons": [
     {
       "src": "/manifest-icon-192.maskable.png",
