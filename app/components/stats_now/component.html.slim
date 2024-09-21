@@ -24,7 +24,7 @@
             = render AutarkyDetails::Component.new(calculator:)
 
     - if SensorConfig.x.exists?(:self_consumption) && calculator.self_consumption_quote
-      = link_to root_path(sensor: 'consumption', timeframe:),
+      = link_to root_path(sensor: 'self_consumption', timeframe:),
                 data: { \
                   turbo_frame: 'chart',
                   turbo_action: 'replace',
