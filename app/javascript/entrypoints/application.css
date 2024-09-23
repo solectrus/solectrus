@@ -1,12 +1,10 @@
 /* Import styles from external libraries */
-@import 'tippy.js/dist/tippy.css';
-@import 'tippy.js/animations/scale.css';
-@import 'tippy.js/themes/light-border.css';
 @import '@fortawesome/fontawesome-svg-core/styles.css';
 
 /* Import app specific styles */
+@import '../stylesheets/tippy.css';
 @import '../stylesheets/flow.css';
-@import '../stylesheets/radial_badge.css';
+@import '../stylesheets/badge.css';
 @import '../stylesheets/animations.css';
 
 /* Import the Inter font */
@@ -26,7 +24,16 @@
   background-color: #a5b4fc;
 }
 
+/* Chart.js */
+
+.dark {
+  canvas {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}
+
 /* Minimalistic form styling, inspired by DaisyUI */
+
 .form-control {
   @apply flex flex-col;
 }
@@ -47,6 +54,31 @@
   @apply !border-red-500 !ring-red-500;
 }
 
+.dark {
+  .label {
+    @apply text-gray-400;
+  }
+
+  .label-hint {
+    @apply text-gray-400;
+  }
+
+  .form-input {
+    @apply bg-black text-gray-300 ring-offset-slate-800 focus:border-indigo-500 focus:!ring-offset-pink-700;
+  }
+
+  [type='checkbox'],
+  [type='radio'] {
+    @apply text-indigo-700;
+    background-color: currentColor;
+  }
+
+  [type='checkbox']:focus,
+  [type='radio']:focus {
+    @apply !ring-offset-indigo-300;
+  }
+}
+
 * {
   /* Disable default callouts for touch targets on iOS */
   -webkit-touch-callout: none;
@@ -54,13 +86,8 @@
   -webkit-user-drag: none;
 }
 
-/* Disable pointer events when Tooltip is shown (see tippy_controller.ts) */
-body.active-tippy * {
-  @apply pointer-events-none;
-}
-
 main code {
-  @apply rounded bg-slate-100 px-1 py-px;
+  @apply rounded border border-dotted border-slate-500 bg-slate-100 px-1 py-px dark:bg-slate-900;
 }
 
 .min-h-dvh {

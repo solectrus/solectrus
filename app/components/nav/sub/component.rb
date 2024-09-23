@@ -48,13 +48,20 @@ class Nav::Sub::Component < ViewComponent::Base
             lg:rounded-md
             lg:bg-gray-200
             lg:bg-none
+            dark:lg:bg-slate-500
+            dark:from-gray-800
+            dark:to-indigo-700
+            dark:text-slate-300
           ]
       else
         base_classes +
           %w[
             text-gray-300
+            dark:text-slate-400
             lg:hover:text-gray-200
             lg:hover:bg-indigo-500
+            dark:lg:hover:bg-indigo-700
+            dark:lg:hover:text-gray-400
             rounded
           ]
       end

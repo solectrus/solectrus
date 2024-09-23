@@ -120,17 +120,17 @@ class BalanceSegment::Component < ViewComponent::Base
   def color_class
     case sensor
     when :grid_export_power, :inverter_power
-      'bg-green-600'
+      'bg-green-600 dark:bg-green-800/80'
     when :battery_discharging_power, :battery_charging_power
-      'bg-green-700'
+      'bg-green-700 dark:bg-green-900/70'
     when :house_power
-      'bg-slate-500'
-    when :wallbox_power
-      'bg-slate-700'
+      'bg-slate-500 dark:bg-slate-600/90'
     when :heatpump_power
-      'bg-slate-600'
+      'bg-slate-600 dark:bg-slate-600/70'
+    when :wallbox_power
+      'bg-slate-700 dark:bg-slate-600/50'
     when :grid_import_power
-      'bg-red-600'
+      'bg-red-600   dark:bg-red-800/80'
     end
   end
 

@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  skip_before_action :check_for_sponsoring
+
   def new
     redirect_to(root_path) and return if admin?
 

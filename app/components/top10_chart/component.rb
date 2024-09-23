@@ -41,26 +41,26 @@ class Top10Chart::Component < ViewComponent::Base
 
   def text_classes(record)
     if corresponding_date(record[:date]) == corresponding_date(Date.current)
-      'text-yellow-700'
+      'text-yellow-700 dark:text-yellow-300'
     else
-      'text-gray-700'
+      'text-gray-700 dark:text-gray-400'
     end
   end
 
   def bar_classes
     case sensor.to_sym
     when :grid_export_power, :inverter_power
-      'from-green-500 to-green-300 text-green-800'
+      'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
     when :battery_discharging_power, :battery_charging_power
-      'from-green-700 to-green-300 text-green-800'
+      'from-green-700 to-green-300 text-green-800 dark:from-green-800 dark:to-green-500 dark:text-green-900'
     when :house_power
-      'from-slate-500 to-slate-300 text-slate-800'
+      'from-slate-500 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
     when :wallbox_power
-      'from-slate-600 to-slate-300 text-slate-800'
+      'from-slate-600 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
     when :heatpump_power
-      'from-slate-700 to-slate-300 text-slate-800'
+      'from-slate-700 to-slate-300 text-slate-800 dark:from-slate-800 dark:to-slate-500 dark:text-slate-900'
     when :grid_import_power
-      'from-red-600 to-red-300 text-red-800'
+      'from-red-600   to-red-300   text-red-800   dark:from-red-800   dark:to-red-400   dark:text-red-900'
     end
   end
 

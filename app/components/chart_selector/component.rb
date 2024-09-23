@@ -16,9 +16,10 @@ class ChartSelector::Component < ViewComponent::Base
       wallbox_power
       battery_power
       battery_soc
+      car_battery_soc
       case_temp
       autarky
-      consumption
+      self_consumption
       co2_reduction
     ].select { |sensor| SensorConfig.x.exists?(sensor) }
     # TODO: Add savings
@@ -45,7 +46,7 @@ class ChartSelector::Component < ViewComponent::Base
   private
 
   def title(sensor)
-    if sensor.in?(%i[autarky consumption co2_reduction])
+    if sensor.in?(%i[autarky self_consumption co2_reduction])
       I18n.t "calculator.#{sensor}"
     else
       I18n.t "sensors.#{sensor}"

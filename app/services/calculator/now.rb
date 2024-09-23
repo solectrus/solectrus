@@ -13,20 +13,23 @@ class Calculator::Now < Calculator::Base
                       battery_charging_power
                       battery_discharging_power
                       battery_soc
+                      wallbox_car_connected
                       wallbox_power
                       case_temp
                       system_status
                       system_status_ok
+                      car_battery_soc
                     ],
                   ).call(Timeframe.now)
   end
 
   def build_context(data)
     build_method(:time, data)
-    build_method(:system_status, data, :to_utf8)
-    build_method(:system_status_ok, data)
+    build_method(:system_status, data, :to_utf8, allow_nil: true)
+    build_method(:system_status_ok, data, :to_b, allow_nil: true)
 
     build_method(:inverter_power, data, :to_f)
+    build_method(:wallbox_car_connected, data, :to_b, allow_nil: true)
     build_method(:wallbox_power, data, :to_f)
     build_method(:grid_import_power, data, :to_f)
     build_method(:grid_export_power, data, :to_f)
@@ -36,6 +39,7 @@ class Calculator::Now < Calculator::Base
     build_method(:case_temp, data, :to_f)
     build_method(:grid_export_limit, data)
     build_method(:heatpump_power, data, :to_f)
+    build_method(:car_battery_soc, data)
 
     define_singleton_method(:house_power) do
       [

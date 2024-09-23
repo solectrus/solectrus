@@ -15,7 +15,7 @@ dl
   .grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&#61;&nbsp;
-      = I18n.t('calculator.consumption')
+      = I18n.t('calculator.self_consumption')
     dd.font-mono.text-right = Number::Component.new(value: calculator.consumption_alt).to_watt_hour(max_precision: 3, unit: :kilo)
 
   .mt-2.grid.grid-cols-2.gap-4
@@ -28,5 +28,5 @@ dl
   .grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&#61;&nbsp;
-      = I18n.t('calculator.consumption_quote')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.consumption_quote).to_percent(max_precision: 1)
+      = I18n.t('calculator.self_consumption_quote')
+    dd.font-mono.text-right = Number::Component.new(value: calculator.self_consumption_quote).to_percent(max_precision: 1)

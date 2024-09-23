@@ -6,21 +6,27 @@ export default class extends Controller {
   declare readonly btnOnTargets: HTMLElement[];
   declare readonly btnOffTargets: HTMLElement[];
 
+  private boundFullscreenChangeListener?: () => void;
+
   connect() {
     this.updateButtons();
 
-    if (this.isFullscreenSupported())
+    if (this.isFullscreenSupported()) {
+      this.boundFullscreenChangeListener =
+        this.fullscreenChangeListener.bind(this);
+
       document.addEventListener(
         'fullscreenchange',
-        this.fullscreenChangeListener.bind(this),
+        this.boundFullscreenChangeListener,
       );
+    }
   }
 
   disconnect() {
-    if (this.isFullscreenSupported())
+    if (this.boundFullscreenChangeListener)
       document.removeEventListener(
         'fullscreenchange',
-        this.fullscreenChangeListener.bind(this),
+        this.boundFullscreenChangeListener,
       );
   }
 

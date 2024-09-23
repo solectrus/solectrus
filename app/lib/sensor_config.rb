@@ -22,6 +22,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     battery_charging_power
     battery_discharging_power
     battery_soc
+    car_battery_soc
+    wallbox_car_connected
     wallbox_power
     case_temp
     system_status
@@ -44,22 +46,27 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   ].freeze
   public_constant :POWER_SENSORS
 
-  CALCULATED_SENSORS = %i[autarky consumption savings co2_reduction].freeze
+  CALCULATED_SENSORS = %i[autarky self_consumption savings co2_reduction].freeze
   public_constant :CALCULATED_SENSORS
 
-  # Combine charging/discharging and import/export fields
-  # - `grid_power` instead of `grid_import_power` and `grid_export_power`
-  # - `battery_power` instead of `battery_charging_power` and `battery_discharging_power`
-  COMBINED_SENSORS =
-    (
-      SENSOR_NAMES.map do |sensor_name|
-        sensor_name
-          .to_s
-          .gsub(/_import|_export|_discharging|_charging/, '')
-          .to_sym
-      end + CALCULATED_SENSORS
-    ).uniq.freeze
-  public_constant :COMBINED_SENSORS
+  # Sensors that are displayed in the charts
+  CHART_SENSORS = %i[
+    inverter_power
+    house_power
+    heatpump_power
+    grid_power
+    battery_power
+    battery_soc
+    car_battery_soc
+    wallbox_power
+    case_temp
+    autarky
+    self_consumption
+    savings
+    co2_reduction
+  ].freeze
+  public_constant :CHART_SENSORS
+  # TODO: Implement savings, which is currently a redirect to inverter_power
 
   POWER_SPLITTER_SENSOR_CONFIG = {
     'INFLUX_SENSOR_WALLBOX_POWER_GRID' => 'power_splitter:wallbox_power_grid',
@@ -123,7 +130,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists_any? :battery_charging_power, :battery_discharging_power
     when :autarky
       exists_all? :house_power, :grid_import_power
-    when :consumption
+    when :self_consumption
       exists_all? :inverter_power, :grid_export_power
     when :savings
       exists_all? :inverter_power, :house_power, :grid_power
@@ -131,6 +138,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists? :inverter_power
     when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid
       exists_with_policy? sensor_name, :power_splitter?
+    when :car_battery_soc, :wallbox_car_connected
+      exists_with_policy? sensor_name, :car?
     when *SENSOR_NAMES
       measurement(sensor_name).present? && field(sensor_name).present?
     else

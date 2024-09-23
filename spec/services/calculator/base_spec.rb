@@ -20,12 +20,86 @@ describe Calculator::Base do
       it { is_expected.to eq(42) }
     end
 
-    context 'when modifier is given' do
-      let(:data) { { method => nil } }
+    context 'when modifier is to_f' do
+      context 'when data is nil' do
+        before { calculator.build_method(method, data, :to_f) }
 
-      before { calculator.build_method(method, data, :to_f) }
+        let(:data) { { method => nil } }
 
-      it { is_expected.to eq(0.0) }
+        it { is_expected.to eq(0.0) }
+      end
+
+      context 'when data is nil (and allowed)' do
+        before { calculator.build_method(method, data, :to_f, allow_nil: true) }
+
+        let(:data) { { method => nil } }
+
+        it { is_expected.to be_nil }
+      end
+    end
+
+    context 'when modifier is to_i' do
+      context 'when data is Float' do
+        before { calculator.build_method(method, data, :to_i) }
+
+        let(:data) { { method => 3.5 } }
+
+        it { is_expected.to eq(3) }
+      end
+
+      context 'when data is nil' do
+        before { calculator.build_method(method, data, :to_i) }
+
+        let(:data) { { method => nil } }
+
+        it { is_expected.to eq(0) }
+      end
+
+      context 'when data is nil (and allowed)' do
+        before { calculator.build_method(method, data, :to_i, allow_nil: true) }
+
+        let(:data) { { method => nil } }
+
+        it { is_expected.to be_nil }
+      end
+    end
+
+    context 'when modifier is to_b' do
+      context 'when data is nil' do
+        before { calculator.build_method(method, data, :to_b) }
+
+        let(:data) { { method => nil } }
+
+        it { is_expected.to be(false) }
+      end
+
+      context 'when data is nil (and allowed)' do
+        before { calculator.build_method(method, data, :to_b, allow_nil: true) }
+
+        let(:data) { { method => nil } }
+
+        it { is_expected.to be_nil }
+      end
+    end
+
+    context 'when modifier is to_utf8' do
+      context 'when data is nil' do
+        before { calculator.build_method(method, data, :to_utf8) }
+
+        let(:data) { { method => nil } }
+
+        it { is_expected.to eq('') }
+      end
+
+      context 'when data is nil (and allowed)' do
+        before do
+          calculator.build_method(method, data, :to_utf8, allow_nil: true)
+        end
+
+        let(:data) { { method => nil } }
+
+        it { is_expected.to be_nil }
+      end
     end
 
     context 'when neither data nor block is given' do

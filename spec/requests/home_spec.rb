@@ -1,6 +1,7 @@
 describe 'Home', vcr: { cassette_name: 'version' } do
   describe 'GET /' do
     it_behaves_like 'localized request', '/'
+    it_behaves_like 'sponsoring redirects', '/'
 
     context 'without params :fields and :timeframe' do
       context 'when day' do

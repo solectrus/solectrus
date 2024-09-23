@@ -6,18 +6,19 @@ en:
     about: About SOLECTRUS
     fullscreen_on: Fullscreen
     fullscreen_off: Exit Fullscreen
+    theme: Theme
     faq: FAQ
     settings: Settings
     registration: Registration
     registration_and_sponsoring: Registration & Sponsoring
-    login: Login
+    login: Login as Admin
     logout: Logout
     version_outdated: New version <strong>%{latest_version}</strong> available!
     version_uptodate: This is the latest version
-    prompt_for_sponsoring: Do you like SOLECTRUS? Support the further development with a sponsorship and get more features!
-    missing_sponsoring_header: Still without sponsoring
+    prompt_for_sponsoring: Do you like SOLECTRUS? Support the further development with a sponsorship and get more features.
+    missing_sponsoring_header: Sponsoring required
     missing_sponsoring: Only sponsors can ensure the further development of SOLECTRUS.
-    missing_sponsoring_cta: About sponsoring
+    missing_sponsoring_cta: Learn more...
     active_sponsoring_header: Sponsoring is active
     active_sponsoring: Thank you very much for your support!
   timeframe:
@@ -42,7 +43,8 @@ en:
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
     battery_power: Battery
-    battery_soc: Battery
+    battery_soc: SOC battery
+    car_battery_soc: SOC EV
     case_temp: Temperature
     grid_export_limit: Limitation
     heatpump_power: Heat pump
@@ -51,6 +53,7 @@ en:
   balance_sheet:
     left: Source
     right: Usage
+    soc: Charge
   calculator:
     now: Now
     day: Day
@@ -59,8 +62,10 @@ en:
     year: Year
     all: Overall
     grid_quote: Grid consumption rate
-    consumption: Consume
-    consumption_quote: Self-consumption rate
+    consumption: Total consumption
+    self_consumption: Self consumption
+    self_consumption_quote: Self-consumption rate
+    self_consumption_quote_short: Self-use
     solar_price: Solar price
     traditional_price: Comparative price
     savings: Savings
@@ -82,8 +87,19 @@ en:
     title: Login as admin
     missing_password_error: Unable to log in because no password has been configured.
     missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
-    password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on the Docker host.
+    password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on your Docker host.
     submit: Login
+  sponsoring:
+    show:
+      headline: SOLECTRUS needs sponsors!
+      p1: SOLECTRUS is open source – that means freedom for you, but also hard work for the developer. If you want updates and new features to continue, this is only possible with your financial support.
+      p2: By subscribing to a <strong>sponsorship plan</strong>, you not only ensure continued development but also gain access to <strong>exclusive features</strong> like the Power Splitter or Dark Mode. More sponsor-only features are in the pipeline.
+      p3: Does that sound like a fair offer?
+      more: Learn more about sponsoring
+      continue: Continue
+      skip: Maybe later
+      p4: You can continue to use SOLECTRUS for free, but this notice will occasionally appear as a reminder of the sponsorship opportunity.
+      login_required: To sponsor or see more options, please log in as an administrator.
   crud:
     new: New
     edit: Edit

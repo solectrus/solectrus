@@ -4,7 +4,7 @@ class PowerSum < Flux::Reader
 
     super
 
-    timeframe.now? ? last(1.hour.ago) : sum(timeframe:)
+    timeframe.now? ? last(1.day.ago) : sum(timeframe:)
   end
 
   private

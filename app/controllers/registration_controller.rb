@@ -1,4 +1,6 @@
 class RegistrationController < ApplicationController
+  skip_before_action :check_for_sponsoring
+
   def show
     if admin?
       case params[:status]
@@ -6,7 +8,8 @@ class RegistrationController < ApplicationController
         redirect_to(registration_url, allow_other_host: true)
       when 'skip'
         UpdateCheck.skip_prompt!
-        redirect_back(fallback_location: root_path)
+
+        redirect_to(root_path)
       else
         UpdateCheck.clear_cache!
         redirect_to(root_path)

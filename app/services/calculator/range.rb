@@ -87,15 +87,15 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def direct_consumption
-    return unless consumption && grid_import_power
+  def self_consumption
+    return unless inverter_power && grid_export_power
 
-    consumption - grid_import_power
+    inverter_power - grid_export_power
   end
 
   def opportunity_costs
     section_sum do |index|
-      (consumption_array[index] - grid_import_power_array[index]) *
+      (inverter_power_array[index] - grid_export_power_array[index]) *
         feed_in_tariff_array[index]
     end
   end

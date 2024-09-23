@@ -4,12 +4,13 @@ describe('Home page', () => {
     'battery_power',
     'grid_power',
     'autarky',
-    'consumption',
+    'self_consumption',
     'house_power',
     'heatpump_power',
     'wallbox_power',
     'case_temp',
     'battery_soc',
+    'car_battery_soc',
     'co2_reduction',
   ].forEach((path) => {
     it(`${path} is clickable`, () => {

@@ -10,22 +10,24 @@ export default class extends Controller<HTMLElement> {
   private touchStartTime: number = 0;
   private touchEndTime: number = 0;
 
+  private boundHandleTouchStart?: (event: TouchEvent) => void;
+  private boundHandleTouchEnd?: (event: TouchEvent) => void;
+
   connect() {
     if (!isTouchEnabled()) return;
 
     // Prevent rubber-band scrolling when swiping
     document.body.classList.add('overflow-hidden');
 
+    this.boundHandleTouchStart = this.handleTouchStart.bind(this);
     this.element.addEventListener(
       'touchstart',
-      this.handleTouchStart.bind(this),
+      this.boundHandleTouchStart,
       false,
     );
-    this.element.addEventListener(
-      'touchend',
-      this.handleTouchEnd.bind(this),
-      false,
-    );
+
+    this.boundHandleTouchEnd = this.handleTouchEnd.bind(this);
+    this.element.addEventListener('touchend', this.boundHandleTouchEnd, false);
   }
 
   handleTouchStart(event: TouchEvent) {
@@ -85,13 +87,12 @@ export default class extends Controller<HTMLElement> {
   disconnect() {
     if (!isTouchEnabled()) return;
 
-    this.element.removeEventListener(
-      'touchstart',
-      this.handleTouchStart.bind(this),
-    );
-    this.element.removeEventListener(
-      'touchend',
-      this.handleTouchEnd.bind(this),
-    );
+    if (this.boundHandleTouchStart)
+      this.element.removeEventListener(
+        'touchstart',
+        this.boundHandleTouchStart,
+      );
+    if (this.boundHandleTouchEnd)
+      this.element.removeEventListener('touchend', this.boundHandleTouchEnd);
   }
 }

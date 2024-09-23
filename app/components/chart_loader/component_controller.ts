@@ -21,7 +21,7 @@ import {
 } from 'chart.js';
 
 import 'chartjs-adapter-date-fns';
-import de from 'date-fns/locale/de';
+import { de } from 'date-fns/locale/de';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
 
@@ -61,19 +61,19 @@ export default class extends Controller<HTMLCanvasElement> {
   declare unitValue: string;
   declare readonly hasUnitValue: boolean;
 
+  private boundHandleResize?: () => void;
   private chart?: Chart;
 
   connect() {
     this.process();
 
-    window.addEventListener(
-      'resize',
-      debounce(100, this.handleResize.bind(this)),
-    );
+    this.boundHandleResize = debounce(100, this.handleResize.bind(this));
+    window.addEventListener('resize', this.boundHandleResize);
   }
 
   disconnect() {
-    window.removeEventListener('resize', this.handleResize.bind(this));
+    if (this.boundHandleResize)
+      window.removeEventListener('resize', this.boundHandleResize);
 
     if (this.chart) this.chart.destroy();
   }
@@ -217,7 +217,7 @@ export default class extends Controller<HTMLCanvasElement> {
     max: number,
     minAlpha: number,
   ) {
-    // Remmeber original color
+    // Remember original color
     const originalColor = dataset.backgroundColor as string;
 
     const extent = min < 0 ? Math.abs(max) + Math.abs(min) : max;

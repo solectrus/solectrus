@@ -14,12 +14,16 @@ export default class extends Controller {
   declare readonly buttonTarget: HTMLElement;
   declare readonly buttonTargets: HTMLElement[];
 
+  private boundHandleClickOutside?: (event: Event) => void;
+
   connect() {
-    document.addEventListener('click', this.handleClickOutside.bind(this));
+    this.boundHandleClickOutside = this.handleClickOutside.bind(this);
+    document.addEventListener('click', this.boundHandleClickOutside);
   }
 
   disconnect() {
-    document.removeEventListener('click', this.handleClickOutside.bind(this));
+    if (this.boundHandleClickOutside)
+      document.removeEventListener('click', this.boundHandleClickOutside);
   }
 
   toggle() {

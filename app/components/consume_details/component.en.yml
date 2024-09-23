@@ -6,7 +6,6 @@ en:
 
   pv:
     header: Costs from self-consumption
-    self_consumption: Direct consumption
     opportunity_costs: Lost feed-in tariff
 
   total_costs: Total costs

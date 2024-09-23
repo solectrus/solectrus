@@ -9,6 +9,8 @@ import displayModes from 'tailwindcss-displaymodes';
 export default {
   content: ['./app/**/*.{slim,rb}', './app/javascript/**/*.{js,ts}'],
 
+  darkMode: 'selector',
+
   theme: {
     extend: {
       fontFamily: {
@@ -18,7 +20,7 @@ export default {
       screens: {
         '3xl': '1920px',
 
-        tall: { raw: '(min-height: 900px)' },
+        tall: { raw: '(min-height: 860px)' },
       },
 
       aspectRatio: {
@@ -34,7 +36,7 @@ export default {
       },
 
       spacing: {
-        '144': '36rem',
+        '192': '48rem',
       },
 
       transitionProperty: {

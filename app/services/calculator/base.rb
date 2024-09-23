@@ -1,13 +1,12 @@
 class Calculator::Base
-  def build_method(key, data = nil, modifier = nil, &)
+  def build_method(key, data = nil, modifier = nil, allow_nil: false, &)
     if data.nil? ^ block_given?
       raise ArgumentError, 'Either data or block must be given, not both'
     end
 
     define_singleton_method(key) do
       result = (data ? data[key] : yield)
-      result = result.public_send(modifier) if modifier
-      result
+      modifier ? public_send(modifier, result, allow_nil:) : result
     end
   end
 
@@ -88,7 +87,7 @@ class Calculator::Base
     inverter_power - grid_export_power
   end
 
-  def consumption_quote
+  def self_consumption_quote
     return unless consumption_alt && inverter_power
     return if inverter_power < 50
 
@@ -190,5 +189,25 @@ class Calculator::Base
 
   def total
     [total_minus, total_plus].compact.max
+  end
+
+  # Modifiers
+
+  def to_i(value, allow_nil: false)
+    value.nil? && allow_nil ? nil : value.to_i
+  end
+
+  def to_f(value, allow_nil: false)
+    value.nil? && allow_nil ? nil : value.to_f
+  end
+
+  def to_b(value, allow_nil: false)
+    return if value.nil? && allow_nil
+
+    value.in?([true, 'true', 1, '1', 'yes', 'on'])
+  end
+
+  def to_utf8(value, allow_nil: false)
+    value.nil? && allow_nil ? nil : value&.to_s&.to_utf8 || ''
   end
 end

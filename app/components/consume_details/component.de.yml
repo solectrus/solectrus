@@ -6,7 +6,6 @@ de:
 
   pv:
     header: Kosten durch Eigenverbrauch
-    self_consumption: Eigenverbrauchte Energie
     opportunity_costs: Entgangene Einspeisevergütung
 
   total_costs: Gesamtkosten
