@@ -5,15 +5,6 @@ GIT
     lockup (1.7.1)
       rails (>= 3)
 
-GIT
-  remote: https://github.com/ledermann/cypress-rails.git
-  revision: 59c459063b8e7e06a50f3e0afd90d670fbc5d156
-  branch: rails-7-2
-  specs:
-    cypress-rails (0.7.1)
-      puma (>= 3.8.0)
-      railties (>= 5.2.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -120,6 +111,9 @@ GEM
     css_parser (1.19.0)
       addressable
     csv (3.3.0)
+    cypress-rails (0.8.0.rc1)
+      puma (>= 3.8.0)
+      railties (>= 5.2.0)
     date (3.3.4)
     diff-lcs (1.5.1)
     docile (1.4.1)
@@ -439,7 +433,7 @@ DEPENDENCIES
   brakeman
   capybara (>= 3.26)
   csv
-  cypress-rails!
+  cypress-rails (= 0.8.0.rc1)
   dotenv
   guard-rspec
   honeybadger
