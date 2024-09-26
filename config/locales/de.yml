@@ -43,7 +43,7 @@ de:
     battery_discharging_power: Akku-Entnahme
     battery_charging_power: Akku-Beladung
     battery_power: Akku
-    battery_soc: Ladestand Speicher
+    battery_soc: Ladestand Akku
     car_battery_soc: Ladestand E-Auto
     case_temp: Temperatur
     grid_export_limit: Begrenzung
