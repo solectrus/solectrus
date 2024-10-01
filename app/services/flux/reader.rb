@@ -52,8 +52,8 @@ class Flux::Reader < Flux::Base
   end
 
   def range(start:, stop: nil)
-    start = start&.rfc3339(9)
-    stop = stop&.rfc3339(9)
+    start = start&.iso8601
+    stop = stop&.iso8601
 
     stop ? "range(start: #{start}, stop: #{stop})" : "range(start: #{start})"
   end

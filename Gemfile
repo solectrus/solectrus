@@ -68,6 +68,12 @@ gem 'ostruct'
 # Modern concurrency tools for Ruby. Inspired by Erlang, Clojure, Scala, Haskell, F#, C#, Java, and classic concurrency patterns. (http://www.concurrent-ruby.com)
 gem 'concurrent-ruby'
 
+# The simplest way to group temporal data (https://github.com/ankane/groupdate)
+gem 'groupdate'
+
+# Fetch from database results of several aggregate functions at once (http://github.com/codesnik/calculate-all)
+gem 'calculate-all'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   # gem 'debug', platforms: %i[ mri windows ], require: 'debug/prelude'

@@ -122,7 +122,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def exists?(sensor_name) # rubocop:disable Metrics/CyclomaticComplexity
+  def exists?(sensor_name, check_policy: true) # rubocop:disable Metrics/CyclomaticComplexity
     case sensor_name
     when :grid_power
       exists_any? :grid_import_power, :grid_export_power
@@ -137,20 +137,20 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     when :co2_reduction
       exists? :inverter_power
     when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid
-      exists_with_policy? sensor_name, :power_splitter?
+      sensor_defined?(sensor_name) &&
+        (!check_policy || ApplicationPolicy.power_splitter?)
     when :car_battery_soc, :wallbox_car_connected
-      exists_with_policy? sensor_name, :car?
+      sensor_defined?(sensor_name) && (!check_policy || ApplicationPolicy.car?)
     when *SENSOR_NAMES
-      measurement(sensor_name).present? && field(sensor_name).present?
+      sensor_defined?(sensor_name)
     else
       raise ArgumentError,
             "Unknown or invalid sensor name: #{sensor_name.inspect}"
     end
   end
 
-  def exists_with_policy?(sensor_name, policy_name)
-    ApplicationPolicy.public_send(policy_name) &&
-      measurement(sensor_name).present? && field(sensor_name).present?
+  def sensor_defined?(sensor_name)
+    measurement(sensor_name).present? && field(sensor_name).present?
   end
 
   def exists_any?(*sensor_names)
