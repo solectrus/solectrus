@@ -12,7 +12,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def initialize(string, min_date: nil, allowed_days_in_future: nil)
+  def initialize(string, min_date: nil, allowed_days_in_future: 0)
     unless string.respond_to?(:match?) && string.match?(self.class.regex)
       raise ArgumentError, "'#{string}' is not a valid timeframe"
     end
@@ -200,6 +200,16 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       date.end_of_year.end_of_day
     when :all
       [max_date, Date.current].compact.min.end_of_day
+    end
+  end
+
+  # Date#end_of_day is at 23:59:59, so we add 1 second to get the real end
+  def ending_with_last_second
+    case id
+    when :now
+      ending
+    else
+      ending + 1.second
     end
   end
 
