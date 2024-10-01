@@ -4,7 +4,11 @@ class PowerSum < Flux::Reader
 
     super
 
-    timeframe.now? ? last(1.day.ago) : sum(timeframe:)
+    if timeframe.now?
+      last(1.day.ago)
+    else
+      sum(start: timeframe.beginning, stop: timeframe.ending_with_last_second)
+    end
   end
 
   private
@@ -36,29 +40,7 @@ class PowerSum < Flux::Reader
     end
   end
 
-  def sum(timeframe:)
-    price_sections(
-      start: timeframe.beginning,
-      stop: timeframe.ending,
-    ).map do |section|
-      sum_query(
-        start: section[:starts_at].beginning_of_day,
-        stop: section[:ends_at].end_of_day,
-      ).tap do |query|
-        query[:feed_in_tariff] = section[:feed_in]
-        query[:electricity_price] = section[:electricity]
-      end
-    end
-  end
-
-  def price_sections(start:, stop:)
-    DateInterval.new(
-      starts_at: start.to_date,
-      ends_at: stop&.to_date,
-    ).price_sections
-  end
-
-  def sum_query(start:, stop: nil)
+  def sum(start:, stop: nil)
     query(build_query(start:, stop:)).each_with_object(
       empty_hash,
     ) do |table, hash|
@@ -77,26 +59,12 @@ class PowerSum < Flux::Reader
   end
 
   def build_query(start:, stop:)
-    if stop&.past? && (stop - start) > 31.days
-      # Long period of time that is completely in the past:
-      # Use fast query (with aggregateWindow(1h/mean))
-      <<~QUERY
-        #{from_bucket}
-        |> #{range(start:, stop:)}
-        |> #{filter}
-        |> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")
-        |> sum()
-      QUERY
-    else
-      # Short period of time OR NOT completely in the past:
-      # Use precise query (with "integral")
-      <<~QUERY
-        #{from_bucket}
-        |> #{range(start:, stop:)}
-        |> #{filter}
-        |> integral(unit: 1h)
-      QUERY
-    end
+    <<~QUERY
+      #{from_bucket}
+      |> #{range(start:, stop:)}
+      |> #{filter}
+      |> integral(unit: 1h)
+    QUERY
   end
 
   def empty_hash
