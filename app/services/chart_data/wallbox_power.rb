@@ -26,38 +26,33 @@ class ChartData::WallboxPower < ChartData::Base
     )
   end
 
-  def splitted_chart
+  def splitted_chart # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     chart =
       PowerChart.new(sensors: %i[wallbox_power wallbox_power_grid]).call(
         timeframe,
         fill: !timeframe.current?,
       )
 
-    if chart.key?(:wallbox_power) && chart.key?(:wallbox_power_grid)
-      {
-        wallbox_power: chart[:wallbox_power],
-        wallbox_power_grid: chart[:wallbox_power_grid],
-        wallbox_power_pv:
-          chart[:wallbox_power].map.with_index do |wallbox_power, index|
-            # wallbox_power_pv = wallbox_power - wallbox_power_grid
-            timestamp, power = wallbox_power
-            [
-              timestamp,
-              if power
-                [
-                  0,
-                  [:wallbox_power_grid].reduce(power) do |acc, elem|
-                    acc - chart.dig(elem, index)&.second.to_f
-                  end,
-                ].max
-              end,
-            ]
-          end,
-      }
-    else
+    unless chart.key?(:wallbox_power) && chart.key?(:wallbox_power_grid)
       # No data for wallbox_power_grid is present, return simple chart instead
-      chart
+      return chart
     end
+
+    wallbox_power = chart[:wallbox_power]
+
+    wallbox_power_grid =
+      wallbox_power.map.with_index do |(timestamp, power), index|
+        power_grid = chart.dig(:wallbox_power_grid, index)&.second.to_f
+        [timestamp, power ? [power, power_grid].min : nil]
+      end
+
+    wallbox_power_pv =
+      wallbox_power.map.with_index do |(timestamp, power), index|
+        power_grid = chart.dig(:wallbox_power_grid, index)&.second.to_f
+        [timestamp, power ? [(power - power_grid), 0].max : nil]
+      end
+
+    { wallbox_power:, wallbox_power_grid:, wallbox_power_pv: }
   end
 
   def background_color(chart_sensor)
