@@ -2809,11 +2809,11 @@ __metadata:
   linkType: hard
 
 "jiti@npm:^2.0.0":
-  version: 2.3.1
-  resolution: "jiti@npm:2.3.1"
+  version: 2.3.2
+  resolution: "jiti@npm:2.3.2"
   bin:
     jiti: lib/jiti-cli.mjs
-  checksum: 10c0/0388bd52ad623973bb17f0b9604b1a28f2bf0beb9bc7f5805facde2183f8203d80b8360d0b400faf80718077e206a997fa9f4dba62735e86cd3a76905ca8b071
+  checksum: 10c0/1f4b637ae953a122b9010c709978e37fdb17c452332857b1b8f3d77c8b04a599a09a65b89757dc27df67c85a6f2dd78a480ff48ef7d2bbd9d5ad941c172e3380
   languageName: node
   linkType: hard
 
