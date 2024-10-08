@@ -16,7 +16,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         expand_item,
         compress_item,
         ___,
-        faq_item,
+        docs_item,
         about_item,
         ___,
         session_item,
@@ -124,11 +124,11 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       }
     end
 
-    def faq_item
+    def docs_item
       {
-        name: t('layout.faq'),
+        name: t('layout.docs'),
         icon: 'circle-question',
-        href: 'https://solectrus.de/faq',
+        href: 'https://docs.solectrus.de',
       }
     end
 
