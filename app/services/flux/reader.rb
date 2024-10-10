@@ -58,10 +58,6 @@ class Flux::Reader < Flux::Base
     stop ? "range(start: #{start}, stop: #{stop})" : "range(start: #{start})"
   end
 
-  def location
-    "timezone.location(name: \"#{Rails.application.config.time_zone}\")"
-  end
-
   def query_with_time
     start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     result = yield

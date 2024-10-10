@@ -7,34 +7,22 @@ describe AutarkyChart do
 
   context 'with wallbox_power sensor' do
     before do
-      influx_batch do
-        12.times do |index|
-          add_influx_point name: measurement_inverter_power,
-                           fields: {
-                             field_house_power => (index + 1) * 100,
-                             field_grid_import_power => (index + 1) * 300,
-                             field_wallbox_power => (index + 1) * 500,
-                           },
-                           time: (beginning + index.month).end_of_month
-          add_influx_point name: measurement_inverter_power,
-                           fields: {
-                             field_house_power => (index + 1) * 100,
-                             field_grid_import_power => (index + 1) * 300,
-                             field_wallbox_power => (index + 1) * 500,
-                           },
-                           time: (beginning + index.month).beginning_of_month
-        end
-
-        add_influx_point name: measurement_inverter_power,
-                         fields: {
-                           field_house_power => 6_000,
-                           field_grid_import_power => 3000,
-                           # NOTE: There is no `wallbox_power` in this data point.
-                           # This happens when the `csv-importer` was used to import CSV data from SENEC,
-                           # which do not contain the `wallbox_power`.
-                           # The missing value tests the `if` statement in the query.
-                         }
+      12.times do |index|
+        Summary.create! date: beginning + index.month,
+                        sum_house_power: (index + 1) * 100 * 24, # 100 W for 24 hours
+                        sum_grid_import_power: (index + 1) * 300 * 24, # 300 W for 24 hours
+                        sum_wallbox_power: (index + 1) * 500 * 24 # 500 W for 24 hours
       end
+
+      add_influx_point name: measurement_inverter_power,
+                       fields: {
+                         field_house_power => 6_000,
+                         field_grid_import_power => 3000,
+                         # NOTE: There is no `wallbox_power` in this data point.
+                         # This happens when the `csv-importer` was used to import CSV data from SENEC,
+                         # which do not contain the `wallbox_power`.
+                         # The missing value tests the `if` statement in the query.
+                       }
     end
 
     describe '#call' do
@@ -79,28 +67,17 @@ describe AutarkyChart do
         end
       end
 
-      influx_batch do
-        12.times do |index|
-          add_influx_point name: measurement_inverter_power,
-                           fields: {
-                             field_house_power => (index + 1) * 100,
-                             field_grid_import_power => (index + 1) * 50,
-                           },
-                           time: (beginning + index.month).end_of_month
-          add_influx_point name: measurement_inverter_power,
-                           fields: {
-                             field_house_power => (index + 1) * 100,
-                             field_grid_import_power => (index + 1) * 50,
-                           },
-                           time: (beginning + index.month).beginning_of_month
-        end
-
-        add_influx_point name: measurement_inverter_power,
-                         fields: {
-                           field_house_power => 6_000,
-                           field_grid_import_power => 3000,
-                         }
+      12.times do |index|
+        Summary.create! date: beginning + index.month,
+                        sum_house_power: (index + 1) * 100 * 24, # 100 W for 24 hours
+                        sum_grid_import_power: (index + 1) * 50 * 24 # 50 W for 24 hours
       end
+
+      add_influx_point name: measurement_inverter_power,
+                       fields: {
+                         field_house_power => 6_000,
+                         field_grid_import_power => 3000,
+                       }
     end
 
     describe '#call' do
