@@ -6,31 +6,19 @@ describe PowerChart do
   end
 
   before do
-    influx_batch do
-      12.times do |index|
-        add_influx_point name: measurement,
-                         fields: {
-                           field_inverter_power => (index + 1) * 1000,
-                           field_battery_charging_power => (index + 1) * 100,
-                           field_battery_discharging_power => (index + 1) * 200,
-                         },
-                         time: (beginning + index.month).end_of_month
-        add_influx_point name: measurement,
-                         fields: {
-                           field_inverter_power => (index + 1) * 1000,
-                           field_battery_charging_power => (index + 1) * 100,
-                           field_battery_discharging_power => (index + 1) * 200,
-                         },
-                         time: (beginning + index.month).beginning_of_month
-      end
-
-      add_influx_point name: measurement,
-                       fields: {
-                         field_inverter_power => 14_000,
-                         field_battery_charging_power => 2000,
-                         field_battery_discharging_power => 100,
-                       }
+    12.times do |index|
+      Summary.create! date: beginning + index.months, # only one day per month
+                      sum_inverter_power: (index + 1) * 1000 * 24, # 1 KW for 24 hours
+                      sum_battery_charging_power: (index + 1) * 100 * 24, # 100 W for 24 hours
+                      sum_battery_discharging_power: (index + 1) * 200 * 24 # 200 W for 24 hours
     end
+
+    add_influx_point name: measurement,
+                     fields: {
+                       field_inverter_power => 14_000,
+                       field_battery_charging_power => 2000,
+                       field_battery_discharging_power => 100,
+                     }
   end
 
   around { |example| freeze_time(&example) }
@@ -60,9 +48,9 @@ describe PowerChart do
         it { is_expected.to have(12).items }
 
         it 'contains last and first data point' do
-          expect(result.first).to eq([beginning, 2.0])
+          expect(result.first).to eq([beginning, 24.0])
           expect(result.last).to eq(
-            [beginning.end_of_year.beginning_of_month, 24.0],
+            [beginning.end_of_year.beginning_of_month, 288.0],
           )
         end
       end
@@ -107,7 +95,7 @@ describe PowerChart do
 
         it 'returns key for each requested sensor' do
           expect(call.keys).to eq(
-            %i[battery_discharging_power battery_charging_power],
+            %i[battery_charging_power battery_discharging_power],
           )
         end
 
@@ -117,9 +105,9 @@ describe PowerChart do
           it { is_expected.to have(12).items }
 
           it 'contains last and first data point' do
-            expect(result.first).to eq([beginning, 0.2])
+            expect(result.first).to eq([beginning, 2.4])
             expect(result.last).to eq(
-              [beginning.end_of_year.beginning_of_month, 2.4],
+              [beginning.end_of_year.beginning_of_month, 28.8],
             )
           end
         end
