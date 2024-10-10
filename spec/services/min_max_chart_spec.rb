@@ -1,5 +1,5 @@
 describe MinMaxChart do
-  let(:chart) { described_class.new(sensors: %i[battery_soc], average: true) }
+  let(:chart) { described_class.new(sensor: :battery_soc, average: true) }
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
@@ -91,23 +91,13 @@ describe MinMaxChart do
       let(:timeframe) { Timeframe.new('2023-W11') }
 
       before do
-        influx_batch do
-          # On every day of the week, battery is first 80%, then 40%
-          # (except on Sunday, when it's nil)
-          date = start
-          while date < start.end_of_week
-            time = date.beginning_of_day
-            23.times do |hour|
-              add_influx_point(
-                name: measurement,
-                fields: {
-                  field_battery_soc => hour < 12 ? 80 : 40,
-                },
-                time: (time += 1.hour),
-              )
-            end
-            date += 1.day
-          end
+        # On every day of the week, battery is first 80%, then 40%
+        # (except on Sunday, when it's nil)
+        date = start
+        while date < start.end_of_week
+          Summary.create! date:, min_battery_soc: 40, max_battery_soc: 80
+
+          date += 1.day
         end
       end
 
@@ -131,22 +121,12 @@ describe MinMaxChart do
       let(:timeframe) { Timeframe.new('2023-02') }
 
       before do
-        influx_batch do
-          # On every day of the month, battery is first 80%, then 40%
-          date = start
-          while date.month == start.month
-            time = date.beginning_of_day
-            23.times do |hour|
-              add_influx_point(
-                name: measurement,
-                fields: {
-                  field_battery_soc => hour < 12 ? 80 : 40,
-                },
-                time: (time += 1.hour),
-              )
-            end
-            date += 1.day
-          end
+        # On every day of the month, battery is first 80%, then 40%
+        date = start
+        while date.month == start.month
+          Summary.create! date:, min_battery_soc: 40, max_battery_soc: 80
+
+          date += 1.day
         end
       end
 
@@ -169,24 +149,12 @@ describe MinMaxChart do
       let(:timeframe) { Timeframe.new('2022') }
 
       before do
-        influx_batch do
-          # On every day of the year, battery is first 80%, then 40%
-          date = start
-          while date.year == start.year
-            time = date.beginning_of_day
+        # On every day of the year, battery is first 80%, then 40%
+        date = start
+        while date.year == start.year
+          Summary.create! date:, min_battery_soc: 40, max_battery_soc: 80
 
-            23.times do |hour|
-              add_influx_point(
-                name: measurement,
-                fields: {
-                  field_battery_soc => hour < 12 ? 80 : 40,
-                },
-                time: (time += 1.hour),
-              )
-            end
-
-            date += 1.day
-          end
+          date += 1.day
         end
       end
 
@@ -209,24 +177,12 @@ describe MinMaxChart do
       let(:timeframe) { Timeframe.new('all', min_date: start) }
 
       before do
-        influx_batch do
-          # On every day of both years, battery is first 80%, then 40%
-          date = start
-          while date.year <= start.year + 1
-            time = date.beginning_of_day
+        # On every day of both years, battery is first 80%, then 40%
+        date = start
+        while date.year <= start.year + 1
+          Summary.create! date:, min_battery_soc: 40, max_battery_soc: 80
 
-            23.times do |hour|
-              add_influx_point(
-                name: measurement,
-                fields: {
-                  field_battery_soc => hour < 12 ? 80 : 40,
-                },
-                time: (time += 1.hour),
-              )
-            end
-
-            date += 1.day
-          end
+          date += 1.day
         end
       end
 

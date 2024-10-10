@@ -4,7 +4,7 @@ describe ChartData::Co2Reduction do
   context 'when data for month is present' do
     before do
       influx_batch do
-        # Fill one hour (12:00 - 13:00) with 10 kW power
+        # Fill one hour (12:00 - 13:00) with 28 kW power
         13.times do |i|
           time = date.beginning_of_day + (5.minutes * i)
 
@@ -16,7 +16,7 @@ describe ChartData::Co2Reduction do
         end
       end
 
-      Summarizer.perform! from: date, to: date
+      Summary.create! date:, sum_inverter_power: 28_000
     end
 
     let(:date) { Date.new(2024, 9, 1) }
