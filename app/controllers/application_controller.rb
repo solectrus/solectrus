@@ -41,7 +41,6 @@ class ApplicationController < ActionController::Base
   private
 
   def check_for_sponsoring
-    return if Rails.env.development?
     return unless UpdateCheck.prompt?
     return if UpdateCheck.skipped_prompt?
 
