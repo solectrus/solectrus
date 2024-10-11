@@ -27,22 +27,18 @@ class Summarizer
   end
 
   def self.records_to_update(from:, to:)
-    # Query for summaries that either do not exist
+    # Find dates with existing summaries
     existing_dates = Summary.where(date: from..to).pluck(:date)
 
-    # Find missing records
+    # Find dates without a summary
     date_range = (from..to).to_a
-    missing_records = date_range - existing_dates
+    missing_dates = date_range - existing_dates
 
-    # Find outdated records where updated_at (as a date) is not strictly greater than the date
-    outdated_records =
-      Summary
-        .where(date: from..to)
-        .where('DATE(updated_at) <= date')
-        .pluck(:date)
+    # Find dates with an outdated summary
+    outdated_dates = Summary.outdated.where(date: from..to).pluck(:date)
 
-    # Combine missing and outdated records
-    missing_records + outdated_records
+    # Combine both lists
+    missing_dates + outdated_dates
   end
 
   def initialize(date)

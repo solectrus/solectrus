@@ -182,8 +182,14 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
+  # Date of the beginning, but not before min_date
   def effective_beginning_date
     [beginning.to_date, min_date].compact.max
+  end
+
+  # Date of the ending, but not after max_date or today
+  def effective_ending_date
+    [ending.to_date, max_date].compact.min
   end
 
   def ending
@@ -242,19 +248,19 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def corresponding_day
-    trimmed_ending.strftime(format(target_id: :day))
+    effective_ending_date.strftime(format(target_id: :day))
   end
 
   def corresponding_week
-    trimmed_ending.strftime(format(target_id: :week))
+    effective_ending_date.strftime(format(target_id: :week))
   end
 
   def corresponding_month
-    trimmed_ending.strftime(format(target_id: :month))
+    effective_ending_date.strftime(format(target_id: :month))
   end
 
   def corresponding_year
-    trimmed_ending.strftime(format(target_id: :year))
+    effective_ending_date.strftime(format(target_id: :year))
   end
 
   def date
@@ -271,11 +277,6 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   private
-
-  # Ending, but not further than max_date and current date
-  def trimmed_ending
-    [ending, max_date, Date.current].compact.min
-  end
 
   def change(amount, force: false)
     new_date = raw_change(amount)
