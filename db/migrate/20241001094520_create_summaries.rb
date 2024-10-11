@@ -47,14 +47,5 @@ class CreateSummaries < ActiveRecord::Migration[7.2]
       # Created at and updated at
       t.timestamps
     end
-
-    reversible do |dir|
-      # Disable Write-Ahead-Log (WAL) for this table, as it's not critical
-      # This reduces write operations which is good for SD cards
-      #
-      # BEWARE: This means that a crash will lose all data in this table,
-      #         so it must be rebuild from the source data
-      dir.up { execute 'ALTER TABLE summaries SET UNLOGGED;' }
-    end
   end
 end
