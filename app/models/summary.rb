@@ -40,4 +40,33 @@
 #  index_summaries_on_updated_at  (updated_at)
 #
 class Summary < ApplicationRecord
+  TODAY_TOLERANCE_IN_MINUTES = 5
+  public_constant :TODAY_TOLERANCE_IN_MINUTES
+
+  scope :completed,
+        lambda {
+          where(
+            "DATE(updated_at) > date OR (DATE(updated_at) = date AND updated_at > (NOW() - INTERVAL '#{TODAY_TOLERANCE_IN_MINUTES} MINUTE'))",
+          )
+        }
+
+  scope :outdated,
+        lambda {
+          where(
+            "DATE(updated_at) <= date AND (DATE(updated_at) != CURRENT_DATE OR updated_at <= (NOW() - INTERVAL '#{TODAY_TOLERANCE_IN_MINUTES} MINUTE'))",
+          )
+        }
+
+  def self.completed?(timeframe)
+    completion_rate(timeframe) >= 1
+  end
+
+  def self.completion_rate(timeframe)
+    from = timeframe.effective_beginning_date
+    to = timeframe.effective_ending_date
+    days = (to - from).to_i + 1
+
+    completed_count = where(date: from..to).completed.count
+    completed_count.fdiv(days)
+  end
 end
