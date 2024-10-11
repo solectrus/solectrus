@@ -24,6 +24,12 @@ class ChartData::Base
   end
 
   def style
-    { fill: 'origin', borderWidth: 1, borderRadius: 3, borderSkipped: 'start' }
+    {
+      fill: 'origin',
+      borderWidth: 1,
+      borderRadius: 3,
+      borderSkipped: 'start',
+      minBarLength: 3,
+    }
   end
 end
