@@ -1,15 +1,20 @@
 class Calculator::QuerySql
-  def initialize(from:, to:)
+  def initialize(from: nil, to: nil)
     super()
 
-    @from = [from, Rails.application.config.x.installation_date].max
-    @to = [to, Date.current].min
+    @from = [from, Rails.application.config.x.installation_date].compact.max
+    @to = [to, Date.current].compact.min
   end
 
   attr_reader :from, :to
 
-  def ready?
-    count == (to - from).to_i + 1
+  # Is the query result consired as up-to-date?
+  def fresh?
+    # Two conditions need to be met:
+    # 1) There is a summary for each day in the timeframe
+    # 2) The minimal difference `updated_at - date``is > 0. This
+    #    means, the calcuation was made on the next day (or later)
+    count == (to - from).to_i + 1 && update_diff.positive?
   end
 
   def reset!
@@ -64,16 +69,23 @@ class Calculator::QuerySql
     totals[:sum_battery_discharging_power_sum]
   end
 
+  private
+
   def count
     totals[:count]
   end
 
-  private
+  def update_diff
+    totals[:update_diff]
+  end
+
+  def timezone_name
+    Rails.application.config.time_zone
+  end
 
   def totals
     @totals ||=
       Summary.where(date: from..to).calculate_all(
-        :count,
         :sum_inverter_power_sum,
         :sum_inverter_power_forecast_sum,
         :sum_house_power_sum,
@@ -86,6 +98,25 @@ class Calculator::QuerySql
         :sum_house_power_grid_sum,
         :sum_wallbox_power_grid_sum,
         :sum_heatpump_power_grid_sum,
+        #
+        # The following columns are used to check the freshness of the result
+        # A summary is considered fresh, if the `updated_at` is later than the `date`
+        # On current day, a summary is fresh when updated_at is within the last 5 minutes
+        #
+        # Timezone conversion is necessary, because the `updated_at` column is in UTC (by Rails),
+        # but the `date` column is stored in the local timezone
+        :count,
+        update_diff:
+          "MIN(
+             CASE
+               WHEN date = DATE(NOW() AT TIME ZONE '#{timezone_name}')
+                    AND updated_at AT TIME ZONE 'UTC' AT TIME ZONE '#{timezone_name}' >=
+                        NOW() AT TIME ZONE '#{timezone_name}' - INTERVAL '#{Summary::TODAY_TOLERANCE_IN_MINUTES} minutes'
+                 THEN 1
+               ELSE
+                 DATE(updated_at AT TIME ZONE 'UTC' AT TIME ZONE '#{timezone_name}') - date
+             END
+        )",
       )
   end
 end
