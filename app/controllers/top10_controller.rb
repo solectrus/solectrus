@@ -1,11 +1,22 @@
 class Top10Controller < ApplicationController
   include ParamsHandling
+  include SummaryChecker
 
   def index
     redirect_to(default_path) unless period && sensor && calc && sort
+
+    load_missing_summary_days(timeframe)
   end
 
   private
+
+  helper_method def timeframe
+    @timeframe ||=
+      Timeframe.new(
+        'all',
+        min_date: Rails.application.config.x.installation_date,
+      )
+  end
 
   helper_method def title
     t('layout.top10')
