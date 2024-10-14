@@ -80,6 +80,7 @@ module Solectrus
                'db:prepare',
              )
         SensorConfig.setup(ENV)
+        ThemeConfig.setup(ENV)
 
         # Ensure settings are seeded on every start
         if ActiveRecord::Base.connected? &&
