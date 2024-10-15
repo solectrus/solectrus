@@ -62,6 +62,8 @@ class Summary < ApplicationRecord
   end
 
   def self.completion_rate(timeframe)
+    raise ArgumentError if timeframe.now?
+
     from = timeframe.effective_beginning_date
     to = timeframe.effective_ending_date
     days = (to - from).to_i + 1

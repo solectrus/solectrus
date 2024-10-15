@@ -17,4 +17,16 @@
     = render Nav::Sub::Component.new do |c|
       = c.with_items nav_items
 
-= render StatsWithChart::Component.new(sensor:, timeframe:)
+- if @completed
+  = render StatsWithChart::Component.new(sensor:, timeframe:)
+- else
+  = turbo_stream_from 'progress'
+
+  .flex.flex-col.gap-5.h-full.justify-center.items-center
+    p.text-gray-600
+      = "Es sind noch nicht alle Tage für #{timeframe.localized} berechnet. Moment bitte..."
+
+    .flex.items-center.justify-center.w-full.max-w-full
+      .w-full.grid.h-10.aspect-square.justify-between.grid-cols-auto-fit.min-w-px class= "gap-px" data-controller='progress'
+        - (timeframe.effective_beginning_date..timeframe.effective_ending_date).reverse_each do |date|
+          = render 'progress/show', date:, complete: @missing_dates.exclude?(date)

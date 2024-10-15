@@ -438,7 +438,6 @@ DEPENDENCIES
   brakeman
   calculate-all
   capybara (>= 3.26)
-  concurrent-ruby
   csv
   cypress-rails (= 0.8.0.rc1)
   dotenv

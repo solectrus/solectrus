@@ -3,10 +3,37 @@ class HomeController < ApplicationController
   include TimeframeNavigation
 
   def index
-    redirect_to(default_path) unless sensor && timeframe
+    unless sensor && timeframe
+      redirect_to(default_path)
+      return
+    end
+
+    @completed = ensure_completed_summaries
+
+    @missing_dates =
+      if @completed
+        []
+      else
+        Summarizer.records_to_update(
+          from: timeframe.effective_beginning_date,
+          to: timeframe.effective_ending_date,
+        )
+      end
   end
 
   private
+
+  def ensure_completed_summaries
+    return true if timeframe.now? || Summary.completed?(timeframe)
+    return true if timeframe.future?
+
+    Summarizer.perform_later!(
+      from: timeframe.effective_beginning_date,
+      to: timeframe.effective_ending_date,
+    )
+
+    false
+  end
 
   def default_path
     root_path(sensor: sensor || redirect_sensor, timeframe: 'now')
