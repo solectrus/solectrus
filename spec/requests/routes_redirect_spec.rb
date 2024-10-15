@@ -1,4 +1,6 @@
 describe 'Routing' do
+  before { allow(Summarizer).to receive(:perform_later!) }
+
   describe 'URL shortcuts' do
     it 'accepts /day' do
       get '/house_power/day'

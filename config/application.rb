@@ -87,12 +87,6 @@ module Solectrus
              ActiveRecord::Base.connection.table_exists?(:settings)
           Setting.seed!
         end
-
-        if Rails.env.production?
-          BackgroundTask.instance.start
-
-          at_exit { BackgroundTask.instance.stop }
-        end
       end
     end
 

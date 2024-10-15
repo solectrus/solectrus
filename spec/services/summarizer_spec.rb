@@ -1,6 +1,8 @@
 describe Summarizer do
-  describe '.perform!' do
-    subject(:perform) { described_class.perform!(from:, to:, &block) }
+  describe '.perform_later!' do
+    subject(:perform_later) do
+      described_class.perform_later!(from:, to:, &block)
+    end
 
     let(:block) { nil }
 
@@ -15,29 +17,14 @@ describe Summarizer do
       let(:from) { Date.current }
       let(:to) { from - 1.day }
 
-      it { expect { perform }.to raise_error(ArgumentError) }
-    end
-
-    context 'when block is given' do
-      callbacks = []
-
-      let(:from) { 20.days.ago.to_date }
-      let(:to) { from + 2.days }
-      let(:block) { proc { |index, count| callbacks.push([index, count]) } }
-
-      before { perform }
-
-      it do
-        # 3 days, 33% each
-        expect(callbacks).to eq([[1, 3], [2, 3], [3, 3]])
-      end
+      it { expect { perform_later }.to raise_error(ArgumentError) }
     end
 
     context 'when summary does not exist' do
       let(:from) { Date.current }
       let(:to) { from }
 
-      it { expect { perform }.to change(Summary, :count).by(1) }
+      it { expect { perform_later }.to change(Summary, :count).by(1) }
     end
 
     context 'when fresh summary exists' do
@@ -50,10 +37,12 @@ describe Summarizer do
         Summary.create!(date: Date.current, updated_at: last_updated_at)
       end
 
-      it { expect { perform }.not_to change(Summary, :count) }
+      it { expect { perform_later }.not_to change(Summary, :count) }
 
       it do
-        expect { perform }.not_to(change { existing_summary.reload.updated_at })
+        expect { perform_later }.not_to(
+          change { existing_summary.reload.updated_at },
+        )
       end
     end
 
@@ -69,10 +58,12 @@ describe Summarizer do
         Summary.create!(date: Date.current, updated_at: last_updated_at)
       end
 
-      it { expect { perform }.not_to change(Summary, :count) }
+      it { expect { perform_later }.not_to change(Summary, :count) }
 
       it do
-        expect { perform }.to(change { existing_summary.reload.updated_at })
+        expect { perform_later }.to(
+          change { existing_summary.reload.updated_at },
+        )
       end
     end
 
@@ -95,7 +86,7 @@ describe Summarizer do
           end
         end
 
-        perform
+        perform_later
       end
 
       it 'creates summary' do
@@ -109,13 +100,5 @@ describe Summarizer do
         )
       end
     end
-  end
-
-  describe '#initialize' do
-    subject { described_class.new(date) }
-
-    let(:date) { Date.current }
-
-    it { is_expected.to have_attributes(date:) }
   end
 end

@@ -62,4 +62,6 @@ Rails.application.configure do
   # Disable logging to speed up tests
   config.logger = Logger.new(nil)
   config.log_level = :fatal
+
+  Rails.application.config.active_job.queue_adapter = :inline
 end

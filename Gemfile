@@ -65,9 +65,6 @@ gem 'csv'
 # Class to build custom data structures, similar to a Hash. (https://github.com/ruby/ostruct)
 gem 'ostruct'
 
-# Modern concurrency tools for Ruby. Inspired by Erlang, Clojure, Scala, Haskell, F#, C#, Java, and classic concurrency patterns. (http://www.concurrent-ruby.com)
-gem 'concurrent-ruby'
-
 # The simplest way to group temporal data (https://github.com/ankane/groupdate)
 gem 'groupdate'
 
