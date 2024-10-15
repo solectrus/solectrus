@@ -1,0 +1,56 @@
+.h-full.w-full[
+  data-controller= 'sequential-frames'
+  data-sequential-frames-reload-on-complete-value= true
+  data-sequential-frames-minutes-one-value  = t('datetime.distance_in_words.x_minutes.one')
+  data-sequential-frames-minutes-other-value= t('datetime.distance_in_words.x_minutes.other')
+  data-sequential-frames-seconds-one-value  = t('datetime.distance_in_words.x_seconds.one')
+  data-sequential-frames-seconds-other-value= t('datetime.distance_in_words.x_seconds.other')
+  class= "timeframe-#{timeframe.id}"
+]
+  .h-full.w-full.flex.flex-col.items-center.justify-center.text-gray-600.dark:text-gray-300
+    div
+      - if timeframe.all?
+        .flex.flex-wrap.gap-1
+          - days.each do |day|
+            = render DayComponent.new(date: day, is_missing: missing_days.include?(day))
+
+      - elsif timeframe.year?
+        .grid.grid-cols-2.md:grid-cols-3.lg:grid-cols-4.gap-x-16.gap-y-2.md:gap-12
+          - days.group_by(&:month).each_value do |days_in_month|
+            div
+              - days_in_month.group_by(&:cweek).each_value.with_index do |days_in_week, index|
+                .flex.gap-1.mt-1
+                  - if index.zero?
+                    - first_day_of_week = (days_in_week.first.wday - 1) % 7
+                    - first_day_of_week.times do
+                      div class= 'summary-day'
+
+                  - days_in_week.each do |day|
+                    = render DayComponent.new(date: day, is_missing: missing_days.include?(day))
+
+      - elsif timeframe.month?
+        div
+          .flex.gap-1.mt-1
+            - (1..days.first.day).each do
+              div class= 'summary-day'
+
+          - days.group_by(&:cweek).each_value.with_index do |days_in_week, index|
+            .flex.gap-1.mt-1
+              - if index.zero?
+                - first_day_of_week = (days_in_week.first.wday - 1) % 7
+                - first_day_of_week.times do
+                  div class= 'summary-day'
+
+              - days_in_week.each do |day|
+                = render DayComponent.new(date: day, is_missing: missing_days.include?(day))
+
+      - elsif timeframe.week?
+        .flex.gap-1
+          - days.reverse_each do |day|
+            = render DayComponent.new(date: day, is_missing: missing_days.include?(day))
+
+    - unless timeframe.week?
+      .text-center.mt-6.md:mt-12.invisible.text-gray-400.dark:text-gray-600.text-lg.tracking-wider.tabular-nums data-sequential-frames-target= 'timeEstimate'
+        span>
+          = t('summaries.remaining')
+        span data-sequential-frames-target= "remaining"

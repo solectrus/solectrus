@@ -1,53 +1,17 @@
-class Summarizer
-  def self.perform!(from: nil, to: nil, &)
-    from = [from, Rails.configuration.x.installation_date].compact.max
-    to = [to, Date.current].compact.min
+class SummarizerJob < ApplicationJob
+  queue_as :default
 
-    raise ArgumentError, 'from must be before to' if to < from
-
-    # Fetch the records that need to be processed
-    records_to_process = records_to_update(from:, to:)
-
-    # Iterate over the records to process, but in reverse order, so that the
-    # most recent records are processed first
-    total_days = records_to_process.size
-    records_to_process
-      .reverse
-      .each
-      .with_index(1) do |date, index|
-        # This can be used to track the progress of the summarizer
-        yield(index, total_days) if block_given?
-
-        # Process the record for the given date
-        new(date).perform!
-      end
-
-    # Return the number of processed days
-    total_days
-  end
-
-  def self.records_to_update(from:, to:)
-    # Find dates with existing summaries
-    existing_dates = Summary.where(date: from..to).pluck(:date)
-
-    # Find dates without a summary
-    date_range = (from..to).to_a
-    missing_dates = date_range - existing_dates
-
-    # Find dates with an outdated summary
-    outdated_dates = Summary.outdated.where(date: from..to).pluck(:date)
-
-    # Combine both lists
-    missing_dates + outdated_dates
-  end
-
-  def initialize(date)
+  def perform(date)
     @date = date
+
+    perform_calculations
   end
 
   attr_reader :date
 
-  def perform!
+  private
+
+  def perform_calculations
     # If there is no summary for the given date, create it
     # Otherwise, if the existing summary is not up-to-date, update it
     ActiveRecord::Base.transaction do
@@ -59,12 +23,15 @@ class Summarizer
     end
   end
 
-  private
+  def raw_attributes
+    { date: }.merge(raw_sum_attributes)
+      .merge(raw_max_attributes)
+      .merge(raw_min_attributes)
+      .merge(raw_avg_attributes)
+  end
 
-  def raw_attributes # rubocop:disable Metrics/AbcSize
+  def raw_sum_attributes
     {
-      date:,
-      # Sum
       sum_inverter_power: calculator_sum.inverter_power,
       sum_inverter_power_forecast: calculator_sum.inverter_power_forecast,
       sum_house_power: calculator_sum.house_power,
@@ -78,7 +45,11 @@ class Summarizer
       sum_house_power_grid: calculator_sum.house_power_grid,
       sum_wallbox_power_grid: calculator_sum.wallbox_power_grid,
       sum_heatpump_power_grid: calculator_sum.heatpump_power_grid,
-      # Max
+    }
+  end
+
+  def raw_max_attributes
+    {
       max_battery_charging_power:
         calculator_aggregation.max_battery_charging_power,
       max_battery_discharging_power:
@@ -92,11 +63,19 @@ class Summarizer
       max_house_power: calculator_aggregation.max_house_power,
       max_inverter_power: calculator_aggregation.max_inverter_power,
       max_wallbox_power: calculator_aggregation.max_wallbox_power,
-      # Min
+    }
+  end
+
+  def raw_min_attributes
+    {
       min_battery_soc: calculator_aggregation.min_battery_soc,
       min_car_battery_soc: calculator_aggregation.min_car_battery_soc,
       min_case_temp: calculator_aggregation.min_case_temp,
-      # Avg
+    }
+  end
+
+  def raw_avg_attributes
+    {
       avg_battery_soc: calculator_aggregation.mean_battery_soc,
       avg_car_battery_soc: calculator_aggregation.mean_car_battery_soc,
       avg_case_temp: calculator_aggregation.mean_case_temp,
@@ -138,7 +117,7 @@ class Summarizer
 
   def calculator_aggregation
     @calculator_aggregation ||=
-      Calculator::QueryInfluxAggregation.new(timeframe:)
+      Calculator::QueryInfluxAggregation.new(timeframe)
   end
 
   def timeframe

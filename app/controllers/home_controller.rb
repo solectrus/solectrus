@@ -3,10 +3,30 @@ class HomeController < ApplicationController
   include TimeframeNavigation
 
   def index
-    redirect_to(default_path) unless sensor && timeframe
+    unless sensor && timeframe
+      redirect_to(default_path)
+      return
+    end
+
+    @missing_days = Summary.missing_days(timeframe) if summaries_missing?
   end
 
   private
+
+  def summaries_missing?
+    # For "now" we don't need summaries at all
+    return false if timeframe.now?
+
+    # For single days we need the summary to be present, but we don't need to wait for it.
+    # It can created on the fly in the StatsController, if missing.
+    return false if timeframe.day?
+
+    # If the summary is already present, we don't need to wait for it.
+    return false if Summary.completed?(timeframe)
+
+    # Timeframe is longer (week / month / year / all) and summaries are missing.
+    true
+  end
 
   def default_path
     root_path(sensor: sensor || redirect_sensor, timeframe: 'now')
