@@ -119,7 +119,7 @@ GEM
     docile (1.4.1)
     dotenv (3.1.4)
     drb (2.2.1)
-    dry-cli (1.1.0)
+    dry-cli (1.2.0)
     erubi (1.13.0)
     ffi (1.17.0-aarch64-linux-musl)
     ffi (1.17.0-arm64-darwin)
