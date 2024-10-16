@@ -20,16 +20,6 @@ class SummarizerJob < ApplicationJob
       if summary.new_record? || summary.updated_at.to_date <= date
         summary.update!(attributes)
       end
-
-      Turbo::StreamsChannel.broadcast_replace_to(
-        'progress',
-        target: "progress-bar-#{date}",
-        partial: 'progress/show',
-        locals: {
-          date:,
-          complete: true,
-        },
-      )
     rescue ActiveRecord::RecordNotUnique
       Rails.logger.warn("Summary for #{date} already exists.")
     end

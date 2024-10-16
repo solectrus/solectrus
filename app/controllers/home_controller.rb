@@ -8,31 +8,24 @@ class HomeController < ApplicationController
       return
     end
 
-    @completed = ensure_completed_summaries
-
-    @missing_dates =
-      if @completed
-        []
-      else
-        Summarizer.records_to_update(
-          from: timeframe.effective_beginning_date,
-          to: timeframe.effective_ending_date,
-        )
-      end
+    @missing_days = Summary.missing_days(timeframe) if summaries_missing?
   end
 
   private
 
-  def ensure_completed_summaries
-    return true if timeframe.now? || Summary.completed?(timeframe)
-    return true if timeframe.future?
+  def summaries_missing?
+    # For "now" we don't need summaries at all
+    return false if timeframe.now?
 
-    Summarizer.perform_later!(
-      from: timeframe.effective_beginning_date,
-      to: timeframe.effective_ending_date,
-    )
+    # For single days we need the summary to be present, but we don't need to wait for it.
+    # It can created on the fly in the StatsController, if missing.
+    return false if timeframe.day?
 
-    false
+    # If the summary is already present, we don't need to wait for it.
+    return false if Summary.completed?(timeframe)
+
+    # Timeframe is longer (week / month / year / all) and summaries are missing.
+    true
   end
 
   def default_path
