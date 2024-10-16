@@ -13,7 +13,7 @@
     "@honeybadger-io/js": "^6.10.0",
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.12",
-    "chart.js": "^4.4.4",
+    "chart.js": "^4.4.5",
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-zoom": "^2.0.1",
     "date-fns": "^4.1.0",
