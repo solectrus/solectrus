@@ -1,5 +1,5 @@
 describe 'Routing' do
-  before { allow(Summarizer).to receive(:perform_later!) }
+  before { allow(Summary).to receive(:completed?).and_return(true) }
 
   describe 'URL shortcuts' do
     it 'accepts /day' do

@@ -58,17 +58,31 @@ class Summary < ApplicationRecord
         }
 
   def self.completed?(timeframe)
-    completion_rate(timeframe) >= 1
-  end
-
-  def self.completion_rate(timeframe)
     raise ArgumentError if timeframe.now?
 
     from = timeframe.effective_beginning_date
     to = timeframe.effective_ending_date
-    days = (to - from).to_i + 1
-
     completed_count = where(date: from..to).completed.count
-    completed_count.fdiv(days)
+
+    days = (to - from).to_i + 1
+    completed_count == days
+  end
+
+  def self.missing_days(timeframe)
+    from = timeframe.effective_beginning_date
+    to = timeframe.effective_ending_date
+
+    # Find dates with existing summaries
+    existing_days = Summary.where(date: from..to).pluck(:date)
+
+    # Find dates without a summary
+    date_range = (from..to).to_a
+    missing_days = date_range - existing_days
+
+    # Find dates with an outdated summary
+    outdated_days = Summary.outdated.where(date: from..to).pluck(:date)
+
+    # Combine both lists
+    missing_days + outdated_days
   end
 end
