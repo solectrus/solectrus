@@ -42,8 +42,8 @@ en:
     grid_power: Grid
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
-    battery_power: Battery
-    battery_soc: SOC battery
+    battery_power: Home Battery
+    battery_soc: SOC Home Battery
     car_battery_soc: SOC EV
     case_temp: Temperature
     grid_export_limit: Limitation

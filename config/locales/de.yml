@@ -42,8 +42,8 @@ de:
     grid_power: Netz
     battery_discharging_power: Akku-Entnahme
     battery_charging_power: Akku-Beladung
-    battery_power: Akku
-    battery_soc: Ladestand Akku
+    battery_power: Hausakku
+    battery_soc: Ladestand Hausakku
     car_battery_soc: Ladestand E-Auto
     case_temp: Temperatur
     grid_export_limit: Begrenzung
