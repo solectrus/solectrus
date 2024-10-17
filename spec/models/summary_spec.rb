@@ -35,6 +35,10 @@
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
 #
+# Indexes
+#
+#  index_summaries_on_updated_at  (updated_at)
+#
 describe Summary do
   it 'can be created' do
     summary =
