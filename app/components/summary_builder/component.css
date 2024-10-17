@@ -1,0 +1,23 @@
+.timeframe-all {
+  .summary-day {
+    @apply size-3;
+  }
+}
+
+.timeframe-year {
+  .summary-day {
+    @apply m-px size-4;
+  }
+}
+
+.timeframe-month {
+  .summary-day {
+    @apply m-1 size-6 rounded;
+  }
+}
+
+.timeframe-week {
+  .summary-day {
+    @apply m-2 size-8 rounded-lg;
+  }
+}

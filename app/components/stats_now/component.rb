@@ -18,8 +18,8 @@ class StatsNow::Component < ViewComponent::Base
 
   def peak
     @peak ||=
-      PowerPeak.new(sensors: SensorConfig::POWER_SENSORS).call(
-        start: 30.days.ago.beginning_of_day,
+      Summary.where(date: 30.days.ago..).calculate_all(
+        *SensorConfig::POWER_SENSORS.map { |sensor| :"max_max_#{sensor}" },
       )
   end
 end
