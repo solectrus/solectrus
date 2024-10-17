@@ -64,5 +64,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_01_094520) do
     t.float "sum_heatpump_power_grid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["updated_at"], name: "index_summaries_on_updated_at"
   end
 end

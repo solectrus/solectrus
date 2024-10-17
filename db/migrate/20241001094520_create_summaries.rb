@@ -47,5 +47,7 @@ class CreateSummaries < ActiveRecord::Migration[7.2]
       # Created at and updated at
       t.timestamps
     end
+
+    add_index :summaries, :updated_at
   end
 end
