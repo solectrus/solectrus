@@ -14,7 +14,7 @@ class Calculator::QuerySql
     # 1) There is a summary for each day in the timeframe
     # 2) The minimal difference `updated_at - date``is > 0. This
     #    means, the calcuation was made on the next day (or later)
-    count == (to - from).to_i + 1 && update_diff.positive?
+    count == (to - from).to_i + 1 && update_diff&.positive?
   end
 
   def reset!

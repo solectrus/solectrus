@@ -302,7 +302,17 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def query(from:, to:)
-    Calculator::QuerySql.new(from:, to:)
+    Calculator::QuerySql
+      .new(from:, to:)
+      .tap do |query_sql|
+        if (from&.past? || to&.past?) && !query_sql.fresh?
+          Rails.logger.info('Outdated summary, now requesting update.')
+          Summarizer.new(from:, to:).perform_now!
+
+          # Reset the query to get the updated data
+          query_sql.reset!
+        end
+      end
   end
 
   def sections
