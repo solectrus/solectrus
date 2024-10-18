@@ -7,27 +7,19 @@ describe PowerTop10 do
     travel_to '2024-06-05 12:30 +02:00' # Wednesday
 
     # A day in previous year, must NOT affect the result
-    sample_data beginning: Date.new(2023, 12, 31).beginning_of_day,
-                range: 24.hours,
-                value: 5
+    sample_data date: Date.new(2023, 12, 31), sum: 120_000, max: 5000
     # => 120 kWh
 
     # Monday, 2024-06-03 (high value)
-    sample_data beginning: Date.new(2024, 6, 3).beginning_of_day,
-                range: 24.hours,
-                value: 100
+    sample_data date: Date.new(2024, 6, 3), sum: 2_400_000, max: 100_000
     # => 2400 kWh
 
     # Tuesday, 2024-06-04 (medium value)
-    sample_data beginning: Date.new(2024, 6, 4).beginning_of_day,
-                range: 24.hours,
-                value: 50
+    sample_data date: Date.new(2024, 6, 4), sum: 1_200_000, max: 50_000
     # => 1200 kWh
 
     # Wednesday, 2024-06-05 (very high value)
-    sample_data beginning: Date.new(2024, 6, 5).beginning_of_day,
-                range: 12.5.hours,
-                value: 200
+    sample_data date: Date.new(2024, 6, 5), sum: 2_500_000, max: 200_000
     # => 2500 kWh
   end
 
@@ -41,7 +33,7 @@ describe PowerTop10 do
       it do
         is_expected.to eq(
           [
-            { date: Date.new(2024, 1, 1), value: 6_200_000 },
+            { date: Date.new(2024, 1, 1), value: 6_100_000 },
             { date: Date.new(2023, 1, 1), value: 120_000 },
           ],
         )
@@ -54,7 +46,7 @@ describe PowerTop10 do
       it do
         is_expected.to eq(
           [
-            { date: Date.new(2024, 6, 1), value: 6_200_000 },
+            { date: Date.new(2024, 6, 1), value: 6_100_000 },
             { date: Date.new(2023, 12, 1), value: 120_000 },
           ],
         )
@@ -67,7 +59,7 @@ describe PowerTop10 do
       it do
         is_expected.to eq(
           [
-            { date: Date.new(2024, 6, 3), value: 6_200_000 },
+            { date: Date.new(2024, 6, 3), value: 6_100_000 },
             { date: Date.new(2023, 12, 25), value: 120_000 },
           ],
         )
@@ -80,7 +72,7 @@ describe PowerTop10 do
       it do
         is_expected.to eq(
           [
-            { date: Date.new(2024, 6, 5), value: 2_600_000 }, # Not exactly 2500 kWh (!)
+            { date: Date.new(2024, 6, 5), value: 2_500_000 },
             { date: Date.new(2024, 6, 3), value: 2_400_000 },
             { date: Date.new(2024, 6, 4), value: 1_200_000 },
             { date: Date.new(2023, 12, 31), value: 120_000 },
@@ -155,8 +147,7 @@ describe PowerTop10 do
         is_expected.to eq(
           [
             { date: Date.new(2024, 6, 1), value: 200_000 },
-            { date: Date.new(2023, 12, 1), value: 5000 },
-            { date: Date.new(2024, 1, 1), value: 5000 },
+            { date: Date.new(2023, 12, 1), value: 5_000 },
           ],
         )
       end
@@ -170,7 +161,6 @@ describe PowerTop10 do
           [
             { date: Date.new(2024, 6, 3), value: 200_000 },
             { date: Date.new(2023, 12, 25), value: 5000 },
-            { date: Date.new(2024, 1, 1), value: 5000 },
           ],
         )
       end
@@ -184,9 +174,8 @@ describe PowerTop10 do
           [
             { date: Date.new(2024, 6, 5), value: 200_000 },
             { date: Date.new(2024, 6, 3), value: 100_000 },
-            { date: Date.new(2024, 6, 4), value: 100_000 },
+            { date: Date.new(2024, 6, 4), value: 50_000 },
             { date: Date.new(2023, 12, 31), value: 5_000 },
-            { date: Date.new(2024, 1, 1), value: 5_000 },
           ],
         )
       end
@@ -195,22 +184,7 @@ describe PowerTop10 do
 
   private
 
-  def sample_data(beginning:, range:, value:)
-    influx_batch do
-      time = beginning
-      ending = beginning + range
-
-      while time < ending
-        add_influx_point(
-          name: measurement_inverter_power,
-          time:,
-          fields: {
-            field_inverter_power => value * 1000,
-          },
-        )
-
-        time += 5.seconds
-      end
-    end
+  def sample_data(date:, sum:, max:)
+    Summary.create!(date:, sum_inverter_power: sum, max_inverter_power: max)
   end
 end

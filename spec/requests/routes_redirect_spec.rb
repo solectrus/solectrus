@@ -1,4 +1,6 @@
 describe 'Routing' do
+  before { allow(Summary).to receive(:completed?).and_return(true) }
+
   describe 'URL shortcuts' do
     it 'accepts /day' do
       get '/house_power/day'

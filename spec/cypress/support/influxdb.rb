@@ -1,4 +1,4 @@
-module CypressRails::InfluxDB
+module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
   def influx_seed
     puts 'Seeding InfluxDB with data...'
 
@@ -6,6 +6,38 @@ module CypressRails::InfluxDB
     seed_heatpump
     seed_forecast
     seed_car_battery_soc
+
+    summaries =
+      (Rails.configuration.x.installation_date..Date.yesterday).map do |date|
+        { date: }
+      end
+    Summary.insert_all(summaries) # rubocop:disable Rails/SkipsModelValidations
+
+    Summary.create! date: Date.current,
+                    updated_at: Date.tomorrow.middle_of_day,
+                    sum_inverter_power: 18_000,
+                    sum_inverter_power_forecast: 19_000,
+                    sum_house_power: 1800,
+                    sum_heatpump_power: 800,
+                    sum_grid_import_power: 20,
+                    sum_grid_export_power: 2200,
+                    sum_battery_charging_power: 2000,
+                    sum_battery_discharging_power: 20,
+                    sum_wallbox_power: 12_000,
+                    max_inverter_power: 9000,
+                    max_house_power: 3000,
+                    max_heatpump_power: 400,
+                    max_grid_import_power: 500,
+                    max_grid_export_power: 2500,
+                    max_battery_charging_power: 1000,
+                    max_battery_discharging_power: 100,
+                    max_wallbox_power: 6000,
+                    min_battery_soc: 40.0,
+                    min_car_battery_soc: 30.0,
+                    min_case_temp: 30.0,
+                    max_battery_soc: 70.0,
+                    max_car_battery_soc: 80,
+                    max_case_temp: 30.0
   end
 
   def seed_pv
@@ -83,9 +115,10 @@ module CypressRails::InfluxDB
   end
 
   def influx_purge
-    puts 'Purging InfluxDB data...'
+    puts 'Purging InfluxDB data and summaries...'
 
     delete_influx_data
+    delete_summaries
   end
 
   def add_influx_point(name:, fields:, time: Time.current)
@@ -108,5 +141,9 @@ module CypressRails::InfluxDB
     delete_api = influx_client.create_delete_api
 
     delete_api.delete(start, stop)
+  end
+
+  def delete_summaries
+    ActiveRecord::Base.connection.truncate(Summary.table_name)
   end
 end

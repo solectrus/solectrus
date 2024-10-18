@@ -103,5 +103,15 @@ module Solectrus
     # This does not work with Rails 7.2 by default, so we disable the timestamp check.
     # TODO: Fix the time traveling in the Cypress tests and remove this line.
     config.active_record.validate_migration_timestamps = false
+
+    # Use async ActiveJob adapter
+    config.active_job.queue_adapter = :async
+    config.active_job.async_adapter = {
+      min_threads: 1,
+      max_threads: 1,
+      idletime: 600.seconds,
+    }
+    config.active_job.queue_name_prefix = Rails.env
+    config.active_job.queue_name_delimiter = '.'
   end
 end

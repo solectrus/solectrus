@@ -52,8 +52,4 @@ class DayLight < Flux::Reader
       union(tables: [firstValue, lastValue])
     QUERY
   end
-
-  def default_cache_options
-    { expires_in: 2.hours }
-  end
 end
