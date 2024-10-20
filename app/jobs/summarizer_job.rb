@@ -20,6 +20,8 @@ class SummarizerJob < ApplicationJob
       if summary.new_record? || summary.updated_at.to_date <= date
         summary.update!(attributes)
       end
+    rescue ActiveRecord::RecordNotUnique
+      Rails.logger.warn("Summary for #{date} already exists.")
     end
   end
 
