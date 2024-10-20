@@ -48,50 +48,76 @@ describe Summary do
     expect(summary.sum_inverter_power).to eq(42)
   end
 
-  describe '.completed?' do
-    subject { described_class.completed?(timeframe) }
+  shared_examples 'result' do |expected_completion_rate, expected_completed_status|
+    it 'returns the correct completion rate' do
+      expect(described_class.completion_rate(timeframe)).to be_within(0.05).of(
+        expected_completion_rate,
+      )
+    end
 
-    context 'when timeframe is a day' do
+    it 'returns the correct completed status' do
+      expect(described_class.completed?(timeframe)).to eq(
+        expected_completed_status,
+      )
+    end
+  end
+
+  describe 'completion_rate and completed?' do
+    context 'when day in the past, updated on next day' do
+      let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
+      let(:updated_at) { timeframe.date + 1.day + 10.hours }
+
       before do
-        if updated_at
-          described_class.create!(
-            date: timeframe.date,
-            sum_inverter_power: 42,
-            updated_at:,
-          )
-        end
+        described_class.create!(
+          date: timeframe.date,
+          sum_inverter_power: 42,
+          updated_at:,
+        )
       end
 
-      context 'when day in the past, updated on next day' do
-        let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
-        let(:updated_at) { timeframe.date + 1.day + 10.hours }
+      include_examples 'result', 100, true
+    end
 
-        it { is_expected.to be true }
+    context 'when day in the past, updated on same day' do
+      let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
+      let(:updated_at) { timeframe.date + 10.hours }
+
+      before do
+        described_class.create!(
+          date: timeframe.date,
+          sum_inverter_power: 42,
+          updated_at:,
+        )
       end
 
-      context 'when day in the past, updated on same day' do
-        let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
-        let(:updated_at) { timeframe.date + 10.hours }
+      include_examples 'result', 0, false
+    end
 
-        it { is_expected.to be false }
+    context 'when today, updated a few minutes ago' do
+      let(:timeframe) { Timeframe.day }
+      let(:updated_at) { 3.minutes.ago }
+
+      before do
+        described_class.create!(
+          date: timeframe.date,
+          sum_inverter_power: 42,
+          updated_at:,
+        )
       end
 
-      context 'when today, updated a few minutes ago' do
-        let(:timeframe) { Timeframe.day }
-        let(:updated_at) { 3.minutes.ago }
+      include_examples 'result', 100, true
+    end
 
-        it { is_expected.to be true }
-      end
+    context 'when day in the past, record missing' do
+      let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
+      let(:updated_at) { nil }
 
-      context 'when day in the past, record missing' do
-        let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
-        let(:updated_at) { nil }
-
-        it { is_expected.to be false }
-      end
+      include_examples 'result', 0, false
     end
 
     context 'when timeframe is a month in the past, all summaries updated on the next day' do
+      let(:timeframe) { Timeframe.new('2024-02') }
+
       before do
         timeframe
           .effective_beginning_date
@@ -104,12 +130,12 @@ describe Summary do
           end
       end
 
-      let(:timeframe) { Timeframe.new('2024-02') }
-
-      it { is_expected.to be true }
+      include_examples 'result', 100, true
     end
 
     context 'when timeframe is a month in the past, all summaries updated on the next day - except one' do
+      let(:timeframe) { Timeframe.new('2024-02') }
+
       before do
         timeframe
           .effective_beginning_date
@@ -123,12 +149,12 @@ describe Summary do
           end
       end
 
-      let(:timeframe) { Timeframe.new('2024-02') }
-
-      it { is_expected.to be false }
+      include_examples 'result', 96.6, false
     end
 
     context 'when timeframe is current month, all summaries up to date' do
+      let(:timeframe) { Timeframe.month }
+
       before do
         timeframe
           .effective_beginning_date
@@ -141,9 +167,7 @@ describe Summary do
           end
       end
 
-      let(:timeframe) { Timeframe.month }
-
-      it { is_expected.to be true }
+      include_examples 'result', 100, true
     end
   end
 end

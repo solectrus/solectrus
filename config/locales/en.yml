@@ -83,8 +83,6 @@ en:
     expect_html: '%{value} expected'
     expectation_html: Expected %{value}
     unknown: No forecast available
-  summaries:
-    remaining: Remaining
   login:
     title: Login as admin
     missing_password_error: Unable to log in because no password has been configured.
@@ -123,6 +121,13 @@ en:
         description: Options
         opportunity_costs:
           hint: Consider missed feed-in compensation as part of electricity costs
+      summaries:
+        title: Daily summaries
+        description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.
+        zero: There are no summaries available.
+        completion_rate: There are %{value}% of the required summaries available.
+        reset: Reset
+        reset_confirmation: Rebuilding the summaries will take some time. Continue?
     prices:
       edit: Edit price
       new: Add price

@@ -7,50 +7,15 @@
   data-sequential-frames-seconds-other-value= t('datetime.distance_in_words.x_seconds.other')
   class= "timeframe-#{timeframe.id}"
 ]
-  .h-full.w-full.flex.flex-col.items-center.justify-center.text-gray-600.dark:text-gray-300
-    div
-      - if timeframe.all?
-        .flex.flex-wrap.gap-1
-          - days.each do |day|
-            = render DayComponent.new(date: day, is_missing: missing_days.include?(day))
+  .h-full.w-full.flex.flex-col.gap-10.items-center.justify-center.text-gray-600.dark:text-gray-300
+    h1
+      = t('.title')
 
-      - elsif timeframe.year?
-        .grid.grid-cols-2.md:grid-cols-3.lg:grid-cols-4.gap-x-16.gap-y-2.md:gap-12
-          - days.group_by(&:month).each_value do |days_in_month|
-            div
-              - days_in_month.group_by(&:cweek).each_value.with_index do |days_in_week, index|
-                .flex.gap-1.mt-1
-                  - if index.zero?
-                    - first_day_of_week = (days_in_week.first.wday - 1) % 7
-                    - first_day_of_week.times do
-                      div class= 'summary-day'
-
-                  - days_in_week.each do |day|
-                    = render DayComponent.new(date: day, is_missing: missing_days.include?(day))
-
-      - elsif timeframe.month?
-        div
-          .flex.gap-1.mt-1
-            - (1..days.first.day).each do
-              div class= 'summary-day'
-
-          - days.group_by(&:cweek).each_value.with_index do |days_in_week, index|
-            .flex.gap-1.mt-1
-              - if index.zero?
-                - first_day_of_week = (days_in_week.first.wday - 1) % 7
-                - first_day_of_week.times do
-                  div class= 'summary-day'
-
-              - days_in_week.each do |day|
-                = render DayComponent.new(date: day, is_missing: missing_days.include?(day))
-
-      - elsif timeframe.week?
-        .flex.gap-1
-          - days.reverse_each do |day|
-            = render DayComponent.new(date: day, is_missing: missing_days.include?(day))
+    div class="w-full grid grid-cols-auto-fit rounded-md overflow-hidden bg-indigo-200 dark:bg-indigo-900"
+      = render DayComponent.with_collection(missing_days)
 
     - unless timeframe.week?
-      .text-center.mt-6.md:mt-12.invisible.text-gray-400.dark:text-gray-600.text-lg.tracking-wider.tabular-nums data-sequential-frames-target= 'timeEstimate'
+      .text-center.invisible.text-gray-400.dark:text-gray-600.text-lg.tracking-wider.tabular-nums data-sequential-frames-target= 'timeEstimate'
         span>
-          = t('summaries.remaining')
+          = t('.remaining')
         span data-sequential-frames-target= "remaining"

@@ -2,9 +2,8 @@ module SummaryChecker
   extend ActiveSupport::Concern
 
   def load_missing_summary_days(timeframe)
-    return unless summaries_missing?(timeframe)
-
-    @missing_summary_days = Summary.missing_days(timeframe)
+    @missing_summary_days =
+      (summaries_missing?(timeframe) ? Summary.missing_days(timeframe) : [])
   end
 
   private

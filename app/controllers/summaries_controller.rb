@@ -1,16 +1,16 @@
 class SummariesController < ApplicationController
-  def show
-    SummarizerJob.perform_now(date)
+  include SummaryChecker
 
-    render SummaryBuilder::Component::DayComponent.new(
-             date:,
-             just_created: true,
-           )
+  before_action :admin_required!, only: %i[delete_all]
+
+  def show
+    @date = Date.parse(params[:date])
+    SummarizerJob.perform_now(@date)
   end
 
-  private
+  def delete_all
+    ActiveRecord::Base.connection.truncate(Summary.table_name)
 
-  def date
-    @date ||= Date.parse(params[:date])
+    redirect_to settings_path, notice: t('crud.success')
   end
 end

@@ -7,9 +7,6 @@
 @import '../stylesheets/badge.css';
 @import '../stylesheets/animations.css';
 
-/* Import component styles */
-@import '../../components/summary_builder/component.css';
-
 /* Import the Inter font */
 @font-face {
   font-family: 'Inter';

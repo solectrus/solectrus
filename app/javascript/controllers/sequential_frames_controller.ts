@@ -2,9 +2,8 @@ import { Controller } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 
 export default class extends Controller {
-  static readonly targets = ['frame', 'timeEstimate', 'remaining'];
+  static readonly targets = ['timeEstimate', 'remaining'];
 
-  declare readonly frameTargets: Turbo.FrameElement[];
   declare readonly timeEstimateTarget: HTMLElement;
   declare readonly remainingTarget: HTMLElement;
   declare readonly hasTimeEstimateTarget: boolean;
@@ -27,14 +26,24 @@ export default class extends Controller {
   declare readonly secondsOtherValue: string;
 
   startTime: number = 0;
+  private frameCache: Turbo.FrameElement[] | null = null;
 
   connect() {
     this.startTime = Date.now();
     this.loadNextFrame(0);
   }
 
+  get frameElements(): Turbo.FrameElement[] {
+    if (this.frameCache === null) {
+      this.frameCache = Array.from(
+        this.element.querySelectorAll('turbo-frame[data-src]'),
+      );
+    }
+    return this.frameCache;
+  }
+
   loadNextFrame(index: number) {
-    const frame = this.frameTargets[index];
+    const frame = this.frameElements[index];
 
     if (frame) {
       // Load the next frame and prepare to load the following one
@@ -104,7 +113,7 @@ export default class extends Controller {
   estimateRemainingTimeSeconds(index: number) {
     const elapsedTime = Date.now() - this.startTime;
     const averageTimePerFrame = elapsedTime / (index + 1);
-    const remainingFrames = this.frameTargets.length - (index + 1);
+    const remainingFrames = this.frameElements.length - (index + 1);
     const estimatedRemainingSeconds = Math.ceil(
       (remainingFrames * averageTimePerFrame) / 1000,
     );

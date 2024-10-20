@@ -83,8 +83,6 @@ de:
     expect_html: Erwartet werden %{value}
     expectation_html: Erwartet wurden %{value}
     unknown: Keine Prognose verfügbar
-  summaries:
-    remaining: Noch
   login:
     title: Als Admin anmelden
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
@@ -123,6 +121,13 @@ de:
         description: Optionen
         opportunity_costs:
           hint: Entgangene Einspeisevergütung als Teil der Stromkosten betrachten
+      summaries:
+        title: Tageszusammenfassungen
+        description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.
+        zero: Es sind keine Zusammenfassungen vorhanden.
+        completion_rate: Es sind %{value}% der benötigten Zusamenfassungen vorhanden.
+        reset: Zurücksetzen
+        reset_confirmation: Das Neuberechnen der Zusammenfassungen wird einige Zeit dauern. Wirklich fortfahren?
     prices:
       edit: Preis bearbeiten
       new: Neuer Preis

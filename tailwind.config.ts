@@ -50,7 +50,7 @@ export default {
       },
 
       gridTemplateColumns: {
-        'auto-fit': 'repeat(auto-fit, minmax(2px, 1fr))',
+        'auto-fit': 'repeat(auto-fit, minmax(0, 1fr))',
       },
     },
   },
