@@ -58,6 +58,10 @@ class Summary < ApplicationRecord
         }
 
   def self.completed?(timeframe)
+    completion_rate(timeframe) == 100
+  end
+
+  def self.completion_rate(timeframe)
     raise ArgumentError if timeframe.now?
 
     from = timeframe.effective_beginning_date
@@ -65,7 +69,7 @@ class Summary < ApplicationRecord
     completed_count = where(date: from..to).completed.count
 
     days = (to - from).to_i + 1
-    completed_count == days
+    (completed_count * 100.0 / days)
   end
 
   def self.missing_days(timeframe)
