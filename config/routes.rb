@@ -14,6 +14,7 @@
 #                          sessions POST   /login(.:format)                                          sessions#create
 #                           session DELETE /logout(.:format)                                         sessions#destroy
 #                      registration GET    /registration(/:status)(.:format)                         registration#show
+#                        sponsoring GET    /sponsoring(.:format)                                     sponsorings#show
 #                                   GET    /favicon.ico(.:format)                                    redirect(301, /favicon-196.png)
 #                     edit_settings GET    /settings(.:format)                                       settings#edit
 #                          settings PATCH  /settings(.:format)                                       settings#update

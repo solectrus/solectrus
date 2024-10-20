@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { debounce } from 'throttle-debounce';
-import { isReducedMotion } from '@/utils/device';
+import { isReducedMotion, isTouchEnabled } from '@/utils/device';
+import * as Turbo from '@hotwired/turbo';
 
 import {
   Chart,
@@ -18,6 +19,8 @@ import {
   ChartType,
   ChartData,
   ChartDataset,
+  ChartEvent,
+  ActiveElement,
 } from 'chart.js';
 
 import 'chartjs-adapter-date-fns';
@@ -135,6 +138,79 @@ export default class extends Controller<HTMLCanvasElement> {
           ? Math.min(+options.scales.y.suggestedMin, min)
           : 0;
     }
+
+    // Drill-down: Click on bars to navigate to a more detailed view
+    let lastTouchedBar: number | null = null;
+    options.onClick = (
+      _event: ChartEvent,
+      elements: ActiveElement[],
+      chart: Chart,
+    ) => {
+      if (elements.length === 0 || !chart?.data?.labels) return;
+
+      const dataIndex = elements[0].index;
+      const barLabel = chart.data.labels[dataIndex];
+      if (typeof barLabel !== 'number') return;
+
+      if (isTouchEnabled()) {
+        // To avoid conflict with tooltip, we wait for a second click
+        if (lastTouchedBar === dataIndex) {
+          handleDrilldown(barLabel);
+          lastTouchedBar = null;
+        } else {
+          lastTouchedBar = dataIndex;
+        }
+      } else {
+        handleDrilldown(barLabel);
+      }
+    };
+
+    function handleDrilldown(barLabel: number) {
+      const date = new Date(barLabel);
+      const currentUrl = window.location.href;
+
+      let regexPattern;
+      const regexes = {
+        week: /\d{4}-W\d{2}$/,
+        month: /\d{4}-\d{2}$/,
+        year: /\d{4}$/,
+        all: /all$/,
+      };
+
+      let formattedDate;
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      if (regexes.week.exec(currentUrl)) {
+        regexPattern = regexes.week;
+        // We are in a week view, so bars are days (YYYY-MM-DD)
+        formattedDate = `${year}-${month}-${day}`;
+      } else if (regexes.month.exec(currentUrl)) {
+        regexPattern = regexes.month;
+        // We are in a month view, so bars are days (YYYY-MM-DD)
+        formattedDate = `${year}-${month}-${day}`;
+      } else if (regexes.year.exec(currentUrl)) {
+        regexPattern = regexes.year;
+        // We are in a year view, so bars are months (YYYY-MM)
+        formattedDate = `${year}-${month}`;
+      } else if (regexes.all.exec(currentUrl)) {
+        regexPattern = regexes.all;
+        // We are in an "all" view, so bars are years (YYYY)
+        formattedDate = `${year}`;
+      } else return;
+
+      const newUrl = currentUrl.replace(regexPattern, formattedDate);
+      Turbo.visit(newUrl);
+    }
+
+    options.onHover = (event: ChartEvent, elements: ActiveElement[]) => {
+      if (event?.native?.target instanceof HTMLCanvasElement)
+        event.native.target.style.cursor =
+          elements.length && elements[0].element instanceof BarElement
+            ? 'pointer'
+            : 'default';
+    };
 
     // Format numbers in tooltips
     if (options.plugins?.tooltip) {

@@ -84,7 +84,7 @@ class PowerSum < Flux::Reader
         #{from_bucket}
         |> #{range(start:, stop:)}
         |> #{filter}
-        |> aggregateWindow(every: 1h, fn: mean)
+        |> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")
         |> sum()
       QUERY
     else

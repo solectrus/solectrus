@@ -68,8 +68,9 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
         - secondary_items.each do |item|
           = item.call(css_extra: ['py-2 px-3 uppercase tracking-wider', item.current ? 'rounded-md bg-indigo-700' : ''])
 
-      .flex.justify-center.pt-5.pb-3.border-t.border-indigo-300.border-opacity-25
-        = render ThemeSelector::Component.new
+      - unless ThemeConfig.x.static?
+        .flex.justify-center.pt-5.pb-3.border-t.border-indigo-300.border-opacity-25
+          = render ThemeSelector::Component.new
 
       - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
         .bg-yellow-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-yellow-800.dark:text-pink-200

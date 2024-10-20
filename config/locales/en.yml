@@ -7,7 +7,7 @@ en:
     fullscreen_on: Fullscreen
     fullscreen_off: Exit Fullscreen
     theme: Theme
-    faq: FAQ
+    docs: Documentation
     settings: Settings
     registration: Registration
     registration_and_sponsoring: Registration & Sponsoring
@@ -42,8 +42,8 @@ en:
     grid_power: Grid
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
-    battery_power: Battery
-    battery_soc: SOC battery
+    battery_power: Home Battery
+    battery_soc: SOC Home Battery
     car_battery_soc: SOC EV
     case_temp: Temperature
     grid_export_limit: Limitation
@@ -143,7 +143,7 @@ en:
       description: |
         Sorry, something went wrong. See the server logs for more details.
         <br><br>
-        <code>docker compose logs app</code>
+        <code>docker compose logs dashboard</code>
     back_to_home: ← Back to homepage
     login: Login as administrator
 

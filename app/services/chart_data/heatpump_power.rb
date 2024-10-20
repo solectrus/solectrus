@@ -26,38 +26,33 @@ class ChartData::HeatpumpPower < ChartData::Base
     )
   end
 
-  def splitted_chart
+  def splitted_chart # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     chart =
       PowerChart.new(sensors: %i[heatpump_power heatpump_power_grid]).call(
         timeframe,
         fill: !timeframe.current?,
       )
 
-    if chart.key?(:heatpump_power) && chart.key?(:heatpump_power_grid)
-      {
-        heatpump_power: chart[:heatpump_power],
-        heatpump_power_grid: chart[:heatpump_power_grid],
-        heatpump_power_pv:
-          chart[:heatpump_power].map.with_index do |heatpump_power, index|
-            # heatpump_power_pv = heatpump_power - heatpump_power_grid
-            timestamp, power = heatpump_power
-            [
-              timestamp,
-              if power
-                [
-                  0,
-                  [:heatpump_power_grid].reduce(power) do |acc, elem|
-                    acc - chart.dig(elem, index)&.second.to_f
-                  end,
-                ].max
-              end,
-            ]
-          end,
-      }
-    else
+    unless chart.key?(:heatpump_power) && chart.key?(:heatpump_power_grid)
       # No data for heatpump_power_grid is present, return simple chart instead
-      chart
+      return chart
     end
+
+    heatpump_power = chart[:heatpump_power]
+
+    heatpump_power_grid =
+      heatpump_power.map.with_index do |(timestamp, power), index|
+        power_grid = chart.dig(:heatpump_power_grid, index)&.second.to_f
+        [timestamp, power ? [power, power_grid].min : nil]
+      end
+
+    heatpump_power_pv =
+      heatpump_power.map.with_index do |(timestamp, power), index|
+        power_grid = chart.dig(:heatpump_power_grid, index)&.second.to_f
+        [timestamp, power ? [(power - power_grid), 0].max : nil]
+      end
+
+    { heatpump_power:, heatpump_power_grid:, heatpump_power_pv: }
   end
 
   def background_color(chart_sensor)

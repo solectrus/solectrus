@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.2.1'
+gem 'rails', '~> 7.2.1', '>= 7.2.1.1'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -103,9 +103,7 @@ group :development, :test do
   gem 'slim_lint'
 
   # Helps you write Cypress tests of your Rails app (https://github.com/testdouble/cypress-rails)
-  # Fork for Rails 7.2 compatibility.
-  # Change this line when https://github.com/testdouble/cypress-rails/pull/165 is merged.
-  gem 'cypress-rails', github: 'ledermann/cypress-rails', branch: 'rails-7-2'
+  gem 'cypress-rails', '0.8.0.rc1'
 end
 
 group :development do

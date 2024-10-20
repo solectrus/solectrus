@@ -54,6 +54,7 @@ class UpdateCheck
   end
 
   def latest
+    return { registration_status: 'complete' } if Rails.env.development?
     return cached_latest if cached?
 
     uri = URI(update_url)

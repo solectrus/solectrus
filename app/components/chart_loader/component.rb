@@ -61,7 +61,8 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
         duration: 300,
       },
       interaction: {
-        intersect: false,
+        # On bars (long timeframe) we want interaction when hovering on a bar, not above them
+        intersect: !timeframe.short?,
         mode: 'index',
       },
       elements: {

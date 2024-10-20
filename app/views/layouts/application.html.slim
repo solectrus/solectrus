@@ -1,5 +1,5 @@
 doctype html
-html lang= I18n.locale
+html class= ThemeConfig.x.html_class lang= I18n.locale
   head
     meta charset="utf-8"
 
@@ -12,7 +12,7 @@ html lang= I18n.locale
     meta name="apple-mobile-web-app-capable" content="yes"
     meta name="mobile-web-app-capable" content="yes"
     meta name="application-name" content="SOLECTRUS"
-    meta name="theme-color" content="#a5b4fc" data-turbo-permanent= true id= 'theme-color'
+    meta name="theme-color" content= ThemeConfig.x.color data-turbo-permanent= true id= 'theme-color'
     meta name="version" content= Rails.configuration.x.git.commit_version
     meta name="date" content= Rails.configuration.x.git.commit_time
     meta name="env" content= Rails.env
@@ -62,8 +62,8 @@ html lang= I18n.locale
       // Load Sinon from CDN
       // https://cdnjs.com/libraries/sinon.js
       script[
-        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/18.0.0/sinon.min.js'
-        integrity= 'sha512-ebemzvvjpDp3QU8hypGJA17UC5tY93lneJEHkVON9Rg9knDxczLxY7yABNHOOHauNSUfGnKTiD74pVMHKrdWgw=='
+        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/19.0.2/sinon.min.js'
+        integrity= 'sha512-jdcukbQUXgbcuueYR5Ztm9z7BcnxBMQ8K4EHbPjEXO/Wa4KOPcV8mRwlPVbvD80YE12Ei0r4pWQ8I3DjOKuQ6Q=='
         crossorigin= 'anonymous'
         referrerpolicy= 'no-referrer'
       ]
