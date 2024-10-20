@@ -12,7 +12,11 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def initialize(string, min_date: nil, allowed_days_in_future: 0)
+  def initialize(
+    string,
+    min_date: Rails.application.config.x.installation_date,
+    allowed_days_in_future: 6
+  )
     unless string.respond_to?(:match?) && string.match?(self.class.regex)
       raise ArgumentError, "'#{string}' is not a valid timeframe"
     end

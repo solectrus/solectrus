@@ -11,11 +11,7 @@ class Top10Controller < ApplicationController
   private
 
   helper_method def timeframe
-    @timeframe ||=
-      Timeframe.new(
-        'all',
-        min_date: Rails.application.config.x.installation_date,
-      )
+    @timeframe ||= Timeframe.all
   end
 
   helper_method def title
