@@ -5,7 +5,9 @@
 
 # SOLECTRUS
 
-Photovoltaic Dashboard, read here about the motivation (in German):
+SOLECTRUS is a smart photovoltaic dashboard that shows your energy production and usage. It also calculates costs and savings, helping you get the most out of your solar system.
+
+Read here about the motivation (in German):
 https://ledermann.dev/blog/2021/02/03/photovoltaik-dashboard-als-web-applikation/
 
 ![Screenshot](screenshot.webp)
