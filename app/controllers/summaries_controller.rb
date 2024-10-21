@@ -9,7 +9,7 @@ class SummariesController < ApplicationController
   end
 
   def delete_all
-    ActiveRecord::Base.connection.truncate(Summary.table_name)
+    Summary.delete_all
 
     redirect_to settings_path, notice: t('crud.success')
   end

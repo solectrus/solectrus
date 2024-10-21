@@ -38,7 +38,7 @@ describe 'Summaries' do
     context 'when logged in as admin' do
       before { login_as_admin }
 
-      it 'truncates the table' do
+      it 'empties the table' do
         expect { request }.to change(Summary, :count).by(-1)
         expect(response).to redirect_to(settings_path)
       end
