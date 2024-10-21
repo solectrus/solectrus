@@ -1,5 +1,5 @@
 describe 'Home', vcr: { cassette_name: 'version' } do
-  before { allow(Summary).to receive(:completed?).and_return(true) }
+  before { allow(Summary).to receive(:fresh?).and_return(true) }
 
   describe 'GET /' do
     it_behaves_like 'localized request', '/'

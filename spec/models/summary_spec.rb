@@ -48,126 +48,140 @@ describe Summary do
     expect(summary.sum_inverter_power).to eq(42)
   end
 
-  shared_examples 'result' do |expected_completion_rate, expected_completed_status|
-    it 'returns the correct completion rate' do
-      expect(described_class.completion_rate(timeframe)).to be_within(0.05).of(
-        expected_completion_rate,
-      )
+  shared_examples 'tests for fresh and stale' do |is_fresh|
+    it 'returns correct fresh?' do
+      if is_fresh
+        expect(summary).to be_fresh
+      else
+        expect(summary).not_to be_fresh
+      end
     end
 
-    it 'returns the correct completed status' do
-      expect(described_class.completed?(timeframe)).to eq(
-        expected_completed_status,
-      )
+    it 'returns correct stale?' do
+      if is_fresh
+        expect(summary).not_to be_stale
+      else
+        expect(summary).to be_stale
+      end
+    end
+
+    it 'returns correct .fresh scope' do
+      if is_fresh
+        expect(described_class.fresh).to include(summary)
+      else
+        expect(described_class.fresh).not_to include(summary)
+      end
     end
   end
 
-  describe 'completion_rate and completed?' do
-    context 'when day in the past, updated on next day' do
-      let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
-      let(:updated_at) { timeframe.date + 1.day + 10.hours }
+  describe 'single summary' do
+    let(:summary) { described_class.create!(date:, updated_at:) }
 
-      before do
-        described_class.create!(
-          date: timeframe.date,
-          sum_inverter_power: 42,
-          updated_at:,
-        )
-      end
+    context 'when date is in the past, updated on next day' do
+      let(:date) { 5.days.ago.to_date }
+      let(:updated_at) { (date + 1.day).middle_of_day }
 
-      include_examples 'result', 100, true
+      include_examples 'tests for fresh and stale', true
     end
 
-    context 'when day in the past, updated on same day' do
-      let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
-      let(:updated_at) { timeframe.date + 10.hours }
+    context 'when date is in the past, updated on the same day' do
+      let(:date) { 5.days.ago.to_date }
+      let(:updated_at) { date.middle_of_day }
 
-      before do
-        described_class.create!(
-          date: timeframe.date,
-          sum_inverter_power: 42,
-          updated_at:,
-        )
-      end
-
-      include_examples 'result', 0, false
+      include_examples 'tests for fresh and stale', false
     end
 
-    context 'when today, updated a few minutes ago' do
-      let(:timeframe) { Timeframe.day }
+    context 'when date is today, updated a few minutes ago' do
+      let(:date) { Date.current }
       let(:updated_at) { 3.minutes.ago }
 
-      before do
-        described_class.create!(
-          date: timeframe.date,
-          sum_inverter_power: 42,
-          updated_at:,
-        )
-      end
-
-      include_examples 'result', 100, true
+      include_examples 'tests for fresh and stale', true
     end
 
-    context 'when day in the past, record missing' do
-      let(:timeframe) { Timeframe.new(5.days.ago.to_date.iso8601) }
-      let(:updated_at) { nil }
+    context 'when date is today, updated out of tolerance' do
+      let(:date) { Date.current }
+      let(:updated_at) { 10.minutes.ago }
 
-      include_examples 'result', 0, false
+      include_examples 'tests for fresh and stale', false
     end
 
-    context 'when timeframe is a month in the past, all summaries updated on the next day' do
-      let(:timeframe) { Timeframe.new('2024-02') }
+    context 'when date is in the future, updated within tolerance' do
+      let(:date) { Date.tomorrow }
+      let(:updated_at) { 3.minutes.ago }
 
-      before do
-        timeframe
-          .effective_beginning_date
-          .upto(timeframe.effective_ending_date) do |date|
-            described_class.create!(
-              date:,
-              sum_inverter_power: 42,
-              updated_at: date + 1.day + 10.hours,
-            )
-          end
-      end
-
-      include_examples 'result', 100, true
+      include_examples 'tests for fresh and stale', true
     end
 
-    context 'when timeframe is a month in the past, all summaries updated on the next day - except one' do
-      let(:timeframe) { Timeframe.new('2024-02') }
+    context 'when date is yesterday, updated today shortly after midnight (testing timezone)' do
+      let(:date) { Date.yesterday }
+      let(:updated_at) { Date.current + 3.minutes }
 
-      before do
-        timeframe
-          .effective_beginning_date
-          .upto(timeframe.effective_ending_date) do |date|
-            described_class.create!(
-              date:,
-              sum_inverter_power: 42,
-              updated_at:
-                date.day == 1 ? date + 10.hours : date + 1.day + 10.hours,
-            )
-          end
-      end
-
-      include_examples 'result', 96.6, false
+      include_examples 'tests for fresh and stale', true
     end
 
-    context 'when timeframe is current month, all summaries up to date' do
-      let(:timeframe) { Timeframe.month }
+    context 'when date is in the future, updated out of tolerance' do
+      let(:date) { Date.tomorrow }
+      let(:updated_at) { 10.minutes.ago }
 
+      include_examples 'tests for fresh and stale', false
+    end
+  end
+
+  shared_examples 'tests for fresh_percentage and missing_or_stale_days' do |fresh_percentage, missing_or_stale_days|
+    it 'returns correct fresh_percentage' do
+      expect(described_class.fresh_percentage(timeframe)).to eq(
+        fresh_percentage,
+      )
+    end
+
+    it 'returns correct missing_or_stale_days' do
+      expect(
+        described_class.missing_or_stale_days(
+          from: timeframe.effective_beginning_date,
+          to: timeframe.effective_ending_date,
+        ),
+      ).to eq(missing_or_stale_days)
+    end
+  end
+
+  describe 'multiple summaries' do
+    subject { described_class.fresh_percentage(timeframe) }
+
+    let(:timeframe) { Timeframe.new('2023-02') }
+
+    context 'when all summaries are present and fresh' do
       before do
-        timeframe
-          .effective_beginning_date
-          .upto(timeframe.effective_ending_date) do |date|
-            described_class.create!(
-              date:,
-              sum_inverter_power: 42,
-              updated_at: date.today? ? 3.minutes.ago : date + 1.day + 10.hours,
-            )
-          end
+        (timeframe.beginning.to_date..timeframe.ending.to_date).each do |date|
+          described_class.create!(date:, updated_at: date + 2.days)
+        end
       end
 
-      include_examples 'result', 100, true
+      include_examples 'tests for fresh_percentage and missing_or_stale_days',
+                       100,
+                       []
+    end
+
+    context 'when all summaries are present, but some are stale and some are fresh' do
+      before do
+        (timeframe.beginning.to_date..timeframe.ending.to_date).each do |date|
+          described_class.create!(
+            date:,
+            updated_at: date.day <= 7 ? date.middle_of_day : date + 2.days,
+          )
+        end
+      end
+
+      include_examples 'tests for fresh_percentage and missing_or_stale_days',
+                       75,
+                       (Date.new(2023, 2, 1)..Date.new(2023, 2, 7)).to_a
+    end
+
+    context 'when no summaries are present' do
+      it { is_expected.to eq(0) }
+
+      include_examples 'tests for fresh_percentage and missing_or_stale_days',
+                       0,
+                       (Date.new(2023, 2, 1)..Date.new(2023, 2, 28)).to_a
     end
   end
 end

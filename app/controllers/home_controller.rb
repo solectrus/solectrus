@@ -9,7 +9,7 @@ class HomeController < ApplicationController
       return
     end
 
-    load_missing_summary_days(timeframe)
+    load_missing_or_stale_summary_days(timeframe)
   end
 
   private

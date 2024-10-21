@@ -40,7 +40,7 @@
         - if @summary_completion_rate.zero?
           = t('settings.general.summaries.zero')
         - else
-          = t('settings.general.summaries.completion_rate', value: @summary_completion_rate.round)
+          = t('settings.general.summaries.fresh_percentage', value: @summary_completion_rate.round)
 
     = render Button::Component.new path: summaries_path,
                                    icon: 'rotate-left',

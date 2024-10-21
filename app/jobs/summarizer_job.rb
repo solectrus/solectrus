@@ -17,7 +17,7 @@ class SummarizerJob < ApplicationJob
     ActiveRecord::Base.transaction do
       summary = Summary.select(:date, :updated_at).find_or_initialize_by(date:)
 
-      if summary.new_record? || summary.updated_at.to_date <= date
+      if summary.new_record? || summary.stale?(today_tolerance: 0)
         summary.update!(attributes)
       end
     rescue ActiveRecord::RecordNotUnique

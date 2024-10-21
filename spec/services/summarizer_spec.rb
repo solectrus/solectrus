@@ -40,13 +40,11 @@ describe Summarizer do
       end
     end
 
-    context 'when outdated summary exists' do
+    context 'when stale summary exists' do
       let(:from) { Date.current }
       let(:to) { from }
 
-      let(:last_updated_at) do
-        (Summary::TODAY_TOLERANCE_IN_MINUTES + 1).minutes.ago
-      end
+      let(:last_updated_at) { (Summary::TODAY_TOLERANCE + 1).minutes.ago }
 
       let!(:existing_summary) do
         Summary.create!(date: Date.current, updated_at: last_updated_at)

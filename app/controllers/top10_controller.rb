@@ -5,7 +5,7 @@ class Top10Controller < ApplicationController
   def index
     redirect_to(default_path) unless period && sensor && calc && sort
 
-    load_missing_summary_days(timeframe)
+    load_missing_or_stale_summary_days(timeframe)
   end
 
   private

@@ -1,11 +1,11 @@
 class SummaryBuilder::Component < ViewComponent::Base
-  def initialize(timeframe:, missing_days:)
+  def initialize(timeframe:, missing_or_stale_days:)
     super()
     @timeframe = timeframe
-    @missing_days = missing_days
+    @missing_or_stale_days = missing_or_stale_days
   end
 
-  attr_reader :timeframe, :missing_days
+  attr_reader :timeframe, :missing_or_stale_days
 
   class DayComponent < ViewComponent::Base
     with_collection_parameter :date

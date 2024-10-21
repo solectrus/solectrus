@@ -40,7 +40,7 @@ describe 'SummarizerJob' do
       end
     end
 
-    context 'when outdated summary already exists' do
+    context 'when stale summary already exists' do
       let(:date) { Date.yesterday }
 
       let!(:summary) { Summary.create!(date:, updated_at: date.middle_of_day) }

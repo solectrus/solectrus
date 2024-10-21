@@ -40,53 +40,74 @@
 #  index_summaries_on_updated_at  (updated_at)
 #
 class Summary < ApplicationRecord
-  TODAY_TOLERANCE_IN_MINUTES = 5
-  public_constant :TODAY_TOLERANCE_IN_MINUTES
+  TODAY_TOLERANCE = 5 # minutes
+  public_constant :TODAY_TOLERANCE
 
-  scope :completed,
+  scope :fresh,
         lambda {
           where(
-            "DATE(updated_at) > date OR (DATE(updated_at) = date AND updated_at > (NOW() - INTERVAL '#{TODAY_TOLERANCE_IN_MINUTES} MINUTE'))",
+            "DATE(updated_at AT TIME ZONE 'UTC' AT TIME ZONE :time_zone) > date
+             OR (
+               date >= :current_date
+               AND updated_at > :current_tolerance_time
+             )",
+            time_zone: Time.zone.name,
+            current_date: Date.current,
+            current_tolerance_time: TODAY_TOLERANCE.minutes.ago,
           )
         }
 
-  scope :outdated,
-        lambda {
-          where(
-            "DATE(updated_at) <= date AND (DATE(updated_at) != CURRENT_DATE OR updated_at <= (NOW() - INTERVAL '#{TODAY_TOLERANCE_IN_MINUTES} MINUTE'))",
-          )
-        }
-
-  def self.completed?(timeframe)
-    completion_rate(timeframe) == 100
+  def self.fresh?(timeframe)
+    fresh_percentage(timeframe) == 100
   end
 
-  def self.completion_rate(timeframe)
+  def self.fresh_percentage(timeframe)
     raise ArgumentError if timeframe.now?
 
     from = timeframe.effective_beginning_date
     to = timeframe.effective_ending_date
-    completed_count = where(date: from..to).completed.count
+    fresh_count = where(date: from..to).fresh.count
 
-    days = (to - from).to_i + 1
-    (completed_count * 100.0 / days)
+    total_days = (to - from).to_i + 1
+    (fresh_count * 100.0 / total_days)
   end
 
-  def self.missing_days(timeframe)
-    from = timeframe.effective_beginning_date
-    to = timeframe.effective_ending_date
+  def self.missing_or_stale_days(from:, to:)
+    find_by_sql(
+      [
+        <<-SQL.squish,
+          SELECT gs.date
+          FROM generate_series(:from, :to, '1 day'::interval) AS gs(date)
+          LEFT JOIN summaries s ON s.date = gs.date
+          WHERE s.date IS NULL
+          OR (
+            DATE(s.updated_at AT TIME ZONE 'UTC' AT TIME ZONE :time_zone) <= s.date
+            AND (
+              s.date < :current_date
+              OR s.updated_at <= :current_tolerance_time
+            )
+          )
+        SQL
+        {
+          from:,
+          to:,
+          time_zone: Time.zone.name,
+          current_date: Date.current,
+          current_tolerance_time: TODAY_TOLERANCE.minutes.ago,
+        },
+      ],
+    ).pluck(:date)
+  end
 
-    # Find dates with existing summaries
-    existing_days = Summary.where(date: from..to).pluck(:date)
+  def fresh?(today_tolerance: TODAY_TOLERANCE)
+    updated_at.to_date > date ||
+      (
+        (date.today? || date.future?) &&
+          updated_at >= today_tolerance.minutes.ago
+      )
+  end
 
-    # Find dates without a summary
-    date_range = (from..to).to_a
-    missing_days = date_range - existing_days
-
-    # Find dates with an outdated summary
-    outdated_days = Summary.outdated.where(date: from..to).pluck(:date)
-
-    # Combine both lists
-    missing_days + outdated_days
+  def stale?(today_tolerance: TODAY_TOLERANCE)
+    !fresh?(today_tolerance:)
   end
 end

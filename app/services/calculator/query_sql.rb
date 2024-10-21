@@ -111,7 +111,7 @@ class Calculator::QuerySql
              CASE
                WHEN date = DATE(NOW() AT TIME ZONE '#{timezone_name}')
                     AND updated_at AT TIME ZONE 'UTC' AT TIME ZONE '#{timezone_name}' >=
-                        NOW() AT TIME ZONE '#{timezone_name}' - INTERVAL '#{Summary::TODAY_TOLERANCE_IN_MINUTES} minutes'
+                        NOW() AT TIME ZONE '#{timezone_name}' - INTERVAL '#{Summary::TODAY_TOLERANCE} minutes'
                  THEN 1
                ELSE
                  DATE(updated_at AT TIME ZONE 'UTC' AT TIME ZONE '#{timezone_name}') - date
