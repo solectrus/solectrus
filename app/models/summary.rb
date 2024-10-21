@@ -40,6 +40,58 @@
 #  index_summaries_on_updated_at  (updated_at)
 #
 class Summary < ApplicationRecord
+  # Check if the config have changed and reset the summaries if needed
+  def self.validate!
+    # If the stored config match the current ones, there is nothing to do
+    if Setting.summary_config.to_json == config.to_json
+      Rails.logger.info(
+        'Configuration checked, no changes detected, summaries are still valid.',
+      )
+      return
+    end
+
+    # Configuration have changed, the existing summaries are no longer valid
+    # Force a rebuild and remember the new config
+    delete_all
+    Setting.summary_config = config
+    Rails.logger.info(
+      'Summaries were invalid because the configuration has changed. Deleted all summaries, will rebuild.',
+    )
+  end
+
+  # Configuration the summaries are based on
+  # This hash is used to determine if the summaries are still valid
+  #
+  # Add more keys if needed
+  def self.config
+    {
+      # The date column depends on the current timezone.
+      # If the timezone changes, the summaries are no longer valid
+      time_zone: Time.zone.name,
+      #
+      # Only existing sensors are handled. If the user adds a new sensor, the
+      # existing summaries are no longer valid
+      sensors:
+        sensors.select do |sensor|
+          SensorConfig.x.exists?(sensor, check_policy: false)
+        end,
+    }
+  end
+
+  # List of handled sensors extracted from the columns
+  def self.sensors
+    array =
+      columns.filter_map do |column|
+        if (match = column.name.match(/^(sum|avg|max|min)_(.*)/))
+          match[2].to_sym
+        end
+      end
+
+    array.uniq!
+    array.sort!
+    array
+  end
+
   TODAY_TOLERANCE = 5 # minutes
   public_constant :TODAY_TOLERANCE
 

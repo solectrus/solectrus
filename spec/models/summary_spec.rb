@@ -184,4 +184,88 @@ describe Summary do
                        (Date.new(2023, 2, 1)..Date.new(2023, 2, 28)).to_a
     end
   end
+
+  describe 'Monitoring' do
+    let(:current_config) do
+      { time_zone: Time.zone.name, sensors: described_class.sensors }
+    end
+
+    describe '.sensors' do
+      subject { described_class.sensors }
+
+      it 'returns a sorted list of sensors' do
+        is_expected.to eq(
+          %i[
+            battery_charging_power
+            battery_discharging_power
+            battery_soc
+            car_battery_soc
+            case_temp
+            grid_export_power
+            grid_import_power
+            heatpump_power
+            heatpump_power_grid
+            house_power
+            house_power_grid
+            inverter_power
+            inverter_power_forecast
+            wallbox_power
+            wallbox_power_grid
+          ],
+        )
+      end
+    end
+
+    describe '.config' do
+      subject { described_class.config }
+
+      it { is_expected.to eq(current_config) }
+    end
+
+    describe '.validate!' do
+      subject(:validation) { described_class.validate! }
+
+      before { described_class.create!(date: Date.current) }
+
+      context 'when stored config matches the current config' do
+        before { Setting.summary_config = current_config }
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(described_class, :count)
+        end
+
+        it 'does not update the stored config' do
+          expect { validation }.not_to change(Setting, :summary_config)
+        end
+      end
+
+      context 'when stored config differs from the current config' do
+        before { Setting.summary_config = { time_zone: 'Australia/Sydney' } }
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(described_class, :count).from(1).to(0)
+        end
+
+        it 'updates the stored config' do
+          expect { validation }.to change(Setting, :summary_config).to(
+            current_config,
+          )
+        end
+      end
+
+      context 'when no stored config exists' do
+        before { Setting.summary_config = nil }
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(described_class, :count).from(1).to(0)
+        end
+
+        it 'updates the stored config' do
+          expect { validation }.to change(Setting, :summary_config).to(
+            current_config,
+          )
+        end
+      end
+    end
+  end
 end
