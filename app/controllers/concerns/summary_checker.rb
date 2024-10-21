@@ -15,11 +15,15 @@ module SummaryChecker
     # It can created on the fly in the StatsController, if missing.
     return [] if timeframe.day?
 
-    # Timeframe is longer (week / month / year / all) and summaries are missing.
-    # This is the only case where we need to wait for the summaries to be created.
-    Summary.missing_or_stale_days(
-      from: timeframe.effective_beginning_date,
-      to: timeframe.effective_ending_date,
-    )
+    # Timeframe is longer (week / month / year / all), so we need to check for missing or stale summaries.
+    days =
+      Summary.missing_or_stale_days(
+        from: timeframe.effective_beginning_date,
+        to: timeframe.effective_ending_date,
+      )
+
+    # Up to 2 days are allowed to be missing or stale, because
+    # they can be created on the fly.
+    days.length <= 2 ? [] : days
   end
 end
