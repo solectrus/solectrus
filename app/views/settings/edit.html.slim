@@ -26,3 +26,30 @@
 
   = f.actions do
     = f.submit t('crud.save')
+
+.mt-10
+  h2.border-b.border-gray-500.pb-1.font-medium
+    = t('settings.general.summaries.title')
+
+  .mt-2.flex.justify-between.items-start.gap-5.md:gap-10
+    .text-sm
+      p.py-1.md:py-2
+        = t('settings.general.summaries.description')
+
+      p
+        - if @summary_completion_rate.zero?
+          = t('settings.general.summaries.zero')
+        - else
+          = t('settings.general.summaries.fresh_percentage', value: @summary_completion_rate.round)
+
+    = render Button::Component.new path: summaries_path,
+                                   icon: 'rotate-left',
+                                   title: t('settings.general.summaries.reset'),
+                                   type: :button,
+                                   style: :tertiary,
+                                   options: { \
+                                     method: :delete,
+                                     form: { data: { 'turbo-confirm': t('settings.general.summaries.reset_confirmation') } },
+                                     disabled: @summary_completion_rate.zero?,
+                                     class: 'text-red-700 disabled:opacity-70',
+                                   }

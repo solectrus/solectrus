@@ -3,7 +3,6 @@ class Flux::Reader < Flux::Base
     super()
 
     @sensors = sensors
-    @cache_options = default_cache_options
   end
 
   def call(timeframe)
@@ -53,28 +52,10 @@ class Flux::Reader < Flux::Base
   end
 
   def range(start:, stop: nil)
-    @cache_options = cache_options(stop:)
-
-    start = start&.rfc3339(9)
-    stop = stop&.rfc3339(9)
+    start = start&.iso8601
+    stop = stop&.iso8601
 
     stop ? "range(start: #{start}, stop: #{stop})" : "range(start: #{start})"
-  end
-
-  def location
-    "timezone.location(name: \"#{Rails.application.config.time_zone}\")"
-  end
-
-  def query(string)
-    if @cache_options
-      Rails
-        .cache
-        .fetch(cache_key(string), @cache_options) do
-          query_without_cache(string)
-        end
-    else
-      query_without_cache(string)
-    end
   end
 
   def query_with_time
@@ -86,7 +67,7 @@ class Flux::Reader < Flux::Base
     [result, duration]
   end
 
-  def query_without_cache(string)
+  def query(string)
     result, duration =
       query_with_time { client.create_query_api.query(query: string) }
 
@@ -99,36 +80,5 @@ class Flux::Reader < Flux::Base
     )
 
     result
-  end
-
-  # Build a short cache key from the query string to avoid hitting the 250 chars
-  def cache_key(string)
-    Digest::SHA2.hexdigest("flux/v2/#{string}")
-  end
-
-  def cache_options(stop:)
-    # Cache forever if the result cannot change anymore
-    return {} if stop&.past?
-
-    default_cache_options
-  end
-
-  # Default cache options, can be overridden in subclasses
-  def default_cache_options
-    return if timeframe.nil? || timeframe.now?
-
-    # The cache expiry should depend on how long the observed timeframe is.
-    #
-    # The result of a query that summarises half of the year is unlikely to
-    # change a few minutes later, so we can cache it for a longer time.
-    #
-    # But the result of a query that only summarises the past hours of
-    # today can change considerably in just a few minutes.
-    #
-    # So we use a sliding scale of cache expiry times:
-    # For each day in the timeframe, we add 2 minutes to the cache expiry time.
-    # Minimum cache expiry time is 1 minute
-    #
-    { expires_in: ((timeframe.days_passed * 2) + 1).minutes }
   end
 end

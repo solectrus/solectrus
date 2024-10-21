@@ -9,7 +9,7 @@ class StatsNow::Component < ViewComponent::Base
 
   def max_flow
     # Heuristic: The peak flow is the highest value of all fields
-    @max_flow ||= peak.values.max
+    @max_flow ||= peak.values.compact.max
   end
 
   def timeframe
@@ -18,8 +18,8 @@ class StatsNow::Component < ViewComponent::Base
 
   def peak
     @peak ||=
-      PowerPeak.new(sensors: SensorConfig::POWER_SENSORS).call(
-        start: 30.days.ago.beginning_of_day,
+      Summary.where(date: 30.days.ago..).calculate_all(
+        *SensorConfig::POWER_SENSORS.map { |sensor| :"max_max_#{sensor}" },
       )
   end
 end
