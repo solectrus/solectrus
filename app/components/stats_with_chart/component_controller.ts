@@ -45,17 +45,19 @@ export default class extends Controller {
   private interval: ReturnType<typeof setInterval> | undefined;
   private selectedSensor?: string;
   private boundHandleVisibilityChange?: () => void;
+  private boundHandleDblClick?: (event: MouseEvent) => void;
 
   connect() {
-    this.boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
-
-    if (this.intervalValue)
+    if (this.intervalValue) {
+      this.boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
       document.addEventListener(
         'visibilitychange',
         this.boundHandleVisibilityChange,
       );
+    }
 
-    document.addEventListener('dblclick', this.boundHandleVisibilityChange);
+    this.boundHandleDblClick = this.handleDblClick.bind(this);
+    document.addEventListener('dblclick', this.boundHandleDblClick);
 
     this.startLoop();
   }
@@ -63,18 +65,15 @@ export default class extends Controller {
   disconnect() {
     this.stopLoop();
 
-    if (this.boundHandleVisibilityChange) {
+    if (this.boundHandleDblClick) {
+      document.removeEventListener('dblclick', this.boundHandleDblClick);
+    }
+
+    if (this.boundHandleVisibilityChange)
       document.removeEventListener(
-        'dblclick',
+        'visibilitychange',
         this.boundHandleVisibilityChange,
       );
-
-      if (this.intervalValue)
-        document.removeEventListener(
-          'visibilitychange',
-          this.boundHandleVisibilityChange,
-        );
-    }
   }
 
   startLoop(event?: ActionEvent) {
