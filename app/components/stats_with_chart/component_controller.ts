@@ -185,19 +185,14 @@ export default class extends Controller {
 
   async reloadFrames(options: { chart: boolean }) {
     try {
-      if (options.chart)
-        await Promise.all([
-          this.chartTarget.reload(),
-          this.statsTarget.reload(),
-        ]);
-      else await this.statsTarget.reload();
+      const promises = [this.statsTarget.reload()];
+      if (options.chart) promises.push(this.chartTarget.reload());
 
-      await new Promise<void>((resolve) => {
+      await Promise.all(promises).then(() => {
         setTimeout(() => {
           application.controllers.forEach((controller) => {
             if (controller instanceof TippyController) controller.refresh();
           });
-          resolve();
         }, 100);
       });
     } catch (error) {
