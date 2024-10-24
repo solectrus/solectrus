@@ -29,4 +29,26 @@ describe 'Summaries' do
       end
     end
   end
+
+  describe 'DELETE /delete_all' do
+    subject(:request) { delete '/settings/summaries' }
+
+    before { Summary.create! date: Date.current }
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'empties the table' do
+        expect { request }.to change(Summary, :count).by(-1)
+        expect(response).to be_successful
+      end
+    end
+
+    context 'when not logged in as admin' do
+      it 'is forbidden' do
+        expect { request }.not_to change(Summary, :count)
+        expect(response).to be_forbidden
+      end
+    end
+  end
 end

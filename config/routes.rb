@@ -29,6 +29,7 @@
 #                                   PATCH  /settings/prices/:id(.:format)                            prices#update
 #                                   PUT    /settings/prices/:id(.:format)                            prices#update
 #                                   DELETE /settings/prices/:id(.:format)                            prices#destroy
+#                         summaries DELETE /settings/summaries(.:format)                             summaries#delete_all
 #                         bat_power GET    /bat_power(.:format)                                      redirect(301, /battery_power)
 #                                   GET    /bat_power/:timeframe(.:format)                           redirect(301, /battery_power/%{timeframe})
 #                   bat_fuel_charge GET    /bat_fuel_charge(.:format)                                redirect(301, /battery_soc)
@@ -104,6 +105,8 @@ Rails.application.routes.draw do
     resources :prices, constraints: { name: Regexp.union(Price.names.keys) } do
       get '(:name)', on: :collection, action: :index, as: ''
     end
+
+    delete '/summaries', to: 'summaries#delete_all'
   end
 
   DeprecatedRoutesRedirect.draw(self)

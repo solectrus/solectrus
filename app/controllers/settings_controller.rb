@@ -2,6 +2,7 @@ class SettingsController < ApplicationController
   before_action :admin_required!
 
   def edit
+    @summary_completion_rate = Summary.fresh_percentage(Timeframe.all)
   end
 
   def update
