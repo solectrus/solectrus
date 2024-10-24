@@ -26,9 +26,7 @@ describe PowerSum do
   end
 
   describe '#call' do
-    subject do
-      power_sum.call(timeframe).first[:inverter_power].fdiv(1000).round
-    end
+    subject { power_sum.call(timeframe)[:inverter_power].fdiv(1000).round }
 
     context 'when Monday' do
       let(:timeframe) { Timeframe.new('2024-06-03') }

@@ -1,6 +1,12 @@
 - if top10_for_period.blank?
   .h-64.flex.items-center.justify-center.text-xl
     = t('.blank')
+
+- elsif sensor == :house_power && calc.max? && SensorConfig.x.exclude_from_house_power.present?
+  .h-64.flex.items-center.justify-center.text-lg.text-center
+    p
+      = t('.house_power_max_not_possible')
+
 - else
   .table.w-full id= "chart-#{period}"
     - top10_for_period.each_with_index do |record, index|

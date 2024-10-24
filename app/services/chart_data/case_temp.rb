@@ -15,7 +15,7 @@ class ChartData::CaseTemp < ChartData::Base
 
   def chart
     @chart ||=
-      MinMaxChart.new(sensors: %i[case_temp], average: false).call(timeframe)[
+      MinMaxChart.new(sensor: :case_temp, average: false).call(timeframe)[
         :case_temp
       ]
   end
