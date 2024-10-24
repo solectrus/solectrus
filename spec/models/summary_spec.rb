@@ -48,6 +48,24 @@ describe Summary do
     expect(summary.sum_inverter_power).to eq(42)
   end
 
+  describe '#threshold_date' do
+    subject { described_class.threshold_date }
+
+    let(:date) { Date.current }
+
+    context 'when before required distance' do
+      before { travel_to date.beginning_of_day + 5.minutes }
+
+      it { is_expected.to eq(Date.yesterday) }
+    end
+
+    context 'when after required distance' do
+      before { travel_to date.beginning_of_day + 10.hours }
+
+      it { is_expected.to eq(Date.current) }
+    end
+  end
+
   shared_examples 'tests for fresh and stale' do |is_fresh|
     it 'returns correct fresh?' do
       if is_fresh
@@ -76,6 +94,8 @@ describe Summary do
 
   describe 'single summary' do
     let(:summary) { described_class.create!(date:, updated_at:) }
+
+    before { travel_to Time.new(2024, 7, 1, 12, 0, 0, '+02:00') }
 
     context 'when date is in the past, updated on next day' do
       let(:date) { 5.days.ago.to_date }
@@ -112,11 +132,32 @@ describe Summary do
       include_examples 'tests for fresh and stale', true
     end
 
-    context 'when date is yesterday, updated today shortly after midnight (testing timezone)' do
-      let(:date) { Date.yesterday }
-      let(:updated_at) { Date.current + 3.minutes }
+    context 'when date is long ago, updated some days later' do
+      let(:date) { 1.year.ago.to_date }
+      let(:updated_at) { (date + 5.days).middle_of_day }
 
       include_examples 'tests for fresh and stale', true
+    end
+
+    context 'when date is yesterday, updated today shortly after midnight' do
+      let(:date) { Date.yesterday }
+      let(:updated_at) { date.beginning_of_day + 1.day + 5.minutes }
+
+      include_examples 'tests for fresh and stale', false
+    end
+
+    context 'when date is yesterday, updated after required distance' do
+      let(:date) { Date.yesterday }
+      let(:updated_at) { date.beginning_of_day + 1.day + 10.hours }
+
+      include_examples 'tests for fresh and stale', true
+    end
+
+    context 'when date is today, updated shortly after midnight' do
+      let(:date) { Date.current }
+      let(:updated_at) { date.beginning_of_day + 5.minutes }
+
+      include_examples 'tests for fresh and stale', false
     end
 
     context 'when date is in the future, updated out of tolerance' do
