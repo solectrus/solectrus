@@ -1,11 +1,18 @@
 class Top10Controller < ApplicationController
   include ParamsHandling
+  include SummaryChecker
 
   def index
     redirect_to(default_path) unless period && sensor && calc && sort
+
+    load_missing_or_stale_summary_days(timeframe)
   end
 
   private
+
+  helper_method def timeframe
+    @timeframe ||= Timeframe.all
+  end
 
   helper_method def title
     t('layout.top10')

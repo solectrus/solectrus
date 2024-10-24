@@ -16,8 +16,11 @@
   = render Nav::Sub::Component.new do |c|
     = c.with_items nav_items
 
-= turbo_frame_tag 'top10',
-                  target: '_top',
-                  src: top10_chart_path(permitted_params.to_hash.symbolize_keys) do
-  .flex.items-center.justify-center.h-96
-    = render Loading::Component.new
+- if @missing_or_stale_summary_days.present?
+  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+
+- else
+  = turbo_frame_tag 'top10',
+                    target: '_top',
+                    src: top10_chart_path(permitted_params.to_hash.symbolize_keys) do
+    .h-96
