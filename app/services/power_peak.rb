@@ -1,31 +1,30 @@
-class PowerPeak < Flux::Reader
-  def call(start:, stop: nil)
-    return {} unless SensorConfig.x.exists_any?(*sensors)
+class PowerPeak
+  def initialize(sensors:)
+    @sensors = sensors
+  end
 
-    raw = query <<-QUERY
-      #{from_bucket}
-      |> #{range(start:, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 30s, fn: mean)
-      |> max()
-    QUERY
+  attr_reader :sensors
 
-    array = raw
-    array.map!(&:records)
-    array.map!(&:first)
-    array.map!(&:values)
+  def call(start:)
+    return {} if existing_sensors.empty?
 
-    array.reduce({}) do |total, current|
-      sensor =
-        SensorConfig.x.find_by(current['_measurement'], current['_field'])
-
-      total.merge(sensor => current['_value'].round)
-    end
+    Rails
+      .cache
+      .fetch(['power_peak', existing_sensors], cache_options) do
+        Summary.where(date: start..).calculate_all(
+          *existing_sensors.map { |sensor| :"max_max_#{sensor}" },
+        )
+      end
   end
 
   private
 
-  def default_cache_options
+  def existing_sensors
+    @existing_sensors ||=
+      sensors.select { |sensor| SensorConfig.x.exists?(sensor) }
+  end
+
+  def cache_options
     { expires_in: 1.day }
   end
 end

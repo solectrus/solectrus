@@ -42,6 +42,12 @@ describe ChartData::HousePower do
                            time: 1.hour.ago + (5.minutes * i)
         end
       end
+
+      Summary.create! date: now.to_date,
+                      sum_heatpump_power: 10_000,
+                      sum_heatpump_power_grid: 900,
+                      sum_house_power: 15_000,
+                      sum_house_power_grid: 300
     end
 
     context 'when timeframe is current MONTH' do
@@ -91,6 +97,13 @@ describe ChartData::HousePower do
   end
 
   context 'when house_power_grid data is missing' do
+    before do
+      Summary.create! date: now.to_date,
+                      sum_heatpump_power: 10_000,
+                      sum_heatpump_power_grid: 900,
+                      sum_house_power: 15_000
+    end
+
     context 'when timeframe is current MONTH' do
       let(:timeframe) { Timeframe.month }
 

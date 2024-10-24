@@ -30,6 +30,10 @@ describe ChartData::WallboxPower do
                            time: 1.hour.ago + (5.minutes * i)
         end
       end
+
+      Summary.create! date: now.to_date,
+                      sum_wallbox_power: 27_000,
+                      sum_wallbox_power_grid: 900
     end
 
     context 'when timeframe is current MONTH' do
@@ -78,6 +82,12 @@ describe ChartData::WallboxPower do
   context 'when wallbox_power_grid data is missing' do
     context 'when timeframe is current MONTH' do
       let(:timeframe) { Timeframe.month }
+
+      before do
+        Summary.create! date: now.to_date,
+                        sum_wallbox_power: 27_000,
+                        sum_wallbox_power_grid: 900
+      end
 
       it 'returns one datasets' do
         expect(to_h[:datasets].length).to eq(1)

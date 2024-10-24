@@ -17,4 +17,10 @@
     = render Nav::Sub::Component.new do |c|
       = c.with_items nav_items
 
-= render StatsWithChart::Component.new(sensor:, timeframe:)
+- if @missing_or_stale_summary_days.present?
+  = turbo_stream.update 'nav' do
+    = render Timeframe::Component.new(timeframe:)
+  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+
+- else
+  = render StatsWithChart::Component.new(sensor:, timeframe:)

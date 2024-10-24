@@ -48,6 +48,10 @@ export default {
         yellow: colors.amber,
         purple: colors.violet,
       },
+
+      gridTemplateColumns: {
+        'auto-fit': 'repeat(auto-fit, minmax(0, 1fr))',
+      },
     },
   },
 

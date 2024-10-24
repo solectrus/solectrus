@@ -1,4 +1,4 @@
-class PowerChart < Flux::Reader
+class PowerChart < ChartBase
   def call(timeframe, fill: false, interpolate: false)
     return {} unless SensorConfig.x.exists_any?(*sensors)
 
@@ -16,12 +16,8 @@ class PowerChart < Flux::Reader
                    window: WINDOW[timeframe.id],
                    fill:,
                    interpolate:
-    when :week, :month, :year
-      chart_sum start: timeframe.beginning,
-                stop: timeframe.ending,
-                window: WINDOW[timeframe.id]
-    when :all
-      chart_sum start: timeframe.beginning, window: WINDOW[timeframe.id]
+    when :week, :month, :year, :all
+      chart_sum(timeframe:)
     end
   end
 
@@ -53,19 +49,24 @@ class PowerChart < Flux::Reader
     to_array(raw, start:)
   end
 
-  def chart_sum(start:, window:, stop: nil)
-    raw = query <<~QUERY
-      import "timezone"
+  def chart_sum(timeframe:)
+    result =
+      Summary
+        .where(date: timeframe.beginning..timeframe.ending)
+        .group_by_period(grouping_period(timeframe), :date)
+        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
 
-      #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")
-      |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
-      |> keep(columns: ["_time","_field","_measurement","_value"])
-    QUERY
-
-    to_array(raw, start:)
+    sensors.index_with do |sensor|
+      dates(timeframe).map do |date|
+        values = result[date]
+        [
+          date.to_time,
+          (values.is_a?(Hash) ? values[:"sum_#{sensor}_sum"] : values)&.fdiv(
+            1000,
+          ),
+        ]
+      end
+    end
   end
 
   def value_to_array(raw, start:)

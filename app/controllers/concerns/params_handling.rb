@@ -30,12 +30,7 @@ module ParamsHandling
     helper_method def timeframe
       return if permitted_params[:timeframe].blank?
 
-      @timeframe ||=
-        Timeframe.new(
-          permitted_params[:timeframe],
-          min_date: Rails.application.config.x.installation_date,
-          allowed_days_in_future: 6,
-        )
+      @timeframe ||= Timeframe.new(permitted_params[:timeframe])
     end
 
     helper_method def calculator

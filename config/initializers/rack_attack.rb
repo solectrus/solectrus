@@ -24,8 +24,8 @@ module Rack
     # Throttle all requests by IP (60rpm)
     #
     # Key: "rack::attack:#{Time.now.to_i/:period}:req/ip:#{req.ip}"
-    throttle('req/ip', limit: 300, period: 5.minutes) do |req| # rubocop:disable Style/SymbolProc
-      req.ip # unless req.path.start_with?('/assets')
+    throttle('req/ip', limit: 300, period: 5.minutes) do |req|
+      req.ip unless req.path.start_with?('/summaries/')
     end
 
     ### Prevent Brute-Force Login Attacks ###

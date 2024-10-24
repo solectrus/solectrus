@@ -16,6 +16,8 @@ describe ChartData::InverterPower do
                          time: 1.hour.ago + (5.minutes * i)
       end
     end
+
+    Summary.create! date: now.to_date, sum_inverter_power: 28_000
   end
 
   context 'when timeframe is current MONTH' do

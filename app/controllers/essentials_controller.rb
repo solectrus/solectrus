@@ -1,5 +1,9 @@
 class EssentialsController < ApplicationController
+  include SummaryChecker
+
   def index
+    @timeframe = Timeframe.year
+    load_missing_or_stale_summary_days(@timeframe)
   end
 
   private

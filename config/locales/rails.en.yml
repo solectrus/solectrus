@@ -65,79 +65,79 @@ en:
   datetime:
     distance_in_words:
       about_x_hours:
-        one: about %{count} hour
+        one: about one hour
         other: about %{count} hours
       about_x_months:
-        one: about %{count} month
+        one: about one month
         other: about %{count} months
       about_x_years:
-        one: about %{count} year
+        one: about one year
         other: about %{count} years
       almost_x_years:
-        one: almost %{count} year
+        one: almost one year
         other: almost %{count} years
       half_a_minute: half a minute
       less_than_x_seconds:
-        one: less than %{count} second
+        one: less than one second
         other: less than %{count} seconds
       less_than_x_minutes:
         one: less than a minute
         other: less than %{count} minutes
       over_x_years:
-        one: over %{count} year
+        one: over a year
         other: over %{count} years
       x_seconds:
-        one: '%{count} second'
+        one: 'one second'
         other: '%{count} seconds'
       x_minutes:
-        one: '%{count} minute'
+        one: 'one minute'
         other: '%{count} minutes'
       x_days:
-        one: '%{count} day'
+        one: 'one day'
         other: '%{count} days'
       x_months:
-        one: '%{count} month'
+        one: 'one month'
         other: '%{count} months'
       x_years:
-        one: '%{count} year'
+        one: 'one year'
         other: '%{count} years'
       dativ:
         about_x_hours:
-          one: about %{count} hour
+          one: about one hour
           other: about %{count} hours
         about_x_months:
-          one: about %{count} month
+          one: about one month
           other: about %{count} months
         about_x_years:
-          one: about %{count} year
+          one: about one year
           other: about %{count} years
         almost_x_years:
-          one: almost %{count} year
+          one: almost one year
           other: almost %{count} years
         half_a_minute: half a minute
         less_than_x_seconds:
-          one: less than %{count} second
+          one: less than one second
           other: less than %{count} seconds
         less_than_x_minutes:
           one: less than a minute
           other: less than %{count} minutes
         over_x_years:
-          one: over %{count} year
+          one: over one year
           other: over %{count} years
         x_seconds:
-          one: '%{count} second'
+          one: 'one second'
           other: '%{count} seconds'
         x_minutes:
-          one: '%{count} minute'
+          one: 'one minute'
           other: '%{count} minutes'
         x_days:
-          one: '%{count} day'
+          one: 'one day'
           other: '%{count} days'
         x_months:
-          one: '%{count} month'
+          one: 'one month'
           other: '%{count} months'
         x_years:
-          one: '%{count} year'
+          one: 'one year'
           other: '%{count} years'
     prompts:
       second: Second

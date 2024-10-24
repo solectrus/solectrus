@@ -82,10 +82,16 @@ module Solectrus
         SensorConfig.setup(ENV)
         ThemeConfig.setup(ENV)
 
-        # Ensure settings are seeded on every start
-        if ActiveRecord::Base.connected? &&
-             ActiveRecord::Base.connection.table_exists?(:settings)
-          Setting.seed!
+        ActiveRecord::Base.connection_pool.with_connection do
+          if ActiveRecord::Base.connection.table_exists?(:settings)
+            # Ensure settings are seeded on every start
+            Setting.seed!
+
+            # Validate summaries on every start
+            if ActiveRecord::Base.connection.table_exists?(:summaries)
+              Summary.validate!
+            end
+          end
         end
       end
     end

@@ -30,6 +30,10 @@ describe ChartData::HeatpumpPower do
                            time: 1.hour.ago + (5.minutes * i)
         end
       end
+
+      Summary.create! date: now.to_date,
+                      sum_heatpump_power: 10_000,
+                      sum_heatpump_power_grid: 900
     end
 
     context 'when timeframe is current MONTH' do
@@ -78,6 +82,12 @@ describe ChartData::HeatpumpPower do
   context 'when heatpump_power_grid data is missing' do
     context 'when timeframe is current MONTH' do
       let(:timeframe) { Timeframe.month }
+
+      before do
+        Summary.create! date: now.to_date,
+                        sum_heatpump_power: 10_000,
+                        sum_heatpump_power_grid: 900
+      end
 
       it 'returns one datasets' do
         expect(to_h[:datasets].length).to eq(1)
