@@ -72,6 +72,8 @@ describe VersionInfo::Component, type: :component do
   describe '#latest_release_url' do
     subject { component.latest_release_url }
 
+    before { UpdateCheck.instance.clear_cache! }
+
     context 'when latest version is present', vcr: 'version' do
       it do
         is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.15.1'

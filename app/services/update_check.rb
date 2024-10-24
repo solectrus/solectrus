@@ -54,9 +54,34 @@ class UpdateCheck
   end
 
   def latest
-    return { registration_status: 'complete' } if Rails.env.development?
-    return cached_latest if cached?
+    @latest ||=
+      if Rails.env.development?
+        { registration_status: 'complete' }
+      elsif cached?
+        cached_latest
+      else
+        http_request
+      end
+  end
 
+  def cached?
+    Rails.cache.exist?(cache_key)
+  end
+
+  def clear_cache!
+    Rails.cache.delete(cache_key)
+    @latest = nil
+  end
+
+  def skip_prompt!
+    data = latest.merge(prompt: 'skipped')
+    Rails.cache.write(cache_key, data, expires_in: 24.hours)
+    @latest = data
+  end
+
+  private
+
+  def http_request
     uri = URI(update_url)
     response =
       Net::HTTP.start(
@@ -87,22 +112,6 @@ class UpdateCheck
     Rails.logger.error "UpdateCheck failed: #{e}"
     unknown
   end
-
-  def cached?
-    Rails.cache.exist?(cache_key)
-  end
-
-  def clear_cache!
-    Rails.cache.delete(cache_key)
-  end
-
-  def skip_prompt!
-    data = latest.merge(prompt: 'skipped')
-
-    Rails.cache.write(cache_key, data, expires_in: 24.hours)
-  end
-
-  private
 
   def update_url
     if Rails.env.development?
