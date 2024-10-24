@@ -1,13 +1,9 @@
 class Summarizer
-  def initialize(from: nil, to: nil)
-    @from = [from, Rails.configuration.x.installation_date].compact.max
-    @to = [to, Date.current].compact.min
-    return if @from <= @to
-
-    raise ArgumentError, "Summarizer: #{@from} - #{@to} is not a valid range!"
+  def initialize(timeframe:)
+    @timeframe = timeframe
   end
 
-  attr_reader :from, :to
+  attr_reader :timeframe
 
   def perform_now!
     dates_to_process.each { |date| SummarizerJob.perform_now(date) }.count
@@ -16,6 +12,9 @@ class Summarizer
   private
 
   def dates_to_process
-    Summary.missing_or_stale_days(from:, to:)
+    Summary.missing_or_stale_days(
+      from: timeframe.effective_beginning_date,
+      to: timeframe.effective_ending_date,
+    )
   end
 end

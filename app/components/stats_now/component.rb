@@ -9,7 +9,7 @@ class StatsNow::Component < ViewComponent::Base
 
   def max_flow
     # Heuristic: The peak flow is the highest value of all fields
-    @max_flow ||= peak.values.max
+    @max_flow ||= peak.values.compact.max
   end
 
   def timeframe

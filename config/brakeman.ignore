@@ -1,0 +1,29 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "e7dcab59d56cb06c337237ac0e9600717e32a29f366ae04a8db3baf1b4823c64",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/services/power_top10.rb",
+      "line": 99,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Summary.where(:date => ((start..stop))).where(\"sum_house_power > 0\").select(:date, \"#{\"sum_house_power#{exclude_from_house_power.map do\n \" - COALESCE(sum_#{sensor_to_exclude}, 0)\"\n end.join}\"} AS total\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "PowerTop10",
+        "method": "build_query_house_power"
+      },
+      "user_input": "exclude_from_house_power.map do\n \" - COALESCE(sum_#{sensor_to_exclude}, 0)\"\n end.join",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": ""
+    }
+  ],
+  "updated": "2024-10-22 14:49:14 +0200",
+  "brakeman_version": "6.2.2"
+}

@@ -82,14 +82,6 @@ describe Summary do
         expect(summary).to be_stale
       end
     end
-
-    it 'returns correct .fresh scope' do
-      if is_fresh
-        expect(described_class.fresh).to include(summary)
-      else
-        expect(described_class.fresh).not_to include(summary)
-      end
-    end
   end
 
   describe 'single summary' do
@@ -168,7 +160,11 @@ describe Summary do
     end
   end
 
-  shared_examples 'tests for fresh_percentage and missing_or_stale_days' do |fresh_percentage, missing_or_stale_days|
+  shared_examples 'Freshness tests' do |fresh, fresh_percentage, missing_or_stale_days|
+    it 'returns correct fresh?' do
+      expect(described_class.fresh?(timeframe)).to eq(fresh)
+    end
+
     it 'returns correct fresh_percentage' do
       expect(described_class.fresh_percentage(timeframe)).to eq(
         fresh_percentage,
@@ -197,9 +193,7 @@ describe Summary do
         end
       end
 
-      include_examples 'tests for fresh_percentage and missing_or_stale_days',
-                       100,
-                       []
+      include_examples 'Freshness tests', true, 100, []
     end
 
     context 'when all summaries are present, but some are stale and some are fresh' do
@@ -212,7 +206,8 @@ describe Summary do
         end
       end
 
-      include_examples 'tests for fresh_percentage and missing_or_stale_days',
+      include_examples 'Freshness tests',
+                       false,
                        75,
                        (Date.new(2023, 2, 1)..Date.new(2023, 2, 7)).to_a
     end
@@ -220,7 +215,8 @@ describe Summary do
     context 'when no summaries are present' do
       it { is_expected.to eq(0) }
 
-      include_examples 'tests for fresh_percentage and missing_or_stale_days',
+      include_examples 'Freshness tests',
+                       false,
                        0,
                        (Date.new(2023, 2, 1)..Date.new(2023, 2, 28)).to_a
     end

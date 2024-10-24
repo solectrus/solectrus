@@ -5,9 +5,7 @@
                     class: 'lg:flex-1 h-3/5 min-h-72 lg:h-auto flex',
                     src: stats_path,
                     target: '_top',
-                    data: { stats_with_chart__component_target: 'stats' } do
-    .flex-1.flex.justify-center.items-center
-      = render Loading::Component.new
+                    data: { stats_with_chart__component_target: 'stats' }
 
   = tag.turbo_frame id: 'chart',
                     class: 'flex-1 flex',

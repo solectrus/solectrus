@@ -1,31 +1,15 @@
 describe Summarizer do
   describe '.perform!' do
-    subject(:perform) { described_class.new(from:, to:).perform_now! }
-
-    context 'when from is before to' do
-      let(:from) { Date.current - 1.day }
-      let(:to) { from + 1.day }
-
-      it { is_expected.to be_truthy }
-    end
-
-    context 'when from is after to' do
-      let(:from) { Date.current }
-      let(:to) { from - 1.day }
-
-      it { expect { perform }.to raise_error(ArgumentError) }
-    end
+    subject(:perform) { described_class.new(timeframe:).perform_now! }
 
     context 'when summary does not exist' do
-      let(:from) { Date.current }
-      let(:to) { from }
+      let(:timeframe) { Timeframe.day }
 
       it { expect { perform }.to change(Summary, :count).by(1) }
     end
 
     context 'when fresh summary exists' do
-      let(:from) { Date.current }
-      let(:to) { from }
+      let(:timeframe) { Timeframe.day }
 
       let(:last_updated_at) { 1.minute.ago }
 
@@ -41,8 +25,7 @@ describe Summarizer do
     end
 
     context 'when stale summary exists' do
-      let(:from) { Date.current }
-      let(:to) { from }
+      let(:timeframe) { Timeframe.day }
 
       let(:last_updated_at) { (Summary::CURRENT_TOLERANCE + 1).minutes.ago }
 
@@ -58,15 +41,13 @@ describe Summarizer do
     end
 
     context 'when Influx data is present' do
-      let(:date) { Date.new(2024, 10, 1) }
-      let(:from) { date }
-      let(:to) { date }
+      let(:timeframe) { Timeframe.new('2024-10-01') }
 
       before do
         influx_batch do
           # Fill one hour (12:00 - 13:00) with 10 kW power
           13.times do |i|
-            time = date.middle_of_day + (5.minutes * i)
+            time = timeframe.date.middle_of_day + (5.minutes * i)
 
             add_influx_point name: measurement_inverter_power,
                              fields: {
@@ -85,7 +66,7 @@ describe Summarizer do
 
       it 'creates summary with correct values' do
         expect(Summary.last.attributes).to include(
-          'date' => date,
+          'date' => timeframe.date,
           'sum_inverter_power' => 10_000,
         )
       end

@@ -100,35 +100,26 @@ class Summary < ApplicationRecord
   CURRENT_TOLERANCE = 5 # minutes ago
   public_constant :CURRENT_TOLERANCE
 
-  scope :fresh,
-        lambda {
-          where(
-            <<-SQL.squish,
-              date < :threshold_date
-              AND updated_at >= (date + INTERVAL '#{1.day.in_minutes + REQUIRED_DISTANCE} minutes') AT TIME ZONE :time_zone AT TIME ZONE 'UTC'
-
-              OR
-
-              date >= :threshold_date
-              AND updated_at >= :current_tolerance_time
-            SQL
-            {
-              time_zone: Time.zone.name,
-              threshold_date:,
-              current_tolerance_time: CURRENT_TOLERANCE.minutes.ago,
-            },
-          )
-        }
-
-  def self.fresh_percentage(timeframe)
-    raise ArgumentError if timeframe.now?
+  def self.fresh?(timeframe)
+    return if timeframe.now?
 
     from = timeframe.effective_beginning_date
     to = timeframe.effective_ending_date
-    fresh_count = where(date: from..to).fresh.count
 
-    total_days = (to - from).to_i + 1
-    (fresh_count * 100.0 / total_days)
+    missing_or_stale_days(from:, to:).empty?
+  end
+
+  def self.fresh_percentage(timeframe)
+    return if timeframe.now?
+
+    from = timeframe.effective_beginning_date
+    to = timeframe.effective_ending_date
+
+    missing_count = missing_or_stale_days(from:, to:).length
+    total_count = (to - from).to_i + 1
+    fresh_count = total_count - missing_count
+
+    (fresh_count * 100.0 / total_count)
   end
 
   def self.missing_or_stale_days(from:, to:)

@@ -94,6 +94,8 @@ GEM
       racc
     brotli (0.6.0)
     builder (3.3.0)
+    calculate-all (0.2.1)
+      activerecord
     capybara (3.40.0)
       addressable
       matrix
@@ -130,6 +132,8 @@ GEM
     formatador (1.1.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    groupdate (6.5.1)
+      activesupport (>= 7)
     guard (2.19.0)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -432,10 +436,12 @@ DEPENDENCIES
   annotaterb
   bootsnap
   brakeman
+  calculate-all
   capybara (>= 3.26)
   csv
   cypress-rails (= 0.8.0.rc1)
   dotenv
+  groupdate
   guard-rspec
   honeybadger
   http_accept_language

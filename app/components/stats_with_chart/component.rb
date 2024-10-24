@@ -4,6 +4,7 @@ class StatsWithChart::Component < ViewComponent::Base
     @sensor = sensor
     @timeframe = timeframe
   end
+
   attr_reader :sensor, :timeframe
 
   def refresh_options
@@ -52,6 +53,10 @@ class StatsWithChart::Component < ViewComponent::Base
 
   def chart_loading_animation?
     # Show loading animation for frame requests only, not for the first request
-    request.headers.key?('Turbo-Frame')
+    return false unless helpers.turbo_frame_request?
+
+    # The response can be slow for short timeframe only,
+    # because this results in a line chart and queries InfluxDB
+    timeframe.short?
   end
 end

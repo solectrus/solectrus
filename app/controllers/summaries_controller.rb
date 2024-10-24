@@ -10,6 +10,7 @@ class SummariesController < ApplicationController
 
   def delete_all
     Summary.delete_all
+    Rails.cache.clear
 
     flash.now[:notice] = t('settings.general.summaries.reset.flash')
 
