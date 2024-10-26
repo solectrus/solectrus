@@ -8,9 +8,12 @@
       = render Nav::Sub::Component.new do |c|
         = c.with_items nav_items
 
-    = turbo_frame_tag 'nav',
-                      target: '_top',
-                      class: 'h-8 space-x-4 flex items-center justify-between lg:justify-end'
+    .flex.items-center.justify-between.lg:justify-end
+      = turbo_frame_tag 'nav',
+                        target: '_top',
+                        class: 'h-8 space-x-4 flex items-center justify-between lg:justify-end flex-1'
+
+      = turbo_frame_tag 'status'
 
 - content_for :bottom_nav do
   = turbo_frame_tag 'second-nav-mobile', target: '_top' do
