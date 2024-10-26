@@ -6,14 +6,17 @@ class PowerPeak
   attr_reader :sensors
 
   def call(start:)
-    return {} if existing_sensors.empty?
+    return if existing_sensors.empty?
 
     Rails
       .cache
       .fetch(['power_peak', existing_sensors], cache_options) do
-        Summary.where(date: start..).calculate_all(
-          *existing_sensors.map { |sensor| :"max_max_#{sensor}" },
-        )
+        Summary
+          .where(date: start..)
+          .calculate_all(
+            *existing_sensors.map { |sensor| :"max_max_#{sensor}" },
+          )
+          .tap { |result| break if result.values.compact.empty? }
       end
   end
 
