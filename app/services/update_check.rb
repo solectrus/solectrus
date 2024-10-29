@@ -56,7 +56,9 @@ class UpdateCheck
   def latest
     @latest ||=
       if Rails.env.development?
+        # :nocov:
         { registration_status: 'complete' }
+        # :nocov:
       elsif cached?
         cached_latest
       else
