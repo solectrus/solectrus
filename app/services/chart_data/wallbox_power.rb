@@ -16,7 +16,7 @@ class ChartData::WallboxPower < ChartData::Base
   end
 
   def chart
-    @chart ||= splitted_chart? ? splitted_chart : simple_chart
+    @chart ||= splitting_allowed? ? splitted_chart : simple_chart
   end
 
   def simple_chart
@@ -66,7 +66,7 @@ class ChartData::WallboxPower < ChartData::Base
   end
 
   def style(chart_sensor)
-    if splitted_chart?
+    if splitting_possible?
       {
         fill: 'origin',
         # Base color, will be changed to gradient in JS
@@ -102,10 +102,14 @@ class ChartData::WallboxPower < ChartData::Base
     end
   end
 
-  def splitted_chart?
-    return false unless SensorConfig.x.exists?(:wallbox_power_grid)
-
+  def splitting_allowed?
     # Because data is only available hourly we can't use for line charts
-    !timeframe.now? && !timeframe.day?
+    return false if timeframe.now? || timeframe.day?
+
+    SensorConfig.x.exists?(:wallbox_power_grid)
+  end
+
+  def splitting_possible?
+    chart.key?(:wallbox_power_grid)
   end
 end
