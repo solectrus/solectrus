@@ -35,14 +35,14 @@ class ChartData::HousePower < ChartData::Base
   def splitted_chart
     raw_chart =
       PowerChart.new(
-        sensors: [:house_power, :house_power_grid, *exclude_from_house_power],
+        sensors: [:house_power, grid_field, *exclude_from_house_power],
       ).call(timeframe, fill: !timeframe.current?)
 
     result =
-      if raw_chart.key?(:house_power) && raw_chart.key?(:house_power_grid)
+      if raw_chart.key?(:house_power) && raw_chart.key?(grid_field)
         {
           house_power: adjusted_house_power(raw_chart, exclude_grid: false),
-          house_power_grid: raw_chart[:house_power_grid],
+          house_power_grid: raw_chart[grid_field],
           house_power_pv: adjusted_house_power(raw_chart, exclude_grid: true),
         }
       else
@@ -69,7 +69,7 @@ class ChartData::HousePower < ChartData::Base
   def adjusted_house_power(power_chart, exclude_grid:) # rubocop:disable Metrics/CyclomaticComplexity
     sensors_to_exclude = [
       exclude_from_house_power,
-      (:house_power_grid if exclude_grid),
+      (grid_field if exclude_grid),
     ].flatten
 
     power_chart[:house_power]&.map&.with_index do |house_power, index|
@@ -140,10 +140,22 @@ class ChartData::HousePower < ChartData::Base
     end
   end
 
+  def grid_field
+    @grid_field ||= (single_consumer? ? :grid_import_power : :house_power_grid)
+  end
+
   def splitting_allowed?
     # Because data is only available hourly we can't use for line charts
     return false if timeframe.short?
 
-    SensorConfig.x.exists?(:house_power_grid)
+    SensorConfig.x.exists?(:house_power_grid) || single_consumer?
+  end
+
+  # Check the special case in which the entire grid_import_power is only used for house_power
+  def single_consumer?
+    SensorConfig.x.exists?(:grid_import_power) &&
+      !SensorConfig.x.exists?(:wallbox_power) &&
+      !SensorConfig.x.exists?(:heatpump_power) &&
+      SensorConfig.x.exclude_from_house_power.empty?
   end
 end
