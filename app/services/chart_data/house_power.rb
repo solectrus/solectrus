@@ -10,7 +10,7 @@ class ChartData::HousePower < ChartData::Base
             label: I18n.t("sensors.#{chart_sensor}"),
             data: data.map(&:second),
             stack: chart_sensor == :house_power ? nil : 'Power-Splitter',
-          }.merge(style(chart_sensor))
+          }.merge(style(chart_sensor, split: chart.key?(:house_power_grid)))
         end,
     }
   end
@@ -20,33 +20,35 @@ class ChartData::HousePower < ChartData::Base
   end
 
   def simple_chart
-    chart =
+    raw_chart =
       PowerChart.new(sensors: [:house_power, *exclude_from_house_power]).call(
         timeframe,
         fill: !timeframe.current?,
       )
-    return chart if chart[:house_power].nil? || exclude_from_house_power.blank?
+    if raw_chart[:house_power].nil? || exclude_from_house_power.blank?
+      return raw_chart
+    end
 
-    { house_power: adjusted_house_power(chart, exclude_grid: false) }
+    { house_power: adjusted_house_power(raw_chart, exclude_grid: false) }
   end
 
   def splitted_chart
-    chart =
+    raw_chart =
       PowerChart.new(
         sensors: [:house_power, :house_power_grid, *exclude_from_house_power],
       ).call(timeframe, fill: !timeframe.current?)
 
     result =
-      if chart.key?(:house_power) && chart.key?(:house_power_grid)
+      if raw_chart.key?(:house_power) && raw_chart.key?(:house_power_grid)
         {
-          house_power: adjusted_house_power(chart, exclude_grid: false),
-          house_power_grid: chart[:house_power_grid],
-          house_power_pv: adjusted_house_power(chart, exclude_grid: true),
+          house_power: adjusted_house_power(raw_chart, exclude_grid: false),
+          house_power_grid: raw_chart[:house_power_grid],
+          house_power_pv: adjusted_house_power(raw_chart, exclude_grid: true),
         }
       else
         # No data for house_power_grid is present, return simple chart instead
         {
-          house_power: adjusted_house_power(chart, exclude_grid: false),
+          house_power: adjusted_house_power(raw_chart, exclude_grid: false),
         }.compact
       end
 
@@ -101,8 +103,8 @@ class ChartData::HousePower < ChartData::Base
     ]
   end
 
-  def style(chart_sensor)
-    if splitting_possible?
+  def style(chart_sensor, split:)
+    if split
       {
         fill: 'origin',
         # Base color, will be changed to gradient in JS
@@ -140,12 +142,8 @@ class ChartData::HousePower < ChartData::Base
 
   def splitting_allowed?
     # Because data is only available hourly we can't use for line charts
-    return false if timeframe.now? || timeframe.day?
+    return false if timeframe.short?
 
     SensorConfig.x.exists?(:house_power_grid)
-  end
-
-  def splitting_possible?
-    chart.key?(:house_power_grid)
   end
 end

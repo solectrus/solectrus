@@ -10,7 +10,7 @@ class ChartData::HeatpumpPower < ChartData::Base
             label: I18n.t("sensors.#{chart_sensor}"),
             data: data.map(&:second),
             stack: chart_sensor == :heatpump_power ? nil : 'Power-Splitter',
-          }.merge(style(chart_sensor))
+          }.merge(style(chart_sensor, split: chart.key?(:heatpump_power_grid)))
         end,
     }
   end
@@ -27,28 +27,29 @@ class ChartData::HeatpumpPower < ChartData::Base
   end
 
   def splitted_chart # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-    chart =
+    raw_chart =
       PowerChart.new(sensors: %i[heatpump_power heatpump_power_grid]).call(
         timeframe,
         fill: !timeframe.current?,
       )
 
-    unless chart.key?(:heatpump_power) && chart.key?(:heatpump_power_grid)
+    unless raw_chart.key?(:heatpump_power) &&
+             raw_chart.key?(:heatpump_power_grid)
       # No data for heatpump_power_grid is present, return simple chart instead
-      return chart
+      return raw_chart
     end
 
-    heatpump_power = chart[:heatpump_power]
+    heatpump_power = raw_chart[:heatpump_power]
 
     heatpump_power_grid =
       heatpump_power.map.with_index do |(timestamp, power), index|
-        power_grid = chart.dig(:heatpump_power_grid, index)&.second.to_f
+        power_grid = raw_chart.dig(:heatpump_power_grid, index)&.second.to_f
         [timestamp, power ? [power, power_grid].min : nil]
       end
 
     heatpump_power_pv =
       heatpump_power.map.with_index do |(timestamp, power), index|
-        power_grid = chart.dig(:heatpump_power_grid, index)&.second.to_f
+        power_grid = raw_chart.dig(:heatpump_power_grid, index)&.second.to_f
         [timestamp, power ? [(power - power_grid), 0].max : nil]
       end
 
@@ -65,8 +66,8 @@ class ChartData::HeatpumpPower < ChartData::Base
     ]
   end
 
-  def style(chart_sensor)
-    if splitting_possible?
+  def style(chart_sensor, split:)
+    if split
       {
         fill: 'origin',
         # Base color, will be changed to gradient in JS
@@ -104,12 +105,8 @@ class ChartData::HeatpumpPower < ChartData::Base
 
   def splitting_allowed?
     # Because data is only available hourly we can't use for line charts
-    return false if timeframe.now? || timeframe.day?
+    return false if timeframe.short?
 
     SensorConfig.x.exists?(:heatpump_power_grid)
-  end
-
-  def splitting_possible?
-    chart.key?(:heatpump_power_grid)
   end
 end
