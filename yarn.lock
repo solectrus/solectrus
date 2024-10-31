@@ -796,11 +796,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 22.8.4
-  resolution: "@types/node@npm:22.8.4"
+  version: 22.8.5
+  resolution: "@types/node@npm:22.8.5"
   dependencies:
     undici-types: "npm:~6.19.8"
-  checksum: 10c0/f88d030480630194a9168772462ec09b2d86454f34368c46d2b7fda5dc6e14594b1576fcc5c35cc53b57a4d1e8dd2865a85ae81f34ded0d1af753a0f5d294c25
+  checksum: 10c0/5e43553026c83f18bfa381d35c8fd608e69d12d0f0fe4601e8bb98b651a3b240be9d66c1f2f4decdbebb41d55b18e89238b02f3992d820d89801b9b3625ba8ab
   languageName: node
   linkType: hard
 
@@ -1366,9 +1366,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001646, caniuse-lite@npm:^1.0.30001669":
-  version: 1.0.30001675
-  resolution: "caniuse-lite@npm:1.0.30001675"
-  checksum: 10c0/95196bb508a35fa4e2bd1cb2458450cc73a71ed6aea034cd7e8831d569d4f6a2a78d63de75b5a00af5ef4dbf3f1c26b5841d270cb71556fdcd34c3b84c1b164f
+  version: 1.0.30001676
+  resolution: "caniuse-lite@npm:1.0.30001676"
+  checksum: 10c0/53d310d76b5282947c99638a65d7534ac28a80aae1920de085a616ec8ad603358fad67cebacfc0452b1efdea12cce24fd37a50a712d074986b4962110e87d82b
   languageName: node
   linkType: hard
 
