@@ -158,7 +158,8 @@ class UpdateCheck
   end
 
   def expiration_from(response)
-    response['Cache-Control'].match(/max-age=(\d+)/)&.captures&.first&.to_i
+    max_age = response['Cache-Control'][/max-age=(\d+)/, 1]
+    max_age&.to_i
   end
 
   def cache_key

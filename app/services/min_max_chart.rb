@@ -120,7 +120,7 @@ class MinMaxChart < Flux::Reader
           |> last()
         QUERY
 
-        raw.first&.records&.first&.value
+        raw.first.records&.first&.value if raw.first.present?
       end
   end
 
