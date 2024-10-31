@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.2.1', '>= 7.2.1.2'
+gem 'rails', '~> 7.2.2'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
