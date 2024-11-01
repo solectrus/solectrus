@@ -116,7 +116,7 @@ GEM
     cypress-rails (0.8.0.rc1)
       puma (>= 3.8.0)
       railties (>= 5.2.0)
-    date (3.3.4)
+    date (3.4.0)
     diff-lcs (1.5.1)
     docile (1.4.1)
     dotenv (3.1.4)
