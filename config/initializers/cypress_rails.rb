@@ -10,9 +10,7 @@ Rails.application.load_tasks unless defined?(Rake::Task)
 
 # Load the support files
 require 'active_support/testing/time_helpers'
-Rails.root.glob('spec/cypress/support/**/*.rb').each do |f|
-  require f
-end
+Rails.root.glob('spec/cypress/support/**/*.rb').each { |f| require f }
 
 CypressRails.hooks.before_server_start do
   # Called once, before either the transaction or the server is started
