@@ -81,6 +81,10 @@ class UpdateCheck
     @latest = data
   end
 
+  def reset!
+    @latest = nil
+  end
+
   private
 
   def http_request

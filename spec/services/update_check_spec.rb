@@ -7,7 +7,7 @@ describe UpdateCheck do
   end
 
   def reset_memoization
-    instance.instance_variable_set(:@latest, nil)
+    UpdateCheck.instance.reset!
   end
 
   describe '.latest' do
