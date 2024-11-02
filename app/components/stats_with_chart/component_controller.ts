@@ -3,6 +3,7 @@ import * as Turbo from '@hotwired/turbo';
 import { Chart } from 'chart.js';
 import { application } from '@/utils/setupStimulus';
 import TippyController from '@/controllers/tippy_controller';
+import { IntervalTimer } from '@/utils/intervalTimer';
 
 export default class extends Controller {
   static readonly targets = ['current', 'stats', 'chart', 'canvas'];
@@ -42,13 +43,16 @@ export default class extends Controller {
   declare readonly nextPathValue: string;
   declare readonly boundaryValue: string;
 
-  private interval: ReturnType<typeof setInterval> | undefined;
+  private timer?: IntervalTimer;
   private selectedSensor?: string;
   private boundHandleVisibilityChange?: () => void;
   private boundHandleDblClick?: (event: MouseEvent) => void;
+  private shouldStopRequests = false;
 
   connect() {
     if (this.intervalValue) {
+      this.createTimer();
+
       this.boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
       document.addEventListener(
         'visibilitychange',
@@ -63,7 +67,7 @@ export default class extends Controller {
   }
 
   disconnect() {
-    this.stopLoop();
+    this.removeTimer();
 
     if (this.boundHandleDblClick) {
       document.removeEventListener('dblclick', this.boundHandleDblClick);
@@ -76,25 +80,17 @@ export default class extends Controller {
       );
   }
 
-  startLoop(event?: ActionEvent) {
-    if (!this.intervalValue) return;
-
-    this.stopLoop();
-
-    if (event?.params?.sensor) this.selectedSensor = event.params.sensor;
-
-    this.interval = setInterval(() => {
-      // Move to next page when boundary is reached
-      if (
-        this.boundaryValue &&
-        this.nextPathValue &&
-        new Date() > new Date(this.boundaryValue)
-      ) {
-        Turbo.visit(this.nextPathValue);
-        return;
-      }
-
-      // Otherwise, just reload the frame
+  reload() {
+    // Move to next page when boundary is reached
+    if (
+      this.boundaryValue &&
+      this.nextPathValue &&
+      new Date() > new Date(this.boundaryValue)
+    ) {
+      Turbo.visit(this.nextPathValue);
+    }
+    // Otherwise, just reload the frame
+    else
       this.reloadFrames({ chart: this.reloadChartValue })
         .then(() => {
           // When no new chart has been loaded, add a new point to the existing chart
@@ -104,16 +100,45 @@ export default class extends Controller {
           console.error(error);
           // Ignore error
         });
+  }
+
+  createTimer() {
+    // Create a timer to reload the frames
+    this.timer = new IntervalTimer(() => {
+      // Avoid any request if stopped in the meantime
+      if (this.shouldStopRequests) return;
+
+      this.reload();
     }, this.intervalValue * 1000);
   }
 
+  removeTimer() {
+    this.timer?.stop();
+    this.timer = undefined;
+  }
+
+  startLoop(event?: ActionEvent) {
+    if (!this.timer) return;
+
+    // Remember the selected sensor (given via parameter)
+    if (event?.params?.sensor) this.selectedSensor = event.params.sensor;
+
+    // Avoid starting multiple loops
+    if (this.isInLoop) return;
+
+    // Reset the flag to stop requests
+    this.shouldStopRequests = false;
+
+    this.timer.start();
+  }
+
   stopLoop() {
-    if (this.isInLoop) clearInterval(this.interval);
-    this.interval = undefined;
+    this.shouldStopRequests = true;
+    this.timer?.stop();
   }
 
   get isInLoop() {
-    return !!this.interval;
+    return this.timer?.isActive();
   }
 
   handleVisibilityChange(): void {
@@ -131,15 +156,15 @@ export default class extends Controller {
 
   addPointToChart() {
     if (
-      this.chart == null ||
-      this.currentValue == null ||
-      this.currentTime == null ||
-      this.lastTime == null
+      this.chart === undefined ||
+      this.currentValue === undefined ||
+      this.currentTime === undefined ||
+      this.lastPointTime === undefined
     )
       return;
 
     // Never add a point with a time older than the last time in the chart
-    if (this.currentTime < this.lastTime) return;
+    if (this.currentTime < this.lastPointTime) return;
 
     this.removeOutdatedPoints();
     this.addCurrentPoint(this.currentTime, this.currentValue);
@@ -148,11 +173,11 @@ export default class extends Controller {
     this.chart.update();
   }
 
-  addCurrentPoint(time: number, value: number) {
+  addCurrentPoint(time: Date, value: number) {
     if (!this.chart?.data.labels) return;
 
     // First, add the time as a label
-    this.chart.data.labels.push(time);
+    this.chart.data.labels.push(time.getTime());
 
     // Second, add the value to the appropriate dataset
     // There may be two datasets: One for positive, one for negative values.
@@ -212,16 +237,18 @@ export default class extends Controller {
     return parseFloat(this.currentElement.dataset.value);
   }
 
-  get currentTime(): number | undefined {
+  get currentTime(): Date | undefined {
     if (!this.currentElement?.dataset.time) return undefined;
 
-    return parseInt(this.currentElement.dataset.time) * 1000;
+    const seconds: number = Number(this.currentElement.dataset.time);
+    return new Date(seconds * 1000);
   }
 
-  get lastTime(): number | undefined {
+  get lastPointTime(): Date | undefined {
     if (!this.chart?.data.labels) return undefined;
 
-    return this.chart.data.labels.slice(-1)[0] as number;
+    const lastLabel: number = this.chart.data.labels.slice(-1)[0] as number;
+    return new Date(lastLabel);
   }
 
   get currentElement(): HTMLElement | undefined {
