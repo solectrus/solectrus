@@ -94,7 +94,7 @@ class ConsumptionChart < Flux::Reader
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['consumption']
+      value = next_record.values['consumption']&.clamp(0, 100)
 
       # Take only values that are after the desired start
       # (needed because the start was extended by one hour)

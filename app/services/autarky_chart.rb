@@ -106,7 +106,7 @@ class AutarkyChart < Flux::Reader
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['autarky']
+      value = next_record.values['autarky']&.clamp(0, 100)
 
       # Take only values that are after the desired start
       # (needed because the start was extended by one hour)
