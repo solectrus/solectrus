@@ -10,8 +10,4 @@ class TurboModal::Component < ViewComponent::Base
     super
     @title = title
   end
-
-  def turbo_frame_request?
-    request.headers['Turbo-Frame']
-  end
 end
