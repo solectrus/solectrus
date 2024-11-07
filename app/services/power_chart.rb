@@ -1,4 +1,4 @@
-class PowerChart < Flux::Reader
+class PowerChart < ChartBase
   def call(timeframe, fill: false, interpolate: false)
     return {} unless SensorConfig.x.exists_any?(*sensors)
 
@@ -16,12 +16,8 @@ class PowerChart < Flux::Reader
                    window: WINDOW[timeframe.id],
                    fill:,
                    interpolate:
-    when :week, :month, :year
-      chart_sum start: timeframe.beginning,
-                stop: timeframe.ending,
-                window: WINDOW[timeframe.id]
-    when :all
-      chart_sum start: timeframe.beginning, window: WINDOW[timeframe.id]
+    when :week, :month, :year, :all
+      chart_sum(timeframe:)
     end
   end
 
@@ -53,19 +49,35 @@ class PowerChart < Flux::Reader
     to_array(raw, start:)
   end
 
-  def chart_sum(start:, window:, stop: nil)
-    raw = query <<~QUERY
-      import "timezone"
+  def chart_sum(timeframe:)
+    result =
+      Summary
+        .where(date: timeframe.beginning..timeframe.ending)
+        .group_by_period(grouping_period(timeframe), :date)
+        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
 
-      #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")
-      |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
-      |> keep(columns: ["_time","_field","_measurement","_value"])
-    QUERY
+    # Filter only sensors with at least one non-nil value in the result
+    sensors_with_values =
+      sensors.select do |sensor|
+        result.values.any? { |value| float_from_calculate_all(sensor, value) }
+      end
 
-    to_array(raw, start:)
+    # Return a Hash with the sensors as keys and nested arrays with [date, value] as values
+    # Example:
+    #   { heatpump_power: [[date1, 123.1], [date2, 42.5], ... }
+    sensors_with_values.index_with do |sensor|
+      dates(timeframe).map do |date|
+        value = float_from_calculate_all(sensor, result[date])
+
+        [date.to_time, value&.fdiv(1000)]
+      end
+    end
+  end
+
+  # Gem "calculate_all" returns a Hash for multiple fields and a Float for a single field.
+  # This method helps to get the float from the result.
+  def float_from_calculate_all(sensor, value)
+    value.is_a?(Hash) ? value[:"sum_#{sensor}_sum"] : value
   end
 
   def value_to_array(raw, start:)

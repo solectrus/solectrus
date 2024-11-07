@@ -1,31 +1,46 @@
 describe PowerPeak do
-  let(:peak) do
-    described_class.new(sensors: %i[inverter_power house_power wallbox_power])
-  end
-
-  let(:beginning) { 3.months.ago.beginning_of_month }
-
-  before do
-    influx_batch do
-      3.times do |index|
-        add_influx_point name: measurement_inverter_power,
-                         fields: {
-                           field_inverter_power => (index + 1) * 1000,
-                           field_house_power => 500,
-                           field_wallbox_power => (index + 1) * 3000,
-                         },
-                         time: (beginning + index.month)
-      end
-    end
-  end
+  subject(:power_peak) { described_class.new(sensors:) }
 
   describe '#call' do
-    subject { peak.call(start: beginning) }
+    subject { power_peak.call(start:) }
 
-    it do
-      is_expected.to eq(
-        { inverter_power: 3_000, house_power: 500, wallbox_power: 9_000 },
-      )
+    let(:start) { 30.days.ago.beginning_of_day }
+
+    context 'when no sensors are provided' do
+      let(:sensors) { [] }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'when sensors are provided' do
+      let(:sensors) { %i[inverter_power house_power] }
+
+      context 'when no summaries exist' do
+        it { is_expected.to be_nil }
+      end
+
+      context 'when summaries are present' do
+        before do
+          Summary.create!(
+            date: start,
+            max_inverter_power: 1000,
+            max_house_power: 2000,
+          )
+
+          Summary.create!(
+            date: start + 1.day,
+            max_inverter_power: 1500,
+            max_house_power: 2500,
+          )
+        end
+
+        it 'returns the maximum value for each sensor' do
+          is_expected.to eq(
+            max_max_inverter_power: 1500,
+            max_max_house_power: 2500,
+          )
+        end
+      end
     end
   end
 end

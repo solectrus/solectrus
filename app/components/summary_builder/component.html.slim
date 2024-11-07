@@ -1,0 +1,29 @@
+.h-full.w-full[
+  data-controller= 'sequential-frames'
+  data-sequential-frames-reload-on-complete-value= true
+  data-sequential-frames-minutes-one-value  = t('datetime.distance_in_words.x_minutes.one')
+  data-sequential-frames-minutes-other-value= t('datetime.distance_in_words.x_minutes.other')
+  data-sequential-frames-seconds-one-value  = t('datetime.distance_in_words.x_seconds.one')
+  data-sequential-frames-seconds-other-value= t('datetime.distance_in_words.x_seconds.other')
+  class= "timeframe-#{timeframe.id}"
+]
+  - if loading_spinner?
+    .h-full.flex.items-center.justify-center
+      = render Loading::Component.new
+
+    .hidden
+      = render DayComponent.with_collection(missing_or_stale_days)
+
+  - else
+    .h-full.flex.flex-col.gap-10.items-center.justify-center.text-gray-600.dark:text-gray-300
+      h1
+        = t('.title')
+
+      div class="w-full grid grid-cols-auto-fit grid-flow-col rounded-md overflow-hidden bg-indigo-200 dark:bg-indigo-900"
+        = render DayComponent.with_collection(missing_or_stale_days)
+
+      - unless timeframe.week?
+        .text-center.invisible.text-gray-400.dark:text-gray-600.text-lg.tracking-wider.tabular-nums data-sequential-frames-target= 'timeEstimate'
+          span>
+            = t('.remaining')
+          span data-sequential-frames-target= "remaining"

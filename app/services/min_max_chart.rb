@@ -1,10 +1,11 @@
-class MinMaxChart < Flux::Reader
-  def initialize(sensors:, average:)
-    super(sensors:)
+class MinMaxChart < ChartBase
+  def initialize(sensor:, average:)
+    super(sensors: [sensor])
     @average = average
+    @sensor = sensor
   end
 
-  attr_reader :average
+  attr_reader :average, :sensor
 
   def call(timeframe)
     return {} unless SensorConfig.x.exists_any?(*sensors)
@@ -20,14 +21,8 @@ class MinMaxChart < Flux::Reader
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id]
-    when :week, :month
-      chart_minmax start: timeframe.beginning,
-                   stop: timeframe.ending,
-                   window: WINDOW[timeframe.id]
-    when :year, :all
-      chart_minmax_global start: timeframe.beginning,
-                          stop: timeframe.ending,
-                          window: WINDOW[timeframe.id]
+    when :week, :month, :year, :all
+      chart_minmax(timeframe:)
     end
   end
 
@@ -49,58 +44,25 @@ class MinMaxChart < Flux::Reader
     formatted(raw)
   end
 
-  def chart_minmax(start:, window:, stop: nil)
-    remember_start(start)
+  def chart_minmax(timeframe:)
+    aggregation_method_min = average ? 'avg' : 'min'
+    aggregation_method_max = average ? 'avg' : 'max'
 
-    raw = query <<-QUERY
-      import "timezone"
+    result =
+      Summary
+        .where(date: timeframe.beginning..timeframe.ending)
+        .group_by_period(grouping_period(timeframe), :date)
+        .calculate_all(
+          :"min_#{sensor}_#{aggregation_method_min}",
+          :"max_#{sensor}_#{aggregation_method_max}",
+        )
 
-      #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 5m, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: min, location: #{location})
-      |> keep(columns: ["_time","_field","_measurement","_value"])
-      |> yield(name: "min")
-
-      #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 5m, fn: mean)
-      |> aggregateWindow(every: #{window}, fn: max, location: #{location})
-      |> keep(columns: ["_time","_field","_measurement","_value"])
-      |> yield(name: "max")
-    QUERY
-
-    formatted(raw)
-  end
-
-  def chart_minmax_global(start:, window:, stop: nil)
-    remember_start(start)
-
-    raw = query <<-QUERY
-      import "timezone"
-
-      #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 5m, fn: mean)
-      |> aggregateWindow(every: 1d, fn: min)
-      |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'min'}, location: #{location})
-      |> keep(columns: ["_time","_field","_measurement","_value"])
-      |> yield(name: "min")
-
-      #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 5m, fn: mean)
-      |> aggregateWindow(every: 1d, fn: max)
-      |> aggregateWindow(every: #{window}, fn: #{average ? 'mean' : 'max'}, location: #{location})
-      |> keep(columns: ["_time","_field","_measurement","_value"])
-      |> yield(name: "max")
-    QUERY
-
-    formatted(raw)
+    {
+      sensor =>
+        dates(timeframe).map do |date|
+          [date.to_time, result[date]&.values&.compact.presence]
+        end,
+    }
   end
 
   def remember_start(start)
@@ -185,16 +147,5 @@ class MinMaxChart < Flux::Reader
         original
       end
     end
-  end
-
-  def default_cache_options
-    return unless timeframe
-
-    # Cache larger timeframes, but just for a short time
-    return { expires_in: 10.minutes } if timeframe.month? || timeframe.week?
-    return { expires_in: 1.hour } if timeframe.year?
-    return { expires_in: 1.day } if timeframe.all?
-
-    nil
   end
 end

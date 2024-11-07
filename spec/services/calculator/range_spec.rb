@@ -1,6 +1,9 @@
 describe Calculator::Range do
   let(:calculator) { described_class.new(timeframe) }
 
+  let(:timeframe) { Timeframe.new('2022-11-01') }
+  let(:updated_at) { 5.minutes.ago }
+
   before do
     Price.electricity.create! starts_at: '2020-02-01', value: 0.2545
     Price.electricity.create! starts_at: '2022-02-01', value: 0.3244
@@ -8,124 +11,25 @@ describe Calculator::Range do
     Price.electricity.create! starts_at: '2023-02-01', value: 0.4451
 
     Price.feed_in.create! starts_at: '2020-12-01', value: 0.0848
+
+    allow(calculator).to receive_messages(
+      inverter_power: 46_000,
+      inverter_power_forecast: 50_000,
+      got: 1,
+      paid: -6,
+      traditional_price: -15,
+      battery_savings: 3,
+      time: updated_at,
+    )
   end
 
-  context 'when grid_import_power < wallbox_power (November)' do
-    let(:timeframe) { Timeframe.new('2022-11') }
+  it 'calculates' do
+    expect(calculator.forecast_deviation).to eq(-8)
+    expect(calculator.solar_price).to eq(-5)
+    expect(calculator.savings).to eq(10)
+    expect(calculator.battery_savings_percent).to eq(30)
 
-    before do
-      allow(calculator).to receive_messages(
-        inverter_power: 476_000,
-        grid_import_power: 171_000,
-        grid_import_power_array: [171_000],
-        grid_export_power: 129_000,
-        grid_export_power_array: [129_000],
-        wallbox_power: 221_000,
-        wallbox_power_array: [221_000],
-        house_power: 322_000,
-        house_power_array: [322_000],
-        battery_discharging_power: 168_000,
-        battery_discharging_power_array: [168_000],
-        battery_charging_power: 159_000,
-        battery_charging_power_array: [159_000],
-      )
-    end
-
-    it 'calculates' do
-      expect(calculator.forecast_deviation).to be_nil
-
-      expect(calculator.paid).to eq(-47.90)
-      expect(calculator.got).to eq(10.94)
-
-      expect(calculator.solar_price).to eq(-36.96)
-      expect(calculator.traditional_price).to eq(-152.09)
-
-      expect(calculator.savings).to eq(115.13)
-      expect(calculator.battery_savings).to eq(33.57)
-      expect(calculator.battery_savings_percent).to eq(29)
-
-      expect(calculator.paid).to eq(-47.90)
-    end
-  end
-
-  context 'when grid_import_power is very high (December 2021)' do
-    let(:timeframe) { Timeframe.new('2021-12') }
-
-    before do
-      allow(calculator).to receive_messages(
-        inverter_power: 205_974,
-        grid_import_power: 360_277,
-        grid_import_power_array: [360_277],
-        grid_export_power: 21_630,
-        grid_export_power_array: [21_630],
-        wallbox_power: 187_342,
-        wallbox_power_array: [187_342],
-        house_power: 360_272,
-        house_power_array: [360_272],
-        battery_discharging_power: 78_916,
-        battery_discharging_power_array: [78_916],
-        battery_charging_power: 75_918,
-        battery_charging_power_array: [75_918],
-      )
-    end
-
-    it 'calculates' do
-      expect(calculator.paid).to eq(-91.69)
-    end
-  end
-
-  context 'when grid_import_power is at maximum (2021-12-25)' do
-    let(:timeframe) { Timeframe.new('2021-12-25') }
-
-    before do
-      allow(calculator).to receive_messages(
-        inverter_power: 1_465,
-        grid_import_power: 56_483,
-        grid_import_power_array: [56_483],
-        grid_export_power: 11,
-        grid_export_power_array: [11],
-        wallbox_power: 39_802,
-        wallbox_power_array: [39_802],
-        house_power: 17_026,
-        house_power_array: [17_026],
-        battery_discharging_power: 319,
-        battery_discharging_power_array: [319],
-        battery_charging_power: 1_425,
-        battery_charging_power_array: [1_425],
-      )
-    end
-
-    it 'calculates' do
-      expect(calculator.paid).to eq(-14.37)
-    end
-  end
-
-  context 'when grid_import_power is very low (August 2022)' do
-    let(:timeframe) { Timeframe.new('2022-08') }
-
-    before do
-      allow(calculator).to receive_messages(
-        inverter_power: 1_500_000,
-        grid_import_power: 12_816,
-        grid_import_power_array: [12_816],
-        grid_export_power: 1_000_000,
-        grid_export_power_array: [1_000_000],
-        wallbox_power: 121_000,
-        wallbox_power_array: [121_000],
-        house_power: 343_000,
-        house_power_array: [343_000],
-        battery_discharging_power: 117_000,
-        battery_discharging_power_array: [117_000],
-        battery_charging_power: 112_000,
-        battery_charging_power_array: [112_000],
-      )
-    end
-
-    it 'calculates' do
-      expect(calculator.forecast_deviation).to be_nil
-
-      expect(calculator.paid).to eq(-3.59)
-    end
+    expect(calculator.time).to eq(updated_at)
   end
 
   context 'when power-splitter values are present' do

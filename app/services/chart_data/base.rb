@@ -12,7 +12,7 @@ class ChartData::Base
 
   def blank?
     data[:datasets].blank? ||
-      data[:datasets].all? { |dataset| dataset[:data].blank? }
+      data[:datasets].all? { |dataset| dataset[:data]&.compact.blank? }
   end
 
   private

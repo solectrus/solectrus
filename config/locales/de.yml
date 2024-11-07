@@ -121,6 +121,15 @@ de:
         description: Optionen
         opportunity_costs:
           hint: Entgangene Einspeisevergütung als Teil der Stromkosten betrachten
+      summaries:
+        title: Tageszusammenfassungen
+        description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.
+        zero: Es sind keine Zusammenfassungen vorhanden.
+        fresh_percentage: Es sind %{value}% der benötigten Zusammenfassungen vorhanden.
+        reset:
+          title: Zurücksetzen
+          confirmation: Das Neuberechnen der Zusammenfassungen wird einige Zeit dauern. Wirklich fortfahren?
+          flash: Zusammenfassungen wurden zurückgesetzt.
     prices:
       edit: Preis bearbeiten
       new: Neuer Preis

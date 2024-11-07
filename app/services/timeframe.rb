@@ -12,7 +12,11 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def initialize(string, min_date: nil, allowed_days_in_future: nil)
+  def initialize(
+    string,
+    min_date: Rails.application.config.x.installation_date,
+    allowed_days_in_future: 6
+  )
     unless string.respond_to?(:match?) && string.match?(self.class.regex)
       raise ArgumentError, "'#{string}' is not a valid timeframe"
     end
@@ -182,8 +186,14 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
+  # Date of the beginning, but not before min_date
   def effective_beginning_date
     [beginning.to_date, min_date].compact.max
+  end
+
+  # Date of the ending, but not after max_date or today
+  def effective_ending_date
+    [ending.to_date, max_date].compact.min
   end
 
   def ending
@@ -201,6 +211,13 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :all
       [max_date, Date.current].compact.min.end_of_day
     end
+  end
+
+  def ending_with_last_second
+    return ending if id == :now
+
+    # Date#end_of_day is at 23:59:59, so we add 1 second to get the real end
+    ending + 1.second
   end
 
   def next(force: false)
@@ -232,19 +249,19 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def corresponding_day
-    trimmed_ending.strftime(format(target_id: :day))
+    effective_ending_date.strftime(format(target_id: :day))
   end
 
   def corresponding_week
-    trimmed_ending.strftime(format(target_id: :week))
+    effective_ending_date.strftime(format(target_id: :week))
   end
 
   def corresponding_month
-    trimmed_ending.strftime(format(target_id: :month))
+    effective_ending_date.strftime(format(target_id: :month))
   end
 
   def corresponding_year
-    trimmed_ending.strftime(format(target_id: :year))
+    effective_ending_date.strftime(format(target_id: :year))
   end
 
   def date
@@ -261,11 +278,6 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   private
-
-  # Ending, but not further than max_date and current date
-  def trimmed_ending
-    [ending, max_date, Date.current].compact.min
-  end
 
   def change(amount, force: false)
     new_date = raw_change(amount)
