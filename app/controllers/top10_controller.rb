@@ -1,11 +1,18 @@
 class Top10Controller < ApplicationController
   include ParamsHandling
+  include SummaryChecker
 
   def index
     redirect_to(default_path) unless period && sensor && calc && sort
+
+    load_missing_or_stale_summary_days(timeframe)
   end
 
   private
+
+  helper_method def timeframe
+    @timeframe ||= Timeframe.all
+  end
 
   helper_method def title
     t('layout.top10')
@@ -30,7 +37,7 @@ class Top10Controller < ApplicationController
     sensor_names.map do |sensor|
       MenuItem::Component.new(
         name: I18n.t("sensors.#{sensor}"),
-        href: url_for(**permitted_params.merge(sensor:, only_path: true)),
+        href: url_for(**permitted_params, sensor:, only_path: true),
         data: {
           action: 'dropdown--component#toggle',
         },

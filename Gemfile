@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.2.1', '>= 7.2.1.1'
+gem 'rails', '~> 7.2.2'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -64,6 +64,12 @@ gem 'csv'
 
 # Class to build custom data structures, similar to a Hash. (https://github.com/ruby/ostruct)
 gem 'ostruct'
+
+# The simplest way to group temporal data (https://github.com/ankane/groupdate)
+gem 'groupdate'
+
+# Fetch from database results of several aggregate functions at once (http://github.com/codesnik/calculate-all)
+gem 'calculate-all'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

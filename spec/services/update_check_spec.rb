@@ -1,7 +1,14 @@
 describe UpdateCheck do
   subject(:instance) { described_class.instance }
 
-  before { Rails.application.load_seed }
+  before do
+    Rails.application.load_seed
+    reset_memoization
+  end
+
+  def reset_memoization
+    UpdateCheck.instance.reset!
+  end
 
   describe '.latest' do
     subject(:latest) { instance.latest }
@@ -204,8 +211,12 @@ describe UpdateCheck do
         :skipped_prompt?,
       ).from(false).to(true)
 
+      reset_memoization
+      expect(instance.skipped_prompt?).to be true
+
       # The cache expires after some time
       travel 24.hours + 1 do
+        reset_memoization
         expect(instance.skipped_prompt?).to be false
       end
     end

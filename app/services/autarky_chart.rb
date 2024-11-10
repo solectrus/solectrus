@@ -1,4 +1,4 @@
-class AutarkyChart < Flux::Reader
+class AutarkyChart < ChartBase
   def initialize
     super(sensors: %i[house_power wallbox_power grid_import_power])
   end
@@ -20,9 +20,7 @@ class AutarkyChart < Flux::Reader
                    window: WINDOW[timeframe.id],
                    fill:
     when :week, :month, :year, :all
-      chart_sum start: timeframe.beginning,
-                stop: timeframe.ending,
-                window: WINDOW[timeframe.id]
+      chart_sum(timeframe:)
     end
   end
 
@@ -69,28 +67,29 @@ class AutarkyChart < Flux::Reader
     to_array(raw, start:)
   end
 
-  def chart_sum(start:, window:, stop: nil)
-    q = []
+  def chart_sum(timeframe:)
+    result =
+      Summary
+        .where(date: timeframe.beginning..timeframe.ending)
+        .group_by_period(grouping_period(timeframe), :date)
+        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
 
-    q << 'import "timezone"'
-    q << from_bucket
-    q << "|> #{range(start: start - 1.second, stop:)}"
-    q << "|> #{filter}"
-    q << '|> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")'
-    q << "|> aggregateWindow(every: #{window}, fn: sum, location: #{location})"
-    q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
+    dates(timeframe).map do |date|
+      values = result[date]
 
-    q << if wallbox_power_field
-      '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
-        "(r.#{grid_import_power_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))"
-    else
-      '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
-        "(r.#{grid_import_power_field} / (r.#{house_power_field}))) }))"
+      autarky =
+        if values && values[:sum_grid_import_power_sum]
+          (
+            1 -
+              values[:sum_grid_import_power_sum].fdiv(
+                values[:sum_house_power_sum].to_f +
+                  values[:sum_wallbox_power_sum].to_f,
+              )
+          ) * 100
+        end
+
+      [date.to_time, autarky]
     end
-    q << '|> keep(columns: ["_time", "autarky"])'
-
-    raw = query(q.join)
-    to_array(raw, start:)
   end
 
   def to_array(raw, start:)
@@ -106,7 +105,7 @@ class AutarkyChart < Flux::Reader
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['autarky']
+      value = next_record.values['autarky']&.clamp(0, 100)
 
       # Take only values that are after the desired start
       # (needed because the start was extended by one hour)

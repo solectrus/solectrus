@@ -4,8 +4,10 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
     @timeframe = timeframe
 
-    build_context PowerSum.new(sensors:).call(timeframe)
+    build_context(sections)
   end
+
+  attr_reader :timeframe
 
   def sensors
     result = %i[
@@ -24,7 +26,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     end
 
     # Include forecast for days only
-    result << :inverter_power_forecast if @timeframe.day?
+    result << :inverter_power_forecast if timeframe.day?
 
     result
   end
@@ -49,7 +51,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method_from_array(:wallbox_power_grid, data)
     build_method_from_array(:heatpump_power_grid, data)
 
-    return unless @timeframe.day?
+    return unless timeframe.day?
 
     build_method_from_array(:inverter_power_forecast, data, :to_f)
   end
@@ -291,6 +293,33 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   private
+
+  def price_sections
+    DateInterval.new(
+      starts_at: timeframe.effective_beginning_date,
+      ends_at: timeframe.ending.to_date,
+    ).price_sections
+  end
+
+  def query(from:, to:)
+    Calculator::QuerySql.new(from:, to:)
+  end
+
+  def sections
+    @sections ||=
+      price_sections.map do |price_section|
+        summary =
+          query(from: price_section[:starts_at], to: price_section[:ends_at])
+
+        sensors
+          .index_with { |sensor| summary.public_send(sensor) }
+          .merge(
+            time: summary.time,
+            electricity_price: price_section[:electricity],
+            feed_in_tariff: price_section[:feed_in],
+          )
+      end
+  end
 
   def section_sum(&)
     (

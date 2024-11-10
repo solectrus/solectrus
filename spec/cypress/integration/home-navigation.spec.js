@@ -15,8 +15,6 @@ describe('Home page', () => {
   ].forEach((path) => {
     it(`${path} is clickable`, () => {
       cy.visit(`/${path}`);
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
 
       navigateNow();
       navigateDay();
@@ -42,8 +40,6 @@ describe('Home page', () => {
 
     function navigateDay() {
       cy.contains('Tag').click();
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
       cy.get('#stats-day').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/2022-06-21`);
@@ -71,8 +67,6 @@ describe('Home page', () => {
 
     function navigateWeek() {
       cy.contains('Woche').click();
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
       cy.get('#stats-week').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/2022-W25`);
@@ -96,8 +90,6 @@ describe('Home page', () => {
 
     function navigateMonth() {
       cy.contains('Monat').click();
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
       cy.get('#stats-month').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/2022-06`);
@@ -121,8 +113,6 @@ describe('Home page', () => {
 
     function navigateYear() {
       cy.contains('Jahr').click();
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
       cy.get('#stats-year').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/2022`);
@@ -146,8 +136,6 @@ describe('Home page', () => {
 
     function navigateAll() {
       cy.contains('Gesamt').click();
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
       cy.get('#stats-all').should('be.visible');
 
       cy.location('pathname').should('equal', `/${path}/all`);
@@ -163,15 +151,11 @@ describe('Home page', () => {
 
     function clickPrevAndExpect(expectedTime) {
       cy.get('header a[rel="prev"]').click();
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
       cy.get('header time').should('contain', expectedTime);
     }
 
     function clickNextAndExpect(expectedTime) {
       cy.get('header a[rel="next"]').click();
-      cy.get('svg.loading').should('exist');
-      cy.get('svg.loading').should('not.exist');
       cy.get('header time').should('contain', expectedTime);
     }
   });

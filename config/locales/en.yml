@@ -121,6 +121,15 @@ en:
         description: Options
         opportunity_costs:
           hint: Consider missed feed-in compensation as part of electricity costs
+      summaries:
+        title: Daily summaries
+        description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.
+        zero: There are no summaries available.
+        fresh_percentage: There are %{value}% of the required summaries available.
+        reset:
+          title: Reset
+          confirmation: Rebuilding the summaries will take some time. Continue?
+          flash: Summaries have been reset.
     prices:
       edit: Edit price
       new: Add price

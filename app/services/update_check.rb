@@ -54,9 +54,40 @@ class UpdateCheck
   end
 
   def latest
-    return { registration_status: 'complete' } if Rails.env.development?
-    return cached_latest if cached?
+    @latest ||=
+      if Rails.env.development?
+        # :nocov:
+        { registration_status: 'complete' }
+        # :nocov:
+      elsif cached?
+        cached_latest
+      else
+        http_request
+      end
+  end
 
+  def cached?
+    Rails.cache.exist?(cache_key)
+  end
+
+  def clear_cache!
+    Rails.cache.delete(cache_key)
+    @latest = nil
+  end
+
+  def skip_prompt!
+    data = latest.merge(prompt: 'skipped')
+    Rails.cache.write(cache_key, data, expires_in: 24.hours)
+    @latest = data
+  end
+
+  def reset!
+    @latest = nil
+  end
+
+  private
+
+  def http_request
     uri = URI(update_url)
     response =
       Net::HTTP.start(
@@ -87,22 +118,6 @@ class UpdateCheck
     Rails.logger.error "UpdateCheck failed: #{e}"
     unknown
   end
-
-  def cached?
-    Rails.cache.exist?(cache_key)
-  end
-
-  def clear_cache!
-    Rails.cache.delete(cache_key)
-  end
-
-  def skip_prompt!
-    data = latest.merge(prompt: 'skipped')
-
-    Rails.cache.write(cache_key, data, expires_in: 24.hours)
-  end
-
-  private
 
   def update_url
     if Rails.env.development?
@@ -147,7 +162,8 @@ class UpdateCheck
   end
 
   def expiration_from(response)
-    response['Cache-Control'].match(/max-age=(\d+)/)&.captures&.first&.to_i
+    max_age = response['Cache-Control'][/max-age=(\d+)/, 1]
+    max_age&.to_i
   end
 
   def cache_key

@@ -1,4 +1,4 @@
-class ConsumptionChart < Flux::Reader
+class ConsumptionChart < ChartBase
   def initialize
     super(sensors: %i[inverter_power grid_export_power])
   end
@@ -20,9 +20,7 @@ class ConsumptionChart < Flux::Reader
                    window: WINDOW[timeframe.id],
                    fill:
     when :week, :month, :year, :all
-      chart_sum start: timeframe.beginning,
-                stop: timeframe.ending,
-                window: WINDOW[timeframe.id]
+      chart_sum(timeframe:)
     end
   end
 
@@ -64,21 +62,27 @@ class ConsumptionChart < Flux::Reader
     to_array(raw, start:)
   end
 
-  def chart_sum(start:, window:, stop: nil)
-    raw = query <<~QUERY
-      import "timezone"
+  def chart_sum(timeframe:)
+    result =
+      Summary
+        .where(date: timeframe.beginning..timeframe.ending)
+        .group_by_period(grouping_period(timeframe), :date)
+        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
 
-      #{from_bucket}
-      |> #{range(start: start - 1.second, stop:)}
-      |> #{filter}
-      |> aggregateWindow(every: 1h, fn: mean, timeSrc: "_start")
-      |> aggregateWindow(every: #{window}, fn: sum, location: #{location})
-      |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-      |> map(fn: (r) => ({ r with consumption: if r.#{grid_export_power_field} > r.#{inverter_power_field} then 0.0 else 100.0 * (r.#{inverter_power_field} - r.#{grid_export_power_field}) / r.#{inverter_power_field} }))
-      |> keep(columns: ["_time", "consumption"])
-    QUERY
+    dates(timeframe).map do |date|
+      values = result[date]
 
-    to_array(raw, start:)
+      consumption =
+        if values && values[:sum_inverter_power_sum]
+          [
+            values[:sum_inverter_power_sum].to_f -
+              values[:sum_grid_export_power_sum].to_f,
+            0,
+          ].max.fdiv(values[:sum_inverter_power_sum]) * 100
+        end
+
+      [date.to_time, consumption]
+    end
   end
 
   def to_array(raw, start:)
@@ -94,7 +98,7 @@ class ConsumptionChart < Flux::Reader
       next unless next_record
 
       time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['consumption']
+      value = next_record.values['consumption']&.clamp(0, 100)
 
       # Take only values that are after the desired start
       # (needed because the start was extended by one hour)

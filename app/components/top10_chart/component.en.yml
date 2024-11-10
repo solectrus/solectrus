@@ -3,3 +3,4 @@ en:
   note_sum: Summed energy
   note_max: Maximum power (average over five minutes)
   blank: Not enough data available.
+  house_power_max_not_possible: Sorry, the calculation of the maximum house consumption is unfortunately not possible.

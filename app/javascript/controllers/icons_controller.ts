@@ -7,6 +7,7 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight
 
 import { faArrowDownWideShort } from '@fortawesome/free-solid-svg-icons/faArrowDownWideShort';
 import { faArrowDownShortWide } from '@fortawesome/free-solid-svg-icons/faArrowDownShortWide';
+import { faRotateLeft } from '@fortawesome/free-solid-svg-icons/faRotateLeft';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
@@ -61,6 +62,7 @@ export default class extends Controller {
       faChevronRight,
       faArrowDownWideShort,
       faArrowDownShortWide,
+      faRotateLeft,
       faPlus,
       faPencil,
       faTrash,

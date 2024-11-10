@@ -13,22 +13,22 @@ class ApplicationController < ActionController::Base
     cookies.signed[:admin] == true
   end
 
+  def turbo_stream_update_flash
+    turbo_stream.update 'flash' do
+      ApplicationController.render(
+        AppFlash::Component.new(notice:, alert:),
+        layout: false,
+      )
+    end
+  end
+
   def respond_with_flash(notice: nil, alert: nil)
     flash.now[:notice] = notice
     flash.now[:alert] = alert
 
     respond_to do |format|
       format.html
-      format.turbo_stream do
-        render turbo_stream: [
-                 turbo_stream.update('flash') do
-                   ApplicationController.render(
-                     AppFlash::Component.new(notice:, alert:),
-                     layout: false,
-                   )
-                 end,
-               ]
-      end
+      format.turbo_stream { render turbo_stream: turbo_stream_update_flash }
     end
   end
 

@@ -8,6 +8,8 @@ describe VersionInfo::Component, type: :component do
   end
 
   describe '#latest_version' do
+    before { UpdateCheck.instance.reset! }
+
     it 'returns the latest version', vcr: { cassette_name: 'version' } do
       expect(component.latest_version).to eq 'v0.15.1'
     end
@@ -71,6 +73,8 @@ describe VersionInfo::Component, type: :component do
 
   describe '#latest_release_url' do
     subject { component.latest_release_url }
+
+    before { UpdateCheck.instance.clear_cache! }
 
     context 'when latest version is present', vcr: 'version' do
       it do

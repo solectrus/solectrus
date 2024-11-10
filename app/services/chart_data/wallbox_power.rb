@@ -10,13 +10,13 @@ class ChartData::WallboxPower < ChartData::Base
             label: I18n.t("sensors.#{chart_sensor}"),
             data: data.map(&:second),
             stack: chart_sensor == :wallbox_power ? nil : 'Power-Splitter',
-          }.merge(style(chart_sensor))
+          }.merge(style(chart_sensor, split: chart.key?(:wallbox_power_grid)))
         end,
     }
   end
 
   def chart
-    @chart ||= splitted_chart? ? splitted_chart : simple_chart
+    @chart ||= splitting_allowed? ? splitted_chart : simple_chart
   end
 
   def simple_chart
@@ -27,28 +27,28 @@ class ChartData::WallboxPower < ChartData::Base
   end
 
   def splitted_chart # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-    chart =
+    raw_chart =
       PowerChart.new(sensors: %i[wallbox_power wallbox_power_grid]).call(
         timeframe,
         fill: !timeframe.current?,
       )
 
-    unless chart.key?(:wallbox_power) && chart.key?(:wallbox_power_grid)
+    unless raw_chart.key?(:wallbox_power) && raw_chart.key?(:wallbox_power_grid)
       # No data for wallbox_power_grid is present, return simple chart instead
-      return chart
+      return raw_chart
     end
 
-    wallbox_power = chart[:wallbox_power]
+    wallbox_power = raw_chart[:wallbox_power]
 
     wallbox_power_grid =
       wallbox_power.map.with_index do |(timestamp, power), index|
-        power_grid = chart.dig(:wallbox_power_grid, index)&.second.to_f
+        power_grid = raw_chart.dig(:wallbox_power_grid, index)&.second.to_f
         [timestamp, power ? [power, power_grid].min : nil]
       end
 
     wallbox_power_pv =
       wallbox_power.map.with_index do |(timestamp, power), index|
-        power_grid = chart.dig(:wallbox_power_grid, index)&.second.to_f
+        power_grid = raw_chart.dig(:wallbox_power_grid, index)&.second.to_f
         [timestamp, power ? [(power - power_grid), 0].max : nil]
       end
 
@@ -65,8 +65,8 @@ class ChartData::WallboxPower < ChartData::Base
     ]
   end
 
-  def style(chart_sensor)
-    if splitted_chart?
+  def style(chart_sensor, split:)
+    if split
       {
         fill: 'origin',
         # Base color, will be changed to gradient in JS
@@ -102,10 +102,10 @@ class ChartData::WallboxPower < ChartData::Base
     end
   end
 
-  def splitted_chart?
-    return false unless SensorConfig.x.exists?(:wallbox_power_grid)
-
+  def splitting_allowed?
     # Because data is only available hourly we can't use for line charts
-    !timeframe.now? && !timeframe.day?
+    return false if timeframe.short?
+
+    SensorConfig.x.exists?(:wallbox_power_grid)
   end
 end

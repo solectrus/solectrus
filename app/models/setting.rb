@@ -22,6 +22,8 @@ class Setting < RailsSettings::Base
   field :operator_name, type: :string
   field :opportunity_costs, type: :boolean, default: false
 
+  field :summary_config, type: :json, default: {}
+
   def self.seed!
     Setting.setup_id = nil if Setting.setup_id.to_i.zero?
     Setting.setup_id ||= (Price.first&.created_at || Time.current).to_i

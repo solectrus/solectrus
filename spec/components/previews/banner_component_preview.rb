@@ -2,14 +2,11 @@
 class BannerComponentPreview < ViewComponent::Preview
   # @!group Non-Admin
   def pending_non_admin
-    render Banner::Component.new registration_status: 'pending',
-                                 admin: false,
-                                 prompt: false
+    render Banner::Component.new registration_status: 'pending', admin: false
   end
 
   def unregistered_non_admin
     render Banner::Component.new registration_status: 'unregistered',
-                                 prompt: true,
                                  admin: false
   end
   # @!endgroup
@@ -17,14 +14,11 @@ class BannerComponentPreview < ViewComponent::Preview
   # @!group Admin
   def unregistered_admin
     render Banner::Component.new registration_status: 'unregistered',
-                                 prompt: true,
                                  admin: true
   end
 
   def pending_admin
-    render Banner::Component.new registration_status: 'pending',
-                                 admin: true,
-                                 prompt: false
+    render Banner::Component.new registration_status: 'pending', admin: true
   end
   # @!endgroup
 end
