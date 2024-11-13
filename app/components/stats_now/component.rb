@@ -13,7 +13,7 @@ class StatsNow::Component < ViewComponent::Base
     #
     # If we have no data (e.g. right after installation or
     # resetting the summaries), we assume an estimated value of 5 KW
-    @max_flow ||= peak ? peak.values.max : 5000
+    @max_flow ||= peak ? peak.values.compact.max : 5000
   end
 
   def timeframe
