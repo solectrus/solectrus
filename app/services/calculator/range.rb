@@ -5,7 +5,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     @timeframe = timeframe
 
     data = sections
-    if timeframe.today?
+    if timeframe.starts_today?
       # Because the Power-Splitter runs not in real-time, we need to correct the
       # *_power_grid values, so their total matches grid_import_power
       data.each do |entry|

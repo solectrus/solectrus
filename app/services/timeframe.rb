@@ -67,6 +67,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def starts_today?
+    current? && effective_beginning_date.today?
+  end
+
   def today?
     day? && current?
   end
