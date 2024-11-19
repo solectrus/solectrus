@@ -15,7 +15,7 @@
     "@hotwired/turbo-rails": "^8.0.12",
     "chart.js": "^4.4.6",
     "chartjs-adapter-date-fns": "^3.0.0",
-    "chartjs-plugin-zoom": "^2.0.1",
+    "chartjs-plugin-zoom": "^2.1.0",
     "date-fns": "^4.1.0",
     "el-transition": "^0.0.7",
     "morphdom": "^2.7.4",
