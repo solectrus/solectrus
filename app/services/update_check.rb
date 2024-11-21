@@ -1,19 +1,23 @@
-class UpdateCheck
+class UpdateCheck # rubocop:disable Metrics/ClassLength
   include Singleton
 
-  %i[
-    sponsoring?
-    eligible_for_free?
-    prompt?
-    simple_prompt?
-    unregistered?
-    skipped_prompt?
-    skip_prompt!
-    latest_version
-    registration_status
-    clear_cache!
-  ].each do |method|
-    define_singleton_method(method) { instance.public_send(method) }
+  def initialize
+    @mutex = Mutex.new
+    clear_local_cache!
+  end
+
+  class << self
+    delegate :sponsoring?,
+             :eligible_for_free?,
+             :prompt?,
+             :simple_prompt?,
+             :unregistered?,
+             :skipped_prompt?,
+             :skip_prompt!,
+             :latest_version,
+             :registration_status,
+             :clear_cache!,
+             to: :instance
   end
 
   def latest_version
@@ -22,11 +26,11 @@ class UpdateCheck
 
   # One of: unregistered, pending, complete, unknown
   def registration_status
-    latest[:registration_status].to_s.inquiry
+    latest[:registration_status]
   end
 
   def subscription_plan
-    latest[:subscription_plan].to_s.inquiry
+    latest[:subscription_plan]
   end
 
   def sponsoring?
@@ -34,11 +38,11 @@ class UpdateCheck
   end
 
   def eligible_for_free?
-    registration_status.complete? && !prompt? && !sponsoring?
+    registration_status == 'complete' && !prompt? && !sponsoring?
   end
 
   def prompt?
-    registration_status.complete? && latest[:prompt].present?
+    registration_status == 'complete' && latest[:prompt].present?
   end
 
   def simple_prompt?
@@ -54,69 +58,97 @@ class UpdateCheck
   end
 
   def latest
-    @latest ||=
-      if Rails.env.development?
-        # :nocov:
-        { registration_status: 'complete' }
-        # :nocov:
-      elsif cached?
-        cached_latest
-      else
-        http_request
-      end
+    return { registration_status: 'complete' } if Rails.env.development?
+
+    local_cache ||
+      @mutex.synchronize { local_cache || redis_cache || fetch_remote_data }
   end
 
   def cached?
-    Rails.cache.exist?(cache_key)
+    (local_cache || redis_cache).present?
   end
 
   def clear_cache!
     Rails.cache.delete(cache_key)
-    @latest = nil
+    clear_local_cache!
   end
 
   def skip_prompt!
     data = latest.merge(prompt: 'skipped')
-    Rails.cache.write(cache_key, data, expires_in: 24.hours)
-    @latest = data
-  end
 
-  def reset!
-    @latest = nil
+    update_cache(data, expires_in: 24.hours)
   end
 
   private
 
-  def http_request
-    uri = URI(update_url)
-    response =
-      Net::HTTP.start(
-        uri.host,
-        uri.port,
-        use_ssl: true,
-        verify_mode:,
-        open_timeout: 10,
-        read_timeout: 5,
-      ) do |http|
-        request = Net::HTTP::Get.new(uri.request_uri)
-        request.initialize_http_header(
-          'Accept' => 'application/json',
-          'User-Agent' => UserAgentBuilder.instance.to_s,
-        )
+  def local_cache
+    @local_cache if Time.current < @local_cache_expires_at
+  end
 
-        http.request(request)
-      end
+  def update_cache(data, expires_in:)
+    update_local_cache(data)
+    update_redis_cache(data, expires_in: expires_in)
+  end
 
-    json_from(response)
+  def update_local_cache(data)
+    @local_cache = data
+    @local_cache_expires_at = 5.minutes.from_now
+  end
+
+  def clear_local_cache!
+    @local_cache = nil
+    @local_cache_expires_at = Time.current
+  end
+
+  def update_redis_cache(data, expires_in:)
+    Rails.cache.write(cache_key, data, expires_in:)
+  end
+
+  def fetch_remote_data
+    response = fetch_http_response
+    unless response.is_a?(Net::HTTPSuccess)
+      Rails.logger.error "UpdateCheck failed: Error #{response.code} - #{response.message}"
+      return cached_unknown
+    end
+
+    json = json_from(response)
+    update_cache(json, expires_in: expiration_from(response) || 12.hours)
+    json
   rescue Net::OpenTimeout, Net::ReadTimeout => e
     Rails.logger.error "UpdateCheck failed with timeout: #{e}"
-    unknown
+    cached_unknown
   rescue OpenSSL::SSL::SSLError => e
     Rails.logger.error "UpdateCheck failed with SSL error: #{e}"
-    unknown
+    cached_unknown
   rescue StandardError => e
     Rails.logger.error "UpdateCheck failed: #{e}"
-    unknown
+    cached_unknown
+  end
+
+  def cached_unknown
+    json = { registration_status: 'unknown' }
+    update_cache(json, expires_in: 5.minutes)
+    json
+  end
+
+  def fetch_http_response
+    uri = URI(update_url)
+    Net::HTTP.start(
+      uri.host,
+      uri.port,
+      use_ssl: true,
+      verify_mode:,
+      open_timeout: 10,
+      read_timeout: 5,
+    ) do |http|
+      request = Net::HTTP::Get.new(uri.request_uri)
+      request.initialize_http_header(
+        'Accept' => 'application/json',
+        'User-Agent' => UserAgentBuilder.instance.to_s,
+      )
+
+      http.request(request)
+    end
   end
 
   def update_url
@@ -139,34 +171,33 @@ class UpdateCheck
     end
   end
 
-  def cached_latest
-    Rails.cache.read(cache_key)
+  def redis_cache
+    result = Rails.cache.read(cache_key)
+    update_local_cache(result) if result
+    result
   end
 
   def json_from(response)
-    unless response.is_a?(Net::HTTPSuccess)
-      Rails.logger.error "UpdateCheck failed: Error #{response.code} - #{response.message}"
-      return unknown
-    end
+    result = JSON.parse(response.body, symbolize_names: true)
+    raise StandardError, 'Invalid response' unless valid_json?(result)
 
-    parsed_body = JSON.parse(response.body, symbolize_names: true)
-    expires_in = expiration_from(response) || 12.hours
-    Rails.cache.write(cache_key, parsed_body, expires_in:)
-    parsed_body
+    result
   end
 
-  def unknown
-    data = { registration_status: 'unknown' }
-    Rails.cache.write(cache_key, data, expires_in: 5.minutes)
-    data
+  def valid_json?(response)
+    response.is_a?(Hash) && response.key?(:version) &&
+      response.key?(:registration_status)
   end
 
   def expiration_from(response)
-    max_age = response['Cache-Control'][/max-age=(\d+)/, 1]
+    cache_control = response['Cache-Control']
+    return unless cache_control
+
+    max_age = cache_control[/max-age=(\d+)/, 1]
     max_age&.to_i
   end
 
   def cache_key
-    ['UpdateCheck', Rails.configuration.x.git.commit_version]
+    "UpdateCheck:#{Rails.configuration.x.git.commit_version}"
   end
 end

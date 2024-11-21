@@ -3,11 +3,7 @@ describe UpdateCheck do
 
   before do
     Rails.application.load_seed
-    reset_memoization
-  end
-
-  def reset_memoization
-    UpdateCheck.instance.reset!
+    instance.clear_cache!
   end
 
   describe '.latest' do
@@ -22,7 +18,7 @@ describe UpdateCheck do
 
       it 'has shortcuts' do
         expect(instance.latest_version).to eq('v0.15.1')
-        expect(instance.registration_status).to be_unregistered
+        expect(instance.registration_status).to eq('unregistered')
         expect(instance).to be_unregistered
       end
     end
@@ -42,7 +38,7 @@ describe UpdateCheck do
       end
 
       it 'has unknown shortcuts' do
-        expect(instance.registration_status).to be_unknown
+        expect(instance.registration_status).to eq('unknown')
       end
 
       it 'logs the error' do
@@ -67,7 +63,7 @@ describe UpdateCheck do
       end
 
       it 'has blank shortcuts' do
-        expect(instance.registration_status).to be_unknown
+        expect(instance.registration_status).to eq('unknown')
       end
 
       it 'logs the error' do
@@ -94,7 +90,7 @@ describe UpdateCheck do
       end
 
       it 'has blank shortcuts' do
-        expect(instance.registration_status).to be_unknown
+        expect(instance.registration_status).to eq('unknown')
       end
 
       it 'logs the error' do
@@ -106,7 +102,10 @@ describe UpdateCheck do
       end
     end
 
-    context 'when response is invalid', vcr: { cassette_name: 'version' } do
+    context 'when response cannot be parsed',
+            vcr: {
+              cassette_name: 'version',
+            } do
       before do
         allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
         allow(Rails.logger).to receive(:error)
@@ -119,7 +118,7 @@ describe UpdateCheck do
       end
 
       it 'has blank shortcuts' do
-        expect(instance.registration_status).to be_unknown
+        expect(instance.registration_status).to eq('unknown')
       end
 
       it 'logs the error' do
@@ -127,6 +126,31 @@ describe UpdateCheck do
 
         expect(Rails.logger).to have_received(:error).with(
           'UpdateCheck failed: JSON::ParserError',
+        ).once
+      end
+    end
+
+    context 'when response is invalid', vcr: { cassette_name: 'version' } do
+      before do
+        allow(JSON).to receive(:parse).and_return({ foo: 42 })
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it { is_expected.to eq(registration_status: 'unknown') }
+
+      it 'has no version' do
+        expect(instance.latest_version).to be_nil
+      end
+
+      it 'has blank shortcuts' do
+        expect(instance.registration_status).to eq('unknown')
+      end
+
+      it 'logs the error' do
+        latest
+
+        expect(Rails.logger).to have_received(:error).with(
+          'UpdateCheck failed: Invalid response',
         ).once
       end
     end
@@ -211,12 +235,8 @@ describe UpdateCheck do
         :skipped_prompt?,
       ).from(false).to(true)
 
-      reset_memoization
-      expect(instance.skipped_prompt?).to be true
-
       # The cache expires after some time
       travel 24.hours + 1 do
-        reset_memoization
         expect(instance.skipped_prompt?).to be false
       end
     end
@@ -226,20 +246,30 @@ describe UpdateCheck do
     include_context 'with cache'
 
     it 'caches the version' do
+      allow(Rails.logger).to receive(:error)
+
       # The first request will be cached
       VCR.use_cassette('version') { expect(instance.latest).to be_present }
 
       # The second request is cached, so the cassette is not used
-      expect(instance.cached?).to be true
+      expect(instance).to be_cached
       expect(instance.latest).to be_present
 
       # The cache expires after some time
-      travel 12.hours + 1 do
-        expect(instance.cached?).to be false
+      travel 12.hours + 1.second do
+        expect(instance).not_to be_cached
+
+        # New request is made
+        instance.latest
+        expect(Rails.logger).to have_received(:error).with(
+          /An HTTP request has been made/,
+        )
       end
     end
 
     it 'can be reset' do
+      allow(Rails.logger).to receive(:error)
+
       # Fill the cache
       VCR.use_cassette('version') { instance.latest }
 
@@ -247,6 +277,8 @@ describe UpdateCheck do
         instance,
         :cached?,
       ).from(true).to(false)
+
+      expect(Rails.logger).not_to have_received(:error)
     end
   end
 end
