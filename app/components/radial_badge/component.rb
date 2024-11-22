@@ -25,7 +25,7 @@ class RadialBadge::Component < ViewComponent::Base
     when 1..33
       'border-red-200 dark:border-red-900'
     when 34..66
-      'border-orange-200 dark:border-orange-900'
+      'border-orange-200 dark:border-yellow-900'
     when 66..100
       'border-green-200 dark:border-green-900'
     end
@@ -36,11 +36,11 @@ class RadialBadge::Component < ViewComponent::Base
 
     case percent
     when 0..33
-      'xl:tall:bg-red-200 dark:xl:tall:bg-red-950'
+      'xl:tall:bg-red-200 dark:xl:tall:bg-red-900'
     when 34..66
-      'xl:tall:bg-orange-200 dark:xl:tall:bg-orange-950'
+      'xl:tall:bg-orange-200 dark:xl:tall:bg-yellow-900'
     when 66..100
-      'xl:tall:bg-green-200 dark:xl:tall:bg-green-950'
+      'xl:tall:bg-green-200 dark:xl:tall:bg-green-900'
     end
   end
 
@@ -49,11 +49,11 @@ class RadialBadge::Component < ViewComponent::Base
 
     case percent
     when 0..33
-      'text-red-600 dark:text-red-700 xl:tall:dark:text-red-600'
+      'text-red-600 dark:text-red-600 xl:tall:dark:text-red-400'
     when 34..66
-      'text-orange-600 dark:text-orange-700 xl:tall:dark:text-orange-700'
+      'text-orange-600 dark:text-orange-600 xl:tall:dark:text-orange-500'
     when 66..100
-      'text-green-600 dark:text-green-700 xl:tall:dark:text-green-600'
+      'text-green-600 dark:text-green-600 xl:tall:dark:text-green-500'
     end
   end
 end
