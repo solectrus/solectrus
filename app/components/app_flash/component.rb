@@ -25,7 +25,7 @@ class AppFlash::Component < ViewComponent::Base
 
   def icon_class
     if notice
-      'far fa-check-circle text-green-800 dark:text-green-500'
+      'far fa-circle-check text-green-800 dark:text-green-500'
     elsif alert
       'fas fa-circle-exclamation text-red-700 dark:text-red-300'
     end
