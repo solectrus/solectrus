@@ -2,8 +2,7 @@ class UpdateCheck # rubocop:disable Metrics/ClassLength
   include Singleton
 
   def initialize
-    @mutex = Mutex.new
-    clear_local_cache!
+    @local_cache = Concurrent::Map.new
   end
 
   class << self
@@ -60,12 +59,7 @@ class UpdateCheck # rubocop:disable Metrics/ClassLength
   def latest
     return { registration_status: 'complete' } if Rails.env.development?
 
-    local_cache ||
-      @mutex.synchronize { local_cache || redis_cache || fetch_remote_data }
-  end
-
-  def cached?
-    (local_cache || redis_cache).present?
+    local_cache || rails_cache || fetch_remote_data
   end
 
   def clear_cache!
@@ -81,26 +75,25 @@ class UpdateCheck # rubocop:disable Metrics/ClassLength
 
   private
 
-  def local_cache
-    @local_cache if Time.current < @local_cache_expires_at
-  end
-
   def update_cache(data, expires_in:)
     update_local_cache(data)
-    update_redis_cache(data, expires_in: expires_in)
+    update_rails_cache(data, expires_in: expires_in)
+  end
+
+  def local_cache
+    cache = @local_cache[cache_key]
+    cache[:data] if cache && Time.current < cache[:expires_at]
   end
 
   def update_local_cache(data)
-    @local_cache = data
-    @local_cache_expires_at = 5.minutes.from_now
+    @local_cache[cache_key] = { data: data, expires_at: 5.minutes.from_now }
   end
 
   def clear_local_cache!
-    @local_cache = nil
-    @local_cache_expires_at = Time.current
+    @local_cache.delete(cache_key)
   end
 
-  def update_redis_cache(data, expires_in:)
+  def update_rails_cache(data, expires_in:)
     Rails.cache.write(cache_key, data, expires_in:)
   end
 
@@ -173,7 +166,7 @@ class UpdateCheck # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def redis_cache
+  def rails_cache
     result = Rails.cache.read(cache_key)
     update_local_cache(result) if result
     result

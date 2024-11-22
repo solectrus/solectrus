@@ -6,6 +6,20 @@ describe UpdateCheck do
     instance.clear_cache!
   end
 
+  # Some helper methods to check the cache
+  def cached_local?
+    instance.__send__(:local_cache).present?
+  end
+
+  def cached_rails?
+    Rails.cache.exist?(instance.__send__(:cache_key))
+  end
+
+  def cached?
+    cached_local? || cached_rails?
+  end
+  ##############
+
   describe '.latest' do
     subject(:latest) { instance.latest }
 
@@ -262,12 +276,26 @@ describe UpdateCheck do
       VCR.use_cassette('version') { expect(instance.latest).to be_present }
 
       # The second request is cached, so the cassette is not used
-      expect(instance).to be_cached
+      expect(cached?).to be true
       expect(instance.latest).to be_present
 
-      # The cache expires after some time
+      # After a minute, both the local cache and the Rails cache are present
+      travel 1.minute do
+        expect(cached?).to be true
+        expect(cached_local?).to be true
+        expect(cached_rails?).to be true
+      end
+
+      # After 5 minutes, the local cache is blank, but the Rails cache is still present
+      travel 5.minutes + 1.second do
+        expect(cached?).to be true
+        expect(cached_local?).to be false
+        expect(cached_rails?).to be true
+      end
+
+      # After 12 hours, both caches are blank
       travel 12.hours + 1.second do
-        expect(instance).not_to be_cached
+        expect(cached?).to be false
 
         # New request is made
         instance.latest
@@ -283,10 +311,9 @@ describe UpdateCheck do
       # Fill the cache
       VCR.use_cassette('version') { instance.latest }
 
-      expect { described_class.instance.clear_cache! }.to change(
-        instance,
-        :cached?,
-      ).from(true).to(false)
+      expect { described_class.instance.clear_cache! }.to change {
+        cached?
+      }.from(true).to(false)
 
       expect(Rails.logger).not_to have_received(:error)
     end
