@@ -112,7 +112,9 @@ class UpdateCheck # rubocop:disable Metrics/ClassLength
     end
 
     json = json_from(response)
-    update_cache(json, expires_in: expiration_from(response) || 12.hours)
+    expires_in = expiration_from(response) || 12.hours
+    update_cache(json, expires_in:)
+    Rails.logger.info "Checked for update availability, valid for #{expires_in / 60} minutes"
     json
   rescue Net::OpenTimeout, Net::ReadTimeout => e
     Rails.logger.error "UpdateCheck failed with timeout: #{e}"

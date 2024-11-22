@@ -9,6 +9,8 @@ describe UpdateCheck do
   describe '.latest' do
     subject(:latest) { instance.latest }
 
+    before { allow(Rails.logger).to receive(:info) }
+
     context 'when the request succeeds', vcr: { cassette_name: 'version' } do
       it do
         is_expected.to eq(
@@ -20,6 +22,14 @@ describe UpdateCheck do
         expect(instance.latest_version).to eq('v0.15.1')
         expect(instance.registration_status).to eq('unregistered')
         expect(instance).to be_unregistered
+      end
+
+      it 'adds logging' do
+        latest
+
+        expect(Rails.logger).to have_received(:info).with(
+          'Checked for update availability, valid for 720 minutes',
+        )
       end
     end
 
