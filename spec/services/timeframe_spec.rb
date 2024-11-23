@@ -7,7 +7,9 @@ describe Timeframe do
     )
   end
 
-  before { travel_to Time.zone.local(2022, 10, 13, 10, 0, 0) }
+  let(:today) { Date.new(2022, 10, 13) }
+
+  before { travel_to today.to_time.change(hour: 10) }
 
   describe 'static methods' do
     describe '.now' do
@@ -134,6 +136,10 @@ describe Timeframe do
       expect(decoder.current?).to be(true)
     end
 
+    it 'is starts_today' do
+      expect(decoder.starts_today?).to be(true)
+    end
+
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
@@ -212,6 +218,10 @@ describe Timeframe do
       expect(decoder.current?).to be(false)
     end
 
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
     it 'is past' do
       expect(decoder.past?).to be(true)
     end
@@ -238,6 +248,10 @@ describe Timeframe do
 
     it 'is not current' do
       expect(decoder.current?).to be(false)
+    end
+
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
     end
 
     it 'is not past' do
@@ -270,10 +284,14 @@ describe Timeframe do
   end
 
   context 'when string is current day' do
-    let(:string) { '2022-10-13' }
+    let(:string) { today.to_s }
 
     it 'is current' do
       expect(decoder.current?).to be(true)
+    end
+
+    it 'is starts_today' do
+      expect(decoder.starts_today?).to be(true)
     end
 
     it 'is not past' do
@@ -303,6 +321,10 @@ describe Timeframe do
     it 'is current day' do
       expect(decoder.current?).to be(true)
       expect(decoder.day?).to be(true)
+    end
+
+    it 'is starts_today' do
+      expect(decoder.starts_today?).to be(true)
     end
 
     it 'is today' do
@@ -383,6 +405,10 @@ describe Timeframe do
       expect(decoder.current?).to be(false)
     end
 
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
     it 'is past' do
       expect(decoder.past?).to be(true)
     end
@@ -405,6 +431,10 @@ describe Timeframe do
 
     it 'is not current' do
       expect(decoder.current?).to be(false)
+    end
+
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
     end
 
     it 'is not past' do
@@ -431,6 +461,10 @@ describe Timeframe do
       expect(decoder.current?).to be(true)
     end
 
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
@@ -446,6 +480,14 @@ describe Timeframe do
     it 'has passed 3 days' do
       expect(decoder.days_passed).to eq(3)
     end
+
+    context "when it's the first day" do
+      let(:today) { Date.new(2022, 10, 10) }
+
+      it 'is starts_today' do
+        expect(decoder.starts_today?).to be(true)
+      end
+    end
   end
 
   context 'when string is "week"' do
@@ -454,6 +496,10 @@ describe Timeframe do
     it 'is current week' do
       expect(decoder.current?).to be(true)
       expect(decoder.week?).to be(true)
+    end
+
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
     end
 
     it 'can paginate' do
@@ -578,6 +624,10 @@ describe Timeframe do
       expect(decoder.current?).to be(false)
     end
 
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
     it 'is past' do
       expect(decoder.past?).to be(true)
     end
@@ -596,6 +646,10 @@ describe Timeframe do
 
     it 'is not current' do
       expect(decoder.current?).to be(false)
+    end
+
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
     end
 
     it 'is not past' do
@@ -622,6 +676,10 @@ describe Timeframe do
       expect(decoder.current?).to be(true)
     end
 
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
@@ -637,6 +695,14 @@ describe Timeframe do
     it 'has passed 12 days' do
       expect(decoder.days_passed).to eq(12)
     end
+
+    context "when it's the first day" do
+      let(:today) { Date.new(2022, 10, 1) }
+
+      it 'is starts_today' do
+        expect(decoder.starts_today?).to be(true)
+      end
+    end
   end
 
   context 'when string is "month"' do
@@ -645,6 +711,10 @@ describe Timeframe do
     it 'is current month' do
       expect(decoder.current?).to be(true)
       expect(decoder.month?).to be(true)
+    end
+
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
     end
 
     it 'can paginate' do
@@ -741,6 +811,10 @@ describe Timeframe do
       expect(decoder.current?).to be(false)
     end
 
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
@@ -765,6 +839,10 @@ describe Timeframe do
       expect(decoder.current?).to be(true)
     end
 
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
@@ -780,6 +858,14 @@ describe Timeframe do
     it 'has passed 285 days' do
       expect(decoder.days_passed).to eq(285)
     end
+
+    context "when it's the first day" do
+      let(:today) { Date.new(2022, 1, 1) }
+
+      it 'is starts_today' do
+        expect(decoder.starts_today?).to be(true)
+      end
+    end
   end
 
   context 'when string is "year"' do
@@ -788,6 +874,10 @@ describe Timeframe do
     it 'is current year' do
       expect(decoder.current?).to be(true)
       expect(decoder.year?).to be(true)
+    end
+
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
     end
 
     it 'can paginate' do
@@ -876,6 +966,10 @@ describe Timeframe do
       expect(decoder.current?).to be(true)
     end
 
+    it 'is not starts_today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
     it 'is not past' do
       expect(decoder.past?).to be(false)
     end
@@ -891,6 +985,14 @@ describe Timeframe do
     it 'has passed 1260 days' do
       # 2019-05-02 (min_ate) to 2022-10-13 (current date) = 1260 days
       expect(decoder.days_passed).to eq(1260)
+    end
+
+    context "when it's the first day" do
+      let(:today) { Date.new(2019, 5, 2) }
+
+      it 'is starts_today' do
+        expect(decoder.starts_today?).to be(true)
+      end
     end
   end
 

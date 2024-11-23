@@ -1,7 +1,7 @@
 describe Calculator::Range do
   let(:calculator) { described_class.new(timeframe) }
 
-  let(:timeframe) { Timeframe.new('2022-11-01') }
+  let(:timeframe) { Timeframe.day }
   let(:updated_at) { 5.minutes.ago }
 
   before do

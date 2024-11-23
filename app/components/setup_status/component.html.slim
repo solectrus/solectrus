@@ -1,4 +1,4 @@
 - if prompt?
-  = link_to registration_status.complete? ? sponsoring_path : registration_path do
+  = link_to registration_status == 'complete' ? sponsoring_path : registration_path do
     div data-controller= 'tippy' title= tooltip
       i.fa.fas.fa-lg.fa-circle-exclamation class= (unknown? ? 'text-red-300' : 'text-yellow-300 dark:text-pink-400')
