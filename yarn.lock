@@ -1427,15 +1427,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chartjs-plugin-zoom@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "chartjs-plugin-zoom@npm:2.1.0"
+"chartjs-plugin-zoom@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "chartjs-plugin-zoom@npm:2.2.0"
   dependencies:
     "@types/hammerjs": "npm:^2.0.45"
     hammerjs: "npm:^2.0.8"
   peerDependencies:
     chart.js: ">=3.2.0"
-  checksum: 10c0/a4477e49f588d3fdda1053197ae9c87579053266298ae93e4091f9fbe6b39e4e12d605ef6320a69aac982e30835361b868580cd242239f5f9c6e91f3226710a3
+  checksum: 10c0/15817e912dcc0c62e66121d10c7f1af04cd788c8c831b9ed8f822e2835501b8816143e10b5b4f286a9afddc91492c3d7104b49e7226a3fb682b94412f9ee4087
   languageName: node
   linkType: hard
 
@@ -4153,7 +4153,7 @@ __metadata:
     autoprefixer: "npm:^10.4.20"
     chart.js: "npm:^4.4.6"
     chartjs-adapter-date-fns: "npm:^3.0.0"
-    chartjs-plugin-zoom: "npm:^2.1.0"
+    chartjs-plugin-zoom: "npm:^2.2.0"
     cypress: "npm:^13.16.0"
     date-fns: "npm:^4.1.0"
     el-transition: "npm:^0.0.7"
