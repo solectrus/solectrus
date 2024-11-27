@@ -59,9 +59,6 @@ gem 'http_accept_language'
 # Ruby on Rails applications monitoring (https://www.rorvswild.com)
 gem 'rorvswild'
 
-# CSV Reading and Writing (https://github.com/ruby/csv)
-gem 'csv'
-
 # Class to build custom data structures, similar to a Hash. (https://github.com/ruby/ostruct)
 gem 'ostruct'
 
