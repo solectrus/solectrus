@@ -8,7 +8,7 @@ class BalanceSegment::Component < ViewComponent::Base
 
   attr_reader :sensor, :parent, :peak
 
-  delegate :calculator, to: :parent
+  delegate :calculator, :timeframe, to: :parent
 
   def url
     root_path(
