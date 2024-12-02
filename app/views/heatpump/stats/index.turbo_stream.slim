@@ -1,0 +1,74 @@
+= turbo_stream.update "nav-#{timeframe}" do
+  = render Timeframe::Component.new(timeframe:)
+
+- if timeframe.now? && SensorConfig.x.exists?(:heatpump_status)
+  = turbo_stream.update "status-#{timeframe}" do
+    = render Status::Component.new time: calculator.time,
+                                   status: calculator.heatpump_status
+
+turbo-stream action="morph" target="stats-#{timeframe}" children-only= true
+  template
+    div
+      .h-full.w-full.flex.flex-col.gap-3
+        - unless timeframe.now?
+          .md:ml-24
+            = render SplittedCosts::Component.new( \
+                costs: calculator.heatpump_costs,
+                power_grid_ratio: calculator.heatpump_power_grid_ratio,
+              )
+
+        .flex-1.flex.gap-10
+          // Clip
+          .flex.gap-10.items-end.py-4.px-5
+            .w-5.border-b-2.border-t-2.border-l-2.border-slate-500.h-full.flex.justify-center
+              .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg
+                = link_to heatpump_home_path(sensor: 'heatpump_heating_power', timeframe:),
+                          class: 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 py-2 md:py-4',
+                          data: { turbo_prefetch: 'false', turbo_frame: "chart-#{timeframe}", turbo_action: 'replace' } do
+                  - if timeframe.now?
+                    = Number::Component.new(value: calculator.heatpump_heating_power).to_watt
+                  - else
+                    = Number::Component.new(value: calculator.heatpump_heating_power).to_watt_hour
+                  .text-xs.uppercase.tracking-wide.opacity-60
+                    'Erzeugte Wärme
+
+          // Inner content
+          = render SegmentContainer::Component.new tippy_placement: 'right',
+                                                    calculator:,
+                                                    timeframe:,
+                                                    sensor: '' do |balance|
+            - balance.with_segment :heatpump_heating_env,
+                                    color_class: [calculator.heatpump_heating? ? 'bg-sky-500/40 dark:bg-sky-700/70' : 'bg-slate-500/40 dark:bg-slate-400/40', 'relative'],
+                                    title: nil,
+                                    percent: calculator.heatpump_heating_env_percent || 90 do
+              - if calculator.outdoor_temp
+                = link_to heatpump_home_path(sensor: 'outdoor_temp', timeframe:),
+                          class: 'absolute top-5 left-5 text-slate-800 dark:text-slate-300',
+                          data: { \
+                            turbo_prefetch: 'false',
+                            turbo_frame: "chart-#{timeframe}",
+                            turbo_action: 'replace',
+                            controller: 'tippy',
+                          },
+                          title: SensorConfig.x.name(:outdoor_temp) do
+                  = Number::Component.new(value: calculator.outdoor_temp).to_grad_celsius
+
+              - if calculator.heatpump_score
+                = link_to heatpump_home_path(sensor: 'heatpump_score', timeframe:),
+                          class: 'absolute top-3 right-3',
+                          data: { turbo_prefetch: 'false', turbo_frame: "chart-#{timeframe}", turbo_action: 'replace' } do
+                  = render HeatpumpScore::Component.new(calculator.heatpump_score)
+
+              .flex.gap-5
+                - if calculator.heatpump_cop
+                  = link_to heatpump_home_path(sensor: 'heatpump_cop', timeframe:),
+                            data: { turbo_prefetch: 'false', turbo_frame: "chart-#{timeframe}", turbo_action: 'replace' } do
+                    = render RadialBadge::Component.new(title: t('calculator.heatpump_cop')) do
+                      = Number::Component.new(value: calculator.heatpump_cop).to_plain
+
+            - balance.with_segment :heatpump_power,
+                                    inline: true,
+                                    color_class: 'bg-slate-600 dark:text-slate-300',
+                                    percent: calculator.heatpump_heating? ? calculator.heatpump_heating_power_percent : 10,
+                                    title: 'Strom',
+                                    icon_class: false

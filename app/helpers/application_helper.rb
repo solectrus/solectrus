@@ -13,4 +13,8 @@ module ApplicationHelper
   def frame_id(prefix, timeframe: self.timeframe)
     "#{prefix}-#{timeframe}"
   end
+
+  def controller_namespace
+    @controller_namespace ||= controller_path.split('/').first
+  end
 end

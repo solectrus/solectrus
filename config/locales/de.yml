@@ -1,6 +1,9 @@
 de:
   layout:
     balance: Strombilanz
+    house: Haus
+    car: E-Auto
+    heatpump: Wärmepumpe
     essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS

@@ -236,11 +236,26 @@ export default class extends Controller<HTMLCanvasElement> {
               : '';
 
           if (isStacked) {
-            if (tooltipItem.dataset.stack && data.datasets.length) {
+            if (tooltipItem.dataset.stack && data.datasets.length == 4) {
+              // Heatpump for a Week/Month/Year/All
+              // TODO: Refactor this to be more generic
+
               // Sum is the value of the first dataset
               const sum = data.datasets[0].data[
                 tooltipItem.dataIndex
               ] as number;
+
+              if (sum)
+                result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+            } else if (tooltipItem.dataset.stack) {
+              // Heatpump for a Day (3 datasets) or Now (2 datasets)
+              // TODO: Refactor this to be more generic
+
+              const sum = data.datasets.reduce(
+                (acc, dataset) =>
+                  acc + (dataset.data[tooltipItem.dataIndex] as number),
+                0,
+              );
 
               if (sum)
                 result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
@@ -260,7 +275,15 @@ export default class extends Controller<HTMLCanvasElement> {
 
         footer: (tooltipItems) => {
           if (isStacked && tooltipItems.length) {
-            const sum = tooltipItems[0].parsed.y;
+            let sum: number;
+            if (tooltipItems.length == 4) {
+              sum = tooltipItems[0].parsed.y;
+            } else if (tooltipItems.length == 3) {
+              sum =
+                tooltipItems[0].parsed.y +
+                tooltipItems[1].parsed.y +
+                tooltipItems[2].parsed.y;
+            } else sum = 0;
 
             if (sum) return this.formattedNumber(sum);
           }

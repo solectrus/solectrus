@@ -76,6 +76,12 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
     end
   end
 
+  def to_km
+    return unless value
+
+    styled_number(formatted_number(value, max_precision: 0), unit: 'km')
+  end
+
   def to_eur_per_kwh(negative: nil, klass: nil)
     return unless value
 
@@ -121,6 +127,15 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
     styled_number(
       formatted_number(value, max_precision:, precision:),
       unit: '&deg;C'.html_safe,
+    )
+  end
+
+  def to_plain(max_precision: 1, precision: nil)
+    return unless value
+
+    styled_number(
+      formatted_number(value, max_precision:, precision:),
+      unit: nil,
     )
   end
 
@@ -198,7 +213,7 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
                   tag.strong(parts.first, class: 'font-medium'),
                   parts.second && tag.small("#{separator}#{parts.second}"),
                   '&nbsp;'.html_safe,
-                  tag.small(unit),
+                  (tag.small(unit) if unit),
                 ]
     end
   end

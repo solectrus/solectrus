@@ -5,7 +5,14 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     private
 
     helper_method def topnav_primary_items
-      [stats_item, essentials_item, top10_item]
+      [
+        house_item,
+        heatpump_item,
+        # TODO: Enable this later!
+        # car_item,
+        essentials_item,
+        top10_item,
+      ]
     end
 
     helper_method def topnav_secondary_items
@@ -27,25 +34,63 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       { name: '-' }
     end
 
-    def stats_item
+    def house_item
       {
-        name: t('layout.balance'),
-        href: root_path(sensor: 'inverter_power', timeframe: 'now'),
-        current: helpers.controller.is_a?(HomeController),
+        name: t('layout.house'),
+        text: false,
+        icon: 'home',
+        href: house_home_path(sensor: 'house_power', timeframe:),
+        current: helpers.controller.is_a?(House::HomeController),
+        data: {
+          controller: 'tippy',
+        },
+      }
+    end
+
+    def heatpump_item
+      {
+        name: t('layout.heatpump'),
+        text: false,
+        icon: 'fan',
+        href: heatpump_home_path(sensor: 'heatpump_heating_power', timeframe:),
+        current: helpers.controller.is_a?(Heatpump::HomeController),
+        data: {
+          controller: 'tippy',
+        },
+      }
+    end
+
+    def car_item
+      {
+        name: t('layout.car'),
+        text: false,
+        icon: 'car',
+        href: car_home_path(sensor: 'car_driving_distance', timeframe:),
+        current: helpers.controller.is_a?(Car::HomeController),
+        data: {
+          controller: 'tippy',
+        },
       }
     end
 
     def essentials_item
       {
         name: t('layout.essentials'),
+        text: false,
+        icon: 'grip',
         href: essentials_path,
         current: helpers.controller.is_a?(EssentialsController),
+        data: {
+          controller: 'tippy',
+        },
       }
     end
 
     def top10_item
       {
         name: t('layout.top10'),
+        text: false,
+        icon: 'trophy',
         href:
           top10_path(
             sensor:
@@ -60,6 +105,9 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
             calc: 'sum',
           ),
         current: helpers.controller.is_a?(Top10Controller),
+        data: {
+          controller: 'tippy',
+        },
       }
     end
 

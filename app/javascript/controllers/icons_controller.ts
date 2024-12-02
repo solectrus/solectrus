@@ -42,6 +42,11 @@ import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank';
 import { faLeaf } from '@fortawesome/free-solid-svg-icons/faLeaf';
 import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
 import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
+
+import { faScaleUnbalanced } from '@fortawesome/free-solid-svg-icons/faScaleUnbalanced';
+import { faGrip } from '@fortawesome/free-solid-svg-icons/faGrip';
+import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
+
 // -------------------------
 
 export default class extends Controller {
@@ -85,6 +90,9 @@ export default class extends Controller {
       faLeaf,
       faCompress,
       faExpand,
+      faScaleUnbalanced,
+      faGrip,
+      faTrophy,
     );
   }
 

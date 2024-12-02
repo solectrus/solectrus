@@ -1,6 +1,9 @@
 en:
   layout:
     balance: Power balance
+    house: House
+    car: EV
+    heatpump: Heat pump
     essentials: Essentials
     top10: Top 10
     about: About SOLECTRUS

@@ -1,0 +1,19 @@
+= turbo_stream.update frame_id('nav') do
+  = render Timeframe::Component.new(timeframe:)
+
+= turbo_stream.update frame_id('second-nav-desktop') do
+  = render Nav::Sub::Component.new do |c|
+    = c.with_items nav_items
+
+= turbo_stream.update frame_id('second-nav-mobile') do
+  = render Nav::Sub::Component.new do |c|
+    = c.with_items nav_items
+
+= turbo_stream.update frame_id('chart') do
+  .flex.flex-col.flex-auto.sm:gap-2
+    - unless timeframe.out_of_range?
+      = render ChartSelector::Component.new(sensor:, timeframe:, sensors: chart_sensors)
+      = render ChartLoader::Component.new(sensor:, timeframe:)
+
+      - if sensor == :inverter_power && timeframe.day?
+        = render ForecastComment::Component.new(calculator:, sensor:, timeframe:)

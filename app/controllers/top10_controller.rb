@@ -28,7 +28,7 @@ class Top10Controller < ApplicationController
   end
 
   def sensor_names
-    SensorConfig::POWER_SENSORS.select do |sensor|
+    SensorConfig::TOP10_SENSORS.select do |sensor|
       SensorConfig.x.exists?(sensor)
     end
   end

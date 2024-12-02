@@ -1,10 +1,11 @@
 class MenuItem::Component < ViewComponent::Base
-  def initialize(
+  def initialize( # rubocop:disable Metrics/ParameterLists
     name:,
     href: nil,
     data: {},
     sensor: nil,
     icon: nil,
+    text: true,
     current: false
   )
     super
@@ -14,6 +15,7 @@ class MenuItem::Component < ViewComponent::Base
     @sensor = sensor
 
     @icon = icon
+    @text = text
     @current = current
   end
 
@@ -21,7 +23,7 @@ class MenuItem::Component < ViewComponent::Base
     href&.start_with?('http') ? '_blank' : nil
   end
 
-  attr_reader :name, :href, :icon, :current, :data, :sensor
+  attr_reader :name, :href, :icon, :text, :current, :data, :sensor
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
@@ -47,6 +49,7 @@ class MenuItem::Component < ViewComponent::Base
             target:,
             class: [CSS_CLASSES, css_extra],
             data:,
+            title: name,
             'aria-current' => current ? 'page' : nil do
       render_inner(with_icon:)
     end
@@ -63,14 +66,14 @@ class MenuItem::Component < ViewComponent::Base
       if with_icon
         concat(
           if icon
-            tag.i(class: "w-6 text-gray-500 fa fa-fw fa-#{@icon} fa-lg")
+            tag.i(class: "fa fa-fw fa-#{@icon} fa-xl")
           else
             tag.span(class: 'w-6 block')
           end,
         )
       end
 
-      concat(tag.span(class: 'flex-1 text-left') { name })
+      concat(tag.span(class: 'flex-1 text-left') { name }) if text
     end
   end
 end

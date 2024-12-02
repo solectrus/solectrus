@@ -19,7 +19,10 @@ class PowerPeak
 
   def existing_sensors
     @existing_sensors ||=
-      sensors.select { |sensor| SensorConfig.x.exists?(sensor) }
+      sensors.select do |sensor|
+        SensorConfig.x.exists?(sensor) &&
+          Summary.column_names.include?("max_#{sensor}")
+      end
   end
 
   def calculate_peak(start)
