@@ -1,6 +1,9 @@
 de:
   layout:
     balance: Strombilanz
+    house: Haus
+    car: E-Auto
+    heatpump: Wärmepumpe
     essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS
@@ -32,6 +35,7 @@ de:
     inverter_power: Erzeugung
     inverter_power_forecast: Prognose
     house_power: Haus-Verbrauch
+    house_power_without_custom: Andere
     house_power_grid: Netzbezug
     house_power_pv: Photovoltaik
     wallbox_power: E-Auto
@@ -45,11 +49,15 @@ de:
     battery_power: Hausakku
     battery_soc: Ladestand Hausakku
     car_battery_soc: Ladestand E-Auto
-    case_temp: Temperatur
+    car_driving_distance: Fahrleistung E-Auto
+    case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
     heatpump_power_grid: Netzbezug
     heatpump_power_pv: Photovoltaik
+    outdoor_temp: Außentemperatur
+    heatpump_heating_power: Erzeugte Wärme
+    heatpump_score: THOpMeter
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -74,6 +82,7 @@ de:
     battery_savings: Anteil Akku
     total_costs: Kosten
     autarky: Autarkie
+    heatpump_cop: Arbeitszahl
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
   forecast:

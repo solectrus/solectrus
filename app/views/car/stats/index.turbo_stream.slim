@@ -1,0 +1,48 @@
+= turbo_stream.update frame_id('nav') do
+  = render Timeframe::Component.new(timeframe:)
+
+- if timeframe.now? && SensorConfig.x.exists?(:system_status)
+  = turbo_stream.update frame_id('status', timeframe:) do
+    = render Status::Component.new time: calculator.time,
+                                   status: calculator.system_status,
+                                   status_ok: calculator.system_status_ok
+
+turbo-stream action="morph" target= frame_id('stats') children-only= true
+  template
+    div
+      .w-full.flex.justify-between.gap-16
+        .flex-1.flex.flex-col.gap-32.items-end.justify-center
+          = link_to car_home_path(sensor: 'wallbox_power', timeframe:),
+                    data: { turbo_prefetch: 'false', turbo_frame: frame_id('chart'), turbo_action: 'replace' } do
+            = render RadialBadge::Component.new(title: 'Wallbox') do
+              - if timeframe.now?
+                = Number::Component.new(value: calculator.wallbox_power).to_watt
+              - else
+                = Number::Component.new(value: calculator.wallbox_power).to_watt_hour(precision: 0)
+
+          - unless timeframe.now?
+            = render RadialBadge::Component.new(title: 'Kosten') do
+              = Number::Component.new(value: calculator.wallbox_costs).to_eur(negative: true)
+
+        .flex.flex-col.gap-10.items-center.justify-center
+          - unless timeframe.now?
+            = link_to car_home_path(sensor: 'car_driving_distance', timeframe:),
+                      data: { turbo_prefetch: 'false', turbo_frame: frame_id('chart'), turbo_action: 'replace' } do
+              .text-4xl.bg-slate-200.dark:bg-slate-800.p-5.rounded-full
+                = Number::Component.new(value: calculator.car_driving_distance).to_km
+
+        .flex-1.flex.flex-col.gap-32.items-start.justify-center
+          - unless timeframe.now?
+            = render RadialBadge::Component.new(title: 'pro 100 km') do
+              - if calculator.wallbox_power_per_100km
+                = Number::Component.new(value: calculator.wallbox_power_per_100km).to_watt_hour(precision: 0)
+
+            = render RadialBadge::Component.new(title: 'pro 100 km') do
+              - if calculator.wallbox_costs_per_100km
+                = Number::Component.new(value: calculator.wallbox_costs_per_100km).to_eur(negative: true)
+
+          - if timeframe.now?
+            = render RadialBadge::Component.new(title: 'Ladestand') do
+              = link_to car_home_path(sensor: 'car_battery_soc', timeframe:),
+                        data: { turbo_prefetch: 'false', turbo_frame: frame_id('chart'), turbo_action: 'replace' } do
+                = Number::Component.new(value: calculator.car_battery_soc).to_percent

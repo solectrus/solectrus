@@ -1,6 +1,9 @@
 en:
   layout:
     balance: Power balance
+    house: House
+    car: EV
+    heatpump: Heat pump
     essentials: Essentials
     top10: Top 10
     about: About SOLECTRUS
@@ -32,6 +35,7 @@ en:
     inverter_power: PV generated
     inverter_power_forecast: Forecast
     house_power: Home consumption
+    house_power_without_custom: Other
     house_power_grid: Grid
     house_power_pv: PV
     wallbox_power: EV charging
@@ -45,11 +49,15 @@ en:
     battery_power: Home Battery
     battery_soc: SOC Home Battery
     car_battery_soc: SOC EV
-    case_temp: Temperature
+    car_driving_distance: EV driving distance
+    case_temp: Case
     grid_export_limit: Limitation
     heatpump_power: Heat pump
     heatpump_power_grid: Grid
     heatpump_power_pv: PV
+    outdoor_temp: Outdoor temperature
+    heatpump_heating_power: Heat generated
+    heatpump_score: THOpMeter
   balance_sheet:
     left: Source
     right: Usage
@@ -73,6 +81,7 @@ en:
     co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share
     total_costs: Total costs
+    heatpump_cop: COP
     autarky: Autarky
     time: Last measurement taken
     blank: No data available!

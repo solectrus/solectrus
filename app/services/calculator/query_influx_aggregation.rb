@@ -3,10 +3,12 @@ class Calculator::QueryInfluxAggregation < Calculator::Base
     super()
 
     @timeframe = timeframe
-    build_context PowerAggregation.new(sensors:).call(timeframe:)
+    build_context Flux::Aggregation.new(sensors:).call(timeframe:)
   end
 
   attr_reader :timeframe
+
+  private
 
   def build_context(data)
     %i[min max mean].each do |method|
@@ -31,6 +33,9 @@ class Calculator::QueryInfluxAggregation < Calculator::Base
     battery_soc
     car_battery_soc
     case_temp
+    heatpump_heating_power
+    heatpump_score
+    outdoor_temp
   ].freeze
   private_constant :ALL_SENSORS
 

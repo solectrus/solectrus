@@ -5,6 +5,9 @@
 #  avg_battery_soc               :float
 #  avg_car_battery_soc           :float
 #  avg_case_temp                 :float
+#  avg_heatpump_score            :float
+#  avg_outdoor_temp              :float
+#  car_driving_distance          :float
 #  date                          :date             not null, primary key
 #  max_battery_charging_power    :float
 #  max_battery_discharging_power :float
@@ -13,17 +16,31 @@
 #  max_case_temp                 :float
 #  max_grid_export_power         :float
 #  max_grid_import_power         :float
+#  max_heatpump_heating_power    :float
 #  max_heatpump_power            :float
 #  max_house_power               :float
 #  max_inverter_power            :float
+#  max_outdoor_temp              :float
 #  max_wallbox_power             :float
 #  min_battery_soc               :float
 #  min_car_battery_soc           :float
 #  min_case_temp                 :float
+#  min_outdoor_temp              :float
 #  sum_battery_charging_power    :float
 #  sum_battery_discharging_power :float
+#  sum_custom_01_power           :float
+#  sum_custom_02_power           :float
+#  sum_custom_03_power           :float
+#  sum_custom_04_power           :float
+#  sum_custom_05_power           :float
+#  sum_custom_06_power           :float
+#  sum_custom_07_power           :float
+#  sum_custom_08_power           :float
+#  sum_custom_09_power           :float
+#  sum_custom_10_power           :float
 #  sum_grid_export_power         :float
 #  sum_grid_import_power         :float
+#  sum_heatpump_heating_power    :float
 #  sum_heatpump_power            :float
 #  sum_heatpump_power_grid       :float
 #  sum_house_power               :float
@@ -236,14 +253,27 @@ describe Summary do
             battery_soc
             car_battery_soc
             case_temp
+            custom_01_power
+            custom_02_power
+            custom_03_power
+            custom_04_power
+            custom_05_power
+            custom_06_power
+            custom_07_power
+            custom_08_power
+            custom_09_power
+            custom_10_power
             grid_export_power
             grid_import_power
+            heatpump_heating_power
             heatpump_power
             heatpump_power_grid
+            heatpump_score
             house_power
             house_power_grid
             inverter_power
             inverter_power_forecast
+            outdoor_temp
             wallbox_power
             wallbox_power_grid
           ],

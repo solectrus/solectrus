@@ -38,7 +38,8 @@ module ParamsHandling
         if timeframe.now?
           Calculator::Now.new
         else
-          Calculator::Range.new(timeframe)
+          # Requires a method `calculations` in the controller
+          Calculator::Range.new(timeframe, calculations:)
         end
     end
   end

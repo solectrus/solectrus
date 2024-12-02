@@ -1,4 +1,4 @@
-class Top10Chart::Component < ViewComponent::Base
+class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor:, period:, sort:, calc:)
     raise ArgumentError, 'sensor must be present' if sensor.blank?
     raise ArgumentError, 'period must be present' if period.blank?
@@ -47,20 +47,24 @@ class Top10Chart::Component < ViewComponent::Base
     end
   end
 
-  def bar_classes
+  def bar_classes # rubocop:disable Metrics/CyclomaticComplexity
     case sensor.to_sym
     when :grid_export_power, :inverter_power
       'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
     when :battery_discharging_power, :battery_charging_power
       'from-green-700 to-green-300 text-green-800 dark:from-green-800 dark:to-green-500 dark:text-green-900'
-    when :house_power
+    when :house_power, :car_driving_distance
       'from-slate-500 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
     when :wallbox_power
       'from-slate-600 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
     when :heatpump_power
       'from-slate-700 to-slate-300 text-slate-800 dark:from-slate-800 dark:to-slate-500 dark:text-slate-900'
-    when :grid_import_power
+    when :grid_import_power, :case_temp
       'from-red-600   to-red-300   text-red-800   dark:from-red-800   dark:to-red-400   dark:text-red-900'
+    when :heatpump_heating_power
+      'from-orange-700 to-orange-300 text-orange-800 dark:from-orange-800 dark:to-orange-400 dark:text-orange-900'
+    when :outdoor_temp
+      'from-teal-700 to-teal-300 text-teal-800 dark:from-teal-800 dark:to-teal-400 dark:text-teal-900'
     end
   end
 
@@ -160,5 +164,16 @@ class Top10Chart::Component < ViewComponent::Base
     result << t('.note_sum') if calc.sum?
     result << t('.note_asc') if sort.asc?
     safe_join(result, '. ')
+  end
+
+  def unit_method
+    case sensor.to_sym
+    when :case_temp, :outdoor_temp
+      :to_grad_celsius
+    when :car_driving_distance
+      :to_km
+    else
+      calc.max? ? :to_watt : :to_watt_hour
+    end
   end
 end

@@ -56,14 +56,54 @@ class PowerTop10
     end
   end
 
+  FIELD_MAPPING_SUM = {
+    car_driving_distance: :car_driving_distance,
+    inverter_power: :sum_inverter_power,
+    outdoor_temp: :avg_outdoor_temp,
+    heatpump_power: :sum_heatpump_power,
+    house_power: :sum_house_power,
+    heatpump_heating_power: :sum_heatpump_heating_power,
+    case_temp: :avg_case_temp,
+    grid_import_power: :sum_grid_import_power,
+    grid_export_power: :sum_grid_export_power,
+    battery_charging_power: :sum_battery_charging_power,
+    battery_discharging_power: :sum_battery_discharging_power,
+    wallbox_power: :sum_wallbox_power,
+    **SensorConfig::CUSTOM_SENSORS.index_with { |sensor| :"sum_#{sensor}" },
+  }.freeze
+  private_constant :FIELD_MAPPING_SUM
+
+  FIELD_MAPPING_MAX = {
+    car_driving_distance: :car_driving_distance,
+    inverter_power: :max_inverter_power,
+    outdoor_temp: :max_outdoor_temp,
+    heatpump_power: :max_heatpump_power,
+    house_power: :max_house_power,
+    heatpump_heating_power: :max_heatpump_heating_power,
+    case_temp: :max_case_temp,
+    grid_import_power: :max_grid_import_power,
+    grid_export_power: :max_grid_export_power,
+    battery_charging_power: :max_battery_charging_power,
+    battery_discharging_power: :max_battery_discharging_power,
+    wallbox_power: :max_wallbox_power,
+  }.freeze
+  private_constant :FIELD_MAPPING_MAX
+
   def build_query_simple(start:, stop:, period:, limit:)
     scope =
       Summary.where(date: start..stop).where(
-        Summary.arel_table[:"sum_#{sensor}"].gt(0),
+        Summary.arel_table[:"#{FIELD_MAPPING_SUM[sensor]}"].gt(0),
       )
 
     sort_order = desc ? :desc : :asc
-    sensor_column = :"#{calc}_#{sensor}"
+
+    sensor_column =
+      case calc
+      when 'sum'
+        FIELD_MAPPING_SUM[sensor]
+      when 'max'
+        FIELD_MAPPING_MAX[sensor]
+      end
 
     case period
     when :day

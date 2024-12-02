@@ -3,14 +3,23 @@
 #                            Prefix Verb   URI Pattern                                               Controller#Action
 #                rails_health_check GET    /up(.:format)                                             rails/health#show
 #                          lookbook        /lookbook                                                 Lookbook::Engine
-#                              root GET    /(:sensor)(/:timeframe)(.:format)                         home#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#                             stats GET    /stats/:sensor(/:timeframe)(.:format)                     stats#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#                            charts GET    /charts/:sensor(/:timeframe)(.:format)                    charts#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
-#                             tiles GET    /tiles/:sensor(/:timeframe)(.:format)                     tiles#show {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                              root GET    /(:sensor)(/:timeframe)(.:format)                         balance/home#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                                   GET    /stats/:sensor(/:timeframe)(.:format)                     balance/stats#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                                   GET    /charts/:sensor(/:timeframe)(.:format)                    balance/charts#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                        house_home GET    /house(/:sensor)(/:timeframe)(.:format)                   house/home#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                       house_stats GET    /house%7D/stats/:sensor(/:timeframe)(.:format)            house/stats#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                             house GET    /house/charts/:sensor(/:timeframe)(.:format)              house/charts#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                     heatpump_home GET    /heatpump(/:sensor)(/:timeframe)(.:format)                heatpump/home#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                    heatpump_stats GET    /heatpump%7D/stats/:sensor(/:timeframe)(.:format)         heatpump/stats#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                          heatpump GET    /heatpump/charts/:sensor(/:timeframe)(.:format)           heatpump/charts#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                          car_home GET    /car(/:sensor)(/:timeframe)(.:format)                     car/home#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                         car_stats GET    /car%7D/stats/:sensor(/:timeframe)(.:format)              car/stats#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                               car GET    /car/charts/:sensor(/:timeframe)(.:format)                car/charts#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
+#                             tiles GET    /tiles/:sensor(/:timeframe)(.:format)                     tiles#show {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|car_driving_distance|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|outdoor_temp|heatpump_heating_power|heatpump_cop/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
 #                           summary GET    /summaries/:date(.:format)                                summaries#show
 #                        essentials GET    /essentials(.:format)                                     essentials#index
-#                             top10 GET    /top10(/:period)(/:sensor)(/:calc)(/:sort)(.:format)      top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :sensor=>/inverter_power|house_power|heatpump_power|grid_import_power|grid_export_power|battery_charging_power|battery_discharging_power|wallbox_power/}
-#                       top10_chart GET    /top10-chart/:period/:sensor/:calc/:sort(.:format)        top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :sensor=>/inverter_power|house_power|heatpump_power|grid_import_power|grid_export_power|battery_charging_power|battery_discharging_power|wallbox_power/}
+#                             top10 GET    /top10(/:period)(/:sensor)(/:calc)(/:sort)(.:format)      top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :sensor=>/heatpump_heating_power|outdoor_temp|case_temp|car_driving_distance|inverter_power|house_power|heatpump_power|grid_import_power|grid_export_power|battery_charging_power|battery_discharging_power|wallbox_power/}
+#                       top10_chart GET    /top10-chart/:period/:sensor/:calc/:sort(.:format)        top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :sensor=>/heatpump_heating_power|outdoor_temp|case_temp|car_driving_distance|inverter_power|house_power|heatpump_power|grid_import_power|grid_export_power|battery_charging_power|battery_discharging_power|wallbox_power/}
 #                       new_session GET    /login(.:format)                                          sessions#new
 #                          sessions POST   /login(.:format)                                          sessions#create
 #                           session DELETE /logout(.:format)                                         sessions#destroy
@@ -69,9 +78,25 @@ Rails.application.routes.draw do
   constraints sensor:
                 Regexp.new(SensorConfig::CHART_SENSORS.join('|'), false) do
     constraints timeframe: Timeframe.regex do
-      get '/(/:sensor)(/:timeframe)', to: 'home#index', as: :root
-      get '/stats/:sensor(/:timeframe)', to: 'stats#index', as: :stats
-      get '/charts/:sensor(/:timeframe)', to: 'charts#index', as: :charts
+      # Home (Root)
+      get '/(/:sensor)(/:timeframe)', to: 'balance/home#index', as: :root
+      get '/stats/:sensor(/:timeframe)', to: 'balance/stats#index'
+      get '/charts/:sensor(/:timeframe)', to: 'balance/charts#index'
+
+      # House / Heatpump / Car
+      %i[house heatpump car].each do |item|
+        get "/#{item}/(:sensor)(/:timeframe)",
+            to: "#{item}/home#index",
+            as: :"#{item}_home"
+        get "/#{item}/stats/:sensor(/:timeframe)",
+            to: "#{item}/stats#index",
+            as: :"#{item}_stats"
+        get "/#{item}/charts/:sensor(/:timeframe)",
+            to: "#{item}/charts#index",
+            as: :"#{item}_charts"
+      end
+
+      # Tiles
       get '/tiles/:sensor(/:timeframe)', to: 'tiles#show', as: :tiles
     end
   end
@@ -83,7 +108,7 @@ Rails.application.routes.draw do
               calc: /sum|max/,
               sort: /asc|desc/,
               sensor:
-                Regexp.new(SensorConfig::POWER_SENSORS.join('|'), false) do
+                Regexp.new(SensorConfig::TOP10_SENSORS.join('|'), false) do
     get '/top10/(:period)/(:sensor)/(:calc)/(:sort)',
         to: 'top10#index',
         as: :top10

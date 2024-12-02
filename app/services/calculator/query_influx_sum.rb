@@ -3,7 +3,7 @@ class Calculator::QueryInfluxSum < Calculator::Base
     super()
 
     @timeframe = timeframe
-    build_context PowerSum.new(sensors:).call(timeframe)
+    build_context Flux::Sum.new(sensors:).call(timeframe:)
   end
 
   attr_reader :timeframe
@@ -13,26 +13,19 @@ class Calculator::QueryInfluxSum < Calculator::Base
   def build_context(data)
     build_method(:time) { data[:time] }
 
-    build_method(:inverter_power, data)
-    build_method(:house_power, data)
-    build_method(:wallbox_power, data)
-    build_method(:grid_import_power, data)
-    build_method(:grid_export_power, data)
-    build_method(:battery_discharging_power, data)
-    build_method(:battery_charging_power, data)
-    build_method(:heatpump_power, data)
+    sensors.each do |sensor|
+      # Forecast required for days only
+      next if sensor == :inverter_power_forecast && !timeframe.day?
 
-    build_method(:house_power_grid, data)
-    build_method(:wallbox_power_grid, data)
-    build_method(:heatpump_power_grid, data)
+      build_method(:"#{sensor}", data)
+    end
 
-    return unless @timeframe.day?
-
-    build_method(:inverter_power_forecast, data)
+    # Add dummy methods for sensors that are not available
+    (ALL_SENSORS - sensors).each { |sensor| build_method(:"#{sensor}", {}) }
   end
 
-  def sensors
-    @sensors ||=
+  ALL_SENSORS =
+    (
       %i[
         inverter_power
         inverter_power_forecast
@@ -46,6 +39,15 @@ class Calculator::QueryInfluxSum < Calculator::Base
         house_power_grid
         wallbox_power_grid
         heatpump_power_grid
-      ].select { |sensor| SensorConfig.x.exists?(sensor, check_policy: false) }
+        heatpump_heating_power
+      ] + SensorConfig::CUSTOM_SENSORS
+    ).freeze
+  private_constant :ALL_SENSORS
+
+  def sensors
+    @sensors ||=
+      ALL_SENSORS.select do |sensor|
+        SensorConfig.x.exists?(sensor, check_policy: false)
+      end
   end
 end

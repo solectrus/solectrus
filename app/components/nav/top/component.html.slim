@@ -4,14 +4,17 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
       .relative.h-14.md:h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-400.lg:border-opacity-25
         .px-2.flex.items-center.lg:px-0.space-x-6.flex-1.dark:lg:border-indigo-700
           /! Desktop menu
-          a.flex-shrink-0.click-animation href= root_path(sensor: 'inverter_power', timeframe: 'now') aria-label="Home"
-            svg.w-10.h-10 viewBox="0 0 1200 1200" class= "dark:opacity-75"
+          = link_to home_path, class: 'flex-shrink-0 click-animation' do
+            svg.size-10.md:size-12[
+              viewBox="0 0 1200 1200"
+              class= ['rounded-full md:p-1.5', ('md:bg-indigo-800 dark:md:bg-indigo-950' if helpers.controller_namespace == 'balance')]
+            ]
               path fill="#a5b4fc" d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
 
           .hidden.lg:flex.lg:ml-10.justify-between.items-center.flex-1.text-sm.font-medium
             .flex.space-x-4.text-white.dark:text-gray-400.uppercase.tracking-wider.whitespace-nowrap
               - primary_items.each do |item|
-                = item.call(css_extra: ['rounded-md py-2 px-3 click-animation', item.current ? 'bg-indigo-700 dark:bg-indigo-950' : 'hover:bg-indigo-500 hover:bg-opacity-75 dark:hover:bg-indigo-800'])
+                = item.call(with_icon: true, css_extra: ['text-indigo-300 rounded-md py-2 px-3 click-animation', item.current ? 'bg-indigo-800 dark:bg-indigo-950' : 'hover:bg-indigo-500 hover:bg-opacity-75 dark:hover:bg-indigo-800'])
 
             .flex.items-center.gap-3
               - unless helpers.banner? || current_page?(sponsoring_path)
@@ -62,7 +65,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
       /! Mobile menu
       .px-2.pt-2.space-y-1.text-base.font-medium
         - primary_items.each do |item|
-          = item.call(css_extra: ['py-2 px-3 uppercase tracking-wider', item.current ? 'rounded-md bg-indigo-700' : ''])
+          = item.call(with_icon: true, css_extra: ['py-2 px-3 uppercase tracking-wider text-indigo-300', item.current ? 'rounded-md bg-indigo-700' : ''])
 
       .px-2.pt-2.pb-3.space-y-1.text-sm.font-medium.border-t.border-indigo-300.border-opacity-25.mt-3
         - secondary_items.each do |item|
@@ -103,4 +106,4 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
 
   = render SlideOver::Component.new do
     - secondary_items.each do |item|
-      = item.call(with_icon: true, css_extra: ['py-2 px-6', item.current ? 'font-bold' : 'hover:bg-indigo-100 hover:bg-opacity-75 dark:hover:bg-indigo-900'])
+      = item.call(with_icon: true, css_extra: ['py-2 px-6 text-gray-600 dark:text-gray-400', item.current ? 'font-bold' : 'hover:bg-indigo-100 hover:bg-opacity-75 dark:hover:bg-indigo-900'])

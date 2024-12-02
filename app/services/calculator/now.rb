@@ -2,25 +2,30 @@ class Calculator::Now < Calculator::Base
   def initialize
     super
 
-    build_context PowerSum.new(
-                    sensors: %i[
-                      inverter_power
-                      house_power
-                      heatpump_power
-                      grid_import_power
-                      grid_export_power
-                      grid_export_limit
-                      battery_charging_power
-                      battery_discharging_power
-                      battery_soc
-                      wallbox_car_connected
-                      wallbox_power
-                      case_temp
-                      system_status
-                      system_status_ok
-                      car_battery_soc
-                    ],
-                  ).call(Timeframe.now)
+    build_context Flux::Last.new(
+                    sensors:
+                      %i[
+                        inverter_power
+                        house_power
+                        heatpump_power
+                        heatpump_heating_power
+                        heatpump_status
+                        heatpump_score
+                        outdoor_temp
+                        grid_import_power
+                        grid_export_power
+                        grid_export_limit
+                        battery_charging_power
+                        battery_discharging_power
+                        battery_soc
+                        wallbox_car_connected
+                        wallbox_power
+                        case_temp
+                        system_status
+                        system_status_ok
+                        car_battery_soc
+                      ] + SensorConfig::CUSTOM_SENSORS,
+                  ).call
   end
 
   def build_context(data)
@@ -39,7 +44,15 @@ class Calculator::Now < Calculator::Base
     build_method(:case_temp, data, :to_f)
     build_method(:grid_export_limit, data)
     build_method(:heatpump_power, data, :to_f)
+    build_method(:heatpump_heating_power, data, :to_f)
+    build_method(:heatpump_status, data, :to_utf8, allow_nil: true)
+    build_method(:heatpump_score, data)
+    build_method(:outdoor_temp, data)
     build_method(:car_battery_soc, data)
+
+    (1..10).each do |i|
+      build_method(:"custom_#{format('%02d', i)}_power", data)
+    end
 
     define_singleton_method(:house_power) do
       [

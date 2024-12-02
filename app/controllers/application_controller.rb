@@ -46,4 +46,8 @@ class ApplicationController < ActionController::Base
 
     redirect_to(sponsoring_path)
   end
+
+  # Override this method to set a custom timeframe
+  def timeframe
+  end
 end

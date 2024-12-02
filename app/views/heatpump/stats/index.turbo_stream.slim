@@ -1,0 +1,88 @@
+= turbo_stream.update frame_id('nav') do
+  = render Timeframe::Component.new(timeframe:)
+
+- if timeframe.now? && SensorConfig.x.exists?(:heatpump_status)
+  = turbo_stream.update frame_id('status') do
+    = render Status::Component.new time: calculator.time,
+                                   status: calculator.heatpump_status
+
+turbo-stream action="morph" target= frame_id('stats') children-only= true
+  template
+    div
+      .h-full.w-full.flex.flex-col.gap-3
+        .flex-1.flex
+          = render SegmentContainer::Component.new tippy_placement: 'right',
+                                                   calculator:,
+                                                   timeframe: do |balance|
+            - balance.with_segment :heatpump_heating_env,
+                                    color_class: [calculator.heatpump_heating? ? 'bg-sky-700/70 dark:bg-sky-700/70' : 'bg-slate-500/40 dark:bg-slate-400/40', 'relative z-0'],
+                                    percent: calculator.heatpump_heating_env_percent || 90,
+                                    title: 'Umgebung' do
+              - nil
+
+            - if timeframe.now?
+              - balance.with_segment :heatpump_power,
+                                     title: 'Strom',
+                                     percent: calculator.heatpump_heating? ? calculator.heatpump_heating_power_percent : 10,
+                                     color_class: 'bg-gray-600 dark:text-gray-300'
+            - else
+              - balance.with_segment :heatpump_power_pv
+              - balance.with_segment :heatpump_power_grid
+
+          div class= 'flex flex-col justify-between items-center gap-5 px-2 sm:px-4 tall:gap-4 pb-2'
+            - if calculator.heatpump_cop
+              = link_to heatpump_home_path(sensor: 'heatpump_cop', timeframe:),
+                        data: { \
+                          turbo_frame: frame_id('chart'),
+                          turbo_action: 'replace',
+                          turbo_prefetch: 'false',
+                          'stats-with-chart--component-target': 'current',
+                          sensor: 'heatpump_cop',
+                          value: calculator.heatpump_cop,
+                          time: calculator.time.to_i,
+                          action: 'stats-with-chart--component#startLoop',
+                          stats_with_chart__component_sensor_param: 'heatpump_cop',
+                        },
+                        class: 'click-animation' do
+                = render RadialBadge::Component.new(title: t('calculator.heatpump_cop')) do
+                  = Number::Component.new(value: calculator.heatpump_cop).to_plain
+
+            - if calculator.heatpump_score
+              = link_to heatpump_home_path(sensor: 'heatpump_score', timeframe:),
+                        data: { \
+                          turbo_frame: frame_id('chart'),
+                          turbo_action: 'replace',
+                          turbo_prefetch: 'false',
+                          'stats-with-chart--component-target': 'current',
+                          sensor: 'heatpump_score',
+                          value: calculator.heatpump_score,
+                          time: calculator.time.to_i,
+                          action: 'stats-with-chart--component#startLoop',
+                          stats_with_chart__component_sensor_param: 'heatpump_score',
+                        },
+                        class: 'click-animation' do
+                = render HeatpumpScore::Component.new(calculator.heatpump_score)
+
+            - if calculator.outdoor_temp
+              = link_to heatpump_home_path(sensor: 'outdoor_temp', timeframe:),
+                        data: { \
+                          turbo_frame: frame_id('chart'),
+                          turbo_action: 'replace',
+                          turbo_prefetch: 'false',
+                          'stats-with-chart--component-target': 'current',
+                          sensor: 'outdoor_temp',
+                          value: calculator.outdoor_temp,
+                          time: calculator.time.to_i,
+                          action: 'stats-with-chart--component#startLoop',
+                          stats_with_chart__component_sensor_param: 'outdoor_temp',
+                        },
+                        class: 'click-animation' do
+                = render RadialBadge::Component.new(title: 'Außen') do
+                  = Number::Component.new(value: calculator.outdoor_temp.round).to_grad_celsius
+
+          = render SegmentContainer::Component.new tippy_placement: 'left',
+                                                   calculator:,
+                                                   timeframe: do |balance|
+            - balance.with_segment :heatpump_heating_power,
+                                    color_class: [calculator.heatpump_heating? ? 'bg-yellow-800/70 dark:bg-yellow-800/70' : 'bg-slate-500/40 dark:bg-slate-400/40', 'relative z-0'],
+                                    percent: 100

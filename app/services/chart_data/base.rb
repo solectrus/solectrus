@@ -11,8 +11,16 @@ class ChartData::Base
   delegate :to_json, to: :to_h
 
   def blank?
-    data[:datasets].blank? ||
+    data.nil? || data[:datasets].blank? ||
       data[:datasets].all? { |dataset| dataset[:data]&.compact.blank? }
+  end
+
+  def type
+    timeframe.short? ? 'line' : 'bar'
+  end
+
+  def options
+    {}
   end
 
   private
