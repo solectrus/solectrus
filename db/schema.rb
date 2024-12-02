@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_10_01_094520) do
+ActiveRecord::Schema[7.2].define(version: 2024_10_27_112350) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -64,6 +64,23 @@ ActiveRecord::Schema[7.2].define(version: 2024_10_01_094520) do
     t.float "sum_heatpump_power_grid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "sum_heatpump_heating_power"
+    t.float "max_heatpump_heating_power"
+    t.float "avg_heatpump_score"
+    t.float "min_outdoor_temp"
+    t.float "max_outdoor_temp"
+    t.float "avg_outdoor_temp"
+    t.float "car_driving_distance"
+    t.float "sum_custom_01_power"
+    t.float "sum_custom_02_power"
+    t.float "sum_custom_03_power"
+    t.float "sum_custom_04_power"
+    t.float "sum_custom_05_power"
+    t.float "sum_custom_06_power"
+    t.float "sum_custom_07_power"
+    t.float "sum_custom_08_power"
+    t.float "sum_custom_09_power"
+    t.float "sum_custom_10_power"
     t.index ["updated_at"], name: "index_summaries_on_updated_at"
   end
 end
