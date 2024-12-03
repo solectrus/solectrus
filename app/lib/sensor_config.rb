@@ -39,7 +39,6 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         wallbox_power_grid
         heatpump_power_grid
         heatpump_heating_power
-        heatpump_leaving_temp
         heatpump_status
         heatpump_score
         outdoor_temp
@@ -102,7 +101,6 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         co2_reduction
         outdoor_temp
         heatpump_heating_power
-        heatpump_leaving_temp
         heatpump_cop
         heatpump_score
       ] + CUSTOM_SENSORS

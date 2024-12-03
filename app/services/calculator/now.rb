@@ -9,7 +9,6 @@ class Calculator::Now < Calculator::Base
                         house_power
                         heatpump_power
                         heatpump_heating_power
-                        heatpump_leaving_temp
                         heatpump_status
                         heatpump_score
                         outdoor_temp
@@ -46,7 +45,6 @@ class Calculator::Now < Calculator::Base
     build_method(:grid_export_limit, data)
     build_method(:heatpump_power, data, :to_f)
     build_method(:heatpump_heating_power, data, :to_f)
-    build_method(:heatpump_leaving_temp, data)
     build_method(:heatpump_status, data, :to_utf8, allow_nil: true)
     build_method(:heatpump_score, data)
     build_method(:outdoor_temp, data)

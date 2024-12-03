@@ -7,12 +7,6 @@ class Heatpump::ChartsController < ApplicationController
   end
 
   helper_method def chart_sensors
-    %i[
-      heatpump_heating_power
-      heatpump_leaving_temp
-      heatpump_cop
-      heatpump_score
-      outdoor_temp
-    ]
+    %i[heatpump_heating_power heatpump_cop heatpump_score outdoor_temp]
   end
 end
