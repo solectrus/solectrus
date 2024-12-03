@@ -1,12 +1,12 @@
-= turbo_stream.update "nav-#{timeframe}" do
+= turbo_stream.update frame_id('nav') do
   = render Timeframe::Component.new(timeframe:)
 
 - if timeframe.now? && SensorConfig.x.exists?(:heatpump_status)
-  = turbo_stream.update "status-#{timeframe}" do
+  = turbo_stream.update frame_id('status') do
     = render Status::Component.new time: calculator.time,
                                    status: calculator.heatpump_status
 
-turbo-stream action="morph" target="stats-#{timeframe}" children-only= true
+turbo-stream action="morph" target= frame_id('stats') children-only= true
   template
     div
       .h-full.w-full.flex.flex-col.gap-3
@@ -24,7 +24,7 @@ turbo-stream action="morph" target="stats-#{timeframe}" children-only= true
               .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg
                 = link_to heatpump_home_path(sensor: 'heatpump_heating_power', timeframe:),
                           class: 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 py-2 md:py-4',
-                          data: { turbo_prefetch: 'false', turbo_frame: "chart-#{timeframe}", turbo_action: 'replace' } do
+                          data: { turbo_prefetch: 'false', turbo_frame: frame_id('chart'), turbo_action: 'replace' } do
                   - if timeframe.now?
                     = Number::Component.new(value: calculator.heatpump_heating_power).to_watt
                   - else
@@ -45,7 +45,7 @@ turbo-stream action="morph" target="stats-#{timeframe}" children-only= true
                           class: 'absolute top-5 left-5 text-slate-800 dark:text-slate-300',
                           data: { \
                             turbo_prefetch: 'false',
-                            turbo_frame: "chart-#{timeframe}",
+                            turbo_frame: frame_id('chart'),
                             turbo_action: 'replace',
                             controller: 'tippy',
                           },
@@ -55,13 +55,13 @@ turbo-stream action="morph" target="stats-#{timeframe}" children-only= true
               - if calculator.heatpump_score
                 = link_to heatpump_home_path(sensor: 'heatpump_score', timeframe:),
                           class: 'absolute top-3 right-3',
-                          data: { turbo_prefetch: 'false', turbo_frame: "chart-#{timeframe}", turbo_action: 'replace' } do
+                          data: { turbo_prefetch: 'false', turbo_frame: frame_id('chart'), turbo_action: 'replace' } do
                   = render HeatpumpScore::Component.new(calculator.heatpump_score)
 
               .flex.gap-5
                 - if calculator.heatpump_cop
                   = link_to heatpump_home_path(sensor: 'heatpump_cop', timeframe:),
-                            data: { turbo_prefetch: 'false', turbo_frame: "chart-#{timeframe}", turbo_action: 'replace' } do
+                            data: { turbo_prefetch: 'false', turbo_frame: frame_id('chart'), turbo_action: 'replace' } do
                     = render RadialBadge::Component.new(title: t('calculator.heatpump_cop')) do
                       = Number::Component.new(value: calculator.heatpump_cop).to_plain
 

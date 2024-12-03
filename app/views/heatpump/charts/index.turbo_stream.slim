@@ -1,15 +1,15 @@
-= turbo_stream.update "nav-#{timeframe}" do
+= turbo_stream.update frame_id('nav') do
   = render Timeframe::Component.new(timeframe:)
 
-= turbo_stream.update "second-nav-desktop-#{timeframe}" do
+= turbo_stream.update frame_id('second-nav-desktop') do
   = render Nav::Sub::Component.new do |c|
     = c.with_items nav_items
 
-= turbo_stream.update "second-nav-mobile-#{timeframe}" do
+= turbo_stream.update frame_id('second-nav-mobile') do
   = render Nav::Sub::Component.new do |c|
     = c.with_items nav_items
 
-= turbo_stream.update "chart-#{timeframe}" do
+= turbo_stream.update frame_id('chart') do
   .flex.flex-col.flex-auto.sm:gap-2
     - unless timeframe.out_of_range?
       = render ChartSelector::Component.new(sensor:, timeframe:, sensors: chart_sensors)
