@@ -7,7 +7,7 @@
     - if SensorConfig.x.exists?(:autarky)
       = link_to root_path(sensor: 'autarky', timeframe:),
                 data: { \
-                  turbo_frame: "chart-#{timeframe}",
+                  turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
@@ -26,7 +26,7 @@
     - if SensorConfig.x.exists?(:self_consumption) && calculator.self_consumption_quote
       = link_to root_path(sensor: 'self_consumption', timeframe:),
                 data: { \
-                  turbo_frame: "chart-#{timeframe}",
+                  turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
@@ -48,7 +48,7 @@
     - if calculator.case_temp&.nonzero?
       = link_to root_path(sensor: 'case_temp', timeframe:),
                 data: { \
-                  turbo_frame: "chart-#{timeframe}",
+                  turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
@@ -74,7 +74,7 @@
     - elsif SensorConfig.x.exists?(:battery_soc)
       = link_to root_path(sensor: 'battery_soc', timeframe:),
                 data: { \
-                  turbo_frame: "chart-#{timeframe}",
+                  turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',

@@ -6,7 +6,7 @@
     - if (value = public_send(soc_sensor))
       = link_to root_path(sensor: soc_sensor, timeframe:),
                 data: { \
-                  turbo_frame: "chart-#{timeframe}",
+                  turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
