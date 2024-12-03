@@ -158,7 +158,7 @@ GEM
       concurrent-ruby (~> 1.0)
     influxdb-client (3.2.0)
       csv
-    io-console (0.7.2)
+    io-console (0.8.0)
     irb (1.14.1)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
