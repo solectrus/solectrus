@@ -62,10 +62,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   public_constant :POWER_SENSORS
 
   TOP10_SENSORS =
-    (
-      %i[heatpump_heating_power outdoor_temp case_temp car_driving_distance] +
-        POWER_SENSORS
-    ).freeze
+    (%i[heatpump_heating_power outdoor_temp case_temp] + POWER_SENSORS).freeze
   public_constant :TOP10_SENSORS
 
   CALCULATED_SENSORS = %i[
