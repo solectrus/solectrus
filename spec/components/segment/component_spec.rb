@@ -7,8 +7,7 @@ describe Segment::Component, type: :component do
 
   let(:sensor) { :house_power }
   let(:parent) do
-    SegmentContainer::Component.new title: 'This is a title',
-                                    tippy_placement: 'right',
+    SegmentContainer::Component.new tippy_placement: 'right',
                                     calculator:,
                                     timeframe:
   end

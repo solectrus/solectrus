@@ -8,16 +8,16 @@ class SegmentContainer::Component < ViewComponent::Base
                                           &block
                  end
                }
+  renders_one :title
 
-  def initialize(calculator:, timeframe:, tippy_placement:, title: nil)
+  def initialize(calculator:, timeframe:, tippy_placement:)
     super
     @calculator = calculator
     @timeframe = timeframe
-    @title = title
     @tippy_placement = tippy_placement
   end
 
-  attr_reader :calculator, :timeframe, :title, :tippy_placement
+  attr_reader :calculator, :timeframe, :tippy_placement
 
   private
 

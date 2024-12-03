@@ -12,39 +12,19 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
     div
       .h-full.w-full.flex.flex-col.gap-3
         - unless timeframe.now?
-          .md:ml-24
-            = render SplittedCosts::Component.new( \
-                costs: calculator.house_costs,
-                power_grid_ratio: calculator.house_power_grid_ratio,
-              )
+          = render SplittedCosts::Component.new( \
+              costs: calculator.house_costs,
+              power_grid_ratio: calculator.house_power_grid_ratio,
+            )
 
-        .flex-1.flex.gap-10
-          // Clip
-          .flex.gap-10.items-end.py-4.px-5
-            .w-5.border-b-2.border-t-2.border-l-2.border-slate-500.h-full.flex.justify-center
-              .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg
-                = link_to house_home_path(sensor: 'house_power', timeframe:),
-                          class: 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 py-2 md:py-4',
-                          data: { \
-                            turbo_prefetch: 'false',
-                            turbo_frame: frame_id('chart'),
-                            turbo_action: 'replace',
-                          } do
-                  - method = timeframe.now? ? :to_watt : :to_watt_hour
-                  = Number::Component.new(value: calculator.house_power).public_send method
-
-                  - unless calculator.house_power_valid?
-                    div[
-                      data-controller= 'tippy'
-                      title= 'Hausverbrauch ist kleiner als Summe der Verbraucher'
-                      data-tippy-placement-value= 'right'
-                    ]
-                      i.fa.fa-circle-exclamation
-
-          // Inner content
+        .flex-1.flex
           = render SegmentContainer::Component.new tippy_placement: 'right',
                                                    calculator:,
                                                    timeframe: do |balance|
+            - balance.with_title do
+              .flex.items-center.justify-between.gap-10.text-xl.w-full.px-7
+                = I18n.t('sensors.house_power')
+                = Number::Component.new(value: calculator.house_power).to_watt_hour
 
             ruby:
               if timeframe.now?
