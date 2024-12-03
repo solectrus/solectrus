@@ -69,6 +69,7 @@ class PowerTop10
     battery_charging_power: :sum_battery_charging_power,
     battery_discharging_power: :sum_battery_discharging_power,
     wallbox_power: :sum_wallbox_power,
+    **SensorConfig::CUSTOM_SENSORS.index_with { |sensor| :"sum_#{sensor}" },
   }.freeze
   private_constant :FIELD_MAPPING_SUM
 
