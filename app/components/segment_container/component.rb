@@ -9,16 +9,15 @@ class SegmentContainer::Component < ViewComponent::Base
                  end
                }
 
-  def initialize(calculator:, timeframe:, sensor:, tippy_placement:, title: nil)
+  def initialize(calculator:, timeframe:, tippy_placement:, title: nil)
     super
     @calculator = calculator
     @timeframe = timeframe
-    @sensor = sensor
     @title = title
     @tippy_placement = tippy_placement
   end
 
-  attr_reader :calculator, :timeframe, :sensor, :title, :tippy_placement
+  attr_reader :calculator, :timeframe, :title, :tippy_placement
 
   private
 

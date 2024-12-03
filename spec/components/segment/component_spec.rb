@@ -10,8 +10,7 @@ describe Segment::Component, type: :component do
     SegmentContainer::Component.new title: 'This is a title',
                                     tippy_placement: 'right',
                                     calculator:,
-                                    timeframe:,
-                                    sensor:
+                                    timeframe:
   end
   let(:timeframe) { Timeframe.day }
   let(:calculator) do

@@ -33,10 +33,9 @@ turbo-stream action="morph" target="stats-#{timeframe}" children-only= true
                     'Erzeugte Wärme
 
           // Inner content
-          = render SegmentContainer::Component.new tippy_placement: 'right',
-                                                    calculator:,
-                                                    timeframe:,
-                                                    sensor: '' do |balance|
+          = render SegmentContainer::Component.new tippy_placement: 'top',
+                                                   calculator:,
+                                                   timeframe: do |balance|
             - balance.with_segment :heatpump_heating_env,
                                     color_class: [calculator.heatpump_heating? ? 'bg-sky-500/40 dark:bg-sky-700/70' : 'bg-slate-500/40 dark:bg-slate-400/40', 'relative'],
                                     title: nil,

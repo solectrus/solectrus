@@ -44,8 +44,7 @@ turbo-stream action="morph" target="stats-#{timeframe}" children-only= true
           // Inner content
           = render SegmentContainer::Component.new tippy_placement: 'right',
                                                    calculator:,
-                                                   timeframe:,
-                                                   sensor: '' do |balance|
+                                                   timeframe: do |balance|
 
             ruby:
               if timeframe.now?

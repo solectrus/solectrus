@@ -3,8 +3,7 @@ div
     = render SegmentContainer::Component.new title:  I18n.t('balance_sheet.left'),
                                              tippy_placement: 'right',
                                              calculator:,
-                                             timeframe:,
-                                             sensor: do |balance|
+                                             timeframe: do |balance|
       ruby:
         balance.with_segment :grid_import_power, peak: peak&.dig(:grid_import_power)
         balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
@@ -16,8 +15,7 @@ div
     = render SegmentContainer::Component.new title:  I18n.t('balance_sheet.right'),
                                              tippy_placement: 'left',
                                              calculator:,
-                                             timeframe:,
-                                             sensor: do |balance|
+                                             timeframe: do |balance|
       ruby:
         balance.with_segment :wallbox_power, peak: peak&.dig(:wallbox_power)
         balance.with_segment :heatpump_power, peak: peak&.dig(:heatpump_power)
