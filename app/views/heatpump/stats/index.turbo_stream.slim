@@ -10,23 +10,12 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
   template
     div
       .h-full.w-full.flex.flex-col.gap-3
-        - unless timeframe.now?
-          = render SplittedCosts::Component.new( \
-              costs: calculator.heatpump_costs,
-              power_grid_ratio: calculator.heatpump_power_grid_ratio,
-            )
-
         .flex-1.flex
           = render SegmentContainer::Component.new tippy_placement: 'top',
                                                    calculator:,
                                                    timeframe: do |balance|
-            - balance.with_title do
-              .flex.items-center.justify-between.gap-10.text-xl.w-full.px-8
-                = I18n.t('sensors.heatpump_heating_power')
-                = Number::Component.new(value: calculator.heatpump_heating_power).to_watt_hour
-
             - balance.with_segment :heatpump_heating_env,
-                                    color_class: [calculator.heatpump_heating? ? 'bg-sky-500/40 dark:bg-sky-700/70' : 'bg-slate-500/40 dark:bg-slate-400/40', 'relative'],
+                                    color_class: [calculator.heatpump_heating? ? 'bg-sky-500/40 dark:bg-sky-700/70' : 'bg-slate-500/40 dark:bg-slate-400/40', 'relative z-0'],
                                     title: nil,
                                     percent: calculator.heatpump_heating_env_percent || 90 do
               - if calculator.outdoor_temp
@@ -46,6 +35,12 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
                           class: 'absolute top-3 right-3',
                           data: { turbo_prefetch: 'false', turbo_frame: frame_id('chart'), turbo_action: 'replace' } do
                   = render HeatpumpScore::Component.new(calculator.heatpump_score)
+
+              .absolute.bottom-2.-mb-5.mx-auto.bg-yellow-900.px-6.py-3.rounded-full.z-10.text-center.text-slate-300
+                .text-xl
+                  = Number::Component.new(value: calculator.heatpump_heating_power).to_watt_hour
+                .text-xs.uppercase
+                  = SensorConfig.x.name(:heatpump_heating_power)
 
               .flex.gap-5
                 - if calculator.heatpump_cop
