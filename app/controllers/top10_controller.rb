@@ -36,7 +36,7 @@ class Top10Controller < ApplicationController
   helper_method def sensor_items
     sensor_names.map do |sensor|
       MenuItem::Component.new(
-        name: I18n.t("sensors.#{sensor}"),
+        name: SensorConfig.x.name(sensor),
         href: url_for(**permitted_params, sensor:, only_path: true),
         data: {
           action: 'dropdown--component#toggle',
