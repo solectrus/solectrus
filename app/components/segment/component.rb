@@ -176,7 +176,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       "bg-slate-500/#{index * 10} text-slate-700 dark:text-slate-400"
     else
       case sensor
-      when :grid_export_power, :inverter_power
+      when :grid_export_power, :inverter_power, :heatpump_power_pv
         'bg-green-600 dark:bg-green-800/80'
       when :battery_discharging_power, :battery_charging_power
         'bg-green-700 dark:bg-green-900/70'
@@ -188,7 +188,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
         'bg-slate-600 dark:bg-slate-600/70'
       when :wallbox_power
         'bg-slate-700 dark:bg-slate-600/50'
-      when :grid_import_power
+      when :grid_import_power, :heatpump_power_grid
         'bg-red-600   dark:bg-red-800/80'
       end
     end
