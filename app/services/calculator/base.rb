@@ -1,4 +1,7 @@
 class Calculator::Base
+  include Custom
+  include Heatpump
+
   def build_method(key, data = nil, modifier = nil, allow_nil: false, &)
     if data.nil? ^ block_given?
       raise ArgumentError, 'Either data or block must be given, not both'
@@ -99,7 +102,7 @@ class Calculator::Base
 
     if consumption.zero?
       # Producing without any consumption
-      #  => Maybe there is a balkony heatpump_power plant
+      #  => Maybe there is a balcony heatpump_power plant
       #  => 0% grid quote
       return 0 if producing?
 
@@ -121,13 +124,6 @@ class Calculator::Base
     return 0 if total_minus.zero?
 
     (house_power * 100.0 / total_minus).round(1)
-  end
-
-  def heatpump_power_percent
-    return unless heatpump_power && total_minus
-    return 0 if total_minus.zero?
-
-    (heatpump_power * 100.0 / total_minus).round(1)
   end
 
   # Wallbox
@@ -184,7 +180,8 @@ class Calculator::Base
     end
 
     grid_export_power + battery_charging_power + house_power +
-      heatpump_power.to_f + wallbox_power
+      custom_excluded_from_house_power_total.to_f + heatpump_power.to_f +
+      wallbox_power
   end
 
   def total

@@ -36,9 +36,10 @@ module ParamsHandling
     helper_method def calculator
       @calculator ||=
         if timeframe.now?
-          Calculator::Now.new
+          Calculator::Now.new sensors: calculations.keys
         else
-          Calculator::Range.new(timeframe)
+          # Requires a method `calculations` in the controller
+          Calculator::Range.new(timeframe, calculations:)
         end
     end
   end

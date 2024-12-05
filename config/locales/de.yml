@@ -1,6 +1,7 @@
 de:
   layout:
     balance: Strombilanz
+    house: Haus
     essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS
@@ -32,6 +33,7 @@ de:
     inverter_power: Erzeugung
     inverter_power_forecast: Prognose
     house_power: Haus-Verbrauch
+    house_power_without_custom: Andere
     house_power_grid: Netzbezug
     house_power_pv: Photovoltaik
     wallbox_power: E-Auto
@@ -45,7 +47,7 @@ de:
     battery_power: Hausakku
     battery_soc: Ladestand Hausakku
     car_battery_soc: Ladestand E-Auto
-    case_temp: Temperatur
+    case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
     heatpump_power_grid: Netzbezug

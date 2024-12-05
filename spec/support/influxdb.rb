@@ -20,7 +20,6 @@ module InfluxHelper
   end
 
   def add_influx_points(points)
-    influx_client = Flux::Base.new.client
     write_api = influx_client.create_write_api
 
     write_api.write(
@@ -34,10 +33,13 @@ module InfluxHelper
     start: Time.zone.at(0),
     stop: Time.zone.at(((2**63) / 1_000_000_000))
   )
-    influx_client = Flux::Base.new.client
     delete_api = influx_client.create_delete_api
 
     delete_api.delete(start, stop)
+  end
+
+  def influx_client
+    @influx_client ||= Flux::Base.new.client
   end
 
   SensorConfig::SENSOR_NAMES.each do |name|

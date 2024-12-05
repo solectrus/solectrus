@@ -1,36 +1,23 @@
 class ChartSelector::Component < ViewComponent::Base
-  def initialize(sensor:, timeframe:)
+  def initialize(sensor:, timeframe:, sensors:)
     super
     @sensor = sensor
     @timeframe = timeframe
+    @sensors = sensors.select { |s| SensorConfig.x.exists?(s) }
   end
-  attr_reader :sensor, :timeframe
-
-  # Sensors available for charting
-  def sensor_names
-    %i[
-      inverter_power
-      grid_power
-      house_power
-      heatpump_power
-      wallbox_power
-      battery_power
-      battery_soc
-      car_battery_soc
-      case_temp
-      autarky
-      self_consumption
-      co2_reduction
-    ].select { |sensor| SensorConfig.x.exists?(sensor) }
-    # TODO: Add savings
-  end
+  attr_reader :sensor, :timeframe, :sensors
 
   def sensor_items
-    sensor_names.map do |sensor|
+    sensors.map do |sensor|
       MenuItem::Component.new(
         name: title(sensor),
         sensor:,
-        href: root_path(sensor:, timeframe:),
+        href:
+          url_for(
+            controller: "#{helpers.controller_namespace}/home",
+            sensor:,
+            timeframe:,
+          ),
         data: {
           'turbo-frame' => helpers.frame_id('chart'),
           'turbo-action' => 'replace',
@@ -49,7 +36,7 @@ class ChartSelector::Component < ViewComponent::Base
     if sensor.in?(%i[autarky self_consumption co2_reduction])
       I18n.t "calculator.#{sensor}"
     else
-      I18n.t "sensors.#{sensor}"
+      SensorConfig.x.name(sensor)
     end
   end
 end

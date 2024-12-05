@@ -1,6 +1,7 @@
 en:
   layout:
     balance: Power balance
+    house: House
     essentials: Essentials
     top10: Top 10
     about: About SOLECTRUS
@@ -32,6 +33,7 @@ en:
     inverter_power: PV generated
     inverter_power_forecast: Forecast
     house_power: Home consumption
+    house_power_without_custom: Other
     house_power_grid: Grid
     house_power_pv: PV
     wallbox_power: EV charging
@@ -45,7 +47,7 @@ en:
     battery_power: Home Battery
     battery_soc: SOC Home Battery
     car_battery_soc: SOC EV
-    case_temp: Temperature
+    case_temp: Case
     grid_export_limit: Limitation
     heatpump_power: Heat pump
     heatpump_power_grid: Grid

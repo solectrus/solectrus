@@ -1,5 +1,5 @@
-describe PowerSum do
-  let(:power_sum) { described_class.new(sensors: %i[inverter_power]) }
+describe Flux::Sum do
+  let(:sum) { described_class.new(sensors: %i[inverter_power]) }
 
   before do
     travel_to '2024-06-05 12:30 +02:00' # Wednesday
@@ -26,7 +26,7 @@ describe PowerSum do
   end
 
   describe '#call' do
-    subject { power_sum.call(timeframe)[:inverter_power].fdiv(1000).round }
+    subject { sum.call(timeframe:)[:inverter_power].fdiv(1000).round }
 
     context 'when Monday' do
       let(:timeframe) { Timeframe.new('2024-06-03') }

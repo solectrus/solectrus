@@ -1,4 +1,4 @@
-class HomeController < ApplicationController
+class Balance::HomeController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
   include SummaryChecker

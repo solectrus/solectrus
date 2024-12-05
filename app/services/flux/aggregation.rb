@@ -1,4 +1,4 @@
-class PowerAggregation < Flux::Reader
+class Flux::Aggregation < Flux::Reader
   def call(timeframe: nil, start: nil, stop: nil)
     return {} unless SensorConfig.x.exists_any?(*sensors)
 

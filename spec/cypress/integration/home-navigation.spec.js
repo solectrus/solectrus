@@ -35,7 +35,7 @@ describe('Home page', () => {
         cy.get('#segment-inverter_power').should('contain', '9,0\u00a0kW');
 
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
-      cy.get('#chart-now').should('be.visible');
+      cy.get('#balance-chart-now').should('be.visible');
     }
 
     function navigateDay() {
@@ -50,7 +50,7 @@ describe('Home page', () => {
 
       if (path == 'inverter_power') {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
-        cy.get('#chart-2022-06-21')
+        cy.get('#balance-chart-2022-06-21')
           .should('contain', 'Erwartet werden')
           .should('contain', '58')
           .should('contain', 'kWh');
@@ -58,7 +58,10 @@ describe('Home page', () => {
 
       clickPrevAndExpect('Montag, 20. Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
-      cy.get('#chart-2022-06-20').should('contain', 'Keine Daten vorhanden');
+      cy.get('#balance-chart-2022-06-20').should(
+        'contain',
+        'Keine Daten vorhanden',
+      );
 
       clickNextAndExpect('Dienstag, 21. Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -81,7 +84,10 @@ describe('Home page', () => {
 
       clickPrevAndExpect('KW 24, 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
-      cy.get('#chart-2022-W24').should('contain', 'Keine Daten vorhanden');
+      cy.get('#balance-chart-2022-W24').should(
+        'contain',
+        'Keine Daten vorhanden',
+      );
 
       clickNextAndExpect('KW 25, 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -104,7 +110,10 @@ describe('Home page', () => {
 
       clickPrevAndExpect('Mai 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
-      cy.get('#chart-2022-05').should('contain', 'Keine Daten vorhanden');
+      cy.get('#balance-chart-2022-05').should(
+        'contain',
+        'Keine Daten vorhanden',
+      );
 
       clickNextAndExpect('Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
@@ -127,7 +136,7 @@ describe('Home page', () => {
 
       clickPrevAndExpect('2021');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
-      cy.get('#chart-2021').should('contain', 'Keine Daten vorhanden');
+      cy.get('#balance-chart-2021').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');

@@ -8,20 +8,15 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
 
   def data
     @data ||=
-      begin
-        class_name = "ChartData::#{sensor.to_s.camelize}"
+      if sensor.to_s.match?(/custom_\d+_power/)
+        ChartData::CustomPower.new(timeframe:, sensor:)
+      else
+        Object.const_get("ChartData::#{sensor.to_s.camelize}").new(timeframe:)
         # Example: :inverter_power -> ChartData::InverterPower
-
-        if Object.const_defined?(class_name)
-          Object.const_get(class_name).new(timeframe:)
-        else
-          # :nocov:
-          raise NotImplementedError,
-                "ChartData::#{sensor.to_s.camelize} not implemented"
-          # :nocov:
-        end
       end
   end
+
+  delegate :type, to: :data
 
   def options # rubocop:disable Metrics/MethodLength
     {
@@ -171,11 +166,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
           },
         },
       },
-    }
-  end
-
-  def type
-    (timeframe.short? ? 'line' : 'bar').inquiry
+    }.deep_merge(data.options)
   end
 
   def unit

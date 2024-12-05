@@ -1,5 +1,13 @@
 describe Calculator::Now do
-  let(:calculator) { described_class.new }
+  let(:calculator) do
+    described_class.new sensors: %i[
+                          inverter_power
+                          grid_export_limit
+                          house_power
+                          heatpump_power
+                          system_status
+                        ]
+  end
 
   describe '#time' do
     around { |example| freeze_time(&example) }

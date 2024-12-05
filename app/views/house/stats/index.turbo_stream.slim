@@ -1,0 +1,91 @@
+= turbo_stream.update frame_id('nav') do
+  = render Timeframe::Component.new(timeframe:)
+
+- if timeframe.now? && SensorConfig.x.exists?(:system_status)
+  = turbo_stream.update frame_id('status') do
+    = render Status::Component.new time: calculator.time,
+                                   status: calculator.system_status,
+                                   status_ok: calculator.system_status_ok
+
+turbo-stream action="morph" target= frame_id('stats') children-only= true
+  template
+    div
+      .h-full.w-full.flex.flex-col.gap-3
+        - unless timeframe.now?
+          .ml-5.md:ml-20
+            .flex.flex-col.items-center.w-full
+              .w-full
+                = render SplittedCosts::Component.new( \
+                    costs: calculator.house_costs,
+                    power_grid_ratio: calculator.house_power_grid_ratio,
+                  )
+
+        .flex-1.flex.gap-5
+          // Clip
+          .flex.gap-10.items-end.py-4.px-5
+            .w-5.border-b-2.border-t-2.border-l-2.border-slate-500.h-full.flex.justify-center
+              .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg
+                = link_to house_home_path(sensor: 'house_power', timeframe:),
+                          class: 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 py-2 md:py-4',
+                          title: SensorConfig.x.name(:house_power),
+                          data: { \
+                            controller: 'tippy',
+                            tippy_placement_value: 'right',
+                            tippy_force_tap_to_close_value: false,
+                            tippy_touch_value: 'long',
+                            turbo_frame: frame_id('chart', timeframe:),
+                            turbo_action: 'replace',
+                            turbo_prefetch: 'false',
+                            action: 'stats-with-chart--component#startLoop',
+                            stats_with_chart__component_sensor_param: 'house_power',
+                          } do
+                  - method = timeframe.now? ? :to_watt : :to_watt_hour
+                  div data= { 'stats-with-chart--component-target': sensor == :house_power ? 'current' : nil, sensor: sensor, value: calculator.house_power / 1000.0, time: calculator.time.to_i }
+                    = Number::Component.new(value: calculator.house_power).public_send method
+
+                  - unless calculator.house_power_valid?
+                    div[
+                      data-controller= 'tippy'
+                      title= 'Hausverbrauch ist kleiner als Summe der Verbraucher'
+                      data-tippy-placement-value= 'right'
+                    ]
+                      i.fa.fa-circle-exclamation
+
+          // Inner content
+          .flex-1.flex
+            = render SegmentContainer::Component.new tippy_placement: 'right',
+                                                     calculator:,
+                                                     timeframe: do |balance|
+              ruby:
+                if timeframe.now?
+                  # Fixed order, because changing order can't be animated
+                  number = 0
+                  Array.new(10) { |index| format('custom_%02d_power', index + 1).to_sym }.each do |sensor|
+                    next unless SensorConfig.x.exists?(sensor)
+                    next if sensor.in? SensorConfig.x.custom_excluded_from_house_power
+
+                    number += 1
+                    balance.with_segment sensor,
+                                         inline: true,
+                                         color_index: SensorConfig.x.custom_count - number
+                  end
+                else
+                  # Order by value (ascending)
+                  Array.new(10) { |index| format('custom_%02d_power', index + 1).to_sym }
+                    .sort_by { |sensor| calculator.public_send(sensor).to_f }
+                    .each.with_index(0) do |sensor, index|
+                      next if sensor.in? SensorConfig.x.custom_excluded_from_house_power
+
+                      balance.with_segment sensor,
+                                          inline: true,
+                                          color_index: 10 - index
+                    end
+                end
+
+              - balance.with_segment :house_power_without_custom,
+                                     title: nil do
+                div class= 'flex gap-2 lg:gap-3 w-full flex-row justify-between items-center'
+                  .font-light.uppercase.leading-tight
+                    = SensorConfig.x.name(:house_power_without_custom)
+                  div
+                    = Number::Component.new(value: calculator.house_power_without_custom).public_send(timeframe.now? ? :to_watt : :to_watt_hour)
