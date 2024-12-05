@@ -38,21 +38,32 @@ class SummarizerJob < ApplicationJob
   end
 
   def raw_sum_attributes
-    {
-      sum_inverter_power: calculator_sum.inverter_power,
-      sum_inverter_power_forecast: calculator_sum.inverter_power_forecast,
-      sum_house_power: calculator_sum.house_power,
-      sum_heatpump_power: calculator_sum.heatpump_power,
-      sum_grid_import_power: calculator_sum.grid_import_power,
-      sum_grid_export_power: calculator_sum.grid_export_power,
-      sum_battery_charging_power: calculator_sum.battery_charging_power,
-      sum_battery_discharging_power: calculator_sum.battery_discharging_power,
-      sum_wallbox_power: calculator_sum.wallbox_power,
-      # Sum Power-Splitter
-      sum_house_power_grid: calculator_sum.house_power_grid,
-      sum_wallbox_power_grid: calculator_sum.wallbox_power_grid,
-      sum_heatpump_power_grid: calculator_sum.heatpump_power_grid,
-    }
+    base_sensors = %i[
+      inverter_power
+      inverter_power_forecast
+      house_power
+      heatpump_power
+      grid_import_power
+      grid_export_power
+      battery_charging_power
+      battery_discharging_power
+      wallbox_power
+    ]
+
+    custom_sensors =
+      (1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |i|
+        format('custom_%02d_power', i)
+      end
+
+    power_splitter_sensors = %i[
+      house_power_grid
+      wallbox_power_grid
+      heatpump_power_grid
+    ]
+
+    (base_sensors + custom_sensors + power_splitter_sensors).to_h do |attr|
+      [:"sum_#{attr}", calculator_sum.public_send(attr)]
+    end
   end
 
   def raw_max_attributes
