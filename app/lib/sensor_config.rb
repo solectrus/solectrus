@@ -11,60 +11,88 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   class Error < RuntimeError
   end
 
-  SENSOR_NAMES = %i[
-    inverter_power
-    inverter_power_forecast
-    house_power
-    heatpump_power
-    grid_import_power
-    grid_export_power
-    grid_export_limit
-    battery_charging_power
-    battery_discharging_power
-    battery_soc
-    car_battery_soc
-    wallbox_car_connected
-    wallbox_power
-    case_temp
-    system_status
-    system_status_ok
-    house_power_grid
-    wallbox_power_grid
-    heatpump_power_grid
-  ].freeze
+  CUSTOM_SENSOR_COUNT = 10
+  public_constant :CUSTOM_SENSOR_COUNT
+
+  CUSTOM_SENSORS =
+    (1..CUSTOM_SENSOR_COUNT)
+      .map { |index| format('custom_%02d_power', index).to_sym }
+      .freeze
+  public_constant :CUSTOM_SENSORS
+
+  SENSOR_NAMES =
+    (
+      %i[
+        inverter_power
+        inverter_power_forecast
+        house_power
+        heatpump_power
+        grid_import_power
+        grid_export_power
+        grid_export_limit
+        battery_charging_power
+        battery_discharging_power
+        battery_soc
+        car_battery_soc
+        wallbox_car_connected
+        wallbox_power
+        case_temp
+        system_status
+        system_status_ok
+        house_power_grid
+        wallbox_power_grid
+        heatpump_power_grid
+      ] + CUSTOM_SENSORS
+    ).freeze
   public_constant :SENSOR_NAMES
 
-  POWER_SENSORS = %i[
-    inverter_power
-    house_power
-    heatpump_power
-    grid_import_power
-    grid_export_power
-    battery_charging_power
-    battery_discharging_power
-    wallbox_power
-  ].freeze
+  POWER_SENSORS =
+    (
+      %i[
+        inverter_power
+        house_power
+        heatpump_power
+        grid_import_power
+        grid_export_power
+        battery_charging_power
+        battery_discharging_power
+        wallbox_power
+      ] + CUSTOM_SENSORS
+    ).freeze
   public_constant :POWER_SENSORS
 
-  CALCULATED_SENSORS = %i[autarky self_consumption savings co2_reduction].freeze
-  public_constant :CALCULATED_SENSORS
+  TOP10_SENSORS = [*POWER_SENSORS, :case_temp].freeze
+  public_constant :TOP10_SENSORS
 
-  # Sensors that are displayed in the charts
-  CHART_SENSORS = %i[
-    inverter_power
-    house_power
-    heatpump_power
-    grid_power
-    battery_power
-    battery_soc
-    car_battery_soc
-    wallbox_power
-    case_temp
+  CALCULATED_SENSORS = %i[
     autarky
     self_consumption
     savings
     co2_reduction
+    house_power_without_custom
+    heatpump_power_pv
   ].freeze
+  public_constant :CALCULATED_SENSORS
+
+  # Sensors that are displayed in the charts
+  CHART_SENSORS =
+    (
+      %i[
+        inverter_power
+        house_power
+        heatpump_power
+        grid_power
+        battery_power
+        battery_soc
+        car_battery_soc
+        wallbox_power
+        case_temp
+        autarky
+        self_consumption
+        savings
+        co2_reduction
+      ] + CUSTOM_SENSORS
+    ).freeze
   public_constant :CHART_SENSORS
   # TODO: Implement savings, which is currently a redirect to inverter_power
 
@@ -79,6 +107,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     Rails.logger.info 'Sensor initialization started'
 
     @sensor_logs = []
+    @env = env
 
     env_hash = env.to_h
     env_hash.reverse_merge!(POWER_SPLITTER_SENSOR_CONFIG)
@@ -134,6 +163,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists_all? :inverter_power, :grid_export_power
     when :savings
       exists_all? :inverter_power, :house_power, :grid_power
+    when :house_power_without_custom
+      exists? :house_power
     when :co2_reduction
       exists? :inverter_power
     when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid
@@ -159,6 +190,33 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
 
   def exists_all?(*sensor_names)
     sensor_names.all? { |sensor_name| exists?(sensor_name) }
+  end
+
+  def name(sensor_name)
+    @names ||= {}
+    @names[sensor_name] ||= if sensor_name.match?(/custom_\d+_power/)
+      @env
+        .fetch(
+          "INFLUX_SENSOR_#{sensor_name.to_s.upcase.sub('_POWER', '_NAME')}",
+          sensor_name.to_s,
+        )
+        .dup
+        .to_utf8
+    else
+      I18n.t("sensors.#{sensor_name}")
+    end
+  end
+
+  def custom_count
+    @custom_count ||=
+      CUSTOM_SENSORS.count { |sensor_name| exists?(sensor_name) }
+  end
+
+  def custom_excluded_from_house_power
+    @custom_excluded_from_house_power ||=
+      CUSTOM_SENSORS.select do |sensor_name|
+        exclude_from_house_power.include?(sensor_name) && exists?(sensor_name)
+      end
   end
 
   private
@@ -254,6 +312,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   end
 
   def splitted_sensor_name(sensor_name)
+    return unless sensor_name
+
     public_send(sensor_name.downcase)&.split(':')
   end
 end
