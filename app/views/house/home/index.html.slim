@@ -25,5 +25,11 @@
     = render Timeframe::Component.new(timeframe:)
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
+- elsif ApplicationPolicy.custom?
+  - if SensorConfig.x.custom_count.positive?
+    = render StatsWithChart::Component.new(sensor:, timeframe:)
+  - else
+    p Keine benutzerdefinierten Sensoren konfiguriert!
+
 - else
-  = render DemoLink::Component.new(url: %i[house home])
+  = render DemoLink::Component.new(url: %i[house home], feature: 'custom')
