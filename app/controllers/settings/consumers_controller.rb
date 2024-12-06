@@ -1,8 +1,7 @@
-class Settings::GeneralsController < ApplicationController
+class Settings::ConsumersController < ApplicationController
   before_action :admin_required!
 
   def edit
-    @summary_completion_rate = Summary.fresh_percentage(Timeframe.all)
   end
 
   def update
@@ -23,9 +22,9 @@ class Settings::GeneralsController < ApplicationController
 
   def permitted_params
     params.require(:setting).permit(
-      :plant_name,
-      :operator_name,
-      :opportunity_costs,
+      *(1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |i|
+        format('custom_%02d_name', i).to_sym
+      end,
     )
   end
 
@@ -34,7 +33,7 @@ class Settings::GeneralsController < ApplicationController
       {
         name: t('settings.general.name'),
         href: settings_general_path,
-        current: true,
+        current: false,
       },
       {
         name: Price.human_enum_name(:name, :electricity),
@@ -49,7 +48,7 @@ class Settings::GeneralsController < ApplicationController
       {
         name: t('settings.consumers.name'),
         href: settings_consumers_path,
-        current: false,
+        current: true,
       },
     ]
   end

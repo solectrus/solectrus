@@ -108,7 +108,7 @@ de:
     delete: Löschen
     save: Speichern
     confirm_delete: Wirklich löschen?
-    success: Erfolgreich durchgeführt
+    success: Gespeichert
     error: Es ist ein Fehler aufgetreten
   settings:
     general:
@@ -138,6 +138,9 @@ de:
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
+    consumers:
+      name: Verbraucher
+      description: Bezeichnungen für die selbstdefinierten Stromverbraucher
   errors:
     title: Fehler
     403:
@@ -172,7 +175,7 @@ de:
         name: Name
         names:
           electricity: Strompreis
-          feed_in: Einspeisevergütung
+          feed_in: Einspeisung
         starts_at: Gültig ab
         value: Betrag
         note: Notiz

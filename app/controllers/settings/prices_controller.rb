@@ -71,6 +71,11 @@ class Settings::PricesController < ApplicationController
         href: settings_prices_path(name: 'feed_in'),
         current: name == 'feed_in',
       },
+      {
+        name: t('settings.consumers.name'),
+        href: settings_consumers_path,
+        current: false,
+      },
     ]
   end
 

@@ -193,15 +193,9 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   end
 
   def name(sensor_name)
-    @names ||= {}
-    @names[sensor_name] ||= if sensor_name.match?(/custom_\d+_power/)
-      @env
-        .fetch(
-          "INFLUX_SENSOR_#{sensor_name.to_s.upcase.sub('_POWER', '_NAME')}",
-          sensor_name.to_s,
-        )
-        .dup
-        .to_utf8
+    if sensor_name.match?(/custom_\d+_power/)
+      setting_name = sensor_name.to_s.sub('_power', '_name')
+      Setting.public_send(setting_name) || sensor_name.to_s
     else
       I18n.t("sensors.#{sensor_name}")
     end

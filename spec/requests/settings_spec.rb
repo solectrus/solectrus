@@ -88,4 +88,54 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
       end
     end
   end
+
+  describe 'GET /settings/consumers' do
+    context 'when not logged in' do
+      it 'returns http forbidden' do
+        get '/settings/consumers'
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'returns http success' do
+        get '/settings/consumers'
+        expect(response).to have_http_status(:success)
+      end
+    end
+  end
+
+  describe 'PATCH /settings/consumers' do
+    context 'when not logged in' do
+      it 'fails' do
+        patch '/settings/consumers',
+              params: {
+                setting: {
+                  custom_01_name: 'Test',
+                },
+              }
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'returns http success' do
+        patch '/settings/consumers',
+              params: {
+                setting: {
+                  custom_01_name: 'Test1',
+                  custom_02_name: 'Test2',
+                },
+              }
+        expect(response).to have_http_status(:success)
+
+        expect(Setting.custom_01_name).to eq('Test1')
+        expect(Setting.custom_02_name).to eq('Test2')
+      end
+    end
+  end
 end

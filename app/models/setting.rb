@@ -24,6 +24,10 @@ class Setting < RailsSettings::Base
 
   field :summary_config, type: :json, default: {}
 
+  (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |i|
+    field format('custom_%02d_name', i).to_sym, type: :string
+  end
+
   def self.seed!
     Setting.setup_id = nil if Setting.setup_id.to_i.zero?
     Setting.setup_id ||= (Price.first&.created_at || Time.current).to_i

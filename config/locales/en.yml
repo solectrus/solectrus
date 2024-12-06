@@ -108,7 +108,7 @@ en:
     delete: Delete
     save: Save
     confirm_delete: Are you sure you want to delete?
-    success: Successfully performed
+    success: Saved
     error: An error occurred
   settings:
     general:
@@ -138,6 +138,9 @@ en:
       description:
         electricity: Price per consumed kWh paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
+    consumers:
+      name: Consumers
+      description: Labels for the self-defined electricity consumers
   errors:
     title: Error
     403:
@@ -172,7 +175,7 @@ en:
         name: Name
         names:
           electricity: Electricity price
-          feed_in: Feed-in tariff
+          feed_in: Feed-in
         starts_at: Effective from
         value: Amount
         note: Note

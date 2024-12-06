@@ -1,0 +1,25 @@
+- content_for :sub_nav do
+  .flex.justify-between.items-center
+    .hidden.lg:block.py-5
+      = render Nav::Sub::Component.new do |c|
+        = c.with_items nav_items
+
+- content_for :bottom_nav do
+  = render Nav::Sub::Component.new do |c|
+    = c.with_items nav_items
+
+= form_for(Setting.new, url: settings_consumers_path, method: :patch, html: { class: 'px-2' }) do |f|
+  = f.group title: t('settings.consumers.description') do
+    .grid.grid-cols-1.md:grid-cols-2.gap-4
+      - (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |i|
+        - sensor_name = format('custom_%02d_power', i).to_sym
+
+        - if SensorConfig.x.exists?(sensor_name)
+          - setting_name = format('custom_%02d_name', i)
+          .flex.flex-col
+            = f.text_field setting_name,
+                           value: Setting.public_send(setting_name),
+                           label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+
+  = f.actions do
+    = f.submit t('crud.save')
