@@ -313,6 +313,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def house_costs
+    return house_costs_grid unless Setting.opportunity_costs
     return unless house_costs_grid && house_costs_pv
 
     house_costs_grid + house_costs_pv

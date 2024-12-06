@@ -1,4 +1,4 @@
-class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
+class Segment::Component < ViewComponent::Base
   def initialize(sensor, **options, &block)
     super
     @sensor = sensor
@@ -62,7 +62,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     return unless ApplicationPolicy.power_splitter?
 
     costs_field = "#{sensor}_costs".sub('_power', '')
-    costs_field << '_grid' unless Setting.opportunity_costs
+    # Example: custom_01_costs
 
     calculator.public_send(costs_field)
   end
