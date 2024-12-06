@@ -151,10 +151,10 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.settings'),
         icon: 'cog',
-        href: settings_path,
+        href: settings_general_path,
         current:
-          helpers.controller.is_a?(SettingsController) ||
-            helpers.controller.is_a?(PricesController),
+          helpers.controller.is_a?(Settings::GeneralsController) ||
+            helpers.controller.is_a?(Settings::PricesController),
       }
     end
 

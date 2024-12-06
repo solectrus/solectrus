@@ -1,4 +1,4 @@
-class PricesController < ApplicationController
+class Settings::PricesController < ApplicationController
   before_action :admin_required!
 
   before_action :load_price, only: %i[edit update destroy]
@@ -6,7 +6,7 @@ class PricesController < ApplicationController
 
   def index
     unless name.in?(Price.names.keys)
-      redirect_to prices_path(name: Price.names.keys.first)
+      redirect_to settings_prices_path(name: Price.names.keys.first)
       return
     end
 
@@ -56,15 +56,19 @@ class PricesController < ApplicationController
 
   helper_method def nav_items
     [
-      { name: t('settings.general.name'), href: settings_path, current: false },
+      {
+        name: t('settings.general.name'),
+        href: settings_general_path,
+        current: false,
+      },
       {
         name: Price.human_enum_name(:name, :electricity),
-        href: prices_path(name: 'electricity'),
+        href: settings_prices_path(name: 'electricity'),
         current: name == 'electricity',
       },
       {
         name: Price.human_enum_name(:name, :feed_in),
-        href: prices_path(name: 'feed_in'),
+        href: settings_prices_path(name: 'feed_in'),
         current: name == 'feed_in',
       },
     ]

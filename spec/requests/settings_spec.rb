@@ -1,8 +1,15 @@
 describe 'Settings', vcr: { cassette_name: 'version' } do
   describe 'GET /settings' do
+    it 'returns http success' do
+      get '/settings'
+      expect(response).to redirect_to('/settings/general')
+    end
+  end
+
+  describe 'GET /settings/general' do
     context 'when not logged in' do
       it 'returns http forbidden' do
-        get '/settings'
+        get '/settings/general'
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -11,16 +18,16 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
       before { login_as_admin }
 
       it 'returns http success' do
-        get '/settings'
+        get '/settings/general'
         expect(response).to have_http_status(:success)
       end
     end
   end
 
-  describe 'PATCH /settings' do
+  describe 'PATCH /settings/general' do
     context 'when not logged in' do
       it 'fails' do
-        patch '/settings', params: { setting: { plant_name: 'Test' } }
+        patch '/settings/general', params: { setting: { plant_name: 'Test' } }
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -29,7 +36,7 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
       before { login_as_admin }
 
       it 'returns http success' do
-        patch '/settings',
+        patch '/settings/general',
               params: {
                 setting: {
                   plant_name: 'Test',

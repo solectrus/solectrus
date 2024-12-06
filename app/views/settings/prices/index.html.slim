@@ -12,7 +12,7 @@
   p.text-sm.md:text-base
     = t "settings.prices.description.#{name}"
 
-  = render Button::Component.new path: new_price_path,
+  = render Button::Component.new path: new_settings_price_path,
                                   icon: 'plus',
                                   type: :button,
                                   options: { \

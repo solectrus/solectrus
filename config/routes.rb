@@ -11,6 +11,7 @@
 #                      house_charts GET    /house/charts/:sensor(/:timeframe)(.:format)              house/charts#index {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|custom_01_power|custom_02_power|custom_03_power|custom_04_power|custom_05_power|custom_06_power|custom_07_power|custom_08_power|custom_09_power|custom_10_power/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
 #                             tiles GET    /tiles/:sensor(/:timeframe)(.:format)                     tiles#show {:sensor=>/inverter_power|house_power|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|custom_01_power|custom_02_power|custom_03_power|custom_04_power|custom_05_power|custom_06_power|custom_07_power|custom_08_power|custom_09_power|custom_10_power/, :timeframe=>/(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/}
 #                           summary GET    /summaries/:date(.:format)                                summaries#show
+#                         summaries DELETE /summaries(.:format)                                      summaries#delete_all
 #                        essentials GET    /essentials(.:format)                                     essentials#index
 #                             top10 GET    /top10(/:period)(/:sensor)(/:calc)(/:sort)(.:format)      top10#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :sensor=>/inverter_power|house_power|heatpump_power|grid_import_power|grid_export_power|battery_charging_power|battery_discharging_power|wallbox_power|custom_01_power|custom_02_power|custom_03_power|custom_04_power|custom_05_power|custom_06_power|custom_07_power|custom_08_power|custom_09_power|custom_10_power|case_temp/}
 #                       top10_chart GET    /top10-chart/:period/:sensor/:calc/:sort(.:format)        top10_chart#index {:period=>/day|week|month|year/, :calc=>/sum|max/, :sort=>/asc|desc/, :sensor=>/inverter_power|house_power|heatpump_power|grid_import_power|grid_export_power|battery_charging_power|battery_discharging_power|wallbox_power|custom_01_power|custom_02_power|custom_03_power|custom_04_power|custom_05_power|custom_06_power|custom_07_power|custom_08_power|custom_09_power|custom_10_power|case_temp/}
@@ -20,19 +21,19 @@
 #                      registration GET    /registration(/:status)(.:format)                         registration#show
 #                        sponsoring GET    /sponsoring(.:format)                                     sponsorings#show
 #                                   GET    /favicon.ico(.:format)                                    redirect(301, /favicon-196.png)
-#                     edit_settings GET    /settings(.:format)                                       settings#edit
-#                          settings PATCH  /settings(.:format)                                       settings#update
-#                                   PUT    /settings(.:format)                                       settings#update
-#                            prices GET    /settings/prices(/:name)(.:format)                        prices#index {:name=>/electricity|feed_in/}
-#                                   GET    /settings/prices(.:format)                                prices#index
-#                                   POST   /settings/prices(.:format)                                prices#create
-#                         new_price GET    /settings/prices/new(.:format)                            prices#new
-#                        edit_price GET    /settings/prices/:id/edit(.:format)                       prices#edit
-#                             price GET    /settings/prices/:id(.:format)                            prices#show
-#                                   PATCH  /settings/prices/:id(.:format)                            prices#update
-#                                   PUT    /settings/prices/:id(.:format)                            prices#update
-#                                   DELETE /settings/prices/:id(.:format)                            prices#destroy
-#                         summaries DELETE /settings/summaries(.:format)                             summaries#delete_all
+#             edit_settings_general GET    /settings/general(.:format)                               settings/generals#edit
+#                  settings_general PATCH  /settings/general(.:format)                               settings/generals#update
+#                                   PUT    /settings/general(.:format)                               settings/generals#update
+#                   settings_prices GET    /settings/prices(/:name)(.:format)                        settings/prices#index {:name=>/electricity|feed_in/}
+#                                   GET    /settings/prices(.:format)                                settings/prices#index
+#                                   POST   /settings/prices(.:format)                                settings/prices#create
+#                new_settings_price GET    /settings/prices/new(.:format)                            settings/prices#new
+#               edit_settings_price GET    /settings/prices/:id/edit(.:format)                       settings/prices#edit
+#                    settings_price GET    /settings/prices/:id(.:format)                            settings/prices#show
+#                                   PATCH  /settings/prices/:id(.:format)                            settings/prices#update
+#                                   PUT    /settings/prices/:id(.:format)                            settings/prices#update
+#                                   DELETE /settings/prices/:id(.:format)                            settings/prices#destroy
+#                          settings GET    /settings(.:format)                                       redirect(301, /settings/general)
 #                         bat_power GET    /bat_power(.:format)                                      redirect(301, /battery_power)
 #                                   GET    /bat_power/:timeframe(.:format)                           redirect(301, /battery_power/%{timeframe})
 #                   bat_fuel_charge GET    /bat_fuel_charge(.:format)                                redirect(301, /battery_soc)
@@ -96,6 +97,8 @@ Rails.application.routes.draw do
   end
 
   resources :summaries, only: :show, param: :date
+  delete '/summaries', to: 'summaries#delete_all'
+
   resources :essentials, only: :index
 
   constraints period: /day|week|month|year/,
@@ -119,14 +122,14 @@ Rails.application.routes.draw do
 
   get '/favicon.ico', to: redirect('/favicon-196.png')
 
-  resource :settings, only: %i[edit update], path_names: { edit: '' }
-  scope :settings do
+  scope :settings, as: :settings, module: 'settings' do
+    resource :general, only: %i[edit update], path_names: { edit: '' }
+
     resources :prices, constraints: { name: Regexp.union(Price.names.keys) } do
       get '(:name)', on: :collection, action: :index, as: ''
     end
-
-    delete '/summaries', to: 'summaries#delete_all'
   end
+  get '/settings', to: redirect('/settings/general')
 
   DeprecatedRoutesRedirect.draw(self)
 end

@@ -17,7 +17,7 @@ class SummariesController < ApplicationController
     render turbo_stream: [
              turbo_stream.update(
                'summaries',
-               partial: 'settings/summaries',
+               partial: 'settings/generals/summaries',
                locals: {
                  summary_completion_rate: 0,
                },

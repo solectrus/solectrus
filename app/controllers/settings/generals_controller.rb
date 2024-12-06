@@ -1,4 +1,4 @@
-class SettingsController < ApplicationController
+class Settings::GeneralsController < ApplicationController
   before_action :admin_required!
 
   def edit
@@ -31,15 +31,19 @@ class SettingsController < ApplicationController
 
   helper_method def nav_items
     [
-      { name: t('settings.general.name'), href: settings_path, current: true },
+      {
+        name: t('settings.general.name'),
+        href: settings_general_path,
+        current: true,
+      },
       {
         name: Price.human_enum_name(:name, :electricity),
-        href: prices_path(name: 'electricity'),
+        href: settings_prices_path(name: 'electricity'),
         current: false,
       },
       {
         name: Price.human_enum_name(:name, :feed_in),
-        href: prices_path(name: 'feed_in'),
+        href: settings_prices_path(name: 'feed_in'),
         current: false,
       },
     ]
