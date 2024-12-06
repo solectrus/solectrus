@@ -32,7 +32,7 @@ class Calculator::Now < Calculator::Base
     build_method(:car_battery_soc, data)
 
     (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |i|
-      build_method(:"custom_#{format('%02d', i)}_power", data)
+      build_method(:"custom_power_#{format('%02d', i)}", data)
     end
 
     define_singleton_method(:house_power) do

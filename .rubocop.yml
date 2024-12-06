@@ -240,3 +240,8 @@ RSpec/ImplicitSubject:
 
 RSpec/VerifiedDoubles:
   Enabled: false
+
+# Naming
+
+Naming/VariableNumber:
+  Enabled: false

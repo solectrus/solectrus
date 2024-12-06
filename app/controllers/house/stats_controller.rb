@@ -26,9 +26,9 @@ class House::StatsController < ApplicationController
       house_power_grid: :sum_house_power_grid_sum,
       **(1..SensorConfig::CUSTOM_SENSOR_COUNT)
         .filter_map do |index|
-          sensor_key = format('custom_%02d_power', index).to_sym
+          sensor_key = format('custom_power_%02d', index).to_sym
           if SensorConfig.x.exists?(sensor_key)
-            [sensor_key, format('sum_custom_%02d_power_sum', index).to_sym]
+            [sensor_key, format('sum_custom_power_%02d_sum', index).to_sym]
           end
         end
         .to_h,

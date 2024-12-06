@@ -22,16 +22,16 @@
 #  min_case_temp                 :float
 #  sum_battery_charging_power    :float
 #  sum_battery_discharging_power :float
-#  sum_custom_01_power           :float
-#  sum_custom_02_power           :float
-#  sum_custom_03_power           :float
-#  sum_custom_04_power           :float
-#  sum_custom_05_power           :float
-#  sum_custom_06_power           :float
-#  sum_custom_07_power           :float
-#  sum_custom_08_power           :float
-#  sum_custom_09_power           :float
-#  sum_custom_10_power           :float
+#  sum_custom_power_01           :float
+#  sum_custom_power_02           :float
+#  sum_custom_power_03           :float
+#  sum_custom_power_04           :float
+#  sum_custom_power_05           :float
+#  sum_custom_power_06           :float
+#  sum_custom_power_07           :float
+#  sum_custom_power_08           :float
+#  sum_custom_power_09           :float
+#  sum_custom_power_10           :float
 #  sum_grid_export_power         :float
 #  sum_grid_import_power         :float
 #  sum_heatpump_power            :float
@@ -240,32 +240,25 @@ describe Summary do
 
       it 'returns a sorted list of sensors' do
         is_expected.to eq(
-          %i[
-            battery_charging_power
-            battery_discharging_power
-            battery_soc
-            car_battery_soc
-            case_temp
-            custom_01_power
-            custom_02_power
-            custom_03_power
-            custom_04_power
-            custom_05_power
-            custom_06_power
-            custom_07_power
-            custom_08_power
-            custom_09_power
-            custom_10_power
-            grid_export_power
-            grid_import_power
-            heatpump_power
-            heatpump_power_grid
-            house_power
-            house_power_grid
-            inverter_power
-            inverter_power_forecast
-            wallbox_power
-            wallbox_power_grid
+          [
+            :battery_charging_power,
+            :battery_discharging_power,
+            :battery_soc,
+            :car_battery_soc,
+            :case_temp,
+            *(1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |index|
+              format('custom_power_%02d', index).to_sym
+            end,
+            :grid_export_power,
+            :grid_import_power,
+            :heatpump_power,
+            :heatpump_power_grid,
+            :house_power,
+            :house_power_grid,
+            :inverter_power,
+            :inverter_power_forecast,
+            :wallbox_power,
+            :wallbox_power_grid,
           ],
         )
       end

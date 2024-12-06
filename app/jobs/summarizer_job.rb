@@ -52,7 +52,7 @@ class SummarizerJob < ApplicationJob
 
     custom_sensors =
       (1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |i|
-        format('custom_%02d_power', i)
+        format('custom_power_%02d', i)
       end
 
     power_splitter_sensors = %i[

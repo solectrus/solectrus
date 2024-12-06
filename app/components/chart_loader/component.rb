@@ -8,7 +8,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
 
   def data
     @data ||=
-      if sensor.to_s.match?(/custom_\d+_power/)
+      if sensor.to_s.match?(/custom_power_\d{2}/)
         ChartData::CustomPower.new(timeframe:, sensor:)
       else
         Object.const_get("ChartData::#{sensor.to_s.camelize}").new(timeframe:)

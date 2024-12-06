@@ -15,11 +15,11 @@ module Calculator::Base::Custom
     end
 
     def custom_power(index)
-      public_send(format('custom_%02d_power', index))
+      public_send(format('custom_power_%02d', index))
     end
 
     (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |index|
-      sensor = format('custom_%02d_power', index).to_sym
+      sensor = format('custom_power_%02d', index).to_sym
       define_method(:"#{sensor}_percent") do
         total =
           if sensor.in?(SensorConfig.x.custom_excluded_from_house_power)

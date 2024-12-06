@@ -9,7 +9,7 @@ class House::ChartsController < ApplicationController
   helper_method def chart_sensors
     %i[house_power] +
       (1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |i|
-        format('custom_%02d_power', i).to_sym
+        format('custom_power_%02d', i).to_sym
       end
   end
 end

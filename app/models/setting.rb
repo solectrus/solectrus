@@ -25,7 +25,7 @@ class Setting < RailsSettings::Base
   field :summary_config, type: :json, default: {}
 
   (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |i|
-    field format('custom_%02d_name', i).to_sym, type: :string
+    field format('custom_name_%02d', i).to_sym, type: :string
   end
 
   def self.seed!

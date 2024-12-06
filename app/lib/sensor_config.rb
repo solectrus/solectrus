@@ -16,7 +16,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
 
   CUSTOM_SENSORS =
     (1..CUSTOM_SENSOR_COUNT)
-      .map { |index| format('custom_%02d_power', index).to_sym }
+      .map { |index| format('custom_power_%02d', index).to_sym }
       .freeze
   public_constant :CUSTOM_SENSORS
 
@@ -193,7 +193,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   end
 
   def name(sensor_name)
-    if sensor_name.match?(/custom_\d+_power/)
+    if sensor_name.match?(/custom_power_\d{2}/)
       setting_name = sensor_name.to_s.sub('_power', '_name')
       Setting.public_send(setting_name) || sensor_name.to_s
     else

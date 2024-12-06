@@ -144,7 +144,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def default_color_class # rubocop:disable Metrics/CyclomaticComplexity
-    if (match = sensor.to_s.match(/^custom_(\d{2})_power$/))
+    if (match = sensor.to_s.match(/^custom_power_(\d{2})$/))
       # bg-slate-500/10
       # bg-slate-500/20
       # bg-slate-500/30

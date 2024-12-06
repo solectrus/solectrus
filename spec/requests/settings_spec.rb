@@ -113,7 +113,7 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
         patch '/settings/consumers',
               params: {
                 setting: {
-                  custom_01_name: 'Test',
+                  custom_name_01: 'Test',
                 },
               }
         expect(response).to have_http_status(:forbidden)
@@ -127,14 +127,14 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
         patch '/settings/consumers',
               params: {
                 setting: {
-                  custom_01_name: 'Test1',
-                  custom_02_name: 'Test2',
+                  custom_name_01: 'Test1',
+                  custom_name_02: 'Test2',
                 },
               }
         expect(response).to have_http_status(:success)
 
-        expect(Setting.custom_01_name).to eq('Test1')
-        expect(Setting.custom_02_name).to eq('Test2')
+        expect(Setting.custom_name_01).to eq('Test1')
+        expect(Setting.custom_name_02).to eq('Test2')
       end
     end
   end

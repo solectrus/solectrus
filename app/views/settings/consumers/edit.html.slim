@@ -12,10 +12,10 @@
   = f.group title: t('settings.consumers.description') do
     .grid.grid-cols-1.md:grid-cols-2.gap-4
       - (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |i|
-        - sensor_name = format('custom_%02d_power', i).to_sym
+        - sensor_name = format('custom_power_%02d', i).to_sym
 
         - if SensorConfig.x.exists?(sensor_name)
-          - setting_name = format('custom_%02d_name', i)
+          - setting_name = format('custom_name_%02d', i)
           .flex.flex-col
             = f.text_field setting_name,
                            value: Setting.public_send(setting_name),

@@ -67,7 +67,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method_from_array(:heatpump_power_grid, data)
 
     (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |index|
-      build_method_from_array(:"custom_#{format('%02d', index)}_power", data)
+      build_method_from_array(:"custom_power_#{format('%02d', index)}", data)
     end
 
     return unless timeframe.day?
