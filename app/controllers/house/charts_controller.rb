@@ -10,6 +10,6 @@ class House::ChartsController < ApplicationController
     %i[house_power] +
       (1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |i|
         format('custom_power_%02d', i).to_sym
-      end
+      end - SensorConfig.x.custom_excluded_from_house_power
   end
 end
