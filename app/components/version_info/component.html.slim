@@ -1,11 +1,14 @@
 .flex.items-center.gap-2
-  = link_to github_url,
+  .space-x-2
+    = link_to github_url,
             target: '_blank',
-            rel: 'noopener',
-            data: { controller: 'tippy' },
-            title: l(commit_time) do
-    i.fab.fa-github.fa-lg
-    code.ml-2
+            rel: 'noopener' do
+      i.fab.fa-github.fa-lg
+
+    code.select-text[
+      data-controller = 'tippy'
+      title= l(commit_time)
+    ]
       = current_version
 
   - if version_valid?
