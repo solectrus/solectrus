@@ -1,4 +1,6 @@
 class Settings::PricesController < ApplicationController
+  include SettingsNavigation
+
   before_action :admin_required!
 
   before_action :load_price, only: %i[edit update destroy]
@@ -52,31 +54,6 @@ class Settings::PricesController < ApplicationController
 
   helper_method def name
     params[:name] || @price&.name
-  end
-
-  helper_method def nav_items
-    [
-      {
-        name: t('settings.general.name'),
-        href: settings_general_path,
-        current: false,
-      },
-      {
-        name: Price.human_enum_name(:name, :electricity),
-        href: settings_prices_path(name: 'electricity'),
-        current: name == 'electricity',
-      },
-      {
-        name: Price.human_enum_name(:name, :feed_in),
-        href: settings_prices_path(name: 'feed_in'),
-        current: name == 'feed_in',
-      },
-      {
-        name: t('settings.consumers.name'),
-        href: settings_consumers_path,
-        current: false,
-      },
-    ]
   end
 
   def load_price

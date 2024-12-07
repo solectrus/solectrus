@@ -1,4 +1,6 @@
 class Settings::ConsumersController < ApplicationController
+  include SettingsNavigation
+
   before_action :admin_required!
 
   def edit
@@ -26,30 +28,5 @@ class Settings::ConsumersController < ApplicationController
         format('custom_name_%02d', i).to_sym
       end,
     )
-  end
-
-  helper_method def nav_items
-    [
-      {
-        name: t('settings.general.name'),
-        href: settings_general_path,
-        current: false,
-      },
-      {
-        name: Price.human_enum_name(:name, :electricity),
-        href: settings_prices_path(name: 'electricity'),
-        current: false,
-      },
-      {
-        name: Price.human_enum_name(:name, :feed_in),
-        href: settings_prices_path(name: 'feed_in'),
-        current: false,
-      },
-      {
-        name: t('settings.consumers.name'),
-        href: settings_consumers_path,
-        current: true,
-      },
-    ]
   end
 end
