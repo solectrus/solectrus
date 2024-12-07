@@ -82,10 +82,4 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
                     end
                 end
 
-              - balance.with_segment :house_power_without_custom,
-                                     title: nil do
-                div class= 'flex gap-2 lg:gap-3 w-full flex-row justify-between items-center'
-                  .font-light.uppercase.leading-tight
-                    = SensorConfig.x.name(:house_power_without_custom)
-                  div
-                    = Number::Component.new(value: calculator.house_power_without_custom).public_send(timeframe.now? ? :to_watt : :to_watt_hour)
+              - balance.with_segment :house_power_without_custom, inline: true

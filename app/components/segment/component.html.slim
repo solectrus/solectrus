@@ -12,7 +12,7 @@
     = block.call
 
 - else
-  = link_to url,
+  = link_to_or_div url,
             id: "segment-#{sensor}",
             class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('!border-0' if tiny?)],
             style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
@@ -28,7 +28,7 @@
               action: 'stats-with-chart--component#startLoop',
               stats_with_chart__component_sensor_param: sensor,
             } do
-    div class= "flex gap-2 lg:gap-3 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center click-animation"
+    div class= "flex gap-2 lg:gap-3 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center {'click-animation' if url}"
       - if icon_class
         i.fa class= icon_class style="font-size: #{icon_size}%;"
 

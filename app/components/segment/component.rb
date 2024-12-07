@@ -1,4 +1,4 @@
-class Segment::Component < ViewComponent::Base
+class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor, **options, &block)
     super
     @sensor = sensor
@@ -26,12 +26,14 @@ class Segment::Component < ViewComponent::Base
 
   delegate :calculator, :timeframe, to: :parent
 
+  def link_to_or_div(url, **, &)
+    url ? link_to(url, **, &) : tag.div(**, &)
+  end
+
   def url
     case helpers.controller_namespace
     when 'house'
-      if sensor == :house_power_without_custom
-        house_home_path(sensor: :house_power, timeframe: parent.timeframe)
-      else
+      unless sensor == :house_power_without_custom
         house_home_path(sensor:, timeframe: parent.timeframe)
       end
     else
