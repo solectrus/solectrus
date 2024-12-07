@@ -325,6 +325,8 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |index|
     define_method format('custom_%02d_costs', index) do
+      return unless house_power&.nonzero? && house_costs
+
       custom_power(index).to_f / house_power * house_costs
     end
   end
