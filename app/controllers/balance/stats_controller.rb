@@ -37,6 +37,7 @@ class Balance::StatsController < ApplicationController
       battery_soc: nil,
       system_status: nil,
       wallbox_car_connected: nil,
+      case_temp: nil,
       **excluded_sensors,
     }
   end
