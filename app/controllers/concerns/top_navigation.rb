@@ -5,7 +5,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     private
 
     helper_method def topnav_primary_items
-      [house_item, essentials_item, top10_item]
+      [root_item, house_item, essentials_item, top10_item]
     end
 
     helper_method def topnav_secondary_items
@@ -27,13 +27,29 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       { name: '-' }
     end
 
+    def root_item
+      {
+        name: t('layout.balance'),
+        href:
+          root_path(
+            sensor: 'inverter_power',
+            timeframe:
+              helpers.respond_to?(:timeframe) ? helpers.timeframe : 'now',
+          ),
+        current: helpers.controller_namespace == 'balance',
+        data: {
+          controller: 'tippy',
+        },
+      }
+    end
+
     def house_item
       {
         name: t('layout.house'),
         text: false,
         icon: 'home',
         href: house_home_path(sensor: 'house_power', timeframe:),
-        current: helpers.controller.is_a?(House::HomeController),
+        current: helpers.controller_namespace == 'house',
         data: {
           controller: 'tippy',
         },
@@ -152,9 +168,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.settings'),
         icon: 'cog',
         href: settings_general_path,
-        current:
-          helpers.controller.is_a?(Settings::GeneralsController) ||
-            helpers.controller.is_a?(Settings::PricesController),
+        current: helpers.controller_namespace == 'settings',
       }
     end
 
