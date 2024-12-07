@@ -22,6 +22,7 @@ class House::StatsController < ApplicationController
 
   def calculations
     {
+      system_status: nil,
       house_power: :sum_house_power_sum,
       house_power_grid: :sum_house_power_grid_sum,
       **(1..SensorConfig::CUSTOM_SENSOR_COUNT)
