@@ -24,7 +24,7 @@
 
         .table-cell.align-middle.w-1.p-2
           .flex.space-x-1
-            = render Button::Component.new path: edit_price_path(price),
+            = render Button::Component.new path: edit_settings_price_path(price),
                                            icon: 'pencil',
                                            type: :button,
                                            style: :secondary,
@@ -35,7 +35,7 @@
                                            }
 
             - if price.destroyable?
-              = render Button::Component.new path: price_path(price),
+              = render Button::Component.new path: settings_price_path(price),
                                              icon: 'trash',
                                              type: :button,
                                              style: :secondary,

@@ -3,10 +3,12 @@ class Calculator::QueryInfluxAggregation < Calculator::Base
     super()
 
     @timeframe = timeframe
-    build_context PowerAggregation.new(sensors:).call(timeframe:)
+    build_context Flux::Aggregation.new(sensors:).call(timeframe:)
   end
 
   attr_reader :timeframe
+
+  private
 
   def build_context(data)
     %i[min max mean].each do |method|
