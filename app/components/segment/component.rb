@@ -64,7 +64,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     return unless ApplicationPolicy.power_splitter?
 
     costs_field = "#{sensor}_costs".sub('_power', '')
-    # Example: custom_01_costs
+    # Example: custom_01_costs,  house_without_custom_costs, wallbox_costs, ...
 
     calculator.public_send(costs_field)
   end

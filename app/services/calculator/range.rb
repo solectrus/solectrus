@@ -320,6 +320,10 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def house_without_custom_costs
+    unless house_power_without_custom && house_costs && house_power&.nonzero?
+      return
+    end
+
     house_power_without_custom / house_power * house_costs
   end
 
