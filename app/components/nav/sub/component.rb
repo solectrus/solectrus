@@ -26,7 +26,7 @@ class Nav::Sub::Component < ViewComponent::Base
         pb-5
         standalone:pt-3
         standalone:pb-8
-        px-2
+        px-1.5
         first:pl-6
         last:pr-6
         md:px-3
