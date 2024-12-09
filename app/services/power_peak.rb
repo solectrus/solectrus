@@ -42,6 +42,6 @@ class PowerPeak
   end
 
   def cache_options
-    { expires_in: 1.day }
+    { expires_in: 1.day, skip_nil: true }
   end
 end
