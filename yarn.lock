@@ -1381,12 +1381,12 @@ __metadata:
   linkType: hard
 
 "call-bind-apply-helpers@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "call-bind-apply-helpers@npm:1.0.0"
+  version: 1.0.1
+  resolution: "call-bind-apply-helpers@npm:1.0.1"
   dependencies:
     es-errors: "npm:^1.3.0"
     function-bind: "npm:^1.1.2"
-  checksum: 10c0/fb91dbfcb0b54b025e88dba660e2a9fe6ca69107dab2f6696e1f7cf8b9c35aafc4879ac3a47d0fa9da55eecf767f2191f5651648dce920ac9b49df0ceb65063f
+  checksum: 10c0/acb2ab68bf2718e68a3e895f0d0b73ccc9e45b9b6f210f163512ba76f91dab409eb8792f6dae188356f9095747512a3101646b3dea9d37fb8c7c6bf37796d18c
   languageName: node
   linkType: hard
 
@@ -3293,11 +3293,11 @@ __metadata:
   linkType: hard
 
 "nanospinner@npm:^1.1.0":
-  version: 1.2.0
-  resolution: "nanospinner@npm:1.2.0"
+  version: 1.2.2
+  resolution: "nanospinner@npm:1.2.2"
   dependencies:
     picocolors: "npm:^1.1.1"
-  checksum: 10c0/6ce9905281a352555f563bdaf20d861b74f644ac8eb3f5e759bc034cbd845224822abdc9f49ae3f52cf8486dff792c0125faced00e6c02db083c0f541b8b7be9
+  checksum: 10c0/07264f63816a8ec24d84ffe216a605cf11dffd8b098d4c5e6790437304b47e10ce4fc341de8dbcfc1b59aa42107f9949c89bcc201239eb61a80e14b6b1a20c90
   languageName: node
   linkType: hard
 
