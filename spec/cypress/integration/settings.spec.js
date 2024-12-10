@@ -26,7 +26,7 @@ describe('Settings', () => {
         .should('contain', '27.11.2020')
         .should('contain', '0,2545 €');
 
-      cy.contains('Einspeisevergütung').click();
+      cy.contains('Einspeisung').click();
       cy.location('pathname').should('equal', `/settings/prices/feed_in`);
       cy.get('#list')
         .should('contain', '27.11.2020')
