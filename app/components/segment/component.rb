@@ -145,8 +145,40 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     end
   end
 
+  def balance?
+    sensor.in?(
+      %i[
+        grid_export_power
+        inverter_power
+        heatpump_power_pv
+        battery_discharging_power
+        battery_charging_power
+        house_power
+        heatpump_power
+        wallbox_power
+        grid_import_power
+        heatpump_power_grid
+      ],
+    ) || sensor.in?(SensorConfig.x.custom_excluded_from_house_power)
+  end
+
   def default_color_class # rubocop:disable Metrics/CyclomaticComplexity
-    if (match = sensor.to_s.match(/^custom_power_(\d{2})$/))
+    if balance?
+      case sensor
+      when :grid_export_power, :inverter_power, :heatpump_power_pv
+        'bg-green-600 dark:bg-green-800/80'
+      when :battery_discharging_power, :battery_charging_power
+        'bg-green-700 dark:bg-green-900/70'
+      when :house_power, /custom_power/
+        'bg-slate-500 dark:bg-slate-600/90'
+      when :heatpump_power
+        'bg-slate-600 dark:bg-slate-600/70'
+      when :wallbox_power
+        'bg-slate-700 dark:bg-slate-600/50'
+      when :grid_import_power, :heatpump_power_grid
+        'bg-red-600   dark:bg-red-800/80'
+      end
+    elsif (match = sensor.to_s.match(/^custom_power_(\d{2})$/))
       # bg-slate-500/10
       # bg-slate-500/20
       # bg-slate-500/30
@@ -160,23 +192,8 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
       index = color_index || match[1].to_i
       "bg-slate-500/#{index * 10} text-slate-700 dark:text-slate-400"
-    else
-      case sensor
-      when :grid_export_power, :inverter_power, :heatpump_power_pv
-        'bg-green-600 dark:bg-green-800/80'
-      when :battery_discharging_power, :battery_charging_power
-        'bg-green-700 dark:bg-green-900/70'
-      when :house_power
-        'bg-slate-500 dark:bg-slate-600/90'
-      when :house_power_without_custom
-        'bg-transparent text-slate-700 dark:text-slate-400'
-      when :heatpump_power
-        'bg-slate-600 dark:bg-slate-600/70'
-      when :wallbox_power
-        'bg-slate-700 dark:bg-slate-600/50'
-      when :grid_import_power, :heatpump_power_grid
-        'bg-red-600   dark:bg-red-800/80'
-      end
+    elsif sensor == :house_power_without_custom
+      'bg-transparent text-slate-700 dark:text-slate-400'
     end
   end
 
