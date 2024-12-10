@@ -4,6 +4,7 @@ class Top10Controller < ApplicationController
 
   def index
     redirect_to(default_path) unless period && sensor && calc && sort
+    redirect_to(default_path(calc: 'sum')) if calc == 'max' && !supports_max?
 
     load_missing_or_stale_summary_days(timeframe)
   end
@@ -18,12 +19,14 @@ class Top10Controller < ApplicationController
     t('layout.top10')
   end
 
-  def default_path
+  def default_path(override = {})
     top10_path(
-      period: period || 'day',
-      sensor: sensor || 'inverter_power',
-      calc: calc || 'sum',
-      sort: sort || 'desc',
+      {
+        period: period || 'day',
+        sensor: sensor || 'inverter_power',
+        calc: calc || 'sum',
+        sort: sort || 'desc',
+      }.merge(override),
     )
   end
 
@@ -31,6 +34,11 @@ class Top10Controller < ApplicationController
     SensorConfig::TOP10_SENSORS.select do |sensor|
       SensorConfig.x.exists?(sensor)
     end
+  end
+
+  helper_method def supports_max?
+    # Custom sensors are not supported for max calculation
+    !sensor.in?(SensorConfig::CUSTOM_SENSORS)
   end
 
   helper_method def sensor_items
