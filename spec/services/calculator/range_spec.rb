@@ -1,5 +1,13 @@
 describe Calculator::Range do
-  let(:calculator) { described_class.new(timeframe) }
+  let(:calculator) do
+    described_class.new(
+      timeframe,
+      calculations: {
+        house_power: :sum_house_power_sum,
+        house_power_grid: :sum_house_power_grid_sum,
+      },
+    )
+  end
 
   let(:timeframe) { Timeframe.day }
   let(:updated_at) { 5.minutes.ago }
@@ -21,6 +29,8 @@ describe Calculator::Range do
       battery_savings: 3,
       time: updated_at,
     )
+
+    allow(Setting).to receive(:opportunity_costs).and_return(true)
   end
 
   it 'calculates' do
