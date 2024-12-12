@@ -8,7 +8,13 @@ module Calculator::Base::Custom
   def custom_power_total
     @custom_power_total ||=
       (1..SensorConfig::CUSTOM_SENSOR_COUNT).sum do |index|
-        custom_power(index) || 0
+        if custom_sensor_name(index).in?(
+             SensorConfig.x.custom_excluded_from_house_power,
+           )
+          0
+        else
+          custom_power(index) || 0
+        end
       end
   end
 
