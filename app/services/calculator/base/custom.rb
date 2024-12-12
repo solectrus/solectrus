@@ -1,28 +1,48 @@
 module Calculator::Base::Custom
   extend ActiveSupport::Concern
 
-  included do
-    def custom_power_total
+  def custom_sensor_name(index)
+    format('custom_power_%02d', index).to_sym
+  end
+
+  def custom_power_total
+    @custom_power_total ||=
       (1..SensorConfig::CUSTOM_SENSOR_COUNT).sum do |index|
         custom_power(index) || 0
       end
-    end
+  end
 
-    def custom_excluded_from_house_power_total
-      SensorConfig.x.custom_excluded_from_house_power.sum do |sensor|
-        public_send(sensor) || 0
-      end
+  def custom_excluded_from_house_power_total
+    SensorConfig.x.custom_excluded_from_house_power.sum do |sensor|
+      public_send(sensor) || 0
     end
+  end
 
-    def custom_power(index)
-      public_send(format('custom_power_%02d', index))
-    end
+  def custom_power(index)
+    public_send custom_sensor_name(index)
+  end
 
+  def house_power_without_custom
+    [house_power - custom_power_total, 0].max
+  end
+
+  def house_power_without_custom_percent
+    return 0 if house_power.zero?
+
+    house_power_without_custom * 100 / house_power
+  end
+
+  def house_power_valid?
+    house_power && house_power >= custom_power_total.to_f
+  end
+
+  included do
     (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |index|
-      sensor = format('custom_power_%02d', index).to_sym
-      define_method(:"#{sensor}_percent") do
+      sensor_name = format('custom_power_%02d', index).to_sym
+
+      define_method(:"#{sensor_name}_percent") do
         total =
-          if sensor.in?(SensorConfig.x.custom_excluded_from_house_power)
+          if sensor_name.in?(SensorConfig.x.custom_excluded_from_house_power)
             total_minus
           else
             [house_power, custom_power_total].max
@@ -31,20 +51,6 @@ module Calculator::Base::Custom
 
         (custom_power(index) || 0) * 100 / total
       end
-    end
-
-    def house_power_without_custom
-      [house_power - custom_power_total, 0].max
-    end
-
-    def house_power_without_custom_percent
-      return 0 if house_power.zero?
-
-      house_power_without_custom * 100 / house_power
-    end
-
-    def house_power_valid?
-      house_power && house_power >= custom_power_total.to_f
     end
   end
 end
