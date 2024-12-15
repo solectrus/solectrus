@@ -5,26 +5,6 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     @timeframe = timeframe
 
     data = sections
-    if timeframe.starts_today?
-      # Because the Power-Splitter runs not in real-time, we need to correct the
-      # *_power_grid values, so their total matches grid_import_power
-      data.each do |entry|
-        corrector =
-          Calculator::PowerSplitterCorrector.new(
-            grid_import_power: entry[:grid_import_power],
-            house_power: entry[:house_power],
-            house_power_grid: entry[:house_power_grid],
-            heatpump_power: entry[:heatpump_power],
-            heatpump_power_grid: entry[:heatpump_power_grid],
-            wallbox_power: entry[:wallbox_power],
-            wallbox_power_grid: entry[:wallbox_power_grid],
-          )
-
-        entry[:house_power_grid] = corrector.adjusted_house_power_grid
-        entry[:wallbox_power_grid] = corrector.adjusted_wallbox_power_grid
-        entry[:heatpump_power_grid] = corrector.adjusted_heatpump_power_grid
-      end
-    end
 
     build_context(data)
   end
