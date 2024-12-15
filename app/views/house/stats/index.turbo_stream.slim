@@ -65,10 +65,10 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
                     next unless SensorConfig.x.exists?(sensor)
                     next if sensor.in? SensorConfig.x.custom_excluded_from_house_power
 
-                    number += 1
                     balance.with_segment sensor,
                                          inline: true,
                                          color_index: SensorConfig.x.custom_count - number
+                    number += 1
                   end
                 else
                   # Order by value (ascending)
