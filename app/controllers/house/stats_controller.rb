@@ -34,12 +34,6 @@ class House::StatsController < ApplicationController
         end
         .to_h,
       **excluded_sensors,
-      # Add these for PowerSplitterCorrector only
-      grid_import_power: :sum_grid_import_power_sum,
-      heatpump_power: :sum_heatpump_power_sum,
-      heatpump_power_grid: :sum_heatpump_power_grid_sum,
-      wallbox_power: :sum_wallbox_power_sum,
-      wallbox_power_grid: :sum_wallbox_power_grid_sum,
     }
   end
 
