@@ -1,4 +1,4 @@
-class Calculator::Base
+class Calculator::Base # rubocop:disable Metrics/ClassLength
   include Custom
   include Heatpump
 
@@ -74,13 +74,25 @@ class Calculator::Base
   def consumption
     return unless house_power && wallbox_power
 
-    house_power + wallbox_power + heatpump_power.to_f
+    house_power + wallbox_power + heatpump_power.to_f +
+      custom_excluded_from_house_power_total.to_f
   end
 
   def consumption_array
     sections.each_with_index.map do |_section, index|
       house_power_array[index] + wallbox_power_array[index] +
-        heatpump_power_array[index]
+        heatpump_power_array[index] +
+        (1..SensorConfig::CUSTOM_SENSOR_COUNT).sum do |sensor_index|
+          if custom_sensor_name(sensor_index).in?(
+               SensorConfig.x.custom_excluded_from_house_power,
+             )
+            public_send(:"custom_power_#{format('%02d', sensor_index)}_array")[
+              index
+            ]
+          else
+            0
+          end
+        end
     end
   end
 
