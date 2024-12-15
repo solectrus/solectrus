@@ -28,7 +28,7 @@
               action: 'stats-with-chart--component#startLoop',
               stats_with_chart__component_sensor_param: sensor,
             } do
-    div class= "flex gap-2 lg:gap-3 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center {'click-animation' if url}"
+    div class= "flex gap-2 lg:gap-3 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center #{'click-animation' if url}"
       - if icon_class
         i.fa class= icon_class style="font-size: #{icon_size}%;"
 
