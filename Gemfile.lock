@@ -358,7 +358,7 @@ GEM
     rubocop-thread_safety (0.6.0)
       rubocop (>= 1.48.1)
     ruby-progressbar (1.13.0)
-    securerandom (0.4.0)
+    securerandom (0.4.1)
     shellany (0.0.1)
     shoulda-matchers (6.4.0)
       activesupport (>= 5.2.0)
