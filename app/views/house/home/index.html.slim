@@ -26,7 +26,7 @@
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - elsif ApplicationPolicy.custom?
-  - if SensorConfig.x.custom_count.positive?
+  - if SensorConfig.x.existing_custom_sensor_count.positive?
     = render StatsWithChart::Component.new(sensor:, timeframe:)
   - else
     p Keine benutzerdefinierten Sensoren konfiguriert!

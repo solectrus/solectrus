@@ -33,18 +33,16 @@ class Balance::StatsController < ApplicationController
       heatpump_power_grid: :sum_heatpump_power_grid_sum,
       wallbox_power_grid: :sum_wallbox_power_grid_sum,
       house_power_grid: :sum_house_power_grid_sum,
+      **(
+        SensorConfig.x.excluded_sensor_names.index_with do |sensor|
+          :"sum_#{sensor}_sum"
+        end
+      ),
       car_battery_soc: nil,
       battery_soc: nil,
       system_status: nil,
       wallbox_car_connected: nil,
       case_temp: nil,
-      **excluded_sensors,
     }
-  end
-
-  def excluded_sensors
-    SensorConfig.x.exclude_from_house_power.index_with do |sensor|
-      :"sum_#{sensor}_sum"
-    end
   end
 end

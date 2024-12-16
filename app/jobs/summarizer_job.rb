@@ -50,10 +50,7 @@ class SummarizerJob < ApplicationJob
       wallbox_power
     ]
 
-    custom_sensors =
-      (1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |i|
-        format('custom_power_%02d', i)
-      end
+    custom_sensors = SensorConfig.x.existing_custom_sensor_names
 
     power_splitter_sensors = %i[
       house_power_grid

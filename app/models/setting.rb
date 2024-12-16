@@ -24,8 +24,13 @@ class Setting < RailsSettings::Base
 
   field :summary_config, type: :json, default: {}
 
-  (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |i|
-    field format('custom_name_%02d', i).to_sym, type: :string
+  def self.name_for_custom_sensor(sensor_name)
+    sensor_name.to_s.sub('_power', '_name').to_sym
+    # Example: custom_name_01
+  end
+
+  SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
+    field name_for_custom_sensor(sensor_name), type: :string
   end
 
   def self.seed!

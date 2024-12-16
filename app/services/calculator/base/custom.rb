@@ -1,31 +1,17 @@
 module Calculator::Base::Custom
   extend ActiveSupport::Concern
 
-  def custom_sensor_name(index)
-    format('custom_power_%02d', index).to_sym
-  end
-
   def custom_power_total
     @custom_power_total ||=
-      (1..SensorConfig::CUSTOM_SENSOR_COUNT).sum do |index|
-        if custom_sensor_name(index).in?(
-             SensorConfig.x.custom_excluded_from_house_power,
-           )
-          0
-        else
-          custom_power(index) || 0
-        end
+      SensorConfig.x.included_custom_sensor_names.sum do |sensor_name|
+        safe_power_value(sensor_name)
       end
   end
 
-  def custom_excluded_from_house_power_total
-    SensorConfig.x.custom_excluded_from_house_power.sum do |sensor|
-      public_send(sensor) || 0
+  def excluded_custom_sensor_names_total
+    SensorConfig.x.excluded_custom_sensor_names.sum do |sensor_name|
+      safe_power_value(sensor_name)
     end
-  end
-
-  def custom_power(index)
-    public_send custom_sensor_name(index)
   end
 
   def house_power_without_custom
@@ -42,20 +28,22 @@ module Calculator::Base::Custom
     house_power && house_power >= custom_power_total.to_f
   end
 
-  included do
-    (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |index|
-      sensor_name = format('custom_power_%02d', index).to_sym
+  def safe_power_value(sensor_name)
+    public_send(sensor_name) || 0
+  end
 
+  included do
+    SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
       define_method(:"#{sensor_name}_percent") do
         total =
-          if sensor_name.in?(SensorConfig.x.custom_excluded_from_house_power)
+          if sensor_name.in?(SensorConfig.x.excluded_custom_sensor_names)
             total_minus
           else
             [house_power, custom_power_total].max
           end
         return 0 if total.zero?
 
-        (custom_power(index) || 0) * 100 / total
+        safe_power_value(sensor_name) * 100 / total
       end
     end
   end

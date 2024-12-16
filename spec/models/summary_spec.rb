@@ -246,9 +246,7 @@ describe Summary do
             :battery_soc,
             :car_battery_soc,
             :case_temp,
-            *(1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |index|
-              format('custom_power_%02d', index).to_sym
-            end,
+            *SensorConfig::CUSTOM_SENSORS,
             :grid_export_power,
             :grid_import_power,
             :heatpump_power,

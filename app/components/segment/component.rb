@@ -159,7 +159,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
         grid_import_power
         heatpump_power_grid
       ],
-    ) || sensor.in?(SensorConfig.x.custom_excluded_from_house_power)
+    ) || sensor.in?(SensorConfig.x.excluded_custom_sensor_names)
   end
 
   def default_color_class # rubocop:disable Metrics/CyclomaticComplexity

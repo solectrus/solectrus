@@ -14,38 +14,14 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   CUSTOM_SENSOR_COUNT = 10
   public_constant :CUSTOM_SENSOR_COUNT
 
+  # Custom defined power sensors
   CUSTOM_SENSORS =
     (1..CUSTOM_SENSOR_COUNT)
       .map { |index| format('custom_power_%02d', index).to_sym }
       .freeze
   public_constant :CUSTOM_SENSORS
 
-  SENSOR_NAMES =
-    (
-      %i[
-        inverter_power
-        inverter_power_forecast
-        house_power
-        heatpump_power
-        grid_import_power
-        grid_export_power
-        grid_export_limit
-        battery_charging_power
-        battery_discharging_power
-        battery_soc
-        car_battery_soc
-        wallbox_car_connected
-        wallbox_power
-        case_temp
-        system_status
-        system_status_ok
-        house_power_grid
-        wallbox_power_grid
-        heatpump_power_grid
-      ] + CUSTOM_SENSORS
-    ).freeze
-  public_constant :SENSOR_NAMES
-
+  # Sensors that represent power values (in Watts)
   POWER_SENSORS =
     (
       %i[
@@ -61,9 +37,30 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     ).freeze
   public_constant :POWER_SENSORS
 
+  # Full list of all sensors
+  SENSOR_NAMES =
+    (
+      %i[
+        inverter_power_forecast
+        grid_export_limit
+        battery_soc
+        car_battery_soc
+        wallbox_car_connected
+        case_temp
+        system_status
+        system_status_ok
+        house_power_grid
+        wallbox_power_grid
+        heatpump_power_grid
+      ] + POWER_SENSORS
+    ).freeze
+  public_constant :SENSOR_NAMES
+
+  # List of sensors that can be displayed in the top 10 list
   TOP10_SENSORS = [*POWER_SENSORS, :case_temp].freeze
   public_constant :TOP10_SENSORS
 
+  # List of sensors that are calculated (meaning they are built from other sensors)
   CALCULATED_SENSORS = %i[
     autarky
     self_consumption
@@ -74,7 +71,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   ].freeze
   public_constant :CALCULATED_SENSORS
 
-  # Sensors that are displayed in the charts
+  # Sensors that can be displayed in the chart
   CHART_SENSORS =
     (
       %i[
@@ -125,7 +122,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       define_sensor(sensor_name, value)
     end
 
-    define_exclude_from_house_power(
+    define_excluded_sensor_names(
       env_hash.fetch('INFLUX_EXCLUDE_FROM_HOUSE_POWER', nil).presence,
     )
 
@@ -194,23 +191,33 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
 
   def name(sensor_name)
     if sensor_name.match?(/custom_power_\d{2}/)
-      setting_name = sensor_name.to_s.sub('_power', '_name')
+      setting_name = Setting.name_for_custom_sensor(sensor_name)
       Setting.public_send(setting_name) || sensor_name.to_s
     else
       I18n.t("sensors.#{sensor_name}")
     end
   end
 
-  def custom_count
-    @custom_count ||=
+  def existing_custom_sensor_count
+    @existing_custom_sensor_count ||=
       CUSTOM_SENSORS.count { |sensor_name| exists?(sensor_name) }
   end
 
-  def custom_excluded_from_house_power
-    @custom_excluded_from_house_power ||=
-      CUSTOM_SENSORS.select do |sensor_name|
-        exclude_from_house_power.include?(sensor_name) && exists?(sensor_name)
-      end
+  # Custom sensors that are EXCLUDED from house power
+  def excluded_custom_sensor_names
+    existing_custom_sensor_names.select do |sensor_name|
+      excluded_sensor_names.include?(sensor_name)
+    end
+  end
+
+  # Custom sensors that are INCLUDED in house power
+  def included_custom_sensor_names
+    existing_custom_sensor_names - excluded_custom_sensor_names
+  end
+
+  # Custom sensors that are defined
+  def existing_custom_sensor_names
+    CUSTOM_SENSORS.select { |sensor_name| exists?(sensor_name) }
   end
 
   private
@@ -221,10 +228,10 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     define(sensor_name, value)
   end
 
-  def define_exclude_from_house_power(value)
+  def define_excluded_sensor_names(value)
     unless value
       @sensor_logs << "  - Sensor 'house_power' remains unchanged"
-      define(:exclude_from_house_power, [])
+      define(:excluded_sensor_names, [])
       return
     end
 
@@ -237,7 +244,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     end
 
     @sensor_logs << "  - Sensor 'house_power' excluded #{sensors_to_exclude.join(', ')}"
-    define(:exclude_from_house_power, sensors_to_exclude)
+    define(:excluded_sensor_names, sensors_to_exclude)
   end
 
   def var_for(sensor_name)

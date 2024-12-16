@@ -41,15 +41,15 @@ class PowerTop10
     (raw - adjustment).public_send(:"end_of_#{period}")
   end
 
-  def exclude_from_house_power
-    SensorConfig.x.exclude_from_house_power
+  def excluded_sensor_names
+    SensorConfig.x.excluded_sensor_names
   end
 
   def top(start:, stop:, period:, limit: 10)
     return [] unless SensorConfig.x.exists?(sensor)
     return [] if start > stop
 
-    if sensor == :house_power && exclude_from_house_power.any?
+    if sensor == :house_power && excluded_sensor_names.any?
       build_query_house_power(start:, stop:, period:, limit:)
     else
       build_query_simple(start:, stop:, period:, limit:)
@@ -125,7 +125,7 @@ class PowerTop10
     sort_order = desc ? :desc : :asc
 
     total_column =
-      "sum_house_power#{exclude_from_house_power.map { |sensor_to_exclude| " - COALESCE(sum_#{sensor_to_exclude}, 0)" }.join}"
+      "sum_house_power#{excluded_sensor_names.map { |sensor_to_exclude| " - COALESCE(sum_#{sensor_to_exclude}, 0)" }.join}"
 
     case period
     when :day

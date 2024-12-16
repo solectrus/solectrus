@@ -20,7 +20,7 @@ div
         balance.with_segment :wallbox_power, peak: peak&.dig(:wallbox_power)
         balance.with_segment :heatpump_power, peak: peak&.dig(:heatpump_power)
         balance.with_segment :house_power, peak: peak&.dig(:house_power)
-        SensorConfig.x.custom_excluded_from_house_power.each do |sensor|
+        SensorConfig.x.excluded_custom_sensor_names.each do |sensor|
           balance.with_segment sensor, color_index: 8
         end
         balance.with_segment :grid_export_power, peak: peak&.dig(:grid_power_power_minus)

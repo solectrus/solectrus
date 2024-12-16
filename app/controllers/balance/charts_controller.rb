@@ -29,6 +29,6 @@ class Balance::ChartsController < ApplicationController
       autarky
       self_consumption
       co2_reduction
-    ] + SensorConfig.x.custom_excluded_from_house_power
+    ] + SensorConfig.x.excluded_custom_sensor_names
   end
 end

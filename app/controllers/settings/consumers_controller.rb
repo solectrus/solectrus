@@ -24,8 +24,8 @@ class Settings::ConsumersController < ApplicationController
 
   def permitted_params
     params.require(:setting).permit(
-      *(1..SensorConfig::CUSTOM_SENSOR_COUNT).map do |i|
-        format('custom_name_%02d', i).to_sym
+      *SensorConfig.x.existing_custom_sensor_names.map do |sensor_name|
+        Setting.name_for_custom_sensor(sensor_name)
       end,
     )
   end

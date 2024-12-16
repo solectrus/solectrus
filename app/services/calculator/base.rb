@@ -1,4 +1,4 @@
-class Calculator::Base # rubocop:disable Metrics/ClassLength
+class Calculator::Base
   include Custom
   include Heatpump
 
@@ -34,7 +34,7 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def inverter_power_percent
-    return unless inverter_power && total_plus
+    return unless inverter_power
     return 0 if total_plus.zero?
 
     (inverter_power * 100.0 / total_plus).round(1)
@@ -56,14 +56,14 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def grid_import_power_percent
-    return unless grid_import_power && total_plus
+    return unless grid_import_power
     return 0 if total_plus.zero?
 
     (grid_import_power * 100.0 / total_plus).round(1)
   end
 
   def grid_export_power_percent
-    return unless grid_export_power && total_minus
+    return unless grid_export_power
     return 0 if total_minus.zero?
 
     (grid_export_power * 100.0 / total_minus).round(1)
@@ -72,26 +72,18 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   # House
 
   def consumption
-    return unless house_power && wallbox_power
+    return unless house_power
 
-    house_power + wallbox_power + heatpump_power.to_f +
-      custom_excluded_from_house_power_total.to_f
+    house_power + wallbox_power.to_f + heatpump_power.to_f +
+      excluded_custom_sensor_names_total.to_f
   end
 
   def consumption_array
     sections.each_with_index.map do |_section, index|
       house_power_array[index] + wallbox_power_array[index] +
         heatpump_power_array[index] +
-        (1..SensorConfig::CUSTOM_SENSOR_COUNT).sum do |sensor_index|
-          if custom_sensor_name(sensor_index).in?(
-               SensorConfig.x.custom_excluded_from_house_power,
-             )
-            public_send(:"custom_power_#{format('%02d', sensor_index)}_array")[
-              index
-            ] || 0
-          else
-            0
-          end
+        SensorConfig.x.excluded_custom_sensor_names.sum do |sensor_name|
+          public_send(:"#{sensor_name}_array")[index] || 0
         end
     end
   end
@@ -132,7 +124,7 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def house_power_percent
-    return unless house_power && total_minus
+    return unless house_power
     return 0 if total_minus.zero?
 
     (house_power * 100.0 / total_minus).round(1)
@@ -141,7 +133,7 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   # Wallbox
 
   def wallbox_power_percent
-    return unless wallbox_power && total_minus
+    return unless wallbox_power
     return 0 if total_minus.zero?
 
     (wallbox_power * 100.0 / total_minus).round(1)
@@ -162,14 +154,14 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def battery_discharging_power_percent
-    return unless battery_discharging_power && total_plus
+    return unless battery_discharging_power
     return 0 if total_plus.zero?
 
     (battery_discharging_power * 100.0 / total_plus).round(1)
   end
 
   def battery_charging_power_percent
-    return unless battery_charging_power && total_minus
+    return unless battery_charging_power
     return 0 if total_minus.zero?
 
     (battery_charging_power * 100.0 / total_minus).round(1)
@@ -178,22 +170,14 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   # Total
 
   def total_plus
-    unless grid_import_power && battery_discharging_power && inverter_power
-      return
-    end
-
-    grid_import_power + battery_discharging_power + inverter_power
+    grid_import_power.to_f + battery_discharging_power.to_f +
+      inverter_power.to_f
   end
 
   def total_minus
-    unless grid_export_power && battery_charging_power && house_power &&
-             wallbox_power
-      return
-    end
-
-    grid_export_power + battery_charging_power + house_power +
-      custom_excluded_from_house_power_total.to_f + heatpump_power.to_f +
-      wallbox_power
+    grid_export_power.to_f + battery_charging_power.to_f + house_power.to_f +
+      excluded_custom_sensor_names_total.to_f + heatpump_power.to_f +
+      wallbox_power.to_f
   end
 
   def total

@@ -25,21 +25,16 @@ class House::StatsController < ApplicationController
       system_status: nil,
       house_power: :sum_house_power_sum,
       house_power_grid: :sum_house_power_grid_sum,
-      **(1..SensorConfig::CUSTOM_SENSOR_COUNT)
-        .filter_map do |index|
-          sensor_key = format('custom_power_%02d', index).to_sym
-          if SensorConfig.x.exists?(sensor_key)
-            [sensor_key, format('sum_custom_power_%02d_sum', index).to_sym]
-          end
+      **(
+        SensorConfig.x.existing_custom_sensor_names.index_with do |sensor_name|
+          :"sum_#{sensor_name}_sum"
         end
-        .to_h,
-      **excluded_sensors,
+      ),
+      **(
+        SensorConfig.x.excluded_sensor_names.index_with do |sensor|
+          :"sum_#{sensor}_sum"
+        end
+      ),
     }
-  end
-
-  def excluded_sensors
-    SensorConfig.x.exclude_from_house_power.index_with do |sensor|
-      :"sum_#{sensor}_sum"
-    end
   end
 end

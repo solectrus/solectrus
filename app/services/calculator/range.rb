@@ -46,8 +46,8 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method_from_array(:wallbox_power_grid, data)
     build_method_from_array(:heatpump_power_grid, data)
 
-    (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |index|
-      build_method_from_array(:"custom_power_#{format('%02d', index)}", data)
+    SensorConfig.x.existing_custom_sensor_names.each do |sensor_name|
+      build_method_from_array(sensor_name, data)
     end
 
     return unless timeframe.day?
@@ -61,7 +61,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
         [
           SensorConfig
             .x
-            .exclude_from_house_power
+            .excluded_sensor_names
             .reduce(value[:house_power].to_f) do |acc, elem|
               acc - value[elem].to_f
             end,
@@ -307,11 +307,13 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     house_power_without_custom / house_power * house_costs
   end
 
-  (1..SensorConfig::CUSTOM_SENSOR_COUNT).each do |index|
-    define_method format('custom_%02d_costs', index) do
+  SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
+    define_method :"#{sensor_name.to_s.sub('_power', '')}_costs" do
       return unless house_power&.nonzero? && house_costs
 
-      custom_power(index).to_f / house_power * house_costs
+      custom_power = public_send(sensor_name)
+
+      custom_power.to_f / house_power * house_costs
     end
   end
 
