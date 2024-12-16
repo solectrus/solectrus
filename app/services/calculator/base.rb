@@ -88,7 +88,7 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
              )
             public_send(:"custom_power_#{format('%02d', sensor_index)}_array")[
               index
-            ]
+            ] || 0
           else
             0
           end
