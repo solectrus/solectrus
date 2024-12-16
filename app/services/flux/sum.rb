@@ -35,6 +35,8 @@ class Flux::Sum < Flux::Reader
       #{from_bucket}
       |> #{range(start:, stop:)}
       |> #{filter}
+      |> map(fn: (r) => ({ r with _value: float(v: r._value) }))
+      |> fill(value: 0.0)
       |> integral(unit: 1h)
     QUERY
   end
