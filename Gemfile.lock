@@ -202,7 +202,7 @@ GEM
     msgpack (1.7.5)
     mutex_m (0.3.0)
     nenv (0.3.0)
-    net-imap (0.5.1)
+    net-imap (0.5.2)
       date
       net-protocol
     net-pop (0.1.2)
@@ -290,7 +290,7 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.11.1)
       ffi (~> 1.0)
-    rdoc (6.9.0)
+    rdoc (6.9.1)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
     redis (5.3.0)
@@ -298,7 +298,7 @@ GEM
     redis-client (0.23.0)
       connection_pool
     regexp_parser (2.9.3)
-    reline (0.5.12)
+    reline (0.6.0)
       io-console (~> 0.5)
     request_store (1.7.0)
       rack (>= 1.4)
