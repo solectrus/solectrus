@@ -41,7 +41,7 @@
     "prettier-plugin-tailwindcss": "^0.6.9",
     "rollup": "^4.28.1",
     "size-limit": "^11.1.6",
-    "tailwindcss": "^3.4.16",
+    "tailwindcss": "^3.4.17",
     "tailwindcss-displaymodes": "^1.0.8",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.1",
