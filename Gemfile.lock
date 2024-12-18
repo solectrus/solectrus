@@ -121,7 +121,7 @@ GEM
     date (3.4.1)
     diff-lcs (1.5.1)
     docile (1.4.1)
-    dotenv (3.1.6)
+    dotenv (3.1.7)
     drb (2.2.1)
     dry-cli (1.2.0)
     erubi (1.13.0)
@@ -149,7 +149,7 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (1.1.2)
-    honeybadger (5.26.0)
+    honeybadger (5.26.1)
       logger
     htmlbeautifier (1.4.3)
     htmlentities (4.3.4)
@@ -230,7 +230,7 @@ GEM
     pry (0.15.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    psych (5.2.1)
+    psych (5.2.2)
       date
       stringio
     public_suffix (6.0.1)
