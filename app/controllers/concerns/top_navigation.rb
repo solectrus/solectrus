@@ -5,7 +5,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     private
 
     helper_method def topnav_primary_items
-      [stats_item, essentials_item, top10_item]
+      [root_item, house_item, essentials_item, top10_item]
     end
 
     helper_method def topnav_secondary_items
@@ -27,25 +27,53 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       { name: '-' }
     end
 
-    def stats_item
+    def root_item
       {
         name: t('layout.balance'),
-        href: root_path(sensor: 'inverter_power', timeframe: 'now'),
-        current: helpers.controller.is_a?(HomeController),
+        href:
+          root_path(
+            sensor: 'inverter_power',
+            timeframe:
+              helpers.respond_to?(:timeframe) ? helpers.timeframe : 'now',
+          ),
+        current: helpers.controller_namespace == 'balance',
+        data: {
+          controller: 'tippy',
+        },
+      }
+    end
+
+    def house_item
+      {
+        name: t('layout.house'),
+        text: false,
+        icon: 'home',
+        href: house_home_path(sensor: 'house_power', timeframe:),
+        current: helpers.controller_namespace == 'house',
+        data: {
+          controller: 'tippy',
+        },
       }
     end
 
     def essentials_item
       {
         name: t('layout.essentials'),
+        text: false,
+        icon: 'grip',
         href: essentials_path,
         current: helpers.controller.is_a?(EssentialsController),
+        data: {
+          controller: 'tippy',
+        },
       }
     end
 
     def top10_item
       {
         name: t('layout.top10'),
+        text: false,
+        icon: 'trophy',
         href:
           top10_path(
             sensor:
@@ -60,6 +88,9 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
             calc: 'sum',
           ),
         current: helpers.controller.is_a?(Top10Controller),
+        data: {
+          controller: 'tippy',
+        },
       }
     end
 
@@ -136,10 +167,8 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.settings'),
         icon: 'cog',
-        href: settings_path,
-        current:
-          helpers.controller.is_a?(SettingsController) ||
-            helpers.controller.is_a?(PricesController),
+        href: settings_general_path,
+        current: helpers.controller_namespace == 'settings',
       }
     end
 

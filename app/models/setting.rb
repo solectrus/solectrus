@@ -24,6 +24,15 @@ class Setting < RailsSettings::Base
 
   field :summary_config, type: :json, default: {}
 
+  def self.name_for_custom_sensor(sensor_name)
+    sensor_name.to_s.sub('_power', '_name').to_sym
+    # Example: custom_name_01
+  end
+
+  SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
+    field name_for_custom_sensor(sensor_name), type: :string
+  end
+
   def self.seed!
     Setting.setup_id = nil if Setting.setup_id.to_i.zero?
     Setting.setup_id ||= (Price.first&.created_at || Time.current).to_i

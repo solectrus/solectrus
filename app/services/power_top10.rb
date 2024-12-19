@@ -41,29 +41,63 @@ class PowerTop10
     (raw - adjustment).public_send(:"end_of_#{period}")
   end
 
-  def exclude_from_house_power
-    SensorConfig.x.exclude_from_house_power
+  def excluded_sensor_names
+    SensorConfig.x.excluded_sensor_names
   end
 
   def top(start:, stop:, period:, limit: 10)
     return [] unless SensorConfig.x.exists?(sensor)
     return [] if start > stop
 
-    if sensor == :house_power && exclude_from_house_power.any?
+    if sensor == :house_power && excluded_sensor_names.any?
       build_query_house_power(start:, stop:, period:, limit:)
     else
       build_query_simple(start:, stop:, period:, limit:)
     end
   end
 
+  FIELD_MAPPING_SUM = {
+    inverter_power: :sum_inverter_power,
+    heatpump_power: :sum_heatpump_power,
+    house_power: :sum_house_power,
+    case_temp: :avg_case_temp,
+    grid_import_power: :sum_grid_import_power,
+    grid_export_power: :sum_grid_export_power,
+    battery_charging_power: :sum_battery_charging_power,
+    battery_discharging_power: :sum_battery_discharging_power,
+    wallbox_power: :sum_wallbox_power,
+    **SensorConfig::CUSTOM_SENSORS.index_with { |sensor| :"sum_#{sensor}" },
+  }.freeze
+  private_constant :FIELD_MAPPING_SUM
+
+  FIELD_MAPPING_MAX = {
+    inverter_power: :max_inverter_power,
+    heatpump_power: :max_heatpump_power,
+    house_power: :max_house_power,
+    case_temp: :max_case_temp,
+    grid_import_power: :max_grid_import_power,
+    grid_export_power: :max_grid_export_power,
+    battery_charging_power: :max_battery_charging_power,
+    battery_discharging_power: :max_battery_discharging_power,
+    wallbox_power: :max_wallbox_power,
+  }.freeze
+  private_constant :FIELD_MAPPING_MAX
+
   def build_query_simple(start:, stop:, period:, limit:)
     scope =
       Summary.where(date: start..stop).where(
-        Summary.arel_table[:"sum_#{sensor}"].gt(0),
+        Summary.arel_table[:"#{FIELD_MAPPING_SUM[sensor]}"].gt(0),
       )
 
     sort_order = desc ? :desc : :asc
-    sensor_column = :"#{calc}_#{sensor}"
+
+    sensor_column =
+      case calc
+      when 'sum'
+        FIELD_MAPPING_SUM[sensor]
+      when 'max'
+        FIELD_MAPPING_MAX[sensor]
+      end
 
     case period
     when :day
@@ -91,7 +125,7 @@ class PowerTop10
     sort_order = desc ? :desc : :asc
 
     total_column =
-      "sum_house_power#{exclude_from_house_power.map { |sensor_to_exclude| " - COALESCE(sum_#{sensor_to_exclude}, 0)" }.join}"
+      "sum_house_power#{excluded_sensor_names.map { |sensor_to_exclude| " - COALESCE(sum_#{sensor_to_exclude}, 0)" }.join}"
 
     case period
     when :day

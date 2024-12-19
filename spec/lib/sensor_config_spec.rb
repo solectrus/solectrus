@@ -81,9 +81,9 @@ describe SensorConfig do
       end
     end
 
-    describe '#exclude_from_house_power' do
+    describe '#excluded_sensor_names' do
       it 'returns heatpump' do
-        expect(sensor_config.exclude_from_house_power).to eq([:heatpump_power])
+        expect(sensor_config.excluded_sensor_names).to eq([:heatpump_power])
       end
     end
 
@@ -133,9 +133,9 @@ describe SensorConfig do
       }
     end
 
-    describe '#exclude_from_house_power' do
+    describe '#excluded_sensor_names' do
       it 'returns blank array' do
-        expect(sensor_config.exclude_from_house_power).to eq([])
+        expect(sensor_config.excluded_sensor_names).to eq([])
       end
     end
   end
@@ -160,9 +160,9 @@ describe SensorConfig do
       }
     end
 
-    describe '#exclude_from_house_power' do
+    describe '#excluded_sensor_names' do
       it 'returns blank array' do
-        expect(sensor_config.exclude_from_house_power).to eq([])
+        expect(sensor_config.excluded_sensor_names).to eq([])
       end
     end
 
@@ -328,9 +328,9 @@ describe SensorConfig do
       end
     end
 
-    describe '#exclude_from_house_power' do
+    describe '#excluded_sensor_names' do
       it 'returns blank array' do
-        expect(sensor_config.exclude_from_house_power).to eq([])
+        expect(sensor_config.excluded_sensor_names).to eq([])
       end
     end
 
@@ -364,9 +364,9 @@ describe SensorConfig do
       expect(sensor_config).to be_a(described_class)
     end
 
-    describe '#exclude_from_house_power' do
+    describe '#excluded_sensor_names' do
       it 'returns the given sensor field' do
-        expect(sensor_config.exclude_from_house_power).to eq([:heatpump_power])
+        expect(sensor_config.excluded_sensor_names).to eq([:heatpump_power])
       end
     end
   end
@@ -379,9 +379,9 @@ describe SensorConfig do
       }
     end
 
-    describe '#exclude_from_house_power' do
+    describe '#excluded_sensor_names' do
       it 'returns the given sensor field' do
-        expect(sensor_config.exclude_from_house_power).to eq([:heatpump_power])
+        expect(sensor_config.excluded_sensor_names).to eq([:heatpump_power])
       end
     end
   end
@@ -389,9 +389,9 @@ describe SensorConfig do
   context 'with blank INFLUX_EXCLUDE_FROM_HOUSE_POWER' do
     let(:env) { { 'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => '' } }
 
-    describe '#exclude_from_house_power' do
+    describe '#excluded_sensor_names' do
       it 'returns blank array' do
-        expect(sensor_config.exclude_from_house_power).to eq([])
+        expect(sensor_config.excluded_sensor_names).to eq([])
       end
     end
   end

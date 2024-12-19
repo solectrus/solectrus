@@ -31,7 +31,7 @@ describe 'Summaries' do
   end
 
   describe 'DELETE /delete_all' do
-    subject(:request) { delete '/settings/summaries' }
+    subject(:request) { delete '/summaries' }
 
     before { Summary.create! date: Date.current }
 
