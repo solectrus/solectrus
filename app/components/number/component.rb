@@ -198,7 +198,7 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
                   tag.strong(parts.first, class: 'font-medium'),
                   parts.second && tag.small("#{separator}#{parts.second}"),
                   '&nbsp;'.html_safe,
-                  tag.small(unit),
+                  (tag.small(unit) if unit),
                 ]
     end
   end

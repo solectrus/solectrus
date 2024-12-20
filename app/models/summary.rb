@@ -22,6 +22,16 @@
 #  min_case_temp                 :float
 #  sum_battery_charging_power    :float
 #  sum_battery_discharging_power :float
+#  sum_custom_power_01           :float
+#  sum_custom_power_02           :float
+#  sum_custom_power_03           :float
+#  sum_custom_power_04           :float
+#  sum_custom_power_05           :float
+#  sum_custom_power_06           :float
+#  sum_custom_power_07           :float
+#  sum_custom_power_08           :float
+#  sum_custom_power_09           :float
+#  sum_custom_power_10           :float
 #  sum_grid_export_power         :float
 #  sum_grid_import_power         :float
 #  sum_heatpump_power            :float

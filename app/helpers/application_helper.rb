@@ -10,7 +10,14 @@ module ApplicationHelper
     content_for :extra_stimulus_controllers, controller_names.join(' ')
   end
 
-  def frame_id(prefix, timeframe: self.timeframe)
-    "#{prefix}-#{timeframe}"
+  def controller_namespace
+    @controller_namespace ||= controller_path.split('/').first
+  end
+
+  def frame_id(prefix, timeframe: nil)
+    # Hack to make this work in the preview, too
+    timeframe ||= controller.__send__ :timeframe
+
+    "#{controller_namespace}-#{prefix}-#{timeframe}"
   end
 end

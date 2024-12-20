@@ -180,13 +180,13 @@ describe Calculator::Base do
       it { is_expected.to be_nil }
     end
 
-    context 'when total_plus is nil' do
+    context 'when total_plus is 0' do
       before do
-        calculator.build_method(:total_plus) { nil }
+        calculator.build_method(:total_plus) { 0 }
         calculator.build_method(:inverter_power) { 60 }
       end
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq(0) }
     end
 
     context 'when total_plus is zero' do
@@ -308,7 +308,7 @@ describe Calculator::Base do
         calculator.build_method(:inverter_power, {})
       end
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq(0) }
     end
   end
 
@@ -321,9 +321,10 @@ describe Calculator::Base do
         calculator.build_method(:battery_charging_power, {})
         calculator.build_method(:house_power, {})
         calculator.build_method(:wallbox_power, {})
+        calculator.build_method(:heatpump_power, {})
       end
 
-      it { is_expected.to be_nil }
+      it { is_expected.to eq(0) }
     end
 
     context 'when values are present' do

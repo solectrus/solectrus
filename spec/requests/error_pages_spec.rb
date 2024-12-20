@@ -16,10 +16,12 @@ describe 'Error pages', vcr: { cassette_name: 'version' } do
   end
 
   describe 'error 500' do
-    let(:failing_controller) { instance_double(HomeController) }
+    let(:failing_controller) { instance_double(Balance::HomeController) }
 
     before do
-      allow(HomeController).to receive(:new).and_return(failing_controller)
+      allow(Balance::HomeController).to receive(:new).and_return(
+        failing_controller,
+      )
       allow(failing_controller).to receive(:index).and_raise('fail')
     end
 

@@ -1,8 +1,15 @@
 describe 'Settings', vcr: { cassette_name: 'version' } do
   describe 'GET /settings' do
+    it 'returns http success' do
+      get '/settings'
+      expect(response).to redirect_to('/settings/general')
+    end
+  end
+
+  describe 'GET /settings/general' do
     context 'when not logged in' do
       it 'returns http forbidden' do
-        get '/settings'
+        get '/settings/general'
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -11,16 +18,16 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
       before { login_as_admin }
 
       it 'returns http success' do
-        get '/settings'
+        get '/settings/general'
         expect(response).to have_http_status(:success)
       end
     end
   end
 
-  describe 'PATCH /settings' do
+  describe 'PATCH /settings/general' do
     context 'when not logged in' do
       it 'fails' do
-        patch '/settings', params: { setting: { plant_name: 'Test' } }
+        patch '/settings/general', params: { setting: { plant_name: 'Test' } }
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -29,7 +36,7 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
       before { login_as_admin }
 
       it 'returns http success' do
-        patch '/settings',
+        patch '/settings/general',
               params: {
                 setting: {
                   plant_name: 'Test',
@@ -78,6 +85,56 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
           get '/settings/prices'
           expect(response).to have_http_status(:redirect)
         end
+      end
+    end
+  end
+
+  describe 'GET /settings/consumers' do
+    context 'when not logged in' do
+      it 'returns http forbidden' do
+        get '/settings/consumers'
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'returns http success' do
+        get '/settings/consumers'
+        expect(response).to have_http_status(:success)
+      end
+    end
+  end
+
+  describe 'PATCH /settings/consumers' do
+    context 'when not logged in' do
+      it 'fails' do
+        patch '/settings/consumers',
+              params: {
+                setting: {
+                  custom_name_01: 'Test',
+                },
+              }
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'returns http success' do
+        patch '/settings/consumers',
+              params: {
+                setting: {
+                  custom_name_01: 'Test1',
+                  custom_name_02: 'Test2',
+                },
+              }
+        expect(response).to have_http_status(:success)
+
+        expect(Setting.custom_name_01).to eq('Test1')
+        expect(Setting.custom_name_02).to eq('Test2')
       end
     end
   end
