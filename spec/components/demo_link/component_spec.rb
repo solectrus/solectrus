@@ -1,0 +1,15 @@
+describe DemoLink::Component, type: :component do
+  subject(:component) { described_class.new(url:, feature:) }
+
+  let(:url) { { controller: 'house/home', action: 'index' } }
+  let(:feature) { 'custom' }
+
+  it 'renders the buttons' do
+    render_inline(component)
+
+    expect(page).to have_link 'About sponsoring',
+              href: 'https://solectrus.de/sponsoring'
+
+    expect(page).to have_link 'Demo', href: 'http://demo.solectrus.de/house'
+  end
+end
