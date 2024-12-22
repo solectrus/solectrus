@@ -33,12 +33,13 @@ class PowerPeak
 
     # `calculate_all` returns a single value if only one sensor is provided
     # Ensure the result is a hash with the sensor name as the key
-    if result.is_a?(Numeric) && existing_sensors.one?
-      return { existing_sensors.first => result }
-    end
+    return { existing_sensors.first => result } if result.is_a?(Numeric)
 
     # Return nil if all values are nil
-    result if result.values.any?
+    return unless result&.compact.presence
+
+    # Remove the `max_max_` prefix from the keys
+    result.transform_keys { |key| key.to_s.sub('max_max_', '').to_sym }
   end
 
   def cache_options
