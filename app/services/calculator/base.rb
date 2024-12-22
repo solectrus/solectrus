@@ -105,8 +105,7 @@ class Calculator::Base
     return unless consumption && grid_import_power
 
     if consumption.zero?
-      # Producing without any consumption
-      #  => Maybe there is a balcony heatpump_power plant
+      # Producing without any consumption (maybe there is a balcony power plant)
       #  => 0% grid quote
       return 0 if producing?
 

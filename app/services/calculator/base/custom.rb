@@ -1,6 +1,4 @@
 module Calculator::Base::Custom
-  extend ActiveSupport::Concern
-
   def custom_power_total
     @custom_power_total ||=
       SensorConfig.x.included_custom_sensor_names.sum do |sensor_name|
@@ -32,19 +30,17 @@ module Calculator::Base::Custom
     public_send(sensor_name) || 0
   end
 
-  included do
-    SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
-      define_method(:"#{sensor_name}_percent") do
-        total =
-          if sensor_name.in?(SensorConfig.x.excluded_custom_sensor_names)
-            total_minus
-          else
-            [house_power, custom_power_total].max
-          end
-        return 0 if total.zero?
+  SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
+    define_method(:"#{sensor_name}_percent") do
+      total =
+        if sensor_name.in?(SensorConfig.x.excluded_custom_sensor_names)
+          total_minus
+        else
+          [house_power, custom_power_total].max
+        end
+      return 0 if total.zero?
 
-        safe_power_value(sensor_name) * 100 / total
-      end
+      safe_power_value(sensor_name) * 100 / total
     end
   end
 end
