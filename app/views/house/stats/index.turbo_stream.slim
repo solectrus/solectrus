@@ -10,7 +10,7 @@
 turbo-stream action="morph" target= frame_id('stats') children-only= true
   template
     div
-      .h-full.w-full.flex.flex-col.gap-3
+      .h-full.w-full.flex.flex-col.gap-3 id= "stats-#{timeframe.id}"
         - unless timeframe.now?
           .ml-5.md:ml-20
             .flex.flex-col.items-center.w-full
