@@ -49,11 +49,11 @@ class RadialBadge::Component < ViewComponent::Base
 
     case percent
     when 0..33
-      'text-red-600 dark:text-red-600 xl:tall:dark:text-red-400'
+      'text-red-600 dark:text-red-600 xl:tall:dark:text-inherit'
     when 34..66
-      'text-orange-600 dark:text-orange-600 xl:tall:dark:text-orange-500'
+      'text-orange-600 dark:text-orange-600 xl:tall:dark:text-inherit'
     when 66..100
-      'text-green-600 dark:text-green-600 xl:tall:dark:text-green-500'
+      'text-green-600 dark:text-green-600 xl:tall:dark:text-inherit'
     end
   end
 end
