@@ -46,7 +46,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def house_item
       {
         name: t('layout.house'),
-        text: false,
         icon: 'home',
         href: house_home_path(sensor: 'house_power', timeframe:),
         current: helpers.controller_namespace == 'house',
@@ -59,7 +58,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def essentials_item
       {
         name: t('layout.essentials'),
-        text: false,
         icon: 'grip',
         href: essentials_path,
         current: helpers.controller.is_a?(EssentialsController),
@@ -72,7 +70,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def top10_item
       {
         name: t('layout.top10'),
-        text: false,
         icon: 'trophy',
         href:
           top10_path(

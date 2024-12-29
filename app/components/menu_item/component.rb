@@ -49,7 +49,6 @@ class MenuItem::Component < ViewComponent::Base
             target:,
             class: [CSS_CLASSES, css_extra],
             data:,
-            title: name,
             'aria-current' => current ? 'page' : nil do
       render_inner(with_icon:)
     end
