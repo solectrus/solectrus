@@ -194,7 +194,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       setting_name = Setting.name_for_custom_sensor(sensor_name)
       Setting.public_send(setting_name) || sensor_name.to_s
     else
-      I18n.t("sensors.#{sensor_name}")
+      I18n.t("sensors.#{sensor_name}").html_safe
     end
   end
 
