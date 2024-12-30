@@ -14,7 +14,7 @@ class ChartData::CustomPower < ChartData::Base
       datasets:
         chart.map do |chart_sensor, data|
           {
-            label: I18n.t("sensors.#{chart_sensor}"),
+            label: SensorConfig.x.name(chart_sensor),
             data: data.map(&:second),
           }.merge(style)
         end,

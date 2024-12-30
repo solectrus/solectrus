@@ -19,7 +19,7 @@ class ChartData::BatteryPower < ChartData::Base
 
   def dataset(sensor)
     {
-      label: I18n.t("sensors.#{sensor}"),
+      label: SensorConfig.x.name(sensor),
       data: mapped_data(chart[sensor], sensor),
     }.merge(style)
   end
