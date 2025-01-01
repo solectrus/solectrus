@@ -22,6 +22,8 @@ de:
     missing_sponsoring_cta: Mehr erfahren...
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
+    incomplete_config: Konfiguration unvollständig
+    missing_custom_consumers: Es wurden keine separaten Stromverbraucher konfiguriert
   timeframe:
     now: Aktuell
     day: Heute

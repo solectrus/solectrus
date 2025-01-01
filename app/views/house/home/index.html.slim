@@ -29,7 +29,9 @@
   - if SensorConfig.x.existing_custom_sensor_count.positive?
     = render StatsWithChart::Component.new(sensor:, timeframe:)
   - else
-    p Keine benutzerdefinierten Sensoren konfiguriert!
+    = render Message::Component.new do |c|
+      = c.with_title { t('layout.incomplete_config') }
+      = c.with_body { t('layout.missing_custom_consumers') }
 
 - else
   = render DemoLink::Component.new feature: 'custom', url: { **permitted_params, timeframe: 'week' }
