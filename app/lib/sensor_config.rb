@@ -57,7 +57,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   public_constant :SENSOR_NAMES
 
   # List of sensors that can be displayed in the top 10 list
-  TOP10_SENSORS = [*POWER_SENSORS, :case_temp].freeze
+  TOP10_SENSORS = POWER_SENSORS
   public_constant :TOP10_SENSORS
 
   # List of sensors that are calculated (meaning they are built from other sensors)
