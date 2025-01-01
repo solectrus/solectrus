@@ -109,4 +109,4 @@ https://www.rorvswild.com/applications/136101/requests
 
 ## License
 
-Copyright (c) 2020-2024 Georg Ledermann, released under the AGPL-3.0 License
+Copyright (c) 2020-2025 Georg Ledermann, released under the AGPL-3.0 License
