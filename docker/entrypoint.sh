@@ -1,6 +1,6 @@
 #!/bin/sh -e
 echo "SOLECTRUS Photovoltaic Dashboard"
-echo "Copyright (C) 2020-2024 Georg Ledermann"
+echo "Copyright (C) 2020-2025 Georg Ledermann"
 echo "License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html"
 
 if [ "${COMMIT_BRANCH}" == "${COMMIT_VERSION}" ]; then
