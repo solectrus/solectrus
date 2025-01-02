@@ -1,5 +1,5 @@
 describe('House page', () => {
-  ['house_power'].forEach((path) => {
+  ['house_power', 'house_power_without_custom'].forEach((path) => {
     it(`${path} is clickable`, () => {
       cy.visit(`/house/${path}`);
 

@@ -33,9 +33,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def url
     case helpers.controller_namespace
     when 'house'
-      unless sensor == :house_power_without_custom
-        house_home_path(sensor:, timeframe: parent.timeframe)
-      end
+      house_home_path(sensor:, timeframe: parent.timeframe)
     else
       root_path(
         sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),

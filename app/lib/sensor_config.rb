@@ -77,6 +77,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       %i[
         inverter_power
         house_power
+        house_power_without_custom
         heatpump_power
         grid_power
         battery_power
