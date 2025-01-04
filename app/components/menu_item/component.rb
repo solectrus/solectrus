@@ -72,7 +72,13 @@ class MenuItem::Component < ViewComponent::Base
         )
       end
 
-      concat(tag.span(class: 'flex-1 text-left') { name }) if text
+      if text
+        concat(
+          tag.span(
+            class: ['flex-1 text-left', ('font-semibold' if with_icon)],
+          ) { name },
+        )
+      end
     end
   end
 end
