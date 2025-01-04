@@ -133,7 +133,7 @@ class Top10Chart::Component < ViewComponent::Base
     when 'day'
       value
     when 'week'
-      corresponding_week(value).strftime('%Y-W%W')
+      corresponding_week(value).strftime('%G-W%V')
     when 'month'
       corresponding_month(value).strftime('%Y-%m')
     when 'year'
