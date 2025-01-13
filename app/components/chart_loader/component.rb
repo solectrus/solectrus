@@ -204,6 +204,6 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
 
   def suggested_min_y
-    sensor == :case_temp ? 20 : nil
+    sensor == :case_temp ? 10 : nil
   end
 end

@@ -6,7 +6,7 @@
     - if SensorConfig.x.exists?(:autarky)
       = link_to root_path(sensor: 'autarky', timeframe:),
                 data: { \
-                  turbo_frame: 'chart',
+                  turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                 },
@@ -20,7 +20,7 @@
     - if SensorConfig.x.exists?(:self_consumption) && calculator.self_consumption_quote
       = link_to root_path(sensor: 'self_consumption', timeframe:),
                 data: { \
-                  turbo_frame: 'chart',
+                  turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                 },
@@ -36,7 +36,7 @@
     - unless timeframe.future?
       = link_to root_path(sensor: 'co2_reduction', timeframe:),
                 data: { \
-                  turbo_frame: 'chart',
+                  turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                 },

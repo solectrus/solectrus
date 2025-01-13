@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 7.2.2'
+gem 'rails', '~> 8.0.1'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -20,7 +20,7 @@ gem 'stimulus-rails'
 # Pg is the Ruby interface to the PostgreSQL RDBMS (https://github.com/ged/ruby-pg)
 gem 'pg', '~> 1.1'
 
-# Puma is a simple, fast, threaded, and highly parallel HTTP 1.1 server for Ruby/Rack applications (https://puma.io)
+# A Ruby/Rack web server built for parallelism. (https://puma.io)
 gem 'puma', '>= 5.0'
 
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
@@ -58,9 +58,6 @@ gem 'http_accept_language'
 
 # Ruby on Rails applications monitoring (https://www.rorvswild.com)
 gem 'rorvswild'
-
-# CSV Reading and Writing (https://github.com/ruby/csv)
-gem 'csv'
 
 # Class to build custom data structures, similar to a Hash. (https://github.com/ruby/ostruct)
 gem 'ostruct'

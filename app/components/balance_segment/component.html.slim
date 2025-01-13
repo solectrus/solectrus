@@ -8,7 +8,7 @@
             tippy_placement_value: (parent.side == :left ? 'right' : 'left'),
             tippy_force_tap_to_close_value: false,
             tippy_touch_value: 'long',
-            turbo_frame: 'chart',
+            turbo_frame: helpers.frame_id('chart', timeframe:),
             turbo_action: 'replace',
             turbo_prefetch: 'false',
             action: 'stats-with-chart--component#startLoop',
@@ -73,6 +73,8 @@
           - if costs
             div
               small
+                - if timeframe.starts_today?
+                  => t('.approximate')
                 = Number::Component.new(value: power_pv_ratio).to_percent(max_precision: 0, klass: 'text-black dark:text-gray-200')
                 =< t('.generated')
               .w-full.flex.gap-px.rounded.overflow-hidden

@@ -3,7 +3,7 @@
 .badge {
   --value: 0;
   --size: 6rem;
-  --thickness: calc(var(--size) / 15);
+  --thickness: calc(var(--size) / 20);
 }
 
 .badge {

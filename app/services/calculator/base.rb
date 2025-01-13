@@ -91,7 +91,7 @@ class Calculator::Base
     return unless consumption_alt && inverter_power
     return if inverter_power < 50
 
-    [consumption_alt * 100.0 / inverter_power, 0.0].max.round(1)
+    (consumption_alt * 100.0 / inverter_power).clamp(0, 100).round(1)
   end
 
   def grid_quote
@@ -107,7 +107,7 @@ class Calculator::Base
       return
     end
 
-    [grid_import_power * 100.0 / consumption, 100].min
+    (grid_import_power * 100.0 / consumption).clamp(0, 100)
   end
 
   def autarky

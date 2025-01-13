@@ -9,4 +9,8 @@ module ApplicationHelper
   def extra_stimulus_controllers(*controller_names)
     content_for :extra_stimulus_controllers, controller_names.join(' ')
   end
+
+  def frame_id(prefix, timeframe: self.timeframe)
+    "#{prefix}-#{timeframe}"
+  end
 end

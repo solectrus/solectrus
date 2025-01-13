@@ -16,3 +16,4 @@ linters:
       - Style/RedundantLineContinuation
       - Lint/Void
       - Metrics/BlockLength
+      - Rails/SaveBang

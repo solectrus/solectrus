@@ -32,7 +32,7 @@ class ChartSelector::Component < ViewComponent::Base
         sensor:,
         href: root_path(sensor:, timeframe:),
         data: {
-          'turbo-frame' => 'chart',
+          'turbo-frame' => helpers.frame_id('chart'),
           'turbo-action' => 'replace',
           'action' =>
             'stats-with-chart--component#startLoop dropdown--component#toggle',
