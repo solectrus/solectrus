@@ -843,11 +843,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 22.10.6
-  resolution: "@types/node@npm:22.10.6"
+  version: 22.10.7
+  resolution: "@types/node@npm:22.10.7"
   dependencies:
     undici-types: "npm:~6.20.0"
-  checksum: 10c0/8b67affc211e5f9c74f7949cda04ca669721e50b83d71b8772a7bed7a4a3c41d663b3a794413f618e763ca6c5da8c234c25ffebcb0737983fc3e7415818ab9a7
+  checksum: 10c0/c941b4689dfc4044b64a5f601306cbcb0c7210be853ba378a5dd44137898c45accedd796ee002ad9407024cac7ecaf5049304951cb1d80ce3d7cebbbae56f20e
   languageName: node
   linkType: hard
 
@@ -1804,9 +1804,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.73":
-  version: 1.5.82
-  resolution: "electron-to-chromium@npm:1.5.82"
-  checksum: 10c0/0d495077406adf4701c2b14d63a10e03128fbff0ca960c3c4132ef9b3ef36378f90618d8ca9f9f909270414b5e90b3912b65d10ea7f33418ea2e429d83593196
+  version: 1.5.83
+  resolution: "electron-to-chromium@npm:1.5.83"
+  checksum: 10c0/12380962d057c4679add1047cdddb18b909904614272da0527e505a3859eaffde2022dd0688ce7f230582de96405c3d33b667680614475cdafd3f629caa2fee1
   languageName: node
   linkType: hard
 
@@ -1881,11 +1881,11 @@ __metadata:
   linkType: hard
 
 "es-object-atoms@npm:^1.0.0":
-  version: 1.1.0
-  resolution: "es-object-atoms@npm:1.1.0"
+  version: 1.1.1
+  resolution: "es-object-atoms@npm:1.1.1"
   dependencies:
     es-errors: "npm:^1.3.0"
-  checksum: 10c0/faf6d35676be7edc202fb3c9357fab2aa29b634a84b75644d3997168641444b1f08f330412b111cd748f889eb51463dc24dfe75eae3ca96759c20c95dfde262b
+  checksum: 10c0/65364812ca4daf48eb76e2a3b7a89b3f6a2e62a1c420766ce9f692665a29d94fe41fe88b65f24106f449859549711e4b40d9fb8002d862dfd7eb1c512d10be0c
   languageName: node
   linkType: hard
 
@@ -4517,21 +4517,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tldts-core@npm:^6.1.71":
-  version: 6.1.71
-  resolution: "tldts-core@npm:6.1.71"
-  checksum: 10c0/68c4e9ea7f02f14f811f5be5b50b176b099bc8385cae177b8265c1bb0c45215efecf54195a267326848024a24e204bba6d9f47cb899da1d81fd00da0c7f661b7
+"tldts-core@npm:^6.1.72":
+  version: 6.1.72
+  resolution: "tldts-core@npm:6.1.72"
+  checksum: 10c0/6cc0226c0b68264ee58f43aeb2165aae5ca058dd86ba83cc015c15494df6c9b9630553ae9d4d3bff5916f9952d4e4cc2b17853ee5aaebac978b21bf98d6f9b14
   languageName: node
   linkType: hard
 
 "tldts@npm:^6.1.32":
-  version: 6.1.71
-  resolution: "tldts@npm:6.1.71"
+  version: 6.1.72
+  resolution: "tldts@npm:6.1.72"
   dependencies:
-    tldts-core: "npm:^6.1.71"
+    tldts-core: "npm:^6.1.72"
   bin:
     tldts: bin/cli.js
-  checksum: 10c0/fb1bfb6ec78ce334b9d7b0c8813ab553a9f9f8759d681e6f109dd55caced45f901a19d162d8bc2f12b37afc366e438154248ae1dab67ad091565146b8e57d217
+  checksum: 10c0/013912d4c41ef92b250b3fe26f1bf3bdef528c1bf37cdb1df8678e5aac02f95c5d9280b2302ef61354c0eaafc83f66049c310ddde14ab65687e5b2ebdf66c91f
   languageName: node
   linkType: hard
 
