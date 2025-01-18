@@ -22,11 +22,7 @@ class SettingsController < ApplicationController
   end
 
   def permitted_params
-    params.require(:setting).permit(
-      :plant_name,
-      :operator_name,
-      :opportunity_costs,
-    )
+    params.expect(setting: %i[plant_name operator_name opportunity_costs])
   end
 
   helper_method def nav_items
