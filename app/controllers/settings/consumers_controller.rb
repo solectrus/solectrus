@@ -23,10 +23,11 @@ class Settings::ConsumersController < ApplicationController
   end
 
   def permitted_params
-    params.require(:setting).permit(
-      *SensorConfig.x.existing_custom_sensor_names.map do |sensor_name|
-        Setting.name_for_custom_sensor(sensor_name)
-      end,
+    params.expect(
+      setting:
+        SensorConfig.x.existing_custom_sensor_names.map do |sensor_name|
+          Setting.name_for_custom_sensor(sensor_name)
+        end,
     )
   end
 end
