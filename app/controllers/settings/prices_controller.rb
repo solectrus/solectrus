@@ -49,7 +49,7 @@ class Settings::PricesController < ApplicationController
   end
 
   def permitted_params
-    params.require(:price).permit(:name, :starts_at, :value, :note)
+    params.expect(price: %i[name starts_at value note])
   end
 
   helper_method def name
