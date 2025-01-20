@@ -211,12 +211,6 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   # Heat pump
 
-  def heatpump_power_pv
-    return unless heatpump_power && heatpump_power_grid
-
-    heatpump_power - heatpump_power_grid
-  end
-
   def heatpump_power_grid_ratio
     return unless heatpump_power_grid
 

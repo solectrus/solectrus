@@ -148,7 +148,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       %i[
         grid_export_power
         inverter_power
-        heatpump_power_pv
         battery_discharging_power
         battery_charging_power
         house_power
@@ -163,7 +162,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def default_color_class # rubocop:disable Metrics/CyclomaticComplexity
     if balance?
       case sensor
-      when :grid_export_power, :inverter_power, :heatpump_power_pv
+      when :grid_export_power, :inverter_power
         'bg-green-600 dark:bg-green-800/80'
       when :battery_discharging_power, :battery_charging_power
         'bg-green-700 dark:bg-green-900/70'

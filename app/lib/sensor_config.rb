@@ -67,7 +67,6 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     savings
     co2_reduction
     house_power_without_custom
-    heatpump_power_pv
   ].freeze
   public_constant :CALCULATED_SENSORS
 
