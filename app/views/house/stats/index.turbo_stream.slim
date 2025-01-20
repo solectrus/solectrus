@@ -23,9 +23,9 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
 
         .flex-1.flex.gap-5
           // Clip
-          .flex.gap-10.items-end.py-4.px-5
+          .flex.gap-10.items-end.py-4.px-3.md:px-5
             .w-5.border-b-2.border-t-2.border-l-2.border-slate-500.h-full.flex.justify-center
-              .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg
+              .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg.-ml-5
                 = link_to house_home_path(sensor: 'house_power', timeframe:),
                           class: 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 py-2 md:py-4',
                           title: SensorConfig.x.name(:house_power),
@@ -45,7 +45,7 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
                     = Number::Component.new(value: calculator.house_power).public_send method
 
                   - unless calculator.house_power_valid?
-                    div[
+                    .text-center[
                       data-controller= 'tippy'
                       title= t('layout.house_power_invalid')
                       data-tippy-placement-value= 'right'
