@@ -121,22 +121,24 @@ export default class extends Controller<HTMLCanvasElement> {
 
     const max = this.maxOf(data);
     const min = this.minOf(data);
-    if (min < 0) {
-      // Disable auto-scaling if there are negative values
-      options.scales.y.max = max;
-      options.scales.y.min = min;
 
+    options.scales.y.max =
+      'suggestedMax' in options.scales.y && options.scales.y.suggestedMax
+        ? Math.max(+options.scales.y.suggestedMax, min)
+        : max;
+
+    options.scales.y.min =
+      'suggestedMin' in options.scales.y && options.scales.y.suggestedMin
+        ? Math.min(+options.scales.y.suggestedMin, min)
+        : Math.min(0, min);
+
+    if (min < 0) {
       // Draw x-axis in black
       options.scales.y.grid = {
         color: (context) => {
           if (context.tick.value === 0) return '#000';
         },
       };
-    } else {
-      options.scales.y.min =
-        'suggestedMin' in options.scales.y && options.scales.y.suggestedMin
-          ? Math.min(+options.scales.y.suggestedMin, min)
-          : 0;
     }
 
     // Drill-down: Click on bars to navigate to a more detailed view
