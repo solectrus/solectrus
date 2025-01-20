@@ -24,6 +24,7 @@ en:
     active_sponsoring: Thank you very much for your support!
     incomplete_config: Configuration incomplete
     missing_custom_consumers: No separate electricity consumers have been configured
+    house_power_invalid: House consumption is less than the sum of the consumers
   timeframe:
     now: Now
     day: Today

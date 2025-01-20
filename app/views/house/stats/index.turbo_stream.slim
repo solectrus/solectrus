@@ -47,7 +47,7 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
                   - unless calculator.house_power_valid?
                     div[
                       data-controller= 'tippy'
-                      title= 'Hausverbrauch ist kleiner als Summe der Verbraucher'
+                      title= t('layout.house_power_invalid')
                       data-tippy-placement-value= 'right'
                     ]
                       i.fa.fa-circle-exclamation
