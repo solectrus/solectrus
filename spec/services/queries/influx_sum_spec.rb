@@ -1,4 +1,4 @@
-describe Calculator::QueryInfluxSum do
+describe Queries::InfluxSum do
   let(:query_influx_sum) { described_class.new(timeframe) }
   let(:timeframe) { Timeframe.new(date.iso8601) }
   let(:date) { Date.new(2024, 10, 1) }
@@ -31,7 +31,7 @@ describe Calculator::QueryInfluxSum do
       end
     end
 
-    context 'when data is present' do
+    context 'with data' do
       before do
         influx_batch do
           # Fill one hour (12:00 - 13:00) with 10 kW power

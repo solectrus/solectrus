@@ -1,4 +1,4 @@
-class Calculator::QueryInfluxAggregation < Calculator::Base
+class Queries::InfluxAggregation
   def initialize(timeframe)
     super()
 
@@ -9,6 +9,10 @@ class Calculator::QueryInfluxAggregation < Calculator::Base
   attr_reader :timeframe
 
   private
+
+  def build_method(key, data)
+    define_singleton_method(key) { data[key] }
+  end
 
   def build_context(data)
     %i[min max mean].each do |method|

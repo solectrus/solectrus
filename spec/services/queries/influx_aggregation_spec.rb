@@ -1,4 +1,4 @@
-describe Calculator::QueryInfluxAggregation do
+describe Queries::InfluxAggregation do
   let(:query) { described_class.new(timeframe) }
   let(:timeframe) { Timeframe.new(date.iso8601) }
   let(:date) { Date.new(2024, 10, 1) }

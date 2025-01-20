@@ -1,4 +1,4 @@
-class Calculator::QuerySql
+class Queries::Sql
   def initialize(calculations:, from: nil, to: nil)
     raise ArgumentError, 'No calculations given' if calculations.blank?
 

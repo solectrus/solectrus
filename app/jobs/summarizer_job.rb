@@ -59,41 +59,40 @@ class SummarizerJob < ApplicationJob
     ]
 
     (base_sensors + custom_sensors + power_splitter_sensors).to_h do |attr|
-      [:"sum_#{attr}", calculator_sum.public_send(attr)]
+      [:"sum_#{attr}", query_sum.public_send(attr)]
     end
   end
 
   def raw_max_attributes
     {
-      max_battery_charging_power:
-        calculator_aggregation.max_battery_charging_power,
+      max_battery_charging_power: query_aggregation.max_battery_charging_power,
       max_battery_discharging_power:
-        calculator_aggregation.max_battery_discharging_power,
-      max_battery_soc: calculator_aggregation.max_battery_soc,
-      max_car_battery_soc: calculator_aggregation.max_car_battery_soc,
-      max_case_temp: calculator_aggregation.max_case_temp,
-      max_grid_export_power: calculator_aggregation.max_grid_export_power,
-      max_grid_import_power: calculator_aggregation.max_grid_import_power,
-      max_heatpump_power: calculator_aggregation.max_heatpump_power,
-      max_house_power: calculator_aggregation.max_house_power,
-      max_inverter_power: calculator_aggregation.max_inverter_power,
-      max_wallbox_power: calculator_aggregation.max_wallbox_power,
+        query_aggregation.max_battery_discharging_power,
+      max_battery_soc: query_aggregation.max_battery_soc,
+      max_car_battery_soc: query_aggregation.max_car_battery_soc,
+      max_case_temp: query_aggregation.max_case_temp,
+      max_grid_export_power: query_aggregation.max_grid_export_power,
+      max_grid_import_power: query_aggregation.max_grid_import_power,
+      max_heatpump_power: query_aggregation.max_heatpump_power,
+      max_house_power: query_aggregation.max_house_power,
+      max_inverter_power: query_aggregation.max_inverter_power,
+      max_wallbox_power: query_aggregation.max_wallbox_power,
     }
   end
 
   def raw_min_attributes
     {
-      min_battery_soc: calculator_aggregation.min_battery_soc,
-      min_car_battery_soc: calculator_aggregation.min_car_battery_soc,
-      min_case_temp: calculator_aggregation.min_case_temp,
+      min_battery_soc: query_aggregation.min_battery_soc,
+      min_car_battery_soc: query_aggregation.min_car_battery_soc,
+      min_case_temp: query_aggregation.min_case_temp,
     }
   end
 
   def raw_avg_attributes
     {
-      avg_battery_soc: calculator_aggregation.mean_battery_soc,
-      avg_car_battery_soc: calculator_aggregation.mean_car_battery_soc,
-      avg_case_temp: calculator_aggregation.mean_case_temp,
+      avg_battery_soc: query_aggregation.mean_battery_soc,
+      avg_car_battery_soc: query_aggregation.mean_car_battery_soc,
+      avg_case_temp: query_aggregation.mean_case_temp,
     }
   end
 
@@ -126,13 +125,12 @@ class SummarizerJob < ApplicationJob
     clean_attributes
   end
 
-  def calculator_sum
-    @calculator_sum ||= Calculator::QueryInfluxSum.new(timeframe)
+  def query_sum
+    @query_sum ||= Queries::InfluxSum.new(timeframe)
   end
 
-  def calculator_aggregation
-    @calculator_aggregation ||=
-      Calculator::QueryInfluxAggregation.new(timeframe)
+  def query_aggregation
+    @query_aggregation ||= Queries::InfluxAggregation.new(timeframe)
   end
 
   def timeframe

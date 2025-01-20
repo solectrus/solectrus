@@ -1,4 +1,4 @@
-class Calculator::QueryInfluxSum < Calculator::Base
+class Queries::InfluxSum
   def initialize(timeframe)
     super()
 
@@ -9,6 +9,10 @@ class Calculator::QueryInfluxSum < Calculator::Base
   attr_reader :timeframe
 
   private
+
+  def build_method(key, data = nil, &)
+    define_singleton_method(key) { (data ? data[key] : yield) }
+  end
 
   def build_context(data)
     build_method(:time) { data[:time] }

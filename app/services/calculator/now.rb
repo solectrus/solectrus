@@ -88,6 +88,8 @@ class Calculator::Now < Calculator::Base
 
   # Custom consumers, define a method for each custom sensor
   SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
+    # Example:
+    # def custom_power_01
     define_method(sensor_name) { data[sensor_name] }
   end
 

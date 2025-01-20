@@ -88,12 +88,6 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def self_consumption
-    return unless inverter_power && grid_export_power
-
-    inverter_power - grid_export_power
-  end
-
   def opportunity_costs
     section_sum do |index|
       (inverter_power_array[index] - grid_export_power_array[index]) *
@@ -117,6 +111,16 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     return unless got && paid
 
     got + paid
+  end
+
+  def consumption_array
+    sections.each_with_index.map do |_section, index|
+      house_power_array[index] + wallbox_power_array[index] +
+        heatpump_power_array[index] +
+        SensorConfig.x.excluded_custom_sensor_names.sum do |sensor_name|
+          public_send(:"#{sensor_name}_array")[index] || 0
+        end
+    end
   end
 
   def traditional_price
@@ -302,6 +306,8 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
+    # Example:
+    # def custom_01_costs
     define_method :"#{sensor_name.to_s.sub('_power', '')}_costs" do
       return unless house_power&.nonzero? && house_costs
 
@@ -321,36 +327,12 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def query(from:, to:, selected_calculations:)
-    Calculator::QuerySql.new(from:, to:, calculations: selected_calculations)
-  end
-
-  def avg_calculations
-    @avg_calculations ||=
-      calculations.select { |_sensor, value| value.to_s.start_with?('avg_') }
+    Queries::Sql.new(from:, to:, calculations: selected_calculations)
   end
 
   def sum_calculations
     @sum_calculations ||=
       calculations.select { |_sensor, value| value.to_s.start_with?('sum_') }
-  end
-
-  def global
-    return if avg_calculations.blank?
-
-    @global ||=
-      begin
-        summary =
-          query(
-            from: timeframe.effective_beginning_date,
-            to: timeframe.ending,
-            selected_calculations: avg_calculations.values,
-          )
-
-        avg_calculations
-          .keys
-          .index_with { |sensor| summary.public_send(avg_calculations[sensor]) }
-          .merge(time: summary.time)
-      end
   end
 
   def sections

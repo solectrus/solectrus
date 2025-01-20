@@ -1,4 +1,4 @@
-describe Calculator::QuerySql do
+describe Queries::Sql do
   subject(:query_sql) { described_class.new(from:, to:, calculations:) }
 
   let(:from) { '2022-11-01'.to_date }

@@ -16,7 +16,7 @@ dl
     dt.whitespace-nowrap
       |&#61;&nbsp;
       = I18n.t('calculator.self_consumption')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.consumption_alt).to_watt_hour(max_precision: 3, unit: :kilo)
+    dd.font-mono.text-right = Number::Component.new(value: calculator.self_consumption).to_watt_hour(max_precision: 3, unit: :kilo)
 
   .mt-2.grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
