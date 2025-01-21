@@ -220,6 +220,14 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     CUSTOM_SENSORS.select { |sensor_name| exists?(sensor_name) }
   end
 
+  # Check the special case in which the entire grid_import_power is only used for house_power
+  def single_consumer?
+    SensorConfig.x.exists?(:grid_import_power) &&
+      !SensorConfig.x.exists?(:wallbox_power) &&
+      !SensorConfig.x.exists?(:heatpump_power) &&
+      SensorConfig.x.excluded_sensor_names.empty?
+  end
+
   private
 
   def define_sensor(sensor_name, value)

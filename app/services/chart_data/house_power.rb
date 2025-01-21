@@ -141,7 +141,8 @@ class ChartData::HousePower < ChartData::Base
   end
 
   def grid_sensor
-    @grid_sensor ||= (single_consumer? ? :grid_import_power : :house_power_grid)
+    @grid_sensor ||=
+      (SensorConfig.x.single_consumer? ? :grid_import_power : :house_power_grid)
   end
 
   def splitting_allowed?
@@ -150,13 +151,5 @@ class ChartData::HousePower < ChartData::Base
     return false if timeframe.short?
 
     SensorConfig.x.exists?(grid_sensor)
-  end
-
-  # Check the special case in which the entire grid_import_power is only used for house_power
-  def single_consumer?
-    SensorConfig.x.exists?(:grid_import_power) &&
-      !SensorConfig.x.exists?(:wallbox_power) &&
-      !SensorConfig.x.exists?(:heatpump_power) &&
-      SensorConfig.x.excluded_sensor_names.empty?
   end
 end

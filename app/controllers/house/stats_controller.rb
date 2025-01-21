@@ -25,6 +25,7 @@ class House::StatsController < ApplicationController
       system_status: nil,
       house_power: :sum_house_power_sum,
       house_power_grid: :sum_house_power_grid_sum,
+      grid_import_power: :sum_grid_import_power_sum,
       **(
         SensorConfig.x.existing_custom_sensor_names.index_with do |sensor_name|
           :"sum_#{sensor_name}_sum"
