@@ -50,6 +50,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               {}
             end
           ),
+        crosshair: timeframe.short?,
       },
       animation: {
         easing: 'easeOutQuad',

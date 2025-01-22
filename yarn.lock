@@ -1456,6 +1456,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chartjs-plugin-crosshair@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "chartjs-plugin-crosshair@npm:2.0.0"
+  peerDependencies:
+    chart.js: ^4.0.1
+  checksum: 10c0/4a02b2122860a453a67372a7b393c3cf9c5fcf04803fe62230cf06d715e5eeb662b2c3d0e46aebb507acebfd255aec60c0bb5ce3112e3da7d32994e8cbc1dd7a
+  languageName: node
+  linkType: hard
+
 "chartjs-plugin-zoom@npm:^2.2.0":
   version: 2.2.0
   resolution: "chartjs-plugin-zoom@npm:2.2.0"
@@ -4211,6 +4220,7 @@ __metadata:
     autoprefixer: "npm:^10.4.20"
     chart.js: "npm:^4.4.7"
     chartjs-adapter-date-fns: "npm:^3.0.0"
+    chartjs-plugin-crosshair: "npm:^2.0.0"
     chartjs-plugin-zoom: "npm:^2.2.0"
     cypress: "npm:^14.0.0"
     date-fns: "npm:^4.1.0"

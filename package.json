@@ -15,6 +15,7 @@
     "@hotwired/turbo-rails": "^8.0.12",
     "chart.js": "^4.4.7",
     "chartjs-adapter-date-fns": "^3.0.0",
+    "chartjs-plugin-crosshair": "^2.0.0",
     "chartjs-plugin-zoom": "^2.2.0",
     "date-fns": "^4.1.0",
     "el-transition": "^0.0.7",
@@ -50,7 +51,7 @@
   },
   "size-limit": [
     {
-      "limit": "190 kB",
+      "limit": "200 kB",
       "gzip": true,
       "path": "public/{vite,vite-dev,vite-test}/assets/*.js"
     }
