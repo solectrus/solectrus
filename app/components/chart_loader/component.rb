@@ -192,11 +192,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
 
   def max_y
-    sensor.in?(%i[self_consumption autarky]) ? 100 : nil
   end
 
   def suggested_max_y
-    sensor.in?(%i[battery_soc car_battery_soc]) ? 100 : nil
+    100 if sensor.in?(%i[battery_soc car_battery_soc self_consumption autarky])
   end
 
   def min_y
