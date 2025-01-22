@@ -4,6 +4,9 @@ declare module 'el-transition' {
   function toggle(el: HTMLElement, transitionName?: string): Promise<void>;
 }
 
+// Dummy declaration for Chart.js Crosshair Plugin
+declare module 'chartjs-plugin-crosshair';
+
 // Dummy declaration for Turbo 8
 declare module '@hotwired/turbo' {
   export class FrameElement extends HTMLElement {
