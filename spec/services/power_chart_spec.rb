@@ -37,7 +37,7 @@ describe PowerChart do
         it 'contains last data point' do
           last = result.last
 
-          expect(last[1]).to eq(14.0)
+          expect(last[1]).to eq(14_000)
           expect(last.first).to be_within(30.seconds).of(Time.current)
         end
       end
@@ -48,9 +48,9 @@ describe PowerChart do
         it { is_expected.to have(12).items }
 
         it 'contains last and first data point' do
-          expect(result.first).to eq([beginning, 24.0])
+          expect(result.first).to eq([beginning, 24_000])
           expect(result.last).to eq(
-            [beginning.end_of_year.beginning_of_month, 288.0],
+            [beginning.end_of_year.beginning_of_month, 288_000],
           )
         end
       end
@@ -84,7 +84,7 @@ describe PowerChart do
           it 'contains last data point' do
             last = result.last
 
-            expect(last[1]).to eq(2.0)
+            expect(last[1]).to eq(2000)
             expect(last.first).to be_within(30.seconds).of(Time.current)
           end
         end
@@ -105,9 +105,9 @@ describe PowerChart do
           it { is_expected.to have(12).items }
 
           it 'contains last and first data point' do
-            expect(result.first).to eq([beginning, 2.4])
+            expect(result.first).to eq([beginning, 2400])
             expect(result.last).to eq(
-              [beginning.end_of_year.beginning_of_month, 28.8],
+              [beginning.end_of_year.beginning_of_month, 28_800],
             )
           end
         end

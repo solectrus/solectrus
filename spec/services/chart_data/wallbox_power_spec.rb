@@ -47,15 +47,9 @@ describe ChartData::WallboxPower do
         it 'returns three datasets' do
           expect(to_h[:datasets].length).to eq(3)
 
-          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(27)
-
-          expect(to_h.dig(:datasets, 1, :data, now.day - 1)).to be_within(
-            0.001,
-          ).of(0.9)
-
-          expect(to_h.dig(:datasets, 2, :data, now.day - 1)).to be_within(
-            0.001,
-          ).of(26.1)
+          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(27_000)
+          expect(to_h.dig(:datasets, 1, :data, now.day - 1)).to eq(900)
+          expect(to_h.dig(:datasets, 2, :data, now.day - 1)).to eq(26_100)
         end
       end
 
@@ -63,7 +57,7 @@ describe ChartData::WallboxPower do
         it 'returns one datasets' do
           expect(to_h[:datasets].length).to eq(1)
 
-          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(27)
+          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(27_000)
         end
       end
     end
@@ -74,7 +68,7 @@ describe ChartData::WallboxPower do
       it 'returns one dataset' do
         expect(to_h[:datasets].length).to eq(1)
 
-        expect(to_h.dig(:datasets, 0, :data).last).to eq(27)
+        expect(to_h.dig(:datasets, 0, :data).last).to eq(27_000)
       end
     end
   end
@@ -92,7 +86,7 @@ describe ChartData::WallboxPower do
       it 'returns one datasets' do
         expect(to_h[:datasets].length).to eq(1)
 
-        expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(27)
+        expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(27_000)
       end
     end
 
@@ -102,7 +96,7 @@ describe ChartData::WallboxPower do
       it 'returns one dataset' do
         expect(to_h[:datasets].length).to eq(1)
 
-        expect(to_h.dig(:datasets, 0, :data).last).to eq(27)
+        expect(to_h.dig(:datasets, 0, :data).last).to eq(27_000)
       end
     end
   end

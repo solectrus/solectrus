@@ -41,7 +41,7 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
                             stats_with_chart__component_sensor_param: 'house_power',
                           } do
                   - method = timeframe.now? ? :to_watt : :to_watt_hour
-                  div data= { 'stats-with-chart--component-target': sensor == :house_power ? 'current' : nil, sensor: sensor, value: calculator.house_power / 1000.0, time: calculator.time.to_i }
+                  div data= { 'stats-with-chart--component-target': sensor == :house_power ? 'current' : nil, sensor: sensor, value: calculator.house_power, time: calculator.time.to_i }
                     = Number::Component.new(value: calculator.house_power).public_send method
 
                   - unless calculator.house_power_valid?

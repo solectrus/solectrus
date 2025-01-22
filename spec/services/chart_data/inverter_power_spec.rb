@@ -24,7 +24,7 @@ describe ChartData::InverterPower do
     let(:timeframe) { Timeframe.month }
 
     it 'contains value' do
-      expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(28)
+      expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(28_000)
     end
   end
 
@@ -32,7 +32,7 @@ describe ChartData::InverterPower do
     let(:timeframe) { Timeframe.now }
 
     it 'contains value' do
-      expect(to_h.dig(:datasets, 0, :data).last).to eq(28)
+      expect(to_h.dig(:datasets, 0, :data).last).to eq(28_000)
     end
   end
 end

@@ -69,7 +69,7 @@ class PowerChart < ChartBase
       dates(timeframe).map do |date|
         value = float_from_calculate_all(sensor, result[date])
 
-        [date.to_time, value&.fdiv(1000)]
+        [date.to_time, value]
       end
     end
   end
@@ -88,8 +88,8 @@ class PowerChart < ChartBase
         # InfluxDB returns data one-off
         value = next_record.values['_value']
 
-        # Values are given in W, so change them to kW
-        value &&= (value / 1_000).round(3)
+        # We don't need the decimal places
+        value &&= value.round
 
         time = Time.zone.parse(record.values['_time'])
 

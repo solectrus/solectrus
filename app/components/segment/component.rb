@@ -92,7 +92,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def masked_value
-    unsigned_value = sensor.to_s.include?('power') ? value / 1_000.0 : value
+    unsigned_value = value
 
     case sensor
     when :grid_import_power, :battery_discharging_power

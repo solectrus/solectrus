@@ -26,6 +26,6 @@ describe Segment::Component, type: :component do
     result = render_inline(component)
 
     expect(result.to_html).to include("data-time=\"#{updated_at.to_i}\"")
-    expect(result.to_html).to include('data-value="1.234"')
+    expect(result.to_html).to include('data-value="1234.0"')
   end
 end

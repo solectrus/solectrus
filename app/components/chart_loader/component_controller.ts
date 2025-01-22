@@ -67,6 +67,9 @@ export default class extends Controller<HTMLCanvasElement> {
   private boundHandleResize?: () => void;
   private chart?: Chart;
 
+  private maxValue: number = 0;
+  private minValue: number = 0;
+
   connect() {
     this.process();
 
@@ -119,24 +122,24 @@ export default class extends Controller<HTMLCanvasElement> {
       options.scales.y.ticks.callback = (value) =>
         typeof value === 'number' ? this.formattedNumber(value) : value;
 
-    const max = this.maxOf(data);
-    const min = this.minOf(data);
+    this.maxValue = this.maxOf(data);
+    this.minValue = this.minOf(data);
 
     if (options.scales.y?.suggestedMax) {
       options.scales.y.max = +options.scales.y.suggestedMax;
-    } else if (max > 1) {
-      options.scales.y.max = max;
+    } else if (this.maxValue > 1000) {
+      options.scales.y.max = Math.ceil(this.maxValue / 1000) * 1000;
     }
 
     if (options.scales.y?.suggestedMin) {
       options.scales.y.min = +options.scales.y.suggestedMin;
-    } else if (min < -1) {
-      options.scales.y.min = min;
-    } else if (min >= 0) {
+    } else if (this.minValue < -1000) {
+      options.scales.y.min = Math.floor(this.minValue / 1000) * 1000;
+    } else if (this.minValue >= 0) {
       options.scales.y.min = 0;
     }
 
-    if (min < 0) {
+    if (this.minValue < 0) {
       // Draw x-axis in black
       options.scales.y.grid = {
         color: (context) => {
@@ -258,7 +261,7 @@ export default class extends Controller<HTMLCanvasElement> {
                   tooltipItem.parsed._custom.min,
                   tooltipItem.parsed._custom.max,
                 )
-              : this.formattedNumber(tooltipItem.parsed.y);
+              : this.formattedNumber(tooltipItem.parsed.y, 3);
           }
 
           return result;
@@ -274,7 +277,7 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
-    if (max >= min)
+    if (this.maxValue >= this.minValue)
       data.datasets.forEach((dataset: ChartDataset) => {
         // Non-Overlapping line charts should have a larger gradient (means lower opacity)
         const minAlpha =
@@ -283,7 +286,12 @@ export default class extends Controller<HTMLCanvasElement> {
             : 0.4;
 
         if (dataset.data)
-          this.setBackgroundGradient(dataset, min, max, minAlpha);
+          this.setBackgroundGradient(
+            dataset,
+            this.minValue,
+            this.maxValue,
+            minAlpha,
+          );
       });
 
     this.chart = new Chart(this.canvasTarget, {
@@ -345,8 +353,14 @@ export default class extends Controller<HTMLCanvasElement> {
       return JSON.parse(this.optionsTarget.textContent);
   }
 
-  private formattedNumber(number: number) {
-    return `${new Intl.NumberFormat().format(number)} ${this.unitValue}`;
+  private formattedNumber(number: number, decimals: number = 1) {
+    let unitValuePrefix = '';
+    if (this.maxValue > 1000 || this.minValue < -1000) {
+      number = parseFloat((number / 1000).toFixed(decimals));
+      unitValuePrefix = 'k';
+    }
+
+    return `${new Intl.NumberFormat().format(number)} ${unitValuePrefix}${this.unitValue}`;
   }
 
   private formattedInterval(min: number, max: number) {
