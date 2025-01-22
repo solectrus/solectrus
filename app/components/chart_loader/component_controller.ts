@@ -132,6 +132,8 @@ export default class extends Controller<HTMLCanvasElement> {
       options.scales.y.min = +options.scales.y.suggestedMin;
     } else if (min < -1) {
       options.scales.y.min = min;
+    } else if (min >= 0) {
+      options.scales.y.min = 0;
     }
 
     if (min < 0) {
