@@ -53,6 +53,8 @@ de:
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
+    heatpump_power_grid: Netzbezug
+    heatpump_power_pv: Photovoltaik
   balance_sheet:
     left: Herkunft
     right: Verwendung
