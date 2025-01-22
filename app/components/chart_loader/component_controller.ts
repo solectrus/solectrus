@@ -122,15 +122,17 @@ export default class extends Controller<HTMLCanvasElement> {
     const max = this.maxOf(data);
     const min = this.minOf(data);
 
-    options.scales.y.max =
-      'suggestedMax' in options.scales.y && options.scales.y.suggestedMax
-        ? Math.max(+options.scales.y.suggestedMax, min)
-        : max;
+    if (options.scales.y?.suggestedMax) {
+      options.scales.y.max = +options.scales.y.suggestedMax;
+    } else if (max > 1) {
+      options.scales.y.max = max;
+    }
 
-    options.scales.y.min =
-      'suggestedMin' in options.scales.y && options.scales.y.suggestedMin
-        ? Math.min(+options.scales.y.suggestedMin, min)
-        : Math.min(0, min);
+    if (options.scales.y?.suggestedMin) {
+      options.scales.y.min = +options.scales.y.suggestedMin;
+    } else if (min < -1) {
+      options.scales.y.min = min;
+    }
 
     if (min < 0) {
       // Draw x-axis in black
