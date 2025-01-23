@@ -155,4 +155,26 @@ describe Calculator::Range do
       expect(calculator.heatpump_costs).to be_nil
     end
   end
+
+  context 'when power-splitter values are missing, but there is just a single consumer' do
+    let(:timeframe) { Timeframe.new('2024-03-07') }
+
+    before do
+      allow(calculator).to receive_messages(
+        house_power: 1000,
+        house_power_array: [1000],
+        grid_import_power: 1000,
+        grid_import_power_array: [1000],
+      )
+
+      allow(SensorConfig).to receive(:x).and_return(
+        double(single_consumer?: true),
+      )
+    end
+
+    it 'calculates' do
+      expect(calculator.house_power).to eq(1000)
+      expect(calculator.house_costs).to eq(6)
+    end
+  end
 end
