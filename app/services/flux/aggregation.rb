@@ -5,7 +5,7 @@ class Flux::Aggregation < Flux::Reader
     start ||=
       timeframe&.beginning ||
         raise(ArgumentError, 'start or timeframe required')
-    stop ||= timeframe&.ending
+    stop ||= timeframe&.beginning_of_next
 
     run_query(start:, stop:)
   end

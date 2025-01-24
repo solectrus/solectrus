@@ -217,11 +217,21 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def ending_with_last_second
+  def beginning_of_next
     return ending if id == :now
 
-    # Date#end_of_day is at 23:59:59, so we add 1 second to get the real end
-    ending + 1.second
+    case id
+    when :day
+      date.tomorrow.beginning_of_day
+    when :week
+      date.end_of_week.tomorrow.beginning_of_day
+    when :month
+      date.end_of_month.tomorrow.beginning_of_day
+    when :year
+      date.end_of_year.tomorrow.beginning_of_day
+    when :all
+      [max_date, Date.current].compact.min.tomorrow.beginning_of_day
+    end
   end
 
   def next(force: false)
