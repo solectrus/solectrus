@@ -33,6 +33,7 @@ class Balance::StatsController < ApplicationController
       heatpump_power_grid: :sum_heatpump_power_grid_sum,
       wallbox_power_grid: :sum_wallbox_power_grid_sum,
       house_power_grid: :sum_house_power_grid_sum,
+      battery_charging_power_grid: :sum_battery_charging_power_grid_sum,
       **(
         SensorConfig.x.excluded_sensor_names.index_with do |sensor|
           :"sum_#{sensor}_sum"

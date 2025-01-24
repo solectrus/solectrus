@@ -17,6 +17,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
           house_power_grid: :sum_house_power_grid_sum,
           wallbox_power_grid: :sum_wallbox_power_grid_sum,
           heatpump_power_grid: :sum_heatpump_power_grid_sum,
+          battery_charging_power_grid: :sum_battery_charging_power_grid_sum,
         }
 
     data = sections
@@ -45,6 +46,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method_from_array(:house_power_grid, data)
     build_method_from_array(:wallbox_power_grid, data)
     build_method_from_array(:heatpump_power_grid, data)
+    build_method_from_array(:battery_charging_power_grid, data)
 
     SensorConfig.x.existing_custom_sensor_names.each do |sensor_name|
       build_method_from_array(sensor_name, data)
@@ -162,6 +164,33 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     return if savings.zero?
 
     (battery_savings * 100.0 / savings).round
+  end
+
+  def battery_charging_power_grid_ratio
+    return unless battery_charging_power_grid
+
+    if battery_charging_power.zero?
+      0
+    else
+      (
+        battery_charging_power_grid.fdiv(battery_charging_power) * 100
+      ).round.clamp(0, 100)
+    end
+  end
+
+  def battery_charging_power_pv_ratio
+    return unless battery_charging_power_grid_ratio
+
+    100 - battery_charging_power_grid_ratio
+  end
+
+  def battery_charging_costs
+    return unless battery_charging_power_grid_ratio
+
+    sections.each_with_index.sum do |section, index|
+      battery_charging_power_grid_array[index].to_f *
+        section[:electricity_price] / 1000
+    end
   end
 
   def electricity_prices

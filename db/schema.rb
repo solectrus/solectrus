@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_10_27_112350) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_23_174159) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -74,6 +74,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_10_27_112350) do
     t.float "sum_custom_power_08"
     t.float "sum_custom_power_09"
     t.float "sum_custom_power_10"
+    t.float "sum_battery_charging_power_grid"
     t.index ["updated_at"], name: "index_summaries_on_updated_at"
   end
 end

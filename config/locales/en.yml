@@ -47,6 +47,8 @@ en:
     grid_power: Grid
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
+    battery_charging_power_grid: Grid
+    battery_charging_power_pv: PV
     battery_power: Home Battery
     battery_soc: SOC Home Battery
     car_battery_soc: SOC EV

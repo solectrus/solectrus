@@ -22,6 +22,7 @@ describe Queries::InfluxSum do
         house_power_grid
         wallbox_power_grid
         heatpump_power_grid
+        battery_charging_power_grid
       ].each do |sensor|
         it "has method '#{sensor}' returning nil" do
           expect(query_influx_sum).to respond_to(sensor)

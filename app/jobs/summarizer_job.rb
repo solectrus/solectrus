@@ -56,6 +56,7 @@ class SummarizerJob < ApplicationJob
       house_power_grid
       wallbox_power_grid
       heatpump_power_grid
+      battery_charging_power_grid
     ]
 
     (base_sensors + custom_sensors + power_splitter_sensors).to_h do |attr|

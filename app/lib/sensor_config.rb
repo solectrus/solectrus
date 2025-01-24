@@ -52,6 +52,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         house_power_grid
         wallbox_power_grid
         heatpump_power_grid
+        battery_charging_power_grid
       ] + POWER_SENSORS
     ).freeze
   public_constant :SENSOR_NAMES
@@ -97,6 +98,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     'INFLUX_SENSOR_WALLBOX_POWER_GRID' => 'power_splitter:wallbox_power_grid',
     'INFLUX_SENSOR_HEATPUMP_POWER_GRID' => 'power_splitter:heatpump_power_grid',
     'INFLUX_SENSOR_HOUSE_POWER_GRID' => 'power_splitter:house_power_grid',
+    'INFLUX_SENSOR_BATTERY_CHARGING_POWER_GRID' =>
+      'power_splitter:battery_charging_power_grid',
   }.freeze
   private_constant :POWER_SPLITTER_SENSOR_CONFIG
 
@@ -164,7 +167,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists? :house_power
     when :co2_reduction
       exists? :inverter_power
-    when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid
+    when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid,
+         :battery_charging_power_grid
       sensor_defined?(sensor_name) &&
         (!check_policy || ApplicationPolicy.power_splitter?)
     when :car_battery_soc, :wallbox_car_connected

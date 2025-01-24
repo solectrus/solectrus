@@ -43,6 +43,7 @@ class Queries::InfluxSum
         house_power_grid
         wallbox_power_grid
         heatpump_power_grid
+        battery_charging_power_grid
       ] + SensorConfig::CUSTOM_SENSORS
     ).freeze
   private_constant :ALL_SENSORS
