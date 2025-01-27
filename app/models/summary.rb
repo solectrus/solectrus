@@ -30,12 +30,16 @@ class Summary < ApplicationRecord
 
     # Configuration have changed, the existing summaries are no longer valid
     # Force a rebuild and remember the new config
-    SummaryValue.delete_all
-    delete_all
+    reset!
     Setting.summary_config = config
     Rails.logger.info(
       'Summaries were invalid because the configuration has changed. Deleted all summaries, will rebuild.',
     )
+  end
+
+  def self.reset!
+    delete_all
+    Rails.cache.clear
   end
 
   # Configuration the summaries are based on

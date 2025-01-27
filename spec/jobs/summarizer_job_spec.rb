@@ -21,7 +21,7 @@ describe 'SummarizerJob' do
         expect { perform }.not_to change(Summary, :count)
       end
 
-      it 'does updates Summary' do
+      it 'updates Summary' do
         expect { perform }.to(change { summary.reload.updated_at })
       end
     end
@@ -35,7 +35,7 @@ describe 'SummarizerJob' do
         expect { perform }.not_to change(Summary, :count)
       end
 
-      it 'does not touch Summary' do
+      it 'does not update Summary' do
         expect { perform }.not_to(change { summary.reload.updated_at })
       end
     end
@@ -49,7 +49,7 @@ describe 'SummarizerJob' do
         expect { perform }.not_to change(Summary, :count)
       end
 
-      it 'does updates Summary' do
+      it 'updates Summary' do
         expect { perform }.to(change { summary.reload.updated_at })
       end
     end
