@@ -31,9 +31,13 @@ describe ChartData::WallboxPower do
         end
       end
 
-      Summary.create! date: now.to_date,
-                      sum_wallbox_power: 27_000,
-                      sum_wallbox_power_grid: 900
+      create_summary(
+        date: now.to_date,
+        values: [
+          [:wallbox_power, :sum, 27_000],
+          [:wallbox_power_grid, :sum, 900],
+        ],
+      )
     end
 
     context 'when timeframe is current MONTH' do
@@ -78,9 +82,13 @@ describe ChartData::WallboxPower do
       let(:timeframe) { Timeframe.month }
 
       before do
-        Summary.create! date: now.to_date,
-                        sum_wallbox_power: 27_000,
-                        sum_wallbox_power_grid: 900
+        create_summary(
+          date: now.to_date,
+          values: [
+            [:wallbox_power, :sum, 27_000],
+            [:wallbox_power_grid, :sum, 900],
+          ],
+        )
       end
 
       it 'returns one datasets' do

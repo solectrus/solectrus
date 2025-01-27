@@ -17,7 +17,7 @@ describe ChartData::InverterPower do
       end
     end
 
-    Summary.create! date: now.to_date, sum_inverter_power: 28_000
+    create_summary(date: now.to_date, values: [[:inverter_power, :sum, 28_000]])
   end
 
   context 'when timeframe is current MONTH' do

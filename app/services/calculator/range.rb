@@ -29,7 +29,16 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def build_context(data)
     build_method(:sections) { data }
-    build_method(:time) { data.pluck(:time).last }
+    build_method(:time) do
+      @time ||=
+        unless timeframe.past?
+          Summary
+            .where(date: ..timeframe.effective_ending_date)
+            .order(date: :desc)
+            .limit(1)
+            .pick(:updated_at)
+        end
+    end
 
     build_method_from_array(:feed_in_tariff, data, :to_f)
     build_method_from_array(:electricity_price, data, :to_f)
@@ -386,7 +395,6 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
           .keys
           .index_with { |sensor| summary.public_send(sum_calculations[sensor]) }
           .merge(
-            time: summary.time,
             electricity_price: price_section[:electricity],
             feed_in_tariff: price_section[:feed_in],
           )

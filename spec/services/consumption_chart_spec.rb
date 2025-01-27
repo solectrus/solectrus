@@ -19,10 +19,13 @@ describe ConsumptionChart do
                          },
                          time: (beginning + index.month).beginning_of_month
 
-        Summary.create! date:
-                          (beginning + index.month).beginning_of_month.to_date,
-                        sum_inverter_power: (index + 1) * 100,
-                        sum_grid_export_power: (index + 1) * 50
+        create_summary(
+          date: (beginning + index.month).beginning_of_month.to_date,
+          values: [
+            [:inverter_power, :sum, (index + 1) * 100],
+            [:grid_export_power, :sum, (index + 1) * 50],
+          ],
+        )
       end
 
       add_influx_point name: measurement_inverter_power,

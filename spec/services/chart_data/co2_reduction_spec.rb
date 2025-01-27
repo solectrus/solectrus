@@ -16,7 +16,7 @@ describe ChartData::Co2Reduction do
         end
       end
 
-      Summary.create! date:, sum_inverter_power: 28_000
+      create_summary(date:, values: [[:inverter_power, :sum, 28_000]])
     end
 
     let(:date) { Date.new(2024, 9, 1) }

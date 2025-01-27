@@ -31,9 +31,13 @@ describe ChartData::HeatpumpPower do
         end
       end
 
-      Summary.create! date: now.to_date,
-                      sum_heatpump_power: 10_000,
-                      sum_heatpump_power_grid: 900
+      create_summary(
+        date: now.to_date,
+        values: [
+          [:heatpump_power, :sum, 10_000],
+          [:heatpump_power_grid, :sum, 900],
+        ],
+      )
     end
 
     context 'when timeframe is current MONTH' do
@@ -78,9 +82,13 @@ describe ChartData::HeatpumpPower do
       let(:timeframe) { Timeframe.month }
 
       before do
-        Summary.create! date: now.to_date,
-                        sum_heatpump_power: 10_000,
-                        sum_heatpump_power_grid: 900
+        create_summary(
+          date: now.to_date,
+          values: [
+            [:heatpump_power, :sum, 10_000],
+            [:heatpump_power_grid, :sum, 900],
+          ],
+        )
       end
 
       it 'returns one datasets' do

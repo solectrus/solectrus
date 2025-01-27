@@ -22,17 +22,15 @@ class Flux::Reader < Flux::Base
   end
 
   def filter(selected_sensors: sensors)
-    # Build raw data structure: [measurement, field]
-    raw =
-      selected_sensors.filter_map do |sensor|
+    # Group sensors by their measurement
+    grouped =
+      selected_sensors.each_with_object(
+        Hash.new { |h, k| h[k] = [] },
+      ) do |sensor, result|
         measurement = SensorConfig.x.measurement(sensor)
         field = SensorConfig.x.field(sensor)
-        [measurement, field].compact.presence
+        result[measurement] << field if measurement && field
       end
-
-    # Group raw data by measurement and transform into a hash
-    grouped =
-      raw.group_by(&:first).transform_values { |values| values.map(&:last) }
 
     # Generate filter conditions
     filter_conditions =

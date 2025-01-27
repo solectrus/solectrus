@@ -45,22 +45,21 @@ class MinMaxChart < ChartBase
   end
 
   def chart_minmax(timeframe:)
-    aggregation_method_min = average ? 'avg' : 'min'
-    aggregation_method_max = average ? 'avg' : 'max'
-
     result =
-      Summary
+      SummaryValue
         .where(date: timeframe.beginning..timeframe.ending)
+        .where(field: sensors, aggregation: %w[min max].uniq)
         .group_by_period(grouping_period(timeframe), :date)
-        .calculate_all(
-          :"min_#{sensor}_#{aggregation_method_min}",
-          :"max_#{sensor}_#{aggregation_method_max}",
-        )
+        .group(:field, :aggregation)
+        .average(:value)
 
     {
       sensor =>
         dates(timeframe).map do |date|
-          [date.to_time, result[date]&.values&.compact.presence]
+          min = result[[date, sensor.to_s, 'min']]
+          max = result[[date, sensor.to_s, 'max']]
+
+          [date.to_time, [min, max].compact.presence]
         end,
     }
   end
@@ -135,7 +134,7 @@ class MinMaxChart < ChartBase
 
   def value_from_record(time:, record:)
     if time.future?
-      # Becaue of fill(previous: true) we need to remove future values
+      # Because of fill(previous: true) we need to remove future values
       nil
     else
       original = record.values['_value']

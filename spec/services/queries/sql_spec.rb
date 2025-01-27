@@ -5,38 +5,42 @@ describe Queries::Sql do
   let(:to) { '2022-11-02'.to_date }
 
   before do
-    Summary.create!(
+    create_summary(
       date: from,
-      sum_inverter_power: 1,
-      sum_inverter_power_forecast: 2,
-      sum_house_power: 3,
-      sum_house_power_grid: 4,
-      sum_wallbox_power: 5,
-      sum_wallbox_power_grid: 6,
-      sum_heatpump_power: 7,
-      sum_heatpump_power_grid: 8,
-      sum_grid_import_power: 9,
-      sum_grid_export_power: 10,
-      sum_battery_charging_power: 11,
-      sum_battery_discharging_power: 12,
       updated_at: from.middle_of_day,
+      values: [
+        [:inverter_power, :sum, 1],
+        [:inverter_power_forecast, :sum, 2],
+        [:house_power, :sum, 3],
+        [:house_power_grid, :sum, 4],
+        [:wallbox_power, :sum, 5],
+        [:wallbox_power_grid, :sum, 6],
+        [:heatpump_power, :sum, 7],
+        [:heatpump_power_grid, :sum, 8],
+        [:grid_import_power, :sum, 9],
+        [:grid_export_power, :sum, 10],
+        [:battery_charging_power, :sum, 11],
+        [:battery_discharging_power, :sum, 12],
+      ],
     )
 
-    Summary.create!(
+    create_summary(
       date: to,
-      sum_inverter_power: 1,
-      sum_inverter_power_forecast: 2,
-      sum_house_power: 3,
-      sum_house_power_grid: 4,
-      sum_wallbox_power: 5,
-      sum_wallbox_power_grid: 6,
-      sum_heatpump_power: 7,
-      sum_heatpump_power_grid: 8,
-      sum_grid_import_power: 9,
-      sum_grid_export_power: 10,
-      sum_battery_charging_power: 11,
-      sum_battery_discharging_power: 12,
       updated_at: to.middle_of_day,
+      values: [
+        [:inverter_power, :sum, 1],
+        [:inverter_power_forecast, :sum, 2],
+        [:house_power, :sum, 3],
+        [:house_power_grid, :sum, 4],
+        [:wallbox_power, :sum, 5],
+        [:wallbox_power_grid, :sum, 6],
+        [:heatpump_power, :sum, 7],
+        [:heatpump_power_grid, :sum, 8],
+        [:grid_import_power, :sum, 9],
+        [:grid_export_power, :sum, 10],
+        [:battery_charging_power, :sum, 11],
+        [:battery_discharging_power, :sum, 12],
+      ],
     )
   end
 
@@ -77,10 +81,6 @@ describe Queries::Sql do
       expect(query_sql.sum_grid_export_power_sum).to eq(20)
       expect(query_sql.sum_battery_charging_power_sum).to eq(22)
       expect(query_sql.sum_battery_discharging_power_sum).to eq(24)
-    end
-
-    it 'returns maximum updated_at' do
-      expect(query_sql.time).to eq(to.middle_of_day)
     end
   end
 end

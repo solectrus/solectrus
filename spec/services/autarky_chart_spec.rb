@@ -8,10 +8,14 @@ describe AutarkyChart do
   context 'with wallbox_power sensor' do
     before do
       12.times do |index|
-        Summary.create! date: beginning + index.month,
-                        sum_house_power: (index + 1) * 100 * 24, # 100 W for 24 hours
-                        sum_grid_import_power: (index + 1) * 300 * 24, # 300 W for 24 hours
-                        sum_wallbox_power: (index + 1) * 500 * 24 # 500 W for 24 hours
+        create_summary(
+          date: beginning + index.months,
+          values: [
+            [:house_power, :sum, (index + 1) * 100 * 24], # 100 W for 24 hours
+            [:grid_import_power, :sum, (index + 1) * 300 * 24], # 50 W for 24 hours
+            [:wallbox_power, :sum, (index + 1) * 500 * 24], # 200 W for 24 hours
+          ],
+        )
       end
 
       add_influx_point name: measurement_inverter_power,
@@ -68,9 +72,13 @@ describe AutarkyChart do
       end
 
       12.times do |index|
-        Summary.create! date: beginning + index.month,
-                        sum_house_power: (index + 1) * 100 * 24, # 100 W for 24 hours
-                        sum_grid_import_power: (index + 1) * 50 * 24 # 50 W for 24 hours
+        create_summary(
+          date: beginning + index.months,
+          values: [
+            [:house_power, :sum, (index + 1) * 100 * 24], # 100 W for 24 hours
+            [:grid_import_power, :sum, (index + 1) * 50 * 24], # 50 W for 24 hours
+          ],
+        )
       end
 
       add_influx_point name: measurement_inverter_power,

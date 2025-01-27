@@ -2,55 +2,22 @@
 #
 # Table name: summaries
 #
-#  avg_battery_soc                 :float
-#  avg_car_battery_soc             :float
-#  avg_case_temp                   :float
-#  date                            :date             not null, primary key
-#  max_battery_charging_power      :float
-#  max_battery_discharging_power   :float
-#  max_battery_soc                 :float
-#  max_car_battery_soc             :float
-#  max_case_temp                   :float
-#  max_grid_export_power           :float
-#  max_grid_import_power           :float
-#  max_heatpump_power              :float
-#  max_house_power                 :float
-#  max_inverter_power              :float
-#  max_wallbox_power               :float
-#  min_battery_soc                 :float
-#  min_car_battery_soc             :float
-#  min_case_temp                   :float
-#  sum_battery_charging_power      :float
-#  sum_battery_charging_power_grid :float
-#  sum_battery_discharging_power   :float
-#  sum_custom_power_01             :float
-#  sum_custom_power_02             :float
-#  sum_custom_power_03             :float
-#  sum_custom_power_04             :float
-#  sum_custom_power_05             :float
-#  sum_custom_power_06             :float
-#  sum_custom_power_07             :float
-#  sum_custom_power_08             :float
-#  sum_custom_power_09             :float
-#  sum_custom_power_10             :float
-#  sum_grid_export_power           :float
-#  sum_grid_import_power           :float
-#  sum_heatpump_power              :float
-#  sum_heatpump_power_grid         :float
-#  sum_house_power                 :float
-#  sum_house_power_grid            :float
-#  sum_inverter_power              :float
-#  sum_inverter_power_forecast     :float
-#  sum_wallbox_power               :float
-#  sum_wallbox_power_grid          :float
-#  created_at                      :datetime         not null
-#  updated_at                      :datetime         not null
+#  date       :date             not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 # Indexes
 #
 #  index_summaries_on_updated_at  (updated_at)
 #
 class Summary < ApplicationRecord
+  has_many :values,
+           class_name: 'SummaryValue',
+           dependent: nil, # will be deleted by foreign key cascade
+           primary_key: :date,
+           foreign_key: :date,
+           inverse_of: :summary
+
   # Check if the config have changed and reset the summaries if needed
   def self.validate!
     # If the stored config match the current ones, there is nothing to do
@@ -63,11 +30,16 @@ class Summary < ApplicationRecord
 
     # Configuration have changed, the existing summaries are no longer valid
     # Force a rebuild and remember the new config
-    delete_all
+    reset!
     Setting.summary_config = config
     Rails.logger.info(
       'Summaries were invalid because the configuration has changed. Deleted all summaries, will rebuild.',
     )
+  end
+
+  def self.reset!
+    delete_all
+    Rails.cache.clear
   end
 
   # Configuration the summaries are based on
@@ -79,26 +51,12 @@ class Summary < ApplicationRecord
       #
       # Version of the configuration. Increment this if the logic of the
       # summaries has changed. This will invalidate all existing summaries
-      version: 1,
+      version: 2,
       #
       # The date column depends on the current timezone.
       # If the timezone changes, the summaries are no longer valid
       time_zone: Time.zone.name,
     }
-  end
-
-  # List of handled sensors extracted from the columns
-  def self.sensors
-    array =
-      columns.filter_map do |column|
-        if (match = column.name.match(/^(sum|avg|max|min)_(.*)/))
-          match[2].to_sym
-        end
-      end
-
-    array.uniq!
-    array.sort!
-    array
   end
 
   # A summary is considered fresh when updated on the next day after 01:00

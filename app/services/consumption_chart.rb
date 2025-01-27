@@ -64,21 +64,25 @@ class ConsumptionChart < ChartBase
 
   def chart_sum(timeframe:)
     result =
-      Summary
-        .where(date: timeframe.beginning..timeframe.ending)
+      SummaryValue
+        .where(
+          date: timeframe.beginning..timeframe.ending,
+          field: sensors,
+          aggregation: 'sum',
+        )
         .group_by_period(grouping_period(timeframe), :date)
-        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
+        .group(:field)
+        .sum(:value)
 
     dates(timeframe).map do |date|
-      values = result[date]
+      inverter_power = result[[date, 'inverter_power']]
+      grid_export_power = result[[date, 'grid_export_power']]
 
       consumption =
-        if values && values[:sum_inverter_power_sum]
-          [
-            values[:sum_inverter_power_sum].to_f -
-              values[:sum_grid_export_power_sum].to_f,
-            0,
-          ].max.fdiv(values[:sum_inverter_power_sum]) * 100
+        if inverter_power
+          [inverter_power - (grid_export_power || 0), 0].max.fdiv(
+            inverter_power,
+          ) * 100
         end
 
       [date.to_time, consumption]

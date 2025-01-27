@@ -7,7 +7,7 @@ describe 'Summaries' do
     context 'when Summary exists' do
       before { Summary.create!(date:) }
 
-      it 'is succesful' do
+      it 'is successful' do
         request
         expect(response).to have_http_status(:success)
       end
@@ -18,7 +18,7 @@ describe 'Summaries' do
     end
 
     context 'when Summary does NOT exist' do
-      it 'is succesful' do
+      it 'is successful' do
         request
         expect(response).to have_http_status(:success)
       end

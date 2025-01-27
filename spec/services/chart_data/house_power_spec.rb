@@ -43,11 +43,15 @@ describe ChartData::HousePower do
         end
       end
 
-      Summary.create! date: now.to_date,
-                      sum_heatpump_power: 10_000,
-                      sum_heatpump_power_grid: 900,
-                      sum_house_power: 15_000,
-                      sum_house_power_grid: 300
+      create_summary(
+        date: now.to_date,
+        values: [
+          [:heatpump_power, :sum, 10_000],
+          [:heatpump_power_grid, :sum, 900],
+          [:house_power, :sum, 15_000],
+          [:house_power_grid, :sum, 300],
+        ],
+      )
     end
 
     context 'when timeframe is current MONTH' do
@@ -92,10 +96,14 @@ describe ChartData::HousePower do
 
   context 'when house_power_grid data is missing' do
     before do
-      Summary.create! date: now.to_date,
-                      sum_heatpump_power: 10_000,
-                      sum_heatpump_power_grid: 900,
-                      sum_house_power: 15_000
+      create_summary(
+        date: now.to_date,
+        values: [
+          [:heatpump_power, :sum, 10_000],
+          [:heatpump_power_grid, :sum, 900],
+          [:house_power, :sum, 15_000],
+        ],
+      )
     end
 
     context 'when timeframe is current MONTH' do

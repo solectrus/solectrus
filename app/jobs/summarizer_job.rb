@@ -12,13 +12,19 @@ class SummarizerJob < ApplicationJob
   private
 
   def perform_calculations
+    # Build attributes outside the transaction to avoid long locks
+    return unless attributes
+
     # If there is no summary for the given date, create it
     # Otherwise, if the existing summary is not up-to-date, update it
     ActiveRecord::Base.transaction do
-      summary = Summary.select(:date, :updated_at).find_or_initialize_by(date:)
+      summary = Summary.where(date:).first || Summary.new(date:)
 
       if summary.new_record? || summary.stale?(current_tolerance: 0)
-        summary.update!(attributes)
+        updating = !summary.new_record?
+        updating ? summary.touch : summary.save!
+
+        save_values(updating:)
       end
     rescue ActiveRecord::RecordNotUnique
       # Race condition: Another job has created the summary in the meantime
@@ -30,8 +36,37 @@ class SummarizerJob < ApplicationJob
     end
   end
 
+  def save_values(updating: false)
+    summary_values =
+      attributes.filter_map do |attribute, value|
+        aggregation, *field_parts = attribute.to_s.split('_')
+        field = field_parts.join('_')
+
+        { field:, aggregation:, value:, date: }
+      end
+
+    present_summary_values = summary_values.select { it[:value].present? }
+    SummaryValue.upsert_all(
+      present_summary_values,
+      unique_by: %i[date aggregation field],
+      update_only: %i[value],
+    )
+
+    return unless updating
+
+    # Delete empty values, which may exists before (rare case)
+    empty_summary_values = summary_values - present_summary_values
+    query =
+      empty_summary_values.reduce(nil) do |scope, attr|
+        condition = SummaryValue.where(attr.slice(:date, :aggregation, :field))
+        scope ? scope.or(condition) : condition
+      end
+
+    query&.delete_all
+  end
+
   def raw_attributes
-    { date: }.merge(raw_sum_attributes)
+    {}.merge(raw_sum_attributes)
       .merge(raw_max_attributes)
       .merge(raw_min_attributes)
       .merge(raw_avg_attributes)
@@ -98,6 +133,10 @@ class SummarizerJob < ApplicationJob
   end
 
   def attributes
+    @attributes ||= build_attributes
+  end
+
+  def build_attributes
     clean_attributes = raw_attributes
 
     # The `integral()` function in InfluxDB returns `0` when no data is available,
