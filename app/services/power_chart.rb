@@ -51,15 +51,22 @@ class PowerChart < ChartBase
 
   def chart_sum(timeframe:)
     result =
-      Summary
-        .where(date: timeframe.beginning..timeframe.ending)
+      SummaryValue
+        .where(
+          date: timeframe.beginning..timeframe.ending,
+          field: sensors,
+          aggregation: 'sum',
+        )
         .group_by_period(grouping_period(timeframe), :date)
-        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
+        .group(:field)
+        .sum(:value)
 
     # Filter only sensors with at least one non-nil value in the result
     sensors_with_values =
       sensors.select do |sensor|
-        result.values.any? { |value| float_from_calculate_all(sensor, value) }
+        result.any? do |(_date, key), value|
+          key == sensor.to_s && value.present?
+        end
       end
 
     # Return a Hash with the sensors as keys and nested arrays with [date, value] as values
@@ -67,17 +74,11 @@ class PowerChart < ChartBase
     #   { heatpump_power: [[date1, 123.1], [date2, 42.5], ... }
     sensors_with_values.index_with do |sensor|
       dates(timeframe).map do |date|
-        value = float_from_calculate_all(sensor, result[date])
+        value = result[[date, sensor.to_s]]
 
         [date.to_time, value]
       end
     end
-  end
-
-  # Gem "calculate_all" returns a Hash for multiple fields and a Float for a single field.
-  # This method helps to get the float from the result.
-  def float_from_calculate_all(sensor, value)
-    value.is_a?(Hash) ? value[:"sum_#{sensor}_sum"] : value
   end
 
   def value_to_array(raw, start:)

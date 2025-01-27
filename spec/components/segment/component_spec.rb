@@ -2,7 +2,11 @@ describe Segment::Component, type: :component do
   subject(:component) { described_class.new(sensor, parent:, peak: nil) }
 
   before do
-    Summary.create!(date: timeframe.date, updated_at:, "sum_#{sensor}" => 1234)
+    create_summary(
+      date: timeframe.date,
+      updated_at:,
+      values: [[sensor, :sum, 1234]],
+    )
   end
 
   let(:sensor) { :house_power }

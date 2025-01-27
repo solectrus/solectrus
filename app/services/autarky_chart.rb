@@ -69,23 +69,24 @@ class AutarkyChart < ChartBase
 
   def chart_sum(timeframe:)
     result =
-      Summary
-        .where(date: timeframe.beginning..timeframe.ending)
+      SummaryValue
+        .where(
+          date: timeframe.beginning..timeframe.ending,
+          field: sensors,
+          aggregation: 'sum',
+        )
         .group_by_period(grouping_period(timeframe), :date)
-        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
+        .group(:field)
+        .sum(:value)
 
     dates(timeframe).map do |date|
-      values = result[date]
+      grid_import_power = result[[date, 'grid_import_power']]
+      house_power = result[[date, 'house_power']]
+      wallbox_power = result[[date, 'wallbox_power']]
 
       autarky =
-        if values && values[:sum_grid_import_power_sum]
-          (
-            1 -
-              values[:sum_grid_import_power_sum].fdiv(
-                values[:sum_house_power_sum].to_f +
-                  values[:sum_wallbox_power_sum].to_f,
-              )
-          ) * 100
+        if grid_import_power
+          (1 - grid_import_power.fdiv(house_power + (wallbox_power || 0))) * 100
         end
 
       [date.to_time, autarky]

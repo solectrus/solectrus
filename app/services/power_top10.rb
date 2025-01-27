@@ -56,92 +56,90 @@ class PowerTop10
     end
   end
 
-  FIELD_MAPPING_SUM = {
-    inverter_power: :sum_inverter_power,
-    heatpump_power: :sum_heatpump_power,
-    house_power: :sum_house_power,
-    case_temp: :avg_case_temp,
-    grid_import_power: :sum_grid_import_power,
-    grid_export_power: :sum_grid_export_power,
-    battery_charging_power: :sum_battery_charging_power,
-    battery_discharging_power: :sum_battery_discharging_power,
-    wallbox_power: :sum_wallbox_power,
-    **SensorConfig::CUSTOM_SENSORS.index_with { |sensor| :"sum_#{sensor}" },
+  FIELD_MAPPING = {
+    sum: {
+      inverter_power: 'sum',
+      heatpump_power: 'sum',
+      house_power: 'sum',
+      case_temp: 'avg',
+      grid_import_power: 'sum',
+      grid_export_power: 'sum',
+      battery_charging_power: 'sum',
+      battery_discharging_power: 'sum',
+      wallbox_power: 'sum',
+      **SensorConfig::CUSTOM_SENSORS.index_with { 'sum' },
+    },
+    max: {
+      inverter_power: 'max',
+      heatpump_power: 'max',
+      house_power: 'max',
+      case_temp: 'max',
+      grid_import_power: 'max',
+      grid_export_power: 'max',
+      battery_charging_power: 'max',
+      battery_discharging_power: 'max',
+      wallbox_power: 'max',
+    },
   }.freeze
-  private_constant :FIELD_MAPPING_SUM
+  private_constant :FIELD_MAPPING
 
-  FIELD_MAPPING_MAX = {
-    inverter_power: :max_inverter_power,
-    heatpump_power: :max_heatpump_power,
-    house_power: :max_house_power,
-    case_temp: :max_case_temp,
-    grid_import_power: :max_grid_import_power,
-    grid_export_power: :max_grid_export_power,
-    battery_charging_power: :max_battery_charging_power,
-    battery_discharging_power: :max_battery_discharging_power,
-    wallbox_power: :max_wallbox_power,
-  }.freeze
-  private_constant :FIELD_MAPPING_MAX
+  def sort_order
+    desc ? :desc : :asc
+  end
 
   def build_query_simple(start:, stop:, period:, limit:)
     scope =
-      Summary.where(date: start..stop).where(
-        Summary.arel_table[:"#{FIELD_MAPPING_SUM[sensor]}"].gt(0),
-      )
+      SummaryValue.where(
+        date: start..stop,
+        field: sensor,
+        aggregation: FIELD_MAPPING[calc.to_sym][sensor],
+      ).limit(limit)
+    scope = scope.where(SummaryValue.arel_table[:value].gt(0)) unless desc
 
-    sort_order = desc ? :desc : :asc
-
-    sensor_column =
-      case calc
-      when 'sum'
-        FIELD_MAPPING_SUM[sensor]
-      when 'max'
-        FIELD_MAPPING_MAX[sensor]
-      end
-
-    case period
-    when :day
+    if period == :day
       # Just order by the sensor value
       scope
-        .select(:date, sensor_column)
-        .order("#{sensor_column} #{sort_order}")
-        .limit(limit)
-        .map do |record|
-          { date: record.date, value: record.public_send(sensor_column) }
-        end
+        .select(:value, :date)
+        .order(value: sort_order)
+        .map { |it| { date: it.date, value: it.value } }
     else
       # Group by period and calculate the sum of the sensor
+      calculation = { 'sum' => :sum, 'max' => :maximum }[calc]
+
       scope
-        .group_by_period(period, :date)
-        .order("2 #{sort_order}")
-        .limit(limit)
-        .calculate_all("#{calc}(#{sensor_column})")
-        .map { |record| { date: record.first, value: record.second } }
+        .group_by_period(period, :date, series: false)
+        .order("1 #{sort_order}")
+        .calculate(calculation, :value)
+        .map { |date, value| { date:, value: } }
+        .sort_by { desc ? -it[:value] : it[:value] }
     end
   end
 
   def build_query_house_power(start:, stop:, period:, limit:)
-    scope = Summary.where(date: start..stop).where('sum_house_power > 0')
-    sort_order = desc ? :desc : :asc
+    scope =
+      SummaryValue.where(
+        date: start..stop,
+        field: ['house_power', *excluded_sensor_names],
+        aggregation: 'sum',
+      ).limit(limit)
 
-    total_column =
-      "sum_house_power#{excluded_sensor_names.map { |sensor_to_exclude| " - COALESCE(sum_#{sensor_to_exclude}, 0)" }.join}"
+    difference =
+      "SUM(CASE WHEN field = 'house_power' THEN value ELSE 0 END) -
+         SUM(CASE WHEN field != 'house_power' THEN value ELSE 0 END)
+         AS difference"
 
     case period
     when :day
       scope
-        .select(:date, "#{total_column} AS total")
-        .order("2 #{sort_order}")
-        .limit(limit)
-        .map { |record| { date: record.date, value: record.total } }
+        .select(:date, difference)
+        .group(:date)
+        .order("difference #{sort_order}")
+        .map { |it| { date: it.date, value: it.difference } }
     else
-      total_column_sum = "SUM(#{total_column})"
-
       scope
-        .group_by_period(period, :date)
+        .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
-        .limit(limit)
-        .calculate_all(total_column_sum)
+        .calculate_all(difference)
         .map { |record| { date: record.first, value: record.second } }
     end
   end

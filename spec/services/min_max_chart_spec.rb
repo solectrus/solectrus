@@ -95,7 +95,10 @@ describe MinMaxChart do
         # (except on Sunday, when it's nil)
         date = start
         while date < start.end_of_week
-          Summary.create! date:, min_battery_soc: 40, max_battery_soc: 80
+          create_summary(
+            date:,
+            values: [[:battery_soc, :min, 40], [:battery_soc, :max, 80]],
+          )
 
           date += 1.day
         end
@@ -124,7 +127,10 @@ describe MinMaxChart do
         # On every day of the month, battery is first 80%, then 40%
         date = start
         while date.month == start.month
-          Summary.create! date:, min_battery_soc: 40, max_battery_soc: 80
+          create_summary(
+            date:,
+            values: [[:battery_soc, :min, 40], [:battery_soc, :max, 80]],
+          )
 
           date += 1.day
         end
@@ -152,7 +158,10 @@ describe MinMaxChart do
         # On every day of the year, battery is first 80%, then 40%
         date = start
         while date.year == start.year
-          Summary.create! date:, min_battery_soc: 40, max_battery_soc: 80
+          create_summary(
+            date:,
+            values: [[:battery_soc, :min, 40], [:battery_soc, :max, 80]],
+          )
 
           date += 1.day
         end
@@ -180,7 +189,10 @@ describe MinMaxChart do
         # On every day of both years, battery is first 80%, then 40%
         date = start
         while date.year <= start.year + 1
-          Summary.create! date:, min_battery_soc: 40, max_battery_soc: 80
+          create_summary(
+            date:,
+            values: [[:battery_soc, :min, 40], [:battery_soc, :max, 80]],
+          )
 
           date += 1.day
         end

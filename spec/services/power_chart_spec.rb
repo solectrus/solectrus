@@ -7,10 +7,14 @@ describe PowerChart do
 
   before do
     12.times do |index|
-      Summary.create! date: beginning + index.months, # only one day per month
-                      sum_inverter_power: (index + 1) * 1000 * 24, # 1 KW for 24 hours
-                      sum_battery_charging_power: (index + 1) * 100 * 24, # 100 W for 24 hours
-                      sum_battery_discharging_power: (index + 1) * 200 * 24 # 200 W for 24 hours
+      create_summary(
+        date: beginning + index.month,
+        values: [
+          [:inverter_power, :sum, (index + 1) * 1000 * 24], # 1 KW for 24 hours
+          [:battery_charging_power, :sum, (index + 1) * 100 * 24], # 100 W for 24 hours
+          [:battery_discharging_power, :sum, (index + 1) * 200 * 24], # 200 W for 24 hours
+        ],
+      )
     end
 
     add_influx_point name: measurement,
