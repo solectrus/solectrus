@@ -123,7 +123,7 @@ export default class extends Controller<HTMLCanvasElement> {
     // Format numbers on y-axis
     if (options.scales.y.ticks)
       options.scales.y.ticks.callback = (value) =>
-        typeof value === 'number' ? this.formattedNumber(value) : value;
+        typeof value === 'number' ? this.formattedNumber(value, true) : value;
 
     this.maxValue = this.maxOf(data);
     this.minValue = this.minOf(data);
@@ -264,7 +264,7 @@ export default class extends Controller<HTMLCanvasElement> {
                   tooltipItem.parsed._custom.min,
                   tooltipItem.parsed._custom.max,
                 )
-              : this.formattedNumber(tooltipItem.parsed.y, 3);
+              : this.formattedNumber(tooltipItem.parsed.y);
           }
 
           return result;
@@ -356,14 +356,24 @@ export default class extends Controller<HTMLCanvasElement> {
       return JSON.parse(this.optionsTarget.textContent);
   }
 
-  private formattedNumber(number: number, decimals: number = 1) {
+  private formattedNumber(number: number, forAxis = false) {
     let unitValuePrefix = '';
-    if (this.maxValue > 1000 || this.minValue < -1000) {
-      number = parseFloat((number / 1000).toFixed(decimals));
+
+    const kilo = forAxis
+      ? this.maxValue > 1000 || this.minValue < -1000
+      : number > 1000 || number < -1000;
+    if (kilo) {
+      number /= 1000.0;
       unitValuePrefix = 'k';
     }
 
-    return `${new Intl.NumberFormat().format(number)} ${unitValuePrefix}${this.unitValue}`;
+    const decimals = kilo && !forAxis ? 3 : 0;
+    const numberAsString = new Intl.NumberFormat(navigator.language, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    }).format(number);
+
+    return `${numberAsString} ${unitValuePrefix}${this.unitValue}`;
   }
 
   private formattedInterval(min: number, max: number) {
