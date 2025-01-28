@@ -89,7 +89,7 @@ class AutarkyChart < ChartBase
           (1 - grid_import_power.fdiv(house_power + (wallbox_power || 0))) * 100
         end
 
-      [date.to_time, autarky]
+      [date.to_time, autarky&.clamp(0, 100)]
     end
   end
 
