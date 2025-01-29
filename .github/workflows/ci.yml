@@ -34,7 +34,7 @@ jobs:
           DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-token
 
       postgres:
-        image: postgres:16-alpine
+        image: postgres:17-alpine
         ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
