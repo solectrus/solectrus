@@ -20,26 +20,26 @@ describe Setting do
 
     around { |example| freeze_time(&example) }
 
+    def database_creation_time
+      InternalMetadata.first.created_at
+    end
+
     context 'when there is no price' do
       it 'creates records' do
         expect { seed! }.to change(described_class, :count).by(2)
 
-        expect(described_class.setup_id).to eq(Time.current.to_i)
+        expect(described_class.setup_id).to eq(database_creation_time.to_i)
         expect(described_class.setup_token).to be_present
       end
     end
 
     context 'when there is a price' do
-      before do
-        Price.electricity.create! value: 0.30,
-                                  created_at: Time.zone.at(42),
-                                  starts_at: Time.current
-      end
+      before { Price.electricity.create! value: 0.30, starts_at: Time.current }
 
       it 'creates records from price' do
         expect { seed! }.to change(described_class, :count).by(2)
 
-        expect(described_class.setup_id).to eq(42)
+        expect(described_class.setup_id).to eq(database_creation_time.to_i)
         expect(described_class.setup_token).to be_present
       end
     end
@@ -50,7 +50,7 @@ describe Setting do
       it 'regenerates setup_id from current time' do
         expect { seed! }.to change(described_class, :count).from(1).to(2)
 
-        expect(described_class.setup_id).to eq(Time.current.to_i)
+        expect(described_class.setup_id).to eq(database_creation_time.to_i)
       end
     end
 
