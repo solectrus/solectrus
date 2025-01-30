@@ -35,7 +35,7 @@ class Setting < RailsSettings::Base
 
   def self.seed!
     Setting.setup_id = nil if Setting.setup_id.to_i.zero?
-    Setting.setup_id ||= (InternalMetadata.created_at || Time.current).to_i
+    Setting.setup_id ||= (Price.first&.created_at || Time.current).to_i
     Setting.setup_token ||= SecureRandom.alphanumeric(16)
   end
 end
