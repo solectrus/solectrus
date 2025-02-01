@@ -34,11 +34,16 @@ class Balance::StatsController < ApplicationController
       wallbox_power_grid: :sum_wallbox_power_grid_sum,
       house_power_grid: :sum_house_power_grid_sum,
       battery_charging_power_grid: :sum_battery_charging_power_grid_sum,
-      **(
-        SensorConfig.x.excluded_sensor_names.index_with do |sensor|
-          :"sum_#{sensor}_sum"
+      **SensorConfig
+        .x
+        .excluded_sensor_names
+        .flat_map do |sensor_name|
+          [
+            [sensor_name, :"sum_#{sensor_name}_sum"],
+            [:"#{sensor_name}_grid", :"sum_#{sensor_name}_grid_sum"],
+          ]
         end
-      ),
+        .to_h,
       car_battery_soc: nil,
       battery_soc: nil,
       system_status: nil,
