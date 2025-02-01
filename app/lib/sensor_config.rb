@@ -37,6 +37,17 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     ).freeze
   public_constant :POWER_SENSORS
 
+  POWER_SPLITTER_SENSORS =
+    (
+      %i[
+        house_power_grid
+        wallbox_power_grid
+        heatpump_power_grid
+        battery_charging_power_grid
+      ] + CUSTOM_SENSORS.map { |sensor_name| :"#{sensor_name}_grid" }
+    ).freeze
+  public_constant :POWER_SPLITTER_SENSORS
+
   # Full list of all sensors
   SENSOR_NAMES =
     (
@@ -53,7 +64,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         wallbox_power_grid
         heatpump_power_grid
         battery_charging_power_grid
-      ] + POWER_SENSORS
+      ] + POWER_SENSORS + POWER_SPLITTER_SENSORS
     ).freeze
   public_constant :SENSOR_NAMES
 
@@ -100,6 +111,12 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     'INFLUX_SENSOR_HOUSE_POWER_GRID' => 'power_splitter:house_power_grid',
     'INFLUX_SENSOR_BATTERY_CHARGING_POWER_GRID' =>
       'power_splitter:battery_charging_power_grid',
+    **CUSTOM_SENSORS.to_h do |sensor_name|
+      [
+        "INFLUX_SENSOR_#{sensor_name.upcase}_GRID",
+        "power_splitter:#{sensor_name}_grid",
+      ]
+    end,
   }.freeze
   private_constant :POWER_SPLITTER_SENSOR_CONFIG
 
@@ -167,12 +184,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists? :house_power
     when :co2_reduction
       exists? :inverter_power
-    when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid,
-         :battery_charging_power_grid
-      sensor_defined?(sensor_name) &&
-        (!check_policy || ApplicationPolicy.power_splitter?)
     when :car_battery_soc, :wallbox_car_connected
       sensor_defined?(sensor_name) && (!check_policy || ApplicationPolicy.car?)
+    when *POWER_SPLITTER_SENSORS
+      sensor_defined?(sensor_name) &&
+        (!check_policy || ApplicationPolicy.power_splitter?)
     when *SENSOR_NAMES
       sensor_defined?(sensor_name)
     else
@@ -194,7 +210,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   end
 
   def name(sensor_name)
-    if sensor_name.match?(/custom_power_\d{2}/)
+    if sensor_name.match?(/\Acustom_power_\d{2}\z/)
       setting_name = Setting.name_for_custom_sensor(sensor_name)
       Setting.public_send(setting_name) || sensor_name.to_s
     else

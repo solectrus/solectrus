@@ -14,6 +14,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
           battery_discharging_power: :sum_battery_discharging_power_sum,
           battery_charging_power: :sum_battery_charging_power_sum,
           heatpump_power: :sum_heatpump_power_sum,
+          # --- Power splitter ----
           house_power_grid: :sum_house_power_grid_sum,
           wallbox_power_grid: :sum_wallbox_power_grid_sum,
           heatpump_power_grid: :sum_heatpump_power_grid_sum,
@@ -59,6 +60,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
     SensorConfig.x.existing_custom_sensor_names.each do |sensor_name|
       build_method_from_array(sensor_name, data)
+      build_method_from_array(:"#{sensor_name}_grid", data)
     end
 
     return unless timeframe.day?
@@ -358,6 +360,14 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
       custom_power = public_send(sensor_name)
 
       custom_power.to_f / house_power * house_costs
+    end
+
+    define_method :"#{sensor_name}_grid_ratio" do
+      custom_power = public_send(sensor_name)
+      custom_power_grid = public_send(:"#{sensor_name}_grid")
+      return unless custom_power_grid
+
+      custom_power.zero? ? 0 : custom_power_grid.fdiv(custom_power) * 100
     end
   end
 

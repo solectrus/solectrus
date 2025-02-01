@@ -87,12 +87,13 @@ class SummarizerJob < ApplicationJob
 
     custom_sensors = SensorConfig.x.existing_custom_sensor_names
 
-    power_splitter_sensors = %i[
-      house_power_grid
-      wallbox_power_grid
-      heatpump_power_grid
-      battery_charging_power_grid
-    ]
+    power_splitter_sensors =
+      %i[
+        house_power_grid
+        wallbox_power_grid
+        heatpump_power_grid
+        battery_charging_power_grid
+      ] + custom_sensors.map { |sensor| :"#{sensor}_grid" }
 
     (base_sensors + custom_sensors + power_splitter_sensors).to_h do |attr|
       [:"sum_#{attr}", query_sum.public_send(attr)]
@@ -155,7 +156,10 @@ class SummarizerJob < ApplicationJob
 
     # Fix the power-splitter sums in a similar way:
     # Nullify power-splitter sums when there is no corresponding sum value
-    %i[house_power wallbox_power heatpump_power].each do |sensor|
+    (
+      %i[house_power wallbox_power heatpump_power] +
+        SensorConfig.x.existing_custom_sensor_names
+    ).each do |sensor|
       grid_attr = :"sum_#{sensor}_grid"
       sum_attr = :"sum_#{sensor}"
 

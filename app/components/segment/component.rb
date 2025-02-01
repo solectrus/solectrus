@@ -68,15 +68,13 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     calculator.public_send(costs_field)
   end
 
+  def sensors_with_grid_ratio
+    %i[wallbox_power heatpump_power house_power battery_charging_power] +
+      SensorConfig.x.existing_custom_sensor_names
+  end
+
   def power_grid_ratio
-    if %i[
-         wallbox_power
-         heatpump_power
-         house_power
-         battery_charging_power
-       ].exclude?(sensor)
-      return
-    end
+    return unless sensor.in?(sensors_with_grid_ratio)
 
     calculator.public_send(:"#{sensor}_grid_ratio")
   end

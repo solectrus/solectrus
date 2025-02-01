@@ -26,16 +26,19 @@ class House::StatsController < ApplicationController
       house_power: :sum_house_power_sum,
       house_power_grid: :sum_house_power_grid_sum,
       grid_import_power: :sum_grid_import_power_sum,
-      **(
-        SensorConfig.x.existing_custom_sensor_names.index_with do |sensor_name|
-          :"sum_#{sensor_name}_sum"
+      **SensorConfig
+        .x
+        .existing_custom_sensor_names
+        .flat_map do |sensor_name|
+          [
+            [sensor_name, :"sum_#{sensor_name}_sum"],
+            [:"#{sensor_name}_grid", :"sum_#{sensor_name}_grid_sum"],
+          ]
         end
-      ),
-      **(
-        SensorConfig.x.excluded_sensor_names.index_with do |sensor|
-          :"sum_#{sensor}_sum"
-        end
-      ),
+        .to_h,
+      **SensorConfig.x.excluded_sensor_names.index_with do |sensor|
+        :"sum_#{sensor}_sum"
+      end,
     }
   end
 end

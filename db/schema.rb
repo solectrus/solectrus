@@ -10,14 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_24_162548) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_31_101124) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "aggregation_enum", ["sum", "max", "min", "avg"]
-  create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10"]
+  create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10", "custom_power_01_grid", "custom_power_02_grid", "custom_power_03_grid", "custom_power_04_grid", "custom_power_05_grid", "custom_power_06_grid", "custom_power_07_grid", "custom_power_08_grid", "custom_power_09_grid", "custom_power_10_grid"]
 
   create_table "prices", force: :cascade do |t|
     t.string "name", null: false
