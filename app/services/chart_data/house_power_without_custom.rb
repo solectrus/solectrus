@@ -20,7 +20,6 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
         raw_chart =
           PowerChart.new(sensors: [:house_power, *sensors_to_exclude]).call(
             timeframe,
-            fill: !timeframe.current?,
           )
 
         if raw_chart[:house_power].nil? || sensors_to_exclude.blank?

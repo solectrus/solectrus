@@ -22,7 +22,8 @@ describe PowerChart do
                        field_inverter_power => 14_000,
                        field_battery_charging_power => 2000,
                        field_battery_discharging_power => 100,
-                     }
+                     },
+                     time: 5.seconds.ago
   end
 
   around { |example| freeze_time(&example) }
@@ -39,10 +40,10 @@ describe PowerChart do
         it { is_expected.to have(1.hour / 30.seconds).items }
 
         it 'contains last data point' do
-          last = result.last
+          timestamp, value = result.last
 
-          expect(last[1]).to eq(14_000)
-          expect(last.first).to be_within(30.seconds).of(Time.current)
+          expect(value).to eq(14_000)
+          expect(timestamp).to be_within(30.seconds).of(Time.current)
         end
       end
 
@@ -86,10 +87,10 @@ describe PowerChart do
           it { is_expected.to have(1.hour / 30.seconds).items }
 
           it 'contains last data point' do
-            last = result.last
+            timestamp, value = result.last
 
-            expect(last[1]).to eq(2000)
-            expect(last.first).to be_within(30.seconds).of(Time.current)
+            expect(value).to eq(2000)
+            expect(timestamp).to be_within(30.seconds).of(Time.current)
           end
         end
       end

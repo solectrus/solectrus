@@ -3,24 +3,22 @@ class ConsumptionChart < ChartBase
     super(sensors: %i[inverter_power grid_export_power])
   end
 
-  def call(timeframe, fill: false)
+  def call(timeframe)
     return {} unless SensorConfig.x.exists_all?(*sensors)
 
-    super(timeframe)
+    super
 
     case timeframe.id
     when :now
       chart_single start: 1.hour.ago + 1.second,
                    stop: 1.second.since,
-                   window: WINDOW[timeframe.id],
-                   fill: true
+                   window: WINDOW[timeframe.id]
     when :day
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
-                   window: WINDOW[timeframe.id],
-                   fill:
+                   window: WINDOW[timeframe.id]
     when :week, :month, :year, :all
-      chart_sum(timeframe:)
+      query_sql(timeframe:)
     end
   end
 
@@ -34,7 +32,7 @@ class ConsumptionChart < ChartBase
     SensorConfig.x.field(:grid_export_power)
   end
 
-  def chart_single(start:, window:, stop: nil, fill: false)
+  def chart_single(start:, window:, stop: nil)
     q = []
 
     q << from_bucket
@@ -45,8 +43,9 @@ class ConsumptionChart < ChartBase
     q << "|> #{range(start: start - 1.hour, stop:)}"
 
     q << "|> #{filter}"
+    q << '|> aggregateWindow(every: 5s, fn: last)'
+    q << '|> fill(usePrevious: true)'
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
-    q << '|> fill(usePrevious: true)' if fill
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
     q << "|> map(fn: (r) => (
               { r with consumption:
@@ -62,7 +61,7 @@ class ConsumptionChart < ChartBase
     to_array(raw, start:)
   end
 
-  def chart_sum(timeframe:)
+  def query_sql(timeframe:)
     result =
       SummaryValue
         .where(
@@ -94,21 +93,22 @@ class ConsumptionChart < ChartBase
   end
 
   def value_to_array(raw, start:)
-    result = []
+    return [] unless raw&.records
 
-    raw&.records&.each_with_index do |record, index|
-      # InfluxDB returns data one-off
-      next_record = raw.records[index + 1]
-      next unless next_record
+    raw
+      .records
+      .each_cons(2) # InfluxDB returns data one-off
+      .filter_map do |record, next_record|
+        time = Time.zone.parse(record.values['_time'])
 
-      time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['consumption']&.clamp(0, 100)
+        # Take only data that ist after the desired start
+        # (needed because the start was extended by one hour)
+        next if time < start
 
-      # Take only values that are after the desired start
-      # (needed because the start was extended by one hour)
-      result << [time, value] if time >= start
-    end
+        value =
+          (next_record.values['consumption']&.clamp(0, 100) unless time.future?)
 
-    result
+        [time, value]
+      end
   end
 end

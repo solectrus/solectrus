@@ -20,17 +20,13 @@ class ChartData::HeatpumpPower < ChartData::Base
   end
 
   def simple_chart
-    PowerChart.new(sensors: %i[heatpump_power]).call(
-      timeframe,
-      fill: !timeframe.current?,
-    )
+    PowerChart.new(sensors: %i[heatpump_power]).call(timeframe)
   end
 
   def splitted_chart # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     raw_chart =
       PowerChart.new(sensors: %i[heatpump_power heatpump_power_grid]).call(
         timeframe,
-        fill: !timeframe.current?,
       )
 
     unless raw_chart.key?(:heatpump_power) &&

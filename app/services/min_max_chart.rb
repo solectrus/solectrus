@@ -14,21 +14,21 @@ class MinMaxChart < ChartBase
 
     case timeframe.id
     when :now
-      chart_single start: 1.hour.ago + 1.second,
+      query_influx start: 1.hour.ago + 1.second,
                    stop: 1.second.since,
                    window: WINDOW[timeframe.id]
     when :day
-      chart_single start: timeframe.beginning,
+      query_influx start: timeframe.beginning,
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id]
     when :week, :month, :year, :all
-      chart_minmax(timeframe:)
+      query_sql(timeframe:)
     end
   end
 
   private
 
-  def chart_single(start:, window:, stop: nil)
+  def query_influx(start:, window:, stop: nil)
     remember_start(start)
 
     q = []
@@ -44,7 +44,7 @@ class MinMaxChart < ChartBase
     formatted(raw)
   end
 
-  def chart_minmax(timeframe:)
+  def query_sql(timeframe:)
     result =
       SummaryValue
         .where(date: timeframe.beginning..timeframe.ending)
@@ -125,6 +125,9 @@ class MinMaxChart < ChartBase
 
       time = Time.zone.parse(record.values['_time'])
       value = value_from_record(time:, record: next_record)
+
+      # Override the value if it's in the future (may be present because of filling)
+      value = nil if time.future?
 
       result << [time, value]
     end

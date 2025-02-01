@@ -26,7 +26,8 @@ describe AutarkyChart do
                          # This happens when the `csv-importer` was used to import CSV data from SENEC,
                          # which do not contain the `wallbox_power`.
                          # The missing value tests the `if` statement in the query.
-                       }
+                       },
+                       time: 5.seconds.ago
     end
 
     describe '#call' do
@@ -38,10 +39,10 @@ describe AutarkyChart do
         it { is_expected.to have(1.hour / 30.seconds).items }
 
         it 'contains last data point' do
-          last = result.last
+          timestamp, value = result.last
 
-          expect(last[1]).to eq(50.0)
-          expect(last.first).to be_within(30.seconds).of(Time.current)
+          expect(value).to eq(50.0)
+          expect(timestamp).to be_within(30.seconds).of(Time.current)
         end
       end
 
@@ -85,7 +86,8 @@ describe AutarkyChart do
                        fields: {
                          field_house_power => 6_000,
                          field_grid_import_power => 3000,
-                       }
+                       },
+                       time: 5.seconds.ago
     end
 
     describe '#call' do
@@ -97,10 +99,10 @@ describe AutarkyChart do
         it { is_expected.to have(1.hour / 30.seconds).items }
 
         it 'contains last data point' do
-          last = result.last
+          timestamp, value = result.last
 
-          expect(last[1]).to eq(50.0)
-          expect(last.first).to be_within(30.seconds).of(Time.current)
+          expect(value).to eq(50.0)
+          expect(timestamp).to be_within(30.seconds).of(Time.current)
         end
       end
 

@@ -23,7 +23,6 @@ class ChartData::HousePower < ChartData::Base
     raw_chart =
       PowerChart.new(sensors: [:house_power, *excluded_sensor_names]).call(
         timeframe,
-        fill: !timeframe.current?,
       )
     if raw_chart[:house_power].nil? || excluded_sensor_names.blank?
       return raw_chart
@@ -36,7 +35,7 @@ class ChartData::HousePower < ChartData::Base
     raw_chart =
       PowerChart.new(
         sensors: [:house_power, grid_sensor, *excluded_sensor_names],
-      ).call(timeframe, fill: !timeframe.current?)
+      ).call(timeframe)
 
     result =
       if raw_chart.key?(:house_power) && raw_chart.key?(grid_sensor)

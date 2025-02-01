@@ -30,7 +30,7 @@ class ChartData::GridPower < ChartData::Base
   end
 
   def chart
-    @chart ||= PowerChart.new(sensors:).call(timeframe, interpolate: true)
+    @chart ||= PowerChart.new(sensors:).call(timeframe)
   end
 
   def sensors

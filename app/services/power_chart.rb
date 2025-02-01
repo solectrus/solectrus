@@ -1,29 +1,27 @@
 class PowerChart < ChartBase
-  def call(timeframe, fill: false, interpolate: false)
+  def call(timeframe, interpolate: false)
     return {} unless SensorConfig.x.exists_any?(*sensors)
 
     super(timeframe)
 
     case timeframe.id
     when :now
-      chart_single start: 1.hour.ago + 1.second,
+      query_influx start: 1.hour.ago + 1.second,
                    stop: 1.second.since,
-                   window: WINDOW[timeframe.id],
-                   fill: true
+                   window: WINDOW[timeframe.id]
     when :day
-      chart_single start: timeframe.beginning,
+      query_influx start: timeframe.beginning,
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id],
-                   fill:,
                    interpolate:
     when :week, :month, :year, :all
-      chart_sum(timeframe:)
+      query_sql(timeframe:)
     end
   end
 
   private
 
-  def chart_single(start:, window:, stop: nil, fill: false, interpolate: false)
+  def query_influx(start:, window:, stop: nil, interpolate: false)
     q = []
 
     q << 'import "interpolate"' if interpolate
@@ -39,17 +37,19 @@ class PowerChart < ChartBase
     if interpolate
       q << '|> map(fn:(r) => ({ r with _value: float(v: r._value) }))'
       q << "|> interpolate.linear(every: #{window})"
+    else
+      q << '|> aggregateWindow(every: 5s, fn: last)'
+      q << '|> fill(usePrevious: true)'
     end
 
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
     q << '|> keep(columns: ["_time","_field","_measurement","_value"])'
-    q << '|> fill(usePrevious: true)' if fill
 
     raw = query(q.join("\n"))
-    to_array(raw, start:)
+    to_array(raw, start:, interpolate:)
   end
 
-  def chart_sum(timeframe:)
+  def query_sql(timeframe:)
     result =
       SummaryValue
         .where(
@@ -81,34 +81,33 @@ class PowerChart < ChartBase
     end
   end
 
-  def value_to_array(raw, start:)
-    result = []
+  def value_to_array(raw, start:, interpolate:)
     raw
-      &.records
-      &.each_cons(2) do |record, next_record|
-        # InfluxDB returns data one-off
-        value = next_record.values['_value']
-
-        # We don't need the decimal places
-        value &&= value.round
-
+      .records
+      .each_cons(2) # InfluxDB returns data one-off
+      .filter_map do |record, next_record|
         time = Time.zone.parse(record.values['_time'])
 
-        # Take only values that are after the desired start
+        # Take only data that ist after the desired start
         # (needed because the start was extended by one hour)
-        result << [time, value] if time >= start
+        next if time < start
+
+        # Future values should not be shown when using fill(usePrevious: true)
+        use_value = interpolate || !time.future?
+        value = next_record.values['_value']&.round if use_value
+
+        [time, value]
       end
-    result
   end
 
-  def to_array(raw, start:)
+  def to_array(raw, start:, interpolate:)
     raw.each_with_object({}) do |r, result|
       first_record = r.records.first
       field = first_record.values['_field']
       measurement = first_record.values['_measurement']
       sensor = SensorConfig.x.find_by(measurement, field)
 
-      result[sensor] = value_to_array(r, start:)
+      result[sensor] = value_to_array(r, start:, interpolate:)
     end
   end
 end

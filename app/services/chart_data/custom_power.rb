@@ -22,11 +22,7 @@ class ChartData::CustomPower < ChartData::Base
   end
 
   def chart
-    @chart ||=
-      PowerChart.new(sensors: [sensor]).call(
-        timeframe,
-        fill: !timeframe.current?,
-      )
+    @chart ||= PowerChart.new(sensors: [sensor]).call(timeframe)
   end
 
   def style

@@ -13,7 +13,7 @@ describe ChartData::InverterPower do
                          fields: {
                            field_inverter_power => 28_000,
                          },
-                         time: 1.hour.ago + (5.minutes * i)
+                         time: 1.hour.ago + (5.minutes * (i + 1))
       end
     end
 

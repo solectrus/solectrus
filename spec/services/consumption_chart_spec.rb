@@ -32,7 +32,8 @@ describe ConsumptionChart do
                        fields: {
                          field_inverter_power => 2_000,
                          field_grid_export_power => 500,
-                       }
+                       },
+                       time: 5.seconds.ago
     end
   end
 
@@ -47,10 +48,10 @@ describe ConsumptionChart do
       it { is_expected.to have(1.hour / 30.seconds).items }
 
       it 'contains last data point' do
-        last = result.last
+        timestamp, value = result.last
 
-        expect(last[1]).to eq(75.0)
-        expect(last.first).to be_within(30.seconds).of(Time.current)
+        expect(value).to eq(75.0)
+        expect(timestamp).to be_within(30.seconds).of(Time.current)
       end
     end
 
