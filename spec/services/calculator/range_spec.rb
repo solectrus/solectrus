@@ -59,11 +59,11 @@ describe Calculator::Range do
     it 'calculates' do
       expect(calculator.wallbox_power_grid_ratio).to eq(50)
       expect(calculator.wallbox_power_pv_ratio).to eq(50)
-      expect(calculator.wallbox_costs).to eq(5.299)
+      expect(calculator.wallbox_costs).to eq(4.451)
 
       expect(calculator.house_power_grid_ratio).to eq(50)
       expect(calculator.house_power_pv_ratio).to eq(50)
-      expect(calculator.house_costs).to eq(2.6495)
+      expect(calculator.house_costs).to eq(2.2255)
 
       expect(calculator.heatpump_power_grid_ratio).to eq(50)
       expect(calculator.heatpump_power_pv_ratio).to eq(50)
