@@ -338,7 +338,6 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     if SensorConfig.x.single_consumer?
       Setting.opportunity_costs ? total_costs : paid.abs
     else
-      return house_costs_grid unless Setting.opportunity_costs
       return unless house_costs_grid && house_costs_pv
 
       house_costs_grid + house_costs_pv
