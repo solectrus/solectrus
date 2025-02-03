@@ -49,9 +49,9 @@ class Summary < ApplicationRecord
   def self.config
     {
       #
-      # Version of the configuration. Increment this if the logic of the
+      # Version of the configuration. Update this if the logic of the
       # summaries has changed. This will invalidate all existing summaries
-      version: 2,
+      version: '2025-02-03',
       #
       # The date column depends on the current timezone.
       # If the timezone changes, the summaries are no longer valid

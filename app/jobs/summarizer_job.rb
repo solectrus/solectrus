@@ -1,4 +1,4 @@
-class SummarizerJob < ApplicationJob
+class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
   queue_as :default
 
   def perform(date)
@@ -24,6 +24,7 @@ class SummarizerJob < ApplicationJob
         updating = !summary.new_record?
         updating ? summary.touch : summary.save!
 
+        correct_values
         save_values(updating:)
       end
     rescue ActiveRecord::RecordNotUnique
@@ -34,6 +35,41 @@ class SummarizerJob < ApplicationJob
       Rails.logger.warn("Summary for #{date} already exists.")
       # :nocov:
     end
+  end
+
+  def correct_values
+    corrector =
+      SummaryCorrector.new(
+        attributes
+          .slice(
+            :sum_grid_import_power,
+            *keys_for_corrector.map { |key| :"sum_#{key}" },
+          )
+          .compact
+          .transform_keys { |key| key.to_s.delete_prefix('sum_').to_sym },
+      )
+
+    attributes.merge!(
+      corrector
+        .adjusted
+        .slice(
+          :house_power_grid,
+          :heatpump_power_grid,
+          :wallbox_power_grid,
+          :battery_charging_power_grid,
+        )
+        .transform_keys { |key| :"sum_#{key}" },
+    )
+  end
+
+  def keys_for_corrector
+    power_keys =
+      %i[house_power heatpump_power wallbox_power battery_charging_power] +
+        SensorConfig.x.excluded_custom_sensor_names
+
+    grid_keys = power_keys.map { |key| :"#{key}_grid" }
+
+    power_keys + grid_keys
   end
 
   def save_values(updating: false)
