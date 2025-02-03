@@ -63,7 +63,7 @@
             = Number::Component.new(value:).to_watt_hour(precision: 3)
 
             - if costs
-              = render SplittedCosts::Component.new(power_grid_ratio:, costs:, approximate: timeframe.starts_today?)
+              = render SplittedCosts::Component.new(power_grid_ratio:, costs:)
 
             - elsif sensor == :grid_export_power
               = Number::Component.new(value: calculator.got).to_eur(klass: 'text-xl')

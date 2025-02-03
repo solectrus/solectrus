@@ -18,7 +18,6 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
                 = render SplittedCosts::Component.new( \
                     costs: calculator.house_costs,
                     power_grid_ratio: calculator.house_power_grid_ratio,
-                    approximate: timeframe.starts_today?,
                   )
 
         .flex-1.flex.gap-5
