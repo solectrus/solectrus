@@ -199,6 +199,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def wallbox_costs_pv
     return unless wallbox_power_grid_ratio
+    return 0 unless Setting.opportunity_costs
 
     sections.each_with_index.sum do |section, index|
       (wallbox_power_array[index] - wallbox_power_grid_array[index].to_f) *
@@ -281,6 +282,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def house_costs_pv
     return unless house_power_grid_ratio
+    return 0 unless Setting.opportunity_costs
 
     sections.each_with_index.sum do |section, index|
       (house_power_array[index] - house_power_grid_array[index].to_f) *
