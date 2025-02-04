@@ -24,6 +24,30 @@ describe SummaryCorrector do
       it { is_expected.to eq({}) }
     end
 
+    context 'when consumption value is missing - and grid is 0' do
+      let(:params) { { grid_import_power: 400, heatpump_power_grid: 0 } }
+
+      it 'does not change anything' do
+        is_expected.to eq({ heatpump_power_grid: 0 })
+      end
+    end
+
+    context 'when consumption value is missing - but grid is given' do
+      let(:params) { { grid_import_power: 400, heatpump_power_grid: 10 } }
+
+      it 'resets grid values' do
+        is_expected.to eq({ heatpump_power_grid: 0 })
+      end
+    end
+
+    context 'when grid_import_power is missing' do
+      let(:params) { { grid_import_power: nil, heatpump_power_grid: 10 } }
+
+      it 'resets grid values' do
+        is_expected.to eq({ heatpump_power_grid: 0 })
+      end
+    end
+
     context 'when grid values are higher than consumption' do
       let(:params) do
         {

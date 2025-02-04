@@ -12,7 +12,7 @@
 #
 class SummaryCorrector
   def initialize(attributes)
-    @grid_import_power = attributes[:grid_import_power]
+    @grid_import_power = attributes[:grid_import_power] || 0
     @power_pairs = extract_power_pairs(attributes.except(:grid_import_power))
   end
 
@@ -56,7 +56,9 @@ class SummaryCorrector
     return if grid_power_total == grid_import_power
 
     consumptions =
-      power_pairs.transform_values { it[:consumption] }.slice(*grid_powers.keys)
+      power_pairs
+        .transform_values { it[:consumption] || 0 }
+        .slice(*grid_powers.keys)
 
     if grid_power_total.zero?
       distribute_evenly(consumptions)
