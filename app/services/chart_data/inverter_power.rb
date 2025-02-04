@@ -2,7 +2,7 @@ class ChartData::InverterPower < ChartData::Base
   private
 
   def data
-    timeframe.day? ? data_with_forecast : data_simple
+    @data ||= timeframe.day? ? data_with_forecast : data_simple
   end
 
   def data_simple

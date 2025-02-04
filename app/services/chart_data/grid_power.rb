@@ -2,7 +2,7 @@ class ChartData::GridPower < ChartData::Base
   private
 
   def data
-    {
+    @data ||= {
       labels: labels_for(:grid_import_power) || labels_for(:grid_export_power),
       datasets: [dataset(:grid_import_power), dataset(:grid_export_power)],
     }
