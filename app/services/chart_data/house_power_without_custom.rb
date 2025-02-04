@@ -2,7 +2,7 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
   private
 
   def data
-    {
+    @data ||= {
       labels: chart[chart.keys.first]&.map { |x| x.first.to_i * 1000 },
       datasets:
         chart.map do |chart_sensor, data|
