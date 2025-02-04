@@ -2,7 +2,7 @@ class ChartData::BatteryPower < ChartData::Base
   private
 
   def data
-    {
+    @data ||= {
       labels:
         labels_for(:battery_charging_power) ||
           labels_for(:battery_discharging_power),
