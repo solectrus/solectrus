@@ -37,26 +37,21 @@ de:
     inverter_power_forecast: Prognose
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere
-    house_power_grid: Netzbezug
-    house_power_pv: Photovoltaik
     wallbox_power: E-Auto
-    wallbox_power_grid: Netzbezug
-    wallbox_power_pv: Photovoltaik
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
     grid_power: Netz
     battery_discharging_power: Akku-Entnahme
     battery_charging_power: Akku-Beladung
-    battery_charging_power_grid: Netzbezug
-    battery_charging_power_pv: Photovoltaik
     battery_power: Hausakku
     battery_soc: Ladestand Hausakku
     car_battery_soc: Ladestand E-Auto
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
-    heatpump_power_grid: Netzbezug
-    heatpump_power_pv: Photovoltaik
+  splitter:
+    grid: Netzbezug
+    pv: Photovoltaik
   balance_sheet:
     left: Herkunft
     right: Verwendung

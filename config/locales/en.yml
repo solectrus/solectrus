@@ -37,26 +37,21 @@ en:
     inverter_power_forecast: Forecast
     house_power: Home consumption
     house_power_without_custom: Other
-    house_power_grid: Grid
-    house_power_pv: PV
     wallbox_power: EV charging
-    wallbox_power_grid: Grid
-    wallbox_power_pv: PV
     grid_import_power: Grid import
     grid_export_power: Grid export
     grid_power: Grid
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
-    battery_charging_power_grid: Grid
-    battery_charging_power_pv: PV
     battery_power: Home Battery
     battery_soc: SOC Home Battery
     car_battery_soc: SOC EV
     case_temp: Case
     grid_export_limit: Limitation
     heatpump_power: Heat pump
-    heatpump_power_grid: Grid
-    heatpump_power_pv: PV
+  splitter:
+    grid: Grid
+    pv: PV
   balance_sheet:
     left: Source
     right: Usage
