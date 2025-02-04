@@ -162,8 +162,14 @@ export default class extends Controller {
       this.currentValue === undefined ||
       this.currentTime === undefined ||
       this.lastPointTime === undefined
-    )
+    ) {
+      if (this.currentValue && !this.chart) {
+        // We got a value, but no chart. Reload the frames to get the chart
+        this.reloadFrames({ chart: true });
+      }
+
       return;
+    }
 
     // Never add a point with a time older than the last time in the chart
     if (this.currentTime < this.lastPointTime) return;
