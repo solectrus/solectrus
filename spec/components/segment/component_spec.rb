@@ -19,9 +19,7 @@ describe Segment::Component, type: :component do
   let(:calculator) do
     Calculator::Range.new(
       timeframe,
-      calculations: {
-        house_power: :sum_house_power_sum,
-      },
+      calculations: [Queries::Calculation.new(:house_power, :sum, :sum)],
     )
   end
   let(:updated_at) { 3.minutes.ago }

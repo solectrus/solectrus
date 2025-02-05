@@ -6,18 +6,28 @@ class TilesController < ApplicationController
 
   private
 
-  def calculations
-    if sensor == :savings
-      {
-        inverter_power: :sum_inverter_power_sum,
-        house_power: :sum_house_power_sum,
-        heatpump_power: :sum_heatpump_power_sum,
-        wallbox_power: :sum_wallbox_power_sum,
-        grid_import_power: :sum_grid_import_power_sum,
-        grid_export_power: :sum_grid_export_power_sum,
-      }
-    else
-      { inverter_power: :sum_inverter_power_sum }
-    end
+  def calculator_now
+    Calculator::Now.new([:inverter_power])
+  end
+
+  def calculator_range
+    Calculator::Range.new(
+      timeframe,
+      calculations:
+        (
+          if sensor == :savings
+            [
+              Queries::Calculation.new(:inverter_power, :sum, :sum),
+              Queries::Calculation.new(:house_power, :sum, :sum),
+              Queries::Calculation.new(:heatpump_power, :sum, :sum),
+              Queries::Calculation.new(:wallbox_power, :sum, :sum),
+              Queries::Calculation.new(:grid_import_power, :sum, :sum),
+              Queries::Calculation.new(:grid_export_power, :sum, :sum),
+            ]
+          else
+            [Queries::Calculation.new(:inverter_power, :sum, :sum)]
+          end
+        ),
+    )
   end
 end

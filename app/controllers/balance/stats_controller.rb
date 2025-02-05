@@ -20,35 +20,56 @@ class Balance::StatsController < ApplicationController
     Summarizer.new(timeframe:).perform_now!
   end
 
-  def calculations
-    {
-      inverter_power: :sum_inverter_power_sum,
-      house_power: :sum_house_power_sum,
-      heatpump_power: :sum_heatpump_power_sum,
-      wallbox_power: :sum_wallbox_power_sum,
-      battery_charging_power: :sum_battery_charging_power_sum,
-      battery_discharging_power: :sum_battery_discharging_power_sum,
-      grid_import_power: :sum_grid_import_power_sum,
-      grid_export_power: :sum_grid_export_power_sum,
-      heatpump_power_grid: :sum_heatpump_power_grid_sum,
-      wallbox_power_grid: :sum_wallbox_power_grid_sum,
-      house_power_grid: :sum_house_power_grid_sum,
-      battery_charging_power_grid: :sum_battery_charging_power_grid_sum,
-      **SensorConfig
-        .x
-        .excluded_sensor_names
-        .flat_map do |sensor_name|
+  def calculator_now
+    Calculator::Now.new(
+      [
+        :inverter_power,
+        :house_power,
+        :heatpump_power,
+        :wallbox_power,
+        :battery_charging_power,
+        :battery_discharging_power,
+        :grid_import_power,
+        :grid_export_power,
+        :heatpump_power_grid,
+        :wallbox_power_grid,
+        :house_power_grid,
+        :battery_charging_power_grid,
+        *SensorConfig.x.excluded_sensor_names.flat_map do |sensor_name|
+          [sensor_name, :"#{sensor_name}_grid"]
+        end,
+        :car_battery_soc,
+        :battery_soc,
+        :system_status,
+        :wallbox_car_connected,
+        :case_temp,
+      ],
+    )
+  end
+
+  def calculator_range
+    Calculator::Range.new(
+      timeframe,
+      calculations: [
+        Queries::Calculation.new(:inverter_power, :sum, :sum),
+        Queries::Calculation.new(:house_power, :sum, :sum),
+        Queries::Calculation.new(:heatpump_power, :sum, :sum),
+        Queries::Calculation.new(:wallbox_power, :sum, :sum),
+        Queries::Calculation.new(:battery_charging_power, :sum, :sum),
+        Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
+        Queries::Calculation.new(:grid_import_power, :sum, :sum),
+        Queries::Calculation.new(:grid_export_power, :sum, :sum),
+        Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
+        Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
+        Queries::Calculation.new(:house_power_grid, :sum, :sum),
+        Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
+        *SensorConfig.x.excluded_sensor_names.flat_map do |sensor_name|
           [
-            [sensor_name, :"sum_#{sensor_name}_sum"],
-            [:"#{sensor_name}_grid", :"sum_#{sensor_name}_grid_sum"],
+            Queries::Calculation.new(sensor_name, :sum, :sum),
+            Queries::Calculation.new(:"#{sensor_name}_grid", :sum, :sum),
           ]
-        end
-        .to_h,
-      car_battery_soc: nil,
-      battery_soc: nil,
-      system_status: nil,
-      wallbox_car_connected: nil,
-      case_temp: nil,
-    }
+        end,
+      ],
+    )
   end
 end

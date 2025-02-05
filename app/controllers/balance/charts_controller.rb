@@ -8,11 +8,14 @@ class Balance::ChartsController < ApplicationController
 
   private
 
-  def calculations
-    {
-      inverter_power: :sum_inverter_power_sum,
-      inverter_power_forecast: :sum_inverter_power_forecast_sum,
-    }
+  def calculator_range
+    Calculator::Range.new(
+      timeframe,
+      calculations: [
+        Queries::Calculation.new(:inverter_power, :sum, :sum),
+        Queries::Calculation.new(:inverter_power_forecast, :sum, :sum),
+      ],
+    )
   end
 
   helper_method def chart_sensors

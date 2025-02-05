@@ -2,10 +2,10 @@ describe Calculator::Range do
   let(:calculator) do
     described_class.new(
       timeframe,
-      calculations: {
-        house_power: :sum_house_power_sum,
-        house_power_grid: :sum_house_power_grid_sum,
-      },
+      calculations: [
+        Queries::Calculation.new(:house_power, :sum, :sum),
+        Queries::Calculation.new(:house_power_grid, :sum, :sum),
+      ],
     )
   end
 

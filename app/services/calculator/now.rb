@@ -1,5 +1,5 @@
 class Calculator::Now < Calculator::Base
-  def initialize(sensors:)
+  def initialize(sensors)
     super()
     @last = Flux::Last.new(sensors:).call
   end

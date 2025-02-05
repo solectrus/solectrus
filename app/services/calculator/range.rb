@@ -5,21 +5,21 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     @timeframe = timeframe
     @calculations =
       calculations ||
-        {
-          house_power: :sum_house_power_sum,
-          inverter_power: :sum_inverter_power_sum,
-          wallbox_power: :sum_wallbox_power_sum,
-          grid_import_power: :sum_grid_import_power_sum,
-          grid_export_power: :sum_grid_export_power_sum,
-          battery_discharging_power: :sum_battery_discharging_power_sum,
-          battery_charging_power: :sum_battery_charging_power_sum,
-          heatpump_power: :sum_heatpump_power_sum,
+        [
+          Queries::Calculation.new(:house_power, :sum, :sum),
+          Queries::Calculation.new(:inverter_power, :sum, :sum),
+          Queries::Calculation.new(:wallbox_power, :sum, :sum),
+          Queries::Calculation.new(:grid_import_power, :sum, :sum),
+          Queries::Calculation.new(:grid_export_power, :sum, :sum),
+          Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
+          Queries::Calculation.new(:battery_charging_power, :sum, :sum),
+          Queries::Calculation.new(:heatpump_power, :sum, :sum),
           # --- Power splitter ----
-          house_power_grid: :sum_house_power_grid_sum,
-          wallbox_power_grid: :sum_wallbox_power_grid_sum,
-          heatpump_power_grid: :sum_heatpump_power_grid_sum,
-          battery_charging_power_grid: :sum_battery_charging_power_grid_sum,
-        }
+          Queries::Calculation.new(:house_power_grid, :sum, :sum),
+          Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
+          Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
+          Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
+        ]
 
     data = sections
 
@@ -381,13 +381,8 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     ).price_sections
   end
 
-  def query(from:, to:, selected_calculations:)
-    Queries::Sql.new(from:, to:, calculations: selected_calculations)
-  end
-
   def sum_calculations
-    @sum_calculations ||=
-      calculations.select { |_sensor, value| value.to_s.start_with?('sum_') }
+    @sum_calculations ||= calculations.select { it.meta_aggregation == :sum }
   end
 
   def sections
@@ -395,16 +390,14 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
     @sections ||=
       price_sections.map do |price_section|
-        summary =
-          query(
+        Queries::Sql
+          .new(
+            sum_calculations,
             from: price_section[:starts_at],
             to: price_section[:ends_at],
-            selected_calculations: sum_calculations.values,
           )
-
-        sum_calculations
-          .keys
-          .index_with { |sensor| summary.public_send(sum_calculations[sensor]) }
+          .to_hash
+          .transform_keys { |field, _aggregation, _meta| field }
           .merge(
             electricity_price: price_section[:electricity],
             feed_in_tariff: price_section[:feed_in],

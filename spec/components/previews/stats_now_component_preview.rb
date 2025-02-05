@@ -7,19 +7,21 @@ class StatsNowComponentPreview < ViewComponent::Preview
   private
 
   def calculator
-    Calculator::Now.new sensors: %i[
-                          inverter_power
-                          house_power
-                          heatpump_power
-                          wallbox_power
-                          battery_charging_power
-                          battery_discharging_power
-                          grid_import_power
-                          grid_export_power
-                          battery_soc
-                          car_battery_soc
-                          wallbox_car_connected
-                        ]
+    Calculator::Now.new(
+      %i[
+        inverter_power
+        house_power
+        heatpump_power
+        wallbox_power
+        battery_charging_power
+        battery_discharging_power
+        grid_import_power
+        grid_export_power
+        battery_soc
+        car_battery_soc
+        wallbox_car_connected
+      ],
+    )
   end
 
   def sensor

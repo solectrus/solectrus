@@ -20,25 +20,38 @@ class House::StatsController < ApplicationController
     Summarizer.new(timeframe:).perform_now!
   end
 
-  def calculations
-    {
-      system_status: nil,
-      house_power: :sum_house_power_sum,
-      house_power_grid: :sum_house_power_grid_sum,
-      grid_import_power: :sum_grid_import_power_sum,
-      **SensorConfig
-        .x
-        .existing_custom_sensor_names
-        .flat_map do |sensor_name|
+  def calculator_now
+    Calculator::Now.new(
+      [
+        :system_status,
+        :house_power,
+        :house_power_grid,
+        :grid_import_power,
+        *SensorConfig.x.existing_custom_sensor_names.flat_map do |sensor_name|
+          [sensor_name, :"#{sensor_name}_grid"]
+        end,
+        *SensorConfig.x.excluded_sensor_names,
+      ],
+    )
+  end
+
+  def calculator_range
+    Calculator::Range.new(
+      timeframe,
+      calculations: [
+        Queries::Calculation.new(:house_power, :sum, :sum),
+        Queries::Calculation.new(:house_power_grid, :sum, :sum),
+        Queries::Calculation.new(:grid_import_power, :sum, :sum),
+        *SensorConfig.x.existing_custom_sensor_names.flat_map do |sensor_name|
           [
-            [sensor_name, :"sum_#{sensor_name}_sum"],
-            [:"#{sensor_name}_grid", :"sum_#{sensor_name}_grid_sum"],
+            Queries::Calculation.new(sensor_name, :sum, :sum),
+            Queries::Calculation.new(:"#{sensor_name}_grid", :sum, :sum),
           ]
-        end
-        .to_h,
-      **SensorConfig.x.excluded_sensor_names.index_with do |sensor|
-        :"sum_#{sensor}_sum"
-      end,
-    }
+        end,
+        *SensorConfig.x.excluded_sensor_names.map do |sensor|
+          Queries::Calculation.new sensor, :sum, :sum
+        end,
+      ],
+    )
   end
 end

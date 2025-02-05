@@ -1,6 +1,6 @@
 describe Calculator::Now do
   let(:calculator) do
-    described_class.new sensors: %i[
+    described_class.new %i[
                           inverter_power
                           grid_export_limit
                           house_power

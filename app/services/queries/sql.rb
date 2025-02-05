@@ -1,60 +1,45 @@
 class Queries::Sql
-  # Initialize with calculations hash and optional date range
+  # Initialize with calculations and optional date range
   # Example:
+  #
   # calculations = [
-  #   :sum_inverter_power_sum,
-  #   :sum_house_power_sum
+  #   Queries::Calculation.new(:inverter_power, :sum, :sum),
+  #   Queries::Calculation.new(:house_power, :sum, :sum),
   # ]
-  def initialize(calculations:, from: nil, to: nil)
-    raise ArgumentError, 'No calculations given' if calculations.blank?
-    unless calculations.is_a?(Array)
-      raise ArgumentError, "Array expected, got #{calculations.class}"
-    end
-
+  def initialize(calculations, from: nil, to: nil)
     @from = [from, Rails.application.config.x.installation_date].compact.max
     @to = to
     @calculations = calculations
+
+    raise ArgumentError unless calculations.all?(Queries::Calculation)
   end
 
   attr_reader :from, :to, :calculations
 
-  def respond_to_missing?(method, include_private = false)
-    to_hash.key?(method) || super
+  def value(field, aggregation, meta_aggregation)
+    call.find { it.to_key == [field, aggregation, meta_aggregation] }&.value
   end
 
-  def method_missing(method)
-    to_hash.key?(method) ? to_hash[method] : super
+  def to_hash
+    call.each_with_object({}) { |calc, hash| hash[calc.to_key] = calc.value }
   end
 
   private
 
-  def to_hash
-    @to_hash ||=
-      calculations
-        .index_with { nil }
-        .merge(
-          totals.to_h do |row|
-            [:"sum_#{row.field}_#{row.aggregation}", row.sum]
-          end,
-        )
-        .merge(
-          totals.to_h do |row|
-            [:"min_#{row.field}_#{row.aggregation}", row.min]
-          end,
-        )
-        .merge(
-          totals.to_h do |row|
-            [:"max_#{row.field}_#{row.aggregation}", row.max]
-          end,
-        )
-        .merge(
-          totals.to_h do |row|
-            [:"avg_#{row.field}_#{row.aggregation}", row.avg]
-          end,
-        )
+  def call
+    @call ||=
+      begin
+        grouped_totals =
+          totals.group_by { |row| [row.field.to_sym, row.aggregation.to_sym] }
+
+        calculations.map do |calc|
+          total = grouped_totals[calc.base_key]&.first
+          value = total&.public_send(calc.meta_aggregation)
+          calc.with_value(value)
+        end
+      end
   end
 
-  # Build and execute the query
   def totals
     @totals ||=
       SummaryValue
@@ -62,6 +47,7 @@ class Queries::Sql
         .where(date: from..to)
         .where(build_conditions)
         .group(:field, :aggregation)
+        .to_a
   end
 
   # Build the SELECT fields dynamically, e.g:
@@ -75,28 +61,21 @@ class Queries::Sql
   #      MAX(value)
   def select_fields
     base_fields = %i[field aggregation]
+    meta_aggregations = calculations.map(&:meta_aggregation)
+    meta_aggregations.uniq!
+
     aggregation_functions =
-      %i[SUM AVG MIN MAX].map { |func| "#{func}(value) AS #{func.downcase}" }
+      meta_aggregations.map { |agg| "#{agg.upcase}(value) AS #{agg}" }
 
     (base_fields + aggregation_functions).join(', ')
   end
 
   # Build the WHERE conditions with IN ARRAY
   def build_conditions
-    fields_and_aggregations =
-      calculations.map do |calculation|
-        list = calculation.to_s.split('_')
-        aggregation = list.last
-        field = list[1..-2].join('_')
-
-        { field:, aggregation: }
-      end
+    fields = calculations.map(&:field)
+    aggregations = calculations.map(&:aggregation)
 
     # Extract unique fields and aggregations for the IN query
-    fields = fields_and_aggregations.pluck(:field).uniq
-    aggregations = fields_and_aggregations.pluck(:aggregation).uniq
-
-    # Return a single condition
-    { field: fields, aggregation: aggregations }
+    { field: fields.uniq, aggregation: aggregations.uniq }
   end
 end
