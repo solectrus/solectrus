@@ -213,7 +213,8 @@ GEM
       net-protocol
     net-protocol (0.2.2)
       timeout
-    net-smtp (0.5.0)
+    net-smtp (0.5.1)
+      net-protocol
     nio4r (2.7.4)
     nokogiri (1.18.2-aarch64-linux-musl)
       racc (~> 1.4)
@@ -228,7 +229,7 @@ GEM
       shellany (~> 0.0)
     ostruct (0.6.1)
     parallel (1.26.3)
-    parser (3.3.7.0)
+    parser (3.3.7.1)
       ast (~> 2.4.1)
       racc
     pg (1.5.9)
