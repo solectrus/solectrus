@@ -350,7 +350,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
     custom_grid_total =
       SensorConfig.x.existing_custom_sensor_names.sum do |sensor_name|
-        public_send(:"#{sensor_name}_grid")
+        public_send(:"#{sensor_name}_grid").to_f
       end
 
     (house_power_grid - custom_grid_total) / house_power_without_custom * 100
