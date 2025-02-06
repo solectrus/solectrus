@@ -344,6 +344,18 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def house_power_without_custom_grid_ratio
+    return unless house_power_without_custom
+    return if house_power_without_custom.zero?
+
+    custom_grid_total =
+      SensorConfig.x.existing_custom_sensor_names.sum do |sensor_name|
+        public_send(:"#{sensor_name}_grid")
+      end
+
+    (house_power_grid - custom_grid_total) / house_power_without_custom * 100
+  end
+
   def house_without_custom_costs
     unless house_power_without_custom && house_costs && house_power&.nonzero?
       return

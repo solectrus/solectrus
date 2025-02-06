@@ -69,8 +69,13 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def sensors_with_grid_ratio
-    %i[wallbox_power heatpump_power house_power battery_charging_power] +
-      SensorConfig.x.existing_custom_sensor_names
+    %i[
+      wallbox_power
+      heatpump_power
+      house_power
+      battery_charging_power
+      house_power_without_custom
+    ] + SensorConfig.x.existing_custom_sensor_names
   end
 
   def power_grid_ratio
