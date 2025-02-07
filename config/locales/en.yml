@@ -39,7 +39,7 @@ en:
     wallbox_power_pv: PV
     grid_import_power: Grid import
     grid_export_power: Grid export
-    grid_power: Grid
+    grid_power: Grid import and export
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
     battery_power: Home Battery

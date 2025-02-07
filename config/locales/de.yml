@@ -39,7 +39,7 @@ de:
     wallbox_power_pv: Photovoltaik
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
-    grid_power: Netz
+    grid_power: Netzbezug und -einspeisung
     battery_discharging_power: Akku-Entnahme
     battery_charging_power: Akku-Beladung
     battery_power: Hausakku
