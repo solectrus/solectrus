@@ -30,16 +30,6 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def build_context(data)
     build_method(:sections) { data }
-    build_method(:time) do
-      @time ||=
-        unless timeframe.past?
-          Summary
-            .where(date: ..timeframe.effective_ending_date)
-            .order(date: :desc)
-            .limit(1)
-            .pick(:updated_at)
-        end
-    end
 
     build_method_from_array(:feed_in_tariff, data, :to_f)
     build_method_from_array(:electricity_price, data, :to_f)
@@ -348,9 +338,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     unless house_power_grid
       return SensorConfig.x.single_consumer? ? grid_quote : nil
     end
-
-    return unless house_power_without_custom
-    return if house_power_without_custom.zero?
+    return unless house_power_without_custom&.nonzero?
 
     custom_grid_total =
       SensorConfig.x.existing_custom_sensor_names.sum do |sensor_name|
@@ -386,6 +374,17 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
       custom_power.zero? ? 0 : custom_power_grid.fdiv(custom_power) * 100
     end
+  end
+
+  def time
+    return if timeframe.past?
+
+    @time ||=
+      Summary
+        .where(date: ..timeframe.effective_ending_date)
+        .order(date: :desc)
+        .limit(1)
+        .pick(:updated_at)
   end
 
   private
