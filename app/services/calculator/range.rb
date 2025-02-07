@@ -345,6 +345,10 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def house_power_without_custom_grid_ratio
+    unless house_power_grid
+      return SensorConfig.x.single_consumer? ? grid_quote : nil
+    end
+
     return unless house_power_without_custom
     return if house_power_without_custom.zero?
 

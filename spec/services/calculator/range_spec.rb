@@ -78,6 +78,8 @@ describe Calculator::Range do
       expect(calculator.heatpump_power_grid_ratio).to eq(50)
       expect(calculator.heatpump_power_pv_ratio).to eq(50)
       expect(calculator.heatpump_costs).to eq(0.79485)
+
+      expect(calculator.house_power_without_custom_grid_ratio).to eq(50)
     end
   end
 
@@ -117,6 +119,8 @@ describe Calculator::Range do
       expect(calculator.heatpump_power_grid_ratio).to eq(0)
       expect(calculator.heatpump_power_pv_ratio).to eq(100)
       expect(calculator.heatpump_costs).to eq(0)
+
+      expect(calculator.house_power_without_custom_grid_ratio).to be_nil
     end
   end
 
@@ -153,6 +157,8 @@ describe Calculator::Range do
       expect(calculator.heatpump_power_grid_ratio).to be_nil
       expect(calculator.heatpump_power_pv_ratio).to be_nil
       expect(calculator.heatpump_costs).to be_nil
+
+      expect(calculator.house_power_without_custom_grid_ratio).to be_nil
     end
   end
 
