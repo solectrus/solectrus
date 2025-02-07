@@ -1414,9 +1414,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001646, caniuse-lite@npm:^1.0.30001688":
-  version: 1.0.30001697
-  resolution: "caniuse-lite@npm:1.0.30001697"
-  checksum: 10c0/c114045be1bb5e610ca14c619157472910401bf59cc4d3050cc64ecd6887345ae8f685a5474c126755fabbd6e02f899b3b743218ab46dcbd5b6880607b67e18e
+  version: 1.0.30001698
+  resolution: "caniuse-lite@npm:1.0.30001698"
+  checksum: 10c0/f3128454e6222b86349b62971501b8ebfc49faa9484398176f674293ea85091e1ca96862bc617dcac4d07850cfc5ef5173ebad03d63aa1197b6a8bf3cc46d745
   languageName: node
   linkType: hard
 
@@ -1813,9 +1813,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.73":
-  version: 1.5.93
-  resolution: "electron-to-chromium@npm:1.5.93"
-  checksum: 10c0/0420b6ebbe9bd3601f1e9ead963fe749d85d7558ecee9347b64023ca2b6d6a4bd833954d782d1b0a0bd94b064dbacece57e8f730b954109e950def89ee970ef7
+  version: 1.5.95
+  resolution: "electron-to-chromium@npm:1.5.95"
+  checksum: 10c0/bacbbd8b4e052c92d9e8fc4ee3d528357338dd2c09339a62a293e023357e3e93cd5106f0f36a03d4f904beae9af0c84df8cd7a7797d77369dddc73564c692a65
   languageName: node
   linkType: hard
 
@@ -2209,9 +2209,9 @@ __metadata:
   linkType: hard
 
 "exponential-backoff@npm:^3.1.1":
-  version: 3.1.1
-  resolution: "exponential-backoff@npm:3.1.1"
-  checksum: 10c0/160456d2d647e6019640bd07111634d8c353038d9fa40176afb7cd49b0548bdae83b56d05e907c2cce2300b81cae35d800ef92fefb9d0208e190fa3b7d6bb579
+  version: 3.1.2
+  resolution: "exponential-backoff@npm:3.1.2"
+  checksum: 10c0/d9d3e1eafa21b78464297df91f1776f7fbaa3d5e3f7f0995648ca5b89c069d17055033817348d9f4a43d1c20b0eab84f75af6991751e839df53e4dfd6f22e844
   languageName: node
   linkType: hard
 
