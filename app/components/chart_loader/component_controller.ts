@@ -234,7 +234,9 @@ export default class extends Controller<HTMLCanvasElement> {
         return tooltipItem.raw !== null;
       };
 
-      const isStacked = data.datasets.some((dataset) => dataset.stack);
+      const isPowerSplitterStack = data.datasets.some(
+        (dataset) => dataset.stack == 'Power-Splitter',
+      );
 
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
@@ -242,12 +244,12 @@ export default class extends Controller<HTMLCanvasElement> {
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
           let result: string =
-            !(isStacked && !tooltipItem.dataset.stack) &&
+            !(isPowerSplitterStack && !tooltipItem.dataset.stack) &&
             data.datasets.length > 1
               ? `${tooltipItem.dataset.label} `
               : '';
 
-          if (isStacked) {
+          if (isPowerSplitterStack) {
             if (tooltipItem.dataset.stack && data.datasets.length) {
               // Sum is the value of the first dataset
               const sum = data.datasets[0].data[
@@ -271,7 +273,7 @@ export default class extends Controller<HTMLCanvasElement> {
         },
 
         footer: (tooltipItems) => {
-          if (isStacked && tooltipItems.length) {
+          if (isPowerSplitterStack && tooltipItems.length) {
             const sum = tooltipItems[0].parsed.y;
 
             if (sum) return this.formattedNumber(sum);
@@ -380,32 +382,44 @@ export default class extends Controller<HTMLCanvasElement> {
     return `${this.formattedNumber(min)} - ${this.formattedNumber(max)}`;
   }
 
-  // Get maximum value of all datasets, rounded up to next integer
+  // Get maximum value of all datasets, summing only positive values per stack
   private maxOf(data: ChartData) {
-    const flatData = this.flatMapped(data).map((value) =>
-      Array.isArray(value) ? Math.max(...value) : value,
-    );
+    const stackSums: Record<string, number[]> = {};
 
-    return Math.ceil(Math.max(...flatData));
+    data.datasets.forEach((dataset) => {
+      const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
+      dataset.data.forEach((value, index) => {
+        if (typeof value === 'number' && value >= 0) {
+          stackSums[stackKey] = stackSums[stackKey] || [];
+          stackSums[stackKey][index] =
+            (stackSums[stackKey][index] || 0) + value;
+        }
+      });
+    });
+
+    // Find the maximum element in the flat array of all summed values
+    const flatData = Object.values(stackSums).flat();
+    return flatData.length > 0 ? Math.ceil(Math.max(...flatData)) : 0;
   }
 
-  // Get minium value of all datasets, rounded down to next integer
+  // Get minimum value of all datasets, summing only negative values per stack
   private minOf(data: ChartData) {
-    const flatData = this.flatMapped(data).map((value) =>
-      Array.isArray(value) ? Math.min(...value) : value,
-    );
+    const stackSums: Record<string, number[]> = {};
 
-    return Math.floor(Math.min(...flatData));
-  }
+    data.datasets.forEach((dataset) => {
+      const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
+      dataset.data.forEach((value, index) => {
+        if (typeof value === 'number' && value <= 0) {
+          stackSums[stackKey] = stackSums[stackKey] || [];
+          stackSums[stackKey][index] =
+            (stackSums[stackKey][index] || 0) + value;
+        }
+      });
+    });
 
-  private flatMapped(data: ChartData) {
-    return (
-      data.datasets
-        // Map all data into a single array
-        .flatMap((dataset) => dataset.data)
-        // Remove NULL values
-        .filter((x) => x) as number[]
-    );
+    // Find the minimum element in the flat array of all summed values
+    const flatData = Object.values(stackSums).flat();
+    return flatData.length > 0 ? Math.floor(Math.min(...flatData)) : 0;
   }
 
   private minOfDataset(dataset: ChartDataset) {
