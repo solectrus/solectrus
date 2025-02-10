@@ -389,7 +389,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
     data.datasets.forEach((dataset) => {
       const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
-      dataset.data.forEach((value, index) => {
+      dataset.data?.forEach((value, index) => {
         const num = Array.isArray(value) ? Math.max(...value) : value;
 
         if (typeof num === 'number' && num > 0) {
@@ -410,7 +410,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
     data.datasets.forEach((dataset) => {
       const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
-      dataset.data.forEach((value, index) => {
+      dataset.data?.forEach((value, index) => {
         const num = Array.isArray(value) ? Math.min(...value) : value;
 
         if (typeof num === 'number' && num < 0) {
