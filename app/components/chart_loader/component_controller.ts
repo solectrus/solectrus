@@ -385,41 +385,43 @@ export default class extends Controller<HTMLCanvasElement> {
   // Get maximum value of all datasets, summing only positive values per stack
   private maxOf(data: ChartData) {
     const stackSums: Record<string, number[]> = {};
+    let maxSum = 0;
 
     data.datasets.forEach((dataset) => {
       const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
       dataset.data.forEach((value, index) => {
-        if (typeof value === 'number' && value >= 0) {
-          stackSums[stackKey] = stackSums[stackKey] || [];
-          stackSums[stackKey][index] =
-            (stackSums[stackKey][index] || 0) + value;
+        const num = Array.isArray(value) ? Math.max(...value) : value;
+
+        if (typeof num === 'number' && num > 0) {
+          stackSums[stackKey] ??= [];
+          stackSums[stackKey][index] = (stackSums[stackKey][index] ?? 0) + num;
+          maxSum = Math.max(maxSum, stackSums[stackKey][index]);
         }
       });
     });
 
-    // Find the maximum element in the flat array of all summed values
-    const flatData = Object.values(stackSums).flat();
-    return flatData.length > 0 ? Math.ceil(Math.max(...flatData)) : 0;
+    return Math.ceil(maxSum);
   }
 
   // Get minimum value of all datasets, summing only negative values per stack
   private minOf(data: ChartData) {
     const stackSums: Record<string, number[]> = {};
+    let minSum = 0;
 
     data.datasets.forEach((dataset) => {
       const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
       dataset.data.forEach((value, index) => {
-        if (typeof value === 'number' && value <= 0) {
-          stackSums[stackKey] = stackSums[stackKey] || [];
-          stackSums[stackKey][index] =
-            (stackSums[stackKey][index] || 0) + value;
+        const num = Array.isArray(value) ? Math.min(...value) : value;
+
+        if (typeof num === 'number' && num < 0) {
+          stackSums[stackKey] ??= [];
+          stackSums[stackKey][index] = (stackSums[stackKey][index] ?? 0) + num;
+          minSum = Math.min(minSum, stackSums[stackKey][index]);
         }
       });
     });
 
-    // Find the minimum element in the flat array of all summed values
-    const flatData = Object.values(stackSums).flat();
-    return flatData.length > 0 ? Math.floor(Math.min(...flatData)) : 0;
+    return Math.floor(minSum);
   }
 
   private minOfDataset(dataset: ChartDataset) {
