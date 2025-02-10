@@ -11,7 +11,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   class Error < RuntimeError
   end
 
-  CUSTOM_SENSOR_COUNT = 10
+  CUSTOM_SENSOR_COUNT = 20
   public_constant :CUSTOM_SENSOR_COUNT
 
   # Custom defined power sensors
