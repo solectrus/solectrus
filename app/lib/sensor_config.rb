@@ -44,28 +44,24 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         wallbox_power_grid
         heatpump_power_grid
         battery_charging_power_grid
-      ] + CUSTOM_SENSORS.map { |sensor_name| :"#{sensor_name}_grid" }
+      ] + CUSTOM_SENSORS.map { :"#{it}_grid" }
     ).freeze
   public_constant :POWER_SPLITTER_SENSORS
 
+  OTHER_SENSORS = %i[
+    inverter_power_forecast
+    grid_export_limit
+    battery_soc
+    car_battery_soc
+    wallbox_car_connected
+    case_temp
+    system_status
+    system_status_ok
+  ].freeze
+  public_constant :OTHER_SENSORS
+
   # Full list of all sensors
-  SENSOR_NAMES =
-    (
-      %i[
-        inverter_power_forecast
-        grid_export_limit
-        battery_soc
-        car_battery_soc
-        wallbox_car_connected
-        case_temp
-        system_status
-        system_status_ok
-        house_power_grid
-        wallbox_power_grid
-        heatpump_power_grid
-        battery_charging_power_grid
-      ] + POWER_SENSORS + POWER_SPLITTER_SENSORS
-    ).freeze
+  SENSOR_NAMES = (POWER_SENSORS + POWER_SPLITTER_SENSORS + OTHER_SENSORS).freeze
   public_constant :SENSOR_NAMES
 
   # List of sensors that can be displayed in the top 10 list
@@ -105,20 +101,14 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   public_constant :CHART_SENSORS
   # TODO: Implement savings, which is currently a redirect to inverter_power
 
-  POWER_SPLITTER_SENSOR_CONFIG = {
-    'INFLUX_SENSOR_WALLBOX_POWER_GRID' => 'power_splitter:wallbox_power_grid',
-    'INFLUX_SENSOR_HEATPUMP_POWER_GRID' => 'power_splitter:heatpump_power_grid',
-    'INFLUX_SENSOR_HOUSE_POWER_GRID' => 'power_splitter:house_power_grid',
-    'INFLUX_SENSOR_BATTERY_CHARGING_POWER_GRID' =>
-      'power_splitter:battery_charging_power_grid',
-    **CUSTOM_SENSORS.to_h do |sensor_name|
-      [
-        "INFLUX_SENSOR_#{sensor_name.upcase}_GRID",
-        "power_splitter:#{sensor_name}_grid",
-      ]
-    end,
-  }.freeze
-  private_constant :POWER_SPLITTER_SENSOR_CONFIG
+  SENSORS_WITH_POWER_SPLITTER = [
+    :wallbox_power,
+    :heatpump_power,
+    :house_power,
+    :battery_charging_power,
+    *CUSTOM_SENSORS,
+  ].freeze
+  private_constant :SENSORS_WITH_POWER_SPLITTER
 
   def initialize(env)
     Rails.logger.info 'Sensor initialization started'
@@ -127,7 +117,14 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     @env = env
 
     env_hash = env.to_h
-    env_hash.reverse_merge!(POWER_SPLITTER_SENSOR_CONFIG)
+    SENSORS_WITH_POWER_SPLITTER.each do |sensor_name|
+      env_name = var_for(sensor_name)
+      next if env_hash[env_name].blank?
+
+      env_hash[
+        "INFLUX_SENSOR_#{sensor_name.upcase}_GRID"
+      ] = "power_splitter:#{sensor_name}_grid"
+    end
 
     SENSOR_NAMES.each do |sensor_name|
       var_sensor = var_for(sensor_name)
@@ -255,27 +252,28 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   private
 
   def define_sensor(sensor_name, value)
-    @sensor_logs << "  - Sensor '#{sensor_name}' #{value ? "mapped to '#{value}'" : 'ignored'}"
+    if value
+      @sensor_logs << "  - Sensor #{sensor_name.upcase} mapped to #{value}"
+    end
 
     define(sensor_name, value)
   end
 
   def define_excluded_sensor_names(value)
     unless value
-      @sensor_logs << "  - Sensor 'house_power' remains unchanged"
+      @sensor_logs << '  - Sensor HOUSE_POWER remains unchanged'
       define(:excluded_sensor_names, [])
       return
     end
 
-    sensors_to_exclude =
-      value.split(',').map { |sensor| sensor.strip.downcase.to_sym }
+    sensors_to_exclude = value.split(',').map { it.strip.downcase.to_sym }
 
     if sensors_to_exclude.any? { |sensor| SENSOR_NAMES.exclude?(sensor) }
       raise Error,
             "Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: #{value}"
     end
 
-    @sensor_logs << "  - Sensor 'house_power' excluded #{sensors_to_exclude.join(', ')}"
+    @sensor_logs << "  - Sensor HOUSE_POWER subtracts #{sensors_to_exclude.map(&:upcase).join(', ')}"
     define(:excluded_sensor_names, sensors_to_exclude)
   end
 
