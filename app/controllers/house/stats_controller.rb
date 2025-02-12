@@ -24,6 +24,7 @@ class House::StatsController < ApplicationController
     Calculator::Now.new(
       [
         :system_status,
+        :system_status_ok,
         :house_power,
         :house_power_grid,
         :grid_import_power,

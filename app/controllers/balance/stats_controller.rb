@@ -41,6 +41,7 @@ class Balance::StatsController < ApplicationController
         :car_battery_soc,
         :battery_soc,
         :system_status,
+        :system_status_ok,
         :wallbox_car_connected,
         :case_temp,
       ],
