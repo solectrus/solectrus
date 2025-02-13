@@ -143,7 +143,7 @@ export default class extends Controller<HTMLCanvasElement> {
       // Draw x-axis in black
       options.scales.y.grid = {
         color: (context) => {
-          if (context.tick.value === 0) return '#000';
+          return context.tick.value === 0 ? '#000' : 'rgba(0, 0, 0, 0.1)';
         },
       };
     }
