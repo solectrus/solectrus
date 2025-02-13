@@ -23,6 +23,13 @@ class ChartData::Base
     {}
   end
 
+  def suggested_max
+  end
+
+  def suggested_min
+    0
+  end
+
   private
 
   def data

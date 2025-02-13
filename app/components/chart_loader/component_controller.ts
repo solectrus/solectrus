@@ -128,20 +128,6 @@ export default class extends Controller<HTMLCanvasElement> {
     this.maxValue = this.maxOf(data);
     this.minValue = this.minOf(data);
 
-    if (options.scales.y?.suggestedMax) {
-      options.scales.y.max = +options.scales.y.suggestedMax;
-    } else if (this.maxValue > 1000) {
-      options.scales.y.max = Math.ceil(this.maxValue / 1000) * 1000;
-    }
-
-    if (options.scales.y?.suggestedMin) {
-      options.scales.y.min = +options.scales.y.suggestedMin;
-    } else if (this.minValue < -1000) {
-      options.scales.y.min = Math.floor(this.minValue / 1000) * 1000;
-    } else if (this.minValue >= 0) {
-      options.scales.y.min = 0;
-    }
-
     if (this.minValue < 0) {
       // Draw x-axis in black
       options.scales.y.grid = {
@@ -282,7 +268,7 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
-    if (this.maxValue >= this.minValue)
+    if (this.maxValue > this.minValue)
       data.datasets.forEach((dataset: ChartDataset) => {
         // Non-Overlapping line charts should have a larger gradient (means lower opacity)
         const minAlpha =

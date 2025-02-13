@@ -157,8 +157,6 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             ],
         },
         y: {
-          max: max_y,
-          min: min_y,
           suggestedMax: suggested_max_y,
           suggestedMin: suggested_min_y,
           ticks: {
@@ -183,18 +181,11 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     end
   end
 
-  def max_y
-  end
-
   def suggested_max_y
-    100 if sensor.in?(%i[battery_soc car_battery_soc self_consumption autarky])
-  end
-
-  def min_y
-    0 if sensor.in?(%i[battery_soc car_battery_soc self_consumption autarky])
+    data.suggested_max
   end
 
   def suggested_min_y
-    sensor == :case_temp ? 10 : nil
+    data.suggested_min
   end
 end
