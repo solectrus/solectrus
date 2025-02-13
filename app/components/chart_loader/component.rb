@@ -161,7 +161,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
           suggestedMin: suggested_min_y,
           ticks: {
             beginAtZero: true,
-            maxTicksLimit: 4,
+            maxTicksLimit: 6,
           },
         },
       },
