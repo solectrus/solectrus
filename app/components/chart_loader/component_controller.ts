@@ -45,6 +45,14 @@ Chart.register(
   CrosshairPlugin,
 );
 
+// Fix for crosshair plugin drawing over the chart and tooltip
+// https://github.com/AbelHeinsbroek/chartjs-plugin-crosshair/issues/48#issuecomment-1926758048
+const afterDraw = CrosshairPlugin.afterDraw.bind(CrosshairPlugin);
+CrosshairPlugin.afterDraw = () => {};
+CrosshairPlugin.afterDatasetsDraw = (...args: unknown[]): void => {
+  afterDraw(...args);
+};
+
 export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
