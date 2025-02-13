@@ -425,17 +425,17 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private minOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data
-      .map((value) => (Array.isArray(value) ? Math.min(...value) : value))
-      .filter((x) => x) as number[];
+    const mapped = dataset.data.map((value) =>
+      Array.isArray(value) ? Math.min(...value) : (value as number),
+    );
 
     return Math.min(...mapped);
   }
 
   private maxOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data
-      .map((value) => (Array.isArray(value) ? Math.max(...value) : value))
-      .filter((x) => x) as number[];
+    const mapped = dataset.data.map((value) =>
+      Array.isArray(value) ? Math.max(...value) : (value as number),
+    );
 
     return Math.max(...mapped);
   }
