@@ -57,24 +57,12 @@ turbo-stream action="morph" target= frame_id('stats') children-only= true
                                                      calculator:,
                                                      timeframe: do |balance|
               ruby:
-                if timeframe.now?
-                  # Fixed order, because changing order can't be animated
-                  number = 0
-                  SensorConfig.x.included_custom_sensor_names.each do |sensor|
+                SensorConfig.x.included_custom_sensor_names
+                  .sort_by { |sensor| calculator.public_send(sensor).to_f }
+                  .each.with_index(0) do |sensor, index|
                     balance.with_segment sensor,
                                          inline: true,
-                                         color_index: SensorConfig.x.existing_custom_sensor_count - number
-                    number += 1
+                                         color_index: SensorConfig.x.existing_custom_sensor_count - index
                   end
-                else
-                  # Order by value (ascending)
-                  SensorConfig.x.included_custom_sensor_names
-                    .sort_by { |sensor| calculator.public_send(sensor).to_f }
-                    .each.with_index(0) do |sensor, index|
-                      balance.with_segment sensor,
-                                          inline: true,
-                                          color_index: SensorConfig.x.existing_custom_sensor_count - index
-                    end
-                end
 
               - balance.with_segment :house_power_without_custom, inline: true
