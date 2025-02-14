@@ -24,9 +24,12 @@ class ChartData::Base
   end
 
   def suggested_max
+    # By default, the y-axis should at least reach 50
+    50
   end
 
   def suggested_min
+    # By default, the y-axis should start at 0 (no negative values)
     0
   end
 
