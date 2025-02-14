@@ -128,13 +128,13 @@ export default class extends Controller<HTMLCanvasElement> {
       },
     };
 
+    this.maxValue = this.maxOf(data);
+    this.minValue = this.minOf(data);
+
     // Format numbers on y-axis
     if (options.scales.y.ticks)
       options.scales.y.ticks.callback = (value) =>
-        typeof value === 'number' ? this.formattedNumber(value, true) : value;
-
-    this.maxValue = this.maxOf(data);
-    this.minValue = this.minOf(data);
+        typeof value === 'number' ? this.formattedNumber(value, 'axis') : value;
 
     if (this.minValue < 0) {
       // Draw x-axis in black
@@ -352,20 +352,51 @@ export default class extends Controller<HTMLCanvasElement> {
       return JSON.parse(this.optionsTarget.textContent);
   }
 
-  private formattedNumber(number: number, forAxis = false) {
+  private formattedNumber(
+    number: number,
+    target: 'axis' | 'tooltip' = 'tooltip',
+  ) {
+    let minValue: number;
+    let maxValue: number;
+
+    if (this.chart) {
+      minValue = this.chart.scales.y.min;
+      maxValue = this.chart.scales.y.max;
+    } else {
+      minValue = this.minValue;
+      maxValue = this.maxValue;
+    }
+
     let unitValuePrefix = '';
 
-    const kilo = forAxis
-      ? this.maxValue > 1000 || this.minValue < -1000
-      : number > 1000 || number < -1000;
+    const kilo =
+      target === 'axis'
+        ? maxValue > 1000 || minValue < -1000
+        : number > 1000 || number < -1000;
     if (kilo) {
       number /= 1000.0;
       unitValuePrefix = 'k';
     }
 
-    const decimals = kilo && !forAxis ? 3 : 0;
+    let decimals: number;
+    if (kilo) {
+      switch (target) {
+        case 'tooltip':
+          // On tooltip, we always want a precise value
+          decimals = 3;
+          break;
+        case 'axis':
+          // On axis, a single decimal is required to distinguish between values
+          decimals = 1;
+          break;
+      }
+    } else {
+      // Without kilo, we have integers, so no decimals required
+      decimals = 0;
+    }
+
     const numberAsString = new Intl.NumberFormat(navigator.language, {
-      minimumFractionDigits: decimals,
+      minimumFractionDigits: 0,
       maximumFractionDigits: decimals,
     }).format(number);
 
