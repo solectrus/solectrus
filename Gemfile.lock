@@ -313,7 +313,7 @@ GEM
       io-console (~> 0.5)
     request_store (1.7.0)
       rack (>= 1.4)
-    rexml (3.4.0)
+    rexml (3.4.1)
     rorvswild (1.9.0)
     rouge (4.5.1)
     rspec (3.13.0)
@@ -364,6 +364,9 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.72.1, < 2.0)
       rubocop-ast (>= 1.38.0, < 2.0)
+    rubocop-rake (0.7.1)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.72.1)
     rubocop-rspec (3.4.0)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
@@ -485,6 +488,7 @@ DEPENDENCIES
   rubocop-capybara
   rubocop-performance
   rubocop-rails
+  rubocop-rake
   rubocop-rspec
   rubocop-rspec_rails
   rubocop-thread_safety

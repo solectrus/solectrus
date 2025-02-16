@@ -1,5 +1,6 @@
-# Exclude models and controllers from gems
+desc 'List routes like "rails routes", but exclude models and controllers from gems'
 # https://github.com/ctran/annotate_models/issues/842
+
 task routes: :environment do
   # :nocov:
   Rails.application.eager_load!

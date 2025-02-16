@@ -102,6 +102,9 @@ group :development, :test do
   # Thread-safety checks via static analysis (https://github.com/rubocop/rubocop-thread_safety)
   gem 'rubocop-thread_safety', require: false
 
+  # A RuboCop plugin for Rake (https://github.com/rubocop/rubocop-rake)
+  gem 'rubocop-rake', require: false
+
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
 
