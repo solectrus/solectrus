@@ -340,12 +340,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     end
     return unless house_power_without_custom&.nonzero?
 
-    custom_grid_total =
-      SensorConfig.x.existing_custom_sensor_names.sum do |sensor_name|
-        public_send(:"#{sensor_name}_grid").to_f
-      end
-
-    (house_power_grid - custom_grid_total) / house_power_without_custom * 100
+    house_power_without_custom_grid.fdiv(house_power_without_custom) * 100
   end
 
   def house_without_custom_costs
@@ -362,18 +357,27 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     define_method :"#{sensor_name.to_s.sub('_power', '')}_costs" do
       return unless house_power&.nonzero? && house_costs
 
-      custom_power = public_send(sensor_name)
-
-      custom_power.to_f / house_power * house_costs
+      safe_power_value(sensor_name).fdiv(house_power) * house_costs
     end
 
     define_method :"#{sensor_name}_grid_ratio" do
-      custom_power = public_send(sensor_name)
-      custom_power_grid = public_send(:"#{sensor_name}_grid")
+      custom_power_grid = safe_grid_power_value(sensor_name)
       return unless custom_power_grid
 
+      custom_power = safe_power_value(sensor_name)
       custom_power.zero? ? 0 : custom_power_grid.fdiv(custom_power) * 100
     end
+  end
+
+  def custom_power_grid_total
+    @custom_power_grid_total ||=
+      SensorConfig.x.included_custom_sensor_names.sum do |sensor_name|
+        safe_grid_power_value(sensor_name)
+      end
+  end
+
+  def house_power_without_custom_grid
+    [house_power_grid - custom_power_grid_total, 0].max
   end
 
   def time
@@ -424,5 +428,9 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     (
       sections.each_with_index.sum { |_section, index| yield(index) } / 1_000.0
     ).round(2)
+  end
+
+  def safe_grid_power_value(sensor_name)
+    public_send(:"#{sensor_name}_grid") || 0
   end
 end
