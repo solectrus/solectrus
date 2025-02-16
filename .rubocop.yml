@@ -1,10 +1,13 @@
 require:
-  - rubocop-performance
-  - rubocop-rails
   - rubocop-rspec
   - rubocop-rspec_rails
   - rubocop-capybara
   - rubocop-thread_safety
+
+plugins:
+  - rubocop-performance
+  - rubocop-rails
+  - rubocop-rake
 
 AllCops:
   TargetRubyVersion: 3.4
