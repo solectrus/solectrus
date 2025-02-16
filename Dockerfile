@@ -8,9 +8,6 @@ FROM ghcr.io/ledermann/rails-base-final:3.4.1-alpine
 LABEL maintainer="georg@ledermann.dev"
 LABEL org.opencontainers.image.description="SOLECTRUS Photovoltaic Dashboard"
 
-# Workaround to trigger builder's ONBUILDs to finish:
-COPY --from=builder /etc/alpine-release /tmp/dummy
-
 USER app
 
 # Entrypoint prepares the database.
