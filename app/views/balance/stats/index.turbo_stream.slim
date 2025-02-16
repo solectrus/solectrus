@@ -7,9 +7,8 @@
                                    status: calculator.system_status,
                                    status_ok: calculator.system_status_ok
 
-turbo-stream action="update" method="morph" target= frame_id('stats')
-  template
-    - if timeframe.now?
-      = render StatsNow::Component.new calculator:, sensor:
-    - else
-      = render StatsRange::Component.new calculator:, timeframe:, sensor:
+= turbo_stream.update frame_id('stats'), method: :morph do
+  - if timeframe.now?
+    = render StatsNow::Component.new calculator:, sensor:
+  - else
+    = render StatsRange::Component.new calculator:, timeframe:, sensor:

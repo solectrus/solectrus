@@ -21,7 +21,7 @@
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - else
-  = turbo_frame_tag 'top10',
+  = tag.turbo_frame id: 'top10',
                     target: '_top',
                     src: top10_chart_path(permitted_params.to_hash.symbolize_keys) do
     .h-96

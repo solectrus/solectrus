@@ -23,5 +23,5 @@
                                 }
 
 = turbo_stream_from "prices_#{name}"
-= turbo_frame_tag 'list' do
+= tag.turbo_frame id: 'list' do
   = render 'list', prices: @prices, name:
