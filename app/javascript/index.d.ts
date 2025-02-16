@@ -25,9 +25,5 @@ declare module '@hotwired/turbo' {
     targetElements: Element[];
   }
 
-  export namespace StreamActions {
-    export let morph: (this: StreamActionContext) => void;
-  }
-
   export function visit(url: string, options?): void;
 }
