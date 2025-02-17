@@ -80,12 +80,12 @@ class SummaryCorrector
 
   def scale_and_adjust(grid_powers, consumptions)
     factor = grid_import_power.fdiv(grid_powers.values.sum)
-    adjusted = {}
 
-    # Limit by consumption
-    grid_powers.each do |key, value|
-      adjusted[key] = [value * factor, consumptions[key]].min
-    end
+    adjusted =
+      grid_powers.to_h do |key, value|
+        # Scale, but limit to consumption
+        [key, (value * factor).clamp(0, consumptions[key])]
+      end
 
     # Calculate and distribute remaining power
     remaining = grid_import_power - adjusted.values.sum
