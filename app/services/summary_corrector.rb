@@ -12,12 +12,13 @@
 #
 class SummaryCorrector
   def initialize(attributes)
-    @grid_import_power = attributes[:grid_import_power] || 0
+    @grid_import_power = attributes[:grid_import_power]
     @power_pairs = extract_power_pairs(attributes.except(:grid_import_power))
   end
 
   attr_reader :grid_import_power, :power_pairs
 
+  # Return the corrected grid attributes
   def adjusted
     return @adjusted if defined?(@adjusted)
 
@@ -53,7 +54,6 @@ class SummaryCorrector
     return if grid_powers.empty?
 
     grid_power_total = grid_powers.values.sum
-    return if grid_power_total == grid_import_power
 
     consumptions =
       power_pairs
@@ -79,7 +79,7 @@ class SummaryCorrector
   end
 
   def scale_and_adjust(grid_powers, consumptions)
-    factor = grid_import_power.fdiv(grid_powers.values.sum)
+    factor = grid_import_power&.fdiv(grid_powers.values.sum) || 1
 
     adjusted =
       grid_powers.to_h do |key, value|
@@ -88,8 +88,10 @@ class SummaryCorrector
       end
 
     # Calculate and distribute remaining power
-    remaining = grid_import_power - adjusted.values.sum
-    distribute_remaining(adjusted, remaining, consumptions)
+    if grid_import_power
+      remaining = grid_import_power - adjusted.values.sum
+      distribute_remaining(adjusted, remaining, consumptions)
+    end
 
     adjusted.each { |key, value| power_pairs[key][:grid] = value.round(1) }
   end

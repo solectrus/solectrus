@@ -335,6 +335,31 @@ describe SummaryCorrector do
           )
         end
       end
+
+      context 'when grid values are invalid (larger as consumption)' do
+        let(:params) do
+          {
+            grid_import_power: 800,
+            battery_charging_power: 100,
+            battery_charging_power_grid: 0,
+            house_power: 100,
+            house_power_grid: 200,
+            heatpump_power: 200,
+            heatpump_power_grid: 300,
+            wallbox_power: 200,
+            wallbox_power_grid: 300,
+          }
+        end
+
+        it 'adjusts grid values' do
+          is_expected.to eq(
+            battery_charging_power_grid: 100,
+            house_power_grid: 100,
+            heatpump_power_grid: 200,
+            wallbox_power_grid: 200,
+          )
+        end
+      end
     end
   end
 end
