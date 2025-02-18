@@ -3,24 +3,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     super()
 
     @timeframe = timeframe
-    @calculations =
-      calculations ||
-        [
-          Queries::Calculation.new(:house_power, :sum, :sum),
-          Queries::Calculation.new(:inverter_power, :sum, :sum),
-          Queries::Calculation.new(:wallbox_power, :sum, :sum),
-          Queries::Calculation.new(:grid_import_power, :sum, :sum),
-          Queries::Calculation.new(:grid_export_power, :sum, :sum),
-          Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
-          Queries::Calculation.new(:battery_charging_power, :sum, :sum),
-          Queries::Calculation.new(:heatpump_power, :sum, :sum),
-          # --- Power splitter ----
-          Queries::Calculation.new(:house_power_grid, :sum, :sum),
-          Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
-          Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
-          Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
-        ]
-
+    @calculations = calculations || default_calculations
     data = sections
 
     build_context(data)
@@ -28,26 +11,52 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   attr_reader :timeframe, :calculations
 
+  def default_calculations
+    [
+      Queries::Calculation.new(:house_power, :sum, :sum),
+      Queries::Calculation.new(:inverter_power, :sum, :sum),
+      Queries::Calculation.new(:wallbox_power, :sum, :sum),
+      Queries::Calculation.new(:grid_import_power, :sum, :sum),
+      Queries::Calculation.new(:grid_export_power, :sum, :sum),
+      Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
+      Queries::Calculation.new(:battery_charging_power, :sum, :sum),
+      Queries::Calculation.new(:heatpump_power, :sum, :sum),
+      # --- Power splitter ----
+      Queries::Calculation.new(:house_power_grid, :sum, :sum),
+      Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
+      Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
+      Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
+    ]
+  end
+
+  # Build dynamic methods based on sections data
   def build_context(data)
     build_method(:sections) { data }
 
-    build_method_from_array(:feed_in_tariff, data, :to_f)
-    build_method_from_array(:electricity_price, data, :to_f)
+    # Methods with float conversion
+    %i[
+      feed_in_tariff
+      electricity_price
+      inverter_power
+      wallbox_power
+      grid_import_power
+      grid_export_power
+      battery_discharging_power
+      battery_charging_power
+      heatpump_power
+    ].each { |name| build_method_from_array(name, data, :to_f) }
 
-    build_method_from_array(:inverter_power, data, :to_f)
     build_house_power_from_array(data)
-    build_method_from_array(:wallbox_power, data, :to_f)
-    build_method_from_array(:grid_import_power, data, :to_f)
-    build_method_from_array(:grid_export_power, data, :to_f)
-    build_method_from_array(:battery_discharging_power, data, :to_f)
-    build_method_from_array(:battery_charging_power, data, :to_f)
-    build_method_from_array(:heatpump_power, data, :to_f)
 
-    build_method_from_array(:house_power_grid, data)
-    build_method_from_array(:wallbox_power_grid, data)
-    build_method_from_array(:heatpump_power_grid, data)
-    build_method_from_array(:battery_charging_power_grid, data)
+    # Methods without conversion
+    %i[
+      house_power_grid
+      wallbox_power_grid
+      heatpump_power_grid
+      battery_charging_power_grid
+    ].each { |name| build_method_from_array(name, data) }
 
+    # Build methods for custom sensors
     SensorConfig.x.existing_custom_sensor_names.each do |sensor_name|
       build_method_from_array(sensor_name, data)
       build_method_from_array(:"#{sensor_name}_grid", data)
@@ -58,6 +67,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method_from_array(:inverter_power_forecast, data, :to_f)
   end
 
+  # Builds house power methods subtracting excluded sensors
   def build_house_power_from_array(data)
     values =
       data.map do |value|
@@ -170,13 +180,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   def battery_charging_power_grid_ratio
     return unless battery_charging_power_grid
 
-    if battery_charging_power.zero?
-      0
-    else
-      (
-        battery_charging_power_grid.fdiv(battery_charging_power) * 100
-      ).round.clamp(0, 100)
-    end
+    calculate_ratio(battery_charging_power_grid, battery_charging_power)
   end
 
   def battery_charging_power_pv_ratio
@@ -207,11 +211,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   def wallbox_power_grid_ratio
     return unless wallbox_power_grid
 
-    if wallbox_power.zero?
-      0
-    else
-      (wallbox_power_grid.fdiv(wallbox_power) * 100).round.clamp(0, 100)
-    end
+    calculate_ratio(wallbox_power_grid, wallbox_power)
   end
 
   def wallbox_power_pv_ratio
@@ -249,11 +249,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   def heatpump_power_grid_ratio
     return unless heatpump_power_grid
 
-    if heatpump_power.zero?
-      0
-    else
-      (heatpump_power_grid.fdiv(heatpump_power) * 100).round.clamp(0, 100)
-    end
+    calculate_ratio(heatpump_power_grid, heatpump_power)
   end
 
   def heatpump_power_pv_ratio
@@ -293,11 +289,9 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
       return SensorConfig.x.single_consumer? ? grid_quote : nil
     end
 
-    if house_power.zero?
-      0
-    else
-      (house_power_grid.fdiv(house_power) * 100).round.clamp(0, 100)
-    end
+    return 0 if house_power.zero?
+
+    calculate_ratio(house_power_grid, house_power)
   end
 
   def house_power_pv_ratio
@@ -351,25 +345,26 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     house_power_without_custom / house_power * house_costs
   end
 
+  # Dynamic custom sensor methods
   SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
     base = sensor_name.to_s.sub('_power', '')
 
-    define_method :"#{base}_costs_grid" do # def custom_01_costs_grid
-      grid_array = public_send :"#{sensor_name}_grid_array"
+    define_method(:"#{base}_costs_grid") do # def custom_01_costs_grid
+      grid_array = public_send(:"#{sensor_name}_grid_array")
 
       sections.each_with_index.sum do |section, index|
         grid_array[index].to_f * section[:electricity_price] / 1000
       end
     end
 
-    define_method :"#{base}_costs_pv" do # def custom_01_costs_pv
+    define_method(:"#{base}_costs_pv") do # def custom_01_costs_pv
       return 0 unless Setting.opportunity_costs
 
-      grid_ratio = public_send :"#{sensor_name}_grid_ratio"
+      grid_ratio = public_send(:"#{sensor_name}_grid_ratio")
       return unless grid_ratio
 
-      array = public_send :"#{sensor_name}_array"
-      grid_array = public_send :"#{sensor_name}_grid_array"
+      array = public_send(:"#{sensor_name}_array")
+      grid_array = public_send(:"#{sensor_name}_grid_array")
 
       sections.each_with_index.sum do |section, index|
         (array[index] - grid_array[index].to_f) *
@@ -377,17 +372,15 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
       end
     end
 
-    define_method :"#{base}_costs" do # def custom_01_costs
-      costs_grid = public_send :"#{base}_costs_grid"
-      costs_pv = public_send :"#{base}_costs_pv"
+    define_method(:"#{base}_costs") do # def custom_01_costs
+      costs_grid = public_send(:"#{base}_costs_grid")
+      costs_pv = public_send(:"#{base}_costs_pv")
       return unless costs_grid && costs_pv
 
       costs_grid + costs_pv
     end
 
-    # Example:
-    # def custom_power_01_grid_ratio
-    define_method :"#{sensor_name}_grid_ratio" do
+    define_method(:"#{sensor_name}_grid_ratio") do # def custom_01_grid_ratio
       custom_power_grid = safe_grid_power_value(sensor_name)
       return unless custom_power_grid
 
@@ -419,6 +412,14 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   private
+
+  def calculate_ratio(grid_value, power_value)
+    if power_value.zero?
+      0
+    else
+      (grid_value.fdiv(power_value) * 100).round.clamp(0, 100)
+    end
+  end
 
   def price_sections
     DateInterval.new(
