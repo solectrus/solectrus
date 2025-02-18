@@ -46,7 +46,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
     corrector =
       SummaryCorrector.new(
         attributes
-          .slice(sensor_names.map { :"sum_#{it}" })
+          .slice(*sensor_names.map { :"sum_#{it}" })
           .compact
           .transform_keys { it.to_s.delete_prefix('sum_').to_sym },
       )

@@ -71,7 +71,7 @@ class SummaryCorrector
     total_consumption = consumptions.values.sum
     return if total_consumption.zero?
 
-    factor = grid_import_power.fdiv(total_consumption)
+    factor = grid_import_power&.fdiv(total_consumption) || 1
 
     consumptions.each_key do |key|
       power_pairs[key][:grid] = (consumptions[key] * factor).round(1)
