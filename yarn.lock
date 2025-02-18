@@ -2393,9 +2393,9 @@ __metadata:
   linkType: hard
 
 "flatted@npm:^3.2.9":
-  version: 3.3.2
-  resolution: "flatted@npm:3.3.2"
-  checksum: 10c0/24cc735e74d593b6c767fe04f2ef369abe15b62f6906158079b9874bdb3ee5ae7110bb75042e70cd3f99d409d766f357caf78d5ecee9780206f5fdc5edbad334
+  version: 3.3.3
+  resolution: "flatted@npm:3.3.3"
+  checksum: 10c0/e957a1c6b0254aa15b8cce8533e24165abd98fadc98575db082b786b5da1b7d72062b81bfdcd1da2f4d46b6ed93bec2434e62333e9b4261d79ef2e75a10dd538
   languageName: node
   linkType: hard
 
@@ -4324,11 +4324,11 @@ __metadata:
   linkType: hard
 
 "stacktrace-parser@npm:^0.1.10":
-  version: 0.1.10
-  resolution: "stacktrace-parser@npm:0.1.10"
+  version: 0.1.11
+  resolution: "stacktrace-parser@npm:0.1.11"
   dependencies:
     type-fest: "npm:^0.7.1"
-  checksum: 10c0/f9c9cd55b0642a546e5f0516a87124fc496dcc2c082b96b156ed094c51e423314795cd1839cd4c59026349cf392d3414f54fc42165255602728588a58a9f72d3
+  checksum: 10c0/4633d9afe8cd2f6c7fb2cebdee3cc8de7fd5f6f9736645fd08c0f66872a303061ce9cc0ccf46f4216dc94a7941b56e331012398dc0024dc25e46b5eb5d4ff018
   languageName: node
   linkType: hard
 
