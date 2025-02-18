@@ -352,14 +352,41 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
-    # Example:
-    # def custom_01_costs
-    define_method :"#{sensor_name.to_s.sub('_power', '')}_costs" do
-      return unless house_power&.nonzero? && house_costs
+    base = sensor_name.to_s.sub('_power', '')
 
-      safe_power_value(sensor_name).fdiv(house_power) * house_costs
+    define_method :"#{base}_costs_grid" do # def custom_01_costs_grid
+      grid_array = public_send :"#{sensor_name}_grid_array"
+
+      sections.each_with_index.sum do |section, index|
+        grid_array[index].to_f * section[:electricity_price] / 1000
+      end
     end
 
+    define_method :"#{base}_costs_pv" do # def custom_01_costs_pv
+      return 0 unless Setting.opportunity_costs
+
+      grid_ratio = public_send :"#{sensor_name}_grid_ratio"
+      return unless grid_ratio
+
+      array = public_send :"#{sensor_name}_array"
+      grid_array = public_send :"#{sensor_name}_grid_array"
+
+      sections.each_with_index.sum do |section, index|
+        (array[index] - grid_array[index].to_f) *
+          section[:feed_in_tariff].fdiv(1000)
+      end
+    end
+
+    define_method :"#{base}_costs" do # def custom_01_costs
+      costs_grid = public_send :"#{base}_costs_grid"
+      costs_pv = public_send :"#{base}_costs_pv"
+      return unless costs_grid && costs_pv
+
+      costs_grid + costs_pv
+    end
+
+    # Example:
+    # def custom_power_01_grid_ratio
     define_method :"#{sensor_name}_grid_ratio" do
       custom_power_grid = safe_grid_power_value(sensor_name)
       return unless custom_power_grid
