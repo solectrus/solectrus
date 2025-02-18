@@ -367,7 +367,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
       grid_array = public_send(:"#{sensor_name}_grid_array")
 
       sections.each_with_index.sum do |section, index|
-        (array[index] - grid_array[index].to_f) *
+        (array[index].to_f - grid_array[index].to_f) *
           section[:feed_in_tariff].fdiv(1000)
       end
     end
