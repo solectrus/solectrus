@@ -16,7 +16,7 @@
       = tag.turbo_frame id: frame_id('status')
 
 - content_for :bottom_nav do
-  = tag.turbo_frame frame_id('second-nav-mobile'), target: '_top' do
+  = tag.turbo_frame id: frame_id('second-nav-mobile'), target: '_top' do
     = render Nav::Sub::Component.new do |c|
       = c.with_items nav_items
 
