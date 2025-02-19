@@ -5,6 +5,7 @@ class MenuItem::Component < ViewComponent::Base
     data: {},
     sensor: nil,
     icon: nil,
+    icon_only: false,
     text: true,
     current: false
   )
@@ -15,6 +16,7 @@ class MenuItem::Component < ViewComponent::Base
     @sensor = sensor
 
     @icon = icon
+    @icon_only = icon_only
     @text = text
     @current = current
   end
@@ -23,7 +25,7 @@ class MenuItem::Component < ViewComponent::Base
     href&.start_with?('http') ? '_blank' : nil
   end
 
-  attr_reader :name, :href, :icon, :text, :current, :data, :sensor
+  attr_reader :name, :href, :icon, :icon_only, :text, :current, :data, :sensor
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
@@ -61,7 +63,11 @@ class MenuItem::Component < ViewComponent::Base
   end
 
   def render_inner(with_icon:)
-    tag.span class: 'flex items-center gap-3' do
+    tag.span class: 'flex items-center gap-3',
+             title: name,
+             data: {
+               controller: 'tippy',
+             } do
       if with_icon
         concat(
           if icon
@@ -74,9 +80,13 @@ class MenuItem::Component < ViewComponent::Base
 
       if text
         concat(
-          tag.span(class: ['flex-1 text-left', ('font-medium' if with_icon)]) do
-            name
-          end,
+          tag.span(
+            class: [
+              'flex-1 text-left',
+              ('font-medium' if with_icon),
+              ('md:hidden' if icon_only),
+            ],
+          ) { name },
         )
       end
     end

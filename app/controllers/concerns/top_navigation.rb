@@ -47,12 +47,10 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def house_item
       {
         name: t('layout.house'),
-        icon: 'home',
+        icon: 'house-crack',
+        icon_only: true,
         href: house_home_path(sensor: 'house_power', timeframe:),
         current: helpers.controller_namespace == 'house',
-        data: {
-          controller: 'tippy',
-        },
       }
     end
 
@@ -60,11 +58,9 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.essentials'),
         icon: 'grip',
+        icon_only: true,
         href: essentials_path,
         current: helpers.controller.is_a?(EssentialsController),
-        data: {
-          controller: 'tippy',
-        },
       }
     end
 
@@ -72,6 +68,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.top10'),
         icon: 'trophy',
+        icon_only: true,
         href:
           top10_path(
             sensor:
@@ -86,9 +83,6 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
             calc: 'sum',
           ),
         current: helpers.controller.is_a?(Top10Controller),
-        data: {
-          controller: 'tippy',
-        },
       }
     end
 
