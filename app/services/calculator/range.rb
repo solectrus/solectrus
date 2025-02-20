@@ -397,7 +397,10 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def house_power_without_custom_grid
-    [house_power_grid - custom_power_grid_total, 0].max
+    (house_power_grid - custom_power_grid_total).clamp(
+      0,
+      house_power_without_custom,
+    )
   end
 
   def time
