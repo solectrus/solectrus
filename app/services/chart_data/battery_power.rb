@@ -100,9 +100,9 @@ class ChartData::BatteryPower < ChartData::Base
   def style(sensor)
     super().merge(
       backgroundColor: COLORS[sensor],
-      stack: 'BatteryStack',
+      stack: splitting_allowed? ? 'BatteryStack' : nil,
       minBarLength: 0,
-    )
+    ).compact
   end
 
   def splitting_allowed?
