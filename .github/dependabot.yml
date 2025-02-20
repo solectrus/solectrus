@@ -66,10 +66,6 @@ updates:
       hotwired:
         patterns:
           - '@hotwired*'
-      charts:
-        patterns:
-          - 'chart.js'
-          - 'chartkick'
       fortawesome:
         patterns:
           - '@fortawesome/*'
