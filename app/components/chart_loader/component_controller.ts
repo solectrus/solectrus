@@ -49,8 +49,13 @@ Chart.register(
 // https://github.com/AbelHeinsbroek/chartjs-plugin-crosshair/issues/48#issuecomment-1926758048
 const afterDraw = CrosshairPlugin.afterDraw.bind(CrosshairPlugin);
 CrosshairPlugin.afterDraw = () => {};
-CrosshairPlugin.afterDatasetsDraw = (...args: unknown[]): void => {
-  afterDraw(...args);
+CrosshairPlugin.afterDatasetsDraw = (
+  chart: Chart,
+  args: unknown,
+  options: unknown,
+): void => {
+  // @ts-expect-error Property does not exist on type
+  if (chart?.crosshair) afterDraw(chart, args, options);
 };
 
 export default class extends Controller<HTMLCanvasElement> {
