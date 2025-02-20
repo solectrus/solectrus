@@ -93,7 +93,9 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
         raw_chart.dig("#{sensor}_grid", index)&.second.to_f
       end
 
-    (house_power_grid - custom_total_grid).clamp(0, nil)
+    other_power = other_power(raw_chart, index)
+
+    (house_power_grid - custom_total_grid).clamp(0, other_power)
   end
 
   def other_power_pv(raw_chart, index)
