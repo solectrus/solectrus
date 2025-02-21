@@ -76,17 +76,19 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
   end
 
   def other_power(raw_chart, index)
-    house_power = raw_chart[:house_power][index]&.second
+    house_power = raw_chart.dig(:house_power, index)&.second
+    return unless house_power
+
     excluded_sensor_names
-      .reduce(house_power) do |acc, elem|
-        acc.to_f - raw_chart.dig(elem, index)&.second.to_f
+      .reduce(house_power) do |acc, sensor|
+        acc - raw_chart.dig(sensor, index)&.second.to_f
       end
       .clamp(0, nil)
   end
 
   def other_power_grid(raw_chart, index)
-    house_power_grid = raw_chart[:house_power_grid][index]&.second
-    return 0 unless house_power_grid
+    house_power_grid = raw_chart.dig(:house_power_grid, index)&.second
+    return unless house_power_grid
 
     custom_total_grid =
       SensorConfig.x.included_custom_sensor_names.sum do |sensor|
@@ -99,7 +101,7 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
   end
 
   def other_power_pv(raw_chart, index)
-    other_power(raw_chart, index) - other_power_grid(raw_chart, index)
+    other_power(raw_chart, index)&.- other_power_grid(raw_chart, index)
   end
 
   def excluded_sensor_names
