@@ -304,7 +304,7 @@ GEM
     rdoc (6.12.0)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
-    redis (5.3.0)
+    redis (5.4.0)
       redis-client (>= 0.22.0)
     redis-client (0.23.2)
       connection_pool
@@ -314,7 +314,7 @@ GEM
     request_store (1.7.0)
       rack (>= 1.4)
     rexml (3.4.1)
-    rorvswild (1.9.0)
+    rorvswild (1.9.1)
     rouge (4.5.1)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
@@ -402,7 +402,7 @@ GEM
       spring (>= 0.9.1)
     stimulus-rails (1.3.4)
       railties (>= 6.0.0)
-    stringio (3.1.3)
+    stringio (3.1.5)
     temple (0.10.3)
     thor (1.3.2)
     tilt (2.6.0)
@@ -512,4 +512,4 @@ RUBY VERSION
    ruby 3.4.2p28
 
 BUNDLED WITH
-   2.6.4
+   2.6.5
