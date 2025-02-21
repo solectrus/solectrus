@@ -23,7 +23,7 @@ en:
     active_sponsoring_header: Sponsoring is active
     active_sponsoring: Thank you very much for your support!
     incomplete_config: Configuration incomplete
-    missing_custom_consumers: No separate electricity consumers have been configured
+    missing_custom_consumers: No separate electricity consumers have been defined.
     house_power_invalid: House consumption is less than the sum of the consumers
   timeframe:
     now: Now
@@ -94,13 +94,13 @@ en:
   sponsoring:
     show:
       headline: SOLECTRUS needs sponsors!
-      p1: SOLECTRUS is open source – that means freedom for you, but also hard work for the developer. If you want updates and new features to continue, this is only possible with your financial support.
-      p2: By subscribing to a <strong>sponsorship plan</strong>, you not only ensure continued development but also gain access to <strong>exclusive features</strong> like the Power Splitter or Dark Mode. More sponsor-only features are in the pipeline.
+      p1: SOLECTRUS is open source – which means freedom for you, but also a lot of hard work for the developer. If you want ongoing updates and new features, your financial support is essential.
+      p2: By signing up for a sponsorship, you not only ensure continued development but also gain access to exclusive features, such as support for <strong>custom consumers</strong>, the <strong>power splitter</strong> to split consumption into PV and grid usage, and <strong>dark mode</strong>. Additional sponsor-only features are planned.
       p3: Does that sound like a fair offer?
-      more: Learn more about sponsoring
+      more: Learn more about sponsorship
       continue: Continue
       skip: Maybe later
-      p4: You can continue to use SOLECTRUS for free, but this notice will occasionally appear as a reminder of the sponsorship opportunity.
+      p4: You can use SOLECTRUS’s basic features for free, but this reminder about sponsorship will appear from time to time.
       login_required: To sponsor or see more options, please log in as an administrator.
   crud:
     new: New

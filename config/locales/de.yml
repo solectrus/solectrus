@@ -23,7 +23,7 @@ de:
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
     incomplete_config: Konfiguration unvollständig
-    missing_custom_consumers: Es wurden keine separaten Stromverbraucher konfiguriert
+    missing_custom_consumers: Es wurden keine separaten Stromverbraucher definiert.
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
   timeframe:
     now: Aktuell
@@ -95,12 +95,12 @@ de:
     show:
       headline: SOLECTRUS benötigt Sponsoren!
       p1: SOLECTRUS ist Open Source – das bedeutet Freiheit für dich, aber auch harte Arbeit für den Entwickler. Wenn du möchtest, dass weiter an Updates und neuen Features gearbeitet wird, dann geht das nur mit deiner finanziellen Unterstützung.
-      p2: Mit dem Abschluss eines <strong>Sponsoring-Abos</strong> stellst du nicht nur die weitere Entwicklung sicher, sondern erhältst außerdem Zugriff auf <strong>exklusive Funktionen</strong>, wie z.B. den Power-Splitter oder den Dunkelmodus. Weitere Features, die nur für Sponsoren verfügbar sein werden, sind in Planung.
+      p2: Mit dem Abschluss eines Sponsoring-Abos stellst du nicht nur die weitere Entwicklung sicher, sondern erhältst außerdem Zugriff auf exklusive Funktionen, wie z.B. Unterstützung für <strong>selbstdefinierte Verbraucher</strong>, den <strong>Power-Splitter</strong> zur Aufteilung des Verbrauchs in PV- und Netzanteil oder den <strong>Dunkelmodus</strong>. Weitere Features, die nur für Sponsoren verfügbar sein werden, sind in Planung.
       p3: Klingt das nach einem fairen Angebot?
       more: Mehr über das Sponsoring erfahren
       continue: Weiter
       skip: Vielleicht später
-      p4: Du kannst SOLECTRUS weiterhin kostenfrei nutzen, dieser Hinweis erscheint jedoch gelegentlich als Erinnerung an die Möglichkeit eines Sponsorings.
+      p4: Du kannst SOLECTRUS im Basisumfang kostenfrei nutzen, dieser Hinweis erscheint jedoch gelegentlich als Erinnerung an die Möglichkeit eines Sponsorings.
       login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Administrator an.
   crud:
     new: Neu
