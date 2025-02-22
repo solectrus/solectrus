@@ -18,6 +18,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     meta name="env" content= Rails.env
     meta name="author" content="Georg Ledermann"
     meta name="robots" content= "noindex, nofollow, noarchive"
+    = turbo_refreshes_with method: :replace, scroll: :preserve
 
     - if Rails.configuration.x.honeybadger.api_key
       meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key
@@ -92,15 +93,15 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
       = c.with_secondary_items topnav_secondary_items
       = c.with_sub_nav { yield :sub_nav }
 
-    = turbo_frame_tag 'flash' do
+    = tag.turbo_frame id: 'flash' do
       - if flash.present?
         = render AppFlash::Component.new(notice:, alert:)
 
     main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
       .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
-        .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col
+        .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden
           = yield
-      = turbo_frame_tag 'modal', target: '_top'
+      = tag.turbo_frame id: 'modal', target: '_top'
 
     - if content_for?(:bottom_nav)
       .w-full.bg-indigo-600.dark:bg-indigo-900.z-10.lg:hidden

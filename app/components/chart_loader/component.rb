@@ -8,20 +8,15 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
 
   def data
     @data ||=
-      begin
-        class_name = "ChartData::#{sensor.to_s.camelize}"
+      if sensor.to_s.match?(/custom_power_\d{2}/)
+        ChartData::CustomPower.new(timeframe:, sensor:)
+      else
+        Object.const_get("ChartData::#{sensor.to_s.camelize}").new(timeframe:)
         # Example: :inverter_power -> ChartData::InverterPower
-
-        if Object.const_defined?(class_name)
-          Object.const_get(class_name).new(timeframe:)
-        else
-          # :nocov:
-          raise NotImplementedError,
-                "ChartData::#{sensor.to_s.camelize} not implemented"
-          # :nocov:
-        end
       end
   end
+
+  delegate :type, to: :data
 
   def options # rubocop:disable Metrics/MethodLength
     {
@@ -162,21 +157,15 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             ],
         },
         y: {
-          max: max_y,
-          min: min_y,
           suggestedMax: suggested_max_y,
           suggestedMin: suggested_min_y,
           ticks: {
             beginAtZero: true,
-            maxTicksLimit: 6,
+            maxTicksLimit: 10,
           },
         },
       },
-    }
-  end
-
-  def type
-    (timeframe.short? ? 'line' : 'bar').inquiry
+    }.deep_merge(data.options)
   end
 
   def unit
@@ -188,22 +177,15 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     when :co2_reduction
       timeframe.short? ? 'g/h' : 'kg'
     else
-      timeframe.short? ? 'kW' : 'kWh'
+      timeframe.short? ? 'W' : 'Wh'
     end
   end
 
-  def max_y
-  end
-
   def suggested_max_y
-    100 if sensor.in?(%i[battery_soc car_battery_soc self_consumption autarky])
-  end
-
-  def min_y
-    0 if sensor.in?(%i[battery_soc car_battery_soc self_consumption autarky])
+    data.suggested_max
   end
 
   def suggested_min_y
-    sensor == :case_temp ? 10 : nil
+    data.suggested_min
   end
 end

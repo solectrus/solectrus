@@ -7,10 +7,14 @@ describe PowerChart do
 
   before do
     12.times do |index|
-      Summary.create! date: beginning + index.months, # only one day per month
-                      sum_inverter_power: (index + 1) * 1000 * 24, # 1 KW for 24 hours
-                      sum_battery_charging_power: (index + 1) * 100 * 24, # 100 W for 24 hours
-                      sum_battery_discharging_power: (index + 1) * 200 * 24 # 200 W for 24 hours
+      create_summary(
+        date: beginning + index.month,
+        values: [
+          [:inverter_power, :sum, (index + 1) * 1000 * 24], # 1 KW for 24 hours
+          [:battery_charging_power, :sum, (index + 1) * 100 * 24], # 100 W for 24 hours
+          [:battery_discharging_power, :sum, (index + 1) * 200 * 24], # 200 W for 24 hours
+        ],
+      )
     end
 
     add_influx_point name: measurement,
@@ -18,7 +22,8 @@ describe PowerChart do
                        field_inverter_power => 14_000,
                        field_battery_charging_power => 2000,
                        field_battery_discharging_power => 100,
-                     }
+                     },
+                     time: 5.seconds.ago
   end
 
   around { |example| freeze_time(&example) }
@@ -35,10 +40,10 @@ describe PowerChart do
         it { is_expected.to have(1.hour / 30.seconds).items }
 
         it 'contains last data point' do
-          last = result.last
+          timestamp, value = result.last
 
-          expect(last[1]).to eq(14.0)
-          expect(last.first).to be_within(30.seconds).of(Time.current)
+          expect(value).to eq(14_000)
+          expect(timestamp).to be_within(30.seconds).of(Time.current)
         end
       end
 
@@ -48,9 +53,9 @@ describe PowerChart do
         it { is_expected.to have(12).items }
 
         it 'contains last and first data point' do
-          expect(result.first).to eq([beginning, 24.0])
+          expect(result.first).to eq([beginning, 24_000])
           expect(result.last).to eq(
-            [beginning.end_of_year.beginning_of_month, 288.0],
+            [beginning.end_of_year.beginning_of_month, 288_000],
           )
         end
       end
@@ -82,10 +87,10 @@ describe PowerChart do
           it { is_expected.to have(1.hour / 30.seconds).items }
 
           it 'contains last data point' do
-            last = result.last
+            timestamp, value = result.last
 
-            expect(last[1]).to eq(2.0)
-            expect(last.first).to be_within(30.seconds).of(Time.current)
+            expect(value).to eq(2000)
+            expect(timestamp).to be_within(30.seconds).of(Time.current)
           end
         end
       end
@@ -105,9 +110,9 @@ describe PowerChart do
           it { is_expected.to have(12).items }
 
           it 'contains last and first data point' do
-            expect(result.first).to eq([beginning, 2.4])
+            expect(result.first).to eq([beginning, 2400])
             expect(result.last).to eq(
-              [beginning.end_of_year.beginning_of_month, 28.8],
+              [beginning.end_of_year.beginning_of_month, 28_800],
             )
           end
         end

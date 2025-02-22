@@ -14,7 +14,7 @@ class ChartData::GridPower < ChartData::Base
 
   def dataset(sensor)
     {
-      label: I18n.t("sensors.#{sensor}"),
+      label: SensorConfig.x.name(sensor),
       data: mapped_data(chart[sensor], sensor),
     }.merge(style(sensor))
   end
@@ -30,7 +30,7 @@ class ChartData::GridPower < ChartData::Base
   end
 
   def chart
-    @chart ||= PowerChart.new(sensors:).call(timeframe, interpolate: true)
+    @chart ||= PowerChart.new(sensors:).call(timeframe)
   end
 
   def sensors

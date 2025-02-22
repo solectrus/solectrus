@@ -31,9 +31,13 @@ describe ChartData::HeatpumpPower do
         end
       end
 
-      Summary.create! date: now.to_date,
-                      sum_heatpump_power: 10_000,
-                      sum_heatpump_power_grid: 900
+      create_summary(
+        date: now.to_date,
+        values: [
+          [:heatpump_power, :sum, 10_000],
+          [:heatpump_power_grid, :sum, 900],
+        ],
+      )
     end
 
     context 'when timeframe is current MONTH' do
@@ -47,15 +51,9 @@ describe ChartData::HeatpumpPower do
         it 'returns three datasets' do
           expect(to_h[:datasets].length).to eq(3)
 
-          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(10)
-
-          expect(to_h.dig(:datasets, 1, :data, now.day - 1)).to be_within(
-            0.001,
-          ).of(0.9)
-
-          expect(to_h.dig(:datasets, 2, :data, now.day - 1)).to be_within(
-            0.001,
-          ).of(9.1)
+          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(10_000)
+          expect(to_h.dig(:datasets, 1, :data, now.day - 1)).to eq(900)
+          expect(to_h.dig(:datasets, 2, :data, now.day - 1)).to eq(9100)
         end
       end
 
@@ -63,7 +61,7 @@ describe ChartData::HeatpumpPower do
         it 'returns one dataset' do
           expect(to_h[:datasets].length).to eq(1)
 
-          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(10)
+          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(10_000)
         end
       end
     end
@@ -74,7 +72,7 @@ describe ChartData::HeatpumpPower do
       it 'returns one dataset' do
         expect(to_h[:datasets].length).to eq(1)
 
-        expect(to_h.dig(:datasets, 0, :data).last).to eq(10)
+        expect(to_h.dig(:datasets, 0, :data).last).to eq(10_000)
       end
     end
   end
@@ -84,15 +82,19 @@ describe ChartData::HeatpumpPower do
       let(:timeframe) { Timeframe.month }
 
       before do
-        Summary.create! date: now.to_date,
-                        sum_heatpump_power: 10_000,
-                        sum_heatpump_power_grid: 900
+        create_summary(
+          date: now.to_date,
+          values: [
+            [:heatpump_power, :sum, 10_000],
+            [:heatpump_power_grid, :sum, 900],
+          ],
+        )
       end
 
       it 'returns one datasets' do
         expect(to_h[:datasets].length).to eq(1)
 
-        expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(10)
+        expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(10_000)
       end
     end
 
@@ -102,7 +104,7 @@ describe ChartData::HeatpumpPower do
       it 'returns one dataset' do
         expect(to_h[:datasets].length).to eq(1)
 
-        expect(to_h.dig(:datasets, 0, :data).last).to eq(10)
+        expect(to_h.dig(:datasets, 0, :data).last).to eq(10_000)
       end
     end
   end

@@ -2,38 +2,9 @@
 #
 # Table name: summaries
 #
-#  avg_battery_soc               :float
-#  avg_car_battery_soc           :float
-#  avg_case_temp                 :float
-#  date                          :date             not null, primary key
-#  max_battery_charging_power    :float
-#  max_battery_discharging_power :float
-#  max_battery_soc               :float
-#  max_car_battery_soc           :float
-#  max_case_temp                 :float
-#  max_grid_export_power         :float
-#  max_grid_import_power         :float
-#  max_heatpump_power            :float
-#  max_house_power               :float
-#  max_inverter_power            :float
-#  max_wallbox_power             :float
-#  min_battery_soc               :float
-#  min_car_battery_soc           :float
-#  min_case_temp                 :float
-#  sum_battery_charging_power    :float
-#  sum_battery_discharging_power :float
-#  sum_grid_export_power         :float
-#  sum_grid_import_power         :float
-#  sum_heatpump_power            :float
-#  sum_heatpump_power_grid       :float
-#  sum_house_power               :float
-#  sum_house_power_grid          :float
-#  sum_inverter_power            :float
-#  sum_inverter_power_forecast   :float
-#  sum_wallbox_power             :float
-#  sum_wallbox_power_grid        :float
-#  created_at                    :datetime         not null
-#  updated_at                    :datetime         not null
+#  date       :date             not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #
 # Indexes
 #
@@ -42,10 +13,18 @@
 describe Summary do
   it 'can be created' do
     summary =
-      described_class.create!(date: Date.current, sum_inverter_power: 42)
+      described_class
+        .create!(date: Date.current)
+        .tap do |s|
+          s.values.create! field: 'inverter_power',
+                           aggregation: 'sum',
+                           value: 42
+        end
 
     expect(summary.date).to eq(Date.current)
-    expect(summary.sum_inverter_power).to eq(42)
+    expect(summary.values.count).to eq(1)
+    expect(summary.values.first.value).to eq(42)
+    expect(summary.values.first.summary).to eq(summary)
   end
 
   describe '#threshold_date' do
@@ -225,36 +204,24 @@ describe Summary do
   describe 'Monitoring' do
     let(:current_config) { described_class.config }
 
-    describe '.sensors' do
-      subject { described_class.sensors }
+    before do
+      create_summary(
+        date: Date.current,
+        values: [['inverter_power', 'sum', 42]],
+      )
+    end
 
-      it 'returns a sorted list of sensors' do
-        is_expected.to eq(
-          %i[
-            battery_charging_power
-            battery_discharging_power
-            battery_soc
-            car_battery_soc
-            case_temp
-            grid_export_power
-            grid_import_power
-            heatpump_power
-            heatpump_power_grid
-            house_power
-            house_power_grid
-            inverter_power
-            inverter_power_forecast
-            wallbox_power
-            wallbox_power_grid
-          ],
-        )
+    describe '.reset!' do
+      it 'deletes all summaries with values' do
+        expect { described_class.reset! }.to change(
+          described_class,
+          :count,
+        ).from(1).to(0).and change(SummaryValue, :count).from(1).to(0)
       end
     end
 
     describe '.validate!' do
       subject(:validation) { described_class.validate! }
-
-      before { described_class.create!(date: Date.current) }
 
       context 'when stored config matches the current config' do
         before { Setting.summary_config = current_config }
@@ -272,7 +239,9 @@ describe Summary do
         before { Setting.summary_config = { time_zone: 'Australia/Sydney' } }
 
         it 'deletes all summaries' do
-          expect { validation }.to change(described_class, :count).from(1).to(0)
+          expect { validation }.to change(described_class, :count).from(1).to(
+            0,
+          ).and change(SummaryValue, :count).from(1).to(0)
         end
 
         it 'updates the stored config' do
@@ -286,7 +255,9 @@ describe Summary do
         before { Setting.summary_config = nil }
 
         it 'deletes all summaries' do
-          expect { validation }.to change(described_class, :count).from(1).to(0)
+          expect { validation }.to change(described_class, :count).from(1).to(
+            0,
+          ).and change(SummaryValue, :count).from(1).to(0)
         end
 
         it 'updates the stored config' do

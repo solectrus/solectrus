@@ -34,12 +34,9 @@ module ParamsHandling
     end
 
     helper_method def calculator
-      @calculator ||=
-        if timeframe.now?
-          Calculator::Now.new
-        else
-          Calculator::Range.new(timeframe)
-        end
+      # Requires the including controller to define
+      # both `calculator_now` and `calculator_range` methods
+      @calculator ||= (timeframe.now? ? calculator_now : calculator_range)
     end
   end
 end

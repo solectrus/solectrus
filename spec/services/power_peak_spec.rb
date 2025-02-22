@@ -21,16 +21,14 @@ describe PowerPeak do
 
       context 'when summaries are present' do
         before do
-          Summary.create!(
+          create_summary(
             date: start,
-            max_inverter_power: 1000,
-            max_house_power: 2000,
+            values: [[:inverter_power, :max, 1000], [:house_power, :max, 2000]],
           )
 
-          Summary.create!(
+          create_summary(
             date: start + 1.day,
-            max_inverter_power: 1500,
-            max_house_power: 2500,
+            values: [[:inverter_power, :max, 1500], [:house_power, :max, 2500]],
           )
         end
 
@@ -49,8 +47,12 @@ describe PowerPeak do
 
       context 'when summaries are present' do
         before do
-          Summary.create!(date: start, max_inverter_power: 1000)
-          Summary.create!(date: start + 1.day, max_inverter_power: 1500)
+          create_summary(date: start, values: [[:inverter_power, :max, 1000]])
+
+          create_summary(
+            date: start + 1.day,
+            values: [[:inverter_power, :max, 1500]],
+          )
         end
 
         it 'returns the maximum value for this sensor' do

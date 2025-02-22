@@ -1,4 +1,8 @@
 class ChartData::Autarky < ChartData::Base
+  def suggested_max
+    100
+  end
+
   private
 
   def data

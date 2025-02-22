@@ -45,6 +45,19 @@ Chart.register(
   CrosshairPlugin,
 );
 
+// Fix for crosshair plugin drawing over the chart and tooltip
+// https://github.com/AbelHeinsbroek/chartjs-plugin-crosshair/issues/48#issuecomment-1926758048
+const afterDraw = CrosshairPlugin.afterDraw.bind(CrosshairPlugin);
+CrosshairPlugin.afterDraw = () => {};
+CrosshairPlugin.afterDatasetsDraw = (
+  chart: Chart,
+  args: unknown,
+  options: unknown,
+): void => {
+  // @ts-expect-error Property does not exist on type
+  if (chart?.crosshair) afterDraw(chart, args, options);
+};
+
 export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
@@ -69,6 +82,9 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private boundHandleResize?: () => void;
   private chart?: Chart;
+
+  private maxValue: number = 0;
+  private minValue: number = 0;
 
   connect() {
     this.process();
@@ -117,29 +133,15 @@ export default class extends Controller<HTMLCanvasElement> {
       },
     };
 
+    this.maxValue = this.maxOf(data);
+    this.minValue = this.minOf(data);
+
     // Format numbers on y-axis
     if (options.scales.y.ticks)
       options.scales.y.ticks.callback = (value) =>
-        typeof value === 'number' ? this.formattedNumber(value) : value;
+        typeof value === 'number' ? this.formattedNumber(value, 'axis') : value;
 
-    const max = this.maxOf(data);
-    const min = this.minOf(data);
-
-    if (options.scales.y?.suggestedMax) {
-      options.scales.y.max = +options.scales.y.suggestedMax;
-    } else if (max > 1) {
-      options.scales.y.max = max;
-    }
-
-    if (options.scales.y?.suggestedMin) {
-      options.scales.y.min = +options.scales.y.suggestedMin;
-    } else if (min < -1) {
-      options.scales.y.min = min;
-    } else if (min >= 0) {
-      options.scales.y.min = 0;
-    }
-
-    if (min < 0) {
+    if (this.minValue < 0) {
       // Draw x-axis in black
       options.scales.y.grid = {
         color: (context) => {
@@ -231,7 +233,9 @@ export default class extends Controller<HTMLCanvasElement> {
         return tooltipItem.raw !== null;
       };
 
-      const isStacked = data.datasets.some((dataset) => dataset.stack);
+      const isPowerSplitterStack = data.datasets.some(
+        (dataset) => dataset.stack == 'Power-Splitter',
+      );
 
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
@@ -239,12 +243,12 @@ export default class extends Controller<HTMLCanvasElement> {
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
           let result: string =
-            !(isStacked && !tooltipItem.dataset.stack) &&
+            !(isPowerSplitterStack && !tooltipItem.dataset.stack) &&
             data.datasets.length > 1
               ? `${tooltipItem.dataset.label} `
               : '';
 
-          if (isStacked) {
+          if (isPowerSplitterStack) {
             if (tooltipItem.dataset.stack && data.datasets.length) {
               // Sum is the value of the first dataset
               const sum = data.datasets[0].data[
@@ -268,7 +272,7 @@ export default class extends Controller<HTMLCanvasElement> {
         },
 
         footer: (tooltipItems) => {
-          if (isStacked && tooltipItems.length) {
+          if (isPowerSplitterStack && tooltipItems.length) {
             const sum = tooltipItems[0].parsed.y;
 
             if (sum) return this.formattedNumber(sum);
@@ -277,7 +281,7 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
-    if (max >= min)
+    if (this.maxValue > this.minValue)
       data.datasets.forEach((dataset: ChartDataset) => {
         // Non-Overlapping line charts should have a larger gradient (means lower opacity)
         const minAlpha =
@@ -286,7 +290,12 @@ export default class extends Controller<HTMLCanvasElement> {
             : 0.4;
 
         if (dataset.data)
-          this.setBackgroundGradient(dataset, min, max, minAlpha);
+          this.setBackgroundGradient(
+            dataset,
+            this.minValue,
+            this.maxValue,
+            minAlpha,
+          );
       });
 
     this.chart = new Chart(this.canvasTarget, {
@@ -348,54 +357,115 @@ export default class extends Controller<HTMLCanvasElement> {
       return JSON.parse(this.optionsTarget.textContent);
   }
 
-  private formattedNumber(number: number) {
-    return `${new Intl.NumberFormat().format(number)} ${this.unitValue}`;
+  private formattedNumber(
+    number: number,
+    target: 'axis' | 'tooltip' = 'tooltip',
+  ) {
+    let minValue: number;
+    let maxValue: number;
+
+    if (this.chart) {
+      minValue = this.chart.scales.y.min;
+      maxValue = this.chart.scales.y.max;
+    } else {
+      minValue = this.minValue;
+      maxValue = this.maxValue;
+    }
+
+    let unitValuePrefix = '';
+
+    const kilo =
+      target === 'axis'
+        ? maxValue > 1000 || minValue < -1000
+        : number > 1000 || number < -1000;
+    if (kilo) {
+      number /= 1000.0;
+      unitValuePrefix = 'k';
+    }
+
+    let decimals: number;
+    if (kilo) {
+      switch (target) {
+        case 'tooltip':
+          // On tooltip, we always want a precise value
+          decimals = 3;
+          break;
+        case 'axis':
+          // On axis, a single decimal is required to distinguish between values
+          decimals = 1;
+          break;
+      }
+    } else {
+      // Without kilo, we have integers, so no decimals required
+      decimals = 0;
+    }
+
+    const numberAsString = new Intl.NumberFormat(navigator.language, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: decimals,
+    }).format(number);
+
+    return `${numberAsString} ${unitValuePrefix}${this.unitValue}`;
   }
 
   private formattedInterval(min: number, max: number) {
     return `${this.formattedNumber(min)} - ${this.formattedNumber(max)}`;
   }
 
-  // Get maximum value of all datasets, rounded up to next integer
+  // Get maximum value of all datasets, summing only positive values per stack
   private maxOf(data: ChartData) {
-    const flatData = this.flatMapped(data).map((value) =>
-      Array.isArray(value) ? Math.max(...value) : value,
-    );
+    const stackSums: Record<string, number[]> = {};
+    let maxSum = 0;
 
-    return Math.ceil(Math.max(...flatData));
+    data.datasets.forEach((dataset) => {
+      const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
+      dataset.data?.forEach((value, index) => {
+        const num = Array.isArray(value) ? Math.max(...value) : value;
+
+        if (typeof num === 'number' && num > 0) {
+          stackSums[stackKey] ??= [];
+          stackSums[stackKey][index] = (stackSums[stackKey][index] ?? 0) + num;
+          maxSum = Math.max(maxSum, stackSums[stackKey][index]);
+        }
+      });
+    });
+
+    return Math.ceil(maxSum);
   }
 
-  // Get minium value of all datasets, rounded down to next integer
+  // Get minimum value of all datasets, summing only negative values per stack
   private minOf(data: ChartData) {
-    const flatData = this.flatMapped(data).map((value) =>
-      Array.isArray(value) ? Math.min(...value) : value,
-    );
+    const stackSums: Record<string, number[]> = {};
+    let minSum = 0;
 
-    return Math.floor(Math.min(...flatData));
-  }
+    data.datasets.forEach((dataset) => {
+      const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
+      dataset.data?.forEach((value, index) => {
+        const num = Array.isArray(value) ? Math.min(...value) : value;
 
-  private flatMapped(data: ChartData) {
-    return (
-      data.datasets
-        // Map all data into a single array
-        .flatMap((dataset) => dataset.data)
-        // Remove NULL values
-        .filter((x) => x) as number[]
-    );
+        if (typeof num === 'number' && num < 0) {
+          stackSums[stackKey] ??= [];
+          stackSums[stackKey][index] = (stackSums[stackKey][index] ?? 0) + num;
+          minSum = Math.min(minSum, stackSums[stackKey][index]);
+        }
+      });
+    });
+
+    return Math.floor(minSum);
   }
 
   private minOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data
-      .map((value) => (Array.isArray(value) ? Math.min(...value) : value))
-      .filter((x) => x) as number[];
+    const mapped = dataset.data.map((value) =>
+      Array.isArray(value) ? Math.min(...value) : (value as number),
+    );
 
     return Math.min(...mapped);
   }
 
   private maxOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data
-      .map((value) => (Array.isArray(value) ? Math.max(...value) : value))
-      .filter((x) => x) as number[];
+    const mapped = dataset.data.map((value) =>
+      Array.isArray(value) ? Math.max(...value) : (value as number),
+    );
 
     return Math.max(...mapped);
   }

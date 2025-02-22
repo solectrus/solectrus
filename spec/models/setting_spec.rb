@@ -61,7 +61,7 @@ describe Setting do
         expect { described_class.seed! }.not_to change(described_class, :count)
       end
 
-      it 'does not change existing reords' do
+      it 'does not change existing records' do
         expect { described_class.seed! }.not_to change(
           described_class,
           :setup_id,

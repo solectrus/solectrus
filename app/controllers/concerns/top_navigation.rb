@@ -5,7 +5,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     private
 
     helper_method def topnav_primary_items
-      [stats_item, essentials_item, top10_item]
+      [root_item, house_item, essentials_item, top10_item]
     end
 
     helper_method def topnav_secondary_items
@@ -27,17 +27,38 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       { name: '-' }
     end
 
-    def stats_item
+    def root_item
       {
         name: t('layout.balance'),
-        href: root_path(sensor: 'inverter_power', timeframe: 'now'),
-        current: helpers.controller.is_a?(HomeController),
+        href:
+          root_path(
+            sensor: 'inverter_power',
+            timeframe:
+              helpers.respond_to?(:timeframe) ? helpers.timeframe : 'now',
+          ),
+        current: helpers.controller_namespace == 'balance',
+        data: {
+          controller: 'tippy',
+          tippy_touch_value: 'false',
+        },
+      }
+    end
+
+    def house_item
+      {
+        name: t('layout.house'),
+        icon: 'house-crack',
+        icon_only: true,
+        href: house_home_path(sensor: 'house_power', timeframe:),
+        current: helpers.controller_namespace == 'house',
       }
     end
 
     def essentials_item
       {
         name: t('layout.essentials'),
+        icon: 'grip',
+        icon_only: true,
         href: essentials_path,
         current: helpers.controller.is_a?(EssentialsController),
       }
@@ -46,6 +67,8 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def top10_item
       {
         name: t('layout.top10'),
+        icon: 'trophy',
+        icon_only: true,
         href:
           top10_path(
             sensor:
@@ -136,10 +159,8 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.settings'),
         icon: 'cog',
-        href: settings_path,
-        current:
-          helpers.controller.is_a?(SettingsController) ||
-            helpers.controller.is_a?(PricesController),
+        href: settings_general_path,
+        current: helpers.controller_namespace == 'settings',
       }
     end
 

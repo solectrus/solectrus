@@ -11,7 +11,7 @@
 }
 
 .badge .inside {
-  @apply flex flex-col items-center;
+  @apply flex flex-col items-center leading-normal;
 }
 
 .badge .value {

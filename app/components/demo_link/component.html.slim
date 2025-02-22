@@ -1,0 +1,22 @@
+= render Message::Component.new do |c|
+  = c.with_header do
+    = t('title', scope: ".#{feature}")
+
+  = c.with_body do
+    = t('description', scope: ".#{feature}")
+
+    .mt-8
+      .inline.text-2xl.md:text-3xl.font-bold.text-gray-700.dark:text-gray-300.sm:text-4xl.rounded-xl.bg-yellow-100.dark:bg-yellow-900.px-2.md:px-4.py-1.md:py-2
+        = t('.sponsoring_only')
+
+  = c.with_footer do
+    .flex.gap-10.justify-center
+      = render Button::Component.new title: t('.demo'),
+                                    path: { **url, host: 'https://demo.solectrus.de', port: 443, protocol: 'https' },
+                                    options: { target: '_blank' },
+                                    style: :primary
+
+      = render Button::Component.new title: t('.about_sponsoring'),
+                                    path: 'https://solectrus.de/sponsoring',
+                                    options: { target: '_blank' },
+                                    style: :secondary

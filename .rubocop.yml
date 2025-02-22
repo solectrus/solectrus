@@ -41,6 +41,12 @@ Rails/DefaultScope:
 Rails/EnvironmentVariableAccess:
   AllowReads: true
 
+Rails/SkipsModelValidations:
+  AllowedMethods:
+    - insert_all!
+    - upsert_all
+    - touch
+
 ### Bundler
 
 Bundler/OrderedGems:
@@ -242,4 +248,9 @@ RSpec/ImplicitSubject:
   Enabled: false
 
 RSpec/VerifiedDoubles:
+  Enabled: false
+
+# Naming
+
+Naming/VariableNumber:
   Enabled: false

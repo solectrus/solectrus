@@ -3,24 +3,22 @@ class AutarkyChart < ChartBase
     super(sensors: %i[house_power wallbox_power grid_import_power])
   end
 
-  def call(timeframe, fill: false)
+  def call(timeframe)
     return {} unless SensorConfig.x.exists?(:autarky)
 
-    super(timeframe)
+    super
 
     case timeframe.id
     when :now
-      chart_single start: 1.hour.ago + 1.second,
+      query_influx start: 1.hour.ago + 1.second,
                    stop: 1.second.since,
-                   window: WINDOW[timeframe.id],
-                   fill: true
+                   window: WINDOW[timeframe.id]
     when :day
-      chart_single start: timeframe.beginning,
+      query_influx start: timeframe.beginning,
                    stop: timeframe.ending,
-                   window: WINDOW[timeframe.id],
-                   fill:
+                   window: WINDOW[timeframe.id]
     when :week, :month, :year, :all
-      chart_sum(timeframe:)
+      query_sql(timeframe:)
     end
   end
 
@@ -38,7 +36,7 @@ class AutarkyChart < ChartBase
     SensorConfig.x.field(:grid_import_power)
   end
 
-  def chart_single(start:, window:, stop: nil, fill: false)
+  def query_influx(start:, window:, stop: nil)
     q = []
 
     q << from_bucket
@@ -49,8 +47,10 @@ class AutarkyChart < ChartBase
     q << "|> #{range(start: start - 1.hour, stop:)}"
 
     q << "|> #{filter}"
+
+    q << '|> aggregateWindow(every: 5s, fn: last)'
+    q << '|> fill(usePrevious: true)'
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
-    q << '|> fill(usePrevious: true)' if fill
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
 
     q << if wallbox_power_field
@@ -67,25 +67,26 @@ class AutarkyChart < ChartBase
     to_array(raw, start:)
   end
 
-  def chart_sum(timeframe:)
+  def query_sql(timeframe:)
     result =
-      Summary
-        .where(date: timeframe.beginning..timeframe.ending)
+      SummaryValue
+        .where(
+          date: timeframe.beginning..timeframe.ending,
+          field: sensors,
+          aggregation: 'sum',
+        )
         .group_by_period(grouping_period(timeframe), :date)
-        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
+        .group(:field)
+        .sum(:value)
 
     dates(timeframe).map do |date|
-      values = result[date]
+      grid_import_power = result[[date, 'grid_import_power']]
+      house_power = result[[date, 'house_power']]
+      wallbox_power = result[[date, 'wallbox_power']]
 
       autarky =
-        if values && values[:sum_grid_import_power_sum]
-          (
-            1 -
-              values[:sum_grid_import_power_sum].fdiv(
-                values[:sum_house_power_sum].to_f +
-                  values[:sum_wallbox_power_sum].to_f,
-              )
-          ) * 100
+        if grid_import_power
+          (1 - grid_import_power.fdiv(house_power + (wallbox_power || 0))) * 100
         end
 
       [date.to_time, autarky&.clamp(0, 100)]
@@ -97,21 +98,22 @@ class AutarkyChart < ChartBase
   end
 
   def value_to_array(raw, start:)
-    result = []
+    return [] unless raw&.records
 
-    raw&.records&.each_with_index do |record, index|
-      # InfluxDB returns data one-off
-      next_record = raw.records[index + 1]
-      next unless next_record
+    raw
+      .records
+      .each_cons(2) # InfluxDB returns data one-off
+      .filter_map do |record, next_record|
+        time = Time.zone.parse(record.values['_time'])
 
-      time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['autarky']&.clamp(0, 100)
+        # Take only data that ist after the desired start
+        # (needed because the start was extended by one hour)
+        next if time < start
 
-      # Take only values that are after the desired start
-      # (needed because the start was extended by one hour)
-      result << [time, value] if time >= start
-    end
+        value =
+          (next_record.values['autarky']&.clamp(0, 100) unless time.future?)
 
-    result
+        [time, value]
+      end
   end
 end

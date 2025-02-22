@@ -1,4 +1,4 @@
-class Top10Chart::Component < ViewComponent::Base
+class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor:, period:, sort:, calc:)
     raise ArgumentError, 'sensor must be present' if sensor.blank?
     raise ArgumentError, 'period must be present' if period.blank?
@@ -53,13 +53,13 @@ class Top10Chart::Component < ViewComponent::Base
       'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
     when :battery_discharging_power, :battery_charging_power
       'from-green-700 to-green-300 text-green-800 dark:from-green-800 dark:to-green-500 dark:text-green-900'
-    when :house_power
+    when :house_power, /custom_power_\d{2}/
       'from-slate-500 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
     when :wallbox_power
       'from-slate-600 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
     when :heatpump_power
       'from-slate-700 to-slate-300 text-slate-800 dark:from-slate-800 dark:to-slate-500 dark:text-slate-900'
-    when :grid_import_power
+    when :grid_import_power, :case_temp
       'from-red-600   to-red-300   text-red-800   dark:from-red-800   dark:to-red-400   dark:text-red-900'
     end
   end
@@ -101,10 +101,14 @@ class Top10Chart::Component < ViewComponent::Base
   end
 
   def timeframe_path(record)
-    root_path(
-      sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
-      timeframe: corresponding_date(record[:date]),
-    )
+    if sensor.to_s.match?(/custom_power_\d{2}/)
+      house_home_path(sensor:, timeframe: corresponding_date(record[:date]))
+    else
+      root_path(
+        sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
+        timeframe: corresponding_date(record[:date]),
+      )
+    end
   end
 
   def corresponding_week(value)
@@ -160,5 +164,14 @@ class Top10Chart::Component < ViewComponent::Base
     result << t('.note_sum') if calc.sum?
     result << t('.note_asc') if sort.asc?
     safe_join(result, '. ')
+  end
+
+  def unit_method
+    case sensor.to_sym
+    when :case_temp
+      :to_grad_celsius
+    else
+      calc.max? ? :to_watt : :to_watt_hour
+    end
   end
 end

@@ -4,6 +4,7 @@ class Top10Controller < ApplicationController
 
   def index
     redirect_to(default_path) unless period && sensor && calc && sort
+    redirect_to(default_path(calc: 'sum')) if calc == 'max' && !supports_max?
 
     load_missing_or_stale_summary_days(timeframe)
   end
@@ -11,40 +12,53 @@ class Top10Controller < ApplicationController
   private
 
   helper_method def timeframe
-    @timeframe ||= Timeframe.all
+    @timeframe ||= Timeframe.new(period || 'all')
   end
 
   helper_method def title
     t('layout.top10')
   end
 
-  def default_path
+  def default_path(override = {})
     top10_path(
-      period: period || 'day',
-      sensor: sensor || 'inverter_power',
-      calc: calc || 'sum',
-      sort: sort || 'desc',
+      {
+        period: period || 'day',
+        sensor: sensor || 'inverter_power',
+        calc: calc || 'sum',
+        sort: sort || 'desc',
+      }.merge(override),
     )
   end
 
   def sensor_names
-    SensorConfig::POWER_SENSORS.select do |sensor|
+    SensorConfig::TOP10_SENSORS.select do |sensor|
       SensorConfig.x.exists?(sensor)
     end
   end
 
+  helper_method def supports_max?
+    # Custom sensors are not supported for max calculation
+    !sensor.in?(SensorConfig::CUSTOM_SENSORS)
+  end
+
   helper_method def sensor_items
-    sensor_names.map do |sensor|
-      MenuItem::Component.new(
-        name: I18n.t("sensors.#{sensor}"),
-        href: url_for(**permitted_params, sensor:, only_path: true),
-        data: {
-          action: 'dropdown--component#toggle',
-        },
-        sensor:,
-        current: sensor == self.sensor,
-      )
-    end
+    @sensor_items ||=
+      begin
+        menu_items =
+          sensor_names.map do |sensor|
+            MenuItem::Component.new(
+              name: SensorConfig.x.name(sensor),
+              href: url_for(**permitted_params, sensor:, only_path: true),
+              data: {
+                action: 'dropdown--component#toggle',
+              },
+              sensor:,
+              current: sensor == self.sensor,
+            )
+          end
+
+        menu_items&.sort_by { |item| item.name.downcase }
+      end
   end
 
   helper_method def nav_items

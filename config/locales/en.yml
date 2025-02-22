@@ -1,6 +1,7 @@
 en:
   layout:
     balance: Power balance
+    house: House consumption
     essentials: Essentials
     top10: Top 10
     about: About SOLECTRUS
@@ -21,6 +22,9 @@ en:
     missing_sponsoring_cta: Learn more...
     active_sponsoring_header: Sponsoring is active
     active_sponsoring: Thank you very much for your support!
+    incomplete_config: Configuration incomplete
+    missing_custom_consumers: No separate electricity consumers have been defined.
+    house_power_invalid: House consumption is less than the sum of the consumers
   timeframe:
     now: Now
     day: Today
@@ -32,11 +36,8 @@ en:
     inverter_power: PV generated
     inverter_power_forecast: Forecast
     house_power: Home consumption
-    house_power_grid: Grid
-    house_power_pv: PV
+    house_power_without_custom: Other
     wallbox_power: EV charging
-    wallbox_power_grid: Grid
-    wallbox_power_pv: PV
     grid_import_power: Grid import
     grid_export_power: Grid export
     grid_power: Grid import and export
@@ -45,11 +46,12 @@ en:
     battery_power: Home Battery
     battery_soc: SOC Home Battery
     car_battery_soc: SOC EV
-    case_temp: Temperature
+    case_temp: Case
     grid_export_limit: Limitation
     heatpump_power: Heat pump
-    heatpump_power_grid: Grid
-    heatpump_power_pv: PV
+  splitter:
+    grid: Grid
+    pv: PV
   balance_sheet:
     left: Source
     right: Usage
@@ -92,13 +94,13 @@ en:
   sponsoring:
     show:
       headline: SOLECTRUS needs sponsors!
-      p1: SOLECTRUS is open source – that means freedom for you, but also hard work for the developer. If you want updates and new features to continue, this is only possible with your financial support.
-      p2: By subscribing to a <strong>sponsorship plan</strong>, you not only ensure continued development but also gain access to <strong>exclusive features</strong> like the Power Splitter or Dark Mode. More sponsor-only features are in the pipeline.
+      p1: SOLECTRUS is open source – which means freedom for you, but also a lot of hard work for the developer. If you want ongoing updates and new features, your financial support is essential.
+      p2: By signing up for a sponsorship, you not only ensure continued development but also gain access to exclusive features, such as support for <strong>custom consumers</strong>, the <strong>power splitter</strong> to split consumption into PV and grid usage, and <strong>dark mode</strong>. Additional sponsor-only features are planned.
       p3: Does that sound like a fair offer?
-      more: Learn more about sponsoring
+      more: Learn more about sponsorship
       continue: Continue
       skip: Maybe later
-      p4: You can continue to use SOLECTRUS for free, but this notice will occasionally appear as a reminder of the sponsorship opportunity.
+      p4: You can use SOLECTRUS’s basic features for free, but this reminder about sponsorship will appear from time to time.
       login_required: To sponsor or see more options, please log in as an administrator.
   crud:
     new: New
@@ -106,7 +108,7 @@ en:
     delete: Delete
     save: Save
     confirm_delete: Are you sure you want to delete?
-    success: Successfully performed
+    success: Saved
     error: An error occurred
   settings:
     general:
@@ -136,6 +138,9 @@ en:
       description:
         electricity: Price per consumed kWh paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
+    consumers:
+      name: Consumers
+      description: Labels for the self-defined electricity consumers
   errors:
     title: Error
     403:
@@ -170,7 +175,7 @@ en:
         name: Name
         names:
           electricity: Electricity price
-          feed_in: Feed-in tariff
+          feed_in: Feed-in
         starts_at: Effective from
         value: Amount
         note: Note

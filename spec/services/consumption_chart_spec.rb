@@ -19,17 +19,21 @@ describe ConsumptionChart do
                          },
                          time: (beginning + index.month).beginning_of_month
 
-        Summary.create! date:
-                          (beginning + index.month).beginning_of_month.to_date,
-                        sum_inverter_power: (index + 1) * 100,
-                        sum_grid_export_power: (index + 1) * 50
+        create_summary(
+          date: (beginning + index.month).beginning_of_month.to_date,
+          values: [
+            [:inverter_power, :sum, (index + 1) * 100],
+            [:grid_export_power, :sum, (index + 1) * 50],
+          ],
+        )
       end
 
       add_influx_point name: measurement_inverter_power,
                        fields: {
                          field_inverter_power => 2_000,
                          field_grid_export_power => 500,
-                       }
+                       },
+                       time: 5.seconds.ago
     end
   end
 
@@ -44,10 +48,10 @@ describe ConsumptionChart do
       it { is_expected.to have(1.hour / 30.seconds).items }
 
       it 'contains last data point' do
-        last = result.last
+        timestamp, value = result.last
 
-        expect(last[1]).to eq(75.0)
-        expect(last.first).to be_within(30.seconds).of(Time.current)
+        expect(value).to eq(75.0)
+        expect(timestamp).to be_within(30.seconds).of(Time.current)
       end
     end
 

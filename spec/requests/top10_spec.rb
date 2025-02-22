@@ -5,24 +5,29 @@ describe 'Top 10' do
   end
 
   describe 'redirection' do
-    it 'redirects top10 when calc is missing' do
+    it 'redirects when calc is missing' do
       get '/top10/year/house_power/desc'
       expect(response).to redirect_to('/top10/year/house_power/sum/desc')
     end
 
-    it 'redirects top10 when sort is missing' do
+    it 'redirects when sort is missing' do
       get '/top10/year/house_power'
       expect(response).to redirect_to('/top10/year/house_power/sum/desc')
     end
 
-    it 'redirects top10 when sensor is missing' do
+    it 'redirects when sensor is missing' do
       get '/top10/year/'
       expect(response).to redirect_to('/top10/year/inverter_power/sum/desc')
     end
 
-    it 'redirects top10 when all is missing' do
+    it 'redirects when all is missing' do
       get '/top10/'
       expect(response).to redirect_to('/top10/day/inverter_power/sum/desc')
+    end
+
+    it 'redirects when sensor does not support max' do
+      get '/top10/week/custom_power_03/max/desc'
+      expect(response).to redirect_to('/top10/week/custom_power_03/sum/desc')
     end
   end
 end

@@ -1,4 +1,12 @@
 class ChartData::CaseTemp < ChartData::Base
+  def suggested_min
+    10
+  end
+
+  def suggested_max
+    40
+  end
+
   private
 
   def data

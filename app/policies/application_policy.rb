@@ -1,7 +1,7 @@
 class ApplicationPolicy
   include Singleton
 
-  SPONSOR_FEATURES = %i[power_splitter themes car].freeze
+  SPONSOR_FEATURES = %i[power_splitter themes car custom].freeze
   private_constant :SPONSOR_FEATURES
 
   SPONSOR_FEATURES.each do |feature|

@@ -13,31 +13,32 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
       end
     Summary.insert_all(summaries) # rubocop:disable Rails/SkipsModelValidations
 
-    Summary.create! date: Date.current,
-                    updated_at: Date.tomorrow.middle_of_day,
-                    sum_inverter_power: 18_000,
-                    sum_inverter_power_forecast: 19_000,
-                    sum_house_power: 1800,
-                    sum_heatpump_power: 800,
-                    sum_grid_import_power: 20,
-                    sum_grid_export_power: 2200,
-                    sum_battery_charging_power: 2000,
-                    sum_battery_discharging_power: 20,
-                    sum_wallbox_power: 12_000,
-                    max_inverter_power: 9000,
-                    max_house_power: 3000,
-                    max_heatpump_power: 400,
-                    max_grid_import_power: 500,
-                    max_grid_export_power: 2500,
-                    max_battery_charging_power: 1000,
-                    max_battery_discharging_power: 100,
-                    max_wallbox_power: 6000,
-                    min_battery_soc: 40.0,
-                    min_car_battery_soc: 30.0,
-                    min_case_temp: 30.0,
-                    max_battery_soc: 70.0,
-                    max_car_battery_soc: 80,
-                    max_case_temp: 30.0
+    create_summary(
+      date: Date.current,
+      updated_at: Date.tomorrow.middle_of_day,
+      values: [
+        [:inverter_power, :sum, 18_000],
+        [:inverter_power_forecast, :sum, 19_000],
+        [:house_power, :sum, 1800],
+        [:heatpump_power, :sum, 800],
+        [:grid_import_power, :sum, 20],
+        [:grid_export_power, :sum, 2200],
+        [:battery_charging_power, :sum, 2000],
+        [:battery_discharging_power, :sum, 20],
+        [:wallbox_power, :sum, 12_000],
+        [:inverter_power, :max, 9000],
+        [:house_power, :max, 3000],
+        [:heatpump_power, :max, 400],
+        [:grid_import_power, :max, 500],
+        [:grid_export_power, :max, 2500],
+        [:battery_charging_power, :max, 1000],
+        [:battery_discharging_power, :max, 100],
+        [:wallbox_power, :max, 6000],
+        [:battery_soc, :min, 40.0],
+        [:car_battery_soc, :min, 30.0],
+        [:case_temp, :min, 30.0],
+      ],
+    )
   end
 
   def seed_pv
@@ -122,7 +123,6 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
   end
 
   def add_influx_point(name:, fields:, time: Time.current)
-    influx_client = Flux::Base.new.client
     write_api = influx_client.create_write_api
 
     write_api.write(
@@ -137,13 +137,28 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
   end
 
   def delete_influx_data(start: Time.zone.at(0), stop: 1.second.since)
-    influx_client = Flux::Base.new.client
     delete_api = influx_client.create_delete_api
 
     delete_api.delete(start, stop)
   end
 
+  def influx_client
+    @influx_client ||= Flux::Base.new.client
+  end
+
+  def create_summary(date:, updated_at: Time.current, values: [])
+    Summary.create!(date:, updated_at:)
+
+    SummaryValue.insert_all!(
+      values.map do |v|
+        { date:, field: v.first, aggregation: v.second, value: v.third }
+      end,
+    )
+  end
+
   def delete_summaries
-    ActiveRecord::Base.connection.truncate(Summary.table_name)
+    ActiveRecord::Base.connection.execute(
+      "TRUNCATE #{Summary.table_name} CASCADE",
+    )
   end
 end

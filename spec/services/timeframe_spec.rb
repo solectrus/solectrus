@@ -90,6 +90,10 @@ describe Timeframe do
       expect(decoder.ending).to eq('2022-10-13 10:00:00 +0200')
     end
 
+    it 'returns the correct beginning_of_next' do
+      expect(decoder.beginning_of_next).to eq('2022-10-13 10:00:00 +0200')
+    end
+
     it 'returns the correct next timeframe' do
       expect(decoder.next).to be_nil
     end
@@ -170,6 +174,10 @@ describe Timeframe do
 
     it 'returns the correct ending' do
       expect(decoder.ending).to eq('2022-05-13 23:59:59.999999999 +0200')
+    end
+
+    it 'returns the correct beginning_of_next' do
+      expect(decoder.beginning_of_next).to eq('2022-05-14 00:00:00 +0200')
     end
 
     it 'returns the correct next timeframe' do
@@ -357,6 +365,10 @@ describe Timeframe do
 
     it 'returns the correct ending' do
       expect(decoder.ending).to eq('2022-05-15 23:59:59.999999999 +0200')
+    end
+
+    it 'returns the correct beginning_of_next' do
+      expect(decoder.beginning_of_next).to eq('2022-05-16 00:00:00 +0200')
     end
 
     it 'returns the correct next timeframe' do
@@ -558,6 +570,10 @@ describe Timeframe do
       expect(decoder.ending).to eq('2022-05-31 23:59:59.999999999 +0200')
     end
 
+    it 'returns the correct beginning_of_next' do
+      expect(decoder.beginning_of_next).to eq('2022-06-01 00:00:00 +0200')
+    end
+
     it 'returns the correct next timeframe' do
       expect(decoder.next.to_s).to eq('2022-06')
     end
@@ -741,6 +757,10 @@ describe Timeframe do
       expect(decoder.ending).to eq('2021-12-31 23:59:59.999999999 +0100')
     end
 
+    it 'returns the correct beginning_of_next' do
+      expect(decoder.beginning_of_next).to eq('2022-01-01 00:00:00 +0100')
+    end
+
     it 'returns the correct next timeframe' do
       expect(decoder.next.to_s).to eq('2022')
     end
@@ -918,6 +938,10 @@ describe Timeframe do
 
     it 'returns the correct ending' do
       expect(decoder.ending).to eq('2022-10-13 23:59:59.999999999 +0200')
+    end
+
+    it 'returns the correct beginning_of_next' do
+      expect(decoder.beginning_of_next).to eq('2022-10-14 00:00:00 +0200')
     end
 
     it 'returns the correct next timeframe' do

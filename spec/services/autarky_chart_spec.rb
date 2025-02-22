@@ -8,10 +8,14 @@ describe AutarkyChart do
   context 'with wallbox_power sensor' do
     before do
       12.times do |index|
-        Summary.create! date: beginning + index.month,
-                        sum_house_power: (index + 1) * 100 * 24, # 100 W for 24 hours
-                        sum_grid_import_power: (index + 1) * 300 * 24, # 300 W for 24 hours
-                        sum_wallbox_power: (index + 1) * 500 * 24 # 500 W for 24 hours
+        create_summary(
+          date: beginning + index.months,
+          values: [
+            [:house_power, :sum, (index + 1) * 100 * 24], # 100 W for 24 hours
+            [:grid_import_power, :sum, (index + 1) * 300 * 24], # 50 W for 24 hours
+            [:wallbox_power, :sum, (index + 1) * 500 * 24], # 200 W for 24 hours
+          ],
+        )
       end
 
       add_influx_point name: measurement_inverter_power,
@@ -22,7 +26,8 @@ describe AutarkyChart do
                          # This happens when the `csv-importer` was used to import CSV data from SENEC,
                          # which do not contain the `wallbox_power`.
                          # The missing value tests the `if` statement in the query.
-                       }
+                       },
+                       time: 5.seconds.ago
     end
 
     describe '#call' do
@@ -34,10 +39,10 @@ describe AutarkyChart do
         it { is_expected.to have(1.hour / 30.seconds).items }
 
         it 'contains last data point' do
-          last = result.last
+          timestamp, value = result.last
 
-          expect(last[1]).to eq(50.0)
-          expect(last.first).to be_within(30.seconds).of(Time.current)
+          expect(value).to eq(50.0)
+          expect(timestamp).to be_within(30.seconds).of(Time.current)
         end
       end
 
@@ -68,16 +73,21 @@ describe AutarkyChart do
       end
 
       12.times do |index|
-        Summary.create! date: beginning + index.month,
-                        sum_house_power: (index + 1) * 100 * 24, # 100 W for 24 hours
-                        sum_grid_import_power: (index + 1) * 50 * 24 # 50 W for 24 hours
+        create_summary(
+          date: beginning + index.months,
+          values: [
+            [:house_power, :sum, (index + 1) * 100 * 24], # 100 W for 24 hours
+            [:grid_import_power, :sum, (index + 1) * 50 * 24], # 50 W for 24 hours
+          ],
+        )
       end
 
       add_influx_point name: measurement_inverter_power,
                        fields: {
                          field_house_power => 6_000,
                          field_grid_import_power => 3000,
-                       }
+                       },
+                       time: 5.seconds.ago
     end
 
     describe '#call' do
@@ -89,10 +99,10 @@ describe AutarkyChart do
         it { is_expected.to have(1.hour / 30.seconds).items }
 
         it 'contains last data point' do
-          last = result.last
+          timestamp, value = result.last
 
-          expect(last[1]).to eq(50.0)
-          expect(last.first).to be_within(30.seconds).of(Time.current)
+          expect(value).to eq(50.0)
+          expect(timestamp).to be_within(30.seconds).of(Time.current)
         end
       end
 
