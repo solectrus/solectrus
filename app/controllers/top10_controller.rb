@@ -12,7 +12,7 @@ class Top10Controller < ApplicationController
   private
 
   helper_method def timeframe
-    @timeframe ||= Timeframe.new(period || 'all')
+    @timeframe ||= Timeframe.all
   end
 
   helper_method def title
