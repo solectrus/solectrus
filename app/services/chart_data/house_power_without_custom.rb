@@ -101,7 +101,11 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
   end
 
   def other_power_pv(raw_chart, index)
-    other_power(raw_chart, index)&.- other_power_grid(raw_chart, index)
+    power = other_power(raw_chart, index)
+    grid_power = other_power_grid(raw_chart, index)
+    return unless power && grid_power
+
+    power - grid_power
   end
 
   def excluded_sensor_names
