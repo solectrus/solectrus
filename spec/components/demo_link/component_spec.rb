@@ -10,6 +10,6 @@ describe DemoLink::Component, type: :component do
     expect(page).to have_link 'How to become a sponsor?',
               href: 'https://solectrus.de/sponsoring'
 
-    expect(page).to have_link 'Demo', href: 'http://demo.solectrus.de/house'
+    expect(page).to have_link 'Demo', href: 'https://demo.solectrus.de/house'
   end
 end

@@ -34,4 +34,4 @@
       = c.with_body { t('layout.missing_custom_consumers') }
 
 - else
-  = render DemoLink::Component.new feature: 'custom', url: { **permitted_params, timeframe: 'week' }
+  = render DemoLink::Component.new feature: 'custom', url: { **permitted_params }
