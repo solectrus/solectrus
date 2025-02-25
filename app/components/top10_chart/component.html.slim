@@ -17,7 +17,7 @@
           = formatted_date(record[:date])
         .table-cell.align-middle.p-2
           .flex.items-center.gap-3
-            .h-7.sm:h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
+            .h-7.sm:h-8.rounded.flex.items-center.justify-end.bg-linear-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
               span class= value_classes_inside(record)
                 = Number::Component.new(value: record[:value]).public_send(unit_method)
 

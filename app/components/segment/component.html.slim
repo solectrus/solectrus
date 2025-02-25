@@ -1,6 +1,31 @@
+- styles = capture do
+  css:
+    #segment-#{sensor} {
+      --segment-font-size: #{font_size(max: 90)}%;
+      --segment-height: #{tiny? ? 0 : percent}%;
+    }
+
+    @media (min-width: 768px) and (min-height: 800px) {
+      #segment-#{sensor} {
+        --segment-font-size: #{font_size(max: 140)}%;
+      }
+    }
+
+    @media (min-width: 1024px) and (min-height: 800px) {
+      #segment-#{sensor} {
+        --segment-font-size: #{font_size(max: 115)}%;
+      }
+    }
+
+    @media (min-width: 1280px) and (min-height: 800px) {
+      #segment-#{sensor} {
+        --segment-font-size: #{font_size(max: 140)}%;
+      }
+    }
+
 - if block
   = tag.div id: "segment-#{sensor}",
-            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('!border-0' if tiny?)],
+            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?)],
             style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
             title:,
             data: { \
@@ -9,12 +34,13 @@
               tippy_force_tap_to_close_value: false,
               tippy_touch_value: 'long',
             } do
+    = styles
     = block.call
 
 - else
   = link_to_or_div url,
             id: "segment-#{sensor}",
-            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('!border-0' if tiny?)],
+            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?)],
             style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
             title:,
             data: { \
@@ -28,6 +54,7 @@
               action: 'stats-with-chart--component#startLoop',
               stats_with_chart__component_sensor_param: sensor,
             } do
+    = styles
     div class= "flex gap-2 lg:gap-3 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center #{'click-animation' if url}"
       - if icon_class
         i.fa class= icon_class style="font-size: #{icon_size}%;"
@@ -70,27 +97,3 @@
 
             - elsif sensor == :grid_import_power
               = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
-
-css:
-  #segment-#{sensor} {
-    --segment-font-size: #{font_size(max: 90)}%;
-    --segment-height: #{tiny? ? 0 : percent}%;
-  }
-
-  @media (min-width: 768px) and (min-height: 800px) {
-    #segment-#{sensor} {
-      --segment-font-size: #{font_size(max: 140)}%;
-    }
-  }
-
-  @media (min-width: 1024px) and (min-height: 800px) {
-    #segment-#{sensor} {
-      --segment-font-size: #{font_size(max: 115)}%;
-    }
-  }
-
-  @media (min-width: 1280px) and (min-height: 800px) {
-    #segment-#{sensor} {
-      --segment-font-size: #{font_size(max: 140)}%;
-    }
-  }

@@ -79,7 +79,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
 
     = yield :head
 
-  body.min-h-dvh.flex.flex-col.bg-gradient-to-t.from-gray-100.to-white.select-none.font-sans.antialiased.dark:from-black.dark:to-black[
+  body.min-h-dvh.flex.flex-col.bg-linear-to-t.from-gray-100.to-white.select-none.font-sans.antialiased.dark:from-black.dark:to-black[
     data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
@@ -99,7 +99,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
 
     main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
       .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
-        .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden
+        .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden
           = yield
       = tag.turbo_frame id: 'modal', target: '_top'
 

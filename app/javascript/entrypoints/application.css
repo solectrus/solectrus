@@ -1,105 +1,166 @@
+@import 'tailwindcss';
+
+@source '../../**/*.{slim,rb}';
+@source '../../javascript/**/*.{js,ts}'
+
+@plugin '@tailwindcss/container-queries';
+@plugin '@tailwindcss/forms';
+@plugin 'tailwindcss-displaymodes';
+
+/* Toggling dark mode manually */
+/* https://tailwindcss.com/docs/dark-mode#toggling-dark-mode-manually */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@custom-variant tall (@media (min-height: 860px));
+
 /* Import styles from external libraries */
-@import '@fortawesome/fontawesome-svg-core/styles.css';
+@import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
 
 /* Import app specific styles */
-@import '../stylesheets/tippy.css';
-@import '../stylesheets/flow.css';
-@import '../stylesheets/badge.css';
-@import '../stylesheets/animations.css';
+@import '../stylesheets/tippy.css' layer(base);
+@import '../stylesheets/flow.css' layer(base);
+@import '../stylesheets/badge.css' layer(base);
+@import '../stylesheets/animations.css' layer(base);
 
-/* Import the Inter font */
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url(@/fonts/Inter.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
-    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+@theme {
+  --breakpoint-3xl: 1920px;
+
+  --container-c0: 10rem;
+  --container-c1: 12rem;
+  --container-c2: 15rem;
+  --container-c3: 18rem;
+  --container-c4: 21rem;
+
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
+
+  /* Slightly different shade of red */
+  --color-red-600: oklch(57.71% 0.2152 27.33);
+
+  /* Green is an alias for Emerald */
+  --color-green-50: var(--color-emerald-50);
+  --color-green-100: var(--color-emerald-100);
+  --color-green-200: var(--color-emerald-200);
+  --color-green-300: var(--color-emerald-300);
+  --color-green-400: var(--color-emerald-400);
+  --color-green-500: var(--color-emerald-500);
+  --color-green-600: var(--color-emerald-600);
+  --color-green-700: var(--color-emerald-700);
+  --color-green-800: var(--color-emerald-800);
+  --color-green-900: var(--color-emerald-900);
+  --color-green-950: var(--color-emerald-950);
+
+  /* Yellow is an alias for Amber */
+  --color-yellow-50: var(--color-amber-50);
+  --color-yellow-100: var(--color-amber-100);
+  --color-yellow-200: var(--color-amber-200);
+  --color-yellow-300: var(--color-amber-300);
+  --color-yellow-400: var(--color-amber-400);
+  --color-yellow-500: var(--color-amber-500);
+  --color-yellow-600: var(--color-amber-600);
+  --color-yellow-700: var(--color-amber-700);
+  --color-yellow-800: var(--color-amber-800);
+  --color-yellow-900: var(--color-amber-900);
+  --color-yellow-950: var(--color-amber-950);
 }
 
-.turbo-progress-bar {
-  height: 5px;
-  background-color: #a5b4fc;
+/* Minimalistic form styling, inspired by DaisyUI */
+@layer components {
+  .form-control {
+    @apply flex flex-col;
+  }
+
+  .label {
+    @apply py-1 text-gray-600;
+  }
+
+  .label-text {
+    @apply text-sm;
+  }
+
+  .label-hint {
+    @apply mt-1 text-xs text-gray-500;
+  }
+
+  .input-error {
+    @apply border-red-500! ring-red-500!;
+  }
 }
 
-/* Chart.js */
+.form-input {
+  @variant dark {
+    @apply bg-black text-gray-300 ring-offset-slate-800 focus:border-indigo-500 focus:ring-offset-pink-700!;
+  }
+}
 
-.dark {
+.label {
+  @variant dark {
+    @apply text-gray-400;
+  }
+}
+
+.label-hint {
+  @variant dark {
+    @apply text-gray-400;
+  }
+}
+
+.form-checkbox,
+.form-radio {
+  @variant dark {
+    @apply text-indigo-700;
+    background-color: currentColor;
+
+    &:focus {
+      @apply ring-offset-indigo-300!;
+    }
+  }
+}
+
+@variant dark {
+  /* Chart.js */
   canvas {
     filter: invert(1) hue-rotate(180deg);
   }
 }
 
-/* Minimalistic form styling, inspired by DaisyUI */
-
-.form-control {
-  @apply flex flex-col;
-}
-
-.label {
-  @apply py-1 text-gray-600;
-}
-
-.label-text {
-  @apply text-sm;
-}
-
-.label-hint {
-  @apply mt-1 text-xs text-gray-500;
-}
-
-.input-error {
-  @apply !border-red-500 !ring-red-500;
-}
-
-.dark {
-  .label {
-    @apply text-gray-400;
+@layer base {
+  /* Import the Inter font */
+  @font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url(@/fonts/Inter.woff2) format('woff2');
+    unicode-range:
+      U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+      U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+      U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
 
-  .label-hint {
-    @apply text-gray-400;
+  .turbo-progress-bar {
+    height: 5px;
+    background-color: #a5b4fc;
   }
 
-  .form-input {
-    @apply bg-black text-gray-300 ring-offset-slate-800 focus:border-indigo-500 focus:!ring-offset-pink-700;
+  * {
+    /* Disable default callouts for touch targets on iOS */
+    -webkit-touch-callout: none;
+    /* Disable dragging on iOS */
+    -webkit-user-drag: none;
   }
 
-  [type='checkbox'],
-  [type='radio'] {
-    @apply text-indigo-700;
-    background-color: currentColor;
+  main code {
+    @apply rounded-sm border border-dotted border-slate-500 bg-slate-100 px-1 py-px dark:bg-slate-900;
   }
 
-  [type='checkbox']:focus,
-  [type='radio']:focus {
-    @apply !ring-offset-indigo-300;
+  .min-h-dvh {
+    /* Fallback for browsers that do not support Dynamic viewport units */
+    min-height: 100vh;
+  }
+
+  .click-animation {
+    @apply transition-transform duration-100 group-active:scale-95 active:scale-95;
   }
 }
-
-* {
-  /* Disable default callouts for touch targets on iOS */
-  -webkit-touch-callout: none;
-  /* Disable dragging on iOS */
-  -webkit-user-drag: none;
-}
-
-main code {
-  @apply rounded border border-dotted border-slate-500 bg-slate-100 px-1 py-px dark:bg-slate-900;
-}
-
-.min-h-dvh {
-  /* Fallback for browsers that do not support Dynamic viewport units */
-  min-height: 100vh;
-}
-
-.click-animation {
-  @apply transition-transform duration-100 active:scale-95 group-active:scale-95;
-}
-
-/* Import Tailwind CSS */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

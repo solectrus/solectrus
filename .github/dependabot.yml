@@ -73,6 +73,11 @@ updates:
         patterns:
           - '@size-limit/file'
           - 'size-limit'
+      tailwindcss:
+        patterns:
+          - '@tailwindcss/*'
+          - 'tailwindcss'
+          - 'prettier-plugin-tailwindcss'
 
   - package-ecosystem: 'github-actions'
     directory: '/'

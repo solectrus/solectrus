@@ -2,7 +2,7 @@
   - if timeframe.can_paginate?
     - if timeframe.prev
       = link_to prev_path,
-                class: 'px-2 py-1 rounded hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation',
+                class: 'px-2 py-1 rounded-sm hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation',
                 'aria-label': t('.previous'),
                 rel: 'prev' do
         i.fas.fa-chevron-left.fa-lg
@@ -47,7 +47,7 @@
   - if timeframe.can_paginate?
     - if timeframe.next
       = link_to next_path,
-                class: 'px-2 py-1 rounded hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation',
+                class: 'px-2 py-1 rounded-sm hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation',
                 'aria-label': t('.next'),
                 rel: 'next' do
         i.fas.fa-chevron-right.fa-lg

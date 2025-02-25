@@ -1,11 +1,11 @@
 header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-over--component'
-  nav.absolute.w-full.z-40.bg-indigo-600.dark:bg-indigo-900.border-b.border-indigo-300.dark:border-indigo-950.border-opacity-25.lg:border-none data-controller="toggle"
+  nav.absolute.w-full.z-40.bg-indigo-600.dark:bg-indigo-900.border-b.border-indigo-300.dark:border-indigo-950/25.lg:border-none data-controller="toggle"
     .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-2.sm:px-4.lg:px-8
-      .relative.h-14.md:h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-200.lg:border-opacity-25
-        .px-2.flex.items-center.lg:px-0.space-x-6.flex-1.dark:lg:border-indigo-700
+      .relative.h-14.md:h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-200/25
+        .px-2.flex.items-center.lg:px-0.gap-6.flex-1.dark:lg:border-indigo-700
           /! Desktop menu
           = link_to root_item.href,
-                    class: 'flex-shrink-0 click-animation',
+                    class: 'shrink-0 click-animation',
                     title: root_item.name,
                     data: root_item.data do
             svg.size-10.md:size-12.fill-gray-300.dark:fill-gray-400[
@@ -14,10 +14,10 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
             ]
               path d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
 
-          .hidden.lg:flex.lg:ml-10.justify-between.items-center.flex-1
-            .flex.space-x-4.text-gray-300.dark:text-gray-400.uppercase.tracking-wider.whitespace-nowrap.text-base
+          .hidden.lg:flex.justify-between.items-center.flex-1
+            .flex.gap-4.text-gray-300.dark:text-gray-400.uppercase.tracking-wider.whitespace-nowrap.text-base
               - primary_items_without_root.each do |item|
-                = item.call(with_icon: true, css_extra: ['rounded-md py-2 px-3 click-animation', item.current ? 'bg-indigo-800 dark:bg-indigo-950' : 'hover:bg-indigo-500 hover:bg-opacity-75 dark:hover:bg-indigo-800'])
+                = item.call(with_icon: true, css_extra: ['rounded-md py-2 px-3 click-animation', item.current ? 'bg-indigo-800 dark:bg-indigo-950' : 'hover:bg-indigo-500/75 dark:hover:bg-indigo-800'])
 
             .flex.items-center.gap-3
               - unless helpers.banner? || current_page?(sponsoring_path)
@@ -27,7 +27,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
                     admin: helpers.admin?,
                   )
 
-              button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-gray-300.hover:bg-indigo-500.hover:bg-opacity-75.dark:text-gray-400.dark:hover:bg-indigo-800[
+              button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-gray-300.hover:bg-indigo-500/75.dark:text-gray-400.dark:hover:bg-indigo-800[
                 data-action="click->slide-over--component#open"
                 aria-haspopup= 'true'
                 aria-expanded= 'false'
@@ -49,7 +49,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
                   )
 
           /! Mobile menu button
-          button.bg-indigo-600.dark:bg-indigo-900.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.dark:hover:text-white.dark:hover:text-gray-200.hover:bg-indigo-500.hover:bg-opacity-75.focus:outline-none.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white.dark:focus:ring-indigo-950.dark:hover:bg-transparent[
+          button.bg-indigo-600.dark:bg-indigo-900.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-indigo-200.dark:hover:text-white.dark:hover:text-gray-200.hover:bg-indigo-500/75.focus:outline-hidden.focus:ring-2.focus:ring-offset-2.focus:ring-offset-indigo-600.focus:ring-white.dark:focus:ring-indigo-950.dark:hover:bg-transparent[
             type="button"
             aria-expanded="false"
             aria-label= 'Navigation'
@@ -70,12 +70,12 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
         - primary_items_without_root.each do |item|
           = item.call(with_icon: true, css_extra: ['py-2 px-3 ', item.current ? 'rounded-md bg-indigo-700' : ''])
 
-      .px-2.pt-2.pb-3.space-y-1.text-sm.font-medium.border-t.border-indigo-300.border-opacity-25.mt-3.uppercase.tracking-wider
+      .px-2.pt-2.pb-3.space-y-1.text-sm.font-medium.border-t.border-indigo-300/25.mt-3.uppercase.tracking-wider
         - secondary_items.each do |item|
           = item.call(css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
 
       - unless ThemeConfig.x.static?
-        .flex.justify-center.pt-5.pb-3.border-t.border-indigo-300.border-opacity-25
+        .flex.justify-center.pt-5.pb-3.border-t.border-indigo-300/25
           = render ThemeSelector::Component.new
 
       - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
@@ -109,4 +109,4 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
 
   = render SlideOver::Component.new do
     - secondary_items.each do |item|
-      = item.call(with_icon: true, css_extra: ['py-2 px-6 text-gray-600 dark:text-gray-400', item.current ? 'font-bold' : 'hover:bg-indigo-100 hover:bg-opacity-75 dark:hover:bg-indigo-900'])
+      = item.call(with_icon: true, css_extra: ['py-2 px-6 text-gray-600 dark:text-gray-400', item.current ? 'font-bold' : 'hover:bg-indigo-100/75 dark:hover:bg-indigo-900'])

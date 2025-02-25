@@ -19,7 +19,7 @@
       h1.md:text-xl
         = t('.title')
 
-      div class="w-full grid grid-cols-auto-fit grid-flow-col rounded-md overflow-hidden bg-indigo-200 dark:bg-indigo-900"
+      div class="w-full grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] grid-flow-col rounded-md overflow-hidden bg-indigo-200 dark:bg-indigo-900"
         = render DayComponent.with_collection(missing_or_stale_days)
 
       - unless timeframe.week?

@@ -43,7 +43,7 @@ class Nav::Sub::Component < ViewComponent::Base
           %w[
             from-white
             to-indigo-100
-            bg-gradient-to-b
+            bg-linear-to-b
             text-gray-800
             lg:rounded-md
             lg:bg-gray-200

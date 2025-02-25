@@ -4,11 +4,11 @@
 - if Setting.plant_name.present? || Setting.operator_name.present?
   .flex.items-baseline.justify-between.pb-4.text-gray-500
     - if Setting.plant_name.present?
-      h1 class="text-base sm:text-lg md:text-xl lg:text-2xl leading-none"
+      h1 class="text-base sm:text-lg md:text-xl lg:text-2xl"
         = Setting.plant_name
 
     - if Setting.operator_name.present?
-      h2 class="text-sm sm:text-base md:text-lg lg:text-xl leading-none"
+      h2 class="text-sm sm:text-base md:text-lg lg:text-xl"
         = Setting.operator_name
 
 - if @missing_or_stale_summary_days.present?
