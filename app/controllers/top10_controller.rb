@@ -6,13 +6,13 @@ class Top10Controller < ApplicationController
     redirect_to(default_path) unless period && sensor && calc && sort
     redirect_to(default_path(calc: 'sum')) if calc == 'max' && !supports_max?
 
-    load_missing_or_stale_summary_days(timeframe)
+    load_missing_or_stale_summary_days(Timeframe.all)
   end
 
   private
 
   helper_method def timeframe
-    @timeframe ||= Timeframe.all
+    @timeframe ||= Timeframe.new(period || 'all')
   end
 
   helper_method def title
