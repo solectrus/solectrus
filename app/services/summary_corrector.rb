@@ -57,7 +57,7 @@ class SummaryCorrector
 
     consumptions =
       power_pairs
-        .transform_values { it[:consumption] || 0 }
+        .transform_values { (it[:consumption] || 0).clamp(0, nil) }
         .slice(*grid_powers.keys)
 
     if grid_power_total.zero?
