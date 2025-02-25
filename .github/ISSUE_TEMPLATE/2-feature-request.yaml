@@ -1,6 +1,6 @@
 name: Anforderungsbeschreibung
 description: Neues Feature für SOLECTRUS vorschlagen
-labels: ['enhancement']
+type: Feature
 
 body:
   - type: textarea
