@@ -2,11 +2,14 @@ class EssentialsController < ApplicationController
   include SummaryChecker
 
   def index
-    @timeframe = Timeframe.year
-    load_missing_or_stale_summary_days(@timeframe)
+    load_missing_or_stale_summary_days(timeframe)
   end
 
   private
+
+  helper_method def timeframe
+    @timeframe ||= Timeframe.year
+  end
 
   helper_method def title
     t('layout.essentials')

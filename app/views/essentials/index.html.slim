@@ -12,7 +12,7 @@
         = Setting.operator_name
 
 - if @missing_or_stale_summary_days.present?
-  = render SummaryBuilder::Component.new(timeframe: @timeframe, missing_or_stale_days: @missing_or_stale_summary_days)
+  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - else
   div class= 'grid flex-auto grid-flow-row auto-rows-fr grid-cols-2 gap-4 pb-5 md:pb-0 lg:gap-8 lg:landscape:grid-cols-3'
