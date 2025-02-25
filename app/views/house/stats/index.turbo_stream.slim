@@ -3,9 +3,7 @@
 
 - if timeframe.now? && SensorConfig.x.exists?(:system_status)
   = turbo_stream.update frame_id('status') do
-    = render Status::Component.new time: calculator.time,
-                                   status: calculator.system_status,
-                                   status_ok: calculator.system_status_ok
+    = render Status::Component.new time: calculator.time
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   .h-full.w-full.flex.flex-col.gap-3 id= "stats-#{timeframe.id}"
