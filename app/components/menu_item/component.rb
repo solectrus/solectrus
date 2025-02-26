@@ -64,7 +64,7 @@ class MenuItem::Component < ViewComponent::Base
 
   def render_inner(with_icon:)
     tag.span class: 'flex items-center gap-3',
-             title: name,
+             title: icon_only ? name : nil,
              data: {
                controller: 'tippy',
              } do
