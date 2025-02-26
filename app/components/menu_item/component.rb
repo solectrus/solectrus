@@ -84,7 +84,7 @@ class MenuItem::Component < ViewComponent::Base
             class: [
               'flex-1 text-left',
               ('font-medium' if with_icon),
-              ('md:hidden' if icon_only),
+              ('lg:hidden' if icon_only),
             ],
           ) { name },
         )
