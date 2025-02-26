@@ -15,7 +15,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
               path d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
 
           .hidden.lg:flex.justify-between.items-center.flex-1
-            .flex.gap-4.text-gray-300.dark:text-gray-400.uppercase.tracking-wider.whitespace-nowrap.text-base
+            .flex.gap-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-base
               - primary_items_without_root.each do |item|
                 = item.call(with_icon: true, css_extra: ['rounded-md py-2 px-3 click-animation', item.current ? 'bg-indigo-800 dark:bg-indigo-950' : 'hover:bg-indigo-500/75 dark:hover:bg-indigo-800'])
 
@@ -66,13 +66,13 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
 
     .max-h-0.transition-max-height.ease-out.duration-200.overflow-hidden.text-gray-300.dark:text-gray-400 data-toggle-target="dropdown"
       /! Mobile menu
-      .px-2.pt-2.space-y-1.text-base.text-gray-300.dark:text-gray-400.uppercase.tracking-wider
+      .px-2.md:px-5.pt-2.space-y-1.text-base.text-gray-300.dark:text-gray-400.tracking-wider
         - primary_items_without_root.each do |item|
-          = item.call(with_icon: true, css_extra: ['py-2 px-3 ', item.current ? 'rounded-md bg-indigo-700' : ''])
+          = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
 
-      .px-2.pt-2.pb-3.space-y-1.text-sm.font-medium.border-t.border-indigo-300/25.mt-3.uppercase.tracking-wider
+      .mt-5.px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.border-t.border-indigo-300/25.tracking-wider
         - secondary_items.each do |item|
-          = item.call(css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
+          = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
 
       - unless ThemeConfig.x.static?
         .flex.justify-center.pt-5.pb-3.border-t.border-indigo-300/25

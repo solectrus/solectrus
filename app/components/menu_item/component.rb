@@ -82,7 +82,7 @@ class MenuItem::Component < ViewComponent::Base
         concat(
           tag.span(
             class: [
-              'flex-1 text-left',
+              'flex-1 text-left uppercase lg:normal-case',
               ('font-medium' if with_icon),
               ('lg:hidden' if icon_only),
             ],
