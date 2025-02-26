@@ -9,10 +9,10 @@ export default class extends Controller {
       default: 'bottom',
     },
 
-    // Show tooltip only on touch devices, can be "true", "false" or "long"
+    // How to handle tooltips on touch devices, can be "true", "false" or "long"
     touch: {
       type: String,
-      default: 'true',
+      default: 'false',
     },
 
     // Force second tap (on touch device) to close tooltip
