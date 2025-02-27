@@ -18,7 +18,7 @@
                   stats_with_chart__component_sensor_param: 'autarky',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy"
+        div data-controller="tippy" data-tippy-touch-value= "true"
           = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
           .hidden#autarky-details-tooltip data-tippy-target="html"
             = render AutarkyDetails::Component.new(calculator:)
@@ -37,7 +37,7 @@
                   stats_with_chart__component_sensor_param: 'self_consumption',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy"
+        div data-controller="tippy" data-tippy-touch-value= "true"
           = render RadialBadge::Component.new(percent: calculator.self_consumption_quote, neutral: true, title: t('calculator.self_consumption_quote_short'))
           .hidden#consumption-details-tooltip data-tippy-target="html"
             = render ConsumptionDetails::Component.new(calculator:)

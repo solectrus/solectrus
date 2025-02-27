@@ -11,7 +11,7 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy"
+        div data-controller="tippy" data-tippy-touch-value= "true"
           = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
           - unless timeframe.future?
             template data-tippy-target="html"
@@ -25,7 +25,7 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy"
+        div data-controller="tippy" data-tippy-touch-value= "true"
           = render RadialBadge::Component.new(percent: calculator.self_consumption_quote, neutral: true, title: t('calculator.self_consumption_quote_short'))
           - unless timeframe.future?
             template data-tippy-target="html"
@@ -41,11 +41,11 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy" title= t('calculator.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor)
+        div data-controller="tippy" title= t('calculator.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tippy-touch-value= "true"
           = render RadialBadge::Component.new(title: t('calculator.co2_reduction')) do
             = Number::Component.new(value: calculator.co2_reduction).to_weight(klass: 'text-sky-700 dark:text-sky-400')
 
-    div data-controller="tippy"
+    div data-controller="tippy" data-tippy-touch-value= "true"
       = render RadialBadge::Component.new(title: t('calculator.total_costs')) do
         - unless timeframe.future?
           = Number::Component.new(value: costs).to_eur(negative: true)
@@ -53,7 +53,7 @@
         template data-tippy-target="html"
           = render ConsumeDetails::Component.new(calculator:)
 
-    div data-controller="tippy"
+    div data-controller="tippy" data-tippy-touch-value= "true"
       = render RadialBadge::Component.new(title: t('calculator.savings')) do
         - unless timeframe.future?
           = Number::Component.new(value: calculator.savings).to_eur
