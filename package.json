@@ -13,7 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@honeybadger-io/js": "^6.10.1",
     "@hotwired/stimulus": "^3.2.2",
-    "@hotwired/turbo-rails": "^8.0.12",
+    "@hotwired/turbo-rails": "^8.0.13",
     "chart.js": "^4.4.8",
     "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-crosshair": "^2.0.0",
