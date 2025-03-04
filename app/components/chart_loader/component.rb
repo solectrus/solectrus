@@ -93,6 +93,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 maxRotation: 0,
               },
               month: {
+                stepSize: 2,
                 maxRotation: 0,
               },
               months: {
@@ -129,7 +130,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               days: {
                 unit: 'day',
                 displayFormats: {
-                  day: 'eee',
+                  day: 'd',
                 },
                 tooltipFormat: 'eeee, dd.MM.yyyy',
                 round: 'day',
