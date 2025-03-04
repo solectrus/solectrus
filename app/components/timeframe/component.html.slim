@@ -21,12 +21,17 @@
 
   - when :day
     .py-1.flex-1.md:w-72.text-center
-      time datetime= timeframe
+      time datetime= timeframe.iso8601
+        = timeframe.localized
+
+  - when :days
+    .py-1
+      time datetime= timeframe.iso8601
         = timeframe.localized
 
   - when :week
     .py-1.flex-1.md:w-72.text-center
-      time.space-x-4 datetime= timeframe
+      time.space-x-4 datetime= timeframe.iso8601
         span
           = timeframe.localized
         small.hidden.md:inline
@@ -36,12 +41,17 @@
 
   - when :month
     .py-1.w-36.text-center
-      time datetime= timeframe
+      time datetime= timeframe.iso8601
+        = timeframe.localized
+
+  - when :months
+    .py-1
+      time datetime= timeframe.iso8601
         = timeframe.localized
 
   - when :year
     .py-1.w-16.text-center
-      time datetime= timeframe
+      time datetime= timeframe.iso8601
         = timeframe.localized
 
   - if timeframe.can_paginate?

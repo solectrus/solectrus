@@ -85,12 +85,18 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 stepSize: 3,
                 maxRotation: 0,
               },
+              days: {
+                maxRotation: 0,
+              },
               week: {
                 stepSize: 1,
                 maxRotation: 0,
               },
               month: {
-                stepSize: 2,
+                maxRotation: 0,
+              },
+              months: {
+                stepSize: 1,
                 maxRotation: 0,
               },
               year: {
@@ -120,6 +126,14 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 },
                 tooltipFormat: 'HH:mm',
               },
+              days: {
+                unit: 'day',
+                displayFormats: {
+                  day: 'eee',
+                },
+                tooltipFormat: 'eeee, dd.MM.yyyy',
+                round: 'day',
+              },
               week: {
                 unit: 'day',
                 displayFormats: {
@@ -135,6 +149,14 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 },
                 tooltipFormat: 'eeee, dd.MM.yyyy',
                 round: 'day',
+              },
+              months: {
+                unit: 'month',
+                displayFormats: {
+                  month: 'MMM',
+                },
+                tooltipFormat: 'MMMM yyyy',
+                round: 'month',
               },
               year: {
                 unit: 'month',

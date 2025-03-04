@@ -28,8 +28,10 @@ en:
   timeframe:
     now: Now
     day: Today
+    days: Last %{count} days
     week: This week
     month: This month
+    months: Last %{count} months
     year: This year
     all: Since commissioning %{since} ago
   sensors:

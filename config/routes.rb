@@ -75,7 +75,7 @@ Rails.application.routes.draw do
 
   constraints sensor:
                 Regexp.new(SensorConfig::CHART_SENSORS.join('|'), false) do
-    constraints timeframe: Timeframe.regex do
+    constraints timeframe: Timeframe::REGEX do
       # Home (Root)
       get '/(/:sensor)(/:timeframe)', to: 'balance/home#index', as: :root
       get '/stats/:sensor(/:timeframe)', to: 'balance/stats#index'

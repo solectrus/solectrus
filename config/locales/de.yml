@@ -28,8 +28,10 @@ de:
   timeframe:
     now: Aktuell
     day: Heute
+    days: Letzte %{count} Tage
     week: Diese Woche
     month: Dieser Monat
+    months: Letzte %{count} Monate
     year: Dieses Jahr
     all: Seit Inbetriebnahme vor %{since}
   sensors:

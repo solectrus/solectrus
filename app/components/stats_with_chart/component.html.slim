@@ -1,17 +1,21 @@
-.flex-auto.flex.flex-col.lg:landscape:flex-row.lg:gap-5[
-  data= refresh_options
-]
-  = tag.turbo_frame id: helpers.frame_id('stats'),
-                    class: 'lg:flex-1 h-3/5 min-h-72 lg:h-auto flex',
-                    src: stats_path,
-                    target: '_top',
-                    data: { stats_with_chart__component_target: 'stats' }
+- if !timeframe.relative? || ApplicationPolicy.relative_timeframe?
+  .flex-auto.flex.flex-col.lg:landscape:flex-row.lg:gap-5[
+    data= refresh_options
+  ]
+    = tag.turbo_frame id: helpers.frame_id('stats'),
+                      class: 'lg:flex-1 h-3/5 min-h-72 lg:h-auto flex',
+                      src: stats_path,
+                      target: '_top',
+                      data: { stats_with_chart__component_target: 'stats' }
 
-  = tag.turbo_frame id: helpers.frame_id('chart'),
-                    class: 'flex-1 flex',
-                    src: charts_path,
-                    target: '_top',
-                    data: { stats_with_chart__component_target: 'chart' } do
-    - if chart_loading_animation?
-      .flex-1.flex.justify-center.items-center
-        = render Loading::Component.new
+    = tag.turbo_frame id: helpers.frame_id('chart'),
+                      class: 'flex-1 flex',
+                      src: charts_path,
+                      target: '_top',
+                      data: { stats_with_chart__component_target: 'chart' } do
+      - if chart_loading_animation?
+        .flex-1.flex.justify-center.items-center
+          = render Loading::Component.new
+- else
+  = render DemoLink::Component.new feature: 'relative_timeframe',
+                                   url: { **controller.__send__(:permitted_params) }

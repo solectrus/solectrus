@@ -89,7 +89,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       return 'day' unless helpers.respond_to?(:timeframe)
 
       case helpers.timeframe&.id
-      when :day, :week, :month, :year
+      when :week, :month, :year
         helpers.timeframe.id
       else
         :day

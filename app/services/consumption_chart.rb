@@ -17,7 +17,7 @@ class ConsumptionChart < ChartBase
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id]
-    when :week, :month, :year, :all
+    when :days, :week, :month, :months, :year, :all
       query_sql(timeframe:)
     end
   end
