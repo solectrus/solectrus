@@ -2,7 +2,7 @@ describe DemoLink::Component, type: :component do
   subject(:component) { described_class.new(url:, feature:) }
 
   let(:url) { { controller: 'house/home', action: 'index' } }
-  let(:feature) { 'custom' }
+  let(:feature) { 'custom_consumer' }
 
   it 'renders the buttons' do
     render_inline(component)
