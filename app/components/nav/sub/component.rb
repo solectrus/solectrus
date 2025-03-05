@@ -24,8 +24,8 @@ class Nav::Sub::Component < ViewComponent::Base
       base_classes = %w[
         pt-5
         pb-5
-        standalone:pt-3
-        standalone:pb-8
+        standalone:max-lg:pt-3
+        standalone:max-lg:pb-8
         px-1.5
         first:pl-6
         last:pr-6
