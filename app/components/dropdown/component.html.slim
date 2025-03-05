@@ -45,7 +45,7 @@
             d= 'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
           ]
 
-    .z-10.origin-top-right.absolute.right-0.mt-2.rounded-md.shadow-lg.bg-white.dark:bg-gray-700.ring-1.ring-black/5.hidden[
+    .z-10.origin-top-right.absolute.w-max.right-0.mt-2.rounded-md.shadow-lg.bg-white.dark:bg-gray-700.ring-1.ring-black/5.hidden[
       data-dropdown--component-target="menu"
       data-transition-enter="transition ease-out duration-100"
       data-transition-enter-start="opacity-0 scale-95"
@@ -54,6 +54,6 @@
       data-transition-leave-start="opacity-100 scale-100"
       data-transition-leave-end="opacity-0 scale-95"
     ]
-      .py-1.whitespace-nowrap aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
+      .py-1.whitespace-nowrap.grid class=('grid-cols-2' if many?) aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
         - items.each do |item|
           = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', item.current ? 'font-bold' : nil])

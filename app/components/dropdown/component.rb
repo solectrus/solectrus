@@ -25,4 +25,8 @@ class Dropdown::Component < ViewComponent::Base
   def icons?
     items.any?(&:icon)
   end
+
+  def many?
+    items.length > 10
+  end
 end
