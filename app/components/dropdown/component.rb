@@ -26,7 +26,18 @@ class Dropdown::Component < ViewComponent::Base
     items.any?(&:icon)
   end
 
-  def many?
-    items.length > 10
+  def menu_class
+    case items.length
+    when ..10
+      # Few items (up to 10): Always display in one column
+      'grid grid-cols-1'
+    when 11..14
+      # Medium amount of items (11 - 14):
+      # Use one column on tall screens, two columns on shorter screens
+      'grid grid-cols-1 short:grid-cols-2'
+    else
+      # Many items (> 14): Always display in two columns
+      'grid grid-cols-2'
+    end
   end
 end

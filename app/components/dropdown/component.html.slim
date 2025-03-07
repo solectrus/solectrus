@@ -54,6 +54,6 @@
       data-transition-leave-start="opacity-100 scale-100"
       data-transition-leave-end="opacity-0 scale-95"
     ]
-      .py-1.whitespace-nowrap.grid class=('grid-cols-2' if many?) aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
+      .py-1.whitespace-nowrap class=menu_class aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
         - items.each do |item|
           = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', item.current ? 'font-bold' : nil])

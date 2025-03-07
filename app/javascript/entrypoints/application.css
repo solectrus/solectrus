@@ -12,6 +12,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @custom-variant tall (@media (min-height: 860px));
+@custom-variant short (@media (max-height: 859px));
 
 /* Import styles from external libraries */
 @import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
