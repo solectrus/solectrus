@@ -5,6 +5,10 @@ class ApplicationController < ActionController::Base
   include TopNavigation
   default_form_builder TailwindFormBuilder
 
+  # Tailwind CSS 4 requires modern browser versions
+  # https://tailwindcss.com/docs/compatibility
+  allow_browser versions: { chrome: 111, safari: 16.4, firefox: 128, ie: false }
+
   def admin_required!
     admin? || raise(ForbiddenError)
   end
