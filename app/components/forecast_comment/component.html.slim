@@ -1,4 +1,4 @@
-.text-center.text-xs.sm:text-sm.text-slate-500 data-controller= 'tippy'
+.text-center.text-xs.sm:text-sm.text-slate-500 data-controller= 'tippy' data-tippy-touch-value= 'true'
   - if calculator.forecast_deviation
     - if calculator.forecast_deviation.positive?
       = t 'forecast.better_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')

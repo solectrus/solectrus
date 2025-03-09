@@ -6,6 +6,7 @@
     .text-sm
       p.py-1.md:py-2[
         data-controller="tippy"
+        data-tippy-touch-value="true"
         title= t('settings.general.summaries.description')
       ]
         - if summary_completion_rate.zero?

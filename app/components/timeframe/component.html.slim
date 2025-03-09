@@ -16,7 +16,7 @@
       = timeframe.localized
 
   - when :all
-    .py-1 data-controller= 'tippy' title= I18n.l(timeframe.min_date)
+    .py-1 data-controller= 'tippy' title= I18n.l(timeframe.min_date) data-tippy-touch-value= "true"
       == timeframe.localized
 
   - when :day
