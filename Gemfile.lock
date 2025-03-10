@@ -112,7 +112,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    css_parser (1.21.0)
+    css_parser (1.21.1)
       addressable
     csv (3.3.2)
     cypress-rails (0.8.0.rc1)
