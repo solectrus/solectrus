@@ -12,5 +12,11 @@
 = turbo_stream.update frame_id('chart') do
   .flex.flex-col.flex-auto.sm:gap-2
     - unless timeframe.out_of_range?
-      = render ChartSelector::Component.new(sensor:, timeframe:, sensors: chart_sensors)
+      = render ChartSelector::Component.new( \
+        sensor:,
+        timeframe:,
+        sensors: chart_sensors,
+        top_sensor: chart_sensors.first,
+        bottom_sensor: chart_sensors.last,
+      )
       = render ChartLoader::Component.new(sensor:, timeframe:)

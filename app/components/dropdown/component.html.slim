@@ -7,15 +7,12 @@
       name= name
     ]
       - items.each do |item|
-        - if item.name == '-'
-          hr
-        - else
-          option[
-            value= item.href
-            data= item.data
-            selected= (item == selected_item)
-          ]
-            = item.name
+        option[
+          value= item.href
+          data= item.data
+          selected= (item == selected_item)
+        ]
+          = item.name
 
     select.absolute.invisible.font-medium[
       data-select-target= 'temp'
@@ -57,6 +54,16 @@
       data-transition-leave-start="opacity-100 scale-100"
       data-transition-leave-end="opacity-0 scale-95"
     ]
-      .py-1.whitespace-nowrap class=menu_class aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
-        - items.each do |item|
-          = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', item.current ? 'font-bold' : nil])
+      .whitespace-nowrap aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
+        - if top_item
+          .border-b.border-gray-200.dark:border-gray-600
+            = top_item&.call(with_icon: icons?, css_extra: [extra_item_class, 'py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800 ', top_item.current ? 'font-bold' : nil])
+
+        div class= menu_class
+          - items.each do |item|
+            - unless item == top_item || item == bottom_item
+              = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', item.current ? 'font-bold' : nil])
+
+        - if bottom_item
+          .border-t.border-gray-200.dark:border-gray-600
+            = bottom_item.call(with_icon: icons?, css_extra: [extra_item_class, 'py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', bottom_item.current ? 'font-bold' : nil])

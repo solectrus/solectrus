@@ -2,5 +2,7 @@
   .justify-center.flex.items-center
     = render Dropdown::Component.new name: 'sensor-selector',
                                      items: sensor_items,
+                                     top_item: top_sensor,
+                                     bottom_item: bottom_sensor,
                                      selected: sensor,
                                      button_class: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-900'

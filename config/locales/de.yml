@@ -38,7 +38,7 @@ de:
     inverter_power: Erzeugung
     inverter_power_forecast: Prognose
     house_power: Haus&shy;verbrauch
-    house_power_without_custom: Andere
+    house_power_without_custom: Andere Verbraucher
     wallbox_power: E-Auto
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung

@@ -1,17 +1,23 @@
 class ChartSelector::Component < ViewComponent::Base
-  def initialize(sensor:, timeframe:, sensors:)
+  def initialize(
+    sensor:,
+    timeframe:,
+    sensors:,
+    top_sensor: nil,
+    bottom_sensor: nil
+  )
     super
     @sensor = sensor
     @timeframe = timeframe
-    @sensors = sensors.select { |it| it == '-' || SensorConfig.x.exists?(it) }
+    @sensors = sensors.select { |s| SensorConfig.x.exists?(s) }
+    @top_sensor = top_sensor
+    @bottom_sensor = bottom_sensor
   end
   attr_reader :sensor, :timeframe, :sensors
 
   def sensor_items
-    sensors.map do |sensor|
-      if sensor == '-'
-        MenuItem::Component.new(name: '-')
-      else
+    @sensor_items ||=
+      sensors.map do |sensor|
         MenuItem::Component.new(
           name: title(sensor),
           sensor:,
@@ -31,7 +37,14 @@ class ChartSelector::Component < ViewComponent::Base
           current: sensor == @sensor,
         )
       end
-    end
+  end
+
+  def top_sensor
+    sensor_items.find { |item| item.sensor == @top_sensor }
+  end
+
+  def bottom_sensor
+    sensor_items.find { |item| item.sensor == @bottom_sensor }
   end
 
   private
