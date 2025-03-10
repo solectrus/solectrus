@@ -6,6 +6,8 @@ describe PowerChart do
   end
 
   before do
+    freeze_time
+
     12.times do |index|
       create_summary(
         date: beginning + index.month,
@@ -25,8 +27,6 @@ describe PowerChart do
                      },
                      time: 5.seconds.ago
   end
-
-  around { |example| freeze_time(&example) }
 
   context 'when one sensor is requested' do
     let(:chart) { described_class.new(sensors: [:inverter_power]) }

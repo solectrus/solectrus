@@ -3,7 +3,7 @@ describe AutarkyChart do
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 
-  around { |example| freeze_time(&example) }
+  before { freeze_time }
 
   context 'with wallbox_power sensor' do
     before do

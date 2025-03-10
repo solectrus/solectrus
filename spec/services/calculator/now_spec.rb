@@ -10,9 +10,9 @@ describe Calculator::Now do
   end
 
   describe '#time' do
-    around { |example| freeze_time(&example) }
-
     before do
+      freeze_time
+
       add_influx_point(
         name: measurement_inverter_power,
         fields: {
@@ -35,7 +35,7 @@ describe Calculator::Now do
   end
 
   describe '#system_status' do
-    around { |example| freeze_time(&example) }
+    before { freeze_time }
 
     context 'when system_status is present' do
       before do

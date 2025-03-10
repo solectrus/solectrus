@@ -4,6 +4,8 @@ describe ConsumptionChart do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   before do
+    freeze_time
+
     influx_batch do
       12.times do |index|
         add_influx_point name: measurement_inverter_power,
@@ -36,8 +38,6 @@ describe ConsumptionChart do
                        time: 5.seconds.ago
     end
   end
-
-  around { |example| freeze_time(&example) }
 
   describe '#call' do
     subject(:result) { chart.call(timeframe) }
