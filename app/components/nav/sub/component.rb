@@ -51,7 +51,7 @@ class Nav::Sub::Component < ViewComponent::Base
             dark:from-gray-800
             dark:to-indigo-700
             dark:text-slate-300
-            dark:lg:bg-indigo-300/75
+            dark:lg:bg-gray-400
             dark:lg:text-gray-800
           ]
       else

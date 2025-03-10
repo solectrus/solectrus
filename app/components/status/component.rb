@@ -42,7 +42,7 @@ class Status::Component < ViewComponent::Base
 
   def outer_class
     if status_ok?
-      'bg-gray-200 dark:bg-indigo-300/75 text-black dark:text-gray-800'
+      'bg-gray-200 dark:bg-gray-300/75 text-black dark:text-gray-800'
     else
       'bg-orange-100 dark:bg-orange-400/50 text-orange-800 dark:text-orange-200'
     end
