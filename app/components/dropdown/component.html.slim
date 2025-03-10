@@ -7,12 +7,15 @@
       name= name
     ]
       - items.each do |item|
-        option[
-          value= item.href
-          data= item.data
-          selected= (item == selected_item)
-        ]
-          = item.name
+        - if item.name == '-'
+          hr
+        - else
+          option[
+            value= item.href
+            data= item.data
+            selected= (item == selected_item)
+          ]
+            = item.name
 
     select.absolute.invisible.font-medium[
       data-select-target= 'temp'

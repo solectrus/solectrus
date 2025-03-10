@@ -7,7 +7,14 @@ class House::ChartsController < ApplicationController
   end
 
   helper_method def chart_sensors
-    %i[house_power] + SensorConfig.x.included_custom_sensor_names +
-      %i[house_power_without_custom]
+    [
+      :house_power,
+      '-',
+      *SensorConfig.x.included_custom_sensor_names.sort_by do
+        SensorConfig.x.name(it)
+      end,
+      '-',
+      :house_power_without_custom,
+    ]
   end
 end
