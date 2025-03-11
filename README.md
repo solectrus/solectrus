@@ -18,7 +18,7 @@ A live demo with realtime data is available at https://demo.solectrus.de
 
 ## Installation
 
-For self-hosting SOLECTRUS, please look at https://github.com/solectrus/hosting
+For self-hosting SOLECTRUS, please look at https://configurator.solectrus.de/
 
 ## Development
 
