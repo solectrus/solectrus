@@ -1,8 +1,16 @@
 class ChartData::CaseTemp < ChartData::Base
+  def suggested_min
+    10
+  end
+
+  def suggested_max
+    40
+  end
+
   private
 
   def data
-    {
+    @data ||= {
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {

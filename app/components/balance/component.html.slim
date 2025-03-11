@@ -1,24 +1,26 @@
-div
-  div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
-    = render BalanceSide::Component.new side: :left,
-                                        calculator:,
-                                        timeframe:,
-                                        sensor: do |balance|
-      ruby:
-        balance.with_segment :grid_import_power, peak&.dig(:grid_import_power)
-        balance.with_segment :inverter_power, peak&.dig(:inverter_power)
-        balance.with_segment :battery_discharging_power, peak&.dig(:battery_discharging_power)
+div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
+  = render SegmentContainer::Component.new tippy_placement: 'right',
+                                            calculator:,
+                                            timeframe: do |balance|
+    ruby:
+      balance.with_title { I18n.t('balance_sheet.left') }
+      balance.with_segment :grid_import_power, peak: peak&.dig(:grid_import_power)
+      balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
+      balance.with_segment :battery_discharging_power, peak: peak&.dig(:battery_discharging_power)
 
-    div class= 'flex flex-col px-2 sm:px-4 gap-2 tall:gap-4 pb-8'
-      = center
+  div class= 'flex flex-col px-2 sm:px-4 gap-2 tall:gap-4 pb-8'
+    = center
 
-    = render BalanceSide::Component.new side: :right,
-                                        calculator:,
-                                        timeframe:,
-                                        sensor: do |balance|
-      ruby:
-        balance.with_segment :wallbox_power, peak&.dig(:wallbox_power)
-        balance.with_segment :heatpump_power, peak&.dig(:heatpump_power)
-        balance.with_segment :house_power, peak&.dig(:house_power)
-        balance.with_segment :grid_export_power, peak&.dig(:grid_power_power_minus)
-        balance.with_segment :battery_charging_power, peak&.dig(:battery_charging_power)
+  = render SegmentContainer::Component.new tippy_placement: 'left',
+                                            calculator:,
+                                            timeframe: do |balance|
+    ruby:
+      balance.with_title { I18n.t('balance_sheet.right') }
+      balance.with_segment :wallbox_power, peak: peak&.dig(:wallbox_power)
+      balance.with_segment :heatpump_power, peak: peak&.dig(:heatpump_power)
+      balance.with_segment :house_power, peak: peak&.dig(:house_power)
+      SensorConfig.x.excluded_custom_sensor_names.each do |sensor|
+        balance.with_segment sensor, color_index: 8
+      end
+      balance.with_segment :grid_export_power, peak: peak&.dig(:grid_power_power_minus)
+      balance.with_segment :battery_charging_power, peak: peak&.dig(:battery_charging_power)

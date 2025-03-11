@@ -1,7 +1,7 @@
 # @label StatsRange
 class StatsRangeComponentPreview < ViewComponent::Preview
   def default
-    render StatsRange::Component.new calculator:, timeframe:, sensor:
+    render StatsRange::Component.new(calculator:, timeframe:, sensor:)
   end
 
   private
@@ -15,6 +15,6 @@ class StatsRangeComponentPreview < ViewComponent::Preview
   end
 
   def sensor
-    'grid_import_power'
+    :grid_import_power
   end
 end

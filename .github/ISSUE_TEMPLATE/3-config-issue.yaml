@@ -1,5 +1,6 @@
 name: Installationsproblem
 description: Problem beim Installieren oder Konfigurieren von SOLECTRUS klären
+type: Task
 labels: ['help wanted']
 
 body:
@@ -14,7 +15,7 @@ body:
     id: version
     attributes:
       label: Welche Version von SOLECTRUS verwendest du?
-      placeholder: z.B. v0.15.0
+      placeholder: z.B. v0.18.3
     validations:
       required: true
 

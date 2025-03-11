@@ -1,8 +1,12 @@
 class ChartData::CarBatterySoc < ChartData::Base
+  def suggested_max
+    100
+  end
+
   private
 
   def data
-    {
+    @data ||= {
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {

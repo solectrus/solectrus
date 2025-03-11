@@ -1,4 +1,4 @@
-class SummarizerJob < ApplicationJob
+class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
   queue_as :default
 
   def perform(date)
@@ -12,13 +12,25 @@ class SummarizerJob < ApplicationJob
   private
 
   def perform_calculations
+    # Build attributes outside the transaction to avoid long locks
+    return unless attributes
+
     # If there is no summary for the given date, create it
     # Otherwise, if the existing summary is not up-to-date, update it
     ActiveRecord::Base.transaction do
-      summary = Summary.select(:date, :updated_at).find_or_initialize_by(date:)
+      summary = Summary.where(date:).first || Summary.new(date:)
 
       if summary.new_record? || summary.stale?(current_tolerance: 0)
-        summary.update!(attributes)
+        updating = !summary.new_record?
+        updating ? summary.touch : summary.save!
+
+        # Fix main consumers and match with grid_import_power
+        correct_values(:grid_import_power, *main_sensor_names_for_corrector)
+
+        # Fix custom consumers, but without comparing with grid_import_power
+        correct_values(*custom_sensor_names_for_corrector)
+
+        save_values(updating:)
       end
     rescue ActiveRecord::RecordNotUnique
       # Race condition: Another job has created the summary in the meantime
@@ -30,66 +42,136 @@ class SummarizerJob < ApplicationJob
     end
   end
 
+  def correct_values(*sensor_names)
+    corrector =
+      SummaryCorrector.new(
+        attributes
+          .slice(*sensor_names.map { :"sum_#{it}" })
+          .compact
+          .transform_keys { it.to_s.delete_prefix('sum_').to_sym },
+      )
+
+    attributes.merge!(corrector.adjusted.transform_keys { :"sum_#{it}" })
+  end
+
+  def main_sensor_names_for_corrector
+    power_keys =
+      %i[house_power heatpump_power wallbox_power battery_charging_power] +
+        SensorConfig.x.excluded_custom_sensor_names
+    grid_keys = power_keys.map { :"#{it}_grid" }
+
+    power_keys + grid_keys
+  end
+
+  def custom_sensor_names_for_corrector
+    power_keys = SensorConfig.x.included_custom_sensor_names
+    grid_keys = power_keys.map { |key| :"#{key}_grid" }
+
+    power_keys + grid_keys
+  end
+
+  def save_values(updating: false)
+    summary_values =
+      attributes.filter_map do |attribute, value|
+        aggregation, *field_parts = attribute.to_s.split('_')
+        field = field_parts.join('_')
+
+        { field:, aggregation:, value:, date: }
+      end
+
+    present_summary_values = summary_values.select { it[:value].present? }
+    SummaryValue.upsert_all(
+      present_summary_values,
+      unique_by: %i[date aggregation field],
+      update_only: %i[value],
+    )
+
+    return unless updating
+
+    # Delete empty values, which may exists before (rare case)
+    empty_summary_values = summary_values - present_summary_values
+    query =
+      empty_summary_values.reduce(nil) do |scope, attr|
+        condition = SummaryValue.where(attr.slice(:date, :aggregation, :field))
+        scope ? scope.or(condition) : condition
+      end
+
+    query&.delete_all
+  end
+
   def raw_attributes
-    { date: }.merge(raw_sum_attributes)
+    {}.merge(raw_sum_attributes)
       .merge(raw_max_attributes)
       .merge(raw_min_attributes)
       .merge(raw_avg_attributes)
   end
 
   def raw_sum_attributes
-    {
-      sum_inverter_power: calculator_sum.inverter_power,
-      sum_inverter_power_forecast: calculator_sum.inverter_power_forecast,
-      sum_house_power: calculator_sum.house_power,
-      sum_heatpump_power: calculator_sum.heatpump_power,
-      sum_grid_import_power: calculator_sum.grid_import_power,
-      sum_grid_export_power: calculator_sum.grid_export_power,
-      sum_battery_charging_power: calculator_sum.battery_charging_power,
-      sum_battery_discharging_power: calculator_sum.battery_discharging_power,
-      sum_wallbox_power: calculator_sum.wallbox_power,
-      # Sum Power-Splitter
-      sum_house_power_grid: calculator_sum.house_power_grid,
-      sum_wallbox_power_grid: calculator_sum.wallbox_power_grid,
-      sum_heatpump_power_grid: calculator_sum.heatpump_power_grid,
-    }
+    base_sensors = %i[
+      inverter_power
+      inverter_power_forecast
+      house_power
+      heatpump_power
+      grid_import_power
+      grid_export_power
+      battery_charging_power
+      battery_discharging_power
+      wallbox_power
+    ]
+
+    custom_sensors = SensorConfig.x.existing_custom_sensor_names
+
+    power_splitter_sensors =
+      %i[
+        house_power_grid
+        wallbox_power_grid
+        heatpump_power_grid
+        battery_charging_power_grid
+      ] + custom_sensors.map { |sensor| :"#{sensor}_grid" }
+
+    (base_sensors + custom_sensors + power_splitter_sensors).to_h do |attr|
+      [:"sum_#{attr}", query_sum.public_send(attr)]
+    end
   end
 
   def raw_max_attributes
     {
-      max_battery_charging_power:
-        calculator_aggregation.max_battery_charging_power,
+      max_battery_charging_power: query_aggregation.max_battery_charging_power,
       max_battery_discharging_power:
-        calculator_aggregation.max_battery_discharging_power,
-      max_battery_soc: calculator_aggregation.max_battery_soc,
-      max_car_battery_soc: calculator_aggregation.max_car_battery_soc,
-      max_case_temp: calculator_aggregation.max_case_temp,
-      max_grid_export_power: calculator_aggregation.max_grid_export_power,
-      max_grid_import_power: calculator_aggregation.max_grid_import_power,
-      max_heatpump_power: calculator_aggregation.max_heatpump_power,
-      max_house_power: calculator_aggregation.max_house_power,
-      max_inverter_power: calculator_aggregation.max_inverter_power,
-      max_wallbox_power: calculator_aggregation.max_wallbox_power,
+        query_aggregation.max_battery_discharging_power,
+      max_battery_soc: query_aggregation.max_battery_soc,
+      max_car_battery_soc: query_aggregation.max_car_battery_soc,
+      max_case_temp: query_aggregation.max_case_temp,
+      max_grid_export_power: query_aggregation.max_grid_export_power,
+      max_grid_import_power: query_aggregation.max_grid_import_power,
+      max_heatpump_power: query_aggregation.max_heatpump_power,
+      max_house_power: query_aggregation.max_house_power,
+      max_inverter_power: query_aggregation.max_inverter_power,
+      max_wallbox_power: query_aggregation.max_wallbox_power,
     }
   end
 
   def raw_min_attributes
     {
-      min_battery_soc: calculator_aggregation.min_battery_soc,
-      min_car_battery_soc: calculator_aggregation.min_car_battery_soc,
-      min_case_temp: calculator_aggregation.min_case_temp,
+      min_battery_soc: query_aggregation.min_battery_soc,
+      min_car_battery_soc: query_aggregation.min_car_battery_soc,
+      min_case_temp: query_aggregation.min_case_temp,
     }
   end
 
   def raw_avg_attributes
     {
-      avg_battery_soc: calculator_aggregation.mean_battery_soc,
-      avg_car_battery_soc: calculator_aggregation.mean_car_battery_soc,
-      avg_case_temp: calculator_aggregation.mean_case_temp,
+      avg_battery_soc: query_aggregation.mean_battery_soc,
+      avg_car_battery_soc: query_aggregation.mean_car_battery_soc,
+      avg_case_temp: query_aggregation.mean_case_temp,
     }
   end
 
   def attributes
+    @attributes ||= build_attributes
+  end
+
+  def build_attributes
     clean_attributes = raw_attributes
 
     # The `integral()` function in InfluxDB returns `0` when no data is available,
@@ -108,7 +190,10 @@ class SummarizerJob < ApplicationJob
 
     # Fix the power-splitter sums in a similar way:
     # Nullify power-splitter sums when there is no corresponding sum value
-    %i[house_power wallbox_power heatpump_power].each do |sensor|
+    (
+      %i[house_power wallbox_power heatpump_power] +
+        SensorConfig.x.existing_custom_sensor_names
+    ).each do |sensor|
       grid_attr = :"sum_#{sensor}_grid"
       sum_attr = :"sum_#{sensor}"
 
@@ -118,13 +203,12 @@ class SummarizerJob < ApplicationJob
     clean_attributes
   end
 
-  def calculator_sum
-    @calculator_sum ||= Calculator::QueryInfluxSum.new(timeframe)
+  def query_sum
+    @query_sum ||= Queries::InfluxSum.new(timeframe)
   end
 
-  def calculator_aggregation
-    @calculator_aggregation ||=
-      Calculator::QueryInfluxAggregation.new(timeframe)
+  def query_aggregation
+    @query_aggregation ||= Queries::InfluxAggregation.new(timeframe)
   end
 
   def timeframe

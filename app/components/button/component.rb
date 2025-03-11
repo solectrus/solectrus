@@ -71,7 +71,7 @@ class Button::Component < ViewComponent::Base
       shadow-sm
       px-3
       hover:scale-105
-      focus:outline-none
+      focus:outline-hidden
       focus:ring-2
       focus:ring-offset-2
       focus:ring-indigo-500
@@ -84,7 +84,7 @@ class Button::Component < ViewComponent::Base
     if icon
       %w[
         hover:scale-125
-        focus:outline-none
+        focus:outline-hidden
         focus:ring-2
         focus:ring-offset-2
         focus:ring-indigo-500

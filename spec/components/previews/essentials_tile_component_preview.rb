@@ -47,7 +47,7 @@ class EssentialsTileComponentPreview < ViewComponent::Preview
   def calculator
     @calculator ||=
       if @timeframe.now?
-        Calculator::Now.new
+        Calculator::Now.new(%i[inverter_power])
       else
         Calculator::Range.new(@timeframe)
       end

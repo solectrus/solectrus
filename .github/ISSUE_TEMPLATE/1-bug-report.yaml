@@ -1,6 +1,6 @@
 name: Fehlerbericht
 description: Fehler in SOLECTRUS melden
-labels: ['bug']
+type: Bug
 
 body:
   - type: textarea
@@ -14,7 +14,7 @@ body:
     id: version
     attributes:
       label: Welche Version von SOLECTRUS verwendest du?
-      placeholder: z.B. v0.15.0
+      placeholder: z.B. v0.18.3
     validations:
       required: true
 
@@ -37,6 +37,7 @@ body:
     id: compose
     attributes:
       label: Dein vollständiges `docker-compose.yml` oder `compose.yml`
+      description: Kann wichtig sein, z.B. bei Konfigurationsproblemen
       render: yaml
       placeholder: |
         z.B.:
@@ -50,7 +51,7 @@ body:
     id: environment
     attributes:
       label: Dein vollständiges `.env`
-      description: Aus Datenschutzgründen bitte alle sensiblen Informationen unkenntlich machen (Passwörter, API-Schlüssel, Geodaten, etc.)
+      description: Kann wichtig sein, z.B. bei Konfigurationsproblemen. Aus Datenschutzgründen bitte alle sensiblen Informationen unkenntlich machen (Passwörter, API-Schlüssel, Geodaten, etc.)
       render: text
       placeholder: |
         z.B:

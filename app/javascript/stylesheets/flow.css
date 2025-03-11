@@ -7,7 +7,7 @@
 }
 
 .arrow span {
-  @apply block h-full border-b-4 border-r-4 border-slate-100/75 dark:border-gray-600/75;
+  @apply block h-full border-r-4 border-b-4 border-slate-100/75 dark:border-gray-600/75;
 
   animation: flow 2s infinite;
   will-change: transform, opacity;
@@ -15,7 +15,7 @@
 
 @media (prefers-reduced-motion) {
   .flow {
-    @apply bg-gradient-to-r from-slate-300 via-white to-slate-300 dark:from-slate-800 dark:via-slate-600 dark:to-slate-800;
+    @apply bg-linear-to-r from-slate-300 via-white to-slate-300 dark:from-slate-800 dark:via-slate-600 dark:to-slate-800;
   }
 
   .arrow span {
@@ -38,14 +38,16 @@
 
 @keyframes flow {
   0% {
-    @apply opacity-0;
+    opacity: 0;
     transform: rotate(45deg) translate(-100%, -100%);
   }
+
   50% {
-    @apply opacity-100;
+    opacity: 1;
   }
+
   100% {
-    @apply opacity-0;
+    opacity: 0;
     transform: rotate(45deg) translate(100%, 100%);
   }
 }

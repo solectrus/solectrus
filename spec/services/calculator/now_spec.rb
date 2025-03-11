@@ -1,10 +1,18 @@
 describe Calculator::Now do
-  let(:calculator) { described_class.new }
+  let(:calculator) do
+    described_class.new %i[
+                          inverter_power
+                          grid_export_limit
+                          house_power
+                          heatpump_power
+                          system_status
+                        ]
+  end
 
   describe '#time' do
-    around { |example| freeze_time(&example) }
-
     before do
+      freeze_time
+
       add_influx_point(
         name: measurement_inverter_power,
         fields: {
@@ -21,13 +29,13 @@ describe Calculator::Now do
       expect(calculator.inverter_power).to eq(10.0)
     end
 
-    it 'returns missing value as 0' do
-      expect(calculator.wallbox_power).to eq(0)
+    it 'returns missing value as nil' do
+      expect(calculator.wallbox_power).to be_nil
     end
   end
 
   describe '#system_status' do
-    around { |example| freeze_time(&example) }
+    before { freeze_time }
 
     context 'when system_status is present' do
       before do

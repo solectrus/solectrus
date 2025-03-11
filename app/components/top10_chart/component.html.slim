@@ -2,7 +2,7 @@
   .h-64.flex.items-center.justify-center.text-xl
     = t('.blank')
 
-- elsif sensor == :house_power && calc.max? && SensorConfig.x.exclude_from_house_power.present?
+- elsif sensor == :house_power && calc.max? && SensorConfig.x.excluded_sensor_names.present?
   .h-64.flex.items-center.justify-center.text-lg.text-center
     p
       = t('.house_power_max_not_possible')
@@ -17,12 +17,12 @@
           = formatted_date(record[:date])
         .table-cell.align-middle.p-2
           .flex.items-center.gap-3
-            .h-7.sm:h-8.rounded.flex.items-center.justify-end.bg-gradient-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
+            .h-7.sm:h-8.rounded.flex.items-center.justify-end.bg-linear-to-r.px-2.truncate style="width: #{percent(record)}%" class= bar_classes
               span class= value_classes_inside(record)
-                = Number::Component.new(value: record[:value]).public_send(calc.max? ? :to_watt : :to_watt_hour)
+                = Number::Component.new(value: record[:value]).public_send(unit_method)
 
             span class= value_classes_outside(record)
-              = Number::Component.new(value: record[:value]).to_watt_hour
+              = Number::Component.new(value: record[:value]).public_send(unit_method)
 
   p.mt-5.text-slate-400.text-right.text-sm
     i.fa.fas.fa-circle-info.fa-lg.mr-2

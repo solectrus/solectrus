@@ -2,12 +2,12 @@ class ChartData::HousePower < ChartData::Base
   private
 
   def data
-    {
+    @data ||= {
       labels: chart[chart.keys.first]&.map { |x| x.first.to_i * 1000 },
       datasets:
         chart.map do |chart_sensor, data|
           {
-            label: I18n.t("sensors.#{chart_sensor}"),
+            label: SensorConfig.x.name(chart_sensor),
             data: data.map(&:second),
             stack: chart_sensor == :house_power ? nil : 'Power-Splitter',
           }.merge(style(chart_sensor, split: chart.key?(:house_power_grid)))
@@ -21,11 +21,10 @@ class ChartData::HousePower < ChartData::Base
 
   def simple_chart
     raw_chart =
-      PowerChart.new(sensors: [:house_power, *exclude_from_house_power]).call(
+      PowerChart.new(sensors: [:house_power, *excluded_sensor_names]).call(
         timeframe,
-        fill: !timeframe.current?,
       )
-    if raw_chart[:house_power].nil? || exclude_from_house_power.blank?
+    if raw_chart[:house_power].nil? || excluded_sensor_names.blank?
       return raw_chart
     end
 
@@ -35,8 +34,8 @@ class ChartData::HousePower < ChartData::Base
   def splitted_chart
     raw_chart =
       PowerChart.new(
-        sensors: [:house_power, grid_sensor, *exclude_from_house_power],
-      ).call(timeframe, fill: !timeframe.current?)
+        sensors: [:house_power, grid_sensor, *excluded_sensor_names],
+      ).call(timeframe)
 
     result =
       if raw_chart.key?(:house_power) && raw_chart.key?(grid_sensor)
@@ -68,7 +67,7 @@ class ChartData::HousePower < ChartData::Base
 
   def adjusted_house_power(power_chart, exclude_grid:) # rubocop:disable Metrics/CyclomaticComplexity
     sensors_to_exclude = [
-      exclude_from_house_power,
+      excluded_sensor_names,
       (grid_sensor if exclude_grid),
     ].flatten
 
@@ -89,8 +88,8 @@ class ChartData::HousePower < ChartData::Base
     end
   end
 
-  def exclude_from_house_power
-    SensorConfig.x.exclude_from_house_power
+  def excluded_sensor_names
+    SensorConfig.x.excluded_sensor_names
   end
 
   def background_color(chart_sensor)
@@ -141,7 +140,8 @@ class ChartData::HousePower < ChartData::Base
   end
 
   def grid_sensor
-    @grid_sensor ||= (single_consumer? ? :grid_import_power : :house_power_grid)
+    @grid_sensor ||=
+      (SensorConfig.x.single_consumer? ? :grid_import_power : :house_power_grid)
   end
 
   def splitting_allowed?
@@ -150,13 +150,5 @@ class ChartData::HousePower < ChartData::Base
     return false if timeframe.short?
 
     SensorConfig.x.exists?(grid_sensor)
-  end
-
-  # Check the special case in which the entire grid_import_power is only used for house_power
-  def single_consumer?
-    SensorConfig.x.exists?(:grid_import_power) &&
-      !SensorConfig.x.exists?(:wallbox_power) &&
-      !SensorConfig.x.exists?(:heatpump_power) &&
-      SensorConfig.x.exclude_from_house_power.empty?
   end
 end

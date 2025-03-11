@@ -1,62 +1,105 @@
 class Calculator::Now < Calculator::Base
-  def initialize
-    super
-
-    build_context PowerSum.new(
-                    sensors: %i[
-                      inverter_power
-                      house_power
-                      heatpump_power
-                      grid_import_power
-                      grid_export_power
-                      grid_export_limit
-                      battery_charging_power
-                      battery_discharging_power
-                      battery_soc
-                      wallbox_car_connected
-                      wallbox_power
-                      case_temp
-                      system_status
-                      system_status_ok
-                      car_battery_soc
-                    ],
-                  ).call(Timeframe.now)
+  def initialize(sensors)
+    super()
+    @last = Flux::Last.new(sensors:).call
   end
 
-  def build_context(data)
-    build_method(:time, data)
-    build_method(:system_status, data, :to_utf8, allow_nil: true)
-    build_method(:system_status_ok, data, :to_b, allow_nil: true)
+  attr_reader :last
 
-    build_method(:inverter_power, data, :to_f)
-    build_method(:wallbox_car_connected, data, :to_b, allow_nil: true)
-    build_method(:wallbox_power, data, :to_f)
-    build_method(:grid_import_power, data, :to_f)
-    build_method(:grid_export_power, data, :to_f)
-    build_method(:battery_charging_power, data, :to_f)
-    build_method(:battery_discharging_power, data, :to_f)
-    build_method(:battery_soc, data, :to_f)
-    build_method(:case_temp, data, :to_f)
-    build_method(:grid_export_limit, data)
-    build_method(:heatpump_power, data, :to_f)
-    build_method(:car_battery_soc, data)
+  # Timestamp of the data
 
-    define_singleton_method(:house_power) do
-      [
-        SensorConfig
-          .x
-          .exclude_from_house_power
-          .reduce(data[:house_power].to_f) do |acc, elem|
-            acc - data[elem].to_f
-          end,
-        0,
-      ].max
-    end
+  def time
+    last[:time]
+  end
+
+  ### System status
+
+  def system_status
+    last[:system_status].to_utf8
+  end
+
+  def system_status_ok
+    last[:system_status_ok]
+  end
+
+  # Grid
+
+  def grid_import_power
+    last[:grid_import_power]
+  end
+
+  def grid_export_power
+    last[:grid_export_power]
+  end
+
+  def grid_export_limit
+    last[:grid_export_limit]
   end
 
   def grid_export_limit_active?
     return false unless grid_export_limit
 
     grid_export_limit < 100
+  end
+
+  # Battery
+
+  def battery_charging_power
+    last[:battery_charging_power]
+  end
+
+  def battery_discharging_power
+    last[:battery_discharging_power]
+  end
+
+  def battery_soc
+    last[:battery_soc]
+  end
+
+  def case_temp
+    last[:case_temp]
+  end
+
+  # Inverter
+
+  def inverter_power
+    last[:inverter_power]
+  end
+
+  # Consumer
+
+  def house_power
+    [
+      SensorConfig
+        .x
+        .excluded_sensor_names
+        .reduce(last[:house_power].to_f) { |acc, elem| acc - last[elem].to_f },
+      0,
+    ].max
+  end
+
+  def wallbox_power
+    last[:wallbox_power]
+  end
+
+  def heatpump_power
+    last[:heatpump_power]
+  end
+
+  # Custom consumers, define a method for each custom sensor
+  SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
+    # Example:
+    # def custom_power_01
+    define_method(sensor_name) { last[sensor_name] }
+  end
+
+  # Car
+
+  def car_battery_soc
+    last[:car_battery_soc]
+  end
+
+  def wallbox_car_connected
+    last[:wallbox_car_connected]
   end
 end

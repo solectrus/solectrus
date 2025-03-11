@@ -27,7 +27,7 @@ class Price < ApplicationRecord
 
   after_commit do |price|
     broadcast_update_to "prices_#{price.name}",
-                        partial: 'prices/list',
+                        partial: 'settings/prices/list',
                         target: 'list',
                         locals: {
                           prices: Price.list_for(price.name),

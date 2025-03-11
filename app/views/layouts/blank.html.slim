@@ -42,7 +42,7 @@ html lang= I18n.locale
 
     main.relative
       = yield
-      = turbo_frame_tag 'modal', target: '_top'
+      = tag.turbo_frame id: 'modal', target: '_top'
 
     footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.text-white
       .flex.items-center.gap-2

@@ -3,14 +3,13 @@
           title:,
           data: { \
             controller: 'tippy essentials-tile--component',
-            tippy_touch_value: false,
             essentials_tile__component_interval_value: refresh_interval,
           } do
   .click-animation.flex.flex-col.justify-around.h-full
     i.fa.h-10 class= [icon_class, text_secondary_color]
 
-    div class= ['font-bold text-2xl @c0:text-3xl @c1:text-4xl @c2:text-5xl @c3:text-6xl @c4:text-7xl leading-none', text_primary_color, 'scale-pop']
+    div class= ['font-bold text-2xl @c0:text-3xl @c1:text-4xl @c2:text-5xl @c3:text-6xl @c4:text-7xl', text_primary_color, 'scale-pop']
       = formatted_value
 
-    div class= [ 'text-base @c1:text-xl @c3:text-2xl @c4:text-3xl px-5 w-full flex items-center justify-center leading-none', text_secondary_color ]
+    div class= [ 'text-base @c1:text-xl @c3:text-2xl @c4:text-3xl px-5 w-full flex items-center justify-center', text_secondary_color ]
       = I18n.t("timeframe.#{timeframe}")

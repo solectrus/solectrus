@@ -16,9 +16,11 @@ describe Setting do
   describe 'seed!' do
     subject(:seed!) { described_class.seed! }
 
-    before { described_class.delete_all }
+    before do
+      described_class.delete_all
 
-    around { |example| freeze_time(&example) }
+      freeze_time
+    end
 
     context 'when there is no price' do
       it 'creates records' do
@@ -61,7 +63,7 @@ describe Setting do
         expect { described_class.seed! }.not_to change(described_class, :count)
       end
 
-      it 'does not change existing reords' do
+      it 'does not change existing records' do
         expect { described_class.seed! }.not_to change(
           described_class,
           :setup_id,

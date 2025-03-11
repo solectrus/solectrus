@@ -55,6 +55,11 @@ updates:
     versioning-strategy: auto
     labels:
       - 'dependencies'
+    ignore:
+      - dependency-name: 'tailwindcss'
+        versions: ['4.0.10', '4.0.11']
+      - dependency-name: '@tailwindcss/vite'
+        versions: ['4.0.10', '4.0.11']
     groups:
       vite:
         patterns:
@@ -66,10 +71,6 @@ updates:
       hotwired:
         patterns:
           - '@hotwired*'
-      charts:
-        patterns:
-          - 'chart.js'
-          - 'chartkick'
       fortawesome:
         patterns:
           - '@fortawesome/*'
@@ -77,6 +78,11 @@ updates:
         patterns:
           - '@size-limit/file'
           - 'size-limit'
+      tailwindcss:
+        patterns:
+          - '@tailwindcss/*'
+          - 'tailwindcss'
+          - 'prettier-plugin-tailwindcss'
 
   - package-ecosystem: 'github-actions'
     directory: '/'

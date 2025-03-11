@@ -13,18 +13,18 @@ describe ChartData::InverterPower do
                          fields: {
                            field_inverter_power => 28_000,
                          },
-                         time: 1.hour.ago + (5.minutes * i)
+                         time: 1.hour.ago + (5.minutes * (i + 1))
       end
     end
 
-    Summary.create! date: now.to_date, sum_inverter_power: 28_000
+    create_summary(date: now.to_date, values: [[:inverter_power, :sum, 28_000]])
   end
 
   context 'when timeframe is current MONTH' do
     let(:timeframe) { Timeframe.month }
 
     it 'contains value' do
-      expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(28)
+      expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(28_000)
     end
   end
 
@@ -32,7 +32,7 @@ describe ChartData::InverterPower do
     let(:timeframe) { Timeframe.now }
 
     it 'contains value' do
-      expect(to_h.dig(:datasets, 0, :data).last).to eq(28)
+      expect(to_h.dig(:datasets, 0, :data).last).to eq(28_000)
     end
   end
 end

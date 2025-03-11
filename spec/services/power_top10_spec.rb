@@ -185,6 +185,9 @@ describe PowerTop10 do
   private
 
   def sample_data(date:, sum:, max:)
-    Summary.create!(date:, sum_inverter_power: sum, max_inverter_power: max)
+    create_summary(
+      date:,
+      values: [[:inverter_power, :sum, sum], [:inverter_power, :max, max]],
+    )
   end
 end

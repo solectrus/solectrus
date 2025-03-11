@@ -65,9 +65,14 @@ describe Summarizer do
       end
 
       it 'creates summary with correct values' do
-        expect(Summary.last.attributes).to include(
+        summary = Summary.last
+
+        expect(summary.date).to eq(timeframe.date)
+        expect(summary.values.first.attributes).to include(
           'date' => timeframe.date,
-          'sum_inverter_power' => 10_000,
+          'field' => 'inverter_power',
+          'aggregation' => 'sum',
+          'value' => 10_000,
         )
       end
     end

@@ -1,9 +1,10 @@
-require:
+plugins:
+  - rubocop-capybara
   - rubocop-performance
   - rubocop-rails
+  - rubocop-rake
   - rubocop-rspec
   - rubocop-rspec_rails
-  - rubocop-capybara
   - rubocop-thread_safety
 
 AllCops:
@@ -37,6 +38,12 @@ Rails/DefaultScope:
 
 Rails/EnvironmentVariableAccess:
   AllowReads: true
+
+Rails/SkipsModelValidations:
+  AllowedMethods:
+    - insert_all!
+    - upsert_all
+    - touch
 
 ### Bundler
 
@@ -239,4 +246,9 @@ RSpec/ImplicitSubject:
   Enabled: false
 
 RSpec/VerifiedDoubles:
+  Enabled: false
+
+# Naming
+
+Naming/VariableNumber:
   Enabled: false

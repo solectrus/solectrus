@@ -9,33 +9,35 @@ body.active-tippy * {
 
 /* Modify existing theme for Dark mode */
 .tippy-box[data-theme~='light-border'] {
-  @apply dark:border-slate-400 dark:bg-slate-900 dark:text-slate-300;
+  @variant dark {
+    @apply border-slate-400 bg-slate-900 text-slate-300;
 
-  &[data-placement^='top'] .tippy-arrow::before {
-    @apply dark:border-t-slate-800;
-  }
-  &[data-placement^='top'] .tippy-arrow::after {
-    @apply dark:border-t-slate-400;
-  }
+    &[data-placement^='top'] .tippy-arrow::before {
+      @apply border-t-slate-800;
+    }
+    &[data-placement^='top'] .tippy-arrow::after {
+      @apply border-t-slate-400;
+    }
 
-  &[data-placement^='left'] .tippy-arrow::before {
-    @apply dark:border-l-slate-800;
-  }
-  &[data-placement^='left'] .tippy-arrow::after {
-    @apply dark:border-l-slate-400;
-  }
+    &[data-placement^='left'] .tippy-arrow::before {
+      @apply border-l-slate-800;
+    }
+    &[data-placement^='left'] .tippy-arrow::after {
+      @apply border-l-slate-400;
+    }
 
-  &[data-placement^='right'] .tippy-arrow::before {
-    @apply dark:border-r-slate-800;
-  }
-  &[data-placement^='right'] .tippy-arrow::after {
-    @apply dark:border-r-slate-400;
-  }
+    &[data-placement^='right'] .tippy-arrow::before {
+      @apply border-r-slate-800;
+    }
+    &[data-placement^='right'] .tippy-arrow::after {
+      @apply border-r-slate-400;
+    }
 
-  &[data-placement^='bottom'] .tippy-arrow::before {
-    @apply dark:border-b-slate-800;
-  }
-  &[data-placement^='bottom'] .tippy-arrow::after {
-    @apply dark:border-b-slate-400;
+    &[data-placement^='bottom'] .tippy-arrow::before {
+      @apply border-b-slate-800;
+    }
+    &[data-placement^='bottom'] .tippy-arrow::after {
+      @apply border-b-slate-400;
+    }
   }
 }

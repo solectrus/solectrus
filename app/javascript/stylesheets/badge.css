@@ -11,7 +11,7 @@
 }
 
 .badge .inside {
-  @apply flex flex-col items-center;
+  @apply flex flex-col items-center leading-normal;
 }
 
 .badge .value {
@@ -26,13 +26,13 @@
   font-size: calc(var(--size) / 10);
 }
 
-@media screen(lg) {
+@media (width >= theme(--breakpoint-lg)) {
   .badge {
     --size: 8rem;
   }
 }
 
-@media screen(xl) and screen(tall) {
+@media (width >= theme(--breakpoint-xl)) and (height >= 860px) {
   .badge {
     --size: 6rem;
     @apply box-content h-[var(--size)] w-[var(--size)] border-4 border-transparent;

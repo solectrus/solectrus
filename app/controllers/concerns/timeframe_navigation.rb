@@ -9,7 +9,12 @@ module TimeframeNavigation
     end
 
     def path_with_timeframe(timeframe)
-      root_path(sensor:, timeframe:)
+      url_for(
+        controller: "#{helpers.controller_namespace}/home",
+        sensor:,
+        timeframe:,
+        action: 'index',
+      )
     end
 
     helper_method def nav_items

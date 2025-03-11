@@ -8,7 +8,8 @@
 
     - if sensor_items.any?
       .flex-1.flex.gap-5.items-center.justify-center.sm:justify-center.lg:justify-end.text-base.h-9
-        = render Top10CalcSelect::Component.new(calc:)
+        - if supports_max?
+          = render Top10CalcSelect::Component.new(calc:)
         = render Top10SortToggle::Component.new
         = render Dropdown::Component.new name: 'sensor-selector', items: sensor_items, selected: sensor
 
@@ -20,7 +21,7 @@
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - else
-  = turbo_frame_tag 'top10',
+  = tag.turbo_frame id: 'top10',
                     target: '_top',
                     src: top10_chart_path(permitted_params.to_hash.symbolize_keys) do
     .h-96

@@ -1,23 +1,42 @@
 class Timeframe # rubocop:disable Metrics/ClassLength
   include ActionView::Helpers::DateHelper
 
-  def self.regex
-    /(\d{4}((-W\d{2})|(-\d{2}))?(-\d{2})?)|now|day|week|month|year|all/
-  end
+  REGEX_DAY = /\d{4}-\d{2}-\d{2}/
+  REGEX_DAYS = /P\d{1,3}D/
+  REGEX_WEEK = /\d{4}-W\d{2}/
+  REGEX_MONTH = /\d{4}-\d{2}/
+  REGEX_MONTHS = /P\d{1,2}M/
+  REGEX_YEAR = /\d{4}/
+  REGEX_KEYWORD = /now|day|week|month|year|all/
+
+  REGEX =
+    /#{[REGEX_DAY, REGEX_DAYS, REGEX_WEEK, REGEX_MONTH, REGEX_MONTHS, REGEX_YEAR, REGEX_KEYWORD].map(&:source).join('|')}/
+
+  private_constant :REGEX_DAY
+  private_constant :REGEX_DAYS
+  private_constant :REGEX_WEEK
+  private_constant :REGEX_MONTH
+  private_constant :REGEX_MONTHS
+  private_constant :REGEX_YEAR
+  private_constant :REGEX_KEYWORD
+  public_constant :REGEX
 
   # Shortcut methods
-  %i[now all day week month year].each do |method|
-    define_singleton_method method do
-      new(method.to_s)
+  REGEX_KEYWORD
+    .source
+    .split('|')
+    .each do |method|
+      define_singleton_method method do
+        new(method)
+      end
     end
-  end
 
   def initialize(
     string,
     min_date: Rails.application.config.x.installation_date,
     allowed_days_in_future: 6
   )
-    unless string.respond_to?(:match?) && string.match?(self.class.regex)
+    unless string.respond_to?(:match?) && string.match?(REGEX)
       raise ArgumentError, "'#{string}' is not a valid timeframe"
     end
 
@@ -54,7 +73,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
 
   def current?
     case id
-    when :now, :all
+    when :now, :all, :days, :months
       true
     when :day
       date.today?
@@ -87,6 +106,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     beginning.to_date > Date.current
   end
 
+  def relative?
+    days? || months?
+  end
+
   # Number of days that have passed since the beginning of the timeframe
   def days_passed
     return 0 if now? || today? || beginning.nil?
@@ -104,18 +127,22 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     id.in?(%i[day week month year])
   end
 
-  def id
+  def id # rubocop:disable Metrics/CyclomaticComplexity
     @id ||=
       case string
-      when /\d{4}-\d{2}-\d{2}/
+      when REGEX_DAY
         :day
-      when /\d{4}-W\d{2}/
+      when REGEX_DAYS
+        :days
+      when REGEX_WEEK
         :week
-      when /\d{4}-\d{2}/
+      when REGEX_MONTH
         :month
-      when /\d{4}/
+      when REGEX_MONTHS
+        :months
+      when REGEX_YEAR
         :year
-      when 'all', 'now'
+      when REGEX_KEYWORD
         string.to_sym
       end
   end
@@ -126,6 +153,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
 
   def day?
     id == :day
+  end
+
+  def days?
+    id == :days
   end
 
   def short?
@@ -140,6 +171,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     id == :month
   end
 
+  def months?
+    id == :months
+  end
+
   def year?
     id == :year
   end
@@ -148,16 +183,30 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     id == :all
   end
 
-  def localized
+  def relative_count
+    return unless relative?
+
+    string[/\d+/].to_i
+  end
+
+  def iso8601
+    to_s
+  end
+
+  def localized # rubocop:disable Metrics/CyclomaticComplexity
     case id
     when :now
-      I18n.l date, format:
+      I18n.l(date, format:)
     when :day
       I18n.l(date, format: :long)
+    when :days
+      I18n.t('timeframe.days', count: relative_count)
     when :week
       I18n.l(date, format: :week)
     when :month
       I18n.l(date, format: :month)
+    when :months
+      I18n.t('timeframe.months', count: relative_count)
     when :year
       date.year.to_s
     when :all
@@ -179,10 +228,14 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       Time.current
     when :day
       date.beginning_of_day
+    when :days
+      (relative_count - 1).days.ago.beginning_of_day
     when :week
       date.beginning_of_week.beginning_of_day
     when :month
       date.beginning_of_month.beginning_of_day
+    when :months
+      (relative_count - 1).month.ago.beginning_of_month.beginning_of_day
     when :year
       date.beginning_of_year.beginning_of_day
     when :all
@@ -204,7 +257,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     case id
     when :now
       Time.current
-    when :day
+    when :day, :days, :months
       date.end_of_day
     when :week
       date.end_of_week.end_of_day
@@ -217,11 +270,21 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def ending_with_last_second
-    return ending if id == :now
-
-    # Date#end_of_day is at 23:59:59, so we add 1 second to get the real end
-    ending + 1.second
+  def beginning_of_next
+    case id
+    when :now
+      ending
+    when :day, :days
+      date.tomorrow.beginning_of_day
+    when :week
+      date.end_of_week.tomorrow.beginning_of_day
+    when :month, :months
+      date.end_of_month.tomorrow.beginning_of_day
+    when :year
+      date.end_of_year.tomorrow.beginning_of_day
+    when :all
+      [max_date, Date.current].compact.min.tomorrow.beginning_of_day
+    end
   end
 
   def next(force: false)
@@ -241,13 +304,13 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def next_date(force: false)
-    return if id.in?(%i[now all])
+    return if id.in?(%i[now all days months])
 
     change(+1, force:)
   end
 
   def prev_date
-    return if id.in?(%i[now all])
+    return if id.in?(%i[now all days months])
 
     change(-1)
   end
@@ -274,6 +337,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       Time.current
     when :day, :week
       Date.parse(string)
+    when :days, :months
+      Date.current
     when :month
       Date.parse("#{string}-01")
     when :year

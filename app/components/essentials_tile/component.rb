@@ -98,7 +98,7 @@ class EssentialsTile::Component < ViewComponent::Base
         co2_emission_factor: Rails.configuration.x.co2_emission_factor,
       )
     else
-      t("sensors.#{sensor}")
+      SensorConfig.x.name(sensor)
     end
   end
 
@@ -108,11 +108,11 @@ class EssentialsTile::Component < ViewComponent::Base
     number = Number::Component.new(value:)
     case sensor
     when :savings
-      number.to_eur(klass: '!text-inherit')
+      number.to_eur(klass: 'text-inherit!')
     when :co2_reduction
       number.to_weight
     when :autarky, :battery_soc
-      number.to_percent(klass: '!text-inherit')
+      number.to_percent(klass: 'text-inherit!')
     else
       timeframe.now? ? number.to_watt : number.to_watt_hour
     end

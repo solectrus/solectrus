@@ -43,11 +43,15 @@ describe ChartData::HousePower do
         end
       end
 
-      Summary.create! date: now.to_date,
-                      sum_heatpump_power: 10_000,
-                      sum_heatpump_power_grid: 900,
-                      sum_house_power: 15_000,
-                      sum_house_power_grid: 300
+      create_summary(
+        date: now.to_date,
+        values: [
+          [:heatpump_power, :sum, 10_000],
+          [:heatpump_power_grid, :sum, 900],
+          [:house_power, :sum, 15_000],
+          [:house_power_grid, :sum, 300],
+        ],
+      )
     end
 
     context 'when timeframe is current MONTH' do
@@ -63,15 +67,9 @@ describe ChartData::HousePower do
           expect(to_h).to include(:datasets, :labels)
           expect(to_h[:datasets].length).to eq(3)
 
-          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(5)
-
-          expect(to_h.dig(:datasets, 1, :data, now.day - 1)).to be_within(
-            0.001,
-          ).of(0.3)
-
-          expect(to_h.dig(:datasets, 2, :data, now.day - 1)).to be_within(
-            0.001,
-          ).of(4.7)
+          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(5000)
+          expect(to_h.dig(:datasets, 1, :data, now.day - 1)).to eq(300)
+          expect(to_h.dig(:datasets, 2, :data, now.day - 1)).to eq(4700)
         end
       end
 
@@ -81,7 +79,7 @@ describe ChartData::HousePower do
           expect(to_h).to include(:datasets, :labels)
           expect(to_h[:datasets].length).to eq(1)
 
-          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(5)
+          expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(5000)
         end
       end
     end
@@ -91,17 +89,21 @@ describe ChartData::HousePower do
 
       it 'returns single dataset' do
         expect(to_h[:datasets].length).to eq(1)
-        expect(to_h.dig(:datasets, 0, :data).last).to eq(5)
+        expect(to_h.dig(:datasets, 0, :data).last).to eq(5000)
       end
     end
   end
 
   context 'when house_power_grid data is missing' do
     before do
-      Summary.create! date: now.to_date,
-                      sum_heatpump_power: 10_000,
-                      sum_heatpump_power_grid: 900,
-                      sum_house_power: 15_000
+      create_summary(
+        date: now.to_date,
+        values: [
+          [:heatpump_power, :sum, 10_000],
+          [:heatpump_power_grid, :sum, 900],
+          [:house_power, :sum, 15_000],
+        ],
+      )
     end
 
     context 'when timeframe is current MONTH' do
@@ -112,7 +114,7 @@ describe ChartData::HousePower do
         expect(to_h).to include(:datasets, :labels)
         expect(to_h[:datasets].length).to eq(1)
 
-        expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(5)
+        expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(5000)
       end
     end
 
@@ -121,7 +123,7 @@ describe ChartData::HousePower do
 
       it 'returns single dataset' do
         expect(to_h[:datasets].length).to eq(1)
-        expect(to_h.dig(:datasets, 0, :data).last).to eq(5)
+        expect(to_h.dig(:datasets, 0, :data).last).to eq(5000)
       end
     end
   end

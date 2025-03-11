@@ -11,77 +11,120 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   class Error < RuntimeError
   end
 
-  SENSOR_NAMES = %i[
-    inverter_power
+  CUSTOM_SENSOR_COUNT = 20
+  public_constant :CUSTOM_SENSOR_COUNT
+
+  # Custom defined power sensors
+  CUSTOM_SENSORS =
+    (1..CUSTOM_SENSOR_COUNT)
+      .map { |index| format('custom_power_%02d', index).to_sym }
+      .freeze
+  public_constant :CUSTOM_SENSORS
+
+  # Sensors that represent power values (in Watts)
+  POWER_SENSORS =
+    (
+      %i[
+        inverter_power
+        house_power
+        heatpump_power
+        grid_import_power
+        grid_export_power
+        battery_charging_power
+        battery_discharging_power
+        wallbox_power
+      ] + CUSTOM_SENSORS
+    ).freeze
+  public_constant :POWER_SENSORS
+
+  POWER_SPLITTER_SENSORS =
+    (
+      %i[
+        house_power_grid
+        wallbox_power_grid
+        heatpump_power_grid
+        battery_charging_power_grid
+      ] + CUSTOM_SENSORS.map { :"#{it}_grid" }
+    ).freeze
+  public_constant :POWER_SPLITTER_SENSORS
+
+  OTHER_SENSORS = %i[
     inverter_power_forecast
-    house_power
-    heatpump_power
-    grid_import_power
-    grid_export_power
     grid_export_limit
-    battery_charging_power
-    battery_discharging_power
     battery_soc
     car_battery_soc
     wallbox_car_connected
-    wallbox_power
     case_temp
     system_status
     system_status_ok
-    house_power_grid
-    wallbox_power_grid
-    heatpump_power_grid
   ].freeze
+  public_constant :OTHER_SENSORS
+
+  # Full list of all sensors
+  SENSOR_NAMES = (POWER_SENSORS + POWER_SPLITTER_SENSORS + OTHER_SENSORS).freeze
   public_constant :SENSOR_NAMES
 
-  POWER_SENSORS = %i[
-    inverter_power
-    house_power
-    heatpump_power
-    grid_import_power
-    grid_export_power
-    battery_charging_power
-    battery_discharging_power
-    wallbox_power
-  ].freeze
-  public_constant :POWER_SENSORS
+  # List of sensors that can be displayed in the top 10 list
+  TOP10_SENSORS = POWER_SENSORS
+  public_constant :TOP10_SENSORS
 
-  CALCULATED_SENSORS = %i[autarky self_consumption savings co2_reduction].freeze
-  public_constant :CALCULATED_SENSORS
-
-  # Sensors that are displayed in the charts
-  CHART_SENSORS = %i[
-    inverter_power
-    house_power
-    heatpump_power
-    grid_power
-    battery_power
-    battery_soc
-    car_battery_soc
-    wallbox_power
-    case_temp
+  # List of sensors that are calculated (meaning they are built from other sensors)
+  CALCULATED_SENSORS = %i[
     autarky
     self_consumption
     savings
     co2_reduction
+    house_power_without_custom
   ].freeze
+  public_constant :CALCULATED_SENSORS
+
+  # Sensors that can be displayed in the chart
+  CHART_SENSORS =
+    (
+      %i[
+        inverter_power
+        house_power
+        house_power_without_custom
+        heatpump_power
+        grid_power
+        battery_power
+        battery_soc
+        car_battery_soc
+        wallbox_power
+        case_temp
+        autarky
+        self_consumption
+        savings
+        co2_reduction
+      ] + CUSTOM_SENSORS
+    ).freeze
   public_constant :CHART_SENSORS
   # TODO: Implement savings, which is currently a redirect to inverter_power
 
-  POWER_SPLITTER_SENSOR_CONFIG = {
-    'INFLUX_SENSOR_WALLBOX_POWER_GRID' => 'power_splitter:wallbox_power_grid',
-    'INFLUX_SENSOR_HEATPUMP_POWER_GRID' => 'power_splitter:heatpump_power_grid',
-    'INFLUX_SENSOR_HOUSE_POWER_GRID' => 'power_splitter:house_power_grid',
-  }.freeze
-  private_constant :POWER_SPLITTER_SENSOR_CONFIG
+  SENSORS_WITH_POWER_SPLITTER = [
+    :wallbox_power,
+    :heatpump_power,
+    :house_power,
+    :battery_charging_power,
+    *CUSTOM_SENSORS,
+  ].freeze
+  private_constant :SENSORS_WITH_POWER_SPLITTER
 
   def initialize(env)
     Rails.logger.info 'Sensor initialization started'
 
     @sensor_logs = []
+    @env = env
 
     env_hash = env.to_h
-    env_hash.reverse_merge!(POWER_SPLITTER_SENSOR_CONFIG)
+    SENSORS_WITH_POWER_SPLITTER.each do |sensor_name|
+      env_name = var_for(sensor_name)
+      next if env_hash[env_name].blank?
+
+      env_hash[
+        "INFLUX_SENSOR_#{sensor_name.upcase}_GRID"
+      ] = "power_splitter:#{sensor_name}_grid"
+    end
 
     SENSOR_NAMES.each do |sensor_name|
       var_sensor = var_for(sensor_name)
@@ -96,7 +139,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       define_sensor(sensor_name, value)
     end
 
-    define_exclude_from_house_power(
+    define_excluded_sensor_names(
       env_hash.fetch('INFLUX_EXCLUDE_FROM_HOUSE_POWER', nil).presence,
     )
 
@@ -134,13 +177,15 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists_all? :inverter_power, :grid_export_power
     when :savings
       exists_all? :inverter_power, :house_power, :grid_power
+    when :house_power_without_custom
+      exists? :house_power
     when :co2_reduction
       exists? :inverter_power
-    when :house_power_grid, :wallbox_power_grid, :heatpump_power_grid
-      sensor_defined?(sensor_name) &&
-        (!check_policy || ApplicationPolicy.power_splitter?)
     when :car_battery_soc, :wallbox_car_connected
       sensor_defined?(sensor_name) && (!check_policy || ApplicationPolicy.car?)
+    when *POWER_SPLITTER_SENSORS
+      sensor_defined?(sensor_name) &&
+        (!check_policy || ApplicationPolicy.power_splitter?)
     when *SENSOR_NAMES
       sensor_defined?(sensor_name)
     else
@@ -161,31 +206,75 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     sensor_names.all? { |sensor_name| exists?(sensor_name) }
   end
 
+  def name(sensor_name)
+    if sensor_name.match?(/\Acustom_power_\d{2}\z/)
+      setting_name = Setting.name_for_custom_sensor(sensor_name)
+      Setting.public_send(setting_name) || sensor_name.to_s
+    elsif sensor_name.end_with?('_grid')
+      I18n.t('splitter.grid')
+    elsif sensor_name.end_with?('_pv')
+      I18n.t('splitter.pv')
+    else
+      I18n.t("sensors.#{sensor_name}").html_safe
+    end
+  end
+
+  def existing_custom_sensor_count
+    @existing_custom_sensor_count ||=
+      CUSTOM_SENSORS.count { |sensor_name| exists?(sensor_name) }
+  end
+
+  # Custom sensors that are EXCLUDED from house power
+  def excluded_custom_sensor_names
+    existing_custom_sensor_names.select do |sensor_name|
+      excluded_sensor_names.include?(sensor_name)
+    end
+  end
+
+  # Custom sensors that are INCLUDED in house power
+  def included_custom_sensor_names
+    existing_custom_sensor_names - excluded_custom_sensor_names
+  end
+
+  # Custom sensors that are defined
+  def existing_custom_sensor_names
+    CUSTOM_SENSORS.select { |sensor_name| exists?(sensor_name) }
+  end
+
+  # Check the special case in which the entire grid_import_power is only used for house_power
+  def single_consumer?
+    SensorConfig.x.exists?(:grid_import_power) &&
+      !SensorConfig.x.exists?(:wallbox_power) &&
+      !SensorConfig.x.exists?(:heatpump_power) &&
+      SensorConfig.x.excluded_sensor_names.empty?
+  end
+
   private
 
   def define_sensor(sensor_name, value)
-    @sensor_logs << "  - Sensor '#{sensor_name}' #{value ? "mapped to '#{value}'" : 'ignored'}"
+    if value
+      @sensor_logs << "  - Sensor #{sensor_name.upcase} mapped to #{value}"
+    end
 
     define(sensor_name, value)
   end
 
-  def define_exclude_from_house_power(value)
+  def define_excluded_sensor_names(value)
     unless value
-      @sensor_logs << "  - Sensor 'house_power' remains unchanged"
-      define(:exclude_from_house_power, [])
+      @sensor_logs << '  - Sensor HOUSE_POWER remains unchanged'
+      define(:excluded_sensor_names, [])
       return
     end
 
-    sensors_to_exclude =
-      value.split(',').map { |sensor| sensor.strip.downcase.to_sym }
+    sensors_to_exclude = value.split(',').map { it.strip.downcase.to_sym }
 
     if sensors_to_exclude.any? { |sensor| SENSOR_NAMES.exclude?(sensor) }
       raise Error,
             "Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: #{value}"
     end
 
-    @sensor_logs << "  - Sensor 'house_power' excluded #{sensors_to_exclude.join(', ')}"
-    define(:exclude_from_house_power, sensors_to_exclude)
+    @sensor_logs << "  - Sensor HOUSE_POWER subtracts #{sensors_to_exclude.map(&:upcase).join(', ')}"
+    define(:excluded_sensor_names, sensors_to_exclude)
   end
 
   def var_for(sensor_name)
@@ -254,6 +343,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   end
 
   def splitted_sensor_name(sensor_name)
+    return unless sensor_name
+
     public_send(sensor_name.downcase)&.split(':')
   end
 end

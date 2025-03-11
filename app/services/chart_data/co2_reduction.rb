@@ -2,7 +2,7 @@ class ChartData::Co2Reduction < ChartData::Base
   private
 
   def data
-    {
+    @data ||= {
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {

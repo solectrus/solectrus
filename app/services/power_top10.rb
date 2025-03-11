@@ -41,73 +41,105 @@ class PowerTop10
     (raw - adjustment).public_send(:"end_of_#{period}")
   end
 
-  def exclude_from_house_power
-    SensorConfig.x.exclude_from_house_power
+  def excluded_sensor_names
+    SensorConfig.x.excluded_sensor_names
   end
 
   def top(start:, stop:, period:, limit: 10)
     return [] unless SensorConfig.x.exists?(sensor)
     return [] if start > stop
 
-    if sensor == :house_power && exclude_from_house_power.any?
+    if sensor == :house_power && excluded_sensor_names.any?
       build_query_house_power(start:, stop:, period:, limit:)
     else
       build_query_simple(start:, stop:, period:, limit:)
     end
   end
 
+  FIELD_MAPPING = {
+    sum: {
+      inverter_power: 'sum',
+      heatpump_power: 'sum',
+      house_power: 'sum',
+      case_temp: 'avg',
+      grid_import_power: 'sum',
+      grid_export_power: 'sum',
+      battery_charging_power: 'sum',
+      battery_discharging_power: 'sum',
+      wallbox_power: 'sum',
+      **SensorConfig::CUSTOM_SENSORS.index_with { 'sum' },
+    },
+    max: {
+      inverter_power: 'max',
+      heatpump_power: 'max',
+      house_power: 'max',
+      case_temp: 'max',
+      grid_import_power: 'max',
+      grid_export_power: 'max',
+      battery_charging_power: 'max',
+      battery_discharging_power: 'max',
+      wallbox_power: 'max',
+    },
+  }.freeze
+  private_constant :FIELD_MAPPING
+
+  def sort_order
+    desc ? :desc : :asc
+  end
+
   def build_query_simple(start:, stop:, period:, limit:)
     scope =
-      Summary.where(date: start..stop).where(
-        Summary.arel_table[:"sum_#{sensor}"].gt(0),
-      )
+      SummaryValue.where(
+        date: start..stop,
+        field: sensor,
+        aggregation: FIELD_MAPPING[calc.to_sym][sensor],
+      ).limit(limit)
+    scope = scope.where(SummaryValue.arel_table[:value].gt(0)) unless desc
 
-    sort_order = desc ? :desc : :asc
-    sensor_column = :"#{calc}_#{sensor}"
-
-    case period
-    when :day
+    if period == :day
       # Just order by the sensor value
       scope
-        .select(:date, sensor_column)
-        .order("#{sensor_column} #{sort_order}")
-        .limit(limit)
-        .map do |record|
-          { date: record.date, value: record.public_send(sensor_column) }
-        end
+        .select(:value, :date)
+        .order(value: sort_order)
+        .map { |it| { date: it.date, value: it.value } }
     else
       # Group by period and calculate the sum of the sensor
+      calculation = { 'sum' => :sum, 'max' => :maximum }[calc]
+
       scope
-        .group_by_period(period, :date)
-        .order("2 #{sort_order}")
-        .limit(limit)
-        .calculate_all("#{calc}(#{sensor_column})")
-        .map { |record| { date: record.first, value: record.second } }
+        .group_by_period(period, :date, series: false)
+        .order("1 #{sort_order}")
+        .calculate(calculation, :value)
+        .map { |date, value| { date:, value: } }
+        .sort_by { desc ? -it[:value] : it[:value] }
     end
   end
 
   def build_query_house_power(start:, stop:, period:, limit:)
-    scope = Summary.where(date: start..stop).where('sum_house_power > 0')
-    sort_order = desc ? :desc : :asc
+    scope =
+      SummaryValue.where(
+        date: start..stop,
+        field: ['house_power', *excluded_sensor_names],
+        aggregation: 'sum',
+      ).limit(limit)
 
-    total_column =
-      "sum_house_power#{exclude_from_house_power.map { |sensor_to_exclude| " - COALESCE(sum_#{sensor_to_exclude}, 0)" }.join}"
+    difference =
+      "SUM(CASE WHEN field = 'house_power' THEN value ELSE 0 END) -
+         SUM(CASE WHEN field != 'house_power' THEN value ELSE 0 END)
+         AS difference"
 
     case period
     when :day
       scope
-        .select(:date, "#{total_column} AS total")
-        .order("2 #{sort_order}")
-        .limit(limit)
-        .map { |record| { date: record.date, value: record.total } }
+        .select(:date, difference)
+        .group(:date)
+        .order("difference #{sort_order}")
+        .map { |it| { date: it.date, value: it.difference } }
     else
-      total_column_sum = "SUM(#{total_column})"
-
       scope
-        .group_by_period(period, :date)
+        .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
-        .limit(limit)
-        .calculate_all(total_column_sum)
+        .calculate_all(difference)
         .map { |record| { date: record.first, value: record.second } }
     end
   end

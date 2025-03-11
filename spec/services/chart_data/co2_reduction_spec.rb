@@ -16,7 +16,7 @@ describe ChartData::Co2Reduction do
         end
       end
 
-      Summary.create! date:, sum_inverter_power: 28_000
+      create_summary(date:, values: [[:inverter_power, :sum, 28_000]])
     end
 
     let(:date) { Date.new(2024, 9, 1) }
@@ -24,7 +24,7 @@ describe ChartData::Co2Reduction do
 
     it 'calculates CO2 reduction' do
       hash = co2_reduction_data.to_h
-      expect(hash.dig(:datasets, 0, :data, 0)).to eq(11) # 28 kW * 0,401 kg/kWh
+      expect(hash.dig(:datasets, 0, :data, 0)).to eq(11_228) # 28 kW * 0,401 kg/kWh
     end
   end
 
@@ -42,7 +42,7 @@ describe ChartData::Co2Reduction do
     it 'returns value' do
       hash = co2_reduction_data.to_h
       expect(hash.dig(:datasets, 0, :data).last).to eq(
-        468, # 28 kW * 0,401 kg/kWh / 24 * 1000
+        467_833, # 28 kW * 0,401 kg/kWh / 24 * 1000
       )
     end
   end

@@ -1,5 +1,13 @@
 describe Calculator::Range do
-  let(:calculator) { described_class.new(timeframe) }
+  let(:calculator) do
+    described_class.new(
+      timeframe,
+      calculations: [
+        Queries::Calculation.new(:house_power, :sum, :sum),
+        Queries::Calculation.new(:house_power_grid, :sum, :sum),
+      ],
+    )
+  end
 
   let(:timeframe) { Timeframe.day }
   let(:updated_at) { 5.minutes.ago }
@@ -21,6 +29,8 @@ describe Calculator::Range do
       battery_savings: 3,
       time: updated_at,
     )
+
+    allow(Setting).to receive(:opportunity_costs).and_return(true)
   end
 
   it 'calculates' do
@@ -53,6 +63,11 @@ describe Calculator::Range do
         wallbox_power_array: [20_000],
         wallbox_power_grid: 10_000,
         wallbox_power_grid_array: [10_000],
+        #
+        custom_power_01: 1_000,
+        custom_power_01_array: [1_000],
+        custom_power_01_grid: 410,
+        custom_power_01_grid_array: [410],
       )
     end
 
@@ -68,6 +83,13 @@ describe Calculator::Range do
       expect(calculator.heatpump_power_grid_ratio).to eq(50)
       expect(calculator.heatpump_power_pv_ratio).to eq(50)
       expect(calculator.heatpump_costs).to eq(0.79485)
+
+      expect(calculator.house_power_without_custom_grid_ratio).to eq(51)
+
+      expect(calculator.custom_power_01_grid_ratio).to eq(41)
+      expect(calculator.custom_01_costs_pv).to eq(0.050032) # 0.0848 * (1 - 0.410)
+      expect(calculator.custom_01_costs_grid).to eq(0.182491) # 0.4451 * 0.410
+      expect(calculator.custom_01_costs).to eq(0.232523)
     end
   end
 
@@ -107,6 +129,8 @@ describe Calculator::Range do
       expect(calculator.heatpump_power_grid_ratio).to eq(0)
       expect(calculator.heatpump_power_pv_ratio).to eq(100)
       expect(calculator.heatpump_costs).to eq(0)
+
+      expect(calculator.house_power_without_custom_grid_ratio).to be_nil
     end
   end
 
@@ -143,6 +167,30 @@ describe Calculator::Range do
       expect(calculator.heatpump_power_grid_ratio).to be_nil
       expect(calculator.heatpump_power_pv_ratio).to be_nil
       expect(calculator.heatpump_costs).to be_nil
+
+      expect(calculator.house_power_without_custom_grid_ratio).to be_nil
+    end
+  end
+
+  context 'when power-splitter values are missing, but there is just a single consumer' do
+    let(:timeframe) { Timeframe.new('2024-03-07') }
+
+    before do
+      allow(calculator).to receive_messages(
+        house_power: 1000,
+        house_power_array: [1000],
+        grid_import_power: 1000,
+        grid_import_power_array: [1000],
+      )
+
+      allow(SensorConfig).to receive(:x).and_return(
+        double(single_consumer?: true),
+      )
+    end
+
+    it 'calculates' do
+      expect(calculator.house_power).to eq(1000)
+      expect(calculator.house_costs).to eq(6)
     end
   end
 end

@@ -14,21 +14,21 @@ class MinMaxChart < ChartBase
 
     case timeframe.id
     when :now
-      chart_single start: 1.hour.ago + 1.second,
+      query_influx start: 1.hour.ago + 1.second,
                    stop: 1.second.since,
                    window: WINDOW[timeframe.id]
     when :day
-      chart_single start: timeframe.beginning,
+      query_influx start: timeframe.beginning,
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id]
-    when :week, :month, :year, :all
-      chart_minmax(timeframe:)
+    when :days, :week, :month, :months, :year, :all
+      query_sql(timeframe:)
     end
   end
 
   private
 
-  def chart_single(start:, window:, stop: nil)
+  def query_influx(start:, window:, stop: nil)
     remember_start(start)
 
     q = []
@@ -44,23 +44,22 @@ class MinMaxChart < ChartBase
     formatted(raw)
   end
 
-  def chart_minmax(timeframe:)
-    aggregation_method_min = average ? 'avg' : 'min'
-    aggregation_method_max = average ? 'avg' : 'max'
-
+  def query_sql(timeframe:)
     result =
-      Summary
+      SummaryValue
         .where(date: timeframe.beginning..timeframe.ending)
+        .where(field: sensors, aggregation: %w[min max].uniq)
         .group_by_period(grouping_period(timeframe), :date)
-        .calculate_all(
-          :"min_#{sensor}_#{aggregation_method_min}",
-          :"max_#{sensor}_#{aggregation_method_max}",
-        )
+        .group(:field, :aggregation)
+        .average(:value)
 
     {
       sensor =>
         dates(timeframe).map do |date|
-          [date.to_time, result[date]&.values&.compact.presence]
+          min = result[[date, sensor.to_s, 'min']]
+          max = result[[date, sensor.to_s, 'max']]
+
+          [date.to_time, [min, max].compact.presence]
         end,
     }
   end
@@ -127,6 +126,9 @@ class MinMaxChart < ChartBase
       time = Time.zone.parse(record.values['_time'])
       value = value_from_record(time:, record: next_record)
 
+      # Override the value if it's in the future (may be present because of filling)
+      value = nil if time.future?
+
       result << [time, value]
     end
 
@@ -135,7 +137,7 @@ class MinMaxChart < ChartBase
 
   def value_from_record(time:, record:)
     if time.future?
-      # Becaue of fill(previous: true) we need to remove future values
+      # Because of fill(previous: true) we need to remove future values
       nil
     else
       original = record.values['_value']

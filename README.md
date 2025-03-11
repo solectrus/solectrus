@@ -18,7 +18,7 @@ A live demo with realtime data is available at https://demo.solectrus.de
 
 ## Installation
 
-For self-hosting SOLECTRUS, please look at https://github.com/solectrus/hosting
+For self-hosting SOLECTRUS, please look at https://configurator.solectrus.de/
 
 ## Development
 
@@ -38,7 +38,7 @@ brew bundle
 Ensure that PostgreSQL is running:
 
 ```bash
-brew services start postgresql@16
+brew services start postgresql@17
 ```
 
 3. Install and set up [puma-dev](https://github.com/puma/puma-dev) to use HTTPS for development. Do this on macOS:

@@ -34,7 +34,7 @@ jobs:
           DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-token
 
       postgres:
-        image: postgres:16-alpine
+        image: postgres:17-alpine
         ports: ['5432:5432']
         env:
           POSTGRES_PASSWORD: postgres
@@ -144,6 +144,7 @@ jobs:
             type=raw,value=pr-3349,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
             type=raw,value=pr-3432,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
             type=raw,value=pr-3533,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
+            type=raw,value=pr-3747,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

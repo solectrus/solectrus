@@ -14,14 +14,7 @@ class Flux::Reader < Flux::Base
 
   private
 
-  WINDOW = {
-    now: '30s',
-    day: '5m',
-    week: '1d',
-    month: '1d',
-    year: '1mo',
-    all: '1y',
-  }.freeze
+  WINDOW = { now: '30s', day: '5m' }.freeze
   private_constant :WINDOW
 
   def from_bucket
@@ -29,27 +22,27 @@ class Flux::Reader < Flux::Base
   end
 
   def filter(selected_sensors: sensors)
-    raw =
-      selected_sensors.filter_map do |sensor|
-        [
-          SensorConfig.x.measurement(sensor),
-          SensorConfig.x.field(sensor),
-        ].compact.presence
+    # Group sensors by their measurement
+    grouped =
+      selected_sensors.each_with_object(
+        Hash.new { |h, k| h[k] = [] },
+      ) do |sensor, result|
+        measurement = SensorConfig.x.measurement(sensor)
+        field = SensorConfig.x.field(sensor)
+        result[measurement] << field if measurement && field
       end
 
-    # Build hash: Key is measurement, value is array of fields
-    hash = raw.group_by(&:first).transform_values { |v| v.map(&:last) }
-
-    # Build filter string
-    filter =
-      hash.map do |measurement, fields|
-        field_filter =
+    # Generate filter conditions
+    filter_conditions =
+      grouped.map do |measurement, fields|
+        field_conditions =
           fields.map { |field| "r[\"_field\"] == \"#{field}\"" }.join(' or ')
 
-        "r[\"_measurement\"] == \"#{measurement}\" and (#{field_filter})"
+        "r[\"_measurement\"] == \"#{measurement}\" and (#{field_conditions})"
       end
 
-    "filter(fn: (r) => #{filter.join(' or ')})"
+    # Combine all conditions into the final filter string
+    "filter(fn: (r) => #{filter_conditions.join(' or ')})"
   end
 
   def range(start:, stop: nil)
@@ -95,6 +88,10 @@ class Flux::Reader < Flux::Base
     )
 
     result
+  end
+
+  def empty_hash
+    sensors.index_with(nil).merge(time: nil)
   end
 
   # Build a short cache key from the query string to avoid hitting the 250 chars

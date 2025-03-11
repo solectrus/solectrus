@@ -1,10 +1,9 @@
 = link_to url_for(**helpers.permitted_params, sort: desc? ? 'asc' : 'desc', only_path: true),
-          class: 'h-full flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-400 text-gray-900 rounded-md shadow-sm font-medium text-sm ' \
+          class: 'h-full flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-400 text-gray-900 rounded-md shadow-xs font-medium text-sm ' \
                  'hover:bg-white dark:hover:bg-gray-300 ' \
-                 'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500',
+                 'focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500',
           title: t('.title'),
           data: { \
             controller: 'tippy',
-            tippy_touch_value: false,
           } do
   i.fas.fa-lg class= (desc? ? 'fa-arrow-down-wide-short' : 'fa-arrow-down-short-wide')

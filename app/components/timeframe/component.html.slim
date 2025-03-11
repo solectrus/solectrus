@@ -1,8 +1,8 @@
-.flex-auto.max-w-full.flex.items-center.justify-between.space-x-4.text-indigo-200.tracking-wider.whitespace-nowrap.text-sm.md:text-base
+.flex-auto.max-w-full.flex.items-center.justify-between.space-x-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-sm.md:text-base
   - if timeframe.can_paginate?
     - if timeframe.prev
-      = link_to root_path(sensor: params[:sensor], timeframe: timeframe.prev),
-                class: 'px-2 py-1 rounded hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation',
+      = link_to prev_path,
+                class: 'px-2 py-1 rounded-sm hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation',
                 'aria-label': t('.previous'),
                 rel: 'prev' do
         i.fas.fa-chevron-left.fa-lg
@@ -16,17 +16,22 @@
       = timeframe.localized
 
   - when :all
-    .py-1 data-controller= 'tippy' title= I18n.l(timeframe.min_date)
+    .py-1 data-controller= 'tippy' title= I18n.l(timeframe.min_date) data-tippy-touch-value= "true"
       == timeframe.localized
 
   - when :day
     .py-1.flex-1.md:w-72.text-center
-      time datetime= timeframe
+      time datetime= timeframe.iso8601
+        = timeframe.localized
+
+  - when :days
+    .py-1
+      time datetime= timeframe.iso8601
         = timeframe.localized
 
   - when :week
     .py-1.flex-1.md:w-72.text-center
-      time.space-x-4 datetime= timeframe
+      time.space-x-4 datetime= timeframe.iso8601
         span
           = timeframe.localized
         small.hidden.md:inline
@@ -36,18 +41,23 @@
 
   - when :month
     .py-1.w-36.text-center
-      time datetime= timeframe
+      time datetime= timeframe.iso8601
+        = timeframe.localized
+
+  - when :months
+    .py-1
+      time datetime= timeframe.iso8601
         = timeframe.localized
 
   - when :year
     .py-1.w-16.text-center
-      time datetime= timeframe
+      time datetime= timeframe.iso8601
         = timeframe.localized
 
   - if timeframe.can_paginate?
     - if timeframe.next
-      = link_to root_path(sensor: params[:sensor], timeframe: timeframe.next),
-                class: 'px-2 py-1 rounded hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation',
+      = link_to next_path,
+                class: 'px-2 py-1 rounded-sm hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation',
                 'aria-label': t('.next'),
                 rel: 'next' do
         i.fas.fa-chevron-right.fa-lg

@@ -3,24 +3,22 @@ class ConsumptionChart < ChartBase
     super(sensors: %i[inverter_power grid_export_power])
   end
 
-  def call(timeframe, fill: false)
+  def call(timeframe)
     return {} unless SensorConfig.x.exists_all?(*sensors)
 
-    super(timeframe)
+    super
 
     case timeframe.id
     when :now
       chart_single start: 1.hour.ago + 1.second,
                    stop: 1.second.since,
-                   window: WINDOW[timeframe.id],
-                   fill: true
+                   window: WINDOW[timeframe.id]
     when :day
       chart_single start: timeframe.beginning,
                    stop: timeframe.ending,
-                   window: WINDOW[timeframe.id],
-                   fill:
-    when :week, :month, :year, :all
-      chart_sum(timeframe:)
+                   window: WINDOW[timeframe.id]
+    when :days, :week, :month, :months, :year, :all
+      query_sql(timeframe:)
     end
   end
 
@@ -34,7 +32,7 @@ class ConsumptionChart < ChartBase
     SensorConfig.x.field(:grid_export_power)
   end
 
-  def chart_single(start:, window:, stop: nil, fill: false)
+  def chart_single(start:, window:, stop: nil)
     q = []
 
     q << from_bucket
@@ -45,8 +43,9 @@ class ConsumptionChart < ChartBase
     q << "|> #{range(start: start - 1.hour, stop:)}"
 
     q << "|> #{filter}"
+    q << '|> aggregateWindow(every: 5s, fn: last)'
+    q << '|> fill(usePrevious: true)'
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
-    q << '|> fill(usePrevious: true)' if fill
     q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
     q << "|> map(fn: (r) => (
               { r with consumption:
@@ -62,23 +61,27 @@ class ConsumptionChart < ChartBase
     to_array(raw, start:)
   end
 
-  def chart_sum(timeframe:)
+  def query_sql(timeframe:)
     result =
-      Summary
-        .where(date: timeframe.beginning..timeframe.ending)
+      SummaryValue
+        .where(
+          date: timeframe.beginning..timeframe.ending,
+          field: sensors,
+          aggregation: 'sum',
+        )
         .group_by_period(grouping_period(timeframe), :date)
-        .calculate_all(*sensors.map { |sensor| :"sum_#{sensor}_sum" })
+        .group(:field)
+        .sum(:value)
 
     dates(timeframe).map do |date|
-      values = result[date]
+      inverter_power = result[[date, 'inverter_power']]
+      grid_export_power = result[[date, 'grid_export_power']]
 
       consumption =
-        if values && values[:sum_inverter_power_sum]
-          [
-            values[:sum_inverter_power_sum].to_f -
-              values[:sum_grid_export_power_sum].to_f,
-            0,
-          ].max.fdiv(values[:sum_inverter_power_sum]) * 100
+        if inverter_power
+          [inverter_power - (grid_export_power || 0), 0].max.fdiv(
+            inverter_power,
+          ) * 100
         end
 
       [date.to_time, consumption]
@@ -90,21 +93,22 @@ class ConsumptionChart < ChartBase
   end
 
   def value_to_array(raw, start:)
-    result = []
+    return [] unless raw&.records
 
-    raw&.records&.each_with_index do |record, index|
-      # InfluxDB returns data one-off
-      next_record = raw.records[index + 1]
-      next unless next_record
+    raw
+      .records
+      .each_cons(2) # InfluxDB returns data one-off
+      .filter_map do |record, next_record|
+        time = Time.zone.parse(record.values['_time'])
 
-      time = Time.zone.parse(record.values['_time'])
-      value = next_record.values['consumption']&.clamp(0, 100)
+        # Take only data that ist after the desired start
+        # (needed because the start was extended by one hour)
+        next if time < start
 
-      # Take only values that are after the desired start
-      # (needed because the start was extended by one hour)
-      result << [time, value] if time >= start
-    end
+        value =
+          (next_record.values['consumption']&.clamp(0, 100) unless time.future?)
 
-    result
+        [time, value]
+      end
   end
 end

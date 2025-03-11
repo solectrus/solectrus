@@ -2,7 +2,7 @@ class ChartData::InverterPower < ChartData::Base
   private
 
   def data
-    timeframe.day? ? data_with_forecast : data_simple
+    @data ||= timeframe.day? ? data_with_forecast : data_simple
   end
 
   def data_simple
@@ -26,12 +26,13 @@ class ChartData::InverterPower < ChartData::Base
 
   def dataset(sensor_name)
     {
-      label: I18n.t("sensors.#{sensor_name}"),
+      label: SensorConfig.x.name(sensor_name),
       data: chart[sensor_name]&.map(&:second),
     }.merge(style(sensor_name))
   end
 
   def chart
+    # Interpolation required because the forecast data has a lower resolution
     @chart ||= PowerChart.new(sensors:).call(timeframe, interpolate: true)
   end
 

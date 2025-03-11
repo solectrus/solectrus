@@ -4,7 +4,7 @@
 brew 'puma/puma/puma-dev'
 
 # PostgreSQL database server and client
-brew 'postgresql@16'
+brew 'postgresql@17'
 brew 'libpq'
 
 # Redis - for ActionCable support and caching

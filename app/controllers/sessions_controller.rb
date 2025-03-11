@@ -32,7 +32,7 @@ class SessionsController < ApplicationController
   end
 
   def permitted_params
-    params.require(:admin_user).permit(:username, :password)
+    params.expect(admin_user: %i[username password])
   end
 
   def referer_path
