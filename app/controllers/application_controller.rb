@@ -3,6 +3,7 @@ ForbiddenError = Class.new(StandardError)
 class ApplicationController < ActionController::Base
   include AutoLocale
   include TopNavigation
+  include BrowserCheck
   default_form_builder TailwindFormBuilder
 
   def admin_required!

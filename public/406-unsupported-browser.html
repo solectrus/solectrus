@@ -1,0 +1,128 @@
+<!doctype html>
+
+<html lang="en">
+
+  <head>
+
+    <title>Your browser is not supported</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, width=device-width">
+    <meta name="robots" content="noindex, nofollow">
+
+    <style>
+
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      * {
+        margin: 0;
+      }
+
+      html {
+        font-size: 16px;
+      }
+
+      body {
+        background: #FFF;
+        color: #261B23;
+        display: grid;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Aptos, Roboto, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+        font-size: clamp(1rem, 2.5vw, 2rem);
+        -webkit-font-smoothing: antialiased;
+        font-style: normal;
+        font-weight: 400;
+        letter-spacing: -0.0025em;
+        line-height: 1.4;
+        min-height: 100vh;
+        place-items: center;
+        text-rendering: optimizeLegibility;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      b, strong {
+        font-weight: 700;
+      }
+
+      main {
+        display: grid;
+        gap: 1em;
+        padding: 2em;
+        place-items: center;
+        text-align: center;
+      }
+
+      main article {
+        width: min(100%, 30em);
+      }
+
+      main article p {
+        font-size: 75%;
+      }
+
+      #logo {
+        width: 100px;
+        height: auto;
+        margin-bottom: 20px;
+        border-radius: 10%;
+      }
+
+      #user-agent {
+        font-size: 0.85rem;
+        background: #f3f3f3;
+        margin-bottom: 30px;
+        padding: 0.5em;
+        border-radius: 4px;
+        word-break: break-all;
+      }
+
+      button {
+        background: #3d29de;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0.75em 1.5em;
+        margin-top: 1em;
+      }
+
+
+    </style>
+
+    <script>
+      function showUserAgent() {
+        document.getElementById("user-agent").textContent = navigator.userAgent;
+      }
+
+      document.addEventListener("DOMContentLoaded", showUserAgent);
+    </script>
+
+  </head>
+
+  <body>
+
+    <main>
+      <article>
+
+        <img id="logo" src="/manifest-icon-512.png" alt="SOLECTRUS" width="512" height="512" />
+
+        <p>Your browser</p>
+        <p id="user-agent">Loading...</p>
+
+        <p>
+          <strong>This browser is not supported.</strong>
+          <br>
+          Please use Chrome 111+, Safari 16.4+ or Firefox 128+
+        </p>
+
+        <a href="/skip-browser-check">
+          <button>Hold my beer, let me in!</button>
+        </a>
+      </article>
+    </main>
+
+  </body>
+
+</html>
