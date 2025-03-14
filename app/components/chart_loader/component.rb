@@ -86,6 +86,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 maxRotation: 0,
               },
               days: {
+                stepSize: (timeframe.relative_count.to_i > 14 ? 2 : 1),
                 maxRotation: 0,
               },
               week: {
