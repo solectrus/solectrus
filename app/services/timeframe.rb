@@ -7,10 +7,11 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   REGEX_MONTH = /\d{4}-\d{2}/
   REGEX_MONTHS = /P\d{1,2}M/
   REGEX_YEAR = /\d{4}/
+  REGEX_YEARS = /P\d{1,2}Y/
   REGEX_KEYWORD = /now|day|week|month|year|all/
 
   REGEX =
-    /#{[REGEX_DAY, REGEX_DAYS, REGEX_WEEK, REGEX_MONTH, REGEX_MONTHS, REGEX_YEAR, REGEX_KEYWORD].map(&:source).join('|')}/
+    /#{[REGEX_DAY, REGEX_DAYS, REGEX_WEEK, REGEX_MONTH, REGEX_MONTHS, REGEX_YEAR, REGEX_YEARS, REGEX_KEYWORD].map(&:source).join('|')}/
 
   private_constant :REGEX_DAY
   private_constant :REGEX_DAYS
@@ -18,6 +19,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   private_constant :REGEX_MONTH
   private_constant :REGEX_MONTHS
   private_constant :REGEX_YEAR
+  private_constant :REGEX_YEARS
   private_constant :REGEX_KEYWORD
   public_constant :REGEX
 
@@ -73,7 +75,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
 
   def current?
     case id
-    when :now, :all, :days, :months
+    when :now, :all, :days, :months, :years
       true
     when :day
       date.today?
@@ -107,7 +109,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def relative?
-    days? || months?
+    days? || months? || years?
   end
 
   # Number of days that have passed since the beginning of the timeframe
@@ -142,6 +144,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
         :months
       when REGEX_YEAR
         :year
+      when REGEX_YEARS
+        :years
       when REGEX_KEYWORD
         string.to_sym
       end
@@ -179,6 +183,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     id == :year
   end
 
+  def years?
+    id == :years
+  end
+
   def all?
     id == :all
   end
@@ -209,6 +217,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       I18n.t('timeframe.months', count: relative_count)
     when :year
       date.year.to_s
+    when :years
+      I18n.t('timeframe.years', count: relative_count)
     when :all
       I18n.t(
         'timeframe.all',
@@ -238,6 +248,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       (relative_count - 1).month.ago.beginning_of_month.beginning_of_day
     when :year
       date.beginning_of_year.beginning_of_day
+    when :years
+      (relative_count - 1).year.ago.beginning_of_year.beginning_of_day
     when :all
       min_date&.beginning_of_year&.beginning_of_day
     end
@@ -257,7 +269,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     case id
     when :now
       Time.current
-    when :day, :days, :months
+    when :day, :days, :months, :years
       date.end_of_day
     when :week
       date.end_of_week.end_of_day
@@ -280,7 +292,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       date.end_of_week.tomorrow.beginning_of_day
     when :month, :months
       date.end_of_month.tomorrow.beginning_of_day
-    when :year
+    when :year, :years
       date.end_of_year.tomorrow.beginning_of_day
     when :all
       [max_date, Date.current].compact.min.tomorrow.beginning_of_day
@@ -304,13 +316,13 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def next_date(force: false)
-    return if id.in?(%i[now all days months])
+    return if id.in?(%i[now all days months years])
 
     change(+1, force:)
   end
 
   def prev_date
-    return if id.in?(%i[now all days months])
+    return if id.in?(%i[now all days months years])
 
     change(-1)
   end
@@ -337,7 +349,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       Time.current
     when :day, :week
       Date.parse(string)
-    when :days, :months
+    when :days, :months, :years
       Date.current
     when :month
       Date.parse("#{string}-01")

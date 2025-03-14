@@ -33,6 +33,7 @@ de:
     month: Dieser Monat
     months: Letzte %{count} Monate
     year: Dieses Jahr
+    years: Letzte %{count} Jahre
     all: Seit Inbetriebnahme vor %{since}
   sensors:
     inverter_power: Erzeugung

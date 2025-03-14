@@ -187,6 +187,7 @@ export default class extends Controller<HTMLCanvasElement> {
         year: /\d{4}$/,
         days: /\d{1,3}d$/,
         months: /\d{1,2}mo$/,
+        years: /\d{1,2}y$/,
         all: /all$/,
       };
 
@@ -203,6 +204,10 @@ export default class extends Controller<HTMLCanvasElement> {
         regexPattern = regexes.month;
         // We are in a month view, so bars are days (YYYY-MM-DD)
         formattedDate = `${year}-${month}-${day}`;
+      } else if (regexes.years.exec(currentUrl)) {
+        regexPattern = regexes.years;
+        // We are in a multi-year view, so bars are years (YYYY)
+        formattedDate = `${year}`;
       } else if (regexes.months.exec(currentUrl)) {
         regexPattern = regexes.months;
         // We are in a multi-months view, so bars are months (YYYY-MM)

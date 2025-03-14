@@ -54,6 +54,11 @@
       time datetime= timeframe.iso8601
         = timeframe.localized
 
+  - when :years
+    .py-1
+      time datetime= timeframe.iso8601
+        = timeframe.localized
+
   - if timeframe.can_paginate?
     - if timeframe.next
       = link_to next_path,

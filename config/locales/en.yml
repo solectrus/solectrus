@@ -33,6 +33,7 @@ en:
     month: This month
     months: Last %{count} months
     year: This year
+    years: Last %{count} years
     all: Since commissioning %{since} ago
   sensors:
     inverter_power: PV generated

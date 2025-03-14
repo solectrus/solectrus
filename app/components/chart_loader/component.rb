@@ -105,6 +105,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 stepSize: 1,
                 maxRotation: 0,
               },
+              years: {
+                stepSize: 1,
+                maxRotation: 0,
+              },
               all: {
                 stepSize: 1,
                 maxRotation: 0,
@@ -167,6 +171,14 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 },
                 tooltipFormat: 'MMMM yyyy',
                 round: 'month',
+              },
+              years: {
+                unit: 'year',
+                displayFormats: {
+                  year: 'yyyy',
+                },
+                tooltipFormat: 'yyyy',
+                round: 'year',
               },
               all: {
                 unit: 'year',

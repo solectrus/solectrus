@@ -5,7 +5,7 @@ class ChartBase < Flux::Reader
       :day
     when :year, :months
       :month
-    when :all
+    when :years, :all
       :year
     end
   end

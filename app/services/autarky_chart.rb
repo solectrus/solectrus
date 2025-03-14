@@ -17,7 +17,7 @@ class AutarkyChart < ChartBase
       query_influx start: timeframe.beginning,
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id]
-    when :days, :week, :month, :months, :year, :all
+    when :days, :week, :month, :months, :year, :years, :all
       query_sql(timeframe:)
     end
   end

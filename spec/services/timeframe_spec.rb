@@ -1016,7 +1016,7 @@ describe Timeframe do
       expect(decoder.to_s).to eq(string)
     end
 
-    it 'returns the correct iso6081' do
+    it 'returns the correct iso8601' do
       expect(decoder.iso8601).to eq('P3D')
     end
 
@@ -1069,6 +1069,7 @@ describe Timeframe do
       expect(decoder.year?).to be(false)
       expect(decoder.days?).to be(true)
       expect(decoder.months?).to be(false)
+      expect(decoder.years?).to be(false)
       expect(decoder.all?).to be(false)
     end
 
@@ -1116,7 +1117,7 @@ describe Timeframe do
       expect(decoder.to_s).to eq(string)
     end
 
-    it 'returns the correct iso6081' do
+    it 'returns the correct iso8601' do
       expect(decoder.iso8601).to eq('P12M')
     end
 
@@ -1169,6 +1170,7 @@ describe Timeframe do
       expect(decoder.year?).to be(false)
       expect(decoder.days?).to be(false)
       expect(decoder.months?).to be(true)
+      expect(decoder.years?).to be(false)
       expect(decoder.all?).to be(false)
     end
 
@@ -1198,6 +1200,109 @@ describe Timeframe do
 
     it 'has passed 346 days' do
       expect(decoder.days_passed).to eq(346)
+    end
+
+    it 'is relative' do
+      expect(decoder.relative?).to be(true)
+    end
+  end
+
+  context 'when string is some years' do
+    let(:string) { 'P5Y' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:years)
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct iso8601' do
+      expect(decoder.iso8601).to eq('P5Y')
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2018-01-01 00:00:00.000000000 +0100')
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq('2022-10-13 23:59:59.999999999 +0200')
+    end
+
+    it 'returns the correct beginning_of_next' do
+      expect(decoder.beginning_of_next).to eq(
+        '2023-01-01 00:00:00.000000000 +0100',
+      )
+    end
+
+    it 'returns the correct next timeframe' do
+      expect(decoder.next).to be_nil
+    end
+
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev).to be_nil
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('Last 5 years')
+    end
+
+    it 'returns the correct corresponding_day' do
+      expect(decoder.corresponding_day).to eq('2022-10-13')
+    end
+
+    it 'returns the correct corresponding_week' do
+      expect(decoder.corresponding_week).to eq('2022-W41')
+    end
+
+    it 'returns the correct corresponding_month' do
+      expect(decoder.corresponding_month).to eq('2022-10')
+    end
+
+    it 'returns the correct corresponding_year' do
+      expect(decoder.corresponding_year).to eq('2022')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(false)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(false)
+      expect(decoder.days?).to be(false)
+      expect(decoder.months?).to be(false)
+      expect(decoder.years?).to be(true)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is not out_of_range' do
+      expect(decoder.out_of_range?).to be(false)
+    end
+
+    it 'is current' do
+      expect(decoder.current?).to be(true)
+    end
+
+    it 'does not start today' do
+      expect(decoder.starts_today?).to be(false)
+    end
+
+    it 'is not past' do
+      expect(decoder.past?).to be(false)
+    end
+
+    it 'is not future' do
+      expect(decoder.future?).to be(false)
+    end
+
+    it 'cannot paginate' do
+      expect(decoder.can_paginate?).to be(false)
+    end
+
+    it 'has passed 1260 days' do
+      expect(decoder.days_passed).to eq(1260)
     end
 
     it 'is relative' do
