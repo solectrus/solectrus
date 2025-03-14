@@ -128,7 +128,7 @@ group :development do
   # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
   gem 'spring-commands-rspec', require: false
 
-  # A native development UI for ViewComponent (https://github.com/lookbook-hq/lookbook)
+  # Lookbook is a UI development environment for Ruby on Rails applications (https://github.com/lookbook-hq/lookbook)
   gem 'lookbook'
 
   # A gem for generating annotations for Rails projects. (https://github.com/drwl/annotaterb)
