@@ -553,6 +553,10 @@ describe Timeframe do
     it 'is not relative' do
       expect(decoder.relative?).to be(false)
     end
+
+    it 'has corresponding week' do
+      expect(decoder.corresponding_week).to eq('P7D')
+    end
   end
 
   context 'when string is a week at end of year' do
@@ -800,6 +804,10 @@ describe Timeframe do
     it 'is not relative' do
       expect(decoder.relative?).to be(false)
     end
+
+    it 'has corresponding month' do
+      expect(decoder.corresponding_month).to eq('P30D')
+    end
   end
 
   context 'when string is a year' do
@@ -983,6 +991,10 @@ describe Timeframe do
     it 'is not relative' do
       expect(decoder.relative?).to be(false)
     end
+
+    it 'has corresponding year' do
+      expect(decoder.corresponding_year).to eq('P12M')
+    end
   end
 
   context 'when string is a year at min_date' do
@@ -1071,6 +1083,10 @@ describe Timeframe do
       expect(decoder.months?).to be(false)
       expect(decoder.years?).to be(false)
       expect(decoder.all?).to be(false)
+
+      expect(decoder).not_to be_week_like
+      expect(decoder).not_to be_month_like
+      expect(decoder).not_to be_year_like
     end
 
     it 'is not out_of_range' do
@@ -1106,8 +1122,47 @@ describe Timeframe do
     end
   end
 
-  context 'when string is some months' do
+  context 'when string is P7D' do
+    let(:string) { 'P7D' }
+
+    it 'is week_like' do
+      expect(decoder).to be_week_like
+      expect(decoder).not_to be_week
+    end
+
+    it 'has corresponding week' do
+      expect(decoder.corresponding_week).to eq('2022-W41')
+    end
+  end
+
+  context 'when string is P30D' do
+    let(:string) { 'P30D' }
+
+    it 'is month_like' do
+      expect(decoder).to be_month_like
+      expect(decoder).not_to be_month
+    end
+
+    it 'has corresponding month' do
+      expect(decoder.corresponding_month).to eq('2022-10')
+    end
+  end
+
+  context 'when string is P12M' do
     let(:string) { 'P12M' }
+
+    it 'is year_like' do
+      expect(decoder).to be_year_like
+      expect(decoder).not_to be_year
+    end
+
+    it 'has corresponding year' do
+      expect(decoder.corresponding_year).to eq('2022')
+    end
+  end
+
+  context 'when string is some months' do
+    let(:string) { 'P6M' }
 
     it 'returns the correct id' do
       expect(decoder.id).to eq(:months)
@@ -1118,11 +1173,11 @@ describe Timeframe do
     end
 
     it 'returns the correct iso8601' do
-      expect(decoder.iso8601).to eq('P12M')
+      expect(decoder.iso8601).to eq('P6M')
     end
 
     it 'returns the correct beginning' do
-      expect(decoder.beginning).to eq('2021-11-01 00:00:00.000000000 +0100')
+      expect(decoder.beginning).to eq('2022-05-01 00:00:00.000000000 +0200')
     end
 
     it 'returns the correct ending' do
@@ -1142,7 +1197,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Last 12 months')
+      expect(decoder.localized).to eq('Last 6 months')
     end
 
     it 'returns the correct corresponding_day' do
@@ -1172,6 +1227,10 @@ describe Timeframe do
       expect(decoder.months?).to be(true)
       expect(decoder.years?).to be(false)
       expect(decoder.all?).to be(false)
+
+      expect(decoder).not_to be_week_like
+      expect(decoder).not_to be_month_like
+      expect(decoder).not_to be_year_like
     end
 
     it 'is not out_of_range' do
@@ -1198,8 +1257,8 @@ describe Timeframe do
       expect(decoder.can_paginate?).to be(false)
     end
 
-    it 'has passed 346 days' do
-      expect(decoder.days_passed).to eq(346)
+    it 'has passed 165 days' do
+      expect(decoder.days_passed).to eq(165)
     end
 
     it 'is relative' do

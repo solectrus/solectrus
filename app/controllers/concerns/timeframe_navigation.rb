@@ -32,17 +32,17 @@ module TimeframeNavigation
         {
           name: t('calculator.week'),
           href: path_with_timeframe(timeframe.corresponding_week),
-          current: timeframe.week?,
+          current: timeframe.week_like?,
         },
         {
           name: t('calculator.month'),
           href: path_with_timeframe(timeframe.corresponding_month),
-          current: timeframe.month?,
+          current: timeframe.month_like?,
         },
         {
           name: t('calculator.year'),
           href: path_with_timeframe(timeframe.corresponding_year),
-          current: timeframe.year?,
+          current: timeframe.year_like?,
         },
         {
           name: t('calculator.all'),
