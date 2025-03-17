@@ -135,7 +135,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               days: {
                 unit: 'day',
                 displayFormats: {
-                  day: 'd',
+                  day: timeframe.relative_count.to_i < 8 ? 'eee' : 'd',
                 },
                 tooltipFormat: 'eeee, dd.MM.yyyy',
                 round: 'day',
