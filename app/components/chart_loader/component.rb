@@ -211,7 +211,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     when :case_temp
       '&deg;C'.html_safe
     when :co2_reduction
-      timeframe.short? ? 'g/h' : 'kg'
+      timeframe.short? ? 'g/h' : 'g'
     else
       timeframe.short? ? 'W' : 'Wh'
     end
