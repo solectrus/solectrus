@@ -185,9 +185,9 @@ export default class extends Controller<HTMLCanvasElement> {
         week: /\d{4}-W\d{2}$/,
         month: /\d{4}-\d{2}$/,
         year: /\d{4}$/,
-        days: /\d{1,3}d$/,
-        months: /\d{1,2}mo$/,
-        years: /\d{1,2}y$/,
+        days: /P\d{1,3}D$/,
+        months: /P\d{1,2}M$/,
+        years: /P\d{1,2}Y$/,
         all: /all$/,
       };
 
