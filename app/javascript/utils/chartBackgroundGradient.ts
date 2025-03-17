@@ -2,12 +2,12 @@ import { ChartArea } from 'chart.js';
 
 export default class ChartBackgroundGradient {
   constructor(
-    private originalColor: string,
-    private isNegative: boolean,
-    private basePosition: number, // Vertical position of the x-Axis in the given Chart (between 0 and 1)
-    private extent: number, // Extent of the dataset in the given Chart (between 0 and 1)
-    private minAlpha: number,
-    private maxAlpha: number,
+    private readonly originalColor: string,
+    private readonly isNegative: boolean,
+    private readonly basePosition: number, // Vertical position of the x-Axis in the given Chart (between 0 and 1)
+    private readonly extent: number, // Extent of the dataset in the given Chart (between 0 and 1)
+    private readonly minAlpha: number,
+    private readonly maxAlpha: number,
   ) {}
 
   // For caching the gradient so we don't have to recreate it every time
