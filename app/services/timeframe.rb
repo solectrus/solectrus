@@ -257,11 +257,11 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :month
       date.beginning_of_month.beginning_of_day
     when :months
-      (relative_count - 1).month.ago.beginning_of_month.beginning_of_day
+      relative_count.months.ago.beginning_of_month
     when :year
       date.beginning_of_year.beginning_of_day
     when :years
-      (relative_count - 1).year.ago.beginning_of_year.beginning_of_day
+      relative_count.years.ago.beginning_of_year
     when :all
       min_date&.beginning_of_year&.beginning_of_day
     end
@@ -277,18 +277,24 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     [ending.to_date, max_date].compact.min
   end
 
-  def ending
+  def ending # rubocop:disable Metrics/CyclomaticComplexity
     case id
     when :now
       Time.current
-    when :day, :days, :months, :years
+    when :day
       date.end_of_day
+    when :days
+      Date.yesterday.end_of_day
     when :week
       date.end_of_week.end_of_day
     when :month
       date.end_of_month.end_of_day
+    when :months
+      Date.current.prev_month.end_of_month.end_of_day
     when :year
       date.end_of_year.end_of_day
+    when :years
+      Date.current.prev_year.end_of_year.end_of_day
     when :all
       [max_date, Date.current].compact.min.end_of_day
     end
@@ -340,12 +346,18 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def corresponding_day
-    effective_ending_date.strftime(format(target_id: :day))
+    if relative?
+      Date.current.strftime(format(target_id: :day))
+    else
+      effective_ending_date.strftime(format(target_id: :day))
+    end
   end
 
   def corresponding_week
     if week? && current?
       'P7D'
+    elsif relative?
+      Date.current.strftime(format(target_id: :week))
     else
       effective_ending_date.strftime(format(target_id: :week))
     end
@@ -354,6 +366,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   def corresponding_month
     if month? && current?
       'P30D'
+    elsif relative?
+      Date.current.strftime(format(target_id: :month))
     else
       effective_ending_date.strftime(format(target_id: :month))
     end
@@ -362,6 +376,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   def corresponding_year
     if year? && current?
       'P12M'
+    elsif relative?
+      Date.current.strftime(format(target_id: :year))
     else
       effective_ending_date.strftime(format(target_id: :year))
     end

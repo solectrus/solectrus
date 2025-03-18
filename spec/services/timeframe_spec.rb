@@ -1037,7 +1037,7 @@ describe Timeframe do
     end
 
     it 'returns the correct ending' do
-      expect(decoder.ending).to eq('2022-10-13 23:59:59.999999999 +0200')
+      expect(decoder.ending).to eq('2022-10-12 23:59:59.999999999 +0200')
     end
 
     it 'returns the correct beginning_of_next' do
@@ -1101,8 +1101,8 @@ describe Timeframe do
       expect(decoder.starts_today?).to be(false)
     end
 
-    it 'is not past' do
-      expect(decoder.past?).to be(false)
+    it 'is past' do
+      expect(decoder.past?).to be(true)
     end
 
     it 'is not future' do
@@ -1159,6 +1159,10 @@ describe Timeframe do
     it 'has corresponding year' do
       expect(decoder.corresponding_year).to eq('2022')
     end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2021-10-01 00:00:00.000000000 +0200')
+    end
   end
 
   context 'when string is some months' do
@@ -1177,11 +1181,11 @@ describe Timeframe do
     end
 
     it 'returns the correct beginning' do
-      expect(decoder.beginning).to eq('2022-05-01 00:00:00.000000000 +0200')
+      expect(decoder.beginning).to eq('2022-04-01 00:00:00.000000000 +0200')
     end
 
     it 'returns the correct ending' do
-      expect(decoder.ending).to eq('2022-10-13 23:59:59.999999999 +0200')
+      expect(decoder.ending).to eq('2022-09-30 23:59:59.999999999 +0200')
     end
 
     it 'returns the correct beginning_of_next' do
@@ -1245,8 +1249,8 @@ describe Timeframe do
       expect(decoder.starts_today?).to be(false)
     end
 
-    it 'is not past' do
-      expect(decoder.past?).to be(false)
+    it 'is past' do
+      expect(decoder.past?).to be(true)
     end
 
     it 'is not future' do
@@ -1257,8 +1261,8 @@ describe Timeframe do
       expect(decoder.can_paginate?).to be(false)
     end
 
-    it 'has passed 165 days' do
-      expect(decoder.days_passed).to eq(165)
+    it 'has passed 183 days' do
+      expect(decoder.days_passed).to eq(183)
     end
 
     it 'is relative' do
@@ -1282,11 +1286,11 @@ describe Timeframe do
     end
 
     it 'returns the correct beginning' do
-      expect(decoder.beginning).to eq('2018-01-01 00:00:00.000000000 +0100')
+      expect(decoder.beginning).to eq('2017-01-01 00:00:00.000000000 +0100')
     end
 
     it 'returns the correct ending' do
-      expect(decoder.ending).to eq('2022-10-13 23:59:59.999999999 +0200')
+      expect(decoder.ending).to eq('2021-12-31 23:59:59.999999999 +0100')
     end
 
     it 'returns the correct beginning_of_next' do
@@ -1348,8 +1352,8 @@ describe Timeframe do
       expect(decoder.starts_today?).to be(false)
     end
 
-    it 'is not past' do
-      expect(decoder.past?).to be(false)
+    it 'is past' do
+      expect(decoder.past?).to be(true)
     end
 
     it 'is not future' do
@@ -1360,8 +1364,8 @@ describe Timeframe do
       expect(decoder.can_paginate?).to be(false)
     end
 
-    it 'has passed 1260 days' do
-      expect(decoder.days_passed).to eq(1260)
+    it 'has passed 975 days' do
+      expect(decoder.days_passed).to eq(975)
     end
 
     it 'is relative' do

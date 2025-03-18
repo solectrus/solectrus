@@ -28,14 +28,14 @@ class ChartBase < Flux::Reader
   end
 
   def months_from(timeframe)
-    (timeframe.beginning.to_date..timeframe.ending.to_date).select do |date|
-      date.day == 1
-    end
+    (
+      timeframe.beginning.to_date.beginning_of_month..timeframe.ending.to_date
+    ).step(1.month).to_a
   end
 
   def years_from(timeframe)
-    (timeframe.beginning.year..timeframe.ending.year).map do |year|
-      Date.new(year, 1, 1)
-    end
+    (
+      timeframe.beginning.to_date.beginning_of_year..timeframe.ending.to_date
+    ).step(1.year).to_a
   end
 end
