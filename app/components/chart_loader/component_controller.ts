@@ -12,7 +12,6 @@ import {
   LineController,
   LinearScale,
   TimeScale,
-  TimeScaleOptions,
   Filler,
   Title,
   Tooltip,
@@ -87,9 +86,6 @@ export default class extends Controller<HTMLCanvasElement> {
   private maxValue: number = 0;
   private minValue: number = 0;
 
-  private chartData?: ChartData;
-  private chartOptions?: ChartOptions;
-
   connect() {
     this.process();
 
@@ -118,12 +114,10 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private process() {
-    this.chartData = this.getData();
-    const data = this.chartData;
+    const data = this.getData();
     if (!data) return;
 
-    this.chartOptions = this.getOptions();
-    const options = this.chartOptions;
+    const options = this.getOptions();
     if (!options) return;
 
     // Disable animation when user prefers reduced motion
@@ -357,31 +351,11 @@ export default class extends Controller<HTMLCanvasElement> {
       dataset.stack ? minAlpha : 1,
     );
 
-    const hatchedBackgroundGradient = new ChartBackgroundGradient(
-      originalColor,
-      isNegative,
-      basePosition,
-      datasetExtent / extent,
-      minAlpha,
-
-      // Stacked bar must not be gradiented, just use the given Alpha
-      dataset.stack ? minAlpha : 1,
-      true,
-    );
-
     // Replace background color with gradient
-    dataset.backgroundColor = (context: {
-      chart: Chart;
-      type: string;
-      dataIndex: number;
-    }) => {
+    dataset.backgroundColor = (context: { chart: Chart; type: string }) => {
       const { ctx, chartArea } = context.chart;
-      const index = context.dataIndex;
 
-      if (chartArea)
-        if (this.isIncomplete(index))
-          return hatchedBackgroundGradient.canvasGradient(ctx, chartArea);
-        else return backgroundGradient.canvasGradient(ctx, chartArea);
+      if (chartArea) return backgroundGradient.canvasGradient(ctx, chartArea);
     };
 
     // Use original color for border
@@ -537,37 +511,5 @@ export default class extends Controller<HTMLCanvasElement> {
     if (firstAllNegative && secondAllPositive) return false;
 
     return true;
-  }
-
-  // Check if the bar with the given index contains incomplete data,
-  // i.e. it's the current day, week, month, or year
-  private isIncomplete(index: number): boolean {
-    if (!this.chartData?.labels) return false;
-    if (typeof this.chartData.labels[index] !== 'number') return false;
-
-    const dataDate = new Date(this.chartData.labels[index]);
-    const currentDate = new Date();
-
-    switch (this.timeUnit) {
-      case 'day':
-      case 'week':
-        return dataDate.toDateString() === currentDate.toDateString();
-
-      case 'month':
-        return (
-          dataDate.getMonth() === currentDate.getMonth() &&
-          dataDate.getFullYear() === currentDate.getFullYear()
-        );
-
-      case 'year':
-        return dataDate.getFullYear() === currentDate.getFullYear();
-
-      default:
-        return false;
-    }
-  }
-
-  private get timeUnit(): string | boolean {
-    return (this.chartOptions?.scales?.x as TimeScaleOptions).time?.unit;
   }
 }

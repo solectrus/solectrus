@@ -8,20 +8,20 @@ export default class ChartBackgroundGradient {
     private readonly extent: number, // Extent of the dataset in the given Chart (between 0 and 1)
     private readonly minAlpha: number,
     private readonly maxAlpha: number,
-    private readonly enableHatch: boolean = false, // Optional: Enable hatching
   ) {}
 
   // For caching the gradient so we don't have to recreate it every time
   private width?: number;
   private height?: number;
-  private gradient?: CanvasGradient | CanvasPattern;
+  private gradient?: CanvasGradient;
 
   canvasGradient(
     ctx: CanvasRenderingContext2D,
     chartArea: ChartArea,
-  ): CanvasGradient | CanvasPattern {
+  ): CanvasGradient {
     const { width: chartWidth, height: chartHeight } = chartArea;
 
+    // If there's no gradient or the chart dimensions have changed, create a new gradient
     if (
       !this.gradient ||
       this.width !== chartWidth ||
@@ -38,7 +38,7 @@ export default class ChartBackgroundGradient {
   private createGradient(
     ctx: CanvasRenderingContext2D,
     chartArea: ChartArea,
-  ): CanvasGradient | CanvasPattern {
+  ): CanvasGradient {
     const start = this.gradientStart(chartArea.height);
     const end = this.gradientEnd(chartArea.height) || 0;
     const gradient = ctx.createLinearGradient(0, start, 0, end);
@@ -57,43 +57,19 @@ export default class ChartBackgroundGradient {
       gradient.addColorStop(1, colorTransparent);
     }
 
-    // If hatching is enabled, create a pattern with the original color
-    if (this.enableHatch) {
-      const pattern = this.createHatchPattern(ctx);
-      return pattern || gradient;
-    }
-
     return gradient;
   }
 
-  private createHatchPattern(
-    ctx: CanvasRenderingContext2D,
-  ): CanvasPattern | null {
-    const patternCanvas = document.createElement('canvas');
-    patternCanvas.width = 6;
-    patternCanvas.height = 6;
-
-    const pCtx = patternCanvas.getContext('2d');
-    if (!pCtx) return null;
-
-    pCtx.strokeStyle = this.originalColor;
-    pCtx.globalAlpha = 0.5;
-    pCtx.lineWidth = 1;
-
-    pCtx.beginPath();
-    pCtx.moveTo(0, 0);
-    pCtx.lineTo(6, 6);
-    pCtx.stroke();
-
-    return ctx.createPattern(patternCanvas, 'repeat');
-  }
-
   private gradientStart(height: number): number {
-    return this.isNegative ? height * this.basePosition : 0;
+    if (this.isNegative) return height * this.basePosition;
+
+    return 0;
   }
 
   private gradientEnd(height: number): number {
-    return this.isNegative ? height : height * this.basePosition;
+    if (this.isNegative) return height;
+
+    return height * this.basePosition;
   }
 
   // Function to convert hex color code to RGB
