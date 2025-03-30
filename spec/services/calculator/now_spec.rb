@@ -6,6 +6,7 @@ describe Calculator::Now do
                           house_power
                           heatpump_power
                           system_status
+                          wallbox_car_connected
                         ]
   end
 
@@ -177,6 +178,43 @@ describe Calculator::Now do
 
     context 'when grid_export_limit is missing' do
       it { is_expected.to be(false) }
+    end
+  end
+
+  describe '#wallbox_car_connected' do
+    subject { calculator.wallbox_car_connected }
+
+    before do
+      add_influx_point(
+        name: measurement_wallbox_car_connected,
+        fields: {
+          field_wallbox_car_connected => value,
+        },
+      )
+    end
+
+    context 'when 0' do
+      let(:value) { 0 }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when 1' do
+      let(:value) { 1 }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when true' do
+      let(:value) { true }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when nil' do
+      let(:value) { nil }
+
+      it { is_expected.to be_nil }
     end
   end
 end
