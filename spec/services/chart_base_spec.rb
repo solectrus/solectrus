@@ -21,7 +21,7 @@ describe ChartBase do
     context 'when timeframe is some days' do
       let(:timeframe) { Timeframe.new 'P6D' }
 
-      it { is_expected.to eq(Date.new(2025, 3, 12)..Date.new(2025, 3, 16)) }
+      it { is_expected.to eq(Date.new(2025, 3, 11)..Date.new(2025, 3, 16)) }
     end
 
     context 'when timeframe is a month' do

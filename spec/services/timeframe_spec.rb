@@ -1033,7 +1033,7 @@ describe Timeframe do
     end
 
     it 'returns the correct beginning' do
-      expect(decoder.beginning).to eq('2022-10-11 00:00:00.000000000 +0200')
+      expect(decoder.beginning).to eq('2022-10-10 00:00:00.000000000 +0200')
     end
 
     it 'returns the correct ending' do
@@ -1113,8 +1113,8 @@ describe Timeframe do
       expect(decoder.can_paginate?).to be(false)
     end
 
-    it 'has passed 2 days' do
-      expect(decoder.days_passed).to eq(2)
+    it 'has passed 3 days' do
+      expect(decoder.days_passed).to eq(3)
     end
 
     it 'is relative' do

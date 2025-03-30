@@ -251,7 +251,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :day
       date.beginning_of_day
     when :days
-      (relative_count - 1).days.ago.beginning_of_day
+      relative_count.days.ago.beginning_of_day
     when :week
       date.beginning_of_week.beginning_of_day
     when :month
