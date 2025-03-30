@@ -62,13 +62,3 @@ body:
         # Date of commissioning of your photovoltaic system
         INSTALLATION_DATE=2023-04-03
         ...
-
-  - type: textarea
-    attributes:
-      label: Gibt es sonst noch etwas?
-      description: |
-        Alles, was noch wissenswert ist, um den Fehler verstehen und nachvollziehen zu können!
-
-        Tipp: Du kannst Bilder oder andere Dateien anhängen, indem du diesen Bereich markierst und dann Dateien hineinziehst.
-    validations:
-      required: false
