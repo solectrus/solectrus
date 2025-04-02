@@ -15,6 +15,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     [
       Queries::Calculation.new(:house_power, :sum, :sum),
       Queries::Calculation.new(:inverter_power, :sum, :sum),
+      Queries::Calculation.new(:balcony_inverter_power, :sum, :sum),
       Queries::Calculation.new(:wallbox_power, :sum, :sum),
       Queries::Calculation.new(:grid_import_power, :sum, :sum),
       Queries::Calculation.new(:grid_export_power, :sum, :sum),
@@ -38,6 +39,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
       feed_in_tariff
       electricity_price
       inverter_power
+      balcony_inverter_power
       wallbox_power
       grid_import_power
       grid_export_power

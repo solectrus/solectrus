@@ -119,12 +119,14 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     Scale.new(target: 80..300, max: peak).result(value)
   end
 
-  def default_icon_class
+  def default_icon_class # rubocop:disable Metrics/CyclomaticComplexity
     case sensor
     when :grid_export_power, :grid_import_power
       'fa-bolt'
     when :inverter_power
       'fa-sun'
+    when :balcony_inverter_power
+      'fa-solar-panel'
     when :battery_discharging_power, :battery_charging_power
       battery_class
     when :house_power
@@ -162,6 +164,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
         %i[
           grid_export_power
           inverter_power
+          balcony_inverter_power
           battery_discharging_power
           battery_charging_power
           house_power
@@ -196,7 +199,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
   def default_color_class_for_balance
     case sensor
-    when :grid_export_power, :inverter_power
+    when :grid_export_power, :inverter_power, :balcony_inverter_power
       'bg-green-600 dark:bg-green-800/80'
     when :battery_discharging_power, :battery_charging_power
       'bg-green-700 dark:bg-green-900/70'

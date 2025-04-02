@@ -1,6 +1,7 @@
 describe('Home page', () => {
   [
     'inverter_power',
+    'balcony_inverter_power',
     'battery_power',
     'grid_power',
     'autarky',

@@ -66,6 +66,10 @@ class Calculator::Now < Calculator::Base
     last[:inverter_power]
   end
 
+  def balcony_inverter_power
+    last[:balcony_inverter_power]
+  end
+
   # Consumer
 
   def house_power

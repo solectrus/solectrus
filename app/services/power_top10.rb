@@ -59,6 +59,7 @@ class PowerTop10
   FIELD_MAPPING = {
     sum: {
       inverter_power: 'sum',
+      balcony_inverter_power: 'sum',
       heatpump_power: 'sum',
       house_power: 'sum',
       case_temp: 'avg',
@@ -71,6 +72,7 @@ class PowerTop10
     },
     max: {
       inverter_power: 'max',
+      balcony_inverter_power: 'max',
       heatpump_power: 'max',
       house_power: 'max',
       case_temp: 'max',

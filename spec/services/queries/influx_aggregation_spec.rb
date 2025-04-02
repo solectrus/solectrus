@@ -11,6 +11,7 @@ describe Queries::InfluxAggregation do
     context 'without data' do
       %i[
         inverter_power
+        balcony_inverter_power
         house_power
         wallbox_power
         heatpump_power

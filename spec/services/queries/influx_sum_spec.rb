@@ -12,6 +12,7 @@ describe Queries::InfluxSum do
       %i[
         inverter_power
         inverter_power_forecast
+        balcony_inverter_power
         house_power
         wallbox_power
         heatpump_power

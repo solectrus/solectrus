@@ -110,6 +110,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
     base_sensors = %i[
       inverter_power
       inverter_power_forecast
+      balcony_inverter_power
       house_power
       heatpump_power
       grid_import_power
@@ -147,6 +148,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
       max_heatpump_power: query_aggregation.max_heatpump_power,
       max_house_power: query_aggregation.max_house_power,
       max_inverter_power: query_aggregation.max_inverter_power,
+      max_balcony_inverter_power: query_aggregation.max_balcony_inverter_power,
       max_wallbox_power: query_aggregation.max_wallbox_power,
     }
   end

@@ -37,6 +37,7 @@ de:
     all: Seit Inbetriebnahme vor %{since}
   sensors:
     inverter_power: Erzeugung
+    balcony_inverter_power: Balkon
     inverter_power_forecast: Prognose
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher

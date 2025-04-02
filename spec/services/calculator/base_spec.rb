@@ -152,20 +152,29 @@ describe Calculator::Base do
   describe '#producing?' do
     subject { calculator.producing? }
 
-    context 'when inverter_power is nil' do
-      before { calculator.build_method(:inverter_power) { nil } }
+    context 'when pv_total is nil' do
+      before do
+        calculator.build_method(:inverter_power) { nil }
+        calculator.build_method(:balcony_inverter_power) { nil }
+      end
 
       it { is_expected.to be_nil }
     end
 
-    context 'when inverter_power is below 50' do
-      before { calculator.build_method(:inverter_power) { 20 } }
+    context 'when pv_total is below 50' do
+      before do
+        calculator.build_method(:inverter_power) { 20 }
+        calculator.build_method(:balcony_inverter_power) { 10 }
+      end
 
       it { is_expected.to be(false) }
     end
 
-    context 'when inverter_power is greater than 50' do
-      before { calculator.build_method(:inverter_power) { 60 } }
+    context 'when pv_total is greater than 50' do
+      before do
+        calculator.build_method(:inverter_power) { 40 }
+        calculator.build_method(:balcony_inverter_power) { 20 }
+      end
 
       it { is_expected.to be(true) }
     end
@@ -306,6 +315,7 @@ describe Calculator::Base do
         calculator.build_method(:grid_import_power, {})
         calculator.build_method(:battery_discharging_power, {})
         calculator.build_method(:inverter_power, {})
+        calculator.build_method(:balcony_inverter_power, {})
       end
 
       it { is_expected.to eq(0) }
@@ -390,6 +400,7 @@ describe Calculator::Base do
     context 'with zero values' do
       before do
         calculator.build_method(:inverter_power) { 0 }
+        calculator.build_method(:balcony_inverter_power) { 0 }
         calculator.build_method(:house_power) { 0 }
         calculator.build_method(:heatpump_power) { 0 }
         calculator.build_method(:wallbox_power) { 0 }
@@ -401,10 +412,11 @@ describe Calculator::Base do
 
     context 'with zero grid_import_power (maybe caused by balcony heatpump_power plant)' do
       before do
-        calculator.build_method(:house_power) { 0 }
+        calculator.build_method(:house_power) { 500 }
         calculator.build_method(:heatpump_power) { 0 }
         calculator.build_method(:wallbox_power) { 0 }
         calculator.build_method(:inverter_power) { 8_600 }
+        calculator.build_method(:balcony_inverter_power) { 500 }
         calculator.build_method(:grid_import_power) { 0 }
         calculator.build_method(:grid_export_power) { 8_700 }
       end

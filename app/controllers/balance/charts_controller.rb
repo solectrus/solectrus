@@ -14,6 +14,7 @@ class Balance::ChartsController < ApplicationController
       calculations: [
         Queries::Calculation.new(:inverter_power, :sum, :sum),
         Queries::Calculation.new(:inverter_power_forecast, :sum, :sum),
+        Queries::Calculation.new(:balcony_inverter_power, :sum, :sum),
       ],
     )
   end
@@ -21,6 +22,7 @@ class Balance::ChartsController < ApplicationController
   helper_method def chart_sensors
     %i[
       inverter_power
+      balcony_inverter_power
       grid_power
       house_power
       heatpump_power

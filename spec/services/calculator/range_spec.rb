@@ -23,6 +23,7 @@ describe Calculator::Range do
     allow(calculator).to receive_messages(
       inverter_power: 46_000,
       inverter_power_forecast: 50_000,
+      balcony_inverter_power: 2_000,
       got: 1,
       paid: -6,
       traditional_price: -15,

@@ -6,6 +6,7 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
       balance.with_title { I18n.t('balance_sheet.left') }
       balance.with_segment :grid_import_power, peak: peak&.dig(:grid_import_power)
       balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
+      balance.with_segment :balcony_inverter_power, peak: peak&.dig(:balcony_inverter_power)
       balance.with_segment :battery_discharging_power, peak: peak&.dig(:battery_discharging_power)
 
   div class= 'flex flex-col px-2 sm:px-4 gap-2 tall:gap-4 pb-8'

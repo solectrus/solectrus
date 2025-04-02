@@ -24,6 +24,7 @@ class Balance::StatsController < ApplicationController
     Calculator::Now.new(
       [
         :inverter_power,
+        :balcony_inverter_power,
         :house_power,
         :heatpump_power,
         :wallbox_power,
@@ -53,6 +54,7 @@ class Balance::StatsController < ApplicationController
       timeframe,
       calculations: [
         Queries::Calculation.new(:inverter_power, :sum, :sum),
+        Queries::Calculation.new(:balcony_inverter_power, :sum, :sum),
         Queries::Calculation.new(:house_power, :sum, :sum),
         Queries::Calculation.new(:heatpump_power, :sum, :sum),
         Queries::Calculation.new(:wallbox_power, :sum, :sum),

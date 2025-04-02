@@ -37,6 +37,7 @@ class SummaryValue < ApplicationRecord
          house_power_grid: 'house_power_grid',
          inverter_power: 'inverter_power',
          inverter_power_forecast: 'inverter_power_forecast',
+         balcony_inverter_power: 'balcony_inverter_power',
          wallbox_power: 'wallbox_power',
          wallbox_power_grid: 'wallbox_power_grid',
          custom_power_01: 'custom_power_01',

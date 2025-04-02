@@ -37,6 +37,7 @@ en:
     all: Since commissioning %{since} ago
   sensors:
     inverter_power: PV generated
+    balcony_inverter_power: Balcony
     inverter_power_forecast: Forecast
     house_power: Home consumption
     house_power_without_custom: Other consumers
