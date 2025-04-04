@@ -255,7 +255,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
 
   def define_sensor(sensor_name, value)
     if value
-      @sensor_logs << "  - Sensor #{sensor_name.upcase} mapped to #{value}"
+      @sensor_logs << format(
+        '  - Sensor %<sensor_name>-30s → %<value>s',
+        sensor_name:,
+        value:,
+      )
     end
 
     define(sensor_name, value)
