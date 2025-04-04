@@ -26,7 +26,7 @@ class ChartData::InverterPower < ChartData::Base
 
   def dataset(sensor_name)
     {
-      label: SensorConfig.x.name(sensor_name),
+      label: SensorConfig.x.display_name(sensor_name),
       data: chart[sensor_name]&.map(&:second),
     }.merge(style(sensor_name))
   end

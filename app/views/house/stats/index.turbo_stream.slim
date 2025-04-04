@@ -23,7 +23,7 @@
           .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg.-ml-5
             = link_to house_home_path(sensor: 'house_power', timeframe:),
                       class: 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 py-2 md:py-4',
-                      title: SensorConfig.x.name(:house_power),
+                      title: SensorConfig.x.display_name(:house_power),
                       data: { \
                         controller: 'tippy',
                         tippy_placement_value: 'right',

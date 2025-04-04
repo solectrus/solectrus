@@ -25,9 +25,9 @@
 #             edit_settings_general GET    /settings/general(.:format)                               settings/generals#edit
 #                  settings_general PATCH  /settings/general(.:format)                               settings/generals#update
 #                                   PUT    /settings/general(.:format)                               settings/generals#update
-#           edit_settings_consumers GET    /settings/consumers(.:format)                             settings/consumers#edit
-#                settings_consumers PATCH  /settings/consumers(.:format)                             settings/consumers#update
-#                                   PUT    /settings/consumers(.:format)                             settings/consumers#update
+#             edit_settings_sensors GET    /settings/sensors(.:format)                               settings/sensors#edit
+#                  settings_sensors PATCH  /settings/sensors(.:format)                               settings/sensors#update
+#                                   PUT    /settings/sensors(.:format)                               settings/sensors#update
 #                   settings_prices GET    /settings/prices(/:name)(.:format)                        settings/prices#index {name: /electricity|feed_in/}
 #                                   GET    /settings/prices(.:format)                                settings/prices#index
 #                                   POST   /settings/prices(.:format)                                settings/prices#create
@@ -129,7 +129,7 @@ Rails.application.routes.draw do
 
   scope :settings, as: :settings, module: 'settings' do
     resource :general, only: %i[edit update], path_names: { edit: '' }
-    resource :consumers, only: %i[edit update], path_names: { edit: '' }
+    resource :sensors, only: %i[edit update], path_names: { edit: '' }
 
     resources :prices, constraints: { name: Regexp.union(Price.names.keys) } do
       get '(:name)', on: :collection, action: :index, as: ''

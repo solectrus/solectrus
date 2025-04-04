@@ -142,9 +142,11 @@ en:
       description:
         electricity: Price per consumed kWh paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
-    consumers:
-      name: Consumers
-      description: Labels for the self-defined electricity consumers
+    sensors:
+      name: Sensors
+      description: Labels for the used sensors
+      generators: Generators
+      consumers: Consumers
   errors:
     title: Error
     403:

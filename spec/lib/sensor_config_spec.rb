@@ -110,6 +110,28 @@ describe SensorConfig do
         expect { sensor_config.exists?(:invalid) }.to raise_error(ArgumentError)
       end
     end
+
+    describe '#display_name' do
+      context 'without customization' do
+        it 'returns the display name for a sensor' do
+          expect(sensor_config.display_name(:inverter_power)).to eq(
+            'PV generated',
+          )
+        end
+      end
+
+      context 'with customization' do
+        before do
+          Setting.sensor_names = { inverter_power: 'My little PV system' }
+        end
+
+        it 'returns the display name for a sensor' do
+          expect(sensor_config.display_name(:inverter_power)).to eq(
+            'My little PV system',
+          )
+        end
+      end
+    end
   end
 
   context 'with new configuration (including heatpump, but not excluded)' do
@@ -404,7 +426,7 @@ describe SensorConfig do
       }
     end
 
-    it 'failes at initialization' do
+    it 'fails at initialization' do
       expect { sensor_config }.to raise_error(
         described_class::Error,
         'Invalid sensor name in INFLUX_EXCLUDE_FROM_HOUSE_POWER: FOO',

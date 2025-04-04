@@ -14,7 +14,7 @@ class ChartData::BalconyInverterPower < ChartData::Base
 
   def dataset(sensor_name)
     {
-      label: SensorConfig.x.name(sensor_name),
+      label: SensorConfig.x.display_name(sensor_name),
       data: chart[sensor_name]&.map { |_, v| v&.negative? ? 0 : v },
     }.merge(style)
   end

@@ -7,7 +7,7 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
       datasets:
         chart.map do |chart_sensor, data|
           {
-            label: SensorConfig.x.name(chart_sensor),
+            label: SensorConfig.x.display_name(chart_sensor),
             data: data.map(&:second),
             stack: chart_sensor == :other_power ? nil : 'Power-Splitter',
           }.merge(style(chart_sensor, split: chart.key?(:other_power_grid)))

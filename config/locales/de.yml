@@ -142,9 +142,11 @@ de:
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
-    consumers:
-      name: Verbraucher
-      description: Bezeichnungen für die selbstdefinierten Stromverbraucher
+    sensors:
+      name: Sensoren
+      description: Benennung der vorhandenen Sensoren
+      generators: Erzeuger
+      consumers: Verbraucher
   errors:
     title: Fehler
     403:

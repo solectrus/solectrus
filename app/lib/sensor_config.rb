@@ -208,17 +208,29 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     sensor_names.all? { |sensor_name| exists?(sensor_name) }
   end
 
-  def name(sensor_name)
-    if sensor_name.match?(/\Acustom_power_\d{2}\z/)
-      setting_name = Setting.name_for_custom_sensor(sensor_name)
-      Setting.public_send(setting_name) || sensor_name.to_s
-    elsif sensor_name.end_with?('_grid')
-      I18n.t('splitter.grid')
-    elsif sensor_name.end_with?('_pv')
-      I18n.t('splitter.pv')
-    else
-      I18n.t("sensors.#{sensor_name}").html_safe
-    end
+  def display_name(sensor_name)
+    Setting.sensor_names[sensor_name].presence ||
+      if sensor_name.match?(/\Acustom_power_\d{2}\z/)
+        sensor_name.to_s
+      elsif sensor_name.end_with?('_grid')
+        I18n.t('splitter.grid')
+      elsif sensor_name.end_with?('_pv')
+        I18n.t('splitter.pv')
+      else
+        I18n.t("sensors.#{sensor_name}").html_safe
+      end
+  end
+
+  def editable_sensor_names
+    (
+      %i[
+        inverter_power
+        balcony_inverter_power
+        house_power
+        wallbox_power
+        heatpump_power
+      ] + CUSTOM_SENSORS
+    ).select { exists?(it) }
   end
 
   def existing_custom_sensor_count

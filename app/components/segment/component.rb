@@ -17,7 +17,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def percent = options[:percent] || default_percent
 
   def title
-    options.key?(:title) ? options[:title] : SensorConfig.x.name(sensor)
+    options.key?(:title) ? options[:title] : SensorConfig.x.display_name(sensor)
   end
 
   def icon_class

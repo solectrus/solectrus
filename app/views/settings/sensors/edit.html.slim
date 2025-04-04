@@ -1,0 +1,37 @@
+- content_for :sub_nav do
+  .flex.justify-between.items-center
+    .hidden.lg:block.py-5
+      = render Nav::Sub::Component.new do |c|
+        = c.with_items nav_items
+
+- content_for :bottom_nav do
+  = render Nav::Sub::Component.new do |c|
+    = c.with_items nav_items
+
+= form_with url: settings_sensors_path, method: :patch, scope: nil, local: true, html: { class: 'px-2' } do |f|
+  = f.group title: t('settings.sensors.description') do
+
+    h2.border-b-2.border-indigo-900.pb-1
+      = t('settings.sensors.generators')
+    .grid.grid-cols-1.sm:grid-cols-2.lg:grid-cols-3.gap-4
+      - %i[inverter_power balcony_inverter_power].each do |sensor_name|
+        - if SensorConfig.x.exists?(sensor_name)
+          .flex.flex-col
+            = f.text_field "sensor_names[#{sensor_name}]",
+                          value: SensorConfig.x.display_name(sensor_name),
+                          class: 'form-input',
+                          label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+
+    h2.mt-10.border-b-2.border-indigo-900.pb-1
+      = t('settings.sensors.consumers')
+    .grid.grid-cols-1.sm:grid-cols-2.lg:grid-cols-3.gap-4
+      - (%i[house_power heatpump_power wallbox_power] + SensorConfig::CUSTOM_SENSORS).each do |sensor_name|
+        - if SensorConfig.x.exists?(sensor_name)
+          .flex.flex-col
+            = f.text_field "sensor_names[#{sensor_name}]",
+                           value: SensorConfig.x.display_name(sensor_name),
+                           class: 'form-input',
+                           label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+
+  = f.actions do
+    = f.submit t('crud.save')

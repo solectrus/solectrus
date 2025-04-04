@@ -53,7 +53,7 @@ class ChartSelector::Component < ViewComponent::Base
     if sensor.in?(%i[autarky self_consumption co2_reduction])
       I18n.t "calculator.#{sensor}"
     else
-      SensorConfig.x.name(sensor)
+      SensorConfig.x.display_name(sensor)
     end
   end
 end
