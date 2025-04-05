@@ -32,6 +32,7 @@ class Balance::StatsController < ApplicationController
         :battery_discharging_power,
         :grid_import_power,
         :grid_export_power,
+        :grid_export_limit,
         :heatpump_power_grid,
         :wallbox_power_grid,
         :house_power_grid,
