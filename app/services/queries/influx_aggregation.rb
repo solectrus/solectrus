@@ -10,19 +10,21 @@ class Queries::InfluxAggregation
 
   private
 
-  def build_method(key, data)
-    define_singleton_method(key) { data[key] }
+  def build_context(data)
+    %i[min max mean].each { |aggregation| build_methods(aggregation, data) }
   end
 
-  def build_context(data)
-    %i[min max mean].each do |method|
-      sensors.each { |sensor| build_method(:"#{method}_#{sensor}", data) }
-
-      # Add dummy methods for sensors that are not available
-      (ALL_SENSORS - sensors).each do |sensor|
-        build_method(:"#{method}_#{sensor}", {})
-      end
+  def build_methods(aggregation, data)
+    ALL_SENSORS.each do |sensor|
+      build_method(
+        :"#{aggregation}_#{sensor}",
+        sensors.include?(sensor) ? data : {},
+      )
     end
+  end
+
+  def build_method(key, data)
+    define_singleton_method(key) { data[key] }
   end
 
   ALL_SENSORS = %i[
