@@ -23,6 +23,7 @@ class Balance::ChartsController < ApplicationController
     %i[
       inverter_power
       balcony_inverter_power
+      total_inverter_power
       grid_power
       house_power
       heatpump_power

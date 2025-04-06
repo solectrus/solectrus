@@ -2,6 +2,7 @@ describe('Home page', () => {
   [
     'inverter_power',
     'balcony_inverter_power',
+    'total_inverter_power',
     'battery_power',
     'grid_power',
     'autarky',
@@ -49,7 +50,7 @@ describe('Home page', () => {
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-day').should('be.visible');
 
-      if (path == 'inverter_power') {
+      if (path == 'total_inverter_power') {
         cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
         cy.get('#balance-chart-2022-06-21')
           .should('contain', 'Erwartet werden')

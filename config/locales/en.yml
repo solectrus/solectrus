@@ -39,6 +39,7 @@ en:
     inverter_power: PV generated
     balcony_inverter_power: Balcony
     inverter_power_forecast: Forecast
+    total_inverter_power: Total production
     house_power: Home consumption
     house_power_without_custom: Other consumers
     wallbox_power: EV charging

@@ -24,14 +24,14 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
 
   # Inverter
 
-  def pv_total
+  def total_inverter_power
     [inverter_power, balcony_inverter_power].compact.presence&.sum
   end
 
   def producing?
-    return unless pv_total
+    return unless total_inverter_power
 
-    pv_total >= 50
+    total_inverter_power >= 50
   end
 
   def inverter_power_percent
@@ -204,16 +204,16 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def self_consumption
-    return unless pv_total && grid_export_power
+    return unless total_inverter_power && grid_export_power
 
-    pv_total - grid_export_power
+    total_inverter_power - grid_export_power
   end
 
   def self_consumption_quote
-    return unless self_consumption && pv_total
-    return if pv_total < 50
+    return unless self_consumption && total_inverter_power
+    return if total_inverter_power < 50
 
-    (self_consumption * 100.0 / pv_total).clamp(0, 100).round(1)
+    (self_consumption * 100.0 / total_inverter_power).clamp(0, 100).round(1)
   end
 
   def grid_quote

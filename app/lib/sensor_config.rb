@@ -76,15 +76,17 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     savings
     co2_reduction
     house_power_without_custom
+    total_inverter_power
   ].freeze
   public_constant :CALCULATED_SENSORS
 
-  # Sensors that can be displayed in the chart
+  # Sensors that can be displayed in the chart (and Essentials)
   CHART_SENSORS =
     (
       %i[
         inverter_power
         balcony_inverter_power
+        total_inverter_power
         house_power
         house_power_without_custom
         heatpump_power
@@ -169,6 +171,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
 
   def exists?(sensor_name, check_policy: true) # rubocop:disable Metrics/CyclomaticComplexity
     case sensor_name
+    when :total_inverter_power
+      exists_all? :inverter_power, :balcony_inverter_power
     when :grid_power
       exists_any? :grid_import_power, :grid_export_power
     when :battery_power

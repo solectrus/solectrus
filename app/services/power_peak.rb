@@ -19,7 +19,10 @@ class PowerPeak
 
   def existing_sensors
     @existing_sensors ||=
-      sensors.select { |sensor| SensorConfig.x.exists?(sensor) }
+      sensors.select do |sensor|
+        SensorConfig.x.exists?(sensor) &&
+          SensorConfig::CALCULATED_SENSORS.exclude?(sensor)
+      end
   end
 
   def query(start)

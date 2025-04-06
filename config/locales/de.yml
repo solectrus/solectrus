@@ -39,6 +39,7 @@ de:
     inverter_power: Erzeugung
     balcony_inverter_power: Balkon
     inverter_power_forecast: Prognose
+    total_inverter_power: Gesamterzeugung
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher
     wallbox_power: E-Auto

@@ -2,7 +2,7 @@ class ChartData::InverterPower < ChartData::Base
   private
 
   def data
-    @data ||= timeframe.day? ? data_with_forecast : data_simple
+    @data ||= with_forecast? ? data_with_forecast : data_simple
   end
 
   def data_simple
@@ -54,5 +54,9 @@ class ChartData::InverterPower < ChartData::Base
       end
 
     super().merge(backgroundColor: background_color)
+  end
+
+  def with_forecast?
+    timeframe.day? && !SensorConfig.x.exists?(:balcony_inverter_power)
   end
 end

@@ -152,7 +152,7 @@ describe Calculator::Base do
   describe '#producing?' do
     subject { calculator.producing? }
 
-    context 'when pv_total is nil' do
+    context 'when total_inverter_power is nil' do
       before do
         calculator.build_method(:inverter_power) { nil }
         calculator.build_method(:balcony_inverter_power) { nil }
@@ -161,7 +161,7 @@ describe Calculator::Base do
       it { is_expected.to be_nil }
     end
 
-    context 'when pv_total is below 50' do
+    context 'when total_inverter_power is below 50' do
       before do
         calculator.build_method(:inverter_power) { 20 }
         calculator.build_method(:balcony_inverter_power) { 10 }
@@ -170,7 +170,7 @@ describe Calculator::Base do
       it { is_expected.to be(false) }
     end
 
-    context 'when pv_total is greater than 50' do
+    context 'when total_inverter_power is greater than 50' do
       before do
         calculator.build_method(:inverter_power) { 40 }
         calculator.build_method(:balcony_inverter_power) { 20 }
