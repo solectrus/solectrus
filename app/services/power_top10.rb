@@ -51,6 +51,8 @@ class PowerTop10
 
     if sensor == :house_power && excluded_sensor_names.any?
       build_query_house_power(start:, stop:, period:, limit:)
+    elsif sensor == :total_inverter_power
+      build_query_total_inverter_power(start:, stop:, period:, limit:)
     else
       build_query_simple(start:, stop:, period:, limit:)
     end
@@ -142,7 +144,32 @@ class PowerTop10
         .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
         .calculate_all(difference)
-        .map { |record| { date: record.first, value: record.second } }
+        .map { |(date, value)| { date:, value: } }
+    end
+  end
+
+  def build_query_total_inverter_power(start:, stop:, period:, limit:)
+    scope =
+      SummaryValue.where(
+        date: start..stop,
+        field: %w[inverter_power balcony_inverter_power],
+        aggregation: 'sum',
+      ).limit(limit)
+
+    total = 'SUM(value) AS total'
+
+    if period == :day
+      scope
+        .group(:date)
+        .select(:date, total)
+        .order("total #{sort_order}")
+        .map { |it| { date: it.date, value: it.total } }
+    else
+      scope
+        .group_by_period(period, :date, series: false)
+        .order("2 #{sort_order}")
+        .calculate_all(total)
+        .map { |(date, value)| { date:, value: } }
     end
   end
 end

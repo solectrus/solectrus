@@ -182,12 +182,53 @@ describe PowerTop10 do
     end
   end
 
+  context 'when using total_inverter_power' do
+    let(:desc) { true }
+    let(:calc) { 'sum' }
+
+    let(:power_top10) do
+      described_class.new(sensor: :total_inverter_power, calc:, desc:)
+    end
+
+    describe '#days' do
+      subject { power_top10.days }
+
+      it do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 5), value: 2_750_000 },
+            { date: Date.new(2024, 6, 3), value: 2_640_000 },
+            { date: Date.new(2024, 6, 4), value: 1_320_000 },
+            { date: Date.new(2023, 12, 31), value: 132_000 },
+          ],
+        )
+      end
+    end
+
+    describe '#weeks' do
+      subject { power_top10.weeks }
+
+      it do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 3), value: 6_710_000 },
+            { date: Date.new(2023, 12, 25), value: 132_000 },
+          ],
+        )
+      end
+    end
+  end
+
   private
 
   def sample_data(date:, sum:, max:)
     create_summary(
       date:,
-      values: [[:inverter_power, :sum, sum], [:inverter_power, :max, max]],
+      values: [
+        [:inverter_power, :sum, sum],
+        [:balcony_inverter_power, :sum, sum * 0.1],
+        [:inverter_power, :max, max],
+      ],
     )
   end
 end
