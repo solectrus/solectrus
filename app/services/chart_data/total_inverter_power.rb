@@ -17,8 +17,7 @@ class ChartData::TotalInverterPower < ChartData::Base
       labels:
         labels_for(:inverter_power) || labels_for(:inverter_power_forecast),
       datasets: [
-        dataset(:inverter_power),
-        dataset(:balcony_inverter_power),
+        dataset(:total_inverter_power),
         dataset(:inverter_power_forecast),
       ],
     }
@@ -31,8 +30,19 @@ class ChartData::TotalInverterPower < ChartData::Base
   def dataset(sensor_name)
     {
       label: SensorConfig.x.display_name(sensor_name),
-      data: chart[sensor_name]&.map { |_, v| v&.negative? ? 0 : v },
+      data: values_for(sensor_name),
     }.merge(style(sensor_name))
+  end
+
+  def values_for(sensor_name) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+    if sensor_name == :total_inverter_power
+      %i[inverter_power balcony_inverter_power]
+        .map { |name| values_for(name) }
+        .reduce(&:zip)
+        .map { |values| values.compact.presence&.sum }
+    else
+      chart[sensor_name]&.map { |_, v| v&.negative? ? 0 : v } || []
+    end
   end
 
   def chart
@@ -52,13 +62,11 @@ class ChartData::TotalInverterPower < ChartData::Base
     inverter_power: '#16a34a', # bg-green-600
     balcony_inverter_power: '#0d9160', # bg-green-600/90
     inverter_power_forecast: '#cbd5e1', # bg-slate-300
+    total_inverter_power: '#16a34a', # bg-green-600
   }.freeze
   private_constant :BACKGROUND_COLORS
 
   def style(sensor_name)
-    super().merge(
-      backgroundColor: BACKGROUND_COLORS[sensor_name],
-      stack: sensor_name == :inverter_power_forecast ? nil : 'Inverter',
-    )
+    super().merge(backgroundColor: BACKGROUND_COLORS[sensor_name])
   end
 end
