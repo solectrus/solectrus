@@ -35,7 +35,7 @@ describe Calculator::Range do
   end
 
   it 'calculates' do
-    expect(calculator.forecast_deviation).to eq(-8)
+    expect(calculator.forecast_deviation).to eq(-4)
     expect(calculator.solar_price).to eq(-5)
     expect(calculator.savings).to eq(10)
     expect(calculator.battery_savings_percent).to eq(30)

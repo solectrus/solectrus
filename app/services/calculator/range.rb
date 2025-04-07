@@ -92,7 +92,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     return unless respond_to?(:inverter_power_forecast)
     return if inverter_power_forecast.zero?
 
-    ((inverter_power * 100.0 / inverter_power_forecast) - 100).round
+    ((total_inverter_power * 100.0 / inverter_power_forecast) - 100).round
   end
 
   def paid

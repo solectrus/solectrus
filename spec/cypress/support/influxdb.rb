@@ -20,7 +20,7 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
       values: [
         [:inverter_power, :sum, 18_000],
         [:balcony_inverter_power, :sum, 2_000],
-        [:inverter_power_forecast, :sum, 19_000],
+        [:inverter_power_forecast, :sum, 21_000],
         [:house_power, :sum, 1800],
         [:heatpump_power, :sum, 800],
         [:grid_import_power, :sum, 20],
