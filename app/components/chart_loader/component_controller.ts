@@ -252,6 +252,10 @@ export default class extends Controller<HTMLCanvasElement> {
         (dataset) => dataset.stack == 'Power-Splitter',
       );
 
+      const isInverterStack = data.datasets.some(
+        (dataset) => dataset.stack == 'TotalInverterPower',
+      );
+
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
 
@@ -287,11 +291,20 @@ export default class extends Controller<HTMLCanvasElement> {
         },
 
         footer: (tooltipItems) => {
+          let sum: number | undefined = undefined;
+
           if (isPowerSplitterStack && tooltipItems.length) {
-            const sum = tooltipItems[0].parsed.y;
+            sum = tooltipItems[0].parsed.y;
 
             if (sum) return this.formattedNumber(sum);
+          } else if (isInverterStack) {
+            sum = tooltipItems.reduce((acc, item) => {
+              if (item.parsed.y) acc += item.parsed.y;
+              return acc;
+            }, 0);
           }
+
+          if (sum) return this.formattedNumber(sum);
         },
       };
     }

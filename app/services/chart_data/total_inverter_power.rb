@@ -69,7 +69,10 @@ class ChartData::TotalInverterPower < ChartData::Base
   def style(sensor_name)
     super().merge(
       backgroundColor: BACKGROUND_COLORS[sensor_name],
-      stack: sensor_name == :inverter_power_forecast ? nil : 'Inverter',
+      stack:
+        unless sensor_name == :inverter_power_forecast
+          timeframe.day? ? 'DayTotalInverterPower' : 'TotalInverterPower'
+        end,
     )
   end
 end
