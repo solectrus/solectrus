@@ -6,7 +6,7 @@ describe('Essentials', () => {
     cy.get('#tile-total_inverter_power-day').should('contain', '20,0');
     cy.get('#tile-total_inverter_power-month').should('contain', '20,0');
     cy.get('#tile-total_inverter_power-year').should('contain', '20,0');
-    cy.get('#tile-co2_reduction-year a').should('contain', '7');
+    cy.get('#tile-co2_reduction-year a').should('contain', '8');
     cy.get('#tile-savings-year a').should('contain', '3,68');
   });
 });

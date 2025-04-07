@@ -105,8 +105,10 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def opportunity_costs
     section_sum do |index|
-      (inverter_power_array[index] - grid_export_power_array[index]) *
-        feed_in_tariff_array[index]
+      (
+        inverter_power_array[index] + balcony_inverter_power_array[index] -
+          grid_export_power_array[index]
+      ) * feed_in_tariff_array[index]
     end
   end
 
@@ -153,9 +155,9 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def co2_reduction
-    return unless inverter_power
+    return unless total_inverter_power
 
-    inverter_power / 1000 * Rails.application.config.x.co2_emission_factor
+    total_inverter_power / 1000 * Rails.application.config.x.co2_emission_factor
   end
 
   def battery_savings
