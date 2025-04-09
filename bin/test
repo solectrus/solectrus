@@ -1,4 +1,8 @@
 #!/bin/bash
+set -euo pipefail
+
+# Kill background jobs on Ctrl+C
+trap 'echo "Interrupted"; kill 0' SIGINT SIGTERM
 
 # Ensure InfluxDB is ready
 bin/influxdb-restart.sh
