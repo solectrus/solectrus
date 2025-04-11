@@ -243,6 +243,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         house_power
         wallbox_power
         heatpump_power
+        car_battery_soc
+        battery_charging_power
+        battery_discharging_power
+        battery_soc
+        case_temp
       ] + CUSTOM_SENSORS
     ).select { exists?(it) }
   end

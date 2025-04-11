@@ -151,6 +151,7 @@ en:
       description: Labels for the used sensors
       generators: Generators
       consumers: Consumers
+      battery: Battery
   errors:
     title: Error
     403:

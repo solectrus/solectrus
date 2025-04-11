@@ -14,7 +14,7 @@ class ChartData::CaseTemp < ChartData::Base
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
-          label: I18n.t('sensors.case_temp'),
+          label: SensorConfig.x.display_name(:case_temp),
           data: chart&.map(&:second),
         }.merge(style),
       ],

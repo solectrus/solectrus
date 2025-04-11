@@ -10,7 +10,7 @@ class ChartData::CarBatterySoc < ChartData::Base
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
-          label: I18n.t('sensors.car_battery_soc'),
+          label: SensorConfig.x.display_name(:car_battery_soc),
           data: chart&.map(&:second),
         }.merge(style),
       ],

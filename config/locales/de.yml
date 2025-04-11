@@ -151,6 +151,7 @@ de:
       description: Benennung der vorhandenen Sensoren
       generators: Erzeuger
       consumers: Verbraucher
+      battery: Batterie
   errors:
     title: Fehler
     403:

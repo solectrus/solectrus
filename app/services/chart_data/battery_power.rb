@@ -27,15 +27,15 @@ class ChartData::BatteryPower < ChartData::Base
   def label(sensor)
     case sensor
     when :battery_charging_power_grid
-      "#{I18n.t('sensors.battery_charging_power')} (#{I18n.t('splitter.grid')})"
+      "#{SensorConfig.x.display_name(:battery_charging_power)} (#{I18n.t('splitter.grid')})"
     when :battery_charging_power
       if splitting_allowed?
-        "#{I18n.t('sensors.battery_charging_power')} (#{I18n.t('splitter.pv')})"
+        "#{SensorConfig.x.display_name(:battery_charging_power)} (#{I18n.t('splitter.pv')})"
       else
-        I18n.t('sensors.battery_charging_power')
+        SensorConfig.x.display_name(:battery_charging_power)
       end
     when :battery_discharging_power
-      I18n.t('sensors.battery_discharging_power')
+      SensorConfig.x.display_name(:battery_discharging_power)
     end
   end
 

@@ -33,5 +33,16 @@
                            class: 'form-input',
                            label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
 
+    h2.mt-10.border-b-2.border-indigo-900.pb-1
+      = t('settings.sensors.battery')
+    .grid.grid-cols-1.sm:grid-cols-2.lg:grid-cols-3.gap-4
+      - %i[battery_charging_power battery_discharging_power case_temp battery_soc car_battery_soc].each do |sensor_name|
+        - if SensorConfig.x.exists?(sensor_name)
+          .flex.flex-col
+            = f.text_field "sensor_names[#{sensor_name}]",
+                           value: SensorConfig.x.display_name(sensor_name),
+                           class: 'form-input',
+                           label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+
   = f.actions do
     = f.submit t('crud.save')
