@@ -11,11 +11,11 @@
 = form_with url: settings_sensors_path, method: :patch, scope: nil, local: true, html: { class: 'px-2' } do |f|
   = f.group title: t('settings.sensors.description') do
 
-    h2.border-b-2.border-indigo-900.pb-1
-      = t('settings.sensors.generators')
-    .grid.grid-cols-1.sm:grid-cols-2.lg:grid-cols-3.gap-4
-      - %i[inverter_power balcony_inverter_power].each do |sensor_name|
-        - if SensorConfig.x.exists?(sensor_name)
+    - if SensorConfig.x.multi_inverter?
+      h2.border-b-2.border-indigo-900.pb-1
+        = t('settings.sensors.generators')
+      .grid.grid-cols-1.sm:grid-cols-2.lg:grid-cols-3.gap-4
+        - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).each do |sensor_name|
           .flex.flex-col
             = f.text_field "sensor_names[#{sensor_name}]",
                           value: SensorConfig.x.display_name(sensor_name),

@@ -23,8 +23,7 @@ class Balance::StatsController < ApplicationController
   def calculator_now
     Calculator::Now.new(
       [
-        :inverter_power,
-        :balcony_inverter_power,
+        *SensorConfig.x.inverter_sensor_names,
         :house_power,
         :heatpump_power,
         :wallbox_power,
@@ -54,8 +53,9 @@ class Balance::StatsController < ApplicationController
     Calculator::Range.new(
       timeframe,
       calculations: [
-        Queries::Calculation.new(:inverter_power, :sum, :sum),
-        Queries::Calculation.new(:balcony_inverter_power, :sum, :sum),
+        *SensorConfig.x.inverter_sensor_names.map do |sensor_name|
+          Queries::Calculation.new(sensor_name, :sum, :sum)
+        end,
         Queries::Calculation.new(:house_power, :sum, :sum),
         Queries::Calculation.new(:heatpump_power, :sum, :sum),
         Queries::Calculation.new(:wallbox_power, :sum, :sum),

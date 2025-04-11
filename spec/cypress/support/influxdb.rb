@@ -3,7 +3,6 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
     puts 'Seeding InfluxDB with data...'
 
     seed_pv
-    seed_balcony
     seed_heatpump
     seed_forecast
     seed_car_battery_soc
@@ -18,8 +17,8 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
       date: Date.current,
       updated_at: Date.tomorrow.middle_of_day,
       values: [
-        [:inverter_power, :sum, 18_000],
-        [:balcony_inverter_power, :sum, 2_000],
+        [:inverter_power_1, :sum, 18_000],
+        [:inverter_power_2, :sum, 2_000],
         [:inverter_power_forecast, :sum, 21_000],
         [:house_power, :sum, 1800],
         [:heatpump_power, :sum, 800],
@@ -28,8 +27,8 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
         [:battery_charging_power, :sum, 2000],
         [:battery_discharging_power, :sum, 20],
         [:wallbox_power, :sum, 12_000],
-        [:inverter_power, :max, 9000],
-        [:balcony_inverter_power, :max, 1000],
+        [:inverter_power_1, :max, 9000],
+        [:inverter_power_2, :max, 1000],
         [:house_power, :max, 3000],
         [:heatpump_power, :max, 400],
         [:grid_import_power, :max, 500],
@@ -50,9 +49,8 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
       .hours
       .step(0, -5) do |i|
         add_influx_point(
-          name: measurement_inverter_power,
+          name: measurement_house_power,
           fields: {
-            field_inverter_power => 9000,
             field_house_power => 900,
             field_battery_charging_power => 1000,
             field_battery_discharging_power => 10,
@@ -67,18 +65,19 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
           },
           time: i.seconds.ago,
         )
-      end
-  end
 
-  def seed_balcony
-    # Fill 2 hour window with 5 second intervals
-    2
-      .hours
-      .step(0, -5) do |i|
         add_influx_point(
-          name: measurement_balcony_inverter_power,
+          name: measurement_inverter_power_1,
           fields: {
-            field_balcony_inverter_power => 1000,
+            field_inverter_power_1 => 9000,
+          },
+          time: i.seconds.ago,
+        )
+
+        add_influx_point(
+          name: measurement_inverter_power_2,
+          fields: {
+            field_inverter_power_2 => 1000,
           },
           time: i.seconds.ago,
         )

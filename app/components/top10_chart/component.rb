@@ -49,8 +49,9 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
 
   def bar_classes
     case sensor.to_sym
-    when :grid_export_power, :inverter_power, :balcony_inverter_power,
-         :total_inverter_power
+    when :grid_export_power, :inverter_power, :inverter_power_1,
+         :inverter_power_2, :inverter_power_3, :inverter_power_4,
+         :inverter_power_5
       'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
     when :battery_discharging_power, :battery_charging_power
       'from-green-700 to-green-300 text-green-800 dark:from-green-800 dark:to-green-500 dark:text-green-900'

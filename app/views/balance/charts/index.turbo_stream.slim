@@ -15,8 +15,5 @@
       = render ChartSelector::Component.new(sensor:, timeframe:, sensors: chart_sensors)
       = render ChartLoader::Component.new(sensor:, timeframe:)
 
-      - if timeframe.day? && ( \
-          (SensorConfig.x.exists?(:balcony_inverter_power) && sensor == :total_inverter_power) || \
-          (!SensorConfig.x.exists?(:balcony_inverter_power) && sensor == :inverter_power) \
-        )
+      - if timeframe.day? && sensor == :inverter_power
         = render ForecastComment::Component.new(calculator:, sensor:, timeframe:)

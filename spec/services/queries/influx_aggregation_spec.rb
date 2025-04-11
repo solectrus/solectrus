@@ -10,8 +10,8 @@ describe Queries::InfluxAggregation do
 
     context 'without data' do
       %i[
-        inverter_power
-        balcony_inverter_power
+        inverter_power_1
+        inverter_power_2
         house_power
         wallbox_power
         heatpump_power
@@ -38,15 +38,15 @@ describe Queries::InfluxAggregation do
 
     context 'when data is present' do
       before do
-        add_influx_point name: measurement_inverter_power,
+        add_influx_point name: measurement_inverter_power_1,
                          fields: {
-                           field_inverter_power => 10_000,
+                           field_inverter_power_1 => 10_000,
                          },
                          time: date.middle_of_day
       end
 
       it 'returns the maximum power values' do
-        expect(query.max_inverter_power).to eq(10_000)
+        expect(query.max_inverter_power_1).to eq(10_000)
       end
     end
 

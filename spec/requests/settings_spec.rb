@@ -129,14 +129,16 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
                 sensor_names: {
                   custom_power_01: 'Test1',
                   custom_power_02: 'Test2',
-                  balcony_inverter_power: 'Fence',
+                  inverter_power_1: 'Roof',
+                  inverter_power_2: 'Fence',
                 },
               }
         expect(response).to have_http_status(:success)
 
         expect(Setting.sensor_names[:custom_power_01]).to eq('Test1')
         expect(Setting.sensor_names[:custom_power_02]).to eq('Test2')
-        expect(Setting.sensor_names[:balcony_inverter_power]).to eq('Fence')
+        expect(Setting.sensor_names[:inverter_power_1]).to eq('Roof')
+        expect(Setting.sensor_names[:inverter_power_2]).to eq('Fence')
       end
 
       it 'fails for unknown keys' do

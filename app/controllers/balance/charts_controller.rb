@@ -14,7 +14,11 @@ class Balance::ChartsController < ApplicationController
       calculations: [
         Queries::Calculation.new(:inverter_power, :sum, :sum),
         Queries::Calculation.new(:inverter_power_forecast, :sum, :sum),
-        Queries::Calculation.new(:balcony_inverter_power, :sum, :sum),
+        Queries::Calculation.new(:inverter_power_1, :sum, :sum),
+        Queries::Calculation.new(:inverter_power_2, :sum, :sum),
+        Queries::Calculation.new(:inverter_power_3, :sum, :sum),
+        Queries::Calculation.new(:inverter_power_4, :sum, :sum),
+        Queries::Calculation.new(:inverter_power_5, :sum, :sum),
       ],
     )
   end
@@ -22,8 +26,11 @@ class Balance::ChartsController < ApplicationController
   helper_method def chart_sensors
     %i[
       inverter_power
-      balcony_inverter_power
-      total_inverter_power
+      inverter_power_1
+      inverter_power_2
+      inverter_power_3
+      inverter_power_4
+      inverter_power_5
       grid_power
       house_power
       heatpump_power

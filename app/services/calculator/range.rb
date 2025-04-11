@@ -12,22 +12,23 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   attr_reader :timeframe, :calculations
 
   def default_calculations
-    [
-      Queries::Calculation.new(:house_power, :sum, :sum),
-      Queries::Calculation.new(:inverter_power, :sum, :sum),
-      Queries::Calculation.new(:balcony_inverter_power, :sum, :sum),
-      Queries::Calculation.new(:wallbox_power, :sum, :sum),
-      Queries::Calculation.new(:grid_import_power, :sum, :sum),
-      Queries::Calculation.new(:grid_export_power, :sum, :sum),
-      Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
-      Queries::Calculation.new(:battery_charging_power, :sum, :sum),
-      Queries::Calculation.new(:heatpump_power, :sum, :sum),
-      # --- Power splitter ----
-      Queries::Calculation.new(:house_power_grid, :sum, :sum),
-      Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
-      Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
-      Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
-    ]
+    SensorConfig.x.inverter_sensor_names.map do |sensor_name|
+      Queries::Calculation.new(sensor_name, :sum, :sum)
+    end +
+      [
+        Queries::Calculation.new(:house_power, :sum, :sum),
+        Queries::Calculation.new(:wallbox_power, :sum, :sum),
+        Queries::Calculation.new(:grid_import_power, :sum, :sum),
+        Queries::Calculation.new(:grid_export_power, :sum, :sum),
+        Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
+        Queries::Calculation.new(:battery_charging_power, :sum, :sum),
+        Queries::Calculation.new(:heatpump_power, :sum, :sum),
+        # --- Power splitter ----
+        Queries::Calculation.new(:house_power_grid, :sum, :sum),
+        Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
+        Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
+        Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
+      ]
   end
 
   # Build dynamic methods based on sections data
@@ -35,20 +36,22 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method(:sections) { data }
 
     # Methods with float conversion
-    %i[
-      feed_in_tariff
-      electricity_price
-      inverter_power
-      balcony_inverter_power
-      wallbox_power
-      grid_import_power
-      grid_export_power
-      battery_discharging_power
-      battery_charging_power
-      heatpump_power
-    ].each { |name| build_method_from_array(name, data, :to_f) }
+    (
+      SensorConfig.x.inverter_sensor_names +
+        %i[
+          feed_in_tariff
+          electricity_price
+          wallbox_power
+          grid_import_power
+          grid_export_power
+          battery_discharging_power
+          battery_charging_power
+          heatpump_power
+        ]
+    ).each { |name| build_method_from_array(name, data, :to_f) }
 
     build_house_power_from_array(data)
+    build_inverter_power_from_array(data)
 
     # Methods without conversion
     %i[
@@ -88,11 +91,31 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method(:house_power) { values.sum }
   end
 
+  def build_inverter_power_from_array(data)
+    values =
+      if SensorConfig.x.multi_inverter?
+        data.map do |value|
+          [
+            value[:inverter_power_1],
+            value[:inverter_power_2],
+            value[:inverter_power_3],
+            value[:inverter_power_4],
+            value[:inverter_power_5],
+          ].compact.presence&.sum || value[:inverter_power].to_f
+        end
+      else
+        data.map { |value| value[:inverter_power].to_f }
+      end
+
+    build_method('inverter_power_array') { values }
+    build_method(:inverter_power) { values.sum }
+  end
+
   def forecast_deviation
     return unless respond_to?(:inverter_power_forecast)
     return if inverter_power_forecast.zero?
 
-    ((total_inverter_power * 100.0 / inverter_power_forecast) - 100).round
+    ((inverter_power * 100.0 / inverter_power_forecast) - 100).round
   end
 
   def paid
@@ -105,10 +128,8 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def opportunity_costs
     section_sum do |index|
-      (
-        inverter_power_array[index] + balcony_inverter_power_array[index] -
-          grid_export_power_array[index]
-      ) * feed_in_tariff_array[index]
+      (inverter_power_array[index] - grid_export_power_array[index]) *
+        feed_in_tariff_array[index]
     end
   end
 
@@ -155,9 +176,9 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def co2_reduction
-    return unless total_inverter_power
+    return unless inverter_power
 
-    total_inverter_power / 1000 * Rails.application.config.x.co2_emission_factor
+    inverter_power / 1000 * Rails.application.config.x.co2_emission_factor
   end
 
   def battery_savings

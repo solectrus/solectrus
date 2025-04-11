@@ -1,7 +1,6 @@
 describe('Top 10', () => {
   [
     'inverter_power',
-    'balcony_inverter_power',
     'house_power',
     'grid_import_power',
     'grid_export_power',

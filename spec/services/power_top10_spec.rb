@@ -1,6 +1,6 @@
 describe PowerTop10 do
   let(:power_top10) do
-    described_class.new(sensor: :inverter_power, calc:, desc:)
+    described_class.new(sensor: :inverter_power_1, calc:, desc:)
   end
 
   before do
@@ -182,12 +182,12 @@ describe PowerTop10 do
     end
   end
 
-  context 'when using total_inverter_power' do
+  context 'when using total inverter_power' do
     let(:desc) { true }
     let(:calc) { 'sum' }
 
     let(:power_top10) do
-      described_class.new(sensor: :total_inverter_power, calc:, desc:)
+      described_class.new(sensor: :inverter_power, calc:, desc:)
     end
 
     describe '#days' do
@@ -225,9 +225,9 @@ describe PowerTop10 do
     create_summary(
       date:,
       values: [
-        [:inverter_power, :sum, sum],
-        [:balcony_inverter_power, :sum, sum * 0.1],
-        [:inverter_power, :max, max],
+        [:inverter_power_1, :sum, sum],
+        [:inverter_power_2, :sum, sum * 0.1],
+        [:inverter_power_1, :max, max],
       ],
     )
   end

@@ -107,18 +107,18 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
   end
 
   def raw_sum_attributes
-    base_sensors = %i[
-      inverter_power
-      inverter_power_forecast
-      balcony_inverter_power
-      house_power
-      heatpump_power
-      grid_import_power
-      grid_export_power
-      battery_charging_power
-      battery_discharging_power
-      wallbox_power
-    ]
+    base_sensors =
+      SensorConfig.x.inverter_sensor_names +
+        %i[
+          inverter_power_forecast
+          house_power
+          heatpump_power
+          grid_import_power
+          grid_export_power
+          battery_charging_power
+          battery_discharging_power
+          wallbox_power
+        ]
 
     custom_sensors = SensorConfig.x.existing_custom_sensor_names
 
@@ -147,8 +147,9 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
       max_grid_import_power: query_aggregation.max_grid_import_power,
       max_heatpump_power: query_aggregation.max_heatpump_power,
       max_house_power: query_aggregation.max_house_power,
-      max_inverter_power: query_aggregation.max_inverter_power,
-      max_balcony_inverter_power: query_aggregation.max_balcony_inverter_power,
+      **SensorConfig.x.inverter_sensor_names.to_h do |sensor|
+        [:"max_#{sensor}", query_aggregation.public_send(:"max_#{sensor}")]
+      end,
       max_wallbox_power: query_aggregation.max_wallbox_power,
     }
   end

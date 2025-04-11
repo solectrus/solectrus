@@ -24,14 +24,17 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
 
   # Inverter
 
-  def total_inverter_power
-    [inverter_power, balcony_inverter_power].compact.presence&.sum
+  def inverter_power
+    (SensorConfig.x.inverter_sensor_names - [:inverter_power])
+      .filter_map { |sensor_name| public_send(sensor_name) }
+      .presence
+      &.sum
   end
 
   def producing?
-    return unless total_inverter_power
+    return unless inverter_power
 
-    total_inverter_power >= 50
+    inverter_power >= 50
   end
 
   def inverter_power_percent
@@ -41,11 +44,17 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
     (inverter_power * 100.0 / total_plus).round(1)
   end
 
-  def balcony_inverter_power_percent
-    return unless balcony_inverter_power
-    return 0 if total_plus.zero?
+  (
+    SensorConfig.x.inverter_sensor_names - [:inverter_power]
+  ).each do |sensor_name|
+    define_method "#{sensor_name}_percent" do
+      return 0 if inverter_power.zero?
 
-    (balcony_inverter_power * 100.0 / total_plus).round(1)
+      value = public_send(sensor_name)
+      return unless value
+
+      (value * 100.0 / inverter_power).round
+    end
   end
 
   # Grid
@@ -181,7 +190,7 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def total_plus
     grid_import_power.to_f + battery_discharging_power.to_f +
-      inverter_power.to_f + balcony_inverter_power.to_f
+      inverter_power.to_f
   end
 
   def total_minus
@@ -204,16 +213,16 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   end
 
   def self_consumption
-    return unless total_inverter_power && grid_export_power
+    return unless inverter_power && grid_export_power
 
-    total_inverter_power - grid_export_power
+    inverter_power - grid_export_power
   end
 
   def self_consumption_quote
-    return unless self_consumption && total_inverter_power
-    return if total_inverter_power < 50
+    return unless self_consumption && inverter_power
+    return if inverter_power < 50
 
-    (self_consumption * 100.0 / total_inverter_power).clamp(0, 100).round(1)
+    (self_consumption * 100.0 / inverter_power).clamp(0, 100).round(1)
   end
 
   def grid_quote

@@ -12,8 +12,10 @@ linters:
       - Layout/FirstHashElementIndentation
       - Layout/HashAlignment
       - Layout/TrailingEmptyLines
-      - Style/Next
-      - Style/RedundantLineContinuation
       - Lint/Void
       - Metrics/BlockLength
+      - Metrics/BlockNesting
       - Rails/SaveBang
+      - Style/Next
+      - Style/RedundantLineContinuation
+      - Style/NestedTernaryOperator

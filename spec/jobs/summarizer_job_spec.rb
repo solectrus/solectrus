@@ -7,9 +7,9 @@ describe 'SummarizerJob' do
         Queries::InfluxSum,
         grid_import_power: 100,
         #
-        inverter_power: 250,
+        inverter_power_1: 210,
+        inverter_power_2: 40,
         inverter_power_forecast: 30,
-        balcony_inverter_power: 40,
         house_power: 200,
         heatpump_power: 50,
         grid_export_power: 50,
@@ -76,8 +76,8 @@ describe 'SummarizerJob' do
         max_grid_import_power: 70,
         max_heatpump_power: 80,
         max_house_power: 90,
-        max_inverter_power: 100,
-        max_balcony_inverter_power: 50,
+        max_inverter_power_1: 100,
+        max_inverter_power_2: 50,
         max_wallbox_power: 110,
         #
         min_battery_soc: 30,
@@ -124,9 +124,9 @@ describe 'SummarizerJob' do
         expect(value_for(:custom_power_08_grid)).to eq(40)
         expect(value_for(:custom_power_09_grid)).to eq(50)
 
-        expect(value_for(:inverter_power)).to eq(250)
+        expect(value_for(:inverter_power_1)).to eq(210)
+        expect(value_for(:inverter_power_2)).to eq(40)
         expect(value_for(:inverter_power_forecast)).to eq(30)
-        expect(value_for(:balcony_inverter_power)).to eq(40)
         expect(value_for(:house_power)).to eq(200)
         expect(value_for(:grid_import_power)).to eq(100)
         expect(value_for(:grid_export_power)).to eq(50)

@@ -115,7 +115,7 @@ describe SensorConfig do
       context 'without customization' do
         it 'returns the display name for a sensor' do
           expect(sensor_config.display_name(:inverter_power)).to eq(
-            'PV generated',
+            'Generation',
           )
         end
       end

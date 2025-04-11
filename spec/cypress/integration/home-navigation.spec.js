@@ -1,8 +1,8 @@
 describe('Home page', () => {
   [
     'inverter_power',
-    'balcony_inverter_power',
-    'total_inverter_power',
+    'inverter_power_1',
+    'inverter_power_2',
     'battery_power',
     'grid_power',
     'autarky',
@@ -34,7 +34,7 @@ describe('Home page', () => {
       cy.get('header').should('contain', '12:00 Uhr');
 
       if (path == 'inverter_power')
-        cy.get('#segment-inverter_power').should('contain', '9,0\u00a0kW');
+        cy.get('#segment-inverter_power').should('contain', '10,0\u00a0kW');
 
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#balance-chart-now').should('be.visible');
@@ -50,8 +50,8 @@ describe('Home page', () => {
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-day').should('be.visible');
 
-      if (path == 'total_inverter_power') {
-        cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
+      if (path == 'inverter_power') {
+        cy.get('#segment-inverter_power').should('contain', '20,0\u00a0kWh');
         cy.get('#balance-chart-2022-06-21')
           .should('contain', 'Erwartet werden')
           .should('contain', '58')
@@ -81,7 +81,7 @@ describe('Home page', () => {
       cy.get('#chart-week').should('be.visible');
 
       if (path == 'inverter_power') {
-        cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
+        cy.get('#segment-inverter_power').should('contain', '20,0\u00a0kWh');
       }
 
       clickPrevAndExpect('KW 24, 2022');
@@ -107,7 +107,7 @@ describe('Home page', () => {
       cy.get('#chart-month').should('be.visible');
 
       if (path == 'inverter_power') {
-        cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
+        cy.get('#segment-inverter_power').should('contain', '20,0\u00a0kWh');
       }
 
       clickPrevAndExpect('Mai 2022');
@@ -133,7 +133,7 @@ describe('Home page', () => {
       cy.get('#chart-year').should('be.visible');
 
       if (path == 'inverter_power') {
-        cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
+        cy.get('#segment-inverter_power').should('contain', '20,0\u00a0kWh');
       }
 
       clickPrevAndExpect('2021');
@@ -156,7 +156,7 @@ describe('Home page', () => {
       cy.get('#chart-all').should('be.visible');
 
       if (path == 'inverter_power') {
-        cy.get('#segment-inverter_power').should('contain', '18,0\u00a0kWh');
+        cy.get('#segment-inverter_power').should('contain', '20,0\u00a0kWh');
       }
     }
 

@@ -29,7 +29,11 @@ class Queries::InfluxAggregation
 
   ALL_SENSORS = %i[
     inverter_power
-    balcony_inverter_power
+    inverter_power_1
+    inverter_power_2
+    inverter_power_3
+    inverter_power_4
+    inverter_power_5
     house_power
     wallbox_power
     heatpump_power

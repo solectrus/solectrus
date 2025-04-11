@@ -26,7 +26,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     (
       %i[
         inverter_power
-        balcony_inverter_power
+        inverter_power_1
+        inverter_power_2
+        inverter_power_3
+        inverter_power_4
+        inverter_power_5
         house_power
         heatpump_power
         grid_import_power
@@ -66,7 +70,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   public_constant :SENSOR_NAMES
 
   # List of sensors that can be displayed in the top 10 list
-  TOP10_SENSORS = %i[total_inverter_power] + POWER_SENSORS
+  TOP10_SENSORS = POWER_SENSORS
   public_constant :TOP10_SENSORS
 
   # List of sensors that are calculated (meaning they are built from other sensors)
@@ -76,7 +80,6 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     savings
     co2_reduction
     house_power_without_custom
-    total_inverter_power
   ].freeze
   public_constant :CALCULATED_SENSORS
 
@@ -85,8 +88,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     (
       %i[
         inverter_power
-        balcony_inverter_power
-        total_inverter_power
+        inverter_power_1
+        inverter_power_2
+        inverter_power_3
+        inverter_power_4
+        inverter_power_5
         house_power
         house_power_without_custom
         heatpump_power
@@ -171,8 +177,9 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
 
   def exists?(sensor_name, check_policy: true) # rubocop:disable Metrics/CyclomaticComplexity
     case sensor_name
-    when :total_inverter_power
-      exists_all? :inverter_power, :balcony_inverter_power
+    when :inverter_power
+      # Total can be exists explicitly or implicitly
+      inverter_sensor_names.any?
     when :grid_power
       exists_any? :grid_import_power, :grid_export_power
     when :battery_power
@@ -228,8 +235,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   def editable_sensor_names
     (
       %i[
-        inverter_power
-        balcony_inverter_power
+        inverter_power_1
+        inverter_power_2
+        inverter_power_3
+        inverter_power_4
+        inverter_power_5
         house_power
         wallbox_power
         heatpump_power
@@ -265,6 +275,41 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       !SensorConfig.x.exists?(:wallbox_power) &&
       !SensorConfig.x.exists?(:heatpump_power) &&
       SensorConfig.x.excluded_sensor_names.empty?
+  end
+
+  def multi_inverter?
+    SensorConfig.x.exists_any?(
+      :inverter_power_1,
+      :inverter_power_2,
+      :inverter_power_3,
+      :inverter_power_4,
+      :inverter_power_5,
+    )
+  end
+
+  def inverter_sensor_names
+    if sensor_defined?(:inverter_power)
+      %i[
+        inverter_power
+        inverter_power_1
+        inverter_power_2
+        inverter_power_3
+        inverter_power_4
+        inverter_power_5
+      ].select { |sensor_name| sensor_defined?(sensor_name) }
+    else
+      %i[
+        inverter_power_1
+        inverter_power_2
+        inverter_power_3
+        inverter_power_4
+        inverter_power_5
+      ].select { |sensor_name| sensor_defined?(sensor_name) }
+    end
+  end
+
+  def inverter_total_present?
+    sensor_defined?(:inverter_power)
   end
 
   private

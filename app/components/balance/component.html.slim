@@ -5,7 +5,6 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
     ruby:
       balance.with_title { I18n.t('balance_sheet.left') }
       balance.with_segment :grid_import_power, peak: peak&.dig(:grid_import_power)
-      balance.with_segment :balcony_inverter_power, peak: peak&.dig(:balcony_inverter_power)
       balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
       balance.with_segment :battery_discharging_power, peak: peak&.dig(:battery_discharging_power)
 

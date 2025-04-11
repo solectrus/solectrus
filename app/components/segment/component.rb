@@ -26,8 +26,20 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
   delegate :calculator, :timeframe, to: :parent
 
-  def link_to_or_div(url, **, &)
-    url ? link_to(url, **, &) : tag.div(**, &)
+  def outer_link(url, **, &)
+    render OuterLink::Component.new(url:, **), &
+  end
+
+  # https://play.tailwindcss.com/4T1Rvv1bBV
+  def outer_multi_inverter?(check_size: true)
+    sensor == :inverter_power && SensorConfig.x.multi_inverter? &&
+      inverter_power_sum.positive? && (!check_size || large?)
+  end
+
+  def inverter_power_sum
+    (SensorConfig.x.inverter_sensor_names - [:inverter_power])
+      .filter_map { |sensor_name| calculator.public_send(sensor_name) }
+      .sum
   end
 
   def url
@@ -119,14 +131,12 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     Scale.new(target: 80..300, max: peak).result(value)
   end
 
-  def default_icon_class # rubocop:disable Metrics/CyclomaticComplexity
+  def default_icon_class
     case sensor
     when :grid_export_power, :grid_import_power
       'fa-bolt'
     when :inverter_power
       'fa-sun'
-    when :balcony_inverter_power
-      'fa-solar-panel'
     when :battery_discharging_power, :battery_charging_power
       battery_class
     when :house_power
@@ -164,7 +174,11 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
         %i[
           grid_export_power
           inverter_power
-          balcony_inverter_power
+          inverter_power_1
+          inverter_power_2
+          inverter_power_3
+          inverter_power_4
+          inverter_power_5
           battery_discharging_power
           battery_charging_power
           house_power
@@ -197,12 +211,10 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
   private
 
-  def default_color_class_for_balance # rubocop:disable Metrics/CyclomaticComplexity
+  def default_color_class_for_balance
     case sensor
     when :grid_export_power, :inverter_power
       'bg-green-600 dark:bg-green-800/80'
-    when :balcony_inverter_power
-      'bg-green-600/90 dark:bg-green-800/60'
     when :battery_discharging_power, :battery_charging_power
       'bg-green-700 dark:bg-green-900/70'
     when :house_power, /^custom_power_(\d{2})$/
@@ -283,5 +295,9 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
   def tiny?
     percent < 0.3
+  end
+
+  def number_method
+    now? ? :to_watt : :to_watt_hour
   end
 end

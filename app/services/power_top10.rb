@@ -1,4 +1,4 @@
-class PowerTop10
+class PowerTop10 # rubocop:disable Metrics/ClassLength
   def initialize(sensor:, desc:, calc:)
     @sensor = sensor
     @calc = ActiveSupport::StringInquirer.new(calc)
@@ -51,8 +51,8 @@ class PowerTop10
 
     if sensor == :house_power && excluded_sensor_names.any?
       build_query_house_power(start:, stop:, period:, limit:)
-    elsif sensor == :total_inverter_power
-      build_query_total_inverter_power(start:, stop:, period:, limit:)
+    elsif sensor == :inverter_power && SensorConfig.x.multi_inverter?
+      build_query_inverter_power(start:, stop:, period:, limit:)
     else
       build_query_simple(start:, stop:, period:, limit:)
     end
@@ -61,7 +61,11 @@ class PowerTop10
   FIELD_MAPPING = {
     sum: {
       inverter_power: 'sum',
-      balcony_inverter_power: 'sum',
+      inverter_power_1: 'sum',
+      inverter_power_2: 'sum',
+      inverter_power_3: 'sum',
+      inverter_power_4: 'sum',
+      inverter_power_5: 'sum',
       heatpump_power: 'sum',
       house_power: 'sum',
       case_temp: 'avg',
@@ -74,7 +78,11 @@ class PowerTop10
     },
     max: {
       inverter_power: 'max',
-      balcony_inverter_power: 'max',
+      inverter_power_1: 'max',
+      inverter_power_2: 'max',
+      inverter_power_3: 'max',
+      inverter_power_4: 'max',
+      inverter_power_5: 'max',
       heatpump_power: 'max',
       house_power: 'max',
       case_temp: 'max',
@@ -148,12 +156,19 @@ class PowerTop10
     end
   end
 
-  def build_query_total_inverter_power(start:, stop:, period:, limit:)
+  def build_query_inverter_power(start:, stop:, period:, limit:)
+    field =
+      if SensorConfig.x.inverter_total_present?
+        :inverter_power
+      else
+        SensorConfig.x.inverter_sensor_names
+      end
+
     scope =
       SummaryValue.where(
         date: start..stop,
-        field: %w[inverter_power balcony_inverter_power],
-        aggregation: 'sum',
+        field:,
+        aggregation: FIELD_MAPPING[calc.to_sym][sensor],
       ).limit(limit)
 
     total = 'SUM(value) AS total'

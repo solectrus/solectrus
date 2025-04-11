@@ -63,11 +63,34 @@ class Calculator::Now < Calculator::Base
   # Inverter
 
   def inverter_power
-    last[:inverter_power]
+    last[:inverter_power] ||
+      [
+        inverter_power_1,
+        inverter_power_2,
+        inverter_power_3,
+        inverter_power_4,
+        inverter_power_5,
+      ].compact.sum
   end
 
-  def balcony_inverter_power
-    last[:balcony_inverter_power]
+  def inverter_power_1
+    last[:inverter_power_1]
+  end
+
+  def inverter_power_2
+    last[:inverter_power_2]
+  end
+
+  def inverter_power_3
+    last[:inverter_power_3]
+  end
+
+  def inverter_power_4
+    last[:inverter_power_4]
+  end
+
+  def inverter_power_5
+    last[:inverter_power_5]
   end
 
   # Consumer

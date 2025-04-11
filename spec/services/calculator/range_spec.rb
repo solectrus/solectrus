@@ -21,9 +21,10 @@ describe Calculator::Range do
     Price.feed_in.create! starts_at: '2020-12-01', value: 0.0848
 
     allow(calculator).to receive_messages(
-      inverter_power: 46_000,
+      inverter_power: 48_000,
+      inverter_power_1: 46_000,
+      inverter_power_2: 2_000,
       inverter_power_forecast: 50_000,
-      balcony_inverter_power: 2_000,
       got: 1,
       paid: -6,
       traditional_price: -15,
@@ -32,6 +33,10 @@ describe Calculator::Range do
     )
 
     allow(Setting).to receive(:opportunity_costs).and_return(true)
+  end
+
+  it 'calculates inverter_power' do
+    expect(calculator.inverter_power).to eq(48_000)
   end
 
   it 'calculates' do

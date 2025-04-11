@@ -10,9 +10,9 @@ describe Queries::InfluxSum do
 
     context 'without data' do
       %i[
-        inverter_power
+        inverter_power_1
+        inverter_power_2
         inverter_power_forecast
-        balcony_inverter_power
         house_power
         wallbox_power
         heatpump_power
@@ -42,9 +42,9 @@ describe Queries::InfluxSum do
           13.times do |i|
             time = date.middle_of_day + (5.minutes * i)
 
-            add_influx_point name: measurement_inverter_power,
+            add_influx_point name: measurement_inverter_power_1,
                              fields: {
-                               field_inverter_power => 10_000,
+                               field_inverter_power_1 => 10_000,
                              },
                              time:
           end
@@ -52,7 +52,7 @@ describe Queries::InfluxSum do
       end
 
       it 'sums up the power values' do
-        expect(query_influx_sum.inverter_power).to eq(10_000) # 10 kWh
+        expect(query_influx_sum.inverter_power_1).to eq(10_000) # 10 kWh
       end
     end
   end

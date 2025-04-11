@@ -15,7 +15,6 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
 
 import { faSun } from '@fortawesome/free-solid-svg-icons/faSun';
-import { faSolarPanel } from '@fortawesome/free-solid-svg-icons/faSolarPanel';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
 import { faCar } from '@fortawesome/free-solid-svg-icons/faCar';
 import { faPlug } from '@fortawesome/free-solid-svg-icons/faPlug';
@@ -59,7 +58,6 @@ export default class extends Controller {
 
     library.add(
       faSun,
-      faSolarPanel,
       faHome,
       faCar,
       faPlug,

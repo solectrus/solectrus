@@ -248,7 +248,7 @@ export default class extends Controller<HTMLCanvasElement> {
       );
 
       const isInverterStack = data.datasets.some(
-        (dataset) => dataset.stack == 'TotalInverterPower',
+        (dataset) => dataset.stack == 'InverterPower',
       );
 
       // Increase font size of tooltip footer (used for sum of stacked values)

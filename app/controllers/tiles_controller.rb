@@ -7,7 +7,7 @@ class TilesController < ApplicationController
   private
 
   def calculator_now
-    Calculator::Now.new(%i[balcony_inverter_power inverter_power])
+    Calculator::Now.new(SensorConfig.x.inverter_sensor_names)
   end
 
   def calculator_range
@@ -17,8 +17,9 @@ class TilesController < ApplicationController
         (
           if sensor == :savings
             [
-              Queries::Calculation.new(:inverter_power, :sum, :sum),
-              Queries::Calculation.new(:balcony_inverter_power, :sum, :sum),
+              *SensorConfig.x.inverter_sensor_names.map do |sensor_name|
+                Queries::Calculation.new(sensor_name, :sum, :sum)
+              end,
               Queries::Calculation.new(:house_power, :sum, :sum),
               Queries::Calculation.new(:heatpump_power, :sum, :sum),
               Queries::Calculation.new(:wallbox_power, :sum, :sum),
@@ -26,10 +27,9 @@ class TilesController < ApplicationController
               Queries::Calculation.new(:grid_export_power, :sum, :sum),
             ]
           else
-            [
-              Queries::Calculation.new(:inverter_power, :sum, :sum),
-              Queries::Calculation.new(:balcony_inverter_power, :sum, :sum),
-            ]
+            SensorConfig.x.inverter_sensor_names.map do |sensor_name|
+              Queries::Calculation.new(sensor_name, :sum, :sum)
+            end
           end
         ),
     )
