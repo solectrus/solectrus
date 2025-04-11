@@ -23,8 +23,7 @@ import {
   ActiveElement,
 } from 'chart.js';
 
-import 'chartjs-adapter-date-fns';
-import { de } from 'date-fns/locale/de';
+import 'chartjs-adapter-luxon';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
@@ -127,11 +126,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
     // I18n
     // @ts-expect-error Property does not exist on type
-    options.scales.x.adapters = {
-      date: {
-        locale: de,
-      },
-    };
+    options.scales.x.adapters.date.locale = navigator.language || 'en';
 
     this.maxValue = this.maxOf(data);
     this.minValue = this.minOf(data);
