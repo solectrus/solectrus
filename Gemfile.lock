@@ -114,7 +114,7 @@ GEM
     crass (1.0.6)
     css_parser (1.21.1)
       addressable
-    csv (3.3.3)
+    csv (3.3.4)
     cypress-rails (0.8.0.rc1)
       puma (>= 3.8.0)
       railties (>= 5.2.0)
@@ -248,7 +248,7 @@ GEM
     puma (6.6.0)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (3.1.12)
+    rack (3.1.13)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-brotli (2.0.0)
