@@ -57,7 +57,7 @@ class PowerChart < ChartBase
           field: sensors,
           aggregation: 'sum',
         )
-        .group_by_period(grouping_period(timeframe), :date)
+        .group_by_period(grouping_period(timeframe), :date, default_value: nil)
         .group(:field)
         .sum(:value)
 
