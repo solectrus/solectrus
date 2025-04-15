@@ -64,33 +64,13 @@ class Calculator::Now < Calculator::Base
 
   def inverter_power
     last[:inverter_power] ||
-      [
-        inverter_power_1,
-        inverter_power_2,
-        inverter_power_3,
-        inverter_power_4,
-        inverter_power_5,
-      ].compact.sum
+      SensorConfig::CUSTOM_INVERTER_SENSORS
+        .filter_map { |sensor_name| public_send(sensor_name) }
+        .sum
   end
 
-  def inverter_power_1
-    last[:inverter_power_1]
-  end
-
-  def inverter_power_2
-    last[:inverter_power_2]
-  end
-
-  def inverter_power_3
-    last[:inverter_power_3]
-  end
-
-  def inverter_power_4
-    last[:inverter_power_4]
-  end
-
-  def inverter_power_5
-    last[:inverter_power_5]
+  SensorConfig::CUSTOM_INVERTER_SENSORS.each do |sensor_name|
+    define_method(sensor_name) { last[sensor_name] }
   end
 
   # Consumer

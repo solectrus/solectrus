@@ -33,11 +33,6 @@ class Queries::InfluxSum
       %i[
         inverter_power
         inverter_power_forecast
-        inverter_power_1
-        inverter_power_2
-        inverter_power_3
-        inverter_power_4
-        inverter_power_5
         house_power
         wallbox_power
         heatpump_power
@@ -49,7 +44,8 @@ class Queries::InfluxSum
         wallbox_power_grid
         heatpump_power_grid
         battery_charging_power_grid
-      ] + SensorConfig::CUSTOM_SENSORS + SensorConfig::POWER_SPLITTER_SENSORS
+      ] + SensorConfig::CUSTOM_INVERTER_SENSORS + SensorConfig::CUSTOM_SENSORS +
+        SensorConfig::POWER_SPLITTER_SENSORS
     ).freeze
   private_constant :ALL_SENSORS
 

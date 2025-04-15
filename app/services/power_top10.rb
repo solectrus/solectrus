@@ -61,11 +61,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
   FIELD_MAPPING = {
     sum: {
       inverter_power: 'sum',
-      inverter_power_1: 'sum',
-      inverter_power_2: 'sum',
-      inverter_power_3: 'sum',
-      inverter_power_4: 'sum',
-      inverter_power_5: 'sum',
+      **SensorConfig::CUSTOM_INVERTER_SENSORS.index_with { 'sum' },
       heatpump_power: 'sum',
       house_power: 'sum',
       case_temp: 'avg',
@@ -78,11 +74,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
     },
     max: {
       inverter_power: 'max',
-      inverter_power_1: 'max',
-      inverter_power_2: 'max',
-      inverter_power_3: 'max',
-      inverter_power_4: 'max',
-      inverter_power_5: 'max',
+      **SensorConfig::CUSTOM_INVERTER_SENSORS.index_with { 'max' },
       heatpump_power: 'max',
       house_power: 'max',
       case_temp: 'max',

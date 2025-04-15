@@ -49,10 +49,6 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
 
   def bar_classes
     case sensor.to_sym
-    when :grid_export_power, :inverter_power, :inverter_power_1,
-         :inverter_power_2, :inverter_power_3, :inverter_power_4,
-         :inverter_power_5
-      'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
     when :battery_discharging_power, :battery_charging_power
       'from-green-700 to-green-300 text-green-800 dark:from-green-800 dark:to-green-500 dark:text-green-900'
     when :house_power, /custom_power_\d{2}/
@@ -63,6 +59,9 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
       'from-slate-700 to-slate-300 text-slate-800 dark:from-slate-800 dark:to-slate-500 dark:text-slate-900'
     when :grid_import_power, :case_temp
       'from-red-600   to-red-300   text-red-800   dark:from-red-800   dark:to-red-400   dark:text-red-900'
+    when :grid_export_power, :inverter_power,
+         *SensorConfig::CUSTOM_INVERTER_SENSORS
+      'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
     end
   end
 

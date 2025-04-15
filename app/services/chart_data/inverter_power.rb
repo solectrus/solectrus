@@ -89,13 +89,11 @@ class ChartData::InverterPower < ChartData::Base
 
   BACKGROUND_COLORS = {
     inverter_power: INVERTER_COLOR,
-    inverter_power_1: INVERTER_COLOR,
-    inverter_power_2: INVERTER_COLOR,
-    inverter_power_3: INVERTER_COLOR,
-    inverter_power_4: INVERTER_COLOR,
-    inverter_power_5: INVERTER_COLOR,
     inverter_power_forecast: '#cbd5e1', # bg-slate-300
-  }.freeze
+  }.merge(
+    SensorConfig::CUSTOM_INVERTER_SENSORS.index_with { INVERTER_COLOR },
+  ).freeze
+
   private_constant :BACKGROUND_COLORS
 
   def style(sensor_name)

@@ -94,7 +94,7 @@ class ConsumptionChart < ChartBase
     to_array(raw, start:)
   end
 
-  def query_sql(timeframe:)
+  def query_sql(timeframe:) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     result =
       SummaryValue
         .where(
@@ -109,13 +109,10 @@ class ConsumptionChart < ChartBase
     dates(timeframe).map do |date|
       inverter_power =
         if SensorConfig.x.multi_inverter?
-          [
-            result[[date, 'inverter_power_1']],
-            result[[date, 'inverter_power_2']],
-            result[[date, 'inverter_power_3']],
-            result[[date, 'inverter_power_4']],
-            result[[date, 'inverter_power_5']],
-          ].compact.presence&.sum || result[[date, 'inverter_power']]
+          SensorConfig::CUSTOM_INVERTER_SENSORS
+            .filter_map { |key| result[[date, key.to_s]] }
+            .presence
+            &.sum || result[[date, 'inverter_power']]
         else
           result[[date, 'inverter_power']]
         end

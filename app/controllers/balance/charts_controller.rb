@@ -14,11 +14,9 @@ class Balance::ChartsController < ApplicationController
       calculations: [
         Queries::Calculation.new(:inverter_power, :sum, :sum),
         Queries::Calculation.new(:inverter_power_forecast, :sum, :sum),
-        Queries::Calculation.new(:inverter_power_1, :sum, :sum),
-        Queries::Calculation.new(:inverter_power_2, :sum, :sum),
-        Queries::Calculation.new(:inverter_power_3, :sum, :sum),
-        Queries::Calculation.new(:inverter_power_4, :sum, :sum),
-        Queries::Calculation.new(:inverter_power_5, :sum, :sum),
+        *SensorConfig::CUSTOM_INVERTER_SENSORS.map do |sensor_name|
+          Queries::Calculation.new(sensor_name, :sum, :sum)
+        end,
       ],
     )
   end
@@ -26,11 +24,6 @@ class Balance::ChartsController < ApplicationController
   helper_method def chart_sensors
     %i[
       inverter_power
-      inverter_power_1
-      inverter_power_2
-      inverter_power_3
-      inverter_power_4
-      inverter_power_5
       grid_power
       house_power
       heatpump_power
@@ -42,6 +35,7 @@ class Balance::ChartsController < ApplicationController
       autarky
       self_consumption
       co2_reduction
-    ] + SensorConfig.x.excluded_custom_sensor_names
+    ] + SensorConfig::CUSTOM_INVERTER_SENSORS +
+      SensorConfig.x.excluded_custom_sensor_names
   end
 end

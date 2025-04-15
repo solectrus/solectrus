@@ -27,24 +27,22 @@ class Queries::InfluxAggregation
     define_singleton_method(key) { data[key] }
   end
 
-  ALL_SENSORS = %i[
-    inverter_power
-    inverter_power_1
-    inverter_power_2
-    inverter_power_3
-    inverter_power_4
-    inverter_power_5
-    house_power
-    wallbox_power
-    heatpump_power
-    grid_import_power
-    grid_export_power
-    battery_discharging_power
-    battery_charging_power
-    battery_soc
-    car_battery_soc
-    case_temp
-  ].freeze
+  ALL_SENSORS =
+    (
+      %i[
+        inverter_power
+        house_power
+        wallbox_power
+        heatpump_power
+        grid_import_power
+        grid_export_power
+        battery_discharging_power
+        battery_charging_power
+        battery_soc
+        car_battery_soc
+        case_temp
+      ] + SensorConfig::CUSTOM_INVERTER_SENSORS
+    ).freeze
   private_constant :ALL_SENSORS
 
   def sensors

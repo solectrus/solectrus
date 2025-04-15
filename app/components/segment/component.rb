@@ -174,11 +174,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
         %i[
           grid_export_power
           inverter_power
-          inverter_power_1
-          inverter_power_2
-          inverter_power_3
-          inverter_power_4
-          inverter_power_5
           battery_discharging_power
           battery_charging_power
           house_power
@@ -186,7 +181,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
           wallbox_power
           grid_import_power
           heatpump_power_grid
-        ],
+        ] + SensorConfig::CUSTOM_INVERTER_SENSORS,
       ) || sensor.in?(SensorConfig.x.excluded_custom_sensor_names)
   end
 
