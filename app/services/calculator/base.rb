@@ -44,9 +44,7 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
     (inverter_power * 100.0 / total_plus).round(1)
   end
 
-  (
-    SensorConfig.x.inverter_sensor_names - [:inverter_power]
-  ).each do |sensor_name|
+  SensorConfig::CUSTOM_INVERTER_SENSORS.each do |sensor_name|
     define_method "#{sensor_name}_percent" do
       return 0 if inverter_power.zero?
 

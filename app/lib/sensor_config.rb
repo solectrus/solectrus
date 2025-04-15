@@ -21,16 +21,20 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       .freeze
   public_constant :CUSTOM_SENSORS
 
+  CUSTOM_INVERTER_SENSORS = %i[
+    inverter_power_1
+    inverter_power_2
+    inverter_power_3
+    inverter_power_4
+    inverter_power_5
+  ].freeze
+  public_constant :CUSTOM_INVERTER_SENSORS
+
   # Sensors that represent power values (in Watts)
   POWER_SENSORS =
     (
       %i[
         inverter_power
-        inverter_power_1
-        inverter_power_2
-        inverter_power_3
-        inverter_power_4
-        inverter_power_5
         house_power
         heatpump_power
         grid_import_power
@@ -38,7 +42,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         battery_charging_power
         battery_discharging_power
         wallbox_power
-      ] + CUSTOM_SENSORS
+      ] + CUSTOM_INVERTER_SENSORS + CUSTOM_SENSORS
     ).freeze
   public_constant :POWER_SENSORS
 
@@ -88,11 +92,6 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     (
       %i[
         inverter_power
-        inverter_power_1
-        inverter_power_2
-        inverter_power_3
-        inverter_power_4
-        inverter_power_5
         house_power
         house_power_without_custom
         heatpump_power
@@ -106,7 +105,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         self_consumption
         savings
         co2_reduction
-      ] + CUSTOM_SENSORS
+      ] + CUSTOM_INVERTER_SENSORS + CUSTOM_SENSORS
     ).freeze
   public_constant :CHART_SENSORS
   # TODO: Implement savings, which is currently a redirect to inverter_power
@@ -235,11 +234,6 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   def editable_sensor_names
     (
       %i[
-        inverter_power_1
-        inverter_power_2
-        inverter_power_3
-        inverter_power_4
-        inverter_power_5
         house_power
         wallbox_power
         heatpump_power
@@ -248,7 +242,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         battery_discharging_power
         battery_soc
         case_temp
-      ] + CUSTOM_SENSORS
+      ] + CUSTOM_INVERTER_SENSORS + CUSTOM_SENSORS
     ).select { exists?(it) }
   end
 
@@ -283,33 +277,12 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   end
 
   def multi_inverter?
-    SensorConfig.x.exists_any?(
-      :inverter_power_1,
-      :inverter_power_2,
-      :inverter_power_3,
-      :inverter_power_4,
-      :inverter_power_5,
-    )
+    SensorConfig.x.exists_any?(*CUSTOM_INVERTER_SENSORS)
   end
 
   def inverter_sensor_names
-    if sensor_defined?(:inverter_power)
-      %i[
-        inverter_power
-        inverter_power_1
-        inverter_power_2
-        inverter_power_3
-        inverter_power_4
-        inverter_power_5
-      ].select { |sensor_name| sensor_defined?(sensor_name) }
-    else
-      %i[
-        inverter_power_1
-        inverter_power_2
-        inverter_power_3
-        inverter_power_4
-        inverter_power_5
-      ].select { |sensor_name| sensor_defined?(sensor_name) }
+    ([:inverter_power] + CUSTOM_INVERTER_SENSORS).select do |sensor_name|
+      sensor_defined?(sensor_name)
     end
   end
 
