@@ -152,6 +152,7 @@ de:
       generators: Erzeuger
       consumers: Verbraucher
       battery: Batterie
+      single-inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
   errors:
     title: Fehler
     403:

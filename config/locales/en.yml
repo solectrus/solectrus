@@ -152,6 +152,7 @@ en:
       generators: Generators
       consumers: Consumers
       battery: Battery
+      single-inverter: In a multi-inverter configuration, these could be named here.
   errors:
     title: Error
     403:
