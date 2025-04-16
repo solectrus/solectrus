@@ -50,7 +50,7 @@
                  tippy_touch_value: 'long',
                  turbo_frame: helpers.frame_id('chart', timeframe:),
                  turbo_action: 'replace',
-                 action: 'stats-with-chart--component#startLoop',
+                 action: 'click->stats-with-chart--component#startLoop',
                  stats_with_chart__component_sensor_param: sensor,
                } do
     = styles
@@ -64,24 +64,26 @@
             = title
 
           div data= { 'stats-with-chart--component-target': 'current', sensor:, value: masked_value, time: calculator.time&.to_i }
-          = Number::Component.new(value:).public_send(number_method)
+            = Number::Component.new(value:).public_send(number_method)
 
       div class= 'relative flex w-full h-full px-4 md:px-8 pb-5'
         div class= 'flex flex-1 flex-col gap-1 overflow-hidden rounded-3xl text-lg'
-          - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |sensor|
-            - if (percent = calculator.public_send("#{sensor}_percent"))&.positive?
-              = link_to root_path(sensor:, timeframe:),
-                class: 'flex-1 flex items-center justify-center rounded bg-green-700 active:bg-green-900 duration-100',
-                style: "height: #{percent}%",
-                data: { \
-                  turbo_frame: helpers.frame_id('chart', timeframe:),
-                  turbo_action: 'replace',
-                  action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: sensor,
-                } do
-                - if percent > 5
-                  .font-light.uppercase.leading-tight class= (large? || inline ? 'lg:block' : 'hidden')
-                    = SensorConfig.x.display_name(sensor)
+          - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |inverter_sensor|
+            - inverter_percent = calculator.public_send("#{inverter_sensor}_percent")
+            = outer_link root_path(sensor: inverter_sensor, timeframe:),
+              class: ['flex-1 flex items-center justify-center rounded bg-green-700 active:bg-green-900 duration-100'],
+              style: "height: #{inverter_percent}%",
+              data: { \
+                turbo_frame: helpers.frame_id('chart', timeframe:),
+                turbo_action: 'replace',
+                action: 'click->stats-with-chart--component#startLoop:stop',
+                stats_with_chart__component_sensor_param: inverter_sensor,
+              } do
+              = tag.div data: { 'stats-with-chart--component-target': 'current', sensor: inverter_sensor, value: calculator.public_send(inverter_sensor), time: calculator.time&.to_i } do
+                .font-light.uppercase.leading-tight[
+                  class= (percent > 33 && inverter_percent > 33 ? 'block' : 'hidden')
+                ]
+                  = SensorConfig.x.display_name(inverter_sensor)
 
     - else
       div class= "flex gap-2 lg:gap-3 px-2 sm:px-4 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center #{'click-animation' if url}"

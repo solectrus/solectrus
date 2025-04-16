@@ -276,6 +276,9 @@ export default class extends Controller {
               target.dataset.sensor === 'grid_export_power'
             );
 
+          case 'inverter_power':
+            return target.dataset.sensor === 'inverter_power';
+
           default:
             return target.dataset.sensor.startsWith(this.effectiveSensor);
         }
