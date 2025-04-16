@@ -292,7 +292,7 @@ export default class extends Controller<HTMLCanvasElement> {
             sum = tooltipItems[0].parsed.y;
 
             if (sum) return this.formattedNumber(sum);
-          } else if (isInverterStack) {
+          } else if (isInverterStack && tooltipItems.length > 1) {
             sum = tooltipItems.reduce((acc, item) => {
               if (item.parsed.y) acc += item.parsed.y;
               return acc;

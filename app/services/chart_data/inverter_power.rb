@@ -30,13 +30,31 @@ class ChartData::InverterPower < ChartData::Base
   def data_stacked
     sensor_names = SensorConfig.x.inverter_sensor_names - [:inverter_power]
 
-    datasets = sensor_names.map { |name| dataset(name) }
+    total = dataset(:inverter_power)
+    parts = sensor_names.map { |name| dataset(name) }
 
-    # Fallback, if all datasets are empty
-    # This can happen when the inverter_power_1/2/3/4/5 are not given
-    datasets = [dataset(sensor)] if datasets.all? { |d| d[:data].blank? }
+    # Fallback: Check each period if the total is the sum of the parts
+    total[:data].each_index do |i|
+      total_value = total[:data][i]
+      part_values = parts.map { |ds| ds[:data][i] }
 
-    { labels:, datasets: }
+      if valid_parts?(total_value, part_values)
+        # Parts are fine => Hide the total
+        total[:data][i] = nil
+      else
+        # Parts are missing or incomplete => hide them
+        parts.each { |ds| ds[:data][i] = nil }
+      end
+    end
+
+    { labels:, datasets: [total, *parts] }
+  end
+
+  def valid_parts?(total, parts)
+    return true unless total
+    return false if parts.any?(&:nil?) || total.zero?
+
+    (parts.sum.fdiv(total) * 100).round == 100 # 0.5% tolerance
   end
 
   def labels
