@@ -33,7 +33,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   # https://play.tailwindcss.com/4T1Rvv1bBV
   def outer_multi_inverter?(check_size: true)
     sensor == :inverter_power && SensorConfig.x.multi_inverter? &&
-      inverter_power_sum.positive? && (!check_size || large?)
+      calculator.valid_multi_inverter? && (!check_size || large?)
   end
 
   def inverter_power_sum

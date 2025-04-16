@@ -180,6 +180,46 @@ describe Calculator::Base do
     end
   end
 
+  describe '#valid_multi_inverter?' do
+    subject { calculator.valid_multi_inverter? }
+
+    context 'when inverter_power is nil' do
+      before { calculator.build_method(:inverter_power) { nil } }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when sum is equal to total' do
+      before do
+        calculator.build_method(:inverter_power) { 100 }
+        calculator.build_method(:inverter_power_1) { 60 }
+        calculator.build_method(:inverter_power_2) { 40 }
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when sum is almost equal to the total' do
+      before do
+        calculator.build_method(:inverter_power) { 100 }
+        calculator.build_method(:inverter_power_1) { 50 }
+        calculator.build_method(:inverter_power_2) { 49.6 }
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when sum is less than total' do
+      before do
+        calculator.build_method(:inverter_power) { 100 }
+        calculator.build_method(:inverter_power_1) { 20 }
+        calculator.build_method(:inverter_power_2) { 10 }
+      end
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#inverter_power_percent' do
     subject { calculator.inverter_power_percent }
 

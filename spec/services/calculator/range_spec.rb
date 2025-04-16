@@ -39,6 +39,10 @@ describe Calculator::Range do
     expect(calculator.inverter_power).to eq(48_000)
   end
 
+  it 'validates multi_inverter' do
+    expect(calculator.valid_multi_inverter?).to be(true)
+  end
+
   it 'calculates' do
     expect(calculator.forecast_deviation).to eq(-4)
     expect(calculator.solar_price).to eq(-5)

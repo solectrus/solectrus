@@ -55,6 +55,20 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def valid_multi_inverter?
+    @valid_multi_inverter ||=
+      !inverter_power ||
+        begin
+          parts_sum =
+            (SensorConfig.x.inverter_sensor_names - [:inverter_power])
+              .filter_map { |sensor| public_send(sensor) }
+              .presence
+              &.sum
+
+          parts_sum && (inverter_power / parts_sum * 100.0).round == 100
+        end
+  end
+
   # Grid
 
   def feeding?
