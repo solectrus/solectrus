@@ -218,6 +218,46 @@ describe Calculator::Base do
 
       it { is_expected.to be(false) }
     end
+
+    context 'when parts are nil' do
+      before do
+        calculator.build_method(:inverter_power) { 100 }
+        calculator.build_method(:inverter_power_1) { nil }
+        calculator.build_method(:inverter_power_2) { nil }
+      end
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when parts are 0' do
+      before do
+        calculator.build_method(:inverter_power) { 100 }
+        calculator.build_method(:inverter_power_1) { 0 }
+        calculator.build_method(:inverter_power_2) { 0 }
+      end
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when total is 0' do
+      before do
+        calculator.build_method(:inverter_power) { 0 }
+        calculator.build_method(:inverter_power_1) { 10 }
+        calculator.build_method(:inverter_power_2) { 20 }
+      end
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when total is nil' do
+      before do
+        calculator.build_method(:inverter_power) { nil }
+        calculator.build_method(:inverter_power_1) { 10 }
+        calculator.build_method(:inverter_power_2) { 20 }
+      end
+
+      it { is_expected.to be(true) }
+    end
   end
 
   describe '#inverter_power_percent' do
