@@ -80,7 +80,7 @@
                 stats_with_chart__component_sensor_param: inverter_sensor,
               } do
               = tag.div data: { 'stats-with-chart--component-target': 'current', sensor: inverter_sensor, value: calculator.public_send(inverter_sensor), time: calculator.time&.to_i } do
-                .font-light.uppercase.leading-tight[
+                .font-light.uppercase.leading-tight.text-xs.md:text-base[
                   class= (inverter_percent * percent / 100 > 20 ? 'block' : 'hidden')
                 ]
                   = SensorConfig.x.display_name(inverter_sensor)
