@@ -30,10 +30,12 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     render OuterLink::Component.new(url:, **), &
   end
 
-  # https://play.tailwindcss.com/4T1Rvv1bBV
-  def outer_multi_inverter?(check_size: true)
-    sensor == :inverter_power && SensorConfig.x.multi_inverter? &&
-      calculator.valid_multi_inverter? && (!check_size || large?)
+  def multi_inverter?
+    sensor == :inverter_power && SensorConfig.x.multi_inverter?
+  end
+
+  def inverter_split?
+    multi_inverter? && large?
   end
 
   def inverter_power_sum
