@@ -218,17 +218,25 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     sensor_names.all? { |sensor_name| exists?(sensor_name) }
   end
 
-  def display_name(sensor_name)
-    Setting.sensor_names[sensor_name].presence ||
-      if sensor_name.match?(/\Acustom_power_\d{2}\z/)
-        sensor_name.to_s
-      elsif sensor_name.end_with?('_grid')
-        I18n.t('splitter.grid')
-      elsif sensor_name.end_with?('_pv')
-        I18n.t('splitter.pv')
-      else
-        I18n.t("sensors.#{sensor_name}").html_safe
-      end
+  def display_name(sensor_name, format = :short)
+    result =
+      Setting.sensor_names[sensor_name].presence ||
+        if sensor_name.match?(/\Acustom_power_\d{2}\z/)
+          sensor_name.to_s
+        elsif sensor_name.end_with?('_grid')
+          I18n.t('splitter.grid')
+        elsif sensor_name.end_with?('_pv')
+          I18n.t('splitter.pv')
+        else
+          I18n.t("sensors.#{sensor_name}").html_safe
+        end
+
+    # TODO: Find a better way to handle longer names
+    if sensor_name.start_with?('inverter_power_') && format == :long
+      result = "#{I18n.t('sensors.inverter_power')} #{result}"
+    end
+
+    result
   end
 
   def editable_sensor_names

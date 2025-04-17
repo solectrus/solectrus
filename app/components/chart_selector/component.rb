@@ -17,25 +17,30 @@ class ChartSelector::Component < ViewComponent::Base
 
   def sensor_items
     @sensor_items ||=
-      sensors.map do |sensor|
-        MenuItem::Component.new(
-          name: title(sensor),
-          sensor:,
-          href:
-            url_for(
-              controller: "#{helpers.controller_namespace}/home",
+      begin
+        menu_items =
+          sensors.map do |sensor|
+            MenuItem::Component.new(
+              name: title(sensor),
               sensor:,
-              timeframe:,
-            ),
-          data: {
-            'turbo-frame' => helpers.frame_id('chart'),
-            'turbo-action' => 'replace',
-            'action' =>
-              'stats-with-chart--component#startLoop dropdown--component#toggle',
-            'stats-with-chart--component-sensor-param' => sensor,
-          },
-          current: sensor == @sensor,
-        )
+              href:
+                url_for(
+                  controller: "#{helpers.controller_namespace}/home",
+                  sensor:,
+                  timeframe:,
+                ),
+              data: {
+                'turbo-frame' => helpers.frame_id('chart'),
+                'turbo-action' => 'replace',
+                'action' =>
+                  'stats-with-chart--component#startLoop dropdown--component#toggle',
+                'stats-with-chart--component-sensor-param' => sensor,
+              },
+              current: sensor == @sensor,
+            )
+          end
+
+        menu_items&.sort_by { it.name.downcase }
       end
   end
 
@@ -53,7 +58,7 @@ class ChartSelector::Component < ViewComponent::Base
     if sensor.in?(%i[autarky self_consumption co2_reduction])
       I18n.t "calculator.#{sensor}"
     else
-      SensorConfig.x.display_name(sensor)
+      SensorConfig.x.display_name(sensor, :long)
     end
   end
 end
