@@ -132,7 +132,7 @@
         - if multi_inverter?
           table.mt-3
             tbody
-              - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).each do |sensor_name|
+              - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |sensor_name|
                 - if (value = calculator.public_send(sensor_name))&.positive?
                   tr
                     td.text-left.pr-1
