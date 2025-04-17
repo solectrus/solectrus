@@ -28,7 +28,8 @@ class ChartData::InverterPower < ChartData::Base
   end
 
   def data_stacked
-    sensor_names = SensorConfig.x.inverter_sensor_names - [:inverter_power]
+    sensor_names =
+      SensorConfig.x.inverter_sensor_names.reverse - [:inverter_power]
 
     total = dataset(:inverter_power)
     parts = sensor_names.map { |name| dataset(name) }
