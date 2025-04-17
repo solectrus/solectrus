@@ -6,7 +6,8 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: Beschreibung (auf Deutsch oder Englisch)
+      label: Beschreibung
+      placeholder: Bitte unbedingt nur EIN Thema pro Issue, keine Sammlung von Problemen und Vorschlägen! Bei Screenshots bitte erläutern, worin genau der Fehler besteht.
     validations:
       required: true
 
@@ -14,7 +15,7 @@ body:
     id: version
     attributes:
       label: Welche Version von SOLECTRUS verwendest du?
-      placeholder: z.B. v0.18.3
+      placeholder: z.B. v0.19.0
     validations:
       required: true
 
@@ -36,7 +37,7 @@ body:
   - type: textarea
     id: compose
     attributes:
-      label: Dein vollständiges `docker-compose.yml` oder `compose.yml`
+      label: Deine vollständige `docker-compose.yml` oder `compose.yml`
       description: Kann wichtig sein, z.B. bei Konfigurationsproblemen
       render: yaml
       placeholder: |
@@ -50,7 +51,7 @@ body:
   - type: textarea
     id: environment
     attributes:
-      label: Dein vollständiges `.env`
+      label: Deine vollständige `.env`
       description: Kann wichtig sein, z.B. bei Konfigurationsproblemen. Aus Datenschutzgründen bitte alle sensiblen Informationen unkenntlich machen (Passwörter, API-Schlüssel, Geodaten, etc.)
       render: text
       placeholder: |
