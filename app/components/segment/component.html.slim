@@ -1,32 +1,7 @@
-- styles = capture do
-  css:
-    #segment-#{sensor} {
-      --segment-font-size: #{font_size(max: 90)}%;
-      --segment-height: #{tiny? ? 0 : percent}%;
-    }
-
-    @media (min-width: 768px) and (min-height: 800px) {
-      #segment-#{sensor} {
-        --segment-font-size: #{font_size(max: 140)}%;
-      }
-    }
-
-    @media (min-width: 1024px) and (min-height: 800px) {
-      #segment-#{sensor} {
-        --segment-font-size: #{font_size(max: 115)}%;
-      }
-    }
-
-    @media (min-width: 1280px) and (min-height: 800px) {
-      #segment-#{sensor} {
-        --segment-font-size: #{font_size(max: 140)}%;
-      }
-    }
-
 - if block
   = tag.div id: "segment-#{sensor}",
-            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?)],
-            style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
+            class: ['segment', color_class, ('tiny' if tiny?)],
+            style: "height: #{tiny? ? 0 : percent}%",
             title:,
             data: { \
               controller: 'tippy',
@@ -34,14 +9,13 @@
               tippy_force_tap_to_close_value: false,
               tippy_touch_value: 'long',
             } do
-    = styles
     = block.call
 
 - else
   = outer_link url,
                id: "segment-#{sensor}",
-               class: ['relative leading-none flex items-center justify-around text-center overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000', color_class, ('border-0!' if tiny?), (inverter_split? ? (icon_size > 100 ? 'pt-38' : 'pt-32') : 'group')],
-               style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
+               style: "height: #{tiny? ? 0 : percent}%",
+               class: ['segment', color_class, ('tiny' if tiny?)],
                title:,
                data: { \
                  controller: 'tippy',
@@ -53,51 +27,38 @@
                  action: 'click->stats-with-chart--component#startLoop',
                  stats_with_chart__component_sensor_param: sensor,
                } do
-    = styles
+
+    .header
+      - if icon_class
+        i.fa[
+          class= icon_class
+          style= "font-size: #{icon_size}%;"
+        ]
+
+      .title
+        = title
+
+      .value data= { 'stats-with-chart--component-target': 'current', sensor:, value: masked_value, time: calculator.time&.to_i }
+        = Number::Component.new(value:).public_send(number_method)
+
+      - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
+        i.fa.fa-circle-exclamation.fa-xs
 
     - if multi_inverter?
-      div class= 'absolute inset-0'
-        div class= ['h-full flex items-center cursor-pointer gap-2 py-5 click-animation', ('flex-row' if inline), (large? ? 'flex-col' : 'justify-center')]
-          i.fa class= icon_class style="font-size: #{icon_size}%;"
-
-          .font-light.uppercase.leading-tight class= (large? || inline ? 'lg:block' : 'hidden')
-            = title
-
-          div data= { 'stats-with-chart--component-target': 'current', sensor:, value: masked_value, time: calculator.time&.to_i }
-            = Number::Component.new(value:).public_send(number_method)
-
-      div class= ['relative flex w-full px-4 md:px-8 pb-5 overflow-hidden', (inverter_split? ? 'h-full' : 'h-0')]
-        div class= 'flex flex-1 flex-col gap-1 overflow-hidden rounded-3xl text-lg'
-          - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |inverter_sensor|
-            - inverter_percent = calculator.public_send("#{inverter_sensor}_percent")
-            = outer_link root_path(sensor: inverter_sensor, timeframe:),
-              class: ['flex items-center justify-center rounded bg-green-700 active:bg-green-900 duration-100'],
-              style: "height: #{inverter_percent}%",
-              data: { \
-                turbo_frame: helpers.frame_id('chart', timeframe:),
-                turbo_action: 'replace',
-                action: 'click->stats-with-chart--component#startLoop:stop',
-                stats_with_chart__component_sensor_param: inverter_sensor,
-              } do
-              = tag.div data: { 'stats-with-chart--component-target': 'current', sensor: inverter_sensor, value: calculator.public_send(inverter_sensor), time: calculator.time&.to_i } do
-                .font-light.uppercase.leading-tight.text-xs.md:text-base[
-                  class= (inverter_percent * percent / 100 > 20 ? 'block' : 'hidden')
-                ]
-                  = SensorConfig.x.display_name(inverter_sensor)
-
-    - else
-      div class= "flex gap-2 lg:gap-3 px-2 sm:px-4 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center #{'click-animation' if url}"
-        - if icon_class
-          i.fa class= icon_class style="font-size: #{icon_size}%;"
-
-        .font-light.uppercase.leading-tight class= (large? || inline ? 'lg:block' : 'hidden')
-          = title
-
-        div data= { 'stats-with-chart--component-target': 'current', sensor:, value: masked_value, time: calculator.time&.to_i }
-          = Number::Component.new(value:).public_send(number_method)
-
-        - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
-          i.fa.fa-circle-exclamation.fa-xs
+      .splitter
+        - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |inverter_sensor|
+          - inverter_percent = calculator.public_send("#{inverter_sensor}_percent")
+          = outer_link root_path(sensor: inverter_sensor, timeframe:),
+                        class: 'split',
+                        style: "height: #{inverter_percent}%",
+                        data: { \
+                          turbo_frame: helpers.frame_id('chart', timeframe:),
+                          turbo_action: 'replace',
+                          action: 'click->stats-with-chart--component#startLoop:stop',
+                          stats_with_chart__component_sensor_param: inverter_sensor,
+                        } do
+                        = tag.span data: { 'stats-with-chart--component-target': 'current', sensor: inverter_sensor, value: calculator.public_send(inverter_sensor), time: calculator.time&.to_i } do
+                          = SensorConfig.x.display_name(inverter_sensor)
 
     .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
       .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2

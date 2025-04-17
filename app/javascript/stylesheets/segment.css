@@ -1,0 +1,87 @@
+@layer components {
+  .segment {
+    @apply flex h-full w-full flex-col items-center justify-center gap-2 transition-all motion-safe:duration-1000 motion-reduce:duration-100;
+
+    container-type: size;
+    container-name: segment;
+
+    &.tiny {
+      @apply h-0 border-0 p-0;
+    }
+
+    /* Header */
+
+    .header {
+      @apply hidden;
+
+      .title {
+        @apply hidden;
+      }
+    }
+
+    @container segment (min-height: 2rem) {
+      .header {
+        @apply flex w-full flex-1 flex-row items-center justify-center gap-2 border-8 border-transparent px-1 duration-100 active:scale-95 md:gap-3;
+
+        .value,
+        svg {
+          font-size: clamp(0.75rem, min(4vw, 6vh), 1.1rem);
+        }
+      }
+    }
+
+    @container segment (min-height: 9rem) {
+      .header {
+        @apply mt-2 flex-col gap-2 md:gap-3;
+
+        .title {
+          @apply block text-center leading-tight font-light uppercase;
+
+          font-size: clamp(0.75rem, min(4vw, 1.5vh), 1.3rem);
+        }
+
+        .value {
+          font-size: clamp(0.75rem, min(4vw, 6vh), 1.4rem);
+        }
+
+        svg {
+          font-size: clamp(0.75rem, min(4vw, 6vh), 1.6rem);
+        }
+      }
+    }
+
+    /* Splitter */
+
+    .splitter {
+      @apply mb-4 hidden w-[calc(100%-2rem)] flex-1 flex-col gap-1 overflow-hidden rounded-3xl border-transparent md:w-[calc(100%-3rem)];
+    }
+
+    @container segment (min-height: 12rem) {
+      .header {
+        @apply flex-none;
+      }
+
+      .splitter {
+        @apply flex;
+      }
+    }
+
+    .split {
+      @apply flex items-center justify-center overflow-hidden rounded bg-green-700 px-2 duration-100 active:bg-green-900 dark:bg-green-700/50;
+
+      container-type: size;
+      container-name: split;
+    }
+
+    .split > span {
+      @apply hidden;
+    }
+
+    @container split (min-height: 2rem) {
+      .split > span {
+        @apply block truncate font-light whitespace-nowrap text-white/90 dark:text-white/50;
+        font-size: clamp(0.75rem, min(3.5vw, 6vh), 1.2rem);
+      }
+    }
+  }
+}

@@ -1,3 +1,6 @@
+# Prototype:
+# https://play.tailwindcss.com/kzqdxbuqEd?size=506x874
+
 class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor, **options, &block)
     super
@@ -128,9 +131,9 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def icon_size
-    return 100 if peak.nil?
+    return 140 if peak.nil?
 
-    Scale.new(target: 80..300, max: peak).result(value)
+    Scale.new(target: 80..400, max: peak).result(value)
   end
 
   def default_icon_class
@@ -278,16 +281,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       end
 
     "#{color} text-slate-700 dark:text-slate-400"
-  end
-
-  def font_size(max:)
-    return 0 if percent.nil? || percent < 6
-
-    [percent + 90, max].min
-  end
-
-  def large?
-    percent > 33
   end
 
   def tiny?
