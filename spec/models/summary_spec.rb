@@ -45,7 +45,7 @@ describe Summary do
     end
   end
 
-  shared_examples 'tests for fresh and stale' do |is_fresh|
+  shared_examples 'fresh and stale' do |is_fresh|
     it 'returns correct fresh?' do
       if is_fresh
         expect(summary).to be_fresh
@@ -72,70 +72,70 @@ describe Summary do
       let(:date) { 5.days.ago.to_date }
       let(:updated_at) { (date + 1.day).middle_of_day }
 
-      include_examples 'tests for fresh and stale', true
+      it_behaves_like 'fresh and stale', true
     end
 
     context 'when date is in the past, updated on the same day' do
       let(:date) { 5.days.ago.to_date }
       let(:updated_at) { date.middle_of_day }
 
-      include_examples 'tests for fresh and stale', false
+      it_behaves_like 'fresh and stale', false
     end
 
     context 'when date is today, updated a few minutes ago' do
       let(:date) { Date.current }
       let(:updated_at) { 3.minutes.ago }
 
-      include_examples 'tests for fresh and stale', true
+      it_behaves_like 'fresh and stale', true
     end
 
     context 'when date is today, updated out of tolerance' do
       let(:date) { Date.current }
       let(:updated_at) { 10.minutes.ago }
 
-      include_examples 'tests for fresh and stale', false
+      it_behaves_like 'fresh and stale', false
     end
 
     context 'when date is in the future, updated within tolerance' do
       let(:date) { Date.tomorrow }
       let(:updated_at) { 3.minutes.ago }
 
-      include_examples 'tests for fresh and stale', true
+      it_behaves_like 'fresh and stale', true
     end
 
     context 'when date is long ago, updated some days later' do
       let(:date) { 1.year.ago.to_date }
       let(:updated_at) { (date + 5.days).middle_of_day }
 
-      include_examples 'tests for fresh and stale', true
+      it_behaves_like 'fresh and stale', true
     end
 
     context 'when date is yesterday, updated today shortly after midnight' do
       let(:date) { Date.yesterday }
       let(:updated_at) { date.beginning_of_day + 1.day + 5.minutes }
 
-      include_examples 'tests for fresh and stale', false
+      it_behaves_like 'fresh and stale', false
     end
 
     context 'when date is yesterday, updated after required distance' do
       let(:date) { Date.yesterday }
       let(:updated_at) { date.beginning_of_day + 1.day + 10.hours }
 
-      include_examples 'tests for fresh and stale', true
+      it_behaves_like 'fresh and stale', true
     end
 
     context 'when date is today, updated shortly after midnight' do
       let(:date) { Date.current }
       let(:updated_at) { date.beginning_of_day + 5.minutes }
 
-      include_examples 'tests for fresh and stale', false
+      it_behaves_like 'fresh and stale', false
     end
 
     context 'when date is in the future, updated out of tolerance' do
       let(:date) { Date.tomorrow }
       let(:updated_at) { 10.minutes.ago }
 
-      include_examples 'tests for fresh and stale', false
+      it_behaves_like 'fresh and stale', false
     end
   end
 
@@ -172,7 +172,7 @@ describe Summary do
         end
       end
 
-      include_examples 'Freshness tests', true, 100, []
+      it_behaves_like 'Freshness tests', true, 100, []
     end
 
     context 'when all summaries are present, but some are stale and some are fresh' do
@@ -185,19 +185,19 @@ describe Summary do
         end
       end
 
-      include_examples 'Freshness tests',
-                       false,
-                       75,
-                       (Date.new(2023, 2, 1)..Date.new(2023, 2, 7)).to_a
+      it_behaves_like 'Freshness tests',
+                      false,
+                      75,
+                      (Date.new(2023, 2, 1)..Date.new(2023, 2, 7)).to_a
     end
 
     context 'when no summaries are present' do
       it { is_expected.to eq(0) }
 
-      include_examples 'Freshness tests',
-                       false,
-                       0,
-                       (Date.new(2023, 2, 1)..Date.new(2023, 2, 28)).to_a
+      it_behaves_like 'Freshness tests',
+                      false,
+                      0,
+                      (Date.new(2023, 2, 1)..Date.new(2023, 2, 28)).to_a
     end
   end
 
