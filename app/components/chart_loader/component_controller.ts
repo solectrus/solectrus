@@ -254,6 +254,10 @@ export default class extends Controller<HTMLCanvasElement> {
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
 
+      // Reverse order of datasets in tooltip
+      options.plugins.tooltip.itemSort = (a, b) =>
+        b.datasetIndex - a.datasetIndex;
+
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
           let result: string =

@@ -28,8 +28,7 @@ class ChartData::InverterPower < ChartData::Base
   end
 
   def data_stacked
-    sensor_names =
-      SensorConfig.x.inverter_sensor_names.reverse - [:inverter_power]
+    sensor_names = SensorConfig.x.inverter_sensor_names - [:inverter_power]
 
     total = dataset(:inverter_power)
     parts = sensor_names.map { |name| dataset(name) }
@@ -106,15 +105,15 @@ class ChartData::InverterPower < ChartData::Base
     timeframe.day? ? base + [:inverter_power_forecast] : base
   end
 
-  INVERTER_COLOR = '#16a34a'.freeze # bg-green-600
-  private_constant :INVERTER_COLOR
-
   BACKGROUND_COLORS = {
-    inverter_power: INVERTER_COLOR,
     inverter_power_forecast: '#cbd5e1', # bg-slate-300
-  }.merge(
-    SensorConfig::CUSTOM_INVERTER_SENSORS.index_with { INVERTER_COLOR },
-  ).freeze
+    inverter_power: '#22c55e', # bg-green-500
+    inverter_power_1: '#11622f', # +10%
+    inverter_power_2: '#147638', # +10%
+    inverter_power_3: '#178941', # +10%
+    inverter_power_4: '#1b9d4b', # +10%
+    inverter_power_5: '#1eb154', # +10%
+  }.freeze
 
   private_constant :BACKGROUND_COLORS
 
