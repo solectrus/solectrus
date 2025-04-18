@@ -22,5 +22,5 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
       SensorConfig.x.excluded_custom_sensor_names.each do |sensor|
         balance.with_segment sensor, color_index: 8
       end
-      balance.with_segment :grid_export_power, peak: peak&.dig(:grid_power_power_minus)
+      balance.with_segment :grid_export_power, peak: peak&.dig(:grid_export_power)
       balance.with_segment :battery_charging_power, peak: peak&.dig(:battery_charging_power)
