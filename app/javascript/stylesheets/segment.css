@@ -15,7 +15,15 @@
       @apply hidden;
 
       .title {
-        @apply hidden;
+        @apply hidden leading-tight font-light uppercase;
+      }
+
+      &.inline {
+        @apply flex-row justify-between text-sm md:text-xl;
+
+        .title {
+          @apply block;
+        }
       }
     }
 
@@ -33,9 +41,11 @@
     @container segment (min-height: 9rem) {
       .header {
         @apply mt-2 flex-col gap-2 md:gap-3;
+      }
 
+      .header:not(.inline) {
         .title {
-          @apply block text-center leading-tight font-light uppercase;
+          @apply block text-center;
 
           font-size: clamp(0.75rem, min(4vw, 1.5vh), 1.3rem);
         }

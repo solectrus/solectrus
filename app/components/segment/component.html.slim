@@ -28,7 +28,7 @@
                  stats_with_chart__component_sensor_param: sensor,
                } do
 
-    .header
+    .header class= ('inline' if inline)
       - if icon_class
         i.fa[
           class= icon_class
