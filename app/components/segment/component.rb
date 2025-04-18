@@ -133,7 +133,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def icon_size
     return 140 if peak.nil?
 
-    Scale.new(target: 80..400, max: peak).result(value)
+    Scale.new(target: 80..300, max: peak).result(value)
   end
 
   def default_icon_class

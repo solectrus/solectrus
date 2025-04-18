@@ -40,7 +40,7 @@
 
     @container segment (min-height: 9rem) {
       .header {
-        @apply mt-2 flex-col gap-2 md:gap-3;
+        @apply mt-2 flex-col gap-2;
       }
 
       .header:not(.inline) {
