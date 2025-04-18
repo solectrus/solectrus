@@ -76,10 +76,13 @@ class ChartData::InverterPower < ChartData::Base
 
       length = inverter_values.first.length
       Array.new(length) do |i|
-        inverter_values.sum do |arr|
-          value = arr[i]
-          (value&.negative? ? 0 : value) || 0
-        end
+        inverter_values
+          .filter_map do |arr|
+            value = arr[i]
+            value&.negative? ? 0 : value
+          end
+          .presence
+          &.sum
       end
     else
       chart[sensor_name]&.map { |_, v| v&.negative? ? 0 : v } || []
