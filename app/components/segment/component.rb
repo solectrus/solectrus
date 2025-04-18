@@ -131,7 +131,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def icon_size
-    return 140 if peak.nil?
+    return 100 if peak.nil?
 
     Scale.new(target: 80..300, max: peak).result(value)
   end
@@ -281,6 +281,12 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       end
 
     "#{color} text-slate-700 dark:text-slate-400"
+  end
+
+  def font_size(max:)
+    return 0 if percent.nil? || percent < 6
+
+    [percent + 90, max].min
   end
 
   def tiny?

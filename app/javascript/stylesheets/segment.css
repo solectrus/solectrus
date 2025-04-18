@@ -19,7 +19,7 @@
       }
 
       &.inline {
-        @apply flex-row justify-between text-sm md:text-xl;
+        @apply flex-row justify-between;
 
         .title {
           @apply block;
@@ -30,11 +30,6 @@
     @container segment (min-height: 2rem) {
       .header {
         @apply flex w-full flex-1 flex-row items-center justify-center gap-2 border-8 border-transparent px-1 duration-100 active:scale-95 md:gap-3;
-
-        .value,
-        svg {
-          font-size: clamp(0.75rem, min(4vw, 6vh), 1.1rem);
-        }
       }
     }
 
@@ -46,16 +41,6 @@
       .header:not(.inline) {
         .title {
           @apply block text-center;
-
-          font-size: clamp(0.75rem, min(4vw, 1.5vh), 1.3rem);
-        }
-
-        .value {
-          font-size: clamp(0.75rem, min(4vw, 6vh), 1.4rem);
-        }
-
-        svg {
-          font-size: clamp(0.75rem, min(4vw, 6vh), 1.6rem);
         }
       }
     }
@@ -89,8 +74,7 @@
 
     @container split (min-height: 2rem) {
       .split > span {
-        @apply block truncate font-light whitespace-nowrap text-white/90 dark:text-white/50;
-        font-size: clamp(0.75rem, min(3.5vw, 6vh), 1.2rem);
+        @apply block truncate text-sm font-light whitespace-nowrap text-white/90 md:text-lg dark:text-white/50;
       }
     }
   }

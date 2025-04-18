@@ -1,7 +1,32 @@
+- styles = capture do
+  css:
+    #segment-#{sensor} {
+      --segment-font-size: #{font_size(max: 90)}%;
+      --segment-height: #{tiny? ? 0 : percent}%;
+    }
+
+    @media (min-width: 768px) and (min-height: 800px) {
+      #segment-#{sensor} {
+        --segment-font-size: #{font_size(max: 140)}%;
+      }
+    }
+
+    @media (min-width: 1024px) and (min-height: 800px) {
+      #segment-#{sensor} {
+        --segment-font-size: #{font_size(max: 115)}%;
+      }
+    }
+
+    @media (min-width: 1280px) and (min-height: 800px) {
+      #segment-#{sensor} {
+        --segment-font-size: #{font_size(max: 140)}%;
+      }
+    }
+
 - if block
   = tag.div id: "segment-#{sensor}",
             class: ['segment', color_class, ('tiny' if tiny?)],
-            style: "height: #{tiny? ? 0 : percent}%",
+            style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
             title:,
             data: { \
               controller: 'tippy',
@@ -9,12 +34,13 @@
               tippy_force_tap_to_close_value: false,
               tippy_touch_value: 'long',
             } do
+    = styles
     = block.call
 
 - else
   = outer_link url,
                id: "segment-#{sensor}",
-               style: "height: #{tiny? ? 0 : percent}%",
+               style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
                class: ['segment', color_class, ('tiny' if tiny?)],
                title:,
                data: { \
@@ -28,6 +54,7 @@
                  stats_with_chart__component_sensor_param: sensor,
                } do
 
+    = styles
     .header class= ('inline' if inline)
       - if icon_class
         i.fa[
