@@ -25,6 +25,10 @@
           @apply block;
         }
       }
+
+      &:not(:has(+ .splitter)) {
+        @apply h-full;
+      }
     }
 
     @container segment (min-height: 2rem) {
