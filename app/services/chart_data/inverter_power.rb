@@ -107,7 +107,7 @@ class ChartData::InverterPower < ChartData::Base
 
   BACKGROUND_COLORS = {
     inverter_power_forecast: '#cbd5e1', # bg-slate-300
-    inverter_power: '#22c55e', # bg-green-500
+    inverter_power: '#16a34a', # bg-green-600
     inverter_power_1: '#11622f', # +10%
     inverter_power_2: '#147638', # +10%
     inverter_power_3: '#178941', # +10%
