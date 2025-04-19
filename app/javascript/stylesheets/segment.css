@@ -48,7 +48,7 @@
     /* Splitter */
 
     .splitter {
-      @apply mb-4 hidden w-[calc(100%-2rem)] flex-1 flex-col gap-1 overflow-hidden rounded-3xl border-transparent md:w-[calc(100%-3rem)];
+      @apply mb-4 hidden w-[calc(100%-2rem)] flex-1 flex-col gap-1 overflow-hidden rounded-xl border-transparent md:w-[calc(100%-2.5rem)];
     }
 
     @container segment (min-height: 12rem) {
@@ -62,19 +62,32 @@
     }
 
     .split {
-      @apply flex items-center justify-center overflow-hidden rounded bg-green-700 px-2 duration-100 active:bg-green-900 dark:bg-green-700/50;
+      @apply flex flex-col items-center justify-center overflow-hidden bg-green-700 px-2 text-center font-light text-white/90 duration-100 active:bg-green-900 dark:bg-green-700/50 dark:text-white/50;
 
       container-type: size;
       container-name: split;
-    }
 
-    .split > span {
-      @apply hidden;
-    }
+      .title,
+      .value {
+        @apply hidden;
+      }
 
-    @container split (min-height: 2rem) {
-      .split > span {
-        @apply block truncate text-sm font-light whitespace-nowrap text-white/90 md:text-lg dark:text-white/50;
+      @container split (min-height: 2rem) {
+        .title {
+          @apply block w-full truncate text-xs uppercase md:text-base;
+        }
+      }
+
+      @container split (min-height: 3rem) {
+        .value {
+          @apply block text-sm md:text-base;
+        }
+      }
+
+      @container split (min-height: 5rem) {
+        .title {
+          @apply line-clamp-2 overflow-visible whitespace-normal;
+        }
       }
     }
   }

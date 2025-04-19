@@ -74,18 +74,21 @@
     - if multi_inverter?
       .splitter
         - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |inverter_sensor|
-          - inverter_percent = calculator.public_send("#{inverter_sensor}_percent")
-          = outer_link root_path(sensor: inverter_sensor, timeframe:),
-                        class: 'split',
-                        style: "height: #{inverter_percent}%",
-                        data: { \
-                          turbo_frame: helpers.frame_id('chart', timeframe:),
-                          turbo_action: 'replace',
-                          action: 'click->stats-with-chart--component#startLoop:stop',
-                          stats_with_chart__component_sensor_param: inverter_sensor,
-                        } do
-                        = tag.span data: { 'stats-with-chart--component-target': 'current', sensor: inverter_sensor, value: calculator.public_send(inverter_sensor), time: calculator.time&.to_i } do
-                          = SensorConfig.x.display_name(inverter_sensor)
+          - if (inverter_value = calculator.public_send(inverter_sensor))
+            - inverter_percent = calculator.public_send("#{inverter_sensor}_percent")
+            = outer_link root_path(sensor: inverter_sensor, timeframe:),
+                          class: 'split',
+                          style: "height: #{inverter_percent}%",
+                          data: { \
+                            turbo_frame: helpers.frame_id('chart', timeframe:),
+                            turbo_action: 'replace',
+                            action: 'click->stats-with-chart--component#startLoop:stop',
+                            stats_with_chart__component_sensor_param: inverter_sensor,
+                          } do
+                          .title
+                            = SensorConfig.x.display_name(inverter_sensor)
+                          .value data= { 'stats-with-chart--component-target': 'current', sensor: inverter_sensor, value: inverter_value, time: calculator.time&.to_i }
+                            = Number::Component.new(value: inverter_value).public_send(number_method)
 
     .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
       .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
