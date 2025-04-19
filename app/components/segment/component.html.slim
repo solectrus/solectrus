@@ -85,8 +85,10 @@
                             action: 'click->stats-with-chart--component#startLoop:stop',
                             stats_with_chart__component_sensor_param: inverter_sensor,
                           } do
+
                           .title
                             = SensorConfig.x.display_name(inverter_sensor)
+
                           .value data= { 'stats-with-chart--component-target': 'current', sensor: inverter_sensor, value: inverter_value, time: calculator.time&.to_i }
                             = Number::Component.new(value: inverter_value).public_send(number_method)
 

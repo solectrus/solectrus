@@ -12,23 +12,23 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
   attr_reader :timeframe, :calculations
 
   def default_calculations
-    SensorConfig.x.inverter_sensor_names.map do |sensor_name|
-      Queries::Calculation.new(sensor_name, :sum, :sum)
-    end +
-      [
-        Queries::Calculation.new(:house_power, :sum, :sum),
-        Queries::Calculation.new(:wallbox_power, :sum, :sum),
-        Queries::Calculation.new(:grid_import_power, :sum, :sum),
-        Queries::Calculation.new(:grid_export_power, :sum, :sum),
-        Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
-        Queries::Calculation.new(:battery_charging_power, :sum, :sum),
-        Queries::Calculation.new(:heatpump_power, :sum, :sum),
-        # --- Power splitter ----
-        Queries::Calculation.new(:house_power_grid, :sum, :sum),
-        Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
-        Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
-        Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
-      ]
+    [
+      *SensorConfig.x.inverter_sensor_names.map do |sensor_name|
+        Queries::Calculation.new(sensor_name, :sum, :sum)
+      end,
+      Queries::Calculation.new(:house_power, :sum, :sum),
+      Queries::Calculation.new(:wallbox_power, :sum, :sum),
+      Queries::Calculation.new(:grid_import_power, :sum, :sum),
+      Queries::Calculation.new(:grid_export_power, :sum, :sum),
+      Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
+      Queries::Calculation.new(:battery_charging_power, :sum, :sum),
+      Queries::Calculation.new(:heatpump_power, :sum, :sum),
+      # --- Power splitter ----
+      Queries::Calculation.new(:house_power_grid, :sum, :sum),
+      Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
+      Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
+      Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
+    ]
   end
 
   # Build dynamic methods based on sections data
