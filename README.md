@@ -5,24 +5,23 @@
 
 # SOLECTRUS
 
-SOLECTRUS is a smart photovoltaic dashboard that shows your energy production and usage. It also calculates costs and savings, helping you get the most out of your solar system.
-
-Read here about the motivation (in German):
-https://ledermann.dev/blog/2021/02/03/photovoltaik-dashboard-als-web-applikation/
+SOLECTRUS is your smart solar dashboard, giving you real‑time insights into energy generation and consumption. It automatically calculates costs and savings, so you can maximize the performance of your PV system.
 
 ![Screenshot](screenshot.webp)
 
 ## Live Demo
 
-A live demo with realtime data is available at https://demo.solectrus.de
+Try it out at https://demo.solectrus.de
 
 ## Installation
 
-For self-hosting SOLECTRUS, please look at https://configurator.solectrus.de/
+SOLECTRUS is a self‑hosted solution — just bring your own server (a Raspberry Pi works great, but any Linux box will do). To get started, visit https://configurator.solectrus.de/ and generate your Docker configuration interactively.
 
 ## Development
 
-1. Clone the repo locally:
+To contribute, set up a local development environment (this guide assumes macOS with Homebrew):
+
+1. Clone the repository:
 
 ```bash
 git clone git@github.com:solectrus/solectrus.git
@@ -67,7 +66,7 @@ bin/dev
 
 This starts the app and opens https://solectrus.test in your default browser (see `Procfile.dev`).
 
-## Test
+### Testing
 
 After preparing development environment (see above):
 
@@ -102,11 +101,11 @@ There is a shortcut to run **all** test and linting tools:
 bin/test
 ```
 
-## Performance monitoring
+## Performance Monitoring
 
 The [Live Demo](https://demo.solectrus.de) is hosted at Hetzner Cloud. For performance monitoring, it uses [RorVsWild](https://www.rorvswild.com), which is free for OpenSource projects. You can see internal metrics like CPU, memory, and disk usage, as well as request times and errors here:
 https://www.rorvswild.com/applications/136101/requests
 
 ## License
 
-Copyright (c) 2020-2025 Georg Ledermann, released under the AGPL-3.0 License
+© 2020–2025 Georg Ledermann. Released under AGPL-3.0.
