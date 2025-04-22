@@ -23,8 +23,7 @@ import {
   ActiveElement,
 } from 'chart.js';
 
-import 'chartjs-adapter-date-fns';
-import { de } from 'date-fns/locale/de';
+import 'chartjs-adapter-luxon';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
@@ -127,11 +126,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
     // I18n
     // @ts-expect-error Property does not exist on type
-    options.scales.x.adapters = {
-      date: {
-        locale: de,
-      },
-    };
+    options.scales.x.adapters.date.locale = navigator.language || 'en';
 
     this.maxValue = this.maxOf(data);
     this.minValue = this.minOf(data);
@@ -185,8 +180,9 @@ export default class extends Controller<HTMLCanvasElement> {
         week: /\d{4}-W\d{2}$/,
         month: /\d{4}-\d{2}$/,
         year: /\d{4}$/,
-        days: /\d{1,3}d$/,
-        months: /\d{1,2}mo$/,
+        days: /P\d{1,3}D$/,
+        months: /P\d{1,2}M$/,
+        years: /P\d{1,2}Y$/,
         all: /all$/,
       };
 
@@ -203,6 +199,10 @@ export default class extends Controller<HTMLCanvasElement> {
         regexPattern = regexes.month;
         // We are in a month view, so bars are days (YYYY-MM-DD)
         formattedDate = `${year}-${month}-${day}`;
+      } else if (regexes.years.exec(currentUrl)) {
+        regexPattern = regexes.years;
+        // We are in a multi-year view, so bars are years (YYYY)
+        formattedDate = `${year}`;
       } else if (regexes.months.exec(currentUrl)) {
         regexPattern = regexes.months;
         // We are in a multi-months view, so bars are months (YYYY-MM)

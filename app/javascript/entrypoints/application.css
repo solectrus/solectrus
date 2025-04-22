@@ -145,6 +145,13 @@
     background-color: #a5b4fc;
   }
 
+  /* Hide RorVsWild button on smaller screens, because it overlaps the content */
+  @media (max-width: 1400px) {
+    .rorvswild-local-toggler {
+      display: none;
+    }
+  }
+
   * {
     /* Disable default callouts for touch targets on iOS */
     -webkit-touch-callout: none;

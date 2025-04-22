@@ -39,6 +39,7 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
       PowerChart.new(
         sensors: [
           :house_power,
+          :house_power_grid,
           grid_sensor,
           *excluded_sensor_names,
           *included_grid_sensor_names,

@@ -22,8 +22,8 @@ en:
     missing_sponsoring_cta: Learn more...
     active_sponsoring_header: Sponsoring is active
     active_sponsoring: Thank you very much for your support!
-    incomplete_config: Configuration incomplete
-    missing_custom_consumers: No separate electricity consumers have been defined.
+    incomplete_config: Custom power consumers
+    missing_custom_consumers: Here you could visualize up to 20 additional power consumers. Add additional sensors to your configuration (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> to <code>_20</code>).
     house_power_invalid: House consumption is less than the sum of the consumers
   timeframe:
     now: Now
@@ -33,6 +33,7 @@ en:
     month: This month
     months: Last %{count} months
     year: This year
+    years: Last %{count} years
     all: Since commissioning %{since} ago
   sensors:
     inverter_power: PV generated

@@ -75,6 +75,11 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
             drawOnChartArea: false,
           },
           type: 'time',
+          adapters: {
+            date: {
+              zone: Time.zone.name,
+            },
+          },
           ticks:
             {
               now: {
@@ -86,6 +91,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 maxRotation: 0,
               },
               days: {
+                stepSize: (timeframe.relative_count.to_i > 14 ? 2 : 1),
                 maxRotation: 0,
               },
               week: {
@@ -101,6 +107,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 maxRotation: 0,
               },
               year: {
+                stepSize: 1,
+                maxRotation: 0,
+              },
+              years: {
                 stepSize: 1,
                 maxRotation: 0,
               },
@@ -130,17 +140,17 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               days: {
                 unit: 'day',
                 displayFormats: {
-                  day: 'd',
+                  day: timeframe.relative_count.to_i < 8 ? 'ccc' : 'd',
                 },
-                tooltipFormat: 'eeee, dd.MM.yyyy',
+                tooltipFormat: 'cccc, dd.MM.yyyy',
                 round: 'day',
               },
               week: {
                 unit: 'day',
                 displayFormats: {
-                  day: 'eee',
+                  day: 'ccc',
                 },
-                tooltipFormat: 'eeee, dd.MM.yyyy',
+                tooltipFormat: 'cccc, dd.MM.yyyy',
                 round: 'day',
               },
               month: {
@@ -148,7 +158,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 displayFormats: {
                   day: 'd',
                 },
-                tooltipFormat: 'eeee, dd.MM.yyyy',
+                tooltipFormat: 'cccc, dd.MM.yyyy',
                 round: 'day',
               },
               months: {
@@ -162,10 +172,18 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               year: {
                 unit: 'month',
                 displayFormats: {
-                  month: 'MMM',
+                  month: 'LLL',
                 },
                 tooltipFormat: 'MMMM yyyy',
                 round: 'month',
+              },
+              years: {
+                unit: 'year',
+                displayFormats: {
+                  year: 'yyyy',
+                },
+                tooltipFormat: 'yyyy',
+                round: 'year',
               },
               all: {
                 unit: 'year',
@@ -198,7 +216,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     when :case_temp
       '&deg;C'.html_safe
     when :co2_reduction
-      timeframe.short? ? 'g/h' : 'kg'
+      timeframe.short? ? 'g/h' : 'g'
     else
       timeframe.short? ? 'W' : 'Wh'
     end

@@ -22,8 +22,8 @@ de:
     missing_sponsoring_cta: Mehr erfahren...
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
-    incomplete_config: Konfiguration unvollständig
-    missing_custom_consumers: Es wurden keine separaten Stromverbraucher definiert.
+    incomplete_config: Selbstdefinierte Stromverbraucher
+    missing_custom_consumers: Hier könnten bis zu 20 zusätzliche Stromverbraucher visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> bis <code>_20</code>).
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
   timeframe:
     now: Aktuell
@@ -33,6 +33,7 @@ de:
     month: Dieser Monat
     months: Letzte %{count} Monate
     year: Dieses Jahr
+    years: Letzte %{count} Jahre
     all: Seit Inbetriebnahme vor %{since}
   sensors:
     inverter_power: Erzeugung

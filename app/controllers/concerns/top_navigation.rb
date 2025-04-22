@@ -31,11 +31,11 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.balance'),
         href:
-          root_path(
-            sensor: 'inverter_power',
-            timeframe:
-              helpers.respond_to?(:timeframe) ? helpers.timeframe : 'now',
-          ),
+          if helpers.controller_namespace == 'house'
+            root_path(sensor: 'house_power', timeframe: helpers.timeframe)
+          else
+            root_path(sensor: 'inverter_power', timeframe: 'now')
+          end,
         current: helpers.controller_namespace == 'balance',
         data: {
           controller: 'tippy',

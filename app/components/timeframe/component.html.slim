@@ -26,8 +26,13 @@
 
   - when :days
     .py-1
-      time datetime= timeframe.iso8601
-        = timeframe.localized
+      time.space-x-4 datetime= timeframe.iso8601
+        span
+          = timeframe.localized
+        small.hidden.md:inline
+          =<> l timeframe.beginning.to_date, format: :default
+          span.text-indigo-300 &minus;
+          =<> l timeframe.ending.to_date, format: :default
 
   - when :week
     .py-1.flex-1.md:w-72.text-center
@@ -46,13 +51,28 @@
 
   - when :months
     .py-1
-      time datetime= timeframe.iso8601
-        = timeframe.localized
+      time.space-x-4 datetime= timeframe.iso8601
+        span
+          = timeframe.localized
+        small.hidden.md:inline
+          =<> l timeframe.beginning.to_date, format: :month
+          span.text-indigo-300 &minus;
+          =<> l timeframe.ending.to_date, format: :month
 
   - when :year
     .py-1.w-16.text-center
       time datetime= timeframe.iso8601
         = timeframe.localized
+
+  - when :years
+    .py-1
+      time.space-x-4 datetime= timeframe.iso8601
+        span
+          = timeframe.localized
+        small.hidden.md:inline
+          =<> timeframe.beginning.year
+          span.text-indigo-300 &minus;
+          =<> timeframe.ending.year
 
   - if timeframe.can_paginate?
     - if timeframe.next

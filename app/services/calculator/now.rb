@@ -15,11 +15,11 @@ class Calculator::Now < Calculator::Base
   ### System status
 
   def system_status
-    last[:system_status].to_utf8
+    to_utf8(last[:system_status], allow_nil: true)
   end
 
   def system_status_ok
-    last[:system_status_ok]
+    to_b(last[:system_status_ok], allow_nil: true)
   end
 
   # Grid
@@ -100,6 +100,6 @@ class Calculator::Now < Calculator::Base
   end
 
   def wallbox_car_connected
-    last[:wallbox_car_connected]
+    to_b(last[:wallbox_car_connected], allow_nil: true)
   end
 end
