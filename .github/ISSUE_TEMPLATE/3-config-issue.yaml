@@ -1,6 +1,5 @@
 name: Installationsproblem
 description: Problem beim Installieren oder Konfigurieren von SOLECTRUS klären
-type: Task
 labels: ['help wanted']
 
 body:

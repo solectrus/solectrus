@@ -1,6 +1,5 @@
 name: Fehlerbericht
 description: Fehler in SOLECTRUS melden
-type: Bug
 
 body:
   - type: textarea
