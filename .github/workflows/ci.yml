@@ -112,7 +112,7 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     needs: test
-    if: github.triggering_actor != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: ${{ github.actor != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 30
 
     steps:
