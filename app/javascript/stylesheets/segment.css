@@ -87,12 +87,6 @@
           @apply block text-sm md:text-base;
         }
       }
-
-      @container split (min-height: 5rem) {
-        .title {
-          @apply line-clamp-2 overflow-visible whitespace-normal;
-        }
-      }
     }
   }
 }
