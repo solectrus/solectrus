@@ -18,6 +18,10 @@
         @apply hidden leading-tight font-light uppercase;
       }
 
+      svg {
+        font-size: 100%;
+      }
+
       &.inline {
         @apply flex-row justify-between;
 
