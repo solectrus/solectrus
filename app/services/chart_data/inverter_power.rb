@@ -1,19 +1,20 @@
 class ChartData::InverterPower < ChartData::Base
-  def initialize(timeframe:, sensor: :inverter_power)
+  def initialize(timeframe:, sensor: :inverter_power, variant: 'total')
     super(timeframe:)
     @sensor = sensor
+    @variant = variant
   end
 
-  attr_reader :sensor
+  attr_reader :sensor, :variant
 
   private
 
   def data
     @data ||=
-      if timeframe.day? && sensor == :inverter_power
-        data_with_forecast
-      elsif stacked?
+      if sensor == :inverter_power && stackable? && variant == 'split'
         data_stacked
+      elsif sensor == :inverter_power && timeframe.day?
+        data_with_forecast
       else
         data_simple
       end
@@ -47,7 +48,7 @@ class ChartData::InverterPower < ChartData::Base
       end
     end
 
-    { labels:, datasets: [total, *parts] }
+    { labels:, datasets: parts.presence || [total] }
   end
 
   def valid_parts?(total, parts)
@@ -118,20 +119,18 @@ class ChartData::InverterPower < ChartData::Base
   private_constant :BACKGROUND_COLORS
 
   def style(sensor_name)
-    stack =
+    addon =
       if sensor_name == :inverter_power_forecast
         nil
-      elsif stacked?
-        'InverterPower'
+      elsif stackable?
+        { stack: 'InverterPower' }
       end
 
-    super().merge(
-      { backgroundColor: BACKGROUND_COLORS[sensor_name], stack: }.compact,
-    )
+    super().merge({ **addon, backgroundColor: BACKGROUND_COLORS[sensor_name] })
   end
 
-  def stacked?
+  def stackable?
     sensor == :inverter_power && SensorConfig.x.multi_inverter? &&
-      !timeframe.short?
+      !timeframe.now?
   end
 end

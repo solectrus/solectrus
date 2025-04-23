@@ -1,20 +1,24 @@
 class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
-  def initialize(sensor:, timeframe:)
+  def initialize(sensor:, timeframe:, variant: nil)
     super
     @sensor = sensor
     @timeframe = timeframe
+    @variant = variant
   end
-  attr_reader :sensor, :timeframe
+  attr_reader :sensor, :timeframe, :variant
 
   def data
     @data ||=
-      if sensor.to_s.match?(/custom_power_\d{2}/)
+      case sensor.to_s
+      when /custom_power_\d{2}/
         ChartData::CustomPower.new(timeframe:, sensor:)
-      elsif sensor.to_s.match?(/inverter_power_\d{1}/)
+      when /inverter_power_\d{1}/
         ChartData::InverterPower.new(timeframe:, sensor:)
+      when 'inverter_power'
+        ChartData::InverterPower.new(timeframe:, sensor:, variant:)
       else
         Object.const_get("ChartData::#{sensor.to_s.camelize}").new(timeframe:)
-        # Example: :inverter_power -> ChartData::InverterPower
+        # Example: :house_power -> ChartData::HousePower
       end
   end
 

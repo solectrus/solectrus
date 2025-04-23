@@ -1,6 +1,6 @@
 class ChartData::Co2Reduction < ChartData::InverterPower
   def initialize(timeframe:)
-    super(timeframe:, sensor: :inverter_power)
+    super(timeframe:, sensor: :co2_reduction)
   end
 
   private
@@ -24,6 +24,13 @@ class ChartData::Co2Reduction < ChartData::InverterPower
           # kg
           1000.0
         end,
+      )
+  end
+
+  def chart
+    @chart ||=
+      PowerChart.new(sensors: SensorConfig.x.inverter_sensor_names).call(
+        timeframe,
       )
   end
 

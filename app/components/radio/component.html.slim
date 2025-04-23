@@ -1,0 +1,22 @@
+.relative.rounded.overflow-hidden.text-xs.md:text-sm.uppercase.tracking-wider.font-medium.py-1[
+  data-controller= 'radio--component'
+  data-radio--component-url-value= url
+  data-radio--component-cookie-name-value= name
+]
+  .absolute.inset-0.text-gray-700.bg-slate-200.rounded.transition-all.duration-300.dark:bg-slate-700[
+    data-radio--component-target= 'highlight'
+  ]
+
+  - choices.each do |choice|
+    label.cursor-pointer.relative.px-2[
+      data-radio--component-target= 'choice'
+    ]
+      input.sr-only(
+        type= 'radio'
+        name= name
+        value= choice[:id]
+        data-action= 'change->radio--component#select'
+      )
+
+      span
+        = choice[:label]

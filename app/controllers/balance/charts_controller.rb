@@ -38,4 +38,8 @@ class Balance::ChartsController < ApplicationController
     ] + SensorConfig::CUSTOM_INVERTER_SENSORS +
       SensorConfig.x.excluded_custom_sensor_names
   end
+
+  helper_method def chart_variant
+    cookies[:chart_variant] == 'split' ? 'split' : 'total'
+  end
 end

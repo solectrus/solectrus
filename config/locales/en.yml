@@ -86,6 +86,9 @@ en:
     autarky: Autarky
     time: Last measurement taken
     blank: No data available!
+  chart:
+    inverter_total: Total
+    inverter_split: Split
   forecast:
     exactly: Exactly as expected
     better_html: '%{percent} more than expected'

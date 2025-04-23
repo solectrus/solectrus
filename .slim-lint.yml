@@ -12,6 +12,7 @@ linters:
       - Layout/FirstHashElementIndentation
       - Layout/HashAlignment
       - Layout/TrailingEmptyLines
+      - Layout/SpaceInsideArrayLiteralBrackets
       - Lint/Void
       - Metrics/BlockLength
       - Metrics/BlockNesting
