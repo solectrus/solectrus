@@ -1,6 +1,6 @@
 @layer components {
   .segment {
-    @apply flex h-full w-full flex-col items-center justify-center gap-2 transition-all motion-safe:duration-1000 motion-reduce:duration-100;
+    @apply flex h-full w-full flex-col items-center justify-center gap-2 overflow-hidden transition-all motion-safe:duration-1000 motion-reduce:duration-100;
 
     container-type: size;
     container-name: segment;
@@ -16,10 +16,6 @@
 
       .title {
         @apply hidden leading-tight font-light uppercase;
-      }
-
-      svg {
-        font-size: 100%;
       }
 
       &.inline {
