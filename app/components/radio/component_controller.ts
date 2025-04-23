@@ -10,13 +10,13 @@ interface Dim {
 export default class extends Controller {
   static readonly targets = ['highlight', 'choice'];
   static readonly values = {
-    url: String,
+    frame: String,
     cookieName: String,
   };
 
   declare readonly highlightTarget: HTMLElement;
   declare readonly choiceTargets: HTMLElement[];
-  declare readonly urlValue: string;
+  declare readonly frameValue: string;
   declare readonly cookieNameValue: string;
 
   private dims: Dim[] = [];
@@ -49,7 +49,7 @@ export default class extends Controller {
 
     this.setCookie();
     this.moveHighlight();
-    Turbo.visit(this.urlValue);
+    this.reloadFrame();
   }
 
   private handleResize(): void {
@@ -75,6 +75,18 @@ export default class extends Controller {
 
     this.highlightTarget.style.width = `${dim.width}px`;
     this.highlightTarget.style.transform = `translateX(${dim.left}px)`;
+  }
+
+  private reloadFrame(): void {
+    const frame = document.getElementById(
+      this.frameValue,
+    ) as Turbo.FrameElement;
+    if (!frame) {
+      console.warn(`TurboFrame with id "${this.frameValue}" not found`);
+      return;
+    }
+
+    frame.reload();
   }
 
   private setCookie(): void {

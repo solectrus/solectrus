@@ -22,11 +22,7 @@
               { id: 'total', label: I18n.t('chart.inverter_total') },
               { id: 'split', label: I18n.t('chart.inverter_split') },
             ],
-            url: url_for( \
-              permitted_params.to_hash.symbolize_keys.merge( \
-                controller: "#{controller_namespace}/charts",
-              ),
-            ),
+            frame_id: frame_id('chart'),
           )
         - else
           div

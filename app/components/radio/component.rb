@@ -1,10 +1,10 @@
 class Radio::Component < ViewComponent::Base
-  def initialize(choices:, name:, url:)
+  def initialize(choices:, name:, frame_id:)
     super
     @choices = choices
     @name = name
-    @url = url
+    @frame_id = frame_id
   end
 
-  attr_reader :choices, :name, :url
+  attr_reader :choices, :name, :frame_id
 end
