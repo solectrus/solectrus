@@ -28,12 +28,36 @@ class AutarkyChart < ChartBase
     SensorConfig.x.field(:house_power)
   end
 
+  def house_power_measurement
+    SensorConfig.x.measurement(:house_power)
+  end
+
+  def house_power
+    "#{house_power_measurement}_#{house_power_field}"
+  end
+
   def wallbox_power_field
     SensorConfig.x.field(:wallbox_power)
   end
 
+  def wallbox_power_measurement
+    SensorConfig.x.measurement(:wallbox_power)
+  end
+
+  def wallbox_power
+    "#{wallbox_power_measurement}_#{wallbox_power_field}"
+  end
+
   def grid_import_power_field
     SensorConfig.x.field(:grid_import_power)
+  end
+
+  def grid_import_power_measurement
+    SensorConfig.x.measurement(:grid_import_power)
+  end
+
+  def grid_import_power
+    "#{grid_import_power_measurement}_#{grid_import_power_field}"
   end
 
   def query_influx(start:, window:, stop: nil)
@@ -51,14 +75,14 @@ class AutarkyChart < ChartBase
     q << '|> aggregateWindow(every: 5s, fn: last)'
     q << '|> fill(usePrevious: true)'
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
-    q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
+    q << '|> pivot(rowKey:["_time"], columnKey: ["_measurement", "_field"], valueColumn: "_value")'
 
     q << if wallbox_power_field
       '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
-        "(r.#{grid_import_power_field} / (r.#{house_power_field} + (if r.#{wallbox_power_field} > 0 then r.#{wallbox_power_field} else 0.0)))) }))"
+        "(r[\"#{grid_import_power}\"] / (r[\"#{house_power}\"] + (if r[\"#{wallbox_power}\"] > 0 then r[\"#{wallbox_power}\"] else 0.0)))) }))"
     else
       '|> map(fn: (r) => ({ r with autarky: 100.0 * (1.0 - ' \
-        "(r.#{grid_import_power_field} / (r.#{house_power_field}))) }))"
+        "(r[\"#{grid_import_power}\"] / (r[\"#{house_power_measurement}_#{house_power_field}\"]))) }))"
     end
 
     q << '|> keep(columns: ["_time", "autarky"])'
