@@ -14,7 +14,7 @@
     - unless timeframe.out_of_range?
       .flex.gap-2.justify-between.items-center
         - if sensor == :inverter_power && \
-             timeframe.day? && !timeframe.future? && \
+             !timeframe.now? && !timeframe.future? && \
              SensorConfig.x.multi_inverter?
           = render Radio::Component.new( \
             name: 'chart_variant',
