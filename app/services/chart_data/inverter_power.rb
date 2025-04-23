@@ -92,7 +92,8 @@ class ChartData::InverterPower < ChartData::Base
   def chart
     # Interpolation required because the forecast data has a lower resolution
 
-    @chart ||= PowerChart.new(sensors:).call(timeframe, interpolate: true)
+    @chart ||=
+      PowerChart.new(sensors:).call(timeframe, interpolate: variant == 'total')
   end
 
   def sensors
