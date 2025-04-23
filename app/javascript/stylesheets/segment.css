@@ -15,7 +15,7 @@
       @apply hidden;
 
       .title {
-        @apply hidden leading-tight font-light uppercase;
+        @apply hidden leading-tight font-light;
       }
 
       &.inline {
@@ -78,7 +78,7 @@
 
       @container split (min-height: 2rem) {
         .title {
-          @apply block w-full truncate text-xs uppercase md:text-base;
+          @apply block w-full truncate text-xs md:text-base;
         }
       }
 
