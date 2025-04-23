@@ -87,8 +87,8 @@ de:
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
   chart:
-    inverter_total: Gesamt
-    inverter_split: Split
+    inverter_total: Kumuliert
+    inverter_split: Einzeln
   forecast:
     exactly: Genau wie erwartet
     better_html: '%{percent} mehr als erwartet'
