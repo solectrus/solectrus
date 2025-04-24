@@ -23,6 +23,11 @@
               { id: 'split', label: I18n.t('chart.inverter_split') },
             ],
             frame_id: frame_id('chart'),
+            url: url_for( \
+              permitted_params.to_hash.symbolize_keys.merge( \
+                controller: "#{controller_namespace}/charts",
+              ),
+            ),
           )
         - else
           div

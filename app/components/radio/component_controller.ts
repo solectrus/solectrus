@@ -11,12 +11,14 @@ export default class extends Controller {
   static readonly targets = ['highlight', 'choice'];
   static readonly values = {
     frame: String,
+    url: String,
     cookieName: String,
   };
 
   declare readonly highlightTarget: HTMLElement;
   declare readonly choiceTargets: HTMLElement[];
   declare readonly frameValue: string;
+  declare readonly urlValue: string;
   declare readonly cookieNameValue: string;
 
   private dims: Dim[] = [];
@@ -78,15 +80,9 @@ export default class extends Controller {
   }
 
   private reloadFrame(): void {
-    const frame = document.getElementById(
-      this.frameValue,
-    ) as Turbo.FrameElement;
-    if (!frame) {
-      console.warn(`TurboFrame with id "${this.frameValue}" not found`);
-      return;
-    }
-
-    frame.reload();
+    Turbo.visit(this.urlValue, {
+      frame: this.frameValue,
+    });
   }
 
   private setCookie(): void {
