@@ -57,6 +57,9 @@ CrosshairPlugin.afterDatasetsDraw = (
   if (chart?.crosshair) afterDraw(chart, args, options);
 };
 
+// Draw lines between points with no or null data (disables segmentation of the line)
+Chart.overrides.line.spanGaps = true;
+
 export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
