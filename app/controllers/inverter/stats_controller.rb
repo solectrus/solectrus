@@ -21,7 +21,9 @@ class Inverter::StatsController < ApplicationController
   end
 
   def calculator_now
-    Calculator::Now.new(SensorConfig.x.inverter_sensor_names)
+    Calculator::Now.new(
+      %i[system_status] + SensorConfig.x.inverter_sensor_names,
+    )
   end
 
   def calculator_range
