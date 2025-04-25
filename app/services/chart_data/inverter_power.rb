@@ -129,7 +129,7 @@ class ChartData::InverterPower < ChartData::Base
       if sensor_name == :inverter_power_forecast
         nil
       elsif stackable?
-        { stack: 'InverterPower' }
+        { stack: 'InverterPower', borderColor: '#000' }
       end
 
     super().merge({ **addon, backgroundColor: BACKGROUND_COLORS[sensor_name] })
