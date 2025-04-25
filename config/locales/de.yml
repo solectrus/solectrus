@@ -1,6 +1,7 @@
 de:
   layout:
     balance: Strombilanz
+    inverter: Erzeugung
     house: Hausverbrauch
     essentials: Einzelwerte
     top10: Top 10
@@ -22,8 +23,10 @@ de:
     missing_sponsoring_cta: Mehr erfahren...
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
-    incomplete_config: Selbstdefinierte Stromverbraucher
+    incomplete_custom_consumers: Selbstdefinierte Stromverbraucher
     missing_custom_consumers: Hier könnten bis zu 20 zusätzliche Stromverbraucher visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> bis <code>_20</code>).
+    incomplete_multi_inverter: Mehrere Stromerzeuger
+    missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
   timeframe:
     now: Aktuell
@@ -42,6 +45,7 @@ de:
     inverter_power_3: Erzeugung 3
     inverter_power_4: Erzeugung 4
     inverter_power_5: Erzeugung 5
+    inverter_power_difference: Ohne Zuordnung
     inverter_power_forecast: Prognose
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher

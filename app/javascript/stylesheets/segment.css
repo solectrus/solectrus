@@ -12,7 +12,7 @@
     /* Header */
 
     .header {
-      @apply hidden;
+      @apply hidden h-full;
 
       .title {
         @apply hidden leading-tight font-light;
@@ -24,10 +24,6 @@
         .title {
           @apply block;
         }
-      }
-
-      &:not(:has(+ .splitter)) {
-        @apply h-full;
       }
     }
 
@@ -45,46 +41,6 @@
       .header:not(.inline) {
         .title {
           @apply block text-center;
-        }
-      }
-    }
-
-    /* Splitter */
-
-    .splitter {
-      @apply mb-4 hidden w-[calc(100%-2rem)] flex-1 flex-col gap-1 overflow-hidden rounded-xl border-transparent md:w-[calc(100%-2.5rem)];
-    }
-
-    @container segment (min-height: 12rem) {
-      .header {
-        @apply flex-none;
-      }
-
-      .splitter {
-        @apply flex;
-      }
-    }
-
-    .split {
-      @apply flex flex-col items-center justify-center overflow-hidden bg-green-700 px-2 text-center font-light text-white/90 duration-100 active:bg-green-900 dark:bg-green-700/50 dark:text-white/50;
-
-      container-type: size;
-      container-name: split;
-
-      .title,
-      .value {
-        @apply hidden;
-      }
-
-      @container split (min-height: 2rem) {
-        .title {
-          @apply block w-full truncate text-xs md:text-base;
-        }
-      }
-
-      @container split (min-height: 3rem) {
-        .value {
-          @apply block text-sm md:text-base;
         }
       }
     }

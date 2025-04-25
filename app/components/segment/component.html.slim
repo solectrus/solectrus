@@ -71,27 +71,6 @@
       - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
         i.fa.fa-circle-exclamation.fa-xs
 
-    - if multi_inverter?
-      .splitter
-        - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |inverter_sensor|
-          - if (inverter_value = calculator.public_send(inverter_sensor))
-            - inverter_percent = calculator.public_send("#{inverter_sensor}_percent")
-            = outer_link root_path(sensor: inverter_sensor, timeframe:),
-                          class: 'split',
-                          style: "height: #{inverter_percent}%",
-                          data: { \
-                            turbo_frame: helpers.frame_id('chart', timeframe:),
-                            turbo_action: 'replace',
-                            action: 'click->stats-with-chart--component#startLoop:stop',
-                            stats_with_chart__component_sensor_param: inverter_sensor,
-                          } do
-
-                          .title
-                            = SensorConfig.x.display_name(inverter_sensor)
-
-                          .value data= { 'stats-with-chart--component-target': 'current', sensor: inverter_sensor, value: inverter_value, time: calculator.time&.to_i }
-                            = Number::Component.new(value: inverter_value).public_send(number_method)
-
     .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
       .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
         - if icon_class
@@ -121,14 +100,3 @@
 
           - elsif sensor == :grid_import_power
             = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
-
-        - if multi_inverter?
-          table.mt-3
-            tbody
-              - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |sensor_name|
-                - if (value = calculator.public_send(sensor_name))&.positive?
-                  tr
-                    td.text-left.pr-1
-                      = SensorConfig.x.display_name(sensor_name)
-                    td.text-right.pl-1.tabular-nums
-                      = Number::Component.new(value:).public_send(number_method, precision: 3)

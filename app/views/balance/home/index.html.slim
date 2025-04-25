@@ -25,8 +25,4 @@
     = render Timeframe::Component.new(timeframe:)
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
-- elsif SensorConfig.x.inverter_sensor_names.length <= 1 || ApplicationPolicy.multi_inverter?
-  = render StatsWithChart::Component.new(sensor:, timeframe:)
-
-- else
-  = render DemoLink::Component.new feature: 'multi_inverter'
+= render StatsWithChart::Component.new(sensor:, timeframe:)

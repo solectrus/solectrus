@@ -1,8 +1,8 @@
 class ChartData::InverterPower < ChartData::Base
-  def initialize(timeframe:, sensor: :inverter_power, variant: 'total')
+  def initialize(timeframe:, sensor: nil, variant: nil)
     super(timeframe:)
-    @sensor = sensor
-    @variant = variant
+    @sensor = sensor || :inverter_power
+    @variant = variant || 'total'
   end
 
   attr_reader :sensor, :variant
@@ -29,7 +29,7 @@ class ChartData::InverterPower < ChartData::Base
   end
 
   def data_stacked
-    sensor_names = SensorConfig.x.inverter_sensor_names - [:inverter_power]
+    sensor_names = SensorConfig.x.existing_custom_inverter_sensor_names
 
     total = dataset(:inverter_power)
     parts = sensor_names.map { |name| dataset(name) }
@@ -48,14 +48,15 @@ class ChartData::InverterPower < ChartData::Base
       end
     end
 
-    { labels:, datasets: parts.presence || [total] }
+    { labels:, datasets: (parts.presence + [total]) || [total] }
   end
 
   def valid_parts?(total, parts)
     return true unless total
     return false if parts.any?(&:nil?) || total.zero?
 
-    (parts.sum.fdiv(total) * 100).round == 100 # 0.5% tolerance
+    ratio = (parts.sum.fdiv(total) * 100).round
+    ratio >= 99 # 1% tolerance
   end
 
   def labels

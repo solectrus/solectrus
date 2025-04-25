@@ -1,0 +1,54 @@
+= turbo_stream.update frame_id('nav') do
+  = render Timeframe::Component.new(timeframe:)
+
+- if timeframe.now? && SensorConfig.x.exists?(:system_status)
+  = turbo_stream.update frame_id('status') do
+    = render Status::Component.new time: calculator.time
+
+= turbo_stream.update frame_id('stats'), method: :morph do
+  .h-full.w-full.flex.flex-col.gap-3 id= "stats-#{timeframe.id}"
+    .flex-1.flex.gap-5
+      // Clip
+      .flex.gap-10.items-end.py-4.px-3.md:px-5
+        .w-5.border-b-2.border-t-2.border-l-2.border-slate-500.h-full.flex.justify-center
+          .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg.-ml-5
+            = link_to inverter_home_path(sensor: 'inverter_power', timeframe:),
+                      class: 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 py-2 md:py-4',
+                      title: SensorConfig.x.display_name(:inverter_power),
+                      data: { \
+                        controller: 'tippy',
+                        tippy_placement_value: 'right',
+                        tippy_force_tap_to_close_value: false,
+                        tippy_touch_value: 'long',
+                        turbo_frame: frame_id('chart', timeframe:),
+                        turbo_action: 'replace',
+                        turbo_prefetch: 'false',
+                        action: 'stats-with-chart--component#startLoop',
+                        stats_with_chart__component_sensor_param: 'inverter_power',
+                      } do
+              - method = timeframe.now? ? :to_watt : :to_watt_hour
+              div data= { 'stats-with-chart--component-target': sensor == :inverter_power ? 'current' : nil, sensor: sensor, value: calculator.inverter_power, time: calculator.time.to_i }
+                = Number::Component.new(value: calculator.inverter_power).public_send method
+
+              #tippy-tooltip-inverter_power.hidden data-tippy-target= 'html'
+                .flex.flex-col.items-center.justify-center.gap-2.p-2
+                  i.fa.fa-2xl.fa-sun
+                  = SensorConfig.x.display_name(:inverter_power)
+                  = Number::Component.new(value: calculator.inverter_power).public_send method, precision: 3
+
+      // Inner content
+      .flex-1.flex
+        = render SegmentContainer::Component.new tippy_placement: 'bottom',
+                                                 calculator:,
+                                                 timeframe: do |balance|
+          ruby:
+            SensorConfig.x.existing_custom_inverter_sensor_names
+              .reverse_each.with_index(0) do |sensor, index|
+                balance.with_segment sensor,
+                                      inline: true,
+                                      color_index: SensorConfig.x.existing_custom_inverter_sensor_names.size - index
+              end
+
+          - balance.with_segment :inverter_power_difference,
+                                  inline: true,
+                                  color_class: 'bg-green-900/50'

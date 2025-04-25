@@ -18,7 +18,7 @@
         = c.with_tab t('settings.sensors.generators') do
           - if SensorConfig.x.multi_inverter?
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
-              - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).each do |sensor_name|
+              - SensorConfig.x.existing_custom_inverter_sensor_names.each do |sensor_name|
                 .flex.flex-col
                   = f.text_field "sensor_names[#{sensor_name}]",
                                  value: SensorConfig.x.display_name(sensor_name),

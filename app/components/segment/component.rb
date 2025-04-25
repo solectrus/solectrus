@@ -42,13 +42,19 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def inverter_power_sum
-    (SensorConfig.x.inverter_sensor_names - [:inverter_power])
+    SensorConfig
+      .x
+      .existing_custom_inverter_sensor_names
       .filter_map { |sensor_name| calculator.public_send(sensor_name) }
       .sum
   end
 
   def url
     case helpers.controller_namespace
+    when 'inverter'
+      unless sensor == :inverter_power_difference
+        inverter_home_path(sensor:, timeframe: parent.timeframe)
+      end
     when 'house'
       house_home_path(sensor:, timeframe: parent.timeframe)
     else
@@ -186,8 +192,14 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
           wallbox_power
           grid_import_power
           heatpump_power_grid
-        ] + SensorConfig::CUSTOM_INVERTER_SENSORS,
+        ],
       ) || sensor.in?(SensorConfig.x.excluded_custom_sensor_names)
+  end
+
+  def inverter?
+    return @inverter if defined?(@inverter)
+
+    @inverter = sensor.in?(SensorConfig.x.inverter_sensor_names)
   end
 
   def house?
@@ -204,31 +216,23 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def default_color_class
     if balance?
       default_color_class_for_balance
+    elsif inverter?
+      default_color_class_for_inverter
     elsif house?
       default_color_class_for_house
     end
   end
 
-  private
+  COLOR_SET_GREEN_5 = %i[
+    bg-[#166534]
+    bg-[#16753A]
+    bg-[#16843F]
+    bg-[#169445]
+    bg-[#16A34A]
+  ].freeze
+  public_constant :COLOR_SET_GREEN_5
 
-  def default_color_class_for_balance
-    case sensor
-    when :grid_export_power, :inverter_power
-      'bg-green-600 dark:bg-green-800/80'
-    when :battery_discharging_power, :battery_charging_power
-      'bg-green-700 dark:bg-green-900/70'
-    when :house_power, /^custom_power_(\d{2})$/
-      'bg-slate-500 dark:bg-slate-600/90'
-    when :heatpump_power
-      'bg-slate-600 dark:bg-slate-600/70'
-    when :wallbox_power
-      'bg-slate-700 dark:bg-slate-600/50'
-    when :grid_import_power, :heatpump_power_grid
-      'bg-red-600 dark:bg-red-800/80'
-    end
-  end
-
-  COLOR_SET_10 = %i[
+  COLOR_SET_SLATE_10 = %i[
     bg-slate-500/10
     bg-slate-500/20
     bg-slate-500/30
@@ -240,9 +244,9 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     bg-slate-500/90
     bg-slate-500/100
   ].freeze
-  private_constant :COLOR_SET_10
+  public_constant :COLOR_SET_SLATE_10
 
-  COLOR_SET_20 = %i[
+  COLOR_SET_SLATE_20 = %i[
     bg-slate-500/5
     bg-slate-500/10
     bg-slate-500/15
@@ -264,7 +268,26 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     bg-slate-500/95
     bg-slate-500/100
   ].freeze
-  private_constant :COLOR_SET_20
+  public_constant :COLOR_SET_SLATE_20
+
+  private
+
+  def default_color_class_for_balance
+    case sensor
+    when :grid_export_power, :inverter_power
+      'bg-green-600 dark:bg-green-800/80'
+    when :battery_discharging_power, :battery_charging_power
+      'bg-green-700 dark:bg-green-900/70'
+    when :house_power, /^custom_power_(\d{2})$/
+      'bg-slate-500 dark:bg-slate-600/90'
+    when :heatpump_power
+      'bg-slate-600 dark:bg-slate-600/70'
+    when :wallbox_power
+      'bg-slate-700 dark:bg-slate-600/50'
+    when :grid_import_power, :heatpump_power_grid
+      'bg-red-600 dark:bg-red-800/80'
+    end
+  end
 
   def default_color_class_for_house
     if sensor == :house_power_without_custom
@@ -275,12 +298,20 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     index = color_index || match[1].to_i
     color =
       if SensorConfig.x.existing_custom_sensor_count <= 10
-        COLOR_SET_10[index - 1]
+        COLOR_SET_SLATE_10[index - 1]
       else
-        COLOR_SET_20[index - 1]
+        COLOR_SET_SLATE_20[index - 1]
       end
 
     "#{color} text-slate-700 dark:text-slate-400"
+  end
+
+  def default_color_class_for_inverter
+    match = sensor.to_s.match(/^inverter_power_(\d{1})$/)
+    index = color_index || match[1].to_i
+    color = COLOR_SET_GREEN_5[index - 1]
+
+    "#{color} text-slate-100 dark:text-slate-300"
   end
 
   def font_size(max:)

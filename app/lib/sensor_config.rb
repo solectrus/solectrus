@@ -84,6 +84,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     savings
     co2_reduction
     house_power_without_custom
+    inverter_power_difference
   ].freeze
   public_constant :CALCULATED_SENSORS
 
@@ -174,11 +175,13 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def exists?(sensor_name, check_policy: true) # rubocop:disable Metrics/CyclomaticComplexity
+  def exists?(sensor_name, check_policy: true) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     case sensor_name
     when :inverter_power
       # Total can be exists explicitly or implicitly
       inverter_sensor_names.any?
+    when :inverter_power_difference
+      inverter_total_present? && multi_inverter?
     when :grid_power
       exists_any? :grid_import_power, :grid_export_power
     when :battery_power
@@ -285,13 +288,19 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   end
 
   def multi_inverter?
-    SensorConfig.x.exists_any?(*CUSTOM_INVERTER_SENSORS)
+    existing_custom_inverter_sensor_names.any?
   end
 
   def inverter_sensor_names
-    ([:inverter_power] + CUSTOM_INVERTER_SENSORS).select do |sensor_name|
-      sensor_defined?(sensor_name)
-    end
+    @inverter_sensor_names ||=
+      ([:inverter_power] + CUSTOM_INVERTER_SENSORS).select do |sensor_name|
+        sensor_defined?(sensor_name)
+      end
+  end
+
+  def existing_custom_inverter_sensor_names
+    @existing_custom_inverter_sensor_names ||=
+      CUSTOM_INVERTER_SENSORS.select { |sensor_name| exists?(sensor_name) }
   end
 
   def inverter_total_present?

@@ -25,7 +25,9 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
   # Inverter
 
   def inverter_power
-    (SensorConfig.x.inverter_sensor_names - [:inverter_power])
+    SensorConfig
+      .x
+      .existing_custom_inverter_sensor_names
       .filter_map { |sensor_name| public_send(sensor_name) }
       .presence
       &.sum
@@ -55,18 +57,36 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def inverter_power_difference
+    return unless inverter_power && inverter_power_sum
+
+    inverter_power - inverter_power_sum
+  end
+
+  def inverter_power_difference_percent
+    return unless inverter_power_difference
+
+    (inverter_power_difference * 100.0 / inverter_power).round(1)
+  end
+
+  def inverter_power_sum
+    return @inverter_power_sum if defined?(@inverter_power_sum)
+
+    @inverter_power_sum =
+      SensorConfig
+        .x
+        .existing_custom_inverter_sensor_names
+        .filter_map { |sensor| public_send(sensor) }
+        .presence
+        &.sum
+  end
+
   def valid_multi_inverter?
     @valid_multi_inverter ||=
       inverter_power.nil? ||
         begin
-          parts_sum =
-            (SensorConfig.x.inverter_sensor_names - [:inverter_power])
-              .filter_map { |sensor| public_send(sensor) }
-              .presence
-              &.sum
-
-          parts_sum.present? && !inverter_power.zero? &&
-            (parts_sum / inverter_power * 100.0).round == 100
+          inverter_power_sum.present? && !inverter_power.zero? &&
+            (inverter_power_sum / inverter_power * 100.0).round == 100
         end
   end
 

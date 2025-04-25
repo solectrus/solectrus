@@ -46,6 +46,7 @@ import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
 import { faGrip } from '@fortawesome/free-solid-svg-icons/faGrip';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
 import { faHouseCrack } from '@fortawesome/free-solid-svg-icons/faHouseCrack';
+import { faSolarPanel } from '@fortawesome/free-solid-svg-icons';
 
 // -------------------------
 
@@ -91,6 +92,7 @@ export default class extends Controller {
       faCompress,
       faExpand,
       faHouseCrack,
+      faSolarPanel,
       faGrip,
       faTrophy,
     );
