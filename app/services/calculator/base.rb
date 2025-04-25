@@ -65,6 +65,7 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def inverter_power_difference_percent
     return unless inverter_power_difference
+    return if inverter_power.zero?
 
     (inverter_power_difference * 100.0 / inverter_power).round(1)
   end
