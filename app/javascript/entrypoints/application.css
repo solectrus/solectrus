@@ -122,7 +122,7 @@
 
 @variant dark {
   /* Chart.js */
-  canvas {
+  canvas.relaxed-colors {
     filter: invert(1) hue-rotate(180deg);
   }
 }

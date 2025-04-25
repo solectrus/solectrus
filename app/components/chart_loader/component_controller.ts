@@ -64,6 +64,7 @@ export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
     unit: String,
+    strictColors: Boolean,
   };
 
   static readonly targets = ['container', 'canvas', 'data', 'options'];
@@ -81,6 +82,8 @@ export default class extends Controller<HTMLCanvasElement> {
 
   declare unitValue: string;
   declare readonly hasUnitValue: boolean;
+
+  declare strictColorsValue: boolean;
 
   private boundHandleResize?: () => void;
   private chart?: Chart;
@@ -319,7 +322,7 @@ export default class extends Controller<HTMLCanvasElement> {
             ? 0.04
             : 0.4;
 
-        if (dataset.data)
+        if (!this.strictColorsValue && dataset.data)
           this.setBackgroundGradient(
             dataset,
             this.minValue,

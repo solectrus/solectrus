@@ -108,16 +108,20 @@ class ChartData::InverterPower < ChartData::Base
     timeframe.day? ? base + [:inverter_power_forecast] : base
   end
 
+  private_class_method def self.extract_hex(tailwind_bg)
+    # Example: bg-[#166534] => #166534
+    tailwind_bg[/#\h{6}/]
+  end
+
   BACKGROUND_COLORS = {
     inverter_power_forecast: '#cbd5e1', # bg-slate-300
     inverter_power: '#16a34a', # bg-green-600
-    inverter_power_1: '#11622f', # +10%
-    inverter_power_2: '#147638', # +10%
-    inverter_power_3: '#178941', # +10%
-    inverter_power_4: '#1b9d4b', # +10%
-    inverter_power_5: '#1eb154', # +10%
+    inverter_power_1: extract_hex(Segment::Component::COLOR_SET_GREEN_5.first),
+    inverter_power_2: extract_hex(Segment::Component::COLOR_SET_GREEN_5.second),
+    inverter_power_3: extract_hex(Segment::Component::COLOR_SET_GREEN_5.third),
+    inverter_power_4: extract_hex(Segment::Component::COLOR_SET_GREEN_5.fourth),
+    inverter_power_5: extract_hex(Segment::Component::COLOR_SET_GREEN_5.fifth),
   }.freeze
-
   private_constant :BACKGROUND_COLORS
 
   def style(sensor_name)

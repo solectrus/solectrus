@@ -1,11 +1,12 @@
 class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
-  def initialize(sensor:, timeframe:, variant: nil)
+  def initialize(sensor:, timeframe:, variant: nil, strict_colors: false)
     super
     @sensor = sensor
     @timeframe = timeframe
     @variant = variant
+    @strict_colors = strict_colors
   end
-  attr_reader :sensor, :timeframe, :variant
+  attr_reader :sensor, :timeframe, :variant, :strict_colors
 
   def data
     @data ||=

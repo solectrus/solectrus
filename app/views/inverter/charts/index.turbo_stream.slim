@@ -18,4 +18,4 @@
         sensors: chart_sensors,
         top_sensor: chart_sensors.first,
       )
-      = render ChartLoader::Component.new(sensor:, timeframe:, variant: 'split')
+      = render ChartLoader::Component.new(sensor:, timeframe:, variant: 'split', strict_colors: !timeframe.now? & !sensor.in?(SensorConfig::CUSTOM_INVERTER_SENSORS))
