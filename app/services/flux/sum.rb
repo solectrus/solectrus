@@ -24,7 +24,7 @@ class Flux::Sum < Flux::Reader
           record.values['_field'],
         )
 
-      hash[sensor] = record.values['_value']
+      hash[sensor] = record.values['_value'].clamp(0, nil)
 
       hash[:time] ||= Time.zone.parse record.values['_stop']
     end
