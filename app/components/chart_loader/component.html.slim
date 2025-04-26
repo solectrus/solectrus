@@ -8,7 +8,6 @@
               controller: 'chart-loader--component',
               chart_loader__component_type_value: type,
               chart_loader__component_unit_value: unit,
-              chart_loader__component_strict_colors_value: strict_colors,
             } do
     script type= 'application/json' data-chart-loader--component-target= 'data'
       == data.to_json
@@ -18,7 +17,6 @@
 
     .h-full.w-full data-chart-loader--component-target= 'container'
       = tag.canvas id: "chart-#{timeframe.id}",
-                   class: (strict_colors ? 'strict-colors' : 'relaxed-colors'),
                    width: 0,
                    height: 0,
                    data: { \
