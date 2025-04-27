@@ -25,4 +25,5 @@
     = render Timeframe::Component.new(timeframe:)
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
-= render StatsWithChart::Component.new(sensor:, timeframe:)
+- else
+  = render StatsWithChart::Component.new(sensor:, timeframe:)
