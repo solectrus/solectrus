@@ -11,7 +11,7 @@ class ChartData::InverterPower < ChartData::Base
 
   def data
     @data ||=
-      if sensor == :inverter_power && stackable? && variant == 'split'
+      if sensor == :inverter_power && stackable?
         data_stacked
       elsif sensor == :inverter_power && timeframe.day?
         data_with_forecast
@@ -133,6 +133,6 @@ class ChartData::InverterPower < ChartData::Base
 
   def stackable?
     sensor == :inverter_power && SensorConfig.x.multi_inverter? &&
-      !timeframe.now?
+      !timeframe.now? && variant == 'split'
   end
 end
