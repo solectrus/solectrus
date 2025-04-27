@@ -100,3 +100,14 @@
 
           - elsif sensor == :grid_import_power
             = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
+
+        - if multi_inverter? && ApplicationPolicy.multi_inverter?
+          table.mt-3
+            tbody
+              - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |sensor_name|
+                - if (value = calculator.public_send(sensor_name))&.positive?
+                  tr
+                    td.text-left.pr-1
+                      = SensorConfig.x.display_name(sensor_name)
+                    td.text-right.pl-1.tabular-nums
+                      = Number::Component.new(value:).public_send(number_method, precision: 3)
