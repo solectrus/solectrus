@@ -108,32 +108,16 @@ class ChartData::InverterPower < ChartData::Base
     timeframe.day? ? base + [:inverter_power_forecast] : base
   end
 
-  # Example:
-  # 'bg-[#373737] text-slate-100' => '#373737'
-  private_class_method def self.hex_from_tw_class(class_name)
-    # Extract the hex color code from the class name
-    match = class_name.match(/bg-\[(#[0-9a-fA-F]{8})\]/)
-    return unless match
-
-    # Return the hex color code
-    match[1]
-  end
-
   BACKGROUND_COLORS = {
     inverter_power_forecast: '#cbd5e1', # bg-slate-300
     inverter_power: '#16a34a', # bg-green-600
-    #
-    inverter_power_1:
-      hex_from_tw_class(Segment::Component::COLOR_SET_INVERTER.first),
-    inverter_power_2:
-      hex_from_tw_class(Segment::Component::COLOR_SET_INVERTER.second),
-    inverter_power_3:
-      hex_from_tw_class(Segment::Component::COLOR_SET_INVERTER.third),
-    inverter_power_4:
-      hex_from_tw_class(Segment::Component::COLOR_SET_INVERTER.fourth),
-    inverter_power_5:
-      hex_from_tw_class(Segment::Component::COLOR_SET_INVERTER.fifth),
+    inverter_power_1: '#11622f', # +10%
+    inverter_power_2: '#147638', # +10%
+    inverter_power_3: '#178941', # +10%
+    inverter_power_4: '#1b9d4b', # +10%
+    inverter_power_5: '#1eb154', # +10%
   }.freeze
+
   private_constant :BACKGROUND_COLORS
 
   def style(sensor_name)

@@ -223,15 +223,14 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     end
   end
 
-  COLOR_SET_INVERTER = [
-    'bg-[#3D6545FF] text-slate-50',
-    'bg-[#3D6545DD] text-slate-50',
-    'bg-[#3D6545BB] text-slate-50',
-    'bg-[#3D654599] text-slate-950',
-    'bg-[#3D654577] text-slate-950',
+  COLOR_SET_GREEN_5 = %i[
+    bg-[#166534]
+    bg-[#16753A]
+    bg-[#16843F]
+    bg-[#169445]
+    bg-[#16A34A]
   ].freeze
-
-  public_constant :COLOR_SET_INVERTER
+  public_constant :COLOR_SET_GREEN_5
 
   COLOR_SET_SLATE_10 = %i[
     bg-slate-500/10
@@ -310,7 +309,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def default_color_class_for_inverter
     match = sensor.to_s.match(/^inverter_power_(\d{1})$/)
     index = color_index || match[1].to_i
-    color = COLOR_SET_INVERTER[index - 1]
+    color = COLOR_SET_GREEN_5[index - 1]
 
     "#{color} text-slate-100 dark:text-slate-300"
   end
