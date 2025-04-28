@@ -22,6 +22,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
       end
   end
 
+  def strict_colors?
+    sensor == :inverter_power && variant == 'split'
+  end
+
   delegate :type, to: :data
 
   def options # rubocop:disable Metrics/MethodLength

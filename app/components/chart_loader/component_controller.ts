@@ -319,7 +319,7 @@ export default class extends Controller<HTMLCanvasElement> {
             ? 0.04
             : 0.4;
 
-        if (dataset.data)
+        if (dataset.data && dataset.stack != 'InverterPower')
           this.setBackgroundGradient(
             dataset,
             this.minValue,
