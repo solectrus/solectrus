@@ -251,7 +251,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
   def default_color_class_for_house
     if sensor == :house_power_without_custom
-      return 'bg-transparent text-slate-700 dark:text-slate-400'
+      return 'bg-white/20 dark:bg-black/20 text-slate-700 dark:text-slate-400'
     end
 
     match = sensor.to_s.match(/^custom_power_(\d{2})$/)
