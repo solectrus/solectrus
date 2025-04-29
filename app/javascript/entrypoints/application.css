@@ -3,7 +3,6 @@
 @source '../../**/*.{slim,rb}';
 @source '../../javascript/**/*.{js,ts}'
 
-@plugin '@tailwindcss/container-queries';
 @plugin '@tailwindcss/forms';
 @plugin 'tailwindcss-displaymodes';
 
