@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@size-limit/file": "^11.2.0",
-    "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.1.4",
     "@types/luxon": "^3.6.2",
@@ -55,7 +54,7 @@
     }
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "packageManager": "yarn@4.9.1"
 }
