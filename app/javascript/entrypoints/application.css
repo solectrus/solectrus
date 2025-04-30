@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 @source '../../**/*.{slim,rb}';
-@source '../../javascript/**/*.{js,ts}'
+@source '../../javascript/**/*.{js,ts}';
 
 @plugin '@tailwindcss/forms';
 @plugin 'tailwindcss-displaymodes';

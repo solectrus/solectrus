@@ -55,11 +55,6 @@ updates:
     versioning-strategy: auto
     labels:
       - 'dependencies'
-    ignore:
-      - dependency-name: 'tailwindcss'
-        versions: ['4.0.10', '4.0.11']
-      - dependency-name: '@tailwindcss/vite'
-        versions: ['4.0.10', '4.0.11']
     groups:
       vite:
         patterns:
