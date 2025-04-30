@@ -160,6 +160,7 @@ de:
       consumers: Verbraucher
       battery: Batterie
       single-inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
+      inverter_as_total: In der Strombilanz nur als Summe darstellen
   errors:
     title: Fehler
     403:

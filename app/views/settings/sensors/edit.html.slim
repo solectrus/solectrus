@@ -10,9 +10,6 @@
 
 = form_with url: settings_sensors_path, method: :patch, scope: nil, local: true, html: { class: 'relative px-2' } do |f|
   = f.group title: t('settings.sensors.description') do
-    .absolute.right-2.top-0
-      = f.submit t('crud.save')
-
     .mt-5
       = render VerticalTabs::Component.new do |c|
         = c.with_tab t('settings.sensors.generators') do
@@ -24,6 +21,12 @@
                                  value: SensorConfig.x.display_name(sensor_name),
                                  class: 'form-input',
                                  label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+
+            hr.my-5.text-transparent
+            = f.check_box 'general[inverter_as_total]',
+                          checked: Setting.inverter_as_total,
+                          label: I18n.t('settings.sensors.inverter_as_total')
+
           - else
             p.text-gray-500
               = t('settings.sensors.single-inverter')
@@ -49,3 +52,5 @@
                                   value: SensorConfig.x.display_name(sensor_name),
                                   class: 'form-input',
                                   label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+
+  = f.submit t('crud.save')

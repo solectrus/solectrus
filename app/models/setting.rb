@@ -24,6 +24,7 @@ class Setting < RailsSettings::Base
 
   field :summary_config, type: :json, default: {}
   field :sensor_names, type: :hash, default: {}
+  field :inverter_as_total, type: :boolean, default: true
 
   def self.seed!
     Setting.setup_id = nil if Setting.setup_id.to_i.zero?

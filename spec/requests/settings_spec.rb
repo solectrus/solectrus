@@ -141,14 +141,14 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
         expect(Setting.sensor_names[:inverter_power_2]).to eq('Fence')
       end
 
-      it 'fails for unknown keys' do
+      it 'does nothing for unknown keys' do
         patch '/settings/sensors', params: { sensor_names: { foo: 'Test1' } }
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:success)
       end
 
-      it 'fails for unknown root key' do
+      it 'does nothing for unknown root key' do
         patch '/settings/sensors', params: { foo: { custom_power_01: 'Test1' } }
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:success)
       end
     end
   end

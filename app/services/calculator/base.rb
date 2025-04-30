@@ -55,6 +55,15 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
 
       (value * 100.0 / inverter_power).round
     end
+
+    define_method "#{sensor_name}_percent_of_total" do
+      return 0 if inverter_power.zero?
+
+      value = public_send(sensor_name)
+      return unless value
+
+      (value * 100.0 / total_plus).round
+    end
   end
 
   def inverter_power_difference

@@ -160,6 +160,7 @@ en:
       consumers: Consumers
       battery: Battery
       single-inverter: In a multi-inverter configuration, these could be named here.
+      inverter_as_total: Show only as total in the power balance
   errors:
     title: Error
     403:

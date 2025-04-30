@@ -5,7 +5,23 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
     ruby:
       balance.with_title { I18n.t('balance_sheet.left') }
       balance.with_segment :grid_import_power, peak: peak&.dig(:grid_import_power)
-      balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
+
+      if SensorConfig.x.multi_inverter? && ApplicationPolicy.multi_inverter?
+        if Setting.inverter_as_total
+          balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
+        else
+          SensorConfig.x.existing_custom_inverter_sensor_names.reverse_each do |inverter_name|
+            balance.with_segment inverter_name,
+                                 peak: peak&.dig(inverter_name),
+                                 percent: calculator.public_send("#{inverter_name}_percent_of_total"),
+                                 color_class: 'bg-green-600 dark:bg-green-800/80',
+                                 icon_class: 'fa-sun'
+          end
+        end
+      else
+        balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
+      end
+
       balance.with_segment :battery_discharging_power, peak: peak&.dig(:battery_discharging_power)
 
   div class= 'flex flex-col px-2 sm:px-4 gap-2 tall:gap-4 pb-8'
