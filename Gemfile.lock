@@ -484,7 +484,7 @@ DEPENDENCIES
   rack-attack
   rack-brotli
   rack-cors
-  rails (~> 8.0.1)
+  rails (~> 8.0.2)
   rails-settings-cached
   redis (>= 4.0.1)
   rorvswild
