@@ -31,7 +31,7 @@
   - else
     = render Message::Component.new do |c|
       = c.with_title { t('layout.incomplete_multi_inverter') }
-      = c.with_body { t('layout.missing_multi_inverter') }
+      = c.with_body { raw t('layout.missing_multi_inverter') }
 
 - else
   = render DemoLink::Component.new feature: 'multi_inverter'
