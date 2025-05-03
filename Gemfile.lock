@@ -151,7 +151,7 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (1.1.2)
-    honeybadger (5.27.4)
+    honeybadger (5.28.0)
       logger
       ostruct
     htmlbeautifier (1.4.3)
@@ -241,7 +241,7 @@ GEM
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    psych (5.2.3)
+    psych (5.2.4)
       date
       stringio
     public_suffix (6.0.2)
