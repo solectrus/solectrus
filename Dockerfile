@@ -15,6 +15,9 @@ LABEL org.opencontainers.image.description="SOLECTRUS Photovoltaic Dashboard"
 
 USER app
 
+# Enable YJIT
+ENV RUBY_YJIT_ENABLE=1
+
 # Entrypoint prepares the database.
 ENTRYPOINT ["docker/entrypoint.sh"]
 
