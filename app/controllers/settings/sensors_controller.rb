@@ -17,7 +17,7 @@ class Settings::SensorsController < ApplicationController
   end
 
   def update
-    Setting.sensor_names = permitted_params[:sensor_names]
+    Setting.sensor_names = permitted_params[:sensor_names]&.to_h
     Setting.inverter_as_total =
       permitted_params.dig(:general, :inverter_as_total) == '1'
 
