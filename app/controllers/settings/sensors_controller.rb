@@ -31,7 +31,7 @@ class Settings::SensorsController < ApplicationController
   end
 
   def permitted_params
-    params.permit(
+    params.except(:button, :_method).permit(
       sensor_names: Array(SensorConfig.x.editable_sensor_names),
       general: [:inverter_as_total],
     )
