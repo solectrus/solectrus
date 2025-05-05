@@ -58,7 +58,7 @@ class ChartData::HeatpumpPower < ChartData::Base
       heatpump_power_grid: '#dc2626', # bg-red-600
       heatpump_power_pv: '#16a34a', # bg-green-600
     }[
-      chart_sensor
+      chart_sensor,
     ]
   end
 
