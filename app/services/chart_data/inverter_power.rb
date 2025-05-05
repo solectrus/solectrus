@@ -134,6 +134,6 @@ class ChartData::InverterPower < ChartData::Base
 
   def stackable?
     sensor == :inverter_power && SensorConfig.x.multi_inverter? &&
-      !timeframe.now? && variant == 'split'
+      variant == 'split'
   end
 end
