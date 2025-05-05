@@ -41,7 +41,7 @@
   = outer_link url,
                id: "segment-#{sensor}",
                style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
-               class: ['segment', color_class, ('tiny' if tiny?)],
+               class: ['segment', color_class, ('tiny' if tiny?), ('hidden!' if hidden)],
                title:,
                data: { \
                  controller: 'tippy',

@@ -18,6 +18,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def color_class = options[:color_class] || default_color_class
   def value = options[:value] || default_value
   def percent = options[:percent] || default_percent
+  def hidden = options[:hidden]
 
   def title
     options.key?(:title) ? options[:title] : SensorConfig.x.display_name(sensor)

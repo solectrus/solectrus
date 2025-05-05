@@ -17,6 +17,10 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
                                  color_class: 'bg-green-600 dark:bg-green-800/80',
                                  icon_class: 'fa-sun'
           end
+
+          # Render hidden segment for total inverter power.
+          # This is used for adding points to the chart
+          balance.with_segment :inverter_power, hidden: true
         end
       else
         balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
