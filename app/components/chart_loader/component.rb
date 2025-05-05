@@ -119,7 +119,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 maxRotation: 0,
               },
             }[
-              timeframe.id
+              timeframe.id,
             ],
           time:
             {
@@ -194,7 +194,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 round: 'year',
               },
             }[
-              timeframe.id
+              timeframe.id,
             ],
         },
         y: {

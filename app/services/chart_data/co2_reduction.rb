@@ -31,7 +31,7 @@ class ChartData::Co2Reduction < ChartData::Base
   def chart
     @chart ||=
       PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
-        :inverter_power
+        :inverter_power,
       ]
   end
 

@@ -124,7 +124,7 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
       other_power_grid: '#dc2626', # bg-red-600
       other_power_pv: '#16a34a', # bg-green-600
     }[
-      chart_sensor
+      chart_sensor,
     ]
   end
 
