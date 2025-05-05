@@ -1,9 +1,13 @@
 import { Controller, ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
-import { Chart } from 'chart.js';
+import { Chart, ChartDataset } from 'chart.js';
 import { application } from '@/utils/setupStimulus';
 import TippyController from '@/controllers/tippy_controller';
 import { IntervalTimer } from '@/utils/intervalTimer';
+
+type LineDatasetWithId = ChartDataset<'line'> & {
+  id: string;
+};
 
 export default class extends Controller {
   static readonly targets = ['current', 'stats', 'chart', 'canvas'];
@@ -175,28 +179,32 @@ export default class extends Controller {
     if (this.currentTime < this.lastPointTime) return;
 
     this.removeOutdatedPoints();
-    this.addCurrentPoint(this.currentTime, this.currentValue);
+    this.addCurrentPoints();
 
     // Redraw the chart
     this.chart.update();
   }
 
-  addCurrentPoint(time: Date, value: number) {
+  addCurrentPoints() {
     if (!this.chart?.data.labels) return;
 
     // First, add the time as a label
-    this.chart.data.labels.push(time.getTime());
+    this.chart.data.labels.push(this.currentTime?.getTime());
 
-    // Second, add the value to the appropriate dataset
-    // There may be two datasets: One for positive, one for negative values.
-    // Write value to the appropriate dataset
-    if (value > 0) {
-      this.positiveDataset?.data.push(value);
-      this.negativeDataset?.data.push(0);
-    } else {
-      this.negativeDataset?.data.push(value);
-      this.positiveDataset?.data.push(0);
-    }
+    // For each current target, add the value to the corresponding chart dataset (if any)
+    const datasets = this.chart.data.datasets as LineDatasetWithId[];
+    this.currentTargets.forEach((target) => {
+      const sensor = target.dataset.sensor;
+      const rawValue = target.dataset.value;
+
+      if (sensor && rawValue !== undefined) {
+        const dataset = datasets.find((ds) => ds.id === sensor);
+        if (dataset) {
+          const value = parseFloat(rawValue);
+          dataset.data.push(value);
+        }
+      }
+    });
   }
 
   // Remove oldest point (when older than one hour)
@@ -292,20 +300,6 @@ export default class extends Controller {
       );
 
     return undefined;
-  }
-
-  // The positive dataset is where at least one positive value exist
-  get positiveDataset() {
-    return this.chart?.data.datasets.find((dataset) =>
-      dataset.data.some((v) => typeof v === 'number' && v > 0),
-    );
-  }
-
-  // The negative dataset is where at least one negative value exist
-  get negativeDataset() {
-    return this.chart?.data.datasets.find((dataset) =>
-      dataset.data.some((v) => typeof v === 'number' && v < 0),
-    );
   }
 
   get effectiveSensor(): string {

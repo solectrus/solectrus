@@ -7,6 +7,7 @@ class ChartData::HousePower < ChartData::Base
       datasets:
         chart.map do |chart_sensor, data|
           {
+            id: chart_sensor,
             label: SensorConfig.x.display_name(chart_sensor),
             data: data.map(&:second),
             stack: chart_sensor == :house_power ? nil : 'Power-Splitter',

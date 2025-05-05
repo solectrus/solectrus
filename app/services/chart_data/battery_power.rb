@@ -19,9 +19,11 @@ class ChartData::BatteryPower < ChartData::Base
   end
 
   def dataset(sensor)
-    { label: label(sensor), data: mapped_data(chart[sensor], sensor) }.merge(
-      style(sensor),
-    )
+    {
+      id: sensor,
+      label: label(sensor),
+      data: mapped_data(chart[sensor], sensor),
+    }.merge(style(sensor))
   end
 
   def label(sensor)

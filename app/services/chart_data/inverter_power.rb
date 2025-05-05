@@ -48,7 +48,7 @@ class ChartData::InverterPower < ChartData::Base
       end
     end
 
-    { labels:, datasets: (parts.presence + [total]) || [total] }
+    { labels:, datasets: parts.presence || [total] }
   end
 
   def valid_parts?(total, parts)
@@ -65,6 +65,7 @@ class ChartData::InverterPower < ChartData::Base
 
   def dataset(sensor_name)
     {
+      id: sensor_name,
       label: SensorConfig.x.display_name(sensor_name),
       data: values_for(sensor_name),
     }.merge(style(sensor_name))
