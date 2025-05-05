@@ -50,7 +50,7 @@ class Balance::ChartsController < ApplicationController
     if Setting.inverter_as_total
       [:inverter_power]
     else
-      SensorConfig.x.inverter_sensor_names
+      ([:inverter_power] + SensorConfig.x.inverter_sensor_names).uniq
     end
   end
 
