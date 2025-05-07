@@ -30,7 +30,7 @@
     "@tailwindcss/vite": "^4.1.5",
     "@types/luxon": "^3.6.2",
     "@types/throttle-debounce": "^5.0.2",
-    "cypress": "^14.3.2",
+    "cypress": "^14.3.3",
     "eslint": "^9.26.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-cypress": "^4.3.0",
