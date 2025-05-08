@@ -96,7 +96,7 @@ class Flux::Reader < Flux::Base
 
   # Build a short cache key from the query string to avoid hitting the 250 chars
   def cache_key(string)
-    Digest::SHA2.hexdigest("flux/v2/#{string}")
+    "flux:#{Digest::SHA256.hexdigest(string)}"
   end
 
   def cache_options(stop:)
