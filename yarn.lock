@@ -452,9 +452,9 @@ __metadata:
   linkType: hard
 
 "@humanwhocodes/retry@npm:^0.4.2":
-  version: 0.4.2
-  resolution: "@humanwhocodes/retry@npm:0.4.2"
-  checksum: 10c0/0235525d38f243bee3bf8b25ed395fbf957fb51c08adae52787e1325673071abe856c7e18e530922ed2dd3ce12ed82ba01b8cee0279ac52a3315fcdc3a69ef0c
+  version: 0.4.3
+  resolution: "@humanwhocodes/retry@npm:0.4.3"
+  checksum: 10c0/3775bb30087d4440b3f7406d5a057777d90e4b9f435af488a4923ef249e93615fb78565a85f173a186a076c7706a81d0d57d563a2624e4de2c5c9c66c486ce42
   languageName: node
   linkType: hard
 
@@ -1017,11 +1017,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 22.15.14
-  resolution: "@types/node@npm:22.15.14"
+  version: 22.15.16
+  resolution: "@types/node@npm:22.15.16"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/a977c1518d53e3b85e8c56fe619d6eca4bc79224d24e7068f55589b3b4a60b8390c859290068b9a00d8a07bee809535afaa952fc31544dff8f8de8975d94c531
+  checksum: 10c0/2bdcca01306fcf991d9255e329425747bdd3b62c7ba9e7d4021969d46f3c9984a4ad2c27ababb4f3b05d49a9e05fc0a8bfce8b452c9b43995e10aca6f66b33bc
   languageName: node
   linkType: hard
 
