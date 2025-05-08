@@ -71,7 +71,7 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base # rubocop:disable Met
           map_house_power(raw_chart) do |index|
             house_power_without_custom_grid(raw_chart, index)
           end,
-        house_power_without_customr_pv:
+        house_power_without_custom_pv:
           map_house_power(raw_chart) do |index|
             house_power_without_custom_pv(raw_chart, index)
           end,
