@@ -8,9 +8,10 @@ class PowerPeak
   def call(start:)
     return if existing_sensors.empty?
 
+    start = start&.to_date
     Rails
       .cache
-      .fetch(['power_peak', existing_sensors], cache_options) do
+      .fetch(cache_key(start), cache_options) do
         query(start).symbolize_keys.presence
       end
   end
@@ -34,5 +35,10 @@ class PowerPeak
 
   def cache_options
     { expires_in: 1.day, skip_nil: true }
+  end
+
+  def cache_key(start)
+    sorted = existing_sensors.sort.join(',')
+    "power_peak:#{start}:#{Digest::SHA256.hexdigest(sorted)}"
   end
 end

@@ -94,6 +94,16 @@ module Solectrus
           end
         end
       end
+
+      if Rails.cache.respond_to?(:redis)
+        # Check Redis connection
+        begin
+          Rails.cache.redis.with(&:ping)
+          Rails.logger.info 'Redis available, cache enabled'
+        rescue Redis::CannotConnectError => e
+          Rails.logger.error "Redis unavailable: #{e.message}"
+        end
+      end
     end
 
     config.x.installation_date =

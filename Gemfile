@@ -161,6 +161,6 @@ group :production do
   # TODO: Change this line after the next release
   gem 'lockup', github: 'interdiscipline/lockup'
 
-  # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
+  # Full-stack error tracking, performance monitoring, logging, and more. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')
 end
