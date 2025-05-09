@@ -6,7 +6,7 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
       balance.with_title { I18n.t('balance_sheet.left') }
       balance.with_segment :grid_import_power, peak: peak&.dig(:grid_import_power)
 
-      if SensorConfig.x.multi_inverter? && ApplicationPolicy.multi_inverter?
+      if SensorConfig.x.multi_inverter? && ApplicationPolicy.multi_inverter? && calculator.valid_multi_inverter?
         if Setting.inverter_as_total
           balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
         else

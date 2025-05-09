@@ -91,12 +91,14 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
         &.sum
   end
 
+  # Is the sum of the individual inverter power
+  # equal to the total power of the inverter?
   def valid_multi_inverter?
     @valid_multi_inverter ||=
       inverter_power.nil? ||
         begin
           inverter_power_sum.present? && !inverter_power.zero? &&
-            (inverter_power_sum / inverter_power * 100.0).round == 100
+            (inverter_power_sum / inverter_power * 100.0).round >= 99
         end
   end
 
