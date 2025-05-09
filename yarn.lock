@@ -2170,14 +2170,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:^10.1.4":
-  version: 10.1.4
-  resolution: "eslint-config-prettier@npm:10.1.4"
+"eslint-config-prettier@npm:^10.1.5":
+  version: 10.1.5
+  resolution: "eslint-config-prettier@npm:10.1.5"
   peerDependencies:
     eslint: ">=7.0.0"
   bin:
     eslint-config-prettier: bin/cli.js
-  checksum: 10c0/715a2bd69a3d808366996bdb7507d472c4fb847400abfae52bb17736eaab82b639e6a6f83d677c82bce7be89809eea82f21fa2cb583876bd211b761310be3cf2
+  checksum: 10c0/5486255428e4577e8064b40f27db299faf7312b8e43d7b4bc913a6426e6c0f5950cd519cad81ae24e9aecb4002c502bc665c02e3b52efde57af2debcf27dd6e0
   languageName: node
   linkType: hard
 
@@ -2353,11 +2353,11 @@ __metadata:
   linkType: hard
 
 "eventsource@npm:^3.0.2":
-  version: 3.0.6
-  resolution: "eventsource@npm:3.0.6"
+  version: 3.0.7
+  resolution: "eventsource@npm:3.0.7"
   dependencies:
     eventsource-parser: "npm:^3.0.1"
-  checksum: 10c0/074d865ea1c7e29e3243f85a13306e89fca2d775b982dca03fa6bfa75c56827fa89cf1ab9e730db24bd6b104cbdcae074f2b37ba498874e9dd9710fbff4979bb
+  checksum: 10c0/c48a73c38f300e33e9f11375d4ee969f25cbb0519608a12378a38068055ae8b55b6e0e8a49c3f91c784068434efe1d9f01eb49b6315b04b0da9157879ce2f67d
   languageName: node
   linkType: hard
 
@@ -4552,7 +4552,7 @@ __metadata:
     cypress: "npm:^14.3.3"
     el-transition: "npm:^0.0.7"
     eslint: "npm:^9.26.0"
-    eslint-config-prettier: "npm:^10.1.4"
+    eslint-config-prettier: "npm:^10.1.5"
     eslint-plugin-cypress: "npm:^4.3.0"
     eslint-plugin-prettier: "npm:^5.4.0"
     luxon: "npm:^3.6.1"
