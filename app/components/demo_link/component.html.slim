@@ -11,10 +11,11 @@
 
   = c.with_footer do
     .flex.gap-10.justify-center
-      = render Button::Component.new title: t('.demo'),
-                                    path: { **url, host: 'https://demo.solectrus.de', port: 443, protocol: 'https' },
-                                    options: { target: '_blank' },
-                                    style: :primary
+      - if url
+        = render Button::Component.new title: t('.demo'),
+                                      path: { **url, host: 'https://demo.solectrus.de', port: 443, protocol: 'https' },
+                                      options: { target: '_blank' },
+                                      style: :primary
 
       = render Button::Component.new title: t('.about_sponsoring'),
                                     path: 'https://solectrus.de/sponsoring',

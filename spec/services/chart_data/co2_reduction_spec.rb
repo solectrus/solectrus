@@ -8,15 +8,15 @@ describe ChartData::Co2Reduction do
         13.times do |i|
           time = date.beginning_of_day + (5.minutes * i)
 
-          add_influx_point name: measurement_inverter_power,
+          add_influx_point name: measurement_inverter_power_1,
                            fields: {
-                             field_inverter_power => 28_000,
+                             field_inverter_power_1 => 28_000,
                            },
                            time:
         end
       end
 
-      create_summary(date:, values: [[:inverter_power, :sum, 28_000]])
+      create_summary(date:, values: [[:inverter_power_1, :sum, 28_000]])
     end
 
     let(:date) { Date.new(2024, 9, 1) }
@@ -30,9 +30,9 @@ describe ChartData::Co2Reduction do
 
   context 'when current data is present' do
     before do
-      add_influx_point name: measurement_inverter_power,
+      add_influx_point name: measurement_inverter_power_1,
                        fields: {
-                         field_inverter_power => 28_000,
+                         field_inverter_power_1 => 28_000,
                        },
                        time: 1.minute.ago
     end

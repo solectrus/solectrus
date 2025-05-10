@@ -57,6 +57,9 @@ CrosshairPlugin.afterDatasetsDraw = (
   if (chart?.crosshair) afterDraw(chart, args, options);
 };
 
+// Draw lines between points with no or null data (disables segmentation of the line)
+Chart.overrides.line.spanGaps = true;
+
 export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
@@ -247,8 +250,16 @@ export default class extends Controller<HTMLCanvasElement> {
         (dataset) => dataset.stack == 'Power-Splitter',
       );
 
+      const isInverterStack = data.datasets.some(
+        (dataset) => dataset.stack == 'InverterPower',
+      );
+
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
+
+      // Reverse order of datasets in tooltip
+      options.plugins.tooltip.itemSort = (a, b) =>
+        b.datasetIndex - a.datasetIndex;
 
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
@@ -282,11 +293,20 @@ export default class extends Controller<HTMLCanvasElement> {
         },
 
         footer: (tooltipItems) => {
+          let sum: number | undefined = undefined;
+
           if (isPowerSplitterStack && tooltipItems.length) {
-            const sum = tooltipItems[0].parsed.y;
+            sum = tooltipItems[0].parsed.y;
 
             if (sum) return this.formattedNumber(sum);
+          } else if (isInverterStack && tooltipItems.length > 1) {
+            sum = tooltipItems.reduce((acc, item) => {
+              if (item.parsed.y) acc += item.parsed.y;
+              return acc;
+            }, 0);
           }
+
+          if (sum) return this.formattedNumber(sum);
         },
       };
     }

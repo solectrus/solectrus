@@ -1,5 +1,5 @@
 - if !timeframe.relative? || ApplicationPolicy.relative_timeframe?
-  .flex-auto.flex.flex-col.lg:landscape:flex-row.lg:gap-5[
+  .flex-auto.flex.flex-col.lg:landscape:flex-row.gap-5[
     data= refresh_options
   ]
     = tag.turbo_frame id: helpers.frame_id('stats'),

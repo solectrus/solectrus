@@ -2,6 +2,9 @@ en:
   custom_consumer:
     title: Custom power consumers
     description: Using separate power meters, SOLECTRUS can track the energy use of up to 20 extra devices. For example, it can monitor your TV, computer, dishwasher, washing machine, dryer, air conditioner, freezer, and more.
+  multi_inverter:
+    title: Additional power generators
+    description: SOLECTRUS can display the readings from multiple inverters or strings, as well as a "balcony power plant" (plug-in solar device).
   relative_timeframe:
     title: Relative timeframes
     description: Whether it's the last 30 days or the last 12 months - with SOLECTRUS, flexible timeframes can also be displayed.

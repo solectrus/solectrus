@@ -44,7 +44,8 @@ class Queries::InfluxSum
         wallbox_power_grid
         heatpump_power_grid
         battery_charging_power_grid
-      ] + SensorConfig::CUSTOM_SENSORS + SensorConfig::POWER_SPLITTER_SENSORS
+      ] + SensorConfig::CUSTOM_INVERTER_SENSORS + SensorConfig::CUSTOM_SENSORS +
+        SensorConfig::POWER_SPLITTER_SENSORS
     ).freeze
   private_constant :ALL_SENSORS
 

@@ -1,5 +1,7 @@
 describe ChartData::InverterPower do
-  subject(:to_h) { described_class.new(timeframe:).to_h }
+  subject(:to_h) do
+    described_class.new(timeframe:, sensor: :inverter_power_1).to_h
+  end
 
   let(:now) { Time.new('2024-04-17 11:00:00+02:00') }
 
@@ -9,15 +11,18 @@ describe ChartData::InverterPower do
     influx_batch do
       # Fill last hour with data
       12.times do |i|
-        add_influx_point name: measurement_inverter_power,
+        add_influx_point name: measurement_inverter_power_1,
                          fields: {
-                           field_inverter_power => 28_000,
+                           field_inverter_power_1 => 28_000,
                          },
                          time: 1.hour.ago + (5.minutes * (i + 1))
       end
     end
 
-    create_summary(date: now.to_date, values: [[:inverter_power, :sum, 28_000]])
+    create_summary(
+      date: now.to_date,
+      values: [[:inverter_power_1, :sum, 28_000]],
+    )
   end
 
   context 'when timeframe is current MONTH' do

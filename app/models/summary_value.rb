@@ -39,47 +39,24 @@ class SummaryValue < ApplicationRecord
          inverter_power_forecast: 'inverter_power_forecast',
          wallbox_power: 'wallbox_power',
          wallbox_power_grid: 'wallbox_power_grid',
-         custom_power_01: 'custom_power_01',
-         custom_power_02: 'custom_power_02',
-         custom_power_03: 'custom_power_03',
-         custom_power_04: 'custom_power_04',
-         custom_power_05: 'custom_power_05',
-         custom_power_06: 'custom_power_06',
-         custom_power_07: 'custom_power_07',
-         custom_power_08: 'custom_power_08',
-         custom_power_09: 'custom_power_09',
-         custom_power_10: 'custom_power_10',
-         custom_power_11: 'custom_power_11',
-         custom_power_12: 'custom_power_12',
-         custom_power_13: 'custom_power_13',
-         custom_power_14: 'custom_power_14',
-         custom_power_15: 'custom_power_15',
-         custom_power_16: 'custom_power_16',
-         custom_power_17: 'custom_power_17',
-         custom_power_18: 'custom_power_18',
-         custom_power_19: 'custom_power_19',
-         custom_power_20: 'custom_power_20',
-         custom_power_01_grid: 'custom_power_01_grid',
-         custom_power_02_grid: 'custom_power_02_grid',
-         custom_power_03_grid: 'custom_power_03_grid',
-         custom_power_04_grid: 'custom_power_04_grid',
-         custom_power_05_grid: 'custom_power_05_grid',
-         custom_power_06_grid: 'custom_power_06_grid',
-         custom_power_07_grid: 'custom_power_07_grid',
-         custom_power_08_grid: 'custom_power_08_grid',
-         custom_power_09_grid: 'custom_power_09_grid',
-         custom_power_10_grid: 'custom_power_10_grid',
-         custom_power_11_grid: 'custom_power_11_grid',
-         custom_power_12_grid: 'custom_power_12_grid',
-         custom_power_13_grid: 'custom_power_13_grid',
-         custom_power_14_grid: 'custom_power_14_grid',
-         custom_power_15_grid: 'custom_power_15_grid',
-         custom_power_16_grid: 'custom_power_16_grid',
-         custom_power_17_grid: 'custom_power_17_grid',
-         custom_power_18_grid: 'custom_power_18_grid',
-         custom_power_19_grid: 'custom_power_19_grid',
-         custom_power_20_grid: 'custom_power_20_grid',
-       },
+       }.merge(
+         # Add inverter_power_1..5
+         SensorConfig::CUSTOM_INVERTER_SENSORS.index_with(&:to_s),
+       )
+         .merge(
+           # Add custom_power_01..20
+           (1..SensorConfig::CUSTOM_SENSOR_COUNT).to_h do |i|
+             key = :"custom_power_#{format('%02d', i)}"
+             [key, key.to_s]
+           end,
+         )
+         .merge(
+           # Add custom_power_01_grid..20_grid
+           (1..SensorConfig::CUSTOM_SENSOR_COUNT).to_h do |i|
+             key = :"custom_power_#{format('%02d', i)}_grid"
+             [key, key.to_s]
+           end,
+         ),
        suffix: true,
        enum_type: :field_enum
 
