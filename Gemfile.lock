@@ -94,8 +94,8 @@ GEM
       racc
     brotli (0.6.0)
     builder (3.3.0)
-    calculate-all (0.2.1)
-      activerecord
+    calculate-all (0.2.2)
+      activesupport
     capybara (3.40.0)
       addressable
       matrix
