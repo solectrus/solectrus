@@ -145,6 +145,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
         .order("2 #{sort_order}")
         .calculate_all(difference)
         .map { |(date, value)| { date:, value: } }
+        .sort_by { desc ? -it[:value] : it[:value] }
     end
   end
 
