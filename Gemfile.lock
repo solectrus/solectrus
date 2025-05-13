@@ -94,8 +94,8 @@ GEM
       racc
     brotli (0.6.0)
     builder (3.3.0)
-    calculate-all (0.2.1)
-      activerecord
+    calculate-all (0.2.2)
+      activesupport
     capybara (3.40.0)
       addressable
       matrix
@@ -166,8 +166,8 @@ GEM
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    json (2.11.3)
-    language_server-protocol (3.17.0.4)
+    json (2.12.0)
+    language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -178,7 +178,7 @@ GEM
       activesupport (>= 4)
       railties (>= 4)
       request_store (~> 1.0)
-    loofah (2.24.0)
+    loofah (2.24.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lookbook (2.3.9)
@@ -241,7 +241,7 @@ GEM
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    psych (5.2.5)
+    psych (5.2.6)
       date
       stringio
     public_suffix (6.0.2)
@@ -315,7 +315,7 @@ GEM
     request_store (1.7.0)
       rack (>= 1.4)
     rexml (3.4.1)
-    rorvswild (1.9.1)
+    rorvswild (1.9.2)
     rouge (4.5.2)
     rspec (3.13.0)
       rspec-core (~> 3.13.0)
