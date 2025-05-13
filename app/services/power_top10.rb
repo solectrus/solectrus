@@ -140,7 +140,8 @@ class PowerTop10
         .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
         .calculate_all(difference)
-        .map { |record| { date: record.first, value: record.second } }
+        .map { |(date, value)| { date:, value: } }
+        .sort_by { desc ? -it[:value] : it[:value] }
     end
   end
 end
