@@ -541,12 +541,12 @@ __metadata:
   linkType: hard
 
 "@modelcontextprotocol/sdk@npm:^1.8.0":
-  version: 1.11.2
-  resolution: "@modelcontextprotocol/sdk@npm:1.11.2"
+  version: 1.11.3
+  resolution: "@modelcontextprotocol/sdk@npm:1.11.3"
   dependencies:
     content-type: "npm:^1.0.5"
     cors: "npm:^2.8.5"
-    cross-spawn: "npm:^7.0.3"
+    cross-spawn: "npm:^7.0.5"
     eventsource: "npm:^3.0.2"
     express: "npm:^5.0.1"
     express-rate-limit: "npm:^7.5.0"
@@ -554,7 +554,7 @@ __metadata:
     raw-body: "npm:^3.0.0"
     zod: "npm:^3.23.8"
     zod-to-json-schema: "npm:^3.24.1"
-  checksum: 10c0/18e49f42138303075e710b744e8ee958033b29e9a75852def3a320788bfe79128743a439189fad71ed4fd8fcc6c291ae7e38d41a22ed82585569cc6f5965e938
+  checksum: 10c0/5bcaf6fb97d886e1a262ba9b44ede91c209bb474a2e5193c9f7d9e2c82829d83775e50f5c37977bc156376e0eca84837da531fe0dfafdc5ad8921db4bf5039c0
   languageName: node
   linkType: hard
 
@@ -625,7 +625,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pkgr/core@npm:^0.2.3":
+"@pkgr/core@npm:^0.2.4":
   version: 0.2.4
   resolution: "@pkgr/core@npm:0.2.4"
   checksum: 10c0/2528a443bbbef5d4686614e1d73f834f19ccbc975f62b2a64974a6b97bcdf677b9c5e8948e04808ac4f0d853e2f422adfaae2a06e9e9f4f5cf8af76f1adf8dc1
@@ -1074,11 +1074,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 22.15.17
-  resolution: "@types/node@npm:22.15.17"
+  version: 22.15.18
+  resolution: "@types/node@npm:22.15.18"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/fb92aa10b628683c5b965749f955bc2322485ecb0ea6c2f4cae5f2c7537a16834607e67083a9e9281faaae8d7dee9ada8d6a5c0de9a52c17d82912ef00c0fdd4
+  checksum: 10c0/e23178c568e2dc6b93b6aa3b8dfb45f9556e527918c947fe7406a4c92d2184c7396558912400c3b1b8d0fa952ec63819aca2b8e4d3545455fc6f1e9623e09ca6
   languageName: node
   linkType: hard
 
@@ -1841,7 +1841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.3, cross-spawn@npm:^7.0.6":
+"cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.5, cross-spawn@npm:^7.0.6":
   version: 7.0.6
   resolution: "cross-spawn@npm:7.0.6"
   dependencies:
@@ -2403,9 +2403,9 @@ __metadata:
   linkType: hard
 
 "eventsource-parser@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "eventsource-parser@npm:3.0.1"
-  checksum: 10c0/146ce5ae8325d07645a49bbc54d7ac3aef42f5138bfbbe83d5cf96293b50eab2219926d6cf41eed0a0f90132578089652ba9286a19297662900133a9da6c2fd0
+  version: 3.0.2
+  resolution: "eventsource-parser@npm:3.0.2"
+  checksum: 10c0/067c6e60b7c68a4577630cc7e11d2aaeef52005e377a213308c7c2350596a175d5a179671d85f570726dce3f451c15d174ece4479ce68a1805686c88950d08dd
   languageName: node
   linkType: hard
 
@@ -4785,12 +4785,12 @@ __metadata:
   linkType: hard
 
 "synckit@npm:^0.11.0":
-  version: 0.11.4
-  resolution: "synckit@npm:0.11.4"
+  version: 0.11.5
+  resolution: "synckit@npm:0.11.5"
   dependencies:
-    "@pkgr/core": "npm:^0.2.3"
+    "@pkgr/core": "npm:^0.2.4"
     tslib: "npm:^2.8.1"
-  checksum: 10c0/dd2965a37c93c0b652bf07b1fd8d1639a803b65cf34c0cb1b827b8403044fc3b09ec87f681d922a324825127ee95b2e0394e7caccb502f407892d63e903c5276
+  checksum: 10c0/49cbd90c3f0ebe7ea6af2fe359e93ef737983b9aaaa605d63c3bf6ba7b31fd2d201e0d8c09f099a11d5ed2d5a7bf3a2ee865708f7f6795646317aac1266517aa
   languageName: node
   linkType: hard
 
