@@ -73,16 +73,16 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     false
   end
 
-  def current?
+  def current? # rubocop:disable Metrics/CyclomaticComplexity
     case id
     when :now, :all, :days, :months, :years
       true
     when :day
       date.today?
     when :week
-      date.cweek == Date.current.cweek
+      date.cweek == Date.current.cweek && date.year == Date.current.year
     when :month
-      date.month == Date.current.month
+      date.month == Date.current.month && date.year == Date.current.year
     when :year
       date.year == Date.current.year
     end
