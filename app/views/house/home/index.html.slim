@@ -31,7 +31,7 @@
   - else
     = render Message::Component.new do |c|
       = c.with_title { t('layout.incomplete_config') }
-      = c.with_body { t('layout.missing_custom_consumers') }
+      = c.with_body { raw t('layout.missing_custom_consumers') }
 
 - else
   = render DemoLink::Component.new feature: 'custom_consumer', url: { **permitted_params }
