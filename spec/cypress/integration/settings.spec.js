@@ -34,8 +34,8 @@ describe('Settings', () => {
     });
 
     it('can see buttons for add/edit, but not delete', () => {
-      cy.get('button[aria-label="Neu"]').should('be.exist');
-      cy.get('button[aria-label="Bearbeiten"]').should('be.exist');
+      cy.get('button[aria-label="Neu"]').should('exist');
+      cy.get('button[aria-label="Bearbeiten"]').should('exist');
 
       cy.get('button[aria-label="Löschen"]').should('not.exist');
     });
