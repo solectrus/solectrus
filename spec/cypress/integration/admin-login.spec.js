@@ -3,7 +3,6 @@ describe('Administrator', () => {
     beforeEach(() => {
       cy.visit('/');
 
-      cy.get('header nav button[aria-haspopup="true"').first().click();
       cy.get('header a[href="/login"]').first().click({ force: true });
       cy.get('#new_admin_user').should('be.visible');
     });
@@ -13,7 +12,7 @@ describe('Administrator', () => {
       cy.get('#new_admin_user button').click();
 
       cy.get('#new_admin_user').should('contain', 'ist nicht gültig');
-      cy.get('a[href="/login"]').should('be.exist');
+      cy.get('a[href="/login"]').should('exist');
       cy.get('a[href="/logout"]').should('not.exist');
     });
 
@@ -22,27 +21,20 @@ describe('Administrator', () => {
       cy.get('#new_admin_user button').click();
 
       cy.get('a[href="/login"]').should('not.exist');
-      cy.get('a[href="/logout"]').should('be.exist');
+      cy.get('a[href="/logout"]').should('exist');
     });
   });
 
   context('when logged in', () => {
     beforeEach(() => {
+      cy.login();
       cy.visit('/');
-
-      cy.get('header nav button[aria-haspopup="true"').first().click();
-      cy.get('header a[href="/login"]').first().click({ force: true });
-      cy.get('#new_admin_user').should('be.visible');
-      cy.get('#admin_user_password').type('secret');
-      cy.get('#new_admin_user button').click();
     });
 
     it('can logout', () => {
-      cy.get('header nav button[aria-haspopup="true"').first().click();
       cy.get('a[href="/logout"]').first().click({ force: true });
 
-      cy.get('header nav button[aria-haspopup="true"').first().click();
-      cy.get('a[href="/login"]').should('be.exist');
+      cy.get('a[href="/login"]').should('exist');
       cy.get('a[href="/logout"]').should('not.exist');
     });
   });
