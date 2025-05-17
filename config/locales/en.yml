@@ -87,6 +87,7 @@ en:
     co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share
     total_costs: Total costs
+    compensation: Compensation
     autarky: Autarky
     time: Last measurement taken
     blank: No data available!
