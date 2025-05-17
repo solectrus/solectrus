@@ -104,6 +104,8 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
   def timeframe_path(record)
     if sensor.to_s.match?(/custom_power_\d{2}/)
       house_home_path(sensor:, timeframe: corresponding_date(record[:date]))
+    elsif sensor.to_s.match?(/inverter_power_\d{1}/)
+      inverter_home_path(sensor:, timeframe: corresponding_date(record[:date]))
     else
       root_path(
         sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
