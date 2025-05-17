@@ -254,8 +254,9 @@ GEM
     rack-brotli (2.0.0)
       brotli (>= 0.3)
       rack (>= 3)
-    rack-cors (2.0.2)
-      rack (>= 2.0.0)
+    rack-cors (3.0.0)
+      logger
+      rack (>= 3.0.14)
     rack-proxy (0.7.7)
       rack
     rack-session (2.1.1)
