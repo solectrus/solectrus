@@ -10,6 +10,7 @@ class ChartData::Autarky < ChartData::Base
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
+          id: 'autarky',
           label: I18n.t('calculator.autarky'),
           data: chart&.map(&:second),
         }.merge(style),

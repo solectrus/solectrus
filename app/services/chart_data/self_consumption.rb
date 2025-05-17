@@ -10,6 +10,7 @@ class ChartData::SelfConsumption < ChartData::Base
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
+          id: 'self_consumption',
           label: I18n.t('calculator.self_consumption_quote'),
           data: chart&.map(&:second),
         }.merge(style),

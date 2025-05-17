@@ -24,6 +24,15 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
 
   # Inverter
 
+  def inverter_power
+    SensorConfig
+      .x
+      .existing_custom_inverter_sensor_names
+      .filter_map { |sensor_name| public_send(sensor_name) }
+      .presence
+      &.sum
+  end
+
   def producing?
     return unless inverter_power
 
@@ -35,6 +44,62 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
     return 0 if total_plus.zero?
 
     (inverter_power * 100.0 / total_plus).round(1)
+  end
+
+  SensorConfig::CUSTOM_INVERTER_SENSORS.each do |sensor_name|
+    define_method "#{sensor_name}_percent" do
+      return 0 if inverter_power.zero?
+
+      value = public_send(sensor_name)
+      return unless value
+
+      (value * 100.0 / inverter_power).round
+    end
+
+    define_method "#{sensor_name}_percent_of_total" do
+      return 0 if inverter_power.zero?
+
+      value = public_send(sensor_name)
+      return unless value
+
+      (value * 100.0 / total_plus).round
+    end
+  end
+
+  def inverter_power_difference
+    return unless inverter_power && inverter_power_sum
+
+    inverter_power - inverter_power_sum
+  end
+
+  def inverter_power_difference_percent
+    return unless inverter_power_difference
+    return if inverter_power.zero?
+
+    (inverter_power_difference * 100.0 / inverter_power).round(1)
+  end
+
+  def inverter_power_sum
+    return @inverter_power_sum if defined?(@inverter_power_sum)
+
+    @inverter_power_sum =
+      SensorConfig
+        .x
+        .existing_custom_inverter_sensor_names
+        .filter_map { |sensor| public_send(sensor) }
+        .presence
+        &.sum
+  end
+
+  # Is the sum of the individual inverter power
+  # equal to the total power of the inverter?
+  def valid_multi_inverter?
+    @valid_multi_inverter ||=
+      inverter_power.nil? ||
+        begin
+          inverter_power_sum.present? && !inverter_power.zero? &&
+            (inverter_power_sum / inverter_power * 100.0).round >= 99
+        end
   end
 
   # Grid

@@ -1,5 +1,5 @@
 describe Flux::Sum do
-  let(:sum) { described_class.new(sensors: %i[inverter_power]) }
+  let(:sum) { described_class.new(sensors: %i[inverter_power_1]) }
 
   before do
     travel_to '2024-06-05 12:30 +02:00' # Wednesday
@@ -26,7 +26,7 @@ describe Flux::Sum do
   end
 
   describe '#call' do
-    subject { sum.call(timeframe:)[:inverter_power].fdiv(1000).round }
+    subject { sum.call(timeframe:)[:inverter_power_1].fdiv(1000).round }
 
     context 'when Monday' do
       let(:timeframe) { Timeframe.new('2024-06-03') }
@@ -80,10 +80,10 @@ describe Flux::Sum do
 
       while time < ending
         add_influx_point(
-          name: measurement_inverter_power,
+          name: measurement_inverter_power_1,
           time:,
           fields: {
-            field_inverter_power => value * 1000,
+            field_inverter_power_1 => value * 1000,
           },
         )
 

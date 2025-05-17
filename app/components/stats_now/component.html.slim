@@ -59,7 +59,7 @@
                   stats_with_chart__component_sensor_param: 'case_temp',
                 },
                 class: 'click-animation' do
-        = render RadialBadge::Component.new(title: t('sensors.case_temp')) do
+        = render RadialBadge::Component.new(title: SensorConfig.x.display_name(:case_temp)) do
           = Number::Component.new(value: calculator.case_temp.round).to_grad_celsius(max_precision: 0)
 
     - if SensorConfig.x.exists_all?(:battery_soc, :car_battery_soc)

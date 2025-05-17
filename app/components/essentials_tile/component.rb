@@ -98,7 +98,7 @@ class EssentialsTile::Component < ViewComponent::Base
         co2_emission_factor: Rails.configuration.x.co2_emission_factor,
       )
     else
-      SensorConfig.x.name(sensor)
+      SensorConfig.x.display_name(sensor)
     end
   end
 

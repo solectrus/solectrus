@@ -1,4 +1,4 @@
-class ChartData::HousePowerWithoutCustom < ChartData::Base
+class ChartData::HousePowerWithoutCustom < ChartData::Base # rubocop:disable Metrics/ClassLength
   private
 
   def data
@@ -7,10 +7,23 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
       datasets:
         chart.map do |chart_sensor, data|
           {
-            label: SensorConfig.x.name(chart_sensor),
+            id: chart_sensor,
+            label: SensorConfig.x.display_name(chart_sensor),
             data: data.map(&:second),
-            stack: chart_sensor == :other_power ? nil : 'Power-Splitter',
-          }.merge(style(chart_sensor, split: chart.key?(:other_power_grid)))
+            stack:
+              (
+                if chart_sensor == :house_power_without_custom
+                  nil
+                else
+                  'Power-Splitter'
+                end
+              ),
+          }.merge(
+            style(
+              chart_sensor,
+              split: chart.key?(:house_power_without_custom_grid),
+            ),
+          )
         end,
     }
   end
@@ -29,8 +42,10 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
     end
 
     {
-      other_power:
-        map_house_power(raw_chart) { |index| other_power(raw_chart, index) },
+      house_power_without_custom:
+        map_house_power(raw_chart) do |index|
+          house_power_without_custom(raw_chart, index)
+        end,
     }
   end
 
@@ -48,22 +63,26 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
 
     if raw_chart.key?(:house_power) && raw_chart.key?(grid_sensor)
       {
-        other_power:
-          map_house_power(raw_chart) { |index| other_power(raw_chart, index) },
-        other_power_grid:
+        house_power_without_custom:
           map_house_power(raw_chart) do |index|
-            other_power_grid(raw_chart, index)
+            house_power_without_custom(raw_chart, index)
           end,
-        other_power_pv:
+        house_power_without_custom_grid:
           map_house_power(raw_chart) do |index|
-            other_power_pv(raw_chart, index)
+            house_power_without_custom_grid(raw_chart, index)
+          end,
+        house_power_without_custom_pv:
+          map_house_power(raw_chart) do |index|
+            house_power_without_custom_pv(raw_chart, index)
           end,
       }
     else
       # No data for house_power_grid is present, return simple chart instead
       {
-        other_power:
-          map_house_power(raw_chart) { |index| other_power(raw_chart, index) },
+        house_power_without_custom:
+          map_house_power(raw_chart) do |index|
+            house_power_without_custom(raw_chart, index)
+          end,
       }
     end
   end
@@ -76,7 +95,7 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
     end
   end
 
-  def other_power(raw_chart, index)
+  def house_power_without_custom(raw_chart, index)
     house_power = raw_chart.dig(:house_power, index)&.second
     return unless house_power
 
@@ -87,7 +106,7 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
       .clamp(0, nil)
   end
 
-  def other_power_grid(raw_chart, index)
+  def house_power_without_custom_grid(raw_chart, index)
     house_power_grid = raw_chart.dig(:house_power_grid, index)&.second
     return unless house_power_grid
 
@@ -96,14 +115,14 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
         raw_chart.dig("#{sensor}_grid", index)&.second.to_f
       end
 
-    other_power = other_power(raw_chart, index)
+    house_power_without_custom = house_power_without_custom(raw_chart, index)
 
-    (house_power_grid - custom_total_grid).clamp(0, other_power)
+    (house_power_grid - custom_total_grid).clamp(0, house_power_without_custom)
   end
 
-  def other_power_pv(raw_chart, index)
-    power = other_power(raw_chart, index)
-    grid_power = other_power_grid(raw_chart, index)
+  def house_power_without_custom_pv(raw_chart, index)
+    power = house_power_without_custom(raw_chart, index)
+    grid_power = house_power_without_custom_grid(raw_chart, index)
     return unless power && grid_power
 
     power - grid_power
@@ -120,9 +139,9 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
 
   def background_color(chart_sensor)
     {
-      other_power: '#64748b', # bg-slate-500
-      other_power_grid: '#dc2626', # bg-red-600
-      other_power_pv: '#16a34a', # bg-green-600
+      house_power_without_custom: '#64748b', # bg-slate-500
+      house_power_without_custom_grid: '#dc2626', # bg-red-600
+      house_power_without_custom_pv: '#16a34a', # bg-green-600
     }[
       chart_sensor,
     ]
@@ -134,21 +153,21 @@ class ChartData::HousePowerWithoutCustom < ChartData::Base
         fill: 'origin',
         # Base color, will be changed to gradient in JS
         backgroundColor: background_color(chart_sensor),
-        barPercentage: chart_sensor == :other_power ? 0.7 : 1.3,
+        barPercentage: chart_sensor == :house_power_without_custom ? 0.7 : 1.3,
         categoryPercentage: 0.7,
         borderRadius:
-          if chart_sensor == :other_power
+          if chart_sensor == :house_power_without_custom
             { topLeft: 5, bottomLeft: 0, topRight: 0, bottomRight: 0 }
           else
             0
           end,
         borderWidth:
           case chart_sensor # rubocop:disable Style/HashLikeCase
-          when :other_power
+          when :house_power_without_custom
             { top: 1, left: 1 }
-          when :other_power_grid
+          when :house_power_without_custom_grid
             { right: 1 }
-          when :other_power_pv
+          when :house_power_without_custom_pv
             { top: 1, right: 1 }
           end,
         borderColor: background_color(chart_sensor),

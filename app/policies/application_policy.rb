@@ -6,6 +6,7 @@ class ApplicationPolicy
     themes
     car
     custom_consumer
+    multi_inverter
     relative_timeframe
   ].freeze
   private_constant :SPONSOR_FEATURES

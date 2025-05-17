@@ -18,7 +18,7 @@ describe AutarkyChart do
         )
       end
 
-      add_influx_point name: measurement_inverter_power,
+      add_influx_point name: measurement_house_power,
                        fields: {
                          field_house_power => 6_000,
                          field_grid_import_power => 3000,
@@ -82,7 +82,7 @@ describe AutarkyChart do
         )
       end
 
-      add_influx_point name: measurement_inverter_power,
+      add_influx_point name: measurement_house_power,
                        fields: {
                          field_house_power => 6_000,
                          field_grid_import_power => 3000,

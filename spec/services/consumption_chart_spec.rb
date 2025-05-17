@@ -8,15 +8,15 @@ describe ConsumptionChart do
 
     influx_batch do
       12.times do |index|
-        add_influx_point name: measurement_inverter_power,
+        add_influx_point name: measurement_inverter_power_1,
                          fields: {
-                           field_inverter_power => (index + 1) * 100,
+                           field_inverter_power_1 => (index + 1) * 100,
                            field_grid_export_power => (index + 1) * 50,
                          },
                          time: (beginning + index.month).end_of_month
-        add_influx_point name: measurement_inverter_power,
+        add_influx_point name: measurement_inverter_power_1,
                          fields: {
-                           field_inverter_power => (index + 1) * 100,
+                           field_inverter_power_1 => (index + 1) * 100,
                            field_grid_export_power => (index + 1) * 50,
                          },
                          time: (beginning + index.month).beginning_of_month
@@ -24,15 +24,15 @@ describe ConsumptionChart do
         create_summary(
           date: (beginning + index.month).beginning_of_month.to_date,
           values: [
-            [:inverter_power, :sum, (index + 1) * 100],
+            [:inverter_power_1, :sum, (index + 1) * 100],
             [:grid_export_power, :sum, (index + 1) * 50],
           ],
         )
       end
 
-      add_influx_point name: measurement_inverter_power,
+      add_influx_point name: measurement_inverter_power_1,
                        fields: {
-                         field_inverter_power => 2_000,
+                         field_inverter_power_1 => 2_000,
                          field_grid_export_power => 500,
                        },
                        time: 5.seconds.ago
@@ -50,7 +50,7 @@ describe ConsumptionChart do
       it 'contains last data point' do
         timestamp, value = result.last
 
-        expect(value).to eq(75.0)
+        expect(value).to eq(75.0) # (2000 - 500) / 2000
         expect(timestamp).to be_within(30.seconds).of(Time.current)
       end
     end

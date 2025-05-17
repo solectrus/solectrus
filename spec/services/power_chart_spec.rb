@@ -2,7 +2,7 @@ describe PowerChart do
   let(:beginning) { 1.year.ago.beginning_of_year }
 
   def measurement
-    SensorConfig.x.measurement(:inverter_power)
+    SensorConfig.x.measurement(:inverter_power_1)
   end
 
   before do
@@ -12,7 +12,7 @@ describe PowerChart do
       create_summary(
         date: beginning + index.month,
         values: [
-          [:inverter_power, :sum, (index + 1) * 1000 * 24], # 1 KW for 24 hours
+          [:inverter_power_1, :sum, (index + 1) * 1000 * 24], # 1 KW for 24 hours
           [:battery_charging_power, :sum, (index + 1) * 100 * 24], # 100 W for 24 hours
           [:battery_discharging_power, :sum, (index + 1) * 200 * 24], # 200 W for 24 hours
         ],
@@ -21,7 +21,7 @@ describe PowerChart do
 
     add_influx_point name: measurement,
                      fields: {
-                       field_inverter_power => 14_000,
+                       field_inverter_power_1 => 14_000,
                        field_battery_charging_power => 2000,
                        field_battery_discharging_power => 100,
                      },
@@ -29,10 +29,10 @@ describe PowerChart do
   end
 
   context 'when one sensor is requested' do
-    let(:chart) { described_class.new(sensors: [:inverter_power]) }
+    let(:chart) { described_class.new(sensors: [:inverter_power_1]) }
 
     describe '#call' do
-      subject(:result) { chart.call(timeframe)[:inverter_power] }
+      subject(:result) { chart.call(timeframe)[:inverter_power_1] }
 
       context 'when timeframe is "now"' do
         let(:timeframe) { Timeframe.now }
