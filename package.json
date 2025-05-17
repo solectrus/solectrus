@@ -31,7 +31,7 @@
     "@types/luxon": "^3.6.2",
     "@types/throttle-debounce": "^5.0.2",
     "cypress": "^14.3.3",
-    "eslint": "^9.26.0",
+    "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-cypress": "^4.3.0",
     "eslint-plugin-prettier": "^5.4.0",
