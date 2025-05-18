@@ -62,7 +62,7 @@
       .font-light.leading-tight class= (large? || inline ? 'lg:block' : 'hidden')
         = title
 
-      div data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time&.to_i }
+      div class= ('text-[120%]' if large?) data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time&.to_i }
         = Number::Component.new(value:).public_send(number_method)
 
       - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
