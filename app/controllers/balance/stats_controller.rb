@@ -5,7 +5,13 @@ class Balance::StatsController < ApplicationController
   before_action :refresh_summaries_if_needed
 
   def index
-    render formats: :turbo_stream
+    if turbo_frame_request?
+      # Request comes from a single TurboFrame, but we want to update multiple other frames, too
+      render formats: :turbo_stream
+    else
+      # Fallback
+      redirect_to root_path(sensor:, timeframe:)
+    end
   end
 
   private
