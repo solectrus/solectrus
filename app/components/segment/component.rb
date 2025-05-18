@@ -273,7 +273,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def large?
-    percent > 33
+    percent > 35
   end
 
   def tiny?
