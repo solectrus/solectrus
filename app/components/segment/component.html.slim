@@ -25,7 +25,7 @@
 
 - if block
   = tag.div id: "segment-#{sensor}",
-            class: ['segment', color_class, ('tiny' if tiny?)],
+            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?), ('hidden' if hidden)],
             style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
             title:,
             data: { \
@@ -38,76 +38,72 @@
     = block.call
 
 - else
-  = outer_link url,
-               id: "segment-#{sensor}",
-               style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
-               class: ['segment', color_class, ('tiny' if tiny?), ('hidden!' if hidden)],
-               title:,
-               data: { \
-                 controller: 'tippy',
-                 tippy_placement_value: parent.tippy_placement,
-                 tippy_force_tap_to_close_value: false,
-                 tippy_touch_value: 'long',
-                 turbo_frame: helpers.frame_id('chart', timeframe:),
-                 turbo_action: 'replace',
-                 action: 'click->stats-with-chart--component#startLoop',
-                 stats_with_chart__component_sensor_param: sensor,
-               } do
-
+  = link_to_or_div url,
+            id: "segment-#{sensor}",
+            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?), ('hidden' if hidden)],
+            style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
+            title:,
+            data: { \
+              controller: 'tippy',
+              tippy_placement_value: parent.tippy_placement,
+              tippy_force_tap_to_close_value: false,
+              tippy_touch_value: 'long',
+              turbo_frame: helpers.frame_id('chart', timeframe:),
+              turbo_action: 'replace',
+              turbo_prefetch: 'false',
+              action: 'stats-with-chart--component#startLoop',
+              stats_with_chart__component_sensor_param: sensor,
+            } do
     = styles
-    .header class= ('inline' if inline)
+    div class= "flex gap-2 lg:gap-3 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center #{'click-animation' if url}"
       - if icon_class
-        i.fa[
-          class= icon_class
-          style= "font-size: #{icon_size}%;"
-        ]
+        i.fa class= icon_class style="font-size: #{icon_size}%;"
 
-      .title
+      .font-light.leading-tight class= (large? || inline ? 'lg:block' : 'hidden')
         = title
 
-      .value data= { 'stats-with-chart--component-target': 'current', sensor:, value: masked_value, time: calculator.time&.to_i }
+      div data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time&.to_i }
         = Number::Component.new(value:).public_send(number_method)
 
       - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
         i.fa.fa-circle-exclamation.fa-xs
 
-    .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
-      .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
-        - if icon_class
-          div
-            i.fa.fa-2xl class= icon_class
+      .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
+        .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
+          - if icon_class
+            div
+              i.fa.fa-2xl class= icon_class
 
-        div
           = title
 
-        - if now?
-          = Number::Component.new(value:).to_watt(precision: 3)
+          - if now?
+            = Number::Component.new(value:).to_watt(precision: 3)
 
-          - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
-            .text-xs.text-center.mt-2
-              = I18n.t('sensors.grid_export_limit')
-              br
-              = Number::Component.new(value: calculator.grid_export_limit).to_percent(precision: 0, klass: 'text-xs')
+            - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
+              .text-xs.text-center.mt-2
+                = I18n.t('sensors.grid_export_limit')
+                br
+                = Number::Component.new(value: calculator.grid_export_limit).to_percent(precision: 0, klass: 'text-xs')
 
-        - else
-          = Number::Component.new(value:).to_watt_hour(precision: 3)
+          - else
+            = Number::Component.new(value:).to_watt_hour(precision: 3)
 
-          - if costs
-            = render SplittedCosts::Component.new(power_grid_ratio:, costs:)
+            - if costs
+              = render SplittedCosts::Component.new(power_grid_ratio:, costs:)
 
-          - elsif sensor == :grid_export_power
-            = Number::Component.new(value: calculator.got).to_eur(klass: 'text-xl')
+            - elsif sensor == :grid_export_power
+              = Number::Component.new(value: calculator.got).to_eur(klass: 'text-xl')
 
-          - elsif sensor == :grid_import_power
-            = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
+            - elsif sensor == :grid_import_power
+              = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
 
-        - if multi_inverter? && ApplicationPolicy.multi_inverter?
-          table.mt-3
-            tbody
-              - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |sensor_name|
-                - if (value = calculator.public_send(sensor_name))&.positive?
-                  tr
-                    td.text-left.pr-1
-                      = SensorConfig.x.display_name(sensor_name)
-                    td.text-right.pl-1.tabular-nums
-                      = Number::Component.new(value:).public_send(number_method, precision: 3)
+            - if multi_inverter? && ApplicationPolicy.multi_inverter?
+              table.mt-3
+                tbody
+                  - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |sensor_name|
+                    - if (value = calculator.public_send(sensor_name))&.positive?
+                      tr
+                        td.text-left.pr-1
+                          = SensorConfig.x.display_name(sensor_name)
+                        td.text-right.pl-1.tabular-nums
+                          = Number::Component.new(value:).public_send(number_method, precision: 3)

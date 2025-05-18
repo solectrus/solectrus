@@ -1,6 +1,3 @@
-# Prototype:
-# https://play.tailwindcss.com/kzqdxbuqEd?size=506x874
-
 class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor, **options, &block)
     super
@@ -30,8 +27,8 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
   delegate :calculator, :timeframe, to: :parent
 
-  def outer_link(url, **, &)
-    render OuterLink::Component.new(url:, **), &
+  def link_to_or_div(url, **, &)
+    url ? link_to(url, **, &) : tag.div(**, &)
   end
 
   def multi_inverter?
@@ -134,7 +131,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def icon_size
-    return 100 if peak.nil? || percent < 20
+    return 100 if peak.nil?
 
     Scale.new(target: 80..300, max: peak).result(value)
   end
@@ -319,6 +316,10 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
   def tiny?
     percent < 0.3
+  end
+
+  def large?
+    percent > 33
   end
 
   def number_method
