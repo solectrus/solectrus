@@ -94,8 +94,8 @@ GEM
       racc
     brotli (0.6.0)
     builder (3.3.0)
-    calculate-all (0.2.2)
-      activesupport
+    calculate-all (0.3.0)
+      activesupport (>= 4.0.0)
     capybara (3.40.0)
       addressable
       matrix
@@ -248,7 +248,7 @@ GEM
     puma (6.6.0)
       nio4r (~> 2.0)
     racc (1.8.1)
-    rack (3.1.14)
+    rack (3.1.15)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-brotli (2.0.0)
@@ -362,12 +362,12 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.38.0, < 2.0)
-    rubocop-rails (2.31.0)
+    rubocop-rails (2.32.0)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
       rubocop (>= 1.75.0, < 2.0)
-      rubocop-ast (>= 1.38.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
     rubocop-rake (0.7.1)
       lint_roller (~> 1.1)
       rubocop (>= 1.72.1)
