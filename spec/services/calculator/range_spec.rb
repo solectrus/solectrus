@@ -21,7 +21,9 @@ describe Calculator::Range do
     Price.feed_in.create! starts_at: '2020-12-01', value: 0.0848
 
     allow(calculator).to receive_messages(
-      inverter_power: 46_000,
+      inverter_power: 48_000,
+      inverter_power_1: 46_000,
+      inverter_power_2: 2_000,
       inverter_power_forecast: 50_000,
       got: 1,
       paid: -6,
@@ -33,8 +35,16 @@ describe Calculator::Range do
     allow(Setting).to receive(:opportunity_costs).and_return(true)
   end
 
+  it 'calculates inverter_power' do
+    expect(calculator.inverter_power).to eq(48_000)
+  end
+
+  it 'validates multi_inverter' do
+    expect(calculator.valid_multi_inverter?).to be(true)
+  end
+
   it 'calculates' do
-    expect(calculator.forecast_deviation).to eq(-8)
+    expect(calculator.forecast_deviation).to eq(-4)
     expect(calculator.solar_price).to eq(-5)
     expect(calculator.savings).to eq(10)
     expect(calculator.battery_savings_percent).to eq(30)

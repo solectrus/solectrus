@@ -1,6 +1,7 @@
 de:
   layout:
     balance: Strombilanz
+    inverter: Erzeugung
     house: Hausverbrauch
     essentials: Einzelwerte
     top10: Top 10
@@ -22,8 +23,10 @@ de:
     missing_sponsoring_cta: Mehr erfahren...
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
-    incomplete_config: Selbstdefinierte Stromverbraucher
+    incomplete_custom_consumers: Selbstdefinierte Stromverbraucher
     missing_custom_consumers: Hier könnten bis zu 20 zusätzliche Stromverbraucher visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> bis <code>_20</code>).
+    incomplete_multi_inverter: Mehrere Stromerzeuger
+    missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
   timeframe:
     now: Aktuell
@@ -37,6 +40,12 @@ de:
     all: Seit Inbetriebnahme vor %{since}
   sensors:
     inverter_power: Erzeugung
+    inverter_power_1: Erzeugung 1
+    inverter_power_2: Erzeugung 2
+    inverter_power_3: Erzeugung 3
+    inverter_power_4: Erzeugung 4
+    inverter_power_5: Erzeugung 5
+    inverter_power_difference: Ohne Zuordnung
     inverter_power_forecast: Prognose
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher
@@ -82,6 +91,9 @@ de:
     autarky: Autarkie
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
+  chart:
+    inverter_total: Kumuliert
+    inverter_split: Einzeln
   forecast:
     exactly: Genau wie erwartet
     better_html: '%{percent} mehr als erwartet'
@@ -142,9 +154,14 @@ de:
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
-    consumers:
-      name: Verbraucher
-      description: Bezeichnungen für die selbstdefinierten Stromverbraucher
+    sensors:
+      name: Sensoren
+      description: Benennung der vorhandenen Sensoren
+      generators: Erzeuger
+      consumers: Verbraucher
+      battery: Batterie
+      single-inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
+      inverter_as_total: In der Strombilanz nur als Summe darstellen
   errors:
     title: Fehler
     403:

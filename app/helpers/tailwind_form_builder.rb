@@ -82,7 +82,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   delegate :tag, :link_to, :safe_join, :render, to: :template
 
   def input_html_classes(method)
-    ['form-input', ('input-error' if object.errors[method].present?)]
+    ['form-input', ('input-error' if error?(method))]
   end
 
   def label_text(method, options)
@@ -90,11 +90,15 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def errors(method)
-    return if object.errors[method].blank?
+    return unless error?(method)
 
     tag.ul class: 'mt-2 text-sm text-red-500' do
       safe_join(object.errors[method].map { |error| tag.li(error) })
     end
+  end
+
+  def error?(method)
+    object && object.errors[method].present?
   end
 end
 

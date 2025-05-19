@@ -5,7 +5,13 @@ class Balance::StatsController < ApplicationController
   before_action :refresh_summaries_if_needed
 
   def index
-    render formats: :turbo_stream
+    if turbo_frame_request?
+      # Request comes from a single TurboFrame, but we want to update multiple other frames, too
+      render formats: :turbo_stream
+    else
+      # Fallback
+      redirect_to root_path(sensor:, timeframe:)
+    end
   end
 
   private
@@ -23,7 +29,7 @@ class Balance::StatsController < ApplicationController
   def calculator_now
     Calculator::Now.new(
       [
-        :inverter_power,
+        *SensorConfig.x.inverter_sensor_names,
         :house_power,
         :heatpump_power,
         :wallbox_power,
@@ -53,7 +59,9 @@ class Balance::StatsController < ApplicationController
     Calculator::Range.new(
       timeframe,
       calculations: [
-        Queries::Calculation.new(:inverter_power, :sum, :sum),
+        *SensorConfig.x.inverter_sensor_names.map do |sensor_name|
+          Queries::Calculation.new(sensor_name, :sum, :sum)
+        end,
         Queries::Calculation.new(:house_power, :sum, :sum),
         Queries::Calculation.new(:heatpump_power, :sum, :sum),
         Queries::Calculation.new(:wallbox_power, :sum, :sum),

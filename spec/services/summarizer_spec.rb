@@ -49,9 +49,9 @@ describe Summarizer do
           13.times do |i|
             time = timeframe.date.middle_of_day + (5.minutes * i)
 
-            add_influx_point name: measurement_inverter_power,
+            add_influx_point name: measurement_inverter_power_1,
                              fields: {
-                               field_inverter_power => 10_000,
+                               field_inverter_power_1 => 10_000,
                              },
                              time:
           end
@@ -70,7 +70,7 @@ describe Summarizer do
         expect(summary.date).to eq(timeframe.date)
         expect(summary.values.first.attributes).to include(
           'date' => timeframe.date,
-          'field' => 'inverter_power',
+          'field' => 'inverter_power_1',
           'aggregation' => 'sum',
           'value' => 10_000,
         )

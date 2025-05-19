@@ -1,7 +1,8 @@
 describe Calculator::Now do
   let(:calculator) do
     described_class.new %i[
-                          inverter_power
+                          inverter_power_1
+                          inverter_power_2
                           grid_export_limit
                           house_power
                           heatpump_power
@@ -15,9 +16,9 @@ describe Calculator::Now do
       freeze_time
 
       add_influx_point(
-        name: measurement_inverter_power,
+        name: measurement_inverter_power_1,
         fields: {
-          field_inverter_power => 10,
+          field_inverter_power_1 => 10,
         },
       )
     end
@@ -27,7 +28,7 @@ describe Calculator::Now do
     end
 
     it 'returns existing value as float' do
-      expect(calculator.inverter_power).to eq(10.0)
+      expect(calculator.inverter_power_1).to eq(10.0)
     end
 
     it 'returns missing value as nil' do
@@ -41,7 +42,7 @@ describe Calculator::Now do
     context 'when system_status is present' do
       before do
         add_influx_point(
-          name: measurement_inverter_power,
+          name: measurement_inverter_power_1,
           fields: {
             field_system_status => 'Sleeping',
           },
@@ -56,7 +57,7 @@ describe Calculator::Now do
     context 'when system_status has invalid encoding' do
       before do
         add_influx_point(
-          name: measurement_inverter_power,
+          name: measurement_system_status,
           fields: {
             field_system_status => '🌞'.force_encoding('ASCII-8BIT'),
           },

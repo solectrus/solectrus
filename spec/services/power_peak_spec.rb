@@ -60,5 +60,41 @@ describe PowerPeak do
         end
       end
     end
+
+    context 'when multi_inverter without_total' do
+      let(:sensors) { %i[inverter_power_1 inverter_power_2] }
+
+      context 'when no summaries exist' do
+        it { is_expected.to be_nil }
+      end
+
+      context 'when summaries are present' do
+        before do
+          create_summary(
+            date: start,
+            values: [
+              [:inverter_power_1, :max, 1000],
+              [:inverter_power_2, :max, 2000],
+            ],
+          )
+
+          create_summary(
+            date: start + 1.day,
+            values: [
+              [:inverter_power_1, :max, 1500],
+              [:inverter_power_2, :max, 2500],
+            ],
+          )
+        end
+
+        it 'returns the maximum with total' do
+          is_expected.to eq(
+            inverter_power: 4000,
+            inverter_power_1: 1500,
+            inverter_power_2: 2500,
+          )
+        end
+      end
+    end
   end
 end

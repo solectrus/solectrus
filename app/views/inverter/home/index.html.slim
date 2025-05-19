@@ -1,0 +1,37 @@
+- turbo_exempts_page_from_cache
+- content_for :full_height, true
+- extra_stimulus_controllers 'swipe' if timeframe&.can_paginate?
+
+- content_for :sub_nav do
+  .flex.flex-col.lg:items-center.justify-between.lg:flex-row.py-2.md:py-5
+    = tag.turbo_frame id: frame_id('second-nav-desktop'), target: '_top', class: 'hidden lg:block' do
+      = render Nav::Sub::Component.new do |c|
+        = c.with_items nav_items
+
+    .flex.items-center.justify-between.lg:justify-end
+      = tag.turbo_frame id: frame_id('timeframe'),
+                        target: '_top',
+                        class: 'h-8 space-x-4 flex items-center justify-between lg:justify-end flex-1'
+
+      = tag.turbo_frame id: frame_id('status')
+
+- content_for :bottom_nav do
+  = tag.turbo_frame id: frame_id('second-nav-mobile'), target: '_top' do
+    = render Nav::Sub::Component.new do |c|
+      = c.with_items nav_items
+
+- if @missing_or_stale_summary_days.present?
+  = turbo_stream.update frame_id('timeframe') do
+    = render Timeframe::Component.new(timeframe:)
+  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+
+- elsif ApplicationPolicy.multi_inverter?
+  - if SensorConfig.x.inverter_sensor_names.length > 1
+    = render StatsWithChart::Component.new(sensor:, timeframe:)
+  - else
+    = render Message::Component.new do |c|
+      = c.with_title { t('layout.incomplete_multi_inverter') }
+      = c.with_body { raw t('layout.missing_multi_inverter') }
+
+- else
+  = render DemoLink::Component.new feature: 'multi_inverter'

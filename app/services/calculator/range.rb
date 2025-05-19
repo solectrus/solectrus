@@ -13,8 +13,10 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
   def default_calculations
     [
+      *SensorConfig.x.inverter_sensor_names.map do |sensor_name|
+        Queries::Calculation.new(sensor_name, :sum, :sum)
+      end,
       Queries::Calculation.new(:house_power, :sum, :sum),
-      Queries::Calculation.new(:inverter_power, :sum, :sum),
       Queries::Calculation.new(:wallbox_power, :sum, :sum),
       Queries::Calculation.new(:grid_import_power, :sum, :sum),
       Queries::Calculation.new(:grid_export_power, :sum, :sum),
@@ -34,19 +36,22 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method(:sections) { data }
 
     # Methods with float conversion
-    %i[
-      feed_in_tariff
-      electricity_price
-      inverter_power
-      wallbox_power
-      grid_import_power
-      grid_export_power
-      battery_discharging_power
-      battery_charging_power
-      heatpump_power
-    ].each { |name| build_method_from_array(name, data, :to_f) }
+    (
+      SensorConfig.x.inverter_sensor_names +
+        %i[
+          feed_in_tariff
+          electricity_price
+          wallbox_power
+          grid_import_power
+          grid_export_power
+          battery_discharging_power
+          battery_charging_power
+          heatpump_power
+        ]
+    ).each { |name| build_method_from_array(name, data, :to_f) }
 
     build_house_power_from_array(data)
+    build_inverter_power_from_array(data)
 
     # Methods without conversion
     %i[
@@ -84,6 +89,26 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
     build_method('house_power_array') { values }
     build_method(:house_power) { values.sum }
+  end
+
+  def build_inverter_power_from_array(data)
+    values =
+      if SensorConfig.x.multi_inverter?
+        data.map do |value|
+          (
+            value[:inverter_power] ||
+              SensorConfig::CUSTOM_INVERTER_SENSORS
+                .filter_map { |key| value[key] }
+                .presence
+                &.sum
+          ).to_f
+        end
+      else
+        data.map { |value| value[:inverter_power].to_f }
+      end
+
+    build_method('inverter_power_array') { values }
+    build_method(:inverter_power) { values.sum }
   end
 
   def forecast_deviation

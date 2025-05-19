@@ -49,8 +49,6 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
 
   def bar_classes
     case sensor.to_sym
-    when :grid_export_power, :inverter_power
-      'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
     when :battery_discharging_power, :battery_charging_power
       'from-green-700 to-green-300 text-green-800 dark:from-green-800 dark:to-green-500 dark:text-green-900'
     when :house_power, /custom_power_\d{2}/
@@ -61,6 +59,9 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
       'from-slate-700 to-slate-300 text-slate-800 dark:from-slate-800 dark:to-slate-500 dark:text-slate-900'
     when :grid_import_power, :case_temp
       'from-red-600   to-red-300   text-red-800   dark:from-red-800   dark:to-red-400   dark:text-red-900'
+    when :grid_export_power, :inverter_power,
+         *SensorConfig::CUSTOM_INVERTER_SENSORS
+      'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
     end
   end
 
@@ -103,6 +104,8 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
   def timeframe_path(record)
     if sensor.to_s.match?(/custom_power_\d{2}/)
       house_home_path(sensor:, timeframe: corresponding_date(record[:date]))
+    elsif sensor.to_s.match?(/inverter_power_\d{1}/)
+      inverter_home_path(sensor:, timeframe: corresponding_date(record[:date]))
     else
       root_path(
         sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),

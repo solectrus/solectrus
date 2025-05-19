@@ -1,7 +1,7 @@
 describe Flux::Aggregation do
   subject(:aggregation) { described_class.new(sensors:) }
 
-  let(:sensors) { [:inverter_power] }
+  let(:sensors) { [:inverter_power_1] }
   let(:date) { Date.new(2024, 10, 1) }
 
   before do
@@ -10,9 +10,9 @@ describe Flux::Aggregation do
       13.times do |i|
         time = date.middle_of_day + (5.minutes * i)
 
-        add_influx_point name: measurement_inverter_power,
+        add_influx_point name: measurement_inverter_power_1,
                          fields: {
-                           field_inverter_power => 10_000,
+                           field_inverter_power_1 => 10_000,
                          },
                          time:
       end
@@ -21,9 +21,9 @@ describe Flux::Aggregation do
       13.times do |i|
         time = date.middle_of_day + 2.hours + (5.minutes * i)
 
-        add_influx_point name: measurement_inverter_power,
+        add_influx_point name: measurement_inverter_power_1,
                          fields: {
-                           field_inverter_power => 5_000,
+                           field_inverter_power_1 => 5_000,
                          },
                          time:
       end
@@ -38,9 +38,9 @@ describe Flux::Aggregation do
     it do
       is_expected.to eq(
         {
-          max_inverter_power: 10_000,
-          min_inverter_power: 5_000,
-          mean_inverter_power: 7_500,
+          max_inverter_power_1: 10_000,
+          min_inverter_power_1: 5_000,
+          mean_inverter_power_1: 7_500,
         },
       )
     end

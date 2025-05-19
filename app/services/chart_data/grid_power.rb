@@ -14,7 +14,8 @@ class ChartData::GridPower < ChartData::Base
 
   def dataset(sensor)
     {
-      label: SensorConfig.x.name(sensor),
+      id: sensor,
+      label: SensorConfig.x.display_name(sensor),
       data: mapped_data(chart[sensor], sensor),
     }.merge(style(sensor))
   end
