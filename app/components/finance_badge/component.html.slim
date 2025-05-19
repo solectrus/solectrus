@@ -1,7 +1,7 @@
 .badge class= 'h-auto space-y-2 tall:space-y-3 py-3 rounded-3xl text-center xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800 text-slate-500 dark:text-slate-400'
   - unless timeframe.future?
     - if SensorConfig.x.exists?(:grid_export_power)
-      .short:hidden
+      .tiny:hidden
         .value
           = Number::Component.new(value: calculator.got).to_eur
         .title
