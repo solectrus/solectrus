@@ -178,54 +178,45 @@ export default class extends Controller<HTMLCanvasElement> {
       const date = new Date(barLabel);
       const currentUrl = window.location.href;
 
-      let regexPattern;
-      const regexes = {
-        week: /\d{4}-W\d{2}$/,
-        month: /\d{4}-\d{2}$/,
-        year: /\d{4}$/,
-        days: /P\d{1,3}D$/,
-        months: /P\d{1,2}M$/,
-        years: /P\d{1,2}Y$/,
-        all: /all$/,
-      };
-
-      let formattedDate;
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
 
-      if (regexes.week.exec(currentUrl)) {
-        regexPattern = regexes.week;
-        // We are in a week view, so bars are days (YYYY-MM-DD)
-        formattedDate = `${year}-${month}-${day}`;
-      } else if (regexes.month.exec(currentUrl)) {
-        regexPattern = regexes.month;
-        // We are in a month view, so bars are days (YYYY-MM-DD)
-        formattedDate = `${year}-${month}-${day}`;
-      } else if (regexes.years.exec(currentUrl)) {
-        regexPattern = regexes.years;
-        // We are in a multi-year view, so bars are years (YYYY)
-        formattedDate = `${year}`;
-      } else if (regexes.months.exec(currentUrl)) {
-        regexPattern = regexes.months;
-        // We are in a multi-months view, so bars are months (YYYY-MM)
-        formattedDate = `${year}-${month}`;
-      } else if (regexes.year.exec(currentUrl)) {
-        regexPattern = regexes.year;
-        // We are in a year view, so bars are months (YYYY-MM)
-        formattedDate = `${year}-${month}`;
-      } else if (regexes.days.exec(currentUrl)) {
-        regexPattern = regexes.days;
-        // We are in a multi-day view, so bars are hours (YYYY-MM-DD HH:00)
-        formattedDate = `${year}-${month}-${day}`;
-      } else if (regexes.all.exec(currentUrl)) {
-        regexPattern = regexes.all;
-        // We are in an "all" view, so bars are years (YYYY)
-        formattedDate = `${year}`;
-      } else return;
+      const regexes = {
+        week: /\/(\d{4}-W\d{2}|week)$/,
+        month: /\/(\d{4}-\d{2}|month)$/,
+        year: /\/(\d{4}|year)$/,
+        days: /\/(P\d{1,3}D)$/,
+        months: /\/(P\d{1,2}M)$/,
+        years: /\/(P\d{1,2}Y)$/,
+        all: /\/(all)$/,
+      };
 
-      const newUrl = currentUrl.replace(regexPattern, formattedDate);
-      Turbo.visit(newUrl);
+      for (const regex of Object.values(regexes)) {
+        const match = regex.exec(currentUrl);
+        const value = match?.[1];
+        if (!value) continue;
+
+        let formattedDate: string;
+
+        if (
+          regex === regexes.week ||
+          regex === regexes.month ||
+          regex === regexes.days
+        ) {
+          formattedDate = `${year}-${month}-${day}`;
+        } else if (regex === regexes.months || regex === regexes.year) {
+          formattedDate = `${year}-${month}`;
+        } else {
+          formattedDate = `${year}`;
+        }
+
+        const newUrl = currentUrl.replace(value, formattedDate);
+        Turbo.visit(newUrl);
+        return;
+      }
+
+      console.warn('Unhandled drilldown path:', currentUrl);
     }
 
     options.onHover = (event: ChartEvent, elements: ActiveElement[]) => {
