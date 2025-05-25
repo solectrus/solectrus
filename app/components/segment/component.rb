@@ -236,7 +236,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     bg-slate-500/70
     bg-slate-500/80
     bg-slate-500/90
-    bg-slate-500/100
+    bg-slate-500
   ].freeze
   public_constant :COLOR_SET_SLATE_10
 
@@ -260,7 +260,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     bg-slate-500/85
     bg-slate-500/90
     bg-slate-500/95
-    bg-slate-500/100
+    bg-slate-500
   ].freeze
   public_constant :COLOR_SET_SLATE_20
 
