@@ -120,10 +120,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   ].freeze
   private_constant :SENSORS_WITH_POWER_SPLITTER
 
-  def initialize(env)
+  def initialize(env) # rubocop:disable Metrics/CyclomaticComplexity
     Rails.logger.info 'Sensor initialization started'
 
     @sensor_logs = []
+    @sensor_warnings = []
     @env = env
 
     env_hash = env.to_h
@@ -154,6 +155,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     )
 
     @sensor_logs.each { |log| Rails.logger.info(log) }
+    if @sensor_warnings.any?
+      Rails.logger.warn "\n⚠️  Duplicate measurement/field combinations detected, this will cause trouble:"
+      @sensor_warnings.each { |warning| Rails.logger.warn("  - #{warning}") }
+    end
+
     Rails.logger.info 'Sensor initialization completed'
   end
 
@@ -313,7 +319,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     if value
       @sensor_logs << format(
         '  - Sensor %<sensor_name>-30s → %<value>s',
-        sensor_name:,
+        sensor_name: sensor_name.upcase,
         value:,
       )
     end
@@ -353,10 +359,20 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   private_constant :SENSOR_REGEX
 
   def validate!(sensor_name, value)
-    return if value.nil? || value.match?(SENSOR_REGEX)
+    return if value.nil?
 
-    raise Error,
-          "Sensor '#{sensor_name}' must be in format 'measurement:field'. Got this instead: '#{value}'"
+    unless value.match?(SENSOR_REGEX)
+      raise Error,
+            "Sensor '#{sensor_name}' must be in format 'measurement:field'. Got this instead: '#{value}'"
+    end
+
+    # Check for duplicate measurement:field assignments
+    @used_combinations ||= {}
+    if @used_combinations.key?(value)
+      @sensor_warnings << "Sensor #{sensor_name.upcase} uses the same value as #{@used_combinations[value].upcase}: #{value}"
+    else
+      @used_combinations[value] = sensor_name
+    end
   end
 
   # Sensors didn't exist in v0.14.5 and earlier, so we need to provide a fallback
