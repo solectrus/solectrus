@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static readonly targets = ['tab', 'panel', 'select'];
+  static readonly targets = ['tab', 'panel'];
   static readonly values = {
     activeTab: String,
     inactiveTab: String,
@@ -11,50 +11,56 @@ export default class extends Controller {
 
   declare tabTargets: HTMLElement[];
   declare panelTargets: HTMLElement[];
-  declare selectTarget: HTMLSelectElement;
 
   declare readonly activeTabValue: string;
   declare readonly inactiveTabValue: string;
   declare readonly activePanelValue: string;
   declare readonly hiddenPanelValue: string;
 
-  declare readonly hasSelectTarget: boolean;
-
   connect() {
-    this.activate(this.tabTargets[0], this.panelTargets[0]);
+    const hash = window.location.hash?.replace('#', '');
+    let panelIndex = 0;
+
+    if (hash) {
+      const foundIndex = this.panelTargets.findIndex(
+        (panel) => panel.id === hash,
+      );
+      if (foundIndex >= 0) panelIndex = foundIndex;
+    }
+
+    this.activate(this.tabTargets[panelIndex], this.panelTargets[panelIndex]);
   }
 
   select(event: Event) {
     event.preventDefault();
+
     const tab = event.currentTarget as HTMLElement;
     const index = this.tabTargets.indexOf(tab);
-    this.activate(tab, this.panelTargets[index]);
-  }
-
-  change() {
-    const index = this.selectTarget.selectedIndex;
-    const tab = this.tabTargets[index];
     const panel = this.panelTargets[index];
-    this.activate(tab, panel);
+
+    if (tab && panel) {
+      this.activate(tab, panel);
+      history.replaceState(null, '', `#${panel.id}`); // No scroll
+    }
   }
 
-  activate(tab: HTMLElement, panel: HTMLElement) {
+  activate(tab?: HTMLElement, panel?: HTMLElement) {
+    if (!tab || !panel) return;
+
     this.tabTargets.forEach((el) => {
-      el.className = this.inactiveTabValue;
+      el.classList.remove(...this.activeTabValue.split(' '));
+      el.classList.add(...this.inactiveTabValue.split(' '));
     });
 
     this.panelTargets.forEach((el) => {
-      el.classList.add(this.hiddenPanelValue);
-      el.classList.remove(this.activePanelValue);
+      el.classList.remove(...this.activePanelValue.split(' '));
+      el.classList.add(...this.hiddenPanelValue.split(' '));
     });
 
-    tab.className = this.activeTabValue;
-    panel.classList.remove(this.hiddenPanelValue);
-    panel.classList.add(this.activePanelValue);
+    tab.classList.remove(...this.inactiveTabValue.split(' '));
+    tab.classList.add(...this.activeTabValue.split(' '));
 
-    if (this.hasSelectTarget) {
-      const index = this.tabTargets.indexOf(tab);
-      this.selectTarget.selectedIndex = index;
-    }
+    panel.classList.remove(...this.hiddenPanelValue.split(' '));
+    panel.classList.add(...this.activePanelValue.split(' '));
   }
 }

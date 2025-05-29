@@ -12,7 +12,7 @@
   = f.group title: t('settings.sensors.description') do
     .mt-5
       = render VerticalTabs::Component.new do |c|
-        = c.with_tab t('settings.sensors.generators') do
+        = c.with_tab id: 'generators', label: t('settings.sensors.generators') do
           - if SensorConfig.x.multi_inverter?
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
               - SensorConfig.x.existing_custom_inverter_sensor_names.each do |sensor_name|
@@ -32,7 +32,7 @@
               = t('settings.sensors.single-inverter')
 
         - if SensorConfig.x.exists_any?(*@consumer_sensors)
-          = c.with_tab t('settings.sensors.consumers') do
+          = c.with_tab id: 'consumers', label: t('settings.sensors.consumers') do
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
               - @consumer_sensors.each do |sensor_name|
                 - if SensorConfig.x.exists?(sensor_name)
@@ -43,7 +43,7 @@
                                   label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
 
         - if SensorConfig.x.exists_any?(*@battery_sensors)
-          = c.with_tab t('settings.sensors.battery') do
+          = c.with_tab id: 'battery', label: t('settings.sensors.battery') do
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
               - @battery_sensors.each do |sensor_name|
                 - if SensorConfig.x.exists?(sensor_name)
