@@ -187,13 +187,13 @@ export default class extends Controller<HTMLCanvasElement> {
       const day = String(date.getDate()).padStart(2, '0');
 
       const regexes = {
-        week: /\/(\d{4}-W\d{2}|week)$/,
-        month: /\/(\d{4}-\d{2}|month)$/,
-        year: /\/(\d{4}|year)$/,
-        days: /\/(P\d{1,3}D)$/,
-        months: /\/(P\d{1,2}M)$/,
-        years: /\/(P\d{1,2}Y)$/,
-        all: /\/(all)$/,
+        week: /(\/\d{4}-W\d{2}|\/week)$/,
+        month: /(\/\d{4}-\d{2}|\/month)$/,
+        year: /(\/\d{4}|\/year)$/,
+        days: /(\/P\d{1,3}D)$/,
+        months: /(\/P\d{1,2}M)$/,
+        years: /(\/P\d{1,2}Y)$/,
+        all: /(\/all)$/,
       };
 
       for (const regex of Object.values(regexes)) {
@@ -215,7 +215,7 @@ export default class extends Controller<HTMLCanvasElement> {
           formattedDate = `${year}`;
         }
 
-        const newUrl = currentUrl.replace(value, formattedDate);
+        const newUrl = currentUrl.replace(value, `/${formattedDate}`);
         Turbo.visit(newUrl);
         return;
       }
