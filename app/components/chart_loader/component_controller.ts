@@ -44,6 +44,10 @@ Chart.register(
   CrosshairPlugin,
 );
 
+type DatasetWithId = ChartDataset & {
+  id?: string;
+};
+
 // Fix for crosshair plugin drawing over the chart and tooltip
 // https://github.com/AbelHeinsbroek/chartjs-plugin-crosshair/issues/48#issuecomment-1926758048
 const afterDraw = CrosshairPlugin.afterDraw.bind(CrosshairPlugin);
@@ -287,7 +291,11 @@ export default class extends Controller<HTMLCanvasElement> {
           let sum: number | undefined = undefined;
 
           if (isPowerSplitterStack && tooltipItems.length) {
-            sum = tooltipItems[0].parsed.y;
+            sum = tooltipItems.find((item) => {
+              const id = (item.dataset as DatasetWithId).id;
+
+              return id && !id.endsWith('_pv') && !id.endsWith('_grid');
+            })?.parsed.y;
 
             if (sum) return this.formattedNumber(sum);
           } else if (isInverterStack && tooltipItems.length > 1) {
