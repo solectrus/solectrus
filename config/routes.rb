@@ -1,7 +1,7 @@
 # == Route Map
 #
 #                            Prefix Verb   URI Pattern                                               Controller#Action
-#                rails_health_check GET    /up(.:format)                                             rails/health#show
+#                      health_check GET    /up(.:format)                                             health#show
 #                skip_browser_check GET    /skip-browser-check(.:format)                             application#skip_browser_check
 #                          lookbook        /lookbook                                                 Lookbook::Engine
 #                              root GET    /(:sensor)(/:timeframe)(.:format)                         balance/home#index {sensor: /inverter_power|house_power|house_power_without_custom|heatpump_power|grid_power|battery_power|battery_soc|car_battery_soc|wallbox_power|case_temp|autarky|self_consumption|savings|co2_reduction|inverter_power_1|inverter_power_2|inverter_power_3|inverter_power_4|inverter_power_5|custom_power_01|custom_power_02|custom_power_03|custom_power_04|custom_power_05|custom_power_06|custom_power_07|custom_power_08|custom_power_09|custom_power_10|custom_power_11|custom_power_12|custom_power_13|custom_power_14|custom_power_15|custom_power_16|custom_power_17|custom_power_18|custom_power_19|custom_power_20/, timeframe: /\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
