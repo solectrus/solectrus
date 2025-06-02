@@ -18,10 +18,19 @@ class Settings::SensorsController < ApplicationController
 
   def update
     Setting.sensor_names = permitted_params[:sensor_names]&.to_h
-    Setting.inverter_as_total =
-      permitted_params.dig(:general, :inverter_as_total) == '1'
 
-    respond_with_flash notice: t('crud.success')
+    %i[
+      inverter_as_total
+      enable_multi_inverter
+      enable_custom_consumer
+    ].each do |key|
+      value = permitted_params.dig(:general, key)
+      next unless value
+
+      Setting.public_send("#{key}=", value == '1')
+    end
+
+    redirect_to settings_sensors_path, notice: t('crud.success')
   end
 
   private
@@ -33,7 +42,11 @@ class Settings::SensorsController < ApplicationController
   def permitted_params
     params.except(:button, :_method).permit(
       sensor_names: Array(SensorConfig.x.editable_sensor_names),
-      general: [:inverter_as_total],
+      general: %i[
+        inverter_as_total
+        enable_multi_inverter
+        enable_custom_consumer
+      ],
     )
   end
 end

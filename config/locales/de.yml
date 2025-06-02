@@ -164,6 +164,8 @@ de:
       battery: Batterie
       single-inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
       inverter_as_total: In der Strombilanz nur als Summe darstellen
+      enable_multi_inverter: Seite "Erzeugung" In der Navigation anbieten
+      enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
   errors:
     title: Fehler
     403:

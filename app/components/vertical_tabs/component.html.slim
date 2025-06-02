@@ -5,6 +5,7 @@ div[
   data-vertical-tabs--component-inactive-tab-value= 'flex md:rounded-md py-2 px-3 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
   data-vertical-tabs--component-active-panel-value= 'block'
   data-vertical-tabs--component-hidden-panel-value= 'hidden'
+  data-turbo-permanent= 'true'
 ]
 
   nav.-mx-6.mb-4.bg-gray-100.dark:bg-indigo-100/10.px-6.md:pl-0.md:mr-8.md:pr-5.md:bg-inherit.md:dark:bg-inherit.md:mx-0.md:border-r
@@ -12,7 +13,7 @@ div[
       - tabs.each do |tab|
         li
           a[
-            href= "##{tab.id}"
+            href= "#"
             data-action= 'click->vertical-tabs--component#select'
             data-vertical-tabs--component-target= 'tab'
           ]

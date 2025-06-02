@@ -133,7 +133,7 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
                   inverter_power_2: 'Fence',
                 },
               }
-        expect(response).to have_http_status(:success)
+        expect(response).to have_http_status(:redirect)
 
         expect(Setting.sensor_names[:custom_power_01]).to eq('Test1')
         expect(Setting.sensor_names[:custom_power_02]).to eq('Test2')
@@ -143,12 +143,12 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
 
       it 'does nothing for unknown keys' do
         patch '/settings/sensors', params: { sensor_names: { foo: 'Test1' } }
-        expect(response).to have_http_status(:success)
+        expect(response).to have_http_status(:redirect)
       end
 
       it 'does nothing for unknown root key' do
         patch '/settings/sensors', params: { foo: { custom_power_01: 'Test1' } }
-        expect(response).to have_http_status(:success)
+        expect(response).to have_http_status(:redirect)
       end
     end
   end

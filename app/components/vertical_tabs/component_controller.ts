@@ -40,7 +40,6 @@ export default class extends Controller {
 
     if (tab && panel) {
       this.activate(tab, panel);
-      history.replaceState(null, '', `#${panel.id}`); // No scroll
     }
   }
 

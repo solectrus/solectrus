@@ -5,7 +5,13 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     private
 
     helper_method def topnav_primary_items
-      [root_item, inverter_item, house_item, essentials_item, top10_item]
+      [
+        root_item,
+        (inverter_item if Setting.enable_multi_inverter),
+        (house_item if Setting.enable_custom_consumer),
+        essentials_item,
+        top10_item,
+      ].compact
     end
 
     helper_method def topnav_secondary_items

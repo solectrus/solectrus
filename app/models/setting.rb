@@ -26,6 +26,9 @@ class Setting < RailsSettings::Base
   field :sensor_names, type: :hash, default: {}
   field :inverter_as_total, type: :boolean, default: true
 
+  field :enable_multi_inverter, type: :boolean, default: true
+  field :enable_custom_consumer, type: :boolean, default: true
+
   def self.seed!
     Setting.setup_id = nil if Setting.setup_id.to_i.zero?
     Setting.setup_id ||= (Price.first&.created_at || Time.current).to_i

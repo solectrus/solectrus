@@ -4,6 +4,11 @@ class Inverter::HomeController < ApplicationController
   include SummaryChecker
 
   def index
+    unless Setting.enable_multi_inverter
+      redirect_to(root_path)
+      return
+    end
+
     unless sensor && timeframe
       redirect_to(default_path)
       return
