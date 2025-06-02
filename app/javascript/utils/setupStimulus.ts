@@ -1,6 +1,7 @@
 import { Application } from '@hotwired/stimulus';
 import { registerControllers } from 'stimulus-vite-helpers';
 import type { TurboFrameMissingEvent } from '@hotwired/turbo';
+import * as Turbo from '@hotwired/turbo';
 
 // Start Stimulus application
 export const application = Application.start();
@@ -28,3 +29,10 @@ document.addEventListener('turbo:frame-missing', (event) => {
   event.preventDefault();
   window.location.href = response.url;
 });
+
+Turbo.StreamActions.redirect = function (this: Element) {
+  const target = this.getAttribute('target');
+  if (target) {
+    Turbo.visit(target);
+  }
+};

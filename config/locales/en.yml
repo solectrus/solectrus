@@ -107,6 +107,8 @@ en:
     missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
     password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on your Docker host.
     submit: Login
+    welcome: Logged in as administrator.
+    bye: You have been logged out.
   sponsoring:
     show:
       headline: SOLECTRUS needs sponsors!
