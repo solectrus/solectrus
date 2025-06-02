@@ -8,7 +8,7 @@
   = render Nav::Sub::Component.new do |c|
     = c.with_items nav_items
 
-= form_for(Setting.new, url: settings_general_path, method: :patch, html: { class: 'px-2' }) do |f|
+= form_with(model: Setting.new, url: settings_general_path, method: :patch, html: { class: 'px-2' }) do |f|
   = f.group title: t('settings.general.plant.description') do
     = f.text_field :plant_name,
                    value: Setting.plant_name,
