@@ -26,14 +26,13 @@
             = f.check_box 'general[inverter_as_total]',
                           checked: Setting.inverter_as_total,
                           label: I18n.t('settings.sensors.inverter_as_total')
-
-            = f.check_box 'general[enable_multi_inverter]',
-                          checked: Setting.enable_multi_inverter,
-                          label: I18n.t('settings.sensors.enable_multi_inverter')
-
           - else
-            p.text-gray-500
-              = t('settings.sensors.single-inverter')
+            p.mb-5.text-gray-500
+              = t('settings.sensors.single_inverter')
+
+          = f.check_box 'general[enable_multi_inverter]',
+                        checked: Setting.enable_multi_inverter,
+                        label: I18n.t('settings.sensors.enable_multi_inverter')
 
         - if SensorConfig.x.exists_any?(*@consumer_sensors)
           = c.with_tab id: 'consumers', label: t('settings.sensors.consumers') do
