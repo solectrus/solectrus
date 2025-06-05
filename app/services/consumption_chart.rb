@@ -1,6 +1,6 @@
 class ConsumptionChart < ChartBase
   def initialize
-    super(sensors: %i[inverter_power grid_export_power])
+    super(sensors: SensorConfig.x.inverter_sensor_names + %i[grid_export_power])
   end
 
   def call(timeframe)
@@ -24,15 +24,23 @@ class ConsumptionChart < ChartBase
 
   private
 
-  def inverter_power_field
-    SensorConfig.x.field(:inverter_power)
+  def inverter_power_field(name = :inverter_power)
+    SensorConfig.x.field(name)
+  end
+
+  def inverter_power_measurement(name = :inverter_power)
+    SensorConfig.x.measurement(name)
   end
 
   def grid_export_power_field
     SensorConfig.x.field(:grid_export_power)
   end
 
-  def chart_single(start:, window:, stop: nil)
+  def grid_export_power_measurement
+    SensorConfig.x.measurement(:grid_export_power)
+  end
+
+  def chart_single(start:, window:, stop: nil) # rubocop:disable Metrics/AbcSize
     q = []
 
     q << from_bucket
@@ -46,22 +54,47 @@ class ConsumptionChart < ChartBase
     q << '|> aggregateWindow(every: 5s, fn: last)'
     q << '|> fill(usePrevious: true)'
     q << "|> aggregateWindow(every: #{window}, fn: mean)"
-    q << '|> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")'
-    q << "|> map(fn: (r) => (
-              { r with consumption:
-                  if r.#{grid_export_power_field} > r.#{inverter_power_field} then
-                    0.0
-                  else
-                    (100.0 * (r.#{inverter_power_field} - r.#{grid_export_power_field}) / r.#{inverter_power_field})
-              }
-             ))"
+    q << '|> pivot(rowKey:["_time"], columnKey: ["_measurement", "_field"], valueColumn: "_value")'
+
+    if SensorConfig.x.multi_inverter? && !SensorConfig.x.inverter_total_present?
+      inverter_sum_expr =
+        SensorConfig
+          .x
+          .inverter_sensor_names
+          .map do |m|
+            "(if exists r[\"#{inverter_power_measurement(m)}_#{inverter_power_field(m)}\"] then r[\"#{inverter_power_measurement(m)}_#{inverter_power_field(m)}\"] else 0.0)"
+          end
+          .join(' + ')
+
+      q << "|> map(fn: (r) => (
+                 { r with inverter_power_sum: #{inverter_sum_expr} }
+               ))"
+      q << "|> map(fn: (r) => (
+          { r with consumption:
+              if r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"] > r.inverter_power_sum then
+                0.0
+              else
+                (100.0 * (r.inverter_power_sum - r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"]) / r.inverter_power_sum)
+          }
+         ))"
+    else
+      q << "|> map(fn: (r) => (
+                 { r with consumption:
+                     if r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"] > r[\"#{inverter_power_measurement}_#{inverter_power_field}\"] then
+                       0.0
+                      else
+                       (100.0 * (r[\"#{inverter_power_measurement}_#{inverter_power_field}\"] - r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"]) / r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"])
+                 }
+               ))"
+    end
+
     q << '|> keep(columns: ["_time", "consumption"])'
 
     raw = query(q.join)
     to_array(raw, start:)
   end
 
-  def query_sql(timeframe:)
+  def query_sql(timeframe:) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     result =
       SummaryValue
         .where(
@@ -74,7 +107,17 @@ class ConsumptionChart < ChartBase
         .sum(:value)
 
     dates(timeframe).map do |date|
-      inverter_power = result[[date, 'inverter_power']]
+      inverter_power =
+        if SensorConfig.x.multi_inverter?
+          result[[date, 'inverter_power']] ||
+            SensorConfig::CUSTOM_INVERTER_SENSORS
+              .filter_map { |key| result[[date, key.to_s]] }
+              .presence
+              &.sum
+        else
+          result[[date, 'inverter_power']]
+        end
+
       grid_export_power = result[[date, 'grid_export_power']]
 
       consumption =

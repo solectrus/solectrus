@@ -1,41 +1,40 @@
-class ChartData::Co2Reduction < ChartData::Base
+class ChartData::Co2Reduction < ChartData::InverterPower
+  def initialize(timeframe:)
+    super(timeframe:, sensor: :co2_reduction)
+  end
+
   private
 
   def data
-    @data ||= {
-      labels: chart&.map { |x| x.first.to_i * 1000 },
-      datasets: [
-        {
-          label: I18n.t('calculator.co2_reduction'),
-          data:
-            chart&.map do |x|
-              (x.second * co2_reduction_factor).round if x.second
-            end,
-        }.merge(style),
-      ],
-    }
+    result = dataset(:inverter_power)
+    result[:data].map! do |value|
+      value&.positive? ? (value * co2_reduction_factor).round : nil
+    end
+
+    { labels:, datasets: [result] }
   end
 
   def co2_reduction_factor
-    Rails.application.config.x.co2_emission_factor.fdiv(
-      if timeframe.short?
-        # g per hour
-        24.0
-      else
-        # kg
-        1000.0
-      end,
-    )
+    @co2_reduction_factor ||=
+      Rails.application.config.x.co2_emission_factor.fdiv(
+        if timeframe.short?
+          # g per hour
+          24.0
+        else
+          # kg
+          1000.0
+        end,
+      )
   end
 
   def chart
     @chart ||=
-      PowerChart.new(sensors: %i[inverter_power]).call(timeframe)[
-        :inverter_power
-      ]
+      PowerChart.new(sensors: SensorConfig.x.inverter_sensor_names).call(
+        timeframe,
+      )
   end
 
-  def style
+  def style(_sensor_name)
     super.merge(
       backgroundColor: '#0369a1', # bg-sky-700
     )

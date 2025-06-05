@@ -45,18 +45,4 @@
           = render RadialBadge::Component.new(title: t('calculator.co2_reduction')) do
             = Number::Component.new(value: calculator.co2_reduction).to_weight(klass: 'text-sky-700 dark:text-sky-400')
 
-    div data-controller="tippy" data-tippy-touch-value= "true"
-      = render RadialBadge::Component.new(title: t('calculator.total_costs')) do
-        - unless timeframe.future?
-          = Number::Component.new(value: costs).to_eur(negative: true)
-      - unless timeframe.future?
-        template data-tippy-target="html"
-          = render ConsumeDetails::Component.new(calculator:)
-
-    div data-controller="tippy" data-tippy-touch-value= "true"
-      = render RadialBadge::Component.new(title: t('calculator.savings')) do
-        - unless timeframe.future?
-          = Number::Component.new(value: calculator.savings).to_eur
-      - unless timeframe.future?
-        template data-tippy-target="html"
-          = render SavingsDetails::Component.new(calculator:)
+    = render FinanceBadge::Component.new(calculator:, timeframe:)

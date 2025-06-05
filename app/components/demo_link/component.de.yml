@@ -2,6 +2,9 @@ de:
   custom_consumer:
     title: Selbstdefinierte Stromverbraucher
     description: Mit separaten Stromzählern kann SOLECTRUS den Verbrauch von bis zu 20 weiteren Geräten überwachen und anschaulich visualisieren – zum Beispiel TV, Computer, Geschirrspüler, Waschmaschine, Wäschetrockner, Klimaanlage, Tiefkühltruhe und vieles mehr.
+  multi_inverter:
+    title: Weitere Stromerzeuger
+    description: SOLECTRUS kann die Messwerte von mehreren Wechselrichtern oder Strings und auch ein "Balkonkraftwerk" (Steckersolargerät) darstellen.
   relative_timeframe:
     title: Relative Zeiträume
     description: Ob die letzten 30 Tage oder die letzten 12 Monate – mit SOLECTRUS sind auch flexible Zeiträume darstellbar.

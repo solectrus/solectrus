@@ -13,7 +13,7 @@ module SettingsNavigation
           name: Price.human_enum_name(:name, :feed_in),
           href: settings_prices_path(name: 'feed_in'),
         },
-        { name: t('settings.consumers.name'), href: settings_consumers_path },
+        { name: t('settings.sensors.name'), href: settings_sensors_path },
       ]
 
       items.map do |item|

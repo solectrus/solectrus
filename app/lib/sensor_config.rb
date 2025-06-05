@@ -21,6 +21,15 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       .freeze
   public_constant :CUSTOM_SENSORS
 
+  CUSTOM_INVERTER_SENSORS = %i[
+    inverter_power_1
+    inverter_power_2
+    inverter_power_3
+    inverter_power_4
+    inverter_power_5
+  ].freeze
+  public_constant :CUSTOM_INVERTER_SENSORS
+
   # Sensors that represent power values (in Watts)
   POWER_SENSORS =
     (
@@ -33,7 +42,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         battery_charging_power
         battery_discharging_power
         wallbox_power
-      ] + CUSTOM_SENSORS
+      ] + CUSTOM_INVERTER_SENSORS + CUSTOM_SENSORS
     ).freeze
   public_constant :POWER_SENSORS
 
@@ -75,10 +84,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     savings
     co2_reduction
     house_power_without_custom
+    inverter_power_difference
   ].freeze
   public_constant :CALCULATED_SENSORS
 
-  # Sensors that can be displayed in the chart
+  # Sensors that can be displayed in the chart (and Essentials)
   CHART_SENSORS =
     (
       %i[
@@ -96,7 +106,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         self_consumption
         savings
         co2_reduction
-      ] + CUSTOM_SENSORS
+      ] + CUSTOM_INVERTER_SENSORS + CUSTOM_SENSORS
     ).freeze
   public_constant :CHART_SENSORS
   # TODO: Implement savings, which is currently a redirect to inverter_power
@@ -110,10 +120,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   ].freeze
   private_constant :SENSORS_WITH_POWER_SPLITTER
 
-  def initialize(env)
+  def initialize(env) # rubocop:disable Metrics/CyclomaticComplexity
     Rails.logger.info 'Sensor initialization started'
 
     @sensor_logs = []
+    @sensor_warnings = []
     @env = env
 
     env_hash = env.to_h
@@ -144,6 +155,11 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     )
 
     @sensor_logs.each { |log| Rails.logger.info(log) }
+    if @sensor_warnings.any?
+      Rails.logger.warn "\n⚠️  Duplicate measurement/field combinations detected, this will cause trouble:"
+      @sensor_warnings.each { |warning| Rails.logger.warn("  - #{warning}") }
+    end
+
     Rails.logger.info 'Sensor initialization completed'
   end
 
@@ -165,8 +181,13 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def exists?(sensor_name, check_policy: true) # rubocop:disable Metrics/CyclomaticComplexity
+  def exists?(sensor_name, check_policy: true) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     case sensor_name
+    when :inverter_power
+      # Total can be exists explicitly or implicitly
+      inverter_sensor_names.any?
+    when :inverter_power_difference
+      inverter_total_present? && multi_inverter?
     when :grid_power
       exists_any? :grid_import_power, :grid_export_power
     when :battery_power
@@ -206,17 +227,40 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     sensor_names.all? { |sensor_name| exists?(sensor_name) }
   end
 
-  def name(sensor_name)
-    if sensor_name.match?(/\Acustom_power_\d{2}\z/)
-      setting_name = Setting.name_for_custom_sensor(sensor_name)
-      Setting.public_send(setting_name) || sensor_name.to_s
-    elsif sensor_name.end_with?('_grid')
-      I18n.t('splitter.grid')
-    elsif sensor_name.end_with?('_pv')
-      I18n.t('splitter.pv')
-    else
-      I18n.t("sensors.#{sensor_name}").html_safe
+  def display_name(sensor_name, format = :short)
+    result =
+      Setting.sensor_names[sensor_name].presence ||
+        if sensor_name.match?(/\Acustom_power_\d{2}\z/)
+          sensor_name.to_s
+        elsif sensor_name.end_with?('_grid')
+          I18n.t('splitter.grid')
+        elsif sensor_name.end_with?('_pv')
+          I18n.t('splitter.pv')
+        else
+          I18n.t("sensors.#{sensor_name}").html_safe
+        end
+
+    # TODO: Find a better way to handle longer names
+    if sensor_name.start_with?('inverter_power_') && format == :long
+      result = "#{I18n.t('sensors.inverter_power')} #{result}"
     end
+
+    result
+  end
+
+  def editable_sensor_names
+    (
+      %i[
+        house_power
+        wallbox_power
+        heatpump_power
+        car_battery_soc
+        battery_charging_power
+        battery_discharging_power
+        battery_soc
+        case_temp
+      ] + CUSTOM_INVERTER_SENSORS + CUSTOM_SENSORS
+    ).select { exists?(it) }
   end
 
   def existing_custom_sensor_count
@@ -249,13 +293,33 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       SensorConfig.x.excluded_sensor_names.empty?
   end
 
+  def multi_inverter?
+    existing_custom_inverter_sensor_names.any?
+  end
+
+  def inverter_sensor_names
+    @inverter_sensor_names ||=
+      ([:inverter_power] + CUSTOM_INVERTER_SENSORS).select do |sensor_name|
+        sensor_defined?(sensor_name)
+      end
+  end
+
+  def existing_custom_inverter_sensor_names
+    @existing_custom_inverter_sensor_names ||=
+      CUSTOM_INVERTER_SENSORS.select { |sensor_name| exists?(sensor_name) }
+  end
+
+  def inverter_total_present?
+    sensor_defined?(:inverter_power)
+  end
+
   private
 
   def define_sensor(sensor_name, value)
     if value
       @sensor_logs << format(
         '  - Sensor %<sensor_name>-30s → %<value>s',
-        sensor_name:,
+        sensor_name: sensor_name.upcase,
         value:,
       )
     end
@@ -295,10 +359,20 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
   private_constant :SENSOR_REGEX
 
   def validate!(sensor_name, value)
-    return if value.nil? || value.match?(SENSOR_REGEX)
+    return if value.nil?
 
-    raise Error,
-          "Sensor '#{sensor_name}' must be in format 'measurement:field'. Got this instead: '#{value}'"
+    unless value.match?(SENSOR_REGEX)
+      raise Error,
+            "Sensor '#{sensor_name}' must be in format 'measurement:field'. Got this instead: '#{value}'"
+    end
+
+    # Check for duplicate measurement:field assignments
+    @used_combinations ||= {}
+    if @used_combinations.key?(value)
+      @sensor_warnings << "Sensor #{sensor_name.upcase} uses the same value as #{@used_combinations[value].upcase}: #{value}"
+    else
+      @used_combinations[value] = sensor_name
+    end
   end
 
   # Sensors didn't exist in v0.14.5 and earlier, so we need to provide a fallback

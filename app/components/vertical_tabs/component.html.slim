@@ -1,0 +1,29 @@
+div[
+  class= 'flex flex-col md:flex-row'
+  data-controller= 'vertical-tabs--component'
+  data-vertical-tabs--component-active-tab-value= 'flex md:rounded-md py-2 px-3 bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+  data-vertical-tabs--component-inactive-tab-value= 'flex md:rounded-md py-2 px-3 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+  data-vertical-tabs--component-active-panel-value= 'block'
+  data-vertical-tabs--component-hidden-panel-value= 'hidden'
+  data-turbo-permanent= 'true'
+]
+
+  nav.-mx-6.mb-4.bg-gray-100.dark:bg-indigo-100/10.px-6.md:pl-0.md:mr-8.md:pr-5.md:bg-inherit.md:dark:bg-inherit.md:mx-0.md:border-r
+    ul.flex.justify-between.md:space-y-1.md:flex-col.-mx-2.md:mx-0.text-sm.md:text-base.font-medium.uppercase.tracking-wider
+      - tabs.each do |tab|
+        li
+          a[
+            href= "#"
+            data-action= 'click->vertical-tabs--component#select'
+            data-vertical-tabs--component-target= 'tab'
+          ]
+            = tab.label
+
+  .flex-1
+    - tabs.each_with_index do |tab, i|
+      div[
+        id= tab.id
+        data-vertical-tabs--component-target= 'panel'
+        class= (i.zero? ? 'block' : 'hidden')
+      ]
+        = tab.content

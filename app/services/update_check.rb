@@ -57,6 +57,10 @@ class UpdateCheck # rubocop:disable Metrics/ClassLength
     latest[:prompt] == 'skipped'
   end
 
+  def skip_prompt_duration
+    latest[:skip_prompt_duration] || 24.hours
+  end
+
   def latest
     local_cache || @mutex.synchronize { rails_cache || fetch_remote_data }
   end
@@ -69,7 +73,7 @@ class UpdateCheck # rubocop:disable Metrics/ClassLength
   def skip_prompt!
     data = latest.merge(prompt: 'skipped')
 
-    update_cache(data, expires_in: 24.hours)
+    update_cache(data, expires_in: skip_prompt_duration)
   end
 
   private

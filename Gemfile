@@ -6,7 +6,7 @@ ruby file: '.ruby-version'
 gem 'uri', '>= 0.12.2'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 8.0.1'
+gem 'rails', '~> 8.0.2'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -161,6 +161,6 @@ group :production do
   # TODO: Change this line after the next release
   gem 'lockup', github: 'interdiscipline/lockup'
 
-  # Error reports you can be happy about. (https://www.honeybadger.io/for/ruby/)
+  # Full-stack error tracking, performance monitoring, logging, and more. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')
 end

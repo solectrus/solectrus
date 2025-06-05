@@ -10,7 +10,8 @@ class ChartData::BatterySoc < ChartData::Base
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
-          label: I18n.t('sensors.battery_soc'),
+          id: 'battery_soc',
+          label: SensorConfig.x.display_name(:battery_soc),
           data: chart&.map(&:second),
         }.merge(style),
       ],
@@ -20,7 +21,7 @@ class ChartData::BatterySoc < ChartData::Base
   def chart
     @chart ||=
       MinMaxChart.new(sensor: :battery_soc, average: true).call(timeframe)[
-        :battery_soc
+        :battery_soc,
       ]
   end
 

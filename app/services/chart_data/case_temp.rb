@@ -14,7 +14,8 @@ class ChartData::CaseTemp < ChartData::Base
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
-          label: I18n.t('sensors.case_temp'),
+          id: 'case_temp',
+          label: SensorConfig.x.display_name(:case_temp),
           data: chart&.map(&:second),
         }.merge(style),
       ],
@@ -24,7 +25,7 @@ class ChartData::CaseTemp < ChartData::Base
   def chart
     @chart ||=
       MinMaxChart.new(sensor: :case_temp, average: false).call(timeframe)[
-        :case_temp
+        :case_temp,
       ]
   end
 

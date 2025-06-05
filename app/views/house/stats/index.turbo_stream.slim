@@ -1,4 +1,4 @@
-= turbo_stream.update frame_id('nav') do
+= turbo_stream.update frame_id('timeframe') do
   = render Timeframe::Component.new(timeframe:)
 
 - if timeframe.now? && SensorConfig.x.exists?(:system_status)
@@ -18,12 +18,12 @@
 
     .flex-1.flex.gap-5
       // Clip
-      .flex.gap-10.items-end.py-4.px-3.md:px-5
+      .flex.gap-10.items-end.px-3.md:px-5.py-2.md:py-3.xl:py-4
         .w-5.border-b-2.border-t-2.border-l-2.border-slate-500.h-full.flex.justify-center
-          .flex.items-center.justify-center.text-slate-900.text-sm.md:text-lg.-ml-5
+          .flex.items-center.justify-center.text-sm.md:text-lg.-ml-5.text-slate-500.dark:text-slate-400
             = link_to house_home_path(sensor: 'house_power', timeframe:),
-                      class: 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-300 py-2 md:py-4',
-                      title: SensorConfig.x.name(:house_power),
+                      class: 'bg-white dark:bg-slate-900 py-2 md:py-4 pl-3',
+                      title: SensorConfig.x.display_name(:house_power),
                       data: { \
                         controller: 'tippy',
                         tippy_placement_value: 'right',

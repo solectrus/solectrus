@@ -9,7 +9,7 @@
         = c.with_items nav_items
 
     .flex.items-center.justify-between.lg:justify-end
-      = tag.turbo_frame id: frame_id('nav'),
+      = tag.turbo_frame id: frame_id('timeframe'),
                         target: '_top',
                         class: 'h-8 space-x-4 flex items-center justify-between lg:justify-end flex-1'
 
@@ -21,7 +21,7 @@
       = c.with_items nav_items
 
 - if @missing_or_stale_summary_days.present?
-  = turbo_stream.update frame_id('nav') do
+  = turbo_stream.update frame_id('timeframe') do
     = render Timeframe::Component.new(timeframe:)
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
@@ -30,8 +30,8 @@
     = render StatsWithChart::Component.new(sensor:, timeframe:)
   - else
     = render Message::Component.new do |c|
-      = c.with_title { t('layout.incomplete_config') }
-      = c.with_body { t('layout.missing_custom_consumers') }
+      = c.with_title { t('layout.incomplete_custom_consumers') }
+      = c.with_body { raw t('layout.missing_custom_consumers') }
 
 - else
   = render DemoLink::Component.new feature: 'custom_consumer', url: { **permitted_params }

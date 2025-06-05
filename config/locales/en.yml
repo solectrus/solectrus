@@ -1,6 +1,7 @@
 en:
   layout:
     balance: Power balance
+    inverter: Generation
     house: House consumption
     essentials: Essentials
     top10: Top 10
@@ -22,8 +23,10 @@ en:
     missing_sponsoring_cta: Learn more...
     active_sponsoring_header: Sponsoring is active
     active_sponsoring: Thank you very much for your support!
-    incomplete_config: Custom power consumers
+    incomplete_custom_consumers: Custom power consumers
     missing_custom_consumers: Here you could visualize up to 20 additional power consumers. Add additional sensors to your configuration (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> to <code>_20</code>).
+    incomplete_multi_inverter: Multiple inverters
+    missing_multi_inverter: Here you could visualize multiple inverters. Add additional sensors to your configuration (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> to <code>_5</code>).
     house_power_invalid: House consumption is less than the sum of the consumers
   timeframe:
     now: Now
@@ -36,7 +39,13 @@ en:
     years: Last %{count} years
     all: Since commissioning %{since} ago
   sensors:
-    inverter_power: PV generated
+    inverter_power: Generation
+    inverter_power_1: Generation 1
+    inverter_power_2: Generation 2
+    inverter_power_3: Generation 3
+    inverter_power_4: Generation 4
+    inverter_power_5: Generation 5
+    inverter_power_difference: Unassigned
     inverter_power_forecast: Forecast
     house_power: Home consumption
     house_power_without_custom: Other consumers
@@ -78,9 +87,13 @@ en:
     co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share
     total_costs: Total costs
+    compensation: Compensation
     autarky: Autarky
     time: Last measurement taken
     blank: No data available!
+  chart:
+    inverter_total: Cumulative
+    inverter_split: Individual
   forecast:
     exactly: Exactly as expected
     better_html: '%{percent} more than expected'
@@ -94,11 +107,13 @@ en:
     missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
     password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on your Docker host.
     submit: Login
+    welcome: Logged in as administrator.
+    bye: You have been logged out.
   sponsoring:
     show:
       headline: SOLECTRUS needs sponsors!
       p1: SOLECTRUS is open source – which means freedom for you, but also a lot of hard work for the developer. If you want ongoing updates and new features, your financial support is essential.
-      p2: By signing up for a sponsorship, you not only ensure continued development but also gain access to exclusive features, such as support for <strong>custom consumers</strong>, the <strong>power splitter</strong> to split consumption into PV and grid usage, and <strong>dark mode</strong>. Additional sponsor-only features are planned.
+      p2: By signing up for a sponsorship, you not only ensure continued development but also gain access to exclusive features, such as support for <strong>custom consumers</strong> and <strong>multiple power generators</strong>, the <strong>power splitter</strong> to split consumption into PV and grid usage, and <strong>dark mode</strong>. Additional sponsor-only features are planned.
       p3: Does that sound like a fair offer?
       more: Learn more about sponsorship
       continue: Continue
@@ -141,9 +156,16 @@ en:
       description:
         electricity: Price per consumed kWh paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
-    consumers:
-      name: Consumers
-      description: Labels for the self-defined electricity consumers
+    sensors:
+      name: Sensors
+      description: Labels for the used sensors
+      generators: Generators
+      consumers: Consumers
+      battery: Battery
+      single_inverter: In a multi-inverter configuration, these could be named here.
+      inverter_as_total: Show only as total in the power balance
+      enable_multi_inverter: Enable "Generation" page in the navigation
+      enable_custom_consumer: Enable "House consumption" page in the navigation
   errors:
     title: Error
     403:

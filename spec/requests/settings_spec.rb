@@ -89,10 +89,10 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
     end
   end
 
-  describe 'GET /settings/consumers' do
+  describe 'GET /settings/sensors' do
     context 'when not logged in' do
       it 'returns http forbidden' do
-        get '/settings/consumers'
+        get '/settings/sensors'
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -101,19 +101,19 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
       before { login_as_admin }
 
       it 'returns http success' do
-        get '/settings/consumers'
+        get '/settings/sensors'
         expect(response).to have_http_status(:success)
       end
     end
   end
 
-  describe 'PATCH /settings/consumers' do
+  describe 'PATCH /settings/sensors' do
     context 'when not logged in' do
       it 'fails' do
-        patch '/settings/consumers',
+        patch '/settings/sensors',
               params: {
                 setting: {
-                  custom_name_01: 'Test',
+                  custom_power_01: 'Test',
                 },
               }
         expect(response).to have_http_status(:forbidden)
@@ -124,17 +124,31 @@ describe 'Settings', vcr: { cassette_name: 'version' } do
       before { login_as_admin }
 
       it 'returns http success' do
-        patch '/settings/consumers',
+        patch '/settings/sensors',
               params: {
-                setting: {
-                  custom_name_01: 'Test1',
-                  custom_name_02: 'Test2',
+                sensor_names: {
+                  custom_power_01: 'Test1',
+                  custom_power_02: 'Test2',
+                  inverter_power_1: 'Roof',
+                  inverter_power_2: 'Fence',
                 },
               }
-        expect(response).to have_http_status(:success)
+        expect(response).to have_http_status(:redirect)
 
-        expect(Setting.custom_name_01).to eq('Test1')
-        expect(Setting.custom_name_02).to eq('Test2')
+        expect(Setting.sensor_names[:custom_power_01]).to eq('Test1')
+        expect(Setting.sensor_names[:custom_power_02]).to eq('Test2')
+        expect(Setting.sensor_names[:inverter_power_1]).to eq('Roof')
+        expect(Setting.sensor_names[:inverter_power_2]).to eq('Fence')
+      end
+
+      it 'does nothing for unknown keys' do
+        patch '/settings/sensors', params: { sensor_names: { foo: 'Test1' } }
+        expect(response).to have_http_status(:redirect)
+      end
+
+      it 'does nothing for unknown root key' do
+        patch '/settings/sensors', params: { foo: { custom_power_01: 'Test1' } }
+        expect(response).to have_http_status(:redirect)
       end
     end
   end

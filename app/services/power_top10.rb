@@ -1,4 +1,4 @@
-class PowerTop10
+class PowerTop10 # rubocop:disable Metrics/ClassLength
   def initialize(sensor:, desc:, calc:)
     @sensor = sensor
     @calc = ActiveSupport::StringInquirer.new(calc)
@@ -51,6 +51,8 @@ class PowerTop10
 
     if sensor == :house_power && excluded_sensor_names.any?
       build_query_house_power(start:, stop:, period:, limit:)
+    elsif sensor == :inverter_power && SensorConfig.x.multi_inverter?
+      build_query_inverter_power(start:, stop:, period:, limit:)
     else
       build_query_simple(start:, stop:, period:, limit:)
     end
@@ -59,6 +61,7 @@ class PowerTop10
   FIELD_MAPPING = {
     sum: {
       inverter_power: 'sum',
+      **SensorConfig::CUSTOM_INVERTER_SENSORS.index_with { 'sum' },
       heatpump_power: 'sum',
       house_power: 'sum',
       case_temp: 'avg',
@@ -71,6 +74,7 @@ class PowerTop10
     },
     max: {
       inverter_power: 'max',
+      **SensorConfig::CUSTOM_INVERTER_SENSORS.index_with { 'max' },
       heatpump_power: 'max',
       house_power: 'max',
       case_temp: 'max',
@@ -140,7 +144,41 @@ class PowerTop10
         .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
         .calculate_all(difference)
-        .map { |record| { date: record.first, value: record.second } }
+        .map { |(date, value)| { date:, value: } }
+        .sort_by { desc ? -it[:value] : it[:value] }
+    end
+  end
+
+  def build_query_inverter_power(start:, stop:, period:, limit:)
+    field =
+      if SensorConfig.x.inverter_total_present?
+        :inverter_power
+      else
+        SensorConfig.x.inverter_sensor_names
+      end
+
+    scope =
+      SummaryValue.where(
+        date: start..stop,
+        field:,
+        aggregation: FIELD_MAPPING[calc.to_sym][sensor],
+      ).limit(limit)
+
+    total = 'SUM(value) AS total'
+
+    if period == :day
+      scope
+        .group(:date)
+        .select(:date, total)
+        .order("total #{sort_order}")
+        .map { |it| { date: it.date, value: it.total } }
+    else
+      scope
+        .group_by_period(period, :date, series: false)
+        .order("2 #{sort_order}")
+        .calculate_all(total)
+        .map { |(date, value)| { date:, value: } }
+        .sort_by { desc ? -it[:value] : it[:value] }
     end
   end
 end

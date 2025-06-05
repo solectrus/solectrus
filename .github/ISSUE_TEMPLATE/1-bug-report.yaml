@@ -1,5 +1,6 @@
 name: Fehlerbericht
 description: Fehler in SOLECTRUS melden
+type: Bug
 
 body:
   - type: textarea
@@ -14,7 +15,7 @@ body:
     id: version
     attributes:
       label: Welche Version von SOLECTRUS verwendest du?
-      placeholder: z.B. v0.19.0
+      placeholder: z.B. v0.19.1
     validations:
       required: true
 

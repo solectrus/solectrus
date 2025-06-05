@@ -1,6 +1,7 @@
 de:
   layout:
     balance: Strombilanz
+    inverter: Erzeugung
     house: Hausverbrauch
     essentials: Einzelwerte
     top10: Top 10
@@ -22,8 +23,10 @@ de:
     missing_sponsoring_cta: Mehr erfahren...
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
-    incomplete_config: Selbstdefinierte Stromverbraucher
+    incomplete_custom_consumers: Selbstdefinierte Stromverbraucher
     missing_custom_consumers: Hier könnten bis zu 20 zusätzliche Stromverbraucher visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> bis <code>_20</code>).
+    incomplete_multi_inverter: Mehrere Stromerzeuger
+    missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
   timeframe:
     now: Aktuell
@@ -37,6 +40,12 @@ de:
     all: Seit Inbetriebnahme vor %{since}
   sensors:
     inverter_power: Erzeugung
+    inverter_power_1: Erzeugung 1
+    inverter_power_2: Erzeugung 2
+    inverter_power_3: Erzeugung 3
+    inverter_power_4: Erzeugung 4
+    inverter_power_5: Erzeugung 5
+    inverter_power_difference: Ohne Zuordnung
     inverter_power_forecast: Prognose
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher
@@ -78,9 +87,13 @@ de:
     co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Anteil Akku
     total_costs: Kosten
+    compensation: Vergütung
     autarky: Autarkie
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
+  chart:
+    inverter_total: Kumuliert
+    inverter_split: Einzeln
   forecast:
     exactly: Genau wie erwartet
     better_html: '%{percent} mehr als erwartet'
@@ -94,11 +107,13 @@ de:
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code>ADMIN_PASSWORD</code> ergänzt werden.
     password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf deinem Docker-Host.
     submit: Anmelden
+    welcome: Angemeldet als Administrator.
+    bye: Du wurdest abgemeldet.
   sponsoring:
     show:
       headline: SOLECTRUS benötigt Sponsoren!
       p1: SOLECTRUS ist Open Source – das bedeutet Freiheit für dich, aber auch harte Arbeit für den Entwickler. Wenn du möchtest, dass weiter an Updates und neuen Features gearbeitet wird, dann geht das nur mit deiner finanziellen Unterstützung.
-      p2: Mit dem Abschluss eines Sponsoring-Abos stellst du nicht nur die weitere Entwicklung sicher, sondern erhältst außerdem Zugriff auf exklusive Funktionen, wie z.B. Unterstützung für <strong>selbstdefinierte Verbraucher</strong>, den <strong>Power-Splitter</strong> zur Aufteilung des Verbrauchs in PV- und Netzanteil oder den <strong>Dunkelmodus</strong>. Weitere Features, die nur für Sponsoren verfügbar sein werden, sind in Planung.
+      p2: Mit dem Abschluss eines Sponsoring-Abos stellst du nicht nur die weitere Entwicklung sicher, sondern erhältst außerdem Zugriff auf exklusive Funktionen, wie z.B. Unterstützung für <strong>selbstdefinierte Verbraucher</strong> und <strong>mehrere Stromerzeuger</strong>, den <strong>Power-Splitter</strong> zur Aufteilung des Verbrauchs in PV- und Netzanteil oder den <strong>Dunkelmodus</strong>. Weitere Features, die nur für Sponsoren verfügbar sein werden, sind in Planung.
       p3: Klingt das nach einem fairen Angebot?
       more: Mehr über das Sponsoring erfahren
       continue: Weiter
@@ -141,9 +156,16 @@ de:
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
-    consumers:
-      name: Verbraucher
-      description: Bezeichnungen für die selbstdefinierten Stromverbraucher
+    sensors:
+      name: Sensoren
+      description: Benennung der vorhandenen Sensoren
+      generators: Erzeuger
+      consumers: Verbraucher
+      battery: Batterie
+      single_inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
+      inverter_as_total: In der Strombilanz nur als Summe darstellen
+      enable_multi_inverter: Seite "Erzeugung" in der Navigation anbieten
+      enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
   errors:
     title: Fehler
     403:

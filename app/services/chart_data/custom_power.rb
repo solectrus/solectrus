@@ -16,7 +16,8 @@ class ChartData::CustomPower < ChartData::Base
       datasets:
         chart.map do |chart_sensor, data|
           {
-            label: SensorConfig.x.name(chart_sensor),
+            id: chart_sensor,
+            label: SensorConfig.x.display_name(chart_sensor),
             data: data.map(&:second),
             stack: chart_sensor == sensor ? nil : 'Power-Splitter',
           }.merge(style(chart_sensor, split: chart.key?(sensor_grid)))
@@ -67,7 +68,7 @@ class ChartData::CustomPower < ChartData::Base
       sensor_grid => '#dc2626', # bg-red-600
       sensor_pv => '#16a34a', # bg-green-600
     }[
-      chart_sensor
+      chart_sensor,
     ]
   end
 

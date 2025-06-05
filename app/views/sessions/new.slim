@@ -1,5 +1,0 @@
-- if request.get?
-  = render TurboModal::Component.new(title: t('login.title')) do
-    = render 'form'
-- else
-  = turbo_stream.replace(dom_id(@admin_user), partial: 'form')

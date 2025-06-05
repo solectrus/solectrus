@@ -1,9 +1,8 @@
 @import 'tailwindcss';
 
 @source '../../**/*.{slim,rb}';
-@source '../../javascript/**/*.{js,ts}'
+@source '../../javascript/**/*.{js,ts}';
 
-@plugin '@tailwindcss/container-queries';
 @plugin '@tailwindcss/forms';
 @plugin 'tailwindcss-displaymodes';
 
@@ -13,6 +12,7 @@
 
 @custom-variant tall (@media (min-height: 860px));
 @custom-variant short (@media (max-height: 859px));
+@custom-variant tiny (@media (max-height: 735px));
 
 /* Import styles from external libraries */
 @import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);

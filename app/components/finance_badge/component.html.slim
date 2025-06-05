@@ -1,0 +1,26 @@
+.badge class= 'h-auto space-y-2 tall:space-y-3 py-3 rounded-3xl text-center xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+  - unless timeframe.future?
+    - if SensorConfig.x.exists?(:grid_export_power)
+      .tiny:hidden
+        .value
+          = Number::Component.new(value: calculator.got).to_eur
+        .title
+          = t('calculator.compensation')
+
+    div data-controller="tippy" data-tippy-touch-value= "true"
+      .value
+        = Number::Component.new(value: costs).to_eur(negative: true)
+      .title
+        = t('calculator.total_costs')
+
+      template data-tippy-target="html"
+        = render ConsumeDetails::Component.new(calculator:)
+
+    div data-controller="tippy" data-tippy-touch-value= "true"
+      .value
+        = Number::Component.new(value: calculator.savings).to_eur
+      .title
+        = t('calculator.savings')
+
+      template data-tippy-target="html"
+        = render SavingsDetails::Component.new(calculator:)

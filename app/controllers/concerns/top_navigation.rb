@@ -5,7 +5,13 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     private
 
     helper_method def topnav_primary_items
-      [root_item, house_item, essentials_item, top10_item]
+      [
+        root_item,
+        (inverter_item if Setting.enable_multi_inverter),
+        (house_item if Setting.enable_custom_consumer),
+        essentials_item,
+        top10_item,
+      ].compact
     end
 
     helper_method def topnav_secondary_items
@@ -33,6 +39,8 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         href:
           if helpers.controller_namespace == 'house'
             root_path(sensor: 'house_power', timeframe: helpers.timeframe)
+          elsif helpers.controller_namespace == 'inverter'
+            root_path(sensor: 'inverter_power', timeframe: helpers.timeframe)
           else
             root_path(sensor: 'inverter_power', timeframe: 'now')
           end,
@@ -40,6 +48,16 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         data: {
           controller: 'tippy',
         },
+      }
+    end
+
+    def inverter_item
+      {
+        name: t('layout.inverter'),
+        icon: 'solar-panel',
+        icon_only: true,
+        href: inverter_home_path(sensor: 'inverter_power', timeframe:),
+        current: helpers.controller_namespace == 'inverter',
       }
     end
 

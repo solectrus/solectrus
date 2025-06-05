@@ -1,5 +1,5 @@
 - if Rails.application.config.x.admin_password.present?
-  = form_for(@admin_user, url: sessions_path) do |f|
+  = form_with model: @admin_user, url: sessions_path, id: dom_id(@admin_user) do |f|
     = f.group do
       .hidden
         = f.text_field :username, value: 'admin', autocomplete: 'username'

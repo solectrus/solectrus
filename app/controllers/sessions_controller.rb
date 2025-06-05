@@ -12,16 +12,35 @@ class SessionsController < ApplicationController
 
     if @admin_user.valid?
       cookies.permanent.signed[:admin] = true
-      redirect_to referer_path || root_path
+
+      flash[:notice] = t('login.welcome')
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.action(:redirect, redirect_path)
+        end
+        format.html { redirect_to redirect_path }
+      end
     else
       @admin_user.password = nil
-      render :new, status: :unauthorized
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream:
+                   turbo_stream.replace(
+                     helpers.dom_id(@admin_user),
+                     partial: 'form',
+                   ),
+                 status: :unauthorized
+        end
+        format.html { render :new, status: :unauthorized }
+      end
     end
   end
 
   def destroy
     cookies.delete :admin
 
+    flash[:notice] = t('login.bye')
     redirect_to root_path, status: :see_other
   end
 
@@ -35,8 +54,8 @@ class SessionsController < ApplicationController
     params.expect(admin_user: %i[username password])
   end
 
-  def referer_path
-    return unless request.referer
+  def redirect_path
+    return root_path unless request.referer
 
     uri = URI.parse(request.referer)
     [uri.path, uri.query].compact.join('?')

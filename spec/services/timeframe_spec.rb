@@ -462,6 +462,14 @@ describe Timeframe do
     end
   end
 
+  context 'when string is a week in the past, equal to current cweek' do
+    let(:string) { '2021-W41' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
+    end
+  end
+
   context 'when string is a week in the future' do
     let(:string) { '2022-W42' }
 
@@ -782,6 +790,14 @@ describe Timeframe do
 
     it 'is not relative' do
       expect(decoder.relative?).to be(false)
+    end
+  end
+
+  context 'when string is a month in the past, month equal to current month' do
+    let(:string) { '2021-10' }
+
+    it 'is not current' do
+      expect(decoder.current?).to be(false)
     end
   end
 

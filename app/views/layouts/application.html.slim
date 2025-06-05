@@ -18,7 +18,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     meta name="env" content= Rails.env
     meta name="author" content="Georg Ledermann"
     meta name="robots" content= "noindex, nofollow, noarchive"
-    = turbo_refreshes_with method: :replace, scroll: :preserve
+    = turbo_refreshes_with method: :morph, scroll: :preserve
 
     - if Rails.configuration.x.honeybadger.api_key
       meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key

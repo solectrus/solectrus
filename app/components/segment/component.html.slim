@@ -25,7 +25,7 @@
 
 - if block
   = tag.div id: "segment-#{sensor}",
-            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?)],
+            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?), ('hidden' if hidden)],
             style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
             title:,
             data: { \
@@ -40,7 +40,7 @@
 - else
   = link_to_or_div url,
             id: "segment-#{sensor}",
-            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?)],
+            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?), ('hidden' if hidden)],
             style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
             title:,
             data: { \
@@ -59,11 +59,11 @@
       - if icon_class
         i.fa class= icon_class style="font-size: #{icon_size}%;"
 
-      .font-light.uppercase.leading-tight class= (large? || inline ? 'lg:block' : 'hidden')
+      .font-light.leading-tight class= (large? || inline ? 'lg:block' : 'hidden')
         = title
 
-      div data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time&.to_i }
-        = Number::Component.new(value:).public_send(now? ? :to_watt : :to_watt_hour)
+      div class= ('text-[120%]' if large?) data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time&.to_i }
+        = Number::Component.new(value:).public_send(number_method)
 
       - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
         i.fa.fa-circle-exclamation.fa-xs
@@ -74,8 +74,7 @@
             div
               i.fa.fa-2xl class= icon_class
 
-          .uppercase
-            = title
+          = title
 
           - if now?
             = Number::Component.new(value:).to_watt(precision: 3)
@@ -97,3 +96,14 @@
 
             - elsif sensor == :grid_import_power
               = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
+
+            - if multi_inverter? && ApplicationPolicy.multi_inverter?
+              table.mt-3
+                tbody
+                  - (SensorConfig.x.inverter_sensor_names - [:inverter_power]).reverse_each do |sensor_name|
+                    - if (value = calculator.public_send(sensor_name))&.positive?
+                      tr
+                        td.text-left.pr-1
+                          = SensorConfig.x.display_name(sensor_name)
+                        td.text-right.pl-1.tabular-nums
+                          = Number::Component.new(value:).public_send(number_method, precision: 3)
