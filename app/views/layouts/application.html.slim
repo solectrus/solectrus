@@ -61,10 +61,11 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
 
     - if Rails.env.test?
       // Load Sinon from CDN
-      // https://cdnjs.com/libraries/sinon.js
+      // https://cdn.jsdelivr.net/npm/sinon/
+      // Get hash from https://www.srihash.org/
       script[
-        src= 'https://cdnjs.cloudflare.com/ajax/libs/sinon.js/19.0.2/sinon.min.js'
-        integrity= 'sha512-jdcukbQUXgbcuueYR5Ztm9z7BcnxBMQ8K4EHbPjEXO/Wa4KOPcV8mRwlPVbvD80YE12Ei0r4pWQ8I3DjOKuQ6Q=='
+        src= 'https://cdn.jsdelivr.net/npm/sinon@20.0.0'
+        integrity= 'sha512-0mX3/rRotCOgkLAKUvTDkkBaCPozT80QXHqqwn5iiihIy26pAM1twCUkrTnihpsygJxiyorSp/SHvW0JgktJxQ=='
         crossorigin= 'anonymous'
         referrerpolicy= 'no-referrer'
       ]
