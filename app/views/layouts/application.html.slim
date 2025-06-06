@@ -11,6 +11,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     meta name="format-detection" content="telephone=no"
     meta name="apple-mobile-web-app-title" content="SOLECTRUS"
     meta name="apple-mobile-web-app-capable" content="yes"
+    meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"
     meta name="mobile-web-app-capable" content="yes"
     meta name="application-name" content="SOLECTRUS"
     meta name="theme-color" content= ThemeConfig.x.color data-turbo-permanent= true id= 'theme-color'
@@ -55,45 +56,46 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
 
     = yield :head
 
-  body.min-h-dvh.flex.flex-col.bg-linear-to-t.from-gray-100.to-white.select-none.font-sans.antialiased.dark:from-black.dark:to-black[
+  body.bg-indigo-600.dark:bg-indigo-900.select-none.font-sans.antialiased[
     data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]
-    - if banner?
-      = render Banner::Component.new registration_status: UpdateCheck.registration_status,
-                                     admin: admin?
+    .min-h-dvh.flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black
+      - if banner?
+        = render Banner::Component.new registration_status: UpdateCheck.registration_status,
+                                      admin: admin?
 
-    = render Nav::Top::Component.new do |c|
-      = c.with_primary_items topnav_primary_items
-      = c.with_secondary_items topnav_secondary_items
-      = c.with_sub_nav { yield :sub_nav }
+      = render Nav::Top::Component.new do |c|
+        = c.with_primary_items topnav_primary_items
+        = c.with_secondary_items topnav_secondary_items
+        = c.with_sub_nav { yield :sub_nav }
 
-    = tag.turbo_frame id: 'flash' do
-      - if flash.present?
-        = render AppFlash::Component.new(notice:, alert:)
+      = tag.turbo_frame id: 'flash' do
+        - if flash.present?
+          = render AppFlash::Component.new(notice:, alert:)
 
-    main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
-      .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
-        .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden
-          = yield
-      = tag.turbo_frame id: 'modal', target: '_top'
+      main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
+        .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
+          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden
+            = yield
+        = tag.turbo_frame id: 'modal', target: '_top'
 
-    - if content_for?(:bottom_nav)
-      .w-full.bg-indigo-600.dark:bg-indigo-900.z-10.lg:hidden
-        = yield :bottom_nav
+      - if content_for?(:bottom_nav)
+        .w-full.bg-indigo-600.dark:bg-indigo-900.z-10.lg:hidden
+          = yield :bottom_nav
 
-    footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
-      .flex.items-center.gap-2
-        = link_to 'https://solectrus.de',
-                  class: 'tracking-wider',
-                  target: '_blank',
-                  rel: 'noopener' do
-          | SOLECTRUS.de
-        = render VersionInfo::Component.new( \
-            current_version: Rails.configuration.x.git.commit_version,
-            commit_time: Rails.configuration.x.git.commit_time,
-            github_url: Rails.configuration.x.git.home,
-          )
+      footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
+        .flex.items-center.gap-2
+          = link_to 'https://solectrus.de',
+                    class: 'tracking-wider',
+                    target: '_blank',
+                    rel: 'noopener' do
+            | SOLECTRUS.de
+          = render VersionInfo::Component.new( \
+              current_version: Rails.configuration.x.git.commit_version,
+              commit_time: Rails.configuration.x.git.commit_time,
+              github_url: Rails.configuration.x.git.home,
+            )
 
-      = render AuthorLogo::Component.new
+        = render AuthorLogo::Component.new
