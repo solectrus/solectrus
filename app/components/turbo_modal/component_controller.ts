@@ -2,15 +2,11 @@ import { Controller } from '@hotwired/stimulus';
 import { enter, leave } from 'el-transition';
 
 export default class extends Controller<HTMLElement> {
-  static readonly targets = ['dialog', 'inner'];
+  static readonly targets = ['dialog', 'inner', 'backdrop'];
 
-  declare readonly hasDialogTarget: boolean;
   declare readonly dialogTarget: HTMLElement;
-  declare readonly dialogTargets: HTMLElement[];
-
-  declare readonly hasInnerTarget: boolean;
   declare readonly innerTarget: HTMLElement;
-  declare readonly innerTargets: HTMLElement[];
+  declare readonly backdropTarget: HTMLElement;
 
   connect() {
     this.element.dataset.action =
@@ -20,18 +16,18 @@ export default class extends Controller<HTMLElement> {
       'click@window->turbo-modal--component#closeBackground ';
 
     enter(this.dialogTarget);
+    enter(this.backdropTarget);
   }
 
   // Close dialog with animation
   closeDialog(event?: CustomEvent) {
-    // Remove src reference from parent frame element (just to clean up)
-    this.element.parentElement?.removeAttribute('src');
+    Promise.all([leave(this.dialogTarget), leave(this.backdropTarget)]).then(
+      () => {
+        if (event?.detail.resume) event.detail.resume();
 
-    leave(this.dialogTarget).then(() => {
-      this.dialogTarget.remove();
-
-      if (event?.detail.resume) event.detail.resume();
-    });
+        this.element.remove();
+      },
+    );
   }
 
   // Ensure to close dialog (with animation) BEFORE Turbo renders new page
