@@ -74,9 +74,9 @@ class ChartData::BatteryPower < ChartData::Base
 
     grid_data.map do |timestamp, grid|
       total = total_by_timestamp[timestamp]
-      next unless total && grid
+      next unless total
 
-      total - grid
+      total - grid.to_f
     end
   end
 
