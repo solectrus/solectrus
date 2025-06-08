@@ -53,9 +53,9 @@ class ChartData::InverterPower < ChartData::Base
 
   def valid_parts?(total, parts)
     return true unless total
-    return false if parts.any?(&:nil?) || total.zero?
+    return false if parts.none? || total.zero?
 
-    ratio = (parts.sum.fdiv(total) * 100).round
+    ratio = (parts.compact.sum.fdiv(total) * 100).round
     ratio >= 99 # 1% tolerance
   end
 
