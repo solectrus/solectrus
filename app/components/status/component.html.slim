@@ -1,5 +1,6 @@
 time.ml-4.flex.items-center.py-1.px-2.rounded.text-xs.font-semibold.tracking-wider.cursor-default.truncate[
   data-controller= (message.present? ? 'tippy' : nil)
+  data-tippy-touch-value= ('true' if message.present?)
   title= message
   datetime= time&.iso8601
   class= outer_class
