@@ -58,7 +58,7 @@ class Flux::Reader < Flux::Base
     if @cache_options
       Rails
         .cache
-        .fetch(cache_key(string), @cache_options) do
+        .fetch(cache_key(string), **@cache_options) do
           query_without_cache(string)
         end
     else

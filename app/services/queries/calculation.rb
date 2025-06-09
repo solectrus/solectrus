@@ -41,6 +41,6 @@ class Queries::Calculation
             "Meta aggregation #{meta_aggregation.inspect} is invalid!"
     end
 
-    true
+    :ok
   end
 end
