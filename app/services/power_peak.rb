@@ -9,7 +9,7 @@ class PowerPeak
     return if existing_sensors.empty?
 
     start = start&.to_date
-    Rails.cache.fetch(cache_key(start), cache_options) { peaks(start:) }
+    Rails.cache.fetch(cache_key(start), **cache_options) { peaks(start:) }
   end
 
   private
