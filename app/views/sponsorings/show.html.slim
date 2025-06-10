@@ -10,10 +10,10 @@
       == t('sponsoring.show.p2')
 
     = render Button::Component.new path: 'https://solectrus.de/sponsoring',
-                                  title: t('sponsoring.show.more'),
-                                  type: :link,
-                                  style: :secondary,
-                                  options: { rel: 'noopener', target: '_blank' }
+                                   title: t('sponsoring.show.more'),
+                                   type: :link,
+                                   style: :secondary,
+                                   options: { rel: 'noopener', target: '_blank' }
 
     - if admin?
       p.mt-10
@@ -21,14 +21,20 @@
 
       .flex.items-center.justify-between.mt-5
         = render Button::Component.new path: registration_path,
-                                      title: t('sponsoring.show.continue'),
-                                      type: :link,
-                                      options: { class: 'font-medium text-xl uppercase' }
+                                       title: t('sponsoring.show.continue'),
+                                       type: :link,
+                                       options: { \
+                                        class: 'font-medium text-xl uppercase',
+                                        data: { turbo: false },
+                                      }
 
         = render Button::Component.new path: registration_path(status: 'skip'),
-                                        title: t('sponsoring.show.skip'),
-                                        type: :link,
-                                        style: :secondary
+                                       title: t('sponsoring.show.skip'),
+                                       options: { \
+                                         data: { turbo: false },
+                                       },
+                                       type: :link,
+                                       style: :secondary
 
       p.mt-16.text-base.text-gray-500.dark:text-gray-300
         = t('sponsoring.show.p4')
