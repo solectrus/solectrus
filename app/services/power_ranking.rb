@@ -1,11 +1,19 @@
-class PowerTop10 # rubocop:disable Metrics/ClassLength
-  def initialize(sensor:, desc:, calc:)
+class PowerRanking # rubocop:disable Metrics/ClassLength
+  def initialize(sensor:, desc:, calc:, limit: 10, from: nil, to: nil)
     @sensor = sensor
     @calc = ActiveSupport::StringInquirer.new(calc)
     @desc = desc
+    @limit = limit
+
+    if from && to && from > to
+      raise ArgumentError, "From date #{from} cannot be after To date #{to}."
+    end
+
+    @from = from
+    @to = to
   end
 
-  attr_reader :sensor, :calc, :desc
+  attr_reader :sensor, :calc, :desc, :limit, :from, :to
 
   def days
     top start: start(:day), stop: stop(:day), period: :day
@@ -26,7 +34,8 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
   private
 
   def start(period)
-    raw = Rails.configuration.x.installation_date.beginning_of_day
+    raw = from || Rails.configuration.x.installation_date.beginning_of_day
+
     # In ascending order, the first period may not be included because it is (most likely) not complete
     adjustment = desc ? 0 : 1.public_send(period)
 
@@ -34,7 +43,8 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
   end
 
   def stop(period)
-    raw = Date.current.end_of_day
+    raw = to || Date.current.end_of_day
+
     # In ascending order, the current period may not be included because it is not yet complete
     adjustment = desc ? 0 : 1.public_send(period)
 
@@ -45,16 +55,16 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
     SensorConfig.x.excluded_sensor_names
   end
 
-  def top(start:, stop:, period:, limit: 10)
+  def top(start:, stop:, period:)
     return [] unless SensorConfig.x.exists?(sensor)
     return [] if start > stop
 
     if sensor == :house_power && excluded_sensor_names.any?
-      build_query_house_power(start:, stop:, period:, limit:)
+      build_query_house_power(start:, stop:, period:)
     elsif sensor == :inverter_power && SensorConfig.x.multi_inverter?
-      build_query_inverter_power(start:, stop:, period:, limit:)
+      build_query_inverter_power(start:, stop:, period:)
     else
-      build_query_simple(start:, stop:, period:, limit:)
+      build_query_simple(start:, stop:, period:)
     end
   end
 
@@ -91,7 +101,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
     desc ? :desc : :asc
   end
 
-  def build_query_simple(start:, stop:, period:, limit:)
+  def build_query_simple(start:, stop:, period:)
     scope =
       SummaryValue.where(
         date: start..stop,
@@ -119,7 +129,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def build_query_house_power(start:, stop:, period:, limit:)
+  def build_query_house_power(start:, stop:, period:)
     scope =
       SummaryValue.where(
         date: start..stop,
@@ -149,7 +159,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def build_query_inverter_power(start:, stop:, period:, limit:)
+  def build_query_inverter_power(start:, stop:, period:)
     field =
       if SensorConfig.x.inverter_total_present?
         :inverter_power
