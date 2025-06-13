@@ -2,7 +2,7 @@
   - if power_grid_ratio
     div
       small
-        = Number::Component.new(value: power_pv_ratio).to_percent(max_precision: 0, klass: 'text-black dark:text-gray-200')
+        = Number::Component.new(value: power_pv_ratio).to_percent(max_precision: 0, klass: 'text-inherit')
         =< t('.generated')
       .w-full.flex.gap-px.rounded.overflow-hidden
         - if power_pv_ratio.positive?
