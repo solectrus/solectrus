@@ -39,6 +39,11 @@
           span.text-indigo-300 &minus;
           =<> l timeframe.ending.to_date, format: :default
 
+  - when :range
+    .py-1
+      time.space-x-4 datetime= timeframe.iso8601
+        = timeframe.localized
+
   - when :week
     .py-1.flex-1.md:w-72.text-center
       time.space-x-4 datetime= timeframe.iso8601
