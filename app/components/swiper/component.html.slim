@@ -1,0 +1,47 @@
+.flex-1.flex.flex-col.relative.group[
+  data-controller= 'swiper--component'
+  data-swiper--component-key-value= @key
+  data-action= 'turbo:before-fetch-request@document->swiper--component#save keydown.left@window->swiper--component#scrollToPreviousPage keydown.right@window->swiper--component#scrollToNextPage'
+]
+  .flex-1.overflow-x-auto.snap-x.snap-mandatory.flex.scrollbar-hidden[
+    data-swiper--component-target= 'scrollable'
+    data-action= 'scroll->swiper--component#updateActiveDot'
+    role= 'region'
+    aria-label= 'Scrollable pages'
+  ]
+    - pages.each_with_index do |page, index|
+      .shrink-0.basis-full.snap-start[
+        role= 'tabpanel'
+        aria-label= "Page #{index + 1} of #{pages.size}"
+      ]
+        = page
+
+  - if pages.size > 1
+    .flex.justify-center.mt-2.gap-2[
+      role= 'tablist'
+      aria-label= 'Page navigation'
+    ]
+      - pages.size.times do |index|
+        button.w-2.h-2.rounded-full.bg-gray-600.opacity-25.transition-opacity.duration-200.focus:outline-none.focus:ring-2.focus:ring-blue-500.focus:ring-offset-2[
+          data-swiper--component-target= 'dot'
+          data-action= 'click->swiper--component#scrollToPage'
+          data-page-index= index
+          type= 'button'
+          role= 'tab'
+          aria-label= "Go to page #{index + 1}"
+          aria-selected= 'false'
+        ]
+
+    button.absolute.-left-4.top-0.bottom-0.hover:bg-slate-50.text-black.text-gray-600.opacity-0.group-hover:opacity-50.text-3xl.active:opacity-100.p-1.transform.transition-all.active:scale-125[
+      type= 'button'
+      data-swiper--component-target= 'btnPrev'
+      data-action= 'click->swiper--component#scrollToPreviousPage'
+    ]
+      i.fa.fa-chevron-left
+
+    button.absolute.-right-6.top-0.bottom-0.hover:bg-slate-50.text-black.text-gray-600.opacity-0.group-hover:opacity-50.text-3xl.active:opacity-100.p-1.transform.transition-all.active:scale-125[
+      type= 'button'
+      data-swiper--component-target= 'btnNext'
+      data-action= 'click->swiper--component#scrollToNextPage'
+    ]
+      i.fa.fa-chevron-right
