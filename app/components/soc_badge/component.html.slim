@@ -6,15 +6,15 @@
     - if (value = public_send(soc_sensor))
       = link_to root_path(sensor: soc_sensor, timeframe:),
                 data: { \
-                  turbo_frame: helpers.frame_id('chart'),
+                  turbo_frame: helpers.frame_id('side'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
-                  'stats-with-chart--component-target': 'current',
+                  'stats-with-side--component-target': 'current',
                   sensor: soc_sensor,
                   value:,
                   time: time.to_i,
-                  action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: soc_sensor,
+                  action: 'stats-with-side--component#startLoop',
+                  stats_with_side__component_sensor_param: soc_sensor,
                 },
                 class: 'click-animation' do
         div class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'
