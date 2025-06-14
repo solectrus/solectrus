@@ -22,6 +22,14 @@
                             data: { src: charts_path } do
             = render Loading::Component.new
 
+        - if insights_path
+          - component.with_page do
+            = tag.turbo_frame id: helpers.frame_id('insights'),
+                              class: 'flex flex-col items-center justify-center h-full',
+                              target: '_top',
+                              data: { src: insights_path } do
+              = render Loading::Component.new
+
 - else
   = render DemoLink::Component.new feature: 'relative_timeframe',
                                    url: { **controller.__send__(:permitted_params) }

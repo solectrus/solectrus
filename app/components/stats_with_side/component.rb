@@ -59,6 +59,17 @@ class StatsWithSide::Component < ViewComponent::Base
     )
   end
 
+  def insights_path
+    return unless helpers.controller_namespace == 'balance'
+    return if timeframe.short?
+
+    helpers.url_for(
+      helpers.permitted_params.to_hash.symbolize_keys.merge(
+        controller: "#{helpers.controller_namespace}/insights",
+      ),
+    )
+  end
+
   def chart_loading_animation?
     # Show loading animation for frame requests only, not for the first request
     return false unless helpers.turbo_frame_request?
