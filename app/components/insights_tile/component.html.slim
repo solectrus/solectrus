@@ -1,0 +1,22 @@
+- base_classes = 'bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-gray-400 rounded-2xl shadow p-1 sm:p-4 text-center'
+- combined_classes = [base_classes, css_class, ('stripes' if incomplete)].compact.join(' ')
+
+- content = capture do
+  .text-sm.text-gray-500
+    = title
+
+  .text-lg.sm:text-2xl
+    = body
+
+  - if footer
+    .text-sm.text-gray-500
+      = footer
+
+- if url
+  = link_to url,
+            class: "block #{combined_classes} hover:scale-105 transition-all" do
+    = content
+
+- else
+  div class= combined_classes
+    = content

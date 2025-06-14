@@ -85,6 +85,7 @@ Rails.application.routes.draw do
       get '/(/:sensor)(/:timeframe)', to: 'balance/home#index', as: :root
       get '/stats/:sensor(/:timeframe)', to: 'balance/stats#index'
       get '/charts/:sensor(/:timeframe)', to: 'balance/charts#index'
+      get '/insights/:sensor/(:timeframe)', to: 'balance/insights#index'
 
       # House / Inverter
       %i[house inverter].each do |item|

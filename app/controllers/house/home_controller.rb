@@ -19,6 +19,16 @@ class House::HomeController < ApplicationController
 
   private
 
+  helper_method def sensors
+    [
+      :house_power,
+      *SensorConfig.x.included_custom_sensor_names.sort_by do |sensor_name|
+        SensorConfig.x.display_name(sensor_name).downcase
+      end,
+      :house_power_without_custom,
+    ]
+  end
+
   def default_path
     house_home_path(sensor: sensor || 'house_power', timeframe: 'now')
   end

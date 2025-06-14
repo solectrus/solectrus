@@ -11,8 +11,4 @@ class Inverter::ChartsController < ApplicationController
       redirect_to inverter_home_path(sensor:, timeframe:)
     end
   end
-
-  helper_method def chart_sensors
-    ([:inverter_power] + SensorConfig.x.inverter_sensor_names).uniq
-  end
 end

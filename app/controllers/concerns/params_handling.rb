@@ -33,9 +33,15 @@ module ParamsHandling
       @timeframe ||= Timeframe.new(permitted_params[:timeframe])
     end
 
+    helper_method def calculator_now
+      # Override in controller
+    end
+
+    helper_method def calculator_range
+      # Override in controller
+    end
+
     helper_method def calculator
-      # Requires the including controller to define
-      # both `calculator_now` and `calculator_range` methods
       @calculator ||= (timeframe.now? ? calculator_now : calculator_range)
     end
   end

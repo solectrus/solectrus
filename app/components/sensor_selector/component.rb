@@ -1,4 +1,4 @@
-class ChartSelector::Component < ViewComponent::Base
+class SensorSelector::Component < ViewComponent::Base
   def initialize(
     sensor:,
     timeframe:,
@@ -30,11 +30,11 @@ class ChartSelector::Component < ViewComponent::Base
                   timeframe:,
                 ),
               data: {
-                'turbo-frame' => helpers.frame_id('chart'),
+                'turbo-frame' => helpers.frame_id('side'),
                 'turbo-action' => 'replace',
                 'action' =>
-                  'stats-with-chart--component#startLoop dropdown--component#toggle',
-                'stats-with-chart--component-sensor-param' => sensor,
+                  'stats-with-side--component#startLoop dropdown--component#toggle',
+                'stats-with-side--component-sensor-param' => sensor,
               },
               current: sensor == @sensor,
             )
