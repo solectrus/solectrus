@@ -19,6 +19,10 @@ class Inverter::HomeController < ApplicationController
 
   private
 
+  helper_method def sensors
+    ([:inverter_power] + SensorConfig.x.inverter_sensor_names).uniq
+  end
+
   def default_path
     inverter_home_path(sensor: sensor || 'inverter_power', timeframe: 'now')
   end
