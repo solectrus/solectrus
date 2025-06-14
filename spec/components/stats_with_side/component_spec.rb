@@ -1,4 +1,4 @@
-describe StatsWithChart::Component, type: :component do
+describe StatsWithSide::Component, type: :component do
   subject(:component) { described_class.new(sensor:, timeframe:) }
 
   let(:sensor) { 'inverter_power' }
