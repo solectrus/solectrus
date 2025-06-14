@@ -9,7 +9,9 @@
   = render Nav::Sub::Component.new do |c|
     = c.with_items nav_items
 
-= turbo_stream.update frame_id('chart') do
-  .flex.flex-col.flex-auto.sm:gap-2.w-full
-    - unless timeframe.out_of_scope?
-      = render ChartLoader::Component.new(sensor:, timeframe:, variant: 'split')
+= turbo_stream.update frame_id('insights') do
+  - if ApplicationPolicy.insights?
+    = render Insights::Component.new(sensor:, timeframe:)
+  - else
+    = render DemoLink::Component.new feature: 'insights',
+                                     url: { controller: 'balance/home', timeframe: params[:timeframe] }

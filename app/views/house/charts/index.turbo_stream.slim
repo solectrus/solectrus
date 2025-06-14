@@ -10,13 +10,6 @@
     = c.with_items nav_items
 
 = turbo_stream.update frame_id('chart') do
-  .flex.flex-col.flex-auto.sm:gap-2
-    - unless timeframe.out_of_range?
-      = render ChartSelector::Component.new( \
-        sensor:,
-        timeframe:,
-        sensors: chart_sensors,
-        top_sensor: chart_sensors.first,
-        bottom_sensor: chart_sensors.last,
-      )
+  .flex.flex-col.flex-auto.sm:gap-2.w-full
+    - unless timeframe.out_of_scope?
       = render ChartLoader::Component.new(sensor:, timeframe:)

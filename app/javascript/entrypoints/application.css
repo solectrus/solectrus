@@ -180,4 +180,26 @@
   .scrollbar-hidden::-webkit-scrollbar {
     display: none; /* Chrome, Safari */
   }
+
+  .stripes {
+    @apply relative z-0 overflow-hidden;
+  }
+
+  .stripes::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 -z-1 opacity-50;
+    background: repeating-linear-gradient(
+      135deg,
+      #e5e7eb 0 10px,
+      #f3f4f6 10px 20px
+    );
+  }
+
+  .dark .stripes::before {
+    background: repeating-linear-gradient(
+      135deg,
+      #334155 0 10px,
+      #1e293b 10px 20px
+    );
+  }
 }

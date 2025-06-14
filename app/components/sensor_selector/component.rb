@@ -1,4 +1,4 @@
-class ChartSelector::Component < ViewComponent::Base
+class SensorSelector::Component < ViewComponent::Base
   def initialize(
     sensor:,
     timeframe:,

@@ -1,4 +1,4 @@
-class Inverter::ChartsController < ApplicationController
+class Balance::InsightsController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
 
@@ -8,7 +8,7 @@ class Inverter::ChartsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to inverter_home_path(sensor:, timeframe:)
+      redirect_to root_path(sensor:, timeframe:)
     end
   end
 end
