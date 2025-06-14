@@ -396,6 +396,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   def corresponding_year
     if current_year?
       'P12M'
+    elsif p12m?
+      'P365D'
     elsif relative?
       Date.current.strftime(format(target_id: :year))
     else

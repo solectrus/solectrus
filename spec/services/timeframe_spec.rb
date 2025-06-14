@@ -1179,7 +1179,7 @@ describe Timeframe do
     end
 
     it 'has corresponding year' do
-      expect(decoder.corresponding_year).to eq('2022')
+      expect(decoder.corresponding_year).to eq('P365D')
     end
 
     it 'returns the correct beginning' do
