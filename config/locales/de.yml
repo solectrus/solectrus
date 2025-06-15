@@ -120,6 +120,13 @@ de:
       skip: Vielleicht später
       p4: Du kannst SOLECTRUS im Basisumfang kostenfrei nutzen, dieser Hinweis erscheint jedoch gelegentlich als Erinnerung an die Möglichkeit eines Sponsorings.
       login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Administrator an.
+  registration_required:
+    show:
+      headline: Registrierung erforderlich
+      p1: SOLECTRUS ist im Basisumfang kostenfrei nutzbar, erfordert jedoch eine Registrierung mit Name, Postleitzahl und E-Mail-Adresse.
+      p2: Die Registrierung hilft dabei, die Verbreitung der Software besser einzuschätzen und die Weiterentwicklung gezielt zu priorisieren.
+      continue: Jetzt registrieren
+      login_required: Um die Registrierung vorzunehmen, melde dich bitte als Administrator an.
   crud:
     new: Neu
     edit: Bearbeiten

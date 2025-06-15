@@ -1,4 +1,5 @@
 class RegistrationController < ApplicationController
+  skip_before_action :check_for_registration
   skip_before_action :check_for_sponsoring
 
   def show

@@ -25,6 +25,14 @@ describe UpdateCheck do
         )
       end
 
+      it 'handles grace period' do
+        expect(instance).not_to be_registration_grace_period_expired
+
+        travel 15.days do
+          expect(instance).to be_registration_grace_period_expired
+        end
+      end
+
       it 'has shortcuts' do
         expect(instance.latest_version).to eq('v0.15.1')
         expect(instance.registration_status).to eq('unregistered')

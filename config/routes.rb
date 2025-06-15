@@ -126,6 +126,9 @@ Rails.application.routes.draw do
   post '/login', to: 'sessions#create', as: :sessions
   delete '/logout', to: 'sessions#destroy', as: :session
   get '/registration/(:status)', to: 'registration#show', as: :registration
+  get '/registration-required',
+      to: 'registration_required#show',
+      as: :registration_required
   get '/sponsoring', to: 'sponsorings#show', as: :sponsoring
 
   get '/favicon.ico', to: redirect('/favicon-196.png')

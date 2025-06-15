@@ -11,7 +11,9 @@ class UpdateCheck
              :eligible_for_free?,
              :prompt?,
              :simple_prompt?,
+             :registered?,
              :unregistered?,
+             :registration_grace_period_expired?,
              :skipped_prompt?,
              :skip_prompt!,
              :latest_version,
@@ -43,19 +45,30 @@ class UpdateCheck
   end
 
   def eligible_for_free?
-    registration_status == 'complete' && !prompt? && !sponsoring?
+    registered? && !prompt? && !sponsoring?
   end
 
   def prompt?
-    registration_status == 'complete' && latest[:prompt].present?
+    registered? && latest[:prompt].present?
   end
 
   def simple_prompt?
     !sponsoring? && !eligible_for_free?
   end
 
+  def registered?
+    registration_status == 'complete'
+  end
+
   def unregistered?
     registration_status.in?(%w[unregistered pending])
+  end
+
+  def registration_grace_period_expired?
+    return false unless unregistered?
+
+    installation_time = Time.zone.at(Setting.setup_id)
+    Time.current > installation_time + 2.weeks
   end
 
   def latest

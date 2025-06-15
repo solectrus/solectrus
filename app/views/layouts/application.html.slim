@@ -64,7 +64,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     .min-h-dvh.flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black
       - if banner?
         = render Banner::Component.new registration_status: UpdateCheck.registration_status,
-                                      admin: admin?
+                                       admin: admin?
 
       = render Nav::Top::Component.new do |c|
         = c.with_primary_items topnav_primary_items

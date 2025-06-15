@@ -1,0 +1,30 @@
+.bg-linear-to-tr.from-yellow-100.to-yellow-100.via-white.w-full
+  .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-4.sm:px-6.lg:px-8.py-10.text-lg
+    h1.text-2xl.md:text-3xl.font-medium
+      == t('registration_required.show.headline')
+
+    p.mt-5.md:mt-10
+      == t('registration_required.show.p1')
+
+    p.mt-5
+      == t('registration_required.show.p2')
+
+    - if admin?
+      .flex.items-center.justify-between.mt-5
+        = render Button::Component.new path: registration_path,
+                                       title: t('registration_required.show.continue'),
+                                       type: :link,
+                                       options: { \
+                                        class: 'font-medium text-xl uppercase',
+                                        data: { turbo: false },
+                                      }
+
+    - else
+      p.mt-10.mb-5
+        = t('registration_required.show.login_required')
+
+      = render Button::Component.new( \
+          path: new_session_path,
+          title: t('layout.login'),
+          options: { data: { turbo_frame: 'modal' } },
+        )
