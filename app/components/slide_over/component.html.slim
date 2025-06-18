@@ -77,11 +77,11 @@
                     = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'underline underline-offset-2'
 
             - elsif UpdateCheck.sponsoring?
-              .bg-green-100
-                .bg-green-600.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
+              .bg-green-100.dark:bg-green-900
+                .bg-green-600.dark:bg-green-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
                   = I18n.t('layout.active_sponsoring_header')
 
                 - if helpers.admin?
-                  .p-5.text-green-600.flex.justify-between.items-center
+                  .p-5.text-green-600.dark:text-green-300.flex.justify-between.items-center
                     = I18n.t('layout.active_sponsoring')
                     .text-3xl 🎉

@@ -34,9 +34,16 @@ class ApplicationController < ActionController::Base
   helper_method def title
   end
 
+  before_action :check_for_registration
   before_action :check_for_sponsoring
 
   private
+
+  def check_for_registration
+    return unless UpdateCheck.registration_grace_period_expired?
+
+    redirect_to(registration_required_path)
+  end
 
   def check_for_sponsoring
     return unless UpdateCheck.prompt?

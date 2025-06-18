@@ -1,42 +1,48 @@
 - if helpers.turbo_frame_request?
   = tag.turbo_frame id: 'modal' do
-    div[
-      role= 'dialog'
-      aria-modal= 'true'
-      aria-labelledby= 'modal-title'
-      data-controller= 'turbo-modal--component'
-      data-turbo-modal--component-target= 'dialog'
-      data-transition-enter="motion-safe:ease-out motion-safe:duration-300"
-      data-transition-enter-start="opacity-0"
-      data-transition-enter-end="opacity-100"
-      data-transition-leave="motion-safe:ease-in motion-safe:duration-200"
-      data-transition-leave-start="opacity-100"
-      data-transition-leave-end="opacity-0"
-      class= 'z-50 relative text-gray-800 dark:text-gray-400'
-    ]
+    = tag.div data: { controller: 'turbo-modal--component' } do
       div[
-        class= 'fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity'
+        class= 'fixed inset-0 z-50 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity opacity-0'
         data-action= 'click->turbo-modal--component#closeBackground'
+        data-turbo-modal--component-target= 'backdrop'
+        data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
+        data-transition-enter-start= 'opacity-0'
+        data-transition-enter-end= 'opacity-100'
+        data-transition-leave= 'motion-safe:ease-in motion-safe:duration-200'
+        data-transition-leave-start= 'opacity-100'
+        data-transition-leave-end= 'opacity-0'
       ]
 
-      div class= 'fixed z-50 inset-0 bottom-20 overflow-y-auto'
-        div class= 'flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0'
-          div[
-            class= 'relative bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 max-w-sm w-full sm:p-6'
-            data-turbo-modal--component-target= 'inner'
-          ]
-            h1#modal-title class='font-bold text-2xl leading-none'
-              = @title
+      div[
+        class= 'fixed inset-0 z-50 flex items-end md:items-center justify-center overflow-y-auto transform transition-transform translate-y-full md:opacity-0 md:translate-0'
+        role= 'dialog'
+        aria-modal= 'true'
+        aria-labelledby= 'modal-title'
+        data-turbo-modal--component-target= 'dialog'
+        data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
+        data-transition-enter-start= 'translate-y-full md:opacity-0 md:translate-y-0'
+        data-transition-enter-end= 'translate-y-0 md:opacity-100'
+        data-transition-leave= 'motion-safe:ease-in motion-safe:duration-200'
+        data-transition-leave-start= 'translate-y-0 md:opacity-100'
+        data-transition-leave-end= 'translate-y-full md:opacity-0 md:translate-y-0'
+      ]
+        div[
+          class= 'relative bg-white dark:bg-slate-800 rounded-t-lg md:rounded-lg px-4 pt-5 pb-10 text-left overflow-hidden shadow-xl md:max-w-sm w-full sm:p-6'
+          data-turbo-modal--component-target="inner"
+        ]
+          h1 id= 'modal-title' class= 'font-bold text-2xl leading-none'
+            = @title
 
-            = content
+          = content
 
-            = button_tag type: 'button',
-                         class: 'absolute top-5 right-5 text-gray-400 dark:text-gray-600',
-                         'aria-label': t('.close'),
-                         data: { action: 'turbo-modal--component#closeDialog' } do
-              i.fa.fa-times.fa-lg
+          = button_tag type: 'button',
+                      class: 'absolute top-5 right-5 text-gray-400 dark:text-gray-600 cursor-pointer',
+                      'aria-label': t('.close'),
+                      data: { action: 'turbo-modal--component#closeDialog' } do
+            i.fa.fa-times.fa-lg
 
 - else
-  h1 class='font-bold text-2xl text-gray-800 dark:text-gray-400'
+  h1 class= 'font-bold text-2xl text-gray-800 dark:text-gray-400'
     = @title
+
   = content

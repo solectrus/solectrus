@@ -7,17 +7,10 @@ describe UpdateCheck do
   end
 
   # Some helper methods to check the cache
-  def cached_local?
-    instance.__send__(:local_cache).present?
-  end
+  delegate :cached?, to: :instance
+  delegate :cached_local?, to: :instance
+  delegate :cached_rails?, to: :instance
 
-  def cached_rails?
-    Rails.cache.exist?(instance.__send__(:cache_key))
-  end
-
-  def cached?
-    cached_local? || cached_rails?
-  end
   ##############
 
   describe '.latest' do
@@ -30,6 +23,14 @@ describe UpdateCheck do
         is_expected.to eq(
           { version: 'v0.15.1', registration_status: 'unregistered' },
         )
+      end
+
+      it 'handles grace period' do
+        expect(instance).not_to be_registration_grace_period_expired
+
+        travel 15.days do
+          expect(instance).to be_registration_grace_period_expired
+        end
       end
 
       it 'has shortcuts' do
@@ -263,6 +264,19 @@ describe UpdateCheck do
       travel 24.hours + 1 do
         expect(instance.skipped_prompt?).to be false
       end
+    end
+
+    it 'stores skip information independently of main cache' do
+      # Ensure we start with clean caches
+      instance.clear_cache!
+      expect(instance.skipped_prompt?).to be false
+
+      # Skip the prompt
+      instance.skip_prompt!
+      expect(instance.skipped_prompt?).to be true
+
+      # Main cache should remain empty since we didn't fetch data
+      expect(cached?).to be false
     end
   end
 

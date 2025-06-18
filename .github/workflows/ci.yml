@@ -11,6 +11,9 @@ on:
     branches:
       - develop
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,6 +22,8 @@ jobs:
   test:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    permissions:
+      contents: read
 
     services:
       influxdb:
@@ -112,8 +117,11 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     needs: test
-    if: ${{ github.actor != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -187,8 +195,11 @@ jobs:
   deploy:
     runs-on: ubuntu-24.04
     needs: build
-    if: ${{ github.triggering_actor != 'dependabot[bot]' }}
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
     timeout-minutes: 30
+    permissions:
+      contents: read
+      deployments: write
 
     steps:
       - name: Send webhook to start deployment

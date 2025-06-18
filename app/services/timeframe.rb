@@ -163,6 +163,18 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     id == :days
   end
 
+  def p365d?
+    days? && relative_count == 365
+  end
+
+  def p30d?
+    days? && relative_count == 30
+  end
+
+  def p7d?
+    days? && relative_count == 7
+  end
+
   def short?
     now? || day?
   end
@@ -172,7 +184,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def week_like?
-    week? || (days? && relative_count == 7 && current?)
+    week? || p7d?
   end
 
   def month?
@@ -180,19 +192,27 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def month_like?
-    month? || (days? && relative_count == 30 && current?)
+    month? || p30d?
   end
 
   def months?
     id == :months
   end
 
+  def p12m?
+    months? && relative_count == 12
+  end
+
   def year?
     id == :year
   end
 
+  def current_year?
+    year? && current?
+  end
+
   def year_like?
-    year? || (months? && relative_count == 12 && current?)
+    year? || p12m? || p365d?
   end
 
   def years?
@@ -374,8 +394,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def corresponding_year
-    if year? && current?
+    if current_year?
       'P12M'
+    elsif p12m?
+      'P365D'
     elsif relative?
       Date.current.strftime(format(target_id: :year))
     else

@@ -39,9 +39,11 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
 
   def check_box(method, **options)
     hint = options.delete(:hint)
-    options[:class] = tag.classes(
-      [options[:class], 'form-checkbox', ('mt-0.5' if hint)],
-    )
+    options[:class] = [
+      options[:class],
+      'form-checkbox',
+      ('mt-0.5' if hint),
+    ].compact.join(' ')
 
     tag.div class: [
               'form-control mt-1 flex-row gap-3',
@@ -64,14 +66,12 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   delegate :tag, :link_to, :safe_join, :render, to: :template
 
   def input_field(field_type, method, **options)
-    options[:class] = tag.classes(
-      [
-        options[:class],
-        'form-input',
-        ('input-error' if error?(method)),
-        (options[:maxlength] ? 'w-20' : 'w-full'),
-      ],
-    )
+    options[:class] = [
+      options[:class],
+      'form-input',
+      ('input-error' if error?(method)),
+      (options[:maxlength] ? 'w-20' : 'w-full'),
+    ].compact.join(' ')
 
     tag.div class: 'form-control' do
       label(method, class: 'label') do

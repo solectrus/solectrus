@@ -120,6 +120,13 @@ en:
       skip: Maybe later
       p4: You can use SOLECTRUS’s basic features for free, but this reminder about sponsorship will appear from time to time.
       login_required: To sponsor or see more options, please log in as an administrator.
+  registration_required:
+    show:
+      headline: Registration Required
+      p1: SOLECTRUS is free to use in the basic version, but you need to register with your name, postal code, and email address.
+      p2: Registration helps to understand how many people use the software and to plan future improvements.
+      continue: Register now
+      login_required: Please log in as an administrator to complete the registration.
   crud:
     new: New
     edit: Edit

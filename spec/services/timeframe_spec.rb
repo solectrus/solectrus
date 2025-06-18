@@ -1141,6 +1141,8 @@ describe Timeframe do
   context 'when string is P7D' do
     let(:string) { 'P7D' }
 
+    it { is_expected.to be_p7d }
+
     it 'is week_like' do
       expect(decoder).to be_week_like
       expect(decoder).not_to be_week
@@ -1153,6 +1155,8 @@ describe Timeframe do
 
   context 'when string is P30D' do
     let(:string) { 'P30D' }
+
+    it { is_expected.to be_p30d }
 
     it 'is month_like' do
       expect(decoder).to be_month_like
@@ -1167,6 +1171,27 @@ describe Timeframe do
   context 'when string is P12M' do
     let(:string) { 'P12M' }
 
+    it { is_expected.to be_p12m }
+
+    it 'is year_like' do
+      expect(decoder).to be_year_like
+      expect(decoder).not_to be_year
+    end
+
+    it 'has corresponding year' do
+      expect(decoder.corresponding_year).to eq('P365D')
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2021-10-01 00:00:00.000000000 +0200')
+    end
+  end
+
+  context 'when string is P365D' do
+    let(:string) { 'P365D' }
+
+    it { is_expected.to be_p365d }
+
     it 'is year_like' do
       expect(decoder).to be_year_like
       expect(decoder).not_to be_year
@@ -1177,7 +1202,7 @@ describe Timeframe do
     end
 
     it 'returns the correct beginning' do
-      expect(decoder.beginning).to eq('2021-10-01 00:00:00.000000000 +0200')
+      expect(decoder.beginning).to eq('2021-10-13 00:00:00.000000000 +0200')
     end
   end
 
