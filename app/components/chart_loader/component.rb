@@ -92,6 +92,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 stepSize: 15,
                 maxRotation: 0,
               },
+              hours: {
+                stepSize: 3,
+                maxRotation: 0,
+              },
               day: {
                 stepSize: 3,
                 maxRotation: 0,
@@ -135,6 +139,13 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                   minute: 'HH:mm',
                 },
                 tooltipFormat: 'HH:mm:ss',
+              },
+              hours: {
+                unit: 'hour',
+                displayFormats: {
+                  hour: 'HH:mm',
+                },
+                tooltipFormat: 'HH:mm',
               },
               day: {
                 unit: 'hour',

@@ -14,7 +14,7 @@ class Flux::Reader < Flux::Base
 
   private
 
-  WINDOW = { now: '30s', day: '5m' }.freeze
+  WINDOW = { now: '30s', hours: '5m', day: '5m' }.freeze
   private_constant :WINDOW
 
   def from_bucket

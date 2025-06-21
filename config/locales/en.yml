@@ -30,6 +30,7 @@ en:
     house_power_invalid: House consumption is less than the sum of the consumers
   timeframe:
     now: Now
+    hours: Last %{count} hours
     day: Today
     days: Last %{count} days
     week: This week

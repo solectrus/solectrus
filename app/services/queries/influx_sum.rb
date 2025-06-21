@@ -8,6 +8,12 @@ class Queries::InfluxSum
 
   attr_reader :timeframe
 
+  def to_hash
+    sensors.each_with_object({}) do |sensor, hash|
+      hash[sensor] = public_send(sensor) if respond_to?(sensor)
+    end
+  end
+
   private
 
   def build_method(key, data = nil, &)

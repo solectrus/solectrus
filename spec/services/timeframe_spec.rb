@@ -161,6 +161,102 @@ describe Timeframe do
     end
   end
 
+  context 'when string is "P24H"' do
+    let(:string) { 'P24H' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:hours)
+    end
+
+    it 'is day_like' do
+      expect(decoder).to be_day_like
+      expect(decoder).not_to be_day
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq('2022-10-12 10:00:00 +0200')
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq('2022-10-13 10:00:00 +0200')
+    end
+
+    it 'returns the correct beginning_of_next' do
+      expect(decoder.beginning_of_next).to eq('2022-10-13 10:00:00 +0200')
+    end
+
+    it 'returns the correct next timeframe' do
+      expect(decoder.next).to be_nil
+    end
+
+    it 'returns the correct previous timeframe' do
+      expect(decoder.prev).to be_nil
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('Last 24 hours')
+    end
+
+    it 'returns the correct corresponding_day' do
+      expect(decoder.corresponding_day).to eq('2022-10-13')
+    end
+
+    it 'returns the correct corresponding_week' do
+      expect(decoder.corresponding_week).to eq('2022-W41')
+    end
+
+    it 'returns the correct corresponding_month' do
+      expect(decoder.corresponding_month).to eq('2022-10')
+    end
+
+    it 'returns the correct corresponding_year' do
+      expect(decoder.corresponding_year).to eq('2022')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.hours?).to be(true)
+      expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(true)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(false)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is not out_of_range' do
+      expect(decoder).not_to be_out_of_range
+    end
+
+    it 'is current' do
+      expect(decoder).to be_current
+    end
+
+    it 'does not start today' do
+      expect(decoder).not_to be_starts_today
+    end
+
+    it 'is not past' do
+      expect(decoder).not_to be_past
+    end
+
+    it 'is not future' do
+      expect(decoder).not_to be_future
+    end
+
+    it 'cannot paginate' do
+      expect(decoder).not_to be_can_paginate
+    end
+
+    it 'is relative' do
+      expect(decoder).to be_relative
+    end
+  end
+
   context 'when string is a day in the past' do
     let(:string) { '2022-05-13' }
 
@@ -1100,6 +1196,7 @@ describe Timeframe do
       expect(decoder.years?).to be(false)
       expect(decoder.all?).to be(false)
 
+      expect(decoder).not_to be_day_like
       expect(decoder).not_to be_week_like
       expect(decoder).not_to be_month_like
       expect(decoder).not_to be_year_like
@@ -1273,6 +1370,7 @@ describe Timeframe do
       expect(decoder.years?).to be(false)
       expect(decoder.all?).to be(false)
 
+      expect(decoder).not_to be_day_like
       expect(decoder).not_to be_week_like
       expect(decoder).not_to be_month_like
       expect(decoder).not_to be_year_like

@@ -30,6 +30,7 @@ de:
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
   timeframe:
     now: Aktuell
+    hours: Letzte %{count} Stunden
     day: Heute
     days: Letzte %{count} Tage
     week: Diese Woche

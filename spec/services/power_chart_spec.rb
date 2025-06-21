@@ -25,7 +25,7 @@ describe PowerChart do
                        field_battery_charging_power => 2000,
                        field_battery_discharging_power => 100,
                      },
-                     time: 5.seconds.ago
+                     time: 1.minute.ago
   end
 
   context 'when one sensor is requested' do
@@ -43,7 +43,20 @@ describe PowerChart do
           timestamp, value = result.last
 
           expect(value).to eq(14_000)
-          expect(timestamp).to be_within(30.seconds).of(Time.current)
+          expect(timestamp).to be_within(2.minutes).of(1.minute.ago)
+        end
+      end
+
+      context 'when timeframe is P24H' do
+        let(:timeframe) { Timeframe.new('P24H') }
+
+        it { is_expected.to have(24.hours / 5.minutes).items }
+
+        it 'contains last data point' do
+          timestamp, value = result.last
+
+          expect(value).to eq(14_000)
+          expect(timestamp).to be_within(6.minutes).of(1.minute.ago)
         end
       end
 
@@ -90,7 +103,30 @@ describe PowerChart do
             timestamp, value = result.last
 
             expect(value).to eq(2000)
-            expect(timestamp).to be_within(30.seconds).of(Time.current)
+            expect(timestamp).to be_within(2.minutes).of(1.minute.ago)
+          end
+        end
+      end
+
+      context 'when timeframe is P24H' do
+        let(:timeframe) { Timeframe.new('P24H') }
+
+        it 'returns key for each requested sensor' do
+          expect(call.keys).to eq(
+            %i[battery_discharging_power battery_charging_power],
+          )
+        end
+
+        describe 'battery_charging_power' do
+          subject(:result) { call[:battery_charging_power] }
+
+          it { is_expected.to have(24.hours / 5.minutes).items }
+
+          it 'contains last data point' do
+            timestamp, value = result.last
+
+            expect(value).to eq(2000)
+            expect(timestamp).to be_within(6.minutes).of(1.minute.ago)
           end
         end
       end

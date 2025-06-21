@@ -17,7 +17,7 @@ class MinMaxChart < ChartBase
       query_influx start: 1.hour.ago + 1.second,
                    stop: 1.second.since,
                    window: WINDOW[timeframe.id]
-    when :day
+    when :day, :hours
       query_influx start: timeframe.beginning,
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id]

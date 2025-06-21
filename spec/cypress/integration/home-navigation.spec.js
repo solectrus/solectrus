@@ -20,6 +20,7 @@ describe('Home page', () => {
 
       navigateNow();
       navigateDay();
+      navigate24Hours();
       navigateWeek();
       navigateMonth();
       navigateYear();
@@ -68,6 +69,21 @@ describe('Home page', () => {
       clickNextAndExpect('Dienstag, 21. Juni 2022');
       cy.get("[data-controller='stats-with-chart--component']").should('exist');
       cy.get('#chart-day').should('be.visible');
+    }
+
+    function navigate24Hours() {
+      cy.contains('Tag').click();
+      cy.get('#stats-hours').should('be.visible');
+
+      cy.location('pathname').should('equal', `/${path}/P24H`);
+      cy.title().should('contain', 'Letzte 24 Stunden');
+      cy.get('header').should('contain', 'Letzte 24 Stunden');
+      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get('#chart-hours').should('be.visible');
+
+      if (path == 'inverter_power') {
+        cy.get('#segment-inverter_power').should('contain', '20,0\u00a0kWh');
+      }
     }
 
     function navigateWeek() {

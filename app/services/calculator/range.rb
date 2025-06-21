@@ -465,12 +465,18 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
     @sections ||=
       price_sections.map do |price_section|
-        Queries::Sql
-          .new(
-            sum_calculations,
-            from: price_section[:starts_at],
-            to: price_section[:ends_at],
-          )
+        query =
+          if timeframe.hours?
+            Queries::InfluxSum.new(timeframe)
+          else
+            Queries::Sql.new(
+              sum_calculations,
+              from: price_section[:starts_at],
+              to: price_section[:ends_at],
+            )
+          end
+
+        query
           .to_hash
           .transform_keys { |field, _aggregation, _meta| field }
           .merge(
