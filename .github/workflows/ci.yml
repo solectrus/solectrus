@@ -173,7 +173,7 @@ jobs:
       - name: Set ENV values
         run: |
           echo "COMMIT_TIME=$(git show -s --format=%cI $GITHUB_SHA)" >> $GITHUB_ENV
-          echo "COMMIT_VERSION=$(git describe --always)" >> $GITHUB_ENV
+          echo "COMMIT_VERSION=$(git describe --always --abbrev=7)" >> $GITHUB_ENV
 
       - name: Build and push
         uses: docker/build-push-action@v6

@@ -1,4 +1,5 @@
-commit_version = ENV.fetch('COMMIT_VERSION') { `git describe --always`.chomp }
+commit_version =
+  ENV.fetch('COMMIT_VERSION') { `git describe --always --abbrev=7`.chomp }
 commit_branch =
   ENV.fetch('COMMIT_BRANCH') { `git rev-parse --abbrev-ref HEAD`.chomp }
 
