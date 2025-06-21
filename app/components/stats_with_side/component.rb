@@ -1,4 +1,4 @@
-class StatsWithChart::Component < ViewComponent::Base
+class StatsWithSide::Component < ViewComponent::Base
   def initialize(sensor:, timeframe:)
     super
     @sensor = sensor
@@ -9,9 +9,9 @@ class StatsWithChart::Component < ViewComponent::Base
 
   def refresh_options
     {
-      controller: 'stats-with-chart--component',
-      'stats-with-chart--component-sensor-value': sensor,
-      'stats-with-chart--component-interval-value':
+      controller: 'stats-with-side--component',
+      'stats-with-side--component-sensor-value': sensor,
+      'stats-with-side--component-interval-value':
         (
           if timeframe.past?
             0
@@ -21,9 +21,9 @@ class StatsWithChart::Component < ViewComponent::Base
             5.minutes
           end
         ),
-      'stats-with-chart--component-reload-chart-value': !timeframe.now?,
-      'stats-with-chart--component-next-path-value': next_path,
-      'stats-with-chart--component-boundary-value': boundary,
+      'stats-with-side--component-reload-chart-value': !timeframe.now?,
+      'stats-with-side--component-next-path-value': next_path,
+      'stats-with-side--component-boundary-value': boundary,
     }
   end
 
@@ -55,6 +55,17 @@ class StatsWithChart::Component < ViewComponent::Base
     helpers.url_for(
       helpers.permitted_params.to_hash.symbolize_keys.merge(
         controller: "#{helpers.controller_namespace}/charts",
+      ),
+    )
+  end
+
+  def insights_path
+    return unless helpers.controller_namespace == 'balance'
+    return if timeframe.short?
+
+    helpers.url_for(
+      helpers.permitted_params.to_hash.symbolize_keys.merge(
+        controller: "#{helpers.controller_namespace}/insights",
       ),
     )
   end

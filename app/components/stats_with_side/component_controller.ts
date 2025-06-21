@@ -10,13 +10,13 @@ type LineDatasetWithId = ChartDataset<'line'> & {
 };
 
 export default class extends Controller {
-  static readonly targets = ['current', 'stats', 'chart', 'canvas'];
+  static readonly targets = ['current', 'stats', 'side', 'canvas'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTargets: HTMLElement[];
 
-  declare readonly hasChartTarget: boolean;
-  declare readonly chartTarget: Turbo.FrameElement;
+  declare readonly hasSideTarget: boolean;
+  declare readonly sideTarget: Turbo.FrameElement;
 
   declare readonly hasStatsTarget: boolean;
   declare readonly statsTarget: Turbo.FrameElement;
@@ -227,7 +227,7 @@ export default class extends Controller {
   async reloadFrames(options: { chart: boolean }) {
     try {
       const promises = [this.statsTarget.reload()];
-      if (options.chart) promises.push(this.chartTarget.reload());
+      if (options.chart) promises.push(this.sideTarget.reload());
 
       await Promise.all(promises).then(() => {
         setTimeout(() => {

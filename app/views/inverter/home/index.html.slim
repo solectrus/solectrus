@@ -27,7 +27,7 @@
 
 - elsif ApplicationPolicy.multi_inverter?
   - if SensorConfig.x.inverter_sensor_names.length > 1
-    = render StatsWithChart::Component.new(sensor:, timeframe:)
+    = render StatsWithSide::Component.new(sensor:, timeframe:)
   - else
     = render Message::Component.new do |c|
       = c.with_title { t('layout.incomplete_multi_inverter') }
