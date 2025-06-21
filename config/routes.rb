@@ -23,6 +23,7 @@
 #                          sessions POST   /login(.:format)                                          sessions#create
 #                           session DELETE /logout(.:format)                                         sessions#destroy
 #                      registration GET    /registration(/:status)(.:format)                         registration#show
+#             registration_required GET    /registration-required(.:format)                          registration_required#show
 #                        sponsoring GET    /sponsoring(.:format)                                     sponsorings#show
 #                                   GET    /favicon.ico(.:format)                                    redirect(301, /favicon-196.png)
 #             edit_settings_general GET    /settings/general(.:format)                               settings/generals#edit
