@@ -12,13 +12,17 @@ class UpdateCheck::CacheManager
   end
 
   def set(data, expires_at:)
-    update_local_cache(data, expires_in: LOCAL_CACHE_DURATION)
-    update_rails_cache(data, expires_at:)
+    @mutex.synchronize do
+      update_local_cache(data, expires_in: LOCAL_CACHE_DURATION)
+      update_rails_cache(data, expires_at:)
+    end
   end
 
   def delete
-    Rails.cache.delete(cache_key)
-    @local_cache.delete(cache_key)
+    @mutex.synchronize do
+      Rails.cache.delete(cache_key)
+      @local_cache.delete(cache_key)
+    end
   end
 
   # Skip cache methods - simple boolean status with automatic expiration
@@ -66,7 +70,7 @@ class UpdateCheck::CacheManager
 
   def update_rails_cache(data, expires_at:)
     expires_in = (expires_at - Time.current).seconds
-    Rails.cache.write(cache_key, data, expires_in: expires_in)
+    Rails.cache.write(cache_key, data, expires_in:)
   end
 
   def rails_cache
