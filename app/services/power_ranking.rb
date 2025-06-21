@@ -137,10 +137,11 @@ class PowerRanking # rubocop:disable Metrics/ClassLength
         aggregation: 'sum',
       ).limit(limit)
 
-    difference =
+    difference_calculation =
       "SUM(CASE WHEN field = 'house_power' THEN value ELSE 0 END) -
-         SUM(CASE WHEN field != 'house_power' THEN value ELSE 0 END)
-         AS difference"
+         SUM(CASE WHEN field != 'house_power' THEN value ELSE 0 END)"
+    difference = "#{difference_calculation} AS difference"
+    having_clause = "#{difference_calculation} > 0" unless desc
 
     case period
     when :day
@@ -148,11 +149,13 @@ class PowerRanking # rubocop:disable Metrics/ClassLength
         .select(:date, difference)
         .group(:date)
         .order("difference #{sort_order}")
+        .having(having_clause)
         .map { |it| { date: it.date, value: it.difference } }
     else
       scope
         .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
+        .having(having_clause)
         .calculate_all(difference)
         .map { |(date, value)| { date:, value: } }
         .sort_by { desc ? -it[:value] : it[:value] }
@@ -160,35 +163,39 @@ class PowerRanking # rubocop:disable Metrics/ClassLength
   end
 
   def build_query_inverter_power(start:, stop:, period:)
-    field =
-      if SensorConfig.x.inverter_total_present?
-        :inverter_power
-      else
-        SensorConfig.x.inverter_sensor_names
-      end
-
     scope =
       SummaryValue.where(
         date: start..stop,
-        field:,
+        field: inverter_power_fields,
         aggregation: FIELD_MAPPING[calc.to_sym][sensor],
       ).limit(limit)
 
     total = 'SUM(value) AS total'
+    having_clause = 'SUM(value) > 0' unless desc
 
     if period == :day
       scope
         .group(:date)
         .select(:date, total)
         .order("total #{sort_order}")
+        .having(having_clause)
         .map { |it| { date: it.date, value: it.total } }
     else
       scope
         .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
+        .having(having_clause)
         .calculate_all(total)
         .map { |(date, value)| { date:, value: } }
         .sort_by { desc ? -it[:value] : it[:value] }
+    end
+  end
+
+  def inverter_power_fields
+    if SensorConfig.x.inverter_total_present?
+      [:inverter_power]
+    else
+      SensorConfig.x.inverter_sensor_names
     end
   end
 end
