@@ -65,40 +65,41 @@
       - tile.with_footer do
         'Beladung
 
-    .col-span-2.grid.grid-cols-3.gap-3.sm:gap-6
-      = render InsightsTile::Component.new do |tile|
-        - tile.with_body do
-          = insights.battery_empty_days
-          small< Tage
-        - tile.with_footer do
-          'Leer
+    - unless timeframe.day?
+      .col-span-2.grid.grid-cols-3.gap-3.sm:gap-6
+        = render InsightsTile::Component.new do |tile|
+          - tile.with_body do
+            = insights.battery_empty_days
+            small< Tage
+          - tile.with_footer do
+            'Leer
 
-      - from, to, length = insights.battery_soc_longest_streak.values
-      = render InsightsTile::Component.new class: 'text-center', url: battery_soc_longest_streak_path do |tile|
-        - tile.with_footer do
-          'Längste Serie
-        - tile.with_body do
-          = length
-          small<
-          = length == 1 ? 'Tag' : 'Tage'
+        - from, to, length = insights.battery_soc_longest_streak.values
+        = render InsightsTile::Component.new class: 'text-center', url: battery_soc_longest_streak_path do |tile|
+          - tile.with_footer do
+            'Längste Serie
+          - tile.with_body do
+            = length
+            small<
+            = length == 1 ? 'Tag' : 'Tage'
 
-        - if from && to
-          - tile.with_title do
-            - if to == Date.current
-              'Seit
-              =l from
-            - else
-              =l from
-              - if to > from
-                span<> &dash;
-                =l to
+          - if from && to
+            - tile.with_title do
+              - if to == Date.current
+                'Seit
+                =l from
+              - else
+                =l from
+                - if to > from
+                  span<> &dash;
+                  =l to
 
-      = render InsightsTile::Component.new class: 'text-right' do |tile|
-        - tile.with_body do
-          = insights.battery_full_days
-          small< Tage
-        - tile.with_footer do
-          'Voll
+        = render InsightsTile::Component.new class: 'text-right' do |tile|
+          - tile.with_body do
+            = insights.battery_full_days
+            small< Tage
+          - tile.with_footer do
+            'Voll
 
   - else
     .col-span-2

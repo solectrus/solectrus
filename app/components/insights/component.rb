@@ -26,6 +26,8 @@ class Insights::Component < ViewComponent::Base
   end
 
   def per_day_value?
+    return false if timeframe.day?
+
     %i[
       inverter_power
       grid_import_power

@@ -61,7 +61,7 @@ class StatsWithSide::Component < ViewComponent::Base
 
   def insights_path
     return unless helpers.controller_namespace == 'balance'
-    return if timeframe.short?
+    return if timeframe.now?
 
     helpers.url_for(
       helpers.permitted_params.to_hash.symbolize_keys.merge(

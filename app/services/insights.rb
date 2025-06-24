@@ -81,6 +81,8 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   def per_day_value
+    return if timeframe.day?
+
     calculator.per_day(value)
   end
 
@@ -245,6 +247,7 @@ class Insights # rubocop:disable Metrics/ClassLength
   private
 
   def extremum(sensor, aggregation)
+    return if timeframe.day?
     return unless sensor.in?(SensorConfig::TOP10_SENSORS)
 
     top =
