@@ -83,6 +83,12 @@ describe PowerRanking do
   end
 
   context 'when ascending' do
+    before do
+      # Very small value for TODAY, must NOT be included in the result
+      sample_data date: Date.new(2024, 6, 5), sum: 500, max: 500
+      # => 0,5 kWh
+    end
+
     let(:desc) { false }
     let(:calc) { 'sum' }
 

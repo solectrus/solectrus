@@ -34,21 +34,31 @@ class PowerRanking # rubocop:disable Metrics/ClassLength
   private
 
   def start(period)
-    raw = from || Rails.configuration.x.installation_date.beginning_of_day
+    raw = (from || Rails.configuration.x.installation_date).beginning_of_day
+    beginning_of_period = raw.public_send(:"beginning_of_#{period}")
 
-    # In ascending order, the first period may not be included because it is (most likely) not complete
-    adjustment = desc ? 0 : 1.public_send(period)
-
-    (raw + adjustment).public_send(:"beginning_of_#{period}")
+    if desc ||
+         (
+           raw == beginning_of_period &&
+             raw > Rails.configuration.x.installation_date.beginning_of_day
+         )
+      beginning_of_period
+    else
+      # Ascending and incomplete period: Start at the next period
+      beginning_of_period + 1.public_send(period)
+    end
   end
 
   def stop(period)
-    raw = to || Date.current.end_of_day
+    raw = (to || Date.current).end_of_day
+    end_of_period = raw.public_send(:"end_of_#{period}")
 
-    # In ascending order, the current period may not be included because it is not yet complete
-    adjustment = desc ? 0 : 1.public_send(period)
-
-    (raw - adjustment).public_send(:"end_of_#{period}")
+    if desc || (raw == end_of_period && raw < Date.current)
+      end_of_period
+    else
+      # Ascending and incomplete period: Stop at the previous period
+      end_of_period - 1.public_send(period)
+    end
   end
 
   def excluded_sensor_names
