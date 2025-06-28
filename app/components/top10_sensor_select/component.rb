@@ -80,7 +80,8 @@ class Top10SensorSelect::Component < ViewComponent::Base
   # Categories
 
   def generation_sensors
-    @generation_sensors ||= SensorConfig.x.inverter_sensor_names
+    @generation_sensors ||=
+      ([:inverter_power] + SensorConfig.x.inverter_sensor_names).uniq
   end
 
   def grid_battery_sensors
