@@ -6,13 +6,14 @@
       class= button_class
       name= name
     ]
-      - items.each do |item|
-        option[
-          value= item.href
-          data= item.data
-          selected= (item == selected_item)
-        ]
-          = item.name
+      - if grouped?
+        - items.each do |group|
+          optgroup label= group[:name]
+            - flat_items_for_group(group).each do |item|
+              = render_option(item)
+      - else
+        - items.each do |item|
+          = render_option(item)
 
     select.absolute.invisible.font-medium[
       data-select-target= 'temp'
@@ -45,7 +46,7 @@
             d= 'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
           ]
 
-    .z-10.origin-top-right.absolute.w-max.right-0.mt-2.rounded-md.shadow-lg.bg-white.dark:bg-gray-700.ring-1.ring-black/5.hidden[
+    .z-10.origin-top-right.absolute.w-max.right-0.mt-2.rounded-md.shadow-lg.bg-white.dark:bg-gray-700.ring-1.ring-black/5.hidden.overflow-hidden[
       data-dropdown--component-target="menu"
       data-transition-enter="transition ease-out duration-100"
       data-transition-enter-start="opacity-0 scale-95"
@@ -59,10 +60,34 @@
           .border-b.border-gray-200.dark:border-gray-600
             = top_item&.call(with_icon: icons?, css_extra: [extra_item_class, 'py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800 ', top_item.current ? 'font-bold' : nil])
 
-        div class= menu_class
-          - items.each do |item|
-            - unless item == top_item || item == bottom_item
-              = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', item.current ? 'font-bold' : nil])
+        - if grouped?
+          div class="grid #{grid_classes} gap-x-4"
+            - items.each do |group|
+              - if group[:subgroups]
+                - group[:subgroups].each_with_index do |subgroup, index|
+                  .min-w-0
+                    - if index.zero?
+                      div class= group_header_class(group)
+                        - if subgroups?(group)
+                          div class= spanning_border_class
+                        = group[:name]
+                    - else
+                      .px-3.py-1.text-xs.font-medium.mb-2.opacity-0 &nbsp;
+                    - subgroup[:items].each do |item|
+                      - unless item == top_item || item == bottom_item
+                        = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', item.current ? 'font-bold' : nil])
+              - else
+                .min-w-0
+                  div class= group_header_class(group)
+                    = group[:name]
+                  - group[:items].each do |item|
+                    - unless item == top_item || item == bottom_item
+                      = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', item.current ? 'font-bold' : nil])
+        - else
+          div class= menu_class
+            - items.each do |item|
+              - unless item == top_item || item == bottom_item
+                = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-800', item.current ? 'font-bold' : nil])
 
         - if bottom_item
           .border-t.border-gray-200.dark:border-gray-600

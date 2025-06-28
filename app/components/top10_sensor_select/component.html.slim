@@ -1,0 +1,2 @@
+- if sensor_groups.any?
+  = render Dropdown::Component.new name: 'sensor-selector', items: sensor_groups, selected: current_sensor

@@ -30,35 +30,9 @@ class Top10Controller < ApplicationController
     )
   end
 
-  def sensor_names
-    SensorConfig::TOP10_SENSORS.select do |sensor|
-      SensorConfig.x.exists?(sensor)
-    end
-  end
-
   helper_method def supports_max?
     # Custom sensors are not supported for max calculation
     !sensor.in?(SensorConfig::CUSTOM_SENSORS)
-  end
-
-  helper_method def sensor_items
-    @sensor_items ||=
-      begin
-        menu_items =
-          sensor_names.map do |sensor|
-            MenuItem::Component.new(
-              name: SensorConfig.x.display_name(sensor, :long),
-              href: url_for(**permitted_params, sensor:, only_path: true),
-              data: {
-                action: 'dropdown--component#toggle',
-              },
-              sensor:,
-              current: sensor == self.sensor,
-            )
-          end
-
-        menu_items&.sort_by { |item| item.name.downcase }
-      end
   end
 
   helper_method def nav_items
