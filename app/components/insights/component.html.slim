@@ -23,7 +23,7 @@
                     .bg-gray-200.dark:bg-gray-700.rounded-full.h-2
                       .bg-green-600.h-2.rounded-full.transition-all.duration-300 style="width: #{sensor_data[:percentage]}%"
                   .text-right.text-sm.font-medium.tabular-nums.whitespace-nowrap
-                    = Number::Component.new(value: sensor_data[:value]).to_watt_hour(unit: :kilo, precision: 0)
+                    = Number::Component.new(value: sensor_data[:value]).to_watt_hour(unit: :kilo)
 
         - if sensor == :inverter_power
           = render InsightsTile::Component.new stripes: (timeframe.year? || timeframe.month?) && timeframe.current?,
