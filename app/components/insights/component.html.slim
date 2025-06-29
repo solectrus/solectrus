@@ -15,14 +15,13 @@
                 = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
 
             - if insights.multi_inverter?
-              div class= 'mt-2 sm:mt-6 grid grid-cols-[auto_1fr_auto] gap-1 sm:gap-2 items-center px-2'
+              div class= 'mt-2 sm:mt-6 grid grid-cols-[auto_1fr_auto] gap-1 sm:gap-2 items-center px-2 text-sm font-medium whitespace-nowrap'
                 - insights.inverter_sensor_values.reverse_each do |sensor_data|
-                  .text-sm.whitespace-nowrap.pr-3
+                  .pr-3.text-left
                     = SensorConfig.x.display_name(sensor_data[:name])
-                  .pr-3
-                    .bg-gray-200.dark:bg-gray-700.rounded-full.h-2
-                      .bg-green-600.h-2.rounded-full.transition-all.duration-300 style="width: #{sensor_data[:percentage]}%"
-                  .text-right.text-sm.font-medium.tabular-nums.whitespace-nowrap
+                  .pr-3.bg-gray-200.dark:bg-gray-700.rounded-full.h-2
+                    .bg-green-600.h-2.rounded-full style="width: #{sensor_data[:percentage]}%"
+                  .text-right.tabular-nums
                     = Number::Component.new(value: sensor_data[:value]).to_watt_hour(unit: :kilo)
 
         - if sensor == :inverter_power
