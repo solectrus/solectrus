@@ -3,7 +3,7 @@
     p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
       = t('calculator.blank')
 - else
-  = tag.div class: 'flex-1',
+  = tag.div class: 'h-full flex flex-col',
             data: { \
               controller: 'chart-loader--component',
               chart_loader__component_type_value: type,
@@ -15,11 +15,13 @@
     script type= 'application/json' data-chart-loader--component-target= 'options'
       == options.to_json
 
-    .h-full.w-full data-chart-loader--component-target= 'container'
+    .flex-1.w-full.max-w-full.overflow-hidden.box-border data-chart-loader--component-target= 'container'
       = tag.canvas id: "chart-#{timeframe.id}",
-                   width: 0,
-                   height: 0,
-                   data: { \
-                     chart_loader__component_target: 'canvas',
-                     stats_with_chart__component_target: 'canvas',
-                   }
+                    class: 'max-w-full flex-1',
+                    data: { \
+                      chart_loader__component_target: 'canvas',
+                      stats_with_side__component_target: 'canvas',
+                    }
+
+    - if timeframe.day? && sensor == :inverter_power && helpers.controller_namespace == 'balance'
+      = render ForecastComment::Component.new(calculator: helpers.calculator, sensor:, timeframe:)

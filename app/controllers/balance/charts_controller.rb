@@ -15,48 +15,33 @@ class Balance::ChartsController < ApplicationController
   private
 
   def calculator_range
-    Calculator::Range.new(
-      timeframe,
-      calculations: [
-        Queries::Calculation.new(:inverter_power, :sum, :sum),
-        Queries::Calculation.new(:inverter_power_forecast, :sum, :sum),
-        *SensorConfig::CUSTOM_INVERTER_SENSORS.map do |sensor_name|
-          Queries::Calculation.new(sensor_name, :sum, :sum)
-        end,
-      ],
-    )
+    Calculator::Range.new(timeframe, calculations:)
   end
 
-  helper_method def chart_sensors
-    [
-      *DEFAULT_SENSORS,
-      *SensorConfig.x.excluded_custom_sensor_names,
-      *inverter_sensor_names,
-    ]
+  def calculations
+    if sensor == :inverter_power
+      [
+        *(
+          inverter_sensor_names.map do |sensor_name|
+            Queries::Calculation.new(sensor_name, :sum, :sum)
+          end
+        ),
+        (
+          if timeframe.day?
+            Queries::Calculation.new(:inverter_power_forecast, :sum, :sum)
+          end
+        ),
+      ].compact
+    else
+      [Queries::Calculation.new(sensor, :sum, :sum)]
+    end
   end
-
-  DEFAULT_SENSORS = %i[
-    grid_power
-    house_power
-    heatpump_power
-    wallbox_power
-    battery_power
-    battery_soc
-    car_battery_soc
-    case_temp
-    autarky
-    self_consumption
-    co2_reduction
-  ].freeze
-  private_constant :DEFAULT_SENSORS
 
   def inverter_sensor_names
-    return [:inverter_power] unless multi_inverter_enabled?
-
-    if Setting.inverter_as_total
-      [:inverter_power]
-    else
+    if multi_inverter_enabled?
       ([:inverter_power] + SensorConfig.x.inverter_sensor_names).uniq
+    else
+      [:inverter_power]
     end
   end
 

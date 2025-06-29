@@ -37,7 +37,7 @@ describe('Home page', () => {
       if (path == 'inverter_power')
         cy.get('#segment-inverter_power').should('contain', '10,0\u00a0kW');
 
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#balance-chart-now').should('be.visible');
     }
 
@@ -48,7 +48,7 @@ describe('Home page', () => {
       cy.location('pathname').should('equal', `/${path}/2022-06-21`);
       cy.title().should('contain', 'Dienstag, 21. Juni 2022');
       cy.get('header').should('contain', 'Dienstag, 21. Juni 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-day').should('be.visible');
 
       if (path == 'inverter_power') {
@@ -60,14 +60,14 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('Montag, 20. Juni 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#balance-chart-2022-06-20').should(
         'contain',
         'Keine Daten vorhanden',
       );
 
       clickNextAndExpect('Dienstag, 21. Juni 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-day').should('be.visible');
     }
 
@@ -78,7 +78,7 @@ describe('Home page', () => {
       cy.location('pathname').should('equal', `/${path}/P24H`);
       cy.title().should('contain', 'Letzte 24 Stunden');
       cy.get('header').should('contain', 'Letzte 24 Stunden');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-hours').should('be.visible');
 
       if (path == 'inverter_power') {
@@ -93,7 +93,7 @@ describe('Home page', () => {
       cy.location('pathname').should('equal', `/${path}/2022-W25`);
       cy.title().should('contain', 'KW 25, 2022');
       cy.get('header').should('contain', 'KW 25, 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-week').should('be.visible');
 
       if (path == 'inverter_power') {
@@ -101,14 +101,14 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('KW 24, 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#balance-chart-2022-W24').should(
         'contain',
         'Keine Daten vorhanden',
       );
 
       clickNextAndExpect('KW 25, 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-week').should('be.visible');
     }
 
@@ -119,7 +119,7 @@ describe('Home page', () => {
       cy.location('pathname').should('equal', `/${path}/2022-06`);
       cy.title().should('contain', 'Juni 2022');
       cy.get('header').should('contain', 'Juni 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-month').should('be.visible');
 
       if (path == 'inverter_power') {
@@ -127,14 +127,14 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('Mai 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#balance-chart-2022-05').should(
         'contain',
         'Keine Daten vorhanden',
       );
 
       clickNextAndExpect('Juni 2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-month').should('be.visible');
     }
 
@@ -145,7 +145,7 @@ describe('Home page', () => {
       cy.location('pathname').should('equal', `/${path}/2022`);
       cy.title().should('contain', '2022');
       cy.get('header').should('contain', '2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-year').should('be.visible');
 
       if (path == 'inverter_power') {
@@ -153,11 +153,11 @@ describe('Home page', () => {
       }
 
       clickPrevAndExpect('2021');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#balance-chart-2021').should('contain', 'Keine Daten vorhanden');
 
       clickNextAndExpect('2022');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-year').should('be.visible');
     }
 
@@ -168,7 +168,7 @@ describe('Home page', () => {
       cy.location('pathname').should('equal', `/${path}/all`);
       cy.title().should('contain', 'Seit Inbetriebnahme');
       cy.get('header').should('contain', 'Seit Inbetriebnahme');
-      cy.get("[data-controller='stats-with-chart--component']").should('exist');
+      cy.get("[data-controller='stats-with-side--component']").should('exist');
       cy.get('#chart-all').should('be.visible');
 
       if (path == 'inverter_power') {

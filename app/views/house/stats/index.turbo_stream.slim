@@ -29,14 +29,14 @@
                         tippy_placement_value: 'right',
                         tippy_force_tap_to_close_value: false,
                         tippy_touch_value: 'long',
-                        turbo_frame: frame_id('chart', timeframe:),
+                        turbo_frame: frame_id('side', timeframe:),
                         turbo_action: 'replace',
                         turbo_prefetch: 'false',
-                        action: 'stats-with-chart--component#startLoop',
-                        stats_with_chart__component_sensor_param: 'house_power',
+                        action: 'stats-with-side--component#startLoop',
+                        stats_with_side__component_sensor_param: 'house_power',
                       } do
               - method = timeframe.now? ? :to_watt : :to_watt_hour
-              div data= { 'stats-with-chart--component-target': sensor == :house_power ? 'current' : nil, sensor: sensor, value: calculator.house_power, time: calculator.time.to_i }
+              div data= { 'stats-with-side--component-target': sensor == :house_power ? 'current' : nil, sensor: sensor, value: calculator.house_power, time: calculator.time.to_i }
                 = Number::Component.new(value: calculator.house_power).public_send method
 
               - unless calculator.house_power_valid?

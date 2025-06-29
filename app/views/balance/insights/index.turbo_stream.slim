@@ -1,0 +1,17 @@
+= turbo_stream.update frame_id('timeframe') do
+  = render Timeframe::Component.new(timeframe:)
+
+= turbo_stream.update frame_id('second-nav-desktop') do
+  = render Nav::Sub::Component.new do |c|
+    = c.with_items nav_items
+
+= turbo_stream.update frame_id('second-nav-mobile') do
+  = render Nav::Sub::Component.new do |c|
+    = c.with_items nav_items
+
+= turbo_stream.update frame_id('insights') do
+  - if ApplicationPolicy.insights?
+    = render Insights::Component.new(sensor:, timeframe:)
+  - else
+    = render DemoLink::Component.new feature: 'insights',
+                                     url: { controller: 'balance/home', timeframe: params[:timeframe] }
