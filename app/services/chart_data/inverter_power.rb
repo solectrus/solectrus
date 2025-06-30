@@ -131,7 +131,7 @@ class ChartData::InverterPower < ChartData::Base
   end
 
   def simple_sensor_values(sensor_name)
-    chart[sensor_name]&.map { |_, v| v&.negative? ? 0 : v } || []
+    chart[sensor_name]&.map { |_, v| v&.positive? ? v : nil } || []
   end
 
   def individual_inverter_values
@@ -144,7 +144,9 @@ class ChartData::InverterPower < ChartData::Base
     process_inverter_data(
       total_values,
       inverter_values,
-    ) { |total_value, parts_sum| [total_value, parts_sum].compact.max || 0 }
+    ) do |total_value, parts_sum|
+      [total_value, parts_sum].compact.max&.nonzero?
+    end
   end
 
   def calculate_differences(total_values, inverter_values)
