@@ -197,7 +197,7 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (1.2.0)
-    honeybadger (5.29.0)
+    honeybadger (5.29.1)
       logger
       ostruct
     htmlbeautifier (1.4.3)
