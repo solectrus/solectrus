@@ -31,10 +31,10 @@ class ChartData::InverterPower < ChartData::Base
   def data_stacked
     sensor_names = SensorConfig.x.existing_custom_inverter_sensor_names
 
-    parts = sensor_names.map { |name| dataset(name) }
-    difference = dataset(:inverter_power_difference)
+    datasets = sensor_names.map { |name| dataset(name) }
+    datasets << dataset(:inverter_power_difference) unless timeframe.short?
 
-    { labels:, datasets: parts + [difference] }
+    { labels:, datasets: }
   end
 
   def labels
@@ -131,7 +131,7 @@ class ChartData::InverterPower < ChartData::Base
   end
 
   def simple_sensor_values(sensor_name)
-    chart[sensor_name]&.map { |_, v| v&.positive? ? v : nil } || []
+    chart[sensor_name]&.map { |_, v| v&.negative? ? 0 : v } || []
   end
 
   def individual_inverter_values
