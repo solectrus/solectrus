@@ -1,163 +1,130 @@
 describe ChartData::InverterPower do
-  describe '#to_h' do
-    subject(:to_h) do
-      described_class.new(timeframe:, sensor: :inverter_power_1).to_h
-    end
+  subject(:to_h) do
+    described_class.new(timeframe:, sensor: :inverter_power_1).to_h
+  end
 
-    let(:now) { Time.new('2024-04-17 11:00:00+02:00') }
+  let(:now) { Time.new('2024-04-17 11:00:00+02:00') }
 
-    around { |example| travel_to(now, &example) }
+  around { |example| travel_to(now, &example) }
 
-    before do
-      influx_batch do
-        # Fill last hour with data
-        12.times do |i|
-          add_influx_point name: measurement_inverter_power_1,
-                           fields: {
-                             field_inverter_power_1 => 28_000,
-                           },
-                           time: 1.hour.ago + (5.minutes * (i + 1))
-        end
-      end
-
-      create_summary(
-        date: now.to_date,
-        values: [[:inverter_power_1, :sum, 28_000]],
-      )
-    end
-
-    context 'when timeframe is current MONTH' do
-      let(:timeframe) { Timeframe.month }
-
-      it 'contains value' do
-        expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(28_000)
+  before do
+    influx_batch do
+      # Fill last hour with data
+      12.times do |i|
+        add_influx_point name: measurement_inverter_power_1,
+                         fields: {
+                           field_inverter_power_1 => 28_000,
+                         },
+                         time: 1.hour.ago + (5.minutes * (i + 1))
       end
     end
 
-    context 'when timeframe is NOW' do
-      let(:timeframe) { Timeframe.now }
+    create_summary(
+      date: now.to_date,
+      values: [[:inverter_power_1, :sum, 28_000]],
+    )
+  end
 
-      it 'contains value' do
-        expect(to_h.dig(:datasets, 0, :data).last).to eq(28_000)
-      end
+  context 'when timeframe is current MONTH' do
+    let(:timeframe) { Timeframe.month }
+
+    it 'contains value' do
+      expect(to_h.dig(:datasets, 0, :data, now.day - 1)).to eq(28_000)
     end
   end
 
-  describe 'stacked inverter power with difference calculation' do
-    subject(:to_h) do
-      described_class.new(
-        timeframe:,
-        sensor: :inverter_power,
-        variant: 'split',
-      ).to_h
+  context 'when timeframe is NOW' do
+    let(:timeframe) { Timeframe.now }
+
+    it 'contains value' do
+      expect(to_h.dig(:datasets, 0, :data).last).to eq(28_000)
+    end
+  end
+
+  describe '#valid_parts?' do
+    subject(:valid_parts?) { chart_data.send(:valid_parts?, total, parts) } # rubocop:disable Style/Send
+
+    let(:chart_data) { described_class.new(timeframe: Timeframe.week) }
+
+    context 'when total is nil' do
+      let(:total) { nil }
+      let(:parts) { [100, 200] }
+
+      it { is_expected.to be true }
     end
 
-    let(:timeframe) { Timeframe.month }
-    let(:test_time) { Time.new('2024-06-20 12:00:00+02:00') }
+    context 'when total is zero' do
+      let(:total) { 0 }
+      let(:parts) { [100, 200] }
 
-    around { |example| travel_to(test_time, &example) }
+      it { is_expected.to be false }
+    end
 
-    before do
-      influx_batch do
-        add_influx_point name: measurement_inverter_power,
-                         fields: {
-                           field_inverter_power => 60_000,
-                         },
-                         time: test_time.to_date.beginning_of_day
+    context 'when parts array is empty' do
+      let(:total) { 300 }
+      let(:parts) { [] }
 
-        add_influx_point name: measurement_inverter_power_1,
-                         fields: {
-                           field_inverter_power_1 => 30_000,
-                         },
-                         time: test_time.to_date.beginning_of_day
+      it { is_expected.to be false }
+    end
 
-        add_influx_point name: measurement_inverter_power_2,
-                         fields: {
-                           field_inverter_power_2 => 25_000,
-                         },
-                         time: test_time.to_date.beginning_of_day
+    context 'when all parts are nil' do
+      let(:total) { 300 }
+      let(:parts) { [nil, nil, nil] }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when some parts are nil' do
+      let(:total) { 300 }
+
+      context 'when remaining parts sum up correctly' do
+        let(:parts) { [100, nil, 200] } # 100 + 200 = 300, ratio = 100%
+
+        it { is_expected.to be true }
       end
 
-      create_summary(
-        date: test_time.to_date,
-        values: [
-          [:inverter_power, :sum, 60_000],
-          [:inverter_power_1, :sum, 30_000],
-          [:inverter_power_2, :sum, 25_000],
-        ],
-      )
+      context 'when remaining parts do not sum up correctly' do
+        let(:parts) { [100, nil, 50] } # 100 + 50 = 150, ratio = 50%
+
+        it { is_expected.to be false }
+      end
     end
 
-    it 'creates datasets for individual inverters and difference' do
-      datasets = to_h[:datasets]
-      dataset_ids = datasets.map { |d| d[:id] }
+    context 'when parts sum up correctly' do
+      let(:total) { 300 }
 
-      expect(dataset_ids).to include(
-        :inverter_power_1,
-        :inverter_power_2,
-        :inverter_power_difference,
-      )
+      context 'with exact match' do
+        let(:parts) { [100, 200] } # 100 + 200 = 300, ratio = 100%
+
+        it { is_expected.to be true }
+      end
+
+      context 'when within 1% tolerance' do
+        let(:parts) { [98, 201] } # 98 + 201 = 299, ratio = 99.67% (rounds to 100%)
+
+        it { is_expected.to be true }
+      end
+
+      context 'when at exactly 99% threshold' do
+        let(:parts) { [297] } # 297 / 300 = 99%
+
+        it { is_expected.to be true }
+      end
     end
 
-    it 'calculates significant difference correctly' do
-      # Mock the chart method to ensure predictable data
-      chart_data_service =
-        described_class.new(
-          timeframe:,
-          sensor: :inverter_power,
-          variant: 'split',
-        )
+    context 'when parts do not sum up correctly' do
+      let(:total) { 300 }
 
-      mock_chart = {
-        inverter_power: [[test_time.to_i, 60_000]],
-        inverter_power_1: [[test_time.to_i, 30_000]],
-        inverter_power_2: [[test_time.to_i, 25_000]],
-      }
-      allow(chart_data_service).to receive(:chart).and_return(mock_chart)
+      context 'when sum is too low' do
+        let(:parts) { [100, 100] } # 100 + 100 = 200, ratio = 66.67%
 
-      result = chart_data_service.to_h
-      difference_dataset =
-        result[:datasets].find { |d| d[:id] == :inverter_power_difference }
-      difference_value = difference_dataset[:data][0] # First data point
+        it { is_expected.to be false }
+      end
 
-      # 60,000 - (30,000 + 25,000) = 5,000 (8.33% - above 1% threshold)
-      expect(difference_value).to eq(5_000)
-    end
+      context 'when just below 99% threshold' do
+        let(:parts) { [295] } # 295 / 300 = 98.33% (rounds to 98%)
 
-    it 'applies correct styling to difference dataset' do
-      difference_dataset =
-        to_h[:datasets].find { |d| d[:id] == :inverter_power_difference }
-
-      expect(difference_dataset[:backgroundColor]).to eq('#5B807B')
-      expect(difference_dataset[:stack]).to eq('InverterPower')
-      expect(difference_dataset[:label]).to eq('Unassigned')
-    end
-
-    context 'with insignificant difference' do
-      it 'does not show difference when below threshold' do
-        # Mock the chart data to return minimal difference scenario
-        chart_data_service =
-          described_class.new(
-            timeframe:,
-            sensor: :inverter_power,
-            variant: 'split',
-          )
-
-        # Mock the chart method to return data with minimal difference
-        mock_chart = {
-          inverter_power: [[test_time.to_i, 10_000]],
-          inverter_power_1: [[test_time.to_i, 9_950]],
-          inverter_power_2: [[test_time.to_i, 0]],
-        }
-        allow(chart_data_service).to receive(:chart).and_return(mock_chart)
-
-        result = chart_data_service.to_h
-        difference_dataset =
-          result[:datasets].find { |d| d[:id] == :inverter_power_difference }
-        difference_value = difference_dataset[:data][0] # First data point
-
-        # 10,000 - (9,950 + 0) = 50 (0.5% of total - below 1% threshold)
-        expect(difference_value).to be_nil
+        it { is_expected.to be false }
       end
     end
   end

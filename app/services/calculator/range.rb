@@ -95,12 +95,13 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     values =
       if SensorConfig.x.multi_inverter?
         data.map do |value|
-          [
-            value[:inverter_power],
-            SensorConfig::CUSTOM_INVERTER_SENSORS
-              .filter_map { |key| value[key] }
-              .sum,
-          ].compact.max
+          (
+            value[:inverter_power] ||
+              SensorConfig::CUSTOM_INVERTER_SENSORS
+                .filter_map { |key| value[key] }
+                .presence
+                &.sum
+          ).to_f
         end
       else
         data.map { |value| value[:inverter_power].to_f }
