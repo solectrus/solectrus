@@ -43,6 +43,65 @@ describe ChartData::InverterPower do
     end
   end
 
+  describe 'total inverter power' do
+    subject(:to_h) do
+      described_class.new(
+        timeframe:,
+        sensor: :inverter_power,
+        variant: 'total',
+      ).to_h
+    end
+
+    let(:timeframe) { Timeframe.month }
+    let(:test_time) { Time.new('2024-06-20 12:00:00+02:00') }
+
+    around { |example| travel_to(test_time, &example) }
+
+    before do
+      influx_batch do
+        add_influx_point name: measurement_inverter_power_1,
+                         fields: {
+                           field_inverter_power_1 => 30_000,
+                         },
+                         time: test_time.to_date.beginning_of_day
+
+        add_influx_point name: measurement_inverter_power_2,
+                         fields: {
+                           field_inverter_power_2 => 25_000,
+                         },
+                         time: test_time.to_date.beginning_of_day
+      end
+
+      create_summary(
+        date: test_time.to_date,
+        values: [
+          # No total present!
+          [:inverter_power_1, :sum, 30_000],
+          [:inverter_power_2, :sum, 25_000],
+        ],
+      )
+    end
+
+    it 'creates dataset for total only' do
+      datasets = to_h[:datasets]
+      dataset_ids = datasets.map { |d| d[:id] }
+
+      expect(dataset_ids).to eq([:inverter_power])
+    end
+
+    it 'calculates total for each day' do
+      data = to_h[:datasets].first[:data]
+
+      (0..30).each do |i| # 30 days in June
+        # On June 20th, the total should be 55,000
+        # other days should be nil (not 0)
+        expected = i == (20 - 1) ? 55_000 : nil
+
+        expect(data[i]).to eq(expected)
+      end
+    end
+  end
+
   describe 'stacked inverter power with difference calculation' do
     subject(:to_h) do
       described_class.new(

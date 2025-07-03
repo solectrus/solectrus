@@ -137,7 +137,7 @@ class ChartData::InverterPower < ChartData::Base
 
     max_length = inverter_values.map(&:length).max
     Array.new(max_length) do |i|
-      inverter_values.filter_map { |arr| arr[i] }.sum
+      inverter_values.filter_map { |arr| arr[i] }.presence&.sum
     end
   end
 
