@@ -42,6 +42,8 @@ import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank';
 import { faLeaf } from '@fortawesome/free-solid-svg-icons/faLeaf';
 import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
 import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
+import { faArrowTrendUp } from '@fortawesome/free-solid-svg-icons/faArrowTrendUp';
+import { faArrowTrendDown } from '@fortawesome/free-solid-svg-icons/faArrowTrendDown';
 
 import { faGrip } from '@fortawesome/free-solid-svg-icons/faGrip';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
@@ -91,6 +93,8 @@ export default class extends Controller {
       faLeaf,
       faCompress,
       faExpand,
+      faArrowTrendUp,
+      faArrowTrendDown,
       faHouseCrack,
       faSolarPanel,
       faGrip,
