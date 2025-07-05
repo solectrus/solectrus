@@ -104,6 +104,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 stepSize: (timeframe.relative_count.to_i > 14 ? 2 : 1),
                 maxRotation: 0,
               },
+              range: {
+                stepSize: (timeframe.relative_count.to_i > 14 ? 2 : 1),
+                maxRotation: 0,
+              },
               week: {
                 stepSize: 1,
                 maxRotation: 0,
@@ -155,6 +159,14 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 tooltipFormat: 'HH:mm',
               },
               days: {
+                unit: 'day',
+                displayFormats: {
+                  day: timeframe.relative_count.to_i < 8 ? 'ccc' : 'd',
+                },
+                tooltipFormat: 'cccc, dd.MM.yyyy',
+                round: 'day',
+              },
+              range: {
                 unit: 'day',
                 displayFormats: {
                   day: timeframe.relative_count.to_i < 8 ? 'ccc' : 'd',
