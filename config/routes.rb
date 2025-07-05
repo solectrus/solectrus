@@ -102,6 +102,8 @@ Rails.application.routes.draw do
 
       # Tiles
       get '/tiles/:sensor(/:timeframe)', to: 'tiles#show', as: :tiles
+
+      get '/insights/:sensor/(:timeframe)', to: 'insights#index', as: :insights
     end
   end
 

@@ -3,22 +3,30 @@
     p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
       = t('calculator.blank')
 - else
-  = tag.div class: 'flex-1',
+  = tag.div class: 'h-full flex flex-col',
             data: { \
               controller: 'chart-loader--component',
               chart_loader__component_type_value: type,
               chart_loader__component_unit_value: unit,
             } do
+
+    - if path_to_insights
+      .absolute.right-0.top-0
+        = link_to path_to_insights,
+                  class: 'flex items-center justify-center p-2 font-medium focus:outline-hidden focus:ring-2 focus:ring-gray-500 dark:focus:ring-gray-700 text-sm gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800 rounded-full size-8 border border-gray-300 dark:border-gray-600',
+                  data: { turbo_frame: 'modal', controller: 'tippy' },
+                  title: t('layout.insights') do
+          i.fa-regular.fa-lg.fa-lightbulb
+
     script type= 'application/json' data-chart-loader--component-target= 'data'
       == data.to_json
 
     script type= 'application/json' data-chart-loader--component-target= 'options'
       == options.to_json
 
-    .h-full.w-full data-chart-loader--component-target= 'container'
+    .flex-1.w-full.max-w-full.overflow-hidden.box-border data-chart-loader--component-target= 'container'
       = tag.canvas id: "chart-#{timeframe.id}",
-                   width: 0,
-                   height: 0,
+                   class: 'max-w-full flex-1',
                    data: { \
                      chart_loader__component_target: 'canvas',
                      stats_with_chart__component_target: 'canvas',

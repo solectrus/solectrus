@@ -240,4 +240,95 @@ describe Number::Component do
       end
     end
   end
+
+  describe 'to_percent' do
+    subject(:to_percent) { component.to_percent(**options) }
+
+    let(:options) { {} }
+
+    context 'when positive' do
+      let(:value) { 12.345 }
+
+      it do
+        expect(
+          to_percent,
+        ).to eq '<span class="text-green-500 dark:text-green-400"><strong class="font-medium">12</strong><small>.3</small>&nbsp;<small>%</small></span>'
+      end
+    end
+
+    context 'when negative' do
+      let(:value) { -12.345 }
+
+      it do
+        expect(
+          to_percent,
+        ).to eq '<span class="text-red-500 dark:text-red-400"><strong class="font-medium">-12</strong><small>.3</small>&nbsp;<small>%</small></span>'
+      end
+    end
+
+    context 'when zero' do
+      let(:value) { 0 }
+
+      it do
+        expect(
+          to_percent,
+        ).to eq '<span class="text-red-500 dark:text-red-400"><strong class="font-medium">0</strong>&nbsp;<small>%</small></span>'
+      end
+    end
+
+    context 'with sign option for positive value' do
+      let(:value) { 12.345 }
+      let(:options) { { sign: true } }
+
+      it do
+        expect(
+          to_percent,
+        ).to eq '<span class="text-green-500 dark:text-green-400"><strong class="font-medium">+12</strong><small>.3</small>&nbsp;<small>%</small></span>'
+      end
+    end
+
+    context 'with sign option for negative value' do
+      let(:value) { -12.345 }
+      let(:options) { { sign: true } }
+
+      it do
+        expect(
+          to_percent,
+        ).to eq '<span class="text-red-500 dark:text-red-400"><strong class="font-medium">-12</strong><small>.3</small>&nbsp;<small>%</small></span>'
+      end
+    end
+
+    context 'with max_precision option' do
+      let(:value) { 12.3456789 }
+      let(:options) { { max_precision: 3 } }
+
+      it do
+        expect(
+          to_percent,
+        ).to eq '<span class="text-green-500 dark:text-green-400"><strong class="font-medium">12</strong><small>.346</small>&nbsp;<small>%</small></span>'
+      end
+    end
+
+    context 'with precision option' do
+      let(:value) { 12 }
+      let(:options) { { precision: 2 } }
+
+      it do
+        expect(
+          to_percent,
+        ).to eq '<span class="text-green-500 dark:text-green-400"><strong class="font-medium">12</strong><small>.00</small>&nbsp;<small>%</small></span>'
+      end
+    end
+
+    context 'with custom klass option' do
+      let(:value) { 12.345 }
+      let(:options) { { klass: 'custom-class' } }
+
+      it do
+        expect(
+          to_percent,
+        ).to eq '<span class="custom-class"><strong class="font-medium">12</strong><small>.3</small>&nbsp;<small>%</small></span>'
+      end
+    end
+  end
 end
