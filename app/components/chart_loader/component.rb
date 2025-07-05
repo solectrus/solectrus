@@ -268,4 +268,24 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   def suggested_min_y
     data.suggested_min
   end
+
+  def path_to_insights
+    return if timeframe.now?
+
+    if sensor.in?(
+         %i[
+           autarky
+           self_consumption
+           co2_reduction
+           case_temp
+           car_battery_soc
+           battery_soc
+         ],
+       )
+      return
+      # TODO: Maybe later add insights for this sensors
+    end
+
+    helpers.insights_path(sensor:, timeframe:)
+  end
 end
