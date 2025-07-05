@@ -268,35 +268,27 @@ class Insights # rubocop:disable Metrics/ClassLength
       Calculator::Range.new(timeframe, calculations: required_calculations)
   end
 
+  def required_sensors
+    base = []
+    base += [sensor] if sensor.in?(SensorConfig::SENSOR_NAMES)
+    base += SensorConfig.x.inverter_sensor_names if SensorConfig.x.inverter?(
+      sensor,
+    )
+    base += SensorConfig.x.excluded_sensor_names if sensor == :house_power
+    if :"#{sensor}_grid".in?(SensorConfig::POWER_SPLITTER_SENSORS)
+      base += [:"#{sensor}_grid"]
+    end
+    base += %i[battery_charging_power battery_discharging_power] if sensor ==
+      :battery_power
+    base += %i[grid_import_power grid_export_power] if sensor == :grid_power
+
+    base.uniq
+  end
+
   def required_calculations
-    [
-      *SensorConfig.x.inverter_sensor_names.map do |sensor_name|
-        Queries::Calculation.new(sensor_name, :sum, :sum)
-      end,
-      Queries::Calculation.new(:house_power, :sum, :sum),
-      Queries::Calculation.new(:heatpump_power, :sum, :sum),
-      Queries::Calculation.new(:wallbox_power, :sum, :sum),
-      Queries::Calculation.new(:battery_charging_power, :sum, :sum),
-      Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
-      Queries::Calculation.new(:grid_import_power, :sum, :sum),
-      Queries::Calculation.new(:grid_export_power, :sum, :sum),
-      Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
-      Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
-      Queries::Calculation.new(:house_power_grid, :sum, :sum),
-      Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
-      *SensorConfig.x.existing_custom_sensor_names.flat_map do |sensor_name|
-        [
-          Queries::Calculation.new(sensor_name, :sum, :sum),
-          Queries::Calculation.new(:"#{sensor_name}_grid", :sum, :sum),
-        ]
-      end,
-      *SensorConfig.x.excluded_sensor_names.flat_map do |sensor_name|
-        [
-          Queries::Calculation.new(sensor_name, :sum, :sum),
-          Queries::Calculation.new(:"#{sensor_name}_grid", :sum, :sum),
-        ]
-      end,
-    ]
+    required_sensors.map do |sensor_name|
+      Queries::Calculation.new(sensor_name, :sum, :sum)
+    end
   end
 
   def build_inverter_sensor_data
