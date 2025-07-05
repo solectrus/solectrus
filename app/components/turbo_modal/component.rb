@@ -4,9 +4,11 @@ class TurboModal::Component < ViewComponent::Base
   # and
   # https://bhserna.com/remote-modals-with-rails-hotwire-and-bootstrap.html
 
+  renders_one :title
+
   include Turbo::FramesHelper
 
-  def initialize(title:)
+  def initialize(title: nil)
     super()
     @title = title
   end
