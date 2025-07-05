@@ -1,0 +1,21 @@
+.flex.flex-col.justify-center.items-center
+  .flex.items-end.w-full.gap-2
+    .flex-1.flex.flex-col.items-end.gap-2
+      .w-full.flex.gap-2.items-center.justify-end.text-2xl
+        - if costs_width <= 33
+          = Number::Component.new(value: costs).to_eur(negative: true, klass: 'text-red-700')
+        .flex.items-center.justify-start.bg-red-700.h-10.rounded-l-full.text-left.pl-3 style="width: #{costs_width}%"
+          - if costs_width > 33
+            = Number::Component.new(value: costs).to_eur(negative: true, klass: 'text-white')
+
+    .flex-1.flex.flex-col.items-start.gap-2
+      .w-full.flex.gap-2.items-center.justify-start.text-2xl
+        .flex.items-center.justify-end.bg-green-700.h-10.rounded-r-full.text-right.pr-3 style="width: #{revenue_width}%"
+          - if revenue_width > 33
+            = Number::Component.new(value: revenue).to_eur(klass: 'text-white')
+        - if revenue_width <= 33
+          = Number::Component.new(value: revenue).to_eur(klass: 'text-green-700')
+
+  .mt-4.flex.flex-col.text-2xl.text-center
+    .text-sm Saldo
+    = Number::Component.new(value: profit.abs).to_eur(negative: profit.negative?)
