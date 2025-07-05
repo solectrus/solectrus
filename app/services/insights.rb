@@ -284,6 +284,12 @@ class Insights # rubocop:disable Metrics/ClassLength
       Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
       Queries::Calculation.new(:house_power_grid, :sum, :sum),
       Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
+      *SensorConfig.x.existing_custom_sensor_names.flat_map do |sensor_name|
+        [
+          Queries::Calculation.new(sensor_name, :sum, :sum),
+          Queries::Calculation.new(:"#{sensor_name}_grid", :sum, :sum),
+        ]
+      end,
       *SensorConfig.x.excluded_sensor_names.flat_map do |sensor_name|
         [
           Queries::Calculation.new(sensor_name, :sum, :sum),
