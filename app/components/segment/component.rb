@@ -21,8 +21,10 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     options.key?(:title) ? options[:title] : SensorConfig.x.display_name(sensor)
   end
 
-  def icon_class
-    options.key?(:icon_class) ? options[:icon_class] : default_icon_class
+  def battery_soc
+    return unless calculator.respond_to?(:battery_soc)
+
+    calculator.battery_soc
   end
 
   delegate :calculator, :timeframe, to: :parent
@@ -134,41 +136,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     return 100 if peak.nil?
 
     Scale.new(target: 90..270, max: peak).result(value)
-  end
-
-  def default_icon_class
-    case sensor
-    when :grid_export_power, :grid_import_power
-      'fa-bolt'
-    when :inverter_power
-      'fa-sun'
-    when :battery_discharging_power, :battery_charging_power
-      battery_class
-    when :house_power
-      'fa-home'
-    when :heatpump_power
-      'fa-fan'
-    when :wallbox_power
-      'fa-car'
-    end
-  end
-
-  def battery_class
-    unless calculator.respond_to?(:battery_soc) && calculator.battery_soc
-      return 'fa-battery-half'
-    end
-
-    if calculator.battery_soc < 15
-      'fa-battery-empty'
-    elsif calculator.battery_soc < 30
-      'fa-battery-quarter'
-    elsif calculator.battery_soc < 60
-      'fa-battery-half'
-    elsif calculator.battery_soc < 85
-      'fa-battery-three-quarters'
-    else
-      'fa-battery-full'
-    end
   end
 
   def balance?
