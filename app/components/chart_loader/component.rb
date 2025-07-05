@@ -260,7 +260,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
   end
 
   def path_to_insights
-    return if timeframe.now? || timeframe.range?
+    return if timeframe.now?
 
     if sensor.in?(
          %i[
