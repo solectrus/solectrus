@@ -14,7 +14,7 @@ class PowerChart < ChartBase
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id],
                    interpolate:
-    when :days, :week, :month, :months, :year, :years, :all
+    else
       query_sql(timeframe:)
     end
   end

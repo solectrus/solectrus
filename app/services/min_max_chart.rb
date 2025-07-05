@@ -21,7 +21,7 @@ class MinMaxChart < ChartBase
       query_influx start: timeframe.beginning,
                    stop: timeframe.ending,
                    window: WINDOW[timeframe.id]
-    when :days, :week, :month, :months, :year, :all
+    else
       query_sql(timeframe:)
     end
   end
