@@ -23,15 +23,27 @@ class Insights::Component < ViewComponent::Base
   def battery_soc_longest_streak_path
     from, to, = insights.battery_soc_longest_streak.values
 
-    root_path(sensor: 'battery_soc', timeframe: "#{from}..#{to}")
+    url_for(
+      sensor: 'battery_soc',
+      timeframe: "#{from}..#{to}",
+      controller: "#{controller_namespace}/home",
+    )
   end
 
   def yearly_trend_base_path
-    root_path(sensor:, timeframe: insights.yearly_trend.base_timeframe.to_s)
+    url_for(
+      sensor:,
+      timeframe: insights.yearly_trend.base_timeframe.to_s,
+      controller: "#{controller_namespace}/home",
+    )
   end
 
   def monthly_trend_base_path
-    root_path(sensor:, timeframe: insights.monthly_trend.base_timeframe.to_s)
+    url_for(
+      sensor:,
+      timeframe: insights.monthly_trend.base_timeframe.to_s,
+      controller: "#{controller_namespace}/home",
+    )
   end
 
   def day_path(day)
