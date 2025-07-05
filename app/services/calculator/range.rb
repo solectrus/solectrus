@@ -436,6 +436,12 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
         .pick(:updated_at)
   end
 
+  def per_day(value)
+    return unless value
+
+    (value / timeframe.days_passed).round(2)
+  end
+
   private
 
   def calculate_ratio(grid_value, power_value)

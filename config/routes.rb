@@ -105,6 +105,8 @@ Rails.application.routes.draw do
     end
   end
 
+  get '/insights/:sensor/(:timeframe)', to: 'insights#index', as: :insights
+
   resources :summaries, only: :show, param: :date
   delete '/summaries', to: 'summaries#delete_all'
 
