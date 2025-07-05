@@ -44,6 +44,7 @@ import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
 import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
 import { faArrowTrendUp } from '@fortawesome/free-solid-svg-icons/faArrowTrendUp';
 import { faArrowTrendDown } from '@fortawesome/free-solid-svg-icons/faArrowTrendDown';
+import { faLightbulb } from '@fortawesome/free-regular-svg-icons/faLightbulb';
 
 import { faGrip } from '@fortawesome/free-solid-svg-icons/faGrip';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
@@ -95,6 +96,7 @@ export default class extends Controller {
       faExpand,
       faArrowTrendUp,
       faArrowTrendDown,
+      faLightbulb,
       faHouseCrack,
       faSolarPanel,
       faGrip,

@@ -28,6 +28,7 @@ de:
     incomplete_multi_inverter: Mehrere Stromerzeuger
     missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
+    insights: Kennzahlen & Trend
   timeframe:
     now: Aktuell
     hours: Letzte %{count} Stunden

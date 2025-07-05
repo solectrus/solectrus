@@ -1,0 +1,14 @@
+= render TurboModal::Component.new do |modal|
+  - modal.with_title do
+    .flex.gap-3.items-center
+      = render SensorIcon::Component.new(sensor)
+      = SensorConfig.x.display_name(sensor)
+
+  .mt-2.mb-4
+    = timeframe.localized
+
+  - if ApplicationPolicy.insights?
+    = render Insights::Component.new(sensor:, timeframe:)
+  - else
+    = render DemoLink::Component.new feature: 'insights',
+                                     url: { controller: 'balance/home', timeframe: params[:timeframe] }

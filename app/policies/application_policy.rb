@@ -8,6 +8,7 @@ class ApplicationPolicy
     custom_consumer
     multi_inverter
     relative_timeframe
+    insights
   ].freeze
   private_constant :SPONSOR_FEATURES
 

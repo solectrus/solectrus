@@ -1,0 +1,122 @@
+.grid.grid-cols-2.gap-3.sm:gap-4.w-full
+  - if sensor == :inverter_power && (insights.costs || insights.multi_inverter?)
+    .col-span-2
+      .grid.grid-cols-3.gap-4.sm:gap-6
+        = render InsightsTile::Component.new css_class: (sensor == :inverter_power ? 'col-span-2' : 'col-span-full') do |tile|
+          - tile.with_body do
+            .flex.justify-center.items-center.gap-4
+              - unless sensor.in? %i[grid_power battery_power]
+                .text-left.text-lg.sm:text-2xl.font-semibold
+                  = Number::Component.new(value: insights.value).to_watt_hour(precision: 3)
+
+            - if insights.costs
+              .mt-2.sm:mt-5.text-lg
+                = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
+
+            - if insights.multi_inverter?
+              div class= 'mt-2 sm:mt-6 grid grid-cols-[auto_1fr_auto] gap-1 sm:gap-2 items-center px-2 text-sm font-medium whitespace-nowrap'
+                - insights.inverter_sensor_values.reverse_each do |sensor_data|
+                  .pr-3.text-left
+                    = SensorConfig.x.display_name(sensor_data[:name])
+                  .pr-3.bg-gray-200.dark:bg-gray-800.rounded-full.h-2
+                    .bg-green-600.h-2.rounded-full style="width: #{sensor_data[:percentage]}%"
+                  .text-right.tabular-nums
+                    = Number::Component.new(value: sensor_data[:value]).to_watt_hour(unit: :kilo)
+
+        - if sensor == :inverter_power
+          = render InsightsTile::Component.new stripes: (timeframe.year? || timeframe.month?) && timeframe.current?,
+                                               css_class: 'flex flex-col items-center justify-center' do |tile|
+            - tile.with_body do
+              = Number::Component.new(value: insights.inverter_power_per_kwp).to_watt_hour(unit: :kilo)
+            - tile.with_footer do
+              'pro kWp
+
+  - if insights.monthly_trend&.valid?
+    = render InsightsTile::Component.new css_class: ('col-span-2' unless insights.yearly_trend&.valid?), url: monthly_trend_base_path do |tile|
+      - tile.with_title do
+        'Vormonat
+      - tile.with_body do
+        = render TrendIndicator::Component.new(trend: insights.monthly_trend)
+
+  - if insights.yearly_trend&.valid?
+    = render InsightsTile::Component.new css_class: ['text-right', ('col-span-2' unless insights.monthly_trend&.valid?)], url: yearly_trend_base_path do |tile|
+      - tile.with_title do
+        'Vorjahr
+      - tile.with_body do
+        = render TrendIndicator::Component.new(trend: insights.yearly_trend)
+
+  - if sensor == :grid_power
+    = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
+      - tile.with_body do
+        = render GridCostsGraph::Component.new(costs: insights.grid_costs, revenue: insights.feed_in_revenue)
+
+  - elsif sensor == :battery_power
+    = render InsightsTile::Component.new do |tile|
+      - tile.with_body do
+        = Number::Component.new(value: insights.battery_discharging_power).to_watt_hour(unit: :kilo, precision: 0)
+      - tile.with_footer do
+        'Entladung
+
+    = render InsightsTile::Component.new css_class: 'text-right' do |tile|
+      - tile.with_body do
+        = Number::Component.new(value: insights.battery_charging_power).to_watt_hour(unit: :kilo, precision: 0)
+      - tile.with_footer do
+        'Beladung
+
+    - unless timeframe.day?
+      .col-span-2.grid.grid-cols-3.gap-3.sm:gap-6
+        = render InsightsTile::Component.new do |tile|
+          - tile.with_body do
+            = insights.battery_empty_days
+            small< Tage
+          - tile.with_footer do
+            'Leer
+
+        - length = insights.battery_soc_longest_streak[:length]
+        = render InsightsTile::Component.new css_class: 'text-center', url: battery_soc_longest_streak_path do |tile|
+          - tile.with_footer do
+            'Geladen in Folge
+          - tile.with_body do
+            = length
+            small<
+            = length == 1 ? 'Tag' : 'Tage'
+
+        = render InsightsTile::Component.new css_class: 'text-right' do |tile|
+          - tile.with_body do
+            = insights.battery_full_days
+            small< Tage
+          - tile.with_footer do
+            'Voll
+
+  - else
+    .col-span-2
+      .grid.gap-4.sm:gap-6 class= (per_day_value? ? 'grid-cols-3' : 'grid-cols-2')
+        - if (min_day = insights.minimum(:date))
+          = render InsightsTile::Component.new url: day_path(min_day) do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                =l min_day
+            - tile.with_body do
+              = Number::Component.new(value: insights.minimum(:value)).to_watt_hour(unit: :kilo)
+            - tile.with_footer do
+              'Minimum
+
+        - if per_day_value?
+          = render InsightsTile::Component.new css_class: 'text-center' do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                '&nbsp;
+            - tile.with_body do
+              = Number::Component.new(value: insights.per_day_value).to_watt_hour(unit: :kilo, precision: 1)
+            - tile.with_footer do
+              ' Ø pro Tag
+
+        - if (max_day = insights.maximum(:date))
+          = render InsightsTile::Component.new css_class: 'text-right', url: day_path(max_day) do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                =l max_day
+            - tile.with_body do
+              = Number::Component.new(value: insights.maximum(:value)).to_watt_hour(unit: :kilo)
+            - tile.with_footer do
+              'Maximum

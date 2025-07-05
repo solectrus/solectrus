@@ -313,6 +313,10 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     sensor_defined?(:inverter_power)
   end
 
+  def inverter?(sensor_name)
+    sensor_name.in?([*inverter_sensor_names, :inverter_power])
+  end
+
   private
 
   def define_sensor(sensor_name, value)
