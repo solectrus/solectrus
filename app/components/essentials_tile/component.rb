@@ -48,17 +48,6 @@ class EssentialsTile::Component < ViewComponent::Base
     TEXT_SECONDARY_COLOR[color]
   end
 
-  ICONS = {
-    grid_export_power: 'fa-bolt',
-    grid_import_power: 'fa-bolt',
-    inverter_power: 'fa-sun',
-    house_power: 'fa-home',
-    wallbox_power: 'fa-car',
-    savings: 'fa-piggy-bank',
-    co2_reduction: 'fa-leaf',
-    battery_soc: 'fa-battery-half',
-  }.freeze
-
   BACKGROUND_COLOR = {
     green: 'bg-green-600 dark:bg-green-800',
     yellow: 'bg-yellow-600 dark:bg-yellow-800',
@@ -82,11 +71,6 @@ class EssentialsTile::Component < ViewComponent::Base
   private_constant :BACKGROUND_COLOR
   private_constant :TEXT_PRIMARY_COLOR
   private_constant :TEXT_SECONDARY_COLOR
-  private_constant :ICONS
-
-  def icon_class
-    ICONS[sensor]
-  end
 
   def title
     case sensor
