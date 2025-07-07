@@ -94,7 +94,7 @@ GEM
       msgpack (~> 1.2)
     brakeman (7.0.2)
       racc
-    brotli (0.6.0)
+    brotli (0.7.0)
     builder (3.3.0)
     calculate-all (0.4.0)
       activesupport (>= 4.0.0)
