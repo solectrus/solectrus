@@ -157,7 +157,17 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               days: {
                 unit: 'day',
                 displayFormats: {
-                  day: timeframe.relative_count.to_i < 8 ? 'ccc' : 'd',
+                  day:
+                    case timeframe.relative_count.to_i
+                    when ..8
+                      'ccc'
+                    when 9..31
+                      'd'
+                    when 32..280
+                      'd. LLL'
+                    else
+                      'LLL yyyy'
+                    end,
                 },
                 tooltipFormat: 'cccc, dd.MM.yyyy',
                 round: 'day',
@@ -181,7 +191,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               months: {
                 unit: 'month',
                 displayFormats: {
-                  month: 'MMM',
+                  month: 'LLL',
                 },
                 tooltipFormat: 'MMMM yyyy',
                 round: 'month',
