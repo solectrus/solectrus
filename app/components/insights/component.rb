@@ -13,10 +13,10 @@ class Insights::Component < ViewComponent::Base
 
     %i[
       inverter_power
-      grid_import_power
-      grid_export_power
+      grid_power
       wallbox_power
       battery_soc
+      battery_power
     ].exclude?(sensor)
   end
 
