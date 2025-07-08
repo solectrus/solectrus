@@ -129,6 +129,12 @@ class Insights # rubocop:disable Metrics/ClassLength
     Insights::BatterySocLongestStreak.new(timeframe:).call
   end
 
+  def heatmap_data
+    return unless timeframe.all?
+
+    @heatmap_data ||= Insights::Heatmap.new(sensor:, timeframe:).call
+  end
+
   private
 
   def extremum(aggregation)
