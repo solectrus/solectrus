@@ -32,7 +32,7 @@ dl.mt-5
       = I18n.t('calculator.savings')
     dd.font-mono.text-right = Number::Component.new(value: calculator.savings).to_eur(max_precision: 2)
 
-    - if calculator.battery_savings_percent
+    - if calculator.battery_savings_percent&.positive?
       dt
         = I18n.t('calculator.battery_savings')
         =< sanitize "(#{Number::Component.new(value: calculator.battery_savings_percent).to_percent(max_precision: 0, klass: 'text-current')})"
