@@ -88,35 +88,39 @@
           - tile.with_footer do
             'Voll
 
-  - else
-    .col-span-2
-      .grid.gap-4.sm:gap-6 class= (per_day_value? ? 'grid-cols-3' : 'grid-cols-2')
-        - if (min_day = insights.minimum(:date))
-          = render InsightsTile::Component.new url: day_path(min_day) do |tile|
-            - tile.with_title do
-              span.hidden.md:block
-                =l min_day
-            - tile.with_body do
-              = Number::Component.new(value: insights.minimum(:value)).to_watt_hour(unit: :kilo)
-            - tile.with_footer do
-              'Minimum
+  - if timeframe.all? && insights.heatmap_data
+    = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
+      - tile.with_body do
+        = render HeatmapTile::Component.new(data: insights.heatmap_data, sensor:)
 
-        - if per_day_value?
-          = render InsightsTile::Component.new css_class: 'text-center' do |tile|
-            - tile.with_title do
-              span.hidden.md:block
-                '&nbsp;
-            - tile.with_body do
-              = Number::Component.new(value: insights.per_day_value).to_watt_hour(unit: :kilo, precision: 1)
-            - tile.with_footer do
-              ' Ø pro Tag
+  .col-span-2
+    .grid.gap-4.sm:gap-6 class= (per_day_value? ? 'grid-cols-3' : 'grid-cols-2')
+      - if (min_day = insights.minimum(:date))
+        = render InsightsTile::Component.new url: day_path(min_day) do |tile|
+          - tile.with_title do
+            span.hidden.md:block
+              =l min_day
+          - tile.with_body do
+            = Number::Component.new(value: insights.minimum(:value)).to_watt_hour(unit: :kilo)
+          - tile.with_footer do
+            'Minimum
 
-        - if (max_day = insights.maximum(:date))
-          = render InsightsTile::Component.new css_class: 'text-right', url: day_path(max_day) do |tile|
-            - tile.with_title do
-              span.hidden.md:block
-                =l max_day
-            - tile.with_body do
-              = Number::Component.new(value: insights.maximum(:value)).to_watt_hour(unit: :kilo)
-            - tile.with_footer do
-              'Maximum
+      - if per_day_value?
+        = render InsightsTile::Component.new css_class: 'text-center' do |tile|
+          - tile.with_title do
+            span.hidden.md:block
+              '&nbsp;
+          - tile.with_body do
+            = Number::Component.new(value: insights.per_day_value).to_watt_hour(unit: :kilo, precision: 1)
+          - tile.with_footer do
+            ' Ø pro Tag
+
+      - if (max_day = insights.maximum(:date))
+        = render InsightsTile::Component.new css_class: 'text-right', url: day_path(max_day) do |tile|
+          - tile.with_title do
+            span.hidden.md:block
+              =l max_day
+          - tile.with_body do
+            = Number::Component.new(value: insights.maximum(:value)).to_watt_hour(unit: :kilo)
+          - tile.with_footer do
+            'Maximum
