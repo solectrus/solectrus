@@ -98,7 +98,7 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
       inverter_power.nil? ||
         begin
           inverter_power_sum.present? && !inverter_power.zero? &&
-            (inverter_power_sum / inverter_power * 100.0).round >= 99
+            (inverter_power_sum.fdiv(inverter_power) * 100.0).round >= 99
         end
   end
 
