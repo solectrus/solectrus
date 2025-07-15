@@ -22,6 +22,7 @@
 @import '../stylesheets/flow.css' layer(base);
 @import '../stylesheets/badge.css' layer(base);
 @import '../stylesheets/animations.css' layer(base);
+@import '../stylesheets/segment.css' layer(base);
 
 @theme {
   --breakpoint-3xl: 1920px;

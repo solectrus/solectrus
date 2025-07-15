@@ -1,0 +1,144 @@
+.segment {
+  @apply flex items-center justify-center overflow-hidden px-2 text-center leading-none transition-all motion-safe:duration-1000 motion-reduce:duration-100 sm:px-4;
+
+  container-type: size;
+
+  --icon-size: clamp(16px, 1.2vw, 22px);
+  --value-size: clamp(16px, 1vw, 20px);
+  --title-size: clamp(15px, 1.3vw, 19px);
+
+  @variant md {
+    --icon-size: clamp(20px, 0.8vw, 26px);
+    --value-size: clamp(20px, 0.7vw, 24px);
+    --title-size: clamp(20px, 1vw, 26px);
+  }
+}
+
+.segment.segment-inline {
+  --value-size: clamp(16px, 1vw, 20px);
+  --title-size: clamp(12px, 1vw, 16px);
+
+  @variant md {
+    --value-size: clamp(20px, 0.7vw, 24px);
+    --title-size: clamp(20px, 1vw, 24px);
+  }
+}
+
+.segment.segment-inline {
+  .content {
+    @apply flex w-full flex-row items-center justify-between gap-2;
+  }
+
+  .icon {
+    @apply hidden;
+  }
+
+  .title {
+    @apply text-left;
+  }
+
+  .value {
+    @apply text-right;
+  }
+}
+
+/* STATE 1: Empty */
+.segment .content {
+  @apply flex flex-row items-center justify-center gap-2;
+}
+
+.segment .icon {
+  font-size: 0;
+  @apply transition-all;
+}
+
+.segment .title {
+  font-size: 0;
+  @apply transition-all;
+}
+
+.segment .value {
+  font-size: 0;
+  @apply min-w-0 flex-1 transition-all;
+}
+
+/* STATE 2: Side by side */
+@container (min-height: 35px) {
+  .segment .icon {
+    font-size: calc(var(--icon-size) * var(--icon-scale, 1));
+    max-width: 40%;
+  }
+
+  .segment .value {
+    font-size: var(--value-size);
+  }
+}
+
+/* STATE 3: Stacked without title */
+@container (min-height: 90px) {
+  .segment .content {
+    @apply flex-col;
+  }
+
+  .segment .icon {
+    font-size: calc(var(--icon-size) * 1.3 * var(--icon-scale, 1));
+    max-height: 50%;
+  }
+
+  .segment .value {
+    font-size: calc(var(--value-size) * 1.2);
+  }
+}
+
+/* STATE 4: Stacked with title */
+@container (min-height: 130px) {
+  .segment .content {
+    @apply flex flex-col items-center justify-center gap-2;
+  }
+
+  .segment .title {
+    @apply block text-center leading-tight;
+    font-size: var(--title-size);
+  }
+
+  .segment .icon {
+    font-size: calc(var(--icon-size) * 1.5 * var(--icon-scale, 1));
+    max-height: 40%;
+  }
+
+  .segment .value {
+    font-size: calc(var(--value-size) * 1.3);
+  }
+}
+
+/* Inline segments */
+
+@container (min-height: 25px) {
+  .segment.segment-inline .title {
+    font-size: calc(var(--value-size) * 0.9);
+  }
+
+  .segment.segment-inline .value {
+    font-size: calc(var(--value-size) * 1);
+  }
+}
+
+@container (min-height: 30px) {
+  .segment.segment-inline .title {
+    font-size: calc(var(--value-size) * 1);
+  }
+
+  .segment.segment-inline .value {
+    font-size: calc(var(--value-size) * 1.1);
+  }
+}
+
+@container (min-height: 100px) {
+  .segment.segment-inline .title {
+    font-size: calc(var(--value-size) * 1.1);
+  }
+
+  .segment.segment-inline .value {
+    font-size: calc(var(--value-size) * 1.2);
+  }
+}

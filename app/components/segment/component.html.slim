@@ -1,32 +1,7 @@
-- styles = capture do
-  css:
-    #segment-#{sensor} {
-      --segment-font-size: #{font_size(max: 90)}%;
-      --segment-height: #{tiny? ? 0 : percent}%;
-    }
-
-    @media (min-width: 768px) and (min-height: 800px) {
-      #segment-#{sensor} {
-        --segment-font-size: #{font_size(max: 140)}%;
-      }
-    }
-
-    @media (min-width: 1024px) and (min-height: 800px) {
-      #segment-#{sensor} {
-        --segment-font-size: #{font_size(max: 115)}%;
-      }
-    }
-
-    @media (min-width: 1280px) and (min-height: 800px) {
-      #segment-#{sensor} {
-        --segment-font-size: #{font_size(max: 140)}%;
-      }
-    }
-
 - if block
   = tag.div id: "segment-#{sensor}",
-            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?), ('hidden' if hidden)],
-            style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
+            class: ['segment', color_class, ('border-0!' if tiny?), ('hidden' if hidden), ('segment-inline' if inline)],
+            style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
               controller: 'tippy',
@@ -34,14 +9,13 @@
               tippy_force_tap_to_close_value: false,
               tippy_touch_value: 'long',
             } do
-    = styles
     = block.call
 
 - else
   = link_to_or_div url,
             id: "segment-#{sensor}",
-            class: ['leading-none flex items-center justify-around text-center px-2 sm:px-4 overflow-hidden transition-[font-size,height] motion-reduce:duration-100 motion-safe:duration-1000 group', color_class, ('border-0!' if tiny?), ('hidden' if hidden)],
-            style: 'height: var(--segment-height); font-size: var(--segment-font-size)',
+            class: ['segment', color_class, ('border-0!' if tiny?), ('hidden' if hidden), ('segment-inline' if inline)],
+            style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
               controller: 'tippy',
@@ -54,19 +28,18 @@
               action: 'stats-with-chart--component#startLoop',
               stats_with_chart__component_sensor_param: sensor,
             } do
-    = styles
-    div class= "flex gap-2 lg:gap-3 #{inline ? 'w-full flex-row justify-between' : ('flex-col' if large?)} items-center #{'click-animation' if url}"
+    .content class= "#{'click-animation' if url}"
       - if icon_class
-        i.fa class= icon_class style="font-size: #{icon_size}%;"
+        i.fa.icon class= icon_class
 
-      .font-light.leading-tight class= (large? || inline ? 'lg:block' : 'hidden')
+      .font-light.leading-tight.title
         = title
 
-      div class= ('text-[120%]' if large?) data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time&.to_i }
+      .value data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time&.to_i }
         = Number::Component.new(value:).public_send(number_method)
 
       - if sensor == :grid_export_power && calculator.respond_to?(:grid_export_limit_active?) && calculator.grid_export_limit_active?
-        i.fa.fa-circle-exclamation.fa-xs
+        i.fa.fa-circle-exclamation
 
       .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
         .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
