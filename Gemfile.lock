@@ -162,7 +162,7 @@ GEM
       dry-inflector (~> 1.0)
       dry-logic (~> 1.4)
       zeitwerk (~> 2.6)
-    erb (5.0.1)
+    erb (5.0.2)
     erubi (1.13.1)
     fast-mcp-annotations (1.5.2)
       addressable (~> 2.8)
