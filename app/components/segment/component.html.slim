@@ -14,7 +14,7 @@
 - else
   = link_to_or_div url,
             id: "segment-#{sensor}",
-            class: ['segment', color_class, ('border-0!' if tiny?), ('hidden' if hidden), ('segment-inline' if inline)],
+            class: ['segment', color_class, ('border-0!' if tiny?), ('hidden' if hidden), ('segment-inline' if inline), ('group' if url)],
             style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
