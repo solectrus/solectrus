@@ -1,20 +1,37 @@
 class HeatmapTile::Component < ViewComponent::Base
-  def initialize(data:, sensor:)
+  def initialize(data:, sensor:, timeframe:)
     super()
     @data = data
     @sensor = sensor
+    @timeframe = timeframe
   end
 
-  attr_reader :data, :sensor
+  attr_reader :data, :sensor, :timeframe
 
   private
 
   def years
-    @years ||= data.keys.sort
+    timeframe.year? ? [] : data.keys.sort
+  end
+
+  def months
+    timeframe.year? ? data.keys.sort : []
   end
 
   def value_for(year, month)
+    return unless timeframe.all?
+
     data.dig(year, month)
+  end
+
+  def daily_value_for(month, day)
+    return unless timeframe.year?
+
+    data.dig(month, day)
+  end
+
+  def current_year
+    timeframe.year? ? timeframe.date.year : Date.current.year
   end
 
   def max_value
