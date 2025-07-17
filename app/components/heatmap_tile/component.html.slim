@@ -14,7 +14,7 @@
                       data: { controller: 'tippy' } do
                 .hidden data-tippy-target= 'html'
                   strong
-                    = l(date, format: :long)
+                    = l(date)
 
                   - if sensor == :grid_power
                     table
@@ -36,7 +36,8 @@
                           td.text-right.tabular-nums
                             = Number::Component.new(value: grid_eur_diff(value).abs).to_eur(precision: 0, negative: grid_eur_diff(value).negative?)
                   - else
-                    = Number::Component.new(value: value).to_watt_hour
+                    br
+                    = Number::Component.new(value: value).to_watt_hour(unit: :kilo)
         - else
           div
 
@@ -83,7 +84,8 @@
                         td.text-right.tabular-nums
                           = Number::Component.new(value: grid_eur_diff(value).abs).to_eur(precision: 0, negative: grid_eur_diff(value).negative?)
                 - else
-                  = Number::Component.new(value: value).to_watt_hour
+                  br
+                  = Number::Component.new(value: value).to_watt_hour(unit: :kilo)
         - else
           div
     div
