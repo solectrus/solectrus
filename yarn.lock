@@ -347,6 +347,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource-variable/inter@npm:^5.2.6":
+  version: 5.2.6
+  resolution: "@fontsource-variable/inter@npm:5.2.6"
+  checksum: 10c0/946efe63cb0328433e8cf00af95cd2fb6f2e9e8b9c0bbf2170376f3d941c5c4b332f0279b5e73cbe05ac04ad01751c1d108d0a625e00e4f8c2ffca35b33d402f
+  languageName: node
+  linkType: hard
+
 "@fortawesome/fontawesome-common-types@npm:6.7.2":
   version: 6.7.2
   resolution: "@fortawesome/fontawesome-common-types@npm:6.7.2"
@@ -4262,6 +4269,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "solectrus@workspace:."
   dependencies:
+    "@fontsource-variable/inter": "npm:^5.2.6"
     "@fortawesome/fontawesome-svg-core": "npm:^6.7.2"
     "@fortawesome/free-brands-svg-icons": "npm:^6.7.2"
     "@fortawesome/free-regular-svg-icons": "npm:^6.7.2"
