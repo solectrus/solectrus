@@ -130,9 +130,12 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   def heatmap_data
-    return unless timeframe.all?
-
-    @heatmap_data ||= Insights::Heatmap.new(sensor:, timeframe:).call
+    @heatmap_data ||=
+      if timeframe.year?
+        Insights::HeatmapYearly.new(sensor:, timeframe:).call
+      elsif timeframe.all?
+        Insights::HeatmapAllTime.new(sensor:, timeframe:).call
+      end
   end
 
   private

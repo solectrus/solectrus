@@ -1,4 +1,4 @@
-describe Insights::Heatmap do
+describe Insights::HeatmapAllTime do
   subject(:service) { described_class.new(sensor:, timeframe:) }
 
   let(:timeframe) { Timeframe.all }
@@ -92,17 +92,13 @@ describe Insights::Heatmap do
       let(:sensor) { :inverter_power }
       let(:timeframe) { Timeframe.day }
 
-      it 'returns nil' do
-        expect(call).to be_nil
-      end
+      it { is_expected.to be_nil }
     end
 
     context 'when sensor is blank' do
       let(:sensor) { nil }
 
-      it 'returns nil' do
-        expect(call).to be_nil
-      end
+      it { is_expected.to be_empty }
     end
   end
 end
