@@ -5,12 +5,12 @@
 
   --icon-size: clamp(16px, 1.2vw, 22px);
   --value-size: clamp(16px, 1vw, 20px);
-  --title-size: clamp(15px, 1.3vw, 19px);
+  --title-size: clamp(17px, 1.5vw, 22px);
 
   @variant md {
     --icon-size: clamp(20px, 0.8vw, 26px);
     --value-size: clamp(20px, 0.7vw, 24px);
-    --title-size: clamp(20px, 1vw, 26px);
+    --title-size: clamp(22px, 1.2vw, 30px);
   }
 }
 
@@ -91,7 +91,7 @@
 }
 
 /* STATE 4: Stacked with title */
-@container (min-height: 130px) {
+@container (min-height: 145px) {
   .segment .content {
     @apply flex flex-col items-center justify-center gap-2;
   }
