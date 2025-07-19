@@ -1,6 +1,4 @@
 [![Build Status](https://github.com/solectrus/solectrus/workflows/Continuous%20integration/badge.svg)](https://github.com/solectrus/solectrus/actions)
-[![Maintainability](https://api.codeclimate.com/v1/badges/10d74fb7665c045afcf4/maintainability)](https://codeclimate.com/repos/5fe98897e985f4018b001e7d/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/10d74fb7665c045afcf4/test_coverage)](https://codeclimate.com/repos/5fe98897e985f4018b001e7d/test_coverage)
 [![wakatime](https://wakatime.com/badge/user/697af4f5-617a-446d-ba58-407e7f3e0243/project/ce8d6e54-7457-42e5-94a3-33a9d4021d45.svg)](https://wakatime.com/badge/user/697af4f5-617a-446d-ba58-407e7f3e0243/project/ce8d6e54-7457-42e5-94a3-33a9d4021d45)
 
 # SOLECTRUS

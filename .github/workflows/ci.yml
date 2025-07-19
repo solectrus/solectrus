@@ -49,7 +49,6 @@ jobs:
       DB_USER: postgres
       DB_PASSWORD: postgres
       RAILS_ENV: test
-      CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       DISABLE_SPRING: 1
       CI: true
       RUBY_YJIT_ENABLE: 1
@@ -95,12 +94,6 @@ jobs:
 
       - name: Run End-to-End tests with Cypress
         run: bin/rake cypress:run
-
-      - name: Send test coverage to CodeClimate
-        uses: paambaati/codeclimate-action@v9.0.0
-        if: ${{ env.CC_TEST_REPORTER_ID }}
-        with:
-          coverageCommand: true
 
       - name: Check JS size limit
         run: yarn size-limit
