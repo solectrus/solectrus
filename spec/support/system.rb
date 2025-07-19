@@ -1,11 +1,38 @@
-module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
-  def influx_seed
-    puts 'Seeding InfluxDB with data...'
+require 'capybara/rspec'
+require 'capybara-playwright-driver'
 
-    seed_pv
-    seed_heatpump
-    seed_forecast
-    seed_car_battery_soc
+Capybara.register_driver :my_playwright do |app|
+  Capybara::Playwright::Driver.new(
+    app,
+    browser_type: ENV['PLAYWRIGHT_BROWSER']&.to_sym || :chromium,
+    headless: (false unless ENV['CI'] || ENV['PLAYWRIGHT_HEADLESS']),
+    locale: 'de-DE',
+  )
+end
+
+module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
+  include InfluxHelper
+  include ActiveSupport::Testing::TimeHelpers
+
+  def travel_js(seconds)
+    page.execute_script(<<~JS)
+      window.clock.tick(#{seconds.in_milliseconds});
+    JS
+  end
+
+  def influx_seed
+    travel_to Time.zone.local(2022, 6, 21, 12, 0, 0)
+
+    # Clean up any existing data first
+    influx_purge
+
+    # Use batch operation for massive performance improvement
+    influx_batch do
+      seed_pv
+      seed_heatpump
+      seed_forecast
+      seed_car_battery_soc
+    end
 
     summaries =
       (Rails.configuration.x.installation_date..Date.yesterday).map do |date|
@@ -81,6 +108,15 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
           },
           time: i.seconds.ago,
         )
+
+        # Add main inverter_power measurement for primary inverter_power sensor
+        add_influx_point(
+          name: measurement_inverter_power,
+          fields: {
+            field_inverter_power => 10_000, # sum of inverter_power_1 + inverter_power_2
+          },
+          time: i.seconds.ago,
+        )
       end
   end
 
@@ -133,34 +169,8 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
   end
 
   def influx_purge
-    puts 'Purging InfluxDB data and summaries...'
-
     delete_influx_data
     delete_summaries
-  end
-
-  def add_influx_point(name:, fields:, time: Time.current)
-    write_api = influx_client.create_write_api
-
-    write_api.write(
-      data: {
-        name:,
-        fields: fields.symbolize_keys,
-        time: time.to_i,
-      },
-      bucket: Rails.configuration.x.influx.bucket,
-      org: Rails.configuration.x.influx.org,
-    )
-  end
-
-  def delete_influx_data(start: Time.zone.at(0), stop: 1.second.since)
-    delete_api = influx_client.create_delete_api
-
-    delete_api.delete(start, stop)
-  end
-
-  def influx_client
-    @influx_client ||= Flux::Base.new.client
   end
 
   def create_summary(date:, updated_at: Time.current, values: [])
@@ -177,5 +187,34 @@ module CypressRails::InfluxDB # rubocop:disable Metrics/ModuleLength
     ActiveRecord::Base.connection.execute(
       "TRUNCATE #{Summary.table_name} CASCADE",
     )
+  end
+end
+
+RSpec.configure do |config|
+  config.include SystemTestHelpers, type: :system
+
+  config.before(:each, type: :system) do
+    driven_by :my_playwright
+
+    # Set viewport size (recommended approach from capybara-playwright-driver)
+    page.current_window.resize_to(1280, 800)
+
+    # Uncomment this block to log Playwright console messages
+    # page.driver.with_playwright_page do |page|
+    #   page.on(
+    #     'console',
+    #     ->(msg) { puts "error: #{msg.text}" if msg.type == 'error' },
+    #   )
+    # end
+
+    # Stub the version check so we don't have to hit the network
+    UpdateCheck.class_eval do
+      def latest
+        { registration_status: 'complete', version: '1.0.0' }
+      end
+    end
+
+    # Seed fresh data for each test to ensure isolation
+    influx_seed
   end
 end
