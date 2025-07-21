@@ -107,9 +107,6 @@ group :development, :test do
 
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
-
-  # Helps you write Cypress tests of your Rails app (https://github.com/testdouble/cypress-rails)
-  gem 'cypress-rails', '0.8.0.rc1'
 end
 
 group :development do
@@ -144,6 +141,9 @@ end
 group :test do
   # Capybara aims to simplify the process of integration testing Rack applications, such as Rails, Sinatra or Merb (https://github.com/teamcapybara/capybara)
   gem 'capybara', '>= 3.26'
+
+  # Playwright driver for Capybara (https://github.com/YusukeIwaki/capybara-playwright-driver)
+  gem 'capybara-playwright-driver'
 
   # Code coverage for Ruby (https://github.com/simplecov-ruby/simplecov)
   gem 'simplecov', require: false

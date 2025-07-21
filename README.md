@@ -73,7 +73,6 @@ After preparing development environment (see above):
 ```bash
 bin/influxdb-restart.sh
 DISABLE_SPRING=1 bin/rspec
-DISABLE_SPRING=1 RAILS_ENV=test bin/rake cypress:run
 open coverage/index.html
 ```
 
