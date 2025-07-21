@@ -91,7 +91,7 @@
 }
 
 /* STATE 4: Stacked with title */
-@container (min-height: 145px) {
+@container (min-height: 190px) {
   .segment .content {
     @apply flex flex-col items-center justify-center gap-2;
   }
