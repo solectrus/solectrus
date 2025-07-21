@@ -119,6 +119,8 @@ Layout/SpaceInsideHashLiteralBraces:
 
 Metrics/AbcSize:
   Max: 35
+  Exclude:
+    - 'spec/system/**'
 
 Metrics/MethodLength:
   Max: 50
@@ -251,4 +253,9 @@ RSpec/VerifiedDoubles:
 # Naming
 
 Naming/VariableNumber:
+  Enabled: false
+
+# Capybara
+
+Capybara/AmbiguousClick:
   Enabled: false

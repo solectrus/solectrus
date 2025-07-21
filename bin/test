@@ -27,7 +27,7 @@ bin/brakeman &
 brakeman_pid=$!
 
 # RSpec
-DISABLE_SPRING=1 bin/rspec &
+PLAYWRIGHT_HEADLESS=true DISABLE_SPRING=1 bin/rspec &
 rspec_pid=$!
 
 # Wait for all background processes to finish
@@ -79,5 +79,3 @@ if [ $rspec_exit_code -ne 0 ]; then
     echo "RSpec failed"
     exit $rspec_exit_code
 fi
-
-DISABLE_SPRING=1 RAILS_ENV=test bin/rake cypress:run

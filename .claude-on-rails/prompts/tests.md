@@ -12,7 +12,7 @@ You are a Rails testing specialist ensuring comprehensive test coverage and qual
 
 ## Testing Framework
 
-Your project uses: RSpec
+Your project uses: RSpec with Playwright for system tests
 
 ### RSpec Best Practices
 
@@ -53,7 +53,9 @@ RSpec.describe 'Users API', type: :request do
 end
 ```
 
-### System Specs
+### System Specs with Playwright
+
+System tests use Playwright via capybara-playwright-driver for enhanced browser automation:
 
 ```ruby
 RSpec.describe 'User Registration', type: :system do
@@ -68,6 +70,28 @@ RSpec.describe 'User Registration', type: :system do
 
     expect(page).to have_content('Welcome!')
     expect(User.last.email).to eq('test@example.com')
+  end
+
+  # Testing JavaScript interactions
+  it 'handles dynamic form validation' do
+    visit new_user_registration_path
+
+    # Use execute_script for JavaScript interactions
+    page.execute_script("document.querySelector('input[name=\"email\"]').focus()")
+
+    expect(page).to have_css('.validation-message')
+  end
+
+  # Testing time-sensitive operations
+  it 'shows real-time updates', :js do
+    travel_to(Time.zone.local(2022, 6, 21, 12, 0, 0)) do
+      visit dashboard_path
+
+      # Use travel_js for JavaScript time manipulation
+      travel_js(5.minutes)
+
+      expect(page).to have_content('Updated 5 minutes ago')
+    end
   end
 end
 ```
@@ -112,5 +136,58 @@ Always test:
 - Test edge cases and error conditions
 - Don't test Rails framework itself
 - Focus on business logic coverage
+
+## Playwright Integration
+
+### System Test Configuration
+
+The project uses Playwright via `capybara-playwright-driver`. Configuration is found in:
+
+- `spec/support/system.rb` - Main Playwright setup and driver configuration
+- `spec/support/system_helpers.rb` - Common system test helper methods
+
+### Playwright Best Practices
+
+1. **Browser Configuration**:
+   - Uses `:chromium` by default (configurable via `PLAYWRIGHT_BROWSER`)
+   - Runs headless in CI, visible locally for debugging
+   - Consistent viewport size (1280x800)
+
+2. **Console Monitoring**:
+   - Listens for JavaScript console errors
+   - Logs errors for debugging failed tests
+
+3. **Time Manipulation**:
+   - Use `travel_to` for Ruby time travel
+   - Use `travel_js(milliseconds)` for JavaScript time manipulation (see implementation in `spec/support/system.rb`)
+   - Essential for testing time-sensitive features
+
+4. **JavaScript Execution**:
+   - Use `page.execute_script()` for direct JavaScript execution
+   - Prefer Capybara methods when possible for better error handling
+
+5. **Test Data Setup**:
+   - Fresh data seeding for each test ensures isolation
+   - Use `influx_seed` for InfluxDB test data (implemented in `spec/support/system.rb`)
+   - Clean up with `influx_purge` before seeding
+
+### System Test Helpers
+
+Common test operations are available through the `SystemHelpers` module in `spec/support/system_helpers.rb`:
+
+- `login_as_admin` - Authenticates as administrator
+- Additional helpers can be added to this module as needed
+
+### Environment Variables
+
+- `PLAYWRIGHT_BROWSER`: Set browser type (chromium, firefox, webkit)
+- `PLAYWRIGHT_HEADLESS`: Force headless mode
+- `CI`: Automatically enables headless mode in CI environments
+
+### Key Files to Reference
+
+- `spec/support/system.rb` - Playwright configuration and test setup
+- `spec/support/system_helpers.rb` - Common helper methods
+- `spec/system/` - System test examples showing Playwright usage
 
 Remember: Good tests are documentation. They should clearly show what the code is supposed to do.

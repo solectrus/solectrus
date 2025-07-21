@@ -32,27 +32,11 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     = csrf_meta_tags
 
     = vite_client_tag
+    - if Rails.env.test?
+      meta name="server-time" content= Time.current.to_i
+      = vite_typescript_tag 'test', 'data-turbo-track': 'reload'
     = vite_typescript_tag 'application', 'data-turbo-track': 'reload'
     = vite_stylesheet_tag 'application.css', 'data-turbo-track': 'reload', media: 'screen'
-
-    - if Rails.env.test?
-      // Load Sinon from CDN
-      // https://cdn.jsdelivr.net/npm/sinon/
-      // Get hash from https://www.srihash.org/
-      script[
-        src= 'https://cdn.jsdelivr.net/npm/sinon@21.0.0'
-        integrity= 'sha512-GMKeDxtR4HzHdSzapNWOb70026w2/V9yzLWK0lYRvijrnQV7pmIjyswfhTuYQndhg7LCbl4jKdw5jBROgRW+Nw=='
-        crossorigin= 'anonymous'
-        referrerpolicy= 'no-referrer'
-      ]
-
-      javascript:
-        // Sync browser time with server time
-        window.clock = sinon.useFakeTimers({
-          now: #{Time.current.to_i * 1000},
-          shouldAdvanceTime: true,
-        });
-        console.log('Sinon installed', new Date());
 
     = yield :head
 

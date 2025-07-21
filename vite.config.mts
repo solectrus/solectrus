@@ -3,7 +3,7 @@ import ViteRails from 'vite-plugin-rails';
 import tailwindcss from '@tailwindcss/vite';
 import { resolve } from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
     ViteRails({
@@ -19,9 +19,11 @@ export default defineConfig({
   ],
   build: {
     rollupOptions: {
+      // Exclude sinon from production builds
+      external: mode === 'production' ? ['sinon'] : [],
       output: {
         manualChunks(id: string) {
-          if (id.includes('node_modules')) {
+          if (id.includes('node_modules') && !id.includes('/sinon/')) {
             return 'vendor';
           }
         },
@@ -40,4 +42,4 @@ export default defineConfig({
       clientPort: 443,
     },
   },
-});
+}));
