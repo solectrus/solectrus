@@ -1,4 +1,13 @@
+require 'simplecov_json_formatter'
+
 SimpleCov.start 'rails' do
+  formatter SimpleCov::Formatter::MultiFormatter.new(
+              [
+                SimpleCov::Formatter::JSONFormatter,
+                SimpleCov::Formatter::HTMLFormatter,
+              ],
+            )
+
   add_group 'Services', 'app/services'
   add_group 'Components', 'app/components'
   add_group 'Middleware', 'app/middleware'

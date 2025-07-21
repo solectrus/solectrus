@@ -1,4 +1,6 @@
 [![Build Status](https://github.com/solectrus/solectrus/workflows/Continuous%20integration/badge.svg)](https://github.com/solectrus/solectrus/actions)
+[![Maintainability](https://qlty.sh/badges/d2716feb-b2cf-4a21-a44c-e07717730303/maintainability.svg)](https://qlty.sh/gh/solectrus/projects/solectrus)
+[![Code Coverage](https://qlty.sh/badges/d2716feb-b2cf-4a21-a44c-e07717730303/coverage.svg)](https://qlty.sh/gh/solectrus/projects/solectrus)
 [![wakatime](https://wakatime.com/badge/user/697af4f5-617a-446d-ba58-407e7f3e0243/project/ce8d6e54-7457-42e5-94a3-33a9d4021d45.svg)](https://wakatime.com/badge/user/697af4f5-617a-446d-ba58-407e7f3e0243/project/ce8d6e54-7457-42e5-94a3-33a9d4021d45)
 
 # SOLECTRUS

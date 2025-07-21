@@ -95,6 +95,11 @@ jobs:
       - name: Run End-to-End tests with Cypress
         run: bin/rake cypress:run
 
+      - uses: qltysh/qlty-action/coverage@v1
+        with:
+          token: ${{secrets.QLTY_COVERAGE_TOKEN}}
+          files: coverage/.resultset.json
+
       - name: Check JS size limit
         run: yarn size-limit
 
