@@ -182,7 +182,7 @@ GEM
     erb (5.0.2)
     erubi (1.13.1)
     event_stream_parser (1.0.0)
-    faraday (2.13.2)
+    faraday (2.13.3)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -410,7 +410,7 @@ GEM
       rack (>= 1.4)
     rexml (3.4.1)
     rorvswild (1.9.2)
-    rouge (4.5.2)
+    rouge (4.6.0)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
@@ -622,4 +622,4 @@ RUBY VERSION
    ruby 3.4.5p51
 
 BUNDLED WITH
-   2.7.0
+   2.7.1
