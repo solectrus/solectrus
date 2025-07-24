@@ -125,7 +125,7 @@ class PowerRanking # rubocop:disable Metrics/ClassLength
       scope
         .select(:value, :date)
         .order(value: sort_order)
-        .map { |it| { date: it.date, value: it.value } }
+        .map { { date: it.date, value: it.value } }
     else
       # Group by period and calculate the sum of the sensor
       calculation = { 'sum' => :sum, 'max' => :maximum }[calc]
@@ -160,7 +160,7 @@ class PowerRanking # rubocop:disable Metrics/ClassLength
         .group(:date)
         .order("difference #{sort_order}")
         .having(having_clause)
-        .map { |it| { date: it.date, value: it.difference } }
+        .map { { date: it.date, value: it.difference } }
     else
       scope
         .group_by_period(period, :date, series: false)
@@ -189,7 +189,7 @@ class PowerRanking # rubocop:disable Metrics/ClassLength
         .select(:date, total)
         .order("total #{sort_order}")
         .having(having_clause)
-        .map { |it| { date: it.date, value: it.total } }
+        .map { { date: it.date, value: it.total } }
     else
       scope
         .group_by_period(period, :date, series: false)
