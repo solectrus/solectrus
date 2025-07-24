@@ -3,9 +3,7 @@ class UpdateCheck::HttpClient
     response = fetch_http_response
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error "UpdateCheck failed: Error #{response.code} - #{response.message}"
-      return(
-        { data: { registration_status: 'unknown' }, expires_in: 5.minutes }
-      )
+      return { data: { registration_status: 'unknown' }, expires_in: 5.minutes }
     end
 
     json = parse_json(response)
