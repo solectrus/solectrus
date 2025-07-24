@@ -105,7 +105,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
       scope
         .select(:value, :date)
         .order(value: sort_order)
-        .map { |it| { date: it.date, value: it.value } }
+        .map { { date: it.date, value: it.value } }
     else
       # Group by period and calculate the sum of the sensor
       calculation = { 'sum' => :sum, 'max' => :maximum }[calc]
@@ -138,7 +138,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
         .select(:date, difference)
         .group(:date)
         .order("difference #{sort_order}")
-        .map { |it| { date: it.date, value: it.difference } }
+        .map { { date: it.date, value: it.difference } }
     else
       scope
         .group_by_period(period, :date, series: false)
@@ -171,7 +171,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
         .group(:date)
         .select(:date, total)
         .order("total #{sort_order}")
-        .map { |it| { date: it.date, value: it.total } }
+        .map { { date: it.date, value: it.total } }
     else
       scope
         .group_by_period(period, :date, series: false)

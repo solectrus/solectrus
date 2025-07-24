@@ -32,11 +32,12 @@ class MenuItem::Component < ViewComponent::Base
 
   def call(with_icon: false, css_extra: nil)
     if name == '-'
-      return(
+      separator =
         tag.hr(
           class: 'my-2 hidden lg:block border-gray-200 dark:border-gray-700',
         )
-      )
+
+      return separator
     end
 
     if href
