@@ -86,10 +86,10 @@ GEM
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
     ast (2.4.3)
-    async (2.26.0)
+    async (2.27.0)
       console (~> 1.29)
       fiber-annotation
-      io-event (~> 1.12)
+      io-event (~> 1.11)
       metrics (~> 0.12)
       traces (~> 0.15)
     base64 (0.3.0)
