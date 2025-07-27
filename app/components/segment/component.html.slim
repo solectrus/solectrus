@@ -33,7 +33,7 @@
         i.fa.icon class= icon_class
 
       .font-light.leading-tight.title
-        = title
+        = title.truncate(20)
 
       .value data= { 'stats-with-chart--component-target': 'current', sensor: sensor, value: masked_value, time: calculator.time&.to_i }
         = Number::Component.new(value:).public_send(number_method)
