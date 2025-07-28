@@ -280,6 +280,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
            case_temp
            car_battery_soc
            battery_soc
+           house_power_without_custom
          ],
        )
       return
