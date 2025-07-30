@@ -1,6 +1,6 @@
 class TrendIndicator::Component < ViewComponent::Base
   def initialize(trend:)
-    super
+    super()
     @trend = trend
   end
 

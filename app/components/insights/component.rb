@@ -1,6 +1,6 @@
 class Insights::Component < ViewComponent::Base
   def initialize(sensor:, timeframe:)
-    super
+    super()
     @insights = Insights.new(sensor:, timeframe:)
     @sensor = sensor
     @timeframe = timeframe

@@ -4,7 +4,7 @@ class InsightsTile::Component < ViewComponent::Base
   renders_one :footer
 
   def initialize(url: nil, css_class: nil, stripes: false)
-    super
+    super()
     @url = url
     @css_class = css_class
     @stripes = stripes
