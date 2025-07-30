@@ -1188,10 +1188,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/luxon@npm:^3.7.0":
-  version: 3.7.0
-  resolution: "@types/luxon@npm:3.7.0"
-  checksum: 10c0/0acc985469cdf6371aca23605a4c2a669e6f5676021001dcdf729e0fe9282127e042bdea8dca6be615f92f2bdda724770cdd813087f3f0358999428748d72b10
+"@types/luxon@npm:^3.7.1":
+  version: 3.7.1
+  resolution: "@types/luxon@npm:3.7.1"
+  checksum: 10c0/2db30c13b58adcd86daa447faa3ba59515fe907ead8ee3e6bb716d662812af0619d712f6c1eb190cdd7f9d2c00444c3ecd80af0f36e8143eb0c5e7339d6b2aca
   languageName: node
   linkType: hard
 
@@ -3386,7 +3386,7 @@ __metadata:
     "@size-limit/file": "npm:^11.2.0"
     "@tailwindcss/forms": "npm:^0.5.10"
     "@tailwindcss/vite": "npm:^4.1.11"
-    "@types/luxon": "npm:^3.7.0"
+    "@types/luxon": "npm:^3.7.1"
     "@types/sinon": "npm:^17.0.4"
     "@types/throttle-debounce": "npm:^5.0.2"
     chart.js: "npm:^4.5.0"
