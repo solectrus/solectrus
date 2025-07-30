@@ -117,7 +117,7 @@ GEM
       addressable
       capybara
       playwright-ruby-client (>= 1.16.0)
-    claude-code-sdk-ruby (0.1.4)
+    claude-code-sdk-ruby (0.1.6)
       async (~> 2)
       logger (~> 1)
     claude-on-rails (0.2.0)
