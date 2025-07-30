@@ -288,7 +288,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0722)
+    mime-types-data (3.2025.0729)
     mini_mime (1.1.5)
     minitest (5.25.5)
     msgpack (1.8.0)
