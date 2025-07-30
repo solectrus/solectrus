@@ -73,14 +73,14 @@ Rails.application.configure do
 
   config.hosts.clear
 
-  config.view_component.preview_paths << Rails.root.join(
+  config.view_component.previews.paths << Rails.root.join(
     'spec',
     'components',
     'previews',
   )
-  config.view_component.default_preview_layout = 'component_preview'
-  config.view_component.show_previews = true
-  config.view_component.preview_controller = 'MyPreviewController'
+  config.view_component.previews.default_layout = 'component_preview'
+  config.view_component.previews.enabled = true
+  config.view_component.previews.controller = 'MyPreviewController'
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true

@@ -2,7 +2,7 @@ class Balance::Component < ViewComponent::Base
   renders_one :center
 
   def initialize(calculator:, timeframe:, sensor:, peak: nil)
-    super
+    super()
     @calculator = calculator
     @timeframe = timeframe
     @peak = peak

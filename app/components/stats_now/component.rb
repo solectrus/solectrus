@@ -1,6 +1,6 @@
 class StatsNow::Component < ViewComponent::Base
   def initialize(calculator:, sensor:)
-    super
+    super()
     @calculator = calculator
     @sensor = sensor
   end

@@ -1,6 +1,6 @@
 class Flow::Component < ViewComponent::Base
   def initialize(value:, max:)
-    super
+    super()
     @value = value
     @max = max
   end
