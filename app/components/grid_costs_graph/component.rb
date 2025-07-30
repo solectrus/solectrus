@@ -1,6 +1,6 @@
 class GridCostsGraph::Component < ViewComponent::Base
   def initialize(costs:, revenue:)
-    super
+    super()
     @costs = costs
     @revenue = revenue
   end
