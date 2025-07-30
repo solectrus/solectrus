@@ -1,6 +1,6 @@
 class SensorIcon::Component < ViewComponent::Base
   def initialize(sensor, context: nil, **options)
-    super
+    super()
     @sensor = sensor.to_sym
     @context = context
     @options = options
