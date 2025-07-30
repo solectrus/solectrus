@@ -1,6 +1,6 @@
 class Banner::Component < ViewComponent::Base
   def initialize(registration_status:, admin:)
-    super
+    super()
 
     @registration_status = registration_status.to_s.inquiry
     @admin = admin

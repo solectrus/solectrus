@@ -1,6 +1,6 @@
 class FinanceBadge::Component < ViewComponent::Base
   def initialize(calculator:, timeframe:)
-    super
+    super()
     @calculator = calculator
     @timeframe = timeframe
   end

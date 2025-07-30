@@ -1,6 +1,6 @@
 class AppFlash::Component < ViewComponent::Base
   def initialize(alert: nil, notice: nil)
-    super
+    super()
     @alert = alert
     @notice = notice
   end

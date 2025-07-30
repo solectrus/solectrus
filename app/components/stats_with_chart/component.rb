@@ -1,6 +1,6 @@
 class StatsWithChart::Component < ViewComponent::Base
   def initialize(sensor:, timeframe:)
-    super
+    super()
     @sensor = sensor
     @timeframe = timeframe
   end

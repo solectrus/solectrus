@@ -1,6 +1,6 @@
 class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor, **options, &block)
-    super
+    super()
     @sensor = sensor
     @options = options
     @block = block

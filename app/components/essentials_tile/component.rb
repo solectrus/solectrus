@@ -1,6 +1,6 @@
 class EssentialsTile::Component < ViewComponent::Base
   def initialize(calculator:, sensor:, timeframe:)
-    super
+    super()
     @calculator = calculator
     @sensor = sensor.to_sym
     @timeframe = timeframe

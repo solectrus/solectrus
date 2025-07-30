@@ -1,6 +1,6 @@
 class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor:, timeframe:, variant: nil)
-    super
+    super()
     @sensor = sensor
     @timeframe = timeframe
     @variant = variant

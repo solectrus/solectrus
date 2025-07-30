@@ -1,6 +1,6 @@
 class Status::Component < ViewComponent::Base
   def initialize(time:, status: nil, status_ok: nil)
-    super
+    super()
     @time = time
     @status = status
     @status_ok = status_ok

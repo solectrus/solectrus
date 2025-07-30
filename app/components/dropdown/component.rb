@@ -13,7 +13,7 @@ class Dropdown::Component < ViewComponent::Base
     selected: nil,
     button_class: 'bg-gray-200 hover:bg-white dark:text-gray-800.dark:bg-gray-400.dark:hover:bg-gray-300 dark:text-gray-800 dark:bg-gray-400 dark:hover:bg-gray-300'
   )
-    super
+    super()
     @name = name
     @items = items
     @top_item = top_item

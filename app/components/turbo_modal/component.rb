@@ -7,7 +7,7 @@ class TurboModal::Component < ViewComponent::Base
   include Turbo::FramesHelper
 
   def initialize(title:)
-    super
+    super()
     @title = title
   end
 end

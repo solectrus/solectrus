@@ -1,6 +1,6 @@
 class Top10CalcSelect::Component < ViewComponent::Base
   def initialize(calc:)
-    super
+    super()
     @calc = ActiveSupport::StringInquirer.new(calc)
   end
 

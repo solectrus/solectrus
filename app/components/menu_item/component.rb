@@ -9,7 +9,7 @@ class MenuItem::Component < ViewComponent::Base
     text: true,
     current: false
   )
-    super
+    super()
     @name = name
     @href = href
     @data = data
