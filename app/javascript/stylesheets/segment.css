@@ -73,7 +73,6 @@
 
   .segment .icon {
     font-size: calc(var(--icon-size));
-    max-width: 40%;
   }
 
   .segment .value {
@@ -85,12 +84,11 @@
 /* STATE 4: Stacked without title */
 @container (min-height: 130px) {
   .segment .content {
-    @apply flex-col gap-0;
+    @apply flex-col;
   }
 
   .segment .icon {
     font-size: calc(var(--icon-size) * 1.3 * var(--icon-scale, 1));
-    max-height: 50%;
   }
 
   .segment .value {
@@ -101,17 +99,16 @@
 /* STATE 5: Stacked with title */
 @container (min-height: 190px) {
   .segment .content {
-    @apply flex flex-col items-center justify-center gap-2;
+    @apply flex flex-col items-center justify-center gap-3;
   }
 
   .segment .title {
-    @apply block text-center leading-tight;
+    @apply block text-center;
     font-size: var(--title-size);
   }
 
   .segment .icon {
     font-size: calc(var(--icon-size) * 1.5 * var(--icon-scale, 1));
-    max-height: 40%;
   }
 
   .segment .value {
