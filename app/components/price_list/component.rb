@@ -1,6 +1,6 @@
 class PriceList::Component < ViewComponent::Base
   def initialize(prices:, name:)
-    super
+    super()
     @prices = prices
     @name = name
   end
@@ -20,7 +20,7 @@ class PriceList::Component < ViewComponent::Base
 
   class ChangeComponent < ViewComponent::Base
     def initialize(name:, value:)
-      super
+      super()
       @name = name
       @value = value.round
     end

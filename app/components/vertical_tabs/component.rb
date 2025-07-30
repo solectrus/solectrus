@@ -3,7 +3,7 @@ class VerticalTabs::Component < ViewComponent::Base
 
   class TabComponent < ViewComponent::Base
     def initialize(id:, label:)
-      super
+      super()
       @id = id
       @label = label
     end

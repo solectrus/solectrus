@@ -1,6 +1,6 @@
 class AutarkyDetails::Component < ViewComponent::Base
   def initialize(calculator:)
-    super
+    super()
     @calculator = calculator
   end
 

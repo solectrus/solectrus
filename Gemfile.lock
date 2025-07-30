@@ -117,7 +117,7 @@ GEM
       addressable
       capybara
       playwright-ruby-client (>= 1.16.0)
-    claude-code-sdk-ruby (0.1.4)
+    claude-code-sdk-ruby (0.1.6)
       async (~> 2)
       logger (~> 1)
     claude-on-rails (0.2.0)
@@ -150,7 +150,7 @@ GEM
     docile (1.4.1)
     dotenv (3.1.8)
     drb (2.2.3)
-    dry-cli (1.2.0)
+    dry-cli (1.3.0)
     dry-configurable (1.3.0)
       dry-core (~> 1.1)
       zeitwerk (~> 2.6)
@@ -288,7 +288,7 @@ GEM
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0722)
+    mime-types-data (3.2025.0729)
     mini_mime (1.1.5)
     minitest (5.25.5)
     msgpack (1.8.0)
@@ -533,10 +533,9 @@ GEM
     useragent (0.16.11)
     vcr (6.3.1)
       base64
-    view_component (3.23.2)
-      activesupport (>= 5.2.0, < 8.1)
+    view_component (4.0.0)
+      activesupport (>= 7.1.0, < 8.1)
       concurrent-ruby (~> 1)
-      method_source (~> 1.0)
     vite_rails (3.0.19)
       railties (>= 5.1, < 9)
       vite_ruby (~> 3.0, >= 3.2.2)

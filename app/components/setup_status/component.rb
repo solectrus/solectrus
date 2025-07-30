@@ -1,6 +1,6 @@
 class SetupStatus::Component < ViewComponent::Base
   def initialize(registration_status:, prompt:, admin:)
-    super
+    super()
     @registration_status = registration_status.to_s.inquiry
     @prompt = prompt
     @admin = admin

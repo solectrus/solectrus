@@ -5,7 +5,7 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
     raise ArgumentError, 'sort must be present' if sort.blank?
     raise ArgumentError, 'calc must be present' if calc.blank?
 
-    super
+    super()
     @sensor = sensor
     @period = period
     @sort = sort

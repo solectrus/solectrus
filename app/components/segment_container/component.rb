@@ -11,7 +11,7 @@ class SegmentContainer::Component < ViewComponent::Base
   renders_one :title
 
   def initialize(calculator:, timeframe:, tippy_placement:)
-    super
+    super()
     @calculator = calculator
     @timeframe = timeframe
     @tippy_placement = tippy_placement

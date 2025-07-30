@@ -3,7 +3,7 @@ class Nav::Sub::Component < ViewComponent::Base
 
   class ItemComponent < ViewComponent::Base
     def initialize(name:, href:, current: false)
-      super
+      super()
       @name = name
       @href = href
       @current = current

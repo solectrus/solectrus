@@ -5,7 +5,7 @@ class RadialBadge::Component < ViewComponent::Base
             "percent must be between 0 and 100, got #{percent.inspect}"
     end
 
-    super
+    super()
     @percent = percent&.round
     @title = title
     @neutral = neutral || !percent

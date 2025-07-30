@@ -6,7 +6,7 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
   # via parameters (precision, auto-precision, coloring, mega/kilo etc).
 
   def initialize(value:)
-    super
+    super()
     @value = value
   end
 

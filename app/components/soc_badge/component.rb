@@ -6,7 +6,7 @@ class SocBadge::Component < ViewComponent::Base
     timeframe:,
     car_connected:
   )
-    super
+    super()
     @battery_soc = battery_soc
     @car_battery_soc = car_battery_soc
     @time = time

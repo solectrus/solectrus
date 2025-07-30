@@ -1,6 +1,6 @@
 class Top10SensorSelect::Component < ViewComponent::Base
   def initialize(current_sensor:, permitted_params:)
-    super
+    super()
     @current_sensor = current_sensor
     @permitted_params = permitted_params
   end

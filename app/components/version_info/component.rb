@@ -1,6 +1,6 @@
 class VersionInfo::Component < ViewComponent::Base
   def initialize(current_version:, commit_time:, github_url:)
-    super
+    super()
     @current_version = current_version
     @commit_time = commit_time
     @github_url = github_url

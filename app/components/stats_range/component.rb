@@ -1,6 +1,6 @@
 class StatsRange::Component < ViewComponent::Base
   def initialize(calculator:, timeframe:, sensor:)
-    super
+    super()
     @calculator = calculator
     @timeframe = timeframe
     @sensor = sensor
