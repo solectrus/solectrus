@@ -61,7 +61,7 @@
 /* STATE 2: Icon only */
 @container (min-height: 30px) {
   .segment .icon {
-    font-size: calc(var(--icon-size) * 0.9 * var(--icon-scale, 1));
+    font-size: calc(var(--icon-size) * 0.9);
   }
 }
 
@@ -72,7 +72,7 @@
   }
 
   .segment .icon {
-    font-size: calc(var(--icon-size) * var(--icon-scale, 1));
+    font-size: calc(var(--icon-size));
     max-width: 40%;
   }
 
@@ -83,9 +83,9 @@
 }
 
 /* STATE 4: Stacked without title */
-@container (min-height: 90px) {
+@container (min-height: 130px) {
   .segment .content {
-    @apply flex-col;
+    @apply flex-col gap-0;
   }
 
   .segment .icon {
