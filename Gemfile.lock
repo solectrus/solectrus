@@ -123,7 +123,7 @@ GEM
     claude-on-rails (0.2.0)
       claude_swarm (~> 0.1)
       rails (>= 6.0)
-    claude_swarm (0.3.7)
+    claude_swarm (0.3.8)
       claude-code-sdk-ruby (~> 0.1)
       faraday-retry (~> 2.0)
       fast-mcp-annotations (~> 1.5)
