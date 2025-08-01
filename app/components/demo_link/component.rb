@@ -1,6 +1,6 @@
 class DemoLink::Component < ViewComponent::Base
   def initialize(feature:, url: nil)
-    super
+    super()
     @url = url
     @feature = feature
   end

@@ -4,6 +4,7 @@ class UpdateCheck
   def initialize
     @cache_manager = CacheManager.new
     @http_client = HttpClient.new
+    @mutex = Mutex.new
   end
 
   class << self
@@ -72,7 +73,7 @@ class UpdateCheck
   end
 
   def latest
-    current.presence || fetch_and_cache_data
+    fetch_and_cache_data_safely
   end
 
   def clear_cache!
@@ -93,6 +94,23 @@ class UpdateCheck
 
   def current
     @cache_manager.get || {}
+  end
+
+  def fetch_and_cache_data_safely
+    # Double-checked locking pattern to avoid multiple HTTP requests
+    # First check: quick cache lookup without lock
+    cached_data = current
+    return cached_data if cached_data.present?
+
+    @mutex.synchronize do
+      # Second check: verify cache is still empty after acquiring lock
+      # (another thread might have fetched while we were waiting)
+      cached_data = current
+      return cached_data if cached_data.present?
+
+      # Cache is empty, fetch new data
+      fetch_and_cache_data
+    end
   end
 
   def fetch_and_cache_data

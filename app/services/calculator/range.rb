@@ -95,13 +95,10 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     values =
       if SensorConfig.x.multi_inverter?
         data.map do |value|
-          (
-            value[:inverter_power] ||
-              SensorConfig::CUSTOM_INVERTER_SENSORS
-                .filter_map { |key| value[key] }
-                .presence
-                &.sum
-          ).to_f
+          value[:inverter_power] ||
+            SensorConfig::CUSTOM_INVERTER_SENSORS
+              .filter_map { |key| value[key] }
+              .sum
         end
       else
         data.map { |value| value[:inverter_power].to_f }
@@ -465,12 +462,18 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
 
     @sections ||=
       price_sections.map do |price_section|
-        Queries::Sql
-          .new(
-            sum_calculations,
-            from: price_section[:starts_at],
-            to: price_section[:ends_at],
-          )
+        query =
+          if timeframe.hours?
+            Queries::InfluxSum.new(timeframe)
+          else
+            Queries::Sql.new(
+              sum_calculations,
+              from: price_section[:starts_at],
+              to: price_section[:ends_at],
+            )
+          end
+
+        query
           .to_hash
           .transform_keys { |field, _aggregation, _meta| field }
           .merge(

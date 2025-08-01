@@ -27,7 +27,7 @@ module TimeframeNavigation
         {
           name: t('calculator.day'),
           href: path_with_timeframe(timeframe.corresponding_day),
-          current: timeframe.day?,
+          current: timeframe.day_like?,
         },
         {
           name: t('calculator.week'),

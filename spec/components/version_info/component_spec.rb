@@ -11,7 +11,7 @@ describe VersionInfo::Component, type: :component do
     before { UpdateCheck.instance.clear_cache! }
 
     it 'returns the latest version', vcr: { cassette_name: 'version' } do
-      expect(component.latest_version).to eq 'v0.15.1'
+      expect(component.latest_version).to eq 'v0.20.1'
     end
   end
 
@@ -78,7 +78,7 @@ describe VersionInfo::Component, type: :component do
 
     context 'when latest version is present', vcr: 'version' do
       it do
-        is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.15.1'
+        is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.20.1'
       end
     end
 

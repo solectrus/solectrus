@@ -30,8 +30,6 @@ config/environments/test.rb
 config/environments/development.rb
 config/rorvswild.yml
 config/brakeman.ignore
-config/initializers/cypress_rails.rb
-cypress.config.mjs
 screenshot.webp
 logo.svg
 spec
@@ -46,3 +44,6 @@ bin/test
 bin/open
 bin/brakeman
 eslint.config.mjs
+.claude-on-rails
+claude-swarm.yml
+CLAUDE.md

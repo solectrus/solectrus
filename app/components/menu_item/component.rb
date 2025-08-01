@@ -9,7 +9,7 @@ class MenuItem::Component < ViewComponent::Base
     text: true,
     current: false
   )
-    super
+    super()
     @name = name
     @href = href
     @data = data
@@ -32,11 +32,12 @@ class MenuItem::Component < ViewComponent::Base
 
   def call(with_icon: false, css_extra: nil)
     if name == '-'
-      return(
+      separator =
         tag.hr(
           class: 'my-2 hidden lg:block border-gray-200 dark:border-gray-700',
         )
-      )
+
+      return separator
     end
 
     if href
@@ -57,7 +58,7 @@ class MenuItem::Component < ViewComponent::Base
   end
 
   def render_button(with_icon:, css_extra:)
-    tag.button class: [CSS_CLASSES, css_extra], data: @data do
+    tag.button class: [CSS_CLASSES, css_extra], data: data do
       render_inner(with_icon:)
     end
   end
@@ -68,27 +69,28 @@ class MenuItem::Component < ViewComponent::Base
              data: {
                controller: 'tippy',
              } do
+      content_parts = []
+
       if with_icon
-        concat(
-          if icon
-            tag.i(class: "fa fa-fw fa-#{@icon} fa-xl")
-          else
-            tag.span(class: 'w-6 block')
-          end,
-        )
+        content_parts << if icon
+          tag.i(class: "fa fa-fw fa-#{icon} fa-xl")
+        else
+          tag.span(class: 'w-6 block')
+        end
       end
 
       if text
-        concat(
-          tag.span(
-            class: [
-              'flex-1 text-left uppercase lg:normal-case',
-              ('font-medium' if with_icon),
-              ('lg:hidden' if icon_only),
-            ],
-          ) { name },
+        content_parts << tag.span(
+          name,
+          class: [
+            'flex-1 text-left uppercase lg:normal-case',
+            ('font-medium' if with_icon),
+            ('lg:hidden' if icon_only),
+          ],
         )
       end
+
+      safe_join(content_parts)
     end
   end
 end

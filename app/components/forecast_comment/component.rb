@@ -1,6 +1,6 @@
 class ForecastComment::Component < ViewComponent::Base
   def initialize(calculator:, sensor:, timeframe:)
-    super
+    super()
     @calculator = calculator
     @sensor = sensor
     @timeframe = timeframe

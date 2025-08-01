@@ -7,7 +7,7 @@ class Button::Component < ViewComponent::Base
     style: nil,
     options: {}
   )
-    super
+    super()
 
     if title.nil? && icon.nil?
       # :nocov:

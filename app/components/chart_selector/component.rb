@@ -6,7 +6,7 @@ class ChartSelector::Component < ViewComponent::Base
     top_sensor: nil,
     bottom_sensor: nil
   )
-    super
+    super()
     @sensor = sensor
     @timeframe = timeframe
     @sensors = sensors.select { |s| SensorConfig.x.exists?(s) }

@@ -1,6 +1,6 @@
 class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor, **options, &block)
-    super
+    super()
     @sensor = sensor
     @options = options
     @block = block
@@ -130,10 +130,10 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     end
   end
 
-  def icon_size
+  def icon_scale
     return 100 if peak.nil?
 
-    Scale.new(target: 80..300, max: peak).result(value)
+    Scale.new(target: 90..270, max: peak).result(value)
   end
 
   def default_icon_class
@@ -308,18 +308,8 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     "#{color} text-slate-100 dark:text-slate-300"
   end
 
-  def font_size(max:)
-    return 0 if percent.nil? || percent < 6
-
-    [percent + 90, max].min
-  end
-
   def tiny?
     percent < 0.3
-  end
-
-  def large?
-    percent > 35
   end
 
   def number_method

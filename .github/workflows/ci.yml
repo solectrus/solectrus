@@ -49,7 +49,6 @@ jobs:
       DB_USER: postgres
       DB_PASSWORD: postgres
       RAILS_ENV: test
-      CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       DISABLE_SPRING: 1
       CI: true
       RUBY_YJIT_ENABLE: 1
@@ -72,6 +71,21 @@ jobs:
       - name: Install Yarn packages
         run: bin/yarn install --immutable
 
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('./node_modules/playwright/package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: yarn playwright install --with-deps chromium
+
       - name: Lint with RuboCop
         run: bin/rubocop --parallel
 
@@ -90,17 +104,16 @@ jobs:
       - name: Setup PostgreSQL
         run: bin/rails db:create
 
-      - name: Run Unit tests with RSpec
+      - name: Run Unit and System tests with RSpec
         run: bin/rspec
 
-      - name: Run End-to-End tests with Cypress
-        run: bin/rake cypress:run
-
-      - name: Send test coverage to CodeClimate
-        uses: paambaati/codeclimate-action@v9.0.0
-        if: ${{ env.CC_TEST_REPORTER_ID }}
+      - uses: qltysh/qlty-action/coverage@v1
         with:
-          coverageCommand: true
+          token: ${{secrets.QLTY_COVERAGE_TOKEN}}
+          files: coverage/.resultset.json
+
+      - name: Clean test artifacts before size check
+        run: rm -f public/vite-test/assets/test-*.js
 
       - name: Check JS size limit
         run: yarn size-limit
@@ -108,10 +121,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: Cypress artifacts
+          name: Playwright artifacts
           path: |
-            tmp/cypress_screenshots/
-            tmp/cypress_videos/
+            tmp/capybara/
           if-no-files-found: ignore
 
   build:
@@ -173,7 +185,7 @@ jobs:
       - name: Set ENV values
         run: |
           echo "COMMIT_TIME=$(git show -s --format=%cI $GITHUB_SHA)" >> $GITHUB_ENV
-          echo "COMMIT_VERSION=$(git describe --always)" >> $GITHUB_ENV
+          echo "COMMIT_VERSION=$(git describe --always --abbrev=7)" >> $GITHUB_ENV
 
       - name: Build and push
         uses: docker/build-push-action@v6

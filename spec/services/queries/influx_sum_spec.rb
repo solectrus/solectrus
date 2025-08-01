@@ -56,4 +56,21 @@ describe Queries::InfluxSum do
       end
     end
   end
+
+  describe '#to_hash' do
+    subject(:to_hash) { query_influx_sum.to_hash }
+
+    it 'returns a hash with sensor names as keys' do
+      expect(to_hash).to be_a(Hash)
+      expect(to_hash.keys).to all(be_a(Symbol))
+    end
+
+    context 'when timeframe is not a day' do
+      let(:timeframe) { Timeframe.new('P24H') }
+
+      it 'excludes inverter_power_forecast from hash' do
+        expect(to_hash).not_to have_key(:inverter_power_forecast)
+      end
+    end
+  end
 end

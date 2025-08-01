@@ -1,0 +1,65 @@
+version: 1
+swarm:
+  name: 'SOLECTRUS Rails Development Team'
+  main: architect
+
+  mcps:
+    - name: rails
+      type: stdio
+      command: rails-mcp-server
+      args: []
+      env:
+        RAILS_ENV: development
+
+  instances:
+    architect:
+      description: 'Rails architect coordinating full-stack development for SOLECTRUS'
+      directory: .
+      model: sonnet
+      connections: [models, controllers, views, stimulus, services, tests]
+      prompt_file: .claude-on-rails/prompts/architect.md
+      vibe: true
+
+    models:
+      description: 'ActiveRecord models, migrations, and database optimization specialist'
+      directory: ./app/models
+      model: sonnet
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/models.md
+
+    controllers:
+      description: 'Rails controllers, routing, and request handling specialist'
+      directory: ./app/controllers
+      model: sonnet
+      connections: [services]
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/controllers.md
+
+    views:
+      description: 'Rails views, layouts, partials, and asset pipeline specialist'
+      directory: ./app/views
+      model: sonnet
+      connections: [stimulus]
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/views.md
+
+    stimulus:
+      description: 'Stimulus.js controllers and Turbo integration specialist'
+      directory: ./app/javascript
+      model: sonnet
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/stimulus.md
+
+    services:
+      description: 'Service objects, business logic, and design patterns specialist'
+      directory: ./app/services
+      model: sonnet
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/services.md
+
+    tests:
+      description: 'RSpec testing, factories, and test coverage specialist'
+      directory: ./spec
+      model: sonnet
+      allowed_tools: [Read, Edit, Write, Bash, Grep, Glob, LS]
+      prompt_file: .claude-on-rails/prompts/tests.md

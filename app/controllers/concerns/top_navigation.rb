@@ -42,7 +42,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           elsif helpers.controller_namespace == 'inverter'
             root_path(sensor: 'inverter_power', timeframe: helpers.timeframe)
           else
-            root_path(sensor: 'inverter_power', timeframe: 'now')
+            root_path
           end,
         current: helpers.controller_namespace == 'balance',
         data: {

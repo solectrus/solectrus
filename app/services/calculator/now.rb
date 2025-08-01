@@ -63,10 +63,11 @@ class Calculator::Now < Calculator::Base
   # Inverter
 
   def inverter_power
-    last[:inverter_power] ||
-      SensorConfig::CUSTOM_INVERTER_SENSORS
-        .filter_map { |sensor_name| public_send(sensor_name) }
-        .sum
+    @inverter_power ||=
+      last[:inverter_power] ||
+        SensorConfig::CUSTOM_INVERTER_SENSORS
+          .filter_map { |sensor_name| public_send(sensor_name) }
+          .sum
   end
 
   SensorConfig::CUSTOM_INVERTER_SENSORS.each do |sensor_name|

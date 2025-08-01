@@ -1,6 +1,6 @@
 class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   def initialize(sensor:, timeframe:, variant: nil)
-    super
+    super()
     @sensor = sensor
     @timeframe = timeframe
     @variant = variant
@@ -92,6 +92,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 stepSize: 15,
                 maxRotation: 0,
               },
+              hours: {
+                stepSize: 3,
+                maxRotation: 0,
+              },
               day: {
                 stepSize: 3,
                 maxRotation: 0,
@@ -136,6 +140,13 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 },
                 tooltipFormat: 'HH:mm:ss',
               },
+              hours: {
+                unit: 'hour',
+                displayFormats: {
+                  hour: 'HH:mm',
+                },
+                tooltipFormat: 'HH:mm',
+              },
               day: {
                 unit: 'hour',
                 displayFormats: {
@@ -146,7 +157,17 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               days: {
                 unit: 'day',
                 displayFormats: {
-                  day: timeframe.relative_count.to_i < 8 ? 'ccc' : 'd',
+                  day:
+                    case timeframe.relative_count.to_i
+                    when ..8
+                      'ccc'
+                    when 9..31
+                      'd'
+                    when 32..280
+                      'd. LLL'
+                    else
+                      'LLL yyyy'
+                    end,
                 },
                 tooltipFormat: 'cccc, dd.MM.yyyy',
                 round: 'day',
@@ -170,7 +191,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
               months: {
                 unit: 'month',
                 displayFormats: {
-                  month: 'MMM',
+                  month: 'LLL',
                 },
                 tooltipFormat: 'MMMM yyyy',
                 round: 'month',
