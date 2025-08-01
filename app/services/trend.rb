@@ -38,6 +38,10 @@ class Trend
   attr_reader :sensor, :timeframe, :base, :current_value
 
   def valid?
+    # Don't show trends for single-day ranges - check this first to avoid
+    # creating invalid base_timeframe ranges
+    return false if timeframe.days_passed <= 1
+
     if first_date.nil? || base_timeframe.effective_beginning_date < first_date
       return false
     end
