@@ -141,6 +141,9 @@ class Insights # rubocop:disable Metrics/ClassLength
   private
 
   def extremum(aggregation)
+    # Does not make sense for single-day range
+    return if timeframe.days_passed <= 1
+
     @extremum ||= {}
     @extremum[aggregation] ||= Insights::Extremum.new(
       sensor:,
