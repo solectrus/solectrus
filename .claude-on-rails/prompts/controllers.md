@@ -49,15 +49,6 @@ rescue_from ActiveRecord::RecordNotFound do |exception|
 end
 ```
 
-## API Controllers
-
-For API endpoints:
-- Use `ActionController::API` base class
-- Implement proper status codes
-- Version your APIs
-- Use serializers for JSON responses
-- Handle CORS appropriately
-
 ## Security Considerations
 
 1. Always use strong parameters
