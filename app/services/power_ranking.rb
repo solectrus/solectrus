@@ -1,11 +1,19 @@
-class PowerTop10 # rubocop:disable Metrics/ClassLength
-  def initialize(sensor:, desc:, calc:)
+class PowerRanking # rubocop:disable Metrics/ClassLength
+  def initialize(sensor:, desc:, calc:, limit: 10, from: nil, to: nil)
     @sensor = sensor
     @calc = ActiveSupport::StringInquirer.new(calc)
     @desc = desc
+    @limit = limit
+
+    if from && to && from > to
+      raise ArgumentError, "From date #{from} cannot be after To date #{to}."
+    end
+
+    @from = from
+    @to = to
   end
 
-  attr_reader :sensor, :calc, :desc
+  attr_reader :sensor, :calc, :desc, :limit, :from, :to
 
   def days
     top start: start(:day), stop: stop(:day), period: :day
@@ -26,35 +34,47 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
   private
 
   def start(period)
-    raw = Rails.configuration.x.installation_date.beginning_of_day
-    # In ascending order, the first period may not be included because it is (most likely) not complete
-    adjustment = desc ? 0 : 1.public_send(period)
+    raw = (from || Rails.configuration.x.installation_date).beginning_of_day
+    beginning_of_period = raw.public_send(:"beginning_of_#{period}")
 
-    (raw + adjustment).public_send(:"beginning_of_#{period}")
+    if desc ||
+         (
+           raw == beginning_of_period &&
+             raw > Rails.configuration.x.installation_date.beginning_of_day
+         )
+      beginning_of_period
+    else
+      # Ascending and incomplete period: Start at the next period
+      beginning_of_period + 1.public_send(period)
+    end
   end
 
   def stop(period)
-    raw = Date.current.end_of_day
-    # In ascending order, the current period may not be included because it is not yet complete
-    adjustment = desc ? 0 : 1.public_send(period)
+    raw = (to || Date.current).end_of_day
+    end_of_period = raw.public_send(:"end_of_#{period}")
 
-    (raw - adjustment).public_send(:"end_of_#{period}")
+    if desc || (raw == end_of_period && raw < Date.current)
+      end_of_period
+    else
+      # Ascending and incomplete period: Stop at the previous period
+      end_of_period - 1.public_send(period)
+    end
   end
 
   def excluded_sensor_names
     SensorConfig.x.excluded_sensor_names
   end
 
-  def top(start:, stop:, period:, limit: 10)
+  def top(start:, stop:, period:)
     return [] unless SensorConfig.x.exists?(sensor)
     return [] if start > stop
 
     if sensor == :house_power && excluded_sensor_names.any?
-      build_query_house_power(start:, stop:, period:, limit:)
+      build_query_house_power(start:, stop:, period:)
     elsif sensor == :inverter_power && SensorConfig.x.multi_inverter?
-      build_query_inverter_power(start:, stop:, period:, limit:)
+      build_query_inverter_power(start:, stop:, period:)
     else
-      build_query_simple(start:, stop:, period:, limit:)
+      build_query_simple(start:, stop:, period:)
     end
   end
 
@@ -91,14 +111,14 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
     desc ? :desc : :asc
   end
 
-  def build_query_simple(start:, stop:, period:, limit:)
+  def build_query_simple(start:, stop:, period:)
     scope =
       SummaryValue.where(
         date: start..stop,
         field: sensor,
         aggregation: FIELD_MAPPING[calc.to_sym][sensor],
       ).limit(limit)
-    scope = scope.where(SummaryValue.arel_table[:value].gt(0)) unless desc
+    scope = scope.where(SummaryValue.arel_table[:value].gt(10)) unless desc
 
     if period == :day
       # Just order by the sensor value
@@ -119,7 +139,7 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def build_query_house_power(start:, stop:, period:, limit:)
+  def build_query_house_power(start:, stop:, period:)
     scope =
       SummaryValue.where(
         date: start..stop,
@@ -127,10 +147,11 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
         aggregation: 'sum',
       ).limit(limit)
 
-    difference =
+    difference_calculation =
       "SUM(CASE WHEN field = 'house_power' THEN value ELSE 0 END) -
-         SUM(CASE WHEN field != 'house_power' THEN value ELSE 0 END)
-         AS difference"
+         SUM(CASE WHEN field != 'house_power' THEN value ELSE 0 END)"
+    difference = "#{difference_calculation} AS difference"
+    having_clause = "#{difference_calculation} > 0" unless desc
 
     case period
     when :day
@@ -138,47 +159,53 @@ class PowerTop10 # rubocop:disable Metrics/ClassLength
         .select(:date, difference)
         .group(:date)
         .order("difference #{sort_order}")
+        .having(having_clause)
         .map { { date: it.date, value: it.difference } }
     else
       scope
         .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
+        .having(having_clause)
         .calculate_all(difference)
         .map { |(date, value)| { date:, value: } }
         .sort_by { desc ? -it[:value] : it[:value] }
     end
   end
 
-  def build_query_inverter_power(start:, stop:, period:, limit:)
-    field =
-      if SensorConfig.x.inverter_total_present?
-        :inverter_power
-      else
-        SensorConfig.x.inverter_sensor_names
-      end
-
+  def build_query_inverter_power(start:, stop:, period:)
     scope =
       SummaryValue.where(
         date: start..stop,
-        field:,
+        field: inverter_power_fields,
         aggregation: FIELD_MAPPING[calc.to_sym][sensor],
       ).limit(limit)
 
     total = 'SUM(value) AS total'
+    having_clause = 'SUM(value) > 0' unless desc
 
     if period == :day
       scope
         .group(:date)
         .select(:date, total)
         .order("total #{sort_order}")
+        .having(having_clause)
         .map { { date: it.date, value: it.total } }
     else
       scope
         .group_by_period(period, :date, series: false)
         .order("2 #{sort_order}")
+        .having(having_clause)
         .calculate_all(total)
         .map { |(date, value)| { date:, value: } }
         .sort_by { desc ? -it[:value] : it[:value] }
+    end
+  end
+
+  def inverter_power_fields
+    if SensorConfig.x.inverter_total_present?
+      [:inverter_power]
+    else
+      SensorConfig.x.inverter_sensor_names
     end
   end
 end

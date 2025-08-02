@@ -186,35 +186,47 @@ export default class extends Controller<HTMLCanvasElement> {
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
 
-      const regexes = {
-        week: /(\/\d{4}-W\d{2}|\/week)$/,
-        month: /(\/\d{4}-\d{2}|\/month)$/,
-        year: /(\/\d{4}|\/year)$/,
-        days: /(\/P\d{1,3}D)$/,
-        months: /(\/P\d{1,2}M)$/,
-        years: /(\/P\d{1,2}Y)$/,
-        all: /(\/all)$/,
-      };
+      const drilldownLevels = [
+        {
+          regex: /(\/all)$/, // All → Year
+          format: () => `${year}`,
+        },
+        {
+          regex: /(\/\d{4}|\/year)$/, // Year → Month
+          format: () => `${year}-${month}`,
+        },
+        {
+          regex: /(\/\d{4}-\d{2}|\/month)$/, // Month → Day
+          format: () => `${year}-${month}-${day}`,
+        },
+        {
+          regex: /(\/\d{4}-W\d{2}|\/week)$/, // Week → Day
+          format: () => `${year}-${month}-${day}`,
+        },
+        {
+          regex: /(\/\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2})$/, // Range → Day
+          format: () => `${year}-${month}-${day}`,
+        },
+        {
+          regex: /(\/P\d{1,3}D)$/, // Days → Day
+          format: () => `${year}-${month}-${day}`,
+        },
+        {
+          regex: /(\/P\d{1,2}M)$/, // Months → Month
+          format: () => `${year}-${month}`,
+        },
+        {
+          regex: /(\/P\d{1,2}Y)$/, // Years → Year
+          format: () => `${year}`,
+        },
+      ];
 
-      for (const regex of Object.values(regexes)) {
+      for (const { regex, format } of drilldownLevels) {
         const match = regex.exec(currentUrl);
         const value = match?.[1];
         if (!value) continue;
 
-        let formattedDate: string;
-
-        if (
-          regex === regexes.week ||
-          regex === regexes.month ||
-          regex === regexes.days
-        ) {
-          formattedDate = `${year}-${month}-${day}`;
-        } else if (regex === regexes.months || regex === regexes.year) {
-          formattedDate = `${year}-${month}`;
-        } else {
-          formattedDate = `${year}`;
-        }
-
+        const formattedDate = format();
         const newUrl = currentUrl.replace(value, `/${formattedDate}`);
         Turbo.visit(newUrl);
         return;

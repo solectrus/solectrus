@@ -33,6 +33,17 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
       &.sum
   end
 
+  def kwp
+    UpdateCheck.kwp&.to_f
+  end
+
+  def inverter_power_per_kwp
+    return unless inverter_power && kwp
+    return if kwp.zero?
+
+    inverter_power.fdiv(kwp)
+  end
+
   def producing?
     return unless inverter_power
 
