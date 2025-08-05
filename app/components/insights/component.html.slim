@@ -31,6 +31,35 @@
             - tile.with_footer do
               'pro kWp
 
+  - elsif sensor == :grid_power
+    = render InsightsTile::Component.new do |tile|
+      - tile.with_body do
+        = Number::Component.new(value: insights.value(:grid_import_power)).to_watt_hour(unit: :kilo)
+      - tile.with_footer do
+        = I18n.t('sensors.grid_import_power')
+
+    = render InsightsTile::Component.new do |tile|
+      - tile.with_body do
+        = Number::Component.new(value: insights.value(:grid_export_power)).to_watt_hour(unit: :kilo)
+      - tile.with_footer do
+        = I18n.t('sensors.grid_export_power')
+
+  - elsif sensor.in? %i[house_power wallbox_power heatpump_power]
+    .col-span-2
+      = render InsightsTile::Component.new do |tile|
+        - tile.with_body do
+          = Number::Component.new(value: insights.value).to_watt_hour(unit: :kilo)
+          .mt-4.text-lg
+            = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
+
+  - else
+    .col-span-2
+      = render InsightsTile::Component.new do |tile|
+        - tile.with_body do
+          = Number::Component.new(value: insights.value).to_watt_hour(precision: 3)
+        - tile.with_footer do
+          'Gesamt
+
   - if insights.monthly_trend&.valid?
     = render InsightsTile::Component.new css_class: ('col-span-2' unless insights.yearly_trend&.valid?), url: monthly_trend_base_path do |tile|
       - tile.with_title do
