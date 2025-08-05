@@ -6,10 +6,11 @@ class Insights # rubocop:disable Metrics/ClassLength
 
   attr_reader :sensor, :timeframe
 
-  def value
-    return unless calculator.respond_to?(sensor)
+  def value(sensor_name = sensor)
+    return unless calculator.respond_to?(sensor_name)
 
-    @value ||= calculator.public_send(sensor).to_f
+    @value ||= {}
+    @value[sensor_name] ||= calculator.public_send(sensor_name).to_f
   end
 
   def costs
