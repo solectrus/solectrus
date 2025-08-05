@@ -11,13 +11,7 @@ class Insights::Component < ViewComponent::Base
   def per_day_value?
     return false if timeframe.day?
 
-    %i[
-      inverter_power
-      grid_power
-      wallbox_power
-      battery_soc
-      battery_power
-    ].exclude?(sensor)
+    %i[grid_power wallbox_power battery_soc battery_power].exclude?(sensor)
   end
 
   def battery_soc_longest_streak_path
