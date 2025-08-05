@@ -86,7 +86,7 @@ GEM
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
     ast (2.4.3)
-    async (2.27.0)
+    async (2.27.1)
       console (~> 1.29)
       fiber-annotation
       io-event (~> 1.11)
@@ -123,8 +123,9 @@ GEM
     claude-on-rails (0.2.0)
       claude_swarm (~> 0.1)
       rails (>= 6.0)
-    claude_swarm (0.3.8)
+    claude_swarm (0.3.9)
       claude-code-sdk-ruby (~> 0.1)
+      faraday-net_http_persistent (~> 2.0)
       faraday-retry (~> 2.0)
       fast-mcp-annotations (~> 1.5)
       ruby-mcp-client (~> 0.7)
@@ -193,6 +194,9 @@ GEM
       multipart-post (~> 2.0)
     faraday-net_http (3.4.1)
       net-http (>= 0.5.0)
+    faraday-net_http_persistent (2.3.1)
+      faraday (~> 2.5)
+      net-http-persistent (>= 4.0.4, < 5)
     faraday-retry (2.3.2)
       faraday (~> 2.0)
     fast-mcp-annotations (1.5.2)
@@ -297,6 +301,8 @@ GEM
     nenv (0.3.0)
     net-http (0.6.0)
       uri
+    net-http-persistent (4.0.6)
+      connection_pool (~> 2.2, >= 2.2.4)
     net-imap (0.5.9)
       date
       net-protocol
