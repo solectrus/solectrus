@@ -67,8 +67,6 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   def per_day_value
-    return if timeframe.day?
-
     calculator.per_day(value)
   end
 
