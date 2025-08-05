@@ -9,7 +9,7 @@ class Insights::Component < ViewComponent::Base
   attr_reader :sensor, :timeframe, :insights
 
   def per_day_value?
-    return false if timeframe.day?
+    return false if timeframe.days_passed <= 1
 
     %i[grid_power wallbox_power battery_soc battery_power].exclude?(sensor)
   end
