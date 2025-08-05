@@ -327,7 +327,7 @@ GEM
     pg (1.6.1-arm64-darwin)
     pg (1.6.1-x86_64-linux)
     pg (1.6.1-x86_64-linux-musl)
-    playwright-ruby-client (1.54.0)
+    playwright-ruby-client (1.54.1)
       concurrent-ruby (>= 1.1.6)
       mime-types (>= 3.0)
     pp (0.6.2)
