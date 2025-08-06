@@ -538,7 +538,7 @@ GEM
     useragent (0.16.11)
     vcr (6.3.1)
       base64
-    view_component (4.0.0)
+    view_component (4.0.1)
       activesupport (>= 7.1.0, < 8.1)
       concurrent-ruby (~> 1)
     vite_rails (3.0.19)
