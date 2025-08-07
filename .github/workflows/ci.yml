@@ -107,7 +107,7 @@ jobs:
       - name: Run Unit and System tests with RSpec
         run: bin/rspec
 
-      - uses: qltysh/qlty-action/coverage@v1
+      - uses: qltysh/qlty-action/coverage@v2
         with:
           token: ${{secrets.QLTY_COVERAGE_TOKEN}}
           files: coverage/.resultset.json

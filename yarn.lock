@@ -1587,12 +1587,12 @@ __metadata:
   linkType: hard
 
 "enhanced-resolve@npm:^5.18.1":
-  version: 5.18.2
-  resolution: "enhanced-resolve@npm:5.18.2"
+  version: 5.18.3
+  resolution: "enhanced-resolve@npm:5.18.3"
   dependencies:
     graceful-fs: "npm:^4.2.4"
     tapable: "npm:^2.2.0"
-  checksum: 10c0/2a45105daded694304b0298d1c0351a981842249a9867513d55e41321a4ccf37dfd35b0c1e9ceae290eab73654b09aa7a910d618ea6f9441e97c52bc424a2372
+  checksum: 10c0/d413c23c2d494e4c1c9c9ac7d60b812083dc6d446699ed495e69c920988af0a3c66bf3f8d0e7a45cb1686c2d4c1df9f4e7352d973f5b56fe63d8d711dd0ccc54
   languageName: node
   linkType: hard
 
@@ -1717,9 +1717,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^5.5.3":
-  version: 5.5.3
-  resolution: "eslint-plugin-prettier@npm:5.5.3"
+"eslint-plugin-prettier@npm:^5.5.4":
+  version: 5.5.4
+  resolution: "eslint-plugin-prettier@npm:5.5.4"
   dependencies:
     prettier-linter-helpers: "npm:^1.0.0"
     synckit: "npm:^0.11.7"
@@ -1733,7 +1733,7 @@ __metadata:
       optional: true
     eslint-config-prettier:
       optional: true
-  checksum: 10c0/7524e381b400fec67dd2bd1a71779c220a5410f0063cd220d144431f291ec800bee1985709ef0dd38d666d01e0e53bec93824063912784d4021db8473fafe73e
+  checksum: 10c0/5cc780e0ab002f838ad8057409e86de4ff8281aa2704a50fa8511abff87028060c2e45741bc9cbcbd498712e8d189de8026e70aed9e20e50fe5ba534ee5a8442
   languageName: node
   linkType: hard
 
@@ -2975,7 +2975,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^4.40.0, rollup@npm:^4.46.2":
+"rollup@npm:^4.43.0, rollup@npm:^4.46.2":
   version: 4.46.2
   resolution: "rollup@npm:4.46.2"
   dependencies:
@@ -3181,7 +3181,7 @@ __metadata:
     el-transition: "npm:^0.0.7"
     eslint: "npm:^9.32.0"
     eslint-config-prettier: "npm:^10.1.8"
-    eslint-plugin-prettier: "npm:^5.5.3"
+    eslint-plugin-prettier: "npm:^5.5.4"
     luxon: "npm:^3.7.1"
     plausible-tracker: "npm:^0.3.9"
     playwright: "npm:^1.54.2"
@@ -3196,7 +3196,7 @@ __metadata:
     tippy.js: "npm:^6.3.7"
     typescript: "npm:^5.9.2"
     typescript-eslint: "npm:^8.39.0"
-    vite: "npm:^7.0.6"
+    vite: "npm:^7.1.0"
     vite-plugin-rails: "npm:^0.5.0"
   languageName: unknown
   linkType: soft
@@ -3554,16 +3554,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^7.0.6":
-  version: 7.0.6
-  resolution: "vite@npm:7.0.6"
+"vite@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "vite@npm:7.1.0"
   dependencies:
     esbuild: "npm:^0.25.0"
     fdir: "npm:^6.4.6"
     fsevents: "npm:~2.3.3"
     picomatch: "npm:^4.0.3"
     postcss: "npm:^8.5.6"
-    rollup: "npm:^4.40.0"
+    rollup: "npm:^4.43.0"
     tinyglobby: "npm:^0.2.14"
   peerDependencies:
     "@types/node": ^20.19.0 || >=22.12.0
@@ -3605,7 +3605,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/3b14dfa661281b4843789884199ba2a9cca940a7666970036fe3fb1abff52b88e63e8be5ab419dd04d9f96c0415ee0f1e3ec8ebe357041648af7ccd8e348b6ad
+  checksum: 10c0/65737215e1ec98e1e7c99abc576fbc4dd2623c264d04950e004a1f96f7af84d4236a9dc8a25f1546711b99b91a2b2e446c184f1be38ca63c1ab9f6385c15a130
   languageName: node
   linkType: hard
 
