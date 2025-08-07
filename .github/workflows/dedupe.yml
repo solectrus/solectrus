@@ -3,7 +3,7 @@ name: Dedupe Yarn Dependencies
 on:
   pull_request_target:
     types: [opened, synchronize]
-    branches: [main]
+    branches: [develop]
     paths:
       - 'yarn.lock'
 
