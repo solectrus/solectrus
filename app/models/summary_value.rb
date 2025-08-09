@@ -29,6 +29,8 @@ class SummaryValue < ApplicationRecord
          battery_soc: 'battery_soc',
          car_battery_soc: 'car_battery_soc',
          case_temp: 'case_temp',
+         grid_costs: 'grid_costs',
+         grid_revenue: 'grid_revenue',
          grid_export_power: 'grid_export_power',
          grid_import_power: 'grid_import_power',
          heatpump_power: 'heatpump_power',

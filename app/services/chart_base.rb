@@ -1,7 +1,7 @@
 class ChartBase < Flux::Reader
   def grouping_period(timeframe)
     case timeframe.id
-    when :days, :week, :month
+    when :days, :week, :month, :range
       :day
     when :year, :months
       :month

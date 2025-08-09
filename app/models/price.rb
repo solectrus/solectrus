@@ -26,6 +26,8 @@ class Price < ApplicationRecord
   enum :name, electricity: 'electricity', feed_in: 'feed_in'
 
   after_commit do |price|
+    SummaryUpdater.call
+
     broadcast_update_to "prices_#{price.name}",
                         partial: 'settings/prices/list',
                         target: 'list',

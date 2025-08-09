@@ -14,7 +14,7 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
   attr_accessor :sensor, :period, :sort, :calc
 
   def top10
-    @top10 ||= PowerTop10.new(sensor:, calc:, desc: sort.desc?)
+    @top10 ||= PowerRanking.new(sensor:, calc:, desc: sort.desc?)
   end
 
   def top10_for_period

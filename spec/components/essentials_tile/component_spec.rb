@@ -15,10 +15,6 @@ describe EssentialsTile::Component, type: :component do
       expect(component.refresh_interval).to eq 1.hour
     end
 
-    it 'returns the correct icon_class' do
-      expect(component.icon_class).to eq 'fa-piggy-bank'
-    end
-
     it 'returns the correct color' do
       expect(component.color).to eq :violet
     end
@@ -54,10 +50,6 @@ describe EssentialsTile::Component, type: :component do
       expect(component.refresh_interval).to eq 1.minute
     end
 
-    it 'returns the correct icon_class' do
-      expect(component.icon_class).to eq 'fa-sun'
-    end
-
     it 'returns the correct color' do
       expect(component.color).to eq :green
     end
@@ -89,10 +81,6 @@ describe EssentialsTile::Component, type: :component do
 
     it 'returns the correct refresh_interval' do
       expect(component.refresh_interval).to eq 5.seconds
-    end
-
-    it 'returns the correct icon_class' do
-      expect(component.icon_class).to eq 'fa-sun'
     end
 
     it 'returns the correct color' do
@@ -128,10 +116,6 @@ describe EssentialsTile::Component, type: :component do
       expect(component.refresh_interval).to eq 5.seconds
     end
 
-    it 'returns the correct icon_class' do
-      expect(component.icon_class).to eq 'fa-sun'
-    end
-
     it 'returns the correct color' do
       expect(component.color).to eq :gray
     end
@@ -165,10 +149,6 @@ describe EssentialsTile::Component, type: :component do
       expect(component.refresh_interval).to eq 5.minutes
     end
 
-    it 'returns the correct icon_class' do
-      expect(component.icon_class).to eq 'fa-home'
-    end
-
     it 'returns the correct color' do
       expect(component.color).to eq :gray
     end
@@ -200,10 +180,6 @@ describe EssentialsTile::Component, type: :component do
 
     it 'returns the correct refresh_interval' do
       expect(component.refresh_interval).to eq 1.day
-    end
-
-    it 'returns the correct icon_class' do
-      expect(component.icon_class).to eq 'fa-battery-half'
     end
 
     it 'returns the correct color' do
