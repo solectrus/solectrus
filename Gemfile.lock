@@ -123,7 +123,7 @@ GEM
     claude-on-rails (0.2.0)
       claude_swarm (~> 0.1)
       rails (>= 6.0)
-    claude_swarm (0.3.10)
+    claude_swarm (0.3.11)
       claude-code-sdk-ruby (~> 0.1)
       faraday-net_http_persistent (~> 2.0)
       faraday-retry (~> 2.0)
