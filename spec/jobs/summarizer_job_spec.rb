@@ -61,6 +61,8 @@ describe 'SummarizerJob' do
         custom_power_18_grid: nil,
         custom_power_19_grid: nil,
         custom_power_20_grid: 80,
+        #
+        heatpump_heating_power: 200,
       ),
     )
 
@@ -79,14 +81,18 @@ describe 'SummarizerJob' do
         max_inverter_power_1: 100,
         max_inverter_power_2: 50,
         max_wallbox_power: 110,
+        max_outdoor_temp: 40,
         #
         min_battery_soc: 30,
         min_car_battery_soc: 40,
         min_case_temp: 50,
+        min_outdoor_temp: 20,
         #
         mean_battery_soc: 30,
         mean_car_battery_soc: 40,
         mean_case_temp: 50,
+        mean_outdoor_temp: 30,
+        #
       ),
     )
   end
@@ -104,7 +110,7 @@ describe 'SummarizerJob' do
       end
 
       it 'creates SummaryValues' do
-        expect { perform }.to change(SummaryValue, :count).by(44)
+        expect { perform }.to change(SummaryValue, :count).by(48)
       end
 
       it 'corrects values when needed' do
@@ -138,7 +144,7 @@ describe 'SummarizerJob' do
 
         perform
 
-        expect(SummaryValue.count).to eq(46)
+        expect(SummaryValue.count).to eq(50)
 
         expect(value_for(:grid_costs)).to eq(0.025) # 100 * 0.08 / 1000
         expect(value_for(:grid_revenue)).to eq(0.004) # 50 * 0.08 / 1000

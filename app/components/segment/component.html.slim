@@ -69,6 +69,13 @@
             - elsif sensor == :grid_import_power
               = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
 
+            - elsif sensor == :heatpump_power_pv
+              - if Setting.opportunity_costs
+                = Number::Component.new(value: calculator.heatpump_costs_pv).to_eur(negative: true, klass: 'text-xl')
+
+            - elsif sensor == :heatpump_power_grid
+              = Number::Component.new(value: calculator.heatpump_costs_grid).to_eur(negative: true, klass: 'text-xl')
+
             - if multi_inverter? && ApplicationPolicy.multi_inverter?
               table.mt-3
                 tbody

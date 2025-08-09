@@ -42,6 +42,7 @@ class Queries::InfluxSum
         house_power
         wallbox_power
         heatpump_power
+        heatpump_heating_power
         grid_import_power
         grid_export_power
         battery_discharging_power

@@ -86,14 +86,6 @@ class Calculator::Now < Calculator::Base
     ].max
   end
 
-  def wallbox_power
-    last[:wallbox_power]
-  end
-
-  def heatpump_power
-    last[:heatpump_power]
-  end
-
   # Custom consumers, define a method for each custom sensor
   SensorConfig::CUSTOM_SENSORS.each do |sensor_name|
     # Example:
@@ -101,7 +93,29 @@ class Calculator::Now < Calculator::Base
     define_method(sensor_name) { last[sensor_name] }
   end
 
+  # Heat pump
+
+  def heatpump_status
+    to_utf8(last[:heatpump_status], allow_nil: true)
+  end
+
+  def heatpump_power
+    last[:heatpump_power]
+  end
+
+  def heatpump_heating_power
+    last[:heatpump_heating_power]
+  end
+
+  def outdoor_temp
+    last[:outdoor_temp]
+  end
+
   # Car
+
+  def wallbox_power
+    last[:wallbox_power]
+  end
 
   def car_battery_soc
     last[:car_battery_soc]

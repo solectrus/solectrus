@@ -35,6 +35,8 @@ class SummaryValue < ApplicationRecord
          grid_import_power: 'grid_import_power',
          heatpump_power: 'heatpump_power',
          heatpump_power_grid: 'heatpump_power_grid',
+         heatpump_heating_power: 'heatpump_heating_power',
+         outdoor_temp: 'outdoor_temp',
          house_power: 'house_power',
          house_power_grid: 'house_power_grid',
          inverter_power: 'inverter_power',

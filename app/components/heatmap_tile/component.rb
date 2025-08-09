@@ -101,7 +101,7 @@ class HeatmapTile::Component < ViewComponent::Base
     value.fdiv(max_value).clamp(0, 1)
   end
 
-  def sensor_background_color(chosen_sensor = sensor)
+  def sensor_background_color(chosen_sensor = sensor) # rubocop:disable Metrics/CyclomaticComplexity
     case chosen_sensor
     when :inverter_power, :grid_export_power
       'bg-green-600 dark:bg-green-400'
@@ -115,6 +115,8 @@ class HeatmapTile::Component < ViewComponent::Base
       'bg-slate-700 dark:bg-slate-600'
     when :battery_power
       'bg-green-700 dark:bg-green-900'
+    when :heatpump_heating_power
+      'bg-yellow-600 dark:bg-yellow-800'
     else
       'bg-gray-500 dark:bg-gray-400'
     end

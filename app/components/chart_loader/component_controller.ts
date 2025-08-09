@@ -261,6 +261,10 @@ export default class extends Controller<HTMLCanvasElement> {
         (dataset) => dataset.stack == 'InverterPower',
       );
 
+      const isHeatingStack = data.datasets.some(
+        (dataset) => dataset.stack == 'HeatingPower',
+      );
+
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
 
@@ -271,20 +275,27 @@ export default class extends Controller<HTMLCanvasElement> {
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
           let result: string =
-            !(isPowerSplitterStack && !tooltipItem.dataset.stack) &&
-            data.datasets.length > 1
+            !(
+              (isPowerSplitterStack || isHeatingStack) &&
+              !tooltipItem.dataset.stack
+            ) && data.datasets.length > 1
               ? `${tooltipItem.dataset.label} `
               : '';
 
-          if (isPowerSplitterStack) {
+          if (isPowerSplitterStack || isHeatingStack) {
             if (tooltipItem.dataset.stack && data.datasets.length) {
-              // Sum is the value of the first dataset
-              const sum = data.datasets[0].data[
-                tooltipItem.dataIndex
-              ] as number;
+              if (data.datasets.length == 3)
+                // Now or Day
+                result += this.formattedNumber(tooltipItem.parsed.y);
+              else {
+                // Sum is the value of the first dataset
+                const sum = data.datasets[0].data[
+                  tooltipItem.dataIndex
+                ] as number;
 
-              if (sum)
-                result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+                if (sum)
+                  result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+              }
             }
           } else {
             // Format value number
@@ -315,6 +326,16 @@ export default class extends Controller<HTMLCanvasElement> {
               if (item.parsed.y) acc += item.parsed.y;
               return acc;
             }, 0);
+          } else if (isHeatingStack) {
+            if (tooltipItems.length == 4)
+              // Week, Month, Year, All
+              sum = tooltipItems[3].parsed.y;
+            else if (tooltipItems.length == 3)
+              // Now or Day
+              sum = tooltipItems.reduce((acc, item) => {
+                if (item.parsed.y) acc += item.parsed.y;
+                return acc;
+              }, 0);
           }
 
           if (sum) return this.formattedNumber(sum);
@@ -437,8 +458,8 @@ export default class extends Controller<HTMLCanvasElement> {
           break;
       }
     } else {
-      // Without kilo, we have integers, so no decimals required
-      decimals = 0;
+      // Without kilo, default to integers, unless unit is empty (dimensionless like COP) or °C
+      decimals = this.unitValue == '' || this.unitValue == '°C' ? 1 : 0;
     }
 
     const numberAsString = new Intl.NumberFormat(navigator.language, {

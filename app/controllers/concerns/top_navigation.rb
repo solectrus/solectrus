@@ -9,6 +9,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         root_item,
         (inverter_item if Setting.enable_multi_inverter),
         (house_item if Setting.enable_custom_consumer),
+        (heatpump_item if Setting.enable_heatpump),
         essentials_item,
         top10_item,
       ].compact
@@ -37,10 +38,13 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.balance'),
         href:
-          if helpers.controller_namespace == 'house'
+          case helpers.controller_namespace
+          when 'house'
             root_path(sensor: 'house_power', timeframe: helpers.timeframe)
-          elsif helpers.controller_namespace == 'inverter'
+          when 'inverter'
             root_path(sensor: 'inverter_power', timeframe: helpers.timeframe)
+          when 'heatpump'
+            root_path(sensor: 'heatpump_power', timeframe: helpers.timeframe)
           else
             root_path
           end,
@@ -68,6 +72,16 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         icon_only: true,
         href: house_home_path(sensor: 'house_power', timeframe:),
         current: helpers.controller_namespace == 'house',
+      }
+    end
+
+    def heatpump_item
+      {
+        name: t('layout.heatpump'),
+        icon: 'fan',
+        icon_only: true,
+        href: heatpump_home_path(sensor: 'heatpump_heating_power', timeframe:),
+        current: helpers.controller_namespace == 'heatpump',
       }
     end
 

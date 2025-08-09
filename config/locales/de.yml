@@ -3,6 +3,7 @@ de:
     balance: Strombilanz
     inverter: Erzeugung
     house: Hausverbrauch
+    heatpump: Wärmepumpe
     essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS
@@ -63,9 +64,15 @@ de:
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
+    heatpump_power_env: Umgebungswärme
+    heatpump_heating_power: Erzeugte Wärme
+    heatpump_cop: Arbeitszahl
+    outdoor_temp: Außentemperatur
+    outdoor_temp_short: Außen
   splitter:
     grid: Netzbezug
     pv: Photovoltaik
+    total: Stromverbrauch
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -91,6 +98,7 @@ de:
     total_costs: Kosten
     compensation: Vergütung
     autarky: Autarkie
+    heatpump_cop: Arbeitszahl
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
   chart:
