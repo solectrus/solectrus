@@ -27,7 +27,8 @@ import 'chartjs-adapter-luxon';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
-import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
+import ChartBackgroundGradient from '@/utils/chartGradientDefault';
+import TemperatureGradient from '@/utils/chartGradientTemperature';
 
 Chart.register(
   LineElement,
@@ -351,13 +352,21 @@ export default class extends Controller<HTMLCanvasElement> {
             ? 0.04
             : 0.4;
 
-        if (dataset.data)
-          this.setBackgroundGradient(
+        if (!dataset.data) return;
+
+        const id = (dataset as DatasetWithId).id;
+        const isTemperature = id === 'case_temp' || id === 'outdoor_temp';
+
+        if (isTemperature) {
+          this.setTemperatureGradient(dataset);
+        } else {
+          this.setDefaultGradient(
             dataset,
             this.minValue,
             this.maxValue,
             minAlpha,
           );
+        }
       });
 
     this.chart = new Chart(this.canvasTarget, {
@@ -367,46 +376,25 @@ export default class extends Controller<HTMLCanvasElement> {
     });
   }
 
-  setBackgroundGradient(
+  private setDefaultGradient(
     dataset: ChartDataset,
     min: number,
     max: number,
     minAlpha: number,
   ) {
-    // Remember original color
-    const originalColor = dataset.backgroundColor as string;
-
-    const extent = min < 0 ? Math.abs(max) + Math.abs(min) : max;
-    const basePosition = max / extent;
-    const isNegative = dataset.data.some(
-      (value) => typeof value === 'number' && value < 0,
-    );
-
-    const datasetMin = this.minOfDataset(dataset);
-    const datasetMax = this.maxOfDataset(dataset);
-    const datasetExtent =
-      datasetMin < 0 ? Math.abs(datasetMax) + Math.abs(datasetMin) : datasetMax;
-
     const backgroundGradient = new ChartBackgroundGradient(
-      originalColor,
-      isNegative,
-      basePosition,
-      datasetExtent / extent,
+      dataset,
+      min,
+      max,
       minAlpha,
-
-      // Stacked bar must not be gradiented, just use the given Alpha
-      dataset.stack ? minAlpha : 1,
     );
 
-    // Replace background color with gradient
-    dataset.backgroundColor = (context: { chart: Chart; type: string }) => {
-      const { ctx, chartArea } = context.chart;
+    backgroundGradient.applyToDataset(dataset);
+  }
 
-      if (chartArea) return backgroundGradient.canvasGradient(ctx, chartArea);
-    };
-
-    // Use original color for border
-    dataset.borderColor = originalColor;
+  private setTemperatureGradient(dataset: ChartDataset) {
+    const temperatureGradient = new TemperatureGradient(this.typeValue);
+    temperatureGradient.applyToDataset(dataset);
   }
 
   private getData(): ChartData | undefined {
@@ -514,22 +502,6 @@ export default class extends Controller<HTMLCanvasElement> {
     });
 
     return Math.floor(minSum);
-  }
-
-  private minOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data.map((value) =>
-      Array.isArray(value) ? Math.min(...value) : (value as number),
-    );
-
-    return Math.min(...mapped);
-  }
-
-  private maxOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data.map((value) =>
-      Array.isArray(value) ? Math.max(...value) : (value as number),
-    );
-
-    return Math.max(...mapped);
   }
 
   private isOverlapping(datasets: ChartDataset[]) {
