@@ -285,7 +285,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
           if (isPowerSplitterStack || isHeatingStack) {
             if (tooltipItem.dataset.stack && data.datasets.length) {
-              if (data.datasets.length == 3)
+              if (data.datasets.length == 2 || data.datasets.length == 3)
                 // Now or Day
                 result += this.formattedNumber(tooltipItem.parsed.y);
               else {
