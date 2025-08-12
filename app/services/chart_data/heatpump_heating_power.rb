@@ -105,11 +105,11 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base
         heat_from_env = 0
       end
 
-      list_heating[index] = [timestamp, heating]
-      list_power_grid[index] = [timestamp, power_from_grid]
-      list_power_pv[index] = [timestamp, power_from_pv]
-      list_power_total[index] = [timestamp, power_total]
-      list_env[index] = [timestamp, heat_from_env]
+      list_heating[index] = [timestamp, heating.round]
+      list_power_grid[index] = [timestamp, power_from_grid.round]
+      list_power_pv[index] = [timestamp, power_from_pv.round]
+      list_power_total[index] = [timestamp, power_total.round]
+      list_env[index] = [timestamp, heat_from_env.round]
     end
 
     {
