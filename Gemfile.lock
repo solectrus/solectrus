@@ -237,7 +237,7 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (1.2.0)
-    honeybadger (6.0.4)
+    honeybadger (6.0.5)
       logger
       ostruct
     htmlbeautifier (1.4.3)
@@ -466,7 +466,7 @@ GEM
       lint_roller (~> 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.38.0, < 2.0)
-    rubocop-rails (2.33.0)
+    rubocop-rails (2.33.1)
       activesupport (>= 4.2.0)
       lint_roller (~> 1.1)
       rack (>= 1.1)
