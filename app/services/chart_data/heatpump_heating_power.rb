@@ -37,7 +37,7 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base
   end
 
   def dataset(name)
-    { data: chart[name]&.map { |x| x.second.to_f } }.merge(style(name))
+    { data: chart[name]&.map(&:second) }.merge(style(name))
   end
 
   def chart
@@ -48,10 +48,8 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base
 
         case timeframe.id
         when :now
-          {
-            heatpump_power_env: series[:env],
-            heatpump_power: raw[:heatpump_power],
-          }
+          # No Power-Splitter available for NOW, so we use total power
+          { heatpump_power_env: series[:env], heatpump_power: series[:total] }
         when :day
           {
             heatpump_power_env: series[:env],
@@ -70,30 +68,57 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base
   end
 
   # Single pass to build arrays for grid, pv, env, and heating
-  def build_series(raw)
-    grid = []
-    pv = []
-    env = []
-    heating = []
+  def build_series(raw) # rubocop:disable Metrics/AbcSize
+    heating_data = raw[:heatpump_heating_power] || []
+    power_data = raw[:heatpump_power] || []
+    grid_data = raw[:heatpump_power_grid] || []
 
-    raw[:heatpump_heating_power]&.each_with_index do |x, index|
-      label = x.first
-      heating_val = x.second.to_f
-      total_power = raw.dig(:heatpump_power, index, 1).to_f
-      grid_raw = raw.dig(:heatpump_power_grid, index, 1).to_f
+    # Pre-allocate arrays for better performance
+    size = heating_data.size
+    list_heating = Array.new(size)
+    list_power_grid = Array.new(size)
+    list_power_pv = Array.new(size)
+    list_power_total = Array.new(size)
+    list_env = Array.new(size)
 
-      grid_capped = grid_raw.clamp(0, heating_val)
-      pv_raw = total_power - grid_raw
-      pv_capped = pv_raw.clamp(0, heating_val - grid_capped)
-      env_val = [heating_val - (grid_capped + pv_capped), 0].max
+    heating_data.each_with_index do |(timestamp, heating), index|
+      if heating&.positive?
+        # Total power consumption of the heat pump
+        power = power_data.dig(index, 1)
 
-      grid << [label, grid_capped]
-      pv << [label, pv_capped]
-      env << [label, env_val]
-      heating << [label, heating_val]
+        # Power consumption from the grid (capped to heating output)
+        power_from_grid = grid_data.dig(index, 1).to_f.clamp(0, heating)
+
+        # Power consumption from PV (capped to remaining heating capacity)
+        power_from_pv =
+          (power - power_from_grid).clamp(0, heating - power_from_grid)
+
+        # Heat from environment is difference between heating output and electrical power
+        heat_from_env = [heating - power_from_grid - power_from_pv, 0].max
+
+        power_total = power_from_grid + power_from_pv
+      else
+        heating = 0
+        power_total = 0
+        power_from_grid = 0
+        power_from_pv = 0
+        heat_from_env = 0
+      end
+
+      list_heating[index] = [timestamp, heating]
+      list_power_grid[index] = [timestamp, power_from_grid]
+      list_power_pv[index] = [timestamp, power_from_pv]
+      list_power_total[index] = [timestamp, power_total]
+      list_env[index] = [timestamp, heat_from_env]
     end
 
-    { grid:, pv:, env:, heating: }
+    {
+      heating: list_heating,
+      grid: list_power_grid,
+      pv: list_power_pv,
+      total: list_power_total,
+      env: list_env,
+    }
   end
 
   def sensors
