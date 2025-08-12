@@ -25,6 +25,10 @@
                           turbo_frame: frame_id('chart', timeframe:),
                           turbo_action: 'replace',
                           turbo_prefetch: 'false',
+                          'stats-with-chart--component-target': 'current',
+                          sensor: 'heatpump_heating_power',
+                          value: calculator.heatpump_heating_power,
+                          time: calculator.time.to_i,
                           action: 'stats-with-chart--component#startLoop',
                           stats_with_chart__component_sensor_param: 'heatpump_heating_power',
                         } do
