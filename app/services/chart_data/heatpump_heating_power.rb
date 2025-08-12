@@ -139,7 +139,12 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base
         borderWidth: 1,
         borderRadius: 5,
         borderSkipped: 'start',
-        label: SensorConfig.x.display_name(name),
+        label:
+          if name == :heatpump_power
+            I18n.t('splitter.total')
+          else
+            SensorConfig.x.display_name(name)
+          end,
         stack: 'HeatingPower',
       }
     else
