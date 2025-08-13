@@ -76,17 +76,20 @@
 
         = render SegmentContainer::Component.new tippy_placement: 'bottom',
                                                  calculator:,
-                                                 timeframe: do |balance|
-          ruby:
-            balance.with_segment :heatpump_power_env, inline: true
+                                                 timeframe: do |container|
+          - if calculator.heatpump_heating_power >= calculator.heatpump_power
+            - container.with_segment :heatpump_power_env, inline: true
+            - if timeframe.now?
+              - container.with_segment :heatpump_power,
+                                       title: t('splitter.total'),
+                                       percent: calculator.heatpump_power_percent_heating,
+                                       inline: true
+            - else
+              - container.with_segment :heatpump_power_pv, inline: true
+              - container.with_segment :heatpump_power_grid, inline: true
 
-            if timeframe.now?
-              # There is no live PowerSplitter
-              balance.with_segment :heatpump_power,
-                                   title: t('splitter.total'),
-                                   percent: calculator.heatpump_power_percent_heating,
-                                   inline: true
-            else
-              balance.with_segment :heatpump_power_pv, inline: true
-              balance.with_segment :heatpump_power_grid, inline: true
-            end
+          - elsif calculator.heatpump_heating_power.positive?
+            - container.with_error do
+              => t('splitter.total')
+              == '&gt;'
+              =< t('sensors.heatpump_heating_power')

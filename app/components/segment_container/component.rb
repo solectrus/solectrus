@@ -9,6 +9,7 @@ class SegmentContainer::Component < ViewComponent::Base
                  end
                }
   renders_one :title
+  renders_one :error
 
   def initialize(calculator:, timeframe:, tippy_placement:)
     super()
