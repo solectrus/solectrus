@@ -1,11 +1,10 @@
 class MinMaxChart < ChartBase
-  def initialize(sensor:, average:)
+  def initialize(sensor:)
     super(sensors: [sensor])
-    @average = average
     @sensor = sensor
   end
 
-  attr_reader :average, :sensor
+  attr_reader :sensor
 
   def call(timeframe)
     return {} unless SensorConfig.x.exists_any?(*sensors)

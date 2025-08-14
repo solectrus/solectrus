@@ -20,7 +20,7 @@ class ChartData::CarBatterySoc < ChartData::Base
 
   def chart
     @chart ||=
-      MinMaxChart.new(sensor: :car_battery_soc, average: true).call(timeframe)[
+      MinMaxChart.new(sensor: :car_battery_soc).call(timeframe)[
         :car_battery_soc,
       ]
   end

@@ -24,9 +24,7 @@ class ChartData::OutdoorTemp < ChartData::Base
 
   def chart
     @chart ||=
-      MinMaxChart.new(sensor: :outdoor_temp, average: false).call(timeframe)[
-        :outdoor_temp,
-      ]
+      MinMaxChart.new(sensor: :outdoor_temp).call(timeframe)[:outdoor_temp]
   end
 
   def style
