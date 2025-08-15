@@ -37,7 +37,6 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         inverter_power
         house_power
         heatpump_power
-        heatpump_heating_power
         grid_import_power
         grid_export_power
         battery_charging_power
