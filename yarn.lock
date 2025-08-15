@@ -592,9 +592,9 @@ __metadata:
   linkType: hard
 
 "@rails/actioncable@npm:>=7.0":
-  version: 8.0.200
-  resolution: "@rails/actioncable@npm:8.0.200"
-  checksum: 10c0/42c861f3b43131ab523d37125e30e802bd5bab98bf8150a780531f82f05177cd0071a75a7f1341eac9de772732625194ac16205a40b82dc567cc05c21c56e412
+  version: 8.0.201
+  resolution: "@rails/actioncable@npm:8.0.201"
+  checksum: 10c0/422bc0ad1b2ce84365b4ab65ed7b606d07bb591fa6ac91251e24942d33c3f7202d4f4d4ae758ce91f5bc44c834067c7c7af2e572015a89705feb52c8cbdfe4d6
   languageName: node
   linkType: hard
 
@@ -1902,14 +1902,14 @@ __metadata:
   linkType: hard
 
 "fdir@npm:^6.4.4, fdir@npm:^6.4.6":
-  version: 6.4.6
-  resolution: "fdir@npm:6.4.6"
+  version: 6.5.0
+  resolution: "fdir@npm:6.5.0"
   peerDependencies:
     picomatch: ^3 || ^4
   peerDependenciesMeta:
     picomatch:
       optional: true
-  checksum: 10c0/45b559cff889934ebb8bc498351e5acba40750ada7e7d6bde197768d2fa67c149be8ae7f8ff34d03f4e1eb20f2764116e56440aaa2f6689e9a4aa7ef06acafe9
+  checksum: 10c0/e345083c4306b3aed6cb8ec551e26c36bab5c511e99ea4576a16750ddc8d3240e63826cc624f5ae17ad4dc82e68a253213b60d556c11bfad064b7607847ed07f
   languageName: node
   linkType: hard
 
