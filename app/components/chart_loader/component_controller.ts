@@ -359,7 +359,8 @@ export default class extends Controller<HTMLCanvasElement> {
 
         if (isTemperature) {
           this.setTemperatureGradient(dataset);
-        } else {
+        } else if (!Array.isArray(dataset.backgroundColor)) {
+          // Apply gradient only when backgroundColor is a single color (not an array)
           this.setDefaultGradient(
             dataset,
             this.minValue,
