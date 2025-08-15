@@ -160,6 +160,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
         [:"max_#{sensor}", query_aggregation.public_send(:"max_#{sensor}")]
       end,
       max_wallbox_power: query_aggregation.max_wallbox_power,
+      max_heatpump_tank_temp: query_aggregation.max_heatpump_tank_temp,
     }
   end
 
@@ -169,6 +170,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
       min_car_battery_soc: query_aggregation.min_car_battery_soc,
       min_case_temp: query_aggregation.min_case_temp,
       min_outdoor_temp: query_aggregation.min_outdoor_temp,
+      min_heatpump_tank_temp: query_aggregation.min_heatpump_tank_temp,
     }
   end
 
@@ -178,6 +180,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
       avg_car_battery_soc: query_aggregation.mean_car_battery_soc,
       avg_case_temp: query_aggregation.mean_case_temp,
       avg_outdoor_temp: query_aggregation.mean_outdoor_temp,
+      avg_heatpump_tank_temp: query_aggregation.mean_heatpump_tank_temp,
     }
   end
 

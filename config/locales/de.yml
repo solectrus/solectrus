@@ -66,6 +66,7 @@ de:
     heatpump_power: Wärmepumpe
     heatpump_power_env: Umgebungswärme
     heatpump_heating_power: Erzeugte Wärme
+    heatpump_tank_temp: Warmwasser
     heatpump_cop: Arbeitszahl
     outdoor_temp: Außentemperatur
     outdoor_temp_short: Außen
@@ -101,6 +102,8 @@ de:
     heatpump_cop: Arbeitszahl
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
+    heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
+    heatpump_no_heating: Kein Heizbetrieb
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln

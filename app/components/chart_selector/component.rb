@@ -57,6 +57,12 @@ class ChartSelector::Component < ViewComponent::Base
   def title(sensor)
     if sensor.in?(%i[autarky self_consumption co2_reduction])
       I18n.t "calculator.#{sensor}"
+    elsif sensor == :heatpump_power
+      if helpers.controller_namespace == 'heatpump'
+        I18n.t 'splitter.total'
+      else
+        SensorConfig.x.display_name(sensor, :long)
+      end
     else
       SensorConfig.x.display_name(sensor, :long)
     end

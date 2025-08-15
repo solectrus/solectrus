@@ -107,6 +107,10 @@ class Calculator::Now < Calculator::Base
     last[:heatpump_heating_power]
   end
 
+  def heatpump_tank_temp
+    last[:heatpump_tank_temp]
+  end
+
   def outdoor_temp
     last[:outdoor_temp]
   end

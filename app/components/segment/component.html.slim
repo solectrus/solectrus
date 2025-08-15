@@ -4,7 +4,7 @@
             style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
-              controller: 'tippy',
+              controller: tooltip ? 'tippy' : nil,
               tippy_placement_value: parent.tippy_placement,
               tippy_force_tap_to_close_value: false,
               tippy_touch_value: 'long',
@@ -18,7 +18,7 @@
             style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
-              controller: 'tippy',
+              controller: tooltip ? 'tippy' : nil,
               tippy_placement_value: parent.tippy_placement,
               tippy_force_tap_to_close_value: false,
               tippy_touch_value: 'long',

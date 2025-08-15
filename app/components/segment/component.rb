@@ -16,6 +16,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def value = options[:value] || default_value
   def percent = options[:percent] || default_percent
   def hidden = options[:hidden]
+  def tooltip = options[:tooltip].nil? || options[:tooltip]
 
   def title
     options.key?(:title) ? options[:title] : SensorConfig.x.display_name(sensor)
@@ -186,6 +187,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
                    heatpump_power_grid
                    heatpump_power_env
                    heatpump_heating_power
+                   heatpump_tank_temp
                  ]
   end
 

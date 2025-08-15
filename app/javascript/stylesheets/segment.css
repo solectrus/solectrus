@@ -128,16 +128,6 @@
   }
 }
 
-/* Special alignment: place the heatpump_power_env at the bottom */
-#segment-heatpump_power_env {
-  @apply items-end;
-
-  .title,
-  .value {
-    @apply pb-5;
-  }
-}
-
 @container (min-height: 30px) {
   .segment.segment-inline .title {
     font-size: calc(var(--value-size) * 1);

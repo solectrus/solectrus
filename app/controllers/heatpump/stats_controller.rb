@@ -28,7 +28,13 @@ class Heatpump::StatsController < ApplicationController
 
   def calculator_now
     Calculator::Now.new(
-      %i[heatpump_status heatpump_heating_power heatpump_power outdoor_temp],
+      %i[
+        heatpump_status
+        heatpump_power
+        heatpump_heating_power
+        heatpump_tank_temp
+        outdoor_temp
+      ],
     )
   end
 
@@ -40,6 +46,7 @@ class Heatpump::StatsController < ApplicationController
         Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
         Queries::Calculation.new(:heatpump_heating_power, :sum, :sum),
         Queries::Calculation.new(:outdoor_temp, :avg, :avg),
+        Queries::Calculation.new(:heatpump_tank_temp, :avg, :avg),
       ],
     )
   end

@@ -58,6 +58,13 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     ).freeze
   public_constant :POWER_SPLITTER_SENSORS
 
+  HEATPUMP_SENSORS = %i[
+    heatpump_heating_power
+    heatpump_tank_temp
+    heatpump_status
+  ].freeze
+  public_constant :HEATPUMP_SENSORS
+
   OTHER_SENSORS = %i[
     inverter_power_forecast
     grid_export_limit
@@ -67,13 +74,15 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     case_temp
     system_status
     system_status_ok
-    heatpump_status
     outdoor_temp
   ].freeze
   public_constant :OTHER_SENSORS
 
   # Full list of all sensors
-  SENSOR_NAMES = (POWER_SENSORS + POWER_SPLITTER_SENSORS + OTHER_SENSORS).freeze
+  SENSOR_NAMES =
+    (
+      POWER_SENSORS + POWER_SPLITTER_SENSORS + OTHER_SENSORS + HEATPUMP_SENSORS
+    ).freeze
   public_constant :SENSOR_NAMES
 
   # List of sensors that can be displayed in the top 10 list
@@ -102,6 +111,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         house_power_without_custom
         heatpump_power
         heatpump_heating_power
+        heatpump_tank_temp
         heatpump_cop
         grid_power
         battery_power
@@ -216,7 +226,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists_all? :heatpump_power, :heatpump_heating_power
     when :heatpump_power_pv
       exists? :heatpump_power_grid
-    when :heatpump_status
+    when *HEATPUMP_SENSORS
       sensor_defined?(sensor_name) &&
         (!check_policy || ApplicationPolicy.heatpump?)
     when *POWER_SPLITTER_SENSORS

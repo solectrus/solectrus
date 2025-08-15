@@ -8,6 +8,59 @@
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   .h-full.w-full.flex.flex-col.gap-3 id= "stats-#{timeframe.id}"
+    - if calculator.heatpump_cop&.positive? || calculator.heatpump_tank_temp || calculator.outdoor_temp
+      .flex.justify-between.w-full.pl-16.md:pl-20.mb-1.md:mb-2
+        - if calculator.heatpump_cop&.positive?
+            = link_to url_for(controller: 'home', sensor: 'heatpump_cop', timeframe:),
+                      class: 'click-animation inline-block',
+                      data: { \
+                        turbo_frame: frame_id('chart', timeframe:),
+                        turbo_action: 'replace',
+                        turbo_prefetch: 'false',
+                        'stats-with-chart--component-target': 'current',
+                        sensor: 'heatpump_cop',
+                        value: calculator.heatpump_cop,
+                        time: calculator.time.to_i,
+                        action: 'stats-with-chart--component#startLoop',
+                        stats_with_chart__component_sensor_param: 'heatpump_cop',
+                      } do
+              = render RectBadge::Component.new(title: SensorConfig.x.display_name(:heatpump_cop)) do
+                = Number::Component.new(value: calculator.heatpump_cop).to_plain
+
+        - if calculator.heatpump_tank_temp
+          = link_to url_for(controller: 'home', sensor: 'heatpump_tank_temp', timeframe:),
+                    class: 'click-animation inline-block',
+                    data: { \
+                      turbo_frame: frame_id('chart', timeframe:),
+                      turbo_action: 'replace',
+                      turbo_prefetch: 'false',
+                      'stats-with-chart--component-target': 'current',
+                      sensor: 'heatpump_tank_temp',
+                      value: calculator.heatpump_tank_temp,
+                      time: calculator.time.to_i,
+                      action: 'stats-with-chart--component#startLoop',
+                      stats_with_chart__component_sensor_param: 'heatpump_tank_temp',
+                    } do
+            = render RectBadge::Component.new(title: SensorConfig.x.display_name(:heatpump_tank_temp)) do
+              = Number::Component.new(value: calculator.heatpump_tank_temp).to_grad_celsius
+
+        - if calculator.outdoor_temp
+          = link_to url_for(controller: 'home', sensor: 'outdoor_temp', timeframe:),
+                    class: 'click-animation inline-block',
+                    data: { \
+                      turbo_frame: frame_id('chart', timeframe:),
+                      turbo_action: 'replace',
+                      turbo_prefetch: 'false',
+                      'stats-with-chart--component-target': 'current',
+                      sensor: 'outdoor_temp',
+                      value: calculator.outdoor_temp,
+                      time: calculator.time.to_i,
+                      action: 'stats-with-chart--component#startLoop',
+                      stats_with_chart__component_sensor_param: 'outdoor_temp',
+                    } do
+            = render RectBadge::Component.new(title: SensorConfig.x.display_name(:outdoor_temp)) do
+              = Number::Component.new(value: calculator.outdoor_temp).to_grad_celsius
+
     .flex-1.flex.gap-5
       // Clip
       .flex.gap-10.items-end.px-3.md:px-5.py-2.md:py-3.xl:py-4
@@ -38,46 +91,19 @@
 
       // Inner content
       .flex-1.flex.relative
-        - if calculator.heatpump_cop
-          .absolute.left-5.top-5.md:left-10.md:top-10
-            = link_to url_for(controller: 'home', sensor: 'heatpump_cop', timeframe:),
-                      class: 'click-animation inline-block',
-                      data: { \
-                        turbo_frame: frame_id('chart', timeframe:),
-                        turbo_action: 'replace',
-                        turbo_prefetch: 'false',
-                        'stats-with-chart--component-target': 'current',
-                        sensor: 'heatpump_cop',
-                        value: calculator.heatpump_cop,
-                        time: calculator.time.to_i,
-                        action: 'stats-with-chart--component#startLoop',
-                        stats_with_chart__component_sensor_param: 'heatpump_cop',
-                      } do
-              = render RectBadge::Component.new(title: SensorConfig.x.display_name(:heatpump_cop)) do
-                = Number::Component.new(value: calculator.heatpump_cop).to_plain
-
-        - if calculator.outdoor_temp
-          .absolute.right-5.top-5.md:right-10.md:top-10
-            = link_to url_for(controller: 'home', sensor: 'outdoor_temp', timeframe:),
-                      class: 'click-animation inline-block',
-                      data: { \
-                        turbo_frame: frame_id('chart', timeframe:),
-                        turbo_action: 'replace',
-                        turbo_prefetch: 'false',
-                        'stats-with-chart--component-target': 'current',
-                        sensor: 'outdoor_temp',
-                        value: calculator.outdoor_temp,
-                        time: calculator.time.to_i,
-                        action: 'stats-with-chart--component#startLoop',
-                        stats_with_chart__component_sensor_param: 'outdoor_temp',
-                      } do
-              = render RectBadge::Component.new(title: SensorConfig.x.display_name(:outdoor_temp)) do
-                = Number::Component.new(value: calculator.outdoor_temp).to_grad_celsius
-
         = render SegmentContainer::Component.new tippy_placement: 'bottom',
                                                  calculator:,
                                                  timeframe: do |container|
-          - if calculator.heatpump_heating_power >= calculator.heatpump_power
+          = calculator.heatpump_heating_power.inspect
+          - if calculator.heatpump_heating_power.zero?
+            - container.with_segment :heatpump_heating_power,
+                                     percent: 100,
+                                     tooltip: false,
+                                     color_class: 'bg-slate-600 dark:bg-slate-600/70' do
+              p.text-xl
+                = t('calculator.heatpump_no_heating')
+
+          - elsif calculator.heatpump_heating_power >= calculator.heatpump_power
             - container.with_segment :heatpump_power_env, inline: true
             - if timeframe.now?
               - container.with_segment :heatpump_power,
@@ -89,7 +115,14 @@
               - container.with_segment :heatpump_power_grid, inline: true
 
           - elsif calculator.heatpump_heating_power.positive?
-            - container.with_error do
-              => t('splitter.total')
-              == '&gt;'
-              =< t('sensors.heatpump_heating_power')
+            - container.with_segment :heatpump_heating_power,
+                                     percent: 100,
+                                     tooltip: false,
+                                     color_class: 'bg-slate-600 dark:bg-slate-600/70' do
+              div
+                p.text-xl.max-w-64
+                  = t('calculator.heatpump_cop_below_one')
+
+                .mt-5.inline-block
+                  = render RectBadge::Component.new(title: t('splitter.total')) do
+                    = Number::Component.new(value: calculator.heatpump_power).to_watt_hour

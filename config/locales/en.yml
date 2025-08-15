@@ -66,6 +66,7 @@ en:
     heatpump_power: Heat pump
     heatpump_power_env: Environmental heat
     heatpump_heating_power: Heat generated
+    heatpump_tank_temp: Hot water
     heatpump_cop: COP
     outdoor_temp: Outdoor temperature
     outdoor_temp_short: Outdoor
@@ -101,6 +102,8 @@ en:
     heatpump_cop: COP
     time: Last measurement taken
     blank: No data available!
+    heatpump_cop_below_one: Power consumption exceeds heat generated
+    heatpump_no_heating: No heating operation
   chart:
     inverter_total: Cumulative
     inverter_split: Individual
