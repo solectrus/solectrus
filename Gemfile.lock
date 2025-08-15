@@ -86,7 +86,7 @@ GEM
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
     ast (2.4.3)
-    async (2.27.2)
+    async (2.27.3)
       console (~> 1.29)
       fiber-annotation
       io-event (~> 1.11)
@@ -237,7 +237,7 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (1.2.0)
-    honeybadger (6.0.5)
+    honeybadger (6.0.6)
       logger
       ostruct
     htmlbeautifier (1.4.3)
@@ -539,7 +539,7 @@ GEM
     useragent (0.16.11)
     vcr (6.3.1)
       base64
-    view_component (4.0.1)
+    view_component (4.0.2)
       activesupport (>= 7.1.0, < 8.1)
       concurrent-ruby (~> 1)
     vite_rails (3.0.19)
