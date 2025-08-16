@@ -8,6 +8,9 @@ en:
   relative_timeframe:
     title: Relative timeframes
     description: Whether it's the last 30 days or the last 12 months - with SOLECTRUS, flexible timeframes can also be displayed.
+  insights:
+    title: Insights
+    description: Here, additional key figures and trends are presented, which relate to the selected sensor and time period. These include yield per kWp, average per day, comparison with the previous month and previous year.
   sponsoring_only: Exclusively for sponsors
   demo: Demo
   about_sponsoring: How to become a sponsor?

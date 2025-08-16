@@ -27,11 +27,11 @@
         data-transition-leave-end= 'translate-y-full md:opacity-0 md:translate-y-0'
       ]
         div[
-          class= 'relative bg-white dark:bg-slate-800 rounded-t-lg md:rounded-lg px-4 pt-5 pb-10 text-left overflow-hidden shadow-xl md:max-w-sm w-full sm:p-6'
+          class= 'relative text-gray-800 dark:text-gray-400 bg-white dark:bg-slate-800 rounded-t-lg md:rounded-lg px-4 pt-5 pb-10 text-left overflow-hidden shadow-xl md:max-w-2xl w-full sm:p-6'
           data-turbo-modal--component-target="inner"
         ]
-          h1 id= 'modal-title' class= 'font-bold text-2xl leading-none'
-            = @title
+          h1 id= 'modal-title' class= 'font-bold text-xl sm:text-2xl leading-none'
+            = @title || title
 
           = content
 
@@ -43,6 +43,6 @@
 
 - else
   h1 class= 'font-bold text-2xl text-gray-800 dark:text-gray-400'
-    = @title
+    = @title || title
 
   = content

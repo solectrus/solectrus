@@ -97,11 +97,12 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
     )
   end
 
-  def to_percent(max_precision: 1, precision: nil, klass: nil)
+  def to_percent(max_precision: 1, sign: false, precision: nil, klass: nil)
     return unless value
 
     styled_number(
-      formatted_number(value, max_precision:, precision:),
+      (sign && value.positive? ? '+' : '') +
+        formatted_number(value, max_precision:, precision:),
       unit: '%',
       klass:
         klass ||

@@ -19,6 +19,7 @@ class UpdateCheck
              :skip_prompt!,
              :latest_version,
              :registration_status,
+             :kwp,
              :clear_cache!,
              to: :instance
   end
@@ -39,6 +40,10 @@ class UpdateCheck
 
   def subscription_plan
     latest[:subscription_plan]
+  end
+
+  def kwp
+    latest[:kwp]
   end
 
   def sponsoring?

@@ -24,7 +24,7 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
 
   delegate :type, to: :data
 
-  def options # rubocop:disable Metrics/MethodLength
+  def options # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity
     {
       maintainAspectRatio: false,
       plugins: {
@@ -104,6 +104,10 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                 stepSize: (timeframe.relative_count.to_i > 14 ? 2 : 1),
                 maxRotation: 0,
               },
+              range: {
+                stepSize: (timeframe.relative_count.to_i > 14 ? 2 : 1),
+                maxRotation: 0,
+              },
               week: {
                 stepSize: 1,
                 maxRotation: 0,
@@ -168,6 +172,14 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
                     else
                       'LLL yyyy'
                     end,
+                },
+                tooltipFormat: 'cccc, dd.MM.yyyy',
+                round: 'day',
+              },
+              range: {
+                unit: 'day',
+                displayFormats: {
+                  day: timeframe.relative_count.to_i < 8 ? 'ccc' : 'd',
                 },
                 tooltipFormat: 'cccc, dd.MM.yyyy',
                 round: 'day',
@@ -255,5 +267,26 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
 
   def suggested_min_y
     data.suggested_min
+  end
+
+  def path_to_insights
+    return if timeframe.now?
+
+    if sensor.in?(
+         %i[
+           autarky
+           self_consumption
+           co2_reduction
+           case_temp
+           car_battery_soc
+           battery_soc
+           house_power_without_custom
+         ],
+       )
+      return
+      # TODO: Maybe later add insights for this sensors
+    end
+
+    helpers.insights_path(sensor:, timeframe:)
   end
 end

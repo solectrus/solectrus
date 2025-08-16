@@ -1,0 +1,22 @@
+- if trend.valid? && trend.base_value.nonzero?
+  div[
+    data-controller= 'tippy'
+    data-tippy-touch-value= 'true'
+  ]
+    - if trend.same?
+      '&plusmn; 0%
+    - else
+      i.fa class= [icon, color_class]
+
+      =< Number::Component.new(value: trend.percent).to_percent(sign: true, precision: 0, klass: color_class)
+
+    .hidden data-tippy-target= 'html'
+      .text-center
+        => Number::Component.new(value: trend.diff.abs).to_watt_hour(unit: :kilo, precision: 0)
+        div
+          - if trend.percent.positive?
+            'mehr als
+          - else
+            'weniger als
+        div
+          = trend.base_timeframe.localized

@@ -174,3 +174,25 @@
     @apply transition-transform duration-100 group-active:scale-95 active:scale-95;
   }
 }
+
+@utility stripes {
+  @apply relative z-0 overflow-hidden;
+
+  &::before {
+    @apply pointer-events-none absolute inset-0 -z-1 opacity-50;
+    content: '';
+    background: repeating-linear-gradient(
+      135deg,
+      #e5e7eb 0 10px,
+      #f3f4f6 10px 20px
+    );
+  }
+
+  :where(.dark, .dark *) &::before {
+    background: repeating-linear-gradient(
+      135deg,
+      #334155 0 10px,
+      #1e293b 10px 20px
+    );
+  }
+}

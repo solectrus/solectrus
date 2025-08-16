@@ -14,8 +14,7 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
             balance.with_segment inverter_name,
                                  peak: peak&.dig(inverter_name),
                                  percent: calculator.public_send("#{inverter_name}_percent_of_total"),
-                                 color_class: 'bg-green-600 dark:bg-green-800/80',
-                                 icon_class: 'fa-sun'
+                                 color_class: 'bg-green-600 dark:bg-green-800/80'
           end
 
           # Render hidden segment for total inverter power.

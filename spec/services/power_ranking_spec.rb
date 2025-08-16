@@ -1,5 +1,5 @@
-describe PowerTop10 do
-  let(:power_top10) do
+describe PowerRanking do
+  let(:power_ranking) do
     described_class.new(sensor: :inverter_power_1, calc:, desc:)
   end
 
@@ -28,7 +28,7 @@ describe PowerTop10 do
     let(:calc) { 'sum' }
 
     describe '#years' do
-      subject { power_top10.years }
+      subject { power_ranking.years }
 
       it do
         is_expected.to eq(
@@ -41,7 +41,7 @@ describe PowerTop10 do
     end
 
     describe '#months' do
-      subject { power_top10.months }
+      subject { power_ranking.months }
 
       it do
         is_expected.to eq(
@@ -54,7 +54,7 @@ describe PowerTop10 do
     end
 
     describe '#weeks' do
-      subject { power_top10.weeks }
+      subject { power_ranking.weeks }
 
       it do
         is_expected.to eq(
@@ -67,7 +67,7 @@ describe PowerTop10 do
     end
 
     describe '#days' do
-      subject { power_top10.days }
+      subject { power_ranking.days }
 
       it do
         is_expected.to eq(
@@ -83,17 +83,23 @@ describe PowerTop10 do
   end
 
   context 'when ascending' do
+    before do
+      # Very small value for TODAY, must NOT be included in the result
+      sample_data date: Date.new(2024, 6, 5), sum: 500, max: 500
+      # => 0,5 kWh
+    end
+
     let(:desc) { false }
     let(:calc) { 'sum' }
 
     describe '#years' do
-      subject { power_top10.years }
+      subject { power_ranking.years }
 
       it { is_expected.to eq([{ date: Date.new(2023, 1, 1), value: 120_000 }]) }
     end
 
     describe '#months' do
-      subject { power_top10.months }
+      subject { power_ranking.months }
 
       it do
         is_expected.to eq([{ date: Date.new(2023, 12, 1), value: 120_000 }])
@@ -101,7 +107,7 @@ describe PowerTop10 do
     end
 
     describe '#weeks' do
-      subject { power_top10.weeks }
+      subject { power_ranking.weeks }
 
       it do
         is_expected.to eq([{ date: Date.new(2023, 12, 25), value: 120_000 }])
@@ -109,7 +115,7 @@ describe PowerTop10 do
     end
 
     describe '#days' do
-      subject { power_top10.days }
+      subject { power_ranking.days }
 
       it do
         is_expected.to eq(
@@ -128,7 +134,7 @@ describe PowerTop10 do
     let(:calc) { 'max' }
 
     describe '#years' do
-      subject { power_top10.years }
+      subject { power_ranking.years }
 
       it do
         is_expected.to eq(
@@ -141,7 +147,7 @@ describe PowerTop10 do
     end
 
     describe '#months' do
-      subject { power_top10.months }
+      subject { power_ranking.months }
 
       it do
         is_expected.to eq(
@@ -154,7 +160,7 @@ describe PowerTop10 do
     end
 
     describe '#weeks' do
-      subject { power_top10.weeks }
+      subject { power_ranking.weeks }
 
       it do
         is_expected.to eq(
@@ -167,7 +173,7 @@ describe PowerTop10 do
     end
 
     describe '#days' do
-      subject { power_top10.days }
+      subject { power_ranking.days }
 
       it do
         is_expected.to eq(
@@ -186,12 +192,12 @@ describe PowerTop10 do
     let(:desc) { true }
     let(:calc) { 'sum' }
 
-    let(:power_top10) do
+    let(:power_ranking) do
       described_class.new(sensor: :inverter_power, calc:, desc:)
     end
 
     describe '#days' do
-      subject { power_top10.days }
+      subject { power_ranking.days }
 
       it do
         is_expected.to eq(
@@ -206,13 +212,117 @@ describe PowerTop10 do
     end
 
     describe '#weeks' do
-      subject { power_top10.weeks }
+      subject { power_ranking.weeks }
 
       it do
         is_expected.to eq(
           [
             { date: Date.new(2024, 6, 3), value: 6_710_000 },
             { date: Date.new(2023, 12, 25), value: 132_000 },
+          ],
+        )
+      end
+    end
+  end
+
+  context 'when using custom limit' do
+    let(:desc) { true }
+    let(:calc) { 'sum' }
+
+    let(:power_ranking) do
+      described_class.new(sensor: :inverter_power_1, calc:, desc:, limit: 2)
+    end
+
+    describe '#days' do
+      subject { power_ranking.days }
+
+      it 'returns only 2 results' do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 5), value: 2_500_000 },
+            { date: Date.new(2024, 6, 3), value: 2_400_000 },
+          ],
+        )
+      end
+    end
+  end
+
+  context 'when using custom from date' do
+    let(:desc) { true }
+    let(:calc) { 'sum' }
+
+    let(:power_ranking) do
+      described_class.new(
+        sensor: :inverter_power_1,
+        calc:,
+        desc:,
+        from: Date.new(2024, 6, 4),
+      )
+    end
+
+    describe '#days' do
+      subject { power_ranking.days }
+
+      it 'excludes data before from date' do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 5), value: 2_500_000 },
+            { date: Date.new(2024, 6, 4), value: 1_200_000 },
+          ],
+        )
+      end
+    end
+  end
+
+  context 'when using custom to date' do
+    let(:desc) { true }
+    let(:calc) { 'sum' }
+
+    let(:power_ranking) do
+      described_class.new(
+        sensor: :inverter_power_1,
+        calc:,
+        desc:,
+        to: Date.new(2024, 6, 3),
+      )
+    end
+
+    describe '#days' do
+      subject { power_ranking.days }
+
+      it 'excludes data after to date' do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 3), value: 2_400_000 },
+            { date: Date.new(2023, 12, 31), value: 120_000 },
+          ],
+        )
+      end
+    end
+  end
+
+  context 'when using custom from and to dates' do
+    let(:desc) { true }
+    let(:calc) { 'sum' }
+
+    let(:power_ranking) do
+      described_class.new(
+        sensor: :inverter_power_1,
+        calc:,
+        desc:,
+        from: Date.new(2024, 6, 3),
+        to: Date.new(2024, 6, 4),
+      )
+    end
+
+    describe '#days' do
+      subject { power_ranking.days }
+
+      it 'returns only data within the specified range' do
+        is_expected.to eq(
+          [
+            { date: Date.new(2024, 6, 3), value: 2_400_000 },
+            { date: Date.new(2024, 6, 4), value: 1_200_000 },
           ],
         )
       end

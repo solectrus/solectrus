@@ -79,7 +79,11 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
         { field:, aggregation:, value:, date: }
       end
 
-    present_summary_values = summary_values.select { it[:value].present? }
+    present_summary_values =
+      summary_values.select do |record|
+        should_include_record?(record[:value], record[:aggregation])
+      end
+
     SummaryValue.upsert_all(
       present_summary_values,
       unique_by: %i[date aggregation field],
@@ -130,9 +134,12 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
         battery_charging_power_grid
       ] + custom_sensors.map { |sensor| :"#{sensor}_grid" }
 
-    (base_sensors + custom_sensors + power_splitter_sensors).to_h do |attr|
-      [:"sum_#{attr}", query_sum.public_send(attr)]
-    end
+    power_attributes =
+      (base_sensors + custom_sensors + power_splitter_sensors).to_h do |attr|
+        [:"sum_#{attr}", query_sum.public_send(attr)]
+      end
+
+    power_attributes.merge(sum_grid_costs:, sum_grid_revenue:)
   end
 
   def raw_max_attributes
@@ -216,5 +223,44 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
 
   def timeframe
     @timeframe ||= Timeframe.new(date.iso8601)
+  end
+
+  def sum_grid_costs
+    return unless (grid_import_power = query_sum.grid_import_power)
+    return if grid_import_power.zero?
+
+    electricity_price = price_for_date(:electricity)
+    return unless electricity_price
+
+    grid_import_power * electricity_price.fdiv(1000)
+  end
+
+  def sum_grid_revenue
+    return unless (grid_export_power = query_sum.grid_export_power)
+    return if grid_export_power.zero?
+
+    feed_in_price = price_for_date(:feed_in)
+    return unless feed_in_price
+
+    grid_export_power * feed_in_price.fdiv(1000)
+  end
+
+  def should_include_record?(value, aggregation)
+    # For sum aggregations, filter out zero values
+    # For other aggregations (max, min, avg), keep all present values
+    if aggregation == 'sum'
+      value&.nonzero?
+    else
+      value.present?
+    end
+  end
+
+  def price_for_date(name)
+    @prices ||= {}
+    @prices[name] ||= Price
+      .where(name:)
+      .where(starts_at: ..date)
+      .order(starts_at: :desc)
+      .pick(:value)
   end
 end
