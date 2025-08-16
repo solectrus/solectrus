@@ -3,6 +3,7 @@ en:
     balance: Power balance
     inverter: Generation
     house: House consumption
+    heatpump: Heat pump
     essentials: Essentials
     top10: Top 10
     about: About SOLECTRUS
@@ -63,9 +64,16 @@ en:
     case_temp: Case
     grid_export_limit: Limitation
     heatpump_power: Heat pump
+    heatpump_power_env: Environmental heat
+    heatpump_heating_power: Heat generated
+    heatpump_tank_temp: Hot water
+    heatpump_cop: COP
+    outdoor_temp: Outdoor temperature
+    outdoor_temp_short: Outdoor
   splitter:
     grid: Grid
     pv: PV
+    total: Power consumption
   balance_sheet:
     left: Source
     right: Usage
@@ -91,8 +99,11 @@ en:
     total_costs: Total costs
     compensation: Compensation
     autarky: Autarky
+    heatpump_cop: COP
     time: Last measurement taken
     blank: No data available!
+    heatpump_cop_below_one: Power consumption exceeds heat generated
+    heatpump_no_heating: No heating operation
   chart:
     inverter_total: Cumulative
     inverter_split: Individual

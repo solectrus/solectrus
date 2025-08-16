@@ -16,6 +16,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def value = options[:value] || default_value
   def percent = options[:percent] || default_percent
   def hidden = options[:hidden]
+  def tooltip = options[:tooltip].nil? || options[:tooltip]
 
   def title
     options.key?(:title) ? options[:title] : SensorConfig.x.display_name(sensor)
@@ -53,6 +54,9 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       end
     when 'house'
       house_home_path(sensor:, timeframe: parent.timeframe)
+    when 'heatpump'
+      # Disable links
+      nil
     else
       root_path(
         sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
@@ -174,6 +178,19 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
         )
   end
 
+  def heatpump?
+    return @heatpump if defined?(@heatpump)
+
+    @heatpump =
+      sensor.in? %i[
+                   heatpump_power_pv
+                   heatpump_power_grid
+                   heatpump_power_env
+                   heatpump_heating_power
+                   heatpump_tank_temp
+                 ]
+  end
+
   def default_color_class
     if balance?
       default_color_class_for_balance
@@ -181,6 +198,8 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       default_color_class_for_inverter
     elsif house?
       default_color_class_for_house
+    elsif heatpump?
+      default_color_class_for_heatpump
     end
   end
 
@@ -273,6 +292,15 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     color = COLOR_SET_GREEN_5[index - 1]
 
     "#{color} text-slate-100 dark:text-slate-300"
+  end
+
+  def default_color_class_for_heatpump
+    case sensor
+    when :heatpump_power_env
+      'bg-sky-700/60 dark:bg-sky-800/80'
+    when :heatpump_power_pv
+      'bg-green-600 dark:bg-green-800/80'
+    end
   end
 
   def tiny?

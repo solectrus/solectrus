@@ -49,6 +49,8 @@ class Insights::Component < ViewComponent::Base
       'house'
     elsif request.referer.include?('/inverter/')
       'inverter'
+    elsif request.referer.include?('/heatpump/')
+      'heatpump'
     else
       'balance'
     end

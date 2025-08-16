@@ -57,6 +57,13 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     ).freeze
   public_constant :POWER_SPLITTER_SENSORS
 
+  HEATPUMP_SENSORS = %i[
+    heatpump_heating_power
+    heatpump_tank_temp
+    heatpump_status
+  ].freeze
+  public_constant :HEATPUMP_SENSORS
+
   OTHER_SENSORS = %i[
     inverter_power_forecast
     grid_export_limit
@@ -66,11 +73,15 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     case_temp
     system_status
     system_status_ok
+    outdoor_temp
   ].freeze
   public_constant :OTHER_SENSORS
 
   # Full list of all sensors
-  SENSOR_NAMES = (POWER_SENSORS + POWER_SPLITTER_SENSORS + OTHER_SENSORS).freeze
+  SENSOR_NAMES =
+    (
+      POWER_SENSORS + POWER_SPLITTER_SENSORS + OTHER_SENSORS + HEATPUMP_SENSORS
+    ).freeze
   public_constant :SENSOR_NAMES
 
   # List of sensors that can be displayed in the top 10 list
@@ -85,6 +96,8 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     co2_reduction
     house_power_without_custom
     inverter_power_difference
+    heatpump_power_pv
+    heatpump_power_env
   ].freeze
   public_constant :CALCULATED_SENSORS
 
@@ -96,12 +109,16 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
         house_power
         house_power_without_custom
         heatpump_power
+        heatpump_heating_power
+        heatpump_tank_temp
+        heatpump_cop
         grid_power
         battery_power
         battery_soc
         car_battery_soc
         wallbox_power
         case_temp
+        outdoor_temp
         autarky
         self_consumption
         savings
@@ -204,6 +221,13 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
       exists? :inverter_power
     when :car_battery_soc, :wallbox_car_connected
       sensor_defined?(sensor_name) && (!check_policy || ApplicationPolicy.car?)
+    when :heatpump_cop, :heatpump_power_env, :heatpump_power_grid_percent
+      exists_all? :heatpump_power, :heatpump_heating_power
+    when :heatpump_power_pv
+      exists? :heatpump_power_grid
+    when *HEATPUMP_SENSORS
+      sensor_defined?(sensor_name) &&
+        (!check_policy || ApplicationPolicy.heatpump?)
     when *POWER_SPLITTER_SENSORS
       sensor_defined?(sensor_name) &&
         (!check_policy || ApplicationPolicy.power_splitter?)
@@ -227,7 +251,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
     sensor_names.all? { |sensor_name| exists?(sensor_name) }
   end
 
-  def display_name(sensor_name, format = :short)
+  def display_name(sensor_name, format = :short) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     result =
       Setting.sensor_names[sensor_name].presence ||
         if sensor_name.match?(/\Acustom_power_\d{2}\z/)
@@ -236,6 +260,9 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
           I18n.t('splitter.grid')
         elsif sensor_name.end_with?('_pv')
           I18n.t('splitter.pv')
+        elsif format == :short &&
+              I18n.exists?("sensors.#{sensor_name}_short", I18n.locale)
+          I18n.t("sensors.#{sensor_name}_short").html_safe
         else
           I18n.t("sensors.#{sensor_name}").html_safe
         end

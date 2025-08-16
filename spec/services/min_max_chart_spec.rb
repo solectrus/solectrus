@@ -1,5 +1,5 @@
 describe MinMaxChart do
-  let(:chart) { described_class.new(sensor: :battery_soc, average: true) }
+  let(:chart) { described_class.new(sensor: :battery_soc) }
 
   let(:beginning) { 1.year.ago.beginning_of_year }
 

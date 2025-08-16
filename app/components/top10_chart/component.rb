@@ -47,7 +47,7 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
     end
   end
 
-  def bar_classes
+  def bar_classes # rubocop:disable Metrics/CyclomaticComplexity
     case sensor.to_sym
     when :battery_discharging_power, :battery_charging_power
       'from-green-700 to-green-300 text-green-800 dark:from-green-800 dark:to-green-500 dark:text-green-900'
@@ -57,7 +57,9 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
       'from-slate-600 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
     when :heatpump_power
       'from-slate-700 to-slate-300 text-slate-800 dark:from-slate-800 dark:to-slate-500 dark:text-slate-900'
-    when :grid_import_power, :case_temp
+    when :heatpump_heating_power
+      'from-yellow-600 to-yellow-400 text-yellow-800 dark:from-yellow-800 dark:to-yellow-600 dark:text-yellow-900'
+    when :grid_import_power, :case_temp, :outdoor_temp
       'from-red-600   to-red-300   text-red-800   dark:from-red-800   dark:to-red-400   dark:text-red-900'
     when :grid_export_power, :inverter_power,
          *SensorConfig::CUSTOM_INVERTER_SENSORS
@@ -106,6 +108,8 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
       house_home_path(sensor:, timeframe: corresponding_date(record[:date]))
     elsif sensor.to_s.match?(/inverter_power_\d{1}/)
       inverter_home_path(sensor:, timeframe: corresponding_date(record[:date]))
+    elsif sensor == :heatpump_heating_power
+      heatpump_home_path(sensor:, timeframe: corresponding_date(record[:date]))
     else
       root_path(
         sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
@@ -171,7 +175,7 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
 
   def unit_method
     case sensor.to_sym
-    when :case_temp
+    when :case_temp, :outdoor_temp
       :to_grad_celsius
     else
       calc.max? ? :to_watt : :to_watt_hour

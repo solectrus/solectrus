@@ -27,7 +27,8 @@ import 'chartjs-adapter-luxon';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
-import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
+import ChartBackgroundGradient from '@/utils/chartGradientDefault';
+import TemperatureGradient from '@/utils/chartGradientTemperature';
 
 Chart.register(
   LineElement,
@@ -261,6 +262,10 @@ export default class extends Controller<HTMLCanvasElement> {
         (dataset) => dataset.stack == 'InverterPower',
       );
 
+      const isHeatingStack = data.datasets.some(
+        (dataset) => dataset.stack == 'HeatingPower',
+      );
+
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
 
@@ -271,20 +276,27 @@ export default class extends Controller<HTMLCanvasElement> {
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
           let result: string =
-            !(isPowerSplitterStack && !tooltipItem.dataset.stack) &&
-            data.datasets.length > 1
+            !(
+              (isPowerSplitterStack || isHeatingStack) &&
+              !tooltipItem.dataset.stack
+            ) && data.datasets.length > 1
               ? `${tooltipItem.dataset.label} `
               : '';
 
-          if (isPowerSplitterStack) {
+          if (isPowerSplitterStack || isHeatingStack) {
             if (tooltipItem.dataset.stack && data.datasets.length) {
-              // Sum is the value of the first dataset
-              const sum = data.datasets[0].data[
-                tooltipItem.dataIndex
-              ] as number;
+              if (data.datasets.length == 2 || data.datasets.length == 3)
+                // Now or Day
+                result += this.formattedNumber(tooltipItem.parsed.y);
+              else {
+                // Sum is the value of the first dataset
+                const sum = data.datasets[0].data[
+                  tooltipItem.dataIndex
+                ] as number;
 
-              if (sum)
-                result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+                if (sum)
+                  result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+              }
             }
           } else {
             // Format value number
@@ -315,6 +327,16 @@ export default class extends Controller<HTMLCanvasElement> {
               if (item.parsed.y) acc += item.parsed.y;
               return acc;
             }, 0);
+          } else if (isHeatingStack) {
+            if (tooltipItems.length == 4)
+              // Week, Month, Year, All
+              sum = tooltipItems[3].parsed.y;
+            else if (tooltipItems.length == 3)
+              // Now or Day
+              sum = tooltipItems.reduce((acc, item) => {
+                if (item.parsed.y) acc += item.parsed.y;
+                return acc;
+              }, 0);
           }
 
           if (sum) return this.formattedNumber(sum);
@@ -330,13 +352,22 @@ export default class extends Controller<HTMLCanvasElement> {
             ? 0.04
             : 0.4;
 
-        if (dataset.data)
-          this.setBackgroundGradient(
+        if (!dataset.data) return;
+
+        const id = (dataset as DatasetWithId).id;
+        const isTemperature = id === 'case_temp' || id === 'outdoor_temp';
+
+        if (isTemperature) {
+          this.setTemperatureGradient(dataset);
+        } else if (!Array.isArray(dataset.backgroundColor)) {
+          // Apply gradient only when backgroundColor is a single color (not an array)
+          this.setDefaultGradient(
             dataset,
             this.minValue,
             this.maxValue,
             minAlpha,
           );
+        }
       });
 
     this.chart = new Chart(this.canvasTarget, {
@@ -346,46 +377,25 @@ export default class extends Controller<HTMLCanvasElement> {
     });
   }
 
-  setBackgroundGradient(
+  private setDefaultGradient(
     dataset: ChartDataset,
     min: number,
     max: number,
     minAlpha: number,
   ) {
-    // Remember original color
-    const originalColor = dataset.backgroundColor as string;
-
-    const extent = min < 0 ? Math.abs(max) + Math.abs(min) : max;
-    const basePosition = max / extent;
-    const isNegative = dataset.data.some(
-      (value) => typeof value === 'number' && value < 0,
-    );
-
-    const datasetMin = this.minOfDataset(dataset);
-    const datasetMax = this.maxOfDataset(dataset);
-    const datasetExtent =
-      datasetMin < 0 ? Math.abs(datasetMax) + Math.abs(datasetMin) : datasetMax;
-
     const backgroundGradient = new ChartBackgroundGradient(
-      originalColor,
-      isNegative,
-      basePosition,
-      datasetExtent / extent,
+      dataset,
+      min,
+      max,
       minAlpha,
-
-      // Stacked bar must not be gradiented, just use the given Alpha
-      dataset.stack ? minAlpha : 1,
     );
 
-    // Replace background color with gradient
-    dataset.backgroundColor = (context: { chart: Chart; type: string }) => {
-      const { ctx, chartArea } = context.chart;
+    backgroundGradient.applyToDataset(dataset);
+  }
 
-      if (chartArea) return backgroundGradient.canvasGradient(ctx, chartArea);
-    };
-
-    // Use original color for border
-    dataset.borderColor = originalColor;
+  private setTemperatureGradient(dataset: ChartDataset) {
+    const temperatureGradient = new TemperatureGradient(this.typeValue);
+    temperatureGradient.applyToDataset(dataset);
   }
 
   private getData(): ChartData | undefined {
@@ -437,8 +447,8 @@ export default class extends Controller<HTMLCanvasElement> {
           break;
       }
     } else {
-      // Without kilo, we have integers, so no decimals required
-      decimals = 0;
+      // Without kilo, default to integers, unless unit is empty (dimensionless like COP) or °C
+      decimals = this.unitValue == '' || this.unitValue == '°C' ? 1 : 0;
     }
 
     const numberAsString = new Intl.NumberFormat(navigator.language, {
@@ -493,22 +503,6 @@ export default class extends Controller<HTMLCanvasElement> {
     });
 
     return Math.floor(minSum);
-  }
-
-  private minOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data.map((value) =>
-      Array.isArray(value) ? Math.min(...value) : (value as number),
-    );
-
-    return Math.min(...mapped);
-  }
-
-  private maxOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data.map((value) =>
-      Array.isArray(value) ? Math.max(...value) : (value as number),
-    );
-
-    return Math.max(...mapped);
   }
 
   private isOverlapping(datasets: ChartDataset[]) {

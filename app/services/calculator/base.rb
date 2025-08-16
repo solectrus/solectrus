@@ -22,6 +22,17 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
     build_method(key) { values.compact.presence&.sum }
   end
 
+  # Build arithmetic mean for values that represent averages (e.g., temperatures)
+  def build_method_avg_from_array(key, data)
+    values = data.pluck(key)
+
+    build_method("#{key}_array") { values }
+    build_method(key) do
+      arr = values.compact
+      arr.present? ? arr.sum.fdiv(arr.size) : nil
+    end
+  end
+
   # Inverter
 
   def inverter_power
@@ -167,6 +178,41 @@ class Calculator::Base # rubocop:disable Metrics/ClassLength
     return 0 if total_minus.zero?
 
     (heatpump_power * 100.0 / total_minus).round(1)
+  end
+
+  def heatpump_power_percent_heating
+    return unless heatpump_power && heatpump_heating_power
+    return 0 if heatpump_heating_power.zero?
+
+    heatpump_power * 100 / heatpump_heating_power
+  end
+
+  def heatpump_heating?
+    heatpump_heating_power&.positive?
+  end
+
+  def heatpump_power_env
+    return unless heatpump_heating_power && heatpump_power
+
+    heatpump_heating_power - heatpump_power
+  end
+
+  def heatpump_power_env_percent
+    return unless heatpump_heating_power&.positive? && heatpump_power
+
+    (heatpump_heating_power - heatpump_power) * 100 / heatpump_heating_power
+  end
+
+  def heatpump_heating_power_percent
+    return unless heatpump_power && heatpump_heating_power&.positive?
+
+    heatpump_power * 100 / heatpump_heating_power
+  end
+
+  def heatpump_cop
+    return unless heatpump_heating_power && heatpump_power&.nonzero?
+
+    heatpump_heating_power.fdiv(heatpump_power)
   end
 
   # Custom

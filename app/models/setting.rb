@@ -28,6 +28,7 @@ class Setting < RailsSettings::Base
 
   field :enable_multi_inverter, type: :boolean, default: true
   field :enable_custom_consumer, type: :boolean, default: true
+  field :enable_heatpump, type: :boolean, default: true
 
   def self.seed!
     Setting.setup_id = nil if Setting.setup_id.to_i.zero?

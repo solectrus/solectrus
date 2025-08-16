@@ -4,7 +4,7 @@
             style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
-              controller: 'tippy',
+              controller: tooltip ? 'tippy' : nil,
               tippy_placement_value: parent.tippy_placement,
               tippy_force_tap_to_close_value: false,
               tippy_touch_value: 'long',
@@ -18,7 +18,7 @@
             style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
-              controller: 'tippy',
+              controller: tooltip ? 'tippy' : nil,
               tippy_placement_value: parent.tippy_placement,
               tippy_force_tap_to_close_value: false,
               tippy_touch_value: 'long',
@@ -68,6 +68,13 @@
 
             - elsif sensor == :grid_import_power
               = Number::Component.new(value: calculator.paid.abs).to_eur(negative: true, klass: 'text-xl')
+
+            - elsif sensor == :heatpump_power_pv
+              - if Setting.opportunity_costs
+                = Number::Component.new(value: calculator.heatpump_costs_pv).to_eur(negative: true, klass: 'text-xl')
+
+            - elsif sensor == :heatpump_power_grid
+              = Number::Component.new(value: calculator.heatpump_costs_grid).to_eur(negative: true, klass: 'text-xl')
 
             - if multi_inverter? && ApplicationPolicy.multi_inverter?
               table.mt-3

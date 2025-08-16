@@ -125,6 +125,15 @@ class Number::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLen
     )
   end
 
+  def to_plain(max_precision: 1, precision: nil)
+    return unless value
+
+    styled_number(
+      formatted_number(value, max_precision:, precision:),
+      unit: nil,
+    )
+  end
+
   private
 
   def determine_watt_unit

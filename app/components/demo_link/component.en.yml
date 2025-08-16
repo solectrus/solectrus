@@ -11,6 +11,9 @@ en:
   insights:
     title: Insights
     description: Here, additional key figures and trends are presented, which relate to the selected sensor and time period. These include yield per kWp, average per day, comparison with the previous month and previous year.
+  heatpump:
+    title: Heatpump
+    description: SOLECTRUS can monitor and visualize the heat output, coefficient of performance, and outdoor temperature.
   sponsoring_only: Exclusively for sponsors
   demo: Demo
   about_sponsoring: How to become a sponsor?

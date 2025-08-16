@@ -47,6 +47,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
           battery_discharging_power
           battery_charging_power
           heatpump_power
+          heatpump_heating_power
         ]
     ).each { |name| build_method_from_array(name, data, :to_f) }
 
@@ -60,6 +61,13 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
       heatpump_power_grid
       battery_charging_power_grid
     ].each { |name| build_method_from_array(name, data) }
+
+    # Build average-type sensors (e.g., outdoor_temp) as arithmetic mean across sections
+    calculations
+      .select { it.meta_aggregation == :avg }
+      .each do |calculation|
+        build_method_avg_from_array(calculation.field, data)
+      end
 
     # Build methods for custom sensors
     SensorConfig.x.existing_custom_sensor_names.each do |sensor_name|
@@ -280,6 +288,30 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     100 - heatpump_power_grid_ratio
   end
 
+  def heatpump_power_grid_percent
+    unless heatpump_power_grid_ratio && heatpump_power &&
+             heatpump_heating_power&.positive?
+      return
+    end
+
+    heatpump_power_grid_ratio * (heatpump_power / heatpump_heating_power)
+  end
+
+  def heatpump_power_pv
+    return unless heatpump_power && heatpump_power_grid
+
+    heatpump_power - heatpump_power_grid
+  end
+
+  def heatpump_power_pv_percent
+    unless heatpump_power_pv_ratio && heatpump_power &&
+             heatpump_heating_power&.positive?
+      return
+    end
+
+    heatpump_power_pv_ratio * (heatpump_power / heatpump_heating_power)
+  end
+
   def heatpump_costs_grid
     return unless heatpump_power_grid_ratio
 
@@ -459,12 +491,8 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
     ).price_sections
   end
 
-  def sum_calculations
-    @sum_calculations ||= calculations.select { it.meta_aggregation == :sum }
-  end
-
   def sections
-    return if sum_calculations.blank?
+    return if calculations.blank?
 
     @sections ||=
       price_sections.map do |price_section|
@@ -473,7 +501,7 @@ class Calculator::Range < Calculator::Base # rubocop:disable Metrics/ClassLength
             Queries::InfluxSum.new(timeframe)
           else
             Queries::Sql.new(
-              sum_calculations,
+              calculations,
               from: price_section[:starts_at],
               to: price_section[:ends_at],
             )
