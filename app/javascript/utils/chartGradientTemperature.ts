@@ -54,29 +54,31 @@ export default class ChartGradientTemperature {
   // Apply temperature gradient styling for line charts
   applyToLineDataset(dataset: ChartDataset<'line'>): void {
     // Line charts: segment colors + vertical fill
-    const data = dataset.data as number[];
-    const segmentColors: string[] = [];
-
-    for (let i = 0; i < data.length - 1; i++) {
-      const currentTemp = data[i];
-      const nextTemp = data[i + 1];
-
-      if (currentTemp != null && nextTemp != null) {
-        const avgTemp = (currentTemp + nextTemp) / 2;
-        segmentColors.push(this.getColorForTemperature(avgTemp));
-      } else if (currentTemp != null) {
-        segmentColors.push(this.getColorForTemperature(currentTemp));
-      } else if (nextTemp != null) {
-        segmentColors.push(this.getColorForTemperature(nextTemp));
-      } else {
-        segmentColors.push('#000000');
-      }
-    }
-
     const lineDataset = dataset as LineDatasetWithSegment;
     lineDataset.segment = {
-      borderColor: (ctx: ScriptableLineSegmentContext) =>
-        segmentColors[ctx.p0DataIndex] || '#000000',
+      borderColor: (ctx: ScriptableLineSegmentContext) => {
+        // Dynamically calculate color based on current data
+        const data = dataset.data as number[];
+        const index = ctx.p0DataIndex;
+
+        if (index >= data.length - 1) {
+          return '#000000';
+        }
+
+        const currentTemp = data[index];
+        const nextTemp = data[index + 1];
+
+        if (currentTemp != null && nextTemp != null) {
+          const avgTemp = (currentTemp + nextTemp) / 2;
+          return this.getColorForTemperature(avgTemp);
+        } else if (currentTemp != null) {
+          return this.getColorForTemperature(currentTemp);
+        } else if (nextTemp != null) {
+          return this.getColorForTemperature(nextTemp);
+        } else {
+          return '#000000';
+        }
+      },
     };
 
     dataset.backgroundColor = (context: {
