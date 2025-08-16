@@ -78,15 +78,11 @@
                           turbo_frame: frame_id('chart', timeframe:),
                           turbo_action: 'replace',
                           turbo_prefetch: 'false',
-                          'stats-with-chart--component-target': 'current',
-                          sensor: 'heatpump_heating_power',
-                          value: calculator.heatpump_heating_power,
-                          time: calculator.time.to_i,
                           action: 'stats-with-chart--component#startLoop',
                           stats_with_chart__component_sensor_param: 'heatpump_heating_power',
                         } do
                 - method = timeframe.now? ? :to_watt : :to_watt_hour
-                div data= { 'stats-with-chart--component-target': sensor == :heatpump_heating_power ? 'current' : nil, sensor: sensor, value: calculator.heatpump_heating_power, time: calculator.time.to_i }
+                div data= { 'stats-with-chart--component-target': 'current', sensor: 'heatpump_heating_power', value: calculator.heatpump_heating_power, time: calculator.time.to_i }
                   = Number::Component.new(value: calculator.heatpump_heating_power).public_send method
 
       // Inner content

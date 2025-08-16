@@ -37,7 +37,7 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base
   end
 
   def dataset(name)
-    { data: chart[name]&.map(&:second) }.merge(style(name))
+    { id: name, data: chart[name]&.map(&:second) }.merge(style(name))
   end
 
   def chart

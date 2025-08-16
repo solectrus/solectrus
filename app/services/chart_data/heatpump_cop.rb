@@ -18,6 +18,7 @@ class ChartData::HeatpumpCop < ChartData::Base
       labels: combined_chart.map { |time, _| time.to_i * 1000 },
       datasets: [
         {
+          id: 'heatpump_cop',
           label: I18n.t('calculator.heatpump_cop'),
           data: combined_chart.map { |_, cop| cop },
         }.merge(style),
