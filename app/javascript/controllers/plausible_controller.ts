@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import Plausible from 'plausible-tracker';
+import { init, track } from '@plausible-analytics/tracker';
 
 export default class extends Controller {
   static readonly values = {
@@ -13,18 +13,20 @@ export default class extends Controller {
   declare domainValue: string;
   declare readonly hasDomainValue: boolean;
 
-  private plausible: ReturnType<typeof Plausible> | undefined;
+  private plausible: boolean = false;
 
   initialize() {
     if (this.hasUrlValue) {
-      this.plausible = Plausible({
+      init({
         domain: this.domainValue || window.location.host,
-        apiHost: this.urlValue,
+        endpoint: `${this.urlValue}/api/event`,
+        autoCapturePageviews: false,
       });
+      this.plausible = true;
     }
   }
 
   connect() {
-    if (this.plausible) this.plausible.trackPageview();
+    if (this.plausible) track('pageview', {});
   }
 }
