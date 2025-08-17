@@ -66,6 +66,7 @@ en:
     heatpump_power: Heat pump
     heatpump_power_env: Environmental heat
     heatpump_heating_power: Heat generated
+    heatpump_heating_power_short: Heat
     heatpump_tank_temp: Hot water
     heatpump_cop: COP
     outdoor_temp: Outdoor temperature

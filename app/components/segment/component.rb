@@ -55,8 +55,10 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     when 'house'
       house_home_path(sensor:, timeframe: parent.timeframe)
     when 'heatpump'
-      # Disable links
-      nil
+      heatpump_home_path(
+        sensor: 'heatpump_heating_power',
+        timeframe: parent.timeframe,
+      )
     else
       root_path(
         sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),

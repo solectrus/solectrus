@@ -66,6 +66,7 @@ de:
     heatpump_power: Wärmepumpe
     heatpump_power_env: Umgebungswärme
     heatpump_heating_power: Erzeugte Wärme
+    heatpump_heating_power_short: Wärme
     heatpump_tank_temp: Warmwasser
     heatpump_cop: Arbeitszahl
     outdoor_temp: Außentemperatur
