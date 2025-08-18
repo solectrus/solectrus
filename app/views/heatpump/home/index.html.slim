@@ -29,7 +29,9 @@
   - if SensorConfig.x.exists_any? :heatpump_heating_power
     = render StatsWithChart::Component.new(sensor:, timeframe:)
   - else
-    p.mb-10 Für diese Darstellung fehlen die erforderlichen Sensoren!
+    = render Message::Component.new do |c|
+      = c.with_title { t('layout.incomplete_heatpump') }
+      = c.with_body { raw t('layout.missing_heatpump') }
 
 - else
   = render DemoLink::Component.new feature: 'heatpump', url: { **permitted_params }
