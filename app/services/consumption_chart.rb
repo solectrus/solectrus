@@ -83,7 +83,7 @@ class ConsumptionChart < ChartBase
                      if r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"] > r[\"#{inverter_power_measurement}_#{inverter_power_field}\"] then
                        0.0
                       else
-                       (100.0 * (r[\"#{inverter_power_measurement}_#{inverter_power_field}\"] - r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"]) / r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"])
+                       (100.0 * (r[\"#{inverter_power_measurement}_#{inverter_power_field}\"] - r[\"#{grid_export_power_measurement}_#{grid_export_power_field}\"]) / r[\"#{inverter_power_measurement}_#{inverter_power_field}\"])
                  }
                ))"
     end
