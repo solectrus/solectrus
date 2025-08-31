@@ -16,18 +16,81 @@ Your project uses: RSpec with Playwright for system tests
 
 ### RSpec Best Practices
 
+Always use **named subjects** when testing methods or complex objects. Named subjects make tests more readable and maintainable:
+
 ```ruby
-RSpec.describe User, type: :model do
+describe User, type: :model do
+  # Use named subject for the main test object
+  subject(:user) { build(:user, first_name: 'John', last_name: 'Doe') }
+
   describe 'validations' do
     it { should validate_presence_of(:email) }
     it { should validate_uniqueness_of(:email).case_insensitive }
   end
 
   describe '#full_name' do
-    let(:user) { build(:user, first_name: 'John', last_name: 'Doe') }
+    subject(:full_name) { user.full_name }
 
-    it 'returns the combined first and last name' do
-      expect(user.full_name).to eq('John Doe')
+    it { is_expected.to eq('John Doe') }
+
+    context 'when first_name is blank' do
+      before { user.first_name = '' }
+
+      it { is_expected.to eq('Doe') }
+    end
+  end
+
+  describe '#active?' do
+    subject(:active) { user.active? }
+
+    context 'when user is confirmed' do
+      before { user.confirmed_at = 1.day.ago }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when user is not confirmed' do
+      before { user.confirmed_at = nil }
+
+      it { is_expected.to be false }
+    end
+  end
+end
+```
+
+### Service Object Tests
+
+Service objects should use named subjects with clear method testing:
+
+```ruby
+describe UserRegistrationService do
+  subject(:service) { described_class.new(params) }
+
+  let(:params) { { email: 'test@example.com', password: 'password123' } }
+
+  describe '#call' do
+    subject(:call) { service.call }
+
+    context 'with valid params' do
+      it { is_expected.to be_success }
+
+      it 'creates a user' do
+        expect { call }.to change(User, :count).by(1)
+      end
+
+      it 'returns the created user' do
+        expect(call.user.email).to eq('test@example.com')
+      end
+    end
+
+    context 'with invalid email' do
+      let(:params) { { email: '', password: 'password123' } }
+
+      it { is_expected.to be_failure }
+
+      it 'does not create a user' do
+        expect { call }.not_to change(User, :count)
+      end
     end
   end
 end
@@ -35,19 +98,54 @@ end
 
 ### Request Specs
 
+Use named subjects for requests to improve readability and enable better testing patterns:
+
 ```ruby
-RSpec.describe 'Users API', type: :request do
+describe 'Users API', type: :request do
   describe 'GET /api/v1/users' do
+    subject(:get_users) { get '/api/v1/users', headers: auth_headers }
+
     let!(:users) { create_list(:user, 3) }
 
-    before { get '/api/v1/users', headers: auth_headers }
+    context 'when authenticated' do
+      before { get_users }
 
-    it 'returns all users' do
-      expect(json_response.size).to eq(3)
+      it 'returns all users' do
+        expect(json_response.size).to eq(3)
+      end
+
+      it { expect(response).to have_http_status(:ok) }
     end
 
-    it 'returns status code 200' do
-      expect(response).to have_http_status(200)
+    context 'when not authenticated' do
+      let(:auth_headers) { {} }
+
+      before { get_users }
+
+      it { expect(response).to have_http_status(:unauthorized) }
+    end
+  end
+
+  describe 'POST /api/v1/users' do
+    subject(:create_user) { post '/api/v1/users', params: user_params, headers: auth_headers }
+
+    let(:user_params) { { user: { email: 'test@example.com', name: 'Test User' } } }
+
+    it 'creates a new user' do
+      expect { create_user }.to change(User, :count).by(1)
+    end
+
+    context 'with invalid params' do
+      let(:user_params) { { user: { email: '' } } }
+
+      it 'does not create a user' do
+        expect { create_user }.not_to change(User, :count)
+      end
+
+      it 'returns validation errors' do
+        create_user
+        expect(json_response['errors']).to be_present
+      end
     end
   end
 end
@@ -58,7 +156,7 @@ end
 System tests use Playwright via capybara-playwright-driver for enhanced browser automation:
 
 ```ruby
-RSpec.describe 'User Registration', type: :system do
+describe 'User Registration', type: :system do
   it 'allows a user to sign up' do
     visit new_user_registration_path
 
@@ -98,28 +196,104 @@ end
 
 ## Testing Patterns
 
-### Arrange-Act-Assert
+### Arrange-Act-Assert with Named Subjects
 
-1. **Arrange**: Set up test data and prerequisites
-2. **Act**: Execute the code being tested
-3. **Assert**: Verify the expected outcome
+Always structure tests using the AAA pattern combined with named subjects:
+
+```ruby
+describe PriceCalculator do
+  # Arrange - Set up test data
+  subject(:calculator) { described_class.new(base_price: 100) }
+
+  let(:discount) { 10 }
+  let(:tax_rate) { 0.19 }
+
+  describe '#calculate' do
+    # Act - Use named subject for the method call
+    subject(:final_price) { calculator.calculate(discount:, tax_rate:) }
+
+    # Assert - Test the outcome
+    it { is_expected.to eq(107.1) }
+
+    context 'with higher discount' do
+      let(:discount) { 50 }
+
+      it { is_expected.to eq(59.5) }
+    end
+  end
+end
+```
 
 ### Test Data
 
-- Use factories (FactoryBot) or fixtures
+- **Always use named subjects** for the main object under test
+- Use factories (FactoryBot) or `build`/`create` methods with named subjects
 - Create minimal data needed for each test
 - Avoid dependencies between tests
 - Clean up after tests
 
+```ruby
+# Good - Named subject with factory
+subject(:user) { create(:user, :confirmed) }
+
+# Good - Named subject with build
+subject(:order) { build(:order, user:, total: 100) }
+
+# Bad - Anonymous subject
+subject { create(:user) }
+```
+
 ### Edge Cases
 
-Always test:
+Always test edge cases using descriptive contexts and named subjects:
 
-- Nil/empty values
-- Boundary conditions
-- Invalid inputs
-- Error scenarios
-- Authorization failures
+```ruby
+describe EmailValidator do
+  subject(:validator) { described_class.new(email) }
+
+  describe '#valid?' do
+    subject(:valid) { validator.valid? }
+
+    context 'with nil email' do
+      let(:email) { nil }
+      it { is_expected.to be false }
+    end
+
+    context 'with empty email' do
+      let(:email) { '' }
+      it { is_expected.to be false }
+    end
+
+    context 'with invalid format' do
+      let(:email) { 'invalid-email' }
+      it { is_expected.to be false }
+    end
+
+    context 'with valid email' do
+      let(:email) { 'test@example.com' }
+      it { is_expected.to be true }
+    end
+  end
+end
+```
+
+### One-Liner vs Multi-Line Tests
+
+Use one-liners with `is_expected` for simple assertions:
+
+```ruby
+# Good - One-liner for simple expectations
+it { is_expected.to be_valid }
+it { is_expected.to eq('expected_value') }
+it { is_expected.to include('substring') }
+
+# Good - Multi-line for complex assertions or multiple expectations
+it 'processes the order correctly' do
+  expect(result).to be_success
+  expect(result.order).to be_persisted
+  expect(result.order.status).to eq('confirmed')
+end
+```
 
 ## Performance Considerations
 
@@ -190,4 +364,58 @@ Common test operations are available through the `SystemHelpers` module in `spec
 - `spec/support/system_helpers.rb` - Common helper methods
 - `spec/system/` - System test examples showing Playwright usage
 
-Remember: Good tests are documentation. They should clearly show what the code is supposed to do.
+## Key Testing Principles
+
+### Named Subjects Are Mandatory
+
+**Always use named subjects** - they improve readability, enable better refactoring, and make tests self-documenting:
+
+```ruby
+# Bad - Anonymous subject
+describe UserService do
+  subject { described_class.new(params) }
+end
+
+# Good - Named subject
+describe UserService do
+  subject(:service) { described_class.new(params) }
+end
+```
+
+### Subject Naming Conventions
+
+- **Objects**: Use descriptive nouns (`subject(:user)`, `subject(:calculator)`, `subject(:service)`)
+- **Method calls**: Use the method name (`subject(:full_name)`, `subject(:calculate)`, `subject(:valid?)`)
+- **Boolean methods**: Include the question mark (`subject(:active?)`, `subject(:valid?)`)
+
+### Test Structure Best Practices
+
+1. **Group related tests** using `describe` and `context`
+2. **Use consistent naming** for contexts (e.g., "when", "with", "without")
+3. **Prefer one-liners** for simple expectations with `is_expected`
+4. **Use descriptive test names** that explain the expected behavior
+5. **Follow the Single Responsibility Principle** - one expectation per test when possible
+
+```ruby
+describe User do
+  subject(:user) { build(:user, email:) }
+
+  describe '#email' do
+    subject(:email_value) { user.email }
+
+    context 'when email is valid' do
+      let(:email) { 'test@example.com' }
+
+      it { is_expected.to eq('test@example.com') }
+    end
+
+    context 'when email is invalid' do
+      let(:email) { 'invalid' }
+
+      it { is_expected.to be_nil }
+    end
+  end
+end
+```
+
+Remember: Good tests are documentation. They should clearly show what the code is supposed to do. Named subjects make this documentation more readable and maintainable.
