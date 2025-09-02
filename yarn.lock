@@ -584,10 +584,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@plausible-analytics/tracker@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@plausible-analytics/tracker@npm:0.4.0"
-  checksum: 10c0/a2fdc75814ca0bd15d45d2684eba3e766c4915b0ef537f4fe389004cdcc0c1be3a3f092d95d70097275bf792afb8d565ec73baec5bfc3532bd5d69ad3a2be0f7
+"@plausible-analytics/tracker@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@plausible-analytics/tracker@npm:0.4.1"
+  checksum: 10c0/441bcc4c0c762b389fff638d822a9870318690683c20b583e4b8ffd70f87c6a54b61cfc02361035c0681e96af82c418e194648c52e9a1ca9528a3db237d37847
   languageName: node
   linkType: hard
 
@@ -3158,7 +3158,7 @@ __metadata:
     "@honeybadger-io/js": "npm:^6.11.2"
     "@hotwired/stimulus": "npm:^3.2.2"
     "@hotwired/turbo-rails": "npm:^8.0.16"
-    "@plausible-analytics/tracker": "npm:^0.4.0"
+    "@plausible-analytics/tracker": "npm:^0.4.1"
     "@size-limit/file": "npm:^11.2.0"
     "@tailwindcss/forms": "npm:^0.5.10"
     "@tailwindcss/vite": "npm:^4.1.12"
