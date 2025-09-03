@@ -1,4 +1,4 @@
-class ChartData::HeatpumpHeatingPower < ChartData::Base
+class ChartData::HeatpumpHeatingPower < ChartData::Base # rubocop:disable Metrics/ClassLength
   private
 
   def data
@@ -68,58 +68,70 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base
   end
 
   # Single pass to build arrays for grid, pv, env, and heating
-  def build_series(raw) # rubocop:disable Metrics/AbcSize
+  def build_series(raw)
     heating_data = raw[:heatpump_heating_power] || []
     power_data = raw[:heatpump_power] || []
     grid_data = raw[:heatpump_power_grid] || []
 
     # Pre-allocate arrays for better performance
     size = heating_data.size
-    list_heating = Array.new(size)
-    list_power_grid = Array.new(size)
-    list_power_pv = Array.new(size)
-    list_power_total = Array.new(size)
-    list_env = Array.new(size)
+    result = {
+      heating: Array.new(size),
+      grid: Array.new(size),
+      pv: Array.new(size),
+      total: Array.new(size),
+      env: Array.new(size),
+    }
 
+    # Calculate values for each timestamp and populate result arrays
     heating_data.each_with_index do |(timestamp, heating), index|
-      if heating&.positive?
-        # Total power consumption of the heat pump
-        power = power_data.dig(index, 1)
-
-        # Power consumption from the grid (capped to heating output)
-        power_from_grid = grid_data.dig(index, 1).to_f.clamp(0, heating)
-
-        # Power consumption from PV (capped to remaining heating capacity)
-        power_from_pv =
-          (power - power_from_grid).clamp(0, heating - power_from_grid)
-
-        # Heat from environment is difference between heating output and electrical power
-        heat_from_env = [heating - power_from_grid - power_from_pv, 0].max
-
-        power_total = power_from_grid + power_from_pv
-      else
-        heating = 0
-        power_total = 0
-        power_from_grid = 0
-        power_from_pv = 0
-        heat_from_env = 0
-      end
-
-      list_heating[index] = [timestamp, heating.round]
-      list_power_grid[index] = [timestamp, power_from_grid.round]
-      list_power_pv[index] = [timestamp, power_from_pv.round]
-      list_power_total[index] = [timestamp, power_total.round]
-      list_env[index] = [timestamp, heat_from_env.round]
+      calculate_values_for_timestamp(
+        timestamp,
+        heating,
+        power_data,
+        grid_data,
+        index,
+      ).each { |key, value| result[key][index] = [timestamp, value] }
     end
 
+    result
+  end
+
+  # Calculate power distribution values for a single timestamp
+  def calculate_values_for_timestamp(
+    timestamp,
+    heating,
+    power_data,
+    grid_data,
+    index
+  )
+    # Future data points must not be displayed
+    return NIL_HASH if timestamp.future?
+
+    # No heating means all values must be zero
+    return ZERO_HASH unless heating&.positive?
+
+    # Calculate power distribution for active heating periods
+    power = power_data.dig(index, 1)
+    power_from_grid = grid_data.dig(index, 1).to_f.clamp(0, heating)
+    power_from_pv =
+      (power - power_from_grid).clamp(0, heating - power_from_grid)
+    heat_from_env = [heating - power_from_grid - power_from_pv, 0].max
+
     {
-      heating: list_heating,
-      grid: list_power_grid,
-      pv: list_power_pv,
-      total: list_power_total,
-      env: list_env,
+      heating: heating.round,
+      grid: power_from_grid.round,
+      pv: power_from_pv.round,
+      total: (power_from_grid + power_from_pv).round,
+      env: heat_from_env.round,
     }
   end
+
+  NIL_HASH = { heating: nil, grid: nil, pv: nil, total: nil, env: nil }.freeze
+  private_constant :NIL_HASH
+
+  ZERO_HASH = { heating: 0, grid: 0, pv: 0, total: 0, env: 0 }.freeze
+  private_constant :ZERO_HASH
 
   def sensors
     if timeframe.now?
