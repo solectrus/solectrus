@@ -108,13 +108,13 @@ class HeatmapTile::Component < ViewComponent::Base
     when :grid_import_power
       'bg-red-600 dark:bg-red-400'
     when :house_power
-      'bg-slate-500 dark:bg-slate-600'
+      'bg-slate-500 dark:bg-slate-400'
     when :heatpump_power
-      'bg-slate-600 dark:bg-slate-600'
+      'bg-slate-600 dark:bg-slate-400'
     when :wallbox_power
-      'bg-slate-700 dark:bg-slate-600'
+      'bg-slate-700 dark:bg-slate-400'
     when :battery_power
-      'bg-green-700 dark:bg-green-900'
+      'bg-green-700 dark:bg-green-400'
     when :heatpump_heating_power
       'bg-yellow-600 dark:bg-yellow-800'
     else
