@@ -86,7 +86,7 @@ GEM
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
     ast (2.4.3)
-    async (2.29.0)
+    async (2.29.1)
       console (~> 1.29)
       fiber-annotation
       io-event (~> 1.11)
@@ -135,7 +135,7 @@ GEM
     coderay (1.1.3)
     concurrent-ruby (1.3.5)
     connection_pool (2.5.4)
-    console (1.33.0)
+    console (1.34.0)
       fiber-annotation
       fiber-local (~> 1.1)
       json
@@ -248,7 +248,7 @@ GEM
     influxdb-client (3.2.0)
       csv
     io-console (0.8.1)
-    io-event (1.13.0)
+    io-event (1.14.0)
     irb (1.15.2)
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
