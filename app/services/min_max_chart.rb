@@ -58,6 +58,10 @@ class MinMaxChart < ChartBase
           min = result[[date, sensor.to_s, 'min']]
           max = result[[date, sensor.to_s, 'max']]
 
+          # Adjust min/max values if they are both 100
+          # to ensure there is a visible bar in the chart
+          min = 99.5 if min == 100 && max == 100
+
           [date.to_time, [min, max].compact.presence]
         end,
     }

@@ -211,5 +211,22 @@ describe MinMaxChart do
         expect(last_point).to eq([start + 1.year, [40, 80]])
       end
     end
+
+    context 'when both min and max are 100%' do
+      let(:start) { Time.zone.parse('2025-09-01') }
+      let(:timeframe) { Timeframe.new('2025-W36') }
+
+      before do
+        # Battery is fully charged (100%) all day
+        create_summary(
+          date: start,
+          values: [[:battery_soc, :min, 100], [:battery_soc, :max, 100]],
+        )
+      end
+
+      it 'adjusts min value to make bar visible' do
+        expect(result[:battery_soc].first).to eq([start, [99.5, 100]])
+      end
+    end
   end
 end
