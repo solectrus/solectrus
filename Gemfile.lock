@@ -289,7 +289,7 @@ GEM
     marcel (1.0.4)
     matrix (0.4.3)
     method_source (1.1.0)
-    metrics (0.14.0)
+    metrics (0.15.0)
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
