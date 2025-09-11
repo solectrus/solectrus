@@ -40,7 +40,13 @@ class ChartData::HeatpumpCop < ChartData::Base
       if power.nil? || power.zero?
         'rgba(3, 105, 161, 0.3)'
       else
-        normalized = (power - min_power) / power_range
+        # Normalize power to a range of [0, 1]
+        #
+        # Important: `PowerRanking` excludes incomplete periods for min calculations,
+        # but PowerChart includes them. This can cause `power < all_time_min_power`.
+        # Clamp to prevent negative opacity values.
+        normalized = (power - min_power).fdiv(power_range).clamp(0, 1)
+
         opacity = (normalized * 0.7) + 0.3
         "rgba(3, 105, 161, #{opacity.round(2)})"
       end
