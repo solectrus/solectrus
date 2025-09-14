@@ -7,7 +7,7 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource-variable/inter": "^5.2.6",
+    "@fontsource-variable/inter": "^5.2.7",
     "@fortawesome/fontawesome-svg-core": "^7.0.1",
     "@fortawesome/free-brands-svg-icons": "^7.0.1",
     "@fortawesome/free-regular-svg-icons": "^7.0.1",
