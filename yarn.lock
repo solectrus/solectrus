@@ -301,10 +301,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fontsource-variable/inter@npm:^5.2.7":
-  version: 5.2.7
-  resolution: "@fontsource-variable/inter@npm:5.2.7"
-  checksum: 10c0/fb4c9ef95abafa6ea35ee11b69057964e21613dfad0ccad54bf9ae696c510cd456c5be2c0cd5408adb2256be1418edc435cb3b873a5b57ca4f4045d89e48fca5
+"@fontsource-variable/inter@npm:^5.2.8":
+  version: 5.2.8
+  resolution: "@fontsource-variable/inter@npm:5.2.8"
+  checksum: 10c0/35b46df31c8c18f55f87228acf6297e4dac6cc9f38d0faaafdaf5a40e40c386cf1bfb115fb0fe0dcdb9b7e14f582843693ccf070d9c903072a5b2fc0f8dfde56
   languageName: node
   linkType: hard
 
@@ -3143,7 +3143,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "solectrus@workspace:."
   dependencies:
-    "@fontsource-variable/inter": "npm:^5.2.7"
+    "@fontsource-variable/inter": "npm:^5.2.8"
     "@fortawesome/fontawesome-svg-core": "npm:^7.0.1"
     "@fortawesome/free-brands-svg-icons": "npm:^7.0.1"
     "@fortawesome/free-regular-svg-icons": "npm:^7.0.1"
