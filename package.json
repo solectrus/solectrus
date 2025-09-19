@@ -7,12 +7,12 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource-variable/inter": "^5.2.7",
+    "@fontsource-variable/inter": "^5.2.8",
     "@fortawesome/fontawesome-svg-core": "^7.0.1",
     "@fortawesome/free-brands-svg-icons": "^7.0.1",
     "@fortawesome/free-regular-svg-icons": "^7.0.1",
     "@fortawesome/free-solid-svg-icons": "^7.0.1",
-    "@honeybadger-io/js": "^6.12.1",
+    "@honeybadger-io/js": "^6.12.2",
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.16",
     "@plausible-analytics/tracker": "^0.4.3",
@@ -45,7 +45,7 @@
     "tailwindcss-displaymodes": "^1.0.8",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.0",
-    "vite": "^7.1.5",
+    "vite": "^7.1.6",
     "vite-plugin-rails": "^0.5.0"
   },
   "size-limit": [
@@ -58,5 +58,5 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "yarn@4.9.4"
+  "packageManager": "yarn@4.10.2"
 }
