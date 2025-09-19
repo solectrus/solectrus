@@ -3181,6 +3181,13 @@ __metadata:
     typescript-eslint: "npm:^8.44.0"
     vite: "npm:^7.1.6"
     vite-plugin-rails: "npm:^0.5.0"
+  dependenciesMeta:
+    "@tailwindcss/oxide":
+      built: true
+    esbuild:
+      built: true
+    vite:
+      built: true
   languageName: unknown
   linkType: soft
 
