@@ -51,6 +51,7 @@ Rails.application.configure do
         *[
           :self,
           Rails.configuration.x.plausible_url.presence,
+          Rails.configuration.asset_host.presence,
           (
             if Rails.configuration.x.honeybadger.api_key
               'https://api.honeybadger.io'
