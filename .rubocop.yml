@@ -219,6 +219,9 @@ Style/Lambda:
 Style/EmptyMethod:
   Enabled: false
 
+Style/ItBlockParameter:
+  Enabled: false
+
 # Lint
 
 Lint/ConstantResolution:
