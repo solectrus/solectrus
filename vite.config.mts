@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => ({
           'config/routes.rb',
           'app/views/**/*',
           'app/components/**/*',
+          'app/**/*.rb',
           'config/locales/**/*.yml',
         ],
       },

@@ -84,7 +84,7 @@ describe ChartData::InverterPower do
 
     it 'creates dataset for total only' do
       datasets = to_h[:datasets]
-      dataset_ids = datasets.map { |d| d[:id] }
+      dataset_ids = datasets.map { |d| d[:id] } # rubocop:disable Rails/Pluck
 
       expect(dataset_ids).to eq([:inverter_power])
     end
@@ -149,7 +149,7 @@ describe ChartData::InverterPower do
 
     it 'creates datasets for individual inverters and difference' do
       datasets = to_h[:datasets]
-      dataset_ids = datasets.map { |d| d[:id] }
+      dataset_ids = datasets.map { |d| d[:id] } # rubocop:disable Rails/Pluck
 
       expect(dataset_ids).to include(
         :inverter_power_1,

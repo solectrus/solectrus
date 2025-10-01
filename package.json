@@ -7,46 +7,57 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
-    "@fontsource-variable/inter": "^5.2.6",
-    "@fortawesome/fontawesome-svg-core": "^7.0.0",
-    "@fortawesome/free-brands-svg-icons": "^7.0.0",
-    "@fortawesome/free-regular-svg-icons": "^7.0.0",
-    "@fortawesome/free-solid-svg-icons": "^7.0.0",
-    "@honeybadger-io/js": "^6.11.1",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fortawesome/fontawesome-svg-core": "^7.0.1",
+    "@fortawesome/free-brands-svg-icons": "^7.0.1",
+    "@fortawesome/free-regular-svg-icons": "^7.0.1",
+    "@fortawesome/free-solid-svg-icons": "^7.0.1",
+    "@honeybadger-io/js": "^6.12.2",
     "@hotwired/stimulus": "^3.2.2",
-    "@hotwired/turbo-rails": "^8.0.16",
+    "@hotwired/turbo-rails": "^8.0.18",
+    "@plausible-analytics/tracker": "^0.4.3",
     "chart.js": "^4.5.0",
     "chartjs-adapter-luxon": "^1.3.1",
     "chartjs-plugin-crosshair": "^2.0.0",
     "chartjs-plugin-zoom": "^2.2.0",
     "el-transition": "^0.0.7",
-    "luxon": "^3.7.1",
-    "plausible-tracker": "^0.3.9",
+    "luxon": "^3.7.2",
     "throttle-debounce": "^5.0.2",
     "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@size-limit/file": "^11.2.0",
     "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/vite": "^4.1.11",
+    "@tailwindcss/vite": "^4.1.13",
     "@types/luxon": "^3.7.1",
     "@types/sinon": "^17.0.4",
     "@types/throttle-debounce": "^5.0.2",
-    "eslint": "^9.32.0",
+    "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.3",
-    "playwright": "^1.54.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "playwright": "^1.55.1",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "rollup": "^4.46.2",
+    "rollup": "^4.52.3",
     "sinon": "^21.0.0",
     "size-limit": "^11.2.0",
-    "tailwindcss": "^4.1.11",
+    "tailwindcss": "^4.1.13",
     "tailwindcss-displaymodes": "^1.0.8",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.38.0",
-    "vite": "^7.0.6",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.45.0",
+    "vite": "^7.1.7",
     "vite-plugin-rails": "^0.5.0"
+  },
+  "dependenciesMeta": {
+    "@tailwindcss/oxide": {
+      "built": true
+    },
+    "esbuild": {
+      "built": true
+    },
+    "vite": {
+      "built": true
+    }
   },
   "size-limit": [
     {
@@ -58,5 +69,5 @@
   "engines": {
     "node": ">=22"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.10.3"
 }
