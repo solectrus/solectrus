@@ -5,4 +5,9 @@ class ConsumptionDetails::Component < ViewComponent::Base
   end
 
   attr_accessor :calculator
+
+  def number_method
+    @number_method ||=
+      calculator.is_a?(Calculator::Now) ? :to_watt : :to_watt_hour
+  end
 end
