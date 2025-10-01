@@ -11,7 +11,7 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base # rubocop:disable Metric
           dataset(:heatpump_power_env).merge(fill: '-1'),
         ],
       }
-    when :day
+    when :day, :hours
       {
         labels: labels_for(:heatpump_power_env),
         datasets: [
@@ -50,7 +50,7 @@ class ChartData::HeatpumpHeatingPower < ChartData::Base # rubocop:disable Metric
         when :now
           # No Power-Splitter available for NOW, so we use total power
           { heatpump_power_env: series[:env], heatpump_power: series[:total] }
-        when :day
+        when :day, :hours
           {
             heatpump_power_env: series[:env],
             heatpump_power_pv: series[:pv],
