@@ -6,6 +6,8 @@ describe SensorConfig do
       {
         'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
         'INFLUX_SENSOR_INVERTER_POWER_FORECAST' => 'forecast:watt',
+        'INFLUX_SENSOR_INVERTER_POWER_FORECAST_CLEARSKY' =>
+          'forecast:watt_clearsky',
         'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
         'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
         'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'pv:grid_import_power',
@@ -139,6 +141,8 @@ describe SensorConfig do
       {
         'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
         'INFLUX_SENSOR_INVERTER_POWER_FORECAST' => 'forecast:watt',
+        'INFLUX_SENSOR_INVERTER_POWER_FORECAST_CLEARSKY' =>
+          'forecast:watt_clearsky',
         'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
         'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
         'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'pv:grid_import_power',
@@ -167,6 +171,8 @@ describe SensorConfig do
       {
         'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
         'INFLUX_SENSOR_INVERTER_POWER_FORECAST' => 'forecast:watt',
+        'INFLUX_SENSOR_INVERTER_POWER_FORECAST_CLEARSKY' =>
+          'forecast:watt_clearsky',
         'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
         'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'pv:grid_import_power',
         'INFLUX_SENSOR_GRID_EXPORT_POWER' => 'pv:grid_export_power',

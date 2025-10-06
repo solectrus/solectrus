@@ -66,6 +66,7 @@ class SensorConfig # rubocop:disable Metrics/ClassLength
 
   OTHER_SENSORS = %i[
     inverter_power_forecast
+    inverter_power_forecast_clearsky
     grid_export_limit
     battery_soc
     car_battery_soc
