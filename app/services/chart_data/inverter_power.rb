@@ -1,4 +1,4 @@
-class ChartData::InverterPower < ChartData::Base
+class ChartData::InverterPower < ChartData::Base # rubocop:disable Metrics/ClassLength
   def initialize(timeframe:, sensor: nil, variant: nil)
     super(timeframe:)
     @sensor = sensor || :inverter_power
@@ -25,7 +25,14 @@ class ChartData::InverterPower < ChartData::Base
   end
 
   def data_with_forecast
-    { labels:, datasets: [dataset(sensor), dataset(:inverter_power_forecast)] }
+    {
+      labels:,
+      datasets: [
+        dataset(sensor),
+        dataset(:inverter_power_forecast),
+        dataset(:inverter_power_forecast_clearsky),
+      ],
+    }
   end
 
   def data_stacked
@@ -79,11 +86,16 @@ class ChartData::InverterPower < ChartData::Base
         [sensor]
       end
 
-    timeframe.day? ? base + [:inverter_power_forecast] : base
+    if timeframe.day?
+      base + %i[inverter_power_forecast inverter_power_forecast_clearsky]
+    else
+      base
+    end
   end
 
   BACKGROUND_COLORS = {
     inverter_power_forecast: '#cbd5e1', # bg-slate-300
+    inverter_power_forecast_clearsky: '#9ca3af',
     inverter_power: '#16a34a', # bg-green-600
     inverter_power_1: '#11622f', # +10%
     inverter_power_2: '#147638', # +10%
@@ -99,6 +111,11 @@ class ChartData::InverterPower < ChartData::Base
     addon =
       if sensor_name == :inverter_power_forecast
         nil
+      elsif sensor_name == :inverter_power_forecast_clearsky
+        {
+          borderDash: [2, 3], # Dotted line pattern
+          fill: false,
+        }
       elsif stackable?
         { stack: 'InverterPower' }
       end
