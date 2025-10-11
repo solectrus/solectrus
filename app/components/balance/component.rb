@@ -1,13 +1,13 @@
 class Balance::Component < ViewComponent::Base
   renders_one :center
 
-  def initialize(calculator:, timeframe:, sensor:, peak: nil)
+  def initialize(data:, timeframe:, sensor:, peak: nil)
     super()
-    @calculator = calculator
+    @data = data
     @timeframe = timeframe
     @peak = peak
     @sensor = sensor
   end
 
-  attr_reader :calculator, :timeframe, :sensor, :peak
+  attr_reader :data, :timeframe, :sensor, :peak
 end

@@ -10,7 +10,7 @@ describe 'Home page' do
     battery_power
     grid_power
     autarky
-    self_consumption
+    self_consumption_quote
     house_power
     heatpump_power
     wallbox_power
@@ -18,6 +18,9 @@ describe 'Home page' do
     battery_soc
     car_battery_soc
     co2_reduction
+    grid_costs
+    savings
+    grid_revenue
   ].each do |path|
     it "#{path} is clickable" do # rubocop:disable RSpec/NoExpectationExample
       visit "/#{path}"
@@ -55,33 +58,18 @@ describe 'Home page' do
     expect(page.title).to include('Dienstag, 21. Juni 2022')
     expect(page).to have_content('Dienstag, 21. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
-    expect(page).to have_css('#chart-day')
 
-    if path == 'inverter_power'
-      expect(page).to have_css('#segment-inverter_power')
-      within('#segment-inverter_power') do
-        expect(page).to have_content(/\d+,\d+\s*kWh/) # Flexible energy value
-      end
-      expect(page).to have_css('#balance-chart-2022-06-21')
-      within('#balance-chart-2022-06-21') do
-        expect(page).to have_content('Erwartet werden')
-        expect(page).to have_content(/\d+/) # Any number for forecast
-        expect(page).to have_content('kWh')
-      end
-    end
-
-    check_insights(path)
+    expect_chart_or_blank(path, '#chart-day')
+    check_inverter_power_specifics(path)
+    check_insights(path) unless finance_sensor?(path)
 
     click_prev_and_expect('Montag, 20. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
-    expect(page).to have_css('#balance-chart-2022-06-20')
-    within('#balance-chart-2022-06-20') do
-      expect(page).to have_content('Keine Daten vorhanden')
-    end
+    expect_chart_or_blank(path, '#balance-chart-2022-06-20', 'Keine Daten vorhanden')
 
     click_next_and_expect('Dienstag, 21. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
-    expect(page).to have_css('#chart-day')
+    expect_chart_or_blank(path, '#chart-day')
   end
 
   def navigate_24_hours(path)
@@ -91,7 +79,8 @@ describe 'Home page' do
     expect(page.title).to include('Letzte 24 Stunden')
     expect(page).to have_content('Letzte 24 Stunden')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
-    expect(page).to have_css('#chart-hours')
+
+    expect_chart_or_blank(path, '#chart-hours')
 
     return unless path == 'inverter_power'
 
@@ -210,7 +199,7 @@ describe 'Home page' do
   def check_insights(path)
     if path.in? %w[
                   autarky
-                  self_consumption
+                  self_consumption_quote
                   case_temp
                   battery_soc
                   car_battery_soc
@@ -224,5 +213,35 @@ describe 'Home page' do
 
     click_on('Schließen')
     expect(page).to have_no_css('#modal-title')
+  end
+
+  def finance_sensor?(path)
+    path.in?(%w[grid_costs savings grid_revenue])
+  end
+
+  def expect_chart_or_blank(path, chart_id, blank_message = nil)
+    if finance_sensor?(path)
+      expect(page).to have_content('Diagramm nur für längere Zeiträume verfügbar!')
+    elsif blank_message
+      expect(page).to have_css(chart_id)
+      within(chart_id) { expect(page).to have_content(blank_message) }
+    else
+      expect(page).to have_css(chart_id)
+    end
+  end
+
+  def check_inverter_power_specifics(path)
+    return unless path == 'inverter_power'
+
+    expect(page).to have_css('#segment-inverter_power')
+    within('#segment-inverter_power') do
+      expect(page).to have_content(/\d+,\d+\s*kWh/)
+    end
+    expect(page).to have_css('#balance-chart-2022-06-21')
+    within('#balance-chart-2022-06-21') do
+      expect(page).to have_content('Erwartet werden')
+      expect(page).to have_content(/\d+/)
+      expect(page).to have_content('kWh')
+    end
   end
 end

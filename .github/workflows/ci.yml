@@ -103,7 +103,7 @@ jobs:
         run: bundle exec slim-lint .
 
       - name: Setup PostgreSQL
-        run: bin/rails db:create
+        run: bin/rails db:create db:migrate
 
       - name: Run Unit and System tests with RSpec
         run: bin/rspec

@@ -1,32 +1,35 @@
 dl
   .grid.grid-cols-2.gap-2
     dt
-      = I18n.t('sensors.inverter_power')
+      = Sensor::Registry[:inverter_power].display_name(:short)
     dd.font-mono.text-right
-      = Number::Component.new(value: calculator.inverter_power).public_send(number_method, max_precision: 3, unit: :kilo)
+      = render SensorValue::Component.new(data, :inverter_power, **consistent_options)
 
     dt.whitespace-nowrap
       |&minus;&nbsp;
-      = I18n.t('sensors.grid_export_power')
+      = Sensor::Registry[:grid_export_power].display_name(:short)
     dd.font-mono.text-right
-      = Number::Component.new(value: calculator.grid_export_power).public_send(number_method, max_precision: 3, unit: :kilo)
+      = render SensorValue::Component.new(data, :grid_export_power, **consistent_options)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&#61;&nbsp;
-      = I18n.t('calculator.self_consumption')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.self_consumption).public_send(number_method, max_precision: 3, unit: :kilo)
+      = Sensor::Registry[:self_consumption].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :self_consumption, **consistent_options)
 
   .mt-2.grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&divide;&nbsp;
-      = I18n.t('sensors.inverter_power')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.inverter_power).public_send(number_method, max_precision: 3, unit: :kilo)
+      = Sensor::Registry[:inverter_power].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :inverter_power, **consistent_options)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&#61;&nbsp;
-      = I18n.t('calculator.self_consumption_quote')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.self_consumption_quote).to_percent(max_precision: 1)
+      = Sensor::Registry[:self_consumption_quote].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :self_consumption_quote)

@@ -1,12 +1,12 @@
 describe SensorIcon::Component, type: :component do
-  subject(:component) { described_class.new(sensor, context:, **options) }
+  subject(:component) { described_class.new(sensor, data:, **options) }
 
-  let(:context) { nil }
+  let(:data) { nil }
   let(:options) { {} }
 
   describe 'basic sensor icons' do
     context 'when sensor is :inverter_power' do
-      let(:sensor) { :inverter_power }
+      let(:sensor) { Sensor::Registry[:inverter_power] }
 
       it 'renders the correct icon class' do
         expect(component.call).to include('fa-sun')
@@ -14,7 +14,7 @@ describe SensorIcon::Component, type: :component do
     end
 
     context 'when sensor is :house_power' do
-      let(:sensor) { :house_power }
+      let(:sensor) { Sensor::Registry[:house_power] }
 
       it 'renders the correct icon class' do
         expect(component.call).to include('fa-home')
@@ -22,7 +22,7 @@ describe SensorIcon::Component, type: :component do
     end
 
     context 'when sensor is :grid_import_power' do
-      let(:sensor) { :grid_import_power }
+      let(:sensor) { Sensor::Registry[:grid_import_power] }
 
       it 'renders the correct icon class' do
         expect(component.call).to include('fa-bolt')
@@ -30,7 +30,7 @@ describe SensorIcon::Component, type: :component do
     end
 
     context 'when sensor is :wallbox_power' do
-      let(:sensor) { :wallbox_power }
+      let(:sensor) { Sensor::Registry[:wallbox_power] }
 
       it 'renders the correct icon class' do
         expect(component.call).to include('fa-car')
@@ -38,7 +38,7 @@ describe SensorIcon::Component, type: :component do
     end
 
     context 'when sensor is :savings' do
-      let(:sensor) { :savings }
+      let(:sensor) { Sensor::Registry[:savings] }
 
       it 'renders the correct icon class' do
         expect(component.call).to include('fa-piggy-bank')
@@ -46,9 +46,9 @@ describe SensorIcon::Component, type: :component do
     end
   end
 
-  describe 'battery sensor icons with context' do
-    let(:sensor) { :battery_soc }
-    let(:context) { double('context', battery_soc:) }
+  describe 'battery sensor icons with data' do
+    let(:sensor) { Sensor::Registry[:battery_soc] }
+    let(:data) { double('data', battery_soc:) }
 
     context 'when battery SOC is 5%' do
       let(:battery_soc) { 5 }
@@ -90,8 +90,8 @@ describe SensorIcon::Component, type: :component do
       end
     end
 
-    context 'when no context is provided' do
-      let(:context) { nil }
+    context 'when no data is provided' do
+      let(:data) { nil }
 
       it 'renders default battery icon' do
         expect(component.call).to include('fa-battery-half')
@@ -100,7 +100,7 @@ describe SensorIcon::Component, type: :component do
   end
 
   describe 'additional options' do
-    let(:sensor) { :inverter_power }
+    let(:sensor) { Sensor::Registry[:inverter_power] }
     let(:options) { { class: 'additional-class', style: 'font-size: 200%;' } }
 
     it 'applies additional classes and styles' do

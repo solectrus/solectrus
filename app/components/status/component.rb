@@ -27,9 +27,9 @@ class Status::Component < ViewComponent::Base
     return if live?
 
     if time
-      "#{t('calculator.time')} #{time_ago_in_words(time, include_seconds: true)}"
+      "#{t('data.time')} #{time_ago_in_words(time, include_seconds: true)}"
     else
-      t('calculator.blank')
+      t('data.blank')
     end
   end
 

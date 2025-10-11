@@ -8,16 +8,17 @@ class House::ChartsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to house_home_path(sensor:, timeframe:)
+      redirect_to house_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
 
   helper_method def chart_sensors
     [
       :house_power,
-      *SensorConfig.x.included_custom_sensor_names.sort_by do |sensor_name|
-        SensorConfig.x.display_name(sensor_name).downcase
-      end,
+      *Sensor::Config
+        .house_power_included_custom_sensors
+        .sort_by { |sensor| sensor.display_name.downcase }
+        .map(&:name),
       :house_power_without_custom,
     ]
   end

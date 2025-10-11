@@ -1,204 +1,100 @@
-describe 'SummarizerJob' do
-  subject(:job) { SummarizerJob.new }
-
-  before do
-    allow(Queries::InfluxSum).to receive(:new).and_return(
-      double(
-        Queries::InfluxSum,
-        grid_import_power: 100,
-        #
-        inverter_power_1: 210,
-        inverter_power_2: 40,
-        inverter_power_forecast: 30,
-        house_power: 200,
-        heatpump_power: 50,
-        grid_export_power: 50,
-        battery_charging_power: 10,
-        battery_discharging_power: 20,
-        wallbox_power: 30,
-        custom_power_01: 10,
-        custom_power_02: 20,
-        custom_power_03: nil,
-        custom_power_04: nil,
-        custom_power_05: nil,
-        custom_power_06: 30,
-        custom_power_07: nil,
-        custom_power_08: 40,
-        custom_power_09: 50,
-        custom_power_10: nil,
-        custom_power_11: nil,
-        custom_power_12: nil,
-        custom_power_13: nil,
-        custom_power_14: nil,
-        custom_power_15: nil,
-        custom_power_16: nil,
-        custom_power_17: nil,
-        custom_power_18: nil,
-        custom_power_19: nil,
-        custom_power_20: 60,
-        #
-        house_power_grid: 100,
-        wallbox_power_grid: 20,
-        heatpump_power_grid: 30,
-        battery_charging_power_grid: 10,
-        custom_power_01_grid: 10,
-        custom_power_02_grid: 20,
-        custom_power_03_grid: nil,
-        custom_power_04_grid: nil,
-        custom_power_05_grid: nil,
-        custom_power_06_grid: 30,
-        custom_power_07_grid: nil,
-        custom_power_08_grid: 40,
-        custom_power_09_grid: 50,
-        custom_power_10_grid: nil,
-        custom_power_11_grid: nil,
-        custom_power_12_grid: nil,
-        custom_power_13_grid: nil,
-        custom_power_14_grid: nil,
-        custom_power_15_grid: nil,
-        custom_power_16_grid: nil,
-        custom_power_17_grid: nil,
-        custom_power_18_grid: nil,
-        custom_power_19_grid: nil,
-        custom_power_20_grid: 80,
-        #
-        heatpump_heating_power: 200,
-      ),
-    )
-
-    allow(Queries::InfluxAggregation).to receive(:new).and_return(
-      double(
-        Queries::InfluxAggregation,
-        max_battery_charging_power: 10,
-        max_battery_discharging_power: 20,
-        max_battery_soc: 30,
-        max_car_battery_soc: 40,
-        max_case_temp: 50,
-        max_grid_export_power: 60,
-        max_grid_import_power: 70,
-        max_heatpump_power: 80,
-        max_house_power: 90,
-        max_inverter_power_1: 100,
-        max_inverter_power_2: 50,
-        max_wallbox_power: 110,
-        max_outdoor_temp: 40,
-        max_heatpump_tank_temp: 60,
-        #
-        min_battery_soc: 30,
-        min_car_battery_soc: 40,
-        min_case_temp: 50,
-        min_outdoor_temp: 20,
-        min_heatpump_tank_temp: 33,
-        #
-        mean_battery_soc: 30,
-        mean_car_battery_soc: 40,
-        mean_case_temp: 50,
-        mean_outdoor_temp: 30,
-        mean_heatpump_tank_temp: 40,
-        #
-      ),
-    )
-  end
+describe SummarizerJob do
+  subject(:job) { described_class.new }
 
   describe '#perform' do
     subject(:perform) { job.perform(date) }
 
-    context 'when no summary exists for the given date' do
-      let(:date) { Date.current }
+    let(:date) { Date.current }
+    let(:summarizer) { instance_double(Sensor::Summarizer) }
 
-      let(:summary) { Summary.last }
+    before do
+      allow(Sensor::Summarizer).to receive(:new).with(date).and_return(
+        summarizer,
+      )
+      allow(summarizer).to receive(:call)
+    end
 
-      it 'creates Summary' do
-        expect { perform }.to change(Summary, :count).by(1)
+    it 'creates and calls Sensor::Summarizer with the given date' do
+      perform
+
+      expect(Sensor::Summarizer).to have_received(:new).with(date)
+      expect(summarizer).to have_received(:call)
+    end
+  end
+
+  describe '.perform_for_timeframe' do
+    let(:timeframe) { Timeframe.new('2023-01-02') }
+    let(:dates) { [Date.parse('2023-01-01'), Date.parse('2023-01-02')] }
+
+    before do
+      allow(Summary).to receive(:missing_or_stale_days).and_return(dates)
+      allow(described_class).to receive(:perform_now)
+      allow(described_class).to receive(:perform_later)
+    end
+
+    context 'with valid parameters' do
+      it 'calls Summary.missing_or_stale_days with correct parameters' do
+        described_class.perform_for_timeframe(timeframe)
+
+        expect(Summary).to have_received(:missing_or_stale_days).with(
+          from: timeframe.effective_beginning_date,
+          to: timeframe.effective_ending_date,
+        )
       end
 
-      it 'creates SummaryValues' do
-        expect { perform }.to change(SummaryValue, :count).by(51)
+      it 'calls perform_now for each date by default' do
+        described_class.perform_for_timeframe(timeframe)
+
+        expect(described_class).to have_received(:perform_now).with(dates.first)
+        expect(described_class).to have_received(:perform_now).with(
+          dates.second,
+        )
       end
 
-      it 'corrects values when needed' do
-        perform
+      it 'calls perform_now when explicitly specified' do
+        described_class.perform_for_timeframe(timeframe, :perform_now)
 
-        # Corrected
-        expect(value_for(:house_power_grid)).to eq(62.5) # instead of 100
-        expect(value_for(:wallbox_power_grid)).to eq(12.5) # instead of 20
-        expect(value_for(:heatpump_power_grid)).to eq(18.8) # instead of 30
-        expect(value_for(:battery_charging_power_grid)).to eq(6.3) # instead of 10
-        expect(value_for(:custom_power_20_grid)).to eq(60) # instead of 80
-
-        # Not changed
-        expect(value_for(:custom_power_01_grid)).to eq(10)
-        expect(value_for(:custom_power_02_grid)).to eq(20)
-        expect(value_for(:custom_power_06_grid)).to eq(30)
-        expect(value_for(:custom_power_08_grid)).to eq(40)
-        expect(value_for(:custom_power_09_grid)).to eq(50)
-
-        expect(value_for(:inverter_power_1)).to eq(210)
-        expect(value_for(:inverter_power_2)).to eq(40)
-        expect(value_for(:inverter_power_forecast)).to eq(30)
-        expect(value_for(:house_power)).to eq(200)
-        expect(value_for(:grid_import_power)).to eq(100)
-        expect(value_for(:grid_export_power)).to eq(50)
+        expect(described_class).to have_received(:perform_now).with(dates.first)
+        expect(described_class).to have_received(:perform_now).with(
+          dates.second,
+        )
       end
 
-      it 'set revenue and costs from Prices' do
-        Price.create!(name: :electricity, starts_at: 1.year.ago, value: 0.25)
-        Price.create!(name: :feed_in, starts_at: 1.year.ago, value: 0.08)
+      it 'calls perform_later when specified' do
+        described_class.perform_for_timeframe(timeframe, :perform_later)
 
-        perform
-
-        expect(SummaryValue.count).to eq(53)
-
-        expect(value_for(:grid_costs)).to eq(0.025) # 100 * 0.08 / 1000
-        expect(value_for(:grid_revenue)).to eq(0.004) # 50 * 0.08 / 1000
+        expect(described_class).to have_received(:perform_later).with(
+          dates.first,
+        )
+        expect(described_class).to have_received(:perform_later).with(
+          dates.second,
+        )
       end
 
-      private
-
-      def value_for(field, aggregation: 'sum')
-        summary.values.find_by(field:, aggregation:).value
+      it 'returns count of processed dates' do
+        expect(described_class.perform_for_timeframe(timeframe)).to eq(2)
       end
     end
 
-    context 'when fresh summary from today exists' do
-      let(:date) { Date.current }
-
-      let!(:summary) { Summary.create!(date:, updated_at: 1.minute.ago) }
-
-      it 'does not create Summary' do
-        expect { perform }.not_to change(Summary, :count)
+    context 'with invalid parameters' do
+      it 'raises ArgumentError when timeframe is not a Timeframe' do
+        expect do
+          described_class.perform_for_timeframe('invalid')
+        end.to raise_error(ArgumentError)
       end
 
-      it 'updates Summary' do
-        expect { perform }.to(change { summary.reload.updated_at })
-      end
-    end
+      it 'raises ArgumentError when timeframe is now' do
+        now_timeframe = Timeframe.now
 
-    context 'when fresh summary from the past exists' do
-      let(:date) { Date.yesterday }
-
-      let!(:summary) { Summary.create!(date:, updated_at: 1.minute.ago) }
-
-      it 'does not create Summary' do
-        expect { perform }.not_to change(Summary, :count)
+        expect do
+          described_class.perform_for_timeframe(now_timeframe)
+        end.to raise_error(ArgumentError)
       end
 
-      it 'does not update Summary' do
-        expect { perform }.not_to(change { summary.reload.updated_at })
-      end
-    end
-
-    context 'when stale summary already exists' do
-      let(:date) { Date.yesterday }
-
-      let!(:summary) { Summary.create!(date:, updated_at: date.middle_of_day) }
-
-      it 'does not create Summary' do
-        expect { perform }.not_to change(Summary, :count)
-      end
-
-      it 'updates Summary' do
-        expect { perform }.to(change { summary.reload.updated_at })
+      it 'raises ArgumentError when method is invalid' do
+        expect do
+          described_class.perform_for_timeframe(timeframe, :invalid_method)
+        end.to raise_error(ArgumentError)
       end
     end
   end

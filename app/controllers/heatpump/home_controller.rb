@@ -4,7 +4,7 @@ class Heatpump::HomeController < ApplicationController
   include SummaryChecker
 
   def index
-    unless sensor && timeframe
+    unless sensor_name && timeframe
       redirect_to(default_path)
       return
     end
@@ -16,7 +16,7 @@ class Heatpump::HomeController < ApplicationController
 
   def default_path
     heatpump_home_path(
-      sensor: sensor || 'heatpump_heating_power',
+      sensor_name: sensor_name || :heatpump_heating_power,
       timeframe: 'now',
     )
   end

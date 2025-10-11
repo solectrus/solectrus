@@ -13,9 +13,9 @@
   .flex.flex-col.flex-auto.sm:gap-2
     - unless timeframe.out_of_scope?
       = render ChartSelector::Component.new( \
-        sensor:,
+        sensor_name:,
         timeframe:,
-        sensors: chart_sensors,
+        sensor_names: chart_sensors,
         top_sensor: chart_sensors.first,
       )
-      = render ChartLoader::Component.new(sensor:, timeframe:, variant: 'split')
+      = render ChartLoader::Component.new(sensor_name:, timeframe:, variant: 'split')

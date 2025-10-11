@@ -8,10 +8,18 @@ describe VersionInfo::Component, type: :component do
   end
 
   describe '#latest_version' do
-    before { UpdateCheck.instance.clear_cache! }
+    before do
+      UpdateCheck.instance.clear_cache!
+      # Allow HTTP requests in this spec by bypassing skip_update_check?
+      # rubocop:disable RSpec/AnyInstance
+      allow_any_instance_of(UpdateCheck::HttpClient).to receive(
+        :skip_update_check?,
+      ).and_return(false)
+      # rubocop:enable RSpec/AnyInstance
+    end
 
     it 'returns the latest version', vcr: { cassette_name: 'version' } do
-      expect(component.latest_version).to eq 'v0.20.1'
+      expect(component.latest_version).to eq 'v0.20.3'
     end
   end
 
@@ -74,15 +82,19 @@ describe VersionInfo::Component, type: :component do
   describe '#latest_release_url' do
     subject { component.latest_release_url }
 
-    before { UpdateCheck.instance.clear_cache! }
-
     context 'when latest version is present', vcr: 'version' do
       it do
-        is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.20.1'
+        is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v0.20.3'
       end
     end
 
     context 'when latest version is missing' do
+      before do
+        api = instance_double(UpdateCheck)
+        allow(UpdateCheck).to receive(:instance).and_return(api)
+        allow(api).to receive(:latest_version).and_return(nil)
+      end
+
       it { is_expected.to eq 'https://github.com/solectrus/solectrus/releases' }
     end
   end

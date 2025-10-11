@@ -197,6 +197,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     days? && relative_count == 7
   end
 
+  def p1h?
+    hours? && relative_count == 1
+  end
+
   def short?
     now? || day? || hours?
   end

@@ -1,12 +1,12 @@
 class ForecastComment::Component < ViewComponent::Base
-  def initialize(calculator:, sensor:, timeframe:)
+  def initialize(data:, sensor_name:, timeframe:)
     super()
-    @calculator = calculator
-    @sensor = sensor
+    @data = data
+    @sensor_name = sensor_name
     @timeframe = timeframe
   end
 
-  attr_accessor :calculator, :sensor, :timeframe
+  attr_accessor :data, :sensor_name, :timeframe
 
   def today_before_sunset?
     timeframe.today? && sunset&.future?
@@ -21,10 +21,7 @@ class ForecastComment::Component < ViewComponent::Base
   end
 
   def tooltip_required?
-    calculator.forecast_deviation.positive? ||
-      (
-        !(future? || today_before_sunset?) &&
-          calculator.forecast_deviation.negative?
-      )
+    data.forecast_deviation&.positive? ||
+      (!(future? || today_before_sunset?) && data.forecast_deviation&.negative?)
   end
 end

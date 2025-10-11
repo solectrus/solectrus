@@ -196,3 +196,13 @@
     );
   }
 }
+
+@utility bar-gradient {
+  background: linear-gradient(
+    to right,
+    var(--bar-color) 0%,
+    var(--bar-color) 100%
+  );
+  -webkit-mask-image: linear-gradient(to right, black 0%, rgba(0, 0, 0, 0.9) 100%);
+  mask-image: linear-gradient(to right, black 0%, rgba(0, 0, 0, 0.9) 100%);
+}

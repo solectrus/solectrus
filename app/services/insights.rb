@@ -6,11 +6,11 @@ class Insights # rubocop:disable Metrics/ClassLength
 
   attr_reader :sensor, :timeframe
 
-  def value(sensor_name = sensor)
-    return unless calculator.respond_to?(sensor_name)
+  def value(sensor_name = sensor.name)
+    return unless data.respond_to?(sensor_name)
 
     @value ||= {}
-    @value[sensor_name] ||= calculator.public_send(sensor_name).to_f
+    @value[sensor_name] ||= data.public_send(sensor_name).to_f
   end
 
   def costs
@@ -20,20 +20,20 @@ class Insights # rubocop:disable Metrics/ClassLength
          house_power
          house_power_without_custom
          battery_power
-       ].exclude?(sensor) && !sensor.start_with?('custom_')
+       ].exclude?(sensor.name) && !sensor.name.to_s.start_with?('custom_')
       return
     end
     return unless ApplicationPolicy.power_splitter?
 
     costs_field =
-      if sensor == :battery_power
+      if sensor.name == :battery_power
         'battery_charging_costs'
       else
-        "#{sensor}_costs".sub('_power', '')
+        "#{sensor.name}_costs".sub('_power', '')
         # Example: custom_01_costs,  house_without_custom_costs, wallbox_costs, ...
       end
 
-    calculator.public_send(costs_field)
+    data.public_send(costs_field)
   end
 
   def sensors_with_grid_ratio
@@ -43,21 +43,21 @@ class Insights # rubocop:disable Metrics/ClassLength
       house_power
       battery_power
       house_power_without_custom
-    ] + SensorConfig.x.existing_custom_sensor_names
+    ] + Sensor::Config.custom_power_sensors.map(&:name)
   end
 
   def power_grid_ratio
-    return unless sensor.in?(sensors_with_grid_ratio)
+    return unless sensor.name.in?(sensors_with_grid_ratio)
 
-    if sensor == :battery_power
-      calculator.battery_charging_power_grid_ratio
+    if sensor.name == :battery_power
+      data.battery_charging_power_grid_ratio
     else
-      calculator.public_send(:"#{sensor}_grid_ratio")
+      data.public_send(:"#{sensor.name}_grid_ratio")
     end
   end
 
   def multi_inverter?
-    SensorConfig.x.multi_inverter? && ApplicationPolicy.multi_inverter?
+    Sensor::Config.multi_inverter? && ApplicationPolicy.multi_inverter?
   end
 
   def inverter_sensor_values
@@ -67,22 +67,22 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   def per_day_value
-    calculator.per_day(value)
+    return unless value
+    return if timeframe.days_passed <= 1
+
+    (value / timeframe.days_passed).round(2)
   end
 
   def feed_in_revenue
-    calculator.got
+    data.grid_revenue
   end
 
-  def grid_costs
-    calculator.paid.abs
-  end
-
-  delegate :solar_price,
-           :inverter_power_per_kwp,
+  delegate :grid_costs,
+           :solar_price,
            :battery_charging_power,
            :battery_discharging_power,
-           to: :calculator
+           :specific_yield,
+           to: :data
 
   def monthly_trend
     @monthly_trend ||=
@@ -137,6 +137,19 @@ class Insights # rubocop:disable Metrics/ClassLength
       end
   end
 
+  def data
+    @data ||=
+      PowerBalance.new(
+        Sensor::Query::Sql
+          .new do |q|
+            required_sensors.each { q.sum(it) }
+
+            q.timeframe timeframe
+          end
+          .call,
+      )
+  end
+
   private
 
   def extremum(aggregation)
@@ -152,47 +165,122 @@ class Insights # rubocop:disable Metrics/ClassLength
     @extremum[aggregation]
   end
 
-  def calculator
-    @calculator ||=
-      Calculator::Range.new(timeframe, calculations: required_calculations)
-  end
-
   def required_sensors
-    base = []
-    base += [sensor] if sensor.in?(SensorConfig::SENSOR_NAMES)
-    base += SensorConfig.x.inverter_sensor_names if SensorConfig.x.inverter?(
-      sensor,
-    )
-    base += SensorConfig.x.excluded_sensor_names if sensor == :house_power
-    if :"#{sensor}_grid".in?(SensorConfig::POWER_SPLITTER_SENSORS)
-      base += [:"#{sensor}_grid"]
-    end
-    base += %i[battery_charging_power battery_discharging_power] if sensor ==
-      :battery_power
-    base += %i[grid_import_power grid_export_power] if sensor == :grid_power
-
-    base.uniq
+    sensors = [
+      main_sensor,
+      *inverter_sensors,
+      *specific_yield_sensor,
+      *house_power_excluded_sensors,
+      *grid_sensor,
+      *battery_sensors,
+      *grid_power_sensors,
+      *grid_power_cost_sensors,
+      *cost_sensors,
+    ]
+    sensors.compact!
+    sensors.uniq!
+    sensors
   end
 
-  def required_calculations
-    required_sensors.map do |sensor_name|
-      Queries::Calculation.new(sensor_name, :sum, :sum)
+  def main_sensor
+    sensor.name if Sensor::Config.exists?(sensor.name, check_policy: false)
+  end
+
+  def inverter_sensors
+    return [] unless inverter_sensor?
+
+    Sensor::Config.inverter_sensors.map(&:name)
+  end
+
+  def inverter_sensor?
+    Sensor::Config.inverter_sensors.map(&:name).include?(sensor.name)
+  end
+
+  def specific_yield_sensor
+    sensor.name == :inverter_power ? [:specific_yield] : []
+  end
+
+  def house_power_excluded_sensors
+    return [] unless sensor.name == :house_power
+
+    Sensor::Config.house_power_excluded_sensors.map(&:name)
+  end
+
+  def grid_sensor
+    grid_sensor_name = :"#{sensor.name}_grid"
+    return [] unless power_splitter_sensor?(grid_sensor_name)
+
+    [grid_sensor_name]
+  end
+
+  def power_splitter_sensor?(sensor_name)
+    Sensor::Registry
+      .by_category(:power_splitter)
+      .map(&:name)
+      .include?(sensor_name)
+  end
+
+  def battery_sensors
+    if sensor.name == :battery_power
+      %i[battery_charging_power battery_discharging_power]
+    else
+      []
+    end
+  end
+
+  def grid_power_sensors
+    sensor.name == :grid_power ? %i[grid_import_power grid_export_power] : []
+  end
+
+  def grid_power_cost_sensors
+    return [] unless sensor.name == :grid_power
+    return [] unless ApplicationPolicy.power_splitter?
+
+    %i[grid_costs grid_revenue]
+  end
+
+  def cost_sensors
+    return [] unless ApplicationPolicy.power_splitter?
+    return [] unless sensor_supports_costs?
+
+    costs_sensor_name = cost_sensor_name_for(sensor.name)
+    unless Sensor::Config.exists?(costs_sensor_name, check_policy: false)
+      return []
+    end
+
+    [costs_sensor_name]
+  end
+
+  def sensor_supports_costs?
+    %i[
+      wallbox_power
+      heatpump_power
+      house_power
+      house_power_without_custom
+      battery_power
+    ].include?(sensor.name) || sensor.name.to_s.start_with?('custom_')
+  end
+
+  def cost_sensor_name_for(sensor_name)
+    if sensor_name == :battery_power
+      :battery_charging_costs
+    else
+      "#{sensor_name}_costs".sub('_power', '').to_sym
+      # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, ...
     end
   end
 
   def build_inverter_sensor_data
     active_sensors =
       (
-        SensorConfig.x.inverter_sensor_names - [:inverter_power]
-      ).select { |sensor_name| calculator.public_send(sensor_name)&.positive? }
+        Sensor::Config.inverter_sensors.map(&:name) - [:inverter_power]
+      ).select { |sensor_name| data.public_send(sensor_name)&.positive? }
 
     total_value =
-      active_sensors.sum do |sensor_name|
-        calculator.public_send(sensor_name) || 0
-      end
+      active_sensors.sum { |sensor_name| data.public_send(sensor_name) || 0 }
 
     active_sensors.map do |sensor_name|
-      sensor_value = calculator.public_send(sensor_name)
+      sensor_value = data.public_send(sensor_name)
 
       {
         name: sensor_name,

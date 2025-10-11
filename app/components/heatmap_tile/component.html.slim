@@ -8,7 +8,7 @@
         - if (value = daily_value_for(month, day))
           - date = Date.new(current_year, month, day)
           - if date
-            = link_to root_path(sensor, timeframe: date.strftime('%Y-%m-%d')),
+            = link_to root_path(sensor_name: sensor.name, timeframe: date.strftime('%Y-%m-%d')),
                       class: ['aspect-square', background_class(value)],
                       style: "opacity: #{opacity(value)}",
                       data: { controller: 'tippy' } do
@@ -16,7 +16,7 @@
                   strong
                     = l(date)
 
-                  - if sensor == :grid_power
+                  - if sensor.name == :grid_power
                     table
                       tbody
                         - grid_fields.each do |field|
@@ -24,20 +24,20 @@
                             td.text-left.pr-2
                               - case field
                               - when :grid_revenue
-                                = SensorConfig.x.display_name(:grid_export_power)
+                                = Sensor::Registry[:grid_export_power].display_name
                               - when :grid_costs
-                                = SensorConfig.x.display_name(:grid_import_power)
+                                = Sensor::Registry[:grid_import_power].display_name
                             td.text-right.tabular-nums
-                              =< Number::Component.new(value: value[field]).to_eur(negative: field == :grid_costs, precision: 0)
+                              =< render SensorValue::Component.new(value[field], field, sign: field == :grid_costs ? :negative : :positive, precision: 0)
 
                       tfoot.border-t
                         tr
                           td Saldo
                           td.text-right.tabular-nums
-                            = Number::Component.new(value: grid_eur_diff(value).abs).to_eur(precision: 0, negative: grid_eur_diff(value).negative?)
+                            = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
                   - else
                     br
-                    = Number::Component.new(value: value).to_watt_hour(unit: :kilo)
+                    = render SensorValue::Component.new(value, sensor.name, context: :energy, scaling: :kilo)
         - else
           div
 
@@ -56,7 +56,7 @@
       - (1..12).each do |month|
         - if (value = value_for(year, month))
           - date = Date.new(year, month)
-          = link_to root_path(sensor, timeframe: date.strftime('%Y-%m')),
+          = link_to root_path(sensor_name: sensor.name, timeframe: date.strftime('%Y-%m')),
                     class: ['aspect-square', background_class(value)],
                     style: "opacity: #{opacity(value)}",
                     data: { controller: 'tippy' } do
@@ -64,7 +64,7 @@
                 strong
                   = l(date, format: :month)
 
-                - if sensor == :grid_power
+                - if sensor.name == :grid_power
                   table
                     tbody
                       - grid_fields.each do |field|
@@ -72,20 +72,20 @@
                           td.text-left.pr-2
                             - case field
                             - when :grid_revenue
-                              = SensorConfig.x.display_name(:grid_export_power)
+                              = Sensor::Registry[:grid_export_power].display_name
                             - when :grid_costs
-                              = SensorConfig.x.display_name(:grid_import_power)
+                              = Sensor::Registry[:grid_import_power].display_name
                           td.text-right.tabular-nums
-                            =< Number::Component.new(value: value[field]).to_eur(negative: field == :grid_costs, precision: 0)
+                            =< render SensorValue::Component.new(value[field], field, sign: field == :grid_costs ? :negative : :positive, precision: 0)
 
                     tfoot.border-t
                       tr
                         td Saldo
                         td.text-right.tabular-nums
-                          = Number::Component.new(value: grid_eur_diff(value).abs).to_eur(precision: 0, negative: grid_eur_diff(value).negative?)
+                          = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
                 - else
                   br
-                  = Number::Component.new(value: value).to_watt_hour(unit: :kilo)
+                  = render SensorValue::Component.new(value, sensor.name, context: :energy, scaling: :kilo)
         - else
           div
     div

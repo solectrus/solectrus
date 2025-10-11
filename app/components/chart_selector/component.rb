@@ -1,32 +1,35 @@
 class ChartSelector::Component < ViewComponent::Base
   def initialize(
-    sensor:,
+    sensor_name:,
     timeframe:,
-    sensors:,
+    sensor_names:,
     top_sensor: nil,
     bottom_sensor: nil
   )
     super()
-    @sensor = sensor
+    raise ArgumentError unless sensor_name.is_a?(Symbol)
+    raise ArgumentError unless sensor_names.all?(Symbol)
+
+    @sensor_name = sensor_name
     @timeframe = timeframe
-    @sensors = sensors.select { |s| SensorConfig.x.exists?(s) }
+    @sensor_names = sensor_names
     @top_sensor = top_sensor
     @bottom_sensor = bottom_sensor
   end
-  attr_reader :sensor, :timeframe, :sensors
+  attr_reader :sensor_name, :timeframe, :sensor_names
 
   def sensor_items
     @sensor_items ||=
       begin
         menu_items =
-          sensors.map do |sensor|
+          sensor_names.map do |sensor_name|
             MenuItem::Component.new(
-              name: title(sensor),
-              sensor:,
+              name: Sensor::Registry[sensor_name].display_name,
+              sensor_name:,
               href:
                 url_for(
                   controller: "#{helpers.controller_namespace}/home",
-                  sensor:,
+                  sensor_name:,
                   timeframe:,
                 ),
               data: {
@@ -34,9 +37,9 @@ class ChartSelector::Component < ViewComponent::Base
                 'turbo-action' => 'replace',
                 'action' =>
                   'stats-with-chart--component#startLoop dropdown--component#toggle',
-                'stats-with-chart--component-sensor-param' => sensor,
+                'stats-with-chart--component-sensor-param' => sensor_name,
               },
-              current: sensor == @sensor,
+              current: sensor_name == @sensor_name,
             )
           end
 
@@ -45,26 +48,10 @@ class ChartSelector::Component < ViewComponent::Base
   end
 
   def top_sensor
-    sensor_items.find { |item| item.sensor == @top_sensor }
+    sensor_items.find { |item| item.sensor_name == @top_sensor }
   end
 
   def bottom_sensor
-    sensor_items.find { |item| item.sensor == @bottom_sensor }
-  end
-
-  private
-
-  def title(sensor)
-    if sensor.in?(%i[autarky self_consumption co2_reduction])
-      I18n.t "calculator.#{sensor}"
-    elsif sensor == :heatpump_power
-      if helpers.controller_namespace == 'heatpump'
-        I18n.t 'splitter.total'
-      else
-        SensorConfig.x.display_name(sensor, :long)
-      end
-    else
-      SensorConfig.x.display_name(sensor, :long)
-    end
+    sensor_items.find { |item| item.sensor_name == @bottom_sensor }
   end
 end

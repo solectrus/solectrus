@@ -1,18 +1,12 @@
 describe ForecastComment::Component, type: :component do
   subject(:component) do
-    described_class.new calculator:, sensor: :inverter_power, timeframe:
+    described_class.new data:, sensor_name: :inverter_power, timeframe:
   end
 
   let(:timeframe) { Timeframe.new(date) }
   let(:sunset) { nil }
 
-  let(:calculator) do
-    double(
-      Calculator::Range,
-      forecast_deviation:,
-      inverter_power_forecast: 1000,
-    )
-  end
+  let(:data) { double(forecast_deviation:, inverter_power_forecast: 1000) }
 
   before do
     allow(DayLight).to receive(:new).and_return(sunset)

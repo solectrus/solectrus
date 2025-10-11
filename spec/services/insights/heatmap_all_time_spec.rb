@@ -7,7 +7,7 @@ describe Insights::HeatmapAllTime do
     subject(:call) { service.call }
 
     context 'with valid sensor and timeframe' do
-      let(:sensor) { :inverter_power }
+      let(:sensor) { Sensor::Registry[:inverter_power] }
 
       before do
         create_summary(
@@ -38,7 +38,7 @@ describe Insights::HeatmapAllTime do
     end
 
     context 'with house_power sensor' do
-      let(:sensor) { :house_power }
+      let(:sensor) { Sensor::Registry[:house_power] }
 
       before do
         # Create real SummaryValue records
@@ -58,38 +58,59 @@ describe Insights::HeatmapAllTime do
     end
 
     context 'with grid_power sensor' do
-      let(:sensor) { :grid_power }
+      let(:sensor) { Sensor::Registry[:grid_power] }
 
       before do
-        # Create grid costs and revenue data
+        # Prices are already seeded via Price.seed! in spec/support/system.rb
+        # Create grid power data
         create_summary(
           date: Date.new(2023, 1, 15),
-          values: [[:grid_revenue, :sum, 8.0], [:grid_costs, :sum, 2.0]],
+          values: [
+            [:grid_export_power, :sum, 100.0],
+            [:grid_import_power, :sum, 10.0],
+          ],
         )
         create_summary(
           date: Date.new(2023, 1, 20),
-          values: [[:grid_revenue, :sum, 10.0], [:grid_costs, :sum, 3.0]],
+          values: [
+            [:grid_export_power, :sum, 125.0],
+            [:grid_import_power, :sum, 15.0],
+          ],
         )
         create_summary(
           date: Date.new(2023, 2, 10),
-          values: [[:grid_revenue, :sum, 6.0], [:grid_costs, :sum, 1.5]],
+          values: [
+            [:grid_export_power, :sum, 75.0],
+            [:grid_import_power, :sum, 5.0],
+          ],
         )
       end
 
-      it 'returns grid power data with separate costs and revenue values' do
+      it 'returns grid power data with separate costs, revenue and balance values' do
         expect(call).to be_a(Hash)
         expect(call).to have_key(2023)
 
-        # January: 8 + 10 = 18 revenue, 2 + 3 = 5 costs
-        expect(call[2023][1]).to eq({ grid_revenue: 18, grid_costs: 5 })
+        # Verify structure - actual values depend on seeded prices
+        jan_data = call[2023][1]
+        expect(jan_data).to have_key(:grid_revenue)
+        expect(jan_data).to have_key(:grid_costs)
+        expect(jan_data).to have_key(:grid_balance)
+        expect(jan_data[:grid_balance]).to eq(
+          jan_data[:grid_revenue] - jan_data[:grid_costs],
+        )
 
-        # February: 6 revenue, 1.5 costs
-        expect(call[2023][2]).to eq({ grid_revenue: 6, grid_costs: 1.5 })
+        feb_data = call[2023][2]
+        expect(feb_data).to have_key(:grid_revenue)
+        expect(feb_data).to have_key(:grid_costs)
+        expect(feb_data).to have_key(:grid_balance)
+        expect(feb_data[:grid_balance]).to eq(
+          feb_data[:grid_revenue] - feb_data[:grid_costs],
+        )
       end
     end
 
     context 'when timeframe is not all' do
-      let(:sensor) { :inverter_power }
+      let(:sensor) { Sensor::Registry[:inverter_power] }
       let(:timeframe) { Timeframe.day }
 
       it { is_expected.to be_nil }

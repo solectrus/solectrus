@@ -61,29 +61,28 @@ class Top10SensorSelect::Component < ViewComponent::Base
 
   def build_menu_items_for_sensors(sensors)
     sensors
-      .map { |sensor| build_menu_item(sensor) }
+      .map { |sensor_name| build_menu_item(sensor_name) }
       .sort_by do |item|
-        SensorConfig.x.display_name(item.sensor, :long).downcase
+        Sensor::Registry[item.sensor_name].display_name(:long).downcase
       end
   end
 
-  def build_menu_item(sensor)
+  def build_menu_item(sensor_name)
     MenuItem::Component.new(
-      name: SensorConfig.x.display_name(sensor, :long),
-      href: helpers.url_for(**permitted_params, sensor:, only_path: true),
+      name: Sensor::Registry[sensor_name].display_name(:long),
+      href: helpers.url_for(**permitted_params, sensor_name:, only_path: true),
       data: {
         action: 'dropdown--component#toggle',
       },
-      sensor:,
-      current: sensor == current_sensor,
+      sensor_name:,
+      current: sensor_name == current_sensor&.name,
     )
   end
 
   # Categories
 
   def generation_sensors
-    @generation_sensors ||=
-      ([:inverter_power] + SensorConfig.x.inverter_sensor_names).uniq
+    @generation_sensors ||= Sensor::Config.inverter_sensors.map(&:name)
   end
 
   def grid_battery_sensors
@@ -104,7 +103,7 @@ class Top10SensorSelect::Component < ViewComponent::Base
     @consumer_sensors ||=
       available_sensors.select do |sensor|
         sensor.in?(
-          SensorConfig.x.existing_custom_sensor_names +
+          Sensor::Config.custom_power_sensors.map(&:name) +
             %i[house_power heatpump_power wallbox_power],
         )
       end
@@ -117,9 +116,6 @@ class Top10SensorSelect::Component < ViewComponent::Base
   end
 
   def available_sensors
-    @available_sensors ||=
-      SensorConfig::TOP10_SENSORS.select do |sensor|
-        SensorConfig.x.exists?(sensor)
-      end
+    @available_sensors ||= Sensor::Config.top10_sensors.map(&:name)
   end
 end

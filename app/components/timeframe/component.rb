@@ -8,7 +8,7 @@ class Timeframe::Component < ViewComponent::Base
   def next_path
     url_for(
       controller: "#{helpers.controller_namespace}/home",
-      sensor: params[:sensor],
+      sensor_name: params[:sensor_name],
       timeframe: timeframe.next,
     )
   end
@@ -16,7 +16,7 @@ class Timeframe::Component < ViewComponent::Base
   def prev_path
     url_for(
       controller: "#{helpers.controller_namespace}/home",
-      sensor: params[:sensor],
+      sensor_name: params[:sensor_name],
       timeframe: timeframe.prev,
     )
   end

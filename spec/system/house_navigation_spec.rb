@@ -1,9 +1,13 @@
 describe 'House navigation' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { travel_to Time.zone.local(2022, 6, 21, 12, 0, 0) }
+  before do
+    stub_feature(:power_splitter, :custom_consumer)
 
-  %w[house_power house_power_without_custom].each do |path|
+    travel_to Time.zone.local(2022, 6, 21, 12, 0, 0)
+  end
+
+  %w[house_power house_power_without_custom custom_power_01].each do |path|
     context "when #{path}" do
       it 'allows complete navigation through all time periods' do # rubocop:disable RSpec/NoExpectationExample
         visit "/house/#{path}"

@@ -3,40 +3,46 @@ h3.font-bold
 
 dl.mt-5
   .grid.grid-cols-2.gap-4
-    dt = I18n.t('sensors.grid_import_power')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.paid).to_eur(max_precision: 2)
+    dt
+      = Sensor::Registry[:grid_import_power].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :grid_costs, sign: :negative)
 
   .grid.grid-cols-2.gap-4
     dt
       |&plus;&nbsp;
-      = I18n.t('sensors.grid_export_power')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.got).to_eur(max_precision: 2)
+      = Sensor::Registry[:grid_export_power].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :grid_revenue, sign: :positive)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
     dt
       |&#61;&nbsp;
-      = I18n.t('calculator.solar_price')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.solar_price).to_eur(max_precision: 2)
+      = Sensor::Registry[:solar_price].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :solar_price, sign: :value_based_reverse)
 
   .mt-5.grid.grid-cols-2.gap-4
     dt
       |&minus;&nbsp;
-      = I18n.t('calculator.traditional_price')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.traditional_price).to_eur(max_precision: 2)
+      = Sensor::Registry[:traditional_costs].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :traditional_costs, sign: :negative)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
     dt
       |&#61;&nbsp;
-      = I18n.t('calculator.savings')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.savings).to_eur(max_precision: 2)
+      = Sensor::Registry[:savings].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :savings, sign: :positive)
 
-    - if calculator.battery_savings_percent&.positive?
+    - if data.battery_savings_percent&.positive?
       dt
-        = I18n.t('calculator.battery_savings')
-        =< sanitize "(#{Number::Component.new(value: calculator.battery_savings_percent).to_percent(max_precision: 0, klass: 'text-current')})"
-      dd.font-mono.text-right = Number::Component.new(value: calculator.battery_savings).to_eur
+        = "#{Sensor::Registry[:battery_savings].display_name(:short)} (#{Sensor::ValueFormatter.new(data.battery_savings_percent, unit: :percent)})"
+      dd.font-mono.text-right
+        = render SensorValue::Component.new(data, :battery_savings, sign: :positive)
 
 p.mt-5.text-gray-400.text-sm
   = t('.explanation')

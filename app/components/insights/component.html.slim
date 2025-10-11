@@ -1,13 +1,13 @@
 .grid.grid-cols-2.gap-3.sm:gap-4.w-full
-  - if sensor == :inverter_power && (insights.costs || insights.multi_inverter?)
+  - if sensor.name == :inverter_power && (insights.costs || insights.multi_inverter?)
     .col-span-2
       .grid.grid-cols-3.gap-4.sm:gap-6
-        = render InsightsTile::Component.new css_class: (sensor == :inverter_power ? 'col-span-2' : 'col-span-full') do |tile|
+        = render InsightsTile::Component.new css_class: (sensor.name == :inverter_power ? 'col-span-2' : 'col-span-full') do |tile|
           - tile.with_body do
             .flex.justify-center.items-center.gap-4
-              - unless sensor.in? %i[grid_power battery_power]
+              - unless sensor.name.in? %i[grid_power battery_power]
                 .text-left.text-lg.sm:text-2xl.font-semibold
-                  = Number::Component.new(value: insights.value).to_watt_hour(precision: 3)
+                  = render SensorValue::Component.new(data, sensor.name, context: :energy, precision: 3)
 
             - if insights.costs
               .mt-2.sm:mt-5.text-lg
@@ -17,38 +17,38 @@
               div class= 'mt-2 sm:mt-6 grid grid-cols-[auto_1fr_auto] gap-1 sm:gap-2 items-center px-2 text-sm font-medium whitespace-nowrap'
                 - insights.inverter_sensor_values.reverse_each do |sensor_data|
                   .pr-3.text-left
-                    = SensorConfig.x.display_name(sensor_data[:name])
+                    = Sensor::Registry[sensor_data[:name]].display_name
                   .pr-3.bg-gray-200.dark:bg-gray-800.rounded-full.h-2
                     .bg-green-600.h-2.rounded-full style="width: #{sensor_data[:percentage]}%"
                   .text-right.tabular-nums
-                    = Number::Component.new(value: sensor_data[:value]).to_watt_hour(unit: :kilo)
+                    = render SensorValue::Component.new(sensor_data[:value], sensor_data[:name], context: :energy, scaling: :kilo)
 
-        - if sensor == :inverter_power
+        - if sensor.name == :inverter_power
           = render InsightsTile::Component.new stripes: (timeframe.year? || timeframe.month?) && timeframe.current?,
                                                css_class: 'flex flex-col items-center justify-center' do |tile|
             - tile.with_body do
-              = Number::Component.new(value: insights.inverter_power_per_kwp).to_watt_hour(unit: :kilo)
+              = render SensorValue::Component.new(insights.specific_yield, :specific_yield, context: :energy, scaling: :kilo)
             - tile.with_footer do
               'pro kWp
 
-  - elsif sensor == :grid_power
+  - elsif sensor.name == :grid_power
     = render InsightsTile::Component.new do |tile|
       - tile.with_body do
-        = Number::Component.new(value: insights.value(:grid_import_power)).to_watt_hour(unit: :kilo)
+        = render SensorValue::Component.new(data, :grid_import_power, context: :energy, scaling: :kilo)
       - tile.with_footer do
-        = I18n.t('sensors.grid_import_power')
+        = Sensor::Registry[:grid_import_power].display_name(:short)
 
     = render InsightsTile::Component.new do |tile|
       - tile.with_body do
-        = Number::Component.new(value: insights.value(:grid_export_power)).to_watt_hour(unit: :kilo)
+        = render SensorValue::Component.new(data, :grid_export_power, context: :energy, scaling: :kilo)
       - tile.with_footer do
-        = I18n.t('sensors.grid_export_power')
+        = Sensor::Registry[:grid_export_power].display_name(:short)
 
-  - elsif sensor.in? %i[house_power wallbox_power heatpump_power]
+  - elsif sensor.name.in? %i[house_power wallbox_power heatpump_power]
     .col-span-2
       = render InsightsTile::Component.new do |tile|
         - tile.with_body do
-          = Number::Component.new(value: insights.value).to_watt_hour(unit: :kilo)
+          = render SensorValue::Component.new(data, sensor.name, context: :energy, scaling: :kilo)
           .mt-4.text-lg
             = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
 
@@ -66,21 +66,21 @@
       - tile.with_body do
         = render TrendIndicator::Component.new(trend: insights.yearly_trend)
 
-  - if sensor == :grid_power
+  - if sensor.name == :grid_power
     = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
       - tile.with_body do
         = render GridCostsGraph::Component.new(costs: insights.grid_costs, revenue: insights.feed_in_revenue)
 
-  - elsif sensor == :battery_power
+  - elsif sensor.name == :battery_power
     = render InsightsTile::Component.new do |tile|
       - tile.with_body do
-        = Number::Component.new(value: insights.battery_discharging_power).to_watt_hour(unit: :kilo, precision: 0)
+        = render SensorValue::Component.new(data, :battery_discharging_power, context: :energy, scaling: :kilo, precision: 0)
       - tile.with_footer do
         'Entladung
 
     = render InsightsTile::Component.new css_class: 'text-right' do |tile|
       - tile.with_body do
-        = Number::Component.new(value: insights.battery_charging_power).to_watt_hour(unit: :kilo, precision: 0)
+        = render SensorValue::Component.new(data, :battery_charging_power, context: :energy, scaling: :kilo, precision: 0)
       - tile.with_footer do
         'Beladung
 
@@ -122,7 +122,7 @@
             span.hidden.md:block
               =l min_day
           - tile.with_body do
-            = Number::Component.new(value: insights.minimum(:value)).to_watt_hour(unit: :kilo)
+            = render SensorValue::Component.new(insights.minimum(:value), sensor.name, context: :energy, scaling: :kilo)
           - tile.with_footer do
             'Minimum
 
@@ -132,7 +132,7 @@
             span.hidden.md:block
               '&nbsp;
           - tile.with_body do
-            = Number::Component.new(value: insights.per_day_value).to_watt_hour(unit: :kilo, precision: 1)
+            = render SensorValue::Component.new(insights.per_day_value, sensor.name, context: :energy, scaling: :kilo)
           - tile.with_footer do
             ' Ø pro Tag
 
@@ -142,6 +142,6 @@
             span.hidden.md:block
               =l max_day
           - tile.with_body do
-            = Number::Component.new(value: insights.maximum(:value)).to_watt_hour(unit: :kilo)
+            = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :energy, scaling: :kilo)
           - tile.with_footer do
             'Maximum

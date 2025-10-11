@@ -1,2 +1,2 @@
-= tag.turbo_frame id: "tile-#{sensor}-#{timeframe}" do
-  = render EssentialsTile::Component.new(calculator:, sensor:, timeframe:)
+= tag.turbo_frame id: "tile-#{sensor.name}-#{timeframe}" do
+  = render EssentialsTile::Component.new(data: data, sensor: sensor, timeframe:)

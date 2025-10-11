@@ -1,12 +1,12 @@
 class FinanceBadge::Component < ViewComponent::Base
-  def initialize(calculator:, timeframe:)
+  def initialize(data:, timeframe:)
     super()
-    @calculator = calculator
+    @data = data
     @timeframe = timeframe
   end
-  attr_reader :calculator, :timeframe
+  attr_reader :data, :timeframe
 
   def costs
-    Setting.opportunity_costs ? calculator.total_costs : calculator.paid.abs
+    Setting.opportunity_costs ? data.total_costs : data.grid_costs
   end
 end

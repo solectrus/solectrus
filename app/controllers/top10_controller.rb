@@ -3,7 +3,7 @@ class Top10Controller < ApplicationController
   include SummaryChecker
 
   def index
-    redirect_to(default_path) unless period && sensor && calc && sort
+    redirect_to(default_path) unless period && sensor_name && calc && sort
     redirect_to(default_path(calc: 'sum')) if calc == 'max' && !supports_max?
 
     load_missing_or_stale_summary_days(Timeframe.all)
@@ -23,7 +23,7 @@ class Top10Controller < ApplicationController
     top10_path(
       {
         period: period || 'day',
-        sensor: sensor || 'inverter_power',
+        sensor_name: sensor_name || :inverter_power,
         calc: calc || 'sum',
         sort: sort || 'desc',
       }.merge(override),
@@ -32,28 +32,28 @@ class Top10Controller < ApplicationController
 
   helper_method def supports_max?
     # Custom sensors are not supported for max calculation
-    !sensor.in?(SensorConfig::CUSTOM_SENSORS)
+    !sensor_name.in?(Sensor::Config.custom_power_sensors.map(&:name))
   end
 
   helper_method def nav_items
     [
       {
-        name: t('calculator.day'),
+        name: t('data.day'),
         href: path_with_period('day'),
         current: period == 'day',
       },
       {
-        name: t('calculator.week'),
+        name: t('data.week'),
         href: path_with_period('week'),
         current: period == 'week',
       },
       {
-        name: t('calculator.month'),
+        name: t('data.month'),
         href: path_with_period('month'),
         current: period == 'month',
       },
       {
-        name: t('calculator.year'),
+        name: t('data.year'),
         href: path_with_period('year'),
         current: period == 'year',
       },

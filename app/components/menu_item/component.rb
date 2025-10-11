@@ -3,7 +3,7 @@ class MenuItem::Component < ViewComponent::Base
     name:,
     href: nil,
     data: {},
-    sensor: nil,
+    sensor_name: nil,
     icon: nil,
     icon_only: false,
     text: true,
@@ -13,7 +13,7 @@ class MenuItem::Component < ViewComponent::Base
     @name = name
     @href = href
     @data = data
-    @sensor = sensor
+    @sensor_name = sensor_name
 
     @icon = icon
     @icon_only = icon_only
@@ -25,7 +25,14 @@ class MenuItem::Component < ViewComponent::Base
     href&.start_with?('http') ? '_blank' : nil
   end
 
-  attr_reader :name, :href, :icon, :icon_only, :text, :current, :data, :sensor
+  attr_reader :name,
+              :href,
+              :icon,
+              :icon_only,
+              :text,
+              :current,
+              :data,
+              :sensor_name
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES

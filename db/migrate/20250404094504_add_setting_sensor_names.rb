@@ -3,7 +3,7 @@ class AddSettingSensorNames < ActiveRecord::Migration[8.0]
     reversible do |dir|
       dir.up do
         sensor_names =
-          (1..SensorConfig::CUSTOM_SENSOR_COUNT)
+          (1..20)
             .each_with_object({}) do |i, hash|
               hash['custom_power_%02d' % i] = Setting
                 .where(var: format('custom_name_%02d', i))

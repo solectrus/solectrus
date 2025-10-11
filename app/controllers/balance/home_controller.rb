@@ -4,7 +4,7 @@ class Balance::HomeController < ApplicationController
   include SummaryChecker
 
   def index
-    unless sensor && timeframe
+    unless sensor_name && timeframe
       redirect_to(default_path)
       return
     end
@@ -15,7 +15,7 @@ class Balance::HomeController < ApplicationController
   private
 
   def default_path
-    root_path(sensor: sensor || redirect_sensor, timeframe: 'now')
+    root_path(sensor_name: sensor_name || redirect_sensor, timeframe: 'now')
   end
 
   # By default we want to show the current production, so we redirect to the inverter_power sensor.

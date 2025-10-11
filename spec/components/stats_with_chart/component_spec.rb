@@ -1,7 +1,7 @@
 describe StatsWithChart::Component, type: :component do
-  subject(:component) { described_class.new(sensor:, timeframe:) }
+  subject(:component) { described_class.new(sensor_name:, timeframe:) }
 
-  let(:sensor) { 'inverter_power' }
+  let(:sensor_name) { :inverter_power }
 
   context 'when timeframe is a day' do
     let(:timeframe) { Timeframe.new '2022-01-22' }

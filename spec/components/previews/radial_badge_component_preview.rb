@@ -43,7 +43,7 @@ class RadialBadgeComponentPreview < ViewComponent::Preview
   # @!group Temperature
   def grad_celsius(title: 'Temperature')
     render RadialBadge::Component.new(title:) do
-      Number::Component.new(value: 25).to_grad_celsius(max_precision: 0)
+      '25&deg;C'.html_safe
     end
   end
   # @!endgroup

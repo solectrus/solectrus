@@ -3,21 +3,9 @@ describe 'Settings' do
 
   before do
     travel_to Time.zone.local(2022, 6, 21, 12, 0, 0)
-
-    Price.create!(
-      name: 'electricity',
-      starts_at: Date.parse('2020-11-27'),
-      value: 0.2545,
-      note: 'Test electricity price',
-    )
-
-    Price.create!(
-      name: 'feed_in',
-      starts_at: Date.parse('2020-11-27'),
-      value: 0.0832,
-      note: 'Test feed-in price',
-    )
   end
+
+  let(:installation_date) { Rails.configuration.x.installation_date }
 
   context 'when no admin user is logged in' do
     it 'shows 403 error when trying to access prices page' do
@@ -36,14 +24,14 @@ describe 'Settings' do
       expect(page).to have_current_path('/settings/prices/electricity')
 
       within '#list' do
-        expect(page).to have_content('27.11.2020')
+        expect(page).to have_content(I18n.l(installation_date, locale: :de))
         expect(page).to have_content('0,2545 €')
       end
 
       click_on 'Einspeisung'
       expect(page).to have_current_path('/settings/prices/feed_in')
       within '#list' do
-        expect(page).to have_content('27.11.2020')
+        expect(page).to have_content(I18n.l(installation_date, locale: :de))
         expect(page).to have_content('0,0832 €')
       end
     end

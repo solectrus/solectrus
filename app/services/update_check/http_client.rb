@@ -1,5 +1,19 @@
 class UpdateCheck::HttpClient
+  include RakeHelper
+
   def fetch_update_data
+    # Skip HTTP requests during tests and asset precompilation
+    if skip_update_check?
+      dummy_response = {
+        data: {
+          version: 'v1.0.0',
+          registration_status: 'complete',
+        },
+        expires_in: 12.hours,
+      }
+      return dummy_response
+    end
+
     response = fetch_http_response
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error "UpdateCheck failed: Error #{response.code} - #{response.message}"
@@ -23,6 +37,19 @@ class UpdateCheck::HttpClient
   end
 
   private
+
+  def skip_update_check?
+    # Skip during tests
+    return true if Rails.env.test?
+
+    # Skip during CI builds
+    return true if ENV['CI'].present?
+
+    # Skip during asset precompilation and database tasks
+    return true if skip_init_rake_task_running?
+
+    false
+  end
 
   def fetch_http_response
     uri = URI(update_url)

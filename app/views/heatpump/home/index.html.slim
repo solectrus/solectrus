@@ -26,8 +26,8 @@
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - elsif ApplicationPolicy.heatpump?
-  - if SensorConfig.x.exists_any? :heatpump_heating_power
-    = render StatsWithChart::Component.new(sensor:, timeframe:)
+  - if Sensor::Config.exists? :heatpump_heating_power
+    = render StatsWithChart::Component.new(sensor_name:, timeframe:)
   - else
     = render Message::Component.new do |c|
       = c.with_title { t('layout.incomplete_heatpump') }

@@ -1,10 +1,10 @@
-= render Balance::Component.new calculator:,
+= render Balance::Component.new data:,
                                 timeframe:,
                                 sensor: do |balance|
 
   = balance.with_center do
-    - if SensorConfig.x.exists?(:autarky)
-      = link_to root_path(sensor: 'autarky', timeframe:),
+    - if Sensor::Config.exists?(:autarky)
+      = link_to root_path(sensor_name: 'autarky', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
@@ -12,13 +12,13 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy" data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(percent: calculator.autarky, title: t('calculator.autarky'))
+          = render RadialBadge::Component.new(percent: data.autarky, title: Sensor::Registry[:autarky].display_name(:short))
           - unless timeframe.future?
             template data-tippy-target="html"
-              = render AutarkyDetails::Component.new(calculator:)
+              = render AutarkyDetails::Component.new(data:, timeframe:)
 
-    - if SensorConfig.x.exists?(:self_consumption) && calculator.self_consumption_quote
-      = link_to root_path(sensor: 'self_consumption', timeframe:),
+    - if Sensor::Config.exists?(:self_consumption_quote) && data.self_consumption_quote
+      = link_to root_path(sensor_name: 'self_consumption_quote', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
@@ -26,23 +26,23 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy" data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(percent: calculator.self_consumption_quote, neutral: true, title: t('calculator.self_consumption_quote_short'))
+          = render RadialBadge::Component.new(percent: data.self_consumption_quote, neutral: true, title: Sensor::Registry[:self_consumption_quote].display_name(:short))
           - unless timeframe.future?
             template data-tippy-target="html"
-              = render ConsumptionDetails::Component.new(calculator:)
+              = render ConsumptionDetails::Component.new(data:, timeframe:)
 
     div class="flex-1"
 
     - unless timeframe.future?
-      = link_to root_path(sensor: 'co2_reduction', timeframe:),
+      = link_to root_path(sensor_name: 'co2_reduction', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy" title= t('calculator.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(title: t('calculator.co2_reduction')) do
-            = Number::Component.new(value: calculator.co2_reduction).to_weight(klass: 'text-sky-700 dark:text-sky-400')
+        div data-controller="tippy" title= t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tippy-touch-value= "true"
+          = render RadialBadge::Component.new(title: Sensor::Registry[:co2_reduction].display_name(:short)) do
+            = render SensorValue::Component.new(data, :co2_reduction, class: 'text-sky-700 dark:text-sky-400')
 
-    = render FinanceBadge::Component.new(calculator:, timeframe:)
+    = render FinanceBadge::Component.new(data:, timeframe:)

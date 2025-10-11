@@ -1,34 +1,31 @@
 class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
-  def initialize(sensor:, period:, sort:, calc:)
-    raise ArgumentError, 'sensor must be present' if sensor.blank?
+  def initialize(sensor_name:, period:, sort:, calc:)
+    raise ArgumentError, 'sensor_name must be present' if sensor_name.blank?
     raise ArgumentError, 'period must be present' if period.blank?
     raise ArgumentError, 'sort must be present' if sort.blank?
     raise ArgumentError, 'calc must be present' if calc.blank?
 
     super()
-    @sensor = sensor
+    @sensor_name = sensor_name
     @period = period
     @sort = sort
     @calc = ActiveSupport::StringInquirer.new(calc)
   end
-  attr_accessor :sensor, :period, :sort, :calc
+  attr_accessor :sensor_name, :period, :sort, :calc
 
-  def top10
-    @top10 ||= PowerRanking.new(sensor:, calc:, desc: sort.desc?)
+  def sensor
+    @sensor ||= Sensor::Registry[sensor_name]
   end
 
   def top10_for_period
     @top10_for_period ||=
-      case period
-      when 'day'
-        top10.days
-      when 'week'
-        top10.weeks
-      when 'month'
-        top10.months
-      when 'year'
-        top10.years
-      end
+      Sensor::Query::Ranking.new(
+        sensor_name,
+        aggregation: calc.to_sym,
+        period: period.to_sym,
+        desc: sort.desc?,
+        limit: 10,
+      ).call
   end
 
   def maximum
@@ -47,24 +44,13 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
     end
   end
 
-  def bar_classes # rubocop:disable Metrics/CyclomaticComplexity
-    case sensor.to_sym
-    when :battery_discharging_power, :battery_charging_power
-      'from-green-700 to-green-300 text-green-800 dark:from-green-800 dark:to-green-500 dark:text-green-900'
-    when :house_power, /custom_power_\d{2}/
-      'from-slate-500 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
-    when :wallbox_power
-      'from-slate-600 to-slate-300 text-slate-800 dark:from-slate-700 dark:to-slate-500 dark:text-slate-900'
-    when :heatpump_power
-      'from-slate-700 to-slate-300 text-slate-800 dark:from-slate-800 dark:to-slate-500 dark:text-slate-900'
-    when :heatpump_heating_power
-      'from-yellow-600 to-yellow-400 text-yellow-800 dark:from-yellow-800 dark:to-yellow-600 dark:text-yellow-900'
-    when :grid_import_power, :case_temp, :outdoor_temp
-      'from-red-600   to-red-300   text-red-800   dark:from-red-800   dark:to-red-400   dark:text-red-900'
-    when :grid_export_power, :inverter_power,
-         *SensorConfig::CUSTOM_INVERTER_SENSORS
-      'from-green-500 to-green-300 text-green-800 dark:from-green-700 dark:to-green-500 dark:text-green-900'
-    end
+  def bar_style(record)
+    hex = sensor.color_hex
+    "width: #{percent(record)}%; --bar-color: #{hex};"
+  end
+
+  def bar_classes
+    'bar-gradient text-white dark:text-white/90'
   end
 
   # CSS classes to HIDE the value inside the bar when the bar is too small
@@ -104,15 +90,25 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
   end
 
   def timeframe_path(record)
-    if sensor.to_s.match?(/custom_power_\d{2}/)
-      house_home_path(sensor:, timeframe: corresponding_date(record[:date]))
-    elsif sensor.to_s.match?(/inverter_power_\d{1}/)
-      inverter_home_path(sensor:, timeframe: corresponding_date(record[:date]))
-    elsif sensor == :heatpump_heating_power
-      heatpump_home_path(sensor:, timeframe: corresponding_date(record[:date]))
+    if sensor_name.to_s.match?(/custom_power_\d{2}/)
+      house_home_path(
+        sensor_name:,
+        timeframe: corresponding_date(record[:date]),
+      )
+    elsif sensor_name.to_s.match?(/inverter_power_\d{1}/)
+      inverter_home_path(
+        sensor_name:,
+        timeframe: corresponding_date(record[:date]),
+      )
+    elsif sensor_name == :heatpump_heating_power
+      heatpump_home_path(
+        sensor_name:,
+        timeframe: corresponding_date(record[:date]),
+      )
     else
       root_path(
-        sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
+        sensor_name:
+          sensor_name.to_s.sub(/_import|_export|_charging|_discharging/, ''),
         timeframe: corresponding_date(record[:date]),
       )
     end
@@ -173,12 +169,11 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
     safe_join(result, '. ')
   end
 
-  def unit_method
-    case sensor.to_sym
-    when :case_temp, :outdoor_temp
-      :to_grad_celsius
+  def context
+    if sensor.unit == :watt
+      calc.max? ? :power : :energy
     else
-      calc.max? ? :to_watt : :to_watt_hour
+      :auto
     end
   end
 end
