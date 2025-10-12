@@ -132,6 +132,18 @@ describe 'SummarizerJob' do
         expect(value_for(:grid_export_power)).to eq(50)
       end
 
+      it 'set revenue and costs from Prices' do
+        Price.create!(name: :electricity, starts_at: 1.year.ago, value: 0.25)
+        Price.create!(name: :feed_in, starts_at: 1.year.ago, value: 0.08)
+
+        perform
+
+        expect(SummaryValue.count).to eq(46)
+
+        expect(value_for(:grid_costs)).to eq(0.025) # 100 * 0.08 / 1000
+        expect(value_for(:grid_revenue)).to eq(0.004) # 50 * 0.08 / 1000
+      end
+
       private
 
       def value_for(field, aggregation: 'sum')

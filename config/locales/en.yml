@@ -28,6 +28,7 @@ en:
     incomplete_multi_inverter: Multiple inverters
     missing_multi_inverter: Here you could visualize multiple inverters. Add additional sensors to your configuration (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> to <code>_5</code>).
     house_power_invalid: House consumption is less than the sum of the consumers
+    insights: Figures & Trend
   timeframe:
     now: Now
     hours: Last %{count} hours

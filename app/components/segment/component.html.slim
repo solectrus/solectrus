@@ -29,8 +29,8 @@
               stats_with_chart__component_sensor_param: sensor,
             } do
     .content class= "#{'click-animation' if url}"
-      - if icon_class
-        i.fa.icon class= icon_class
+      - unless inline
+        = render SensorIcon::Component.new(sensor, context: self, class: 'icon')
 
       .font-light.leading-tight.title
         = title.truncate(20)
@@ -43,9 +43,8 @@
 
       .hidden id="tippy-tooltip-#{sensor}" data-tippy-target="html"
         .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
-          - if icon_class
-            div
-              i.fa.fa-2xl class= icon_class
+          - unless inline
+            = render SensorIcon::Component.new(sensor, context: self, class: 'fa-2xl')
 
           = title
 

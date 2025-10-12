@@ -70,6 +70,8 @@ describe 'Home page' do
       end
     end
 
+    check_insights(path)
+
     click_prev_and_expect('Montag, 20. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#balance-chart-2022-06-20')
@@ -109,6 +111,8 @@ describe 'Home page' do
       expect(page).to have_content(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
     end
 
+    check_insights(path)
+
     click_prev_and_expect('KW 24, 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#balance-chart-2022-W24')
@@ -133,6 +137,8 @@ describe 'Home page' do
     if path == 'inverter_power'
       expect(page).to have_content(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
     end
+
+    check_insights(path)
 
     click_prev_and_expect('Mai 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
@@ -159,6 +165,8 @@ describe 'Home page' do
       expect(page).to have_content(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
     end
 
+    check_insights(path)
+
     click_prev_and_expect('2021')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#balance-chart-2021')
@@ -180,6 +188,8 @@ describe 'Home page' do
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-all')
 
+    check_insights(path)
+
     return unless path == 'inverter_power'
 
     expect(page).to have_content(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
@@ -195,5 +205,24 @@ describe 'Home page' do
     turbo_safe_click('Weiter')
 
     within('header time') { expect(page).to have_content(expected_time) }
+  end
+
+  def check_insights(path)
+    if path.in? %w[
+                  autarky
+                  self_consumption
+                  case_temp
+                  battery_soc
+                  car_battery_soc
+                  co2_reduction
+                ]
+      return
+    end
+
+    click_on('Kennzahlen & Trend')
+    expect(page).to have_css('#modal-title')
+
+    click_on('Schließen')
+    expect(page).to have_no_css('#modal-title')
   end
 end
