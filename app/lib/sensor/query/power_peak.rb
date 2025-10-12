@@ -16,7 +16,7 @@ module Sensor
 
       def call
         data_instance = super
-        return if data_instance.nil? || data_instance.raw_data.blank?
+        return {} if data_instance.nil? || data_instance.raw_data.blank?
 
         # Extract raw hash from Data instance for backward compatibility
         result = data_instance.raw_data.dup

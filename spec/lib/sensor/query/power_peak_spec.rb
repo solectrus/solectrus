@@ -28,7 +28,7 @@ describe Sensor::Query::PowerPeak do
       end
 
       context 'when no summaries exist' do
-        it { is_expected.to be_nil }
+        it { is_expected.to eq({}) }
       end
 
       context 'when summaries are present' do
@@ -67,7 +67,7 @@ describe Sensor::Query::PowerPeak do
       let(:sensor_names) { %i[inverter_power_1] }
 
       context 'when no summaries exist' do
-        it { is_expected.to be_nil }
+        it { is_expected.to eq({}) }
       end
 
       context 'when summaries are present' do
@@ -92,7 +92,7 @@ describe Sensor::Query::PowerPeak do
       it { expect(Sensor::Config).to be_multi_inverter }
 
       context 'when no summaries exist' do
-        it { is_expected.to be_nil }
+        it { is_expected.to eq({}) }
       end
 
       context 'when summaries are present' do
