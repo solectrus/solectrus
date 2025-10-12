@@ -1,13 +1,13 @@
 describe Insights do
   subject(:insights) { described_class.new(sensor:, timeframe:) }
 
-  let(:timeframe) { Timeframe.new('2025') }
+  let(:timeframe) { Timeframe.new('2025-01') }
 
   describe '#value' do
     subject { insights.value }
 
     context 'when sensor is :inverter_power' do
-      let(:sensor) { :inverter_power }
+      let(:sensor) { Sensor::Registry[:inverter_power] }
 
       before do
         create_summary(
@@ -24,7 +24,7 @@ describe Insights do
     end
 
     context 'when sensor is :inverter_power_1' do
-      let(:sensor) { :inverter_power_1 }
+      let(:sensor) { Sensor::Registry[:inverter_power_1] }
 
       before do
         create_summary(
@@ -41,7 +41,7 @@ describe Insights do
     end
 
     context 'when sensor is :house_power' do
-      let(:sensor) { :house_power }
+      let(:sensor) { Sensor::Registry[:house_power] }
 
       before do
         create_summary(
@@ -58,7 +58,7 @@ describe Insights do
     end
 
     context 'when sensor is :custom_power_01' do
-      let(:sensor) { :custom_power_01 }
+      let(:sensor) { Sensor::Registry[:custom_power_01] }
 
       before do
         create_summary(
@@ -72,6 +72,43 @@ describe Insights do
       end
 
       it { is_expected.to eq(1100) }
+    end
+
+    context 'when sensor is :grid_power (calculated from dependencies)' do
+      let(:sensor) { Sensor::Registry[:grid_power] }
+
+      before do
+        create_summary(
+          date: Date.new(2025, 1, 1),
+          values: [
+            [:grid_export_power, :sum, 8000],
+            [:grid_import_power, :sum, 3000],
+          ],
+        )
+        create_summary(
+          date: Date.new(2025, 1, 2),
+          values: [
+            [:grid_export_power, :sum, 6000],
+            [:grid_import_power, :sum, 2000],
+          ],
+        )
+      end
+
+      # grid_power = export - import
+      # Day 1: 8000 - 3000 = 5000
+      # Day 2: 6000 - 2000 = 4000
+      # Total: 9000
+      it { is_expected.to eq(9000) }
+
+      describe 'trends' do
+        it 'yearly_trend is available' do
+          expect(insights.yearly_trend).to be_a(Trend)
+        end
+
+        it 'monthly_trend is available' do
+          expect(insights.monthly_trend).to be_a(Trend)
+        end
+      end
     end
   end
 end

@@ -2,7 +2,7 @@
   - modal.with_title do
     .flex.gap-3.items-center
       = render SensorIcon::Component.new(sensor)
-      = SensorConfig.x.display_name(sensor)
+      = sensor.display_name
 
   .mt-2.mb-4
     = timeframe.localized

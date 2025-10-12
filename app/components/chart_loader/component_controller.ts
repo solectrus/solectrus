@@ -355,7 +355,7 @@ export default class extends Controller<HTMLCanvasElement> {
         if (!dataset.data) return;
 
         const id = (dataset as DatasetWithId).id;
-        const isTemperature = id === 'case_temp' || id === 'outdoor_temp';
+        const isTemperature = id?.endsWith('_temp');
 
         if (isTemperature) {
           this.setTemperatureGradient(dataset);
@@ -425,10 +425,14 @@ export default class extends Controller<HTMLCanvasElement> {
 
     let unitValuePrefix = '';
 
+    // Don't scale euro values
+    const isEuro = this.unitValue.includes('€');
+
     const kilo =
-      target === 'axis'
+      !isEuro &&
+      (target === 'axis'
         ? maxValue > 1000 || minValue < -1000
-        : number > 1000 || number < -1000;
+        : number > 1000 || number < -1000);
     if (kilo) {
       number /= 1000.0;
       unitValuePrefix = 'k';

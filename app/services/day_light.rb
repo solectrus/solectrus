@@ -1,7 +1,7 @@
-class DayLight < Flux::Reader
+class DayLight < Sensor::Query::Influx::Base
   def self.active?
     # Assume sun is shining if forecast is not available
-    return true unless SensorConfig.x.exists?(:inverter_power_forecast)
+    return true unless Sensor::Config.exists?(:inverter_power_forecast)
 
     day_light = new(Date.current)
 
@@ -13,7 +13,7 @@ class DayLight < Flux::Reader
   end
 
   def initialize(date)
-    super(sensors: [:inverter_power_forecast])
+    super([:inverter_power_forecast], Timeframe.now)
     @date = date
   end
 

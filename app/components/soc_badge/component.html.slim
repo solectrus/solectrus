@@ -4,7 +4,7 @@
 ]
   - %i[battery_soc car_battery_soc].each do |soc_sensor|
     - if (value = public_send(soc_sensor))
-      = link_to root_path(sensor: soc_sensor, timeframe:),
+      = link_to root_path(sensor_name: soc_sensor, timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',

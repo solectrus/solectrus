@@ -9,7 +9,7 @@ class Inverter::HomeController < ApplicationController
       return
     end
 
-    unless sensor && timeframe
+    unless sensor_name && timeframe
       redirect_to(default_path)
       return
     end
@@ -20,6 +20,6 @@ class Inverter::HomeController < ApplicationController
   private
 
   def default_path
-    inverter_home_path(sensor: sensor || 'inverter_power', timeframe: 'now')
+    inverter_home_path(sensor_name: sensor_name || :inverter_power, timeframe: 'now')
   end
 end

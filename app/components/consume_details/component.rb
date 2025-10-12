@@ -1,8 +1,8 @@
 class ConsumeDetails::Component < ViewComponent::Base
-  def initialize(calculator:)
+  def initialize(data:)
     super()
-    @calculator = calculator
+    @data = data
   end
 
-  attr_accessor :calculator
+  attr_accessor :data
 end

@@ -1,13 +1,23 @@
 class ConsumptionDetails::Component < ViewComponent::Base
-  def initialize(calculator:)
+  def initialize(data:, timeframe:)
     super()
-    @calculator = calculator
+    @data = data
+    @timeframe = timeframe
   end
 
-  attr_accessor :calculator
+  attr_accessor :data, :timeframe
 
-  def number_method
-    @number_method ||=
-      calculator.is_a?(Calculator::Now) ? :to_watt : :to_watt_hour
+  def consistent_options
+    max = [
+      data.inverter_power,
+      data.grid_export_power,
+      data.self_consumption,
+    ].compact.max
+
+    { context: power_or_energy, scaling: max, precision: 3 }
+  end
+
+  def power_or_energy
+    timeframe.now? ? :power : :energy
   end
 end

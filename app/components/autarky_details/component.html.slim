@@ -1,27 +1,31 @@
 dl
   .grid.grid-cols-2.gap-4
     dt
-      = I18n.t('sensors.grid_import_power')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.grid_import_power).public_send(number_method, max_precision: 3, unit: :kilo)
+      = Sensor::Registry[:grid_import_power].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :grid_import_power, **consistent_options)
 
   .mt-2.grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&divide;&nbsp;
-      = I18n.t('calculator.consumption')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.consumption).public_send(number_method, max_precision: 3, unit: :kilo)
+      = Sensor::Registry[:total_consumption].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :total_consumption, **consistent_options)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&#61;&nbsp;
-      = I18n.t('calculator.grid_quote')
-    dd.font-mono.text-right = Number::Component.new(value: calculator.grid_quote).to_percent(max_precision: 1)
+      = Sensor::Registry[:grid_quote].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :grid_quote)
 
   .mt-5.grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
-      = I18n.t('calculator.autarky')
+      = Sensor::Registry[:autarky].display_name(:short)
       |&nbsp;&#61;&nbsp;
       |100 &minus;&nbsp;
-      = Number::Component.new(value: calculator.grid_quote).to_percent(max_precision: 1, klass: 'text-current')
+      = render SensorValue::Component.new(data, :grid_quote)
 
-    dd.font-mono.text-right = Number::Component.new(value: calculator.autarky).to_percent(max_precision: 1)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :autarky)

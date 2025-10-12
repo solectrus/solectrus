@@ -26,8 +26,8 @@
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - elsif ApplicationPolicy.multi_inverter?
-  - if SensorConfig.x.inverter_sensor_names.length > 1
-    = render StatsWithChart::Component.new(sensor:, timeframe:)
+  - if Sensor::Config.custom_inverter_sensors.length > 1
+    = render StatsWithChart::Component.new(sensor_name:, timeframe:)
   - else
     = render Message::Component.new do |c|
       = c.with_title { t('layout.incomplete_multi_inverter') }

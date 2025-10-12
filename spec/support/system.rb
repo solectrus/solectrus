@@ -20,7 +20,7 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
     JS
   end
 
-  def influx_seed
+  def influx_seed # rubocop:disable Metrics/MethodLength
     travel_to Time.zone.local(2022, 6, 21, 12, 0, 0)
 
     # Clean up any existing data first
@@ -48,6 +48,7 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
         [:inverter_power_2, :sum, 2_000],
         [:inverter_power_forecast, :sum, 21_000],
         [:house_power, :sum, 1800],
+        [:house_power_grid, :sum, 1000],
         [:heatpump_power, :sum, 800],
         [:heatpump_power_grid, :sum, 200],
         [:grid_import_power, :sum, 20],
@@ -55,6 +56,8 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
         [:battery_charging_power, :sum, 2000],
         [:battery_discharging_power, :sum, 20],
         [:wallbox_power, :sum, 12_000],
+        [:custom_power_01, :sum, 1500],
+        [:custom_power_01_grid, :sum, 400],
         [:inverter_power_1, :max, 9000],
         [:inverter_power_2, :max, 1000],
         [:house_power, :max, 3000],
@@ -64,8 +67,11 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
         [:battery_charging_power, :max, 1000],
         [:battery_discharging_power, :max, 100],
         [:wallbox_power, :max, 6000],
+        [:custom_power_01, :max, 200],
         [:battery_soc, :min, 40.0],
+        [:battery_soc, :max, 90.0],
         [:car_battery_soc, :min, 30.0],
+        [:car_battery_soc, :max, 85.0],
         [:case_temp, :min, 30.0],
         [:heatpump_heating_power, :sum, 2400],
         [:outdoor_temp, :avg, 10.0],
@@ -75,7 +81,7 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
     )
   end
 
-  def seed_pv
+  def seed_pv # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     # Fill 2 hour window with 5 second intervals
     2
       .hours
@@ -94,6 +100,30 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
             field_case_temp => 30.0,
             field_system_status => 'LADEN',
             field_system_status_ok => true,
+          },
+          time: i.seconds.ago,
+        )
+
+        add_influx_point(
+          name: measurement_house_power_grid,
+          fields: {
+            field_house_power_grid => 250,
+          },
+          time: i.seconds.ago,
+        )
+
+        add_influx_point(
+          name: measurement_custom_power_01,
+          fields: {
+            field_custom_power_01 => 200,
+          },
+          time: i.seconds.ago,
+        )
+
+        add_influx_point(
+          name: measurement_custom_power_01_grid,
+          fields: {
+            field_custom_power_01_grid => 50,
           },
           time: i.seconds.ago,
         )
@@ -193,6 +223,7 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
   def influx_purge
     delete_influx_data
     delete_summaries
+    delete_prices
   end
 
   def create_summary(date:, updated_at: Time.current, values: [])
@@ -208,6 +239,12 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
   def delete_summaries
     ActiveRecord::Base.connection.execute(
       "TRUNCATE #{Summary.table_name} CASCADE",
+    )
+  end
+
+  def delete_prices
+    ActiveRecord::Base.connection.execute(
+      "TRUNCATE #{Price.table_name} CASCADE",
     )
   end
 end
@@ -229,14 +266,10 @@ RSpec.configure do |config|
     #   )
     # end
 
-    # Stub the version check so we don't have to hit the network
-    UpdateCheck.class_eval do
-      def latest
-        { registration_status: 'complete', version: '1.0.0' }
-      end
-    end
-
     # Seed fresh data for each test to ensure isolation
     influx_seed
+
+    # Seed prices for finance calculations (after influx_purge)
+    Price.seed! if Price.none?
   end
 end

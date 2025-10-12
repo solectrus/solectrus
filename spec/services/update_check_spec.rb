@@ -4,6 +4,12 @@ describe UpdateCheck do
   before do
     Rails.application.load_seed
     instance.clear_cache!
+    # Allow HTTP requests in these specs by bypassing skip_update_check?
+    # rubocop:disable RSpec/AnyInstance
+    allow_any_instance_of(UpdateCheck::HttpClient).to receive(
+      :skip_update_check?,
+    ).and_return(false)
+    # rubocop:enable RSpec/AnyInstance
   end
 
   # Some helper methods to check the cache
@@ -21,7 +27,7 @@ describe UpdateCheck do
     context 'when the request succeeds', vcr: { cassette_name: 'version' } do
       it do
         is_expected.to eq(
-          { version: 'v0.20.1', registration_status: 'unregistered' },
+          { version: 'v0.20.3', registration_status: 'unregistered' },
         )
       end
 
@@ -34,7 +40,7 @@ describe UpdateCheck do
       end
 
       it 'has shortcuts' do
-        expect(instance.latest_version).to eq('v0.20.1')
+        expect(instance.latest_version).to eq('v0.20.3')
         expect(instance.registration_status).to eq('unregistered')
         expect(instance).to be_unregistered
       end

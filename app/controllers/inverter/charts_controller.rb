@@ -8,11 +8,11 @@ class Inverter::ChartsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to inverter_home_path(sensor:, timeframe:)
+      redirect_to inverter_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
 
   helper_method def chart_sensors
-    ([:inverter_power] + SensorConfig.x.inverter_sensor_names).uniq
+    Sensor::Config.inverter_sensors.map(&:name)
   end
 end

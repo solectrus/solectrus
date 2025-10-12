@@ -1,0 +1,50 @@
+class Sensor::Definitions::CustomPowerPv < Sensor::Definitions::Base
+  # Use the same MAX as CustomPower since they're related
+  MAX = Sensor::Definitions::CustomPower::MAX
+  public_constant :MAX
+
+  def initialize(number)
+    @number = number
+    super()
+  end
+
+  def name
+    :"custom_power_#{formatted_number}_pv"
+  end
+
+  value unit: :watt, category: :power_splitter
+
+  color hex: '#16a34a',
+        bg_classes: 'bg-green-600 dark:bg-green-800',
+        text_classes: 'text-green-100 dark:text-green-400'
+
+  depends_on do
+    [
+      :"custom_power_#{formatted_number}",
+      :"custom_power_#{formatted_number}_grid",
+    ]
+  end
+
+  calculate do |**kwargs|
+    custom_power_key = :"custom_power_#{formatted_number}"
+    custom_power_grid_key = :"custom_power_#{formatted_number}_grid"
+
+    custom_power = kwargs[custom_power_key]
+    return unless custom_power
+
+    custom_power_grid = kwargs[custom_power_grid_key]
+    return custom_power unless custom_power_grid
+
+    [custom_power - custom_power_grid, 0].max
+  end
+
+  aggregations stored: false, computed: [:sum], meta: [:sum]
+
+  requires_permission :power_splitter
+
+  private
+
+  def formatted_number
+    format('%02d', @number)
+  end
+end

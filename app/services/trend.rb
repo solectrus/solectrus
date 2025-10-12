@@ -1,28 +1,11 @@
 class Trend
   def self.available_for?(sensor:, timeframe:)
     return false unless timeframe.year_like? || timeframe.month_like?
-    return false unless SummaryValue.fields.key?(sensor)
-    return false unless sensor.in?(TRENDABLE_SENSORS)
+
+    return false unless sensor.trendable?
 
     true
   end
-
-  TRENDABLE_SENSORS = %i[
-    inverter_power
-    inverter_power_1
-    inverter_power_2
-    inverter_power_3
-    inverter_power_4
-    inverter_power_5
-    grid_import_power
-    grid_export_power
-    battery_charging_power
-    battery_discharging_power
-    heatpump_power
-    wallbox_power
-    house_power
-  ].freeze
-  private_constant :TRENDABLE_SENSORS
 
   def initialize(sensor:, timeframe:, current_value:, base:)
     unless base.in?(%i[previous_year previous_period])
@@ -113,9 +96,9 @@ class Trend
 
   def base_value
     return unless valid?
-    return unless base_calculator.respond_to?(sensor)
+    return unless base_data.respond_to?(sensor.name)
 
-    @base_value ||= base_calculator.public_send(sensor)
+    @base_value ||= base_data.public_send(sensor.name)
   end
 
   def factor
@@ -134,21 +117,7 @@ class Trend
     percent&.round&.zero?
   end
 
-  def more_is_better?
-    sensor.in?(
-      %i[
-        inverter_power
-        inverter_power_1
-        inverter_power_2
-        inverter_power_3
-        inverter_power_4
-        inverter_power_5
-        grid_export_power
-        battery_charging_power
-        battery_discharging_power
-      ],
-    )
-  end
+  delegate :more_is_better?, to: :sensor
 
   def diff
     return unless base_value && current_value
@@ -158,15 +127,21 @@ class Trend
 
   private
 
-  def base_calculator
-    @base_calculator ||= Calculator::Range.new(base_timeframe)
+  def base_data
+    @base_data ||=
+      Sensor::Query::Sql
+        .new do |q|
+          q.sum sensor.name
+          q.timeframe base_timeframe
+        end
+        .call
   end
 
   def relevant_sensors
-    if sensor == :inverter_power
-      SensorConfig.x.inverter_sensor_names
-    else
-      [sensor]
-    end
+    # Use DependencyResolver to get all dependencies, then filter to storable ones
+    Sensor::DependencyResolver
+      .new(sensor.name, context: :sql)
+      .resolve
+      .select { |s| Sensor::Registry[s].store_in_summary? }
   end
 end

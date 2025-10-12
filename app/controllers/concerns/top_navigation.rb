@@ -40,11 +40,17 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         href:
           case helpers.controller_namespace
           when 'house'
-            root_path(sensor: 'house_power', timeframe: helpers.timeframe)
+            root_path(sensor_name: 'house_power', timeframe: helpers.timeframe)
           when 'inverter'
-            root_path(sensor: 'inverter_power', timeframe: helpers.timeframe)
+            root_path(
+              sensor_name: 'inverter_power',
+              timeframe: helpers.timeframe,
+            )
           when 'heatpump'
-            root_path(sensor: 'heatpump_power', timeframe: helpers.timeframe)
+            root_path(
+              sensor_name: 'heatpump_power',
+              timeframe: helpers.timeframe,
+            )
           else
             root_path
           end,
@@ -60,7 +66,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.inverter'),
         icon: 'solar-panel',
         icon_only: true,
-        href: inverter_home_path(sensor: 'inverter_power', timeframe:),
+        href: inverter_home_path(sensor_name: 'inverter_power', timeframe:),
         current: helpers.controller_namespace == 'inverter',
       }
     end
@@ -70,7 +76,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.house'),
         icon: 'house-crack',
         icon_only: true,
-        href: house_home_path(sensor: 'house_power', timeframe:),
+        href: house_home_path(sensor_name: 'house_power', timeframe:),
         current: helpers.controller_namespace == 'house',
       }
     end
@@ -80,7 +86,8 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.heatpump'),
         icon: 'fan',
         icon_only: true,
-        href: heatpump_home_path(sensor: 'heatpump_heating_power', timeframe:),
+        href:
+          heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:),
         current: helpers.controller_namespace == 'heatpump',
       }
     end
@@ -102,10 +109,12 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         icon_only: true,
         href:
           top10_path(
-            sensor:
-              if helpers.respond_to?(:sensor) &&
-                   helpers.sensor.in?(SensorConfig::POWER_SENSORS)
-                helpers.sensor
+            sensor_name:
+              if helpers.respond_to?(:sensor_name) &&
+                   helpers.sensor_name.in?(
+                     Sensor::Config.top10_sensors.map(&:name),
+                   )
+                helpers.sensor_name
               else
                 'inverter_power'
               end,

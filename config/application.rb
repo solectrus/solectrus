@@ -28,6 +28,11 @@ module Solectrus
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks middleware])
 
+    # Collapse sensor definition subdirectories so that files like
+    # app/lib/sensor/definitions/battery/battery_charging_power.rb
+    # define Sensor::Definitions::BatteryChargingPower (not ::Battery::BatteryChargingPower)
+    Rails.autoloaders.main.collapse("#{root}/app/lib/sensor/definitions/*")
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
@@ -75,19 +80,9 @@ module Solectrus
     config.x.influx.poll_interval = ENV.fetch('INFLUX_POLL_INTERVAL', '5').to_i
 
     config.after_initialize do
-      def rake_task_running?(*tasks)
-        tasks.any? do |task|
-          defined?(Rake) && Rake.application.top_level_tasks.include?(task)
-        end
-      end
+      extend RakeHelper
 
-      unless rake_task_running?(
-               'assets:precompile',
-               'db:create',
-               'db:migrate',
-               'db:prepare',
-             )
-        SensorConfig.setup(ENV)
+      unless skip_init_rake_task_running?
         ThemeConfig.setup(ENV)
 
         ActiveRecord::Base.connection_pool.with_connection do
@@ -96,8 +91,9 @@ module Solectrus
             Setting.seed!
 
             # Validate summaries on every start
-            if ActiveRecord::Base.connection.table_exists?(:summaries)
-              Summary.validate!
+            if ActiveRecord::Base.connection.table_exists?(:summaries) &&
+                 !Rails.env.test?
+              Sensor::SummaryInvalidator.ensure_valid!
             end
           end
         end

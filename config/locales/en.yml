@@ -1,4 +1,7 @@
 en:
+  general:
+    'yes': Yes
+    'no': No
   layout:
     balance: Power balance
     inverter: Generation
@@ -59,6 +62,8 @@ en:
     grid_import_power: Grid import
     grid_export_power: Grid export
     grid_power: Grid import and export
+    grid_revenue: Feed-in revenue
+    grid_revenue_short: Revenue
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
     battery_power: Home Battery
@@ -74,6 +79,21 @@ en:
     heatpump_cop: COP
     outdoor_temp: Outdoor temperature
     outdoor_temp_short: Outdoor
+    grid_quote: Grid consumption rate
+    total_consumption: Total consumption
+    self_consumption: Self consumption
+    self_consumption_quote: Self-consumption rate
+    self_consumption_quote_short: Self-use
+    solar_price: Solar price
+    traditional_costs: Comparative price
+    savings: Savings
+    co2_reduction: CO₂ reduction
+    co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
+    battery_savings: Battery share
+    total_costs: Total costs
+    total_costs_short: Costs
+    grid_costs: Grid costs
+    autarky: Autarky
   splitter:
     grid: Grid
     pv: PV
@@ -82,30 +102,16 @@ en:
     left: Source
     right: Usage
     soc: Charge
-  calculator:
+  data:
     now: Now
     day: Day
     week: Week
     month: Month
     year: Year
     all: Overall
-    grid_quote: Grid consumption rate
-    consumption: Total consumption
-    self_consumption: Self consumption
-    self_consumption_quote: Self-consumption rate
-    self_consumption_quote_short: Self-use
-    solar_price: Solar price
-    traditional_price: Comparative price
-    savings: Savings
-    co2_reduction: CO₂ reduction
-    co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
-    battery_savings: Battery share
-    total_costs: Total costs
-    compensation: Compensation
-    autarky: Autarky
-    heatpump_cop: COP
     time: Last measurement taken
     blank: No data available!
+    blank_finance_short_timeframe: Chart only available for longer time periods!
     heatpump_cop_below_one: Power consumption exceeds heat generated
     heatpump_no_heating: No heating operation
   chart:

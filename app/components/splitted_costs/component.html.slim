@@ -2,7 +2,7 @@
   - if power_grid_ratio
     div
       small
-        = Number::Component.new(value: power_pv_ratio).to_percent(max_precision: 0, klass: 'text-inherit')
+        = render SensorValue::Component.new(power_pv_ratio, :autarky)
         =< t('.generated')
       .w-full.flex.gap-px.rounded.overflow-hidden
         - if power_pv_ratio.positive?
@@ -15,4 +15,4 @@
           ]
 
   .mt-2
-    = Number::Component.new(value: costs).to_eur(negative: true, klass: 'text-xl')
+    = render SensorValue::Component.new(costs, :total_costs, sign: :negative, class: 'text-xl')

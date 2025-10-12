@@ -3,14 +3,19 @@ describe UpdateCheck::HttpClient do
 
   let(:update_url) { 'https://update.solectrus.de' }
 
-  before { allow(Rails.logger).to receive(:info) }
+  before do
+    allow(Rails.logger).to receive(:info)
+
+    # Allow HTTP requests in these specs by bypassing skip_update_check?
+    allow(http_client).to receive(:skip_update_check?).and_return(false) # rubocop:disable RSpec/SubjectStub
+  end
 
   describe '#fetch_update_data' do
     subject(:result) { http_client.fetch_update_data }
 
     context 'when the request succeeds' do
       let(:response_body) do
-        { version: 'v0.20.1', registration_status: 'unregistered' }.to_json
+        { version: 'v0.20.3', registration_status: 'unregistered' }.to_json
       end
       let(:headers) { { 'Cache-Control' => 'max-age=43200' } }
 
@@ -25,7 +30,7 @@ describe UpdateCheck::HttpClient do
       it 'returns the parsed JSON data with expiration' do
         expect(result).to eq(
           data: {
-            version: 'v0.20.1',
+            version: 'v0.20.3',
             registration_status: 'unregistered',
           },
           expires_in: 43_200,

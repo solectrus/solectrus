@@ -1,16 +1,16 @@
 class StatsWithChart::Component < ViewComponent::Base
-  def initialize(sensor:, timeframe:)
+  def initialize(sensor_name:, timeframe:)
     super()
-    @sensor = sensor
+    @sensor_name = sensor_name
     @timeframe = timeframe
   end
 
-  attr_reader :sensor, :timeframe
+  attr_reader :sensor_name, :timeframe
 
   def refresh_options
     {
       controller: 'stats-with-chart--component',
-      'stats-with-chart--component-sensor-value': sensor,
+      'stats-with-chart--component-sensor-value': sensor_name,
       'stats-with-chart--component-interval-value':
         (
           if timeframe.past?
@@ -30,7 +30,7 @@ class StatsWithChart::Component < ViewComponent::Base
   def next_path
     return unless forced_next_timeframe
 
-    root_path(sensor:, timeframe: forced_next_timeframe)
+    root_path(sensor_name:, timeframe: forced_next_timeframe)
   end
 
   def boundary

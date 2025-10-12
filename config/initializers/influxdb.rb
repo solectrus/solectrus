@@ -1,5 +1,5 @@
 class FluxQueryLogSubscriber < ActiveSupport::LogSubscriber
-  attach_to :flux_reader
+  attach_to :sensor_influx
 
   def query(event)
     class_name = event.payload[:class]
@@ -11,6 +11,6 @@ class FluxQueryLogSubscriber < ActiveSupport::LogSubscriber
     colored_query = color(query_string, :yellow, { bold: true })
 
     # Colorize, indent query
-    debug "#{colored_class} (#{duration}ms) sensors=#{sensors}\n  #{colored_query.gsub("\n", "\n  ")}"
+    info "#{colored_class} (#{duration}ms) sensors=#{sensors}\n  #{colored_query.gsub("\n", "\n  ")}"
   end
 end

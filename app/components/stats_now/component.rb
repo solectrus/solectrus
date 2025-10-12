@@ -1,11 +1,11 @@
 class StatsNow::Component < ViewComponent::Base
-  def initialize(calculator:, sensor:)
+  def initialize(data:, sensor:)
     super()
-    @calculator = calculator
+    @data = data
     @sensor = sensor
   end
 
-  attr_accessor :calculator, :sensor
+  attr_accessor :data, :sensor
 
   def max_flow
     #  Heuristic: The peak flow rate is the highest value
@@ -21,9 +21,6 @@ class StatsNow::Component < ViewComponent::Base
   end
 
   def peak
-    @peak ||=
-      PowerPeak.new(sensors: SensorConfig::POWER_SENSORS).call(
-        start: 30.days.ago,
-      )
+    @peak ||= Sensor::Query::PowerPeak.new(data.sensor_names).call
   end
 end

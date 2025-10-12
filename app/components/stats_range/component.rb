@@ -1,10 +1,10 @@
 class StatsRange::Component < ViewComponent::Base
-  def initialize(calculator:, timeframe:, sensor:)
+  def initialize(data:, timeframe:, sensor:)
     super()
-    @calculator = calculator
+    @data = data
     @timeframe = timeframe
     @sensor = sensor
   end
 
-  attr_accessor :calculator, :timeframe, :sensor
+  attr_accessor :data, :timeframe, :sensor
 end

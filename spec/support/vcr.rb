@@ -10,5 +10,4 @@ VCR.configure do |config|
   }
 
   config.ignore_localhost = true
-  config.ignore_hosts('chromedriver.storage.googleapis.com')
 end

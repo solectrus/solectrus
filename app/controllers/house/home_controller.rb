@@ -9,7 +9,7 @@ class House::HomeController < ApplicationController
       return
     end
 
-    unless sensor && timeframe
+    unless sensor_name && timeframe
       redirect_to(default_path)
       return
     end
@@ -20,6 +20,6 @@ class House::HomeController < ApplicationController
   private
 
   def default_path
-    house_home_path(sensor: sensor || 'house_power', timeframe: 'now')
+    house_home_path(sensor_name: sensor_name || :house_power, timeframe: 'now')
   end
 end

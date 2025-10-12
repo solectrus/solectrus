@@ -16,7 +16,7 @@ describe Summary do
       described_class
         .create!(date: Date.current)
         .tap do |s|
-          s.values.create! field: 'inverter_power',
+          s.values.create! field: 'battery_charging_power',
                            aggregation: 'sum',
                            value: 42
         end
@@ -201,71 +201,18 @@ describe Summary do
     end
   end
 
-  describe 'Monitoring' do
-    let(:current_config) { described_class.config }
-
+  describe '.reset!' do
     before do
       create_summary(
         date: Date.current,
-        values: [['inverter_power', 'sum', 42]],
+        values: [['battery_charging_power', 'sum', 42]],
       )
     end
 
-    describe '.reset!' do
-      it 'deletes all summaries with values' do
-        expect { described_class.reset! }.to change(
-          described_class,
-          :count,
-        ).from(1).to(0).and change(SummaryValue, :count).from(1).to(0)
-      end
-    end
-
-    describe '.validate!' do
-      subject(:validation) { described_class.validate! }
-
-      context 'when stored config matches the current config' do
-        before { Setting.summary_config = current_config }
-
-        it 'does not delete summaries' do
-          expect { validation }.not_to change(described_class, :count)
-        end
-
-        it 'does not update the stored config' do
-          expect { validation }.not_to change(Setting, :summary_config)
-        end
-      end
-
-      context 'when stored config differs from the current config' do
-        before { Setting.summary_config = { time_zone: 'Australia/Sydney' } }
-
-        it 'deletes all summaries' do
-          expect { validation }.to change(described_class, :count).from(1).to(
-            0,
-          ).and change(SummaryValue, :count).from(1).to(0)
-        end
-
-        it 'updates the stored config' do
-          expect { validation }.to change(Setting, :summary_config).to(
-            current_config,
-          )
-        end
-      end
-
-      context 'when no stored config exists' do
-        before { Setting.summary_config = nil }
-
-        it 'deletes all summaries' do
-          expect { validation }.to change(described_class, :count).from(1).to(
-            0,
-          ).and change(SummaryValue, :count).from(1).to(0)
-        end
-
-        it 'updates the stored config' do
-          expect { validation }.to change(Setting, :summary_config).to(
-            current_config,
-          )
-        end
-      end
+    it 'deletes all summaries with values' do
+      expect { described_class.reset! }.to change(described_class, :count).from(
+        1,
+      ).to(0).and change(SummaryValue, :count).from(1).to(0)
     end
   end
 end

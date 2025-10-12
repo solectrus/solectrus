@@ -16,17 +16,23 @@ class Insights::HeatmapBase
 
   # Abstract method - must be implemented by subclasses
   def valid_timeframe?
+    # :nocov:
     raise NotImplementedError
+    # :nocov:
   end
 
   # Abstract method - must be implemented by subclasses
   def build_data
+    # :nocov:
     raise NotImplementedError
+    # :nocov:
   end
 
   # Abstract method - subclasses define their grouping dimensions
   def grouping_expressions
+    # :nocov:
     raise NotImplementedError
+    # :nocov:
   end
 
   # Generic base_scope implementation
@@ -41,64 +47,101 @@ class Insights::HeatmapBase
   end
 
   # Shared data fetching methods
-  def fetch_house_power_data
-    excluded_sensors = SensorConfig.x.excluded_sensor_names
-    return fetch_standard_data if excluded_sensors.empty?
-
-    house_power_data = base_scope.where(field: :house_power).sum(:value)
-    excluded_power_data = base_scope.where(field: excluded_sensors).sum(:value)
-
-    house_power_data.map do |key, house_value|
-      excluded_value = excluded_power_data[key] || 0
-      adjusted_value = house_value - excluded_value
-      format_data_entry(key, adjusted_value)
-    end
-  end
-
   def fetch_inverter_power_data
-    return fetch_standard_data if SensorConfig.x.inverter_total_present?
+    # Check if inverter_power has direct summary data
+    if base_scope.exists?(field: :inverter_power)
+      return fetch_standard_data(:inverter_power)
+    end
 
-    inverter_sensors = SensorConfig.x.existing_custom_inverter_sensor_names
-    return fetch_standard_data if inverter_sensors.empty?
+    # Otherwise aggregate all inverter_power_X fields
+    inverter_fields =
+      SummaryValue.fields.keys.filter_map do |field|
+        field.to_sym if field.to_s.match?(/^inverter_power_\d+$/)
+      end
+
+    return [] if inverter_fields.empty?
 
     base_scope
-      .where(field: inverter_sensors)
+      .where(field: inverter_fields)
       .sum(:value)
       .map { |key, total_value| format_data_entry(key, total_value) }
   end
 
   def fetch_grid_power_data
-    raw_data =
-      base_scope
-        .where(field: %i[grid_revenue grid_costs])
-        .group(:field)
-        .sum(:value)
+    query_result =
+      Sensor::Query::Sql
+        .new do |q|
+          q.sum :grid_revenue
+          q.sum :grid_costs
+          q.sum :grid_balance
 
-    grouped_data =
-      raw_data.each_with_object({}) do |(key, value), result|
-        date_key = extract_date_key(key)
-        field_key = extract_field_key(key)
+          q.timeframe timeframe
+          q.group_by(timeframe.year? ? :day : :month)
+        end
+        .call
 
-        result[date_key] ||= { grid_revenue: 0, grid_costs: 0 }
-        result[date_key][field_key] = value
-      end
+    # Convert to heatmap format
+    revenue_data = query_result.grid_revenue(:sum, :sum)
+    costs_data = query_result.grid_costs(:sum, :sum)
+    balance_data = query_result.grid_balance(:sum, :sum)
 
-    grouped_data.map do |date_key, field_values|
-      format_data_entry(date_key, field_values)
+    revenue_data.keys.map do |date_key|
+      date_parts =
+        if timeframe.year?
+          [date_key.month, date_key.day]
+        else
+          [date_key.year, date_key.month]
+        end
+
+      format_data_entry(
+        date_parts,
+        {
+          grid_revenue: revenue_data[date_key] || 0,
+          grid_costs: costs_data[date_key] || 0,
+          grid_balance: balance_data[date_key] || 0,
+        },
+      )
     end
   end
 
-  def fetch_standard_data(field = sensor)
+  def fetch_standard_data(field = sensor.name)
     base_scope
       .where(field:)
       .sum(:value)
       .map { |key, value| format_data_entry(key, value) }
   end
 
+  def fetch_calculated_data
+    # For calculated sensors (like finance sensors), use Sensor::Query::Sql
+    query_result =
+      Sensor::Query::Sql
+        .new do |q|
+          q.sum sensor.name
+
+          q.timeframe timeframe
+          q.group_by(timeframe.year? ? :day : :month)
+        end
+        .call
+
+    # Convert to heatmap format
+    data = query_result.public_send(sensor.name, :sum, :sum)
+
+    data.keys.map do |date_key|
+      date_parts =
+        if timeframe.year?
+          [date_key.month, date_key.day]
+        else
+          [date_key.year, date_key.month]
+        end
+
+      format_data_entry(date_parts, data[date_key] || 0)
+    end
+  end
+
   def fetch_data
-    case sensor
-    when :house_power
-      fetch_house_power_data
+    return [] unless sensor
+
+    case sensor.name
     when :inverter_power
       fetch_inverter_power_data
     when :grid_power
@@ -106,13 +149,19 @@ class Insights::HeatmapBase
     when :battery_power
       fetch_standard_data(:battery_discharging_power)
     else
-      fetch_standard_data
+      if sensor.sql_calculated? && !sensor.store_in_summary?
+        fetch_calculated_data
+      else
+        fetch_standard_data
+      end
     end
   end
 
   # Abstract method - subclasses define their date dimensions
   def date_dimensions
+    # :nocov:
     raise NotImplementedError
+    # :nocov:
   end
 
   # Generic data processing based on dimensions
@@ -123,23 +172,5 @@ class Insights::HeatmapBase
     end
     result[:value] = value
     result
-  end
-
-  def extract_date_key(key)
-    if key.is_a?(Array) && key.length >= date_dimensions.length
-      result = key.first(date_dimensions.length)
-      result.map!(&:to_i)
-      result
-    else
-      date_dimensions.map { |dim| key[dim] }
-    end
-  end
-
-  def extract_field_key(key)
-    if key.is_a?(Array) && key.length > date_dimensions.length
-      key[date_dimensions.length].to_sym
-    else
-      key[:field]
-    end
   end
 end

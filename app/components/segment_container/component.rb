@@ -1,21 +1,17 @@
 class SegmentContainer::Component < ViewComponent::Base
   renders_many :segments,
-               lambda { |sensor, **options, &block|
-                 if SensorConfig.x.exists?(sensor)
-                   Segment::Component.new sensor,
-                                          **options,
-                                          parent: self,
-                                          &block
-                 end
+               lambda { |sensor_name, **options, &block|
+                 sensor = Sensor::Registry[sensor_name]
+                 Segment::Component.new sensor, **options, parent: self, &block
                }
   renders_one :title
 
-  def initialize(calculator:, timeframe:, tippy_placement:)
+  def initialize(data:, timeframe:, tippy_placement:)
     super()
-    @calculator = calculator
+    @data = data
     @timeframe = timeframe
     @tippy_placement = tippy_placement
   end
 
-  attr_reader :calculator, :timeframe, :tippy_placement
+  attr_reader :data, :timeframe, :tippy_placement
 end

@@ -5,7 +5,7 @@ describe 'Stats', vcr: { cassette_name: 'version' } do
 
     context 'with turbo_frame request' do
       it 'renders' do
-        get house_stats_path(sensor: 'house_power', timeframe: 'now'),
+        get house_stats_path(sensor_name: 'house_power', timeframe: 'now'),
             headers: {
               'Turbo-Frame' => 'random-turbo-frame',
             }
@@ -16,7 +16,7 @@ describe 'Stats', vcr: { cassette_name: 'version' } do
 
     context 'with default request' do
       it 'redirects' do
-        get house_stats_path(sensor: 'house_power', timeframe: 'now')
+        get house_stats_path(sensor_name: 'house_power', timeframe: 'now')
 
         expect(response).to have_http_status(:redirect)
       end

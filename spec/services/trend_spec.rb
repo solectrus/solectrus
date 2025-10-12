@@ -10,7 +10,7 @@ describe Trend do
   describe '#base_timeframe' do
     subject { trend.base_timeframe.to_s }
 
-    let(:sensor) { :inverter_power }
+    let(:sensor) { Sensor::Registry[:inverter_power] }
 
     context 'when base is previous_year' do
       let(:base) { :previous_year }
@@ -72,7 +72,7 @@ describe Trend do
   describe '#base_value' do
     subject(:base_value) { trend.base_value }
 
-    let(:sensor) { :inverter_power }
+    let(:sensor) { Sensor::Registry[:inverter_power] }
     let(:timeframe) { Timeframe.new('2025-04') }
     let(:base) { :previous_year }
 
@@ -95,7 +95,7 @@ describe Trend do
   end
 
   describe '#factor und #percent' do
-    let(:sensor) { :inverter_power }
+    let(:sensor) { Sensor::Registry[:inverter_power] }
     let(:timeframe) { Timeframe.new('2025-04') }
     let(:base) { :previous_year }
 

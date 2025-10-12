@@ -1,7 +1,7 @@
-- if data.blank?
+- if blank?
   .flex-1.flex.items-center.justify-center
     p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
-      = t('calculator.blank')
+      = blank_message
 - else
   = tag.div class: 'h-full flex flex-col',
             data: { \

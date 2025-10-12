@@ -1,14 +1,14 @@
 = turbo_stream.update frame_id('timeframe') do
   = render Timeframe::Component.new(timeframe:)
 
-- if timeframe.now? && SensorConfig.x.exists?(:system_status)
+- if timeframe.now? && Sensor::Config.exists?(:system_status)
   = turbo_stream.update frame_id('status') do
-    = render Status::Component.new time: calculator.time,
-                                   status: calculator.system_status,
-                                   status_ok: calculator.system_status_ok
+    = render Status::Component.new time: data.time,
+                                   status: data.system_status,
+                                   status_ok: data.system_status_ok
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   - if timeframe.now?
-    = render StatsNow::Component.new calculator:, sensor:
+    = render StatsNow::Component.new data:, sensor:
   - else
-    = render StatsRange::Component.new calculator:, timeframe:, sensor:
+    = render StatsRange::Component.new data:, timeframe:, sensor:

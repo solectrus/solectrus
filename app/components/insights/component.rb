@@ -8,17 +8,19 @@ class Insights::Component < ViewComponent::Base
 
   attr_reader :sensor, :timeframe, :insights
 
+  delegate :data, to: :insights
+
   def per_day_value?
     return false if timeframe.days_passed <= 1
 
-    %i[grid_power wallbox_power battery_soc battery_power].exclude?(sensor)
+    %i[grid_power wallbox_power battery_soc battery_power].exclude?(sensor.name)
   end
 
   def battery_soc_longest_streak_path
     from, to, = insights.battery_soc_longest_streak.values
 
     url_for(
-      sensor: 'battery_soc',
+      sensor_name: 'battery_soc',
       timeframe: "#{from}..#{to}",
       controller: "#{controller_namespace}/home",
     )
@@ -26,7 +28,7 @@ class Insights::Component < ViewComponent::Base
 
   def yearly_trend_base_path
     url_for(
-      sensor:,
+      sensor_name: sensor.name,
       timeframe: insights.yearly_trend.base_timeframe.to_s,
       controller: "#{controller_namespace}/home",
     )
@@ -34,14 +36,14 @@ class Insights::Component < ViewComponent::Base
 
   def monthly_trend_base_path
     url_for(
-      sensor:,
+      sensor_name: sensor.name,
       timeframe: insights.monthly_trend.base_timeframe.to_s,
       controller: "#{controller_namespace}/home",
     )
   end
 
   def day_path(day)
-    url_for(sensor:, timeframe: day, controller: "#{controller_namespace}/home")
+    url_for(sensor_name: sensor.name, timeframe: day, controller: "#{controller_namespace}/home")
   end
 
   def controller_namespace

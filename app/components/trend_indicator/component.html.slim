@@ -8,11 +8,12 @@
     - else
       i.fa class= [icon, color_class]
 
-      =< Number::Component.new(value: trend.percent).to_percent(sign: true, precision: 0, klass: color_class)
+      span< class=color_class
+        = Sensor::ValueFormatter.new(trend.percent, unit: :percent, precision: 0, sign: true).to_s
 
     .hidden data-tippy-target= 'html'
       .text-center
-        => Number::Component.new(value: trend.diff.abs).to_watt_hour(unit: :kilo, precision: 0)
+        => render SensorValue::Component.new(trend.diff.abs, trend.sensor.name, context: :energy, scaling: :kilo, precision: 0)
         div
           - if trend.percent.positive?
             'mehr als
