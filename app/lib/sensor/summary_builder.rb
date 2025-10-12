@@ -84,7 +84,16 @@ module Sensor
     end
 
     def get_dependency_value(sensor_name, aggregation_type, summary_data)
-      summary_data.public_send(sensor_name, aggregation_type)
+      dep_sensor = Sensor::Registry[sensor_name]
+
+      # If dependency is calculated and not stored, calculate it recursively
+      if dep_sensor.calculated? && !dep_sensor.store_in_summary?
+        calculate_sensor_value(dep_sensor, aggregation_type, summary_data)
+      elsif dep_sensor.store_in_summary?
+        # Otherwise get it from summary_data (if stored and available)
+        # Only try to access if the sensor is actually stored in summary
+        summary_data.public_send(sensor_name, aggregation_type)
+      end
     end
 
     def calculated_sensors_for_aggregation(aggregation_type)
@@ -315,13 +324,13 @@ module Sensor
     def sensor_aggregation?(summary_data, sensor_name, aggregation)
       summary_data.public_send(sensor_name, aggregation)
       true
-    rescue ArgumentError
+    rescue ArgumentError, NoMethodError
       false
     end
 
     def get_sensor_aggregation_value(summary_data, sensor_name, aggregation)
       summary_data.public_send(sensor_name, aggregation)
-    rescue ArgumentError
+    rescue ArgumentError, NoMethodError
       nil
     end
 

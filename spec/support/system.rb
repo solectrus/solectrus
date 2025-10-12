@@ -44,6 +44,8 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
       date: Date.current,
       updated_at: Date.tomorrow.middle_of_day,
       values: [
+        [:inverter_power, :sum, 20_000], # Total: inverter_power_1 + inverter_power_2
+        [:inverter_power, :max, 10_000], # Max: 9000 + 1000
         [:inverter_power_1, :sum, 18_000],
         [:inverter_power_2, :sum, 2_000],
         [:inverter_power_forecast, :sum, 21_000],

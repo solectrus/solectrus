@@ -37,10 +37,14 @@ describe Sensor::Definitions::Co2Reduction do # rubocop:disable RSpec/SpecFilePa
 
       context 'when inverter_power is present' do
         before do
-          # Create data for inverter_power_1 (first dependency when inverter_power is calculated)
+          # Create data for both inverter_power (calculated and stored) and its parts
           create_summary(
             date: '2024-06-15',
-            values: [[:inverter_power_1, :sum, 16_000]],
+            values: [
+              [:inverter_power, :sum, 16_000],
+              [:inverter_power_1, :sum, 10_000],
+              [:inverter_power_2, :sum, 6_000],
+            ],
           )
         end
 
@@ -60,15 +64,23 @@ describe Sensor::Definitions::Co2Reduction do # rubocop:disable RSpec/SpecFilePa
 
       context 'when inverter_power is present' do
         before do
-          # Create data for inverter_power_1 (first dependency when inverter_power is calculated)
+          # Create data for both inverter_power (calculated and stored) and its parts
           create_summary(
             date: '2024-06-15',
-            values: [[:inverter_power_1, :sum, 16_000]],
+            values: [
+              [:inverter_power, :sum, 16_000],
+              [:inverter_power_1, :sum, 10_000],
+              [:inverter_power_2, :sum, 6_000],
+            ],
           )
 
           create_summary(
             date: '2024-06-16',
-            values: [[:inverter_power_1, :sum, 8_000]],
+            values: [
+              [:inverter_power, :sum, 8_000],
+              [:inverter_power_1, :sum, 5_000],
+              [:inverter_power_2, :sum, 3_000],
+            ],
           )
         end
 

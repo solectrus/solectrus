@@ -7,8 +7,6 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
 
   icon 'fa-sun'
 
-  # Inverter power generation can never be negative
-
   # Conditional dependencies: only use total if inverter_power not configured
   depends_on do
     Sensor::Config.configured?(:inverter_power) ? [] : [:inverter_power_total]
@@ -23,28 +21,12 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
     dependencies.any?
   end
 
-  aggregations stored: false, computed: %i[sum max], meta: %i[sum max min avg], top10: true
-
-  # Override summary_aggregations to return empty array if calculated
-  def summary_aggregations
-    calculated? ? [] : %i[sum max]
-  end
+  # Always store inverter_power in summary, whether directly measured or calculated
+  aggregations stored: %i[sum max], meta: %i[sum max min avg], top10: true
 
   chart do |timeframe, variant: nil|
     Sensor::Chart::InverterPower.new(timeframe:, variant:)
   end
 
   trend more_is_better: true
-
-  # SQL expression for use in other sensors (like opportunity_costs)
-  def sql_expression
-    if calculated?
-      Sensor::Registry[:inverter_power_total]
-        .dependencies
-        .map { |dep| "COALESCE(#{dep}_sum,0)" }
-        .join(' + ')
-    else
-      'COALESCE(inverter_power_sum,0)'
-    end
-  end
 end

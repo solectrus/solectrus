@@ -39,6 +39,46 @@ describe Sensor::Definitions::InverterPower do # rubocop:disable RSpec/SpecFileP
     end
   end
 
+  describe '#summary_aggregations' do
+    context 'when inverter_power is configured (not calculated)' do
+      before do
+        Sensor::Config.setup(
+          ENV.to_h.merge(
+            'INFLUX_SENSOR_INVERTER_POWER' => 'my-pv:total_inverter_power',
+          ),
+        )
+      end
+
+      it 'returns [:sum, :max] to enable storing in summary table' do
+        expect(sensor.summary_aggregations).to eq(%i[sum max])
+      end
+
+      it 'is included in SummaryValue field enum' do
+        expect(SummaryValue.fields.keys).to include('inverter_power')
+      end
+    end
+
+    context 'when inverter_power is not configured (calculated from parts)' do
+      before do
+        Sensor::Config.setup(
+          ENV.to_h.merge(
+            'INFLUX_SENSOR_INVERTER_POWER' => '',
+            'INFLUX_SENSOR_INVERTER_POWER_1' => 'my-pv:inverter_power_1',
+            'INFLUX_SENSOR_INVERTER_POWER_2' => 'my-pv:inverter_power_2',
+          ),
+        )
+      end
+
+      it 'returns [:sum, :max] to enable storing calculated values in summary table' do
+        expect(sensor.summary_aggregations).to eq(%i[sum max])
+      end
+
+      it 'is included in SummaryValue field enum' do
+        expect(SummaryValue.fields.keys).to include('inverter_power')
+      end
+    end
+  end
+
   describe '#calculate' do
     subject do
       sensor.calculate(
@@ -236,18 +276,19 @@ describe Sensor::Definitions::InverterPower do # rubocop:disable RSpec/SpecFileP
           end
         end
 
-        context 'when parts are present' do
+        context 'when calculated from parts' do
           before do
             create_summary(
               date: '2024-06-15',
               values: [
-                [:inverter_power_1, :sum, 10_000],
+                [:inverter_power, :sum, 15_000], # Calculated and stored value
+                [:inverter_power_1, :sum, 10_000], # Parts also stored
                 [:inverter_power_2, :sum, 5_000],
               ],
             )
           end
 
-          it 'returns sum of parts' do
+          it 'returns stored calculated value from summary' do
             expect(result.inverter_power).to eq(15_000)
           end
         end

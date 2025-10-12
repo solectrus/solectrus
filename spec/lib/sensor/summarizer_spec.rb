@@ -134,7 +134,7 @@ describe Sensor::Summarizer do
       end
 
       it 'creates SummaryValues' do
-        expect { call }.to change(SummaryValue, :count).from(0).to(51)
+        expect { call }.to change(SummaryValue, :count).from(0).to(53)
 
         expect(summary.values.pluck(:field, :aggregation)).to contain_exactly(
           %w[battery_charging_power max],
@@ -177,6 +177,8 @@ describe Sensor::Summarizer do
           %w[house_power max],
           %w[house_power sum],
           %w[house_power_grid sum],
+          %w[inverter_power max],
+          %w[inverter_power sum],
           %w[inverter_power_1 max],
           %w[inverter_power_1 sum],
           %w[inverter_power_2 max],

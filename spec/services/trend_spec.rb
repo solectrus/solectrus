@@ -79,15 +79,24 @@ describe Trend do
     before do
       create_summary(
         date: Date.new(2024, 4, 1),
-        values: [[:inverter_power_1, :sum, 3000]],
+        values: [
+          [:inverter_power, :sum, 3000],
+          [:inverter_power_1, :sum, 3000],
+        ],
       )
       create_summary(
         date: Date.new(2024, 4, 2),
-        values: [[:inverter_power_1, :sum, 2000]],
+        values: [
+          [:inverter_power, :sum, 2000],
+          [:inverter_power_1, :sum, 2000],
+        ],
       )
       create_summary(
         date: Date.new(2024, 4, 30),
-        values: [[:inverter_power_1, :sum, 1000]],
+        values: [
+          [:inverter_power, :sum, 1000],
+          [:inverter_power_1, :sum, 1000],
+        ],
       )
     end
 
@@ -102,7 +111,10 @@ describe Trend do
     before do
       create_summary(
         date: Date.new(2024, 4, 1),
-        values: [[:inverter_power_1, :sum, 1000]],
+        values: [
+          [:inverter_power, :sum, 1000],
+          [:inverter_power_1, :sum, 1000],
+        ],
       )
     end
 

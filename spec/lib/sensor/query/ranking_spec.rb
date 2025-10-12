@@ -375,26 +375,28 @@ describe Sensor::Query::Ranking do
       let(:stop) { Date.new(2024, 1, 31) }
 
       before do
-        # inverter_power depends on inverter_power_1 and inverter_power_2 (see .env.test)
+        # inverter_power is always stored in summary (calculated from parts and stored)
+        # Parts are also stored
         create_summary(
           date: '2024-01-15',
           values: [
+            [:inverter_power, :sum, 15_000],
             [:inverter_power_1, :sum, 10_000],
-            [:inverter_power_2, :sum, 5000],
+            [:inverter_power_2, :sum, 5_000],
           ],
         )
 
         create_summary(
           date: '2024-01-16',
           values: [
-            [:inverter_power_1, :sum, 8000],
-            [:inverter_power_2, :sum, 4000],
+            [:inverter_power, :sum, 12_000],
+            [:inverter_power_1, :sum, 8_000],
+            [:inverter_power_2, :sum, 4_000],
           ],
         )
       end
 
       it 'correctly aggregates multiple fields and returns ranking' do
-        # Should sum both inverter fields per day: 10000+5000=15000 and 8000+4000=12000
         expect(call).to eq(
           [
             { date: Date.new(2024, 1, 15), value: 15_000 },
@@ -413,6 +415,7 @@ describe Sensor::Query::Ranking do
           create_summary(
             date: Date.new(2024, 3, 6),
             values: [
+              [:inverter_power, :sum, 7000],
               [:inverter_power_1, :sum, 5000],
               [:inverter_power_2, :sum, 2000],
             ],
@@ -420,6 +423,7 @@ describe Sensor::Query::Ranking do
           create_summary(
             date: Date.new(2024, 3, 7),
             values: [
+              [:inverter_power, :sum, 6000],
               [:inverter_power_1, :sum, 4000],
               [:inverter_power_2, :sum, 2000],
             ],
@@ -429,6 +433,7 @@ describe Sensor::Query::Ranking do
           create_summary(
             date: Date.new(2024, 3, 13),
             values: [
+              [:inverter_power, :sum, 11_000],
               [:inverter_power_1, :sum, 8000],
               [:inverter_power_2, :sum, 3000],
             ],
@@ -436,8 +441,8 @@ describe Sensor::Query::Ranking do
         end
 
         it 'correctly aggregates multiple fields by week' do
-          # Week of March 4: (5000+2000) + (4000+2000) = 13000
-          # Week of March 11: (8000+3000) = 11000
+          # Week of March 4: 7000 + 6000 = 13000
+          # Week of March 11: 11000
           expect(call).to eq(
             [
               { date: Date.new(2024, 3, 4), value: 13_000 },

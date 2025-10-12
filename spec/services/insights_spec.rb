@@ -12,11 +12,17 @@ describe Insights do
       before do
         create_summary(
           date: Date.new(2025, 1, 1),
-          values: [[:inverter_power_1, :sum, 1000]],
+          values: [
+            [:inverter_power, :sum, 1000],
+            [:inverter_power_1, :sum, 1000],
+          ],
         )
         create_summary(
           date: Date.new(2025, 1, 2),
-          values: [[:inverter_power_1, :sum, 2000]],
+          values: [
+            [:inverter_power, :sum, 2000],
+            [:inverter_power_1, :sum, 2000],
+          ],
         )
       end
 
