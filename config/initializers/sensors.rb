@@ -1,14 +1,5 @@
 # Sensor System Setup
-# Must be run after all Definition classes are loaded
-
-Rails.application.config.after_initialize do
-  extend RakeHelper
-
-  unless skip_init_rake_task_running?
-    Sensor::Registry.all
-    Sensor::Config.setup(ENV)
-  end
-end
+# The initial setup is done in config/application.rb to ensure proper initialization order
 
 # In development: Reload on code changes
 if Rails.env.development?
