@@ -252,10 +252,12 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
     case sensor
     when :battery_soc, :car_battery_soc, :autarky, :self_consumption
       '&percnt;'.html_safe
-    when :case_temp
+    when :case_temp, :outdoor_temp, :heatpump_tank_temp
       '&deg;C'.html_safe
     when :co2_reduction
       timeframe.short? ? 'g/h' : 'g'
+    when :heatpump_cop
+      ''
     else
       timeframe.short? ? 'W' : 'Wh'
     end
@@ -281,6 +283,9 @@ class ChartLoader::Component < ViewComponent::Base # rubocop:disable Metrics/Cla
            car_battery_soc
            battery_soc
            house_power_without_custom
+           heatpump_cop
+           outdoor_temp
+           heatpump_tank_temp
          ],
        )
       return

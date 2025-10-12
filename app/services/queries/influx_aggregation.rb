@@ -41,6 +41,8 @@ class Queries::InfluxAggregation
         battery_soc
         car_battery_soc
         case_temp
+        outdoor_temp
+        heatpump_tank_temp
       ] + SensorConfig::CUSTOM_INVERTER_SENSORS
     ).freeze
   private_constant :ALL_SENSORS

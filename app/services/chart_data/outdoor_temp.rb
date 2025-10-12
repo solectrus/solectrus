@@ -1,6 +1,10 @@
-class ChartData::CarBatterySoc < ChartData::Base
+class ChartData::OutdoorTemp < ChartData::Base
+  def suggested_min
+    0
+  end
+
   def suggested_max
-    100
+    data[:datasets].first[:data].compact.max
   end
 
   private
@@ -10,8 +14,8 @@ class ChartData::CarBatterySoc < ChartData::Base
       labels: chart&.map { |x| x.first.to_i * 1000 },
       datasets: [
         {
-          id: 'car_battery_soc',
-          label: SensorConfig.x.display_name(:car_battery_soc),
+          id: 'outdoor_temp',
+          label: SensorConfig.x.display_name(:outdoor_temp),
           data: chart&.map(&:second),
         }.merge(style),
       ],
@@ -20,14 +24,12 @@ class ChartData::CarBatterySoc < ChartData::Base
 
   def chart
     @chart ||=
-      MinMaxChart.new(sensor: :car_battery_soc).call(timeframe)[
-        :car_battery_soc,
-      ]
+      MinMaxChart.new(sensor: :outdoor_temp).call(timeframe)[:outdoor_temp]
   end
 
   def style
     super.merge(
-      backgroundColor: '#38bdf8', # bg-sky-400
+      backgroundColor: '#f87171', # bg-red-400
       # In min-max charts, show border around the **whole** bar (don't skip)
       borderSkipped: false,
     )

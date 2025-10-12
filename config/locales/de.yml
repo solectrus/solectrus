@@ -3,6 +3,7 @@ de:
     balance: Strombilanz
     inverter: Erzeugung
     house: Hausverbrauch
+    heatpump: Wärmepumpe
     essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS
@@ -27,6 +28,8 @@ de:
     missing_custom_consumers: Hier könnten bis zu 20 zusätzliche Stromverbraucher visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> bis <code>_20</code>).
     incomplete_multi_inverter: Mehrere Stromerzeuger
     missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
+    incomplete_heatpump: Wärmepumpe
+    missing_heatpump: Hier könnten Arbeitszahl, erzeugte Wärme und weitere interessante Messwerte deiner Wärmepumpe visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
     insights: Kennzahlen & Trend
   timeframe:
@@ -64,9 +67,17 @@ de:
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
+    heatpump_power_env: Umgebungswärme
+    heatpump_heating_power: Erzeugte Wärme
+    heatpump_heating_power_short: Wärme
+    heatpump_tank_temp: Warmwasser
+    heatpump_cop: Arbeitszahl
+    outdoor_temp: Außentemperatur
+    outdoor_temp_short: Außen
   splitter:
     grid: Netzbezug
     pv: Photovoltaik
+    total: Stromverbrauch
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -92,8 +103,11 @@ de:
     total_costs: Kosten
     compensation: Vergütung
     autarky: Autarkie
+    heatpump_cop: Arbeitszahl
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
+    heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
+    heatpump_no_heating: Kein Heizbetrieb
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln

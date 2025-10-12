@@ -117,9 +117,9 @@ class Dropdown::Component < ViewComponent::Base
 
   def group_header_class(group)
     if subgroups?(group)
-      'relative px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2'
+      'relative px-3 pt-3 pb-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2'
     else
-      'px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600 mb-2'
+      'px-3 pt-3 pb-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-200 dark:border-gray-600 mb-2'
     end
   end
 

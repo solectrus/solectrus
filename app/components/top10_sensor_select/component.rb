@@ -47,12 +47,14 @@ class Top10SensorSelect::Component < ViewComponent::Base
       {
         generation_grid_battery: generation_sensors + grid_battery_sensors,
         consumers: consumer_sensors,
+        other: other_sensors,
       }
     else
       {
         generation: generation_sensors,
         grid_battery: grid_battery_sensors,
         consumers: consumer_sensors,
+        other: other_sensors,
       }
     end
   end
@@ -106,6 +108,12 @@ class Top10SensorSelect::Component < ViewComponent::Base
             %i[house_power heatpump_power wallbox_power],
         )
       end
+  end
+
+  def other_sensors
+    @other_sensors ||=
+      available_sensors -
+        (generation_sensors + grid_battery_sensors + consumer_sensors)
   end
 
   def available_sensors

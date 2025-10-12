@@ -9,6 +9,7 @@ class ApplicationPolicy
     multi_inverter
     relative_timeframe
     insights
+    heatpump
   ].freeze
   private_constant :SPONSOR_FEATURES
 

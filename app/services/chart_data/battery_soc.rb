@@ -20,9 +20,7 @@ class ChartData::BatterySoc < ChartData::Base
 
   def chart
     @chart ||=
-      MinMaxChart.new(sensor: :battery_soc, average: true).call(timeframe)[
-        :battery_soc,
-      ]
+      MinMaxChart.new(sensor: :battery_soc).call(timeframe)[:battery_soc]
   end
 
   def style

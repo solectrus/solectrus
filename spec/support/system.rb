@@ -49,6 +49,7 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
         [:inverter_power_forecast, :sum, 21_000],
         [:house_power, :sum, 1800],
         [:heatpump_power, :sum, 800],
+        [:heatpump_power_grid, :sum, 200],
         [:grid_import_power, :sum, 20],
         [:grid_export_power, :sum, 2200],
         [:battery_charging_power, :sum, 2000],
@@ -66,6 +67,10 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
         [:battery_soc, :min, 40.0],
         [:car_battery_soc, :min, 30.0],
         [:case_temp, :min, 30.0],
+        [:heatpump_heating_power, :sum, 2400],
+        [:outdoor_temp, :avg, 10.0],
+        [:outdoor_temp, :min, 5.0],
+        [:outdoor_temp, :max, 15.0],
       ],
     )
   end
@@ -129,6 +134,23 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
           name: measurement_heatpump_power,
           fields: {
             field_heatpump_power => 400,
+          },
+          time: i.seconds.ago,
+        )
+
+        add_influx_point(
+          name: measurement_heatpump_heating_power,
+          fields: {
+            field_heatpump_heating_power => 1600,
+            field_outdoor_temp => 10.0,
+          },
+          time: i.seconds.ago,
+        )
+
+        add_influx_point(
+          name: measurement_heatpump_power_grid,
+          fields: {
+            field_heatpump_power_grid => 100,
           },
           time: i.seconds.ago,
         )

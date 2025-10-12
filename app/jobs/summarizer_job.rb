@@ -117,6 +117,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
           inverter_power_forecast
           house_power
           heatpump_power
+          heatpump_heating_power
           grid_import_power
           grid_export_power
           battery_charging_power
@@ -150,6 +151,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
       max_battery_soc: query_aggregation.max_battery_soc,
       max_car_battery_soc: query_aggregation.max_car_battery_soc,
       max_case_temp: query_aggregation.max_case_temp,
+      max_outdoor_temp: query_aggregation.max_outdoor_temp,
       max_grid_export_power: query_aggregation.max_grid_export_power,
       max_grid_import_power: query_aggregation.max_grid_import_power,
       max_heatpump_power: query_aggregation.max_heatpump_power,
@@ -158,6 +160,7 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
         [:"max_#{sensor}", query_aggregation.public_send(:"max_#{sensor}")]
       end,
       max_wallbox_power: query_aggregation.max_wallbox_power,
+      max_heatpump_tank_temp: query_aggregation.max_heatpump_tank_temp,
     }
   end
 
@@ -166,6 +169,8 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
       min_battery_soc: query_aggregation.min_battery_soc,
       min_car_battery_soc: query_aggregation.min_car_battery_soc,
       min_case_temp: query_aggregation.min_case_temp,
+      min_outdoor_temp: query_aggregation.min_outdoor_temp,
+      min_heatpump_tank_temp: query_aggregation.min_heatpump_tank_temp,
     }
   end
 
@@ -174,6 +179,8 @@ class SummarizerJob < ApplicationJob # rubocop:disable Metrics/ClassLength
       avg_battery_soc: query_aggregation.mean_battery_soc,
       avg_car_battery_soc: query_aggregation.mean_car_battery_soc,
       avg_case_temp: query_aggregation.mean_case_temp,
+      avg_outdoor_temp: query_aggregation.mean_outdoor_temp,
+      avg_heatpump_tank_temp: query_aggregation.mean_heatpump_tank_temp,
     }
   end
 

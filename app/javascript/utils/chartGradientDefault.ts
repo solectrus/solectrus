@@ -1,14 +1,38 @@
-import { ChartArea } from 'chart.js';
+import { Chart, ChartArea, ChartDataset } from 'chart.js';
 
-export default class ChartBackgroundGradient {
+export default class ChartGradientDefault {
+  private readonly originalColor: string;
+  private readonly isNegative: boolean;
+  private readonly basePosition: number;
+  private readonly extent: number;
+  private readonly minAlpha: number;
+  private readonly maxAlpha: number;
+
   constructor(
-    private readonly originalColor: string,
-    private readonly isNegative: boolean,
-    private readonly basePosition: number, // Vertical position of the x-Axis in the given Chart (between 0 and 1)
-    private readonly extent: number, // Extent of the dataset in the given Chart (between 0 and 1)
-    private readonly minAlpha: number,
-    private readonly maxAlpha: number,
-  ) {}
+    dataset: ChartDataset,
+    min: number,
+    max: number,
+    minAlpha: number,
+  ) {
+    // Remember original color
+    this.originalColor = dataset.backgroundColor as string;
+
+    const extent = min < 0 ? Math.abs(max) + Math.abs(min) : max;
+    this.basePosition = max / extent;
+    this.isNegative = dataset.data.some((value) =>
+      typeof value === 'number' ? value < 0 : false,
+    );
+
+    const datasetMin = this.minOfDataset(dataset);
+    const datasetMax = this.maxOfDataset(dataset);
+    const datasetExtent =
+      datasetMin < 0 ? Math.abs(datasetMax) + Math.abs(datasetMin) : datasetMax;
+
+    this.extent = datasetExtent / extent;
+    this.minAlpha = minAlpha;
+    // Stacked bar must not be gradiented, just use the given Alpha
+    this.maxAlpha = dataset.stack ? minAlpha : 1;
+  }
 
   // For caching the gradient so we don't have to recreate it every time
   private width?: number;
@@ -70,6 +94,40 @@ export default class ChartBackgroundGradient {
     if (this.isNegative) return height;
 
     return height * this.basePosition;
+  }
+
+  applyToDataset(dataset: ChartDataset): void {
+    // Replace background color with gradient
+    dataset.backgroundColor = (context: { chart: Chart; type: string }) => {
+      const { ctx, chartArea } = context.chart;
+
+      if (chartArea) return this.canvasGradient(ctx, chartArea);
+    };
+
+    // Use original color for border
+    dataset.borderColor = this.originalColor;
+  }
+
+  private minOfDataset(dataset: ChartDataset): number {
+    const mapped = dataset.data.map((value) => {
+      if (Array.isArray(value)) return Math.min(...value);
+      if (typeof value === 'number') return value;
+
+      return Number.POSITIVE_INFINITY;
+    });
+
+    return Math.min(...mapped);
+  }
+
+  private maxOfDataset(dataset: ChartDataset): number {
+    const mapped = dataset.data.map((value) => {
+      if (Array.isArray(value)) return Math.max(...value);
+      if (typeof value === 'number') return value;
+
+      return Number.NEGATIVE_INFINITY;
+    });
+
+    return Math.max(...mapped);
   }
 
   // Function to convert hex color code to RGB
