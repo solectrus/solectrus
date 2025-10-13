@@ -82,34 +82,36 @@ module Solectrus
     config.after_initialize do
       extend RakeHelper
 
-      unless skip_init_rake_task_running?
-        ThemeConfig.setup(ENV)
+      # Skip expensive initialization for console, runner, and certain rake tasks
+      # These operations are only needed for the web server
+      next if skip_initialization?
 
-        # Initialize sensor system before using it
-        Sensor::Registry.all
-        Sensor::Config.setup(ENV)
+      ThemeConfig.setup(ENV)
 
-        ActiveRecord::Base.connection_pool.with_connection do
-          if ActiveRecord::Base.connection.table_exists?(:settings)
-            # Ensure settings are seeded on every start
-            Setting.seed!
+      # Initialize sensor system before using it
+      Sensor::Registry.all
+      Sensor::Config.setup(ENV)
 
-            # Validate summaries on every start
-            if ActiveRecord::Base.connection.table_exists?(:summaries) &&
-                 !Rails.env.test?
-              Sensor::SummaryInvalidator.ensure_valid!
-            end
+      ActiveRecord::Base.connection_pool.with_connection do
+        if ActiveRecord::Base.connection.table_exists?(:settings)
+          # Ensure settings are seeded on every start
+          Setting.seed!
+
+          # Validate summaries on every start
+          if ActiveRecord::Base.connection.table_exists?(:summaries) &&
+               !Rails.env.test?
+            Sensor::SummaryInvalidator.ensure_valid!
           end
         end
+      end
 
-        if Rails.cache.respond_to?(:redis)
-          # Check Redis connection
-          begin
-            Rails.cache.redis.with(&:ping)
-            Rails.logger.info 'Redis available, cache enabled'
-          rescue Redis::CannotConnectError => e
-            Rails.logger.error "Redis unavailable: #{e.message}"
-          end
+      if Rails.cache.respond_to?(:redis)
+        # Check Redis connection
+        begin
+          Rails.cache.redis.with(&:ping)
+          Rails.logger.info 'Redis available, cache enabled'
+        rescue Redis::CannotConnectError => e
+          Rails.logger.error "Redis unavailable: #{e.message}"
         end
       end
     end

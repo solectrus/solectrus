@@ -57,6 +57,11 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   attr_reader :env, :configurations
 
   def ensure_configurations!
+    return :ok if configurations.present?
+
+    # Auto-setup if not already done (e.g., in test environment)
+    setup(ENV) if configurations.nil?
+
     if configurations.blank?
       raise StandardError,
             'Sensor configurations not present, did you forget to call Sensor::Config.setup?'

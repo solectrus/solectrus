@@ -34,6 +34,7 @@ module SensorTestHelpers
 end
 
 # Setup sensor system when this file is loaded
+# Note: This may be redundant if after_initialize already ran, but ensures config is set up
 Sensor::Config.setup(ENV)
 
 RSpec.configure do |config|
