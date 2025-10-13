@@ -322,16 +322,14 @@ module Sensor
 
     # Helper methods for working with Sensor::Data::Single objects
     def sensor_aggregation?(summary_data, sensor_name, aggregation)
-      summary_data.public_send(sensor_name, aggregation)
-      true
-    rescue ArgumentError, NoMethodError
-      false
+      summary_data.respond_to?(sensor_name) &&
+        summary_data.raw_data.key?([sensor_name, aggregation])
     end
 
     def get_sensor_aggregation_value(summary_data, sensor_name, aggregation)
+      return unless sensor_aggregation?(summary_data, sensor_name, aggregation)
+
       summary_data.public_send(sensor_name, aggregation)
-    rescue ArgumentError, NoMethodError
-      nil
     end
 
     def set_sensor_aggregation_value(all_data, sensor_name, aggregation, value)
