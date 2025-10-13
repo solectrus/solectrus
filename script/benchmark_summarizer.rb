@@ -53,6 +53,9 @@ Rails.cache.clear
 puts 'Cache cleared'
 puts
 
+# Suppress InfluxDB query logs during benchmark
+Rails.logger = Logger.new(nil)
+
 # Warm-up: Run one summary to establish DB connections
 puts 'Warming up (establishing database connections)...'
 warmup_date = dates.first
