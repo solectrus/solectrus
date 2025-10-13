@@ -24,6 +24,23 @@ describe Sensor::SummaryInvalidator do
       end
     end
 
+    context 'when stored config has string keys but matches current config' do
+      before do
+        # Simulate what happens when a hash is stored as JSON and retrieved:
+        # Symbol keys are converted to string keys
+        string_key_config = JSON.parse(current_config.to_json)
+        Setting.summary_config = string_key_config
+      end
+
+      it 'does not delete summaries' do
+        expect { validation }.not_to change(Summary, :count)
+      end
+
+      it 'does not update the stored config' do
+        expect { validation }.not_to change(Setting, :summary_config)
+      end
+    end
+
     context 'when stored config differs from the current config' do
       before { Setting.summary_config = { time_zone: 'Australia/Sydney' } }
 

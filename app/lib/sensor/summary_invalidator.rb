@@ -2,22 +2,30 @@ class Sensor::SummaryInvalidator
   # Ensures summaries are valid, resets them if configuration has changed
   def self.ensure_valid!
     current_config = build_config
-    stored_config = Setting.summary_config || {}
+    stored_config = Setting.summary_config
+
+    # Convert stored config to comparable format (handles string/symbol key differences)
+    normalized_stored_config = normalize_config(stored_config)
+    normalized_current_config = normalize_config(current_config)
 
     # Check what kind of configuration change occurred
-    if stored_config == current_config
+    if stored_config.nil?
+      # First run, no stored config yet
+      Setting.summary_config = current_config
+      Rails.logger.info('Config initialized.')
+    elsif normalized_stored_config == normalized_current_config
       Rails.logger.info('Config unchanged.')
     else
       # Save changed config
       Setting.summary_config = current_config
 
-      if relevant_changes?(stored_config, current_config)
+      if relevant_changes?(normalized_stored_config, normalized_current_config)
         # Existing summaries are no longer valid. Rebuild required.
         Summary.reset!
         Rails.logger.info('Config changed, summaries invalidated.')
       else
-        # New sensors added or other non-critical changes
-        Rails.logger.info('Config updated, summaries still valid.')
+        # New sensors added/removed or other non-critical changes
+        Rails.logger.info('Config changed, but summaries still valid.')
       end
     end
   end
@@ -59,15 +67,21 @@ class Sensor::SummaryInvalidator
       .to_h
   end
 
+  private_class_method def self.normalize_config(config)
+    # Normalize config for comparison by converting to JSON and parsing back
+    # This ensures consistent string keys and values regardless of source format
+    config ? JSON.parse(config.to_json) : nil
+  end
+
   private_class_method def self.relevant_changes?(old_config, new_config)
     # Compare configurations, ignoring additions/removals of sensors
     # Compare base configuration (version, time_zone, excluded_from_house_power)
-    base_keys = %i[version time_zone excluded_from_house_power]
+    base_keys = %w[version time_zone excluded_from_house_power]
     return true if base_keys.any? { |key| old_config[key] != new_config[key] }
 
     # Compare only sensors that exist in both configurations
-    old_sensors = old_config[:sensors_in_summary] || {}
-    new_sensors = new_config[:sensors_in_summary] || {}
+    old_sensors = old_config['sensors_in_summary'] || {}
+    new_sensors = new_config['sensors_in_summary'] || {}
     common_sensors = old_sensors.keys & new_sensors.keys
 
     # Check if any common sensor configuration has changed
