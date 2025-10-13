@@ -73,6 +73,8 @@ describe Price do
       described_class.electricity.create!(value: 0.30, starts_at: 3.years.ago)
     end
 
+    before { described_class.delete_all }
+
     context 'when there are no other prices' do
       it { is_expected.to be false }
     end

@@ -61,7 +61,6 @@ describe Insights::HeatmapAllTime do
       let(:sensor) { Sensor::Registry[:grid_power] }
 
       before do
-        # Prices are already seeded via Price.seed! in spec/support/system.rb
         # Create grid power data
         create_summary(
           date: Date.new(2023, 1, 15),

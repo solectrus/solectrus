@@ -461,10 +461,6 @@ describe Sensor::Query::Ranking do
       let(:stop) { start + 1.month }
 
       before do
-        # Clean prices from previous test runs and reseed
-        Price.delete_all
-        Price.seed!
-
         # Create grid export data
         create_summary(
           date: start + 1.day,
@@ -508,10 +504,6 @@ describe Sensor::Query::Ranking do
       before do
         # Enable opportunity_costs to test total_costs = grid_costs + opportunity_costs
         allow(Setting).to receive(:opportunity_costs).and_return(true)
-
-        # Clean prices from previous test runs and reseed
-        Price.delete_all
-        Price.seed!
 
         # Day 1: High costs
         # grid_import=20kWh * 0.2545 = 5.09 EUR (grid_costs)
@@ -598,10 +590,6 @@ describe Sensor::Query::Ranking do
       let(:stop) { start + 1.month }
 
       before do
-        # Clean prices from previous test runs and reseed
-        Price.delete_all
-        Price.seed!
-
         # Day 1: High savings
         # traditional_costs = (30 + 10 + 5) * 0.2545 = 11.4525 EUR
         # solar_price = 20 * 0.2545 - 30 * 0.0832 = 5.09 - 2.496 = 2.594 EUR

@@ -225,7 +225,6 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
   def influx_purge
     delete_influx_data
     delete_summaries
-    delete_prices
   end
 
   def create_summary(date:, updated_at: Time.current, values: [])
@@ -241,12 +240,6 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
   def delete_summaries
     ActiveRecord::Base.connection.execute(
       "TRUNCATE #{Summary.table_name} CASCADE",
-    )
-  end
-
-  def delete_prices
-    ActiveRecord::Base.connection.execute(
-      "TRUNCATE #{Price.table_name} CASCADE",
     )
   end
 end
@@ -270,8 +263,5 @@ RSpec.configure do |config|
 
     # Seed fresh data for each test to ensure isolation
     influx_seed
-
-    # Seed prices for finance calculations (after influx_purge)
-    Price.seed! if Price.none?
   end
 end

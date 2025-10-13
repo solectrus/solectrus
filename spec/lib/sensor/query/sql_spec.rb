@@ -263,9 +263,6 @@ describe Sensor::Query::Sql do
       let(:test_date) { start_date + 1.day }
 
       before do
-        Price.delete_all
-        Price.seed!
-
         create_summary(
           date: test_date,
           values: [
