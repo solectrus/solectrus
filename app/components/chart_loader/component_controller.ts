@@ -285,16 +285,16 @@ export default class extends Controller<HTMLCanvasElement> {
 
           if (isPowerSplitterStack || isHeatingStack) {
             if (tooltipItem.dataset.stack && data.datasets.length) {
-              if (data.datasets.length == 2 || data.datasets.length == 3)
+              if (data.datasets.length == 2 || data.datasets.length == 3) {
                 // Now or Day
-                result += this.formattedNumber(tooltipItem.parsed.y);
-              else {
+                result += this.formattedNumber(tooltipItem.parsed.y!);
+              } else {
                 // Sum is the value of the first dataset
                 const sum = data.datasets[0].data[
                   tooltipItem.dataIndex
                 ] as number;
 
-                if (sum)
+                if (sum && tooltipItem.parsed.y)
                   result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
               }
             }
@@ -305,7 +305,7 @@ export default class extends Controller<HTMLCanvasElement> {
                   tooltipItem.parsed._custom.min,
                   tooltipItem.parsed._custom.max,
                 )
-              : this.formattedNumber(tooltipItem.parsed.y);
+              : this.formattedNumber(tooltipItem.parsed.y!);
           }
 
           return result;
@@ -315,11 +315,12 @@ export default class extends Controller<HTMLCanvasElement> {
           let sum: number | undefined = undefined;
 
           if (isPowerSplitterStack && tooltipItems.length) {
-            sum = tooltipItems.find((item) => {
-              const id = (item.dataset as DatasetWithId).id;
+            sum =
+              tooltipItems.find((item) => {
+                const id = (item.dataset as DatasetWithId).id;
 
-              return id && !id.endsWith('_pv') && !id.endsWith('_grid');
-            })?.parsed.y;
+                return id && !id.endsWith('_pv') && !id.endsWith('_grid');
+              })?.parsed.y ?? undefined;
 
             if (sum) return this.formattedNumber(sum);
           } else if (isInverterStack && tooltipItems.length > 1) {
@@ -328,15 +329,16 @@ export default class extends Controller<HTMLCanvasElement> {
               return acc;
             }, 0);
           } else if (isHeatingStack) {
-            if (tooltipItems.length == 4)
+            if (tooltipItems.length == 4) {
               // Week, Month, Year, All
-              sum = tooltipItems[3].parsed.y;
-            else if (tooltipItems.length == 3)
+              sum = tooltipItems[3].parsed.y ?? undefined;
+            } else if (tooltipItems.length == 3) {
               // Now or Day
               sum = tooltipItems.reduce((acc, item) => {
                 if (item.parsed.y) acc += item.parsed.y;
                 return acc;
               }, 0);
+            }
           }
 
           if (sum) return this.formattedNumber(sum);
