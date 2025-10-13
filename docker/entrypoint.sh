@@ -3,11 +3,24 @@ echo "SOLECTRUS Photovoltaic Dashboard"
 echo "Copyright (C) 2020-2025 Georg Ledermann"
 echo "License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html"
 
-if [ "${COMMIT_BRANCH}" == "${COMMIT_VERSION}" ]; then
-  echo "Version ${COMMIT_VERSION}, built on ${COMMIT_TIME}"
+# Format version string based on branch context
+if [ -n "${COMMIT_BRANCH}" ] && [ "${COMMIT_BRANCH}" != "main" ] && [ "${COMMIT_BRANCH}" != "develop" ]; then
+  # For feature branches: extract second and third parts from COMMIT_VERSION
+  # Example: v0.20.3-170-g8349036 -> 1-0-beta-170-g8349036
+  PART2=$(echo "${COMMIT_VERSION}" | cut -d'-' -f2)
+  PART3=$(echo "${COMMIT_VERSION}" | cut -d'-' -f3)
+
+  if [ -n "${PART2}" ] && [ -n "${PART3}" ]; then
+    VERSION_STRING="${COMMIT_BRANCH}-${PART2}-${PART3}"
+  else
+    VERSION_STRING="${COMMIT_VERSION}"
+  fi
 else
-  echo "Version ${COMMIT_VERSION} (${COMMIT_BRANCH}), built on ${COMMIT_TIME}"
+  # For main/develop branches or tagged releases: use original version
+  VERSION_STRING="${COMMIT_VERSION}"
 fi
+
+echo "Version ${VERSION_STRING}, built on ${COMMIT_TIME}"
 echo "Using $(ruby -v)"
 echo "Based on Alpine Linux $(cat /etc/alpine-release)"
 
