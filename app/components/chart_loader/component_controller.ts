@@ -92,6 +92,13 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private maxValue: number = 0;
   private minValue: number = 0;
+  private locale: string = 'en';
+
+  private sanitizeLocale(locale: string): string {
+    // Remove invalid suffixes like @posix that some browsers return
+    // e.g., "en-US@posix" -> "en-US"
+    return locale.split('@')[0];
+  }
 
   connect() {
     this.process();
@@ -133,8 +140,9 @@ export default class extends Controller<HTMLCanvasElement> {
     if (!options.scales?.x || !options.scales?.y) return;
 
     // I18n
+    this.locale = this.sanitizeLocale(navigator.language) || 'en';
     // @ts-expect-error Property does not exist on type
-    options.scales.x.adapters.date.locale = navigator.language || 'en';
+    options.scales.x.adapters.date.locale = this.locale;
 
     this.maxValue = this.maxOf(data);
     this.minValue = this.minOf(data);
@@ -457,7 +465,7 @@ export default class extends Controller<HTMLCanvasElement> {
       decimals = this.unitValue == '' || this.unitValue == '°C' ? 1 : 0;
     }
 
-    const numberAsString = new Intl.NumberFormat(navigator.language, {
+    const numberAsString = new Intl.NumberFormat(this.locale, {
       minimumFractionDigits: 0,
       maximumFractionDigits: decimals,
     }).format(number);
