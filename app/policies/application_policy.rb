@@ -10,6 +10,7 @@ class ApplicationPolicy
     relative_timeframe
     insights
     heatpump
+    finance_charts
   ].freeze
   private_constant :SPONSOR_FEATURES
 

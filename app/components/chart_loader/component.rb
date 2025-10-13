@@ -7,7 +7,7 @@ class ChartLoader::Component < ViewComponent::Base
   end
   attr_reader :sensor_name, :timeframe, :variant
 
-  delegate :type, :data, :options, :blank?, :unit, to: :chart_instance
+  delegate :type, :data, :options, :blank?, :unit, :permitted?, to: :chart_instance
 
   def blank_message
     if sensor.unit == :euro && timeframe.short?

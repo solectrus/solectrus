@@ -1,4 +1,6 @@
-- if blank?
+- if !permitted?
+  = render DemoLink::Component.new(feature: :finance_charts, url: { sensor_name:, timeframe: })
+- elsif blank?
   .flex-1.flex.items-center.justify-center
     p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
       = blank_message

@@ -30,6 +30,11 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
+  # Override in subclasses to implement permission checks
+  def permitted?
+    true
+  end
+
   def unit
     @unit ||=
       Sensor::UnitFormatter.format(

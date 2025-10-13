@@ -14,6 +14,9 @@ en:
   heatpump:
     title: Heatpump
     description: SOLECTRUS can monitor and visualize the heat output, coefficient of performance, and outdoor temperature.
+  finance_charts:
+    title: Financial charts
+    description: Shows the timeline of costs, revenue and savings of the solar system.
   sponsoring_only: Exclusively for sponsors
   demo: Demo
   about_sponsoring: How to become a sponsor?

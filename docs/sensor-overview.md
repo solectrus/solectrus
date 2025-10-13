@@ -444,6 +444,20 @@ render json: chart.call
 - `GridPower` - Grid (import/export)
 - ... (15+ charts)
 
+#### Chart Permissions
+
+Charts can implement access control via `permitted?`:
+
+```ruby
+class Sensor::Chart::Savings < Sensor::Chart::Base
+  def permitted?
+    ApplicationPolicy.finance_charts?
+  end
+end
+```
+
+The `ChartLoader` component checks `permitted?` and displays a sponsor hint if `false`. Finance charts (`Savings`, `GridRevenue`, `GridCosts`, `TotalCosts`) use this for sponsor-only access.
+
 ### 7. Configuration
 
 `Sensor::Config` manages central configuration:
