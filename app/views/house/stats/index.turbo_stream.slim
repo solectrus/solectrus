@@ -33,9 +33,9 @@
                         turbo_action: 'replace',
                         turbo_prefetch: 'false',
                         action: 'stats-with-chart--component#startLoop',
-                        stats_with_chart__component_sensor_param: 'house_power',
+                        stats_with_chart__component_sensor_name_param: 'house_power',
                       } do
-              div data= { 'stats-with-chart--component-target': sensor_name == :house_power ? 'current' : nil, sensor_name:, value: data.house_power, time: data.time.to_i }
+              div data= { 'stats-with-chart--component-target': sensor_name == :house_power ? 'current' : nil, 'sensor-name': sensor_name, value: data.house_power, time: data.time.to_i }
                 = render SensorValue::Component.new(data.house_power || 0, :house_power, context: timeframe.now? ? :power : :energy)
 
               - unless data.house_power_valid?

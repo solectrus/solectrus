@@ -26,7 +26,7 @@
               turbo_action: 'replace',
               turbo_prefetch: 'false',
               action: 'stats-with-chart--component#startLoop',
-              stats_with_chart__component_sensor_param: sensor.name,
+              stats_with_chart__component_sensor_name_param: sensor.name,
             } do
     .content class= "#{'click-animation' if url}"
       - unless inline
@@ -35,7 +35,7 @@
       .font-light.leading-tight.title
         = title.truncate(20)
 
-      .value data= { 'stats-with-chart--component-target': 'current', sensor_name: sensor.name, value: masked_value, time: data.time&.to_i }
+      .value data= { 'stats-with-chart--component-target': 'current', 'sensor-name': sensor.name, value: masked_value, time: data.time&.to_i }
         = render SensorValue::Component.new(data, sensor.name, context: now? ? :power : :energy)
 
       - if sensor.name == :grid_export_power && data.respond_to?(:grid_export_limit_active?) && data.grid_export_limit_active?

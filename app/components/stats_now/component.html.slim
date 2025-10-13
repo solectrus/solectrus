@@ -11,11 +11,11 @@
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  sensor_name: 'autarky',
+                  'sensor-name': 'autarky',
                   value: data.autarky,
                   time: data.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: 'autarky',
+                  stats_with_chart__component_sensor_name_param: 'autarky',
                 },
                 class: 'click-animation' do
         div data-controller="tippy" data-tippy-touch-value= "true"
@@ -30,11 +30,11 @@
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  sensor_name: 'self_consumption_quote',
+                  'sensor-name': 'self_consumption_quote',
                   value: data.self_consumption_quote,
                   time: data.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: 'self_consumption_quote',
+                  stats_with_chart__component_sensor_name_param: 'self_consumption_quote',
                 },
                 class: 'click-animation' do
         div data-controller="tippy" data-tippy-touch-value= "true"
@@ -52,11 +52,11 @@
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  sensor_name: 'case_temp',
+                  'sensor-name': 'case_temp',
                   value: data.case_temp,
                   time: data.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: 'case_temp',
+                  stats_with_chart__component_sensor_name_param: 'case_temp',
                 },
                 class: 'click-animation' do
         = render RadialBadge::Component.new(title: Sensor::Registry[:case_temp].display_name) do
@@ -78,11 +78,11 @@
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  sensor_name: 'battery_soc',
+                  'sensor-name': 'battery_soc',
                   value: data.battery_soc,
                   time: data.time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: 'battery_soc',
+                  stats_with_chart__component_sensor_name_param: 'battery_soc',
                 },
                 class: 'click-animation' do
         = render RadialBadge::Component.new(percent: data.battery_soc, neutral: true, title: t('balance_sheet.soc'))

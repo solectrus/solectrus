@@ -18,11 +18,11 @@
                       turbo_action: 'replace',
                       turbo_prefetch: 'false',
                       'stats-with-chart--component-target': 'current',
-                      sensor_name: 'outdoor_temp',
+                      'sensor-name': 'outdoor_temp',
                       value: data.outdoor_temp,
                       time: data.time.to_i,
                       action: 'stats-with-chart--component#startLoop',
-                      stats_with_chart__component_sensor_param: 'outdoor_temp',
+                      stats_with_chart__component_sensor_name_param: 'outdoor_temp',
                     } do
             = render RectBadge::Component.new(title: Sensor::Registry[:outdoor_temp].display_name(:short)) do
               = render SensorValue::Component.new(data, :outdoor_temp)
@@ -36,11 +36,11 @@
                       turbo_action: 'replace',
                       turbo_prefetch: 'false',
                       'stats-with-chart--component-target': 'current',
-                      sensor_name: 'heatpump_heating_power',
+                      'sensor-name': 'heatpump_heating_power',
                       value: data.heatpump_heating_power,
                       time: data.time.to_i,
                       action: 'stats-with-chart--component#startLoop',
-                      stats_with_chart__component_sensor_param: 'heatpump_heating_power',
+                      stats_with_chart__component_sensor_name_param: 'heatpump_heating_power',
                     } do
             = render RectBadge::Component.new(title: Sensor::Registry[:heatpump_heating_power].display_name(:short)) do
               = render SensorValue::Component.new(data, :heatpump_heating_power, context: timeframe.now? ? :power : :energy)
@@ -53,11 +53,11 @@
                       turbo_action: 'replace',
                       turbo_prefetch: 'false',
                       'stats-with-chart--component-target': 'current',
-                      sensor_name: 'heatpump_cop',
+                      'sensor-name': 'heatpump_cop',
                       value: data.heatpump_cop,
                       time: data.time.to_i,
                       action: 'stats-with-chart--component#startLoop',
-                      stats_with_chart__component_sensor_param: 'heatpump_cop',
+                      stats_with_chart__component_sensor_name_param: 'heatpump_cop',
                     } do
             = render RectBadge::Component.new(title: Sensor::Registry[:heatpump_cop].display_name(:short)) do
               = render SensorValue::Component.new(data, :heatpump_cop, precision: 1)
@@ -70,11 +70,11 @@
                       turbo_action: 'replace',
                       turbo_prefetch: 'false',
                       'stats-with-chart--component-target': 'current',
-                      sensor_name: 'heatpump_tank_temp',
+                      'sensor-name': 'heatpump_tank_temp',
                       value: data.heatpump_tank_temp,
                       time: data.time.to_i,
                       action: 'stats-with-chart--component#startLoop',
-                      stats_with_chart__component_sensor_param: 'heatpump_tank_temp',
+                      stats_with_chart__component_sensor_name_param: 'heatpump_tank_temp',
                     } do
             = render RectBadge::Component.new(title: Sensor::Registry[:heatpump_tank_temp].display_name(:short)) do
               = render SensorValue::Component.new(data, :heatpump_tank_temp)

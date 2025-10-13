@@ -10,7 +10,7 @@ class StatsWithChart::Component < ViewComponent::Base
   def refresh_options
     {
       controller: 'stats-with-chart--component',
-      'stats-with-chart--component-sensor-value': sensor_name,
+      'stats-with-chart--component-sensor-name-value': sensor_name,
       'stats-with-chart--component-interval-value':
         (
           if timeframe.past?

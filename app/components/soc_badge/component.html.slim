@@ -10,11 +10,11 @@
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  sensor: soc_sensor,
+                  'sensor-name': soc_sensor,
                   value:,
                   time: time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: soc_sensor,
+                  stats_with_chart__component_sensor_name_param: soc_sensor,
                 },
                 class: 'click-animation' do
         div class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'

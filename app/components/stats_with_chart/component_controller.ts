@@ -26,7 +26,7 @@ export default class extends Controller {
 
   static readonly values = {
     // Field to display in the chart
-    sensor: String,
+    sensorName: String,
 
     // Refresh interval in seconds
     interval: { type: Number, default: 5 },
@@ -41,7 +41,7 @@ export default class extends Controller {
     // After this time (ISO 8601 decoded), nextPath will be loaded instead of the current page
     boundary: String,
   };
-  declare readonly sensorValue: string;
+  declare readonly sensorNameValue: string;
   declare readonly intervalValue: number;
   declare readonly reloadChartValue: boolean;
   declare readonly nextPathValue: string;
@@ -127,7 +127,8 @@ export default class extends Controller {
     if (!this.timer) return;
 
     // Remember the selected sensor (given via parameter)
-    if (event?.params?.sensor) this.selectedSensor = event.params.sensor;
+    if (event?.params?.sensorName)
+      this.selectedSensor = event.params.sensorName;
 
     // Avoid starting multiple loops
     if (this.isInLoop) return;
@@ -194,11 +195,11 @@ export default class extends Controller {
     // For each current target, add the value to the corresponding chart dataset (if any)
     const datasets = this.chart.data.datasets as LineDatasetWithId[];
     this.currentTargets.forEach((target) => {
-      const sensor = target.dataset.sensor;
+      const sensorName = target.dataset.sensorName;
       const rawValue = target.dataset.value;
 
-      if (sensor && rawValue !== undefined) {
-        const dataset = datasets.find((ds) => ds.id === sensor);
+      if (sensorName && rawValue !== undefined) {
+        const dataset = datasets.find((ds) => ds.id === sensorName);
         if (dataset) {
           const value = parseFloat(rawValue);
           dataset.data.push(value);
@@ -268,27 +269,27 @@ export default class extends Controller {
   }
 
   get currentElement(): HTMLElement | undefined {
-    // Select the current element from the currentTargets (by comparing sensor)
+    // Select the current element from the currentTargets (by comparing sensor_name)
     const targets = this.currentTargets.filter((target) => {
-      if (target.dataset.sensor)
+      if (target.dataset.sensorName)
         switch (this.effectiveSensor) {
           case 'battery_power':
             return (
-              target.dataset.sensor === 'battery_charging_power' ||
-              target.dataset.sensor === 'battery_discharging_power'
+              target.dataset.sensorName === 'battery_charging_power' ||
+              target.dataset.sensorName === 'battery_discharging_power'
             );
 
           case 'grid_power':
             return (
-              target.dataset.sensor === 'grid_import_power' ||
-              target.dataset.sensor === 'grid_export_power'
+              target.dataset.sensorName === 'grid_import_power' ||
+              target.dataset.sensorName === 'grid_export_power'
             );
 
           case 'inverter_power':
-            return target.dataset.sensor === 'inverter_power';
+            return target.dataset.sensorName === 'inverter_power';
 
           default:
-            return target.dataset.sensor.startsWith(this.effectiveSensor);
+            return target.dataset.sensorName.startsWith(this.effectiveSensor);
         }
     });
 
@@ -303,6 +304,6 @@ export default class extends Controller {
   }
 
   get effectiveSensor(): string {
-    return this.selectedSensor ?? this.sensorValue;
+    return this.selectedSensor ?? this.sensorNameValue;
   }
 }
