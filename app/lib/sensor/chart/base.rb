@@ -134,7 +134,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       pointHoverRadius: 5,
       backgroundColor: sensor.color_hex,
       borderColor: sensor.color_hex,
-    }
+      borderRadius: (3 if type == 'bar'),
+    }.compact
   end
 
   def tooltip_options
