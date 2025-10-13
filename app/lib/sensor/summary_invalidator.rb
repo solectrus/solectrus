@@ -27,7 +27,7 @@ class Sensor::SummaryInvalidator
       #
       # Version of the configuration. Update this if the logic of the
       # summaries has changed. This will invalidate all existing summaries
-      version: '2025-02-03',
+      version: '2025-10-11',
       #
       # The date column depends on the current timezone.
       # If the timezone changes, the summaries are no longer valid
