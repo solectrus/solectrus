@@ -11,15 +11,15 @@ module RakeHelper
   end
 
   # Check if we should skip initialization
-  # This includes console, runner, and certain rake tasks
+  # This includes console and certain rake tasks (only in development)
   def skip_initialization?
     # Check for rake tasks that should skip (including in test environment)
     return true if rake_task_running?(*SKIP_INIT_TASKS)
 
-    # Skip for console and runner
-    return true if defined?(Rails::Console) || defined?(Rails::Command::RunnerCommand)
+    # Skip only for console in development (not for runner, not in production)
+    return true if Rails.env.development? && defined?(Rails::Console)
 
-    # In development/production, always run initialization (needed for web server)
+    # In production, always run initialization
     # In test environment, always run initialization (needed for tests)
     false
   end

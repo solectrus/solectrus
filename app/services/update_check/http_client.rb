@@ -45,7 +45,7 @@ class UpdateCheck::HttpClient
     # Skip during CI builds
     return true if ENV['CI'].present?
 
-    # Skip during console, runner, asset precompilation and database tasks
+    # Skip during console (development only), asset precompilation and database tasks
     return true if skip_initialization?
 
     false

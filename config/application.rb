@@ -82,7 +82,7 @@ module Solectrus
     config.after_initialize do
       extend RakeHelper
 
-      # Skip expensive initialization for console, runner, and certain rake tasks
+      # Skip expensive initialization for console (development only) and certain rake tasks
       # These operations are only needed for the web server
       next if skip_initialization?
 
