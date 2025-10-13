@@ -271,7 +271,7 @@ export default class extends Controller<HTMLCanvasElement> {
                 tooltipItem.dataIndex
               ] as number;
 
-              if (sum)
+              if (sum && tooltipItem.parsed.y)
                 result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
             }
           } else {
@@ -281,7 +281,7 @@ export default class extends Controller<HTMLCanvasElement> {
                   tooltipItem.parsed._custom.min,
                   tooltipItem.parsed._custom.max,
                 )
-              : this.formattedNumber(tooltipItem.parsed.y);
+              : this.formattedNumber(tooltipItem.parsed.y!);
           }
 
           return result;
@@ -291,11 +291,12 @@ export default class extends Controller<HTMLCanvasElement> {
           let sum: number | undefined = undefined;
 
           if (isPowerSplitterStack && tooltipItems.length) {
-            sum = tooltipItems.find((item) => {
-              const id = (item.dataset as DatasetWithId).id;
+            sum =
+              tooltipItems.find((item) => {
+                const id = (item.dataset as DatasetWithId).id;
 
-              return id && !id.endsWith('_pv') && !id.endsWith('_grid');
-            })?.parsed.y;
+                return id && !id.endsWith('_pv') && !id.endsWith('_grid');
+              })?.parsed.y ?? undefined;
 
             if (sum) return this.formattedNumber(sum);
           } else if (isInverterStack && tooltipItems.length > 1) {
