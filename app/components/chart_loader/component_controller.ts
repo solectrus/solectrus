@@ -449,6 +449,7 @@ export default class extends Controller<HTMLCanvasElement> {
     }
 
     let decimals: number;
+    let minDecimals: number = 0;
     if (kilo) {
       switch (target) {
         case 'tooltip':
@@ -460,13 +461,24 @@ export default class extends Controller<HTMLCanvasElement> {
           decimals = 1;
           break;
       }
+    } else if (isEuro) {
+      // For Euro values:
+      // - Axis: only show decimals if max < 10€ (keeps axis labels simple)
+      // - Tooltips: show decimals if there are any small values (scaleMin < 10 && scaleMax < 100)
+      if (target === 'axis') {
+        decimals = minDecimals = maxValue < 10 ? 2 : 0;
+      } else {
+        const scaleMin = this.chart?.scales.y.min ?? minValue;
+        const scaleMax = this.chart?.scales.y.max ?? maxValue;
+        decimals = minDecimals = scaleMin < 10 && scaleMax < 100 ? 2 : 0;
+      }
     } else {
       // Without kilo, default to integers, unless unit is empty (dimensionless like COP) or °C
       decimals = this.unitValue == '' || this.unitValue == '°C' ? 1 : 0;
     }
 
     const numberAsString = new Intl.NumberFormat(this.locale, {
-      minimumFractionDigits: 0,
+      minimumFractionDigits: minDecimals,
       maximumFractionDigits: decimals,
     }).format(number);
 
