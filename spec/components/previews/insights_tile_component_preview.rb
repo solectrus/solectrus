@@ -6,7 +6,7 @@ class InsightsTileComponentPreview < ViewComponent::Preview
     render InsightsTile::Component.new do |tile|
       tile.with_title { 'Title here' }
       tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :energy, scaling: :kilo)
+        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
       end
       tile.with_footer { 'Footer content here.' }
     end
@@ -16,7 +16,7 @@ class InsightsTileComponentPreview < ViewComponent::Preview
     render InsightsTile::Component.new stripes: true do |tile|
       tile.with_title { 'Title here' }
       tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :energy, scaling: :kilo)
+        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
       end
       tile.with_footer { 'Footer content here.' }
     end
@@ -26,7 +26,7 @@ class InsightsTileComponentPreview < ViewComponent::Preview
     render InsightsTile::Component.new css_class: 'font-mono' do |tile|
       tile.with_title { 'Title here' }
       tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :energy, scaling: :kilo)
+        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
       end
       tile.with_footer { 'Footer content here.' }
     end
@@ -36,7 +36,7 @@ class InsightsTileComponentPreview < ViewComponent::Preview
     render InsightsTile::Component.new url: '/#' do |tile|
       tile.with_title { 'Title here' }
       tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :energy, scaling: :kilo)
+        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
       end
       tile.with_footer { 'Footer content here.' }
     end
@@ -46,7 +46,7 @@ class InsightsTileComponentPreview < ViewComponent::Preview
     render InsightsTile::Component.new do |tile|
       tile.with_title { 'Title here' }
       tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :energy, scaling: :kilo)
+        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
       end
     end
   end
@@ -54,7 +54,7 @@ class InsightsTileComponentPreview < ViewComponent::Preview
   def without_title
     render InsightsTile::Component.new do |tile|
       tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :energy, scaling: :kilo)
+        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
       end
       tile.with_footer { 'Footer content here.' }
     end

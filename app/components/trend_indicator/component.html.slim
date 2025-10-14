@@ -13,7 +13,7 @@
 
     .hidden data-tippy-target= 'html'
       .text-center
-        => render SensorValue::Component.new(trend.diff.abs, trend.sensor.name, context: :energy, scaling: :kilo, precision: 0)
+        => render SensorValue::Component.new(trend.diff.abs, trend.sensor.name, context: :total, scaling: :kilo, precision: 0)
         div
           - if trend.percent.positive?
             'mehr als

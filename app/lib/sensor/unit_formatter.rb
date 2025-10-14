@@ -1,20 +1,14 @@
 class Sensor::UnitFormatter
   # Class method for quick formatting
-  def self.format(
-    unit:,
-    value: nil,
-    context: :power,
-    scaling: :auto,
-    html: true
-  )
+  def self.format(unit:, value: nil, context: :rate, scaling: :auto, html: true)
     new(unit:, value:, context:, scaling:).public_send(html ? :to_html : :to_s)
   end
 
   # @param unit [Symbol] The unit type from sensor
   # @param value [Numeric, nil] Optional value for auto-scaling (watt, gram)
-  # @param context [Symbol] :power (rate: W, g/h) or :energy (total: Wh, g)
+  # @param context [Symbol] :rate (W, g/h) or :total (Wh, g, EUR)
   # @param scaling [Symbol, Numeric] :auto, :off, :kilo, :mega, or explicit number
-  def initialize(unit:, value: nil, context: :power, scaling: :auto)
+  def initialize(unit:, value: nil, context: :rate, scaling: :auto)
     @unit = unit
     @value = value
     @context = context
@@ -105,9 +99,9 @@ class Sensor::UnitFormatter
   def base_unit_string
     case unit
     when :watt
-      context == :energy ? 'Wh' : 'W'
+      context == :total ? 'Wh' : 'W'
     when :gram
-      context == :energy ? 'g' : 'g/h'
+      context == :total ? 'g' : 'g/h'
     end
   end
 

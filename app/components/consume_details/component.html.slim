@@ -6,7 +6,7 @@ dl.mt-2.space-y-2
     dt
       = t('.grid.import_power')
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :grid_import_power, context: :energy, sign: :negative)
+      = render SensorValue::Component.new(data, :grid_import_power, context: :total, sign: :negative)
 
   .flex.items-center.justify-between.gap-4
     dt
@@ -24,7 +24,7 @@ dl.mt-2.space-y-2
       dt
         = Sensor::Registry[:self_consumption].display_name(:short)
       dd.font-mono.text-right
-        = render SensorValue::Component.new(data, :self_consumption, context: :energy, sign: :negative)
+        = render SensorValue::Component.new(data, :self_consumption, context: :total, sign: :negative)
 
     .flex.items-center.justify-between.gap-4
       dt

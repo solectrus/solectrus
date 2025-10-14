@@ -169,7 +169,7 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
 
   def context
     if sensor.unit == :watt
-      calc.max? ? :power : :energy
+      calc.max? ? :rate : :total
     else
       :auto
     end

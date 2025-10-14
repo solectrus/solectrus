@@ -43,7 +43,7 @@
                       stats_with_chart__component_sensor_name_param: 'heatpump_heating_power',
                     } do
             = render RectBadge::Component.new(title: Sensor::Registry[:heatpump_heating_power].display_name(:short)) do
-              = render SensorValue::Component.new(data, :heatpump_heating_power, context: timeframe.now? ? :power : :energy)
+              = render SensorValue::Component.new(data, :heatpump_heating_power, context: timeframe.now? ? :rate : :total)
 
         - if data.heatpump_cop&.positive?
           = link_to url_for(controller: 'home', sensor_name: 'heatpump_cop', timeframe:),
@@ -114,4 +114,4 @@
 
               .mt-5.inline-block
                 = render RectBadge::Component.new(title: t('splitter.total')) do
-                  = render SensorValue::Component.new(data, :heatpump_power, context: :energy)
+                  = render SensorValue::Component.new(data, :heatpump_power, context: :total)

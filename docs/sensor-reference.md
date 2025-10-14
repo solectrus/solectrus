@@ -127,11 +127,11 @@ Invalid units cause an `ArgumentError` during loading.
 Watt and Gram scale automatically:
 
 ```ruby
-# Watt (context: :power)
+# Watt (context: :rate)
 2500 W      => "2.5 kW"
 1_500_000 W => "1.5 MW"
 
-# Watt (context: :energy)
+# Watt (context: :total)
 2500 Wh      => "2.5 kWh"
 1_500_000 Wh => "1.5 MWh"
 

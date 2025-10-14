@@ -107,9 +107,9 @@ class Sensor::ValueFormatter
   def determine_context(context)
     return context unless context == :auto
 
-    # Gram uses :energy context to show "g" (total) instead of "g/h" (rate)
-    # All other units use :power context
-    unit == :gram ? :energy : :power
+    # Gram uses :total context to show "g" (total) instead of "g/h" (rate)
+    # All other units use :rate context
+    unit == :gram ? :total : :rate
   end
 
   def validate_scaling(scaling)

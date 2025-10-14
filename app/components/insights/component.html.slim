@@ -7,7 +7,7 @@
             .flex.justify-center.items-center.gap-4
               - unless sensor.name.in? %i[grid_power battery_power]
                 .text-left.text-lg.sm:text-2xl.font-semibold
-                  = render SensorValue::Component.new(data, sensor.name, context: :energy, precision: 3)
+                  = render SensorValue::Component.new(data, sensor.name, context: :total, precision: 3)
 
             - if insights.costs
               .mt-2.sm:mt-5.text-lg
@@ -21,26 +21,26 @@
                   .pr-3.bg-gray-200.dark:bg-gray-800.rounded-full.h-2
                     .bg-green-600.h-2.rounded-full style="width: #{sensor_data[:percentage]}%"
                   .text-right.tabular-nums
-                    = render SensorValue::Component.new(sensor_data[:value], sensor_data[:name], context: :energy, scaling: :kilo)
+                    = render SensorValue::Component.new(sensor_data[:value], sensor_data[:name], context: :total, scaling: :kilo)
 
         - if sensor.name == :inverter_power
           = render InsightsTile::Component.new stripes: (timeframe.year? || timeframe.month?) && timeframe.current?,
                                                css_class: 'flex flex-col items-center justify-center' do |tile|
             - tile.with_body do
-              = render SensorValue::Component.new(insights.specific_yield, :specific_yield, context: :energy, scaling: :kilo)
+              = render SensorValue::Component.new(insights.specific_yield, :specific_yield, context: :total, scaling: :kilo)
             - tile.with_footer do
               'pro kWp
 
   - elsif sensor.name == :grid_power
     = render InsightsTile::Component.new do |tile|
       - tile.with_body do
-        = render SensorValue::Component.new(data, :grid_import_power, context: :energy, scaling: :kilo)
+        = render SensorValue::Component.new(data, :grid_import_power, context: :total, scaling: :kilo)
       - tile.with_footer do
         = Sensor::Registry[:grid_import_power].display_name(:short)
 
     = render InsightsTile::Component.new do |tile|
       - tile.with_body do
-        = render SensorValue::Component.new(data, :grid_export_power, context: :energy, scaling: :kilo)
+        = render SensorValue::Component.new(data, :grid_export_power, context: :total, scaling: :kilo)
       - tile.with_footer do
         = Sensor::Registry[:grid_export_power].display_name(:short)
 
@@ -48,7 +48,7 @@
     .col-span-2
       = render InsightsTile::Component.new do |tile|
         - tile.with_body do
-          = render SensorValue::Component.new(data, sensor.name, context: :energy, scaling: :kilo)
+          = render SensorValue::Component.new(data, sensor.name, context: :total, scaling: :kilo)
           .mt-4.text-lg
             = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
 
@@ -74,13 +74,13 @@
   - elsif sensor.name == :battery_power
     = render InsightsTile::Component.new do |tile|
       - tile.with_body do
-        = render SensorValue::Component.new(data, :battery_discharging_power, context: :energy, scaling: :kilo, precision: 0)
+        = render SensorValue::Component.new(data, :battery_discharging_power, context: :total, scaling: :kilo, precision: 0)
       - tile.with_footer do
         'Entladung
 
     = render InsightsTile::Component.new css_class: 'text-right' do |tile|
       - tile.with_body do
-        = render SensorValue::Component.new(data, :battery_charging_power, context: :energy, scaling: :kilo, precision: 0)
+        = render SensorValue::Component.new(data, :battery_charging_power, context: :total, scaling: :kilo, precision: 0)
       - tile.with_footer do
         'Beladung
 
@@ -122,7 +122,7 @@
             span.hidden.md:block
               =l min_day
           - tile.with_body do
-            = render SensorValue::Component.new(insights.minimum(:value), sensor.name, context: :energy, scaling: :kilo)
+            = render SensorValue::Component.new(insights.minimum(:value), sensor.name, context: :total, scaling: :kilo)
           - tile.with_footer do
             'Minimum
 
@@ -132,7 +132,7 @@
             span.hidden.md:block
               '&nbsp;
           - tile.with_body do
-            = render SensorValue::Component.new(insights.per_day_value, sensor.name, context: :energy, scaling: :kilo)
+            = render SensorValue::Component.new(insights.per_day_value, sensor.name, context: :total, scaling: :kilo)
           - tile.with_footer do
             ' Ø pro Tag
 
@@ -142,6 +142,6 @@
             span.hidden.md:block
               =l max_day
           - tile.with_body do
-            = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :energy, scaling: :kilo)
+            = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :total, scaling: :kilo)
           - tile.with_footer do
             'Maximum

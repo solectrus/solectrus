@@ -382,7 +382,7 @@ data.points.first.house_power  # => 3750.0
 
 ```ruby
 # Watt/Kilowatt automatic
-formatter = Sensor::ValueFormatter.new(2500, unit: :watt, context: :power)
+formatter = Sensor::ValueFormatter.new(2500, unit: :watt, context: :rate)
 formatter.to_h
 # => { value: "2.5", integer: "2", decimal: ".5", unit: "kW" }
 
@@ -393,7 +393,7 @@ formatter.to_h
 ```
 
 **Supported units:**
-- `:watt` - Automatic W/kW/MW (+ Wh/kWh/MWh with context: :energy)
+- `:watt` - Automatic W/kW/MW (+ Wh/kWh/MWh with context: :total)
 - `:celsius` - Temperature in °C
 - `:percent` - Percent with %
 - `:unitless` - Unitless numbers (e.g., COP)

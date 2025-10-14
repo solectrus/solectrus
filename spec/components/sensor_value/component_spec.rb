@@ -24,7 +24,7 @@ describe SensorValue::Component, type: :component do
     end
 
     context 'with energy context' do
-      let(:options) { { context: :energy } }
+      let(:options) { { context: :total } }
 
       it 'renders kWh unit' do
         render_inline(component)

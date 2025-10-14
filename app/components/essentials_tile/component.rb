@@ -49,7 +49,7 @@ class EssentialsTile::Component < ViewComponent::Base
 
     context =
       if sensor.name == :inverter_power
-        timeframe.now? ? :power : :energy
+        timeframe.now? ? :rate : :total
       else
         :auto
       end

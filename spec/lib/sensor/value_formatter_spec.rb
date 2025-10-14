@@ -75,7 +75,7 @@ describe Sensor::ValueFormatter do
 
       context 'with energy context' do
         subject(:result) do
-          described_class.new(value, unit: :watt, context: :energy).to_h
+          described_class.new(value, unit: :watt, context: :total).to_h
         end
 
         context 'with 500 Wh' do
@@ -111,7 +111,7 @@ describe Sensor::ValueFormatter do
             described_class.new(
               value,
               unit: :watt,
-              context: :energy,
+              context: :total,
               scaling: :kilo,
             ).to_h
           end
@@ -127,7 +127,7 @@ describe Sensor::ValueFormatter do
             described_class.new(
               value,
               unit: :watt,
-              context: :energy,
+              context: :total,
               scaling: :kilo,
             ).to_h
           end
@@ -142,7 +142,7 @@ describe Sensor::ValueFormatter do
 
         describe 'large energy values precision' do
           subject(:result) do
-            described_class.new(value, unit: :watt, context: :energy).to_h
+            described_class.new(value, unit: :watt, context: :total).to_h
           end
 
           context 'with large kWh value (958.3 kWh)' do
@@ -391,7 +391,7 @@ describe Sensor::ValueFormatter do
     end
 
     it 'preserves explicit energy context' do
-      formatter = described_class.new(2500, unit: :watt, context: :energy)
+      formatter = described_class.new(2500, unit: :watt, context: :total)
       result = formatter.to_h
 
       expect(result[:unit]).to eq('kWh')
@@ -459,7 +459,7 @@ describe Sensor::ValueFormatter do
 
       it 'handles very large values' do
         formatter =
-          described_class.new(10_000_000, unit: :watt, context: :power)
+          described_class.new(10_000_000, unit: :watt, context: :rate)
         result = formatter.to_h
 
         expect(result[:value]).to eq('10,0')

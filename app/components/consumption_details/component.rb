@@ -18,6 +18,6 @@ class ConsumptionDetails::Component < ViewComponent::Base
   end
 
   def power_or_energy
-    timeframe.now? ? :power : :energy
+    timeframe.now? ? :rate : :total
   end
 end

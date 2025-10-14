@@ -18,7 +18,7 @@ class SensorValue::ComponentPreview < ViewComponent::Preview
 
   def inverter_power_energy_context
     data = data_example(inverter_power: 15_000)
-    render SensorValue::Component.new(data, :inverter_power, context: :energy)
+    render SensorValue::Component.new(data, :inverter_power, context: :total)
   end
 
   # @!group Temperature Sensors

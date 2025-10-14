@@ -37,7 +37,7 @@
                             = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
                   - else
                     br
-                    = render SensorValue::Component.new(value, sensor.name, context: :energy, scaling: :kilo)
+                    = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)
         - else
           div
 
@@ -85,7 +85,7 @@
                           = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
                 - else
                   br
-                  = render SensorValue::Component.new(value, sensor.name, context: :energy, scaling: :kilo)
+                  = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)
         - else
           div
     div

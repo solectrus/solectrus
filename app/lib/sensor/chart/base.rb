@@ -39,7 +39,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     @unit ||=
       Sensor::UnitFormatter.format(
         unit: chart_sensors.first.unit,
-        context: timeframe.short? ? :power : :energy,
+        context: timeframe.short? ? :rate : :total,
         scaling: :off,
       )
   end

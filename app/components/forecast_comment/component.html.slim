@@ -4,7 +4,7 @@
       = t 'forecast.better_html', percent: Sensor::ValueFormatter.new(data.forecast_deviation.abs, unit: :percent)
 
     - elsif future? || today_before_sunset?
-      = t 'forecast.expect_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :energy, precision: 0)
+      = t 'forecast.expect_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :total, precision: 0)
     - elsif data.forecast_deviation&.zero?
       = t 'forecast.exactly'
     - elsif data.forecast_deviation&.negative?
@@ -12,6 +12,6 @@
 
     - if tooltip_required?
       .hidden id="forecast-expectation" data-tippy-target= 'html'
-        = t 'forecast.expectation_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :energy, precision: 0)
+        = t 'forecast.expectation_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :total, precision: 0)
   - elsif future?
     = t 'forecast.unknown'

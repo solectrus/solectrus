@@ -27,13 +27,13 @@
                         stats_with_chart__component_sensor_name_param: 'inverter_power',
                       } do
               div data= { 'stats-with-chart--component-target': sensor_name == :inverter_power ? 'current' : nil, 'sensor-name': sensor_name, value: data.inverter_power, time: data.time.to_i }
-                = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :power : :energy)
+                = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :rate : :total)
 
               #tippy-tooltip-inverter_power.hidden data-tippy-target= 'html'
                 .flex.flex-col.items-center.justify-center.gap-2.p-2
                   i.fa.fa-2xl.fa-sun
                   = Sensor::Registry[:inverter_power].display_name
-                  = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :power : :energy, precision: 3)
+                  = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :rate : :total, precision: 3)
 
       // Inner content
       .flex-1.flex

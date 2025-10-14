@@ -36,7 +36,7 @@
         = title.truncate(20)
 
       .value data= { 'stats-with-chart--component-target': 'current', 'sensor-name': sensor.name, value: masked_value, time: data.time&.to_i }
-        = render SensorValue::Component.new(data, sensor.name, context: now? ? :power : :energy)
+        = render SensorValue::Component.new(data, sensor.name, context: now? ? :rate : :total)
 
       - if sensor.name == :grid_export_power && data.respond_to?(:grid_export_limit_active?) && data.grid_export_limit_active?
         i.fa.fa-circle-exclamation
@@ -58,7 +58,7 @@
                 = render SensorValue::Component.new(data, :grid_export_limit, precision: 0, class: 'text-xs')
 
           - else
-            = render SensorValue::Component.new(data, sensor.name, context: :energy, precision: 3)
+            = render SensorValue::Component.new(data, sensor.name, context: :total, precision: 3)
 
             - if costs
               = render SplittedCosts::Component.new(power_grid_ratio:, costs:)
@@ -85,4 +85,4 @@
                         td.text-left.pr-1
                           = sensor.display_name
                         td.text-right.pl-1.tabular-nums
-                          = render SensorValue::Component.new(data, sensor.name, context: now? ? :power : :energy, precision: 3)
+                          = render SensorValue::Component.new(data, sensor.name, context: now? ? :rate : :total, precision: 3)
