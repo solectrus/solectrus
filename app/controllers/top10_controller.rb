@@ -31,8 +31,9 @@ class Top10Controller < ApplicationController
   end
 
   helper_method def supports_max?
-    # Custom sensors are not supported for max calculation
-    !sensor_name.in?(Sensor::Config.custom_power_sensors.map(&:name))
+    return false unless sensor
+
+    sensor.allowed_aggregations.include?(:max)
   end
 
   helper_method def nav_items

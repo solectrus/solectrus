@@ -25,9 +25,14 @@ describe 'Top 10' do
       expect(response).to redirect_to('/top10/day/inverter_power/sum/desc')
     end
 
-    it 'redirects when sensor does not support max' do
+    it 'redirects when sensor does not support max (custom power)' do
       get '/top10/week/custom_power_03/max/desc'
       expect(response).to redirect_to('/top10/week/custom_power_03/sum/desc')
+    end
+
+    it 'redirects when sensor does not support max (grid_costs)' do
+      get '/top10/day/grid_costs/max/desc'
+      expect(response).to redirect_to('/top10/day/grid_costs/sum/desc')
     end
   end
 end
