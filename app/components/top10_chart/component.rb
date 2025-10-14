@@ -45,12 +45,11 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
   end
 
   def bar_style(record)
-    hex = sensor.color_hex
-    "width: #{percent(record)}%; --bar-color: #{hex};"
+    "width: #{percent(record)}%; --bar-color: #{sensor.color_hex};"
   end
 
   def bar_classes
-    'bar-gradient text-white dark:text-white/90'
+    'bar-gradient text-white dark:text-white/80'
   end
 
   # CSS classes to HIDE the value inside the bar when the bar is too small
