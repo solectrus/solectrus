@@ -1410,6 +1410,10 @@ describe Timeframe do
     it 'is relative' do
       expect(decoder.relative?).to be(true)
     end
+
+    it 'is not all_like' do
+      expect(decoder).not_to be_all_like
+    end
   end
 
   context 'when string is some years' do
@@ -1603,6 +1607,46 @@ describe Timeframe do
     it 'has passed 1260 days' do
       # 2019-05-02 (min_ate) to 2022-10-13 (current date) = 1260 days
       expect(decoder.days_passed).to eq(1260)
+    end
+
+    it 'returns the correct corresponding_all' do
+      # From 2019-05-02 to 2022-10-13 = 41 months
+      expect(decoder.corresponding_all).to eq('P41M')
+    end
+
+    it 'calculates months_since_min_date correctly' do
+      # From 2019-05-02 to 2022-10-13 = 41 months
+      expect(decoder.months_since_min_date).to eq(41)
+    end
+
+    it 'is all_like' do
+      expect(decoder).to be_all_like
+    end
+  end
+
+  context 'when string is months covering full installation period' do
+    let(:string) { 'P41M' }
+
+    it 'switches back to "all" via corresponding_all' do
+      expect(decoder.corresponding_all).to eq('all')
+    end
+
+    it 'is all_like' do
+      expect(decoder).to be_all_like
+    end
+  end
+
+  context 'when months exceed 99' do
+    subject(:decoder) do
+      described_class.new(
+        'all',
+        min_date: Date.new(2010, 1, 1),
+        allowed_days_in_future: 1,
+      )
+    end
+
+    it 'caps corresponding_all at P99M' do
+      expect(decoder.corresponding_all).to eq('P99M')
     end
   end
 

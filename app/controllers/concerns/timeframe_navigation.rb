@@ -46,8 +46,8 @@ module TimeframeNavigation
         },
         {
           name: t('data.all'),
-          href: path_with_timeframe('all'),
-          current: timeframe.all?,
+          href: path_with_timeframe(timeframe.corresponding_all),
+          current: timeframe.all_like?,
         },
       ]
     end

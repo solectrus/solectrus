@@ -249,6 +249,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     id == :all
   end
 
+  def all_like?
+    all? || (months? && relative_count == months_since_min_date)
+  end
+
   def range?
     id == :range
   end
@@ -445,6 +449,25 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     else
       effective_ending_date.strftime(format(target_id: :year))
     end
+  end
+
+  def corresponding_all
+    if all?
+      # Calculate months since installation, capped at 99
+      months_since_installation = [months_since_min_date, 99].min
+      "P#{months_since_installation}M"
+    else
+      # Switch back to 'all' if currently showing the monthly period
+      'all'
+    end
+  end
+
+  def months_since_min_date
+    return 0 unless min_date
+
+    # Calculate the difference in months from min_date to now
+    ((Date.current.year - min_date.year) * 12) +
+      (Date.current.month - min_date.month)
   end
 
   def date
