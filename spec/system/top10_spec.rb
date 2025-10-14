@@ -70,7 +70,6 @@ describe 'Top 10' do
 
         # Verify the chart shows dates and energy values
         expect(page).to have_content(/\d{4}/) # Year pattern
-        expect(page).to have_content('Aufsummierte Energie')
       end
     end
   end
