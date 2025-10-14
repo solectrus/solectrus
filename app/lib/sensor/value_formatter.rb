@@ -107,9 +107,9 @@ class Sensor::ValueFormatter
   def determine_context(context)
     return context unless context == :auto
 
-    # Gram uses :total context to show "g" (total) instead of "g/h" (rate)
-    # All other units use :rate context
-    unit == :gram ? :total : :rate
+    # Gram and Euro are accumulated values (totals)
+    # Other units like Watt can show rates (W) or totals (Wh) depending on context
+    %i[gram euro].include?(unit) ? :total : :rate
   end
 
   def validate_scaling(scaling)

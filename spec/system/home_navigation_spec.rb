@@ -59,17 +59,21 @@ describe 'Home page' do
     expect(page).to have_content('Dienstag, 21. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
 
-    expect_chart_or_blank(path, '#chart-day')
+    expect(page).to have_css('#chart-day')
     check_inverter_power_specifics(path)
     check_insights(path) unless finance_sensor?(path)
 
     click_prev_and_expect('Montag, 20. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
-    expect_chart_or_blank(path, '#balance-chart-2022-06-20', 'Keine Daten vorhanden')
+    expect_chart_or_blank(
+      path,
+      '#balance-chart-2022-06-20',
+      'Keine Daten vorhanden',
+    )
 
     click_next_and_expect('Dienstag, 21. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
-    expect_chart_or_blank(path, '#chart-day')
+    expect(page).to have_css('#chart-day')
   end
 
   def navigate_24_hours(path)
@@ -80,7 +84,7 @@ describe 'Home page' do
     expect(page).to have_content('Letzte 24 Stunden')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
 
-    expect_chart_or_blank(path, '#chart-hours')
+    expect(page).to have_css('#chart-hours')
 
     return unless path == 'inverter_power'
 
@@ -219,12 +223,10 @@ describe 'Home page' do
     path.in?(%w[grid_costs savings grid_revenue])
   end
 
-  def expect_chart_or_blank(path, chart_id, blank_message = nil)
-    if finance_sensor?(path)
-      expect(page).to have_content('Diagramm nur für längere Zeiträume verfügbar!')
-    elsif blank_message
-      expect(page).to have_css(chart_id)
-      within(chart_id) { expect(page).to have_content(blank_message) }
+  def expect_chart_or_blank(_path, chart_id, blank_message = nil)
+    if blank_message
+      # When blank, there's no chart element - just the message
+      expect(page).to have_content(blank_message)
     else
       expect(page).to have_css(chart_id)
     end

@@ -10,11 +10,7 @@ class ChartLoader::Component < ViewComponent::Base
   delegate :type, :data, :options, :blank?, :unit, :permitted?, to: :chart_instance
 
   def blank_message
-    if sensor.unit == :euro && timeframe.short?
-      I18n.t('data.blank_finance_short_timeframe')
-    else
-      I18n.t('data.blank')
-    end
+    I18n.t('data.blank')
   end
 
   def path_to_insights

@@ -111,7 +111,6 @@ de:
     all: Gesamt
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
-    blank_finance_short_timeframe: Diagramm nur für längere Zeiträume verfügbar!
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
     heatpump_no_heating: Kein Heizbetrieb
   chart:

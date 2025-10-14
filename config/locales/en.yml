@@ -111,7 +111,6 @@ en:
     all: Overall
     time: Last measurement taken
     blank: No data available!
-    blank_finance_short_timeframe: Chart only available for longer time periods!
     heatpump_cop_below_one: Power consumption exceeds heat generated
     heatpump_no_heating: No heating operation
   chart:
