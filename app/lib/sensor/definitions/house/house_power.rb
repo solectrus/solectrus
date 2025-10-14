@@ -2,7 +2,7 @@ class Sensor::Definitions::HousePower < Sensor::Definitions::Base
   value unit: :watt, category: :consumer, nameable: true
 
   color hex: '#64748b',
-        bg_classes: 'bg-slate-500 dark:bg-slate-600/90',
+        bg_classes: 'bg-slate-500 dark:bg-slate-700',
         text_classes: 'text-white dark:text-slate-400'
 
   icon 'fa-home'

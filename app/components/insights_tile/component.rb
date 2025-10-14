@@ -14,7 +14,7 @@ class InsightsTile::Component < ViewComponent::Base
 
   def container_classes
     class_names(
-      'bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-gray-400 rounded-2xl shadow p-4 text-center',
+      'bg-gray-100 dark:bg-slate-900/50 text-gray-900 dark:text-gray-400 rounded-2xl shadow p-4 text-center',
       css_class,
       'block' => url.present?,
       'sm:stripes' => stripes,

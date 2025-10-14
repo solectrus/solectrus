@@ -2,8 +2,8 @@ class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
   value
 
   color hex: '#ef4444',
-        bg_classes: 'bg-red-500 dark:bg-red-700',
-        text_classes: 'text-red-100 dark:text-red-400'
+        bg_classes: 'bg-red-700 dark:bg-red-800/80',
+        text_classes: 'text-red-700 dark:text-red-400'
 
   depends_on :grid_import_power
 

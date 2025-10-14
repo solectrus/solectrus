@@ -2,7 +2,7 @@ class Sensor::Definitions::Savings < Sensor::Definitions::Base
   value unit: :euro, category: :economic
 
   color hex: '#4f46e5',
-        bg_classes: 'bg-indigo-600 dark:bg-indigo-800',
+        bg_classes: 'bg-indigo-600 dark:bg-indigo-500',
         text_classes: 'text-indigo-100 dark:text-indigo-400'
 
   icon 'fa-piggy-bank'

@@ -1,5 +1,7 @@
 describe EssentialsTile::Component, type: :component do
-  subject(:component) { described_class.new data:, sensor: Sensor::Registry[sensor_name], timeframe: }
+  subject(:component) do
+    described_class.new data:, sensor: Sensor::Registry[sensor_name], timeframe:
+  end
 
   context "when year's savings" do
     let(:data) { double(Sensor::Data::Single, savings: 500) }
@@ -18,7 +20,7 @@ describe EssentialsTile::Component, type: :component do
     it 'returns the correct background color' do
       expect(
         component.background_color,
-      ).to eq 'bg-indigo-600 dark:bg-indigo-800'
+      ).to eq 'bg-indigo-600 dark:bg-indigo-500'
     end
 
     it 'returns the correct text primary color' do
@@ -47,7 +49,9 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-green-600 dark:bg-green-800/80'
+      expect(
+        component.background_color,
+      ).to eq 'bg-green-600 dark:bg-green-800/80'
     end
 
     it 'returns the correct text primary color' do
@@ -76,7 +80,9 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-green-600 dark:bg-green-800/80'
+      expect(
+        component.background_color,
+      ).to eq 'bg-green-600 dark:bg-green-800/80'
     end
 
     it 'returns the correct text primary color' do
@@ -134,7 +140,7 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-slate-500 dark:bg-slate-600/90'
+      expect(component.background_color).to eq 'bg-slate-500 dark:bg-slate-700'
     end
 
     it 'returns the correct text primary color' do

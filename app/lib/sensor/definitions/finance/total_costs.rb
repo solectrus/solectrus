@@ -1,6 +1,6 @@
 class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
   color hex: '#ef4444',
-        bg_classes: 'bg-red-500 dark:bg-red-700',
+        bg_classes: 'bg-red-500 dark:bg-red-400',
         text_classes: 'text-red-100 dark:text-red-400'
 
   depends_on do
