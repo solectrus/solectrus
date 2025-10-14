@@ -1,7 +1,7 @@
 class Sensor::UnitFormatter
   # Class method for quick formatting
-  def self.format(unit:, value: nil, context: :rate, scaling: :auto, html: true)
-    new(unit:, value:, context:, scaling:).public_send(html ? :to_html : :to_s)
+  def self.format(unit:, value: nil, context: :rate, scaling: :auto)
+    new(unit:, value:, context:, scaling:).to_s
   end
 
   # @param unit [Symbol] The unit type from sensor
@@ -15,14 +15,9 @@ class Sensor::UnitFormatter
     @scaling = scaling
   end
 
-  # Returns the unit string with HTML entities
-  def to_html
-    unit_string(html: true)
-  end
-
-  # Returns the unit string as plain text (for display)
+  # Returns the unit string
   def to_s
-    unit_string(html: false)
+    unit_string
   end
 
   # Returns the scale divisor (1, 1000, 1_000_000)
@@ -67,19 +62,19 @@ class Sensor::UnitFormatter
   ].freeze
   private_constant :GRAM_SCALING
 
-  def unit_string(html:) # rubocop:disable Metrics/CyclomaticComplexity
+  def unit_string
     case unit
     when :watt, :gram
       scaled_unit
     when :celsius
-      html ? '&deg;C'.html_safe : '°C'
+      '°C'
     when :percent
-      html ? '&percnt;'.html_safe : '%'
+      '%'
     when :euro
-      html ? '&euro;'.html_safe : '€'
+      '€'
     when :euro_per_kwh
-      html ? '&euro;/kWh'.html_safe : '€/kWh'
-    when :unitless, :boolean, :string
+      '€/kWh'
+    else
       ''
     end
   end
