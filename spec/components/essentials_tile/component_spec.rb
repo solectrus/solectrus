@@ -20,17 +20,7 @@ describe EssentialsTile::Component, type: :component do
     it 'returns the correct background color' do
       expect(
         component.background_color,
-      ).to eq 'bg-indigo-600 dark:bg-indigo-500'
-    end
-
-    it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
-    end
-
-    it 'returns the correct text secondary color' do
-      expect(
-        component.text_secondary_color,
-      ).to eq 'text-indigo-100 dark:text-indigo-400'
+      ).to eq 'bg-indigo-600 dark:bg-indigo-900'
     end
   end
 
@@ -53,16 +43,6 @@ describe EssentialsTile::Component, type: :component do
         component.background_color,
       ).to eq 'bg-green-600 dark:bg-green-800/80'
     end
-
-    it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
-    end
-
-    it 'returns the correct text secondary color' do
-      expect(
-        component.text_secondary_color,
-      ).to eq 'text-white dark:text-slate-400'
-    end
   end
 
   context 'when current inverter_power (present)' do
@@ -84,16 +64,6 @@ describe EssentialsTile::Component, type: :component do
         component.background_color,
       ).to eq 'bg-green-600 dark:bg-green-800/80'
     end
-
-    it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
-    end
-
-    it 'returns the correct text secondary color' do
-      expect(
-        component.text_secondary_color,
-      ).to eq 'text-white dark:text-slate-400'
-    end
   end
 
   context 'when current inverter_power (blank)' do
@@ -112,16 +82,6 @@ describe EssentialsTile::Component, type: :component do
 
     it 'returns the correct background color' do
       expect(component.background_color).to eq 'bg-gray-600 dark:bg-gray-700'
-    end
-
-    it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
-    end
-
-    it 'returns the correct text secondary color' do
-      expect(
-        component.text_secondary_color,
-      ).to eq 'text-gray-100 dark:text-gray-400'
     end
   end
 
@@ -142,16 +102,6 @@ describe EssentialsTile::Component, type: :component do
     it 'returns the correct background color' do
       expect(component.background_color).to eq 'bg-slate-500 dark:bg-slate-700'
     end
-
-    it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
-    end
-
-    it 'returns the correct text secondary color' do
-      expect(
-        component.text_secondary_color,
-      ).to eq 'text-white dark:text-slate-400'
-    end
   end
 
   context 'when overall battery_soc' do
@@ -170,16 +120,6 @@ describe EssentialsTile::Component, type: :component do
 
     it 'returns the correct background color' do
       expect(component.background_color).to eq 'bg-sky-400 dark:bg-sky-600'
-    end
-
-    it 'returns the correct text primary color' do
-      expect(component.text_primary_color).to eq 'text-white dark:opacity-75'
-    end
-
-    it 'returns the correct text secondary color' do
-      expect(
-        component.text_secondary_color,
-      ).to eq 'text-sky-100 dark:text-sky-400'
     end
   end
 end

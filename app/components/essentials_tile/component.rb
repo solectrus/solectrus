@@ -22,16 +22,6 @@ class EssentialsTile::Component < ViewComponent::Base
     sensor.color_bg
   end
 
-  def text_primary_color
-    'text-white dark:opacity-75'
-  end
-
-  def text_secondary_color
-    return 'text-gray-100 dark:text-gray-400' if value.nil? || value.round.zero?
-
-    sensor.color_text
-  end
-
   def title
     case sensor.name
     when :co2_reduction

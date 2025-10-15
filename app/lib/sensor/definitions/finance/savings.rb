@@ -1,8 +1,8 @@
 class Sensor::Definitions::Savings < Sensor::Definitions::Base
   value unit: :euro, category: :economic
 
-  color hex: '#4f46e5',
-        bg_classes: 'bg-indigo-600 dark:bg-indigo-500',
+  color hex: '#4c3aed',
+        bg_classes: 'bg-indigo-600 dark:bg-indigo-900',
         text_classes: 'text-indigo-100 dark:text-indigo-400'
 
   icon 'fa-piggy-bank'
