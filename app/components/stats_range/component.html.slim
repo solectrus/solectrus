@@ -12,7 +12,7 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy" data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(percent: data.autarky, title: Sensor::Registry[:autarky].display_name(:short))
+          = render RadialBadge::Component.new(:autarky, data:)
           - unless timeframe.future?
             template data-tippy-target="html"
               = render AutarkyDetails::Component.new(data:, timeframe:)
@@ -26,7 +26,7 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy" data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(percent: data.self_consumption_quote, neutral: true, title: Sensor::Registry[:self_consumption_quote].display_name(:short))
+          = render RadialBadge::Component.new(:self_consumption_quote, data:)
           - unless timeframe.future?
             template data-tippy-target="html"
               = render ConsumptionDetails::Component.new(data:, timeframe:)
@@ -43,7 +43,7 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy" title= t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(title: sensor.display_name(:short)) do
+          = render RadialBadge::Component.new(:co2_reduction, data:) do
             = render SensorValue::Component.new(data, :co2_reduction, class: sensor.color_text)
 
     = render FinanceBadge::Component.new(data:, timeframe:)

@@ -60,19 +60,24 @@ class Sensor::Definitions::Base
     self.class.unit || raise(NotImplementedError, 'Subclass must define unit')
   end
 
-  def color_hex(index: nil)
-    data = color_data_dynamic(index:)
+  def color_hex(index: nil, value: nil)
+    data = color_data_dynamic(index:, value:)
     data ? data[:hex] : evaluate_config_value(:color_hex)
   end
 
-  def color_bg(index: nil)
-    data = color_data_dynamic(index:)
+  def color_bg(index: nil, value: nil)
+    data = color_data_dynamic(index:, value:)
     data ? data[:bg] : evaluate_config_value(:color_bg)
   end
 
-  def color_text(index: nil)
-    data = color_data_dynamic(index:)
+  def color_text(index: nil, value: nil)
+    data = color_data_dynamic(index:, value:)
     data ? data[:text] : evaluate_config_value(:color_text)
+  end
+
+  def color_border(index: nil, value: nil)
+    data = color_data_dynamic(index:, value:)
+    data ? data[:border] : evaluate_config_value(:color_border)
   end
 
   def icon(data: nil)
@@ -156,10 +161,10 @@ class Sensor::Definitions::Base
 
   private
 
-  # Cache dynamic color hash (evaluated only once per instance per index)
-  def color_data_dynamic(index: nil)
+  # Cache dynamic color hash (evaluated only once per instance per cache key)
+  def color_data_dynamic(index: nil, value: nil)
     @color_data_dynamic_cache ||= {}
-    cache_key = index || :default
+    cache_key = [index, value].compact.presence || :default
 
     if @color_data_dynamic_cache.key?(cache_key)
       return @color_data_dynamic_cache[cache_key]
@@ -167,7 +172,11 @@ class Sensor::Definitions::Base
 
     block = self.class.meta_data[:color_dynamic]
     @color_data_dynamic_cache[cache_key] = (
-      instance_exec(index, &block) if block
+      if block
+        # Pass the appropriate parameter: value takes precedence over index
+        param = value.nil? ? index : value
+        instance_exec(param, &block)
+      end
     )
   end
 

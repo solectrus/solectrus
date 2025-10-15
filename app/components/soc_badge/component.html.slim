@@ -26,7 +26,7 @@
               class= (car_connected || car_connected.nil? ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400 dark:text-slate-500')
             ]
 
-          span class= (value.round < 25 ? 'text-red-600' : 'text-green-600')
+          span class= color_class(soc_sensor, value)
             = "#{value.round}%"
 
   .title class= 'mx-auto uppercase tracking-tight text-slate-500 dark:text-slate-400'

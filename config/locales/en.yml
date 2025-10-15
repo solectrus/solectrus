@@ -68,6 +68,7 @@ en:
     battery_charging_power: Battery charge
     battery_power: Home Battery
     battery_soc: SOC Home Battery
+    battery_soc_short: SOC
     car_battery_soc: SOC EV
     case_temp: Case
     grid_export_limit: Limitation

@@ -19,7 +19,7 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy" data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(percent: data.autarky, title: Sensor::Registry[:autarky].display_name(:short))
+          = render RadialBadge::Component.new(:autarky, data:)
           .hidden#autarky-details-tooltip data-tippy-target="html"
             = render AutarkyDetails::Component.new(data:, timeframe:)
 
@@ -38,7 +38,7 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy" data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(percent: data.self_consumption_quote, neutral: true, title: Sensor::Registry[:self_consumption_quote].display_name(:short))
+          = render RadialBadge::Component.new(:self_consumption_quote, data:)
           .hidden#consumption-details-tooltip data-tippy-target="html"
             = render ConsumptionDetails::Component.new(data:, timeframe:)
 
@@ -59,7 +59,7 @@
                   stats_with_chart__component_sensor_name_param: 'case_temp',
                 },
                 class: 'click-animation' do
-        = render RadialBadge::Component.new(title: Sensor::Registry[:case_temp].display_name) do
+        = render RadialBadge::Component.new(:case_temp, data:) do
           = render SensorValue::Component.new(data, :case_temp, precision: 0)
 
     - if Sensor::Config.exists?(:battery_soc) && Sensor::Config.exists?(:car_battery_soc)
@@ -85,4 +85,4 @@
                   stats_with_chart__component_sensor_name_param: 'battery_soc',
                 },
                 class: 'click-animation' do
-        = render RadialBadge::Component.new(percent: data.battery_soc, neutral: true, title: t('balance_sheet.soc'))
+        = render RadialBadge::Component.new(:battery_soc, data:)
