@@ -449,10 +449,13 @@ export default class extends Controller<HTMLCanvasElement> {
     let decimals: number;
     let minDecimals: number = 0;
     if (kilo) {
+      // For gram values (CO2 reduction), use only 1 decimal place even in tooltips
+      const isGram = this.unitValue === 'g';
+
       switch (target) {
         case 'tooltip':
-          // On tooltip, we always want a precise value
-          decimals = 3;
+          // On tooltip, we want precise values, but only 1 decimal for grams (kg)
+          decimals = isGram ? 1 : 3;
           break;
         case 'axis':
           // On axis, a single decimal is required to distinguish between values
