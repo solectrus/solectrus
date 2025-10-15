@@ -203,6 +203,10 @@
     var(--bar-color) 0%,
     var(--bar-color) 100%
   );
-  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, black 100%);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.5) 0%,
+    black 100%
+  );
   mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, black 100%);
 }
