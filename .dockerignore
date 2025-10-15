@@ -30,6 +30,8 @@ config/environments/test.rb
 config/environments/development.rb
 config/rorvswild.yml
 config/brakeman.ignore
+config/bundler-audit.yml
+config/ci.rb
 screenshot.webp
 logo.svg
 spec
@@ -40,7 +42,8 @@ bin/rspec
 bin/rubocop
 bin/setup
 bin/yarn
-bin/test
+bin/bundler-audit
+bin/ci
 bin/open
 bin/brakeman
 eslint.config.mjs

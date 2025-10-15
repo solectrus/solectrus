@@ -9,7 +9,7 @@ gem 'uri', '>= 0.12.2'
 gem 'openssl'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 8.0.3'
+gem 'rails', '~> 8.1.0-rc1'
 
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
@@ -110,6 +110,9 @@ group :development, :test do
 
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
+
+  # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
+  gem 'bundler-audit', require: false
 end
 
 group :development do

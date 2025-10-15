@@ -93,6 +93,9 @@ jobs:
       - name: Brakeman security scan
         run: bin/brakeman
 
+      - name: Scan for known security vulnerabilities in gems used
+        run: bin/bundler-audit
+
       - name: Lint with ESLint
         run: bin/yarn lint
 
