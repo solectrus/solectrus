@@ -515,11 +515,11 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   # Determine if we should extend the x-axis to end of day
   def should_extend_x_axis_to_end_of_day?
-    # Only extend for day timeframes showing today's data
+    # Only extend for day timeframes showing today's or future data
     return false unless timeframe.day?
 
-    # Check if this is today's data (not a historical day)
-    timeframe.date == Date.current
+    # Extend for today and future days to ensure chart always shows full 24h
+    timeframe.date >= Date.current
   end
 
   # Apply sensor value range validation to chart data
