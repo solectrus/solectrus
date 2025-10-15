@@ -39,21 +39,34 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
 
   def clamp_to_heating_power(sensor_name, value, heating_power, timestamp)
     case sensor_name
-    when :heatpump_power_grid
+    when :heatpump_power_grid, :heatpump_power
       [value, heating_power].min
     when :heatpump_power_pv
       grid = sensor_data(:heatpump_power_grid)[timestamp] || 0
       grid_clamped = [grid, heating_power].min
       [value, heating_power - grid_clamped].min
     when :heatpump_power_env
-      grid = sensor_data(:heatpump_power_grid)[timestamp] || 0
-      pv = sensor_data(:heatpump_power_pv)[timestamp] || 0
-      grid_clamped = [grid, heating_power].min
-      pv_clamped = [pv, heating_power - grid_clamped].min
-      [heating_power - grid_clamped - pv_clamped, 0].max
+      clamp_env_power(heating_power, timestamp)
     else
       value
     end
+  end
+
+  def clamp_env_power(heating_power, timestamp)
+    electrical =
+      if timeframe.now?
+        # There is no power splitter for live data, so just clamp to heating power
+        [sensor_data(:heatpump_power)[timestamp] || 0, heating_power].min
+      else
+        # Clamp to the remaining power after grid and PV contributions
+        grid = sensor_data(:heatpump_power_grid)[timestamp] || 0
+        pv = sensor_data(:heatpump_power_pv)[timestamp] || 0
+        grid_clamped = [grid, heating_power].min
+        pv_clamped = [pv, heating_power - grid_clamped].min
+        grid_clamped + pv_clamped
+      end
+
+    [heating_power - electrical, 0].max
   end
 
   def datasets(chart_data_items)

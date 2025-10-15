@@ -293,14 +293,18 @@ export default class extends Controller<HTMLCanvasElement> {
 
           if (isPowerSplitterStack || isHeatingStack) {
             if (tooltipItem.dataset.stack && data.datasets.length) {
-              if (data.datasets.length == 2 || data.datasets.length == 3) {
-                // Now or Day
+              if (data.datasets.length <= 3) {
+                // Now or Day: show absolute values
                 result += this.formattedNumber(tooltipItem.parsed.y!);
               } else {
-                // Sum is the value of the first dataset
-                const sum = data.datasets[0].data[
-                  tooltipItem.dataIndex
-                ] as number;
+                // Week, Month, Year: show percentages
+                // Calculate total from sum of all stacked items at this index
+                const sum = data.datasets
+                  .filter((ds) => ds.stack === tooltipItem.dataset.stack)
+                  .reduce((acc, ds) => {
+                    const value = ds.data[tooltipItem.dataIndex] as number;
+                    return acc + (value || 0);
+                  }, 0);
 
                 if (sum && tooltipItem.parsed.y)
                   result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
@@ -336,17 +340,12 @@ export default class extends Controller<HTMLCanvasElement> {
               if (item.parsed.y) acc += item.parsed.y;
               return acc;
             }, 0);
-          } else if (isHeatingStack) {
-            if (tooltipItems.length == 4) {
-              // Week, Month, Year, All
-              sum = tooltipItems[3].parsed.y ?? undefined;
-            } else if (tooltipItems.length == 3) {
-              // Now or Day
-              sum = tooltipItems.reduce((acc, item) => {
-                if (item.parsed.y) acc += item.parsed.y;
-                return acc;
-              }, 0);
-            }
+          } else if (isHeatingStack && tooltipItems.length > 1) {
+            // Sum all stacked items to get the total heating power
+            sum = tooltipItems.reduce((acc, item) => {
+              if (item.parsed.y) acc += item.parsed.y;
+              return acc;
+            }, 0);
           }
 
           if (sum) return this.formattedNumber(sum);
