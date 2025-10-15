@@ -45,10 +45,11 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 
-  # Seed prices once for the entire test suite
+  # Seed prices and settings once for the entire test suite
   config.before(:suite) do
     Price.delete_all
     Price.seed!
+    Setting.seed!
   end
 
   # You can uncomment this line to turn off ActiveRecord support entirely.

@@ -2,7 +2,6 @@ describe UpdateCheck do
   subject(:instance) { described_class.instance }
 
   before do
-    Rails.application.load_seed
     instance.clear_cache!
     # Allow HTTP requests in these specs by bypassing skip_update_check?
     # rubocop:disable RSpec/AnyInstance
