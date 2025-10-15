@@ -283,72 +283,71 @@ export default class extends Controller<HTMLCanvasElement> {
 
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
-          let result: string =
-            !(
-              (isPowerSplitterStack || isHeatingStack) &&
-              !tooltipItem.dataset.stack
-            ) && data.datasets.length > 1
-              ? `${tooltipItem.dataset.label} `
-              : '';
+          // Hide PowerSplitter total bar - it only appears in footer
+          if (isPowerSplitterStack && !tooltipItem.dataset.stack) return '';
 
-          if (isPowerSplitterStack || isHeatingStack) {
-            if (tooltipItem.dataset.stack && data.datasets.length) {
-              if (data.datasets.length <= 3) {
-                // Now or Day: show absolute values
-                result += this.formattedNumber(tooltipItem.parsed.y!);
-              } else {
-                // Week, Month, Year: show percentages
-                // Calculate total from sum of all stacked items at this index
-                const sum = data.datasets
-                  .filter((ds) => ds.stack === tooltipItem.dataset.stack)
-                  .reduce((acc, ds) => {
-                    const value = ds.data[tooltipItem.dataIndex] as number;
-                    return acc + (value || 0);
-                  }, 0);
+          const label =
+            data.datasets.length > 1 ? `${tooltipItem.dataset.label} ` : '';
 
-                if (sum && tooltipItem.parsed.y)
-                  result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
-              }
-            }
-          } else {
-            // Format value number
-            result += tooltipItem.parsed._custom
-              ? this.formattedInterval(
-                  tooltipItem.parsed._custom.min,
-                  tooltipItem.parsed._custom.max,
-                )
-              : this.formattedNumber(tooltipItem.parsed.y!);
+          // Handle interval data (min/max ranges)
+          if (tooltipItem.parsed._custom) {
+            return (
+              label +
+              this.formattedInterval(
+                tooltipItem.parsed._custom.min,
+                tooltipItem.parsed._custom.max,
+              )
+            );
           }
 
-          return result;
+          // Show percentages for stacked items
+          const isStackedItem =
+            (isPowerSplitterStack || isHeatingStack) &&
+            tooltipItem.dataset.stack;
+
+          if (isStackedItem) {
+            const showPercentages =
+              isPowerSplitterStack ||
+              (isHeatingStack && data.datasets.length === 3);
+
+            if (showPercentages) {
+              const sum = data.datasets
+                .filter((ds) => ds.stack === tooltipItem.dataset.stack)
+                .reduce((acc, ds) => {
+                  const value = ds.data[tooltipItem.dataIndex] as number;
+                  return acc + (value || 0);
+                }, 0);
+
+              if (sum && tooltipItem.parsed.y) {
+                return `${label}${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+              }
+            }
+          }
+
+          // Default: show absolute value
+          return label + this.formattedNumber(tooltipItem.parsed.y!);
         },
 
         footer: (tooltipItems) => {
-          let sum: number | undefined = undefined;
+          if (!tooltipItems.length) return;
 
-          if (isPowerSplitterStack && tooltipItems.length) {
-            sum =
-              tooltipItems.find((item) => {
-                const id = (item.dataset as DatasetWithId).id;
+          const dataIndex = tooltipItems[0].dataIndex;
 
-                return id && !id.endsWith('_pv') && !id.endsWith('_grid');
-              })?.parsed.y ?? undefined;
-
+          // For PowerSplitter, get total from the total bar dataset (without stack)
+          if (isPowerSplitterStack) {
+            const totalDataset = data.datasets.find((ds) => !ds.stack);
+            const sum = totalDataset?.data?.[dataIndex] as number | undefined;
             if (sum) return this.formattedNumber(sum);
-          } else if (isInverterStack && tooltipItems.length > 1) {
-            sum = tooltipItems.reduce((acc, item) => {
-              if (item.parsed.y) acc += item.parsed.y;
-              return acc;
-            }, 0);
-          } else if (isHeatingStack && tooltipItems.length > 1) {
-            // Sum all stacked items to get the total heating power
-            sum = tooltipItems.reduce((acc, item) => {
-              if (item.parsed.y) acc += item.parsed.y;
-              return acc;
-            }, 0);
           }
 
-          if (sum) return this.formattedNumber(sum);
+          // For InverterStack and HeatingStack, sum all stacked items
+          if ((isInverterStack || isHeatingStack) && tooltipItems.length > 1) {
+            const sum = tooltipItems.reduce((acc, item) => {
+              if (item.parsed.y) acc += item.parsed.y;
+              return acc;
+            }, 0);
+            if (sum) return this.formattedNumber(sum);
+          }
         },
       };
     }
