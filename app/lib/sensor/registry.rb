@@ -17,12 +17,16 @@ class Sensor::Registry
     CACHE.definitions ||= load_all_definitions
   end
 
-  def self.[](name)
+  def self.find(name)
     unless name.is_a?(Symbol)
       raise ArgumentError, "Sensor name must be a symbol, got #{name.inspect}"
     end
 
-    hash[name] || raise(ArgumentError, "Unknown sensor: #{name}")
+    hash[name]
+  end
+
+  def self.[](name)
+    find(name) || raise(ArgumentError, "Unknown sensor: #{name}")
   end
 
   def self.by_category(category)
@@ -105,7 +109,8 @@ class Sensor::Registry
     duplicates = definitions.group_by(&:name).select { _2.size > 1 }.keys
     return if duplicates.none?
 
-    raise StandardError, "Duplicate sensor definition names: #{duplicates.join(', ')}"
+    raise StandardError,
+          "Duplicate sensor definition names: #{duplicates.join(', ')}"
   end
   private_class_method :validate_unique_names!
 end

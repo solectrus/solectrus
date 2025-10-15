@@ -3,6 +3,14 @@ require 'rails_helper'
 describe 'Sponsorings' do
   describe 'GET /show' do
     context 'when not sponsoring' do
+      before do
+        allow(UpdateCheck).to receive_messages(
+          registration_grace_period_expired?: false,
+          eligible_for_free?: false,
+          sponsoring?: false,
+        )
+      end
+
       it 'returns http success' do
         get '/sponsoring'
         expect(response).to have_http_status(:success)

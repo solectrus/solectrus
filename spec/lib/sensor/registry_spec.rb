@@ -39,6 +39,37 @@ describe Sensor::Registry do
     end
   end
 
+  describe '.find' do
+    subject(:find) { described_class.find(sensor_name) }
+
+    context 'with known sensor' do
+      let(:sensor_name) { :inverter_power }
+
+      it 'returns sensor instance' do
+        expect(find).to be_a(Sensor::Definitions::InverterPower)
+      end
+    end
+
+    context 'with unknown sensor' do
+      let(:sensor_name) { :unknown_sensor }
+
+      it 'returns nil' do
+        expect(find).to be_nil
+      end
+    end
+
+    context 'with non-symbol input' do
+      let(:sensor_name) { 'inverter_power' }
+
+      it 'raises ArgumentError' do
+        expect { find }.to raise_error(
+          ArgumentError,
+          /Sensor name must be a symbol/,
+        )
+      end
+    end
+  end
+
   describe '.by_category' do
     subject(:by_category) { described_class.by_category(category) }
 
