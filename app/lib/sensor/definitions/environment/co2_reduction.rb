@@ -3,7 +3,7 @@ class Sensor::Definitions::Co2Reduction < Sensor::Definitions::Base
 
   color hex: '#0284c7',
         bg_classes: 'bg-sky-600 dark:bg-sky-800',
-        text_classes: 'text-sky-100 dark:text-sky-400'
+        text_classes: 'text-sky-700 dark:text-sky-400'
 
   icon 'fa-leaf'
 

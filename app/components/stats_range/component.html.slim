@@ -33,7 +33,8 @@
 
     div class="flex-1"
 
-    - unless timeframe.future?
+    - if data.co2_reduction&.nonzero?
+      - sensor = Sensor::Registry[:co2_reduction]
       = link_to root_path(sensor_name: 'co2_reduction', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
@@ -42,7 +43,7 @@
                 },
                 class: 'click-animation' do
         div data-controller="tippy" title= t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tippy-touch-value= "true"
-          = render RadialBadge::Component.new(title: Sensor::Registry[:co2_reduction].display_name(:short)) do
-            = render SensorValue::Component.new(data, :co2_reduction, class: 'text-sky-700 dark:text-sky-400')
+          = render RadialBadge::Component.new(title: sensor.display_name(:short)) do
+            = render SensorValue::Component.new(data, :co2_reduction, class: sensor.color_text)
 
     = render FinanceBadge::Component.new(data:, timeframe:)
