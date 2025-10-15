@@ -30,6 +30,32 @@ describe Sensor::ValueFormatter do
         expect(to_h[:unit]).to eq('W')
       end
     end
+
+    context 'with nil value' do
+      let(:value) { nil }
+      let(:unit) { :watt }
+
+      it 'returns empty hash' do
+        expect(to_h).to eq({})
+      end
+    end
+  end
+
+  describe '#to_s' do
+    it 'formats value with unit' do
+      formatter = described_class.new(2500, unit: :watt)
+      expect(formatter.to_s).to eq('2,5 kW')
+    end
+
+    it 'returns empty string for nil value' do
+      formatter = described_class.new(nil, unit: :watt)
+      expect(formatter.to_s).to eq('')
+    end
+
+    it 'formats euro without unit space' do
+      formatter = described_class.new(15.5, unit: :euro)
+      expect(formatter.to_s).to eq('16 €')
+    end
   end
 
   describe 'unit type handling' do
@@ -407,12 +433,46 @@ describe Sensor::ValueFormatter do
 
   describe 'edge cases and error handling' do
     describe 'nil and empty values' do
-      it 'handles nil values gracefully' do
+      it 'returns empty hash for nil value with string unit' do
         formatter = described_class.new(nil, unit: :string)
         result = formatter.to_h
 
-        expect(result[:value]).to eq('')
-        expect(result[:unit]).to be_nil
+        expect(result).to eq({})
+      end
+
+      it 'returns empty hash for nil value with gram unit' do
+        formatter = described_class.new(nil, unit: :gram)
+        result = formatter.to_h
+
+        expect(result).to eq({})
+      end
+
+      it 'returns empty hash for nil value with watt unit' do
+        formatter = described_class.new(nil, unit: :watt)
+        result = formatter.to_h
+
+        expect(result).to eq({})
+      end
+
+      it 'returns empty hash for nil value with euro unit' do
+        formatter = described_class.new(nil, unit: :euro)
+        result = formatter.to_h
+
+        expect(result).to eq({})
+      end
+
+      it 'returns empty hash for nil value with percent unit' do
+        formatter = described_class.new(nil, unit: :percent)
+        result = formatter.to_h
+
+        expect(result).to eq({})
+      end
+
+      it 'returns empty hash for nil value with celsius unit' do
+        formatter = described_class.new(nil, unit: :celsius)
+        result = formatter.to_h
+
+        expect(result).to eq({})
       end
 
       it 'handles complex value types' do
@@ -421,6 +481,49 @@ describe Sensor::ValueFormatter do
 
         expect(result[:value]).to be_a(String)
         expect(result[:unit]).to be_nil
+      end
+    end
+
+    describe 'zero value handling' do
+      it 'formats zero euro without decimals' do
+        formatter = described_class.new(0, unit: :euro)
+        result = formatter.to_h
+
+        expect(result[:value]).to eq('0')
+        expect(result[:integer]).to eq('0')
+        expect(result[:decimal]).to be_nil
+        expect(result[:unit]).to eq('€')
+      end
+
+      it 'formats 0.0 euro without decimals' do
+        formatter = described_class.new(0.0, unit: :euro)
+        result = formatter.to_h
+
+        expect(result[:value]).to eq('0')
+        expect(result[:integer]).to eq('0')
+        expect(result[:decimal]).to be_nil
+        expect(result[:unit]).to eq('€')
+      end
+
+      it 'formats very small euro amounts (0.01) with decimals' do
+        formatter = described_class.new(0.01, unit: :euro)
+        result = formatter.to_h
+
+        expect(result[:value]).to eq('0,01')
+        expect(result[:unit]).to eq('€')
+      end
+
+      it 'formats tiny euro amounts (0.001-0.004) as zero without decimals' do
+        # Values that round to 0 when rounded to 2 decimal places
+        [0.001, 0.002, 0.003, 0.004].each do |value|
+          formatter = described_class.new(value, unit: :euro)
+          result = formatter.to_h
+
+          expect(result[:value]).to eq('0')
+          expect(result[:integer]).to eq('0')
+          expect(result[:decimal]).to be_nil
+          expect(result[:unit]).to eq('€')
+        end
       end
     end
 
@@ -458,8 +561,7 @@ describe Sensor::ValueFormatter do
       end
 
       it 'handles very large values' do
-        formatter =
-          described_class.new(10_000_000, unit: :watt, context: :rate)
+        formatter = described_class.new(10_000_000, unit: :watt, context: :rate)
         result = formatter.to_h
 
         expect(result[:value]).to eq('10,0')

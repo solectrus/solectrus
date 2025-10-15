@@ -17,6 +17,8 @@ class Sensor::ValueFormatter
   end
 
   def to_h
+    return {} if value.nil?
+
     formatted = formatted_value
 
     integer_part, decimal_part =
@@ -31,6 +33,8 @@ class Sensor::ValueFormatter
   end
 
   def to_s
+    return '' if value.nil?
+
     [formatted_value, unit_string].compact.join(' ')
   end
 
@@ -61,18 +65,16 @@ class Sensor::ValueFormatter
   # ==================== Value Formatting ====================
 
   def formatted_value
-    return '' if value.nil?
-
     result =
       case unit
       when :watt, :gram
-        format_with_scaling
+        format_with_scaling(value)
       when :string
         value.to_s
       when :boolean
-        boolean_text
+        boolean_text(value)
       when :euro
-        format_euro_value
+        format_euro_value(value)
       when nil
         ''
       else
@@ -83,8 +85,7 @@ class Sensor::ValueFormatter
   end
 
   def add_sign_prefix(result)
-    return result unless sign
-    return result if value.nil? || result.blank?
+    return result unless sign && value && result.present?
 
     prefix = value.positive? ? '+' : ''
     "#{prefix}#{result}"
@@ -94,12 +95,12 @@ class Sensor::ValueFormatter
 
   def unit_string
     result = unit_formatter.to_s
-    result.empty? ? nil : result
+    result.presence
   end
 
   def unit_formatter
     @unit_formatter ||=
-      Sensor::UnitFormatter.new(unit:, value:, context:, scaling:)
+      Sensor::UnitFormatter.new(unit:, value: value || 0, context:, scaling:)
   end
 
   # ==================== Context & Validation ====================
@@ -107,8 +108,6 @@ class Sensor::ValueFormatter
   def determine_context(context)
     return context unless context == :auto
 
-    # Gram and Euro are accumulated values (totals)
-    # Other units like Watt can show rates (W) or totals (Wh) depending on context
     %i[gram euro].include?(unit) ? :total : :rate
   end
 
@@ -122,13 +121,13 @@ class Sensor::ValueFormatter
 
   # ==================== Specific Formatters ====================
 
-  def boolean_text
-    value ? I18n.t('general.yes') : I18n.t('general.no')
+  def boolean_text(val)
+    val ? I18n.t('general.yes') : I18n.t('general.no')
   end
 
-  def format_with_scaling
-    scaled_value = value.to_f / unit_formatter.divisor
-    scale_precision = explicit_precision || determine_scale_precision
+  def format_with_scaling(val)
+    scaled_value = val.to_f / unit_formatter.divisor
+    scale_precision = explicit_precision || determine_scale_precision(val)
 
     # If rounding to the target precision results in zero, use precision 0 instead
     # This ensures "0 kWh" instead of "0,0 kWh" for small values like 0.01 kWh
@@ -137,12 +136,24 @@ class Sensor::ValueFormatter
     format_number(scaled_value, scale_precision)
   end
 
-  def determine_scale_precision
-    return 0 if gram_kilo?
-    return 0 if large_kilowatt?
+  def determine_scale_precision(val)
+    divisor = unit_formatter.divisor
+    return 0 if gram_with_kilo_scale?(divisor)
+    return 0 if large_kilowatt_value?(divisor, val)
 
-    # Standard-Precision basierend auf Scale
-    case unit_formatter.divisor
+    precision_for_divisor(divisor)
+  end
+
+  def gram_with_kilo_scale?(divisor)
+    unit == :gram && divisor == 1_000
+  end
+
+  def large_kilowatt_value?(divisor, val)
+    unit == :watt && divisor == 1_000 && val.abs >= 100_000
+  end
+
+  def precision_for_divisor(divisor)
+    case divisor
     when 1
       0
     when 1_000, 1_000_000
@@ -152,24 +163,13 @@ class Sensor::ValueFormatter
     end
   end
 
-  def gram_kilo?
-    unit == :gram && unit_formatter.divisor == 1_000
-  end
-
-  def large_kilowatt?
-    unit == :watt && unit_formatter.divisor == 1_000 && value.abs >= 100_000
-  end
-
-  def format_euro_value
-    return '' if value.nil?
-
-    euro_precision = euro_precision_for_value
-    format_number(value, euro_precision)
-  end
-
-  def euro_precision_for_value
-    # Large amounts (>= 10 EUR) without decimals, small amounts with decimals
-    value.abs >= 10 ? 0 : precision
+  def format_euro_value(val)
+    # Check if rounding to default precision results in zero
+    # If so, display without decimals (e.g., "0" instead of "0,00")
+    rounded_value = val.round(precision)
+    euro_precision =
+      rounded_value.zero? || rounded_value.abs >= 10 ? 0 : precision
+    format_number(val, euro_precision)
   end
 
   # ==================== Helper Methods ====================
