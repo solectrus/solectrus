@@ -86,7 +86,7 @@ de:
     total_consumption: Gesamtverbrauch
     solar_price: Solarpreis
     traditional_costs: Vergleichspreis
-    savings: Einsparung
+    savings: Ersparnis
     co2_reduction: CO₂-Reduktion
     co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Anteil Akku
@@ -190,7 +190,7 @@ de:
       description: Benennung der vorhandenen Sensoren
       generators: Erzeuger
       consumers: Verbraucher
-      battery: Batterie
+      battery: Akku
       single_inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
       inverter_as_total: In der Strombilanz nur als Summe darstellen
       enable_multi_inverter: Seite "Erzeugung" in der Navigation anbieten
