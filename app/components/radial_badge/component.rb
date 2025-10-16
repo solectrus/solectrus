@@ -23,7 +23,7 @@ class RadialBadge::Component < ViewComponent::Base
   end
 
   def variant_class
-    'percent' if percent?
+    'percent' if percent? && value
   end
 
   def border_color
