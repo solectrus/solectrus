@@ -12,9 +12,9 @@ class Sensor::SummaryInvalidator
     if stored_config.nil?
       # First run, no stored config yet
       Setting.summary_config = current_config
-      Rails.logger.info('Config initialized.')
+      Rails.logger.info('First run, configuration initialized')
     elsif normalized_stored_config == normalized_current_config
-      Rails.logger.info('Config unchanged.')
+      Rails.logger.info('Configuration unchanged, summaries still valid')
     else
       # Save changed config
       Setting.summary_config = current_config
@@ -22,10 +22,12 @@ class Sensor::SummaryInvalidator
       if relevant_changes?(normalized_stored_config, normalized_current_config)
         # Existing summaries are no longer valid. Rebuild required.
         Summary.reset!
-        Rails.logger.info('Config changed, summaries invalidated.')
+        Rails.logger.info(
+          'Configuration changed, rebuilding summaries is required',
+        )
       else
         # New sensors added/removed or other non-critical changes
-        Rails.logger.info('Config changed, but summaries still valid.')
+        Rails.logger.info('Configuration changed, but summaries still valid')
       end
     end
   end

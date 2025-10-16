@@ -88,14 +88,14 @@ module Solectrus
 
       ThemeConfig.setup(ENV)
 
-      # Initialize sensor system before using it
-      Sensor::Registry.all
-      Sensor::Config.setup(ENV)
-
       ActiveRecord::Base.connection_pool.with_connection do
         if ActiveRecord::Base.connection.table_exists?(:settings)
           # Ensure settings are seeded on every start
           Setting.seed!
+
+          # Initialize sensor system after database is ready
+          Sensor::Registry.all
+          Sensor::Config.setup(ENV)
 
           # Validate summaries on every start
           if ActiveRecord::Base.connection.table_exists?(:summaries) &&

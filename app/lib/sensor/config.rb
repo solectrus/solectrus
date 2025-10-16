@@ -49,9 +49,17 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
     @configurations = {}
     @env = env
+    @sensor_logs = []
+    @sensor_warnings = []
+
+    Rails.logger.info 'Sensor initialization started'
 
     parse_configurations
     auto_configure_power_splitter_sensors
+
+    log_configurations
+
+    Rails.logger.info 'Sensor initialization completed'
   end
 
   attr_reader :env, :configurations
@@ -184,7 +192,10 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
       next if value.blank?
 
       config = ConfigEntry.from_env(value)
-      configurations[sensor.name] = config if config
+      if config
+        configurations[sensor.name] = config
+        log_sensor(sensor.name, value)
+      end
     end
 
     parse_exclude_from_house_power
@@ -198,7 +209,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
         # Only configure if the corresponding base sensor (without "_grid") is configured
         base_sensor_name = sensor.name.to_s.sub('_grid', '').to_sym
-        next unless exists?(base_sensor_name)
+        next unless configured?(base_sensor_name)
 
         # Configure to read from "power_splitter" measurement
         configurations[sensor.name] = ConfigEntry.new(
@@ -210,7 +221,11 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
   def parse_exclude_from_house_power
     exclude_value = env['INFLUX_EXCLUDE_FROM_HOUSE_POWER']
-    return if exclude_value.blank? || !configurations[:house_power]
+
+    unless exclude_value.present? && configurations[:house_power]
+      log_house_power_unchanged if configurations[:house_power]
+      return
+    end
 
     excluded_sensors =
       exclude_value
@@ -221,6 +236,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
         end
 
     configurations[:house_power].options[:exclude] = excluded_sensors
+    log_house_power_exclusions(excluded_sensors)
   end
 
   def filter_sensors(&)
@@ -229,5 +245,53 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
   def configured_sensors
     Sensor::Registry.all.filter { |sensor| exists?(sensor.name) }
+  end
+
+  # Logging methods
+
+  def log_sensor(sensor_name, value)
+    @sensor_logs << format(
+      '  - Sensor %<sensor_name>-30s → %<value>s',
+      sensor_name: sensor_name.upcase,
+      value:,
+    )
+
+    # Check for duplicates
+    check_for_duplicates(sensor_name)
+  end
+
+  def log_house_power_unchanged
+    @sensor_logs << '  - Sensor HOUSE_POWER remains unchanged'
+  end
+
+  def log_house_power_exclusions(excluded_sensors)
+    sensor_names = excluded_sensors.map { |s| s.name.upcase }.join(', ')
+    @sensor_logs << "  - Sensor HOUSE_POWER subtracts #{sensor_names}"
+  end
+
+  def log_configurations
+    @sensor_logs.each { |log| Rails.logger.info(log) }
+
+    return if @sensor_warnings.none?
+
+    Rails.logger.warn "\n⚠️  Duplicate measurement/field combinations detected, this will cause trouble:"
+    @sensor_warnings.each { |warning| Rails.logger.warn("  - #{warning}") }
+  end
+
+  def check_for_duplicates(sensor_name)
+    measurement_val = measurement(sensor_name)
+    field_val = field(sensor_name)
+
+    # Look for other sensors with same measurement:field combination
+    duplicate =
+      configurations.find do |other_name, other_config|
+        other_name != sensor_name &&
+          other_config.measurement == measurement_val &&
+          other_config.field == field_val
+      end
+
+    return unless duplicate
+
+    @sensor_warnings << "#{sensor_name.upcase} and #{duplicate.first.upcase} both use #{measurement_val}:#{field_val}"
   end
 end

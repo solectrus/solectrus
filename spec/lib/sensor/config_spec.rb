@@ -17,6 +17,95 @@ describe Sensor::Config do
     it 'configures the singleton instance' do
       expect { described_class.setup(env) }.not_to raise_error
     end
+
+    context 'with logging' do
+      it 'logs sensor initialization' do
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:warn)
+
+        described_class.setup(env)
+
+        expect(Rails.logger).to have_received(:info).with(
+          'Sensor initialization started',
+        )
+        expect(Rails.logger).to have_received(:info).with(
+          'Sensor initialization completed',
+        )
+      end
+
+      it 'logs configured sensors' do
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:warn)
+
+        described_class.setup(env)
+
+        expect(Rails.logger).to have_received(:info).with(
+          include('INVERTER_POWER', 'pv:inverter_power'),
+        )
+        expect(Rails.logger).to have_received(:info).with(
+          include('HOUSE_POWER', 'pv:house_power'),
+        )
+      end
+
+      it 'logs house power exclusions when configured' do
+        allow(Rails.logger).to receive(:info)
+        allow(Rails.logger).to receive(:warn)
+
+        described_class.setup(env)
+
+        expect(Rails.logger).to have_received(:info).with(
+          include('HOUSE_POWER subtracts HEATPUMP_POWER'),
+        )
+      end
+
+      context 'when no exclusions are configured' do
+        let(:env_without_exclusions) do
+          {
+            'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
+            'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
+          }
+        end
+
+        it 'logs house power unchanged' do
+          allow(Rails.logger).to receive(:info)
+          allow(Rails.logger).to receive(:warn)
+
+          described_class.setup(env_without_exclusions)
+
+          expect(Rails.logger).to have_received(:info).with(
+            '  - Sensor HOUSE_POWER remains unchanged',
+          )
+        end
+      end
+
+      context 'when duplicate configurations exist' do
+        let(:env_with_duplicates) do
+          {
+            'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
+            'INFLUX_SENSOR_WALLBOX_POWER' => 'senec:wallbox_power',
+            'INFLUX_SENSOR_HEATPUMP_POWER' => 'senec:wallbox_power', # duplicate!
+          }
+        end
+
+        it 'warns about duplicate configurations' do
+          allow(Rails.logger).to receive(:info)
+          allow(Rails.logger).to receive(:warn)
+
+          described_class.setup(env_with_duplicates)
+
+          expect(Rails.logger).to have_received(:warn).with(
+            %r{Duplicate measurement/field combinations detected},
+          )
+          expect(Rails.logger).to have_received(:warn).with(
+            include(
+              'WALLBOX_POWER',
+              'HEATPUMP_POWER',
+              'senec:wallbox_power',
+            ),
+          )
+        end
+      end
+    end
   end
 
   describe '.exists?' do

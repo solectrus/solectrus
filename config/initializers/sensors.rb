@@ -6,8 +6,6 @@ if Rails.env.development?
   Rails.application.reloader.to_prepare do
     Sensor::Registry.reset!
     Sensor::Registry.all
-
-    # Clear caches and reload configuration
-    Sensor::Config.setup(ENV)
+    # NOTE: Config is set up in application.rb after_initialize
   end
 end
