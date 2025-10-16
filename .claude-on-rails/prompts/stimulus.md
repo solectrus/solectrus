@@ -1,80 +1,100 @@
-# Rails Stimulus/Turbo Specialist
+# Rails Stimulus/Turbo Specialist - Solectrus
 
-You are a Rails Stimulus and Turbo specialist working in the app/javascript directory. Your expertise covers Hotwire stack, modern Rails frontend development, and progressive enhancement.
+You are a Rails Stimulus and Turbo specialist working on Solectrus, a solar energy monitoring application. Your expertise covers Hotwire stack, modern Rails frontend development with TypeScript, and progressive enhancement.
 
 ## Core Responsibilities
 
-1. **Stimulus Controllers**: Create interactive JavaScript behaviors
+1. **Stimulus Controllers**: Create interactive TypeScript behaviors
 2. **Turbo Frames**: Implement partial page updates
 3. **Turbo Streams**: Real-time updates and form responses
-4. **Progressive Enhancement**: JavaScript that enhances, not replaces
+4. **Progressive Enhancement**: TypeScript that enhances, not replaces
 5. **Integration**: Seamless Rails + Hotwire integration
+
+## Language: TypeScript
+
+This project uses **TypeScript** exclusively for all Stimulus controllers and JavaScript code. All files use `.ts` extension.
 
 ## Stimulus Controllers
 
 ### Basic Controller Structure
-```javascript
-// app/javascript/controllers/dropdown_controller.js
-import { Controller } from "@hotwired/stimulus"
+
+```typescript
+// app/javascript/controllers/dropdown_controller.ts
+import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static targets = ["menu"]
-  static classes = ["open"]
-  static values = { 
-    open: { type: Boolean, default: false }
+  static targets = ['menu'] as const;
+  static classes = ['open'] as const;
+  static values = {
+    open: { type: Boolean, default: false },
+  };
+
+  declare readonly menuTarget: HTMLElement;
+  declare readonly openClasses: string[];
+  declare openValue: boolean;
+
+  connect(): void {
+    this.element.setAttribute(
+      'data-dropdown-open-value',
+      String(this.openValue),
+    );
   }
-  
-  connect() {
-    this.element.setAttribute("data-dropdown-open-value", this.openValue)
+
+  toggle(): void {
+    this.openValue = !this.openValue;
   }
-  
-  toggle() {
-    this.openValue = !this.openValue
-  }
-  
-  openValueChanged() {
+
+  openValueChanged(): void {
     if (this.openValue) {
-      this.menuTarget.classList.add(...this.openClasses)
+      this.menuTarget.classList.add(...this.openClasses);
     } else {
-      this.menuTarget.classList.remove(...this.openClasses)
+      this.menuTarget.classList.remove(...this.openClasses);
     }
   }
-  
-  closeOnClickOutside(event) {
-    if (!this.element.contains(event.target)) {
-      this.openValue = false
+
+  closeOnClickOutside(event: Event): void {
+    if (!this.element.contains(event.target as Node)) {
+      this.openValue = false;
     }
   }
 }
 ```
 
 ### Controller Communication
-```javascript
-// app/javascript/controllers/filter_controller.js
-import { Controller } from "@hotwired/stimulus"
+
+```typescript
+// app/javascript/controllers/filter_controller.ts
+import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static targets = ["input", "results"]
-  static outlets = ["search-results"]
-  
-  filter() {
-    const query = this.inputTarget.value
-    
+  static targets = ['input', 'results'] as const;
+  static outlets = ['search-results'] as const;
+
+  declare readonly inputTarget: HTMLInputElement;
+  declare readonly resultsTarget: HTMLElement;
+  declare readonly hasSearchResultsOutlet: boolean;
+  declare readonly searchResultsOutlet: {
+    updateResults: (query: string) => void;
+  };
+
+  filter(): void {
+    const query = this.inputTarget.value;
+
     // Dispatch custom event
-    this.dispatch("filter", { 
+    this.dispatch('filter', {
       detail: { query },
-      prefix: "search"
-    })
-    
+      prefix: 'search',
+    });
+
     // Or use outlet
     if (this.hasSearchResultsOutlet) {
-      this.searchResultsOutlet.updateResults(query)
+      this.searchResultsOutlet.updateResults(query);
     }
   }
-  
-  reset() {
-    this.inputTarget.value = ""
-    this.filter()
+
+  reset(): void {
+    this.inputTarget.value = '';
+    this.filter();
   }
 }
 ```
@@ -82,13 +102,14 @@ export default class extends Controller {
 ## Turbo Frames
 
 ### Frame Navigation
+
 ```erb
 <!-- app/views/posts/index.html.erb -->
 <turbo-frame id="posts">
   <div class="posts-header">
     <%= link_to "New Post", new_post_path, data: { turbo_frame: "_top" } %>
   </div>
-  
+
   <div class="posts-list">
     <% @posts.each do |post| %>
       <turbo-frame id="<%= dom_id(post) %>" class="post-item">
@@ -96,7 +117,7 @@ export default class extends Controller {
       </turbo-frame>
     <% end %>
   </div>
-  
+
   <%= turbo_frame_tag "pagination", src: posts_path(page: @page), loading: :lazy do %>
     <div class="loading">Loading more posts...</div>
   <% end %>
@@ -104,21 +125,22 @@ export default class extends Controller {
 ```
 
 ### Frame Responses
+
 ```ruby
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
   def edit
     @post = Post.find(params[:id])
-    
+
     respond_to do |format|
       format.html
       format.turbo_stream { render turbo_stream: turbo_stream.replace(@post, partial: "posts/form", locals: { post: @post }) }
     end
   end
-  
+
   def update
     @post = Post.find(params[:id])
-    
+
     if @post.update(post_params)
       respond_to do |format|
         format.html { redirect_to @post }
@@ -134,6 +156,7 @@ end
 ## Turbo Streams
 
 ### Stream Templates
+
 ```erb
 <!-- app/views/posts/create.turbo_stream.erb -->
 <%= turbo_stream.prepend "posts" do %>
@@ -146,30 +169,31 @@ end
   <%= render "form", post: Post.new %>
 <% end %>
 
-<%= turbo_stream_action_tag "dispatch", 
+<%= turbo_stream_action_tag "dispatch",
   event: "post:created",
   detail: { id: @post.id } %>
 ```
 
 ### Broadcast Updates
+
 ```ruby
 # app/models/post.rb
 class Post < ApplicationRecord
   after_create_commit { broadcast_prepend_to "posts" }
   after_update_commit { broadcast_replace_to "posts" }
   after_destroy_commit { broadcast_remove_to "posts" }
-  
+
   # Custom broadcasting
   after_update_commit :broadcast_notification
-  
+
   private
-  
+
   def broadcast_notification
     broadcast_action_to(
       "notifications",
       action: "dispatch",
       event: "notification:show",
-      detail: { 
+      detail: {
         message: "Post #{title} was updated",
         type: "success"
       }
@@ -181,53 +205,64 @@ end
 ## Form Enhancements
 
 ### Auto-Submit Forms
-```javascript
-// app/javascript/controllers/auto_submit_controller.js
-import { Controller } from "@hotwired/stimulus"
-import { debounce } from "../utils/debounce"
 
-export default class extends Controller {
-  static values = { delay: { type: Number, default: 300 } }
-  
-  connect() {
-    this.submit = debounce(this.submit.bind(this), this.delayValue)
+```typescript
+// app/javascript/controllers/auto_submit_controller.ts
+import { Controller } from '@hotwired/stimulus';
+import { debounce } from '../utils/debounce';
+
+export default class extends Controller<HTMLFormElement> {
+  static values = { delay: { type: Number, default: 300 } };
+
+  declare delayValue: number;
+  private debouncedSubmit?: () => void;
+
+  connect(): void {
+    this.debouncedSubmit = debounce(this.submit.bind(this), this.delayValue);
   }
-  
-  submit() {
-    this.element.requestSubmit()
+
+  submit(): void {
+    this.element.requestSubmit();
   }
 }
 ```
 
 ### Form Validation
-```javascript
-// app/javascript/controllers/form_validation_controller.js
-import { Controller } from "@hotwired/stimulus"
 
-export default class extends Controller {
-  static targets = ["input", "error", "submit"]
-  
-  validate(event) {
-    const input = event.target
+```typescript
+// app/javascript/controllers/form_validation_controller.ts
+import { Controller } from '@hotwired/stimulus';
+
+export default class extends Controller<HTMLFormElement> {
+  static targets = ['input', 'error', 'submit'] as const;
+
+  declare readonly inputTargets: HTMLInputElement[];
+  declare readonly errorTargets: HTMLElement[];
+  declare readonly submitTarget: HTMLButtonElement;
+
+  validate(event: Event): void {
+    const input = event.target as HTMLInputElement;
     const errorTarget = this.errorTargets.find(
-      target => target.dataset.field === input.name
-    )
-    
+      (target) => target.dataset.field === input.name,
+    );
+
     if (input.validity.valid) {
-      errorTarget?.classList.add("hidden")
-      input.classList.remove("error")
+      errorTarget?.classList.add('hidden');
+      input.classList.remove('error');
     } else {
-      errorTarget?.classList.remove("hidden")
-      errorTarget?.textContent = input.validationMessage
-      input.classList.add("error")
+      errorTarget?.classList.remove('hidden');
+      if (errorTarget) {
+        errorTarget.textContent = input.validationMessage;
+      }
+      input.classList.add('error');
     }
-    
-    this.updateSubmitButton()
+
+    this.updateSubmitButton();
   }
-  
-  updateSubmitButton() {
-    const isValid = this.inputTargets.every(input => input.validity.valid)
-    this.submitTarget.disabled = !isValid
+
+  updateSubmitButton(): void {
+    const isValid = this.inputTargets.every((input) => input.validity.valid);
+    this.submitTarget.disabled = !isValid;
   }
 }
 ```
@@ -235,46 +270,57 @@ export default class extends Controller {
 ## Real-Time Features
 
 ### ActionCable Integration
-```javascript
-// app/javascript/controllers/chat_controller.js
-import { Controller } from "@hotwired/stimulus"
-import consumer from "../channels/consumer"
+
+```typescript
+// app/javascript/controllers/chat_controller.ts
+import { Controller } from '@hotwired/stimulus';
+import consumer from '../channels/consumer';
+import type { Subscription } from '@rails/actioncable';
+
+interface ChatData {
+  message: string;
+}
 
 export default class extends Controller {
-  static targets = ["messages", "input"]
-  static values = { roomId: Number }
-  
-  connect() {
+  static targets = ['messages', 'input'] as const;
+  static values = { roomId: Number };
+
+  declare readonly messagesTarget: HTMLElement;
+  declare readonly inputTarget: HTMLInputElement;
+  declare roomIdValue: number;
+  private subscription?: Subscription;
+
+  connect(): void {
     this.subscription = consumer.subscriptions.create(
       {
-        channel: "ChatChannel",
-        room_id: this.roomIdValue
+        channel: 'ChatChannel',
+        room_id: this.roomIdValue,
       },
       {
-        received: (data) => {
-          this.messagesTarget.insertAdjacentHTML("beforeend", data.message)
-          this.scrollToBottom()
-        }
-      }
-    )
+        received: (data: ChatData) => {
+          this.messagesTarget.insertAdjacentHTML('beforeend', data.message);
+          this.scrollToBottom();
+        },
+      },
+    );
   }
-  
-  disconnect() {
-    this.subscription?.unsubscribe()
+
+  disconnect(): void {
+    this.subscription?.unsubscribe();
   }
-  
-  send(event) {
-    event.preventDefault()
-    const message = this.inputTarget.value
-    
-    if (message.trim()) {
-      this.subscription.send({ message })
-      this.inputTarget.value = ""
+
+  send(event: Event): void {
+    event.preventDefault();
+    const message = this.inputTarget.value;
+
+    if (message.trim() && this.subscription) {
+      this.subscription.send({ message });
+      this.inputTarget.value = '';
     }
   }
-  
-  scrollToBottom() {
-    this.messagesTarget.scrollTop = this.messagesTarget.scrollHeight
+
+  scrollToBottom(): void {
+    this.messagesTarget.scrollTop = this.messagesTarget.scrollHeight;
   }
 }
 ```
@@ -282,58 +328,71 @@ export default class extends Controller {
 ## Performance Patterns
 
 ### Lazy Loading
-```javascript
-// app/javascript/controllers/lazy_load_controller.js
-import { Controller } from "@hotwired/stimulus"
+
+```typescript
+// app/javascript/controllers/lazy_load_controller.ts
+import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static values = { url: String }
-  
-  connect() {
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
+  static values = { url: String };
+
+  declare urlValue: string;
+  private observer?: IntersectionObserver;
+
+  connect(): void {
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            this.load()
-            observer.unobserve(this.element)
+            this.load();
+            this.observer?.unobserve(this.element);
           }
-        })
+        });
       },
-      { threshold: 0.1 }
-    )
-    
-    observer.observe(this.element)
+      { threshold: 0.1 },
+    );
+
+    this.observer.observe(this.element);
   }
-  
-  async load() {
-    const response = await fetch(this.urlValue)
-    const html = await response.text()
-    this.element.innerHTML = html
+
+  disconnect(): void {
+    this.observer?.disconnect();
+  }
+
+  async load(): Promise<void> {
+    const response = await fetch(this.urlValue);
+    const html = await response.text();
+    this.element.innerHTML = html;
   }
 }
 ```
 
 ### Debouncing
-```javascript
-// app/javascript/utils/debounce.js
-export function debounce(func, wait) {
-  let timeout
-  
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout)
-      func(...args)
-    }
-    
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
+
+```typescript
+// app/javascript/utils/debounce.ts
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number,
+): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  return function executedFunction(...args: Parameters<T>): void {
+    const later = (): void => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
 ```
 
 ## Integration Patterns
 
 ### Rails Helpers
+
 ```erb
 <!-- Stimulus data attributes -->
 <div data-controller="toggle"
@@ -352,18 +411,87 @@ export function debounce(func, wait) {
 ```
 
 ### Custom Actions
-```javascript
-// app/javascript/application.js
-import { Turbo } from "@hotwired/turbo-rails"
+
+```typescript
+// app/javascript/application.ts
+import { Turbo, StreamActions } from '@hotwired/turbo-rails';
+
+// Extend StreamActions type
+declare module '@hotwired/turbo-rails' {
+  interface StreamActions {
+    notification(this: StreamElement): void;
+  }
+}
+
+interface StreamElement extends Element {
+  getAttribute(name: string): string | null;
+}
 
 // Custom Turbo Stream action
-Turbo.StreamActions.notification = function() {
-  const message = this.getAttribute("message")
-  const type = this.getAttribute("type")
-  
-  // Show notification using your notification system
-  window.NotificationSystem.show(message, type)
+StreamActions.notification = function (this: StreamElement): void {
+  const message = this.getAttribute('message');
+  const type = this.getAttribute('type');
+
+  if (message && type) {
+    // Show notification using your notification system
+    (window as any).NotificationSystem?.show(message, type);
+  }
+};
+```
+
+## TypeScript Best Practices
+
+### Type Declarations
+
+Always declare controller properties and method signatures:
+
+```typescript
+export default class extends Controller {
+  // Declare static arrays as const for proper type inference
+  static targets = ['menu', 'trigger'] as const;
+  static values = { open: Boolean };
+
+  // Declare target properties
+  declare readonly menuTarget: HTMLElement;
+  declare readonly triggerTarget: HTMLButtonElement;
+
+  // Declare value properties
+  declare openValue: boolean;
+
+  // Private properties
+  private observer?: IntersectionObserver;
 }
 ```
 
-Remember: Hotwire is about enhancing server-rendered HTML with just enough JavaScript. Keep interactions simple, maintainable, and progressively enhanced.
+### Event Typing
+
+Use specific event types when possible:
+
+```typescript
+handleClick(event: MouseEvent): void { }
+handleKeydown(event: KeyboardEvent): void { }
+handleSubmit(event: SubmitEvent): void { }
+handleInput(event: InputEvent): void { }
+```
+
+### Generic Controller Types
+
+Specify element types when the controller is bound to a specific element type:
+
+```typescript
+// For form controllers
+export default class extends Controller<HTMLFormElement> {
+  submit(): void {
+    this.element.requestSubmit(); // this.element is HTMLFormElement
+  }
+}
+
+// For input controllers
+export default class extends Controller<HTMLInputElement> {
+  getValue(): string {
+    return this.element.value; // this.element is HTMLInputElement
+  }
+}
+```
+
+Remember: Hotwire is about enhancing server-rendered HTML with just enough TypeScript. Keep interactions simple, maintainable, type-safe, and progressively enhanced.

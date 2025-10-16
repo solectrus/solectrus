@@ -17,6 +17,7 @@ This project uses **Slim** as the template engine exclusively. All view files us
 ## CSS Framework: Tailwind CSS v4
 
 Solectrus uses **Tailwind CSS v4** with:
+
 - Utility-first approach
 - Dark mode support (`@custom-variant dark`)
 - Custom breakpoint: `3xl: 1920px`
@@ -44,6 +45,7 @@ button class=css_classes
 ```
 
 Components are organized with:
+
 - Ruby class defining logic and initialization
 - Slim template for markup
 - Optional TypeScript Stimulus controller
@@ -67,6 +69,7 @@ div class=[ 'text-base @c1:text-xl px-5', text_secondary_color ]
 ```
 
 The attribute syntax is especially useful when:
+
 - Classes contain the `@` symbol (common in container queries)
 - Mixing static classes with dynamic helper methods (use arrays)
 - Building complex responsive layouts
@@ -74,6 +77,7 @@ The attribute syntax is especially useful when:
 ## Solectrus-Specific Patterns
 
 ### Energy Data Display
+
 ```slim
 .stats-tile
   .stat-title = t('.power')
@@ -82,16 +86,18 @@ The attribute syntax is especially useful when:
 ```
 
 ### Time-Based Navigation
+
 ```slim
 = turbo_frame_tag 'timeframe' do
   nav.timeframe-nav
     - timeframes.each do |timeframe|
-      = link_to timeframe_path(timeframe), 
+      = link_to timeframe_path(timeframe),
                 class: active_timeframe_class(timeframe)
         = t("timeframes.#{timeframe}")
 ```
 
 ### Modal Components
+
 ```slim
 = render Modal::Component.new(id: 'settings-modal') do |modal|
   = modal.with_header { t('.settings') }
@@ -145,7 +151,7 @@ p = t('.description', value: @current_power)
 ## Common Solectrus Components
 
 - `Nav::Top::Component` - Main navigation
-- `Banner::Component` - Status notifications  
+- `Banner::Component` - Status notifications
 - `Badge::Component` - Status indicators
 - `Chart::Component` - Energy data visualization
 - `Modal::Component` - Overlay dialogs

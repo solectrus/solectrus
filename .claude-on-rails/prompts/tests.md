@@ -366,6 +366,96 @@ Common test operations are available through the `SystemHelpers` module in `spec
 
 ## Key Testing Principles
 
+### Test Quality Guidelines
+
+**What NOT to Test:**
+
+1. **Do NOT test private methods** - Test public interfaces only. If a private method needs testing, it might belong in its own class.
+
+```ruby
+# Bad - Testing private methods
+describe '#calculate_discount' do  # private method
+  it 'calculates 10% discount' do
+    expect(subject.send(:calculate_discount, 100)).to eq(10)
+  end
+end
+
+# Good - Test public interface that uses the private method
+describe '#final_price' do  # public method
+  it 'applies discount to price' do
+    expect(subject.final_price).to eq(90)
+  end
+end
+```
+
+2. **Do NOT test trivial code** - Skip obvious getters, setters, or framework behavior
+
+```ruby
+# Bad - Testing trivial code
+describe '#name' do
+  it 'returns the name' do
+    user.name = 'John'
+    expect(user.name).to eq('John')
+  end
+end
+
+# Good - Test meaningful behavior
+describe '#full_name' do
+  it 'combines first and last name' do
+    user.first_name = 'John'
+    user.last_name = 'Doe'
+    expect(user.full_name).to eq('John Doe')
+  end
+end
+```
+
+3. **Do NOT test Rails framework** - Trust that Rails validations, associations, etc. work
+
+```ruby
+# Bad - Testing Rails framework
+it 'has a has_many association' do
+  expect(user).to respond_to(:posts)
+end
+
+# Good - Test business logic around associations
+it 'returns published posts only' do
+  create(:post, user:, published: false)
+  published_post = create(:post, user:, published: true)
+  expect(user.published_posts).to eq([published_post])
+end
+```
+
+### Minimal Mocking
+
+**Prefer real objects over mocks whenever possible:**
+
+```ruby
+# Bad - Excessive mocking
+let(:user) { instance_double(User, name: 'John', email: 'john@example.com') }
+let(:order) { instance_double(Order, total: 100) }
+
+# Good - Use factories and real objects
+let(:user) { create(:user, name: 'John', email: 'john@example.com') }
+let(:order) { create(:order, user:, total: 100) }
+```
+
+**When to use mocks:**
+
+- External API calls (use VCR or WebMock)
+- Expensive operations (file system, network)
+- Time-dependent behavior (use `travel_to`)
+- Testing error conditions that are hard to trigger
+
+```ruby
+# Good use of mocking - External service
+describe '#fetch_weather' do
+  it 'handles API errors gracefully' do
+    allow(WeatherAPI).to receive(:fetch).and_raise(WeatherAPI::Error)
+    expect(service.fetch_weather).to be_nil
+  end
+end
+```
+
 ### Named Subjects Are Mandatory
 
 **Always use named subjects** - they improve readability, enable better refactoring, and make tests self-documenting:
@@ -389,6 +479,8 @@ end
 - **Boolean methods**: Include the question mark (`subject(:active?)`, `subject(:valid?)`)
 
 ### Test Structure Best Practices
+
+**ALWAYS use proper describe/context/subject structure:**
 
 1. **Group related tests** using `describe` and `context`
 2. **Use consistent naming** for contexts (e.g., "when", "with", "without")
@@ -418,4 +510,95 @@ describe User do
 end
 ```
 
-Remember: Good tests are documentation. They should clearly show what the code is supposed to do. Named subjects make this documentation more readable and maintainable.
+**Required structure elements:**
+
+- `describe ClassName` or `describe '#method_name'` for grouping
+- `context 'when/with/without condition'` for different scenarios
+- `subject(:name)` for the object/method being tested
+- `let(:variable)` for test data setup
+
+**Bad structure to avoid:**
+
+```ruby
+# Bad - No structure, flat tests
+describe User do
+  it 'validates email' do
+    user = User.new(email: '')
+    expect(user.valid?).to be false
+  end
+
+  it 'has full name' do
+    user = User.new(first_name: 'John', last_name: 'Doe')
+    expect(user.full_name).to eq('John Doe')
+  end
+end
+
+# Good - Proper structure
+describe User do
+  subject(:user) { build(:user) }
+
+  describe 'validations' do
+    context 'when email is blank' do
+      before { user.email = '' }
+
+      it { is_expected.not_to be_valid }
+    end
+  end
+
+  describe '#full_name' do
+    subject(:full_name) { user.full_name }
+
+    before do
+      user.first_name = 'John'
+      user.last_name = 'Doe'
+    end
+
+    it { is_expected.to eq('John Doe') }
+  end
+end
+```
+
+## Test-First Development
+
+**ALWAYS write tests BEFORE implementation:**
+
+### Workflow for Bug Fixes
+
+1. **Write a failing test** that reproduces the bug
+2. **Run the test** to confirm it fails with the expected error
+3. **Fix the implementation**
+4. **Run the test** to confirm it passes
+5. **Run RuboCop** to ensure code quality
+6. **Run the full test suite** to prevent regressions
+
+```ruby
+# Step 1: Write failing test
+describe Calculator do
+  subject(:calculator) { described_class.new }
+
+  describe '#divide' do
+    subject(:result) { calculator.divide(10, 0) }
+
+    context 'when dividing by zero' do
+      it 'raises ZeroDivisionError' do
+        expect { result }.to raise_error(ZeroDivisionError)
+      end
+    end
+  end
+end
+
+# Step 2: Run test - it should fail
+# Step 3: Implement the fix in Calculator
+# Step 4: Run test - it should pass
+# Step 5: Run RuboCop
+```
+
+### Workflow for New Features
+
+1. **Write tests** for the expected behavior
+2. **Run tests** to confirm they fail (no implementation yet)
+3. **Implement the feature** to make tests pass
+4. **Refactor** if needed while keeping tests green
+5. **Run RuboCop** to ensure code quality
+
+Remember: Good tests are documentation. They should clearly show what the code is supposed to do. Named subjects make this documentation more readable and maintainable. Always write tests first to ensure quality and prevent regressions.
