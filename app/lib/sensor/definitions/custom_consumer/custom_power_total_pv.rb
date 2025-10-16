@@ -6,7 +6,9 @@ class Sensor::Definitions::CustomPowerTotalPv < Sensor::Definitions::Base
         text_classes: 'text-green-100 dark:text-green-400'
 
   depends_on do
-    Sensor::Config.custom_power_sensors.map { |sensor| :"#{sensor.name}_pv" }
+    Sensor::Config.house_power_included_custom_sensors.map do |sensor|
+      :"#{sensor.name}_pv"
+    end
   end
 
   calculate do |**kwargs|

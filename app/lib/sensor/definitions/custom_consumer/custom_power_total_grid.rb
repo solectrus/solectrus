@@ -6,7 +6,9 @@ class Sensor::Definitions::CustomPowerTotalGrid < Sensor::Definitions::Base
         text_classes: 'text-red-100 dark:text-red-400'
 
   depends_on do
-    Sensor::Config.custom_power_sensors.map { |sensor| :"#{sensor.name}_grid" }
+    Sensor::Config.house_power_included_custom_sensors.map do |sensor|
+      :"#{sensor.name}_grid"
+    end
   end
 
   calculate do |**kwargs|
