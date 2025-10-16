@@ -38,10 +38,10 @@ describe Sensor::Definitions::TotalCosts do # rubocop:disable RSpec/SpecFilePath
       it { is_expected.to eq(%i[grid_costs opportunity_costs]) }
     end
 
-    describe '#chart' do
-      subject { sensor.chart(Timeframe.now) }
+    describe '#chart_enabled?' do
+      subject { sensor.chart_enabled? }
 
-      it { is_expected.to be_a(Sensor::Chart::TotalCosts) }
+      it { is_expected.to be(true) }
     end
   end
 
@@ -68,10 +68,10 @@ describe Sensor::Definitions::TotalCosts do # rubocop:disable RSpec/SpecFilePath
       it { is_expected.to eq([:grid_costs]) }
     end
 
-    describe '#chart' do
-      subject { sensor.chart(Timeframe.now) }
+    describe '#chart_enabled?' do
+      subject { sensor.chart_enabled? }
 
-      it { is_expected.to be_nil }
+      it { is_expected.to be(false) }
     end
   end
 end

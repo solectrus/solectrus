@@ -21,9 +21,11 @@ class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
                meta: [:sum],
                top10: -> { Setting.opportunity_costs }
 
-  # Without opportunity costs, total_costs is identical to grid_costs
-  chart do |timeframe|
-    Sensor::Chart::TotalCosts.new(timeframe:) if Setting.opportunity_costs
+  chart { |timeframe| Sensor::Chart::TotalCosts.new(timeframe:) }
+
+  def chart_enabled?
+    # Without opportunity costs, total_costs is identical to grid_costs
+    Setting.opportunity_costs
   end
 
   def required_prices
