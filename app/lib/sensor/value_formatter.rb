@@ -1,4 +1,4 @@
-class Sensor::ValueFormatter
+class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
   def initialize(
     value,
     unit:,
