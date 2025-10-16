@@ -1,5 +1,27 @@
 module Sensor
   class Summarizer
+    # Summarize a single date or a timeframe
+    def self.call(date_or_timeframe)
+      case date_or_timeframe
+      when Date
+        new(date_or_timeframe).call
+      when Timeframe
+        raise ArgumentError if date_or_timeframe.now?
+
+        dates_to_process =
+          Summary.missing_or_stale_days(
+            from: date_or_timeframe.effective_beginning_date,
+            to: date_or_timeframe.effective_ending_date,
+          )
+
+        dates_to_process.each { |date| new(date).call }
+        dates_to_process.count
+      else
+        raise ArgumentError,
+              "Expected Date or Timeframe, got #{date_or_timeframe.class}"
+      end
+    end
+
     def initialize(date)
       @date = date
       @timeframe = Timeframe.new(date.iso8601)

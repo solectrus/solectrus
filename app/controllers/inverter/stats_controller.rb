@@ -23,7 +23,7 @@ class Inverter::StatsController < ApplicationController
     # already checked in HomeController#index. But there is one exception: when the
     # user comes back to the page without navigation, then the JS reloads the frames
     # directly, without going through HomeController#index.
-    SummarizerJob.perform_for_timeframe(timeframe)
+    Sensor::Summarizer.call(timeframe)
   end
 
   def data_now

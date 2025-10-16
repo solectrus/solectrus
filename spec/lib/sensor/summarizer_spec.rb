@@ -117,6 +117,80 @@ describe Sensor::Summarizer do
     )
   end
 
+  describe '.call' do
+    context 'with Date parameter' do
+      subject(:call) { described_class.call(date) }
+
+      let(:date) { Date.current }
+      let(:summarizer_instance) { instance_double(described_class) }
+
+      before do
+        allow(described_class).to receive(:new).with(date).and_return(
+          summarizer_instance,
+        )
+        allow(summarizer_instance).to receive(:call)
+      end
+
+      it 'creates and calls instance with the given date' do
+        call
+
+        expect(described_class).to have_received(:new).with(date)
+        expect(summarizer_instance).to have_received(:call)
+      end
+    end
+
+    context 'with Timeframe parameter' do
+      let(:timeframe) { Timeframe.new('2023-01-02') }
+      let(:dates) { [Date.parse('2023-01-01'), Date.parse('2023-01-02')] }
+      let(:summarizer_instance) { instance_double(described_class, call: nil) }
+
+      before do
+        allow(Summary).to receive(:missing_or_stale_days).and_return(dates)
+        allow(described_class).to receive(:new).and_return(summarizer_instance)
+      end
+
+      it 'calls Summary.missing_or_stale_days with correct parameters' do
+        described_class.call(timeframe)
+
+        expect(Summary).to have_received(:missing_or_stale_days).with(
+          from: timeframe.effective_beginning_date,
+          to: timeframe.effective_ending_date,
+        )
+      end
+
+      it 'creates instance for each date and calls it' do
+        described_class.call(timeframe)
+
+        expect(described_class).to have_received(:new).with(dates.first)
+        expect(described_class).to have_received(:new).with(dates.second)
+        expect(summarizer_instance).to have_received(:call).twice
+      end
+
+      it 'returns count of processed dates' do
+        expect(described_class.call(timeframe)).to eq(2)
+      end
+    end
+
+    context 'with invalid parameter' do
+      it 'raises ArgumentError when parameter is neither Date nor Timeframe' do
+        expect do
+          described_class.call('invalid')
+        end.to raise_error(
+          ArgumentError,
+          'Expected Date or Timeframe, got String',
+        )
+      end
+
+      it 'raises ArgumentError when timeframe is now' do
+        now_timeframe = Timeframe.now
+
+        expect { described_class.call(now_timeframe) }.to raise_error(
+          ArgumentError,
+        )
+      end
+    end
+  end
+
   describe '#call' do
     subject(:call) { summarizer.call }
 

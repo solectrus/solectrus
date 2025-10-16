@@ -460,8 +460,10 @@ Supports all sensors with `allowed_aggregations`.
 The summarizer system stores aggregated values in `summary_values`:
 
 ```ruby
-# Job runs daily
-SummarizerJob.perform_later(date)
+# Summarizer runs synchronously
+# Accepts either a Date or a Timeframe
+Sensor::Summarizer.call(date)          # Single date
+Sensor::Summarizer.call(timeframe)     # Multiple dates in timeframe
 
 # Stores for each sensor with summary_aggregations:
 # - sum_inverter_power

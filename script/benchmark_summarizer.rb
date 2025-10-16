@@ -59,7 +59,7 @@ Rails.logger = Logger.new(nil)
 # Warm-up: Run one summary to establish DB connections
 puts 'Warming up (establishing database connections)...'
 warmup_date = dates.first
-warmup_time = Benchmark.realtime { Sensor::Summarizer.new(warmup_date).call }
+warmup_time = Benchmark.realtime { Sensor::Summarizer.call(warmup_date) }
 puts "Warm-up complete (took #{(warmup_time * 1000).round}ms)"
 puts
 
@@ -92,7 +92,7 @@ times = []
 total_time =
   Benchmark.realtime do
     remaining_dates.each_with_index do |date, index|
-      time = Benchmark.realtime { Sensor::Summarizer.new(date).call }
+      time = Benchmark.realtime { Sensor::Summarizer.call(date) }
       times << time
 
       print "\rProgress: #{index + 1}/#{remaining_dates.size} days (#{((index + 1).to_f / remaining_dates.size * 100).round}%) - Last: #{(time * 1000).round}ms"
