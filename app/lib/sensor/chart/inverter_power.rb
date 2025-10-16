@@ -17,9 +17,14 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
         [:inverter_power]
       end
 
-    # Add forecast for non-stackable day timeframes
-    if timeframe.day? && !stackable?
-      sensors += %i[inverter_power_forecast inverter_power_forecast_clearsky]
+    if timeframe.day?
+      # Add forecast sensors, if they exist
+      %i[
+        inverter_power_forecast
+        inverter_power_forecast_clearsky
+      ].each do |sensor_name|
+        sensors << sensor_name if Sensor::Config.exists?(sensor_name)
+      end
     end
 
     sensors
