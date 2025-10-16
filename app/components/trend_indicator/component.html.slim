@@ -1,4 +1,4 @@
-- if trend.valid? && trend.base_value.nonzero?
+- if trend.valid? && trend.base_value&.nonzero?
   div[
     data-controller= 'tippy'
     data-tippy-touch-value= 'true'
