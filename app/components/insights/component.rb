@@ -18,6 +18,8 @@ class Insights::Component < ViewComponent::Base
 
   def battery_soc_longest_streak_path
     from, to, = insights.battery_soc_longest_streak.values
+    return unless from && to
+    return if to <= from
 
     url_for(
       sensor_name: 'battery_soc',
@@ -43,7 +45,11 @@ class Insights::Component < ViewComponent::Base
   end
 
   def day_path(day)
-    url_for(sensor_name: sensor.name, timeframe: day, controller: "#{controller_namespace}/home")
+    url_for(
+      sensor_name: sensor.name,
+      timeframe: day,
+      controller: "#{controller_namespace}/home",
+    )
   end
 
   def controller_namespace
