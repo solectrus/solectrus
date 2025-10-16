@@ -36,7 +36,10 @@ class Balance::ChartsController < ApplicationController
 
   helper_method def chart_sensors
     Sensor::Config.chart_sensors.filter_map do |sensor|
-      sensor.name if CHART_SENSORS.include?(sensor.name)
+      if CHART_SENSORS.include?(sensor.name) ||
+           Sensor::Config.house_power_excluded_custom_sensors.include?(sensor)
+        sensor.name
+      end
     end
   end
 
