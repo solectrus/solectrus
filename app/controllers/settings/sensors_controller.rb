@@ -40,6 +40,7 @@ class Settings::SensorsController < ApplicationController
       inverter_as_total
       enable_multi_inverter
       enable_custom_consumer
+      enable_heatpump
     ].each do |key|
       value = permitted_params.dig(:general, key)
       next unless value
@@ -63,6 +64,7 @@ class Settings::SensorsController < ApplicationController
         inverter_as_total
         enable_multi_inverter
         enable_custom_consumer
+        enable_heatpump
       ],
     )
   end

@@ -48,6 +48,9 @@
             = f.check_box 'general[enable_custom_consumer]',
                           checked: Setting.enable_custom_consumer,
                           label: I18n.t('settings.sensors.enable_custom_consumer')
+            = f.check_box 'general[enable_heatpump]',
+                          checked: Setting.enable_heatpump,
+                          label: I18n.t('settings.sensors.enable_heatpump')
 
         - if @battery_sensors.any?
           = c.with_tab id: 'battery', label: t('settings.sensors.battery') do

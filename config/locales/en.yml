@@ -196,6 +196,7 @@ en:
       inverter_as_total: Show only as total in the power balance
       enable_multi_inverter: Enable "Generation" page in the navigation
       enable_custom_consumer: Enable "House consumption" page in the navigation
+      enable_heatpump: Enable "Heat pump" page in the navigation
   errors:
     title: Error
     403:

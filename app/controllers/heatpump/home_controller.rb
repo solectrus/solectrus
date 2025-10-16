@@ -4,6 +4,11 @@ class Heatpump::HomeController < ApplicationController
   include SummaryChecker
 
   def index
+    unless Setting.enable_heatpump
+      redirect_to(root_path)
+      return
+    end
+
     unless sensor_name && timeframe
       redirect_to(default_path)
       return
