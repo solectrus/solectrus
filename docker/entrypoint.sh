@@ -1,7 +1,5 @@
 #!/bin/sh -e
 echo "SOLECTRUS Photovoltaic Dashboard"
-echo "Copyright (C) 2020-2025 Georg Ledermann"
-echo "License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html"
 
 # Format version string based on branch context
 if [ -n "${COMMIT_BRANCH}" ] && [ "${COMMIT_BRANCH}" != "main" ] && [ "${COMMIT_BRANCH}" != "develop" ]; then
@@ -23,6 +21,10 @@ fi
 echo "Version ${VERSION_STRING}, built on ${COMMIT_TIME}"
 echo "Using $(ruby -v)"
 echo "Based on Alpine Linux $(cat /etc/alpine-release)"
+
+echo ""
+echo "Copyright (C) 2020-2025 Georg Ledermann"
+echo "License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html"
 
 # If running the rails server then wait for services
 # and create or migrate existing database
