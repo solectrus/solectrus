@@ -111,7 +111,7 @@ group :development, :test do
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
 
-  # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
+  # Patch-level verification for Bundler (https://github.com/rubysec/bundler-audit#readme)
   gem 'bundler-audit', require: false
 end
 
