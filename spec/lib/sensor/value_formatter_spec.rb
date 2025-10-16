@@ -366,7 +366,7 @@ describe Sensor::ValueFormatter do
     end
 
     describe 'explicit precision override' do
-      it 'uses specified precision when provided' do
+      it 'uses specified precision when provided for scaled values' do
         formatter = described_class.new(2500.123, unit: :watt, precision: 2)
         result = formatter.to_h
 
@@ -378,6 +378,25 @@ describe Sensor::ValueFormatter do
         result = formatter.to_h
 
         expect(result[:value]).to eq('2,5')
+      end
+
+      it 'ignores explicit precision for unscaled watt values' do
+        # When value is < 1000 W (not scaled), precision should always be 0
+        # even if explicit precision: 3 is provided (e.g., in tooltips)
+        formatter = described_class.new(857, unit: :watt, precision: 3)
+        result = formatter.to_h
+
+        expect(result[:value]).to eq('857')
+        expect(result[:unit]).to eq('W')
+      end
+
+      it 'uses explicit precision for scaled watt values' do
+        # When value is >= 1000 W (scaled to kW), explicit precision is used
+        formatter = described_class.new(1234, unit: :watt, precision: 3)
+        result = formatter.to_h
+
+        expect(result[:value]).to eq('1,234')
+        expect(result[:unit]).to eq('kW')
       end
     end
 

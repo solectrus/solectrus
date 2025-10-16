@@ -127,13 +127,24 @@ class Sensor::ValueFormatter
 
   def format_with_scaling(val)
     scaled_value = val.to_f / unit_formatter.divisor
-    scale_precision = explicit_precision || determine_scale_precision(val)
+    scale_precision = determine_scale_precision_with_override(val)
 
     # If rounding to the target precision results in zero, use precision 0 instead
     # This ensures "0 kWh" instead of "0,0 kWh" for small values like 0.01 kWh
     scale_precision = 0 if scaled_value.round(scale_precision).zero?
 
     format_number(scaled_value, scale_precision)
+  end
+
+  def determine_scale_precision_with_override(val)
+    # Use explicit precision if provided AND the value is scaled
+    # For unscaled values (divisor = 1), always use precision 0
+    divisor = unit_formatter.divisor
+    if explicit_precision && divisor > 1
+      explicit_precision
+    else
+      determine_scale_precision(val)
+    end
   end
 
   def determine_scale_precision(val)
