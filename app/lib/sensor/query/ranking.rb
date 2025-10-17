@@ -12,8 +12,8 @@ module Sensor
         validate_period!
 
         # Calculate start/stop dates (used directly in SQL queries)
-        @start = calculate_start(options[:start])
-        @stop = calculate_stop(options[:stop])
+        calculate_date_range(options[:start], options[:stop])
+        return unless valid_range
 
         # Initialize Base (timeframe not used, we query directly with start..stop)
         super(
@@ -24,9 +24,18 @@ module Sensor
         )
       end
 
-      attr_reader :sensor, :aggregation, :period, :start, :stop, :desc, :limit
+      attr_reader :sensor,
+                  :aggregation,
+                  :period,
+                  :start,
+                  :stop,
+                  :desc,
+                  :limit,
+                  :valid_range
 
       def call
+        return [] unless valid_range
+
         @call ||=
           if find_sql_dependencies.any?
             fetch_sql_based_ranking_data
@@ -121,6 +130,23 @@ module Sensor
             storable_fields_for(Sensor::Registry[dep], visited + [sensor.name])
           end
           .uniq
+      end
+
+      def calculate_date_range(start_param, stop_param)
+        calculated_start = calculate_start(start_param)
+        calculated_stop = calculate_stop(stop_param)
+
+        # Check if range is valid (start must be before or equal to stop)
+        if calculated_start <= calculated_stop
+          @start = calculated_start
+          @stop = calculated_stop
+          @valid_range = true
+        else
+          # No complete periods exist - explicitly set nil to indicate invalid state
+          @start = nil
+          @stop = nil
+          @valid_range = false
+        end
       end
 
       def calculate_start(start_param)

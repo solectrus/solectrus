@@ -185,6 +185,39 @@ describe Sensor::Query::Ranking do
             expect(call).to eq([{ date: Date.new(2024, 2, 1), value: 5000 }])
           end
         end
+
+        context 'when no complete months exist' do
+          let(:start) { nil }
+          let(:stop) { nil }
+
+          before do
+            travel_to Date.new(2024, 2, 15) # Mid-February
+
+            # Installation on January 15
+            allow(Rails.application.config.x).to receive(
+              :installation_date,
+            ).and_return(Date.new(2024, 1, 15))
+
+            # Data in January (incomplete, started mid-month)
+            create_summary(
+              date: Date.new(2024, 1, 20),
+              values: [[:heatpump_power, :sum, 10_000]],
+            )
+
+            # Data in February (incomplete, current month)
+            create_summary(
+              date: Date.new(2024, 2, 10),
+              values: [[:heatpump_power, :sum, 3000]],
+            )
+          end
+
+          it 'returns empty array' do
+            # January is incomplete (started mid-month)
+            # February is incomplete (current month)
+            # No complete months exist, so return empty array
+            expect(call).to eq([])
+          end
+        end
       end
     end
 
@@ -274,6 +307,39 @@ describe Sensor::Query::Ranking do
             expect(call).to eq([{ date: Date.new(2024, 3, 11), value: 12_000 }])
           end
         end
+
+        context 'when no complete weeks exist' do
+          let(:start) { nil }
+          let(:stop) { nil }
+
+          before do
+            travel_to Date.new(2024, 3, 10) # Sunday of first week
+
+            # Installation on March 4 (Monday of week starting March 4)
+            allow(Rails.application.config.x).to receive(
+              :installation_date,
+            ).and_return(Date.new(2024, 3, 4))
+
+            # Data in first week (incomplete, started Monday)
+            create_summary(
+              date: Date.new(2024, 3, 6),
+              values: [[:heatpump_power, :sum, 8000]],
+            )
+
+            # Data in second week (incomplete, current week)
+            create_summary(
+              date: Date.new(2024, 3, 8),
+              values: [[:heatpump_power, :sum, 5000]],
+            )
+          end
+
+          it 'returns empty array' do
+            # First week is incomplete (started mid-week)
+            # Second week is incomplete (current week)
+            # No complete weeks exist, so return empty array
+            expect(call).to eq([])
+          end
+        end
       end
     end
 
@@ -359,6 +425,39 @@ describe Sensor::Query::Ranking do
           it 'excludes installation year from ranking' do
             # 2021 should be excluded
             expect(call).to eq([{ date: Date.new(2022, 1, 1), value: 60_000 }])
+          end
+        end
+
+        context 'when no complete years exist' do
+          let(:start) { nil }
+          let(:stop) { nil }
+
+          before do
+            travel_to Date.new(2025, 10, 17) # October 2025
+
+            # Installation in 2024
+            allow(Rails.application.config.x).to receive(
+              :installation_date,
+            ).and_return(Date.new(2024, 6, 1))
+
+            # Data in 2024 (incomplete year, started in June)
+            create_summary(
+              date: Date.new(2024, 6, 15),
+              values: [[:heatpump_power, :sum, 40_000]],
+            )
+
+            # Data in 2025 (incomplete year, only until October)
+            create_summary(
+              date: Date.new(2025, 3, 1),
+              values: [[:heatpump_power, :sum, 30_000]],
+            )
+          end
+
+          it 'returns empty array' do
+            # 2024 is incomplete (started mid-year)
+            # 2025 is incomplete (current year)
+            # No complete years exist, so return empty array
+            expect(call).to eq([])
           end
         end
       end
