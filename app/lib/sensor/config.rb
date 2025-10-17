@@ -118,6 +118,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   end
 
   def house_power_excluded_sensors
+    ensure_configurations!
     house_power_config = configurations[:house_power]
     return [] unless house_power_config
 
