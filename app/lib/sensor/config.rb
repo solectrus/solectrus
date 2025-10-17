@@ -177,11 +177,11 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   end
 
   def top10_sensors
-    @top10_sensors ||= sensors.select(&:top10_enabled?)
+    sensors.select(&:top10_enabled?)
   end
 
   def chart_sensors
-    @chart_sensors ||= sensors.select(&:chart_enabled?)
+    sensors.select(&:chart_enabled?)
   end
 
   private
