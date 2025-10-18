@@ -343,7 +343,8 @@ export default class extends Controller<HTMLCanvasElement> {
           // For InverterStack and HeatingStack, sum all stacked items
           if ((isInverterStack || isHeatingStack) && tooltipItems.length > 1) {
             const sum = tooltipItems.reduce((acc, item) => {
-              if (item.parsed.y) acc += item.parsed.y;
+              // Only sum items that are actually stacked
+              if (item.dataset.stack && item.parsed.y) acc += item.parsed.y;
               return acc;
             }, 0);
             if (sum) return this.formattedNumber(sum);
