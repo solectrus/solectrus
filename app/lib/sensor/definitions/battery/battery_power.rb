@@ -1,6 +1,10 @@
 class Sensor::Definitions::BatteryPower < Sensor::Definitions::Base
   value unit: :watt, category: :battery
 
+  color hex: '#15803d',
+        bg_classes: 'bg-green-700 dark:bg-green-900/70',
+        text_classes: 'text-white dark:text-slate-400'
+
   icon do |data|
     value = data.respond_to?(:battery_soc) ? data.battery_soc : nil
 
