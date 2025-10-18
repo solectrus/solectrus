@@ -70,7 +70,7 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
       when :watt, :gram
         format_with_scaling(value)
       when :string
-        value.to_s
+        value.to_s.to_utf8
       when :boolean
         boolean_text(value)
       when :euro

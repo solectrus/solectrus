@@ -587,5 +587,16 @@ describe Sensor::ValueFormatter do
         expect(result[:unit]).to eq('MW')
       end
     end
+
+    describe 'string encoding handling' do
+      it 'converts BINARY encoded strings to UTF-8' do
+        binary_string = 'CHARGE'.force_encoding('ASCII-8BIT')
+        formatter = described_class.new(binary_string, unit: :string)
+        result = formatter.to_h
+
+        expect(result[:value]).to eq('CHARGE')
+        expect(result[:value].encoding).to eq(Encoding::UTF_8)
+      end
+    end
   end
 end

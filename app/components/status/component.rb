@@ -20,7 +20,8 @@ class Status::Component < ViewComponent::Base
   end
 
   def live_text
-    status.presence || t('.connect')
+    Sensor::ValueFormatter.new(status, unit: :string).to_s.presence ||
+      t('.connect')
   end
 
   def message
