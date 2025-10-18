@@ -233,7 +233,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     return unless configurations[:house_power]
 
     exclude_value = env['INFLUX_EXCLUDE_FROM_HOUSE_POWER']
-    unless exclude_value.present?
+    if exclude_value.blank?
       @house_power_exclusions = :unchanged
       return
     end
