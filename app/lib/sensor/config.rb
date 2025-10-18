@@ -1,5 +1,6 @@
 class Sensor::Config # rubocop:disable Metrics/ClassLength
   include Singleton
+  include Sensor::ConfigLogger
 
   ConfigEntry =
     Data.define(:measurement, :field, :options) do
@@ -43,23 +44,32 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     Sensor::Registry[sensor_name].display_name(format)
   end
 
-  def setup(env)
+  def setup(env, validate_summaries: false)
     # Reset all instance variables to avoid caching conflicts
     instance_variables.each { |var| remove_instance_variable(var) }
 
     @configurations = {}
-    @env = env
     @sensor_logs = []
     @sensor_warnings = []
+    @house_power_exclusions = nil
 
-    Rails.logger.info 'Sensor initialization started'
+    log_section_header('SENSOR INITIALIZATION', blank_after: false)
+
+    # Adapt legacy SENEC-era environment variables to new format
+    @env = Sensor::LegacyConfigAdapter.new(env).adapt
 
     parse_configurations
     auto_configure_power_splitter_sensors
 
     log_configurations
 
-    Rails.logger.info 'Sensor initialization completed'
+    # Validate summaries if requested (only needed during application startup)
+    if validate_summaries &&
+         ActiveRecord::Base.connection.table_exists?(:summaries)
+      Sensor::SummaryInvalidator.ensure_valid!
+    end
+
+    log_section_footer
   end
 
   attr_reader :env, :configurations
@@ -193,10 +203,10 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
       next if value.blank?
 
       config = ConfigEntry.from_env(value)
-      if config
-        configurations[sensor.name] = config
-        log_sensor(sensor.name, value)
-      end
+      next unless config
+
+      configurations[sensor.name] = config
+      log_sensor(sensor.name, value)
     end
 
     parse_exclude_from_house_power
@@ -206,13 +216,12 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     Sensor::Registry
       .by_category(:power_splitter)
       .each do |sensor|
-        next unless sensor.permitted?
-
         # Only configure if the corresponding base sensor (without "_grid") is configured
         base_sensor_name = sensor.name.to_s.sub('_grid', '').to_sym
         next unless configured?(base_sensor_name)
 
         # Configure to read from "power_splitter" measurement
+        # Permission check will be done later via exists?() method
         configurations[sensor.name] = ConfigEntry.new(
           measurement: 'power_splitter',
           field: sensor.name.to_s,
@@ -221,10 +230,11 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   end
 
   def parse_exclude_from_house_power
-    exclude_value = env['INFLUX_EXCLUDE_FROM_HOUSE_POWER']
+    return unless configurations[:house_power]
 
-    unless exclude_value.present? && configurations[:house_power]
-      log_house_power_unchanged if configurations[:house_power]
+    exclude_value = env['INFLUX_EXCLUDE_FROM_HOUSE_POWER']
+    unless exclude_value.present?
+      @house_power_exclusions = :unchanged
       return
     end
 
@@ -237,7 +247,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
         end
 
     configurations[:house_power].options[:exclude] = excluded_sensors
-    log_house_power_exclusions(excluded_sensors)
+    @house_power_exclusions = excluded_sensors
   end
 
   def filter_sensors(&)
@@ -248,51 +258,53 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     Sensor::Registry.all.filter { |sensor| exists?(sensor.name) }
   end
 
-  # Logging methods
+  # High-level logging methods (use low-level helpers from ConfigLogger)
 
   def log_sensor(sensor_name, value)
-    @sensor_logs << format(
-      '  - Sensor %<sensor_name>-30s → %<value>s',
-      sensor_name: sensor_name.upcase,
-      value:,
-    )
-
-    # Check for duplicates
+    @sensor_logs << "- Sensor #{sensor_name.to_s.upcase.ljust(32)} → #{value}"
     check_for_duplicates(sensor_name)
   end
 
-  def log_house_power_unchanged
-    @sensor_logs << '  - Sensor HOUSE_POWER remains unchanged'
-  end
+  def log_house_power_status
+    return unless @house_power_exclusions
 
-  def log_house_power_exclusions(excluded_sensors)
-    sensor_names = excluded_sensors.map { |s| s.name.upcase }.join(', ')
-    @sensor_logs << "  - Sensor HOUSE_POWER subtracts #{sensor_names}"
+    log_blank
+    log_line(
+      if @house_power_exclusions == :unchanged
+        'HOUSE_POWER is used without modification'
+      else
+        sensor_names =
+          @house_power_exclusions.map { |s| s.name.upcase }.join(', ')
+        "HOUSE_POWER will be reduced by #{sensor_names}"
+      end,
+    )
+    log_blank
   end
 
   def log_configurations
-    @sensor_logs.each { |log| Rails.logger.info(log) }
+    log_section_header("#{@sensor_logs.size} CONFIGURED SENSORS", char: '·')
+    @sensor_logs.each { |log| log_line(log) }
+    log_house_power_status
 
-    return if @sensor_warnings.none?
+    return if @sensor_warnings.empty?
 
-    Rails.logger.warn "\n⚠️  Duplicate measurement/field combinations detected, this will cause trouble:"
-    @sensor_warnings.each { |warning| Rails.logger.warn("  - #{warning}") }
+    log_section_header('⚠️  DUPLICATE CONFIGURATIONS', char: '·')
+    @sensor_warnings.each { |warning| log_line("- #{warning}") }
   end
 
   def check_for_duplicates(sensor_name)
-    measurement_val = measurement(sensor_name)
-    field_val = field(sensor_name)
+    sensor_measurement = measurement(sensor_name)
+    sensor_field = field(sensor_name)
 
-    # Look for other sensors with same measurement:field combination
     duplicate =
       configurations.find do |other_name, other_config|
         other_name != sensor_name &&
-          other_config.measurement == measurement_val &&
-          other_config.field == field_val
+          other_config.measurement == sensor_measurement &&
+          other_config.field == sensor_field
       end
 
     return unless duplicate
 
-    @sensor_warnings << "#{sensor_name.upcase} and #{duplicate.first.upcase} both use #{measurement_val}:#{field_val}"
+    @sensor_warnings << "#{sensor_name.upcase} and #{duplicate.first.upcase} both use #{sensor_measurement}:#{sensor_field}"
   end
 end

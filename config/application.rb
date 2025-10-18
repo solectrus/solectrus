@@ -93,15 +93,13 @@ module Solectrus
           # Ensure settings are seeded on every start
           Setting.seed!
 
+          # Check for updates before sensor initialization
+          # This ensures update check logging happens first
+          UpdateCheck.sponsoring? unless Rails.env.test?
+
           # Initialize sensor system after database is ready
           Sensor::Registry.all
-          Sensor::Config.setup(ENV)
-
-          # Validate summaries on every start
-          if ActiveRecord::Base.connection.table_exists?(:summaries) &&
-               !Rails.env.test?
-            Sensor::SummaryInvalidator.ensure_valid!
-          end
+          Sensor::Config.setup(ENV, validate_summaries: true)
         end
       end
 

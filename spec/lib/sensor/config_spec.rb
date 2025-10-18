@@ -21,21 +21,16 @@ describe Sensor::Config do
     context 'with logging' do
       it 'logs sensor initialization' do
         allow(Rails.logger).to receive(:info)
-        allow(Rails.logger).to receive(:warn)
 
         described_class.setup(env)
 
         expect(Rails.logger).to have_received(:info).with(
-          'Sensor initialization started',
-        )
-        expect(Rails.logger).to have_received(:info).with(
-          'Sensor initialization completed',
+          include('SENSOR INITIALIZATION'),
         )
       end
 
       it 'logs configured sensors' do
         allow(Rails.logger).to receive(:info)
-        allow(Rails.logger).to receive(:warn)
 
         described_class.setup(env)
 
@@ -49,12 +44,11 @@ describe Sensor::Config do
 
       it 'logs house power exclusions when configured' do
         allow(Rails.logger).to receive(:info)
-        allow(Rails.logger).to receive(:warn)
 
         described_class.setup(env)
 
         expect(Rails.logger).to have_received(:info).with(
-          include('HOUSE_POWER subtracts HEATPUMP_POWER'),
+          include('HOUSE_POWER will be reduced by HEATPUMP_POWER'),
         )
       end
 
@@ -68,12 +62,12 @@ describe Sensor::Config do
 
         it 'logs house power unchanged' do
           allow(Rails.logger).to receive(:info)
-          allow(Rails.logger).to receive(:warn)
 
           described_class.setup(env_without_exclusions)
 
+          # This is now logged after the sensor list
           expect(Rails.logger).to have_received(:info).with(
-            '  - Sensor HOUSE_POWER remains unchanged',
+            '  HOUSE_POWER is used without modification',
           )
         end
       end
@@ -89,14 +83,13 @@ describe Sensor::Config do
 
         it 'warns about duplicate configurations' do
           allow(Rails.logger).to receive(:info)
-          allow(Rails.logger).to receive(:warn)
 
           described_class.setup(env_with_duplicates)
 
-          expect(Rails.logger).to have_received(:warn).with(
-            %r{Duplicate measurement/field combinations detected},
+          expect(Rails.logger).to have_received(:info).with(
+            include('DUPLICATE CONFIGURATIONS'),
           )
-          expect(Rails.logger).to have_received(:warn).with(
+          expect(Rails.logger).to have_received(:info).with(
             include(
               'WALLBOX_POWER',
               'HEATPUMP_POWER',
