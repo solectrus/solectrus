@@ -86,11 +86,15 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
   def build_dataset(sensor_name, chart_data)
     sensor = Sensor::Registry[sensor_name]
 
-    {
+    dataset = {
       id: sensor.name,
       label: sensor.display_name,
       data: chart_data[:data],
-      stack: 'InverterPower',
-    }.merge(style_for_sensor(sensor))
+    }
+
+    # Only stack actual inverter power sensors, not forecasts
+    dataset[:stack] = 'InverterPower' unless sensor.category == :forecast
+
+    dataset.merge(style_for_sensor(sensor))
   end
 end
