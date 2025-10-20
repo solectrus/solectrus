@@ -36,17 +36,22 @@ class Balance::ChartsController < ApplicationController
 
   helper_method def chart_sensors
     Sensor::Config.chart_sensors.filter_map do |sensor|
-      if CHART_SENSORS.include?(sensor.name) ||
-           Sensor::Config.house_power_excluded_custom_sensors.include?(
-             sensor,
-           ) ||
-           (
-             sensor.is_a?(Sensor::Definitions::CustomInverterPower) &&
-               !Setting.inverter_as_total
-           )
-        sensor.name
-      end
+      sensor.name if include_sensor_in_chart?(sensor)
     end
+  end
+
+  def include_sensor_in_chart?(sensor)
+    # Standard chart sensors (battery, grid, house power, etc.)
+    return true if CHART_SENSORS.include?(sensor.name)
+
+    # Custom sensors excluded from house power calculation
+    if Sensor::Config.house_power_excluded_custom_sensors.include?(sensor)
+      return true
+    end
+
+    # Custom inverter powers when not using inverter as total
+    sensor.is_a?(Sensor::Definitions::CustomInverterPower) &&
+      !Setting.inverter_as_total
   end
 
   helper_method def forecast_data
