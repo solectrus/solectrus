@@ -13,6 +13,7 @@ CI.run do
   step 'Check: TypeScript', 'bin/yarn tsc'
 
   step 'Security: Gem audit', 'bin/bundler-audit'
+  step 'Security: NPM audit', 'bin/yarn npm audit'
   step 'Security: Brakeman code analysis',
        'bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error'
 

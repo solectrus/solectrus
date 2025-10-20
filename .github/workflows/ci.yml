@@ -69,8 +69,8 @@ jobs:
       - name: Install Yarn packages
         run: bin/yarn install --immutable
 
-      # - name: Run security audit
-      #   run: yarn npm audit
+      - name: Run security audit
+        run: yarn npm audit
 
       - name: Get Playwright version
         id: playwright-version
