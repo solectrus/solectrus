@@ -14,6 +14,7 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
   value unit: :watt, category: :consumer, nameable: true
 
   aggregations stored: [:sum], top10: true
+  trend
 
   COLOR_HEX = '#64748b'.freeze
   private_constant :COLOR_HEX
