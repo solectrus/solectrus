@@ -1,0 +1,15 @@
+en:
+  per_kwp: per kWp
+  previous_month: Previous month
+  previous_year: Previous year
+  discharge: Discharge
+  charge: Charge
+  empty: Empty
+  full: Full
+  charged_consecutively: Charged consecutively
+  day: day
+  days: days
+  minimum: Minimum
+  maximum: Maximum
+  average_per_day: Ø per day
+  blank: Insufficient data available.

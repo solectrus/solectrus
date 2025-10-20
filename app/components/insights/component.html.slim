@@ -29,7 +29,7 @@
             - tile.with_body do
               = render SensorValue::Component.new(insights.specific_yield, :specific_yield, context: :total, scaling: :kilo)
             - tile.with_footer do
-              'pro kWp
+              = t('.per_kwp')
 
   - elsif sensor.name == :grid_power
     = render InsightsTile::Component.new do |tile|
@@ -55,14 +55,14 @@
   - if insights.monthly_trend&.valid?
     = render InsightsTile::Component.new css_class: ('col-span-2' unless insights.yearly_trend&.valid?), url: monthly_trend_base_path do |tile|
       - tile.with_title do
-        'Vormonat
+        = t('.previous_month')
       - tile.with_body do
         = render TrendIndicator::Component.new(trend: insights.monthly_trend)
 
   - if insights.yearly_trend&.valid?
     = render InsightsTile::Component.new css_class: ['text-right', ('col-span-2' unless insights.monthly_trend&.valid?)], url: yearly_trend_base_path do |tile|
       - tile.with_title do
-        'Vorjahr
+        = t('.previous_year')
       - tile.with_body do
         = render TrendIndicator::Component.new(trend: insights.yearly_trend)
 
@@ -76,38 +76,40 @@
       - tile.with_body do
         = render SensorValue::Component.new(data, :battery_discharging_power, context: :total, scaling: :kilo, precision: 0)
       - tile.with_footer do
-        'Entladung
+        = t('.discharge')
 
     = render InsightsTile::Component.new css_class: 'text-right' do |tile|
       - tile.with_body do
         = render SensorValue::Component.new(data, :battery_charging_power, context: :total, scaling: :kilo, precision: 0)
       - tile.with_footer do
-        'Beladung
+        = t('.charge')
 
     - unless timeframe.day?
       .col-span-2.grid.grid-cols-3.gap-3.sm:gap-6
         = render InsightsTile::Component.new do |tile|
           - tile.with_body do
             = insights.battery_empty_days
-            small< Tage
+            small<
+            = t('.days')
           - tile.with_footer do
-            'Leer
+            = t('.empty')
 
         - length = insights.battery_soc_longest_streak[:length]
         = render InsightsTile::Component.new css_class: 'text-center', url: battery_soc_longest_streak_path do |tile|
           - tile.with_footer do
-            'Geladen in Folge
+            = t('.charged_consecutively')
           - tile.with_body do
             = length
             small<
-            = length == 1 ? 'Tag' : 'Tage'
+            = length == 1 ? t('.day') : t('.days')
 
         = render InsightsTile::Component.new css_class: 'text-right' do |tile|
           - tile.with_body do
             = insights.battery_full_days
-            small< Tage
+            small<
+            = t('.days')
           - tile.with_footer do
-            'Voll
+            = t('.full')
 
   - if insights.heatmap_data
     = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
@@ -115,33 +117,39 @@
         = render HeatmapTile::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
 
   .col-span-2
-    .grid.gap-4.sm:gap-6 class= (per_day_value? ? 'grid-cols-3' : 'grid-cols-2')
-      - if (min_day = insights.minimum(:date))
-        = render InsightsTile::Component.new url: day_path(min_day) do |tile|
-          - tile.with_title do
-            span.hidden.md:block
-              =l min_day
-          - tile.with_body do
-            = render SensorValue::Component.new(insights.minimum(:value), sensor.name, context: :total, scaling: :kilo)
-          - tile.with_footer do
-            'Minimum
+    - if insights.minimum(:date) || insights.maximum(:date)
+      .grid.gap-4.sm:gap-6 class= (per_day_value? ? 'grid-cols-3' : 'grid-cols-2')
+        - if (min_day = insights.minimum(:date))
+          = render InsightsTile::Component.new url: day_path(min_day) do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                =l min_day
+            - tile.with_body do
+              = render SensorValue::Component.new(insights.minimum(:value), sensor.name, context: :total, scaling: :kilo)
+            - tile.with_footer do
+              = t('.minimum')
 
-      - if per_day_value?
-        = render InsightsTile::Component.new css_class: 'text-center' do |tile|
-          - tile.with_title do
-            span.hidden.md:block
-              '&nbsp;
-          - tile.with_body do
-            = render SensorValue::Component.new(insights.per_day_value, sensor.name, context: :total, scaling: :kilo)
-          - tile.with_footer do
-            ' Ø pro Tag
+        - if per_day_value?
+          = render InsightsTile::Component.new css_class: 'text-center' do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                '&nbsp;
+            - tile.with_body do
+              = render SensorValue::Component.new(insights.per_day_value, sensor.name, context: :total, scaling: :kilo)
+            - tile.with_footer do
+              = t('.average_per_day')
 
-      - if (max_day = insights.maximum(:date))
-        = render InsightsTile::Component.new css_class: 'text-right', url: day_path(max_day) do |tile|
-          - tile.with_title do
-            span.hidden.md:block
-              =l max_day
-          - tile.with_body do
-            = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :total, scaling: :kilo)
-          - tile.with_footer do
-            'Maximum
+        - if (max_day = insights.maximum(:date))
+          = render InsightsTile::Component.new css_class: 'text-right', url: day_path(max_day) do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                =l max_day
+            - tile.with_body do
+              = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :total, scaling: :kilo)
+            - tile.with_footer do
+              = t('.maximum')
+    - else
+      = render InsightsTile::Component.new css_class: 'col-span-2 text-center' do |tile|
+        - tile.with_body do
+          .text-gray-500.dark:text-gray-400.py-4.text-base
+            = t('.blank')
