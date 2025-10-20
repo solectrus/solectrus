@@ -37,7 +37,13 @@ class Balance::ChartsController < ApplicationController
   helper_method def chart_sensors
     Sensor::Config.chart_sensors.filter_map do |sensor|
       if CHART_SENSORS.include?(sensor.name) ||
-           Sensor::Config.house_power_excluded_custom_sensors.include?(sensor)
+           Sensor::Config.house_power_excluded_custom_sensors.include?(
+             sensor,
+           ) ||
+           (
+             sensor.is_a?(Sensor::Definitions::CustomInverterPower) &&
+               !Setting.inverter_as_total
+           )
         sensor.name
       end
     end
