@@ -117,7 +117,7 @@
         = render HeatmapTile::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
 
   .col-span-2
-    - if insights.minimum(:date) || insights.maximum(:date)
+    - if per_day_value? || insights.minimum(:date) || insights.maximum(:date)
       .grid.gap-4.sm:gap-6 class= (per_day_value? ? 'grid-cols-3' : 'grid-cols-2')
         - if (min_day = insights.minimum(:date))
           = render InsightsTile::Component.new url: day_path(min_day) do |tile|
@@ -148,8 +148,3 @@
               = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :total, scaling: :kilo)
             - tile.with_footer do
               = t('.maximum')
-    - else
-      = render InsightsTile::Component.new css_class: 'col-span-2 text-center' do |tile|
-        - tile.with_body do
-          .text-gray-500.dark:text-gray-400.py-4.text-base
-            = t('.blank')

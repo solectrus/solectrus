@@ -1,5 +1,9 @@
 class Insights::Extremum < Insights::Base
   def initialize(sensor:, timeframe:, aggregation:)
+    raise ArgumentError unless sensor.is_a?(Sensor::Definitions::Base)
+    raise ArgumentError unless timeframe.is_a?(Timeframe)
+    raise ArgumentError if %i[max min].exclude?(aggregation)
+
     super(timeframe:)
     @sensor = sensor
     @aggregation = aggregation
@@ -9,7 +13,7 @@ class Insights::Extremum < Insights::Base
 
   def call
     return if timeframe.day?
-    return if Sensor::Config.top10_sensors.map(&:name).exclude?(sensor.name)
+    return if sensor.summary_meta_aggregations.exclude?(aggregation)
 
     ranking_hash =
       Sensor::Query::Ranking.new(
