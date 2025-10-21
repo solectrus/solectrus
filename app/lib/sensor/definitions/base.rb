@@ -19,6 +19,7 @@ class Sensor::Definitions::Base
            :summary_aggregations,
            :allowed_aggregations,
            :summary_meta_aggregations,
+           :trend_aggregation,
            to: :class
 
   def initialize

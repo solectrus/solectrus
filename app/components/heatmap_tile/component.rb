@@ -35,17 +35,44 @@ class HeatmapTile::Component < ViewComponent::Base
   end
 
   def max_value
-    @max_value ||=
-      begin
-        all_values = data.values.flat_map(&:values).compact
+    @max_value ||= calculate_max_value
+  end
 
-        if grid_power?
-          # For grid_power, find max absolute balance
-          all_values.map { |value| grid_balance(value).abs }.max || 0
-        else
-          all_values.max || 0
-        end
-      end
+  def min_value
+    @min_value ||= calculate_min_value
+  end
+
+  def calculate_max_value
+    all_values = data.values.flat_map(&:values).compact
+
+    return grid_max_value(all_values) if grid_power?
+
+    sensor_max_value(all_values)
+  end
+
+  def calculate_min_value
+    return 0 if grid_power?
+
+    all_values = data.values.flat_map(&:values).compact
+    sensor_min_value(all_values)
+  end
+
+  def grid_max_value(all_values)
+    all_values.map { |value| grid_balance(value).abs }.max || 0
+  end
+
+  def sensor_max_value(all_values)
+    values = use_range_based_opacity? ? all_values.reject(&:zero?) : all_values
+    values.max || 0
+  end
+
+  def sensor_min_value(all_values)
+    values = use_range_based_opacity? ? all_values.reject(&:zero?) : all_values
+    values.min || 0
+  end
+
+  def use_range_based_opacity?
+    sensor.allowed_aggregations.first == :avg
   end
 
   def grid_power?
@@ -100,7 +127,21 @@ class HeatmapTile::Component < ViewComponent::Base
   def standard_opacity(value)
     return 0.5 if max_value.zero?
 
-    value.fdiv(max_value).clamp(0, 1)
+    if use_range_based_opacity?
+      # For avg aggregations (like COP), use range-based opacity for better contrast
+      # Zero values (e.g., no heating) should remain invisible
+      return 0 if value.zero?
+
+      range = max_value - min_value
+      return 0.5 if range.zero?
+
+      # Scale opacity from 0.2 (min) to 1.0 (max) for better visibility
+      normalized = (value - min_value).fdiv(range).clamp(0, 1)
+      ((normalized * 0.8) + 0.2).round(2)
+    else
+      # For sum aggregations, use absolute opacity
+      value.fdiv(max_value).clamp(0, 1)
+    end
   end
 
   def sensor_background_color(sensor_name = sensor.name)

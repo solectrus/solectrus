@@ -131,7 +131,7 @@ class Trend
     @base_data ||=
       Sensor::Query::Sql
         .new do |q|
-          q.sum sensor.name
+          q.public_send(sensor.trend_aggregation, sensor.name)
           q.timeframe base_timeframe
         end
         .call

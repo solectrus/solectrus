@@ -22,4 +22,12 @@ class TrendIndicator::Component < ViewComponent::Base
       'text-red-700 dark:text-red-400'
     end
   end
+
+  def diff_precision
+    trend.sensor.trend_aggregation == :avg ? 1 : 0
+  end
+
+  def show_absolute_values?
+    trend.sensor.trend_aggregation == :avg
+  end
 end

@@ -1,7 +1,11 @@
 describe TrendIndicator::Component do
   subject(:component) { described_class.new(trend:) }
 
-  let(:trend) { instance_double(Trend, diff:, more_is_better?: more_is_better) }
+  let(:trend) do
+    instance_double(Trend, diff:, more_is_better?: more_is_better, sensor:)
+  end
+  let(:sensor) { double('Sensor', trend_aggregation: trend_aggregation) }
+  let(:trend_aggregation) { :sum }
 
   describe '#icon' do
     subject { component.icon }
@@ -57,6 +61,44 @@ describe TrendIndicator::Component do
       let(:more_is_better) { true }
 
       it { is_expected.to eq('text-red-700 dark:text-red-400') }
+    end
+  end
+
+  describe '#diff_precision' do
+    subject { component.diff_precision }
+
+    let(:diff) { 1 }
+    let(:more_is_better) { true }
+
+    context 'when sensor uses sum aggregation' do
+      let(:trend_aggregation) { :sum }
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'when sensor uses avg aggregation' do
+      let(:trend_aggregation) { :avg }
+
+      it { is_expected.to eq(1) }
+    end
+  end
+
+  describe '#show_absolute_values?' do
+    subject { component.show_absolute_values? }
+
+    let(:diff) { 1 }
+    let(:more_is_better) { true }
+
+    context 'when sensor uses sum aggregation' do
+      let(:trend_aggregation) { :sum }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when sensor uses avg aggregation' do
+      let(:trend_aggregation) { :avg }
+
+      it { is_expected.to be true }
     end
   end
 end

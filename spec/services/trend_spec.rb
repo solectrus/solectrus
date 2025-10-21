@@ -146,4 +146,60 @@ describe Trend do
       end
     end
   end
+
+  describe '#factor und #percent with avg aggregation' do
+    let(:sensor) { Sensor::Registry[:heatpump_cop] }
+    let(:timeframe) { Timeframe.new('2025-04') }
+    let(:base) { :previous_year }
+
+    before do
+      stub_feature(:heatpump)
+
+      create_summary(
+        date: Date.new(2024, 4, 1),
+        values: [
+          [:heatpump_power, :sum, 1000],
+          [:heatpump_heating_power, :sum, 4000],
+        ],
+      )
+      create_summary(
+        date: Date.new(2024, 4, 2),
+        values: [
+          [:heatpump_power, :sum, 1000],
+          [:heatpump_heating_power, :sum, 2000],
+        ],
+      )
+    end
+
+    it 'calculates average COP as base_value' do
+      # COP Day 1: 4000/1000 = 4.0
+      # COP Day 2: 2000/1000 = 2.0
+      # Average: (4.0 + 2.0) / 2 = 3.0
+      expect(trend.base_value).to eq(3.0)
+    end
+
+    {
+      [4.5, 'greater'] => {
+        factor: 1.5,
+        percent: 50,
+      },
+      [1.5, 'less'] => {
+        factor: 0.5,
+        percent: -50,
+      },
+      [3.0, 'equal'] => {
+        factor: 1.0,
+        percent: 0,
+      },
+    }.each do |(value, msg), expected|
+      context "when #{msg} than average" do
+        let(:current_value) { value }
+
+        it 'calculates factor and percent correctly' do
+          expect(trend.factor).to eq(expected[:factor])
+          expect(trend.percent).to eq(expected[:percent])
+        end
+      end
+    end
+  end
 end

@@ -108,6 +108,45 @@ describe Insights::HeatmapAllTime do
       end
     end
 
+    context 'with heatpump_cop sensor (avg aggregation)' do
+      let(:sensor) { Sensor::Registry[:heatpump_cop] }
+
+      before do
+        stub_feature(:heatpump)
+
+        create_summary(
+          date: Date.new(2023, 1, 15),
+          values: [
+            [:heatpump_power, :sum, 1000.0],
+            [:heatpump_heating_power, :sum, 4000.0],
+          ],
+        )
+        create_summary(
+          date: Date.new(2023, 1, 20),
+          values: [
+            [:heatpump_power, :sum, 1000.0],
+            [:heatpump_heating_power, :sum, 2000.0],
+          ],
+        )
+        create_summary(
+          date: Date.new(2023, 2, 10),
+          values: [
+            [:heatpump_power, :sum, 1000.0],
+            [:heatpump_heating_power, :sum, 3500.0],
+          ],
+        )
+      end
+
+      it 'returns average COP values grouped by year and month' do
+        expect(call).to be_a(Hash)
+        expect(call).to have_key(2023)
+        # January avg: (4.0 + 2.0) / 2 = 3.0
+        expect(call[2023][1]).to eq(3.0)
+        # February: 3500 / 1000 = 3.5
+        expect(call[2023][2]).to eq(3.5)
+      end
+    end
+
     context 'when timeframe is not all' do
       let(:sensor) { Sensor::Registry[:inverter_power] }
       let(:timeframe) { Timeframe.day }

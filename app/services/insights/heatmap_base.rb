@@ -113,10 +113,12 @@ class Insights::HeatmapBase
 
   def fetch_calculated_data
     # For calculated sensors (like finance sensors), use Sensor::Query::Sql
+    aggregation = sensor.allowed_aggregations.first || :sum
+
     query_result =
       Sensor::Query::Sql
         .new do |q|
-          q.sum sensor.name
+          q.public_send(aggregation, sensor.name)
 
           q.timeframe timeframe
           q.group_by(timeframe.year? ? :day : :month)
@@ -124,7 +126,9 @@ class Insights::HeatmapBase
         .call
 
     # Convert to heatmap format
-    data = query_result.public_send(sensor.name, :sum, :sum)
+    # For avg aggregation, use avg for both meta and base aggregation
+    base_agg = aggregation == :avg ? :avg : :sum
+    data = query_result.public_send(sensor.name, aggregation, base_agg)
 
     data.keys.map do |date_key|
       date_parts =
@@ -149,12 +153,20 @@ class Insights::HeatmapBase
     when :battery_power
       fetch_standard_data(:battery_discharging_power)
     else
-      if sensor.sql_calculated? && !sensor.store_in_summary?
-        fetch_calculated_data
-      else
-        fetch_standard_data
-      end
+      fetch_sensor_data
     end
+  end
+
+  def fetch_sensor_data
+    if calculated_sensor?
+      fetch_calculated_data
+    else
+      fetch_standard_data
+    end
+  end
+
+  def calculated_sensor?
+    (sensor.sql_calculated? || sensor.calculated?) && !sensor.store_in_summary?
   end
 
   # Abstract method - subclasses define their date dimensions

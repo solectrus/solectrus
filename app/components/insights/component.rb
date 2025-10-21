@@ -12,6 +12,7 @@ class Insights::Component < ViewComponent::Base
 
   def per_day_value?
     return false if timeframe.days_passed <= 1
+    return false unless sensor.allowed_aggregations.first == :sum
 
     %i[grid_power wallbox_power battery_soc battery_power].exclude?(sensor.name)
   end

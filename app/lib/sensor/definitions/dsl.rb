@@ -1,12 +1,12 @@
 module Sensor
   module Definitions
-    module Dsl
+    module Dsl # rubocop:disable Metrics/ModuleLength
       extend ActiveSupport::Concern
 
       META_DATA = Hash.new { |hash, key| hash[key] = {} }
       private_constant :META_DATA
 
-      class_methods do
+      class_methods do # rubocop:disable Metrics/BlockLength
         def meta_data
           META_DATA[self]
         end
@@ -21,6 +21,11 @@ module Sensor
           define_method(attr) { meta_data.fetch(attr, false) }
         end
 
+        # Trend aggregation getter with :sum default
+        def trend_aggregation
+          meta_data.fetch(:trend_aggregation, :sum)
+        end
+
         def value(**options)
           handle_value_range(options)
 
@@ -30,7 +35,13 @@ module Sensor
         end
 
         # Color: accepts hash with :hex, :bg_classes, :text_classes, :border_classes OR block
-        def color(hex: nil, bg_classes: nil, text_classes: nil, border_classes: nil, &block)
+        def color(
+          hex: nil,
+          bg_classes: nil,
+          text_classes: nil,
+          border_classes: nil,
+          &block
+        )
           if block
             # Dynamic color block
             # Block receives a value (e.g., percent) and must return hash with:
@@ -76,9 +87,10 @@ module Sensor
           end
         end
 
-        def trend(more_is_better: false)
+        def trend(more_is_better: false, aggregation: :sum)
           meta_data[:trendable] = true
           meta_data[:more_is_better] = more_is_better
+          meta_data[:trend_aggregation] = aggregation
         end
 
         # Aggregations

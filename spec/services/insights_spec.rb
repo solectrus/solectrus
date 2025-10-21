@@ -116,5 +116,33 @@ describe Insights do
         end
       end
     end
+
+    context 'when sensor is :heatpump_cop (uses avg aggregation)' do
+      let(:sensor) { Sensor::Registry[:heatpump_cop] }
+
+      before do
+        stub_feature(:heatpump)
+
+        create_summary(
+          date: Date.new(2025, 1, 1),
+          values: [
+            [:heatpump_power, :sum, 1000],
+            [:heatpump_heating_power, :sum, 4000],
+          ],
+        )
+        create_summary(
+          date: Date.new(2025, 1, 2),
+          values: [
+            [:heatpump_power, :sum, 1000],
+            [:heatpump_heating_power, :sum, 2000],
+          ],
+        )
+      end
+
+      # COP Day 1: 4000/1000 = 4.0
+      # COP Day 2: 2000/1000 = 2.0
+      # Average: (4.0 + 2.0) / 2 = 3.0
+      it { is_expected.to eq(3.0) }
+    end
   end
 end
