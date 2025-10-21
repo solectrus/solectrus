@@ -17,7 +17,8 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
         [:inverter_power]
       end
 
-    if timeframe.day?
+    # Add forecast sensors only in non-stacked view (to avoid too many curves)
+    if timeframe.day? && !stackable?
       # Add forecast sensors, if they exist
       %i[
         inverter_power_forecast
