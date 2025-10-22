@@ -116,6 +116,53 @@ describe Sensor::LegacyConfigAdapter do
       end
     end
 
+    context 'with only INFLUX_MEASUREMENT_FORECAST set' do
+      let(:env) { { 'INFLUX_MEASUREMENT_FORECAST' => 'Forecast' } }
+
+      it 'activates legacy conversion and creates forecast sensor mapping' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER_FORECAST']).to eq(
+          'Forecast:watt',
+        )
+      end
+
+      it 'does not create PV sensor mappings' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to be_nil
+        expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to be_nil
+      end
+
+      it 'logs legacy configuration warning' do
+        allow(Rails.logger).to receive(:info)
+
+        adapted
+
+        expect(Rails.logger).to have_received(:info).with(
+          include('⚠️  LEGACY CONFIGURATION'),
+        )
+      end
+    end
+
+    context 'with blank INFLUX_MEASUREMENT_PV but set INFLUX_MEASUREMENT_FORECAST' do
+      let(:env) do
+        {
+          'INFLUX_MEASUREMENT_PV' => '',
+          'INFLUX_MEASUREMENT_FORECAST' => 'Forecast',
+        }
+      end
+
+      it 'activates legacy conversion for forecast sensors' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER_FORECAST']).to eq(
+          'Forecast:watt',
+        )
+      end
+
+      it 'uses SENEC fallback for blank PV sensor mappings' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to eq(
+          'SENEC:inverter_power',
+        )
+        expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to eq('SENEC:house_power')
+      end
+    end
+
     context 'with complete SENEC sensor set' do
       let(:env) { { 'INFLUX_MEASUREMENT_PV' => 'SENEC' } }
 

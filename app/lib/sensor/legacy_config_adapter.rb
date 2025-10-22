@@ -17,18 +17,21 @@ class Sensor::LegacyConfigAdapter
   def adapt
     adapted_env = env.to_h.dup
 
-    # Only iterate over sensors that have legacy fallback mappings
-    FALLBACK_SENSORS.each_key do |sensor_name|
-      new_env_var = "INFLUX_SENSOR_#{sensor_name.upcase}"
-      next if adapted_env[new_env_var].present?
+    if adapted_env.key?('INFLUX_MEASUREMENT_PV') ||
+         adapted_env.key?('INFLUX_MEASUREMENT_FORECAST')
+      # Only iterate over sensors that have legacy fallback mappings
+      FALLBACK_SENSORS.each_key do |sensor_name|
+        new_env_var = "INFLUX_SENSOR_#{sensor_name.upcase}"
+        next if adapted_env[new_env_var].present?
 
-      legacy_value = build_from_deprecated_config(sensor_name)
-      adapted_env[new_env_var] = legacy_value if legacy_value.present?
+        legacy_value = build_from_deprecated_config(sensor_name)
+        adapted_env[new_env_var] = legacy_value if legacy_value.present?
+      end
+
+      # Remove legacy measurement variables
+      adapted_env.delete('INFLUX_MEASUREMENT_PV')
+      adapted_env.delete('INFLUX_MEASUREMENT_FORECAST')
     end
-
-    # Remove legacy measurement variables
-    adapted_env.delete('INFLUX_MEASUREMENT_PV')
-    adapted_env.delete('INFLUX_MEASUREMENT_FORECAST')
 
     log_summary
 
