@@ -16,12 +16,7 @@ module Sensor
         return unless valid_range
 
         # Initialize Base (timeframe not used, we query directly with start..stop)
-        super(
-          [sensor.name],
-          Timeframe.new(
-            "#{start.strftime('%Y-%m-%d')}..#{stop.strftime('%Y-%m-%d')}",
-          ),
-        )
+        super([sensor.name], nil)
       end
 
       attr_reader :sensor,

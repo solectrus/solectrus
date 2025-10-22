@@ -340,6 +340,26 @@ describe Sensor::Query::Ranking do
             expect(call).to eq([])
           end
         end
+
+        context 'when descending with only one day of data' do
+          let(:desc) { true }
+          let(:start) { Date.new(2025, 10, 21) }
+          let(:stop) { Date.new(2025, 10, 21) }
+
+          before do
+            create_summary(
+              date: Date.new(2025, 10, 21),
+              values: [[:heatpump_power, :sum, 8000]],
+            )
+          end
+
+          it 'returns ranking for the single available week' do
+            # With desc: true and explicit start/stop being same day,
+            # the range is valid (start <= stop)
+            # Week of Oct 21 is 2025-W43 (Monday Oct 20)
+            expect(call).to eq([{ date: Date.new(2025, 10, 20), value: 8000 }])
+          end
+        end
       end
     end
 
