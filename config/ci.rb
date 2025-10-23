@@ -17,7 +17,11 @@ CI.run do
   step 'Security: Brakeman code analysis',
        'bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error'
 
-  step 'Tests: RSpec', 'env PLAYWRIGHT_HEADLESS=true DISABLE_SPRING=1 bin/rspec'
+  step 'Setup: Clean coverage', 'rm -rf coverage/.resultset.json'
+  step 'Tests: Unit',
+       'env COVERAGE_NAME=unit DISABLE_SPRING=1 bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"'
+  step 'Tests: System',
+       'env COVERAGE_NAME=system PLAYWRIGHT_HEADLESS=true DISABLE_SPRING=1 bin/rspec spec/system'
 
   # Optional: set a green GitHub commit status to unblock PR merge.
   # Requires the `gh` CLI and `gh extension install basecamp/gh-signoff`.

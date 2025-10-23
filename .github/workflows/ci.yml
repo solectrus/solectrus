@@ -108,8 +108,15 @@ jobs:
       - name: Setup PostgreSQL
         run: bin/rails db:create db:migrate
 
-      - name: Run Unit and System tests with RSpec
-        run: bin/rspec
+      - name: Run Unit tests with RSpec
+        run: bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"
+        env:
+          COVERAGE_NAME: unit
+
+      - name: Run System tests with RSpec
+        run: bin/rspec spec/system
+        env:
+          COVERAGE_NAME: system
 
       - uses: qltysh/qlty-action/coverage@v2
         with:
