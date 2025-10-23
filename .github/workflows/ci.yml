@@ -85,7 +85,7 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: yarn playwright install --with-deps chromium
+        run: yarn playwright install --with-deps --only-shell chromium
 
       - name: Lint with RuboCop
         run: bin/rubocop --parallel
