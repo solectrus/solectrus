@@ -123,11 +123,10 @@ jobs:
           token: ${{secrets.QLTY_COVERAGE_TOKEN}}
           files: coverage/.resultset.json
 
-      - name: Clean test artifacts before size check
-        run: rm -f public/vite-test/assets/test-*.js
-
       - name: Check JS size limit
-        run: yarn size-limit
+        run: |
+          rm -f public/vite-test/assets/test-*.js
+          yarn size-limit
 
       - uses: actions/upload-artifact@v4
         if: failure()
