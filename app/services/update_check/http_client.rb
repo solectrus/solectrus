@@ -39,14 +39,11 @@ class UpdateCheck::HttpClient
   private
 
   def skip_update_check?
-    # Skip during tests
-    return true if Rails.env.test?
+    # Skip during tests and development (console)
+    return true if Rails.env.local?
 
-    # Skip during CI builds
-    return true if ENV['CI'].present?
-
-    # Skip during console (development only), asset precompilation and database tasks
-    return true if skip_initialization?
+    # Skip during asset precompilation and database tasks
+    return true if rake_task_running?(*SKIP_INIT_TASKS)
 
     false
   end

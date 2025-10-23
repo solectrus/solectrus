@@ -82,8 +82,8 @@ module Solectrus
     config.after_initialize do
       extend RakeHelper
 
-      # Skip expensive initialization for console (development only) and certain rake tasks
-      # These operations are only needed for the web server
+      # Skip initialization for certain rake tasks that don't need it
+      # (assets:precompile, db:create, db:migrate, db:prepare)
       next if skip_initialization?
 
       ThemeConfig.setup(ENV)

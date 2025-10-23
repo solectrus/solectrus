@@ -10,17 +10,10 @@ module RakeHelper
     tasks.any? { |task| Rake.application.top_level_tasks.include?(task) }
   end
 
-  # Check if we should skip initialization
-  # This includes console and certain rake tasks (only in development)
+  # Check if we should skip initialization for certain rake tasks
+  # These tasks either don't need database access (assets:precompile)
+  # or run before the database is ready (db:create, db:migrate)
   def skip_initialization?
-    # Check for rake tasks that should skip (including in test environment)
-    return true if rake_task_running?(*SKIP_INIT_TASKS)
-
-    # Skip only for console in development (not for runner, not in production)
-    return true if Rails.env.development? && defined?(Rails::Console)
-
-    # In production, always run initialization
-    # In test environment, always run initialization (needed for tests)
-    false
+    rake_task_running?(*SKIP_INIT_TASKS)
   end
 end
