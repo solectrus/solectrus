@@ -27,6 +27,7 @@ de:
     missing_sponsoring_cta: Mehr erfahren...
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
+    eligible_for_free_header: Berechtigt zur kostenfreien Verwendung
     incomplete_custom_consumers: Selbstdefinierte Stromverbraucher
     missing_custom_consumers: Hier könnten bis zu 20 zusätzliche Stromverbraucher visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> bis <code>_20</code>).
     incomplete_multi_inverter: Mehrere Stromerzeuger

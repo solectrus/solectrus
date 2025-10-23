@@ -92,6 +92,10 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
         .py-1.bg-green-600.text-white.text-center.text-xs
           = I18n.t('layout.active_sponsoring_header')
 
+      - elsif UpdateCheck.eligible_for_free?
+        .py-1.bg-green-600.text-white.text-center.text-xs
+          = I18n.t('layout.eligible_for_free_header')
+
       .flex.justify-between.items-center.text-indigo-100.dark:text-indigo-300.text-xs.px-3.py-4
         = render VersionInfo::Component.new( \
             current_version: Rails.configuration.x.git.commit_version,
