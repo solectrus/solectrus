@@ -1,4 +1,4 @@
-describe 'Home', vcr: { cassette_name: 'version' } do
+describe 'Home' do
   describe 'GET /' do
     it_behaves_like 'localized request', '/'
     it_behaves_like 'sponsoring redirects', '/'

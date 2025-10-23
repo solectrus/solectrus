@@ -1,4 +1,4 @@
-describe 'Sessions', vcr: { cassette_name: 'version' } do
+describe 'Sessions' do
   let(:password) { 't0ps3cr3t' }
 
   before do

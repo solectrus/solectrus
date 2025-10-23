@@ -1,4 +1,4 @@
-describe 'Settings', vcr: { cassette_name: 'version' } do
+describe 'Settings' do
   describe 'GET /settings' do
     it 'returns http success' do
       get '/settings'
