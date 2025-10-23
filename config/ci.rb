@@ -1,19 +1,15 @@
-# Continuous Integration configuration for Rails 8.1+
-# Run using: bin/ci
-#
-# This replaces the previous bin/test script with Rails' new declarative CI DSL.
-# All checks are run sequentially, and the process exits on the first failure.
+# Run using bin/ci
 
 CI.run do
   step 'Setup: InfluxDB', 'bin/influxdb-restart.sh'
 
-  step 'Lint: Ruby', 'bin/rubocop --parallel'
-  step 'Lint: Slim templates', 'bundle exec slim-lint .'
-  step 'Lint: JavaScript', 'bin/yarn lint'
-  step 'Check: TypeScript', 'bin/yarn tsc'
+  step 'Style: Ruby', 'bin/rubocop --parallel'
+  step 'Style: Slim', 'bundle exec slim-lint .'
+  step 'Style: JavaScript', 'bin/yarn lint'
+  step 'Style: TypeScript', 'bin/yarn tsc'
 
   step 'Security: Gem audit', 'bin/bundler-audit'
-  step 'Security: NPM audit', 'bin/yarn npm audit'
+  step 'Security: Yarn vulnerability audit', 'bin/yarn npm audit'
   step 'Security: Brakeman code analysis',
        'bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error'
 
