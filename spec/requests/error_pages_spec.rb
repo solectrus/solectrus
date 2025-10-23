@@ -13,6 +13,16 @@ describe 'Error pages', vcr: { cassette_name: 'version' } do
       expect(response).to have_http_status(:not_found)
       expect(response.body).to include(I18n.t('errors.404.title'))
     end
+
+    it 'renders error in turbo frame for modal requests' do
+      without_detailed_exceptions do
+        get '/non-existing-route', headers: { 'Turbo-Frame' => 'modal' }
+      end
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.body).to include('<turbo-frame id="modal"')
+      expect(response.body).to include(I18n.t('errors.404.title'))
+    end
   end
 
   describe 'error 500' do
@@ -29,6 +39,16 @@ describe 'Error pages', vcr: { cassette_name: 'version' } do
       without_detailed_exceptions { get '/' }
 
       expect(response).to have_http_status(:internal_server_error)
+      expect(response.body).to include(I18n.t('errors.500.title'))
+    end
+
+    it 'renders error in turbo frame for modal requests' do
+      without_detailed_exceptions do
+        get '/', headers: { 'Turbo-Frame' => 'modal' }
+      end
+
+      expect(response).to have_http_status(:internal_server_error)
+      expect(response.body).to include('<turbo-frame id="modal"')
       expect(response.body).to include(I18n.t('errors.500.title'))
     end
   end
