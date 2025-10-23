@@ -91,7 +91,7 @@ jobs:
         run: bin/rubocop --parallel
 
       - name: Brakeman security scan
-        run: bin/brakeman
+        run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
 
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
