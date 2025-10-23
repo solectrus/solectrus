@@ -38,5 +38,9 @@ end
 RSpec.configure do |config|
   config.include InfluxHelper
 
-  config.after { delete_influx_data }
+  # Clean up InfluxDB data after each test, but NOT for system tests
+  # System tests share InfluxDB data for performance
+  config.after do |example|
+    delete_influx_data unless example.metadata[:type] == :system
+  end
 end

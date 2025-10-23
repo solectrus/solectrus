@@ -45,6 +45,13 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 
+  # Disable transactional fixtures for system tests to allow data sharing
+  # System tests have read-only access to shared InfluxDB and Postgres data
+  config.around(:each, type: :system) do |example|
+    self.use_transactional_tests = false
+    example.run
+  end
+
   # Seed prices and settings once for the entire test suite
   config.before(:suite) do
     Price.delete_all

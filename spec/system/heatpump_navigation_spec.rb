@@ -1,11 +1,7 @@
 describe 'Heatpump navigation' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before do
-    stub_feature(:power_splitter, :heatpump)
-
-    travel_to Time.zone.local(2022, 6, 21, 12, 0, 0)
-  end
+  before { stub_feature(:power_splitter, :heatpump) }
 
   %w[heatpump_heating_power heatpump_cop outdoor_temp].each do |path|
     context "when #{path}" do

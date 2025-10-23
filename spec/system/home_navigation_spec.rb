@@ -1,8 +1,6 @@
 describe 'Home page' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { travel_to Time.zone.local(2022, 6, 21, 12, 0, 0) }
-
   %w[
     inverter_power
     inverter_power_1

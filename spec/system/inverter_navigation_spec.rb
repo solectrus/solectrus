@@ -1,8 +1,6 @@
 describe 'Inverter navigation' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { travel_to Time.zone.local(2022, 6, 21, 12, 0, 0) }
-
   %w[inverter_power].each do |path|
     context "when #{path}" do
       it 'allows complete navigation through all time periods' do # rubocop:disable RSpec/NoExpectationExample

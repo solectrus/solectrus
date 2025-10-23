@@ -1,8 +1,6 @@
 describe 'Home page auto-refresh' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { travel_to Time.zone.local(2022, 6, 21, 12, 0, 0) }
-
   context 'when "now" view' do
     it 'refreshes and shows updated data after 5 seconds' do
       visit '/inverter_power/now'

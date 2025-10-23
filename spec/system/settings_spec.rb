@@ -1,10 +1,6 @@
 describe 'Settings' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before do
-    travel_to Time.zone.local(2022, 6, 21, 12, 0, 0)
-  end
-
   let(:installation_date) { Rails.configuration.x.installation_date }
 
   context 'when no admin user is logged in' do
