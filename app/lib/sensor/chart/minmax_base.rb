@@ -35,6 +35,16 @@ class Sensor::Chart::MinmaxBase < Sensor::Chart::Base
       labels << (timestamp.to_time.to_i * 1000)
       max_val = max_points[timestamp]
 
+      # Ensure a visible bar when min == max by adding a tiny offset
+      # (to avoid zero-height bars)
+      if min_val && max_val && min_val == max_val
+        if max_val < 100
+          max_val += 0.4
+        else
+          min_val -= 0.4
+        end
+      end
+
       data << [min_val, max_val]
     end
 
@@ -46,5 +56,10 @@ class Sensor::Chart::MinmaxBase < Sensor::Chart::Base
       labels:,
       datasets: [{ **style_for_sensor(sensor), id: sensor.name, data: }],
     }
+  end
+
+  # MinMax charts should have rounded corners on all sides
+  def bar_border_skip # rubocop:disable Naming/PredicateMethod
+    false
   end
 end

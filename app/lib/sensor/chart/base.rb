@@ -140,7 +140,13 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       backgroundColor: sensor.color_hex,
       borderColor: sensor.color_hex,
       borderRadius: (3 if type == 'bar'),
+      borderSkipped: (bar_border_skip if type == 'bar'),
     }.compact
+  end
+
+  # Override in subclasses (e.g. MinmaxBase) to customize border rounding
+  def bar_border_skip
+    'start'
   end
 
   def tooltip_options
