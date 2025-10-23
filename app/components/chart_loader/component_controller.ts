@@ -488,7 +488,12 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private formattedInterval(min: number, max: number) {
-    return `${this.formattedNumber(min)} - ${this.formattedNumber(max)}`;
+    const formattedMin = this.formattedNumber(min);
+    const formattedMax = this.formattedNumber(max);
+
+    return formattedMin === formattedMax
+      ? formattedMin
+      : `${formattedMin} - ${formattedMax}`;
   }
 
   // Get maximum value of all datasets, summing only positive values per stack
