@@ -1,5 +1,5 @@
 class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
-  value unit: :percent, category: :car, nameable: true
+  value unit: :percent, category: :battery, nameable: true
 
   color do |percent|
     # Battery color scheme: 0-4% red, 5-20% orange/yellow, 21-100% green

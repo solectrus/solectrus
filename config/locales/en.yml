@@ -2,6 +2,19 @@ en:
   general:
     'yes': Yes
     'no': No
+  categories:
+    inverter: Generation
+    grid: Grid
+    battery: Battery
+    generation_grid_battery: Generation, Grid & Battery
+    consumer: Consumers
+    heatpump: Heat Pump
+    car: Car
+    economic: Finance
+    forecast: Forecast
+    power_splitter: Splits
+    status: Status
+    other: Other
   layout:
     balance: Power balance
     inverter: Generation
@@ -67,7 +80,7 @@ en:
     grid_revenue_short: Revenue
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
-    battery_power: Home Battery
+    battery_power: Battery charge and discharge
     battery_soc: SOC Home Battery
     battery_soc_short: SOC
     car_battery_soc: SOC EV
@@ -104,6 +117,11 @@ en:
     left: Source
     right: Usage
     soc: Charge
+  balance_groups:
+    source: Source
+    usage: Usage
+    finance: Finance
+    other: Other
   data:
     now: Now
     day: Day

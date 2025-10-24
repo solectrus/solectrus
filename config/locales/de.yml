@@ -2,6 +2,19 @@ de:
   general:
     'yes': Ja
     'no': Nein
+  categories:
+    inverter: Erzeugung
+    grid: Netz
+    battery: Akku
+    generation_grid_battery: Erzeugung, Netz & Akku
+    consumer: Verbraucher
+    heatpump: Wärmepumpe
+    car: E-Auto
+    economic: Finanzen
+    forecast: Prognose
+    power_splitter: Aufteilungen
+    status: Status
+    other: Andere
   layout:
     balance: Strombilanz
     inverter: Erzeugung
@@ -65,9 +78,9 @@ de:
     grid_power: Netzbezug und -einspeisung
     grid_revenue: Einspeisevergütung
     grid_revenue_short: Vergütung
-    battery_discharging_power: Akku-Entnahme
-    battery_charging_power: Akku-Beladung
-    battery_power: Hausakku
+    battery_discharging_power: Akkuentnahme
+    battery_charging_power: Akkubeladung
+    battery_power: Akkubeladung und -entnahme
     battery_soc: Ladestand Hausakku
     battery_soc_short: Ladestand
     car_battery_soc: Ladestand E-Auto
@@ -104,6 +117,11 @@ de:
     left: Herkunft
     right: Verwendung
     soc: Ladestand
+  balance_groups:
+    source: Herkunft
+    usage: Verwendung
+    finance: Finanzen
+    other: Sonstiges
   data:
     now: Aktuell
     day: Tag

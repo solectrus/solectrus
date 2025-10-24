@@ -24,5 +24,7 @@ class Sensor::Definitions::BatteryDischargingPower < Sensor::Definitions::Base
 
   aggregations stored: %i[sum max], top10: true
 
+  chart { |timeframe| Sensor::Chart::BatteryDischargingPower.new(timeframe:) }
+
   trend more_is_better: true
 end

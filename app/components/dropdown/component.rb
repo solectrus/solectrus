@@ -5,12 +5,13 @@ class Dropdown::Component < ViewComponent::Base
 
   renders_one :button
 
-  def initialize(
+  def initialize( # rubocop:disable Metrics/ParameterLists
     name:,
     items:,
     top_item: nil,
     bottom_item: nil,
     selected: nil,
+    display_name: nil,
     button_class: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800'
   )
     super()
@@ -19,10 +20,17 @@ class Dropdown::Component < ViewComponent::Base
     @top_item = top_item
     @bottom_item = bottom_item
     @selected = selected
+    @display_name = display_name
     @button_class = button_class
   end
 
-  attr_reader :name, :items, :top_item, :bottom_item, :selected, :button_class
+  attr_reader :name,
+              :items,
+              :top_item,
+              :bottom_item,
+              :selected,
+              :display_name,
+              :button_class
 
   def grouped?
     items.is_a?(Array) && items.first.is_a?(Hash) && items.first.key?(:name)
@@ -44,6 +52,10 @@ class Dropdown::Component < ViewComponent::Base
       flat_items.find do |item|
         item.respond_to?(:sensor_name) && item.sensor_name == selected
       end
+  end
+
+  def button_text
+    display_name || selected_item&.name
   end
 
   def icons?
@@ -86,13 +98,11 @@ class Dropdown::Component < ViewComponent::Base
         column_count = total_columns
         case column_count
         when 1..2
-          'grid-cols-1 sm:grid-cols-2'
-        when 3
-          'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-        when 4
-          'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+          'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)]'
+        when 3..4
+          'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)] lg:grid-cols-[repeat(4,max-content)]'
         else
-          'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5'
+          'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)] lg:grid-cols-[repeat(3,max-content)] xl:grid-cols-[repeat(6,max-content)]'
         end
       else
         'grid-cols-1'

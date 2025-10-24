@@ -45,11 +45,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
         timeframe: parent.timeframe,
       )
     else
-      root_path(
-        sensor_name:
-          sensor.name.to_s.sub(/_import|_export|_charging|_discharging/, ''),
-        timeframe: parent.timeframe,
-      )
+      root_path(sensor_name: sensor.name, timeframe: parent.timeframe)
     end
   end
 

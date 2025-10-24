@@ -9,5 +9,7 @@ class Sensor::Definitions::GridExportPower < Sensor::Definitions::Base
 
   aggregations stored: %i[sum max], top10: true
 
+  chart { |timeframe| Sensor::Chart::GridExportPower.new(timeframe:) }
+
   trend more_is_better: true
 end

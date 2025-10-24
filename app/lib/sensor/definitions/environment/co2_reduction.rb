@@ -1,5 +1,5 @@
 class Sensor::Definitions::Co2Reduction < Sensor::Definitions::Base
-  value unit: :gram, category: :environmental
+  value unit: :gram
 
   color hex: '#0284c7',
         bg_classes: 'bg-sky-600 dark:bg-sky-800',

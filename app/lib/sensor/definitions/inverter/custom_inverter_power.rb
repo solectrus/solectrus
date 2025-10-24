@@ -60,15 +60,4 @@ class Sensor::Definitions::CustomInverterPower < Sensor::Definitions::Base
   end
 
   trend more_is_better: true
-
-  def display_name(format = :long)
-    base_name = super
-
-    if format == :long
-      prefix = I18n.t('sensors.inverter_power')
-      base_name.start_with?(prefix) ? base_name : "#{prefix} #{base_name}"
-    else
-      base_name
-    end
-  end
 end

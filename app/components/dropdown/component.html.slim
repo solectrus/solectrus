@@ -10,10 +10,12 @@
         - items.each do |group|
           optgroup label= group[:name]
             - flat_items_for_group(group).each do |item|
-              = render_option(item)
+              - unless item.href.nil?
+                = render_option(item)
       - else
         - items.each do |item|
-          = render_option(item)
+          - unless item.href.nil?
+            = render_option(item)
 
     select.absolute.invisible.font-medium[
       data-select-target= 'temp'
@@ -33,7 +35,7 @@
         aria-haspopup= 'true'
         aria-expanded= 'false'
       ]
-        = selected_item&.name
+        = button_text
 
         svg.h-5.text-gray-400:dark:bg-gray-800[
           viewbox= '0 0 20 20'
@@ -74,19 +76,19 @@
                     - else
                       .px-3.pt-3.pb-2.text-xs.font-medium.mb-2.opacity-0 &nbsp;
                     - subgroup[:items].each do |item|
-                      - unless item == top_item || item == bottom_item
+                      - unless item == top_item || item == bottom_item || item.href.nil?
                         = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800', item.current ? 'font-bold' : nil])
               - else
                 .min-w-0
                   div class= group_header_class(group)
                     = group[:name]
                   - group[:items].each do |item|
-                    - unless item == top_item || item == bottom_item
+                    - unless item == top_item || item == bottom_item || item.href.nil?
                       = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800', item.current ? 'font-bold' : nil])
         - else
           div class= menu_class
             - items.each do |item|
-              - unless item == top_item || item == bottom_item
+              - unless item == top_item || item == bottom_item || item.href.nil?
                 = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800', item.current ? 'font-bold' : nil])
 
         - if bottom_item

@@ -1,5 +1,5 @@
 class Sensor::Definitions::HousePowerWithoutCustom < Sensor::Definitions::Base
-  value unit: :watt
+  value unit: :watt, category: :consumer
 
   color hex: '#64748b',
         bg_classes: 'bg-slate-500 dark:bg-slate-700',

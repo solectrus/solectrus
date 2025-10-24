@@ -9,5 +9,7 @@ class Sensor::Definitions::GridImportPower < Sensor::Definitions::Base
 
   aggregations stored: %i[sum max], top10: true
 
+  chart { |timeframe| Sensor::Chart::GridImportPower.new(timeframe:) }
+
   trend
 end
