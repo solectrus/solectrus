@@ -344,5 +344,24 @@ describe UpdateCheck do
 
       expect(Rails.logger).not_to have_received(:error)
     end
+
+    it 'clears sensor cache when sponsoring status changes' do
+      # No sponsoring initially
+      allow(described_class).to receive(:sponsoring?).and_return(false)
+
+      # Heatpump sensors should NOT be available without sponsoring
+      expect(Sensor::Config.chart_sensors.map(&:name)).not_to include(
+        :heatpump_heating_power,
+      )
+
+      # Now with sponsoring
+      allow(described_class).to receive(:sponsoring?).and_return(true)
+      described_class.clear_cache!
+
+      # Heatpump sensors should NOW be available
+      expect(Sensor::Config.chart_sensors.map(&:name)).to include(
+        :heatpump_heating_power,
+      )
+    end
   end
 end

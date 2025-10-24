@@ -83,6 +83,8 @@ class UpdateCheck
 
   def clear_cache!
     @cache_manager.delete
+    # Also clear sensor cache since permissions may have changed
+    Sensor::Config.clear_cache!
   end
 
   def skip_prompt!

@@ -37,7 +37,8 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
                    :custom_power_sensors,
                    :chart_sensors,
                    :top10_sensors,
-                   :multi_inverter?
+                   :multi_inverter?,
+                   :clear_cache!
   end
 
   def self.display_name(sensor_name, format = :short)
@@ -192,6 +193,20 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
   def chart_sensors
     sensors.select(&:chart_enabled?)
+  end
+
+  def clear_cache!
+    %i[
+      @sensors
+      @nameable_sensors
+      @inverter_sensors
+      @custom_inverter_sensors
+      @custom_power_sensors
+      @house_power_excluded_custom_sensors
+      @house_power_included_custom_sensors
+    ].each do |var|
+      remove_instance_variable(var) if instance_variable_defined?(var)
+    end
   end
 
   private
