@@ -1,5 +1,5 @@
 class Sensor::Definitions::HeatpumpPowerEnv < Sensor::Definitions::Base
-  value unit: :watt, category: :heatpump
+  value unit: :watt, category: :environmental
 
   color hex: '#0284c7',
         bg_classes: 'bg-sky-700/60 dark:bg-sky-800/80',

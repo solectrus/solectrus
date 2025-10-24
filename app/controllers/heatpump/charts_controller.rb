@@ -16,9 +16,7 @@ class Heatpump::ChartsController < ApplicationController
 
   helper_method def chart_sensors
     Sensor::Config.chart_sensors.filter_map do |sensor|
-      if sensor.category.in?(%i[heatpump environmental])
-        sensor.name
-      end
+      sensor.name if sensor.category == :heatpump
     end
   end
 end
