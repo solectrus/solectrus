@@ -89,8 +89,10 @@ class Dropdown::Component < ViewComponent::Base
           'grid-cols-1 sm:grid-cols-2'
         when 3
           'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-        else
+        when 4
           'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+        else
+          'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5'
         end
       else
         'grid-cols-1'
