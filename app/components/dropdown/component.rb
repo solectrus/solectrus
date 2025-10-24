@@ -11,7 +11,7 @@ class Dropdown::Component < ViewComponent::Base
     top_item: nil,
     bottom_item: nil,
     selected: nil,
-    button_class: 'bg-gray-200 hover:bg-white dark:text-gray-800.dark:bg-gray-400.dark:hover:bg-gray-300 dark:text-gray-800 dark:bg-gray-400 dark:hover:bg-gray-300'
+    button_class: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800'
   )
     super()
     @name = name
