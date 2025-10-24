@@ -72,7 +72,7 @@
                           div class= spanning_border_class
                         = group[:name]
                     - else
-                      .px-3.py-1.text-xs.font-medium.mb-2.opacity-0 &nbsp;
+                      .px-3.pt-3.pb-2.text-xs.font-medium.mb-2.opacity-0 &nbsp;
                     - subgroup[:items].each do |item|
                       - unless item == top_item || item == bottom_item
                         = item.call(with_icon: icons?, css_extra: ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800', item.current ? 'font-bold' : nil])
