@@ -18,11 +18,31 @@ class Sensor::Definitions::CustomInverterPower < Sensor::Definitions::Base
   color do |index|
     # Based on '#16a34a' (green-600)
     color_sets = [
-      { hex: '#166534', bg: 'bg-[#166534]', text: 'text-slate-100 dark:text-slate-300' },
-      { hex: '#16753A', bg: 'bg-[#16753A]', text: 'text-slate-100 dark:text-slate-300' },
-      { hex: '#16843F', bg: 'bg-[#16843F]', text: 'text-slate-100 dark:text-slate-300' },
-      { hex: '#169445', bg: 'bg-[#169445]', text: 'text-slate-100 dark:text-slate-300' },
-      { hex: '#16A34A', bg: 'bg-[#16A34A]', text: 'text-slate-100 dark:text-slate-300' },
+      {
+        hex: '#166534',
+        bg: 'bg-[#166534]',
+        text: 'text-slate-100 dark:text-slate-300',
+      },
+      {
+        hex: '#16753A',
+        bg: 'bg-[#16753A]',
+        text: 'text-slate-100 dark:text-slate-300',
+      },
+      {
+        hex: '#16843F',
+        bg: 'bg-[#16843F]',
+        text: 'text-slate-100 dark:text-slate-300',
+      },
+      {
+        hex: '#169445',
+        bg: 'bg-[#169445]',
+        text: 'text-slate-100 dark:text-slate-300',
+      },
+      {
+        hex: '#16A34A',
+        bg: 'bg-[#16A34A]',
+        text: 'text-slate-100 dark:text-slate-300',
+      },
     ]
     # Use provided index or @number (inverters are always sorted by number, not dynamically)
     effective_index = index || @number
