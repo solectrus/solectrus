@@ -47,6 +47,8 @@ describe 'Home page' do
 
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#balance-chart-now')
+
+    check_top10_link(path)
   end
 
   def navigate_day(path)
@@ -60,6 +62,7 @@ describe 'Home page' do
     expect(page).to have_css('#chart-day')
     check_inverter_power_specifics(path)
     check_insights(path) unless finance_sensor?(path)
+    check_top10_link(path)
 
     click_prev_and_expect('Montag, 20. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
@@ -83,6 +86,7 @@ describe 'Home page' do
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
 
     expect(page).to have_css('#chart-hours')
+    check_top10_link(path)
 
     return unless path == 'inverter_power'
 
@@ -103,6 +107,7 @@ describe 'Home page' do
     end
 
     check_insights(path)
+    check_top10_link(path)
 
     click_prev_and_expect('KW 24, 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
@@ -130,6 +135,7 @@ describe 'Home page' do
     end
 
     check_insights(path)
+    check_top10_link(path)
 
     click_prev_and_expect('Mai 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
@@ -157,6 +163,7 @@ describe 'Home page' do
     end
 
     check_insights(path)
+    check_top10_link(path)
 
     click_prev_and_expect('2021')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
@@ -180,6 +187,7 @@ describe 'Home page' do
     expect(page).to have_css('#chart-all')
 
     check_insights(path)
+    check_top10_link(path)
 
     return unless path == 'inverter_power'
 
@@ -242,6 +250,29 @@ describe 'Home page' do
       expect(page).to have_content('Erwartet werden')
       expect(page).to have_content(/\d+/)
       expect(page).to have_content('kWh')
+    end
+  end
+
+  def check_top10_link(path)
+    # Only check for sensors that are in top10
+    unless path.in?(
+             %w[
+               inverter_power
+               house_power
+               grid_import_power
+               grid_export_power
+               battery_discharging_power
+               battery_charging_power
+               wallbox_power
+               heatpump_power
+             ],
+           )
+      return
+    end
+
+    within '#primary-nav-desktop' do
+      top10_link = find('a[href*="/top10/"]')
+      expect(top10_link[:href]).to include(path)
     end
   end
 end
