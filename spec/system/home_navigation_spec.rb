@@ -265,6 +265,7 @@ describe 'Home page' do
                battery_charging_power
                wallbox_power
                heatpump_power
+               co2_reduction
              ],
            )
       return

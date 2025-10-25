@@ -219,7 +219,11 @@ module Sensor
       def find_sql_dependencies
         return [sensor.name] if sensor.sql_calculated? && !sensor.calculated?
 
-        transitive_sql_dependencies
+        deps = transitive_sql_dependencies
+        # If sensor has sql_calculation but no SQL dependencies, use it directly
+        return [sensor.name] if sensor.sql_calculated? && deps.empty?
+
+        deps
       end
 
       # Get all transitive SQL-calculated dependencies (memoized)
@@ -253,12 +257,16 @@ module Sensor
         required_fields = Set.new
 
         # Collect prices from sensor itself
-        required_prices.merge(sensor.required_prices) if custom_sql
+        if custom_sql && sensor.respond_to?(:required_prices)
+          required_prices.merge(sensor.required_prices)
+        end
 
         # Collect prices and fields from SQL dependencies
         sql_deps.each do |dep_name|
           dep_sensor = Sensor::Registry[dep_name]
-          required_prices.merge(dep_sensor.required_prices)
+          if dep_sensor.respond_to?(:required_prices)
+            required_prices.merge(dep_sensor.required_prices)
+          end
 
           fields = storable_fields_for(dep_sensor)
           required_fields.merge(fields)

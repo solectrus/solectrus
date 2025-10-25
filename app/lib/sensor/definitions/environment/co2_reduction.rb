@@ -18,7 +18,12 @@ class Sensor::Definitions::Co2Reduction < Sensor::Definitions::Base
     (inverter_power_kwh * co2_factor).round
   end
 
-  aggregations stored: false, computed: [:sum], meta: %i[sum avg min max]
+  aggregations stored: false, computed: [:sum], meta: %i[sum avg min max], top10: true
 
   chart { |timeframe| Sensor::Chart::Co2Reduction.new(timeframe:) }
+
+  def sql_calculation
+    co2_factor = Rails.application.config.x.co2_emission_factor
+    "COALESCE(inverter_power_sum, 0) * #{co2_factor} / 1000.0"
+  end
 end
