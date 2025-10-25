@@ -313,12 +313,20 @@ module Sensor
       def build_period_ranking_sql(price_cte, daily_cte, calculation)
         period_sql = PERIOD_SQL.fetch(period)
 
+        # For sensors with custom period aggregation (like ratios), use that instead
+        aggregation_expr =
+          if sensor.respond_to?(:sql_calculation_period)
+            sensor.sql_calculation_period
+          else
+            "#{aggregation.to_s.upcase}(#{calculation})"
+          end
+
         <<~SQL.squish
           #{price_cte}
           #{daily_cte}
           SELECT
             #{period_sql} AS period_date,
-            #{aggregation.to_s.upcase}(#{calculation}) AS value
+            #{aggregation_expr} AS value
           FROM daily
           GROUP BY #{period_sql}
           ORDER BY value #{order_direction}

@@ -27,6 +27,8 @@ describe 'Heatpump navigation' do
     expect(page).to have_content('12:00 Uhr')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-now')
+
+    check_top10_link(path)
   end
 
   def navigate_day(path)
@@ -46,6 +48,8 @@ describe 'Heatpump navigation' do
     click_next_and_expect('Dienstag, 21. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-day')
+
+    check_top10_link(path)
   end
 
   def navigate_week(path)
@@ -65,6 +69,8 @@ describe 'Heatpump navigation' do
     click_next_and_expect('KW 25, 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-week')
+
+    check_top10_link(path)
   end
 
   def navigate_month(path)
@@ -85,6 +91,8 @@ describe 'Heatpump navigation' do
     click_next_and_expect('Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-month')
+
+    check_top10_link(path)
   end
 
   def navigate_year(path)
@@ -105,6 +113,8 @@ describe 'Heatpump navigation' do
     click_next_and_expect('2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-year')
+
+    check_top10_link(path)
   end
 
   def navigate_all(path)
@@ -116,6 +126,8 @@ describe 'Heatpump navigation' do
     expect(page).to have_content('Seit Inbetriebnahme')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-all')
+
+    check_top10_link(path)
   end
 
   def click_prev_and_expect(expected_time)
@@ -128,5 +140,12 @@ describe 'Heatpump navigation' do
     turbo_safe_click('Weiter')
 
     within('header time') { expect(page).to have_content(expected_time) }
+  end
+
+  def check_top10_link(path)
+    within '#primary-nav-desktop' do
+      top10_link = find('a[href*="/top10/"]')
+      expect(top10_link[:href]).to include(path)
+    end
   end
 end

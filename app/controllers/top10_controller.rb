@@ -3,8 +3,9 @@ class Top10Controller < ApplicationController
   include SummaryChecker
 
   def index
-    redirect_to(default_path) unless period && sensor_name && calc && sort
-    redirect_to(default_path(calc: 'sum')) if calc == 'max' && !supports_max?
+    return redirect_to(default_path) unless period && sensor_name && calc && sort
+    return redirect_to(default_path(calc: 'sum')) if calc == 'max' && !supports_max?
+    return redirect_to(default_path(calc: default_calc)) unless supports_calc?
 
     load_missing_or_stale_summary_days(Timeframe.all)
   end
@@ -34,6 +35,20 @@ class Top10Controller < ApplicationController
     return false unless sensor
 
     sensor.allowed_aggregations.include?(:max)
+  end
+
+  def supports_calc?
+    return false unless sensor
+    return true unless calc
+
+    sensor.allowed_aggregations.include?(calc.to_sym)
+  end
+
+  def default_calc
+    return 'sum' unless sensor
+
+    # Use first allowed aggregation as default
+    sensor.allowed_aggregations.first.to_s
   end
 
   helper_method def nav_items

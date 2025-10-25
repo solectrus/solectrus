@@ -126,7 +126,7 @@ Rails.application.routes.draw do
   resources :essentials, only: :index
 
   constraints period: /day|week|month|year/,
-              calc: /sum|max/,
+              calc: /sum|max|avg/,
               sort: /asc|desc/ do
     constraints SensorConstraint.new(:top10_enabled?) do
       get '/top10/(:period)/(:sensor_name)/(:calc)/(:sort)',

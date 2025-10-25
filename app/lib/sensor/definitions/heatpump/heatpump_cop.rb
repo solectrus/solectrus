@@ -14,11 +14,23 @@ class Sensor::Definitions::HeatpumpCop < Sensor::Definitions::Base
     heatpump_heating_power.fdiv(heatpump_power).round(2)
   end
 
-  aggregations stored: false, computed: [:avg], meta: [:avg]
+  aggregations stored: false, computed: [:avg], meta: [:avg], top10: true
 
   trend aggregation: :avg, more_is_better: true
 
   chart { |timeframe| Sensor::Chart::HeatpumpCop.new(timeframe:) }
+
+  def sql_calculation
+    # COP = heating power / electrical power
+    # Use NULLIF to avoid division by zero
+    'COALESCE(heatpump_heating_power_sum, 0) / NULLIF(COALESCE(heatpump_power_sum, 0), 0)'
+  end
+
+  # For period aggregations (week/month/year), we need to sum the components first,
+  # then calculate the ratio, instead of averaging daily COPs
+  def sql_calculation_period
+    'SUM(COALESCE(heatpump_heating_power_sum, 0)) / NULLIF(SUM(COALESCE(heatpump_power_sum, 0)), 0)'
+  end
 
   requires_permission :heatpump
 end

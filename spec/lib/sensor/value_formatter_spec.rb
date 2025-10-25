@@ -269,7 +269,7 @@ describe Sensor::ValueFormatter do
         let(:unit) { :unitless }
         let(:value) { 3.2 }
 
-        it { expect(result[:value]).to eq('3,20') }
+        it { expect(result[:value]).to eq('3,2') }
         it { expect(result[:unit]).to be_nil }
       end
     end

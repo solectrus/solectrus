@@ -56,6 +56,7 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
     euro: 2,
     euro_per_kwh: 4,
     percent: 0,
+    unitless: 1,
   }.freeze
   private_constant :DEFAULT_PRECISION
 
