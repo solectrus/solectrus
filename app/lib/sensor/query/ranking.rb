@@ -53,7 +53,8 @@ module Sensor
         base_scope =
           SummaryValue.where(date: start..stop, field: fields, aggregation:)
 
-        unless desc
+        # Filter out near-zero values for ascending rankings (only for watt/gram units)
+        if !desc && %i[watt gram].include?(sensor.unit)
           base_scope = base_scope.where(SummaryValue.arel_table[:value].gt(10))
         end
 

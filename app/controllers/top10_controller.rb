@@ -4,7 +4,6 @@ class Top10Controller < ApplicationController
 
   def index
     return redirect_to(default_path) unless period && sensor_name && calc && sort
-    return redirect_to(default_path(calc: 'sum')) if calc == 'max' && !supports_max?
     return redirect_to(default_path(calc: default_calc)) unless supports_calc?
 
     load_missing_or_stale_summary_days(Timeframe.all)
@@ -31,10 +30,11 @@ class Top10Controller < ApplicationController
     )
   end
 
-  helper_method def supports_max?
+  helper_method def supports_calc_select?
     return false unless sensor
 
-    sensor.allowed_aggregations.include?(:max)
+    # Show calc selector if sensor has multiple aggregation options
+    sensor.allowed_aggregations.size > 1
   end
 
   def supports_calc?
