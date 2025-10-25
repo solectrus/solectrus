@@ -89,27 +89,25 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
   end
 
   def timeframe_path(record)
-    if sensor_name.to_s.match?(/custom_power_\d{2}/)
+    sensor = Sensor::Registry[sensor_name]
+
+    if sensor.is_a?(Sensor::Definitions::CustomPower)
       house_home_path(
         sensor_name:,
         timeframe: corresponding_date(record[:date]),
       )
-    elsif sensor_name.to_s.match?(/inverter_power_\d{1}/)
+    elsif sensor.category == :inverter
       inverter_home_path(
         sensor_name:,
         timeframe: corresponding_date(record[:date]),
       )
-    elsif sensor_name == :heatpump_heating_power
+    elsif sensor.category == :heatpump
       heatpump_home_path(
         sensor_name:,
         timeframe: corresponding_date(record[:date]),
       )
     else
-      root_path(
-        sensor_name:
-          sensor_name.to_s.sub(/_import|_export|_charging|_discharging/, ''),
-        timeframe: corresponding_date(record[:date]),
-      )
+      root_path(sensor_name:, timeframe: corresponding_date(record[:date]))
     end
   end
 
