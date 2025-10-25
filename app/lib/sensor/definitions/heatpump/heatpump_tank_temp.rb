@@ -5,7 +5,7 @@ class Sensor::Definitions::HeatpumpTankTemp < Sensor::Definitions::Base
         bg_classes: 'bg-red-400 dark:bg-red-600',
         text_classes: 'text-red-100 dark:text-red-300'
 
-  aggregations stored: %i[min max avg]
+  aggregations stored: %i[avg min max], top10: true
 
   chart { |timeframe| Sensor::Chart::HeatpumpTankTemp.new(timeframe:) }
 
