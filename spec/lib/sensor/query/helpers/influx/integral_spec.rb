@@ -1,4 +1,4 @@
-describe Sensor::Query::Influx::Integral do
+describe Sensor::Query::Helpers::Influx::Integral do
   subject(:integral) { described_class.new(sensor_names, timeframe) }
 
   describe 'timeframe validation' do

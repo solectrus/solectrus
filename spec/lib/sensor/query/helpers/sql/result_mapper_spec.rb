@@ -1,11 +1,12 @@
-describe Sensor::Query::Helpers::SqlResultMapper do
+describe Sensor::Query::Helpers::Sql::ResultMapper do
   let(:timeframe) { Timeframe.new('2025-01-15') }
 
   describe '#initialize' do
     it 'initializes with required parameters' do
       sensor_requests = [%i[inverter_power_1 sum sum]]
 
-      mapper = described_class.new(sensor_requests, group_by: :month, timeframe:)
+      mapper =
+        described_class.new(sensor_requests, group_by: :month, timeframe:)
 
       expect(mapper.sensor_requests).to eq(sensor_requests)
       expect(mapper.group_by).to eq(:month)

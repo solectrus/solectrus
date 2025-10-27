@@ -17,7 +17,7 @@ class House::StatsController < ApplicationController
   private
 
   def refresh_summaries_if_needed
-    return if timeframe.now?
+    return if timeframe.now? || timeframe.hours?
 
     # In most cases, stale summaries are not possible when we get here, because this was
     # already checked in HomeController#index. But there is one exception: when the
@@ -28,7 +28,7 @@ class House::StatsController < ApplicationController
 
   def data_now
     data =
-      Sensor::Query::Influx::Latest.new(
+      Sensor::Query::Latest.new(
         %i[
           house_power
           house_power_without_custom
@@ -44,8 +44,8 @@ class House::StatsController < ApplicationController
 
   def data_range
     data =
-      Sensor::Query::Sql
-        .new do |q|
+      Sensor::Query::Total
+        .new(timeframe) do |q|
           q.sum :house_power, :sum
           q.sum :house_power_grid, :sum
           q.sum :house_power_without_custom, :sum
@@ -61,10 +61,9 @@ class House::StatsController < ApplicationController
             q.sum :"#{sensor.name.to_s.gsub('_power', '')}_costs", :sum
           end
           q.sum :house_without_custom_costs, :sum
-
-          q.timeframe timeframe
         end
         .call
+
     HouseBalance.new(data)
   end
 end

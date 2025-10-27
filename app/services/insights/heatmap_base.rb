@@ -69,13 +69,11 @@ class Insights::HeatmapBase
 
   def fetch_grid_power_data
     query_result =
-      Sensor::Query::Sql
-        .new do |q|
+      Sensor::Query::Total
+        .new(timeframe) do |q|
           q.sum :grid_revenue
           q.sum :grid_costs
           q.sum :grid_balance
-
-          q.timeframe timeframe
           q.group_by(timeframe.year? ? :day : :month)
         end
         .call
@@ -112,15 +110,13 @@ class Insights::HeatmapBase
   end
 
   def fetch_calculated_data
-    # For calculated sensors (like finance sensors), use Sensor::Query::Sql
+    # For calculated sensors (like finance sensors), use Sensor::Query::Total
     aggregation = sensor.allowed_aggregations.first || :sum
 
     query_result =
-      Sensor::Query::Sql
-        .new do |q|
+      Sensor::Query::Total
+        .new(timeframe) do |q|
           q.public_send(aggregation, sensor.name)
-
-          q.timeframe timeframe
           q.group_by(timeframe.year? ? :day : :month)
         end
         .call
@@ -158,11 +154,7 @@ class Insights::HeatmapBase
   end
 
   def fetch_sensor_data
-    if calculated_sensor?
-      fetch_calculated_data
-    else
-      fetch_standard_data
-    end
+    calculated_sensor? ? fetch_calculated_data : fetch_standard_data
   end
 
   def calculated_sensor?

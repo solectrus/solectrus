@@ -1,4 +1,4 @@
-describe Sensor::Query::Influx::Latest do
+describe Sensor::Query::Latest do
   let(:available_sensors) do
     %i[inverter_power_1 inverter_power_2 house_power battery_soc]
   end

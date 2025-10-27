@@ -7,15 +7,10 @@ class TilesController < ApplicationController
   private
 
   def data_now
-    Sensor::Query::Influx::Latest.new([sensor.name]).call
+    Sensor::Query::Latest.new([sensor.name]).call
   end
 
   def data_range
-    Sensor::Query::Sql
-      .new do |q|
-        q.sum sensor.name, :sum
-        q.timeframe timeframe
-      end
-      .call
+    Sensor::Query::Total.new(timeframe) { |q| q.sum sensor.name, :sum }.call
   end
 end

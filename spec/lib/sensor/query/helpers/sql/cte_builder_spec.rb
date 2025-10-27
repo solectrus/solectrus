@@ -1,4 +1,4 @@
-describe Sensor::Query::Helpers::SqlCteBuilder do
+describe Sensor::Query::Helpers::Sql::CteBuilder do
   let(:timeframe) { Timeframe.new('2025-01-15') }
   let(:required_prices) { Set.new }
   let(:required_fields) { Set.new(['inverter_power']) }

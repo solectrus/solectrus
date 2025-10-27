@@ -26,6 +26,13 @@ class Sensor::Definitions::FinanceBase < Sensor::Definitions::Base
     # :nocov:
   end
 
+  # Ruby calculation for InfluxDB contexts - must be implemented by subclasses
+  def calculate_with_prices(dependencies:, electricity_price:, feed_in_price:)
+    # :nocov:
+    raise NotImplementedError, 'Subclass must implement #calculate_with_prices'
+    # :nocov:
+  end
+
   # Helper method to check if this finance definition needs a specific price type
   def needs_price?(price_type)
     required_prices.include?(price_type.to_sym)

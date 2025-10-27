@@ -32,9 +32,8 @@ describe Sensor::Definitions::Autarky do # rubocop:disable RSpec/SpecFilePathFor
 
     describe 'for avg of single day' do
       let(:query) do
-        Sensor::Query::Sql.new do |q|
+        Sensor::Query::Total.new(Timeframe.new('2024-06-15')) do |q|
           q.avg :autarky
-          q.timeframe Timeframe.new('2024-06-15')
         end
       end
 
@@ -60,9 +59,8 @@ describe Sensor::Definitions::Autarky do # rubocop:disable RSpec/SpecFilePathFor
 
     describe 'for avg of avg of a month' do
       let(:query) do
-        Sensor::Query::Sql.new do |q|
+        Sensor::Query::Total.new(Timeframe.new('2024-06')) do |q|
           q.avg :autarky, :avg
-          q.timeframe Timeframe.new('2024-06')
         end
       end
 
@@ -99,9 +97,8 @@ describe Sensor::Definitions::Autarky do # rubocop:disable RSpec/SpecFilePathFor
         context "when #{agg} of single day" do
           it 'raises ArgumentError during query initialization' do
             expect do
-              Sensor::Query::Sql.new do |q|
+              Sensor::Query::Total.new(Timeframe.new('2024-06-15')) do |q|
                 q.public_send(agg, :autarky)
-                q.timeframe Timeframe.new('2024-06-15')
               end
             end.to raise_error(
               ArgumentError,

@@ -9,7 +9,7 @@ module SummaryChecker
 
   def missing_or_stale_summary_days(timeframe)
     # For "now" we don't need summaries at all
-    return [] if timeframe.now?
+    return [] if timeframe.now? || timeframe.hours?
 
     Summary.missing_or_stale_days(
       from: timeframe.effective_beginning_date,

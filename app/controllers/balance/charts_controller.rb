@@ -63,11 +63,10 @@ class Balance::ChartsController < ApplicationController
     @forecast_data ||=
       begin
         data =
-          Sensor::Query::Sql
-            .new do |q|
+          Sensor::Query::Total
+            .new(timeframe) do |q|
               q.sum :inverter_power, :sum
               q.sum :inverter_power_forecast, :sum
-              q.timeframe timeframe
             end
             .call
         PowerBalance.new(data)

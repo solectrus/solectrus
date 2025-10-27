@@ -41,9 +41,8 @@ data = Sensor::Query::Influx::Latest.new([:inverter_power]).call
 data.inverter_power   # => 2500.0
 
 # 3. Query historical data (SQL with DSL)
-data = Sensor::Query::Sql.new do |q|
+data = Sensor::Query::Total.new(Timeframe.day) do |q|
   q.sum :inverter_power
-  q.timeframe Timeframe.today
 end.call
 data.inverter_power   # => 15000.0 (daily energy in Wh)
 
@@ -56,22 +55,22 @@ data.inverter_power   # => 15000.0 (daily energy in Wh)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    View Layer                                │
-│  SensorValue::Component  •  Chart Components                 │
+│                    View Layer                               │
+│  SensorValue::Component  •  Chart Components                │
 └────────────────┬────────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────────────────────────┐
-│              Query Layer                                     │
-│  Sensor::Query::Sql  •  Sensor::Query::Influx::*            │
+│              Query Layer                                    │
+│  Sensor::Query::Total  •  Sensor::Query::Influx::*          │
 └────────────────┬────────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────────────────────────┐
-│            Definition Layer                                  │
-│  Sensor::Registry  •  Sensor::Definitions::*                 │
+│            Definition Layer                                 │
+│  Sensor::Registry  •  Sensor::Definitions::*                │
 └────────────────┬────────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────────────────────────┐
-│              Data Layer                                      │
+│              Data Layer                                     │
 │  Sensor::Data::Single  •  Sensor::Data::Series              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -99,16 +98,26 @@ app/lib/sensor/
 │
 ├── query/                    # Data query system
 │   ├── base.rb              # Common query logic
-│   ├── sql.rb               # PostgreSQL (historical data)
-│   ├── influx/              # InfluxDB queries
-│   │   ├── base.rb          # Flux query base
-│   │   ├── latest.rb        # Current values
-│   │   ├── integral.rb      # Energy sums
-│   │   ├── aggregation.rb   # Min/Max/Avg
-│   │   └── series.rb        # Time series for charts
-│   ├── helpers/             # Query builders
-│   ├── power_peak.rb        # Peak power
-│   └── ranking.rb           # Top10 rankings
+│   ├── total.rb             # Dispatcher (auto-selects Influx/SQL)
+│   ├── latest.rb            # Current values (InfluxDB)
+│   ├── series.rb            # Time series (InfluxDB)
+│   ├── ranking.rb           # Top10 rankings (SQL)
+│   ├── power_peak.rb        # Power peak detection
+│   ├── day_light.rb         # Sunrise/Sunset calculations
+│   └── helpers/             # Query builders
+│       ├── influx/
+│       │   ├── base.rb          # Flux query base
+│       │   ├── total.rb         # Hourly aggregations (P1H-P99H)
+│       │   ├── integral.rb      # Energy sums
+│       │   ├── aggregation.rb   # Min/Max/Avg
+│       │   └── dsl_builder.rb   # DSL parser for Influx
+│       └── sql/
+│           ├── total.rb         # Daily+ aggregations
+│           ├── query_builder.rb # Coordinates CTE/SELECT
+│           ├── cte_builder.rb   # Common Table Expressions
+│           ├── select_builder.rb# SELECT generation
+│           ├── result_mapper.rb # Result parsing
+│           └── dsl_builder.rb   # DSL parser for SQL
 │
 ├── chart/                    # Chart integration
 │   ├── base.rb              # Base for all charts
@@ -247,53 +256,46 @@ Sensor::Registry.top10_sensors
 
 The query system provides unified access to different data sources:
 
-#### 3.1 InfluxDB Queries (Live Data)
+#### 3.1 Current Values (InfluxDB)
 
 ```ruby
-# Current values (Latest)
-data = Sensor::Query::Influx::Latest.new([:inverter_power, :house_power]).call
+# Latest sensor values
+data = Sensor::Query::Latest.new([:inverter_power, :house_power]).call
 data.inverter_power  # => 2500.0 (current value)
 
-# Time series for charts (Series)
-data = Sensor::Query::Influx::Series.new([:inverter_power], timeframe).call
+# Time series for charts
+data = Sensor::Query::Series.new([:inverter_power], timeframe).call
 data.inverter_power  # => [[timestamp1, value1], [timestamp2, value2], ...]
-
-# Aggregations (Min/Max/Avg)
-data = Sensor::Query::Influx::Aggregation.new([:case_temp], timeframe).call
-data.case_temp  # => { min: 15.2, max: 45.8, avg: 32.1 }
-
-# Energy integrals (Wh)
-data = Sensor::Query::Influx::Integral.new([:inverter_power], timeframe).call
-data.inverter_power  # => 15000.0 (Wh)
 ```
 
-#### 3.2 SQL Queries (Historical Data)
+#### 3.2 Historical Aggregations (Dispatcher)
 
-SQL queries use a DSL for flexible queries:
+`Sensor::Query::Total` automatically selects the best backend based on timeframe:
 
 ```ruby
-# Simple aggregation
-data = Sensor::Query::Sql.new do |q|
+# Hourly timeframes (P1H - P99H) → uses Sensor::Query::Helpers::Influx::Total
+data = Sensor::Query::Total.new(Timeframe.new('P24H')) do |q|
   q.sum :inverter_power
-  q.timeframe Timeframe.today
 end.call
-data.inverter_power  # => 15000.0
+data.inverter_power  # => 15000.0 (Wh)
 
-# Multiple sensors with different aggregations
-data = Sensor::Query::Sql.new do |q|
+# Daily+ timeframes → uses Sensor::Query::Helpers::Sql::Total
+data = Sensor::Query::Total.new(Timeframe.new('2025-01')) do |q|
   q.sum :inverter_power
-  q.avg :case_temp, :min   # Average of minima
-  q.timeframe Timeframe.new('2025-01')
+  q.avg :case_temp, :min   # Average of daily minima
 end.call
 
 # Time series (grouped by day/week/month)
-data = Sensor::Query::Sql.new do |q|
+data = Sensor::Query::Total.new(Timeframe.week) do |q|
   q.sum :inverter_power
-  q.timeframe Timeframe.this_week
   q.group_by :day
 end.call
 data.inverter_power  # => {Date1 => energy1, Date2 => energy2, ...}
 ```
+
+**Backend Selection:**
+- **InfluxDB** (`Helpers::Influx::Total`): Hourly data (P1H-P99H), calculated live via Flux integrals
+- **SQL** (`Helpers::Sql::Total`): Daily+ data (days, weeks, months, years), from SummaryValues table
 
 > 💡 **More details:** Complete SQL query examples with generated SQL can be found in [sensor-sql-queries.md](sensor-sql-queries.md)
 
@@ -304,9 +306,8 @@ Calculated sensors automatically resolve dependencies:
 ```ruby
 # Autarky requires: grid_import_power + total_consumption
 # total_consumption requires: house_power + wallbox_power + heatpump_power
-data = Sensor::Query::Sql.new do |q|
+data = Sensor::Query::Total.new(Timeframe.month) do |q|
   q.avg :autarky
-  q.timeframe Timeframe.this_month
 end.call
 
 # All dependencies were automatically loaded and calculated:
@@ -321,6 +322,7 @@ data.grid_import_power   # => 225.0 (from DB)
 ### 4. Data Containers
 
 All query results are returned in `Sensor::Data` objects. There are two classes:
+
 - `Sensor::Data::Single` for single values
 - `Sensor::Data::Series` for time series
 
@@ -344,7 +346,7 @@ data = Sensor::Data::Single.new(
     [:house_power, :sum] => 10500,
     [:case_temp, :avg, :min] => 18.5,
   },
-  timeframe: Timeframe.today
+  timeframe: Timeframe.day
 )
 data.house_power(:sum)      # => 10500
 data.case_temp(:avg, :min)  # => 18.5
@@ -393,6 +395,7 @@ formatter.to_h
 ```
 
 **Supported units:**
+
 - `:watt` - Automatic W/kW/MW (+ Wh/kWh/MWh with context: :total)
 - `:celsius` - Temperature in °C
 - `:percent` - Percent with %
@@ -437,6 +440,7 @@ render json: chart.call
 ```
 
 **Chart classes** in `app/lib/sensor/chart/`:
+
 - `InverterPower` - Inverter production
 - `Autarky` - Autarky rate
 - `BatteryPower` - Battery power

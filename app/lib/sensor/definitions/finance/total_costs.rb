@@ -44,4 +44,12 @@ class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
       grid_costs_calc
     end
   end
+
+  def calculate_with_prices(grid_costs: nil, opportunity_costs: nil, **)
+    if Setting.opportunity_costs
+      grid_costs + opportunity_costs if grid_costs && opportunity_costs
+    else
+      grid_costs
+    end
+  end
 end

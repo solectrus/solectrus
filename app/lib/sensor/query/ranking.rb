@@ -276,7 +276,7 @@ module Sensor
         # Build sensor requests (only leaf sensors for custom SQL)
         sensor_requests = build_sensor_requests(sql_deps, custom_sql)
 
-        Sensor::Query::Helpers::SqlCteBuilder.new(
+        Sensor::Query::Helpers::Sql::CteBuilder.new(
           sensor_requests:,
           timeframe:
             Timeframe.new(

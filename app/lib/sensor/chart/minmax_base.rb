@@ -7,12 +7,10 @@ class Sensor::Chart::MinmaxBase < Sensor::Chart::Base
   def build_sql_series
     sensor_name = chart_sensor_names.first
 
-    Sensor::Query::Sql
-      .new do |q|
+    Sensor::Query::Total
+      .new(timeframe) do |q|
         q.avg sensor_name, :min
         q.avg sensor_name, :max
-
-        q.timeframe timeframe
         q.group_by sql_grouping_period
       end
       .call

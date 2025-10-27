@@ -1,6 +1,6 @@
 module Sensor
   # SummaryBuilder handles the data collection logic for the Summarizer.
-  # It uses Sensor::Query::Influx::Integral and Sensor::Query::Influx::Aggregation
+  # It uses Sensor::Query::Helpers::Influx::Integral and Sensor::Query::Helpers::Influx::Aggregation
   # to collect raw data and returns a single Sensor::Data::Single object.
   class SummaryBuilder # rubocop:disable Metrics/ClassLength
     def initialize(timeframe)
@@ -119,7 +119,10 @@ module Sensor
     def collect_sum_data(sensors)
       # Use Integral query for sum values
       sum_query_result =
-        Sensor::Query::Influx::Integral.new(sensors.map(&:name), timeframe).call
+        Sensor::Query::Helpers::Influx::Integral.new(
+          sensors.map(&:name),
+          timeframe,
+        ).call
 
       sensors.to_h do |sensor|
         # Only try to access sensors that have accessor methods defined
@@ -136,7 +139,7 @@ module Sensor
     def collect_aggregation_data(sensors, aggregation_type)
       # Use Aggregation query for max/min/avg values
       aggregation_query_result =
-        Sensor::Query::Influx::Aggregation.new(
+        Sensor::Query::Helpers::Influx::Aggregation.new(
           sensors.map(&:name),
           timeframe,
         ).call
@@ -173,7 +176,7 @@ module Sensor
     end
 
     def fetch_aggregation_data(all_sensors)
-      Sensor::Query::Influx::Aggregation.new(
+      Sensor::Query::Helpers::Influx::Aggregation.new(
         all_sensors.map(&:name),
         timeframe,
       ).call

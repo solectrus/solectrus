@@ -478,8 +478,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   # Build SQL-based series data
   def build_sql_series
-    Sensor::Query::Sql
-      .new do |q|
+    Sensor::Query::Total
+      .new(timeframe) do |q|
         chart_sensor_names.each do |name|
           meta_agg, base_agg = sql_aggregations_for_sensor(name)
           case meta_agg
@@ -494,7 +494,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
           end
         end
 
-        q.timeframe timeframe
         q.group_by sql_grouping_period
       end
       .call
@@ -502,7 +501,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   # Build InfluxDB-based series data
   def build_influx_series
-    Sensor::Query::Influx::Series.new(
+    Sensor::Query::Series.new(
       chart_sensor_names,
       timeframe.now? ? Timeframe.new('P1H') : timeframe,
     ).call(interpolate: interpolate?)

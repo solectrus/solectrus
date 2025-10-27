@@ -1,4 +1,4 @@
-describe Sensor::Query::Influx::Aggregation do
+describe Sensor::Query::Helpers::Influx::Aggregation do
   subject(:aggregation) { described_class.new(sensor_names, timeframe) }
 
   describe 'timeframe validation' do

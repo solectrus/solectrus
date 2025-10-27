@@ -17,7 +17,7 @@ class Heatpump::StatsController < ApplicationController
   private
 
   def refresh_summaries_if_needed
-    return if timeframe.now?
+    return if timeframe.now? || timeframe.hours?
 
     # In most cases, stale summaries are not possible when we get here, because this was
     # already checked in HomeController#index. But there is one exception: when the
@@ -28,7 +28,7 @@ class Heatpump::StatsController < ApplicationController
 
   def data_now
     data =
-      Sensor::Query::Influx::Latest.new(
+      Sensor::Query::Latest.new(
         %i[
           heatpump_status
           heatpump_power
@@ -46,8 +46,8 @@ class Heatpump::StatsController < ApplicationController
 
   def data_range
     data =
-      Sensor::Query::Sql
-        .new do |q|
+      Sensor::Query::Total
+        .new(timeframe) do |q|
           q.sum :heatpump_power, :sum
           q.sum :heatpump_power_grid, :sum
           q.sum :heatpump_power_pv, :sum
@@ -58,10 +58,9 @@ class Heatpump::StatsController < ApplicationController
           q.sum :heatpump_costs_pv, :sum
           q.sum :heatpump_costs_grid, :sum
           q.avg :outdoor_temp, :avg
-
-          q.timeframe timeframe
         end
         .call
+
     HeatpumpBalance.new(data)
   end
 end

@@ -5,7 +5,7 @@ describe 'Home' do
 
     context 'without params :fields and :timeframe' do
       context 'when day' do
-        before { allow(DayLight).to receive(:active?).and_return(true) }
+        before { allow(Sensor::Query::DayLight).to receive(:active?).and_return(true) }
 
         it 'redirects' do
           get root_path
@@ -16,7 +16,7 @@ describe 'Home' do
       end
 
       context 'when night' do
-        before { allow(DayLight).to receive(:active?).and_return(false) }
+        before { allow(Sensor::Query::DayLight).to receive(:active?).and_return(false) }
 
         it 'redirects' do
           get root_path

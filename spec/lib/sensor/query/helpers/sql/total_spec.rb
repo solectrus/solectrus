@@ -1,9 +1,9 @@
-describe Sensor::Query::Sql do
+describe Sensor::Query::Helpers::Sql::Total do
   let(:timeframe) { Timeframe.new('2025-01-15') }
 
   describe '#initialize' do
     it 'requires a block for DSL configuration' do
-      expect { described_class.new }.to raise_error(
+      expect { described_class.new(timeframe) }.to raise_error(
         ArgumentError,
         /Block required for DSL configuration/,
       )
@@ -11,31 +11,26 @@ describe Sensor::Query::Sql do
 
     it 'builds sensor requests from DSL' do
       query =
-        described_class.new do |q|
+        described_class.new(timeframe) do |q|
           q.sum :inverter_power_1, :sum
           q.avg :case_temp, :min
-          q.timeframe timeframe
         end
 
       expect(query.sensor_requests).to include(%i[inverter_power_1 sum sum])
       expect(query.sensor_requests).to include(%i[case_temp avg min])
     end
 
-    it 'sets timeframe from DSL' do
+    it 'sets timeframe from parameter' do
       query =
-        described_class.new do |q|
-          q.sum :inverter_power_1, :sum
-          q.timeframe timeframe
-        end
+        described_class.new(timeframe) { |q| q.sum :inverter_power_1, :sum }
 
       expect(query.timeframe).to eq(timeframe)
     end
 
     it 'sets group_by from DSL' do
       query =
-        described_class.new do |q|
+        described_class.new(timeframe) do |q|
           q.sum :inverter_power_1, :sum
-          q.timeframe timeframe
           q.group_by :month
         end
 
@@ -44,10 +39,7 @@ describe Sensor::Query::Sql do
 
     it 'defaults group_by to nil' do
       query =
-        described_class.new do |q|
-          q.sum :inverter_power_1, :sum
-          q.timeframe timeframe
-        end
+        described_class.new(timeframe) { |q| q.sum :inverter_power_1, :sum }
 
       expect(query.group_by).to be_nil
     end
@@ -55,62 +47,41 @@ describe Sensor::Query::Sql do
 
   describe 'DSL methods' do
     it 'supports sum aggregation' do
-      query =
-        described_class.new do |q|
-          q.sum :house_power, :sum
-          q.timeframe timeframe
-        end
+      query = described_class.new(timeframe) { |q| q.sum :house_power, :sum }
 
       expect(query.sensor_requests).to include(%i[house_power sum sum])
     end
 
     it 'supports avg aggregation' do
-      query =
-        described_class.new do |q|
-          q.avg :case_temp, :avg
-          q.timeframe timeframe
-        end
+      query = described_class.new(timeframe) { |q| q.avg :case_temp, :avg }
 
       expect(query.sensor_requests).to include(%i[case_temp avg avg])
     end
 
     it 'supports min aggregation' do
-      query =
-        described_class.new do |q|
-          q.min :case_temp, :min
-          q.timeframe timeframe
-        end
+      query = described_class.new(timeframe) { |q| q.min :case_temp, :min }
 
       expect(query.sensor_requests).to include(%i[case_temp min min])
     end
 
     it 'supports max aggregation' do
-      query =
-        described_class.new do |q|
-          q.max :case_temp, :max
-          q.timeframe timeframe
-        end
+      query = described_class.new(timeframe) { |q| q.max :case_temp, :max }
 
       expect(query.sensor_requests).to include(%i[case_temp max max])
     end
 
     it 'supports different meta and base aggregations' do
-      query =
-        described_class.new do |q|
-          q.avg :case_temp, :min
-          q.timeframe timeframe
-        end
+      query = described_class.new(timeframe) { |q| q.avg :case_temp, :min }
 
       expect(query.sensor_requests).to include(%i[case_temp avg min])
     end
 
     it 'handles multiple sensors' do
       query =
-        described_class.new do |q|
+        described_class.new(timeframe) do |q|
           q.sum :house_power, :sum
           q.avg :case_temp, :min
           q.max :case_temp, :max
-          q.timeframe timeframe
         end
 
       expect(query.sensor_requests).to include(%i[house_power sum sum])
@@ -119,45 +90,9 @@ describe Sensor::Query::Sql do
     end
 
     it 'supports simplified syntax without base aggregation' do
-      query =
-        described_class.new do |q|
-          q.sum :house_power
-          q.timeframe timeframe
-        end
+      query = described_class.new(timeframe) { |q| q.sum :house_power }
 
       expect(query.sensor_requests).to include(%i[house_power sum sum])
-    end
-  end
-
-  describe 'timeframe handling' do
-    it 'accepts Timeframe objects' do
-      query =
-        described_class.new do |q|
-          q.sum :house_power, :sum
-          q.timeframe timeframe
-        end
-
-      expect(query.timeframe).to eq(timeframe)
-    end
-
-    it 'converts integers to Timeframe' do
-      query =
-        described_class.new do |q|
-          q.sum :house_power, :sum
-          q.timeframe 2025
-        end
-
-      expect(query.timeframe.to_s).to eq('2025')
-    end
-
-    it 'converts strings to Timeframe' do
-      query =
-        described_class.new do |q|
-          q.sum :house_power, :sum
-          q.timeframe '2025-01'
-        end
-
-      expect(query.timeframe.to_s).to eq('2025-01')
     end
   end
 
@@ -165,10 +100,7 @@ describe Sensor::Query::Sql do
     context 'without group_by' do
       it 'returns Sensor::Data::Single' do
         query =
-          described_class.new do |q|
-            q.sum :inverter_power_1, :sum
-            q.timeframe timeframe
-          end
+          described_class.new(timeframe) { |q| q.sum :inverter_power_1, :sum }
 
         # Stub the fetch_raw_data method to avoid SQL execution
         allow(query).to receive(:fetch_raw_data).and_return({})
@@ -181,9 +113,8 @@ describe Sensor::Query::Sql do
     context 'with group_by' do
       it 'returns Sensor::Data::Series' do
         query =
-          described_class.new do |q|
+          described_class.new(timeframe) do |q|
             q.sum :inverter_power_1, :sum
-            q.timeframe timeframe
             q.group_by :month
           end
 
@@ -199,10 +130,7 @@ describe Sensor::Query::Sql do
   describe 'inheritance from base class' do
     it 'inherits sensor validation from base class' do
       query =
-        described_class.new do |q|
-          q.sum :inverter_power_1, :sum
-          q.timeframe timeframe
-        end
+        described_class.new(timeframe) { |q| q.sum :inverter_power_1, :sum }
 
       # Sensor should be validated through base class mechanism
       expect(query.sensor_names).to include(:inverter_power_1)
@@ -210,10 +138,7 @@ describe Sensor::Query::Sql do
 
     it 'has access to timeframe from base class' do
       query =
-        described_class.new do |q|
-          q.sum :inverter_power_1, :sum
-          q.timeframe timeframe
-        end
+        described_class.new(timeframe) { |q| q.sum :inverter_power_1, :sum }
 
       expect(query.timeframe).to eq(timeframe)
     end
@@ -222,9 +147,8 @@ describe Sensor::Query::Sql do
   describe 'sensor request processing' do
     it 'processes dependency resolution correctly' do
       query =
-        described_class.new do |q|
+        described_class.new(timeframe) do |q|
           q.avg :autarky, :avg # Calculated sensor with dependencies
-          q.timeframe timeframe
         end
 
       # Should include dependencies for calculated sensors
@@ -239,9 +163,8 @@ describe Sensor::Query::Sql do
 
     it 'handles calculated sensors correctly' do
       query =
-        described_class.new do |q|
+        described_class.new(timeframe) do |q|
           q.sum :house_power, :sum # Calculated sensor
-          q.timeframe timeframe
         end
 
       # Should process calculated sensors appropriately
@@ -251,10 +174,7 @@ describe Sensor::Query::Sql do
 
     context 'when querying calculated sensor with sql_calculation (savings)' do
       subject(:query) do
-        described_class.new do |q|
-          q.sum :savings, :sum
-          q.timeframe timeframe
-        end
+        described_class.new(timeframe) { |q| q.sum :savings, :sum }
       end
 
       let(:start_date) { Rails.configuration.x.installation_date }

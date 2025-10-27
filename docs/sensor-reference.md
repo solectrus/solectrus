@@ -32,6 +32,7 @@ Detailed technical documentation for the SOLECTRUS Sensor System.
 `Sensor::Data::Single` validates input data and access patterns:
 
 **Validation rules:**
+
 - Only accepts Hash as `raw_data`
 - Keys must be either Symbol (simple value) or Array with 2-3 elements
 - For Array keys: First element must be Symbol (sensor name)
@@ -61,6 +62,7 @@ data.case_temp(:max)  # => 35
 `Sensor::Data::Series` has stricter validation:
 
 **Validation rules:**
+
 - Only accepts Hash as `raw_data`
 - Keys must be Arrays with exactly 3 elements
 - First element: Symbol (sensor name)
@@ -95,6 +97,7 @@ Both data classes perform automatic type conversion based on the sensor unit:
 ```
 
 **Important notes:**
+
 - **Timeframe is required**: Both classes require a `timeframe` parameter
 - **Optional time parameter**: Can be passed for timestamps on current values
 - **Series always needs meta-aggregation**: `Series` always requires both aggregation parameters
@@ -265,10 +268,12 @@ trend                        # Default: more_is_better: false
 ### Concept
 
 Calculated sensors define:
+
 1. **Dependencies**: Which sensors are required?
 2. **Calculate block**: How is the value calculated?
 
 The query system:
+
 - Resolves dependencies recursively
 - Loads all required raw sensors
 - Executes calculations in topological order
@@ -306,6 +311,7 @@ end
 ```
 
 Autarky uses `total_consumption`, the system automatically resolves:
+
 ```
 autarky
   ├─ grid_import_power (raw)
@@ -317,7 +323,7 @@ autarky
 
 ### Dynamic Dependencies
 
-Dependencies can be dynamic:
+Dependencies can be dynamic based on configuration:
 
 ```ruby
 class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
@@ -332,9 +338,48 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
 end
 ```
 
+### Context-Based Dependencies
+
+Dependencies can differ based on query context (`:influx` vs `:sql`):
+
+```ruby
+class Sensor::Definitions::HousePowerPv < Sensor::Definitions::Base
+  value unit: :watt, category: :consumer
+
+  # Dependencies differ based on context
+  depends_on do |context: :unknown|
+    if context == :sql
+      # SQL has already applied exclusions in the database
+      [:house_power]
+    else
+      # InfluxDB needs all sensors for manual exclusion
+      [:house_power, *Sensor::Config.house_power_excluded_sensors.map(&:name)]
+    end
+  end
+
+  calculate do |house_power:, **values|
+    excluded_power = Sensor::Config.house_power_excluded_sensors.sum do |sensor|
+      values[sensor.name] || 0
+    end
+
+    [house_power - excluded_power, 0].max
+  end
+end
+```
+
+**Why context matters:**
+
+- **SQL context**: Dependencies are already filtered/processed in the database query
+- **InfluxDB context**: All raw sensors needed for Ruby-side calculation
+- **Unknown context**: Fallback to most conservative (complete) dependency set
+
+**Context is passed automatically by:**
+- `Sensor::Query::Helpers::Influx::Total` → `:influx`
+- `Sensor::Query::Helpers::Sql::Total` → `:sql`
+
 ## Finance Sensors
 
-Finance sensors calculate costs via SQL with price multiplication:
+Finance sensors inherit from `Sensor::Definitions::FinanceBase` and implement **dual-backend calculations**:
 
 ```ruby
 class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
@@ -354,44 +399,85 @@ class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
     [:electricity]
   end
 
-  # SQL calculation: Only SELECT tail (embedded in query)
+  # SQL calculation: Only SELECT expression (embedded in query)
   def sql_calculation
     'COALESCE(grid_import_power_sum,0) * pb_eur_per_kwh / 1000.0'
+  end
+
+  # InfluxDB calculation: Ruby implementation with prices
+  def calculate_with_prices(grid_import_power:, prices:)
+    return unless grid_import_power
+
+    electricity_price = prices[:electricity]
+    grid_import_power * electricity_price / 1000.0
   end
 end
 ```
 
-**How it works:**
+### Dual-Backend Architecture
 
-The `sql_calculation` method returns only the **SELECT part** (not complete SQL). The query builder embeds this into a complete statement:
+Finance sensors must implement **both** calculation methods:
+
+1. **`sql_calculation`** - For SQL/SummaryValues queries (daily+)
+2. **`calculate_with_prices`** - For InfluxDB queries (hourly)
+
+**Why dual backends?**
+
+- **Hourly data** (P1H-P99H): Calculated live from InfluxDB via `calculate_with_prices`
+- **Daily+ data**: Pre-calculated in SQL via `sql_calculation` (performance!)
+
+### SQL Calculation
+
+The `sql_calculation` method returns only the **SELECT expression** (not complete SQL). The query builder embeds this into a complete statement:
 
 ```sql
 -- Automatically generated from sql_calculation
 SELECT
-  grid_import_power_sum * pb_eur_per_kwh / 1000.0 AS grid_costs
+  COALESCE(grid_import_power_sum,0) * pb_eur_per_kwh / 1000.0 AS grid_costs
 FROM ...
 WHERE timeframe = ...
 ```
 
 **Available columns** (directly accessible in sql_calculation):
+
 - `{sensor}_sum`, `{sensor}_max`, `{sensor}_min`, `{sensor}_avg` - Aggregated sensor values
 - `pb_eur_per_kwh` - Electricity Price (purchase price)
 - `pf_eur_per_kwh` - Feed-in Price (feed-in tariff)
 
-**Helper methods** (available in FinanceBase):
-- `electricity_price` → `'pb.eur_per_kwh'`
-- `feed_in_price` → `'pf.eur_per_kwh'`
-- `to_kwh(wh_expression)` → Converts Wh to kWh
+### InfluxDB Calculation
+
+The `calculate_with_prices` method receives:
+
+**Parameters:**
+- `dependencies:` - Hash with sensor values from dependencies
+- `prices:` - Hash with current prices (`:electricity` and `:feed_in` keys with Price objects)
+
+**Returns:** Calculated value in Euro
+
+```ruby
+def calculate_with_prices(grid_import_power:, prices:)
+  return unless grid_import_power
+
+  electricity_price = prices[:electricity]
+
+  # Convert Wh to kWh and multiply by price
+  grid_import_power * electricity_price / 1000.0
+end
+```
+
+### Helper Methods
+
+**Available in FinanceBase:**
+
+- `electricity_price` → `'pb.eur_per_kwh'` (for SQL)
+- `feed_in_price` → `'pf.eur_per_kwh'` (for SQL)
+- `to_kwh(wh_expression)` → Converts Wh to kWh (for SQL)
 - `greatest(expression, fallback)` → GREATEST SQL function
 - `coalesce(expression, fallback)` → COALESCE SQL function
 
-**Properties:**
-- Define `sql_calculation` instead of `calculate`
-- Calculated directly in SQL (performance!)
-- Can be used as dependencies in other sensors
-- Use `FinanceBase` for common logic (CTE setup)
+### Finance Sensor as Dependency
 
-**Example: Finance sensor as dependency**
+Finance sensors can be used as dependencies in calculated sensors:
 
 ```ruby
 class Sensor::Definitions::TotalCosts < Sensor::Definitions::Base
@@ -422,12 +508,14 @@ end
 ```
 
 **Feature check:**
+
 ```ruby
 Sensor::Registry[:car_battery_soc].permitted?  # => true/false
 Sensor::Config.exists?(:car_battery_soc)       # => false if not permitted
 ```
 
 **Available features:**
+
 - `:car` - Car/Wallbox extended
 - `:heatpump` - Heat pump
 - `:power_splitter` - Grid/PV split
@@ -504,11 +592,10 @@ end
 ### Query Tests
 
 ```ruby
-RSpec.describe Sensor::Query::Sql do
+RSpec.describe Sensor::Query::Total do
   it 'fetches single values with DSL' do
-    data = Sensor::Query::Sql.new do |q|
+    data = Sensor::Query::Total.new(Timeframe.day) do |q|
       q.sum :inverter_power
-      q.timeframe Timeframe.today
     end.call
 
     expect(data.inverter_power).to be_a(Numeric)
@@ -546,6 +633,7 @@ end
 ### 2. Flux Query Optimization
 
 InfluxDB queries use:
+
 - Filter on measurement/field
 - Range restriction to timeframe
 - Aggregations in Flux (not in Ruby)
@@ -555,9 +643,8 @@ InfluxDB queries use:
 ```ruby
 # Instead of: Load all values and calculate in Ruby
 # Use: SQL aggregation on summary_values
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(Timeframe.year) do |q|
   q.avg :autarky  # SQL: SELECT AVG(value) FROM summary_values WHERE ...
-  q.timeframe Timeframe.this_year
 end.call
 ```
 

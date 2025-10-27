@@ -1,4 +1,4 @@
-describe Sensor::Query::Helpers::SqlSelectBuilder do
+describe Sensor::Query::Helpers::Sql::SelectBuilder do
   describe '#initialize' do
     it 'initializes with required parameters' do
       sensor_requests = [%i[inverter_power sum sum]]
@@ -33,7 +33,10 @@ describe Sensor::Query::Helpers::SqlSelectBuilder do
         sensor_requests = [%i[inverter_power_1 sum sum]]
 
         builder =
-          described_class.new(sensor_requests: sensor_requests, group_by: :month)
+          described_class.new(
+            sensor_requests: sensor_requests,
+            group_by: :month,
+          )
 
         result = builder.build_final_select
 

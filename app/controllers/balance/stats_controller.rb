@@ -17,7 +17,7 @@ class Balance::StatsController < ApplicationController
   private
 
   def refresh_summaries_if_needed
-    return if timeframe.now?
+    return if timeframe.now? || timeframe.hours?
 
     # In most cases, stale summaries are not possible when we get here, because this was
     # already checked in HomeController#index. But there is one exception: when the
@@ -55,13 +55,13 @@ class Balance::StatsController < ApplicationController
       )
     end
 
-    PowerBalance.new(Sensor::Query::Influx::Latest.new(sensors).call)
+    PowerBalance.new(Sensor::Query::Latest.new(sensors).call)
   end
 
   def data_range # rubocop:disable Metrics/AbcSize
     data =
-      Sensor::Query::Sql
-        .new do |q|
+      Sensor::Query::Total
+        .new(timeframe) do |q|
           q.avg :autarky, :avg
           q.sum :battery_charging_costs, :sum
           q.sum :battery_charging_power, :sum
@@ -89,6 +89,7 @@ class Balance::StatsController < ApplicationController
           q.sum :wallbox_power, :sum
           q.sum :wallbox_power_grid, :sum
 
+          q.sum :inverter_power, :sum
           Sensor::Config.custom_inverter_sensors.each do |sensor|
             q.sum sensor.name, :sum
           end
@@ -102,10 +103,9 @@ class Balance::StatsController < ApplicationController
             q.sum sensor.name, :sum
             q.sum :"#{sensor.name.to_s.gsub('_power', '')}_costs", :sum
           end
-
-          q.timeframe timeframe
         end
         .call
+
     PowerBalance.new(data)
   end
 end

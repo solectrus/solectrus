@@ -1,4 +1,4 @@
-describe Sensor::Query::Helpers::SqlQueryBuilder do
+describe Sensor::Query::Helpers::Sql::QueryBuilder do
   let(:timeframe) { Timeframe.new('2025-01-15') }
 
   describe '#initialize' do

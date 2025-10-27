@@ -1,4 +1,4 @@
-describe DayLight do
+describe Sensor::Query::DayLight do
   subject(:day_light) { described_class.new(date) }
 
   let(:date) { Date.new(2023, 3, 4) }

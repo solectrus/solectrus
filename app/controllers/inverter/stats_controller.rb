@@ -17,7 +17,7 @@ class Inverter::StatsController < ApplicationController
   private
 
   def refresh_summaries_if_needed
-    return if timeframe.now?
+    return if timeframe.now? || timeframe.hours?
 
     # In most cases, stale summaries are not possible when we get here, because this was
     # already checked in HomeController#index. But there is one exception: when the
@@ -31,22 +31,21 @@ class Inverter::StatsController < ApplicationController
       %i[inverter_power_difference system_status] +
         Sensor::Config.inverter_sensors.map(&:name)
 
-    data = Sensor::Query::Influx::Latest.new(sensor_names).call
+    data = Sensor::Query::Latest.new(sensor_names).call
     InverterBalance.new(data)
   end
 
   def data_range
     data =
-      Sensor::Query::Sql
-        .new do |q|
+      Sensor::Query::Total
+        .new(timeframe) do |q|
           Sensor::Config.inverter_sensors.each do |sensor|
             q.sum sensor.name, :sum
           end
           q.sum :inverter_power_difference, :sum
-
-          q.timeframe timeframe
         end
         .call
+
     InverterBalance.new(data)
   end
 end

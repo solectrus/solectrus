@@ -17,7 +17,7 @@ class ForecastComment::Component < ViewComponent::Base
   end
 
   def sunset
-    @sunset ||= DayLight.new(timeframe.date)&.sunset
+    @sunset ||= Sensor::Query::DayLight.new(timeframe.date)&.sunset
   end
 
   def tooltip_required?

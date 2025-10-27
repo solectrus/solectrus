@@ -29,9 +29,8 @@ describe Sensor::Definitions::Co2Reduction do # rubocop:disable RSpec/SpecFilePa
 
     describe 'for sum of single day' do
       let(:query) do
-        Sensor::Query::Sql.new do |q|
+        Sensor::Query::Total.new(Timeframe.new('2024-06-15')) do |q|
           q.sum :co2_reduction
-          q.timeframe Timeframe.new('2024-06-15')
         end
       end
 
@@ -56,9 +55,8 @@ describe Sensor::Definitions::Co2Reduction do # rubocop:disable RSpec/SpecFilePa
 
     describe 'for meta-aggregation' do
       let(:query) do
-        Sensor::Query::Sql.new do |q|
+        Sensor::Query::Total.new(Timeframe.new('2024-06')) do |q|
           q.sum :co2_reduction, :sum
-          q.timeframe Timeframe.new('2024-06')
         end
       end
 
@@ -95,9 +93,8 @@ describe Sensor::Definitions::Co2Reduction do # rubocop:disable RSpec/SpecFilePa
         context "when #{agg} of single day" do
           it 'raises ArgumentError during query initialization' do
             expect do
-              Sensor::Query::Sql.new do |q|
+              Sensor::Query::Total.new(Timeframe.new('2024-06-15')) do |q|
                 q.public_send(agg, :co2_reduction)
-                q.timeframe Timeframe.new('2024-06-15')
               end
             end.to raise_error(ArgumentError)
           end

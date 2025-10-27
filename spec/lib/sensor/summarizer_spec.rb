@@ -70,9 +70,9 @@ describe Sensor::Summarizer do
       inverter_power: 250,
     }
 
-    allow(Sensor::Query::Influx::Integral).to receive(:new).and_return(
+    allow(Sensor::Query::Helpers::Influx::Integral).to receive(:new).and_return(
       instance_double(
-        Sensor::Query::Influx::Integral,
+        Sensor::Query::Helpers::Influx::Integral,
         call: double('Sensor::Data::Single', raw_data),
       ),
     )
@@ -105,9 +105,9 @@ describe Sensor::Summarizer do
       %i[heatpump_tank_temp avg] => 40,
     }
 
-    allow(Sensor::Query::Influx::Aggregation).to receive(:new).and_return(
+    allow(Sensor::Query::Helpers::Influx::Aggregation).to receive(:new).and_return(
       instance_double(
-        Sensor::Query::Influx::Aggregation,
+        Sensor::Query::Helpers::Influx::Aggregation,
         call:
           Sensor::Data::Single.new(
             aggregation_raw_data,

@@ -126,9 +126,8 @@ describe Sensor::Definitions::InverterPower do # rubocop:disable RSpec/SpecFileP
 
       describe 'for sum of single day' do
         let(:query) do
-          Sensor::Query::Sql.new do |q|
+          Sensor::Query::Total.new(Timeframe.new('2024-06-15')) do |q|
             q.sum :inverter_power, :sum
-            q.timeframe Timeframe.new('2024-06-15')
           end
         end
 
@@ -181,9 +180,8 @@ describe Sensor::Definitions::InverterPower do # rubocop:disable RSpec/SpecFileP
 
       describe 'for sum of sums of a month' do
         let(:query) do
-          Sensor::Query::Sql.new do |q|
+          Sensor::Query::Total.new(Timeframe.new('2024-06')) do |q|
             q.sum :inverter_power, :sum
-            q.timeframe Timeframe.new('2024-06')
           end
         end
 
@@ -270,9 +268,8 @@ describe Sensor::Definitions::InverterPower do # rubocop:disable RSpec/SpecFileP
 
       describe 'for sum of single day (calculated from parts)' do
         let(:query) do
-          Sensor::Query::Sql.new do |q|
+          Sensor::Query::Total.new(Timeframe.new('2024-06-15')) do |q|
             q.sum :inverter_power, :sum
-            q.timeframe Timeframe.new('2024-06-15')
           end
         end
 

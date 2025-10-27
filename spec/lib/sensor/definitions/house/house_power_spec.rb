@@ -76,23 +76,18 @@ describe Sensor::Definitions::HousePower do # rubocop:disable RSpec/SpecFilePath
     subject(:sql_query) do
       case aggregation_option
       when Symbol
-        Sensor::Query::Sql.new do |q|
+        Sensor::Query::Total.new(timeframe) do |q|
           q.public_send(aggregation_option, :house_power, aggregation_option)
-          q.timeframe timeframe
         end
       when Array
         if aggregation_option.length == 2
           meta_agg = aggregation_option.first
           base_agg = aggregation_option[1]
-          Sensor::Query::Sql.new do |q|
+          Sensor::Query::Total.new(timeframe) do |q|
             q.public_send(meta_agg, :house_power, base_agg)
-            q.timeframe timeframe
           end
         else
-          Sensor::Query::Sql.new do |q|
-            q.sum :house_power, :sum
-            q.timeframe timeframe
-          end
+          Sensor::Query::Total.new(timeframe) { |q| q.sum :house_power, :sum }
         end
       end
     end

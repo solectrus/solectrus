@@ -1,4 +1,4 @@
-describe Sensor::Query::Influx::Series do
+describe Sensor::Query::Series do
   subject(:series_query) { described_class.new([:house_power], timeframe) }
 
   before do

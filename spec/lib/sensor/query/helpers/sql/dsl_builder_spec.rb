@@ -1,13 +1,9 @@
-describe Sensor::Query::Helpers::SqlDslBuilder do
+describe Sensor::Query::Helpers::Sql::DslBuilder do
   let(:builder) { described_class.new }
 
   describe '#initialize' do
     it 'initializes with empty sensor requests' do
       expect(builder.sensor_requests).to be_empty
-    end
-
-    it 'initializes with nil timeframe' do
-      expect(builder.timeframe_value).to be_nil
     end
 
     it 'initializes with nil group_by' do
@@ -81,24 +77,6 @@ describe Sensor::Query::Helpers::SqlDslBuilder do
 
     it 'allows valid aggregations' do
       expect { builder.sum :house_power, :sum }.not_to raise_error
-    end
-  end
-
-  describe '#timeframe' do
-    it 'accepts Timeframe objects' do
-      timeframe = Timeframe.new('2025-01-15')
-      builder.timeframe timeframe
-      expect(builder.timeframe_value).to eq(timeframe)
-    end
-
-    it 'converts integers to Timeframe' do
-      builder.timeframe 2025
-      expect(builder.timeframe_value.to_s).to eq('2025')
-    end
-
-    it 'converts strings to Timeframe' do
-      builder.timeframe '2025-01'
-      expect(builder.timeframe_value.to_s).to eq('2025-01')
     end
   end
 

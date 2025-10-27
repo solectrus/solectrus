@@ -140,16 +140,14 @@ class Insights # rubocop:disable Metrics/ClassLength
   def data
     @data ||=
       PowerBalance.new(
-        Sensor::Query::Sql
-          .new do |q|
+        Sensor::Query::Total
+          .new(timeframe) do |q|
             required_sensors.each do |sensor_name|
               aggregation =
                 Sensor::Registry[sensor_name].allowed_aggregations.first || :sum
 
               q.public_send(aggregation, sensor_name)
             end
-
-            q.timeframe timeframe
           end
           .call,
       )

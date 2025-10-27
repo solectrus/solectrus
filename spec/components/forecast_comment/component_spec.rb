@@ -9,7 +9,7 @@ describe ForecastComment::Component, type: :component do
   let(:data) { double(forecast_deviation:, inverter_power_forecast: 1000) }
 
   before do
-    allow(DayLight).to receive(:new).and_return(sunset)
+    allow(Sensor::Query::DayLight).to receive(:new).and_return(sunset)
 
     render_inline(component)
   end
@@ -59,7 +59,7 @@ describe ForecastComment::Component, type: :component do
 
   context 'when timeframe is current day, before sunset' do
     let(:date) { Date.current.to_s }
-    let(:sunset) { instance_double(DayLight, sunset: 5.minutes.since) }
+    let(:sunset) { instance_double(Sensor::Query::DayLight, sunset: 5.minutes.since) }
 
     context 'when deviation is zero' do
       let(:forecast_deviation) { 0 }
@@ -103,7 +103,7 @@ describe ForecastComment::Component, type: :component do
 
   context 'when timeframe is current day, after sunset' do
     let(:date) { Date.current.to_s }
-    let(:sunset) { instance_double(DayLight, sunset: 5.minutes.ago) }
+    let(:sunset) { instance_double(Sensor::Query::DayLight, sunset: 5.minutes.ago) }
 
     context 'when deviation is zero' do
       let(:forecast_deviation) { 0 }

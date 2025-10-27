@@ -1,4 +1,4 @@
-# Sensor::Query::Sql - SQL Queries for Historical Data
+# Sensor::Query::Total - SQL Queries for Historical Data
 
 Detailed SQL query examples with generated SQL for the Sensor System.
 
@@ -6,7 +6,7 @@ Detailed SQL query examples with generated SQL for the Sensor System.
 
 ## Overview
 
-The `Sensor::Query::Sql` class dynamically generates optimized SQL queries to fetch historical sensor data from the `summary_values` table, optionally joined with the `prices` table. It uses a **fluent DSL with block syntax** and supports both simple single values and complex time series with meta-aggregations and automatic cost calculations.
+The `Sensor::Query::Total` class dynamically generates optimized SQL queries to fetch historical sensor data from the `summary_values` table, optionally joined with the `prices` table. It uses a **fluent DSL with block syntax** and supports both simple single values and complex time series with meta-aggregations and automatic cost calculations.
 
 ## Core Functionality
 
@@ -22,7 +22,7 @@ The `Sensor::Query::Sql` class dynamically generates optimized SQL queries to fe
 
 - **Input**: DSL with block (see API specification)
 - **Output**: `Sensor::Data::Single` for single values, `Sensor::Data::Series` for time series
-- **Timeframe**: Always required (via `q.timeframe`)
+- **Timeframe**: Always required (passed as first parameter to constructor)
 - **Grouping**: Optional for time series via `q.group_by` (`:day`, `:week`, `:month`, or `:year`). Since SummaryValues always contain daily values, grouping by days is technically redundant but implemented this way for simplicity and consistency.
 
 ### 3. Validation and Integration
@@ -45,10 +45,9 @@ The `Sensor::Query::Sql` class dynamically generates optimized SQL queries to fe
 
 ```ruby
 # Signature
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(timeframe) do |q|
   q.sum :sensor_name                    # Meta-aggregation: sum, Base-aggregation: sum (default)
   q.avg :sensor_name, :min              # Meta-aggregation: avg, Base-aggregation: min
-  q.timeframe Timeframe.today           # Timeframe (required)
   q.group_by :month                     # Optional: Grouping for time series
 end
 
@@ -58,7 +57,6 @@ end
 # - q.min(sensor_name, base_aggregation = :min)
 # - q.max(sensor_name, base_aggregation = :max)
 #
-# - q.timeframe(value)  # Required: Timeframe object or string
 # - q.group_by(value)   # Optional: :day/:month/:week/:year for time series
 ```
 
@@ -66,22 +64,19 @@ end
 
 ```ruby
 # Average of daily sums
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(Timeframe.day) do |q|
   q.avg :house_power, :sum
-  q.timeframe Timeframe.today
 end
 
 # Minimum of daily minima
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(Timeframe.month) do |q|
   q.min :case_temp, :min
-  q.timeframe Timeframe.this_month
 end
 
 # Multiple sensors with different aggregations
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(Timeframe.new('2025-01')) do |q|
   q.sum :house_power                   # sum of sum (default)
   q.avg :case_temp, :min               # avg of min
-  q.timeframe Timeframe.new('2025-01')
 end
 ```
 
@@ -103,9 +98,8 @@ The following examples all have the same structure and use a CTE (Common Table E
 **Use case:** "Average daily house consumption in 2025"
 
 ```ruby
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(Timeframe.new('2025')) do |q|
   q.avg :house_power, :sum
-  q.timeframe Timeframe.new('2025')
 end.call
 ```
 
@@ -147,10 +141,9 @@ data.house_power(:avg, :sum)  # => 1234.0
 **Use case:** "Average daily house consumption and minimum case temperature in 2025"
 
 ```ruby
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(Timeframe.new('2025')) do |q|
   q.avg :house_power, :sum
   q.min :case_temp, :min
-  q.timeframe Timeframe.new('2025')
 end.call
 ```
 
@@ -198,9 +191,8 @@ data.case_temp(:min, :min)    # => 23.4
 **Use case:** "House consumption for each day in January 2025"
 
 ```ruby
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(Timeframe.new('2025-01')) do |q|
   q.sum :house_power
-  q.timeframe Timeframe.new('2025-01')
   q.group_by :day
 end.call
 ```
@@ -256,9 +248,8 @@ data.house_power(:sum, :sum)
 **Use case:** "Average daily house consumption in 2025, grouped by month"
 
 ```ruby
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(Timeframe.new('2025')) do |q|
   q.avg :house_power, :sum
-  q.timeframe Timeframe.new('2025')
   q.group_by :month
 end.call
 ```
@@ -313,14 +304,14 @@ data.house_power(:avg, :sum)
 **Use case:** "2025 annual overview: Total house consumption, total heat pump, total wallbox, total grid export, average min/max temperature"
 
 ```ruby
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(timeframe) do |q|
   q.sum :house_power
   q.sum :heatpump_power
   q.sum :wallbox_power
   q.sum :grid_export_power
   q.avg :case_temp, :min
   q.avg :case_temp, :max
-  q.timeframe Timeframe.new('2025')
+  Timeframe.new('2025')
 end.call
 ```
 
@@ -379,12 +370,12 @@ data.case_temp(:avg, :max)          # => 42.3
 **Use case:** "2025 annual overview with costs: Temperature statistics plus traditional costs and grid revenue"
 
 ```ruby
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(timeframe) do |q|
   q.avg :case_temp, :min
   q.avg :case_temp, :max
   q.sum :traditional_costs
   q.sum :grid_revenue
-  q.timeframe Timeframe.new('2025')
+  Timeframe.new('2025')
 end.call
 ```
 
@@ -467,9 +458,9 @@ data.grid_revenue(:sum, :sum)       # => 1234.89
 ### 7. Savings for a Year
 
 ```ruby
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(timeframe) do |q|
   q.sum :savings
-  q.timeframe Timeframe.new('2025')
+  Timeframe.new('2025')
 end.call
 ```
 
@@ -558,7 +549,7 @@ data.savings(:sum, :sum)  # => 1626.12
 **Use case:** "Monthly overview 2025: Power sensors and costs"
 
 ```ruby
-Sensor::Query::Sql.new do |q|
+Sensor::Query::Total.new(timeframe) do |q|
   q.sum :house_power
   q.sum :heatpump_power
   q.sum :wallbox_power
@@ -567,7 +558,7 @@ Sensor::Query::Sql.new do |q|
   q.avg :case_temp, :max
   q.sum :traditional_costs
   q.sum :grid_revenue
-  q.timeframe Timeframe.new('2025')
+  Timeframe.new('2025')
   q.group_by :month
 end.call
 ```
@@ -702,12 +693,12 @@ data.traditional_costs(:sum, :sum)
 
 **The implementation is clearly organized into helper classes:**
 
-- **Main class** (`Sensor::Query::Sql`) - coordinates all components
-- **SqlDslBuilder** (`app/lib/sensor/query/helpers/sql_dsl_builder.rb`) - DSL builder for block syntax with validation
-- **SqlQueryBuilder** (`app/lib/sensor/query/helpers/sql_query_builder.rb`) - Coordinates SQL query generation, analyzes sensor requirements
-- **SqlCteBuilder** (`app/lib/sensor/query/helpers/sql_cte_builder.rb`) - Builds CTEs (price_ranges, daily) with FILTER clauses
-- **SqlSelectBuilder** (`app/lib/sensor/query/helpers/sql_select_builder.rb`) - Builds final SELECT with grouping
-- **SqlResultMapper** (`app/lib/sensor/query/helpers/sql_result_mapper.rb`) - Formats query results to `Sensor::Data::Single/Series`
+- **Main class** (`Sensor::Query::Total`) - coordinates all components
+- **DslBuilder** (`app/lib/sensor/query/helpers/sql/dsl_builder.rb`) - DSL builder for block syntax with validation
+- **QueryBuilder** (`app/lib/sensor/query/helpers/sql/query_builder.rb`) - Coordinates SQL query generation, analyzes sensor requirements
+- **CteBuilder** (`app/lib/sensor/query/helpers/sql/cte_builder.rb`) - Builds CTEs (price_ranges, daily) with FILTER clauses
+- **SelectBuilder** (`app/lib/sensor/query/helpers/sql/select_builder.rb`) - Builds final SELECT with grouping
+- **ResultMapper** (`app/lib/sensor/query/helpers/sql/result_mapper.rb`) - Formats query results to `Sensor::Data::Single/Series`
 
 ### Important Implementation Notes
 
@@ -736,7 +727,7 @@ Performance is important for the generated SQL query:
 - **[Sensor Overview](sensor-overview.md)** - Introduction to the Sensor System
 - **[Sensor Reference](sensor-reference.md)** - DSL reference, finance sensors, testing, performance
 - **Code reference**:
-  - `app/lib/sensor/query/sql.rb` - Main implementation
-  - `app/lib/sensor/query/helpers/` - SQL builder classes
+  - `app/lib/sensor/query/helpers/sql/main.rb` - Main implementation
+  - `app/lib/sensor/query/helpers/sql/` - SQL builder classes
   - `app/lib/sensor/definitions/finance_base.rb` - Finance sensors base
   - `spec/lib/sensor/query/sql_spec.rb` - Comprehensive tests

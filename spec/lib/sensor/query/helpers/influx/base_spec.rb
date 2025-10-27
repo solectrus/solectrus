@@ -1,4 +1,4 @@
-describe Sensor::Query::Influx::Base do
+describe Sensor::Query::Helpers::Influx::Base do
   let(:sensor_names) { %i[inverter_power house_power] }
   let(:timeframe) { Timeframe.now }
 
