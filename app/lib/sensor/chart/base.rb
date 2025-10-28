@@ -191,14 +191,9 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       time: x_time_options,
     }
 
-    # Extend x-axis to start of day for day charts
-    if should_extend_x_axis_to_start_of_day?
-      options[:min] = timeframe.date.beginning_of_day.to_i * 1000
-    end
-
-    # Extend x-axis to end of day for current day charts
-    if should_extend_x_axis_to_end_of_day?
-      options[:max] = timeframe.date.end_of_day.to_i * 1000
+    unless timeframe.now?
+      options[:min] = timeframe.beginning.to_i * 1000
+      options[:max] = timeframe.ending.to_i * 1000
     end
 
     options
@@ -510,21 +505,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # Override this in subclasses to enable interpolation
   def interpolate?
     false
-  end
-
-  # Determine if we should extend the x-axis to start of day
-  def should_extend_x_axis_to_start_of_day?
-    # Extend for all day timeframes to ensure x-axis always starts at 00:00
-    timeframe.day?
-  end
-
-  # Determine if we should extend the x-axis to end of day
-  def should_extend_x_axis_to_end_of_day?
-    # Only extend for day timeframes showing today's or future data
-    return false unless timeframe.day?
-
-    # Extend for today and future days to ensure chart always shows full 24h
-    timeframe.date >= Date.current
   end
 
   # Apply sensor value range validation to chart data
