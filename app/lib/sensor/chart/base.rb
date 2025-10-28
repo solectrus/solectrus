@@ -261,40 +261,30 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   def hour_config(format)
-    { unit: 'hour', displayFormats: { hour: format }, tooltipFormat: format }
+    time_unit_config('hour', format, format)
   end
 
   def day_config(display_format, tooltip_format)
-    {
-      unit: 'day',
-      displayFormats: {
-        day: display_format,
-      },
-      tooltipFormat: tooltip_format,
-      round: 'day',
-    }
+    time_unit_config('day', display_format, tooltip_format, round: 'day')
   end
 
   def month_config(display_format, tooltip_format)
-    {
-      unit: 'month',
-      displayFormats: {
-        month: display_format,
-      },
-      tooltipFormat: tooltip_format,
-      round: 'month',
-    }
+    time_unit_config('month', display_format, tooltip_format, round: 'month')
   end
 
   def year_config(display_format, tooltip_format)
+    time_unit_config('year', display_format, tooltip_format, round: 'year')
+  end
+
+  def time_unit_config(unit, display_format, tooltip_format, round: nil)
     {
-      unit: 'year',
+      unit:,
       displayFormats: {
-        year: display_format,
+        unit.to_sym => display_format,
       },
       tooltipFormat: tooltip_format,
-      round: 'year',
-    }
+      round:,
+    }.compact
   end
 
   def day_display_format
@@ -333,24 +323,16 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     chart_sensor_names.map { |sensor_name| build_chart_data_item(sensor_name) }
   end
 
-  # Transform data for specific sensor (can be overridden for sign changes etc.)
-  def transform_data(data, sensor_name)
-    # Apply value range validation to ensure physically valid values
-    apply_value_range_validation(data, sensor_name)
-  end
-
   def build_chart_data_item(sensor_name)
     # Return empty dataset for sensors without data (e.g., inverter_power for future days)
-    unless series.respond_to?(sensor_name)
-      return { sensor_name:, labels: [], data: [] }
-    end
+    return empty_dataset(sensor_name) unless series.respond_to?(sensor_name)
 
     # Get the correct aggregations for this sensor
     aggregations = aggregations_for_sensor(sensor_name)
     points_hash = series.public_send(sensor_name, *aggregations)
 
     # Return empty dataset if no data available
-    return { sensor_name:, labels: [], data: [] } if points_hash.nil?
+    return empty_dataset(sensor_name) unless points_hash
 
     # Sort by timestamp to ensure chronological order
     sorted_points = points_hash.sort_by { |time_key, _| time_key }
@@ -358,27 +340,21 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     # Filter out future data points for current day (except for forecast sensors)
     sorted_points = filter_future_points(sorted_points, sensor_name)
 
-    labels =
-      sorted_points.map do |time_key, _|
-        timestamp = time_key.is_a?(Time) ? time_key : time_key.to_time
-
-        timestamp.to_i * 1000 # Convert to milliseconds for Chart.js
-      end
-
-    data = transform_data(sorted_points.map(&:second), sensor_name)
-
-    { sensor_name:, labels:, data: }
+    {
+      sensor_name:,
+      labels: sorted_points.map { |time_key, _| timestamp_to_ms(time_key) },
+      data: transform_data(sorted_points.map(&:second), sensor_name),
+    }
   end
 
-  def unit_string
-    case sensor.unit
-    when :celsius
-      '°C'
-    when :percent
-      '%'
-    else
-      timeframe.short? ? 'W' : 'Wh'
-    end
+  def empty_dataset(sensor_name)
+    { sensor_name:, labels: [], data: [] }
+  end
+
+  # Transform data for specific sensor (can be overridden for sign changes etc.)
+  def transform_data(data, sensor_name)
+    # Apply value range validation to ensure physically valid values
+    apply_value_range_validation(data, sensor_name)
   end
 
   # Template methods that can be overridden by specific chart classes
@@ -524,8 +500,17 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     # Filter out points in the future (use take_while since points are sorted)
     now = Time.current
     sorted_points.take_while do |time_key, _|
-      timestamp = time_key.is_a?(Time) ? time_key : time_key.to_time
-      timestamp <= now
+      normalize_timestamp(time_key) <= now
     end
+  end
+
+  # Convert timestamp to milliseconds for Chart.js
+  def timestamp_to_ms(time_key)
+    normalize_timestamp(time_key).to_i * 1000
+  end
+
+  # Convert time_key to Time object
+  def normalize_timestamp(time_key)
+    time_key.is_a?(Time) ? time_key : time_key.to_time
   end
 end
