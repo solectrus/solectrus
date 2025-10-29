@@ -19,9 +19,9 @@ class Sensor::Definitions::TraditionalCosts < Sensor::Definitions::FinanceBase
 
   def calculate_with_prices(
     house_power:,
-    heatpump_power:,
-    wallbox_power:,
-    prices:
+    prices:,
+    heatpump_power: nil,
+    wallbox_power: nil
   )
     electricity_price = prices[:electricity]
     return unless electricity_price
