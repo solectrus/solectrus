@@ -976,9 +976,9 @@ __metadata:
   linkType: hard
 
 "@types/aws-lambda@npm:^8.10.89":
-  version: 8.10.156
-  resolution: "@types/aws-lambda@npm:8.10.156"
-  checksum: 10c0/7de38e4241c4b4ffd740622850508aff77ed3258ff2278cc96f86d18f8045d2c0fd944c74c0fbcc32334179a7022a85ce69b5cc807e9a473243cd7d1cb90959b
+  version: 8.10.157
+  resolution: "@types/aws-lambda@npm:8.10.157"
+  checksum: 10c0/2517007b6c0b392883aac58d8ef88c0d387de5fcb425011300d2641fd1a1dab5755df4d973abc8879132ffb2924321e19b5ce3ecd06eaa0fdf71ba6e172c9be0
   languageName: node
   linkType: hard
 
@@ -1067,11 +1067,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 24.9.1
-  resolution: "@types/node@npm:24.9.1"
+  version: 24.9.2
+  resolution: "@types/node@npm:24.9.2"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10c0/c52f8168080ef9a7c3dc23d8ac6061fab5371aad89231a0f6f4c075869bc3de7e89b075b1f3e3171d9e5143d0dda1807c3dab8e32eac6d68f02e7480e7e78576
+  checksum: 10c0/7905d43f65cee72ef475fe76316e10bbf6ac5d08a7f0f6c38f2b6285d7ca3009e8fcafc8f8a1d2bf3f55889c9c278dbb203a9081fd0cf2d6d62161703924c6fa
   languageName: node
   linkType: hard
 
