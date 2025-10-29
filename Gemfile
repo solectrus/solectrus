@@ -110,6 +110,9 @@ group :development, :test do
 
   # Slim template linting tool (https://github.com/sds/slim-lint)
   gem 'slim_lint'
+
+  # Patch-level verification for Bundler (https://github.com/rubysec/bundler-audit#readme)
+  gem 'bundler-audit', require: false
 end
 
 group :development do
