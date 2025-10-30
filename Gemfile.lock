@@ -149,7 +149,7 @@ GEM
     css_parser (1.21.1)
       addressable
     csv (3.3.5)
-    date (3.4.1)
+    date (3.5.0)
     diff-lcs (1.6.2)
     docile (1.4.1)
     dotenv (3.1.8)
