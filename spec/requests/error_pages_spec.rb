@@ -51,5 +51,18 @@ describe 'Error pages' do
       expect(response.body).to include('<turbo-frame id="modal"')
       expect(response.body).to include(I18n.t('errors.500.title'))
     end
+
+    it 'renders turbo stream response for non-modal frame requests' do
+      without_detailed_exceptions do
+        get '/', headers: { 'Turbo-Frame' => 'chart' }
+      end
+
+      expect(response).to have_http_status(:internal_server_error)
+      expect(response.content_type).to match(/turbo-stream/)
+      expect(response.body).to include('<turbo-stream')
+      expect(response.body).to include('action="update"')
+      expect(response.body).to include('target="inner"')
+      expect(response.body).to include(I18n.t('errors.500.title'))
+    end
   end
 end

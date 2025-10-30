@@ -3,8 +3,15 @@ class ErrorsController < ApplicationController
 
   def show
     if turbo_frame_request?
-      render 'turbo_frame', status: status_code, formats: [:html], layout: false
+      if modal_frame?
+        # For modal frame requests, show error in modal
+        render 'modal', status: status_code, formats: [:html], layout: false
+      else
+        # For other frame requests, replace entire content
+        render 'stream', status: status_code, formats: [:turbo_stream]
+      end
     else
+      # For regular requests, show full page error
       render 'show', status: status_code, formats: [:html]
     end
   end
@@ -26,5 +33,9 @@ class ErrorsController < ApplicationController
             exception,
           ).status_code
       end
+  end
+
+  def modal_frame?
+    request.headers['Turbo-Frame'] == 'modal'
   end
 end

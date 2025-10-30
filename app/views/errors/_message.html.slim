@@ -1,0 +1,18 @@
+= render Message::Component.new do |c|
+  = c.with_header do
+    = status_code
+
+  = c.with_title do
+    = t("errors.#{status_code}.title")
+
+  = c.with_body do
+    == t("errors.#{status_code}.description")
+
+  = c.with_footer do
+    - if status_code == 403
+      = render Button::Component.new path: new_session_path,
+                                     title: t('errors.login'),
+                                     options: { data: { turbo_frame: 'modal' } }
+    - else
+      = render Button::Component.new path: root_path, \
+                                     title: t('errors.back_to_home')
