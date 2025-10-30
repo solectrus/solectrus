@@ -1,5 +1,5 @@
 class Sensor::Definitions::HousePowerPv < Sensor::Definitions::Base
-  value unit: :watt, category: :power_splitter
+  value unit: :watt, range: (0..), category: :power_splitter
 
   color hex: '#16a34a',
         bg_classes: 'bg-green-600 dark:bg-green-800',
