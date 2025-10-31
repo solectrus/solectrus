@@ -147,4 +147,20 @@ class HeatmapTile::Component < ViewComponent::Base
   def sensor_background_color(sensor_name = sensor.name)
     Sensor::Registry[sensor_name].color_bg
   end
+
+  def link_path_for_date(date)
+    timeframe = date.respond_to?(:strftime) ? date.strftime('%Y-%m-%d') : date
+    sensor_name = sensor.name
+
+    case sensor.category
+    when :heatpump
+      helpers.heatpump_home_path(sensor_name:, timeframe:)
+    when :house
+      helpers.house_home_path(sensor_name:, timeframe:)
+    when :inverter
+      helpers.inverter_home_path(sensor_name:, timeframe:)
+    else
+      helpers.root_path(sensor_name:, timeframe:)
+    end
+  end
 end

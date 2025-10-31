@@ -7,5 +7,7 @@ class Sensor::Definitions::OutdoorTemp < Sensor::Definitions::Base
 
   aggregations stored: %i[avg min max], top10: true
 
+  trend aggregation: :avg, more_is_better: true
+
   chart { |timeframe| Sensor::Chart::OutdoorTemp.new(timeframe:) }
 end

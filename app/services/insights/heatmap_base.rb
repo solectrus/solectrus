@@ -37,8 +37,17 @@ class Insights::HeatmapBase
 
   # Generic base_scope implementation
   def base_scope
+    # Use the appropriate aggregation for the sensor
+    # For most sensors use :sum, but for temp/avg sensors use their primary aggregation
+    aggregation =
+      if sensor&.allowed_aggregations&.include?(:sum)
+        :sum
+      else
+        sensor&.allowed_aggregations&.first || :avg
+      end
+
     SummaryValue
-      .where(aggregation: :sum)
+      .where(aggregation:)
       .where(
         date:
           timeframe.effective_beginning_date..timeframe.effective_ending_date,
@@ -103,9 +112,12 @@ class Insights::HeatmapBase
   end
 
   def fetch_standard_data(field = sensor.name)
+    # For sensors with avg aggregation, calculate average instead of sum
+    aggregation = use_average_aggregation? ? :average : :sum
+
     base_scope
       .where(field:)
-      .sum(:value)
+      .public_send(aggregation, :value)
       .map { |key, value| format_data_entry(key, value) }
   end
 
@@ -159,6 +171,12 @@ class Insights::HeatmapBase
 
   def calculated_sensor?
     (sensor.sql_calculated? || sensor.calculated?) && !sensor.store_in_summary?
+  end
+
+  def use_average_aggregation?
+    # For sensors that store avg values (like temperatures), we need to average
+    # them when grouping by month/year, not sum them
+    sensor&.allowed_aggregations&.first == :avg
   end
 
   # Abstract method - subclasses define their date dimensions

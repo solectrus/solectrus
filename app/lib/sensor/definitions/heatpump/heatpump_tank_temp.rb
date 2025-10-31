@@ -6,6 +6,7 @@ class Sensor::Definitions::HeatpumpTankTemp < Sensor::Definitions::Base
         text_classes: 'text-red-100 dark:text-red-300'
 
   aggregations stored: %i[avg min max], top10: true
+  trend aggregation: :avg, more_is_better: true
 
   chart { |timeframe| Sensor::Chart::HeatpumpTankTemp.new(timeframe:) }
 

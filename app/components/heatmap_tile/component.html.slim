@@ -8,7 +8,7 @@
         - if (value = daily_value_for(month, day))
           - date = Date.new(current_year, month, day)
           - if date
-            = link_to root_path(sensor_name: sensor.name, timeframe: date.strftime('%Y-%m-%d')),
+            = link_to link_path_for_date(date),
                       class: ['aspect-square', background_class(value)],
                       style: "opacity: #{opacity(value)}",
                       data: { controller: 'tippy' } do
@@ -56,7 +56,7 @@
       - (1..12).each do |month|
         - if (value = value_for(year, month))
           - date = Date.new(year, month)
-          = link_to root_path(sensor_name: sensor.name, timeframe: date.strftime('%Y-%m')),
+          = link_to link_path_for_date(date.strftime('%Y-%m')),
                     class: ['aspect-square', background_class(value)],
                     style: "opacity: #{opacity(value)}",
                     data: { controller: 'tippy' } do

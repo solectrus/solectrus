@@ -15,10 +15,18 @@ class Insights::Extremum < Insights::Base
     return if timeframe.day?
     return if sensor.summary_meta_aggregations.exclude?(aggregation)
 
+    # Use the first allowed aggregation (prefer sum, but fall back to avg/etc.)
+    ranking_aggregation =
+      if sensor.allowed_aggregations.include?(:sum)
+        :sum
+      else
+        sensor.allowed_aggregations.first
+      end
+
     ranking_hash =
       Sensor::Query::Ranking.new(
         sensor.name,
-        aggregation: :sum,
+        aggregation: ranking_aggregation,
         period: :day,
         start: timeframe.effective_beginning_date,
         stop: timeframe.effective_ending_date,
