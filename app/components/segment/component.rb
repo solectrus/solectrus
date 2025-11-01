@@ -123,7 +123,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def icon_scale
     return 100 if peak.nil?
 
-    Scale.new(target: 90..270, max: peak).result(value)
+    Scale.new(target: 90..150, max: peak).result(value)
   end
 
   def balance?
