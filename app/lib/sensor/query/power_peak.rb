@@ -49,17 +49,33 @@ module Sensor
       private
 
       def query_peak_values
+        # Return empty if no sensors configured that support max aggregation
         return {} if sensor_names_with_max.empty?
 
-        SummaryValue
-          .where(
-            date:
-              timeframe.effective_beginning_date..timeframe.effective_ending_date,
-            field: sensor_names_with_max,
-            aggregation: :max,
-          )
-          .group(:field)
-          .maximum(:value)
+        # Single query to get MIN(date) and MAX(value) for each sensor
+        # GROUP BY field to get max value per sensor
+        records =
+          SummaryValue
+            .where(
+              date:
+                timeframe.effective_beginning_date..timeframe.effective_ending_date,
+              field: sensor_names_with_max,
+              aggregation: :max,
+            )
+            .group(:field)
+            .pluck('MIN(date)', :field, 'MAX(value)')
+
+        # Return empty if no data available in timeframe
+        return {} if records.empty?
+
+        # Return empty if oldest data is less than 3 days old
+        # Peak values are not meaningful with insufficient sample size
+        # Note: MIN(date) is the same across all records (global minimum, not per field)
+        min_date = records.first.first
+        return {} if min_date.nil? || min_date > 3.days.ago.to_date
+
+        # Build result hash (without min_date)
+        records.to_h { |_date, field, value| [field.to_sym, value] }
       end
 
       def sensor_names_with_max

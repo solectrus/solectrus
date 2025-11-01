@@ -61,6 +61,63 @@ describe Sensor::Query::PowerPeak do
           )
         end
       end
+
+      context 'when data is too recent (less than 3 days old)' do
+        before do
+          create_summary(
+            date: 2.days.ago.to_date,
+            values: [
+              [:inverter_power_1, :max, 1000],
+              [:inverter_power_2, :max, 1100],
+              [:heatpump_power, :max, 2000],
+            ],
+          )
+
+          create_summary(
+            date: 1.day.ago.to_date,
+            values: [
+              [:inverter_power_1, :max, 1500],
+              [:inverter_power_2, :max, 1600],
+              [:heatpump_power, :max, 2500],
+            ],
+          )
+        end
+
+        it 'returns empty hash (insufficient data)' do
+          is_expected.to eq({})
+        end
+      end
+
+      context 'when oldest data is exactly 3 days old' do
+        before do
+          create_summary(
+            date: 3.days.ago.to_date,
+            values: [
+              [:inverter_power_1, :max, 1000],
+              [:inverter_power_2, :max, 1100],
+              [:heatpump_power, :max, 2000],
+            ],
+          )
+
+          create_summary(
+            date: 1.day.ago.to_date,
+            values: [
+              [:inverter_power_1, :max, 1500],
+              [:inverter_power_2, :max, 1600],
+              [:heatpump_power, :max, 2500],
+            ],
+          )
+        end
+
+        it 'returns the maximum values (sufficient data)' do
+          is_expected.to eq(
+            inverter_power: 3100,
+            inverter_power_1: 1500,
+            inverter_power_2: 1600,
+            heatpump_power: 2500,
+          )
+        end
+      end
     end
 
     context 'when one sensor is provided' do
