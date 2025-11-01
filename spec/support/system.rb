@@ -11,6 +11,7 @@ Capybara.register_driver :my_playwright do |app|
       width: 1280,
       height: 800,
     },
+    reduced_motion: :reduce,
   )
 end
 
