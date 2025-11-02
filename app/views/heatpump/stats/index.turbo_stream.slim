@@ -80,7 +80,7 @@
               = render SensorValue::Component.new(data, :heatpump_tank_temp)
 
     .flex-1.flex
-      = render SegmentContainer::Component.new tippy_placement: 'bottom',
+      = render SegmentContainer::Component.new tooltip_placement: 'bottom',
                                                data:,
                                                timeframe: do |container|
         = data.heatpump_heating_power.inspect

@@ -4,10 +4,10 @@
             style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
-              controller: tooltip ? 'tippy' : nil,
-              tippy_placement_value: parent.tippy_placement,
-              tippy_force_tap_to_close_value: false,
-              tippy_touch_value: 'long',
+              controller: tooltip ? 'tooltip' : nil,
+              tooltip_placement_value: parent.tooltip_placement,
+              tooltip_force_tap_to_close_value: false,
+              tooltip_touch_value: 'long',
             } do
     = block.call
 
@@ -18,10 +18,10 @@
             style: "height: #{percent.round(1)}%; --icon-scale: #{icon_scale / 100.0}",
             title:,
             data: { \
-              controller: tooltip ? 'tippy' : nil,
-              tippy_placement_value: parent.tippy_placement,
-              tippy_force_tap_to_close_value: false,
-              tippy_touch_value: 'long',
+              controller: tooltip ? 'tooltip' : nil,
+              tooltip_placement_value: parent.tooltip_placement,
+              tooltip_force_tap_to_close_value: false,
+              tooltip_touch_value: 'long',
               turbo_frame: helpers.frame_id('chart', timeframe:),
               turbo_action: 'replace',
               turbo_prefetch: 'false',
@@ -41,7 +41,7 @@
       - if sensor.name == :grid_export_power && data.respond_to?(:grid_export_limit_active?) && data.grid_export_limit_active?
         i.fa.fa-circle-exclamation
 
-      .hidden id="tippy-tooltip-#{sensor.name}" data-tippy-target="html"
+      .hidden id="tooltip-content-#{sensor.name}" data-tooltip-target="html"
         .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
           - unless inline
             = render SensorIcon::Component.new(sensor, data:, class: 'fa-2xl')

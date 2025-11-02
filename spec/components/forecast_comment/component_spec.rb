@@ -24,7 +24,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.exactly')
       end
 
-      it 'has no tippy-tooltip' do
+      it 'has no tooltip-content' do
         expect(page.native.inner_html).not_to include('<template')
       end
     end
@@ -39,7 +39,7 @@ describe ForecastComment::Component, type: :component do
                   )
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
@@ -51,7 +51,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.worse_html', percent: '10 %')
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
@@ -68,7 +68,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.expect_html', value: '1 kWh')
       end
 
-      it 'has no tippy-tooltip' do
+      it 'has no tooltip-content' do
         expect(page).to have_no_css('div', id: 'forecast-expectation')
       end
     end
@@ -83,7 +83,7 @@ describe ForecastComment::Component, type: :component do
                   )
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
@@ -95,7 +95,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.expect_html', value: '1 kWh')
       end
 
-      it 'has no tippy-tooltip' do
+      it 'has no tooltip-content' do
         expect(page.native.inner_html).not_to include('<template')
       end
     end
@@ -112,7 +112,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.exactly')
       end
 
-      it 'has no tippy-tooltip' do
+      it 'has no tooltip-content' do
         expect(page.native.inner_html).not_to include('<template')
       end
     end
@@ -127,7 +127,7 @@ describe ForecastComment::Component, type: :component do
                   )
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
@@ -139,7 +139,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.worse_html', percent: '10 %')
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end

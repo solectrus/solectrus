@@ -4,7 +4,7 @@ describe Segment::Component, type: :component do
       sensor,
       parent:
         SegmentContainer::Component.new(
-          tippy_placement: 'right',
+          tooltip_placement: 'right',
           data:,
           timeframe:,
         ),

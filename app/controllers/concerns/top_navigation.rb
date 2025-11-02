@@ -56,7 +56,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           end,
         current: helpers.controller_namespace == 'balance',
         data: {
-          controller: 'tippy',
+          controller: 'tooltip',
         },
       }
     end

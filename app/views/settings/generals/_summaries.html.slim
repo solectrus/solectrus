@@ -5,8 +5,8 @@
   .mt-2.flex.justify-between.items-start.gap-5.md:gap-10
     .text-sm
       p.py-1.md:py-2[
-        data-controller="tippy"
-        data-tippy-touch-value="true"
+        data-controller="tooltip"
+        data-tooltip-touch-value="true"
         title= t('settings.general.summaries.description')
       ]
         - if summary_completion_rate.zero?

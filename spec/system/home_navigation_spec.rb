@@ -218,7 +218,7 @@ describe 'Home page' do
     end
 
     click_on('Kennzahlen & Trend')
-    expect(page).to have_css('#modal-title', visible: :all)
+    expect(page).to have_css('#modal-title')
 
     click_on('Schließen')
     expect(page).to have_no_css('#modal-title')

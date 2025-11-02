@@ -6,8 +6,8 @@
       i.fab.fa-github.fa-lg
 
     code.select-text[
-      data-controller = 'tippy'
-      data-tippy-touch-value= 'true'
+      data-controller = 'tooltip'
+      data-tooltip-touch-value= 'true'
       title= l(commit_time)
     ]
       = current_version
@@ -17,7 +17,7 @@
     - when true
       = link_to latest_release_url,
                 class: 'relative flex',
-                data: { controller: 'tippy' },
+                data: { controller: 'tooltip' },
                 title: t('layout.version_outdated', latest_version:),
                 target: '_blank',
                 rel: 'noopener' do
@@ -26,7 +26,7 @@
 
     - when false
       = link_to latest_release_url,
-                data: { controller: 'tippy' },
+                data: { controller: 'tooltip' },
                 title: t('layout.version_uptodate'),
                 target: '_blank',
                 rel: 'noopener' do

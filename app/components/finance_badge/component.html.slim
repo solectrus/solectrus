@@ -23,13 +23,13 @@
                 turbo_prefetch: 'false',
               },
               class: 'click-animation' do
-      div data-controller= 'tippy' data-tippy-touch-value= 'true'
+      div data-controller= 'tooltip' data-tooltip-touch-value= 'true'
         .value
           = render SensorValue::Component.new(data, :total_costs, sign: :negative)
         .title
           = Sensor::Registry[:total_costs].display_name(:short)
 
-        template data-tippy-target= 'html'
+        template data-tooltip-target= 'html'
           = render ConsumeDetails::Component.new(data:)
 
     = link_to root_path(sensor_name: 'savings', timeframe:),
@@ -39,11 +39,11 @@
                 turbo_prefetch: 'false',
               },
               class: 'click-animation' do
-      div data-controller= 'tippy' data-tippy-touch-value= 'true'
+      div data-controller= 'tooltip' data-tooltip-touch-value= 'true'
         .value
           = render SensorValue::Component.new(data, :savings, sign: :positive)
         .title
           = Sensor::Registry[:savings].display_name(:short)
 
-        template data-tippy-target= 'html'
+        template data-tooltip-target= 'html'
           = render SavingsDetails::Component.new(data:)

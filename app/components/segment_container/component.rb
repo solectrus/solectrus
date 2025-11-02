@@ -6,12 +6,12 @@ class SegmentContainer::Component < ViewComponent::Base
                }
   renders_one :title
 
-  def initialize(data:, timeframe:, tippy_placement:)
+  def initialize(data:, timeframe:, tooltip_placement:)
     super()
     @data = data
     @timeframe = timeframe
-    @tippy_placement = tippy_placement
+    @tooltip_placement = tooltip_placement
   end
 
-  attr_reader :data, :timeframe, :tippy_placement
+  attr_reader :data, :timeframe, :tooltip_placement
 end

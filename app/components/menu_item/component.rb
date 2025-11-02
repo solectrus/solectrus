@@ -74,7 +74,7 @@ class MenuItem::Component < ViewComponent::Base
     tag.span class: 'flex items-center gap-3',
              title: icon_only ? name : nil,
              data: {
-               controller: 'tippy',
+               controller: 'tooltip',
              } do
       content_parts = []
 

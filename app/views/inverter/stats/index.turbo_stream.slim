@@ -16,10 +16,10 @@
                       class: 'bg-white dark:bg-slate-900 py-2 md:py-4 pl-3',
                       title: Sensor::Registry[:inverter_power].display_name,
                       data: { \
-                        controller: 'tippy',
-                        tippy_placement_value: 'right',
-                        tippy_force_tap_to_close_value: false,
-                        tippy_touch_value: 'long',
+                        controller: 'tooltip',
+                        tooltip_placement_value: 'right',
+                        tooltip_force_tap_to_close_value: false,
+                        tooltip_touch_value: 'long',
                         turbo_frame: frame_id('chart', timeframe:),
                         turbo_action: 'replace',
                         turbo_prefetch: 'false',
@@ -29,7 +29,7 @@
               div data= { 'stats-with-chart--component-target': sensor_name == :inverter_power ? 'current' : nil, 'sensor-name': sensor_name, value: data.inverter_power, time: data.time.to_i }
                 = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :rate : :total)
 
-              #tippy-tooltip-inverter_power.hidden data-tippy-target= 'html'
+              #tooltip-content-inverter_power.hidden data-tooltip-target= 'html'
                 .flex.flex-col.items-center.justify-center.gap-2.p-2
                   i.fa.fa-2xl.fa-sun
                   = Sensor::Registry[:inverter_power].display_name
@@ -37,7 +37,7 @@
 
       // Inner content
       .flex-1.flex
-        = render SegmentContainer::Component.new tippy_placement: 'bottom',
+        = render SegmentContainer::Component.new tooltip_placement: 'bottom',
                                                  data:,
                                                  timeframe: do |balance|
           - Sensor::Config.custom_inverter_sensors.reverse_each.with_index(0) do |sensor, index|

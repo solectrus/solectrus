@@ -25,10 +25,10 @@
                       class: 'bg-white dark:bg-slate-900 py-2 md:py-4 pl-3',
                       title: Sensor::Registry[:house_power].display_name,
                       data: { \
-                        controller: 'tippy',
-                        tippy_placement_value: 'right',
-                        tippy_force_tap_to_close_value: false,
-                        tippy_touch_value: 'long',
+                        controller: 'tooltip',
+                        tooltip_placement_value: 'right',
+                        tooltip_force_tap_to_close_value: false,
+                        tooltip_touch_value: 'long',
                         turbo_frame: frame_id('chart', timeframe:),
                         turbo_action: 'replace',
                         turbo_prefetch: 'false',
@@ -40,16 +40,16 @@
 
               - unless data.house_power_valid?
                 .text-center[
-                  data-controller= 'tippy'
+                  data-controller= 'tooltip'
                   title= t('layout.house_power_invalid')
-                  data-tippy-placement-value= 'right'
-                  data-tippy-touch-value= 'true'
+                  data-tooltip-placement-value= 'right'
+                  data-tooltip-touch-value= 'true'
                 ]
                   i.fa.fa-circle-exclamation
 
       // Inner content
       .flex-1.flex
-        = render SegmentContainer::Component.new tippy_placement: 'bottom',
+        = render SegmentContainer::Component.new tooltip_placement: 'bottom',
                                                   data:,
                                                   timeframe: do |balance|
           ruby:

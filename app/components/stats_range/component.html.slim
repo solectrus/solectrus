@@ -11,10 +11,10 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy" data-tippy-touch-value= "true"
+        div data-controller="tooltip" data-tooltip-touch-value= "true"
           = render RadialBadge::Component.new(:autarky, data:)
           - unless timeframe.future?
-            template data-tippy-target="html"
+            template data-tooltip-target="html"
               = render AutarkyDetails::Component.new(data:, timeframe:)
 
     - if Sensor::Config.exists?(:self_consumption_quote) && data.self_consumption_quote
@@ -25,10 +25,10 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy" data-tippy-touch-value= "true"
+        div data-controller="tooltip" data-tooltip-touch-value= "true"
           = render RadialBadge::Component.new(:self_consumption_quote, data:)
           - unless timeframe.future?
-            template data-tippy-target="html"
+            template data-tooltip-target="html"
               = render ConsumptionDetails::Component.new(data:, timeframe:)
 
     div class="flex-1"
@@ -42,7 +42,7 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tippy" title= t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tippy-touch-value= "true"
+        div data-controller="tooltip" title= t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tooltip-touch-value= "true"
           = render RadialBadge::Component.new(:co2_reduction, data:) do
             = render SensorValue::Component.new(data, :co2_reduction, class: sensor.color_text)
 

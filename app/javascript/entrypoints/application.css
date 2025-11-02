@@ -18,7 +18,7 @@
 @import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
 
 /* Import app specific styles */
-@import '../stylesheets/tippy.css' layer(base);
+@import '../stylesheets/tooltip.css' layer(base);
 @import '../stylesheets/flow.css' layer(base);
 @import '../stylesheets/badge.css' layer(base);
 @import '../stylesheets/animations.css' layer(base);

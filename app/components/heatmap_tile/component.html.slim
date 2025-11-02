@@ -1,5 +1,5 @@
 - if timeframe.year?
-  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(31,minmax(0.5rem,1fr))] gap-x-0.5 sm:gap-x-0.5 gap-y-0.5 sm:gap-y-0.5 items-center'
+  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(31,minmax(0.5rem,1fr))] gap-x-0.5 sm:gap-x-0.5 gap-y-0.5 sm:gap-y-0.5 items-center' data-controller= 'heatmap-tile--component'
     - months.reverse_each do |month|
       .text-right.pr-1.flex.items-center.justify-end.tabular-nums.sm:pr-2.text-xs.leading-none
         = t('date.abbr_month_names')[month]
@@ -10,36 +10,35 @@
           - if date
             = link_to link_path_for_date(date),
                       class: ['aspect-square', background_class(value)],
-                      style: "opacity: #{opacity(value)}",
-                      data: { controller: 'tippy' } do
-                .hidden data-tippy-target= 'html'
-                  strong
-                    = l(date)
+                      style: "opacity: #{opacity(value)}" do
+              .hidden data-heatmap-tile--component-target= 'html'
+                strong
+                  = l(date)
 
-                  - if sensor.name == :grid_power
-                    table
-                      tbody
-                        - grid_fields.each do |field|
-                          tr
-                            td.text-left.pr-2
-                              - case field
-                              - when :grid_revenue
-                                = Sensor::Registry[:grid_export_power].display_name
-                              - when :grid_costs
-                                = Sensor::Registry[:grid_import_power].display_name
-                            td.text-right.tabular-nums
-                              =< render SensorValue::Component.new(value[field], field, sign: field == :grid_costs ? :negative : :positive, precision: 0)
+                - if sensor.name == :grid_power
+                  table.text-xs.mt-1
+                    - grid_fields.each do |field|
+                      tr
+                        td
+                          - case field
+                          - when :grid_revenue
+                            | Export:
+                          - when :grid_costs
+                            | Import:
+                        td.text-right.pl-2
+                          =< render SensorValue::Component.new(value[field], field, sign: field == :grid_costs ? :negative : :positive, precision: 0)
 
-                      tfoot.border-t
-                        tr
-                          td Saldo
-                          td.text-right.tabular-nums
-                            = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
-                  - else
-                    br
-                    = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)
+                    tr.font-bold
+                      td Saldo:
+                      td.text-right.pl-2
+                        = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
+                - else
+                  br
+                  = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)
+
+              span.block.h-full
         - else
-          div
+          .aspect-square
 
     / Empty cell for month column alignment
     div
@@ -48,7 +47,7 @@
         = day.odd? ? day : ''
 
 - elsif timeframe.all?
-  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(12,minmax(1rem,1fr))] gap-0.5 sm:gap-1'
+  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(12,minmax(1rem,1fr))] gap-0.5 sm:gap-1' data-controller= 'heatmap-tile--component'
     - years.reverse_each do |year|
       .text-right.pr-1.flex.items-center.justify-end.tabular-nums.sm:pr-2
         = year
@@ -58,36 +57,35 @@
           - date = Date.new(year, month)
           = link_to link_path_for_date(date.strftime('%Y-%m')),
                     class: ['aspect-square', background_class(value)],
-                    style: "opacity: #{opacity(value)}",
-                    data: { controller: 'tippy' } do
-              .hidden data-tippy-target= 'html'
+                    style: "opacity: #{opacity(value)}" do
+              .hidden data-heatmap-tile--component-target= 'html'
                 strong
                   = l(date, format: :month)
 
                 - if sensor.name == :grid_power
-                  table
-                    tbody
-                      - grid_fields.each do |field|
-                        tr
-                          td.text-left.pr-2
-                            - case field
-                            - when :grid_revenue
-                              = Sensor::Registry[:grid_export_power].display_name
-                            - when :grid_costs
-                              = Sensor::Registry[:grid_import_power].display_name
-                          td.text-right.tabular-nums
-                            =< render SensorValue::Component.new(value[field], field, sign: field == :grid_costs ? :negative : :positive, precision: 0)
-
-                    tfoot.border-t
+                  table.text-xs.mt-1
+                    - grid_fields.each do |field|
                       tr
-                        td Saldo
-                        td.text-right.tabular-nums
-                          = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
+                        td
+                          - case field
+                          - when :grid_revenue
+                            | Export:
+                          - when :grid_costs
+                            | Import:
+                        td.text-right.pl-2
+                          =< render SensorValue::Component.new(value[field], field, sign: field == :grid_costs ? :negative : :positive, precision: 0)
+
+                    tr.font-bold
+                      td Saldo:
+                      td.text-right.pl-2
+                        = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
                 - else
                   br
                   = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)
+
+              span.block.h-full
         - else
-          div
+          .aspect-square
     div
     - (1..12).each do |month|
       .text-center.text-xs.sm:text-sm.sm:mt-1

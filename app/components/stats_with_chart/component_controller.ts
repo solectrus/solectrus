@@ -1,8 +1,6 @@
 import { Controller, ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
-import { application } from '@/utils/setupStimulus';
-import TippyController from '@/controllers/tippy_controller';
 import { IntervalTimer } from '@/utils/intervalTimer';
 
 type LineDatasetWithId = ChartDataset<'line'> & {
@@ -230,13 +228,7 @@ export default class extends Controller {
       const promises = [this.statsTarget.reload()];
       if (options.chart) promises.push(this.chartTarget.reload());
 
-      await Promise.all(promises).then(() => {
-        setTimeout(() => {
-          application.controllers.forEach((controller) => {
-            if (controller instanceof TippyController) controller.refresh();
-          });
-        }, 100);
-      });
+      await Promise.all(promises);
     } catch (error) {
       console.error(error);
     }
