@@ -30,7 +30,7 @@ class StatsWithChart::Component < ViewComponent::Base
   def next_path
     return unless forced_next_timeframe
 
-    root_path(sensor_name:, timeframe: forced_next_timeframe)
+    balance_home_path(sensor_name:, timeframe: forced_next_timeframe)
   end
 
   def boundary

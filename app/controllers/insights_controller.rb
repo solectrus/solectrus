@@ -7,7 +7,7 @@ class InsightsController < ApplicationController
       render :index
     else
       # Fallback
-      redirect_to root_path(sensor_name: sensor.name, timeframe:)
+      redirect_to balance_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
 end

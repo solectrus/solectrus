@@ -32,7 +32,7 @@ describe 'Sessions' do
     it 'set session and redirects for valid password' do
       post '/login', params: { admin_user: { username: 'admin', password: } }
 
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(balance_home_path)
 
       jar = ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
       expect(jar.signed[:admin]).to be true
@@ -44,7 +44,7 @@ describe 'Sessions' do
       login_as_admin
       delete '/logout'
 
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(balance_home_path)
 
       jar = ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
       expect(jar.signed[:admin]).to be_nil

@@ -8,7 +8,7 @@ class Balance::ChartsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to root_path(sensor_name: sensor.name, timeframe:)
+      redirect_to balance_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
 

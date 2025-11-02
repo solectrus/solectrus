@@ -160,7 +160,7 @@ class HeatmapTile::Component < ViewComponent::Base
     when :inverter
       helpers.inverter_home_path(sensor_name:, timeframe:)
     else
-      helpers.root_path(sensor_name:, timeframe:)
+      helpers.balance_home_path(sensor_name:, timeframe:)
     end
   end
 end

@@ -1,7 +1,7 @@
 .badge class= 'h-auto space-y-2 tall:space-y-3 py-3 rounded-3xl text-center xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800 text-slate-500 dark:text-slate-400'
   - unless timeframe.future?
     - if Sensor::Config.exists?(:grid_export_power)
-      = link_to root_path(sensor_name: 'grid_revenue', timeframe:),
+      = link_to balance_home_path(sensor_name: 'grid_revenue', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
@@ -13,7 +13,7 @@
         .title
           = Sensor::Registry[:grid_revenue].display_name(:short)
 
-    = link_to root_path( \
+    = link_to balance_home_path( \
                 sensor_name: Setting.opportunity_costs ? :total_costs : :grid_costs,
                 timeframe:,
               ),
@@ -32,7 +32,7 @@
         template data-tooltip-target= 'html'
           = render ConsumeDetails::Component.new(data:)
 
-    = link_to root_path(sensor_name: 'savings', timeframe:),
+    = link_to balance_home_path(sensor_name: 'savings', timeframe:),
               data: { \
                 turbo_frame: helpers.frame_id('chart'),
                 turbo_action: 'replace',

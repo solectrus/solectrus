@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 describe 'Sponsorings' do
   describe 'GET /show' do
     context 'when not sponsoring' do
@@ -22,7 +20,7 @@ describe 'Sponsorings' do
 
       it 'redirects' do
         get '/sponsoring'
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(balance_home_path)
       end
     end
 
@@ -33,7 +31,7 @@ describe 'Sponsorings' do
 
       it 'redirects' do
         get '/sponsoring'
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(balance_home_path)
       end
     end
   end

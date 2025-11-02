@@ -4,7 +4,7 @@
 
   = balance.with_center do
     - if Sensor::Config.exists?(:autarky)
-      = link_to root_path(sensor_name: 'autarky', timeframe:),
+      = link_to balance_home_path(sensor_name: 'autarky', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
@@ -18,7 +18,7 @@
               = render AutarkyDetails::Component.new(data:, timeframe:)
 
     - if Sensor::Config.exists?(:self_consumption_quote) && data.self_consumption_quote
-      = link_to root_path(sensor_name: 'self_consumption_quote', timeframe:),
+      = link_to balance_home_path(sensor_name: 'self_consumption_quote', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
@@ -35,7 +35,7 @@
 
     - if data.co2_reduction&.nonzero?
       - sensor = Sensor::Registry[:co2_reduction]
-      = link_to root_path(sensor_name: 'co2_reduction', timeframe:),
+      = link_to balance_home_path(sensor_name: 'co2_reduction', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',

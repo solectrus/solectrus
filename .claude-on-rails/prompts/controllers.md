@@ -47,7 +47,7 @@ end
 ```ruby
 rescue_from ActiveRecord::RecordNotFound do |exception|
   respond_to do |format|
-    format.html { redirect_to root_path, alert: 'Record not found' }
+    format.html { redirect_to balance_home_path, alert: 'Record not found' }
     format.json { render json: { error: 'Not found' }, status: :not_found }
   end
 end

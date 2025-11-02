@@ -5,7 +5,7 @@ class House::HomeController < ApplicationController
 
   def index
     unless Setting.enable_custom_consumer
-      redirect_to(root_path)
+      redirect_to(balance_home_path)
       return
     end
 

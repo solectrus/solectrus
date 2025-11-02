@@ -107,7 +107,10 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
         timeframe: corresponding_date(record[:date]),
       )
     else
-      root_path(sensor_name:, timeframe: corresponding_date(record[:date]))
+      balance_home_path(
+        sensor_name:,
+        timeframe: corresponding_date(record[:date]),
+      )
     end
   end
 

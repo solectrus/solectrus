@@ -5,7 +5,7 @@
 
   = balance.with_center do
     - if Sensor::Config.exists?(:autarky)
-      = link_to root_path(sensor_name: 'autarky', timeframe:),
+      = link_to balance_home_path(sensor_name: 'autarky', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
@@ -24,7 +24,7 @@
             = render AutarkyDetails::Component.new(data:, timeframe:)
 
     - if Sensor::Config.exists?(:self_consumption_quote) && data.self_consumption_quote
-      = link_to root_path(sensor_name: 'self_consumption_quote', timeframe:),
+      = link_to balance_home_path(sensor_name: 'self_consumption_quote', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
@@ -46,7 +46,7 @@
       = render Flow::Component.new value: data.total, max: max_flow
 
     - if data.case_temp&.nonzero?
-      = link_to root_path(sensor_name: 'case_temp', timeframe:),
+      = link_to balance_home_path(sensor_name: 'case_temp', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
@@ -72,7 +72,7 @@
         )
 
     - elsif Sensor::Config.exists?(:battery_soc)
-      = link_to root_path(sensor_name: 'battery_soc', timeframe:),
+      = link_to balance_home_path(sensor_name: 'battery_soc', timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',

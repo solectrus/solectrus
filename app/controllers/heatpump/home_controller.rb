@@ -5,7 +5,7 @@ class Heatpump::HomeController < ApplicationController
 
   def index
     unless Setting.enable_heatpump
-      redirect_to(root_path)
+      redirect_to(balance_home_path)
       return
     end
 

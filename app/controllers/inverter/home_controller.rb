@@ -5,7 +5,7 @@ class Inverter::HomeController < ApplicationController
 
   def index
     unless Setting.enable_multi_inverter
-      redirect_to(root_path)
+      redirect_to(balance_home_path)
       return
     end
 
@@ -20,6 +20,9 @@ class Inverter::HomeController < ApplicationController
   private
 
   def default_path
-    inverter_home_path(sensor_name: sensor_name || :inverter_power, timeframe: 'now')
+    inverter_home_path(
+      sensor_name: sensor_name || :inverter_power,
+      timeframe: 'now',
+    )
   end
 end

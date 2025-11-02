@@ -5,23 +5,27 @@ describe 'Home' do
 
     context 'without params :fields and :timeframe' do
       context 'when day' do
-        before { allow(Sensor::Query::DayLight).to receive(:active?).and_return(true) }
+        before do
+          allow(Sensor::Query::DayLight).to receive(:active?).and_return(true)
+        end
 
         it 'redirects' do
-          get root_path
+          get balance_home_path
           expect(response).to redirect_to(
-            root_path(sensor_name: 'inverter_power', timeframe: 'now'),
+            balance_home_path(sensor_name: 'inverter_power', timeframe: 'now'),
           )
         end
       end
 
       context 'when night' do
-        before { allow(Sensor::Query::DayLight).to receive(:active?).and_return(false) }
+        before do
+          allow(Sensor::Query::DayLight).to receive(:active?).and_return(false)
+        end
 
         it 'redirects' do
-          get root_path
+          get balance_home_path
           expect(response).to redirect_to(
-            root_path(sensor_name: 'house_power', timeframe: 'now'),
+            balance_home_path(sensor_name: 'house_power', timeframe: 'now'),
           )
         end
       end
@@ -29,16 +33,16 @@ describe 'Home' do
 
     context 'without param :timeframe' do
       it 'redirects' do
-        get root_path(sensor_name: 'house_power')
+        get balance_home_path(sensor_name: 'house_power')
         expect(response).to redirect_to(
-          root_path(sensor_name: 'house_power', timeframe: 'now'),
+          balance_home_path(sensor_name: 'house_power', timeframe: 'now'),
         )
       end
     end
 
     context 'with params :sensor and :timeframe' do
       it 'renders' do
-        get root_path(
+        get balance_home_path(
               sensor_name: 'house_power',
               timeframe: Date.yesterday.strftime('%Y-%m'),
             )
@@ -48,7 +52,7 @@ describe 'Home' do
 
     context 'when param :timeframe is in the future' do
       it 'renders for day' do
-        get root_path(
+        get balance_home_path(
               timeframe: (Date.current + 2.days).strftime('%Y-%m-%d'),
               sensor_name: 'house_power',
             )
@@ -56,7 +60,7 @@ describe 'Home' do
       end
 
       it 'renders for week' do
-        get root_path(
+        get balance_home_path(
               sensor_name: 'house_power',
               timeframe: (Date.current + 1.week).strftime('%Y-W%V'),
             )
@@ -64,7 +68,7 @@ describe 'Home' do
       end
 
       it 'renders for month' do
-        get root_path(
+        get balance_home_path(
               sensor_name: 'house_power',
               timeframe: (Date.current + 1.month).strftime('%Y-%m'),
             )
@@ -72,7 +76,7 @@ describe 'Home' do
       end
 
       it 'renders for year' do
-        get root_path(
+        get balance_home_path(
               sensor_name: 'house_power',
               timeframe: (Date.current + 1.year).strftime('%Y'),
             )
@@ -82,7 +86,7 @@ describe 'Home' do
 
     context 'when timeframe is before installation date' do
       it 'renders for day' do
-        get root_path(
+        get balance_home_path(
               sensor_name: 'house_power',
               timeframe:
                 (
@@ -94,7 +98,7 @@ describe 'Home' do
       end
 
       it 'renders for week' do
-        get root_path(
+        get balance_home_path(
               sensor_name: 'house_power',
               timeframe:
                 (
@@ -106,7 +110,7 @@ describe 'Home' do
       end
 
       it 'renders for month' do
-        get root_path(
+        get balance_home_path(
               sensor_name: 'house_power',
               timeframe:
                 (
@@ -118,7 +122,7 @@ describe 'Home' do
       end
 
       it 'renders for year' do
-        get root_path(
+        get balance_home_path(
               sensor_name: 'house_power',
               timeframe:
                 (

@@ -5,9 +5,9 @@
 #                      health_check GET    /up(.:format)                                             health#show
 #                skip_browser_check GET    /skip-browser-check(.:format)                             application#skip_browser_check
 #                          lookbook        /lookbook                                                 Lookbook::Engine
-#                              root GET    /(:sensor_name)(/:timeframe)(.:format)                    balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                                   GET    /stats/:sensor_name(/:timeframe)(.:format)                balance/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                                   GET    /charts/:sensor_name(/:timeframe)(.:format)               balance/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                      balance_home GET    /(:sensor_name)(/:timeframe)(.:format)                    balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                     balance_stats GET    /stats/:sensor_name(/:timeframe)(.:format)                balance/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                    balance_charts GET    /charts/:sensor_name(/:timeframe)(.:format)               balance/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                        house_home GET    /house(/:sensor_name)(/:timeframe)(.:format)              house/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                       house_stats GET    /house/stats/:sensor_name(/:timeframe)(.:format)          house/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                      house_charts GET    /house/charts/:sensor_name(/:timeframe)(.:format)         house/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
@@ -22,8 +22,8 @@
 #                           summary GET    /summaries/:date(.:format)                                summaries#show
 #                         summaries DELETE /summaries(.:format)                                      summaries#delete_all
 #                        essentials GET    /essentials(.:format)                                     essentials#index
-#                             top10 GET    /top10(/:period)(/:sensor_name)(/:calc)(/:sort)(.:format) top10#index {period: /day|week|month|year/, calc: /sum|max/, sort: /asc|desc/}
-#                       top10_chart GET    /top10-chart/:period/:sensor_name/:calc/:sort(.:format)   top10_chart#index {period: /day|week|month|year/, calc: /sum|max/, sort: /asc|desc/}
+#                             top10 GET    /top10(/:period)(/:sensor_name)(/:calc)(/:sort)(.:format) top10#index {period: /day|week|month|year/, calc: /sum|max|avg|min/, sort: /asc|desc/}
+#                       top10_chart GET    /top10-chart/:period/:sensor_name/:calc/:sort(.:format)   top10_chart#index {period: /day|week|month|year/, calc: /sum|max|avg|min/, sort: /asc|desc/}
 #                       new_session GET    /login(.:format)                                          sessions#new
 #                          sessions POST   /login(.:format)                                          sessions#create
 #                           session DELETE /logout(.:format)                                         sessions#destroy
@@ -47,6 +47,7 @@
 #                                   PUT    /settings/prices/:id(.:format)                            settings/prices#update
 #                                   DELETE /settings/prices/:id(.:format)                            settings/prices#destroy
 #                          settings GET    /settings(.:format)                                       redirect(301, /settings/general)
+#                              root GET    /                                                         balance/home#index
 #  turbo_recede_historical_location GET    /recede_historical_location(.:format)                     turbo/native/navigation#recede
 #  turbo_resume_historical_location GET    /resume_historical_location(.:format)                     turbo/native/navigation#resume
 # turbo_refresh_historical_location GET    /refresh_historical_location(.:format)                    turbo/native/navigation#refresh
@@ -92,10 +93,16 @@ Rails.application.routes.draw do
 
   constraints SensorConstraint.new(:chart_enabled?) do
     constraints timeframe: Timeframe::REGEX do
-      # Home (Root)
-      get '/(/:sensor_name)(/:timeframe)', to: 'balance/home#index', as: :root
-      get '/stats/:sensor_name(/:timeframe)', to: 'balance/stats#index'
-      get '/charts/:sensor_name(/:timeframe)', to: 'balance/charts#index'
+      # Balance
+      get '/(/:sensor_name)(/:timeframe)',
+          to: 'balance/home#index',
+          as: :balance_home
+      get '/stats/:sensor_name(/:timeframe)',
+          to: 'balance/stats#index',
+          as: :balance_stats
+      get '/charts/:sensor_name(/:timeframe)',
+          to: 'balance/charts#index',
+          as: :balance_charts
 
       # House / Inverter
       %i[house heatpump inverter].each do |item|
@@ -158,4 +165,6 @@ Rails.application.routes.draw do
     end
   end
   get '/settings', to: redirect('/settings/general')
+
+  root to: 'balance/home#index'
 end

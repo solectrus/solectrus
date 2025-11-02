@@ -10,13 +10,13 @@ class RegistrationController < ApplicationController
       when 'skip'
         UpdateCheck.skip_prompt!
 
-        redirect_to(root_path)
+        redirect_to(balance_home_path)
       else
         UpdateCheck.clear_cache!
-        redirect_to(root_path)
+        redirect_to(balance_home_path)
       end
     else
-      redirect_to(root_path)
+      redirect_to(balance_home_path)
     end
   end
 

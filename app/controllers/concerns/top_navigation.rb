@@ -40,19 +40,22 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         href:
           case helpers.controller_namespace
           when 'house'
-            root_path(sensor_name: 'house_power', timeframe: helpers.timeframe)
+            balance_home_path(
+              sensor_name: 'house_power',
+              timeframe: helpers.timeframe,
+            )
           when 'inverter'
-            root_path(
+            balance_home_path(
               sensor_name: 'inverter_power',
               timeframe: helpers.timeframe,
             )
           when 'heatpump'
-            root_path(
+            balance_home_path(
               sensor_name: 'heatpump_power',
               timeframe: helpers.timeframe,
             )
           else
-            root_path
+            balance_home_path
           end,
         current: helpers.controller_namespace == 'balance',
         data: {

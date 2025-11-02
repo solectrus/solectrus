@@ -5,6 +5,8 @@ class RegistrationRequiredController < ApplicationController
   layout 'blank'
 
   def show
-    redirect_to root_path unless UpdateCheck.registration_grace_period_expired?
+    return if UpdateCheck.registration_grace_period_expired?
+
+    redirect_to balance_home_path
   end
 end

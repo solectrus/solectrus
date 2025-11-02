@@ -3,7 +3,7 @@ class SessionsController < ApplicationController
   skip_before_action :check_for_sponsoring
 
   def new
-    redirect_to(root_path) and return if admin?
+    redirect_to(balance_home_path) and return if admin?
 
     @admin_user = AdminUser.new
   end
@@ -42,7 +42,7 @@ class SessionsController < ApplicationController
     cookies.delete :admin
 
     flash[:notice] = t('login.bye')
-    redirect_to root_path, status: :see_other
+    redirect_to balance_home_path, status: :see_other
   end
 
   private
@@ -56,7 +56,7 @@ class SessionsController < ApplicationController
   end
 
   def redirect_path
-    return root_path unless request.referer
+    return balance_home_path unless request.referer
 
     uri = URI.parse(request.referer)
     [uri.path, uri.query].compact.join('?')

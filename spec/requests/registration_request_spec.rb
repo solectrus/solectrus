@@ -17,7 +17,7 @@ describe 'Registration', with_setup_id: 0 do
         get '/registration/complete'
 
         expect(UpdateCheck).to have_received(:clear_cache!)
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(balance_home_path)
       end
 
       it 'can skip registration' do
@@ -26,7 +26,7 @@ describe 'Registration', with_setup_id: 0 do
         get '/registration/skip'
 
         expect(UpdateCheck).to have_received(:skip_prompt!)
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(balance_home_path)
       end
     end
 
@@ -34,7 +34,7 @@ describe 'Registration', with_setup_id: 0 do
       it 'redirects to root' do
         get '/registration'
 
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(balance_home_path)
       end
     end
   end

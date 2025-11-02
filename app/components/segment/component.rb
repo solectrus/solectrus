@@ -45,7 +45,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
         timeframe: parent.timeframe,
       )
     else
-      root_path(sensor_name: sensor.name, timeframe: parent.timeframe)
+      balance_home_path(sensor_name: sensor.name, timeframe: parent.timeframe)
     end
   end
 

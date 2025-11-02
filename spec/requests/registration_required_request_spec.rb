@@ -21,7 +21,7 @@ describe 'RegistrationRequired' do
         it 'redirects' do
           get '/registration-required'
 
-          expect(response).to redirect_to(root_path)
+          expect(response).to redirect_to(balance_home_path)
         end
       end
 
@@ -29,7 +29,7 @@ describe 'RegistrationRequired' do
         it 'redirects' do
           get '/registration-required'
 
-          expect(response).to redirect_to(root_path)
+          expect(response).to redirect_to(balance_home_path)
         end
       end
     end
