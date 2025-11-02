@@ -5,7 +5,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
         .px-2.flex.items-center.lg:px-0.gap-6.flex-1.dark:lg:border-indigo-700
           /! Desktop menu
           = link_to root_item.href,
-                    class: 'shrink-0 click-animation',
+                    class: 'shrink-0 click-animation focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-full',
                     title: root_item.name,
                     data: root_item.data do
             svg.size-10.md:size-12.fill-gray-300.dark:fill-gray-400[
@@ -26,7 +26,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
                     admin: helpers.admin?,
                   )
 
-              button.rounded-md.p-2.focus:ring-2.focus:ring-indigo-500.text-gray-300.hover:bg-indigo-500/75.dark:text-gray-400.dark:hover:bg-indigo-800[
+              button.rounded-md.p-2.focus:outline-none.focus:ring-2.focus:ring-gray-300.dark:focus:ring-gray-400.focus:ring-offset-0.text-gray-300.hover:bg-indigo-500/75.dark:text-gray-400.dark:hover:bg-indigo-800[
                 data-action="click->slide-over--component#open"
                 aria-haspopup= 'true'
                 aria-expanded= 'false'
@@ -48,7 +48,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
                   )
 
           /! Mobile menu button
-          button.bg-indigo-600.dark:bg-indigo-900.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-gray-300.dark:text-gray-400[
+          button.bg-indigo-600.dark:bg-indigo-900.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-gray-300.dark:text-gray-400.focus:outline-none.focus:ring-2.focus:ring-gray-300.dark:focus:ring-gray-400.focus:ring-offset-0[
             type="button"
             aria-expanded="false"
             aria-label= 'Navigation'

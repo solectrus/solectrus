@@ -20,7 +20,7 @@ class Nav::Sub::Component < ViewComponent::Base
 
     private
 
-    def css_classes
+    def css_classes # rubocop:disable Metrics/MethodLength
       base_classes = %w[
         pt-5
         pb-5
@@ -53,6 +53,11 @@ class Nav::Sub::Component < ViewComponent::Base
             dark:text-slate-300
             dark:lg:bg-gray-400
             dark:lg:text-gray-800
+            focus:outline-none
+            focus:ring-2
+            focus:ring-gray-800
+            dark:focus:ring-slate-300
+            focus:ring-offset-0
           ]
       else
         base_classes +
@@ -64,6 +69,11 @@ class Nav::Sub::Component < ViewComponent::Base
             dark:lg:hover:bg-indigo-950/50
             dark:lg:hover:text-gray-300
             rounded
+            focus:outline-none
+            focus:ring-2
+            focus:ring-gray-300
+            dark:focus:ring-gray-400
+            focus:ring-offset-0
           ]
       end
     end

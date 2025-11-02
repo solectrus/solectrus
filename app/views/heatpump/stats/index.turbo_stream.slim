@@ -12,7 +12,7 @@
       .flex.justify-between.w-full.mb-1.md:mb-2
         - if data.outdoor_temp
           = link_to url_for(controller: 'home', sensor_name: 'outdoor_temp', timeframe:),
-                    class: 'click-animation inline-block',
+                    class: 'click-animation inline-block focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-xl',
                     data: { \
                       turbo_frame: frame_id('chart', timeframe:),
                       turbo_action: 'replace',
@@ -29,7 +29,7 @@
 
         - if data.heatpump_heating_power&.positive?
           = link_to heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:),
-                    class: 'click-animation inline-block',
+                    class: 'click-animation inline-block focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-xl',
                     title: Sensor::Registry[:heatpump_heating_power].display_name,
                     data: { \
                       turbo_frame: frame_id('chart', timeframe:),
@@ -47,7 +47,7 @@
 
         - if data.heatpump_cop&.positive?
           = link_to url_for(controller: 'home', sensor_name: 'heatpump_cop', timeframe:),
-                    class: 'click-animation inline-block',
+                    class: 'click-animation inline-block focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-xl',
                     data: { \
                       turbo_frame: frame_id('chart', timeframe:),
                       turbo_action: 'replace',
@@ -64,7 +64,7 @@
 
         - if data.heatpump_tank_temp
           = link_to url_for(controller: 'home', sensor_name: 'heatpump_tank_temp', timeframe:),
-                    class: 'click-animation inline-block',
+                    class: 'click-animation inline-block focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-xl',
                     data: { \
                       turbo_frame: frame_id('chart', timeframe:),
                       turbo_action: 'replace',

@@ -1,6 +1,7 @@
 .flex.items-center.gap-2
   .space-x-2
     = link_to github_url,
+            class: 'focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',
             target: '_blank',
             rel: 'noopener' do
       i.fab.fa-github.fa-lg
@@ -16,7 +17,7 @@
     - case outdated?
     - when true
       = link_to latest_release_url,
-                class: 'relative flex',
+                class: 'relative flex focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-full',
                 data: { controller: 'tooltip' },
                 title: t('layout.version_outdated', latest_version:),
                 target: '_blank',
@@ -26,6 +27,7 @@
 
     - when false
       = link_to latest_release_url,
+                class: 'focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',
                 data: { controller: 'tooltip' },
                 title: t('layout.version_uptodate'),
                 target: '_blank',

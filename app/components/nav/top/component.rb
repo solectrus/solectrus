@@ -40,14 +40,23 @@ class Nav::Top::Component < ViewComponent::Base
           'rounded-md py-2 px-3 click-animation',
           (
             if item.current
-              'bg-indigo-800 dark:bg-indigo-950'
+              'bg-indigo-800 dark:bg-indigo-950 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
             else
-              'hover:bg-indigo-500/75 dark:hover:bg-indigo-800'
+              'hover:bg-indigo-500/75 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
             end
           ),
         ]
       when :mobile
-        ['py-2 px-3', (item.current ? 'rounded-md bg-indigo-700' : '')]
+        [
+          'py-2 px-3',
+          (
+            if item.current
+              'rounded-md bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
+            else
+              'focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-md'
+            end
+          ),
+        ]
       end
     end
   end
