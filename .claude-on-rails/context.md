@@ -4,11 +4,11 @@ This project uses ClaudeOnRails with a swarm of specialized agents for Rails dev
 
 ## Project Information
 
-- **Rails Version**: 8.1.0-rc1
-- **Ruby Version**: 3.4.7
-- **Project Type**: Full-stack Rails
-- **Test Framework**: RSpec
-- **Turbo/Stimulus**: Enabled
+- **Type**: Full-stack Rails application
+- **Database**: PostgreSQL + InfluxDB (time-series data)
+- **Frontend**: Hotwire (Turbo + Stimulus), TypeScript, Tailwind CSS
+- **Templates**: Slim
+- **Testing**: RSpec with Playwright
 
 ## Swarm Configuration
 
