@@ -1,11 +1,11 @@
 describe 'Heatpump navigation' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { stub_feature(:power_splitter, :heatpump) }
+  before { stub_feature(:power_splitter, :heatpump, :insights) }
 
   %w[heatpump_heating_power heatpump_cop outdoor_temp].each do |path|
     context "when #{path}" do
-      it 'allows complete navigation through all time periods' do # rubocop:disable RSpec/NoExpectationExample
+      it 'navigates through all time periods' do # rubocop:disable RSpec/NoExpectationExample
         visit "/heatpump/#{path}"
 
         navigate_now(path)

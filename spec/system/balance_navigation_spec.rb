@@ -1,5 +1,15 @@
-describe 'Home page' do
+describe 'Balance page' do
   include ActiveSupport::Testing::TimeHelpers
+
+  before do
+    stub_feature(
+      :relative_timeframe,
+      :power_splitter,
+      :insights,
+      :finance_charts,
+      :car,
+    )
+  end
 
   %w[
     inverter_power
@@ -20,16 +30,18 @@ describe 'Home page' do
     savings
     grid_revenue
   ].each do |path|
-    it "#{path} is clickable" do # rubocop:disable RSpec/NoExpectationExample
-      visit "/#{path}"
+    context "when #{path}" do
+      it 'navigates through all time periods' do # rubocop:disable RSpec/NoExpectationExample
+        visit "/#{path}"
 
-      navigate_now(path)
-      navigate_day(path)
-      navigate_24_hours(path)
-      navigate_week(path)
-      navigate_month(path)
-      navigate_year(path)
-      navigate_all(path)
+        navigate_now(path)
+        navigate_day(path)
+        navigate_24_hours(path)
+        navigate_week(path)
+        navigate_month(path)
+        navigate_year(path)
+        navigate_all(path)
+      end
     end
   end
 
@@ -78,7 +90,8 @@ describe 'Home page' do
   end
 
   def navigate_24_hours(path)
-    click_on 'Tag'
+    click_on('Tag') # Second click to open 24H view
+
     expect(page).to have_css('#stats-hours')
     expect(page).to have_current_path("/#{path}/P24H")
     expect(page.title).to include('Letzte 24 Stunden')
