@@ -58,24 +58,23 @@ class MenuItem::Component < ViewComponent::Base
     link_to href,
             target:,
             class: [CSS_CLASSES, css_extra],
-            data:,
+            title: (icon_only ? name : nil),
+            data: data.merge(icon_only ? { controller: 'tooltip' } : {}),
             'aria-current' => current ? 'page' : nil do
       render_inner(with_icon:)
     end
   end
 
   def render_button(with_icon:, css_extra:)
-    tag.button class: [CSS_CLASSES, css_extra], data: data do
+    tag.button class: [CSS_CLASSES, css_extra],
+               title: (icon_only ? name : nil),
+               data: data.merge(icon_only ? { controller: 'tooltip' } : {}) do
       render_inner(with_icon:)
     end
   end
 
   def render_inner(with_icon:)
-    tag.span class: 'flex items-center gap-3',
-             title: icon_only ? name : nil,
-             data: {
-               controller: 'tooltip',
-             } do
+    tag.span class: 'flex items-center gap-3' do
       content_parts = []
 
       if with_icon
