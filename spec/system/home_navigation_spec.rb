@@ -210,7 +210,6 @@ describe 'Home page' do
     if path.in? %w[
                   autarky
                   self_consumption_quote
-                  case_temp
                   battery_soc
                   car_battery_soc
                   co2_reduction
