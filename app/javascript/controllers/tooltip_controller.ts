@@ -191,9 +191,8 @@ export default class extends Controller {
       clearTimeout(this.touchTimer);
       this.touchTimer = null;
       this.longPressTriggered = false;
-    } else if (this.isVisible) {
-      this.hide();
     }
+    // Tooltip stays visible after long-press, will be closed by document click
   };
 
   private readonly preventClickAfterLongPress = (event: Event): void => {
