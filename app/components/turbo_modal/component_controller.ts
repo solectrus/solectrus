@@ -43,17 +43,21 @@ export default class extends Controller<HTMLElement> {
 
   // Close dialog when clicking ESC
   closeWithKeyboard(event: CustomEvent) {
-    if (event instanceof KeyboardEvent && event.code == 'Escape')
+    if (event instanceof KeyboardEvent && event.code == 'Escape') {
+      // If the event was already handled by a child component (e.g., picker),
+      // don't close the modal
+      if (event.defaultPrevented) return;
+
       this.closeDialog();
+    }
   }
 
   // Close dialog when clicking outside
   closeBackground(event: Event) {
-    if (
-      event.target instanceof HTMLElement &&
-      this.innerTarget.contains(event.target)
-    )
-      return;
+    if (!(event.target instanceof HTMLElement)) return;
+
+    // Don't close if clicking inside the modal
+    if (this.innerTarget.contains(event.target)) return;
 
     this.closeDialog();
   }

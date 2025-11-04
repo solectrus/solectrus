@@ -124,6 +124,11 @@ Rails.application.routes.draw do
       get '/insights/:sensor_name(/:timeframe)',
           to: 'insights#index',
           as: :insights
+
+      # Timeframe Select
+      get '/timeframe-select/:sensor_name(/:timeframe)',
+          to: 'timeframe_select#index',
+          as: :timeframe_select
     end
   end
 

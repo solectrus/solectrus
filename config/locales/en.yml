@@ -216,6 +216,9 @@ en:
       enable_multi_inverter: Enable "Generation" page in the navigation
       enable_custom_consumer: Enable "House consumption" page in the navigation
       enable_heatpump: Enable "Heat pump" page in the navigation
+  timeframe_select:
+    index:
+      title: Select timeframe
   errors:
     title: Error
     403:

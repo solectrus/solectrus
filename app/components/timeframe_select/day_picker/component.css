@@ -1,0 +1,105 @@
+@import 'tailwindcss' reference;
+
+/* Disable air-datepicker animations */
+.day-picker .air-datepicker {
+  animation: none !important;
+  transition: none !important;
+  @apply -mt-10;
+}
+
+.air-datepicker.-active- {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Change weekday names color from orange to black/white */
+.air-datepicker-body--day-name {
+  @apply text-gray-800;
+}
+
+/* Hide pointer arrow */
+.air-datepicker--pointer {
+  @apply hidden;
+}
+
+/* Disable clicks on month/year titles (prevents air-datepicker bugs) */
+.air-datepicker-nav--title {
+  @apply pointer-events-none cursor-default;
+}
+
+/* Remove highlighting of current day in light mode */
+.air-datepicker-cell.-current- {
+  @apply text-gray-800;
+}
+
+.air-datepicker-cell.-current-.-selected- {
+  @apply bg-indigo-600 text-white;
+}
+
+/* Dark mode support */
+.dark .air-datepicker {
+  @apply border-gray-700 bg-gray-800;
+}
+
+.dark .air-datepicker-body--day-name {
+  @apply text-gray-100;
+}
+
+.dark .air-datepicker-nav {
+  @apply border-gray-700 bg-gray-800;
+}
+
+.dark .air-datepicker-nav--title,
+.dark .air-datepicker-nav--action {
+  @apply text-gray-100;
+}
+
+.dark .air-datepicker-nav--title:hover {
+  @apply bg-transparent text-gray-100;
+}
+
+.dark .air-datepicker-nav--action:hover {
+  @apply bg-gray-700;
+}
+
+.dark .air-datepicker-body--day-name,
+.dark .air-datepicker-body--cells .air-datepicker-cell {
+  @apply text-gray-100;
+}
+
+.dark .air-datepicker-cell:hover:not(.-disabled-):not(.-selected-) {
+  @apply bg-gray-700 text-gray-100;
+}
+
+.dark .air-datepicker-cell.-disabled- {
+  @apply text-gray-500;
+}
+
+.dark .air-datepicker-cell.-selected- {
+  @apply bg-indigo-600 text-white;
+}
+
+.dark .air-datepicker-cell.-current- {
+  @apply text-gray-100;
+}
+
+.dark .air-datepicker-cell.-current-.-selected- {
+  @apply bg-indigo-600 text-white;
+}
+
+/* Dates from other months should be dimmed */
+.dark .air-datepicker-cell.-day-.-other-month- {
+  @apply text-gray-600;
+}
+
+.dark .air-datepicker-cell.-day-.-other-month-.-selected- {
+  @apply bg-indigo-800 text-gray-300;
+}
+
+.dark .air-datepicker-cell.-day-.-other-month-.-focus- {
+  @apply bg-gray-700 text-gray-400;
+}
+
+.dark .air-datepicker-cell.-day-.-other-month-.-selected-.-focus- {
+  @apply bg-indigo-700 text-gray-200;
+}

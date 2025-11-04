@@ -1,0 +1,13 @@
+de:
+  day: Tag
+  week: Woche
+  month: Monat
+  year: Jahr
+  date_range: Individuell
+  relative: Relativ
+  last_24_hours: Letzte 24 Stunden
+  last_7_days: Letzte 7 Tage
+  last_30_days: Letzte 30 Tage
+  last_90_days: Letzte 90 Tage
+  last_12_months: Letzte 12 Monate
+  since_installation: Seit Installation (%{months} Monate)

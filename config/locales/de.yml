@@ -216,6 +216,9 @@ de:
       enable_multi_inverter: Seite "Erzeugung" in der Navigation anbieten
       enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
       enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
+  timeframe_select:
+    index:
+      title: Zeitraum wählen
   errors:
     title: Fehler
     403:
