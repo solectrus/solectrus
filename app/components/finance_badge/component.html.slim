@@ -23,7 +23,7 @@
                 turbo_prefetch: 'false',
               },
               class: 'click-animation' do
-      div data-controller= 'tooltip' data-tooltip-touch-value= 'true'
+      div data-controller= 'tooltip' data-tooltip-touch-value= 'long'
         .value
           = render SensorValue::Component.new(data, :total_costs, sign: :negative)
         .title
@@ -39,7 +39,7 @@
                 turbo_prefetch: 'false',
               },
               class: 'click-animation' do
-      div data-controller= 'tooltip' data-tooltip-touch-value= 'true'
+      div data-controller= 'tooltip' data-tooltip-touch-value= 'long'
         .value
           = render SensorValue::Component.new(data, :savings, sign: :positive)
         .title

@@ -11,7 +11,7 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tooltip" data-tooltip-touch-value= "true"
+        div data-controller="tooltip" data-tooltip-touch-value= "long"
           = render RadialBadge::Component.new(:autarky, data:)
           - unless timeframe.future?
             template data-tooltip-target="html"
@@ -25,7 +25,7 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tooltip" data-tooltip-touch-value= "true"
+        div data-controller="tooltip" data-tooltip-touch-value= "long"
           = render RadialBadge::Component.new(:self_consumption_quote, data:)
           - unless timeframe.future?
             template data-tooltip-target="html"
@@ -42,7 +42,7 @@
                   turbo_prefetch: 'false',
                 },
                 class: 'click-animation' do
-        div data-controller="tooltip" title= t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tooltip-touch-value= "true"
+        div data-controller="tooltip" title= t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tooltip-touch-value= "long"
           = render RadialBadge::Component.new(:co2_reduction, data:) do
             = render SensorValue::Component.new(data, :co2_reduction, class: sensor.color_text)
 

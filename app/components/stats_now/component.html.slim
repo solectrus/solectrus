@@ -18,7 +18,7 @@
                   stats_with_chart__component_sensor_name_param: 'autarky',
                 },
                 class: 'click-animation' do
-        div data-controller="tooltip" data-tooltip-touch-value= "true"
+        div data-controller="tooltip" data-tooltip-touch-value= "long"
           = render RadialBadge::Component.new(:autarky, data:)
           .hidden#autarky-details-tooltip data-tooltip-target="html"
             = render AutarkyDetails::Component.new(data:, timeframe:)
@@ -37,7 +37,7 @@
                   stats_with_chart__component_sensor_name_param: 'self_consumption_quote',
                 },
                 class: 'click-animation' do
-        div data-controller="tooltip" data-tooltip-touch-value= "true"
+        div data-controller="tooltip" data-tooltip-touch-value= "long"
           = render RadialBadge::Component.new(:self_consumption_quote, data:)
           .hidden#consumption-details-tooltip data-tooltip-target="html"
             = render ConsumptionDetails::Component.new(data:, timeframe:)
