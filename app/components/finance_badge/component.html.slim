@@ -21,29 +21,31 @@
                 turbo_frame: helpers.frame_id('chart'),
                 turbo_action: 'replace',
                 turbo_prefetch: 'false',
+                controller: 'tooltip',
+                tooltip_touch_value: 'long',
               },
               class: 'click-animation' do
-      div data-controller= 'tooltip' data-tooltip-touch-value= 'long'
-        .value
-          = render SensorValue::Component.new(data, :total_costs, sign: :negative)
-        .title
-          = Sensor::Registry[:total_costs].display_name(:short)
+      .value
+        = render SensorValue::Component.new(data, :total_costs, sign: :negative)
+      .title
+        = Sensor::Registry[:total_costs].display_name(:short)
 
-        template data-tooltip-target= 'html'
-          = render ConsumeDetails::Component.new(data:)
+      template data-tooltip-target= 'html'
+        = render ConsumeDetails::Component.new(data:)
 
     = link_to balance_home_path(sensor_name: 'savings', timeframe:),
               data: { \
                 turbo_frame: helpers.frame_id('chart'),
                 turbo_action: 'replace',
                 turbo_prefetch: 'false',
+                controller: 'tooltip',
+                tooltip_touch_value: 'long',
               },
               class: 'click-animation' do
-      div data-controller= 'tooltip' data-tooltip-touch-value= 'long'
-        .value
-          = render SensorValue::Component.new(data, :savings, sign: :positive)
-        .title
-          = Sensor::Registry[:savings].display_name(:short)
+      .value
+        = render SensorValue::Component.new(data, :savings, sign: :positive)
+      .title
+        = Sensor::Registry[:savings].display_name(:short)
 
-        template data-tooltip-target= 'html'
-          = render SavingsDetails::Component.new(data:)
+      template data-tooltip-target= 'html'
+        = render SavingsDetails::Component.new(data:)

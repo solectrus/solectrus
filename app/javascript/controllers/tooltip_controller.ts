@@ -19,6 +19,10 @@ import {
  * - Arrow pointing to target element
  */
 export default class extends Controller {
+  // Track all active tooltip instances to ensure only one is visible at a time
+  private static readonly activeInstances = new Set<Controller>();
+  private static documentClickListenerRegistered = false;
+
   static readonly values = {
     // Where to place the tooltip relative to the target element
     placement: {
@@ -53,10 +57,25 @@ export default class extends Controller {
   private contentObserver: MutationObserver | null = null;
   private touchTimer: ReturnType<typeof setTimeout> | null = null;
   private isVisible = false;
-  private longPressTriggered = false;
   private titleCache = '';
+  private justShown = false;
+  private blockNextClick = false;
 
   connect() {
+    // Register this instance
+    const constructor = this.constructor as typeof Controller & {
+      activeInstances: Set<Controller>;
+      documentClickListenerRegistered: boolean;
+      handleGlobalDocumentClick: (event: Event) => void;
+    };
+    constructor.activeInstances.add(this);
+
+    // Register global document click listener only once
+    if (!constructor.documentClickListenerRegistered && this.isTouchDevice) {
+      constructor.documentClickListenerRegistered = true;
+      document.addEventListener('click', this.handleGlobalDocumentClick);
+    }
+
     this.titleCache = this.element.getAttribute('title') || '';
     if (this.titleCache) {
       this.element.removeAttribute('title');
@@ -74,6 +93,23 @@ export default class extends Controller {
   }
 
   disconnect() {
+    // Unregister this instance
+    const constructor = this.constructor as typeof Controller & {
+      activeInstances: Set<Controller>;
+      documentClickListenerRegistered: boolean;
+      handleGlobalDocumentClick: (event: Event) => void;
+    };
+    constructor.activeInstances.delete(this);
+
+    // Remove global listener if no instances left
+    if (
+      constructor.activeInstances.size === 0 &&
+      constructor.documentClickListenerRegistered
+    ) {
+      constructor.documentClickListenerRegistered = false;
+      document.removeEventListener('click', this.handleGlobalDocumentClick);
+    }
+
     this.positionCleanup?.();
     this.titleObserver?.disconnect();
     this.contentObserver?.disconnect();
@@ -128,15 +164,14 @@ export default class extends Controller {
   private setupEventListeners(): void {
     const el = this.element;
     if (this.isTouchDevice) {
-      if (this.touch === true) {
+      if (this.isTapMode) {
         el.addEventListener('click', this.handleClick);
-      } else if (Array.isArray(this.touch)) {
+      } else if (this.isLongPressMode) {
         el.addEventListener('touchstart', this.handleTouchStart);
         el.addEventListener('touchend', this.handleTouchEnd);
-        el.addEventListener('touchcancel', this.handleTouchEnd);
-        el.addEventListener('click', this.preventClickAfterLongPress);
+        el.addEventListener('touchcancel', this.handleTouchCancel);
+        el.addEventListener('click', this.preventClick, true);
       }
-      document.addEventListener('click', this.handleDocumentClick);
     } else {
       el.addEventListener('mouseenter', this.show);
       el.addEventListener('mouseleave', this.hide);
@@ -146,15 +181,14 @@ export default class extends Controller {
   private removeEventListeners(): void {
     const el = this.element;
     if (this.isTouchDevice) {
-      if (this.touch === true) {
+      if (this.isTapMode) {
         el.removeEventListener('click', this.handleClick);
-      } else if (Array.isArray(this.touch)) {
+      } else if (this.isLongPressMode) {
         el.removeEventListener('touchstart', this.handleTouchStart);
         el.removeEventListener('touchend', this.handleTouchEnd);
-        el.removeEventListener('touchcancel', this.handleTouchEnd);
-        el.removeEventListener('click', this.preventClickAfterLongPress);
+        el.removeEventListener('touchcancel', this.handleTouchCancel);
+        el.removeEventListener('click', this.preventClick, true);
       }
-      document.removeEventListener('click', this.handleDocumentClick);
     } else {
       el.removeEventListener('mouseenter', this.show);
       el.removeEventListener('mouseleave', this.hide);
@@ -176,45 +210,106 @@ export default class extends Controller {
   };
 
   private readonly handleTouchStart = (): void => {
-    this.longPressTriggered = false;
-    const [, duration] = this.touch as ['hold', number];
-
     this.touchTimer = globalThis.setTimeout(() => {
-      this.longPressTriggered = true;
       this.show();
       this.touchTimer = null;
-    }, duration);
+    }, this.longPressDuration);
   };
 
   private readonly handleTouchEnd = (): void => {
+    const hadTimer = !!this.touchTimer;
+
     if (this.touchTimer) {
       clearTimeout(this.touchTimer);
       this.touchTimer = null;
-      this.longPressTriggered = false;
     }
-    // Tooltip stays visible after long-press, will be closed by document click
+
+    // If tooltip is visible, distinguish between short tap and long-press end
+    if (this.isVisible) {
+      if (hadTimer) {
+        this.blockNextClick = true;
+        this.hide();
+      } else {
+        // Long-press just finished -> prevent immediate closing from click event
+        this.justShown = true;
+        globalThis.setTimeout(() => {
+          this.justShown = false;
+        }, this.clickProtectionDuration);
+      }
+    }
   };
 
-  private readonly preventClickAfterLongPress = (event: Event): void => {
-    if (!this.longPressTriggered) return;
-    event.preventDefault();
-    event.stopPropagation();
-    this.longPressTriggered = false;
+  private readonly handleTouchCancel = (): void => {
+    if (this.touchTimer) {
+      clearTimeout(this.touchTimer);
+      this.touchTimer = null;
+    }
   };
 
-  private readonly handleDocumentClick = (event: Event): void => {
-    if (!this.isVisible) return;
+  private readonly preventClick = (event: Event): void => {
+    // Check if this specific tooltip wants to block the click
+    if (this.blockNextClick) {
+      this.blockNextClick = false;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return;
+    }
 
+    // Check if ANY tooltip is visible
+    const constructor = this.constructor as typeof Controller & {
+      activeInstances: Set<Controller>;
+    };
+
+    for (const instance of constructor.activeInstances) {
+      const tooltipInstance = instance as typeof this;
+      if (tooltipInstance.isVisible) {
+        if (!tooltipInstance.justShown) {
+          // Close tooltip if not just shown
+          tooltipInstance.hide();
+        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+    }
+  };
+
+  private readonly handleGlobalDocumentClick = (event: Event): void => {
+    const constructor = this.constructor as typeof Controller & {
+      activeInstances: Set<Controller>;
+    };
     const target = event.target as Node;
-    // Hide tooltip when clicking outside the target element
-    // Note: tooltip has pointer-events: none, so clicks pass through
-    if (!this.element.contains(target)) {
-      this.hide();
+
+    // Check all active tooltip instances
+    for (const instance of constructor.activeInstances) {
+      const tooltipInstance = instance as typeof this;
+
+      // Skip if not visible or just shown
+      if (!tooltipInstance.isVisible || tooltipInstance.justShown) continue;
+
+      // Hide tooltip when clicking outside the target element
+      // Note: tooltip has pointer-events: none, so clicks pass through
+      if (!tooltipInstance.element.contains(target)) {
+        tooltipInstance.hide();
+        break; // Only hide one tooltip per click
+      }
     }
   };
 
   private readonly show = async (): Promise<void> => {
     if (!this.tooltip || this.isVisible) return;
+
+    // Hide all other tooltips first (only one tooltip should be visible at a time)
+    const instances = (
+      this.constructor as typeof Controller & {
+        activeInstances: Set<Controller>;
+      }
+    ).activeInstances;
+    for (const instance of instances) {
+      if (instance !== this && (instance as typeof this).isVisible) {
+        (instance as typeof this).hide();
+      }
+    }
 
     this.updateContent();
     this.isVisible = true;
@@ -306,7 +401,7 @@ export default class extends Controller {
   }
 
   private togglePointerEvents(active: boolean): void {
-    if (this.isTouchDevice && this.forceTapToCloseValue) {
+    if (this.isTouchDevice) {
       document.body.classList.toggle('active-tooltip', active);
     }
   }
@@ -315,14 +410,21 @@ export default class extends Controller {
     return 'ontouchstart' in globalThis;
   }
 
-  get touch(): boolean | ['hold', number] {
-    switch (this.touchValue) {
-      case 'true':
-        return true;
-      case 'long':
-        return ['hold', 500];
-      default:
-        return false;
-    }
+  get isLongPressMode(): boolean {
+    return this.touchValue === 'long';
+  }
+
+  get isTapMode(): boolean {
+    return this.touchValue === 'true';
+  }
+
+  get longPressDuration(): number {
+    return 500;
+  }
+
+  get clickProtectionDuration(): number {
+    // Duration to prevent immediate closing after showing tooltip
+    // Needs to be long enough to catch the click event that follows touchend
+    return 300;
   }
 }

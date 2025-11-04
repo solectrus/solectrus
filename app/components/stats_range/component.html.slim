@@ -9,13 +9,14 @@
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
+                  controller: 'tooltip',
+                  tooltip_touch_value: 'long',
                 },
                 class: 'click-animation' do
-        div data-controller="tooltip" data-tooltip-touch-value= "long"
-          = render RadialBadge::Component.new(:autarky, data:)
-          - unless timeframe.future?
-            template data-tooltip-target="html"
-              = render AutarkyDetails::Component.new(data:, timeframe:)
+        = render RadialBadge::Component.new(:autarky, data:)
+        - unless timeframe.future?
+          template data-tooltip-target="html"
+            = render AutarkyDetails::Component.new(data:, timeframe:)
 
     - if Sensor::Config.exists?(:self_consumption_quote) && data.self_consumption_quote
       = link_to balance_home_path(sensor_name: 'self_consumption_quote', timeframe:),
@@ -23,13 +24,14 @@
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
+                  controller: 'tooltip',
+                  tooltip_touch_value: 'long',
                 },
                 class: 'click-animation' do
-        div data-controller="tooltip" data-tooltip-touch-value= "long"
-          = render RadialBadge::Component.new(:self_consumption_quote, data:)
-          - unless timeframe.future?
-            template data-tooltip-target="html"
-              = render ConsumptionDetails::Component.new(data:, timeframe:)
+        = render RadialBadge::Component.new(:self_consumption_quote, data:)
+        - unless timeframe.future?
+          template data-tooltip-target="html"
+            = render ConsumptionDetails::Component.new(data:, timeframe:)
 
     div class="flex-1"
 
@@ -40,10 +42,12 @@
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
+                  controller: 'tooltip',
+                  tooltip_touch_value: 'long',
                 },
+                title: t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor),
                 class: 'click-animation' do
-        div data-controller="tooltip" title= t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor) data-tooltip-touch-value= "long"
-          = render RadialBadge::Component.new(:co2_reduction, data:) do
-            = render SensorValue::Component.new(data, :co2_reduction, class: sensor.color_text)
+        = render RadialBadge::Component.new(:co2_reduction, data:) do
+          = render SensorValue::Component.new(data, :co2_reduction, class: sensor.color_text)
 
     = render FinanceBadge::Component.new(data:, timeframe:)
