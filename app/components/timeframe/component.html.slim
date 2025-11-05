@@ -1,10 +1,7 @@
 .flex-auto.max-w-full.flex.items-center.justify-between.space-x-2.md:space-x-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-sm.md:text-base
   - if timeframe.can_paginate?
     - if timeframe.prev
-      = link_to prev_path,
-                class: 'px-2 py-1 rounded-sm hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0',
-                'aria-label': t('.previous'),
-                rel: 'prev' do
+      = link_to prev_path, class: paginate_button_classes, 'aria-label': t('.previous'), rel: 'prev' do
         i.fas.fa-chevron-left.fa-lg
     - else
       .px-2.py-1
@@ -16,11 +13,7 @@
       = timeframe.localized
 
   - when :all
-    = link_to timeframe_select_path,
-              class: 'py-1',
-              data: { turbo_frame: 'modal', controller: 'tooltip' },
-              title: I18n.l(timeframe.min_date),
-              'data-tooltip-touch-value': 'true' do
+    = link_to timeframe_select_path, class: 'py-1 flex-1 text-center', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
       == timeframe.localized
 
   - when :day
@@ -29,12 +22,12 @@
         = timeframe.localized
 
   - when :hours
-    = link_to timeframe_select_path, class: 'py-1', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
+    = link_to timeframe_select_path, class: 'py-1 flex-1 text-center', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
       time datetime= timeframe.iso8601
         = timeframe.localized
 
   - when :days
-    = link_to timeframe_select_path, class: 'py-1', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
+    = link_to timeframe_select_path, class: 'py-1 flex-1 text-center', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
       time.space-x-4 datetime= timeframe.iso8601
         span
           = timeframe.localized
@@ -44,7 +37,7 @@
           =<> l timeframe.ending.to_date, format: :default
 
   - when :range
-    = link_to timeframe_select_path, class: 'py-1', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
+    = link_to timeframe_select_path, class: 'py-1 flex-1 text-center', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
       time.space-x-4 datetime= timeframe.iso8601
         = timeframe.localized
 
@@ -64,7 +57,7 @@
         = timeframe.localized
 
   - when :months
-    = link_to timeframe_select_path, class: 'py-1', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
+    = link_to timeframe_select_path, class: 'py-1 flex-1 text-center', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
       time.space-x-4 datetime= timeframe.iso8601
         span
           = timeframe.localized
@@ -79,7 +72,7 @@
         = timeframe.localized
 
   - when :years
-    = link_to timeframe_select_path, class: 'py-1', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
+    = link_to timeframe_select_path, class: 'py-1 flex-1 text-center', data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
       time.space-x-4 datetime= timeframe.iso8601
         span
           = timeframe.localized
@@ -90,10 +83,7 @@
 
   - if timeframe.can_paginate?
     - if timeframe.next
-      = link_to next_path,
-                class: 'px-2 py-1 rounded-sm hover:text-white dark:hover:text-gray-400 hover:bg-indigo-500 dark:hover:bg-indigo-800 click-animation focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0',
-                'aria-label': t('.next'),
-                rel: 'next' do
+      = link_to next_path, class: paginate_button_classes, 'aria-label': t('.next'), rel: 'next' do
         i.fas.fa-chevron-right.fa-lg
     - else
       .px-2.py-1
