@@ -1,14 +1,13 @@
 class TimeframeSelect::DayPicker::Component < ViewComponent::Base
-  def initialize(min_date:, value:, name:, range: false, ending_value: nil)
+  def initialize(min_date:, timeframe:, name:, range: false)
     super()
-    @value = value
-    @ending_value = ending_value
+    @timeframe = timeframe
     @min_date = min_date
     @name = name
     @range = range
   end
 
-  attr_reader :value, :ending_value, :min_date, :name, :range
+  attr_reader :timeframe, :min_date, :name, :range
 
   def max_date
     Date.current
@@ -16,6 +15,20 @@ class TimeframeSelect::DayPicker::Component < ViewComponent::Base
 
   def button_id
     "#{name}-button"
+  end
+
+  def value
+    if range
+      timeframe.beginning.to_date.to_s
+    else
+      timeframe.day? ? timeframe.to_s : timeframe.corresponding_day
+    end
+  end
+
+  def ending_value
+    return unless range
+
+    timeframe.ending.to_date.to_s
   end
 
   def formatted_value

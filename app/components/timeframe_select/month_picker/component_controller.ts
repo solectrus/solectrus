@@ -6,7 +6,7 @@ export default class extends Controller<HTMLElement> {
     'hiddenInput',
     'displayButton',
     'displayText',
-    'dropdown',
+    'modal',
     'yearDisplay',
     'monthCell',
     'prevYearButton',
@@ -24,7 +24,7 @@ export default class extends Controller<HTMLElement> {
   declare readonly hiddenInputTarget: HTMLInputElement;
   declare readonly displayButtonTarget: HTMLButtonElement;
   declare readonly displayTextTarget: HTMLElement;
-  declare readonly dropdownTarget: HTMLElement;
+  declare readonly modalTarget: HTMLElement;
   declare readonly yearDisplayTarget: HTMLElement;
   declare readonly monthCellTargets: HTMLButtonElement[];
   declare readonly prevYearButtonTarget: HTMLButtonElement;
@@ -66,7 +66,6 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect() {
-    document.removeEventListener('click', this.handleClickOutside);
     document.removeEventListener('keyup', this.handleEscape, true);
     document.removeEventListener('picker:open', this.handleOtherPickerOpen);
   }
@@ -74,7 +73,7 @@ export default class extends Controller<HTMLElement> {
   toggle(event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    const wasHidden = this.dropdownTarget.classList.contains('hidden');
+    const wasHidden = this.modalTarget.classList.contains('hidden');
 
     if (wasHidden) {
       this.open();
@@ -84,42 +83,23 @@ export default class extends Controller<HTMLElement> {
   }
 
   private open() {
-    // Show dropdown
-    this.dropdownTarget.classList.remove('hidden');
-
-    // Set dropdown width to match button width
-    const buttonWidth = this.displayButtonTarget.offsetWidth;
-    this.dropdownTarget.style.width = `${buttonWidth}px`;
+    // Show modal
+    this.modalTarget.classList.remove('hidden');
 
     // Notify other pickers to close
     document.dispatchEvent(
       new CustomEvent('picker:open', { detail: { picker: this.element } }),
     );
-
-    requestAnimationFrame(() => {
-      document.addEventListener('click', this.handleClickOutside);
-    });
   }
 
   close() {
-    this.dropdownTarget.classList.add('hidden');
-    document.removeEventListener('click', this.handleClickOutside);
+    this.modalTarget.classList.add('hidden');
   }
-
-  private readonly handleClickOutside = (event: Event): void => {
-    // Close if click is outside the dropdown AND outside the display button
-    if (
-      !this.dropdownTarget.contains(event.target as Node) &&
-      !this.displayButtonTarget.contains(event.target as Node)
-    ) {
-      this.close();
-    }
-  };
 
   private readonly handleEscape = (event: KeyboardEvent): void => {
     if (
       event.key === 'Escape' &&
-      !this.dropdownTarget.classList.contains('hidden')
+      !this.modalTarget.classList.contains('hidden')
     ) {
       event.preventDefault();
       this.close();
@@ -154,19 +134,13 @@ export default class extends Controller<HTMLElement> {
 
     this.selectedMonth = month;
     this.valueValue = month.toFormat('yyyy-MM');
-    this.hiddenInputTarget.value = this.valueValue;
 
-    // Update display
-    this.displayTextTarget.textContent = month.toFormat('MMMM yyyy', {
-      locale: this.locale,
-    });
-
-    // Dispatch change event (picker will close automatically on navigation)
-    this.hiddenInputTarget.dispatchEvent(
-      new Event('change', { bubbles: true }),
+    // Fire event for immediate navigation
+    window.dispatchEvent(
+      new CustomEvent('picker:selected', {
+        detail: { value: this.valueValue, isRange: false },
+      }),
     );
-
-    this.renderMonths();
   }
 
   private renderMonths() {
@@ -183,7 +157,7 @@ export default class extends Controller<HTMLElement> {
 
     // Get month names from browser locale
     const monthFormatter = new Intl.DateTimeFormat(this.locale, {
-      month: 'short',
+      month: 'long',
     });
 
     // Render 12 months
@@ -212,7 +186,7 @@ export default class extends Controller<HTMLElement> {
 
       // Reset classes
       cell.className =
-        'text-sm p-2 rounded text-center focus:outline-none focus:ring-2 focus:ring-indigo-500';
+        'text-base py-4 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500';
 
       // Apply styling based on state
       if (isDisabled) {

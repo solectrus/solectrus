@@ -1,15 +1,19 @@
 class TimeframeSelect::WeekPicker::Component < ViewComponent::Base
-  def initialize(min_date:, value: nil, name: 'week')
+  def initialize(min_date:, timeframe:, name: 'week')
     super()
-    @value = value
+    @timeframe = timeframe
     @min_date = min_date
     @name = name
   end
 
-  attr_reader :value, :min_date, :name
+  attr_reader :timeframe, :min_date, :name
 
   def button_id
     "#{name}-button"
+  end
+
+  def value
+    timeframe.week? ? timeframe.to_s : timeframe.corresponding_week
   end
 
   def initial_year
@@ -34,8 +38,7 @@ class TimeframeSelect::WeekPicker::Component < ViewComponent::Base
   def formatted_value
     return t('.select_week') unless valid_value?
 
-    # Use I18n for "KW" translation
-    "#{t('.week_abbr', default: 'KW')} #{parsed_date.cweek.to_s.rjust(2, '0')}, #{parsed_date.cwyear}"
+    I18n.l(parsed_date, format: :week)
   end
 
   private

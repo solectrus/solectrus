@@ -6,7 +6,7 @@ export default class extends Controller<HTMLElement> {
     'hiddenInput',
     'displayButton',
     'displayText',
-    'dropdown',
+    'modal',
     'yearDisplay',
     'weekGrid',
     'prevYearButton',
@@ -19,12 +19,20 @@ export default class extends Controller<HTMLElement> {
     maxDate: String,
     initialYear: Number,
     name: String,
+    monthRowClass: String,
+    monthLabelClass: String,
+    weekButtonBaseClass: String,
+    weekButtonDisabledClass: String,
+    weekButtonHoverClass: String,
+    weekButtonSelectedClass: String,
+    weekButtonDefaultClass: String,
+    emptySlotClass: String,
   };
 
   declare readonly hiddenInputTarget: HTMLInputElement;
   declare readonly displayButtonTarget: HTMLButtonElement;
   declare readonly displayTextTarget: HTMLElement;
-  declare readonly dropdownTarget: HTMLElement;
+  declare readonly modalTarget: HTMLElement;
   declare readonly yearDisplayTarget: HTMLElement;
   declare readonly weekGridTarget: HTMLElement;
   declare readonly prevYearButtonTarget: HTMLButtonElement;
@@ -35,6 +43,14 @@ export default class extends Controller<HTMLElement> {
   declare maxDateValue: string;
   declare initialYearValue: number;
   declare nameValue: string;
+  declare monthRowClassValue: string;
+  declare monthLabelClassValue: string;
+  declare weekButtonBaseClassValue: string;
+  declare weekButtonDisabledClassValue: string;
+  declare weekButtonHoverClassValue: string;
+  declare weekButtonSelectedClassValue: string;
+  declare weekButtonDefaultClassValue: string;
+  declare emptySlotClassValue: string;
 
   private currentYear!: number;
   private selectedWeek: string | null = null;
@@ -63,7 +79,6 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect() {
-    document.removeEventListener('click', this.handleClickOutside);
     document.removeEventListener('keyup', this.handleEscape, true);
     document.removeEventListener('picker:open', this.handleOtherPickerOpen);
   }
@@ -71,7 +86,7 @@ export default class extends Controller<HTMLElement> {
   toggle(event: Event) {
     event.stopPropagation();
     event.preventDefault();
-    const wasHidden = this.dropdownTarget.classList.contains('hidden');
+    const wasHidden = this.modalTarget.classList.contains('hidden');
 
     if (wasHidden) {
       this.open();
@@ -81,42 +96,23 @@ export default class extends Controller<HTMLElement> {
   }
 
   private open() {
-    // Show dropdown
-    this.dropdownTarget.classList.remove('hidden');
-
-    // Set dropdown width to match button width
-    const buttonWidth = this.displayButtonTarget.offsetWidth;
-    this.dropdownTarget.style.width = `${buttonWidth}px`;
+    // Show modal
+    this.modalTarget.classList.remove('hidden');
 
     // Notify other pickers to close
     document.dispatchEvent(
       new CustomEvent('picker:open', { detail: { picker: this.element } }),
     );
-
-    requestAnimationFrame(() => {
-      document.addEventListener('click', this.handleClickOutside);
-    });
   }
 
   close() {
-    this.dropdownTarget.classList.add('hidden');
-    document.removeEventListener('click', this.handleClickOutside);
+    this.modalTarget.classList.add('hidden');
   }
-
-  private readonly handleClickOutside = (event: Event): void => {
-    // Close if click is outside the dropdown AND outside the display button
-    if (
-      !this.dropdownTarget.contains(event.target as Node) &&
-      !this.displayButtonTarget.contains(event.target as Node)
-    ) {
-      this.close();
-    }
-  };
 
   private readonly handleEscape = (event: KeyboardEvent): void => {
     if (
       event.key === 'Escape' &&
-      !this.dropdownTarget.classList.contains('hidden')
+      !this.modalTarget.classList.contains('hidden')
     ) {
       event.preventDefault();
       this.close();
@@ -148,18 +144,13 @@ export default class extends Controller<HTMLElement> {
 
     this.selectedWeek = weekStr;
     this.valueValue = weekStr;
-    this.hiddenInputTarget.value = this.valueValue;
 
-    // Update display (e.g., "KW 01, 2024")
-    const [year, week] = weekStr.split('-W');
-    this.displayTextTarget.textContent = `KW ${week}, ${year}`;
-
-    // Dispatch change event (picker will close automatically on navigation)
-    this.hiddenInputTarget.dispatchEvent(
-      new Event('change', { bubbles: true }),
+    // Fire event for immediate navigation
+    window.dispatchEvent(
+      new CustomEvent('picker:selected', {
+        detail: { value: this.valueValue, isRange: false },
+      }),
     );
-
-    this.renderWeeks();
   }
 
   private renderWeeks() {
@@ -210,18 +201,16 @@ export default class extends Controller<HTMLElement> {
 
       // Create month row with fixed 6 columns (month + 5 week slots)
       const monthRow = document.createElement('div');
-      monthRow.className = 'grid gap-px mb-1';
-      monthRow.style.gridTemplateColumns = '2rem repeat(5, 1fr)';
+      monthRow.className = this.monthRowClassValue;
 
       // Month label
       const monthLabel = document.createElement('div');
-      monthLabel.className =
-        'text-sm font-bold text-gray-600 dark:text-gray-400 flex items-center pr-3';
+      monthLabel.className = this.monthLabelClassValue;
       const monthDate = DateTime.fromObject({
         year: this.currentYear,
         month: month,
       });
-      monthLabel.textContent = monthDate.toFormat('MMM', {
+      monthLabel.textContent = monthDate.toFormat('MMMM', {
         locale: this.locale,
       });
       monthRow.appendChild(monthLabel);
@@ -249,27 +238,25 @@ export default class extends Controller<HTMLElement> {
           const button = document.createElement('button');
           button.type = 'button';
           button.dataset.week = weekStr;
-          button.textContent = weekNum.toString().padStart(2, '0');
-          button.className =
-            'text-sm px-1 py-0.5 rounded text-center focus:outline-none focus:ring-1 focus:ring-indigo-500 tabular-nums';
+          const weekAbbr = this.locale === 'de' ? 'KW' : 'CW';
+          button.textContent = `${weekAbbr} ${weekNum.toString().padStart(2, '0')}`;
+          button.className = this.weekButtonBaseClassValue;
 
           if (isDisabled) {
-            button.className +=
-              ' text-gray-300 dark:text-gray-600 cursor-not-allowed';
+            button.className += ` ${this.weekButtonDisabledClassValue}`;
             button.disabled = true;
           } else {
             button.disabled = false;
-            button.className += ' hover:bg-indigo-100 dark:hover:bg-indigo-900';
+            button.className += ` ${this.weekButtonHoverClassValue}`;
             button.addEventListener('click', (e) => {
               e.stopPropagation();
               this.selectWeek(e);
             });
 
             if (isSelected) {
-              button.className +=
-                ' bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700';
+              button.className += ` ${this.weekButtonSelectedClassValue}`;
             } else {
-              button.className += ' text-gray-900 dark:text-white';
+              button.className += ` ${this.weekButtonDefaultClassValue}`;
             }
           }
 
@@ -277,6 +264,7 @@ export default class extends Controller<HTMLElement> {
         } else {
           // Empty cell for alignment
           const emptyCell = document.createElement('div');
+          emptyCell.className = this.emptySlotClassValue;
           monthRow.appendChild(emptyCell);
         }
       }

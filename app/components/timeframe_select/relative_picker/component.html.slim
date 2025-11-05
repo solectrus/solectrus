@@ -1,0 +1,30 @@
+div(
+  data-controller="timeframe-select--relative-picker--component"
+  data-timeframe-select--relative-picker--component-value-value=value.to_s
+  data-timeframe-select--relative-picker--component-name-value=name
+)
+  / Hidden input that holds the actual value
+  input type="hidden" name=name data-timeframe-select--relative-picker--component-target="hiddenInput"
+
+  / Display button
+  button.w-full.px-4.py-2.5.text-base.text-left.border.border-gray-300.dark:border-gray-600.rounded-lg.bg-white.dark:bg-gray-700.text-gray-900.dark:text-white.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:border-indigo-500.appearance-none.cursor-pointer.transition-colors.hover:border-gray-400.dark:hover:border-gray-500.flex.items-center.justify-between id=button_id type="button" data-action="timeframe-select--relative-picker--component#toggle" data-timeframe-select--relative-picker--component-target="displayButton"
+    span data-timeframe-select--relative-picker--component-target="displayText"
+      == display_text
+    i.fas.fa-arrow-right.text-gray-400
+
+  / Relative period picker panel
+  .absolute.inset-0.bg-white.dark:bg-gray-900.z-50.hidden data-timeframe-select--relative-picker--component-target="modal"
+    .flex.flex-col.h-full
+      / Header with back button
+      .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
+        button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--relative-picker--component#close" aria-label=t('.back')
+          i.fas.fa-arrow-left
+        .text-lg.font-medium.text-gray-900.dark:text-white
+          = t('.select_period')
+
+      / Content area with options list
+      .flex-1.overflow-y-auto.p-4
+        .flex.flex-col.gap-2
+          - options.each do |option|
+            button.w-full.text-base.py-4.px-4.rounded-lg.text-left.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500 type="button" data-action="timeframe-select--relative-picker--component#selectOption" data-timeframe-select--relative-picker--component-target="optionCell" data-value=option[:value]
+              == option[:label]

@@ -33,15 +33,18 @@ describe 'Timeframe select' do
   it 'navigates when selecting day picker' do
     page.find('label', text: 'Tag').click
 
-    # AirDatepicker uses data-date attribute in format YYYY-MM-DD
-    find('.air-datepicker-cell[data-date="21"]').click
+    # Day picker now uses custom button with data-date attribute
+    find('button[data-date="2022-06-21"]').click
 
     expect(page).to have_current_path('/inverter_power/2022-06-21')
     expect(page).to have_css('#balance-stats-2022-06-21')
   end
 
   it 'navigates when selecting year picker' do
-    select '2022', from: 'Jahr'
+    # Click the year picker button to open the modal
+    click_on 'year-picker-input-button'
+
+    find('button[data-year="2022"]').click
 
     expect(page).to have_current_path('/inverter_power/2022')
     expect(page).to have_css('#balance-stats-2022')
@@ -50,7 +53,7 @@ describe 'Timeframe select' do
   it 'navigates when selecting week picker' do
     page.find('label', text: 'Woche').click
 
-    find('button[data-week="2022-W25"]').click
+    click_on 'KW 25'
 
     expect(page).to have_current_path('/inverter_power/2022-W25')
     expect(page).to have_css('#balance-stats-2022-W25')
@@ -59,7 +62,7 @@ describe 'Timeframe select' do
   it 'navigates when selecting month picker' do
     page.find('label', text: 'Monat').click
 
-    find('button[data-month="2022-06"]').click
+    click_on 'Juni'
 
     expect(page).to have_current_path('/inverter_power/2022-06')
     expect(page).to have_css('#balance-stats-2022-06')
@@ -68,15 +71,18 @@ describe 'Timeframe select' do
   it 'navigates when selecting date range picker' do
     page.find('label', text: 'Individuell').click
 
-    find('.air-datepicker-cell[data-date="20"]').click
-    find('.air-datepicker-cell[data-date="21"]').click
+    # Date range picker now uses custom buttons with data-date attribute
+    find('button[data-date="2022-06-20"]').click
+    find('button[data-date="2022-06-21"]').click
 
     expect(page).to have_current_path('/inverter_power/2022-06-20..2022-06-21')
     expect(page).to have_css('#balance-stats-2022-06-20--2022-06-21')
   end
 
   it 'navigates when selecting relative timeframe' do
-    select 'Letzte 7 Tage', from: 'predefined-select'
+    page.find('label', text: 'Relativ').click
+
+    click_on 'Letzte 7 Tage'
 
     expect(page).to have_current_path('/inverter_power/P7D')
     expect(page).to have_css('#balance-stats-P7D')

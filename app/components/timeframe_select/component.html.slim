@@ -1,9 +1,9 @@
 .timeframe-select
   .grid.gap-x-6.gap-y-4.items-center.mt-8[
-    class= 'grid-cols-[minmax(100px,auto)_1fr]'
+    class= 'grid-cols-[auto_1fr]'
     data-controller= 'timeframe-select--component'
     data-timeframe-select--component-base-url-value= base_url
-    data-timeframe-select--component-base-path-value= base_path
+    data-action= 'picker:selected@window->timeframe-select--component#handlePickerSelected'
   ]
     / Day picker
     label[
@@ -11,7 +11,7 @@
       for= 'day-picker-input-button'
     ]
       = t('.day')
-    = render TimeframeSelect::DayPicker::Component.new(min_date:, value: current_day, name: 'day-picker-input')
+    = render TimeframeSelect::DayPicker::Component.new(min_date:, timeframe:, name: 'day-picker-input')
 
     / Week picker
     label[
@@ -19,7 +19,7 @@
       for= 'week-picker-input-button'
     ]
       = t('.week')
-    = render TimeframeSelect::WeekPicker::Component.new(min_date:, value: current_week, name: 'week-picker-input')
+    = render TimeframeSelect::WeekPicker::Component.new(min_date:, timeframe:, name: 'week-picker-input')
 
     / Month picker
     label[
@@ -27,7 +27,7 @@
       for= 'month-picker-input-button'
     ]
       = t('.month')
-    = render TimeframeSelect::MonthPicker::Component.new(min_date:, value: current_month, name: 'month-picker-input')
+    = render TimeframeSelect::MonthPicker::Component.new(min_date:, timeframe:, name: 'month-picker-input')
 
     / Year picker
     label[
@@ -35,7 +35,7 @@
       for= 'year-picker-input'
     ]
       = t('.year')
-    = render TimeframeSelect::YearPicker::Component.new(min_date:, value: current_year, name: 'year-picker-input')
+    = render TimeframeSelect::YearPicker::Component.new(min_date:, timeframe:, name: 'year-picker-input')
 
     / Spacer with divider
     .col-span-2.border-t.border-gray-200.dark:border-gray-700.my-2
@@ -46,38 +46,15 @@
       for= 'range-picker-input-button'
     ]
       = t('.date_range')
-    = render TimeframeSelect::DayPicker::Component.new(min_date:, value: beginning_date.to_s, ending_value: ending_date.to_s, name: 'range-picker-input', range: true)
+    = render TimeframeSelect::DayPicker::Component.new(min_date:, timeframe:, name: 'range-picker-input', range: true)
 
     / Spacer with divider
     .col-span-2.border-t.border-gray-200.dark:border-gray-700.my-2
 
-    / Predefined select
+    / Relative picker
     label[
       class= LABEL_CLASSES
-      for= 'predefined-select'
+      for= 'relative-picker-input-button'
     ]
       = t('.relative')
-    select#predefined-select[
-      class= INPUT_CLASSES
-      data-timeframe-select--component-target= 'predefinedSelect'
-      data-action= 'change->timeframe-select--component#submitPredefined'
-    ]
-      option value="" selected=current_relative.nil?
-      - if timeframe_available?('P24H')
-        option value="P24H" selected=(current_relative == 'P24H')
-          = t('.last_24_hours')
-      - if timeframe_available?('P7D')
-        option value="P7D" selected=(current_relative == 'P7D')
-          = t('.last_7_days')
-      - if timeframe_available?('P30D')
-        option value="P30D" selected=(current_relative == 'P30D')
-          = t('.last_30_days')
-      - if timeframe_available?('P90D')
-        option value="P90D" selected=(current_relative == 'P90D')
-          = t('.last_90_days')
-      - if timeframe_available?('P12M')
-        option value="P12M" selected=(current_relative == 'P12M')
-          = t('.last_12_months')
-      - if installation_timeframe_value
-        option value=installation_timeframe_value selected=(current_relative == installation_timeframe_value)
-          = t('.since_installation', months: months_since_installation)
+    = render TimeframeSelect::RelativePicker::Component.new(timeframe:, name: 'relative-picker-input', min_date: min_date)

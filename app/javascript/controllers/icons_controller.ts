@@ -2,6 +2,8 @@ import { Controller } from '@hotwired/stimulus';
 import { config, library, dom } from '@fortawesome/fontawesome-svg-core';
 
 // ------------------------- Add new icons here
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons/faChevronLeft';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons/faChevronRight';
 
@@ -67,6 +69,8 @@ export default class extends Controller {
       faPlug,
       faBolt,
       faFan,
+      faArrowLeft,
+      faArrowRight,
       faChevronLeft,
       faChevronRight,
       faArrowDownWideShort,

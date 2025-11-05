@@ -1,15 +1,19 @@
 class TimeframeSelect::MonthPicker::Component < ViewComponent::Base
-  def initialize(min_date:, value: nil, name: 'month')
+  def initialize(min_date:, timeframe:, name: 'month')
     super()
-    @value = value
+    @timeframe = timeframe
     @min_date = min_date
     @name = name
   end
 
-  attr_reader :value, :min_date, :name
+  attr_reader :timeframe, :min_date, :name
 
   def button_id
     "#{name}-button"
+  end
+
+  def value
+    timeframe.month? ? timeframe.to_s : timeframe.corresponding_month
   end
 
   def initial_year
