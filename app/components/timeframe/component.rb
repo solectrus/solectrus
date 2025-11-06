@@ -26,9 +26,21 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def paginate_button_classes
-    'click-animation rounded-sm px-2 py-1 ' \
-      'hover:bg-indigo-500 hover:text-white ' \
-      'focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none ' \
-      'dark:hover:bg-indigo-800 dark:hover:text-gray-400 dark:focus:ring-gray-400'
+    interactive_button_classes
+  end
+
+  def timeframe_link_classes(additional_classes = nil)
+    interactive_button_classes(additional_classes)
+  end
+
+  private
+
+  def interactive_button_classes(additional_classes = nil)
+    [
+      'px-2 py-1 rounded-sm',
+      'hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-800 dark:hover:text-gray-400',
+      'focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400',
+      additional_classes,
+    ]
   end
 end
