@@ -5,6 +5,7 @@ de:
   last_7_days: Letzte <strong>7 Tage</strong>
   last_30_days: Letzte <strong>30 Tage</strong>
   last_90_days: Letzte <strong>90 Tage</strong>
+  last_365_days: Letzte <strong>365 Tage</strong>
   last_12_months: Letzte <strong>12 Monate</strong>
   since_installation: Letzte <strong>%{months} Monate</strong> (seit Installation)
   since_installation_short: Letzte %{months} Monate

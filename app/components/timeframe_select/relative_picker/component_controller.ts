@@ -13,6 +13,10 @@ export default class extends Controller<HTMLElement> {
   static readonly values = {
     value: String,
     name: String,
+    baseClasses: String,
+    hoverClasses: String,
+    selectedClasses: String,
+    unselectedClasses: String,
   };
 
   declare readonly detailsTarget: HTMLDetailsElement;
@@ -24,6 +28,10 @@ export default class extends Controller<HTMLElement> {
 
   declare valueValue: string;
   declare nameValue: string;
+  declare baseClassesValue: string;
+  declare hoverClassesValue: string;
+  declare selectedClassesValue: string;
+  declare unselectedClassesValue: string;
 
   private selectedValue: string | null = null;
 
@@ -78,7 +86,6 @@ export default class extends Controller<HTMLElement> {
       event.preventDefault();
       event.stopPropagation(); // Prevent ESC from reaching the modal dialog
       this.close();
-      return;
     }
   };
 
@@ -113,19 +120,14 @@ export default class extends Controller<HTMLElement> {
 
       const isSelected = this.selectedValue === value;
 
-      // Reset classes
-      cell.className =
-        'w-full text-base py-4 px-4 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-indigo-500';
+      // Build classes from values
+      const classes = [
+        this.baseClassesValue,
+        this.hoverClassesValue,
+        isSelected ? this.selectedClassesValue : this.unselectedClassesValue,
+      ].join(' ');
 
-      // Apply styling based on state
-      cell.className += ' hover:bg-indigo-100 dark:hover:bg-indigo-900';
-
-      if (isSelected) {
-        cell.className +=
-          ' bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700';
-      } else {
-        cell.className += ' text-gray-900 dark:text-white';
-      }
+      cell.className = classes;
     }
   }
 }

@@ -17,7 +17,9 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
     timeframe_str = timeframe.to_s
 
     # Check against known relative formats
-    return timeframe_str if %w[P24H P7D P30D P90D P12M].include?(timeframe_str)
+    if %w[P24H P7D P30D P90D P365D P12M].include?(timeframe_str)
+      return timeframe_str
+    end
 
     # Check if it matches installation timeframe pattern (PxxM)
     if installation_timeframe_value &&
@@ -56,29 +58,26 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
   end
 
   def options
-    opts = []
+    timeframes = [
+      { value: 'P24H', label_key: '.last_24_hours' },
+      { value: 'P7D', label_key: '.last_7_days' },
+      { value: 'P30D', label_key: '.last_30_days' },
+      { value: 'P90D', label_key: '.last_90_days' },
+      { value: 'P365D', label_key: '.last_365_days' },
+      { value: 'P12M', label_key: '.last_12_months' },
+    ]
 
-    if timeframe_available?('P24H')
-      opts << { value: 'P24H', label: t('.last_24_hours').html_safe }
-    end
-    if timeframe_available?('P7D')
-      opts << { value: 'P7D', label: t('.last_7_days').html_safe }
-    end
-    if timeframe_available?('P30D')
-      opts << { value: 'P30D', label: t('.last_30_days').html_safe }
-    end
-    if timeframe_available?('P90D')
-      opts << { value: 'P90D', label: t('.last_90_days').html_safe }
-    end
-    if timeframe_available?('P12M')
-      opts << { value: 'P12M', label: t('.last_12_months').html_safe }
-    end
+    opts =
+      timeframes.filter_map do |tf|
+        next unless timeframe_available?(tf[:value])
+
+        { value: tf[:value], label: t(tf[:label_key]) }
+      end
 
     if installation_timeframe_value
       opts << {
         value: installation_timeframe_value,
-        label:
-          t('.since_installation', months: months_since_installation).html_safe,
+        label: t('.since_installation', months: months_since_installation),
       }
     end
 
@@ -97,6 +96,8 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
       min_date <= 30.days.ago.to_date
     when 'P90D'
       min_date <= 90.days.ago.to_date
+    when 'P365D'
+      min_date <= 365.days.ago.to_date
     when 'P12M'
       min_date <= 12.months.ago.to_date
     else
