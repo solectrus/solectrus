@@ -38,6 +38,16 @@ export default class extends Controller<HTMLElement> {
 
   // Handle cancel event (triggered by ESC key, before dialog closes)
   handleCancel(event: Event) {
+    // Check if there are any open child elements that should handle ESC first
+    const hasOpenDetails = this.innerTarget.querySelector('details[open]');
+
+    // If a child component is open, don't close the modal - let it handle ESC first
+    if (hasOpenDetails) {
+      event.preventDefault();
+      return;
+    }
+
+    // No open child components, close the modal with animation
     event.preventDefault();
     this.closeDialog();
   }

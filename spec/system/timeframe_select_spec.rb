@@ -20,7 +20,18 @@ describe 'Timeframe select' do
     expect(page).to have_css('h1', text: 'Zeitraum wählen')
   end
 
+  def close_current_picker
+    # Close any open picker by clicking the back button
+    # The back button is present in all picker modals
+    first('button[aria-label="Zurück"]').click
+    # Wait for the picker to actually close and main view to be visible
+    expect(page).to have_content('Tag')
+  end
+
   it 'displays modal with all pickers and options' do
+    # Close the auto-opened day picker first to see all labels
+    close_current_picker
+
     # Verify all picker labels are present
     expect(page).to have_content('Tag')
     expect(page).to have_content('Woche')
@@ -31,8 +42,7 @@ describe 'Timeframe select' do
   end
 
   it 'navigates when selecting day picker' do
-    page.find('label', text: 'Tag').click
-
+    # Day picker is auto-opened since we're on a day page
     # Day picker now uses custom button with data-date attribute
     find('button[data-date="2022-06-21"]').click
 
@@ -41,8 +51,11 @@ describe 'Timeframe select' do
   end
 
   it 'navigates when selecting year picker' do
+    # Close the auto-opened day picker first
+    close_current_picker
+
     # Click the year picker button to open the modal
-    click_on 'year-picker-input-button'
+    find_by_id('year-picker-input-button').click
 
     find('button[data-year="2022"]').click
 
@@ -51,7 +64,11 @@ describe 'Timeframe select' do
   end
 
   it 'navigates when selecting week picker' do
-    page.find('label', text: 'Woche').click
+    # Close the auto-opened day picker first
+    close_current_picker
+
+    # Click the week picker button to open it
+    find_by_id('week-picker-input-button').click
 
     click_on 'KW 25'
 
@@ -60,7 +77,11 @@ describe 'Timeframe select' do
   end
 
   it 'navigates when selecting month picker' do
-    page.find('label', text: 'Monat').click
+    # Close the auto-opened day picker first
+    close_current_picker
+
+    # Click the month picker button to open it
+    find_by_id('month-picker-input-button').click
 
     click_on 'Juni'
 
@@ -69,7 +90,11 @@ describe 'Timeframe select' do
   end
 
   it 'navigates when selecting date range picker' do
-    page.find('label', text: 'Individuell').click
+    # Close the auto-opened day picker first
+    close_current_picker
+
+    # Click the range picker button to open it
+    find_by_id('range-picker-input-button').click
 
     # Date range picker now uses custom buttons with data-date attribute
     find('button[data-date="2022-06-20"]').click
@@ -80,7 +105,11 @@ describe 'Timeframe select' do
   end
 
   it 'navigates when selecting relative timeframe' do
-    page.find('label', text: 'Relativ').click
+    # Close the auto-opened day picker first
+    close_current_picker
+
+    # Click the relative picker button to open it
+    find_by_id('relative-picker-input-button').click
 
     click_on 'Letzte 7 Tage'
 

@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 
 export default class extends Controller<HTMLElement> {
   static readonly targets = [
+    'details',
     'hiddenInput',
     'displayButton',
     'displayText',
@@ -29,6 +30,7 @@ export default class extends Controller<HTMLElement> {
     emptySlotClass: String,
   };
 
+  declare readonly detailsTarget: HTMLDetailsElement;
   declare readonly hiddenInputTarget: HTMLInputElement;
   declare readonly displayButtonTarget: HTMLButtonElement;
   declare readonly displayTextTarget: HTMLElement;
@@ -72,8 +74,8 @@ export default class extends Controller<HTMLElement> {
 
     this.renderWeeks();
 
-    // Close dropdown when pressing Escape (use keyup to match modal's event)
-    document.addEventListener('keyup', this.handleEscape, true);
+    // Handle ESC key
+    document.addEventListener('keydown', this.handleKeydown, true);
 
     // Close this picker when another picker opens
     document.addEventListener('picker:open', this.handleOtherPickerOpen);
@@ -83,25 +85,19 @@ export default class extends Controller<HTMLElement> {
     // Abort all button event listeners
     this.abortController?.abort();
 
-    document.removeEventListener('keyup', this.handleEscape, true);
+    document.removeEventListener('keydown', this.handleKeydown, true);
     document.removeEventListener('picker:open', this.handleOtherPickerOpen);
   }
 
-  toggle(event: Event) {
-    event.stopPropagation();
-    event.preventDefault();
-    const wasHidden = this.modalTarget.classList.contains('hidden');
-
-    if (wasHidden) {
+  // Handle toggle event from details element
+  handleToggle() {
+    if (this.detailsTarget.open) {
       this.open();
-    } else {
-      this.close();
     }
   }
 
   private open() {
-    // Show modal
-    this.modalTarget.classList.remove('hidden');
+    // Details is already open via native behavior
 
     // Notify other pickers to close
     document.dispatchEvent(
@@ -110,16 +106,21 @@ export default class extends Controller<HTMLElement> {
   }
 
   close() {
-    this.modalTarget.classList.add('hidden');
+    this.detailsTarget.removeAttribute('open');
   }
 
-  private readonly handleEscape = (event: KeyboardEvent): void => {
-    if (
-      event.key === 'Escape' &&
-      !this.modalTarget.classList.contains('hidden')
-    ) {
+  private readonly handleKeydown = (event: KeyboardEvent): void => {
+    // Only handle when picker is open
+    if (!this.detailsTarget.open) {
+      return;
+    }
+
+    // Handle ESC key
+    if (event.key === 'Escape') {
       event.preventDefault();
+      event.stopPropagation(); // Prevent ESC from reaching the modal dialog
       this.close();
+      return;
     }
   };
 

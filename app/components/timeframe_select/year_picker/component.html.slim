@@ -8,24 +8,26 @@ div(
   / Hidden input that holds the actual value (YYYY format)
   input type="hidden" name=name data-timeframe-select--year-picker--component-target="hiddenInput"
 
-  / Display button
-  button.w-full.px-4.py-2.5.text-base.text-left.border.border-gray-300.dark:border-gray-600.rounded-lg.bg-white.dark:bg-gray-700.text-gray-900.dark:text-white.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:border-indigo-500.appearance-none.cursor-pointer.transition-colors.hover:border-gray-400.dark:hover:border-gray-500.flex.items-center.justify-between id=button_id type="button" data-action="timeframe-select--year-picker--component#toggle" data-timeframe-select--year-picker--component-target="displayButton"
-    span data-timeframe-select--year-picker--component-target="displayText"
-      = value.presence || t('.select_year')
-    i.fas.fa-arrow-right.text-gray-400
+  / Details/Summary for native accessibility and ESC handling
+  details data-timeframe-select--year-picker--component-target="details" data-action="toggle->timeframe-select--year-picker--component#handleToggle"
+    / Display button as summary
+    summary.w-full.px-4.py-2.5.text-base.text-left.border.border-gray-300.dark:border-gray-600.rounded-lg.bg-white.dark:bg-gray-700.text-gray-900.dark:text-white.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:border-indigo-500.appearance-none.cursor-pointer.transition-colors.hover:border-gray-400.dark:hover:border-gray-500.flex.items-center.justify-between.list-none id=button_id data-timeframe-select--year-picker--component-target="displayButton"
+      span data-timeframe-select--year-picker--component-target="displayText"
+        = value.presence || t('.select_year')
+      i.fas.fa-arrow-right.text-gray-400
 
-  / Year picker panel
-  .absolute.inset-0.bg-white.dark:bg-gray-900.z-50.hidden data-timeframe-select--year-picker--component-target="modal"
-    .flex.flex-col.h-full
-      / Header with back button
-      .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-        button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--year-picker--component#close" aria-label=t('.back')
-          i.fas.fa-arrow-left
-        .text-lg.font-medium.text-gray-900.dark:text-white
-          = t('.select_year')
+    / Year picker panel (replaces modal content)
+    .absolute.inset-0.bg-white.dark:bg-gray-900.z-50 data-timeframe-select--year-picker--component-target="modal"
+      .flex.flex-col.h-full
+        / Header with back button
+        .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
+          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--year-picker--component#close" aria-label=t('.back')
+            i.fas.fa-arrow-left
+          .text-lg.font-medium.text-gray-900.dark:text-white
+            = t('.select_year')
 
-      / Content area with year grid
-      .flex-1.overflow-y-auto.p-4
-        .grid.grid-cols-3.gap-3
-          - (min_year..max_year).each do |year|
-            button.text-base.py-4.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500 type="button" data-action="timeframe-select--year-picker--component#selectYear" data-timeframe-select--year-picker--component-target="yearCell" data-year=year = year
+        / Content area with year grid
+        .flex-1.overflow-y-auto.p-4
+          .grid.grid-cols-3.gap-3
+            - (min_year..max_year).each do |year|
+              button.text-base.py-4.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500 type="button" data-action="timeframe-select--year-picker--component#selectYear" data-timeframe-select--year-picker--component-target="yearCell" data-year=year = year

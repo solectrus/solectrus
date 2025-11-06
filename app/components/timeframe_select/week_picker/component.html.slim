@@ -17,32 +17,34 @@ div(
   / Hidden input that holds the actual value (YYYY-Wnn format)
   input type="hidden" name=name data-timeframe-select--week-picker--component-target="hiddenInput"
 
-  / Display button
-  button.w-full.px-4.py-2.5.text-base.text-left.border.border-gray-300.dark:border-gray-600.rounded-lg.bg-white.dark:bg-gray-700.text-gray-900.dark:text-white.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:border-indigo-500.appearance-none.cursor-pointer.transition-colors.hover:border-gray-400.dark:hover:border-gray-500.flex.items-center.justify-between id=button_id type="button" data-action="timeframe-select--week-picker--component#toggle" data-timeframe-select--week-picker--component-target="displayButton"
-    span data-timeframe-select--week-picker--component-target="displayText"
-      = formatted_value
-    i.fas.fa-arrow-right.text-gray-400
+  / Details/Summary for native accessibility and ESC handling
+  details data-timeframe-select--week-picker--component-target="details" data-action="toggle->timeframe-select--week-picker--component#handleToggle"
+    / Display button as summary
+    summary.w-full.px-4.py-2.5.text-base.text-left.border.border-gray-300.dark:border-gray-600.rounded-lg.bg-white.dark:bg-gray-700.text-gray-900.dark:text-white.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:border-indigo-500.appearance-none.cursor-pointer.transition-colors.hover:border-gray-400.dark:hover:border-gray-500.flex.items-center.justify-between.list-none id=button_id data-timeframe-select--week-picker--component-target="displayButton"
+      span data-timeframe-select--week-picker--component-target="displayText"
+        = formatted_value
+      i.fas.fa-arrow-right.text-gray-400
 
-  / Week picker panel (replaces modal content)
-  .absolute.inset-0.bg-white.dark:bg-gray-900.z-50.hidden data-timeframe-select--week-picker--component-target="modal"
-    .flex.flex-col.h-full
-      / Header with back button
-      .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-        button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#close" aria-label=t('.back')
-          i.fas.fa-arrow-left
-        .text-lg.font-medium.text-gray-900.dark:text-white
-          = t('.select_week')
+    / Week picker panel (replaces modal content)
+    .absolute.inset-0.bg-white.dark:bg-gray-900.z-50 data-timeframe-select--week-picker--component-target="modal"
+      .flex.flex-col.h-full
+        / Header with back button
+        .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
+          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#close" aria-label=t('.back')
+            i.fas.fa-arrow-left
+          .text-lg.font-medium.text-gray-900.dark:text-white
+            = t('.select_week')
 
-      / Content area
-      .flex-1.overflow-hidden.p-3.flex.flex-col
-        / Year navigation
-        .flex.justify-between.items-center.mb-2
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#previousYear" data-timeframe-select--week-picker--component-target="prevYearButton" aria-label=t('.previous_year')
-            i.fas.fa-chevron-left
-          .text-xl.font-medium.text-gray-900.dark:text-white data-timeframe-select--week-picker--component-target="yearDisplay"
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#nextYear" data-timeframe-select--week-picker--component-target="nextYearButton" aria-label=t('.next_year')
-            i.fas.fa-chevron-right
+        / Content area
+        .flex-1.overflow-hidden.p-3.flex.flex-col
+          / Year navigation
+          .flex.justify-between.items-center.mb-2
+            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#previousYear" data-timeframe-select--week-picker--component-target="prevYearButton" aria-label=t('.previous_year')
+              i.fas.fa-chevron-left
+            .text-xl.font-medium.text-gray-900.dark:text-white data-timeframe-select--week-picker--component-target="yearDisplay"
+            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#nextYear" data-timeframe-select--week-picker--component-target="nextYearButton" aria-label=t('.next_year')
+              i.fas.fa-chevron-right
 
-        / Week grid (will be populated by JavaScript, grouped by month)
-        .flex-1.flex.flex-col.justify-between
-          .flex.flex-col.justify-between.h-full data-timeframe-select--week-picker--component-target="weekGrid"
+          / Week grid (will be populated by JavaScript, grouped by month)
+          .flex-1.flex.flex-col.justify-between
+            .flex.flex-col.justify-between.h-full data-timeframe-select--week-picker--component-target="weekGrid"
