@@ -55,8 +55,12 @@ import { faSolarPanel } from '@fortawesome/free-solid-svg-icons/faSolarPanel';
 
 // -------------------------
 
+let faBootstrapped = false;
+
 export default class extends Controller {
   initialize() {
+    if (faBootstrapped) return;
+
     config.autoAddCss = false;
 
     // Fix flash of missing icons
@@ -106,9 +110,8 @@ export default class extends Controller {
       faGrip,
       faTrophy,
     );
-  }
 
-  connect() {
     dom.watch();
+    faBootstrapped = true;
   }
 }
