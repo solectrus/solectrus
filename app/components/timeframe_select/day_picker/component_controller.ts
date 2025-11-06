@@ -61,6 +61,8 @@ export default class extends Controller<HTMLElement> {
   private hoverDate: DateTime | null = null;
   private locale!: string;
   private focusedDate: DateTime | null = null;
+  private focusTimeout?: ReturnType<typeof setTimeout>;
+  private abortController?: AbortController;
 
   connect() {
     // Get browser locale from document or fallback to 'en'
@@ -102,6 +104,14 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect() {
+    if (this.focusTimeout) {
+      clearTimeout(this.focusTimeout);
+      this.focusTimeout = undefined;
+    }
+
+    // Abort all button event listeners
+    this.abortController?.abort();
+
     document.removeEventListener('keyup', this.handleEscape, true);
     document.removeEventListener(
       'keydown',
@@ -144,7 +154,7 @@ export default class extends Controller<HTMLElement> {
     }
 
     // Focus the current date after a short delay to ensure rendering is complete
-    setTimeout(() => {
+    this.focusTimeout = setTimeout(() => {
       if (this.focusedDate) {
         this.focusDayButton(this.focusedDate);
       }
@@ -378,6 +388,10 @@ export default class extends Controller<HTMLElement> {
   }
 
   private renderDays(minDate: DateTime | null, maxDate: DateTime | null) {
+    // Abort old button listeners before re-rendering
+    this.abortController?.abort();
+    this.abortController = new AbortController();
+
     const startOfCalendar = this.currentMonth.startOf('month').startOf('week');
     const endOfCalendar = this.currentMonth.endOf('month').endOf('week');
 
@@ -390,8 +404,10 @@ export default class extends Controller<HTMLElement> {
 
     // Add hover listener to grid for range preview (only mouseleave on grid, not individual buttons)
     if (this.rangeValue) {
-      this.calendarGridTarget.addEventListener('mouseleave', () =>
-        this.handleGridHoverEnd(),
+      this.calendarGridTarget.addEventListener(
+        'mouseleave',
+        () => this.handleGridHoverEnd(),
+        { signal: this.abortController.signal },
       );
     }
   }
@@ -414,14 +430,22 @@ export default class extends Controller<HTMLElement> {
       button.disabled = true;
     } else {
       button.className = this.baseClassesValue + this.getDayClassName(date);
-      button.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.selectDay(e);
-      });
+      button.addEventListener(
+        'click',
+        (e) => {
+          e.stopPropagation();
+          this.selectDay(e);
+        },
+        { signal: this.abortController?.signal },
+      );
 
       // Add hover handlers for range mode preview (only mouseenter, mouseleave handled on grid)
       if (this.rangeValue) {
-        button.addEventListener('mouseenter', () => this.handleDayHover(date));
+        button.addEventListener(
+          'mouseenter',
+          () => this.handleDayHover(date),
+          { signal: this.abortController?.signal },
+        );
       }
     }
 
