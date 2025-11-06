@@ -33,13 +33,13 @@ export default class extends Controller<HTMLElement> {
   handleTouchStart(event: TouchEvent) {
     // Record the starting position and time of the touch event
     this.touchStartX = event.changedTouches[0].screenX;
-    this.touchStartTime = new Date().getTime();
+    this.touchStartTime = Date.now();
   }
 
   handleTouchEnd(event: TouchEvent) {
     // Record the ending position of the touch event
     this.touchEndX = event.changedTouches[0].screenX;
-    this.touchEndTime = new Date().getTime();
+    this.touchEndTime = Date.now();
 
     if (this.isSwipe()) {
       this.doSwipe(event);

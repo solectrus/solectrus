@@ -209,11 +209,11 @@ export default class ChartGradientTemperature {
     const data = chart.data.datasets[datasetIndex].data as number[][];
 
     const allTemps: number[] = [];
-    data.forEach((value) => {
+    for (const value of data) {
       if (Array.isArray(value) && value.length === 2) {
         allTemps.push(...value.filter((temp) => temp != null));
       }
-    });
+    }
 
     if (allTemps.length === 0) return this.createEmptyGradient(gradient);
 

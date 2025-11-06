@@ -116,9 +116,9 @@ export default class extends Controller<HTMLElement> {
   }
 
   private renderYears() {
-    this.yearCellTargets.forEach((cell) => {
+    for (const cell of this.yearCellTargets) {
       const yearStr = cell.dataset.year;
-      if (!yearStr) return;
+      if (!yearStr) continue;
 
       const year = parseInt(yearStr, 10);
       const isSelected = this.selectedYear === year;
@@ -136,6 +136,6 @@ export default class extends Controller<HTMLElement> {
       } else {
         cell.className += ' text-gray-900 dark:text-white';
       }
-    });
+    }
   }
 }

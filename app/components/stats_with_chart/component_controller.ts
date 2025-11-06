@@ -192,18 +192,18 @@ export default class extends Controller {
 
     // For each current target, add the value to the corresponding chart dataset (if any)
     const datasets = this.chart.data.datasets as LineDatasetWithId[];
-    this.currentTargets.forEach((target) => {
+    for (const target of this.currentTargets) {
       const sensorName = target.dataset.sensorName;
       const rawValue = target.dataset.value;
 
       if (sensorName && rawValue !== undefined) {
         const dataset = datasets.find((ds) => ds.id === sensorName);
         if (dataset) {
-          const value = parseFloat(rawValue);
+          const value = Number.parseFloat(rawValue);
           dataset.data.push(value);
         }
       }
-    });
+    }
   }
 
   // Remove oldest point (when older than one hour)
@@ -212,15 +212,15 @@ export default class extends Controller {
 
     const oldestLabel = this.chart.data.labels[0];
     const oldestDate = new Date(oldestLabel as Date).getTime();
-    const now = new Date().getTime();
+    const now = Date.now();
     const diffInSeconds = (now - oldestDate) / 1000;
     if (diffInSeconds <= 3600) return;
 
     // Remove label + value in all datasets
     this.chart.data.labels?.shift();
-    this.chart.data.datasets.forEach((dataset) => {
+    for (const dataset of this.chart.data.datasets) {
       dataset.data.shift();
-    });
+    }
   }
 
   async reloadFrames(options: { chart: boolean }) {
@@ -243,7 +243,7 @@ export default class extends Controller {
   get currentValue(): number | undefined {
     if (this.currentElement?.dataset.value == null) return undefined;
 
-    return parseFloat(this.currentElement.dataset.value);
+    return Number.parseFloat(this.currentElement.dataset.value);
   }
 
   get currentTime(): Date | undefined {
@@ -256,7 +256,7 @@ export default class extends Controller {
   get lastPointTime(): Date | undefined {
     if (!this.chart?.data.labels) return undefined;
 
-    const lastLabel: number = this.chart.data.labels.slice(-1)[0] as number;
+    const lastLabel: number = this.chart.data.labels.at(-1) as number;
     return new Date(lastLabel);
   }
 
@@ -288,7 +288,7 @@ export default class extends Controller {
     if (targets.length)
       // Return the first element with a non-zero value, or the first element otherwise
       return (
-        targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ??
+        targets.find((t) => Number.parseFloat(t.dataset.value ?? '') !== 0) ??
         targets[0]
       );
 

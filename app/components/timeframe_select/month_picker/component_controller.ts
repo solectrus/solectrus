@@ -161,7 +161,8 @@ export default class extends Controller<HTMLElement> {
     });
 
     // Render 12 months
-    this.monthCellTargets.forEach((cell, index) => {
+    for (let index = 0; index < this.monthCellTargets.length; index++) {
+      const cell = this.monthCellTargets[index];
       const monthNum = index + 1;
       const month = DateTime.fromObject({
         year: this.currentYear,
@@ -204,7 +205,7 @@ export default class extends Controller<HTMLElement> {
           cell.className += ' text-gray-900 dark:text-white';
         }
       }
-    });
+    }
 
     // Disable year navigation buttons if at limits
     if (minDate) {

@@ -56,11 +56,11 @@ export default class extends Controller {
     const showOffButton =
       document.fullscreenElement && this.isFullscreenSupported();
 
-    this.btnOnTargets.forEach((btn) =>
-      btn.classList.toggle('hidden', !showOnButton),
-    );
-    this.btnOffTargets.forEach((btn) =>
-      btn.classList.toggle('hidden', !showOffButton),
-    );
+    for (const btn of this.btnOnTargets) {
+      btn.classList.toggle('hidden', !showOnButton);
+    }
+    for (const btn of this.btnOffTargets) {
+      btn.classList.toggle('hidden', !showOffButton);
+    }
   }
 }

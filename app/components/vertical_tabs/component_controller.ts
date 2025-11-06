@@ -46,15 +46,15 @@ export default class extends Controller {
   activate(tab?: HTMLElement, panel?: HTMLElement) {
     if (!tab || !panel) return;
 
-    this.tabTargets.forEach((el) => {
+    for (const el of this.tabTargets) {
       el.classList.remove(...this.activeTabValue.split(' '));
       el.classList.add(...this.inactiveTabValue.split(' '));
-    });
+    }
 
-    this.panelTargets.forEach((el) => {
+    for (const el of this.panelTargets) {
       el.classList.remove(...this.activePanelValue.split(' '));
       el.classList.add(...this.hiddenPanelValue.split(' '));
-    });
+    }
 
     tab.classList.remove(...this.inactiveTabValue.split(' '));
     tab.classList.add(...this.activeTabValue.split(' '));

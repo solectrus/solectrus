@@ -359,15 +359,15 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
-    if (this.maxValue > this.minValue)
-      data.datasets.forEach((dataset: ChartDataset) => {
+    if (this.maxValue > this.minValue) {
+      for (const dataset of data.datasets) {
         // Non-Overlapping line charts should have a larger gradient (means lower opacity)
         const minAlpha =
           this.typeValue === 'line' && !this.isOverlapping(data.datasets)
             ? 0.04
             : 0.4;
 
-        if (!dataset.data) return;
+        if (!dataset.data) continue;
 
         const id = (dataset as DatasetWithId).id;
         const isTemperature = id?.endsWith('_temp');
@@ -383,7 +383,8 @@ export default class extends Controller<HTMLCanvasElement> {
             minAlpha,
           );
         }
-      });
+      }
+    }
 
     this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
@@ -507,18 +508,22 @@ export default class extends Controller<HTMLCanvasElement> {
     const stackSums: Record<string, number[]> = {};
     let maxSum = 0;
 
-    data.datasets.forEach((dataset) => {
+    for (const dataset of data.datasets) {
       const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
-      dataset.data?.forEach((value, index) => {
-        const num = Array.isArray(value) ? Math.max(...value) : value;
+      if (dataset.data) {
+        for (let index = 0; index < dataset.data.length; index++) {
+          const value = dataset.data[index];
+          const num = Array.isArray(value) ? Math.max(...value) : value;
 
-        if (typeof num === 'number' && num > 0) {
-          stackSums[stackKey] ??= [];
-          stackSums[stackKey][index] = (stackSums[stackKey][index] ?? 0) + num;
-          maxSum = Math.max(maxSum, stackSums[stackKey][index]);
+          if (typeof num === 'number' && num > 0) {
+            stackSums[stackKey] ??= [];
+            stackSums[stackKey][index] =
+              (stackSums[stackKey][index] ?? 0) + num;
+            maxSum = Math.max(maxSum, stackSums[stackKey][index]);
+          }
         }
-      });
-    });
+      }
+    }
 
     return Math.ceil(maxSum);
   }
@@ -528,18 +533,22 @@ export default class extends Controller<HTMLCanvasElement> {
     const stackSums: Record<string, number[]> = {};
     let minSum = 0;
 
-    data.datasets.forEach((dataset) => {
+    for (const dataset of data.datasets) {
       const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
-      dataset.data?.forEach((value, index) => {
-        const num = Array.isArray(value) ? Math.min(...value) : value;
+      if (dataset.data) {
+        for (let index = 0; index < dataset.data.length; index++) {
+          const value = dataset.data[index];
+          const num = Array.isArray(value) ? Math.min(...value) : value;
 
-        if (typeof num === 'number' && num < 0) {
-          stackSums[stackKey] ??= [];
-          stackSums[stackKey][index] = (stackSums[stackKey][index] ?? 0) + num;
-          minSum = Math.min(minSum, stackSums[stackKey][index]);
+          if (typeof num === 'number' && num < 0) {
+            stackSums[stackKey] ??= [];
+            stackSums[stackKey][index] =
+              (stackSums[stackKey][index] ?? 0) + num;
+            minSum = Math.min(minSum, stackSums[stackKey][index]);
+          }
         }
-      });
-    });
+      }
+    }
 
     return Math.floor(minSum);
   }

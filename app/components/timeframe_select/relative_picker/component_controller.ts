@@ -106,9 +106,9 @@ export default class extends Controller<HTMLElement> {
   }
 
   private renderOptions() {
-    this.optionCellTargets.forEach((cell) => {
+    for (const cell of this.optionCellTargets) {
       const value = cell.dataset.value;
-      if (!value) return;
+      if (!value) continue;
 
       const isSelected = this.selectedValue === value;
 
@@ -125,6 +125,6 @@ export default class extends Controller<HTMLElement> {
       } else {
         cell.className += ' text-gray-900 dark:text-white';
       }
-    });
+    }
   }
 }

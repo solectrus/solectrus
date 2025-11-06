@@ -21,7 +21,9 @@ export default class extends Controller {
     this.dropdownTarget.classList.toggle('max-h-0');
     this.dropdownTarget.classList.toggle(this.maxHeightClassValue);
 
-    this.iconTargets.forEach((icon) => icon.classList.toggle('hidden'));
+    for (const icon of this.iconTargets) {
+      icon.classList.toggle('hidden');
+    }
 
     this.buttonTarget.ariaExpanded =
       this.buttonTarget.ariaExpanded === 'true' ? 'false' : 'true';

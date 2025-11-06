@@ -105,17 +105,17 @@ export default class extends Controller<HTMLElement> {
   }
 
   updateButtons() {
-    this.inputDarkTargets.forEach((input) => {
+    for (const input of this.inputDarkTargets) {
       input.checked = this.theme === 'dark';
-    });
+    }
 
-    this.inputLightTargets.forEach((input) => {
+    for (const input of this.inputLightTargets) {
       input.checked = this.theme === 'light';
-    });
+    }
 
-    this.inputAutoTargets.forEach((input) => {
+    for (const input of this.inputAutoTargets) {
       input.checked = this.theme === 'auto';
-    });
+    }
   }
 
   updateHtmlClass() {
