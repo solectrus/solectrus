@@ -96,9 +96,9 @@ export default class extends Controller {
       this.reloadFrames({ chart: this.reloadChartValue })
         .then(() => {
           // When no new chart has been loaded, add a new point to the existing chart
-          // We need to wait a bit to ensure the new value is available in the DOM
+          // Wait for the next repaint to ensure the new value is available in the DOM
           if (!this.reloadChartValue)
-            setTimeout(() => this.addPointToChart(), 100);
+            requestAnimationFrame(() => this.addPointToChart());
         })
         .catch((error) => {
           console.error(error);
