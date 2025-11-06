@@ -54,16 +54,11 @@ export default class extends Controller<HTMLElement> {
   declare otherMonthClassesValue: string;
   declare disabledClassesValue: string;
 
-  // Delay in ms to ensure calendar rendering is complete before focusing
-  private readonly FOCUS_DELAY_MS = 50;
-
   private currentMonth!: DateTime;
   private selectedStartDate: DateTime | null = null;
   private selectedEndDate: DateTime | null = null;
   private hoverDate: DateTime | null = null;
   private locale!: string;
-  private focusedDate: DateTime | null = null;
-  private focusTimeout?: ReturnType<typeof setTimeout>;
   private abortController?: AbortController;
 
   connect() {
@@ -103,11 +98,6 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect() {
-    if (this.focusTimeout) {
-      clearTimeout(this.focusTimeout);
-      this.focusTimeout = undefined;
-    }
-
     // Abort all button event listeners
     this.abortController?.abort();
 
@@ -125,30 +115,6 @@ export default class extends Controller<HTMLElement> {
   private open() {
     // Details is already open via native behavior
 
-    // Initialize focused date when opening
-    const minDate = this.getMinDate();
-    const maxDate = this.getMaxDate();
-
-    if (this.selectedStartDate) {
-      this.focusedDate = this.selectedStartDate;
-    } else {
-      this.focusedDate = DateTime.now().startOf('day');
-      // Ensure focused date is within bounds
-      if (minDate && this.focusedDate < minDate) {
-        this.focusedDate = minDate;
-      }
-      if (maxDate && this.focusedDate > maxDate) {
-        this.focusedDate = maxDate;
-      }
-    }
-
-    // Focus the current date after a short delay to ensure rendering is complete
-    this.focusTimeout = setTimeout(() => {
-      if (this.focusedDate) {
-        this.focusDayButton(this.focusedDate);
-      }
-    }, this.FOCUS_DELAY_MS);
-
     // Notify other pickers to close
     document.dispatchEvent(
       new CustomEvent('picker:open', { detail: { picker: this.element } }),
@@ -157,7 +123,6 @@ export default class extends Controller<HTMLElement> {
 
   close() {
     this.detailsTarget.removeAttribute('open');
-    this.focusedDate = null;
   }
 
   private readonly handleOtherPickerOpen = (event: Event): void => {
@@ -180,96 +145,6 @@ export default class extends Controller<HTMLElement> {
       event.stopPropagation(); // Prevent ESC from reaching the modal dialog
       this.close();
       return;
-    }
-
-    // Handle arrow key navigation
-
-    const minDate = this.getMinDate();
-    const maxDate = this.getMaxDate();
-
-    // Initialize focused date if not set
-    if (!this.focusedDate) {
-      // Start with selected date, or today if nothing selected
-      if (this.selectedStartDate) {
-        this.focusedDate = this.selectedStartDate;
-      } else {
-        this.focusedDate = DateTime.now().startOf('day');
-        // Ensure focused date is within bounds
-        if (minDate && this.focusedDate < minDate) {
-          this.focusedDate = minDate;
-        }
-        if (maxDate && this.focusedDate > maxDate) {
-          this.focusedDate = maxDate;
-        }
-      }
-    }
-
-    let newFocusedDate: DateTime | null = null;
-
-    switch (event.key) {
-      case 'ArrowLeft':
-        event.preventDefault();
-        newFocusedDate = this.focusedDate.minus({ days: 1 });
-        break;
-      case 'ArrowRight':
-        event.preventDefault();
-        newFocusedDate = this.focusedDate.plus({ days: 1 });
-        break;
-      case 'ArrowUp':
-        event.preventDefault();
-        newFocusedDate = this.focusedDate.minus({ weeks: 1 });
-        break;
-      case 'ArrowDown':
-        event.preventDefault();
-        newFocusedDate = this.focusedDate.plus({ weeks: 1 });
-        break;
-      case 'Enter':
-        event.preventDefault();
-        // Select the focused date
-        if (this.focusedDate) {
-          const isDisabled =
-            (minDate && this.focusedDate < minDate) ||
-            (maxDate && this.focusedDate > maxDate) ||
-            false;
-          if (!isDisabled) {
-            if (this.rangeValue) {
-              this.handleRangeSelection(this.focusedDate);
-            } else {
-              this.handleSingleSelection(this.focusedDate);
-            }
-            this.renderCalendar();
-          }
-        }
-        return;
-      default:
-        return;
-    }
-
-    // Update focused date if navigation occurred
-    if (newFocusedDate) {
-      // Check if new date is within bounds
-      const isDisabled =
-        (minDate && newFocusedDate < minDate) ||
-        (maxDate && newFocusedDate > maxDate) ||
-        false;
-
-      if (!isDisabled) {
-        this.focusedDate = newFocusedDate;
-
-        // Change month if focused date is in different month
-        if (
-          this.focusedDate.month !== this.currentMonth.month ||
-          this.focusedDate.year !== this.currentMonth.year
-        ) {
-          this.currentMonth = this.focusedDate.startOf('month');
-          this.renderCalendar();
-        } else {
-          // Just update classes without re-rendering if we're in the same month
-          this.updateAllDayButtonClasses();
-        }
-
-        this.focusDayButton(this.focusedDate);
-      }
     }
   };
 
@@ -489,16 +364,14 @@ export default class extends Controller<HTMLElement> {
       return false;
     }
 
-    // Use either hover date (for mouse) or focused date (for keyboard)
-    const previewDate = this.hoverDate || this.focusedDate;
-    if (!previewDate) {
+    if (!this.hoverDate) {
       return false;
     }
 
     const dateOnly = date.startOf('day');
     const timestamps = [
       this.selectedStartDate.toMillis(),
-      previewDate.toMillis(),
+      this.hoverDate.toMillis(),
     ];
     const start = DateTime.fromMillis(Math.min(...timestamps));
     const end = DateTime.fromMillis(Math.max(...timestamps));
@@ -523,11 +396,7 @@ export default class extends Controller<HTMLElement> {
     if (!this.hoverDate) return;
 
     this.hoverDate = null;
-    // Only update if we don't have a focused date (keyboard navigation)
-    // If we have a focused date, keep showing the keyboard preview
-    if (!this.focusedDate || this.selectedEndDate) {
-      this.updateAllDayButtonClasses();
-    }
+    this.updateAllDayButtonClasses();
   }
 
   private updateAllDayButtonClasses() {
@@ -553,17 +422,6 @@ export default class extends Controller<HTMLElement> {
       } else {
         button.className = this.baseClassesValue + this.getDayClassName(date);
       }
-    }
-  }
-
-  private focusDayButton(date: DateTime) {
-    const dateStr = date.toISODate();
-    const button = this.calendarGridTarget.querySelector(
-      `button[data-date="${dateStr}"]`,
-    ) as HTMLButtonElement;
-
-    if (button && !button.disabled) {
-      button.focus();
     }
   }
 
