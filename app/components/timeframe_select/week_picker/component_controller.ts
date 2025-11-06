@@ -55,6 +55,7 @@ export default class extends Controller<HTMLElement> {
   private currentYear!: number;
   private selectedWeek: string | null = null;
   private locale!: string;
+  private abortController?: AbortController;
 
   connect() {
     // Get browser locale from document or fallback to 'en'
@@ -79,6 +80,9 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect() {
+    // Abort all button event listeners
+    this.abortController?.abort();
+
     document.removeEventListener('keyup', this.handleEscape, true);
     document.removeEventListener('picker:open', this.handleOtherPickerOpen);
   }
@@ -165,6 +169,10 @@ export default class extends Controller<HTMLElement> {
       ? DateTime.fromISO(this.maxDateValue)
       : null;
 
+    // Abort old button listeners before re-rendering
+    this.abortController?.abort();
+    this.abortController = new AbortController();
+
     // Clear existing weeks
     this.weekGridTarget.innerHTML = '';
 
@@ -248,10 +256,14 @@ export default class extends Controller<HTMLElement> {
           } else {
             button.disabled = false;
             button.className += ` ${this.weekButtonHoverClassValue}`;
-            button.addEventListener('click', (e) => {
-              e.stopPropagation();
-              this.selectWeek(e);
-            });
+            button.addEventListener(
+              'click',
+              (e) => {
+                e.stopPropagation();
+                this.selectWeek(e);
+              },
+              { signal: this.abortController?.signal },
+            );
 
             if (isSelected) {
               button.className += ` ${this.weekButtonSelectedClassValue}`;
