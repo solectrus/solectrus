@@ -89,6 +89,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private boundHandleResize?: () => void;
   private chart?: Chart;
+  private animationTimeout?: ReturnType<typeof setTimeout>;
 
   private maxValue: number = 0;
   private minValue: number = 0;
@@ -108,6 +109,11 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   disconnect() {
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
+      this.animationTimeout = undefined;
+    }
+
     if (this.boundHandleResize)
       window.removeEventListener('resize', this.boundHandleResize);
 
@@ -121,7 +127,7 @@ export default class extends Controller<HTMLCanvasElement> {
     if (this.chart) this.chart.destroy();
     this.process();
 
-    setTimeout(() => {
+    this.animationTimeout = setTimeout(() => {
       // Re-enable animation
       document.body.classList.remove('animation-stopper');
     }, 200);
