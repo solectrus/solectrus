@@ -325,6 +325,7 @@ export default class extends Controller {
 
   /**
    * Creates the tooltip element with arrow and adds it to the document body
+   * or to an open dialog element (to appear in the top layer)
    */
   private createTooltip(initialContent = ''): void {
     this.tooltip = document.createElement('div');
@@ -342,7 +343,13 @@ export default class extends Controller {
     this.arrowElement.className = 'floating-tooltip-arrow';
     this.tooltip.appendChild(this.arrowElement);
 
-    document.body.appendChild(this.tooltip);
+    // Append to open dialog if exists (to appear in top layer), otherwise to body
+    const openDialog = document.querySelector('dialog[open]');
+    if (openDialog) {
+      openDialog.appendChild(this.tooltip);
+    } else {
+      document.body.appendChild(this.tooltip);
+    }
   }
 
   /**
