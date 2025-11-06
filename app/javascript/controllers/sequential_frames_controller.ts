@@ -33,6 +33,11 @@ export default class extends Controller {
     this.loadNextFrame(0);
   }
 
+  disconnect() {
+    // Clear the cached frame elements to prevent holding DOM references
+    this.frameCache = null;
+  }
+
   get frameElements(): Turbo.FrameElement[] {
     if (this.frameCache === null) {
       this.frameCache = Array.from(
