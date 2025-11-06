@@ -18,18 +18,18 @@
       dialog[
         class= 'fixed! inset-0! m-0! p-0! border-0! bg-transparent! max-w-none! max-h-none! w-full! h-full! flex items-end md:items-center justify-center overflow-y-auto z-50 backdrop:bg-transparent!'
         aria-labelledby= 'modal-title'
-        data-action= 'click->turbo-modal--component#closeBackground cancel->turbo-modal--component#handleCancel turbo:submit-end->turbo-modal--component#submitEnd turbo:before-render@document->turbo-modal--component#closeBeforeRender'
+        data-action= 'click->turbo-modal--component#closeBackground cancel->turbo-modal--component#handleCancel turbo:submit-end->turbo-modal--component#submitEnd'
         data-turbo-modal--component-target= 'dialog'
       ]
         div[
           class= 'relative text-gray-800 dark:text-gray-400 bg-white dark:bg-slate-800 rounded-t-lg md:rounded-lg px-4 pt-5 pb-10 text-left overflow-hidden shadow-xl w-full md:max-w-2xl sm:p-6'
           data-turbo-modal--component-target= 'inner'
           data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
-          data-transition-enter-start= 'translate-y-full md:opacity-0 md:translate-y-0'
-          data-transition-enter-end= 'translate-y-0 md:opacity-100 md:translate-y-0'
+          data-transition-enter-start= 'opacity-0 translate-y-full'
+          data-transition-enter-end= 'opacity-100 translate-y-0'
           data-transition-leave= 'motion-safe:ease-in motion-safe:duration-200'
-          data-transition-leave-start= 'translate-y-0 md:opacity-100 md:translate-y-0'
-          data-transition-leave-end= 'translate-y-full md:opacity-0 md:translate-y-0'
+          data-transition-leave-start= 'opacity-100 translate-y-0'
+          data-transition-leave-end= 'opacity-0 translate-y-full'
         ]
           h1 id= 'modal-title' class= 'font-bold text-xl sm:text-2xl leading-none'
             = @title || title

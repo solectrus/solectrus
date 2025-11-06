@@ -52,12 +52,6 @@ export default class extends Controller<HTMLElement> {
     this.closeDialog();
   }
 
-  // Ensure to close dialog (with animation) BEFORE Turbo renders new page
-  closeBeforeRender(event: Event) {
-    event.preventDefault();
-    this.closeDialog(event as CustomEvent);
-  }
-
   // Close dialog on successful form submission
   submitEnd(event: CustomEvent) {
     if (event.detail.success) this.closeDialog();
