@@ -8,6 +8,9 @@ import {
   autoUpdate,
   type Placement,
 } from '@floating-ui/dom';
+import { isTouchEnabled } from '@/utils/device';
+
+const LONG_PRESS_DURATION = 500;
 
 /**
  * Tooltip controller using Floating UI
@@ -17,12 +20,23 @@ import {
  * - Touch device support (tap or long-press)
  * - Bounce animation on show
  * - Arrow pointing to target element
+ *
+ * Operating modes:
+ * 1. Standard mode (default):
+ *    - One controller instance per tooltip element
+ *    - Content from 'title' attribute or data-tooltip-target="html"
+ *    - Works on the element itself (this.element)
+ *    - Supports touch modes (tap, long-press) via data-tooltip-touch-value
+ *
+ * 2. Delegate mode (data-tooltip-delegate-value="true"):
+ *    - One controller instance manages multiple child tooltips
+ *    - Uses event delegation (mouseenter/mouseleave bubbling)
+ *    - Efficient for grids/lists with many tooltip elements
+ *    - Child elements need data-tooltip-target="html" with content
+ *    - Works on touch devices via synthesized mouse events (tap shows tooltip)
+ *    - Touch-specific modes (long-press, force-tap-to-close) not available
  */
 export default class extends Controller {
-  // Track all active tooltip instances to ensure only one is visible at a time
-  private static readonly activeInstances = new Set<Controller>();
-  private static documentClickListenerRegistered = false;
-
   static readonly values = {
     // Where to place the tooltip relative to the target element
     placement: {
@@ -36,10 +50,10 @@ export default class extends Controller {
       default: 'false',
     },
 
-    // Force second tap (on touch device) to close tooltip
-    forceTapToClose: {
+    // Enable event delegation mode for handling multiple child tooltips efficiently
+    delegate: {
       type: Boolean,
-      default: true,
+      default: false,
     },
   };
 
@@ -47,42 +61,35 @@ export default class extends Controller {
 
   declare placementValue: Placement;
   declare touchValue: 'true' | 'false' | 'long';
-  declare forceTapToCloseValue: boolean;
+  declare delegateValue: boolean;
   declare readonly hasHtmlTarget: boolean;
 
   private tooltip: HTMLElement | null = null;
+  private tooltipContent: HTMLElement | null = null;
   private arrowElement: HTMLElement | null = null;
   private positionCleanup: (() => void) | null = null;
+  private overlay: HTMLElement | null = null;
   private titleObserver: MutationObserver | null = null;
   private contentObserver: MutationObserver | null = null;
   private touchTimer: ReturnType<typeof setTimeout> | null = null;
   private isVisible = false;
-  private titleCache = '';
-  private justShown = false;
-  private blockNextClick = false;
 
   connect() {
-    // Register this instance
-    const constructor = this.constructor as typeof Controller & {
-      activeInstances: Set<Controller>;
-      documentClickListenerRegistered: boolean;
-      handleGlobalDocumentClick: (event: Event) => void;
-    };
-    constructor.activeInstances.add(this);
-
-    // Register global document click listener only once
-    if (!constructor.documentClickListenerRegistered && this.isTouchDevice) {
-      constructor.documentClickListenerRegistered = true;
-      document.addEventListener('click', this.handleGlobalDocumentClick);
+    if (this.delegateValue) {
+      this.connectDelegated();
+    } else {
+      this.connectStandard();
     }
+  }
 
-    this.titleCache = this.element.getAttribute('title') || '';
-    if (this.titleCache) {
+  private connectStandard(): void {
+    const title = this.element.getAttribute('title');
+    if (title) {
       this.element.removeAttribute('title');
       this.watchTitle();
 
       // Set aria-label to keep a discernible text for accessibility
-      (this.element as HTMLElement).ariaLabel = this.titleCache;
+      (this.element as HTMLElement).ariaLabel = title;
     }
 
     const content = this.getContent();
@@ -92,30 +99,56 @@ export default class extends Controller {
     this.setupEventListeners();
   }
 
-  disconnect() {
-    // Unregister this instance
-    const constructor = this.constructor as typeof Controller & {
-      activeInstances: Set<Controller>;
-      documentClickListenerRegistered: boolean;
-      handleGlobalDocumentClick: (event: Event) => void;
-    };
-    constructor.activeInstances.delete(this);
+  private connectDelegated(): void {
+    this.createTooltip();
+    this.element.addEventListener(
+      'mouseenter',
+      this.handleDelegatedEnter,
+      true,
+    );
+    this.element.addEventListener(
+      'mouseleave',
+      this.handleDelegatedLeave,
+      true,
+    );
+  }
 
-    // Remove global listener if no instances left
-    if (
-      constructor.activeInstances.size === 0 &&
-      constructor.documentClickListenerRegistered
-    ) {
-      constructor.documentClickListenerRegistered = false;
-      document.removeEventListener('click', this.handleGlobalDocumentClick);
+  disconnect() {
+    // Common cleanup
+    if (this.isVisible) {
+      this.removeOverlay();
+      this.isVisible = false;
     }
 
-    this.positionCleanup?.();
+    if (this.touchTimer) {
+      clearTimeout(this.touchTimer);
+      this.touchTimer = null;
+    }
+
     this.titleObserver?.disconnect();
+    this.titleObserver = null;
+
     this.contentObserver?.disconnect();
-    this.tooltip?.remove();
-    if (this.touchTimer) clearTimeout(this.touchTimer);
-    this.removeEventListeners();
+    this.contentObserver = null;
+
+    // Mode-specific cleanup
+    if (this.delegateValue) {
+      this.element.removeEventListener(
+        'mouseenter',
+        this.handleDelegatedEnter,
+        true,
+      );
+      this.element.removeEventListener(
+        'mouseleave',
+        this.handleDelegatedLeave,
+        true,
+      );
+    } else {
+      this.removeEventListeners();
+    }
+
+    this.hideTooltip();
+    this.cleanupTooltip();
   }
 
   private watchTitle(): void {
@@ -129,70 +162,34 @@ export default class extends Controller {
   }
 
   private getContent(): string {
-    if (this.hasHtmlTarget) {
-      const target = this.element.querySelector('[data-tooltip-target="html"]');
-      return target?.innerHTML || '';
-    }
-    return this.titleCache;
-  }
-
-  private createTooltip(content: string): void {
-    this.tooltip = document.createElement('div');
-    this.tooltip.className = 'floating-tooltip';
-    this.tooltip.innerHTML = content;
-    this.tooltip.style.visibility = 'hidden';
-
-    this.arrowElement = document.createElement('div');
-    this.arrowElement.className = 'floating-tooltip-arrow';
-    this.tooltip.appendChild(this.arrowElement);
-
-    document.body.appendChild(this.tooltip);
-  }
-
-  private updateContent(): void {
-    if (!this.tooltip || !this.arrowElement) return;
-
-    const content = this.getContent();
-    if (!content) return;
-
-    const arrowClone = this.arrowElement.cloneNode(true) as HTMLElement;
-    this.tooltip.innerHTML = content;
-    this.tooltip.appendChild(arrowClone);
-    this.arrowElement = arrowClone;
+    const htmlTarget = this.element.querySelector(
+      '[data-tooltip-target="html"]',
+    );
+    return (
+      htmlTarget?.innerHTML || (this.element as HTMLElement).ariaLabel || ''
+    );
   }
 
   private setupEventListeners(): void {
-    const el = this.element;
-    if (this.isTouchDevice) {
-      if (this.isTapMode) {
-        el.addEventListener('click', this.handleClick);
-      } else if (this.isLongPressMode) {
-        el.addEventListener('touchstart', this.handleTouchStart);
-        el.addEventListener('touchend', this.handleTouchEnd);
-        el.addEventListener('touchcancel', this.handleTouchCancel);
-        el.addEventListener('click', this.preventClick, true);
-      }
-    } else {
-      el.addEventListener('mouseenter', this.show);
-      el.addEventListener('mouseleave', this.hide);
+    if (!isTouchEnabled()) {
+      this.element.addEventListener('mouseenter', this.show);
+      this.element.addEventListener('mouseleave', this.hide);
+    } else if (this.touchValue === 'true') {
+      this.element.addEventListener('click', this.handleClick);
+    } else if (this.touchValue === 'long') {
+      this.element.addEventListener('touchstart', this.handleTouchStart);
+      this.element.addEventListener('touchend', this.cancelTouchTimer);
+      this.element.addEventListener('touchcancel', this.cancelTouchTimer);
     }
   }
 
   private removeEventListeners(): void {
-    const el = this.element;
-    if (this.isTouchDevice) {
-      if (this.isTapMode) {
-        el.removeEventListener('click', this.handleClick);
-      } else if (this.isLongPressMode) {
-        el.removeEventListener('touchstart', this.handleTouchStart);
-        el.removeEventListener('touchend', this.handleTouchEnd);
-        el.removeEventListener('touchcancel', this.handleTouchCancel);
-        el.removeEventListener('click', this.preventClick, true);
-      }
-    } else {
-      el.removeEventListener('mouseenter', this.show);
-      el.removeEventListener('mouseleave', this.hide);
-    }
+    this.element.removeEventListener('mouseenter', this.show);
+    this.element.removeEventListener('mouseleave', this.hide);
+    this.element.removeEventListener('click', this.handleClick);
+    this.element.removeEventListener('touchstart', this.handleTouchStart);
+    this.element.removeEventListener('touchend', this.cancelTouchTimer);
+    this.element.removeEventListener('touchcancel', this.cancelTouchTimer);
   }
 
   private readonly handleClick = (event: Event): void => {
@@ -213,186 +210,94 @@ export default class extends Controller {
     this.touchTimer = globalThis.setTimeout(() => {
       this.show();
       this.touchTimer = null;
-    }, this.longPressDuration);
+    }, LONG_PRESS_DURATION);
   };
 
-  private readonly handleTouchEnd = (): void => {
-    const hadTimer = !!this.touchTimer;
-
-    if (this.touchTimer) {
-      clearTimeout(this.touchTimer);
-      this.touchTimer = null;
-    }
-
-    // If tooltip is visible, distinguish between short tap and long-press end
-    if (this.isVisible) {
-      if (hadTimer) {
-        this.blockNextClick = true;
-        this.hide();
-      } else {
-        // Long-press just finished -> prevent immediate closing from click event
-        this.justShown = true;
-        globalThis.setTimeout(() => {
-          this.justShown = false;
-        }, this.clickProtectionDuration);
-      }
-    }
-  };
-
-  private readonly handleTouchCancel = (): void => {
+  private readonly cancelTouchTimer = (): void => {
     if (this.touchTimer) {
       clearTimeout(this.touchTimer);
       this.touchTimer = null;
     }
   };
 
-  private readonly preventClick = (event: Event): void => {
-    // Check if this specific tooltip wants to block the click
-    if (this.blockNextClick) {
-      this.blockNextClick = false;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      return;
-    }
+  private readonly handleDelegatedEnter = (event: Event): void => {
+    if (!(event.target instanceof HTMLElement)) return;
 
-    // Check if ANY tooltip is visible
-    const constructor = this.constructor as typeof Controller & {
-      activeInstances: Set<Controller>;
-    };
+    const contentElement = event.target.querySelector(
+      '[data-tooltip-target="html"]',
+    );
+    if (!(contentElement instanceof HTMLElement)) return;
 
-    for (const instance of constructor.activeInstances) {
-      const tooltipInstance = instance as typeof this;
-      if (tooltipInstance.isVisible) {
-        if (!tooltipInstance.justShown) {
-          // Close tooltip if not just shown
-          tooltipInstance.hide();
-        }
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        return;
-      }
-    }
+    this.showTooltip(event.target, contentElement.innerHTML, contentElement);
   };
 
-  private readonly handleGlobalDocumentClick = (event: Event): void => {
-    const constructor = this.constructor as typeof Controller & {
-      activeInstances: Set<Controller>;
-    };
-    const target = event.target as Node;
+  private readonly handleDelegatedLeave = (event: Event): void => {
+    if (!(event.target instanceof HTMLElement)) return;
+    if (!event.target.querySelector('[data-tooltip-target="html"]')) return;
 
-    // Check all active tooltip instances
-    for (const instance of constructor.activeInstances) {
-      const tooltipInstance = instance as typeof this;
-
-      // Skip if not visible or just shown
-      if (!tooltipInstance.isVisible || tooltipInstance.justShown) continue;
-
-      // Hide tooltip when clicking outside the target element
-      // Note: tooltip has pointer-events: none, so clicks pass through
-      if (!tooltipInstance.element.contains(target)) {
-        tooltipInstance.hide();
-        break; // Only hide one tooltip per click
-      }
-    }
+    this.hide();
   };
 
   private readonly show = async (): Promise<void> => {
     if (!this.tooltip || this.isVisible) return;
 
-    // Hide all other tooltips first (only one tooltip should be visible at a time)
-    const instances = (
-      this.constructor as typeof Controller & {
-        activeInstances: Set<Controller>;
-      }
-    ).activeInstances;
-    for (const instance of instances) {
-      if (instance !== this && (instance as typeof this).isVisible) {
-        (instance as typeof this).hide();
-      }
-    }
+    const content = this.getContent();
+    if (!content) return;
 
-    this.updateContent();
-    this.isVisible = true;
-    await this.updatePosition();
+    const contentElement = this.hasHtmlTarget
+      ? this.element.querySelector('[data-tooltip-target="html"]')
+      : null;
 
-    this.tooltip.style.visibility = 'visible';
-    this.tooltip.classList.add('show');
-
-    this.positionCleanup = autoUpdate(
+    this.showTooltip(
       this.element as HTMLElement,
-      this.tooltip,
-      () => this.updatePosition(),
+      content,
+      contentElement instanceof HTMLElement ? contentElement : undefined,
     );
+  };
 
-    if (this.hasHtmlTarget) {
-      this.observeContent();
+  private async showTooltip(
+    target: HTMLElement,
+    content: string,
+    observeElement?: HTMLElement,
+  ): Promise<void> {
+    this.updateTooltipContent(content);
+    this.isVisible = true;
+
+    await this.showTooltipAt(target, this.placementValue);
+
+    // Check if controller was disconnected during async operation
+    if (!this.tooltip || !this.isVisible) return;
+
+    if (observeElement) {
+      this.observeContentChanges(observeElement);
     }
 
-    this.togglePointerEvents(true);
-  };
+    this.createOverlay();
+  }
 
   private readonly hide = (): void => {
     if (!this.isVisible || !this.tooltip) return;
 
     this.isVisible = false;
-    this.tooltip.style.visibility = 'hidden';
-    this.tooltip.classList.remove('show');
 
-    this.positionCleanup?.();
-    this.positionCleanup = null;
+    this.hideTooltip();
 
     this.contentObserver?.disconnect();
     this.contentObserver = null;
 
-    this.togglePointerEvents(false);
+    this.removeOverlay();
   };
 
-  private async updatePosition(): Promise<void> {
-    if (!this.tooltip || !this.arrowElement) return;
+  private observeContentChanges(target: Element): void {
+    // Clean up existing observer first
+    this.contentObserver?.disconnect();
 
-    const { x, y, placement, middlewareData } = await computePosition(
-      this.element as HTMLElement,
-      this.tooltip,
-      {
-        placement: this.placementValue,
-        middleware: [
-          offset(10),
-          flip(),
-          shift({ padding: 5 }),
-          arrow({ element: this.arrowElement }),
-        ],
-      },
-    );
-
-    Object.assign(this.tooltip.style, { left: `${x}px`, top: `${y}px` });
-
-    if (middlewareData.arrow) {
-      const { x: arrowX, y: arrowY } = middlewareData.arrow;
-      const side = placement.split('-')[0];
-      const staticSide = {
-        top: 'bottom',
-        right: 'left',
-        bottom: 'top',
-        left: 'right',
-      }[side]!;
-
-      Object.assign(this.arrowElement.style, {
-        left: arrowX === null ? '' : `${arrowX}px`,
-        top: arrowY === null ? '' : `${arrowY}px`,
-        right: '',
-        bottom: '',
-        [staticSide]: '-6px',
-      });
-    }
-
-    this.tooltip.dataset.placement = placement;
-  }
-
-  private observeContent(): void {
-    const target = this.element.querySelector('[data-tooltip-target="html"]');
-    if (!target) return;
-
-    this.contentObserver = new MutationObserver(() => this.updateContent());
+    this.contentObserver = new MutationObserver(() => {
+      const content = target.innerHTML;
+      if (content) {
+        this.updateTooltipContent(content);
+      }
+    });
     this.contentObserver.observe(target, {
       childList: true,
       subtree: true,
@@ -400,31 +305,153 @@ export default class extends Controller {
     });
   }
 
-  private togglePointerEvents(active: boolean): void {
-    if (this.isTouchDevice) {
-      document.body.classList.toggle('active-tooltip', active);
+  private createOverlay(): void {
+    if (!isTouchEnabled()) return;
+    if (this.overlay) return; // Already exists
+
+    this.overlay = document.createElement('div');
+    this.overlay.className = 'tooltip-overlay';
+    this.overlay.addEventListener('click', this.hide);
+    document.body.appendChild(this.overlay);
+  }
+
+  private removeOverlay(): void {
+    if (this.overlay) {
+      this.overlay.removeEventListener('click', this.hide);
+      this.overlay.remove();
+      this.overlay = null;
     }
   }
 
-  get isTouchDevice(): boolean {
-    return 'ontouchstart' in globalThis;
+  /**
+   * Creates the tooltip element with arrow and adds it to the document body
+   */
+  private createTooltip(initialContent = ''): void {
+    this.tooltip = document.createElement('div');
+    this.tooltip.className = 'floating-tooltip';
+    this.tooltip.style.visibility = 'hidden';
+
+    this.tooltipContent = document.createElement('div');
+    this.tooltipContent.className = 'floating-tooltip-content';
+    if (initialContent) {
+      this.tooltipContent.innerHTML = initialContent;
+    }
+    this.tooltip.appendChild(this.tooltipContent);
+
+    this.arrowElement = document.createElement('div');
+    this.arrowElement.className = 'floating-tooltip-arrow';
+    this.tooltip.appendChild(this.arrowElement);
+
+    document.body.appendChild(this.tooltip);
   }
 
-  get isLongPressMode(): boolean {
-    return this.touchValue === 'long';
+  /**
+   * Updates the tooltip content, preserving the arrow element
+   */
+  private updateTooltipContent(content: string): void {
+    if (!this.tooltipContent) return;
+
+    this.tooltipContent.innerHTML = content;
   }
 
-  get isTapMode(): boolean {
-    return this.touchValue === 'true';
+  /**
+   * Shows the tooltip at the specified target element
+   */
+  private async showTooltipAt(
+    target: HTMLElement,
+    placement: Placement = 'bottom',
+  ): Promise<void> {
+    if (!this.tooltip) return;
+
+    // Cleanup existing position watcher before creating a new one
+    this.positionCleanup?.();
+    this.positionCleanup = null;
+
+    await this.updateTooltipPosition(target, placement);
+
+    this.tooltip.style.visibility = 'visible';
+    this.tooltip.classList.add('show');
+
+    this.positionCleanup = autoUpdate(target, this.tooltip, () =>
+      this.updateTooltipPosition(target, placement),
+    );
   }
 
-  get longPressDuration(): number {
-    return 500;
+  /**
+   * Hides the tooltip and stops position updates
+   */
+  private hideTooltip(): void {
+    if (!this.tooltip) return;
+
+    this.tooltip.style.visibility = 'hidden';
+    this.tooltip.classList.remove('show');
+
+    this.positionCleanup?.();
+    this.positionCleanup = null;
   }
 
-  get clickProtectionDuration(): number {
-    // Duration to prevent immediate closing after showing tooltip
-    // Needs to be long enough to catch the click event that follows touchend
-    return 300;
+  /**
+   * Computes and applies the tooltip position using Floating UI
+   */
+  private async updateTooltipPosition(
+    target: HTMLElement,
+    placement: Placement = 'bottom',
+  ): Promise<void> {
+    if (!this.tooltip || !this.arrowElement) return;
+
+    const {
+      x,
+      y,
+      placement: actualPlacement,
+      middlewareData,
+    } = await computePosition(target, this.tooltip, {
+      placement,
+      middleware: [
+        offset(10),
+        flip(),
+        shift({ padding: 5 }),
+        arrow({ element: this.arrowElement }),
+      ],
+    });
+
+    Object.assign(this.tooltip.style, { left: `${x}px`, top: `${y}px` });
+
+    if (middlewareData.arrow) {
+      const { x: arrowX, y: arrowY } = middlewareData.arrow;
+      const side = actualPlacement.split('-')[0] as
+        | 'top'
+        | 'right'
+        | 'bottom'
+        | 'left';
+      const staticSide: Record<typeof side, string> = {
+        top: 'bottom',
+        right: 'left',
+        bottom: 'top',
+        left: 'right',
+      };
+
+      Object.assign(this.arrowElement.style, {
+        left: arrowX === null ? '' : `${arrowX}px`,
+        top: arrowY === null ? '' : `${arrowY}px`,
+        right: '',
+        bottom: '',
+        [staticSide[side]]: '-6px',
+      });
+    }
+
+    this.tooltip.dataset.placement = actualPlacement;
+  }
+
+  /**
+   * Cleans up the tooltip when the controller disconnects
+   */
+  private cleanupTooltip(): void {
+    this.positionCleanup?.();
+    this.positionCleanup = null;
+
+    this.tooltip?.remove();
+    this.tooltip = null;
+    this.tooltipContent = null;
+    this.arrowElement = null;
   }
 }

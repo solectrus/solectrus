@@ -1,5 +1,5 @@
 - if timeframe.year?
-  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(31,minmax(0.5rem,1fr))] gap-x-0.5 sm:gap-x-0.5 gap-y-0.5 sm:gap-y-0.5 items-center' data-controller= 'heatmap-tile--component'
+  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(31,minmax(0.5rem,1fr))] gap-x-0.5 sm:gap-x-0.5 gap-y-0.5 sm:gap-y-0.5 items-center' data-controller= 'tooltip' data-tooltip-delegate-value= 'true'
     - months.reverse_each do |month|
       .text-right.pr-1.flex.items-center.justify-end.tabular-nums.sm:pr-2.text-xs.leading-none
         = t('date.abbr_month_names')[month]
@@ -11,7 +11,7 @@
             = link_to link_path_for_date(date),
                       class: ['aspect-square', background_class(value)],
                       style: "opacity: #{opacity(value)}" do
-              .hidden data-heatmap-tile--component-target= 'html'
+              .hidden data-tooltip-target= 'html'
                 strong
                   = l(date)
 
@@ -47,7 +47,7 @@
         = day.odd? ? day : ''
 
 - elsif timeframe.all?
-  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(12,minmax(1rem,1fr))] gap-0.5 sm:gap-1' data-controller= 'heatmap-tile--component'
+  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(12,minmax(1rem,1fr))] gap-0.5 sm:gap-1' data-controller= 'tooltip' data-tooltip-delegate-value= 'true'
     - years.reverse_each do |year|
       .text-right.pr-1.flex.items-center.justify-end.tabular-nums.sm:pr-2
         = year
@@ -58,7 +58,7 @@
           = link_to link_path_for_date(date.strftime('%Y-%m')),
                     class: ['aspect-square', background_class(value)],
                     style: "opacity: #{opacity(value)}" do
-              .hidden data-heatmap-tile--component-target= 'html'
+              .hidden data-tooltip-target= 'html'
                 strong
                   = l(date, format: :month)
 

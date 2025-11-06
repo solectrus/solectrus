@@ -1,8 +1,8 @@
 /* Floating UI Tooltip Styles */
 
-/* Disable pointer events when Tooltip is shown (see tooltip_controller.ts) */
-body.active-tooltip * {
-  @apply pointer-events-none;
+/* Overlay to catch clicks outside tooltip on touch devices */
+.tooltip-overlay {
+  @apply fixed inset-0 z-40 bg-transparent;
 }
 
 .floating-tooltip {
