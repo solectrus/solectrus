@@ -87,6 +87,9 @@ export default class extends Controller<HTMLElement> {
   disconnect() {
     if (!isTouchEnabled()) return;
 
+    // Remove the overflow-hidden class to restore scrolling
+    document.body.classList.remove('overflow-hidden');
+
     if (this.boundHandleTouchStart)
       this.element.removeEventListener(
         'touchstart',
