@@ -5,7 +5,7 @@
         .flex.items-center
           = render Button::Component.new( \
               path: registration_path(status: 'skip'),
-              icon: 'times',
+              icon: 'xmark',
               style: :tertiary,
               options: { class: 'text-gray-500 dark:text-pink-100/50 text-lg', data: { turbo_prefetch: false } },
             )

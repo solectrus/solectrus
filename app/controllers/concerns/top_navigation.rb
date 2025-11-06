@@ -201,7 +201,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def settings_item
       {
         name: t('layout.settings'),
-        icon: 'cog',
+        icon: 'gear',
         href: settings_general_path,
         current: helpers.controller_namespace == 'settings',
       }

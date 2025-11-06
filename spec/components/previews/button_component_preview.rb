@@ -7,16 +7,16 @@ class ButtonComponentPreview < ViewComponent::Preview
 
   # Button with icon
   # @param icon select [sun, home, car, plug, bolt, chevron-left, chevron-right, plus, pencil,
-  #                    trash, times, battery-empty, battery-quarter, battery-half, battery-three-quarters,
-  #                    battery-full, arrow-right-to-bracket, arrow-right-from-bracket, cog]
+  #                    trash, xmark, battery-empty, battery-quarter, battery-half, battery-three-quarters,
+  #                    battery-full, arrow-right-to-bracket, arrow-right-from-bracket, gear]
   def icon(icon: 'bolt')
     render Button::Component.new(icon:, path: '#')
   end
 
   # @param title
   # @param icon select [sun, home, car, plug, bolt, chevron-left, chevron-right, plus, pencil,
-  #                    trash, times, battery-empty, battery-quarter, battery-half, battery-three-quarters,
-  #                    battery-full, arrow-right-to-bracket, arrow-right-from-bracket, cog]
+  #                    trash, xmark, battery-empty, battery-quarter, battery-half, battery-three-quarters,
+  #                    battery-full, arrow-right-to-bracket, arrow-right-from-bracket, gear]
   def icon_and_title(icon: 'bolt', title: 'Click me')
     render Button::Component.new(title:, icon:, path: '#')
   end

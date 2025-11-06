@@ -14,7 +14,7 @@ import { faRotateLeft } from '@fortawesome/free-solid-svg-icons/faRotateLeft';
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
-import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
+import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark';
 
 import { faSun } from '@fortawesome/free-solid-svg-icons/faSun';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
@@ -33,7 +33,7 @@ import { faArrowRightToBracket } from '@fortawesome/free-solid-svg-icons/faArrow
 import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons/faArrowRightFromBracket';
 
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
-import { faCog } from '@fortawesome/free-solid-svg-icons/faCog';
+import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck';
 import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons/faCircleQuestion';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons/faCircleInfo';
@@ -83,7 +83,7 @@ export default class extends Controller {
       faPlus,
       faPencil,
       faTrash,
-      faTimes,
+      faXmark,
       faBatteryEmpty,
       faBatteryQuarter,
       faBatteryHalf,
@@ -92,7 +92,7 @@ export default class extends Controller {
       faArrowRightToBracket,
       faArrowRightFromBracket,
       faGithub,
-      faCog,
+      faGear,
       faCircleCheck,
       faCircleQuestion,
       faCircleExclamation,
