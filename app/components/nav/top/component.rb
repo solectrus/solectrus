@@ -42,7 +42,7 @@ class Nav::Top::Component < ViewComponent::Base
             if item.current
               'bg-indigo-800 dark:bg-indigo-950 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
             else
-              'hover:bg-indigo-500/75 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
+              'lg:hover:text-gray-200 lg:hover:bg-indigo-500 dark:lg:hover:bg-indigo-950/50 dark:lg:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
             end
           ),
         ]

@@ -37,8 +37,8 @@ class Timeframe::Component < ViewComponent::Base
 
   def interactive_button_classes(additional_classes = nil)
     [
-      'px-2 py-1 rounded-sm',
-      'hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-800 dark:hover:text-gray-400',
+      'px-2 py-2 rounded-sm',
+      'hover:bg-indigo-500 hover:text-gray-200 dark:hover:bg-indigo-950/50 dark:hover:text-gray-300',
       'focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400',
       additional_classes,
     ]

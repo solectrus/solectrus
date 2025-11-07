@@ -22,8 +22,7 @@ class Nav::Sub::Component < ViewComponent::Base
 
     def css_classes # rubocop:disable Metrics/MethodLength
       base_classes = %w[
-        pt-5
-        pb-5
+        py-5
         standalone:max-lg:pt-3
         standalone:max-lg:pb-8
         px-1.5

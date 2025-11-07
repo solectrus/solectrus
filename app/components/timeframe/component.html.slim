@@ -42,7 +42,7 @@
         = timeframe.localized
 
   - when :week
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 md:w-76 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
+    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 md:w-80 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip' }, title: t('.select_hint') do
       time.space-x-4 datetime= timeframe.iso8601
         span
           = timeframe.localized
