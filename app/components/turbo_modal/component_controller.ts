@@ -8,18 +8,12 @@ export default class extends Controller<HTMLElement> {
   declare readonly innerTarget: HTMLElement;
 
   private backdrop: HTMLElement | null = null;
+  private animationFrameId: number | null = null;
 
   connect(): void {
     // Get the shared backdrop from the layout
     this.backdrop = document.getElementById('modal-backdrop');
     if (!this.backdrop) return;
-
-    // Open dialog as modal with native API
-    this.dialogTarget.showModal();
-
-    // Prevent auto-focus on first focusable element (e.g., summary elements)
-    // Focus the dialog itself instead
-    this.dialogTarget.focus();
 
     // Add click handler to backdrop
     this.backdrop.addEventListener('click', this.handleBackdropClick);
@@ -27,21 +21,41 @@ export default class extends Controller<HTMLElement> {
     // Check if backdrop was preloaded by modal-launcher
     const backdropPreloaded = this.backdrop.dataset.preloaded === 'true';
 
-    if (backdropPreloaded) {
-      // Remove the preload marker
-      delete this.backdrop.dataset.preloaded;
+    // Wait for the browser to render the initial position before showing the dialog
+    // This prevents the "jumping" effect on large modals
+    this.animationFrameId = requestAnimationFrame(() => {
+      // Guard: Check if controller is still connected and backdrop exists
+      if (!this.backdrop) return;
 
-      // Backdrop is already visible from modal-launcher, just animate in the content
-      enter(this.innerTarget);
-      return;
-    }
+      // Open dialog as modal with native API
+      this.dialogTarget.showModal();
 
-    // Animate in both backdrop and content
-    this.backdrop.classList.remove('pointer-events-none');
-    Promise.all([enter(this.backdrop), enter(this.innerTarget)]);
+      // Prevent auto-focus on first focusable element (e.g., summary elements)
+      // Focus the dialog itself instead
+      this.dialogTarget.focus();
+
+      if (backdropPreloaded) {
+        // Remove the preload marker
+        delete this.backdrop.dataset.preloaded;
+
+        // Backdrop is already visible from modal-launcher, just animate in the content
+        enter(this.innerTarget);
+        return;
+      }
+
+      // Animate in both backdrop and content
+      this.backdrop.classList.remove('pointer-events-none');
+      Promise.all([enter(this.backdrop), enter(this.innerTarget)]);
+    });
   }
 
   disconnect(): void {
+    // Cancel pending animation frame to prevent race condition
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
     // Clean up: hide and disable the backdrop
     if (!this.backdrop) return;
 
