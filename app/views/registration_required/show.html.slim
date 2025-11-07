@@ -26,5 +26,5 @@
       = render Button::Component.new( \
           path: new_session_path,
           title: t('layout.login'),
-          options: { data: { turbo_frame: 'modal' } },
+          options: { data: { turbo_frame: 'modal', controller: 'modal-launcher' } },
         )

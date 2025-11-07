@@ -238,6 +238,10 @@ export default class extends Controller {
     this.hide();
   };
 
+  private readonly handleOverlayClick = (): void => {
+    this.hide();
+  };
+
   private readonly show = async (): Promise<void> => {
     if (!this.tooltip || this.isVisible) return;
 
@@ -275,7 +279,7 @@ export default class extends Controller {
     this.createOverlay();
   }
 
-  private readonly hide = (): void => {
+  readonly hide = (): void => {
     if (!this.isVisible || !this.tooltip) return;
 
     this.isVisible = false;
@@ -311,13 +315,13 @@ export default class extends Controller {
 
     this.overlay = document.createElement('div');
     this.overlay.className = 'tooltip-overlay';
-    this.overlay.addEventListener('click', this.hide);
+    this.overlay.addEventListener('click', this.handleOverlayClick);
     document.body.appendChild(this.overlay);
   }
 
   private removeOverlay(): void {
     if (this.overlay) {
-      this.overlay.removeEventListener('click', this.hide);
+      this.overlay.removeEventListener('click', this.handleOverlayClick);
       this.overlay.remove();
       this.overlay = null;
     }

@@ -1,19 +1,6 @@
 - if helpers.turbo_frame_request?
   = tag.turbo_frame id: 'modal' do
     div data-controller='turbo-modal--component'
-      / Custom backdrop for animation
-      div[
-        class= 'fixed inset-0 z-40 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity opacity-0'
-        data-action= 'click->turbo-modal--component#closeBackground'
-        data-turbo-modal--component-target= 'backdrop'
-        data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
-        data-transition-enter-start= 'opacity-0'
-        data-transition-enter-end= 'opacity-100'
-        data-transition-leave= 'motion-safe:ease-in motion-safe:duration-200'
-        data-transition-leave-start= 'opacity-100'
-        data-transition-leave-end= 'opacity-0'
-      ]
-
       / Native dialog for focus management and ESC key
       dialog[
         class= 'fixed inset-0 m-0 p-0 border-0 bg-transparent max-w-none max-h-none w-full h-full flex items-end md:items-center justify-center overflow-y-auto z-50 backdrop:bg-transparent select-none'
@@ -22,7 +9,7 @@
         data-turbo-modal--component-target= 'dialog'
       ]
         div[
-          class= 'relative text-gray-800 dark:text-gray-400 bg-white dark:bg-slate-800 rounded-t-lg md:rounded-lg px-4 pt-5 pb-10 text-left overflow-hidden shadow-xl w-full md:max-w-2xl sm:p-6'
+          class= 'relative text-gray-800 dark:text-gray-400 bg-white dark:bg-slate-800 rounded-t-lg md:rounded-lg px-4 pt-5 pb-10 text-left overflow-hidden shadow-xl w-full md:max-w-2xl sm:p-6 opacity-0 translate-y-full'
           data-turbo-modal--component-target= 'inner'
           data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
           data-transition-enter-start= 'opacity-0 translate-y-full'

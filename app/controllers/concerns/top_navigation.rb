@@ -224,6 +224,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           href: new_session_path,
           data: {
             turbo_frame: 'modal',
+            controller: 'modal-launcher',
           },
         }
       end
