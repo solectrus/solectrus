@@ -2,7 +2,7 @@ div(
   data-controller="timeframe-select--relative-picker--component"
   data-timeframe-select--relative-picker--component-value-value=value.to_s
   data-timeframe-select--relative-picker--component-name-value=name
-  data-timeframe-select--relative-picker--component-base-classes-value="w-full text-base px-4 py-3 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-indigo-500"
+  data-timeframe-select--relative-picker--component-base-classes-value="w-full text-base px-4 py-3 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
   data-timeframe-select--relative-picker--component-hover-classes-value="hover:bg-indigo-100 dark:hover:bg-indigo-900"
   data-timeframe-select--relative-picker--component-selected-classes-value="bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700"
   data-timeframe-select--relative-picker--component-unselected-classes-value="text-gray-900 dark:text-white"
@@ -23,7 +23,7 @@ div(
       .flex.flex-col.h-full
         / Header with back button
         .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--relative-picker--component#close" aria-label=t('.back')
+          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--relative-picker--component#close" aria-label=t('.back')
             i.fas.fa-arrow-left
           .text-lg.font-medium.text-gray-900.dark:text-white
             = t('.select_period')

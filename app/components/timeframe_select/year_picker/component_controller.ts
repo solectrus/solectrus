@@ -15,6 +15,10 @@ export default class extends Controller<HTMLElement> {
     minYear: Number,
     maxYear: Number,
     name: String,
+    baseClasses: String,
+    hoverClasses: String,
+    selectedClasses: String,
+    unselectedClasses: String,
   };
 
   declare readonly detailsTarget: HTMLDetailsElement;
@@ -28,6 +32,10 @@ export default class extends Controller<HTMLElement> {
   declare minYearValue: number;
   declare maxYearValue: number;
   declare nameValue: string;
+  declare baseClassesValue: string;
+  declare hoverClassesValue: string;
+  declare selectedClassesValue: string;
+  declare unselectedClassesValue: string;
 
   private selectedYear: number | null = null;
 
@@ -125,17 +133,15 @@ export default class extends Controller<HTMLElement> {
       const isSelected = this.selectedYear === year;
 
       // Reset classes
-      cell.className =
-        'text-base py-4 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500';
+      cell.className = this.baseClassesValue;
 
       // Apply styling based on state
-      cell.className += ' hover:bg-indigo-100 dark:hover:bg-indigo-900';
+      cell.className += ` ${this.hoverClassesValue}`;
 
       if (isSelected) {
-        cell.className +=
-          ' bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700';
+        cell.className += ` ${this.selectedClassesValue}`;
       } else {
-        cell.className += ' text-gray-900 dark:text-white';
+        cell.className += ` ${this.unselectedClassesValue}`;
       }
     }
   }

@@ -5,6 +5,11 @@ div(
   data-timeframe-select--month-picker--component-max-date-value=max_date.to_s
   data-timeframe-select--month-picker--component-initial-year-value=initial_year
   data-timeframe-select--month-picker--component-name-value=name
+  data-timeframe-select--month-picker--component-base-classes-value="text-base py-4 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+  data-timeframe-select--month-picker--component-disabled-classes-value="text-gray-300 dark:text-gray-600 cursor-not-allowed"
+  data-timeframe-select--month-picker--component-hover-classes-value="hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer"
+  data-timeframe-select--month-picker--component-selected-classes-value="bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700"
+  data-timeframe-select--month-picker--component-unselected-classes-value="text-gray-900 dark:text-white"
 )
   / Hidden input that holds the actual value (YYYY-MM format)
   input type="hidden" name=name data-timeframe-select--month-picker--component-target="hiddenInput"
@@ -26,7 +31,7 @@ div(
       .flex.flex-col.h-full
         / Header with back button
         .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--month-picker--component#close" aria-label=t('.back')
+          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#close" aria-label=t('.back')
             i.fas.fa-arrow-left
           .text-lg.font-medium.text-gray-900.dark:text-white
             = t('.select_month')
@@ -35,13 +40,13 @@ div(
         .flex-1.overflow-hidden.p-4.flex.flex-col
           / Year navigation
           .flex.justify-between.items-center.mb-4
-            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--month-picker--component#previousYear" data-timeframe-select--month-picker--component-target="prevYearButton" aria-label=t('.previous_year')
+            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#previousYear" data-timeframe-select--month-picker--component-target="prevYearButton" aria-label=t('.previous_year')
               i.fas.fa-chevron-left
             .text-xl.font-medium.text-gray-900.dark:text-white data-timeframe-select--month-picker--component-target="yearDisplay"
-            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--month-picker--component#nextYear" data-timeframe-select--month-picker--component-target="nextYearButton" aria-label=t('.next_year')
+            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#nextYear" data-timeframe-select--month-picker--component-target="nextYearButton" aria-label=t('.next_year')
               i.fas.fa-chevron-right
 
           / Month grid (3x4)
           .flex-1.grid.grid-cols-3.gap-3.content-evenly
             - 12.times do
-              button.text-base.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500 type="button" data-action="timeframe-select--month-picker--component#selectMonth" data-timeframe-select--month-picker--component-target="monthCell"
+              button.text-base.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#selectMonth" data-timeframe-select--month-picker--component-target="monthCell"

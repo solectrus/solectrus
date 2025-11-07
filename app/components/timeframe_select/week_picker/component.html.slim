@@ -9,9 +9,9 @@ div(
   data-timeframe-select--week-picker--component-month-label-class-value="text-sm font-semibold text-gray-600 dark:text-gray-400 flex items-center pr-3 whitespace-nowrap"
   data-timeframe-select--week-picker--component-week-button-base-class-value="text-xs px-1 py-1 rounded text-center focus:outline-none focus:ring-1 focus:ring-indigo-500 tabular-nums"
   data-timeframe-select--week-picker--component-week-button-disabled-class-value="text-gray-300 dark:text-gray-600 cursor-not-allowed"
-  data-timeframe-select--week-picker--component-week-button-hover-class-value="hover:bg-indigo-100 dark:hover:bg-indigo-900"
-  data-timeframe-select--week-picker--component-week-button-selected-class-value="bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700"
-  data-timeframe-select--week-picker--component-week-button-default-class-value="text-gray-900 dark:text-white"
+  data-timeframe-select--week-picker--component-week-button-hover-class-value="hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer"
+  data-timeframe-select--week-picker--component-week-button-selected-class-value="bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700 cursor-pointer"
+  data-timeframe-select--week-picker--component-week-button-default-class-value="text-gray-900 dark:text-white cursor-pointer"
   data-timeframe-select--week-picker--component-empty-slot-class-value=""
 )
   / Hidden input that holds the actual value (YYYY-Wnn format)
@@ -30,7 +30,7 @@ div(
       .flex.flex-col.h-full
         / Header with back button
         .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#close" aria-label=t('.back')
+          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--week-picker--component#close" aria-label=t('.back')
             i.fas.fa-arrow-left
           .text-lg.font-medium.text-gray-900.dark:text-white
             = t('.select_week')
@@ -39,10 +39,10 @@ div(
         .flex-1.overflow-hidden.p-3.flex.flex-col
           / Year navigation
           .flex.justify-between.items-center.mb-2
-            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#previousYear" data-timeframe-select--week-picker--component-target="prevYearButton" aria-label=t('.previous_year')
+            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--week-picker--component#previousYear" data-timeframe-select--week-picker--component-target="prevYearButton" aria-label=t('.previous_year')
               i.fas.fa-chevron-left
             .text-xl.font-medium.text-gray-900.dark:text-white data-timeframe-select--week-picker--component-target="yearDisplay"
-            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400 type="button" data-action="timeframe-select--week-picker--component#nextYear" data-timeframe-select--week-picker--component-target="nextYearButton" aria-label=t('.next_year')
+            button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--week-picker--component#nextYear" data-timeframe-select--week-picker--component-target="nextYearButton" aria-label=t('.next_year')
               i.fas.fa-chevron-right
 
           / Week grid (will be populated by JavaScript, grouped by month)

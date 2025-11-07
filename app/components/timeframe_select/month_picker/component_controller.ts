@@ -20,6 +20,11 @@ export default class extends Controller<HTMLElement> {
     maxDate: String,
     initialYear: Number,
     name: String,
+    baseClasses: String,
+    disabledClasses: String,
+    hoverClasses: String,
+    selectedClasses: String,
+    unselectedClasses: String,
   };
 
   declare readonly detailsTarget: HTMLDetailsElement;
@@ -37,6 +42,11 @@ export default class extends Controller<HTMLElement> {
   declare maxDateValue: string;
   declare initialYearValue: number;
   declare nameValue: string;
+  declare baseClassesValue: string;
+  declare disabledClassesValue: string;
+  declare hoverClassesValue: string;
+  declare selectedClassesValue: string;
+  declare unselectedClassesValue: string;
 
   private currentYear!: number;
   private selectedMonth: DateTime | null = null;
@@ -187,23 +197,20 @@ export default class extends Controller<HTMLElement> {
       cell.textContent = monthFormatter.format(monthDate);
 
       // Reset classes
-      cell.className =
-        'text-base py-4 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500';
+      cell.className = this.baseClassesValue;
 
       // Apply styling based on state
       if (isDisabled) {
-        cell.className +=
-          ' text-gray-300 dark:text-gray-600 cursor-not-allowed';
+        cell.className += ` ${this.disabledClassesValue}`;
         cell.disabled = true;
       } else {
         cell.disabled = false;
-        cell.className += ' hover:bg-indigo-100 dark:hover:bg-indigo-900';
+        cell.className += ` ${this.hoverClassesValue}`;
 
         if (isSelected) {
-          cell.className +=
-            ' bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700';
+          cell.className += ` ${this.selectedClassesValue}`;
         } else {
-          cell.className += ' text-gray-900 dark:text-white';
+          cell.className += ` ${this.unselectedClassesValue}`;
         }
       }
     }
