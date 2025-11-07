@@ -72,9 +72,9 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     validate_range_order!
   end
 
-  attr_reader :string, :min_date, :allowed_days_in_future
+  attr_reader :original_string, :string, :min_date, :allowed_days_in_future
 
-  delegate :to_s, to: :@original_string
+  delegate :to_s, to: :string
 
   def out_of_scope?
     return true if min_date && ending.to_date < min_date

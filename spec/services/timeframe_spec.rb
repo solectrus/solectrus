@@ -271,6 +271,10 @@ describe Timeframe do
       expect(decoder.to_s).to eq(string)
     end
 
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq(string)
+    end
+
     it 'returns the correct beginning' do
       expect(decoder.beginning).to eq('2022-05-13 00:00:00.000000000 +0200')
     end
@@ -440,6 +444,14 @@ describe Timeframe do
 
   context 'when string is "day"' do
     let(:string) { 'day' }
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022-10-13')
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq('day')
+    end
 
     it 'is current day' do
       expect(decoder.current?).to be(true)
@@ -643,6 +655,14 @@ describe Timeframe do
 
   context 'when string is "week"' do
     let(:string) { 'week' }
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022-W41')
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq('week')
+    end
 
     it 'is current week' do
       expect(decoder.current?).to be(true)
@@ -903,6 +923,14 @@ describe Timeframe do
   context 'when string is "month"' do
     let(:string) { 'month' }
 
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022-10')
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq('month')
+    end
+
     it 'is current month' do
       expect(decoder.current?).to be(true)
       expect(decoder.month?).to be(true)
@@ -1089,6 +1117,14 @@ describe Timeframe do
 
   context 'when string is "year"' do
     let(:string) { 'year' }
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022')
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq('year')
+    end
 
     it 'is current year' do
       expect(decoder.current?).to be(true)

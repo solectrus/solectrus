@@ -9,7 +9,10 @@ class EssentialsTile::Component < ViewComponent::Base
   attr_reader :data, :sensor, :timeframe
 
   def path
-    balance_home_path(sensor_name: sensor.name, timeframe:)
+    balance_home_path(
+      sensor_name: sensor.name,
+      timeframe: timeframe.original_string,
+    )
   end
 
   def value
