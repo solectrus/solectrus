@@ -17,7 +17,7 @@ const LONG_PRESS_DURATION = 500;
  *
  * Displays tooltips with:
  * - Smart positioning that flips/shifts to stay in viewport
- * - Touch device support (tap or long-press)
+ * - Hybrid device support (mouse hover + optional touch modes)
  * - Bounce animation on show
  * - Arrow pointing to target element
  *
@@ -26,14 +26,15 @@ const LONG_PRESS_DURATION = 500;
  *    - One controller instance per tooltip element
  *    - Content from 'title' attribute or data-tooltip-target="html"
  *    - Works on the element itself (this.element)
- *    - Supports touch modes (tap, long-press) via data-tooltip-touch-value
+ *    - Mouse hover always supported (pointerenter/pointerleave with pointerType check)
+ *    - Optional touch modes (tap, long-press) via data-tooltip-touch-value
  *
  * 2. Delegate mode (data-tooltip-delegate-value="true"):
  *    - One controller instance manages multiple child tooltips
- *    - Uses event delegation (mouseenter/mouseleave bubbling)
+ *    - Uses event delegation (pointerenter/pointerleave bubbling)
  *    - Efficient for grids/lists with many tooltip elements
  *    - Child elements need data-tooltip-target="html" with content
- *    - Works on touch devices via synthesized mouse events (tap shows tooltip)
+ *    - Mouse hover supported via pointer events (only shows for pointerType === 'mouse')
  *    - Touch-specific modes (long-press, force-tap-to-close) not available
  */
 export default class extends Controller {
@@ -73,6 +74,7 @@ export default class extends Controller {
   private contentObserver: MutationObserver | null = null;
   private touchTimer: ReturnType<typeof setTimeout> | null = null;
   private isVisible = false;
+  private openedByTouch = false;
 
   connect() {
     if (this.delegateValue) {
@@ -102,14 +104,14 @@ export default class extends Controller {
   private connectDelegated(): void {
     this.createTooltip();
     this.element.addEventListener(
-      'mouseenter',
-      this.handleDelegatedEnter,
-      true,
+      'pointerenter',
+      this.handleDelegatedPointerEnter,
+      { capture: true, passive: true },
     );
     this.element.addEventListener(
-      'mouseleave',
-      this.handleDelegatedLeave,
-      true,
+      'pointerleave',
+      this.handleDelegatedPointerLeave,
+      { capture: true, passive: true },
     );
   }
 
@@ -134,13 +136,13 @@ export default class extends Controller {
     // Mode-specific cleanup
     if (this.delegateValue) {
       this.element.removeEventListener(
-        'mouseenter',
-        this.handleDelegatedEnter,
+        'pointerenter',
+        this.handleDelegatedPointerEnter,
         true,
       );
       this.element.removeEventListener(
-        'mouseleave',
-        this.handleDelegatedLeave,
+        'pointerleave',
+        this.handleDelegatedPointerLeave,
         true,
       );
     } else {
@@ -171,26 +173,55 @@ export default class extends Controller {
   }
 
   private setupEventListeners(): void {
-    if (!isTouchEnabled()) {
-      this.element.addEventListener('mouseenter', this.show);
-      this.element.addEventListener('mouseleave', this.hide);
-    } else if (this.touchValue === 'true') {
-      this.element.addEventListener('click', this.handleClick);
-    } else if (this.touchValue === 'long') {
-      this.element.addEventListener('touchstart', this.handleTouchStart);
-      this.element.addEventListener('touchend', this.cancelTouchTimer);
-      this.element.addEventListener('touchcancel', this.cancelTouchTimer);
+    // Use pointer events for hover - only shows tooltip on actual mouse (not touch)
+    this.element.addEventListener('pointerenter', this.showOnPointer, {
+      passive: true,
+    });
+    this.element.addEventListener('pointerleave', this.hideOnPointer, {
+      passive: true,
+    });
+
+    // Add touch-specific events if configured and device supports touch
+    if (isTouchEnabled()) {
+      if (this.touchValue === 'true') {
+        this.element.addEventListener('click', this.handleClick);
+      } else if (this.touchValue === 'long') {
+        this.element.addEventListener('touchstart', this.handleTouchStart, {
+          passive: true,
+        });
+        this.element.addEventListener('touchend', this.cancelTouchTimer, {
+          passive: true,
+        });
+        this.element.addEventListener('touchcancel', this.cancelTouchTimer, {
+          passive: true,
+        });
+      }
     }
   }
 
   private removeEventListeners(): void {
-    this.element.removeEventListener('mouseenter', this.show);
-    this.element.removeEventListener('mouseleave', this.hide);
+    this.element.removeEventListener('pointerenter', this.showOnPointer);
+    this.element.removeEventListener('pointerleave', this.hideOnPointer);
     this.element.removeEventListener('click', this.handleClick);
     this.element.removeEventListener('touchstart', this.handleTouchStart);
     this.element.removeEventListener('touchend', this.cancelTouchTimer);
     this.element.removeEventListener('touchcancel', this.cancelTouchTimer);
   }
+
+  private readonly showOnPointer = (event: Event): void => {
+    // Only show tooltip on actual mouse hover, not touch
+    if (event instanceof PointerEvent && event.pointerType === 'mouse') {
+      this.openedByTouch = false;
+      this.show();
+    }
+  };
+
+  private readonly hideOnPointer = (event: Event): void => {
+    // Only hide on mouse leave, not on touch end (touch uses overlay click)
+    if (event instanceof PointerEvent && event.pointerType === 'mouse') {
+      this.hide();
+    }
+  };
 
   private readonly handleClick = (event: Event): void => {
     // Don't prevent default for links - let them navigate
@@ -202,12 +233,14 @@ export default class extends Controller {
     if (this.isVisible) {
       this.hide();
     } else {
+      this.openedByTouch = true;
       this.show();
     }
   };
 
   private readonly handleTouchStart = (): void => {
     this.touchTimer = globalThis.setTimeout(() => {
+      this.openedByTouch = true;
       this.show();
       this.touchTimer = null;
     }, LONG_PRESS_DURATION);
@@ -220,8 +253,12 @@ export default class extends Controller {
     }
   };
 
-  private readonly handleDelegatedEnter = (event: Event): void => {
+  private readonly handleDelegatedPointerEnter = (event: Event): void => {
+    if (!(event instanceof PointerEvent)) return;
     if (!(event.target instanceof HTMLElement)) return;
+
+    // Only show tooltip on actual mouse hover, not touch
+    if (event.pointerType !== 'mouse') return;
 
     const contentElement = event.target.querySelector(
       '[data-tooltip-target="html"]',
@@ -231,9 +268,13 @@ export default class extends Controller {
     this.showTooltip(event.target, contentElement.innerHTML, contentElement);
   };
 
-  private readonly handleDelegatedLeave = (event: Event): void => {
+  private readonly handleDelegatedPointerLeave = (event: Event): void => {
+    if (!(event instanceof PointerEvent)) return;
     if (!(event.target instanceof HTMLElement)) return;
     if (!event.target.querySelector('[data-tooltip-target="html"]')) return;
+
+    // Only hide on mouse leave, not on touch end
+    if (event.pointerType !== 'mouse') return;
 
     this.hide();
   };
@@ -283,6 +324,7 @@ export default class extends Controller {
     if (!this.isVisible || !this.tooltip) return;
 
     this.isVisible = false;
+    this.openedByTouch = false;
 
     this.hideTooltip();
 
@@ -310,7 +352,8 @@ export default class extends Controller {
   }
 
   private createOverlay(): void {
-    if (!isTouchEnabled()) return;
+    // Only create overlay for touch interactions, not for mouse hover
+    if (!this.openedByTouch) return;
     if (this.overlay) return; // Already exists
 
     this.overlay = document.createElement('div');
