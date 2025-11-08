@@ -40,11 +40,8 @@ export default class extends Controller<HTMLElement> {
       this.application.getControllerForElementAndIdentifier(
         this.element,
         'tooltip',
-      );
+      ) as TooltipController | null;
 
-    if (tooltipController) {
-      // Call the hide method (it's private but accessible at runtime)
-      (tooltipController as TooltipController).hide();
-    }
+    tooltipController?.hide();
   }
 }
