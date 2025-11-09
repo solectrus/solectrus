@@ -83,7 +83,6 @@
       = render SegmentContainer::Component.new tooltip_placement: 'bottom',
                                                data:,
                                                timeframe: do |container|
-        = data.heatpump_heating_power.inspect
         - if data.heatpump_heating_power.nil? || data.heatpump_heating_power.zero?
           - container.with_segment :heatpump_heating_power,
                                    percent: 100,
