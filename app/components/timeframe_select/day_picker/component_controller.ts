@@ -199,6 +199,14 @@ export default class extends Controller<HTMLElement> {
       return;
     }
 
+    if (normalizedDate.equals(this.selectedStartDate)) {
+      // If clicking the same date as start date, deselect it
+      this.selectedStartDate = null;
+      this.selectedEndDate = null;
+      this.displayTextTarget.textContent = '\u00A0'; // non-breaking space to maintain height
+      return;
+    }
+
     if (normalizedDate < this.selectedStartDate) {
       this.selectedEndDate = this.selectedStartDate;
       this.selectedStartDate = normalizedDate;
