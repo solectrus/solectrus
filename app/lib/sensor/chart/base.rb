@@ -290,18 +290,23 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   def day_display_format
     case timeframe.relative_count.to_i
     when ..8
-      'ccc'
+      'ccc' # Sun, Mon, Tue
     when 9..31
-      'd'
+      'd' # 1, 2, 3
     when 32..280
-      'd. LLL'
+      'd. LLL' # 1. Jan, 2. Feb
     else
-      'LLL yyyy'
+      'LLL yyyy' # Jan 2024, Feb 2024
     end
   end
 
   def range_display_format
-    timeframe.relative_count.to_i < 8 ? 'ccc' : 'd'
+    case timeframe.days_passed
+    when ..180
+      'd. LLL' # 1. Jan, 2. Feb
+    else
+      'LLL yyyy' # Jan 2024, Feb 2024
+    end
   end
 
   # Template methods that can be overridden for custom behavior
