@@ -371,8 +371,8 @@ export default class extends Controller {
   }
 
   /**
-   * Creates the tooltip element with arrow and adds it to the document body
-   * or to an open dialog element (to appear in the top layer)
+   * Creates the tooltip element with arrow
+   * Note: Does not append to DOM yet - that happens in ensureTooltipInCorrectContainer()
    */
   private createTooltip(initialContent = ''): void {
     this.tooltip = document.createElement('div');
@@ -389,13 +389,21 @@ export default class extends Controller {
     this.arrowElement = document.createElement('div');
     this.arrowElement.className = 'floating-tooltip-arrow';
     this.tooltip.appendChild(this.arrowElement);
+  }
 
-    // Append to open dialog if exists (to appear in top layer), otherwise to body
+  /**
+   * Ensures the tooltip is in the correct container (dialog or body)
+   * Called before showing the tooltip to handle dynamic dialog opening
+   */
+  private ensureTooltipInCorrectContainer(): void {
+    if (!this.tooltip) return;
+
     const openDialog = document.querySelector('dialog[open]');
-    if (openDialog) {
-      openDialog.appendChild(this.tooltip);
-    } else {
-      document.body.appendChild(this.tooltip);
+    const desiredParent = openDialog || document.body;
+
+    // Append to correct parent if not already there
+    if (this.tooltip.parentElement !== desiredParent) {
+      desiredParent.appendChild(this.tooltip);
     }
   }
 
@@ -416,6 +424,9 @@ export default class extends Controller {
     placement: Placement = 'bottom',
   ): Promise<void> {
     if (!this.tooltip) return;
+
+    // Ensure tooltip is in correct container (dialog or body)
+    this.ensureTooltipInCorrectContainer();
 
     // Cleanup existing position watcher before creating a new one
     this.positionCleanup?.();
