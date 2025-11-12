@@ -137,6 +137,10 @@ en:
     inverter_total: Cumulative
     inverter_split: Individual
   forecast:
+    title: Forecast
+    next_days:
+      one: Tomorrow
+      other: The next %{count} days
     exactly: Exactly as expected
     better_html: '%{percent} more than expected'
     worse_html: '%{percent} less than expected'

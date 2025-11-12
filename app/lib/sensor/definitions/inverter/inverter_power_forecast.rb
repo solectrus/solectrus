@@ -6,4 +6,6 @@ class Sensor::Definitions::InverterPowerForecast < Sensor::Definitions::Base
         text_classes: 'text-slate-700 dark:text-slate-300'
 
   aggregations stored: [:sum]
+
+  chart { |timeframe| Sensor::Chart::InverterPowerForecast.new(timeframe:) }
 end

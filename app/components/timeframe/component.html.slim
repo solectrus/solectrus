@@ -1,88 +1,93 @@
 .flex-auto.max-w-full.flex.items-center.justify-between.space-x-2.md:space-x-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-sm.md:text-base
-  - if timeframe.can_paginate?
-    - if timeframe.prev
-      = link_to prev_path, class: paginate_button_classes, 'aria-label': t('.previous'), rel: 'prev' do
+  - if timeframe.can_paginate? || forecast_mode?
+    - if forecast_mode? || timeframe.prev
+      = link_to prev_path, class: paginate_button_classes, 'aria-label': (forecast_mode? ? t('forecast_navigation.component.back_to_today') : t('.previous')), rel: (forecast_mode? ? nil : 'prev') do
         i.fas.fa-chevron-left.fa-lg
     - else
       .px-2.py-1
         i.fas.fa-chevron-left.fa-lg.opacity-50
 
-  - case timeframe.id
-  - when :now
-    = link_to timeframe_select_path, class: timeframe_link_classes, data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      = timeframe.localized
+  - if forecast_mode?
+    .flex-1.text-center.md:w-72
+      = t('forecast.next_days', count: forecast_days)
 
-  - when :all
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      == timeframe.localized
-
-  - when :day
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 md:w-72 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time datetime= timeframe.iso8601
+  - else
+    - case timeframe.id
+    - when :now
+      = link_to timeframe_select_path, class: timeframe_link_classes, data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
         = timeframe.localized
 
-  - when :hours
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time datetime= timeframe.iso8601
-        = timeframe.localized
+    - when :all
+      = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        == timeframe.localized
 
-  - when :days
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time.space-x-4 datetime= timeframe.iso8601
-        span
+    - when :day
+      = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 md:w-72 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time datetime= timeframe.iso8601
           = timeframe.localized
-        small.hidden.md:inline
-          =<> l timeframe.beginning.to_date, format: :default
-          span.text-indigo-300 &minus;
-          =<> l timeframe.ending.to_date, format: :default
 
-  - when :range
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time.space-x-4 datetime= timeframe.iso8601
-        = timeframe.localized
-
-  - when :week
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 md:w-80 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time.space-x-4 datetime= timeframe.iso8601
-        span
+    - when :hours
+      = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time datetime= timeframe.iso8601
           = timeframe.localized
-        small.hidden.md:inline
-          =<> l timeframe.beginning.to_date, format: :default
-          span.text-indigo-300 &minus;
-          =<> l timeframe.ending.to_date, format: :default
 
-  - when :month
-    = link_to timeframe_select_path, class: timeframe_link_classes('w-36 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time datetime= timeframe.iso8601
-        = timeframe.localized
+    - when :days
+      = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time.space-x-4 datetime= timeframe.iso8601
+          span
+            = timeframe.localized
+          small.hidden.md:inline
+            =<> l timeframe.beginning.to_date, format: :default
+            span.text-indigo-300 &minus;
+            =<> l timeframe.ending.to_date, format: :default
 
-  - when :months
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time.space-x-4 datetime= timeframe.iso8601
-        span
+    - when :range
+      = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time.space-x-4 datetime= timeframe.iso8601
           = timeframe.localized
-        small.hidden.md:inline
-          =<> l timeframe.beginning.to_date, format: :month
-          span.text-indigo-300 &minus;
-          =<> l timeframe.ending.to_date, format: :month
 
-  - when :year
-    = link_to timeframe_select_path, class: timeframe_link_classes('w-16 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time datetime= timeframe.iso8601
-        = timeframe.localized
+    - when :week
+      = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 md:w-80 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time.space-x-4 datetime= timeframe.iso8601
+          span
+            = timeframe.localized
+          small.hidden.md:inline
+            =<> l timeframe.beginning.to_date, format: :default
+            span.text-indigo-300 &minus;
+            =<> l timeframe.ending.to_date, format: :default
 
-  - when :years
-    = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-      time.space-x-4 datetime= timeframe.iso8601
-        span
+    - when :month
+      = link_to timeframe_select_path, class: timeframe_link_classes('w-36 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time datetime= timeframe.iso8601
           = timeframe.localized
-        small.hidden.md:inline
-          =<> timeframe.beginning.year
-          span.text-indigo-300 &minus;
-          =<> timeframe.ending.year
 
-  - if timeframe.can_paginate?
-    - if timeframe.next
+    - when :months
+      = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time.space-x-4 datetime= timeframe.iso8601
+          span
+            = timeframe.localized
+          small.hidden.md:inline
+            =<> l timeframe.beginning.to_date, format: :month
+            span.text-indigo-300 &minus;
+            =<> l timeframe.ending.to_date, format: :month
+
+    - when :year
+      = link_to timeframe_select_path, class: timeframe_link_classes('w-16 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time datetime= timeframe.iso8601
+          = timeframe.localized
+
+    - when :years
+      = link_to timeframe_select_path, class: timeframe_link_classes('flex-1 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
+        time.space-x-4 datetime= timeframe.iso8601
+          span
+            = timeframe.localized
+          small.hidden.md:inline
+            =<> timeframe.beginning.year
+            span.text-indigo-300 &minus;
+            =<> timeframe.ending.year
+
+  - if timeframe.can_paginate? || forecast_mode?
+    - if !forecast_mode? && timeframe.next
       = link_to next_path, class: paginate_button_classes, 'aria-label': t('.next'), rel: 'next' do
         i.fas.fa-chevron-right.fa-lg
     - else

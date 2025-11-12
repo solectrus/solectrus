@@ -9,13 +9,22 @@ class Balance::HomeController < ApplicationController
       return
     end
 
+    if timeframe.day? && timeframe.future? &&
+         Sensor::Config.exists?(:inverter_power_forecast)
+      redirect_to inverter_power_forecast_path
+      return
+    end
+
     load_missing_or_stale_summary_days(timeframe)
   end
 
   private
 
   def default_path
-    balance_home_path(sensor_name: sensor_name || redirect_sensor, timeframe: 'now')
+    balance_home_path(
+      sensor_name: sensor_name || redirect_sensor,
+      timeframe: 'now',
+    )
   end
 
   # By default we want to show the current production, so we redirect to the inverter_power sensor.

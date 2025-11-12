@@ -1,11 +1,18 @@
 class Timeframe::Component < ViewComponent::Base
-  def initialize(timeframe:)
+  def initialize(timeframe:, forecast_days: nil)
     super()
     @timeframe = timeframe
+    @forecast_days = forecast_days
   end
-  attr_reader :timeframe
+  attr_reader :timeframe, :forecast_days
+
+  def forecast_mode?
+    forecast_days.present?
+  end
 
   def next_path
+    return if forecast_mode?
+
     url_for(
       controller: "#{helpers.controller_namespace}/home",
       sensor_name: helpers.sensor_name,
@@ -14,14 +21,20 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def prev_path
-    url_for(
-      controller: "#{helpers.controller_namespace}/home",
-      sensor_name: helpers.sensor_name,
-      timeframe: timeframe.prev,
-    )
+    if forecast_mode?
+      balance_home_path(sensor_name: 'inverter_power', timeframe: 'day')
+    else
+      url_for(
+        controller: "#{helpers.controller_namespace}/home",
+        sensor_name: helpers.sensor_name,
+        timeframe: timeframe.prev,
+      )
+    end
   end
 
   def timeframe_select_path
+    return if forecast_mode?
+
     helpers.timeframe_select_path(sensor_name: helpers.sensor_name, timeframe:)
   end
 

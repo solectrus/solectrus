@@ -91,6 +91,10 @@ Rails.application.routes.draw do
   mount Lookbook::Engine, at: '/lookbook' if Rails.env.development?
   mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
+  get '/inverter_power/forecast',
+      to: 'inverter_power_forecast#index',
+      as: :inverter_power_forecast
+
   constraints SensorConstraint.new(:chart_enabled?) do
     constraints timeframe: Timeframe::REGEX do
       # Balance

@@ -5,6 +5,21 @@ module Sensor
     # - 5-minute intervals for all other timeframes
     # Used for: Charts and data visualization
     class Series < Helpers::Influx::Base
+      def initialize(
+        sensor_names,
+        timeframe,
+        timestamp_method: nil,
+        interval: nil
+      )
+        super(sensor_names, timeframe)
+
+        @timestamp_method =
+          timestamp_method || (timeframe.short? ? :to_time : :to_date)
+        @interval = interval || (timeframe.p1h? ? '30s' : '5m')
+      end
+
+      attr_reader :interval
+
       def call(interpolate: false)
         return empty_result if available_sensors.empty?
         return empty_result if @timeframe.now? # No series for current moment
@@ -51,10 +66,6 @@ module Sensor
         q << '|> keep(columns: ["_time","_field","_measurement","_value"])'
 
         q.join("\n")
-      end
-
-      def interval
-        timeframe.p1h? ? '30s' : '5m'
       end
 
       def parse_series_result(flux_result)
@@ -133,7 +144,7 @@ module Sensor
       end
 
       def determine_time_key(timestamp)
-        @timeframe.short? ? timestamp : timestamp.to_date
+        timestamp.public_send(@timestamp_method)
       end
 
       def add_sensor_data_to_result(result, sensor, time_series)

@@ -21,6 +21,7 @@ import {
   ChartDataset,
   ChartEvent,
   ActiveElement,
+  Plugin,
 } from 'chart.js';
 
 import 'chartjs-adapter-luxon';
@@ -29,6 +30,7 @@ import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
 import ChartBackgroundGradient from '@/utils/chartGradientDefault';
 import TemperatureGradient from '@/utils/chartGradientTemperature';
+import { buildCustomXAxisPlugin } from '@/utils/chartPluginCustomXAxis';
 
 Chart.register(
   LineElement,
@@ -386,11 +388,18 @@ export default class extends Controller<HTMLCanvasElement> {
       }
     }
 
+    const plugins = this.buildCustomPlugins(options);
+
     this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
       data,
       options,
+      plugins,
     });
+  }
+
+  private buildCustomPlugins(options: Record<string, unknown>): Plugin[] {
+    return buildCustomXAxisPlugin(options);
   }
 
   private setDefaultGradient(

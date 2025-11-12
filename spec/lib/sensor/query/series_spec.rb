@@ -95,4 +95,76 @@ describe Sensor::Query::Series do
       end
     end
   end
+
+  describe 'forecast mode (with timestamp_method and interval)' do
+    subject(:series_query) do
+      described_class.new(
+        [:house_power],
+        timeframe,
+        timestamp_method: :to_time,
+        interval: '15m',
+      )
+    end
+
+    let(:timeframe) do
+      Timeframe.new("#{Date.current + 1.day}..#{Date.current + 3.days}")
+    end
+
+    before do
+      freeze_time
+
+      influx_batch do
+        # Create data at 15-minute intervals across multiple days
+        96.times do |i|
+          time = (Date.current + 1.day).beginning_of_day + (i * 15).minutes
+          add_influx_point(
+            name: Sensor::Config.measurement(:house_power),
+            fields: {
+              Sensor::Config.field(:house_power) =>
+                (8...16).cover?(time.hour) ? 1000 : 0,
+            },
+            time:,
+          )
+        end
+
+        48.times do |i|
+          time = (Date.current + 2.days).beginning_of_day + (i * 15).minutes
+          add_influx_point(
+            name: Sensor::Config.measurement(:house_power),
+            fields: {
+              Sensor::Config.field(:house_power) =>
+                (8...16).cover?(time.hour) ? 1000 : 0,
+            },
+            time:,
+          )
+        end
+      end
+    end
+
+    it 'returns high-resolution timestamp data across multiple days' do
+      result = series_query.call
+
+      expect(result).to be_a(Sensor::Data::Series)
+
+      series = result.house_power(:avg, :avg)
+      expect(series).not_to be_empty
+
+      # Should have many data points at 15-minute intervals
+      timestamps = series.keys
+      expect(timestamps.length).to be > 50
+
+      # All keys should be timestamps, not dates
+      expect(timestamps).to all(be_a(Time))
+
+      # Verify 15-minute intervals (sample first few)
+      intervals =
+        timestamps.take(5).each_cons(2).map { |a, b| ((b - a) / 60).round }
+      expect(intervals).to all(eq(15))
+
+      # Data should span multiple days
+      dates = timestamps.map(&:to_date)
+      dates.uniq!
+      expect(dates.length).to be >= 2
+    end
+  end
 end

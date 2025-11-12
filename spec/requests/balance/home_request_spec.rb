@@ -51,12 +51,12 @@ describe 'Home' do
     end
 
     context 'when param :timeframe is in the future' do
-      it 'renders for day' do
+      it 'redirects to forecast for day' do
         get balance_home_path(
               timeframe: (Date.current + 2.days).strftime('%Y-%m-%d'),
               sensor_name: 'house_power',
             )
-        expect(response).to have_http_status(:ok)
+        expect(response).to redirect_to(inverter_power_forecast_path)
       end
 
       it 'renders for week' do
