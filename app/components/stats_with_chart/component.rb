@@ -22,25 +22,7 @@ class StatsWithChart::Component < ViewComponent::Base
           end
         ),
       'stats-with-chart--component-reload-chart-value': !timeframe.now?,
-      'stats-with-chart--component-next-path-value': next_path,
-      'stats-with-chart--component-boundary-value': boundary,
     }
-  end
-
-  def next_path
-    return unless forced_next_timeframe
-
-    balance_home_path(sensor_name:, timeframe: forced_next_timeframe)
-  end
-
-  def boundary
-    return unless forced_next_timeframe
-
-    forced_next_timeframe.date.beginning_of_day.iso8601
-  end
-
-  def forced_next_timeframe
-    @forced_next_timeframe ||= timeframe.next(force: true)
   end
 
   def stats_path

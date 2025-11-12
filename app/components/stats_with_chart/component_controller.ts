@@ -32,18 +32,10 @@ export default class extends Controller {
     // Should the chart be reloaded when the page is reloaded?
     // If false, the chart will be updated by adding a new point
     reloadChart: { type: Boolean, default: false },
-
-    // Path to the next page
-    nextPath: String,
-
-    // After this time (ISO 8601 decoded), nextPath will be loaded instead of the current page
-    boundary: String,
   };
   declare readonly sensorNameValue: string;
   declare readonly intervalValue: number;
   declare readonly reloadChartValue: boolean;
-  declare readonly nextPathValue: string;
-  declare readonly boundaryValue: string;
 
   private timer?: IntervalTimer;
   private selectedSensor?: string;
@@ -83,27 +75,17 @@ export default class extends Controller {
   }
 
   reload() {
-    // Move to next page when boundary is reached
-    if (
-      this.boundaryValue &&
-      this.nextPathValue &&
-      new Date() > new Date(this.boundaryValue)
-    ) {
-      Turbo.visit(this.nextPathValue);
-    }
-    // Otherwise, just reload the frame
-    else
-      this.reloadFrames({ chart: this.reloadChartValue })
-        .then(() => {
-          // When no new chart has been loaded, add a new point to the existing chart
-          // Wait for the next repaint to ensure the new value is available in the DOM
-          if (!this.reloadChartValue)
-            requestAnimationFrame(() => this.addPointToChart());
-        })
-        .catch((error) => {
-          console.error(error);
-          // Ignore error
-        });
+    this.reloadFrames({ chart: this.reloadChartValue })
+      .then(() => {
+        // When no new chart has been loaded, add a new point to the existing chart
+        // Wait for the next repaint to ensure the new value is available in the DOM
+        if (!this.reloadChartValue)
+          requestAnimationFrame(() => this.addPointToChart());
+      })
+      .catch((error) => {
+        console.error(error);
+        // Ignore error
+      });
   }
 
   createTimer() {
