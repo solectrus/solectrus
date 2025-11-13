@@ -6,10 +6,9 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
   private_constant :LABEL_FONT, :LABEL_COLOR, :LABEL_FONT_SMALL
 
   def chart_sensor_names
-    %i[
-      inverter_power_forecast
-      inverter_power_forecast_clearsky
-    ].select { |sensor_name| Sensor::Config.exists?(sensor_name) }
+    Sensor::Config.sensors.filter_map do |sensor|
+      sensor.name if sensor.category == :forecast
+    end
   end
 
   def type
@@ -17,6 +16,8 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
   end
 
   def unit
+    return if chart_sensors.none?
+
     @unit ||=
       Sensor::UnitFormatter.format(
         unit: chart_sensors.first.unit,
@@ -101,6 +102,8 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
   private
 
   def build_series_data
+    return if chart_sensor_names.empty?
+
     Sensor::Query::Series.new(
       chart_sensor_names,
       timeframe,

@@ -102,12 +102,28 @@ describe Sensor::Chart::InverterPowerForecast do
   end
 
   describe 'clearsky forecast' do
-    before { stub_feature(:inverter_power_forecast_clearsky) }
-
     it 'includes clearsky forecast in chart sensors' do
       expect(chart.chart_sensor_names).to include(
         :inverter_power_forecast_clearsky,
       )
+    end
+  end
+
+  describe 'blank handling' do
+    context 'when no forecast sensors are configured' do
+      before { allow(Sensor::Config).to receive(:sensors).and_return([]) }
+
+      it 'returns blank chart sensor names' do
+        expect(chart.chart_sensor_names).to be_empty
+      end
+
+      it 'returns blank chart' do
+        expect(chart.blank?).to be(true)
+      end
+
+      it 'returns nil for unit' do
+        expect(chart.unit).to be_nil
+      end
     end
   end
 end
