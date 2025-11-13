@@ -43,7 +43,7 @@ describe 'Home' do
     context 'with params :sensor and :timeframe' do
       it 'renders' do
         get balance_home_path(
-              sensor_name: 'house_power',
+              sensor_name: 'inverter_power',
               timeframe: Date.yesterday.strftime('%Y-%m'),
             )
         expect(response).to have_http_status(:ok)
@@ -54,33 +54,33 @@ describe 'Home' do
       it 'redirects to forecast for day' do
         get balance_home_path(
               timeframe: (Date.current + 2.days).strftime('%Y-%m-%d'),
-              sensor_name: 'house_power',
+              sensor_name: 'inverter_power',
             )
         expect(response).to redirect_to(inverter_power_forecast_path)
       end
 
-      it 'renders for week' do
+      it 'redirects to forecast for week' do
         get balance_home_path(
-              sensor_name: 'house_power',
+              sensor_name: 'inverter_power',
               timeframe: (Date.current + 1.week).strftime('%Y-W%V'),
             )
-        expect(response).to have_http_status(:ok)
+        expect(response).to redirect_to(inverter_power_forecast_path)
       end
 
-      it 'renders for month' do
+      it 'redirects to forecast for month' do
         get balance_home_path(
-              sensor_name: 'house_power',
+              sensor_name: 'inverter_power',
               timeframe: (Date.current + 1.month).strftime('%Y-%m'),
             )
-        expect(response).to have_http_status(:ok)
+        expect(response).to redirect_to(inverter_power_forecast_path)
       end
 
-      it 'renders for year' do
+      it 'redirects to forecast for year' do
         get balance_home_path(
-              sensor_name: 'house_power',
+              sensor_name: 'inverter_power',
               timeframe: (Date.current + 1.year).strftime('%Y'),
             )
-        expect(response).to have_http_status(:ok)
+        expect(response).to redirect_to(inverter_power_forecast_path)
       end
     end
 

@@ -10,14 +10,49 @@ class Timeframe::Component < ViewComponent::Base
     forecast_days.present?
   end
 
+  # Check if navigation is possible at all
+  # - timeframe can be paginated, or
+  # - in forecast mode
+  def can_navigate?
+    timeframe.can_paginate? || forecast_mode?
+  end
+
+  # Check if backward navigation is possible
+  # - in forecast mode (back to today), or
+  # - previous timeframe exists
+  def can_navigate_backward?
+    forecast_mode? || timeframe.prev
+  end
+
+  # Check if forward navigation is possible
+  # Forward navigation into the future is only allowed for:
+  # - not in forecast mode
+  # - inverter category sensors (no other sensors support future data)
+  # - day timeframe only (not week, month, year, etc.)
+  # - and next timeframe exists
+  def can_navigate_forward?
+    return false if forecast_mode?
+
+    if timeframe.next
+      true
+    else
+      timeframe.id == :day && helpers.sensor.category == :inverter &&
+        Sensor::Config.exists?(:inverter_power_forecast)
+    end
+  end
+
   def next_path
     return if forecast_mode?
 
-    url_for(
-      controller: "#{helpers.controller_namespace}/home",
-      sensor_name: helpers.sensor_name,
-      timeframe: timeframe.next,
-    )
+    if timeframe.next
+      url_for(
+        controller: "#{helpers.controller_namespace}/home",
+        sensor_name: helpers.sensor_name,
+        timeframe: timeframe.next,
+      )
+    elsif Sensor::Config.exists?(:inverter_power_forecast)
+      inverter_power_forecast_path
+    end
   end
 
   def prev_path

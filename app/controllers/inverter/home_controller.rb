@@ -14,6 +14,11 @@ class Inverter::HomeController < ApplicationController
       return
     end
 
+    if timeframe.future? && Sensor::Config.exists?(:inverter_power_forecast)
+      redirect_to inverter_power_forecast_path
+      return
+    end
+
     load_missing_or_stale_summary_days(timeframe)
   end
 

@@ -14,6 +14,11 @@ class House::HomeController < ApplicationController
       return
     end
 
+    if timeframe.future?
+      redirect_to(default_path)
+      return
+    end
+
     load_missing_or_stale_summary_days(timeframe)
   end
 

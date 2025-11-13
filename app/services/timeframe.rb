@@ -58,21 +58,16 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       end
     end
 
-  def initialize(
-    string,
-    min_date: Rails.application.config.x.installation_date,
-    allowed_days_in_future: 6
-  )
+  def initialize(string, min_date: Rails.application.config.x.installation_date)
     @original_string = string
     @string = normalized_string(string)
     @min_date = min_date
-    @allowed_days_in_future = allowed_days_in_future
 
     validate_string!
     validate_range_order!
   end
 
-  attr_reader :original_string, :string, :min_date, :allowed_days_in_future
+  attr_reader :original_string, :string, :min_date
 
   delegate :to_s, to: :string
 
@@ -385,16 +380,14 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     date = next_date(force:)
     return unless date
 
-    self.class.new date.strftime(format), min_date:, allowed_days_in_future:
+    self.class.new(date.strftime(format), min_date:)
   end
 
   def prev
     date = prev_date
     return unless date
 
-    self.class.new prev_date.strftime(format),
-                   min_date:,
-                   allowed_days_in_future:
+    self.class.new(prev_date.strftime(format), min_date:)
   end
 
   def next_date(force: false)
@@ -576,7 +569,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def max_date
-    day? ? (Date.current + allowed_days_in_future.days) : Date.current
+    Date.current
   end
 
   FORMAT = {

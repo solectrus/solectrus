@@ -1,10 +1,6 @@
 describe Timeframe do
   subject(:decoder) do
-    described_class.new(
-      string,
-      min_date: Date.new(2019, 5, 2),
-      allowed_days_in_future: 1,
-    )
+    described_class.new(string, min_date: Date.new(2019, 5, 2))
   end
 
   let(:today) { Date.new(2022, 10, 13) }
@@ -1674,11 +1670,7 @@ describe Timeframe do
 
   context 'when months exceed 99' do
     subject(:decoder) do
-      described_class.new(
-        'all',
-        min_date: Date.new(2010, 1, 1),
-        allowed_days_in_future: 1,
-      )
+      described_class.new('all', min_date: Date.new(2010, 1, 1))
     end
 
     it 'caps corresponding_all at P99M' do
