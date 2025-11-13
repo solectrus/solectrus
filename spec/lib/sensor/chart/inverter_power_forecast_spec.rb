@@ -68,16 +68,17 @@ describe Sensor::Chart::InverterPowerForecast do
   end
 
   describe '#actual_days' do
-    it 'returns number of complete forecast days' do
-      # Only 2 complete days (day 1 and 2), day 3 is incomplete
-      expect(chart.actual_days).to eq(2)
+    it 'returns number of days with forecast data' do
+      # All 3 days have at least 8 hours of data
+      # (Day 3 has 10 hours: 0:00-9:00)
+      expect(chart.actual_days).to eq(3)
     end
   end
 
   describe 'incomplete day filtering' do
-    it 'excludes days with less than 20 hours of data' do
-      # Day 3 has only 10 hours, should be filtered
-      expect(chart.actual_days).to eq(2)
+    it 'includes days with at least 8 hours of data' do
+      # Day 3 has 10 hours, which meets the 8-hour threshold
+      expect(chart.actual_days).to eq(3)
     end
   end
 
@@ -85,19 +86,25 @@ describe Sensor::Chart::InverterPowerForecast do
     it 'correctly calculates daily kWh using rectangular rule integration' do
       labels = chart.options[:plugins][:customXAxisLabels][:labels]
 
-      # We have 2 complete days, each should have 8 kWh
-      # (1000W * 8 hours = 8000 Wh = 8 kWh)
-      expect(labels.length).to eq(2)
+      # We have 3 days with data (Day 3 has 10 hours including power data)
+      # (1000W * 8 hours = 8000 Wh = 8 kWh for complete days)
+      expect(labels.length).to eq(3)
 
-      # Day 1 should have 8 kWh
+      # Day 1 should have 8 kWh (complete day)
       day1_kwh_label =
         labels[0][:lines].find { |line| line[:text].to_s.match?(/^\d+$/) }
       expect(day1_kwh_label[:text].to_i).to eq(8)
 
-      # Day 2 should also have 8 kWh
+      # Day 2 should also have 8 kWh (complete day)
       day2_kwh_label =
         labels[1][:lines].find { |line| line[:text].to_s.match?(/^\d+$/) }
       expect(day2_kwh_label[:text].to_i).to eq(8)
+
+      # Day 3 is incomplete (only 10 hours: 0-9), has 2 hours of power (8-9)
+      # 1000W * 2 hours = 2000 Wh = 2 kWh
+      day3_kwh_label =
+        labels[2][:lines].find { |line| line[:text].to_s.match?(/^\d+$/) }
+      expect(day3_kwh_label[:text].to_i).to eq(2)
     end
   end
 
