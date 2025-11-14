@@ -1,5 +1,5 @@
-describe Sensor::Chart::Forecast::BoundaryAdjuster do
-  describe '.add_boundaries!' do
+describe Sensor::Forecast::BoundaryAdjuster do
+  describe '.add_zero_boundaries!' do
     let(:data) do
       {
         Time.zone.parse('2024-01-15 10:00') => 500,
@@ -12,7 +12,7 @@ describe Sensor::Chart::Forecast::BoundaryAdjuster do
     let(:series_raw_data) { { [:inverter_power_forecast] => data } }
 
     it 'adds zero values 15 minutes before first non-zero and after last non-zero' do
-      described_class.add_boundaries!(series_raw_data)
+      described_class.add_zero_boundaries!(series_raw_data)
 
       expect(data[Time.zone.parse('2024-01-15 09:45')]).to eq(0.0)
       expect(data[Time.zone.parse('2024-01-15 14:15')]).to eq(0.0)
@@ -20,7 +20,7 @@ describe Sensor::Chart::Forecast::BoundaryAdjuster do
 
     it 'does not overwrite existing values' do
       data[Time.zone.parse('2024-01-15 09:45')] = 999
-      described_class.add_boundaries!(series_raw_data)
+      described_class.add_zero_boundaries!(series_raw_data)
 
       expect(data[Time.zone.parse('2024-01-15 09:45')]).to eq(999)
     end
@@ -29,7 +29,7 @@ describe Sensor::Chart::Forecast::BoundaryAdjuster do
       data[Time.zone.parse('2024-01-16 10:00')] = 600
       data[Time.zone.parse('2024-01-16 12:00')] = 1200
 
-      described_class.add_boundaries!(series_raw_data)
+      described_class.add_zero_boundaries!(series_raw_data)
 
       expect(data[Time.zone.parse('2024-01-15 09:45')]).to eq(0.0)
       expect(data[Time.zone.parse('2024-01-15 14:15')]).to eq(0.0)
@@ -46,7 +46,7 @@ describe Sensor::Chart::Forecast::BoundaryAdjuster do
       end
 
       it 'ignores near-zero values when finding boundaries' do
-        described_class.add_boundaries!(series_raw_data)
+        described_class.add_zero_boundaries!(series_raw_data)
 
         # Boundary should be around 11:00 (first truly non-zero), not 10:00
         expect(data[Time.zone.parse('2024-01-15 10:45')]).to eq(0.0)

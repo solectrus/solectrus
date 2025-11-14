@@ -5,7 +5,8 @@
 #                      health_check GET    /up(.:format)                                             health#show
 #                skip_browser_check GET    /skip-browser-check(.:format)                             application#skip_browser_check
 #                          lookbook        /lookbook                                                 Lookbook::Engine
-#                          forecast GET    /forecast(.:format)                                       forecast#index
+#                          forecast GET    /forecast(.:format)                                       forecast/home#index
+#                    forecast_chart GET    /forecast/:id(.:format)                                   forecast/charts#show {id: /inverter_power|outdoor_temp/}
 #                      balance_home GET    /(:sensor_name)(/:timeframe)(.:format)                    balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                     balance_stats GET    /stats/:sensor_name(/:timeframe)(.:format)                balance/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                    balance_charts GET    /charts/:sensor_name(/:timeframe)(.:format)               balance/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
@@ -93,7 +94,16 @@ Rails.application.routes.draw do
   mount Lookbook::Engine, at: '/lookbook' if Rails.env.development?
   mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
-  get '/forecast', to: 'forecast#index', as: :forecast
+  get '/forecast', to: 'forecast/home#index', as: :forecast
+
+  scope :forecast, module: :forecast do
+    get '/:id',
+        to: 'charts#show',
+        as: :forecast_chart,
+        constraints: {
+          id: /inverter_power|outdoor_temp/,
+        }
+  end
 
   constraints SensorConstraint.new(:chart_enabled?) do
     constraints timeframe: Timeframe::REGEX do

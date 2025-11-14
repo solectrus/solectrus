@@ -1,4 +1,4 @@
-describe Sensor::Chart::Forecast::DayForecast do
+describe Sensor::Forecast::Day do
   let(:date) { Date.parse('2024-01-15') }
   let(:day_forecast) { described_class.new(date, entries) }
 

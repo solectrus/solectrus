@@ -38,14 +38,14 @@ export default class extends Controller {
   }
 
   reload() {
-    this.reloadChart().catch((error) => {
+    this.reloadCharts().catch((error) => {
       console.error(error);
       // Ignore error
     });
   }
 
   createTimer() {
-    // Create a timer to reload the chart frame
+    // Create a timer to reload both chart frames
     this.timer = new IntervalTimer(() => {
       // Avoid any request if stopped in the meantime
       if (this.shouldStopRequests) return;
@@ -83,20 +83,32 @@ export default class extends Controller {
   handleVisibilityChange(): void {
     if (document.hidden) this.stopLoop();
     else
-      this.reloadChart()
+      this.reloadCharts()
         .then(() => this.startLoop())
         .catch((error) => console.error(error));
   }
 
-  async reloadChart() {
+  async reloadCharts() {
     try {
-      const chartFrame = this.element.querySelector<Turbo.FrameElement>(
-        'turbo-frame#forecast-chart',
+      const powerChartFrame = this.element.querySelector<Turbo.FrameElement>(
+        'turbo-frame#inverter-power-forecast-chart',
       );
+      const temperatureChartFrame =
+        this.element.querySelector<Turbo.FrameElement>(
+          'turbo-frame#outdoor-temp-forecast-chart',
+        );
 
-      if (chartFrame) {
-        await chartFrame.reload();
+      const reloadPromises = [];
+
+      if (powerChartFrame) {
+        reloadPromises.push(powerChartFrame.reload());
       }
+
+      if (temperatureChartFrame) {
+        reloadPromises.push(temperatureChartFrame.reload());
+      }
+
+      await Promise.all(reloadPromises);
     } catch (error) {
       console.error(error);
     }

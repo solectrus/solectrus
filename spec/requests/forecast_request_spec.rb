@@ -9,31 +9,58 @@ describe 'Forecast' do
         expect(response).to have_http_status(:ok)
       end
 
-      it 'includes turbo frames for navigation and chart' do
+      it 'includes turbo frames for navigation and charts' do
         get forecast_path
         expect(response.body).to include('turbo-frame id="forecast-timeframe"')
-        expect(response.body).to include('turbo-frame id="forecast-chart"')
+        expect(response.body).to include(
+          'turbo-frame id="inverter-power-forecast-chart"',
+        )
+        expect(response.body).to include(
+          'turbo-frame id="outdoor-temp-forecast-chart"',
+        )
       end
     end
 
-    context 'when turbo_frame request' do
+    context 'when turbo_frame request to inverter power chart' do
       it 'renders turbo_stream response' do
-        get forecast_path,
+        get forecast_chart_path(id: 'inverter_power'),
             headers: {
-              'Turbo-Frame' => 'forecast-chart',
+              'Turbo-Frame' => 'inverter-power-forecast-chart',
             }
         expect(response).to have_http_status(:ok)
         expect(response.media_type).to eq('text/vnd.turbo-stream.html')
       end
 
-      it 'updates both timeframe and chart frames' do
-        get forecast_path,
+      it 'updates timeframe and chart frames' do
+        get forecast_chart_path(id: 'inverter_power'),
             headers: {
-              'Turbo-Frame' => 'forecast-chart',
+              'Turbo-Frame' => 'inverter-power-forecast-chart',
             }
         expect(response.body).to include('turbo-stream action="update"')
         expect(response.body).to include('target="forecast-timeframe"')
-        expect(response.body).to include('target="forecast-chart"')
+        expect(response.body).to include(
+          'target="inverter-power-forecast-chart"',
+        )
+      end
+    end
+
+    context 'when turbo_frame request to outdoor temp chart' do
+      it 'renders turbo_stream response' do
+        get forecast_chart_path(id: 'outdoor_temp'),
+            headers: {
+              'Turbo-Frame' => 'outdoor-temp-forecast-chart',
+            }
+        expect(response).to have_http_status(:ok)
+        expect(response.media_type).to eq('text/vnd.turbo-stream.html')
+      end
+
+      it 'updates outdoor temp chart frame' do
+        get forecast_chart_path(id: 'outdoor_temp'),
+            headers: {
+              'Turbo-Frame' => 'outdoor-temp-forecast-chart',
+            }
+        expect(response.body).to include('turbo-stream action="update"')
+        expect(response.body).to include('target="outdoor-temp-forecast-chart"')
       end
     end
   end

@@ -1,4 +1,4 @@
-describe Sensor::Chart::Forecast::EnergyCalculator do
+describe Sensor::Forecast::EnergyCalculator do
   describe '.calculate_kwh' do
     subject(:kwh) { described_class.calculate_kwh(entries) }
 

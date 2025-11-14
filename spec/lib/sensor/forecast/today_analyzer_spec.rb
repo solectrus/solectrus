@@ -1,4 +1,4 @@
-describe Sensor::Chart::Forecast::TodayAnalyzer do
+describe Sensor::Forecast::TodayAnalyzer do
   # Use real current date/time to avoid date mismatch issues
   let(:current_time) { Time.current }
   let(:analyzer) { described_class.new(forecast_data, current_time:) }

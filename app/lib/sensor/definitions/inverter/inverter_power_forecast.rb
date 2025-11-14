@@ -7,5 +7,5 @@ class Sensor::Definitions::InverterPowerForecast < Sensor::Definitions::Base
 
   aggregations stored: [:sum]
 
-  chart { |timeframe| Sensor::Chart::Forecast.new(timeframe:) }
+  chart { |timeframe| Sensor::Chart::InverterPowerForecastChart.new(timeframe:) }
 end

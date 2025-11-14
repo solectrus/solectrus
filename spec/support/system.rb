@@ -206,21 +206,47 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
   end
 
   def seed_forecast(base_time:)
-    {
-      -5.hours => 3000,
-      -2.hours => 8000,
-      -1.hour => 9000,
-      1.hour => 7000,
-      4.hours => 4000,
-    }.each do |offset, watt|
-      add_influx_point(
-        name: measurement_inverter_power_forecast,
-        fields: {
-          field_inverter_power_forecast => watt,
-        },
-        time: base_time + offset,
-      )
-    end
+    # Seed forecast data (for next 3 days)
+    3
+      .days
+      .step(0, -1.hour) do |i|
+        time = base_time + i.seconds
+        hour = time.hour
+        day_offset = (time.to_date - base_time.to_date).to_i
+
+        # Solar power: peak at 1pm, zero at night
+        inverter_power_forecast =
+          (
+            if hour.between?(6, 20)
+              (Math.cos(((hour - 13).abs / 7.0) * Math::PI / 2) * 8500).round
+            else
+              0
+            end
+          )
+
+        add_influx_point(
+          name: measurement_inverter_power_forecast,
+          fields: {
+            field_inverter_power_forecast => inverter_power_forecast,
+          },
+          time:,
+        )
+
+        # Temperature: base varies by day, daily sine curve
+        outdoor_temp_forecast =
+          (
+            20.0 - (day_offset * 0.5) +
+              (Math.sin((hour - 6) * Math::PI / 12) * 5.0)
+          ).round(1)
+
+        add_influx_point(
+          name: measurement_outdoor_temp_forecast,
+          fields: {
+            field_outdoor_temp_forecast => outdoor_temp_forecast,
+          },
+          time:,
+        )
+      end
   end
 
   def influx_purge
