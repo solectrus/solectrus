@@ -68,7 +68,7 @@ en:
     inverter_power_4: Generation 4
     inverter_power_5: Generation 5
     inverter_power_difference: Unassigned
-    inverter_power_forecast: Forecast
+    inverter_power_forecast: PV Forecast
     inverter_power_forecast_clearsky: Clear Sky
     house_power: Home consumption
     house_power_without_custom: Other consumers
@@ -94,6 +94,7 @@ en:
     heatpump_cop: COP
     outdoor_temp: Outdoor temperature
     outdoor_temp_short: Outdoor
+    outdoor_temp_forecast: Expected outdoor temperature
     grid_quote: Grid consumption rate
     total_consumption: Total consumption
     self_consumption: Self consumption

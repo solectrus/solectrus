@@ -68,7 +68,7 @@ de:
     inverter_power_4: Erzeugung 4
     inverter_power_5: Erzeugung 5
     inverter_power_difference: Ohne Zuordnung
-    inverter_power_forecast: Prognose
+    inverter_power_forecast: Erwarteter Ertrag
     inverter_power_forecast_clearsky: Bei klarem Himmel
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher
@@ -94,6 +94,7 @@ de:
     heatpump_cop: Arbeitszahl
     outdoor_temp: Außentemperatur
     outdoor_temp_short: Außen
+    outdoor_temp_forecast: Erwartete Außentemperatur
     self_consumption: Eigenverbrauch
     self_consumption_quote: Eigenverbrauchsquote
     self_consumption_quote_short: Verbrauch
