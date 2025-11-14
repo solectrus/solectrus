@@ -10,6 +10,7 @@ type LineDatasetWithSegment = ChartDataset<'line'> & {
   segment?: {
     borderColor: (ctx: ScriptableLineSegmentContext) => string;
   };
+  opacity?: number;
 };
 
 // Map temperature to colors
@@ -55,6 +56,8 @@ export default class ChartGradientTemperature {
   applyToLineDataset(dataset: ChartDataset<'line'>): void {
     // Line charts: segment colors + vertical fill
     const lineDataset = dataset as LineDatasetWithSegment;
+    const opacity = lineDataset.opacity;
+
     lineDataset.segment = {
       borderColor: (ctx: ScriptableLineSegmentContext) => {
         // Dynamically calculate color based on current data
@@ -62,7 +65,7 @@ export default class ChartGradientTemperature {
         const index = ctx.p0DataIndex;
 
         if (index >= data.length - 1) {
-          return '#000000';
+          return opacity ? `rgba(0,0,0,${opacity})` : '#000000';
         }
 
         const currentTemp = data[index];
@@ -70,13 +73,13 @@ export default class ChartGradientTemperature {
 
         if (currentTemp != null && nextTemp != null) {
           const avgTemp = (currentTemp + nextTemp) / 2;
-          return this.getColorForTemperature(avgTemp);
+          return this.getColorForTemperature(avgTemp, opacity);
         } else if (currentTemp != null) {
-          return this.getColorForTemperature(currentTemp);
+          return this.getColorForTemperature(currentTemp, opacity);
         } else if (nextTemp != null) {
-          return this.getColorForTemperature(nextTemp);
+          return this.getColorForTemperature(nextTemp, opacity);
         } else {
-          return '#000000';
+          return opacity ? `rgba(0,0,0,${opacity})` : '#000000';
         }
       },
     };
@@ -98,7 +101,7 @@ export default class ChartGradientTemperature {
     dataset.borderWidth = 2;
   }
 
-  private getColorForTemperature(temp: number): string {
+  private getColorForTemperature(temp: number, opacity?: number): string {
     // Clamp temperature to our range
     const clampedTemp = Math.max(COLD_TEMP, Math.min(HOT_TEMP, temp));
 
@@ -106,13 +109,14 @@ export default class ChartGradientTemperature {
     const ratio = (clampedTemp - COLD_TEMP) / (HOT_TEMP - COLD_TEMP);
 
     // Interpolate between blue and red
-    return this.interpolateColor(COLD_COLOR, HOT_COLOR, ratio);
+    return this.interpolateColor(COLD_COLOR, HOT_COLOR, ratio, opacity);
   }
 
   private interpolateColor(
     color1: string,
     color2: string,
     ratio: number,
+    opacity?: number,
   ): string {
     const [r1, g1, b1] = [
       color1.slice(1, 3),
@@ -128,6 +132,10 @@ export default class ChartGradientTemperature {
     const r = Math.round(r1 + (r2 - r1) * ratio);
     const g = Math.round(g1 + (g2 - g1) * ratio);
     const b = Math.round(b1 + (b2 - b1) * ratio);
+
+    if (opacity !== undefined) {
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    }
 
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   }

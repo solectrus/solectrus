@@ -1,4 +1,4 @@
-class InverterPowerForecastController < ApplicationController
+class ForecastController < ApplicationController
   def index
     if turbo_frame_request?
       # Update multiple frames with turbo_stream response
@@ -20,11 +20,7 @@ class InverterPowerForecastController < ApplicationController
   end
 
   helper_method def forecast_days
-    @forecast_days ||= chart.actual_days
-  end
-
-  def chart
-    @chart ||= Sensor::Chart::InverterPowerForecast.new(timeframe:)
+    @forecast_days ||= Sensor::Chart::Forecast.new(timeframe:).actual_days
   end
 
   helper_method def nav_items

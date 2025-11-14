@@ -10,7 +10,7 @@ class Balance::HomeController < ApplicationController
     end
 
     if timeframe.future? && Sensor::Config.exists?(:inverter_power_forecast)
-      redirect_to inverter_power_forecast_path
+      redirect_to forecast_path
       return
     end
 

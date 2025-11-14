@@ -40,7 +40,6 @@ export default class extends Controller {
   private timer?: IntervalTimer;
   private selectedSensor?: string;
   private boundHandleVisibilityChange?: () => void;
-  private boundHandleDblClick?: (event: MouseEvent) => void;
   private shouldStopRequests = false;
 
   connect() {
@@ -54,18 +53,11 @@ export default class extends Controller {
       );
     }
 
-    this.boundHandleDblClick = this.handleDblClick.bind(this);
-    document.addEventListener('dblclick', this.boundHandleDblClick);
-
     this.startLoop();
   }
 
   disconnect() {
     this.removeTimer();
-
-    if (this.boundHandleDblClick) {
-      document.removeEventListener('dblclick', this.boundHandleDblClick);
-    }
 
     if (this.boundHandleVisibilityChange)
       document.removeEventListener(
@@ -134,11 +126,6 @@ export default class extends Controller {
       this.reloadFrames({ chart: true })
         .then(() => this.startLoop())
         .catch((error) => console.error(error));
-  }
-
-  handleDblClick(event: MouseEvent) {
-    if (this.hasCanvasTarget && event.target == this.canvasTarget)
-      this.chart?.resetZoom();
   }
 
   addPointToChart() {

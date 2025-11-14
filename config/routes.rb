@@ -5,6 +5,7 @@
 #                      health_check GET    /up(.:format)                                             health#show
 #                skip_browser_check GET    /skip-browser-check(.:format)                             application#skip_browser_check
 #                          lookbook        /lookbook                                                 Lookbook::Engine
+#                          forecast GET    /forecast(.:format)                                       forecast#index
 #                      balance_home GET    /(:sensor_name)(/:timeframe)(.:format)                    balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                     balance_stats GET    /stats/:sensor_name(/:timeframe)(.:format)                balance/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                    balance_charts GET    /charts/:sensor_name(/:timeframe)(.:format)               balance/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
@@ -92,9 +93,7 @@ Rails.application.routes.draw do
   mount Lookbook::Engine, at: '/lookbook' if Rails.env.development?
   mount Lockup::Engine, at: '/lockup' if Rails.env.production?
 
-  get '/inverter_power/forecast',
-      to: 'inverter_power_forecast#index',
-      as: :inverter_power_forecast
+  get '/forecast', to: 'forecast#index', as: :forecast
 
   constraints SensorConstraint.new(:chart_enabled?) do
     constraints timeframe: Timeframe::REGEX do

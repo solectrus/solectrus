@@ -1,17 +1,19 @@
-describe Sensor::Chart::InverterPowerForecast do
+describe Sensor::Chart::Forecast do
   subject(:chart) { described_class.new(timeframe:) }
 
   let(:timeframe) { Timeframe.new("#{Date.current}..#{Date.current + 7.days}") }
 
   before do
-    freeze_time
+    # Freeze time at 7:00 AM (before power production starts at 8:00)
+    # This ensures all forecast power hours are in the future
+    freeze_time(Date.current.beginning_of_day + 7.hours)
 
     # Create forecast and actual data for testing
     influx_batch do
-      # Day 0 (today) - Actual inverter power for the morning (0:00-12:00)
-      # This represents real production data up to now
-      # 1000W * 4h (8-12) = 4 kWh so far
-      12.times do |hour|
+      # Day 0 (today) - Actual inverter power for the morning (0:00-7:00)
+      # This represents real production data up to now (frozen at 7:00 AM)
+      # No power yet (production starts at 8:00)
+      7.times do |hour|
         add_influx_point(
           name: Sensor::Config.measurement(:inverter_power),
           fields: {
@@ -116,15 +118,16 @@ describe Sensor::Chart::InverterPowerForecast do
       expect(labels.length).to eq(4)
 
       # Extract kWh values from labels
+      # For today, the label shows "Remaining X", for other days just "X"
       kwh_values =
         labels.map do |label|
-          label[:lines]
-            .find { |line| line[:text].to_s.match?(/^\d+$/) }
-            &.dig(:text)
-            &.to_i
+          line = label[:lines].find { |l| l[:text].to_s.match?(/\d+/) }
+          next unless line
+
+          line[:text].scan(/\d+/).first.to_i
         end
 
-      # Day 0 (today): 8 kWh
+      # Day 0 (today): 8 kWh (shown as "Remaining 8")
       # Day 1 (tomorrow): 8 kWh
       # Day 2: 8 kWh
       # Day 3 (incomplete, only 10 hours with 2 hours of power): 2 kWh

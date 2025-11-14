@@ -170,7 +170,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   def zoom_options
-    return {} unless timeframe.short?
+    return {} unless type == 'line'
 
     { zoom: { drag: { enabled: true }, mode: 'x' } }
   end

@@ -141,7 +141,6 @@ de:
     title: Prognose
     today: Heute
     tomorrow: Morgen
-    remaining: Noch
     next_days:
       one: Morgen
       other: Die nächsten %{count} Tage

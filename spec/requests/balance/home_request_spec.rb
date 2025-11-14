@@ -56,7 +56,7 @@ describe 'Home' do
               timeframe: (Date.current + 2.days).strftime('%Y-%m-%d'),
               sensor_name: 'inverter_power',
             )
-        expect(response).to redirect_to(inverter_power_forecast_path)
+        expect(response).to redirect_to(forecast_path)
       end
 
       it 'redirects to forecast for week' do
@@ -64,7 +64,7 @@ describe 'Home' do
               sensor_name: 'inverter_power',
               timeframe: (Date.current + 1.week).strftime('%Y-W%V'),
             )
-        expect(response).to redirect_to(inverter_power_forecast_path)
+        expect(response).to redirect_to(forecast_path)
       end
 
       it 'redirects to forecast for month' do
@@ -72,7 +72,7 @@ describe 'Home' do
               sensor_name: 'inverter_power',
               timeframe: (Date.current + 1.month).strftime('%Y-%m'),
             )
-        expect(response).to redirect_to(inverter_power_forecast_path)
+        expect(response).to redirect_to(forecast_path)
       end
 
       it 'redirects to forecast for year' do
@@ -80,7 +80,7 @@ describe 'Home' do
               sensor_name: 'inverter_power',
               timeframe: (Date.current + 1.year).strftime('%Y'),
             )
-        expect(response).to redirect_to(inverter_power_forecast_path)
+        expect(response).to redirect_to(forecast_path)
       end
     end
 

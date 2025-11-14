@@ -90,6 +90,7 @@ export default class extends Controller<HTMLCanvasElement> {
   declare readonly hasUnitValue: boolean;
 
   private boundHandleResize?: () => void;
+  private boundHandleDblClick?: (event: MouseEvent) => void;
   private chart?: Chart;
   private animationTimeout?: ReturnType<typeof setTimeout>;
 
@@ -108,6 +109,9 @@ export default class extends Controller<HTMLCanvasElement> {
 
     this.boundHandleResize = debounce(100, this.handleResize.bind(this));
     window.addEventListener('resize', this.boundHandleResize);
+
+    this.boundHandleDblClick = this.handleDblClick.bind(this);
+    this.canvasTarget.addEventListener('dblclick', this.boundHandleDblClick);
   }
 
   disconnect() {
@@ -118,6 +122,12 @@ export default class extends Controller<HTMLCanvasElement> {
 
     if (this.boundHandleResize)
       window.removeEventListener('resize', this.boundHandleResize);
+
+    if (this.boundHandleDblClick)
+      this.canvasTarget.removeEventListener(
+        'dblclick',
+        this.boundHandleDblClick,
+      );
 
     if (this.chart) this.chart.destroy();
   }
@@ -159,6 +169,12 @@ export default class extends Controller<HTMLCanvasElement> {
     if (options.scales.y.ticks)
       options.scales.y.ticks.callback = (value) =>
         typeof value === 'number' ? this.formattedNumber(value, 'axis') : value;
+
+    // Format numbers on right y-axis (y1) for temperature
+    if (options.scales.y1?.ticks) {
+      options.scales.y1.ticks.callback = (value) =>
+        typeof value === 'number' ? `${value} °C` : value;
+    }
 
     if (this.minValue < 0) {
       // Draw x-axis in black
@@ -249,7 +265,7 @@ export default class extends Controller<HTMLCanvasElement> {
         return;
       }
 
-      console.warn('Unhandled drilldown path:', currentUrl);
+      // No matching drilldown pattern found - this is OK for charts without drilldown
     }
 
     options.onHover = (event: ChartEvent, elements: ActiveElement[]) => {
@@ -333,6 +349,20 @@ export default class extends Controller<HTMLCanvasElement> {
           }
 
           // Default: show absolute value
+          // Check if this is a temperature dataset
+          const datasetId = (tooltipItem.dataset as DatasetWithId).id;
+          const isTemperature = datasetId?.includes('_temp');
+
+          if (isTemperature) {
+            // For temperature, format with °C
+            const value = tooltipItem.parsed.y!;
+            const formattedValue = new Intl.NumberFormat(this.locale, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }).format(value);
+            return `${label}${formattedValue} °C`;
+          }
+
           return label + this.formattedNumber(tooltipItem.parsed.y!);
         },
 
@@ -372,7 +402,7 @@ export default class extends Controller<HTMLCanvasElement> {
         if (!dataset.data) continue;
 
         const id = (dataset as DatasetWithId).id;
-        const isTemperature = id?.endsWith('_temp');
+        const isTemperature = id?.includes('_temp');
 
         if (isTemperature) {
           this.setTemperatureGradient(dataset);
@@ -588,5 +618,9 @@ export default class extends Controller<HTMLCanvasElement> {
     if (firstAllNegative && secondAllPositive) return false;
 
     return true;
+  }
+
+  private handleDblClick() {
+    this.chart?.resetZoom();
   }
 }

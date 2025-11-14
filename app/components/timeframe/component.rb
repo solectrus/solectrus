@@ -50,7 +50,7 @@ class Timeframe::Component < ViewComponent::Base
         timeframe: timeframe.next,
       )
     elsif Sensor::Config.exists?(:inverter_power_forecast)
-      inverter_power_forecast_path
+      forecast_path
     end
   end
 
