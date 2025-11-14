@@ -36,8 +36,7 @@ class Timeframe::Component < ViewComponent::Base
     if timeframe.next
       true
     else
-      timeframe.id == :day && helpers.sensor.category == :inverter &&
-        Sensor::Config.exists?(:inverter_power_forecast)
+      timeframe.id == :day && Sensor::Config.exists?(:inverter_power_forecast)
     end
   end
 
