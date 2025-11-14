@@ -1,15 +1,39 @@
 describe Sensor::Chart::InverterPowerForecast do
   subject(:chart) { described_class.new(timeframe:) }
 
-  let(:timeframe) do
-    Timeframe.new("#{Date.current + 1.day}..#{Date.current + 7.days}")
-  end
+  let(:timeframe) { Timeframe.new("#{Date.current}..#{Date.current + 7.days}") }
 
   before do
     freeze_time
 
-    # Create forecast data for 3 days starting tomorrow
+    # Create forecast and actual data for testing
     influx_batch do
+      # Day 0 (today) - Actual inverter power for the morning (0:00-12:00)
+      # This represents real production data up to now
+      # 1000W * 4h (8-12) = 4 kWh so far
+      12.times do |hour|
+        add_influx_point(
+          name: Sensor::Config.measurement(:inverter_power),
+          fields: {
+            Sensor::Config.field(:inverter_power) => forecast_power(hour),
+          },
+          time: Date.current.beginning_of_day + hour.hours,
+        )
+      end
+
+      # Day 0 (today) - Forecast for the full day (will show future part)
+      # 1000W * 8h = 8 kWh total forecast
+      24.times do |hour|
+        add_influx_point(
+          name: Sensor::Config.measurement(:inverter_power_forecast),
+          fields: {
+            Sensor::Config.field(:inverter_power_forecast) =>
+              forecast_power(hour),
+          },
+          time: Date.current.beginning_of_day + hour.hours,
+        )
+      end
+
       # Day 1 (tomorrow) - Complete day with 24 hourly measurements
       # Simple rectangular power profile: 1000W from 8:00-16:00 (8 hours)
       # Expected: 1000W * 8h = 8000 Wh = 8 kWh
@@ -69,16 +93,16 @@ describe Sensor::Chart::InverterPowerForecast do
 
   describe '#actual_days' do
     it 'returns number of days with forecast data' do
-      # All 3 days have at least 8 hours of data
-      # (Day 3 has 10 hours: 0:00-9:00)
-      expect(chart.actual_days).to eq(3)
+      # All 4 days have at least 8 hours of data
+      # (Day 0=today, Day 1=tomorrow, Day 2=day after, Day 3=incomplete day with 10 hours)
+      expect(chart.actual_days).to eq(4)
     end
   end
 
   describe 'incomplete day filtering' do
     it 'includes days with at least 8 hours of data' do
       # Day 3 has 10 hours, which meets the 8-hour threshold
-      expect(chart.actual_days).to eq(3)
+      expect(chart.actual_days).to eq(4)
     end
   end
 
@@ -86,50 +110,61 @@ describe Sensor::Chart::InverterPowerForecast do
     it 'correctly calculates daily kWh using rectangular rule integration' do
       labels = chart.options[:plugins][:customXAxisLabels][:labels]
 
-      # We have 3 days with data (Day 3 has 10 hours including power data)
+      # We have 4 days with data
+      # Day 0 (today), Day 1 (tomorrow), Day 2 (day after), Day 3 (incomplete)
       # (1000W * 8 hours = 8000 Wh = 8 kWh for complete days)
-      expect(labels.length).to eq(3)
+      expect(labels.length).to eq(4)
 
-      # Day 1 should have 8 kWh (complete day)
-      day1_kwh_label =
-        labels[0][:lines].find { |line| line[:text].to_s.match?(/^\d+$/) }
-      expect(day1_kwh_label[:text].to_i).to eq(8)
+      # Extract kWh values from labels
+      kwh_values =
+        labels.map do |label|
+          label[:lines]
+            .find { |line| line[:text].to_s.match?(/^\d+$/) }
+            &.dig(:text)
+            &.to_i
+        end
 
-      # Day 2 should also have 8 kWh (complete day)
-      day2_kwh_label =
-        labels[1][:lines].find { |line| line[:text].to_s.match?(/^\d+$/) }
-      expect(day2_kwh_label[:text].to_i).to eq(8)
-
-      # Day 3 is incomplete (only 10 hours: 0-9), has 2 hours of power (8-9)
-      # 1000W * 2 hours = 2000 Wh = 2 kWh
-      day3_kwh_label =
-        labels[2][:lines].find { |line| line[:text].to_s.match?(/^\d+$/) }
-      expect(day3_kwh_label[:text].to_i).to eq(2)
+      # Day 0 (today): 8 kWh
+      # Day 1 (tomorrow): 8 kWh
+      # Day 2: 8 kWh
+      # Day 3 (incomplete, only 10 hours with 2 hours of power): 2 kWh
+      expect(kwh_values).to eq([8, 8, 8, 2])
     end
   end
 
-  describe 'clearsky forecast' do
-    it 'includes clearsky forecast in chart sensors' do
+  describe 'chart sensors' do
+    it 'includes actual inverter power for today' do
+      expect(chart.chart_sensor_names).to include(:inverter_power)
+    end
+
+    it 'includes forecast sensors' do
       expect(chart.chart_sensor_names).to include(
+        :inverter_power_forecast,
         :inverter_power_forecast_clearsky,
       )
     end
   end
 
   describe 'blank handling' do
-    context 'when no forecast sensors are configured' do
-      before { allow(Sensor::Config).to receive(:sensors).and_return([]) }
-
-      it 'returns blank chart sensor names' do
-        expect(chart.chart_sensor_names).to be_empty
+    context 'when no forecast sensors exist' do
+      before do
+        allow(Sensor::Config).to receive(:sensors).and_return(
+          [Sensor::Registry[:inverter_power]],
+        )
       end
 
-      it 'returns blank chart' do
+      it 'includes only inverter_power' do
+        expect(chart.chart_sensor_names).to eq([:inverter_power])
+      end
+
+      it 'returns blank chart when no forecast data available' do
+        # Chart is blank because there's no forecast data
         expect(chart.blank?).to be(true)
       end
 
-      it 'returns nil for unit' do
-        expect(chart.unit).to be_nil
+      it 'returns unit from inverter_power sensor' do
+        # Unit comes from inverter_power sensor when no forecast sensors exist
+        expect(chart.unit).to eq('W')
       end
     end
   end

@@ -138,6 +138,9 @@ en:
     inverter_split: Individual
   forecast:
     title: Forecast
+    today: Today
+    tomorrow: Tomorrow
+    remaining: Remaining
     next_days:
       one: Tomorrow
       other: The next %{count} days

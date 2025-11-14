@@ -138,6 +138,9 @@ de:
     inverter_split: Einzeln
   forecast:
     title: Prognose
+    today: Heute
+    tomorrow: Morgen
+    remaining: Noch
     next_days:
       one: Morgen
       other: Die nächsten %{count} Tage

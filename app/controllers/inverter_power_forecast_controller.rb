@@ -16,8 +16,7 @@ class InverterPowerForecastController < ApplicationController
   end
 
   helper_method def timeframe
-    @timeframe ||=
-      Timeframe.new("#{Date.current + 1.day}..#{Date.current + 7.days}")
+    @timeframe ||= Timeframe.new("#{Date.current}..#{Date.current + 7.days}")
   end
 
   helper_method def forecast_days

@@ -7,8 +7,17 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
   private_constant :LABEL_FONT, :LABEL_COLOR, :LABEL_FONT_SMALL, :MIN_DAY_HOURS
 
   def chart_sensor_names
-    Sensor::Config.sensors.filter_map do |sensor|
-      sensor.name if sensor.category == :forecast
+    # Select inverter power and forecast sensors if they exist
+    Sensor::Config.sensors.filter_map do |s|
+      if s.name.in?(
+           %i[
+             inverter_power
+             inverter_power_forecast
+             inverter_power_forecast_clearsky
+           ],
+         )
+        s.name
+      end
     end
   end
 
@@ -59,19 +68,33 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
 
   private
 
-  def build_series_data
-    return if chart_sensor_names.empty?
+  # Check if we should show today in the forecast
+  # We show today only if there is still forecast power expected
+  def show_today?
+    return true unless forecast_sensor_data # Default to true if no data
 
-    result =
-      Sensor::Query::Series.new(
+    # Get future forecast values for today
+    future_values =
+      forecast_sensor_data.select do |timestamp, value|
+        timestamp.to_date == Date.current && timestamp > Time.current &&
+          value&.positive?
+      end
+
+    # Show today if there are still positive forecast values in the future
+    future_values.any?
+  end
+
+  # Override to add boundary zeros to forecast data
+  def build_influx_series
+    Sensor::Query::Series
+      .new(
         chart_sensor_names,
         timeframe,
         timestamp_method: :to_time,
         interval: '15m',
-      ).call(interpolate: true)
-
-    add_boundary_zeros(result) if result
-    result
+      )
+      .call(interpolate: true)
+      &.tap { |result| add_boundary_zeros(result) }
   end
 
   def add_boundary_zeros(series)
@@ -129,25 +152,58 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
       forecast_data.map do |date, data|
         {
           x: data[:noon_timestamp],
-          lines: [day_label(date), *kwh_labels(data[:total_kwh])],
+          lines: [day_label(date), *kwh_labels(date, data[:total_kwh])],
         }
       end
   end
 
   def day_label(date)
-    {
-      text: I18n.l(date, format: '%a'),
-      md: {
-        text: I18n.l(date, format: '%A'),
-      },
-      offsetY: 14,
-    }
+    label_text = day_label_text(date)
+
+    { text: label_text[:short], md: { text: label_text[:long] }, offsetY: 14 }
   end
 
-  def kwh_labels(kwh)
+  def day_label_text(date)
+    case date
+    when Date.current
+      { short: I18n.t('forecast.today'), long: I18n.t('forecast.today') }
+    when Date.tomorrow
+      { short: I18n.t('forecast.tomorrow'), long: I18n.t('forecast.tomorrow') }
+    else
+      { short: I18n.l(date, format: '%a'), long: I18n.l(date, format: '%A') }
+    end
+  end
+
+  def kwh_labels(date, kwh)
     return [] unless kwh&.positive?
 
-    [kwh_value_label(kwh), kwh_unit_label]
+    if show_remaining_kwh_for_today?(date)
+      [remaining_kwh_label(kwh)]
+    else
+      [kwh_value_label(kwh), kwh_unit_label]
+    end
+  end
+
+  def show_remaining_kwh_for_today?(date)
+    return false unless date == Date.current
+
+    # Check if we're in the middle of the production curve
+    # (some production already happened and more is expected)
+    past_production? && show_today?
+  end
+
+  # Check if there was already production today (based on forecast data)
+  def past_production?
+    return false unless forecast_sensor_data
+
+    # Check if there are past forecast values > 0 today
+    past_values =
+      forecast_sensor_data.select do |timestamp, value|
+        timestamp.to_date == Date.current && timestamp <= Time.current &&
+          value&.positive?
+      end
+
+    past_values.any?
   end
 
   def kwh_value_label(kwh)
@@ -163,6 +219,37 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
         offsetY: 32,
       },
     }
+  end
+
+  def remaining_kwh_label(_forecast_kwh)
+    # Calculate remaining forecast from now until end of day
+    remaining_kwh = calculate_remaining_forecast_kwh_today
+
+    {
+      text: "#{I18n.t('forecast.remaining')} #{remaining_kwh}",
+      font: LABEL_FONT,
+      color: LABEL_COLOR,
+      offsetY: 40,
+      md: {
+        text: "#{I18n.t('forecast.remaining')} #{remaining_kwh} kWh",
+        font: LABEL_FONT,
+        color: LABEL_COLOR,
+        offsetY: 32,
+      },
+    }
+  end
+
+  def calculate_remaining_forecast_kwh_today
+    return 0 unless forecast_sensor_data
+
+    # Filter for future timestamps only (from now until end of day)
+    future_forecast =
+      forecast_sensor_data.select do |timestamp, _|
+        timestamp.to_date == Date.current && timestamp > Time.current
+      end
+    return 0 if future_forecast.empty?
+
+    calculate_kwh(future_forecast.to_a)
   end
 
   def kwh_unit_label
@@ -181,6 +268,7 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
         forecast_sensor_data
           .group_by { |timestamp, _| timestamp.to_date }
           .filter_map { |date, entries| build_day_data(date, entries) }
+          .reject { |date, _| date == Date.current && !show_today? }
           .to_h
       else
         {}
@@ -196,7 +284,9 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
 
     noon = timestamps.min_by { |t| (t.hour - 12).abs }
     total_kwh =
-      day_complete?(entries, time_span_hours) ? calculate_kwh(entries) : nil
+      if day_complete?(entries, time_span_hours) || date == Date.current
+        calculate_kwh(entries)
+      end
 
     [date, { noon_timestamp: noon.to_i * 1000, total_kwh: }]
   end
@@ -217,6 +307,8 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
         .sort_by(&:first)
         .each_cons(2)
         .sum do |(t1, power), (t2, _)|
+          next 0 unless power # Skip intervals with nil power values
+
           interval_hours = (t2 - t1) / 3600.0
           power * interval_hours # Wh for this interval
         end
@@ -253,13 +345,19 @@ class Sensor::Chart::InverterPowerForecast < Sensor::Chart::Base # rubocop:disab
   end
 
   def style_for_sensor(sensor)
-    return super unless sensor.name == :inverter_power_forecast_clearsky
-
-    {
-      borderWidth: 1,
-      borderDash: [2, 3],
-      fill: false,
-      backgroundColor: sensor.color_hex,
-    }
+    case sensor.name
+    when :inverter_power_forecast_clearsky
+      {
+        borderWidth: 1,
+        borderDash: [2, 3],
+        fill: false,
+        backgroundColor: sensor.color_hex,
+      }
+    when :inverter_power
+      # Actual power: solid line with fill
+      super.merge(fill: true)
+    else
+      super
+    end
   end
 end
