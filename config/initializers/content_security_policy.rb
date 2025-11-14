@@ -21,6 +21,8 @@ Rails.application.configure do
                         :unsafe_eval,
                         # Allow @vite/client to hot reload JavaScript changes
                         "https://#{ViteRuby.config.host}"
+
+      policy.worker_src :self, :blob
     else
       policy.default_src :none
       policy.font_src(
