@@ -60,12 +60,45 @@ class HouseBalance
     end
   end
 
+  # Percentage of total house power consumption supplied from grid
   def house_power_grid_ratio
     return unless respond_to?(:house_power) && respond_to?(:house_power_grid)
     return unless house_power&.positive?
     return unless house_power_grid
 
     (house_power_grid * 100.0 / house_power).round
+  end
+
+  # Total grid power from all custom power sensors
+  # Sums up grid consumption for custom_power_01_grid through custom_power_20_grid
+  def custom_power_grid_total
+    @memo[
+      :custom_power_grid_total # rubocop:disable Style/TrailingCommaInArguments
+    ] ||= CUSTOM_POWER_SENSOR_NAMES.sum do |sensor_name|
+      grid_sensor_name = :"#{sensor_name}_grid"
+      if @sensor_data.respond_to?(grid_sensor_name)
+        @sensor_data.public_send(grid_sensor_name).to_f
+      else
+        0
+      end
+    end
+  end
+
+  # Grid power consumption for "other consumers" (house without custom sensors)
+  def house_power_without_custom_grid
+    return unless house_power_grid
+
+    house_power_grid - custom_power_grid_total
+  end
+
+  # Percentage of "other consumers" power supplied from grid
+  # Returns rounded percentage (0-100) showing how much of the power for
+  # "other consumers" (house without custom sensors) comes from the grid
+  def house_power_without_custom_grid_ratio
+    return unless house_power_without_custom_grid
+    return unless house_power_without_custom&.positive?
+
+    (house_power_without_custom_grid * 100.0 / house_power_without_custom).round
   end
 
   private

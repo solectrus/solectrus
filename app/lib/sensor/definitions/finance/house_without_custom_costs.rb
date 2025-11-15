@@ -5,7 +5,7 @@ class Sensor::Definitions::HouseWithoutCustomCosts < Sensor::Definitions::Base
 
   calculate do |house_power_without_custom:, house_costs:, house_power:, **|
     return unless house_power_without_custom && house_costs && house_power
-    return if house_power.nonzero?
+    return if house_power.zero?
 
     house_power_without_custom / house_power * house_costs
   end
