@@ -1,12 +1,4 @@
 .flex.flex-col.flex-1.gap-2 data={ controller: 'forecast--component', 'forecast--component-interval-value': interval }
-  .flex-1.flex.flex-col
-    = tag.turbo_frame id: 'inverter-power-forecast-chart',
-                      class: 'flex-1 flex flex-col',
-                      src: helpers.forecast_chart_path(:inverter_power),
-                      loading: 'lazy' do
-      .flex-1.flex.justify-center.items-center
-        = render Loading::Component.new
-
   - if show_outdoor_temp?
     .flex-1.flex.flex-col
       = tag.turbo_frame id: 'outdoor-temp-forecast-chart',
@@ -15,3 +7,11 @@
                         loading: 'lazy' do
         .flex-1.flex.justify-center.items-center
           = render Loading::Component.new
+
+  .flex-1.flex.flex-col
+    = tag.turbo_frame id: 'inverter-power-forecast-chart',
+                      class: 'flex-1 flex flex-col',
+                      src: helpers.forecast_chart_path(:inverter_power),
+                      loading: 'lazy' do
+      .flex-1.flex.justify-center.items-center
+        = render Loading::Component.new
