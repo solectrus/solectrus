@@ -13,7 +13,8 @@ module Sensor
       def show_today?
         return true if forecast_data.empty? # Default to true if no data
 
-        future_forecast_power_expected?
+        # Show today if there's any data for today (past or future)
+        today_entries.any?
       end
 
       # Returns true if there was already production today

@@ -14,33 +14,22 @@ describe Sensor::Forecast::TodayAnalyzer do
       it { is_expected.to be true }
     end
 
-    context 'with future positive power expected today' do
+    context 'with data for today' do
       let(:forecast_data) do
         {
-          Time.zone.parse('2024-01-15 15:00') => 1500, # Future
-          Time.zone.parse('2024-01-15 16:00') => 1000,
+          Time.zone.parse('2024-01-15 12:00') => 1500,
+          Time.zone.parse('2024-01-15 15:00') => 1000,
         }
       end
 
       it { is_expected.to be true }
     end
 
-    context 'with only past power today' do
+    context 'with data only for other days' do
       let(:forecast_data) do
         {
-          Time.zone.parse('2024-01-15 12:00') => 1500, # Past
-          Time.zone.parse('2024-01-15 13:00') => 1000,
-        }
-      end
-
-      it { is_expected.to be false }
-    end
-
-    context 'with future zero power' do
-      let(:forecast_data) do
-        {
-          Time.zone.parse('2024-01-15 15:00') => 0, # Future but zero
-          Time.zone.parse('2024-01-15 16:00') => 0,
+          Time.zone.parse('2024-01-16 12:00') => 1500, # Tomorrow
+          Time.zone.parse('2024-01-17 12:00') => 1000, # Day after
         }
       end
 
