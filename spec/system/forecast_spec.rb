@@ -17,7 +17,7 @@ describe 'Forecast' do
     expect(page).to have_css('#forecast-timeframe')
 
     # The page should show timeframe navigation
-    expect(page).to have_text('Die nächsten 4 Tage')
+    expect(page).to have_text('Die nächsten 3 Tage')
 
     # Check that the inverter power forecast chart is loaded and displayed
     within('#inverter-power-forecast-chart') do

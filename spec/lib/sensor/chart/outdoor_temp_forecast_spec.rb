@@ -106,6 +106,46 @@ describe Sensor::Chart::OutdoorTempForecast do
           expect(result[:avg_temp]).to eq(20.0)
         end
       end
+
+      context 'with negative temperature values' do
+        let(:date) { Date.tomorrow }
+        let(:forecast_entries) do
+          [[1.hour.from_now, -5.0], [2.hours.from_now, -3.0]]
+        end
+
+        it 'calculates average from negative temperatures' do
+          result = aggregator.call
+          # (-5.0 + -3.0) / 2 = -4.0
+          expect(result[:avg_temp]).to eq(-4.0)
+        end
+      end
+
+      context 'with zero temperature value' do
+        let(:date) { Date.tomorrow }
+        let(:forecast_entries) { [[1.hour.from_now, 0.0]] }
+
+        it 'includes zero in average calculation' do
+          result = aggregator.call
+          expect(result[:avg_temp]).to eq(0.0)
+        end
+      end
+
+      context 'with mixed positive, negative and zero values' do
+        let(:date) { Date.tomorrow }
+        let(:forecast_entries) do
+          [
+            [1.hour.from_now, -5.0],
+            [2.hours.from_now, 0.0],
+            [3.hours.from_now, 5.0],
+          ]
+        end
+
+        it 'calculates average correctly' do
+          result = aggregator.call
+          # (-5.0 + 0.0 + 5.0) / 3 = 0.0
+          expect(result[:avg_temp]).to eq(0.0)
+        end
+      end
     end
   end
   # rubocop:enable RSpec/MultipleMemoizedHelpers

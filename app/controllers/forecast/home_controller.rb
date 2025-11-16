@@ -10,6 +10,26 @@ class Forecast::HomeController < ApplicationController
 
   private
 
+  helper_method def days
+    @days ||=
+      begin
+        max_date =
+          Sensor::Query::ForecastAvailability.new(
+            :inverter_power_forecast,
+            :outdoor_temp_forecast,
+          ).call(limit: 7.days)
+
+        max_date ? ((max_date - Date.current).to_i + 1).clamp(2..) : nil
+      end
+  end
+
+  helper_method def timeframe
+    return unless days
+
+    @timeframe ||=
+      Timeframe.new("#{Date.current}..#{Date.current + (days - 1).days}")
+  end
+
   helper_method def title
     t('forecast.title')
   end

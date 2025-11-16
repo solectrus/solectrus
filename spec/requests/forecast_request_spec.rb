@@ -1,5 +1,18 @@
 describe 'Forecast' do
   describe 'GET /forecast' do
+    let(:availability_query) do
+      instance_double(Sensor::Query::ForecastAvailability)
+    end
+
+    before do
+      allow(Sensor::Query::ForecastAvailability).to receive(:new).and_return(
+        availability_query,
+      )
+      allow(availability_query).to receive(:call).and_return(
+        Date.current + 6.days,
+      )
+    end
+
     it_behaves_like 'localized request', '/forecast'
     it_behaves_like 'sponsoring redirects', '/forecast'
 
@@ -31,13 +44,12 @@ describe 'Forecast' do
         expect(response.media_type).to eq('text/vnd.turbo-stream.html')
       end
 
-      it 'updates timeframe and chart frames' do
+      it 'updates chart frame' do
         get forecast_chart_path(id: 'inverter_power'),
             headers: {
               'Turbo-Frame' => 'inverter-power-forecast-chart',
             }
         expect(response.body).to include('turbo-stream action="update"')
-        expect(response.body).to include('target="forecast-timeframe"')
         expect(response.body).to include(
           'target="inverter-power-forecast-chart"',
         )

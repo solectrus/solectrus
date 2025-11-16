@@ -75,8 +75,8 @@ module Sensor
           return super unless forecast_sensor_data
 
           super.merge(
-            min: timestamp_to_ms(x_timestamps.min),
-            max: timestamp_to_ms(x_timestamps.max),
+            min: timeframe.beginning.beginning_of_day,
+            max: timeframe.ending.to_date.tomorrow.beginning_of_day,
             grid: {
               drawOnChartArea: false,
               drawTicks: false,
@@ -97,20 +97,13 @@ module Sensor
           @forecast_data ||= build_forecast_data
         end
 
-        def x_timestamps
-          @x_timestamps ||= extract_timestamps
-        end
-
         def forecast_sensor_data
           @forecast_sensor_data ||= extract_sensor_data(forecast_sensor_name)
         end
 
         def today_analyzer
-          @today_analyzer ||= Sensor::Forecast::TodayAnalyzer.new(forecast_sensor_data)
-        end
-
-        def timestamp_to_ms(timestamp)
-          timestamp&.to_i&.*(MS_PER_SECOND)
+          @today_analyzer ||=
+            Sensor::Forecast::TodayAnalyzer.new(forecast_sensor_data)
         end
 
         # Extract sensor data by sensor name
@@ -120,20 +113,27 @@ module Sensor
           series.raw_data.find { |key, _| key.first == sensor_name }&.last
         end
 
-        # Extract all unique timestamps from series data
-        def extract_timestamps
-          series.raw_data.values.flat_map { |data| data.map(&:first) }.compact
-        end
-
         # Build forecast data from sensor data
         def build_forecast_data
           return {} unless forecast_sensor_data
 
-          forecast_sensor_data
-            .group_by { |timestamp, _| timestamp.to_date }
-            .filter_map { |date, entries| build_forecast_entry(date, entries) }
-            .reject { |date, _| exclude_today?(date) }
-            .to_h
+          grouped_by_date =
+            forecast_sensor_data.group_by do |timestamp, _|
+              timestamp.to_date
+            end
+
+          filtered_entries =
+            grouped_by_date.filter_map do |date, entries|
+              build_forecast_entry(date, entries)
+            end
+
+          raw_forecast_data =
+            filtered_entries
+              .reject { |date, _| exclude_today?(date) }
+              .to_h
+
+          # Pad with empty days if needed to match timeframe
+          pad_forecast_data_to_timeframe(raw_forecast_data)
         end
 
         def build_forecast_entry(date, entries)
@@ -147,6 +147,24 @@ module Sensor
 
         def exclude_today?(date)
           date == Date.current && !today_analyzer.show_today?
+        end
+
+        # Pad forecast data with empty days to match timeframe
+        def pad_forecast_data_to_timeframe(data)
+          # Determine date range from timeframe
+          start_date = data.keys.min || timeframe.beginning.to_date
+          end_date = timeframe.ending.to_date
+
+          # Fill all days in range
+          (start_date..end_date).index_with do |date|
+            if data.key?(date)
+              data[date]
+            else
+              # Create empty placeholder with noon timestamp for consistent X-axis
+              noon_time = date.in_time_zone.change(hour: NOON_HOUR)
+              { noon_timestamp: noon_time.to_i * MS_PER_SECOND }
+            end
+          end
         end
 
         # Template methods: Subclasses must implement

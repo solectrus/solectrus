@@ -1,5 +1,5 @@
 describe Forecast::Component do
-  subject(:component) { described_class.new }
+  subject(:component) { described_class.new(days: 7) }
 
   let(:outdoor_temp_exists) { true }
 

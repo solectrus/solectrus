@@ -2,24 +2,18 @@ import { Controller } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { IntervalTimer } from '@/utils/intervalTimer';
 
-export default class extends Controller {
-  static readonly values = {
-    // Refresh interval in seconds
-    interval: Number,
-  };
-  declare readonly intervalValue: number;
+const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
+export default class extends Controller {
   private timer?: IntervalTimer;
   private abortController?: AbortController;
 
   connect() {
-    if (!this.intervalValue) return;
-
     this.abortController = new AbortController();
 
     this.timer = new IntervalTimer(
       () => this.reloadCharts().catch(console.error),
-      this.intervalValue * 1000,
+      REFRESH_INTERVAL,
     );
     this.timer.start();
 

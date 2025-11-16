@@ -1,10 +1,10 @@
 class Forecast::Component < ViewComponent::Base
-  def initialize(interval: 5.minutes)
+  def initialize(days:)
     super()
-    @interval = interval
+    @days = days
   end
 
-  attr_reader :interval
+  attr_reader :days
 
   def show_outdoor_temp?
     Sensor::Config.exists?(:outdoor_temp_forecast)

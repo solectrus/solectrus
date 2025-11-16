@@ -12,13 +12,11 @@ class Forecast::ChartsController < ApplicationController
   end
 
   helper_method def timeframe
-    @timeframe ||= Timeframe.new("#{Date.current}..#{Date.current + 7.days}")
-  end
-
-  helper_method def forecast_days
-    return unless chart_name == 'inverter_power'
-
-    @forecast_days ||=
-      Sensor::Chart::InverterPowerForecast.new(timeframe:).actual_days
+    @timeframe ||=
+      begin
+        days = params[:days]&.to_i || 2
+        end_date = Date.current + (days - 1).days
+        Timeframe.new("#{Date.current}..#{end_date}")
+      end
   end
 end

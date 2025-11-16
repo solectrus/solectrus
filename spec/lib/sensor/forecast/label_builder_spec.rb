@@ -1,9 +1,7 @@
 require 'rails_helper'
 
 describe Sensor::Forecast::LabelBuilder do
-  let(:today_analyzer) do
-    instance_double(Sensor::Forecast::TodayAnalyzer)
-  end
+  let(:today_analyzer) { instance_double(Sensor::Forecast::TodayAnalyzer) }
   let(:label_builder) do
     described_class.new(
       forecast_data,
@@ -124,6 +122,53 @@ describe Sensor::Forecast::LabelBuilder do
       labels = label_builder.build_labels
       unit_label = labels.first[:lines].find { |l| l[:text] == '°C' }
       expect(unit_label).to be_present
+    end
+
+    context 'with negative temperatures' do
+      let(:temp_forecast_data) do
+        {
+          Date.parse('2024-01-15') => {
+            noon_timestamp: Time.zone.parse('2024-01-15 12:00').to_i * 1000,
+            avg_temp: -5.2,
+          },
+        }
+      end
+
+      it 'formats negative temperature correctly' do
+        labels = label_builder.build_labels
+        temp_label =
+          labels.first[:lines].find { |l| l[:text]&.include?('-5.2') }
+        expect(temp_label).to be_present
+      end
+
+      it 'includes unit for negative temperature' do
+        labels = label_builder.build_labels
+        unit_label = labels.first[:lines].find { |l| l[:text] == '°C' }
+        expect(unit_label).to be_present
+      end
+    end
+
+    context 'with zero temperature' do
+      let(:temp_forecast_data) do
+        {
+          Date.parse('2024-01-15') => {
+            noon_timestamp: Time.zone.parse('2024-01-15 12:00').to_i * 1000,
+            avg_temp: 0.0,
+          },
+        }
+      end
+
+      it 'formats zero temperature correctly' do
+        labels = label_builder.build_labels
+        temp_label = labels.first[:lines].find { |l| l[:text]&.include?('0') }
+        expect(temp_label).to be_present
+      end
+
+      it 'includes unit for zero temperature' do
+        labels = label_builder.build_labels
+        unit_label = labels.first[:lines].find { |l| l[:text] == '°C' }
+        expect(unit_label).to be_present
+      end
     end
   end
 end

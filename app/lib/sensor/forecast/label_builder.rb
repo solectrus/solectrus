@@ -30,9 +30,11 @@ module Sensor
 
       def build_labels
         forecast_data.map do |date, data|
+          value = data.key?(value_key) ? data[value_key] : nil
+
           {
             x: data[:noon_timestamp],
-            lines: [day_label(date), *value_labels(date, data[value_key])],
+            lines: [day_label(date), *value_labels(date, value)],
           }
         end
       end
@@ -74,7 +76,7 @@ module Sensor
       end
 
       def value_labels(date, value)
-        return [] unless value_present?(value)
+        return [] unless value
 
         display_value = calculate_display_value(date, value)
 
@@ -83,12 +85,6 @@ module Sensor
         else
           [value_label(display_value), unit_label]
         end
-      end
-
-      def value_present?(value)
-        return value&.positive? if value.is_a?(Numeric)
-
-        value.present?
       end
 
       def calculate_display_value(date, value)
