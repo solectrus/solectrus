@@ -29,9 +29,8 @@ module Sensor
       private
 
       def calculate_noon_timestamp_ms
-        noon =
-          date.to_time + Sensor::Chart::Concerns::ForecastChart::NOON_HOUR.hours
-        noon.to_i * Sensor::Chart::Concerns::ForecastChart::MS_PER_SECOND
+        noon = date.to_time + Sensor::Chart::Concerns::Forecast::NOON_HOUR.hours
+        noon.to_i * Sensor::Chart::Concerns::Forecast::MS_PER_SECOND
       end
 
       def calculate_average_temp

@@ -1,7 +1,7 @@
 module Sensor
   module Chart
-    class OutdoorTempForecastChart < Base
-      include Concerns::ForecastChart
+    class OutdoorTempForecast < Base
+      include Concerns::Forecast
 
       FORECAST_SENSOR_NAMES = %i[outdoor_temp outdoor_temp_forecast].freeze
       public_constant :FORECAST_SENSOR_NAMES

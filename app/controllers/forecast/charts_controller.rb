@@ -19,6 +19,6 @@ class Forecast::ChartsController < ApplicationController
     return unless chart_name == 'inverter_power'
 
     @forecast_days ||=
-      Sensor::Chart::InverterPowerForecastChart.new(timeframe:).actual_days
+      Sensor::Chart::InverterPowerForecast.new(timeframe:).actual_days
   end
 end

@@ -1,4 +1,4 @@
-describe Sensor::Chart::InverterPowerForecastChart do
+describe Sensor::Chart::InverterPowerForecast do
   let(:timeframe) { Timeframe.new("#{Date.current}..#{Date.current + 7.days}") }
   let(:chart) { described_class.new(timeframe: timeframe) }
 

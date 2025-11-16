@@ -1,4 +1,4 @@
-describe Sensor::Chart::OutdoorTempForecastChart do
+describe Sensor::Chart::OutdoorTempForecast do
   let(:timeframe) { Timeframe.new("#{Date.current}..#{Date.current + 7.days}") }
   let(:chart) { described_class.new(timeframe: timeframe) }
 

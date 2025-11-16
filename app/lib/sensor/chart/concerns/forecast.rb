@@ -1,7 +1,7 @@
 module Sensor
   module Chart
     module Concerns
-      module ForecastChart # rubocop:disable Metrics/ModuleLength
+      module Forecast # rubocop:disable Metrics/ModuleLength
         extend ActiveSupport::Concern
 
         BOUNDARY_INTERVAL = 15.minutes

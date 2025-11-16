@@ -1,7 +1,7 @@
 module Sensor
   module Chart
-    class InverterPowerForecastChart < Base
-      include Concerns::ForecastChart
+    class InverterPowerForecast < Base
+      include Concerns::Forecast
 
       FORECAST_SENSOR_NAMES = %i[
         inverter_power
