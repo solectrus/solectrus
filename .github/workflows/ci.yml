@@ -145,11 +145,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
-      - name: Fetch tag annotations
-        # https://github.com/actions/checkout/issues/290
-        run: git fetch --tags --force
+      - name: Fetch tag annotations and main branch
+        run: |
+          # Fetch tag annotations: https://github.com/actions/checkout/issues/290
+          git fetch --tags --force
+          # Fetch main branch for version calculation
+          git fetch origin main:main 2>/dev/null || true
 
       - name: Docker meta
         id: meta
@@ -191,8 +195,16 @@ jobs:
 
       - name: Set ENV values
         run: |
-          echo "COMMIT_TIME=$(git show -s --format=%cI $GITHUB_SHA)" >> $GITHUB_ENV
-          echo "COMMIT_VERSION=$(git describe --always --abbrev=7)" >> $GITHUB_ENV
+          echo "COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          echo "COMMIT_TIME=$(git show -s --format=%cI HEAD)" >> $GITHUB_ENV
+          if [ -f VERSION_PREFIX ]; then
+            PREFIX=$(cat VERSION_PREFIX)
+            COUNT=$(git rev-list --count main..HEAD)
+            HASH=$(git rev-parse --short=7 HEAD)
+            echo "COMMIT_VERSION=${PREFIX}-${COUNT}-g${HASH}" >> $GITHUB_ENV
+          else
+            echo "COMMIT_VERSION=$(git describe --always --abbrev=7)" >> $GITHUB_ENV
+          fi
 
       - name: Build and push
         uses: docker/build-push-action@v6
@@ -204,7 +216,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            COMMIT_SHA=${{ github.sha }}
+            COMMIT_SHA=${{ env.COMMIT_SHA }}
             COMMIT_TIME=${{ env.COMMIT_TIME }}
             COMMIT_VERSION=${{ env.COMMIT_VERSION }}
             COMMIT_BRANCH=${{ github.head_ref || github.ref_name }}
