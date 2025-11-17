@@ -36,6 +36,9 @@ Rails/SchemaComment:
 Rails/DefaultScope:
   Enabled: false
 
+Rails/Env:
+  Enabled: false
+
 Rails/EnvironmentVariableAccess:
   AllowReads: true
 
