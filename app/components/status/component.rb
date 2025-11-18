@@ -20,16 +20,17 @@ class Status::Component < ViewComponent::Base
   end
 
   def live_text
-    status.presence || t('.connect')
+    Sensor::ValueFormatter.new(status, unit: :string).to_s.presence ||
+      t('.connect')
   end
 
   def message
     return if live?
 
     if time
-      "#{t('calculator.time')} #{time_ago_in_words(time, include_seconds: true)}"
+      "#{t('data.time')} #{time_ago_in_words(time, include_seconds: true)}"
     else
-      t('calculator.blank')
+      t('data.blank')
     end
   end
 

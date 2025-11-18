@@ -18,4 +18,9 @@ class SocBadge::Component < ViewComponent::Base
   def percent
     [battery_soc, car_battery_soc].compact.max
   end
+
+  def color_class(sensor_name, value)
+    sensor = Sensor::Registry[sensor_name]
+    sensor.color_text(value: value.round) || 'text-slate-500 dark:text-slate-400'
+  end
 end

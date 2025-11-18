@@ -10,76 +10,102 @@ class Balance::StatsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to root_path(sensor:, timeframe:)
+      redirect_to balance_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
 
   private
 
   def refresh_summaries_if_needed
-    return if timeframe.now?
+    return if timeframe.now? || timeframe.hours?
 
     # In most cases, stale summaries are not possible when we get here, because this was
     # already checked in HomeController#index. But there is one exception: when the
     # user comes back to the page without navigation, then the JS reloads the frames
     # directly, without going through HomeController#index.
-    Summarizer.new(timeframe:).perform_now!
+    Sensor::Summarizer.call(timeframe)
   end
 
-  def calculator_now
-    Calculator::Now.new(
-      [
-        *SensorConfig.x.inverter_sensor_names,
-        :house_power,
-        :heatpump_power,
-        :wallbox_power,
-        :battery_charging_power,
-        :battery_discharging_power,
-        :grid_import_power,
-        :grid_export_power,
-        :grid_export_limit,
-        :heatpump_power_grid,
-        :wallbox_power_grid,
-        :house_power_grid,
-        :battery_charging_power_grid,
-        *SensorConfig.x.excluded_sensor_names.flat_map do |sensor_name|
-          [sensor_name, :"#{sensor_name}_grid"]
-        end,
-        :car_battery_soc,
-        :battery_soc,
-        :system_status,
-        :system_status_ok,
-        :wallbox_car_connected,
-        :case_temp,
-      ],
-    )
+  def data_now
+    sensors = %i[
+      autarky
+      battery_charging_power
+      battery_discharging_power
+      battery_soc
+      car_battery_soc
+      case_temp
+      grid_export_limit
+      grid_export_power
+      grid_import_power
+      grid_quote
+      heatpump_power
+      house_power
+      inverter_power
+      self_consumption_quote
+      system_status
+      system_status_ok
+      wallbox_car_connected
+      wallbox_power
+    ]
+
+    unless Setting.inverter_as_total
+      sensors.concat(
+        [:inverter_power_total] +
+          Sensor::Config.custom_inverter_sensors.map(&:name),
+      )
+    end
+
+    PowerBalance.new(Sensor::Query::Latest.new(sensors).call)
   end
 
-  def calculator_range
-    Calculator::Range.new(
-      timeframe,
-      calculations: [
-        *SensorConfig.x.inverter_sensor_names.map do |sensor_name|
-          Queries::Calculation.new(sensor_name, :sum, :sum)
-        end,
-        Queries::Calculation.new(:house_power, :sum, :sum),
-        Queries::Calculation.new(:heatpump_power, :sum, :sum),
-        Queries::Calculation.new(:wallbox_power, :sum, :sum),
-        Queries::Calculation.new(:battery_charging_power, :sum, :sum),
-        Queries::Calculation.new(:battery_discharging_power, :sum, :sum),
-        Queries::Calculation.new(:grid_import_power, :sum, :sum),
-        Queries::Calculation.new(:grid_export_power, :sum, :sum),
-        Queries::Calculation.new(:heatpump_power_grid, :sum, :sum),
-        Queries::Calculation.new(:wallbox_power_grid, :sum, :sum),
-        Queries::Calculation.new(:house_power_grid, :sum, :sum),
-        Queries::Calculation.new(:battery_charging_power_grid, :sum, :sum),
-        *SensorConfig.x.excluded_sensor_names.flat_map do |sensor_name|
-          [
-            Queries::Calculation.new(sensor_name, :sum, :sum),
-            Queries::Calculation.new(:"#{sensor_name}_grid", :sum, :sum),
-          ]
-        end,
-      ],
-    )
+  def data_range # rubocop:disable Metrics/AbcSize
+    data =
+      Sensor::Query::Total
+        .new(timeframe) do |q|
+          q.avg :autarky, :avg
+          q.sum :battery_charging_costs, :sum
+          q.sum :battery_charging_power, :sum
+          q.sum :battery_charging_power_grid, :sum
+          q.sum :battery_discharging_power, :sum
+          q.sum :co2_reduction, :sum
+          q.sum :grid_costs, :sum
+          q.sum :grid_export_power, :sum
+          q.sum :grid_import_power, :sum
+          q.avg :grid_quote, :avg
+          q.sum :grid_revenue, :sum
+          q.sum :heatpump_costs, :sum
+          q.sum :heatpump_power, :sum
+          q.sum :heatpump_power_grid, :sum
+          q.sum :house_costs, :sum
+          q.sum :house_power, :sum
+          q.sum :house_power_grid, :sum
+          q.sum :savings, :sum
+          q.sum :battery_savings, :sum
+          q.avg :self_consumption_quote, :avg
+          q.sum :solar_price, :sum
+          q.sum :total_costs, :sum
+          q.sum :traditional_costs, :sum
+          q.sum :wallbox_costs, :sum
+          q.sum :wallbox_power, :sum
+          q.sum :wallbox_power_grid, :sum
+
+          q.sum :inverter_power, :sum
+          Sensor::Config.custom_inverter_sensors.each do |sensor|
+            q.sum sensor.name, :sum
+          end
+
+          unless Setting.inverter_as_total
+            q.sum :inverter_power_total, :sum
+            q.sum :inverter_power_difference, :sum
+          end
+
+          Sensor::Config.house_power_excluded_custom_sensors.each do |sensor|
+            q.sum sensor.name, :sum
+            q.sum :"#{sensor.name.to_s.gsub('_power', '')}_costs", :sum
+          end
+        end
+        .call
+
+    PowerBalance.new(data)
   end
 end

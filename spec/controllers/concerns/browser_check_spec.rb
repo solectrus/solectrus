@@ -11,7 +11,7 @@ describe 'Browser Check', type: :request do
       it 'sets cookie' do
         get('/skip-browser-check', headers:)
 
-        expect(response).to redirect_to(root_path)
+        expect(response).to redirect_to(balance_home_path)
         expect(response.cookies['skip_browser_check']).to eq('true')
       end
     end

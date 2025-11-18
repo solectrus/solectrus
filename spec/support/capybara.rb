@@ -24,12 +24,12 @@ module RequestSessionHelpers
              password: ADMIN_PASSWORD,
            },
          }
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(balance_home_path)
   end
 
   def logout
     delete '/logout'
-    expect(response).to redirect_to(root_path)
+    expect(response).to redirect_to(balance_home_path)
   end
 end
 

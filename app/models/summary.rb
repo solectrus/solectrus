@@ -18,45 +18,9 @@ class Summary < ApplicationRecord
            foreign_key: :date,
            inverse_of: :summary
 
-  # Check if the config have changed and reset the summaries if needed
-  def self.validate!
-    # If the stored config match the current ones, there is nothing to do
-    if Setting.summary_config.to_json == config.to_json
-      Rails.logger.info(
-        'Configuration checked, no changes detected, summaries are still valid.',
-      )
-      return
-    end
-
-    # Configuration have changed, the existing summaries are no longer valid
-    # Force a rebuild and remember the new config
-    reset!
-    Setting.summary_config = config
-    Rails.logger.info(
-      'Summaries were invalid because the configuration has changed. Deleted all summaries, will rebuild.',
-    )
-  end
-
   def self.reset!
     delete_all
     Rails.cache.clear
-  end
-
-  # Configuration the summaries are based on
-  # This hash is used to determine if the summaries are still valid
-  #
-  # Add more keys if needed
-  def self.config
-    {
-      #
-      # Version of the configuration. Update this if the logic of the
-      # summaries has changed. This will invalidate all existing summaries
-      version: '2025-02-03',
-      #
-      # The date column depends on the current timezone.
-      # If the timezone changes, the summaries are no longer valid
-      time_zone: Time.zone.name,
-    }
   end
 
   # A summary is considered fresh when updated on the next day after 01:00

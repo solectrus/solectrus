@@ -9,6 +9,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         root_item,
         (inverter_item if Setting.enable_multi_inverter),
         (house_item if Setting.enable_custom_consumer),
+        (heatpump_item if Setting.enable_heatpump),
         essentials_item,
         top10_item,
       ].compact
@@ -37,16 +38,28 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.balance'),
         href:
-          if helpers.controller_namespace == 'house'
-            root_path(sensor: 'house_power', timeframe: helpers.timeframe)
-          elsif helpers.controller_namespace == 'inverter'
-            root_path(sensor: 'inverter_power', timeframe: helpers.timeframe)
+          case helpers.controller_namespace
+          when 'house'
+            balance_home_path(
+              sensor_name: 'house_power',
+              timeframe: helpers.timeframe,
+            )
+          when 'inverter'
+            balance_home_path(
+              sensor_name: 'inverter_power',
+              timeframe: helpers.timeframe,
+            )
+          when 'heatpump'
+            balance_home_path(
+              sensor_name: 'heatpump_power',
+              timeframe: helpers.timeframe,
+            )
           else
-            root_path
+            balance_home_path
           end,
         current: helpers.controller_namespace == 'balance',
         data: {
-          controller: 'tippy',
+          controller: 'tooltip',
         },
       }
     end
@@ -56,7 +69,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.inverter'),
         icon: 'solar-panel',
         icon_only: true,
-        href: inverter_home_path(sensor: 'inverter_power', timeframe:),
+        href: inverter_home_path(sensor_name: 'inverter_power', timeframe:),
         current: helpers.controller_namespace == 'inverter',
       }
     end
@@ -66,8 +79,19 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.house'),
         icon: 'house-crack',
         icon_only: true,
-        href: house_home_path(sensor: 'house_power', timeframe:),
+        href: house_home_path(sensor_name: 'house_power', timeframe:),
         current: helpers.controller_namespace == 'house',
+      }
+    end
+
+    def heatpump_item
+      {
+        name: t('layout.heatpump'),
+        icon: 'fan',
+        icon_only: true,
+        href:
+          heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:),
+        current: helpers.controller_namespace == 'heatpump',
       }
     end
 
@@ -88,10 +112,12 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         icon_only: true,
         href:
           top10_path(
-            sensor:
-              if helpers.respond_to?(:sensor) &&
-                   helpers.sensor.in?(SensorConfig::POWER_SENSORS)
-                helpers.sensor
+            sensor_name:
+              if helpers.respond_to?(:sensor_name) &&
+                   helpers.sensor_name.in?(
+                     Sensor::Config.top10_sensors.map(&:name),
+                   )
+                helpers.sensor_name
               else
                 'inverter_power'
               end,
@@ -175,7 +201,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def settings_item
       {
         name: t('layout.settings'),
-        icon: 'cog',
+        icon: 'gear',
         href: settings_general_path,
         current: helpers.controller_namespace == 'settings',
       }
@@ -198,6 +224,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           href: new_session_path,
           data: {
             turbo_frame: 'modal',
+            controller: 'modal-launcher',
           },
         }
       end

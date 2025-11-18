@@ -1,6 +1,0 @@
-de:
-  groups:
-    generation: Erzeugung
-    grid_battery: Netz & Akku
-    generation_grid_battery: Erzeugung, Netz & Akku
-    consumers: Verbraucher

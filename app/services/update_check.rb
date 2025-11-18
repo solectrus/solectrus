@@ -19,6 +19,7 @@ class UpdateCheck
              :skip_prompt!,
              :latest_version,
              :registration_status,
+             :kwp,
              :clear_cache!,
              to: :instance
   end
@@ -39,6 +40,10 @@ class UpdateCheck
 
   def subscription_plan
     latest[:subscription_plan]
+  end
+
+  def kwp
+    latest[:kwp]
   end
 
   def sponsoring?
@@ -78,6 +83,8 @@ class UpdateCheck
 
   def clear_cache!
     @cache_manager.delete
+    # Also clear sensor cache since permissions may have changed
+    Sensor::Config.clear_cache!
   end
 
   def skip_prompt!

@@ -1,6 +1,5 @@
 de:
   note_asc: Es werden nur vollständige Perioden berücksichtigt.
-  note_sum: Aufsummierte Energie
   note_max: Maximale Leistung (Mittelwert über fünf Minuten)
   blank: Nicht genügend Daten vorhanden.
   house_power_max_not_possible: Sorry, die Berechnung des maximalen Hausverbrauchs ist leider nicht möglich.

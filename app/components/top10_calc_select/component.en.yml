@@ -1,2 +1,13 @@
 en:
-  title: Switch between energy and power
+  sum:
+    short: ∑
+    long: Sum
+  max:
+    short: ⊤
+    long: Maximum
+  avg:
+    short: ⌀
+    long: Average
+  min:
+    short: ⊥
+    long: Minimum

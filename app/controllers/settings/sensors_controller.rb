@@ -4,16 +4,33 @@ class Settings::SensorsController < ApplicationController
   before_action :admin_required!
 
   def edit
-    @battery_sensors = %i[
-      battery_charging_power
-      battery_discharging_power
-      case_temp
-      battery_soc
-      car_battery_soc
-    ]
-    @consumer_sensors =
-      %i[house_power heatpump_power wallbox_power] +
-        SensorConfig::CUSTOM_SENSORS
+    @inverter_sensors = []
+    @consumer_sensors = []
+    @battery_sensors = []
+
+    Sensor::Config
+      .nameable_sensors
+      .sort_by { |sensor| [sensor.category, sensor.name] }
+      .select do |sensor|
+        case sensor.category
+        when :inverter
+          @inverter_sensors << sensor
+        when :consumer
+          @consumer_sensors << sensor
+        else
+          if sensor.name.in?(
+               %i[
+                 battery_charging_power
+                 battery_discharging_power
+                 case_temp
+                 battery_soc
+                 car_battery_soc
+               ],
+             )
+            @battery_sensors << sensor
+          end
+        end
+      end
   end
 
   def update
@@ -23,6 +40,7 @@ class Settings::SensorsController < ApplicationController
       inverter_as_total
       enable_multi_inverter
       enable_custom_consumer
+      enable_heatpump
     ].each do |key|
       value = permitted_params.dig(:general, key)
       next unless value
@@ -40,12 +58,13 @@ class Settings::SensorsController < ApplicationController
   end
 
   def permitted_params
-    params.except(:button, :_method).permit(
-      sensor_names: Array(SensorConfig.x.editable_sensor_names),
+    params.except(:button, :_method, :authenticity_token).permit(
+      sensor_names: Array(Sensor::Config.nameable_sensors).map(&:name),
       general: %i[
         inverter_as_total
         enable_multi_inverter
         enable_custom_consumer
+        enable_heatpump
       ],
     )
   end

@@ -1,16 +1,17 @@
-.text-center.text-xs.sm:text-sm.text-slate-500 data-controller= 'tippy' data-tippy-touch-value= 'true'
-  - if calculator.forecast_deviation
-    - if calculator.forecast_deviation.positive?
-      = t 'forecast.better_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
+.text-center.text-xs.sm:text-sm.text-slate-500 data-controller= 'tooltip' data-tooltip-touch-value= 'true'
+  - if data.respond_to?(:forecast_deviation)
+    - if data.forecast_deviation&.positive?
+      = t 'forecast.better_html', percent: Sensor::ValueFormatter.new(data.forecast_deviation.abs, unit: :percent)
+
     - elsif future? || today_before_sunset?
-      = t 'forecast.expect_html', value: Number::Component.new(value: calculator.inverter_power_forecast).to_watt_hour(max_precision: 0)
-    - elsif calculator.forecast_deviation.zero?
+      = t 'forecast.expect_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :total, precision: 0)
+    - elsif data.forecast_deviation&.zero?
       = t 'forecast.exactly'
-    - else
-      = t 'forecast.worse_html', percent: Number::Component.new(value: calculator.forecast_deviation.abs).to_percent(max_precision: 0, klass: 'text-current')
+    - elsif data.forecast_deviation&.negative?
+      = t 'forecast.worse_html', percent: Sensor::ValueFormatter.new(data.forecast_deviation.abs, unit: :percent)
 
     - if tooltip_required?
-      .hidden id="forecast-expectation" data-tippy-target= 'html'
-        = t 'forecast.expectation_html', value: Number::Component.new(value: calculator.inverter_power_forecast).to_watt_hour(max_precision: 0)
+      .hidden id="forecast-expectation" data-tooltip-target= 'html'
+        = t 'forecast.expectation_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :total, precision: 0)
   - elsif future?
     = t 'forecast.unknown'

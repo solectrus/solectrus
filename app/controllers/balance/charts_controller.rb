@@ -8,59 +8,68 @@ class Balance::ChartsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to root_path(sensor:, timeframe:)
+      redirect_to balance_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
 
   private
 
-  def calculator_range
-    Calculator::Range.new(
-      timeframe,
-      calculations: [
-        Queries::Calculation.new(:inverter_power, :sum, :sum),
-        Queries::Calculation.new(:inverter_power_forecast, :sum, :sum),
-        *SensorConfig::CUSTOM_INVERTER_SENSORS.map do |sensor_name|
-          Queries::Calculation.new(sensor_name, :sum, :sum)
-        end,
-      ],
-    )
-  end
-
-  helper_method def chart_sensors
-    [
-      *DEFAULT_SENSORS,
-      *SensorConfig.x.excluded_custom_sensor_names,
-      *inverter_sensor_names,
-    ]
-  end
-
-  DEFAULT_SENSORS = %i[
-    grid_power
-    house_power
-    heatpump_power
-    wallbox_power
+  CHART_SENSORS = %i[
+    autarky
     battery_power
     battery_soc
     car_battery_soc
     case_temp
-    autarky
-    self_consumption
     co2_reduction
+    grid_costs
+    grid_power
+    grid_revenue
+    heatpump_power
+    house_power
+    inverter_power
+    savings
+    self_consumption_quote
+    total_costs
+    wallbox_power
   ].freeze
-  private_constant :DEFAULT_SENSORS
+  private_constant :CHART_SENSORS
 
-  def inverter_sensor_names
-    return [:inverter_power] unless multi_inverter_enabled?
-
-    if Setting.inverter_as_total
-      [:inverter_power]
-    else
-      ([:inverter_power] + SensorConfig.x.inverter_sensor_names).uniq
+  helper_method def chart_sensors
+    Sensor::Config.chart_sensors.filter_map do |sensor|
+      sensor.name if include_sensor_in_chart?(sensor)
     end
   end
 
-  def multi_inverter_enabled?
-    SensorConfig.x.multi_inverter? && ApplicationPolicy.multi_inverter?
+  def include_sensor_in_chart?(sensor)
+    # Standard chart sensors (battery, grid, house power, etc.)
+    return true if CHART_SENSORS.include?(sensor.name)
+
+    # Custom sensors excluded from house power calculation
+    if Sensor::Config.house_power_excluded_custom_sensors.include?(sensor)
+      return true
+    end
+
+    # Custom inverter powers when not using inverter as total
+    sensor.is_a?(Sensor::Definitions::CustomInverterPower) &&
+      !Setting.inverter_as_total
+  end
+
+  helper_method def forecast_data
+    unless timeframe.day? && sensor.name == :inverter_power &&
+             Sensor::Config.exists?(:inverter_power_forecast)
+      return
+    end
+
+    @forecast_data ||=
+      begin
+        data =
+          Sensor::Query::Total
+            .new(timeframe) do |q|
+              q.sum :inverter_power, :sum
+              q.sum :inverter_power_forecast, :sum
+            end
+            .call
+        PowerBalance.new(data)
+      end
   end
 end

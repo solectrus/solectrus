@@ -5,7 +5,7 @@ class SummariesController < ApplicationController
 
   def show
     @date = Date.parse(params[:date])
-    SummarizerJob.perform_now(@date)
+    Sensor::Summarizer.call(@date)
   end
 
   def delete_all

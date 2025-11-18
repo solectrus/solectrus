@@ -1,7 +1,9 @@
 class FluxQueryLogSubscriber < ActiveSupport::LogSubscriber
-  attach_to :flux_reader
+  attach_to :sensor_influx
 
   def query(event)
+    return unless logger.debug?
+
     class_name = event.payload[:class]
     query_string = event.payload[:query]
     sensors = event.payload[:sensors].join(',')

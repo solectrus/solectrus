@@ -101,6 +101,19 @@ def select_tab_script_safari(url)
     APPLESCRIPT
 end
 
+def select_tab_script_firefox(url)
+  # For Firefox, we unfortunately cannot reliably switch to existing tabs
+  # via AppleScript due to limited browser automation support.
+  # As a workaround, we'll just activate Firefox and open the URL.
+  # This will create a new tab, but it's the most reliable approach.
+  <<-APPLESCRIPT
+      tell application "Firefox"
+          activate
+          open location "#{url}"
+      end tell
+    APPLESCRIPT
+end
+
 def open_url(browser, url)
   if running?(browser)
     script =
@@ -109,6 +122,8 @@ def open_url(browser, url)
         select_tab_script_safari(url)
       when 'Google Chrome', 'Brave Browser', 'Vivaldi'
         select_tab_script_chromium(browser, url)
+      when 'Firefox'
+        select_tab_script_firefox(url)
       else
         raise "Unknown browser: #{browser.inspect}"
       end
@@ -132,7 +147,7 @@ when 'com.brave.browser'
 when 'com.vivaldi.vivaldi'
   open_url('Vivaldi', url)
 when 'org.mozilla.firefox'
-  puts 'Firefox is not supported. Please use Safari, Brave, Chrome, or Vivaldi.'
+  open_url('Firefox', url)
 else
   puts "Unknown browser: #{default_browser}"
 end

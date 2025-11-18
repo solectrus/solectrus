@@ -13,14 +13,14 @@
     .mt-5
       = render VerticalTabs::Component.new do |c|
         = c.with_tab id: 'generators', label: t('settings.sensors.generators') do
-          - if SensorConfig.x.multi_inverter?
+          - if Sensor::Config.multi_inverter?
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
-              - SensorConfig.x.existing_custom_inverter_sensor_names.each do |sensor_name|
+              - @inverter_sensors.each do |sensor|
                 .flex.flex-col
-                  = f.text_field "sensor_names[#{sensor_name}]",
-                                 value: SensorConfig.x.display_name(sensor_name),
+                  = f.text_field "sensor_names[#{sensor.name}]",
+                                 value: sensor.display_name,
                                  class: 'form-input',
-                                 label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+                                 label: "#{sensor.name} (#{Sensor::Config.mapping(sensor.name)})"
 
             hr.my-5.text-transparent
             = f.check_box 'general[inverter_as_total]',
@@ -34,31 +34,32 @@
                         checked: Setting.enable_multi_inverter,
                         label: I18n.t('settings.sensors.enable_multi_inverter')
 
-        - if SensorConfig.x.exists_any?(*@consumer_sensors)
+        - if @consumer_sensors.any?
           = c.with_tab id: 'consumers', label: t('settings.sensors.consumers') do
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
-              - @consumer_sensors.each do |sensor_name|
-                - if SensorConfig.x.exists?(sensor_name)
-                  .flex.flex-col
-                    = f.text_field "sensor_names[#{sensor_name}]",
-                                  value: SensorConfig.x.display_name(sensor_name),
-                                  class: 'form-input',
-                                  label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+              - @consumer_sensors.each do |sensor|
+                .flex.flex-col
+                  = f.text_field "sensor_names[#{sensor.name}]",
+                                value: sensor.display_name,
+                                class: 'form-input',
+                                label: "#{sensor.name} (#{Sensor::Config.mapping(sensor.name)})"
 
             hr.my-5.text-transparent
             = f.check_box 'general[enable_custom_consumer]',
                           checked: Setting.enable_custom_consumer,
                           label: I18n.t('settings.sensors.enable_custom_consumer')
+            = f.check_box 'general[enable_heatpump]',
+                          checked: Setting.enable_heatpump,
+                          label: I18n.t('settings.sensors.enable_heatpump')
 
-        - if SensorConfig.x.exists_any?(*@battery_sensors)
+        - if @battery_sensors.any?
           = c.with_tab id: 'battery', label: t('settings.sensors.battery') do
             .grid.grid-cols-1.sm:grid-cols-2.gap-4
-              - @battery_sensors.each do |sensor_name|
-                - if SensorConfig.x.exists?(sensor_name)
-                  .flex.flex-col
-                    = f.text_field "sensor_names[#{sensor_name}]",
-                                  value: SensorConfig.x.display_name(sensor_name),
-                                  class: 'form-input',
-                                  label: "#{sensor_name} (#{SensorConfig.x.public_send(sensor_name)})"
+              - @battery_sensors.each do |sensor|
+                .flex.flex-col
+                  = f.text_field "sensor_names[#{sensor.name}]",
+                                value: sensor.display_name,
+                                class: 'form-input',
+                                label: "#{sensor.name} (#{Sensor::Config.mapping(sensor.name)})"
 
   = f.submit t('crud.save')

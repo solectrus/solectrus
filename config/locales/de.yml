@@ -1,8 +1,25 @@
 de:
+  general:
+    'yes': Ja
+    'no': Nein
+  categories:
+    inverter: Erzeugung
+    grid: Netz
+    battery: Akku
+    generation_grid_battery: Erzeugung, Netz & Akku
+    consumer: Verbraucher
+    heatpump: Wärmepumpe
+    car: E-Auto
+    economic: Finanzen
+    forecast: Prognose
+    power_splitter: Aufteilungen
+    status: Status
+    other: Andere
   layout:
     balance: Strombilanz
     inverter: Erzeugung
     house: Hausverbrauch
+    heatpump: Wärmepumpe
     essentials: Einzelwerte
     top10: Top 10
     about: Über SOLECTRUS
@@ -23,11 +40,15 @@ de:
     missing_sponsoring_cta: Mehr erfahren...
     active_sponsoring_header: Sponsoring aktiv
     active_sponsoring: Herzlichen Dank für deine Unterstützung!
+    eligible_for_free_header: Berechtigt zur kostenfreien Verwendung
     incomplete_custom_consumers: Selbstdefinierte Stromverbraucher
     missing_custom_consumers: Hier könnten bis zu 20 zusätzliche Stromverbraucher visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> bis <code>_20</code>).
     incomplete_multi_inverter: Mehrere Stromerzeuger
     missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
+    incomplete_heatpump: Wärmepumpe
+    missing_heatpump: Hier könnten Arbeitszahl, erzeugte Wärme und weitere interessante Messwerte deiner Wärmepumpe visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
     house_power_invalid: Hausverbrauch ist kleiner als Summe der Verbraucher
+    insights: Kennzahlen & Trend
   timeframe:
     now: Aktuell
     hours: Letzte %{count} Stunden
@@ -47,7 +68,7 @@ de:
     inverter_power_4: Erzeugung 4
     inverter_power_5: Erzeugung 5
     inverter_power_difference: Ohne Zuordnung
-    inverter_power_forecast: Prognose
+    inverter_power_forecast: Erwarteter Ertrag
     inverter_power_forecast_clearsky: Bei klarem Himmel
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher
@@ -55,48 +76,74 @@ de:
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
     grid_power: Netzbezug und -einspeisung
-    battery_discharging_power: Akku-Entnahme
-    battery_charging_power: Akku-Beladung
-    battery_power: Hausakku
+    grid_revenue: Einspeisevergütung
+    grid_revenue_short: Vergütung
+    battery_discharging_power: Akkuentnahme
+    battery_charging_power: Akkubeladung
+    battery_power: Akkubeladung und -entnahme
     battery_soc: Ladestand Hausakku
+    battery_soc_short: Ladestand
     car_battery_soc: Ladestand E-Auto
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
+    heatpump_power_env: Umgebungswärme
+    heatpump_heating_power: Erzeugte Wärme
+    heatpump_heating_power_short: Wärme
+    heatpump_tank_temp: Warmwasser
+    heatpump_cop: Arbeitszahl
+    outdoor_temp: Außentemperatur
+    outdoor_temp_short: Außen
+    outdoor_temp_forecast: Erwartete Außentemperatur
+    self_consumption: Eigenverbrauch
+    self_consumption_quote: Eigenverbrauchsquote
+    self_consumption_quote_short: Verbrauch
+    grid_quote: Bezugsquote
+    total_consumption: Gesamtverbrauch
+    solar_price: Solarpreis
+    traditional_costs: Vergleichspreis
+    savings: Ersparnis
+    co2_reduction: CO₂-Reduktion
+    co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
+    battery_savings: Anteil Akku
+    total_costs: Gesamtkosten
+    total_costs_short: Kosten
+    grid_costs: Netzbezugskosten
+    autarky: Autarkie
   splitter:
     grid: Netzbezug
     pv: Photovoltaik
+    total: Stromverbrauch
   balance_sheet:
     left: Herkunft
     right: Verwendung
     soc: Ladestand
-  calculator:
+  balance_groups:
+    source: Herkunft
+    usage: Verwendung
+    finance: Finanzen
+    other: Sonstiges
+  data:
     now: Aktuell
     day: Tag
     week: Woche
     month: Monat
     year: Jahr
     all: Gesamt
-    grid_quote: Bezugsquote
-    consumption: Gesamtverbrauch
-    self_consumption: Eigenverbrauch
-    self_consumption_quote: Eigenverbrauchsquote
-    self_consumption_quote_short: Verbrauch
-    solar_price: Solarpreis
-    traditional_price: Vergleichspreis
-    savings: Einsparung
-    co2_reduction: CO₂-Reduktion
-    co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
-    battery_savings: Anteil Akku
-    total_costs: Kosten
-    compensation: Vergütung
-    autarky: Autarkie
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
+    heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
+    heatpump_no_heating: Kein Heizbetrieb
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln
   forecast:
+    title: Prognose
+    today: Heute
+    tomorrow: Morgen
+    next_days:
+      one: Morgen
+      other: Die nächsten %{count} Tage
     exactly: Genau wie erwartet
     better_html: '%{percent} mehr als erwartet'
     worse_html: '%{percent} weniger als erwartet'
@@ -170,11 +217,15 @@ de:
       description: Benennung der vorhandenen Sensoren
       generators: Erzeuger
       consumers: Verbraucher
-      battery: Batterie
+      battery: Akku
       single_inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
       inverter_as_total: In der Strombilanz nur als Summe darstellen
       enable_multi_inverter: Seite "Erzeugung" in der Navigation anbieten
       enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
+      enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
+  timeframe_select:
+    index:
+      title: Zeitraum wählen
   errors:
     title: Fehler
     403:

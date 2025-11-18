@@ -6,15 +6,21 @@ module ParamsHandling
 
     helper_method def permitted_params
       @permitted_params ||=
-        params.permit(:sensor, :timeframe, :period, :sort, :calc)
+        params.permit(:sensor_name, :timeframe, :period, :sort, :calc)
     end
 
     helper_method def period
       permitted_params[:period]
     end
 
+    helper_method def sensor_name
+      permitted_params[:sensor_name]&.to_sym
+    end
+
     helper_method def sensor
-      permitted_params[:sensor]&.to_sym
+      return unless sensor_name
+
+      Sensor::Registry[sensor_name]
     end
 
     helper_method def calc
@@ -33,10 +39,10 @@ module ParamsHandling
       @timeframe ||= Timeframe.new(permitted_params[:timeframe])
     end
 
-    helper_method def calculator
+    helper_method def data
       # Requires the including controller to define
-      # both `calculator_now` and `calculator_range` methods
-      @calculator ||= (timeframe.now? ? calculator_now : calculator_range)
+      # both `data_now` and `data_range` methods
+      @data ||= timeframe.now? ? data_now : data_range
     end
   end
 end

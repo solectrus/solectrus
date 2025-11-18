@@ -18,6 +18,7 @@ describe Setting do
 
     before do
       described_class.delete_all
+      Price.delete_all
 
       freeze_time
     end

@@ -1,0 +1,35 @@
+- if trend.valid? && trend.base_value&.nonzero?
+  div[
+    data-controller= 'tooltip'
+    data-tooltip-touch-value= 'true'
+  ]
+    - if trend.same?
+      - if show_absolute_values?
+        '&plusmn; 0
+      - else
+        '&plusmn; 0%
+    - else
+      i.fa class= [icon, color_class]
+
+      span< class=color_class
+        - if show_absolute_values?
+          = Sensor::ValueFormatter.new(trend.diff, unit: :unitless, precision: diff_precision, sign: true).to_s
+        - else
+          = Sensor::ValueFormatter.new(trend.percent, unit: :percent, precision: 0, sign: true).to_s
+
+    .hidden data-tooltip-target= 'html'
+      .text-center
+        - if show_absolute_values?
+          => render SensorValue::Component.new(trend.current_value, trend.sensor.name, context: :total, scaling: :kilo, precision: diff_precision)
+          = t('.compared_to')
+          = render SensorValue::Component.new(trend.base_value, trend.sensor.name, context: :total, scaling: :kilo, precision: diff_precision)
+          = t('.in')
+        - else
+          => render SensorValue::Component.new(trend.diff.abs, trend.sensor.name, context: :total, scaling: :kilo, precision: diff_precision)
+          div
+            - if trend.percent.positive?
+              = t('.more_than')
+            - else
+              = t('.less_than')
+        div
+          = trend.base_timeframe.localized

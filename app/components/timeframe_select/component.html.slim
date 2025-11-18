@@ -1,0 +1,61 @@
+.timeframe-select
+  .grid.gap-x-6.gap-y-4.items-center.mt-8[
+    class= 'grid-cols-[auto_1fr]'
+    data-controller= 'timeframe-select--component'
+    data-timeframe-select--component-base-url-value= base_url
+    data-timeframe-select--component-id-value= timeframe.id
+    data-action= 'picker:selected@window->timeframe-select--component#handlePickerSelected'
+  ]
+    / Day picker
+    label[
+      class= LABEL_CLASSES
+      for= 'day-picker-input-button'
+    ]
+      = t('.day')
+    = render TimeframeSelect::DayPicker::Component.new(min_date:, timeframe:, name: 'day-picker-input')
+
+    / Week picker
+    label[
+      class= LABEL_CLASSES
+      for= 'week-picker-input-button'
+    ]
+      = t('.week')
+    = render TimeframeSelect::WeekPicker::Component.new(min_date:, timeframe:, name: 'week-picker-input')
+
+    / Month picker
+    label[
+      class= LABEL_CLASSES
+      for= 'month-picker-input-button'
+    ]
+      = t('.month')
+    = render TimeframeSelect::MonthPicker::Component.new(min_date:, timeframe:, name: 'month-picker-input')
+
+    / Year picker
+    label[
+      class= LABEL_CLASSES
+      for= 'year-picker-input'
+    ]
+      = t('.year')
+    = render TimeframeSelect::YearPicker::Component.new(min_date:, timeframe:, name: 'year-picker-input')
+
+    / Spacer with divider
+    .col-span-2.border-t.border-gray-200.dark:border-gray-700.my-2
+
+    / Date range
+    label[
+      class= LABEL_CLASSES
+      for= 'range-picker-input-button'
+    ]
+      = t('.date_range')
+    = render TimeframeSelect::DayPicker::Component.new(min_date:, timeframe:, name: 'range-picker-input', range: true)
+
+    / Spacer with divider
+    .col-span-2.border-t.border-gray-200.dark:border-gray-700.my-2
+
+    / Relative picker
+    label[
+      class= LABEL_CLASSES
+      for= 'relative-picker-input-button'
+    ]
+      = t('.relative')
+    = render TimeframeSelect::RelativePicker::Component.new(timeframe:, name: 'relative-picker-input', min_date: min_date)

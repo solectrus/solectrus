@@ -1,0 +1,150 @@
+.grid.grid-cols-2.gap-3.sm:gap-4.w-full
+  - if sensor.name == :inverter_power && (insights.costs || insights.multi_inverter?)
+    .col-span-2
+      .grid.grid-cols-3.gap-4.sm:gap-6
+        = render InsightsTile::Component.new css_class: (sensor.name == :inverter_power ? 'col-span-2' : 'col-span-full') do |tile|
+          - tile.with_body do
+            .flex.justify-center.items-center.gap-4
+              - unless sensor.name.in? %i[grid_power battery_power]
+                .text-left.text-lg.sm:text-2xl.font-semibold
+                  = render SensorValue::Component.new(data, sensor.name, context: :total, precision: 3)
+
+            - if insights.costs
+              .mt-2.sm:mt-5.text-lg
+                = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
+
+            - if insights.multi_inverter?
+              div class= 'mt-2 sm:mt-6 grid grid-cols-[auto_1fr_auto] gap-1 sm:gap-2 items-center px-2 text-sm font-medium whitespace-nowrap'
+                - insights.inverter_sensor_values.reverse_each do |sensor_data|
+                  .pr-3.text-left
+                    = Sensor::Registry[sensor_data[:name]].display_name
+                  .pr-3.bg-gray-200.dark:bg-gray-800.rounded-full.h-2
+                    .bg-green-600.h-2.rounded-full style="width: #{sensor_data[:percentage]}%"
+                  .text-right.tabular-nums
+                    = render SensorValue::Component.new(sensor_data[:value], sensor_data[:name], context: :total, scaling: :kilo)
+
+        - if sensor.name == :inverter_power
+          = render InsightsTile::Component.new stripes: (timeframe.year? || timeframe.month?) && timeframe.current?,
+                                               css_class: 'flex flex-col items-center justify-center' do |tile|
+            - tile.with_body do
+              = render SensorValue::Component.new(insights.specific_yield, :specific_yield, context: :total, scaling: :kilo)
+            - tile.with_footer do
+              = t('.per_kwp')
+
+  - elsif sensor.name == :grid_power
+    = render InsightsTile::Component.new do |tile|
+      - tile.with_body do
+        = render SensorValue::Component.new(data, :grid_import_power, context: :total, scaling: :kilo)
+      - tile.with_footer do
+        = Sensor::Registry[:grid_import_power].display_name(:short)
+
+    = render InsightsTile::Component.new do |tile|
+      - tile.with_body do
+        = render SensorValue::Component.new(data, :grid_export_power, context: :total, scaling: :kilo)
+      - tile.with_footer do
+        = Sensor::Registry[:grid_export_power].display_name(:short)
+
+  - elsif sensor.name.in? %i[house_power wallbox_power heatpump_power]
+    .col-span-2
+      = render InsightsTile::Component.new do |tile|
+        - tile.with_body do
+          = render SensorValue::Component.new(data, sensor.name, context: :total, scaling: :kilo)
+          .mt-4.text-lg
+            = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
+
+  - if insights.monthly_trend&.valid?
+    = render InsightsTile::Component.new css_class: ('col-span-2' unless insights.yearly_trend&.valid?), url: monthly_trend_base_path do |tile|
+      - tile.with_title do
+        = t('.previous_month')
+      - tile.with_body do
+        = render TrendIndicator::Component.new(trend: insights.monthly_trend)
+
+  - if insights.yearly_trend&.valid?
+    = render InsightsTile::Component.new css_class: ['text-right', ('col-span-2' unless insights.monthly_trend&.valid?)], url: yearly_trend_base_path do |tile|
+      - tile.with_title do
+        = t('.previous_year')
+      - tile.with_body do
+        = render TrendIndicator::Component.new(trend: insights.yearly_trend)
+
+  - if sensor.name == :grid_power
+    = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
+      - tile.with_body do
+        = render GridCostsGraph::Component.new(costs: insights.grid_costs, revenue: insights.feed_in_revenue)
+
+  - elsif sensor.name == :battery_power
+    = render InsightsTile::Component.new do |tile|
+      - tile.with_body do
+        = render SensorValue::Component.new(data, :battery_discharging_power, context: :total, scaling: :kilo, precision: 0)
+      - tile.with_footer do
+        = t('.discharge')
+
+    = render InsightsTile::Component.new css_class: 'text-right' do |tile|
+      - tile.with_body do
+        = render SensorValue::Component.new(data, :battery_charging_power, context: :total, scaling: :kilo, precision: 0)
+      - tile.with_footer do
+        = t('.charge')
+
+    - unless timeframe.day?
+      .col-span-2.grid.grid-cols-3.gap-3.sm:gap-6
+        = render InsightsTile::Component.new do |tile|
+          - tile.with_body do
+            = insights.battery_empty_days
+            small<
+            = t('.days')
+          - tile.with_footer do
+            = t('.empty')
+
+        - length = insights.battery_soc_longest_streak[:length]
+        = render InsightsTile::Component.new css_class: 'text-center', url: battery_soc_longest_streak_path do |tile|
+          - tile.with_footer do
+            = t('.charged_consecutively')
+          - tile.with_body do
+            = length
+            small<
+            = length == 1 ? t('.day') : t('.days')
+
+        = render InsightsTile::Component.new css_class: 'text-right' do |tile|
+          - tile.with_body do
+            = insights.battery_full_days
+            small<
+            = t('.days')
+          - tile.with_footer do
+            = t('.full')
+
+  - if insights.heatmap_data
+    = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
+      - tile.with_body do
+        = render HeatmapTile::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
+
+  .col-span-2
+    - if per_day_value? || insights.minimum(:date) || insights.maximum(:date)
+      .grid.gap-4.sm:gap-6 class= (per_day_value? ? 'grid-cols-3' : 'grid-cols-2')
+        - if (min_day = insights.minimum(:date))
+          = render InsightsTile::Component.new url: day_path(min_day) do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                =l min_day
+            - tile.with_body do
+              = render SensorValue::Component.new(insights.minimum(:value), sensor.name, context: :total, scaling: :kilo)
+            - tile.with_footer do
+              = t('.minimum')
+
+        - if per_day_value?
+          = render InsightsTile::Component.new css_class: 'text-center' do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                '&nbsp;
+            - tile.with_body do
+              = render SensorValue::Component.new(insights.per_day_value, sensor.name, context: :total, scaling: :kilo)
+            - tile.with_footer do
+              = t('.average_per_day')
+
+        - if (max_day = insights.maximum(:date))
+          = render InsightsTile::Component.new css_class: 'text-right', url: day_path(max_day) do |tile|
+            - tile.with_title do
+              span.hidden.md:block
+                =l max_day
+            - tile.with_body do
+              = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :total, scaling: :kilo)
+            - tile.with_footer do
+              = t('.maximum')

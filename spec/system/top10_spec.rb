@@ -1,8 +1,6 @@
 describe 'Top 10' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { travel_to Time.zone.local(2022, 6, 21, 12, 0, 0) }
-
   %w[
     inverter_power
     house_power
@@ -70,7 +68,6 @@ describe 'Top 10' do
 
         # Verify the chart shows dates and energy values
         expect(page).to have_content(/\d{4}/) # Year pattern
-        expect(page).to have_content('Aufsummierte Energie')
       end
     end
   end

@@ -8,6 +8,9 @@ class ApplicationPolicy
     custom_consumer
     multi_inverter
     relative_timeframe
+    insights
+    heatpump
+    finance_charts
   ].freeze
   private_constant :SPONSOR_FEATURES
 

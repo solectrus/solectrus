@@ -1,8 +1,6 @@
 import { Controller, ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
-import { application } from '@/utils/setupStimulus';
-import TippyController from '@/controllers/tippy_controller';
 import { IntervalTimer } from '@/utils/intervalTimer';
 
 type LineDatasetWithId = ChartDataset<'line'> & {
@@ -26,7 +24,7 @@ export default class extends Controller {
 
   static readonly values = {
     // Field to display in the chart
-    sensor: String,
+    sensorName: String,
 
     // Refresh interval in seconds
     interval: { type: Number, default: 5 },
@@ -34,23 +32,14 @@ export default class extends Controller {
     // Should the chart be reloaded when the page is reloaded?
     // If false, the chart will be updated by adding a new point
     reloadChart: { type: Boolean, default: false },
-
-    // Path to the next page
-    nextPath: String,
-
-    // After this time (ISO 8601 decoded), nextPath will be loaded instead of the current page
-    boundary: String,
   };
-  declare readonly sensorValue: string;
+  declare readonly sensorNameValue: string;
   declare readonly intervalValue: number;
   declare readonly reloadChartValue: boolean;
-  declare readonly nextPathValue: string;
-  declare readonly boundaryValue: string;
 
   private timer?: IntervalTimer;
   private selectedSensor?: string;
   private boundHandleVisibilityChange?: () => void;
-  private boundHandleDblClick?: (event: MouseEvent) => void;
   private shouldStopRequests = false;
 
   connect() {
@@ -64,18 +53,11 @@ export default class extends Controller {
       );
     }
 
-    this.boundHandleDblClick = this.handleDblClick.bind(this);
-    document.addEventListener('dblclick', this.boundHandleDblClick);
-
     this.startLoop();
   }
 
   disconnect() {
     this.removeTimer();
-
-    if (this.boundHandleDblClick) {
-      document.removeEventListener('dblclick', this.boundHandleDblClick);
-    }
 
     if (this.boundHandleVisibilityChange)
       document.removeEventListener(
@@ -85,27 +67,17 @@ export default class extends Controller {
   }
 
   reload() {
-    // Move to next page when boundary is reached
-    if (
-      this.boundaryValue &&
-      this.nextPathValue &&
-      new Date() > new Date(this.boundaryValue)
-    ) {
-      Turbo.visit(this.nextPathValue);
-    }
-    // Otherwise, just reload the frame
-    else
-      this.reloadFrames({ chart: this.reloadChartValue })
-        .then(() => {
-          // When no new chart has been loaded, add a new point to the existing chart
-          // We need to wait a bit to ensure the new value is available in the DOM
-          if (!this.reloadChartValue)
-            setTimeout(() => this.addPointToChart(), 100);
-        })
-        .catch((error) => {
-          console.error(error);
-          // Ignore error
-        });
+    this.reloadFrames({ chart: this.reloadChartValue })
+      .then(() => {
+        // When no new chart has been loaded, add a new point to the existing chart
+        // Wait for the next repaint to ensure the new value is available in the DOM
+        if (!this.reloadChartValue)
+          requestAnimationFrame(() => this.addPointToChart());
+      })
+      .catch((error) => {
+        console.error(error);
+        // Ignore error
+      });
   }
 
   createTimer() {
@@ -127,7 +99,8 @@ export default class extends Controller {
     if (!this.timer) return;
 
     // Remember the selected sensor (given via parameter)
-    if (event?.params?.sensor) this.selectedSensor = event.params.sensor;
+    if (event?.params?.sensorName)
+      this.selectedSensor = event.params.sensorName;
 
     // Avoid starting multiple loops
     if (this.isInLoop) return;
@@ -153,11 +126,6 @@ export default class extends Controller {
       this.reloadFrames({ chart: true })
         .then(() => this.startLoop())
         .catch((error) => console.error(error));
-  }
-
-  handleDblClick(event: MouseEvent) {
-    if (this.hasCanvasTarget && event.target == this.canvasTarget)
-      this.chart?.resetZoom();
   }
 
   addPointToChart() {
@@ -193,18 +161,18 @@ export default class extends Controller {
 
     // For each current target, add the value to the corresponding chart dataset (if any)
     const datasets = this.chart.data.datasets as LineDatasetWithId[];
-    this.currentTargets.forEach((target) => {
-      const sensor = target.dataset.sensor;
+    for (const target of this.currentTargets) {
+      const sensorName = target.dataset.sensorName;
       const rawValue = target.dataset.value;
 
-      if (sensor && rawValue !== undefined) {
-        const dataset = datasets.find((ds) => ds.id === sensor);
+      if (sensorName && rawValue !== undefined) {
+        const dataset = datasets.find((ds) => ds.id === sensorName);
         if (dataset) {
-          const value = parseFloat(rawValue);
+          const value = Number.parseFloat(rawValue);
           dataset.data.push(value);
         }
       }
-    });
+    }
   }
 
   // Remove oldest point (when older than one hour)
@@ -213,15 +181,15 @@ export default class extends Controller {
 
     const oldestLabel = this.chart.data.labels[0];
     const oldestDate = new Date(oldestLabel as Date).getTime();
-    const now = new Date().getTime();
+    const now = Date.now();
     const diffInSeconds = (now - oldestDate) / 1000;
     if (diffInSeconds <= 3600) return;
 
     // Remove label + value in all datasets
     this.chart.data.labels?.shift();
-    this.chart.data.datasets.forEach((dataset) => {
+    for (const dataset of this.chart.data.datasets) {
       dataset.data.shift();
-    });
+    }
   }
 
   async reloadFrames(options: { chart: boolean }) {
@@ -229,13 +197,7 @@ export default class extends Controller {
       const promises = [this.statsTarget.reload()];
       if (options.chart) promises.push(this.chartTarget.reload());
 
-      await Promise.all(promises).then(() => {
-        setTimeout(() => {
-          application.controllers.forEach((controller) => {
-            if (controller instanceof TippyController) controller.refresh();
-          });
-        }, 100);
-      });
+      await Promise.all(promises);
     } catch (error) {
       console.error(error);
     }
@@ -250,7 +212,7 @@ export default class extends Controller {
   get currentValue(): number | undefined {
     if (this.currentElement?.dataset.value == null) return undefined;
 
-    return parseFloat(this.currentElement.dataset.value);
+    return Number.parseFloat(this.currentElement.dataset.value);
   }
 
   get currentTime(): Date | undefined {
@@ -263,39 +225,39 @@ export default class extends Controller {
   get lastPointTime(): Date | undefined {
     if (!this.chart?.data.labels) return undefined;
 
-    const lastLabel: number = this.chart.data.labels.slice(-1)[0] as number;
+    const lastLabel: number = this.chart.data.labels.at(-1) as number;
     return new Date(lastLabel);
   }
 
   get currentElement(): HTMLElement | undefined {
-    // Select the current element from the currentTargets (by comparing sensor)
+    // Select the current element from the currentTargets (by comparing sensor_name)
     const targets = this.currentTargets.filter((target) => {
-      if (target.dataset.sensor)
+      if (target.dataset.sensorName)
         switch (this.effectiveSensor) {
           case 'battery_power':
             return (
-              target.dataset.sensor === 'battery_charging_power' ||
-              target.dataset.sensor === 'battery_discharging_power'
+              target.dataset.sensorName === 'battery_charging_power' ||
+              target.dataset.sensorName === 'battery_discharging_power'
             );
 
           case 'grid_power':
             return (
-              target.dataset.sensor === 'grid_import_power' ||
-              target.dataset.sensor === 'grid_export_power'
+              target.dataset.sensorName === 'grid_import_power' ||
+              target.dataset.sensorName === 'grid_export_power'
             );
 
           case 'inverter_power':
-            return target.dataset.sensor === 'inverter_power';
+            return target.dataset.sensorName === 'inverter_power';
 
           default:
-            return target.dataset.sensor.startsWith(this.effectiveSensor);
+            return target.dataset.sensorName.startsWith(this.effectiveSensor);
         }
     });
 
     if (targets.length)
       // Return the first element with a non-zero value, or the first element otherwise
       return (
-        targets.find((t) => parseFloat(t.dataset.value ?? '') !== 0) ??
+        targets.find((t) => Number.parseFloat(t.dataset.value ?? '') !== 0) ??
         targets[0]
       );
 
@@ -303,6 +265,6 @@ export default class extends Controller {
   }
 
   get effectiveSensor(): string {
-    return this.selectedSensor ?? this.sensorValue;
+    return this.selectedSensor ?? this.sensorNameValue;
   }
 }

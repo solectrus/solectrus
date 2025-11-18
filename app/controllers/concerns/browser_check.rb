@@ -16,7 +16,7 @@ module BrowserCheck
     # We allow the browser check to be skipped via special route
     def skip_browser_check
       cookies.permanent[:skip_browser_check] = 'true'
-      redirect_to root_path
+      redirect_to balance_home_path
     end
   end
 end

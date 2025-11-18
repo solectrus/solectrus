@@ -1,2 +1,13 @@
 de:
-  title: Zwischen Energie und Leistung wechseln
+  sum:
+    short: ∑
+    long: Summe
+  max:
+    short: ⊤
+    long: Maximum
+  avg:
+    short: ⌀
+    long: Durchschnitt
+  min:
+    short: ⊥
+    long: Minimum

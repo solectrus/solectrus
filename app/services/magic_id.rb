@@ -18,7 +18,7 @@ class MagicId
     cipher.iv = iv
 
     Base64.urlsafe_encode64(
-      cipher.update(data) + cipher.final + iv + cipher.auth_tag, # rubocop:disable Rails/SaveBang
+      cipher.update(data) + cipher.final + iv + cipher.auth_tag,
       padding: false,
     )
   end

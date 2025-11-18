@@ -1,21 +1,20 @@
 div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
-  = render SegmentContainer::Component.new tippy_placement: 'right',
-                                            calculator:,
+  = render SegmentContainer::Component.new tooltip_placement: 'right',
+                                            data:,
                                             timeframe: do |balance|
     ruby:
       balance.with_title { I18n.t('balance_sheet.left') }
       balance.with_segment :grid_import_power, peak: peak&.dig(:grid_import_power)
 
-      if SensorConfig.x.multi_inverter? && ApplicationPolicy.multi_inverter? && calculator.valid_multi_inverter?
+      if Sensor::Config.multi_inverter? && ApplicationPolicy.multi_inverter? && data.valid_multi_inverter?
         if Setting.inverter_as_total
           balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
         else
-          SensorConfig.x.existing_custom_inverter_sensor_names.reverse_each do |inverter_name|
-            balance.with_segment inverter_name,
-                                 peak: peak&.dig(inverter_name),
-                                 percent: calculator.public_send("#{inverter_name}_percent_of_total"),
-                                 color_class: 'bg-green-600 dark:bg-green-800/80',
-                                 icon_class: 'fa-sun'
+          Sensor::Config.custom_inverter_sensors.reverse_each do |inverter|
+            balance.with_segment inverter.name,
+                                 peak: peak&.dig(inverter.name),
+                                 percent: data.public_send("#{inverter.name}_percent_of_total"),
+                                 color_class: inverter.color_bg
           end
 
           # Render hidden segment for total inverter power.
@@ -31,16 +30,17 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
   div class= 'flex flex-col px-2 sm:px-4 gap-2 tall:gap-4 pb-8'
     = center
 
-  = render SegmentContainer::Component.new tippy_placement: 'left',
-                                            calculator:,
+  = render SegmentContainer::Component.new tooltip_placement: 'left',
+                                            data:,
                                             timeframe: do |balance|
     ruby:
       balance.with_title { I18n.t('balance_sheet.right') }
       balance.with_segment :wallbox_power, peak: peak&.dig(:wallbox_power)
       balance.with_segment :heatpump_power, peak: peak&.dig(:heatpump_power)
       balance.with_segment :house_power, peak: peak&.dig(:house_power)
-      SensorConfig.x.excluded_custom_sensor_names.each do |sensor|
-        balance.with_segment sensor, color_index: 8
+      house_power_sensor = Sensor::Registry[:house_power]
+      Sensor::Config.house_power_excluded_custom_sensors.each do |sensor|
+        balance.with_segment sensor.name, color_class: "#{house_power_sensor.color_bg} #{house_power_sensor.color_text}"
       end
       balance.with_segment :grid_export_power, peak: peak&.dig(:grid_export_power)
       balance.with_segment :battery_charging_power, peak: peak&.dig(:battery_charging_power)

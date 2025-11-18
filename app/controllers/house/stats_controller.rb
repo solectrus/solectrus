@@ -10,53 +10,60 @@ class House::StatsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to house_home_path(sensor:, timeframe:)
+      redirect_to house_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
 
   private
 
   def refresh_summaries_if_needed
-    return if timeframe.now?
+    return if timeframe.now? || timeframe.hours?
 
     # In most cases, stale summaries are not possible when we get here, because this was
     # already checked in HomeController#index. But there is one exception: when the
     # user comes back to the page without navigation, then the JS reloads the frames
     # directly, without going through HomeController#index.
-    Summarizer.new(timeframe:).perform_now!
+    Sensor::Summarizer.call(timeframe)
   end
 
-  def calculator_now
-    Calculator::Now.new(
-      [
-        :house_power,
-        :house_power_grid,
-        :grid_import_power,
-        *SensorConfig.x.existing_custom_sensor_names.flat_map do |sensor_name|
-          [sensor_name, :"#{sensor_name}_grid"]
-        end,
-        *SensorConfig.x.excluded_sensor_names,
-      ],
-    )
+  def data_now
+    data =
+      Sensor::Query::Latest.new(
+        %i[
+          house_power
+          house_power_without_custom
+          house_power_grid
+          grid_import_power
+        ] +
+          Sensor::Config
+            .house_power_included_custom_sensors
+            .flat_map { |sensor| [sensor.name, :"#{sensor.name}_grid"] },
+      ).call
+    HouseBalance.new(data)
   end
 
-  def calculator_range
-    Calculator::Range.new(
-      timeframe,
-      calculations: [
-        Queries::Calculation.new(:house_power, :sum, :sum),
-        Queries::Calculation.new(:house_power_grid, :sum, :sum),
-        Queries::Calculation.new(:grid_import_power, :sum, :sum),
-        *SensorConfig.x.existing_custom_sensor_names.flat_map do |sensor_name|
-          [
-            Queries::Calculation.new(sensor_name, :sum, :sum),
-            Queries::Calculation.new(:"#{sensor_name}_grid", :sum, :sum),
-          ]
-        end,
-        *SensorConfig.x.excluded_sensor_names.map do |sensor|
-          Queries::Calculation.new sensor, :sum, :sum
-        end,
-      ],
-    )
+  def data_range
+    data =
+      Sensor::Query::Total
+        .new(timeframe) do |q|
+          q.sum :house_power, :sum
+          q.sum :house_power_grid, :sum
+          q.sum :house_power_without_custom, :sum
+
+          Sensor::Config.house_power_included_custom_sensors.each do |sensor|
+            q.sum sensor.name, :sum
+            q.sum :"#{sensor.name}_grid", :sum
+          end
+          q.sum :custom_power_total, :sum
+
+          q.sum :house_costs, :sum
+          Sensor::Config.house_power_included_custom_sensors.each do |sensor|
+            q.sum :"#{sensor.name.to_s.gsub('_power', '')}_costs", :sum
+          end
+          q.sum :house_without_custom_costs, :sum
+        end
+        .call
+
+    HouseBalance.new(data)
   end
 end

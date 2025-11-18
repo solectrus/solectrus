@@ -21,13 +21,16 @@ import {
   ChartDataset,
   ChartEvent,
   ActiveElement,
+  Plugin,
 } from 'chart.js';
 
 import 'chartjs-adapter-luxon';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
-import ChartBackgroundGradient from '@/utils/chartBackgroundGradient';
+import ChartBackgroundGradient from '@/utils/chartGradientDefault';
+import TemperatureGradient from '@/utils/chartGradientTemperature';
+import { buildCustomXAxisPlugin } from '@/utils/chartPluginCustomXAxis';
 
 Chart.register(
   LineElement,
@@ -87,21 +90,44 @@ export default class extends Controller<HTMLCanvasElement> {
   declare readonly hasUnitValue: boolean;
 
   private boundHandleResize?: () => void;
+  private boundHandleDblClick?: (event: MouseEvent) => void;
   private chart?: Chart;
+  private animationTimeout?: ReturnType<typeof setTimeout>;
 
   private maxValue: number = 0;
   private minValue: number = 0;
+  private locale: string = 'en';
+
+  private sanitizeLocale(locale: string): string {
+    // Remove invalid suffixes like @posix that some browsers return
+    // e.g., "en-US@posix" -> "en-US"
+    return locale.split('@')[0];
+  }
 
   connect() {
     this.process();
 
     this.boundHandleResize = debounce(100, this.handleResize.bind(this));
     window.addEventListener('resize', this.boundHandleResize);
+
+    this.boundHandleDblClick = this.handleDblClick.bind(this);
+    this.canvasTarget.addEventListener('dblclick', this.boundHandleDblClick);
   }
 
   disconnect() {
+    if (this.animationTimeout) {
+      clearTimeout(this.animationTimeout);
+      this.animationTimeout = undefined;
+    }
+
     if (this.boundHandleResize)
       window.removeEventListener('resize', this.boundHandleResize);
+
+    if (this.boundHandleDblClick)
+      this.canvasTarget.removeEventListener(
+        'dblclick',
+        this.boundHandleDblClick,
+      );
 
     if (this.chart) this.chart.destroy();
   }
@@ -113,7 +139,7 @@ export default class extends Controller<HTMLCanvasElement> {
     if (this.chart) this.chart.destroy();
     this.process();
 
-    setTimeout(() => {
+    this.animationTimeout = setTimeout(() => {
       // Re-enable animation
       document.body.classList.remove('animation-stopper');
     }, 200);
@@ -132,8 +158,9 @@ export default class extends Controller<HTMLCanvasElement> {
     if (!options.scales?.x || !options.scales?.y) return;
 
     // I18n
+    this.locale = this.sanitizeLocale(navigator.language) || 'en';
     // @ts-expect-error Property does not exist on type
-    options.scales.x.adapters.date.locale = navigator.language || 'en';
+    options.scales.x.adapters.date.locale = this.locale;
 
     this.maxValue = this.maxOf(data);
     this.minValue = this.minOf(data);
@@ -142,6 +169,12 @@ export default class extends Controller<HTMLCanvasElement> {
     if (options.scales.y.ticks)
       options.scales.y.ticks.callback = (value) =>
         typeof value === 'number' ? this.formattedNumber(value, 'axis') : value;
+
+    // Format numbers on right y-axis (y1) for temperature
+    if (options.scales.y1?.ticks) {
+      options.scales.y1.ticks.callback = (value) =>
+        typeof value === 'number' ? `${value} °C` : value;
+    }
 
     if (this.minValue < 0) {
       // Draw x-axis in black
@@ -186,41 +219,53 @@ export default class extends Controller<HTMLCanvasElement> {
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
 
-      const regexes = {
-        week: /(\/\d{4}-W\d{2}|\/week)$/,
-        month: /(\/\d{4}-\d{2}|\/month)$/,
-        year: /(\/\d{4}|\/year)$/,
-        days: /(\/P\d{1,3}D)$/,
-        months: /(\/P\d{1,2}M)$/,
-        years: /(\/P\d{1,2}Y)$/,
-        all: /(\/all)$/,
-      };
+      const drilldownLevels = [
+        {
+          regex: /(\/all)$/, // All → Year
+          format: () => `${year}`,
+        },
+        {
+          regex: /(\/\d{4}|\/year)$/, // Year → Month
+          format: () => `${year}-${month}`,
+        },
+        {
+          regex: /(\/\d{4}-\d{2}|\/month)$/, // Month → Day
+          format: () => `${year}-${month}-${day}`,
+        },
+        {
+          regex: /(\/\d{4}-W\d{2}|\/week)$/, // Week → Day
+          format: () => `${year}-${month}-${day}`,
+        },
+        {
+          regex: /(\/\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2})$/, // Range → Day
+          format: () => `${year}-${month}-${day}`,
+        },
+        {
+          regex: /(\/P\d{1,3}D)$/, // Days → Day
+          format: () => `${year}-${month}-${day}`,
+        },
+        {
+          regex: /(\/P\d{1,2}M)$/, // Months → Month
+          format: () => `${year}-${month}`,
+        },
+        {
+          regex: /(\/P\d{1,2}Y)$/, // Years → Year
+          format: () => `${year}`,
+        },
+      ];
 
-      for (const regex of Object.values(regexes)) {
+      for (const { regex, format } of drilldownLevels) {
         const match = regex.exec(currentUrl);
         const value = match?.[1];
         if (!value) continue;
 
-        let formattedDate: string;
-
-        if (
-          regex === regexes.week ||
-          regex === regexes.month ||
-          regex === regexes.days
-        ) {
-          formattedDate = `${year}-${month}-${day}`;
-        } else if (regex === regexes.months || regex === regexes.year) {
-          formattedDate = `${year}-${month}`;
-        } else {
-          formattedDate = `${year}`;
-        }
-
+        const formattedDate = format();
         const newUrl = currentUrl.replace(value, `/${formattedDate}`);
         Turbo.visit(newUrl);
         return;
       }
 
-      console.warn('Unhandled drilldown path:', currentUrl);
+      // No matching drilldown pattern found - this is OK for charts without drilldown
     }
 
     options.onHover = (event: ChartEvent, elements: ActiveElement[]) => {
@@ -249,6 +294,10 @@ export default class extends Controller<HTMLCanvasElement> {
         (dataset) => dataset.stack == 'InverterPower',
       );
 
+      const isHeatingStack = data.datasets.some(
+        (dataset) => dataset.stack == 'HeatingPower',
+      );
+
       // Increase font size of tooltip footer (used for sum of stacked values)
       options.plugins.tooltip.footerFont = { size: 20 };
 
@@ -258,123 +307,150 @@ export default class extends Controller<HTMLCanvasElement> {
 
       options.plugins.tooltip.callbacks = {
         label: (tooltipItem) => {
-          let result: string =
-            !(isPowerSplitterStack && !tooltipItem.dataset.stack) &&
-            data.datasets.length > 1
-              ? `${tooltipItem.dataset.label} `
-              : '';
+          // Hide PowerSplitter total bar - it only appears in footer
+          if (isPowerSplitterStack && !tooltipItem.dataset.stack) return '';
 
-          if (isPowerSplitterStack) {
-            if (tooltipItem.dataset.stack && data.datasets.length) {
-              // Sum is the value of the first dataset
-              const sum = data.datasets[0].data[
-                tooltipItem.dataIndex
-              ] as number;
+          const label =
+            data.datasets.length > 1 ? `${tooltipItem.dataset.label} ` : '';
 
-              if (sum && tooltipItem.parsed.y)
-                result += `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
-            }
-          } else {
-            // Format value number
-            result += tooltipItem.parsed._custom
-              ? this.formattedInterval(
-                  tooltipItem.parsed._custom.min,
-                  tooltipItem.parsed._custom.max,
-                )
-              : this.formattedNumber(tooltipItem.parsed.y!);
+          // Handle interval data (min/max ranges)
+          if (tooltipItem.parsed._custom) {
+            return (
+              label +
+              this.formattedInterval(
+                tooltipItem.parsed._custom.min,
+                tooltipItem.parsed._custom.max,
+              )
+            );
           }
 
-          return result;
+          // Show percentages for stacked items
+          const isStackedItem =
+            (isPowerSplitterStack || isHeatingStack) &&
+            tooltipItem.dataset.stack;
+
+          if (isStackedItem) {
+            const showPercentages =
+              isPowerSplitterStack ||
+              (isHeatingStack && data.datasets.length === 3);
+
+            if (showPercentages) {
+              const sum = data.datasets
+                .filter((ds) => ds.stack === tooltipItem.dataset.stack)
+                .reduce((acc, ds) => {
+                  const value = ds.data[tooltipItem.dataIndex] as number;
+                  return acc + (value || 0);
+                }, 0);
+
+              if (sum && tooltipItem.parsed.y) {
+                return `${label}${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+              }
+            }
+          }
+
+          // Default: show absolute value
+          // Check if this is a temperature dataset
+          const datasetId = (tooltipItem.dataset as DatasetWithId).id;
+          const isTemperature = datasetId?.includes('_temp');
+
+          if (isTemperature) {
+            // For temperature, format with °C
+            const value = tooltipItem.parsed.y!;
+            const formattedValue = new Intl.NumberFormat(this.locale, {
+              minimumFractionDigits: 1,
+              maximumFractionDigits: 1,
+            }).format(value);
+            return `${label}${formattedValue} °C`;
+          }
+
+          return label + this.formattedNumber(tooltipItem.parsed.y!);
         },
 
         footer: (tooltipItems) => {
-          let sum: number | undefined = undefined;
+          if (!tooltipItems.length) return;
 
-          if (isPowerSplitterStack && tooltipItems.length) {
-            sum =
-              tooltipItems.find((item) => {
-                const id = (item.dataset as DatasetWithId).id;
+          const dataIndex = tooltipItems[0].dataIndex;
 
-                return id && !id.endsWith('_pv') && !id.endsWith('_grid');
-              })?.parsed.y ?? undefined;
-
+          // For PowerSplitter, get total from the total bar dataset (without stack)
+          if (isPowerSplitterStack) {
+            const totalDataset = data.datasets.find((ds) => !ds.stack);
+            const sum = totalDataset?.data?.[dataIndex] as number | undefined;
             if (sum) return this.formattedNumber(sum);
-          } else if (isInverterStack && tooltipItems.length > 1) {
-            sum = tooltipItems.reduce((acc, item) => {
-              if (item.parsed.y) acc += item.parsed.y;
-              return acc;
-            }, 0);
           }
 
-          if (sum) return this.formattedNumber(sum);
+          // For InverterStack and HeatingStack, sum all stacked items
+          if ((isInverterStack || isHeatingStack) && tooltipItems.length > 1) {
+            const sum = tooltipItems.reduce((acc, item) => {
+              // Only sum items that are actually stacked
+              if (item.dataset.stack && item.parsed.y) acc += item.parsed.y;
+              return acc;
+            }, 0);
+            if (sum) return this.formattedNumber(sum);
+          }
         },
       };
     }
 
-    if (this.maxValue > this.minValue)
-      data.datasets.forEach((dataset: ChartDataset) => {
+    if (this.maxValue > this.minValue) {
+      for (const dataset of data.datasets) {
         // Non-Overlapping line charts should have a larger gradient (means lower opacity)
         const minAlpha =
           this.typeValue === 'line' && !this.isOverlapping(data.datasets)
             ? 0.04
             : 0.4;
 
-        if (dataset.data)
-          this.setBackgroundGradient(
+        if (!dataset.data) continue;
+
+        const id = (dataset as DatasetWithId).id;
+        const isTemperature = id?.includes('_temp');
+
+        if (isTemperature) {
+          this.setTemperatureGradient(dataset);
+        } else if (!Array.isArray(dataset.backgroundColor)) {
+          // Apply gradient only when backgroundColor is a single color (not an array)
+          this.setDefaultGradient(
             dataset,
             this.minValue,
             this.maxValue,
             minAlpha,
           );
-      });
+        }
+      }
+    }
+
+    const plugins = this.buildCustomPlugins(options);
 
     this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
       data,
       options,
+      plugins,
     });
   }
 
-  setBackgroundGradient(
+  private buildCustomPlugins(options: Record<string, unknown>): Plugin[] {
+    return buildCustomXAxisPlugin(options);
+  }
+
+  private setDefaultGradient(
     dataset: ChartDataset,
     min: number,
     max: number,
     minAlpha: number,
   ) {
-    // Remember original color
-    const originalColor = dataset.backgroundColor as string;
-
-    const extent = min < 0 ? Math.abs(max) + Math.abs(min) : max;
-    const basePosition = max / extent;
-    const isNegative = dataset.data.some(
-      (value) => typeof value === 'number' && value < 0,
-    );
-
-    const datasetMin = this.minOfDataset(dataset);
-    const datasetMax = this.maxOfDataset(dataset);
-    const datasetExtent =
-      datasetMin < 0 ? Math.abs(datasetMax) + Math.abs(datasetMin) : datasetMax;
-
     const backgroundGradient = new ChartBackgroundGradient(
-      originalColor,
-      isNegative,
-      basePosition,
-      datasetExtent / extent,
+      dataset,
+      min,
+      max,
       minAlpha,
-
-      // Stacked bar must not be gradiented, just use the given Alpha
-      dataset.stack ? minAlpha : 1,
     );
 
-    // Replace background color with gradient
-    dataset.backgroundColor = (context: { chart: Chart; type: string }) => {
-      const { ctx, chartArea } = context.chart;
+    backgroundGradient.applyToDataset(dataset);
+  }
 
-      if (chartArea) return backgroundGradient.canvasGradient(ctx, chartArea);
-    };
-
-    // Use original color for border
-    dataset.borderColor = originalColor;
+  private setTemperatureGradient(dataset: ChartDataset) {
+    const temperatureGradient = new TemperatureGradient(this.typeValue);
+    temperatureGradient.applyToDataset(dataset);
   }
 
   private getData(): ChartData | undefined {
@@ -404,34 +480,53 @@ export default class extends Controller<HTMLCanvasElement> {
 
     let unitValuePrefix = '';
 
+    // Don't scale euro values
+    const isEuro = this.unitValue.includes('€');
+
     const kilo =
-      target === 'axis'
+      !isEuro &&
+      (target === 'axis'
         ? maxValue > 1000 || minValue < -1000
-        : number > 1000 || number < -1000;
+        : number > 1000 || number < -1000);
     if (kilo) {
       number /= 1000.0;
       unitValuePrefix = 'k';
     }
 
     let decimals: number;
+    let minDecimals: number = 0;
     if (kilo) {
+      // For gram values (CO2 reduction), use only 1 decimal place even in tooltips
+      const isGram = this.unitValue === 'g';
+
       switch (target) {
         case 'tooltip':
-          // On tooltip, we always want a precise value
-          decimals = 3;
+          // On tooltip, we want precise values, but only 1 decimal for grams (kg)
+          decimals = isGram ? 1 : 3;
           break;
         case 'axis':
           // On axis, a single decimal is required to distinguish between values
           decimals = 1;
           break;
       }
+    } else if (isEuro) {
+      // For Euro values:
+      // - Axis: only show decimals if max < 10€ (keeps axis labels simple)
+      // - Tooltips: show decimals if there are any small values (scaleMin < 10 && scaleMax < 100)
+      if (target === 'axis') {
+        decimals = minDecimals = maxValue < 10 ? 2 : 0;
+      } else {
+        const scaleMin = this.chart?.scales.y.min ?? minValue;
+        const scaleMax = this.chart?.scales.y.max ?? maxValue;
+        decimals = minDecimals = scaleMin < 10 && scaleMax < 100 ? 2 : 0;
+      }
     } else {
-      // Without kilo, we have integers, so no decimals required
-      decimals = 0;
+      // Without kilo, default to integers, unless unit is empty (dimensionless like COP) or °C
+      decimals = this.unitValue == '' || this.unitValue == '°C' ? 1 : 0;
     }
 
-    const numberAsString = new Intl.NumberFormat(navigator.language, {
-      minimumFractionDigits: 0,
+    const numberAsString = new Intl.NumberFormat(this.locale, {
+      minimumFractionDigits: minDecimals,
       maximumFractionDigits: decimals,
     }).format(number);
 
@@ -439,7 +534,12 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private formattedInterval(min: number, max: number) {
-    return `${this.formattedNumber(min)} - ${this.formattedNumber(max)}`;
+    const formattedMin = this.formattedNumber(min);
+    const formattedMax = this.formattedNumber(max);
+
+    return formattedMin === formattedMax
+      ? formattedMin
+      : `${formattedMin} - ${formattedMax}`;
   }
 
   // Get maximum value of all datasets, summing only positive values per stack
@@ -447,18 +547,22 @@ export default class extends Controller<HTMLCanvasElement> {
     const stackSums: Record<string, number[]> = {};
     let maxSum = 0;
 
-    data.datasets.forEach((dataset) => {
+    for (const dataset of data.datasets) {
       const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
-      dataset.data?.forEach((value, index) => {
-        const num = Array.isArray(value) ? Math.max(...value) : value;
+      if (dataset.data) {
+        for (let index = 0; index < dataset.data.length; index++) {
+          const value = dataset.data[index];
+          const num = Array.isArray(value) ? Math.max(...value) : value;
 
-        if (typeof num === 'number' && num > 0) {
-          stackSums[stackKey] ??= [];
-          stackSums[stackKey][index] = (stackSums[stackKey][index] ?? 0) + num;
-          maxSum = Math.max(maxSum, stackSums[stackKey][index]);
+          if (typeof num === 'number' && num > 0) {
+            stackSums[stackKey] ??= [];
+            stackSums[stackKey][index] =
+              (stackSums[stackKey][index] ?? 0) + num;
+            maxSum = Math.max(maxSum, stackSums[stackKey][index]);
+          }
         }
-      });
-    });
+      }
+    }
 
     return Math.ceil(maxSum);
   }
@@ -468,36 +572,24 @@ export default class extends Controller<HTMLCanvasElement> {
     const stackSums: Record<string, number[]> = {};
     let minSum = 0;
 
-    data.datasets.forEach((dataset) => {
+    for (const dataset of data.datasets) {
       const stackKey = dataset.stack ?? '__default'; // Fallback for not stacked datasets
-      dataset.data?.forEach((value, index) => {
-        const num = Array.isArray(value) ? Math.min(...value) : value;
+      if (dataset.data) {
+        for (let index = 0; index < dataset.data.length; index++) {
+          const value = dataset.data[index];
+          const num = Array.isArray(value) ? Math.min(...value) : value;
 
-        if (typeof num === 'number' && num < 0) {
-          stackSums[stackKey] ??= [];
-          stackSums[stackKey][index] = (stackSums[stackKey][index] ?? 0) + num;
-          minSum = Math.min(minSum, stackSums[stackKey][index]);
+          if (typeof num === 'number' && num < 0) {
+            stackSums[stackKey] ??= [];
+            stackSums[stackKey][index] =
+              (stackSums[stackKey][index] ?? 0) + num;
+            minSum = Math.min(minSum, stackSums[stackKey][index]);
+          }
         }
-      });
-    });
+      }
+    }
 
     return Math.floor(minSum);
-  }
-
-  private minOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data.map((value) =>
-      Array.isArray(value) ? Math.min(...value) : (value as number),
-    );
-
-    return Math.min(...mapped);
-  }
-
-  private maxOfDataset(dataset: ChartDataset) {
-    const mapped = dataset.data.map((value) =>
-      Array.isArray(value) ? Math.max(...value) : (value as number),
-    );
-
-    return Math.max(...mapped);
   }
 
   private isOverlapping(datasets: ChartDataset[]) {
@@ -526,5 +618,9 @@ export default class extends Controller<HTMLCanvasElement> {
     if (firstAllNegative && secondAllPositive) return false;
 
     return true;
+  }
+
+  private handleDblClick() {
+    this.chart?.resetZoom();
   }
 }

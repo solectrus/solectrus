@@ -1,13 +1,19 @@
 class AutarkyDetails::Component < ViewComponent::Base
-  def initialize(calculator:)
+  def initialize(data:, timeframe:)
     super()
-    @calculator = calculator
+    @data = data
+    @timeframe = timeframe
   end
 
-  attr_accessor :calculator
+  attr_accessor :data, :timeframe
 
-  def number_method
-    @number_method ||=
-      calculator.is_a?(Calculator::Now) ? :to_watt : :to_watt_hour
+  def consistent_options
+    max = [data.grid_import_power, data.total_consumption].compact.max
+
+    { context: power_or_energy, scaling: max }
+  end
+
+  def power_or_energy
+    timeframe.now? ? :rate : :total
   end
 end

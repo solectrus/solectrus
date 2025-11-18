@@ -1,8 +1,19 @@
-- if sensor_items.present?
+- if grouped?
+  - if sensor_groups.any?
+    .justify-center.flex.items-center
+      = render Dropdown::Component.new name: 'sensor-selector',
+                                       items: sensor_groups,
+                                       top_item: top_sensor,
+                                       bottom_item: bottom_sensor,
+                                       selected: sensor_name,
+                                       display_name: display_name,
+                                       button_class: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-900'
+- elsif sensor_items.any?
   .justify-center.flex.items-center
     = render Dropdown::Component.new name: 'sensor-selector',
-                                     items: sensor_items,
-                                     top_item: top_sensor,
-                                     bottom_item: bottom_sensor,
-                                     selected: sensor,
-                                     button_class: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-900'
+                                      items: sensor_items,
+                                      top_item: top_sensor,
+                                      bottom_item: bottom_sensor,
+                                      selected: sensor_name,
+                                      display_name: display_name,
+                                      button_class: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-900'

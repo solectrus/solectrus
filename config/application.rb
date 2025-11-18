@@ -21,12 +21,17 @@ Bundler.require(*Rails.groups)
 module Solectrus
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 8.0
+    config.load_defaults 8.1
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks middleware])
+
+    # Collapse sensor definition subdirectories so that files like
+    # app/lib/sensor/definitions/battery/battery_charging_power.rb
+    # define Sensor::Definitions::BatteryChargingPower (not ::Battery::BatteryChargingPower)
+    Rails.autoloaders.main.collapse("#{root}/app/lib/sensor/definitions/*")
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -75,41 +80,36 @@ module Solectrus
     config.x.influx.poll_interval = ENV.fetch('INFLUX_POLL_INTERVAL', '5').to_i
 
     config.after_initialize do
-      def rake_task_running?(*tasks)
-        tasks.any? do |task|
-          defined?(Rake) && Rake.application.top_level_tasks.include?(task)
+      extend RakeHelper
+
+      # Skip initialization for certain rake tasks that don't need it
+      # (assets:precompile, db:create, db:migrate, db:prepare)
+      next if skip_initialization?
+
+      ThemeConfig.setup(ENV)
+
+      ActiveRecord::Base.connection_pool.with_connection do
+        if ActiveRecord::Base.connection.table_exists?(:settings)
+          # Ensure settings are seeded on every start
+          Setting.seed!
+
+          # Check for updates before sensor initialization
+          # This ensures update check logging happens first
+          UpdateCheck.sponsoring? unless Rails.env.test?
+
+          # Initialize sensor system after database is ready
+          Sensor::Registry.all
+          Sensor::Config.setup(ENV, validate_summaries: true)
         end
       end
 
-      unless rake_task_running?(
-               'assets:precompile',
-               'db:create',
-               'db:migrate',
-               'db:prepare',
-             )
-        SensorConfig.setup(ENV)
-        ThemeConfig.setup(ENV)
-
-        ActiveRecord::Base.connection_pool.with_connection do
-          if ActiveRecord::Base.connection.table_exists?(:settings)
-            # Ensure settings are seeded on every start
-            Setting.seed!
-
-            # Validate summaries on every start
-            if ActiveRecord::Base.connection.table_exists?(:summaries)
-              Summary.validate!
-            end
-          end
-        end
-
-        if Rails.cache.respond_to?(:redis)
-          # Check Redis connection
-          begin
-            Rails.cache.redis.with(&:ping)
-            Rails.logger.info 'Redis available, cache enabled'
-          rescue Redis::CannotConnectError => e
-            Rails.logger.error "Redis unavailable: #{e.message}"
-          end
+      if Rails.cache.respond_to?(:redis)
+        # Check Redis connection
+        begin
+          Rails.cache.redis.with(&:ping)
+          Rails.logger.info 'Redis available, cache enabled'
+        rescue Redis::CannotConnectError => e
+          Rails.logger.error "Redis unavailable: #{e.message}"
         end
       end
     end

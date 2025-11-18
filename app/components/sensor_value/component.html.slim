@@ -1,0 +1,15 @@
+span[
+  class= css_classes
+]
+  strong.font-medium
+    = integer_part
+
+  - if decimal_part
+    small
+      = separator
+      = decimal_part
+  | &nbsp;
+
+  - if unit
+    small
+      = unit

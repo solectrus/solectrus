@@ -10,9 +10,29 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   REGEX_YEAR = /\d{4}/
   REGEX_YEARS = /P\d{1,2}Y/
   REGEX_KEYWORD = /now|day|week|month|year|all/
+  REGEX_RANGE = /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}/
 
-  REGEX =
-    /#{[REGEX_HOURS, REGEX_DAY, REGEX_DAYS, REGEX_WEEK, REGEX_MONTH, REGEX_MONTHS, REGEX_YEAR, REGEX_YEARS, REGEX_KEYWORD].map(&:source).join('|')}/
+  # Combines all patterns into a single non-anchored regex, suitable for routing constraints (e.g., `constraints: { timeframe: REGEX }`)
+  REGEX_PATTERN = [
+    REGEX_RANGE,
+    REGEX_HOURS,
+    REGEX_DAY,
+    REGEX_DAYS,
+    REGEX_WEEK,
+    REGEX_MONTH,
+    REGEX_MONTHS,
+    REGEX_YEAR,
+    REGEX_YEARS,
+    REGEX_KEYWORD,
+  ].map(&:source).join('|')
+
+  # This regex is used in routing to loosely match valid timeframes (partial matches allowed)
+  REGEX = /#{REGEX_PATTERN}/
+
+  # This stricter version ensures that the *entire string* matches one of the allowed patterns.
+  # Use this for validations or tests to avoid accidental partial matches
+  # (e.g., "2023-01-01..foo" would match REGEX, but not FULL_REGEX)
+  FULL_REGEX = /\A(?:#{REGEX_PATTERN})\z/
 
   private_constant :REGEX_HOURS
   private_constant :REGEX_DAY
@@ -23,7 +43,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   private_constant :REGEX_YEAR
   private_constant :REGEX_YEARS
   private_constant :REGEX_KEYWORD
+  private_constant :REGEX_RANGE
+  private_constant :REGEX_PATTERN
   public_constant :REGEX
+  public_constant :FULL_REGEX
 
   # Shortcut methods
   REGEX_KEYWORD
@@ -35,40 +58,20 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       end
     end
 
-  def initialize(
-    string,
-    min_date: Rails.application.config.x.installation_date,
-    allowed_days_in_future: 6
-  )
-    unless string.respond_to?(:match?) && string.match?(REGEX)
-      raise ArgumentError, "'#{string}' is not a valid timeframe"
-    end
-
+  def initialize(string, min_date: Rails.application.config.x.installation_date)
     @original_string = string
-
-    @string =
-      case string
-      when 'day'
-        Date.current.strftime('%Y-%m-%d')
-      when 'week'
-        Date.current.strftime('%G-W%V')
-      when 'month'
-        Date.current.strftime('%Y-%m')
-      when 'year'
-        Date.current.strftime('%Y')
-      else
-        string
-      end
-
+    @string = normalized_string(string)
     @min_date = min_date
-    @allowed_days_in_future = allowed_days_in_future
+
+    validate_string!
+    validate_range_order!
   end
 
-  attr_reader :string, :min_date, :allowed_days_in_future
+  attr_reader :original_string, :string, :min_date
 
-  delegate :to_s, to: :@original_string
+  delegate :to_s, to: :string
 
-  def out_of_range?
+  def out_of_scope?
     return true if min_date && ending.to_date < min_date
     return true if max_date && beginning.to_date > max_date
 
@@ -134,6 +137,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   def id # rubocop:disable Metrics/CyclomaticComplexity
     @id ||=
       case string
+      when REGEX_RANGE
+        :range
       when REGEX_DAY
         :day
       when REGEX_HOURS
@@ -187,6 +192,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     days? && relative_count == 7
   end
 
+  def p1h?
+    hours? && relative_count == 1
+  end
+
   def short?
     now? || day? || hours?
   end
@@ -235,6 +244,14 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     id == :all
   end
 
+  def all_like?
+    all? || (months? && relative_count == months_since_min_date)
+  end
+
+  def range?
+    id == :range
+  end
+
   def relative_count
     return unless relative?
 
@@ -255,6 +272,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       I18n.t('timeframe.hours', count: relative_count)
     when :days
       I18n.t('timeframe.days', count: relative_count)
+    when :range
+      "#{I18n.l(range.first, format: :default)} - #{I18n.l(range.last, format: :default)}"
     when :week
       I18n.l(date, format: :week)
     when :month
@@ -278,7 +297,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def beginning # rubocop:disable Metrics/CyclomaticComplexity
+  def beginning # rubocop:disable Metrics/CyclomaticComplexity,Metrics/AbcSize
     case id
     when :now
       Time.current
@@ -288,6 +307,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       relative_count.hours.ago
     when :days
       relative_count.days.ago.beginning_of_day
+    when :range
+      range.first.beginning_of_day
     when :week
       date.beginning_of_week.beginning_of_day
     when :month
@@ -321,6 +342,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       date.end_of_day
     when :days
       Date.yesterday.end_of_day
+    when :range
+      range.last.end_of_day
     when :week
       date.end_of_week.end_of_day
     when :month
@@ -357,16 +380,14 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     date = next_date(force:)
     return unless date
 
-    self.class.new date.strftime(format), min_date:, allowed_days_in_future:
+    self.class.new(date.strftime(format), min_date:)
   end
 
   def prev
     date = prev_date
     return unless date
 
-    self.class.new prev_date.strftime(format),
-                   min_date:,
-                   allowed_days_in_future:
+    self.class.new(prev_date.strftime(format), min_date:)
   end
 
   def next_date(force: false)
@@ -423,6 +444,25 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     end
   end
 
+  def corresponding_all
+    if all?
+      # Calculate months since installation, capped at 99
+      months_since_installation = [months_since_min_date, 99].min
+      "P#{months_since_installation}M"
+    else
+      # Switch back to 'all' if currently showing the monthly period
+      'all'
+    end
+  end
+
+  def months_since_min_date
+    return 0 unless min_date
+
+    # Calculate the difference in months from min_date to now
+    ((Date.current.year - min_date.year) * 12) +
+      (Date.current.month - min_date.month)
+  end
+
   def date
     case id
     when :now, :hours
@@ -431,6 +471,8 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       Date.parse(string)
     when :days, :months, :years
       Date.current
+    when :range
+      range.first
     when :month
       Date.parse("#{string}-01")
     when :year
@@ -439,6 +481,35 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   private
+
+  def normalized_string(input)
+    case input
+    when 'day'
+      Date.current.strftime('%Y-%m-%d')
+    when 'week'
+      Date.current.strftime('%G-W%V')
+    when 'month'
+      Date.current.strftime('%Y-%m')
+    when 'year'
+      Date.current.strftime('%Y')
+    else
+      input
+    end
+  end
+
+  def validate_string!
+    return if string.is_a?(String) && string.match?(FULL_REGEX)
+
+    raise ArgumentError, "'#{string}' is not a valid timeframe"
+  end
+
+  def validate_range_order!
+    return unless range?
+    return if range.first < range.last
+
+    raise ArgumentError,
+          "Invalid range: #{@string}. The end date must be AFTER the start date."
+  end
 
   def change(amount, force: false)
     new_date = raw_change(amount)
@@ -491,8 +562,14 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     amount.positive? ? result.beginning_of_year : result.end_of_year
   end
 
+  def range
+    return unless range?
+
+    @range ||= string.split('..').map { Date.parse(it) }
+  end
+
   def max_date
-    day? ? (Date.current + allowed_days_in_future.days) : Date.current
+    Date.current
   end
 
   FORMAT = {

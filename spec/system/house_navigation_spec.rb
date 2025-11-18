@@ -1,11 +1,11 @@
 describe 'House navigation' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { travel_to Time.zone.local(2022, 6, 21, 12, 0, 0) }
+  before { stub_feature(:power_splitter, :custom_consumer, :insights) }
 
-  %w[house_power house_power_without_custom].each do |path|
+  %w[house_power house_power_without_custom custom_power_01].each do |path|
     context "when #{path}" do
-      it 'allows complete navigation through all time periods' do # rubocop:disable RSpec/NoExpectationExample
+      it 'navigates through all time periods' do # rubocop:disable RSpec/NoExpectationExample
         visit "/house/#{path}"
 
         navigate_now(path)
@@ -53,6 +53,8 @@ describe 'House navigation' do
       end
     end
 
+    check_insights(path)
+
     click_prev_and_expect('Montag, 20. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#house-chart-2022-06-20')
@@ -60,6 +62,8 @@ describe 'House navigation' do
     click_next_and_expect('Dienstag, 21. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-day')
+
+    check_top10_link(path)
   end
 
   def navigate_week(path)
@@ -79,6 +83,8 @@ describe 'House navigation' do
       end
     end
 
+    check_insights(path)
+
     click_prev_and_expect('KW 24, 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#house-chart-2022-W24')
@@ -86,6 +92,8 @@ describe 'House navigation' do
     click_next_and_expect('KW 25, 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-week')
+
+    check_top10_link(path)
   end
 
   def navigate_month(path)
@@ -105,6 +113,8 @@ describe 'House navigation' do
       end
     end
 
+    check_insights(path)
+
     click_prev_and_expect('Mai 2022')
 
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
@@ -113,6 +123,8 @@ describe 'House navigation' do
     click_next_and_expect('Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-month')
+
+    check_top10_link(path)
   end
 
   def navigate_year(path)
@@ -132,6 +144,8 @@ describe 'House navigation' do
       end
     end
 
+    check_insights(path)
+
     click_prev_and_expect('2021')
 
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
@@ -140,6 +154,8 @@ describe 'House navigation' do
     click_next_and_expect('2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-year')
+
+    check_top10_link(path)
   end
 
   def navigate_all(path)
@@ -152,12 +168,15 @@ describe 'House navigation' do
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-all')
 
-    return unless path == 'house_power'
-
-    expect(page).to have_css('#segment-house_power_without_custom')
-    within('#segment-house_power_without_custom') do
-      expect(page).to have_content(/\d+(?:,\d+)? [MkWh]+/) # Match kWh or MWh values
+    if path == 'house_power'
+      expect(page).to have_css('#segment-house_power_without_custom')
+      within('#segment-house_power_without_custom') do
+        expect(page).to have_content(/\d+(?:,\d+)? [MkWh]+/) # Match kWh or MWh values
+      end
     end
+
+    check_insights(path)
+    check_top10_link(path)
   end
 
   def click_prev_and_expect(expected_time)
@@ -170,5 +189,24 @@ describe 'House navigation' do
     turbo_safe_click('Weiter')
 
     within('header time') { expect(page).to have_content(expected_time) }
+  end
+
+  def check_top10_link(path)
+    return if path == 'house_power_without_custom'
+
+    within '#primary-nav-desktop' do
+      top10_link = find('a[href*="/top10/"]')
+      expect(top10_link[:href]).to include(path)
+    end
+  end
+
+  def check_insights(path)
+    return if path == 'house_power_without_custom'
+
+    click_on('Kennzahlen & Trend')
+    expect(page).to have_css('#modal-title')
+
+    click_on('Schließen')
+    expect(page).to have_no_css('#modal-title')
   end
 end

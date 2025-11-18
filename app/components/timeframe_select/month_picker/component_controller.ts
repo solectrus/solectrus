@@ -1,0 +1,226 @@
+import { Controller } from '@hotwired/stimulus';
+import { DateTime } from 'luxon';
+
+export default class extends Controller<HTMLElement> {
+  static readonly targets = [
+    'details',
+    'hiddenInput',
+    'displayButton',
+    'displayText',
+    'modal',
+    'yearDisplay',
+    'monthCell',
+    'prevYearButton',
+    'nextYearButton',
+  ];
+
+  static readonly values = {
+    value: String,
+    minDate: String,
+    maxDate: String,
+    initialYear: Number,
+    name: String,
+    baseClasses: String,
+    disabledClasses: String,
+    hoverClasses: String,
+    selectedClasses: String,
+    unselectedClasses: String,
+  };
+
+  declare readonly detailsTarget: HTMLDetailsElement;
+  declare readonly hiddenInputTarget: HTMLInputElement;
+  declare readonly displayButtonTarget: HTMLButtonElement;
+  declare readonly displayTextTarget: HTMLElement;
+  declare readonly modalTarget: HTMLElement;
+  declare readonly yearDisplayTarget: HTMLElement;
+  declare readonly monthCellTargets: HTMLButtonElement[];
+  declare readonly prevYearButtonTarget: HTMLButtonElement;
+  declare readonly nextYearButtonTarget: HTMLButtonElement;
+
+  declare valueValue: string;
+  declare minDateValue: string;
+  declare maxDateValue: string;
+  declare initialYearValue: number;
+  declare nameValue: string;
+  declare baseClassesValue: string;
+  declare disabledClassesValue: string;
+  declare hoverClassesValue: string;
+  declare selectedClassesValue: string;
+  declare unselectedClassesValue: string;
+
+  private currentYear!: number;
+  private selectedMonth: DateTime | null = null;
+  private locale!: string;
+
+  connect() {
+    // Get browser locale from document or fallback to 'en'
+    this.locale =
+      document.documentElement.lang || navigator.language.split('-')[0] || 'en';
+
+    // Initialize current year
+    this.currentYear = this.initialYearValue || DateTime.now().year;
+
+    // Initialize selected month with validation
+    if (this.valueValue) {
+      const parsed = DateTime.fromISO(this.valueValue + '-01');
+      if (parsed.isValid) {
+        this.selectedMonth = parsed;
+      }
+    }
+
+    this.renderMonths();
+
+    // Close dropdown when pressing Escape (use keydown to match modal's event)
+    document.addEventListener('keydown', this.handleKeydown, true);
+
+    // Close this picker when another picker opens
+    document.addEventListener('picker:open', this.handleOtherPickerOpen);
+  }
+
+  disconnect() {
+    document.removeEventListener('keydown', this.handleKeydown, true);
+    document.removeEventListener('picker:open', this.handleOtherPickerOpen);
+  }
+
+  // Handle toggle event from details element
+  handleToggle() {
+    if (this.detailsTarget.open) {
+      this.open();
+    }
+  }
+
+  private open() {
+    // Details is already open via native behavior
+
+    // Notify other pickers to close
+    document.dispatchEvent(
+      new CustomEvent('picker:open', { detail: { picker: this.element } }),
+    );
+  }
+
+  close() {
+    this.detailsTarget.removeAttribute('open');
+  }
+
+  private readonly handleKeydown = (event: KeyboardEvent): void => {
+    // Only handle when picker is open
+    if (!this.detailsTarget.open) {
+      return;
+    }
+
+    // Handle ESC key
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation(); // Prevent ESC from reaching the modal dialog
+      this.close();
+      return;
+    }
+  };
+
+  private readonly handleOtherPickerOpen = (event: Event): void => {
+    const customEvent = event as CustomEvent;
+    // Close this picker if another picker opened
+    if (customEvent.detail?.picker !== this.element) {
+      this.close();
+    }
+  };
+
+  previousYear() {
+    this.currentYear--;
+    this.renderMonths();
+  }
+
+  nextYear() {
+    this.currentYear++;
+    this.renderMonths();
+  }
+
+  selectMonth(event: Event) {
+    const button = event.currentTarget as HTMLButtonElement;
+    const monthStr = button.dataset.month;
+    if (!monthStr) return;
+
+    const month = DateTime.fromISO(monthStr);
+    if (!month.isValid) return;
+
+    this.selectedMonth = month;
+    this.valueValue = month.toFormat('yyyy-MM');
+
+    // Fire event for immediate navigation
+    window.dispatchEvent(
+      new CustomEvent('picker:selected', {
+        detail: { value: this.valueValue, isRange: false },
+      }),
+    );
+  }
+
+  private renderMonths() {
+    // Update year display
+    this.yearDisplayTarget.textContent = this.currentYear.toString();
+
+    // Get min/max dates for validation
+    const minDate = this.minDateValue
+      ? DateTime.fromISO(this.minDateValue)
+      : null;
+    const maxDate = this.maxDateValue
+      ? DateTime.fromISO(this.maxDateValue)
+      : null;
+
+    // Get month names from browser locale
+    const monthFormatter = new Intl.DateTimeFormat(this.locale, {
+      month: 'long',
+    });
+
+    // Render 12 months
+    for (let index = 0; index < this.monthCellTargets.length; index++) {
+      const cell = this.monthCellTargets[index];
+      const monthNum = index + 1;
+      const month = DateTime.fromObject({
+        year: this.currentYear,
+        month: monthNum,
+      });
+      const isSelected =
+        this.selectedMonth?.year === this.currentYear &&
+        this.selectedMonth?.month === monthNum;
+
+      // Check if month is disabled (outside min/max range)
+      const isDisabled =
+        (minDate && month < minDate.startOf('month')) ||
+        (maxDate && month > maxDate.startOf('month')) ||
+        false;
+
+      // Set month data attribute
+      cell.dataset.month = month.toFormat('yyyy-MM');
+
+      // Set text content using Intl
+      const monthDate = new Date(this.currentYear, index, 1);
+      cell.textContent = monthFormatter.format(monthDate);
+
+      // Reset classes
+      cell.className = this.baseClassesValue;
+
+      // Apply styling based on state
+      if (isDisabled) {
+        cell.className += ` ${this.disabledClassesValue}`;
+        cell.disabled = true;
+      } else {
+        cell.disabled = false;
+        cell.className += ` ${this.hoverClassesValue}`;
+
+        if (isSelected) {
+          cell.className += ` ${this.selectedClassesValue}`;
+        } else {
+          cell.className += ` ${this.unselectedClassesValue}`;
+        }
+      }
+    }
+
+    // Disable year navigation buttons if at limits
+    if (minDate) {
+      this.prevYearButtonTarget.disabled = this.currentYear <= minDate.year;
+    }
+    if (maxDate) {
+      this.nextYearButtonTarget.disabled = this.currentYear >= maxDate.year;
+    }
+  }
+}

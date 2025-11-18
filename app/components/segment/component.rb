@@ -16,55 +16,45 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def value = options[:value] || default_value
   def percent = options[:percent] || default_percent
   def hidden = options[:hidden]
+  def tooltip = options[:tooltip].nil? || options[:tooltip]
 
   def title
-    options.key?(:title) ? options[:title] : SensorConfig.x.display_name(sensor)
+    options.key?(:title) ? options[:title] : sensor.display_name
   end
 
-  def icon_class
-    options.key?(:icon_class) ? options[:icon_class] : default_icon_class
-  end
-
-  delegate :calculator, :timeframe, to: :parent
+  delegate :data, :timeframe, to: :parent
 
   def link_to_or_div(url, **, &)
     url ? link_to(url, **, &) : tag.div(**, &)
   end
 
-  def multi_inverter?
-    sensor == :inverter_power && SensorConfig.x.multi_inverter?
-  end
-
-  def inverter_power_sum
-    SensorConfig
-      .x
-      .existing_custom_inverter_sensor_names
-      .filter_map { |sensor_name| calculator.public_send(sensor_name) }
-      .sum
-  end
-
   def url
     case helpers.controller_namespace
     when 'inverter'
-      unless sensor == :inverter_power_difference
-        inverter_home_path(sensor:, timeframe: parent.timeframe)
+      unless sensor.name == :inverter_power_difference
+        inverter_home_path(
+          sensor_name: sensor.name,
+          timeframe: parent.timeframe,
+        )
       end
     when 'house'
-      house_home_path(sensor:, timeframe: parent.timeframe)
-    else
-      root_path(
-        sensor: sensor.to_s.sub(/_import|_export|_charging|_discharging/, ''),
+      house_home_path(sensor_name: sensor.name, timeframe: parent.timeframe)
+    when 'heatpump'
+      heatpump_home_path(
+        sensor_name: 'heatpump_heating_power',
         timeframe: parent.timeframe,
       )
+    else
+      balance_home_path(sensor_name: sensor.name, timeframe: parent.timeframe)
     end
   end
 
   def default_value
-    @default_value ||= calculator.public_send(sensor).to_f
+    @default_value ||= data.public_send(sensor.name).to_f
   end
 
   def default_percent
-    @default_percent ||= calculator.public_send(:"#{sensor}_percent").to_f
+    @default_percent ||= data.public_send(:"#{sensor.name}_percent").to_f
   end
 
   def costs
@@ -74,15 +64,15 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
          house_power
          house_power_without_custom
          battery_charging_power
-       ].exclude?(sensor) && !sensor.start_with?('custom_')
+       ].exclude?(sensor.name) && !sensor.name.to_s.start_with?('custom_')
       return
     end
     return unless ApplicationPolicy.power_splitter?
 
-    costs_field = "#{sensor}_costs".sub('_power', '')
+    costs_field = "#{sensor.name}_costs".sub('_power', '')
     # Example: custom_01_costs,  house_without_custom_costs, wallbox_costs, ...
 
-    calculator.public_send(costs_field)
+    data.public_send(costs_field)
   end
 
   def sensors_with_grid_ratio
@@ -92,27 +82,27 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       house_power
       battery_charging_power
       house_power_without_custom
-    ] + SensorConfig.x.existing_custom_sensor_names
+    ] + Sensor::Config.custom_power_sensors.map(&:name)
   end
 
   def power_grid_ratio
-    return unless sensor.in?(sensors_with_grid_ratio)
+    return unless sensor.name.in?(sensors_with_grid_ratio)
 
-    calculator.public_send(:"#{sensor}_grid_ratio")
+    data.public_send(:"#{sensor.name}_grid_ratio")
   end
 
   def costs_grid
-    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
+    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor.name)
 
-    costs_field = "#{sensor}_costs_grid".sub('_power', '')
-    calculator.public_send(costs_field)
+    costs_field = "#{sensor.name}_costs_grid".sub('_power', '')
+    data.public_send(costs_field)
   end
 
   def costs_pv
-    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor)
+    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor.name)
 
-    costs_field = "#{sensor}_costs_pv".sub('_power', '')
-    calculator.public_send(costs_field)
+    costs_field = "#{sensor.name}_costs_pv".sub('_power', '')
+    data.public_send(costs_field)
   end
 
   def now?
@@ -122,7 +112,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def masked_value
     unsigned_value = value
 
-    case sensor
+    case sensor.name
     when :grid_import_power, :battery_discharging_power
       -unsigned_value
     else
@@ -133,49 +123,14 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def icon_scale
     return 100 if peak.nil?
 
-    Scale.new(target: 90..270, max: peak).result(value)
-  end
-
-  def default_icon_class
-    case sensor
-    when :grid_export_power, :grid_import_power
-      'fa-bolt'
-    when :inverter_power
-      'fa-sun'
-    when :battery_discharging_power, :battery_charging_power
-      battery_class
-    when :house_power
-      'fa-home'
-    when :heatpump_power
-      'fa-fan'
-    when :wallbox_power
-      'fa-car'
-    end
-  end
-
-  def battery_class
-    unless calculator.respond_to?(:battery_soc) && calculator.battery_soc
-      return 'fa-battery-half'
-    end
-
-    if calculator.battery_soc < 15
-      'fa-battery-empty'
-    elsif calculator.battery_soc < 30
-      'fa-battery-quarter'
-    elsif calculator.battery_soc < 60
-      'fa-battery-half'
-    elsif calculator.battery_soc < 85
-      'fa-battery-three-quarters'
-    else
-      'fa-battery-full'
-    end
+    Scale.new(target: 90..150, max: peak).result(value)
   end
 
   def balance?
     return @balance if defined?(@balance)
 
     @balance =
-      sensor.in?(
+      sensor.name.in?(
         %i[
           grid_export_power
           inverter_power
@@ -187,126 +142,60 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
           grid_import_power
           heatpump_power_grid
         ],
-      ) || sensor.in?(SensorConfig.x.excluded_custom_sensor_names)
+      ) ||
+        sensor.name.in?(
+          Sensor::Config.house_power_excluded_custom_sensors.map(&:name),
+        )
   end
 
   def inverter?
     return @inverter if defined?(@inverter)
 
-    @inverter = sensor.in?(SensorConfig.x.inverter_sensor_names)
+    @inverter = sensor.category == :inverter
   end
 
   def house?
     return @house if defined?(@house)
 
     @house =
-      sensor == :house_power_without_custom ||
+      sensor.name == :house_power_without_custom ||
         (
-          sensor.to_s.match?(/^custom_power_(\d{2})$/) &&
-            !sensor.in?(SensorConfig.x.excluded_custom_sensor_names)
+          sensor.name.to_s.match?(/^custom_power_(\d{2})$/) &&
+            !sensor.name.in?(
+              Sensor::Config.house_power_excluded_custom_sensors.map(&:name),
+            )
         )
   end
 
+  def heatpump?
+    return @heatpump if defined?(@heatpump)
+
+    @heatpump =
+      sensor.name.in? %i[
+                        heatpump_power_pv
+                        heatpump_power_grid
+                        heatpump_power_env
+                        heatpump_heating_power
+                        heatpump_tank_temp
+                      ]
+  end
+
   def default_color_class
-    if balance?
-      default_color_class_for_balance
-    elsif inverter?
-      default_color_class_for_inverter
-    elsif house?
-      default_color_class_for_house
-    end
-  end
-
-  COLOR_SET_GREEN_5 = %i[
-    bg-[#166534]
-    bg-[#16753A]
-    bg-[#16843F]
-    bg-[#169445]
-    bg-[#16A34A]
-  ].freeze
-  public_constant :COLOR_SET_GREEN_5
-
-  COLOR_SET_SLATE_10 = %i[
-    bg-slate-500/10
-    bg-slate-500/20
-    bg-slate-500/30
-    bg-slate-500/40
-    bg-slate-500/50
-    bg-slate-500/60
-    bg-slate-500/70
-    bg-slate-500/80
-    bg-slate-500/90
-    bg-slate-500
-  ].freeze
-  public_constant :COLOR_SET_SLATE_10
-
-  COLOR_SET_SLATE_20 = %i[
-    bg-slate-500/5
-    bg-slate-500/10
-    bg-slate-500/15
-    bg-slate-500/20
-    bg-slate-500/25
-    bg-slate-500/30
-    bg-slate-500/35
-    bg-slate-500/40
-    bg-slate-500/45
-    bg-slate-500/50
-    bg-slate-500/55
-    bg-slate-500/60
-    bg-slate-500/65
-    bg-slate-500/70
-    bg-slate-500/75
-    bg-slate-500/80
-    bg-slate-500/85
-    bg-slate-500/90
-    bg-slate-500/95
-    bg-slate-500
-  ].freeze
-  public_constant :COLOR_SET_SLATE_20
-
-  private
-
-  def default_color_class_for_balance
-    case sensor
-    when :grid_export_power, :inverter_power
-      'bg-green-600 dark:bg-green-800/80'
-    when :battery_discharging_power, :battery_charging_power
-      'bg-green-700 dark:bg-green-900/70'
-    when :house_power, /^custom_power_(\d{2})$/
-      'bg-slate-500 dark:bg-slate-600/90'
-    when :heatpump_power
-      'bg-slate-600 dark:bg-slate-600/70'
-    when :wallbox_power
-      'bg-slate-700 dark:bg-slate-600/50'
-    when :grid_import_power, :heatpump_power_grid
-      'bg-red-600 dark:bg-red-800/80'
-    end
-  end
-
-  def default_color_class_for_house
-    if sensor == :house_power_without_custom
+    # Special case: house_power_without_custom has hardcoded semi-transparent color
+    if sensor.name == :house_power_without_custom
       return 'bg-white/20 dark:bg-black/20 text-slate-700 dark:text-slate-400'
     end
 
-    match = sensor.to_s.match(/^custom_power_(\d{2})$/)
-    index = color_index || match[1].to_i
-    color =
-      if SensorConfig.x.existing_custom_sensor_count <= 10
-        COLOR_SET_SLATE_10[index - 1]
-      else
-        COLOR_SET_SLATE_20[index - 1]
-      end
-
-    "#{color} text-slate-700 dark:text-slate-400"
+    # House sensors (custom_power_*) use dynamic index for color intensity
+    if house? && color_index
+      "#{sensor.color_bg(index: color_index)} #{sensor.color_text(index: color_index)}"
+    else
+      # All other sensors use static colors
+      "#{sensor.color_bg} #{sensor.color_text}"
+    end
   end
 
-  def default_color_class_for_inverter
-    match = sensor.to_s.match(/^inverter_power_(\d{1})$/)
-    index = color_index || match[1].to_i
-    color = COLOR_SET_GREEN_5[index - 1]
-
-    "#{color} text-slate-100 dark:text-slate-300"
-  end
+  private
 
   def tiny?
     percent < 0.3

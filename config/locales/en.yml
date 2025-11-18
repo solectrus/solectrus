@@ -1,8 +1,25 @@
 en:
+  general:
+    'yes': Yes
+    'no': No
+  categories:
+    inverter: Generation
+    grid: Grid
+    battery: Battery
+    generation_grid_battery: Generation, Grid & Battery
+    consumer: Consumers
+    heatpump: Heat Pump
+    car: Car
+    economic: Finance
+    forecast: Forecast
+    power_splitter: Splits
+    status: Status
+    other: Other
   layout:
     balance: Power balance
     inverter: Generation
     house: House consumption
+    heatpump: Heat pump
     essentials: Essentials
     top10: Top 10
     about: About SOLECTRUS
@@ -23,11 +40,15 @@ en:
     missing_sponsoring_cta: Learn more...
     active_sponsoring_header: Sponsoring is active
     active_sponsoring: Thank you very much for your support!
+    eligible_for_free_header: Eligible for free use
     incomplete_custom_consumers: Custom power consumers
     missing_custom_consumers: Here you could visualize up to 20 additional power consumers. Add additional sensors to your configuration (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> to <code>_20</code>).
     incomplete_multi_inverter: Multiple inverters
     missing_multi_inverter: Here you could visualize multiple inverters. Add additional sensors to your configuration (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> to <code>_5</code>).
+    incomplete_heatpump: Heat pump
+    missing_heatpump: Here you could visualize COP, heat generated, and other interesting metrics of your heat pump. Add additional sensors to your configuration (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
     house_power_invalid: House consumption is less than the sum of the consumers
+    insights: Figures & Trend
   timeframe:
     now: Now
     hours: Last %{count} hours
@@ -47,7 +68,7 @@ en:
     inverter_power_4: Generation 4
     inverter_power_5: Generation 5
     inverter_power_difference: Unassigned
-    inverter_power_forecast: Forecast
+    inverter_power_forecast: PV Forecast
     inverter_power_forecast_clearsky: Clear Sky
     house_power: Home consumption
     house_power_without_custom: Other consumers
@@ -55,48 +76,74 @@ en:
     grid_import_power: Grid import
     grid_export_power: Grid export
     grid_power: Grid import and export
+    grid_revenue: Feed-in revenue
+    grid_revenue_short: Revenue
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
-    battery_power: Home Battery
+    battery_power: Battery charge and discharge
     battery_soc: SOC Home Battery
+    battery_soc_short: SOC
     car_battery_soc: SOC EV
     case_temp: Case
     grid_export_limit: Limitation
     heatpump_power: Heat pump
+    heatpump_power_env: Environmental heat
+    heatpump_heating_power: Heat generated
+    heatpump_heating_power_short: Heat
+    heatpump_tank_temp: Hot water
+    heatpump_cop: COP
+    outdoor_temp: Outdoor temperature
+    outdoor_temp_short: Outdoor
+    outdoor_temp_forecast: Expected outdoor temperature
+    grid_quote: Grid consumption rate
+    total_consumption: Total consumption
+    self_consumption: Self consumption
+    self_consumption_quote: Self-consumption rate
+    self_consumption_quote_short: Self-use
+    solar_price: Solar price
+    traditional_costs: Comparative price
+    savings: Savings
+    co2_reduction: CO₂ reduction
+    co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
+    battery_savings: Battery share
+    total_costs: Total costs
+    total_costs_short: Costs
+    grid_costs: Grid costs
+    autarky: Autarky
   splitter:
     grid: Grid
     pv: PV
+    total: Power consumption
   balance_sheet:
     left: Source
     right: Usage
     soc: Charge
-  calculator:
+  balance_groups:
+    source: Source
+    usage: Usage
+    finance: Finance
+    other: Other
+  data:
     now: Now
     day: Day
     week: Week
     month: Month
     year: Year
     all: Overall
-    grid_quote: Grid consumption rate
-    consumption: Total consumption
-    self_consumption: Self consumption
-    self_consumption_quote: Self-consumption rate
-    self_consumption_quote_short: Self-use
-    solar_price: Solar price
-    traditional_price: Comparative price
-    savings: Savings
-    co2_reduction: CO₂ reduction
-    co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
-    battery_savings: Battery share
-    total_costs: Total costs
-    compensation: Compensation
-    autarky: Autarky
     time: Last measurement taken
     blank: No data available!
+    heatpump_cop_below_one: Power consumption exceeds heat generated
+    heatpump_no_heating: No heating operation
   chart:
     inverter_total: Cumulative
     inverter_split: Individual
   forecast:
+    title: Forecast
+    today: Today
+    tomorrow: Tomorrow
+    next_days:
+      one: Tomorrow
+      other: The next %{count} days
     exactly: Exactly as expected
     better_html: '%{percent} more than expected'
     worse_html: '%{percent} less than expected'
@@ -175,6 +222,10 @@ en:
       inverter_as_total: Show only as total in the power balance
       enable_multi_inverter: Enable "Generation" page in the navigation
       enable_custom_consumer: Enable "House consumption" page in the navigation
+      enable_heatpump: Enable "Heat pump" page in the navigation
+  timeframe_select:
+    index:
+      title: Select timeframe
   errors:
     title: Error
     403:

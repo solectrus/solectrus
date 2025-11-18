@@ -18,6 +18,10 @@ module ApplicationHelper
     # Hack to make this work in the preview, too
     timeframe ||= controller.__send__ :timeframe
 
-    "#{controller_namespace}-#{prefix}-#{timeframe}"
+    # Use timeframe as string and replace dots with hyphens
+    # Note: Timeframe can be a range like "2022-06-05..2022-06-20"
+    timeframe_identifier = timeframe.original_string.tr('.', '-')
+
+    "#{controller_namespace}-#{prefix}-#{timeframe_identifier}"
   end
 end

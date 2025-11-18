@@ -5,7 +5,7 @@ class SponsoringsController < ApplicationController
 
   def show
     if UpdateCheck.eligible_for_free? || UpdateCheck.sponsoring?
-      redirect_to root_path
+      redirect_to balance_home_path
     else
       render
     end

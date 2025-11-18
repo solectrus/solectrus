@@ -18,7 +18,7 @@
 @import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
 
 /* Import app specific styles */
-@import '../stylesheets/tippy.css' layer(base);
+@import '../stylesheets/tooltip.css' layer(base);
 @import '../stylesheets/flow.css' layer(base);
 @import '../stylesheets/badge.css' layer(base);
 @import '../stylesheets/animations.css' layer(base);
@@ -123,7 +123,7 @@
 @variant dark {
   /* Chart.js */
   canvas {
-    filter: invert(1) hue-rotate(180deg);
+    filter: invert(0.8) hue-rotate(180deg);
   }
 }
 
@@ -173,4 +173,40 @@
   .click-animation {
     @apply transition-transform duration-100 group-active:scale-95 active:scale-95;
   }
+}
+
+@utility stripes {
+  @apply relative z-0 overflow-hidden;
+
+  &::before {
+    @apply pointer-events-none absolute inset-0 -z-1 opacity-50;
+    content: '';
+    background: repeating-linear-gradient(
+      135deg,
+      #e5e7eb 0 10px,
+      #f3f4f6 10px 20px
+    );
+  }
+
+  :where(.dark, .dark *) &::before {
+    background: repeating-linear-gradient(
+      135deg,
+      #334155 0 10px,
+      #1e293b 10px 20px
+    );
+  }
+}
+
+@utility bar-gradient {
+  background: linear-gradient(
+    to right,
+    var(--bar-color) 0%,
+    var(--bar-color) 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.5) 0%,
+    black 100%
+  );
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, black 100%);
 }

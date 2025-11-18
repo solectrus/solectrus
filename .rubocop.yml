@@ -48,6 +48,11 @@ Rails/SkipsModelValidations:
     - upsert_all
     - touch
 
+Rails/SaveBang:
+  AllowedReceivers:
+    - turbo_stream
+    - cipher
+
 ### Bundler
 
 Bundler/OrderedGems:

@@ -1,59 +1,52 @@
 class RadialBadge::Component < ViewComponent::Base
-  def initialize(percent: nil, title: nil, neutral: false)
-    if percent && (percent.negative? || percent > 100)
-      raise ArgumentError,
-            "percent must be between 0 and 100, got #{percent.inspect}"
-    end
-
+  def initialize(sensor_name, data:)
     super()
-    @percent = percent&.round
-    @title = title
-    @neutral = neutral || !percent
+
+    @sensor = Sensor::Registry[sensor_name]
+    @data = data
+    @value = data.public_send(sensor_name)
+    @value = @value&.round if percent?
   end
-  attr_reader :percent, :title, :neutral
+  attr_reader :data, :sensor, :value
+
+  def title
+    sensor.display_name(:short)
+  end
+
+  def percent?
+    sensor.unit == :percent
+  end
+
+  def neutral?
+    # Neutral if not a percent sensor, no value, or no color defined
+    !percent? || value.nil? || sensor_color_border.nil?
+  end
 
   def variant_class
-    'percent' if percent&.nonzero?
+    'percent' if percent? && value
   end
 
   def border_color
-    return 'border-slate-200 dark:border-slate-800' if neutral
+    return 'border-slate-200 dark:border-slate-800' if neutral?
 
-    case percent
-    when 0
-      'border-transparent'
-    when 1..33
-      'border-red-200 dark:border-red-900'
-    when 34..66
-      'border-orange-200 dark:border-yellow-900'
-    when 66..100
-      'border-green-200 dark:border-green-900'
-    end
+    sensor_color_border
   end
 
   def background_color
-    return 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800' if neutral
+    return 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800' if neutral?
 
-    case percent
-    when 0..33
-      'xl:tall:bg-red-200 dark:xl:tall:bg-red-900'
-    when 34..66
-      'xl:tall:bg-orange-200 dark:xl:tall:bg-yellow-900'
-    when 66..100
-      'xl:tall:bg-green-200 dark:xl:tall:bg-green-900'
-    end
+    sensor.color_bg(value:) || 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800'
   end
 
   def text_color
-    return 'text-slate-500 dark:text-slate-400' if neutral
+    return 'text-slate-500 dark:text-slate-400' if neutral?
 
-    case percent
-    when 0..33
-      'text-red-600 dark:text-red-600 xl:tall:dark:text-inherit'
-    when 34..66
-      'text-orange-600 dark:text-orange-600 xl:tall:dark:text-inherit'
-    when 66..100
-      'text-green-600 dark:text-green-600 xl:tall:dark:text-inherit'
-    end
+    sensor.color_text(value:) || 'text-slate-500 dark:text-slate-400'
+  end
+
+  def sensor_color_border
+    return unless percent?
+
+    @sensor_color_border ||= sensor.color_border(value:)
   end
 end

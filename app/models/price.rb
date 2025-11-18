@@ -35,6 +35,8 @@ class Price < ApplicationRecord
                         }
   end
 
+  scope :list_for, ->(name) { where(name:).order(starts_at: :desc) }
+
   def self.seed!
     Price.electricity.create! starts_at:
                                 Rails.configuration.x.installation_date,
@@ -44,8 +46,13 @@ class Price < ApplicationRecord
                           value: 0.0832
   end
 
-  def self.list_for(name)
-    Price.where(name:).order(starts_at: :desc).to_a
+  # Get the price valid for a specific date
+  def self.at(name:, date:)
+    Price
+      .where(name:)
+      .where(starts_at: ..date)
+      .order(starts_at: :desc)
+      .pick(:value)
   end
 
   # Don't allow deleting last price of a scope

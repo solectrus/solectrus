@@ -8,6 +8,15 @@ de:
   relative_timeframe:
     title: Relative Zeiträume
     description: Ob die letzten 30 Tage oder die letzten 12 Monate – mit SOLECTRUS sind auch flexible Zeiträume darstellbar.
+  heatpump:
+    title: Wärmepumpe
+    description: SOLECTRUS kann die erzeugte Wärme, die Arbeitszahl sowie die Außentemperatur überwachen und anschaulich visualisieren.
+  insights:
+    title: Kennzahlen & Trends
+    description: Hier werden weitere Kennzahlen und Trends dargestellt, die sich auf den gewählten Sensor und Zeitraum beziehen. Hierzu gehören Ertrag pro kWp, Durchschnitt pro Tag, Vergleich mit mit Vormonat und Vorjahr.
+  finance_charts:
+    title: Finanzdiagramme
+    description: Dargestellt wird der zeitliche Verlauf von Kosten, Einnahmen und Einsparungen der Solaranlage.
   sponsoring_only: Exklusiv für Sponsoren
   demo: Demo
   about_sponsoring: Wie wird man Sponsor?

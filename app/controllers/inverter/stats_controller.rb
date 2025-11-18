@@ -10,35 +10,42 @@ class Inverter::StatsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to inverter_home_path(sensor:, timeframe:)
+      redirect_to inverter_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
 
   private
 
   def refresh_summaries_if_needed
-    return if timeframe.now?
+    return if timeframe.now? || timeframe.hours?
 
     # In most cases, stale summaries are not possible when we get here, because this was
     # already checked in HomeController#index. But there is one exception: when the
     # user comes back to the page without navigation, then the JS reloads the frames
     # directly, without going through HomeController#index.
-    Summarizer.new(timeframe:).perform_now!
+    Sensor::Summarizer.call(timeframe)
   end
 
-  def calculator_now
-    Calculator::Now.new(
-      %i[system_status] + SensorConfig.x.inverter_sensor_names,
-    )
+  def data_now
+    sensor_names =
+      %i[inverter_power_difference system_status] +
+        Sensor::Config.inverter_sensors.map(&:name)
+
+    data = Sensor::Query::Latest.new(sensor_names).call
+    InverterBalance.new(data)
   end
 
-  def calculator_range
-    Calculator::Range.new(
-      timeframe,
-      calculations:
-        SensorConfig.x.inverter_sensor_names.flat_map do |sensor_name|
-          [Queries::Calculation.new(sensor_name, :sum, :sum)]
-        end,
-    )
+  def data_range
+    data =
+      Sensor::Query::Total
+        .new(timeframe) do |q|
+          Sensor::Config.inverter_sensors.each do |sensor|
+            q.sum sensor.name, :sum
+          end
+          q.sum :inverter_power_difference, :sum
+        end
+        .call
+
+    InverterBalance.new(data)
   end
 end

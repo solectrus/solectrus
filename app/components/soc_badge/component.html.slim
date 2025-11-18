@@ -4,17 +4,17 @@
 ]
   - %i[battery_soc car_battery_soc].each do |soc_sensor|
     - if (value = public_send(soc_sensor))
-      = link_to root_path(sensor: soc_sensor, timeframe:),
+      = link_to balance_home_path(sensor_name: soc_sensor, timeframe:),
                 data: { \
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
-                  sensor: soc_sensor,
+                  'sensor-name': soc_sensor,
                   value:,
                   time: time.to_i,
                   action: 'stats-with-chart--component#startLoop',
-                  stats_with_chart__component_sensor_param: soc_sensor,
+                  stats_with_chart__component_sensor_name_param: soc_sensor,
                 },
                 class: 'click-animation' do
         div class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'
@@ -26,7 +26,7 @@
               class= (car_connected || car_connected.nil? ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400 dark:text-slate-500')
             ]
 
-          span class= (value.round < 25 ? 'text-red-600' : 'text-green-600')
+          span class= color_class(soc_sensor, value)
             = "#{value.round}%"
 
   .title class= 'mx-auto uppercase tracking-tight text-slate-500 dark:text-slate-400'

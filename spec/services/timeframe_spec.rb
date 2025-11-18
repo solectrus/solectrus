@@ -1,10 +1,6 @@
 describe Timeframe do
   subject(:decoder) do
-    described_class.new(
-      string,
-      min_date: Date.new(2019, 5, 2),
-      allowed_days_in_future: 1,
-    )
+    described_class.new(string, min_date: Date.new(2019, 5, 2))
   end
 
   let(:today) { Date.new(2022, 10, 13) }
@@ -53,7 +49,7 @@ describe Timeframe do
     end
 
     describe '.regex' do
-      subject { described_class::REGEX }
+      subject { described_class::FULL_REGEX }
 
       it { is_expected.to match('2022-02-02') }
       it { is_expected.to match('2022-W42') }
@@ -65,7 +61,10 @@ describe Timeframe do
       it { is_expected.to match('month') }
       it { is_expected.to match('year') }
       it { is_expected.to match('all') }
+      it { is_expected.to match('2022-01-01..2022-03-15') }
 
+      it { is_expected.not_to match('2022-01-01..foo') }
+      it { is_expected.not_to match('foo..2022-03-15') }
       it { is_expected.not_to match('foo') }
       it { is_expected.not_to match('42') }
     end
@@ -132,8 +131,8 @@ describe Timeframe do
       expect(decoder.all?).to be(false)
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'is current' do
@@ -228,8 +227,8 @@ describe Timeframe do
       expect(decoder.all?).to be(false)
     end
 
-    it 'is not out_of_range' do
-      expect(decoder).not_to be_out_of_range
+    it 'is not out_of_scope' do
+      expect(decoder).not_to be_out_of_scope
     end
 
     it 'is current' do
@@ -266,6 +265,10 @@ describe Timeframe do
 
     it 'returns the correct to_s' do
       expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq(string)
     end
 
     it 'returns the correct beginning' do
@@ -318,8 +321,8 @@ describe Timeframe do
       expect(decoder.all?).to be(false)
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'is not current' do
@@ -438,6 +441,14 @@ describe Timeframe do
   context 'when string is "day"' do
     let(:string) { 'day' }
 
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022-10-13')
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq('day')
+    end
+
     it 'is current day' do
       expect(decoder.current?).to be(true)
       expect(decoder.day?).to be(true)
@@ -525,8 +536,8 @@ describe Timeframe do
       expect(decoder.all?).to be(false)
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'is not current' do
@@ -640,6 +651,14 @@ describe Timeframe do
 
   context 'when string is "week"' do
     let(:string) { 'week' }
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022-W41')
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq('week')
+    end
 
     it 'is current week' do
       expect(decoder.current?).to be(true)
@@ -764,8 +783,8 @@ describe Timeframe do
       expect(decoder.all?).to be(false)
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'can paginate' do
@@ -900,6 +919,14 @@ describe Timeframe do
   context 'when string is "month"' do
     let(:string) { 'month' }
 
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022-10')
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq('month')
+    end
+
     it 'is current month' do
       expect(decoder.current?).to be(true)
       expect(decoder.month?).to be(true)
@@ -983,8 +1010,8 @@ describe Timeframe do
       expect(decoder.all?).to be(false)
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'is not current' do
@@ -1086,6 +1113,14 @@ describe Timeframe do
 
   context 'when string is "year"' do
     let(:string) { 'year' }
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022')
+    end
+
+    it 'returns the correct original_string' do
+      expect(decoder.original_string).to eq('year')
+    end
 
     it 'is current year' do
       expect(decoder.current?).to be(true)
@@ -1202,8 +1237,8 @@ describe Timeframe do
       expect(decoder).not_to be_year_like
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'is current' do
@@ -1376,8 +1411,8 @@ describe Timeframe do
       expect(decoder).not_to be_year_like
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'is current' do
@@ -1406,6 +1441,10 @@ describe Timeframe do
 
     it 'is relative' do
       expect(decoder.relative?).to be(true)
+    end
+
+    it 'is not all_like' do
+      expect(decoder).not_to be_all_like
     end
   end
 
@@ -1479,8 +1518,8 @@ describe Timeframe do
       expect(decoder.all?).to be(false)
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'is current' do
@@ -1573,8 +1612,8 @@ describe Timeframe do
       expect(decoder.all?).to be(true)
     end
 
-    it 'is not out_of_range' do
-      expect(decoder.out_of_range?).to be(false)
+    it 'is not out_of_scope' do
+      expect(decoder.out_of_scope?).to be(false)
     end
 
     it 'is current' do
@@ -1601,10 +1640,55 @@ describe Timeframe do
       # 2019-05-02 (min_ate) to 2022-10-13 (current date) = 1260 days
       expect(decoder.days_passed).to eq(1260)
     end
+
+    it 'returns the correct corresponding_all' do
+      # From 2019-05-02 to 2022-10-13 = 41 months
+      expect(decoder.corresponding_all).to eq('P41M')
+    end
+
+    it 'calculates months_since_min_date correctly' do
+      # From 2019-05-02 to 2022-10-13 = 41 months
+      expect(decoder.months_since_min_date).to eq(41)
+    end
+
+    it 'is all_like' do
+      expect(decoder).to be_all_like
+    end
+  end
+
+  context 'when string is months covering full installation period' do
+    let(:string) { 'P41M' }
+
+    it 'switches back to "all" via corresponding_all' do
+      expect(decoder.corresponding_all).to eq('all')
+    end
+
+    it 'is all_like' do
+      expect(decoder).to be_all_like
+    end
+  end
+
+  context 'when months exceed 99' do
+    subject(:decoder) do
+      described_class.new('all', min_date: Date.new(2010, 1, 1))
+    end
+
+    it 'caps corresponding_all at P99M' do
+      expect(decoder.corresponding_all).to eq('P99M')
+    end
   end
 
   context 'when string is invalid' do
-    %w[foo 123 2022-09-99 2022-99-09 2022-99 2022-W99].each do |string|
+    %w[
+      foo
+      123
+      2022-09-99
+      2022-99-09
+      2022-99
+      2022-W99
+      2025-12-01..2024-01-01
+      2025-05-25..2025-05-25
+    ].each do |string|
       context "when given #{string}" do
         let(:string) { string }
 
@@ -1618,24 +1702,52 @@ describe Timeframe do
   context 'when date is after max_date' do
     let(:string) { '2022-10-15' }
 
-    it 'is out_of_range' do
-      expect(decoder.out_of_range?).to be(true)
+    it 'is out_of_scope' do
+      expect(decoder.out_of_scope?).to be(true)
     end
   end
 
   context 'when week is after max_date' do
     let(:string) { '2022-W42' }
 
-    it 'is out_of_range' do
-      expect(decoder.out_of_range?).to be(true)
+    it 'is out_of_scope' do
+      expect(decoder.out_of_scope?).to be(true)
     end
   end
 
   context 'when date is before min_date' do
     let(:string) { '2019-05-01' }
 
-    it 'is out_of_range' do
-      expect(decoder.out_of_range?).to be(true)
+    it 'is out_of_scope' do
+      expect(decoder.out_of_scope?).to be(true)
+    end
+  end
+
+  context 'when string is a date range' do
+    let(:string) { '2022-01-01..2022-03-15' }
+
+    it 'is recognized as a range' do
+      expect(decoder.range?).to be true
+    end
+
+    it 'returns the correct date' do
+      expect(decoder.date).to eq(Date.new(2022, 1, 1))
+    end
+
+    it 'returns the correct beginning' do
+      expect(decoder.beginning).to eq(Date.new(2022, 1, 1).beginning_of_day)
+    end
+
+    it 'returns the correct ending' do
+      expect(decoder.ending).to eq(Date.new(2022, 3, 15).end_of_day)
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq('2022-01-01..2022-03-15')
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('2022-01-01 - 2022-03-15')
     end
   end
 end

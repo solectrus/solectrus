@@ -20,9 +20,7 @@ module InfluxHelper
   end
 
   def add_influx_points(points)
-    write_api = influx_client.create_write_api
-
-    write_api.write(
+    InfluxClient.write_api.write(
       data: points,
       bucket: Rails.configuration.x.influx.bucket,
       org: Rails.configuration.x.influx.org,
@@ -33,24 +31,16 @@ module InfluxHelper
     start: Time.zone.at(0),
     stop: Time.zone.at((2**63) / 1_000_000_000)
   )
-    delete_api = influx_client.create_delete_api
-
-    delete_api.delete(start, stop)
-  end
-
-  def influx_client
-    @influx_client ||= Flux::Base.new.client
-  end
-
-  SensorConfig::SENSOR_NAMES.each do |name|
-    define_method(:"field_#{name}") { SensorConfig.x.field(name) }
-
-    define_method(:"measurement_#{name}") { SensorConfig.x.measurement(name) }
+    InfluxClient.delete_api.delete(start, stop)
   end
 end
 
 RSpec.configure do |config|
   config.include InfluxHelper
 
-  config.after { delete_influx_data }
+  # Clean up InfluxDB data after each test, but NOT for system tests
+  # System tests share InfluxDB data for performance
+  config.after do |example|
+    delete_influx_data unless example.metadata[:type] == :system
+  end
 end

@@ -1,8 +1,6 @@
 describe 'Essentials' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { travel_to Time.zone.local(2022, 6, 21, 12, 0, 0) }
-
   it 'displays tiles with values' do
     visit '/essentials'
 

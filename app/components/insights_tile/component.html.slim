@@ -1,0 +1,12 @@
+= link_or_div do
+  div class= inner_container_classes
+    - if title
+      .text-base.text-gray-500
+        = title
+
+    .w-full.text-lg.sm:text-2xl.text-center
+      = body
+
+    - if footer
+      .text-sm.text-gray-500.uppercase.tracking-wider
+        = footer

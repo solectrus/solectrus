@@ -61,8 +61,20 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
 
       main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
         .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
-          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden
+          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden#inner
             = yield
+
+        / Shared backdrop for modal - controlled by modal-launcher controller on links
+        div[
+          id= 'modal-backdrop'
+          class= 'fixed inset-0 z-40 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity opacity-0 pointer-events-none'
+          data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
+          data-transition-enter-start= 'opacity-0'
+          data-transition-enter-end= 'opacity-100'
+          data-transition-leave= 'motion-safe:ease-in motion-safe:duration-200'
+          data-transition-leave-start= 'opacity-100'
+          data-transition-leave-end= 'opacity-0'
+        ]
         = tag.turbo_frame id: 'modal', target: '_top'
 
       - if content_for?(:bottom_nav)
@@ -72,7 +84,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
       footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
         .flex.items-center.gap-2
           = link_to 'https://solectrus.de',
-                    class: 'tracking-wider',
+                    class: 'tracking-wider focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',
                     target: '_blank',
                     rel: 'noopener' do
             | SOLECTRUS.de

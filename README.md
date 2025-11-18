@@ -97,7 +97,7 @@ bin/yarn tsc
 There is a shortcut to run **all** test and linting tools:
 
 ```bash
-bin/test
+bin/ci
 ```
 
 ## Performance Monitoring

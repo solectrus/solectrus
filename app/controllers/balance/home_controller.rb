@@ -4,8 +4,13 @@ class Balance::HomeController < ApplicationController
   include SummaryChecker
 
   def index
-    unless sensor && timeframe
+    unless sensor_name && timeframe
       redirect_to(default_path)
+      return
+    end
+
+    if timeframe.future? && Sensor::Config.exists?(:inverter_power_forecast)
+      redirect_to forecast_path
       return
     end
 
@@ -15,12 +20,15 @@ class Balance::HomeController < ApplicationController
   private
 
   def default_path
-    root_path(sensor: sensor || redirect_sensor, timeframe: 'now')
+    balance_home_path(
+      sensor_name: sensor_name || redirect_sensor,
+      timeframe: 'now',
+    )
   end
 
   # By default we want to show the current production, so we redirect to the inverter_power sensor.
   # But at night this does not make sense, so in this case we redirect to the house_power sensor.
   def redirect_sensor
-    DayLight.active? ? :inverter_power : :house_power
+    Sensor::Query::DayLight.active? ? :inverter_power : :house_power
   end
 end

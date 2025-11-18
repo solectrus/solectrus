@@ -1,26 +1,51 @@
 .badge class= 'h-auto space-y-2 tall:space-y-3 py-3 rounded-3xl text-center xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800 text-slate-500 dark:text-slate-400'
   - unless timeframe.future?
-    - if SensorConfig.x.exists?(:grid_export_power)
-      .tiny:hidden
+    - if Sensor::Config.exists?(:grid_export_power)
+      = link_to balance_home_path(sensor_name: 'grid_revenue', timeframe:),
+                data: { \
+                  turbo_frame: helpers.frame_id('chart'),
+                  turbo_action: 'replace',
+                  turbo_prefetch: 'false',
+                },
+                class: 'click-animation tiny:hidden' do
         .value
-          = Number::Component.new(value: calculator.got).to_eur
+          = render SensorValue::Component.new(data, :grid_revenue, sign: :positive)
         .title
-          = t('calculator.compensation')
+          = Sensor::Registry[:grid_revenue].display_name(:short)
 
-    div data-controller="tippy" data-tippy-touch-value= "true"
+    = link_to balance_home_path( \
+                sensor_name: Setting.opportunity_costs ? :total_costs : :grid_costs,
+                timeframe:,
+              ),
+              data: { \
+                turbo_frame: helpers.frame_id('chart'),
+                turbo_action: 'replace',
+                turbo_prefetch: 'false',
+                controller: 'tooltip',
+                tooltip_touch_value: 'long',
+              },
+              class: 'click-animation' do
       .value
-        = Number::Component.new(value: costs).to_eur(negative: true)
+        = render SensorValue::Component.new(data, :total_costs, sign: :negative)
       .title
-        = t('calculator.total_costs')
+        = Sensor::Registry[:total_costs].display_name(:short)
 
-      template data-tippy-target="html"
-        = render ConsumeDetails::Component.new(calculator:)
+      template data-tooltip-target= 'html'
+        = render ConsumeDetails::Component.new(data:)
 
-    div data-controller="tippy" data-tippy-touch-value= "true"
+    = link_to balance_home_path(sensor_name: 'savings', timeframe:),
+              data: { \
+                turbo_frame: helpers.frame_id('chart'),
+                turbo_action: 'replace',
+                turbo_prefetch: 'false',
+                controller: 'tooltip',
+                tooltip_touch_value: 'long',
+              },
+              class: 'click-animation' do
       .value
-        = Number::Component.new(value: calculator.savings).to_eur
+        = render SensorValue::Component.new(data, :savings, sign: :positive)
       .title
-        = t('calculator.savings')
+        = Sensor::Registry[:savings].display_name(:short)
 
-      template data-tippy-target="html"
-        = render SavingsDetails::Component.new(calculator:)
+      template data-tooltip-target= 'html'
+        = render SavingsDetails::Component.new(data:)

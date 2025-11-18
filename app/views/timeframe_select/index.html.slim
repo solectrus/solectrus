@@ -1,0 +1,5 @@
+= render TurboModal::Component.new do |modal|
+  - modal.with_title do
+    = t('.title')
+
+  = render TimeframeSelect::Component.new(timeframe:, sensor_name:, controller_namespace:)

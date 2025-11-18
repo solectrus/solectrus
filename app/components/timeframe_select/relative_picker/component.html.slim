@@ -1,0 +1,36 @@
+div(
+  data-controller="timeframe-select--relative-picker--component"
+  data-timeframe-select--relative-picker--component-value-value=value.to_s
+  data-timeframe-select--relative-picker--component-name-value=name
+  data-timeframe-select--relative-picker--component-base-classes-value="w-full text-base px-4 py-3 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+  data-timeframe-select--relative-picker--component-hover-classes-value="hover:bg-indigo-100 dark:hover:bg-indigo-900"
+  data-timeframe-select--relative-picker--component-selected-classes-value="bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700"
+  data-timeframe-select--relative-picker--component-unselected-classes-value="text-gray-900 dark:text-white"
+)
+  / Hidden input that holds the actual value
+  input type="hidden" name=name data-timeframe-select--relative-picker--component-target="hiddenInput"
+
+  / Details/Summary for native accessibility and ESC handling
+  details data-timeframe-select--relative-picker--component-target="details" data-action="toggle->timeframe-select--relative-picker--component#handleToggle"
+    / Display button as summary
+    summary.w-full.px-4.py-2.5.text-base.text-left.border.border-gray-300.dark:border-gray-600.rounded-lg.bg-white.dark:bg-gray-700.text-gray-900.dark:text-white.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:border-indigo-500.appearance-none.cursor-pointer.transition-colors.hover:border-gray-400.dark:hover:border-gray-500.flex.items-center.justify-between.list-none id=button_id data-timeframe-select--relative-picker--component-target="displayButton"
+      span data-timeframe-select--relative-picker--component-target="displayText"
+        == display_text
+      i.fas.fa-arrow-right.text-gray-400
+
+    / Relative period picker panel (replaces modal content)
+    .absolute.inset-0.bg-white.dark:bg-slate-800.z-50 data-timeframe-select--relative-picker--component-target="modal"
+      .flex.flex-col.h-full
+        / Header with back button
+        .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
+          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--relative-picker--component#close" aria-label=t('.back')
+            i.fas.fa-arrow-left
+          .text-lg.font-medium.text-gray-900.dark:text-white
+            = t('.select_period')
+
+        / Content area with options list
+        .flex-1.px-3.py-3
+          .flex.flex-col.justify-evenly.h-full
+            - options.each do |option|
+              button type="button" data-action="timeframe-select--relative-picker--component#selectOption" data-timeframe-select--relative-picker--component-target="optionCell" data-value=option[:value]
+                == option[:label]

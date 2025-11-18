@@ -1,21 +1,15 @@
 describe ForecastComment::Component, type: :component do
   subject(:component) do
-    described_class.new calculator:, sensor: :inverter_power, timeframe:
+    described_class.new data:, sensor_name: :inverter_power, timeframe:
   end
 
   let(:timeframe) { Timeframe.new(date) }
   let(:sunset) { nil }
 
-  let(:calculator) do
-    double(
-      Calculator::Range,
-      forecast_deviation:,
-      inverter_power_forecast: 1000,
-    )
-  end
+  let(:data) { double(forecast_deviation:, inverter_power_forecast: 1000) }
 
   before do
-    allow(DayLight).to receive(:new).and_return(sunset)
+    allow(Sensor::Query::DayLight).to receive(:new).and_return(sunset)
 
     render_inline(component)
   end
@@ -30,7 +24,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.exactly')
       end
 
-      it 'has no tippy-tooltip' do
+      it 'has no tooltip-content' do
         expect(page.native.inner_html).not_to include('<template')
       end
     end
@@ -45,7 +39,7 @@ describe ForecastComment::Component, type: :component do
                   )
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
@@ -57,7 +51,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.worse_html', percent: '10 %')
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
@@ -65,7 +59,7 @@ describe ForecastComment::Component, type: :component do
 
   context 'when timeframe is current day, before sunset' do
     let(:date) { Date.current.to_s }
-    let(:sunset) { instance_double(DayLight, sunset: 5.minutes.since) }
+    let(:sunset) { instance_double(Sensor::Query::DayLight, sunset: 5.minutes.since) }
 
     context 'when deviation is zero' do
       let(:forecast_deviation) { 0 }
@@ -74,7 +68,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.expect_html', value: '1 kWh')
       end
 
-      it 'has no tippy-tooltip' do
+      it 'has no tooltip-content' do
         expect(page).to have_no_css('div', id: 'forecast-expectation')
       end
     end
@@ -89,7 +83,7 @@ describe ForecastComment::Component, type: :component do
                   )
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
@@ -101,7 +95,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.expect_html', value: '1 kWh')
       end
 
-      it 'has no tippy-tooltip' do
+      it 'has no tooltip-content' do
         expect(page.native.inner_html).not_to include('<template')
       end
     end
@@ -109,7 +103,7 @@ describe ForecastComment::Component, type: :component do
 
   context 'when timeframe is current day, after sunset' do
     let(:date) { Date.current.to_s }
-    let(:sunset) { instance_double(DayLight, sunset: 5.minutes.ago) }
+    let(:sunset) { instance_double(Sensor::Query::DayLight, sunset: 5.minutes.ago) }
 
     context 'when deviation is zero' do
       let(:forecast_deviation) { 0 }
@@ -118,7 +112,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.exactly')
       end
 
-      it 'has no tippy-tooltip' do
+      it 'has no tooltip-content' do
         expect(page.native.inner_html).not_to include('<template')
       end
     end
@@ -133,7 +127,7 @@ describe ForecastComment::Component, type: :component do
                   )
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end
@@ -145,7 +139,7 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.worse_html', percent: '10 %')
       end
 
-      it 'has tippy-tooltip' do
+      it 'has tooltip-content' do
         expect(page).to have_css('div', id: 'forecast-expectation')
       end
     end

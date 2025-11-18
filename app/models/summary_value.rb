@@ -21,47 +21,24 @@ class SummaryValue < ApplicationRecord
              foreign_key: :date,
              inverse_of: :values
 
+  # Auto-generate from Sensor::Definitions that are stored in summary
   enum :field,
-       {
-         battery_charging_power: 'battery_charging_power',
-         battery_charging_power_grid: 'battery_charging_power_grid',
-         battery_discharging_power: 'battery_discharging_power',
-         battery_soc: 'battery_soc',
-         car_battery_soc: 'car_battery_soc',
-         case_temp: 'case_temp',
-         grid_export_power: 'grid_export_power',
-         grid_import_power: 'grid_import_power',
-         heatpump_power: 'heatpump_power',
-         heatpump_power_grid: 'heatpump_power_grid',
-         house_power: 'house_power',
-         house_power_grid: 'house_power_grid',
-         inverter_power: 'inverter_power',
-         inverter_power_forecast: 'inverter_power_forecast',
-         wallbox_power: 'wallbox_power',
-         wallbox_power_grid: 'wallbox_power_grid',
-       }.merge(
-         # Add inverter_power_1..5
-         SensorConfig::CUSTOM_INVERTER_SENSORS.index_with(&:to_s),
-       )
-         .merge(
-           # Add custom_power_01..20
-           (1..SensorConfig::CUSTOM_SENSOR_COUNT).to_h do |i|
-             key = :"custom_power_#{format('%02d', i)}"
-             [key, key.to_s]
-           end,
-         )
-         .merge(
-           # Add custom_power_01_grid..20_grid
-           (1..SensorConfig::CUSTOM_SENSOR_COUNT).to_h do |i|
-             key = :"custom_power_#{format('%02d', i)}_grid"
-             [key, key.to_s]
-           end,
-         ),
+       Sensor::Registry
+         .all
+         .filter_map { |sensor|
+           sensor.name if sensor.summary_aggregations.any?
+         }
+         .index_with(&:to_s),
        suffix: true,
        enum_type: :field_enum
 
+  # Auto-generate from all aggregation types used by Sensor::Definitions
   enum :aggregation,
-       { sum: 'sum', max: 'max', min: 'min', avg: 'avg' },
+       Sensor::Registry
+         .all
+         .flat_map(&:summary_aggregations)
+         .uniq
+         .index_with(&:to_s),
        suffix: true,
        enum_type: :aggregation_enum
 

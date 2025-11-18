@@ -17,12 +17,12 @@ class EssentialsController < ApplicationController
 
   helper_method def tiles
     [
-      { sensor: 'inverter_power', timeframe: 'now' },
-      { sensor: 'inverter_power', timeframe: 'day' },
-      { sensor: 'inverter_power', timeframe: 'month' },
-      { sensor: 'inverter_power', timeframe: 'year' },
-      { sensor: 'co2_reduction', timeframe: 'year' },
-      { sensor: 'savings', timeframe: 'year' },
+      { sensor_name: 'inverter_power', timeframe: 'now' },
+      { sensor_name: 'inverter_power', timeframe: 'day' },
+      { sensor_name: 'inverter_power', timeframe: 'month' },
+      { sensor_name: 'inverter_power', timeframe: 'year' },
+      { sensor_name: 'co2_reduction', timeframe: 'year' },
+      { sensor_name: 'savings', timeframe: 'year' },
     ]
   end
 end

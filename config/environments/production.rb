@@ -49,7 +49,7 @@ Rails.application.configure do
   # Use lograge gem
   config.lograge.enabled = true
 
-  # Change to "debug" to log everything (including potentially personally-identifiable information!)
+  # Change to "debug" to log everything (including potentially personally-identifiable information!).
   config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'info')
 
   # Use a different cache store in production.

@@ -3,7 +3,7 @@ class MenuItem::Component < ViewComponent::Base
     name:,
     href: nil,
     data: {},
-    sensor: nil,
+    sensor_name: nil,
     icon: nil,
     icon_only: false,
     text: true,
@@ -13,7 +13,7 @@ class MenuItem::Component < ViewComponent::Base
     @name = name
     @href = href
     @data = data
-    @sensor = sensor
+    @sensor_name = sensor_name
 
     @icon = icon
     @icon_only = icon_only
@@ -25,7 +25,14 @@ class MenuItem::Component < ViewComponent::Base
     href&.start_with?('http') ? '_blank' : nil
   end
 
-  attr_reader :name, :href, :icon, :icon_only, :text, :current, :data, :sensor
+  attr_reader :name,
+              :href,
+              :icon,
+              :icon_only,
+              :text,
+              :current,
+              :data,
+              :sensor_name
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
@@ -51,24 +58,23 @@ class MenuItem::Component < ViewComponent::Base
     link_to href,
             target:,
             class: [CSS_CLASSES, css_extra],
-            data:,
+            title: (icon_only ? name : nil),
+            data: data.merge(icon_only ? { controller: 'tooltip' } : {}),
             'aria-current' => current ? 'page' : nil do
       render_inner(with_icon:)
     end
   end
 
   def render_button(with_icon:, css_extra:)
-    tag.button class: [CSS_CLASSES, css_extra], data: data do
+    tag.button class: [CSS_CLASSES, css_extra],
+               title: (icon_only ? name : nil),
+               data: data.merge(icon_only ? { controller: 'tooltip' } : {}) do
       render_inner(with_icon:)
     end
   end
 
   def render_inner(with_icon:)
-    tag.span class: 'flex items-center gap-3',
-             title: icon_only ? name : nil,
-             data: {
-               controller: 'tippy',
-             } do
+    tag.span class: 'flex items-center gap-3' do
       content_parts = []
 
       if with_icon

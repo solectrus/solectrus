@@ -1,8 +1,6 @@
 describe 'Administrator login' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { travel_to Time.zone.local(2022, 6, 21, 12, 0, 0) }
-
   context 'when not logged in' do
     before do
       visit '/'
