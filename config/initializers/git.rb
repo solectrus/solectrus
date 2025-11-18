@@ -11,9 +11,6 @@ Rails.configuration.x.git.commit_version =
     end
   end
 
-Rails.configuration.x.git.commit_branch =
-  ENV.fetch('COMMIT_BRANCH') { `git rev-parse --abbrev-ref HEAD`.chomp }
-
 Rails.configuration.x.git.commit_time =
   Time.zone.parse(ENV.fetch('COMMIT_TIME') { `git show -s --format=%cI` })
 
