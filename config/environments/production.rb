@@ -18,7 +18,8 @@ Rails.application.configure do
   # Cache assets for far-future expiry since they are all digest stamped.
   config.public_file_server.headers = {
     'X-Content-Type-Options' => 'nosniff',
-    'cache-control' => 'public, s-maxage=31536000, max-age=31536000, immutable',
+    'cache-control' =>
+      "public, s-maxage=#{1.year.to_i}, max-age=#{1.year.to_i}, immutable",
     'Expires' => 1.year.from_now.to_fs(:rfc822),
   }
 
