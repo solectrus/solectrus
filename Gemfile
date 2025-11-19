@@ -29,7 +29,7 @@ gem 'puma', '>= 5.0'
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
 gem 'redis', '>= 4.0.1'
 
-# Boot large ruby/rails apps faster (https://github.com/Shopify/bootsnap)
+# Boot large ruby/rails apps faster (https://github.com/rails/bootsnap)
 gem 'bootsnap', require: false
 
 # The best solution for store global settings in Rails applications. (https://github.com/huacnlee/rails-settings-cached)
