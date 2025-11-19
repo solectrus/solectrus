@@ -1004,9 +1004,9 @@ __metadata:
   linkType: hard
 
 "@types/aws-lambda@npm:^8.10.89":
-  version: 8.10.158
-  resolution: "@types/aws-lambda@npm:8.10.158"
-  checksum: 10c0/a3615b12760f6a802680cd2422b2093974b3ae08fe89d14c77d5decac86f6f1e3c05361cfd13f546b57cf1a728700dd945e7ed14c7b30b0d2753e308967798fe
+  version: 8.10.159
+  resolution: "@types/aws-lambda@npm:8.10.159"
+  checksum: 10c0/87d2b01949c47a13f4b8c97372e4b028b3faa5d421a23770be47a86f8ebcd74e7eea0179b552055ca58383854141bafb039da2d90e4e2a030c3b8e9a743ed9ec
   languageName: node
   linkType: hard
 
