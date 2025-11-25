@@ -727,7 +727,8 @@ Performance is important for the generated SQL query:
 - **[Sensor Overview](sensor-overview.md)** - Introduction to the Sensor System
 - **[Sensor Reference](sensor-reference.md)** - DSL reference, finance sensors, testing, performance
 - **Code reference**:
-  - `app/lib/sensor/query/helpers/sql/main.rb` - Main implementation
+  - `app/lib/sensor/query/total.rb` - Main dispatcher (auto-selects Influx/SQL)
+  - `app/lib/sensor/query/helpers/sql/total.rb` - SQL implementation
   - `app/lib/sensor/query/helpers/sql/` - SQL builder classes
   - `app/lib/sensor/definitions/finance_base.rb` - Finance sensors base
-  - `spec/lib/sensor/query/sql_spec.rb` - Comprehensive tests
+  - `spec/lib/sensor/query/` - Comprehensive tests

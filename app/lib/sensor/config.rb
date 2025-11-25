@@ -38,6 +38,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
                    :chart_sensors,
                    :top10_sensors,
                    :multi_inverter?,
+                   :single_consumer?,
                    :clear_cache!
   end
 

@@ -37,7 +37,7 @@ sensor.category       # => :inverter
 sensor.display_name   # => "Generation"
 
 # 2. Query current values (InfluxDB)
-data = Sensor::Query::Influx::Latest.new([:inverter_power]).call
+data = Sensor::Query::Latest.new([:inverter_power]).call
 data.inverter_power   # => 2500.0
 
 # 3. Query historical data (SQL with DSL)
@@ -99,11 +99,12 @@ app/lib/sensor/
 ├── query/                    # Data query system
 │   ├── base.rb              # Common query logic
 │   ├── total.rb             # Dispatcher (auto-selects Influx/SQL)
-│   ├── latest.rb            # Current values (InfluxDB)
-│   ├── series.rb            # Time series (InfluxDB)
-│   ├── ranking.rb           # Top10 rankings (SQL)
-│   ├── power_peak.rb        # Power peak detection
-│   ├── day_light.rb         # Sunrise/Sunset calculations
+│   ├── latest.rb             # Current values (InfluxDB)
+│   ├── series.rb             # Time series (InfluxDB)
+│   ├── ranking.rb            # Top10 rankings (SQL)
+│   ├── power_peak.rb         # Power peak detection
+│   ├── day_light.rb          # Sunrise/Sunset calculations
+│   ├── forecast_availability.rb # Forecast availability check
 │   └── helpers/             # Query builders
 │       ├── influx/
 │       │   ├── base.rb          # Flux query base
@@ -130,14 +131,16 @@ app/lib/sensor/
 │   ├── single.rb            # Single values
 │   └── series.rb            # Time series
 │
-├── config.rb                # Central configuration
-├── registry.rb              # Sensor registry (auto-discovery)
-├── value_formatter.rb       # Value formatting
-├── unit_formatter.rb        # Unit formatting
-├── dependency_resolver.rb   # Dependency resolution
-├── summarizer.rb            # Summary calculations
-├── summary_builder.rb       # Summary creation
-└── summary_invalidator.rb   # Cache invalidation
+├── config.rb                 # Central configuration
+├── config_logger.rb          # Configuration logging
+├── legacy_config_adapter.rb  # Legacy ENV variable adapter
+├── registry.rb               # Sensor registry (auto-discovery)
+├── value_formatter.rb        # Value formatting
+├── unit_formatter.rb         # Unit formatting
+├── dependency_resolver.rb    # Dependency resolution
+├── summarizer.rb             # Summary calculations
+├── summary_builder.rb        # Summary creation
+└── summary_invalidator.rb    # Cache invalidation
 
 app/components/sensor_value/
 ├── component.rb             # ViewComponent for sensor values
@@ -180,9 +183,16 @@ end
 class Sensor::Definitions::Autarky < Sensor::Definitions::Base
   value unit: :percent
 
-  color hex: '#15803d',
-        bg_classes: 'bg-green-700 dark:bg-green-900',
-        text_classes: 'text-green-200 dark:text-green-400'
+  # Dynamic color based on value (0-33% red, 34-66% orange, 67-100% green)
+  color do |percent|
+    if percent.nil? || percent >= 67
+      { hex: '#16a34a', bg: '...green...', text: '...green...' }
+    elsif percent >= 34
+      { hex: '#ea580c', bg: '...orange...', text: '...orange...' }
+    else
+      { hex: '#dc2626', bg: '...red...', text: '...red...' }
+    end
+  end
 
   # Declare dependencies
   depends_on :grid_import_power, :total_consumption
@@ -197,8 +207,8 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
     [raw.round, 0].max
   end
 
-  chart { |timeframe| Sensor::Chart::Autarky.new(timeframe:) }
   aggregations stored: false, computed: [:avg], meta: [:avg]
+  chart { |timeframe| Sensor::Chart::Autarky.new(timeframe:) }
 end
 ```
 
@@ -265,7 +275,7 @@ data.inverter_power  # => 2500.0 (current value)
 
 # Time series for charts
 data = Sensor::Query::Series.new([:inverter_power], timeframe).call
-data.inverter_power  # => [[timestamp1, value1], [timestamp2, value2], ...]
+data.inverter_power(:avg, :avg)  # => { timestamp1 => value1, timestamp2 => value2, ... }
 ```
 
 #### 3.2 Historical Aggregations (Dispatcher)
@@ -471,7 +481,7 @@ The `ChartLoader` component checks `permitted?` and displays a sponsor hint if `
 Sensor::Config.setup(ENV)
 
 # Check sensor configuration
-Sensor::Config.exists?(:inverter_power)  # => true/false
+Sensor::Config.exists?(:inverter_power)      # => true/false (configured & permitted)
 Sensor::Config.configured?(:inverter_power)  # => true (ENV set)
 
 # InfluxDB mapping
@@ -479,6 +489,7 @@ Sensor::Config.measurement(:inverter_power)  # => "SENEC"
 Sensor::Config.field(:inverter_power)        # => "inverter_power"
 
 # Filtered lists
+Sensor::Config.sensors            # => [all configured & permitted sensors]
 Sensor::Config.chart_sensors      # => [all chart-capable sensors]
 Sensor::Config.top10_sensors      # => [all Top10-capable sensors]
 Sensor::Config.nameable_sensors   # => [all user-nameable sensors]
