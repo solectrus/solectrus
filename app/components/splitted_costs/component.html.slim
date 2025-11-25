@@ -14,21 +14,5 @@
             style= "width: #{power_grid_ratio}%;"
           ]
 
-  .mt-5.space-y-1
-    - if grid_costs
-      .flex.items-center.justify-between.gap-2
-        .text-sm.text-left
-          = t('.grid_costs')
-        = render SensorValue::Component.new(grid_costs, :total_costs, sign: :negative)
-
-    - if pv_costs
-      .flex.items-center.justify-between.gap-2
-        .text-sm.text-left
-          = t('.opportunity_costs')
-        = render SensorValue::Component.new(pv_costs, :total_costs, sign: :negative)
-
-    div class= ('flex items-center justify-between gap-2 border-t border-slate-300 dark:border-slate-500 pt-2 mt-3' if breakdown?)
-      - if breakdown?
-        .text-sm.font-bold
-          = t('.total_costs')
-      = render SensorValue::Component.new(costs, :total_costs, sign: :negative, class: 'text-xl')
+  .mt-2
+    = render SensorValue::Component.new(costs, :total_costs, sign: :negative, class: 'text-xl')

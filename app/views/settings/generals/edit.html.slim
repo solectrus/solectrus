@@ -19,6 +19,11 @@
                    value: Setting.operator_name,
                    placeholder: t('settings.general.plant.operator_name.placeholder')
 
+  = f.group title: t('settings.general.options.description') do
+    = f.check_box :opportunity_costs,
+                  value: Setting.opportunity_costs,
+                  hint: t('settings.general.options.opportunity_costs.hint')
+
   = f.actions do
     = f.submit t('crud.save')
 

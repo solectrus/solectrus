@@ -70,8 +70,8 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     return unless ApplicationPolicy.power_splitter?
 
     costs_field = "#{sensor.name}_costs".sub('_power', '')
-    # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, battery_charging_costs
-    # Note: battery_charging_costs already only includes grid costs (no opportunity costs)
+    # Example: custom_01_costs,  house_without_custom_costs, wallbox_costs, ...
+
     data.public_send(costs_field)
   end
 

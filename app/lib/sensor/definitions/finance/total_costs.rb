@@ -3,34 +3,53 @@ class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
         bg_classes: 'bg-red-500 dark:bg-red-400',
         text_classes: 'text-red-100 dark:text-red-400'
 
-  depends_on %i[grid_costs opportunity_costs]
+  depends_on do
+    Setting.opportunity_costs ? %i[grid_costs opportunity_costs] : [:grid_costs]
+  end
   trend
 
-  calculate do |grid_costs:, opportunity_costs:, **|
-    grid_costs + opportunity_costs if grid_costs && opportunity_costs
+  calculate do |grid_costs:, opportunity_costs: nil, **|
+    if Setting.opportunity_costs
+      grid_costs + opportunity_costs if grid_costs && opportunity_costs
+    else
+      grid_costs
+    end
   end
 
-  aggregations stored: false, computed: [:sum], meta: [:sum], top10: true
+  aggregations stored: false,
+               computed: [:sum],
+               meta: [:sum],
+               top10: -> { Setting.opportunity_costs }
 
   chart { |timeframe| Sensor::Chart::TotalCosts.new(timeframe:) }
 
   def chart_enabled?
-    true
+    # Without opportunity costs, total_costs is identical to grid_costs
+    Setting.opportunity_costs
   end
 
   def required_prices
-    %i[electricity feed_in]
+    Setting.opportunity_costs ? %i[electricity feed_in] : [:electricity]
   end
 
   def sql_calculation
     grid_costs_calc = Sensor::Registry[:grid_costs].sql_calculation
-    opportunity_costs_calc =
-      Sensor::Registry[:opportunity_costs].sql_calculation
 
-    "(#{grid_costs_calc}) + (#{opportunity_costs_calc})"
+    if Setting.opportunity_costs
+      opportunity_costs_calc =
+        Sensor::Registry[:opportunity_costs].sql_calculation
+
+      "(#{grid_costs_calc}) + (#{opportunity_costs_calc})"
+    else
+      grid_costs_calc
+    end
   end
 
-  def calculate_with_prices(grid_costs:, opportunity_costs:, **)
-    grid_costs + opportunity_costs if grid_costs && opportunity_costs
+  def calculate_with_prices(grid_costs: nil, opportunity_costs: nil, **)
+    if Setting.opportunity_costs
+      grid_costs + opportunity_costs if grid_costs && opportunity_costs
+    else
+      grid_costs
+    end
   end
 end

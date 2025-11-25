@@ -41,12 +41,14 @@ describe 'Settings' do
                 setting: {
                   plant_name: 'Test',
                   operator_name: 'John',
+                  opportunity_costs: true,
                 },
               }
         expect(response).to have_http_status(:success)
 
         expect(Setting.plant_name).to eq('Test')
         expect(Setting.operator_name).to eq('John')
+        expect(Setting.opportunity_costs).to be_truthy
       end
     end
   end

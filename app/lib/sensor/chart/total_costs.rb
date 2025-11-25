@@ -2,7 +2,11 @@ class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
   def chart_sensor_names
     return [:total_costs] unless timeframe.short?
 
-    %i[grid_import_power inverter_power grid_export_power]
+    if Setting.opportunity_costs
+      %i[grid_import_power inverter_power grid_export_power]
+    else
+      [:grid_import_power]
+    end
   end
 
   def permitted?
@@ -15,8 +19,8 @@ class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
     electricity_price = get_price(:electricity)
     return unless electricity_price
 
-    feed_in_price = get_price(:feed_in)
-    return unless feed_in_price
+    feed_in_price = get_price(:feed_in) if Setting.opportunity_costs
+    return if Setting.opportunity_costs && !feed_in_price
 
     sensor_data = fetch_sensor_data
     labels = extract_labels(sensor_data)
@@ -36,6 +40,8 @@ class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
   end
 
   def extract_labels(sensor_data)
+    return sensor_data[:grid_import][:labels] unless Setting.opportunity_costs
+
     [
       sensor_data[:grid_import],
       sensor_data[:inverter],
@@ -66,6 +72,8 @@ class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
         sensor_data[:grid_import][:data][index] || 0,
         electricity_price,
       )
+
+    return grid_costs unless Setting.opportunity_costs
 
     # Calculate opportunity costs: self_consumption * feed_in_price
     inverter = sensor_data[:inverter][:data][index] || 0

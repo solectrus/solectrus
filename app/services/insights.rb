@@ -28,21 +28,12 @@ class Insights # rubocop:disable Metrics/ClassLength
     costs_field =
       if sensor.name == :battery_power
         'battery_charging_costs'
-        # NOTE: battery_charging_costs already only includes grid costs (no opportunity costs)
       else
         "#{sensor.name}_costs".sub('_power', '')
-        # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, ...
+        # Example: custom_01_costs,  house_without_custom_costs, wallbox_costs, ...
       end
 
     data.public_send(costs_field)
-  end
-
-  def costs_grid
-    costs_by_source(:grid)
-  end
-
-  def costs_pv
-    costs_by_source(:pv)
   end
 
   def sensors_with_grid_ratio
@@ -163,24 +154,6 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   private
-
-  def costs_by_source(source)
-    if %i[wallbox_power heatpump_power house_power battery_power].exclude?(
-         sensor.name,
-       )
-      return
-    end
-    return unless ApplicationPolicy.power_splitter?
-
-    costs_field =
-      if sensor.name == :battery_power
-        "battery_charging_costs_#{source}"
-      else
-        "#{sensor.name}_costs_#{source}".sub('_power', '')
-      end
-
-    data.public_send(costs_field)
-  end
 
   def extremum(aggregation)
     # Does not make sense for single-day range

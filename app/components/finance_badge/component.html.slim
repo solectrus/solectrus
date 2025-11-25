@@ -14,7 +14,7 @@
           = Sensor::Registry[:grid_revenue].display_name(:short)
 
     = link_to balance_home_path( \
-                sensor_name: :grid_costs,
+                sensor_name: Setting.opportunity_costs ? :total_costs : :grid_costs,
                 timeframe:,
               ),
               data: { \
@@ -26,9 +26,9 @@
               },
               class: 'click-animation' do
       .value
-        = render SensorValue::Component.new(data, :grid_costs, sign: :negative)
+        = render SensorValue::Component.new(data, :total_costs, sign: :negative)
       .title
-        = Sensor::Registry[:grid_costs].display_name(:short)
+        = Sensor::Registry[:total_costs].display_name(:short)
 
       template data-tooltip-target= 'html'
         = render ConsumeDetails::Component.new(data:)
