@@ -58,10 +58,10 @@
                 = render SensorValue::Component.new(data, :grid_export_limit, precision: 0, class: 'text-xs')
 
           - else
-            = render SensorValue::Component.new(data, sensor.name, context: :total, precision: 3)
+            = render SensorValue::Component.new(data, sensor.name, context: :total, precision: 3, class: 'text-xl')
 
             - if costs
-              = render SplittedCosts::Component.new(power_grid_ratio:, costs:)
+              = render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs: costs_grid, pv_costs: costs_pv)
 
             - elsif sensor.name == :grid_export_power
               = render SensorValue::Component.new(data, :grid_revenue, sign: :positive, class: 'text-xl')
@@ -70,8 +70,7 @@
               = render SensorValue::Component.new(data, :grid_costs, sign: :negative, class: 'text-xl')
 
             - elsif sensor.name == :heatpump_power_pv
-              - if Setting.opportunity_costs
-                = render SensorValue::Component.new(data, :heatpump_costs_pv, sign: :negative, class: 'text-xl')
+              = render SensorValue::Component.new(data, :heatpump_costs_pv, sign: :negative, class: 'text-xl')
 
             - elsif sensor.name == :heatpump_power_grid
               = render SensorValue::Component.new(data, :heatpump_costs_grid, sign: :negative, class: 'text-xl')

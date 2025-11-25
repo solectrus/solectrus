@@ -14,6 +14,8 @@
             = render SplittedCosts::Component.new( \
                 costs: data.house_costs,
                 power_grid_ratio: data.house_power_grid_ratio,
+                grid_costs: data.house_costs_grid,
+                pv_costs: data.house_costs_pv,
               )
 
     .flex-1.flex.gap-5

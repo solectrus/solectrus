@@ -5,8 +5,4 @@ class FinanceBadge::Component < ViewComponent::Base
     @timeframe = timeframe
   end
   attr_reader :data, :timeframe
-
-  def costs
-    Setting.opportunity_costs ? data.total_costs : data.grid_costs
-  end
 end

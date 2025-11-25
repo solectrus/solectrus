@@ -11,7 +11,7 @@
 
             - if insights.costs
               .mt-2.sm:mt-5.text-lg
-                = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
+                = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs, grid_costs: insights.costs_grid, pv_costs: insights.costs_pv)
 
             - if insights.multi_inverter?
               div class= 'mt-2 sm:mt-6 grid grid-cols-[auto_1fr_auto] gap-1 sm:gap-2 items-center px-2 text-sm font-medium whitespace-nowrap'
@@ -50,7 +50,7 @@
         - tile.with_body do
           = render SensorValue::Component.new(data, sensor.name, context: :total, scaling: :kilo)
           .mt-4.text-lg
-            = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs)
+            = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs, grid_costs: insights.costs_grid, pv_costs: insights.costs_pv)
 
   - if insights.monthly_trend&.valid?
     = render InsightsTile::Component.new css_class: ('col-span-2' unless insights.yearly_trend&.valid?), url: monthly_trend_base_path do |tile|

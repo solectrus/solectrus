@@ -108,7 +108,8 @@ en:
     battery_savings: Battery share
     total_costs: Total costs
     total_costs_short: Costs
-    grid_costs: Grid costs
+    grid_costs: Grid import costs
+    grid_costs_short: Grid costs
     autarky: Autarky
   splitter:
     grid: Grid
@@ -193,10 +194,6 @@ en:
           placeholder: e.g. SENEC.Home V3, 28 modules on the house roof in south orientation with 9.24 kWp
         operator_name:
           placeholder: e.g. John Doe from Foo City
-      options:
-        description: Options
-        opportunity_costs:
-          hint: Consider missed feed-in compensation as part of electricity costs
       summaries:
         title: Daily summaries
         description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.
@@ -269,4 +266,3 @@ en:
       setting:
         plant_name: Name of the plant
         operator_name: Name of the operator
-        opportunity_costs: Opportunity costs

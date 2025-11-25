@@ -1,2 +1,5 @@
 de:
   generated: aus Photovoltaik
+  grid_costs: Netzkosten
+  opportunity_costs: Entgangene Einspeisung
+  total_costs: Gesamtkosten

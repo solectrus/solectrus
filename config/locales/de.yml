@@ -109,6 +109,7 @@ de:
     total_costs: Gesamtkosten
     total_costs_short: Kosten
     grid_costs: Netzbezugskosten
+    grid_costs_short: Netzkosten
     autarky: Autarkie
   splitter:
     grid: Netzbezug
@@ -193,10 +194,6 @@ de:
           placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
         operator_name:
           placeholder: z.B. Max Mustermann in Musterstadt
-      options:
-        description: Optionen
-        opportunity_costs:
-          hint: Entgangene Einspeisevergütung als Teil der Stromkosten betrachten
       summaries:
         title: Tageszusammenfassungen
         description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.
@@ -269,4 +266,3 @@ de:
       setting:
         plant_name: Bezeichung der Anlage
         operator_name: Name des Betreibers
-        opportunity_costs: Opportunitätskosten

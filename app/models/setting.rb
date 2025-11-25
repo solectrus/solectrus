@@ -20,7 +20,6 @@ class Setting < RailsSettings::Base
 
   field :plant_name, type: :string
   field :operator_name, type: :string
-  field :opportunity_costs, type: :boolean, default: false
 
   field :summary_config, type: :json, default: {}
   field :sensor_names, type: :hash, default: {}
