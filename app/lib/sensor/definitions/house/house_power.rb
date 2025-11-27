@@ -51,4 +51,12 @@ class Sensor::Definitions::HousePower < Sensor::Definitions::Base
     # Only calculated if there are excluded sensors to subtract
     Sensor::Config.house_power_excluded_sensors.any?
   end
+
+  def costs_grid_sensor_name
+    :house_costs_grid
+  end
+
+  def costs_pv_sensor_name
+    :house_costs_pv
+  end
 end

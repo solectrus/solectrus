@@ -15,27 +15,26 @@ dl.mt-2.space-y-2
     dd.font-mono.text-right
       = render SensorValue::Component.new(data, :grid_costs, sign: :negative)
 
-- if Setting.opportunity_costs
-  h3.mt-5.font-bold.text-base
-    = t('.pv.header')
+h3.mt-5.font-bold.text-base
+  = t('.pv.header')
 
-  dl.mt-2.space-y-2
-    .flex.items-center.justify-between.gap-4
-      dt
-        = Sensor::Registry[:self_consumption].display_name(:short)
-      dd.font-mono.text-right
-        = render SensorValue::Component.new(data, :self_consumption, context: :total, sign: :negative)
+dl.mt-2.space-y-2
+  .flex.items-center.justify-between.gap-4
+    dt
+      = Sensor::Registry[:self_consumption].display_name(:short)
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :self_consumption, context: :total, sign: :negative)
 
-    .flex.items-center.justify-between.gap-4
-      dt
-        => "\u21D2"
-        = t('.pv.opportunity_costs')
-      dd.font-mono.text-right
-        = render SensorValue::Component.new(data, :opportunity_costs, sign: :negative)
+  .flex.items-center.justify-between.gap-4
+    dt
+      => "\u21D2"
+      = t('.pv.opportunity_costs')
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :opportunity_costs, sign: :negative)
 
-  dl.mt-5
-    .flex.items-center.justify-between.gap-4
-      dt.font-bold.text-base
-        = t('.total_costs')
-      dd.font-mono.text-right
-        = render SensorValue::Component.new(data, :total_costs, sign: :negative)
+dl.mt-5
+  .flex.items-center.justify-between.gap-4
+    dt.font-bold.text-base
+      = t('.total_costs')
+    dd.font-mono.text-right
+      = render SensorValue::Component.new(data, :total_costs, sign: :negative)

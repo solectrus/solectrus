@@ -7,15 +7,6 @@
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   .h-full.w-full.flex.flex-col.gap-3 id= "stats-#{timeframe.id}"
-    - if !timeframe.now? && data.house_costs&.positive?
-      .ml-5.md:ml-20
-        .flex.flex-col.items-center.w-full
-          .w-full
-            = render SplittedCosts::Component.new( \
-                costs: data.house_costs,
-                power_grid_ratio: data.house_power_grid_ratio,
-              )
-
     .flex-1.flex.gap-5
       // Clip
       .flex.gap-10.items-end.px-3.md:px-5.py-2.md:py-3.xl:py-4
@@ -46,6 +37,18 @@
                   data-tooltip-touch-value= 'true'
                 ]
                   i.fa.fa-circle-exclamation
+
+              - if !timeframe.now? && data.house_costs&.positive?
+                .hidden id="tooltip-content-house_power" data-tooltip-target="html"
+                  .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
+                    = Sensor::Registry[:house_power].display_name
+                    = render SensorValue::Component.new(data.house_power || 0, :house_power, context: :total, precision: 3, class: 'text-xl')
+                    = render SplittedCosts::Component.new( \
+                        costs: data.house_costs,
+                        power_grid_ratio: data.house_power_grid_ratio,
+                        grid_costs: data.house_costs_grid,
+                        pv_costs: data.house_costs_pv,
+                      )
 
       // Inner content
       .flex-1.flex

@@ -57,8 +57,13 @@ class House::StatsController < ApplicationController
           q.sum :custom_power_total, :sum
 
           q.sum :house_costs, :sum
+          q.sum :house_costs_grid, :sum
+          q.sum :house_costs_pv, :sum
           Sensor::Config.house_power_included_custom_sensors.each do |sensor|
-            q.sum :"#{sensor.name.to_s.gsub('_power', '')}_costs", :sum
+            sensor_base = sensor.name.to_s.gsub('_power', '')
+            q.sum :"#{sensor_base}_costs", :sum
+            q.sum :"custom_costs_#{sensor_base.sub('custom_', '')}_grid", :sum
+            q.sum :"custom_costs_#{sensor_base.sub('custom_', '')}_pv", :sum
           end
           q.sum :house_without_custom_costs, :sum
         end

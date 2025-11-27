@@ -12,4 +12,12 @@ class Sensor::Definitions::WallboxPower < Sensor::Definitions::Base
   chart { |timeframe| Sensor::Chart::WallboxPower.new(timeframe:) }
 
   trend
+
+  def costs_grid_sensor_name
+    :wallbox_costs_grid
+  end
+
+  def costs_pv_sensor_name
+    :wallbox_costs_pv
+  end
 end

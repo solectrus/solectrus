@@ -621,10 +621,8 @@ describe Sensor::Query::Ranking do
       let(:stop) { start + 1.month }
 
       before do
-        # Enable opportunity_costs to test total_costs = grid_costs + opportunity_costs
-        allow(Setting).to receive(:opportunity_costs).and_return(true)
-
         # Day 1: High costs
+        # total_costs = grid_costs + opportunity_costs
         # grid_import=20kWh * 0.2545 = 5.09 EUR (grid_costs)
         # inverter=50kWh, grid_export=30kWh => self_consumption=20kWh * 0.0832 = 1.664 EUR (opportunity_costs)
         # total = 6.754 EUR

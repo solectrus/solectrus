@@ -152,6 +152,12 @@ class Sensor::Definitions::Base
     self.class.calculated? || respond_to?(:calculate, true)
   end
 
+  # Returns the sensor name for grid costs (e.g., :house_costs_grid)
+  def costs_grid_sensor_name = nil
+
+  # Returns the sensor name for PV/opportunity costs (e.g., :house_costs_pv)
+  def costs_pv_sensor_name = nil
+
   def sql_calculated?
     respond_to?(:sql_calculation)
   end

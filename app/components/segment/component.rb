@@ -70,8 +70,9 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     return unless ApplicationPolicy.power_splitter?
 
     costs_field = "#{sensor.name}_costs".sub('_power', '')
-    # Example: custom_01_costs,  house_without_custom_costs, wallbox_costs, ...
-
+    # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, battery_charging_costs
+    # Note: battery_charging_costs only includes grid costs because battery charging is almost
+    # exclusively from PV (no opportunity costs). Grid costs only occur for rare emergency charging.
     data.public_send(costs_field)
   end
 
@@ -92,16 +93,20 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def costs_grid
-    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor.name)
+    return unless ApplicationPolicy.power_splitter?
 
-    costs_field = "#{sensor.name}_costs_grid".sub('_power', '')
+    costs_field = sensor.costs_grid_sensor_name
+    return unless costs_field
+
     data.public_send(costs_field)
   end
 
   def costs_pv
-    return if %i[wallbox_power heatpump_power house_power].exclude?(sensor.name)
+    return unless ApplicationPolicy.power_splitter?
 
-    costs_field = "#{sensor.name}_costs_pv".sub('_power', '')
+    costs_field = sensor.costs_pv_sensor_name
+    return unless costs_field
+
     data.public_send(costs_field)
   end
 

@@ -74,4 +74,12 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
   chart do |timeframe, variant: nil|
     Sensor::Chart::CustomPower.new(timeframe:, sensor_name: name, variant:)
   end
+
+  def costs_grid_sensor_name
+    :"custom_costs_#{format('%02d', @number)}_grid"
+  end
+
+  def costs_pv_sensor_name
+    :"custom_costs_#{format('%02d', @number)}_pv"
+  end
 end

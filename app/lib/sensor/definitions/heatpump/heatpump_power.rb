@@ -12,4 +12,12 @@ class Sensor::Definitions::HeatpumpPower < Sensor::Definitions::Base
   chart { |timeframe| Sensor::Chart::HeatpumpPower.new(timeframe:) }
 
   trend
+
+  def costs_grid_sensor_name
+    :heatpump_costs_grid
+  end
+
+  def costs_pv_sensor_name
+    :heatpump_costs_pv
+  end
 end

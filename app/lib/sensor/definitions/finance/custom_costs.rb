@@ -16,27 +16,17 @@ class Sensor::Definitions::CustomCosts < Sensor::Definitions::Base
   value unit: :euro, category: :economic
 
   depends_on do
-    if Setting.opportunity_costs
-      [
-        :"custom_costs_#{formatted_number}_grid",
-        :"custom_costs_#{formatted_number}_pv",
-      ]
-    else
-      [:"custom_costs_#{formatted_number}_grid"]
-    end
+    [
+      :"custom_costs_#{formatted_number}_grid",
+      :"custom_costs_#{formatted_number}_pv",
+    ]
   end
 
   calculate do |**kwargs|
     custom_costs_grid = kwargs[:"custom_costs_#{formatted_number}_grid"]
     custom_costs_pv = kwargs[:"custom_costs_#{formatted_number}_pv"]
 
-    if Setting.opportunity_costs
-      if custom_costs_grid && custom_costs_pv
-        custom_costs_grid + custom_costs_pv
-      end
-    else
-      custom_costs_grid
-    end
+    custom_costs_grid + custom_costs_pv if custom_costs_grid && custom_costs_pv
   end
 
   aggregations stored: false, computed: [:sum], meta: [:sum]
