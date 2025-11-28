@@ -75,6 +75,7 @@ class Top10SensorSelect::Component < ViewComponent::Base
   def build_menu_item(sensor_name)
     MenuItem::Component.new(
       name: Sensor::Registry[sensor_name].display_name(:long),
+      id: sensor_name,
       href: helpers.url_for(**permitted_params, sensor_name:, only_path: true),
       data: {
         action: 'dropdown--component#toggle',

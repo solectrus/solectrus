@@ -15,6 +15,11 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     timeframe.short? ? 'line' : 'bar'
   end
 
+  # Override in subclasses for custom chart labels
+  def label
+    chart_sensors.first&.display_name
+  end
+
   def data
     @data ||= build_data
   end

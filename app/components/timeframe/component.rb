@@ -1,10 +1,11 @@
 class Timeframe::Component < ViewComponent::Base
-  def initialize(timeframe:, forecast_days: nil)
+  def initialize(timeframe:, forecast_days: nil, chart_name: nil)
     super()
     @timeframe = timeframe
     @forecast_days = forecast_days
+    @chart_name = chart_name
   end
-  attr_reader :timeframe, :forecast_days
+  attr_reader :timeframe, :forecast_days, :chart_name
 
   def forecast_mode?
     forecast_days.present?
@@ -48,6 +49,7 @@ class Timeframe::Component < ViewComponent::Base
         controller: "#{helpers.controller_namespace}/home",
         sensor_name: helpers.sensor_name,
         timeframe: timeframe.next,
+        chart_name:,
       )
     elsif Sensor::Config.exists?(:inverter_power_forecast)
       forecast_path
@@ -62,6 +64,7 @@ class Timeframe::Component < ViewComponent::Base
         controller: "#{helpers.controller_namespace}/home",
         sensor_name: helpers.sensor_name,
         timeframe: timeframe.prev,
+        chart_name:,
       )
     end
   end

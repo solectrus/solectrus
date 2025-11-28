@@ -114,19 +114,19 @@ Rails.application.routes.draw do
       get '/stats/:sensor_name(/:timeframe)',
           to: 'balance/stats#index',
           as: :balance_stats
-      get '/charts/:sensor_name(/:timeframe)',
+      get '/charts/:sensor_name(/:timeframe)(/:chart_name)',
           to: 'balance/charts#index',
           as: :balance_charts
 
-      # House / Inverter
+      # House / Heatpump / Inverter
       %i[house heatpump inverter].each do |item|
-        get "/#{item}/(:sensor_name)(/:timeframe)",
+        get "/#{item}(/:sensor_name)(/:timeframe)(/:chart_name)",
             to: "#{item}/home#index",
             as: :"#{item}_home"
         get "/#{item}/stats/:sensor_name(/:timeframe)",
             to: "#{item}/stats#index",
             as: :"#{item}_stats"
-        get "/#{item}/charts/:sensor_name(/:timeframe)",
+        get "/#{item}/charts/:sensor_name(/:timeframe)(/:chart_name)",
             to: "#{item}/charts#index",
             as: :"#{item}_charts"
       end

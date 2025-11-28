@@ -2,6 +2,10 @@ de:
   general:
     'yes': Ja
     'no': Nein
+  charts:
+    heatpump_cop_scatter:
+      title: Arbeitszahl vs. Außentemperatur
+      heatpump_power: Stromverbrauch
   categories:
     inverter: Erzeugung
     grid: Netz

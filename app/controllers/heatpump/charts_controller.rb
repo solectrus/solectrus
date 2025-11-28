@@ -8,7 +8,7 @@ class Heatpump::ChartsController < ApplicationController
       render formats: :turbo_stream
     else
       # Fallback
-      redirect_to heatpump_home_path(sensor_name: sensor.name, timeframe:)
+      redirect_to heatpump_home_path(sensor_name:, timeframe:)
     end
   end
 

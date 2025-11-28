@@ -14,6 +14,11 @@ class Heatpump::HomeController < ApplicationController
       return
     end
 
+    unless valid_chart_name?
+      redirect_to(heatpump_home_path(sensor_name:, timeframe:))
+      return
+    end
+
     if timeframe.future?
       redirect_to(default_path)
       return

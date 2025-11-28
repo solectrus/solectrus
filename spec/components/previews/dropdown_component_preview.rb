@@ -5,17 +5,17 @@ class DropdownComponentPreview < ViewComponent::Preview
                                    items: [
                                      MenuItem::Component.new(
                                        name: 'This is the first item',
-                                       sensor_name: 'f1',
+                                       id: 'f1',
                                        href: '#',
                                      ),
                                      MenuItem::Component.new(
                                        name: 'Second',
-                                       sensor_name: 'f2',
+                                       id: 'f2',
                                        href: '#',
                                      ),
                                      MenuItem::Component.new(
                                        name: 'Third',
-                                       sensor_name: 'f3',
+                                       id: 'f3',
                                        href: '#',
                                      ),
                                    ],

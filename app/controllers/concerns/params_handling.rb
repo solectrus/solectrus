@@ -6,7 +6,14 @@ module ParamsHandling
 
     helper_method def permitted_params
       @permitted_params ||=
-        params.permit(:sensor_name, :timeframe, :period, :sort, :calc)
+        params.permit(
+          :sensor_name,
+          :timeframe,
+          :period,
+          :sort,
+          :calc,
+          :chart_name,
+        )
     end
 
     helper_method def period
@@ -21,6 +28,16 @@ module ParamsHandling
       return unless sensor_name
 
       Sensor::Registry[sensor_name]
+    end
+
+    helper_method def chart_name
+      permitted_params[:chart_name]&.to_sym
+    end
+
+    def valid_chart_name?
+      return true if chart_name.blank?
+
+      sensor&.valid_chart_name?(chart_name)
     end
 
     helper_method def calc

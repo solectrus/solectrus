@@ -18,7 +18,13 @@ class Sensor::Definitions::HeatpumpCop < Sensor::Definitions::Base
 
   trend aggregation: :avg, more_is_better: true
 
-  chart { |timeframe| Sensor::Chart::HeatpumpCop.new(timeframe:) }
+  chart do |timeframe|
+    Sensor::Chart::HeatpumpCop.new(timeframe:)
+  end
+
+  chart :scatter, if: -> { Sensor::Config.exists?(:outdoor_temp) } do |timeframe|
+    Sensor::Chart::HeatpumpCopScatter.new(timeframe:)
+  end
 
   def sql_calculation
     # COP = heating power / electrical power

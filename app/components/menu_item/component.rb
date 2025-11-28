@@ -4,6 +4,7 @@ class MenuItem::Component < ViewComponent::Base
     href: nil,
     data: {},
     sensor_name: nil,
+    id: nil,
     icon: nil,
     icon_only: false,
     text: true,
@@ -14,6 +15,7 @@ class MenuItem::Component < ViewComponent::Base
     @href = href
     @data = data
     @sensor_name = sensor_name
+    @id = id
 
     @icon = icon
     @icon_only = icon_only
@@ -32,7 +34,8 @@ class MenuItem::Component < ViewComponent::Base
               :text,
               :current,
               :data,
-              :sensor_name
+              :sensor_name,
+              :id
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES

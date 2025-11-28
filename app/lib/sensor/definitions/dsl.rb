@@ -74,11 +74,14 @@ module Sensor
           define_method(:calculate, &)
         end
 
-        def chart(&)
-          return meta_data[:chart_block] unless block_given?
+        def chart(name = nil, if: nil, &block)
+          raise ArgumentError, 'chart requires a block' unless block
 
-          meta_data[:chart_block] = proc(&)
-          define_method(:chart, &)
+          meta_data[:charts] ||= {}
+          meta_data[:charts][name] = {
+            block:,
+            condition: binding.local_variable_get(:if),
+          }
         end
 
         def requires_permission(permission)

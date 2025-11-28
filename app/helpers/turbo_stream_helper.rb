@@ -42,7 +42,7 @@ module TurboStreamHelper
 
   def turbo_stream_update_timeframe
     turbo_stream.update(frame_id('timeframe')) do
-      render Timeframe::Component.new(timeframe:)
+      render Timeframe::Component.new(timeframe:, chart_name:)
     end
   end
 end

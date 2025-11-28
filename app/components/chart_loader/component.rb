@@ -1,11 +1,12 @@
 class ChartLoader::Component < ViewComponent::Base
-  def initialize(sensor_name:, timeframe:, variant: nil)
+  def initialize(sensor_name:, timeframe:, variant: nil, chart_name: nil)
     super()
     @sensor_name = sensor_name
     @timeframe = timeframe
     @variant = variant
+    @chart_name = chart_name
   end
-  attr_reader :sensor_name, :timeframe, :variant
+  attr_reader :sensor_name, :timeframe, :variant, :chart_name
 
   delegate :type, :data, :options, :blank?, :unit, :permitted?, to: :chart_instance
 
@@ -15,6 +16,7 @@ class ChartLoader::Component < ViewComponent::Base
 
   def path_to_insights
     return if timeframe.now?
+    return if chart_name
     return unless sensor.trendable?
 
     helpers.insights_path(sensor_name:, timeframe:)
@@ -27,7 +29,6 @@ class ChartLoader::Component < ViewComponent::Base
   end
 
   def chart_instance
-    @chart_instance ||=
-      (variant ? sensor.chart(timeframe, variant:) : sensor.chart(timeframe))
+    @chart_instance ||= sensor.chart(timeframe, variant:, chart_name:)
   end
 end

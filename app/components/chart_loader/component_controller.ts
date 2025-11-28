@@ -10,6 +10,7 @@ import {
   PointElement,
   BarController,
   LineController,
+  ScatterController,
   LinearScale,
   TimeScale,
   Filler,
@@ -38,6 +39,7 @@ Chart.register(
   PointElement,
   BarController,
   LineController,
+  ScatterController,
   LinearScale,
   TimeScale,
   Filler,
@@ -47,8 +49,32 @@ Chart.register(
   CrosshairPlugin,
 );
 
+type TooltipField = {
+  source: 'x' | 'y' | 'data';
+  name: string;
+  unit: string;
+  dataKey?: string;
+  transform?: 'divideBy1000';
+};
+
 type DatasetWithId = ChartDataset & {
   id?: string;
+  tooltipFields?: TooltipField[];
+  showTime?: boolean;
+};
+
+// Extended scale options to include adapter configuration for time scales
+type TimeScaleOptions = {
+  adapters?: {
+    date?: {
+      locale?: string;
+    };
+  };
+};
+
+// Extended tick options with custom callback marker
+type ExtendedTickOptions = {
+  callback?: ((value: number | string) => string) | 'formatTemperature';
 };
 
 // Fix for crosshair plugin drawing over the chart and tooltip
@@ -60,8 +86,8 @@ CrosshairPlugin.afterDatasetsDraw = (
   args: unknown,
   options: unknown,
 ): void => {
-  // @ts-expect-error Property does not exist on type
-  if (chart?.crosshair) afterDraw(chart, args, options);
+  // Crosshair plugin adds this property to the chart instance
+  if ('crosshair' in chart) afterDraw(chart, args, options);
 };
 
 // Draw lines between points with no or null data (disables segmentation of the line)
@@ -97,6 +123,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private maxValue: number = 0;
   private minValue: number = 0;
   private locale: string = 'en';
+  private lastTouchedIndex: number | null = null;
 
   private sanitizeLocale(locale: string): string {
     // Remove invalid suffixes like @posix that some browsers return
@@ -159,8 +186,11 @@ export default class extends Controller<HTMLCanvasElement> {
 
     // I18n
     this.locale = this.sanitizeLocale(navigator.language) || 'en';
-    // @ts-expect-error Property does not exist on type
-    options.scales.x.adapters.date.locale = this.locale;
+    // Set locale for time-based charts (skip for scatter charts with linear x-axis)
+    const xScaleAsTime = options.scales.x as TimeScaleOptions;
+    if (xScaleAsTime.adapters?.date) {
+      xScaleAsTime.adapters.date.locale = this.locale;
+    }
 
     this.maxValue = this.maxOf(data);
     this.minValue = this.minOf(data);
@@ -169,6 +199,22 @@ export default class extends Controller<HTMLCanvasElement> {
     if (options.scales.y.ticks)
       options.scales.y.ticks.callback = (value) =>
         typeof value === 'number' ? this.formattedNumber(value, 'axis') : value;
+
+    // Format temperature ticks on x-axis (for scatter charts)
+    const xTicks = options.scales.x.ticks as ExtendedTickOptions | undefined;
+    if (xTicks?.callback === 'formatTemperature') {
+      options.scales.x.ticks!.callback = (value) =>
+        typeof value === 'number' ? `${value.toFixed(1)} °C` : value;
+    }
+
+    // Highlight zero line on x-axis (vertical line at 0°C)
+    if (
+      options.scales.x.grid &&
+      options.scales.x.grid.color === 'zeroLineHighlight'
+    ) {
+      options.scales.x.grid.color = (context) =>
+        context.tick.value === 0 ? '#000' : 'rgba(0, 0, 0, 0.1)';
+    }
 
     // Format numbers on right y-axis (y1) for temperature
     if (options.scales.y1?.ticks) {
@@ -185,95 +231,64 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
-    // Drill-down: Click on bars to navigate to a more detailed view
-    let lastTouchedBar: number | null = null;
+    // Drill-down: Click on bars/points to navigate to a more detailed view
     options.onClick = (
       _event: ChartEvent,
       elements: ActiveElement[],
       chart: Chart,
     ) => {
-      if (elements.length === 0 || !chart?.data?.labels) return;
+      if (elements.length === 0) return;
 
       const dataIndex = elements[0].index;
-      const barLabel = chart.data.labels[dataIndex];
-      if (typeof barLabel !== 'number') return;
+      const dataset = chart.data.datasets[
+        elements[0].datasetIndex
+      ] as DatasetWithId;
 
-      if (isTouchEnabled()) {
-        // To avoid conflict with tooltip, we wait for a second click
-        if (lastTouchedBar === dataIndex) {
-          handleDrilldown(barLabel);
-          lastTouchedBar = null;
-        } else {
-          lastTouchedBar = dataIndex;
-        }
-      } else {
-        handleDrilldown(barLabel);
-      }
-    };
-
-    function handleDrilldown(barLabel: number) {
-      const date = new Date(barLabel);
-      const currentUrl = window.location.href;
-
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-
-      const drilldownLevels = [
-        {
-          regex: /(\/all)$/, // All → Year
-          format: () => `${year}`,
-        },
-        {
-          regex: /(\/\d{4}|\/year)$/, // Year → Month
-          format: () => `${year}-${month}`,
-        },
-        {
-          regex: /(\/\d{4}-\d{2}|\/month)$/, // Month → Day
-          format: () => `${year}-${month}-${day}`,
-        },
-        {
-          regex: /(\/\d{4}-W\d{2}|\/week)$/, // Week → Day
-          format: () => `${year}-${month}-${day}`,
-        },
-        {
-          regex: /(\/\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2})$/, // Range → Day
-          format: () => `${year}-${month}-${day}`,
-        },
-        {
-          regex: /(\/P\d{1,3}D)$/, // Days → Day
-          format: () => `${year}-${month}-${day}`,
-        },
-        {
-          regex: /(\/P\d{1,2}M)$/, // Months → Month
-          format: () => `${year}-${month}`,
-        },
-        {
-          regex: /(\/P\d{1,2}Y)$/, // Years → Year
-          format: () => `${year}`,
-        },
-      ];
-
-      for (const { regex, format } of drilldownLevels) {
-        const match = regex.exec(currentUrl);
-        const value = match?.[1];
-        if (!value) continue;
-
-        const formattedDate = format();
-        const newUrl = currentUrl.replace(value, `/${formattedDate}`);
-        Turbo.visit(newUrl);
+      // Check for drilldownPath in data point (e.g., scatter charts)
+      const rawData = dataset.data?.[dataIndex] as
+        | { drilldownPath?: string; timestamp?: number }
+        | undefined;
+      if (rawData?.drilldownPath) {
+        this.handleTouchOrClick(dataIndex, () =>
+          Turbo.visit(rawData.drilldownPath!),
+        );
         return;
       }
 
-      // No matching drilldown pattern found - this is OK for charts without drilldown
-    }
+      // Get timestamp from bar label
+      if (!chart?.data?.labels) return;
+      const barLabel = chart.data.labels[dataIndex];
+      if (typeof barLabel !== 'number') return;
 
-    options.onHover = (event: ChartEvent, elements: ActiveElement[]) => {
-      if (event?.native?.target instanceof HTMLCanvasElement)
-        event.native.target.style.cursor =
-          elements.length && elements[0].element instanceof BarElement
-            ? 'pointer'
-            : 'default';
+      this.handleTouchOrClick(dataIndex, () =>
+        this.navigateToDrilldown(barLabel),
+      );
+    };
+
+    options.onHover = (
+      event: ChartEvent,
+      elements: ActiveElement[],
+      chart: Chart,
+    ) => {
+      if (!(event?.native?.target instanceof HTMLCanvasElement)) return;
+
+      let showPointer = false;
+      if (elements.length) {
+        // Show pointer for bar elements
+        if (elements[0].element instanceof BarElement) {
+          showPointer = true;
+        }
+        // Show pointer for data points with drilldownPath
+        const dataset = chart.data.datasets[elements[0].datasetIndex];
+        const rawData = dataset.data?.[elements[0].index] as
+          | { drilldownPath?: string }
+          | undefined;
+        if (rawData?.drilldownPath) {
+          showPointer = true;
+        }
+      }
+
+      event.native.target.style.cursor = showPointer ? 'pointer' : 'default';
     };
 
     // Format numbers in tooltips
@@ -306,7 +321,81 @@ export default class extends Controller<HTMLCanvasElement> {
         b.datasetIndex - a.datasetIndex;
 
       options.plugins.tooltip.callbacks = {
+        title: (tooltipItems) => {
+          if (!tooltipItems.length) return;
+
+          // For charts with tooltipFields, show the date/time from timestamp as title
+          const dataset = tooltipItems[0].dataset as DatasetWithId;
+          if (dataset.tooltipFields?.length) {
+            const rawData = tooltipItems[0].raw as Record<string, unknown>;
+            const timestamp = rawData.timestamp;
+
+            if (typeof timestamp === 'number') {
+              const date = new Date(timestamp);
+              // Show time range for hourly data (day view), date for daily data
+              if (dataset.showTime) {
+                const timeFormat = new Intl.DateTimeFormat(this.locale, {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                });
+                const endDate = new Date(timestamp + 3600000); // +1 hour
+                return `${timeFormat.format(date)} – ${timeFormat.format(endDate)}`;
+              }
+              return new Intl.DateTimeFormat(this.locale, {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              }).format(date);
+            }
+            return;
+          }
+
+          // Default title behavior (handled by Chart.js)
+          return;
+        },
+
         label: (tooltipItem) => {
+          // Handle scatter chart data with tooltipFields
+          const dataset = tooltipItem.dataset as DatasetWithId;
+          const tooltipFields = dataset.tooltipFields;
+
+          if (tooltipFields?.length) {
+            const rawData = tooltipItem.raw as Record<string, unknown>;
+            const lines: string[] = [];
+
+            for (const field of tooltipFields) {
+              let value: number | null = null;
+
+              if (field.source === 'x') {
+                value = tooltipItem.parsed.x ?? null;
+              } else if (field.source === 'y') {
+                value = tooltipItem.parsed.y ?? null;
+              } else if (field.source === 'data' && field.dataKey) {
+                const rawValue = rawData[field.dataKey];
+                value = typeof rawValue === 'number' ? rawValue : null;
+              }
+
+              if (value === null) continue;
+
+              // Apply transform if specified
+              if (field.transform === 'divideBy1000') {
+                value /= 1000;
+              }
+
+              const formattedValue = new Intl.NumberFormat(this.locale, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              }).format(value);
+
+              const unitStr = field.unit ? ` ${field.unit}` : '';
+              lines.push(`${field.name}: ${formattedValue}${unitStr}`);
+            }
+
+            return lines;
+          }
+
+          const datasetId = dataset.id;
+
           // Hide PowerSplitter total bar - it only appears in footer
           if (isPowerSplitterStack && !tooltipItem.dataset.stack) return '';
 
@@ -350,7 +439,6 @@ export default class extends Controller<HTMLCanvasElement> {
 
           // Default: show absolute value
           // Check if this is a temperature dataset
-          const datasetId = (tooltipItem.dataset as DatasetWithId).id;
           const isTemperature = datasetId?.includes('_temp');
 
           if (isTemperature) {
@@ -467,16 +555,8 @@ export default class extends Controller<HTMLCanvasElement> {
     number: number,
     target: 'axis' | 'tooltip' = 'tooltip',
   ) {
-    let minValue: number;
-    let maxValue: number;
-
-    if (this.chart) {
-      minValue = this.chart.scales.y.min;
-      maxValue = this.chart.scales.y.max;
-    } else {
-      minValue = this.minValue;
-      maxValue = this.maxValue;
-    }
+    const minValue = this.chart?.scales.y.min ?? this.minValue;
+    const maxValue = this.chart?.scales.y.max ?? this.maxValue;
 
     let unitValuePrefix = '';
 
@@ -493,44 +573,51 @@ export default class extends Controller<HTMLCanvasElement> {
       unitValuePrefix = 'k';
     }
 
-    let decimals: number;
-    let minDecimals: number = 0;
-    if (kilo) {
-      // For gram values (CO2 reduction), use only 1 decimal place even in tooltips
-      const isGram = this.unitValue === 'g';
-
-      switch (target) {
-        case 'tooltip':
-          // On tooltip, we want precise values, but only 1 decimal for grams (kg)
-          decimals = isGram ? 1 : 3;
-          break;
-        case 'axis':
-          // On axis, a single decimal is required to distinguish between values
-          decimals = 1;
-          break;
-      }
-    } else if (isEuro) {
-      // For Euro values:
-      // - Axis: only show decimals if max < 10€ (keeps axis labels simple)
-      // - Tooltips: show decimals if there are any small values (scaleMin < 10 && scaleMax < 100)
-      if (target === 'axis') {
-        decimals = minDecimals = maxValue < 10 ? 2 : 0;
-      } else {
-        const scaleMin = this.chart?.scales.y.min ?? minValue;
-        const scaleMax = this.chart?.scales.y.max ?? maxValue;
-        decimals = minDecimals = scaleMin < 10 && scaleMax < 100 ? 2 : 0;
-      }
-    } else {
-      // Without kilo, default to integers, unless unit is empty (dimensionless like COP) or °C
-      decimals = this.unitValue == '' || this.unitValue == '°C' ? 1 : 0;
-    }
+    const { minDecimals, maxDecimals } = this.getDecimalPlaces(
+      target,
+      kilo,
+      isEuro,
+      minValue,
+      maxValue,
+    );
 
     const numberAsString = new Intl.NumberFormat(this.locale, {
       minimumFractionDigits: minDecimals,
-      maximumFractionDigits: decimals,
+      maximumFractionDigits: maxDecimals,
     }).format(number);
 
     return `${numberAsString} ${unitValuePrefix}${this.unitValue}`;
+  }
+
+  private getDecimalPlaces(
+    target: 'axis' | 'tooltip',
+    kilo: boolean,
+    isEuro: boolean,
+    minValue: number,
+    maxValue: number,
+  ): { minDecimals: number; maxDecimals: number } {
+    if (kilo) {
+      // For gram values (CO2 reduction), use only 1 decimal place even in tooltips
+      const isGram = this.unitValue === 'g';
+      // On axis: single decimal; on tooltip: precise (3) unless grams (1)
+      const maxDecimals = target === 'axis' ? 1 : isGram ? 1 : 3;
+      return { minDecimals: 0, maxDecimals };
+    }
+
+    if (isEuro) {
+      // For Euro values:
+      // - Axis: only show decimals if max < 10€ (keeps axis labels simple)
+      // - Tooltips: show decimals if there are any small values (scaleMin < 10 && scaleMax < 100)
+      const showDecimals =
+        target === 'axis' ? maxValue < 10 : minValue < 10 && maxValue < 100;
+      const decimals = showDecimals ? 2 : 0;
+      return { minDecimals: decimals, maxDecimals: decimals };
+    }
+
+    // Without kilo, default to integers, unless unit is empty (dimensionless like COP) or °C
+    const maxDecimals =
+      this.unitValue === '' || this.unitValue === '°C' ? 1 : 0;
+    return { minDecimals: 0, maxDecimals };
   }
 
   private formattedInterval(min: number, max: number) {
@@ -540,6 +627,22 @@ export default class extends Controller<HTMLCanvasElement> {
     return formattedMin === formattedMax
       ? formattedMin
       : `${formattedMin} - ${formattedMax}`;
+  }
+
+  // Extract numeric value from various data formats (number, array, or scatter point object)
+  private extractNumericValue(
+    value: unknown,
+    mode: 'max' | 'min',
+  ): number | null {
+    if (typeof value === 'number') return value;
+    if (Array.isArray(value))
+      return mode === 'max' ? Math.max(...value) : Math.min(...value);
+    // Handle scatter chart data points (objects with x/y properties)
+    if (value && typeof value === 'object' && 'y' in value) {
+      const y = (value as { y: unknown }).y;
+      if (typeof y === 'number') return y;
+    }
+    return null;
   }
 
   // Get maximum value of all datasets, summing only positive values per stack
@@ -552,9 +655,9 @@ export default class extends Controller<HTMLCanvasElement> {
       if (dataset.data) {
         for (let index = 0; index < dataset.data.length; index++) {
           const value = dataset.data[index];
-          const num = Array.isArray(value) ? Math.max(...value) : value;
+          const num = this.extractNumericValue(value, 'max');
 
-          if (typeof num === 'number' && num > 0) {
+          if (num !== null && num > 0) {
             stackSums[stackKey] ??= [];
             stackSums[stackKey][index] =
               (stackSums[stackKey][index] ?? 0) + num;
@@ -577,9 +680,9 @@ export default class extends Controller<HTMLCanvasElement> {
       if (dataset.data) {
         for (let index = 0; index < dataset.data.length; index++) {
           const value = dataset.data[index];
-          const num = Array.isArray(value) ? Math.min(...value) : value;
+          const num = this.extractNumericValue(value, 'min');
 
-          if (typeof num === 'number' && num < 0) {
+          if (num !== null && num < 0) {
             stackSums[stackKey] ??= [];
             stackSums[stackKey][index] =
               (stackSums[stackKey][index] ?? 0) + num;
@@ -622,5 +725,61 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private handleDblClick() {
     this.chart?.resetZoom();
+  }
+
+  private handleTouchOrClick(dataIndex: number, action: () => void) {
+    if (isTouchEnabled()) {
+      // To avoid conflict with tooltip, we wait for a second click
+      if (this.lastTouchedIndex === dataIndex) {
+        action();
+        this.lastTouchedIndex = null;
+      } else {
+        this.lastTouchedIndex = dataIndex;
+      }
+    } else {
+      action();
+    }
+  }
+
+  private navigateToDrilldown(timestamp: number) {
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // Bar/line chart: Navigate based on current URL pattern
+    const currentUrl = window.location.href;
+    const drilldownLevels: Array<{ regex: RegExp; format: () => string }> = [
+      { regex: /(\/all)$/, format: () => `${year}` }, // All → Year
+      { regex: /(\/\d{4}|\/year)$/, format: () => `${year}-${month}` }, // Year → Month
+      {
+        regex: /(\/\d{4}-\d{2}|\/month)$/,
+        format: () => `${year}-${month}-${day}`,
+      }, // Month → Day
+      {
+        regex: /(\/\d{4}-W\d{2}|\/week)$/,
+        format: () => `${year}-${month}-${day}`,
+      }, // Week → Day
+      {
+        regex: /(\/\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2})$/,
+        format: () => `${year}-${month}-${day}`,
+      }, // Range → Day
+      { regex: /(\/P\d{1,3}D)$/, format: () => `${year}-${month}-${day}` }, // Days → Day
+      { regex: /(\/P\d{1,2}M)$/, format: () => `${year}-${month}` }, // Months → Month
+      { regex: /(\/P\d{1,2}Y)$/, format: () => `${year}` }, // Years → Year
+    ];
+
+    for (const { regex, format } of drilldownLevels) {
+      const match = regex.exec(currentUrl);
+      const value = match?.[1];
+      if (!value) continue;
+
+      const formattedDate = format();
+      const newUrl = currentUrl.replace(value, `/${formattedDate}`);
+      Turbo.visit(newUrl);
+      return;
+    }
+
+    // No matching drilldown pattern found - this is OK for charts without drilldown
   }
 }

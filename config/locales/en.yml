@@ -2,6 +2,10 @@ en:
   general:
     'yes': Yes
     'no': No
+  charts:
+    heatpump_cop_scatter:
+      title: COP vs. Outdoor temperature
+      heatpump_power: Power consumption
   categories:
     inverter: Generation
     grid: Grid

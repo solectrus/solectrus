@@ -4,7 +4,8 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     timeframe:,
     sensor_names:,
     top_sensor: nil,
-    bottom_sensor: nil
+    bottom_sensor: nil,
+    chart_name: nil
   )
     super()
     raise ArgumentError unless sensor_name.is_a?(Symbol)
@@ -15,10 +16,14 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     @sensor_names = sensor_names
     @top_sensor = top_sensor
     @bottom_sensor = bottom_sensor
+    @chart_name = chart_name
   end
-  attr_reader :sensor_name, :timeframe, :sensor_names
+  attr_reader :sensor_name, :timeframe, :sensor_names, :chart_name
 
   def display_name
+    # Handle special chart names (e.g., scatter) - get label from chart instance
+    return chart_instance.label if chart_name
+
     # For individual sensors that are part of a combined chart,
     # show the main sensor with the other one in parentheses
     case sensor_name
@@ -33,6 +38,10 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     else
       Sensor::Registry[sensor_name]&.display_name
     end
+  end
+
+  def sensor_has_additional_chart_names?(sensor_name)
+    Sensor::Registry[sensor_name]&.chart_names&.any?
   end
 
   def sensor_groups
@@ -147,22 +156,39 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   end
 
   def build_menu_items_for_sensors(sensors)
-    sensors
-      .map { |sensor_name| build_menu_item(sensor_name) }
-      .sort_by do |item|
-        Sensor::Registry[item.sensor_name].display_name(:long).downcase
+    items =
+      sensors
+        .map { |sensor_name| build_menu_item(sensor_name) }
+        .sort_by do |item|
+          item_display_name(item.sensor_name).downcase
+        end
+
+    # Add items for sensors that have additional chart names
+    sensors.each do |sensor_name|
+      next unless sensor_has_additional_chart_names?(sensor_name)
+
+      Sensor::Registry[sensor_name].chart_names.each do |name|
+        items << build_additional_chart_item(sensor_name, name)
       end
+    end
+
+    items
+  end
+
+  def item_display_name(name)
+    Sensor::Registry[name].display_name(:long)
   end
 
   def build_menu_item(sensor_name)
-    # Link directly to the sensor (controller will handle mapping to combined chart)
     MenuItem::Component.new(
-      name: Sensor::Registry[sensor_name].display_name,
+      name: item_display_name(sensor_name),
       sensor_name:,
+      id: item_id(sensor_name),
       href:
         url_for(
           controller: "#{helpers.controller_namespace}/home",
           sensor_name:,
+          chart_name: nil,
           timeframe:,
         ),
       data: {
@@ -176,8 +202,48 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     )
   end
 
+  def build_additional_chart_item(sensor_name, additional_chart_name)
+    chart = Sensor::Registry[sensor_name].chart(timeframe, chart_name: additional_chart_name)
+
+    MenuItem::Component.new(
+      name: chart.label,
+      sensor_name:,
+      id: item_id(sensor_name, additional_chart_name),
+      href:
+        url_for(
+          controller: "#{helpers.controller_namespace}/home",
+          sensor_name:,
+          timeframe:,
+          chart_name: additional_chart_name,
+        ),
+      data: {
+        'turbo-frame' => helpers.frame_id('chart'),
+        'turbo-action' => 'replace',
+        'action' =>
+          'stats-with-chart--component#startLoop dropdown--component#toggle',
+        'stats-with-chart--component-sensor-param' => sensor_name,
+      },
+      current: chart_name == additional_chart_name,
+    )
+  end
+
   def current_item?(sensor_name)
+    # Not current if we're showing a special chart
+    return false if chart_name
+
     sensor_name == @sensor_name
+  end
+
+  def selected_id
+    item_id(sensor_name, chart_name)
+  end
+
+  def item_id(sensor_name, chart_name = nil)
+    chart_name ? :"#{sensor_name}_#{chart_name}" : sensor_name
+  end
+
+  def chart_instance
+    @chart_instance ||= Sensor::Registry[sensor_name].chart(timeframe, chart_name:)
   end
 
   def available_sensors
