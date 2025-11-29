@@ -48,14 +48,8 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     return false if individual_inverter_sensors.none?
 
     # For balance view: never show stacked
-    # For inverter view with variant 'split': show stacked if setting allows it
-    if variant == 'split'
-      # Inverter view - respect the inverter_as_total setting
-      !Setting.inverter_as_total
-    else
-      # Balance view - never show stacked
-      false
-    end
+    # For inverter view with variant 'split': always show stacked (individual inverters)
+    variant == 'split'
   end
 
   # Get individual inverter sensors (excluding the main inverter_power)
