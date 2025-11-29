@@ -26,7 +26,7 @@
     "throttle-debounce": "^5.0.2"
   },
   "devDependencies": {
-    "@size-limit/file": "^11.2.0",
+    "@size-limit/file": "^12.0.0",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.1.17",
     "@types/luxon": "^3.7.1",
@@ -40,7 +40,7 @@
     "prettier-plugin-tailwindcss": "^0.7.1",
     "rollup": "^4.53.3",
     "sinon": "^21.0.0",
-    "size-limit": "^11.2.0",
+    "size-limit": "^12.0.0",
     "tailwindcss": "^4.1.17",
     "tailwindcss-displaymodes": "^1.0.8",
     "typescript": "^5.9.3",
