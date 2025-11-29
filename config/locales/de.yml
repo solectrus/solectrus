@@ -84,6 +84,8 @@ de:
     grid_revenue_short: Vergütung
     battery_discharging_power: Akkuentnahme
     battery_charging_power: Akkubeladung
+    battery_charging_power_grid: Akkubeladung (Netz)
+    battery_charging_power_pv: Akkubeladung (PV)
     battery_power: Akkubeladung und -entnahme
     battery_soc: Ladestand Hausakku
     battery_soc_short: Ladestand
