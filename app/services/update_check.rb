@@ -73,7 +73,17 @@ class UpdateCheck
   def registration_grace_period_expired?
     return false unless unregistered?
 
-    installation_time = Time.zone.at(Setting.setup_id)
+    setup_id = Setting.setup_id
+    if setup_id.nil?
+      # Fallback: seed setup_id now if missing
+      Setting.seed!
+      setup_id = Setting.setup_id
+
+      # Give up if still nil
+      return false if setup_id.nil?
+    end
+
+    installation_time = Time.zone.at(setup_id)
     Time.current > installation_time + 2.weeks
   end
 

@@ -38,6 +38,15 @@ describe UpdateCheck do
         end
       end
 
+      it 'handles missing setup_id by seeding it' do
+        Setting.where(var: 'setup_id').delete_all
+        Setting.clear_cache
+
+        expect(Setting.setup_id).to be_nil
+        expect(instance).not_to be_registration_grace_period_expired
+        expect(Setting.setup_id).to be_present
+      end
+
       it 'has shortcuts' do
         expect(instance.latest_version).to eq('v0.20.3')
         expect(instance.registration_status).to eq('unregistered')

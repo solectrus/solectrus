@@ -30,8 +30,10 @@ class Setting < RailsSettings::Base
   field :enable_heatpump, type: :boolean, default: true
 
   def self.seed!
-    Setting.setup_id = nil if Setting.setup_id.to_i.zero?
-    Setting.setup_id ||= (Price.first&.created_at || Time.current).to_i
+    current_id = Setting.setup_id
+    if current_id.nil? || current_id.zero?
+      Setting.setup_id = (Price.first&.created_at || Time.current).to_i
+    end
     Setting.setup_token ||= SecureRandom.alphanumeric(16)
   end
 end
