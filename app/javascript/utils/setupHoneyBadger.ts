@@ -10,4 +10,10 @@ if (honeybadgerApiKey) {
     environment: 'production',
     revision: gitCommitVersion,
   });
+
+  Honeybadger.beforeNotify((notice) => {
+    // Ignore AbortError - these occur when users navigate away before
+    // a fetch request completes, which is normal browser behavior
+    if (notice?.name === 'AbortError') return false;
+  });
 }
