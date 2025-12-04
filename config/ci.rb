@@ -6,7 +6,7 @@ CI.run do
        'rm -rf coverage/.resultset.json'
 
   step 'Style: Ruby', 'bin/rubocop --parallel'
-  step 'Style: Slim', 'bundle exec slim-lint .'
+  step 'Style: Slim', 'bin/slim-lint .'
   step 'Style: JavaScript', 'bin/yarn lint'
   step 'Style: TypeScript', 'bin/yarn tsc'
 
