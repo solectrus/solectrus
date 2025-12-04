@@ -36,6 +36,7 @@ en:
     registration_and_sponsoring: Registration & Sponsoring
     login: Login as Admin
     logout: Logout
+    notifications: Notifications
     version_outdated: New version <strong>%{latest_version}</strong> available!
     version_uptodate: This is the latest version
     prompt_for_sponsoring: Do you like SOLECTRUS? Support the further development with a sponsorship and get more features.
@@ -188,6 +189,7 @@ en:
     edit: Edit
     delete: Delete
     save: Save
+    ok: OK
     confirm_delete: Are you sure you want to delete?
     success: Saved
     error: An error occurred

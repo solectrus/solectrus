@@ -1,0 +1,7 @@
+.h-full.flex.flex-col
+  h1.pb-4.text-gray-500.text-base.sm:text-lg.md:text-xl.lg:text-2xl.flex-shrink-0.hidden.sm:block
+    = t('layout.notifications')
+
+  .divide-y.divide-gray-200.dark:divide-gray-700.overflow-y-auto.flex-1
+    - notifications.each do |notification|
+      = render Notification::Item::Component.new(notification:)

@@ -36,6 +36,7 @@ de:
     registration_and_sponsoring: Registrierung & Sponsoring
     login: Als Admin anmelden
     logout: Abmelden
+    notifications: Benachrichtigungen
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
     prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Weiterentwicklung mit einem Sponsoring und erhalte weitere Features.
@@ -188,6 +189,7 @@ de:
     edit: Bearbeiten
     delete: Löschen
     save: Speichern
+    ok: OK
     confirm_delete: Wirklich löschen?
     success: Gespeichert
     error: Es ist ein Fehler aufgetreten

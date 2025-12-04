@@ -167,6 +167,11 @@ Rails.application.routes.draw do
   get '/login', to: 'sessions#new', as: :new_session
   post '/login', to: 'sessions#create', as: :sessions
   delete '/logout', to: 'sessions#destroy', as: :session
+
+  resources :notifications, only: %i[index show] do
+    collection { get :latest }
+    member { patch :mark_as_read }
+  end
   get '/registration/(:status)', to: 'registration#show', as: :registration
   get '/registration-required',
       to: 'registration_required#show',

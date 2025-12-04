@@ -19,6 +19,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       [
         settings_item,
         registration_item,
+        notifications_item,
         ___,
         expand_item,
         compress_item,
@@ -165,6 +166,18 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         data: {
           turbo: 'false',
         },
+      }
+    end
+
+    def notifications_item
+      any, unread_count = Notification.stats
+      return unless any
+
+      {
+        name: t('layout.notifications'),
+        href: notifications_path,
+        icon: 'message',
+        badge_count: unread_count,
       }
     end
 

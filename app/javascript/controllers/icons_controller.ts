@@ -35,6 +35,7 @@ import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons/faArr
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 import { faGear } from '@fortawesome/free-solid-svg-icons/faGear';
 import { faCircleCheck } from '@fortawesome/free-regular-svg-icons/faCircleCheck';
+import { faMessage } from '@fortawesome/free-solid-svg-icons/faMessage';
 import { faCircleQuestion } from '@fortawesome/free-solid-svg-icons/faCircleQuestion';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons/faCircleInfo';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons/faCircleExclamation';
@@ -94,6 +95,7 @@ export default class extends Controller {
       faGithub,
       faGear,
       faCircleCheck,
+      faMessage,
       faCircleQuestion,
       faCircleExclamation,
       faCircleInfo,

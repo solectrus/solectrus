@@ -8,7 +8,8 @@ class MenuItem::Component < ViewComponent::Base
     icon: nil,
     icon_only: false,
     text: true,
-    current: false
+    current: false,
+    badge_count: nil
   )
     super()
     @name = name
@@ -21,6 +22,7 @@ class MenuItem::Component < ViewComponent::Base
     @icon_only = icon_only
     @text = text
     @current = current
+    @badge_count = badge_count
   end
 
   def target
@@ -35,7 +37,8 @@ class MenuItem::Component < ViewComponent::Base
               :current,
               :data,
               :sensor_name,
-              :id
+              :id,
+              :badge_count
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
@@ -78,28 +81,41 @@ class MenuItem::Component < ViewComponent::Base
 
   def render_inner(with_icon:)
     tag.span class: 'flex items-center gap-3' do
-      content_parts = []
-
-      if with_icon
-        content_parts << if icon
-          tag.i(class: "fa fa-fw fa-#{icon} fa-xl")
-        else
-          tag.span(class: 'w-6 block')
-        end
-      end
-
-      if text
-        content_parts << tag.span(
-          name,
-          class: [
-            'flex-1 text-left uppercase lg:normal-case',
-            ('font-medium' if with_icon),
-            ('lg:hidden' if icon_only),
-          ],
-        )
-      end
-
-      safe_join(content_parts)
+      safe_join(
+        [
+          (render_icon if with_icon),
+          (render_text(with_icon:) if text),
+          (render_badge if badge_count&.positive?),
+        ].compact,
+      )
     end
+  end
+
+  def render_icon
+    if icon
+      tag.i(class: "fa fa-fw fa-#{icon} fa-xl")
+    else
+      tag.span(class: 'w-6 block')
+    end
+  end
+
+  def render_text(with_icon:)
+    tag.span(
+      name,
+      class: [
+        'flex-1 text-left uppercase lg:normal-case',
+        ('font-medium' if with_icon),
+        ('lg:hidden' if icon_only),
+      ],
+    )
+  end
+
+  def render_badge
+    tag.span(
+      badge_count,
+      class:
+        'bg-red-500 dark:bg-red-700 text-white dark:text-gray-300 ' \
+          'text-xs font-bold rounded-full min-w-5 h-5 flex items-center justify-center px-1.5',
+    )
   end
 end

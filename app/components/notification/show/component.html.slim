@@ -1,0 +1,14 @@
+= render TurboModal::Component.new(title:) do
+  .mt-4.flex.flex-col.flex-1.min-h-0
+    time.text-sm.text-gray-500.dark:text-gray-400.shrink-0
+      = l published_at.to_date, format: :default
+
+    .mt-4.text-gray-700.dark:text-gray-300.prose.dark:prose-invert.max-w-none.overflow-y-auto.flex-1.min-h-0
+      = sanitize(body)
+
+    .mt-6.flex.justify-end.shrink-0
+      = button_to t('crud.ok'),
+                  mark_as_read_notification_path(notification),
+                  method: :patch,
+                  class: 'px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium cursor-pointer',
+                  data: { action: 'click->turbo-modal--component#closeDialog' }

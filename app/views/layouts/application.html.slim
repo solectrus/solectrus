@@ -45,10 +45,12 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]
-    .min-h-dvh.flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black
+    .flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black class=(content_for?(:full_height) ? 'h-dvh overflow-hidden' : 'min-h-dvh')
       - if banner?
         = render Banner::Component.new registration_status: UpdateCheck.registration_status,
                                        admin: admin?
+
+      = turbo_stream_from 'notifications'
 
       = render Nav::Top::Component.new do |c|
         = c.with_primary_items topnav_primary_items
@@ -59,9 +61,9 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
         - if flash.present?
           = render AppFlash::Component.new(notice:, alert:)
 
-      main.relative.-mt-32.flex.flex-auto class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
-        .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex
-          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden#inner
+      main.relative.-mt-32.flex.flex-auto.min-h-0 class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
+        .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex.min-h-0
+          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden.min-h-0#inner
             = yield
 
         / Shared backdrop for modal - controlled by modal-launcher controller on links

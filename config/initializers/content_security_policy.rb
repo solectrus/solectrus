@@ -29,7 +29,14 @@ Rails.application.configure do
         *[:self, :data, Rails.configuration.asset_host.presence].compact,
       )
       policy.img_src(
-        *[:self, :data, Rails.configuration.asset_host.presence].compact,
+        *[
+          :self,
+          :data,
+          # Allow images in notification bodies fetched from the update server
+          'https://solectrus.de',
+          'https://*.solectrus.de',
+          Rails.configuration.asset_host.presence,
+        ].compact,
       )
       policy.object_src :none
       policy.script_src(

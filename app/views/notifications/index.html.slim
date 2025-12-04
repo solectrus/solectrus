@@ -1,0 +1,7 @@
+- content_for :full_height, true
+
+- content_for :sub_nav do
+  h1.text-gray-300.text-lg.py-3.sm:hidden
+    = t('layout.notifications')
+
+= render Notification::List::Component.new(notifications:)
