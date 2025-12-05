@@ -166,6 +166,12 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     Array(deps)
   end
 
+  # Static dependencies only (no Proc evaluation, safe for recursive checks)
+  def static_dependencies
+    deps = self.class.depends_on
+    deps.is_a?(Proc) ? [] : Array(deps)
+  end
+
   def store_in_summary?
     summary_aggregations.any?
   end

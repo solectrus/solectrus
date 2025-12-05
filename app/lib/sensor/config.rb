@@ -116,16 +116,16 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
       &.first
   end
 
-  # Check if a sensor is configured and permitted
+  # Check if a sensor is configured, permitted, and has all dependencies available
   def exists?(sensor_name, check_policy: true)
-    # This will raise ArgumentError if sensor doesn't exist in Registry
     sensor = Sensor::Registry[sensor_name]
+    return false if check_policy && !sensor.permitted?
 
     if sensor.calculated? || sensor.sql_calculated?
-      !check_policy || sensor.permitted?
+      sensor.static_dependencies.all? { |dep| exists?(dep, check_policy:) }
     else
       ensure_configurations!
-      configurations.key?(sensor_name) && (!check_policy || sensor.permitted?)
+      configurations.key?(sensor_name)
     end
   end
 

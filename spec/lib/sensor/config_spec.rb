@@ -135,6 +135,31 @@ describe Sensor::Config do
         described_class.exists?(:inverter_power, check_policy: true),
       ).to be(false)
     end
+
+    context 'with calculated sensors' do
+      before { stub_feature(:heatpump) }
+
+      it 'returns false when dependencies are not configured' do
+        # heatpump_cop depends on heatpump_power and heatpump_heating_power
+        env_missing_dependency = {
+          'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
+          # heatpump_heating_power is NOT configured
+        }
+        described_class.setup(env_missing_dependency)
+
+        expect(described_class.exists?(:heatpump_cop)).to be(false)
+      end
+
+      it 'returns true when all dependencies are configured' do
+        env_with_dependencies = {
+          'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
+          'INFLUX_SENSOR_HEATPUMP_HEATING_POWER' => 'heatpump:heating_power',
+        }
+        described_class.setup(env_with_dependencies)
+
+        expect(described_class.exists?(:heatpump_cop)).to be(true)
+      end
+    end
   end
 
   describe '.measurement' do
@@ -238,6 +263,28 @@ describe Sensor::Config do
         sensors = instance.top10_sensors
         expect(sensors).to be_an(Array)
         expect(sensors.all?(&:top10_enabled?)).to be(true)
+      end
+
+      context 'when heatpump_power is configured but heatpump_heating_power is not' do
+        # Simulates user with air-to-air heat pump (no heating power measurement)
+        let(:env) do
+          {
+            'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
+            'INFLUX_SENSOR_HEATPUMP_POWER' => 'heatpump:power',
+          }
+        end
+
+        before do
+          stub_feature(:heatpump)
+          described_class.setup(env)
+        end
+
+        it 'does not include heatpump_cop (missing dependency)' do
+          sensor_names = instance.top10_sensors.map(&:name)
+
+          expect(sensor_names).to include(:heatpump_power)
+          expect(sensor_names).not_to include(:heatpump_cop)
+        end
       end
     end
   end
