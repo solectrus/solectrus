@@ -36,7 +36,7 @@ dl.mt-5
       |&#61;&nbsp;
       = Sensor::Registry[:savings].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :savings, sign: :positive)
+      = render SensorValue::Component.new(data, :savings, sign: :value_based)
 
     - if data.battery_savings_percent&.positive?
       dt

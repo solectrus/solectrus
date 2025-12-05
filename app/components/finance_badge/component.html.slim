@@ -43,7 +43,7 @@
               },
               class: 'click-animation' do
       .value
-        = render SensorValue::Component.new(data, :savings, sign: :positive)
+        = render SensorValue::Component.new(data, :savings, sign: :value_based)
       .title
         = Sensor::Registry[:savings].display_name(:short)
 
