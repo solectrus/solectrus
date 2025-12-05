@@ -98,53 +98,29 @@ class HouseBalance
     return unless house_power_without_custom_grid
     return unless house_power_without_custom&.positive?
 
-    (house_power_without_custom_grid * 100.0 / house_power_without_custom).round
+    (house_power_without_custom_grid * 100.0 / house_power_without_custom).clamp(0, 100).round
   end
 
   # Grid costs for "other consumers" (house without custom sensors)
-  # Calculated as house_costs_grid minus sum of all custom_costs_XX_grid
+  # Calculated proportionally: house_power_without_custom / house_power * house_costs_grid
+  # This ensures consistency with house_without_custom_costs calculation
   def house_without_custom_costs_grid
-    return unless respond_to?(:house_costs_grid)
-    return unless house_costs_grid
+    return unless respond_to?(:house_costs_grid) && house_costs_grid
+    return unless house_power&.positive? && house_power_without_custom
 
     @memo[:house_without_custom_costs_grid] ||=
-      house_costs_grid - custom_costs_grid_total
+      house_power_without_custom / house_power * house_costs_grid
   end
 
   # Opportunity costs for "other consumers" (house without custom sensors)
-  # Calculated as house_costs_pv minus sum of all custom_costs_XX_pv
+  # Calculated proportionally: house_power_without_custom / house_power * house_costs_pv
+  # This ensures consistency with house_without_custom_costs calculation
   def house_without_custom_costs_pv
-    return unless respond_to?(:house_costs_pv)
-    return unless house_costs_pv
+    return unless respond_to?(:house_costs_pv) && house_costs_pv
+    return unless house_power&.positive? && house_power_without_custom
 
     @memo[:house_without_custom_costs_pv] ||=
-      house_costs_pv - custom_costs_pv_total
-  end
-
-  # Total grid costs from all custom power sensors
-  def custom_costs_grid_total
-    @memo[:custom_costs_grid_total] ||= CUSTOM_POWER_SENSOR_NAMES.sum do |sensor_name|
-      number = sensor_name.to_s.match(/custom_power_(\d{2})/)[1]
-      costs_sensor_name = :"custom_costs_#{number}_grid"
-      if @sensor_data.respond_to?(costs_sensor_name)
-        @sensor_data.public_send(costs_sensor_name).to_f
-      else
-        0
-      end
-    end
-  end
-
-  # Total PV costs (opportunity costs) from all custom power sensors
-  def custom_costs_pv_total
-    @memo[:custom_costs_pv_total] ||= CUSTOM_POWER_SENSOR_NAMES.sum do |sensor_name|
-      number = sensor_name.to_s.match(/custom_power_(\d{2})/)[1]
-      costs_sensor_name = :"custom_costs_#{number}_pv"
-      if @sensor_data.respond_to?(costs_sensor_name)
-        @sensor_data.public_send(costs_sensor_name).to_f
-      else
-        0
-      end
-    end
+      house_power_without_custom / house_power * house_costs_pv
   end
 
   private
