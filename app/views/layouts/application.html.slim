@@ -50,8 +50,6 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
         = render Banner::Component.new registration_status: UpdateCheck.registration_status,
                                        admin: admin?
 
-      = turbo_stream_from 'notifications'
-
       = render Nav::Top::Component.new do |c|
         = c.with_primary_items topnav_primary_items
         = c.with_secondary_items topnav_secondary_items

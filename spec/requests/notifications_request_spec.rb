@@ -80,9 +80,9 @@ describe 'Notifications' do
     context 'when logged in as admin' do
       before { login_as_admin }
 
-      it 'returns http no_content' do
+      it 'redirects back' do
         patch "/notifications/#{notification.id}/mark_as_read"
-        expect(response).to have_http_status(:no_content)
+        expect(response).to have_http_status(:redirect)
       end
 
       it 'marks the notification as read' do

@@ -11,4 +11,4 @@
                   mark_as_read_notification_path(notification),
                   method: :patch,
                   class: 'px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium cursor-pointer',
-                  data: { action: 'click->turbo-modal--component#closeDialog' }
+                  data: { turbo_frame: '_top', action: 'click->turbo-modal--component#closeDialog' }

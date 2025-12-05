@@ -16,13 +16,6 @@
 #  index_notifications_on_unread        (id) WHERE (read_at IS NULL)
 #
 class Notification < ApplicationRecord
-  include Turbo::Broadcastable
-
-  BADGE_ID_DESKTOP = 'notifications-badge-desktop'.freeze
-  BADGE_ID_MOBILE = 'notifications-badge-mobile'.freeze
-  BADGE_IDS = [BADGE_ID_DESKTOP, BADGE_ID_MOBILE].freeze
-  public_constant :BADGE_ID_DESKTOP, :BADGE_ID_MOBILE, :BADGE_IDS
-
   validates :title, presence: true
   validates :body, presence: true
   validates :published_at, presence: true
@@ -32,7 +25,6 @@ class Notification < ApplicationRecord
   scope :by_published_at, -> { order(published_at: :desc) }
 
   after_commit :invalidate_stats_cache
-  after_commit :broadcast_changes, on: %i[create update]
 
   def self.stats
     Rails
@@ -62,35 +54,7 @@ class Notification < ApplicationRecord
 
   private
 
-  def broadcast_changes
-    broadcast_badges
-    broadcast_item
-  end
-
-  def broadcast_badges
-    BADGE_IDS.each do |target|
-      broadcast_replace_to(
-        'notifications',
-        target:,
-        html: render_component(Notification::Badge::Component.new(id: target)),
-      )
-    end
-  end
-
   def invalidate_stats_cache
     Rails.cache.delete('notification_stats')
-  end
-
-  def broadcast_item
-    broadcast_replace_to(
-      'notifications',
-      target: self,
-      html:
-        render_component(Notification::Item::Component.new(notification: self)),
-    )
-  end
-
-  def render_component(component)
-    ApplicationController.render(component, layout: false)
   end
 end

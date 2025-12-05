@@ -25,7 +25,7 @@ class NotificationsController < ApplicationController
 
   def mark_as_read
     notification.mark_as_read!
-    head :no_content
+    redirect_back_or_to(root_path)
   end
 
   private

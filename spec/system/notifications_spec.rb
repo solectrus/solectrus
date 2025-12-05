@@ -12,11 +12,8 @@ describe 'Notifications' do
 
     it 'shows notification badge but cannot access notifications page' do
       visit '/'
-      # Badge is shown to all users
-      expect(page).to have_css(
-        '[id^="notifications-badge"] .bg-red-500',
-        text: '1',
-      )
+      # Badge is shown to all users (look for message icon with red badge)
+      expect(page).to have_css('.fa-message + span.bg-red-500', text: '1')
 
       # But the page is protected
       visit '/notifications'
@@ -45,10 +42,7 @@ describe 'Notifications' do
 
     it 'shows notification badge with unread count' do
       visit '/'
-      expect(page).to have_css(
-        '[id^="notifications-badge"] .bg-red-500',
-        text: '1',
-      )
+      expect(page).to have_css('.fa-message + span.bg-red-500', text: '1')
     end
 
     it 'can view notifications list' do
@@ -79,10 +73,7 @@ describe 'Notifications' do
 
     it 'updates badge when notification is marked as read' do
       visit '/'
-      expect(page).to have_css(
-        '[id^="notifications-badge"] .bg-red-500',
-        text: '1',
-      )
+      expect(page).to have_css('.fa-message + span.bg-red-500', text: '1')
 
       visit '/notifications'
       first(:link, 'Wichtige Neuigkeit').click
@@ -90,7 +81,7 @@ describe 'Notifications' do
 
       # Check that modal is closed first (positive assertion)
       expect(page).to have_content('Benachrichtigungen')
-      expect(page).to have_no_css('[id^="notifications-badge"] .bg-red-500')
+      expect(page).to have_no_css('.fa-message + span.bg-red-500')
     end
   end
 end

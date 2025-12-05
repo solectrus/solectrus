@@ -1,11 +1,4 @@
 class Notification::Badge::Component < ViewComponent::Base
-  def initialize(id:)
-    super()
-    @id = id
-  end
-
-  attr_reader :id
-
   def unread_count
     @unread_count ||= stats.last
   end
