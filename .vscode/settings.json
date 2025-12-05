@@ -20,11 +20,9 @@
   "eslint.validate": ["javascript"],
 
   "[ruby]": {
-    "editor.defaultFormatter": "ruby-syntax-tree.vscode-syntax-tree",
+    "editor.defaultFormatter": "Shopify.ruby-lsp",
     "editor.formatOnSave": true
   },
-  "syntaxTree.singleQuotes": true,
-  "syntaxTree.trailingComma": true,
 
   "[shellscript]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"
