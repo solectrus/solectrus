@@ -26,6 +26,6 @@ module BalanceCustomPower
     return unless total_power&.positive?
     return unless grid_power
 
-    (grid_power * 100.0 / total_power).round
+    (grid_power * 100.0 / total_power).clamp(0, 100).round
   end
 end

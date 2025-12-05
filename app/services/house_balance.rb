@@ -66,7 +66,7 @@ class HouseBalance
     return unless house_power&.positive?
     return unless house_power_grid
 
-    (house_power_grid * 100.0 / house_power).round
+    (house_power_grid * 100.0 / house_power).clamp(0, 100).round
   end
 
   # Total grid power from all custom power sensors

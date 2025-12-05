@@ -99,4 +99,24 @@ describe PowerBalance do
       expect(power_balance).not_to respond_to(:invalid_method)
     end
   end
+
+  describe '#house_power_grid_ratio' do
+    subject(:house_power_grid_ratio) { power_balance.house_power_grid_ratio }
+
+    context 'when grid power exceeds total power' do
+      let(:raw_data) { { house_power: 100, house_power_grid: 107 } }
+
+      it 'clamps the ratio to 100' do
+        expect(house_power_grid_ratio).to eq(100)
+      end
+    end
+
+    context 'when grid power is negative' do
+      let(:raw_data) { { house_power: 100, house_power_grid: -10 } }
+
+      it 'clamps the ratio to 0' do
+        expect(house_power_grid_ratio).to eq(0)
+      end
+    end
+  end
 end

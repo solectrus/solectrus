@@ -195,7 +195,7 @@ class PowerBalance
 
     return unless power&.positive? && grid
 
-    (grid * 100.0 / power).round
+    (grid * 100.0 / power).clamp(0, 100).round
   end
 end
 
