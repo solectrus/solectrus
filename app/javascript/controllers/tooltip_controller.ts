@@ -102,6 +102,8 @@ export default class extends Controller {
   }
 
   private connectDelegated(): void {
+    if (!this.supportsHover()) return;
+
     this.createTooltip();
     this.element.addEventListener(
       'pointerenter',
@@ -173,13 +175,17 @@ export default class extends Controller {
   }
 
   private setupEventListeners(): void {
-    // Use pointer events for hover - only shows tooltip on actual mouse (not touch)
-    this.element.addEventListener('pointerenter', this.showOnPointer, {
-      passive: true,
-    });
-    this.element.addEventListener('pointerleave', this.hideOnPointer, {
-      passive: true,
-    });
+    const hoverCapable = this.supportsHover();
+
+    // Use pointer events for hover - only on devices that actually support hover
+    if (hoverCapable) {
+      this.element.addEventListener('pointerenter', this.showOnPointer, {
+        passive: true,
+      });
+      this.element.addEventListener('pointerleave', this.hideOnPointer, {
+        passive: true,
+      });
+    }
 
     // Add touch-specific events if configured and device supports touch
     if (isTouchEnabled()) {
@@ -505,6 +511,10 @@ export default class extends Controller {
     }
 
     this.tooltip.dataset.placement = actualPlacement;
+  }
+
+  private supportsHover(): boolean {
+    return window.matchMedia('(hover: hover)').matches;
   }
 
   /**
