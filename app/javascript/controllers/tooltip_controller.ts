@@ -37,7 +37,9 @@ const LONG_PRESS_DURATION = 500;
  *    - Mouse hover supported via pointer events (only shows for pointerType === 'mouse')
  *    - Touch-specific modes (long-press, force-tap-to-close) not available
  */
-export default class extends Controller {
+export default class TooltipController extends Controller {
+  private static activeTooltip: TooltipController | null = null;
+
   static readonly values = {
     // Where to place the tooltip relative to the target element
     placement: {
@@ -118,6 +120,9 @@ export default class extends Controller {
   }
 
   disconnect() {
+    // Release active tooltip reference to prevent stale references
+    TooltipController.releaseActiveTooltip(this);
+
     // Common cleanup
     if (this.isVisible) {
       this.removeOverlay();
@@ -311,6 +316,8 @@ export default class extends Controller {
     content: string,
     observeElement?: HTMLElement,
   ): Promise<void> {
+    TooltipController.setActiveTooltip(this);
+
     this.updateTooltipContent(content);
     this.isVisible = true;
 
@@ -331,6 +338,7 @@ export default class extends Controller {
 
     this.isVisible = false;
     this.openedByTouch = false;
+    TooltipController.releaseActiveTooltip(this);
 
     this.hideTooltip();
 
@@ -515,6 +523,22 @@ export default class extends Controller {
 
   private supportsHover(): boolean {
     return window.matchMedia('(hover: hover)').matches;
+  }
+
+  private static setActiveTooltip(controller: TooltipController): void {
+    if (
+      TooltipController.activeTooltip &&
+      TooltipController.activeTooltip !== controller
+    ) {
+      TooltipController.activeTooltip.hide();
+    }
+    TooltipController.activeTooltip = controller;
+  }
+
+  private static releaseActiveTooltip(controller: TooltipController): void {
+    if (TooltipController.activeTooltip === controller) {
+      TooltipController.activeTooltip = null;
+    }
   }
 
   /**
