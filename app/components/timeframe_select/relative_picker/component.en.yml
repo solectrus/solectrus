@@ -2,6 +2,7 @@ en:
   select_period: Select relative period
   back: Back
   last_24_hours: Last <strong>24 hours</strong>
+  last_72_hours: Last <strong>72 hours</strong>
   last_7_days: Last <strong>7 days</strong>
   last_30_days: Last <strong>30 days</strong>
   last_90_days: Last <strong>90 days</strong>

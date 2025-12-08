@@ -8,6 +8,16 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
 
   attr_reader :timeframe, :name, :min_date
 
+  DURATION_THRESHOLDS = {
+    'P72H' => -> { 3.days.ago.to_date },
+    'P7D' => -> { 7.days.ago.to_date },
+    'P30D' => -> { 30.days.ago.to_date },
+    'P90D' => -> { 90.days.ago.to_date },
+    'P365D' => -> { 365.days.ago.to_date },
+    'P12M' => -> { 12.months.ago.to_date },
+  }.freeze
+  private_constant :DURATION_THRESHOLDS
+
   def button_id
     "#{name}-button"
   end
@@ -17,7 +27,7 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
     timeframe_str = timeframe.to_s
 
     # Check against known relative formats
-    if %w[P24H P7D P30D P90D P365D P12M].include?(timeframe_str)
+    if %w[P24H P72H P7D P30D P90D P365D P12M].include?(timeframe_str)
       return timeframe_str
     end
 
@@ -60,6 +70,7 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
   def options
     timeframes = [
       { value: 'P24H', label_key: '.last_24_hours' },
+      { value: 'P72H', label_key: '.last_72_hours' },
       { value: 'P7D', label_key: '.last_7_days' },
       { value: 'P30D', label_key: '.last_30_days' },
       { value: 'P90D', label_key: '.last_90_days' },
@@ -89,20 +100,10 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
   def timeframe_available?(duration_string)
     return true unless min_date
 
-    case duration_string
-    when 'P7D'
-      min_date <= 7.days.ago.to_date
-    when 'P30D'
-      min_date <= 30.days.ago.to_date
-    when 'P90D'
-      min_date <= 90.days.ago.to_date
-    when 'P365D'
-      min_date <= 365.days.ago.to_date
-    when 'P12M'
-      min_date <= 12.months.ago.to_date
-    else
-      true
-    end
+    threshold = DURATION_THRESHOLDS[duration_string]
+    return true unless threshold
+
+    min_date <= threshold.call
   end
 
   def installation_timeframe_value
