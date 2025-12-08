@@ -1,14 +1,19 @@
 = link_to notification_path(notification),
           id: dom_id(notification),
-          class: 'block py-3 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800',
+          class: 'block py-4 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800',
           data: { turbo_frame: 'modal', controller: 'modal-launcher' } do
-  .flex.items-center.gap-2.text-sm.text-gray-500.dark:text-gray-400
-    - if unread?
-      span.inline-block.w-2.h-2.rounded-full.bg-red-500
-    = formatted_published_at
+  .flex.items-start.gap-4
+    .relative.flex-shrink-0.w-10.h-10.rounded-full.bg-indigo-100.dark:bg-indigo-900.flex.items-center.justify-center
+      i.fa.fa-message.text-indigo-600.dark:text-indigo-400
+      - if unread?
+        span.absolute.top-0.right-0.w-3.h-3.rounded-full.bg-red-500.border-2.border-white.dark:border-slate-800
 
-  div class=['mt-1 text-gray-800 dark:text-gray-300 leading-snug', text_class]
-    = title
+    .flex-1.min-w-0
+      .text-sm.text-gray-500.dark:text-gray-400
+        = formatted_published_at
 
-  .mt-1.text-sm.text-gray-500.dark:text-gray-400.line-clamp-2
-    = strip_tags(body)
+      div class=['mt-1 text-gray-800 dark:text-gray-300 leading-snug', text_class]
+        = title
+
+      .mt-1.text-sm.text-gray-500.dark:text-gray-400.line-clamp-2
+        = strip_tags(body)
