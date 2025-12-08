@@ -65,34 +65,4 @@ describe Price do
 
     it { is_expected.to validate_uniqueness_of(:starts_at).scoped_to(:name) }
   end
-
-  describe '#destroyable?' do
-    subject { price.destroyable? }
-
-    let!(:price) do
-      described_class.electricity.create!(value: 0.30, starts_at: 3.years.ago)
-    end
-
-    before { described_class.delete_all }
-
-    context 'when there are no other prices' do
-      it { is_expected.to be false }
-    end
-
-    context 'when there are other prices with different name' do
-      before do
-        described_class.feed_in.create! value: 0.08, starts_at: Date.current
-      end
-
-      it { is_expected.to be false }
-    end
-
-    context 'when there are other prices with same name' do
-      before do
-        described_class.electricity.create! value: 0.32, starts_at: Date.current
-      end
-
-      it { is_expected.to be true }
-    end
-  end
 end

@@ -54,9 +54,4 @@ class Price < ApplicationRecord
       .order(starts_at: :desc)
       .pick(:value)
   end
-
-  # Don't allow deleting last price of a scope
-  def destroyable?
-    Price.where.not(id:).exists?(name:)
-  end
 end

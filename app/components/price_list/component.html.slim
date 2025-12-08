@@ -34,7 +34,7 @@
                                              'aria-label': t('crud.edit'),
                                            }
 
-            - if price.destroyable?
+            - if prices.size > 1
               = render Button::Component.new path: settings_price_path(price),
                                              icon: 'trash',
                                              type: :button,
