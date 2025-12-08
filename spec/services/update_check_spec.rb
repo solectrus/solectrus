@@ -195,6 +195,49 @@ describe UpdateCheck do
     end
   end
 
+  describe 'notifications' do
+    let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
+
+    let(:notifications) do
+      [
+        {
+          id: 123,
+          title: 'Test Notification',
+          body: 'This is a test notification',
+          published_at: '2025-01-15T10:00:00Z',
+        },
+      ]
+    end
+
+    before do
+      stub_request(:get, 'https://update.solectrus.de').to_return(
+        headers:,
+        body: {
+          version: 'v0.20.3',
+          registration_status: 'complete',
+          notifications:,
+        }.to_json,
+      )
+    end
+
+    it 'imports notifications to the database' do
+      expect { instance.latest }.to change(Notification, :count).by(1)
+
+      notification = Notification.find(123)
+      expect(notification.title).to eq('Test Notification')
+    end
+
+    it 'does not include notifications in cached data' do
+      result = instance.latest
+
+      expect(result).not_to have_key(:notifications)
+      expect(result).to eq(
+        version: 'v0.20.3',
+        registration_status: 'complete',
+      )
+    end
+  end
+
   describe '#prompt?' do
     subject { instance.prompt? }
 

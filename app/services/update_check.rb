@@ -133,8 +133,11 @@ class UpdateCheck
   def fetch_and_cache_data
     result = @http_client.fetch_update_data
     expires_at = Time.current + result[:expires_in]
+
+    notifications = result[:data].delete(:notifications)
     @cache_manager.set(result[:data], expires_at:)
-    import_notifications(result[:data][:notifications])
+    import_notifications(notifications)
+
     result[:data]
   end
 
