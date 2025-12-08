@@ -52,6 +52,15 @@ class Notification < ApplicationRecord
     save!(touch: false)
   end
 
+  def formatted_published_at
+    date = published_at.to_date
+    if date > 4.months.ago.to_date
+      I18n.l(date, format: '%-d. %B')
+    else
+      I18n.l(date, format: '%d.%m.%Y')
+    end
+  end
+
   private
 
   def invalidate_stats_cache

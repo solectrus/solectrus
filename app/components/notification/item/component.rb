@@ -8,7 +8,7 @@ class Notification::Item::Component < ViewComponent::Base
 
   attr_reader :notification
 
-  delegate :title, :published_at, :unread?, to: :notification
+  delegate :title, :body, :formatted_published_at, :unread?, to: :notification
 
   def indicator_class
     unread? ? 'bg-red-500' : 'bg-transparent'

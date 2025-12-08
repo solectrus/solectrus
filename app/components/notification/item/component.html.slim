@@ -1,10 +1,14 @@
 = link_to notification_path(notification),
           id: dom_id(notification),
-          class: 'flex items-center gap-2 sm:gap-4 py-3 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800',
+          class: 'block py-3 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800',
           data: { turbo_frame: 'modal', controller: 'modal-launcher' } do
-  .flex-shrink-0.w-20.sm:w-24.text-sm.text-gray-400.dark:text-gray-500
-    = l published_at.to_date, format: :default
-  .flex-shrink-0.w-3.flex.justify-center
-    span.inline-block.w-2.h-2.rounded-full class=indicator_class
-  div class=['text-left text-gray-800 dark:text-gray-300 line-clamp-1', text_class]
+  .flex.items-center.gap-2.text-sm.text-gray-500.dark:text-gray-400
+    - if unread?
+      span.inline-block.w-2.h-2.rounded-full.bg-red-500
+    = formatted_published_at
+
+  div class=['mt-1 text-gray-800 dark:text-gray-300 leading-snug', text_class]
     = title
+
+  .mt-1.text-sm.text-gray-500.dark:text-gray-400.line-clamp-2
+    = strip_tags(body)

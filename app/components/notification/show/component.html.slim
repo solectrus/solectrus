@@ -1,7 +1,7 @@
 = render TurboModal::Component.new(title:) do
   .mt-4.flex.flex-col.flex-1.min-h-0
     time.text-sm.text-gray-500.dark:text-gray-400.shrink-0
-      = l published_at.to_date, format: :default
+      = formatted_published_at
 
     .mt-4.text-gray-700.dark:text-gray-300.prose.dark:prose-invert.max-w-none.overflow-y-auto.flex-1.min-h-0
       = sanitize(body)

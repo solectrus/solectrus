@@ -58,14 +58,14 @@ describe 'Notifications' do
       # Open the unread notification
       first(:link, 'Wichtige Neuigkeit').click
 
-      # Modal should show notification content
-      expect(page).to have_content('Das ist der Inhalt der Nachricht.')
+      # Modal should be open
+      expect(page).to have_css('dialog[open]')
 
       # Click OK to mark as read and close modal
       click_on 'OK'
 
       # Wait for modal to close
-      expect(page).to have_no_content('Das ist der Inhalt der Nachricht.')
+      expect(page).to have_no_css('dialog[open]')
 
       # Notification should now be marked as read
       expect(unread_notification.reload).to be_read

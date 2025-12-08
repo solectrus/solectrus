@@ -98,6 +98,30 @@ describe Notification do
     end
   end
 
+  describe '#formatted_published_at' do
+    subject(:formatted_date) { notification.formatted_published_at }
+
+    context 'when published less than 4 months ago' do
+      let(:notification) do
+        described_class.new(published_at: 2.months.ago)
+      end
+
+      it 'returns day and month without year' do
+        expect(formatted_date).to match(/\A\d{1,2}\. \w+\z/)
+      end
+    end
+
+    context 'when published more than 4 months ago' do
+      let(:notification) do
+        described_class.new(published_at: 5.months.ago)
+      end
+
+      it 'returns full date with year' do
+        expect(formatted_date).to match(/\A\d{2}\.\d{2}\.\d{4}\z/)
+      end
+    end
+  end
+
   describe '#mark_as_read!' do
     let(:notification) do
       described_class.create!(

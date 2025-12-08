@@ -6,5 +6,5 @@ class Notification::Show::Component < ViewComponent::Base
 
   attr_reader :notification
 
-  delegate :title, :body, :published_at, to: :notification
+  delegate :title, :body, :formatted_published_at, to: :notification
 end
