@@ -4,6 +4,7 @@
 @source '../../javascript/**/*.{js,ts}';
 
 @plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
 @plugin 'tailwindcss-displaymodes';
 
 /* Toggling dark mode manually */
