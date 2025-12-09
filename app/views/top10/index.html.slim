@@ -20,7 +20,8 @@
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - else
-  = tag.turbo_frame id: 'top10',
+  = tag.turbo_frame id: "top10-#{period}-#{sensor_name}-#{sort}-#{calc}",
                     target: '_top',
+                    data: { turbo_permanent: true },
                     src: top10_chart_path(permitted_params.to_hash.symbolize_keys) do
     .h-96

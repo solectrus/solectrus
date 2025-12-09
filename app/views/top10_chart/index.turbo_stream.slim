@@ -1,2 +1,2 @@
-= turbo_stream.update 'top10' do
+= turbo_stream.update "top10-#{period}-#{sensor_name}-#{sort}-#{calc}" do
   = render Top10Chart::Component.new(sensor_name:, period:, sort:, calc:)

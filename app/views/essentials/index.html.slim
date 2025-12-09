@@ -20,4 +20,5 @@
       = tag.turbo_frame id: "tile-#{tile[:sensor_name]}-#{tile[:timeframe]}",
                         class: ['flex-1 flex items-center justify-center bg-gray-200 dark:bg-slate-700 rounded-lg overflow-hidden'],
                         src: tiles_path(sensor_name: tile[:sensor_name], timeframe: tile[:timeframe]),
-                        target: '_top'
+                        target: '_top',
+                        data: { turbo_permanent: true }

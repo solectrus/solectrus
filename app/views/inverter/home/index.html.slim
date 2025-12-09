@@ -11,9 +11,11 @@
     .flex.items-center.justify-between.lg:justify-end
       = tag.turbo_frame id: frame_id('timeframe'),
                         target: '_top',
+                        data: { turbo_permanent: true },
                         class: 'h-8 space-x-4 flex items-center justify-between lg:justify-end flex-1'
 
-      = tag.turbo_frame id: frame_id('status')
+      = tag.turbo_frame id: frame_id('status'),
+                        data: { turbo_permanent: true }
 
 - content_for :bottom_nav do
   = tag.turbo_frame id: frame_id('second-nav-mobile'), target: '_top' do
