@@ -21,15 +21,14 @@
       .text-center
         - if show_absolute_values?
           => render SensorValue::Component.new(trend.current_value, trend.sensor.name, context: :total, scaling: :kilo, precision: diff_precision)
-          = t('.compared_to')
-          = render SensorValue::Component.new(trend.base_value, trend.sensor.name, context: :total, scaling: :kilo, precision: diff_precision)
-          = t('.in')
+          =< t('.compared_to')
+          =< render SensorValue::Component.new(trend.base_value, trend.sensor.name, context: :total, scaling: :kilo, precision: diff_precision)
+          =< t('.in')
         - else
           => render SensorValue::Component.new(trend.diff.abs, trend.sensor.name, context: :total, scaling: :kilo, precision: diff_precision)
-          div
-            - if trend.percent.positive?
-              = t('.more_than')
-            - else
-              = t('.less_than')
+          - if trend.percent.positive?
+            =< t('.more_than')
+          - else
+            =< t('.less_than')
         div
           = trend.base_timeframe.localized
