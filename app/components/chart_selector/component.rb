@@ -192,11 +192,10 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
           timeframe:,
         ),
       data: {
-        'turbo-frame' => helpers.frame_id('chart'),
-        'turbo-action' => 'replace',
-        'action' =>
-          'stats-with-chart--component#startLoop dropdown--component#toggle',
-        'stats-with-chart--component-sensor-param' => sensor_name,
+        turbo_frame: helpers.frame_id('chart'),
+        turbo_action: 'replace',
+        action: 'stats-with-chart--component#startLoop dropdown--component#toggle',
+        stats_with_chart__component_sensor_name_param: sensor_name,
       },
       current: current_item?(sensor_name),
     )
@@ -217,11 +216,10 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
           chart_name: additional_chart_name,
         ),
       data: {
-        'turbo-frame' => helpers.frame_id('chart'),
-        'turbo-action' => 'replace',
-        'action' =>
-          'stats-with-chart--component#startLoop dropdown--component#toggle',
-        'stats-with-chart--component-sensor-param' => sensor_name,
+        turbo_frame: helpers.frame_id('chart'),
+        turbo_action: 'replace',
+        action: 'stats-with-chart--component#startLoop dropdown--component#toggle',
+        stats_with_chart__component_sensor_name_param: sensor_name,
       },
       current: chart_name == additional_chart_name,
     )
