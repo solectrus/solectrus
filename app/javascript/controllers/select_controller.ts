@@ -12,7 +12,19 @@ export default class extends Controller<HTMLSelectElement> {
   }
 
   onChange() {
-    Turbo.visit(this.selectTarget.value);
+    const option = this.selectTarget.selectedOptions[0];
+    if (!option) return;
+
+    const url = option.value;
+    if (!url) return;
+
+    // Trigger any Stimulus actions declared on the option (e.g., stats-with-chart startLoop)
+    option.dispatchEvent(new Event('click', { bubbles: true }));
+
+    Turbo.visit(url, {
+      frame: option.dataset.turboFrame || undefined,
+      action: option.dataset.turboAction || undefined,
+    });
   }
 
   autoWidth() {
