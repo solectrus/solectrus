@@ -1085,11 +1085,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*":
-  version: 25.0.0
-  resolution: "@types/node@npm:25.0.0"
+  version: 25.0.1
+  resolution: "@types/node@npm:25.0.1"
   dependencies:
     undici-types: "npm:~7.16.0"
-  checksum: 10c0/5a10d6f873ad326e46fac923ea4305b7fea3de0cf7e11c835d1fdc99d4b4d0f3f108035432ec1732f505c97d367b9abf618ecbdfb02a75a5306665ecce2a81a6
+  checksum: 10c0/1d5ca9f240d0cf8e43d5281c0e6ee96fb22d37dc2e5ef52c6ca71de47957a6128e124990cedf5b14c03d0250737bd78ad370d93bcf1729a75ca4e54384fdd51a
   languageName: node
   linkType: hard
 
@@ -1562,12 +1562,12 @@ __metadata:
   linkType: hard
 
 "enhanced-resolve@npm:^5.18.3":
-  version: 5.18.3
-  resolution: "enhanced-resolve@npm:5.18.3"
+  version: 5.18.4
+  resolution: "enhanced-resolve@npm:5.18.4"
   dependencies:
     graceful-fs: "npm:^4.2.4"
     tapable: "npm:^2.2.0"
-  checksum: 10c0/d413c23c2d494e4c1c9c9ac7d60b812083dc6d446699ed495e69c920988af0a3c66bf3f8d0e7a45cb1686c2d4c1df9f4e7352d973f5b56fe63d8d711dd0ccc54
+  checksum: 10c0/8f6d42c8a0787a746c493e724c9de5d091cfe8e3f871f2464e2f78a6c55fa1a3aaba495334f923c8ea3ac23e1472491f79feef6fc0fb46a75169cb447ffbe2dc
   languageName: node
   linkType: hard
 
