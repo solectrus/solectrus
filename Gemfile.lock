@@ -252,7 +252,7 @@ GEM
       concurrent-ruby (~> 1.0)
     influxdb-client (3.2.0)
       csv
-    io-console (0.8.1)
+    io-console (0.8.2)
     io-event (1.14.2)
     irb (1.15.3)
       pp (>= 0.6.0)
