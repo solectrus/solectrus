@@ -21,10 +21,19 @@ export default class extends Controller<HTMLSelectElement> {
     // Trigger any Stimulus actions declared on the option (e.g., stats-with-chart startLoop)
     option.dispatchEvent(new Event('click', { bubbles: true }));
 
-    Turbo.visit(url, {
-      frame: option.dataset.turboFrame || undefined,
-      action: option.dataset.turboAction || undefined,
-    });
+    // Build options object only with defined values to avoid Turbo errors
+    const visitOptions: { frame?: string; action?: 'replace' | 'advance' } = {};
+    if (option.dataset.turboFrame) {
+      visitOptions.frame = option.dataset.turboFrame;
+    }
+    if (
+      option.dataset.turboAction === 'replace' ||
+      option.dataset.turboAction === 'advance'
+    ) {
+      visitOptions.action = option.dataset.turboAction;
+    }
+
+    Turbo.visit(url, visitOptions);
   }
 
   autoWidth() {
