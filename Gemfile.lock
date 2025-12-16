@@ -186,7 +186,7 @@ GEM
       dry-inflector (~> 1.0)
       dry-logic (~> 1.4)
       zeitwerk (~> 2.6)
-    erb (6.0.0)
+    erb (6.0.1)
     erubi (1.13.1)
     event_stream_parser (1.0.0)
     faraday (2.14.0)
