@@ -12,6 +12,10 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         (heatpump_item if Setting.enable_heatpump),
         essentials_item,
         top10_item,
+        (
+          forecast_item if Setting.enable_forecast &&
+            Sensor::Config.exists?(:inverter_power_forecast)
+        ),
       ].compact
     end
 
@@ -128,6 +132,16 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
             calc: 'sum',
           ),
         current: helpers.controller.is_a?(Top10Controller),
+      }
+    end
+
+    def forecast_item
+      {
+        name: t('layout.forecast'),
+        icon: 'calendar-days',
+        icon_only: true,
+        href: forecast_path,
+        current: helpers.controller_namespace == 'forecast',
       }
     end
 

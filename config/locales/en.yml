@@ -25,6 +25,7 @@ en:
     house: House consumption
     heatpump: Heat pump
     essentials: Essentials
+    forecast: Forecast
     top10: Top 10
     about: About SOLECTRUS
     fullscreen_on: Fullscreen
@@ -226,6 +227,7 @@ en:
       single_inverter: In a multi-inverter configuration, these could be named here.
       inverter_as_total: Show only as total in the power balance
       enable_multi_inverter: Enable "Generation" page in the navigation
+      enable_forecast: Enable "Forecast" page in the navigation
       enable_custom_consumer: Enable "House consumption" page in the navigation
       enable_heatpump: Enable "Heat pump" page in the navigation
   timeframe_select:

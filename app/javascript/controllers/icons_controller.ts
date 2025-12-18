@@ -53,6 +53,7 @@ import { faGrip } from '@fortawesome/free-solid-svg-icons/faGrip';
 import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
 import { faHouseCrack } from '@fortawesome/free-solid-svg-icons/faHouseCrack';
 import { faSolarPanel } from '@fortawesome/free-solid-svg-icons/faSolarPanel';
+import { faCalendarDays } from '@fortawesome/free-solid-svg-icons/faCalendarDays';
 
 // -------------------------
 
@@ -111,6 +112,7 @@ export default class extends Controller {
       faSolarPanel,
       faGrip,
       faTrophy,
+      faCalendarDays,
     );
 
     dom.watch();

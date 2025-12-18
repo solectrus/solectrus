@@ -25,6 +25,7 @@ de:
     house: Hausverbrauch
     heatpump: Wärmepumpe
     essentials: Einzelwerte
+    forecast: Prognose
     top10: Top 10
     about: Über SOLECTRUS
     fullscreen_on: Vollbild
@@ -226,6 +227,7 @@ de:
       single_inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
       inverter_as_total: In der Strombilanz nur als Summe darstellen
       enable_multi_inverter: Seite "Erzeugung" in der Navigation anbieten
+      enable_forecast: Seite "Prognose" in der Navigation anbieten
       enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
       enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
   timeframe_select:

@@ -33,6 +33,10 @@
           = f.check_box 'general[enable_multi_inverter]',
                         checked: Setting.enable_multi_inverter,
                         label: I18n.t('settings.sensors.enable_multi_inverter')
+          - if Sensor::Config.exists?(:inverter_power_forecast)
+            = f.check_box 'general[enable_forecast]',
+                          checked: Setting.enable_forecast,
+                          label: I18n.t('settings.sensors.enable_forecast')
 
         - if @consumer_sensors.any?
           = c.with_tab id: 'consumers', label: t('settings.sensors.consumers') do
