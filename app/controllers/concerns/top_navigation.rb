@@ -8,14 +8,14 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       [
         root_item,
         (inverter_item if Setting.enable_multi_inverter),
-        (house_item if Setting.enable_custom_consumer),
-        (heatpump_item if Setting.enable_heatpump),
-        essentials_item,
-        top10_item,
         (
           forecast_item if Setting.enable_forecast &&
             Sensor::Config.exists?(:inverter_power_forecast)
         ),
+        (house_item if Setting.enable_custom_consumer),
+        (heatpump_item if Setting.enable_heatpump),
+        essentials_item,
+        top10_item,
       ].compact
     end
 
@@ -138,7 +138,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
     def forecast_item
       {
         name: t('layout.forecast'),
-        icon: 'calendar-days',
+        icon: 'magic-wand-sparkles',
         icon_only: true,
         href: forecast_path,
         current: helpers.controller_namespace == 'forecast',
