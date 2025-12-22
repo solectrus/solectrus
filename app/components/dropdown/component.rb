@@ -49,7 +49,7 @@ class Dropdown::Component < ViewComponent::Base
 
   def selected_item
     @selected_item ||=
-      flat_items.find { |item| item.respond_to?(:id) && item.id == selected }
+      flat_items.find { |item| item.respond_to?(:id) && item.id.to_s == selected.to_s }
   end
 
   def button_text
