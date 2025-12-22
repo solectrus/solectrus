@@ -75,7 +75,11 @@ describe SensorValue::Component, type: :component do
         render_inline(component)
 
         expect(page).to have_css('span.sensor-value')
-        expect(page).to have_css('strong.font-medium', text: '')
+        expect(page).to have_css('strong.font-medium', text: '–')
+      end
+
+      it 'reports missing? as true' do
+        expect(component.missing?).to be true
       end
     end
 

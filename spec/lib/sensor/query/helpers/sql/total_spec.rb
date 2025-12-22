@@ -232,5 +232,39 @@ describe Sensor::Query::Helpers::Sql::Total do
         expect(result.savings).to be_within(0.0001).of(8.8585)
       end
     end
+
+    context 'when feed_in price is missing' do
+      let(:test_date) { Rails.configuration.x.installation_date + 1.day }
+      let(:timeframe) { Timeframe.new(test_date.to_s) }
+
+      before do
+        Price.find_by(name: :feed_in).destroy!
+
+        create_summary(
+          date: test_date,
+          values: [
+            [:grid_import_power, :sum, 10_000],
+            [:grid_export_power, :sum, 5_000],
+          ],
+        )
+      end
+
+      it 'returns kWh values even without feed_in price' do
+        query =
+          described_class.new(timeframe) do |q|
+            q.sum :grid_import_power
+            q.sum :grid_export_power
+            q.sum :grid_costs
+            q.sum :grid_revenue
+          end
+
+        result = query.call
+
+        expect(result.grid_import_power).to eq(10_000)
+        expect(result.grid_export_power).to eq(5_000)
+        expect(result.grid_costs).to be_present
+        expect(result.grid_revenue).to be_nil
+      end
+    end
   end
 end

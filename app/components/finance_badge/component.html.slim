@@ -6,7 +6,9 @@
                   turbo_frame: helpers.frame_id('chart'),
                   turbo_action: 'replace',
                   turbo_prefetch: 'false',
+                  controller: (missing_price?(:grid_revenue) ? 'tooltip' : nil),
                 },
+                title: (missing_price?(:grid_revenue) ? t('.missing_price') : nil),
                 class: 'click-animation tiny:hidden' do
         .value
           = render SensorValue::Component.new(data, :grid_revenue, sign: :positive)
@@ -24,14 +26,16 @@
                 controller: 'tooltip',
                 tooltip_touch_value: 'long',
               },
+              title: (missing_price?(:grid_costs) ? t('.missing_price') : nil),
               class: 'click-animation' do
       .value
         = render SensorValue::Component.new(data, :grid_costs, sign: :negative)
       .title
         = Sensor::Registry[:grid_costs].display_name(:short)
 
-      template data-tooltip-target= 'html'
-        = render ConsumeDetails::Component.new(data:)
+      - unless missing_price?(:grid_costs)
+        template data-tooltip-target= 'html'
+          = render ConsumeDetails::Component.new(data:)
 
     = link_to balance_home_path(sensor_name: 'savings', timeframe:),
               data: { \
@@ -41,11 +45,13 @@
                 controller: 'tooltip',
                 tooltip_touch_value: 'long',
               },
+              title: (missing_price?(:savings) ? t('.missing_price') : nil),
               class: 'click-animation' do
       .value
         = render SensorValue::Component.new(data, :savings, sign: :value_based)
       .title
         = Sensor::Registry[:savings].display_name(:short)
 
-      template data-tooltip-target= 'html'
-        = render SavingsDetails::Component.new(data:)
+      - unless missing_price?(:savings)
+        template data-tooltip-target= 'html'
+          = render SavingsDetails::Component.new(data:)

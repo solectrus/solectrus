@@ -116,14 +116,14 @@ module Sensor
             joins = []
 
             joins << <<~SQL.squish if required_prices.include?(:electricity)
-              JOIN price_ranges pb
+              LEFT JOIN price_ranges pb
                 ON pb.name = 'electricity'
                AND sv.date >= pb.starts_at
                AND sv.date < pb.next_start
             SQL
 
             joins << <<~SQL.squish if required_prices.include?(:feed_in)
-              JOIN price_ranges pf
+              LEFT JOIN price_ranges pf
                 ON pf.name = 'feed_in'
                AND sv.date >= pf.starts_at
                AND sv.date < pf.next_start

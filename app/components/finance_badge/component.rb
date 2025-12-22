@@ -5,4 +5,8 @@ class FinanceBadge::Component < ViewComponent::Base
     @timeframe = timeframe
   end
   attr_reader :data, :timeframe
+
+  def missing_price?(sensor_name)
+    data.public_send(sensor_name).nil?
+  end
 end

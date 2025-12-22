@@ -19,6 +19,10 @@ class SensorValue::Component < ViewComponent::Base
 
   attr_reader :raw_value, :sensor, :options
 
+  def missing?
+    raw_value.nil?
+  end
+
   def title(format = :long)
     sensor.display_name(format)
   end
