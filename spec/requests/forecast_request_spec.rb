@@ -32,6 +32,16 @@ describe 'Forecast' do
           'turbo-frame id="outdoor-temp-forecast-chart"',
         )
       end
+
+      it 'enables swipe controller for navigation' do
+        get forecast_path
+        expect(response.body).to match(/data-controller="[^"]*swipe/)
+      end
+
+      it 'includes prev link for backward navigation' do
+        get forecast_path
+        expect(response.body).to include('rel="prev"')
+      end
     end
 
     context 'when turbo_frame request to inverter power chart' do
