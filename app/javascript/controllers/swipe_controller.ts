@@ -71,14 +71,16 @@ export default class extends Controller<HTMLElement> {
   }
 
   swipeLeft() {
-    const nextLink = document.querySelector<HTMLAnchorElement>('a[rel="next"]');
+    const nextLink =
+      document.querySelector<HTMLAnchorElement>('a[data-nav="next"]');
     if (nextLink) {
       nextLink.click();
     }
   }
 
   swipeRight() {
-    const prevLink = document.querySelector<HTMLAnchorElement>('a[rel="prev"]');
+    const prevLink =
+      document.querySelector<HTMLAnchorElement>('a[data-nav="prev"]');
     if (prevLink) {
       prevLink.click();
     }

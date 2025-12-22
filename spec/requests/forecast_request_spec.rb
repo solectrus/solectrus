@@ -40,7 +40,7 @@ describe 'Forecast' do
 
       it 'includes prev link for backward navigation' do
         get forecast_path
-        expect(response.body).to include('rel="prev"')
+        expect(response.body).to include('data-nav="prev"')
       end
     end
 
