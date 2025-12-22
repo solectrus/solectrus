@@ -62,7 +62,7 @@ describe 'Home' do
       it 'redirects to forecast for week' do
         get balance_home_path(
               sensor_name: 'inverter_power',
-              timeframe: (Date.current + 1.week).strftime('%Y-W%V'),
+              timeframe: (Date.current + 1.week).strftime('%G-W%V'),
             )
         expect(response).to redirect_to(forecast_path)
       end
