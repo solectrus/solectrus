@@ -8,7 +8,7 @@ plugins:
   - rubocop-thread_safety
 
 AllCops:
-  TargetRubyVersion: 3.4
+  TargetRubyVersion: 4.0
   Exclude:
     - app/javascript/**/*
     - bin/**/*

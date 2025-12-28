@@ -211,6 +211,7 @@ GEM
       json (~> 2.0)
       mime-types (~> 3.4)
       rack (~> 3.1)
+    ffi (1.17.2)
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm64-darwin)
     ffi (1.17.2-x86_64-linux-gnu)
@@ -338,6 +339,7 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
+    pg (1.6.2)
     pg (1.6.2-aarch64-linux-musl)
     pg (1.6.2-arm64-darwin)
     pg (1.6.2-x86_64-linux)
@@ -644,7 +646,7 @@ DEPENDENCIES
   webmock
 
 RUBY VERSION
-  ruby 3.4.8
+  ruby 4.0.0
 
 BUNDLED WITH
-  4.0.2
+  4.0.3
