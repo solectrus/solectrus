@@ -92,7 +92,6 @@ app/lib/sensor/
 │   ├── heatpump/             # Heat pump
 │   ├── house/                # House consumption
 │   ├── inverter/             # Inverter
-│   ├── price/                # Electricity prices
 │   ├── system/               # System status
 │   └── wallbox/              # Wallbox
 │
@@ -122,9 +121,16 @@ app/lib/sensor/
 │
 ├── chart/                    # Chart integration
 │   ├── base.rb              # Base for all charts
+│   ├── concerns/            # Shared chart modules
+│   │   └── forecast.rb      # Forecast integration
 │   ├── inverter_power.rb    # Inverter chart
 │   ├── autarky.rb           # Autarky chart
-│   └── ...                  # 15+ specialized charts
+│   └── ...                  # 25+ specialized charts
+│
+├── forecast/                 # Forecast processing
+│   ├── day.rb               # Daily forecast data
+│   ├── energy_calculator.rb # Energy calculations
+│   └── ...                  # Additional forecast helpers
 │
 ├── data/                     # Data containers
 │   ├── base.rb              # Common functionality
