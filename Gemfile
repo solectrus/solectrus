@@ -11,6 +11,12 @@ gem 'openssl'
 # Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 8.1.1'
 
+# Rails is currently not compatible with connection_pool 3.x
+# https://github.com/rails/rails/pull/56292
+# Remove this after upgrading to Rails 8.1.2
+gem 'connection_pool', '~> 2'
+#####
+
 # Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
 gem 'vite_rails'
 
