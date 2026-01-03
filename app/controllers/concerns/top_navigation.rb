@@ -47,17 +47,17 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           when 'house'
             balance_home_path(
               sensor_name: 'house_power',
-              timeframe: helpers.timeframe,
+              timeframe: computed_timeframe,
             )
           when 'inverter'
             balance_home_path(
               sensor_name: 'inverter_power',
-              timeframe: helpers.timeframe,
+              timeframe: computed_timeframe,
             )
           when 'heatpump'
             balance_home_path(
               sensor_name: 'heatpump_power',
-              timeframe: helpers.timeframe,
+              timeframe: computed_timeframe,
             )
           else
             balance_home_path
@@ -75,7 +75,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.inverter'),
         icon: 'solar-panel',
         icon_only: true,
-        href: inverter_home_path(sensor_name: 'inverter_power', timeframe:),
+        href: inverter_home_path(sensor_name: 'inverter_power', timeframe: computed_timeframe),
         current: helpers.controller_namespace == 'inverter',
       }
     end
@@ -85,7 +85,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.house'),
         icon: 'house-crack',
         icon_only: true,
-        href: house_home_path(sensor_name: 'house_power', timeframe:),
+        href: house_home_path(sensor_name: 'house_power', timeframe: computed_timeframe),
         current: helpers.controller_namespace == 'house',
       }
     end
@@ -96,7 +96,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         icon: 'fan',
         icon_only: true,
         href:
-          heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:),
+          heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe: computed_timeframe),
         current: helpers.controller_namespace == 'heatpump',
       }
     end
@@ -143,6 +143,14 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         href: forecast_path,
         current: helpers.controller_namespace == 'forecast',
       }
+    end
+
+    def computed_timeframe
+      if helpers.controller_namespace == 'forecast'
+        'day'
+      elsif helpers.respond_to?(:timeframe)
+        helpers.timeframe
+      end
     end
 
     def corresponding_top10_period
