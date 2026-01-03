@@ -1,5 +1,5 @@
 doctype html
-html
+html class= (params.dig(:lookbook, :display, :theme) == 'dark' ? 'dark' : nil)
   head
     title ViewComponent Preview
     meta name="viewport" content="width=device-width,initial-scale=1"
@@ -8,6 +8,6 @@ html
     = vite_typescript_tag 'application', 'data-turbo-track': 'reload'
     = vite_stylesheet_tag 'application.css', 'data-turbo-track': 'reload', media: 'screen'
 
-  body class= "h-screen" data-controller="icons" style= "background-color: #{params.dig(:lookbook, :display, :bg_color)}"
+  body.h-screen.bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400 data-controller="icons"
     div class= 'p-5 mx-auto h-full' style= "max-width: #{params.dig(:lookbook, :display, :max_width) || '100%'}"
       = yield

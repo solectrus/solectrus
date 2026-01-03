@@ -85,6 +85,10 @@ Rails.application.configure do
   config.view_component.previews.enabled = true
   config.view_component.previews.controller = 'MyPreviewController'
 
+  config.lookbook.preview_display_options = {
+    theme: %w[light dark],
+  }
+
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
 
