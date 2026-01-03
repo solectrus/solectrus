@@ -38,25 +38,25 @@ describe Sensor::Query::Helpers::Sql::DslBuilder do
 
     describe '#min' do
       it 'adds min aggregation to sensor requests' do
-        builder.min :case_temp, :min
-        expect(builder.sensor_requests).to include(%i[case_temp min min])
+        builder.min :outdoor_temp, :min
+        expect(builder.sensor_requests).to include(%i[outdoor_temp min min])
       end
 
       it 'defaults to min base aggregation' do
-        builder.min :case_temp
-        expect(builder.sensor_requests).to include(%i[case_temp min min])
+        builder.min :outdoor_temp
+        expect(builder.sensor_requests).to include(%i[outdoor_temp min min])
       end
     end
 
     describe '#max' do
       it 'adds max aggregation to sensor requests' do
-        builder.max :case_temp, :max
-        expect(builder.sensor_requests).to include(%i[case_temp max max])
+        builder.max :outdoor_temp, :max
+        expect(builder.sensor_requests).to include(%i[outdoor_temp max max])
       end
 
       it 'defaults to max base aggregation' do
-        builder.max :case_temp
-        expect(builder.sensor_requests).to include(%i[case_temp max max])
+        builder.max :outdoor_temp
+        expect(builder.sensor_requests).to include(%i[outdoor_temp max max])
       end
     end
   end
@@ -90,12 +90,12 @@ describe Sensor::Query::Helpers::Sql::DslBuilder do
   describe 'multiple aggregations' do
     it 'handles multiple sensors' do
       builder.sum :house_power, :sum
-      builder.avg :case_temp, :min
-      builder.max :case_temp, :max
+      builder.avg :outdoor_temp, :min
+      builder.max :outdoor_temp, :max
 
       expect(builder.sensor_requests).to include(%i[house_power sum sum])
-      expect(builder.sensor_requests).to include(%i[case_temp avg min])
-      expect(builder.sensor_requests).to include(%i[case_temp max max])
+      expect(builder.sensor_requests).to include(%i[outdoor_temp avg min])
+      expect(builder.sensor_requests).to include(%i[outdoor_temp max max])
     end
   end
 end

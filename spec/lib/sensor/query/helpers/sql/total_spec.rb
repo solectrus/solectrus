@@ -13,11 +13,11 @@ describe Sensor::Query::Helpers::Sql::Total do
       query =
         described_class.new(timeframe) do |q|
           q.sum :inverter_power_1, :sum
-          q.avg :case_temp, :min
+          q.avg :outdoor_temp, :min
         end
 
       expect(query.sensor_requests).to include(%i[inverter_power_1 sum sum])
-      expect(query.sensor_requests).to include(%i[case_temp avg min])
+      expect(query.sensor_requests).to include(%i[outdoor_temp avg min])
     end
 
     it 'sets timeframe from parameter' do
@@ -59,34 +59,34 @@ describe Sensor::Query::Helpers::Sql::Total do
     end
 
     it 'supports min aggregation' do
-      query = described_class.new(timeframe) { |q| q.min :case_temp, :min }
+      query = described_class.new(timeframe) { |q| q.min :outdoor_temp, :min }
 
-      expect(query.sensor_requests).to include(%i[case_temp min min])
+      expect(query.sensor_requests).to include(%i[outdoor_temp min min])
     end
 
     it 'supports max aggregation' do
-      query = described_class.new(timeframe) { |q| q.max :case_temp, :max }
+      query = described_class.new(timeframe) { |q| q.max :outdoor_temp, :max }
 
-      expect(query.sensor_requests).to include(%i[case_temp max max])
+      expect(query.sensor_requests).to include(%i[outdoor_temp max max])
     end
 
     it 'supports different meta and base aggregations' do
-      query = described_class.new(timeframe) { |q| q.avg :case_temp, :min }
+      query = described_class.new(timeframe) { |q| q.avg :outdoor_temp, :min }
 
-      expect(query.sensor_requests).to include(%i[case_temp avg min])
+      expect(query.sensor_requests).to include(%i[outdoor_temp avg min])
     end
 
     it 'handles multiple sensors' do
       query =
         described_class.new(timeframe) do |q|
           q.sum :house_power, :sum
-          q.avg :case_temp, :min
-          q.max :case_temp, :max
+          q.avg :outdoor_temp, :min
+          q.max :outdoor_temp, :max
         end
 
       expect(query.sensor_requests).to include(%i[house_power sum sum])
-      expect(query.sensor_requests).to include(%i[case_temp avg min])
-      expect(query.sensor_requests).to include(%i[case_temp max max])
+      expect(query.sensor_requests).to include(%i[outdoor_temp avg min])
+      expect(query.sensor_requests).to include(%i[outdoor_temp max max])
     end
 
     it 'supports simplified syntax without base aggregation' do
