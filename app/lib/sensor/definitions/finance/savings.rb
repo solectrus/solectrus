@@ -16,7 +16,7 @@ class Sensor::Definitions::Savings < Sensor::Definitions::Base
     traditional_costs - solar_price
   end
 
-  aggregations stored: false, computed: [:sum], meta: [:sum], top10: true
+  aggregations stored: false, computed: [:sum], meta: %i[sum min max], top10: true
 
   chart { |timeframe| Sensor::Chart::Savings.new(timeframe:) }
 

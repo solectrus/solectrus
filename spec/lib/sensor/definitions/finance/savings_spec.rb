@@ -48,4 +48,10 @@ describe Sensor::Definitions::Savings do # rubocop:disable RSpec/SpecFilePathFor
       )
     end
   end
+
+  describe '#summary_meta_aggregations' do
+    subject { instance.summary_meta_aggregations }
+
+    it { is_expected.to eq(%i[sum min max]) }
+  end
 end

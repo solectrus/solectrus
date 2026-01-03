@@ -16,4 +16,10 @@ describe Sensor::Definitions::GridCosts do # rubocop:disable RSpec/SpecFilePathF
       expect(sql_calculation).to include('grid_import_power_sum')
     end
   end
+
+  describe '#summary_meta_aggregations' do
+    subject { instance.summary_meta_aggregations }
+
+    it { is_expected.to eq(%i[sum min max]) }
+  end
 end

@@ -8,7 +8,7 @@ class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
   depends_on :grid_import_power
 
   chart { |timeframe| Sensor::Chart::GridCosts.new(timeframe:) }
-  aggregations stored: false, computed: [:sum], meta: [:sum], top10: true
+  aggregations stored: false, computed: [:sum], meta: %i[sum min max], top10: true
   trend
 
   def required_prices

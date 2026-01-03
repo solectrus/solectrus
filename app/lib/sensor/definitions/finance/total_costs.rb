@@ -10,7 +10,7 @@ class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
     grid_costs + opportunity_costs if grid_costs && opportunity_costs
   end
 
-  aggregations stored: false, computed: [:sum], meta: [:sum], top10: true
+  aggregations stored: false, computed: [:sum], meta: %i[sum min max], top10: true
 
   chart { |timeframe| Sensor::Chart::TotalCosts.new(timeframe:) }
 

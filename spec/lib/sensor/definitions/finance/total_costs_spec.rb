@@ -40,4 +40,10 @@ describe Sensor::Definitions::TotalCosts do # rubocop:disable RSpec/SpecFilePath
 
     it { is_expected.to be(true) }
   end
+
+  describe '#summary_meta_aggregations' do
+    subject { sensor.summary_meta_aggregations }
+
+    it { is_expected.to eq(%i[sum min max]) }
+  end
 end
