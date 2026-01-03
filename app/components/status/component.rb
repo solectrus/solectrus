@@ -45,7 +45,7 @@ class Status::Component < ViewComponent::Base
     if status_ok?
       'bg-gray-200 dark:bg-gray-300/75 text-black dark:text-gray-800'
     else
-      'bg-orange-100 dark:bg-orange-400/50 text-orange-800 dark:text-orange-200'
+      'bg-red-200 dark:bg-red-500/50 text-red-700 dark:text-red-200'
     end
   end
 
@@ -54,7 +54,7 @@ class Status::Component < ViewComponent::Base
       if status_ok?
         'bg-green-500 dark:bg-green-700'
       else
-        'bg-orange-400 dark:bg-orange-800'
+        'bg-red-500 dark:bg-red-400'
       end
     else
       'bg-red-500 dark:bg-red-700'

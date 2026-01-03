@@ -50,7 +50,7 @@ describe Status::Component, type: :component do
 
     it 'renders the current state in orange' do
       expect(render_inline(component).css('time').text).to eq('TEST')
-      expect(render_inline(component).css('time .bg-orange-400')).to be_present
+      expect(render_inline(component).css('time .bg-red-500')).to be_present
     end
   end
 end
