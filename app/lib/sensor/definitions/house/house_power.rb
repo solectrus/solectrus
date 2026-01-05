@@ -44,7 +44,7 @@ class Sensor::Definitions::HousePower < Sensor::Definitions::Base
   trend
 
   def summary_meta_aggregations
-    calculated? ? [:sum] : %i[sum avg min max]
+    %i[sum avg min max]
   end
 
   def calculated?
