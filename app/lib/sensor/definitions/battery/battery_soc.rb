@@ -16,7 +16,7 @@ class Sensor::Definitions::BatterySoc < Sensor::Definitions::Base
       {
         hex: '#dc2626',
         bg: 'xl:tall:bg-red-200 dark:xl:tall:bg-red-900',
-        text: 'text-red-600 dark:text-red-600',
+        text: 'text-red-600 dark:text-red-600 xl:tall:dark:text-inherit',
         border: 'border-red-200 dark:border-red-900',
       }
     elsif percent <= 20
@@ -24,7 +24,7 @@ class Sensor::Definitions::BatterySoc < Sensor::Definitions::Base
       {
         hex: '#ea580c',
         bg: 'xl:tall:bg-orange-200 dark:xl:tall:bg-yellow-900',
-        text: 'text-orange-600 dark:text-yellow-600',
+        text: 'text-orange-600 dark:text-orange-600 xl:tall:dark:text-inherit',
         border: 'border-orange-200 dark:border-yellow-900',
       }
     else
@@ -32,7 +32,7 @@ class Sensor::Definitions::BatterySoc < Sensor::Definitions::Base
       {
         hex: '#16a34a',
         bg: 'xl:tall:bg-green-200 dark:xl:tall:bg-green-900',
-        text: 'text-green-600 dark:text-green-600',
+        text: 'text-green-600 dark:text-green-600 xl:tall:dark:text-inherit',
         border: 'border-green-200 dark:border-green-900',
       }
     end
