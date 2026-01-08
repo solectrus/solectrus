@@ -111,13 +111,10 @@ module Sensor
     end
 
     def record_has_valid_value?(record)
-      value, aggregation = record.values_at(:value, :aggregation)
-
-      if aggregation == 'sum'
-        value&.nonzero?
-      else
-        value.present?
-      end
+      # Store all non-nil values, including zeros
+      # Zero is a valid value (e.g., battery didn't charge/discharge)
+      # Only nil should be excluded (means no data available)
+      !record[:value].nil?
     end
 
     def upsert_summary_values(records)
