@@ -72,7 +72,7 @@ class Timeframe::Component < ViewComponent::Base
   def timeframe_select_path
     return if forecast_mode?
 
-    helpers.timeframe_select_path(sensor_name: helpers.sensor_name, timeframe:)
+    helpers.timeframe_select_path(sensor_name: helpers.sensor_name, timeframe:, chart_name:)
   end
 
   def paginate_button_classes

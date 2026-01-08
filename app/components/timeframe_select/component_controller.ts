@@ -8,10 +8,13 @@ export default class extends Controller<HTMLElement> {
   static readonly values = {
     baseUrl: String,
     id: String,
+    chartName: String,
   };
 
   declare readonly baseUrlValue: string;
   declare readonly idValue: string;
+  declare readonly chartNameValue: string;
+  declare readonly hasChartNameValue: boolean;
 
   // Unified mapping from timeframe ID to picker config
   private readonly pickerConfig: Record<
@@ -37,7 +40,11 @@ export default class extends Controller<HTMLElement> {
     const { value } = event.detail;
 
     if (value) {
-      Turbo.visit(`${this.baseUrlValue}/${value}`);
+      const chartSuffix =
+        this.hasChartNameValue && this.chartNameValue
+          ? `/${this.chartNameValue}`
+          : '';
+      Turbo.visit(`${this.baseUrlValue}/${value}${chartSuffix}`);
     }
   }
 
