@@ -11,6 +11,8 @@ class Sensor::Definitions::FinanceBase < Sensor::Definitions::Base
     [:sum]
   end
 
+  top10_permitted { ApplicationPolicy.finance_top10? }
+
   # Required price types (electricity, feed_in) - must be implemented by subclasses
   def required_prices
     # :nocov:

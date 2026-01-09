@@ -119,6 +119,10 @@ describe Sensor::Definitions::Base do
       expect(sensor.top10_enabled?).to be(false)
     end
 
+    it 'is top10 permitted by default' do
+      expect(sensor.top10_permitted?).to be(true)
+    end
+
     it 'is not nameable by default' do
       expect(sensor.nameable?).to be(false)
     end

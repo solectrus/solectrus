@@ -132,6 +132,13 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     evaluate_config_value(:top10_enabled, default: false)
   end
 
+  def top10_permitted?
+    block = self.class.inherited_meta_data(:top10_permitted)
+    return true unless block
+
+    instance_exec(&block)
+  end
+
   def nameable?
     evaluate_config_value(:nameable, default: false)
   end

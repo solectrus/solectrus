@@ -29,6 +29,22 @@ describe Sensor::Definitions::TotalCosts do # rubocop:disable RSpec/SpecFilePath
     it { is_expected.to be(true) }
   end
 
+  describe '#top10_permitted?' do
+    subject { sensor.top10_permitted? }
+
+    context 'when finance_top10 is enabled' do
+      before { allow(ApplicationPolicy).to receive(:finance_top10?).and_return(true) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when finance_top10 is disabled' do
+      before { allow(ApplicationPolicy).to receive(:finance_top10?).and_return(false) }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#dependencies' do
     subject { sensor.dependencies }
 

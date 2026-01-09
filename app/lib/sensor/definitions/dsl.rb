@@ -11,6 +11,17 @@ module Sensor
           META_DATA[self]
         end
 
+        def inherited_meta_data(key)
+          ancestors.each do |ancestor|
+            next unless ancestor.respond_to?(:meta_data)
+
+            data = ancestor.meta_data
+            return data[key] if data.key?(key)
+          end
+
+          nil
+        end
+
         # Simple getters with nil default
         %i[unit value_range].each do |attr|
           define_method(attr) { meta_data[attr] }
@@ -102,6 +113,12 @@ module Sensor
           meta_data[:summary_meta_aggregations] = Array(meta) if meta
           meta_data[:allowed_aggregations] = Array(computed) if computed
           meta_data[:top10_enabled] = top10
+        end
+
+        def top10_permitted(&block)
+          raise ArgumentError, 'top10_permitted requires a block' unless block
+
+          meta_data[:top10_permitted] = block
         end
 
         def summary_aggregations(*values)

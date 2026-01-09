@@ -17,6 +17,9 @@ en:
   finance_charts:
     title: Financial charts
     description: Shows the timeline of costs, revenue and savings of the solar system.
+  finance_top10:
+    title: Financial rankings
+    description: Shows the top 10 days, weeks, months or years with the highest costs, revenue or savings.
   sponsoring_only: Exclusively for sponsors
   demo: Demo
   about_sponsoring: How to become a sponsor?

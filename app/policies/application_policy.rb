@@ -11,6 +11,7 @@ class ApplicationPolicy
     insights
     heatpump
     finance_charts
+    finance_top10
   ].freeze
   private_constant :SPONSOR_FEATURES
 

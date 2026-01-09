@@ -5,10 +5,6 @@ class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
     %i[grid_import_power inverter_power grid_export_power]
   end
 
-  def permitted?
-    ApplicationPolicy.finance_charts?
-  end
-
   def build_data
     return super unless timeframe.short?
 

@@ -3,10 +3,6 @@ class Sensor::Chart::GridRevenue < Sensor::Chart::FinanceBase
     timeframe.short? ? [:grid_export_power] : [:grid_revenue]
   end
 
-  def permitted?
-    ApplicationPolicy.finance_charts?
-  end
-
   # Transform grid_export_power to revenue by multiplying with feed-in price
   def transform_data(data, _sensor_name)
     return super unless timeframe.short?

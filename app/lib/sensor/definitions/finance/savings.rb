@@ -31,4 +31,6 @@ class Sensor::Definitions::Savings < Sensor::Definitions::Base
   def required_prices
     %i[electricity feed_in]
   end
+
+  top10_permitted { ApplicationPolicy.finance_top10? }
 end

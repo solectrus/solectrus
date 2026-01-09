@@ -520,6 +520,11 @@ end
 class Sensor::Definitions::HeatpumpPower < Sensor::Definitions::Base
   requires_permission :heatpump
 end
+
+# Top10 permissions (independent from sensor visibility)
+class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
+  top10_permitted { ApplicationPolicy.finance_top10? }
+end
 ```
 
 **Feature check:**
@@ -536,6 +541,8 @@ Sensor::Config.exists?(:car_battery_soc)       # => false if not permitted
 - `:power_splitter` - Grid/PV split
 - `:custom_consumer` - Custom power sensors
 - `:multi_inverter` - Multiple inverters
+- `:finance_charts` - Financial charts
+- `:finance_top10` - Financial Top10 rankings
 
 ## Ranking System
 
@@ -556,7 +563,7 @@ Sensor::Query::Ranking.new(:outdoor_temp, calc_type: :max).days  # Hottest days
 Sensor::Query::Ranking.new(:outdoor_temp, calc_type: :min).days  # Coldest days
 ```
 
-Supports all sensors with `allowed_aggregations`.
+Supports all sensors with `allowed_aggregations`. Use `top10_permitted` to gate access in the UI.
 
 ## Summarizer System
 

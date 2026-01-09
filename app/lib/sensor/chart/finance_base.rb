@@ -14,6 +14,10 @@ class Sensor::Chart::FinanceBase < Sensor::Chart::Base
     nil
   end
 
+  def permitted?
+    ApplicationPolicy.finance_charts?
+  end
+
   protected
 
   # Get price for a specific type and date

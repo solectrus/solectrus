@@ -17,6 +17,9 @@ de:
   finance_charts:
     title: Finanzdiagramme
     description: Dargestellt wird der zeitliche Verlauf von Kosten, Einnahmen und Einsparungen der Solaranlage.
+  finance_top10:
+    title: Finanz-Ranglisten
+    description: Zeigt die Top 10 der Tage, Wochen, Monate oder Jahre mit den höchsten Kosten, Einnahmen oder Einsparungen.
   sponsoring_only: Exklusiv für Sponsoren
   demo: Demo
   about_sponsoring: Wie wird man Sponsor?

@@ -11,10 +11,6 @@ class Sensor::Chart::Savings < Sensor::Chart::FinanceBase
     ]
   end
 
-  def permitted?
-    ApplicationPolicy.finance_charts?
-  end
-
   def build_data
     return super unless timeframe.short?
 

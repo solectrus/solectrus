@@ -1,4 +1,8 @@
-- if top10_for_period.blank?
+- if !sensor.top10_permitted?
+  = render DemoLink::Component.new feature: 'finance_top10',
+                                   url: { controller: 'top10', sensor_name:, calc:, sort: }
+
+- elsif top10_for_period.blank?
   .h-64.flex.items-center.justify-center.text-xl
     = t('.blank')
 
