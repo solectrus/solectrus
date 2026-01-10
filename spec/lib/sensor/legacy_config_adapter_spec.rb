@@ -125,9 +125,11 @@ describe Sensor::LegacyConfigAdapter do
         )
       end
 
-      it 'does not create PV sensor mappings' do
-        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to be_nil
-        expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to be_nil
+      it 'uses SENEC fallback for PV sensor mappings' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to eq(
+          'SENEC:inverter_power',
+        )
+        expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to eq('SENEC:house_power')
       end
 
       it 'logs legacy configuration warning' do
@@ -272,13 +274,46 @@ describe Sensor::LegacyConfigAdapter do
       end
     end
 
-    context 'without any legacy configuration' do
+    context 'without any configuration (implicit legacy from v0.14.5)' do
       let(:env) { {} }
 
-      it 'does not create any sensor mappings' do
-        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to be_nil
-        expect(adapted['INFLUX_SENSOR_INVERTER_POWER_FORECAST']).to be_nil
-        expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to be_nil
+      it 'uses SENEC/Forecast defaults for all legacy sensors' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to eq(
+          'SENEC:inverter_power',
+        )
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER_FORECAST']).to eq(
+          'Forecast:watt',
+        )
+        expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to eq('SENEC:house_power')
+        expect(adapted['INFLUX_SENSOR_BATTERY_SOC']).to eq(
+          'SENEC:bat_fuel_charge',
+        )
+      end
+
+      it 'logs legacy configuration warning' do
+        allow(Rails.logger).to receive(:info)
+
+        adapted
+
+        expect(Rails.logger).to have_received(:info).with(
+          include('⚠️  LEGACY CONFIGURATION'),
+        )
+      end
+    end
+
+    context 'with new INFLUX_SENSOR_* configuration only' do
+      let(:env) do
+        {
+          'INFLUX_SENSOR_INVERTER_POWER' => 'MyPV:power',
+          'INFLUX_SENSOR_HOUSE_POWER' => 'MyPV:house',
+        }
+      end
+
+      it 'does not apply legacy fallbacks' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to eq('MyPV:power')
+        expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to eq('MyPV:house')
+        # Sensors not explicitly configured remain nil
+        expect(adapted['INFLUX_SENSOR_BATTERY_SOC']).to be_nil
       end
 
       it 'logs that configuration is up-to-date' do

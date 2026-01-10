@@ -17,8 +17,7 @@ class Sensor::LegacyConfigAdapter
   def adapt
     adapted_env = env.to_h.dup
 
-    if adapted_env.key?('INFLUX_MEASUREMENT_PV') ||
-         adapted_env.key?('INFLUX_MEASUREMENT_FORECAST')
+    if legacy_mode?(adapted_env)
       # Only iterate over sensors that have legacy fallback mappings
       FALLBACK_SENSORS.each_key do |sensor_name|
         new_env_var = "INFLUX_SENSOR_#{sensor_name.upcase}"
@@ -70,7 +69,6 @@ class Sensor::LegacyConfigAdapter
 
   def build_from_deprecated_config(sensor_name)
     measurement_env_var, field = FALLBACK_SENSORS[sensor_name]
-    return unless env.key?(measurement_env_var)
 
     measurement =
       env[measurement_env_var].presence ||
@@ -82,6 +80,24 @@ class Sensor::LegacyConfigAdapter
     result
   end
 
+  # Legacy mode is active when:
+  # 1. Explicit legacy variables are set (INFLUX_MEASUREMENT_PV or INFLUX_MEASUREMENT_FORECAST), OR
+  # 2. No new INFLUX_SENSOR_* variables are configured (implicit legacy from v0.14.5 and earlier)
+  def legacy_mode?(adapted_env)
+    explicit_legacy_config?(adapted_env) || !sensor_config?(adapted_env)
+  end
+
+  def explicit_legacy_config?(adapted_env)
+    adapted_env.key?('INFLUX_MEASUREMENT_PV') ||
+      adapted_env.key?('INFLUX_MEASUREMENT_FORECAST')
+  end
+
+  def sensor_config?(adapted_env)
+    adapted_env.keys.any? do |key|
+      key.start_with?('INFLUX_SENSOR_') && adapted_env[key].present?
+    end
+  end
+
   def log_summary
     if warnings.empty?
       log_line 'Configuration is up-to-date, no legacy conversion required'
@@ -89,7 +105,7 @@ class Sensor::LegacyConfigAdapter
     end
 
     log_section_header('⚠️  LEGACY CONFIGURATION', char: '·')
-    log_line 'Legacy INFLUX_MEASUREMENT_* variables detected and automatically converted.'
+    log_line 'Legacy configuration detected and automatically converted.'
     log_line 'Everything works as expected, but please consider updating your configuration:'
     log_blank
 
