@@ -153,9 +153,9 @@ en:
     next_days:
       one: Tomorrow
       other: The next %{count} days
-    exactly: Exactly as expected
-    better_html: '%{percent} more than expected'
-    worse_html: '%{percent} less than expected'
+    approximately: About as expected
+    better_html: '%{value} more than expected'
+    worse_html: '%{value} less than expected'
     expect_html: '%{value} expected'
     expectation_html: Expected %{value}
     unknown: No forecast available

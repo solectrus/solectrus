@@ -153,9 +153,9 @@ de:
     next_days:
       one: Morgen
       other: Die nächsten %{count} Tage
-    exactly: Genau wie erwartet
-    better_html: '%{percent} mehr als erwartet'
-    worse_html: '%{percent} weniger als erwartet'
+    approximately: Etwa wie erwartet
+    better_html: '%{value} mehr als erwartet'
+    worse_html: '%{value} weniger als erwartet'
     expect_html: Erwartet werden %{value}
     expectation_html: Erwartet wurden %{value}
     unknown: Keine Prognose verfügbar

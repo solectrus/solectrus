@@ -110,15 +110,12 @@ class PowerBalance
     (battery_savings * 100.0 / savings).round
   end
 
+  # Returns the absolute deviation between actual and forecast in Wh
   def forecast_deviation
     return unless respond_to?(:inverter_power_forecast)
     return unless inverter_power && inverter_power_forecast
 
-    actual = inverter_power.to_f
-    forecast = inverter_power_forecast.to_f
-    return 0 if forecast.zero?
-
-    ((actual - forecast) / forecast * 100).round
+    (inverter_power.to_f - inverter_power_forecast.to_f).round
   end
 
   # ============================================================================

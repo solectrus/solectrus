@@ -20,8 +20,14 @@ class ForecastComment::Component < ViewComponent::Base
     @sunset ||= Sensor::Query::DayLight.new(timeframe.date)&.sunset
   end
 
+  # Threshold for significant deviation (0.5 kWh = 500 Wh)
+  DEVIATION_THRESHOLD = 500
+  private_constant :DEVIATION_THRESHOLD
+
   def tooltip_required?
-    data.forecast_deviation&.positive? ||
-      (!(future? || today_before_sunset?) && data.forecast_deviation&.negative?)
+    return false if future? || today_before_sunset?
+
+    deviation = data.forecast_deviation
+    deviation && deviation.abs > DEVIATION_THRESHOLD
   end
 end
