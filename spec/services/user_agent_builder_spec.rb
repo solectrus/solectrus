@@ -10,13 +10,13 @@ describe UserAgentBuilder, with_setup_id: 0 do
       )
 
       allow(Rails.configuration.x.git).to receive(:commit_version).and_return(
-        'v1.0.0',
+        'v1.0.1',
       )
     end
 
     it 'returns the user agent string' do
       expect(user_agent.to_s).to eq(
-        'SOLECTRUS/v1.0.0 (Linux; aarch64; 6.1.0; 0)',
+        'SOLECTRUS/v1.0.1 (Linux; aarch64; 6.1.0; 0)',
       )
     end
   end

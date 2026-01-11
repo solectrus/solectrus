@@ -15,7 +15,7 @@ describe UpdateCheck::HttpClient do
 
     context 'when the request succeeds' do
       let(:response_body) do
-        { version: 'v1.0.0', registration_status: 'unregistered' }.to_json
+        { version: 'v1.0.1', registration_status: 'unregistered' }.to_json
       end
       let(:headers) { { 'Cache-Control' => 'max-age=43200' } }
 
@@ -30,7 +30,7 @@ describe UpdateCheck::HttpClient do
       it 'returns the parsed JSON data with expiration' do
         expect(result).to eq(
           data: {
-            version: 'v1.0.0',
+            version: 'v1.0.1',
             registration_status: 'unregistered',
           },
           expires_in: 43_200,
@@ -47,7 +47,7 @@ describe UpdateCheck::HttpClient do
 
       it 'sends correct headers' do
         allow(UserAgentBuilder.instance).to receive(:to_s).and_return(
-          'SOLECTRUS/v1.0.0 (Test)',
+          'SOLECTRUS/v1.0.1 (Test)',
         )
 
         result
@@ -55,7 +55,7 @@ describe UpdateCheck::HttpClient do
         expect(WebMock).to have_requested(:get, update_url).with(
           headers: {
             'Accept' => 'application/json',
-            'User-Agent' => 'SOLECTRUS/v1.0.0 (Test)',
+            'User-Agent' => 'SOLECTRUS/v1.0.1 (Test)',
           },
         )
       end

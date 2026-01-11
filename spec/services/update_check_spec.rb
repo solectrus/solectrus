@@ -26,7 +26,7 @@ describe UpdateCheck do
     context 'when the request succeeds', vcr: { cassette_name: 'version' } do
       it do
         is_expected.to eq(
-          { version: 'v1.0.0', registration_status: 'unregistered' },
+          { version: 'v1.0.1', registration_status: 'unregistered' },
         )
       end
 
@@ -48,7 +48,7 @@ describe UpdateCheck do
       end
 
       it 'has shortcuts' do
-        expect(instance.latest_version).to eq('v1.0.0')
+        expect(instance.latest_version).to eq('v1.0.1')
         expect(instance.registration_status).to eq('unregistered')
         expect(instance).to be_unregistered
       end
@@ -213,7 +213,7 @@ describe UpdateCheck do
       stub_request(:get, 'https://update.solectrus.de').to_return(
         headers:,
         body: {
-          version: 'v1.0.0',
+          version: 'v1.0.1',
           registration_status: 'complete',
           notifications:,
         }.to_json,
@@ -232,7 +232,7 @@ describe UpdateCheck do
 
       expect(result).not_to have_key(:notifications)
       expect(result).to eq(
-        version: 'v1.0.0',
+        version: 'v1.0.1',
         registration_status: 'complete',
       )
     end

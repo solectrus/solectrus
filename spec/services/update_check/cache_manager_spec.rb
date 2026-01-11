@@ -3,7 +3,7 @@ describe UpdateCheck::CacheManager do
 
   include_context 'with cache'
 
-  let(:test_data) { { version: 'v1.0.0', registration_status: 'complete' } }
+  let(:test_data) { { version: 'v1.0.1', registration_status: 'complete' } }
   let(:cache_key) { cache_manager.cache_key }
 
   before do
