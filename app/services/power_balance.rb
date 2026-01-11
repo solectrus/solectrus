@@ -105,7 +105,7 @@ class PowerBalance
 
   def battery_savings_percent
     return unless respond_to?(:savings) && respond_to?(:battery_savings)
-    return unless savings&.positive?
+    return unless battery_savings && savings&.positive?
 
     (battery_savings * 100.0 / savings).round
   end
