@@ -14,7 +14,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Welche Version von SOLECTRUS verwendest du?
+      label: Welche Version von SOLECTRUS verwendest du? Stelle unbedingt sicher, dass du die neueste Version nutzt, siehe https://github.com/solectrus/solectrus/releases, denn möglicherweise ist dein Problem bereits behoben.
       placeholder: z.B. v1.0.1
     validations:
       required: true
@@ -23,7 +23,7 @@ body:
     id: machine
     attributes:
       label: Auf welchem Gerät läuft bei dir SOLECTRUS?
-      placeholder: z.B. Raspberry Pi 4
+      placeholder: z.B. Raspberry Pi 4 mit Debian 12 (Bookworm)
     validations:
       required: true
 
