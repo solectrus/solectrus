@@ -1,7 +1,7 @@
 = turbo_stream_update_navigation
 
 = turbo_stream.update frame_id('chart') do
-  .flex.flex-col.flex-auto.sm:gap-2
+  .flex.flex-col.flex-auto.min-h-20.sm:gap-2
     - unless timeframe.out_of_scope?
       = render ChartSelector::Component.new( \
         sensor_name:,
