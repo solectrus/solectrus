@@ -27,7 +27,7 @@ class Balance::StatsController < ApplicationController
   end
 
   def data_now
-    sensors = %i[
+    sensor_names = %i[
       autarky
       battery_charging_power
       battery_discharging_power
@@ -49,13 +49,13 @@ class Balance::StatsController < ApplicationController
     ]
 
     unless Setting.inverter_as_total
-      sensors.concat(
+      sensor_names.concat(
         [:inverter_power_total] +
           Sensor::Config.custom_inverter_sensors.map(&:name),
       )
     end
 
-    PowerBalance.new(Sensor::Query::Latest.new(sensors).call)
+    PowerBalance.new(Sensor::Query::Latest.new(sensor_names).call)
   end
 
   def data_range # rubocop:disable Metrics/AbcSize
