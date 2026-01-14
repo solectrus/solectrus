@@ -12,9 +12,12 @@ class Sensor::Definitions::InverterPowerDifference < Sensor::Definitions::Base
 
     difference = (inverter_power - (inverter_power_total || 0)).clamp(0..)
 
-    # Suppress very small differences (< 1% of total production)
+    # Suppress very small differences (< 1% of total production or < 5 W)
     # These are likely rounding errors or minimal inaccuracies
-    difference.fdiv(inverter_power) > 0.01 ? difference : nil
+    return if difference < 5
+    return if difference.fdiv(inverter_power) <= 0.01
+
+    difference
   end
 
   aggregations stored: false, computed: [:sum], meta: [:sum]

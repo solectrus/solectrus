@@ -24,6 +24,15 @@ describe Sensor::Definitions::InverterPowerDifference do # rubocop:disable RSpec
       end
     end
 
+    context 'when difference is over 1% but below the minimum watt threshold' do
+      let(:inverter_power) { 300 }
+      let(:inverter_power_total) { 296 }
+
+      it 'suppresses small differences and returns nil' do
+        expect(calculate).to be_nil
+      end
+    end
+
     context 'when inverter_power is nil' do
       let(:inverter_power) { nil }
       let(:inverter_power_total) { 4500 }
