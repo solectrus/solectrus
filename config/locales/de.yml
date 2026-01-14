@@ -181,7 +181,7 @@ de:
   registration_required:
     show:
       headline: Registrierung erforderlich
-      p1: SOLECTRUS ist im Basisumfang kostenfrei nutzbar, erfordert jedoch eine Registrierung mit Name, Postleitzahl und E-Mail-Adresse.
+      p1: SOLECTRUS ist im Basisumfang kostenfrei nutzbar, erfordert jedoch eine Registrierung.
       p2: Die Registrierung hilft dabei, die Verbreitung der Software besser einzuschätzen und die Weiterentwicklung gezielt zu priorisieren.
       continue: Jetzt registrieren
       login_required: Um die Registrierung vorzunehmen, melde dich bitte als Administrator an.
