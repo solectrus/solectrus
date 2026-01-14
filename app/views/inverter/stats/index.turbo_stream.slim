@@ -40,10 +40,18 @@
         = render SegmentContainer::Component.new tooltip_placement: 'bottom',
                                                  data:,
                                                  timeframe: do |balance|
-          - Sensor::Config.custom_inverter_sensors.reverse_each.with_index(0) do |sensor, index|
-            - balance.with_segment sensor.name,
-                                   inline: true,
-                                   color_index: Sensor::Config.custom_inverter_sensors.size - index
+          - if data.inverter_power.nil? || data.inverter_power.zero?
+            - balance.with_segment :inverter_power,
+                                   percent: 100,
+                                   tooltip: false,
+                                   color_class: 'bg-slate-600 dark:bg-slate-600/70' do
+              p.text-xl
+                = t('data.inverter_no_production')
+          - else
+            - Sensor::Config.custom_inverter_sensors.reverse_each.with_index(0) do |sensor, index|
+              - balance.with_segment sensor.name,
+                                     inline: true,
+                                     color_index: Sensor::Config.custom_inverter_sensors.size - index
 
-          - balance.with_segment :inverter_power_difference,
-                                 inline: true
+            - balance.with_segment :inverter_power_difference,
+                                   inline: true

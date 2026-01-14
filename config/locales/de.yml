@@ -143,6 +143,7 @@ de:
     blank: Keine Daten vorhanden!
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
     heatpump_no_heating: Kein Heizbetrieb
+    inverter_no_production: Keine Erzeugung
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln

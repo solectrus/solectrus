@@ -143,6 +143,7 @@ en:
     blank: No data available!
     heatpump_cop_below_one: Power consumption exceeds heat generated
     heatpump_no_heating: No heating operation
+    inverter_no_production: No production
   chart:
     inverter_total: Cumulative
     inverter_split: Individual
