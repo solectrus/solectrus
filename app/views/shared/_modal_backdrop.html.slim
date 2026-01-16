@@ -1,0 +1,11 @@
+/ Shared backdrop for modal - controlled by modal-launcher controller on links
+div[
+  id= 'modal-backdrop'
+  class= 'fixed inset-0 z-40 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity opacity-0 pointer-events-none'
+  data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
+  data-transition-enter-start= 'opacity-0'
+  data-transition-enter-end= 'opacity-100'
+  data-transition-leave= 'motion-safe:ease-in motion-safe:duration-200'
+  data-transition-leave-start= 'opacity-100'
+  data-transition-leave-end= 'opacity-0'
+]

@@ -64,17 +64,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
           .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden.min-h-0#inner
             = yield
 
-        / Shared backdrop for modal - controlled by modal-launcher controller on links
-        div[
-          id= 'modal-backdrop'
-          class= 'fixed inset-0 z-40 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity opacity-0 pointer-events-none'
-          data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
-          data-transition-enter-start= 'opacity-0'
-          data-transition-enter-end= 'opacity-100'
-          data-transition-leave= 'motion-safe:ease-in motion-safe:duration-200'
-          data-transition-leave-start= 'opacity-100'
-          data-transition-leave-end= 'opacity-0'
-        ]
+        = render 'shared/modal_backdrop'
         = tag.turbo_frame id: 'modal', target: '_top'
 
       - if content_for?(:bottom_nav)

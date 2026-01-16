@@ -30,9 +30,16 @@ export default class extends Controller<HTMLElement> {
       // Open dialog as modal with native API
       this.dialogTarget.showModal();
 
-      // Prevent auto-focus on first focusable element (e.g., summary elements)
-      // Focus the dialog itself instead
-      this.dialogTarget.focus();
+      // Prefer explicit autofocus in modal content, otherwise focus the dialog itself
+      const autofocusTarget =
+        this.innerTarget.querySelector<HTMLElement>('[autofocus]');
+      if (autofocusTarget) {
+        autofocusTarget.focus();
+      } else {
+        // Prevent auto-focus on first focusable element (e.g., summary elements)
+        // Focus the dialog itself instead
+        this.dialogTarget.focus();
+      }
 
       if (backdropPreloaded) {
         // Remove the preload marker
