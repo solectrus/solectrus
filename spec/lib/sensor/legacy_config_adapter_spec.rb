@@ -306,12 +306,16 @@ describe Sensor::LegacyConfigAdapter do
         {
           'INFLUX_SENSOR_INVERTER_POWER' => 'MyPV:power',
           'INFLUX_SENSOR_HOUSE_POWER' => 'MyPV:house',
+          'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'MyPV:grid_import',
         }
       end
 
       it 'does not apply legacy fallbacks' do
         expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to eq('MyPV:power')
         expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to eq('MyPV:house')
+        expect(adapted['INFLUX_SENSOR_GRID_IMPORT_POWER']).to eq(
+          'MyPV:grid_import',
+        )
         # Sensors not explicitly configured remain nil
         expect(adapted['INFLUX_SENSOR_BATTERY_SOC']).to be_nil
       end
@@ -324,6 +328,57 @@ describe Sensor::LegacyConfigAdapter do
         expect(Rails.logger).to have_received(:info).with(
           include('up-to-date, no legacy conversion required'),
         )
+      end
+    end
+
+    context 'with only heatpump sensor configured' do
+      let(:env) do
+        {
+          'INFLUX_SENSOR_HEATPUMP_POWER' => 'Heatpump:power',
+        }
+      end
+
+      it 'still applies legacy fallbacks for standard sensors' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to eq(
+          'SENEC:inverter_power',
+        )
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER_FORECAST']).to eq(
+          'Forecast:watt',
+        )
+      end
+
+      it 'keeps the heatpump sensor mapping intact' do
+        expect(adapted['INFLUX_SENSOR_HEATPUMP_POWER']).to eq('Heatpump:power')
+      end
+    end
+
+    context 'with inverter power sensor configured only' do
+      let(:env) do
+        {
+          'INFLUX_SENSOR_INVERTER_POWER' => 'MyPV:power',
+        }
+      end
+
+      it 'still applies legacy fallbacks' do
+        expect(adapted['INFLUX_SENSOR_INVERTER_POWER']).to eq('MyPV:power')
+        expect(adapted['INFLUX_SENSOR_GRID_IMPORT_POWER']).to eq(
+          'SENEC:grid_power_plus',
+        )
+      end
+    end
+
+    context 'with grid import power sensor configured only' do
+      let(:env) do
+        {
+          'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'MyPV:grid_plus',
+        }
+      end
+
+      it 'does not apply legacy fallbacks' do
+        expect(adapted['INFLUX_SENSOR_GRID_IMPORT_POWER']).to eq(
+          'MyPV:grid_plus',
+        )
+        expect(adapted['INFLUX_SENSOR_HOUSE_POWER']).to be_nil
       end
     end
 

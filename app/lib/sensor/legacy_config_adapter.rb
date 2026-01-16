@@ -82,7 +82,7 @@ class Sensor::LegacyConfigAdapter
 
   # Legacy mode is active when:
   # 1. Explicit legacy variables are set (INFLUX_MEASUREMENT_PV or INFLUX_MEASUREMENT_FORECAST), OR
-  # 2. No new INFLUX_SENSOR_* variables are configured (implicit legacy from v0.14.5 and earlier)
+  # 2. The primary sensor INFLUX_SENSOR_GRID_IMPORT_POWER is missing
   def legacy_mode?(adapted_env)
     explicit_legacy_config?(adapted_env) || !sensor_config?(adapted_env)
   end
@@ -93,9 +93,7 @@ class Sensor::LegacyConfigAdapter
   end
 
   def sensor_config?(adapted_env)
-    adapted_env.keys.any? do |key|
-      key.start_with?('INFLUX_SENSOR_') && adapted_env[key].present?
-    end
+    adapted_env['INFLUX_SENSOR_GRID_IMPORT_POWER'].present?
   end
 
   def log_summary
