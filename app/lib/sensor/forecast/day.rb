@@ -25,7 +25,7 @@ module Sensor
         noon_time.to_i * 1000
       end
 
-      def total_kwh
+      def total_wh
         return unless should_calculate_total?
 
         entries_for_calculation =
@@ -36,7 +36,7 @@ module Sensor
             entries
           end
 
-        EnergyCalculator.calculate_kwh(entries_for_calculation)
+        EnergyCalculator.calculate_wh(entries_for_calculation)
       end
 
       private

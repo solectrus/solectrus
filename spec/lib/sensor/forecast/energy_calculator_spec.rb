@@ -1,6 +1,6 @@
 describe Sensor::Forecast::EnergyCalculator do
-  describe '.calculate_kwh' do
-    subject(:kwh) { described_class.calculate_kwh(entries) }
+  describe '.calculate_wh' do
+    subject(:wh) { described_class.calculate_wh(entries) }
 
     context 'with empty entries' do
       let(:entries) { [] }
@@ -17,35 +17,35 @@ describe Sensor::Forecast::EnergyCalculator do
     context 'with two entries 1 hour apart at 1000W' do
       let(:entries) do
         [
-          [Time.zone.parse('2024-01-15 12:00'), 1000], # 1 kW
+          [Time.zone.parse('2024-01-15 12:00'), 1000],
           [Time.zone.parse('2024-01-15 13:00'), 1000],
         ]
       end
 
       it 'calculates energy using left endpoint rule' do
-        # Energy = 1 kW * 1 hour = 1 kWh
-        expect(kwh).to eq(1)
+        # Energy = 1000 W * 1 hour = 1000 Wh
+        expect(wh).to eq(1000)
       end
     end
 
     context 'with varying power over 4 intervals' do
       let(:entries) do
         [
-          [Time.zone.parse('2024-01-15 10:00'), 500], # 0.5 kW
-          [Time.zone.parse('2024-01-15 10:15'), 1000], # 1.0 kW
-          [Time.zone.parse('2024-01-15 10:30'), 1500], # 1.5 kW
-          [Time.zone.parse('2024-01-15 10:45'), 1000], # 1.0 kW
-          [Time.zone.parse('2024-01-15 11:00'), 500], # 0.5 kW (not used - right endpoint)
+          [Time.zone.parse('2024-01-15 10:00'), 500],
+          [Time.zone.parse('2024-01-15 10:15'), 1000],
+          [Time.zone.parse('2024-01-15 10:30'), 1500],
+          [Time.zone.parse('2024-01-15 10:45'), 1000],
+          [Time.zone.parse('2024-01-15 11:00'), 500], # not used - right endpoint
         ]
       end
 
       it 'sums energy for all intervals' do
-        # Interval 1: 0.5 kW * 0.25 h = 0.125 kWh
-        # Interval 2: 1.0 kW * 0.25 h = 0.25 kWh
-        # Interval 3: 1.5 kW * 0.25 h = 0.375 kWh
-        # Interval 4: 1.0 kW * 0.25 h = 0.25 kWh
-        # Total: 1.0 kWh (rounds to 1)
-        expect(kwh).to eq(1)
+        # Interval 1: 500 W * 0.25 h = 125 Wh
+        # Interval 2: 1000 W * 0.25 h = 250 Wh
+        # Interval 3: 1500 W * 0.25 h = 375 Wh
+        # Interval 4: 1000 W * 0.25 h = 250 Wh
+        # Total: 1000 Wh
+        expect(wh).to eq(1000)
       end
     end
 
@@ -59,9 +59,9 @@ describe Sensor::Forecast::EnergyCalculator do
       end
 
       it 'skips intervals with nil power' do
-        # First interval: 1 kW * 1 hour = 1 kWh
+        # First interval: 1000 W * 1 hour = 1000 Wh
         # Second interval: skipped (nil power)
-        expect(kwh).to eq(1)
+        expect(wh).to eq(1000)
       end
     end
 
@@ -75,7 +75,7 @@ describe Sensor::Forecast::EnergyCalculator do
 
       it 'sorts entries before calculation' do
         # Should use 1000W for first interval (12:00 -> 13:00)
-        expect(kwh).to eq(1)
+        expect(wh).to eq(1000)
       end
     end
   end

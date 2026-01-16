@@ -12,21 +12,13 @@ module Sensor
                        :LABEL_COLOR,
                        :LABEL_FONT_UNIT
 
-      def initialize(
-        forecast_data,
-        today_analyzer,
-        value_key:,
-        unit:,
-        precision:
-      )
+      def initialize(forecast_data, today_analyzer, value_key:)
         @forecast_data = forecast_data
         @today_analyzer = today_analyzer
         @value_key = value_key
-        @unit = unit
-        @precision = precision
       end
 
-      attr_reader :forecast_data, :today_analyzer, :value_key, :unit, :precision
+      attr_reader :forecast_data, :today_analyzer, :value_key
 
       def build_labels
         forecast_data.map do |date, data|
@@ -89,8 +81,8 @@ module Sensor
 
       def calculate_display_value(date, value)
         # For energy charts with today analyzer
-        if value_key == :total_kwh && show_total_for_today?(date)
-          today_analyzer.total_kwh
+        if value_key == :total_wh && show_total_for_today?(date)
+          today_analyzer.total_wh
         else
           value
         end
@@ -119,7 +111,21 @@ module Sensor
       end
 
       def format_value(value)
-        ActiveSupport::NumberHelper.number_to_rounded(value, precision:)
+        case value_key
+        when :total_wh
+          ActiveSupport::NumberHelper.number_to_rounded(value.to_f / 1000, precision: 0)
+        when :avg_temp
+          ActiveSupport::NumberHelper.number_to_rounded(value, precision: 1)
+        end
+      end
+
+      def unit
+        case value_key
+        when :total_wh
+          'kWh'
+        when :avg_temp
+          '°C'
+        end
       end
 
       def unit_label

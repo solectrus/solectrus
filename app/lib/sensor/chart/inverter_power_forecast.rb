@@ -40,7 +40,7 @@ module Sensor
 
         {
           noon_timestamp: day_forecast.noon_timestamp_ms,
-          total_kwh: day_forecast.total_kwh,
+          total_wh: day_forecast.total_wh,
         }
       end
 
@@ -49,9 +49,7 @@ module Sensor
           Sensor::Forecast::LabelBuilder.new(
             forecast_data,
             today_analyzer,
-            value_key: :total_kwh,
-            unit: 'kWh',
-            precision: 0,
+            value_key: :total_wh,
           )
       end
 

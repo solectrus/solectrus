@@ -1,16 +1,16 @@
-.text-center.text-xs.sm:text-sm.text-slate-500 data-controller= 'tooltip' data-tooltip-touch-value= 'true'
-  - if data.respond_to?(:forecast_deviation)
-    - if future? || today_before_sunset?
+- if forecast_available?
+  .text-center.text-xs.sm:text-sm.text-slate-500 data-controller= 'tooltip' data-tooltip-touch-value= 'true'
+    - if show_remaining_forecast?
+      = t 'forecast.expect_remaining_html', value: Sensor::ValueFormatter.new(remaining_forecast_wh, unit: :watt, context: :total, precision: 0)
+    - elsif show_full_forecast?
       = t 'forecast.expect_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :total, precision: 0)
-    - elsif data.forecast_deviation && data.forecast_deviation > DEVIATION_THRESHOLD
+    - elsif better_than_expected?
       = t 'forecast.better_html', value: Sensor::ValueFormatter.new(data.forecast_deviation.abs, unit: :watt, context: :total, precision: 0, scaling: :kilo)
-    - elsif data.forecast_deviation && data.forecast_deviation < -DEVIATION_THRESHOLD
+    - elsif worse_than_expected?
       = t 'forecast.worse_html', value: Sensor::ValueFormatter.new(data.forecast_deviation.abs, unit: :watt, context: :total, precision: 0, scaling: :kilo)
     - else
       = t 'forecast.approximately'
 
     - if tooltip_required?
       .hidden id="forecast-expectation" data-tooltip-target= 'html'
-        = t 'forecast.expectation_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :total, precision: 0)
-  - elsif future?
-    = t 'forecast.unknown'
+        = t 'forecast.expectation_html', value: Sensor::ValueFormatter.new(data.inverter_power_forecast, unit: :watt, context: :total, precision: 0, scaling: :kilo)

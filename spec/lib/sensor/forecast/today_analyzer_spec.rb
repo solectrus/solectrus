@@ -64,8 +64,8 @@ describe Sensor::Forecast::TodayAnalyzer do
     end
   end
 
-  describe '#remaining_kwh' do
-    subject(:remaining_kwh) { analyzer.remaining_kwh }
+  describe '#remaining_wh' do
+    subject(:remaining_wh) { analyzer.remaining_wh }
 
     context 'with future forecast data in 15-minute intervals' do
       let(:forecast_data) do
@@ -79,11 +79,11 @@ describe Sensor::Forecast::TodayAnalyzer do
       end
 
       it 'calculates energy only for future intervals' do
-        # 14:15-14:30: 1.5 kW * 0.25 h = 0.375 kWh
-        # 14:30-14:45: 1.8 kW * 0.25 h = 0.45 kWh
-        # 14:45-15:00: 1.5 kW * 0.25 h = 0.375 kWh
-        # Total: 1.2 kWh -> rounds to 1
-        expect(remaining_kwh).to eq(1)
+        # 14:15-14:30: 1500 W * 0.25 h = 375 Wh
+        # 14:30-14:45: 1800 W * 0.25 h = 450 Wh
+        # 14:45-15:00: 1500 W * 0.25 h = 375 Wh
+        # Total: 1200 Wh
+        expect(remaining_wh).to eq(1200)
       end
     end
 

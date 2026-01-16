@@ -24,14 +24,14 @@ module Sensor
         end
       end
 
-      # Calculates remaining kWh from now until end of day
-      def remaining_kwh
-        @remaining_kwh ||= calculate_remaining_kwh
+      # Calculates remaining Wh from now until end of day
+      def remaining_wh
+        @remaining_wh ||= calculate_remaining_wh
       end
 
-      # Calculates total kWh for today (past + future)
-      def total_kwh
-        @total_kwh ||= calculate_total_kwh
+      # Calculates total Wh for today (past + future)
+      def total_wh
+        @total_wh ||= calculate_total_wh
       end
 
       private
@@ -63,18 +63,18 @@ module Sensor
         value&.positive?
       end
 
-      def calculate_remaining_kwh
+      def calculate_remaining_wh
         future_entries =
           today_entries.select { |timestamp, _| future?(timestamp) }
         return 0 if future_entries.empty?
 
-        EnergyCalculator.calculate_kwh(future_entries.to_a)
+        EnergyCalculator.calculate_wh(future_entries.to_a)
       end
 
-      def calculate_total_kwh
+      def calculate_total_wh
         return 0 if today_entries.empty?
 
-        EnergyCalculator.calculate_kwh(today_entries.to_a)
+        EnergyCalculator.calculate_wh(today_entries.to_a)
       end
     end
   end

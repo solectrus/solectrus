@@ -48,8 +48,8 @@ describe Sensor::Forecast::Day do
     end
   end
 
-  describe '#total_kwh' do
-    subject(:total_kwh) { day_forecast.total_kwh }
+  describe '#total_wh' do
+    subject(:total_wh) { day_forecast.total_wh }
 
     context 'when day is complete (starts near zero, spans 8+ hours)' do
       let(:entries) do
@@ -60,10 +60,10 @@ describe Sensor::Forecast::Day do
         ]
       end
 
-      it 'calculates total kWh' do
-        # Uses EnergyCalculator - just verify it's called
-        expect(total_kwh).to be_a(Integer)
-        expect(total_kwh).to be >= 0
+      it 'calculates total Wh' do
+        # Uses EnergyCalculator - just verify it returns a numeric value
+        expect(total_wh).to be_a(Numeric)
+        expect(total_wh).to be >= 0
       end
     end
 
@@ -77,7 +77,7 @@ describe Sensor::Forecast::Day do
       end
 
       it 'returns nil for incomplete days (unless today)' do
-        expect(total_kwh).to be_nil
+        expect(total_wh).to be_nil
       end
     end
 
@@ -91,8 +91,8 @@ describe Sensor::Forecast::Day do
         ]
       end
 
-      it 'calculates total kWh even if day incomplete' do
-        expect(total_kwh).to be_a(Integer)
+      it 'calculates total Wh even if day incomplete' do
+        expect(total_wh).to be_a(Numeric)
       end
     end
   end

@@ -40,13 +40,13 @@ describe Sensor::Chart::InverterPowerForecast do
       let(:forecast_data) do
         {
           Date.current => {
-            total_kwh: 10,
+            total_wh: 10,
           },
           Date.current + 1.day => {
-            total_kwh: 12,
+            total_wh: 12,
           },
           Date.current + 2.days => {
-            total_kwh: 11,
+            total_wh: 11,
           },
         }
       end
@@ -58,7 +58,7 @@ describe Sensor::Chart::InverterPowerForecast do
 
     context 'with more than 14 days of data' do
       let(:forecast_data) do
-        (0..20).to_h { |i| [Date.current + i.days, { total_kwh: 10 }] }
+        (0..20).to_h { |i| [Date.current + i.days, { total_wh: 10 }] }
       end
 
       it 'clamps to maximum of 14 days' do

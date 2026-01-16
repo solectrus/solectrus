@@ -1,15 +1,14 @@
 module Sensor
   module Forecast
-    # Calculates energy (kWh) from power measurements using numerical integration
+    # Calculates energy (Wh) from power measurements using numerical integration
     # Uses left endpoint rule (left Riemann sum): Energy = sum(Power_i * delta_t_i)
     class EnergyCalculator
       class << self
-        # Calculate total energy (kWh) from power measurements
-        def calculate_kwh(entries)
+        # Calculate total energy (Wh) from power measurements
+        def calculate_wh(entries)
           return 0 if entries.size < 2
 
-          total_wh = sum_energy_intervals(entries)
-          (total_wh / 1000.0).round # Convert Wh to kWh
+          sum_energy_intervals(entries)
         end
 
         private

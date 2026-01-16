@@ -49,8 +49,6 @@ module Sensor
             forecast_data,
             today_analyzer,
             value_key: :avg_temp,
-            unit: '°C',
-            precision: 1,
           )
       end
 

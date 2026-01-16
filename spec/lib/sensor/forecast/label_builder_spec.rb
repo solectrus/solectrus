@@ -6,9 +6,7 @@ describe Sensor::Forecast::LabelBuilder do
     described_class.new(
       forecast_data,
       today_analyzer,
-      value_key: :total_kwh,
-      unit: 'kWh',
-      precision: 0,
+      value_key: :total_wh,
     )
   end
 
@@ -16,11 +14,11 @@ describe Sensor::Forecast::LabelBuilder do
     {
       Date.parse('2024-01-15') => {
         noon_timestamp: Time.zone.parse('2024-01-15 12:00').to_i * 1000,
-        total_kwh: 25,
+        total_wh: 25_000,
       },
       Date.parse('2024-01-16') => {
         noon_timestamp: Time.zone.parse('2024-01-16 12:00').to_i * 1000,
-        total_kwh: 30,
+        total_wh: 30_000,
       },
     }
   end
@@ -50,12 +48,12 @@ describe Sensor::Forecast::LabelBuilder do
       expect(labels.first[:lines].size).to be >= 1
     end
 
-    context 'when total_kwh is nil' do
+    context 'when total_wh is nil' do
       let(:forecast_data) do
         {
           Date.parse('2024-01-15') => {
             noon_timestamp: Time.zone.parse('2024-01-15 12:00').to_i * 1000,
-            total_kwh: nil,
+            total_wh: nil,
           },
         }
       end
@@ -71,7 +69,12 @@ describe Sensor::Forecast::LabelBuilder do
           Date.current => {
             noon_timestamp:
               Time.zone.parse("#{Date.current} 12:00").to_i * 1000,
-            total_kwh: 15,
+            total_wh: 15_000,
+          },
+          Date.tomorrow => {
+            noon_timestamp:
+              Time.zone.parse("#{Date.tomorrow} 12:00").to_i * 1000,
+            total_wh: 20_000,
           },
         }
       end
@@ -80,26 +83,23 @@ describe Sensor::Forecast::LabelBuilder do
         allow(today_analyzer).to receive_messages(
           past_production?: true,
           show_today?: true,
-          remaining_kwh: 8,
-          total_kwh: 15,
+          total_wh: 15_000,
         )
       end
 
-      it 'shows total kWh label instead of remaining' do
-        total_label = labels.first[:lines].find { |l| l[:text]&.include?('15') }
-        expect(total_label).to be_present
+      it 'shows total kWh label for today' do
+        today_label = labels.first[:lines].find { |l| l[:text]&.include?('15') }
+        expect(today_label).to be_present
       end
     end
   end
 
-  describe 'with precision option' do
+  describe 'with avg_temp value_key' do
     let(:label_builder) do
       described_class.new(
         temp_forecast_data,
         today_analyzer,
         value_key: :avg_temp,
-        unit: '°C',
-        precision: 1,
       )
     end
 

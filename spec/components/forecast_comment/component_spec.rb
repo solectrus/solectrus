@@ -1,28 +1,29 @@
 describe ForecastComment::Component, type: :component do
   subject(:component) do
-    described_class.new data:, sensor_name: :inverter_power, timeframe:
-  end
-
-  let(:timeframe) { Timeframe.new(date) }
-  let(:sunset) { nil }
-
-  let(:data) do
-    double(
-      forecast_deviation:,
-      inverter_power_forecast: 10_000,
-      inverter_power: forecast_deviation.to_i + 10_000,
+    described_class.new(
+      data: double(
+        forecast_deviation:,
+        inverter_power_forecast:,
+        inverter_power: forecast_deviation.to_i + inverter_power_forecast,
+      ),
+      sensor_name: :inverter_power,
+      timeframe: Timeframe.new(date),
+      chart:,
     )
   end
 
-  before do
-    allow(Sensor::Query::DayLight).to receive(:new).and_return(sunset)
+  let(:chart) { nil }
+  let(:date) { Date.yesterday.to_s }
+  let(:day_light) { nil }
+  let(:forecast_deviation) { 0 }
+  let(:inverter_power_forecast) { 10_000 }
 
+  before do
+    allow(Sensor::Query::DayLight).to receive(:new).and_return(day_light)
     render_inline(component)
   end
 
-  context 'when timeframe is in the past' do
-    let(:date) { Date.yesterday.to_s }
-
+  describe 'past timeframe' do
     context 'when deviation is within threshold (< 500 Wh)' do
       let(:forecast_deviation) { 400 }
 
@@ -61,14 +62,7 @@ describe ForecastComment::Component, type: :component do
 
     context 'when forecast was zero but actual generation occurred' do
       let(:forecast_deviation) { 900 }
-
-      let(:data) do
-        double(
-          forecast_deviation: 900,
-          inverter_power_forecast: 0,
-          inverter_power: 900,
-        )
-      end
+      let(:inverter_power_forecast) { 0 }
 
       it 'shows absolute value in kWh' do
         expect(page).to have_text I18n.t('forecast.better_html', value: '1 kWh')
@@ -76,26 +70,74 @@ describe ForecastComment::Component, type: :component do
     end
   end
 
-  context 'when timeframe is current day, before sunset' do
+  describe 'current day before sunrise' do
     let(:date) { Date.current.to_s }
-    let(:sunset) { instance_double(Sensor::Query::DayLight, sunset: 5.minutes.since) }
+    let(:forecast_deviation) { 0 }
+    let(:day_light) do
+      instance_double(
+        Sensor::Query::DayLight,
+        sunrise: 1.hour.from_now,
+        sunset: 10.hours.from_now,
+      )
+    end
 
-    context 'when deviation exists' do
-      let(:forecast_deviation) { 1000 }
+    context 'when chart provides remaining_forecast_wh' do
+      let(:chart) { instance_double(Sensor::Chart::InverterPower, remaining_forecast_wh: 10_000) }
 
-      it 'shows expected value (not deviation)' do
-        expect(page).to have_text I18n.t('forecast.expect_html', value: '10 kWh')
+      it 'shows forecast without "still" (no production yet)' do
+        expect(page).to have_text I18n.t(
+          'forecast.expect_html',
+          value: '10 kWh',
+        )
+      end
+    end
+  end
+
+  describe 'current day after sunrise, before sunset' do
+    let(:date) { Date.current.to_s }
+    let(:forecast_deviation) { 1000 }
+    let(:day_light) do
+      instance_double(
+        Sensor::Query::DayLight,
+        sunrise: 2.hours.ago,
+        sunset: 2.hours.from_now,
+      )
+    end
+
+    context 'when chart provides remaining_forecast_wh' do
+      let(:chart) { instance_double(Sensor::Chart::InverterPower, remaining_forecast_wh: 5000) }
+
+      it 'shows remaining forecast value with "still expected" text' do
+        expect(page).to have_text I18n.t(
+          'forecast.expect_remaining_html',
+          value: '5 kWh',
+        )
       end
 
       it 'has no tooltip-content' do
         expect(page).to have_no_css('div', id: 'forecast-expectation')
       end
     end
+
+    context 'when chart does not provide remaining_forecast_wh' do
+      it 'falls back to full day forecast display' do
+        expect(page).to have_text I18n.t(
+          'forecast.expect_html',
+          value: '10 kWh',
+        )
+      end
+    end
   end
 
-  context 'when timeframe is current day, after sunset' do
+  describe 'current day after sunset' do
     let(:date) { Date.current.to_s }
-    let(:sunset) { instance_double(Sensor::Query::DayLight, sunset: 5.minutes.ago) }
+    let(:day_light) do
+      instance_double(
+        Sensor::Query::DayLight,
+        sunrise: 10.hours.ago,
+        sunset: 5.minutes.ago,
+      )
+    end
 
     context 'when deviation is within threshold' do
       let(:forecast_deviation) { 200 }

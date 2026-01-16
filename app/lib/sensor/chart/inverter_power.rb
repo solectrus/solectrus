@@ -63,7 +63,24 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     true
   end
 
+  # Returns remaining forecast energy in Wh for today, or nil if not applicable
+  def remaining_forecast_wh
+    return @remaining_forecast_wh if defined?(@remaining_forecast_wh)
+    return unless timeframe.today?
+
+    forecast_data = forecast_sensor_data
+    return if forecast_data.blank?
+
+    @remaining_forecast_wh = Sensor::Forecast::TodayAnalyzer.new(forecast_data).remaining_wh
+  end
+
   private
+
+  def forecast_sensor_data
+    return unless series&.raw_data
+
+    series.raw_data.find { |key, _| key.first == :inverter_power_forecast }&.last
+  end
 
   def style_for_sensor(sensor)
     if sensor.name == :inverter_power_forecast_clearsky
