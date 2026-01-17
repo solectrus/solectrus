@@ -635,7 +635,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   stimulus-rails
-  turbo-rails
+  turbo-rails (!= 2.0.21)
   uri (>= 0.12.2)
   vcr
   view_component
