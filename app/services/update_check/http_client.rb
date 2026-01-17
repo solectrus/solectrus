@@ -6,7 +6,7 @@ class UpdateCheck::HttpClient
     if skip_update_check?
       dummy_response = {
         data: {
-          version: 'v1.0.1',
+          version: 'v1.0.2',
           registration_status: 'complete',
           kwp: '9.24',
         },

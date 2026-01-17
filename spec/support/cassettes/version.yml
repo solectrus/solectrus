@@ -10,7 +10,7 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - SOLECTRUS/v1.0.1 (Darwin; arm64; 25.2.0; 1768064026)
+      - SOLECTRUS/v1.0.1-37-ge2ff84b (Darwin; arm64; 25.2.0; 1768564190)
   response:
     status:
       code: 200
@@ -23,9 +23,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 11 Jan 2026 06:57:38 GMT
+      - Sat, 17 Jan 2026 12:04:42 GMT
       Etag:
-      - W/"5e7418c20b5821d3aabcc45eef1b99d4"
+      - W/"5c49503f348e646a149c2a21448f0bf0"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -39,13 +39,13 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - 007d1822-d837-419f-a644-7f83a5f0089c
+      - efdec06b-8ebf-47cd-9a52-18c589ca5a9d
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"version":"v1.0.1","registration_status":"unregistered"}'
-  recorded_at: Sun, 11 Jan 2026 06:57:38 GMT
+      string: '{"version":"v1.0.2","registration_status":"unregistered"}'
+  recorded_at: Sat, 17 Jan 2026 12:04:42 GMT
 recorded_with: VCR 6.4.0
