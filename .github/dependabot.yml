@@ -55,11 +55,6 @@ updates:
     versioning-strategy: auto
     labels:
       - 'dependencies'
-    ignore:
-      - dependency-name: '@hotwired/turbo-rails'
-        versions: ['8.0.21']
-      - dependency-name: '@hotwired/turbo'
-        versions: ['8.0.21']
     groups:
       vite:
         patterns:

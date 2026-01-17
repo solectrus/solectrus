@@ -15,7 +15,7 @@ gem 'rails', '~> 8.1.2'
 gem 'vite_rails'
 
 # The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
-gem 'turbo-rails', '!= 2.0.21'
+gem 'turbo-rails'
 
 # A modest JavaScript framework for the HTML you already have. (https://stimulus.hotwired.dev)
 gem 'stimulus-rails'

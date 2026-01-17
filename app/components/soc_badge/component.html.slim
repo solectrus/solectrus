@@ -6,14 +6,12 @@
     - if (value = public_send(soc_sensor))
       = link_to balance_home_path(sensor_name: soc_sensor, timeframe:),
                 data: { \
-                  turbo_frame: helpers.frame_id('chart'),
-                  turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   'stats-with-chart--component-target': 'current',
                   'sensor-name': soc_sensor,
                   value:,
                   time: time.to_i,
-                  action: 'stats-with-chart--component#startLoop',
+                  action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: soc_sensor,
                 },
                 class: 'click-animation' do

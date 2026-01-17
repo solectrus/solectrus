@@ -45,6 +45,27 @@ describe 'Balance page' do
     end
   end
 
+  it 'loads charts when clicking a segment' do
+    visit '/inverter_power/now'
+
+    expect(page).to have_css('#balance-chart-now')
+    expect(page).to have_css('#segment-inverter_power')
+
+    find_by_id('segment-inverter_power').click
+
+    expect(page).to have_current_path('/inverter_power/now')
+    expect(page).to have_css(
+      '#balance-chart-now[src*="/charts/inverter_power/now"]',
+    )
+
+    within('#balance-chart-now') do
+      expect(page).to have_css(
+        'select[name="sensor-selector"] option[selected][value*="/inverter_power/now"]',
+        visible: :all,
+      )
+    end
+  end
+
   private
 
   def navigate_now(path)

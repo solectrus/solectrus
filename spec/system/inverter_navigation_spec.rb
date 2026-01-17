@@ -18,6 +18,27 @@ describe 'Inverter navigation' do
     end
   end
 
+  it 'loads charts when clicking a segment' do
+    visit '/inverter/inverter_power/now'
+
+    expect(page).to have_css('#inverter-chart-now')
+    expect(page).to have_css('#segment-inverter_power_1')
+
+    find_by_id('segment-inverter_power_1').click
+
+    expect(page).to have_current_path('/inverter/inverter_power_1/now')
+    expect(page).to have_css(
+      '#inverter-chart-now[src*="/inverter/charts/inverter_power_1/now"]',
+    )
+
+    within('#inverter-chart-now') do
+      expect(page).to have_css(
+        'select[name="sensor-selector"] option[selected][value*="/inverter/inverter_power_1/now"]',
+        visible: :all,
+      )
+    end
+  end
+
   private
 
   def navigate_now(path)

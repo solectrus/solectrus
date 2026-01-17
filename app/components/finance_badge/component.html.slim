@@ -3,10 +3,10 @@
     - if Sensor::Config.exists?(:grid_export_power)
       = link_to balance_home_path(sensor_name: 'grid_revenue', timeframe:),
                 data: { \
-                  turbo_frame: helpers.frame_id('chart'),
-                  turbo_action: 'replace',
                   turbo_prefetch: 'false',
                   controller: (missing_price?(:grid_revenue) ? 'tooltip' : nil),
+                  action: 'stats-with-chart--component#loadChart',
+                  stats_with_chart__component_sensor_name_param: 'grid_revenue',
                 },
                 title: (missing_price?(:grid_revenue) ? t('.missing_price') : nil),
                 class: 'click-animation tiny:hidden' do
@@ -20,11 +20,11 @@
                 timeframe:,
               ),
               data: { \
-                turbo_frame: helpers.frame_id('chart'),
-                turbo_action: 'replace',
                 turbo_prefetch: 'false',
                 controller: 'tooltip',
                 tooltip_touch_value: 'long',
+                action: 'stats-with-chart--component#loadChart',
+                stats_with_chart__component_sensor_name_param: 'grid_costs',
               },
               title: (missing_price?(:grid_costs) ? t('.missing_price') : nil),
               class: 'click-animation' do
@@ -39,11 +39,11 @@
 
     = link_to balance_home_path(sensor_name: 'savings', timeframe:),
               data: { \
-                turbo_frame: helpers.frame_id('chart'),
-                turbo_action: 'replace',
                 turbo_prefetch: 'false',
                 controller: 'tooltip',
                 tooltip_touch_value: 'long',
+                action: 'stats-with-chart--component#loadChart',
+                stats_with_chart__component_sensor_name_param: 'savings',
               },
               title: (missing_price?(:savings) ? t('.missing_price') : nil),
               class: 'click-animation' do

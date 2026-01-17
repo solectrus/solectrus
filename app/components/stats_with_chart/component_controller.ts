@@ -1,6 +1,7 @@
 import { Controller, ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
+import { buildChartUrlFromHomeUrl } from '@/utils/chartUrl';
 import { IntervalTimer } from '@/utils/intervalTimer';
 
 type LineDatasetWithId = ChartDataset<'line'> & {
@@ -111,6 +112,38 @@ export default class extends Controller {
     this.timer.start();
   }
 
+  // Load chart by setting the frame's src directly (avoids Turbo Frame Navigation issues in 8.0.21+).
+  loadChart(event: ActionEvent) {
+    // Let modifier/middle clicks behave like normal link navigation (new tab/window).
+    if (
+      event instanceof MouseEvent &&
+      (event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        event.button === 1)
+    )
+      return;
+
+    event.preventDefault();
+
+    // Support both link clicks and select option changes.
+    const element = event.currentTarget as HTMLElement;
+    const historyUrl =
+      element.getAttribute('href') ||
+      (element instanceof HTMLOptionElement ? element.value : undefined);
+    const fallbackUrl =
+      historyUrl ||
+      (element instanceof HTMLAnchorElement ? element.href : undefined);
+
+    const chartUrl =
+      event.params.chartUrl ||
+      (fallbackUrl ? buildChartUrlFromHomeUrl(fallbackUrl) : null);
+    if (!chartUrl) return;
+
+    this.applyChartUrl(chartUrl, historyUrl, event.params.sensorName);
+  }
+
   stopLoop() {
     this.shouldStopRequests = true;
     this.timer?.stop();
@@ -118,6 +151,33 @@ export default class extends Controller {
 
   get isInLoop() {
     return this.timer?.isActive();
+  }
+
+  // Entry point for select-based navigation (home URL -> chart URL).
+  loadChartForUrl(historyUrl: string, sensorName?: string) {
+    const chartUrl = buildChartUrlFromHomeUrl(historyUrl);
+    if (!chartUrl) return;
+
+    this.applyChartUrl(chartUrl, historyUrl, sensorName);
+  }
+
+  private applyChartUrl(
+    chartUrl: string,
+    historyUrl?: string,
+    sensorName?: string,
+  ) {
+    if (!this.hasChartTarget) return;
+
+    if (sensorName) this.selectedSensor = sensorName;
+
+    // Setting src avoids Turbo's frame navigation disconnect behavior.
+    this.chartTarget.src = chartUrl;
+
+    // Preserve the "home" URL in history while the chart frame loads separately.
+    if (historyUrl) globalThis.history.pushState({}, '', historyUrl);
+
+    // Start the refresh loop (same as startLoop would do)
+    this.startLoop();
   }
 
   handleVisibilityChange(): void {

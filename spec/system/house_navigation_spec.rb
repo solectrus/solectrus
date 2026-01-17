@@ -18,6 +18,27 @@ describe 'House navigation' do
     end
   end
 
+  it 'loads charts when clicking a segment' do
+    visit '/house/house_power/now'
+
+    expect(page).to have_css('#house-chart-now')
+    expect(page).to have_css('#segment-house_power_without_custom')
+
+    find_by_id('segment-house_power_without_custom').click
+
+    expect(page).to have_current_path('/house/house_power_without_custom/now')
+    expect(page).to have_css(
+      '#house-chart-now[src*="/house/charts/house_power_without_custom/now"]',
+    )
+
+    within('#house-chart-now') do
+      expect(page).to have_css(
+        'select[name="sensor-selector"] option[selected][value*="/house/house_power_without_custom/now"]',
+        visible: :all,
+      )
+    end
+  end
+
   private
 
   def navigate_now(path)

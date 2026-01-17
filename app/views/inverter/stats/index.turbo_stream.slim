@@ -20,10 +20,8 @@
                         tooltip_placement_value: 'right',
                         tooltip_force_tap_to_close_value: false,
                         tooltip_touch_value: 'long',
-                        turbo_frame: frame_id('chart', timeframe:),
-                        turbo_action: 'replace',
                         turbo_prefetch: 'false',
-                        action: 'stats-with-chart--component#startLoop',
+                        action: 'stats-with-chart--component#loadChart',
                         stats_with_chart__component_sensor_name_param: 'inverter_power',
                       } do
               div data= { 'stats-with-chart--component-target': sensor_name == :inverter_power ? 'current' : nil, 'sensor-name': sensor_name, value: data.inverter_power, time: data.time.to_i }
