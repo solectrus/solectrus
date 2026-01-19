@@ -66,6 +66,7 @@ en:
     years: Last %{count} years
     all: Since commissioning %{since} ago
   sensors:
+    power_balance: Power balance
     inverter_power: Generation
     inverter_power_1: Generation 1
     inverter_power_2: Generation 2

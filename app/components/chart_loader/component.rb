@@ -8,7 +8,14 @@ class ChartLoader::Component < ViewComponent::Base
   end
   attr_reader :sensor_name, :timeframe, :variant, :forecast_data
 
-  delegate :type, :data, :options, :blank?, :unit, :permitted?, to: :chart
+  delegate :type,
+           :data,
+           :options,
+           :blank?,
+           :unit,
+           :permitted?,
+           :permitted_feature_name,
+           to: :chart
 
   def blank_message
     I18n.t('data.blank')
@@ -19,6 +26,14 @@ class ChartLoader::Component < ViewComponent::Base
     return unless sensor.trendable?
 
     helpers.insights_path(sensor_name:, timeframe:)
+  end
+
+  def demo_url
+    {
+      controller: "#{helpers.controller_namespace}/home",
+      sensor_name:,
+      timeframe:,
+    }
   end
 
   private

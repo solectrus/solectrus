@@ -66,6 +66,7 @@ de:
     years: Letzte %{count} Jahre
     all: Seit Inbetriebnahme vor %{since}
   sensors:
+    power_balance: Strombilanz
     inverter_power: Erzeugung
     inverter_power_1: Erzeugung 1
     inverter_power_2: Erzeugung 2

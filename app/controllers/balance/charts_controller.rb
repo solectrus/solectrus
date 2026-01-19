@@ -26,6 +26,7 @@ class Balance::ChartsController < ApplicationController
     grid_revenue
     heatpump_power
     house_power
+    power_balance
     inverter_power
     savings
     self_consumption_quote

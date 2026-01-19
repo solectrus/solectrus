@@ -35,9 +35,13 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
-  # Override in subclasses to implement permission checks
   def permitted?
-    true
+    permitted_feature_name.nil? ||
+      ApplicationPolicy.instance.feature_enabled?(permitted_feature_name)
+  end
+
+  # Override in subclasses to implement permission checks
+  def permitted_feature_name
   end
 
   def unit

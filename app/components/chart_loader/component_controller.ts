@@ -61,6 +61,8 @@ type DatasetWithId = ChartDataset & {
   id?: string;
   tooltipFields?: TooltipField[];
   showTime?: boolean;
+  noGradient?: boolean;
+  colorClass?: string;
 };
 
 // Extended scale options to include adapter configuration for time scales
@@ -74,7 +76,10 @@ type TimeScaleOptions = {
 
 // Extended tick options with custom callback marker
 type ExtendedTickOptions = {
-  callback?: ((value: number | string) => string) | 'formatTemperature';
+  callback?:
+    | ((value: number | string) => string)
+    | 'formatTemperature'
+    | 'formatAbs';
 };
 
 // Fix for crosshair plugin drawing over the chart and tooltip
@@ -97,6 +102,8 @@ export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
     unit: String,
+    sourceLabel: String,
+    usageLabel: String,
   };
 
   static readonly targets = ['container', 'canvas', 'data', 'options'];
@@ -115,9 +122,16 @@ export default class extends Controller<HTMLCanvasElement> {
   declare unitValue: string;
   declare readonly hasUnitValue: boolean;
 
+  declare sourceLabelValue: string;
+  declare readonly hasSourceLabelValue: boolean;
+
+  declare usageLabelValue: string;
+  declare readonly hasUsageLabelValue: boolean;
+
   private boundHandleResize?: () => void;
   private boundHandleDblClick?: (event: MouseEvent) => void;
   private chart?: Chart;
+  private readonly colorClassCache = new Map<string, string>();
   private animationTimeout?: ReturnType<typeof setTimeout>;
 
   private maxValue: number = 0;
@@ -196,9 +210,16 @@ export default class extends Controller<HTMLCanvasElement> {
     this.minValue = this.minOf(data);
 
     // Format numbers on y-axis
-    if (options.scales.y.ticks)
-      options.scales.y.ticks.callback = (value) =>
+    const yTicks = options.scales.y.ticks as ExtendedTickOptions | undefined;
+    if (yTicks?.callback === 'formatAbs') {
+      options.scales.y.ticks!.callback = (value) =>
+        typeof value === 'number'
+          ? this.formattedNumber(Math.abs(value), 'axis')
+          : value;
+    } else if (yTicks && typeof yTicks.callback !== 'function') {
+      options.scales.y.ticks!.callback = (value) =>
         typeof value === 'number' ? this.formattedNumber(value, 'axis') : value;
+    }
 
     // Format temperature ticks on x-axis (for scatter charts)
     const xTicks = options.scales.x.ticks as ExtendedTickOptions | undefined;
@@ -479,6 +500,17 @@ export default class extends Controller<HTMLCanvasElement> {
       };
     }
 
+    for (const dataset of data.datasets) {
+      const datasetWithId = dataset as DatasetWithId;
+      if (datasetWithId.noGradient && datasetWithId.colorClass) {
+        const resolvedColor = this.resolveColorClass(datasetWithId.colorClass);
+        if (resolvedColor) {
+          dataset.backgroundColor = resolvedColor;
+          dataset.borderColor = resolvedColor;
+        }
+      }
+    }
+
     if (this.maxValue > this.minValue) {
       for (const dataset of data.datasets) {
         // Non-Overlapping line charts should have a larger gradient (means lower opacity)
@@ -494,8 +526,12 @@ export default class extends Controller<HTMLCanvasElement> {
 
         if (isTemperature) {
           this.setTemperatureGradient(dataset);
-        } else if (!Array.isArray(dataset.backgroundColor)) {
+        } else if (
+          !Array.isArray(dataset.backgroundColor) &&
+          !(dataset as DatasetWithId).noGradient
+        ) {
           // Apply gradient only when backgroundColor is a single color (not an array)
+          // and noGradient is not set
           this.setDefaultGradient(
             dataset,
             this.minValue,
@@ -539,6 +575,30 @@ export default class extends Controller<HTMLCanvasElement> {
   private setTemperatureGradient(dataset: ChartDataset) {
     const temperatureGradient = new TemperatureGradient(this.typeValue);
     temperatureGradient.applyToDataset(dataset);
+  }
+
+  private resolveColorClass(colorClass: string): string | undefined {
+    const cached = this.colorClassCache.get(colorClass);
+    if (cached) return cached;
+
+    const element = document.createElement('div');
+    element.className = colorClass;
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    element.style.width = '1px';
+    element.style.height = '1px';
+    element.style.pointerEvents = 'none';
+    document.body.appendChild(element);
+
+    const computed = window.getComputedStyle(element).backgroundColor;
+    document.body.removeChild(element);
+
+    if (computed && computed !== 'rgba(0, 0, 0, 0)') {
+      this.colorClassCache.set(colorClass, computed);
+      return computed;
+    }
+
+    return;
   }
 
   private getData(): ChartData | undefined {

@@ -18,8 +18,8 @@ class Sensor::Chart::FinanceBase < Sensor::Chart::Base
     nil
   end
 
-  def permitted?
-    ApplicationPolicy.finance_charts?
+  def permitted_feature_name
+    :finance_charts
   end
 
   protected
