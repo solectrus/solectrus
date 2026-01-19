@@ -1,11 +1,10 @@
 class Timeframe::Component < ViewComponent::Base
-  def initialize(timeframe:, forecast_days: nil, chart_name: nil)
+  def initialize(timeframe:, forecast_days: nil)
     super()
     @timeframe = timeframe
     @forecast_days = forecast_days
-    @chart_name = chart_name
   end
-  attr_reader :timeframe, :forecast_days, :chart_name
+  attr_reader :timeframe, :forecast_days
 
   def forecast_mode?
     forecast_days.present?
@@ -49,7 +48,6 @@ class Timeframe::Component < ViewComponent::Base
         controller: "#{helpers.controller_namespace}/home",
         sensor_name: helpers.sensor_name,
         timeframe: timeframe.next,
-        chart_name:,
       )
     elsif Sensor::Config.exists?(:inverter_power_forecast)
       forecast_path
@@ -64,7 +62,6 @@ class Timeframe::Component < ViewComponent::Base
         controller: "#{helpers.controller_namespace}/home",
         sensor_name: helpers.sensor_name,
         timeframe: timeframe.prev,
-        chart_name:,
       )
     end
   end
@@ -72,7 +69,7 @@ class Timeframe::Component < ViewComponent::Base
   def timeframe_select_path
     return if forecast_mode?
 
-    helpers.timeframe_select_path(sensor_name: helpers.sensor_name, timeframe:, chart_name:)
+    helpers.timeframe_select_path(sensor_name: helpers.sensor_name, timeframe:)
   end
 
   def paginate_button_classes

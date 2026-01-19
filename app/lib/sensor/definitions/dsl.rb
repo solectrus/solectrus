@@ -85,14 +85,10 @@ module Sensor
           define_method(:calculate, &)
         end
 
-        def chart(name = nil, if: nil, &block)
+        def chart(&block)
           raise ArgumentError, 'chart requires a block' unless block
 
-          meta_data[:charts] ||= {}
-          meta_data[:charts][name] = {
-            block:,
-            condition: binding.local_variable_get(:if),
-          }
+          meta_data[:chart] = { block: }
         end
 
         def requires_permission(permission)

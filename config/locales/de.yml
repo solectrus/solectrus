@@ -4,7 +4,6 @@ de:
     'no': Nein
   charts:
     heatpump_cop_scatter:
-      title: Arbeitszahl vs. Außentemperatur
       heatpump_power: Stromverbrauch
   categories:
     inverter: Erzeugung
@@ -100,6 +99,7 @@ de:
     heatpump_heating_power_short: Wärme
     heatpump_tank_temp: Warmwasser
     heatpump_cop: Arbeitszahl
+    heatpump_cop_scatter: Arbeitszahl vs. Außentemperatur
     outdoor_temp: Außentemperatur
     outdoor_temp_short: Außen
     outdoor_temp_forecast: Erwartete Außentemperatur

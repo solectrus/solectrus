@@ -99,30 +99,11 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   end
 
   def chart_enabled?
-    self.class.meta_data[:charts].present?
+    self.class.meta_data[:chart].present?
   end
 
-  def chart_names
-    charts = self.class.meta_data[:charts]
-    return [] unless charts
-
-    charts.filter_map do |name, config|
-      next if name.nil? # Skip default chart
-      next unless chart_available?(config[:condition])
-
-      name
-    end
-  end
-
-  def valid_chart_name?(name)
-    chart_names.include?(name&.to_sym)
-  end
-
-  def chart(timeframe, chart_name: nil, **)
-    charts = self.class.meta_data[:charts]
-    return unless charts
-
-    config = charts[chart_name&.to_sym] || charts[nil]
+  def chart(timeframe, **)
+    config = self.class.meta_data[:chart]
     return unless config
 
     instance_exec(timeframe, **, &config[:block])
@@ -206,12 +187,6 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   end
 
   private
-
-  def chart_available?(condition)
-    return true if condition.nil?
-
-    instance_exec(&condition)
-  end
 
   # Cache dynamic color hash (evaluated only once per instance per cache key)
   def color_data_dynamic(index: nil, value: nil)

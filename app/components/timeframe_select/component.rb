@@ -5,15 +5,14 @@ class TimeframeSelect::Component < ViewComponent::Base
 
   public_constant :LABEL_CLASSES, :INPUT_CLASSES
 
-  def initialize(timeframe:, sensor_name:, controller_namespace:, chart_name: nil)
+  def initialize(timeframe:, sensor_name:, controller_namespace:)
     super()
     @timeframe = timeframe
     @sensor_name = sensor_name
     @controller_namespace = controller_namespace
-    @chart_name = chart_name
   end
 
-  attr_reader :timeframe, :sensor_name, :controller_namespace, :chart_name
+  attr_reader :timeframe, :sensor_name, :controller_namespace
 
   def base_url
     if controller_namespace == 'balance'

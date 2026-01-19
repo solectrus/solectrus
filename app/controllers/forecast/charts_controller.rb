@@ -7,8 +7,8 @@ class Forecast::ChartsController < ApplicationController
 
   private
 
-  helper_method def chart_name
-    @chart_name ||= params[:id]
+  helper_method def id
+    @id ||= params[:id]
   end
 
   helper_method def timeframe

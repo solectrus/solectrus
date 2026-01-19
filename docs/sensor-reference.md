@@ -226,25 +226,19 @@ end
 ### `chart` - Chart Integration
 
 ```ruby
-# Default chart (unnamed)
+# Chart
 chart { |timeframe| Sensor::Chart::MyChart.new(timeframe:) }
 
-# Named chart with conditional visibility
-chart :scatter, if: -> { Sensor::Config.exists?(:outdoor_temp) } do |timeframe|
-  Sensor::Chart::MyScatterChart.new(timeframe:)
-end
-```
-
-**Multiple charts per sensor:**
-
-A sensor can have multiple charts - one default (unnamed) and additional named charts.
-Named charts can be conditionally enabled using the `if:` option.
-
-```ruby
-# Access charts
-sensor.chart_names                           # => [:scatter] (named charts only)
-sensor.chart(timeframe)                      # Returns default chart
-sensor.chart(timeframe, chart_name: :scatter) # Returns named chart
+# Scatter chart (define as separate sensor if needed)
+# class Sensor::Definitions::MyScatterSensor < Sensor::Definitions::Base
+#   value unit: :unitless, category: :other
+#   depends_on :outdoor_temp
+#   chart { |timeframe| Sensor::Chart::MyScatterChart.new(timeframe:) }
+#   calculate { nil }
+# end
+#
+# Access chart
+sensor.chart(timeframe)                      # Returns chart
 ```
 
 ### `aggregations` - Aggregation Definition

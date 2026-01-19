@@ -1,2 +1,2 @@
-= turbo_stream.update "#{chart_name.tr('_', '-')}-forecast-chart" do
-  = render ChartLoader::Component.new(sensor_name: :"#{chart_name}_forecast", timeframe:)
+= turbo_stream.update "#{id.tr('_', '-')}-forecast-chart" do
+  = render ChartLoader::Component.new(sensor_name: :"#{id}_forecast", timeframe:)

@@ -22,10 +22,6 @@ class Sensor::Definitions::HeatpumpCop < Sensor::Definitions::Base
     Sensor::Chart::HeatpumpCop.new(timeframe:)
   end
 
-  chart :scatter, if: -> { Sensor::Config.exists?(:outdoor_temp) } do |timeframe|
-    Sensor::Chart::HeatpumpCopScatter.new(timeframe:)
-  end
-
   def sql_calculation
     # COP = heating power / electrical power
     # Use NULLIF to avoid division by zero
