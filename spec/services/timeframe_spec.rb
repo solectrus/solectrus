@@ -70,6 +70,24 @@ describe Timeframe do
     end
   end
 
+  describe '#to_param' do
+    context 'when string is a keyword' do
+      let(:string) { 'day' }
+
+      it 'keeps the keyword value' do
+        expect(decoder.to_param).to eq('day')
+      end
+    end
+
+    context 'when string is a specific date' do
+      let(:string) { '2022-10-13' }
+
+      it 'returns the original date' do
+        expect(decoder.to_param).to eq('2022-10-13')
+      end
+    end
+  end
+
   context 'when string is "now"' do
     let(:string) { 'now' }
 

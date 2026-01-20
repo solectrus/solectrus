@@ -71,6 +71,11 @@ class Timeframe # rubocop:disable Metrics/ClassLength
 
   delegate :to_s, to: :string
 
+  def to_param
+    # Keep keyword timeframes (day/week/month/year) in URLs to avoid frame ID drift.
+    original_string
+  end
+
   def out_of_scope?
     return true if min_date && ending.to_date < min_date
     return true if max_date && beginning.to_date > max_date
