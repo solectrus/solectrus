@@ -1,6 +1,10 @@
 class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
-  def chart_sensor_names
-    return [:total_costs] unless timeframe.short?
+  def finance_sensor_name
+    :total_costs
+  end
+
+  def source_sensor_names
+    return super unless timeframe.short?
 
     %i[grid_import_power inverter_power grid_export_power]
   end
@@ -24,10 +28,11 @@ class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
   private
 
   def fetch_sensor_data
+    items = source_chart_data_items
     {
-      grid_import: find_chart_data(build_chart_data_items, :grid_import_power),
-      inverter: find_chart_data(build_chart_data_items, :inverter_power),
-      grid_export: find_chart_data(build_chart_data_items, :grid_export_power),
+      grid_import: find_chart_data(items, :grid_import_power),
+      inverter: find_chart_data(items, :inverter_power),
+      grid_export: find_chart_data(items, :grid_export_power),
     }
   end
 

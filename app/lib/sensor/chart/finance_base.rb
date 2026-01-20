@@ -1,4 +1,8 @@
 class Sensor::Chart::FinanceBase < Sensor::Chart::Base
+  def chart_sensor_names
+    [finance_sensor_name]
+  end
+
   # Override unit to always show EUR
   def unit
     @unit ||=
@@ -19,6 +23,25 @@ class Sensor::Chart::FinanceBase < Sensor::Chart::Base
   end
 
   protected
+
+  def source_sensor_names
+    chart_sensor_names
+  end
+
+  def build_chart_data_items
+    items = source_chart_data_items
+    return items if source_sensor_names == chart_sensor_names
+
+    items.map { |item| item.merge(sensor_name: finance_sensor_name) }
+  end
+
+  def source_chart_data_items
+    source_sensor_names.map { |name| build_chart_data_item(name) }
+  end
+
+  def finance_sensor_name
+    raise NotImplementedError, 'Subclasses must implement finance_sensor_name'
+  end
 
   # Get price for a specific type and date
   def get_price(price_type)

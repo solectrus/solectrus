@@ -1,6 +1,10 @@
 class Sensor::Chart::Savings < Sensor::Chart::FinanceBase
-  def chart_sensor_names
-    return [:savings] unless timeframe.short?
+  def finance_sensor_name
+    :savings
+  end
+
+  def source_sensor_names
+    return super unless timeframe.short?
 
     %i[
       house_power
@@ -28,9 +32,8 @@ class Sensor::Chart::Savings < Sensor::Chart::FinanceBase
   private
 
   def fetch_sensor_data
-    chart_sensor_names.map do |name|
-      find_chart_data(build_chart_data_items, name)
-    end
+    items = source_chart_data_items
+    source_sensor_names.map { |name| find_chart_data(items, name) }
   end
 
   def extract_labels(sensor_data)
