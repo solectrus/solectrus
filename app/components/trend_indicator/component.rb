@@ -17,7 +17,7 @@ class TrendIndicator::Component < ViewComponent::Base
   def color_class
     if (trend.diff.positive? && trend.more_is_better?) ||
          (trend.diff.negative? && !trend.more_is_better?)
-      'text-green-600'
+      'text-emerald-600'
     else
       'text-red-700 dark:text-red-400'
     end

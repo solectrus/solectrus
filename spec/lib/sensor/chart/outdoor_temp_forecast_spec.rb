@@ -263,10 +263,10 @@ describe Sensor::Chart::OutdoorTempForecast do
 
   describe '#style_for_sensor' do
     let(:outdoor_temp_sensor) do
-      double(name: :outdoor_temp, color_hex: '#ff0000')
+      double(name: :outdoor_temp, color_chart: 'bg-red-400')
     end
     let(:forecast_sensor) do
-      double(name: :outdoor_temp_forecast, color_hex: '#00ff00')
+      double(name: :outdoor_temp_forecast, color_chart: 'bg-red-400')
     end
 
     before do

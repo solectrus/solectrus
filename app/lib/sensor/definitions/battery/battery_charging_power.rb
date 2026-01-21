@@ -1,9 +1,8 @@
 class Sensor::Definitions::BatteryChargingPower < Sensor::Definitions::Base
   value unit: :watt, category: :battery, nameable: true
 
-  color hex: '#15803d',
-        bg_classes: 'bg-green-700 dark:bg-green-900/70',
-        text_classes: 'text-white dark:text-slate-400'
+  color background: 'bg-emerald-700 dark:bg-emerald-900/70',
+        text: 'text-white dark:text-slate-400'
 
   icon do |data|
     value = data.respond_to?(:battery_soc) ? data.battery_soc : nil

@@ -88,7 +88,7 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
         borderWidth: 1,
         borderDash: [2, 3], # Dotted line pattern
         fill: false,
-        backgroundColor: sensor.color_hex,
+        colorClass: sensor.color_chart,
       }
     else
       super

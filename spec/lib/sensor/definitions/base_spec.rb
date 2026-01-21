@@ -91,12 +91,8 @@ describe Sensor::Definitions::Base do
   describe 'default values' do
     let(:sensor) { test_class.new }
 
-    it 'has nil color_hex' do
-      expect(sensor.color_hex).to be_nil
-    end
-
-    it 'has nil color_bg' do
-      expect(sensor.color_bg).to be_nil
+    it 'has nil color_background' do
+      expect(sensor.color_background).to be_nil
     end
 
     it 'has nil color_text' do

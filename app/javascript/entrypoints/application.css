@@ -37,37 +37,25 @@
   --font-sans:
     'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
-
-  /* Slightly different shade of red */
-  --color-red-600: oklch(57.71% 0.2152 27.33);
-
-  /* Green is an alias for Emerald */
-  --color-green-50: var(--color-emerald-50);
-  --color-green-100: var(--color-emerald-100);
-  --color-green-200: var(--color-emerald-200);
-  --color-green-300: var(--color-emerald-300);
-  --color-green-400: var(--color-emerald-400);
-  --color-green-500: var(--color-emerald-500);
-  --color-green-600: var(--color-emerald-600);
-  --color-green-700: var(--color-emerald-700);
-  --color-green-800: var(--color-emerald-800);
-  --color-green-900: var(--color-emerald-900);
-  --color-green-950: var(--color-emerald-950);
-
-  /* Yellow is an alias for Amber */
-  --color-yellow-50: var(--color-amber-50);
-  --color-yellow-100: var(--color-amber-100);
-  --color-yellow-200: var(--color-amber-200);
-  --color-yellow-300: var(--color-amber-300);
-  --color-yellow-400: var(--color-amber-400);
-  --color-yellow-500: var(--color-amber-500);
-  --color-yellow-600: var(--color-amber-600);
-  --color-yellow-700: var(--color-amber-700);
-  --color-yellow-800: var(--color-amber-800);
-  --color-yellow-900: var(--color-amber-900);
-  --color-yellow-950: var(--color-amber-950);
 }
 
+@utility bar-gradient {
+  @apply relative overflow-hidden;
+}
+
+@utility bar-gradient-bg {
+  @apply pointer-events-none absolute inset-0 z-0;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 1) 100%
+  );
+}
 /* Minimalistic form styling, inspired by DaisyUI */
 @layer components {
   .form-control {
@@ -88,6 +76,22 @@
 
   .input-error {
     @apply border-red-500! ring-red-500!;
+  }
+
+  .top10-gradient {
+    background-image: linear-gradient(
+      to right,
+      var(--top10-gradient-from),
+      var(--top10-gradient-to)
+    );
+  }
+
+  .dark .top10-gradient {
+    background-image: linear-gradient(
+      to right,
+      var(--top10-gradient-from-dark, var(--top10-gradient-from)),
+      var(--top10-gradient-to-dark, var(--top10-gradient-to))
+    );
   }
 }
 
@@ -118,13 +122,6 @@
     &:focus {
       @apply ring-offset-indigo-300!;
     }
-  }
-}
-
-@variant dark {
-  /* Chart.js */
-  canvas {
-    filter: invert(0.8) hue-rotate(180deg);
   }
 }
 
@@ -196,18 +193,4 @@
       #1e293b 10px 20px
     );
   }
-}
-
-@utility bar-gradient {
-  background: linear-gradient(
-    to right,
-    var(--bar-color) 0%,
-    var(--bar-color) 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.5) 0%,
-    black 100%
-  );
-  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, black 100%);
 }

@@ -212,10 +212,16 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
     # House sensors (custom_power_*) use dynamic index for color intensity
     if house? && color_index
-      "#{sensor.color_bg(index: color_index)} #{sensor.color_text(index: color_index)}"
+      [
+        sensor.color_background(index: color_index),
+        sensor.color_text(index: color_index),
+      ].join(' ')
     else
       # All other sensors use static colors
-      "#{sensor.color_bg} #{sensor.color_text}"
+      [
+        sensor.color_background,
+        sensor.color_text,
+      ].join(' ')
     end
   end
 

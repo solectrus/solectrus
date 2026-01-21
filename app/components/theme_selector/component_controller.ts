@@ -23,6 +23,7 @@ export default class extends Controller<HTMLElement> {
   private boundHandleColorSchemeChange?: () => void;
   private boundHandleVisibilityChange?: () => void;
   private boundHandleFocus?: () => void;
+  private lastIsDark?: boolean;
 
   connect() {
     this.apply();
@@ -102,6 +103,7 @@ export default class extends Controller<HTMLElement> {
     this.updateHtmlClass();
     this.updateMetaTag();
     this.updateButtons();
+    this.broadcastThemeChange();
   }
 
   updateButtons() {
@@ -131,6 +133,16 @@ export default class extends Controller<HTMLElement> {
     if (themeMetaTag) {
       themeMetaTag.setAttribute('content', color);
     }
+  }
+
+  broadcastThemeChange() {
+    if (this.lastIsDark === this.isCurrentlyDark) return;
+    this.lastIsDark = this.isCurrentlyDark;
+    document.dispatchEvent(
+      new CustomEvent('theme:changed', {
+        detail: { dark: this.isCurrentlyDark },
+      }),
+    );
   }
 
   get isCurrentlyDark(): boolean {

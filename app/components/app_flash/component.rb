@@ -9,7 +9,7 @@ class AppFlash::Component < ViewComponent::Base
 
   def background_class
     if notice
-      'bg-green-50 dark:bg-green-800 border-green-500 dark:border-green-600'
+      'bg-emerald-50 dark:bg-emerald-800 border-emerald-500 dark:border-emerald-600'
     elsif alert
       'bg-red-50 dark:bg-red-800 border-red-500 dark:border-red-600'
     end
@@ -17,7 +17,7 @@ class AppFlash::Component < ViewComponent::Base
 
   def text_class
     if notice
-      'text-green-800 dark:text-green-300'
+      'text-emerald-800 dark:text-emerald-300'
     elsif alert
       'text-red-700 dark:text-red-200'
     end
@@ -25,7 +25,7 @@ class AppFlash::Component < ViewComponent::Base
 
   def icon_class
     if notice
-      'far fa-circle-check text-green-800 dark:text-green-300'
+      'far fa-circle-check text-emerald-800 dark:text-emerald-300'
     elsif alert
       'fas fa-circle-exclamation text-red-700 dark:text-red-200'
     end

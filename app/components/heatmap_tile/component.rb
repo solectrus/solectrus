@@ -145,7 +145,7 @@ class HeatmapTile::Component < ViewComponent::Base
   end
 
   def sensor_background_color(sensor_name = sensor.name)
-    Sensor::Registry[sensor_name].color_bg
+    Sensor::Registry[sensor_name].color_background
   end
 
   def link_path_for_date(date)

@@ -154,7 +154,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base
       fill:,
       stack:,
       noGradient: true,
-      colorClass: sensor.color_bg,
+      colorClass: sensor.color_background,
     )
   end
 
@@ -177,8 +177,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base
       borderWidth: 1,
       pointRadius: 0,
       pointHoverRadius: 5,
-      backgroundColor: sensor.color_hex,
-      borderColor: sensor.color_hex,
+      colorClass: sensor.color_chart,
       borderRadius: (3 if type == 'bar'),
     }.compact
   end

@@ -22,7 +22,7 @@ class EssentialsTile::Component < ViewComponent::Base
   def background_color
     return 'bg-gray-600 dark:bg-gray-700' if value.nil? || value.round.zero?
 
-    sensor.color_bg
+    sensor.color_background
   end
 
   def title

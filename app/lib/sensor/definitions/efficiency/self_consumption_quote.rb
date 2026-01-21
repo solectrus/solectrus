@@ -1,9 +1,8 @@
 class Sensor::Definitions::SelfConsumptionQuote < Sensor::Definitions::Base
   value unit: :percent
 
-  color hex: '#15803d',
-        bg_classes: 'bg-green-700 dark:bg-green-900',
-        text_classes: 'text-green-200 dark:text-green-400'
+  color background: 'bg-emerald-700 dark:bg-emerald-900',
+        text: 'text-emerald-200 dark:text-emerald-400'
 
   depends_on :self_consumption, :inverter_power
 

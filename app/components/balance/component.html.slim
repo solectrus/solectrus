@@ -24,7 +24,7 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
             balance.with_segment inverter.name,
                                  peak: peak&.dig(inverter.name),
                                  percent: data.public_send("#{inverter.name}_percent_of_total"),
-                                 color_class: inverter.color_bg
+                                 color_class: inverter.color_background
           end
 
           # Render hidden segment for total inverter power.
@@ -57,7 +57,7 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
       balance.with_segment :wallbox_power, peak: peak&.dig(:wallbox_power)
       house_power_sensor = Sensor::Registry[:house_power]
       Sensor::Config.house_power_excluded_custom_sensors.each do |sensor|
-        balance.with_segment sensor.name, color_class: "#{house_power_sensor.color_bg} #{house_power_sensor.color_text}"
+        balance.with_segment sensor.name, color_class: "#{house_power_sensor.color_background} #{house_power_sensor.color_text}"
       end
       balance.with_segment :battery_charging_power, peak: peak&.dig(:battery_charging_power)
       balance.with_segment :grid_export_power, peak: peak&.dig(:grid_export_power)

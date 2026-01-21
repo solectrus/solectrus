@@ -32,9 +32,9 @@ class PriceList::Component < ViewComponent::Base
 
       case name
       when 'electricity'
-        value.positive? ? 'text-red-600' : 'text-green-600'
+        value.positive? ? 'text-red-600' : 'text-emerald-600'
       when 'feed_in'
-        value.positive? ? 'text-green-600' : 'text-red-600'
+        value.positive? ? 'text-emerald-600' : 'text-red-600'
       end
     end
 

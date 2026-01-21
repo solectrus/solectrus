@@ -77,13 +77,13 @@ describe Sensor::Chart::InverterPowerForecast do
 
   describe '#style_for_sensor' do
     let(:inverter_power_sensor) do
-      double(name: :inverter_power, color_hex: '#ff0000')
+      double(name: :inverter_power, color_chart: 'bg-emerald-600')
     end
     let(:forecast_sensor) do
-      double(name: :inverter_power_forecast, color_hex: '#00ff00')
+      double(name: :inverter_power_forecast, color_chart: 'bg-slate-300')
     end
     let(:clearsky_sensor) do
-      double(name: :inverter_power_forecast_clearsky, color_hex: '#abcdef')
+      double(name: :inverter_power_forecast_clearsky, color_chart: 'bg-gray-400')
     end
 
     before do
@@ -105,7 +105,7 @@ describe Sensor::Chart::InverterPowerForecast do
         borderWidth: 1,
         borderDash: [2, 3],
         fill: false,
-        backgroundColor: '#abcdef',
+        colorClass: 'bg-gray-400',
       )
     end
 

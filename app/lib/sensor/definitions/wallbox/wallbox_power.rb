@@ -1,9 +1,8 @@
 class Sensor::Definitions::WallboxPower < Sensor::Definitions::Base
   value unit: :watt, category: :consumer, nameable: true
 
-  color hex: '#334155',
-        bg_classes: 'bg-slate-700 dark:bg-slate-700/60',
-        text_classes: 'text-white dark:text-slate-400'
+  color background: 'bg-slate-700/90 dark:bg-slate-700/80',
+        text: 'text-white dark:text-slate-400'
 
   icon 'fa-car'
 

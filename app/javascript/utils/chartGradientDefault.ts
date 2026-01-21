@@ -1,4 +1,5 @@
 import { Chart, ChartArea, ChartDataset } from 'chart.js';
+import { colorToRgba } from '@/utils/color';
 
 export default class ChartGradientDefault {
   private readonly originalColor: string;
@@ -67,11 +68,11 @@ export default class ChartGradientDefault {
     const end = this.gradientEnd(chartArea.height) || 0;
     const gradient = ctx.createLinearGradient(0, start, 0, end);
 
-    const colorOpaque = this.hexToRGBA(
+    const colorOpaque = colorToRgba(
       this.originalColor,
       Math.min(Math.max(this.extent, this.minAlpha), this.maxAlpha),
     );
-    const colorTransparent = this.hexToRGBA(this.originalColor, this.minAlpha);
+    const colorTransparent = colorToRgba(this.originalColor, this.minAlpha);
 
     if (this.isNegative) {
       gradient.addColorStop(0, colorTransparent);
@@ -104,8 +105,11 @@ export default class ChartGradientDefault {
       if (chartArea) return this.canvasGradient(ctx, chartArea);
     };
 
-    // Use original color for border
-    dataset.borderColor = this.originalColor;
+    // Use original color for border unless it has been customized
+    dataset.borderColor =
+      typeof dataset.borderColor === 'string'
+        ? dataset.borderColor
+        : this.originalColor;
   }
 
   private minOfDataset(dataset: ChartDataset): number {
@@ -128,19 +132,5 @@ export default class ChartGradientDefault {
     });
 
     return Math.max(...mapped);
-  }
-
-  // Function to convert hex color code to RGB
-  private hexToRGBA(hex: string, alpha: number): string {
-    if (!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex))
-      throw new Error(`"${hex}" is not a valid hex color!`);
-    if (alpha < 0) alpha = 0;
-    if (alpha > 1) alpha = 1;
-
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 }

@@ -38,7 +38,6 @@
     div class="flex-1"
 
     - if data.co2_reduction&.nonzero?
-      - sensor = Sensor::Registry[:co2_reduction]
       = link_to balance_home_path(sensor_name: 'co2_reduction', timeframe:),
                 data: { \
                   turbo_prefetch: 'false',
@@ -51,6 +50,6 @@
                 title: t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor),
                 class: 'click-animation' do
         = render RadialBadge::Component.new(:co2_reduction, data:) do
-          = render SensorValue::Component.new(data, :co2_reduction, class: sensor.color_text)
+          = render SensorValue::Component.new(data, :co2_reduction)
 
     = render FinanceBadge::Component.new(data:, timeframe:)

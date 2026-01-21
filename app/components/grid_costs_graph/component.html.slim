@@ -7,7 +7,7 @@
         - if costs_width <= 33
           = render SensorValue::Component.new(costs.abs, :grid_costs, class: sensor.color_text)
         .flex.items-center.justify-start.h-10.rounded-l-full.text-left.pl-3[
-          class= [sensor.color_bg]
+          class= [sensor.color_background]
           style= "width: #{costs_width}%"
         ]
           - if costs_width > 33
@@ -17,7 +17,7 @@
     .flex-1.flex.flex-col.items-start.gap-2
       .w-full.flex.gap-2.items-center.justify-start.text-2xl
         .flex.items-center.justify-end.h-10.rounded-r-full.text-right.pr-3[
-          class= [sensor.color_bg]
+          class= [sensor.color_background]
           style= "width: #{revenue_width}%"
         ]
           - if revenue_width > 33

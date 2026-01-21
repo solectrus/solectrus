@@ -16,11 +16,11 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
   aggregations stored: [:sum], top10: true
   trend
 
-  COLOR_HEX = '#64748b'.freeze
-  private_constant :COLOR_HEX
+  COLOR_TEXT_LIGHT_BG = 'text-slate-700 dark:text-slate-400'.freeze
+  private_constant :COLOR_TEXT_LIGHT_BG
 
-  COLOR_TEXT = 'text-slate-700 dark:text-slate-400'.freeze
-  private_constant :COLOR_TEXT
+  COLOR_TEXT_DARK_BG = 'text-slate-100 dark:text-slate-300'.freeze
+  private_constant :COLOR_TEXT_DARK_BG
 
   COLOR_BACKGROUNDS_10 = %w[
     bg-slate-500/10
@@ -68,7 +68,11 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
 
     # Use provided index (for dynamic sorting by consumption) or @number (static)
     effective_index = index || @number
-    { hex: COLOR_HEX, bg: backgrounds[effective_index - 1], text: COLOR_TEXT }
+    text_threshold = (backgrounds.length / 2.0).ceil
+    text =
+      effective_index >= text_threshold ? COLOR_TEXT_DARK_BG : COLOR_TEXT_LIGHT_BG
+
+    { background: backgrounds[effective_index - 1], text: }
   end
 
   chart do |timeframe, variant: nil|

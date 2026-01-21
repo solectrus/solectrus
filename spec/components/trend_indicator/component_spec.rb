@@ -39,14 +39,14 @@ describe TrendIndicator::Component do
       let(:diff) { 1 }
       let(:more_is_better) { true }
 
-      it { is_expected.to eq('text-green-600') }
+      it { is_expected.to eq('text-emerald-600') }
     end
 
     context 'when negative diff and less is better' do
       let(:diff) { -1 }
       let(:more_is_better) { false }
 
-      it { is_expected.to eq('text-green-600') }
+      it { is_expected.to eq('text-emerald-600') }
     end
 
     context 'when positive diff and less is better' do

@@ -13,7 +13,7 @@ describe SetupStatus::Component, type: :component do
     let(:prompt) { true }
 
     it 'renders yellow icon' do
-      expect(page).to have_css('div i.fa-circle-exclamation.text-yellow-300')
+      expect(page).to have_css('div i.fa-circle-exclamation.text-amber-300')
     end
   end
 
@@ -38,7 +38,7 @@ describe SetupStatus::Component, type: :component do
     let(:registration_status) { 'pending' }
 
     it 'renders yellow icon' do
-      expect(page).to have_css('div i.fa-circle-exclamation.text-yellow-300')
+      expect(page).to have_css('div i.fa-circle-exclamation.text-amber-300')
     end
   end
 
@@ -46,7 +46,7 @@ describe SetupStatus::Component, type: :component do
     let(:registration_status) { 'unregistered' }
 
     it 'renders yellow icon' do
-      expect(page).to have_css('div i.fa-circle-exclamation.text-yellow-300')
+      expect(page).to have_css('div i.fa-circle-exclamation.text-amber-300')
     end
   end
 end

@@ -81,21 +81,21 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
           = render ThemeSelector::Component.new
 
       - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
-        .bg-yellow-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-yellow-800.dark:text-pink-200
+        .bg-amber-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-amber-800.dark:text-pink-200
           - if helpers.admin?
             = I18n.t('layout.prompt_for_sponsoring')
             br
             br
-            = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'text-yellow-800 dark:text-gray-300 underline underline-offset-2 font-medium'
+            = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'text-amber-800 dark:text-gray-300 underline underline-offset-2 font-medium'
           - else
             = I18n.t('layout.missing_sponsoring')
 
       - elsif UpdateCheck.sponsoring?
-        .py-1.bg-green-600.text-white.text-center.text-xs
+        .py-1.bg-emerald-600.text-white.text-center.text-xs
           = I18n.t('layout.active_sponsoring_header')
 
       - elsif UpdateCheck.eligible_for_free?
-        .py-1.bg-green-600.text-white.text-center.text-xs
+        .py-1.bg-emerald-600.text-white.text-center.text-xs
           = I18n.t('layout.eligible_for_free_header')
 
       .flex.justify-between.items-center.text-indigo-100.dark:text-indigo-300.text-xs.px-3.py-4

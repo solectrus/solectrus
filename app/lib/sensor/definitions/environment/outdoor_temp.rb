@@ -1,9 +1,13 @@
 class Sensor::Definitions::OutdoorTemp < Sensor::Definitions::Base
   value unit: :celsius, category: :heatpump, nameable: true
 
-  color hex: '#f87171',
-        bg_classes: 'bg-red-400 dark:bg-red-600',
-        text_classes: 'text-red-100 dark:text-red-300'
+  color background: gradient(
+          from: -10,
+          to: 37,
+          start: 'bg-blue-400 dark:bg-sky-600',
+          stop: 'bg-red-400 dark:bg-red-600',
+        ),
+        text: 'text-white dark:text-gray-100'
 
   aggregations stored: %i[avg min max], top10: true
 
