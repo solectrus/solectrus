@@ -23,15 +23,24 @@ import {
   ChartEvent,
   ActiveElement,
   Plugin,
+  TooltipOptions,
+  TooltipItem,
 } from 'chart.js';
 
 import 'chartjs-adapter-luxon';
 import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
-import ChartBackgroundGradient from '@/utils/chartGradientDefault';
-import TemperatureGradient from '@/utils/chartGradientTemperature';
 import { buildCustomXAxisPlugin } from '@/utils/chartPluginCustomXAxis';
+import PowerBalanceTooltip from './power_balance_tooltip';
+import { applyCrosshairFix } from './crosshair_fix';
+import { applyAxisStyles, getAxisColors } from './axis_styles';
+import { ChartColorManager } from './color_scale';
+import type {
+  DatasetWithId,
+  ExtendedTickOptions,
+  TimeScaleOptions,
+} from './types';
 
 Chart.register(
   LineElement,
@@ -49,51 +58,21 @@ Chart.register(
   CrosshairPlugin,
 );
 
-type TooltipField = {
-  source: 'x' | 'y' | 'data';
-  name: string;
-  unit: string;
-  dataKey?: string;
-  transform?: 'divideBy1000';
+applyCrosshairFix();
+
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  return value !== null && typeof value === 'object';
 };
 
-type DatasetWithId = ChartDataset & {
-  id?: string;
-  tooltipFields?: TooltipField[];
-  showTime?: boolean;
-  noGradient?: boolean;
-  colorClass?: string;
+const isTooltipOptions = (
+  tooltip: unknown,
+): tooltip is TooltipOptions<ChartType> => {
+  return isRecord(tooltip);
 };
 
-// Extended scale options to include adapter configuration for time scales
-type TimeScaleOptions = {
-  adapters?: {
-    date?: {
-      locale?: string;
-    };
-  };
-};
-
-// Extended tick options with custom callback marker
-type ExtendedTickOptions = {
-  callback?:
-    | ((value: number | string) => string)
-    | 'formatTemperature'
-    | 'formatAbs';
-};
-
-// Fix for crosshair plugin drawing over the chart and tooltip
-// https://github.com/AbelHeinsbroek/chartjs-plugin-crosshair/issues/48#issuecomment-1926758048
-const afterDraw = CrosshairPlugin.afterDraw.bind(CrosshairPlugin);
-CrosshairPlugin.afterDraw = () => {};
-CrosshairPlugin.afterDatasetsDraw = (
-  chart: Chart,
-  args: unknown,
-  options: unknown,
-): void => {
-  // Crosshair plugin adds this property to the chart instance
-  if ('crosshair' in chart) afterDraw(chart, args, options);
-};
+type TooltipConfig = NonNullable<
+  NonNullable<ChartOptions['plugins']>['tooltip']
+>;
 
 // Draw lines between points with no or null data (disables segmentation of the line)
 Chart.overrides.line.spanGaps = true;
@@ -130,14 +109,18 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private boundHandleResize?: () => void;
   private boundHandleDblClick?: (event: MouseEvent) => void;
+  private boundHandleThemeChange?: () => void;
   private chart?: Chart;
-  private readonly colorClassCache = new Map<string, string>();
+  private readonly colorManager = new ChartColorManager((datasets) =>
+    this.isOverlapping(datasets),
+  );
   private animationTimeout?: ReturnType<typeof setTimeout>;
 
   private maxValue: number = 0;
   private minValue: number = 0;
   private locale: string = 'en';
   private lastTouchedIndex: number | null = null;
+  private powerBalanceTooltip?: PowerBalanceTooltip;
 
   private sanitizeLocale(locale: string): string {
     // Remove invalid suffixes like @posix that some browsers return
@@ -153,6 +136,9 @@ export default class extends Controller<HTMLCanvasElement> {
 
     this.boundHandleDblClick = this.handleDblClick.bind(this);
     this.canvasTarget.addEventListener('dblclick', this.boundHandleDblClick);
+
+    this.boundHandleThemeChange = this.handleThemeChange.bind(this);
+    document.addEventListener('theme:changed', this.boundHandleThemeChange);
   }
 
   disconnect() {
@@ -170,7 +156,16 @@ export default class extends Controller<HTMLCanvasElement> {
         this.boundHandleDblClick,
       );
 
+    if (this.boundHandleThemeChange)
+      document.removeEventListener(
+        'theme:changed',
+        this.boundHandleThemeChange,
+      );
+
     if (this.chart) this.chart.destroy();
+
+    this.powerBalanceTooltip?.destroy();
+    this.powerBalanceTooltip = undefined;
   }
 
   private handleResize() {
@@ -184,6 +179,12 @@ export default class extends Controller<HTMLCanvasElement> {
       // Re-enable animation
       document.body.classList.remove('animation-stopper');
     }, 200);
+  }
+
+  private handleThemeChange() {
+    this.colorManager.clearCache();
+    if (this.chart) this.chart.destroy();
+    this.process();
   }
 
   private process() {
@@ -209,6 +210,19 @@ export default class extends Controller<HTMLCanvasElement> {
     this.maxValue = this.maxOf(data);
     this.minValue = this.minOf(data);
 
+    const axisColors = getAxisColors(this.getCssVar.bind(this));
+    applyAxisStyles(options, axisColors);
+    const tooltip = options.plugins?.tooltip;
+    if (isTooltipOptions(tooltip)) {
+      const tooltipText = this.getCssVar('--chart-tooltip-text');
+      tooltip.backgroundColor = this.getCssVar('--chart-tooltip-bg');
+      tooltip.titleColor = tooltipText;
+      tooltip.bodyColor = tooltipText;
+      tooltip.footerColor = tooltipText;
+      tooltip.borderColor = this.getCssVar('--chart-tooltip-border');
+      tooltip.borderWidth = 1;
+    }
+
     // Format numbers on y-axis
     const yTicks = options.scales.y.ticks as ExtendedTickOptions | undefined;
     if (yTicks?.callback === 'formatAbs') {
@@ -233,8 +247,9 @@ export default class extends Controller<HTMLCanvasElement> {
       options.scales.x.grid &&
       options.scales.x.grid.color === 'zeroLineHighlight'
     ) {
+      const { grid, zeroLine } = axisColors;
       options.scales.x.grid.color = (context) =>
-        context.tick.value === 0 ? '#000' : 'rgba(0, 0, 0, 0.1)';
+        context.tick.value === 0 ? zeroLine : grid;
     }
 
     // Format numbers on right y-axis (y1) for temperature
@@ -245,9 +260,10 @@ export default class extends Controller<HTMLCanvasElement> {
 
     if (this.minValue < 0) {
       // Draw x-axis in black
+      const { grid, zeroLine } = axisColors;
       options.scales.y.grid = {
         color: (context) => {
-          return context.tick.value === 0 ? '#000' : 'rgba(0, 0, 0, 0.1)';
+          return context.tick.value === 0 ? zeroLine : grid;
         },
       };
     }
@@ -312,235 +328,10 @@ export default class extends Controller<HTMLCanvasElement> {
       event.native.target.style.cursor = showPointer ? 'pointer' : 'default';
     };
 
-    // Format numbers in tooltips
-    if (options.plugins?.tooltip) {
-      // Hide tooltip if value is null
-      options.plugins.tooltip.filter = (tooltipItem): boolean => {
-        if (Array.isArray(tooltipItem.raw))
-          return tooltipItem.raw.filter((x) => x !== null).length > 0;
+    this.configureTooltip(options, data);
 
-        return tooltipItem.raw !== null;
-      };
-
-      const isPowerSplitterStack = data.datasets.some(
-        (dataset) => dataset.stack == 'Power-Splitter',
-      );
-
-      const isInverterStack = data.datasets.some(
-        (dataset) => dataset.stack == 'InverterPower',
-      );
-
-      const isHeatingStack = data.datasets.some(
-        (dataset) => dataset.stack == 'HeatingPower',
-      );
-
-      // Increase font size of tooltip footer (used for sum of stacked values)
-      options.plugins.tooltip.footerFont = { size: 20 };
-
-      // Reverse order of datasets in tooltip
-      options.plugins.tooltip.itemSort = (a, b) =>
-        b.datasetIndex - a.datasetIndex;
-
-      options.plugins.tooltip.callbacks = {
-        title: (tooltipItems) => {
-          if (!tooltipItems.length) return;
-
-          // For charts with tooltipFields, show the date/time from timestamp as title
-          const dataset = tooltipItems[0].dataset as DatasetWithId;
-          if (dataset.tooltipFields?.length) {
-            const rawData = tooltipItems[0].raw as Record<string, unknown>;
-            const timestamp = rawData.timestamp;
-
-            if (typeof timestamp === 'number') {
-              const date = new Date(timestamp);
-              // Show time range for hourly data (day view), date for daily data
-              if (dataset.showTime) {
-                const timeFormat = new Intl.DateTimeFormat(this.locale, {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                });
-                const endDate = new Date(timestamp + 3600000); // +1 hour
-                return `${timeFormat.format(date)} – ${timeFormat.format(endDate)}`;
-              }
-              return new Intl.DateTimeFormat(this.locale, {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-              }).format(date);
-            }
-            return;
-          }
-
-          // Default title behavior (handled by Chart.js)
-          return;
-        },
-
-        label: (tooltipItem) => {
-          // Handle scatter chart data with tooltipFields
-          const dataset = tooltipItem.dataset as DatasetWithId;
-          const tooltipFields = dataset.tooltipFields;
-
-          if (tooltipFields?.length) {
-            const rawData = tooltipItem.raw as Record<string, unknown>;
-            const lines: string[] = [];
-
-            for (const field of tooltipFields) {
-              let value: number | null = null;
-
-              if (field.source === 'x') {
-                value = tooltipItem.parsed.x ?? null;
-              } else if (field.source === 'y') {
-                value = tooltipItem.parsed.y ?? null;
-              } else if (field.source === 'data' && field.dataKey) {
-                const rawValue = rawData[field.dataKey];
-                value = typeof rawValue === 'number' ? rawValue : null;
-              }
-
-              if (value === null) continue;
-
-              // Apply transform if specified
-              if (field.transform === 'divideBy1000') {
-                value /= 1000;
-              }
-
-              const formattedValue = new Intl.NumberFormat(this.locale, {
-                minimumFractionDigits: 1,
-                maximumFractionDigits: 1,
-              }).format(value);
-
-              const unitStr = field.unit ? ` ${field.unit}` : '';
-              lines.push(`${field.name}: ${formattedValue}${unitStr}`);
-            }
-
-            return lines;
-          }
-
-          const datasetId = dataset.id;
-
-          // Hide PowerSplitter total bar - it only appears in footer
-          if (isPowerSplitterStack && !tooltipItem.dataset.stack) return '';
-
-          const label =
-            data.datasets.length > 1 ? `${tooltipItem.dataset.label} ` : '';
-
-          // Handle interval data (min/max ranges)
-          if (tooltipItem.parsed._custom) {
-            return (
-              label +
-              this.formattedInterval(
-                tooltipItem.parsed._custom.min,
-                tooltipItem.parsed._custom.max,
-              )
-            );
-          }
-
-          // Show percentages for stacked items
-          const isStackedItem =
-            (isPowerSplitterStack || isHeatingStack) &&
-            tooltipItem.dataset.stack;
-
-          if (isStackedItem) {
-            const showPercentages =
-              isPowerSplitterStack ||
-              (isHeatingStack && data.datasets.length === 3);
-
-            if (showPercentages) {
-              const sum = data.datasets
-                .filter((ds) => ds.stack === tooltipItem.dataset.stack)
-                .reduce((acc, ds) => {
-                  const value = ds.data[tooltipItem.dataIndex] as number;
-                  return acc + (value || 0);
-                }, 0);
-
-              if (sum && tooltipItem.parsed.y) {
-                return `${label}${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
-              }
-            }
-          }
-
-          // Default: show absolute value
-          // Check if this is a temperature dataset
-          const isTemperature = datasetId?.includes('_temp');
-
-          if (isTemperature) {
-            // For temperature, format with °C
-            const value = tooltipItem.parsed.y!;
-            const formattedValue = new Intl.NumberFormat(this.locale, {
-              minimumFractionDigits: 1,
-              maximumFractionDigits: 1,
-            }).format(value);
-            return `${label}${formattedValue} °C`;
-          }
-
-          return label + this.formattedNumber(tooltipItem.parsed.y!);
-        },
-
-        footer: (tooltipItems) => {
-          if (!tooltipItems.length) return;
-
-          const dataIndex = tooltipItems[0].dataIndex;
-
-          // For PowerSplitter, get total from the total bar dataset (without stack)
-          if (isPowerSplitterStack) {
-            const totalDataset = data.datasets.find((ds) => !ds.stack);
-            const sum = totalDataset?.data?.[dataIndex] as number | undefined;
-            if (sum) return this.formattedNumber(sum);
-          }
-
-          // For InverterStack and HeatingStack, sum all stacked items
-          if ((isInverterStack || isHeatingStack) && tooltipItems.length > 1) {
-            const sum = tooltipItems.reduce((acc, item) => {
-              // Only sum items that are actually stacked
-              if (item.dataset.stack && item.parsed.y) acc += item.parsed.y;
-              return acc;
-            }, 0);
-            if (sum) return this.formattedNumber(sum);
-          }
-        },
-      };
-    }
-
-    for (const dataset of data.datasets) {
-      const datasetWithId = dataset as DatasetWithId;
-      if (datasetWithId.noGradient && datasetWithId.colorClass) {
-        const resolvedColor = this.resolveColorClass(datasetWithId.colorClass);
-        if (resolvedColor) {
-          dataset.backgroundColor = resolvedColor;
-          dataset.borderColor = resolvedColor;
-        }
-      }
-    }
-
-    if (this.maxValue > this.minValue) {
-      for (const dataset of data.datasets) {
-        // Non-Overlapping line charts should have a larger gradient (means lower opacity)
-        const minAlpha =
-          this.typeValue === 'line' && !this.isOverlapping(data.datasets)
-            ? 0.04
-            : 0.4;
-
-        if (!dataset.data) continue;
-
-        const id = (dataset as DatasetWithId).id;
-        const isTemperature = id?.includes('_temp');
-
-        if (isTemperature) {
-          this.setTemperatureGradient(dataset);
-        } else if (
-          !Array.isArray(dataset.backgroundColor) &&
-          !(dataset as DatasetWithId).noGradient
-        ) {
-          // Apply gradient only when backgroundColor is a single color (not an array)
-          // and noGradient is not set
-          this.setDefaultGradient(
-            dataset,
-            this.minValue,
-            this.maxValue,
-            minAlpha,
-          );
-        }
-      }
-    }
+    this.colorManager.setChartType(this.typeValue);
+    this.colorManager.applyDatasetColors(data, this.minValue, this.maxValue);
 
     const plugins = this.buildCustomPlugins(options);
 
@@ -556,49 +347,265 @@ export default class extends Controller<HTMLCanvasElement> {
     return buildCustomXAxisPlugin(options);
   }
 
-  private setDefaultGradient(
-    dataset: ChartDataset,
-    min: number,
-    max: number,
-    minAlpha: number,
-  ) {
-    const backgroundGradient = new ChartBackgroundGradient(
-      dataset,
-      min,
-      max,
-      minAlpha,
+  private configureTooltip(options: ChartOptions, data: ChartData): void {
+    const tooltip = options.plugins?.tooltip;
+    if (!tooltip) return;
+
+    tooltip.filter = (tooltipItem): boolean => {
+      if (Array.isArray(tooltipItem.raw))
+        return tooltipItem.raw.filter((value) => value !== null).length > 0;
+      return tooltipItem.raw !== null;
+    };
+
+    const flags = this.getTooltipFlags(data);
+
+    tooltip.footerFont = { size: 20 };
+
+    if (!flags.isPowerBalance) {
+      tooltip.itemSort = (a, b) => b.datasetIndex - a.datasetIndex;
+    }
+
+    this.configurePowerBalanceTooltip(tooltip, flags);
+    this.configureTooltipCallbacks(tooltip, data, flags);
+  }
+
+  private getTooltipFlags(data: ChartData) {
+    const isPowerSplitterStack = data.datasets.some(
+      (dataset) => dataset.stack == 'Power-Splitter',
+    );
+    const isInverterStack = data.datasets.some(
+      (dataset) => dataset.stack == 'InverterPower',
+    );
+    const isHeatingStack = data.datasets.some(
+      (dataset) => dataset.stack == 'HeatingPower',
     );
 
-    backgroundGradient.applyToDataset(dataset);
+    return {
+      isPowerSplitterStack,
+      isInverterStack,
+      isHeatingStack,
+      ...this.getPowerBalanceConfig(data),
+    };
   }
 
-  private setTemperatureGradient(dataset: ChartDataset) {
-    const temperatureGradient = new TemperatureGradient(this.typeValue);
-    temperatureGradient.applyToDataset(dataset);
+  private configurePowerBalanceTooltip(
+    tooltip: TooltipConfig,
+    flags: {
+      isPowerBalance: boolean;
+      sourceIds: Set<string>;
+      usageIds: Set<string>;
+      orderMap: Map<string, number>;
+    },
+  ): void {
+    if (flags.isPowerBalance) {
+      if (!this.powerBalanceTooltip) {
+        const useKilo = this.typeValue !== 'line';
+        this.powerBalanceTooltip = new PowerBalanceTooltip(
+          (value) => this.formattedNumber(Math.abs(value), 'tooltip', useKilo),
+          this.sourceLabelValue,
+          this.usageLabelValue,
+        );
+      }
+
+      tooltip.enabled = false;
+      tooltip.external = (context) =>
+        this.powerBalanceTooltip?.render(
+          context,
+          flags.sourceIds,
+          flags.usageIds,
+          flags.orderMap,
+        );
+      return;
+    }
+
+    if (this.powerBalanceTooltip) {
+      this.powerBalanceTooltip.destroy();
+      this.powerBalanceTooltip = undefined;
+    }
   }
 
-  private resolveColorClass(colorClass: string): string | undefined {
-    const cached = this.colorClassCache.get(colorClass);
-    if (cached) return cached;
+  private configureTooltipCallbacks(
+    tooltip: TooltipConfig,
+    data: ChartData,
+    flags: {
+      isPowerSplitterStack: boolean;
+      isInverterStack: boolean;
+      isHeatingStack: boolean;
+    },
+  ): void {
+    tooltip.callbacks = {
+      title: (tooltipItems) => this.buildTooltipTitle(tooltipItems),
+      label: (tooltipItem) => this.buildTooltipLabel(tooltipItem, data, flags),
+      footer: (tooltipItems) =>
+        this.buildTooltipFooter(tooltipItems, data, flags),
+    };
+  }
 
-    const element = document.createElement('div');
-    element.className = colorClass;
-    element.style.position = 'absolute';
-    element.style.left = '-9999px';
-    element.style.width = '1px';
-    element.style.height = '1px';
-    element.style.pointerEvents = 'none';
-    document.body.appendChild(element);
+  private buildTooltipTitle(
+    tooltipItems: TooltipItem<ChartType>[],
+  ): string | undefined {
+    if (!tooltipItems.length) return;
 
-    const computed = window.getComputedStyle(element).backgroundColor;
-    document.body.removeChild(element);
+    const dataset = tooltipItems[0].dataset as DatasetWithId;
+    if (dataset.tooltipFields?.length) {
+      const rawData = tooltipItems[0].raw as Record<string, unknown>;
+      const timestamp = rawData.timestamp;
 
-    if (computed && computed !== 'rgba(0, 0, 0, 0)') {
-      this.colorClassCache.set(colorClass, computed);
-      return computed;
+      if (typeof timestamp === 'number') {
+        const date = new Date(timestamp);
+        if (dataset.showTime) {
+          const timeFormat = new Intl.DateTimeFormat(this.locale, {
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+          const endDate = new Date(timestamp + 3600000);
+          return `${timeFormat.format(date)} – ${timeFormat.format(endDate)}`;
+        }
+        return new Intl.DateTimeFormat(this.locale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }).format(date);
+      }
+
+      return;
     }
 
     return;
+  }
+
+  private buildTooltipLabel(
+    tooltipItem: TooltipItem<ChartType>,
+    data: ChartData,
+    flags: {
+      isPowerSplitterStack: boolean;
+      isHeatingStack: boolean;
+    },
+  ): string | string[] {
+    const dataset = tooltipItem.dataset as DatasetWithId;
+    const tooltipFields = dataset.tooltipFields;
+
+    if (tooltipFields?.length) {
+      const rawData = tooltipItem.raw as Record<string, unknown>;
+      const lines: string[] = [];
+
+      for (const field of tooltipFields) {
+        let value: number | null = null;
+
+        if (field.source === 'x') {
+          value = tooltipItem.parsed.x ?? null;
+        } else if (field.source === 'y') {
+          value = tooltipItem.parsed.y ?? null;
+        } else if (field.source === 'data' && field.dataKey) {
+          const rawValue = rawData[field.dataKey];
+          value = typeof rawValue === 'number' ? rawValue : null;
+        }
+
+        if (value === null) continue;
+
+        if (field.transform === 'divideBy1000') value /= 1000;
+
+        const formattedValue = new Intl.NumberFormat(this.locale, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        }).format(value);
+
+        const unitStr = field.unit ? ` ${field.unit}` : '';
+        lines.push(`${field.name}: ${formattedValue}${unitStr}`);
+      }
+
+      return lines;
+    }
+
+    const datasetId = dataset.id;
+    const { isPowerSplitterStack, isHeatingStack } = flags;
+
+    if (isPowerSplitterStack && !tooltipItem.dataset.stack) return '';
+
+    const label =
+      data.datasets.length > 1 ? `${tooltipItem.dataset.label} ` : '';
+
+    if (tooltipItem.parsed._custom) {
+      return (
+        label +
+        this.formattedInterval(
+          tooltipItem.parsed._custom.min,
+          tooltipItem.parsed._custom.max,
+        )
+      );
+    }
+
+    const isStackedItem =
+      (isPowerSplitterStack || isHeatingStack) && tooltipItem.dataset.stack;
+
+    if (isStackedItem) {
+      const showPercentages =
+        isPowerSplitterStack || (isHeatingStack && data.datasets.length === 3);
+
+      if (showPercentages) {
+        const sum = data.datasets
+          .filter((ds) => ds.stack === tooltipItem.dataset.stack)
+          .reduce((acc, ds) => {
+            const value = ds.data[tooltipItem.dataIndex] as number;
+            return acc + (value || 0);
+          }, 0);
+
+        if (sum && tooltipItem.parsed.y) {
+          return `${label}${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+        }
+      }
+    }
+
+    const isTemperature = datasetId?.includes('_temp');
+
+    if (isTemperature) {
+      const value = tooltipItem.parsed.y!;
+      const formattedValue = new Intl.NumberFormat(this.locale, {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+      }).format(value);
+      return `${label}${formattedValue} °C`;
+    }
+
+    return label + this.formattedNumber(tooltipItem.parsed.y!);
+  }
+
+  private buildTooltipFooter(
+    tooltipItems: TooltipItem<ChartType>[],
+    data: ChartData,
+    flags: {
+      isPowerSplitterStack: boolean;
+      isInverterStack: boolean;
+      isHeatingStack: boolean;
+    },
+  ): string | undefined {
+    if (!tooltipItems.length) return;
+
+    const dataIndex = tooltipItems[0].dataIndex;
+
+    if (flags.isPowerSplitterStack) {
+      const totalDataset = data.datasets.find((ds) => !ds.stack);
+      const sum = totalDataset?.data?.[dataIndex] as number | undefined;
+      if (sum) return this.formattedNumber(sum);
+    }
+
+    if (
+      (flags.isInverterStack || flags.isHeatingStack) &&
+      tooltipItems.length > 1
+    ) {
+      const sum = tooltipItems.reduce((acc, item) => {
+        if (item.dataset.stack && item.parsed.y) acc += item.parsed.y;
+        return acc;
+      }, 0);
+      if (sum) return this.formattedNumber(sum);
+    }
+  }
+
+  private getCssVar(name: string): string {
+    return window
+      .getComputedStyle(document.documentElement)
+      .getPropertyValue(name)
+      .trim();
   }
 
   private getData(): ChartData | undefined {
@@ -614,6 +621,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private formattedNumber(
     number: number,
     target: 'axis' | 'tooltip' = 'tooltip',
+    autoKilo: boolean = true,
   ) {
     const minValue = this.chart?.scales.y.min ?? this.minValue;
     const maxValue = this.chart?.scales.y.max ?? this.maxValue;
@@ -624,6 +632,7 @@ export default class extends Controller<HTMLCanvasElement> {
     const isEuro = this.unitValue.includes('€');
 
     const kilo =
+      autoKilo &&
       !isEuro &&
       (target === 'axis'
         ? maxValue > 1000 || minValue < -1000
@@ -687,6 +696,49 @@ export default class extends Controller<HTMLCanvasElement> {
     return formattedMin === formattedMax
       ? formattedMin
       : `${formattedMin} - ${formattedMax}`;
+  }
+
+  private getPowerBalanceConfig(data: ChartData) {
+    const sourceIds = new Set([
+      'inverter_power',
+      'battery_discharging_power',
+      'grid_import_power',
+    ]);
+
+    const usageIds = new Set([
+      'house_power',
+      'heatpump_power',
+      'wallbox_power',
+      'battery_charging_power',
+      'grid_export_power',
+    ]);
+
+    const stacks = new Set(['source', 'usage', 'combined']);
+    const hasStack = data.datasets.some((dataset) =>
+      stacks.has(dataset.stack ?? ''),
+    );
+
+    const hasSources = data.datasets.some((dataset) =>
+      sourceIds.has((dataset as DatasetWithId).id ?? ''),
+    );
+
+    const hasUsage = data.datasets.some((dataset) =>
+      usageIds.has((dataset as DatasetWithId).id ?? ''),
+    );
+
+    const orderMap = new Map(
+      data.datasets.map((dataset, index) => [
+        (dataset as DatasetWithId).id ?? '',
+        index,
+      ]),
+    );
+
+    return {
+      sourceIds,
+      usageIds,
+      orderMap,
+      isPowerBalance: hasStack && hasSources && hasUsage,
+    };
   }
 
   // Extract numeric value from various data formats (number, array, or scatter point object)

@@ -1,0 +1,50 @@
+/* Chart.js external tooltip */
+.chartjs-tooltip {
+  @apply pointer-events-none fixed z-50 max-w-[320px] rounded border border-gray-400 bg-white px-2 py-1 text-sm text-gray-900 shadow-lg;
+  @apply dark:border-slate-400 dark:bg-slate-900 dark:text-slate-300;
+  @apply invisible opacity-0;
+
+  transform: none;
+  transition:
+    opacity 120ms ease-out,
+    visibility 120ms;
+}
+
+.chartjs-tooltip .chart-tooltip-content {
+  @apply flex flex-col gap-1;
+}
+
+.chartjs-tooltip .chart-tooltip-title {
+  @apply self-end text-xs text-gray-600;
+  @apply dark:text-slate-300;
+}
+
+.chartjs-tooltip .chart-tooltip-heading {
+  @apply text-xs font-bold tracking-wide text-gray-700 uppercase;
+  @apply dark:text-slate-200;
+}
+
+.chartjs-tooltip .chart-tooltip-group {
+  @apply flex flex-col gap-1;
+}
+
+.chartjs-tooltip .chart-tooltip-separator {
+  @apply my-1 border-t border-gray-300;
+  @apply dark:border-slate-600;
+}
+
+.chartjs-tooltip .chart-tooltip-row {
+  @apply flex items-center justify-between gap-3;
+}
+
+.chartjs-tooltip .chart-tooltip-label {
+  @apply flex items-center gap-2;
+}
+
+.chartjs-tooltip .chart-tooltip-color {
+  @apply h-3 w-3 shrink-0 rounded-sm border border-gray-500;
+}
+
+.chartjs-tooltip .chart-tooltip-value {
+  @apply w-[13ch] text-right whitespace-nowrap tabular-nums;
+}
