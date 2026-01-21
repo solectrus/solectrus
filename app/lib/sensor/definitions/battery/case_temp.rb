@@ -5,7 +5,7 @@ class Sensor::Definitions::CaseTemp < Sensor::Definitions::Base
         bg_classes: 'bg-red-500 dark:bg-red-700',
         text_classes: 'text-red-100 dark:text-red-400'
 
-  aggregations stored: %i[min max avg], computed: [:avg], meta: %i[min max avg]
+  aggregations stored: %i[min max avg], computed: [:avg], meta: %i[min max avg], top10: true
   trend aggregation: :avg, more_is_better: false
 
   chart { |timeframe| Sensor::Chart::CaseTemp.new(timeframe:) }
