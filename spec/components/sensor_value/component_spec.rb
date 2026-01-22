@@ -93,7 +93,7 @@ describe SensorValue::Component, type: :component do
           render_inline(component)
 
           expect(page).to have_css(
-            'span.sensor-value.text-red-700.dark\\:text-red-400',
+            'span.sensor-value.text-red-700.dark\\:text-red-500',
           )
         end
       end
@@ -105,7 +105,7 @@ describe SensorValue::Component, type: :component do
           render_inline(component)
 
           expect(page).to have_css(
-            'span.sensor-value.text-emerald-700.dark\\:text-emerald-400',
+            'span.sensor-value.text-emerald-700.dark\\:text-emerald-500',
           )
         end
       end
@@ -120,7 +120,7 @@ describe SensorValue::Component, type: :component do
             render_inline(component)
 
             expect(page).to have_css(
-              'span.sensor-value.text-emerald-700.dark\\:text-emerald-400',
+              'span.sensor-value.text-emerald-700.dark\\:text-emerald-500',
             )
           end
         end
@@ -132,7 +132,7 @@ describe SensorValue::Component, type: :component do
             render_inline(component)
 
             expect(page).to have_css(
-              'span.sensor-value.text-red-700.dark\\:text-red-400',
+              'span.sensor-value.text-red-700.dark\\:text-red-500',
             )
           end
 
@@ -156,7 +156,7 @@ describe SensorValue::Component, type: :component do
             render_inline(component)
 
             expect(page).to have_css(
-              'span.sensor-value.text-red-700.dark\\:text-red-400',
+              'span.sensor-value.text-red-700.dark\\:text-red-500',
             )
           end
         end
@@ -168,7 +168,7 @@ describe SensorValue::Component, type: :component do
             render_inline(component)
 
             expect(page).to have_css(
-              'span.sensor-value.text-emerald-700.dark\\:text-emerald-400',
+              'span.sensor-value.text-emerald-700.dark\\:text-emerald-500',
             )
           end
 
