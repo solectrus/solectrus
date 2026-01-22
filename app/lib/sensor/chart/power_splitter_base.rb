@@ -14,11 +14,12 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
   end
 
   # Override datasets to provide custom styling and stacking
+  # Always use consistent color regardless of which sensor is selected
   def datasets(chart_data_items)
     if splitting_allowed?
       build_splitted_datasets(chart_data_items)
     else
-      super # Use base class implementation
+      super.each { |ds| ds[:colorClass] = SPLITTER_MAIN_COLOR }
     end
   end
 
