@@ -24,6 +24,7 @@ export default class extends Controller<HTMLElement> {
   private boundHandleVisibilityChange?: () => void;
   private boundHandleFocus?: () => void;
   private lastIsDark?: boolean;
+  private ignoreMediaQueryChangesUntil: number = 0;
 
   connect() {
     this.apply();
@@ -69,18 +70,42 @@ export default class extends Controller<HTMLElement> {
   }
 
   handleColorSchemeChange() {
+    // On iOS, resuming from background can fire change events with incorrect values.
+    // Ignore media query changes briefly after resume to prevent theme flash.
+    if (Date.now() < this.ignoreMediaQueryChangesUntil) return;
+
     if (this.theme === 'auto') {
       this.apply();
     }
   }
 
   handleFocus() {
-    this.apply();
+    // On iOS, resuming from background can cause the DOM state to be inconsistent.
+    // Immediately restore the theme based on our last known state, and block
+    // media query change events briefly to prevent flash from incorrect values.
+    this.ignoreMediaQueryChangesUntil = Date.now() + 1000;
+    this.restoreThemeIfNeeded();
   }
 
   handleVisibilityChange() {
-    if (!document.hidden && this.theme === 'auto') {
-      this.apply();
+    if (document.hidden) return;
+
+    // On iOS, resuming from background can cause the DOM state to be inconsistent.
+    // Immediately restore the theme based on our last known state, and block
+    // media query change events briefly to prevent flash from incorrect values.
+    this.ignoreMediaQueryChangesUntil = Date.now() + 1000;
+    this.restoreThemeIfNeeded();
+  }
+
+  private restoreThemeIfNeeded() {
+    // Only restore for 'auto' theme - explicit light/dark don't need restoration
+    if (this.theme !== 'auto' || this.lastIsDark === undefined) return;
+
+    // Check if HTML class matches our last known state
+    const htmlIsDark = document.documentElement.classList.contains('dark');
+    if (htmlIsDark !== this.lastIsDark) {
+      this.updateHtmlClass(this.lastIsDark);
+      this.updateMetaTag(this.lastIsDark);
     }
   }
 
@@ -100,10 +125,23 @@ export default class extends Controller<HTMLElement> {
   }
 
   apply() {
-    this.updateHtmlClass();
-    this.updateMetaTag();
+    const isDark = this.isCurrentlyDark;
+    this.updateHtmlClass(isDark);
+    this.updateMetaTag(isDark);
     this.updateButtons();
-    this.broadcastThemeChange();
+
+    // Always update lastIsDark so focus/visibility handlers have a reliable reference
+    const previousIsDark = this.lastIsDark;
+    this.lastIsDark = isDark;
+
+    // Only broadcast if there was an actual change
+    if (previousIsDark !== isDark) {
+      document.dispatchEvent(
+        new CustomEvent('theme:changed', {
+          detail: { dark: isDark },
+        }),
+      );
+    }
   }
 
   updateButtons() {
@@ -120,29 +158,17 @@ export default class extends Controller<HTMLElement> {
     }
   }
 
-  updateHtmlClass() {
-    document.documentElement.classList.toggle('dark', this.isCurrentlyDark);
+  updateHtmlClass(isDark: boolean) {
+    document.documentElement.classList.toggle('dark', isDark);
   }
 
-  updateMetaTag() {
-    const color = this.isCurrentlyDark
-      ? this.darkThemeColor
-      : this.lightThemeColor;
+  updateMetaTag(isDark: boolean) {
+    const color = isDark ? this.darkThemeColor : this.lightThemeColor;
 
     const themeMetaTag = document.querySelector('meta[name="theme-color"]');
     if (themeMetaTag) {
       themeMetaTag.setAttribute('content', color);
     }
-  }
-
-  broadcastThemeChange() {
-    if (this.lastIsDark === this.isCurrentlyDark) return;
-    this.lastIsDark = this.isCurrentlyDark;
-    document.dispatchEvent(
-      new CustomEvent('theme:changed', {
-        detail: { dark: this.isCurrentlyDark },
-      }),
-    );
   }
 
   get isCurrentlyDark(): boolean {
