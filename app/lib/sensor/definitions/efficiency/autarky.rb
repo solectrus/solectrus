@@ -25,7 +25,7 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
     else
       # 0-33%: red
       {
-        background: 'xl:tall:bg-red-200 dark:xl:tall:bg-red-800/40',
+        background: 'xl:tall:bg-red-200 dark:xl:tall:bg-red-800/60',
         text: 'text-red-600 dark:text-red-600 xl:tall:dark:text-inherit',
         border: '',
       }
