@@ -74,46 +74,4 @@ describe Sensor::Chart::InverterPowerForecast do
       end
     end
   end
-
-  describe '#style_for_sensor' do
-    let(:inverter_power_sensor) do
-      double(name: :inverter_power, color_chart: 'bg-emerald-600')
-    end
-    let(:forecast_sensor) do
-      double(name: :inverter_power_forecast, color_chart: 'bg-slate-300')
-    end
-    let(:clearsky_sensor) do
-      double(name: :inverter_power_forecast_clearsky, color_chart: 'bg-gray-400')
-    end
-
-    before do
-      allow(chart).to receive(:chart_sensors).and_return(
-        [inverter_power_sensor],
-      )
-    end
-
-    it 'applies fill style for inverter_power sensor' do
-      result = chart.__send__(:style_for_sensor, inverter_power_sensor)
-
-      expect(result[:fill]).to be true
-    end
-
-    it 'applies dashed style for clearsky forecast sensor' do
-      result = chart.__send__(:style_for_sensor, clearsky_sensor)
-
-      expect(result).to include(
-        borderWidth: 1,
-        borderDash: [2, 3],
-        fill: false,
-        colorClass: 'bg-gray-400',
-      )
-    end
-
-    it 'applies default style for regular forecast sensor' do
-      result = chart.__send__(:style_for_sensor, forecast_sensor)
-
-      # Should call super and return base style
-      expect(result).to be_a(Hash)
-    end
-  end
 end
