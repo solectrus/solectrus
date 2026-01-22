@@ -22,6 +22,7 @@ export default class extends Controller<HTMLElement> {
 
   private boundHandleColorSchemeChange?: () => void;
   private lastIsDark?: boolean;
+  private colorSchemeChangeTimeout?: ReturnType<typeof setTimeout>;
 
   connect() {
     this.apply();
@@ -29,6 +30,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect() {
+    clearTimeout(this.colorSchemeChangeTimeout);
     this.removeListeners();
   }
 
@@ -49,12 +51,15 @@ export default class extends Controller<HTMLElement> {
   }
 
   handleColorSchemeChange() {
-    // Ignore bogus change events fired by iOS when resuming from background
-    if (document.hidden) return;
+    if (this.theme !== 'auto') return;
 
-    if (this.theme === 'auto') {
+    // Debounce to filter out bogus iOS resume events.
+    // iOS can fire change events with incorrect values when resuming,
+    // but typically corrects itself shortly after.
+    clearTimeout(this.colorSchemeChangeTimeout);
+    this.colorSchemeChangeTimeout = setTimeout(() => {
       this.apply();
-    }
+    }, 200);
   }
 
   dark() {
