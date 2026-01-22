@@ -48,8 +48,8 @@ module Sensor
           end
         end
 
-        def color(background: nil, text: nil, border: nil, &)
-          color_dsl.color(background:, text:, border:, &)
+        def color(background: nil, text: nil, border: nil, hatch_fill: nil, &)
+          color_dsl.color(background:, text:, border:, hatch_fill:, &)
         end
 
         def gradient(from:, to:, start:, stop:)

@@ -16,6 +16,7 @@ export type DatasetWithId = ChartDataset & {
   colorClass?: string;
   colorScale?: ColorScaleStop[];
   opacities?: number[];
+  hatchFill?: boolean;
 };
 
 export type ColorScaleStop = {

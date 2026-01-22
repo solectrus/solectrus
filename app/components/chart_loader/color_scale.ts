@@ -18,6 +18,7 @@ import type {
 
 export class ChartColorManager {
   private readonly colorClassCache = new Map<string, string>();
+  private readonly hatchPatternCache = new Map<string, CanvasPattern>();
   private typeValue: ChartType = 'line';
 
   constructor(
@@ -30,6 +31,7 @@ export class ChartColorManager {
 
   clearCache(): void {
     this.colorClassCache.clear();
+    this.hatchPatternCache.clear();
   }
 
   applyDatasetColors(
@@ -51,6 +53,17 @@ export class ChartColorManager {
                 ? (lightenColor(resolvedColor, 0.2) ?? resolvedColor)
                 : (darkenColor(resolvedColor, 0.2) ?? resolvedColor)
               : resolvedColor;
+          if (datasetWithId.hatchFill) {
+            dataset.backgroundColor = (context: {
+              chart: Chart;
+            }): CanvasPattern | string | undefined => {
+              const { ctx, chartArea } = context.chart;
+              if (!chartArea) return;
+              return this.createHatchPattern(ctx, resolvedColor);
+            };
+            dataset.borderColor = lineColor;
+            continue;
+          }
           // If opacities array is provided, create color array with color-mix
           if (datasetWithId.opacities?.length) {
             dataset.backgroundColor = datasetWithId.opacities.map((opacity) =>
@@ -455,5 +468,37 @@ export class ChartColorManager {
 
     this.colorClassCache.set(colorClass, resolved);
     return resolved;
+  }
+
+  private createHatchPattern(
+    ctx: CanvasRenderingContext2D,
+    color: string,
+  ): CanvasPattern | string {
+    const cached = this.hatchPatternCache.get(color);
+    if (cached) return cached;
+
+    const size = 8;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+
+    const context = canvas.getContext('2d');
+    if (!context) return colorToRgba(color, 0.15) ?? color;
+
+    const lineColor = colorToRgba(color, 0.6) ?? color;
+    context.strokeStyle = lineColor;
+    context.lineWidth = 1;
+    context.lineCap = 'butt';
+    context.lineJoin = 'miter';
+    context.beginPath();
+    context.moveTo(0, size);
+    context.lineTo(size, 0);
+    context.stroke();
+
+    const pattern = ctx.createPattern(canvas, 'repeat');
+    if (!pattern) return lineColor;
+
+    this.hatchPatternCache.set(color, pattern);
+    return pattern;
   }
 }

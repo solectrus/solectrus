@@ -139,6 +139,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.trendable
   end
 
+  def hatch_fill?
+    self.class.meta_data.fetch(:hatch_fill, false)
+  end
+
   def more_is_better?
     self.class.more_is_better
   end

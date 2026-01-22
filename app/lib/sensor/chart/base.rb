@@ -148,6 +148,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       pointHoverRadius: 5,
       colorClass: sensor.color_chart,
       colorScale: (sensor.color_scale if sensor.respond_to?(:color_scale)),
+      hatchFill: sensor.hatch_fill?,
+      noGradient: sensor.hatch_fill?,
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
     }.compact
