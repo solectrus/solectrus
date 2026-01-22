@@ -21,10 +21,7 @@ export default class extends Controller<HTMLElement> {
   readonly lightThemeColor = '#a5b4fc';
 
   private boundHandleColorSchemeChange?: () => void;
-  private boundHandleVisibilityChange?: () => void;
-  private boundHandleFocus?: () => void;
   private lastIsDark?: boolean;
-  private ignoreMediaQueryChangesUntil: number = 0;
 
   connect() {
     this.apply();
@@ -41,27 +38,9 @@ export default class extends Controller<HTMLElement> {
       'change',
       this.boundHandleColorSchemeChange,
     );
-
-    this.boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
-    document.addEventListener(
-      'visibilitychange',
-      this.boundHandleVisibilityChange,
-    );
-
-    this.boundHandleFocus = this.handleFocus.bind(this);
-    window.addEventListener('focus', this.boundHandleFocus);
   }
 
   removeListeners() {
-    if (this.boundHandleFocus)
-      window.removeEventListener('focus', this.boundHandleFocus);
-
-    if (this.boundHandleVisibilityChange)
-      document.removeEventListener(
-        'visibilitychange',
-        this.boundHandleVisibilityChange,
-      );
-
     if (this.boundHandleColorSchemeChange)
       this.prefersDarkScheme.removeEventListener(
         'change',
@@ -70,42 +49,11 @@ export default class extends Controller<HTMLElement> {
   }
 
   handleColorSchemeChange() {
-    // On iOS, resuming from background can fire change events with incorrect values.
-    // Ignore media query changes briefly after resume to prevent theme flash.
-    if (Date.now() < this.ignoreMediaQueryChangesUntil) return;
+    // Ignore bogus change events fired by iOS when resuming from background
+    if (document.hidden) return;
 
     if (this.theme === 'auto') {
       this.apply();
-    }
-  }
-
-  handleFocus() {
-    // On iOS, resuming from background can cause the DOM state to be inconsistent.
-    // Immediately restore the theme based on our last known state, and block
-    // media query change events briefly to prevent flash from incorrect values.
-    this.ignoreMediaQueryChangesUntil = Date.now() + 1000;
-    this.restoreThemeIfNeeded();
-  }
-
-  handleVisibilityChange() {
-    if (document.hidden) return;
-
-    // On iOS, resuming from background can cause the DOM state to be inconsistent.
-    // Immediately restore the theme based on our last known state, and block
-    // media query change events briefly to prevent flash from incorrect values.
-    this.ignoreMediaQueryChangesUntil = Date.now() + 1000;
-    this.restoreThemeIfNeeded();
-  }
-
-  private restoreThemeIfNeeded() {
-    // Only restore for 'auto' theme - explicit light/dark don't need restoration
-    if (this.theme !== 'auto' || this.lastIsDark === undefined) return;
-
-    // Check if HTML class matches our last known state
-    const htmlIsDark = document.documentElement.classList.contains('dark');
-    if (htmlIsDark !== this.lastIsDark) {
-      this.updateHtmlClass(this.lastIsDark);
-      this.updateMetaTag(this.lastIsDark);
     }
   }
 
@@ -130,12 +78,9 @@ export default class extends Controller<HTMLElement> {
     this.updateMetaTag(isDark);
     this.updateButtons();
 
-    // Always update lastIsDark so focus/visibility handlers have a reliable reference
-    const previousIsDark = this.lastIsDark;
-    this.lastIsDark = isDark;
-
     // Only broadcast if there was an actual change
-    if (previousIsDark !== isDark) {
+    if (this.lastIsDark !== isDark) {
+      this.lastIsDark = isDark;
       document.dispatchEvent(
         new CustomEvent('theme:changed', {
           detail: { dark: isDark },
