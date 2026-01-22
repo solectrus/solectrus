@@ -74,7 +74,7 @@ de:
     inverter_power_4: Erzeugung 4
     inverter_power_5: Erzeugung 5
     inverter_power_difference: Ohne Zuordnung
-    inverter_power_forecast: Erwarteter Ertrag
+    inverter_power_forecast: Erwartete Erzeugung
     inverter_power_forecast_clearsky: Bei klarem Himmel
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher
