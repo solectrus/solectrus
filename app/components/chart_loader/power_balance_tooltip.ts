@@ -77,19 +77,33 @@ export default class PowerBalanceTooltip {
       })
       .sort((a, b) => a.order - b.order);
 
-    const sourceItems = items.filter((item) => sourceIds.has(item.datasetId));
-    const usageItems = items.filter((item) => usageIds.has(item.datasetId));
+    const isForecastOnly = items.every(
+      (item) => item.datasetId === 'inverter_power_forecast',
+    );
+
+    const sourceItems = isForecastOnly
+      ? []
+      : items.filter((item) => sourceIds.has(item.datasetId));
+    const usageItems = isForecastOnly
+      ? []
+      : items.filter((item) => usageIds.has(item.datasetId));
     const useKilo = this.shouldUseKilo(items);
 
     const contentEl = tooltipEl.querySelector(
       '.chart-tooltip-content',
     ) as HTMLElement;
-    contentEl.innerHTML = this.buildTooltipHtml(
-      this.normalizeTitle(tooltip.title),
-      sourceItems,
-      usageItems,
-      useKilo,
-    );
+    contentEl.innerHTML = isForecastOnly
+      ? this.buildSimpleTooltipHtml(
+          this.normalizeTitle(tooltip.title),
+          items,
+          useKilo,
+        )
+      : this.buildTooltipHtml(
+          this.normalizeTitle(tooltip.title),
+          sourceItems,
+          usageItems,
+          useKilo,
+        );
 
     this.positionTooltip(tooltipEl, chart, tooltip);
   }
@@ -197,6 +211,24 @@ export default class PowerBalanceTooltip {
       <div class="chart-tooltip-group">
         <div class="chart-tooltip-heading">${this.escapeHtml(this.usageLabel)}</div>
         ${usageRows}
+      </div>
+    `;
+  }
+
+  private buildSimpleTooltipHtml(
+    title: string | undefined,
+    items: TooltipItem[],
+    useKilo: boolean,
+  ): string {
+    const rows = items.map((item) => this.renderRow(item, useKilo)).join('');
+    const titleHtml = title
+      ? `<div class="chart-tooltip-title">${this.escapeHtml(title)}</div>`
+      : '';
+
+    return `
+      ${titleHtml}
+      <div class="chart-tooltip-group">
+        ${rows}
       </div>
     `;
   }

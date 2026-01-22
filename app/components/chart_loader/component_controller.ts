@@ -701,6 +701,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private getPowerBalanceConfig(data: ChartData) {
     const sourceIds = new Set([
       'inverter_power',
+      'inverter_power_forecast',
       'battery_discharging_power',
       'grid_import_power',
     ]);
