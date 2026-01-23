@@ -21,9 +21,9 @@
           = formatted_date(record[:date])
         .table-cell.align-middle.p-2
           .flex.items-center.gap-3
-            .h-7.sm:h-8.rounded.flex.items-center.justify-end.px-2.truncate style= bar_style(record) class= bar_classes
+            .h-7.sm:h-8.rounded.flex.items-center.justify-end.px-2.truncate style= bar_style(record) class= bar_outer_classes
               .bar-gradient-bg class= "#{bar_gradient_bg_classes} #{bar_gradient_class}" style= bar_gradient_style(record)
-              span class= "#{value_classes_inside(record)} #{sensor.color_text} relative"
+              span class= "#{value_classes_inside(record)} #{bar_text_classes} relative"
                 = render SensorValue::Component.new(record[:value], sensor_name, context:)
 
             span class= value_classes_outside(record)

@@ -48,15 +48,29 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
     "width: #{percent(record)}%;"
   end
 
-  def bar_classes
+  def bar_outer_classes
     'bar-gradient text-white dark:text-white/80'
   end
 
   def bar_gradient_bg_classes
     scale = sensor.color_scale
-    return sensor.color_background if scale.blank?
+    return bar_default_bg_classes if scale.blank?
 
     scale.first[:colorClass]
+  end
+
+  def bar_default_bg_classes
+    # Use consistent color for all consumer sensors (house_power, custom_power, etc.)
+    return 'bg-slate-600 dark:bg-slate-700' if sensor.category == :consumer
+
+    sensor.color_background
+  end
+
+  def bar_text_classes
+    # Use consistent color for all consumer sensors (house_power, custom_power, etc.)
+    return 'text-white dark:text-slate-400' if sensor.category == :consumer
+
+    sensor.color_text
   end
 
   # CSS classes to HIDE the value inside the bar when the bar is too small
