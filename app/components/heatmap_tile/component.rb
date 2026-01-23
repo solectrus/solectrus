@@ -145,7 +145,12 @@ class HeatmapTile::Component < ViewComponent::Base
   end
 
   def sensor_background_color(sensor_name = sensor.name)
-    Sensor::Registry[sensor_name].color_background
+    current_sensor = Sensor::Registry[sensor_name]
+
+    # Use consistent color for all consumer sensors (house_power, custom_power, etc.)
+    return 'bg-slate-500 dark:bg-slate-500' if current_sensor.category == :consumer
+
+    current_sensor.color_background
   end
 
   def link_path_for_date(date)
