@@ -64,8 +64,8 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
           end,
         current: helpers.controller_namespace == 'balance',
         data: {
-          controller: 'tooltip',
-          turbo: false,
+          controller: 'tooltip force-reload',
+          action: 'click->force-reload#perform',
         },
       }
     end
