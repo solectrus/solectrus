@@ -42,22 +42,18 @@ class Status::Component < ViewComponent::Base
   end
 
   def outer_class
-    if status_ok?
-      'bg-gray-200 dark:bg-gray-300/75 text-black dark:text-gray-800'
-    else
-      'bg-red-200 dark:bg-red-500/50 text-red-700 dark:text-red-200'
-    end
+    'bg-gray-200 dark:bg-gray-300/75 text-black dark:text-gray-800'
   end
 
   def dot_class
     if live?
       if status_ok?
-        'bg-green-500 dark:bg-green-700'
+        'bg-green-600 dark:bg-green-700'
       else
-        'bg-red-500 dark:bg-red-400'
+        'bg-red-600 dark:bg-red-700'
       end
     else
-      'bg-red-500 dark:bg-red-700'
+      'bg-red-600 dark:bg-red-700'
     end
   end
 end
