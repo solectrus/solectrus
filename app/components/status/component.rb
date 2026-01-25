@@ -50,7 +50,7 @@ class Status::Component < ViewComponent::Base
       if status_ok?
         'bg-green-600 dark:bg-green-700'
       else
-        'bg-red-600 dark:bg-red-700'
+        'bg-yellow-600 dark:bg-yellow-700'
       end
     else
       'bg-red-600 dark:bg-red-700'
