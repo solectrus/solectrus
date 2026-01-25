@@ -54,23 +54,4 @@ class Balance::ChartsController < ApplicationController
     sensor.is_a?(Sensor::Definitions::CustomInverterPower) &&
       !Setting.inverter_as_total
   end
-
-  helper_method def forecast_data
-    unless timeframe.day? && sensor.name == :inverter_power &&
-             Sensor::Config.exists?(:inverter_power_forecast)
-      return
-    end
-
-    @forecast_data ||=
-      begin
-        data =
-          Sensor::Query::Total
-            .new(timeframe) do |q|
-              q.sum :inverter_power, :sum
-              q.sum :inverter_power_forecast, :sum
-            end
-            .call
-        PowerBalance.new(data)
-      end
-  end
 end

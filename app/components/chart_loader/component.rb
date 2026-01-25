@@ -1,12 +1,11 @@
 class ChartLoader::Component < ViewComponent::Base
-  def initialize(sensor_name:, timeframe:, variant: nil, forecast_data: nil)
+  def initialize(sensor_name:, timeframe:, variant: nil)
     super()
-    @sensor_name = sensor_name
+    @sensor = Sensor::Registry[sensor_name]
     @timeframe = timeframe
     @variant = variant
-    @forecast_data = forecast_data
   end
-  attr_reader :sensor_name, :timeframe, :variant, :forecast_data
+  attr_reader :sensor, :timeframe, :variant
 
   delegate :type,
            :data,
@@ -25,21 +24,19 @@ class ChartLoader::Component < ViewComponent::Base
     return if timeframe.now?
     return unless sensor.trendable?
 
-    helpers.insights_path(sensor_name:, timeframe:)
+    helpers.insights_path(sensor_name: sensor.name, timeframe:)
   end
 
   def demo_url
     {
       controller: "#{helpers.controller_namespace}/home",
-      sensor_name:,
+      sensor_name: sensor.name,
       timeframe:,
     }
   end
 
-  private
-
-  def sensor
-    @sensor ||= Sensor::Registry[sensor_name]
+  def show_forecast_comment?
+    chart.respond_to?(:forecast_deviation)
   end
 
   def chart

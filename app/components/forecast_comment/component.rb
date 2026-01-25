@@ -1,21 +1,18 @@
 class ForecastComment::Component < ViewComponent::Base
-  def initialize(data:, sensor_name:, timeframe:, chart: nil)
+  def initialize(chart:, timeframe:)
     super()
-    @data = data
-    @sensor_name = sensor_name
-    @timeframe = timeframe
     @chart = chart
+    @timeframe = timeframe
   end
 
-  attr_accessor :data, :sensor_name, :timeframe, :chart
+  attr_reader :chart, :timeframe
 
   delegate :sunrise, :sunset, to: :day_light, allow_nil: true
-
-  def remaining_forecast_wh
-    return unless chart.respond_to?(:remaining_forecast_wh)
-
-    chart.remaining_forecast_wh
-  end
+  delegate :remaining_forecast_wh,
+           :inverter_power_forecast,
+           :forecast_deviation,
+           to: :chart,
+           allow_nil: true
 
   def today_before_sunset?
     timeframe.today? && sunset&.future?
@@ -36,12 +33,6 @@ class ForecastComment::Component < ViewComponent::Base
   # Threshold for significant deviation (0.5 kWh = 500 Wh)
   DEVIATION_THRESHOLD = 500
   private_constant :DEVIATION_THRESHOLD
-
-  def forecast_deviation
-    return unless data.respond_to?(:forecast_deviation)
-
-    data.forecast_deviation
-  end
 
   def forecast_available?
     forecast_deviation.present?
