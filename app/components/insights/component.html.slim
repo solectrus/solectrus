@@ -52,6 +52,13 @@
           .mt-4.text-lg
             = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, costs: insights.costs, grid_costs: insights.costs_grid, pv_costs: insights.costs_pv)
 
+  - if show_total?
+    = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
+      - tile.with_body do
+        = render SensorValue::Component.new(insights.value, sensor.name, context: :total, scaling: :kilo)
+      - tile.with_footer do
+        = t('.total')
+
   - if insights.monthly_trend&.valid?
     = render InsightsTile::Component.new css_class: ('col-span-2' unless insights.yearly_trend&.valid?), url: monthly_trend_base_path do |tile|
       - tile.with_title do

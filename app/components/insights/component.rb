@@ -17,6 +17,19 @@ class Insights::Component < ViewComponent::Base
     %i[grid_power wallbox_power battery_soc battery_power].exclude?(sensor.name)
   end
 
+  def show_total?
+    return false unless sensor.allowed_aggregations.first == :sum
+
+    # Exclude sensors that already show totals in the upper section
+    # or where sum doesn't make sense
+    %i[
+      inverter_power
+      house_power
+      wallbox_power
+      heatpump_power
+    ].exclude?(sensor.name)
+  end
+
   def battery_soc_longest_streak_path
     from, to, = insights.battery_soc_longest_streak.values
     return unless from && to
