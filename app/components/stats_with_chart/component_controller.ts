@@ -1,7 +1,6 @@
 import { Controller, ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
-import { buildChartUrlFromHomeUrl } from '@/utils/chartUrl';
 import { IntervalTimer } from '@/utils/intervalTimer';
 
 type LineDatasetWithId = ChartDataset<'line'> & {
@@ -132,16 +131,9 @@ export default class extends Controller {
     const historyUrl =
       element.getAttribute('href') ||
       (element instanceof HTMLOptionElement ? element.value : undefined);
-    const fallbackUrl =
-      historyUrl ||
-      (element instanceof HTMLAnchorElement ? element.href : undefined);
+    if (!historyUrl) return;
 
-    const chartUrl =
-      event.params.chartUrl ||
-      (fallbackUrl ? buildChartUrlFromHomeUrl(fallbackUrl) : null);
-    if (!chartUrl) return;
-
-    this.applyChartUrl(chartUrl, historyUrl, event.params.sensorName);
+    this.applyChartUrl(historyUrl);
   }
 
   stopLoop() {
@@ -154,30 +146,12 @@ export default class extends Controller {
   }
 
   // Entry point for select-based navigation (home URL -> chart URL).
-  loadChartForUrl(historyUrl: string, sensorName?: string) {
-    const chartUrl = buildChartUrlFromHomeUrl(historyUrl);
-    if (!chartUrl) return;
-
-    this.applyChartUrl(chartUrl, historyUrl, sensorName);
+  loadChartForUrl(historyUrl: string) {
+    this.applyChartUrl(historyUrl);
   }
 
-  private applyChartUrl(
-    chartUrl: string,
-    historyUrl?: string,
-    sensorName?: string,
-  ) {
-    if (!this.hasChartTarget) return;
-
-    if (sensorName) this.selectedSensor = sensorName;
-
-    // Setting src avoids Turbo's frame navigation disconnect behavior.
-    this.chartTarget.src = chartUrl;
-
-    // Preserve the "home" URL in history while the chart frame loads separately.
-    if (historyUrl) globalThis.history.pushState({}, '', historyUrl);
-
-    // Start the refresh loop (same as startLoop would do)
-    this.startLoop();
+  private applyChartUrl(historyUrl: string) {
+    Turbo.visit(historyUrl);
   }
 
   handleVisibilityChange(): void {
