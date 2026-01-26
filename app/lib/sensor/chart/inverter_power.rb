@@ -110,8 +110,16 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     return unless series.respond_to?(sensor_name)
 
     aggregations = aggregations_for_sensor(sensor_name)
-    values = series.public_send(sensor_name, *aggregations)&.values
-    values&.compact&.sum
+    points_hash = series.public_send(sensor_name, *aggregations)
+    return unless points_hash
+
+    # InfluxDB data is power values (W) - calculate energy using proper integration
+    entries =
+      points_hash
+        .sort_by { |time_key, _| time_key }
+        .map { |time_key, value| [normalize_timestamp(time_key), value] }
+
+    Sensor::Forecast::EnergyCalculator.calculate_wh(entries)
   end
 
   def style_for_sensor(sensor)
