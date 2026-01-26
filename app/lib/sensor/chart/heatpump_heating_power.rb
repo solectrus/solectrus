@@ -85,6 +85,7 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
         tension: 0.4,
         pointRadius: 0,
         pointHoverRadius: 5,
+        noGradient: true,
       }
     end
   end

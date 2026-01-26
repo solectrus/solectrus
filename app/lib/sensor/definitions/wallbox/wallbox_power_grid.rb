@@ -1,8 +1,8 @@
 class Sensor::Definitions::WallboxPowerGrid < Sensor::Definitions::Base
   value unit: :watt, category: :power_splitter
 
-  color background: 'bg-red-600 dark:bg-red-800',
-        text: 'text-red-100 dark:text-red-400'
+  color background: 'bg-red-700/80 dark:bg-red-800/60',
+        text: 'text-white dark:text-slate-400'
 
   icon 'fa-car'
 

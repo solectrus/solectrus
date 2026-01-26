@@ -157,7 +157,6 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
         borderWidth: 0.3,
         colorClass: sensor.color_chart,
         fill: true,
-        stack: 'forecast',
         noGradient: sensor.hatch_fill?,
         hatchFill: sensor.hatch_fill?,
       }

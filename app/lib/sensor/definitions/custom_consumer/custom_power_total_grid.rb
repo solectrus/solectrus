@@ -1,8 +1,8 @@
 class Sensor::Definitions::CustomPowerTotalGrid < Sensor::Definitions::Base
   value unit: :watt, category: :power_splitter
 
-  color background: 'bg-red-600 dark:bg-red-800',
-        text: 'text-red-100 dark:text-red-400'
+  color background: 'bg-red-700/80 dark:bg-red-800/60',
+        text: 'text-white dark:text-slate-400'
 
   depends_on do
     Sensor::Config.house_power_included_custom_sensors.map do |sensor|

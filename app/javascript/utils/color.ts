@@ -56,26 +56,6 @@ export function lightenColor(
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-export function darkenColor(
-  color: string | undefined,
-  amount: number,
-): string | undefined {
-  if (!color) return;
-  const rgb = parseColor(color);
-  if (!rgb) return;
-
-  const clamped = Math.min(Math.max(amount, 0), 1);
-  const r = Math.round(rgb.r * (1 - clamped));
-  const g = Math.round(rgb.g * (1 - clamped));
-  const b = Math.round(rgb.b * (1 - clamped));
-
-  if (rgb.a !== undefined && rgb.a < 1) {
-    return `rgba(${r}, ${g}, ${b}, ${rgb.a})`;
-  }
-
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-}
-
 function parseColor(color: string): RgbColor | undefined {
   const trimmed = color.trim();
   const lower = trimmed.toLowerCase();

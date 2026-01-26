@@ -1,13 +1,7 @@
 import { Chart, ChartData, ChartDataset, ChartType } from 'chart.js';
 
 import ChartBackgroundGradient from '@/utils/chartGradientDefault';
-import {
-  resolveColor,
-  colorToRgba,
-  lightenColor,
-  darkenColor,
-  toRgb,
-} from '@/utils/color';
+import { resolveColor, colorToRgba, lightenColor, toRgb } from '@/utils/color';
 
 import type {
   ColorScaleStop,
@@ -39,20 +33,31 @@ export class ChartColorManager {
     minValue: number,
     maxValue: number,
   ): void {
+    const isDarkTheme = document.documentElement.classList.contains('dark');
+
+    const lineColorFactor =
+      data.datasets.length > 1
+        ? isDarkTheme
+          ? 0.3
+          : 0.6
+        : isDarkTheme
+          ? 0.2
+          : 0;
+
     // Resolve colorClass to actual CSS colors
     for (const dataset of data.datasets) {
       const datasetWithId = dataset as DatasetWithId;
+
       if (datasetWithId.colorClass) {
         const resolvedColor = this.resolveColorClass(datasetWithId.colorClass);
         if (resolvedColor) {
-          const isDarkTheme =
-            document.documentElement.classList.contains('dark');
+          const lineDataset = dataset as ChartDataset<'line'>;
+          const isStacked = lineDataset.stack !== undefined;
           const lineColor =
-            this.typeValue === 'line' || this.typeValue === 'scatter'
-              ? isDarkTheme
-                ? (lightenColor(resolvedColor, 0.2) ?? resolvedColor)
-                : (darkenColor(resolvedColor, 0.2) ?? resolvedColor)
+            isStacked || isDarkTheme
+              ? (lightenColor(resolvedColor, lineColorFactor) ?? resolvedColor)
               : resolvedColor;
+
           if (datasetWithId.hatchFill) {
             dataset.backgroundColor = (context: {
               chart: Chart;
@@ -64,16 +69,16 @@ export class ChartColorManager {
             dataset.borderColor = lineColor;
             continue;
           }
+
           // If opacities array is provided, create color array with color-mix
-          if (datasetWithId.opacities?.length) {
-            dataset.backgroundColor = datasetWithId.opacities.map((opacity) =>
-              colorToRgba(resolvedColor, opacity),
-            );
-            dataset.borderColor = lineColor;
-          } else {
-            dataset.backgroundColor = resolvedColor;
-            dataset.borderColor = lineColor;
-          }
+          // Only lighten line color for stacked datasets to distinguish border from fill
+
+          dataset.backgroundColor = datasetWithId.opacities?.length
+            ? datasetWithId.opacities.map((opacity) =>
+                colorToRgba(resolvedColor, opacity),
+              )
+            : resolvedColor;
+          dataset.borderColor = lineColor;
         }
       }
     }

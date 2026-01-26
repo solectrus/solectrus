@@ -16,13 +16,13 @@ class Sensor::Definitions::CustomInverterPower < Sensor::Definitions::Base
   icon 'fa-sun'
 
   color do |index|
-    # Green color variations (based on green-600)
+    # Green color variations (based on emerald-600)
     color_sets = [
-      { background: 'bg-emerald-800', text: 'text-slate-100 dark:text-slate-300' },
-      { background: 'bg-emerald-700', text: 'text-slate-100 dark:text-slate-300' },
-      { background: 'bg-emerald-600', text: 'text-slate-100 dark:text-slate-300' },
-      { background: 'bg-emerald-500', text: 'text-slate-100 dark:text-slate-300' },
-      { background: 'bg-emerald-400', text: 'text-slate-100 dark:text-slate-300' },
+      { background: 'bg-emerald-700/60', text: 'text-slate-100 dark:text-slate-300/90' },
+      { background: 'bg-emerald-700/70', text: 'text-slate-100 dark:text-slate-300/90' },
+      { background: 'bg-emerald-700/80', text: 'text-slate-100 dark:text-slate-300/90' },
+      { background: 'bg-emerald-700/90', text: 'text-slate-100 dark:text-slate-300/90' },
+      { background: 'bg-emerald-700',    text: 'text-slate-100 dark:text-slate-300/90' },
     ]
     # Use provided index or @number (inverters are always sorted by number, not dynamically)
     effective_index = index || @number
