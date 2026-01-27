@@ -58,7 +58,7 @@ class Summary < ApplicationRecord
   def self.missing_or_stale_days(from:, to:)
     find_by_sql(
       [
-        <<-SQL.squish,
+        <<~SQL.squish,
           /* Generate a list of all days within the specified range
              and compare with existing summaries to find missing or stale entries */
           SELECT gs.date

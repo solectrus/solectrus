@@ -1,4 +1,5 @@
-ForbiddenError = Class.new(StandardError)
+class ForbiddenError < StandardError
+end
 
 class ApplicationController < ActionController::Base
   include AutoLocale
