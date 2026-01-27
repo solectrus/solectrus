@@ -1,5 +1,10 @@
 /* Based on https://daisyui.com/components/radial-progress/ */
 
+.badge-wrapper {
+  /* Same as segment container, so transparency works correctly */
+  @apply xl:tall:bg-slate-300 xl:tall:dark:bg-slate-800 rounded-full;
+}
+
 .badge {
   --value: 0;
   --size: 6rem;
@@ -35,7 +40,7 @@
 @media (width >= theme(--breakpoint-xl)) and (height >= 860px) {
   .badge {
     --size: 6rem;
-    @apply box-content h-[var(--size)] w-[var(--size)] border-4 border-transparent;
+    @apply box-content h-(--size) w-(--size) border-4 border-transparent;
   }
 
   .badge:before,
