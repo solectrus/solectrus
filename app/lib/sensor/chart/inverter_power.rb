@@ -80,9 +80,14 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
 
   private
 
-  # Stacked: individual inverters + difference (calculated automatically)
   def stacked_sensors
-    [*individual_inverter_sensors, :inverter_power_difference]
+    if timeframe.now?
+      # Render live data without difference sensor
+      individual_inverter_sensors
+    else
+      # Historical data may contain differences between total and sum of individuals
+      [*individual_inverter_sensors, :inverter_power_difference]
+    end
   end
 
   # For today: forecast as hatched area, plus clearsky line if not stacked
@@ -134,7 +139,9 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     when :inverter_power_forecast
       timeframe.today? ? hatched_forecast_style(sensor) : super
     else
-      super
+      super.merge(
+        noGradient: stackable?,
+      )
     end
   end
 
