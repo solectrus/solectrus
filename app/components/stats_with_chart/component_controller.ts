@@ -40,6 +40,7 @@ export default class extends Controller {
   private timer?: IntervalTimer;
   private selectedSensor?: string;
   private boundHandleVisibilityChange?: () => void;
+  private boundHandlePopState?: () => void;
   private shouldStopRequests = false;
 
   connect() {
@@ -53,6 +54,9 @@ export default class extends Controller {
       );
     }
 
+    this.boundHandlePopState = this.handlePopState.bind(this);
+    window.addEventListener('popstate', this.boundHandlePopState);
+
     this.startLoop();
   }
 
@@ -64,6 +68,9 @@ export default class extends Controller {
         'visibilitychange',
         this.boundHandleVisibilityChange,
       );
+
+    if (this.boundHandlePopState)
+      window.removeEventListener('popstate', this.boundHandlePopState);
   }
 
   reload() {
@@ -133,6 +140,8 @@ export default class extends Controller {
       (element instanceof HTMLOptionElement ? element.value : undefined);
     if (!historyUrl) return;
 
+    if (event.params?.sensorName) this.selectedSensor = event.params.sensorName;
+
     this.applyChartUrl(historyUrl);
   }
 
@@ -146,14 +155,78 @@ export default class extends Controller {
   }
 
   // Entry point for select-based navigation (home URL -> chart URL).
-  loadChartForUrl(historyUrl: string) {
+  loadChartForUrl(historyUrl: string, sensorName?: string) {
+    if (sensorName) this.selectedSensor = sensorName;
     this.applyChartUrl(historyUrl);
   }
 
   private applyChartUrl(historyUrl: string) {
-    if (this.hasChartTarget) this.chartTarget.innerHTML = '';
+    const chartUrl = this.buildChartUrl(historyUrl);
+    if (!chartUrl) return;
 
-    Turbo.visit(historyUrl);
+    if (this.hasChartTarget) {
+      const currentSrc =
+        this.chartTarget.getAttribute('src') || this.chartTarget.src;
+      if (currentSrc) {
+        const currentUrl = new URL(currentSrc, window.location.origin);
+        if (currentUrl.toString() === chartUrl) {
+          this.chartTarget.innerHTML = '';
+          this.chartTarget.reload();
+          this.updateHistoryUrl(historyUrl);
+          return;
+        }
+      }
+
+      this.chartTarget.innerHTML = '';
+      this.chartTarget.src = chartUrl;
+    }
+
+    this.updateHistoryUrl(historyUrl);
+  }
+
+  private updateHistoryUrl(historyUrl: string) {
+    const nextUrl = new URL(historyUrl, window.location.origin);
+    if (nextUrl.toString() === window.location.href) return;
+
+    window.history.pushState({}, '', nextUrl.toString());
+  }
+
+  private buildChartUrl(historyUrl: string): string | null {
+    const history = new URL(historyUrl, window.location.origin);
+    const pathname = history.pathname;
+
+    if (pathname.startsWith('/charts/')) return history.toString();
+
+    const segments = pathname.split('/').filter(Boolean);
+    const namespaces = new Set(['house', 'heatpump', 'inverter']);
+
+    let chartPath: string | null = null;
+
+    if (segments.length && namespaces.has(segments[0])) {
+      if (segments[1] !== 'charts') {
+        chartPath = `/${segments[0]}/charts/${segments.slice(1).join('/')}`;
+      }
+    } else {
+      chartPath = `/charts/${segments.join('/')}`;
+    }
+
+    if (chartPath) {
+      const chart = new URL(history.toString());
+      chart.pathname = chartPath;
+      return chart.toString();
+    }
+
+    if (this.hasChartTarget) {
+      const frameSrc =
+        this.chartTarget.getAttribute('src') || this.chartTarget.src;
+      if (!frameSrc) return null;
+
+      const chart = new URL(frameSrc, window.location.origin);
+      chart.search = history.search;
+      return chart.toString();
+    }
+
+    return null;
   }
 
   handleVisibilityChange(): void {
@@ -162,6 +235,10 @@ export default class extends Controller {
       this.reloadFrames({ chart: true })
         .then(() => this.startLoop())
         .catch((error) => console.error(error));
+  }
+
+  handlePopState(): void {
+    Turbo.visit(window.location.href, { action: 'replace' });
   }
 
   addPointToChart() {
