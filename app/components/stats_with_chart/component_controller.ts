@@ -151,6 +151,8 @@ export default class extends Controller {
   }
 
   private applyChartUrl(historyUrl: string) {
+    if (this.hasChartTarget) this.chartTarget.innerHTML = '';
+
     Turbo.visit(historyUrl);
   }
 
