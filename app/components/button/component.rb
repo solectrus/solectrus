@@ -101,7 +101,7 @@ class Button::Component < ViewComponent::Base
   end
 
   def icon_name
-    icon.is_a?(Hash) ? icon.fetch(:name) : icon
+    icon.is_a?(Hash) ? icon[:name] : icon
   end
 
   def icon_class

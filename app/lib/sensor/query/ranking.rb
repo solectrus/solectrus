@@ -93,7 +93,7 @@ module Sensor
       end
 
       def aggregate_by_period(daily_scope)
-        period_sql = PERIOD_SQL.fetch(period)
+        period_sql = PERIOD_SQL[period]
 
         SummaryValue
           .from("(#{daily_scope.to_sql}) AS daily_data")
@@ -312,7 +312,7 @@ module Sensor
 
       # Build period-aggregated ranking SQL
       def build_period_ranking_sql(price_cte, daily_cte, calculation)
-        period_sql = PERIOD_SQL.fetch(period)
+        period_sql = PERIOD_SQL[period]
 
         # For sensors with custom period aggregation (like ratios), use that instead
         aggregation_expr =
