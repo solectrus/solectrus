@@ -14,6 +14,7 @@
                   time: data.time.to_i,
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'autarky',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'autarky', timeframe:),
                   controller: 'tooltip',
                   tooltip_touch_value: 'long',
                 },
@@ -32,6 +33,7 @@
                   time: data.time.to_i,
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'self_consumption_quote',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'self_consumption_quote', timeframe:),
                   controller: 'tooltip',
                   tooltip_touch_value: 'long',
                 },
@@ -53,6 +55,7 @@
                   time: data.time.to_i,
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'case_temp',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'case_temp', timeframe:),
                 },
                 class: 'click-animation' do
         = render RadialBadge::Component.new(:case_temp, data:) do
@@ -77,6 +80,7 @@
                   time: data.time.to_i,
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'battery_soc',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'battery_soc', timeframe:),
                 },
                 class: 'click-animation' do
         = render RadialBadge::Component.new(:battery_soc, data:)

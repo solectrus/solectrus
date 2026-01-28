@@ -13,6 +13,7 @@
                   time: time.to_i,
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: soc_sensor,
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: soc_sensor, timeframe:),
                 },
                 class: 'click-animation' do
         div class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'

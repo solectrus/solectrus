@@ -49,6 +49,25 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     end
   end
 
+  def chart_url
+    case helpers.controller_namespace
+    when 'inverter'
+      helpers.inverter_charts_path(
+        sensor_name: sensor.name,
+        timeframe: parent.timeframe,
+      )
+    when 'house'
+      helpers.house_charts_path(sensor_name: sensor.name, timeframe: parent.timeframe)
+    when 'heatpump'
+      helpers.heatpump_charts_path(
+        sensor_name: 'heatpump_heating_power',
+        timeframe: parent.timeframe,
+      )
+    else
+      helpers.balance_charts_path(sensor_name: sensor.name, timeframe: parent.timeframe)
+    end
+  end
+
   def default_value
     @default_value ||= data.public_send(sensor.name).to_f
   end

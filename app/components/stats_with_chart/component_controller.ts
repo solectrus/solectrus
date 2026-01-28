@@ -142,7 +142,7 @@ export default class extends Controller {
 
     if (event.params?.sensorName) this.selectedSensor = event.params.sensorName;
 
-    this.applyChartUrl(historyUrl);
+    this.applyChartUrl(historyUrl, event.params?.chartUrl);
   }
 
   stopLoop() {
@@ -154,22 +154,22 @@ export default class extends Controller {
     return this.timer?.isActive();
   }
 
-  // Entry point for select-based navigation (home URL -> chart URL).
-  loadChartForUrl(historyUrl: string, sensorName?: string) {
+  // Entry point for select-based navigation (home URL + chart URL).
+  loadChartForUrl(historyUrl: string, chartUrl?: string, sensorName?: string) {
     if (sensorName) this.selectedSensor = sensorName;
-    this.applyChartUrl(historyUrl);
+    this.applyChartUrl(historyUrl, chartUrl);
   }
 
-  private applyChartUrl(historyUrl: string) {
-    const chartUrl = this.buildChartUrl(historyUrl);
-    if (!chartUrl) return;
+  private applyChartUrl(historyUrl: string, chartUrl?: string) {
+    const resolvedChartUrl = this.resolveChartUrl(historyUrl, chartUrl);
+    if (!resolvedChartUrl) return;
 
     if (this.hasChartTarget) {
       const currentSrc =
         this.chartTarget.getAttribute('src') || this.chartTarget.src;
       if (currentSrc) {
         const currentUrl = new URL(currentSrc, window.location.origin);
-        if (currentUrl.toString() === chartUrl) {
+        if (currentUrl.toString() === resolvedChartUrl) {
           this.chartTarget.innerHTML = '';
           this.chartTarget.reload();
           this.updateHistoryUrl(historyUrl);
@@ -178,7 +178,7 @@ export default class extends Controller {
       }
 
       this.chartTarget.innerHTML = '';
-      this.chartTarget.src = chartUrl;
+      this.chartTarget.src = resolvedChartUrl;
     }
 
     this.updateHistoryUrl(historyUrl);
@@ -191,42 +191,28 @@ export default class extends Controller {
     window.history.pushState({}, '', nextUrl.toString());
   }
 
-  private buildChartUrl(historyUrl: string): string | null {
+  private resolveChartUrl(
+    historyUrl: string,
+    chartUrl?: string,
+  ): string | null {
+    if (chartUrl) {
+      return new URL(chartUrl, window.location.origin).toString();
+    }
+
     const history = new URL(historyUrl, window.location.origin);
-    const pathname = history.pathname;
+    return this.chartUrlFromFrame(history);
+  }
 
-    if (pathname.startsWith('/charts/')) return history.toString();
+  private chartUrlFromFrame(history: URL): string | null {
+    if (!this.hasChartTarget) return null;
 
-    const segments = pathname.split('/').filter(Boolean);
-    const namespaces = new Set(['house', 'heatpump', 'inverter']);
+    const frameSrc =
+      this.chartTarget.getAttribute('src') || this.chartTarget.src;
+    if (!frameSrc) return null;
 
-    let chartPath: string | null = null;
-
-    if (segments.length && namespaces.has(segments[0])) {
-      if (segments[1] !== 'charts') {
-        chartPath = `/${segments[0]}/charts/${segments.slice(1).join('/')}`;
-      }
-    } else {
-      chartPath = `/charts/${segments.join('/')}`;
-    }
-
-    if (chartPath) {
-      const chart = new URL(history.toString());
-      chart.pathname = chartPath;
-      return chart.toString();
-    }
-
-    if (this.hasChartTarget) {
-      const frameSrc =
-        this.chartTarget.getAttribute('src') || this.chartTarget.src;
-      if (!frameSrc) return null;
-
-      const chart = new URL(frameSrc, window.location.origin);
-      chart.search = history.search;
-      return chart.toString();
-    }
-
-    return null;
+    const chart = new URL(frameSrc, window.location.origin);
+    chart.search = history.search;
+    return chart.toString();
   }
 
   handleVisibilityChange(): void {

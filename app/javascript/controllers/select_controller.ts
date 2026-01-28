@@ -53,6 +53,7 @@ export default class extends Controller<HTMLSelectElement> {
   private triggerChartSelect(option: HTMLOptionElement) {
     this.statsController()?.loadChartForUrl?.(
       option.value,
+      option.dataset.statsWithChartComponentChartUrlParam || undefined,
       option.dataset.statsWithChartComponentSensorNameParam || undefined,
     );
   }
@@ -66,7 +67,11 @@ export default class extends Controller<HTMLSelectElement> {
           statsElement,
           'stats-with-chart--component',
         ) as {
-          loadChartForUrl?: (historyUrl: string, sensorName?: string) => void;
+          loadChartForUrl?: (
+            historyUrl: string,
+            chartUrl?: string,
+            sensorName?: string,
+          ) => void;
         })
       : null;
   }

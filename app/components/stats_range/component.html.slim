@@ -11,6 +11,7 @@
                   tooltip_touch_value: 'long',
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'autarky',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'autarky', timeframe:),
                 },
                 class: 'click-animation' do
         = render RadialBadge::Component.new(:autarky, data:)
@@ -26,6 +27,7 @@
                   tooltip_touch_value: 'long',
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'self_consumption_quote',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'self_consumption_quote', timeframe:),
                 },
                 class: 'click-animation' do
         = render RadialBadge::Component.new(:self_consumption_quote, data:)
@@ -44,6 +46,7 @@
                   tooltip_touch_value: 'long',
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'co2_reduction',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'co2_reduction', timeframe:),
                 },
                 title: t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor),
                 class: 'click-animation' do

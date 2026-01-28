@@ -7,6 +7,7 @@
                   controller: (missing_price?(:grid_revenue) ? 'tooltip' : nil),
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'grid_revenue',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'grid_revenue', timeframe:),
                 },
                 title: (missing_price?(:grid_revenue) ? t('.missing_price') : nil),
                 class: 'click-animation tiny:hidden' do
@@ -25,6 +26,7 @@
                 tooltip_touch_value: 'long',
                 action: 'stats-with-chart--component#loadChart',
                 stats_with_chart__component_sensor_name_param: 'grid_costs',
+                stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'grid_costs', timeframe:),
               },
               title: (missing_price?(:grid_costs) ? t('.missing_price') : nil),
               class: 'click-animation' do
@@ -44,6 +46,7 @@
                 tooltip_touch_value: 'long',
                 action: 'stats-with-chart--component#loadChart',
                 stats_with_chart__component_sensor_name_param: 'savings',
+                stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'savings', timeframe:),
               },
               title: (missing_price?(:savings) ? t('.missing_price') : nil),
               class: 'click-animation' do

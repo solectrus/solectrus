@@ -23,6 +23,7 @@
                         turbo_prefetch: 'false',
                         action: 'stats-with-chart--component#loadChart',
                         stats_with_chart__component_sensor_name_param: 'house_power',
+                        stats_with_chart__component_chart_url_param: house_charts_path(sensor_name: 'house_power', timeframe:),
                       } do
               div data= { 'stats-with-chart--component-target': sensor_name == :house_power ? 'current' : nil, 'sensor-name': sensor_name, value: data.house_power, time: data.time.to_i }
                 = render SensorValue::Component.new(data.house_power || 0, :house_power, context: timeframe.now? ? :rate : :total)
