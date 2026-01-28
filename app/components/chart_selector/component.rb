@@ -195,7 +195,7 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
         action: 'stats-with-chart--component#loadChart dropdown--component#toggle',
         stats_with_chart__component_sensor_name_param: sensor_name,
         stats_with_chart__component_chart_url_param:
-          charts_path(sensor_name:, chart_name: nil),
+          charts_path(sensor_name:),
       },
       current: current_item?(sensor_name),
     )
@@ -244,18 +244,18 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     @chart_instance ||= Sensor::Registry[sensor_name].chart(timeframe, chart_name:)
   end
 
-  def charts_path(sensor_name:, chart_name: nil)
+  def charts_path(sensor_name:)
     namespace = helpers.controller_namespace
 
     case namespace
     when 'house'
-      helpers.house_charts_path(sensor_name:, timeframe:, chart_name:)
+      helpers.house_charts_path(sensor_name:, timeframe:)
     when 'heatpump'
-      helpers.heatpump_charts_path(sensor_name:, timeframe:, chart_name:)
+      helpers.heatpump_charts_path(sensor_name:, timeframe:)
     when 'inverter'
-      helpers.inverter_charts_path(sensor_name:, timeframe:, chart_name:)
+      helpers.inverter_charts_path(sensor_name:, timeframe:)
     else
-      helpers.balance_charts_path(sensor_name:, timeframe:, chart_name:)
+      helpers.balance_charts_path(sensor_name:, timeframe:)
     end
   end
 
