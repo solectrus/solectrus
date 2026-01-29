@@ -1,6 +1,4 @@
 import { Controller } from '@hotwired/stimulus';
-import * as Turbo from '@hotwired/turbo';
-
 export default class extends Controller<HTMLSelectElement> {
   static readonly targets = ['select', 'temp'];
 
@@ -12,68 +10,24 @@ export default class extends Controller<HTMLSelectElement> {
   }
 
   onChange() {
-    const option = this.selectTarget.selectedOptions[0];
-    if (!option) return;
-
-    const url = option.value;
+    const url = this.selectTarget.value;
     if (!url) return;
 
-    // Trigger any Stimulus actions declared on the option (e.g., stats-with-chart startLoop)
-    option.dispatchEvent(new Event('click', { bubbles: true }));
-    if (this.isChartOption(option)) {
-      this.triggerChartSelect(option);
-      return;
-    }
-
-    // Build options object only with defined values to avoid Turbo errors
-    const visitOptions: { frame?: string; action?: 'replace' | 'advance' } = {};
-    if (option.dataset.turboFrame) {
-      visitOptions.frame = option.dataset.turboFrame;
-    }
-    if (
-      option.dataset.turboAction === 'replace' ||
-      option.dataset.turboAction === 'advance'
-    ) {
-      visitOptions.action = option.dataset.turboAction;
-    }
-
-    Turbo.visit(url, visitOptions);
+    this.findMenuItemLink(url)?.click();
   }
 
   autoWidth() {
     this.selectTarget.style.width = `${this.widthOfSelectedOption}px`;
   }
 
-  private isChartOption(option: HTMLOptionElement) {
-    return option.dataset.action?.includes(
-      'stats-with-chart--component#loadChart',
-    );
-  }
+  // Find the desktop menu link matching the selected option URL so we can
+  // trigger the exact same Stimulus action chain on mobile.
+  private findMenuItemLink(url: string): HTMLAnchorElement | null {
+    const container = this.element.parentElement;
+    if (!container) return null;
 
-  private triggerChartSelect(option: HTMLOptionElement) {
-    this.statsController()?.loadChartForUrl?.(
-      option.value,
-      option.dataset.statsWithChartComponentChartUrlParam || undefined,
-      option.dataset.statsWithChartComponentSensorNameParam || undefined,
-    );
-  }
-
-  private statsController() {
-    const statsElement = this.element.closest<HTMLElement>(
-      '[data-controller~="stats-with-chart--component"]',
-    );
-    return statsElement
-      ? (this.application.getControllerForElementAndIdentifier(
-          statsElement,
-          'stats-with-chart--component',
-        ) as {
-          loadChartForUrl?: (
-            historyUrl: string,
-            chartUrl?: string,
-            sensorName?: string,
-          ) => void;
-        })
-      : null;
+    const selector = `a[href="${CSS.escape(url)}"]`;
+    return container.querySelector<HTMLAnchorElement>(selector);
   }
 
   // Hack to get the width of the selected option
