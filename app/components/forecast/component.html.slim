@@ -5,8 +5,7 @@
         = tag.turbo_frame id: 'outdoor-temp-forecast-chart',
                           class: 'flex-1 flex flex-col',
                           src: helpers.forecast_chart_path(:outdoor_temp, days:),
-                          loading: 'lazy',
-                          data: { turbo_permanent: true } do
+                          loading: 'lazy' do
           .flex-1.flex.justify-center.items-center
             = render Loading::Component.new
 
@@ -14,8 +13,7 @@
       = tag.turbo_frame id: 'inverter-power-forecast-chart',
                         class: 'flex-1 flex flex-col',
                         src: helpers.forecast_chart_path(:inverter_power, days:),
-                        loading: 'lazy',
-                        data: { turbo_permanent: true } do
+                        loading: 'lazy' do
         .flex-1.flex.justify-center.items-center
           = render Loading::Component.new
 - else
