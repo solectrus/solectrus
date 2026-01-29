@@ -169,6 +169,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=1-0-beta,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
