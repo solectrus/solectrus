@@ -1,14 +1,15 @@
-.badge.xl:tall:dark:text-inherit[
-  class= [border_color, background_color, text_color, variant_class]
-  style= "--value: #{value};"
-]
-  - if value || content
-    .inside
-      .value
-        - if percent?
-          = "#{value}%"
-        - else
-          = content
+.badge-wrapper
+  .badge.xl:tall:dark:text-inherit[
+    class= [border_color, background_color, text_color, variant_class]
+    style= "--value: #{value};"
+  ]
+    - if value || content
+      .inside
+        .value
+          - if percent?
+            = "#{value}%"
+          - else
+            = content
 
-      .title
-        = title
+        .title
+          = title

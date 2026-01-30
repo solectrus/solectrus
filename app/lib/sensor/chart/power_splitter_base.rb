@@ -1,4 +1,7 @@
 class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
+  SPLITTER_MAIN_COLOR = 'bg-slate-600 dark:bg-slate-600'.freeze
+  private_constant :SPLITTER_MAIN_COLOR
+
   private
 
   # Override chart_sensor_names to include power splitting sensors if available
@@ -11,11 +14,12 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
   end
 
   # Override datasets to provide custom styling and stacking
+  # Always use consistent color regardless of which sensor is selected
   def datasets(chart_data_items)
     if splitting_allowed?
       build_splitted_datasets(chart_data_items)
     else
-      super # Use base class implementation
+      super.each { |ds| ds[:colorClass] = SPLITTER_MAIN_COLOR }
     end
   end
 
@@ -73,7 +77,7 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
       **base_style,
       id: chart_sensors.first.name,
       data: chart_data_item[:data],
-      backgroundColor: chart_sensors.first.color_hex,
+      colorClass: SPLITTER_MAIN_COLOR,
       barPercentage: 0.7,
       categoryPercentage: 0.7,
       borderRadius: {
@@ -97,7 +101,7 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
       label: I18n.t('splitter.grid'),
       data: chart_data_item[:data],
       stack: 'Power-Splitter',
-      backgroundColor: Sensor::Registry[grid_sensor_name].color_hex,
+      colorClass: Sensor::Registry[grid_sensor_name].color_chart,
       barPercentage: 1.3,
       categoryPercentage: 0.7,
       borderRadius: 0,
@@ -115,7 +119,7 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
       label: I18n.t('splitter.pv'),
       data: chart_data_item[:data],
       stack: 'Power-Splitter',
-      backgroundColor: Sensor::Registry[pv_sensor_name].color_hex,
+      colorClass: Sensor::Registry[pv_sensor_name].color_chart,
       barPercentage: 1.3,
       categoryPercentage: 0.7,
       borderRadius: 0,

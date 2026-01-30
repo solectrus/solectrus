@@ -4,7 +4,6 @@ en:
     'no': No
   charts:
     heatpump_cop_scatter:
-      title: COP vs. Outdoor temperature
       heatpump_power: Power consumption
   categories:
     inverter: Generation
@@ -67,6 +66,7 @@ en:
     years: Last %{count} years
     all: Since commissioning %{since} ago
   sensors:
+    power_balance: Power balance
     inverter_power: Generation
     inverter_power_1: Generation 1
     inverter_power_2: Generation 2
@@ -100,6 +100,7 @@ en:
     heatpump_heating_power_short: Heat
     heatpump_tank_temp: Hot water
     heatpump_cop: COP
+    heatpump_cop_scatter: COP vs. Outdoor temperature
     outdoor_temp: Outdoor temperature
     outdoor_temp_short: Outdoor
     outdoor_temp_forecast: Expected outdoor temperature

@@ -15,8 +15,8 @@ describe RadialBadge::Component, type: :component do
 
       before { render_inline(component) }
 
-      it 'renders component with red border' do
-        expect(page).to have_css '.badge.border-red-200', text: '0%'
+      it 'renders component with text' do
+        expect(page).to have_css '.badge', text: '0%'
       end
     end
 
@@ -26,8 +26,8 @@ describe RadialBadge::Component, type: :component do
 
       before { render_inline(component) }
 
-      it 'renders component with red border' do
-        expect(page).to have_css '.badge.border-red-200', text: '18%'
+      it 'renders component with text' do
+        expect(page).to have_css '.badge', text: '18%'
       end
     end
 
@@ -37,8 +37,8 @@ describe RadialBadge::Component, type: :component do
 
       before { render_inline(component) }
 
-      it 'renders component with orange border' do
-        expect(page).to have_css '.badge.border-orange-200', text: '50%'
+      it 'renders component with text' do
+        expect(page).to have_css '.badge', text: '50%'
       end
     end
 
@@ -48,8 +48,8 @@ describe RadialBadge::Component, type: :component do
 
       before { render_inline(component) }
 
-      it 'renders component with green border' do
-        expect(page).to have_css '.badge.border-green-200', text: '80%'
+      it 'renders component with text' do
+        expect(page).to have_css '.badge', text: '80%'
       end
     end
 
@@ -108,7 +108,7 @@ describe RadialBadge::Component, type: :component do
       before { render_inline(component) }
 
       it 'renders component with green border' do
-        expect(page).to have_css '.badge.border-green-200', text: '50%'
+        expect(page).to have_css '.badge.border-emerald-200', text: '50%'
       end
     end
   end

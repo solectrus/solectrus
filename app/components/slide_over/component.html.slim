@@ -62,12 +62,12 @@
                 = render ThemeSelector::Component.new
 
             - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
-              .bg-yellow-100.dark:bg-pink-800
-                .bg-yellow-600.dark:bg-pink-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
+              .bg-amber-100.dark:bg-pink-800
+                .bg-amber-600.dark:bg-pink-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
                   = I18n.t('layout.missing_sponsoring_header')
 
                 .p-5.text-gray-800.dark:text-gray-200
-                  .text-yellow-700.dark:text-pink-200
+                  .text-amber-700.dark:text-pink-200
                     - if helpers.admin?
                       = I18n.t('layout.prompt_for_sponsoring')
                     - else
@@ -77,16 +77,16 @@
                     = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'underline underline-offset-2'
 
             - elsif UpdateCheck.sponsoring?
-              .bg-green-100.dark:bg-green-900
-                .bg-green-600.dark:bg-green-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
+              .bg-emerald-100.dark:bg-emerald-900
+                .bg-emerald-600.dark:bg-emerald-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
                   = I18n.t('layout.active_sponsoring_header')
 
                 - if helpers.admin?
-                  .p-5.text-green-600.dark:text-green-300.flex.justify-between.items-center
+                  .p-5.text-emerald-600.dark:text-emerald-300.flex.justify-between.items-center
                     = I18n.t('layout.active_sponsoring')
                     .text-3xl 🎉
 
             - elsif UpdateCheck.eligible_for_free?
-              .bg-green-100.dark:bg-green-900
-                .bg-green-600.dark:bg-green-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
+              .bg-emerald-100.dark:bg-emerald-900
+                .bg-emerald-600.dark:bg-emerald-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
                   = I18n.t('layout.eligible_for_free_header')

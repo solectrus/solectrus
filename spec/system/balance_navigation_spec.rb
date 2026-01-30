@@ -262,12 +262,12 @@ describe 'Balance page' do
     path.in?(%w[grid_costs savings grid_revenue])
   end
 
-  def expect_chart_or_blank(_path, chart_id, blank_message = nil)
+  def expect_chart_or_blank(_path, id, blank_message = nil)
     if blank_message
       # When blank, there's no chart element - just the message
       expect(page).to have_content(blank_message)
     else
-      expect(page).to have_css(chart_id)
+      expect(page).to have_css(id)
     end
   end
 

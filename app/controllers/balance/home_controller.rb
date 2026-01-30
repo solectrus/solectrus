@@ -26,9 +26,14 @@ class Balance::HomeController < ApplicationController
     )
   end
 
-  # By default we want to show the current production, so we redirect to the inverter_power sensor.
-  # But at night this does not make sense, so in this case we redirect to the house_power sensor.
   def redirect_sensor
-    Sensor::Query::DayLight.active? ? :inverter_power : :house_power
+    if ApplicationPolicy.power_balance_chart?
+      # If the power balance chart is available, we want to show it by default.
+      :power_balance
+    else
+      # Otherwise, we want to show the current production, so we redirect to the inverter_power sensor.
+      # But at night this does not make sense, so in this case we redirect to the house_power sensor.
+      Sensor::Query::DayLight.active? ? :inverter_power : :house_power
+    end
   end
 end

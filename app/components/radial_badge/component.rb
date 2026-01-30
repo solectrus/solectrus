@@ -35,7 +35,7 @@ class RadialBadge::Component < ViewComponent::Base
   def background_color
     return 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800' if neutral?
 
-    sensor.color_bg(value:) || 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800'
+    sensor.color_background(value:) || 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800'
   end
 
   def text_color

@@ -200,14 +200,22 @@ end
 ### `color` - Color Definition
 
 ```ruby
-# Static color (required: all three parameters)
-color hex: '#16a34a',
-      bg_classes: 'bg-green-600 dark:bg-green-800/80',
-      text_classes: 'text-white dark:text-slate-400'
+# Static color (required: bg and text)
+color background: 'bg-emerald-600 dark:bg-emerald-800/80',
+      text: 'text-white dark:text-slate-400'
+
+# Gradient color (required: from/to, start/stop)
+color background: gradient(
+        from: -10,
+        to: 40,
+        start: 'bg-sky-400 dark:bg-sky-600',
+        stop: 'bg-red-400 dark:bg-red-600',
+      ),
+      text: 'text-red-100 dark:text-red-300'
 
 # Dynamic color (block)
 color do |index|
-  { hex: COLOR_HEX, bg: backgrounds[index - 1], text: COLOR_TEXT }
+  { background: backgrounds[index - 1], text: COLOR_TEXT }
 end
 ```
 
@@ -226,25 +234,19 @@ end
 ### `chart` - Chart Integration
 
 ```ruby
-# Default chart (unnamed)
+# Chart
 chart { |timeframe| Sensor::Chart::MyChart.new(timeframe:) }
 
-# Named chart with conditional visibility
-chart :scatter, if: -> { Sensor::Config.exists?(:outdoor_temp) } do |timeframe|
-  Sensor::Chart::MyScatterChart.new(timeframe:)
-end
-```
-
-**Multiple charts per sensor:**
-
-A sensor can have multiple charts - one default (unnamed) and additional named charts.
-Named charts can be conditionally enabled using the `if:` option.
-
-```ruby
-# Access charts
-sensor.chart_names                           # => [:scatter] (named charts only)
-sensor.chart(timeframe)                      # Returns default chart
-sensor.chart(timeframe, chart_name: :scatter) # Returns named chart
+# Scatter chart (define as separate sensor if needed)
+# class Sensor::Definitions::MyScatterSensor < Sensor::Definitions::Base
+#   value unit: :unitless, category: :other
+#   depends_on :outdoor_temp
+#   chart { |timeframe| Sensor::Chart::MyScatterChart.new(timeframe:) }
+#   calculate { nil }
+# end
+#
+# Access chart
+sensor.chart(timeframe)                      # Returns chart
 ```
 
 ### `aggregations` - Aggregation Definition
@@ -389,6 +391,7 @@ end
 - **Unknown context**: Fallback to most conservative (complete) dependency set
 
 **Context is passed automatically by:**
+
 - `Sensor::Query::Helpers::Influx::Total` → `:influx`
 - `Sensor::Query::Helpers::Sql::Total` → `:sql`
 
@@ -400,9 +403,8 @@ Finance sensors inherit from `Sensor::Definitions::FinanceBase` and implement **
 class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
   value
 
-  color hex: '#ef4444',
-        bg_classes: 'bg-red-500 dark:bg-red-700',
-        text_classes: 'text-red-100 dark:text-red-400'
+  color background: 'bg-red-500 dark:bg-red-700',
+        text: 'text-red-100 dark:text-red-400'
 
   depends_on :grid_import_power
 
@@ -464,6 +466,7 @@ WHERE timeframe = ...
 The `calculate_with_prices` method receives:
 
 **Parameters:**
+
 - `dependencies:` - Hash with sensor values from dependencies
 - `prices:` - Hash with current prices (`:electricity` and `:feed_in` keys with Price objects)
 

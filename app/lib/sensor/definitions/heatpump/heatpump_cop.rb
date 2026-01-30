@@ -1,9 +1,8 @@
 class Sensor::Definitions::HeatpumpCop < Sensor::Definitions::Base
   value unit: :unitless, category: :heatpump
 
-  color hex: '#0369a1',
-        bg_classes: 'bg-sky-700 dark:bg-sky-700',
-        text_classes: 'text-sky-200 dark:text-sky-400'
+  color background: 'bg-sky-700 dark:bg-sky-700',
+        text: 'text-white dark:text-sky-200'
 
   depends_on :heatpump_power, :heatpump_heating_power
 
@@ -20,10 +19,6 @@ class Sensor::Definitions::HeatpumpCop < Sensor::Definitions::Base
 
   chart do |timeframe|
     Sensor::Chart::HeatpumpCop.new(timeframe:)
-  end
-
-  chart :scatter, if: -> { Sensor::Config.exists?(:outdoor_temp) } do |timeframe|
-    Sensor::Chart::HeatpumpCopScatter.new(timeframe:)
   end
 
   def sql_calculation

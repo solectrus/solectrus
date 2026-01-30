@@ -134,7 +134,7 @@ class SensorValue::ComponentPreview < ViewComponent::Preview
     render SensorValue::Component.new(
              data,
              :inverter_power,
-             class: 'text-green-600 font-bold text-lg',
+             class: 'text-emerald-600 font-bold text-lg',
            )
   end
 
@@ -145,7 +145,7 @@ class SensorValue::ComponentPreview < ViewComponent::Preview
     render SensorValue::Component.new(
              data,
              :inverter_power,
-             class: 'text-green-600',
+             class: 'text-emerald-600',
            )
   end
 

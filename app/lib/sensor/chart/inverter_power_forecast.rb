@@ -60,7 +60,7 @@ module Sensor
             borderWidth: 1,
             borderDash: [2, 3],
             fill: false,
-            backgroundColor: sensor.color_hex,
+            colorClass: sensor.color_chart,
           }
         when :inverter_power
           # Actual power: solid line with fill

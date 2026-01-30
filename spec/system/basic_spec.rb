@@ -4,7 +4,7 @@ describe 'Basic functionality' do
   it 'loads the home page correctly' do
     visit '/'
 
-    expect(page).to have_current_path(%r{/(house_power|inverter_power)/now})
+    expect(page).to have_current_path('/power_balance/now')
 
     expect(page).to have_content('SOLECTRUS.de')
     expect(page).to have_content('ledermann.dev')

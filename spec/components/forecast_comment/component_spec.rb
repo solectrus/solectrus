@@ -1,18 +1,19 @@
 describe ForecastComment::Component, type: :component do
   subject(:component) do
     described_class.new(
-      data: double(
-        forecast_deviation:,
-        inverter_power_forecast:,
-        inverter_power: forecast_deviation.to_i + inverter_power_forecast,
-      ),
-      sensor_name: :inverter_power,
-      timeframe: Timeframe.new(date),
       chart:,
+      timeframe: Timeframe.new(date),
     )
   end
 
-  let(:chart) { nil }
+  let(:chart) do
+    instance_double(
+      Sensor::Chart::InverterPower,
+      forecast_deviation:,
+      inverter_power_forecast:,
+      remaining_forecast_wh: nil,
+    )
+  end
   let(:date) { Date.yesterday.to_s }
   let(:day_light) { nil }
   let(:forecast_deviation) { 0 }
@@ -82,7 +83,14 @@ describe ForecastComment::Component, type: :component do
     end
 
     context 'when chart provides remaining_forecast_wh' do
-      let(:chart) { instance_double(Sensor::Chart::InverterPower, remaining_forecast_wh: 10_000) }
+      let(:chart) do
+        instance_double(
+          Sensor::Chart::InverterPower,
+          forecast_deviation:,
+          inverter_power_forecast:,
+          remaining_forecast_wh: 10_000,
+        )
+      end
 
       it 'shows forecast without "still" (no production yet)' do
         expect(page).to have_text I18n.t(
@@ -105,7 +113,14 @@ describe ForecastComment::Component, type: :component do
     end
 
     context 'when chart provides remaining_forecast_wh' do
-      let(:chart) { instance_double(Sensor::Chart::InverterPower, remaining_forecast_wh: 5000) }
+      let(:chart) do
+        instance_double(
+          Sensor::Chart::InverterPower,
+          forecast_deviation:,
+          inverter_power_forecast:,
+          remaining_forecast_wh: 5000,
+        )
+      end
 
       it 'shows remaining forecast value with "still expected" text' do
         expect(page).to have_text I18n.t(

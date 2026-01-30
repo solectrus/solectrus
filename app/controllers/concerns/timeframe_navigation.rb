@@ -13,7 +13,6 @@ module TimeframeNavigation
         controller: "#{helpers.controller_namespace}/home",
         sensor_name:,
         timeframe:,
-        chart_name:,
         action: 'index',
       )
     end

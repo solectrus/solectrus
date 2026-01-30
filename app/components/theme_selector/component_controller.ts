@@ -21,8 +21,8 @@ export default class extends Controller<HTMLElement> {
   readonly lightThemeColor = '#a5b4fc';
 
   private boundHandleColorSchemeChange?: () => void;
-  private boundHandleVisibilityChange?: () => void;
-  private boundHandleFocus?: () => void;
+  private lastIsDark?: boolean;
+  private colorSchemeChangeTimeout?: ReturnType<typeof setTimeout>;
 
   connect() {
     this.apply();
@@ -30,6 +30,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   disconnect() {
+    clearTimeout(this.colorSchemeChangeTimeout);
     this.removeListeners();
   }
 
@@ -39,27 +40,9 @@ export default class extends Controller<HTMLElement> {
       'change',
       this.boundHandleColorSchemeChange,
     );
-
-    this.boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
-    document.addEventListener(
-      'visibilitychange',
-      this.boundHandleVisibilityChange,
-    );
-
-    this.boundHandleFocus = this.handleFocus.bind(this);
-    window.addEventListener('focus', this.boundHandleFocus);
   }
 
   removeListeners() {
-    if (this.boundHandleFocus)
-      window.removeEventListener('focus', this.boundHandleFocus);
-
-    if (this.boundHandleVisibilityChange)
-      document.removeEventListener(
-        'visibilitychange',
-        this.boundHandleVisibilityChange,
-      );
-
     if (this.boundHandleColorSchemeChange)
       this.prefersDarkScheme.removeEventListener(
         'change',
@@ -68,19 +51,15 @@ export default class extends Controller<HTMLElement> {
   }
 
   handleColorSchemeChange() {
-    if (this.theme === 'auto') {
-      this.apply();
-    }
-  }
+    if (this.theme !== 'auto') return;
 
-  handleFocus() {
-    this.apply();
-  }
-
-  handleVisibilityChange() {
-    if (!document.hidden && this.theme === 'auto') {
+    // Debounce to filter out bogus iOS resume events.
+    // iOS can fire change events with incorrect values when resuming,
+    // but typically corrects itself shortly after.
+    clearTimeout(this.colorSchemeChangeTimeout);
+    this.colorSchemeChangeTimeout = setTimeout(() => {
       this.apply();
-    }
+    }, 200);
   }
 
   dark() {
@@ -99,9 +78,20 @@ export default class extends Controller<HTMLElement> {
   }
 
   apply() {
-    this.updateHtmlClass();
-    this.updateMetaTag();
+    const isDark = this.isCurrentlyDark;
+    this.updateHtmlClass(isDark);
+    this.updateMetaTag(isDark);
     this.updateButtons();
+
+    // Only broadcast if there was an actual change
+    if (this.lastIsDark !== isDark) {
+      this.lastIsDark = isDark;
+      document.dispatchEvent(
+        new CustomEvent('theme:changed', {
+          detail: { dark: isDark },
+        }),
+      );
+    }
   }
 
   updateButtons() {
@@ -118,14 +108,12 @@ export default class extends Controller<HTMLElement> {
     }
   }
 
-  updateHtmlClass() {
-    document.documentElement.classList.toggle('dark', this.isCurrentlyDark);
+  updateHtmlClass(isDark: boolean) {
+    document.documentElement.classList.toggle('dark', isDark);
   }
 
-  updateMetaTag() {
-    const color = this.isCurrentlyDark
-      ? this.darkThemeColor
-      : this.lightThemeColor;
+  updateMetaTag(isDark: boolean) {
+    const color = isDark ? this.darkThemeColor : this.lightThemeColor;
 
     const themeMetaTag = document.querySelector('meta[name="theme-color"]');
     if (themeMetaTag) {

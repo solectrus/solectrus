@@ -1,9 +1,8 @@
 class Sensor::Definitions::HousePowerPv < Sensor::Definitions::Base
   value unit: :watt, range: (0..), category: :power_splitter
 
-  color hex: '#16a34a',
-        bg_classes: 'bg-green-600 dark:bg-green-800',
-        text_classes: 'text-green-100 dark:text-green-400'
+  color background: 'bg-emerald-600 dark:bg-emerald-800',
+        text: 'text-emerald-100 dark:text-emerald-400'
 
   depends_on :house_power, :house_power_grid
 

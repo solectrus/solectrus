@@ -73,18 +73,17 @@ export default class extends Controller {
       window.removeEventListener('popstate', this.boundHandlePopState);
   }
 
-  reload() {
-    this.reloadFrames({ chart: this.reloadChartValue })
-      .then(() => {
-        // When no new chart has been loaded, add a new point to the existing chart
-        // Wait for the next repaint to ensure the new value is available in the DOM
-        if (!this.reloadChartValue)
-          requestAnimationFrame(() => this.addPointToChart());
-      })
-      .catch((error) => {
-        console.error(error);
-        // Ignore error
-      });
+  async reload() {
+    try {
+      await this.reloadFrames({ chart: this.reloadChartValue });
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+
+    if (this.reloadChartValue) return;
+
+    requestAnimationFrame(() => this.addPointToChart());
   }
 
   createTimer() {
@@ -228,13 +227,15 @@ export default class extends Controller {
   }
 
   addPointToChart() {
+    const currentTime = this.currentTime;
+    const lastPointTime = this.lastPointTime;
+
     if (
       this.chart === undefined ||
-      this.currentValue === undefined ||
-      this.currentTime === undefined ||
-      this.lastPointTime === undefined
+      currentTime === undefined ||
+      lastPointTime === undefined
     ) {
-      if (this.currentValue && !this.chart) {
+      if (this.hasCurrentValues && !this.chart) {
         // We got a value, but no chart. Reload the frames to get the chart
         this.reloadFrames({ chart: true });
       }
@@ -243,7 +244,7 @@ export default class extends Controller {
     }
 
     // Never add a point with a time older than the last time in the chart
-    if (this.currentTime < this.lastPointTime) return;
+    if (currentTime < lastPointTime) return;
 
     this.removeOutdatedPoints();
     this.addCurrentPoints();
@@ -268,7 +269,14 @@ export default class extends Controller {
         const dataset = datasets.find((ds) => ds.id === sensorName);
         if (dataset) {
           const value = Number.parseFloat(rawValue);
-          dataset.data.push(value);
+          if (!Number.isNaN(value)) {
+            let normalizedValue = value;
+            if (dataset.stack === 'usage') normalizedValue = -Math.abs(value);
+            else if (dataset.stack === 'source')
+              normalizedValue = Math.abs(value);
+
+            dataset.data.push(normalizedValue);
+          }
         }
       }
     }
@@ -315,10 +323,22 @@ export default class extends Controller {
   }
 
   get currentTime(): Date | undefined {
-    if (!this.currentElement?.dataset.time) return undefined;
+    const elementTime = this.currentElement?.dataset.time;
+    if (elementTime != null) {
+      const seconds = Number(elementTime);
+      if (!Number.isNaN(seconds)) return new Date(seconds * 1000);
+    }
 
-    const seconds: number = Number(this.currentElement.dataset.time);
-    return new Date(seconds * 1000);
+    const secondsList = this.currentTargets
+      .map((target) => target.dataset.time)
+      .filter((time): time is string => time != null)
+      .map((time) => Number(time))
+      .filter((time) => !Number.isNaN(time));
+
+    if (!secondsList.length) return undefined;
+
+    const latestSeconds = Math.max(...secondsList);
+    return new Date(latestSeconds * 1000);
   }
 
   get lastPointTime(): Date | undefined {
@@ -365,5 +385,12 @@ export default class extends Controller {
 
   get effectiveSensor(): string {
     return this.selectedSensor ?? this.sensorNameValue;
+  }
+
+  get hasCurrentValues(): boolean {
+    return this.currentTargets.some((target) => {
+      const value = target.dataset.value;
+      return value != null && value !== '';
+    });
   }
 }

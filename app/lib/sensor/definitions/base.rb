@@ -61,14 +61,14 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.unit || raise(NotImplementedError, 'Subclass must define unit')
   end
 
-  def color_hex(index: nil, value: nil)
+  def color_background(index: nil, value: nil)
     data = color_data_dynamic(index:, value:)
-    data ? data[:hex] : evaluate_config_value(:color_hex)
-  end
+    return data[:background] if data
 
-  def color_bg(index: nil, value: nil)
-    data = color_data_dynamic(index:, value:)
-    data ? data[:bg] : evaluate_config_value(:color_bg)
+    scale = self.class.meta_data[:color_background_scale]
+    return color_class_for_value(scale, value) if scale && !value.nil?
+
+    evaluate_config_value(:color_background)
   end
 
   def color_text(index: nil, value: nil)
@@ -79,6 +79,17 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   def color_border(index: nil, value: nil)
     data = color_data_dynamic(index:, value:)
     data ? data[:border] : evaluate_config_value(:color_border)
+  end
+
+  def color_chart(index: nil, value: nil)
+    color_background(index:, value:)
+  end
+
+  def color_scale
+    scale = self.class.meta_data[:color_background_scale]
+    return unless scale&.any?
+
+    scale.map { |value, classes| { value:, colorClass: classes } }
   end
 
   def icon(data: nil)
@@ -99,30 +110,11 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   end
 
   def chart_enabled?
-    self.class.meta_data[:charts].present?
+    self.class.meta_data[:chart].present?
   end
 
-  def chart_names
-    charts = self.class.meta_data[:charts]
-    return [] unless charts
-
-    charts.filter_map do |name, config|
-      next if name.nil? # Skip default chart
-      next unless chart_available?(config[:condition])
-
-      name
-    end
-  end
-
-  def valid_chart_name?(name)
-    chart_names.include?(name&.to_sym)
-  end
-
-  def chart(timeframe, chart_name: nil, **)
-    charts = self.class.meta_data[:charts]
-    return unless charts
-
-    config = charts[chart_name&.to_sym] || charts[nil]
+  def chart(timeframe, **)
+    config = self.class.meta_data[:chart]
     return unless config
 
     instance_exec(timeframe, **, &config[:block])
@@ -145,6 +137,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
 
   def trendable?
     self.class.trendable
+  end
+
+  def hatch_fill?
+    self.class.meta_data.fetch(:hatch_fill, false)
   end
 
   def more_is_better?
@@ -207,12 +203,6 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
 
   private
 
-  def chart_available?(condition)
-    return true if condition.nil?
-
-    instance_exec(&condition)
-  end
-
   # Cache dynamic color hash (evaluated only once per instance per cache key)
   def color_data_dynamic(index: nil, value: nil)
     @color_data_dynamic_cache ||= {}
@@ -236,6 +226,22 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   def evaluate_config_value(key, default: nil)
     value = self.class.meta_data.fetch(key, default)
     value.is_a?(Proc) ? instance_exec(&value) : value
+  end
+
+  def color_class_for_value(scale, value)
+    return scale.last&.last if value.nil?
+
+    sorted = scale.sort_by(&:first)
+    min_value, min_class = sorted.first
+    max_value, max_class = sorted.last
+    return min_class if value <= min_value
+    return max_class if value >= max_value
+
+    nearest_scale_class(sorted, value)
+  end
+
+  def nearest_scale_class(sorted, value)
+    sorted.min_by { |entry_value, _| (entry_value - value).abs }&.last
   end
 
   def validate_unit!

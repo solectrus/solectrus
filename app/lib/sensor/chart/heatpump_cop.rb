@@ -23,11 +23,8 @@ class Sensor::Chart::HeatpumpCop < Sensor::Chart::Base
         id: cop_sensor.name,
         label: cop_sensor.display_name,
         data: cop_data[:data],
-        backgroundColor:
-          background_colors_with_opacity(
-            cop_data[:data],
-            heating_data&.dig(:data),
-          ),
+        # Send opacities array for JS to apply with color-mix
+        opacities: opacities_for_heating(cop_data[:data], heating_data&.dig(:data)),
       },
     ]
   end
@@ -38,21 +35,15 @@ class Sensor::Chart::HeatpumpCop < Sensor::Chart::Base
     Sensor::Registry[:heatpump_cop]
   end
 
-  def background_colors_with_opacity(cop_values, heating_values)
-    unless heating_values
-      return Array.new(cop_values.length, default_background_color)
-    end
+  def opacities_for_heating(cop_values, heating_values)
+    return Array.new(cop_values.length, 0.3) unless heating_values
 
-    # Find max heating power for normalization using global max
     max_heating = global_max_heating_power
-    unless max_heating&.positive?
-      return Array.new(cop_values.length, default_background_color)
-    end
+    return Array.new(cop_values.length, 0.3) unless max_heating&.positive?
 
-    zipped_values = cop_values.zip(heating_values)
-    zipped_values.map do |_cop, heating|
-      opacity_for_heating_power(heating, max_heating)
-    end
+    pairs = cop_values.zip(heating_values)
+    pairs.map! { |_cop, heating| opacity_for_heating_power(heating, max_heating) }
+    pairs
   end
 
   def global_max_heating_power
@@ -71,30 +62,10 @@ class Sensor::Chart::HeatpumpCop < Sensor::Chart::Base
   end
 
   def opacity_for_heating_power(heating_power, max_heating)
-    base_color = cop_sensor.color_hex
+    return 0.1 if heating_power.nil? || heating_power <= 0
 
-    if heating_power.nil? || heating_power <= 0
-      return rgba_color(base_color, 0.1)
-    end
-
-    # Calculate opacity based on heating power (0.1 to 0.8 range)
+    # Calculate opacity based on heating power (0.3 to 1.0 range)
     normalized = heating_power.to_f / max_heating
-    opacity = (normalized * 0.7) + 0.3
-
-    rgba_color(base_color, opacity)
-  end
-
-  def rgba_color(hex_color, opacity)
-    # Convert hex color to RGBA with opacity
-    hex = hex_color.delete('#')
-    r = hex[0..1].to_i(16)
-    g = hex[2..3].to_i(16)
-    b = hex[4..5].to_i(16)
-
-    "rgba(#{r}, #{g}, #{b}, #{opacity.round(2)})"
-  end
-
-  def default_background_color
-    rgba_color(cop_sensor.color_hex, 0.3)
+    ((normalized * 0.7) + 0.3).round(2)
   end
 end

@@ -11,6 +11,9 @@ de:
   heatpump:
     title: Wärmepumpe
     description: SOLECTRUS kann die erzeugte Wärme, die Arbeitszahl sowie die Außentemperatur überwachen und anschaulich visualisieren.
+  power_balance_chart:
+    title: Diagramm zur Strombilanz
+    description: Zeigt Herkunft und Verbrauch des Stroms im zeitlichen Verlauf.
   insights:
     title: Kennzahlen & Trends
     description: Hier werden weitere Kennzahlen und Trends dargestellt, die sich auf den gewählten Sensor und Zeitraum beziehen. Hierzu gehören Ertrag pro kWp, Durchschnitt pro Tag, Vergleich mit mit Vormonat und Vorjahr.

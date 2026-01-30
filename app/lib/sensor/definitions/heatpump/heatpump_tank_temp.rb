@@ -1,9 +1,13 @@
 class Sensor::Definitions::HeatpumpTankTemp < Sensor::Definitions::Base
   value unit: :celsius, category: :heatpump
 
-  color hex: '#f87171',
-        bg_classes: 'bg-red-400 dark:bg-red-600',
-        text_classes: 'text-red-100 dark:text-red-300'
+  color background: gradient(
+          from: 30,
+          to: 60,
+          start: 'bg-orange-400',
+          stop: 'bg-red-700',
+        ),
+        text: 'text-white dark:text-red-100'
 
   aggregations stored: %i[avg min max], top10: true
   trend aggregation: :avg, more_is_better: true

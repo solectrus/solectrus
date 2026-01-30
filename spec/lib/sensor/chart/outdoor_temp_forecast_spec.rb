@@ -260,31 +260,4 @@ describe Sensor::Chart::OutdoorTempForecast do
       end
     end
   end
-
-  describe '#style_for_sensor' do
-    let(:outdoor_temp_sensor) do
-      double(name: :outdoor_temp, color_hex: '#ff0000')
-    end
-    let(:forecast_sensor) do
-      double(name: :outdoor_temp_forecast, color_hex: '#00ff00')
-    end
-
-    before do
-      allow(chart).to receive(:chart_sensors).and_return([outdoor_temp_sensor])
-    end
-
-    it 'applies fill style for outdoor_temp sensor' do
-      result = chart.__send__(:style_for_sensor, outdoor_temp_sensor)
-
-      expect(result[:fill]).to be true
-      expect(result[:borderWidth]).to eq(2)
-    end
-
-    it 'applies no-fill style for forecast sensor' do
-      result = chart.__send__(:style_for_sensor, forecast_sensor)
-
-      expect(result[:fill]).to be false
-      expect(result[:borderWidth]).to eq(2)
-    end
-  end
 end

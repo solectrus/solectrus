@@ -19,6 +19,42 @@ describe ApplicationPolicy do
     end
 
     context 'when not sponsoring and not eligible for free' do
+      before do
+        allow(UpdateCheck).to receive_messages(
+          sponsoring?: false,
+          eligible_for_free?: false,
+        )
+      end
+
+      it { is_expected.to be(false) }
+    end
+  end
+
+  describe '.power_balance_chart?' do
+    subject { described_class.power_balance_chart? }
+
+    context 'when sponsoring' do
+      before { allow(UpdateCheck).to receive(:sponsoring?).and_return(true) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when eligible for free' do
+      before do
+        allow(UpdateCheck).to receive(:eligible_for_free?).and_return(true)
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when not sponsoring and not eligible for free' do
+      before do
+        allow(UpdateCheck).to receive_messages(
+          sponsoring?: false,
+          eligible_for_free?: false,
+        )
+      end
+
       it { is_expected.to be(false) }
     end
   end

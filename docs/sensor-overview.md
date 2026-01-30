@@ -165,9 +165,17 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
   value unit: :watt, range: (0..), category: :inverter
 
   # Color definition
-  color hex: '#16a34a',
-        bg_classes: 'bg-green-600 dark:bg-green-800/80',
-        text_classes: 'text-white dark:text-slate-400'
+  color background: 'bg-emerald-600 dark:bg-emerald-800/80',
+        text: 'text-white dark:text-slate-400'
+
+  # Gradient color definition
+  # color background: gradient(
+  #         from: -10,
+  #         to: 40,
+  #         start: 'bg-sky-400 dark:bg-sky-600',
+  #         stop: 'bg-red-400 dark:bg-red-600',
+  #       ),
+  #       text: 'text-red-100 dark:text-red-300'
 
   # Icon
   icon 'fa-sun'
@@ -192,11 +200,11 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
   # Dynamic color based on value (0-33% red, 34-66% orange, 67-100% green)
   color do |percent|
     if percent.nil? || percent >= 67
-      { hex: '#16a34a', bg: '...green...', text: '...green...' }
+      { background: '...green...', text: '...green...' }
     elsif percent >= 34
-      { hex: '#ea580c', bg: '...orange...', text: '...orange...' }
+      { background: '...orange...', text: '...orange...' }
     else
-      { hex: '#dc2626', bg: '...red...', text: '...red...' }
+      { background: '...red...', text: '...red...' }
     end
   end
 
@@ -310,6 +318,7 @@ data.inverter_power  # => {Date1 => energy1, Date2 => energy2, ...}
 ```
 
 **Backend Selection:**
+
 - **InfluxDB** (`Helpers::Influx::Total`): Hourly data (P1H-P99H), calculated live via Flux integrals
 - **SQL** (`Helpers::Sql::Total`): Daily+ data (days, weeks, months, years), from SummaryValues table
 

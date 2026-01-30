@@ -1,9 +1,8 @@
 class Sensor::Definitions::GridRevenue < Sensor::Definitions::FinanceBase
   value
 
-  color hex: '#16a34a',
-        bg_classes: 'bg-green-700 dark:bg-green-800/80',
-        text_classes: 'text-green-700 dark:text-green-400'
+  color background: 'bg-emerald-700 dark:bg-emerald-800/80',
+        text: 'text-white dark:text-emerald-100'
 
   depends_on :grid_export_power
   trend more_is_better: true

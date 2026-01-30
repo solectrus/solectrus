@@ -4,7 +4,6 @@ de:
     'no': Nein
   charts:
     heatpump_cop_scatter:
-      title: Arbeitszahl vs. Außentemperatur
       heatpump_power: Stromverbrauch
   categories:
     inverter: Erzeugung
@@ -67,6 +66,7 @@ de:
     years: Letzte %{count} Jahre
     all: Seit Inbetriebnahme vor %{since}
   sensors:
+    power_balance: Strombilanz
     inverter_power: Erzeugung
     inverter_power_1: Erzeugung 1
     inverter_power_2: Erzeugung 2
@@ -74,7 +74,7 @@ de:
     inverter_power_4: Erzeugung 4
     inverter_power_5: Erzeugung 5
     inverter_power_difference: Ohne Zuordnung
-    inverter_power_forecast: Erwarteter Ertrag
+    inverter_power_forecast: Erwartete Erzeugung
     inverter_power_forecast_clearsky: Bei klarem Himmel
     house_power: Haus&shy;verbrauch
     house_power_without_custom: Andere Verbraucher
@@ -100,6 +100,7 @@ de:
     heatpump_heating_power_short: Wärme
     heatpump_tank_temp: Warmwasser
     heatpump_cop: Arbeitszahl
+    heatpump_cop_scatter: Arbeitszahl vs. Außentemperatur
     outdoor_temp: Außentemperatur
     outdoor_temp_short: Außen
     outdoor_temp_forecast: Erwartete Außentemperatur

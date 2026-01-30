@@ -19,7 +19,7 @@
                   .pr-3.text-left
                     = Sensor::Registry[sensor_data[:name]].display_name
                   .pr-3.bg-gray-200.dark:bg-gray-800.rounded-full.h-2
-                    .bg-green-600.h-2.rounded-full style="width: #{sensor_data[:percentage]}%"
+                    .bg-emerald-600.h-2.rounded-full style="width: #{sensor_data[:percentage]}%"
                   .text-right.tabular-nums
                     = render SensorValue::Component.new(sensor_data[:value], sensor_data[:name], context: :total, scaling: :kilo)
 

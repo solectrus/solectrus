@@ -35,9 +35,13 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
-  # Override in subclasses to implement permission checks
   def permitted?
-    true
+    permitted_feature_name.nil? ||
+      ApplicationPolicy.instance.feature_enabled?(permitted_feature_name)
+  end
+
+  # Override in subclasses to implement permission checks
+  def permitted_feature_name
   end
 
   def unit
@@ -142,8 +146,10 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       borderWidth: 1,
       pointRadius: 0,
       pointHoverRadius: 5,
-      backgroundColor: sensor.color_hex,
-      borderColor: sensor.color_hex,
+      colorClass: sensor.color_chart,
+      colorScale: (sensor.color_scale if sensor.respond_to?(:color_scale)),
+      hatchFill: sensor.hatch_fill?,
+      noGradient: sensor.hatch_fill?,
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
     }.compact

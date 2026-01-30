@@ -1,5 +1,5 @@
 - if !permitted?
-  = render DemoLink::Component.new(feature: :finance_charts, url: { sensor_name:, timeframe: })
+  = render DemoLink::Component.new(feature: permitted_feature_name, url: demo_url)
 - elsif blank?
   .flex-1.flex.items-center.justify-center
     p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
@@ -10,6 +10,8 @@
               controller: 'chart-loader--component',
               chart_loader__component_type_value: type,
               chart_loader__component_unit_value: unit,
+              chart_loader__component_source_label_value: I18n.t('balance_sheet.left'),
+              chart_loader__component_usage_label_value: I18n.t('balance_sheet.right'),
             } do
 
     - if path_to_insights
@@ -34,5 +36,5 @@
                      stats_with_chart__component_target: 'canvas',
                    }
 
-  - if forecast_data
-    = render ForecastComment::Component.new(data: forecast_data, sensor_name:, timeframe:, chart:)
+  - if show_forecast_comment?
+    = render ForecastComment::Component.new(chart:, timeframe:)

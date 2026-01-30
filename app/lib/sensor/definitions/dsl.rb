@@ -6,6 +6,9 @@ module Sensor
       META_DATA = Hash.new { |hash, key| hash[key] = {} }
       private_constant :META_DATA
 
+      COLOR_DSL = Hash.new { |hash, key| hash[key] = Sensor::Definitions::Colors.new(META_DATA[key]) }
+      private_constant :COLOR_DSL
+
       class_methods do # rubocop:disable Metrics/BlockLength
         def meta_data
           META_DATA[self]
@@ -45,29 +48,12 @@ module Sensor
           end
         end
 
-        # Color: accepts hash with :hex, :bg_classes, :text_classes, :border_classes OR block
-        def color(
-          hex: nil,
-          bg_classes: nil,
-          text_classes: nil,
-          border_classes: nil,
-          &block
-        )
-          if block
-            # Dynamic color block
-            # Block receives a value (e.g., percent) and must return hash with:
-            # :hex, :bg, :text, and optionally :border
-            meta_data[:color_dynamic] = block
-          elsif hex && bg_classes && text_classes
-            # Static color hash
-            meta_data[:color_hex] = hex
-            meta_data[:color_bg] = bg_classes
-            meta_data[:color_text] = text_classes
-            meta_data[:color_border] = border_classes if border_classes
-          else
-            raise ArgumentError,
-                  'color requires either a block or hex, bg_classes, and text_classes'
-          end
+        def color(background: nil, text: nil, border: nil, hatch_fill: nil, &)
+          color_dsl.color(background:, text:, border:, hatch_fill:, &)
+        end
+
+        def gradient(from:, to:, start:, stop:)
+          color_dsl.gradient(from:, to:, start:, stop:)
         end
 
         def icon(static_icon = nil, &)
@@ -85,14 +71,10 @@ module Sensor
           define_method(:calculate, &)
         end
 
-        def chart(name = nil, if: nil, &block)
+        def chart(&block)
           raise ArgumentError, 'chart requires a block' unless block
 
-          meta_data[:charts] ||= {}
-          meta_data[:charts][name] = {
-            block:,
-            condition: binding.local_variable_get(:if),
-          }
+          meta_data[:chart] = { block: }
         end
 
         def requires_permission(permission)
@@ -154,6 +136,10 @@ module Sensor
         end
 
         private
+
+        def color_dsl
+          COLOR_DSL[self]
+        end
 
         # Generic getter/setter for blocks or values
         def getter_or_setter(key, value = nil, default: nil, &)
