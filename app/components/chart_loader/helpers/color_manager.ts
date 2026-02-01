@@ -1,3 +1,4 @@
+// Manages dataset colors, scales, gradients, and hatch patterns for charts.
 import { Chart, ChartData, ChartDataset, ChartType } from 'chart.js';
 
 import ChartBackgroundGradient from '@/utils/chartGradientDefault';
@@ -10,7 +11,8 @@ import type {
   ResolvedColorScaleStop,
 } from './types';
 
-export class ChartColorManager {
+// Applies dataset colors, gradients, and color scales based on chart data.
+export class ColorManager {
   private readonly colorClassCache = new Map<string, string>();
   private readonly hatchPatternCache = new Map<string, CanvasPattern>();
   private typeValue: ChartType = 'line';
@@ -47,16 +49,28 @@ export class ChartColorManager {
     // Resolve colorClass to actual CSS colors
     for (const dataset of data.datasets) {
       const datasetWithId = dataset as DatasetWithId;
+      const opacity =
+        typeof datasetWithId.opacity === 'number'
+          ? datasetWithId.opacity
+          : undefined;
 
       if (datasetWithId.colorClass) {
         const resolvedColor = this.resolveColorClass(datasetWithId.colorClass);
         if (resolvedColor) {
           const lineDataset = dataset as ChartDataset<'line'>;
           const isStacked = lineDataset.stack !== undefined;
-          const lineColor =
+          const baseLineColor =
             isStacked || isDarkTheme
               ? (lightenColor(resolvedColor, lineColorFactor) ?? resolvedColor)
               : resolvedColor;
+          const lineColor =
+            opacity === undefined
+              ? baseLineColor
+              : colorToRgba(baseLineColor, opacity);
+          const fillColor =
+            opacity === undefined
+              ? resolvedColor
+              : colorToRgba(resolvedColor, opacity);
 
           if (datasetWithId.hatchFill) {
             dataset.backgroundColor = (context: {
@@ -77,7 +91,7 @@ export class ChartColorManager {
             ? datasetWithId.opacities.map((opacity) =>
                 colorToRgba(resolvedColor, opacity),
               )
-            : resolvedColor;
+            : fillColor;
           dataset.borderColor = lineColor;
         }
       }
@@ -151,7 +165,10 @@ export class ChartColorManager {
     dataset: ChartDataset,
     scale: ResolvedColorScaleStop[],
   ): boolean {
-    switch (this.typeValue) {
+    const datasetType =
+      (dataset as { type?: ChartType }).type ?? this.typeValue;
+
+    switch (datasetType) {
       case 'bar':
         this.applyColorScaleToBar(dataset as ChartDataset<'bar'>, scale);
         return true;
@@ -190,26 +207,45 @@ export class ChartColorManager {
     scale: ResolvedColorScaleStop[],
   ): void {
     const lineDataset = dataset as LineDatasetWithSegment;
-    const defaultColor = this.colorWithOpacity(scale[0].color) ?? '#000000';
+    const opacity = lineDataset.opacity;
+    const defaultColor =
+      this.colorWithOpacity(scale[0].color, opacity) ?? '#000000';
+
+    if (lineDataset.showLine === false) {
+      const values = dataset.data ?? [];
+      const pointColors = values.map((value) => {
+        const numeric = this.extractLineValue(value);
+        if (numeric == null) return 'transparent';
+        return this.colorForValue(numeric, scale, 1) ?? defaultColor;
+      });
+
+      lineDataset.pointBackgroundColor = pointColors;
+      lineDataset.pointBorderColor = pointColors;
+      lineDataset.pointHoverBackgroundColor = pointColors;
+      lineDataset.pointHoverBorderColor = pointColors;
+      lineDataset.pointBorderWidth ??= 2;
+      lineDataset.borderWidth = 0;
+      return;
+    }
 
     lineDataset.segment = {
       borderColor: (ctx: { p0DataIndex: number }) => {
-        const data = dataset.data as number[];
+        const data = dataset.data ?? [];
         const index = ctx.p0DataIndex;
 
         if (index >= data.length - 1) return defaultColor;
 
-        const current = data[index];
-        const next = data[index + 1];
+        const current = this.extractLineValue(data[index]);
+        const next = this.extractLineValue(data[index + 1]);
 
         if (current != null && next != null) {
           const avg = (current + next) / 2;
-          return this.colorForValue(avg, scale) ?? defaultColor;
+          return this.colorForValue(avg, scale, opacity) ?? defaultColor;
         }
         if (current != null)
-          return this.colorForValue(current, scale) ?? defaultColor;
+          return this.colorForValue(current, scale, opacity) ?? defaultColor;
         if (next != null)
-          return this.colorForValue(next, scale) ?? defaultColor;
+          return this.colorForValue(next, scale, opacity) ?? defaultColor;
 
         return defaultColor;
       },
@@ -227,6 +263,7 @@ export class ChartColorManager {
           chartArea,
           context.datasetIndex,
           scale,
+          opacity,
         );
     };
 
@@ -239,11 +276,13 @@ export class ChartColorManager {
     chartArea: { top: number; bottom: number },
     datasetIndex: number,
     scale: ResolvedColorScaleStop[],
+    opacity?: number,
   ): CanvasGradient {
     const zeroY = chart.scales.y.getPixelForValue(0);
     const startY = Math.min(zeroY, chartArea.bottom);
     const endY = chartArea.top;
     const values = this.collectLineValues(chart, datasetIndex);
+    const opacityFactor = opacity ?? 1;
 
     return this.createScaleGradient({
       ctx,
@@ -251,7 +290,7 @@ export class ChartColorManager {
       endY,
       scale,
       values,
-      opacityFn: (position) => 0.05 + 0.25 * position,
+      opacityFn: (position) => (0.05 + 0.25 * position) * opacityFactor,
       emptyWhenFlat: true,
     });
   }
@@ -271,14 +310,25 @@ export class ChartColorManager {
       endY: chartArea.top,
       scale,
       values,
-      opacityFn: () => 0.8,
+      opacityFn: () => 1,
       emptyWhenFlat: false,
     });
   }
 
   private collectLineValues(chart: Chart, datasetIndex: number): number[] {
-    const data = chart.data.datasets[datasetIndex].data as number[];
-    return data.filter((value) => value != null);
+    const data = chart.data.datasets[datasetIndex].data ?? [];
+    return data
+      .map((value) => this.extractLineValue(value))
+      .filter((value): value is number => value != null);
+  }
+
+  private extractLineValue(value: unknown): number | null {
+    if (typeof value === 'number') return value;
+    if (value && typeof value === 'object' && 'y' in value) {
+      const y = (value as { y: unknown }).y;
+      if (typeof y === 'number') return y;
+    }
+    return null;
   }
 
   private collectBarValues(chart: Chart, datasetIndex: number): number[] {

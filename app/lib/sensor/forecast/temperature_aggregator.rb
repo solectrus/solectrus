@@ -20,30 +20,39 @@ module Sensor
                   :forecast_temp_data
 
       def call
+        temps = temperatures_for_day
+        return if temps.empty?
+
         {
           noon_timestamp: calculate_noon_timestamp_ms,
-          avg_temp: calculate_average_temp,
+          avg_temp: calculate_average_temp(temps),
+          min_temp: temps.min,
+          max_temp: temps.max,
         }
       end
 
       private
 
       def calculate_noon_timestamp_ms
-        noon = date.to_time + Sensor::Chart::Concerns::Forecast::NOON_HOUR.hours
+        noon =
+          date.in_time_zone.change(
+            hour: Sensor::Chart::Concerns::Forecast::NOON_HOUR,
+            min: 0,
+            sec: 0,
+          )
         noon.to_i * Sensor::Chart::Concerns::Forecast::MS_PER_SECOND
       end
 
-      def calculate_average_temp
-        temps =
-          if date == Date.current && actual_temp_data
-            combine_today_temperatures
-          else
-            forecast_entries.filter_map(&:last)
-          end
-
-        return if temps.empty?
-
+      def calculate_average_temp(temps)
         temps.sum / temps.size.to_f
+      end
+
+      def temperatures_for_day
+        if date == Date.current && actual_temp_data
+          combine_today_temperatures
+        else
+          forecast_entries.filter_map(&:last)
+        end
       end
 
       def combine_today_temperatures

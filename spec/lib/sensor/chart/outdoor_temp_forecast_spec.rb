@@ -3,8 +3,8 @@ describe Sensor::Chart::OutdoorTempForecast do
   let(:chart) { described_class.new(timeframe: timeframe) }
 
   describe '#type' do
-    it 'returns line chart type' do
-      expect(chart.type).to eq('line')
+    it 'returns bar chart type' do
+      expect(chart.type).to eq('bar')
     end
   end
 
@@ -49,16 +49,18 @@ describe Sensor::Chart::OutdoorTempForecast do
     end
 
     describe '#call' do
-      it 'returns hash with noon_timestamp and avg_temp' do
+      it 'returns hash with noon_timestamp and temperature stats' do
         result = aggregator.call
         expect(result).to have_key(:noon_timestamp)
         expect(result).to have_key(:avg_temp)
+        expect(result).to have_key(:min_temp)
+        expect(result).to have_key(:max_temp)
       end
 
       it 'calculates noon timestamp in milliseconds' do
         result = aggregator.call
-        expected_noon = (date.to_time + 12.hours).to_i * 1000
-        expect(result[:noon_timestamp]).to eq(expected_noon)
+        expected_noon = date.in_time_zone.change(hour: 12, min: 0, sec: 0)
+        expect(result[:noon_timestamp]).to eq(expected_noon.to_i * 1000)
       end
 
       context 'when date is in future' do
@@ -89,9 +91,8 @@ describe Sensor::Chart::OutdoorTempForecast do
         let(:forecast_entries) { [] }
         let(:actual_data) { nil }
 
-        it 'returns nil for avg_temp' do
-          result = aggregator.call
-          expect(result[:avg_temp]).to be_nil
+        it 'returns nil' do
+          expect(aggregator.call).to be_nil
         end
       end
 

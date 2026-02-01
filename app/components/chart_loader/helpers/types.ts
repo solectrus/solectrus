@@ -1,3 +1,4 @@
+// Shared helper types and dataset extensions for chart helpers.
 import { ChartDataset } from 'chart.js';
 
 export type TooltipField = {
@@ -10,9 +11,11 @@ export type TooltipField = {
 
 export type DatasetWithId = ChartDataset & {
   id?: string;
+  tooltip?: boolean;
   tooltipFields?: TooltipField[];
   showTime?: boolean;
   noGradient?: boolean;
+  opacity?: number;
   colorClass?: string;
   colorScale?: ColorScaleStop[];
   opacities?: number[];

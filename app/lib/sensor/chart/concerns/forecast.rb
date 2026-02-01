@@ -27,6 +27,7 @@ module Sensor
               mode: 'index',
             },
             layout: {
+              autoPadding: false,
               padding: {
                 bottom: 80,
               },
@@ -77,16 +78,24 @@ module Sensor
           super.merge(
             min: timeframe.beginning.beginning_of_day,
             max: timeframe.ending.to_date.tomorrow.beginning_of_day,
+            bounds: 'data',
             grid: {
               drawOnChartArea: false,
               drawTicks: false,
             },
+            offset: false,
             ticks: {
               maxRotation: 0,
               autoSkip: false,
               display: false,
             },
           )
+        end
+
+        def y_scale_options
+          return super unless forecast_sensor_data
+
+          super.merge(fixedWidth: 50)
         end
 
         def x_axis_labels

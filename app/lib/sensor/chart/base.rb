@@ -53,6 +53,10 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       )
   end
 
+  def crosshair_options
+    timeframe.short? ? {} : nil
+  end
+
   def options
     {
       maintainAspectRatio: false,
@@ -60,7 +64,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
         legend: false,
         tooltip: tooltip_options,
         zoom: zoom_options,
-        crosshair: timeframe.short?,
+        crosshair: crosshair_options,
       },
       animation: {
         easing: 'easeOutQuad',

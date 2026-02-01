@@ -1,3 +1,4 @@
+// Renders and positions the custom HTML tooltip for power-balance charts.
 import type { Chart, Color } from 'chart.js';
 
 type TooltipModel = {
@@ -11,7 +12,7 @@ type TooltipModel = {
   caretX: number;
 };
 
-type TooltipContext = {
+export type TooltipContext = {
   chart: Chart;
   tooltip: TooltipModel;
 };
@@ -26,6 +27,7 @@ type TooltipItem = {
   order: number;
 };
 
+// Custom HTML tooltip renderer for power-balance charts.
 export default class PowerBalanceTooltip {
   private tooltip?: HTMLDivElement;
   private readonly formatValue: (value: number, useKilo: boolean) => string;

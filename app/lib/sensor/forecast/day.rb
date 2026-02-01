@@ -20,9 +20,10 @@ module Sensor
       end
 
       def noon_timestamp_ms
-        timestamps = entries.map(&:first)
-        noon_time = timestamps.min_by { |t| (t.hour - 12).abs }
-        noon_time.to_i * 1000
+        noon_time = date.in_time_zone.change(hour: 12, min: 0, sec: 0)
+        closest_time =
+          entries.min_by { |timestamp, _| (timestamp - noon_time).abs }&.first
+        (closest_time || noon_time).to_i * 1000
       end
 
       def total_wh

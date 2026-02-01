@@ -26,6 +26,28 @@ module Sensor
 
       private
 
+      def tooltip_options
+        super.merge(
+          position: 'fixedBottom',
+          yAlign: 'top',
+        )
+      end
+
+      def crosshair_options
+        {}
+      end
+
+      def zoom_options
+        {
+          zoom: {
+            drag: {
+              enabled: true,
+            },
+            mode: 'x',
+          },
+        }
+      end
+
       def forecast_sensor_name
         :inverter_power_forecast
       end
@@ -61,12 +83,14 @@ module Sensor
             borderDash: [2, 3],
             fill: false,
             colorClass: sensor.color_chart,
+            tooltip: false,
+            pointHoverRadius: 0,
           }
         when :inverter_power
           # Actual power: solid line with fill
-          super.merge(fill: true)
+          super.merge(fill: true, pointHoverRadius: 0)
         else
-          super
+          super.merge(pointHoverRadius: 0)
         end
       end
     end
