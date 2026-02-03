@@ -134,13 +134,21 @@ jobs:
           if-no-files-found: ignore
 
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     needs: test
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
-    timeout-minutes: 30
+    timeout-minutes: 20
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-24.04
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
 
     steps:
       - uses: actions/checkout@v6
@@ -155,30 +163,10 @@ jobs:
           # Fetch main branch for version calculation
           git fetch origin main:main 2>/dev/null || true
 
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          # list of Docker images to use as base name for tags
-          images: ghcr.io/${{ github.repository }}
-          # generate Docker tags based on the following events/attributes
-          tags: |
-            type=ref,event=branch
-            type=raw,value=${{ github.head_ref }},enable=${{ github.event_name == 'pull_request' }}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=raw,value=1-0-beta,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
-            type=raw,value=next,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: linux/amd64,linux/arm64
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Set platform pair
+        run: echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+        env:
+          platform: ${{ matrix.platform }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -200,26 +188,92 @@ jobs:
             echo "COMMIT_VERSION=$(git describe --always --abbrev=7)" >> $GITHUB_ENV
           fi
 
-      - name: Build and push
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platform }}
           provenance: false
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             COMMIT_SHA=${{ env.COMMIT_SHA }}
             COMMIT_TIME=${{ env.COMMIT_TIME }}
             COMMIT_VERSION=${{ env.COMMIT_VERSION }}
             COMMIT_BRANCH=${{ github.head_ref || github.ref_name }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          outputs: type=image,name=ghcr.io/${{ github.repository }},push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}
+          cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v6
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    runs-on: ubuntu-24.04
+    needs: build
+    timeout-minutes: 10
+    permissions:
+      packages: write
+
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v7
+        with:
+          path: /tmp/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=raw,value=${{ github.head_ref }},enable=${{ github.event_name == 'pull_request' }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,value=1-0-beta,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
+            type=raw,value=next,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
+
+      - name: Create manifest list and push
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
 
   deploy:
     runs-on: ubuntu-24.04
-    needs: build
+    needs: merge
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
     timeout-minutes: 30
     permissions:
