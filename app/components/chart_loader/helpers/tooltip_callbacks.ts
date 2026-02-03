@@ -103,13 +103,20 @@ export const buildTooltipCallbacks = (
 
       if (isPowerSplitterStack && !tooltipItem.dataset.stack) return '';
 
+      // Show label prefix when multiple datasets are displayed in tooltip
+      const tooltipDatasets = data.datasets.filter(
+        (ds) => (ds as DatasetWithId).tooltip !== false,
+      );
+      const label =
+        tooltipDatasets.length > 1 ? `${tooltipItem.dataset.label}: ` : '';
+
       const parsedValue = tooltipValue(tooltipItem);
 
       if (tooltipItem.parsed._custom) {
-        if (parsedValue !== null) return formattedNumber(parsedValue);
+        if (parsedValue !== null) return label + formattedNumber(parsedValue);
         const fallback =
           tooltipItem.parsed._custom.max ?? tooltipItem.parsed._custom.min;
-        return formattedNumber(fallback);
+        return label + formattedNumber(fallback);
       }
 
       const isStackedItem =
@@ -129,7 +136,7 @@ export const buildTooltipCallbacks = (
             }, 0);
 
           if (sum && tooltipItem.parsed.y) {
-            return `${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
+            return `${label}${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
           }
         }
       }
@@ -142,7 +149,7 @@ export const buildTooltipCallbacks = (
           minimumFractionDigits: 1,
           maximumFractionDigits: 1,
         }).format(value);
-        return `${formattedValue} °C`;
+        return `${label}${formattedValue} °C`;
       }
 
       if (datasetId === 'inverter_power_forecast') {
@@ -151,14 +158,14 @@ export const buildTooltipCallbacks = (
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
         }).format(value);
-        return `${formattedValue} W`;
+        return `${label}${formattedValue} W`;
       }
 
       if (parsedValue !== null) {
-        return formattedNumber(parsedValue);
+        return label + formattedNumber(parsedValue);
       }
 
-      return formattedNumber(tooltipItem.parsed.y!);
+      return label + formattedNumber(tooltipItem.parsed.y!);
     },
 
     footer: (tooltipItems) => {
