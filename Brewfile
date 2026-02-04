@@ -1,7 +1,7 @@
-# Install non-ruby dependencies required by Jumpstart Pro
+# Install non-ruby dependencies
 
-# Puma-dev - Local development proxy for Puma
-brew 'puma/puma/puma-dev'
+# Caddy - Local HTTPS reverse proxy
+brew 'caddy'
 
 # PostgreSQL database server and client
 brew 'postgresql@18'
@@ -9,7 +9,3 @@ brew 'libpq'
 
 # Redis - for ActionCable support and caching
 brew 'redis'
-
-# Overmind (requires tmux)
-brew 'tmux'
-brew 'overmind'

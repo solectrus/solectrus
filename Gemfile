@@ -116,6 +116,9 @@ group :development, :test do
 end
 
 group :development do
+  # Process manager for applications with multiple components (https://github.com/ddollar/foreman)
+  gem 'foreman'
+
   # Security vulnerability scanner for Ruby on Rails. (https://brakemanscanner.org)
   gem 'brakeman', require: false
 

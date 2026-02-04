@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => ({
   },
   server: {
     hmr: {
-      host: 'vite.solectrus.test',
+      host: 'vite.solectrus.localhost',
       clientPort: 443,
     },
   },

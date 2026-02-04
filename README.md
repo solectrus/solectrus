@@ -28,7 +28,7 @@ git clone git@github.com:solectrus/solectrus.git
 cd solectrus
 ```
 
-2. Install PostgreSQL, Redis, and puma-dev (if not already present). On a Mac with HomeBrew, run this to install from the `Brewfile`:
+2. Install PostgreSQL, Redis, and Caddy (if not already present). On a Mac with HomeBrew, run this to install from the `Brewfile`:
 
 ```bash
 brew bundle
@@ -40,16 +40,10 @@ Ensure that PostgreSQL is running:
 brew services start postgresql@18
 ```
 
-3. Install and set up [puma-dev](https://github.com/puma/puma-dev) to use HTTPS for development. Do this on macOS:
+3. Add local domains to `/etc/hosts`:
 
 ```bash
-sudo puma-dev -setup
-puma-dev -install
-puma-dev link
-
-# Use Vite via puma-dev proxy
-# Adopted from https://github.com/puma/puma-dev#webpack-dev-server
-echo 3036 > ~/.puma-dev/vite.solectrus
+echo "127.0.0.1 solectrus.localhost vite.solectrus.localhost" | sudo tee -a /etc/hosts
 ```
 
 4. Setup the application to install gems and NPM packages and create the database:
@@ -64,7 +58,9 @@ bin/setup
 bin/dev
 ```
 
-This starts the app and opens https://solectrus.test in your default browser (see `Procfile.dev`).
+This starts the app and opens https://solectrus.localhost in your default browser.
+
+On the first run, Caddy will ask for your password to install its local CA certificate.
 
 ### Testing
 

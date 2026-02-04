@@ -6,7 +6,7 @@
   "development": {
     "autoBuild": true,
     "publicOutputDir": "vite-dev",
-    "host": "vite.solectrus.test",
+    "host": "vite.solectrus.localhost",
     "port": 3036
   },
   "test": {

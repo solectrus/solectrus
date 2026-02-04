@@ -47,6 +47,7 @@ bin/ci
 bin/open
 bin/brakeman
 eslint.config.mjs
+Caddyfile
 .claude-on-rails
 claude-swarm.yml
 CLAUDE.md

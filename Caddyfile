@@ -1,0 +1,9 @@
+# Main Rails application
+https://solectrus.localhost {
+	reverse_proxy localhost:3000
+}
+
+# Vite dev server for HMR
+https://vite.solectrus.localhost {
+	reverse_proxy localhost:3036
+}
