@@ -26,9 +26,9 @@ jobs:
     services:
       influxdb:
         image: influxdb:2-alpine
-        ports: ['8086:8086']
+        ports: ["8086:8086"]
         env:
-          INFLUXD_HTTP_BIND_ADDRESS: ':8086'
+          INFLUXD_HTTP_BIND_ADDRESS: ":8086"
           DOCKER_INFLUXDB_INIT_MODE: setup
           DOCKER_INFLUXDB_INIT_USERNAME: my-user
           DOCKER_INFLUXDB_INIT_PASSWORD: my-password
@@ -38,7 +38,7 @@ jobs:
 
       postgres:
         image: postgres:18-alpine
-        ports: ['5432:5432']
+        ports: ["5432:5432"]
         env:
           POSTGRES_PASSWORD: postgres
 
@@ -64,7 +64,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           cache: yarn
-          node-version-file: 'package.json'
+          node-version-file: "package.json"
 
       - name: Install Yarn packages
         run: bin/yarn install --immutable
