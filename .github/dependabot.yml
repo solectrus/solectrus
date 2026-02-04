@@ -8,8 +8,8 @@ updates:
   - package-ecosystem: bundler
     directory: '/'
     schedule:
-      interval: daily
-      time: '03:30'
+      interval: cron
+      cronjob: '30 3 * * *'
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     versioning-strategy: lockfile-only
@@ -48,8 +48,8 @@ updates:
   - package-ecosystem: npm
     directory: '/'
     schedule:
-      interval: daily
-      time: '03:30'
+      interval: cron
+      cronjob: '30 3 * * *'
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     versioning-strategy: auto
@@ -82,8 +82,8 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'daily'
-      time: '01:00'
+      interval: cron
+      cronjob: '30 3 * * *'
       timezone: Europe/Berlin
     labels:
       - 'dependencies'
