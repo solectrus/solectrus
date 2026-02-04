@@ -2,19 +2,51 @@
 
 require 'dotenv'
 require 'open3'
+require 'net/http'
 
 # Load environment variables
 Dotenv.load('.env.development')
-
-# Get the default browser
-default_browser =
-  `defaults read ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure | awk -F'\"' '/http;/{print window[(NR-1)]}{window[NR]=$2}'`.chomp
 
 # Set the protocol based on FORCE_SSL value
 protocol = ENV['FORCE_SSL'] == 'true' ? 'https' : 'http'
 
 # Set the application URL
 url = "#{protocol}://#{ENV['APP_HOST']}"
+
+# Wait for the server to be ready
+def wait_for_server(url, timeout: 30)
+  uri = URI(url)
+  start_time = Time.now
+
+  loop do
+    begin
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.open_timeout = 1
+      http.read_timeout = 1
+      # Accept self-signed certificates from Caddy
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      response = http.head('/')
+      return true if response.is_a?(Net::HTTPSuccess) || response.is_a?(Net::HTTPRedirection)
+    rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Net::OpenTimeout, OpenSSL::SSL::SSLError
+      # Server not ready yet
+    end
+
+    if Time.now - start_time > timeout
+      warn "Timeout waiting for #{url}"
+      return false
+    end
+
+    sleep 0.5
+  end
+end
+
+# Wait for server before proceeding
+exit unless wait_for_server(url)
+
+# Get the default browser
+default_browser =
+  `defaults read ~/Library/Preferences/com.apple.LaunchServices/com.apple.launchservices.secure | awk -F'\"' '/http;/{print window[(NR-1)]}{window[NR]=$2}'`.chomp
 
 # Function to check if Brave is running
 def running?(browser)
@@ -44,11 +76,12 @@ def select_tab_script_chromium(browser, url)
               if tabFound then exit repeat
           end repeat
 
-          -- If the tab with the URL was found, activate it.
+          -- If the tab with the URL was found, activate it and reload.
           if tabFound then
               set active tab index of theWindow to theTabIndex
               set index of theWindow to 1
               activate
+              reload active tab of theWindow
           else
               -- If the tab wasn't found, open a new one.
               tell window 1
@@ -82,13 +115,16 @@ def select_tab_script_safari(url)
               if tabFound then exit repeat
           end repeat
 
-          -- If the tab with the URL was found, activate it.
+          -- If the tab with the URL was found, activate it and reload.
           if tabFound then
               tell theWindow
                   set current tab to tab theTabIndex
                   set index to 1
               end tell
               activate
+              tell theWindow
+                  do JavaScript "location.reload()" in current tab
+              end tell
           else
               -- If the tab wasn't found, open a new one.
               tell window 1
