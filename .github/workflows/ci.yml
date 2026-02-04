@@ -263,6 +263,7 @@ jobs:
             type=semver,pattern={{major}}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=1-0-beta,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
+            type=raw,value=power-balance-chart,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
             type=raw,value=next,enable=${{ github.ref == format('refs/heads/{0}', 'develop') }}
 
       - name: Create manifest list and push
