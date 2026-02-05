@@ -148,6 +148,9 @@ group :development do
 end
 
 group :test do
+  # Run Test::Unit / RSpec / Cucumber / Spinach in parallel (https://github.com/grosser/parallel_tests)
+  gem 'parallel_tests'
+
   # Capybara aims to simplify the process of integration testing Rack applications, such as Rails, Sinatra or Merb (https://github.com/teamcapybara/capybara)
   gem 'capybara', '>= 3.26'
 

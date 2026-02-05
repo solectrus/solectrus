@@ -337,6 +337,8 @@ GEM
     openssl (4.0.0)
     ostruct (0.6.3)
     parallel (1.27.0)
+    parallel_tests (5.5.0)
+      parallel
     parser (3.3.10.1)
       ast (~> 2.4.1)
       racc
@@ -612,6 +614,7 @@ DEPENDENCIES
   lookbook
   openssl
   ostruct
+  parallel_tests
   pg (~> 1.1)
   puma (>= 5.0)
   rack-attack

@@ -1,5 +1,8 @@
 require 'simplecov_json_formatter'
 
+# Skip auto-start when only collating coverage results
+return if ENV['SIMPLECOV_COLLATE_ONLY']
+
 SimpleCov.start 'rails' do
   # Enable merging of coverage results from multiple test runs
   use_merging true

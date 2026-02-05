@@ -17,11 +17,123 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
-    permissions:
-      contents: read
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: yarn
+          node-version-file: "package.json"
+
+      - name: Install Yarn packages
+        run: bin/yarn install --immutable
+
+      - name: Lint with RuboCop
+        run: bin/rubocop --parallel
+
+      - name: Brakeman security scan
+        run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+
+      - name: Scan for known security vulnerabilities in gems used
+        run: bin/bundler-audit
+
+      - name: Lint with ESLint
+        run: bin/yarn lint
+
+      - name: Check for TypeScript errors
+        run: bin/yarn tsc
+
+      - name: Lint with SlimLint
+        run: bin/slim-lint .
+
+  unit-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    services:
+      influxdb:
+        image: influxdb:2-alpine
+        ports: ["8086:8086"]
+        env:
+          INFLUXD_HTTP_BIND_ADDRESS: ":8086"
+          DOCKER_INFLUXDB_INIT_MODE: setup
+          DOCKER_INFLUXDB_INIT_USERNAME: my-user
+          DOCKER_INFLUXDB_INIT_PASSWORD: my-password
+          DOCKER_INFLUXDB_INIT_ORG: my-org
+          DOCKER_INFLUXDB_INIT_BUCKET: my-bucket
+          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-token
+
+      postgres:
+        image: postgres:18-alpine
+        ports: ["5432:5432"]
+        env:
+          POSTGRES_PASSWORD: postgres
+
+    env:
+      DB_HOST: localhost
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      RAILS_ENV: test
+      DISABLE_SPRING: 1
+      CI: true
+      RUBY_YJIT_ENABLE: 1
+      LANG: de_DE.UTF-8
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          cache: yarn
+          node-version-file: "package.json"
+
+      - name: Install Yarn packages
+        run: bin/yarn install --immutable
+
+      - name: Setup PostgreSQL
+        run: bin/rails db:create db:migrate
+
+      - name: Run Unit tests with RSpec
+        run: bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"
+        env:
+          COVERAGE_NAME: unit
+
+      - name: Debug coverage directory
+        if: always()
+        run: ls -la coverage/ || echo "coverage/ directory does not exist"
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: coverage-unit
+          include-hidden-files: true
+          path: coverage/
+          retention-days: 1
+
+  system-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [1, 2, 3]
 
     services:
       influxdb:
@@ -84,58 +196,83 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps --only-shell chromium
 
-      - name: Lint with RuboCop
-        run: bin/rubocop --parallel
-
-      - name: Brakeman security scan
-        run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
-
-      - name: Scan for known security vulnerabilities in gems used
-        run: bin/bundler-audit
-
-      - name: Lint with ESLint
-        run: bin/yarn lint
-
-      - name: Check for TypeScript errors
-        run: bin/yarn tsc
-
-      - name: Lint with SlimLint
-        run: bin/slim-lint .
-
       - name: Setup PostgreSQL
         run: bin/rails db:create db:migrate
 
-      - name: Run Unit tests with RSpec
-        run: bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"
+      - name: Run System tests with RSpec (group ${{ matrix.group }}/3)
+        run: |
+          bundle exec parallel_test spec/system \
+            --type rspec \
+            --group-by filesize \
+            --only-group ${{ matrix.group }} \
+            -n 3
         env:
-          COVERAGE_NAME: unit
-
-      - name: Run System tests with RSpec
-        run: bin/rspec spec/system
-        env:
-          COVERAGE_NAME: system
-
-      - uses: qltysh/qlty-action/coverage@v2
-        with:
-          token: ${{secrets.QLTY_COVERAGE_TOKEN}}
-          files: coverage/.resultset.json
+          COVERAGE_NAME: system-${{ matrix.group }}
 
       - name: Check JS size limit
+        if: matrix.group == 1
         run: |
           rm -f public/vite-test/assets/test-*.js
           yarn size-limit
 
-      - uses: actions/upload-artifact@v6
+      - name: Debug coverage directory
+        if: always()
+        run: ls -la coverage/ || echo "coverage/ directory does not exist"
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: coverage-system-${{ matrix.group }}
+          include-hidden-files: true
+          path: coverage/
+          retention-days: 1
+
+      - name: Upload Playwright artifacts
+        uses: actions/upload-artifact@v6
         if: failure()
         with:
-          name: Playwright artifacts
+          name: Playwright artifacts (group ${{ matrix.group }})
           path: |
             tmp/capybara/
           if-no-files-found: ignore
 
-  build:
+  coverage-report:
+    runs-on: ubuntu-24.04
+    needs: [unit-test, system-test]
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v7
+        with:
+          pattern: coverage-*
+          path: coverage-parts
+
+      - name: Debug coverage-parts directory
+        run: ls -laR coverage-parts/ || echo "coverage-parts/ is empty"
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Merge coverage reports
+        run: |
+          mkdir -p coverage
+          bundle exec rake coverage:merge
+
+      - name: Upload coverage to Qlty
+        uses: qltysh/qlty-action/coverage@v2
+        with:
+          token: ${{secrets.QLTY_COVERAGE_TOKEN}}
+          files: coverage/.resultset.json
+
+  docker-build:
     runs-on: ${{ matrix.runner }}
-    needs: test
+    needs: [lint, unit-test]
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 20
     permissions:
@@ -228,9 +365,9 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  merge:
+  docker-push:
     runs-on: ubuntu-24.04
-    needs: build
+    needs: [docker-build, system-test]
     timeout-minutes: 10
     permissions:
       packages: write
@@ -279,12 +416,9 @@ jobs:
 
   deploy:
     runs-on: ubuntu-24.04
-    needs: merge
+    needs: docker-push
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
-    timeout-minutes: 30
-    permissions:
-      contents: read
-      deployments: write
+    timeout-minutes: 5
 
     steps:
       - name: Send webhook to start deployment
