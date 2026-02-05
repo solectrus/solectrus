@@ -46,6 +46,7 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
     {
       fill: true,
       tension: 0.4,
+      cubicInterpolationMode: 'monotone',
       borderSkipped: false,
       pointRadius: 0,
       pointHoverRadius: 5,

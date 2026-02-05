@@ -154,6 +154,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     if sensor.category == :forecast
       return {
         tension: 0.4,
+        cubicInterpolationMode: 'monotone',
         borderWidth: 0.3,
         colorClass: sensor.color_chart,
         fill: true,
@@ -200,6 +201,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
   def style_for_sensor(sensor)
     {
       tension: 0.4,
+      cubicInterpolationMode: 'monotone',
       borderWidth: 1,
       pointRadius: 0,
       pointHoverRadius: 5,

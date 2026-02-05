@@ -149,6 +149,7 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
   def hatched_forecast_style(sensor)
     {
       tension: 0.4,
+      cubicInterpolationMode: 'monotone',
       borderWidth: 0.3,
       colorClass: sensor.color_chart,
       fill: true,

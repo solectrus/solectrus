@@ -83,6 +83,7 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
         borderRadius: (timeframe.short? ? nil : BORDER_RADIUS[sensor.name]),
         fill: fill_mode_for_sensor(sensor),
         tension: 0.4,
+        cubicInterpolationMode: 'monotone',
         pointRadius: 0,
         pointHoverRadius: 5,
         noGradient: true,

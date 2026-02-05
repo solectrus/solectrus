@@ -147,6 +147,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     {
       fill: true,
       tension: 0.4,
+      cubicInterpolationMode: 'monotone',
       borderWidth: 1,
       pointRadius: 0,
       pointHoverRadius: 5,
