@@ -269,8 +269,13 @@ jobs:
       - name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
+          tags=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          images=$(printf 'ghcr.io/${{ github.repository }}@sha256:%s ' *)
+          docker buildx imagetools create $tags $images
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
 
   deploy:
     runs-on: ubuntu-24.04
