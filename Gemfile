@@ -142,9 +142,6 @@ group :development do
 
   # Pretty print Ruby objects with proper indentation and colors (https://github.com/amazing-print/amazing_print)
   gem 'amazing_print'
-
-  # Rails development framework powered by Claude swarm intelligence (https://github.com/obie/claude-on-rails)
-  gem 'claude-on-rails'
 end
 
 group :test do
