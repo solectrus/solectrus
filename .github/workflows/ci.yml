@@ -271,6 +271,19 @@ jobs:
           token: ${{secrets.QLTY_COVERAGE_TOKEN}}
           files: coverage/.resultset.json
 
+  ci-success:
+    runs-on: ubuntu-24.04
+    needs: [lint, unit-test, system-test, coverage-report, docker-build]
+    if: always()
+    timeout-minutes: 5
+    steps:
+      - name: Check job results
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "Some jobs failed or were cancelled"
+            exit 1
+          fi
+
   docker-build:
     runs-on: ${{ matrix.runner }}
     needs: [lint, unit-test]
@@ -368,7 +381,7 @@ jobs:
 
   docker-push:
     runs-on: ubuntu-24.04
-    needs: [docker-build, system-test]
+    needs: [ci-success]
     timeout-minutes: 10
     permissions:
       packages: write
