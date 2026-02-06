@@ -264,7 +264,7 @@ jobs:
   coverage-report:
     runs-on: ubuntu-24.04
     needs: [unit-test, system-test]
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 5
 
     steps:
@@ -423,7 +423,7 @@ jobs:
   docker-push:
     runs-on: ubuntu-24.04
     needs: [ci-success]
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 10
     permissions:
       packages: write
@@ -473,7 +473,7 @@ jobs:
   deploy:
     runs-on: ubuntu-24.04
     needs: docker-push
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 5
 
     steps:
