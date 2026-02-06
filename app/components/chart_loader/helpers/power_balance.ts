@@ -1,9 +1,9 @@
 // Detects power-balance context and configures the external tooltip.
-import type { ChartData, ChartOptions } from 'chart.js';
+import type { ChartData } from 'chart.js';
 
 import type { TooltipContext } from './power_balance_tooltip';
 
-import type { DatasetWithId } from './types';
+import type { DatasetWithId, TooltipConfig } from './types';
 
 export type PowerBalanceFlags = {
   isPowerBalance: boolean;
@@ -85,7 +85,7 @@ export const getPowerBalanceFlags = (data: ChartData): PowerBalanceFlags => {
 
 // Enables/disables the external power-balance tooltip based on flags.
 export const configurePowerBalanceTooltip = <T extends TooltipLike>(
-  tooltip: NonNullable<NonNullable<ChartOptions['plugins']>['tooltip']>,
+  tooltip: TooltipConfig,
   flags: Pick<
     PowerBalanceFlags,
     'isPowerBalance' | 'sourceIds' | 'usageIds' | 'orderMap'

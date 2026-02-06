@@ -64,7 +64,11 @@ import {
 } from './helpers';
 
 // Tooltips
-import { buildTooltipCallbacks, PowerBalanceTooltip } from './helpers';
+import {
+  buildTooltipCallbacks,
+  GenericChartTooltip,
+  PowerBalanceTooltip,
+} from './helpers';
 
 // Data & formatting
 import {
@@ -75,7 +79,7 @@ import {
   maxOf,
   minOf,
 } from './helpers';
-import type { TimeScaleOptions } from './helpers';
+import type { TimeScaleOptions, TooltipConfig } from './helpers';
 
 Chart.register(
   LineElement,
@@ -95,10 +99,6 @@ Chart.register(
 
 applyCrosshairFix();
 ensureFixedBottomTooltipPositioner(-14);
-
-type TooltipConfig = NonNullable<
-  NonNullable<ChartOptions['plugins']>['tooltip']
->;
 
 // Draw lines between points with no or null data (disables segmentation of the line)
 Chart.overrides.line.spanGaps = true;
@@ -147,6 +147,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private locale: string = 'en';
   private lastTouchedIndex: number | null = null;
   private powerBalanceTooltip?: PowerBalanceTooltip;
+  private genericTooltip?: GenericChartTooltip;
 
   private sanitizeLocale(locale: string): string {
     // Remove invalid suffixes like @posix that some browsers return
@@ -192,6 +193,9 @@ export default class extends Controller<HTMLCanvasElement> {
 
     this.powerBalanceTooltip?.destroy();
     this.powerBalanceTooltip = undefined;
+
+    this.genericTooltip?.destroy();
+    this.genericTooltip = undefined;
   }
 
   private handleResize() {
@@ -281,6 +285,7 @@ export default class extends Controller<HTMLCanvasElement> {
       getTooltipFlags: getPowerBalanceFlags,
       configurePowerBalanceTooltip:
         this.configurePowerBalanceTooltip.bind(this),
+      configureGenericTooltip: this.configureGenericTooltip.bind(this),
       configureTooltipCallbacks: this.configureTooltipCallbacks.bind(this),
     });
 
@@ -324,6 +329,15 @@ export default class extends Controller<HTMLCanvasElement> {
         );
       },
     });
+  }
+
+  private configureGenericTooltip(tooltip: TooltipConfig): void {
+    if (!this.genericTooltip) {
+      this.genericTooltip = new GenericChartTooltip();
+    }
+
+    tooltip.enabled = false;
+    tooltip.external = (context) => this.genericTooltip?.render(context);
   }
 
   private configureTooltipCallbacks(

@@ -1,5 +1,5 @@
 // Shared helper types and dataset extensions for chart helpers.
-import { ChartDataset } from 'chart.js';
+import type { ChartDataset, ChartOptions } from 'chart.js';
 
 export type TooltipField = {
   source: 'x' | 'y' | 'data';
@@ -48,6 +48,11 @@ export type TimeScaleOptions = {
     };
   };
 };
+
+// Resolved Chart.js tooltip configuration type
+export type TooltipConfig = NonNullable<
+  NonNullable<ChartOptions['plugins']>['tooltip']
+>;
 
 // Extended tick options with custom callback marker
 export type ExtendedTickOptions = {

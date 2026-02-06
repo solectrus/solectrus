@@ -1,8 +1,8 @@
 // Helpers for chart options and tooltip configuration.
 import type { ChartData, ChartOptions, ChartType, TooltipItem } from 'chart.js';
 
-import type { DatasetWithId } from './types';
-import type { TimeScaleOptions } from './types';
+import type { PowerBalanceFlags } from './power_balance';
+import type { DatasetWithId, TimeScaleOptions, TooltipConfig } from './types';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object';
@@ -51,32 +51,16 @@ export const configureChartTooltip = (
   options: ChartOptions,
   data: ChartData,
   handlers: {
-    getTooltipFlags: (data: ChartData) => {
-      isPowerBalance: boolean;
-      sourceIds: Set<string>;
-      usageIds: Set<string>;
-      orderMap: Map<string, number>;
-      isPowerSplitterStack: boolean;
-      isInverterStack: boolean;
-      isHeatingStack: boolean;
-    };
+    getTooltipFlags: (data: ChartData) => PowerBalanceFlags;
     configurePowerBalanceTooltip: (
-      tooltip: NonNullable<NonNullable<ChartOptions['plugins']>['tooltip']>,
-      flags: {
-        isPowerBalance: boolean;
-        sourceIds: Set<string>;
-        usageIds: Set<string>;
-        orderMap: Map<string, number>;
-      },
+      tooltip: TooltipConfig,
+      flags: PowerBalanceFlags,
     ) => void;
+    configureGenericTooltip: (tooltip: TooltipConfig) => void;
     configureTooltipCallbacks: (
-      tooltip: NonNullable<NonNullable<ChartOptions['plugins']>['tooltip']>,
+      tooltip: TooltipConfig,
       data: ChartData,
-      flags: {
-        isPowerSplitterStack: boolean;
-        isInverterStack: boolean;
-        isHeatingStack: boolean;
-      },
+      flags: PowerBalanceFlags,
     ) => void;
   },
 ): void => {
@@ -134,5 +118,10 @@ export const configureChartTooltip = (
   }
 
   handlers.configurePowerBalanceTooltip(tooltip, flags);
+
+  if (!flags.isPowerBalance) {
+    handlers.configureGenericTooltip(tooltip);
+  }
+
   handlers.configureTooltipCallbacks(tooltip, data, flags);
 };

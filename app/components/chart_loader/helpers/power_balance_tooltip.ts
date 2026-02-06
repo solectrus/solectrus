@@ -1,6 +1,14 @@
 // Renders and positions the custom HTML tooltip for power-balance charts.
 import type { Chart, Color } from 'chart.js';
 
+import {
+  colorToString,
+  createTooltipElement,
+  escapeHtml,
+  hideTooltip,
+  positionTooltipElement,
+} from './tooltip_utils';
+
 type TooltipModel = {
   opacity: number;
   dataPoints?: Array<{
@@ -58,14 +66,14 @@ export default class PowerBalanceTooltip {
     const { chart, tooltip } = context;
     const tooltipEl = this.getTooltipElement();
 
-    if (!tooltip || tooltip.opacity === 0) return this.hideTooltip(tooltipEl);
+    if (!tooltip || tooltip.opacity === 0) return hideTooltip(tooltipEl);
 
     const dataPoints = (tooltip.dataPoints ?? []) as Array<{
       dataset: { id?: string; label?: string };
       parsed: { y?: number | null };
     }>;
 
-    if (!dataPoints.length) return this.hideTooltip(tooltipEl);
+    if (!dataPoints.length) return hideTooltip(tooltipEl);
 
     const items = dataPoints
       .map((dp, index) => {
@@ -113,17 +121,8 @@ export default class PowerBalanceTooltip {
   private getTooltipElement(): HTMLDivElement {
     if (this.tooltip) return this.tooltip;
 
-    const tooltipEl = document.createElement('div');
-    tooltipEl.className = 'chartjs-tooltip chartjs-power-balance-tooltip';
-
-    const contentEl = document.createElement('div');
-    contentEl.className = 'chart-tooltip-content';
-    tooltipEl.appendChild(contentEl);
-
-    document.body.appendChild(tooltipEl);
-    this.tooltip = tooltipEl;
-
-    return tooltipEl;
+    this.tooltip = createTooltipElement('chartjs-power-balance-tooltip');
+    return this.tooltip;
   }
 
   private positionTooltip(
@@ -137,49 +136,9 @@ export default class PowerBalanceTooltip {
       axisScale && typeof axisScale.getPixelForValue === 'function'
         ? axisScale.getPixelForValue(0)
         : chart.chartArea.bottom;
+    const centerY = canvasRect.top + axisY;
 
-    this.resetTooltipPosition(tooltipEl);
-
-    const tooltipWidth = tooltipEl.offsetWidth;
-    const tooltipHeight = tooltipEl.offsetHeight;
-    const viewportWidth = window.innerWidth;
-    const margin = 12;
-    const isMobileViewport = window.matchMedia('(max-width: 639px)').matches;
-
-    const caretX = canvasRect.left + window.scrollX + tooltip.caretX;
-    let left = 0;
-    if (isMobileViewport) {
-      left = caretX - tooltipWidth / 2;
-    } else {
-      const chartLeft = chart.chartArea.left;
-      const chartRight = chart.chartArea.right;
-      const spaceLeft = tooltip.caretX - chartLeft;
-      const spaceRight = chartRight - tooltip.caretX;
-      const preferRight = spaceRight >= spaceLeft;
-      left = preferRight ? caretX + margin : caretX - tooltipWidth - margin;
-    }
-
-    const minLeft = window.scrollX + margin;
-    const maxLeft = window.scrollX + viewportWidth - tooltipWidth - margin;
-    if (left < minLeft) left = minLeft;
-    if (left > maxLeft) left = maxLeft;
-
-    let top = 0;
-    if (isMobileViewport) {
-      top = canvasRect.top + window.scrollY - tooltipHeight - margin;
-    } else {
-      const axisYPos = canvasRect.top + window.scrollY + axisY;
-      top = axisYPos - tooltipHeight / 2;
-    }
-    const minTop = window.scrollY + margin;
-    const maxTop = window.scrollY + window.innerHeight - tooltipHeight - margin;
-    if (top < minTop) top = minTop;
-    if (top > maxTop) top = maxTop;
-
-    tooltipEl.style.left = `${left}px`;
-    tooltipEl.style.top = `${top}px`;
-    tooltipEl.style.opacity = '1';
-    tooltipEl.style.visibility = 'visible';
+    positionTooltipElement(tooltipEl, chart, tooltip.caretX, centerY);
   }
 
   private buildTooltipHtml(
@@ -200,18 +159,18 @@ export default class PowerBalanceTooltip {
         : '';
 
     const titleHtml = title
-      ? `<div class="chart-tooltip-title">${this.escapeHtml(title)}</div>`
+      ? `<div class="chart-tooltip-title">${escapeHtml(title)}</div>`
       : '';
 
     return `
       ${titleHtml}
       <div class="chart-tooltip-group">
-        <div class="chart-tooltip-heading">${this.escapeHtml(this.sourceLabel)}</div>
+        <div class="chart-tooltip-heading">${escapeHtml(this.sourceLabel)}</div>
         ${sourceRows}
       </div>
       ${separator}
       <div class="chart-tooltip-group">
-        <div class="chart-tooltip-heading">${this.escapeHtml(this.usageLabel)}</div>
+        <div class="chart-tooltip-heading">${escapeHtml(this.usageLabel)}</div>
         ${usageRows}
       </div>
     `;
@@ -224,7 +183,7 @@ export default class PowerBalanceTooltip {
   ): string {
     const rows = items.map((item) => this.renderRow(item, useKilo)).join('');
     const titleHtml = title
-      ? `<div class="chart-tooltip-title">${this.escapeHtml(title)}</div>`
+      ? `<div class="chart-tooltip-title">${escapeHtml(title)}</div>`
       : '';
 
     return `
@@ -248,18 +207,6 @@ export default class PowerBalanceTooltip {
     return nonZeroValues.every((value) => Math.abs(value) > 500);
   }
 
-  private hideTooltip(tooltipEl: HTMLDivElement) {
-    tooltipEl.style.opacity = '0';
-    tooltipEl.style.visibility = 'hidden';
-  }
-
-  private resetTooltipPosition(tooltipEl: HTMLDivElement) {
-    tooltipEl.style.opacity = '0';
-    tooltipEl.style.visibility = 'hidden';
-    tooltipEl.style.left = '0px';
-    tooltipEl.style.top = '0px';
-  }
-
   private normalizeTitle(title?: string | string[]): string | undefined {
     if (!title) return;
     if (Array.isArray(title)) return title.filter(Boolean).join(' ');
@@ -270,13 +217,12 @@ export default class PowerBalanceTooltip {
     const value = item.dp.parsed.y;
     if (value == null) return '';
 
-    const label = this.escapeHtml(String(item.dp.dataset.label ?? ''));
-    const formattedValue = this.escapeHtml(this.formatValue(value, useKilo));
-    const bgColor = item.color?.backgroundColor;
-    const brdColor = item.color?.borderColor;
-    const backgroundColor =
-      typeof bgColor === 'string' ? bgColor : 'transparent';
-    const borderColor = typeof brdColor === 'string' ? brdColor : 'transparent';
+    const label = escapeHtml(String(item.dp.dataset.label ?? ''));
+    const formattedValue = escapeHtml(this.formatValue(value, useKilo));
+    const backgroundColor = colorToString(
+      item.color?.backgroundColor ?? 'transparent',
+    );
+    const borderColor = colorToString(item.color?.borderColor ?? 'transparent');
 
     return `
       <div class="chart-tooltip-row">
@@ -287,14 +233,5 @@ export default class PowerBalanceTooltip {
         <div class="chart-tooltip-value">${formattedValue}</div>
       </div>
     `;
-  }
-
-  private escapeHtml(value: string): string {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
   }
 }

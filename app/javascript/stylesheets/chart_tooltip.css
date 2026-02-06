@@ -7,7 +7,9 @@
   transform: none;
   transition:
     opacity 120ms ease-out,
-    visibility 120ms;
+    visibility 120ms,
+    left 120ms ease-out,
+    top 120ms ease-out;
 }
 
 .chartjs-tooltip .chart-tooltip-content {
@@ -15,7 +17,7 @@
 }
 
 .chartjs-tooltip .chart-tooltip-title {
-  @apply self-end text-xs text-gray-600;
+  @apply text-sm font-bold text-gray-600;
   @apply dark:text-slate-300;
 }
 
@@ -47,4 +49,12 @@
 
 .chartjs-tooltip .chart-tooltip-value {
   @apply w-[13ch] text-right whitespace-nowrap tabular-nums;
+}
+
+.chartjs-tooltip .chart-tooltip-single {
+  @apply text-base tabular-nums;
+}
+
+.chartjs-tooltip .chart-tooltip-footer {
+  @apply text-right text-base font-bold tabular-nums;
 }

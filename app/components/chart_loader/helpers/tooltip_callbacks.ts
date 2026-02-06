@@ -135,7 +135,7 @@ export const buildTooltipCallbacks = (
               return acc + (value || 0);
             }, 0);
 
-          if (sum && tooltipItem.parsed.y) {
+          if (sum && tooltipItem.parsed.y != null) {
             return `${label}${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
           }
         }

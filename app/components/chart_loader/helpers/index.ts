@@ -34,6 +34,7 @@ export {
   configurePowerBalanceTooltip,
   getPowerBalanceFlags,
 } from './power_balance';
+export { default as GenericChartTooltip } from './generic_chart_tooltip';
 export { default as PowerBalanceTooltip } from './power_balance_tooltip';
 export { buildTooltipCallbacks } from './tooltip_callbacks';
 export { ensureFixedBottomTooltipPositioner } from './tooltip_positioner';
@@ -41,4 +42,5 @@ export type {
   DatasetWithId,
   ExtendedTickOptions,
   TimeScaleOptions,
+  TooltipConfig,
 } from './types';
