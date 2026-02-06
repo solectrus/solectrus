@@ -28,11 +28,11 @@ class InsightsTile::Component < ViewComponent::Base
     )
   end
 
-  def link_or_div(&)
+  def container_tag
     if url
-      link_to url, class: container_classes, &
+      [:a, { class: container_classes, href: url }]
     else
-      content_tag :div, class: container_classes, &
+      [:div, { class: container_classes }]
     end
   end
 end
