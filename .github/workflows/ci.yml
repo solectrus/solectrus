@@ -196,16 +196,31 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps --only-shell chromium
 
+      - name: Restore runtime log
+        uses: actions/cache/restore@v5
+        with:
+          path: tmp/parallel_runtime_rspec.log
+          key: parallel-runtime-${{ github.sha }}
+          restore-keys: |
+            parallel-runtime-
+
       - name: Setup PostgreSQL
         run: bin/rails db:create db:migrate
 
       - name: Run System tests with RSpec (group ${{ matrix.group }}/3)
         run: |
+          if [ -s tmp/parallel_runtime_rspec.log ]; then
+            GROUP_BY=runtime
+          else
+            GROUP_BY=filesize
+          fi
           bundle exec parallel_test spec/system \
             --type rspec \
-            --group-by filesize \
+            --group-by $GROUP_BY \
+            --runtime-log tmp/parallel_runtime_rspec.log \
             --only-group ${{ matrix.group }} \
-            -n 3
+            -n 3 \
+            -o '--format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'
         env:
           COVERAGE_NAME: system-${{ matrix.group }}
 
@@ -214,6 +229,15 @@ jobs:
         run: |
           rm -f public/vite-test/assets/test-*.js
           yarn size-limit
+
+      - name: Upload runtime log
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: runtime-log-${{ matrix.group }}
+          path: tmp/parallel_runtime_rspec.log
+          if-no-files-found: ignore
+          retention-days: 1
 
       - name: Debug coverage directory
         if: always()
@@ -270,6 +294,23 @@ jobs:
         with:
           token: ${{secrets.QLTY_COVERAGE_TOKEN}}
           files: coverage/.resultset.json
+
+      - name: Download runtime logs
+        uses: actions/download-artifact@v7
+        with:
+          pattern: runtime-log-*
+          path: runtime-logs
+
+      - name: Merge and cache runtime log
+        run: |
+          mkdir -p tmp
+          cat runtime-logs/*/parallel_runtime_rspec.log | sort > tmp/parallel_runtime_rspec.log
+
+      - name: Save runtime log to cache
+        uses: actions/cache/save@v5
+        with:
+          path: tmp/parallel_runtime_rspec.log
+          key: parallel-runtime-${{ github.sha }}
 
   ci-success:
     runs-on: ubuntu-24.04
@@ -382,6 +423,7 @@ jobs:
   docker-push:
     runs-on: ubuntu-24.04
     needs: [ci-success]
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' }}
     timeout-minutes: 10
     permissions:
       packages: write
