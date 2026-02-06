@@ -420,7 +420,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  docker-push:
+  publish:
     runs-on: ubuntu-24.04
     needs: [ci-success]
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
@@ -470,13 +470,6 @@ jobs:
         run: |
           docker buildx imagetools inspect ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
 
-  deploy:
-    runs-on: ubuntu-24.04
-    needs: docker-push
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
-    timeout-minutes: 5
-
-    steps:
       - name: Send webhook to start deployment
         env:
           DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
