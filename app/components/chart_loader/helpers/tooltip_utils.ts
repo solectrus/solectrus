@@ -65,7 +65,7 @@ export const positionTooltipElement = (
   const absoluteCaretX = canvasRect.left + caretX;
 
   // Horizontal: on mobile center on caret, otherwise left/right of crosshair
-  let left = 0;
+  let left: number;
   if (isMobileViewport) {
     left = absoluteCaretX - tooltipWidth / 2;
   } else {
