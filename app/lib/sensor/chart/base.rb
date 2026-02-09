@@ -112,6 +112,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     # Use the chart item with the most data points for labels
     chart_item_with_most_data =
       chart_data_items.max_by { |item| item[:data]&.length || 0 }
+    return unless chart_item_with_most_data
 
     {
       labels: labels(chart_item_with_most_data),

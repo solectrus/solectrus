@@ -57,6 +57,13 @@ describe Sensor::Chart::PowerBalance do
       expect(dataset_ids).not_to include(:battery_charging_power)
     end
 
+    it 'excludes sensors without data from datasets' do
+      dataset_ids = chart.data[:datasets].map { |d| d[:id].to_sym }
+
+      # battery_discharging has no summary data, so it is excluded
+      expect(dataset_ids).not_to include(:battery_discharging_power)
+    end
+
     it 'shows legend' do
       options = chart.options
 
@@ -83,6 +90,18 @@ describe Sensor::Chart::PowerBalance do
   describe 'stacking logic' do
     context 'with week timeframe' do
       let(:timeframe) { Timeframe.new('2025-W10') }
+
+      before do
+        create_summary(
+          date: '2025-03-03',
+          values: [
+            [:grid_import_power, :sum, 10_000],
+            [:grid_export_power, :sum, 20_000],
+            [:inverter_power, :sum, 25_000],
+            [:house_power, :sum, 30_000],
+          ],
+        )
+      end
 
       it 'assigns a single stack for bar charts' do
         datasets = chart.data[:datasets]
@@ -147,6 +166,39 @@ describe Sensor::Chart::PowerBalance do
           expect(dataset[:stack]).to eq('usage')
         end
       end
+
+      it 'sets fill to origin for first sensor in each stack' do
+        datasets = chart.data[:datasets]
+        source = datasets.select { |d| d[:stack] == 'source' }
+        usage = datasets.select { |d| d[:stack] == 'usage' }
+
+        expect(source.first[:fill]).to eq('origin') if source.any?
+        expect(usage.first[:fill]).to eq('origin') if usage.any?
+      end
+
+      it 'sets fill to -1 for subsequent sensors in each stack' do
+        datasets = chart.data[:datasets]
+        source = datasets.select { |d| d[:stack] == 'source' }
+        usage = datasets.select { |d| d[:stack] == 'usage' }
+
+        source.drop(1).each { |d| expect(d[:fill]).to eq('-1') }
+        usage.drop(1).each { |d| expect(d[:fill]).to eq('-1') }
+      end
+
+      it 'contains no nil values in any dataset' do
+        chart.data[:datasets].each do |dataset|
+          expect(dataset[:data]).to all(be_a(Numeric)),
+                                      "#{dataset[:id]} contains nil values"
+        end
+      end
+    end
+  end
+
+  describe 'when no sensor has data' do
+    let(:timeframe) { Timeframe.new('2025-03-03') }
+
+    it 'returns nil for data' do
+      expect(chart.data).to be_nil
     end
   end
 end

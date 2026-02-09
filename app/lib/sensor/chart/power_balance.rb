@@ -97,12 +97,26 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
         consumption_sensors.include?(name) ? negate_values(data) : data
       end
 
-    items.reject! { |item| item[:data].blank? && item[:labels].blank? }
+    items.reject! { |item| item[:data].compact.blank? }
 
     # Keep a list of sensors that actually have data in this timeframe.
     @display_sensor_names_with_data = items.pluck(:sensor_name)
 
+    # For stacked line charts, replace nil with 0 so that fill: '-1'
+    # works correctly even when the target dataset has sparse data.
+    # Physically correct: no measurement = no power = 0 W.
+    pad_nil_values!(items) if type == 'line'
+
     items
+  end
+
+  # Replace nil with 0 in data arrays (skip forecast datasets)
+  def pad_nil_values!(items)
+    items.each do |item|
+      next if forecast_sensor?(item[:sensor_name])
+
+      item[:data].map! { |v| v || 0 }
+    end
   end
 
   # Sensors that appear below zero (usage/outflow)
