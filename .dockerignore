@@ -18,6 +18,7 @@
 **/*.DS_Store
 Brewfile
 Dockerfile
+compose.yaml
 Procfile*
 Guardfile
 log/*

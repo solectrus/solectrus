@@ -1,0 +1,225 @@
+services:
+  dashboard:
+    image: ghcr.io/solectrus/solectrus:latest
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - 3000:3000
+    environment:
+      - TZ
+      - APP_HOST
+      - FORCE_SSL
+      - SECRET_KEY_BASE
+      - WEB_CONCURRENCY
+      - INSTALLATION_DATE
+      - ADMIN_PASSWORD
+      - FRAME_ANCESTORS
+      - CO2_EMISSION_FACTOR
+      - DB_HOST
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_USER
+      - REDIS_URL
+      - INFLUX_HOST
+      - INFLUX_TOKEN=${INFLUX_TOKEN_READ}
+      - INFLUX_ORG
+      - INFLUX_BUCKET
+      - INFLUX_POLL_INTERVAL
+      - INFLUX_SENSOR_INVERTER_POWER
+      - INFLUX_SENSOR_INVERTER_POWER_1
+      - INFLUX_SENSOR_INVERTER_POWER_2
+      - INFLUX_SENSOR_INVERTER_POWER_3
+      - INFLUX_SENSOR_INVERTER_POWER_4
+      - INFLUX_SENSOR_INVERTER_POWER_5
+      - INFLUX_SENSOR_HOUSE_POWER
+      - INFLUX_SENSOR_GRID_IMPORT_POWER
+      - INFLUX_SENSOR_GRID_EXPORT_POWER
+      - INFLUX_SENSOR_GRID_EXPORT_LIMIT
+      - INFLUX_SENSOR_BATTERY_CHARGING_POWER
+      - INFLUX_SENSOR_BATTERY_DISCHARGING_POWER
+      - INFLUX_SENSOR_BATTERY_SOC
+      - INFLUX_SENSOR_WALLBOX_POWER
+      - INFLUX_SENSOR_WALLBOX_CAR_CONNECTED
+      - INFLUX_SENSOR_CASE_TEMP
+      - INFLUX_SENSOR_SYSTEM_STATUS
+      - INFLUX_SENSOR_SYSTEM_STATUS_OK
+      - INFLUX_SENSOR_HEATPUMP_POWER
+      - INFLUX_SENSOR_HEATPUMP_HEATING_POWER
+      - INFLUX_SENSOR_HEATPUMP_STATUS
+      - INFLUX_SENSOR_HEATPUMP_TANK_TEMP
+      - INFLUX_SENSOR_OUTDOOR_TEMP
+      - INFLUX_SENSOR_CAR_BATTERY_SOC
+      - INFLUX_SENSOR_INVERTER_POWER_FORECAST
+      - INFLUX_SENSOR_INVERTER_POWER_FORECAST_CLEARSKY
+      - INFLUX_SENSOR_OUTDOOR_TEMP_FORECAST
+      - INFLUX_SENSOR_CUSTOM_POWER_01
+      - INFLUX_SENSOR_CUSTOM_POWER_02
+      - INFLUX_SENSOR_CUSTOM_POWER_03
+      - INFLUX_SENSOR_CUSTOM_POWER_04
+      - INFLUX_SENSOR_CUSTOM_POWER_05
+      - INFLUX_SENSOR_CUSTOM_POWER_06
+      - INFLUX_SENSOR_CUSTOM_POWER_07
+      - INFLUX_SENSOR_CUSTOM_POWER_08
+      - INFLUX_SENSOR_CUSTOM_POWER_09
+      - INFLUX_SENSOR_CUSTOM_POWER_10
+      - INFLUX_SENSOR_CUSTOM_POWER_11
+      - INFLUX_SENSOR_CUSTOM_POWER_12
+      - INFLUX_SENSOR_CUSTOM_POWER_13
+      - INFLUX_SENSOR_CUSTOM_POWER_14
+      - INFLUX_SENSOR_CUSTOM_POWER_15
+      - INFLUX_SENSOR_CUSTOM_POWER_16
+      - INFLUX_SENSOR_CUSTOM_POWER_17
+      - INFLUX_SENSOR_CUSTOM_POWER_18
+      - INFLUX_SENSOR_CUSTOM_POWER_19
+      - INFLUX_SENSOR_CUSTOM_POWER_20
+      - INFLUX_EXCLUDE_FROM_HOUSE_POWER
+      - HONEYBADGER_API_KEY
+      - RORVSWILD_API_KEY
+      - PLAUSIBLE_URL
+      - LOCKUP_CODEWORD
+      - UI_THEME
+    labels:
+      - com.centurylinklabs.watchtower.scope=solectrus
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgresql:
+    image: postgres:18-alpine
+    environment:
+      - TZ
+      - POSTGRES_PASSWORD
+    volumes:
+      - ${DB_VOLUME_PATH}:/var/lib/postgresql
+    labels:
+      - com.centurylinklabs.watchtower.scope=solectrus
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:8-alpine
+    environment:
+      - TZ
+    volumes:
+      - ${REDIS_VOLUME_PATH}:/data
+    labels:
+      - com.centurylinklabs.watchtower.scope=solectrus
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 20s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  influxdb:
+    image: influxdb:2-alpine
+    volumes:
+      - ${INFLUX_VOLUME_PATH}:/var/lib/influxdb2
+    environment:
+      - TZ
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUX_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORG}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUX_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_ADMIN_TOKEN}
+    command: influxd run --bolt-path /var/lib/influxdb2/influxd.bolt --engine-path /var/lib/influxdb2/engine --store disk
+    ports:
+      - 8086:8086
+    labels:
+      - com.centurylinklabs.watchtower.scope=solectrus
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  power-splitter:
+    image: ghcr.io/solectrus/power-splitter:latest
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - TZ
+      - INSTALLATION_DATE
+      - INFLUX_HOST
+      - INFLUX_SCHEMA
+      - INFLUX_PORT
+      - INFLUX_TOKEN=${INFLUX_ADMIN_TOKEN}
+      - INFLUX_ORG
+      - INFLUX_BUCKET
+      - INFLUX_SENSOR_HOUSE_POWER
+      - INFLUX_SENSOR_GRID_IMPORT_POWER
+      - INFLUX_SENSOR_WALLBOX_POWER
+      - INFLUX_SENSOR_HEATPUMP_POWER
+      - INFLUX_SENSOR_BATTERY_CHARGING_POWER
+      - INFLUX_EXCLUDE_FROM_HOUSE_POWER
+      - REDIS_URL
+      - DB_HOST
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_USER
+      - POWER_SPLITTER_INTERVAL
+    labels:
+      - com.centurylinklabs.watchtower.scope=solectrus
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  watchtower:
+    image: nickfedor/watchtower
+    environment:
+      - TZ
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --scope solectrus --cleanup
+    labels:
+      - com.centurylinklabs.watchtower.scope=solectrus
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
