@@ -31,6 +31,57 @@
   animation: fade-in 0.1s ease-in 0.5s forwards;
 }
 
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 2.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.pulse-ring-delayed {
+  animation-delay: 1.25s;
+}
+
+@keyframes logo-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(129 140 248 / 0);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgb(129 140 248 / 0.3);
+  }
+}
+
+.logo-glow {
+  animation: logo-glow 2.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion) {
+  .pulse-ring {
+    animation: none;
+    opacity: 0.3;
+    transform: scale(1.5);
+  }
+
+  .pulse-ring-delayed {
+    opacity: 0.15;
+    transform: scale(1.8);
+  }
+
+  .logo-glow {
+    animation: none;
+    box-shadow: 0 0 12px 2px rgb(129 140 248 / 0.2);
+  }
+}
+
 /* Allow animations to be disabled */
 .animation-stopper * {
   animation: none !important;
