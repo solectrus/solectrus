@@ -1,26 +1,27 @@
 - if !timeframe.relative? || ApplicationPolicy.relative_timeframe?
-  - if Sensor.data?
-    .flex-auto.min-h-20.flex.flex-col.lg:landscape:flex-row.gap-5[
-      data= refresh_options
-    ]
-      = tag.turbo_frame id: helpers.frame_id('stats'),
-                        class: 'lg:flex-1 h-3/5 min-h-72 lg:h-auto flex',
-                        src: stats_path,
-                        target: '_top',
-                        data: { stats_with_chart__component_target: 'stats', turbo_permanent: true } do
-        .flex-1.flex.justify-center.items-center
-          = render Loading::Component.new
+  = tag.turbo_frame id: helpers.frame_id('stats-content'), class: 'flex-auto min-h-20 flex' do
+    - if Sensor.data?
+      .flex-1.flex.flex-col.lg:landscape:flex-row.gap-5[
+        data= refresh_options
+      ]
+        = tag.turbo_frame id: helpers.frame_id('stats'),
+                          class: 'lg:flex-1 h-3/5 min-h-72 lg:h-auto flex',
+                          src: stats_path,
+                          target: '_top',
+                          data: { stats_with_chart__component_target: 'stats', turbo_permanent: true } do
+          .flex-1.flex.justify-center.items-center
+            = render Loading::Component.new
 
-      = tag.turbo_frame id: helpers.frame_id('chart'),
-                        class: 'flex-1 min-h-20 flex relative',
-                        src: charts_path,
-                        target: '_top',
-                        data: { stats_with_chart__component_target: 'chart' } do
-        .flex-1.flex.justify-center.items-center
-          = render Loading::Component.new
-  - else
-    .flex-auto.min-h-20.flex.items-center.justify-center
-      = render EmptyState::Component.new
+        = tag.turbo_frame id: helpers.frame_id('chart'),
+                          class: 'flex-1 min-h-20 flex relative',
+                          src: charts_path,
+                          target: '_top',
+                          data: { stats_with_chart__component_target: 'chart' } do
+          .flex-1.flex.justify-center.items-center
+            = render Loading::Component.new
+    - else
+      .flex-1.flex.items-center.justify-center
+        = render EmptyState::Component.new
 - else
   = render DemoLink::Component.new feature: 'relative_timeframe',
                                    url: { **controller.__send__(:permitted_params) }

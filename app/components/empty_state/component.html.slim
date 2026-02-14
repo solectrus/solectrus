@@ -11,3 +11,4 @@
         ]
   p.text-lg.font-medium.text-gray-700.dark:text-gray-400
     = t('.title')
+  = tag.turbo_frame id: 'sensor-check', class: 'hidden', data: { empty_state__component_target: 'frame' }
