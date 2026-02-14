@@ -246,8 +246,8 @@ describe UpdateCheck do
     end
   end
 
-  describe '#simple_prompt?' do
-    subject { instance.simple_prompt? }
+  describe '#action_required?' do
+    subject { instance.action_required? }
 
     let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
@@ -281,7 +281,7 @@ describe UpdateCheck do
       it { is_expected.to be true }
     end
 
-    context 'when registered and eligible for free' do
+    context 'when registered and unprompted' do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,

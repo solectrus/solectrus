@@ -19,10 +19,9 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
               = render Nav::Top::Component::Items.new(items: primary_items_without_root, device: :desktop)
 
             .flex.items-center.gap-3
-              - unless helpers.banner? || current_page?(sponsoring_path)
-                = render SetupStatus::Component.new( \
+              - unless helpers.banner? || current_page?(sponsoring_path) || !UpdateCheck.action_required?
+                = render ActionRequired::Component.new( \
                     registration_status: UpdateCheck.registration_status,
-                    prompt: UpdateCheck.simple_prompt?,
                     admin: helpers.admin?,
                   )
 
@@ -42,10 +41,9 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
             = current_item&.name
 
         .flex.items-center.gap-2.lg:hidden
-          - unless helpers.banner? || current_page?(sponsoring_path)
-            = render SetupStatus::Component.new( \
+          - unless helpers.banner? || current_page?(sponsoring_path) || !UpdateCheck.action_required?
+            = render ActionRequired::Component.new( \
                     registration_status: UpdateCheck.registration_status,
-                    prompt: UpdateCheck.simple_prompt?,
                     admin: helpers.admin?,
                   )
 
@@ -93,10 +91,6 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
       - elsif UpdateCheck.sponsoring?
         .py-1.bg-emerald-600.text-white.text-center.text-xs
           = I18n.t('layout.active_sponsoring_header')
-
-      - elsif UpdateCheck.eligible_for_free?
-        .py-1.bg-emerald-600.text-white.text-center.text-xs
-          = I18n.t('layout.eligible_for_free_header')
 
       .flex.justify-between.items-center.text-indigo-100.dark:text-indigo-300.text-xs.px-3.py-4
         = render VersionInfo::Component.new( \

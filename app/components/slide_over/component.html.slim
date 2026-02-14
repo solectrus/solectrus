@@ -85,8 +85,3 @@
                   .p-5.text-emerald-600.dark:text-emerald-300.flex.justify-between.items-center
                     = I18n.t('layout.active_sponsoring')
                     .text-3xl 🎉
-
-            - elsif UpdateCheck.eligible_for_free?
-              .bg-emerald-100.dark:bg-emerald-900
-                .bg-emerald-600.dark:bg-emerald-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
-                  = I18n.t('layout.eligible_for_free_header')

@@ -11,7 +11,7 @@ class UpdateCheck
     delegate :sponsoring?,
              :eligible_for_free?,
              :prompt?,
-             :simple_prompt?,
+             :action_required?,
              :registered?,
              :unregistered?,
              :registration_grace_period_expired?,
@@ -58,8 +58,8 @@ class UpdateCheck
     registered? && latest[:prompt].present?
   end
 
-  def simple_prompt?
-    !sponsoring? && !eligible_for_free?
+  def action_required?
+    !sponsoring? && (!registered? || prompt?)
   end
 
   def registered?

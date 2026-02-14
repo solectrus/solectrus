@@ -1,0 +1,3 @@
+= link_to registration_status == 'complete' ? sponsoring_path : registration_path do
+  div data-controller= 'tooltip' title= tooltip
+    i.fa.fas.fa-lg.fa-circle-exclamation class= (unknown? ? 'text-red-300' : 'text-amber-300 dark:text-pink-400')
