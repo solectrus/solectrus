@@ -75,10 +75,13 @@ describe Sensor::Chart::OutdoorTempForecast do
 
       context 'when date is today' do
         let(:date) { Date.current }
-        let(:actual_data) { [[2.hours.ago, 15.0], [1.hour.ago, 16.0]] }
+        let(:actual_data) { [[noon - 2.hours, 15.0], [noon - 1.hour, 16.0]] }
+        let(:noon) { Date.current.in_time_zone.change(hour: 12) }
         let(:forecast_data) do
-          [[1.hour.from_now, 18.0], [2.hours.from_now, 20.0]]
+          [[noon + 1.hour, 18.0], [noon + 2.hours, 20.0]]
         end
+
+        before { travel_to(noon) }
 
         it 'combines actual past temps and forecast future temps' do
           result = aggregator.call
