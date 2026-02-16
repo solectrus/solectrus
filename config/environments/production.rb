@@ -47,6 +47,14 @@ Rails.application.configure do
     },
   }
 
+  # Allow configuring trusted proxy ranges (e.g. for Cloudflare)
+  # Example: TRUSTED_PROXY_RANGES=173.245.48.0/20,103.21.244.0/22
+  if (ranges = ENV['TRUSTED_PROXY_RANGES'].presence)
+    proxies = ranges.split(',').map { |r| IPAddr.new(r.strip) }
+    config.action_dispatch.trusted_proxies =
+      proxies + ActionDispatch::RemoteIp::TRUSTED_PROXIES
+  end
+
   # Log to STDOUT
   config.logger = ActiveSupport::TaggedLogging.logger($stdout)
   config.log_tags = [:remote_ip]
