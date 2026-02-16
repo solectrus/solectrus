@@ -30,6 +30,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     = render 'shared/apple_touch_icons'
 
     = csrf_meta_tags
+    = csp_meta_tag
 
     = vite_client_tag
     - if Rails.env.test?

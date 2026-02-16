@@ -27,6 +27,7 @@ html lang= I18n.locale
     link rel="apple-touch-icon" href="/apple-icon-180.png"
 
     = csrf_meta_tags
+    = csp_meta_tag
 
     = vite_client_tag
     = vite_typescript_tag 'application', 'data-turbo-track': 'reload'

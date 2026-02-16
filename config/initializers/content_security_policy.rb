@@ -81,10 +81,14 @@ Rails.application.configure do
     #   )
     # end
 
-    # Generate session nonces for permitted importmap, inline scripts, and inline styles.
-    #   config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-    #   config.content_security_policy_nonce_directives = %w(script-src style-src)
-    #
+    # Generate session nonces for permitted inline scripts.
+    # Use a per-session nonce (not per-request) for Turbo Drive compatibility,
+    # as the document CSP persists across Turbo navigations.
+    # Skip in local environments (development + test) to preserve unsafe_inline for Vite HMR.
+    unless Rails.env.local?
+      config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
+      config.content_security_policy_nonce_directives = %w[script-src]
+    end
     #   # Automatically add `nonce` to `javascript_tag`, `javascript_include_tag`, and `stylesheet_link_tag`
     #   # if the corresponding directives are specified in `content_security_policy_nonce_directives`.
     #   # config.content_security_policy_nonce_auto = true
