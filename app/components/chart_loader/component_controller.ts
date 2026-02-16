@@ -172,6 +172,7 @@ export default class extends Controller<HTMLCanvasElement> {
     if (this.animationTimeout) {
       clearTimeout(this.animationTimeout);
       this.animationTimeout = undefined;
+      document.body.classList.remove('transition-stopper');
     }
 
     if (this.boundHandleResize)
@@ -200,14 +201,14 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private handleResize() {
     // Disable animation when resizing
-    document.body.classList.add('animation-stopper');
+    document.body.classList.add('transition-stopper');
 
     if (this.chart) this.chart.destroy();
     this.process();
 
     this.animationTimeout = setTimeout(() => {
       // Re-enable animation
-      document.body.classList.remove('animation-stopper');
+      document.body.classList.remove('transition-stopper');
     }, 200);
   }
 

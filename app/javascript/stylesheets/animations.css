@@ -82,8 +82,7 @@
   }
 }
 
-/* Allow animations to be disabled */
-.animation-stopper * {
-  animation: none !important;
+/* Disable transitions during resize to prevent slow height/font-size adjustments */
+.transition-stopper * {
   transition: none !important;
 }
