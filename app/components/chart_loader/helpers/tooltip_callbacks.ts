@@ -1,6 +1,6 @@
-// Builds tooltip callbacks (title/label/footer) based on data and stacks.
+// Builds tooltip callbacks (title/label/footer/labelColor) based on data and stacks.
 
-import type { ChartData, ChartType, TooltipItem } from 'chart.js';
+import type { ChartData, ChartType, Color, TooltipItem } from 'chart.js';
 import type { DatasetWithId } from './types';
 
 type TooltipFlags = {
@@ -23,6 +23,9 @@ export const buildTooltipCallbacks = (
 ): {
   title: (tooltipItems: TooltipItem<ChartType>[]) => string | undefined;
   label: (tooltipItem: TooltipItem<ChartType>) => string | string[];
+  labelColor: (
+    tooltipItem: TooltipItem<ChartType>,
+  ) => { backgroundColor: Color; borderColor: Color } | undefined;
   footer: (tooltipItems: TooltipItem<ChartType>[]) => string | undefined;
 } => {
   const { locale, formattedNumber, extractNumericValue } = helpers;
@@ -166,6 +169,15 @@ export const buildTooltipCallbacks = (
       }
 
       return label + formattedNumber(tooltipItem.parsed.y!);
+    },
+
+    // Return the solid resolved color for tooltip color swatches.
+    // Without this, gradient datasets produce CanvasGradient objects
+    // that render as transparent in the custom HTML tooltip.
+    labelColor: (tooltipItem) => {
+      const dataset = tooltipItem.dataset as DatasetWithId;
+      const color = dataset.tooltipColor;
+      if (color) return { backgroundColor: color, borderColor: color };
     },
 
     footer: (tooltipItems) => {

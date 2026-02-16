@@ -1,7 +1,7 @@
 class Sensor::Definitions::HeatpumpPowerEnv < Sensor::Definitions::Base
   value unit: :watt
 
-  color background: 'bg-sky-700/60 dark:bg-sky-800/80',
+  color background: 'bg-sensor-heatpump-env',
         text: 'text-white dark:text-slate-400'
 
   depends_on :heatpump_heating_power, :heatpump_power

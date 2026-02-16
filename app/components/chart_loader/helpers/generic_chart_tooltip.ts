@@ -116,7 +116,7 @@ export default class GenericChartTooltip {
 
     const colorHtml =
       color && !isSubsequentLine
-        ? `<span class="chart-tooltip-color" style="background:${colorToString(color.backgroundColor)};border-color:${colorToString(color.borderColor)};"></span>`
+        ? `<span class="chart-tooltip-color" style="background:${colorToString(color.backgroundColor)};"></span>`
         : color && isSubsequentLine
           ? '<span class="chart-tooltip-color" style="background:transparent;border-color:transparent;"></span>'
           : '';

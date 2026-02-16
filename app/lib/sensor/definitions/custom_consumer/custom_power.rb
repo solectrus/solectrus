@@ -20,45 +20,43 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
   COLOR_TEXT = 'text-slate-700 dark:text-slate-400'.freeze
   private_constant :COLOR_TEXT
 
-  # Background colors with max 50% opacity for readable text contrast
-  # Scales from 5% to 50% in steps matching the number of sensors
+  # 10 consumer shades (every 2nd entry from the 20-shade scale)
   COLOR_BACKGROUNDS_10 = %w[
-    bg-slate-500/5
-    bg-slate-500/10
-    bg-slate-500/15
-    bg-slate-500/20
-    bg-slate-500/25
-    bg-slate-500/30
-    bg-slate-500/35
-    bg-slate-500/40
-    bg-slate-500/45
-    bg-slate-500/50
+    bg-sensor-consumer-01
+    bg-sensor-consumer-03
+    bg-sensor-consumer-05
+    bg-sensor-consumer-07
+    bg-sensor-consumer-09
+    bg-sensor-consumer-11
+    bg-sensor-consumer-13
+    bg-sensor-consumer-15
+    bg-sensor-consumer-17
+    bg-sensor-consumer-19
   ].freeze
   private_constant :COLOR_BACKGROUNDS_10
 
-  # Finer gradation for up to 20 sensors (2.5% steps from 5% to 55%)
-  # Static list required for Tailwind to recognize classes at build time
+  # 20 consumer shades (full scale)
   COLOR_BACKGROUNDS_20 = %w[
-    bg-slate-500/5
-    bg-slate-500/[7.5%]
-    bg-slate-500/10
-    bg-slate-500/[12.5%]
-    bg-slate-500/15
-    bg-slate-500/[17.5%]
-    bg-slate-500/20
-    bg-slate-500/[22.5%]
-    bg-slate-500/25
-    bg-slate-500/[27.5%]
-    bg-slate-500/30
-    bg-slate-500/[32.5%]
-    bg-slate-500/35
-    bg-slate-500/[37.5%]
-    bg-slate-500/40
-    bg-slate-500/[42.5%]
-    bg-slate-500/45
-    bg-slate-500/[47.5%]
-    bg-slate-500/50
-    bg-slate-500/[52.5%]
+    bg-sensor-consumer-01
+    bg-sensor-consumer-02
+    bg-sensor-consumer-03
+    bg-sensor-consumer-04
+    bg-sensor-consumer-05
+    bg-sensor-consumer-06
+    bg-sensor-consumer-07
+    bg-sensor-consumer-08
+    bg-sensor-consumer-09
+    bg-sensor-consumer-10
+    bg-sensor-consumer-11
+    bg-sensor-consumer-12
+    bg-sensor-consumer-13
+    bg-sensor-consumer-14
+    bg-sensor-consumer-15
+    bg-sensor-consumer-16
+    bg-sensor-consumer-17
+    bg-sensor-consumer-18
+    bg-sensor-consumer-19
+    bg-sensor-consumer-20
   ].freeze
   private_constant :COLOR_BACKGROUNDS_20
 

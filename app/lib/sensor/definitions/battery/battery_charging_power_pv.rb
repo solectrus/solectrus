@@ -1,7 +1,7 @@
 class Sensor::Definitions::BatteryChargingPowerPv < Sensor::Definitions::Base
   value unit: :watt, range: (0..), category: :power_splitter
 
-  color background: 'bg-emerald-700 dark:bg-emerald-900/70',
+  color background: 'bg-sensor-battery',
         text: 'text-white dark:text-slate-400'
 
   depends_on :battery_charging_power, :battery_charging_power_grid

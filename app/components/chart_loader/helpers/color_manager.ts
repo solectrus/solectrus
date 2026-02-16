@@ -57,6 +57,7 @@ export class ColorManager {
       if (datasetWithId.colorClass) {
         const resolvedColor = this.resolveColorClass(datasetWithId.colorClass);
         if (resolvedColor) {
+          datasetWithId.tooltipColor = resolvedColor;
           const lineDataset = dataset as ChartDataset<'line'>;
           const isStacked = lineDataset.stack !== undefined;
           const baseLineColor =

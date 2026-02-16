@@ -1,7 +1,7 @@
 class Sensor::Definitions::GridRevenue < Sensor::Definitions::FinanceBase
   value
 
-  color background: 'bg-emerald-700 dark:bg-emerald-800/80',
+  color background: 'bg-sensor-revenue',
         text: 'text-white dark:text-emerald-100'
 
   depends_on :grid_export_power

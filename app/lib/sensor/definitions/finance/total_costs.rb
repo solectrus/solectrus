@@ -1,5 +1,5 @@
 class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
-  color background: 'bg-red-700 dark:bg-red-800/80',
+  color background: 'bg-sensor-costs',
         text: 'text-white dark:text-red-200'
 
   depends_on %i[grid_costs opportunity_costs]

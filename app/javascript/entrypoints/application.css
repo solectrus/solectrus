@@ -38,6 +38,47 @@
   --font-sans:
     'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
+
+  /* Sensor background colors (opaque, light mode) */
+  --color-sensor-grid: #b64242; /* red */
+  --color-sensor-pv: #059669; /* green */
+  --color-sensor-battery: #065f46; /* dark green */
+  --color-sensor-revenue: #047857; /* medium green */
+  --color-sensor-house: #8694a6; /* light blue-gray */
+  --color-sensor-heatpump: #667588; /* blue-gray */
+  --color-sensor-wallbox: #46566a; /* dark blue-gray */
+  --color-sensor-heatpump-env: #68a5c7; /* sky blue */
+  --color-sensor-inverter-diff: #83a79d; /* sage green */
+  --color-sensor-costs: #b91c1c; /* dark red */
+
+  /* Inverter shades (green, light to dark) */
+  --color-sensor-inverter-1: #047857;
+  --color-sensor-inverter-2: #1d8668;
+  --color-sensor-inverter-3: #369379;
+  --color-sensor-inverter-4: #4fa189;
+  --color-sensor-inverter-5: #68ae9a;
+
+  /* Consumer shades (light blue-gray, 20 steps) */
+  --color-sensor-consumer-01: #c6d0dd;
+  --color-sensor-consumer-02: #c3cedb;
+  --color-sensor-consumer-03: #c1cbd8;
+  --color-sensor-consumer-04: #bec9d6;
+  --color-sensor-consumer-05: #bcc6d4;
+  --color-sensor-consumer-06: #b9c4d2;
+  --color-sensor-consumer-07: #b6c2d0;
+  --color-sensor-consumer-08: #b4bfce;
+  --color-sensor-consumer-09: #b1bdcc;
+  --color-sensor-consumer-10: #afbac9;
+  --color-sensor-consumer-11: #acb8c7;
+  --color-sensor-consumer-12: #aab5c5;
+  --color-sensor-consumer-13: #a7b3c3;
+  --color-sensor-consumer-14: #a4b1c1;
+  --color-sensor-consumer-15: #a2aebf;
+  --color-sensor-consumer-16: #9facbc;
+  --color-sensor-consumer-17: #9da9ba;
+  --color-sensor-consumer-18: #9aa7b8;
+  --color-sensor-consumer-19: #98a5b6;
+  --color-sensor-consumer-20: #95a2b4;
 }
 
 @utility bar-gradient {
@@ -162,6 +203,47 @@
     --chart-tooltip-bg: #1f2937;
     --chart-tooltip-text: #e2e8f0;
     --chart-tooltip-border: #475569;
+
+    /* Sensor background colors (opaque, dark mode) */
+    --color-sensor-grid: #621921; /* dark red */
+    --color-sensor-pv: #075c46; /* dark green */
+    --color-sensor-battery: #074030; /* darker green */
+    --color-sensor-revenue: #085140; /* medium dark green */
+    --color-sensor-house: #506070; /* medium slate */
+    --color-sensor-heatpump: #405060; /* dark slate */
+    --color-sensor-wallbox: #304050; /* darker slate */
+    --color-sensor-heatpump-env: #094c73; /* dark blue */
+    --color-sensor-inverter-diff: #0a3232; /* dark teal */
+    --color-sensor-costs: #7d1a1e; /* dark red */
+
+    /* Inverter shades (dark green, 5 steps) */
+    --color-sensor-inverter-1: #047857;
+    --color-sensor-inverter-2: #056e52;
+    --color-sensor-inverter-3: #06654e;
+    --color-sensor-inverter-4: #075b4a;
+    --color-sensor-inverter-5: #085145;
+
+    /* Consumer shades (dark blue-gray, 20 steps) */
+    --color-sensor-consumer-01: #222d3f;
+    --color-sensor-consumer-02: #232f41;
+    --color-sensor-consumer-03: #253143;
+    --color-sensor-consumer-04: #273245;
+    --color-sensor-consumer-05: #293447;
+    --color-sensor-consumer-06: #2a3649;
+    --color-sensor-consumer-07: #2c384b;
+    --color-sensor-consumer-08: #2e3a4d;
+    --color-sensor-consumer-09: #303c4f;
+    --color-sensor-consumer-10: #313e51;
+    --color-sensor-consumer-11: #334053;
+    --color-sensor-consumer-12: #354155;
+    --color-sensor-consumer-13: #374357;
+    --color-sensor-consumer-14: #384559;
+    --color-sensor-consumer-15: #3a475b;
+    --color-sensor-consumer-16: #3c495d;
+    --color-sensor-consumer-17: #3e4b5f;
+    --color-sensor-consumer-18: #3f4d61;
+    --color-sensor-consumer-19: #414f63;
+    --color-sensor-consumer-20: #435065;
   }
 
   /* Hide RorVsWild button on smaller screens, because it overlaps the content */

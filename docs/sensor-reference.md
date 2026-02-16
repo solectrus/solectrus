@@ -201,7 +201,7 @@ end
 
 ```ruby
 # Static color (required: bg and text)
-color background: 'bg-emerald-600 dark:bg-emerald-800/80',
+color background: 'bg-sensor-pv',
       text: 'text-white dark:text-slate-400'
 
 # Gradient color (required: from/to, start/stop)

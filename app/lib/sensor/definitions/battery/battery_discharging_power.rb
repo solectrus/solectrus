@@ -1,7 +1,7 @@
 class Sensor::Definitions::BatteryDischargingPower < Sensor::Definitions::Base
   value unit: :watt, category: :battery, nameable: true
 
-  color background: 'bg-emerald-700 dark:bg-emerald-900/70',
+  color background: 'bg-sensor-battery',
         text: 'text-white dark:text-slate-400'
 
   icon do |data|

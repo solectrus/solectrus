@@ -222,12 +222,11 @@ export default class PowerBalanceTooltip {
     const backgroundColor = colorToString(
       item.color?.backgroundColor ?? 'transparent',
     );
-    const borderColor = colorToString(item.color?.borderColor ?? 'transparent');
 
     return `
       <div class="chart-tooltip-row">
         <div class="chart-tooltip-label">
-          <span class="chart-tooltip-color" style="background:${backgroundColor};border-color:${borderColor};"></span>
+          <span class="chart-tooltip-color" style="background:${backgroundColor};"></span>
           <span class="chart-tooltip-name">${label}</span>
         </div>
         <div class="chart-tooltip-value">${formattedValue}</div>

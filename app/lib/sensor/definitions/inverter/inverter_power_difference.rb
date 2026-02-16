@@ -1,7 +1,7 @@
 class Sensor::Definitions::InverterPowerDifference < Sensor::Definitions::Base
   value unit: :watt, category: :inverter
 
-  color background: 'bg-emerald-900/50',
+  color background: 'bg-sensor-inverter-diff',
         text: 'text-white dark:text-slate-400'
 
   depends_on :inverter_power, :inverter_power_total

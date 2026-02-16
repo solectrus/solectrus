@@ -1,7 +1,7 @@
 class Sensor::Definitions::WallboxPower < Sensor::Definitions::Base
   value unit: :watt, category: :consumer, nameable: true
 
-  color background: 'bg-slate-700/90 dark:bg-slate-700/80',
+  color background: 'bg-sensor-wallbox',
         text: 'text-white dark:text-slate-400'
 
   icon 'fa-car'

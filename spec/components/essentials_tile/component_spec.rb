@@ -41,7 +41,7 @@ describe EssentialsTile::Component, type: :component do
     it 'returns the correct background color' do
       expect(
         component.background_color,
-      ).to eq 'bg-emerald-600 dark:bg-emerald-800/80'
+      ).to eq 'bg-sensor-pv'
     end
   end
 
@@ -62,7 +62,7 @@ describe EssentialsTile::Component, type: :component do
     it 'returns the correct background color' do
       expect(
         component.background_color,
-      ).to eq 'bg-emerald-600 dark:bg-emerald-800/80'
+      ).to eq 'bg-sensor-pv'
     end
   end
 
@@ -100,7 +100,7 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-slate-500/80 dark:bg-slate-500/60'
+      expect(component.background_color).to eq 'bg-sensor-house'
     end
   end
 

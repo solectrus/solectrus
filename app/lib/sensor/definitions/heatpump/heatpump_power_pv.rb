@@ -1,7 +1,7 @@
 class Sensor::Definitions::HeatpumpPowerPv < Sensor::Definitions::Base
   value unit: :watt, category: :power_splitter
 
-  color background: 'bg-emerald-600 dark:bg-emerald-800/80',
+  color background: 'bg-sensor-pv',
         text: 'text-white dark:text-slate-400'
 
   depends_on :heatpump_power, :heatpump_power_grid

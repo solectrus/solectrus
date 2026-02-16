@@ -1,7 +1,7 @@
 class Sensor::Definitions::HeatpumpPower < Sensor::Definitions::Base
   value unit: :watt, category: :consumer, nameable: true
 
-  color background: 'bg-slate-500 dark:bg-slate-600/80',
+  color background: 'bg-sensor-heatpump',
         text: 'text-white dark:text-slate-400'
 
   icon 'fa-fan'

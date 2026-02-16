@@ -1,7 +1,7 @@
 class Sensor::Definitions::InverterPowerForecast < Sensor::Definitions::Base
   value unit: :watt, category: :forecast
 
-  color background: 'bg-emerald-600 dark:bg-emerald-800/80',
+  color background: 'bg-sensor-pv',
         text: 'text-white dark:text-slate-400',
         hatch_fill: true
 

@@ -1,7 +1,7 @@
 class Sensor::Definitions::HousePowerWithoutCustomGrid < Sensor::Definitions::Base
   value unit: :watt, range: (0..), category: :power_splitter
 
-  color background: 'bg-red-700/80 dark:bg-red-800/60',
+  color background: 'bg-sensor-grid',
         text: 'text-white dark:text-slate-400'
 
   depends_on :house_power_grid, :custom_power_total_grid

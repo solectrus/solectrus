@@ -165,7 +165,7 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
   value unit: :watt, range: (0..), category: :inverter
 
   # Color definition
-  color background: 'bg-emerald-600 dark:bg-emerald-800/80',
+  color background: 'bg-sensor-pv',
         text: 'text-white dark:text-slate-400'
 
   # Gradient color definition

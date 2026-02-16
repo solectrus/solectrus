@@ -1,7 +1,7 @@
 class Sensor::Definitions::GridImportPower < Sensor::Definitions::Base
   value unit: :watt, category: :grid
 
-  color background: 'bg-red-700/80 dark:bg-red-800/60',
+  color background: 'bg-sensor-grid',
         text: 'text-white dark:text-slate-400'
 
   icon 'fa-bolt'
