@@ -88,6 +88,10 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller= 'slide-o
           - else
             = I18n.t('layout.missing_sponsoring')
 
+      - elsif UpdateCheck.free_trial?
+        .py-1.bg-sky-600.text-white.text-center.text-xs
+          = I18n.t('layout.free_trial_header')
+
       - elsif UpdateCheck.sponsoring?
         .py-1.bg-emerald-600.text-white.text-center.text-xs
           = I18n.t('layout.active_sponsoring_header')

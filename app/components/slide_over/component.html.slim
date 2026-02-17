@@ -76,6 +76,14 @@
                   .mt-2
                     = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'underline underline-offset-2'
 
+            - elsif UpdateCheck.free_trial?
+              .bg-sky-100.dark:bg-sky-900
+                .bg-sky-600.dark:bg-sky-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider
+                  = I18n.t('layout.free_trial_header')
+
+                .p-5.text-sky-700.dark:text-sky-300.text-center
+                  = I18n.t('layout.free_trial', ends_at: I18n.l(UpdateCheck.free_trial_ends_at.to_date))
+
             - elsif UpdateCheck.sponsoring?
               .bg-emerald-100.dark:bg-emerald-900
                 .bg-emerald-600.dark:bg-emerald-700.text-white.w-full.h-10.text-center.flex.items-center.justify-center.uppercase.tracking-wider

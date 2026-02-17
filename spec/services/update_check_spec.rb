@@ -308,6 +308,99 @@ describe UpdateCheck do
     end
   end
 
+  describe '#eligible_for_free?' do
+    subject(:eligible_for_free) { instance.eligible_for_free? }
+
+    let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
+
+    context 'when server returns eligible_for_free' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: {
+            version: 'v1.0.2',
+            registration_status: 'complete',
+            eligible_for_free: true,
+          }.to_json,
+        )
+      end
+
+      it { is_expected.to be true }
+    end
+
+    context 'when server does not return eligible_for_free' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: {
+            version: 'v1.0.2',
+            registration_status: 'complete',
+          }.to_json,
+        )
+      end
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '#free_trial?' do
+    subject(:free_trial) { instance.free_trial? }
+
+    let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
+
+    context 'when free_trial_ends_at is in the future' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: {
+            version: 'v1.0.2',
+            registration_status: 'complete',
+            free_trial_ends_at: 30.days.from_now.iso8601,
+          }.to_json,
+        )
+      end
+
+      it { is_expected.to be true }
+
+      it 'returns parsed end date' do
+        expect(instance.free_trial_ends_at).to be_within(1.second).of(30.days.from_now)
+      end
+    end
+
+    context 'when free_trial_ends_at is in the past' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: {
+            version: 'v1.0.2',
+            registration_status: 'complete',
+            free_trial_ends_at: 1.day.ago.iso8601,
+          }.to_json,
+        )
+      end
+
+      it { is_expected.to be false }
+    end
+
+    context 'when free_trial_ends_at is not present' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: {
+            version: 'v1.0.2',
+            registration_status: 'complete',
+          }.to_json,
+        )
+      end
+
+      it { is_expected.to be false }
+
+      it 'returns nil for free_trial_ends_at' do
+        expect(instance.free_trial_ends_at).to be_nil
+      end
+    end
+  end
+
   describe '.skip_prompt!' do
     include_context 'with cache'
 
