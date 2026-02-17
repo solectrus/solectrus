@@ -5,9 +5,6 @@ describe UpdateCheck::HttpClient do
 
   before do
     allow(Rails.logger).to receive(:info)
-
-    # Allow HTTP requests in these specs by bypassing skip_update_check?
-    allow(http_client).to receive(:skip_update_check?).and_return(false) # rubocop:disable RSpec/SubjectStub
   end
 
   describe '#fetch_update_data' do

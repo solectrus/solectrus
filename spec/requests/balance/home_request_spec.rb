@@ -4,29 +4,42 @@ describe 'Home' do
     it_behaves_like 'sponsoring redirects', '/'
 
     context 'without params :fields and :timeframe' do
-      context 'when day' do
-        before do
-          allow(Sensor::Query::DayLight).to receive(:active?).and_return(true)
-        end
-
-        it 'redirects' do
-          get balance_home_path
-          expect(response).to redirect_to(
-            balance_home_path(sensor_name: 'inverter_power', timeframe: 'now'),
-          )
-        end
+      it 'redirects to power balance' do
+        get balance_home_path
+        expect(response).to redirect_to(
+          balance_home_path(sensor_name: 'power_balance', timeframe: 'now'),
+        )
       end
 
-      context 'when night' do
+      context 'when power balance chart is not available' do
         before do
-          allow(Sensor::Query::DayLight).to receive(:active?).and_return(false)
+          allow(ApplicationPolicy).to receive(:power_balance_chart?).and_return(false)
         end
 
-        it 'redirects' do
-          get balance_home_path
-          expect(response).to redirect_to(
-            balance_home_path(sensor_name: 'house_power', timeframe: 'now'),
-          )
+        context 'when day' do
+          before do
+            allow(Sensor::Query::DayLight).to receive(:active?).and_return(true)
+          end
+
+          it 'redirects to inverter power' do
+            get balance_home_path
+            expect(response).to redirect_to(
+              balance_home_path(sensor_name: 'inverter_power', timeframe: 'now'),
+            )
+          end
+        end
+
+        context 'when night' do
+          before do
+            allow(Sensor::Query::DayLight).to receive(:active?).and_return(false)
+          end
+
+          it 'redirects to house power' do
+            get balance_home_path
+            expect(response).to redirect_to(
+              balance_home_path(sensor_name: 'house_power', timeframe: 'now'),
+            )
+          end
         end
       end
     end

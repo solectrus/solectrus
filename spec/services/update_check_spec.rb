@@ -2,13 +2,9 @@ describe UpdateCheck do
   subject(:instance) { described_class.instance }
 
   before do
+    # Allow HTTP fetching in these tests (normally skipped in local environments)
+    allow(described_class).to receive(:skip_http?).and_return(false)
     instance.clear_cache!
-    # Allow HTTP requests in these specs by bypassing skip_update_check?
-    # rubocop:disable RSpec/AnyInstance
-    allow_any_instance_of(UpdateCheck::HttpClient).to receive(
-      :skip_update_check?,
-    ).and_return(false)
-    # rubocop:enable RSpec/AnyInstance
   end
 
   # Some helper methods to check the cache

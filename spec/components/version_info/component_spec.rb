@@ -9,13 +9,9 @@ describe VersionInfo::Component, type: :component do
 
   describe '#latest_version' do
     before do
+      # Clear default cache so VCR cassette response is used instead
+      allow(UpdateCheck).to receive(:skip_http?).and_return(false)
       UpdateCheck.instance.clear_cache!
-      # Allow HTTP requests in this spec by bypassing skip_update_check?
-      # rubocop:disable RSpec/AnyInstance
-      allow_any_instance_of(UpdateCheck::HttpClient).to receive(
-        :skip_update_check?,
-      ).and_return(false)
-      # rubocop:enable RSpec/AnyInstance
     end
 
     it 'returns the latest version', vcr: { cassette_name: 'version' } do
@@ -83,6 +79,12 @@ describe VersionInfo::Component, type: :component do
     subject { component.latest_release_url }
 
     context 'when latest version is present', vcr: 'version' do
+      before do
+        # Clear default cache so VCR cassette response is used instead
+        allow(UpdateCheck).to receive(:skip_http?).and_return(false)
+        UpdateCheck.instance.clear_cache!
+      end
+
       it do
         is_expected.to eq 'https://github.com/solectrus/solectrus/releases/tag/v1.0.2'
       end

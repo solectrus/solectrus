@@ -26,6 +26,10 @@ class UpdateCheck
              to: :instance
   end
 
+  def self.skip_http?
+    Rails.env.local?
+  end
+
   # For testing purposes only
   delegate :cached?, to: :@cache_manager
   delegate :cached_local?, to: :@cache_manager
@@ -130,6 +134,11 @@ class UpdateCheck
     cached_data = current
     return cached_data if cached_data.present?
 
+    # Skip HTTP requests in local environments (development + test).
+    # The test suite seeds the cache via spec/support/update_check.rb.
+    # Return sensible defaults so components render correctly.
+    return fallback_data if self.class.skip_http?
+
     @mutex.synchronize do
       # Second check: verify cache is still empty after acquiring lock
       # (another thread might have fetched while we were waiting)
@@ -154,5 +163,15 @@ class UpdateCheck
 
   def import_notifications(notifications_data)
     NotificationImporter.new(notifications_data).call
+  end
+
+  public
+
+  def fallback_data
+    {
+      version: Rails.configuration.x.git.commit_version,
+      registration_status: 'complete',
+      eligible_for_free: true,
+    }.freeze
   end
 end
