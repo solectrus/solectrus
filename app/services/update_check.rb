@@ -15,6 +15,8 @@ class UpdateCheck
              :registered?,
              :unregistered?,
              :registration_grace_period_expired?,
+             :free_trial?,
+             :free_trial_ends_at,
              :skipped_prompt?,
              :skip_prompt!,
              :latest_version,
@@ -50,8 +52,17 @@ class UpdateCheck
     subscription_plan.present?
   end
 
+  def free_trial_ends_at
+    value = latest[:free_trial_ends_at]
+    Time.zone.parse(value) if value.present?
+  end
+
+  def free_trial?
+    free_trial_ends_at.present? && free_trial_ends_at >= Time.current
+  end
+
   def eligible_for_free?
-    registered? && !prompt? && !sponsoring?
+    latest[:eligible_for_free].present?
   end
 
   def prompt?

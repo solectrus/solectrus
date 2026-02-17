@@ -8,6 +8,7 @@ class UpdateCheck::HttpClient
         data: {
           version: 'v1.0.2',
           registration_status: 'complete',
+          eligible_for_free: true,
           kwp: '9.24',
         },
         expires_in: 12.hours,

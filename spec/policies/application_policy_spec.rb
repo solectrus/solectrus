@@ -18,11 +18,20 @@ describe ApplicationPolicy do
       it { is_expected.to be(true) }
     end
 
-    context 'when not sponsoring and not eligible for free' do
+    context 'when free trial is active' do
+      before do
+        allow(UpdateCheck).to receive(:free_trial?).and_return(true)
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when not sponsoring, not eligible for free, and no free trial' do
       before do
         allow(UpdateCheck).to receive_messages(
           sponsoring?: false,
           eligible_for_free?: false,
+          free_trial?: false,
         )
       end
 
@@ -47,11 +56,20 @@ describe ApplicationPolicy do
       it { is_expected.to be(true) }
     end
 
-    context 'when not sponsoring and not eligible for free' do
+    context 'when free trial is active' do
+      before do
+        allow(UpdateCheck).to receive(:free_trial?).and_return(true)
+      end
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when not sponsoring, not eligible for free, and no free trial' do
       before do
         allow(UpdateCheck).to receive_messages(
           sponsoring?: false,
           eligible_for_free?: false,
+          free_trial?: false,
         )
       end
 

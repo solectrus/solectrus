@@ -45,6 +45,8 @@ en:
     missing_sponsoring_cta: Learn more...
     active_sponsoring_header: Sponsoring is active
     active_sponsoring: Thank you very much for your support!
+    free_trial_header: Free trial active
+    free_trial: 'All features until %{ends_at}'
     incomplete_custom_consumers: Custom power consumers
     missing_custom_consumers: Here you could visualize up to 20 additional power consumers. Add additional sensors to your configuration (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> to <code>_20</code>).
     incomplete_multi_inverter: Multiple inverters
