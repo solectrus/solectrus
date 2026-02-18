@@ -1,5 +1,6 @@
 class UpdateCheck
   include Singleton
+  include SignatureCache
 
   def initialize
     @cache_manager = CacheManager.new
@@ -107,6 +108,7 @@ class UpdateCheck
   end
 
   def clear_cache!
+    reset_verified_cache!
     @cache_manager.delete
     # Also clear sensor cache since permissions may have changed
     Sensor::Config.clear_cache!
@@ -132,7 +134,14 @@ class UpdateCheck
     # Double-checked locking pattern to avoid multiple HTTP requests
     # First check: quick cache lookup without lock
     cached_data = current
-    return cached_data if cached_data.present?
+    if cached_data.present?
+      # Development/Test: fallback_data has no signature, skip verification
+      return cached_data if self.class.skip_http?
+
+      return resolve_cached(cached_data)
+    end
+
+    reset_verified_cache!
 
     # Skip HTTP requests in local environments (development + test).
     # The test suite seeds the cache via spec/support/update_check.rb.
@@ -140,12 +149,10 @@ class UpdateCheck
     return fallback_data if self.class.skip_http?
 
     @mutex.synchronize do
-      # Second check: verify cache is still empty after acquiring lock
-      # (another thread might have fetched while we were waiting)
+      # Second check: another thread might have fetched while we were waiting
       cached_data = current
-      return cached_data if cached_data.present?
+      return resolve_cached(cached_data) if cached_data.present?
 
-      # Cache is empty, fetch new data
       fetch_and_cache_data
     end
   end
@@ -154,11 +161,12 @@ class UpdateCheck
     result = @http_client.fetch_update_data
     expires_at = Time.current + result[:expires_in]
 
-    notifications = result[:data].delete(:notifications)
+    import_notifications(result[:data].delete(:notifications))
+    # Cache includes :signature for verification on subsequent reads
     @cache_manager.set(result[:data], expires_at:)
-    import_notifications(notifications)
 
-    result[:data]
+    @last_verified_signature = result[:data][:signature]
+    @verified_result = verified_data(result[:data])
   end
 
   def import_notifications(notifications_data)

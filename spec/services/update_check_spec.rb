@@ -486,6 +486,72 @@ describe UpdateCheck do
       expect(Rails.logger).not_to have_received(:error)
     end
 
+    describe 'signature verification on cache read' do
+      include_context 'with signature verification'
+
+      def sign_and_cache(data)
+        canonical = JSON.generate(
+          data.except(:signature, :notifications)
+              .sort_by { |k, _| k.to_s }
+              .to_h,
+        )
+        signature = Base64.strict_encode64(test_private_key.sign(nil, canonical))
+        signed_data = data.merge(signature:)
+
+        instance
+          .instance_variable_get(:@cache_manager)
+          .set(signed_data, expires_at: 1.hour.from_now)
+      end
+
+      context 'with valid signed cache' do
+        before do
+          sign_and_cache(version: 'v1.0.2', registration_status: 'complete')
+        end
+
+        it 'returns verified data without signature key' do
+          result = instance.latest
+
+          expect(result).to eq(version: 'v1.0.2', registration_status: 'complete')
+          expect(result).not_to have_key(:signature)
+        end
+
+        it 'memoizes the result on subsequent reads' do
+          instance.latest
+          expect_any_instance_of(UpdateCheck::SignatureVerifier) # rubocop:disable RSpec/AnyInstance
+            .not_to receive(:verify!)
+
+          instance.latest
+        end
+      end
+
+      context 'with tampered cache' do
+        before do
+          sign_and_cache(version: 'v1.0.2', registration_status: 'complete')
+
+          # Tamper with cached data
+          cache_manager = instance.instance_variable_get(:@cache_manager)
+          tampered = cache_manager.get.merge(registration_status: 'complete', eligible_for_free: true)
+          cache_manager.set(tampered, expires_at: 1.hour.from_now)
+
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'clears cache and returns unknown status' do
+          result = instance.latest
+
+          expect(result).to eq(registration_status: 'unknown')
+        end
+
+        it 'logs the tampering' do
+          instance.latest
+
+          expect(Rails.logger).to have_received(:error).with(
+            'UpdateCheck: invalid signature in cache, clearing',
+          )
+        end
+      end
+    end
+
     it 'clears sensor cache when sponsoring status changes' do
       # No sponsoring initially
       allow(described_class).to receive(:sponsoring?).and_return(false)
