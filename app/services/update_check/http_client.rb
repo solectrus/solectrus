@@ -68,7 +68,14 @@ class UpdateCheck::HttpClient
     result = JSON.parse(response.body, symbolize_names: true)
     raise StandardError, 'Invalid response' unless valid_json?(result)
 
+    verify_signature!(result)
     result
+  end
+
+  def verify_signature!(json)
+    UpdateCheck::SignatureVerifier.new(json).verify!
+  rescue UpdateCheck::SignatureVerifier::InvalidSignatureError => e
+    raise StandardError, "Signature verification failed: #{e.message}"
   end
 
   def valid_json?(response)

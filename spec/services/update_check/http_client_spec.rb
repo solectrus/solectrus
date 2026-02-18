@@ -231,5 +231,36 @@ describe UpdateCheck::HttpClient do
         )
       end
     end
+
+    context 'when signature verification fails' do
+      include_context 'with signature verification'
+
+      let(:response_body) do
+        { version: 'v1.0.2', registration_status: 'complete' }.to_json
+      end
+      let(:headers) { { 'Cache-Control' => 'max-age=43200' } }
+
+      before do
+        stub_request(:get, update_url).to_return(
+          status: 200, body: response_body, headers:,
+        )
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'returns unknown status' do
+        expect(result).to eq(
+          data: { registration_status: 'unknown' },
+          expires_in: 5.minutes,
+        )
+      end
+
+      it 'logs signature failure' do
+        result
+
+        expect(Rails.logger).to have_received(:error).with(
+          /Signature verification failed/,
+        )
+      end
+    end
   end
 end
