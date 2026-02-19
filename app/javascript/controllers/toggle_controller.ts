@@ -1,7 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static readonly targets = ['dropdown', 'button', 'icon'];
+  static readonly targets = ['dropdown', 'button', 'icon', 'overlay'];
 
   static readonly values = {
     maxHeightClass: { type: String, default: 'max-h-192' },
@@ -10,6 +10,8 @@ export default class extends Controller {
   declare readonly dropdownTarget: HTMLElement;
   declare readonly buttonTarget: HTMLElement;
   declare readonly iconTargets: HTMLElement[];
+  declare readonly hasOverlayTarget: boolean;
+  declare readonly overlayTarget: HTMLElement;
 
   declare readonly maxHeightClassValue: string;
 
@@ -23,6 +25,10 @@ export default class extends Controller {
 
     for (const icon of this.iconTargets) {
       icon.classList.toggle('hidden');
+    }
+
+    if (this.hasOverlayTarget) {
+      this.overlayTarget.classList.toggle('hidden');
     }
 
     this.buttonTarget.ariaExpanded =
