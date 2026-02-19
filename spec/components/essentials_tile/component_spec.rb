@@ -20,7 +20,7 @@ describe EssentialsTile::Component, type: :component do
     it 'returns the correct background color' do
       expect(
         component.background_color,
-      ).to eq 'bg-indigo-600 dark:bg-indigo-900'
+      ).to eq 'bg-sensor-savings'
     end
   end
 

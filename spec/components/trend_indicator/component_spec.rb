@@ -39,28 +39,28 @@ describe TrendIndicator::Component do
       let(:diff) { 1 }
       let(:more_is_better) { true }
 
-      it { is_expected.to eq('text-emerald-600') }
+      it { is_expected.to eq('text-signal-positive') }
     end
 
     context 'when negative diff and less is better' do
       let(:diff) { -1 }
       let(:more_is_better) { false }
 
-      it { is_expected.to eq('text-emerald-600') }
+      it { is_expected.to eq('text-signal-positive') }
     end
 
     context 'when positive diff and less is better' do
       let(:diff) { 1 }
       let(:more_is_better) { false }
 
-      it { is_expected.to eq('text-red-700 dark:text-red-400') }
+      it { is_expected.to eq('text-signal-negative') }
     end
 
     context 'when negative diff and more is better' do
       let(:diff) { -1 }
       let(:more_is_better) { true }
 
-      it { is_expected.to eq('text-red-700 dark:text-red-400') }
+      it { is_expected.to eq('text-signal-negative') }
     end
   end
 

@@ -1,0 +1,292 @@
+/*
+ * Sensor color palettes (Modern + Classic, Light + Dark)
+ *
+ * Architecture:
+ * 1. :root — static palette constants (hex values defined once)
+ * 2. @theme — semantic tokens for Tailwind (bg-sensor-* utilities)
+ *    Default palette: Classic (light mode)
+ * 3. Classic inverter shades use original hex values (non-linear hue bias
+ *    can't be reproduced via color-mix)
+ * 4. Modern inverter shades computed via color-mix() from PV base color
+ * 5. Consumer shades use shared hex values (cool blue-gray)
+ *
+ * Naming: --palette-{palette}-{mode}-{sensor}
+ *   e.g. --palette-modern-light-grid, --palette-classic-dark-savings
+ */
+
+/* ─── Palette constants (per-palette hex values) ───────── */
+
+:root {
+  /* Modern palette (light mode) — NTC color names */
+  --palette-modern-light-grid: #e03e3e; /* cinnabar */
+  --palette-modern-light-pv: #158f40; /* jewel */
+  --palette-modern-light-battery: #0071e3; /* science blue */
+  --palette-modern-light-revenue: #0d9494; /* blue chill */
+  --palette-modern-light-house: #6b7280; /* gray-500 */
+  --palette-modern-light-heatpump: #e07e00; /* mango tango */
+  --palette-modern-light-wallbox: #7e57c2; /* fuchsia blue */
+  --palette-modern-light-heatpump-env: #1e96c8; /* curious blue */
+  --palette-modern-light-inverter-diff: #5250c7; /* indigo */
+  --palette-modern-light-costs: #e0325a; /* cerise red */
+  --palette-modern-light-savings: #a16207; /* rich gold */
+  --palette-modern-light-co2: #0284c7; /* lochmara */
+  --palette-modern-light-autarky: #047857; /* watercourse */
+  --palette-modern-light-heatpump-cop: #b5651d; /* bourbon */
+  --palette-modern-light-heatpump-heating: #f97316; /* ecstasy */
+  --palette-modern-light-autarky-mid: #d97706; /* amber-600 */
+  --palette-modern-light-forecast-clearsky: #9ca3af; /* gray chateau */
+
+  /* Modern palette (dark mode) — NTC color names */
+  --palette-modern-dark-grid: #7d2222; /* crown of thorns */
+  --palette-modern-dark-pv: #166534; /* jewel */
+  --palette-modern-dark-battery: #003d80; /* congress blue */
+  --palette-modern-dark-revenue: #115e5e; /* eden */
+  --palette-modern-dark-house: #4b5563; /* gray-600 */
+  --palette-modern-dark-heatpump: #6b4100; /* nutmeg wood finish */
+  --palette-modern-dark-wallbox: #4a2d80; /* minsk */
+  --palette-modern-dark-heatpump-env: #165a72; /* blumine */
+  --palette-modern-dark-inverter-diff: #4342a0; /* governor bay */
+  --palette-modern-dark-costs: #7d1b32; /* claret */
+  --palette-modern-dark-savings: #713f12; /* sepia */
+  --palette-modern-dark-co2: #075985; /* venice blue */
+  --palette-modern-dark-autarky: #064e3b; /* zuccini */
+  --palette-modern-dark-heatpump-cop: #5c3a10; /* horses neck */
+  --palette-modern-dark-heatpump-heating: #c2410c; /* tia maria */
+  --palette-modern-dark-autarky-mid: #d97706; /* amber-600 */
+  --palette-modern-dark-forecast-clearsky: #4b5563; /* river bed */
+
+  /* Classic palette (light mode) — NTC color names */
+  --palette-classic-light-grid: #b64242; /* apple blossom */
+  --palette-classic-light-pv: #059669; /* green haze */
+  --palette-classic-light-battery: #065f46; /* watercourse */
+  --palette-classic-light-revenue: #047857; /* watercourse */
+  --palette-classic-light-house: #8694a6; /* regent gray */
+  --palette-classic-light-heatpump: #667588; /* pale sky */
+  --palette-classic-light-wallbox: #46566a; /* fiord */
+  --palette-classic-light-heatpump-env: #68a5c7; /* fountain blue */
+  --palette-classic-light-inverter-diff: #83a79d; /* sea nymph */
+  --palette-classic-light-costs: #b91c1c; /* thunderbird */
+  --palette-classic-light-savings: #4f46e5; /* royal blue */
+  --palette-classic-light-co2: #0284c7; /* lochmara */
+  --palette-classic-light-autarky: #047857; /* watercourse */
+  --palette-classic-light-heatpump-cop: #0369a1; /* bahama blue */
+  --palette-classic-light-heatpump-heating: #f97316; /* ecstasy */
+  --palette-classic-light-autarky-mid: #d97706; /* amber-600 */
+  --palette-classic-light-forecast-clearsky: #9ca3af; /* gray chateau */
+
+  /* Classic palette (dark mode) — NTC color names */
+  --palette-classic-dark-grid: #621921; /* persian plum */
+  --palette-classic-dark-pv: #075c46; /* deep sea green */
+  --palette-classic-dark-battery: #074030; /* tiber */
+  --palette-classic-dark-revenue: #085140; /* deep sea green */
+  --palette-classic-dark-house: #506070; /* blue bayoux */
+  --palette-classic-dark-heatpump: #405060; /* fiord */
+  --palette-classic-dark-wallbox: #304050; /* pickled bluewood */
+  --palette-classic-dark-heatpump-env: #094c73; /* venice blue */
+  --palette-classic-dark-inverter-diff: #1a5050; /* deep teal */
+  --palette-classic-dark-costs: #7d1a1e; /* falu red */
+  --palette-classic-dark-savings: #312e81; /* minsk */
+  --palette-classic-dark-co2: #075985; /* venice blue */
+  --palette-classic-dark-autarky: #064e3b; /* zuccini */
+  --palette-classic-dark-heatpump-cop: #02446b; /* regal blue */
+  --palette-classic-dark-heatpump-heating: #c2410c; /* tia maria */
+  --palette-classic-dark-autarky-mid: #d97706; /* amber-600 */
+  --palette-classic-dark-forecast-clearsky: #4b5563; /* river bed */
+
+  /* Preview swatches — follow light/dark mode (overridden in .dark) */
+  --palette-classic-preview-battery: var(--palette-classic-light-battery);
+  --palette-classic-preview-house: var(--palette-classic-light-house);
+  --palette-classic-preview-wallbox: var(--palette-classic-light-wallbox);
+  --palette-classic-preview-heatpump: var(--palette-classic-light-heatpump);
+  --palette-modern-preview-battery: var(--palette-modern-light-battery);
+  --palette-modern-preview-house: var(--palette-modern-light-house);
+  --palette-modern-preview-wallbox: var(--palette-modern-light-wallbox);
+  --palette-modern-preview-heatpump: var(--palette-modern-light-heatpump);
+}
+
+/* ─── Sensor color theme tokens (Tailwind generates bg-sensor-* from these) */
+
+@theme {
+  /* Base sensor colors (default: classic light) */
+  --color-sensor-grid: var(--palette-classic-light-grid);
+  --color-sensor-pv: var(--palette-classic-light-pv);
+  --color-sensor-battery: var(--palette-classic-light-battery);
+  --color-sensor-revenue: var(--palette-classic-light-revenue);
+  --color-sensor-house: var(--palette-classic-light-house);
+  --color-sensor-heatpump: var(--palette-classic-light-heatpump);
+  --color-sensor-wallbox: var(--palette-classic-light-wallbox);
+  --color-sensor-heatpump-env: var(--palette-classic-light-heatpump-env);
+  --color-sensor-inverter-diff: var(--palette-classic-light-inverter-diff);
+  --color-sensor-costs: var(--palette-classic-light-costs);
+  --color-sensor-savings: var(--palette-classic-light-savings);
+  --color-sensor-co2: var(--palette-classic-light-co2);
+  --color-sensor-autarky: var(--palette-classic-light-autarky);
+  --color-sensor-heatpump-cop: var(--palette-classic-light-heatpump-cop);
+  --color-sensor-heatpump-heating: var(--palette-classic-light-heatpump-heating);
+  --color-sensor-forecast-clearsky: var(--palette-classic-light-forecast-clearsky);
+  --color-sensor-consumer-other: #d6dde7;
+
+  /* Signal colors for positive/warning/negative indicators (autarky badge,
+     trend arrows, signed values). Stays at light-mode brightness in dark mode
+     so text/arc remain readable on neutral badge background. */
+  --color-signal-negative: var(--color-sensor-grid);
+  --color-signal-warning: var(--palette-classic-light-autarky-mid);
+  --color-signal-positive: var(--color-sensor-pv);
+
+  /* Classic inverter shades (hardcoded — non-linear hue bias
+     can't be reproduced via color-mix) */
+  --color-sensor-inverter-1: #047857;
+  --color-sensor-inverter-2: #1d8668;
+  --color-sensor-inverter-3: #369379;
+  --color-sensor-inverter-4: #4fa189;
+  --color-sensor-inverter-5: #68ae9a;
+
+  /* Consumer shades (cool blue-gray, 20 steps)
+     Intentionally shared across palettes — consumers stay neutral
+     so they don't clash with the palette-specific sensor colors. */
+  --color-sensor-consumer-01: #c6d0dd;
+  --color-sensor-consumer-02: #c3cedb;
+  --color-sensor-consumer-03: #c1cbd8;
+  --color-sensor-consumer-04: #bec9d6;
+  --color-sensor-consumer-05: #bcc6d4;
+  --color-sensor-consumer-06: #b9c4d2;
+  --color-sensor-consumer-07: #b6c2d0;
+  --color-sensor-consumer-08: #b4bfce;
+  --color-sensor-consumer-09: #b1bdcc;
+  --color-sensor-consumer-10: #afbac9;
+  --color-sensor-consumer-11: #acb8c7;
+  --color-sensor-consumer-12: #aab5c5;
+  --color-sensor-consumer-13: #a7b3c3;
+  --color-sensor-consumer-14: #a4b1c1;
+  --color-sensor-consumer-15: #a2aebf;
+  --color-sensor-consumer-16: #9facbc;
+  --color-sensor-consumer-17: #9da9ba;
+  --color-sensor-consumer-18: #9aa7b8;
+  --color-sensor-consumer-19: #98a5b6;
+  --color-sensor-consumer-20: #95a2b4;
+}
+
+/* ─── Mode/palette overrides ───────── */
+
+@layer base {
+  .dark {
+    --color-sensor-grid: var(--palette-classic-dark-grid);
+    --color-sensor-pv: var(--palette-classic-dark-pv);
+    --color-sensor-battery: var(--palette-classic-dark-battery);
+    --color-sensor-revenue: var(--palette-classic-dark-revenue);
+    --color-sensor-house: var(--palette-classic-dark-house);
+    --color-sensor-heatpump: var(--palette-classic-dark-heatpump);
+    --color-sensor-wallbox: var(--palette-classic-dark-wallbox);
+    --color-sensor-heatpump-env: var(--palette-classic-dark-heatpump-env);
+    --color-sensor-inverter-diff: var(--palette-classic-dark-inverter-diff);
+    --color-sensor-costs: var(--palette-classic-dark-costs);
+    --color-sensor-savings: var(--palette-classic-dark-savings);
+    --color-sensor-co2: var(--palette-classic-dark-co2);
+    --color-sensor-autarky: var(--palette-classic-dark-autarky);
+    --color-sensor-heatpump-cop: var(--palette-classic-dark-heatpump-cop);
+    --color-sensor-heatpump-heating: var(--palette-classic-dark-heatpump-heating);
+    --color-sensor-forecast-clearsky: var(--palette-classic-dark-forecast-clearsky);
+
+    /* Signal colors: keep light-mode values for readability */
+    --color-signal-negative: var(--palette-classic-light-grid);
+    --color-signal-warning: var(--palette-classic-dark-autarky-mid);
+    --color-signal-positive: var(--palette-classic-light-pv);
+
+    --color-sensor-inverter-1: #047857;
+    --color-sensor-inverter-2: #056e52;
+    --color-sensor-inverter-3: #06654e;
+    --color-sensor-inverter-4: #075b4a;
+    --color-sensor-inverter-5: #085145;
+
+    --color-sensor-consumer-other: #19212f;
+    --color-sensor-consumer-01: #222d3f;
+    --color-sensor-consumer-02: #232f41;
+    --color-sensor-consumer-03: #253143;
+    --color-sensor-consumer-04: #273245;
+    --color-sensor-consumer-05: #293447;
+    --color-sensor-consumer-06: #2a3649;
+    --color-sensor-consumer-07: #2c384b;
+    --color-sensor-consumer-08: #2e3a4d;
+    --color-sensor-consumer-09: #303c4f;
+    --color-sensor-consumer-10: #313e51;
+    --color-sensor-consumer-11: #334053;
+    --color-sensor-consumer-12: #354155;
+    --color-sensor-consumer-13: #374357;
+    --color-sensor-consumer-14: #384559;
+    --color-sensor-consumer-15: #3a475b;
+    --color-sensor-consumer-16: #3c495d;
+    --color-sensor-consumer-17: #3e4b5f;
+    --color-sensor-consumer-18: #3f4d61;
+    --color-sensor-consumer-19: #414f63;
+    --color-sensor-consumer-20: #435065;
+
+    /* Preview swatches — dark mode values */
+    --palette-classic-preview-battery: var(--palette-classic-dark-battery);
+    --palette-classic-preview-house: var(--palette-classic-dark-house);
+    --palette-classic-preview-wallbox: var(--palette-classic-dark-wallbox);
+    --palette-classic-preview-heatpump: var(--palette-classic-dark-heatpump);
+    --palette-modern-preview-battery: var(--palette-modern-dark-battery);
+    --palette-modern-preview-house: var(--palette-modern-dark-house);
+    --palette-modern-preview-wallbox: var(--palette-modern-dark-wallbox);
+    --palette-modern-preview-heatpump: var(--palette-modern-dark-heatpump);
+  }
+
+  /* Modern overrides — inverter shades computed via color-mix() from PV base */
+
+  .palette-modern {
+    --color-sensor-grid: var(--palette-modern-light-grid);
+    --color-sensor-pv: var(--palette-modern-light-pv);
+    --color-sensor-battery: var(--palette-modern-light-battery);
+    --color-sensor-revenue: var(--palette-modern-light-revenue);
+    --color-sensor-house: var(--palette-modern-light-house);
+    --color-sensor-heatpump: var(--palette-modern-light-heatpump);
+    --color-sensor-wallbox: var(--palette-modern-light-wallbox);
+    --color-sensor-heatpump-env: var(--palette-modern-light-heatpump-env);
+    --color-sensor-inverter-diff: var(--palette-modern-light-inverter-diff);
+    --color-sensor-costs: var(--palette-modern-light-costs);
+    --color-sensor-savings: var(--palette-modern-light-savings);
+    --color-sensor-co2: var(--palette-modern-light-co2);
+    --color-sensor-autarky: var(--palette-modern-light-autarky);
+    --color-sensor-heatpump-cop: var(--palette-modern-light-heatpump-cop);
+    --color-sensor-heatpump-heating: var(--palette-modern-light-heatpump-heating);
+    --color-sensor-forecast-clearsky: var(--palette-modern-light-forecast-clearsky);
+
+    --color-signal-warning: var(--palette-modern-light-autarky-mid);
+
+    --color-sensor-inverter-1: var(--color-sensor-pv);
+    --color-sensor-inverter-2: color-mix(in oklch, var(--color-sensor-pv) 92%, black);
+    --color-sensor-inverter-3: color-mix(in oklch, var(--color-sensor-pv) 84%, black);
+    --color-sensor-inverter-4: color-mix(in oklch, var(--color-sensor-pv) 76%, black);
+    --color-sensor-inverter-5: color-mix(in oklch, var(--color-sensor-pv) 68%, black);
+  }
+
+  .dark.palette-modern {
+    --color-sensor-grid: var(--palette-modern-dark-grid);
+    --color-sensor-pv: var(--palette-modern-dark-pv);
+    --color-sensor-battery: var(--palette-modern-dark-battery);
+    --color-sensor-revenue: var(--palette-modern-dark-revenue);
+    --color-sensor-house: var(--palette-modern-dark-house);
+    --color-sensor-heatpump: var(--palette-modern-dark-heatpump);
+    --color-sensor-wallbox: var(--palette-modern-dark-wallbox);
+    --color-sensor-heatpump-env: var(--palette-modern-dark-heatpump-env);
+    --color-sensor-inverter-diff: var(--palette-modern-dark-inverter-diff);
+    --color-sensor-costs: var(--palette-modern-dark-costs);
+    --color-sensor-savings: var(--palette-modern-dark-savings);
+    --color-sensor-co2: var(--palette-modern-dark-co2);
+    --color-sensor-autarky: var(--palette-modern-dark-autarky);
+    --color-sensor-heatpump-cop: var(--palette-modern-dark-heatpump-cop);
+    --color-sensor-heatpump-heating: var(--palette-modern-dark-heatpump-heating);
+    --color-sensor-forecast-clearsky: var(--palette-modern-dark-forecast-clearsky);
+
+    /* Signal colors: keep light-mode values for readability */
+    --color-signal-negative: var(--palette-modern-light-grid);
+    --color-signal-warning: var(--palette-modern-dark-autarky-mid);
+    --color-signal-positive: var(--palette-modern-light-pv);
+
+    --color-sensor-inverter-1: var(--color-sensor-pv);
+    --color-sensor-inverter-2: color-mix(in oklch, var(--color-sensor-pv) 92%, black);
+    --color-sensor-inverter-3: color-mix(in oklch, var(--color-sensor-pv) 84%, black);
+    --color-sensor-inverter-4: color-mix(in oklch, var(--color-sensor-pv) 76%, black);
+    --color-sensor-inverter-5: color-mix(in oklch, var(--color-sensor-pv) 68%, black);
+  }
+}

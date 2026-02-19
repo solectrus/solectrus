@@ -1,8 +1,8 @@
 class Sensor::Definitions::InverterPowerTotal < Sensor::Definitions::Base
   value unit: :watt
 
-  color background: 'bg-emerald-600 dark:bg-emerald-800',
-        text: 'text-emerald-100 dark:text-emerald-400'
+  color background: 'bg-sensor-pv',
+        text: 'text-white dark:text-slate-400'
 
   depends_on do
     (1..Sensor::Definitions::CustomInverterPower::MAX).filter_map do |number|

@@ -1,8 +1,8 @@
 class Sensor::Definitions::Co2Reduction < Sensor::Definitions::Base
   value unit: :gram
 
-  color background: 'bg-sky-600 dark:bg-sky-800',
-        text: 'text-white dark:text-sky-200'
+  color background: 'bg-sensor-co2',
+        text: 'text-white dark:text-slate-400'
 
   icon 'fa-leaf'
 

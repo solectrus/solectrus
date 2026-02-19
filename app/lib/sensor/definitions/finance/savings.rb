@@ -1,8 +1,8 @@
 class Sensor::Definitions::Savings < Sensor::Definitions::Base
   value unit: :euro, category: :economic
 
-  color background: 'bg-indigo-600 dark:bg-indigo-900',
-        text: 'text-indigo-100 dark:text-indigo-400'
+  color background: 'bg-sensor-savings',
+        text: 'text-white dark:text-slate-400'
 
   icon 'fa-piggy-bank'
 

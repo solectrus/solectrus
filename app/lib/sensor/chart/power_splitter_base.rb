@@ -1,7 +1,4 @@
 class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
-  SPLITTER_MAIN_COLOR = 'bg-slate-600 dark:bg-slate-600'.freeze
-  private_constant :SPLITTER_MAIN_COLOR
-
   private
 
   # Override chart_sensor_names to include power splitting sensors if available
@@ -13,13 +10,12 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
     end
   end
 
-  # Override datasets to provide custom styling and stacking
-  # Always use consistent color regardless of which sensor is selected
+  # Override datasets to provide custom styling and stacking for split power sources
   def datasets(chart_data_items)
     if splitting_allowed?
       build_splitted_datasets(chart_data_items)
     else
-      super.each { |ds| ds[:colorClass] = SPLITTER_MAIN_COLOR }
+      super
     end
   end
 
@@ -50,6 +46,7 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
       borderSkipped: false,
       pointRadius: 0,
       pointHoverRadius: 5,
+      noGradient: true,
     }
   end
 
@@ -74,11 +71,10 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
 
   def build_main_dataset(chart_data_item)
     {
-      # Gray consumption sidebar
       **base_style,
       id: chart_sensors.first.name,
       data: chart_data_item[:data],
-      colorClass: SPLITTER_MAIN_COLOR,
+      colorClass: Sensor::Registry[base_sensor_name].color_chart,
       barPercentage: 0.7,
       categoryPercentage: 0.7,
       borderRadius: {
@@ -96,7 +92,6 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
 
   def build_grid_dataset(chart_data_item)
     {
-      # Red grid portion
       **base_style,
       id: chart_sensors.second.name,
       label: I18n.t('splitter.grid'),
@@ -114,7 +109,6 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
 
   def build_pv_dataset(chart_data_item)
     {
-      # Green PV portion
       **base_style,
       id: chart_sensors.third.name,
       label: I18n.t('splitter.pv'),

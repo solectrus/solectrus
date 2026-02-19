@@ -6,11 +6,11 @@
         =< t('.generated')
       .w-full.flex.gap-px.rounded.overflow-hidden
         - if power_pv_ratio.positive?
-          .h-2.bg-emerald-600.dark:bg-emerald-700[
+          .h-2.bg-sensor-pv[
             style= "width: #{power_pv_ratio}%;"
           ]
         - if power_grid_ratio.positive?
-          .h-2.bg-red-600.dark:bg-red-700[
+          .h-2.bg-sensor-grid[
             style= "width: #{power_grid_ratio}%;"
           ]
 

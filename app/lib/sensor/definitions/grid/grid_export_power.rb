@@ -1,7 +1,7 @@
 class Sensor::Definitions::GridExportPower < Sensor::Definitions::Base
   value unit: :watt, category: :grid
 
-  color background: 'bg-sensor-pv',
+  color background: 'bg-sensor-revenue',
         text: 'text-white dark:text-slate-400'
 
   icon 'fa-bolt'

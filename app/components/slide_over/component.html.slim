@@ -57,8 +57,9 @@
             .relative.mt-6.flex-1
               = content
 
-            - unless ThemeConfig.x.static?
-              .mx-auto.mb-10
+            .mx-auto.mb-16.flex.flex-col.items-center.gap-6
+              = render ColorPaletteSelector::Component.new
+              - unless ThemeConfig.x.static?
                 = render ThemeSelector::Component.new
 
             - if UpdateCheck.prompt? && !current_page?(sponsoring_path)

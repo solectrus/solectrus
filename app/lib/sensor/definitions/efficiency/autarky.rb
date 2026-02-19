@@ -2,34 +2,19 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
   value unit: :percent
 
   color do |percent|
-    # Autarky color scheme: 0-33% red, 34-66% orange, 67-100% green
-    if percent.nil?
-      # Default for nil - neutral color
-      {
-        background: 'bg-emerald-700 dark:bg-emerald-900',
-        text: 'text-emerald-200 dark:text-emerald-400',
-        border: '',
-      }
-    elsif percent >= 67
-      {
-        background: 'xl:tall:bg-emerald-200 dark:xl:tall:bg-emerald-900',
-        text: 'text-emerald-600 dark:text-emerald-600 xl:tall:dark:text-inherit',
-        border: '',
-      }
-    elsif percent >= 34
-      {
-        background: 'xl:tall:bg-orange-200 dark:xl:tall:bg-amber-900',
-        text: 'text-orange-600 dark:text-orange-600 xl:tall:dark:text-inherit',
-        border: '',
-      }
-    else
-      # 0-33%: red
-      {
-        background: 'xl:tall:bg-red-200 dark:xl:tall:bg-sensor-grid',
-        text: 'text-red-600 dark:text-red-600 xl:tall:dark:text-inherit',
-        border: '',
-      }
-    end
+    # Autarky color scheme: always neutral background, text/arc color depends on value
+    background = 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800'
+
+    text =
+      if percent.nil? || percent >= 67
+        'text-signal-positive'
+      elsif percent >= 34
+        'text-signal-warning'
+      else
+        'text-signal-negative'
+      end
+
+    { background:, text:, border: '' }
   end
 
   depends_on :grid_import_power, :total_consumption

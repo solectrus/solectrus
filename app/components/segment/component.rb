@@ -205,11 +205,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def default_color_class
-    # Special case: house_power_without_custom has hardcoded semi-transparent color
-    if sensor.name == :house_power_without_custom
-      return 'bg-white/20 dark:bg-black/20 text-slate-700 dark:text-slate-400'
-    end
-
     # House sensors (custom_power_*) use dynamic index for color intensity
     if house? && color_index
       [

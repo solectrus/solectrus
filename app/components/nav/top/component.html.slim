@@ -74,8 +74,9 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller='slide-ov
         - secondary_items.each do |item|
           = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
 
-      - unless ThemeConfig.x.static?
-        .flex.justify-center.pt-5.pb-3.border-t.border-indigo-300/25
+      .flex.justify-center.items-stretch.gap-4.pt-5.pb-3.border-t.border-indigo-300/25
+        = render ColorPaletteSelector::Component.new
+        - unless ThemeConfig.x.static?
           = render ThemeSelector::Component.new
 
       - if UpdateCheck.prompt? && !current_page?(sponsoring_path)

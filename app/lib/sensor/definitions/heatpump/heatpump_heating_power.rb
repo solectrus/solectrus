@@ -1,8 +1,8 @@
 class Sensor::Definitions::HeatpumpHeatingPower < Sensor::Definitions::Base
   value unit: :watt, category: :heatpump
 
-  color background: 'bg-orange-500 dark:bg-orange-700',
-        text: 'text-white dark:text-orange-100'
+  color background: 'bg-sensor-heatpump-heating',
+        text: 'text-white dark:text-slate-400'
 
   aggregations stored: [:sum], top10: true
 

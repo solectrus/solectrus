@@ -38,9 +38,9 @@ class SensorValue::Component < ViewComponent::Base
     # Add red/green color based on sign option
     case sign
     when :positive
-      classes << 'text-emerald-700 dark:text-emerald-500'
+      classes << 'text-signal-positive'
     when :negative
-      classes << 'text-red-700 dark:text-red-500'
+      classes << 'text-signal-negative'
     when :neutral
       # No color added
     end

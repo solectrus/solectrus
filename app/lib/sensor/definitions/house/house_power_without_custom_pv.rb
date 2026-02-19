@@ -1,8 +1,8 @@
 class Sensor::Definitions::HousePowerWithoutCustomPv < Sensor::Definitions::Base
   value unit: :watt, range: (0..), category: :power_splitter
 
-  color background: 'bg-emerald-600 dark:bg-emerald-800',
-        text: 'text-emerald-100 dark:text-emerald-400'
+  color background: 'bg-sensor-pv',
+        text: 'text-white dark:text-slate-400'
 
   depends_on :house_power_pv, :custom_power_total_pv
 

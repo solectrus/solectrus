@@ -21,6 +21,7 @@ export default class extends Controller<HTMLElement> {
   readonly lightThemeColor = '#a5b4fc';
 
   private boundHandleColorSchemeChange?: () => void;
+  private boundHandleMorph?: () => void;
   private lastIsDark?: boolean;
   private colorSchemeChangeTimeout?: ReturnType<typeof setTimeout>;
 
@@ -40,6 +41,9 @@ export default class extends Controller<HTMLElement> {
       'change',
       this.boundHandleColorSchemeChange,
     );
+
+    this.boundHandleMorph = this.apply.bind(this);
+    document.addEventListener('turbo:morph', this.boundHandleMorph);
   }
 
   removeListeners() {
@@ -48,6 +52,9 @@ export default class extends Controller<HTMLElement> {
         'change',
         this.boundHandleColorSchemeChange,
       );
+
+    if (this.boundHandleMorph)
+      document.removeEventListener('turbo:morph', this.boundHandleMorph);
   }
 
   handleColorSchemeChange() {

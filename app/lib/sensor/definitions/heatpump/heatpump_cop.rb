@@ -1,8 +1,8 @@
 class Sensor::Definitions::HeatpumpCop < Sensor::Definitions::Base
   value unit: :unitless, category: :heatpump
 
-  color background: 'bg-sky-700 dark:bg-sky-700',
-        text: 'text-white dark:text-sky-200'
+  color background: 'bg-sensor-heatpump-cop',
+        text: 'text-white dark:text-amber-200'
 
   depends_on :heatpump_power, :heatpump_heating_power
 

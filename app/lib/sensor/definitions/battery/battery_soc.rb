@@ -14,21 +14,21 @@ class Sensor::Definitions::BatterySoc < Sensor::Definitions::Base
       # 0-5%: red (critical battery)
       {
         background: 'xl:tall:bg-red-200 dark:xl:tall:bg-red-900',
-        text: 'text-red-600 dark:text-red-600',
+        text: 'text-red-600 dark:text-red-600 xl:tall:dark:text-inherit',
         border: 'border-red-200 dark:border-red-900',
       }
     elsif percent <= 20
       # 6-20%: orange/yellow (low battery)
       {
         background: 'xl:tall:bg-orange-200 dark:xl:tall:bg-amber-900',
-        text: 'text-orange-600 dark:text-orange-600',
+        text: 'text-orange-600 dark:text-orange-600 xl:tall:dark:text-inherit',
         border: 'border-orange-200 dark:border-amber-900',
       }
     else
       # 21-100%: green (good battery level)
       {
         background: 'xl:tall:bg-emerald-200 dark:xl:tall:bg-emerald-900',
-        text: 'text-emerald-600 dark:text-emerald-600',
+        text: 'text-emerald-600 dark:text-emerald-600 xl:tall:dark:text-inherit',
         border: 'border-emerald-200 dark:border-emerald-900',
       }
     end

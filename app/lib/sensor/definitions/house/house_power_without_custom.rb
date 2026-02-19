@@ -1,8 +1,8 @@
 class Sensor::Definitions::HousePowerWithoutCustom < Sensor::Definitions::Base
   value unit: :watt, range: (0..), category: :consumer
 
-  color background: 'bg-slate-500 dark:bg-slate-700',
-        text: 'text-slate-100 dark:text-slate-400'
+  color background: 'bg-sensor-consumer-other',
+        text: 'text-slate-700 dark:text-slate-400'
 
   icon 'fa-home'
 
