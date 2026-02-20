@@ -1,12 +1,12 @@
 import { Controller } from '@hotwired/stimulus';
 
-type ColorPalette = 'modern' | 'classic';
+type ColorPalette = 'contrast' | 'standard';
 
 export default class extends Controller<HTMLElement> {
-  static readonly targets = ['inputClassic', 'inputModern'];
+  static readonly targets = ['inputStandard', 'inputContrast'];
 
-  declare readonly inputClassicTargets: HTMLInputElement[];
-  declare readonly inputModernTargets: HTMLInputElement[];
+  declare readonly inputStandardTargets: HTMLInputElement[];
+  declare readonly inputContrastTargets: HTMLInputElement[];
 
   private boundHandleMorph?: () => void;
 
@@ -23,13 +23,13 @@ export default class extends Controller<HTMLElement> {
       document.removeEventListener('turbo:morph', this.boundHandleMorph);
   }
 
-  classic() {
-    this.colorPalette = 'classic';
+  standard() {
+    this.colorPalette = 'standard';
     this.apply();
   }
 
-  modern() {
-    this.colorPalette = 'modern';
+  contrast() {
+    this.colorPalette = 'contrast';
     this.apply();
   }
 
@@ -44,30 +44,30 @@ export default class extends Controller<HTMLElement> {
   }
 
   private updateButtons() {
-    for (const input of this.inputClassicTargets) {
-      input.checked = this.colorPalette === 'classic';
+    for (const input of this.inputStandardTargets) {
+      input.checked = this.colorPalette === 'standard';
     }
 
-    for (const input of this.inputModernTargets) {
-      input.checked = this.colorPalette === 'modern';
+    for (const input of this.inputContrastTargets) {
+      input.checked = this.colorPalette === 'contrast';
     }
   }
 
   private updateHtmlClass() {
     document.documentElement.classList.toggle(
-      'palette-modern',
-      this.colorPalette === 'modern',
+      'palette-contrast',
+      this.colorPalette === 'contrast',
     );
   }
 
   get colorPalette(): ColorPalette {
     const stored = localStorage.getItem('colorPalette');
-    if (stored === 'modern') return 'modern';
-    return 'classic';
+    if (stored === 'contrast') return 'contrast';
+    return 'standard';
   }
 
   set colorPalette(value: ColorPalette) {
-    if (value === 'classic') {
+    if (value === 'standard') {
       localStorage.removeItem('colorPalette');
       return;
     }

@@ -5,38 +5,38 @@ form.flex.items-center.justify-center.gap-4.w-40.p-2.rounded-xl.bg-indigo-200.lg
 ]
   label.cursor-pointer[
     class= ('pointer-events-none' unless ApplicationPolicy.themes?)
-    title= t('.classic')
+    title= t('.standard')
     data-controller= 'tooltip'
     data-tooltip-placement-value= 'top'
   ]
     input.sr-only.peer[
       type= 'radio'
       name= 'colorPalette'
-      value= 'classic'
-      data-action= 'color-palette-selector--component#classic toggle#hide'
-      data-color-palette-selector--component-target= 'inputClassic'
+      value= 'standard'
+      data-action= 'color-palette-selector--component#standard toggle#hide'
+      data-color-palette-selector--component-target= 'inputStandard'
     ]
     .grid.grid-cols-2.gap-1.rounded-lg.p-2.peer-checked:bg-white.dark:peer-checked:bg-gray-700/60.hover:bg-gray-100.dark:hover:bg-gray-800.transition-colors
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-classic-preview-battery)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-classic-preview-house)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-classic-preview-wallbox)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-classic-preview-heatpump)"
+      .w-5.h-3.rounded-sm style="background-color: var(--palette-standard-preview-battery)"
+      .w-5.h-3.rounded-sm style="background-color: var(--palette-standard-preview-house)"
+      .w-5.h-3.rounded-sm style="background-color: var(--palette-standard-preview-wallbox)"
+      .w-5.h-3.rounded-sm style="background-color: var(--palette-standard-preview-heatpump)"
 
   label.cursor-pointer[
     class= ('pointer-events-none' unless ApplicationPolicy.themes?)
-    title= t('.modern')
+    title= t('.contrast')
     data-controller= 'tooltip'
     data-tooltip-placement-value= 'top'
   ]
     input.sr-only.peer[
       type= 'radio'
       name= 'colorPalette'
-      value= 'modern'
-      data-action= 'color-palette-selector--component#modern toggle#hide'
-      data-color-palette-selector--component-target= 'inputModern'
+      value= 'contrast'
+      data-action= 'color-palette-selector--component#contrast toggle#hide'
+      data-color-palette-selector--component-target= 'inputContrast'
     ]
     .grid.grid-cols-2.gap-1.rounded-lg.p-2.peer-checked:bg-white.dark:peer-checked:bg-gray-700/60.hover:bg-gray-100.dark:hover:bg-gray-800.transition-colors
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-modern-preview-battery)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-modern-preview-house)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-modern-preview-wallbox)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-modern-preview-heatpump)"
+      .w-5.h-3.rounded-sm style="background-color: var(--palette-contrast-preview-battery)"
+      .w-5.h-3.rounded-sm style="background-color: var(--palette-contrast-preview-house)"
+      .w-5.h-3.rounded-sm style="background-color: var(--palette-contrast-preview-wallbox)"
+      .w-5.h-3.rounded-sm style="background-color: var(--palette-contrast-preview-heatpump)"
