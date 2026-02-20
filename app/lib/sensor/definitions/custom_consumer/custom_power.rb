@@ -62,14 +62,23 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
 
   color do |index|
     # Choose color set based on total number of custom sensors
-    total_sensors = Sensor::Config.house_power_included_custom_sensors.length
+    sensors = Sensor::Config.house_power_included_custom_sensors
     backgrounds =
-      total_sensors <= 10 ? COLOR_BACKGROUNDS_10 : COLOR_BACKGROUNDS_20
+      sensors.length <= 10 ? COLOR_BACKGROUNDS_10 : COLOR_BACKGROUNDS_20
 
-    # Use provided index (for dynamic sorting by consumption) or @number (static)
-    effective_index = index || @number
+    # Use provided index (for dynamic sorting by consumption),
+    # or position among configured sensors (1-based).
+    # @number can't be used directly because sensor numbers may be non-contiguous
+    # (e.g. consumer 11 with only 5 configured consumers would cause out-of-bounds).
+    position = sensors.index { |s| s.name == name }
+    effective_index = index || (position ? position + 1 : 1)
 
     { background: backgrounds[effective_index - 1], text: COLOR_TEXT }
+  end
+
+  # All consumer charts use the same house color (individual shades are for segments only)
+  def color_chart(**)
+    'bg-sensor-house'
   end
 
   chart do |timeframe, variant: nil|
