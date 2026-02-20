@@ -74,8 +74,8 @@ describe RadialBadge::Component, type: :component do
 
       before { render_inline(component) }
 
-      it 'renders component with red border' do
-        expect(page).to have_css '.badge.border-red-200', text: '0%'
+      it 'renders component with negative signal color' do
+        expect(page).to have_css '.badge.text-signal-negative', text: '0%'
       end
     end
 
@@ -85,8 +85,8 @@ describe RadialBadge::Component, type: :component do
 
       before { render_inline(component) }
 
-      it 'renders component with red border' do
-        expect(page).to have_css '.badge.border-red-200', text: '4%'
+      it 'renders component with negative signal color' do
+        expect(page).to have_css '.badge.text-signal-negative', text: '4%'
       end
     end
 
@@ -96,8 +96,8 @@ describe RadialBadge::Component, type: :component do
 
       before { render_inline(component) }
 
-      it 'renders component with orange/yellow border' do
-        expect(page).to have_css '.badge.border-orange-200', text: '10%'
+      it 'renders component with warning signal color' do
+        expect(page).to have_css '.badge.text-signal-warning', text: '10%'
       end
     end
 
@@ -107,8 +107,8 @@ describe RadialBadge::Component, type: :component do
 
       before { render_inline(component) }
 
-      it 'renders component with green border' do
-        expect(page).to have_css '.badge.border-emerald-200', text: '50%'
+      it 'renders component with positive signal color' do
+        expect(page).to have_css '.badge.text-signal-positive', text: '50%'
       end
     end
   end

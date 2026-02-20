@@ -119,7 +119,7 @@ describe EssentialsTile::Component, type: :component do
     end
 
     it 'returns the correct background color' do
-      expect(component.background_color).to eq 'bg-sky-400 dark:bg-sky-600'
+      expect(component.background_color).to eq 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800'
     end
   end
 end

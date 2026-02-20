@@ -2,36 +2,19 @@ class Sensor::Definitions::BatterySoc < Sensor::Definitions::Base
   value unit: :percent, category: :battery, nameable: true
 
   color do |percent|
-    # Battery color scheme: 0-4% red, 5-20% orange/yellow, 21-100% green
-    if percent.nil?
-      # Default for nil - neutral/no data
-      {
-        background: 'bg-sky-400 dark:bg-sky-600',
-        text: 'text-sky-100 dark:text-sky-400',
-        border: 'border-transparent',
-      }
-    elsif percent <= 5
-      # 0-5%: red (critical battery)
-      {
-        background: 'xl:tall:bg-red-200 dark:xl:tall:bg-red-900',
-        text: 'text-red-600 dark:text-red-600 xl:tall:dark:text-inherit',
-        border: 'border-red-200 dark:border-red-900',
-      }
-    elsif percent <= 20
-      # 6-20%: orange/yellow (low battery)
-      {
-        background: 'xl:tall:bg-orange-200 dark:xl:tall:bg-amber-900',
-        text: 'text-orange-600 dark:text-orange-600 xl:tall:dark:text-inherit',
-        border: 'border-orange-200 dark:border-amber-900',
-      }
-    else
-      # 21-100%: green (good battery level)
-      {
-        background: 'xl:tall:bg-emerald-200 dark:xl:tall:bg-emerald-900',
-        text: 'text-emerald-600 dark:text-emerald-600 xl:tall:dark:text-inherit',
-        border: 'border-emerald-200 dark:border-emerald-900',
-      }
-    end
+    # Battery color scheme: always neutral background, arc color depends on value
+    background = 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800'
+
+    text =
+      if percent.nil? || percent > 20
+        'text-signal-positive'
+      elsif percent > 5
+        'text-signal-warning'
+      else
+        'text-signal-negative'
+      end
+
+    { background:, text:, border: '' }
   end
 
   icon do |data|
