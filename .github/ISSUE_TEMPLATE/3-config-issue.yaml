@@ -37,7 +37,7 @@ body:
   - type: textarea
     id: compose
     attributes:
-      label: Dein vollständiges `docker-compose.yml` oder `compose.yml`
+      label: Dein vollständiges `docker-compose.yml` oder `compose.yaml`
       render: yaml
       placeholder: |
         z.B.:
