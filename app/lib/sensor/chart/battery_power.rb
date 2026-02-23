@@ -1,4 +1,9 @@
 class Sensor::Chart::BatteryPower < Sensor::Chart::Base
+  # Bars grow in opposite directions (not stacked), so gradient looks good
+  def style_for_sensor(sensor)
+    super.merge(noGradient: false)
+  end
+
   private
 
   def chart_sensor_names
