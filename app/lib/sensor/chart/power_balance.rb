@@ -170,7 +170,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
         tension: 0.4,
         cubicInterpolationMode: 'monotone',
         borderWidth: 0.3,
-        colorClass: sensor.color_chart,
+        colorClass: sensor.color_background,
         fill: true,
         noGradient: sensor.hatch_fill?,
         hatchFill: sensor.hatch_fill?,
@@ -219,7 +219,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
       borderWidth: 1,
       pointRadius: 0,
       pointHoverRadius: 5,
-      colorClass: sensor.color_chart,
+      colorClass: sensor.color_background,
       borderRadius: (3 if type == 'bar'),
     }.compact
   end

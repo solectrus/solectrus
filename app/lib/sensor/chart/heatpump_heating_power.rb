@@ -77,7 +77,7 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
         id: sensor.name,
         label: sensor.display_name,
         data: chart_data[:data],
-        colorClass: sensor.color_chart,
+        colorClass: sensor.color_background,
         borderWidth: 1,
         stack: 'HeatingPower',
         borderRadius: (timeframe.short? ? nil : BORDER_RADIUS[sensor.name]),

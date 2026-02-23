@@ -4,11 +4,6 @@ class Sensor::Definitions::HousePowerWithoutCustom < Sensor::Definitions::Base
   color background: 'bg-sensor-consumer-other',
         text: 'text-slate-700 dark:text-slate-400'
 
-  # Chart uses house color (consumer-other shade is for segments only)
-  def color_chart(**)
-    'bg-sensor-house'
-  end
-
   icon 'fa-home'
 
   depends_on :house_power, :custom_power_total

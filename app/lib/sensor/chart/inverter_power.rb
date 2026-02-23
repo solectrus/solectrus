@@ -134,7 +134,7 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
         borderWidth: 1,
         borderDash: [2, 3], # Dotted line pattern
         fill: false,
-        colorClass: sensor.color_chart,
+        colorClass: sensor.color_background,
       }
     when :inverter_power_forecast
       timeframe.today? ? hatched_forecast_style(sensor) : super
@@ -151,7 +151,7 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
       tension: 0.4,
       cubicInterpolationMode: 'monotone',
       borderWidth: 0.3,
-      colorClass: sensor.color_chart,
+      colorClass: sensor.color_background,
       fill: true,
       noGradient: true,
       hatchFill: true,

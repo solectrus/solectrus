@@ -202,7 +202,7 @@ class Sensor::Chart::HeatpumpCopScatter < Sensor::Chart::Base # rubocop:disable 
       id: 'cop_scatter',
       label: I18n.t('charts.cop_scatter'),
       data: points,
-      colorClass: cop_sensor.color_chart,
+      colorClass: cop_sensor.color_background,
       borderWidth: 1,
       pointRadius: radii,
       pointHoverRadius: radii,

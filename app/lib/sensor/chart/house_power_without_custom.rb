@@ -1,4 +1,8 @@
 class Sensor::Chart::HousePowerWithoutCustom < Sensor::Chart::PowerSplitterBase
+  def color_class(_sensor)
+    'bg-sensor-house'
+  end
+
   private
 
   def base_sensor_name

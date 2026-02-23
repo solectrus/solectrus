@@ -76,11 +76,6 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
     { background: backgrounds[effective_index - 1], text: COLOR_TEXT }
   end
 
-  # All consumer charts use the same house color (individual shades are for segments only)
-  def color_chart(**)
-    'bg-sensor-house'
-  end
-
   chart do |timeframe, variant: nil|
     Sensor::Chart::CustomPower.new(timeframe:, sensor_name: name, variant:)
   end

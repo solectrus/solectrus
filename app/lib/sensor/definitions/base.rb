@@ -81,10 +81,6 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     data ? data[:border] : evaluate_config_value(:color_border)
   end
 
-  def color_chart(index: nil, value: nil)
-    color_background(index:, value:)
-  end
-
   def color_scale
     scale = self.class.meta_data[:color_background_scale]
     return unless scale&.any?

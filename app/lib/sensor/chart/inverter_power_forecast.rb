@@ -82,7 +82,7 @@ module Sensor
             borderWidth: 1,
             borderDash: [2, 3],
             fill: false,
-            colorClass: sensor.color_chart,
+            colorClass: sensor.color_background,
             tooltip: false,
             pointHoverRadius: 0,
           }
