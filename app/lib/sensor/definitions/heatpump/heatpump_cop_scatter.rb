@@ -1,5 +1,5 @@
 class Sensor::Definitions::HeatpumpCopScatter < Sensor::Definitions::Base
-  value unit: :unitless, category: :heatpump
+  value unit: :unitless, range: (0..), category: :heatpump
 
   depends_on :heatpump_cop, :outdoor_temp, :heatpump_power
 

@@ -1,5 +1,5 @@
 class Sensor::Definitions::TotalConsumption < Sensor::Definitions::Base
-  value unit: :watt
+  value unit: :watt, range: (0..)
 
   depends_on do
     [

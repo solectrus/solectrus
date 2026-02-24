@@ -1,5 +1,5 @@
 class Sensor::Definitions::Co2Reduction < Sensor::Definitions::Base
-  value unit: :gram
+  value unit: :gram, range: (0..)
 
   color background: 'bg-sensor-co2',
         text: 'text-white dark:text-slate-400'

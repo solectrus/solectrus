@@ -1,5 +1,5 @@
 class Sensor::Definitions::SelfConsumption < Sensor::Definitions::Base
-  value unit: :watt
+  value unit: :watt, range: (0..)
 
   depends_on :inverter_power, :grid_export_power
 

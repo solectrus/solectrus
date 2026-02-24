@@ -1,5 +1,5 @@
 class Sensor::Definitions::Autarky < Sensor::Definitions::Base
-  value unit: :percent
+  value unit: :percent, range: (0..100)
 
   color do |percent|
     # Autarky color scheme: always neutral background, text/arc color depends on value

@@ -12,7 +12,7 @@ class Sensor::Definitions::CustomPowerPv < Sensor::Definitions::Base
     :"custom_power_#{formatted_number}_pv"
   end
 
-  value unit: :watt, category: :power_splitter
+  value unit: :watt, range: (0..), category: :power_splitter
 
   color background: 'bg-sensor-pv',
         text: 'text-white dark:text-slate-400'

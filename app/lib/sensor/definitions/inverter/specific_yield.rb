@@ -1,5 +1,5 @@
 class Sensor::Definitions::SpecificYield < Sensor::Definitions::Base
-  value unit: :watt, category: :inverter
+  value unit: :watt, range: (0..), category: :inverter
 
   depends_on :inverter_power
 

@@ -1,5 +1,5 @@
 class Sensor::Definitions::BatterySoc < Sensor::Definitions::Base
-  value unit: :percent, category: :battery, nameable: true
+  value unit: :percent, range: (0..100), category: :battery, nameable: true
 
   color do |percent|
     # Battery color scheme: always neutral background, arc color depends on value

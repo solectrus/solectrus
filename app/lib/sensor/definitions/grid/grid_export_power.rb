@@ -1,5 +1,5 @@
 class Sensor::Definitions::GridExportPower < Sensor::Definitions::Base
-  value unit: :watt, category: :grid
+  value unit: :watt, range: (0..), category: :grid
 
   color background: 'bg-sensor-revenue',
         text: 'text-white dark:text-slate-400'

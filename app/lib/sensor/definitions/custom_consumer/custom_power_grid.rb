@@ -12,7 +12,7 @@ class Sensor::Definitions::CustomPowerGrid < Sensor::Definitions::Base
     :"custom_power_#{formatted_number}_grid"
   end
 
-  value unit: :watt, category: :power_splitter
+  value unit: :watt, range: (0..), category: :power_splitter
 
   color background: 'bg-sensor-grid',
         text: 'text-white dark:text-slate-400'

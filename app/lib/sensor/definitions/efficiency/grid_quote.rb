@@ -1,5 +1,5 @@
 class Sensor::Definitions::GridQuote < Sensor::Definitions::Base
-  value unit: :percent
+  value unit: :percent, range: (0..100)
 
   depends_on :total_consumption, :grid_import_power, :inverter_power
 

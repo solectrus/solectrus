@@ -1,5 +1,5 @@
 class Sensor::Definitions::WallboxPowerPv < Sensor::Definitions::Base
-  value unit: :watt, category: :power_splitter
+  value unit: :watt, range: (0..), category: :power_splitter
 
   color background: 'bg-sensor-pv',
         text: 'text-white dark:text-slate-400'

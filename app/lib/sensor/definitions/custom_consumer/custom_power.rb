@@ -11,7 +11,7 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
     :"custom_power_#{format('%02d', @number)}"
   end
 
-  value unit: :watt, category: :consumer, nameable: true
+  value unit: :watt, range: (0..), category: :consumer, nameable: true
 
   aggregations stored: [:sum], top10: true
   trend

@@ -1,5 +1,5 @@
 class Sensor::Definitions::InverterPowerTotal < Sensor::Definitions::Base
-  value unit: :watt
+  value unit: :watt, range: (0..)
 
   color background: 'bg-sensor-pv',
         text: 'text-white dark:text-slate-400'

@@ -1,5 +1,5 @@
 class Sensor::Definitions::HeatpumpCop < Sensor::Definitions::Base
-  value unit: :unitless, category: :heatpump
+  value unit: :unitless, range: (0..), category: :heatpump
 
   color background: 'bg-sensor-heatpump-cop',
         text: 'text-white dark:text-amber-200'

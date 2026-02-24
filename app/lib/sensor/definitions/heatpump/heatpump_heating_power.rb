@@ -1,5 +1,5 @@
 class Sensor::Definitions::HeatpumpHeatingPower < Sensor::Definitions::Base
-  value unit: :watt, category: :heatpump
+  value unit: :watt, range: (0..), category: :heatpump
 
   color background: 'bg-sensor-heatpump-heating',
         text: 'text-white dark:text-slate-400'

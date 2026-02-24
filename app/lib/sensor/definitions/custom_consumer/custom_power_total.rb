@@ -1,5 +1,5 @@
 class Sensor::Definitions::CustomPowerTotal < Sensor::Definitions::Base
-  value unit: :watt
+  value unit: :watt, range: (0..)
 
   depends_on { Sensor::Config.house_power_included_custom_sensors.map(&:name) }
 

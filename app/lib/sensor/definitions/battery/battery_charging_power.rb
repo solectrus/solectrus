@@ -1,5 +1,5 @@
 class Sensor::Definitions::BatteryChargingPower < Sensor::Definitions::Base
-  value unit: :watt, category: :battery, nameable: true
+  value unit: :watt, range: (0..), category: :battery, nameable: true
 
   color background: 'bg-sensor-battery',
         text: 'text-white dark:text-slate-400'

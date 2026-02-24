@@ -1,5 +1,5 @@
 class Sensor::Definitions::SelfConsumptionQuote < Sensor::Definitions::Base
-  value unit: :percent
+  value unit: :percent, range: (0..100)
 
   color background: 'bg-sensor-autarky',
         text: 'text-white dark:text-slate-400'
