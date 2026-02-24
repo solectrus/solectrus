@@ -40,19 +40,13 @@ Ensure that PostgreSQL is running:
 brew services start postgresql@18
 ```
 
-3. Add local domains to `/etc/hosts`:
-
-```bash
-echo "127.0.0.1 solectrus.localhost vite.solectrus.localhost" | sudo tee -a /etc/hosts
-```
-
-4. Setup the application to install gems and NPM packages and create the database:
+3. Setup the application to install gems and NPM packages and create the database:
 
 ```bash
 bin/setup
 ```
 
-5. Start the application locally:
+4. Start the application locally:
 
 ```bash
 bin/dev
