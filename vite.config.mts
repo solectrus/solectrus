@@ -1,8 +1,6 @@
 import { defineConfig } from 'vite';
 import ViteRails from 'vite-plugin-rails';
 import tailwindcss from '@tailwindcss/vite';
-import { resolve } from 'path';
-
 export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
@@ -31,11 +29,6 @@ export default defineConfig(({ mode }) => ({
       },
     },
     chunkSizeWarningLimit: 620,
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'app/javascript'),
-    },
   },
   server: {
     hmr: {

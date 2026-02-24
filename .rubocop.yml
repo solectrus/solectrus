@@ -10,7 +10,7 @@ plugins:
 AllCops:
   TargetRubyVersion: 4.0
   Exclude:
-    - app/javascript/**/*
+    - app/frontend/**/*
     - bin/**/*
     - coverage/**/*
     - db/schema.rb

@@ -44,8 +44,3 @@ Brewfile.lock.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-
-# ClaudeOnRails
-.claude-on-rails/sessions/
-.claude-swarm/
-claude-swarm.log
