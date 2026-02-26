@@ -8,6 +8,8 @@ class UpdateCheck
     @mutex = Mutex.new
   end
 
+  attr_reader :cache_manager
+
   class << self
     delegate :sponsoring?,
              :eligible_for_free?,
@@ -30,11 +32,6 @@ class UpdateCheck
   def self.skip_http?
     Rails.env.local?
   end
-
-  # For testing purposes only
-  delegate :cached?, to: :@cache_manager
-  delegate :cached_local?, to: :@cache_manager
-  delegate :cached_rails?, to: :@cache_manager
 
   def latest_version
     latest[:version]
@@ -110,16 +107,24 @@ class UpdateCheck
 
   def clear_cache!
     reset_verified_cache!
-    @cache_manager.delete
+    cache_manager.delete
     # Also clear sensor cache since permissions may have changed
     Sensor::Config.clear_cache!
   end
 
   def skip_prompt!
-    @cache_manager.skip_prompt!(skip_prompt_duration)
+    cache_manager.skip_prompt!(skip_prompt_duration)
   end
 
-  delegate :skipped_prompt?, to: :@cache_manager
+  def fallback_data
+    @fallback_data ||= {
+      version: Rails.configuration.x.git.commit_version,
+      registration_status: 'complete',
+      eligible_for_free: true,
+    }.freeze
+  end
+
+  delegate :skipped_prompt?, to: :cache_manager
 
   private
 
@@ -128,7 +133,7 @@ class UpdateCheck
   end
 
   def current
-    @cache_manager.get || {}
+    cache_manager.get || {}
   end
 
   def fetch_and_cache_data_safely
@@ -164,7 +169,7 @@ class UpdateCheck
 
     import_notifications(result[:data].delete(:notifications))
     # Cache includes :signature for verification on subsequent reads
-    @cache_manager.set(result[:data], expires_at:)
+    cache_manager.set(result[:data], expires_at:)
 
     @last_verified_signature = result[:data][:signature]
     @verified_result = verified_data(result[:data])
@@ -172,15 +177,5 @@ class UpdateCheck
 
   def import_notifications(notifications_data)
     NotificationImporter.new(notifications_data).call
-  end
-
-  public
-
-  def fallback_data
-    @fallback_data ||= {
-      version: Rails.configuration.x.git.commit_version,
-      registration_status: 'complete',
-      eligible_for_free: true,
-    }.freeze
   end
 end

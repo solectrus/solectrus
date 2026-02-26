@@ -7,10 +7,9 @@ describe UpdateCheck do
     instance.clear_cache!
   end
 
-  # Some helper methods to check the cache
-  delegate :cached?, to: :instance
-  delegate :cached_local?, to: :instance
-  delegate :cached_rails?, to: :instance
+  let(:cache_manager) { instance.cache_manager }
+
+  delegate :cached?, :cached_local?, :cached_rails?, to: :cache_manager
 
   ##############
 
