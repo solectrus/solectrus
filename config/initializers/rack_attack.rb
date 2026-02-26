@@ -25,6 +25,7 @@ module Rack
     #
     # Key: "rack::attack:#{Time.now.to_i/:period}:req/ip:#{req.ip}"
     throttle('req/ip', limit: 300, period: 5.minutes) do |req|
+      # Exclude SummariesController requests, which is legitimate and can be very frequent
       req.ip unless req.path.start_with?('/summaries/')
     end
 
@@ -43,6 +44,9 @@ module Rack
     # throttle('logins/ip', limit: 5, period: 20.seconds) do |req|
     #   req.ip if req.path == '/login' && req.post?
     # end
+    throttle('logins/ip', limit: 5, period: 1.minute) do |req|
+      req.ip if req.path == '/login' && req.post?
+    end
 
     # Throttle POST requests to /login by email param
     #
