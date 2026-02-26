@@ -87,6 +87,7 @@ class UpdateCheck
   end
 
   def registration_grace_period_expired?
+    return false if self.class.skip_http?
     return false unless unregistered?
 
     setup_id = Setting.setup_id
@@ -176,7 +177,7 @@ class UpdateCheck
   public
 
   def fallback_data
-    {
+    @fallback_data ||= {
       version: Rails.configuration.x.git.commit_version,
       registration_status: 'complete',
       eligible_for_free: true,
