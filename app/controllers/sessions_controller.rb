@@ -12,7 +12,7 @@ class SessionsController < ApplicationController
     @admin_user = AdminUser.new(permitted_params)
 
     if @admin_user.valid?
-      cookies.permanent.signed[:admin] = true
+      cookies.signed[:admin] = { value: true, max_age: 90.days.to_i }
 
       flash[:notice] = t('login.welcome')
       respond_to do |format|
