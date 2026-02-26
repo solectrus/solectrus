@@ -1,6 +1,3 @@
-class ForbiddenError < StandardError
-end
-
 class ApplicationController < ActionController::Base
   include AutoLocale
   include TopNavigation
