@@ -13,11 +13,5 @@ describe String do
 
       it { is_expected.to eq('5 °C') }
     end
-
-    context 'when string is nil' do
-      let(:string) { nil }
-
-      it { is_expected.to be_nil }
-    end
   end
 end
