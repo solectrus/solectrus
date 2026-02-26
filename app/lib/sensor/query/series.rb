@@ -126,11 +126,11 @@ module Sensor
       end
 
       def collect_all_sensors(points_by_timestamp)
-        all_sensors = []
+        all_sensors = Set.new
         points_by_timestamp.each_value do |point|
           point.each_key { |key| all_sensors << key if key != :timestamp }
         end
-        all_sensors.uniq
+        all_sensors.to_a
       end
 
       def build_time_series_for_sensor(sensor, points_by_timestamp)
