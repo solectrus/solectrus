@@ -139,9 +139,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
   def house_power_excluded_custom_sensors
     @house_power_excluded_custom_sensors ||=
-      house_power_excluded_sensors.select do |sensor|
-        sensor.is_a?(Sensor::Definitions::CustomPower)
-      end
+      house_power_excluded_sensors.grep(Sensor::Definitions::CustomPower)
   end
 
   def house_power_included_custom_sensors

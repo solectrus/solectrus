@@ -431,9 +431,7 @@ module Sensor
 
     def calculate_custom_consumer_sensors
       all_custom_power_sensor =
-        (Sensor::Config.sensors || []).select do |sensor|
-          sensor.is_a?(Sensor::Definitions::CustomPower)
-        end
+        (Sensor::Config.sensors || []).grep(Sensor::Definitions::CustomPower)
       excluded_sensors = Sensor::Config.house_power_excluded_sensors || []
 
       included_custom_sensors =
