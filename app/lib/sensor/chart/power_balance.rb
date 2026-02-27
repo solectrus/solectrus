@@ -67,9 +67,8 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
 
   def chart_sensor_names
     sensor_names = DATA_SENSOR_NAMES.select { |name| Sensor::Config.exists?(name) }
-    if show_remaining_forecast?
-      sensor_names << :inverter_power_forecast
-    end
+    sensor_names.concat(excluded_custom_sensor_names)
+    sensor_names << :inverter_power_forecast if show_remaining_forecast?
     sensor_names
   end
 
@@ -84,9 +83,19 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
         DISPLAY_SENSOR_NAMES.select do |name|
           Sensor::Config.exists?(name)
         end
+
+      insert_excluded_custom_sensors(names)
       names << :inverter_power_forecast if show_remaining_forecast?
       names
     end
+  end
+
+  # Insert excluded custom sensors after wallbox_power (mirrors balance sheet layout)
+  def insert_excluded_custom_sensors(names)
+    return if excluded_custom_sensor_names.empty?
+
+    insert_pos = (names.index(:wallbox_power) || names.index(:battery_charging_power) || -1) + 1
+    names.insert(insert_pos, *excluded_custom_sensor_names)
   end
 
   def build_chart_data_items
@@ -121,7 +130,14 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
 
   # Sensors that appear below zero (usage/outflow)
   def consumption_sensors
-    %i[house_power heatpump_power wallbox_power battery_charging_power grid_export_power]
+    @consumption_sensors ||=
+      %i[house_power heatpump_power wallbox_power battery_charging_power grid_export_power] +
+      excluded_custom_sensor_names
+  end
+
+  def excluded_custom_sensor_names
+    @excluded_custom_sensor_names ||=
+      Sensor::Config.house_power_excluded_custom_sensors.map(&:name)
   end
 
   # Negate values for display below zero line

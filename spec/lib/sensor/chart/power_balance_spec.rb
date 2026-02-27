@@ -194,6 +194,73 @@ describe Sensor::Chart::PowerBalance do
     end
   end
 
+  describe 'with excluded custom sensors' do
+    let(:timeframe) { Timeframe.new('2025-W10') }
+
+    let(:env) do
+      {
+        'INFLUX_SENSOR_INVERTER_POWER' => 'pv:inverter_power',
+        'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
+        'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'pv:grid_import_power',
+        'INFLUX_SENSOR_GRID_EXPORT_POWER' => 'pv:grid_export_power',
+        'INFLUX_SENSOR_CUSTOM_POWER_01' => 'consumer:power_01',
+        'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'CUSTOM_POWER_01',
+      }
+    end
+
+    before do
+      Sensor::Config.setup(env)
+
+      create_summary(
+        date: '2025-03-03',
+        values: [
+          [:grid_import_power, :sum, 10_000],
+          [:grid_export_power, :sum, 5_000],
+          [:inverter_power, :sum, 25_000],
+          [:house_power, :sum, 20_000],
+          [:custom_power_01, :sum, 8_000],
+        ],
+      )
+    end
+
+    it 'includes excluded custom sensor in datasets' do
+      dataset_ids = chart.data[:datasets].map { |d| d[:id].to_sym }
+
+      expect(dataset_ids).to include(:custom_power_01)
+    end
+
+    it 'negates excluded custom sensor values (consumption)' do
+      dataset =
+        chart.data[:datasets].find { |d| d[:id] == 'custom_power_01' }
+
+      expect(dataset[:data].compact).to all(be_negative)
+    end
+
+    it 'places excluded custom sensor in usage stack for line charts' do
+      line_chart = described_class.new(timeframe: Timeframe.new('2025-03-03'))
+
+      influx_batch do
+        base_time = Time.zone.local(2025, 3, 3, 12, 0, 0)
+        add_influx_point(
+          name: 'pv',
+          fields: { 'inverter_power' => 5000 },
+          time: base_time,
+        )
+        add_influx_point(
+          name: 'consumer',
+          fields: { 'power_01' => 1000 },
+          time: base_time,
+        )
+      end
+
+      data = line_chart.data
+      custom_dataset =
+        data[:datasets].find { |d| d[:id] == 'custom_power_01' }
+
+      expect(custom_dataset[:stack]).to eq('usage')
+    end
+  end
+
   describe 'when no sensor has data' do
     let(:timeframe) { Timeframe.new('2025-03-03') }
 

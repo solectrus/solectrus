@@ -52,6 +52,23 @@ export const getPowerBalanceFlags = (data: ChartData): PowerBalanceFlags => {
     'grid_export_power',
   ]);
 
+  // Dynamically classify unrecognized datasets (e.g. excluded custom sensors)
+  // by checking if their data values are negative (usage) or positive (source)
+  for (const dataset of data.datasets) {
+    const id = (dataset as DatasetWithId).id ?? '';
+    if (sourceIds.has(id) || usageIds.has(id)) continue;
+
+    const values = dataset.data as (number | null)[];
+    const firstNonNull = values?.find((v): v is number => v != null && v !== 0);
+    if (firstNonNull != null) {
+      if (firstNonNull < 0) {
+        usageIds.add(id);
+      } else {
+        sourceIds.add(id);
+      }
+    }
+  }
+
   const stacks = new Set(['source', 'usage', 'combined']);
   const hasStack = data.datasets.some((dataset) =>
     stacks.has(dataset.stack ?? ''),
