@@ -119,7 +119,7 @@ jobs:
         run: ls -la coverage/ || echo "coverage/ directory does not exist"
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-unit
@@ -231,7 +231,7 @@ jobs:
           yarn size-limit
 
       - name: Upload runtime log
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: runtime-log-${{ matrix.group }}
@@ -244,7 +244,7 @@ jobs:
         run: ls -la coverage/ || echo "coverage/ directory does not exist"
 
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-system-${{ matrix.group }}
@@ -253,7 +253,7 @@ jobs:
           retention-days: 1
 
       - name: Upload Playwright artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: Playwright artifacts (group ${{ matrix.group }})
@@ -413,7 +413,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: digests-${{ env.PLATFORM_PAIR }}
           path: /tmp/digests/*
