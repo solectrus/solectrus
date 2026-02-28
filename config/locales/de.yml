@@ -116,7 +116,7 @@ de:
     co2_reduction: CO₂-Reduktion
     co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Anteil Akku
-    total_costs: Gesamtkosten
+    total_costs: Wirtschaftliche Kosten
     total_costs_short: Kosten
     grid_costs: Netzbezugskosten
     grid_costs_short: Netzkosten

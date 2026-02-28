@@ -116,7 +116,7 @@ en:
     co2_reduction: CO₂ reduction
     co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share
-    total_costs: Total costs
+    total_costs: Economic costs
     total_costs_short: Costs
     grid_costs: Grid import costs
     grid_costs_short: Grid costs

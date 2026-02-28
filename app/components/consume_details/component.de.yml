@@ -5,10 +5,10 @@ de:
     import_costs: Netzbezugskosten
 
   pv:
-    header: Kosten durch Eigenverbrauch
-    opportunity_costs: Entgangene Einspeisevergütung
+    header: Opportunitätskosten Eigenverbrauch
+    opportunity_costs: Entg. Einspeisevergütung
 
-  total_costs: Gesamtkosten
+  total_costs: Wirtschaftliche Kosten
 
   from: von
   to: bis

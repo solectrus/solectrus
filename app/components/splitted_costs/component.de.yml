@@ -1,5 +1,5 @@
 de:
   generated: aus Photovoltaik
-  grid_costs: Netzkosten
-  opportunity_costs: Entgangene Einspeisung
-  total_costs: Gesamtkosten
+  grid_costs: Netzbezugskosten
+  opportunity_costs: Entg. Einspeisevergütung
+  total_costs: Wirtschaftliche Kosten

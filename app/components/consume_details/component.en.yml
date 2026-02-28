@@ -5,10 +5,10 @@ en:
     import_costs: Import costs
 
   pv:
-    header: Costs from self-consumption
+    header: Opportunity costs self-consumption
     opportunity_costs: Lost feed-in tariff
 
-  total_costs: Total costs
+  total_costs: Economic costs
 
   from: from
   to: to
