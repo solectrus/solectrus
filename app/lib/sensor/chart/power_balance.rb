@@ -90,11 +90,11 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     end
   end
 
-  # Insert excluded custom sensors after wallbox_power (mirrors balance sheet layout)
+  # Insert excluded custom sensors after house_power (mirrors balance sheet layout)
   def insert_excluded_custom_sensors(names)
     return if excluded_custom_sensor_names.empty?
 
-    insert_pos = (names.index(:wallbox_power) || names.index(:battery_charging_power) || -1) + 1
+    insert_pos = (names.index(:house_power) || names.index(:heatpump_power) || -1) + 1
     names.insert(insert_pos, *excluded_custom_sensor_names)
   end
 
