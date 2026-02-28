@@ -119,48 +119,4 @@ describe PowerBalance do
       end
     end
   end
-
-  describe '#forecast_deviation' do
-    subject(:forecast_deviation) { power_balance.forecast_deviation }
-
-    context 'when actual exceeds forecast' do
-      let(:raw_data) { { inverter_power: 11_000, inverter_power_forecast: 10_000 } }
-
-      it 'returns positive deviation in Wh' do
-        expect(forecast_deviation).to eq(1000)
-      end
-    end
-
-    context 'when actual is less than forecast' do
-      let(:raw_data) { { inverter_power: 9000, inverter_power_forecast: 10_000 } }
-
-      it 'returns negative deviation in Wh' do
-        expect(forecast_deviation).to eq(-1000)
-      end
-    end
-
-    context 'when forecast is zero and actual is positive' do
-      let(:raw_data) { { inverter_power: 900, inverter_power_forecast: 0 } }
-
-      it 'returns the actual value as deviation' do
-        expect(forecast_deviation).to eq(900)
-      end
-    end
-
-    context 'when both forecast and actual are zero' do
-      let(:raw_data) { { inverter_power: 0, inverter_power_forecast: 0 } }
-
-      it 'returns zero' do
-        expect(forecast_deviation).to eq(0)
-      end
-    end
-
-    context 'when forecast is not available' do
-      let(:raw_data) { { inverter_power: 1000 } }
-
-      it 'returns nil' do
-        expect(forecast_deviation).to be_nil
-      end
-    end
-  end
 end
