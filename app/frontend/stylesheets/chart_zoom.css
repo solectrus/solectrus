@@ -1,0 +1,68 @@
+.chart-zoom-title {
+  display: none;
+}
+
+/* Zoom state: .chart-zoomed on element (initial zoom) +
+   .chart-zoom-frame on turbo-frame (survives turbo reload, no flicker) */
+.chart-zoomed,
+turbo-frame.chart-zoom-frame [data-controller~='chart-zoom'] {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 60 !important;
+  padding: 1.5rem !important;
+  background-color: white !important;
+
+  & > .absolute {
+    right: 1rem !important;
+    top: 1rem !important;
+  }
+}
+
+/* Title and button visibility — driven by zoom state */
+.chart-zoomed,
+turbo-frame.chart-zoom-frame {
+  & .chart-zoom-title {
+    display: block;
+    position: relative;
+    z-index: 6;
+  }
+
+  & [data-chart-zoom-target='expandBtn'],
+  & [data-chart-zoom-target='insightsBtn'] {
+    display: none !important;
+  }
+
+  & [data-chart-zoom-target='closeBtn'] {
+    display: flex !important;
+  }
+}
+
+.dark .chart-zoomed,
+.dark turbo-frame.chart-zoom-frame [data-controller~='chart-zoom'] {
+  background-color: var(--color-slate-900) !important;
+}
+
+body.chart-zoom-active .chartjs-tooltip,
+body.chart-zoom-active .floating-tooltip {
+  z-index: 70 !important;
+}
+
+/* Loading overlay shown during zoom data reload */
+.chart-zoom-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  z-index: 5;
+
+  & .delayed-fade-in {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+.dark .chart-zoom-loading {
+  background-color: var(--color-slate-900);
+}

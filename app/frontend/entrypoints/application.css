@@ -25,6 +25,7 @@
 @import '../stylesheets/badge.css' layer(base);
 @import '../stylesheets/animations.css' layer(base);
 @import '../stylesheets/segment.css' layer(base);
+@import '../stylesheets/chart_zoom.css' layer(base);
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
 

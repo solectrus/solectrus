@@ -7,26 +7,54 @@
 - else
   = tag.div class: 'h-full min-h-20 flex flex-col',
             data: { \
-              controller: 'chart-loader--component',
+              controller: 'chart-loader--component chart-zoom',
               chart_loader__component_type_value: type,
               chart_loader__component_unit_value: unit,
               chart_loader__component_source_label_value: I18n.t('balance_sheet.left'),
               chart_loader__component_usage_label_value: I18n.t('balance_sheet.right'),
+              chart_zoom_zoom_interval_value: zoom_interval,
             } do
 
-    - if path_to_insights
-      .absolute.right-0.top-0
+    .absolute.right-0.top-0.flex.gap-1.z-10
+      button[
+        class=icon_button_class
+        data-chart-zoom-target='expandBtn'
+        data-action='chart-zoom#expand'
+        data-controller='tooltip'
+        title=t('.fullscreen')
+      ]
+        i.fa.fa-expand
+
+      - if path_to_insights
         = link_to path_to_insights,
-                  class: 'flex items-center justify-center p-2 font-medium focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 text-sm gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800 rounded-full size-8 border border-gray-300 dark:border-gray-600',
-                  data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' },
+                  class: icon_button_class,
+                  data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher', chart_zoom_target: 'insightsBtn' },
                   title: t('layout.insights') do
           i.far.fa-lg.fa-lightbulb
+
+      button.hidden[
+        class=icon_button_class
+        data-chart-zoom-target='closeBtn'
+        data-action='chart-zoom#close'
+        data-controller='tooltip'
+        title=t('.close_fullscreen')
+      ]
+        i.fa.fa-xmark
+
+    .chart-zoom-title.text-center
+      div class= 'md:inline-block font-bold text-gray-800 dark:text-gray-200'
+        = sensor.display_name
+      div class= 'md:inline-block font-normal text-gray-500 dark:text-gray-400'
+        = timeframe.localized
 
     script type= 'application/json' data-chart-loader--component-target= 'data'
       == data.to_json
 
     script type= 'application/json' data-chart-loader--component-target= 'options'
       == options.to_json
+
+    .chart-zoom-loading.hidden data-chart-zoom-target='loading'
+      = render Loading::Component.new
 
     .flex-1.min-h-20.w-full.max-w-full.overflow-hidden.box-border data-chart-loader--component-target= 'container'
       = tag.canvas id: "chart-#{timeframe.id}",

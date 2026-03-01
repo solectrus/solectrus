@@ -225,8 +225,12 @@ export default class extends Controller<HTMLCanvasElement> {
     const options = this.getOptions();
     if (!options) return;
 
-    // Disable animation when user prefers reduced motion
-    if (isReducedMotion()) options.animation = false;
+    // Disable animation when user prefers reduced motion or during resize
+    if (
+      isReducedMotion() ||
+      document.body.classList.contains('transition-stopper')
+    )
+      options.animation = false;
 
     if (!options.scales?.x || !options.scales?.y) return;
 
@@ -295,12 +299,20 @@ export default class extends Controller<HTMLCanvasElement> {
 
     const plugins = this.buildCustomPlugins(options);
 
+    const suppressedAnimation =
+      options.animation === false && !isReducedMotion();
+
     this.chart = new Chart(this.canvasTarget, {
       type: this.typeValue,
       data,
       options,
       plugins,
     });
+
+    // Re-enable animation for subsequent updates (e.g. addPointToChart)
+    if (suppressedAnimation && this.chart) {
+      delete (this.chart.options as Record<string, unknown>).animation;
+    }
   }
 
   private buildCustomPlugins(options: Record<string, unknown>): Plugin[] {

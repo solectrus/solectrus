@@ -1,6 +1,9 @@
 module ParamsHandling
   extend ActiveSupport::Concern
 
+  ALLOWED_INTERVALS = %w[1m 5m 15m 1h].freeze
+  private_constant :ALLOWED_INTERVALS
+
   included do
     private
 
@@ -12,6 +15,7 @@ module ParamsHandling
           :period,
           :sort,
           :calc,
+          :interval,
         )
     end
 
@@ -37,6 +41,11 @@ module ParamsHandling
       return if permitted_params[:sort].blank?
 
       ActiveSupport::StringInquirer.new(permitted_params[:sort])
+    end
+
+    helper_method def interval
+      value = permitted_params[:interval]
+      value if ALLOWED_INTERVALS.include?(value)
     end
 
     helper_method def timeframe
