@@ -41,10 +41,11 @@
         i.fa.fa-down-left-and-up-right-to-center
 
     div class='hidden text-center group-data-zoomed/zoom:block group-data-zoomed/zoom:relative group-data-zoomed/zoom:z-6'
-      div class='md:inline-block font-bold text-gray-800 dark:text-gray-200'
-        = sensor.display_name
-      div class='md:inline-block font-normal text-gray-500 dark:text-gray-400'
-        = timeframe.localized
+      div class='md:inline-flex md:items-baseline md:gap-2'
+        div class='font-bold text-gray-800 dark:text-gray-200'
+          = sensor.display_name
+        div class='font-normal text-gray-500 dark:text-gray-400'
+          = timeframe.localized
 
     script type= 'application/json' data-chart-loader--component-target= 'data'
       == data.to_json
