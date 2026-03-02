@@ -3,11 +3,5 @@
 = turbo_stream.update frame_id('chart') do
   .flex.flex-col.flex-auto.min-h-20.sm:gap-2.relative
     - unless timeframe.out_of_scope?
-      = render ChartSelector::Component.new( \
-        sensor_name:,
-        timeframe:,
-        sensor_names: chart_sensors,
-        top_sensor: chart_sensors.first,
-        bottom_sensor: chart_sensors.last,
-      )
+      = render HouseChartDropdown::Component.new(sensor_name:, timeframe:)
       = render ChartLoader::Component.new(sensor_name:, timeframe:, interval:)

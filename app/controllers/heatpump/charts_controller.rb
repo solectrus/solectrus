@@ -11,12 +11,4 @@ class Heatpump::ChartsController < ApplicationController
       redirect_to heatpump_home_path(sensor_name:, timeframe:)
     end
   end
-
-  private
-
-  helper_method def chart_sensors
-    Sensor::Config.chart_sensors.filter_map do |sensor|
-      sensor.name if sensor.category == :heatpump
-    end
-  end
 end

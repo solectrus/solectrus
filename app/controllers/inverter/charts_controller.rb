@@ -11,8 +11,4 @@ class Inverter::ChartsController < ApplicationController
       redirect_to inverter_home_path(sensor_name: sensor.name, timeframe:)
     end
   end
-
-  helper_method def chart_sensors
-    Sensor::Config.inverter_sensors.map(&:name)
-  end
 end

@@ -125,6 +125,17 @@ class Dropdown::Component < ViewComponent::Base
     )
   end
 
+  def menu_item_classes(item)
+    classes = ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800']
+    classes << 'font-bold' if item.current
+
+    if item.respond_to?(:separator_before) && item.separator_before
+      classes << 'border-t border-gray-200 dark:border-gray-600'
+    end
+
+    classes
+  end
+
   def group_header_class(group)
     if subgroups?(group)
       'relative px-3 pt-3 pb-2 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2'

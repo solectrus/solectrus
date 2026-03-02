@@ -5,6 +5,7 @@ class MenuItem::Component < ViewComponent::Base
     data: {},
     sensor_name: nil,
     id: nil,
+    separator_before: false,
     icon: nil,
     icon_only: false,
     text: true,
@@ -17,6 +18,7 @@ class MenuItem::Component < ViewComponent::Base
     @data = data
     @sensor_name = sensor_name
     @id = id
+    @separator_before = separator_before
 
     @icon = icon
     @icon_only = icon_only
@@ -38,6 +40,7 @@ class MenuItem::Component < ViewComponent::Base
               :data,
               :sensor_name,
               :id,
+              :separator_before,
               :badge_count
 
   CSS_CLASSES = %w[block w-full].freeze

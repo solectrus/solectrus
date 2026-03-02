@@ -3,6 +3,7 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     sensor_name:,
     timeframe:,
     sensor_names:,
+    menu_config: {},
     top_sensor: nil,
     bottom_sensor: nil
   )
@@ -13,10 +14,11 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     @sensor_name = sensor_name
     @timeframe = timeframe
     @sensor_names = sensor_names
+    @menu_config = menu_config || {}
     @top_sensor = top_sensor
     @bottom_sensor = bottom_sensor
   end
-  attr_reader :sensor_name, :timeframe, :sensor_names
+  attr_reader :sensor_name, :timeframe, :sensor_names, :menu_config
 
   def display_name
     # For individual sensors that are part of a combined chart,
@@ -150,7 +152,7 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     sensors
       .map { |sensor_name| build_menu_item(sensor_name) }
       .sort_by do |item|
-        item_display_name(item.sensor_name).downcase
+        [menu_item_order(item.sensor_name), item_display_name(item.sensor_name).downcase]
       end
   end
 
@@ -163,6 +165,7 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
       name: item_display_name(sensor_name),
       sensor_name:,
       id: item_id(sensor_name),
+      separator_before: menu_item_separator_before?(sensor_name),
       href:
         url_for(
           controller: "#{helpers.controller_namespace}/home",
@@ -242,5 +245,33 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
       other: 99,
     }
     order[category] || 100
+  end
+
+  def menu_order
+    menu_config.fetch(:order, {})
+  end
+
+  def menu_items
+    @menu_items ||= Array(menu_config[:items])
+  end
+
+  def menu_item_order(sensor_name)
+    if menu_items.any?
+      index = menu_items.index(sensor_name)
+      return index if index
+    end
+
+    menu_order.fetch(sensor_name, 999)
+  end
+
+  def menu_item_separator_before?(sensor_name)
+    if menu_items.any?
+      index = menu_items.index(sensor_name)
+      return false unless index&.positive?
+
+      return menu_items[index - 1] == :_
+    end
+
+    Array(menu_config[:separator_before]).include?(sensor_name)
   end
 end
