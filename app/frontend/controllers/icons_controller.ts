@@ -45,6 +45,8 @@ import { faPiggyBank } from '@fortawesome/free-solid-svg-icons/faPiggyBank';
 import { faLeaf } from '@fortawesome/free-solid-svg-icons/faLeaf';
 import { faCompress } from '@fortawesome/free-solid-svg-icons/faCompress';
 import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
+import { faUpRightAndDownLeftFromCenter } from '@fortawesome/free-solid-svg-icons/faUpRightAndDownLeftFromCenter';
+import { faDownLeftAndUpRightToCenter } from '@fortawesome/free-solid-svg-icons/faDownLeftAndUpRightToCenter';
 import { faArrowTrendUp } from '@fortawesome/free-solid-svg-icons/faArrowTrendUp';
 import { faArrowTrendDown } from '@fortawesome/free-solid-svg-icons/faArrowTrendDown';
 import { faLightbulb } from '@fortawesome/free-regular-svg-icons/faLightbulb';
@@ -105,6 +107,8 @@ export default class extends Controller {
       faLeaf,
       faCompress,
       faExpand,
+      faUpRightAndDownLeftFromCenter,
+      faDownLeftAndUpRightToCenter,
       faArrowTrendUp,
       faArrowTrendDown,
       faLightbulb,

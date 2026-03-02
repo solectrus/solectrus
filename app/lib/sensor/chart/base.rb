@@ -10,6 +10,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   attr_reader :timeframe, :variant
+  attr_accessor :interval
 
   def type
     timeframe.short? ? 'line' : 'bar'
@@ -502,6 +503,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     Sensor::Query::Series.new(
       chart_sensor_names,
       timeframe.now? ? Timeframe.new('P1H') : timeframe,
+      interval:,
     ).call(interpolate: interpolate?)
   end
 

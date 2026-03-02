@@ -5,28 +5,55 @@
     p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
       = blank_message
 - else
-  = tag.div class: 'h-full min-h-20 flex flex-col',
+  = tag.div class: 'h-full min-h-20 flex flex-col group/zoom group-data-zoomed/zoom:fixed group-data-zoomed/zoom:inset-0 group-data-zoomed/zoom:z-45 group-data-zoomed/zoom:p-6 group-data-zoomed/zoom:bg-white dark:group-data-zoomed/zoom:bg-slate-900',
             data: { \
-              controller: 'chart-loader--component',
+              controller: 'chart-loader--component chart-zoom',
               chart_loader__component_type_value: type,
               chart_loader__component_unit_value: unit,
               chart_loader__component_source_label_value: I18n.t('balance_sheet.left'),
               chart_loader__component_usage_label_value: I18n.t('balance_sheet.right'),
+              chart_zoom_zoom_interval_value: zoom_interval,
             } do
 
-    - if path_to_insights
-      .absolute.right-0.top-0
+    div class='absolute right-0 top-0 flex gap-3 z-10 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4'
+      - if path_to_insights
         = link_to path_to_insights,
-                  class: 'flex items-center justify-center p-2 font-medium focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 text-sm gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800 rounded-full size-8 border border-gray-300 dark:border-gray-600',
+                  class: "#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden",
                   data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' },
                   title: t('layout.insights') do
           i.far.fa-lg.fa-lightbulb
+
+      button[
+        class="#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden"
+        data-chart-zoom-target='maximizeBtn'
+        data-action='chart-zoom#maximize'
+        data-controller='tooltip'
+        title=t('.maximize')
+      ]
+        i.fa.fa-up-right-and-down-left-from-center
+
+      button[
+        class="#{ICON_BUTTON_CLASS} hidden group-data-zoomed/zoom:flex"
+        data-action='chart-zoom#minimize'
+        data-controller='tooltip'
+        title=t('.minimize')
+      ]
+        i.fa.fa-down-left-and-up-right-to-center
+
+    div class='hidden text-center group-data-zoomed/zoom:block group-data-zoomed/zoom:relative group-data-zoomed/zoom:z-6'
+      div class='md:inline-block font-bold text-gray-800 dark:text-gray-200'
+        = sensor.display_name
+      div class='md:inline-block font-normal text-gray-500 dark:text-gray-400'
+        = timeframe.localized
 
     script type= 'application/json' data-chart-loader--component-target= 'data'
       == data.to_json
 
     script type= 'application/json' data-chart-loader--component-target= 'options'
       == options.to_json
+
+    div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
+      = render Loading::Component.new
 
     .flex-1.min-h-20.w-full.max-w-full.overflow-hidden.box-border data-chart-loader--component-target= 'container'
       = tag.canvas id: "chart-#{timeframe.id}",
