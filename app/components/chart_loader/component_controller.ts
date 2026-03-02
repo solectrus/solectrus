@@ -160,6 +160,7 @@ export default class extends Controller<HTMLCanvasElement> {
 
     this.boundHandleResize = debounce(100, this.handleResize.bind(this));
     window.addEventListener('resize', this.boundHandleResize);
+    document.addEventListener('fullscreenchange', this.boundHandleResize);
 
     this.boundHandleDblClick = this.handleDblClick.bind(this);
     this.canvasTarget.addEventListener('dblclick', this.boundHandleDblClick);
@@ -175,8 +176,10 @@ export default class extends Controller<HTMLCanvasElement> {
       document.body.classList.remove('transition-stopper');
     }
 
-    if (this.boundHandleResize)
+    if (this.boundHandleResize) {
       window.removeEventListener('resize', this.boundHandleResize);
+      document.removeEventListener('fullscreenchange', this.boundHandleResize);
+    }
 
     if (this.boundHandleDblClick)
       this.canvasTarget.removeEventListener(
@@ -224,6 +227,9 @@ export default class extends Controller<HTMLCanvasElement> {
 
     const options = this.getOptions();
     if (!options) return;
+
+    // Scale Chart.js font size for fullscreen mode
+    Chart.defaults.font.size = document.fullscreenElement ? 15 : 12;
 
     // Disable animation when user prefers reduced motion or during resize
     if (

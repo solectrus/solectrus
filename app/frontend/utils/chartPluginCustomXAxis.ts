@@ -5,6 +5,7 @@ const TAILWIND_MD_BREAKPOINT = 768;
 const CHART_BOTTOM_MARGIN = 10;
 const DEFAULT_LINE_OFFSET_Y = 14;
 const DEFAULT_FONT = '14px Inter Variable, sans-serif';
+const FULLSCREEN_FONT = '18px Inter Variable, sans-serif';
 const DEFAULT_COLOR = '#6b7280';
 
 interface LineConfig {
@@ -96,7 +97,10 @@ export function buildCustomXAxisPlugin(
             const config = isMediumOrLarger ? (line.md ?? line) : line;
             if (!config?.text) continue;
 
-            ctx.font = config.font || DEFAULT_FONT;
+            const defaultFont = document.fullscreenElement
+              ? FULLSCREEN_FONT
+              : DEFAULT_FONT;
+            ctx.font = config.font || defaultFont;
             ctx.fillStyle = config.color || DEFAULT_COLOR;
             ctx.fillText(
               config.text,

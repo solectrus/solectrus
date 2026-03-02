@@ -59,6 +59,43 @@
     rgba(0, 0, 0, 1) 100%
   );
 }
+/* Fullscreen mode: maximize available space */
+:fullscreen {
+  font-size: 125%;
+
+  & .max-w-screen-xl {
+    max-width: none;
+  }
+
+  & main {
+    max-height: none;
+  }
+
+  & main > div {
+    padding-inline: 0;
+  }
+
+  & #inner {
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  & footer {
+    display: none;
+  }
+
+  & .segment {
+    --icon-size: clamp(25px, 1vw, 33px);
+    --value-size: clamp(25px, 0.875vw, 30px);
+    --title-size: clamp(28px, 1.5vw, 38px);
+  }
+
+  & .segment.segment-inline {
+    --value-size: clamp(25px, 0.875vw, 30px);
+    --title-size: clamp(25px, 1.25vw, 30px);
+  }
+}
+
 /* Minimalistic form styling, inspired by DaisyUI */
 @layer components {
   .form-control {
