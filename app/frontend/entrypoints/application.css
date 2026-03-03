@@ -53,45 +53,72 @@
     rgba(0, 0, 0, 1) 100%
   );
 }
-/* Fullscreen mode: maximize available space */
-:fullscreen {
-  font-size: 125%;
+/* Fullscreen mode: maximize available space (desktop only) */
+@media (min-width: 1024px) {
+  :fullscreen {
+    font-size: 125%;
 
-  & .max-w-screen-xl {
-    max-width: none;
-  }
+    & .max-w-screen-xl,
+    & .max-w-screen-2xl {
+      max-width: none;
+    }
 
-  & main {
-    max-height: none;
-  }
+    & main {
+      max-height: none;
+    }
 
-  & main > div {
-    padding-inline: 0;
-  }
+    & main > div {
+      padding-inline: 0;
+    }
 
-  & #inner {
-    border-radius: 0;
-    box-shadow: none;
-  }
+    & #inner {
+      border-radius: 0;
+      box-shadow: none;
+    }
 
-  & footer {
-    display: none;
-  }
+    & .segment {
+      --icon-size: clamp(30px, 2vw, 35px);
+      --value-size: clamp(25px, 2vw, 30px);
+      --title-size: clamp(40px, 2vw, 45px);
+    }
 
-  & .segment {
-    --icon-size: clamp(25px, 1vw, 33px);
-    --value-size: clamp(25px, 0.875vw, 30px);
-    --title-size: clamp(28px, 1.5vw, 38px);
-  }
+    /* One global badge scale for radial, finance and SoC badges */
+    & .badge {
+      --size: clamp(7rem, 7vw, 9rem);
+    }
 
-  & .segment.segment-inline {
-    --value-size: clamp(25px, 0.875vw, 30px);
-    --title-size: clamp(25px, 1.25vw, 30px);
+    & .soc-badge {
+      padding-block: 0;
+      gap: 0.75rem;
+    }
+
+    & .soc-badge .soc-icon {
+      font-size: clamp(1.55rem, 1.35vw, 2.1rem);
+      line-height: 1;
+    }
+
+    & .soc-badge .soc-value {
+      font-size: clamp(1rem, 1.4vw, 1.8rem);
+      line-height: 1;
+    }
   }
 }
 
 /* Minimalistic form styling, inspired by DaisyUI */
 @layer components {
+  .sensor-value {
+    @apply inline-flex items-baseline gap-2;
+  }
+
+  .sensor-value-number {
+    @apply inline items-baseline;
+  }
+
+  .sensor-value-decimal,
+  .sensor-value-unit {
+    @apply align-baseline leading-none;
+  }
+
   .form-control {
     @apply flex flex-col;
   }

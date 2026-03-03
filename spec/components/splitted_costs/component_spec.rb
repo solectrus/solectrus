@@ -11,8 +11,8 @@ describe SplittedCosts::Component, type: :component do
   it 'renders' do
     render_inline(component)
 
-    expect(page).to have_text '50 %'
-    expect(page).to have_text '12 €'
+    expect(page).to have_text '50%'
+    expect(page).to have_text '12€'
   end
 
   describe '#costs' do

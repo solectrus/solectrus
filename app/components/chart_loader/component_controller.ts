@@ -103,6 +103,9 @@ ensureFixedBottomTooltipPositioner(-14);
 // Draw lines between points with no or null data (disables segmentation of the line)
 Chart.overrides.line.spanGaps = true;
 
+const CHART_FONT_SIZE = 12;
+const CHART_FONT_SIZE_FULLSCREEN = 17;
+
 export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
@@ -228,8 +231,9 @@ export default class extends Controller<HTMLCanvasElement> {
     const options = this.getOptions();
     if (!options) return;
 
-    // Scale Chart.js font size for fullscreen mode
-    Chart.defaults.font.size = document.fullscreenElement ? 15 : 12;
+    Chart.defaults.font.size = document.fullscreenElement
+      ? CHART_FONT_SIZE_FULLSCREEN
+      : CHART_FONT_SIZE;
 
     // Disable animation when user prefers reduced motion or during resize
     if (

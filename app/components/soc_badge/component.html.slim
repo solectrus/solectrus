@@ -1,4 +1,4 @@
-.badge[
+.soc-badge.badge[
   class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 dark:xl:tall:bg-slate-800'
   style= "--value: #{percent};"
 ]
@@ -16,16 +16,16 @@
                   stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: soc_sensor, timeframe:),
                 },
                 class: 'click-animation' do
-        div class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'
+        .soc-row class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'
           - case soc_sensor
           - when :battery_soc
-            i.fa.fa-house.fa-sm.text-slate-500.dark:text-slate-400
+            i.fa.fa-house.fa-sm.soc-icon.text-slate-500.dark:text-slate-400
           - when :car_battery_soc
-            i.fa.fa-car.fa-sm[
+            i.fa.fa-car.fa-sm.soc-icon[
               class= (car_connected || car_connected.nil? ? 'text-slate-500 dark:text-slate-400' : 'text-slate-400 dark:text-slate-500')
             ]
 
-          span class= ['font-medium', color_class(soc_sensor, value)]
+          span.soc-value class= ['font-medium', color_class(soc_sensor, value)]
             = "#{value.round}%"
 
   .title class= 'mx-auto uppercase tracking-tight text-slate-500 dark:text-slate-400'

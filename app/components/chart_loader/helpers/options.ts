@@ -25,7 +25,8 @@ export const applyFixedYAxisWidth = (options: ChartOptions): void => {
     return;
 
   options.scales!.y!.afterFit = (axis) => {
-    axis.width = fixedYAxisWidth;
+    const widthScale = document.fullscreenElement ? 1.2 : 1;
+    axis.width = Math.round(fixedYAxisWidth * widthScale);
   };
 };
 

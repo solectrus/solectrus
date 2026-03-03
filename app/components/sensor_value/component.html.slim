@@ -4,15 +4,14 @@ span[
   - if missing?
     strong.font-medium –
   - else
-    strong.font-medium
-      = integer_part
-
-    - if decimal_part
-      small
-        = separator
-        = decimal_part
-    | &nbsp;
+    span.sensor-value-number
+      strong.font-medium
+        = integer_part
+      - if decimal_part
+        small.sensor-value-decimal
+          = separator
+          = decimal_part
 
     - if unit
-      small
+      small.sensor-value-unit
         = unit

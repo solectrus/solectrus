@@ -16,17 +16,21 @@
 }
 
 .badge .inside {
-  @apply flex flex-col items-center leading-normal;
+  @apply flex w-full flex-col items-center leading-normal;
 }
 
 .badge .value {
-  @apply font-medium;
+  @apply w-full text-center font-medium;
 
   font-size: calc(var(--size) / 6);
 }
 
+.badge .value .sensor-value {
+  @apply inline-flex justify-center;
+}
+
 .badge .title {
-  @apply max-w-20 text-center font-medium uppercase;
+  @apply w-full text-center font-medium uppercase;
 
   font-size: calc(var(--size) / 10);
 }
