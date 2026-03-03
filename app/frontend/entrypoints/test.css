@@ -1,0 +1,16 @@
+/* Disable all CSS animations and transitions in test environment
+   for significantly faster Playwright tests.
+
+   Using 0.01ms instead of 0s to ensure transitionend/animationend
+   events still fire (some JS may depend on them). */
+
+*,
+*::before,
+*::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}
