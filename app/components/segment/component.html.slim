@@ -32,7 +32,7 @@
         = render SensorIcon::Component.new(sensor, data:, class: 'icon')
 
       .font-light.leading-tight.title
-        = title.truncate(20)
+        = title.truncate(25)
 
       .value data= { 'stats-with-chart--component-target': 'current', 'sensor-name': sensor.name, value: masked_value, time: data.time&.to_i }
         = render SensorValue::Component.new(data, sensor.name, context: now? ? :rate : :total)

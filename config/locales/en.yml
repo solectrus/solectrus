@@ -122,8 +122,8 @@ en:
     grid_costs_short: Grid costs
     autarky: Autarky
   splitter:
-    grid: Grid
-    pv: PV
+    grid: Electricity from grid
+    pv: Electricity from PV
     total: Power consumption
   balance_sheet:
     left: Source

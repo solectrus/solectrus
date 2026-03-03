@@ -95,8 +95,12 @@
                                      percent: data.heatpump_power_percent_heating,
                                      inline: true
           - else
-            - container.with_segment :heatpump_power_pv, inline: true
-            - container.with_segment :heatpump_power_grid, inline: true
+            - container.with_segment :heatpump_power_pv,
+                                     title: t('splitter.pv'),
+                                     inline: true
+            - container.with_segment :heatpump_power_grid,
+                                     title: t('splitter.grid'),
+                                     inline: true
 
         - elsif data.heatpump_heating_power.positive?
           - container.with_segment :heatpump_heating_power,

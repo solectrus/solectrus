@@ -122,8 +122,8 @@ de:
     grid_costs_short: Netzkosten
     autarky: Autarkie
   splitter:
-    grid: Netzbezug
-    pv: Photovoltaik
+    grid: Strom aus Netzbezug
+    pv: Strom aus Photovoltaik
     total: Stromverbrauch
   balance_sheet:
     left: Herkunft

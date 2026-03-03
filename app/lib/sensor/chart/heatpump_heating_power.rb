@@ -75,7 +75,7 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
 
       {
         id: sensor.name,
-        label: sensor.display_name,
+        label: dataset_label(sensor),
         data: chart_data[:data],
         colorClass: sensor.color_background,
         borderWidth: 1,
@@ -88,6 +88,14 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
         pointHoverRadius: 5,
         noGradient: true,
       }
+    end
+  end
+
+  def dataset_label(sensor)
+    if timeframe.now? && sensor.name == :heatpump_power
+      I18n.t('splitter.total')
+    else
+      sensor.display_name
     end
   end
 
