@@ -6,10 +6,10 @@
             essentials_tile__component_interval_value: refresh_interval,
           } do
   .click-animation.flex.flex-col.justify-around.h-full
-    = render SensorIcon::Component.new(sensor, class: 'size-10 mx-auto text-white/90 dark:text-white/50')
+    = render SensorIcon::Component.new(sensor, class: 'mx-auto size-[clamp(2rem,20cqw,5.5rem)] text-white/90 dark:text-white/50')
 
-    div class= 'font-medium text-2xl @c0:text-3xl @c1:text-4xl @c2:text-5xl @c3:text-6xl @c4:text-7xl text-white dark:opacity-75 scale-pop'
+    div class= 'font-medium leading-none whitespace-nowrap text-[clamp(1.5rem,16cqw,6rem)] text-white dark:opacity-75 scale-pop'
       = formatted_value
 
-    div class= 'text-base @c1:text-xl @c3:text-2xl @c4:text-3xl px-5 w-full flex items-center justify-center text-white/90 dark:text-white/50'
+    div class= 'leading-none whitespace-nowrap text-[clamp(0.875rem,8cqw,2.25rem)] px-5 w-full flex items-center justify-center text-white/90 dark:text-white/50'
       = I18n.t("timeframe.#{timeframe.original_string}")
