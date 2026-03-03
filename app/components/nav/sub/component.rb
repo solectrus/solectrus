@@ -31,7 +31,7 @@ class Nav::Sub::Component < ViewComponent::Base
         md:px-3
         md:first:pl-3
         md:last:pr-3
-        lg:py-2
+        lg:landscape:py-2
         flex-auto
         text-center
         click-animation
@@ -44,14 +44,14 @@ class Nav::Sub::Component < ViewComponent::Base
             to-indigo-100
             bg-linear-to-b
             text-gray-800
-            lg:rounded-md
-            lg:bg-gray-200
-            lg:bg-none
+            lg:landscape:rounded-md
+            lg:landscape:bg-gray-200
+            lg:landscape:bg-none
             dark:from-gray-800
             dark:to-indigo-700
             dark:text-slate-300
-            dark:lg:bg-gray-400
-            dark:lg:text-gray-800
+            dark:lg:landscape:bg-gray-400
+            dark:lg:landscape:text-gray-800
             focus:outline-none
             focus:ring-2
             focus:ring-gray-800
@@ -63,10 +63,10 @@ class Nav::Sub::Component < ViewComponent::Base
           %w[
             text-gray-300
             dark:text-gray-400
-            lg:hover:text-gray-200
-            lg:hover:bg-indigo-500
-            dark:lg:hover:bg-indigo-950/50
-            dark:lg:hover:text-gray-300
+            lg:landscape:hover:text-gray-200
+            lg:landscape:hover:bg-indigo-500
+            dark:lg:landscape:hover:bg-indigo-950/50
+            dark:lg:landscape:hover:text-gray-300
             rounded
             focus:outline-none
             focus:ring-2

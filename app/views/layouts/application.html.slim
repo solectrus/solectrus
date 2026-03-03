@@ -61,7 +61,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
         - if flash.present?
           = render AppFlash::Component.new(notice:, alert:)
 
-      main.relative.-mt-32.flex.flex-auto.min-h-0 class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:flex-initial')
+      main.relative.-mt-32.flex.flex-auto.min-h-0 class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:landscape:flex-initial')
         .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex.min-h-0
           .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden.min-h-0#inner
             = yield
@@ -70,10 +70,10 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
         = tag.turbo_frame id: 'modal', target: '_top'
 
       - if content_for?(:bottom_nav)
-        .w-full.bg-indigo-600.dark:bg-indigo-900.z-10.lg:hidden
+        .w-full.bg-indigo-600.dark:bg-indigo-900.z-10.lg:landscape:hidden
           = yield :bottom_nav
 
-      footer.hidden.lg:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
+      footer.hidden.lg:landscape:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
         .flex.items-center.gap-2
           = link_to 'https://solectrus.de',
                     class: 'tracking-wider focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',

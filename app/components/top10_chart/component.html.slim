@@ -15,13 +15,13 @@
   .table.w-full id= "chart-#{period}"
     - top10_for_period.each_with_index do |record, index|
       = link_to timeframe_path(record), class: 'table-row hover:bg-gray-100 dark:hover:bg-gray-900' do
-        .table-cell.align-middle.p-2.tabular-nums.w-1.text-right.font-bold class= text_classes(record)
+        .table-cell.align-middle.p-2.lg:portrait:p-3.tabular-nums.w-1.text-right.font-bold.lg:portrait:text-lg class= text_classes(record)
           = "#{index + 1}."
-        .table-cell.align-middle.p-2.tabular-nums.w-1.whitespace-nowrap.text-left class= text_classes(record)
+        .table-cell.align-middle.p-2.lg:portrait:p-3.tabular-nums.w-1.whitespace-nowrap.text-left.lg:portrait:text-lg class= text_classes(record)
           = formatted_date(record[:date])
-        .table-cell.align-middle.p-2
+        .table-cell.align-middle.p-2.lg:portrait:p-3.lg:portrait:text-lg
           .flex.items-center.gap-3
-            .h-7.sm:h-8.rounded.flex.items-center.justify-end.px-2.truncate style= bar_style(record) class= bar_outer_classes
+            .h-7.sm:h-8.lg:portrait:h-14.rounded.flex.items-center.justify-end.px-2.truncate style= bar_style(record) class= bar_outer_classes
               .bar-gradient-bg class= "#{bar_gradient_bg_classes} #{bar_gradient_class}" style= bar_gradient_style(record)
               span class= "#{value_classes_inside(record)} #{bar_text_classes} relative"
                 = render SensorValue::Component.new(record[:value], sensor_name, context:)

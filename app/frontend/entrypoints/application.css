@@ -54,7 +54,7 @@
   );
 }
 /* Fullscreen mode: maximize available space (desktop only) */
-@media (min-width: 1280px) {
+@media (min-width: 1024px) {
   :fullscreen {
     font-size: 125%;
 

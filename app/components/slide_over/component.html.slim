@@ -94,3 +94,7 @@
                   .p-5.text-emerald-600.dark:text-emerald-300.flex.justify-between.items-center
                     = I18n.t('layout.active_sponsoring')
                     .text-3xl 🎉
+
+            .flex.justify-between.items-center.text-gray-400.dark:text-gray-500.text-xs.px-4.sm:px-6.py-4.lg:landscape:hidden
+              = render VersionInfo::Component.new
+              = render AuthorLogo::Component.new

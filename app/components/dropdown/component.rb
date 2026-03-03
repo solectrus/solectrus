@@ -12,6 +12,7 @@ class Dropdown::Component < ViewComponent::Base
     bottom_item: nil,
     selected: nil,
     display_name: nil,
+    menu_position: :right,
     button_class: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800'
   )
     super()
@@ -21,6 +22,7 @@ class Dropdown::Component < ViewComponent::Base
     @bottom_item = bottom_item
     @selected = selected
     @display_name = display_name
+    @menu_position = menu_position.to_sym
     @button_class = button_class
   end
 
@@ -30,7 +32,19 @@ class Dropdown::Component < ViewComponent::Base
               :bottom_item,
               :selected,
               :display_name,
+              :menu_position,
               :button_class
+
+  def menu_position_classes
+    case menu_position
+    when :center
+      'left-1/2 -translate-x-1/2 origin-top lg:landscape:left-auto lg:landscape:right-0 lg:landscape:translate-x-0 lg:landscape:origin-top-right'
+    when :right
+      'right-0 origin-top-right'
+    else
+      raise ArgumentError, "Unknown menu_position: #{menu_position.inspect}"
+    end
+  end
 
   def grouped?
     items.is_a?(Array) && items.first.is_a?(Hash) && items.first.key?(:name)

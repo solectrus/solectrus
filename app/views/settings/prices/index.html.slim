@@ -1,6 +1,6 @@
 - content_for :sub_nav do
   .flex.justify-between.items-center
-    .hidden.lg:block.py-5
+    .hidden.lg:landscape:block.py-5
       = render Nav::Sub::Component.new do |c|
         = c.with_items nav_items
 
