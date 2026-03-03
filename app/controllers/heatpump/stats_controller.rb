@@ -53,6 +53,7 @@ class Heatpump::StatsController < ApplicationController
           q.sum :heatpump_power_pv, :sum
           q.sum :heatpump_power_env, :sum
           q.sum :heatpump_heating_power, :sum
+          q.sum :heatpump_costs, :sum
           q.avg :heatpump_tank_temp, :avg
           q.avg :heatpump_cop, :avg
           q.sum :heatpump_costs_pv, :sum

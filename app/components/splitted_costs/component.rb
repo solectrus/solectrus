@@ -1,10 +1,11 @@
 class SplittedCosts::Component < ViewComponent::Base
-  def initialize(costs:, power_grid_ratio:, grid_costs: nil, pv_costs: nil)
+  def initialize(costs:, power_grid_ratio:, grid_costs: nil, pv_costs: nil, show_power_breakdown: true)
     super()
     @costs = costs
     @grid_costs = grid_costs
     @pv_costs = pv_costs
     @power_grid_ratio = power_grid_ratio
+    @show_power_breakdown = show_power_breakdown
   end
 
   attr_reader :grid_costs, :pv_costs, :power_grid_ratio
@@ -25,5 +26,9 @@ class SplittedCosts::Component < ViewComponent::Base
 
   def breakdown?
     grid_costs || pv_costs
+  end
+
+  def show_power_breakdown?
+    @show_power_breakdown
   end
 end

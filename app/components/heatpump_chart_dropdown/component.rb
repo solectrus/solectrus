@@ -7,6 +7,7 @@ class HeatpumpChartDropdown::Component < ChartDropdownBase::Component
       heatpump_heating_power
       heatpump_cop
       heatpump_tank_temp
+      heatpump_costs
       _
       heatpump_cop_scatter
     ]

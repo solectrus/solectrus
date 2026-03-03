@@ -7,12 +7,62 @@
                                    status: data.heatpump_status
 
 = turbo_stream.update frame_id('stats'), method: :morph do
-  .h-full.w-full.flex.flex-col.gap-3 id= "stats-#{timeframe.id}"
-    - if data.heatpump_cop&.positive? || data.heatpump_tank_temp || data.outdoor_temp
-      .flex.justify-between.w-full.mb-1.md:mb-2
+  ruby:
+    focus_ring_classes = 'focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0'
+    card_base_classes = "click-animation block min-w-0 rounded-xl #{focus_ring_classes}"
+    kpi_link_classes = "#{card_base_classes} min-w-0 basis-auto grow [&>div]:w-full"
+    costs_link_classes = "#{card_base_classes} bg-slate-200 px-3 py-2.5 text-slate-700 dark:bg-slate-800 dark:text-slate-400 md:px-4"
+
+  .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5 id= "stats-#{timeframe.id}"
+    - if !timeframe.now? && data.heatpump_costs
+      = link_to url_for(controller: 'home', sensor_name: 'heatpump_costs', timeframe:),
+                class: costs_link_classes,
+                data: { \
+                  controller: 'tooltip',
+                  tooltip_placement_value: 'bottom',
+                  tooltip_force_tap_to_close_value: false,
+                  tooltip_touch_value: 'long',
+                  turbo_prefetch: 'false',
+                  'stats-with-chart--component-target': 'current',
+                  'sensor-name': 'heatpump_costs',
+                  value: data.heatpump_costs,
+                  time: data.time.to_i,
+                  action: 'stats-with-chart--component#loadChart',
+                  stats_with_chart__component_sensor_name_param: 'heatpump_costs',
+                  stats_with_chart__component_chart_url_param: heatpump_charts_path(sensor_name: 'heatpump_costs', timeframe:),
+                } do
+          - if data.heatpump_power_grid_ratio
+            - power_pv_ratio = 100 - data.heatpump_power_grid_ratio
+            .text-center.text-sm
+              div
+                = "#{power_pv_ratio.round}% aus Photovoltaik"
+              .w-full.flex.gap-px.rounded.overflow-hidden.mt-1
+                - if power_pv_ratio.positive?
+                  .h-3.bg-sensor-pv[
+                    style= "width: #{power_pv_ratio}%;"
+                  ]
+                - if data.heatpump_power_grid_ratio.positive?
+                  .h-3.bg-sensor-grid[
+                    style= "width: #{data.heatpump_power_grid_ratio}%;"
+                  ]
+
+          .mt-4.text-center
+            = render SensorValue::Component.new(data.heatpump_costs, :total_costs, sign: :negative, class: 'text-3xl')
+
+          #tooltip-content-heatpump_costs.hidden data-tooltip-target= 'html'
+            = render SplittedCosts::Component.new( \
+                costs: data.heatpump_costs,
+                power_grid_ratio: data.heatpump_power_grid_ratio,
+                grid_costs: data.heatpump_costs_grid,
+                pv_costs: data.heatpump_costs_pv,
+                show_power_breakdown: false,
+              )
+
+    - if data.heatpump_cop&.positive? || data.heatpump_tank_temp || data.outdoor_temp || data.heatpump_heating_power&.positive?
+      .flex.w-full.flex-nowrap.gap-2.lg:gap-4.xl:gap-5
         - if data.outdoor_temp
           = link_to url_for(controller: 'home', sensor_name: 'outdoor_temp', timeframe:),
-                    class: 'click-animation inline-block focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-xl',
+                    class: kpi_link_classes,
                     data: { \
                       turbo_prefetch: 'false',
                       'stats-with-chart--component-target': 'current',
@@ -28,8 +78,7 @@
 
         - if data.heatpump_heating_power&.positive?
           = link_to heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:),
-                    class: 'click-animation inline-block focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-xl',
-                    title: Sensor::Registry[:heatpump_heating_power].display_name,
+                    class: kpi_link_classes,
                     data: { \
                       turbo_prefetch: 'false',
                       'stats-with-chart--component-target': 'current',
@@ -45,7 +94,7 @@
 
         - if data.heatpump_cop&.positive?
           = link_to url_for(controller: 'home', sensor_name: 'heatpump_cop', timeframe:),
-                    class: 'click-animation inline-block focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-xl',
+                    class: kpi_link_classes,
                     data: { \
                       turbo_prefetch: 'false',
                       'stats-with-chart--component-target': 'current',
@@ -61,7 +110,7 @@
 
         - if data.heatpump_tank_temp
           = link_to url_for(controller: 'home', sensor_name: 'heatpump_tank_temp', timeframe:),
-                    class: 'click-animation inline-block focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-xl',
+                    class: kpi_link_classes,
                     data: { \
                       turbo_prefetch: 'false',
                       'stats-with-chart--component-target': 'current',
@@ -111,6 +160,6 @@
               p.text-xl.max-w-64
                 = t('data.heatpump_cop_below_one')
 
-              .mt-5.inline-block
+              .mt-4.inline-block
                 = render RectBadge::Component.new(title: t('splitter.total')) do
                   = render SensorValue::Component.new(data, :heatpump_power, context: :total)

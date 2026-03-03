@@ -102,6 +102,8 @@ de:
     heatpump_tank_temp: Warmwasser
     heatpump_cop: Arbeitszahl
     heatpump_cop_scatter: Arbeitszahl vs. Außentemperatur
+    heatpump_costs: Kosten
+    heatpump_costs_short: Kosten
     outdoor_temp: Außentemperatur
     outdoor_temp_short: Außen
     outdoor_temp_forecast: Erwartete Außentemperatur
@@ -113,6 +115,7 @@ de:
     solar_price: Solarpreis
     traditional_costs: Vergleichspreis
     savings: Ersparnis
+    opportunity_costs: Entg. Einspeisevergütung
     co2_reduction: CO₂-Reduktion
     co2_reduction_note: Reduzierung der CO₂-Emissionen durch die Stromerzeugung basierend auf dem Faktor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Anteil Akku

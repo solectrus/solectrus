@@ -1,5 +1,5 @@
 .text-center.text-sm
-  - if power_grid_ratio
+  - if show_power_breakdown? && power_grid_ratio
     div
       = render SensorValue::Component.new(power_pv_ratio, :autarky)
       =< t('.generated')
@@ -13,7 +13,7 @@
           style= "width: #{power_grid_ratio}%;"
         ]
 
-  .mt-5.space-y-1
+  div class= [show_power_breakdown? ? 'mt-5' : 'mt-2', 'space-y-1']
     - if grid_costs
       .flex.items-baseline.justify-between.gap-2
         = t('.grid_costs')

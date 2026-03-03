@@ -102,6 +102,8 @@ en:
     heatpump_tank_temp: Hot water
     heatpump_cop: COP
     heatpump_cop_scatter: COP vs. Outdoor temperature
+    heatpump_costs: Costs
+    heatpump_costs_short: Costs
     outdoor_temp: Outdoor temperature
     outdoor_temp_short: Outdoor
     outdoor_temp_forecast: Expected outdoor temperature
@@ -113,6 +115,7 @@ en:
     solar_price: Solar price
     traditional_costs: Comparative price
     savings: Savings
+    opportunity_costs: Lost feed-in tariff
     co2_reduction: CO₂ reduction
     co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share

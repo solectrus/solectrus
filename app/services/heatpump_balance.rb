@@ -52,7 +52,20 @@ class HeatpumpBalance
     )
   end
 
+  # Percentage of heatpump power supplied from grid (0..100)
+  def heatpump_power_grid_ratio
+    @memo[:heatpump_power_grid_ratio] ||= calculate_power_grid_ratio
+  end
+
   private
+
+  def calculate_power_grid_ratio
+    return unless respond_to?(:heatpump_power) && respond_to?(:heatpump_power_grid)
+    return unless heatpump_power&.positive?
+    return unless heatpump_power_grid
+
+    (heatpump_power_grid * 100.0 / heatpump_power).clamp(0, 100).round
+  end
 
   def calculate_power_percentage(heating_power, electrical_power)
     return 0 unless heating_power&.positive? && electrical_power&.positive?

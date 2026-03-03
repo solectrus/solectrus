@@ -9,6 +9,8 @@ type TooltipFlags = {
   isHeatingStack: boolean;
 };
 
+const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
+
 type TooltipHelpers = {
   locale: string;
   formattedNumber: (value: number) => string;
@@ -197,6 +199,18 @@ export const buildTooltipCallbacks = (
       ) {
         const sum = tooltipItems.reduce((acc, item) => {
           if (item.dataset.stack && item.parsed.y) acc += item.parsed.y;
+          return acc;
+        }, 0);
+
+        if (sum) return formattedNumber(sum);
+      }
+
+      const heatpumpCostsItems = tooltipItems.filter(
+        (item) => item.dataset.stack === HEATPUMP_COSTS_STACK,
+      );
+      if (heatpumpCostsItems.length > 1) {
+        const sum = heatpumpCostsItems.reduce((acc, item) => {
+          if (typeof item.parsed.y === 'number') return acc + item.parsed.y;
           return acc;
         }, 0);
 
