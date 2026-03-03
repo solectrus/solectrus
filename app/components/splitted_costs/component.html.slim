@@ -1,34 +1,31 @@
-.text-center
+.text-center.text-sm
   - if power_grid_ratio
     div
-      small
-        = render SensorValue::Component.new(power_pv_ratio, :autarky)
-        =< t('.generated')
-      .w-full.flex.gap-px.rounded.overflow-hidden
-        - if power_pv_ratio.positive?
-          .h-2.bg-sensor-pv[
-            style= "width: #{power_pv_ratio}%;"
-          ]
-        - if power_grid_ratio.positive?
-          .h-2.bg-sensor-grid[
-            style= "width: #{power_grid_ratio}%;"
-          ]
+      = render SensorValue::Component.new(power_pv_ratio, :autarky)
+      =< t('.generated')
+    .w-full.flex.gap-px.rounded.overflow-hidden.mt-1
+      - if power_pv_ratio.positive?
+        .h-3.bg-sensor-pv[
+          style= "width: #{power_pv_ratio}%;"
+        ]
+      - if power_grid_ratio.positive?
+        .h-3.bg-sensor-grid[
+          style= "width: #{power_grid_ratio}%;"
+        ]
 
   .mt-5.space-y-1
     - if grid_costs
-      .flex.items-center.justify-between.gap-2
-        .text-sm.text-left
-          = t('.grid_costs')
+      .flex.items-baseline.justify-between.gap-2
+        = t('.grid_costs')
         = render SensorValue::Component.new(grid_costs, :total_costs, sign: :negative)
 
     - if pv_costs
-      .flex.items-center.justify-between.gap-2
-        .text-sm.text-left
-          = t('.opportunity_costs')
+      .flex.items-baseline.justify-between.gap-2
+        = t('.opportunity_costs')
         = render SensorValue::Component.new(pv_costs, :total_costs, sign: :negative)
 
-    div class= ('flex items-center justify-between gap-2 border-t border-slate-300 dark:border-slate-500 pt-2 mt-3' if breakdown?)
+    div class= ('flex items-baseline justify-between gap-2 border-t border-slate-300 dark:border-slate-500 pt-2 mt-3' if breakdown?)
       - if breakdown?
-        .text-sm.font-bold
+        strong
           = t('.total_costs')
       = render SensorValue::Component.new(costs, :total_costs, sign: :negative, class: 'text-xl')
