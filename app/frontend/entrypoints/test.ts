@@ -1,7 +1,11 @@
 // Entrypoint for system tests
 // This entrypoint will be deleted from production build (see Dockerfile)
 
+import { Chart } from 'chart.js';
 import sinon from 'sinon';
+
+// Disable all Chart.js canvas animations for faster test execution
+Chart.defaults.animation = false;
 
 // Setup Sinon fake timers immediately
 declare global {
