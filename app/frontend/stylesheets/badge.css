@@ -30,7 +30,7 @@
 }
 
 .badge .title {
-  @apply w-full text-center font-medium uppercase;
+  @apply max-w-22 text-center font-medium uppercase;
 
   font-size: calc(var(--size) / 10);
 }
