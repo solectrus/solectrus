@@ -136,7 +136,7 @@
             p.text-xl
               = t('data.heatpump_no_heating')
 
-        - elsif data.heatpump_heating_power >= data.heatpump_power
+        - elsif data.heatpump_power && data.heatpump_heating_power >= data.heatpump_power
           - container.with_segment :heatpump_power_env, inline: true
           - if timeframe.now?
             - container.with_segment :heatpump_power,
