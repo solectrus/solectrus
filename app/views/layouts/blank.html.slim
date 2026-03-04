@@ -54,10 +54,6 @@ html lang= I18n.locale
                   target: '_blank',
                   rel: 'noopener' do
           | SOLECTRUS.de
-        = render VersionInfo::Component.new( \
-            current_version: Rails.configuration.x.git.commit_version,
-            commit_time: Rails.configuration.x.git.commit_time,
-            github_url: Rails.configuration.x.git.home,
-          )
+        = render VersionInfo::Component.new
 
       = render AuthorLogo::Component.new

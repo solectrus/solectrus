@@ -1,5 +1,9 @@
 class VersionInfo::Component < ViewComponent::Base
-  def initialize(current_version:, commit_time:, github_url:)
+  def initialize(
+    current_version: Rails.configuration.x.git.commit_version,
+    commit_time: Rails.configuration.x.git.commit_time,
+    github_url: Rails.configuration.x.git.home
+  )
     super()
     @current_version = current_version
     @commit_time = commit_time
@@ -18,9 +22,9 @@ class VersionInfo::Component < ViewComponent::Base
 
   def latest_release_url
     if latest_version
-      "#{Rails.configuration.x.git.home}/releases/tag/#{latest_version}"
+      "#{github_url}/releases/tag/#{latest_version}"
     else
-      "#{Rails.configuration.x.git.home}/releases"
+      "#{github_url}/releases"
     end
   end
 
