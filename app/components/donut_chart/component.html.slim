@@ -36,6 +36,11 @@ div class="flex-1 min-h-0 flex items-center justify-center @container-[size]"
                 = seg[:label]
               td.text-right.font-semibold.align-middle.whitespace-nowrap
                 = number_to_percentage(seg[:percent], precision: 0)
+          - if tooltip_footer
+            tfoot
+              tr
+                td colspan="3" class="border-t border-gray-300 dark:border-slate-600 pt-1 text-center font-semibold whitespace-nowrap"
+                  = tooltip_footer
 
       / Center content (COP)
       .absolute.inset-1/4.flex.items-center.justify-center.pointer-events-none
