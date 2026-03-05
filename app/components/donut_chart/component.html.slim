@@ -31,7 +31,7 @@ div class="flex-1 min-h-0 flex items-center justify-center @container-[size]"
           - segments.each do |seg|
             tr
               td.align-middle
-                .w-3.h-3.rounded-full style="background: var(#{seg[:color_var]})"
+                div class="w-3 h-3 rounded-sm border border-gray-500 dark:border-slate-400" style="background: var(#{seg[:color_var]})"
               td.text-left.text-xs.opacity-75.align-middle
                 = seg[:label]
               td.text-right.font-semibold.align-middle.whitespace-nowrap
