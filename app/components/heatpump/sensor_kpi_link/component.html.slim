@@ -1,0 +1,5 @@
+= link_to link_url,
+          class: css_class,
+          data: link_data do
+  = render RectBadge::Component.new(title:) do
+    = render SensorValue::Component.new(data, sensor_name, context: sensor_value_context)

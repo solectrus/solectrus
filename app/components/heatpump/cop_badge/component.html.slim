@@ -1,0 +1,16 @@
+= link_to link_url,
+          class: link_class,
+          data: { \
+            turbo_prefetch: 'false',
+            'stats-with-chart--component-target': 'current',
+            'sensor-name': 'heatpump_cop',
+            value: data.heatpump_cop,
+            time: data.time.to_i,
+            action: 'stats-with-chart--component#loadChart',
+            stats_with_chart__component_sensor_name_param: 'heatpump_cop',
+            stats_with_chart__component_chart_url_param: chart_url,
+          } do
+  div class="font-bold text-slate-700 dark:text-slate-300 leading-none text-[clamp(1.5rem,18cqmin,3.5rem)]"
+    = render SensorValue::Component.new(data, :heatpump_cop, precision: 1)
+  div class="uppercase tracking-wide text-slate-500 dark:text-slate-400 text-[clamp(0.5rem,5cqmin,1rem)] mt-0.5"
+    = Sensor::Registry[:heatpump_cop].display_name(:short)
