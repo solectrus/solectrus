@@ -45,9 +45,6 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     super.deep_merge(
       plugins: {
         legend: legend_options,
-        tooltip: {
-          displayColors: true,
-        },
       },
       scales: {
         x: {

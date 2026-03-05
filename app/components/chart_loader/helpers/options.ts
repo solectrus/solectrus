@@ -114,6 +114,14 @@ export const configureChartTooltip = (
 
   tooltip.footerFont = { size: 20 };
 
+  // Show color swatches when multiple datasets are visible in tooltips
+  const tooltipDatasets = data.datasets.filter(
+    (ds) => (ds as DatasetWithId).tooltip !== false,
+  );
+  if (tooltipDatasets.length > 1) {
+    tooltip.displayColors = true;
+  }
+
   if (!flags.isPowerBalance) {
     tooltip.itemSort = (a, b) => b.datasetIndex - a.datasetIndex;
   }
