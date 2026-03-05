@@ -16,6 +16,10 @@ class TimeframeSelect::WeekPicker::Component < ViewComponent::Base
     timeframe.week? ? timeframe.to_s : timeframe.corresponding_week
   end
 
+  def selected_value
+    value if timeframe.week?
+  end
+
   def initial_year
     return parsed_date.cwyear if valid_value?
     return Date.current.year if Date.current >= min_date

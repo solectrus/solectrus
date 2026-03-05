@@ -1,13 +1,13 @@
 div(
   data-controller="timeframe-select--year-picker--component"
-  data-timeframe-select--year-picker--component-value-value=value
+  data-timeframe-select--year-picker--component-value-value=selected_value
   data-timeframe-select--year-picker--component-min-year-value=min_year
   data-timeframe-select--year-picker--component-max-year-value=max_year
   data-timeframe-select--year-picker--component-name-value=name
-  data-timeframe-select--year-picker--component-base-classes-value="text-base py-4 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+  data-timeframe-select--year-picker--component-base-classes-value="text-base rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center justify-center"
   data-timeframe-select--year-picker--component-hover-classes-value="hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer"
   data-timeframe-select--year-picker--component-selected-classes-value="bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700"
-  data-timeframe-select--year-picker--component-unselected-classes-value="text-gray-900 dark:text-white"
+  data-timeframe-select--year-picker--component-unselected-classes-value="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
 )
   / Hidden input that holds the actual value (YYYY format)
   input type="hidden" name=name data-timeframe-select--year-picker--component-target="hiddenInput"
@@ -23,15 +23,16 @@ div(
     / Year picker panel (replaces modal content)
     .absolute.inset-0.bg-white.dark:bg-slate-800.z-50 data-timeframe-select--year-picker--component-target="modal"
       .flex.flex-col.h-full
-        / Header with back button
-        .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--year-picker--component#close" aria-label=t('.back')
+        / Header with back button and centered title
+        .relative.p-4.border-b.border-gray-200.dark:border-gray-700
+          button type="button" class=TimeframeSelect::Component::BACK_BUTTON_CLASSES data-action="timeframe-select--year-picker--component#close"
             i.fas.fa-arrow-left
-          .text-lg.font-medium.text-gray-900.dark:text-white
+            span.hidden.sm:inline = t('.back')
+          div class='text-lg font-medium text-gray-900 dark:text-white text-center'
             = t('.select_year')
 
         / Content area with year grid
-        .flex-1.overflow-y-auto.p-4
-          .grid.grid-cols-3.gap-3
+        .flex-1.min-h-0.p-4
+          .grid.grid-cols-3.auto-rows-fr.gap-3.h-full
             - (min_year..max_year).each do |year|
-              button.text-base.py-4.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500.cursor-pointer type="button" data-action="timeframe-select--year-picker--component#selectYear" data-timeframe-select--year-picker--component-target="yearCell" data-year=year = year
+              button.text-base.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500.cursor-pointer type="button" data-action="timeframe-select--year-picker--component#selectYear" data-timeframe-select--year-picker--component-target="yearCell" data-year=year = year

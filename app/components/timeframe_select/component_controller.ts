@@ -1,8 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 
-type PickerType = 'day' | 'week' | 'month' | 'year' | 'range' | 'relative';
-
 // Connects to data-controller="timeframe-select--component"
 export default class extends Controller<HTMLElement> {
   static readonly values = {
@@ -13,20 +11,15 @@ export default class extends Controller<HTMLElement> {
   declare readonly baseUrlValue: string;
   declare readonly idValue: string;
 
-  // Unified mapping from timeframe ID to picker config
-  private readonly pickerConfig: Record<
-    string,
-    { type: PickerType; buttonId: string }
-  > = {
-    day: { type: 'day', buttonId: 'day-picker-input-button' },
-    week: { type: 'week', buttonId: 'week-picker-input-button' },
-    month: { type: 'month', buttonId: 'month-picker-input-button' },
-    year: { type: 'year', buttonId: 'year-picker-input-button' },
-    range: { type: 'range', buttonId: 'range-picker-input-button' },
-    hours: { type: 'relative', buttonId: 'relative-picker-input-button' },
-    days: { type: 'relative', buttonId: 'relative-picker-input-button' },
-    months: { type: 'relative', buttonId: 'relative-picker-input-button' },
-    years: { type: 'relative', buttonId: 'relative-picker-input-button' },
+  // Mapping from timeframe ID to picker button for auto-open.
+  // Relative timeframes (hours, days, months, years) are not listed
+  // because their options are displayed inline as buttons.
+  private readonly pickerConfig: Record<string, string> = {
+    day: 'day-picker-input-button',
+    week: 'week-picker-input-button',
+    month: 'month-picker-input-button',
+    year: 'year-picker-input-button',
+    range: 'range-picker-input-button',
   };
 
   connect(): void {
@@ -44,12 +37,12 @@ export default class extends Controller<HTMLElement> {
   private autoOpenPicker(): void {
     if (!this.idValue) return;
 
-    const config = this.pickerConfig[this.idValue];
-    if (!config) return;
+    const buttonId = this.pickerConfig[this.idValue];
+    if (!buttonId) return;
 
     // Wait for next frame to ensure all pickers are fully initialized
     requestAnimationFrame(() => {
-      this.openPicker(config.buttonId);
+      this.openPicker(buttonId);
     });
   }
 

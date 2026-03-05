@@ -25,6 +25,14 @@ class TimeframeSelect::DayPicker::Component < ViewComponent::Base
     end
   end
 
+  def selected_value
+    value if range ? timeframe.range? : timeframe.day?
+  end
+
+  def selected_ending_value
+    ending_value if timeframe.range?
+  end
+
   def ending_value
     return unless range
 

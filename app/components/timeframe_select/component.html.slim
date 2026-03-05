@@ -39,7 +39,7 @@
     = render TimeframeSelect::YearPicker::Component.new(min_date:, timeframe:, name: 'year-picker-input')
 
     / Spacer with divider
-    .col-span-2.border-t.border-gray-200.dark:border-gray-700.my-2
+    .col-span-2.border-t.border-gray-400.dark:border-gray-600.my-2
 
     / Date range
     label[
@@ -50,12 +50,8 @@
     = render TimeframeSelect::DayPicker::Component.new(min_date:, timeframe:, name: 'range-picker-input', range: true)
 
     / Spacer with divider
-    .col-span-2.border-t.border-gray-200.dark:border-gray-700.my-2
+    .col-span-2.border-t.border-gray-400.dark:border-gray-600.my-2
 
-    / Relative picker
-    label[
-      class= LABEL_CLASSES
-      for= 'relative-picker-input-button'
-    ]
-      = t('.relative')
-    = render TimeframeSelect::RelativePicker::Component.new(timeframe:, name: 'relative-picker-input', min_date: min_date)
+    / Relative picker (spans full width, grouped by hours/days/months)
+    .col-span-2
+      = render TimeframeSelect::RelativePicker::Component.new(timeframe:, min_date:)

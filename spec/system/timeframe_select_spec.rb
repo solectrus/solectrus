@@ -22,8 +22,8 @@ describe 'Timeframe select' do
 
   def close_current_picker
     # Close any open picker by clicking the back button
-    # The back button is present in all picker modals
-    first('button[aria-label="Zurück"]').click
+    # The back button shows "Anderer Zeitraum" text
+    click_on 'Anderer Zeitraum'
     # Wait for the picker to actually close and main view to be visible
     expect(page).to have_content('Tag')
   end
@@ -38,7 +38,7 @@ describe 'Timeframe select' do
     expect(page).to have_content('Monat')
     expect(page).to have_content('Jahr')
     expect(page).to have_content('Individuell')
-    expect(page).to have_content('Relativ')
+    expect(page).to have_css('button[data-value="P7D"]')
   end
 
   it 'navigates when selecting day picker' do
@@ -70,7 +70,7 @@ describe 'Timeframe select' do
     # Click the week picker button to open it
     find_by_id('week-picker-input-button').click
 
-    click_on 'KW 25'
+    find('button[data-week="2022-W25"]').click
 
     expect(page).to have_current_path('/inverter_power/2022-W25')
     expect(page).to have_css('#balance-stats-2022-W25')
@@ -108,10 +108,8 @@ describe 'Timeframe select' do
     # Close the auto-opened day picker first
     close_current_picker
 
-    # Click the relative picker button to open it
-    find_by_id('relative-picker-input-button').click
-
-    click_on 'Letzte 7 Tage'
+    # Relative options are displayed inline as grouped buttons
+    find('button[data-value="P7D"]').click
 
     expect(page).to have_current_path('/inverter_power/P7D')
     expect(page).to have_css('#balance-stats-P7D')

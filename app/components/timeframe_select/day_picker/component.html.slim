@@ -1,7 +1,7 @@
 div[
   data-controller= 'timeframe-select--day-picker--component'
-  data-timeframe-select--day-picker--component-value-value= value
-  data-timeframe-select--day-picker--component-ending-value-value= ending_value
+  data-timeframe-select--day-picker--component-value-value= selected_value
+  data-timeframe-select--day-picker--component-ending-value-value= selected_ending_value
   data-timeframe-select--day-picker--component-min-date-value= min_date
   data-timeframe-select--day-picker--component-max-date-value= max_date
   data-timeframe-select--day-picker--component-name-value= name
@@ -9,7 +9,7 @@ div[
   data-timeframe-select--day-picker--component-base-classes-value= 'w-full h-full rounded text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 tabular-nums flex items-center justify-center'
   data-timeframe-select--day-picker--component-selected-classes-value= 'bg-indigo-600 text-white font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-700 cursor-pointer'
   data-timeframe-select--day-picker--component-in-range-classes-value= 'bg-indigo-100 text-indigo-900 dark:bg-indigo-800 dark:text-indigo-100 hover:bg-indigo-200 dark:hover:bg-indigo-700 cursor-pointer'
-  data-timeframe-select--day-picker--component-current-month-classes-value= 'text-gray-900 dark:text-white hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer'
+  data-timeframe-select--day-picker--component-current-month-classes-value= 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer'
   data-timeframe-select--day-picker--component-other-month-classes-value= 'text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer'
   data-timeframe-select--day-picker--component-disabled-classes-value= 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
 ]
@@ -34,18 +34,19 @@ div[
     / Day picker panel (replaces modal content)
     .absolute.inset-0.bg-white.dark:bg-slate-800.z-50 data-timeframe-select--day-picker--component-target='modal'
       .flex.flex-col.h-full
-        / Header with back button
-        .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type='button' data-action='timeframe-select--day-picker--component#close' aria-label=t('.back')
+        / Header with back button and centered title
+        .relative.p-4.border-b.border-gray-200.dark:border-gray-700
+          button type='button' class=TimeframeSelect::Component::BACK_BUTTON_CLASSES data-action='timeframe-select--day-picker--component#close'
             i.fas.fa-arrow-left
-          .text-lg.font-medium.text-gray-900.dark:text-white
+            span.hidden.sm:inline = t('.back')
+          div class='text-lg font-medium text-gray-900 dark:text-white text-center'
             - if range
               = t('.select_date_range')
             - else
               = t('.select_date')
 
         / Content area
-        .flex-1.overflow-hidden.p-4.flex.flex-col
+        .flex-1.overflow-hidden.min-h-0.p-4.flex.flex-col
           / Month/Year navigation
           .flex.justify-between.items-center.mb-3.flex-shrink-0
             button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type='button' data-action='timeframe-select--day-picker--component#previousMonth' data-timeframe-select--day-picker--component-target='prevMonthButton' aria-label=t('.previous_month')

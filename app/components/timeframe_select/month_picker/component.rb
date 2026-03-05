@@ -16,6 +16,10 @@ class TimeframeSelect::MonthPicker::Component < ViewComponent::Base
     timeframe.month? ? timeframe.to_s : timeframe.corresponding_month
   end
 
+  def selected_value
+    value if timeframe.month?
+  end
+
   def initial_year
     # Only parse if value looks like YYYY-MM format
     return Date.parse("#{value}-01").year if valid_value?

@@ -1,15 +1,15 @@
 div(
   data-controller="timeframe-select--month-picker--component"
-  data-timeframe-select--month-picker--component-value-value=value.to_s
+  data-timeframe-select--month-picker--component-value-value=selected_value
   data-timeframe-select--month-picker--component-min-date-value=min_date.to_s
   data-timeframe-select--month-picker--component-max-date-value=max_date.to_s
   data-timeframe-select--month-picker--component-initial-year-value=initial_year
   data-timeframe-select--month-picker--component-name-value=name
-  data-timeframe-select--month-picker--component-base-classes-value="text-base py-4 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+  data-timeframe-select--month-picker--component-base-classes-value="text-base rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center justify-center"
   data-timeframe-select--month-picker--component-disabled-classes-value="text-gray-300 dark:text-gray-600 cursor-not-allowed"
   data-timeframe-select--month-picker--component-hover-classes-value="hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer"
   data-timeframe-select--month-picker--component-selected-classes-value="bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700"
-  data-timeframe-select--month-picker--component-unselected-classes-value="text-gray-900 dark:text-white"
+  data-timeframe-select--month-picker--component-unselected-classes-value="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
 )
   / Hidden input that holds the actual value (YYYY-MM format)
   input type="hidden" name=name data-timeframe-select--month-picker--component-target="hiddenInput"
@@ -29,15 +29,16 @@ div(
     / Month picker panel (replaces modal content)
     .absolute.inset-0.bg-white.dark:bg-slate-800.z-50 data-timeframe-select--month-picker--component-target="modal"
       .flex.flex-col.h-full
-        / Header with back button
-        .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#close" aria-label=t('.back')
+        / Header with back button and centered title
+        .relative.p-4.border-b.border-gray-200.dark:border-gray-700
+          button type="button" class=TimeframeSelect::Component::BACK_BUTTON_CLASSES data-action="timeframe-select--month-picker--component#close"
             i.fas.fa-arrow-left
-          .text-lg.font-medium.text-gray-900.dark:text-white
+            span.hidden.sm:inline = t('.back')
+          div class='text-lg font-medium text-gray-900 dark:text-white text-center'
             = t('.select_month')
 
         / Content area
-        .flex-1.overflow-hidden.p-4.flex.flex-col
+        .flex-1.overflow-hidden.min-h-0.p-4.flex.flex-col
           / Year navigation
           .flex.justify-between.items-center.mb-4
             button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#previousYear" data-timeframe-select--month-picker--component-target="prevYearButton" aria-label=t('.previous_year')
@@ -47,6 +48,6 @@ div(
               i.fas.fa-chevron-right
 
           / Month grid (3x4)
-          .flex-1.grid.grid-cols-3.gap-3.content-evenly
+          .flex-1.min-h-0.grid.grid-cols-3.grid-rows-4.gap-3
             - 12.times do
               button.text-base.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#selectMonth" data-timeframe-select--month-picker--component-target="monthCell"

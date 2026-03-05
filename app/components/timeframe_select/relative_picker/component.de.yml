@@ -1,12 +1,13 @@
 de:
-  select_period: Relativen Zeitraum wählen
-  back: Zurück
-  last_24_hours: Letzte <strong>24 Stunden</strong>
-  last_72_hours: Letzte <strong>72 Stunden</strong>
-  last_7_days: Letzte <strong>7 Tage</strong>
-  last_30_days: Letzte <strong>30 Tage</strong>
-  last_90_days: Letzte <strong>90 Tage</strong>
-  last_365_days: Letzte <strong>365 Tage</strong>
-  last_12_months: Letzte <strong>12 Monate</strong>
-  since_installation: Letzte <strong>%{months} Monate</strong> (seit Installation)
-  since_installation_short: Letzte %{months} Monate
+  hours: Stunden
+  days: Tage
+  months: Monate
+  last_24_hours: "<strong>24</strong>"
+  last_48_hours: "<strong>48</strong>"
+  last_72_hours: "<strong>72</strong>"
+  last_7_days: "<strong>7</strong>"
+  last_30_days: "<strong>30</strong>"
+  last_90_days: "<strong>90</strong>"
+  last_365_days: "<strong>365</strong>"
+  last_12_months: "<strong>12</strong>"
+  since_installation: "<strong>%{months}</strong> (seit Installation)"

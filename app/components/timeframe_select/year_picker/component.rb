@@ -16,6 +16,10 @@ class TimeframeSelect::YearPicker::Component < ViewComponent::Base
     timeframe.effective_ending_date.year
   end
 
+  def selected_value
+    value if timeframe.year?
+  end
+
   def min_year
     min_date.year
   end

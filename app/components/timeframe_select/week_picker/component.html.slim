@@ -1,17 +1,17 @@
 div(
   data-controller="timeframe-select--week-picker--component"
-  data-timeframe-select--week-picker--component-value-value=value.to_s
+  data-timeframe-select--week-picker--component-value-value=selected_value
   data-timeframe-select--week-picker--component-min-date-value=min_date.to_s
   data-timeframe-select--week-picker--component-max-date-value=max_date.to_s
   data-timeframe-select--week-picker--component-initial-year-value=initial_year
   data-timeframe-select--week-picker--component-name-value=name
-  data-timeframe-select--week-picker--component-month-row-class-value="grid gap-1 grid-cols-[5.5rem_repeat(5,1fr)]"
-  data-timeframe-select--week-picker--component-month-label-class-value="text-sm font-semibold text-gray-600 dark:text-gray-400 flex items-center pr-3 whitespace-nowrap"
-  data-timeframe-select--week-picker--component-week-button-base-class-value="text-xs px-1 py-1 rounded text-center focus:outline-none focus:ring-1 focus:ring-indigo-500 tabular-nums"
+  data-timeframe-select--week-picker--component-month-row-class-value="grid gap-x-2 grid-cols-[5rem_repeat(5,1fr)] items-center"
+  data-timeframe-select--week-picker--component-month-label-class-value="text-sm font-semibold text-gray-500 dark:text-gray-400 whitespace-nowrap"
+  data-timeframe-select--week-picker--component-week-button-base-class-value="text-sm py-1 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 tabular-nums font-medium"
   data-timeframe-select--week-picker--component-week-button-disabled-class-value="text-gray-300 dark:text-gray-600 cursor-not-allowed"
-  data-timeframe-select--week-picker--component-week-button-hover-class-value="hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer"
+  data-timeframe-select--week-picker--component-week-button-hover-class-value="bg-gray-100 dark:bg-gray-700 hover:bg-indigo-100 dark:hover:bg-indigo-900 cursor-pointer"
   data-timeframe-select--week-picker--component-week-button-selected-class-value="bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700 cursor-pointer"
-  data-timeframe-select--week-picker--component-week-button-default-class-value="text-gray-900 dark:text-white cursor-pointer"
+  data-timeframe-select--week-picker--component-week-button-default-class-value="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white cursor-pointer"
   data-timeframe-select--week-picker--component-empty-slot-class-value=""
 )
   / Hidden input that holds the actual value (YYYY-Wnn format)
@@ -28,11 +28,12 @@ div(
     / Week picker panel (replaces modal content)
     .absolute.inset-0.bg-white.dark:bg-slate-800.z-50 data-timeframe-select--week-picker--component-target="modal"
       .flex.flex-col.h-full
-        / Header with back button
-        .flex.items-center.gap-4.p-4.border-b.border-gray-200.dark:border-gray-700
-          button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--week-picker--component#close" aria-label=t('.back')
+        / Header with back button and centered title
+        .relative.p-4.border-b.border-gray-200.dark:border-gray-700
+          button type="button" class=TimeframeSelect::Component::BACK_BUTTON_CLASSES data-action="timeframe-select--week-picker--component#close"
             i.fas.fa-arrow-left
-          .text-lg.font-medium.text-gray-900.dark:text-white
+            span.hidden.sm:inline = t('.back')
+          div class='text-lg font-medium text-gray-900 dark:text-white text-center'
             = t('.select_week')
 
         / Content area
@@ -46,5 +47,5 @@ div(
               i.fas.fa-chevron-right
 
           / Week grid (will be populated by JavaScript, grouped by month)
-          .flex-1.flex.flex-col.justify-between
-            .flex.flex-col.justify-between.h-full data-timeframe-select--week-picker--component-target="weekGrid"
+          .flex-1.min-h-0
+            .grid.grid-rows-12.h-full.gap-y-1 data-timeframe-select--week-picker--component-target="weekGrid"

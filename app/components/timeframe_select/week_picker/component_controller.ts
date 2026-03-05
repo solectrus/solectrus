@@ -247,8 +247,7 @@ export default class extends Controller<HTMLElement> {
           const button = document.createElement('button');
           button.type = 'button';
           button.dataset.week = weekStr;
-          const weekAbbr = this.locale === 'de' ? 'KW' : 'CW';
-          button.textContent = `${weekAbbr} ${weekNum.toString().padStart(2, '0')}`;
+          button.textContent = weekNum.toString().padStart(2, '0');
           button.className = this.weekButtonBaseClassValue;
 
           if (isDisabled) {
