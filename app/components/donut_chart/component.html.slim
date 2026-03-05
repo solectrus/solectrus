@@ -1,14 +1,14 @@
-div class="flex-1 min-h-0 flex items-center justify-center" style="container-type: size"
+div class="flex-1 min-h-0 flex items-center justify-center @container-[size]"
   - if placeholder?
-    div class="relative mx-auto" style="width: min(100cqi, 100cqb, 24rem); aspect-ratio: 1"
+    div class="relative mx-auto w-[min(100cqi,100cqb,24rem)] aspect-square @container-[size]"
       div class="absolute inset-0 rounded-full bg-slate-300 dark:bg-slate-700 @max-h-16:hidden" style=placeholder_style
-      .absolute.inset-0.flex.items-center.justify-center.pointer-events-none
+      .absolute.inset-1/4.flex.items-center.justify-center.pointer-events-none
         - if center
-          .text-center.pointer-events-auto
+          .text-center.text-balance.pointer-events-auto
             = center
 
   - else
-    div class="relative mx-auto" style="width: min(100cqi, 100cqb, 24rem); aspect-ratio: 1" data-controller="tooltip" data-tooltip-placement-value=tooltip_placement data-tooltip-force-tap-to-close-value="false" data-tooltip-touch-value="long"
+    div class="relative mx-auto w-[min(100cqi,100cqb,24rem)] aspect-square @container-[size]" data-controller="tooltip" data-tooltip-placement-value=tooltip_placement data-tooltip-force-tap-to-close-value="false" data-tooltip-touch-value="long"
       / Donut ring via conic-gradient + radial mask
       div class="absolute inset-0 rounded-full @max-h-16:hidden" style=donut_style
 
@@ -38,7 +38,7 @@ div class="flex-1 min-h-0 flex items-center justify-center" style="container-typ
                 = number_to_percentage(seg[:percent], precision: 0)
 
       / Center content (COP)
-      .absolute.inset-0.flex.items-center.justify-center.pointer-events-none
+      .absolute.inset-1/4.flex.items-center.justify-center.pointer-events-none
         - if center
-          .text-center.pointer-events-auto
+          .text-center.text-balance.pointer-events-auto
             = center
