@@ -15,5 +15,5 @@ class Sensor::Definitions::HeatpumpCosts < Sensor::Definitions::Base
     end
   end
 
-  aggregations stored: false, computed: [:sum], meta: [:sum]
+  aggregations stored: false, computed: [:sum], meta: %i[sum min max]
 end
