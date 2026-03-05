@@ -29,7 +29,7 @@
 }
 
 .floating-tooltip-arrow {
-  @apply absolute h-3 w-3 rotate-45 border border-gray-400 bg-white;
+  @apply absolute size-3 rotate-45 border border-gray-400 bg-white;
   @apply dark:border-slate-400 dark:bg-slate-900;
 }
 

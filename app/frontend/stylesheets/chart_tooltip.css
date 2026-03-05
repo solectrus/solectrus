@@ -44,7 +44,7 @@
 }
 
 .chartjs-tooltip .chart-tooltip-color {
-  @apply h-3 w-3 shrink-0 rounded-sm border border-gray-500 dark:border-slate-400;
+  @apply size-3 shrink-0 rounded-sm border border-gray-500 dark:border-slate-400;
 }
 
 .chartjs-tooltip .chart-tooltip-value {
