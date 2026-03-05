@@ -79,7 +79,7 @@ class Insights # rubocop:disable Metrics/ClassLength
     return unless value
     return if timeframe.days_passed <= 1
 
-    (value / timeframe.days_passed).round(2)
+    (value / timeframe.days_passed(include_today: true)).round(2)
   end
 
   def feed_in_revenue

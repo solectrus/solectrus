@@ -123,13 +123,13 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   # Number of days that have passed since the beginning of the timeframe
-  def days_passed
+  def days_passed(include_today: false)
     return 0 if now? || today? || beginning.nil?
 
     if past?
       (ending.to_date - effective_beginning_date + 1)
     elsif beginning.past?
-      (Date.current - effective_beginning_date)
+      (Date.current - effective_beginning_date + (include_today ? 1 : 0))
     else
       0
     end

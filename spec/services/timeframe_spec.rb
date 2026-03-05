@@ -654,6 +654,10 @@ describe Timeframe do
       expect(decoder.days_passed).to eq(3)
     end
 
+    it 'has passed 4 days including today' do
+      expect(decoder.days_passed(include_today: true)).to eq(4)
+    end
+
     context "when it's the first day" do
       let(:today) { Date.new(2022, 10, 10) }
 
@@ -913,6 +917,10 @@ describe Timeframe do
       expect(decoder.days_passed).to eq(12)
     end
 
+    it 'has passed 13 days including today' do
+      expect(decoder.days_passed(include_today: true)).to eq(13)
+    end
+
     context "when it's the first day" do
       let(:today) { Date.new(2022, 10, 1) }
 
@@ -1114,6 +1122,10 @@ describe Timeframe do
 
     it 'has passed 285 days' do
       expect(decoder.days_passed).to eq(285)
+    end
+
+    it 'has passed 286 days including today' do
+      expect(decoder.days_passed(include_today: true)).to eq(286)
     end
 
     context "when it's the first day" do
@@ -1655,8 +1667,12 @@ describe Timeframe do
     end
 
     it 'has passed 1260 days' do
-      # 2019-05-02 (min_ate) to 2022-10-13 (current date) = 1260 days
+      # 2019-05-02 (min_date) to 2022-10-13 (current date) = 1260 days
       expect(decoder.days_passed).to eq(1260)
+    end
+
+    it 'has passed 1261 days including today' do
+      expect(decoder.days_passed(include_today: true)).to eq(1261)
     end
 
     it 'returns the correct corresponding_all' do
