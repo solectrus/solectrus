@@ -40,7 +40,7 @@
 }
 
 .chartjs-tooltip .chart-tooltip-label {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-2 whitespace-nowrap;
 }
 
 .chartjs-tooltip .chart-tooltip-color {
