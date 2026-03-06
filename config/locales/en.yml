@@ -96,7 +96,8 @@ en:
     case_temp: Case
     grid_export_limit: Limitation
     heatpump_power: Heat pump
-    heatpump_power_env: Environmental heat
+    heatpump_power_short: Power consumption
+    heatpump_power_env: Energy from environment
     heatpump_heating_power: Heat generated
     heatpump_heating_power_short: Heat
     heatpump_tank_temp: Hot water
@@ -125,8 +126,9 @@ en:
     grid_costs_short: Grid costs
     autarky: Autarky
   splitter:
-    grid: Electricity from grid
-    pv: Electricity from PV
+    grid: Energy from grid
+    pv: Energy from PV
+    pv_percent: "%{percent}% from PV"
     total: Power consumption
   balance_sheet:
     left: Source

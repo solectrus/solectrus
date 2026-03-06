@@ -96,7 +96,8 @@ de:
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
-    heatpump_power_env: Umgebungswärme
+    heatpump_power_short: Stromverbrauch
+    heatpump_power_env: Energie aus Umgebung
     heatpump_heating_power: Erzeugte Wärme
     heatpump_heating_power_short: Wärme
     heatpump_tank_temp: Warmwasser
@@ -125,8 +126,9 @@ de:
     grid_costs_short: Netzkosten
     autarky: Autarkie
   splitter:
-    grid: Strom aus Netzbezug
-    pv: Strom aus Photovoltaik
+    grid: Energie aus Netzbezug
+    pv: Energie aus Photovoltaik
+    pv_percent: "%{percent}% aus Photovoltaik"
     total: Stromverbrauch
   balance_sheet:
     left: Herkunft

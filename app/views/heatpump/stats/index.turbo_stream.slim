@@ -11,31 +11,27 @@
     focus_ring_classes = 'focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0'
     card_base_classes = "click-animation block min-w-0 rounded-xl #{focus_ring_classes}"
     kpi_link_classes = "#{card_base_classes} min-w-0 basis-auto grow [&>div]:w-full"
-    costs_link_classes = "#{card_base_classes} bg-slate-200 px-3 py-2.5 text-slate-700 dark:bg-slate-800 dark:text-slate-400 md:px-4"
 
   .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5 id= "stats-#{timeframe.id}"
-    - if !timeframe.now? && data.heatpump_costs
-      = link_to url_for(controller: 'home', sensor_name: 'heatpump_costs', timeframe:),
-                class: costs_link_classes,
-                data: { \
-                  controller: 'tooltip',
-                  tooltip_placement_value: 'bottom',
-                  tooltip_force_tap_to_close_value: false,
-                  tooltip_touch_value: 'long',
-                  turbo_prefetch: 'false',
-                  'stats-with-chart--component-target': 'current',
-                  'sensor-name': 'heatpump_costs',
-                  value: data.heatpump_costs,
-                  time: data.time.to_i,
-                  action: 'stats-with-chart--component#loadChart',
-                  stats_with_chart__component_sensor_name_param: 'heatpump_costs',
-                  stats_with_chart__component_chart_url_param: heatpump_charts_path(sensor_name: 'heatpump_costs', timeframe:),
-                } do
-          - if data.heatpump_power_grid_ratio
+    - if data.heatpump_power
+      .flex.w-full.items-stretch.gap-1.md:gap-2.text-slate-700.dark:text-slate-400
+        = link_to url_for(controller: 'home', sensor_name: 'heatpump_power', timeframe:),
+                  class: "#{card_base_classes} grow min-w-0 #{"bg-slate-200 dark:bg-slate-800 px-3 py-2.5 md:px-4 #{'rounded-r-none' if data.heatpump_costs}" unless timeframe.now?}",
+                  data: { \
+                    turbo_prefetch: 'false',
+                    'stats-with-chart--component-target': 'current',
+                    'sensor-name': 'heatpump_power',
+                    value: data.heatpump_power,
+                    time: data.time.to_i,
+                    action: 'stats-with-chart--component#loadChart',
+                    stats_with_chart__component_sensor_name_param: 'heatpump_power',
+                    stats_with_chart__component_chart_url_param: heatpump_charts_path(sensor_name: 'heatpump_power', timeframe:),
+                  } do
+          - if !timeframe.now? && data.heatpump_power_grid_ratio
             - power_pv_ratio = 100 - data.heatpump_power_grid_ratio
             .text-center.text-sm
               div
-                = "#{power_pv_ratio.round}% aus Photovoltaik"
+                = t('splitter.pv_percent', percent: power_pv_ratio.round)
               .w-full.flex.gap-px.rounded.overflow-hidden.mt-1
                 - if power_pv_ratio.positive?
                   .h-3.bg-sensor-pv[
@@ -45,18 +41,40 @@
                   .h-3.bg-sensor-grid[
                     style= "width: #{data.heatpump_power_grid_ratio}%;"
                   ]
+          - if timeframe.now?
+            = render RectBadge::Component.new(title: t('sensors.heatpump_power_short')) do
+              = render SensorValue::Component.new(data, :heatpump_power, context: :rate)
+          - else
+            .text-center class=("#{'mt-3' if data.heatpump_power_grid_ratio}")
+              = render SensorValue::Component.new(data, :heatpump_power, context: :total, class: 'text-2xl md:text-3xl')
 
-          .mt-4.text-center
-            = render SensorValue::Component.new(data.heatpump_costs, :total_costs, sign: :negative, class: 'text-3xl')
-
-          #tooltip-content-heatpump_costs.hidden data-tooltip-target= 'html'
-            = render SplittedCosts::Component.new( \
-                costs: data.heatpump_costs,
-                power_grid_ratio: data.heatpump_power_grid_ratio,
-                grid_costs: data.heatpump_costs_grid,
-                pv_costs: data.heatpump_costs_pv,
-                show_power_breakdown: false,
-              )
+        - if !timeframe.now? && data.heatpump_costs
+          = link_to url_for(controller: 'home', sensor_name: 'heatpump_costs', timeframe:),
+                    class: "click-animation block shrink-0 h-full rounded-xl rounded-l-none #{focus_ring_classes}",
+                    data: { \
+                      controller: 'tooltip',
+                      tooltip_placement_value: 'bottom',
+                      tooltip_force_tap_to_close_value: false,
+                      tooltip_touch_value: 'long',
+                      turbo_prefetch: 'false',
+                      'stats-with-chart--component-target': 'current',
+                      'sensor-name': 'heatpump_costs',
+                      value: data.heatpump_costs,
+                      time: data.time.to_i,
+                      action: 'stats-with-chart--component#loadChart',
+                      stats_with_chart__component_sensor_name_param: 'heatpump_costs',
+                      stats_with_chart__component_chart_url_param: heatpump_charts_path(sensor_name: 'heatpump_costs', timeframe:),
+                    } do
+            = render RectBadge::Component.new(title: t('sensors.heatpump_costs_short'), css_class: 'h-full rounded-l-none justify-center px-3 md:px-4') do
+              = render SensorValue::Component.new(data.heatpump_costs, :total_costs, sign: :negative)
+            #tooltip-content-heatpump_costs.hidden data-tooltip-target= 'html'
+              = render SplittedCosts::Component.new( \
+                  costs: data.heatpump_costs,
+                  power_grid_ratio: data.heatpump_power_grid_ratio,
+                  grid_costs: data.heatpump_costs_grid,
+                  pv_costs: data.heatpump_costs_pv,
+                  show_power_breakdown: false,
+                )
 
     ruby:
       donut_heating_url = heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:)
@@ -103,8 +121,6 @@
         end
 
       = render DonutChart::Component.new(segments: donut_segments, url: donut_heating_url, chart_url: donut_chart_url, tooltip_placement: 'bottom') do |chart|
-        - chart.with_tooltip_footer do
-          = render SensorValue::Component.new(data, :heatpump_power, context: timeframe.now? ? :rate : :total)
         - chart.with_center do
           = render Heatpump::CopBadge::Component.new(data:, timeframe:)
 
@@ -138,8 +154,6 @@
         end
 
       = render DonutChart::Component.new(segments: donut_segments, url: donut_heating_url, chart_url: donut_chart_url, tooltip_placement: 'bottom') do |chart|
-        - chart.with_tooltip_footer do
-          = render SensorValue::Component.new(data, :heatpump_power, context: timeframe.now? ? :rate : :total)
         - chart.with_center do
           .flex.flex-col.items-center
             p class="hidden md:block text-slate-500 dark:text-slate-400 text-center leading-tight text-[clamp(0.6rem,6cqmin,0.875rem)]"

@@ -21,6 +21,9 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   attr_reader :sensor_name, :timeframe, :sensor_names, :menu_config
 
   def display_name
+    override = menu_config.dig(:display_names, sensor_name)
+    return override if override
+
     # For individual sensors that are part of a combined chart,
     # show the main sensor with the other one in parentheses
     case sensor_name
@@ -42,37 +45,34 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   end
 
   def grouped?
+    return false if menu_config[:grouped] == false
+
     sensor_groups.length > 1
   end
 
   def sensor_items
-    # If not grouped, return flat array of items
     return [] if sensor_groups.empty?
 
-    sensor_groups.first&.dig(:items) || []
+    if grouped?
+      sensor_groups.first&.dig(:items) || []
+    else
+      all_items
+    end
   end
 
   def top_sensor
-    all_items =
-      if grouped?
-        sensor_groups.flat_map { |group| group[:items] || [] }
-      else
-        sensor_items
-      end
     all_items.find { |item| item.sensor_name == @top_sensor }
   end
 
   def bottom_sensor
-    all_items =
-      if grouped?
-        sensor_groups.flat_map { |group| group[:items] || [] }
-      else
-        sensor_items
-      end
     all_items.find { |item| item.sensor_name == @bottom_sensor }
   end
 
   private
+
+  def all_items
+    @all_items ||= sensor_groups.flat_map { |group| group[:items] || [] }
+  end
 
   def build_grouped_sensor_items
     build_menu_groups(group_sensors_manually)
@@ -157,7 +157,7 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   end
 
   def item_display_name(name)
-    Sensor::Registry[name].display_name(:long)
+    menu_config.dig(:display_names, name) || Sensor::Registry[name].display_name(:long)
   end
 
   def build_menu_item(sensor_name)
