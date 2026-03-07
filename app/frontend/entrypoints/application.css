@@ -101,6 +101,14 @@
       font-size: clamp(1rem, 1.4vw, 1.8rem);
       line-height: 1;
     }
+
+    & .donut-chart > div {
+      width: min(80cqi, 80cqb);
+    }
+
+    & [id*='-timeframe-'] > div {
+      font-size: clamp(1rem, 1.2vw, 1.5rem);
+    }
   }
 }
 
