@@ -35,7 +35,7 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
         balance.with_segment :inverter_power, peak: peak&.dig(:inverter_power)
       end
 
-  div class= 'flex flex-col px-2 sm:px-4 gap-2 tall:gap-4 pb-8'
+  div class= 'flex flex-col min-h-0 overflow-hidden px-2 sm:px-4 gap-2 tall:gap-4 pb-8'
     = center
 
   = render SegmentContainer::Component.new tooltip_placement: 'left',

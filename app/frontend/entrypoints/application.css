@@ -102,6 +102,25 @@
       line-height: 1;
     }
 
+    /* Reduce badge/soc sizes on shorter fullscreen viewports (e.g. laptops) */
+    @media (max-height: 1200px) {
+      & .badge {
+        --size: clamp(6.5rem, 6.5vw, 8.5rem);
+      }
+
+      & .soc-badge {
+        gap: 0.6rem;
+      }
+
+      & .soc-badge .soc-icon {
+        font-size: clamp(1.45rem, 1.25vw, 1.9rem);
+      }
+
+      & .soc-badge .soc-value {
+        font-size: clamp(0.95rem, 1.3vw, 1.7rem);
+      }
+    }
+
     & .donut-chart > div {
       width: min(80cqi, 80cqb);
     }
