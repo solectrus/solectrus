@@ -84,13 +84,11 @@ export const configureChartTooltip = (
     return tooltipItem.raw !== null;
   };
 
-  const isPastOrFuture = (
+  const isFutureActual = (
     datasetId: string | undefined,
     timestamp: number,
   ): boolean => {
-    const now = Date.now();
-    if (datasetId === 'inverter_power_forecast') return timestamp <= now;
-    if (datasetId === 'inverter_power') return timestamp > now;
+    if (datasetId === 'inverter_power') return timestamp > Date.now();
     return false;
   };
 
@@ -98,12 +96,9 @@ export const configureChartTooltip = (
     const dataset = tooltipItem.dataset as DatasetWithId;
     if (dataset.tooltip === false) return false;
 
-    if (
-      dataset.id === 'inverter_power_forecast' ||
-      dataset.id === 'inverter_power'
-    ) {
+    if (dataset.id === 'inverter_power') {
       const timestamp = getTimestamp(tooltipItem);
-      if (timestamp !== null && isPastOrFuture(dataset.id, timestamp))
+      if (timestamp !== null && isFutureActual(dataset.id, timestamp))
         return false;
     }
 
