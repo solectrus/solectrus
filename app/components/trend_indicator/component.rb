@@ -32,4 +32,14 @@ class TrendIndicator::Component < ViewComponent::Base
   def show_absolute_values?
     trend.sensor.trend_aggregation == :avg
   end
+
+  def formatted_value(value)
+    Sensor::ValueFormatter.new(
+      value,
+      unit: trend.sensor.unit,
+      context: :total,
+      scaling: :kilo,
+      precision: diff_precision,
+    ).to_s
+  end
 end

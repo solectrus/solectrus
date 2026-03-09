@@ -4,7 +4,7 @@ describe TrendIndicator::Component do
   let(:trend) do
     instance_double(Trend, diff:, more_is_better?: more_is_better, sensor:)
   end
-  let(:sensor) { double('Sensor', trend_aggregation: trend_aggregation) }
+  let(:sensor) { double('Sensor', trend_aggregation: trend_aggregation, unit: :watt) }
   let(:trend_aggregation) { :sum }
 
   describe '#icon' do
@@ -80,6 +80,12 @@ describe TrendIndicator::Component do
       let(:trend_aggregation) { :avg }
 
       it { is_expected.to eq(1) }
+    end
+
+    context 'when sensor unit is percent' do
+      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :percent) }
+
+      it { is_expected.to eq(0) }
     end
   end
 
