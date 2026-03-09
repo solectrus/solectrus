@@ -145,7 +145,17 @@ class HeatmapTile::Component < ViewComponent::Base
   end
 
   def sensor_background_color(sensor_name = sensor.name)
-    Sensor::Registry[sensor_name].color_background
+    sensor_def = Sensor::Registry[sensor_name]
+
+    # Sensors with dynamic colors may return context-dependent classes
+    # (e.g. responsive prefixes) that don't apply in heatmap tiles.
+    # Use the chart's color_class which provides a plain background.
+    if sensor_def.class.meta_data[:color_dynamic]
+      chart_instance = sensor_def.chart(timeframe)
+      return chart_instance.color_class(sensor_def) if chart_instance
+    end
+
+    sensor_def.color_background
   end
 
   def link_path_for_date(date)

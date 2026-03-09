@@ -13,6 +13,8 @@ class Sensor::Definitions::SelfConsumptionQuote < Sensor::Definitions::Base
     (self_consumption * 100.0 / inverter_power).clamp(0, 100).round
   end
 
+  trend more_is_better: true, aggregation: :avg
+
   aggregations stored: false, computed: [:avg], meta: [:avg]
 
   chart { |timeframe| Sensor::Chart::SelfConsumptionQuote.new(timeframe:) }

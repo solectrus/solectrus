@@ -29,6 +29,8 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
     [raw.round, 0].max
   end
 
+  trend more_is_better: true, aggregation: :avg
+
   aggregations stored: false, computed: [:avg], meta: [:avg]
 
   chart { |timeframe| Sensor::Chart::Autarky.new(timeframe:) }

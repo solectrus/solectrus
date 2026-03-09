@@ -103,6 +103,11 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
+  # Override in subclasses to use a fixed chart color instead of the sensor's color
+  def color_class(sensor)
+    sensor.color_background
+  end
+
   private
 
   def build_data
@@ -160,11 +165,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
     }.compact
-  end
-
-  # Override in subclasses to use a fixed chart color instead of the sensor's color
-  def color_class(sensor)
-    sensor.color_background
   end
 
   # Override in subclasses (e.g. MinmaxBase) to customize border rounding
