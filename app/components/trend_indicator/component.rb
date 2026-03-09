@@ -24,6 +24,8 @@ class TrendIndicator::Component < ViewComponent::Base
   end
 
   def diff_precision
+    return 0 if trend.sensor.unit == :percent
+
     trend.sensor.trend_aggregation == :avg ? 1 : 0
   end
 
