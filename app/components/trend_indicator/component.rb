@@ -24,13 +24,31 @@ class TrendIndicator::Component < ViewComponent::Base
   end
 
   def diff_precision
-    return 0 if trend.sensor.unit == :percent
+    return 0 if percent?
 
     trend.sensor.trend_aggregation == :avg ? 1 : 0
   end
 
+  def percent?
+    trend.sensor.unit == :percent
+  end
+
+  def show_diff_value?
+    percent? || trend.sensor.trend_aggregation == :avg
+  end
+
   def show_absolute_values?
-    trend.sensor.trend_aggregation == :avg
+    show_diff_value? && !percent?
+  end
+
+  def diff_suffix
+    if percent?
+      " #{t('.percentage_points')}"
+    elsif show_absolute_values?
+      ''
+    else
+      '%'
+    end
   end
 
   def formatted_value(value)

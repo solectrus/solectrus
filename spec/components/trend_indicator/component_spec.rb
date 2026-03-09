@@ -89,6 +89,48 @@ describe TrendIndicator::Component do
     end
   end
 
+  describe '#percent?' do
+    subject { component.percent? }
+
+    let(:diff) { 1 }
+    let(:more_is_better) { true }
+
+    context 'when sensor unit is watt' do
+      it { is_expected.to be false }
+    end
+
+    context 'when sensor unit is percent' do
+      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :percent) }
+
+      it { is_expected.to be true }
+    end
+  end
+
+  describe '#show_diff_value?' do
+    subject(:show_diff_value) { component.show_diff_value? }
+
+    let(:diff) { 1 }
+    let(:more_is_better) { true }
+
+    context 'when sensor uses sum aggregation' do
+      let(:trend_aggregation) { :sum }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when sensor uses avg aggregation' do
+      let(:trend_aggregation) { :avg }
+
+      it { is_expected.to be true }
+    end
+
+    context 'when sensor unit is percent' do
+      let(:sensor) { double('Sensor', trend_aggregation: :sum, unit: :percent) }
+
+      it { is_expected.to be true }
+    end
+  end
+
   describe '#show_absolute_values?' do
     subject { component.show_absolute_values? }
 
@@ -105,6 +147,12 @@ describe TrendIndicator::Component do
       let(:trend_aggregation) { :avg }
 
       it { is_expected.to be true }
+    end
+
+    context 'when sensor uses avg aggregation but unit is percent' do
+      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :percent) }
+
+      it { is_expected.to be false }
     end
   end
 end

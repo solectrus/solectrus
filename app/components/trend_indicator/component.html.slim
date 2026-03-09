@@ -4,22 +4,20 @@
     data-tooltip-touch-value= 'true'
   ]
     - if trend.same?
-      - if show_absolute_values?
-        '&plusmn; 0
-      - else
-        '&plusmn; 0%
+      | &plusmn; 0#{diff_suffix}
     - else
       i.fa class= [icon, color_class]
 
       span< class=color_class
-        - if show_absolute_values?
+        - if show_diff_value?
           = Sensor::ValueFormatter.new(trend.diff, unit: :unitless, precision: diff_precision, sign: true).to_s
+          =< diff_suffix
         - else
           = Sensor::ValueFormatter.new(trend.percent, unit: :percent, precision: 0, sign: true).to_s
 
     .hidden data-tooltip-target= 'html'
       .text-center
-        - if show_absolute_values?
+        - if show_diff_value?
           => formatted_value(trend.current_value)
           =< t('.compared_to')
           =< formatted_value(trend.base_value)
