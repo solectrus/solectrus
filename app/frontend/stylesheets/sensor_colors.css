@@ -26,7 +26,7 @@
   --palette-contrast-light-heatpump: #e07e00; /* mango tango */
   --palette-contrast-light-wallbox: #7e57c2; /* fuchsia blue */
   --palette-contrast-light-heatpump-env: #1e96c8; /* curious blue */
-  --palette-contrast-light-inverter-diff: #5250c7; /* indigo */
+  --palette-contrast-light-inverter-diff: #7a8a9e; /* slate gray */
   --palette-contrast-light-costs: #e0325a; /* cerise red */
   --palette-contrast-light-savings: #a16207; /* rich gold */
   --palette-contrast-light-co2: #0284c7; /* lochmara */
@@ -45,7 +45,7 @@
   --palette-contrast-dark-heatpump: #6b4100; /* nutmeg wood finish */
   --palette-contrast-dark-wallbox: #4a2d80; /* minsk */
   --palette-contrast-dark-heatpump-env: #165a72; /* blumine */
-  --palette-contrast-dark-inverter-diff: #4342a0; /* governor bay */
+  --palette-contrast-dark-inverter-diff: #475569; /* slate gray */
   --palette-contrast-dark-costs: #7d1b32; /* claret */
   --palette-contrast-dark-savings: #713f12; /* sepia */
   --palette-contrast-dark-co2: #075985; /* venice blue */
