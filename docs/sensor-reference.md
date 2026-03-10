@@ -90,7 +90,8 @@ Both data classes perform automatic type conversion based on the sensor unit:
 
 # Boolean unit → true/false
 # Accepts for true: 1, '1', 'true', 'on', 'yes'
-# Accepts for false: 0, '0', 'false', 'off', 'no', nil
+# Accepts for false: 0, '0', 'false', 'off', 'no', ''
+# nil stays nil
 
 # String unit → String
 # Any text is returned as string
@@ -253,8 +254,8 @@ sensor.chart(timeframe)                      # Returns chart
 
 ```ruby
 aggregations stored: [:sum, :max],   # Saved in SummaryValue
-             computed: [:avg],       # Calculable via allowed_aggregations
-             meta: %i[sum max min avg], # For SQL meta-aggregations
+             computed: [:avg],       # Exposed via allowed_aggregations
+             meta: %i[sum max min avg], # Available meta-aggregations for summarized data
              top10: true             # Enable Top10 ranking
 
 # Can be defined individually:
@@ -262,6 +263,8 @@ summary_aggregations :sum, :max        # stored
 allowed_aggregations :avg              # computed
 summary_meta_aggregations :sum, :avg   # meta
 ```
+
+In practice, `allowed_aggregations` is the public capability list used by `Sensor::Query::Total`, `Sensor::Query::Ranking`, and trend handling. `summary_meta_aggregations` describes which meta-aggregations exist for summarized data, but it is not the primary validation hook for the DSL.
 
 ### `requires_permission` - Permission Check
 
@@ -361,7 +364,7 @@ Dependencies can differ based on query context (`:influx` vs `:sql`):
 
 ```ruby
 class Sensor::Definitions::HousePowerPv < Sensor::Definitions::Base
-  value unit: :watt, category: :consumer
+  value unit: :watt, category: :power_splitter
 
   # Dependencies differ based on context
   depends_on do |context: :unknown|
@@ -397,7 +400,7 @@ end
 
 ## Finance Sensors
 
-Finance sensors inherit from `Sensor::Definitions::FinanceBase` and implement **dual-backend calculations**:
+Finance sensors inherit from `Sensor::Definitions::FinanceBase` and typically implement **dual-backend calculations**:
 
 ```ruby
 class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
@@ -426,6 +429,8 @@ class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
     return unless grid_import_power
 
     electricity_price = prices[:electricity]
+    return unless electricity_price
+
     grid_import_power * electricity_price / 1000.0
   end
 end
@@ -433,10 +438,12 @@ end
 
 ### Dual-Backend Architecture
 
-Finance sensors must implement **both** calculation methods:
+`FinanceBase` subclasses are expected to implement **both** calculation methods:
 
 1. **`sql_calculation`** - For SQL/SummaryValues queries (daily+)
 2. **`calculate_with_prices`** - For InfluxDB queries (hourly)
+
+There are also non-finance sensors with `sql_calculation` support, for example `heatpump_cop`, `co2_reduction`, `solar_price`, and `savings`. Those are not all `FinanceBase` subclasses and may still rely on a regular `calculate` block for post-processing.
 
 **Why dual backends?**
 
@@ -467,8 +474,8 @@ The `calculate_with_prices` method receives:
 
 **Parameters:**
 
-- `dependencies:` - Hash with sensor values from dependencies
-- `prices:` - Hash with current prices (`:electricity` and `:feed_in` keys with Price objects)
+- Dependency values are passed as keyword arguments (for example `grid_import_power:` or `house_power:`)
+- `prices:` contains the currently loaded prices (for example `:electricity` and `:feed_in`)
 
 **Returns:** Calculated value in Euro
 
@@ -477,6 +484,7 @@ def calculate_with_prices(grid_import_power:, prices:)
   return unless grid_import_power
 
   electricity_price = prices[:electricity]
+  return unless electricity_price
 
   # Convert Wh to kWh and multiply by price
   grid_import_power * electricity_price / 1000.0
@@ -537,7 +545,7 @@ Sensor::Registry[:car_battery_soc].permitted?  # => true/false
 Sensor::Config.exists?(:car_battery_soc)       # => false if not permitted
 ```
 
-**Available features:**
+**Available features currently used by sensor definitions and related UI gates:**
 
 - `:car` - Car/Wallbox extended
 - `:heatpump` - Heat pump
@@ -553,17 +561,16 @@ Top10 rankings for sensors:
 
 ```ruby
 # Daily ranking (best 10 days)
-ranking = Sensor::Query::Ranking.new(:inverter_power, calc_type: :sum)
-ranking.days
-# => { Date1 => 25000.0, Date2 => 24500.0, ... }
+ranking = Sensor::Query::Ranking.new(:inverter_power, aggregation: :sum, period: :day)
+ranking.call
+# => [{ date: Date1, value: 25000.0 }, { date: Date2, value: 24500.0 }, ...]
 
 # Monthly ranking
-ranking.months
-# => { Date1 => 750000.0, Date2 => 720000.0, ... }
+Sensor::Query::Ranking.new(:inverter_power, aggregation: :sum, period: :month).call
 
 # Different aggregations
-Sensor::Query::Ranking.new(:outdoor_temp, calc_type: :max).days  # Hottest days
-Sensor::Query::Ranking.new(:outdoor_temp, calc_type: :min).days  # Coldest days
+Sensor::Query::Ranking.new(:outdoor_temp, aggregation: :max, period: :day).call  # Hottest days
+Sensor::Query::Ranking.new(:outdoor_temp, aggregation: :min, period: :day, desc: false).call  # Coldest days
 ```
 
 Supports all sensors with `allowed_aggregations`. Use `top10_permitted` to gate access in the UI.
@@ -578,11 +585,12 @@ The summarizer system stores aggregated values in `summary_values`:
 Sensor::Summarizer.call(date)          # Single date
 Sensor::Summarizer.call(timeframe)     # Multiple dates in timeframe
 
-# Stores for each sensor with summary_aggregations:
-# - sum_inverter_power
-# - max_inverter_power
-# - min_case_temp
-# - avg_autarky (meta-aggregation via SQL)
+# Stores records in `summary_values` for each configured sensor/aggregation pair:
+# - field: "inverter_power", aggregation: "sum"
+# - field: "inverter_power", aggregation: "max"
+# - field: "case_temp", aggregation: "min"
+#
+# Meta-aggregations such as `AVG` over daily values are computed later by SQL queries
 ```
 
 **Only sensors with `summary_aggregations` are stored:**
@@ -604,7 +612,7 @@ end
 ```ruby
 RSpec.describe Sensor::Registry do
   it 'loads all sensor definitions' do
-    expect(Sensor::Registry.all.count).to be > 80
+    expect(Sensor::Registry.all).not_to be_empty
   end
 
   it 'finds sensor by name' do
@@ -669,17 +677,17 @@ InfluxDB queries use:
 # Instead of: Load all values and calculate in Ruby
 # Use: SQL aggregation on summary_values
 Sensor::Query::Total.new(Timeframe.year) do |q|
-  q.avg :autarky  # SQL: SELECT AVG(value) FROM summary_values WHERE ...
+  q.avg :case_temp, :min  # SQL: SELECT AVG(case_temp_min) FROM daily
 end.call
 ```
 
-### 4. Dependency Caching
+### 4. Dependency Resolution
 
-Dependencies are resolved once and cached:
+Dependencies are resolved centrally via `Sensor::DependencyResolver`:
 
 ```ruby
-sensor = Sensor::Registry[:autarky]
-sensor.dependencies  # Cached after first call
+resolver = Sensor::DependencyResolver.new([:autarky], context: :sql)
+resolver.resolve
 ```
 
 ## Common Patterns

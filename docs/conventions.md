@@ -1,22 +1,4 @@
-# SOLECTRUS
-
-Rails 8.1 full-stack application for photovoltaic monitoring.
-
-## Stack
-
-- Ruby 4.0, PostgreSQL + InfluxDB (time-series data)
-- Hotwire (Turbo + Stimulus), TypeScript, Vite, ViewComponent
-- Tailwind CSS v4, Slim templates
-- RSpec + Playwright
-
-## Code Quality
-
-```bash
-bin/rubocop           # Ruby style (use -A for auto-correct)
-bin/slim_lint         # Slim templates
-bin/brakeman          # Security scan
-bin/rspec             # Tests
-```
+# Code Conventions
 
 ## Frontend
 
@@ -46,7 +28,7 @@ class Button::Component < ViewComponent::Base
 end
 ```
 
-### Tailwind CSS
+### Tailwind CSS in Slim
 
 For classes with `@` (container queries), use attribute syntax:
 
@@ -70,19 +52,6 @@ Use `TailwindFormBuilder` for styled forms:
 ```
 
 ## Testing
-
-### Running Tests
-
-- Model specs: `bin/rspec spec/models/<model>_spec.rb`
-- Request specs: `bin/rspec spec/requests/<controller>_request_spec.rb`
-- System specs: `bin/rspec spec/system/<feature>_spec.rb HEADLESS=true`
-
-**System specs are slow** (Playwright browser automation). Only run when:
-
-- UI behavior or JavaScript interactions are affected
-- Request specs cannot verify the functionality
-
-Always use `HEADLESS=true` — without it, browser windows appear in foreground and block user interaction.
 
 ### RSpec Conventions
 
@@ -114,14 +83,14 @@ describe User do
 end
 ```
 
+### Playwright Helpers
+
+- `travel_js(milliseconds)` - JavaScript time manipulation
+- `influx_seed` / `influx_purge` - InfluxDB test data setup
+
 ### Test Guidelines
 
 - Write tests **before** implementation (TDD)
 - Don't test private methods or trivial code
 - Prefer real objects over mocks
 - Use mocks only for external APIs or expensive operations
-
-### Playwright Helpers
-
-- `travel_js(milliseconds)` - JavaScript time manipulation
-- `influx_seed` / `influx_purge` - InfluxDB test data setup

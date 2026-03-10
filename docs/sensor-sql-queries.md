@@ -1,12 +1,16 @@
-# Sensor::Query::Total - SQL Queries for Historical Data
+# Sensor::Query::Total - SQL Queries for Daily+ Timeframes
 
-Detailed SQL query examples with generated SQL for the Sensor System.
+Detailed SQL query examples for the SQL branch of the Sensor System.
 
 > 📖 **See also:** [Sensor Overview](sensor-overview.md) for core concepts and [Sensor Reference](sensor-reference.md) for DSL reference and technical details
 
 ## Overview
 
-The `Sensor::Query::Total` class dynamically generates optimized SQL queries to fetch historical sensor data from the `summary_values` table, optionally joined with the `prices` table. It uses a **fluent DSL with block syntax** and supports both simple single values and complex time series with meta-aggregations and automatic cost calculations.
+`Sensor::Query::Total` is a dispatcher. For hourly timeframes (`P1H` to `P99H`) it uses `Sensor::Query::Helpers::Influx::Total`; for non-hourly timeframes it delegates to `Sensor::Query::Helpers::Sql::Total`.
+
+This document covers only the SQL path for daily and longer timeframes. In that mode, queries run against `summary_values`, optionally joined with the `prices` table. The DSL supports both simple single values and grouped time series with meta-aggregations and automatic finance calculations.
+
+The SQL snippets below are representative. The current builder emits compact SQL, and price lookups are attached with `LEFT JOIN`s so sensor values can still be returned when a price row is missing.
 
 ## Core Functionality
 
@@ -15,8 +19,8 @@ The `Sensor::Query::Total` class dynamically generates optimized SQL queries to 
 - **Dynamic SQL creation**: Based on sensor definitions and dependencies
 - **Meta-aggregations**: Combines base and meta-aggregations (e.g., `AVG` of `SUM`)
 - **Dependency resolution**: Automatic addition of required sensor fields
-- **Cost calculations**: JOIN on `prices` table for electricity costs and feed-in revenue
-- **Pretty formatting**: Indented, readable SQL queries for debugging
+- **Cost calculations**: Optional `LEFT JOIN` on the `prices` table for electricity costs and feed-in revenue
+- **Post-processing**: Ruby-side calculation still runs after the SQL result is mapped, so calculated sensors can be composed from loaded dependencies
 
 ### 2. Data Structures
 
@@ -34,10 +38,10 @@ The `Sensor::Query::Total` class dynamically generates optimized SQL queries to 
 
 ### 4. Constraints
 
-- **Sensor-agnostic**: The class is agnostic regarding sensors. All required information is obtained from the registry. Under no circumstances should there be queries on sensor names.
-- **Data classes**: The `Sensor::Data::Single` and `Sensor::Data::Series` classes may need to be adapted or extended.
-- **Calculated sensors**: Calculated sensors (with `store_in_summary?` == `false`) are NOT included in the SQL query, as they are not stored in SummaryValues.
-- **Finance sensors**: Finance sensors (inherit from `FinanceBase`) have no fields in SummaryValues and are determined via SQL calculations with price JOINs.
+- **Sensor-agnostic**: The SQL builder is agnostic regarding concrete sensors. All required information is obtained from the registry.
+- **Stored base data**: `summary_values` only contains per-day stored aggregations, never arbitrary calculated values.
+- **Calculated sensors**: Non-stored calculated sensors are either resolved after the SQL query in Ruby or, if they provide `sql_calculation`, exposed through SQL expressions.
+- **Finance and other SQL-calculated sensors**: `FinanceBase` sensors and a few regular sensors such as `heatpump_cop`, `co2_reduction`, `solar_price`, and `savings` can participate in the SQL path via `sql_calculation`.
 
 ## API Specification
 
@@ -82,8 +86,10 @@ end
 
 **Supported aggregations:**
 
-- **Base aggregations**: `:sum`, `:avg`, `:min`, `:max` (depends on sensor definition, see `summary_aggregations`)
-- **Meta-aggregations**: `:sum`, `:avg`, `:min`, `:max` (depends on sensor definition, see `summary_meta_aggregations`)
+- **Requested aggregation methods**: `q.sum`, `q.avg`, `q.min`, `q.max` are validated against `allowed_aggregations`
+- **Base aggregations**: Usually `:sum`, `:avg`, `:min`, `:max`, depending on what is available in `summary_values` or via SQL calculation
+
+For the DSL, `allowed_aggregations` is the deciding capability list. This means a sensor can have broader conceptual SQL meta-aggregations than the public query API exposes.
 
 ### Return Types
 
@@ -304,14 +310,13 @@ data.house_power(:avg, :sum)
 **Use case:** "2025 annual overview: Total house consumption, total heat pump, total wallbox, total grid export, average min/max temperature"
 
 ```ruby
-Sensor::Query::Total.new(timeframe) do |q|
+Sensor::Query::Total.new(Timeframe.new('2025')) do |q|
   q.sum :house_power
   q.sum :heatpump_power
   q.sum :wallbox_power
   q.sum :grid_export_power
   q.avg :case_temp, :min
   q.avg :case_temp, :max
-  Timeframe.new('2025')
 end.call
 ```
 
@@ -370,12 +375,11 @@ data.case_temp(:avg, :max)          # => 42.3
 **Use case:** "2025 annual overview with costs: Temperature statistics plus traditional costs and grid revenue"
 
 ```ruby
-Sensor::Query::Total.new(timeframe) do |q|
+Sensor::Query::Total.new(Timeframe.new('2025')) do |q|
   q.avg :case_temp, :min
   q.avg :case_temp, :max
   q.sum :traditional_costs
   q.sum :grid_revenue
-  Timeframe.new('2025')
 end.call
 ```
 
@@ -407,12 +411,12 @@ daily AS (
     MAX(pf.eur_per_kwh) AS pf_eur_per_kwh
   FROM summary_values sv
 
-  JOIN price_ranges pb
+  LEFT JOIN price_ranges pb
     ON pb.name = 'electricity'
    AND sv.date >= pb.starts_at
    AND sv.date < pb.next_start
 
-  JOIN price_ranges pf
+  LEFT JOIN price_ranges pf
     ON pf.name = 'feed_in'
    AND sv.date >= pf.starts_at
    AND sv.date < pf.next_start
@@ -455,93 +459,26 @@ data.traditional_costs(:sum, :sum)  # => 2345.67
 data.grid_revenue(:sum, :sum)       # => 1234.89
 ```
 
-### 7. Savings for a Year
+### 7. Savings for a Month
 
 ```ruby
-Sensor::Query::Total.new(timeframe) do |q|
+Sensor::Query::Total.new(Timeframe.new('2025-09')) do |q|
   q.sum :savings
-  Timeframe.new('2025')
 end.call
 ```
 
-**Note:** The sensor `savings` is a calculated one based on `solar_price` and `traditional_costs`. These must be determined in the query:
-
-**Generated SQL:**
-
-```sql
-WITH price_ranges AS (
-  SELECT
-    name,
-    starts_at,
-    LEAD(starts_at, 1, 'infinity'::date)
-      OVER (PARTITION BY name ORDER BY starts_at) AS next_start,
-    value::numeric AS eur_per_kwh
-  FROM prices
-  WHERE name IN ('feed_in','electricity')
-),
-
-daily AS (
-  SELECT
-    sv.date,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'heatpump_power')     AS heatpump_power_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'house_power')        AS house_power_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'house_power_grid')   AS house_power_grid_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'wallbox_power_grid') AS wallbox_power_grid_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_export_power')  AS grid_export_power_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_import_power')  AS grid_import_power_sum,
-    MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'case_temp')          AS case_temp_min,
-    MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'case_temp')          AS case_temp_max,
-    MAX(pf.eur_per_kwh) AS pf_eur_per_kwh,
-    MAX(pb.eur_per_kwh) AS pb_eur_per_kwh
-  FROM summary_values sv
-
-  JOIN price_ranges pf
-    ON pf.name = 'feed_in'
-   AND sv.date >= pf.starts_at
-   AND sv.date <  pf.next_start
-
-  JOIN price_ranges pb
-    ON pb.name = 'electricity'
-   AND sv.date >= pb.starts_at
-   AND sv.date <  pb.next_start
-
-  WHERE sv.date BETWEEN DATE '2025-09-01' AND DATE '2025-09-30'
-    AND sv.aggregation IN ('sum','min','max')
-    AND sv.field IN ('heatpump_power','house_power','house_power_grid','wallbox_power_grid','case_temp','grid_export_power','grid_import_power')
-
-  GROUP BY sv.date
-)
-
-SELECT
-  SUM(heatpump_power_sum)     AS heatpump_power_sum_sum,
-  SUM(house_power_sum)        AS house_power_sum_sum,
-  SUM(grid_export_power_sum)  AS grid_export_power_sum_sum,
-  SUM(grid_import_power_sum)  AS grid_import_power_sum_sum,
-  SUM(house_power_grid_sum)   AS house_power_grid_sum_sum,
-  SUM(wallbox_power_grid_sum) AS wallbox_power_grid_sum_sum,
-  SUM(
-    GREATEST(COALESCE(house_power_sum,0) - COALESCE(house_power_grid_sum,0), 0)
-    / 1000.0 * pf_eur_per_kwh
-  ) AS house_costs_pv_sum_sum,
-  SUM(grid_export_power_sum * pf_eur_per_kwh / 1000) AS grid_revenue,
-  SUM(grid_import_power_sum * pb_eur_per_kwh / 1000) AS grid_costs,
-  AVG(case_temp_min) AS case_temp_avg_min,
-  AVG(case_temp_max) AS case_temp_avg_max
-FROM daily
-```
+**Note:** `savings` has both a `calculate` block and an `sql_calculation`. In the SQL path, `savings` itself is selected directly from SQL via `sql_calculation`. Some dependent sensors are still loaded so the mapped result can expose intermediate values such as `traditional_costs` and `solar_price`, and Ruby post-processing remains available for calculated sensors that do not already have their own SQL result.
 
 **Return:**
 
 ```ruby
-data = Sensor::Data::Single.new(
-  {
-    [:savings, :sum, :sum] => 1626.12
-  },
-  timeframe: Timeframe.new('2025')
-)
+result = Sensor::Query::Total.new(Timeframe.new('2025-09')) do |q|
+  q.sum :savings
+end.call
 
-# Access the value:
-data.savings(:sum, :sum)  # => 1626.12
+result.traditional_costs  # => 2345.67
+result.solar_price        # => 719.55
+result.savings            # => 1626.12
 ```
 
 ### 8. Time Series with Cost Calculation (Monthly)
@@ -549,7 +486,7 @@ data.savings(:sum, :sum)  # => 1626.12
 **Use case:** "Monthly overview 2025: Power sensors and costs"
 
 ```ruby
-Sensor::Query::Total.new(timeframe) do |q|
+Sensor::Query::Total.new(Timeframe.new('2025')) do |q|
   q.sum :house_power
   q.sum :heatpump_power
   q.sum :wallbox_power
@@ -558,7 +495,6 @@ Sensor::Query::Total.new(timeframe) do |q|
   q.avg :case_temp, :max
   q.sum :traditional_costs
   q.sum :grid_revenue
-  Timeframe.new('2025')
   q.group_by :month
 end.call
 ```
@@ -589,12 +525,12 @@ daily AS (
     MAX(pf.eur_per_kwh)                                                                     AS pf_eur_per_kwh
   FROM summary_values sv
 
-  JOIN price_ranges pb
+  LEFT JOIN price_ranges pb
     ON pb.name = 'electricity'
    AND sv.date >= pb.starts_at
    AND sv.date < pb.next_start
 
-  JOIN price_ranges pf
+  LEFT JOIN price_ranges pf
     ON pf.name = 'feed_in'
    AND sv.date >= pf.starts_at
    AND sv.date < pf.next_start
@@ -693,7 +629,7 @@ data.traditional_costs(:sum, :sum)
 
 **The implementation is clearly organized into helper classes:**
 
-- **Main class** (`Sensor::Query::Total`) - coordinates all components
+- **Dispatcher entrypoint** (`Sensor::Query::Total`) - selects SQL or Influx backend
 - **DslBuilder** (`app/lib/sensor/query/helpers/sql/dsl_builder.rb`) - DSL builder for block syntax with validation
 - **QueryBuilder** (`app/lib/sensor/query/helpers/sql/query_builder.rb`) - Coordinates SQL query generation, analyzes sensor requirements
 - **CteBuilder** (`app/lib/sensor/query/helpers/sql/cte_builder.rb`) - Builds CTEs (price_ranges, daily) with FILTER clauses
@@ -706,13 +642,13 @@ data.traditional_costs(:sum, :sum)
 
 There must be no hard-coded sensor names in the SQL classes. **This is extremely important!** All information must be obtained from Sensor::Registry and sensor definitions. This especially applies to price sensors like Sensor::Definitions::TraditionalCosts, which contain the `sql_calculation` method that must be used.
 
-2. Calculated sensors are applied AFTER the SQL query
+2. Calculated sensors can be applied after the SQL query
 
-Calculated sensors must not appear in the SQL query but are applied based on the query results. However, it must be ensured that the dependencies are included in the SQL query.
+Pure Ruby calculated sensors are applied based on the mapped query result, so their dependencies must be present in the SQL query. Sensors with `sql_calculation` can additionally contribute SQL expressions directly.
 
 3. Finance sensors have no DB fields in SummaryValues
 
-Costs and revenues are determined via SQL calculations with power sensors and price JOINs
+Costs and revenues are determined via SQL calculations with power sensors and price `LEFT JOIN`s.
 
 ## Performance
 
@@ -720,7 +656,7 @@ Performance is important for the generated SQL query:
 
 - **Selective fields**: Only actually needed fields are included in WHERE clause
 - **Selective aggregations**: Only needed aggregations are filtered
-- **Minimal JOINs**: Price JOINs only when cost or revenue sensors are requested
+- **Minimal JOINs**: Price `LEFT JOIN`s are only added when cost or revenue sensors are requested
 
 ## Further Documentation
 

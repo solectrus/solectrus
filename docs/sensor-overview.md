@@ -21,7 +21,7 @@ An introduction to the SOLECTRUS Sensor System.
 
 The Sensor System is the central architecture for all measurement values in SOLECTRUS. It provides a unified API for:
 
-- **Sensor Definitions**: Declarative description of 80+ sensors
+- **Sensor Definitions**: Declarative description of all sensor definitions
 - **Data Queries**: Unified access to InfluxDB and PostgreSQL
 - **Formatting**: Automatic value formatting with units
 - **Charts**: Integration into the chart system
@@ -40,7 +40,7 @@ sensor.display_name   # => "Generation"
 data = Sensor::Query::Latest.new([:inverter_power]).call
 data.inverter_power   # => 2500.0
 
-# 3. Query historical data (SQL with DSL)
+# 3. Query historical data (Sensor::Query::Total dispatches by timeframe)
 data = Sensor::Query::Total.new(Timeframe.day) do |q|
   q.sum :inverter_power
 end.call
@@ -61,7 +61,8 @@ data.inverter_power   # => 15000.0 (daily energy in Wh)
                  │
 ┌────────────────▼────────────────────────────────────────────┐
 │              Query Layer                                    │
-│  Sensor::Query::Total  •  Sensor::Query::Influx::*          │
+│  Sensor::Query::Latest  •  Series  •  Total                 │
+│  Sensor::Query::Helpers::Influx::*  •  Helpers::Sql::*      │
 └────────────────┬────────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────────────────────────┐
@@ -79,7 +80,7 @@ data.inverter_power   # => 15000.0 (daily energy in Wh)
 
 ```
 app/lib/sensor/
-├── definitions/               # Sensor definitions (80+ sensors)
+├── definitions/               # Sensor definitions
 │   ├── base.rb               # Base class with validation
 │   ├── dsl.rb                # DSL for declarative definitions
 │   ├── battery/              # Battery sensors
@@ -125,7 +126,7 @@ app/lib/sensor/
 │   │   └── forecast.rb      # Forecast integration
 │   ├── inverter_power.rb    # Inverter chart
 │   ├── autarky.rb           # Autarky chart
-│   └── ...                  # 25+ specialized charts
+│   └── ...                  # Specialized charts
 │
 ├── forecast/                 # Forecast processing
 │   ├── day.rb               # Daily forecast data
@@ -274,7 +275,7 @@ Sensor::Registry.top10_sensors
 # => [all sensors with top10: true]
 ```
 
-**Thread-safe caching**: The registry loads definitions once and caches them.
+**Caching**: The registry loads definitions once per process and caches them until `Sensor::Registry.reset!` is called.
 
 ### 3. Query System
 
@@ -314,15 +315,17 @@ data = Sensor::Query::Total.new(Timeframe.week) do |q|
   q.sum :inverter_power
   q.group_by :day
 end.call
-data.inverter_power  # => {Date1 => energy1, Date2 => energy2, ...}
+data.inverter_power(:sum, :sum)  # => {Date1 => energy1, Date2 => energy2, ...}
 ```
 
 **Backend Selection:**
 
 - **InfluxDB** (`Helpers::Influx::Total`): Hourly data (P1H-P99H), calculated live via Flux integrals
-- **SQL** (`Helpers::Sql::Total`): Daily+ data (days, weeks, months, years), from SummaryValues table
+- **SQL** (`Helpers::Sql::Total`): Daily+ data (days, weeks, months, years), from `summary_values`, optionally extended with price data and SQL-calculated fields
 
 > 💡 **More details:** Complete SQL query examples with generated SQL can be found in [sensor-sql-queries.md](sensor-sql-queries.md)
+
+`Sensor::Query::Series` is separate from `Total`: it always loads chart series from InfluxDB and exposes them as `(:avg, :avg)` time series because the data is aggregated with `mean()`.
 
 #### 3.3 Automatic Dependency Resolution
 
@@ -442,7 +445,7 @@ formatter.to_h
 #      <strong>2</strong><small>.5</small> <small>kW</small>
 #    </span>
 
-# With sign option (shows +/- and colors red/green)
+# With sign option (keeps absolute value for display and colors by sign)
 <%= render SensorValue::Component.new(data, :grid_power, sign: :value_based) %>
 
 # Direct value (without data object)
@@ -485,7 +488,7 @@ class Sensor::Chart::Savings < Sensor::Chart::Base
 end
 ```
 
-The `ChartLoader` component checks `permitted?` and displays a sponsor hint if `false`. Finance charts (`Savings`, `GridRevenue`, `GridCosts`, `TotalCosts`) use this for sponsor-only access.
+`ChartLoader::Component` checks `permitted?` and displays a sponsor hint if access is blocked. Finance charts inherit this behavior via `Sensor::Chart::FinanceBase`.
 
 ### 7. Configuration
 
@@ -496,8 +499,8 @@ The `ChartLoader` component checks `permitted?` and displays a sponsor hint if `
 Sensor::Config.setup(ENV)
 
 # Check sensor configuration
-Sensor::Config.exists?(:inverter_power)      # => true/false (configured & permitted)
-Sensor::Config.configured?(:inverter_power)  # => true (ENV set)
+Sensor::Config.exists?(:inverter_power)      # => true/false (configured, permitted, dependencies available)
+Sensor::Config.configured?(:inverter_power)  # => true (ENV set directly)
 
 # InfluxDB mapping
 Sensor::Config.measurement(:inverter_power)  # => "SENEC"
@@ -513,6 +516,8 @@ Sensor::Config.nameable_sensors   # => [all user-nameable sensors]
 Sensor::Config.multi_inverter?    # => true/false
 Sensor::Config.single_consumer?   # => true/false
 ```
+
+`Sensor::Config.exists?` also takes care of derived sensors. In particular, `:power_splitter` sensors are auto-configured from the corresponding base sensor and still honor permission checks such as `ApplicationPolicy.power_splitter?`.
 
 ## Further Documentation
 
