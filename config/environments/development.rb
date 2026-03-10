@@ -57,18 +57,16 @@ Rails.application.configure do
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
 
+  # Assume all access to the app is happening through a SSL-terminating reverse proxy.
+  config.assume_ssl =
+    ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', 'false')
+
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl =
     ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', 'false')
 
   if config.force_ssl
     config.ssl_options = {
-      # Ensure that http://localhost:3000 redirects to https://{APP_HOST},
-      # because there is no https://localhost:3000
-      redirect: {
-        host: ENV.fetch('APP_HOST', nil),
-        port: 80,
-      },
       # Don't cache the HTTPS redirect to avoid conflicts with other apps
       hsts: false,
     }
