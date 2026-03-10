@@ -191,6 +191,8 @@ describe UpdateCheck do
   end
 
   describe 'notifications' do
+    include_context 'with signature verification'
+
     let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
     let(:notifications) do
@@ -207,11 +209,11 @@ describe UpdateCheck do
     before do
       stub_request(:get, 'https://update.solectrus.de').to_return(
         headers:,
-        body: {
+        body: signed_json(
           version: 'v1.1.0',
           registration_status: 'complete',
           notifications:,
-        }.to_json,
+        ),
       )
     end
 
@@ -244,17 +246,19 @@ describe UpdateCheck do
   describe '#action_required?' do
     subject { instance.action_required? }
 
+    include_context 'with signature verification'
+
     let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
     context 'when unregistered' do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: {
+          body: signed_json(
             version: 'v0.16.0',
             registration_status: 'unregistered',
             prompt: true,
-          }.to_json,
+          ),
         )
       end
 
@@ -265,11 +269,11 @@ describe UpdateCheck do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: {
+          body: signed_json(
             version: 'v0.16.0',
             registration_status: 'complete',
             prompt: true,
-          }.to_json,
+          ),
         )
       end
 
@@ -280,7 +284,10 @@ describe UpdateCheck do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: { version: 'v0.16.0', registration_status: 'complete' }.to_json,
+          body: signed_json(
+            version: 'v0.16.0',
+            registration_status: 'complete',
+          ),
         )
       end
 
@@ -291,11 +298,11 @@ describe UpdateCheck do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: {
+          body: signed_json(
             version: 'v0.16.0',
             registration_status: 'complete',
             subscription_plan: 'sponsoring',
-          }.to_json,
+          ),
         )
       end
 
@@ -306,17 +313,19 @@ describe UpdateCheck do
   describe '#eligible_for_free?' do
     subject(:eligible_for_free) { instance.eligible_for_free? }
 
+    include_context 'with signature verification'
+
     let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
     context 'when server returns eligible_for_free' do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: {
+          body: signed_json(
             version: 'v1.1.0',
             registration_status: 'complete',
             eligible_for_free: true,
-          }.to_json,
+          ),
         )
       end
 
@@ -327,10 +336,10 @@ describe UpdateCheck do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: {
+          body: signed_json(
             version: 'v1.1.0',
             registration_status: 'complete',
-          }.to_json,
+          ),
         )
       end
 
@@ -341,17 +350,19 @@ describe UpdateCheck do
   describe '#free_trial?' do
     subject(:free_trial) { instance.free_trial? }
 
+    include_context 'with signature verification'
+
     let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
     context 'when free_trial_ends_at is in the future' do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: {
+          body: signed_json(
             version: 'v1.1.0',
             registration_status: 'complete',
             free_trial_ends_at: 30.days.from_now.iso8601,
-          }.to_json,
+          ),
         )
       end
 
@@ -366,11 +377,11 @@ describe UpdateCheck do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: {
+          body: signed_json(
             version: 'v1.1.0',
             registration_status: 'complete',
             free_trial_ends_at: 1.day.ago.iso8601,
-          }.to_json,
+          ),
         )
       end
 
@@ -381,10 +392,10 @@ describe UpdateCheck do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
-          body: {
+          body: signed_json(
             version: 'v1.1.0',
             registration_status: 'complete',
-          }.to_json,
+          ),
         )
       end
 
@@ -489,17 +500,9 @@ describe UpdateCheck do
       include_context 'with signature verification'
 
       def sign_and_cache(data)
-        canonical = JSON.generate(
-          data.except(:signature, :notifications)
-              .sort_by { |k, _| k.to_s }
-              .to_h,
-        )
-        signature = Base64.strict_encode64(test_private_key.sign(nil, canonical))
-        signed_data = data.merge(signature:)
-
         instance
           .instance_variable_get(:@cache_manager)
-          .set(signed_data, expires_at: 1.hour.from_now)
+          .set(sign_data(data), expires_at: 1.hour.from_now)
       end
 
       context 'with valid signed cache' do
@@ -520,6 +523,20 @@ describe UpdateCheck do
             .not_to receive(:verify!)
 
           instance.latest
+        end
+
+        it 're-verifies successfully after process restart' do
+          # Simulate process restart: clear memoized state and local cache,
+          # but keep Rails cache (like Redis in production)
+          instance.__send__(:reset_verified_cache!)
+          instance
+            .instance_variable_get(:@cache_manager)
+            .instance_variable_get(:@local_cache)
+            .clear
+
+          result = instance.latest
+
+          expect(result).to eq(version: 'v1.1.0', registration_status: 'complete')
         end
       end
 

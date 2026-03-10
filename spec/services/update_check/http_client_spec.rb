@@ -11,8 +11,10 @@ describe UpdateCheck::HttpClient do
     subject(:result) { http_client.fetch_update_data }
 
     context 'when the request succeeds' do
+      include_context 'with signature verification'
+
       let(:response_body) do
-        { version: 'v1.1.0', registration_status: 'unregistered' }.to_json
+        signed_json(version: 'v1.1.0', registration_status: 'unregistered')
       end
       let(:headers) { { 'Cache-Control' => 'max-age=43200' } }
 
@@ -29,6 +31,7 @@ describe UpdateCheck::HttpClient do
           data: {
             version: 'v1.1.0',
             registration_status: 'unregistered',
+            signature: JSON.parse(response_body, symbolize_names: true)[:signature],
           },
           expires_in: 43_200,
         )
