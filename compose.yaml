@@ -1,6 +1,6 @@
 services:
   dashboard:
-    image: ghcr.io/solectrus/solectrus:develop
+    image: ghcr.io/solectrus/solectrus:latest
     depends_on:
       postgresql:
         condition: service_healthy
@@ -171,7 +171,7 @@ services:
         max-file: "3"
 
   power-splitter:
-    image: ghcr.io/solectrus/power-splitter:develop
+    image: ghcr.io/solectrus/power-splitter:latest
     depends_on:
       postgresql:
         condition: service_healthy
