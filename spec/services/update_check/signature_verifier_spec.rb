@@ -3,7 +3,7 @@ describe UpdateCheck::SignatureVerifier do
 
   include_context 'with signature verification'
 
-  let(:data) { { version: 'v1.0.2', registration_status: 'complete' } }
+  let(:data) { { version: 'v1.1.0', registration_status: 'complete' } }
 
   let(:canonical) do
     deep_sort = lambda { |obj|
@@ -97,14 +97,14 @@ describe UpdateCheck::SignatureVerifier do
 
     context 'with unsorted keys from server' do
       let(:data) do
-        { version: 'v1.0.2', eligible_for_free: true, registration_status: 'complete' }
+        { version: 'v1.1.0', eligible_for_free: true, registration_status: 'complete' }
       end
 
       let(:canonical) do
         JSON.generate(
           eligible_for_free: true,
           registration_status: 'complete',
-          version: 'v1.0.2',
+          version: 'v1.1.0',
         )
       end
 
