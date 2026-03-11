@@ -3,7 +3,7 @@
                                 sensor: do |balance|
 
   = balance.with_center do
-    - if Sensor::Config.exists?(:autarky)
+    - if Sensor::Config.exists?(:autarky) && data.autarky
       = link_to balance_home_path(sensor_name: 'autarky', timeframe:),
                 data: { \
                   turbo_prefetch: 'false',
