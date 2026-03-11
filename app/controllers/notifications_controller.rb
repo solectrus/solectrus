@@ -25,7 +25,11 @@ class NotificationsController < ApplicationController
 
   def mark_as_read
     notification.mark_as_read!
-    redirect_back_or_to(root_path)
+
+    respond_to do |format|
+      format.turbo_stream
+      format.html { redirect_back_or_to(root_path) }
+    end
   end
 
   private

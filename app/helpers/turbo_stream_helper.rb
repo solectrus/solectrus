@@ -40,6 +40,16 @@ module TurboStreamHelper
     )
   end
 
+  def turbo_stream_update_notification_badge
+    content = render Notification::Badge::Component.new
+
+    safe_join(
+      %i[desktop mobile].map do |device|
+        turbo_stream.update("notification-badge-#{device}") { content }
+      end,
+    )
+  end
+
   def turbo_stream_update_timeframe
     turbo_stream.update(frame_id('timeframe')) do
       render Timeframe::Component.new(timeframe:)

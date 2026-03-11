@@ -1,0 +1,8 @@
+= turbo_stream_update_notification_badge
+
+= turbo_stream.replace dom_id(notification) do
+  = render Notification::Item::Component.new(notification:)
+
+turbo-stream action="update_all" targets="[data-notification-badge]"
+  template
+    = Notification.unread.count.nonzero?

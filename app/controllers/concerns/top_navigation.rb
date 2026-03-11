@@ -201,6 +201,7 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
         href: notifications_path,
         icon: 'message',
         badge_count: unread_count,
+        badge_data: { notification_badge: true },
       }
     end
 

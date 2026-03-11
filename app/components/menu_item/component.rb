@@ -10,7 +10,8 @@ class MenuItem::Component < ViewComponent::Base
     icon_only: false,
     text: true,
     current: false,
-    badge_count: nil
+    badge_count: nil,
+    badge_data: nil
   )
     super()
     @name = name
@@ -25,6 +26,7 @@ class MenuItem::Component < ViewComponent::Base
     @text = text
     @current = current
     @badge_count = badge_count
+    @badge_data = badge_data
   end
 
   def target
@@ -41,7 +43,8 @@ class MenuItem::Component < ViewComponent::Base
               :sensor_name,
               :id,
               :separator_before,
-              :badge_count
+              :badge_count,
+              :badge_data
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
@@ -119,6 +122,7 @@ class MenuItem::Component < ViewComponent::Base
       class:
         'bg-red-500 dark:bg-red-700 text-white dark:text-gray-300 ' \
           'text-xs font-bold rounded-full min-w-5 h-5 flex items-center justify-center px-1.5',
+      data: badge_data,
     )
   end
 end

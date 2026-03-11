@@ -36,3 +36,18 @@ Turbo.StreamActions.redirect = function (this: Element) {
     Turbo.visit(target);
   }
 };
+
+Turbo.StreamActions.update_all = function (this: Element) {
+  const selector = this.getAttribute('targets');
+
+  if (selector) {
+    const content = this.querySelector('template')?.innerHTML?.trim() || '';
+    document.querySelectorAll(selector).forEach((el) => {
+      if (content) {
+        el.innerHTML = content;
+      } else {
+        el.remove();
+      }
+    });
+  }
+};
