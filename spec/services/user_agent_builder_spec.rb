@@ -12,6 +12,8 @@ describe UserAgentBuilder, with_setup_id: 0 do
       allow(Rails.configuration.x.git).to receive(:commit_version).and_return(
         'v1.1.0',
       )
+
+      allow(Rails.configuration.x).to receive(:app_name).and_return('SOLECTRUS')
     end
 
     it 'returns the user agent string' do

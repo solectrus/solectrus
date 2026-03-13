@@ -8,7 +8,7 @@ class UserAgentBuilder
   private
 
   def app_name
-    'SOLECTRUS'
+    Rails.configuration.x.app_name
   end
 
   def version
