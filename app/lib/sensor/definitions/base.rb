@@ -54,7 +54,7 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
             name.to_s
           end
         ),
-    ).html_safe
+    )
   end
 
   def unit

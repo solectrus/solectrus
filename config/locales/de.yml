@@ -77,7 +77,7 @@ de:
     inverter_power_difference: Ohne Zuordnung
     inverter_power_forecast: Erwartete Erzeugung
     inverter_power_forecast_clearsky: Bei klarem Himmel
-    house_power: Haus&shy;verbrauch
+    house_power: "Haus\u00ADverbrauch"
     house_power_without_custom: Andere Verbraucher
     wallbox_power: E-Auto
     grid_import_power: Netzbezug
