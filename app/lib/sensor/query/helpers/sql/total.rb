@@ -88,7 +88,7 @@ module Sensor
               # 2. Calculated sensors with sql_calculation method (like savings, solar_price)
               if sensor.sql_calculated? ||
                    (sensor.calculated? && sensor.respond_to?(:sql_calculation))
-                dependencies.merge(sensor.dependencies)
+                dependencies.merge(sensor.dependencies(context: :sql))
               end
             end
           end
@@ -148,7 +148,7 @@ module Sensor
               @original_sensor_requests.map do |req|
                 Sensor::Registry[req.first]
               end
-            sensors.select! { |s| s.dependencies.include?(sensor_name) }
+            sensors.select! { |s| s.dependencies(context: :sql).include?(sensor_name) }
             sensors
           end
 

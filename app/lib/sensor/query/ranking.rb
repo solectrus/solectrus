@@ -121,7 +121,7 @@ module Sensor
         return [] if visited.include?(sensor.name)
 
         sensor
-          .dependencies
+          .dependencies(context: :sql)
           .flat_map do |dep|
             storable_fields_for(Sensor::Registry[dep], visited + [sensor.name])
           end

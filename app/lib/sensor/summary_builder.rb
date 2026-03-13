@@ -61,7 +61,7 @@ module Sensor
     def calculate_sensor_value(sensor, aggregation_type, summary_data)
       # Build dependency data using Array-Key format for the calculated sensor
       dependency_data =
-        sensor.dependencies.to_h do |dep_name|
+        sensor.dependencies(context: :influx).to_h do |dep_name|
           value = get_dependency_value(dep_name, aggregation_type, summary_data)
           [[dep_name, aggregation_type], value]
         end
@@ -77,7 +77,7 @@ module Sensor
       data = Sensor::Data::Single.new(dependency_data, timeframe:)
       # Extract dependency values as explicit parameters (keyword arguments)
       dependency_values =
-        sensor.dependencies.index_with do |dependency_name|
+        sensor.dependencies(context: :influx).index_with do |dependency_name|
           data.public_send(dependency_name)
         end
       sensor.calculate(**dependency_values)

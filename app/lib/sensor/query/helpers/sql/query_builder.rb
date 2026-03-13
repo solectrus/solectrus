@@ -74,10 +74,10 @@ module Sensor
 
           def process_finance_sensor(sensor_name, meta_agg, base_agg, sensor)
             finance_sensors << [sensor_name, meta_agg, base_agg]
-            required_fields.merge(sensor.dependencies)
+            required_fields.merge(sensor.dependencies(context: :sql))
             required_prices.merge(sensor.required_prices)
             # Finance sensors need sum aggregation for their field calculations
-            sensor.dependencies.each { |_field| required_aggregations << :sum }
+            sensor.dependencies(context: :sql).each { |_field| required_aggregations << :sum }
           end
 
           def process_standard_sensor(sensor_name, meta_agg, base_agg)

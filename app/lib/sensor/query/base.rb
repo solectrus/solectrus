@@ -126,7 +126,7 @@ module Sensor
       end
 
       def extract_dependency_values(point, sensor)
-        sensor.dependencies.index_with do |dependency_name|
+        sensor.dependencies(context: query_type).index_with do |dependency_name|
           resolve_dependency_value(point, dependency_name, sensor.name)
         end
       end
