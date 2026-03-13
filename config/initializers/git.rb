@@ -16,4 +16,13 @@ Rails.configuration.x.git.commit_time =
 
 Rails.configuration.x.git.home = 'https://github.com/solectrus/solectrus'
 
-Rails.configuration.x.app_name = 'SOLECTRUS'
+app_digest = begin
+  digest = Digest::SHA256.new
+  Rails.root.glob('{app,config}/**/*.*').sort.each do |file|
+    digest << file.relative_path_from(Rails.root).to_s
+    digest << file.binread
+  end
+  digest.hexdigest[0, 8]
+end
+
+Rails.configuration.x.app_name = "SOLECTRUS-#{app_digest}"
