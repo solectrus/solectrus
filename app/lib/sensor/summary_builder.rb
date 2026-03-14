@@ -28,21 +28,23 @@ module Sensor
     private
 
     def collect_all_sensor_data
-      result = {}
-
-      # Handle sum aggregations separately (uses Integral)
-      if needed_aggregations.include?(:sum)
-        result.merge!(collect_data_for_aggregation(:sum))
-      end
-
-      # Handle all non-sum aggregations in one combined query
+      has_sum = needed_aggregations.include?(:sum)
       non_sum_aggregations = needed_aggregations - [:sum]
-      unless non_sum_aggregations.empty?
-        result.merge!(
-          collect_combined_non_sum_aggregations(non_sum_aggregations),
-        )
-      end
 
+      # Run independent queries in parallel
+      sum_future =
+        if has_sum
+          Concurrent::Future.execute { collect_data_for_aggregation(:sum) }
+        end
+
+      non_sum_future =
+        unless non_sum_aggregations.empty?
+          Concurrent::Future.execute { collect_combined_non_sum_aggregations(non_sum_aggregations) }
+        end
+
+      result = {}
+      result.merge!(sum_future.value!) if sum_future
+      result.merge!(non_sum_future.value!) if non_sum_future
       result
     end
 
