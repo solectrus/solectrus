@@ -90,6 +90,7 @@ GEM
       activesupport (>= 6.0.0)
     ast (2.4.3)
     base64 (0.3.0)
+    benchmark (0.5.0)
     bigdecimal (4.0.1)
     bindex (0.8.1)
     bootsnap (1.23.0)
@@ -505,6 +506,7 @@ PLATFORMS
 DEPENDENCIES
   amazing_print
   annotaterb
+  benchmark
   bootsnap
   brakeman
   bundler-audit

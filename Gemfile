@@ -116,6 +116,9 @@ group :development, :test do
 end
 
 group :development do
+  # a performance benchmarking library (https://github.com/ruby/benchmark)
+  gem 'benchmark'
+
   # Process manager for applications with multiple components (https://github.com/ddollar/foreman)
   gem 'foreman'
 
