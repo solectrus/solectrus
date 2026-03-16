@@ -114,9 +114,13 @@ jobs:
       - name: Setup PostgreSQL
         run: bin/rails db:create db:migrate
 
+      - name: Build Vite assets for test
+        run: bin/yarn vite build --mode test
+
       - name: Run Unit tests with RSpec
         run: bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"
         env:
+          SKIP_VITE_BUILD: 1
           COVERAGE_NAME: unit
 
       - name: Upload coverage artifact
@@ -195,7 +199,7 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: yarn playwright install --with-deps --only-shell chromium
+        run: bin/yarn playwright install --with-deps --only-shell chromium
 
       - name: Restore runtime log
         uses: actions/cache/restore@v5
@@ -207,6 +211,9 @@ jobs:
 
       - name: Setup PostgreSQL
         run: bin/rails db:create db:migrate
+
+      - name: Build Vite assets for test
+        run: bin/yarn vite build --mode test
 
       - name: Run System tests with RSpec (group ${{ matrix.group }}/3)
         run: |
@@ -223,6 +230,7 @@ jobs:
             -n 3 \
             -o '--format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'
         env:
+          SKIP_VITE_BUILD: 1
           COVERAGE_NAME: system-${{ matrix.group }}
 
       - name: Upload runtime log

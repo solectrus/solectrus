@@ -1,4 +1,4 @@
 caddy: caddy run --config Caddyfile
 web: bin/rails server -p 3000
-vite: bin/vite dev
+vite: npx vite
 browser: bin/open && while true; do sleep 60; done

@@ -15,6 +15,8 @@ CI.run do
   step 'Security: Brakeman code analysis',
        'bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error'
 
+  step 'Build: Vite assets', 'bin/yarn vite build --mode test'
+
   step 'Tests: Unit',
        'env COVERAGE_NAME=unit DISABLE_SPRING=1 bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"'
   step 'Tests: System',
