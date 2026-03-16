@@ -37,6 +37,8 @@ class RegistrationController < ApplicationController
   end
 
   def magic_id
+    Setting.seed! unless Setting.setup_id && Setting.setup_token
+
     MagicId.new.encode(Setting.setup_id, Setting.setup_token)
   end
 
