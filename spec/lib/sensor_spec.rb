@@ -2,6 +2,10 @@ describe Sensor do
   describe '.data?' do
     subject(:data?) { described_class.data? }
 
+    context 'when InfluxDB is empty' do
+      it { is_expected.to be false }
+    end
+
     context 'when InfluxDB has data' do
       before do
         add_influx_point(
@@ -12,10 +16,6 @@ describe Sensor do
       end
 
       it { is_expected.to be true }
-    end
-
-    context 'when InfluxDB is empty' do
-      it { is_expected.to be false }
     end
   end
 end
