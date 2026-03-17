@@ -245,8 +245,8 @@ de:
   errors:
     title: Fehler
     403:
-      title: Zugriff verweigert
-      description: Du hast nicht die erforderliche Berechtigung für diese Seite.
+      title: Anmeldung erforderlich
+      description: Diese Funktion steht nur dem Administrator zur Verfügung. Bitte melde dich an.
     404:
       title: Nicht gefunden
       description: Die angeforderte Seite konnte nicht gefunden werden.

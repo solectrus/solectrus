@@ -245,8 +245,8 @@ en:
   errors:
     title: Error
     403:
-      title: Access denied
-      description: You are not authorized to access this page.
+      title: Login required
+      description: This feature is only available to the administrator. Please log in.
     404:
       title: Not Found
       description: The requested page could not be found.

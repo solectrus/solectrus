@@ -1,7 +1,4 @@
 = render Message::Component.new do |c|
-  = c.with_header do
-    = status_code
-
   = c.with_title do
     = t("errors.#{status_code}.title")
 
