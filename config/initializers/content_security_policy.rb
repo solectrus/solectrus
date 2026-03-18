@@ -9,18 +9,19 @@ Rails.application.configure do
     if Rails.env.development?
       policy.connect_src :self,
                          # Allow @vite/client to hot reload CSS changes
-                         "wss://#{ViteRuby.config.host}"
+                         'wss://vite.solectrus.localhost'
 
       policy.style_src :self,
                        # Allow @vite/client to hot reload style changes
-                       :unsafe_inline
+                       :unsafe_inline,
+                       'https://vite.solectrus.localhost'
 
       policy.script_src :self,
                         :unsafe_inline,
                         # Required by Lookbook
                         :unsafe_eval,
                         # Allow @vite/client to hot reload JavaScript changes
-                        "https://#{ViteRuby.config.host}"
+                        'https://vite.solectrus.localhost'
 
       policy.worker_src :self, :blob
     else

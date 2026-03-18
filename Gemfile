@@ -11,8 +11,8 @@ gem 'openssl'
 # Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 8.1.2'
 
-# Use Vite in Rails and bring joy to your JavaScript experience (https://github.com/ElMassimo/vite_ruby)
-gem 'vite_rails'
+# Vite integration for Rails (https://github.com/skryukov/rails_vite)
+gem 'rails_vite'
 
 # The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
 gem 'turbo-rails'

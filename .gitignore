@@ -31,7 +31,7 @@
 # SimpleCoverage report
 /coverage/*
 
-# Vite Ruby
+# Vite
 /public/vite*
 
 Brewfile.lock.json

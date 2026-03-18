@@ -132,7 +132,6 @@ GEM
     docile (1.4.1)
     dotenv (3.2.0)
     drb (2.2.3)
-    dry-cli (1.4.1)
     erb (6.0.2)
     erubi (1.13.1)
     ffi (1.17.3-aarch64-linux-musl)
@@ -231,7 +230,6 @@ GEM
       drb (~> 2.0)
       prism (~> 1.5)
     msgpack (1.8.0)
-    mutex_m (0.3.0)
     nenv (0.3.0)
     net-imap (0.6.3)
       date
@@ -294,8 +292,6 @@ GEM
     rack-cors (3.0.0)
       logger
       rack (>= 3.0.14)
-    rack-proxy (0.7.7)
-      rack
     rack-session (2.1.1)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -327,6 +323,8 @@ GEM
     rails-settings-cached (2.9.6)
       activerecord (>= 5.0.0)
       railties (>= 5.0.0)
+    rails_vite (0.2.1)
+      railties (>= 7.0)
     railties (8.1.2)
       actionpack (= 8.1.2)
       activesupport (= 8.1.2)
@@ -471,15 +469,6 @@ GEM
       actionview (>= 7.1.0)
       activesupport (>= 7.1.0)
       concurrent-ruby (~> 1)
-    vite_rails (3.10.0)
-      railties (>= 5.1, < 9)
-      vite_ruby (~> 3.0, >= 3.2.2)
-    vite_ruby (3.10.0)
-      dry-cli (>= 0.7, < 2)
-      logger (~> 1.6)
-      mutex_m
-      rack-proxy (~> 0.6, >= 0.6.1)
-      zeitwerk (~> 2.2)
     web-console (4.3.0)
       actionview (>= 8.0.0)
       bindex (>= 0.4.0)
@@ -533,6 +522,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 8.1.2)
   rails-settings-cached
+  rails_vite
   redis (>= 4.0.1)
   rorvswild
   rspec-collection_matchers
@@ -556,7 +546,6 @@ DEPENDENCIES
   uri (>= 0.12.2)
   vcr
   view_component
-  vite_rails
   web-console
   webmock
 

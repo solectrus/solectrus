@@ -23,6 +23,7 @@
     "chartjs-plugin-zoom": "^2.2.0",
     "el-transition": "^0.0.7",
     "luxon": "^3.7.2",
+    "stimulus-vite-helpers": "^3.1.0",
     "throttle-debounce": "^5.0.2"
   },
   "devDependencies": {
@@ -40,6 +41,7 @@
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "rails-vite-plugin": "^0.2.2",
     "sinon": "^21.0.3",
     "size-limit": "^12.0.1",
     "tailwindcss": "^4.2.1",
@@ -47,7 +49,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.1",
     "vite": "^8.0.0",
-    "vite-plugin-rails": "^0.6.0"
+    "vite-plugin-manifest-sri": "^0.2.0"
   },
   "dependenciesMeta": {
     "@tailwindcss/oxide": {
@@ -61,7 +63,7 @@
     {
       "limit": "215 kB",
       "gzip": true,
-      "path": "public/{vite,vite-dev,vite-test}/assets/*.js"
+      "path": "public/vite/assets/*.js"
     }
   ],
   "engines": {

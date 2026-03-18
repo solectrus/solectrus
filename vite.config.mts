@@ -1,20 +1,21 @@
 import { defineConfig } from 'vite';
-import ViteRails from 'vite-plugin-rails';
+import RailsVite from 'rails-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
+import manifestSRI from 'vite-plugin-manifest-sri';
 export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
-    ViteRails({
-      fullReload: {
-        additionalPaths: [
-          'config/routes.rb',
-          'app/views/**/*',
-          'app/components/**/*',
-          'app/**/*.rb',
-          'config/locales/**/*.yml',
-        ],
-      },
+    RailsVite({
+      sourceDir: 'app/frontend',
+      refresh: [
+        'config/routes.rb',
+        'app/views/**/*',
+        'app/components/**/*',
+        'app/**/*.rb',
+        'config/locales/**/*.yml',
+      ],
     }),
+    manifestSRI(),
   ],
   build: {
     rolldownOptions: {
@@ -31,9 +32,11 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 620,
   },
   server: {
+    port: 3036,
     hmr: {
       host: 'vite.solectrus.localhost',
       clientPort: 443,
+      protocol: 'wss',
     },
   },
 }));

@@ -32,7 +32,6 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     = csrf_meta_tags
     = csp_meta_tag
 
-    = vite_client_tag
     - if Rails.env.test?
       meta name="server-time" content= Time.current.to_i
       = vite_typescript_tag 'test', 'data-turbo-track': 'reload'
