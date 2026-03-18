@@ -56,6 +56,11 @@ jobs:
       - name: Lint with SlimLint
         run: bin/slim-lint .
 
+      - name: Check JS size limit
+        run: |
+          bin/yarn vite build
+          bin/yarn size-limit
+
   unit-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -113,10 +118,6 @@ jobs:
         run: bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"
         env:
           COVERAGE_NAME: unit
-
-      - name: Debug coverage directory
-        if: always()
-        run: ls -la coverage/ || echo "coverage/ directory does not exist"
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v7
@@ -224,12 +225,6 @@ jobs:
         env:
           COVERAGE_NAME: system-${{ matrix.group }}
 
-      - name: Check JS size limit
-        if: matrix.group == 1
-        run: |
-          rm -f public/vite-test/assets/test-*.js
-          yarn size-limit
-
       - name: Upload runtime log
         uses: actions/upload-artifact@v7
         if: always()
@@ -238,10 +233,6 @@ jobs:
           path: tmp/parallel_runtime_rspec.log
           if-no-files-found: ignore
           retention-days: 1
-
-      - name: Debug coverage directory
-        if: always()
-        run: ls -la coverage/ || echo "coverage/ directory does not exist"
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v7
@@ -275,9 +266,6 @@ jobs:
         with:
           pattern: coverage-*
           path: coverage-parts
-
-      - name: Debug coverage-parts directory
-        run: ls -laR coverage-parts/ || echo "coverage-parts/ is empty"
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
