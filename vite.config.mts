@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     }),
   ],
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       // Exclude sinon from production builds
       external: mode === 'production' ? ['sinon'] : [],
       output: {
