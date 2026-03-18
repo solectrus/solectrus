@@ -2622,7 +2622,6 @@ __metadata:
     typescript: "npm:^5.9.3"
     typescript-eslint: "npm:^8.57.1"
     vite: "npm:^8.0.0"
-    vite-plugin-manifest-sri: "npm:^0.2.0"
   dependenciesMeta:
     "@tailwindcss/oxide":
       built: true
@@ -2851,13 +2850,6 @@ __metadata:
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
   checksum: 10c0/41a5bdd214df2f6c3ecf8622745e4a366c4adced864bc3c833739791aeeeb1838119af7daed4ba36428114b5c67dcda034a79c882e97e43c03e66a4dd7389942
-  languageName: node
-  linkType: hard
-
-"vite-plugin-manifest-sri@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "vite-plugin-manifest-sri@npm:0.2.0"
-  checksum: 10c0/02d75c0e7b2fb8ed3a49df30f12eb33821d78fca6241cac8a61aaace8e7f6874fdb9a5a4f2e293bdcc25852f02fb80dd04cee0ed85b45e776bc0fa683f06d018
   languageName: node
   linkType: hard
 

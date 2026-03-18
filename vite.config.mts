@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import RailsVite from 'rails-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
-import manifestSRI from 'vite-plugin-manifest-sri';
 export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
@@ -15,7 +14,6 @@ export default defineConfig(({ mode }) => ({
         'config/locales/**/*.yml',
       ],
     }),
-    manifestSRI(),
   ],
   build: {
     rolldownOptions: {
