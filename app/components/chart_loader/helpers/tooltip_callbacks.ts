@@ -124,25 +124,20 @@ export const buildTooltipCallbacks = (
         return label + formattedNumber(fallback);
       }
 
-      const isStackedItem =
-        (isPowerSplitterStack || isHeatingStack) && tooltipItem.dataset.stack;
+      if (
+        isHeatingStack &&
+        tooltipItem.dataset.stack &&
+        data.datasets.length === 3
+      ) {
+        const sum = data.datasets
+          .filter((ds) => ds.stack === tooltipItem.dataset.stack)
+          .reduce((acc, ds) => {
+            const value = ds.data[tooltipItem.dataIndex] as number;
+            return acc + (value || 0);
+          }, 0);
 
-      if (isStackedItem) {
-        const showPercentages =
-          isPowerSplitterStack ||
-          (isHeatingStack && data.datasets.length === 3);
-
-        if (showPercentages) {
-          const sum = data.datasets
-            .filter((ds) => ds.stack === tooltipItem.dataset.stack)
-            .reduce((acc, ds) => {
-              const value = ds.data[tooltipItem.dataIndex] as number;
-              return acc + (value || 0);
-            }, 0);
-
-          if (sum && tooltipItem.parsed.y != null) {
-            return `${label}${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
-          }
+        if (sum && tooltipItem.parsed.y != null) {
+          return `${label}${((tooltipItem.parsed.y * 100) / sum).toFixed(0)} %`;
         }
       }
 

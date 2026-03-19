@@ -1,0 +1,32 @@
+= link_to link_url,
+          class: link_classes,
+          data: link_data do
+  - if show_ratio_bar?
+    .text-center.text-sm
+      = t('splitter.pv_percent', percent: power_pv_ratio.round)
+      .w-full.flex.gap-px.rounded.overflow-hidden.mt-1
+        - if power_pv_ratio.positive?
+          .h-3.bg-sensor-pv[
+            style= "width: #{power_pv_ratio}%;"
+          ]
+        - if grid_ratio.positive?
+          .h-3.bg-sensor-grid[
+            style= "width: #{grid_ratio}%;"
+          ]
+  - if timeframe.now?
+    = render RectBadge::Component.new(title: t('sensors.heatpump_power_short')) do
+      = render SensorValue::Component.new(data, :heatpump_power, context: :rate)
+  - else
+    .text-center class=("#{'mt-3' if grid_ratio}")
+      = render SensorValue::Component.new(data, :heatpump_power, context: :total, class: 'text-2xl md:text-3xl')
+  - if show_tooltip?
+    #tooltip-content-heatpump_power.hidden data-tooltip-target= 'html'
+      table.border-separate.border-spacing-x-2.border-spacing-y-1
+        - tooltip_rows.each do |row|
+          tr
+            td.align-middle
+              div class="size-3 rounded-sm border border-gray-500 dark:border-slate-400 #{row[:bg]}"
+            td.text-left.text-sm.opacity-75.align-middle
+              = row[:label]
+            td.text-right.font-semibold.align-middle.whitespace-nowrap
+              = render SensorValue::Component.new(data, row[:sensor], context: :total)

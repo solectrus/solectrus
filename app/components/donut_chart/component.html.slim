@@ -32,7 +32,7 @@ div class="donut-chart flex-1 min-h-0 flex items-center justify-center @containe
             tr
               td.align-middle
                 div class="size-3 rounded-sm border border-gray-500 dark:border-slate-400" style="background: var(#{seg[:color_var]})"
-              td.text-left.text-xs.opacity-75.align-middle
+              td.text-left.text-sm.opacity-75.align-middle
                 = seg[:label]
               td.text-right.font-semibold.align-middle.whitespace-nowrap
                 = number_to_percentage(seg[:percent], precision: 0)

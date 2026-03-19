@@ -15,38 +15,7 @@
   .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5 id= "stats-#{timeframe.id}"
     - if data.heatpump_power
       .flex.w-full.items-stretch.gap-1.md:gap-2.text-slate-700.dark:text-slate-400
-        = link_to url_for(controller: 'home', sensor_name: 'heatpump_power', timeframe:),
-                  class: "#{card_base_classes} grow min-w-0 #{"bg-slate-200 dark:bg-slate-800 px-3 py-2.5 md:px-4 #{'rounded-r-none' if data.heatpump_costs}" unless timeframe.now?}",
-                  data: { \
-                    turbo_prefetch: 'false',
-                    'stats-with-chart--component-target': 'current',
-                    'sensor-name': 'heatpump_power',
-                    value: data.heatpump_power,
-                    time: data.time.to_i,
-                    action: 'stats-with-chart--component#loadChart',
-                    stats_with_chart__component_sensor_name_param: 'heatpump_power',
-                    stats_with_chart__component_chart_url_param: heatpump_charts_path(sensor_name: 'heatpump_power', timeframe:),
-                  } do
-          - if !timeframe.now? && data.heatpump_power_grid_ratio
-            - power_pv_ratio = 100 - data.heatpump_power_grid_ratio
-            .text-center.text-sm
-              div
-                = t('splitter.pv_percent', percent: power_pv_ratio.round)
-              .w-full.flex.gap-px.rounded.overflow-hidden.mt-1
-                - if power_pv_ratio.positive?
-                  .h-3.bg-sensor-pv[
-                    style= "width: #{power_pv_ratio}%;"
-                  ]
-                - if data.heatpump_power_grid_ratio.positive?
-                  .h-3.bg-sensor-grid[
-                    style= "width: #{data.heatpump_power_grid_ratio}%;"
-                  ]
-          - if timeframe.now?
-            = render RectBadge::Component.new(title: t('sensors.heatpump_power_short')) do
-              = render SensorValue::Component.new(data, :heatpump_power, context: :rate)
-          - else
-            .text-center class=("#{'mt-3' if data.heatpump_power_grid_ratio}")
-              = render SensorValue::Component.new(data, :heatpump_power, context: :total, class: 'text-2xl md:text-3xl')
+        = render Heatpump::PowerCard::Component.new(data:, timeframe:, css_class: card_base_classes)
 
         - if !timeframe.now? && data.heatpump_costs
           = link_to url_for(controller: 'home', sensor_name: 'heatpump_costs', timeframe:),

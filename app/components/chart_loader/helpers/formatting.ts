@@ -20,8 +20,7 @@ export const getDecimalPlaces = (
   maxValue: number,
 ): { minDecimals: number; maxDecimals: number } => {
   if (kilo) {
-    const isGram = unitValue === 'g';
-    const maxDecimals = target === 'axis' ? 1 : isGram ? 1 : 3;
+    const maxDecimals = 1;
     return { minDecimals: 0, maxDecimals };
   }
 
