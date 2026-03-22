@@ -10,7 +10,7 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - SOLECTRUS/v1.1.0-2-ge30214f (Darwin; arm64; 25.3.0; 1772353271)
+      - SOLECTRUS-bd4c262f/v1.1.1 (Darwin; arm64; 25.3.0; 1773560045)
   response:
     status:
       code: 200
@@ -23,9 +23,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Tue, 10 Mar 2026 15:57:39 GMT
+      - Sun, 22 Mar 2026 07:03:41 GMT
       Etag:
-      - W/"8e4e53530d841612dd700c7a395fc921"
+      - W/"9bfb194f49991aa9f4a3b4bf34c5dff3"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -39,13 +39,13 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - 0d0a5db5-21f1-40a0-bc8d-2fd5b9f6c769
+      - b4c8a28a-2ea9-4cd8-82eb-7cda284adb3d
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"version":"v1.1.0","registration_status":"unregistered","signature":"xi4NBgoiGf3sR2eKBwlZcgSuxiAPT0Do52mHVbC3EWzNOgt5NtZXTZ3Foncd6DChWdGEtnhporu0X0RFyiMYCw=="}'
-  recorded_at: Tue, 10 Mar 2026 15:57:39 GMT
+      string: '{"version":"v1.1.1","registration_status":"unregistered","signature":"YGPO64HBbpvZ6ZA4G6dOXaHSVHO/wiCCZedigfi24C6lEvy1IQxndBO4iPirRScH/oNZ06E7W7fUlWOz0KF6DQ=="}'
+  recorded_at: Sun, 22 Mar 2026 07:03:41 GMT
 recorded_with: VCR 6.4.0

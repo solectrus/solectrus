@@ -21,7 +21,7 @@ describe UpdateCheck do
     context 'when the request succeeds', vcr: { cassette_name: 'version' } do
       it do
         is_expected.to eq(
-          { version: 'v1.1.0', registration_status: 'unregistered' },
+          { version: 'v1.1.1', registration_status: 'unregistered' },
         )
       end
 
@@ -43,7 +43,7 @@ describe UpdateCheck do
       end
 
       it 'has shortcuts' do
-        expect(instance.latest_version).to eq('v1.1.0')
+        expect(instance.latest_version).to eq('v1.1.1')
         expect(instance.registration_status).to eq('unregistered')
         expect(instance).to be_unregistered
       end
@@ -210,7 +210,7 @@ describe UpdateCheck do
       stub_request(:get, 'https://update.solectrus.de').to_return(
         headers:,
         body: signed_json(
-          version: 'v1.1.0',
+          version: 'v1.1.1',
           registration_status: 'complete',
           notifications:,
         ),
@@ -229,7 +229,7 @@ describe UpdateCheck do
 
       expect(result).not_to have_key(:notifications)
       expect(result).to eq(
-        version: 'v1.1.0',
+        version: 'v1.1.1',
         registration_status: 'complete',
       )
     end
@@ -322,7 +322,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.1.0',
+            version: 'v1.1.1',
             registration_status: 'complete',
             eligible_for_free: true,
           ),
@@ -337,7 +337,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.1.0',
+            version: 'v1.1.1',
             registration_status: 'complete',
           ),
         )
@@ -359,7 +359,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.1.0',
+            version: 'v1.1.1',
             registration_status: 'complete',
             free_trial_ends_at: 30.days.from_now.iso8601,
           ),
@@ -378,7 +378,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.1.0',
+            version: 'v1.1.1',
             registration_status: 'complete',
             free_trial_ends_at: 1.day.ago.iso8601,
           ),
@@ -393,7 +393,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.1.0',
+            version: 'v1.1.1',
             registration_status: 'complete',
           ),
         )
@@ -507,13 +507,13 @@ describe UpdateCheck do
 
       context 'with valid signed cache' do
         before do
-          sign_and_cache(version: 'v1.1.0', registration_status: 'complete')
+          sign_and_cache(version: 'v1.1.1', registration_status: 'complete')
         end
 
         it 'returns verified data without signature key' do
           result = instance.latest
 
-          expect(result).to eq(version: 'v1.1.0', registration_status: 'complete')
+          expect(result).to eq(version: 'v1.1.1', registration_status: 'complete')
           expect(result).not_to have_key(:signature)
         end
 
@@ -536,13 +536,13 @@ describe UpdateCheck do
 
           result = instance.latest
 
-          expect(result).to eq(version: 'v1.1.0', registration_status: 'complete')
+          expect(result).to eq(version: 'v1.1.1', registration_status: 'complete')
         end
       end
 
       context 'with tampered cache' do
         before do
-          sign_and_cache(version: 'v1.1.0', registration_status: 'complete')
+          sign_and_cache(version: 'v1.1.1', registration_status: 'complete')
 
           # Tamper with cached data
           cache_manager = instance.instance_variable_get(:@cache_manager)

@@ -15,7 +15,7 @@ body:
     id: version
     attributes:
       label: Welche Version von SOLECTRUS verwendest du? Stelle unbedingt sicher, dass du die neueste Version nutzt, siehe https://github.com/solectrus/solectrus/releases, denn möglicherweise ist dein Problem bereits behoben.
-      placeholder: z.B. v1.1.0
+      placeholder: z.B. v1.1.1
     validations:
       required: true
 
