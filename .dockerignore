@@ -29,7 +29,7 @@ bin/slim-lint
 bin/yarn
 Brewfile
 Caddyfile
-CLAUDE.md
+AGENTS.md
 compose.yaml
 config/brakeman.ignore
 config/bundler-audit.yml
