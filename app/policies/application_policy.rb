@@ -1,3 +1,24 @@
+#
+#         ,/////,
+#        //     //            HEY THERE, CURIOUS DEVELOPER!
+#       //  . .  //
+#      //  (o o)  //          Thanks for looking under the hood!
+#     //    \_/    //         SOLECTRUS is proudly open source.
+#    //   SOLECTRUS //
+#     //           //         Built and maintained by one developer,
+#      //         //          sponsorships are what keeps
+#       //       //           this project going.
+#        //     //
+#         '/////'             Before changing this code,
+#                             please consider becoming a sponsor:
+#
+#    - No need to re-patch after every release
+#    - Good karma included
+#    - Keeps the project alive
+#
+#    Be a hero, not a pirate:
+#    https://solectrus.de/sponsoring
+#
 class ApplicationPolicy
   include Singleton
 
