@@ -22,7 +22,7 @@ html lang= I18n.locale
     - if Rails.configuration.x.honeybadger.api_key
       meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key
 
-    link rel="manifest" href="/manifest.webmanifest"
+    link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"
     link rel="icon" type="image/png" sizes="196x196" href="/favicon-196.png"
     link rel="apple-touch-icon" href="/apple-icon-180.png"
 
