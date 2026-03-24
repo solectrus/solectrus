@@ -20,14 +20,28 @@ export default defineConfig(({ mode }) => ({
       // Exclude sinon from production builds
       external: mode === 'production' ? ['sinon'] : [],
       output: {
-        manualChunks(id: string) {
-          if (id.includes('node_modules') && !id.includes('/sinon/')) {
-            return 'vendor';
-          }
+        codeSplitting: {
+          groups: [
+            {
+              name: 'chart',
+              test: /node_modules\/(chart|luxon)/,
+            },
+            {
+              name: 'icons',
+              test: /node_modules\/@fortawesome/,
+            },
+            {
+              name: 'hotwire',
+              test: /node_modules\/(stimulus|@hotwired|@rails)/,
+            },
+            {
+              name: 'other-vendor',
+              test: /node_modules/,
+            },
+          ],
         },
       },
     },
-    chunkSizeWarningLimit: 620,
   },
   server: {
     port: 3036,
