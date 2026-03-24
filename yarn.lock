@@ -392,9 +392,9 @@ __metadata:
   linkType: hard
 
 "@rails/actioncable@npm:>=7.0":
-  version: 8.1.200
-  resolution: "@rails/actioncable@npm:8.1.200"
-  checksum: 10c0/d24e9944723594db4847912bd73c7e1538c14a913ba0126265c88319c3b78857f985f6231248c097abf8a593a7c4347a25cded8f8d6afbff32cb9542f860e855
+  version: 8.1.201
+  resolution: "@rails/actioncable@npm:8.1.201"
+  checksum: 10c0/69026fe3c99b6f305aa6b04e5df10532054cafdfbb1a7824bd0442043766d309b3e249674245d082229eeaa21094f57cfe92b41a0a23ea1e301e29cf61703eab
   languageName: node
   linkType: hard
 
@@ -2131,9 +2131,9 @@ __metadata:
   linkType: hard
 
 "picomatch@npm:^4.0.0, picomatch@npm:^4.0.3":
-  version: 4.0.3
-  resolution: "picomatch@npm:4.0.3"
-  checksum: 10c0/9582c951e95eebee5434f59e426cddd228a7b97a0161a375aed4be244bd3fe8e3a31b846808ea14ef2c8a2527a6eeab7b3946a67d5979e81694654f939473ae2
+  version: 4.0.4
+  resolution: "picomatch@npm:4.0.4"
+  checksum: 10c0/e2c6023372cc7b5764719a5ffb9da0f8e781212fa7ca4bd0562db929df8e117460f00dff3cb7509dacfc06b86de924b247f504d0ce1806a37fac4633081466b0
   languageName: node
   linkType: hard
 
@@ -2558,22 +2558,22 @@ __metadata:
   linkType: hard
 
 "tapable@npm:^2.3.0":
-  version: 2.3.1
-  resolution: "tapable@npm:2.3.1"
-  checksum: 10c0/b651c3d4dc23df1597e32d8b4bc9774557768763ee47cf38f48cd9b42d10be0c9a90c16e41a2cd1f0e542daae4004482612c6785fdc17a3ca3e42693c46198f4
+  version: 2.3.2
+  resolution: "tapable@npm:2.3.2"
+  checksum: 10c0/45ec8bd8963907f35bba875f9b3e9a5afa5ba11a9a4e4a2d7b2313d983cb2741386fd7dd3e54b13055b2be942971aac369d197e02263ec9216c59c0a8069ed7f
   languageName: node
   linkType: hard
 
 "tar@npm:^7.5.4":
-  version: 7.5.12
-  resolution: "tar@npm:7.5.12"
+  version: 7.5.13
+  resolution: "tar@npm:7.5.13"
   dependencies:
     "@isaacs/fs-minipass": "npm:^4.0.0"
     chownr: "npm:^3.0.0"
     minipass: "npm:^7.1.2"
     minizlib: "npm:^3.1.0"
     yallist: "npm:^5.0.0"
-  checksum: 10c0/3825c5974f5fde792981f47ee9ffea021ee7f4b552b7ab95eeb98e5dfadfd5a5d5861f01fb772e2e5637a41980d3c019fd6cdad1be48b462b886abd7fe0fa17c
+  checksum: 10c0/5c65b8084799bde7a791593a1c1a45d3d6ee98182e3700b24c247b7b8f8654df4191642abbdb07ff25043d45dcff35620827c3997b88ae6c12040f64bed5076b
   languageName: node
   linkType: hard
 
