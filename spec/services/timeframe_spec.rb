@@ -274,6 +274,78 @@ describe Timeframe do
     end
   end
 
+  context 'when string is "P48H"' do
+    let(:string) { 'P48H' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:hours)
+    end
+
+    it 'is not day_like' do
+      expect(decoder).not_to be_day_like
+      expect(decoder).not_to be_day
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('Last 48 hours')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.hours?).to be(true)
+      expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(true)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(false)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is relative' do
+      expect(decoder).to be_relative
+    end
+  end
+
+  context 'when string is "P72H"' do
+    let(:string) { 'P72H' }
+
+    it 'returns the correct id' do
+      expect(decoder.id).to eq(:hours)
+    end
+
+    it 'is not day_like' do
+      expect(decoder).not_to be_day_like
+      expect(decoder).not_to be_day
+    end
+
+    it 'returns the correct to_s' do
+      expect(decoder.to_s).to eq(string)
+    end
+
+    it 'returns the correct localized' do
+      expect(decoder.localized).to eq('Last 72 hours')
+    end
+
+    it 'returns the correct inquirer' do
+      expect(decoder.now?).to be(false)
+      expect(decoder.hours?).to be(true)
+      expect(decoder.day?).to be(false)
+      expect(decoder.short?).to be(true)
+      expect(decoder.week?).to be(false)
+      expect(decoder.month?).to be(false)
+      expect(decoder.year?).to be(false)
+      expect(decoder.all?).to be(false)
+    end
+
+    it 'is relative' do
+      expect(decoder).to be_relative
+    end
+  end
+
   context 'when string is a day in the past' do
     let(:string) { '2022-05-13' }
 

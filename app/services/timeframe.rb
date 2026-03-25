@@ -178,7 +178,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   end
 
   def day_like?
-    day? || hours?
+    day? || p24h?
   end
 
   def days?
@@ -199,6 +199,10 @@ class Timeframe # rubocop:disable Metrics/ClassLength
 
   def p1h?
     hours? && relative_count == 1
+  end
+
+  def p24h?
+    hours? && relative_count == 24
   end
 
   def short?
