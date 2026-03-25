@@ -38,7 +38,7 @@ module Lockup
       value:,
       expires: 5.years.from_now,
       httponly: true,
-      secure: Rails.env.production?,
+      secure: request.ssl?,
       same_site: :lax,
     }
   end

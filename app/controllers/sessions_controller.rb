@@ -17,7 +17,7 @@ class SessionsController < ApplicationController
         value: true,
         max_age: 90.days.to_i,
         httponly: true,
-        secure: Rails.env.production?,
+        secure: request.ssl?,
         same_site: :lax,
       }
 
