@@ -9,7 +9,7 @@ gem 'uri', '>= 0.12.2'
 gem 'openssl'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 8.1.2'
+gem 'rails', '~> 8.1.3'
 
 # Vite integration for Rails (https://github.com/skryukov/rails_vite)
 gem 'rails_vite'
