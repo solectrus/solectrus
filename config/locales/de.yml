@@ -176,6 +176,12 @@ de:
     submit: Anmelden
     welcome: Angemeldet als Administrator.
     bye: Du wurdest abgemeldet.
+  lockup:
+    headline: Geschützter Zugang
+    description: Diese SOLECTRUS-Instanz ist nicht öffentlich.
+    wrong: Nicht korrekt!
+    placeholder: Codewort
+    submit: Weiter
   sponsoring:
     show:
       headline: SOLECTRUS braucht dich - wirklich!

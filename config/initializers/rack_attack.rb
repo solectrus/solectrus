@@ -48,6 +48,11 @@ module Rack
       req.ip if req.path == '/login' && req.post?
     end
 
+    # Throttle POST requests to /lockup/unlock by IP address
+    throttle('lockup/ip', limit: 5, period: 1.minute) do |req|
+      req.ip if req.path == '/lockup/unlock' && req.post?
+    end
+
     # Throttle POST requests to /login by email param
     #
     # Key: "rack::attack:#{Time.now.to_i/:period}:logins/email:#{normalized_email}"

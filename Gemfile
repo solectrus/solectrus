@@ -171,11 +171,6 @@ group :test do
 end
 
 group :production do
-  # Lock staging servers from search engines and prying eyes. (http://lockup.interdiscipline.com)
-  # Use unreleased version from GitHub to support Rails 7.2
-  # TODO: Change this line after the next release
-  gem 'lockup', github: 'interdiscipline/lockup'
-
   # Full-stack error tracking, performance monitoring, logging, and more. (https://www.honeybadger.io/for/ruby/)
   gem 'honeybadger', require: ENV.key?('HONEYBADGER_API_KEY')
 end

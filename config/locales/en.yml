@@ -176,6 +176,12 @@ en:
     submit: Login
     welcome: Logged in as administrator.
     bye: You have been logged out.
+  lockup:
+    headline: Protected access
+    description: This SOLECTRUS instance is not public.
+    wrong: Not correct!
+    placeholder: Code word
+    submit: Continue
   sponsoring:
     show:
       headline: SOLECTRUS needs you - really!

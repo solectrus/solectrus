@@ -1,6 +1,4 @@
 class HealthController < ActionController::Base
-  skip_before_action :check_for_lockup, raise: false
-
   def show
     render json:, status:
   end

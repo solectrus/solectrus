@@ -96,7 +96,11 @@ Rails.application.routes.draw do
   get 'skip-browser-check', to: 'application#skip_browser_check'
 
   mount Lookbook::Engine, at: '/lookbook' if Rails.env.development?
-  mount Lockup::Engine, at: '/lockup' if Rails.env.production?
+
+  scope :lockup do
+    get 'unlock', to: 'lockup#unlock', as: :lockup_unlock
+    post 'unlock', to: 'lockup#unlock'
+  end
 
   get '/forecast', to: 'forecast/home#index', as: :forecast
 

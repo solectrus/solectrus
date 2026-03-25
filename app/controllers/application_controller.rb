@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  include Lockup
   include AutoLocale
   include TopNavigation
   include BrowserCheck
