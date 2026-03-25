@@ -1,0 +1,3 @@
+en:
+  house_power_invalid: House consumption is less than the sum of the consumers
+  toggle_view: Toggle view

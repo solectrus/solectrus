@@ -142,6 +142,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formkit/auto-animate@npm:^0.9.0":
+  version: 0.9.0
+  resolution: "@formkit/auto-animate@npm:0.9.0"
+  checksum: 10c0/5337bb905761d347cc07cf323b54fbd9967c1eac5469cb63f6ad67cf6705b08493c80ddafc470f317eee82fcc1c05f34391eb05896d41aa9f2f8a02738614ce4
+  languageName: node
+  linkType: hard
+
 "@fortawesome/fontawesome-common-types@npm:7.2.0":
   version: 7.2.0
   resolution: "@fortawesome/fontawesome-common-types@npm:7.2.0"
@@ -2448,6 +2455,7 @@ __metadata:
     "@eslint/js": "npm:^10.0.1"
     "@floating-ui/dom": "npm:^1.7.6"
     "@fontsource-variable/inter": "npm:^5.2.8"
+    "@formkit/auto-animate": "npm:^0.9.0"
     "@fortawesome/fontawesome-svg-core": "npm:^7.2.0"
     "@fortawesome/free-brands-svg-icons": "npm:^7.2.0"
     "@fortawesome/free-regular-svg-icons": "npm:^7.2.0"

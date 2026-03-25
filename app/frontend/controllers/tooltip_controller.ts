@@ -47,6 +47,12 @@ export default class TooltipController extends Controller {
       default: 'bottom',
     },
 
+    // Alternative placement on small screens (empty = use placement)
+    mobilePlacement: {
+      type: String,
+      default: '',
+    },
+
     // How to handle tooltips on touch devices, can be "true", "false" or "long"
     touch: {
       type: String,
@@ -63,6 +69,7 @@ export default class TooltipController extends Controller {
   static readonly targets = ['html'];
 
   declare placementValue: Placement;
+  declare mobilePlacementValue: string;
   declare touchValue: 'true' | 'false' | 'long';
   declare delegateValue: boolean;
   declare readonly hasHtmlTarget: boolean;
@@ -321,7 +328,7 @@ export default class TooltipController extends Controller {
     this.updateTooltipContent(content);
     this.isVisible = true;
 
-    await this.showTooltipAt(target, this.placementValue);
+    await this.showTooltipAt(target, this.effectivePlacement);
 
     // Check if controller was disconnected during async operation
     if (!this.tooltip || !this.isVisible) return;
@@ -519,6 +526,16 @@ export default class TooltipController extends Controller {
     }
 
     this.tooltip.dataset.placement = actualPlacement;
+  }
+
+  private get effectivePlacement(): Placement {
+    if (
+      this.mobilePlacementValue &&
+      window.matchMedia('(max-width: 767px)').matches
+    )
+      return this.mobilePlacementValue as Placement;
+
+    return this.placementValue;
   }
 
   private supportsHover(): boolean {

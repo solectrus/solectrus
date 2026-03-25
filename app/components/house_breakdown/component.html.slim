@@ -1,0 +1,79 @@
+.flex-1.min-h-0.flex.gap-5[
+  data-controller="house-breakdown--component"
+  data-house-breakdown--component-key-value="houseViewMode"
+]
+  // Clip
+  .flex.gap-10.items-end.px-3.md:px-5.py-2.md:py-3.xl:py-4
+    .w-5.border-b-2.border-t-2.border-slate-500.h-full.flex.justify-center
+      .flex.h-full.flex-col.items-center.justify-center.text-sm.md:text-lg.-ml-5.text-slate-500.dark:text-slate-400
+        .w-0.flex-1.border-l-2.border-slate-500
+
+        = link_to house_home_path(sensor_name: 'house_power', timeframe:),
+                  class: 'bg-white dark:bg-slate-900 py-2 md:py-4 pl-3',
+                  title: Sensor::Registry[:house_power].display_name,
+                  data: { \
+                    controller: 'tooltip',
+                    tooltip_placement_value: 'right',
+                    tooltip_force_tap_to_close_value: false,
+                    tooltip_touch_value: 'long',
+                    turbo_prefetch: 'false',
+                    action: 'stats-with-chart--component#loadChart',
+                    stats_with_chart__component_sensor_name_param: 'house_power',
+                    stats_with_chart__component_chart_url_param: house_charts_path(sensor_name: 'house_power', timeframe:),
+                  } do
+          .flex.items-baseline.gap-1 data= { 'stats-with-chart--component-target': sensor_name == :house_power ? 'current' : nil, 'sensor-name': sensor_name, value: data.house_power, time: data.time.to_i }
+            = render SensorValue::Component.new(data.house_power || 0, :house_power, context: timeframe.now? ? :rate : :total)
+            - unless data.house_power_valid?
+              span[
+                data-controller= 'tooltip'
+                title= t('.house_power_invalid')
+                data-tooltip-placement-value= 'right'
+                data-tooltip-touch-value= 'true'
+              ]
+                i.fa.fa-sm.fa-circle-exclamation
+
+          - if !timeframe.now? && data.house_costs&.positive?
+            .hidden id="tooltip-content-house_power" data-tooltip-target="html"
+              .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
+                = Sensor::Registry[:house_power].display_name
+                = render SensorValue::Component.new(data.house_power || 0, :house_power, context: :total, precision: 3, class: 'text-xl')
+                = render SplittedCosts::Component.new( \
+                    costs: data.house_costs,
+                    power_grid_ratio: data.house_power_grid_ratio,
+                    grid_costs: data.house_costs_grid,
+                    pv_costs: data.house_costs_pv,
+                  )
+
+        button.mt-0.mb-3.flex.items-center.justify-center.size-8.rounded-full.border.border-gray-300.dark:border-gray-600.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.text-slate-500.dark:text-slate-400.cursor-pointer.transition-colors[
+          data-controller="tooltip"
+          data-tooltip-placement-value="right"
+          data-tooltip-force-tap-to-close-value="false"
+          data-tooltip-touch-value="long"
+          data-action="house-breakdown--component#toggle"
+          aria-label=t('.toggle_view')
+        ]
+          span.hidden data-tooltip-target="html"
+            = t('.toggle_view')
+          i.fas.fa-table-list data-house-breakdown--component-target="icon"
+          i.fas.fa-chart-bar.hidden data-house-breakdown--component-target="icon"
+
+        .w-0.flex-1.border-l-2.border-slate-500
+
+  // Inner content
+  .flex-1.flex.flex-col.min-h-0
+    .flex-1.flex data-house-breakdown--component-target="segments"
+      = render SegmentContainer::Component.new tooltip_placement: 'bottom',
+                                                data:,
+                                                timeframe: do |balance|
+        - sorted_segments.each_with_index do |sensor, index|
+          - balance.with_segment sensor.name, inline: true, color_index: sensor_count - index
+
+        - balance.with_segment :house_power_without_custom, inline: true
+
+    .flex-1.min-h-0.hidden.overflow-hidden data-house-breakdown--component-target="table"
+      .w-full.h-full.flex.flex-col.min-h-0.bg-slate-200.dark:bg-slate-800.rounded-lg.p-2.md:p-3.xl:p-4
+        .flex-1.flex.flex-col.overflow-y-auto.text-sm.md:text-base
+          - table_rows.each do |row|
+            = render HouseBreakdown::TableRowComponent.new(sensor: row[:sensor], percent: row[:percent], data:, timeframe:, scaling: common_scaling)
+
+          = render HouseBreakdown::TableRowComponent.new(sensor: other_sensor, percent: other_percent, pinned: true, data:, timeframe:, scaling: common_scaling)

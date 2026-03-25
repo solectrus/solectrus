@@ -136,6 +136,7 @@ export default class extends Controller {
     const element = event.currentTarget as HTMLElement;
     const historyUrl =
       element.getAttribute('href') ||
+      element.getAttribute('data-href') ||
       (element instanceof HTMLOptionElement ? element.value : undefined);
     if (!historyUrl) return;
 

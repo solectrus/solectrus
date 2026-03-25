@@ -56,6 +56,8 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
 import { faHouseCrack } from '@fortawesome/free-solid-svg-icons/faHouseCrack';
 import { faSolarPanel } from '@fortawesome/free-solid-svg-icons/faSolarPanel';
 import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons/faMagicWandSparkles';
+import { faTableList } from '@fortawesome/free-solid-svg-icons/faTableList';
+import { faChartBar } from '@fortawesome/free-solid-svg-icons/faChartBar';
 
 // -------------------------
 
@@ -117,6 +119,8 @@ export default class extends Controller {
       faGrip,
       faTrophy,
       faMagicWandSparkles,
+      faTableList,
+      faChartBar,
     );
 
     dom.watch();

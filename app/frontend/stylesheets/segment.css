@@ -1,3 +1,19 @@
+:root {
+  --table-bar-color: color-mix(
+    in srgb,
+    var(--color-sensor-house) 25%,
+    transparent
+  );
+}
+
+.dark {
+  --table-bar-color: color-mix(
+    in srgb,
+    var(--color-sensor-house) 75%,
+    transparent
+  );
+}
+
 .segment {
   @apply flex items-center justify-center overflow-hidden px-2 text-center leading-none transition-[font-size,height] motion-safe:duration-1000 motion-reduce:duration-100 sm:px-4;
 
