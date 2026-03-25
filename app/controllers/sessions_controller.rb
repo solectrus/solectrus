@@ -12,7 +12,14 @@ class SessionsController < ApplicationController
     @admin_user = AdminUser.new(permitted_params)
 
     if @admin_user.valid?
-      cookies.signed[:admin] = { value: true, max_age: 90.days.to_i }
+      reset_session
+      cookies.signed[:admin] = {
+        value: true,
+        max_age: 90.days.to_i,
+        httponly: true,
+        secure: Rails.env.production?,
+        same_site: :lax,
+      }
 
       flash[:notice] = t('login.welcome')
       respond_to do |format|
@@ -39,6 +46,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
+    reset_session
     cookies.delete :admin
 
     flash[:notice] = t('login.bye')

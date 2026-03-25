@@ -37,6 +37,15 @@ describe 'Sessions' do
       jar = ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
       expect(jar.signed[:admin]).to be true
     end
+
+    it 'sets cookie with httponly and SameSite flags' do
+      post '/login', params: { admin_user: { username: 'admin', password: } }
+
+      admin_cookie =
+        response.headers['Set-Cookie'].find { |c| c.start_with?('admin=') }
+      expect(admin_cookie).to include('httponly')
+      expect(admin_cookie).to include('samesite=lax')
+    end
   end
 
   describe 'DELETE /logout' do
