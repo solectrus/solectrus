@@ -58,18 +58,18 @@ class HouseBreakdown::TableRowComponent < ViewComponent::Base
 
   def name_column
     tag.span sensor.display_name,
-             class: 'relative flex-1 text-slate-700 dark:text-slate-300 truncate'
+             class: 'relative flex-1 w-0 text-slate-700 dark:text-slate-300 truncate'
   end
 
   def value_column
-    tag.span class: 'relative text-right tabular-nums text-slate-700 dark:text-slate-300 ml-1 md:ml-2 min-w-16 md:min-w-24' do
+    tag.span class: 'relative shrink-0 text-right tabular-nums text-slate-700 dark:text-slate-300 ml-1 md:ml-2 min-w-16 md:min-w-24' do
       render SensorValue::Component.new(data, sensor.name, context: timeframe.now? ? :rate : :total, scaling:)
     end
   end
 
   def percent_column
     tag.span "#{percent.round} %",
-             class: 'relative text-right tabular-nums text-slate-500 dark:text-slate-400 ml-1 md:ml-4 whitespace-nowrap w-10 md:w-12'
+             class: 'relative shrink-0 text-right tabular-nums text-slate-500 dark:text-slate-400 ml-1 md:ml-4 whitespace-nowrap w-10 md:w-12'
   end
 
   def tooltip_content

@@ -50,7 +50,7 @@
   }
 
   .title {
-    @apply text-left;
+    @apply min-w-0 truncate text-left;
   }
 
   .value {
