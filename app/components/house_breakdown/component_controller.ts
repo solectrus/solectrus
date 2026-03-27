@@ -1,6 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
 import autoAnimate, { type AnimationController } from '@formkit/auto-animate';
 
+type ViewMode = 'segments' | 'table';
+
 export default class extends Controller {
   static readonly targets = ['segments', 'table', 'icon'];
   static readonly values = { key: { type: String, default: 'viewMode' } };
@@ -10,10 +12,10 @@ export default class extends Controller {
   declare readonly iconTargets: HTMLElement[];
   declare readonly keyValue: string;
 
-  private animateControls = new Map<HTMLElement, AnimationController>();
+  private animateController: AnimationController | null = null;
 
   connect() {
-    this.restoreMode();
+    this.setMode(this.storedMode);
     this.element.addEventListener(
       'turbo:before-morph-element',
       this.preserveHidden,
@@ -29,56 +31,63 @@ export default class extends Controller {
   }
 
   toggle() {
-    const showTable = !this.segmentsTarget.classList.contains('hidden');
-    this.setMode(showTable);
-    localStorage.setItem(this.keyValue, showTable ? 'table' : 'segments');
+    const mode: ViewMode =
+      this.currentMode === 'segments' ? 'table' : 'segments';
+    localStorage.setItem(this.keyValue, mode);
+    this.setMode(mode);
+  }
+
+  iconTargetConnected() {
+    // Icons connect after restoreMode(), so apply the current mode directly
+    // from the DOM state rather than re-reading localStorage
+    this.applyIcons(this.currentMode);
   }
 
   private preserveHidden = (event: Event) => {
-    const el = event.target as HTMLElement;
     const newEl = (event as CustomEvent).detail?.newElement as HTMLElement;
-    if (
-      newEl &&
-      el.classList.contains('hidden') !== newEl.classList.contains('hidden')
-    )
-      newEl.classList.toggle('hidden', el.classList.contains('hidden'));
+    if (newEl)
+      newEl.classList.toggle(
+        'hidden',
+        (event.target as HTMLElement).classList.contains('hidden'),
+      );
   };
 
-  private restoreMode() {
-    const showTable = this.storedMode === 'table';
-    if (showTable) this.setMode(true);
-    else this.enableAutoAnimate(this.segmentsTarget, '.divide-y', 1000);
+  private applyIcons(mode: ViewMode) {
+    const [segmentsIcon, tableIcon] = this.iconTargets;
+    if (segmentsIcon) segmentsIcon.classList.toggle('hidden', mode === 'table');
+    if (tableIcon) tableIcon.classList.toggle('hidden', mode === 'segments');
   }
 
-  private setMode(showTable: boolean) {
-    this.segmentsTarget.classList.toggle('hidden', showTable);
-    this.tableTarget.classList.toggle('hidden', !showTable);
-    for (const icon of this.iconTargets) icon.classList.toggle('hidden');
+  private setMode(mode: ViewMode) {
+    this.segmentsTarget.classList.toggle('hidden', mode === 'table');
+    this.tableTarget.classList.toggle('hidden', mode === 'segments');
+    this.applyIcons(mode);
 
     this.disableAutoAnimate();
-    if (showTable)
-      this.enableAutoAnimate(this.tableTarget, '.overflow-y-auto', 700);
-    else this.enableAutoAnimate(this.segmentsTarget, '.divide-y', 1000);
-  }
-
-  private enableAutoAnimate(
-    target: HTMLElement,
-    selector: string,
-    duration: number,
-  ) {
-    if (this.animateControls.has(target)) return;
-
-    const list = target.querySelector(selector);
+    const target = mode === 'table' ? this.tableTarget : this.segmentsTarget;
+    const list = target.querySelector(
+      mode === 'table' ? '.overflow-y-auto' : '.divide-y',
+    );
     if (list instanceof HTMLElement)
-      this.animateControls.set(target, autoAnimate(list, { duration }));
+      this.animateController = autoAnimate(list, {
+        duration: mode === 'table' ? 700 : 1000,
+      });
   }
 
   private disableAutoAnimate() {
-    for (const controls of this.animateControls.values()) controls.disable();
-    this.animateControls.clear();
+    this.animateController?.disable();
+    this.animateController = null;
   }
 
-  private get storedMode(): string | null {
-    return localStorage.getItem(this.keyValue);
+  private get currentMode(): ViewMode {
+    return this.segmentsTarget.classList.contains('hidden')
+      ? 'table'
+      : 'segments';
+  }
+
+  private get storedMode(): ViewMode {
+    return localStorage.getItem(this.keyValue) === 'table'
+      ? 'table'
+      : 'segments';
   }
 }
