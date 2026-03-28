@@ -1,6 +1,6 @@
 div class="donut-chart flex-1 min-h-0 flex items-center justify-center @container-[size]"
   - if placeholder?
-    div class="relative mx-auto w-[min(100cqi,100cqb,24rem)] aspect-square @container-[size]"
+    div class="relative mx-auto size-[min(100cqi,100cqb,24rem)] @container-[size]"
       div class="absolute inset-0 rounded-full bg-slate-200 dark:bg-slate-800 @max-h-16:hidden" style=placeholder_style
       .absolute.inset-1/4.flex.items-center.justify-center.pointer-events-none
         - if center
@@ -8,7 +8,7 @@ div class="donut-chart flex-1 min-h-0 flex items-center justify-center @containe
             = center
 
   - else
-    div class="relative mx-auto w-[min(100cqi,100cqb,24rem)] aspect-square @container-[size]" data-controller="tooltip" data-tooltip-placement-value=tooltip_placement data-tooltip-force-tap-to-close-value="false" data-tooltip-touch-value="long"
+    div class="relative mx-auto size-[min(100cqi,100cqb,24rem)] @container-[size]" data-controller="tooltip" data-tooltip-placement-value=tooltip_placement data-tooltip-force-tap-to-close-value="false" data-tooltip-touch-value="long"
       / Donut ring via conic-gradient + radial mask
       div class="absolute inset-0 rounded-full @max-h-16:hidden" style=donut_style
 

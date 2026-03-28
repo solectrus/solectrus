@@ -123,6 +123,7 @@
 
     & .donut-chart > div {
       width: min(80cqi, 80cqb);
+      height: min(80cqi, 80cqb);
     }
 
     & [id*='-timeframe-'] > div {
