@@ -1,26 +1,15 @@
-- content_for :sub_nav do
-  .flex.justify-between.items-center
-    .hidden.lg:landscape:block.py-5
-      = render Nav::Sub::Component.new do |c|
-        = c.with_items nav_items
+= render 'settings/sub_nav'
 
-- content_for :bottom_nav do
-  = render Nav::Sub::Component.new do |c|
-    = c.with_items nav_items
-
-.flex.items-start.justify-between.pb-6.px-2.space-x-4.text-gray-500
-  p.text-sm.md:text-base
+.flex.items-start.justify-between.mb-4.px-2
+  p.text-gray-500.text-sm.md:text-base.pr-16
     = t "settings.prices.description.#{name}"
-
-  = render Button::Component.new path: new_settings_price_path,
-                                  icon: 'plus',
-                                  type: :button,
-                                  options: { \
-                                    method: :get,
-                                    params: { price: { name: } },
-                                    data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-                                    'aria-label': t('crud.new'),
-                                }
+  = button_to new_settings_price_path,
+              method: :get,
+              params: { price: { name: } },
+              data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+              class: 'size-14 shrink-0 rounded-full bg-indigo-600 dark:bg-indigo-800 text-white shadow-lg hover:bg-indigo-700 click-animation focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
+              title: t('crud.new') do
+    i.fa.fas.fa-plus.fa-lg
 
 = turbo_stream_from "prices_#{name}"
 = tag.turbo_frame id: 'list' do

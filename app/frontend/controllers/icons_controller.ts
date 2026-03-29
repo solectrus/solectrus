@@ -15,6 +15,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark';
+import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 
 import { faSun } from '@fortawesome/free-solid-svg-icons/faSun';
 import { faHome } from '@fortawesome/free-solid-svg-icons/faHome';
@@ -56,6 +57,7 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
 import { faHouseCrack } from '@fortawesome/free-solid-svg-icons/faHouseCrack';
 import { faSolarPanel } from '@fortawesome/free-solid-svg-icons/faSolarPanel';
 import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons/faMagicWandSparkles';
+import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 import { faTableList } from '@fortawesome/free-solid-svg-icons/faTableList';
 import { faChartBar } from '@fortawesome/free-solid-svg-icons/faChartBar';
 
@@ -90,6 +92,7 @@ export default class extends Controller {
       faPencil,
       faTrash,
       faXmark,
+      faCheck,
       faBatteryEmpty,
       faBatteryQuarter,
       faBatteryHalf,
@@ -119,6 +122,7 @@ export default class extends Controller {
       faGrip,
       faTrophy,
       faMagicWandSparkles,
+      faBars,
       faTableList,
       faChartBar,
     );

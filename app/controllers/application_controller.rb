@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   include Lockup
   include AutoLocale
-  include TopNavigation
+  include MainNavigation
   include BrowserCheck
 
   default_form_builder TailwindFormBuilder

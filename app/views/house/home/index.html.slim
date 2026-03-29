@@ -2,25 +2,7 @@
 - content_for :full_height, true
 - extra_stimulus_controllers 'swipe' if timeframe&.can_paginate?
 
-- content_for :sub_nav do
-  .flex.flex-col.lg:landscape:items-center.justify-between.lg:landscape:flex-row.py-2.lg:landscape:py-5
-    = tag.turbo_frame id: frame_id('second-nav-desktop'), target: '_top', class: 'hidden lg:landscape:block' do
-      = render Nav::Sub::Component.new do |c|
-        = c.with_items nav_items
-
-    .flex.items-center.justify-between.w-full.lg:landscape:w-auto.lg:landscape:justify-end
-      = tag.turbo_frame id: frame_id('timeframe'),
-                        target: '_top',
-                        data: { turbo_permanent: true },
-                        class: 'h-8 space-x-4 flex items-center justify-between lg:landscape:justify-end flex-1'
-
-      = tag.turbo_frame id: frame_id('status'),
-                        data: { turbo_permanent: true }
-
-- content_for :bottom_nav do
-  = tag.turbo_frame id: frame_id('second-nav-mobile'), target: '_top' do
-    = render Nav::Sub::Component.new do |c|
-      = c.with_items nav_items
+= render 'shared/home_sub_nav'
 
 - if @missing_or_stale_summary_days.present?
   = turbo_stream.update frame_id('timeframe') do

@@ -13,31 +13,21 @@ module TurboStreamHelper
 
   def turbo_stream_update_primary_nav
     component = Nav::Top::Component.new
-    component.with_primary_items(topnav_primary_items)
+    component.with_primary_items(desktop_primary_items)
 
-    safe_join(
-      %i[desktop mobile].map do |device|
-        turbo_stream.update("primary-nav-#{device}") do
-          render Nav::Top::Component::Items.new(
-                   items: component.primary_items_without_root,
-                   device:,
-                 )
-        end
-      end,
-    )
+    turbo_stream.update('primary-nav-desktop') do
+      render Nav::Top::Component::Items.new(
+               items: component.primary_items_without_root,
+             )
+    end
   end
 
   def turbo_stream_update_second_nav
-    content =
+    turbo_stream.update(frame_id('second-nav')) do
       render Nav::Sub::Component.new do |c|
         c.with_items nav_items
       end
-
-    safe_join(
-      %i[desktop mobile].map do |device|
-        turbo_stream.update(frame_id("second-nav-#{device}")) { content }
-      end,
-    )
+    end
   end
 
   def turbo_stream_update_notification_badge

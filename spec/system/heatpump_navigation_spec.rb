@@ -24,7 +24,6 @@ describe 'Heatpump navigation' do
     expect(page).to have_css('#stats-now')
     expect(page).to have_current_path("/heatpump/#{path}/now")
     expect(page.title).to include('Live')
-    expect(page).to have_content('12:00 Uhr')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-now')
 

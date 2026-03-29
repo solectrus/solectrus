@@ -1,37 +1,31 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-  static readonly targets = ['dropdown', 'button', 'icon', 'overlay'];
+  static readonly targets = ['dropdown', 'button', 'icon'];
 
   static readonly values = {
-    maxHeightClass: { type: String, default: 'max-h-192' },
+    heightClass: { type: String, default: 'h-auto' },
   };
 
   declare readonly dropdownTarget: HTMLElement;
-  declare readonly buttonTarget: HTMLElement;
+  declare readonly buttonTargets: HTMLElement[];
   declare readonly iconTargets: HTMLElement[];
-  declare readonly hasOverlayTarget: boolean;
-  declare readonly overlayTarget: HTMLElement;
-
-  declare readonly maxHeightClassValue: string;
+  declare readonly heightClassValue: string;
 
   hide() {
-    if (this.buttonTarget.ariaExpanded === 'true') this.toggle();
+    if (this.buttonTargets[0]?.ariaExpanded === 'true') this.toggle();
   }
 
   toggle() {
-    this.dropdownTarget.classList.toggle('max-h-0');
-    this.dropdownTarget.classList.toggle(this.maxHeightClassValue);
+    this.dropdownTarget.classList.toggle('h-0');
+    this.dropdownTarget.classList.toggle(this.heightClassValue);
 
     for (const icon of this.iconTargets) {
       icon.classList.toggle('hidden');
     }
 
-    if (this.hasOverlayTarget) {
-      this.overlayTarget.classList.toggle('hidden');
+    for (const button of this.buttonTargets) {
+      button.ariaExpanded = button.ariaExpanded === 'true' ? 'false' : 'true';
     }
-
-    this.buttonTarget.ariaExpanded =
-      this.buttonTarget.ariaExpanded === 'true' ? 'false' : 'true';
   }
 }

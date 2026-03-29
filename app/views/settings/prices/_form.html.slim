@@ -1,4 +1,4 @@
-= form_with(model: price, url: [:settings, price], id: dom_id(price, :form)) do |f|
+= form_with(model: price, url: [:settings, price], id: dom_id(price, :form), html: { data: { controller: 'form-dirty' } }) do |f|
   = f.hidden_field :name
 
   = f.group do
@@ -10,5 +10,5 @@
                      label: t("activerecord.attributes.price.#{price.name}_amount").html_safe
     = f.text_field :note
 
-  = f.actions do
-    = f.submit t('crud.save')
+  .flex.justify-end
+    = render 'settings/fab_submit'

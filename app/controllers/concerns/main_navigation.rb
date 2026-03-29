@@ -1,10 +1,13 @@
-module TopNavigation # rubocop:disable Metrics/ModuleLength
+module MainNavigation # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
+
+  MAX_BOTTOM_ITEMS = 4
+  private_constant :MAX_BOTTOM_ITEMS
 
   included do # rubocop:disable Metrics/BlockLength
     private
 
-    helper_method def topnav_primary_items
+    helper_method def desktop_primary_items
       [
         root_item,
         (inverter_item if Setting.enable_multi_inverter),
@@ -19,7 +22,31 @@ module TopNavigation # rubocop:disable Metrics/ModuleLength
       ].compact
     end
 
-    helper_method def topnav_secondary_items
+    helper_method def mobile_bottom_items
+      all_mobile_items.first(MAX_BOTTOM_ITEMS)
+    end
+
+    helper_method def mobile_extra_items
+      all_mobile_items.drop(MAX_BOTTOM_ITEMS)
+    end
+
+    def all_mobile_items
+      @all_mobile_items ||=
+        [
+          root_item,
+          (inverter_item if Setting.enable_multi_inverter),
+          (house_item if Setting.enable_custom_consumer),
+          (heatpump_item if Setting.enable_heatpump),
+          (
+            forecast_item if Setting.enable_forecast &&
+              Sensor::Config.exists?(:inverter_power_forecast)
+          ),
+          top10_item,
+          essentials_item,
+        ].compact
+    end
+
+    helper_method def desktop_secondary_items
       [
         settings_item,
         registration_item,

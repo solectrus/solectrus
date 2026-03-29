@@ -1,0 +1,26 @@
+- content_for :fixed_nav, true
+- content_for :sub_nav do
+  .lg:py-5
+    /! Mobile: dark underline tabs
+    .dark:bg-slate-900.-mx-4.sm:-mx-6.px-4.sm:px-6.pb-3.lg:hidden
+      .text-center.pt-3.pb-2
+        i.fa.fa-gear.text-indigo-200.dark:text-gray-400.text-2xl
+
+      nav.flex.justify-evenly.border-b.border-indigo-400/30.dark:border-gray-700[
+        aria-label="Tabs"
+      ]
+        - nav_items.each do |item|
+          - current_classes = 'border-white text-white'
+          - default_classes = 'border-transparent text-indigo-200 dark:text-gray-400 hover:text-white hover:border-indigo-300/50 dark:hover:border-gray-500'
+          = link_to item[:name],
+                    item[:href],
+                    class: [ \
+                      'py-2.5 px-2 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
+                      (item[:current] ? current_classes : default_classes),
+                    ],
+                    'aria-current': (item[:current] ? 'page' : nil)
+
+    /! Desktop: original pill buttons
+    .hidden.lg:block
+      = render Nav::Sub::Component.new(abbreviate: false) do |c|
+        = c.with_items nav_items

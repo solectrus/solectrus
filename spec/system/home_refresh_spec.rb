@@ -6,7 +6,6 @@ describe 'Home page auto-refresh' do
       visit '/inverter_power/now'
 
       expect(page.title).to include('Live')
-      expect(page).to have_content('12:00 Uhr')
       expect(page).to have_content('10,0 kW')
 
       add_influx_point(

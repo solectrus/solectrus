@@ -42,7 +42,7 @@ class Status::Component < ViewComponent::Base
   end
 
   def outer_class
-    'bg-gray-200 dark:bg-gray-300/75 text-black dark:text-gray-800'
+    'bg-transparent ring-1 ring-gray-300 dark:ring-gray-500 text-gray-200 dark:text-gray-400'
   end
 
   def dot_class

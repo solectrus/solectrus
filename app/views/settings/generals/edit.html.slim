@@ -1,15 +1,7 @@
-- content_for :sub_nav do
-  .flex.justify-between.items-center
-    .hidden.lg:landscape:block.py-5
-      = render Nav::Sub::Component.new do |c|
-        = c.with_items nav_items
+= render 'settings/sub_nav'
 
-- content_for :bottom_nav do
-  = render Nav::Sub::Component.new do |c|
-    = c.with_items nav_items
-
-= form_with(model: Setting.new, url: settings_general_path, method: :patch, html: { class: 'px-2' }) do |f|
-  = f.group title: t('settings.general.plant.description') do
+= form_with(model: Setting.new, url: settings_general_path, method: :patch, html: { class: 'relative px-2', data: { controller: 'form-dirty' } }) do |f|
+  = f.group do
     = f.text_field :plant_name,
                    value: Setting.plant_name,
                    placeholder: t('settings.general.plant.plant_name.placeholder'),
@@ -19,8 +11,8 @@
                    value: Setting.operator_name,
                    placeholder: t('settings.general.plant.operator_name.placeholder')
 
-  = f.actions do
-    = f.submit t('crud.save')
+  .sticky.bottom-4.z-20.flex.justify-end
+    = render 'settings/fab_submit'
 
-.mt-10
+.mt-10.px-2
   = render 'summaries', summary_completion_rate: @summary_completion_rate

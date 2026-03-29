@@ -1,38 +1,60 @@
 class Nav::Sub::Component < ViewComponent::Base
   renders_many :items, 'ItemComponent'
 
+  def initialize(abbreviate: true)
+    super()
+    @abbreviate = abbreviate
+  end
+
+  attr_reader :abbreviate
+
+  def before_render
+    return unless @abbreviate
+
+    items.each_with_index do |item, index|
+      item.abbreviate = index.positive? && index < items.size - 1
+    end
+  end
+
   class ItemComponent < ViewComponent::Base
     def initialize(name:, href:, current: false)
       super()
       @name = name
       @href = href
       @current = current
+      @abbreviate = false
     end
 
     attr_reader :name, :href, :current
+    attr_writer :abbreviate
 
     def call
-      link_to name,
-              href,
+      link_to href,
               class: css_classes,
-              'aria-current': (current ? 'location' : nil)
+              'aria-current': (current ? 'location' : nil) do
+        safe_join(
+          [
+            tag.span(short_name, class: 'sm:hidden'),
+            tag.span(name, class: 'hidden sm:inline'),
+          ],
+        )
+      end
     end
 
     private
 
-    def css_classes # rubocop:disable Metrics/MethodLength
+    def short_name
+      @abbreviate ? name.first : name
+    end
+
+    def css_classes
       base_classes = %w[
-        py-5
-        standalone:max-lg:pt-3
-        standalone:max-lg:pb-8
-        px-1.5
-        first:pl-6
-        last:pr-6
-        md:px-3
-        md:first:pl-3
-        md:last:pr-3
+        py-1
+        px-2
+        lg:landscape:px-3
         lg:landscape:py-2
-        flex-auto
+        flex-1
+        lg:landscape:flex-initial
         text-center
         click-animation
       ]
@@ -40,18 +62,12 @@ class Nav::Sub::Component < ViewComponent::Base
       if current
         base_classes +
           %w[
-            from-white
-            to-indigo-100
-            bg-linear-to-b
             text-gray-800
+            bg-gray-200
+            dark:bg-gray-400
+            dark:text-gray-800
+            rounded-full
             lg:landscape:rounded-md
-            lg:landscape:bg-gray-200
-            lg:landscape:bg-none
-            dark:from-gray-800
-            dark:to-indigo-700
-            dark:text-slate-300
-            dark:lg:landscape:bg-gray-400
-            dark:lg:landscape:text-gray-800
             focus:outline-none
             focus:ring-2
             focus:ring-gray-800
@@ -63,11 +79,12 @@ class Nav::Sub::Component < ViewComponent::Base
           %w[
             text-gray-300
             dark:text-gray-400
+            rounded-full
+            lg:landscape:rounded-md
             lg:landscape:hover:text-gray-200
             lg:landscape:hover:bg-indigo-500
             dark:lg:landscape:hover:bg-indigo-950/50
             dark:lg:landscape:hover:text-gray-300
-            rounded
             focus:outline-none
             focus:ring-2
             focus:ring-gray-300

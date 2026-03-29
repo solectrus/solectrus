@@ -8,6 +8,6 @@ describe 'Basic functionality' do
 
     expect(page).to have_content('SOLECTRUS.de')
     expect(page).to have_content('ledermann.dev')
-    expect(page).to have_content('12:00')
+    expect(page).to have_content('LADEN')
   end
 end

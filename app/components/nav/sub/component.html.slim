@@ -1,3 +1,6 @@
-nav.w-full.flex.items-stretch.justify-between.font-medium.text-xs.uppercase.sm:landscape:text-sm.md:landscape:text-base.md:landscape:tracking-wider.md:landscape:mx-6.lg:landscape:mx-0.lg:landscape:space-x-4 aria-label="Tabs"
+nav.w-full.flex.items-stretch.justify-between.lg:landscape:justify-start.gap-1.font-medium.uppercase.sm:landscape:text-sm.md:landscape:text-base.md:landscape:tracking-wider.lg:landscape:gap-0.lg:landscape:space-x-4[
+  aria-label="Tabs"
+  class=(abbreviate ? 'text-sm' : 'text-xs sm:text-sm')
+]
   - items.each do |item|
     = item

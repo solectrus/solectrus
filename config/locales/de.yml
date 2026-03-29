@@ -26,7 +26,7 @@ de:
     essentials: Einzelwerte
     forecast: Prognose
     top10: Top 10
-    about: Über SOLECTRUS
+    about: Website
     fullscreen_on: Vollbild
     fullscreen_off: Vollbild beenden
     theme: Farbschema
@@ -212,7 +212,6 @@ de:
     general:
       name: Allgemein
       plant:
-        description: Angaben zur Photovoltaik-Anlage und zum Betreiber. Wird nur auf der Seite der Einzelwerte angezeigt.
         plant_name:
           placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
         operator_name:
@@ -234,7 +233,6 @@ de:
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
     sensors:
       name: Sensoren
-      description: Benennung der vorhandenen Sensoren
       generators: Erzeuger
       consumers: Verbraucher
       battery: Akku

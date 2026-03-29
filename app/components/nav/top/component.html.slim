@@ -1,5 +1,5 @@
-header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller='slide-over--component toggle' data-toggle-max-height-class-value="max-h-[calc(100dvh-3.5rem)]"
-  nav.absolute.w-full.z-40.bg-indigo-600.dark:bg-indigo-900.border-b.border-indigo-300/25.dark:border-indigo-950/25.lg:border-none
+header.relative.bg-indigo-600.dark:bg-indigo-900 data-controller='slide-over--component' class=(compact ? 'lg:pb-32' : 'pb-32')
+  nav.absolute.w-full.z-40.bg-indigo-600.dark:bg-indigo-900.border-b.border-indigo-300/25.dark:border-indigo-950/25.lg:border-none.hidden.lg:block
     .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-2.sm:px-4.lg:px-6.lg:landscape:px-8
       .relative.h-14.md:h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-200/25
         .px-2.flex.items-center.lg:px-0.gap-6.flex-1.dark:lg:border-indigo-700
@@ -14,9 +14,9 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller='slide-ov
             ]
               path d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
 
-          .hidden.lg:flex.justify-between.items-center.flex-1
+          .flex.justify-between.items-center.flex-1
             .flex.gap-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-base#primary-nav-desktop
-              = render Nav::Top::Component::Items.new(items: primary_items_without_root, device: :desktop)
+              = render Nav::Top::Component::Items.new(items: primary_items_without_root)
 
             .flex.items-center.gap-3
               - unless helpers.banner? || current_page?(sponsoring_path) || !UpdateCheck.action_required?
@@ -38,76 +38,58 @@ header.relative.bg-indigo-600.dark:bg-indigo-900.pb-32 data-controller='slide-ov
                 svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
                   path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 
-          h1.text-gray-300.dark:text-gray-400.text-base.font-semibold.uppercase.tracking-wider.md:text-lg.lg:hidden
-            = current_item&.name
-
-        .flex.items-center.gap-2.lg:hidden
-          - unless helpers.banner? || current_page?(sponsoring_path) || !UpdateCheck.action_required?
-            = render ActionRequired::Component.new( \
-                    registration_status: UpdateCheck.registration_status,
-                    admin: helpers.admin?,
-                  )
-
-          span#notification-badge-mobile
-            = render Notification::Badge::Component.new
-
-          /! Mobile menu button
-          button.bg-indigo-600.dark:bg-indigo-900.p-2.mr-1.rounded-md.inline-flex.items-center.justify-center.text-gray-300.dark:text-gray-400.focus:outline-none.focus:ring-2.focus:ring-gray-300.dark:focus:ring-gray-400.focus:ring-offset-0[
-            type="button"
-            aria-expanded="false"
-            aria-label= 'Navigation'
-            data-action="click->toggle#toggle"
-            data-toggle-target="button"
-          ]
-            span.sr-only Open main menu
-            /! Heroicon: menu
-            svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" data-toggle-target="icon"
-              path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            /! Heroicon: x
-            svg.hidden.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24" data-toggle-target="icon"
-              path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-
-    .max-h-0.transition-max-height.ease-out.duration-200.overflow-y-auto.text-gray-300.dark:text-gray-400 data-toggle-target="dropdown"
-      /! Mobile menu
-      .px-2.md:px-5.pt-2.space-y-1.text-base.text-gray-300.dark:text-gray-400.tracking-wider#primary-nav-mobile
-        = render Nav::Top::Component::Items.new(items: primary_items_without_root, device: :mobile)
-
-      .mt-5.px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.border-t.border-indigo-300/25.tracking-wider
-        - secondary_items.each do |item|
-          = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
-
-      .flex.justify-center.items-stretch.gap-4.pt-5.pb-3.border-t.border-indigo-300/25
-        = render ColorPaletteSelector::Component.new
-        - unless ThemeConfig.x.static?
-          = render ThemeSelector::Component.new
-
-      - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
-        .bg-amber-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-amber-800.dark:text-pink-200
-          - if helpers.admin?
-            = I18n.t('layout.prompt_for_sponsoring')
-            br
-            br
-            = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'text-amber-800 dark:text-gray-300 underline underline-offset-2 font-medium'
-          - else
-            = I18n.t('layout.missing_sponsoring')
-
-      - elsif UpdateCheck.free_trial?
-        .py-1.bg-sky-600.text-white.text-center.text-xs
-          = I18n.t('layout.free_trial_header')
-
-      - elsif UpdateCheck.sponsoring?
-        .py-1.bg-emerald-600.text-white.text-center.text-xs
-          = I18n.t('layout.active_sponsoring_header')
-
-      .flex.justify-between.items-center.text-indigo-100.dark:text-indigo-300.text-xs.px-3.py-4
+  .h-0.transition-height.ease-out.duration-200.overflow-y-auto.z-40.fixed.inset-x-0.w-full.bg-indigo-600.dark:bg-indigo-900.text-gray-300.dark:text-gray-400.lg:hidden[
+    data-toggle-target="dropdown"
+    class="bottom-(--bottom-nav-offset)"
+  ]
+    /! Mobile menu
+    .flex.flex-col.items-center.gap-4.pt-4.pb-5.border-b.border-indigo-300/25
+      = helpers.vite_image_tag 'images/logo-full.svg', class: 'h-8', alt: 'SOLECTRUS'
+      .flex.justify-between.items-center.w-full.text-xs.px-5
         = render VersionInfo::Component.new
-
         = render AuthorLogo::Component.new
+    - if mobile_extra_items.any?
+      .px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.tracking-wider
+        - mobile_extra_items.each do |item|
+          = link_to item[:href],
+                    class: [ \
+                      'block w-full py-2 px-3',
+                      item[:current] ? 'rounded-md bg-indigo-700' : '',
+                    ] do
+            span.flex.items-center.gap-3
+              i.fa.fa-fw.fa-xl class="fa-#{item[:icon]}"
+              span.flex-1.text-left.uppercase.lg:normal-case.font-medium
+                = item[:name]
+    .border-t.border-indigo-300/25
+    .px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.tracking-wider
+      - secondary_items.each do |item|
+        = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
 
-  .fixed.inset-0.z-30.bg-black/50.hidden.lg:hidden data-toggle-target="overlay" data-action="click->toggle#hide"
+    .flex.justify-center.items-stretch.gap-4.pt-5.pb-3.border-t.border-indigo-300/25
+      = render ColorPaletteSelector::Component.new
+      - unless ThemeConfig.x.static?
+        = render ThemeSelector::Component.new
+
+    - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
+      .bg-amber-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-amber-800.dark:text-pink-200
+        - if helpers.admin?
+          = I18n.t('layout.prompt_for_sponsoring')
+          br
+          br
+          = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'text-amber-800 dark:text-gray-300 underline underline-offset-2 font-medium'
+        - else
+          = I18n.t('layout.missing_sponsoring')
+
+    - elsif UpdateCheck.free_trial?
+      .py-1.bg-sky-600.text-white.text-center.text-xs
+        = I18n.t('layout.free_trial_header')
+
+    - elsif UpdateCheck.sponsoring?
+      .py-1.bg-emerald-600.text-white.text-center.text-xs
+        = I18n.t('layout.active_sponsoring_header')
 
   - if sub_nav
-    .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-4.sm:px-6.lg:px-6.lg:landscape:px-8.pt-14.md:pt-16
+    .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-4.sm:px-6.lg:px-6.lg:landscape:px-8.lg:pt-16
       = sub_nav
   - else
     .sm:py-3

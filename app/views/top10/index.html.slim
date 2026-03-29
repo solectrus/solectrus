@@ -1,20 +1,25 @@
 - turbo_exempts_page_from_cache
 
 - content_for :sub_nav do
-  .flex.justify-between.items-center.py-5
-    .hidden.lg:landscape:block
-      = render Nav::Sub::Component.new do |c|
+  .pt-2.pb-3.lg:landscape:flex.lg:landscape:items-center.lg:landscape:justify-between.lg:landscape:py-5
+    .flex.flex-col.gap-2.lg:landscape:gap-0
+      .flex.items-center.justify-center.min-h-10.lg:landscape:hidden
+        i.fa.fa-trophy.text-indigo-200.dark:text-gray-400.text-2xl
+      = render Nav::Sub::Component.new(abbreviate: false) do |c|
         = c.with_items nav_items
 
-    .flex-1.flex.gap-5.items-center.justify-center.sm:justify-center.lg:justify-end.text-base.h-9
+    .hidden.lg:landscape:flex.gap-3.items-center.justify-end.text-base.h-9
       = render Top10SortToggle::Component.new
       - if supports_calc_select?
         = render Top10CalcSelect::Component.new(calc:, sensor:)
       = render Top10SensorSelect::Component.new current_sensor: sensor, permitted_params:
 
-- content_for :bottom_nav do
-  = render Nav::Sub::Component.new do |c|
-    = c.with_items nav_items
+.flex.lg:landscape:hidden.gap-3.items-center.text-base.h-9.mb-4
+  = render Top10SortToggle::Component.new
+  - if supports_calc_select?
+    = render Top10CalcSelect::Component.new(calc:, sensor:)
+  .flex-1.min-w-0.flex.justify-end
+    = render Top10SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
 
 - if @missing_or_stale_summary_days.present?
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)

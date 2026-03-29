@@ -73,18 +73,18 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def paginate_button_classes
-    interactive_button_classes
+    interactive_button_classes(padding_x: 'lg:landscape:px-2')
   end
 
   def timeframe_link_classes(additional_classes = nil)
-    interactive_button_classes(additional_classes)
+    interactive_button_classes(additional_classes:)
   end
 
   private
 
-  def interactive_button_classes(additional_classes = nil)
+  def interactive_button_classes(additional_classes: nil, padding_x: 'px-2')
     [
-      'px-2 py-2 rounded-sm',
+      "#{padding_x} py-2 rounded-sm",
       'hover:bg-indigo-500 hover:text-gray-200 dark:hover:bg-indigo-950/50 dark:hover:text-gray-300',
       'focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400',
       additional_classes,

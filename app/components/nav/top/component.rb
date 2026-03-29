@@ -3,6 +3,14 @@ class Nav::Top::Component < ViewComponent::Base
   renders_many :secondary_items, MenuItem::Component
   renders_one :sub_nav
 
+  def initialize(mobile_extra_items: [], compact: false)
+    super()
+    @mobile_extra_items = mobile_extra_items
+    @compact = compact
+  end
+
+  attr_reader :mobile_extra_items, :compact
+
   def root_item
     primary_items.first
   end
@@ -17,10 +25,9 @@ class Nav::Top::Component < ViewComponent::Base
 
   # Nested component for rendering navigation items
   class Items < ViewComponent::Base
-    def initialize(items:, device:)
+    def initialize(items:)
       super()
       @items = items
-      @device = device
     end
 
     def call
@@ -34,30 +41,16 @@ class Nav::Top::Component < ViewComponent::Base
     private
 
     def css_classes_for_item(item)
-      case @device
-      when :desktop
-        [
-          'rounded-md py-2 px-3 click-animation',
-          (
-            if item.current
-              'bg-indigo-800 dark:bg-indigo-950 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
-            else
-              'lg:hover:text-gray-200 lg:hover:bg-indigo-500 dark:lg:hover:bg-indigo-950/50 dark:lg:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
-            end
-          ),
-        ]
-      when :mobile
-        [
-          'py-2 px-3',
-          (
-            if item.current
-              'rounded-md bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
-            else
-              'focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-md'
-            end
-          ),
-        ]
-      end
+      [
+        'rounded-md py-2 px-3 click-animation',
+        (
+          if item.current
+            'bg-indigo-800 dark:bg-indigo-950 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
+          else
+            'lg:hover:text-gray-200 lg:hover:bg-indigo-500 dark:lg:hover:bg-indigo-950/50 dark:lg:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
+          end
+        ),
+      ]
     end
   end
 end

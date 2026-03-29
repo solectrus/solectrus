@@ -21,16 +21,16 @@ describe 'Administrator login' do
 
       expect(page).to have_css('#new_admin_user')
       expect(page).to have_content('ist nicht gültig')
-      expect(page).to have_link(href: '/login')
-      expect(page).to have_no_link(href: '/logout')
+      expect(page).to have_link(href: '/login', visible: :all)
+      expect(page).to have_no_link(href: '/logout', visible: :all)
     end
 
     it 'can login with valid password' do
       fill_in 'admin_user_password', with: 'secret'
       click_on 'Anmelden'
 
-      expect(page).to have_no_link(href: '/login')
-      expect(page).to have_link(href: '/logout')
+      expect(page).to have_no_link(href: '/login', visible: :all)
+      expect(page).to have_link(href: '/logout', visible: :all)
     end
   end
 
@@ -45,8 +45,8 @@ describe 'Administrator login' do
         "document.querySelector('a[href=\"/logout\"]').click()",
       )
 
-      expect(page).to have_link(href: '/login')
-      expect(page).to have_no_link(href: '/logout')
+      expect(page).to have_link(href: '/login', visible: :all)
+      expect(page).to have_no_link(href: '/logout', visible: :all)
     end
   end
 end

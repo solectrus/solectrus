@@ -42,35 +42,34 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     = yield :head
 
   body.bg-indigo-600.dark:bg-indigo-900.select-none.font-sans.antialiased[
-    data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
+    data-controller= ['icons', 'fullscreen', 'toggle', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
+    data-toggle-height-class-value="h-[calc(100dvh-var(--bottom-nav-offset))]"
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]
-    .flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black class=(content_for?(:full_height) ? 'h-dvh overflow-hidden' : 'min-h-dvh')
+    .flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black class=(content_for?(:full_height) || content_for?(:fixed_nav) ? 'h-dvh overflow-hidden' : 'min-h-dvh')
       - if banner?
         = render Banner::Component.new registration_status: UpdateCheck.registration_status,
                                        admin: admin?
 
-      = render Nav::Top::Component.new do |c|
-        = c.with_primary_items topnav_primary_items
-        = c.with_secondary_items topnav_secondary_items
+      = render Nav::Top::Component.new(mobile_extra_items:, compact: content_for?(:fixed_nav)) do |c|
+        = c.with_primary_items desktop_primary_items
+        = c.with_secondary_items desktop_secondary_items
         = c.with_sub_nav { yield :sub_nav }
 
       = tag.turbo_frame id: 'flash' do
         - if flash.present?
           = render AppFlash::Component.new(notice:, alert:)
 
-      main.relative.-mt-32.flex.flex-auto.min-h-0 class= (content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:landscape:flex-initial')
+      main.relative.flex.flex-auto.min-h-0 class= [content_for?(:fixed_nav) ? 'overflow-y-auto bg-white dark:bg-slate-900 lg:-mt-32 lg:bg-transparent lg:dark:bg-transparent' : '-mt-32', content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:landscape:flex-initial']
         .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.sm:px-6.lg:px-8.flex-auto.flex.min-h-0
-          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.sm:rounded-t-lg.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.overflow-hidden.min-h-0#inner
+          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.min-h-0#inner class=(content_for?(:fixed_nav) ? 'sm:rounded-lg' : 'sm:rounded-t-lg overflow-hidden')
             = yield
 
         = render 'shared/modal_backdrop'
         = tag.turbo_frame id: 'modal', target: '_top'
 
-      - if content_for?(:bottom_nav)
-        .w-full.bg-indigo-600.dark:bg-indigo-900.z-10.lg:landscape:hidden
-          = yield :bottom_nav
+      = render Nav::Bottom::Component.new(items: mobile_bottom_items)
 
       footer.hidden.lg:landscape:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
         .flex.items-center.gap-2
