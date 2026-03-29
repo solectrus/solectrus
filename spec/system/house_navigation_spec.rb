@@ -79,7 +79,7 @@ describe 'House navigation' do
   end
 
   def navigate_day(path)
-    click_on 'Tag'
+    turbo_safe_click 'Tag', by: :text
 
     expect(page).to have_css('#stats-day')
     expect(page).to have_current_path("/house/#{path}/2022-06-21")
@@ -109,7 +109,7 @@ describe 'House navigation' do
   end
 
   def navigate_week(path)
-    click_on 'Woche'
+    turbo_safe_click 'Woche', by: :text
 
     expect(page).to have_css('#stats-week')
     expect(page).to have_current_path("/house/#{path}/2022-W25")
@@ -139,7 +139,7 @@ describe 'House navigation' do
   end
 
   def navigate_month(path)
-    click_on 'Monat'
+    turbo_safe_click 'Monat', by: :text
 
     expect(page).to have_css('#stats-month')
     expect(page).to have_current_path("/house/#{path}/2022-06")
@@ -170,7 +170,7 @@ describe 'House navigation' do
   end
 
   def navigate_year(path)
-    click_on 'Jahr'
+    turbo_safe_click 'Jahr', by: :text
 
     expect(page).to have_css('#stats-year')
     expect(page).to have_current_path("/house/#{path}/2022")
@@ -201,7 +201,7 @@ describe 'House navigation' do
   end
 
   def navigate_all(path)
-    click_on 'Gesamt'
+    turbo_safe_click 'Gesamt', by: :text
 
     expect(page).to have_css('#stats-all')
     expect(page).to have_current_path("/house/#{path}/all")
@@ -245,10 +245,10 @@ describe 'House navigation' do
   def check_insights(path)
     return if path == 'house_power_without_custom'
 
-    click_on('Kennzahlen & Trend')
+    turbo_safe_click('Kennzahlen & Trend', by: :text)
     expect(page).to have_css('#modal-title')
 
-    click_on('Schließen')
+    turbo_safe_click('Schließen', by: :text)
     expect(page).to have_no_css('#modal-title')
   end
 end

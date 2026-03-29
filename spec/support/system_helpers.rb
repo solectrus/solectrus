@@ -22,16 +22,22 @@ module SystemHelpers
     end
   end
 
-  # Turbo-safe navigation helper for flaky DOM updates
-  def turbo_safe_click(aria_label)
+  # Turbo-safe click helper that retries when Turbo snapshot previews
+  # cause elements to detach from the DOM during replacement
+  def turbo_safe_click(text_or_aria_label, by: :aria_label)
     retries = 0
     begin
-      find("a[aria-label=\"#{aria_label}\"]", visible: true).click
-    rescue Playwright::Error => e
-      if e.message.exclude?('Element is not attached to the DOM') ||
-           retries >= 3
-        raise
+      case by
+      when :aria_label
+        find("a[aria-label=\"#{text_or_aria_label}\"]", visible: true).click
+      when :text
+        click_on(text_or_aria_label)
+      else
+        raise ArgumentError, "by: must be :aria_label or :text, got #{by.inspect}"
       end
+    rescue Playwright::Error => e
+      raise if e.message.exclude?('Element is not attached to the DOM')
+      raise if retries >= 3
 
       retries += 1
       sleep 0.1

@@ -159,6 +159,9 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   connect() {
+    // Skip initialization during Turbo preview to avoid chart flicker
+    if (document.documentElement.hasAttribute('data-turbo-preview')) return;
+
     this.process();
 
     this.boundHandleResize = debounce(100, this.handleResize.bind(this));
