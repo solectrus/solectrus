@@ -32,8 +32,11 @@
           .flex.h-full.flex-col.overflow-y-scroll.bg-white.dark:bg-slate-800.pt-6.shadow-xl
             .px-4.sm:px-6
               .flex.items-start.justify-between
-                h2#slide-over-title.text-base.font-semibold.leading-6.text-gray-900.dark:text-gray-300
-                  | SOLECTRUS
+                .flex.flex-col.gap-1
+                  h2#slide-over-title
+                    = helpers.vite_image_tag 'images/logo-full.svg', class: 'h-8 brightness-50 dark:brightness-75', alt: 'SOLECTRUS'
+                  .text-xs.text-gray-500.dark:text-gray-400
+                    | © 2020–#{Date.current.year} Georg Ledermann · AGPL-3.0
 
                 .ml-3.flex.h-7.items-center
                   button.relative.rounded-md.bg-transparent.text-gray-400.hover:text-gray-500.dark:hover:text-gray-300.focus:outline-hidden.focus:ring-2.focus:ring-indigo-500.focus:ring-offset-2[
@@ -54,7 +57,7 @@
                     ]
                       path stroke-linecap= 'round' stroke-linejoin= 'round' d= 'M6 18L18 6M6 6l12 12'
 
-            .relative.mt-6.flex-1
+            .relative.mt-10.flex-1
               = content
 
             .mx-auto.mb-16.flex.flex-col.items-center.gap-6
