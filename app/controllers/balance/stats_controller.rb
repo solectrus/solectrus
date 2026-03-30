@@ -27,32 +27,30 @@ class Balance::StatsController < ApplicationController
   end
 
   def data_now
-    sensor_names = %i[
-      autarky
-      battery_charging_power
-      battery_discharging_power
-      battery_soc
-      car_battery_soc
-      case_temp
-      grid_export_limit
-      grid_export_power
-      grid_import_power
-      grid_quote
-      heatpump_power
-      house_power
-      inverter_power
-      self_consumption_quote
-      system_status
-      system_status_ok
-      wallbox_car_connected
-      wallbox_power
-    ]
+    sensor_names =
+      %i[
+        autarky
+        battery_charging_power
+        battery_discharging_power
+        battery_soc
+        car_battery_soc
+        case_temp
+        grid_export_limit
+        grid_export_power
+        grid_import_power
+        grid_quote
+        heatpump_power
+        house_power
+        inverter_power
+        self_consumption_quote
+        system_status
+        system_status_ok
+        wallbox_car_connected
+        wallbox_power
+      ] + Sensor::Config.custom_inverter_sensors.map(&:name)
 
     unless Setting.inverter_as_total
-      sensor_names.concat(
-        [:inverter_power_total] +
-          Sensor::Config.custom_inverter_sensors.map(&:name),
-      )
+      sensor_names.push(:inverter_power_total)
     end
 
     PowerBalance.new(Sensor::Query::Latest.new(sensor_names).call)
@@ -90,8 +88,8 @@ class Balance::StatsController < ApplicationController
           q.sum :wallbox_power_grid, :sum
 
           q.sum :inverter_power, :sum
-          Sensor::Config.custom_inverter_sensors.each do |sensor|
-            q.sum sensor.name, :sum
+          Sensor::Config.custom_inverter_sensors.each do |inverter_sensor|
+            q.sum inverter_sensor.name, :sum
           end
 
           unless Setting.inverter_as_total

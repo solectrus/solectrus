@@ -74,13 +74,13 @@
             - elsif sensor.name == :heatpump_power_grid
               = render SensorValue::Component.new(data, :heatpump_costs_grid, sign: :negative, class: 'text-xl')
 
-            - elsif sensor.name == :inverter_power && Sensor::Config.multi_inverter?
-              table.mt-3
-                tbody
-                  - Sensor::Config.custom_inverter_sensors.reverse_each do |sensor|
-                    - if data.respond_to?(sensor.name)
-                      tr
-                        td.text-left.pr-1
-                          = sensor.display_name
-                        td.text-right.pl-1.tabular-nums
-                          = render SensorValue::Component.new(data, sensor.name, context: now? ? :rate : :total, precision: 3)
+          - if sensor.name == :inverter_power && Sensor::Config.multi_inverter?
+            table.mt-3
+              tbody
+                - Sensor::Config.custom_inverter_sensors.reverse_each do |inverter_sensor|
+                  - if data.respond_to?(inverter_sensor.name)
+                    tr
+                      td.text-left.pr-1
+                        = inverter_sensor.display_name
+                      td.text-right.pl-1.tabular-nums
+                        = render SensorValue::Component.new(data, inverter_sensor.name, context: now? ? :rate : :total, precision: 3)
