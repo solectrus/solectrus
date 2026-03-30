@@ -1,18 +1,20 @@
 - content_for :full_height, true
 - extra_stimulus_controllers 'swipe' if timeframe&.can_paginate?
 
-= render 'shared/home_sub_nav'
-
 - if @missing_or_stale_summary_days.present?
+  = render 'shared/home_sub_nav'
   = turbo_stream.update frame_id('timeframe') do
     = render Timeframe::Component.new(timeframe:)
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - elsif ApplicationPolicy.custom_consumer?
   - if Sensor::Config.custom_power_sensors.any?
+    = render 'shared/home_sub_nav'
     = render StatsWithChart::Component.new(sensor_name:, timeframe:)
   - else
     = render Message::Component.new do |c|
+      - c.with_icon do
+        i.fa.fa-house-crack
       = c.with_title { t('layout.incomplete_custom_consumers') }
       = c.with_body { raw t('layout.missing_custom_consumers') }
 

@@ -1,20 +1,22 @@
 - content_for :full_height, true
 - extra_stimulus_controllers 'swipe' if timeframe&.can_paginate?
 
-= render 'shared/home_sub_nav'
-
 - if @missing_or_stale_summary_days.present?
+  = render 'shared/home_sub_nav'
   = turbo_stream.update frame_id('timeframe') do
     = render Timeframe::Component.new(timeframe:)
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - elsif ApplicationPolicy.multi_inverter?
-  - if Sensor::Config.custom_inverter_sensors.length > 1
+  - if Sensor::Config.custom_inverter_sensors.any?
+    = render 'shared/home_sub_nav'
     = render StatsWithChart::Component.new(sensor_name:, timeframe:)
   - else
     = render Message::Component.new do |c|
+      - c.with_icon do
+        i.fa.fa-solar-panel
       = c.with_title { t('layout.incomplete_multi_inverter') }
       = c.with_body { raw t('layout.missing_multi_inverter') }
 
 - else
-  = render DemoLink::Component.new feature: 'multi_inverter'
+  = render DemoLink::Component.new feature: 'multi_inverter', url: { **permitted_params }
