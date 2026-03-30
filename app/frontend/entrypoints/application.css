@@ -235,7 +235,7 @@
   }
 
   :root {
-    --bottom-nav-offset: calc(4.25rem + env(safe-area-inset-bottom));
+    --bottom-nav-offset: calc(4.5rem + env(safe-area-inset-bottom));
 
     --chart-axis-color: #475569;
     --chart-grid-color: #e5e5e5;

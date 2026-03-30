@@ -6,7 +6,7 @@ nav.group.w-full.flex.items-center.justify-evenly.bg-indigo-600.dark:bg-indigo-9
     = link_to item[:href],
               class: \
                 [ \
-                  'flex flex-col items-center justify-center py-2 px-1 gap-1', \
+                  'flex flex-col items-center justify-center py-2 px-1 gap-1 focus:outline-none', \
                   item[:current] ? 'text-white dark:text-gray-200 group-has-[[aria-expanded=true]]:text-gray-300 group-has-[[aria-expanded=true]]:dark:text-gray-400' : 'text-gray-300 dark:text-gray-400', \
                 ],
               'aria-current': (item[:current] ? 'page' : nil),
@@ -20,7 +20,7 @@ nav.group.w-full.flex.items-center.justify-evenly.bg-indigo-600.dark:bg-indigo-9
       span.leading-tight.truncate class="text-[0.65rem]"
         = item[:name]
 
-  button.flex.flex-col.items-center.justify-center.py-2.px-1.gap-1.text-gray-300.dark:text-gray-400.aria-expanded:text-white[
+  button.flex.flex-col.items-center.justify-center.py-2.px-1.gap-1.text-gray-300.dark:text-gray-400.aria-expanded:text-white.focus:outline-none[
     class="group/more"
     type="button"
     data-toggle-target="button"
