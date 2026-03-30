@@ -6,10 +6,19 @@
   .flex.gap-10.items-end.px-3.md:px-5.py-2.md:py-3.xl:py-4
     .w-5.border-b-2.border-t-2.border-slate-500.h-full.flex.justify-center
       .flex.h-full.flex-col.items-center.justify-center.text-sm.md:text-lg.-ml-5.text-slate-500.dark:text-slate-400
-        .w-0.flex-1.border-l-2.border-slate-500
+        .w-0.flex-1.border-l-2.border-slate-500.mb-2
+
+        - unless data.house_power_valid?
+          div[
+            data-controller= 'tooltip'
+            title= t('.house_power_invalid')
+            data-tooltip-placement-value= 'right'
+            data-tooltip-touch-value= 'true'
+          ]
+            i.fa.fa-sm.fa-circle-exclamation
 
         = link_to house_home_path(sensor_name: 'house_power', timeframe:),
-                  class: 'bg-white dark:bg-slate-900 py-2 md:py-4 pl-3',
+                  class: 'bg-white dark:bg-slate-900 pb-2 md:pb-4 pl-3',
                   title: Sensor::Registry[:house_power].display_name,
                   data: { \
                     controller: 'tooltip',
@@ -23,14 +32,6 @@
                   } do
           .flex.items-baseline.gap-1 data= { 'stats-with-chart--component-target': sensor_name == :house_power ? 'current' : nil, 'sensor-name': sensor_name, value: data.house_power, time: data.time.to_i }
             = render SensorValue::Component.new(data.house_power || 0, :house_power, context: timeframe.now? ? :rate : :total)
-            - unless data.house_power_valid?
-              span[
-                data-controller= 'tooltip'
-                title= t('.house_power_invalid')
-                data-tooltip-placement-value= 'right'
-                data-tooltip-touch-value= 'true'
-              ]
-                i.fa.fa-sm.fa-circle-exclamation
 
           - if !timeframe.now? && data.house_costs&.positive?
             .hidden id="tooltip-content-house_power" data-tooltip-target="html"
