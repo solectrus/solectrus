@@ -77,7 +77,7 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def timeframe_link_classes(additional_classes = nil)
-    interactive_button_classes(additional_classes:)
+    interactive_button_classes(additional_classes: "font-bold lg:font-normal text-base leading-5 #{additional_classes}")
   end
 
   private
