@@ -12,6 +12,11 @@ echo "License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html"
 # and create or migrate existing database
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
   # Check for necessary environment variables
+  if [ -z "${COMMIT_VERSION}" ]; then
+    echo "Error: Invalid Docker image. Stopping..." >&2
+    exit 1
+  fi
+
   if [ -z "${REDIS_URL}" ] || [ -z "${INFLUX_HOST}" ] || [ -z "${DB_HOST}" ]; then
     echo "Error: One or more required environment variables (REDIS_URL, INFLUX_HOST, DB_HOST) are not set. Stopping..." >&2
     exit 1
