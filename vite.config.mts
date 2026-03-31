@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import RailsVite from 'rails-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
+import { compression } from 'vite-plugin-compression2';
 export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
@@ -14,6 +15,7 @@ export default defineConfig(({ mode }) => ({
         'config/locales/**/*.yml',
       ],
     }),
+    compression({ algorithms: ['gzip', 'brotliCompress'] }),
   ],
   build: {
     rolldownOptions: {
