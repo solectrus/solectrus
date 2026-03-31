@@ -1,6 +1,6 @@
-.flex-auto.max-w-full.grid.items-center.gap-2.md:gap-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-sm.md:text-base class="grid-cols-[1fr_auto_1fr]"
-  div
-    - if can_navigate?
+.flex-auto.max-w-full.grid.items-center.gap-2.md:gap-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-sm.md:text-base class=(can_navigate? ? 'grid-cols-[1fr_auto_1fr]' : 'grid-cols-1')
+  - if can_navigate?
+    div
       - if can_navigate_backward?
         = link_to prev_path, class: paginate_button_classes, 'aria-label': t('.previous'), data: { nav: 'prev' } do
           i.fas.fa-chevron-left.fa-lg
@@ -41,8 +41,9 @@
 
     - when :range
       = link_to timeframe_select_path, class: timeframe_link_classes('text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-        time.space-x-4 datetime= timeframe.iso8601
-          = timeframe.localized
+        time datetime= timeframe.iso8601
+          span
+            = timeframe.localized
 
     - when :week
       = link_to timeframe_select_path, class: timeframe_link_classes('md:w-80 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
@@ -84,8 +85,8 @@
             span.text-indigo-300 &minus;
             =<> timeframe.ending.year
 
-  .justify-self-end
-    - if can_navigate?
+  - if can_navigate?
+    .justify-self-end
       - if can_navigate_forward?
         = link_to next_path, class: paginate_button_classes, 'aria-label': t('.next'), data: { nav: 'next' } do
           i.fas.fa-chevron-right.fa-lg
