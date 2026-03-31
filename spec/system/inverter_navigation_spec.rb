@@ -57,7 +57,7 @@ describe 'Inverter navigation' do
   end
 
   def navigate_day(path)
-    turbo_safe_click 'Tag', by: :text
+    click_on 'Tag'
 
     expect(page).to have_css('#stats-day')
     expect(page).to have_current_path("/inverter/#{path}/2022-06-21")
@@ -90,7 +90,7 @@ describe 'Inverter navigation' do
   end
 
   def navigate_week(path)
-    turbo_safe_click 'Woche', by: :text
+    click_on 'Woche'
 
     expect(page).to have_css('#stats-week')
     expect(page).to have_current_path("/inverter/#{path}/2022-W25")
@@ -123,7 +123,7 @@ describe 'Inverter navigation' do
   end
 
   def navigate_month(path)
-    turbo_safe_click 'Monat', by: :text
+    click_on 'Monat'
 
     expect(page).to have_css('#stats-month')
     expect(page).to have_current_path("/inverter/#{path}/2022-06")
@@ -157,7 +157,7 @@ describe 'Inverter navigation' do
   end
 
   def navigate_year(path)
-    turbo_safe_click 'Jahr', by: :text
+    click_on 'Jahr'
 
     expect(page).to have_css('#stats-year')
     expect(page).to have_current_path("/inverter/#{path}/2022")
@@ -191,7 +191,7 @@ describe 'Inverter navigation' do
   end
 
   def navigate_all(path)
-    turbo_safe_click 'Gesamt', by: :text
+    click_on 'Gesamt'
 
     expect(page).to have_css('#stats-all')
     expect(page).to have_current_path("/inverter/#{path}/all")
@@ -231,10 +231,10 @@ describe 'Inverter navigation' do
   end
 
   def check_insights(_path)
-    turbo_safe_click('Kennzahlen & Trend', by: :text)
+    click_on('Kennzahlen & Trend')
     expect(page).to have_css('#modal-title')
 
-    turbo_safe_click('Schließen', by: :text)
+    click_on('Schließen')
     expect(page).to have_no_css('#modal-title')
   end
 end

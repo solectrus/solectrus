@@ -40,7 +40,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_day(path)
-    turbo_safe_click 'Tag', by: :text
+    click_on 'Tag'
     expect_timeframe_page(path, stats_id: 'day', expected_path: '2022-06-21', title: 'Dienstag, 21. Juni 2022')
 
     expect(page).to have_css('#chart-day')
@@ -56,7 +56,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_24_hours(path)
-    turbo_safe_click('Tag', by: :text) # Second click to open 24H view
+    click_on('Tag') # Second click to open 24H view
 
     expect_timeframe_page(path, stats_id: 'hours', expected_path: 'P24H', title: 'Letzte 24 Stunden')
 
@@ -69,7 +69,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_week(path)
-    turbo_safe_click 'Woche', by: :text
+    click_on 'Woche'
     expect_timeframe_page(path, stats_id: 'week', expected_path: '2022-W25', title: 'KW 25, 2022')
     expect(page).to have_css('#chart-week')
 
@@ -86,7 +86,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_month(path)
-    turbo_safe_click 'Monat', by: :text
+    click_on 'Monat'
     expect_timeframe_page(path, stats_id: 'month', expected_path: '2022-06', title: 'Juni 2022')
     expect(page).to have_css('#chart-month')
 
@@ -103,7 +103,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_year(path)
-    turbo_safe_click 'Jahr', by: :text
+    click_on 'Jahr'
     expect_timeframe_page(path, stats_id: 'year', expected_path: '2022', title: '2022')
     expect(page).to have_css('#chart-year')
 
@@ -120,7 +120,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_all(path)
-    turbo_safe_click 'Gesamt', by: :text
+    click_on 'Gesamt'
     expect_timeframe_page(path, stats_id: 'all', expected_path: 'all', title: 'Seit Inbetriebnahme')
     expect(page).to have_css('#chart-all')
 
@@ -186,10 +186,10 @@ shared_examples_for 'balance navigation' do |paths|
       return
     end
 
-    turbo_safe_click('Kennzahlen & Trend', by: :text)
+    click_on('Kennzahlen & Trend')
     expect(page).to have_css('#modal-title')
 
-    turbo_safe_click('Schließen', by: :text)
+    click_on('Schließen')
     expect(page).to have_no_css('#modal-title')
   end
 
