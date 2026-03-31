@@ -9,7 +9,7 @@
           i.fas.fa-chevron-left.fa-lg.opacity-50
 
   - if forecast_mode?
-    .text-center.md:w-72
+    div class= timeframe_link_classes('text-center')
       = t('forecast.next_days', count: forecast_days)
 
   - else
