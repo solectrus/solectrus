@@ -22,17 +22,25 @@ Detailed documentation lives in `docs/`:
 
 ```bash
 bin/rubocop           # Ruby style (use -A for auto-correct)
-bin/slim_lint         # Slim templates
-bin/brakeman          # Security scan
+bin/slim-lint         # Slim templates
+bin/yarn tsc          # TypeScript type checking
+bin/yarn lint         # ESLint for TypeScript
+bin/brakeman          # Security scan (run occasionally, not per-change)
 bin/rspec             # Tests
 ```
+
+### Mandatory Linting
+
+After creating or modifying code, **always** run the relevant linter(s) before considering the task complete. Fix any issues found.
+
+- **Ruby code** (`.rb`): Run `bin/rubocop` on changed files. Use `-A` to auto-correct, review the result.
+- **Slim templates** (`.slim`): Run `bin/slim-lint` on changed files.
+- **TypeScript code** (`.ts`): Run `bin/yarn tsc` (type checking) and `bin/yarn lint` (ESLint). Both must pass.
 
 ## Frontend
 
 - Stimulus controllers use **TypeScript** (`.ts` files), not JavaScript
-- UI components use **ViewComponent** (`app/components/`)
-- Forms use `TailwindFormBuilder`
-- See `docs/conventions.md` for examples and patterns
+- See `docs/conventions.md` for ViewComponent, forms, and Tailwind patterns
 
 ## Testing
 
@@ -40,18 +48,15 @@ bin/rspec             # Tests
 
 - Model specs: `bin/rspec spec/models/<model>_spec.rb`
 - Request specs: `bin/rspec spec/requests/<controller>_request_spec.rb`
-- System specs: `bin/rspec spec/system/<feature>_spec.rb HEADLESS=true`
+- System specs: `PLAYWRIGHT_HEADLESS=true bin/rspec spec/system/<feature>_spec.rb`
 
 **System specs are slow** (Playwright browser automation). Only run when:
 
 - UI behavior or JavaScript interactions are affected
 - Request specs cannot verify the functionality
 
-Always use `HEADLESS=true` — without it, browser windows appear in foreground and block user interaction.
+Always use `PLAYWRIGHT_HEADLESS=true` for system tests — without it, browser windows appear in foreground and block user interaction.
 
 ### Test Guidelines
 
-- Write tests **before** implementation (TDD)
-- Prefer real objects over mocks
-- Use mocks only for external APIs or expensive operations
-- See `docs/conventions.md` for RSpec conventions, Playwright helpers, and testing guidance
+See `docs/conventions.md` for RSpec conventions, Playwright helpers, and testing guidance.
