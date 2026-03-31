@@ -7,7 +7,7 @@ Rails.configuration.x.git.commit_version =
       hash = `git rev-parse --short=7 HEAD`.chomp
       "#{prefix}-#{count}-g#{hash}"
     else
-      `git describe --always --abbrev=7`.chomp
+      `git describe --always --abbrev=7`.chomp.presence || 'unknown'
     end
   end
 
