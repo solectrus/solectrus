@@ -210,7 +210,7 @@ services:
         max-file: "3"
 
   watchtower:
-    image: nickfedor/watchtower
+    image: nickfedor/watchtower:latest
     environment:
       - TZ
     volumes:
