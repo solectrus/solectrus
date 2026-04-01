@@ -21,6 +21,9 @@ registerControllers(
   import.meta.glob('../../components/**/*_controller.{js,ts}', { eager: true }),
 );
 
+// Show progress bar immediately on navigation (default: 500ms delay)
+Turbo.config.drive.progressBarDelay = 0;
+
 // Error handling for missing Turbo frames
 document.addEventListener('turbo:frame-missing', (event) => {
   const {
