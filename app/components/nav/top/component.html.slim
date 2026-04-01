@@ -38,59 +38,6 @@ header.relative.bg-indigo-600.dark:bg-indigo-900 data-controller='slide-over--co
                 svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
                   path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 
-  .h-0.transition-height.ease-out.duration-200.overflow-y-auto.z-40.fixed.inset-x-0.w-full.bg-indigo-600.dark:bg-indigo-900.text-gray-300.dark:text-gray-400.lg:hidden[
-    data-toggle-target="dropdown"
-    class="bottom-(--bottom-nav-offset)"
-  ]
-    /! Mobile menu
-    .flex.flex-col.items-center.gap-4.pt-4.pb-5.border-b.border-indigo-300/25
-      .flex.flex-col.items-center.gap-1
-        = helpers.vite_image_tag 'images/logo-full.svg', class: 'h-8', alt: 'SOLECTRUS'
-        .text-xs
-          | © 2020–#{Date.current.year} Georg Ledermann · AGPL-3.0
-      .flex.justify-between.items-center.w-full.text-xs.px-5
-        = render VersionInfo::Component.new
-        = render AuthorLogo::Component.new
-    - if mobile_extra_items.any?
-      .px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.tracking-wider
-        - mobile_extra_items.each do |item|
-          = link_to item[:href],
-                    class: [ \
-                      'block w-full py-2 px-3',
-                      item[:current] ? 'rounded-md bg-indigo-700' : '',
-                    ] do
-            span.flex.items-center.gap-3
-              i.fa.fa-fw.fa-xl class="fa-#{item[:icon]}"
-              span.flex-1.text-left.uppercase.lg:normal-case.font-medium
-                = item[:name]
-    .border-t.border-indigo-300/25
-    .px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.tracking-wider
-      - secondary_items.each do |item|
-        = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
-
-    .flex.justify-center.items-stretch.gap-4.pt-5.pb-3.border-t.border-indigo-300/25
-      = render ColorPaletteSelector::Component.new
-      - unless ThemeConfig.x.static?
-        = render ThemeSelector::Component.new
-
-    - if UpdateCheck.prompt? && !current_page?(sponsoring_path)
-      .bg-amber-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-amber-800.dark:text-pink-200
-        - if helpers.admin?
-          = I18n.t('layout.prompt_for_sponsoring')
-          br
-          br
-          = link_to I18n.t('layout.missing_sponsoring_cta'), sponsoring_path, class: 'text-amber-800 dark:text-gray-300 underline underline-offset-2 font-medium'
-        - else
-          = I18n.t('layout.missing_sponsoring')
-
-    - elsif UpdateCheck.free_trial?
-      .py-1.bg-sky-600.text-white.text-center.text-xs
-        = I18n.t('layout.free_trial_header')
-
-    - elsif UpdateCheck.sponsoring?
-      .py-1.bg-emerald-600.text-white.text-center.text-xs
-        = I18n.t('layout.active_sponsoring_header')
-
   - if sub_nav
     .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-4.sm:px-6.lg:px-6.lg:landscape:px-8.lg:pt-16
       = sub_nav

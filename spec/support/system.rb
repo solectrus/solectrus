@@ -1,17 +1,26 @@
 require 'capybara/rspec'
 require 'capybara-playwright-driver'
 
-Capybara.register_driver :my_playwright do |app|
+PLAYWRIGHT_OPTIONS = {
+  browser_type: ENV['PLAYWRIGHT_BROWSER']&.to_sym || :chromium,
+  headless: (false unless ENV['CI'] || ENV['PLAYWRIGHT_HEADLESS']),
+  locale: 'de-DE',
+  reduced_motion: :reduce,
+}.freeze
+
+Capybara.register_driver :playwright_desktop do |app|
   Capybara::Playwright::Driver.new(
     app,
-    browser_type: ENV['PLAYWRIGHT_BROWSER']&.to_sym || :chromium,
-    headless: (false unless ENV['CI'] || ENV['PLAYWRIGHT_HEADLESS']),
-    locale: 'de-DE',
-    viewport: {
-      width: 1280,
-      height: 800,
-    },
-    reduced_motion: :reduce,
+    **PLAYWRIGHT_OPTIONS,
+    viewport: { width: 1280, height: 800 },
+  )
+end
+
+Capybara.register_driver :playwright_mobile do |app|
+  Capybara::Playwright::Driver.new(
+    app,
+    **PLAYWRIGHT_OPTIONS,
+    viewport: { width: 375, height: 812 },
   )
 end
 
@@ -286,7 +295,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each, type: :system) do
-    driven_by :my_playwright
+    driven_by :playwright_desktop
 
     # Set time for each test to match the seeded data
     # Data was seeded with this base time in before(:suite)

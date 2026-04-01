@@ -1,35 +1,84 @@
-nav.group.w-full.flex.items-center.justify-evenly.bg-indigo-600.dark:bg-indigo-900.border-t.border-indigo-300/25.dark:border-indigo-950/25.lg:landscape:hidden[
-  aria-label="Main navigation"
-  class="pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+.lg:landscape:hidden[
+  data-controller="nav--bottom--component"
+  data-nav--bottom--component-height-class-value="h-[calc(100dvh-var(--bottom-nav-offset))]"
 ]
-  - items.each_with_index do |item, index|
-    = link_to item[:href],
-              class: \
-                [ \
-                  'flex flex-col items-center justify-center py-2 px-1 gap-1 focus:outline-none', \
-                  item[:current] ? 'text-white dark:text-gray-200 group-has-[[aria-expanded=true]]:text-gray-300 group-has-[[aria-expanded=true]]:dark:text-gray-400' : 'text-gray-300 dark:text-gray-400', \
-                ],
-              'aria-current': (item[:current] ? 'page' : nil),
-              'aria-label': item[:name] do
-      span class=pill_classes(active: item[:current])
-        - if index.zero?
-          svg.size-5.fill-current viewBox="0 0 1200 1200"
-            path d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
-        - else
-          i.fa.fa-fw.fa-lg class="fa-#{item[:icon]}"
-      span.leading-tight.truncate class="text-[0.65rem]"
-        = item[:name]
-
-  button.flex.flex-col.items-center.justify-center.py-2.px-1.gap-1.text-gray-300.dark:text-gray-400.aria-expanded:text-white.focus:outline-none[
-    class="group/more"
-    type="button"
-    data-toggle-target="button"
-    data-action="click->toggle#toggle"
-    aria-haspopup="true"
-    aria-expanded="false"
-    aria-label=t('.more')
+  .h-0.transition-height.ease-out.duration-200.overflow-y-auto.z-40.fixed.inset-x-0.w-full.bg-indigo-600.dark:bg-indigo-900.text-gray-300.dark:text-gray-400.lg:hidden[
+    data-nav--bottom--component-target="dropdown"
+    class="bottom-(--bottom-nav-offset)"
   ]
-    span class="#{PILL_BASE} group-aria-expanded/more:bg-white/20 group-aria-expanded/more:rounded-full"
-      i.fa.fa-fw.fa-lg.fa-bars
-    span.leading-tight.truncate class="text-[0.65rem]"
-      = t('.more')
+    /! Mobile menu
+    .flex.flex-col.items-center.gap-4.pt-4.pb-5.border-b.border-indigo-300/25
+      .flex.flex-col.items-center.gap-1
+        = helpers.vite_image_tag 'images/logo-full.svg', class: 'h-8', alt: 'SOLECTRUS'
+        .text-xs
+          | © 2020–#{Date.current.year} Georg Ledermann · AGPL-3.0
+      .flex.justify-between.items-center.w-full.text-xs.px-5
+        = render VersionInfo::Component.new
+        = render AuthorLogo::Component.new
+    - if extra_menu_items.any?
+      .px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.tracking-wider
+        - extra_menu_items.each do |item|
+          = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
+    .border-t.border-indigo-300/25
+    .px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.tracking-wider
+      - secondary_menu_items.each do |item|
+        = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
+
+    .flex.justify-center.items-stretch.gap-4.pt-5.pb-3.border-t.border-indigo-300/25 data-action="change->nav--bottom--component#hide"
+      = render ColorPaletteSelector::Component.new
+      - unless ThemeConfig.x.static?
+        = render ThemeSelector::Component.new
+
+    - if UpdateCheck.prompt? && !helpers.current_page?(helpers.sponsoring_path)
+      .bg-amber-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-amber-800.dark:text-pink-200
+        - if helpers.admin?
+          = I18n.t('layout.prompt_for_sponsoring')
+          br
+          br
+          = link_to I18n.t('layout.missing_sponsoring_cta'), helpers.sponsoring_path, class: 'text-amber-800 dark:text-gray-300 underline underline-offset-2 font-medium'
+        - else
+          = I18n.t('layout.missing_sponsoring')
+
+    - elsif UpdateCheck.free_trial?
+      .py-1.bg-sky-600.text-white.text-center.text-xs
+        = I18n.t('layout.free_trial_header')
+
+    - elsif UpdateCheck.sponsoring?
+      .py-1.bg-emerald-600.text-white.text-center.text-xs
+        = I18n.t('layout.active_sponsoring_header')
+
+  nav.group.w-full.flex.items-center.justify-evenly.bg-indigo-600.dark:bg-indigo-900.border-t.border-indigo-300/25.dark:border-indigo-950/25[
+    aria-label="Main navigation"
+    class="pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+  ]
+    - bar_items.each_with_index do |item, index|
+      = link_to item[:href],
+                class: \
+                  [ \
+                    'flex flex-col items-center justify-center py-2 px-1 gap-1 focus:outline-none', \
+                    item[:current] ? 'text-white dark:text-gray-200 group-has-[[aria-expanded=true]]:text-gray-300 group-has-[[aria-expanded=true]]:dark:text-gray-400' : 'text-gray-300 dark:text-gray-400', \
+                  ],
+                'aria-current': (item[:current] ? 'page' : nil),
+                'aria-label': item[:name] do
+        span class=pill_classes(active: item[:current])
+          - if index.zero?
+            svg.size-5.fill-current viewBox="0 0 1200 1200"
+              path d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
+          - else
+            i.fa.fa-fw.fa-lg class="fa-#{item[:icon]}"
+        span.leading-tight.truncate class="text-[0.65rem]"
+          = item[:name]
+
+    button.flex.flex-col.items-center.justify-center.py-2.px-1.gap-1.text-gray-300.dark:text-gray-400.aria-expanded:text-white.focus:outline-none[
+      class="group/more"
+      type="button"
+      data-nav--bottom--component-target="button"
+      data-action="click->nav--bottom--component#toggle"
+      aria-haspopup="true"
+      aria-expanded="false"
+      aria-label=t('.more')
+    ]
+      span class="#{PILL_BASE} group-aria-expanded/more:bg-white/20 group-aria-expanded/more:rounded-full"
+        i.fa.fa-fw.fa-lg.fa-bars
+      span.leading-tight.truncate class="text-[0.65rem]"
+        = t('.more')

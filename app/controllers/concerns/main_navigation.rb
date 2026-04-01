@@ -1,9 +1,6 @@
 module MainNavigation # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
 
-  MAX_BOTTOM_ITEMS = 4
-  private_constant :MAX_BOTTOM_ITEMS
-
   included do # rubocop:disable Metrics/BlockLength
     private
 
@@ -22,15 +19,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       ].compact
     end
 
-    helper_method def mobile_bottom_items
-      all_mobile_items.first(MAX_BOTTOM_ITEMS)
-    end
-
-    helper_method def mobile_extra_items
-      all_mobile_items.drop(MAX_BOTTOM_ITEMS)
-    end
-
-    def all_mobile_items
+    helper_method def all_mobile_items
       @all_mobile_items ||=
         [
           root_item,
@@ -47,19 +36,20 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     end
 
     helper_method def desktop_secondary_items
-      [
-        settings_item,
-        registration_item,
-        notifications_item,
-        ___,
-        expand_item,
-        compress_item,
-        ___,
-        docs_item,
-        about_item,
-        ___,
-        session_item,
-      ].compact
+      @desktop_secondary_items ||=
+        [
+          settings_item,
+          registration_item,
+          notifications_item,
+          ___,
+          expand_item,
+          compress_item,
+          ___,
+          docs_item,
+          about_item,
+          ___,
+          session_item,
+        ].compact
     end
 
     def ___

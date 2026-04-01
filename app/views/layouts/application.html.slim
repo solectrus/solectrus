@@ -42,8 +42,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     = yield :head
 
   body.bg-indigo-600.dark:bg-indigo-900.select-none.font-sans.antialiased[
-    data-controller= ['icons', 'fullscreen', 'toggle', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
-    data-toggle-height-class-value="h-[calc(100dvh-var(--bottom-nav-offset))]"
+    data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]
@@ -52,7 +51,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
         = render Banner::Component.new registration_status: UpdateCheck.registration_status,
                                        admin: admin?
 
-      = render Nav::Top::Component.new(mobile_extra_items:, compact: content_for?(:fixed_nav)) do |c|
+      = render Nav::Top::Component.new(compact: content_for?(:fixed_nav)) do |c|
         = c.with_primary_items desktop_primary_items
         = c.with_secondary_items desktop_secondary_items
         = c.with_sub_nav { yield :sub_nav }
@@ -69,7 +68,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
         = render 'shared/modal_backdrop'
         = tag.turbo_frame id: 'modal', target: '_top'
 
-      = render Nav::Bottom::Component.new(items: mobile_bottom_items)
+      = render Nav::Bottom::Component.new(items: all_mobile_items, secondary_items: desktop_secondary_items)
 
       footer.hidden.lg:landscape:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
         .flex.items-center.gap-2
