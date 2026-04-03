@@ -34,7 +34,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.2",
     "@types/luxon": "^3.7.1",
-    "@types/sinon": "^21.0.0",
+    "@types/sinon": "^21.0.1",
     "@types/throttle-debounce": "^5.0.2",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
