@@ -18,8 +18,8 @@ module Sensor
 
   def self.influx_has_data?
     flux = <<~FLUX
-      import "influxdata/influxdb/schema"
-      schema.measurements(bucket: "#{Rails.configuration.x.influx.bucket}", start: 0)
+      import "influxdata/influxdb/v1"
+      v1.measurements(bucket: "#{Rails.configuration.x.influx.bucket}", start: 0)
       |> limit(n: 1)
     FLUX
 
