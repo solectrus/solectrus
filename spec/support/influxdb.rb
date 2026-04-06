@@ -1,5 +1,11 @@
 module InfluxHelper
   @in_batch = false
+  @write_api = Influx.client.create_write_api
+  @delete_api = Influx.client.create_delete_api
+
+  class << self
+    attr_reader :write_api, :delete_api
+  end
 
   def influx_batch(&)
     @points = []
@@ -20,7 +26,7 @@ module InfluxHelper
   end
 
   def add_influx_points(points)
-    InfluxClient.write_api.write(
+    InfluxHelper.write_api.write(
       data: points,
       bucket: Rails.configuration.x.influx.bucket,
       org: Rails.configuration.x.influx.org,
@@ -31,7 +37,7 @@ module InfluxHelper
     start: Time.zone.at(0),
     stop: Time.zone.at((2**63) / 1_000_000_000)
   )
-    InfluxClient.delete_api.delete(start, stop)
+    InfluxHelper.delete_api.delete(start, stop)
   end
 end
 

@@ -5,7 +5,7 @@ describe Sensor::Query::ForecastAvailability do
 
   let(:query_api) { double('QueryApi') }
 
-  before { allow(InfluxClient).to receive(:query_api).and_return(query_api) }
+  before { allow(Influx).to receive(:query_api).and_return(query_api) }
 
   describe '#call' do
     context 'when sensors have complete forecast data' do

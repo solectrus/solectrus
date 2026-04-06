@@ -88,7 +88,7 @@ module Sensor
 
           def query_without_cache(string)
             result, duration =
-              query_with_time { InfluxClient.query_api.query(query: string) }
+              query_with_time { ::Influx.query_api.query(query: string) }
 
             ActiveSupport::Notifications.instrument(
               'query.sensor_influx',

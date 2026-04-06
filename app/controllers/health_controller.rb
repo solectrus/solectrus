@@ -41,7 +41,7 @@ class HealthController < ActionController::Base
   end
 
   def check_influxdb
-    InfluxClient.ping.status == 'ok'
+    Influx.ping.status == 'ok'
   rescue StandardError
     false
   end

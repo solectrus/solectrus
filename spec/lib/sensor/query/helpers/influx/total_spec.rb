@@ -200,7 +200,7 @@ describe Sensor::Query::Helpers::Influx::Total do
 
       before do
         # Clear all data
-        InfluxClient.delete_api.delete(
+        InfluxHelper.delete_api.delete(
           Time.zone.at(0),
           Time.current,
           predicate:

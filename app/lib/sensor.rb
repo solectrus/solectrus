@@ -23,7 +23,7 @@ module Sensor
       |> limit(n: 1)
     FLUX
 
-    result = InfluxClient.query_api.query(query: flux)
+    result = Influx.query_api.query(query: flux)
     result.any? { |table| table.records.any? }
   rescue StandardError
     false
