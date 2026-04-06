@@ -17,15 +17,30 @@ module Sensor
   end
 
   def self.influx_has_data?
-    flux = <<~FLUX
-      import "influxdata/influxdb/v1"
-      v1.measurements(bucket: "#{Rails.configuration.x.influx.bucket}", start: 0)
-      |> limit(n: 1)
-    FLUX
+    bucket = Rails.configuration.x.influx.bucket
 
-    result = Influx.query_api.query(query: flux)
+    query = if Influx.version >= Gem::Version.new('2.2')
+              # InfluxDB 2.2+ supports the `start` parameter for schema.measurements,
+              # allowing us to check all data without a time limit.
+              <<~FLUX
+                import "influxdata/influxdb/schema"
+                schema.measurements(bucket: "#{bucket}", start: 0)
+                |> limit(n: 1)
+              FLUX
+            else
+              # InfluxDB < 2.2 does not support the `start` parameter for schema.measurements,
+              # falling back to the default 30-day lookback window.
+              <<~FLUX
+                import "influxdata/influxdb/schema"
+                schema.measurements(bucket: "#{bucket}")
+                |> limit(n: 1)
+              FLUX
+            end
+
+    result = Influx.query_api.query(query:)
     result.any? { |table| table.records.any? }
-  rescue StandardError
+  rescue StandardError => e
+    Rails.logger.error("Error checking InfluxDB for data: #{e.message}")
     false
   end
   private_class_method :influx_has_data?
