@@ -100,6 +100,32 @@ describe PowerBalance do
     end
   end
 
+  describe '#grid_export_limit_active?' do
+    subject(:active?) { power_balance.grid_export_limit_active? }
+
+    context 'when grid_export_limit is 100' do
+      let(:raw_data) { super().merge(grid_export_limit: 100) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context 'when grid_export_limit is 70' do
+      let(:raw_data) { super().merge(grid_export_limit: 70) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when grid_export_limit is 0' do
+      let(:raw_data) { super().merge(grid_export_limit: 0) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when grid_export_limit is missing' do
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe '#house_power_grid_ratio' do
     subject(:house_power_grid_ratio) { power_balance.house_power_grid_ratio }
 
