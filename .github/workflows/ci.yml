@@ -332,7 +332,6 @@ jobs:
 
   docker-build:
     runs-on: ${{ matrix.runner }}
-    needs: [lint, unit-test]
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 20
     permissions:
