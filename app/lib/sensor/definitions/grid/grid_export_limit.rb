@@ -1,3 +1,3 @@
 class Sensor::Definitions::GridExportLimit < Sensor::Definitions::Base
-  value unit: :watt, range: (0..), category: :grid
+  value unit: :percent, range: (0..100), category: :grid
 end
