@@ -144,7 +144,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        group: [1, 2, 3]
+        group: [1, 2, 3, 4]
 
     services:
       influxdb:
@@ -224,7 +224,7 @@ jobs:
       - name: Build Vite assets for test
         run: bin/yarn vite build --mode test
 
-      - name: Run System tests with RSpec (group ${{ matrix.group }}/3)
+      - name: Run System tests with RSpec (group ${{ matrix.group }}/4)
         run: |
           if [ -s tmp/parallel_runtime_rspec.log ]; then
             GROUP_BY=runtime
@@ -236,7 +236,7 @@ jobs:
             --group-by $GROUP_BY \
             --runtime-log tmp/parallel_runtime_rspec.log \
             --only-group ${{ matrix.group }} \
-            -n 3 \
+            -n 4 \
             -o '--format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'
         env:
           SKIP_VITE_BUILD: 1
