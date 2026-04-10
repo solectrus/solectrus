@@ -16,9 +16,6 @@ export default class extends Controller<HTMLElement> {
   connect() {
     if (!isTouchEnabled()) return;
 
-    // Prevent rubber-band scrolling when swiping
-    document.body.classList.add('overflow-hidden');
-
     this.boundHandleTouchStart = this.handleTouchStart.bind(this);
     this.element.addEventListener(
       'touchstart',
@@ -88,9 +85,6 @@ export default class extends Controller<HTMLElement> {
 
   disconnect() {
     if (!isTouchEnabled()) return;
-
-    // Remove the overflow-hidden class to restore scrolling
-    document.body.classList.remove('overflow-hidden');
 
     if (this.boundHandleTouchStart)
       this.element.removeEventListener(

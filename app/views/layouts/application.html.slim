@@ -42,6 +42,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     = yield :head
 
   body.bg-indigo-600.dark:bg-indigo-900.select-none.font-sans.antialiased[
+    class=('overflow-hidden' if content_for?(:full_height) || content_for?(:fixed_nav))
     data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
