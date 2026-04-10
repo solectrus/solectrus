@@ -12,7 +12,7 @@
         = helpers.vite_image_tag 'images/logo-full.svg', class: 'h-8', alt: 'SOLECTRUS'
         .text-xs
           | © 2020–#{Date.current.year} Georg Ledermann · AGPL-3.0
-      .flex.justify-between.items-center.w-full.text-xs.px-5
+      .flex.justify-between.items-center.w-full.text-xs.px-5.md:px-8
         = render VersionInfo::Component.new
         = render AuthorLogo::Component.new
     - if extra_menu_items.any?
