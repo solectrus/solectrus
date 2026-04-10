@@ -11,6 +11,9 @@ import {
 import { isTouchEnabled } from '@/utils/device';
 
 const LONG_PRESS_DURATION = 500;
+// A long-press is canceled if the finger moves further than this (px) while
+// waiting — prevents the tooltip from firing mid-swipe or mid-scroll
+const LONG_PRESS_MOVE_TOLERANCE = 10;
 
 /**
  * Tooltip controller using Floating UI
@@ -82,6 +85,8 @@ export default class TooltipController extends Controller {
   private titleObserver: MutationObserver | null = null;
   private contentObserver: MutationObserver | null = null;
   private touchTimer: ReturnType<typeof setTimeout> | null = null;
+  private longPressStartX = 0;
+  private longPressStartY = 0;
   private isVisible = false;
   private openedByTouch = false;
 
@@ -207,6 +212,9 @@ export default class TooltipController extends Controller {
         this.element.addEventListener('touchstart', this.handleTouchStart, {
           passive: true,
         });
+        this.element.addEventListener('touchmove', this.handleTouchMove, {
+          passive: true,
+        });
         this.element.addEventListener('touchend', this.cancelTouchTimer, {
           passive: true,
         });
@@ -222,6 +230,7 @@ export default class TooltipController extends Controller {
     this.element.removeEventListener('pointerleave', this.hideOnPointer);
     this.element.removeEventListener('click', this.handleClick);
     this.element.removeEventListener('touchstart', this.handleTouchStart);
+    this.element.removeEventListener('touchmove', this.handleTouchMove);
     this.element.removeEventListener('touchend', this.cancelTouchTimer);
     this.element.removeEventListener('touchcancel', this.cancelTouchTimer);
   }
@@ -256,12 +265,27 @@ export default class TooltipController extends Controller {
     }
   };
 
-  private readonly handleTouchStart = (): void => {
+  private readonly handleTouchStart = (event: Event): void => {
+    if (!(event instanceof TouchEvent)) return;
+    const touch = event.changedTouches[0];
+    this.longPressStartX = touch.screenX;
+    this.longPressStartY = touch.screenY;
     this.touchTimer = globalThis.setTimeout(() => {
       this.openedByTouch = true;
       this.show();
       this.touchTimer = null;
     }, LONG_PRESS_DURATION);
+  };
+
+  private readonly handleTouchMove = (event: Event): void => {
+    if (!this.touchTimer) return;
+    if (!(event instanceof TouchEvent)) return;
+    const touch = event.changedTouches[0];
+    const dx = touch.screenX - this.longPressStartX;
+    const dy = touch.screenY - this.longPressStartY;
+    if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_TOLERANCE) {
+      this.cancelTouchTimer();
+    }
   };
 
   private readonly cancelTouchTimer = (): void => {
