@@ -187,6 +187,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
         fill: true,
         noGradient: sensor.hatch_fill?,
         hatchFill: sensor.hatch_fill?,
+        spanGaps: true,
       }
     end
 
@@ -238,7 +239,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
   end
 
   def interpolate?
-    timeframe.short?
+    false
   end
 
   def show_remaining_forecast?

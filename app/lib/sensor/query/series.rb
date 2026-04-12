@@ -60,7 +60,6 @@ module Sensor
           q << "|> interpolate.linear(every: #{interval})"
         else
           q << '|> aggregateWindow(every: 5s, fn: last)'
-          q << '|> fill(usePrevious: true)'
         end
         q << "|> aggregateWindow(every: #{interval}, fn: mean)"
         q << '|> keep(columns: ["_time","_field","_measurement","_value"])'

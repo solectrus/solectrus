@@ -100,8 +100,8 @@ Chart.register(
 applyCrosshairFix();
 ensureFixedBottomTooltipPositioner(-14);
 
-// Draw lines between points with no or null data (disables segmentation of the line)
-Chart.overrides.line.spanGaps = true;
+// Bridge small gaps (up to 15 minutes) but show real outages as visual breaks
+Chart.overrides.line.spanGaps = 15 * 60 * 1000;
 
 const CHART_FONT_SIZE = 12;
 const CHART_FONT_SIZE_FULLSCREEN = 17;

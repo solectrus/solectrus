@@ -44,9 +44,8 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
       Sensor::Config.custom_inverter_sensors.map(&:name)
   end
 
-  # Enable interpolation for forecast data
   def interpolate?
-    true
+    false
   end
 
   #
@@ -134,10 +133,11 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
         borderWidth: 1,
         borderDash: [2, 3], # Dotted line pattern
         fill: false,
+        spanGaps: true,
         colorClass: sensor.color_background,
       }
     when :inverter_power_forecast
-      timeframe.today? ? hatched_forecast_style(sensor) : super
+      timeframe.today? ? hatched_forecast_style(sensor) : super.merge(spanGaps: true)
     else
       super.merge(
         noGradient: stackable?,
@@ -155,6 +155,7 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
       fill: true,
       noGradient: true,
       hatchFill: true,
+      spanGaps: true,
     }
   end
 
