@@ -214,7 +214,15 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       time: x_time_options,
     }
 
-    unless timeframe.now?
+    if timeframe.now?
+      # Pin the x-axis to a fixed 1-hour window ending at the current time
+      # (matches the P1H InfluxDB query below). Without this, Chart.js would
+      # auto-fit the axis to the last data point, hiding any trailing gap
+      # when the most recent measurement is older than "now".
+      now = Time.current
+      options[:min] = (now - 1.hour).to_i * 1000
+      options[:max] = now.to_i * 1000
+    else
       options[:min] = timeframe.beginning.to_i * 1000
       options[:max] = timeframe.ending.to_i * 1000
     end
