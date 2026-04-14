@@ -512,11 +512,17 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       chart_sensor_names,
       timeframe.now? ? Timeframe.new('P1H') : timeframe,
       interval:,
-    ).call(interpolate: interpolate?)
+    ).call(interpolate: interpolate?, fill_zero: fill_missing_with_zero?)
   end
 
   # Override this in subclasses to enable interpolation
   def interpolate?
+    false
+  end
+
+  # Override in subclasses where "no measurement" semantically means 0
+  # (e.g. consumers that don't write values while switched off)
+  def fill_missing_with_zero?
     false
   end
 

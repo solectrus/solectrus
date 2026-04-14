@@ -20,12 +20,12 @@ module Sensor
 
       attr_reader :interval
 
-      def call(interpolate: false)
+      def call(interpolate: false, fill_zero: false)
         return empty_result if available_sensors.empty?
         return empty_result if @timeframe.now? # No series for current moment
 
         # Charts use mean aggregation with dynamic intervals
-        raw_data = fetch_aggregated_series(interpolate:)
+        raw_data = fetch_aggregated_series(interpolate:, fill_zero:)
 
         # Use parent's create_data_instance and process_calculated_sensors
         create_data_instance(raw_data, @timeframe).tap do |data|
@@ -42,13 +42,13 @@ module Sensor
 
       private
 
-      def fetch_aggregated_series(interpolate: false)
-        query_string = build_series_flux_query(interpolate:)
+      def fetch_aggregated_series(interpolate: false, fill_zero: false)
+        query_string = build_series_flux_query(interpolate:, fill_zero:)
         result = query(query_string)
         parse_series_result(result)
       end
 
-      def build_series_flux_query(interpolate: false)
+      def build_series_flux_query(interpolate: false, fill_zero: false)
         q = []
         q << 'import "interpolate"' if interpolate
         q << from_bucket
@@ -61,7 +61,8 @@ module Sensor
         else
           q << '|> aggregateWindow(every: 5s, fn: last)'
         end
-        q << "|> aggregateWindow(every: #{interval}, fn: mean)"
+        q << "|> aggregateWindow(every: #{interval}, fn: mean#{', createEmpty: true' if fill_zero})"
+        q << '|> fill(value: 0.0)' if fill_zero
         q << '|> keep(columns: ["_time","_field","_measurement","_value"])'
 
         q.join("\n")

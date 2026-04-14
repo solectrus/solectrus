@@ -21,4 +21,10 @@ class Sensor::Chart::CustomPower < Sensor::Chart::PowerSplitterBase
   def pv_sensor_name
     :"#{@sensor_name}_pv"
   end
+
+  # Consumers maybe don't write 0W when switched off - they simply stop writing.
+  # Treat missing values as 0W so off-phases render correctly instead of as gaps.
+  def fill_missing_with_zero?
+    true
+  end
 end
