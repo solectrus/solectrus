@@ -117,11 +117,12 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     points_hash = series.public_send(sensor_name, *aggregations)
     return unless points_hash
 
-    # InfluxDB data is power values (W) - calculate energy using proper integration
+    # Drop nils so sparse sensors (e.g. hourly forecast) aren't diluted by the
+    # dense timestamp grid shared with other sensors in the series.
     entries =
-      points_hash
-        .sort_by { |time_key, _| time_key }
-        .map { |time_key, value| [normalize_timestamp(time_key), value] }
+      points_hash.filter_map do |time_key, value|
+        [normalize_timestamp(time_key), value] unless value.nil?
+      end
 
     Sensor::Forecast::EnergyCalculator.calculate_wh(entries)
   end
