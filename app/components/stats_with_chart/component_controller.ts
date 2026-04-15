@@ -7,6 +7,8 @@ type LineDatasetWithId = ChartDataset<'line'> & {
   id: string;
 };
 
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
 export default class extends Controller {
   static readonly targets = ['current', 'stats', 'chart', 'canvas'];
 
@@ -247,8 +249,9 @@ export default class extends Controller {
     // Never add a point with a time older than the last time in the chart
     if (currentTime < lastPointTime) return;
 
-    this.removeOutdatedPoints();
+    this.removeOutdatedPoints(currentTime);
     this.addCurrentPoints();
+    this.slideXAxisWindow(currentTime);
 
     // Redraw the chart
     this.chart.update();
@@ -283,20 +286,36 @@ export default class extends Controller {
     }
   }
 
-  // Remove oldest point (when older than one hour)
-  removeOutdatedPoints() {
+  // Slide the fixed 1-hour x-axis window forward so newly appended points
+  // stay inside the visible range. Server-side rendering pins min/max to the
+  // time of the initial request; without this update the window would freeze
+  // and live points drift off the right edge.
+  slideXAxisWindow(currentTime: Date) {
+    const xScale = this.chart?.options.scales?.x;
+    if (!xScale || xScale.min == null || xScale.max == null) return;
+
+    const nowMs = currentTime.getTime();
+    xScale.min = nowMs - ONE_HOUR_MS;
+    xScale.max = nowMs;
+  }
+
+  // Drop points that fell out of the 1-hour window ending at currentTime.
+  // Using currentTime (sensor time) keeps this in sync with slideXAxisWindow,
+  // and the loop catches backlogs (e.g. after the tab was inactive).
+  removeOutdatedPoints(currentTime: Date) {
     if (!this.chart?.data.labels) return;
 
-    const oldestLabel = this.chart.data.labels[0];
-    const oldestDate = new Date(oldestLabel as Date).getTime();
-    const now = Date.now();
-    const diffInSeconds = (now - oldestDate) / 1000;
-    if (diffInSeconds <= 3600) return;
+    const cutoff = currentTime.getTime() - ONE_HOUR_MS;
 
-    // Remove label + value in all datasets
-    this.chart.data.labels?.shift();
-    for (const dataset of this.chart.data.datasets) {
-      dataset.data.shift();
+    while (this.chart.data.labels.length) {
+      const oldestLabel = this.chart.data.labels[0];
+      const oldestMs = new Date(oldestLabel as Date).getTime();
+      if (oldestMs >= cutoff) break;
+
+      this.chart.data.labels.shift();
+      for (const dataset of this.chart.data.datasets) {
+        dataset.data.shift();
+      }
     }
   }
 
