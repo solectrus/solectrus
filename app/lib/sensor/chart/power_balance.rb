@@ -116,13 +116,39 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     items
   end
 
-  # Replace nil with 0 in data arrays (skip forecast datasets)
+  # Chart.js stacked line fill (fill: '-1') needs numeric values at every
+  # index. Plain nil-to-0 padding turns sparse-sampling gaps into sawtooth
+  # spikes, so distinguish sampling artifacts from real outages by deriving
+  # each dataset's cadence from its own data.
   def pad_nil_values!(items)
     items.each do |item|
       next if forecast_sensor?(item[:sensor_name])
 
-      item[:data].map! { |v| v || 0 }
+      fill_within_sampling_cadence!(item[:data])
     end
+  end
+
+  def fill_within_sampling_cadence!(data)
+    cadence = typical_cadence(data)
+    last_value = nil
+    last_index = nil
+    data.each_with_index do |value, i|
+      if value.nil?
+        within_cadence = last_index && cadence && (i - last_index) < cadence
+        data[i] = within_cadence ? last_value : 0
+      else
+        last_value = value
+        last_index = i
+      end
+    end
+  end
+
+  def typical_cadence(data)
+    sample_indices = data.each_index.reject { |i| data[i].nil? }
+    return if sample_indices.size < 2
+
+    gaps = sample_indices.each_cons(2).map { |a, b| b - a }
+    gaps.tally.max_by { |_gap, count| count }.first
   end
 
   # Sensors that appear below zero (usage/outflow)
