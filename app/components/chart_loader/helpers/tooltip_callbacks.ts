@@ -39,6 +39,15 @@ export const buildTooltipCallbacks = (
     return extractNumericValue(tooltipItem.raw, 'max');
   };
 
+  // Tooltip callbacks fire on every mouse move; reuse one formatter instead
+  // of allocating a new Intl.NumberFormat per hover.
+  const wattsFormatter = new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+  const formatWatts = (value: number): string =>
+    `${wattsFormatter.format(value)} W`;
+
   return {
     title: (tooltipItems) => {
       if (!tooltipItems.length) return;
@@ -152,13 +161,14 @@ export const buildTooltipCallbacks = (
         return `${label}${formattedValue} °C`;
       }
 
-      if (datasetId === 'inverter_power_forecast') {
-        const value = parsedValue ?? 0;
-        const formattedValue = new Intl.NumberFormat(locale, {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        }).format(value);
-        return `${label}${formattedValue} W`;
+      // Keep the inverter_power chart in a single unit (W) so actual,
+      // forecast and clearsky values stay visually comparable.
+      const isInverterPowerDataset =
+        datasetId?.startsWith('inverter_power') ||
+        tooltipItem.dataset.stack === 'InverterPower';
+
+      if (isInverterPowerDataset) {
+        return `${label}${formatWatts(parsedValue ?? 0)}`;
       }
 
       if (parsedValue !== null) {
@@ -197,7 +207,10 @@ export const buildTooltipCallbacks = (
           return acc;
         }, 0);
 
-        if (sum) return formattedNumber(sum);
+        if (sum)
+          return flags.isInverterStack
+            ? formatWatts(sum)
+            : formattedNumber(sum);
       }
 
       const heatpumpCostsItems = tooltipItems.filter(
