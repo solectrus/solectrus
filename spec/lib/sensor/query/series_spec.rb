@@ -167,4 +167,124 @@ describe Sensor::Query::Series do
       expect(dates.length).to be >= 2
     end
   end
+
+  describe 'forecast time-shift' do
+    let(:base_day) { Date.current + 1.day }
+    let(:timeframe) { Timeframe.new(base_day.to_s) }
+    let(:start) { base_day.in_time_zone.change(hour: 10) }
+
+    before { freeze_time }
+
+    def add_point(sensor, time, value)
+      add_influx_point(
+        name: Sensor::Config.measurement(sensor),
+        fields: {
+          Sensor::Config.field(sensor) => value,
+        },
+        time:,
+      )
+    end
+
+    context 'with only a forecast sensor' do
+      subject(:series_query) do
+        described_class.new(
+          [:inverter_power_forecast],
+          timeframe,
+          timestamp_method: :to_time,
+          interval: '15m',
+        )
+      end
+
+      before do
+        influx_batch do
+          8.times do |i|
+            add_point(
+              :inverter_power_forecast,
+              start + (i * 15).minutes,
+              (i + 1) * 1000,
+            )
+          end
+        end
+      end
+
+      it 'shifts each sample back by 7.5 minutes (half the cadence)' do
+        series =
+          series_query.call.inverter_power_forecast(:avg, :avg)
+        expect(series).not_to be_empty
+
+        # Without the shift, the sample stored at 10:00 would land in the
+        # 10:15 bucket; the -7.5 min shift moves it into the 10:00 bucket.
+        expect(series[start]).to eq(1000)
+        expect(series[start + 15.minutes]).to eq(2000)
+        expect(series[start + 1.hour + 45.minutes]).to eq(8000)
+      end
+    end
+
+    context 'with a forecast sensor mixed with a non-forecast sensor' do
+      subject(:series_query) do
+        described_class.new(
+          %i[inverter_power_forecast house_power],
+          timeframe,
+          timestamp_method: :to_time,
+          interval: '15m',
+        )
+      end
+
+      before do
+        influx_batch do
+          4.times do |i|
+            time = start + (i * 15).minutes
+            add_point(:inverter_power_forecast, time, (i + 1) * 1000)
+            add_point(:house_power, time, (i + 1) * 500)
+          end
+        end
+      end
+
+      it 'shifts only the forecast stream, leaving other sensors aligned' do
+        result = series_query.call
+        forecast = result.inverter_power_forecast(:avg, :avg)
+        house = result.house_power(:avg, :avg)
+
+        expect(forecast[start]).to eq(1000)
+
+        expect(house[start + 15.minutes]).to eq(500)
+        expect(house[start]).to be_nil
+      end
+    end
+
+    context 'when called with interpolate: true' do
+      subject(:series_query) do
+        described_class.new(
+          [:inverter_power_forecast],
+          timeframe,
+          timestamp_method: :to_time,
+          interval: '15m',
+        )
+      end
+
+      before do
+        influx_batch do
+          4.times do |i|
+            add_point(
+              :inverter_power_forecast,
+              start + (i * 15).minutes,
+              (i + 1) * 1000,
+            )
+          end
+        end
+      end
+
+      it 'bypasses the time-shift (plain interpolation query)' do
+        series =
+          series_query.call(interpolate: true).inverter_power_forecast(
+            :avg,
+            :avg,
+          )
+        expect(series).not_to be_empty
+
+        expect(series[start]).to be_nil
+        expect(series[start + 15.minutes]).to be_present
+      end
+    end
+  end
 end

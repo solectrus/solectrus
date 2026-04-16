@@ -49,11 +49,20 @@ module Sensor
       end
 
       def build_series_flux_query(interpolate: false, fill_zero: false)
-        q = []
-        q << 'import "interpolate"' if interpolate
-        q << from_bucket
-        q << "|> #{range(start: @timeframe.beginning, stop: @timeframe.ending)}"
-        q << "|> #{filter}"
+        forecast, other = available_sensors.partition do |name|
+          Sensor::Registry[name]&.category == :forecast
+        end
+
+        if interpolate || forecast.empty?
+          build_plain_query(interpolate:, fill_zero:)
+        else
+          build_forecast_shifted_query(forecast, other, fill_zero:)
+        end
+      end
+
+      def build_plain_query(interpolate:, fill_zero:)
+        q = [base_pipeline]
+        q.unshift('import "interpolate"') if interpolate
 
         if interpolate
           q << '|> map(fn:(r) => ({ r with _value: float(v: r._value) }))'
@@ -61,11 +70,70 @@ module Sensor
         else
           q << '|> aggregateWindow(every: 5s, fn: last)'
         end
-        q << "|> aggregateWindow(every: #{interval}, fn: mean#{', createEmpty: true' if fill_zero})"
-        q << '|> fill(value: 0.0)' if fill_zero
-        q << '|> keep(columns: ["_time","_field","_measurement","_value"])'
 
-        q.join("\n")
+        (q + aggregation_tail(fill_zero:)).join("\n")
+      end
+
+      # Forecast providers store each sample at the end of its aggregation
+      # window (PVNode 15m, Solcast 30m, forecast.solar 60m). Without a shift
+      # they lag other sensors by half a window. Forecast sensors are grouped
+      # by measurement (= same provider = same cadence), and per group we
+      # derive the cadence from the median gap between consecutive samples
+      # and apply a timeShift of -cadence/2 - preserving every sample
+      # including the sunrise/sunset 0-boundaries that sparse providers emit
+      # at irregular offsets outside the normal cadence. Per-measurement
+      # grouping is required because providers with different cadences may
+      # be mixed (e.g. a 15m power forecast next to a 60m temperature
+      # forecast), while multiple fields from the same provider share one
+      # scan.
+      def build_forecast_shifted_query(forecast, other, fill_zero:)
+        groups = forecast.group_by { |name| Sensor::Config.measurement(name) }.values
+        definitions = groups.each_with_index.map { |sensors, i| forecast_stream(sensors, i) }
+        definitions << other_stream(other) if other.any?
+
+        names = Array.new(groups.size) { |i| "fc_#{i}" }
+        names << 'other' if other.any?
+        input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
+
+        [*definitions, input, *aggregation_tail(fill_zero:)].join("\n")
+      end
+
+      def base_pipeline(sensors: available_sensors)
+        <<~FLUX.chomp
+          #{from_bucket}
+          |> #{range(start: @timeframe.beginning, stop: @timeframe.ending)}
+          |> #{filter(selected_sensors: sensors)}
+        FLUX
+      end
+
+      # `if exists` guards against empty forecast data: findRecord on an
+      # empty table returns a record without `elapsed`, and `int(v: invalid)`
+      # would fail the whole query.
+      def forecast_stream(sensors, index)
+        name = "fc_#{index}"
+        <<~FLUX.chomp
+          #{name}_raw = #{base_pipeline(sensors:)}
+          #{name}_rec = (#{name}_raw
+            |> elapsed(unit: 1ns)
+            |> median(column: "elapsed")
+            |> findRecord(fn: (key) => true, idx: 0))
+          #{name}_shift_ns = if exists #{name}_rec.elapsed then int(v: #{name}_rec.elapsed) else 0
+          #{name} = #{name}_raw |> timeShift(duration: duration(v: #{name}_shift_ns / -2))
+        FLUX
+      end
+
+      def other_stream(other)
+        <<~FLUX.chomp
+          other = #{base_pipeline(sensors: other)}
+          |> aggregateWindow(every: 5s, fn: last)
+        FLUX
+      end
+
+      def aggregation_tail(fill_zero:)
+        tail = ["|> aggregateWindow(every: #{interval}, fn: mean#{', createEmpty: true' if fill_zero})"]
+        tail << '|> fill(value: 0.0)' if fill_zero
+        tail << '|> keep(columns: ["_time","_field","_measurement","_value"])'
+        tail
       end
 
       def parse_series_result(flux_result)
