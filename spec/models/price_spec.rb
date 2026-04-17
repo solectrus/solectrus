@@ -65,4 +65,29 @@ describe Price do
 
     it { is_expected.to validate_uniqueness_of(:starts_at).scoped_to(:name) }
   end
+
+  describe '.seed!' do
+    before { described_class.delete_all }
+
+    it 'creates electricity and feed_in prices' do
+      expect { described_class.seed! }.to change(described_class, :count).by(2)
+
+      expect(described_class.electricity.first).to have_attributes(
+        starts_at: Rails.configuration.x.installation_date,
+        value: 0.2545,
+      )
+      expect(described_class.feed_in.first).to have_attributes(
+        starts_at: Rails.configuration.x.installation_date,
+        value: 0.0832,
+      )
+    end
+
+    context 'when prices already exist' do
+      before { described_class.seed! }
+
+      it 'does not create duplicates or raise' do
+        expect { described_class.seed! }.not_to change(described_class, :count)
+      end
+    end
+  end
 end

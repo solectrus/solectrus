@@ -38,12 +38,11 @@ class Price < ApplicationRecord
   scope :list_for, ->(name) { where(name:).order(starts_at: :desc) }
 
   def self.seed!
-    Price.electricity.create! starts_at:
-                                Rails.configuration.x.installation_date,
-                              value: 0.2545
-
-    Price.feed_in.create! starts_at: Rails.configuration.x.installation_date,
-                          value: 0.0832
+    { electricity: 0.2545, feed_in: 0.0832 }.each do |name, value|
+      find_or_create_by!(name:, starts_at: Rails.configuration.x.installation_date) do |price|
+        price.value = value
+      end
+    end
   end
 
   # Get the price valid for a specific date
