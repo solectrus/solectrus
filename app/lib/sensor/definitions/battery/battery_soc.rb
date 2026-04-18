@@ -34,7 +34,8 @@ class Sensor::Definitions::BatterySoc < Sensor::Definitions::Base
     end
   end
 
-  aggregations stored: %i[min max avg], meta: %i[min max avg]
+  aggregations stored: %i[avg min max], meta: %i[avg min max]
+  trend aggregation: :avg, more_is_better: true
 
   chart { |timeframe| Sensor::Chart::BatterySoc.new(timeframe:) }
 end

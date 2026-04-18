@@ -91,6 +91,7 @@
       - tile.with_footer do
         = t('.charge')
 
+  - elsif sensor.name == :battery_soc
     - unless timeframe.day?
       .col-span-2.grid.grid-cols-3.gap-3.sm:gap-6
         = render InsightsTile::Component.new do |tile|
