@@ -77,8 +77,6 @@ module Solectrus
     config.x.influx.bucket = ENV.fetch('INFLUX_BUCKET', nil)
     config.x.influx.org = ENV.fetch('INFLUX_ORG', nil)
 
-    config.x.influx.poll_interval = ENV.fetch('INFLUX_POLL_INTERVAL', '5').to_i
-
     config.after_initialize do
       extend RakeHelper
 
@@ -112,6 +110,18 @@ module Solectrus
           Rails.logger.error "Redis unavailable: #{e.message}"
         end
       end
+
+      if ENV['INFLUX_POLL_INTERVAL'].present?
+        Rails.logger.warn(
+          'INFLUX_POLL_INTERVAL is deprecated and no ' \
+            'longer used (the interval is now auto-tuned). You can safely ' \
+            'remove this variable from your configuration.',
+        )
+      end
+
+      Rails.logger.info(
+        "[Influx::PollInterval] starting with interval=#{Influx::PollInterval.current.to_i}s",
+      )
     end
 
     config.x.installation_date =

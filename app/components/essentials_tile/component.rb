@@ -61,10 +61,7 @@ class EssentialsTile::Component < ViewComponent::Base
   end
 
   def refresh_interval
-    [
-      interval_by_timeframe,
-      Rails.configuration.x.influx.poll_interval.seconds,
-    ].max
+    [interval_by_timeframe, Influx::PollInterval.current].max
   end
 
   def interval_by_timeframe

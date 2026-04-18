@@ -16,7 +16,7 @@ class StatsWithChart::Component < ViewComponent::Base
           if timeframe.past?
             0
           elsif timeframe.now?
-            Rails.configuration.x.influx.poll_interval.seconds
+            Influx::PollInterval.current
           else
             5.minutes
           end

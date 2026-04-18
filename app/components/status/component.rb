@@ -8,11 +8,11 @@ class Status::Component < ViewComponent::Base
   attr_reader :time, :status
 
   def live?
-    time && time > tolerated_delay.seconds.ago
+    time && time > tolerated_delay.ago
   end
 
   def tolerated_delay
-    Rails.configuration.x.influx.poll_interval * 2
+    Influx::PollInterval.current * 2
   end
 
   def text
