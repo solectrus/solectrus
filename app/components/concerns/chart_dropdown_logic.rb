@@ -1,6 +1,12 @@
-class ChartDropdownBase::Component < ViewComponent::Base
+module ChartDropdownLogic
+  extend ActiveSupport::Concern
+
   SEPARATOR = :_
   private_constant :SEPARATOR
+
+  included do
+    attr_reader :sensor_name, :timeframe
+  end
 
   def initialize(sensor_name:, timeframe:)
     super()
@@ -8,9 +14,9 @@ class ChartDropdownBase::Component < ViewComponent::Base
     @timeframe = timeframe
   end
 
-  attr_reader :sensor_name, :timeframe
-
-  def call
+  # ViewComponent ignores `call` defined in included modules, so each
+  # including class defines its own `call` that delegates here.
+  def render_chart_selector
     render(
       ChartSelector::Component.new(
         sensor_name:,

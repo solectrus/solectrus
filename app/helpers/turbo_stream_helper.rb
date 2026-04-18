@@ -16,7 +16,7 @@ module TurboStreamHelper
     component.with_primary_items(desktop_primary_items)
 
     turbo_stream.update('primary-nav-desktop') do
-      render Nav::Top::Component::Items.new(
+      render Nav::Top::Component::ItemsComponent.new(
                items: component.primary_items_without_root,
              )
     end

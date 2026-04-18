@@ -155,6 +155,10 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     hashdiff (1.2.1)
+    herb (0.9.6-aarch64-linux-musl)
+    herb (0.9.6-arm64-darwin)
+    herb (0.9.6-x86_64-linux-gnu)
+    herb (0.9.6-x86_64-linux-musl)
     honeybadger (6.5.5)
       logger
       ostruct
@@ -408,6 +412,11 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
       rubocop-ast (>= 1.44.0, < 2.0)
+    rubocop-view_component (0.4.1)
+      herb
+      lint_roller (~> 1.1)
+      parser
+      rubocop (>= 1.72.2)
     ruby-progressbar (1.13.0)
     securerandom (0.4.1)
     shellany (0.0.1)
@@ -521,6 +530,7 @@ DEPENDENCIES
   rubocop-rspec
   rubocop-rspec_rails
   rubocop-thread_safety
+  rubocop-view_component
   shoulda-matchers
   simplecov
   slim-rails

@@ -102,6 +102,9 @@ group :development, :test do
   # Code style checking for RSpec Rails files (https://github.com/rubocop/rubocop-rspec_rails)
   gem 'rubocop-rspec_rails', require: false
 
+  # RuboCop extension for ViewComponent best practices (https://github.com/andyw8/rubocop-view_component)
+  gem 'rubocop-view_component', require: false
+
   # Thread-safety checks via static analysis (https://github.com/rubocop/rubocop-thread_safety)
   gem 'rubocop-thread_safety', require: false
 

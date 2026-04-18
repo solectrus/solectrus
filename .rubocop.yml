@@ -6,6 +6,7 @@ plugins:
   - rubocop-rspec
   - rubocop-rspec_rails
   - rubocop-thread_safety
+  - rubocop-view_component
 
 AllCops:
   TargetRubyVersion: 4.0
@@ -52,6 +53,11 @@ Rails/SaveBang:
   AllowedReceivers:
     - turbo_stream
     - cipher
+
+### ViewComponent
+
+ViewComponent/PreferPrivateMethods:
+  Enabled: false
 
 ### Bundler
 

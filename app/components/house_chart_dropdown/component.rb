@@ -1,4 +1,10 @@
-class HouseChartDropdown::Component < ChartDropdownBase::Component
+class HouseChartDropdown::Component < ViewComponent::Base
+  include ChartDropdownLogic
+
+  def call
+    render_chart_selector
+  end
+
   private
 
   def menu_items

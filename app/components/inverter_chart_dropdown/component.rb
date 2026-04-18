@@ -1,4 +1,10 @@
-class InverterChartDropdown::Component < ChartDropdownBase::Component
+class InverterChartDropdown::Component < ViewComponent::Base
+  include ChartDropdownLogic
+
+  def call
+    render_chart_selector
+  end
+
   private
 
   def menu_items

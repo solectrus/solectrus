@@ -1,5 +1,7 @@
 describe Insights::Component, type: :component do
-  subject(:component) { described_class.new(sensor:, timeframe:) }
+  subject(:component) do
+    described_class.new(sensor:, timeframe:, controller_namespace: 'balance')
+  end
 
   let(:timeframe) { Timeframe.new('2025-01') }
 

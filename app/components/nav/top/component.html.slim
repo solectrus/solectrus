@@ -16,7 +16,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900 data-controller='slide-over--co
 
           .flex.justify-between.items-center.flex-1
             .flex.gap-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-base#primary-nav-desktop
-              = render Nav::Top::Component::Items.new(items: primary_items_without_root)
+              = render Nav::Top::Component::ItemsComponent.new(items: primary_items_without_root)
 
             .flex.items-center.gap-3
               - unless helpers.banner? || current_page?(sponsoring_path) || !UpdateCheck.action_required?

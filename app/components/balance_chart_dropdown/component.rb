@@ -1,4 +1,10 @@
-class BalanceChartDropdown::Component < ChartDropdownBase::Component
+class BalanceChartDropdown::Component < ViewComponent::Base
+  include ChartDropdownLogic
+
+  def call
+    render_chart_selector
+  end
+
   CHART_SENSORS = %i[
     autarky
     battery_power

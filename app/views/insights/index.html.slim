@@ -8,7 +8,7 @@
     = timeframe.localized
 
   - if ApplicationPolicy.insights?
-    = render Insights::Component.new(sensor:, timeframe:)
+    = render Insights::Component.new(sensor:, timeframe:, controller_namespace:)
   - else
     = render DemoLink::Component.new feature: 'insights',
                                      url: { controller: 'balance/home', timeframe: params[:timeframe] }

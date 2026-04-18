@@ -23,7 +23,7 @@ class Nav::Top::Component < ViewComponent::Base
   end
 
   # Nested component for rendering navigation items
-  class Items < ViewComponent::Base
+  class ItemsComponent < ViewComponent::Base
     def initialize(items:)
       super()
       @items = items

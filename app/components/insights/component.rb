@@ -1,12 +1,13 @@
 class Insights::Component < ViewComponent::Base
-  def initialize(sensor:, timeframe:)
+  def initialize(sensor:, timeframe:, controller_namespace:)
     super()
     @insights = Insights.new(sensor:, timeframe:)
     @sensor = sensor
     @timeframe = timeframe
+    @controller_namespace = controller_namespace
   end
 
-  attr_reader :sensor, :timeframe, :insights
+  attr_reader :sensor, :timeframe, :insights, :controller_namespace
 
   delegate :data, to: :insights
 
@@ -64,17 +65,5 @@ class Insights::Component < ViewComponent::Base
       timeframe: day,
       controller: "#{controller_namespace}/home",
     )
-  end
-
-  def controller_namespace
-    if request.referer.include?('/house/')
-      'house'
-    elsif request.referer.include?('/inverter/')
-      'inverter'
-    elsif request.referer.include?('/heatpump/')
-      'heatpump'
-    else
-      'balance'
-    end
   end
 end
