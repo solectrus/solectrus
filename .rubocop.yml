@@ -59,6 +59,9 @@ Rails/SaveBang:
 ViewComponent/PreferPrivateMethods:
   Enabled: false
 
+ViewComponent/MissingPreview:
+  Enabled: false
+
 ### Bundler
 
 Bundler/OrderedGems:

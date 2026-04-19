@@ -1,4 +1,4 @@
-describe HouseBreakdown::TooltipComponent, type: :component do
+describe HouseBreakdown::Tooltip::Component, type: :component do
   subject(:component) do
     described_class.new(sensor:, data:, timeframe:)
   end

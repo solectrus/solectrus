@@ -75,6 +75,6 @@
       .w-full.h-full.flex.flex-col.min-h-0.bg-slate-200.dark:bg-slate-800.rounded-lg.p-2.md:p-3.xl:p-4
         .flex-1.flex.flex-col.overflow-y-auto.text-sm.md:text-base
           - table_rows.each do |row|
-            = render HouseBreakdown::TableRowComponent.new(sensor: row[:sensor], percent: row[:percent], data:, timeframe:, scaling: common_scaling)
+            = render HouseBreakdown::TableRow::Component.new(sensor: row[:sensor], percent: row[:percent], data:, timeframe:, scaling: common_scaling)
 
-          = render HouseBreakdown::TableRowComponent.new(sensor: other_sensor, percent: other_percent, pinned: true, data:, timeframe:, scaling: common_scaling)
+          = render HouseBreakdown::TableRow::Component.new(sensor: other_sensor, percent: other_percent, pinned: true, data:, timeframe:, scaling: common_scaling)
