@@ -1,4 +1,4 @@
-class HouseBreakdown::TableRowComponent < ViewComponent::Base
+class HouseBreakdown::TableRow::Component < ViewComponent::Base
   def initialize(sensor:, percent:, data:, timeframe:, pinned: false, scaling: :auto)
     super()
     @sensor = sensor
@@ -74,7 +74,7 @@ class HouseBreakdown::TableRowComponent < ViewComponent::Base
 
   def tooltip_content
     tag.div class: 'hidden', data: { tooltip_target: 'html' } do
-      render HouseBreakdown::TooltipComponent.new(sensor:, data:, timeframe:)
+      render HouseBreakdown::Tooltip::Component.new(sensor:, data:, timeframe:)
     end
   end
 end

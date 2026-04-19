@@ -1,4 +1,4 @@
-class HouseBreakdown::TooltipComponent < ViewComponent::Base
+class HouseBreakdown::Tooltip::Component < ViewComponent::Base
   def initialize(sensor:, data:, timeframe:)
     super()
     @sensor = sensor
