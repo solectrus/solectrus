@@ -130,7 +130,7 @@ module Sensor
       end
 
       def aggregation_tail(fill_zero:)
-        tail = ["|> aggregateWindow(every: #{interval}, fn: mean#{', createEmpty: true' if fill_zero})"]
+        tail = ["|> aggregateWindow(every: #{interval}, fn: mean)"]
         tail << '|> fill(value: 0.0)' if fill_zero
         tail << '|> keep(columns: ["_time","_field","_measurement","_value"])'
         tail
@@ -158,9 +158,6 @@ module Sensor
         # Cache record.values to avoid repeated hash access
         record_values = record.values
 
-        value = record_values['_value']
-        return unless value
-
         measurement = record_values['_measurement']
         field = record_values['_field']
         timestamp = Time.zone.parse(record.time)
@@ -175,9 +172,11 @@ module Sensor
 
         return unless sensor
 
-        # Initialize point if not exists - timestamp is already a Time object
+        # aggregateWindow emits empty windows with _value = null by default
+        # (createEmpty: true). Keep them as nil instead of filtering them
+        # out so Chart.js renders real data gaps as visible breaks.
         points_by_timestamp[timestamp] ||= { timestamp: }
-        points_by_timestamp[timestamp][sensor] = value.round(1)
+        points_by_timestamp[timestamp][sensor] = record_values['_value']&.round(1)
       end
 
       def convert_to_series_format(points_by_timestamp)

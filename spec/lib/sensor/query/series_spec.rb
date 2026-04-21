@@ -58,9 +58,13 @@ describe Sensor::Query::Series do
         house_power_series = result.house_power(:avg, :avg)
         expect(house_power_series).not_to be_empty
 
-        # Check that each time point has the expected structure
+        # Check that each time point has the expected structure.
+        # Values may be nil for empty aggregateWindow buckets (Flux emits
+        # them by default), so charts can render real data gaps as breaks.
         house_power_series.each do |time, value|
           expect(time).to be_a(Time)
+
+          next if value.nil?
 
           expect(value).to be_a(Numeric)
           expect(value).to be >= 0
@@ -73,6 +77,16 @@ describe Sensor::Query::Series do
         dates = house_power_series.keys
 
         expect(dates).to eq(dates.sort)
+      end
+
+      it 'preserves nil values for empty aggregateWindow buckets' do
+        # Only two data points were inserted across the 2-hour timeframe,
+        # so most 5-minute buckets are empty. They must surface as nil
+        # (not be filtered out) so Chart.js renders real data gaps as
+        # visible breaks instead of bridging them.
+        house_power_series = result.house_power(:avg, :avg)
+
+        expect(house_power_series.values).to include(nil)
       end
     end
 
