@@ -49,20 +49,35 @@ describe Sensor::Forecast::EnergyCalculator do
       end
     end
 
-    context 'with nil power values' do
+    context 'with interleaved nil values (sparse sensor on dense grid)' do
+      let(:entries) do
+        # Hourly forecast sampled on a 15-minute grid: two real samples at
+        # 12:00 and 13:00 surrounded by nil-padding from the shared grid.
+        [
+          [Time.zone.parse('2024-01-15 12:00'), 1000],
+          [Time.zone.parse('2024-01-15 12:15'), nil],
+          [Time.zone.parse('2024-01-15 12:30'), nil],
+          [Time.zone.parse('2024-01-15 12:45'), nil],
+          [Time.zone.parse('2024-01-15 13:00'), 1000],
+        ]
+      end
+
+      it 'integrates between real samples after dropping nils' do
+        # Dropping nils leaves two samples one hour apart:
+        # 1000 W * 1 h = 1000 Wh (not ~250 Wh from diluted pairing)
+        expect(wh).to eq(1000)
+      end
+    end
+
+    context 'with fewer than two non-nil entries' do
       let(:entries) do
         [
           [Time.zone.parse('2024-01-15 12:00'), 1000],
           [Time.zone.parse('2024-01-15 13:00'), nil],
-          [Time.zone.parse('2024-01-15 14:00'), 1000],
         ]
       end
 
-      it 'skips intervals with nil power' do
-        # First interval: 1000 W * 1 hour = 1000 Wh
-        # Second interval: skipped (nil power)
-        expect(wh).to eq(1000)
-      end
+      it { is_expected.to eq(0) }
     end
 
     context 'with unsorted entries' do

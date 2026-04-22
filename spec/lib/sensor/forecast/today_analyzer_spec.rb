@@ -92,5 +92,26 @@ describe Sensor::Forecast::TodayAnalyzer do
 
       it { is_expected.to eq(0) }
     end
+
+    context 'with sparse forecast nil-padded by the shared 5-minute grid' do
+      # Regression for #5497: hourly forecast samples on a dense 5-min grid
+      # must not be diluted - only real samples should drive integration.
+      let(:forecast_data) do
+        grid = {}
+        (Time.zone.parse('2024-01-15 12:00')..Time.zone.parse('2024-01-15 17:00'))
+          .step(5.minutes) { |t| grid[t] = nil }
+        grid[Time.zone.parse('2024-01-15 15:00')] = 1000
+        grid[Time.zone.parse('2024-01-15 16:00')] = 1000
+        grid[Time.zone.parse('2024-01-15 17:00')] = 1000
+        grid[Time.zone.parse('2024-01-15 13:00')] = 1500
+        grid
+      end
+
+      it 'integrates only future real samples (not the nil-padded grid)' do
+        # Future real samples at 15:00, 16:00, 17:00 - two 1-hour intervals at
+        # 1000 W each = 2000 Wh. Without nil-filtering this would be ~170 Wh.
+        expect(remaining_wh).to eq(2000)
+      end
+    end
   end
 end

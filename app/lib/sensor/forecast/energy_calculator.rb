@@ -4,11 +4,14 @@ module Sensor
     # Uses left endpoint rule (left Riemann sum): Energy = sum(Power_i * delta_t_i)
     class EnergyCalculator
       class << self
-        # Calculate total energy (Wh) from power measurements
+        # Calculate total energy (Wh) from power measurements.
+        # Nil values are dropped so sparse inputs on a dense timestamp grid
+        # aren't diluted by the nil-padded slots between real samples.
         def calculate_wh(entries)
-          return 0 if entries.size < 2
+          valid = entries.reject { |entry| entry.last.nil? }
+          return 0 if valid.size < 2
 
-          sum_energy_intervals(entries)
+          sum_energy_intervals(valid)
         end
 
         private
@@ -21,8 +24,6 @@ module Sensor
         end
 
         def energy_for_interval(start_time, end_time, power_watts)
-          return 0 if power_watts.nil?
-
           interval_hours = (end_time - start_time) / 3600.0
           power_watts * interval_hours # Wh for this interval
         end

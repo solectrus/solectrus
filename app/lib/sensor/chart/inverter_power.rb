@@ -117,12 +117,8 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     points_hash = series.public_send(sensor_name, *aggregations)
     return unless points_hash
 
-    # Drop nils so sparse sensors (e.g. hourly forecast) aren't diluted by the
-    # dense timestamp grid shared with other sensors in the series.
     entries =
-      points_hash.filter_map do |time_key, value|
-        [normalize_timestamp(time_key), value] unless value.nil?
-      end
+      points_hash.map { |time_key, value| [normalize_timestamp(time_key), value] }
 
     Sensor::Forecast::EnergyCalculator.calculate_wh(entries)
   end
