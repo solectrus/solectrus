@@ -110,6 +110,72 @@ describe Sensor::Query::Series do
     end
   end
 
+  describe '#call with fill_previous' do
+    subject(:series_query) { described_class.new([:car_battery_soc], timeframe) }
+
+    let(:timeframe) { Timeframe.new('P1H') }
+
+    before { stub_feature(:car) }
+
+    context 'when combined with other fill strategies' do
+      it 'raises when combined with fill_zero' do
+        expect do
+          series_query.call(fill_previous: true, fill_zero: true)
+        end.to raise_error(ArgumentError, /fill_previous excludes/)
+      end
+
+      it 'raises when combined with interpolate' do
+        expect do
+          series_query.call(fill_previous: true, interpolate: true)
+        end.to raise_error(ArgumentError, /fill_previous excludes/)
+      end
+    end
+
+    context 'with samples inside and outside the display window' do
+      before do
+        freeze_time
+
+        influx_batch do
+          # One sample outside (before) the 1h display window, one inside.
+          # Without fill_previous, buckets before 25 min ago would be empty.
+          add_influx_point(
+            name: Sensor::Config.measurement(:car_battery_soc),
+            fields: {
+              Sensor::Config.field(:car_battery_soc) => 42.0,
+            },
+            time: 80.minutes.ago,
+          )
+
+          add_influx_point(
+            name: Sensor::Config.measurement(:car_battery_soc),
+            fields: {
+              Sensor::Config.field(:car_battery_soc) => 46.0,
+            },
+            time: 25.minutes.ago,
+          )
+        end
+      end
+
+      it 'forward-fills empty buckets with the last known value' do
+        series = series_query.call(fill_previous: true).car_battery_soc(:avg, :avg)
+
+        values = series.values.compact
+        expect(values).to include(42.0, 46.0)
+        # No empty buckets once fill_previous has propagated a value:
+        expect(series.values).not_to include(nil)
+      end
+
+      it 'extends the last known value up to the display window end' do
+        series = series_query.call(fill_previous: true).car_battery_soc(:avg, :avg)
+
+        # Newest sample is 25 min old; without fill_previous the trailing 25 min
+        # would be nil. With fill_previous the last bucket still reports 46%.
+        last_value = series.max_by { |time, _| time }.last
+        expect(last_value).to eq(46.0)
+      end
+    end
+  end
+
   describe 'forecast mode (with timestamp_method and interval)' do
     subject(:series_query) do
       described_class.new(

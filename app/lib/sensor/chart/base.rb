@@ -512,7 +512,11 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       chart_sensor_names,
       timeframe.now? ? Timeframe.new('P1H') : timeframe,
       interval:,
-    ).call(interpolate: interpolate?, fill_zero: fill_missing_with_zero?)
+    ).call(
+      interpolate: interpolate?,
+      fill_zero: fill_missing_with_zero?,
+      fill_previous: fill_missing_with_previous?,
+    )
   end
 
   # Override this in subclasses to enable interpolation
@@ -523,6 +527,14 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # Override in subclasses where "no measurement" semantically means 0
   # (e.g. consumers that don't write values while switched off)
   def fill_missing_with_zero?
+    false
+  end
+
+  # Override in subclasses for sparse, low-frequency sensors whose value
+  # persists between samples (e.g. battery SOC). Empty aggregation buckets
+  # are forward-filled with the most recent known value so the chart spans
+  # the full window without gaps on the leading/trailing edges.
+  def fill_missing_with_previous?
     false
   end
 
