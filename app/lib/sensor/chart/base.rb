@@ -55,9 +55,16 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   def crosshair_options
-    # Disable the plugin's built-in drag-to-zoom: chartjs-plugin-zoom handles
-    # that, and crosshair's doZoom crashes on null data points (data gaps).
-    timeframe.short? ? { zoom: { enabled: false } } : nil
+    return unless timeframe.short?
+
+    {
+      # Disable built-in drag-to-zoom: chartjs-plugin-zoom handles that, and
+      # crosshair's doZoom crashes on null data points (data gaps).
+      zoom: { enabled: false },
+      # Disable cross-chart tooltip sync: we don't link charts, and it fires
+      # a window-level CustomEvent on every mousemove.
+      sync: { enabled: false },
+    }
   end
 
   def options
