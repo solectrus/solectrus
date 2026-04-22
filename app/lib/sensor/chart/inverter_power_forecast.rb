@@ -34,7 +34,7 @@ module Sensor
       end
 
       def crosshair_options
-        {}
+        { zoom: { enabled: false } }
       end
 
       def zoom_options
