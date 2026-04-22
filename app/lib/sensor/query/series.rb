@@ -62,13 +62,11 @@ module Sensor
 
       def build_plain_query(interpolate:, fill_zero:)
         q = [base_pipeline]
-        q.unshift('import "interpolate"') if interpolate
 
         if interpolate
+          q.unshift('import "interpolate"')
           q << '|> map(fn:(r) => ({ r with _value: float(v: r._value) }))'
           q << "|> interpolate.linear(every: #{interval})"
-        else
-          q << '|> aggregateWindow(every: 5s, fn: last)'
         end
 
         (q + aggregation_tail(fill_zero:)).join("\n")
@@ -123,10 +121,7 @@ module Sensor
       end
 
       def other_stream(other)
-        <<~FLUX.chomp
-          other = #{base_pipeline(sensors: other)}
-          |> aggregateWindow(every: 5s, fn: last)
-        FLUX
+        "other = #{base_pipeline(sensors: other)}"
       end
 
       def aggregation_tail(fill_zero:)
