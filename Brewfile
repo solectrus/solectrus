@@ -9,3 +9,6 @@ brew 'libpq'
 
 # Redis - for ActionCable support and caching
 brew 'redis'
+
+# Shellcheck - for linting shell scripts
+brew 'shellcheck'

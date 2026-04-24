@@ -10,7 +10,7 @@ echo "License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html"
 
 # If running the rails server then wait for services
 # and create or migrate existing database
-if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
+if [ "${1}" = "./bin/rails" ] && [ "${2}" = "server" ]; then
   # Check for necessary environment variables
   if [ -z "${COMMIT_VERSION}" ]; then
     echo "Error: Invalid Docker image. Stopping..." >&2

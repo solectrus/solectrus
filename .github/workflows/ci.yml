@@ -49,6 +49,9 @@ jobs:
           bin/yarn vite build
           bin/yarn size-limit
 
+      - name: Shellcheck shell scripts
+        run: shellcheck $(git ls-files '*.sh')
+
   unit-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
