@@ -4,7 +4,7 @@ module Sensor
     # - 30-second intervals for 'now' timeframe
     # - 5-minute intervals for all other timeframes
     # Used for: Charts and data visualization
-    class Series < Helpers::Influx::Base
+    class Series < Helpers::Influx::Base # rubocop:disable Metrics/ClassLength
       def initialize(
         sensor_names,
         timeframe,
@@ -52,10 +52,14 @@ module Sensor
       def build_series_flux_query(interpolate: false, fill_zero: false, fill_previous: false)
         forecast, other = available_sensors.partition { |name| Sensor::Registry[name]&.category == :forecast }
 
-        if interpolate || forecast.empty?
+        # plain-query is fine when there is no forecast at all, or when only
+        # forecast samples are queried with interpolation: provider samples
+        # already sit on the requested grid, so neither alignment with a
+        # dense sensor nor a cadence-shift is needed.
+        if forecast.empty? || (interpolate && other.empty?)
           build_plain_query(interpolate:, fill_zero:, fill_previous:)
         else
-          build_forecast_shifted_query(forecast, other, fill_zero:)
+          build_forecast_shifted_query(forecast, other, interpolate:, fill_zero:)
         end
       end
 
@@ -83,17 +87,22 @@ module Sensor
       # grouping is required because providers with different cadences may
       # be mixed (e.g. a 15m power forecast next to a 60m temperature
       # forecast), while multiple fields from the same provider share one
-      # scan.
-      def build_forecast_shifted_query(forecast, other, fill_zero:)
+      # scan. When `interpolate:` is set, forecast streams are densified to
+      # `interval` before the shift so sparse providers (Solcast 30m,
+      # forecast.solar 60m) render without gaps; non-forecast streams stay
+      # un-interpolated so aggregateWindow yields true window means rather
+      # than instant samples picked at bucket edges.
+      def build_forecast_shifted_query(forecast, other, interpolate:, fill_zero:)
         groups = forecast.group_by { |name| Sensor::Config.measurement(name) }.values
-        definitions = groups.each_with_index.map { |sensors, i| forecast_stream(sensors, i) }
+        definitions = groups.each_with_index.map { |sensors, i| forecast_stream(sensors, i, interpolate:) }
         definitions << other_stream(other) if other.any?
 
         names = Array.new(groups.size) { |i| "fc_#{i}" }
         names << 'other' if other.any?
         input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
 
-        [*definitions, input, *aggregation_tail(fill_zero:)].join("\n")
+        prefix = interpolate ? ['import "interpolate"'] : []
+        [*prefix, *definitions, input, *aggregation_tail(fill_zero:)].join("\n")
       end
 
       def base_pipeline(sensors: available_sensors, lookback: 0)
@@ -106,18 +115,34 @@ module Sensor
 
       # `if exists` guards against empty forecast data: findRecord on an
       # empty table returns a record without `elapsed`, and `int(v: invalid)`
-      # would fail the whole query.
-      def forecast_stream(sensors, index)
+      # would fail the whole query. The cadence is derived from the raw
+      # samples (before optional interpolation) so a densified Solcast 30m
+      # stream still yields a 30m median - the basis for the -cadence/2
+      # shift.
+      def forecast_stream(sensors, index, interpolate: false)
         name = "fc_#{index}"
-        <<~FLUX.chomp
-          #{name}_raw = #{base_pipeline(sensors:)}
-          #{name}_rec = (#{name}_raw
-            |> elapsed(unit: 1ns)
-            |> median(column: "elapsed")
-            |> findRecord(fn: (key) => true, idx: 0))
-          #{name}_shift_ns = if exists #{name}_rec.elapsed then int(v: #{name}_rec.elapsed) else 0
-          #{name} = #{name}_raw |> timeShift(duration: duration(v: #{name}_shift_ns / -2))
-        FLUX
+        source = interpolate ? "#{name}_interp" : "#{name}_raw"
+        interp_block =
+          if interpolate
+            <<~FLUX.chomp
+              #{name}_interp = #{name}_raw
+                |> map(fn:(r) => ({ r with _value: float(v: r._value) }))
+                |> interpolate.linear(every: #{interval})
+            FLUX
+          end
+
+        [
+          "#{name}_raw = #{base_pipeline(sensors:)}",
+          <<~FLUX.chomp,
+            #{name}_rec = (#{name}_raw
+              |> elapsed(unit: 1ns)
+              |> median(column: "elapsed")
+              |> findRecord(fn: (key) => true, idx: 0))
+            #{name}_shift_ns = if exists #{name}_rec.elapsed then int(v: #{name}_rec.elapsed) else 0
+          FLUX
+          interp_block,
+          "#{name} = #{source} |> timeShift(duration: duration(v: #{name}_shift_ns / -2))",
+        ].compact.join("\n")
       end
 
       def other_stream(other)

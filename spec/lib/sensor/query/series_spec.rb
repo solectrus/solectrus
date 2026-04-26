@@ -355,6 +355,9 @@ describe Sensor::Query::Series do
       end
 
       it 'bypasses the time-shift (plain interpolation query)' do
+        # Without other (non-forecast) sensors in the same query, alignment
+        # is irrelevant: provider samples already sit on the requested grid,
+        # so we keep the simpler plain pipeline.
         series =
           series_query.call(interpolate: true).inverter_power_forecast(
             :avg,
@@ -364,6 +367,60 @@ describe Sensor::Query::Series do
 
         expect(series[start]).to be_nil
         expect(series[start + 15.minutes]).to be_present
+      end
+    end
+
+    context 'when interpolate mixes a sparse forecast with a dense sensor' do
+      subject(:series_query) do
+        described_class.new(
+          %i[inverter_power_forecast house_power],
+          timeframe,
+          timestamp_method: :to_time,
+          interval: '15m',
+        )
+      end
+
+      before do
+        influx_batch do
+          # Sparse 30m forecast: values only at :00 and :30
+          4.times do |i|
+            add_point(
+              :inverter_power_forecast,
+              start + (i * 30).minutes,
+              (i + 1) * 1000,
+            )
+          end
+
+          # Dense house_power sensor: 1-second samples ramping linearly,
+          # so the true 15-min mean differs from the instant value at the
+          # bucket edge.
+          (0..(2 * 3600)).step(1) do |sec|
+            add_point(:house_power, start + sec.seconds, sec)
+          end
+        end
+      end
+
+      it 'right-aligns the dense sensor as a true window mean' do
+        result = series_query.call(interpolate: true)
+        house = result.house_power(:avg, :avg)
+
+        # Bucket [start, start+15m): seconds 0..899, mean ~= 449.5.
+        # With the previous interpolation-on-everything pipeline this would
+        # have produced ~900 (the instant value at start+15m) instead.
+        bucket_value = house[start + 15.minutes]
+        expect(bucket_value).to be_within(5).of(449.5)
+      end
+
+      it 'densifies the sparse forecast to the requested interval' do
+        result = series_query.call(interpolate: true)
+        forecast = result.inverter_power_forecast(:avg, :avg)
+
+        # Original samples at +0/+30/+60/+90 plus interpolated +15/+45/+75
+        # should all be present after the time-shift.
+        expect(forecast[start]).to be_present
+        expect(forecast[start + 15.minutes]).to be_present
+        expect(forecast[start + 30.minutes]).to be_present
+        expect(forecast[start + 45.minutes]).to be_present
       end
     end
   end
