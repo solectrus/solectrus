@@ -89,15 +89,23 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     end
   end
 
-  # For today: forecast as hatched area, plus clearsky line if not stacked
-  # For other days: forecast lines only in non-stacked view
+  # For today and hours-based timeframes (P24H/P48H/P72H): forecast as hatched
+  # area on today, plain line on hours-based; clearsky line if not stacked.
+  # For other days: forecast lines only in non-stacked view.
   def forecast_sensors
-    return [] unless timeframe.day?
-    return [] if stackable? && !timeframe.today?
+    return [] unless show_forecast?
 
     names = [:inverter_power_forecast]
     names << :inverter_power_forecast_clearsky unless stackable?
     names.select { |name| Sensor::Config.exists?(name) }
+  end
+
+  def show_forecast?
+    return true if timeframe.today?
+    return true if timeframe.hours?
+    return false if stackable?
+
+    timeframe.day?
   end
 
   def forecast_series_data
