@@ -98,22 +98,21 @@ module Sensor
         groups = forecast.group_by { |name| Sensor::Config.measurement(name) }.values
         definitions = groups.each_with_index.map { |sensors, i| forecast_stream(sensors, i, interpolate:) }
         names = Array.new(groups.size) { |i| "fc_#{i}" }
-        tail = aggregation_tail(fill_zero:)
 
-        # Mid-window stamping is only meaningful when forecast samples must
-        # be visually compared against denser-aggregated charts: that's
-        # exactly the mixed forecast/non-forecast scenario. A pure-forecast
-        # query keeps its right-edge stamp to stay consistent with how
-        # forecast providers timestamp their own samples.
         if other.any?
           definitions << other_stream(other)
           names << 'other'
-          tail.insert(1, "|> timeShift(duration: -#{half_interval_seconds}s)")
         end
 
+        # aggregateWindow runs on the union so its range spans the
+        # cadence-shifted forecast samples (which can extend before
+        # `timeframe.beginning`). createEmpty: true then fills empty
+        # leading buckets across all streams - including live data -
+        # so every sensor shares the same number of points and Chart.js
+        # index-mode tooltips pair them at the correct timestamp.
         input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
         prefix = interpolate ? ['import "interpolate"'] : []
-        [*prefix, *definitions, input, *tail].join("\n")
+        [*prefix, *definitions, input, *aggregation_tail(fill_zero:)].join("\n")
       end
 
       def base_pipeline(sensors: available_sensors, lookback: 0)
@@ -137,7 +136,9 @@ module Sensor
       # would fail the whole query. The cadence is derived from the raw
       # samples (before optional interpolation) so a densified Solcast 30m
       # stream still yields a 30m median - the basis for the -cadence/2
-      # shift.
+      # shift. Aggregation happens on the unioned output so the resulting
+      # bucket grid spans the cadence-shifted samples and stays aligned
+      # across forecast and live streams.
       def forecast_stream(sensors, index, interpolate: false)
         name = "fc_#{index}"
         source = interpolate ? "#{name}_interp" : "#{name}_raw"
@@ -167,10 +168,6 @@ module Sensor
             |> map(fn:(r) => ({ r with _value: float(v: r._value) }))
             |> interpolate.linear(every: #{interval})
         FLUX
-      end
-
-      def half_interval_seconds
-        @interval.to_i / 2
       end
 
       def aggregation_tail(fill_zero:, fill_previous: false)

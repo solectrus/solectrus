@@ -174,24 +174,25 @@ module Sensor
       end
 
       # Create a series-level accessor for a calculated sensor
-      def create_series_accessor_for_calculated_sensor(data, sensor_name) # rubocop:disable Metrics/CyclomaticComplexity
+      def create_series_accessor_for_calculated_sensor(data, sensor_name)
         data.define_singleton_method(sensor_name) do |*|
           time_series = {}
 
-          if raw_data.any? && (first_data = raw_data.values.first).is_a?(Hash)
-            timestamps = first_data.keys.sort
+          if raw_data.any? && raw_data.values.first.is_a?(Hash)
+            # Use the same union-of-timestamps as build_points so each
+            # point lines up with its actual timestamp. Sensors may sit
+            # on different time grids (e.g. forecast at bucket midpoints
+            # vs. live data at bucket right-edges), so picking only the
+            # first sensor's keys would mis-pair points and timestamps.
+            timestamps = raw_data.values.flat_map(&:keys)
+            timestamps.uniq!
+            timestamps.sort!
 
-            # Collect calculated values from points
             points.each_with_index do |point, index|
-              unless point.respond_to?(sensor_name) && index < timestamps.size
-                next
-              end
+              next unless point.respond_to?(sensor_name) && index < timestamps.size
 
               time_series[timestamps[index]] = point.public_send(sensor_name)
             end
-
-            # Fill missing periods
-            first_data.each_key { |ts| time_series[ts] ||= nil }
           end
 
           time_series

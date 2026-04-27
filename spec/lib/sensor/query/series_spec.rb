@@ -320,20 +320,19 @@ describe Sensor::Query::Series do
         end
       end
 
-      it 'shifts forecast by half-cadence and centres each bucket on its midpoint' do
+      it 'aligns forecast and live data on the same right-edge grid' do
         result = series_query.call
         forecast = result.inverter_power_forecast(:avg, :avg)
         house = result.house_power(:avg, :avg)
 
         # Forecast sample at `start` is shifted to start-7.5m by the per-stream
-        # -cadence/2, lands in bucket [start-15m, start) stamped at `start`,
-        # then mid-window re-anchors to start-7.5m.
-        expect(forecast[start - 7.5.minutes]).to eq(1000)
+        # -cadence/2 and lands in bucket [start-15m, start) stamped at `start`.
+        expect(forecast[start]).to eq(1000)
 
-        # House sample at `start` lands in bucket [start, start+15m) stamped at
-        # start+15m, then mid-window re-anchors to start+7.5m.
-        expect(house[start + 7.5.minutes]).to eq(500)
-        expect(house[start]).to be_nil
+        # House sample at `start` lands in bucket [start, start+15m) stamped
+        # at start+15m. Both sensors share the 15-min right-edge grid so the
+        # tooltip can pair them without index drift.
+        expect(house[start + 15.minutes]).to eq(500)
       end
     end
 
@@ -405,16 +404,14 @@ describe Sensor::Query::Series do
         end
       end
 
-      it 'centres the dense sensor mean on the bucket midpoint' do
+      it 'right-stamps the dense sensor mean at the bucket end' do
         result = series_query.call(interpolate: true)
         house = result.house_power(:avg, :avg)
 
         # Bucket [start, start+15m): seconds 0..899, mean ~= 449.5, stamped
-        # at start+15m by aggregateWindow, then re-anchored to start+7.5m by
-        # the mid-window timeShift. With the previous interpolation-on-
-        # everything pipeline this would have produced ~900 (the instant
-        # value at start+15m) instead.
-        bucket_value = house[start + 7.5.minutes]
+        # at start+15m by aggregateWindow. Live data keeps its right-edge
+        # stamp so the latest bucket doesn't appear to lag near "now".
+        bucket_value = house[start + 15.minutes]
         expect(bucket_value).to be_within(5).of(449.5)
       end
 
@@ -423,13 +420,12 @@ describe Sensor::Query::Series do
         forecast = result.inverter_power_forecast(:avg, :avg)
 
         # Original samples at +0/+30/+60/+90 plus interpolated +15/+45/+75,
-        # shifted by -15m (half the 30m cadence) and centred on bucket
-        # midpoints by the mid-window timeShift, yield stamps at
-        # -7.5/+7.5/+22.5/+37.5 etc.
-        expect(forecast[start - 7.5.minutes]).to be_present
-        expect(forecast[start + 7.5.minutes]).to be_present
-        expect(forecast[start + 22.5.minutes]).to be_present
-        expect(forecast[start + 37.5.minutes]).to be_present
+        # shifted by -15m (half the 30m cadence), then bucketed by 15-min
+        # aggregateWindow yield right-edge stamps at start, +15, +30, +45.
+        expect(forecast[start]).to be_present
+        expect(forecast[start + 15.minutes]).to be_present
+        expect(forecast[start + 30.minutes]).to be_present
+        expect(forecast[start + 45.minutes]).to be_present
       end
     end
   end
