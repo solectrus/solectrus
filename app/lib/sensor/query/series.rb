@@ -1,13 +1,9 @@
 module Sensor
   module Query
-    # Fetches time series data with dynamic aggregation intervals:
-    # - 30-second intervals for 'now' timeframe
-    # - 5-minute intervals for all other timeframes
-    # Used for: Charts and data visualization
+    # Fetches time series data for charts. The aggregation interval defaults
+    # to 30s for the P1H (last hour) timeframe and 5m otherwise; callers can
+    # override `interval:` to drive forecast, scatter and similar charts.
     class Series < Helpers::Influx::Base
-      INTERVAL_UNITS = { 1 => 's', 60 => 'm', 3600 => 'h' }.freeze
-      private_constant :INTERVAL_UNITS
-
       def initialize(
         sensor_names,
         timeframe,
@@ -21,10 +17,15 @@ module Sensor
         @interval = interval || (timeframe.p1h? ? 30.seconds : 5.minutes)
       end
 
+      # Serialises the interval back into a Flux duration literal, e.g.
+      # `5.minutes` becomes `"5m"`. Picks the largest unit that divides
+      # cleanly so 3600 seconds renders as `1h`, not `60m` or `3600s`.
       def interval
         seconds = @interval.to_i
-        unit_size = INTERVAL_UNITS.keys.rfind { |s| (seconds % s).zero? }
-        "#{seconds / unit_size}#{INTERVAL_UNITS[unit_size]}"
+        return "#{seconds / 3600}h" if (seconds % 3600).zero?
+        return "#{seconds / 60}m" if (seconds % 60).zero?
+
+        "#{seconds}s"
       end
 
       def call(interpolate: false, fill_zero: false, fill_previous: false)
@@ -123,6 +124,14 @@ module Sensor
         FLUX
       end
 
+      # Emits a per-measurement Flux block of the shape:
+      #
+      #   fc_N_raw       = <bucket+filter pipeline>
+      #   fc_N_rec       = (fc_N_raw |> elapsed |> median |> findRecord)
+      #   fc_N_shift_ns  = if exists fc_N_rec.elapsed then ... else 0
+      #   [fc_N_interp   = fc_N_raw |> densify(every: interval)]
+      #   fc_N           = <source> |> timeShift(duration: -shift_ns/2)
+      #
       # `if exists` guards against empty forecast data: findRecord on an
       # empty table returns a record without `elapsed`, and `int(v: invalid)`
       # would fail the whole query. The cadence is derived from the raw
@@ -182,15 +191,21 @@ module Sensor
       # gaps as visible breaks instead of bridging them.
       def parse_series_result(flux_result)
         result = Hash.new { |h, k| h[k] = {} }
+        # Memoise per raw `_time` string: each timestamp typically appears
+        # once per sensor in the union, so this halves Time.zone.parse calls
+        # in the mixed forecast/other path.
         time_cache = {}
 
         flux_result.each do |table|
           table.records.each do |record|
             values = record.values
+            # Skip rows whose measurement/field don't map to a configured
+            # sensor (e.g. stray fields shared in the same Influx series).
             sensor = find_sensor_by_measurement_and_field(values['_measurement'], values['_field'])
             next unless sensor
 
-            time_key = (time_cache[record.time] ||= Time.zone.parse(record.time).public_send(@timestamp_method))
+            time_key = time_cache[record.time] ||=
+              Time.zone.parse(record.time).public_send(@timestamp_method)
             result[[sensor, :avg, :avg]][time_key] = values['_value']&.round(1)
           end
         end
