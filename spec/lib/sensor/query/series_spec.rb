@@ -182,7 +182,7 @@ describe Sensor::Query::Series do
         [:house_power],
         timeframe,
         timestamp_method: :to_time,
-        interval: '15m',
+        interval: 15.minutes,
       )
     end
 
@@ -271,7 +271,7 @@ describe Sensor::Query::Series do
           [:inverter_power_forecast],
           timeframe,
           timestamp_method: :to_time,
-          interval: '15m',
+          interval: 15.minutes,
         )
       end
 
@@ -306,7 +306,7 @@ describe Sensor::Query::Series do
           %i[inverter_power_forecast house_power],
           timeframe,
           timestamp_method: :to_time,
-          interval: '15m',
+          interval: 15.minutes,
         )
       end
 
@@ -343,7 +343,7 @@ describe Sensor::Query::Series do
           [:inverter_power_forecast],
           timeframe,
           timestamp_method: :to_time,
-          interval: '15m',
+          interval: 15.minutes,
         )
       end
 
@@ -381,7 +381,7 @@ describe Sensor::Query::Series do
           %i[inverter_power_forecast house_power],
           timeframe,
           timestamp_method: :to_time,
-          interval: '15m',
+          interval: 15.minutes,
         )
       end
 

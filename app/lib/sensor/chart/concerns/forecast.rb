@@ -62,7 +62,7 @@ module Sensor
               chart_sensor_names,
               timeframe,
               timestamp_method: :to_time,
-              interval: '15m',
+              interval: 15.minutes,
             )
             .call(interpolate: true)
             &.tap { |result| add_series_boundaries!(result.raw_data) }

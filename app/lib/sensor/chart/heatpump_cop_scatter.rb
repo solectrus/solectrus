@@ -90,7 +90,7 @@ class Sensor::Chart::HeatpumpCopScatter < Sensor::Chart::Base # rubocop:disable 
     Sensor::Query::Series.new(
       chart_sensor_names,
       timeframe,
-      interval: '1h',
+      interval: 1.hour,
       timestamp_method: :to_time,
     ).call(interpolate: false)
   end

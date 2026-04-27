@@ -5,6 +5,9 @@ module Sensor
     # - 5-minute intervals for all other timeframes
     # Used for: Charts and data visualization
     class Series < Helpers::Influx::Base
+      INTERVAL_UNITS = { 1 => 's', 60 => 'm', 3600 => 'h' }.freeze
+      private_constant :INTERVAL_UNITS
+
       def initialize(
         sensor_names,
         timeframe,
@@ -15,10 +18,14 @@ module Sensor
 
         @timestamp_method =
           timestamp_method || (timeframe.short? ? :to_time : :to_date)
-        @interval = interval || (timeframe.p1h? ? '30s' : '5m')
+        @interval = interval || (timeframe.p1h? ? 30.seconds : 5.minutes)
       end
 
-      attr_reader :interval
+      def interval
+        seconds = @interval.to_i
+        unit_size = INTERVAL_UNITS.keys.rfind { |s| (seconds % s).zero? }
+        "#{seconds / unit_size}#{INTERVAL_UNITS[unit_size]}"
+      end
 
       def call(interpolate: false, fill_zero: false, fill_previous: false)
         raise ArgumentError, 'fill_previous excludes fill_zero/interpolate' if fill_previous && (fill_zero || interpolate)
@@ -153,13 +160,8 @@ module Sensor
         FLUX
       end
 
-      INTERVAL_UNIT_SECONDS = { 's' => 1, 'm' => 60, 'h' => 3600 }.freeze
-      private_constant :INTERVAL_UNIT_SECONDS
-
       def half_interval_seconds
-        num = Integer(interval[/\d+/])
-        unit = interval[/[a-z]+/]
-        (num * INTERVAL_UNIT_SECONDS[unit]) / 2
+        @interval.to_i / 2
       end
 
       def aggregation_tail(fill_zero:, fill_previous: false)

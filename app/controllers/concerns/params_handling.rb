@@ -1,7 +1,12 @@
 module ParamsHandling
   extend ActiveSupport::Concern
 
-  ALLOWED_INTERVALS = %w[1m 5m 15m 1h].freeze
+  ALLOWED_INTERVALS = {
+    '1m' => 1.minute,
+    '5m' => 5.minutes,
+    '15m' => 15.minutes,
+    '1h' => 1.hour,
+  }.freeze
   private_constant :ALLOWED_INTERVALS
 
   included do
@@ -46,8 +51,7 @@ module ParamsHandling
     helper_method def interval
       return unless timeframe&.day?
 
-      value = permitted_params[:interval]
-      value if ALLOWED_INTERVALS.include?(value)
+      ALLOWED_INTERVALS[permitted_params[:interval]]
     end
 
     helper_method def timeframe
