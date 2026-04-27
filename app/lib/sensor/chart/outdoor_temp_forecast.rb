@@ -218,7 +218,6 @@ module Sensor
           borderWidth: 3,
           pointRadius: 0,
           pointHitRadius: 6,
-          pointHoverRadius: 0,
           colorScale: sensor.color_scale,
           opacity: 0.35,
           order: 0,

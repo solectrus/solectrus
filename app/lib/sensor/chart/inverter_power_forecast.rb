@@ -88,9 +88,9 @@ module Sensor
           }
         when :inverter_power
           # Actual power: solid line with fill
-          super.merge(fill: true, pointHoverRadius: 0)
+          super.merge(fill: true)
         else
-          super.merge(pointHoverRadius: 0)
+          super
         end
       end
     end
