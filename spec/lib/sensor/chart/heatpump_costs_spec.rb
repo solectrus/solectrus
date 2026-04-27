@@ -11,12 +11,12 @@ describe Sensor::Chart::HeatpumpCosts do
     Sensor::Data::Series.new(
       {
         %i[heatpump_power avg avg] => {
-          now => 1000.0,
-          now + 5.minutes => 2000.0,
+          now - 5.minutes => 1000.0,
+          now => 2000.0,
         },
         %i[heatpump_power_grid avg avg] => {
-          now => 400.0,
-          now + 5.minutes => 1500.0,
+          now - 5.minutes => 400.0,
+          now => 1500.0,
         },
       },
       timeframe:,

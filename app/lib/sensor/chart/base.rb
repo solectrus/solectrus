@@ -382,7 +382,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     # Sort by timestamp to ensure chronological order
     sorted_points = points_hash.sort_by { |time_key, _| time_key }
 
-    # Filter out future data points for current day (except for forecast sensors)
+    # Filter out future data points (except for forecast sensors)
     sorted_points = filter_future_points(sorted_points, sensor_name)
 
     {
@@ -555,13 +555,13 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     data.map { |value| sensor.clamp_value(value) }
   end
 
-  # Filter out future data points for current day charts (except for forecast sensors)
+  # Trim live (non-forecast) data points beyond Time.current. Aggregation
+  # buckets can extend slightly past now (the bucket containing the current
+  # instant is stamped at its right edge, which is in the future), and the
+  # forecast chart spans timeframes where no #today? guard would catch it.
   def filter_future_points(sorted_points, sensor_name)
-    # Skip filtering if not today or if sensor is a forecast
-    return sorted_points unless timeframe.today?
     return sorted_points if Sensor::Registry[sensor_name].forecast?
 
-    # Filter out points in the future (use take_while since points are sorted)
     now = Time.current
     sorted_points.take_while do |time_key, _|
       normalize_timestamp(time_key) <= now
