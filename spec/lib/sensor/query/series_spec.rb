@@ -320,14 +320,19 @@ describe Sensor::Query::Series do
         end
       end
 
-      it 'shifts only the forecast stream, leaving other sensors aligned' do
+      it 'shifts forecast by half-cadence and centres each bucket on its midpoint' do
         result = series_query.call
         forecast = result.inverter_power_forecast(:avg, :avg)
         house = result.house_power(:avg, :avg)
 
-        expect(forecast[start]).to eq(1000)
+        # Forecast sample at `start` is shifted to start-7.5m by the per-stream
+        # -cadence/2, lands in bucket [start-15m, start) stamped at `start`,
+        # then mid-window re-anchors to start-7.5m.
+        expect(forecast[start - 7.5.minutes]).to eq(1000)
 
-        expect(house[start + 15.minutes]).to eq(500)
+        # House sample at `start` lands in bucket [start, start+15m) stamped at
+        # start+15m, then mid-window re-anchors to start+7.5m.
+        expect(house[start + 7.5.minutes]).to eq(500)
         expect(house[start]).to be_nil
       end
     end
@@ -355,6 +360,9 @@ describe Sensor::Query::Series do
       end
 
       it 'bypasses the time-shift (plain interpolation query)' do
+        # Without other (non-forecast) sensors in the same query, alignment
+        # is irrelevant: provider samples already sit on the requested grid,
+        # so we keep the simpler plain pipeline.
         series =
           series_query.call(interpolate: true).inverter_power_forecast(
             :avg,
@@ -364,6 +372,64 @@ describe Sensor::Query::Series do
 
         expect(series[start]).to be_nil
         expect(series[start + 15.minutes]).to be_present
+      end
+    end
+
+    context 'when interpolate mixes a sparse forecast with a dense sensor' do
+      subject(:series_query) do
+        described_class.new(
+          %i[inverter_power_forecast house_power],
+          timeframe,
+          timestamp_method: :to_time,
+          interval: '15m',
+        )
+      end
+
+      before do
+        influx_batch do
+          # Sparse 30m forecast: values only at :00 and :30
+          4.times do |i|
+            add_point(
+              :inverter_power_forecast,
+              start + (i * 30).minutes,
+              (i + 1) * 1000,
+            )
+          end
+
+          # Dense house_power sensor: 1-second samples ramping linearly,
+          # so the true 15-min mean differs from the instant value at the
+          # bucket edge.
+          (0..(2 * 3600)).step(1) do |sec|
+            add_point(:house_power, start + sec.seconds, sec)
+          end
+        end
+      end
+
+      it 'centres the dense sensor mean on the bucket midpoint' do
+        result = series_query.call(interpolate: true)
+        house = result.house_power(:avg, :avg)
+
+        # Bucket [start, start+15m): seconds 0..899, mean ~= 449.5, stamped
+        # at start+15m by aggregateWindow, then re-anchored to start+7.5m by
+        # the mid-window timeShift. With the previous interpolation-on-
+        # everything pipeline this would have produced ~900 (the instant
+        # value at start+15m) instead.
+        bucket_value = house[start + 7.5.minutes]
+        expect(bucket_value).to be_within(5).of(449.5)
+      end
+
+      it 'densifies the sparse forecast to the requested interval' do
+        result = series_query.call(interpolate: true)
+        forecast = result.inverter_power_forecast(:avg, :avg)
+
+        # Original samples at +0/+30/+60/+90 plus interpolated +15/+45/+75,
+        # shifted by -15m (half the 30m cadence) and centred on bucket
+        # midpoints by the mid-window timeShift, yield stamps at
+        # -7.5/+7.5/+22.5/+37.5 etc.
+        expect(forecast[start - 7.5.minutes]).to be_present
+        expect(forecast[start + 7.5.minutes]).to be_present
+        expect(forecast[start + 22.5.minutes]).to be_present
+        expect(forecast[start + 37.5.minutes]).to be_present
       end
     end
   end
