@@ -48,7 +48,7 @@ module Sensor
       end
 
       def build_series_flux_query(interpolate: false, fill_zero: false, fill_previous: false)
-        forecast, other = available_sensors.partition { |name| Sensor::Registry[name]&.category == :forecast }
+        forecast, other = available_sensors.partition { |name| Sensor::Registry[name]&.forecast? }
 
         # plain-query is fine when there is no forecast at all, or when only
         # forecast samples are queried with interpolation: provider samples

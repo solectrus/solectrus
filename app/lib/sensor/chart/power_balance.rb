@@ -204,7 +204,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
   end
 
   def style_for_dataset(sensor, _index)
-    if sensor.category == :forecast
+    if sensor.forecast?
       return {
         tension: 0.4,
         cubicInterpolationMode: 'monotone',

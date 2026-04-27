@@ -196,7 +196,7 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
       id: sensor.name,
       label: sensor.display_name,
       data: chart_data[:data],
-      stack: (sensor.category == :forecast ? nil : 'InverterPower'),
+      stack: (sensor.forecast? ? nil : 'InverterPower'),
     }.compact.merge(style_for_sensor(sensor))
   end
 end

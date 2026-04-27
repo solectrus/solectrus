@@ -105,6 +105,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.meta_data.fetch(:category, :other)
   end
 
+  def forecast?
+    category == :forecast
+  end
+
   def chart_enabled?
     self.class.meta_data[:chart].present?
   end

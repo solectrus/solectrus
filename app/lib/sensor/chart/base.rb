@@ -559,7 +559,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   def filter_future_points(sorted_points, sensor_name)
     # Skip filtering if not today or if sensor is a forecast
     return sorted_points unless timeframe.today?
-    return sorted_points if Sensor::Registry[sensor_name].category == :forecast
+    return sorted_points if Sensor::Registry[sensor_name].forecast?
 
     # Filter out points in the future (use take_while since points are sorted)
     now = Time.current
