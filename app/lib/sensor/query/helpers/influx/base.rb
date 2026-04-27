@@ -121,9 +121,12 @@ module Sensor
           end
 
           def find_sensor_by_measurement_and_field(measurement, field)
-            available_sensors.find do |sensor|
-              Sensor::Config.measurement(sensor) == measurement &&
-                Sensor::Config.field(sensor) == field
+            sensor_lookup[[measurement, field]]
+          end
+
+          def sensor_lookup
+            @sensor_lookup ||= available_sensors.index_by do |sensor|
+              [Sensor::Config.measurement(sensor), Sensor::Config.field(sensor)]
             end
           end
 

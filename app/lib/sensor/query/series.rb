@@ -182,14 +182,12 @@ module Sensor
       # gaps as visible breaks instead of bridging them.
       def parse_series_result(flux_result)
         result = Hash.new { |h, k| h[k] = {} }
-        sensor_cache = {}
         time_cache = {}
 
         flux_result.each do |table|
           table.records.each do |record|
             values = record.values
-            key = [values['_measurement'], values['_field']]
-            sensor = (sensor_cache[key] ||= find_sensor_by_measurement_and_field(*key))
+            sensor = find_sensor_by_measurement_and_field(values['_measurement'], values['_field'])
             next unless sensor
 
             time_key = (time_cache[record.time] ||= Time.zone.parse(record.time).public_send(@timestamp_method))
