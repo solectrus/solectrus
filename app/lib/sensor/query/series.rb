@@ -4,7 +4,7 @@ module Sensor
     # - 30-second intervals for 'now' timeframe
     # - 5-minute intervals for all other timeframes
     # Used for: Charts and data visualization
-    class Series < Helpers::Influx::Base # rubocop:disable Metrics/ClassLength
+    class Series < Helpers::Influx::Base
       def initialize(
         sensor_names,
         timeframe,
@@ -23,12 +23,10 @@ module Sensor
       def call(interpolate: false, fill_zero: false, fill_previous: false)
         raise ArgumentError, 'fill_previous excludes fill_zero/interpolate' if fill_previous && (fill_zero || interpolate)
         return empty_result if available_sensors.empty?
-        return empty_result if @timeframe.now? # No series for current moment
+        return empty_result if @timeframe.now?
 
-        # Charts use mean aggregation with dynamic intervals
         raw_data = fetch_aggregated_series(interpolate:, fill_zero:, fill_previous:)
 
-        # Use parent's create_data_instance and process_calculated_sensors
         create_data_instance(raw_data, @timeframe).tap do |data|
           ensure_sensor_accessors(data)
           process_calculated_sensors(data)
@@ -65,15 +63,11 @@ module Sensor
 
       def build_plain_query(interpolate:, fill_zero:, fill_previous: false)
         # 2h lookback caps forward-fill staleness: beyond it, gaps stay visible.
-        q = [base_pipeline(lookback: fill_previous ? 2.hours : 0)]
+        pipeline = base_pipeline(lookback: fill_previous ? 2.hours : 0)
+        pipeline = densify(pipeline) if interpolate
 
-        if interpolate
-          q.unshift('import "interpolate"')
-          q << '|> map(fn:(r) => ({ r with _value: float(v: r._value) }))'
-          q << "|> interpolate.linear(every: #{interval})"
-        end
-
-        (q + aggregation_tail(fill_zero:, fill_previous:)).join("\n")
+        prefix = interpolate ? ['import "interpolate"'] : []
+        [*prefix, pipeline, *aggregation_tail(fill_zero:, fill_previous:)].join("\n")
       end
 
       # Forecast providers store each sample at the end of its aggregation
@@ -95,20 +89,23 @@ module Sensor
       def build_forecast_shifted_query(forecast, other, interpolate:, fill_zero:)
         groups = forecast.group_by { |name| Sensor::Config.measurement(name) }.values
         definitions = groups.each_with_index.map { |sensors, i| forecast_stream(sensors, i, interpolate:) }
-        definitions << other_stream(other) if other.any?
-
         names = Array.new(groups.size) { |i| "fc_#{i}" }
-        names << 'other' if other.any?
-        input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
+        tail = aggregation_tail(fill_zero:)
 
         # Mid-window stamping is only meaningful when forecast samples must
         # be visually compared against denser-aggregated charts: that's
         # exactly the mixed forecast/non-forecast scenario. A pure-forecast
-        # query (no `other`) keeps its right-edge stamp to stay consistent
-        # with how forecast providers timestamp their own samples.
-        mid_window = other.any?
+        # query keeps its right-edge stamp to stay consistent with how
+        # forecast providers timestamp their own samples.
+        if other.any?
+          definitions << other_stream(other)
+          names << 'other'
+          tail.insert(1, "|> timeShift(duration: -#{half_interval_seconds}s)")
+        end
+
+        input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
         prefix = interpolate ? ['import "interpolate"'] : []
-        [*prefix, *definitions, input, *aggregation_tail(fill_zero:, mid_window:)].join("\n")
+        [*prefix, *definitions, input, *tail].join("\n")
       end
 
       def base_pipeline(sensors: available_sensors, lookback: 0)
@@ -139,21 +136,21 @@ module Sensor
             #{name}_shift_ns = if exists #{name}_rec.elapsed then int(v: #{name}_rec.elapsed) else 0
           FLUX
         ]
-
-        if interpolate
-          parts << <<~FLUX.chomp
-            #{name}_interp = #{name}_raw
-              |> map(fn:(r) => ({ r with _value: float(v: r._value) }))
-              |> interpolate.linear(every: #{interval})
-          FLUX
-        end
-
+        parts << "#{name}_interp = #{densify("#{name}_raw")}" if interpolate
         parts << "#{name} = #{source} |> timeShift(duration: duration(v: #{name}_shift_ns / -2))"
         parts.join("\n")
       end
 
       def other_stream(other)
         "other = #{base_pipeline(sensors: other)}"
+      end
+
+      def densify(stream_expr)
+        <<~FLUX.chomp
+          #{stream_expr}
+            |> map(fn:(r) => ({ r with _value: float(v: r._value) }))
+            |> interpolate.linear(every: #{interval})
+        FLUX
       end
 
       INTERVAL_UNIT_SECONDS = { 's' => 1, 'm' => 60, 'h' => 3600 }.freeze
@@ -165,17 +162,10 @@ module Sensor
         (num * INTERVAL_UNIT_SECONDS[unit]) / 2
       end
 
-      def aggregation_tail(fill_zero:, fill_previous: false, mid_window: false)
+      def aggregation_tail(fill_zero:, fill_previous: false)
         # `last` pairs with fill_previous: carrying a value forward is only
         # coherent if each bucket holds the most recent sample, not a mean.
         tail = ["|> aggregateWindow(every: #{interval}, fn: #{fill_previous ? 'last' : 'mean'})"]
-        # Re-anchor each bucket on its midpoint instead of its right edge.
-        # Without this a 15-min mean stamped at the bucket end visually
-        # leads the actual reading by half a window when compared against
-        # finer-grained charts (e.g. the 5-min day chart). With mid-window
-        # the point sits where the data is centred, so a 5-min sample at
-        # the same x reads close to the 15-min mean.
-        tail << "|> timeShift(duration: -#{half_interval_seconds}s)" if mid_window
         tail << '|> fill(column: "_value", usePrevious: true)' if fill_previous
         tail << '|> fill(value: 0.0)' if fill_zero
         tail << "|> filter(fn: (r) => r._time >= #{@timeframe.beginning.iso8601})" if fill_previous
@@ -183,90 +173,29 @@ module Sensor
         tail
       end
 
+      # Folds Flux records directly into the result shape consumed by
+      # Sensor::Data::Series (`{[sensor, :avg, :avg] => {time_key => value}}`).
+      # `:avg` reflects the aggregateWindow(fn: mean) used upstream. Empty
+      # buckets keep their `_value = null` so Chart.js renders real data
+      # gaps as visible breaks instead of bridging them.
       def parse_series_result(flux_result)
-        points_by_timestamp = group_records_by_timestamp(flux_result)
-        convert_to_series_format(points_by_timestamp)
-      end
-
-      def group_records_by_timestamp(flux_result)
-        points_by_timestamp = {}
-        sensor_cache = {} # Memoize sensor lookups to avoid repeated calls
+        result = Hash.new { |h, k| h[k] = {} }
+        sensor_cache = {}
+        time_cache = {}
 
         flux_result.each do |table|
           table.records.each do |record|
-            process_record_optimized(record, points_by_timestamp, sensor_cache)
+            values = record.values
+            key = [values['_measurement'], values['_field']]
+            sensor = (sensor_cache[key] ||= find_sensor_by_measurement_and_field(*key))
+            next unless sensor
+
+            time_key = (time_cache[record.time] ||= Time.zone.parse(record.time).public_send(@timestamp_method))
+            result[[sensor, :avg, :avg]][time_key] = values['_value']&.round(1)
           end
         end
 
-        points_by_timestamp
-      end
-
-      def process_record_optimized(record, points_by_timestamp, sensor_cache)
-        # Cache record.values to avoid repeated hash access
-        record_values = record.values
-
-        measurement = record_values['_measurement']
-        field = record_values['_field']
-        timestamp = Time.zone.parse(record.time)
-
-        # Memoized sensor lookup - avoid repeated find_sensor calls
-        sensor_key = "#{measurement}:#{field}"
-        sensor =
-          sensor_cache[sensor_key] ||= find_sensor_by_measurement_and_field(
-            measurement,
-            field,
-          )
-
-        return unless sensor
-
-        # aggregateWindow emits empty windows with _value = null by default
-        # (createEmpty: true). Keep them as nil instead of filtering them
-        # out so Chart.js renders real data gaps as visible breaks.
-        points_by_timestamp[timestamp] ||= { timestamp: }
-        points_by_timestamp[timestamp][sensor] = record_values['_value']&.round(1)
-      end
-
-      def convert_to_series_format(points_by_timestamp)
-        result = {}
-        all_sensors = collect_all_sensors(points_by_timestamp)
-
-        all_sensors.each do |sensor|
-          time_series =
-            build_time_series_for_sensor(sensor, points_by_timestamp)
-          add_sensor_data_to_result(result, sensor, time_series)
-        end
-
         result
-      end
-
-      def collect_all_sensors(points_by_timestamp)
-        all_sensors = Set.new
-        points_by_timestamp.each_value do |point|
-          point.each_key { |key| all_sensors << key if key != :timestamp }
-        end
-        all_sensors.to_a
-      end
-
-      def build_time_series_for_sensor(sensor, points_by_timestamp)
-        time_series = {}
-
-        points_by_timestamp.each do |timestamp, point|
-          time_key = determine_time_key(timestamp)
-          time_series[time_key] = point[sensor]
-        end
-        time_series
-      end
-
-      def determine_time_key(timestamp)
-        timestamp.public_send(@timestamp_method)
-      end
-
-      def add_sensor_data_to_result(result, sensor, time_series)
-        return if time_series.empty?
-
-        # Use the format expected by new Series: [sensor, :avg, :avg]
-        # For InfluxDB series data, we use :avg since we aggregate with mean
-        result[[sensor, :avg, :avg]] = time_series
       end
     end
   end
