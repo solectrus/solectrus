@@ -1,4 +1,7 @@
 class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
+  SPAN_GAPS_MS = 15.minutes.in_milliseconds
+  private_constant :SPAN_GAPS_MS
+
   def initialize(timeframe:, variant: nil)
     unless timeframe.is_a?(Timeframe)
       raise ArgumentError,
@@ -150,8 +153,31 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       {
         id: sensor.name.to_s,
         label: sensor.display_name,
-        data: chart_data[:data],
+        data: dataset_data(chart_data),
       }.merge(style_for_sensor(sensor))
+    end
+  end
+
+  # For sparse line charts, convert (labels, values) to {x, y} points and
+  # insert an explicit null wherever the gap exceeds SPAN_GAPS_MS. Chart.js'
+  # `spanGaps` handles the line on its own, but the Filler plugin would
+  # otherwise draw a continuous area across the break. The null marker
+  # forces line and area to split at the same place.
+  def dataset_data(chart_data)
+    values = chart_data[:data]
+    return values unless type == 'line' && values&.any?(&:nil?)
+
+    bridge_short_gaps(chart_data[:labels], values)
+  end
+
+  def bridge_short_gaps(labels, values)
+    prev_x = nil
+    labels.zip(values).each_with_object([]) do |(x, y), points|
+      next if y.nil?
+
+      points << { x: prev_x + 1, y: nil } if prev_x && (x - prev_x) > SPAN_GAPS_MS
+      points << { x:, y: }
+      prev_x = x
     end
   end
 
@@ -173,6 +199,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       noGradient: type == 'bar' || sensor.hatch_fill?,
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
+      spanGaps: (SPAN_GAPS_MS if type == 'line'),
     }.compact
   end
 

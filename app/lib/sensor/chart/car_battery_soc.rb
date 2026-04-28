@@ -14,8 +14,8 @@ class Sensor::Chart::CarBatterySoc < Sensor::Chart::MinmaxBase
     true
   end
 
-  # Safety net for the rare case where the 2h lookback finds no sample at
-  # all: Chart.js still bridges the remaining nulls into a continuous line.
+  # Bridge gaps unconditionally - SOC samples can be hours apart, far
+  # beyond the global 15-min span threshold from the base class.
   def style_for_sensor(sensor)
     super.merge(spanGaps: true)
   end
