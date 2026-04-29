@@ -104,15 +104,17 @@ module Sensor
           names << 'other'
         end
 
-        # aggregateWindow runs on the union so its range spans the
-        # cadence-shifted forecast samples (which can extend before
-        # `timeframe.beginning`). createEmpty: true then fills empty
-        # leading buckets across all streams - including live data -
-        # so every sensor shares the same number of points and Chart.js
-        # index-mode tooltips pair them at the correct timestamp.
+        # Reset the range on the union so every group shares the same
+        # `_start`/`_stop` annotations - the cadence-shifted forecast samples
+        # would otherwise pull `_start` earlier than the live streams. With
+        # aligned bounds, `aggregateWindow` emits the same bucket grid
+        # (including null-filled empty buckets, by default) for every sensor,
+        # which keeps Chart.js index-mode tooltips paired at the correct
+        # timestamp.
         input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
+        range_reset = "|> range(start: #{@timeframe.beginning.iso8601}, stop: #{@timeframe.ending.iso8601})"
         prefix = interpolate ? ['import "interpolate"'] : []
-        [*prefix, *definitions, input, *aggregation_tail(fill_zero:)].join("\n")
+        [*prefix, *definitions, input, range_reset, *aggregation_tail(fill_zero:)].join("\n")
       end
 
       def base_pipeline(sensors: available_sensors, lookback: 0)
@@ -173,7 +175,12 @@ module Sensor
       def aggregation_tail(fill_zero:, fill_previous: false)
         # `last` pairs with fill_previous: carrying a value forward is only
         # coherent if each bucket holds the most recent sample, not a mean.
-        tail = ["|> aggregateWindow(every: #{interval}, fn: #{fill_previous ? 'last' : 'mean'})"]
+        # aggregateWindow's default createEmpty: true emits null buckets
+        # across the window range; this also covers the selector path so
+        # mixed forecast/live streams share a common x-axis grid (Chart.js
+        # index-mode tooltips need that to pair values correctly).
+        fn = fill_previous ? 'last' : 'mean'
+        tail = ["|> aggregateWindow(every: #{interval}, fn: #{fn})"]
         tail << '|> fill(column: "_value", usePrevious: true)' if fill_previous
         tail << '|> fill(value: 0.0)' if fill_zero
         tail << "|> filter(fn: (r) => r._time >= #{@timeframe.beginning.iso8601})" if fill_previous
