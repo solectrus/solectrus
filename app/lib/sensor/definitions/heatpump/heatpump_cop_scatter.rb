@@ -8,7 +8,8 @@ class Sensor::Definitions::HeatpumpCopScatter < Sensor::Definitions::Base
   end
 
   # Chart-only sensor without a stored value.
-  calculate { nil }
+  # Block must accept the kwargs the framework passes (dependencies + context).
+  calculate { |**| nil }
 
   requires_permission :heatpump
 end

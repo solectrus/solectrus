@@ -6,5 +6,6 @@ class Sensor::Definitions::PowerBalance < Sensor::Definitions::Base
   end
 
   # Mark as calculated so it can exist without direct configuration.
-  calculate { nil }
+  # Block must accept the kwargs the framework passes (dependencies + context).
+  calculate { |**| nil }
 end

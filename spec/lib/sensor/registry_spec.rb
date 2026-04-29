@@ -120,4 +120,24 @@ describe Sensor::Registry do
       end
     end
   end
+
+  describe 'calculate signature' do
+    # Framework calls `sensor.calculate(**dependency_values, context: ...)`
+    # (see Sensor::Query::Base, Sensor::SummaryBuilder). A `calculate` block
+    # defined via the DSL becomes a real method (`define_method`), so a
+    # parameter-less block like `calculate { nil }` would raise ArgumentError
+    # the moment kwargs are passed. Each `calculate` block must therefore
+    # accept keyword arguments: either named ones or a `**` rest.
+    calculated_sensors =
+      described_class.all.reject do |sensor|
+        sensor.sql_calculated? || !sensor.calculated?
+      end
+
+    calculated_sensors.each do |sensor|
+      it "#{sensor.name} accepts keyword arguments" do
+        kinds = sensor.method(:calculate).parameters.map(&:first)
+        expect(kinds).to include(:keyreq).or include(:key).or include(:keyrest)
+      end
+    end
+  end
 end
