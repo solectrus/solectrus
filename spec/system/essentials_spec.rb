@@ -13,15 +13,15 @@ describe 'Essentials' do
 
     # Check for specific values (the exact values might vary based on test data)
     within '#tile-inverter_power-now' do
-      expect(page).to have_content(/\d+([.,]\d+)?/)
+      expect(page).to have_text(/\d+([.,]\d+)?/)
     end
 
     within '#tile-co2_reduction-year' do
-      expect(page).to have_content(/\d+/)
+      expect(page).to have_text(/\d+/)
     end
 
     within '#tile-savings-year' do
-      expect(page).to have_content(/\d+/)
+      expect(page).to have_text(/\d+/)
     end
   end
 end

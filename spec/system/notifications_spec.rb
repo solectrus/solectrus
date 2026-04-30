@@ -17,7 +17,7 @@ describe 'Notifications' do
 
       # But the page is protected
       visit '/notifications'
-      expect(page).to have_content('ForbiddenError')
+      expect(page).to have_text('ForbiddenError')
     end
   end
 
@@ -47,9 +47,9 @@ describe 'Notifications' do
 
     it 'can view notifications list' do
       visit '/notifications'
-      expect(page).to have_content('Benachrichtigungen')
-      expect(page).to have_content('Wichtige Neuigkeit')
-      expect(page).to have_content('Alte Nachricht')
+      expect(page).to have_text('Benachrichtigungen')
+      expect(page).to have_text('Wichtige Neuigkeit')
+      expect(page).to have_text('Alte Nachricht')
     end
 
     it 'can open and mark notification as read' do
@@ -80,7 +80,7 @@ describe 'Notifications' do
       click_on 'OK'
 
       # Check that modal is closed first (positive assertion)
-      expect(page).to have_content('Benachrichtigungen')
+      expect(page).to have_text('Benachrichtigungen')
       expect(page).to have_no_css('.fa-message + span.bg-red-500')
     end
   end

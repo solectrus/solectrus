@@ -36,7 +36,7 @@ describe 'Heatpump navigation' do
     expect(page).to have_css('#stats-day')
     expect(page).to have_current_path("/heatpump/#{path}/2022-06-21")
     expect(page.title).to include('Dienstag, 21. Juni 2022')
-    expect(page).to have_content('Dienstag, 21. Juni 2022')
+    expect(page).to have_text('Dienstag, 21. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-day')
 
@@ -59,7 +59,7 @@ describe 'Heatpump navigation' do
     expect(page).to have_css('#stats-week')
     expect(page).to have_current_path("/heatpump/#{path}/2022-W25")
     expect(page.title).to include('KW 25, 2022')
-    expect(page).to have_content('KW 25, 2022')
+    expect(page).to have_text('KW 25, 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-week')
     check_insights(path)
@@ -81,7 +81,7 @@ describe 'Heatpump navigation' do
     expect(page).to have_css('#stats-month')
     expect(page).to have_current_path("/heatpump/#{path}/2022-06")
     expect(page.title).to include('Juni 2022')
-    expect(page).to have_content('Juni 2022')
+    expect(page).to have_text('Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-month')
     check_insights(path)
@@ -104,7 +104,7 @@ describe 'Heatpump navigation' do
     expect(page).to have_css('#stats-year')
     expect(page).to have_current_path("/heatpump/#{path}/2022")
     expect(page.title).to include('2022')
-    expect(page).to have_content('2022')
+    expect(page).to have_text('2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-year')
     check_insights(path)
@@ -127,7 +127,7 @@ describe 'Heatpump navigation' do
     expect(page).to have_css('#stats-all')
     expect(page).to have_current_path("/heatpump/#{path}/all")
     expect(page.title).to include('Seit Inbetriebnahme')
-    expect(page).to have_content('Seit Inbetriebnahme')
+    expect(page).to have_text('Seit Inbetriebnahme')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-all')
     check_insights(path)
@@ -138,13 +138,13 @@ describe 'Heatpump navigation' do
   def click_prev_and_expect(expected_time)
     turbo_safe_click('Zurück')
 
-    within('header time') { expect(page).to have_content(expected_time) }
+    within('header time') { expect(page).to have_text(expected_time) }
   end
 
   def click_next_and_expect(expected_time)
     turbo_safe_click('Weiter')
 
-    within('header time') { expect(page).to have_content(expected_time) }
+    within('header time') { expect(page).to have_text(expected_time) }
   end
 
   def check_top10_link(path)

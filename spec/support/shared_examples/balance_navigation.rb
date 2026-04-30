@@ -31,7 +31,7 @@ shared_examples_for 'balance navigation' do |paths|
     expect_timeframe_page(path, stats_id: 'now', expected_path: 'now', title: 'Live', content: 'LADEN')
 
     if path == 'inverter_power'
-      expect(page).to have_content(/\d+,\d+ kW/) # Match power values like "10,0 kW"
+      expect(page).to have_text(/\d+,\d+ kW/) # Match power values like "10,0 kW"
     end
 
     expect(page).to have_css('#balance-chart-now')
@@ -65,7 +65,7 @@ shared_examples_for 'balance navigation' do |paths|
 
     return unless path == 'inverter_power'
 
-    expect(page).to have_content(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
+    expect(page).to have_text(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
   end
 
   def navigate_week(path)
@@ -129,14 +129,14 @@ shared_examples_for 'balance navigation' do |paths|
 
     return unless path == 'inverter_power'
 
-    expect(page).to have_content(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
+    expect(page).to have_text(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
   end
 
   def expect_timeframe_page(path, stats_id:, expected_path:, title:, content: title)
     expect(page).to have_css("#stats-#{stats_id}")
     expect(page).to have_current_path("/#{path}/#{expected_path}")
     expect(page.title).to include(title)
-    expect(page).to have_content(content)
+    expect(page).to have_text(content)
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
   end
 
@@ -146,10 +146,10 @@ shared_examples_for 'balance navigation' do |paths|
 
     if prev_chart_id
       within(prev_chart_id) do
-        expect(page).to have_content('Keine Daten vorhanden')
+        expect(page).to have_text('Keine Daten vorhanden')
       end
     else
-      expect(page).to have_content('Keine Daten vorhanden')
+      expect(page).to have_text('Keine Daten vorhanden')
     end
 
     click_next_and_expect(back_text)
@@ -160,19 +160,19 @@ shared_examples_for 'balance navigation' do |paths|
   def click_prev_and_expect(expected_time)
     turbo_safe_click('Zurück')
 
-    within('header time') { expect(page).to have_content(expected_time) }
+    within('header time') { expect(page).to have_text(expected_time) }
   end
 
   def click_next_and_expect(expected_time)
     turbo_safe_click('Weiter')
 
-    within('header time') { expect(page).to have_content(expected_time) }
+    within('header time') { expect(page).to have_text(expected_time) }
   end
 
   def check_inverter_power_energy_values(path)
     return unless path == 'inverter_power'
 
-    expect(page).to have_content(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
+    expect(page).to have_text(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
   end
 
   def check_insights(path)
@@ -201,13 +201,13 @@ shared_examples_for 'balance navigation' do |paths|
 
     expect(page).to have_css('#segment-inverter_power')
     within('#segment-inverter_power') do
-      expect(page).to have_content(/\d+,\d+\s*kWh/)
+      expect(page).to have_text(/\d+,\d+\s*kWh/)
     end
     expect(page).to have_css('#balance-chart-2022-06-21')
     within('#balance-chart-2022-06-21') do
-      expect(page).to have_content('Erwartet werden')
-      expect(page).to have_content(/\d+/)
-      expect(page).to have_content('kWh')
+      expect(page).to have_text('Erwartet werden')
+      expect(page).to have_text(/\d+/)
+      expect(page).to have_text('kWh')
     end
   end
 

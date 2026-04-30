@@ -16,11 +16,11 @@ describe 'Top 10' do
         # Start with day view
         visit "/top10/day/#{sensor}/sum/desc"
         expect(page.status_code).to eq(200)
-        expect(page).to have_content('TAG')
+        expect(page).to have_text('TAG')
 
         # Wait for turbo frame to load with chart content
         expect(page).to have_css('#chart-day')
-        expect(page).to have_content('1.')
+        expect(page).to have_text('1.')
 
         # Navigate to week
         first('a', text: 'WOCHE').click
@@ -41,7 +41,7 @@ describe 'Top 10' do
       it 'allows sorting functionality' do
         visit "/top10/year/#{sensor}/sum/desc"
         # Accept various energy units depending on sensor and values
-        expect(page).to have_content(/[kMGT]?Wh/)
+        expect(page).to have_text(/[kMGT]?Wh/)
 
         find('a[aria-label="Sortierung wechseln"]').click
         expect(page).to have_current_path("/top10/year/#{sensor}/sum/asc")
@@ -53,7 +53,7 @@ describe 'Top 10' do
       it 'displays chart elements correctly' do
         visit "/top10/day/#{sensor}/sum/desc"
         # Accept both Wh and kWh units depending on value size
-        expect(page).to have_content(/[kMGT]?Wh/)
+        expect(page).to have_text(/[kMGT]?Wh/)
 
         # Verify chart table exists
         expect(page).to have_css('#chart-day')
@@ -64,10 +64,10 @@ describe 'Top 10' do
         end
 
         # Verify ranking numbers are present (1., 2., etc.)
-        expect(page).to have_content('1.')
+        expect(page).to have_text('1.')
 
         # Verify the chart shows dates and energy values
-        expect(page).to have_content(/\d{4}/) # Year pattern
+        expect(page).to have_text(/\d{4}/) # Year pattern
       end
     end
   end

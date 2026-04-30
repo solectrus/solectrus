@@ -25,7 +25,7 @@ describe 'Timeframe select' do
     # The back button shows "Anderer Zeitraum" text
     click_on 'Anderer Zeitraum'
     # Wait for the picker to actually close and main view to be visible
-    expect(page).to have_content('Tag')
+    expect(page).to have_text('Tag')
   end
 
   it 'displays modal with all pickers and options' do
@@ -33,11 +33,11 @@ describe 'Timeframe select' do
     close_current_picker
 
     # Verify all picker labels are present
-    expect(page).to have_content('Tag')
-    expect(page).to have_content('Woche')
-    expect(page).to have_content('Monat')
-    expect(page).to have_content('Jahr')
-    expect(page).to have_content('Individuell')
+    expect(page).to have_text('Tag')
+    expect(page).to have_text('Woche')
+    expect(page).to have_text('Monat')
+    expect(page).to have_text('Jahr')
+    expect(page).to have_text('Individuell')
     expect(page).to have_css('button[data-value="P7D"]')
   end
 

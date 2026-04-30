@@ -6,7 +6,7 @@ describe 'Home page auto-refresh' do
       visit '/inverter_power/now'
 
       expect(page.title).to include('Live')
-      expect(page).to have_content('10,0 kW')
+      expect(page).to have_text('10,0 kW')
 
       add_influx_point(
         name: measurement_inverter_power_1,
@@ -24,7 +24,7 @@ describe 'Home page auto-refresh' do
 
       travel_js(5.seconds)
 
-      expect(page).to have_content('1,4 kW')
+      expect(page).to have_text('1,4 kW')
     end
   end
 end
