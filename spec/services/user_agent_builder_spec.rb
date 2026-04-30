@@ -21,5 +21,15 @@ describe UserAgentBuilder, with_setup_id: 0 do
         'SOLECTRUS/v1.1.1 (Linux; aarch64; 6.1.0; 0)',
       )
     end
+
+    context 'when Helios is available' do
+      before { allow(HeliosCheck).to receive(:version).and_return('v0.1.1-4-g6bebca2') }
+
+      it 'appends a helios token with version' do
+        expect(user_agent.to_s).to eq(
+          'SOLECTRUS/v1.1.1 (Linux; aarch64; 6.1.0; 0) HELIOS/v0.1.1-4-g6bebca2',
+        )
+      end
+    end
   end
 end

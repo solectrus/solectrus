@@ -38,6 +38,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     helper_method def desktop_secondary_items
       @desktop_secondary_items ||=
         [
+          helios_item,
           settings_item,
           registration_item,
           notifications_item,
@@ -249,6 +250,16 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.docs'),
         icon: 'circle-question',
         href: 'https://docs.solectrus.de',
+      }
+    end
+
+    def helios_item
+      return unless HeliosCheck.available?
+
+      {
+        name: t('layout.helios'),
+        icon: 'sun',
+        href: HeliosCheck.browser_url(request),
       }
     end
 
