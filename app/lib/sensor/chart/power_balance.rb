@@ -117,38 +117,46 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
   end
 
   # Chart.js stacked line fill (fill: '-1') needs numeric values at every
-  # index. Plain nil-to-0 padding turns sparse-sampling gaps into sawtooth
-  # spikes, so distinguish sampling artifacts from real outages by deriving
-  # each dataset's cadence from its own data.
+  # index. Bridge short outages with the last known value and only mark
+  # longer gaps as 0 so brief sensor dropouts don't render as drops to zero.
+  # The 15-minute threshold mirrors `Sensor::Chart::Base::SPAN_GAPS_MS` so
+  # the inverter (sparse line) and power balance (stacked area) charts
+  # treat the same outage consistently.
   def pad_nil_values!(items)
+    threshold = gap_bridge_buckets
     items.each do |item|
       next if forecast_sensor?(item[:sensor_name])
 
-      fill_within_sampling_cadence!(item[:data])
+      bridge_short_outages!(item[:data], threshold)
     end
   end
 
-  def fill_within_sampling_cadence!(data)
-    cadence = typical_cadence(data)
+  def bridge_short_outages!(data, threshold)
     last_value = nil
-    last_index = nil
-    data.each_with_index do |value, i|
-      if value.nil?
-        within_cadence = last_index && cadence && (i - last_index) < cadence
-        data[i] = within_cadence ? last_value : 0
+    i = 0
+    while i < data.size
+      if data[i].nil?
+        gap_end = i
+        gap_end += 1 while gap_end < data.size && data[gap_end].nil?
+        fill = last_value && (gap_end - i) <= threshold ? last_value : 0
+        data.fill(fill, i, gap_end - i)
+        i = gap_end
       else
-        last_value = value
-        last_index = i
+        last_value = data[i]
+        i += 1
       end
     end
   end
 
-  def typical_cadence(data)
-    sample_indices = data.each_index.reject { |i| data[i].nil? }
-    return if sample_indices.size < 2
+  GAP_BRIDGE_DURATION = 15.minutes
+  private_constant :GAP_BRIDGE_DURATION
 
-    gaps = sample_indices.each_cons(2).map { |a, b| b - a }
-    gaps.tally.max_by { |_gap, count| count }.first
+  def gap_bridge_buckets
+    GAP_BRIDGE_DURATION.to_i / bucket_interval_seconds
+  end
+
+  def bucket_interval_seconds
+    (interval || (timeframe.p1h? || timeframe.now? ? 30.seconds : 5.minutes)).to_i
   end
 
   # Sensors that appear below zero (usage/outflow)

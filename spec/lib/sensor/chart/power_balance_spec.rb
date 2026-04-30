@@ -194,6 +194,38 @@ describe Sensor::Chart::PowerBalance do
     end
   end
 
+  describe 'gap bridging' do
+    let(:timeframe) { Timeframe.new('2025-03-03') }
+    let(:chart) { described_class.new(timeframe:).tap { |c| c.interval = 1.minute } }
+
+    # Simulate aggregateWindow output: a chronological array of values,
+    # some of which are nil (empty buckets). The chart pads them so the
+    # stacked area renders with numeric values everywhere.
+    def pad(values)
+      items = [{ sensor_name: :inverter_power, data: values.dup }]
+      chart.__send__(:pad_nil_values!, items)
+      items.first[:data]
+    end
+
+    it 'bridges short outages with the last known value' do
+      # 5-minute gap (single nil cluster) at 1m interval - well below 15min
+      result = pad([100, 110, 120, nil, nil, nil, 130, 140])
+      expect(result).to eq([100, 110, 120, 120, 120, 120, 130, 140])
+    end
+
+    it 'fills long outages with zero' do
+      # 20 nil samples at 1m interval = 20min > 15min threshold
+      gap = [nil] * 20
+      result = pad([100, 110, 120, *gap, 130, 140])
+      expect(result.slice(3, 20)).to all(eq(0))
+    end
+
+    it 'fills leading nils (no prior value) with zero' do
+      result = pad([nil, nil, 100, 110])
+      expect(result).to eq([0, 0, 100, 110])
+    end
+  end
+
   describe 'with excluded custom sensors' do
     let(:timeframe) { Timeframe.new('2025-W10') }
 
