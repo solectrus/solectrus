@@ -7,7 +7,15 @@ type LineDatasetWithId = ChartDataset<'line'> & {
   id: string;
 };
 
+type ObjectPoint = { x: number; y: number | null };
+
 const ONE_HOUR_MS = 60 * 60 * 1000;
+
+// Server-side `bridge_short_gaps` renders datasets as {x, y} objects when the
+// source series contains nulls. Detect from the first item — Chart.js locks
+// the parsing format from there.
+const isObjectFormat = (point: unknown): point is ObjectPoint =>
+  !!point && typeof point === 'object' && 'x' in point;
 
 export default class extends Controller {
   static readonly targets = ['current', 'stats', 'chart', 'canvas', 'flash'];
@@ -284,11 +292,18 @@ export default class extends Controller {
     return typeof color === 'string' ? color : 'currentColor';
   }
 
+  // Server-side `bridge_short_gaps` may render datasets as {x, y} objects
+  // (when the source series contains nulls); Chart.js locks the parsing
+  // format from the first item, so pushing a plain number into an
+  // object-format dataset yields a silently invisible {x: null, y: null}.
+  // Match the existing format per dataset.
   addCurrentPoints() {
     if (!this.chart?.data.labels) return;
 
+    const xMs = this.currentTime?.getTime();
+
     // First, add the time as a label
-    this.chart.data.labels.push(this.currentTime?.getTime());
+    this.chart.data.labels.push(xMs);
 
     // For each current target, add the value to the corresponding chart dataset (if any)
     const datasets = this.chart.data.datasets as LineDatasetWithId[];
@@ -306,7 +321,11 @@ export default class extends Controller {
             else if (dataset.stack === 'source')
               normalizedValue = Math.abs(value);
 
-            dataset.data.push(normalizedValue);
+            const entry =
+              isObjectFormat(dataset.data[0]) && xMs !== undefined
+                ? { x: xMs, y: normalizedValue }
+                : normalizedValue;
+            dataset.data.push(entry);
           }
         }
       }
@@ -329,18 +348,34 @@ export default class extends Controller {
   // Drop points that fell out of the 1-hour window ending at currentTime.
   // Using currentTime (sensor time) keeps this in sync with slideXAxisWindow,
   // and the loop catches backlogs (e.g. after the tab was inactive).
+  //
+  // Plain-number datasets stay aligned with `labels` (1:1), so they shift
+  // together. {x, y} datasets (produced by server-side `bridge_short_gaps`)
+  // have their own timestamps and a shorter `data` array because null entries
+  // are dropped — they must be filtered against their own `x`, not against
+  // labels[0], otherwise still-valid leading points get shifted out.
   removeOutdatedPoints(currentTime: Date) {
-    if (!this.chart?.data.labels) return;
+    const data = this.chart?.data;
+    if (!data?.labels) return;
 
     const cutoff = currentTime.getTime() - ONE_HOUR_MS;
+    const plainDatasets = data.datasets.filter(
+      (ds) => !isObjectFormat(ds.data[0]),
+    );
+    const objectDatasets = data.datasets.filter((ds) =>
+      isObjectFormat(ds.data[0]),
+    );
 
-    while (this.chart.data.labels.length) {
-      const oldestLabel = this.chart.data.labels[0];
-      const oldestMs = new Date(oldestLabel as Date).getTime();
+    while (data.labels.length) {
+      const oldestMs = new Date(data.labels[0] as Date).getTime();
       if (oldestMs >= cutoff) break;
 
-      this.chart.data.labels.shift();
-      for (const dataset of this.chart.data.datasets) {
+      data.labels.shift();
+      for (const dataset of plainDatasets) dataset.data.shift();
+    }
+
+    for (const dataset of objectDatasets) {
+      while (isObjectFormat(dataset.data[0]) && dataset.data[0].x < cutoff) {
         dataset.data.shift();
       }
     }
@@ -389,10 +424,22 @@ export default class extends Controller {
   }
 
   get lastPointTime(): Date | undefined {
-    if (!this.chart?.data.labels) return undefined;
+    // When `bridge_short_gaps` server-side renders {x, y} points it drops
+    // null entries from data while `labels` keeps every timeline timestamp,
+    // so labels.at(-1) can be a phantom timestamp newer than the real last
+    // sample. Prefer the dataset's own x; fall back to labels otherwise.
+    const data = this.chart?.data;
+    if (!data) return undefined;
 
-    const lastLabel: number = this.chart.data.labels.at(-1) as number;
-    return new Date(lastLabel);
+    const labelMs = data.labels?.at(-1) as number | undefined;
+    let maxMs: number | undefined;
+    for (const ds of data.datasets) {
+      const last = ds.data.at(-1);
+      const ms = isObjectFormat(last) ? last.x : labelMs;
+      if (typeof ms === 'number' && (maxMs === undefined || ms > maxMs))
+        maxMs = ms;
+    }
+    return maxMs !== undefined ? new Date(maxMs) : undefined;
   }
 
   get currentElement(): HTMLElement | undefined {
