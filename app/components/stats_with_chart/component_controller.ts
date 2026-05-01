@@ -1,4 +1,4 @@
-import { Controller, ActionEvent } from '@hotwired/stimulus';
+import { Controller, type ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
 import { IntervalTimer } from '@/utils/intervalTimer';
@@ -23,7 +23,20 @@ const isObjectFormat = (point: unknown): point is ObjectPoint =>
 // by Sensor::Query::Series for the P1H timeframe. Live ticks arrive at the
 // poll interval (5–60s), but to stay visually consistent with the historical
 // part of the curve we snap them onto the same 30s wallclock grid.
+//
+// Trade-off: bucketEnd is always 0–30s in the future relative to currentTime,
+// while the x-axis max is pinned to currentTime. Chart.js clips the segment
+// past the right edge — the open bucket's exact y-value isn't visible until
+// the axis catches up. The right-edge flash compensates by signalling that a
+// sample landed.
 const LIVE_BUCKET_MS = 30 * 1000;
+
+// Sensor names that aggregate two underlying directional sensors. Used by
+// `matchesSensor` to keep flashColor and the element lookup in sync.
+const SPLIT_SENSORS: Record<string, readonly string[]> = {
+  battery_power: ['battery_charging_power', 'battery_discharging_power'],
+  grid_power: ['grid_import_power', 'grid_export_power'],
+};
 
 export default class extends Controller {
   static readonly targets = ['current', 'stats', 'chart', 'canvas', 'flash'];
@@ -97,47 +110,32 @@ export default class extends Controller {
       window.removeEventListener('popstate', this.boundHandlePopState);
   }
 
-  async reload() {
-    try {
-      await this.reloadFrames({ chart: this.reloadChartValue });
-    } catch (error) {
-      console.error(error);
-      return;
-    }
+  private async reload() {
+    await this.reloadFrames({ chart: this.reloadChartValue });
 
     if (this.reloadChartValue) return;
 
     requestAnimationFrame(() => this.addPointToChart());
   }
 
-  createTimer() {
-    // Create a timer to reload the frames
+  private createTimer() {
     this.timer = new IntervalTimer(() => {
-      // Avoid any request if stopped in the meantime
       if (this.shouldStopRequests) return;
 
       this.reload();
     }, this.intervalValue * 1000);
   }
 
-  removeTimer() {
+  private removeTimer() {
     this.timer?.stop();
     this.timer = undefined;
   }
 
-  startLoop(event?: ActionEvent) {
+  private startLoop() {
     if (!this.timer) return;
-
-    // Remember the selected sensor (given via parameter)
-    if (event?.params?.sensorName)
-      this.selectedSensor = event.params.sensorName;
-
-    // Avoid starting multiple loops
     if (this.isInLoop) return;
 
-    // Reset the flag to stop requests
     this.shouldStopRequests = false;
-
     this.timer.start();
   }
 
@@ -169,19 +167,13 @@ export default class extends Controller {
     this.applyChartUrl(historyUrl, event.params?.chartUrl);
   }
 
-  stopLoop() {
+  private stopLoop() {
     this.shouldStopRequests = true;
     this.timer?.stop();
   }
 
-  get isInLoop() {
+  private get isInLoop() {
     return this.timer?.isActive();
-  }
-
-  // Entry point for select-based navigation (home URL + chart URL).
-  loadChartForUrl(historyUrl: string, chartUrl?: string, sensorName?: string) {
-    if (sensorName) this.selectedSensor = sensorName;
-    this.applyChartUrl(historyUrl, chartUrl);
   }
 
   private applyChartUrl(historyUrl: string, chartUrl?: string) {
@@ -239,19 +231,24 @@ export default class extends Controller {
     return chart.toString();
   }
 
-  handleVisibilityChange(): void {
-    if (document.hidden) this.stopLoop();
-    else
-      this.reloadFrames({ chart: true })
-        .then(() => this.startLoop())
-        .catch((error) => console.error(error));
+  private handleVisibilityChange(): void {
+    if (document.hidden) {
+      this.stopLoop();
+      return;
+    }
+
+    this.reloadFrames({ chart: true }).then(() => {
+      // The tab may have flipped back to hidden while reloadFrames was in
+      // flight; don't kick off polling in the background.
+      if (!document.hidden) this.startLoop();
+    });
   }
 
-  handlePopState(): void {
+  private handlePopState(): void {
     Turbo.visit(window.location.href, { action: 'replace' });
   }
 
-  addPointToChart() {
+  private addPointToChart() {
     const chart = this.chart;
     const currentTime = this.currentTime;
     const lastPointTime = this.lastPointTime;
@@ -342,7 +339,7 @@ export default class extends Controller {
     this.liveBucketEndMs = bucketEndMs;
   }
 
-  flashRightEdge() {
+  private flashRightEdge() {
     const area = this.chart?.chartArea;
     if (!area || !this.hasFlashTarget) return;
 
@@ -360,10 +357,26 @@ export default class extends Controller {
 
   private get flashColor(): string {
     const datasets = (this.chart?.data.datasets ?? []) as LineDatasetWithId[];
+    if (!datasets.length) return 'currentColor';
+
     const dataset =
-      datasets.find((ds) => ds.id === this.effectiveSensor) ?? datasets[0];
-    const color = dataset?.borderColor ?? dataset?.backgroundColor;
+      datasets.find((ds) => this.matchesSensor(ds.id)) ?? datasets[0];
+    const color = dataset.borderColor ?? dataset.backgroundColor;
     return typeof color === 'string' ? color : 'currentColor';
+  }
+
+  // Single source of truth for "does this id/name belong to the current
+  // sensor selection?" Used by both flashColor (dataset ids) and
+  // currentElement (target sensor names) so the two always agree —
+  // particularly on the inverter_power exact-match rule, which prevents
+  // catching per-inverter ids like inverter_power_1.
+  private matchesSensor(name: string | undefined): boolean {
+    if (!name) return false;
+    const candidates = SPLIT_SENSORS[this.effectiveSensor];
+    if (candidates) return candidates.includes(name);
+    if (this.effectiveSensor === 'inverter_power')
+      return name === 'inverter_power';
+    return name.startsWith(this.effectiveSensor);
   }
 
   // Matches the right edge of the Flux `aggregateWindow(every: 30s)` bucket
@@ -441,7 +454,7 @@ export default class extends Controller {
   // stay inside the visible range. Server-side rendering pins min/max to the
   // time of the initial request; without this update the window would freeze
   // and live points drift off the right edge.
-  slideXAxisWindow(currentTime: Date) {
+  private slideXAxisWindow(currentTime: Date) {
     const xScale = this.chart?.options.scales?.x;
     if (!xScale || xScale.min == null || xScale.max == null) return;
 
@@ -455,17 +468,16 @@ export default class extends Controller {
   // have their own timestamps and a shorter `data` array because null entries
   // are dropped — they must be filtered against their own `x`, not against
   // labels[0], otherwise still-valid leading points get shifted out.
-  removeOutdatedPoints(currentTime: Date) {
+  private removeOutdatedPoints(currentTime: Date) {
     const data = this.chart?.data;
     if (!data?.labels) return;
 
     const cutoff = currentTime.getTime() - ONE_HOUR_MS;
-    const plainDatasets = data.datasets.filter(
-      (ds) => !isObjectFormat(ds.data[0]),
-    );
-    const objectDatasets = data.datasets.filter((ds) =>
-      isObjectFormat(ds.data[0]),
-    );
+    const plainDatasets: LineDatasetWithId[] = [];
+    const objectDatasets: LineDatasetWithId[] = [];
+    for (const ds of data.datasets as LineDatasetWithId[]) {
+      (isObjectFormat(ds.data[0]) ? objectDatasets : plainDatasets).push(ds);
+    }
 
     while (data.labels.length) {
       const oldestMs = new Date(data.labels[0] as Date).getTime();
@@ -482,14 +494,16 @@ export default class extends Controller {
     }
   }
 
-  async reloadFrames(options: { chart: boolean }) {
-    try {
-      const promises = [this.statsTarget.reload()];
-      if (options.chart) promises.push(this.chartTarget.reload());
+  // Reloads run independently: a failed stats reload shouldn't abort the chart
+  // reload, and vice versa. allSettled keeps both moving while still surfacing
+  // errors to the console for debugging.
+  private async reloadFrames(options: { chart: boolean }) {
+    const reloads = [this.statsTarget.reload()];
+    if (options.chart) reloads.push(this.chartTarget.reload());
 
-      await Promise.all(promises);
-    } catch (error) {
-      console.error(error);
+    const results = await Promise.allSettled(reloads);
+    for (const result of results) {
+      if (result.status === 'rejected') console.error(result.reason);
     }
   }
 
@@ -528,7 +542,8 @@ export default class extends Controller {
     // When `bridge_short_gaps` server-side renders {x, y} points it drops
     // null entries from data while `labels` keeps every timeline timestamp,
     // so labels.at(-1) can be a phantom timestamp newer than the real last
-    // sample. Prefer the dataset's own x; fall back to labels otherwise.
+    // sample. Prefer the dataset's own x; for plain datasets and empty
+    // object datasets, fall back to labels.
     const data = this.chart?.data;
     if (!data) return undefined;
 
@@ -544,38 +559,17 @@ export default class extends Controller {
   }
 
   get currentElement(): HTMLElement | undefined {
-    // Select the current element from the currentTargets (by comparing sensor_name)
-    const targets = this.currentTargets.filter((target) => {
-      if (target.dataset.sensorName)
-        switch (this.effectiveSensor) {
-          case 'battery_power':
-            return (
-              target.dataset.sensorName === 'battery_charging_power' ||
-              target.dataset.sensorName === 'battery_discharging_power'
-            );
+    const targets = this.currentTargets.filter((t) =>
+      this.matchesSensor(t.dataset.sensorName),
+    );
+    if (!targets.length) return undefined;
 
-          case 'grid_power':
-            return (
-              target.dataset.sensorName === 'grid_import_power' ||
-              target.dataset.sensorName === 'grid_export_power'
-            );
-
-          case 'inverter_power':
-            return target.dataset.sensorName === 'inverter_power';
-
-          default:
-            return target.dataset.sensorName.startsWith(this.effectiveSensor);
-        }
-    });
-
-    if (targets.length)
-      // Return the first element with a non-zero value, or the first element otherwise
-      return (
-        targets.find((t) => Number.parseFloat(t.dataset.value ?? '') !== 0) ??
-        targets[0]
-      );
-
-    return undefined;
+    // Prefer a non-zero reading so the tile doesn't show 0 when one direction
+    // (e.g. battery_charging_power) is idle but the other has a value.
+    return (
+      targets.find((t) => Number.parseFloat(t.dataset.value ?? '') !== 0) ??
+      targets[0]
+    );
   }
 
   get effectiveSensor(): string {
