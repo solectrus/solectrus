@@ -201,8 +201,8 @@ describe Sensor::Chart::PowerBalance do
     # Simulate aggregateWindow output: a chronological array of values,
     # some of which are nil (empty buckets). The chart pads them so the
     # stacked area renders with numeric values everywhere.
-    def pad(values)
-      items = [{ sensor_name: :inverter_power, data: values.dup }]
+    def pad(values, sensor_name: :inverter_power)
+      items = [{ sensor_name:, data: values.dup }]
       chart.__send__(:pad_nil_values!, items)
       items.first[:data]
     end
@@ -223,6 +223,28 @@ describe Sensor::Chart::PowerBalance do
     it 'fills leading nils (no prior value) with zero' do
       result = pad([nil, nil, 100, 110])
       expect(result).to eq([0, 0, 100, 110])
+    end
+
+    context 'when sensor is an excluded custom power sensor' do
+      let(:env) do
+        {
+          'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
+          'INFLUX_SENSOR_CUSTOM_POWER_01' => 'consumer:power_01',
+          'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'CUSTOM_POWER_01',
+        }
+      end
+
+      before { Sensor::Config.setup(env) }
+      after { Sensor::Config.setup(ENV) }
+
+      it 'fills nil with 0 instead of bridging (issue #5517)' do
+        # The calculate block treats nil as 0 (no subtraction from
+        # house_power). Bridging here would carry forward a value that
+        # house_power has not been reduced by - double-counting the
+        # excluded sensor in the stacked chart.
+        result = pad([100, nil, nil, 100], sensor_name: :custom_power_01)
+        expect(result).to eq([100, 0, 0, 100])
+      end
     end
   end
 
