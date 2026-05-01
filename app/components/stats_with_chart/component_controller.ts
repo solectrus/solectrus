@@ -9,15 +9,7 @@ type LineDatasetWithId = ChartDataset<'line'> & {
 
 type BucketStats = { sum: number; count: number };
 
-type ObjectPoint = { x: number; y: number | null };
-
 const ONE_HOUR_MS = 60 * 60 * 1000;
-
-// Server-side `bridge_short_gaps` renders datasets as {x, y} objects when the
-// source series contains nulls. Detect from the first item — Chart.js locks
-// the parsing format from there.
-const isObjectFormat = (point: unknown): point is ObjectPoint =>
-  !!point && typeof point === 'object' && 'x' in point;
 
 // Mirror the server-side `aggregateWindow(every: 30s, fn: mean)` cadence used
 // by Sensor::Query::Series for the P1H timeframe. Live ticks arrive at the
@@ -320,15 +312,7 @@ export default class extends Controller {
     );
 
     for (const dataset of chart.data.datasets as LineDatasetWithId[]) {
-      const lastIdx = dataset.data.length - 1;
-      const lastEntry = dataset.data[lastIdx];
-      const value = isObjectFormat(lastEntry)
-        ? lastEntry.y
-        : (lastEntry as number | null);
-
-      if (isObjectFormat(lastEntry))
-        dataset.data[lastIdx] = { x: bucketEndMs, y: value };
-
+      const value = dataset.data.at(-1) as number | null;
       this.liveBucketSamples.set(
         dataset.id,
         value !== null
@@ -395,12 +379,7 @@ export default class extends Controller {
   }
 
   // Pushes exactly one entry per dataset every tick — null when the value is
-  // missing — so labels and dataset.data stay aligned. Server-side
-  // `bridge_short_gaps` may render datasets as {x, y} objects (when the
-  // source series contains nulls); Chart.js locks the parsing format from
-  // the first item, so pushing a plain number into an object-format dataset
-  // yields a silently invisible {x: null, y: null}. Match the existing
-  // format per dataset.
+  // missing — so labels and dataset.data stay aligned.
   private upsertLiveBucket(chart: Chart, bucketEndMs: number) {
     const labels = chart.data.labels;
     if (!labels) return;
@@ -426,11 +405,8 @@ export default class extends Controller {
         stats.count++;
       }
       const value = stats.count > 0 ? stats.sum / stats.count : null;
-      const entry = isObjectFormat(dataset.data[0])
-        ? { x: bucketEndMs, y: value }
-        : value;
-      if (isUpdate) dataset.data[dataset.data.length - 1] = entry;
-      else dataset.data.push(entry);
+      if (isUpdate) dataset.data[dataset.data.length - 1] = value;
+      else dataset.data.push(value);
     }
   }
 
@@ -463,34 +439,21 @@ export default class extends Controller {
     xScale.max = nowMs;
   }
 
-  // Plain-number datasets stay aligned with `labels` (1:1), so they shift
-  // together. {x, y} datasets (produced by server-side `bridge_short_gaps`)
-  // have their own timestamps and a shorter `data` array because null entries
-  // are dropped — they must be filtered against their own `x`, not against
-  // labels[0], otherwise still-valid leading points get shifted out.
+  // Datasets stay 1:1 aligned with `labels`, so labels and every dataset
+  // shift together when a point falls out of the rolling 1-hour window.
   private removeOutdatedPoints(currentTime: Date) {
     const data = this.chart?.data;
     if (!data?.labels) return;
 
     const cutoff = currentTime.getTime() - ONE_HOUR_MS;
-    const plainDatasets: LineDatasetWithId[] = [];
-    const objectDatasets: LineDatasetWithId[] = [];
-    for (const ds of data.datasets as LineDatasetWithId[]) {
-      (isObjectFormat(ds.data[0]) ? objectDatasets : plainDatasets).push(ds);
-    }
+    const datasets = data.datasets as LineDatasetWithId[];
 
     while (data.labels.length) {
       const oldestMs = new Date(data.labels[0] as Date).getTime();
       if (oldestMs >= cutoff) break;
 
       data.labels.shift();
-      for (const dataset of plainDatasets) dataset.data.shift();
-    }
-
-    for (const dataset of objectDatasets) {
-      while (isObjectFormat(dataset.data[0]) && dataset.data[0].x < cutoff) {
-        dataset.data.shift();
-      }
+      for (const dataset of datasets) dataset.data.shift();
     }
   }
 
@@ -539,23 +502,8 @@ export default class extends Controller {
   }
 
   get lastPointTime(): Date | undefined {
-    // When `bridge_short_gaps` server-side renders {x, y} points it drops
-    // null entries from data while `labels` keeps every timeline timestamp,
-    // so labels.at(-1) can be a phantom timestamp newer than the real last
-    // sample. Prefer the dataset's own x; for plain datasets and empty
-    // object datasets, fall back to labels.
-    const data = this.chart?.data;
-    if (!data) return undefined;
-
-    const labelMs = data.labels?.at(-1) as number | undefined;
-    let maxMs: number | undefined;
-    for (const ds of data.datasets) {
-      const last = ds.data.at(-1);
-      const ms = isObjectFormat(last) ? last.x : labelMs;
-      if (typeof ms === 'number' && (maxMs === undefined || ms > maxMs))
-        maxMs = ms;
-    }
-    return maxMs !== undefined ? new Date(maxMs) : undefined;
+    const labelMs = this.chart?.data.labels?.at(-1) as number | undefined;
+    return typeof labelMs === 'number' ? new Date(labelMs) : undefined;
   }
 
   get currentElement(): HTMLElement | undefined {

@@ -122,62 +122,80 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   private
 
+  # Aligns every dataset to the longest item's labels (1:1, plain Number
+  # arrays). Sibling datasets share one timestamp grid, which lets Chart.js'
+  # index-mode tooltips pair points across datasets by construction.
   def build_data
     return unless series
 
-    chart_data_items = build_chart_data_items
+    items = build_chart_data_items
+    master = items.max_by { |item| item[:labels]&.length || 0 }
+    return unless master
 
-    # Use the chart item with the most data points for labels
-    chart_item_with_most_data =
-      chart_data_items.max_by { |item| item[:data]&.length || 0 }
-    return unless chart_item_with_most_data
+    align_to_master_grid!(master[:labels], items)
 
-    {
-      labels: labels(chart_item_with_most_data),
-      datasets: datasets(chart_data_items),
-    }
+    { labels: master[:labels], datasets: datasets(items) }
   end
 
   def series
     @series ||= build_series_data
   end
 
-  def labels(chart_data)
-    chart_data[:labels]
-  end
-
   def datasets(chart_data_items)
     chart_data_items.map do |chart_data|
-      sensor_name = chart_data[:sensor_name]
-      sensor = Sensor::Registry[sensor_name]
+      sensor = Sensor::Registry[chart_data[:sensor_name]]
       {
         id: sensor.name.to_s,
         label: sensor.display_name,
-        data: dataset_data(chart_data),
+        data: chart_data[:data],
       }.merge(style_for_sensor(sensor))
     end
   end
 
-  # For sparse line charts, convert (labels, values) to {x, y} points and
-  # insert an explicit null wherever the gap exceeds SPAN_GAPS_MS. Chart.js'
-  # `spanGaps` handles the line on its own, but the Filler plugin would
-  # otherwise draw a continuous area across the break. The null marker
-  # forces line and area to split at the same place.
-  def dataset_data(chart_data)
-    values = chart_data[:data]
-    return values unless type == 'line' && values&.any?(&:nil?)
-
-    bridge_short_gaps(chart_data[:labels], values)
+  def align_to_master_grid!(master_labels, items)
+    items.each do |item|
+      values = align_values(master_labels, item[:labels], item[:data])
+      values = bridge_short_gaps(master_labels, values) if type == 'line' && values.any?(&:nil?)
+      item[:labels] = master_labels
+      item[:data] = values
+    end
   end
 
-  def bridge_short_gaps(labels, values)
-    prev_x = nil
-    labels.zip(values).each_with_object([]) do |(x, y), points|
-      next if y.nil?
+  def align_values(master_labels, item_labels, item_values)
+    return item_values if item_labels == master_labels
 
-      points << { x: prev_x + 1, y: nil } if prev_x && (x - prev_x) > SPAN_GAPS_MS
-      points << { x:, y: }
-      prev_x = x
+    by_x = item_labels.zip(item_values).to_h
+    master_labels.map { |x| by_x[x] }
+  end
+
+  # Linearly interpolates null runs whose time gap is within SPAN_GAPS_MS;
+  # longer runs stay nil so Chart.js breaks line and Filler-area together.
+  def bridge_short_gaps(labels, values)
+    values = values.dup
+    last = nil
+    i = 0
+    while i < values.size
+      if values[i].nil?
+        stop = i
+        stop += 1 while stop < values.size && values[stop].nil?
+        interpolate_gap!(labels, values, i, stop, last) if last && stop < values.size
+        i = stop
+      else
+        last = i
+        i += 1
+      end
+    end
+    values
+  end
+
+  def interpolate_gap!(labels, values, start, stop, last)
+    span = (labels[stop] - labels[last]).to_f
+    return if span > SPAN_GAPS_MS
+
+    a = values[last]
+    delta = values[stop] - a
+    (start...stop).each do |j|
+      values[j] = a + (delta * (labels[j] - labels[last]) / span)
     end
   end
 

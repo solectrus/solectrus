@@ -49,6 +49,47 @@ describe Sensor::Chart::InverterPower do
       end
     end
 
+    context 'with sparse data (nil values in series)' do
+      let(:timeframe) { Timeframe.new('2025-03-03') }
+
+      def minute_labels(count, start_minute: 0)
+        Array.new(count) do |i|
+          Time.zone.local(2025, 3, 3, 10, start_minute + i, 0).to_i * 1000
+        end
+      end
+
+      it 'bridges short null runs with linear interpolation' do
+        # 3 nil minutes between 110 and 200 -- 4 min total gap, well under 15
+        labels = minute_labels(6)
+        result = chart.__send__(:bridge_short_gaps, labels, [100, 110, nil, nil, nil, 200])
+
+        expect(result).to eq([100, 110, 132.5, 155.0, 177.5, 200])
+      end
+
+      it 'leaves long null runs as nil so line and area break together' do
+        # 20 nil minutes between 100 and 200 -- over the 15-minute threshold
+        gap = [nil] * 20
+        labels = minute_labels(gap.size + 2)
+        result = chart.__send__(:bridge_short_gaps, labels, [100, *gap, 200])
+
+        expect(result).to eq([100, *gap, 200])
+      end
+
+      it 'leaves leading nulls untouched (no prior value to anchor)' do
+        labels = minute_labels(4)
+        result = chart.__send__(:bridge_short_gaps, labels, [nil, nil, 100, 110])
+
+        expect(result).to eq([nil, nil, 100, 110])
+      end
+
+      it 'leaves trailing nulls untouched (no following value to anchor)' do
+        labels = minute_labels(4)
+        result = chart.__send__(:bridge_short_gaps, labels, [100, 110, nil, nil])
+
+        expect(result).to eq([100, 110, nil, nil])
+      end
+    end
+
     context 'when timeframe is now' do
       let(:timeframe) { Timeframe.now }
 
