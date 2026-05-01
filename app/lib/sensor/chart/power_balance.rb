@@ -123,17 +123,18 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
   # the inverter (sparse line) and power balance (stacked area) charts
   # treat the same outage consistently.
   #
-  # Excluded custom sensors are filled with 0 instead of being bridged:
-  # the calculate block treats their nil buckets as 0 (no subtraction
-  # from house_power), so bridging them here would carry forward a value
-  # that house_power has not been reduced by - making the same wattage
-  # show up both inside house_power and as its own segment (issue #5517).
+  # Sensors excluded from house_power (custom, wallbox, heatpump, ...) are
+  # filled with 0 instead of being bridged: the calculate block treats
+  # their nil buckets as 0 (no subtraction from house_power), so bridging
+  # them here would carry forward a value that house_power has not been
+  # reduced by - making the same wattage show up both inside house_power
+  # and as its own segment (issue #5517).
   def pad_nil_values!(items)
     threshold = gap_bridge_buckets
     items.each do |item|
       next if forecast_sensor?(item[:sensor_name])
 
-      if excluded_custom_sensor_names.include?(item[:sensor_name])
+      if excluded_sensor_names.include?(item[:sensor_name])
         item[:data].map! { |value| value || 0 }
       else
         bridge_short_outages!(item[:data], threshold)
@@ -179,6 +180,12 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
   def excluded_custom_sensor_names
     @excluded_custom_sensor_names ||=
       Sensor::Config.house_power_excluded_custom_sensors.map(&:name)
+  end
+
+  # All sensors excluded from house_power (custom + standard like wallbox/heatpump)
+  def excluded_sensor_names
+    @excluded_sensor_names ||=
+      Sensor::Config.house_power_excluded_sensors.map(&:name)
   end
 
   # Negate values for display below zero line

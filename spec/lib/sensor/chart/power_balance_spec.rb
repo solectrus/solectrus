@@ -225,25 +225,48 @@ describe Sensor::Chart::PowerBalance do
       expect(result).to eq([0, 0, 100, 110])
     end
 
-    context 'when sensor is an excluded custom power sensor' do
+    context 'with sensors excluded from house_power' do
       let(:env) do
         {
           'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
+          'INFLUX_SENSOR_HEATPUMP_POWER' => 'pv:heatpump_power',
+          'INFLUX_SENSOR_WALLBOX_POWER' => 'pv:wallbox_power',
           'INFLUX_SENSOR_CUSTOM_POWER_01' => 'consumer:power_01',
-          'INFLUX_EXCLUDE_FROM_HOUSE_POWER' => 'CUSTOM_POWER_01',
+          'INFLUX_EXCLUDE_FROM_HOUSE_POWER' =>
+            'CUSTOM_POWER_01,HEATPUMP_POWER,WALLBOX_POWER',
         }
       end
 
       before { Sensor::Config.setup(env) }
       after { Sensor::Config.setup(ENV) }
 
-      it 'fills nil with 0 instead of bridging (issue #5517)' do
-        # The calculate block treats nil as 0 (no subtraction from
-        # house_power). Bridging here would carry forward a value that
-        # house_power has not been reduced by - double-counting the
-        # excluded sensor in the stacked chart.
-        result = pad([100, nil, nil, 100], sensor_name: :custom_power_01)
-        expect(result).to eq([100, 0, 0, 100])
+      # The calculate block treats nil as 0 (no subtraction from
+      # house_power). Bridging here would carry forward a value that
+      # house_power has not been reduced by - double-counting the
+      # excluded sensor in the stacked chart (issue #5517).
+      it 'fills nil with 0 for every excluded sensor' do
+        %i[custom_power_01 heatpump_power wallbox_power].each do |name|
+          expect(pad([100, nil, nil, 100], sensor_name: name)).to eq(
+            [100, 0, 0, 100],
+          )
+        end
+      end
+    end
+
+    context 'when wallbox_power is NOT excluded from house_power' do
+      let(:env) do
+        {
+          'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
+          'INFLUX_SENSOR_WALLBOX_POWER' => 'pv:wallbox_power',
+        }
+      end
+
+      before { Sensor::Config.setup(env) }
+      after { Sensor::Config.setup(ENV) }
+
+      it 'still bridges short outages' do
+        result = pad([100, nil, nil, 100], sensor_name: :wallbox_power)
+        expect(result).to eq([100, 100, 100, 100])
       end
     end
   end
