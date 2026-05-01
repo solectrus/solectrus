@@ -10,7 +10,7 @@ type LineDatasetWithId = ChartDataset<'line'> & {
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
 export default class extends Controller {
-  static readonly targets = ['current', 'stats', 'chart', 'canvas'];
+  static readonly targets = ['current', 'stats', 'chart', 'canvas', 'flash'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTargets: HTMLElement[];
@@ -23,6 +23,9 @@ export default class extends Controller {
 
   declare readonly hasCanvasTarget: boolean;
   declare readonly canvasTarget: HTMLCanvasElement;
+
+  declare readonly hasFlashTarget: boolean;
+  declare readonly flashTarget: HTMLElement;
 
   static readonly values = {
     // Field to display in the chart
@@ -249,12 +252,36 @@ export default class extends Controller {
     // Never add a point with a time older than the last time in the chart
     if (currentTime < lastPointTime) return;
 
+    this.flashRightEdge();
+
     this.removeOutdatedPoints(currentTime);
     this.addCurrentPoints();
     this.slideXAxisWindow(currentTime);
-
-    // Redraw the chart
     this.chart.update();
+  }
+
+  flashRightEdge() {
+    const area = this.chart?.chartArea;
+    if (!area || !this.hasFlashTarget) return;
+
+    const flash = this.flashTarget;
+    flash.style.left = `${area.right}px`;
+    flash.style.top = `${area.top}px`;
+    flash.style.height = `${area.bottom - area.top}px`;
+    flash.style.backgroundColor = this.flashColor;
+
+    // Force reflow so the animation restarts on every tick
+    flash.classList.remove('chart-flash-active');
+    void flash.offsetWidth;
+    flash.classList.add('chart-flash-active');
+  }
+
+  private get flashColor(): string {
+    const datasets = (this.chart?.data.datasets ?? []) as LineDatasetWithId[];
+    const dataset =
+      datasets.find((ds) => ds.id === this.effectiveSensor) ?? datasets[0];
+    const color = dataset?.borderColor ?? dataset?.backgroundColor;
+    return typeof color === 'string' ? color : 'currentColor';
   }
 
   addCurrentPoints() {

@@ -82,6 +82,28 @@
   }
 }
 
+@keyframes chart-flash {
+  0% {
+    opacity: 0.9;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.chart-flash-active {
+  animation: chart-flash 800ms ease-out forwards;
+}
+
+@media (prefers-reduced-motion) {
+  .chart-flash-active {
+    animation: none;
+  }
+}
+
 /* Disable transitions during resize to prevent slow height/font-size adjustments */
 .transition-stopper * {
   transition: none !important;
