@@ -44,15 +44,6 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
       Sensor::Config.custom_inverter_sensors.map(&:name)
   end
 
-  # Densify forecast samples onto the live aggregation grid (Series#densify
-  # via interpolate.linear) so live and forecast share the same buckets and
-  # Chart.js index-mode tooltips pair them correctly. Without this, forecast
-  # would only land in every Nth bucket (15-min cadence vs. 5-min/1-min live)
-  # and the tooltip would skip forecast values for most timestamps.
-  def interpolate?
-    show_forecast?
-  end
-
   #
   # Forecast data for ForecastComment
   #

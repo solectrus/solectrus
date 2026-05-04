@@ -155,7 +155,13 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   def align_to_master_grid!(master_labels, items)
     items.each do |item|
       values = align_values(master_labels, item[:labels], item[:data])
-      values = bridge_short_gaps(master_labels, values) if type == 'line' && values.any?(&:nil?)
+      # Skip forecast sensors: their provider cadence is sparser than the live
+      # 5-min grid by design. Linearly filling the gaps would defeat Chart.js'
+      # tension/monotone smoothing -- with sparse points it draws a smooth
+      # Hermite curve through the original samples instead.
+      if type == 'line' && values.any?(&:nil?) && !Sensor::Registry[item[:sensor_name]]&.forecast?
+        values = bridge_short_gaps(master_labels, values)
+      end
       item[:labels] = master_labels
       item[:data] = values
     end
