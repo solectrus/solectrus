@@ -12,17 +12,15 @@ describe ForecastComment::Component, type: :component do
       forecast_deviation:,
       inverter_power_forecast:,
       remaining_forecast_wh: nil,
+      sunrise: nil,
+      sunset: nil,
     )
   end
   let(:date) { Date.yesterday.to_s }
-  let(:day_light) { nil }
   let(:forecast_deviation) { 0 }
   let(:inverter_power_forecast) { 10_000 }
 
-  before do
-    allow(Sensor::Query::DayLight).to receive(:new).and_return(day_light)
-    render_inline(component)
-  end
+  before { render_inline(component) }
 
   describe 'past timeframe' do
     context 'when deviation is within threshold (< 500 Wh)' do
@@ -74,13 +72,6 @@ describe ForecastComment::Component, type: :component do
   describe 'current day before sunrise' do
     let(:date) { Date.current.to_s }
     let(:forecast_deviation) { 0 }
-    let(:day_light) do
-      instance_double(
-        Sensor::Query::DayLight,
-        sunrise: 1.hour.from_now,
-        sunset: 10.hours.from_now,
-      )
-    end
 
     context 'when chart provides remaining_forecast_wh' do
       let(:chart) do
@@ -89,6 +80,8 @@ describe ForecastComment::Component, type: :component do
           forecast_deviation:,
           inverter_power_forecast:,
           remaining_forecast_wh: 10_000,
+          sunrise: 1.hour.from_now,
+          sunset: 10.hours.from_now,
         )
       end
 
@@ -104,23 +97,19 @@ describe ForecastComment::Component, type: :component do
   describe 'current day after sunrise, before sunset' do
     let(:date) { Date.current.to_s }
     let(:forecast_deviation) { 1000 }
-    let(:day_light) do
+    let(:chart) do
       instance_double(
-        Sensor::Query::DayLight,
+        Sensor::Chart::InverterPower,
+        forecast_deviation:,
+        inverter_power_forecast:,
+        remaining_forecast_wh:,
         sunrise: 2.hours.ago,
         sunset: 2.hours.from_now,
       )
     end
 
     context 'when chart provides remaining_forecast_wh' do
-      let(:chart) do
-        instance_double(
-          Sensor::Chart::InverterPower,
-          forecast_deviation:,
-          inverter_power_forecast:,
-          remaining_forecast_wh: 5000,
-        )
-      end
+      let(:remaining_forecast_wh) { 5000 }
 
       it 'shows remaining forecast value with "still expected" text' do
         expect(page).to have_text I18n.t(
@@ -135,6 +124,8 @@ describe ForecastComment::Component, type: :component do
     end
 
     context 'when chart does not provide remaining_forecast_wh' do
+      let(:remaining_forecast_wh) { nil }
+
       it 'falls back to full day forecast display' do
         expect(page).to have_text I18n.t(
           'forecast.expect_html',
@@ -146,9 +137,12 @@ describe ForecastComment::Component, type: :component do
 
   describe 'current day after sunset' do
     let(:date) { Date.current.to_s }
-    let(:day_light) do
+    let(:chart) do
       instance_double(
-        Sensor::Query::DayLight,
+        Sensor::Chart::InverterPower,
+        forecast_deviation:,
+        inverter_power_forecast:,
+        remaining_forecast_wh: nil,
         sunrise: 10.hours.ago,
         sunset: 5.minutes.ago,
       )

@@ -7,8 +7,9 @@ class ForecastComment::Component < ViewComponent::Base
 
   attr_reader :chart, :timeframe
 
-  delegate :sunrise, :sunset, to: :day_light, allow_nil: true
-  delegate :remaining_forecast_wh,
+  delegate :sunrise,
+           :sunset,
+           :remaining_forecast_wh,
            :inverter_power_forecast,
            :forecast_deviation,
            to: :chart,
@@ -24,10 +25,6 @@ class ForecastComment::Component < ViewComponent::Base
 
   def today_during_daylight?
     !today_before_sunrise? && today_before_sunset?
-  end
-
-  def day_light
-    @day_light ||= Sensor::Query::DayLight.new(timeframe.date)
   end
 
   # Threshold for significant deviation (0.5 kWh = 500 Wh)

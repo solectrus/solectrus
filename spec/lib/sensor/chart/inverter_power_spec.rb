@@ -113,4 +113,41 @@ describe Sensor::Chart::InverterPower do
       end
     end
   end
+
+  describe '#sunrise / #sunset' do
+    let(:chart) { described_class.new(timeframe:) }
+    let(:timeframe) { Timeframe.new('2025-03-03') }
+
+    it 'returns first/last forecast bucket > 0 (handles any cadence)' do
+      # Mixed cadence: forecast values present at 06:00, 06:30, 19:30; others nil
+      forecast_series = {
+        Time.zone.local(2025, 3, 3, 5, 30, 0) => 0,
+        Time.zone.local(2025, 3, 3, 6, 0, 0) => 50,
+        Time.zone.local(2025, 3, 3, 6, 30, 0) => 200,
+        Time.zone.local(2025, 3, 3, 12, 0, 0) => nil,
+        Time.zone.local(2025, 3, 3, 19, 30, 0) => 80,
+        Time.zone.local(2025, 3, 3, 20, 0, 0) => 0,
+      }
+      series = Sensor::Data::Series.new(
+        { %i[inverter_power_forecast avg avg] => forecast_series },
+        timeframe: timeframe,
+      )
+      allow(chart).to receive(:series).and_return(series)
+
+      expect(chart.sunrise).to eq(Time.zone.local(2025, 3, 3, 6, 0, 0))
+      expect(chart.sunset).to eq(Time.zone.local(2025, 3, 3, 19, 30, 0))
+    end
+
+    it 'returns nil when no forecast data is available' do
+      series =
+        Sensor::Data::Series.new(
+          { %i[inverter_power avg avg] => {} },
+          timeframe: timeframe,
+        )
+      allow(chart).to receive(:series).and_return(series)
+
+      expect(chart.sunrise).to be_nil
+      expect(chart.sunset).to be_nil
+    end
+  end
 end

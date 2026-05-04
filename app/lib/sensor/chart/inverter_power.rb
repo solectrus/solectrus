@@ -73,7 +73,20 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     (inverter_power - inverter_power_forecast).round
   end
 
+  # Expected sunrise/sunset derived from the forecast series: first/last
+  # 5-min bucket with a positive value. Avoids a separate Influx query;
+  # accuracy is within minutes for any forecast cadence (15/30/60 min).
+  def sunrise = forecast_daylight_range&.first
+  def sunset = forecast_daylight_range&.last
+
   private
+
+  def forecast_daylight_range
+    @forecast_daylight_range ||= begin
+      times = forecast_series_data&.filter_map { |t, v| normalize_timestamp(t) if v&.positive? }
+      times.presence&.minmax
+    end
+  end
 
   def stacked_sensors
     if timeframe.now?
