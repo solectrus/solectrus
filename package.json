@@ -43,7 +43,7 @@
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "rails-vite-plugin": "^0.2.4",
-    "sinon": "^21.1.2",
+    "sinon": "^22.0.0",
     "size-limit": "^12.1.0",
     "tailwindcss": "^4.2.4",
     "tailwindcss-displaymodes": "^1.0.8",
