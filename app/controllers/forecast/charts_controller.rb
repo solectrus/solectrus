@@ -14,7 +14,7 @@ class Forecast::ChartsController < ApplicationController
   helper_method def timeframe
     @timeframe ||=
       begin
-        days = params[:days]&.to_i || 2
+        days = (params[:days] || 2).to_i
         end_date = Date.current + (days - 1).days
         Timeframe.new("#{Date.current}..#{end_date}")
       end
