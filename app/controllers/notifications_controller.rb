@@ -39,7 +39,7 @@ class NotificationsController < ApplicationController
   end
 
   helper_method def notification
-    @notification ||= Notification.find(params[:id])
+    @notification ||= Notification.find(params.expect(:id))
   end
 
   helper_method def title

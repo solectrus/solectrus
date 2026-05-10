@@ -57,7 +57,7 @@ class Settings::PricesController < ApplicationController
   end
 
   def load_price
-    @price = Price.find(params[:id])
+    @price = Price.find(params.expect(:id))
   end
 
   def new_price
