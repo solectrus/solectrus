@@ -6,6 +6,9 @@ class UserAgentBuilder
       "#{app_name}/#{version}",
       "(#{sysname}; #{machine}; #{kernel_release}; #{setup_id})",
       helios_token,
+      influxdb_token,
+      postgresql_token,
+      redis_token,
     ]
     parts.compact.join(' ')
   end
@@ -13,8 +16,23 @@ class UserAgentBuilder
   private
 
   def helios_token
-    helios_version = HeliosCheck.version
-    "HELIOS/#{helios_version}" if helios_version
+    token_for('HELIOS', HeliosCheck.version)
+  end
+
+  def influxdb_token
+    token_for('INFLUXDB', ServiceVersions.influxdb)
+  end
+
+  def postgresql_token
+    token_for('POSTGRESQL', ServiceVersions.postgresql)
+  end
+
+  def redis_token
+    token_for('REDIS', ServiceVersions.redis)
+  end
+
+  def token_for(name, version)
+    "#{name}/#{version}" if version.present?
   end
 
   def app_name
