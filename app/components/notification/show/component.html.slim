@@ -1,14 +1,22 @@
 = render TurboModal::Component.new(title:) do
-  .mt-4.flex.flex-col.flex-1.min-h-0
-    time.text-sm.text-gray-500.dark:text-gray-400.shrink-0
-      = formatted_published_at
+  .mt-2.flex.flex-col.flex-1.min-h-0
+    / Eyebrow: message icon + publication date
+    .flex.items-center.gap-2.shrink-0
+      i.fa.fa-message.text-indigo-600.dark:text-indigo-400
+      time class='text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400'
+        = formatted_published_at
 
-    .mt-4.prose.text-gray-800.dark:text-gray-300.prose-headings:text-inherit.prose-headings:text-lg.prose-headings:font-semibold.prose-headings:mt-4.prose-headings:mb-2.prose-p:my-3.prose-ul:my-2.prose-ol:my-2.prose-li:my-1.prose-a:text-indigo-600.dark:prose-a:text-indigo-400.prose-strong:text-inherit.prose-em:text-inherit.prose-code:text-inherit.max-w-none.overflow-y-auto.flex-1.min-h-0
+    / Gradient divider
+    div class='mt-4 h-0.5 shrink-0 bg-linear-to-r from-gray-400 via-gray-300 to-transparent dark:from-slate-500 dark:via-slate-600'
+
+    / Body
+    .mt-5.prose.text-gray-700.dark:text-gray-300.prose-headings:text-inherit.prose-headings:text-lg.prose-headings:font-semibold.prose-headings:tracking-tight.prose-headings:mt-5.prose-headings:mb-2.prose-p:my-3.prose-p:leading-relaxed.prose-ul:my-2.prose-ol:my-2.prose-li:my-1.prose-a:text-indigo-600.dark:prose-a:text-indigo-400.prose-a:font-medium.prose-a:underline-offset-2.prose-strong:text-inherit.prose-em:text-inherit.prose-code:text-inherit.max-w-none.overflow-y-auto.flex-1.min-h-0
       = safe_body
 
-    .mt-6.flex.justify-end.shrink-0
+    / Footer with subtle divider and tactile primary action
+    .mt-5.pt-4.border-t.border-gray-100.dark:border-slate-700/60.flex.justify-end.shrink-0
       = button_to t('crud.ok'),
                   mark_as_read_notification_path(notification),
                   method: :patch,
-                  class: 'px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors font-medium cursor-pointer',
+                  class: 'inline-flex items-center justify-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md hover:shadow-indigo-500/20 active:scale-95 transition-all duration-150 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800',
                   data: { turbo_frame: '_top', action: 'click->turbo-modal--component#closeDialog' }
