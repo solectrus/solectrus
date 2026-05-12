@@ -187,6 +187,9 @@ Rails.application.routes.draw do
   get '/sponsoring', to: 'sponsorings#show', as: :sponsoring
 
   get '/favicon.ico', to: redirect('/favicon-196.png')
+  get '/apple-touch-icon.png', to: redirect('/apple-icon-180.png')
+  get '/apple-touch-icon-precomposed.png',
+      to: redirect('/apple-icon-180.png')
 
   scope :settings, as: :settings, module: 'settings' do
     resource :general, only: %i[edit update], path_names: { edit: '' }
