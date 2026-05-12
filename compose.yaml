@@ -141,7 +141,7 @@ services:
         max-file: "3"
 
   influxdb:
-    image: influxdb:2.8-alpine
+    image: influxdb:2.9-alpine
     volumes:
       - ${INFLUX_VOLUME_PATH}:/var/lib/influxdb2
     environment:

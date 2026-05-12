@@ -1,5 +1,5 @@
 module ServiceVersions
-  RECOMMENDED_INFLUXDB_VERSION = Gem::Version.new('2.8').freeze
+  RECOMMENDED_INFLUXDB_VERSION = Gem::Version.new('2.9').freeze
   private_constant :RECOMMENDED_INFLUXDB_VERSION
 
   def self.fetch_influxdb
