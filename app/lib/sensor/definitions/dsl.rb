@@ -48,6 +48,17 @@ module Sensor
           end
         end
 
+        # Maximum age a "latest" reading may have before it is treated as stale
+        # and hidden from the "current" stats. Defaults to 15 minutes; sensors
+        # with naturally sparse updates (e.g. car SOC) should override.
+        def max_age(value = nil)
+          if value.nil?
+            inherited_meta_data(:max_age) || 15.minutes
+          else
+            meta_data[:max_age] = value
+          end
+        end
+
         def color(background: nil, text: nil, border: nil, hatch_fill: nil, &)
           color_dsl.color(background:, text:, border:, hatch_fill:, &)
         end

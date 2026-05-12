@@ -20,6 +20,7 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
            :allowed_aggregations,
            :summary_meta_aggregations,
            :trend_aggregation,
+           :max_age,
            to: :class
 
   def initialize

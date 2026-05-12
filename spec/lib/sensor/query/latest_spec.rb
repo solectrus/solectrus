@@ -119,5 +119,53 @@ describe Sensor::Query::Latest do
         expect(result.raw_data).to eq({})
       end
     end
+
+    context 'with stale data (older than max_age)' do
+      before do
+        influx_batch do
+          add_influx_point(
+            name: 'Heatpump',
+            fields: {
+              power: 800.0,
+            },
+            time: 30.minutes.ago,
+          )
+        end
+      end
+
+      it 'hides values older than the default max_age (15 minutes)' do
+        result = described_class.new(:heatpump_power).call
+
+        expect(result.heatpump_power).to be_nil
+      end
+
+      it 'keeps fresh values from a sibling sensor' do
+        result = described_class.new(%i[heatpump_power house_power]).call
+
+        # heatpump_power is 30 min old (stale), house_power is 1 min old
+        expect(result.heatpump_power).to be_nil
+        expect(result.house_power).to eq(1800.0)
+      end
+    end
+
+    context 'with car_battery_soc (longer max_age)' do
+      before do
+        influx_batch do
+          add_influx_point(
+            name: 'Trabant',
+            fields: {
+              soc: 60.0,
+            },
+            time: 90.minutes.ago,
+          )
+        end
+        stub_feature(:car)
+      end
+
+      it 'keeps values within the 2 hour tolerance' do
+        result = described_class.new(:car_battery_soc).call
+        expect(result.car_battery_soc).to eq(60.0)
+      end
+    end
   end
 end

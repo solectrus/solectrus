@@ -17,7 +17,11 @@ module Sensor
             flux_result = query(flux_query)
 
             result = parse_flux_result(flux_result)
-            { time: result[:time], payload: result.except(:time) }
+            {
+              time: result[:time],
+              times: result[:times] || {},
+              payload: result.except(:time, :times),
+            }
           end
 
           private
@@ -132,7 +136,7 @@ module Sensor
 
           # Standard InfluxDB result parsing - can be used by subclasses
           def parse_flux_result(flux_result)
-            result = {}
+            result = { times: {} }
 
             flux_result.each do |table|
               table.records.each do |record|
@@ -146,10 +150,11 @@ module Sensor
 
                 result[sensor] = record.values['_value']
 
-                # Get the latest time from all measurements
-                # This is useful when the measurements are not in sync
-                # The time is used to determine the "live" status of the system
+                # Track per-sensor timestamp (used to detect stale "latest" values)
+                # and the overall newest time across all sensors (used for the
+                # adaptive poll-interval estimator and live-status indicators).
                 time = Time.zone.parse record.values['_time']
+                result[:times][sensor] = time
                 result[:time] = time if result[:time].nil? ||
                   time > result[:time]
               end

@@ -15,6 +15,8 @@ module Sensor
           # poll-interval estimator. `:time` is the timestamp of the newest
           # data point, so its age tells us how often InfluxDB is updated.
           Influx::PollInterval.record(raw_data[:time])
+
+          drop_stale_values!(raw_data)
         end
       end
 
@@ -27,6 +29,23 @@ module Sensor
       end
 
       private
+
+      # Drop sensor values whose timestamp is older than the sensor's max_age.
+      # The Flux `last()` returns the most recent point within the 1-day range
+      # regardless of how old it is, so without this filter the dashboard
+      # would keep showing the last seen value indefinitely after a data
+      # source goes offline.
+      def drop_stale_values!(raw_data)
+        times = raw_data[:times] || {}
+        now = Time.current
+
+        raw_data[:payload].delete_if do |sensor_name, _value|
+          time = times[sensor_name]
+          next false unless time
+
+          (now - time) > Sensor::Registry[sensor_name].max_age
+        end
+      end
 
       def build_flux_query
         <<~FLUX
