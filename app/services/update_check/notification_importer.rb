@@ -11,7 +11,11 @@ class UpdateCheck::NotificationImporter
     records = build_records
     return if records.empty?
 
-    Notification.upsert_all(records, unique_by: :id)
+    Notification.upsert_all(
+      records,
+      unique_by: :id,
+      update_only: %i[title body published_at],
+    )
   rescue ActiveRecord::ActiveRecordError => e
     Rails.logger.warn("Failed to import notifications: #{e.message}")
   end
@@ -19,8 +23,6 @@ class UpdateCheck::NotificationImporter
   private
 
   def build_records
-    now = Time.current
-
     notifications_data.filter_map do |data|
       published_at = parse_datetime(data[:published_at])
 
@@ -29,14 +31,7 @@ class UpdateCheck::NotificationImporter
         next
       end
 
-      {
-        id: data[:id],
-        title: data[:title],
-        body: data[:body],
-        published_at:,
-        created_at: now,
-        updated_at: now,
-      }
+      { id: data[:id], title: data[:title], body: data[:body], published_at: }
     end
   end
 

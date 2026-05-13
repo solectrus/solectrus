@@ -97,6 +97,60 @@ describe UpdateCheck::NotificationImporter do
       end
     end
 
+    # The server re-delivers the same notification within a 30-day window to
+    # heal transient client-side failures. These specs lock in that repeated
+    # imports are a no-op for everything the user can see locally.
+    context 'when the same notification is delivered repeatedly' do
+      let(:notifications_data) do
+        [
+          {
+            id: 1,
+            title: 'Title',
+            body: 'Body',
+            published_at: '2024-01-15T10:00:00Z',
+          },
+        ]
+      end
+
+      before do
+        travel_to(Time.zone.local(2024, 1, 15, 10, 0, 0)) do
+          described_class.new(notifications_data).call
+        end
+        Notification.find(1).mark_as_read!
+      end
+
+      it 'does not create duplicates on repeated delivery' do
+        expect do
+          travel_to(Time.zone.local(2024, 1, 20, 10, 0, 0)) do
+            described_class.new(notifications_data).call
+          end
+          travel_to(Time.zone.local(2024, 2, 1, 10, 0, 0)) do
+            described_class.new(notifications_data).call
+          end
+        end.not_to change(Notification, :count)
+      end
+
+      it 'preserves read_at across repeated deliveries' do
+        original_read_at = Notification.find(1).read_at
+
+        travel_to(Time.zone.local(2024, 1, 20, 10, 0, 0)) do
+          described_class.new(notifications_data).call
+        end
+
+        expect(Notification.find(1).read_at).to eq(original_read_at)
+      end
+
+      it 'preserves created_at across repeated deliveries' do
+        original_created_at = Notification.find(1).created_at
+
+        travel_to(Time.zone.local(2024, 1, 20, 10, 0, 0)) do
+          described_class.new(notifications_data).call
+        end
+
+        expect(Notification.find(1).created_at).to eq(original_created_at)
+      end
+    end
+
     context 'when notification data is missing required fields' do
       context 'when id is missing' do
         let(:notifications_data) do
