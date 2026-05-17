@@ -118,12 +118,6 @@ describe Sensor::Query::Series do
     before { stub_feature(:car) }
 
     context 'when combined with other fill strategies' do
-      it 'raises when combined with fill_zero' do
-        expect do
-          series_query.call(fill_previous: true, fill_zero: true)
-        end.to raise_error(ArgumentError, /fill_previous excludes/)
-      end
-
       it 'raises when combined with interpolate' do
         expect do
           series_query.call(fill_previous: true, interpolate: true)

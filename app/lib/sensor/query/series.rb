@@ -28,12 +28,12 @@ module Sensor
         "#{seconds}s"
       end
 
-      def call(interpolate: false, fill_zero: false, fill_previous: false)
-        raise ArgumentError, 'fill_previous excludes fill_zero/interpolate' if fill_previous && (fill_zero || interpolate)
+      def call(interpolate: false, fill_previous: false)
+        raise ArgumentError, 'fill_previous excludes interpolate' if fill_previous && interpolate
         return empty_result if available_sensors.empty?
         return empty_result if @timeframe.now?
 
-        raw_data = fetch_aggregated_series(interpolate:, fill_zero:, fill_previous:)
+        raw_data = fetch_aggregated_series(interpolate:, fill_previous:)
 
         create_data_instance(raw_data, @timeframe).tap do |data|
           ensure_sensor_accessors(data)
@@ -49,13 +49,13 @@ module Sensor
 
       private
 
-      def fetch_aggregated_series(interpolate: false, fill_zero: false, fill_previous: false)
-        query_string = build_series_flux_query(interpolate:, fill_zero:, fill_previous:)
+      def fetch_aggregated_series(interpolate: false, fill_previous: false)
+        query_string = build_series_flux_query(interpolate:, fill_previous:)
         result = query(query_string)
         parse_series_result(result)
       end
 
-      def build_series_flux_query(interpolate: false, fill_zero: false, fill_previous: false)
+      def build_series_flux_query(interpolate: false, fill_previous: false)
         forecast, other = available_sensors.partition { |name| Sensor::Registry[name]&.forecast? }
 
         # plain-query is fine when there is no forecast at all, or when only
@@ -63,19 +63,19 @@ module Sensor
         # already sit on the requested grid, so neither alignment with a
         # dense sensor nor a cadence-shift is needed.
         if forecast.empty? || (interpolate && other.empty?)
-          build_plain_query(interpolate:, fill_zero:, fill_previous:)
+          build_plain_query(interpolate:, fill_previous:)
         else
-          build_forecast_shifted_query(forecast, other, interpolate:, fill_zero:)
+          build_forecast_shifted_query(forecast, other, interpolate:)
         end
       end
 
-      def build_plain_query(interpolate:, fill_zero:, fill_previous: false)
+      def build_plain_query(interpolate:, fill_previous: false)
         # 2h lookback caps forward-fill staleness: beyond it, gaps stay visible.
         pipeline = base_pipeline(lookback: fill_previous ? 2.hours : 0)
         pipeline = densify(pipeline) if interpolate
 
         prefix = interpolate ? ['import "interpolate"'] : []
-        [*prefix, pipeline, *aggregation_tail(fill_zero:, fill_previous:)].join("\n")
+        [*prefix, pipeline, *aggregation_tail(fill_previous:)].join("\n")
       end
 
       # Forecast providers store each sample at the end of its aggregation
@@ -94,7 +94,7 @@ module Sensor
       # forecast.solar 60m) render without gaps; non-forecast streams stay
       # un-interpolated so aggregateWindow yields true window means rather
       # than instant samples picked at bucket edges.
-      def build_forecast_shifted_query(forecast, other, interpolate:, fill_zero:)
+      def build_forecast_shifted_query(forecast, other, interpolate:)
         groups = forecast.group_by { |name| Sensor::Config.measurement(name) }.values
         definitions = groups.each_with_index.map { |sensors, i| forecast_stream(sensors, i, interpolate:) }
         names = Array.new(groups.size) { |i| "fc_#{i}" }
@@ -114,7 +114,7 @@ module Sensor
         input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
         range_reset = "|> range(start: #{@timeframe.beginning.iso8601}, stop: #{@timeframe.ending.iso8601})"
         prefix = interpolate ? ['import "interpolate"'] : []
-        [*prefix, *definitions, input, range_reset, *aggregation_tail(fill_zero:)].join("\n")
+        [*prefix, *definitions, input, range_reset, *aggregation_tail].join("\n")
       end
 
       def base_pipeline(sensors: available_sensors, lookback: 0)
@@ -172,7 +172,7 @@ module Sensor
         FLUX
       end
 
-      def aggregation_tail(fill_zero:, fill_previous: false)
+      def aggregation_tail(fill_previous: false)
         # `last` pairs with fill_previous: carrying a value forward is only
         # coherent if each bucket holds the most recent sample, not a mean.
         # aggregateWindow's default createEmpty: true emits null buckets
@@ -182,7 +182,6 @@ module Sensor
         fn = fill_previous ? 'last' : 'mean'
         tail = ["|> aggregateWindow(every: #{interval}, fn: #{fn})"]
         tail << '|> fill(column: "_value", usePrevious: true)' if fill_previous
-        tail << '|> fill(value: 0.0)' if fill_zero
         tail << "|> filter(fn: (r) => r._time >= #{@timeframe.beginning.iso8601})" if fill_previous
         tail << '|> keep(columns: ["_time","_field","_measurement","_value"])'
         tail

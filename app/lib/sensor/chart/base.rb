@@ -154,17 +154,27 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   def align_to_master_grid!(master_labels, items)
     items.each do |item|
-      values = align_values(master_labels, item[:labels], item[:data])
-      # Skip forecast sensors: their provider cadence is sparser than the live
-      # 5-min grid by design. Linearly filling the gaps would defeat Chart.js'
-      # tension/monotone smoothing -- with sparse points it draws a smooth
-      # Hermite curve through the original samples instead.
-      if type == 'line' && values.any?(&:nil?) && !Sensor::Registry[item[:sensor_name]]&.forecast?
-        values = bridge_short_gaps(master_labels, values)
-      end
+      item[:data] = grid_aligned_values(master_labels, item)
       item[:labels] = master_labels
-      item[:data] = values
     end
+  end
+
+  # Skip forecast sensors: their provider cadence is sparser than the live
+  # 5-min grid by design. Linearly filling the gaps would defeat Chart.js'
+  # tension/monotone smoothing -- with sparse points it draws a smooth
+  # Hermite curve through the original samples instead.
+  def grid_aligned_values(master_labels, item)
+    values = align_values(master_labels, item[:labels], item[:data])
+    return values unless type == 'line' && values.any?(&:nil?)
+    return values if Sensor::Registry[item[:sensor_name]]&.forecast?
+
+    process_gaps(master_labels, values)
+  end
+
+  def process_gaps(master_labels, values)
+    values = bridge_short_gaps(master_labels, values) if bridge_gaps?
+    values = fill_gaps_with_zero(values) if fill_gaps_with_zero?
+    values
   end
 
   def align_values(master_labels, item_labels, item_values)
@@ -203,6 +213,15 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     (start...stop).each do |j|
       values[j] = a + (delta * (labels[j] - labels[last]) / span)
     end
+  end
+
+  # Collapses every nil left after bridge_short_gaps to 0, for consumers where
+  # "no measurement" means 0 W (#fill_gaps_with_zero?). bridge_short_gaps has
+  # already interpolated the short, bridgeable gaps -- a slow write cadence
+  # (issue #5552); what remains is long idle phases and the window edges,
+  # which render as a flat 0 baseline instead of a line break.
+  def fill_gaps_with_zero(values)
+    values.map { |value| value || 0 }
   end
 
   def style
@@ -574,7 +593,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       interval:,
     ).call(
       interpolate: interpolate?,
-      fill_zero: fill_missing_with_zero?,
       fill_previous: fill_missing_with_previous?,
     )
   end
@@ -584,10 +602,19 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     false
   end
 
-  # Override in subclasses where "no measurement" semantically means 0
-  # (e.g. consumers that don't write values while switched off)
-  def fill_missing_with_zero?
+  # Override in subclasses whose sensors read 0 W while idle. Every nil left
+  # after the optional bridge_short_gaps pass (a long interior gap, a window
+  # edge, or -- when #bridge_gaps? is false -- every empty bucket) is set to
+  # 0, so an idle consumer renders as a flat 0 baseline instead of a break.
+  def fill_gaps_with_zero?
     false
+  end
+
+  # Override in subclasses to restrict cadence-gap bridging. When false,
+  # bridge_short_gaps is skipped entirely and every nil is left for
+  # fill_gaps_with_zero (or rendered as a line break).
+  def bridge_gaps?
+    true
   end
 
   # Override in subclasses for sparse, low-frequency sensors whose value
