@@ -172,7 +172,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   def process_gaps(master_labels, values)
-    values = bridge_short_gaps(master_labels, values) if bridge_gaps?
+    values = bridge_short_gaps(master_labels, values)
     values = fill_gaps_with_zero(values) if fill_gaps_with_zero?
     values
   end
@@ -184,7 +184,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     master_labels.map { |x| by_x[x] }
   end
 
-  # Linearly interpolates null runs whose time gap is within SPAN_GAPS_MS;
+  # Linearly interpolates null runs whose time gap is within #gap_bridge_limit;
   # longer runs stay nil so Chart.js breaks line and Filler-area together.
   def bridge_short_gaps(labels, values)
     values = values.dup
@@ -206,7 +206,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   def interpolate_gap!(labels, values, start, stop, last)
     span = (labels[stop] - labels[last]).to_f
-    return if span > SPAN_GAPS_MS
+    return if span > gap_bridge_limit
 
     a = values[last]
     delta = values[stop] - a
@@ -218,7 +218,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # Collapses every nil left after bridge_short_gaps to 0, for consumers where
   # "no measurement" means 0 W (#fill_gaps_with_zero?). bridge_short_gaps has
   # already interpolated the short, bridgeable gaps -- a slow write cadence
-  # (issue #5552); what remains is long idle phases and the window edges,
+  # (issue #5567); what remains is long idle phases and the window edges,
   # which render as a flat 0 baseline instead of a line break.
   def fill_gaps_with_zero(values)
     values.map { |value| value || 0 }
@@ -242,7 +242,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       noGradient: type == 'bar' || sensor.hatch_fill?,
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
-      spanGaps: (SPAN_GAPS_MS if type == 'line'),
+      spanGaps: (gap_bridge_limit if type == 'line'),
     }.compact
   end
 
@@ -603,18 +603,20 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   # Override in subclasses whose sensors read 0 W while idle. Every nil left
-  # after the optional bridge_short_gaps pass (a long interior gap, a window
-  # edge, or -- when #bridge_gaps? is false -- every empty bucket) is set to
-  # 0, so an idle consumer renders as a flat 0 baseline instead of a break.
+  # after the bridge_short_gaps pass (a gap longer than #gap_bridge_limit or
+  # a window edge) is set to 0, so an idle consumer renders as a flat 0
+  # baseline instead of a line break.
   def fill_gaps_with_zero?
     false
   end
 
-  # Override in subclasses to restrict cadence-gap bridging. When false,
-  # bridge_short_gaps is skipped entirely and every nil is left for
-  # fill_gaps_with_zero (or rendered as a line break).
-  def bridge_gaps?
-    true
+  # Longest null gap (in ms) that is bridged: server-side bridge_short_gaps
+  # interpolates across it, and Chart.js spanGaps connects the line across a
+  # gap of that length (relevant for client-appended live "now" updates).
+  # Override in subclasses to narrow it to the cadence-jitter scale, or
+  # return 0 to disable bridging entirely.
+  def gap_bridge_limit
+    SPAN_GAPS_MS
   end
 
   # Override in subclasses for sparse, low-frequency sensors whose value

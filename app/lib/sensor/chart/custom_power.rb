@@ -22,21 +22,21 @@ class Sensor::Chart::CustomPower < Sensor::Chart::PowerSplitterBase
     :"#{@sensor_name}_pv"
   end
 
-  # Bridge cadence gaps only in the live "now" view. Its 30s buckets are
-  # finer than the write cadence of slowly-polled sensors (e.g. cameras every
-  # ~28s), so empty buckets there are mostly a cadence artefact and must be
-  # smoothed (issue #5552). The day/hours views use 5-min buckets, coarse
-  # enough that a real consumer cadence fills every bucket -- so an empty
-  # bucket is a genuine idle phase and must stay 0, not be bridged across
-  # (which would merge separate on/off cycles into one block).
-  def bridge_gaps?
-    timeframe.now?
+  # Bridge only cadence jitter, never genuine idle phases. In the live "now"
+  # view a sensor polled every ~28s occasionally misses a single 30s bucket
+  # (issue #5567); 2 minutes covers that jitter while staying far below a
+  # real consumer idle phase. The day/hours views use 5-min buckets, coarse
+  # enough that any real cadence fills every bucket, so bridging is disabled
+  # there (0): an empty bucket is a genuine idle phase that must stay 0, and
+  # bridging would merge separate on/off cycles into one block.
+  def gap_bridge_limit
+    timeframe.now? ? 2.minutes.in_milliseconds : 0
   end
 
   # A consumer reads 0 W while idle, but the collector stops writing (Shelly)
-  # instead of streaming zeros. Every gap left after bridge_gaps? -- every
-  # empty bucket in day/hours, the long idle phases in the now view -- is
-  # flattened to 0 W. See Sensor::Chart::Base#fill_gaps_with_zero.
+  # instead of streaming zeros. Every gap left after bridge_short_gaps --
+  # every empty bucket in day/hours, every non-jitter gap in the now view --
+  # is flattened to 0 W. See Sensor::Chart::Base#fill_gaps_with_zero.
   def fill_gaps_with_zero?
     true
   end

@@ -12,20 +12,20 @@ describe Sensor::Chart::CustomPower do
     end
   end
 
-  describe '#bridge_gaps?' do
-    it 'is disabled for aggregated views (every empty bucket is a real idle phase)' do
+  describe '#gap_bridge_limit' do
+    it 'disables bridging for aggregated views (every empty bucket is a real idle phase)' do
       day_chart =
         described_class.new(
           timeframe: Timeframe.new('2025-03-03'),
           sensor_name: :custom_power_01,
         )
-      expect(day_chart.__send__(:bridge_gaps?)).to be(false)
+      expect(day_chart.__send__(:gap_bridge_limit)).to eq(0)
     end
 
-    it 'is enabled for the live "now" view (smooths cadence gaps, issue #5552)' do
+    it 'bridges only cadence jitter in the live "now" view (issue #5567)' do
       now_chart =
         described_class.new(timeframe: Timeframe.now, sensor_name: :custom_power_01)
-      expect(now_chart.__send__(:bridge_gaps?)).to be(true)
+      expect(now_chart.__send__(:gap_bridge_limit)).to eq(2.minutes.in_milliseconds)
     end
   end
 
@@ -58,6 +58,32 @@ describe Sensor::Chart::CustomPower do
       expect(chart.__send__(:fill_gaps_with_zero, [0, 50, nil])).to eq(
         [0, 50, 0],
       )
+    end
+  end
+
+  # End-to-end gap handling in the live "now" view (30s buckets).
+  describe '#process_gaps' do
+    subject(:now_chart) do
+      described_class.new(timeframe: Timeframe.now, sensor_name: :custom_power_01)
+    end
+
+    # 30s-spaced timestamps, matching the "now" view bucket grid
+    def labels(count)
+      Array.new(count) { |i| i * 30.seconds.in_milliseconds }
+    end
+
+    it 'bridges a cadence gap so constant power does not drop to 0 (issue #5567)' do
+      # A consumer polled every ~28s occasionally misses a single 30s bucket;
+      # the bracketing samples show the same constant power.
+      result = now_chart.__send__(:process_gaps, labels(3), [40, nil, 40])
+      expect(result).to eq([40, 40.0, 40])
+    end
+
+    it 'collapses a long idle gap to 0 instead of bridging it' do
+      # 8 missing buckets = 4 min, well over the 2-min cadence-jitter limit
+      gap = [nil] * 8
+      result = now_chart.__send__(:process_gaps, labels(gap.size + 2), [40, *gap, 40])
+      expect(result).to eq([40, *([0] * 8), 40])
     end
   end
 end
