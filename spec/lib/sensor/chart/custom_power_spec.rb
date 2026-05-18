@@ -85,5 +85,12 @@ describe Sensor::Chart::CustomPower do
       result = now_chart.__send__(:process_gaps, labels(gap.size + 2), [40, *gap, 40])
       expect(result).to eq([40, *([0] * 8), 40])
     end
+
+    it 'collapses a leading idle gap to 0 (consumer off at the window start)' do
+      # The fridge was idle before its first compressor cycle; that leading
+      # off-phase renders as a flat 0 baseline, like any interior idle phase.
+      result = now_chart.__send__(:process_gaps, labels(4), [nil, nil, 40, 40])
+      expect(result).to eq([0, 0, 40, 40])
+    end
   end
 end

@@ -430,12 +430,20 @@ export default class extends Controller {
   // stay inside the visible range. Server-side rendering pins min/max to the
   // time of the initial request; without this update the window would freeze
   // and live points drift off the right edge.
+  //
+  // The start is snapped up to the 30s bucket grid (see LIVE_BUCKET_MS): the
+  // leftmost data point sits on that grid, so an un-snapped start would leave
+  // a sub-bucket gap at the left edge. The end stays at the exact current
+  // time, keeping the open bucket clipped past the right edge as documented
+  // for LIVE_BUCKET_MS.
   private slideXAxisWindow(currentTime: Date) {
     const xScale = this.chart?.options.scales?.x;
     if (!xScale || xScale.min == null || xScale.max == null) return;
 
     const nowMs = currentTime.getTime();
-    xScale.min = nowMs - ONE_HOUR_MS;
+    const gridStart =
+      Math.ceil(nowMs / LIVE_BUCKET_MS) * LIVE_BUCKET_MS - ONE_HOUR_MS;
+    xScale.min = gridStart;
     xScale.max = nowMs;
   }
 

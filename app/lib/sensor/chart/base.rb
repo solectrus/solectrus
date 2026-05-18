@@ -298,9 +298,16 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       # (matches the P1H InfluxDB query below). Without this, Chart.js would
       # auto-fit the axis to the last data point, hiding any trailing gap
       # when the most recent measurement is older than "now".
-      now = Time.current
-      options[:min] = (now - 1.hour).to_i * 1000
-      options[:max] = now.to_i * 1000
+      #
+      # The window end stays at the exact current time, but the start is
+      # snapped up to the query's 30s bucket grid: the leftmost data point
+      # sits on that grid, so an un-snapped start would leave a sub-bucket
+      # gap at the left edge.
+      bucket = 30.seconds.in_milliseconds
+      now_ms = Time.current.to_i * 1000
+      grid_start = (now_ms + bucket - 1) / bucket * bucket
+      options[:max] = now_ms
+      options[:min] = grid_start - 1.hour.in_milliseconds
     else
       options[:min] = timeframe.beginning.to_i * 1000
       options[:max] = timeframe.ending.to_i * 1000
