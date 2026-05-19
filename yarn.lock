@@ -1195,13 +1195,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"el-transition@npm:^0.0.7":
-  version: 0.0.7
-  resolution: "el-transition@npm:0.0.7"
-  checksum: 10c0/37fc5f45b62a6bf18380067dec9aec138a3a5cac5661ef2eff58d24ee3a5d08818ab7957a4aeabf25649009d0c113b5864f6ebdd520b1fc9523d5c69b844b98f
-  languageName: node
-  linkType: hard
-
 "enhanced-resolve@npm:^5.21.0":
   version: 5.21.4
   resolution: "enhanced-resolve@npm:5.21.4"
@@ -2233,7 +2226,6 @@ __metadata:
     chartjs-adapter-luxon: "npm:^1.3.1"
     chartjs-plugin-crosshair: "npm:^2.0.0"
     chartjs-plugin-zoom: "npm:^2.2.0"
-    el-transition: "npm:^0.0.7"
     eslint: "npm:^10.4.0"
     eslint-config-prettier: "npm:^10.1.8"
     eslint-plugin-prettier: "npm:^5.5.5"

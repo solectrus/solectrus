@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { enter, leave } from 'el-transition';
+import { enter, leave } from '@/utils/transition';
 
 export default class extends Controller<HTMLElement> {
   private removeTimeout?: ReturnType<typeof setTimeout>;

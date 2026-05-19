@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { enter } from 'el-transition';
+import { enter } from '@/utils/transition';
 import type TooltipController from './tooltip_controller';
 
 export default class extends Controller<HTMLElement> {
