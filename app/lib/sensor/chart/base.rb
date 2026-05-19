@@ -242,7 +242,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       noGradient: type == 'bar' || sensor.hatch_fill?,
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
-      spanGaps: (gap_bridge_limit if type == 'line'),
+      spanGaps: (span_gaps if type == 'line'),
     }.compact
   end
 
@@ -624,6 +624,15 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # return 0 to disable bridging entirely.
   def gap_bridge_limit
     SPAN_GAPS_MS
+  end
+
+  # Chart.js spanGaps value: a positive number connects the line across null
+  # gaps up to that many ms. Passing 0 is *not* "span nothing" -- Chart.js
+  # reads it as a 0 ms threshold and breaks the line at every point, leaving
+  # only isolated, invisible points. Collapse a zero #gap_bridge_limit to
+  # false (the Chart.js default: never span, but still draw the line).
+  def span_gaps
+    gap_bridge_limit.positive? ? gap_bridge_limit : false
   end
 
   # Override in subclasses for sparse, low-frequency sensors whose value
