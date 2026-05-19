@@ -57,6 +57,7 @@ export default class extends Controller {
         () => this.loadNextFrame(index + 1),
         { once: true },
       );
+      this.retryOnError(frame);
       frame.src = frame.dataset.src;
 
       this.updateTimeEstimate(index);
@@ -66,6 +67,20 @@ export default class extends Controller {
         Turbo.visit(window.location.href, { action: 'replace' });
       }
     }
+  }
+
+  // A frame request can fail when connectivity is briefly unavailable (e.g.
+  // right after the device booted). Without this the sequence would stall on
+  // the loading spinner forever. Retry the frame until it succeeds.
+  retryOnError(frame: Turbo.FrameElement) {
+    frame.addEventListener(
+      'turbo:fetch-request-error',
+      () => {
+        this.retryOnError(frame);
+        setTimeout(() => frame.reload(), 2000);
+      },
+      { once: true },
+    );
   }
 
   updateTimeEstimate(index: number) {
