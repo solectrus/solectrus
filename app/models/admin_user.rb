@@ -13,11 +13,9 @@ class AdminUser
 
   def verify_password
     expected = Rails.configuration.x.admin_password
-    unless ActiveSupport::SecurityUtils.secure_compare(
-             password.to_s,
-             expected.to_s,
-           )
-      errors.add(:password, :invalid)
-    end
+    return errors.add(:password, :invalid) if expected.blank?
+    return if ActiveSupport::SecurityUtils.secure_compare(password.to_s, expected)
+
+    errors.add(:password, :invalid)
   end
 end

@@ -26,5 +26,15 @@ describe AdminUser do
 
       it { is_expected.not_to be_valid }
     end
+
+    context 'when ADMIN_PASSWORD is not configured' do
+      before do
+        allow(Rails.configuration.x).to receive(:admin_password).and_return(nil)
+      end
+
+      let(:params) { { username: 'admin', password: 'anything' } }
+
+      it { is_expected.not_to be_valid }
+    end
   end
 end
