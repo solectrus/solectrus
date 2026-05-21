@@ -4,11 +4,10 @@
 # Tests that need specific UpdateCheck behavior clear the cache themselves.
 RSpec.configure do |config|
   config.before do
-    UpdateCheck.instance
-      .instance_variable_get(:@cache_manager)
-      .set(
-        UpdateCheck.instance.fallback_data,
-        expires_at: 1.hour.from_now,
-      )
+    UpdateCheck.instance.cache_manager.set(
+      UpdateCheck.instance.fallback_data,
+      fresh_until: 1.hour.from_now,
+      stale_until: 25.hours.from_now,
+    )
   end
 end

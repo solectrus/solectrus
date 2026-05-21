@@ -104,7 +104,7 @@ describe UpdateCheck do
         latest
 
         expect(Rails.logger).to have_received(:error).with(
-          'UpdateCheck failed with timeout: execution expired',
+          'UpdateCheck failed: timeout: execution expired',
         ).once
       end
     end
@@ -131,7 +131,7 @@ describe UpdateCheck do
         latest
 
         expect(Rails.logger).to have_received(:error).with(
-          'UpdateCheck failed with SSL error: Exception from WebMock',
+          'UpdateCheck failed: SSL error: Exception from WebMock',
         ).once
       end
     end
@@ -471,15 +471,26 @@ describe UpdateCheck do
         expect(cached_rails?).to be true
       end
 
-      # After 12 hours, both caches are empty
+      # After 12 hours, the cache is stale (past fresh_until) but still
+      # within the grace period (stale_until = fresh_until + 24h).
       travel 12.hours + 1.second do
-        expect(cached?).to be false
+        expect(cached?).to be true
 
-        # New request is made (but fails because of VCR)
+        # A new request is attempted, but fails (no VCR stub). With the
+        # stale entry available, the failure is downgraded to a warning
+        # and the previous status is kept.
+        allow(Rails.logger).to receive(:warn)
         instance.latest
-        expect(Rails.logger).to have_received(:error).with(
-          /An HTTP request has been made/,
+
+        expect(Rails.logger).to have_received(:warn).with(
+          /UpdateCheck failed \(using cached status\)/,
         )
+        expect(cached?).to be true
+      end
+
+      # After 36 hours (12h fresh + 24h stale grace), the cache is gone.
+      travel 36.hours + 1.second do
+        expect(cached?).to be false
       end
     end
 
@@ -500,9 +511,11 @@ describe UpdateCheck do
       include_context 'with signature verification'
 
       def sign_and_cache(data)
-        instance
-          .instance_variable_get(:@cache_manager)
-          .set(sign_data(data), expires_at: 1.hour.from_now)
+        instance.cache_manager.set(
+          sign_data(data),
+          fresh_until: 1.hour.from_now,
+          stale_until: 25.hours.from_now,
+        )
       end
 
       context 'with valid signed cache' do
@@ -529,10 +542,7 @@ describe UpdateCheck do
           # Simulate process restart: clear memoized state and local cache,
           # but keep Rails cache (like Redis in production)
           instance.__send__(:reset_verified_cache!)
-          instance
-            .instance_variable_get(:@cache_manager)
-            .instance_variable_get(:@local_cache)
-            .clear
+          instance.cache_manager.instance_variable_get(:@local_cache).clear
 
           result = instance.latest
 
@@ -545,9 +555,18 @@ describe UpdateCheck do
           sign_and_cache(version: 'v1.1.1', registration_status: 'complete')
 
           # Tamper with cached data
-          cache_manager = instance.instance_variable_get(:@cache_manager)
-          tampered = cache_manager.get.merge(registration_status: 'complete', eligible_for_free: true)
-          cache_manager.set(tampered, expires_at: 1.hour.from_now)
+          cache_manager = instance.cache_manager
+          entry = cache_manager.get
+          tampered =
+            entry[:data].merge(
+              registration_status: 'complete',
+              eligible_for_free: true,
+            )
+          cache_manager.set(
+            tampered,
+            fresh_until: 1.hour.from_now,
+            stale_until: 25.hours.from_now,
+          )
 
           allow(Rails.logger).to receive(:error)
         end
@@ -564,6 +583,145 @@ describe UpdateCheck do
           expect(Rails.logger).to have_received(:error).with(
             'UpdateCheck: invalid signature in cache, clearing',
           )
+        end
+      end
+    end
+
+    describe 'stale-while-error behavior' do
+      include_context 'with signature verification'
+
+      let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
+
+      def stub_success
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: signed_json(
+            version: 'v1.1.1',
+            registration_status: 'complete',
+          ),
+        )
+      end
+
+      def stub_failure
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          status: [500, 'Boom'],
+        )
+      end
+
+      it 'keeps serving the cached status when the server fails within the grace period' do
+        stub_success
+        instance.latest # primes the cache with fresh data
+        expect(instance.registration_status).to eq('complete')
+
+        # 13h later: cache is stale (fresh_until = 12h), still within
+        # the 24h grace window.
+        travel 13.hours do
+          stub_failure
+          allow(Rails.logger).to receive(:warn)
+          allow(Rails.logger).to receive(:error)
+
+          expect(instance.registration_status).to eq('complete')
+          expect(Rails.logger).to have_received(:warn).with(
+            /UpdateCheck failed \(using cached status\)/,
+          )
+          expect(Rails.logger).not_to have_received(:error)
+        end
+      end
+
+      it 'switches to unknown once the 24h grace period is exhausted' do
+        stub_success
+        instance.latest
+
+        # 12h fresh + 24h grace + buffer = past stale_until
+        travel 36.hours + 1.minute do
+          stub_failure
+          allow(Rails.logger).to receive(:error)
+
+          expect(instance.registration_status).to eq('unknown')
+          expect(Rails.logger).to have_received(:error).with(
+            /UpdateCheck failed:/,
+          )
+        end
+      end
+
+      it 'throttles repeated retries during the stale phase' do
+        stub_success
+        instance.latest
+
+        travel 13.hours do
+          stub_failure
+          allow(Rails.logger).to receive(:warn)
+
+          # First call attempts HTTP and fails
+          instance.latest
+          expect(WebMock).to have_requested(:get, 'https://update.solectrus.de').twice
+
+          # Subsequent calls within 15 min do NOT attempt HTTP
+          5.times { instance.latest }
+          expect(WebMock).to have_requested(:get, 'https://update.solectrus.de').twice
+        end
+
+        # After 15 min, the throttle releases
+        travel 13.hours + 16.minutes do
+          instance.latest
+          expect(WebMock).to have_requested(:get, 'https://update.solectrus.de').times(3)
+        end
+      end
+
+      it 'treats a legacy/corrupted cache entry as missing and re-fetches' do
+        # Simulate a leftover entry from the pre-stale-while-error code
+        # path (flat hash without :data/:fresh_until wrapper).
+        Rails.cache.write(
+          cache_manager.cache_key,
+          { version: 'old', registration_status: 'complete' },
+          expires_in: 1.hour,
+        )
+        cache_manager.instance_variable_get(:@local_cache).clear
+
+        stub_success
+
+        expect { instance.latest }.not_to raise_error
+        expect(instance.registration_status).to eq('complete')
+      end
+
+      it 'treats an entry with a non-time fresh_until as missing' do
+        # Defensive guard: a corrupted fresh_until must not crash
+        # Time.current < ... comparisons.
+        Rails.cache.write(
+          cache_manager.cache_key,
+          { data: { registration_status: 'complete' }, fresh_until: 'broken' },
+          expires_in: 1.hour,
+        )
+        cache_manager.instance_variable_get(:@local_cache).clear
+
+        stub_success
+
+        expect { instance.latest }.not_to raise_error
+        expect(instance.registration_status).to eq('complete')
+      end
+
+      it 'recovers cleanly when the server comes back during the grace period' do
+        stub_success
+        instance.latest
+
+        travel 13.hours do
+          # First a failure
+          stub_failure
+          allow(Rails.logger).to receive(:warn)
+          instance.latest
+        end
+
+        # 16 min later (throttle released), server is healthy again
+        travel 13.hours + 16.minutes do
+          stub_request(:get, 'https://update.solectrus.de').to_return(
+            headers:,
+            body: signed_json(
+              version: 'v1.2.0',
+              registration_status: 'complete',
+            ),
+          )
+
+          expect(instance.latest_version).to eq('v1.2.0')
         end
       end
     end

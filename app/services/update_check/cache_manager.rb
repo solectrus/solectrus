@@ -7,14 +7,16 @@ class UpdateCheck::CacheManager
     @mutex = Mutex.new
   end
 
+  # Returns the wrapped entry { data:, fresh_until:, stale_until: } or nil.
   def get
     local_cache || @mutex.synchronize { rails_cache }
   end
 
-  def set(data, expires_at:)
+  def set(data, fresh_until:, stale_until:)
+    entry = { data:, fresh_until:, stale_until: }
     @mutex.synchronize do
-      update_local_cache(data, expires_in: LOCAL_CACHE_DURATION)
-      update_rails_cache(data, expires_at:)
+      memoize_local(entry)
+      Rails.cache.write(cache_key, entry, expires_in: (stale_until - Time.current).seconds)
     end
   end
 
@@ -23,6 +25,20 @@ class UpdateCheck::CacheManager
       Rails.cache.delete(cache_key)
       @local_cache.delete(cache_key)
     end
+  end
+
+  # Retry throttle: blocks new fetch attempts for a short period
+  # after a failure during the stale phase.
+  def throttle_retry!(duration)
+    Rails.cache.write(retry_throttle_key, true, expires_in: duration)
+  end
+
+  def retry_throttled?
+    Rails.cache.read(retry_throttle_key) || false
+  end
+
+  def clear_retry_throttle
+    Rails.cache.delete(retry_throttle_key)
   end
 
   # Skip cache methods - simple boolean status with automatic expiration
@@ -54,28 +70,24 @@ class UpdateCheck::CacheManager
     "UpdateCheck:Skip:#{Rails.configuration.x.git.commit_version}"
   end
 
+  def retry_throttle_key
+    "UpdateCheck:RetryThrottle:#{Rails.configuration.x.git.commit_version}"
+  end
+
   private
 
   def local_cache
     cache = @local_cache[cache_key]
-    cache[:data] if cache && Time.current < cache[:expires_at]
+    cache[:entry] if cache && Time.current < cache[:expires_at]
   end
 
-  def update_local_cache(data, expires_in:)
-    @local_cache[cache_key] = {
-      data: data,
-      expires_at: Time.current + expires_in,
-    }
-  end
-
-  def update_rails_cache(data, expires_at:)
-    expires_in = (expires_at - Time.current).seconds
-    Rails.cache.write(cache_key, data, expires_in:)
+  def memoize_local(entry)
+    @local_cache[cache_key] = { entry:, expires_at: Time.current + LOCAL_CACHE_DURATION }
   end
 
   def rails_cache
-    result = Rails.cache.read(cache_key)
-    update_local_cache(result, expires_in: LOCAL_CACHE_DURATION) if result
-    result
+    entry = Rails.cache.read(cache_key)
+    memoize_local(entry) if entry
+    entry
   end
 end

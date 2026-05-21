@@ -1,6 +1,7 @@
 class UpdateCheck
   include Singleton
   include SignatureCache
+  include Refresh
 
   def initialize
     @cache_manager = CacheManager.new
@@ -108,6 +109,7 @@ class UpdateCheck
   def clear_cache!
     reset_verified_cache!
     cache_manager.delete
+    cache_manager.clear_retry_throttle
     # Also clear sensor cache since permissions may have changed
     Sensor::Config.clear_cache!
   end
@@ -129,53 +131,7 @@ class UpdateCheck
   private
 
   def skip_prompt_duration
-    current[:skip_prompt_duration] || 24.hours
-  end
-
-  def current
-    cache_manager.get || {}
-  end
-
-  def fetch_and_cache_data_safely
-    # Double-checked locking pattern to avoid multiple HTTP requests
-    # First check: quick cache lookup without lock
-    cached_data = current
-    if cached_data.present?
-      # Development/Test: fallback_data has no signature, skip verification
-      return cached_data if self.class.skip_http?
-
-      return resolve_cached(cached_data)
-    end
-
-    reset_verified_cache!
-
-    # Skip HTTP requests in local environments (development + test).
-    # The test suite seeds the cache via spec/support/update_check.rb.
-    # Return sensible defaults so components render correctly.
-    return fallback_data if self.class.skip_http?
-
-    @mutex.synchronize do
-      # Second check: another thread might have fetched while we were waiting
-      cached_data = current
-      return resolve_cached(cached_data) if cached_data.present?
-
-      fetch_and_cache_data
-    end
-  end
-
-  def fetch_and_cache_data
-    result = @http_client.fetch_update_data
-    expires_at = Time.current + result[:expires_in]
-
-    import_notifications(result[:data].delete(:notifications))
-    # Cache includes :signature for verification on subsequent reads
-    cache_manager.set(result[:data], expires_at:)
-
-    @last_verified_signature = result[:data][:signature]
-    @verified_result = verified_data(result[:data])
-  end
-
-  def import_notifications(notifications_data)
-    NotificationImporter.new(notifications_data).call
+    entry = cached_entry
+    (entry && entry[:data][:skip_prompt_duration]) || 24.hours
   end
 end

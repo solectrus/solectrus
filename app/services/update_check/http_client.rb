@@ -1,28 +1,35 @@
 class UpdateCheck::HttpClient
+  # Returns either:
+  #   { status: :ok, data: {...}, expires_in: <seconds> }
+  # or:
+  #   { status: :error, error_message: "..." }
+  #
+  # The caller (UpdateCheck) decides how to react to errors
+  # (e.g. fall back to stale cache, choose log level).
   def fetch_update_data
     response = fetch_http_response
     unless response.is_a?(Net::HTTPSuccess)
-      Rails.logger.error "UpdateCheck failed: Error #{response.code} - #{response.message}"
-      return { data: { registration_status: 'unknown' }, expires_in: 5.minutes }
+      return error("Error #{response.code} - #{response.message}")
     end
 
     json = parse_json(response)
     expires_in = expiration_from(response) || 12.hours
     Rails.logger.info "Checked for update availability, valid for #{expires_in / 60} minutes"
 
-    { data: json, expires_in: }
+    { status: :ok, data: json, expires_in: }
   rescue Net::OpenTimeout, Net::ReadTimeout => e
-    Rails.logger.error "UpdateCheck failed with timeout: #{e}"
-    { data: { registration_status: 'unknown' }, expires_in: 5.minutes }
+    error("timeout: #{e}")
   rescue OpenSSL::SSL::SSLError => e
-    Rails.logger.error "UpdateCheck failed with SSL error: #{e}"
-    { data: { registration_status: 'unknown' }, expires_in: 5.minutes }
+    error("SSL error: #{e}")
   rescue StandardError => e
-    Rails.logger.error "UpdateCheck failed: #{e}"
-    { data: { registration_status: 'unknown' }, expires_in: 5.minutes }
+    error(e.to_s)
   end
 
   private
+
+  def error(message)
+    { status: :error, error_message: message }
+  end
 
   def fetch_http_response
     uri = URI(update_url)

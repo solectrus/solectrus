@@ -28,6 +28,7 @@ describe UpdateCheck::HttpClient do
 
       it 'returns the parsed JSON data with expiration' do
         expect(result).to eq(
+          status: :ok,
           data: {
             version: 'v1.1.1',
             registration_status: 'unregistered',
@@ -84,47 +85,23 @@ describe UpdateCheck::HttpClient do
         stub_request(:get, update_url).to_return(
           status: [500, 'Internal Server Error'],
         )
-        allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns unknown status with short expiration' do
+      it 'returns an error result' do
         expect(result).to eq(
-          data: {
-            registration_status: 'unknown',
-          },
-          expires_in: 5.minutes,
-        )
-      end
-
-      it 'logs the error' do
-        result
-
-        expect(Rails.logger).to have_received(:error).with(
-          'UpdateCheck failed: Error 500 - Internal Server Error',
+          status: :error,
+          error_message: 'Error 500 - Internal Server Error',
         )
       end
     end
 
     context 'when the request times out' do
-      before do
-        stub_request(:get, update_url).to_timeout
-        allow(Rails.logger).to receive(:error)
-      end
+      before { stub_request(:get, update_url).to_timeout }
 
-      it 'returns unknown status with short expiration' do
+      it 'returns an error result' do
         expect(result).to eq(
-          data: {
-            registration_status: 'unknown',
-          },
-          expires_in: 5.minutes,
-        )
-      end
-
-      it 'logs the timeout error' do
-        result
-
-        expect(Rails.logger).to have_received(:error).with(
-          'UpdateCheck failed with timeout: execution expired',
+          status: :error,
+          error_message: 'timeout: execution expired',
         )
       end
     end
@@ -134,23 +111,12 @@ describe UpdateCheck::HttpClient do
         stub_request(:get, update_url).to_raise(
           OpenSSL::SSL::SSLError.new('SSL verification failed'),
         )
-        allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns unknown status with short expiration' do
+      it 'returns an error result' do
         expect(result).to eq(
-          data: {
-            registration_status: 'unknown',
-          },
-          expires_in: 5.minutes,
-        )
-      end
-
-      it 'logs the SSL error' do
-        result
-
-        expect(Rails.logger).to have_received(:error).with(
-          'UpdateCheck failed with SSL error: SSL verification failed',
+          status: :error,
+          error_message: 'SSL error: SSL verification failed',
         )
       end
     end
@@ -161,22 +127,11 @@ describe UpdateCheck::HttpClient do
           status: 200,
           body: 'invalid json',
         )
-        allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns unknown status with short expiration' do
-        expect(result).to eq(
-          data: {
-            registration_status: 'unknown',
-          },
-          expires_in: 5.minutes,
-        )
-      end
-
-      it 'logs the JSON error' do
-        result
-
-        expect(Rails.logger).to have_received(:error).with(/UpdateCheck failed/)
+      it 'returns an error result' do
+        expect(result[:status]).to eq(:error)
+        expect(result[:error_message]).to match(/JSON|unexpected/i)
       end
     end
 
@@ -188,23 +143,12 @@ describe UpdateCheck::HttpClient do
           status: 200,
           body: response_body,
         )
-        allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns unknown status with short expiration' do
+      it 'returns an error result' do
         expect(result).to eq(
-          data: {
-            registration_status: 'unknown',
-          },
-          expires_in: 5.minutes,
-        )
-      end
-
-      it 'logs invalid response error' do
-        result
-
-        expect(Rails.logger).to have_received(:error).with(
-          'UpdateCheck failed: Invalid response',
+          status: :error,
+          error_message: 'Invalid response',
         )
       end
     end
@@ -214,23 +158,12 @@ describe UpdateCheck::HttpClient do
         stub_request(:get, update_url).to_raise(
           StandardError.new('Unexpected error'),
         )
-        allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns unknown status with short expiration' do
+      it 'returns an error result' do
         expect(result).to eq(
-          data: {
-            registration_status: 'unknown',
-          },
-          expires_in: 5.minutes,
-        )
-      end
-
-      it 'logs the unexpected error' do
-        result
-
-        expect(Rails.logger).to have_received(:error).with(
-          'UpdateCheck failed: Unexpected error',
+          status: :error,
+          error_message: 'Unexpected error',
         )
       end
     end
@@ -247,22 +180,11 @@ describe UpdateCheck::HttpClient do
         stub_request(:get, update_url).to_return(
           status: 200, body: response_body, headers:,
         )
-        allow(Rails.logger).to receive(:error)
       end
 
-      it 'returns unknown status' do
-        expect(result).to eq(
-          data: { registration_status: 'unknown' },
-          expires_in: 5.minutes,
-        )
-      end
-
-      it 'logs signature failure' do
-        result
-
-        expect(Rails.logger).to have_received(:error).with(
-          /Signature verification failed/,
-        )
+      it 'returns an error result' do
+        expect(result[:status]).to eq(:error)
+        expect(result[:error_message]).to match(/Signature verification failed/)
       end
     end
   end
