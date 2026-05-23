@@ -80,5 +80,44 @@ describe Sensor::Definitions::Colors do
         stop: 'bg-high',
       )
     end
+
+    it 'returns a multi-stop gradient when stops are given' do
+      gradient =
+        colors.gradient(stops: { 0 => 'bg-low', 50 => 'bg-mid', 100 => 'bg-high' })
+
+      expect(gradient).to eq(
+        type: :gradient,
+        stops: { 0 => 'bg-low', 50 => 'bg-mid', 100 => 'bg-high' },
+      )
+    end
+  end
+
+  describe '#color with multi-stop gradient' do
+    let(:gradient) do
+      colors.gradient(stops: { -10 => 'bg-cold', 20 => 'bg-mid', 40 => 'bg-hot' })
+    end
+
+    it 'stores a sorted multi-stop color scale' do
+      colors.color(background: gradient, text: 'text-white')
+
+      expect(meta_data[:color_background_scale]).to eq(
+        [[-10.0, 'bg-cold'], [20.0, 'bg-mid'], [40.0, 'bg-hot']],
+      )
+      expect(meta_data[:color_background]).to eq('bg-hot')
+    end
+
+    it 'rejects fewer than two stops' do
+      gradient = colors.gradient(stops: { 0 => 'bg-only' })
+
+      expect { colors.color(background: gradient, text: 'text-white') }
+        .to raise_error(ArgumentError, /at least two entries/)
+    end
+
+    it 'rejects non-numeric keys' do
+      gradient = colors.gradient(stops: { '0' => 'bg-low', '40' => 'bg-high' })
+
+      expect { colors.color(background: gradient, text: 'text-white') }
+        .to raise_error(ArgumentError, /numeric values/)
+    end
   end
 end

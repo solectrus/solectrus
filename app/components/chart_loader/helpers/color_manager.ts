@@ -185,17 +185,13 @@ export class ColorManager {
     dataset: ChartDataset<'bar'>,
     scale: ResolvedColorScaleStop[],
   ): void {
-    dataset.backgroundColor = (context: {
-      chart: Chart;
-      datasetIndex: number;
-    }) => {
+    dataset.backgroundColor = (context: { chart: Chart }) => {
       const { ctx, chartArea } = context.chart;
       if (chartArea)
         return this.createBarScaleGradient(
           ctx,
           context.chart,
           chartArea,
-          context.datasetIndex,
           scale,
         );
     };
@@ -300,17 +296,18 @@ export class ColorManager {
     ctx: CanvasRenderingContext2D,
     chart: Chart,
     chartArea: { top: number; bottom: number },
-    datasetIndex: number,
     scale: ResolvedColorScaleStop[],
   ): CanvasGradient {
-    const values = this.collectBarValues(chart, datasetIndex);
+    // Align gradient to the Y axis range so every pixel renders the color
+    // matching its value, keeping bars and same-value point markers in sync.
+    const yScale = chart.scales.y;
 
     return this.createScaleGradient({
       ctx,
       startY: chartArea.bottom,
       endY: chartArea.top,
       scale,
-      values,
+      values: [yScale.min, yScale.max],
       opacityFn: () => 1,
       emptyWhenFlat: false,
     });
@@ -330,19 +327,6 @@ export class ColorManager {
       if (typeof y === 'number') return y;
     }
     return null;
-  }
-
-  private collectBarValues(chart: Chart, datasetIndex: number): number[] {
-    const data = chart.data.datasets[datasetIndex].data as number[][];
-    const values: number[] = [];
-
-    for (const value of data) {
-      if (Array.isArray(value) && value.length === 2) {
-        values.push(...value.filter((temp) => temp != null));
-      }
-    }
-
-    return values;
   }
 
   private createScaleGradient({

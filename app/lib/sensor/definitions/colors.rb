@@ -17,7 +17,9 @@ module Sensor
         raise ArgumentError, 'color requires either a block or background and text'
       end
 
-      def gradient(from:, to:, start:, stop:)
+      def gradient(from: nil, to: nil, start: nil, stop: nil, stops: nil)
+        return { type: :gradient, stops: } if stops
+
         {
           type: :gradient,
           from:,
@@ -59,18 +61,18 @@ module Sensor
       def apply_gradient_color(gradient, text, border, hatch_fill = nil)
         validate_gradient_options!(gradient, text, border)
 
-        from = gradient[:from]
-        to = gradient[:to]
-        start = gradient[:start]
-        stop = gradient[:stop]
-
-        background_scale = normalize_color_scale({ from => start, to => stop })
+        background_scale = build_gradient_scale(gradient)
 
         meta_data[:color_background_scale] = background_scale
-        meta_data[:color_background] = stop
+        meta_data[:color_background] = background_scale.last.last
         meta_data[:color_text] = text
         meta_data[:color_border] = border if border
         meta_data[:hatch_fill] = hatch_fill unless hatch_fill.nil?
+      end
+
+      def build_gradient_scale(gradient)
+        stops = gradient[:stops] || { gradient[:from] => gradient[:start], gradient[:to] => gradient[:stop] }
+        normalize_color_scale(stops)
       end
 
       def gradient?(value)
@@ -87,8 +89,22 @@ module Sensor
         validate_gradient_hash!(gradient)
         validate_gradient_text!(text)
         validate_gradient_border!(border)
-        validate_gradient_keys!(gradient)
-        validate_gradient_classes!(gradient)
+
+        if gradient[:stops]
+          validate_gradient_stops!(gradient[:stops])
+        else
+          validate_gradient_keys!(gradient)
+          validate_gradient_classes!(gradient)
+        end
+      end
+
+      def validate_gradient_stops!(stops)
+        unless stops.is_a?(Hash) && stops.size >= 2
+          raise ArgumentError, 'color gradient stops must be a Hash with at least two entries'
+        end
+        return if stops.all? { |key, value| key.is_a?(Numeric) && value.is_a?(String) }
+
+        raise ArgumentError, 'color gradient stops must map numeric values to color class strings'
       end
 
       def validate_gradient_hash!(gradient)
