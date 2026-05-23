@@ -1196,12 +1196,12 @@ __metadata:
   linkType: hard
 
 "enhanced-resolve@npm:^5.21.0":
-  version: 5.21.5
-  resolution: "enhanced-resolve@npm:5.21.5"
+  version: 5.21.6
+  resolution: "enhanced-resolve@npm:5.21.6"
   dependencies:
     graceful-fs: "npm:^4.2.4"
     tapable: "npm:^2.3.3"
-  checksum: 10c0/77cde90acb5c9a729595645fbe5188da1f8225c0096e3c08f1163291cb1a408942fb48c1adee22f5cd9310e874a511ab19adfe3ce09cf3f9e9cc9d6ed6fe48c0
+  checksum: 10c0/4991b0ee020ce534c824e8f191a2cf068b9206dc6c9aef5797d41db5c45036c868145c2f0badee6084de2cc3703c7ca76426b254c6b2eac0e0e670ab4a33e528
   languageName: node
   linkType: hard
 
@@ -2143,11 +2143,11 @@ __metadata:
   linkType: hard
 
 "semver@npm:^7.3.5, semver@npm:^7.7.3":
-  version: 7.8.0
-  resolution: "semver@npm:7.8.0"
+  version: 7.8.1
+  resolution: "semver@npm:7.8.1"
   bin:
     semver: bin/semver.js
-  checksum: 10c0/8f096ca9b80ffd47b308d03f9ce8c873e27e2983f36023c559cdc92c51e8433fc23ebbfe57ec9623fc155636a6961ee989501099841ae4bb1babc8d2b3f048cd
+  checksum: 10c0/92d6871d6347e1f99d0ba396a70f2545ccf2a032cda3d378fa0699edf7506b5c6d266aed55c8b88e72bd91a30d2351e4f39db479375374430fcdc4b58f4e3c1a
   languageName: node
   linkType: hard
 
