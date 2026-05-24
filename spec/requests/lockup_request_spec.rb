@@ -52,6 +52,24 @@ describe 'Lockup' do
         end
       end
 
+      context 'with correct codeword and malicious return_to' do
+        [
+          '//evil.com',
+          '/\\evil.com',
+          'http://evil.com',
+          'https://evil.com/path',
+          'javascript:alert(1)',
+          'evil.com',
+        ].each do |bad_path|
+          it "ignores #{bad_path.inspect} and redirects to root" do
+            post '/lockup/unlock',
+                 params: { lockup: { codeword:, return_to: bad_path } }
+
+            expect(response).to redirect_to('/')
+          end
+        end
+      end
+
       context 'with incorrect codeword' do
         it 'shows error message' do
           post '/lockup/unlock',

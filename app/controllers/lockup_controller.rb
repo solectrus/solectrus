@@ -24,6 +24,18 @@ class LockupController < ApplicationController
   private
 
   def safe_return_path(path)
-    path.present? && path.start_with?('/') && !path.start_with?('//') ? path : '/'
+    return '/' if path.blank?
+
+    uri = URI.parse(path)
+    # Only allow relative paths (no scheme, no host) starting with a single
+    # forward slash. This blocks open redirects, including protocol-relative
+    # URLs like "//evil.com" and backslash tricks like "/\evil.com".
+    return '/' if uri.scheme || uri.host
+    return '/' unless path.start_with?('/')
+    return '/' if path.start_with?('//', '/\\')
+
+    path
+  rescue URI::InvalidURIError
+    '/'
   end
 end
