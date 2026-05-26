@@ -319,12 +319,22 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     }
   end
 
+  # Hide forecast values before now, but seed the master-grid bucket
+  # directly before now with the next future sample's value so the
+  # forecast area starts max one bucket before now instead of leaving
+  # a wedge until the next provider sample.
   def mask_past_forecast_values(sorted_points, data_values)
     now = Time.current
-    masked_values = sorted_points.zip(data_values)
-    masked_values.map! do |(time_key, _), value|
-      normalize_timestamp(time_key) >= now ? value : nil
+    normalized = sorted_points.map { |time_key, _| normalize_timestamp(time_key) }
+    anchor_idx = normalized.rindex { |ts| ts < now }
+    next_value = anchor_idx && data_values[(anchor_idx + 1)..].find { |v| v }
+
+    data_values.map.with_index do |value, idx|
+      if normalized[idx] >= now
+        value
+      elsif idx == anchor_idx
+        next_value
+      end
     end
-    masked_values
   end
 end
