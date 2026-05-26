@@ -52,10 +52,14 @@ RSpec.configure do |config|
     example.run
   end
 
-  # Seed prices and settings once for the entire test suite
+  # Seed prices and settings once for the entire test suite.
+  # Settings are wiped first so seed! produces fresh values on a persistent
+  # local test DB (otherwise a stale setup_id ages out the grace period).
   config.before(:suite) do
     Price.delete_all
     Price.seed!
+    Setting.delete_all
+    Setting.clear_cache
     Setting.seed!
   end
 
