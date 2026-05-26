@@ -355,7 +355,10 @@ describe UpdateCheck do
     let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
     context 'when free_trial_ends_at is in the future' do
+      # Freeze time so the stubbed ISO8601 timestamp (second precision)
+      # matches the expected value exactly, avoiding flaky drift around tick boundaries.
       before do
+        freeze_time
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
@@ -369,7 +372,7 @@ describe UpdateCheck do
       it { is_expected.to be true }
 
       it 'returns parsed end date' do
-        expect(instance.free_trial_ends_at).to be_within(1.second).of(30.days.from_now)
+        expect(instance.free_trial_ends_at).to eq(30.days.from_now.change(usec: 0))
       end
     end
 
