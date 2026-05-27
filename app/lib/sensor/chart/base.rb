@@ -154,7 +154,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
         id: sensor.name.to_s,
         label: sensor.display_name,
         data: chart_data[:data],
-      }.merge(style_for_sensor(sensor))
+        spanGaps: chart_data[:span_gaps_ms],
+      }.compact.merge(style_for_sensor(sensor))
     end
   end
 
@@ -162,6 +163,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     items.each do |item|
       item[:data] = grid_aligned_values(master_labels, item)
       item[:labels] = master_labels
+      item[:span_gaps_ms] = compute_span_gaps_ms(master_labels, item[:data])
     end
   end
 
@@ -275,7 +277,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       noGradient: type == 'bar' || sensor.hatch_fill?,
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
-      spanGaps: (span_gaps if type == 'line'),
     }.compact
   end
 
@@ -660,13 +661,23 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     SPAN_GAPS_MS
   end
 
-  # Chart.js spanGaps value: a positive number connects the line across null
-  # gaps up to that many ms. Passing 0 is *not* "span nothing" -- Chart.js
-  # reads it as a 0 ms threshold and breaks the line at every point, leaving
-  # only isolated, invisible points. Collapse a zero #gap_bridge_limit to
-  # false (the Chart.js default: never span, but still draw the line).
-  def span_gaps
-    gap_bridge_limit.positive? ? gap_bridge_limit : false
+  # Chart.js spanGaps value for a specific dataset, mirroring the server-side
+  # bridge limit so the client connects line points across gaps up to the
+  # same threshold the server interpolated. Numeric spanGaps with a time
+  # scale also gates the segment between *consecutive non-null* points: if
+  # their X-distance exceeds the value, Chart.js breaks the line. A fixed
+  # floor (e.g. 5 min) would therefore hide every step of a 15-min sensor.
+  # Returning the adaptive limit keeps fast-poll outage detection while
+  # letting sparse cadences (forecast, slow-poll sensors) still render.
+  # Passing 0 is *not* "span nothing" -- Chart.js reads it as a 0 ms
+  # threshold and breaks the line at every point. Collapse a zero
+  # #gap_bridge_limit to false (the Chart.js default: never span, but still
+  # draw the line).
+  def compute_span_gaps_ms(labels, values)
+    return false unless type == 'line'
+    return false unless gap_bridge_limit.positive?
+
+    effective_gap_bridge_limit(labels, values)
   end
 
   # Override in subclasses for sparse, low-frequency sensors whose value

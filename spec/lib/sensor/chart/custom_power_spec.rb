@@ -29,20 +29,22 @@ describe Sensor::Chart::CustomPower do
     end
   end
 
-  describe '#span_gaps' do
+  describe '#compute_span_gaps_ms' do
     it 'collapses a zero bridge limit to false, not 0 (Chart.js breaks the line at every point on 0)' do
       day_chart =
         described_class.new(
           timeframe: Timeframe.new('2025-03-03'),
           sensor_name: :custom_power_01,
         )
-      expect(day_chart.__send__(:span_gaps)).to be(false)
+      expect(day_chart.__send__(:compute_span_gaps_ms, [], [])).to be(false)
     end
 
     it 'passes the positive cadence-jitter limit through in the "now" view' do
       now_chart =
         described_class.new(timeframe: Timeframe.now, sensor_name: :custom_power_01)
-      expect(now_chart.__send__(:span_gaps)).to eq(2.minutes.in_milliseconds)
+      expect(now_chart.__send__(:compute_span_gaps_ms, [], [])).to eq(
+        2.minutes.in_milliseconds,
+      )
     end
   end
 
