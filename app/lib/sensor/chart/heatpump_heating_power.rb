@@ -11,23 +11,52 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
 
   private
 
-  # Override transform_data to ensure sum of components <= heating_power
+  # Override transform_data to ensure sum of components == heating_power.
+  # Sparse heating_power cadences (e.g. hourly backfills on a 5-min grid)
+  # are bridged once via Base#bridge_short_gaps so we can clamp the
+  # component values against the *interpolated* heating_power. Grid and
+  # pv therefore keep their native (often denser) cadence; the env layer
+  # is derived from heating_power - electrical and absorbs the difference,
+  # so the stacked area stays consistent (sum == heating_power) while
+  # grid/pv reveal their actual resolution.
   def transform_data(data, sensor_name)
     return super unless series.respond_to?(:heatpump_heating_power)
 
+    timestamps = heating_data.keys.sort
     data.map.with_index do |value, index|
-      timestamp = heating_data.keys.sort[index]
-      heating_power = heating_data[timestamp]
+      timestamp = timestamps[index]
+      heating_power = bridged_heating_power[timestamp]
 
-      # No heating or no value means all components are 0
-      next 0 unless value && heating_power&.positive?
+      next nil if heating_power.nil?
+      next 0 unless heating_power.positive?
 
-      clamp_to_heating_power(sensor_name, value, heating_power, timestamp)
+      clamp_to_heating_power(sensor_name, value || 0, heating_power, timestamp)
     end
   end
 
   def heating_data
     @heating_data ||= sensor_data(:heatpump_heating_power)
+  end
+
+  # heating_data with linear interpolation across short gaps, so components
+  # at finer cadences can be clamped against a continuous ceiling. Reuses
+  # Base#bridge_short_gaps (cadence-adaptive limit applies). Only meaningful
+  # for sub-day timeframes (line charts on a fine bucket grid) -- weekly /
+  # monthly / yearly aggregates are dense by construction (SQL group_by)
+  # and use Date keys that don't respond to #to_i, so we skip bridging.
+  def bridged_heating_power
+    @bridged_heating_power ||= build_bridged_heating_power
+  end
+
+  def build_bridged_heating_power
+    return heating_data unless timeframe.short?
+
+    timestamps = heating_data.keys.sort
+    return heating_data if timestamps.size < 2
+
+    labels = timestamps.map { |t| t.to_i * 1000 }
+    values = timestamps.map { |t| heating_data[t] }
+    timestamps.zip(bridge_short_gaps(labels, values)).to_h
   end
 
   def sensor_data(sensor_name)
