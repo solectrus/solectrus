@@ -59,7 +59,9 @@ describe Sensor::Chart::InverterPower do
       end
 
       it 'bridges short null runs with linear interpolation' do
-        # 3 nil minutes between 110 and 200 -- 4 min total gap, well under 15
+        # 3 nil minutes between 110 and 200 -- 4 min total gap, under the
+        # SPAN_GAPS_MS floor (5 min). Only 2 real samples, so the adaptive
+        # cadence detection stays out and the floor is the binding limit.
         labels = minute_labels(6)
         result = chart.__send__(:bridge_short_gaps, labels, [100, 110, nil, nil, nil, 200])
 
@@ -67,7 +69,7 @@ describe Sensor::Chart::InverterPower do
       end
 
       it 'leaves long null runs as nil so line and area break together' do
-        # 20 nil minutes between 100 and 200 -- over the 15-minute threshold
+        # 20 nil minutes between 100 and 200 -- well over the 5-min floor
         gap = [nil] * 20
         labels = minute_labels(gap.size + 2)
         result = chart.__send__(:bridge_short_gaps, labels, [100, *gap, 200])

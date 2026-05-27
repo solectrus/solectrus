@@ -119,7 +119,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
   # Chart.js stacked line fill (fill: '-1') needs numeric values at every
   # index. Bridge short outages with the last known value and only mark
   # longer gaps as 0 so brief sensor dropouts don't render as drops to zero.
-  # The 15-minute threshold mirrors `Sensor::Chart::Base::SPAN_GAPS_MS` so
+  # The 5-minute threshold mirrors `Sensor::Chart::Base::SPAN_GAPS_MS` so
   # the inverter (sparse line) and power balance (stacked area) charts
   # treat the same outage consistently.
   #
@@ -159,7 +159,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     end
   end
 
-  GAP_BRIDGE_DURATION = 15.minutes
+  GAP_BRIDGE_DURATION = 5.minutes
   private_constant :GAP_BRIDGE_DURATION
 
   def gap_bridge_buckets

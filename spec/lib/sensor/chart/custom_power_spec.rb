@@ -109,5 +109,23 @@ describe Sensor::Chart::CustomPower do
       result = now_chart.__send__(:process_gaps, labels(4), [nil, nil, 40, 40])
       expect(result).to eq([0, 0, 40, 40])
     end
+
+    it 'respects an explicit gap_bridge_limit of 0 even with many real samples' do
+      # day-view base limit is 0 (explicit no-bridge override). Even when the
+      # series has enough samples for the adaptive cadence detector to fire,
+      # the explicit 0 must win and gaps must collapse to 0 (per
+      # fill_gaps_with_zero?).
+      day_chart =
+        described_class.new(
+          timeframe: Timeframe.new('2025-03-03'),
+          sensor_name: :custom_power_01,
+        )
+
+      values = [40, 40, 40, 40, 40, nil, nil, 40, 40, 40]
+      day_labels = Array.new(values.size) { |i| i * 5.minutes.in_milliseconds }
+      result = day_chart.__send__(:process_gaps, day_labels, values)
+
+      expect(result).to eq([40, 40, 40, 40, 40, 0, 0, 40, 40, 40])
+    end
   end
 end

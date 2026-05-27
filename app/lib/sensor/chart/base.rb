@@ -1,5 +1,11 @@
 class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
-  SPAN_GAPS_MS = 15.minutes.in_milliseconds
+  # Floor for #gap_bridge_limit and the client-side Chart.js spanGaps. The
+  # actual server-side bridging widens automatically for sparse sensors
+  # (#effective_gap_bridge_limit), so this floor only sets how long a gap
+  # in a *dense* sensor may be before it stays a visible break. 5 minutes
+  # covers a single missed bucket at the typical 5-min cadence (and any
+  # cadence-jitter for faster sensors) without hiding real outages.
+  SPAN_GAPS_MS = 5.minutes.in_milliseconds
   private_constant :SPAN_GAPS_MS
 
   def initialize(timeframe:, variant: nil)
@@ -184,9 +190,11 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     master_labels.map { |x| by_x[x] }
   end
 
-  # Linearly interpolates null runs whose time gap is within #gap_bridge_limit;
-  # longer runs stay nil so Chart.js breaks line and Filler-area together.
+  # Linearly interpolates null runs whose time gap is within the effective
+  # bridge limit (see #effective_gap_bridge_limit); longer runs stay nil so
+  # Chart.js breaks line and Filler-area together.
   def bridge_short_gaps(labels, values)
+    limit = effective_gap_bridge_limit(labels, values)
     values = values.dup
     last = nil
     i = 0
@@ -194,7 +202,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       if values[i].nil?
         stop = i
         stop += 1 while stop < values.size && values[stop].nil?
-        interpolate_gap!(labels, values, i, stop, last) if last && stop < values.size
+        interpolate_gap!(labels, values, i, stop, last, limit) if last && stop < values.size
         i = stop
       else
         last = i
@@ -204,9 +212,34 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     values
   end
 
-  def interpolate_gap!(labels, values, start, stop, last)
+  # Adapts the bridge limit to the sensor's actual sample cadence: detects
+  # the median spacing between non-null samples and bridges up to 2x that
+  # cadence (one missed sample at the detected cadence). Never shrinks
+  # below #gap_bridge_limit -- this only EXPANDS the default for sparse
+  # sensors (slow polling, artificial backfills) without weakening it for
+  # densely polled ones. An explicit base of 0 stays 0: disable wins.
+  def effective_gap_bridge_limit(labels, values)
+    base = gap_bridge_limit
+    return base unless base.positive?
+
+    cadence = detected_cadence_ms(labels, values)
+    cadence && cadence * 2 > base ? cadence * 2 : base
+  end
+
+  # Need at least 3 samples (2 spacings) -- with a single spacing the
+  # "cadence" is just the gap itself, which would always bridge across it
+  # regardless of how long the outage really is.
+  def detected_cadence_ms(labels, values)
+    real_indices = values.each_index.reject { |i| values[i].nil? }
+    return if real_indices.size < 3
+
+    spacings = real_indices.each_cons(2).map { |a, b| labels[b] - labels[a] }
+    spacings.sort[spacings.size / 2]
+  end
+
+  def interpolate_gap!(labels, values, start, stop, last, limit = gap_bridge_limit)
     span = (labels[stop] - labels[last]).to_f
-    return if span > gap_bridge_limit
+    return if span > limit
 
     a = values[last]
     delta = values[stop] - a
@@ -617,11 +650,12 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     false
   end
 
-  # Longest null gap (in ms) that is bridged: server-side bridge_short_gaps
-  # interpolates across it, and Chart.js spanGaps connects the line across a
-  # gap of that length (relevant for client-appended live "now" updates).
-  # Override in subclasses to narrow it to the cadence-jitter scale, or
-  # return 0 to disable bridging entirely.
+  # Minimum bridge limit (in ms) for server-side bridge_short_gaps and the
+  # client-side Chart.js spanGaps. The actual server-side limit is widened
+  # automatically for sparse sensors via #effective_gap_bridge_limit -- so
+  # subclasses only need to override this to *narrow* the threshold (e.g.
+  # cadence-jitter scale for the live "now" view) or to disable bridging
+  # entirely by returning 0.
   def gap_bridge_limit
     SPAN_GAPS_MS
   end
