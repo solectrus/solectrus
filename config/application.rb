@@ -122,6 +122,16 @@ module Solectrus
       Rails.logger.info(
         "[Influx::PollInterval] starting with interval=#{Influx::PollInterval.current.to_i}s",
       )
+
+      # Freeze UpdateCheck after boot so it can't be reopened at runtime.
+      # Guarded by eager_load to ensure all nested UpdateCheck::* constants are
+      # already defined (otherwise autoloading one later raises FrozenError);
+      # the !local? check keeps the class open for stubs in dev/test, including
+      # CI where eager_load is on.
+      if Rails.application.config.eager_load && !Rails.env.local?
+        UpdateCheck.instance
+        UpdateCheck.freeze
+      end
     end
 
     config.x.installation_date =

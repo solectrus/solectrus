@@ -50,3 +50,9 @@ class ApplicationPolicy
 
   delegate :eligible_for_free?, :sponsoring?, :free_trial?, to: UpdateCheck
 end
+
+# Prevent runtime redefinition in production.
+unless Rails.env.local?
+  ApplicationPolicy.instance
+  ApplicationPolicy.freeze
+end
