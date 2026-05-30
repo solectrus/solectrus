@@ -10,7 +10,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
       )
 
       allow(Rails.configuration.x.git).to receive(:commit_version).and_return(
-        'v1.1.1',
+        'v1.2.0',
       )
 
       allow(Rails.configuration.x).to receive(:app_name).and_return('SOLECTRUS')
@@ -26,7 +26,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
 
     it 'returns the user agent string' do
       expect(user_agent.to_s).to eq(
-        'SOLECTRUS/v1.1.1 (Linux; aarch64; 6.1.0; 0)',
+        'SOLECTRUS/v1.2.0 (Linux; aarch64; 6.1.0; 0)',
       )
     end
 
@@ -35,7 +35,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
 
       it 'appends a helios token with version' do
         expect(user_agent.to_s).to eq(
-          'SOLECTRUS/v1.1.1 (Linux; aarch64; 6.1.0; 0) HELIOS/v0.1.1-4-g6bebca2',
+          'SOLECTRUS/v1.2.0 (Linux; aarch64; 6.1.0; 0) HELIOS/v0.1.1-4-g6bebca2',
         )
       end
     end
@@ -45,7 +45,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
 
       it 'appends an influxdb token with version' do
         expect(user_agent.to_s).to eq(
-          'SOLECTRUS/v1.1.1 (Linux; aarch64; 6.1.0; 0) INFLUXDB/2.8.0',
+          'SOLECTRUS/v1.2.0 (Linux; aarch64; 6.1.0; 0) INFLUXDB/2.8.0',
         )
       end
     end
@@ -55,7 +55,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
 
       it 'appends a postgresql token with version' do
         expect(user_agent.to_s).to eq(
-          'SOLECTRUS/v1.1.1 (Linux; aarch64; 6.1.0; 0) POSTGRESQL/16.1',
+          'SOLECTRUS/v1.2.0 (Linux; aarch64; 6.1.0; 0) POSTGRESQL/16.1',
         )
       end
     end
@@ -65,7 +65,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
 
       it 'appends a redis token with version' do
         expect(user_agent.to_s).to eq(
-          'SOLECTRUS/v1.1.1 (Linux; aarch64; 6.1.0; 0) REDIS/7.4.0',
+          'SOLECTRUS/v1.2.0 (Linux; aarch64; 6.1.0; 0) REDIS/7.4.0',
         )
       end
     end
@@ -82,7 +82,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
 
       it 'appends all service tokens with versions' do
         expect(user_agent.to_s).to eq(
-          'SOLECTRUS/v1.1.1 (Linux; aarch64; 6.1.0; 0) ' \
+          'SOLECTRUS/v1.2.0 (Linux; aarch64; 6.1.0; 0) ' \
             'HELIOS/v0.1.1-4-g6bebca2 INFLUXDB/2.8.0 POSTGRESQL/16.1 REDIS/7.4.0',
         )
       end

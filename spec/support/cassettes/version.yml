@@ -10,7 +10,8 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - SOLECTRUS-bd4c262f/v1.1.1 (Darwin; arm64; 25.3.0; 1773560045)
+      - SOLECTRUS-750edbb2/v1.2.0 (Darwin; arm64; 25.5.0; 1780154574) INFLUXDB/2.9.1
+        POSTGRESQL/18.3
   response:
     status:
       code: 200
@@ -23,9 +24,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 22 Mar 2026 07:03:41 GMT
+      - Sat, 30 May 2026 15:22:57 GMT
       Etag:
-      - W/"9bfb194f49991aa9f4a3b4bf34c5dff3"
+      - W/"67f66e8fb75b109f1e6fcef9d441973b"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -39,13 +40,14 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - b4c8a28a-2ea9-4cd8-82eb-7cda284adb3d
+      - 0a664e18-c2cb-4b9b-a40d-4866d9831cf6
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
-      encoding: UTF-8
-      string: '{"version":"v1.1.1","registration_status":"unregistered","signature":"YGPO64HBbpvZ6ZA4G6dOXaHSVHO/wiCCZedigfi24C6lEvy1IQxndBO4iPirRScH/oNZ06E7W7fUlWOz0KF6DQ=="}'
-  recorded_at: Sun, 22 Mar 2026 07:03:41 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJ2ZXJzaW9uIjoidjEuMi4wIiwicmVnaXN0cmF0aW9uX3N0YXR1cyI6InVucmVnaXN0ZXJlZCIsIm5vdGlmaWNhdGlvbnMiOlt7ImlkIjoxMCwidGl0bGUiOiJIRUxJT1MgaXN0IHVudGVyd2VncyIsInB1Ymxpc2hlZF9hdCI6IjIwMjYtMDUtMDlUMTU6MzA6NTUrMDI6MDAiLCJib2R5IjoiPGRpdj5FaW4gbmV1ZXMgVG9vbCBtYWNodCBTT0xFQ1RSVVMtSW5zdGFsbGF0aW9uIHVuZCAtS29uZmlndXJhdGlvbiBlbmRsaWNoIGVpbmZhY2gg4oCTIGtlaW5lIEtvbW1hbmRvemVpbGUsIGtlaW4gSGFudGllcmVuIG1pdCBEb2NrZXIsIGFsbGVzIGltIEJyb3dzZXIuIEZ1bmt0aW9uYWwgZmFzdCBmZXJ0aWcuIFdlciBtZWhyIHdpc3NlbiBtw7ZjaHRlLCBmaW5kZXQgZGllIERldGFpbHMgaW0gQmxvZy48YnI+PGJyPjxhIGhyZWY9XCJodHRwczovL3NvbGVjdHJ1cy5kZS9ibG9nLzIwMjYtMDUtMDktaGVsaW9zLWlzdC11bnRlcndlZ3MvP3V0bV9zb3VyY2U9c29sZWN0cnVzLWFwcCZhbXA7dXRtX21lZGl1bT1ub3RpZmljYXRpb24mYW1wO3V0bV9jYW1wYWlnbj1oZWxpb3MtYW5ub3VuY2VtZW50XCI+aHR0cHM6Ly9zb2xlY3RydXMuZGUvYmxvZy8yMDI2LTA1LTA5LWhlbGlvcy1pc3QtdW50ZXJ3ZWdzLzwvYT48L2Rpdj4ifV0sInNpZ25hdHVyZSI6IlJIUHZpR2N6UjcyUzlNTFpQbEdiZmdMV05PS3FBRlp1QzdpVWQrNGwvS25ieE0yVHNXc0ZDdHI4MngzRHRyblgxeUdxeWc0SmNRTW82bmk1MTczbERRPT0ifQ==
+  recorded_at: Sat, 30 May 2026 15:22:57 GMT
 recorded_with: VCR 6.4.0

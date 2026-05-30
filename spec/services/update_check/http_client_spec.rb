@@ -14,7 +14,7 @@ describe UpdateCheck::HttpClient do
       include_context 'with signature verification'
 
       let(:response_body) do
-        signed_json(version: 'v1.1.1', registration_status: 'unregistered')
+        signed_json(version: 'v1.2.0', registration_status: 'unregistered')
       end
       let(:headers) { { 'Cache-Control' => 'max-age=43200' } }
 
@@ -30,7 +30,7 @@ describe UpdateCheck::HttpClient do
         expect(result).to eq(
           status: :ok,
           data: {
-            version: 'v1.1.1',
+            version: 'v1.2.0',
             registration_status: 'unregistered',
             signature: JSON.parse(response_body, symbolize_names: true)[:signature],
           },
@@ -48,7 +48,7 @@ describe UpdateCheck::HttpClient do
 
       it 'sends correct headers' do
         allow(UserAgentBuilder.instance).to receive(:to_s).and_return(
-          'SOLECTRUS/v1.1.1 (Test)',
+          'SOLECTRUS/v1.2.0 (Test)',
         )
 
         result
@@ -56,7 +56,7 @@ describe UpdateCheck::HttpClient do
         expect(WebMock).to have_requested(:get, update_url).with(
           headers: {
             'Accept' => 'application/json',
-            'User-Agent' => 'SOLECTRUS/v1.1.1 (Test)',
+            'User-Agent' => 'SOLECTRUS/v1.2.0 (Test)',
           },
         )
       end
@@ -172,7 +172,7 @@ describe UpdateCheck::HttpClient do
       include_context 'with signature verification'
 
       let(:response_body) do
-        { version: 'v1.1.1', registration_status: 'complete' }.to_json
+        { version: 'v1.2.0', registration_status: 'complete' }.to_json
       end
       let(:headers) { { 'Cache-Control' => 'max-age=43200' } }
 
