@@ -1,0 +1,27 @@
+name: GHCR Cleanup
+
+on:
+  schedule:
+    - cron: "0 4 * * 0"
+      timezone: "Europe/Berlin"
+  workflow_dispatch:
+
+concurrency:
+  group: ghcr-cleanup-solectrus
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+
+    permissions:
+      packages: write
+
+    steps:
+      - name: Delete untagged package versions
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          package: solectrus
+          delete-untagged: true
+          delete-partial-images: true
