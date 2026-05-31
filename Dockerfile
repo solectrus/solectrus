@@ -10,8 +10,6 @@ FROM ghcr.io/ledermann/rails-base-builder:4.0.5-alpine AS builder
 RUN rm -r package.json vite.config.mts tsconfig.json public/vite/assets/test*
 
 FROM ghcr.io/ledermann/rails-base-final:4.0.5-alpine
-LABEL maintainer="georg@ledermann.dev"
-LABEL org.opencontainers.image.description="SOLECTRUS Photovoltaic Dashboard"
 
 USER app
 
