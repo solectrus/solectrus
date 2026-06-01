@@ -46,8 +46,12 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        eyJ2ZXJzaW9uIjoidjEuMi4wIiwicmVnaXN0cmF0aW9uX3N0YXR1cyI6InVucmVnaXN0ZXJlZCIsIm5vdGlmaWNhdGlvbnMiOlt7ImlkIjoxMCwidGl0bGUiOiJIRUxJT1MgaXN0IHVudGVyd2VncyIsInB1Ymxpc2hlZF9hdCI6IjIwMjYtMDUtMDlUMTU6MzA6NTUrMDI6MDAiLCJib2R5IjoiPGRpdj5FaW4gbmV1ZXMgVG9vbCBtYWNodCBTT0xFQ1RSVVMtSW5zdGFsbGF0aW9uIHVuZCAtS29uZmlndXJhdGlvbiBlbmRsaWNoIGVpbmZhY2gg4oCTIGtlaW5lIEtvbW1hbmRvemVpbGUsIGtlaW4gSGFudGllcmVuIG1pdCBEb2NrZXIsIGFsbGVzIGltIEJyb3dzZXIuIEZ1bmt0aW9uYWwgZmFzdCBmZXJ0aWcuIFdlciBtZWhyIHdpc3NlbiBtw7ZjaHRlLCBmaW5kZXQgZGllIERldGFpbHMgaW0gQmxvZy48YnI+PGJyPjxhIGhyZWY9XCJodHRwczovL3NvbGVjdHJ1cy5kZS9ibG9nLzIwMjYtMDUtMDktaGVsaW9zLWlzdC11bnRlcndlZ3MvP3V0bV9zb3VyY2U9c29sZWN0cnVzLWFwcCZhbXA7dXRtX21lZGl1bT1ub3RpZmljYXRpb24mYW1wO3V0bV9jYW1wYWlnbj1oZWxpb3MtYW5ub3VuY2VtZW50XCI+aHR0cHM6Ly9zb2xlY3RydXMuZGUvYmxvZy8yMDI2LTA1LTA5LWhlbGlvcy1pc3QtdW50ZXJ3ZWdzLzwvYT48L2Rpdj4ifV0sInNpZ25hdHVyZSI6IlJIUHZpR2N6UjcyUzlNTFpQbEdiZmdMV05PS3FBRlp1QzdpVWQrNGwvS25ieE0yVHNXc0ZDdHI4MngzRHRyblgxeUdxeWc0SmNRTW82bmk1MTczbERRPT0ifQ==
-  recorded_at: Sat, 30 May 2026 15:22:57 GMT
+      encoding: UTF-8
+      string: '{"version":"v1.2.0","registration_status":"unregistered","notifications":[{"id":10,"title":"HELIOS
+        ist unterwegs","published_at":"2026-05-09T15:30:55+02:00","body":"<div>Ein
+        neues Tool macht SOLECTRUS-Installation und -Konfiguration endlich einfach
+        – keine Kommandozeile, kein Hantieren mit Docker, alles im Browser. Funktional
+        fast fertig. Wer mehr wissen möchte, findet die Details im Blog.<br><br><a
+        href=\"https://solectrus.de/blog/2026-05-09-helios-ist-unterwegs/?utm_source=solectrus-app&amp;utm_medium=notification&amp;utm_campaign=helios-announcement\">https://solectrus.de/blog/2026-05-09-helios-ist-unterwegs/</a></div>"}],"signature":"RHPviGczR72S9MLZPlGbfgLWNOKqAFZuC7iUd+4l/KnbxM2TsWsFCtr82x3DtrnX1yGqyg4JcQMo6ni5173lDQ=="}'
+  recorded_at: Mon, 01 Jun 2026 04:51:08 GMT
 recorded_with: VCR 6.4.0
