@@ -29,9 +29,17 @@ class Summary < ApplicationRecord
   REQUIRED_DISTANCE = 60 # minutes after beginning of the next day
   public_constant :REQUIRED_DISTANCE
 
-  # A current day is considered fresh if the last update has just taken place
-  CURRENT_TOLERANCE = 5 # minutes ago
+  # A current day is considered fresh if the last update has just taken place.
+  # This is the base tolerance for a single displayed day; for longer
+  # timeframes it is scaled up (see #current_tolerance_minutes).
+  CURRENT_TOLERANCE = 5 # minutes ago, per displayed day
   public_constant :CURRENT_TOLERANCE
+
+  # Upper bound for the (scaled) current-day tolerance. Even for very long
+  # timeframes (e.g. the running year) the current day is recomputed a few
+  # times per day, so its last chart bar does not look frozen.
+  MAX_CURRENT_TOLERANCE = 6.hours.in_minutes # minutes ago
+  public_constant :MAX_CURRENT_TOLERANCE
 
   def self.fresh?(timeframe)
     return if timeframe.now?
@@ -84,11 +92,22 @@ class Summary < ApplicationRecord
           to:,
           time_zone: Time.zone.name,
           threshold_date:,
-          current_tolerance_time: CURRENT_TOLERANCE.minutes.ago,
+          current_tolerance_time: current_tolerance_minutes(from:, to:).minutes.ago,
           required_distance: "#{1.day.in_minutes + REQUIRED_DISTANCE} minutes",
         },
       ],
     ).pluck(:date)
+  end
+
+  # Acceptable staleness (in minutes) for the current day, scaled by the length
+  # of the displayed timeframe. Recomputing the current day from InfluxDB is
+  # expensive (especially on slow storage), so we only do it when it actually
+  # matters for the view: in a day view the current day IS the whole chart, so
+  # we stay at the base tolerance; in a year view it is just one of many bars,
+  # so a much staler summary is acceptable. Capped by MAX_CURRENT_TOLERANCE.
+  def self.current_tolerance_minutes(from:, to:)
+    span_days = (to - from).to_i + 1
+    [span_days * CURRENT_TOLERANCE, MAX_CURRENT_TOLERANCE].min
   end
 
   def fresh?(current_tolerance: CURRENT_TOLERANCE)

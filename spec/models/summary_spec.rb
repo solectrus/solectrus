@@ -201,6 +201,59 @@ describe Summary do
     end
   end
 
+  describe '.current_tolerance_minutes' do
+    subject { described_class.current_tolerance_minutes(from:, to:) }
+
+    context 'with a single day' do
+      let(:from) { Date.new(2024, 7, 1) }
+      let(:to) { Date.new(2024, 7, 1) }
+
+      it { is_expected.to eq(Summary::CURRENT_TOLERANCE) }
+    end
+
+    context 'with a week' do
+      let(:from) { Date.new(2024, 7, 1) }
+      let(:to) { Date.new(2024, 7, 7) }
+
+      it { is_expected.to eq(7 * Summary::CURRENT_TOLERANCE) }
+    end
+
+    context 'with a range exceeding the cap' do
+      let(:from) { Date.new(2024, 1, 1) }
+      let(:to) { Date.new(2024, 7, 1) }
+
+      it { is_expected.to eq(Summary::MAX_CURRENT_TOLERANCE) }
+    end
+  end
+
+  describe 'dynamic current-day tolerance in .missing_or_stale_days' do
+    # Today's summary exists but was last calculated 30 minutes ago. This is
+    # stale for a day view (5 min tolerance) but acceptable for a long
+    # timeframe like the running year (capped at MAX_CURRENT_TOLERANCE).
+    before do
+      travel_to Time.new(2024, 7, 1, 12, 0, 0, '+02:00')
+      described_class.create!(date: Date.current, updated_at: 30.minutes.ago)
+    end
+
+    it 'marks today stale in a day view (tight tolerance)' do
+      expect(
+        described_class.missing_or_stale_days(
+          from: Date.current,
+          to: Date.current,
+        ),
+      ).to eq([Date.current])
+    end
+
+    it 'accepts a slightly stale today in a long timeframe (scaled tolerance)' do
+      expect(
+        described_class.missing_or_stale_days(
+          from: Date.new(2024, 1, 1),
+          to: Date.current,
+        ),
+      ).not_to include(Date.current)
+    end
+  end
+
   describe '.reset!' do
     before do
       create_summary(
