@@ -134,7 +134,8 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   def masked_value
-    unsigned_value = value
+    unsigned_value = raw_value
+    return if unsigned_value.nil?
 
     case sensor.name
     when :grid_import_power, :battery_discharging_power
@@ -142,6 +143,17 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     else
       unsigned_value
     end
+  end
+
+  # Current reading without the `.to_f` fallback that #default_value applies,
+  # so an absent value stays nil instead of becoming 0.0. "Absent" covers an
+  # inactive sensor (e.g. grid_import_power while exporting) and a stale/down
+  # source alike. The live chart uses this as its data-value: nil renders a gap
+  # and skips the flash, rather than a misleading flat-0 line that can't be
+  # told apart from a real 0. The displayed tile keeps its own 0 fallback via
+  # SensorValue::Component.
+  def raw_value
+    options[:value] || data.public_send(sensor.name)
   end
 
   def icon_scale

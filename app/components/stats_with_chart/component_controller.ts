@@ -350,16 +350,19 @@ export default class extends Controller {
     const index = labels.length - 1;
     const targets = this.currentTargets;
 
-    // Flash only datasets that received a fresh reading this tick. A down
-    // sensor reports null, yet the open 30s bucket keeps the mean of its
-    // earlier samples — checking that retained value (dataset.data[index])
-    // would re-flash it every tick (a "ghost" flash) while the curve correctly
-    // grows a gap. The live reading is the honest "did a sample land?" signal.
-    const active = chart.data.datasets.flatMap((dataset, datasetIndex) =>
-      this.currentValueFor(dataset as LineDatasetWithId, targets) != null
-        ? [{ datasetIndex, index }]
-        : [],
-    );
+    // Flash only datasets that are actively contributing this tick: a present,
+    // non-zero reading. We skip two kinds of inactive curve:
+    //   - null  -> no reading at all. A stale/down source is dropped server
+    //              side (Segment#raw_value keeps it nil, not 0), so the curve
+    //              draws a gap; nothing to flash.
+    //   - 0     -> idle/flat. Many sensors report a real 0 when inactive
+    //              (e.g. grid_import_power while exporting), so the curve sits
+    //              on a flat 0 baseline. A dot blinking there reads as a
+    //              "ghost"; only a non-zero value marks a live contribution.
+    const active = chart.data.datasets.flatMap((dataset, datasetIndex) => {
+      const value = this.currentValueFor(dataset as LineDatasetWithId, targets);
+      return value != null && value !== 0 ? [{ datasetIndex, index }] : [];
+    });
     if (!active.length) return;
 
     chart.setActiveElements(active);
