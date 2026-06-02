@@ -30,6 +30,15 @@ const SPLIT_SENSORS: Record<string, readonly string[]> = {
   grid_power: ['grid_import_power', 'grid_export_power'],
 };
 
+// Stacked heat components whose live sum must be capped at the actually
+// generated heat. Used by `heatStackClamp` to mirror the server-side clamp in
+// Sensor::Chart::HeatpumpHeatingPower#transform_data.
+const HEAT_STACK = {
+  electrical: 'heatpump_power',
+  environmental: 'heatpump_power_env',
+  generated: 'heatpump_heating_power',
+} as const;
+
 export default class extends Controller {
   static readonly targets = ['current', 'stats', 'chart', 'canvas', 'flash'];
 
@@ -386,6 +395,7 @@ export default class extends Controller {
 
     const datasets = chart.data.datasets as LineDatasetWithId[];
     const targets = this.currentTargets;
+    const heatClamp = this.heatStackClamp(targets);
     const isUpdate =
       this.liveBucketEndMs === bucketEndMs && labels.at(-1) === bucketEndMs;
 
@@ -396,7 +406,10 @@ export default class extends Controller {
     }
 
     for (const dataset of datasets) {
-      const sample = this.currentValueFor(dataset, targets);
+      const sample =
+        dataset.id === HEAT_STACK.electrical && heatClamp !== null
+          ? heatClamp
+          : this.currentValueFor(dataset, targets);
       let stats = this.liveBucketSamples.get(dataset.id);
       if (!stats)
         this.liveBucketSamples.set(dataset.id, (stats = { sum: 0, count: 0 }));
@@ -410,20 +423,46 @@ export default class extends Controller {
     }
   }
 
+  // Cap the electrical share of the live "generated heat" chart so the stacked
+  // heat datasets (electrical + environmental) never sum above the actually
+  // generated heat. Without it the raw electrical power scrolls in while the
+  // heat pump produces no heat — the historical part is already clamped
+  // server-side (Sensor::Chart::HeatpumpHeatingPower#transform_data), so the
+  // live tail diverged. Returns the clamped electrical sample, or null when no
+  // cap applies (chart without the heat stack, or sum within budget).
+  private heatStackClamp(targets: HTMLElement[]): number | null {
+    const electrical = this.targetValue(HEAT_STACK.electrical, targets);
+    const environmental = this.targetValue(HEAT_STACK.environmental, targets);
+    const generated = this.targetValue(HEAT_STACK.generated, targets);
+    if (electrical === null || environmental === null || generated === null)
+      return null;
+    if (electrical + environmental <= generated) return null;
+
+    return Math.max(0, generated - environmental);
+  }
+
   private currentValueFor(
     dataset: LineDatasetWithId,
     targets: HTMLElement[],
   ): number | null {
-    const target = targets.find((t) => t.dataset.sensorName === dataset.id);
-    const rawValue = target?.dataset.value;
-    if (rawValue === undefined) return null;
-
-    const value = Number.parseFloat(rawValue);
-    if (Number.isNaN(value)) return null;
+    const value = this.targetValue(dataset.id, targets);
+    if (value === null) return null;
 
     if (dataset.stack === 'usage') return -Math.abs(value);
     if (dataset.stack === 'source') return Math.abs(value);
     return value;
+  }
+
+  private targetValue(
+    sensorName: string,
+    targets: HTMLElement[],
+  ): number | null {
+    const target = targets.find((t) => t.dataset.sensorName === sensorName);
+    const rawValue = target?.dataset.value;
+    if (rawValue === undefined) return null;
+
+    const value = Number.parseFloat(rawValue);
+    return Number.isNaN(value) ? null : value;
   }
 
   // Slide the fixed 1-hour x-axis window forward so newly appended points

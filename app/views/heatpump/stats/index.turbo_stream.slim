@@ -14,7 +14,11 @@
 
   .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5 id= "stats-#{timeframe.id}"
     / Hidden current target so the live heatpump_heating_power chart can append
-    / points for the environmental-energy dataset alongside `heatpump_power`.
+    / the environmental-energy dataset alongside `heatpump_power`. The
+    / generated-heat cap that heatStackClamp uses to keep the stacked sum from
+    / exceeding the produced heat comes from the heatpump_heating_power KPI tile
+    / below, so no electrical power scrolls in while the heat pump produces no
+    / heat.
     - if timeframe.now?
       span.hidden data= { \
         'stats-with-chart--component-target': 'current',
