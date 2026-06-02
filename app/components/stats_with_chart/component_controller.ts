@@ -16,15 +16,16 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
 // poll interval (5–60s), but to stay visually consistent with the historical
 // part of the curve we snap them onto the same 30s wallclock grid.
 //
-// Trade-off: bucketEnd is always 0–30s in the future relative to currentTime,
-// while the x-axis max is pinned to currentTime. Chart.js clips the segment
-// past the right edge — the open bucket's exact y-value isn't visible until
-// the axis catches up. The right-edge flash compensates by signalling that a
-// sample landed.
+// The newest point lands on the next 30s boundary, i.e. 0–30s ahead of
+// currentTime. `slideXAxisWindow` ends the x-axis exactly on it so it stays
+// visible without an empty future gap the crosshair could wander into. Its
+// flash dot (see `flashLatestPoint`) overflows the right edge instead of
+// being clipped — via the dataset `clip` + `layout.padding.right` set in
+// Sensor::Chart::Base.
 const LIVE_BUCKET_MS = 30 * 1000;
 
 // Sensor names that aggregate two underlying directional sensors. Used by
-// `matchesSensor` to keep flashColor and the element lookup in sync.
+// `matchesSensor` to pick the right current-value element for the tile.
 const SPLIT_SENSORS: Record<string, readonly string[]> = {
   battery_power: ['battery_charging_power', 'battery_discharging_power'],
   grid_power: ['grid_import_power', 'grid_export_power'],
@@ -40,7 +41,7 @@ const HEAT_STACK = {
 } as const;
 
 export default class extends Controller {
-  static readonly targets = ['current', 'stats', 'chart', 'canvas', 'flash'];
+  static readonly targets = ['current', 'stats', 'chart', 'canvas'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTargets: HTMLElement[];
@@ -53,9 +54,6 @@ export default class extends Controller {
 
   declare readonly hasCanvasTarget: boolean;
   declare readonly canvasTarget: HTMLCanvasElement;
-
-  declare readonly hasFlashTarget: boolean;
-  declare readonly flashTarget: HTMLElement;
 
   static readonly values = {
     // Field to display in the chart
@@ -80,6 +78,7 @@ export default class extends Controller {
   private liveBucketChart?: Chart;
   private liveBucketEndMs?: number;
   private liveBucketSamples = new Map<string, BucketStats>();
+  private flashTimeout?: ReturnType<typeof setTimeout>;
 
   connect() {
     if (this.intervalValue) {
@@ -100,6 +99,8 @@ export default class extends Controller {
 
   disconnect() {
     this.removeTimer();
+
+    if (this.flashTimeout) clearTimeout(this.flashTimeout);
 
     if (this.boundHandleVisibilityChange)
       document.removeEventListener(
@@ -282,13 +283,12 @@ export default class extends Controller {
     if (bucketEndMs === lastLabelMs && this.liveBucketEndMs !== bucketEndMs)
       return;
 
-    this.flashRightEdge();
-
     this.absorbPartialLastPoint(chart, bucketEndMs, lastLabelMs);
     this.removeOutdatedPoints(currentTime);
     this.upsertLiveBucket(chart, bucketEndMs);
     this.slideXAxisWindow(currentTime);
     chart.update();
+    this.flashLatestPoint();
   }
 
   // Flux's `aggregateWindow` clips the trailing bucket at `range.stop`
@@ -332,37 +332,52 @@ export default class extends Controller {
     this.liveBucketEndMs = bucketEndMs;
   }
 
-  private flashRightEdge() {
-    const area = this.chart?.chartArea;
-    if (!area || !this.hasFlashTarget) return;
+  // Flash the newest sample by reusing Chart.js' own hover highlight: turning
+  // a point active renders it at `pointHoverRadius` in the curve colour (see
+  // the `elements.point` options) — exactly the dot we want, for free. The
+  // crosshair plugin only reacts to real pointer events, so no vertical line
+  // tags along. On multi-curve charts (e.g. power balance) every curve's
+  // newest point lights up, so we activate the last index across all datasets.
+  //
+  // slideXAxisWindow puts that point on the right edge; its dot overflows the
+  // edge via the dataset clip (see Sensor::Chart::Base) so it isn't cut off.
+  // setActiveElements doesn't auto-render, so trigger one.
+  private flashLatestPoint() {
+    const chart = this.chart;
+    const labels = chart?.data.labels;
+    if (!chart || !labels?.length) return;
 
-    const flash = this.flashTarget;
-    flash.style.left = `${area.right}px`;
-    flash.style.top = `${area.top}px`;
-    flash.style.height = `${area.bottom - area.top}px`;
-    flash.style.backgroundColor = this.flashColor;
+    const index = labels.length - 1;
+    const targets = this.currentTargets;
 
-    // Force reflow so the animation restarts on every tick
-    flash.classList.remove('chart-flash-active');
-    void flash.offsetWidth;
-    flash.classList.add('chart-flash-active');
-  }
+    // Flash only datasets that received a fresh reading this tick. A down
+    // sensor reports null, yet the open 30s bucket keeps the mean of its
+    // earlier samples — checking that retained value (dataset.data[index])
+    // would re-flash it every tick (a "ghost" flash) while the curve correctly
+    // grows a gap. The live reading is the honest "did a sample land?" signal.
+    const active = chart.data.datasets.flatMap((dataset, datasetIndex) =>
+      this.currentValueFor(dataset as LineDatasetWithId, targets) != null
+        ? [{ datasetIndex, index }]
+        : [],
+    );
+    if (!active.length) return;
 
-  private get flashColor(): string {
-    const datasets = (this.chart?.data.datasets ?? []) as LineDatasetWithId[];
-    if (!datasets.length) return 'currentColor';
+    chart.setActiveElements(active);
+    chart.render();
 
-    const dataset =
-      datasets.find((ds) => this.matchesSensor(ds.id)) ?? datasets[0];
-    const color = dataset.borderColor ?? dataset.backgroundColor;
-    return typeof color === 'string' ? color : 'currentColor';
+    // Clear the highlight after a moment so it reads as a flash, not a
+    // permanent marker, and hover regains control afterwards.
+    if (this.flashTimeout) clearTimeout(this.flashTimeout);
+    this.flashTimeout = setTimeout(() => {
+      this.chart?.setActiveElements([]);
+      this.chart?.render();
+    }, 700);
   }
 
   // Single source of truth for "does this id/name belong to the current
-  // sensor selection?" Used by both flashColor (dataset ids) and
-  // currentElement (target sensor names) so the two always agree —
-  // particularly on the inverter_power exact-match rule, which prevents
-  // catching per-inverter ids like inverter_power_1.
+  // sensor selection?" Used by currentElement to pick the matching
+  // current-value target — particularly on the inverter_power exact-match
+  // rule, which prevents catching per-inverter ids like inverter_power_1.
   private matchesSensor(name: string | undefined): boolean {
     if (!name) return false;
     const candidates = SPLIT_SENSORS[this.effectiveSensor];
@@ -465,16 +480,16 @@ export default class extends Controller {
     return Number.isNaN(value) ? null : value;
   }
 
-  // Slide the fixed 1-hour x-axis window forward so newly appended points
-  // stay inside the visible range. Server-side rendering pins min/max to the
-  // time of the initial request; without this update the window would freeze
-  // and live points drift off the right edge.
+  // Slide the ~1-hour x-axis window forward so newly appended points stay
+  // inside the visible range. Server-side rendering pins min/max to the time
+  // of the initial request; without this update the window would freeze and
+  // live points drift off the right edge.
   //
   // The start is snapped up to the 30s bucket grid (see LIVE_BUCKET_MS): the
   // leftmost data point sits on that grid, so an un-snapped start would leave
-  // a sub-bucket gap at the left edge. The end stays at the exact current
-  // time, keeping the open bucket clipped past the right edge as documented
-  // for LIVE_BUCKET_MS.
+  // a sub-bucket gap at the left edge. The end sits exactly on the newest
+  // point so the curve is fully visible with no empty future region; the flash
+  // dot overflows the edge via the dataset clip (see Sensor::Chart::Base).
   private slideXAxisWindow(currentTime: Date) {
     const xScale = this.chart?.options.scales?.x;
     if (!xScale || xScale.min == null || xScale.max == null) return;
@@ -483,7 +498,7 @@ export default class extends Controller {
     const gridStart =
       Math.ceil(nowMs / LIVE_BUCKET_MS) * LIVE_BUCKET_MS - ONE_HOUR_MS;
     xScale.min = gridStart;
-    xScale.max = nowMs;
+    xScale.max = this.computeBucketEnd(nowMs);
   }
 
   // Datasets stay 1:1 aligned with `labels`, so labels and every dataset

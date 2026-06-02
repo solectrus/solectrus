@@ -79,6 +79,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   def options
     {
       maintainAspectRatio: false,
+      layout: layout_options,
       plugins: {
         legend: false,
         tooltip: tooltip_options,
@@ -104,7 +105,23 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
         x: x_scale_options,
         y: y_scale_options,
       },
-    }
+    }.compact
+  end
+
+  # Radius of the hover dot that doubles as the live flash, highlighted by
+  # stats_with_chart (see #style_for_sensor).
+  POINT_HOVER_RADIUS = 5
+  private_constant :POINT_HOVER_RADIUS
+
+  # On the live "now" chart the newest point sits right at the right edge.
+  # Reserve the dot radius plus a 1px buffer so the flash dot can overflow the
+  # plot area instead of being clipped, paired with the dataset `clip` in
+  # #style_for_sensor.
+  FLASH_DOT_HEADROOM = POINT_HOVER_RADIUS + 1
+  private_constant :FLASH_DOT_HEADROOM
+
+  def layout_options
+    { padding: { right: FLASH_DOT_HEADROOM } } if timeframe.now?
   end
 
   def suggested_min
@@ -270,7 +287,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       cubicInterpolationMode: 'monotone',
       borderWidth: 1,
       pointRadius: 0,
-      pointHoverRadius: 5,
+      pointHoverRadius: POINT_HOVER_RADIUS,
+      clip: live_flash_clip,
       colorClass: color_class(sensor),
       colorScale: (sensor.color_scale if sensor.respond_to?(:color_scale)),
       hatchFill: sensor.hatch_fill?,
@@ -278,6 +296,16 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
     }.compact
+  end
+
+  # Allow the live flash dot to overflow the right edge (positive = pixels of
+  # overflow before clipping), so it isn't cut off; the other sides keep the
+  # default clip at the chart area. Only the "now" chart flashes, so it's nil
+  # elsewhere and dropped by #compact.
+  def live_flash_clip
+    return unless timeframe.now?
+
+    { left: 0, top: 0, right: FLASH_DOT_HEADROOM, bottom: 0 }
   end
 
   # Override in subclasses (e.g. MinmaxBase) to customize border rounding

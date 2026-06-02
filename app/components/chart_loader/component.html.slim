@@ -63,10 +63,6 @@
                      chart_loader__component_target: 'canvas',
                      stats_with_chart__component_target: 'canvas',
                    }
-      div[
-        class='absolute pointer-events-none w-1 -translate-x-1/2 opacity-0'
-        data-stats-with-chart--component-target='flash'
-      ]
 
   - if show_forecast_comment?
     = render ForecastComment::Component.new(chart:, timeframe:)
