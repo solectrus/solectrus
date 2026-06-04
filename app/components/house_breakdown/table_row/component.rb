@@ -1,15 +1,14 @@
 class HouseBreakdown::TableRow::Component < ViewComponent::Base
-  def initialize(sensor:, percent:, data:, timeframe:, pinned: false, scaling: :auto)
+  def initialize(sensor:, percent:, data:, timeframe:, scaling: :auto)
     super()
     @sensor = sensor
     @percent = percent
     @data = data
     @timeframe = timeframe
-    @pinned = pinned
     @scaling = scaling
   end
 
-  attr_reader :sensor, :percent, :data, :timeframe, :pinned, :scaling
+  attr_reader :sensor, :percent, :data, :timeframe, :scaling
 
   def call
     tag.div(**row_attributes) do
@@ -30,9 +29,10 @@ class HouseBreakdown::TableRow::Component < ViewComponent::Base
   def row_attributes
     {
       class: [
-        'relative flex items-center max-h-10 cursor-pointer transition-colors px-2',
+        # flex-1 lets rows grow to fill the available height, while min-h-10
+        # keeps a floor so many rows overflow into a scroll instead of shrinking.
+        'relative flex items-center min-h-10 cursor-pointer transition-colors px-2',
         'border-t border-slate-200 dark:border-black first:border-t-0',
-        ('mt-auto' if pinned),
         'flex-1',
       ],
       id: "table-row-#{sensor.name}",

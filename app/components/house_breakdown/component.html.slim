@@ -77,4 +77,4 @@
           - table_rows.each do |row|
             = render HouseBreakdown::TableRow::Component.new(sensor: row[:sensor], percent: row[:percent], data:, timeframe:, scaling: common_scaling)
 
-          = render HouseBreakdown::TableRow::Component.new(sensor: other_sensor, percent: other_percent, pinned: true, data:, timeframe:, scaling: common_scaling)
+          = render HouseBreakdown::TableRow::Component.new(sensor: other_sensor, percent: other_percent, data:, timeframe:, scaling: common_scaling)
