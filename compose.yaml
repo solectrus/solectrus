@@ -20,6 +20,7 @@ services:
       - ADMIN_PASSWORD
       - FRAME_ANCESTORS
       - CO2_EMISSION_FACTOR
+      - CURRENCY
       - DB_HOST
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_USER

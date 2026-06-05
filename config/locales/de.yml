@@ -286,8 +286,8 @@ de:
         starts_at: Gültig ab
         value: Betrag
         note: Notiz
-        electricity_amount: Arbeitspreis in &euro;/kWh
-        feed_in_amount: Vergütungssatz in &euro;/kWh
+        electricity_amount: Arbeitspreis in %{currency}/kWh
+        feed_in_amount: Vergütungssatz in %{currency}/kWh
       setting:
         plant_name: Bezeichung der Anlage
         operator_name: Name des Betreibers
