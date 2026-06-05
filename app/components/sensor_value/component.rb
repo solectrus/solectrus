@@ -31,6 +31,16 @@ class SensorValue::Component < ViewComponent::Base
     @unit ||= formatted_data[:unit]
   end
 
+  # Per DIN 5008, a number and its unit (including percent and currency) are
+  # separated by a space. We use a no-break space (U+00A0) so value and unit
+  # never wrap onto separate lines; it scales with the font size.
+  NO_BREAK_SPACE = "\u00A0".freeze
+  private_constant :NO_BREAK_SPACE
+
+  def spaced_unit
+    "#{NO_BREAK_SPACE}#{unit}"
+  end
+
   def css_classes
     classes = ['sensor-value']
     classes << "sensor-#{sensor.name.to_s.dasherize}"

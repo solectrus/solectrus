@@ -135,7 +135,7 @@
 /* Minimalistic form styling, inspired by DaisyUI */
 @layer components {
   .sensor-value {
-    @apply inline-flex items-baseline gap-2;
+    @apply inline-flex items-baseline;
   }
 
   .sensor-value-number {
@@ -145,6 +145,10 @@
   .sensor-value-decimal,
   .sensor-value-unit {
     @apply align-baseline leading-none;
+  }
+
+  .sensor-value-unit {
+    @apply font-light;
   }
 
   .form-control {
