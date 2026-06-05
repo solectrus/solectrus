@@ -284,6 +284,7 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
       borderWidth: 1,
       pointRadius: 0,
       pointHoverRadius: 5,
+      clip: live_flash_clip,
       colorClass: sensor.color_background,
       borderRadius: (3 if type == 'bar'),
     }.compact
