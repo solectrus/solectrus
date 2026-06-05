@@ -567,7 +567,7 @@ describe Sensor::ValueFormatter do
         formatter = described_class.new(0.0001234, unit: :euro_per_kwh)
         result = formatter.to_h
 
-        expect(result[:value]).to match(/0,0001/)
+        expect(result[:value]).to include('0,0001')
         expect(result[:unit]).to eq('€/kWh')
       end
 

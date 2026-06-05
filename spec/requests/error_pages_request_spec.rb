@@ -58,7 +58,7 @@ describe 'Error pages' do
       end
 
       expect(response).to have_http_status(:internal_server_error)
-      expect(response.content_type).to match(/turbo-stream/)
+      expect(response.content_type).to include('turbo-stream')
       expect(response.body).to include('<turbo-stream')
       expect(response.body).to include('action="update"')
       expect(response.body).to include('target="inner"')

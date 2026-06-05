@@ -184,7 +184,7 @@ describe UpdateCheck::HttpClient do
 
       it 'returns an error result' do
         expect(result[:status]).to eq(:error)
-        expect(result[:error_message]).to match(/Signature verification failed/)
+        expect(result[:error_message]).to include('Signature verification failed')
       end
     end
   end
