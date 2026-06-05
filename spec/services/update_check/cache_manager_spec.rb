@@ -3,7 +3,7 @@ describe UpdateCheck::CacheManager do
 
   include_context 'with cache'
 
-  let(:test_data) { { version: 'v1.2.0', registration_status: 'complete' } }
+  let(:test_data) { { version: 'v1.2.1', registration_status: 'complete' } }
   let(:cache_key) { cache_manager.cache_key }
   let(:fresh_until) { 1.hour.from_now }
   let(:stale_until) { 25.hours.from_now }

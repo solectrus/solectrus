@@ -10,8 +10,8 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - SOLECTRUS-750edbb2/v1.2.0 (Darwin; arm64; 25.5.0; 1780154574) INFLUXDB/2.9.1
-        POSTGRESQL/18.3
+      - SOLECTRUS-c53550f1/v1.2.1 (Darwin; arm64; 25.5.0; 1780652508) INFLUXDB/2.9.1
+        POSTGRESQL/18.4
   response:
     status:
       code: 200
@@ -24,9 +24,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sat, 30 May 2026 15:22:57 GMT
+      - Fri, 05 Jun 2026 09:41:50 GMT
       Etag:
-      - W/"67f66e8fb75b109f1e6fcef9d441973b"
+      - W/"d825c3857a116338cff780c91819e27a"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -40,18 +40,27 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - 0a664e18-c2cb-4b9b-a40d-4866d9831cf6
+      - c75eb975-a972-44a7-bd8d-155889304907
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"version":"v1.2.0","registration_status":"unregistered","notifications":[{"id":10,"title":"HELIOS
+      string: '{"version":"v1.2.1","registration_status":"unregistered","notifications":[{"id":10,"title":"HELIOS
         ist unterwegs","published_at":"2026-05-09T15:30:55+02:00","body":"<div>Ein
         neues Tool macht SOLECTRUS-Installation und -Konfiguration endlich einfach
         – keine Kommandozeile, kein Hantieren mit Docker, alles im Browser. Funktional
         fast fertig. Wer mehr wissen möchte, findet die Details im Blog.<br><br><a
-        href=\"https://solectrus.de/blog/2026-05-09-helios-ist-unterwegs/?utm_source=solectrus-app&amp;utm_medium=notification&amp;utm_campaign=helios-announcement\">https://solectrus.de/blog/2026-05-09-helios-ist-unterwegs/</a></div>"}],"signature":"RHPviGczR72S9MLZPlGbfgLWNOKqAFZuC7iUd+4l/KnbxM2TsWsFCtr82x3DtrnX1yGqyg4JcQMo6ni5173lDQ=="}'
-  recorded_at: Mon, 01 Jun 2026 04:51:08 GMT
+        href=\"https://solectrus.de/blog/2026-05-09-helios-ist-unterwegs/?utm_source=solectrus-app&amp;utm_medium=notification&amp;utm_campaign=helios-announcement\">https://solectrus.de/blog/2026-05-09-helios-ist-unterwegs/</a></div>"},{"id":11,"title":"Version
+        1.2 räumt die Oberfläche auf","published_at":"2026-06-01T13:45:03+02:00","body":"<div>Frisch
+        veröffentlicht: zwei größere Neuerungen und jede Menge Feinschliff. Das erwartet
+        dich:<br><br></div><ul><li>Neue Menüleiste am unteren Bildschirmrand – wechsle
+        auf dem Smartphone direkt zwischen den wichtigsten Bereichen</li><li>Hausverbrauch
+        jetzt auch als Tabelle – alle Verbraucher mit genauen Werten auf einen Blick</li><li>Diagramme
+        berücksichtigen Sensorausfälle – längere Lücken werden ehrlich angezeigt statt
+        überbrückt</li><li>... und viele kleinere Verbesserungen und Korrekturen –
+        an der Oberfläche und unter der Haube</li></ul><div><br>Alle Details mit Screenshots
+        und Beispielen im Blog:<br><a href=\"https://solectrus.de/blog/2026-05-30-version-1-2/?utm_source=solectrus-app&amp;utm_medium=notification&amp;utm_campaign=version-1-2\">https://solectrus.de/blog/2026-05-30-version-1-2/</a></div>"}],"signature":"bqXwcAZb3WifAlhd900xivWhi/147/VV9GQvR2QjlS/2YrbAbmLf7Iebdi9130uYBcfXp/Mg2bW/5tzgBnr8Bw=="}'
+  recorded_at: Fri, 05 Jun 2026 09:41:50 GMT
 recorded_with: VCR 6.4.0
