@@ -5,6 +5,7 @@ type FormatOptions = {
   target?: FormatTarget;
   autoKilo?: boolean;
   unitValue: string;
+  currency: string;
   locale: string;
   minValue: number;
   maxValue: number;
@@ -14,7 +15,7 @@ type FormatOptions = {
 export const getDecimalPlaces = (
   target: FormatTarget,
   kilo: boolean,
-  isEuro: boolean,
+  isCurrency: boolean,
   unitValue: string,
   minValue: number,
   maxValue: number,
@@ -24,7 +25,7 @@ export const getDecimalPlaces = (
     return { minDecimals: 0, maxDecimals };
   }
 
-  if (isEuro) {
+  if (isCurrency) {
     const showDecimals =
       target === 'axis' ? maxValue < 10 : minValue < 10 && maxValue < 100;
     const decimals = showDecimals ? 2 : 0;
@@ -42,17 +43,18 @@ export const formatNumber = (
     target = 'tooltip',
     autoKilo = true,
     unitValue,
+    currency,
     locale,
     minValue,
     maxValue,
   }: FormatOptions,
 ): string => {
   let unitValuePrefix = '';
-  const isEuro = unitValue.includes('€');
+  const isCurrency = currency !== '' && unitValue.includes(currency);
 
   const kilo =
     autoKilo &&
-    !isEuro &&
+    !isCurrency &&
     (target === 'axis'
       ? maxValue > 1000 || minValue < -1000
       : number > 1000 || number < -1000);
@@ -64,7 +66,7 @@ export const formatNumber = (
   const { minDecimals, maxDecimals } = getDecimalPlaces(
     target,
     kilo,
-    isEuro,
+    isCurrency,
     unitValue,
     minValue,
     maxValue,

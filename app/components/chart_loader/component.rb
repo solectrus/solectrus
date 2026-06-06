@@ -25,6 +25,10 @@ class ChartLoader::Component < ViewComponent::Base
     I18n.t('data.blank')
   end
 
+  def currency
+    Currency.symbol
+  end
+
   def path_to_insights
     return if timeframe.now?
     return unless sensor.trendable?

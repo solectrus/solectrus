@@ -286,8 +286,8 @@ en:
         starts_at: Effective from
         value: Amount
         note: Note
-        electricity_amount: Rate in &euro;/kWh
-        feed_in_amount: Rate in &euro;/kWh
+        electricity_amount: Rate in %{currency}/kWh
+        feed_in_amount: Rate in %{currency}/kWh
       setting:
         plant_name: Name of the plant
         operator_name: Name of the operator

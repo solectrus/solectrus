@@ -6,7 +6,7 @@ class Sensor::UnitFormatter
 
   # @param unit [Symbol] The unit type from sensor
   # @param value [Numeric, nil] Optional value for auto-scaling (watt, gram)
-  # @param context [Symbol] :rate (W, g/h, EUR/h) or :total (Wh, g, EUR)
+  # @param context [Symbol] :rate (W, g/h, currency/h) or :total (Wh, g, currency)
   # @param scaling [Symbol, Numeric] :auto, :off, :kilo, :mega, or explicit number
   def initialize(unit:, value: nil, context: :rate, scaling: :auto)
     @unit = unit
@@ -71,9 +71,9 @@ class Sensor::UnitFormatter
     when :percent
       '%'
     when :euro
-      context == :rate ? '€/h' : '€'
+      context == :rate ? "#{Currency.symbol}/h" : Currency.symbol
     when :euro_per_kwh
-      '€/kWh'
+      "#{Currency.symbol}/kWh"
     else
       ''
     end

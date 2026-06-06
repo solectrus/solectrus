@@ -56,6 +56,12 @@ describe Sensor::ValueFormatter do
       formatter = described_class.new(15.5, unit: :euro)
       expect(formatter.to_s).to eq('16 €')
     end
+
+    it 'uses the configured currency symbol' do
+      allow(Rails.configuration.x).to receive(:currency).and_return('CHF')
+      formatter = described_class.new(0.25, unit: :euro_per_kwh)
+      expect(formatter.to_s).to eq('0,2500 CHF/kWh')
+    end
   end
 
   describe 'unit type handling' do

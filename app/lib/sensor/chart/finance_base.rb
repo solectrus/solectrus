@@ -3,7 +3,7 @@ class Sensor::Chart::FinanceBase < Sensor::Chart::Base
     [finance_sensor_name]
   end
 
-  # Override unit to always show EUR
+  # Override unit to always show the configured currency
   def unit
     @unit ||=
       Sensor::UnitFormatter.format(
