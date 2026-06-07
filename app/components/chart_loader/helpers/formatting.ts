@@ -20,7 +20,11 @@ export const getDecimalPlaces = (
   maxValue: number,
 ): { minDecimals: number; maxDecimals: number } => {
   if (kilo) {
-    const maxDecimals = 1;
+    // Decide chart-wide from the largest value, so all lines in a tooltip
+    // share the same precision. Above 100 kWh the fractional digit is just
+    // noise (e.g. 523,7 kWh), so drop it; keep it for smaller values.
+    const kiloMax = Math.max(Math.abs(minValue), Math.abs(maxValue)) / 1000;
+    const maxDecimals = kiloMax >= 100 ? 0 : 1;
     return { minDecimals: 0, maxDecimals };
   }
 
@@ -50,12 +54,10 @@ export const formatNumber = (
   let unitValuePrefix = '';
   const isEuro = unitValue.includes('€');
 
-  const kilo =
-    autoKilo &&
-    !isEuro &&
-    (target === 'axis'
-      ? maxValue > 1000 || minValue < -1000
-      : number > 1000 || number < -1000);
+  // Decide the kilo prefix chart-wide from the axis range (not per value), so
+  // every tooltip line and axis tick shares the same unit (e.g. all kWh, never
+  // a mix of "48 kWh" and "464 Wh").
+  const kilo = autoKilo && !isEuro && (maxValue > 1000 || minValue < -1000);
   if (kilo) {
     number /= 1000.0;
     unitValuePrefix = 'k';
