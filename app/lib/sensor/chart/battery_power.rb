@@ -1,7 +1,15 @@
 class Sensor::Chart::BatteryPower < Sensor::Chart::Base
-  # Bars grow in opposite directions (not stacked), so gradient looks good
+  # Bars grow in opposite directions (not stacked), so gradient looks good.
+  # tooltipAbs: discharging is negated for the downward bar, but the tooltip
+  # should show its magnitude (the label already says "discharge").
   def style_for_sensor(sensor)
-    super.merge(noGradient: false)
+    super.merge(noGradient: false, tooltipAbs: true)
+  end
+
+  # Discharging grows downward (negated), so show the y-axis magnitude in
+  # both directions instead of a negative scale.
+  def options
+    super.deep_merge(scales: { y: { ticks: { callback: 'formatAbs' } } })
   end
 
   private

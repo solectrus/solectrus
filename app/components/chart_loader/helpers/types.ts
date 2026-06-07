@@ -21,6 +21,7 @@ export type DatasetWithId = ChartDataset & {
   opacities?: number[];
   hatchFill?: boolean;
   tooltipColor?: string;
+  tooltipAbs?: boolean;
 };
 
 export type ColorScaleStop = {

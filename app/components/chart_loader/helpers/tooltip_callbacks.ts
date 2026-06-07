@@ -124,7 +124,12 @@ export const buildTooltipCallbacks = (
       const label =
         tooltipDatasets.length > 1 ? `${tooltipItem.dataset.label}: ` : '';
 
-      const parsedValue = tooltipValue(tooltipItem);
+      // Charts that negate a series for opposite-direction bars (e.g. battery
+      // discharge, grid import) carry the direction in the label already, so
+      // show the magnitude without the redundant minus sign.
+      const rawValue = tooltipValue(tooltipItem);
+      const parsedValue =
+        dataset.tooltipAbs && rawValue !== null ? Math.abs(rawValue) : rawValue;
 
       if (tooltipItem.parsed._custom) {
         if (parsedValue !== null) return label + formattedNumber(parsedValue);
@@ -175,7 +180,11 @@ export const buildTooltipCallbacks = (
         return label + formattedNumber(parsedValue);
       }
 
-      return label + formattedNumber(tooltipItem.parsed.y!);
+      const fallbackY = tooltipItem.parsed.y!;
+      return (
+        label +
+        formattedNumber(dataset.tooltipAbs ? Math.abs(fallbackY) : fallbackY)
+      );
     },
 
     // Return the solid resolved color for tooltip color swatches.
