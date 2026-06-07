@@ -1,4 +1,6 @@
 class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
+  include Sensor::Chart::Concerns::GapBridging
+
   # Sensors to load from database (some are optional)
   DATA_SENSOR_NAMES = %i[
     inverter_power
@@ -142,34 +144,6 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     end
   end
 
-  def bridge_short_outages!(data, threshold)
-    last_value = nil
-    i = 0
-    while i < data.size
-      if data[i].nil?
-        gap_end = i
-        gap_end += 1 while gap_end < data.size && data[gap_end].nil?
-        fill = last_value && (gap_end - i) <= threshold ? last_value : 0
-        data.fill(fill, i, gap_end - i)
-        i = gap_end
-      else
-        last_value = data[i]
-        i += 1
-      end
-    end
-  end
-
-  GAP_BRIDGE_DURATION = 5.minutes
-  private_constant :GAP_BRIDGE_DURATION
-
-  def gap_bridge_buckets
-    GAP_BRIDGE_DURATION.to_i / bucket_interval_seconds
-  end
-
-  def bucket_interval_seconds
-    (interval || (timeframe.p1h? || timeframe.now? ? 30.seconds : 5.minutes)).to_i
-  end
-
   # Sensors that appear below zero (usage/outflow)
   def consumption_sensors
     @consumption_sensors ||=
@@ -212,20 +186,6 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
         data: chart_data[:data],
       }.merge(style_for_dataset(sensor, 0))
     end
-  end
-
-  def legend_options
-    {
-      display: true,
-      position: 'top',
-      labels: {
-        usePointStyle: true,
-        pointStyle: 'circle',
-        boxWidth: 8,
-        boxHeight: 8,
-        padding: 15,
-      },
-    }
   end
 
   def style_for_dataset(sensor, _index)

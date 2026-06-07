@@ -7,6 +7,7 @@ type TooltipFlags = {
   isPowerSplitterStack: boolean;
   isInverterStack: boolean;
   isHeatingStack: boolean;
+  isTotalConsumptionStack: boolean;
 };
 
 const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
@@ -208,7 +209,9 @@ export const buildTooltipCallbacks = (
       }
 
       if (
-        (flags.isInverterStack || flags.isHeatingStack) &&
+        (flags.isInverterStack ||
+          flags.isHeatingStack ||
+          flags.isTotalConsumptionStack) &&
         tooltipItems.length > 1
       ) {
         const sum = tooltipItems.reduce((acc, item) => {

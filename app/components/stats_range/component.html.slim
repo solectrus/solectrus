@@ -3,53 +3,8 @@
                                 sensor: do |balance|
 
   = balance.with_center do
-    - if Sensor::Config.exists?(:autarky) && data.autarky
-      = link_to balance_home_path(sensor_name: 'autarky', timeframe:),
-                data: { \
-                  turbo_prefetch: 'false',
-                  controller: 'tooltip',
-                  tooltip_touch_value: 'long',
-                  action: 'stats-with-chart--component#loadChart',
-                  stats_with_chart__component_sensor_name_param: 'autarky',
-                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'autarky', timeframe:),
-                },
-                class: 'click-animation' do
-        = render RadialBadge::Component.new(:autarky, data:)
-        - unless timeframe.future?
-          template data-tooltip-target="html"
-            = render AutarkyDetails::Component.new(data:, timeframe:)
-
-    - if Sensor::Config.exists?(:self_consumption_quote) && data.self_consumption_quote
-      = link_to balance_home_path(sensor_name: 'self_consumption_quote', timeframe:),
-                data: { \
-                  turbo_prefetch: 'false',
-                  controller: 'tooltip',
-                  tooltip_touch_value: 'long',
-                  action: 'stats-with-chart--component#loadChart',
-                  stats_with_chart__component_sensor_name_param: 'self_consumption_quote',
-                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'self_consumption_quote', timeframe:),
-                },
-                class: 'click-animation' do
-        = render RadialBadge::Component.new(:self_consumption_quote, data:)
-        - unless timeframe.future?
-          template data-tooltip-target="html"
-            = render ConsumptionDetails::Component.new(data:, timeframe:)
+    = render ConsumptionBadge::Component.new(data:, timeframe:)
 
     div class="flex-1"
-
-    - if data.co2_reduction&.nonzero?
-      = link_to balance_home_path(sensor_name: 'co2_reduction', timeframe:),
-                data: { \
-                  turbo_prefetch: 'false',
-                  controller: 'tooltip',
-                  tooltip_touch_value: 'long',
-                  action: 'stats-with-chart--component#loadChart',
-                  stats_with_chart__component_sensor_name_param: 'co2_reduction',
-                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'co2_reduction', timeframe:),
-                },
-                title: t('sensors.co2_reduction_note', co2_emission_factor: Rails.configuration.x.co2_emission_factor),
-                class: 'click-animation' do
-        = render RadialBadge::Component.new(:co2_reduction, data:) do
-          = render SensorValue::Component.new(data, :co2_reduction)
 
     = render FinanceBadge::Component.new(data:, timeframe:)

@@ -4,43 +4,7 @@
                                 peak: do |balance|
 
   = balance.with_center do
-    - if Sensor::Config.exists?(:autarky) && data.autarky
-      = link_to balance_home_path(sensor_name: 'autarky', timeframe:),
-                data: { \
-                  turbo_prefetch: 'false',
-                  'stats-with-chart--component-target': 'current',
-                  'sensor-name': 'autarky',
-                  value: data.autarky,
-                  time: data.time.to_i,
-                  action: 'stats-with-chart--component#loadChart',
-                  stats_with_chart__component_sensor_name_param: 'autarky',
-                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'autarky', timeframe:),
-                  controller: 'tooltip',
-                  tooltip_touch_value: 'long',
-                },
-                class: 'click-animation' do
-        = render RadialBadge::Component.new(:autarky, data:)
-        .hidden#autarky-details-tooltip data-tooltip-target="html"
-          = render AutarkyDetails::Component.new(data:, timeframe:)
-
-    - if Sensor::Config.exists?(:self_consumption_quote) && data.self_consumption_quote
-      = link_to balance_home_path(sensor_name: 'self_consumption_quote', timeframe:),
-                data: { \
-                  turbo_prefetch: 'false',
-                  'stats-with-chart--component-target': 'current',
-                  'sensor-name': 'self_consumption_quote',
-                  value: data.self_consumption_quote,
-                  time: data.time.to_i,
-                  action: 'stats-with-chart--component#loadChart',
-                  stats_with_chart__component_sensor_name_param: 'self_consumption_quote',
-                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'self_consumption_quote', timeframe:),
-                  controller: 'tooltip',
-                  tooltip_touch_value: 'long',
-                },
-                class: 'click-animation' do
-        = render RadialBadge::Component.new(:self_consumption_quote, data:)
-        .hidden#consumption-details-tooltip data-tooltip-target="html"
-          = render ConsumptionDetails::Component.new(data:, timeframe:)
+    = render ConsumptionBadge::Component.new(data:, timeframe:)
 
     div class="flex-1 flex flex-col justify-center -mx-2 sm:-mx-4"
       = render Flow::Component.new value: data.total, max: max_flow

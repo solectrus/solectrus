@@ -29,8 +29,17 @@
   @apply inline-flex justify-center;
 }
 
+/* Smaller, lighter unit so the number can stay full-size (like the round badges)
+   while still leaving margin inside the fixed-width box for wide values
+   ("40,4 MWh"). The unit "MWh" is nearly as wide as the number at full size, so
+   this is where the horizontal space is reclaimed. The light weight matches the
+   balance bar segments; it inherits from the default .sensor-value-unit rule. */
+.consumption-badge .value .sensor-value-unit {
+  font-size: 0.7em;
+}
+
 .badge .title {
-  @apply max-w-22 text-center font-medium uppercase;
+  @apply mx-auto text-center font-medium uppercase;
 
   font-size: calc(var(--size) / 10);
 }

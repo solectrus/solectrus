@@ -13,6 +13,7 @@ export type PowerBalanceFlags = {
   isPowerSplitterStack: boolean;
   isInverterStack: boolean;
   isHeatingStack: boolean;
+  isTotalConsumptionStack: boolean;
 };
 
 type TooltipLike = {
@@ -35,6 +36,9 @@ export const getPowerBalanceFlags = (data: ChartData): PowerBalanceFlags => {
   );
   const isHeatingStack = data.datasets.some(
     (dataset) => dataset.stack == 'HeatingPower',
+  );
+  const isTotalConsumptionStack = data.datasets.some(
+    (dataset) => dataset.stack == 'TotalConsumption',
   );
 
   const sourceIds = new Set([
@@ -97,6 +101,7 @@ export const getPowerBalanceFlags = (data: ChartData): PowerBalanceFlags => {
     isPowerSplitterStack,
     isInverterStack,
     isHeatingStack,
+    isTotalConsumptionStack,
   };
 };
 

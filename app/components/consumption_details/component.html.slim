@@ -30,6 +30,6 @@ dl
   .grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&#61;&nbsp;
-      = Sensor::Registry[:self_consumption_quote].display_name(:short)
+      = Sensor::Registry[:self_consumption_quote].display_name(:long)
     dd.font-mono.text-right
       = render SensorValue::Component.new(data, :self_consumption_quote)

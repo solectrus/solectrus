@@ -21,6 +21,7 @@ class BalanceChartDropdown::Component < ViewComponent::Base
     inverter_power
     savings
     self_consumption_quote
+    total_consumption
     total_costs
     wallbox_power
   ].freeze
@@ -37,6 +38,9 @@ class BalanceChartDropdown::Component < ViewComponent::Base
   end
 
   def include_sensor_in_chart?(sensor)
+    # Hide the total consumption chart when it would just mirror house_power
+    # (no heat pump or wallbox to sum up).
+    return Sensor::Config.total_consumption_relevant? if sensor.name == :total_consumption
     return true if CHART_SENSORS.include?(sensor.name)
     return true if Sensor::Config.house_power_excluded_custom_sensors.include?(sensor)
 

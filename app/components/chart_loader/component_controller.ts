@@ -367,6 +367,7 @@ export default class extends Controller<HTMLCanvasElement> {
       isPowerSplitterStack: boolean;
       isInverterStack: boolean;
       isHeatingStack: boolean;
+      isTotalConsumptionStack: boolean;
     },
   ): void {
     tooltip.callbacks = buildTooltipCallbacks(

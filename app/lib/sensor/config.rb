@@ -39,6 +39,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
                    :top10_sensors,
                    :multi_inverter?,
                    :single_consumer?,
+                   :total_consumption_relevant?,
                    :clear_cache!
   end
 
@@ -154,6 +155,13 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     Sensor::Registry
       .by_category(:consumer)
       .one? { |sensor| exists?(sensor.name) }
+  end
+
+  # total_consumption (house + heat pump + wallbox) only adds value when there
+  # is a heat pump or wallbox to add. Without either, the sum equals house_power
+  # and would just be a redundant figure, so callers can hide it.
+  def total_consumption_relevant?
+    exists?(:heatpump_power) || exists?(:wallbox_power)
   end
 
   def sensors

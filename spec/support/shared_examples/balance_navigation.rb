@@ -39,8 +39,15 @@ shared_examples_for 'balance navigation' do |paths|
     check_top10_link(path)
   end
 
+  # Scope timeframe switches to the tab bar. Otherwise a sensor whose name
+  # contains a tab label (e.g. "Gesamtverbrauch" vs the "Gesamt" tab) makes
+  # click_on ambiguous against the chart dropdown title.
+  def select_timeframe(label)
+    within('nav[aria-label="Tabs"]') { click_on label }
+  end
+
   def navigate_day(path)
-    click_on 'Tag'
+    select_timeframe 'Tag'
     expect_timeframe_page(path, stats_id: 'day', expected_path: '2022-06-21', title: 'Dienstag, 21. Juni 2022')
 
     expect(page).to have_css('#chart-day')
@@ -56,7 +63,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_24_hours(path)
-    click_on('Tag') # Second click to open 24H view
+    select_timeframe('Tag') # Second click to open 24H view
 
     expect_timeframe_page(path, stats_id: 'hours', expected_path: 'P24H', title: 'Letzte 24 Stunden')
 
@@ -69,7 +76,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_week(path)
-    click_on 'Woche'
+    select_timeframe 'Woche'
     expect_timeframe_page(path, stats_id: 'week', expected_path: '2022-W25', title: 'KW 25, 2022')
     expect(page).to have_css('#chart-week')
 
@@ -86,7 +93,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_month(path)
-    click_on 'Monat'
+    select_timeframe 'Monat'
     expect_timeframe_page(path, stats_id: 'month', expected_path: '2022-06', title: 'Juni 2022')
     expect(page).to have_css('#chart-month')
 
@@ -103,7 +110,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_year(path)
-    click_on 'Jahr'
+    select_timeframe 'Jahr'
     expect_timeframe_page(path, stats_id: 'year', expected_path: '2022', title: '2022')
     expect(page).to have_css('#chart-year')
 
@@ -120,7 +127,7 @@ shared_examples_for 'balance navigation' do |paths|
   end
 
   def navigate_all(path)
-    click_on 'Gesamt'
+    select_timeframe 'Gesamt'
     expect_timeframe_page(path, stats_id: 'all', expected_path: 'all', title: 'Seit Inbetriebnahme')
     expect(page).to have_css('#chart-all')
 

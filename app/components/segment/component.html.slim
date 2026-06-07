@@ -84,3 +84,9 @@
                         = inverter_sensor.display_name
                       td.text-right.pl-1.tabular-nums
                         = render SensorValue::Component.new(data, inverter_sensor.name, context: now? ? :rate : :total, precision: 3)
+
+          - if sensor.name == :inverter_power && data.respond_to?(:co2_reduction) && data.co2_reduction&.nonzero?
+            .text-center.mt-2
+              = Sensor::Registry[:co2_reduction].display_name(:short)
+              br
+              = render SensorValue::Component.new(data, :co2_reduction, class: 'text-xl')

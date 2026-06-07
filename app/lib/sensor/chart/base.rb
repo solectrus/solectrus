@@ -124,6 +124,21 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     { padding: { right: FLASH_DOT_HEADROOM } } if timeframe.now?
   end
 
+  # Standard legend for stacked charts that show several named segments.
+  def legend_options
+    {
+      display: true,
+      position: 'top',
+      labels: {
+        usePointStyle: true,
+        pointStyle: 'circle',
+        boxWidth: 8,
+        boxHeight: 8,
+        padding: 15,
+      },
+    }
+  end
+
   def suggested_min
     0
   end

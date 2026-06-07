@@ -112,9 +112,10 @@ de:
     outdoor_temp_forecast: Erwartete Außentemperatur
     self_consumption: Eigenverbrauch
     self_consumption_quote: Eigenverbrauchsquote
-    self_consumption_quote_short: Verbrauch
+    self_consumption_quote_short: Eigenverb.
     grid_quote: Bezugsquote
     total_consumption: Gesamtverbrauch
+    total_consumption_short: Verbrauch
     solar_price: Solarpreis
     traditional_costs: Vergleichspreis
     savings: Ersparnis

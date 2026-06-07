@@ -8,6 +8,7 @@ describe 'Balance page (power sensors)' do
       house_power
       heatpump_power
       wallbox_power
+      total_consumption
     ],
   )
 
