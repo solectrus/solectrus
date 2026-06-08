@@ -1,21 +1,46 @@
-.consumption-badge.badge class= 'h-auto space-y-2 tall:space-y-3 xl:tall:py-3 rounded-3xl text-center xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-  - if show?(:total_consumption)
-    = link_to balance_home_path(sensor_name: 'total_consumption', timeframe:),
-              data: link_data(:total_consumption, tooltip: false),
-              class: 'click-animation' do
-      .value
-        = render SensorValue::Component.new(data, :total_consumption, context: value_context)
-      .title
-        = Sensor::Registry[:total_consumption].display_name(:short)
+- if Sensor::Config.total_consumption_relevant?
+  .consumption-badge.badge class= 'h-auto space-y-2 tall:space-y-3 xl:tall:py-3 rounded-3xl text-center xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+    - if show?(:total_consumption)
+      = link_to balance_home_path(sensor_name: 'total_consumption', timeframe:),
+                data: link_data(:total_consumption, tooltip: false),
+                class: 'click-animation' do
+        .value
+          = render SensorValue::Component.new(data, :total_consumption, context: value_context)
+        .title
+          = Sensor::Registry[:total_consumption].display_name(:short)
 
+    - if show?(:autarky)
+      = link_to balance_home_path(sensor_name: 'autarky', timeframe:),
+                data: link_data(:autarky, tooltip: true),
+                class: 'click-animation' do
+        .value class=autarky_color_class
+          = render SensorValue::Component.new(data, :autarky)
+        .title
+          = Sensor::Registry[:autarky].display_name(:short)
+        - unless timeframe.future?
+          template data-tooltip-target="html"
+            = render AutarkyDetails::Component.new(data:, timeframe:)
+
+    - if show?(:self_consumption_quote)
+      = link_to balance_home_path(sensor_name: 'self_consumption_quote', timeframe:),
+                data: link_data(:self_consumption_quote, tooltip: true),
+                class: 'click-animation' do
+        .value
+          = render SensorValue::Component.new(data, :self_consumption_quote)
+        .title
+          = Sensor::Registry[:self_consumption_quote].display_name(:short)
+        - unless timeframe.future?
+          template data-tooltip-target="html"
+            = render ConsumptionDetails::Component.new(data:, timeframe:)
+
+- else
+  / With a single consumer the total consumption equals house consumption, so
+  / fall back to the original two radial badges instead of the grouped text box.
   - if show?(:autarky)
     = link_to balance_home_path(sensor_name: 'autarky', timeframe:),
               data: link_data(:autarky, tooltip: true),
               class: 'click-animation' do
-      .value class=autarky_color_class
-        = render SensorValue::Component.new(data, :autarky)
-      .title
-        = Sensor::Registry[:autarky].display_name(:short)
+      = render RadialBadge::Component.new(:autarky, data:)
       - unless timeframe.future?
         template data-tooltip-target="html"
           = render AutarkyDetails::Component.new(data:, timeframe:)
@@ -24,10 +49,7 @@
     = link_to balance_home_path(sensor_name: 'self_consumption_quote', timeframe:),
               data: link_data(:self_consumption_quote, tooltip: true),
               class: 'click-animation' do
-      .value
-        = render SensorValue::Component.new(data, :self_consumption_quote)
-      .title
-        = Sensor::Registry[:self_consumption_quote].display_name(:short)
+      = render RadialBadge::Component.new(:self_consumption_quote, data:)
       - unless timeframe.future?
         template data-tooltip-target="html"
           = render ConsumptionDetails::Component.new(data:, timeframe:)
