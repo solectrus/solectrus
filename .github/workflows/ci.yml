@@ -342,7 +342,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           labels: |
-            maintainer=georg@ledermann.dev
+            maintainer=info@solectrus.de
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
