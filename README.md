@@ -98,3 +98,8 @@ https://www.rorvswild.com/applications/136101/requests
 ## License
 
 © 2020–2026 Georg Ledermann. Released under AGPL-3.0.
+
+The source code is open source under AGPL-3.0. The **SOLECTRUS** name and logo
+are trademarks of Georg Ledermann and are not covered by that license; forks and
+modified versions must use a different name. See [TRADEMARK.md](TRADEMARK.md) for
+details.
