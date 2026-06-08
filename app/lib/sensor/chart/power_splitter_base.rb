@@ -12,10 +12,13 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
 
   # Override datasets to provide custom styling and stacking for split power sources
   def datasets(chart_data_items)
-    if splitting_allowed?
+    if splitting_allowed? && split_data_present?(chart_data_items)
       build_splitted_datasets(chart_data_items)
     else
-      super
+      # No actual split data: render the base sensor as a single, full-width
+      # dataset. Emitting the empty grid/pv datasets would reserve a second
+      # bar slot next to the main bar and squeeze it into a thin sliver.
+      super(chart_data_items.first(1))
     end
   end
 
@@ -26,6 +29,16 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
 
     # Only allow splitting if we have grid data configured
     Sensor::Config.exists?(grid_sensor_name)
+  end
+
+  # The grid sensor can be auto-configured and permitted (sponsor) while the
+  # power_splitter measurement stays empty -- e.g. when the splitter service
+  # isn't running. In that case grid/pv carry only nils, so fall back to the
+  # plain single-dataset chart.
+  def split_data_present?(chart_data_items)
+    [chart_data_items.second, chart_data_items.third].compact.any? do |item|
+      item[:data]&.any? { |value| !value.nil? }
+    end
   end
 
   # Build datasets for split power sources
