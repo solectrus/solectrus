@@ -39,7 +39,7 @@
 }
 
 .badge .title {
-  @apply mx-auto text-center font-medium uppercase;
+  @apply mx-auto max-w-22 text-center font-medium uppercase;
 
   font-size: calc(var(--size) / 10);
 }
