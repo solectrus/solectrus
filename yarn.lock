@@ -2073,14 +2073,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rails-vite-plugin@npm:^0.2.4":
-  version: 0.2.4
-  resolution: "rails-vite-plugin@npm:0.2.4"
+"rails-vite-plugin@npm:^0.2.5":
+  version: 0.2.5
+  resolution: "rails-vite-plugin@npm:0.2.5"
   dependencies:
     picomatch: "npm:^4.0.0"
   peerDependencies:
     vite: ">=5.0.0"
-  checksum: 10c0/02ddf27cdda57349c36cb018f1f56e874d8b68b57d277c85ae02a97b634495a4d59a2fb65c5854b0340598e65db2fcacaf6dbd40754d180a4ac61604aa699fbb
+  checksum: 10c0/651ba979e9afeda472e9f441de108b1499f655a0d7207ad3b90e1447b5095d800dfccc3cd770bd7d6c99272a220593f7f1f75d90bb78fa33f0fa06bfd8dfda19
   languageName: node
   linkType: hard
 
@@ -2233,7 +2233,7 @@ __metadata:
     playwright: "npm:^1.60.0"
     prettier: "npm:^3.8.3"
     prettier-plugin-tailwindcss: "npm:^0.8.0"
-    rails-vite-plugin: "npm:^0.2.4"
+    rails-vite-plugin: "npm:^0.2.5"
     sinon: "npm:^22.0.0"
     size-limit: "npm:^12.1.0"
     stimulus-vite-helpers: "npm:^3.1.0"
