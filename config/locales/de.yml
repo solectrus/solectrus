@@ -131,7 +131,7 @@ de:
   splitter:
     grid: Energie aus Netzbezug
     pv: Energie aus Photovoltaik
-    pv_percent: "%{percent}% aus Photovoltaik"
+    pv_percent: '%{percent}% aus Photovoltaik'
     total: Stromverbrauch
   balance_sheet:
     left: Herkunft
@@ -290,5 +290,5 @@ de:
         electricity_amount: Arbeitspreis in &euro;/kWh
         feed_in_amount: Vergütungssatz in &euro;/kWh
       setting:
-        plant_name: Bezeichung der Anlage
+        plant_name: Bezeichnung der Anlage
         operator_name: Name des Betreibers

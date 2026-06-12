@@ -16,7 +16,7 @@ de:
     description: Zeigt Herkunft und Verbrauch des Stroms im zeitlichen Verlauf.
   insights:
     title: Kennzahlen & Trends
-    description: Hier werden weitere Kennzahlen und Trends dargestellt, die sich auf den gewählten Sensor und Zeitraum beziehen. Hierzu gehören Ertrag pro kWp, Durchschnitt pro Tag, Vergleich mit mit Vormonat und Vorjahr.
+    description: Hier werden weitere Kennzahlen und Trends dargestellt, die sich auf den gewählten Sensor und Zeitraum beziehen. Hierzu gehören Ertrag pro kWp, Durchschnitt pro Tag, Vergleich mit Vormonat und Vorjahr.
   finance_charts:
     title: Finanzdiagramme
     description: Dargestellt wird der zeitliche Verlauf von Kosten, Einnahmen und Einsparungen der Solaranlage.
