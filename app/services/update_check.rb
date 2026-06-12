@@ -34,6 +34,10 @@ class UpdateCheck
     Rails.env.local?
   end
 
+  def self.profile_code
+    ApplicationPolicy.car? ? 1 : 0
+  end
+
   def latest_version
     latest[:version]
   end

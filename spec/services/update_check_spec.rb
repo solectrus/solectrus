@@ -55,6 +55,14 @@ describe UpdateCheck do
           'Checked for update availability, valid for 720 minutes',
         )
       end
+
+      # The HttpClient builds the User-Agent inside the mutex, and the
+      # User-Agent reports feature flags, which call back into `.latest`.
+      # Without a re-entrancy guard this deadlocks with "recursive locking".
+      it 'does not deadlock when the User-Agent reads feature flags' do
+        expect { latest }.not_to raise_error
+        expect(instance.latest_version).to eq('v1.2.1')
+      end
     end
 
     context 'when the request fails' do

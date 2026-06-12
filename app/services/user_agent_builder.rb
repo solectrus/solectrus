@@ -5,6 +5,7 @@ class UserAgentBuilder
     parts = [
       "#{app_name}/#{version}",
       "(#{sysname}; #{machine}; #{kernel_release}; #{setup_id})",
+      features_token,
       helios_token,
       influxdb_token,
       postgresql_token,
@@ -14,6 +15,10 @@ class UserAgentBuilder
   end
 
   private
+
+  def features_token
+    "FEATURES/#{UpdateCheck.profile_code}"
+  end
 
   def helios_token
     token_for('HELIOS', HeliosCheck.version)

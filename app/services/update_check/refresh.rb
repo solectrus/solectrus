@@ -24,6 +24,12 @@ module UpdateCheck::Refresh
     # Return sensible defaults so components render correctly.
     return fallback_data if self.class.skip_http?
 
+    # Re-entrancy guard: building the outgoing request's User-Agent reads
+    # feature flags, which call back into `latest` while this thread already
+    # holds the lock. Serve the stale cache for that nested call instead of
+    # re-acquiring the mutex (which raises "recursive locking").
+    return stale_or_unknown(entry) if @mutex.owned?
+
     @mutex.synchronize do
       # Re-read inside the lock: another thread may have just refreshed.
       entry = cached_entry
@@ -50,7 +56,7 @@ module UpdateCheck::Refresh
   # Cache is either stale (within grace period) or completely gone.
   # In both cases we try to refresh, but the fallback behavior differs.
   def refresh_or_fallback(entry)
-    return entry ? resolve_entry(entry) : UNKNOWN if cache_manager.retry_throttled?
+    return stale_or_unknown(entry) if cache_manager.retry_throttled?
 
     result = @http_client.fetch_update_data
     result[:status] == :ok ? store_success(result) : handle_failure(result, entry)
@@ -87,5 +93,10 @@ module UpdateCheck::Refresh
     data = entry[:data]
     # fallback_data has no signature, skip verification
     self.class.skip_http? ? data : resolve_cached(data)
+  end
+
+  # Last known-good status when we can't (or won't) refresh right now.
+  def stale_or_unknown(entry)
+    entry ? resolve_entry(entry) : UNKNOWN
   end
 end
