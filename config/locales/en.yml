@@ -1,7 +1,7 @@
 en:
   general:
-    'yes': Yes
-    'no': No
+    'yes': 'Yes'
+    'no': 'No'
   charts:
     heatpump_cop_scatter:
       heatpump_power: Power consumption
