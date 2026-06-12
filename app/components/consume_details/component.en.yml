@@ -1,12 +1,12 @@
 en:
   grid:
-    header: Costs from grid-consumption
+    header: Costs of grid consumption
     import_power: Imported from the grid
     import_costs: Import costs
 
   pv:
-    header: Opportunity costs self-consumption
-    opportunity_costs: Lost feed-in tariff
+    header: Opportunity costs of self-consumption
+    opportunity_costs: Lost feed-in revenue
 
   total_costs: Economic costs
 

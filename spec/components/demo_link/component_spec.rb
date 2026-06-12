@@ -7,7 +7,7 @@ describe DemoLink::Component, type: :component do
   it 'renders the buttons' do
     render_inline(component)
 
-    expect(page).to have_link 'How to become a sponsor?',
+    expect(page).to have_link 'How do I become a sponsor?',
               href: 'https://solectrus.de/sponsoring'
 
     expect(page).to have_link 'Demo', href: 'https://demo.solectrus.de/house'

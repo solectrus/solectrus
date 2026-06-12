@@ -9,7 +9,7 @@ describe Banner::Component, type: :component do
     it 'renders the banner' do
       result = render_inline(component)
 
-      expect(result.to_html).to include('Please proceed with the registration')
+      expect(result.to_html).to include('Please register your installation')
       expect(result.to_html).to include('Register now')
     end
   end

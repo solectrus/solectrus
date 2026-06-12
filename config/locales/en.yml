@@ -15,7 +15,7 @@ en:
     car: Car
     economic: Finance
     forecast: Forecast
-    power_splitter: Splits
+    power_splitter: Power split
     status: Status
     other: Other
   layout:
@@ -34,17 +34,17 @@ en:
     helios: Configuration with HELIOS
     settings: Settings
     registration: Registration
-    registration_and_sponsoring: Registration & Sponsoring
-    login: Login as Admin
-    logout: Logout
+    registration_and_sponsoring: Registration & Sponsorship
+    login: Log in as admin
+    logout: Log out
     notifications: Notifications
     version_outdated: New version <strong>%{latest_version}</strong> available!
     version_uptodate: This is the latest version
-    prompt_for_sponsoring: Do you like SOLECTRUS? Support the further development with a sponsorship and get more features.
-    missing_sponsoring_header: Sponsoring required
-    missing_sponsoring: Only sponsors can ensure the further development of SOLECTRUS.
+    prompt_for_sponsoring: Do you like SOLECTRUS? Support its ongoing development with a sponsorship and get more features.
+    missing_sponsoring_header: Sponsorship required
+    missing_sponsoring: Only sponsors can ensure the continued development of SOLECTRUS.
     missing_sponsoring_cta: Learn more...
-    active_sponsoring_header: Sponsoring is active
+    active_sponsoring_header: Sponsorship is active
     active_sponsoring: Thank you very much for your support!
     free_trial_header: Free trial active
     free_trial: 'All features until %{ends_at}'
@@ -54,7 +54,7 @@ en:
     missing_multi_inverter: Here you could visualize multiple inverters. Add additional sensors to your configuration (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> to <code>_5</code>).
     incomplete_heatpump: Heat pump
     missing_heatpump: Here you could visualize COP, heat generated, and other interesting metrics of your heat pump. Add additional sensors to your configuration (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
-    insights: Figures & Trend
+    insights: Figures & Trends
   timeframe:
     now: Now
     hours: Last %{count} hours
@@ -75,9 +75,9 @@ en:
     inverter_power_4: Generation 4
     inverter_power_5: Generation 5
     inverter_power_difference: Unassigned
-    inverter_power_forecast: PV Forecast
-    inverter_power_forecast_clearsky: Clear Sky
-    house_power: Home consumption
+    inverter_power_forecast: PV forecast
+    inverter_power_forecast_clearsky: Clear sky
+    house_power: House consumption
     house_power_without_custom: Other consumers
     wallbox_power: EV charging
     grid_import_power: Grid import
@@ -90,14 +90,14 @@ en:
     battery_charging_power_grid: Battery charge (Grid)
     battery_charging_power_pv: Battery charge (PV)
     battery_power: Battery charge and discharge
-    battery_soc: SOC Home Battery
+    battery_soc: Home battery SOC
     battery_soc_short: SOC
-    car_battery_soc: SOC EV
+    car_battery_soc: EV SOC
     case_temp: Case
-    grid_export_limit: Limitation
+    grid_export_limit: Limit
     heatpump_power: Heat pump
     heatpump_power_short: Power consumption
-    heatpump_power_env: Energy from environment
+    heatpump_power_env: Energy from the environment
     heatpump_heating_power: Heat generated
     heatpump_heating_power_short: Heat
     heatpump_tank_temp: Hot water
@@ -110,18 +110,18 @@ en:
     outdoor_temp: Outdoor temperature
     outdoor_temp_short: Outdoor
     outdoor_temp_forecast: Expected outdoor temperature
-    grid_quote: Grid consumption rate
+    grid_quote: Grid share
     total_consumption: Total consumption
     total_consumption_short: Consumption
-    self_consumption: Self consumption
+    self_consumption: Self-consumption
     self_consumption_quote: Self-consumption rate
     self_consumption_quote_short: Self-cons.
     solar_price: Solar price
-    traditional_costs: Comparative price
+    traditional_costs: Cost without PV
     savings: Savings
-    opportunity_costs: Lost feed-in tariff
+    opportunity_costs: Lost feed-in revenue
     co2_reduction: CO₂ reduction
-    co2_reduction_note: Reduction in CO₂ emissions from PV generation based on the factor %{co2_emission_factor}&nbsp;g/kWh
+    co2_reduction_note: Reduction in CO₂ emissions due to PV generation, based on an emission factor of %{co2_emission_factor}&nbsp;g/kWh
     battery_savings: Battery share
     total_costs: Economic costs
     total_costs_short: Costs
@@ -131,7 +131,7 @@ en:
   splitter:
     grid: Energy from grid
     pv: Energy from PV
-    pv_percent: "%{percent}% from PV"
+    pv_percent: '%{percent}% from PV'
     total: Power consumption
   balance_sheet:
     left: Source
@@ -149,13 +149,13 @@ en:
     month: Month
     year: Year
     all: Overall
-    time: Last measurement taken
+    time: 'Time since last measurement:'
     blank: No data available!
     heatpump_cop_below_one: Power consumption exceeds heat generated
     heatpump_no_heating: No heating operation
     inverter_no_production: No production
   chart:
-    inverter_total: Cumulative
+    inverter_total: Combined
     inverter_split: Individual
   forecast:
     title: Forecast
@@ -172,24 +172,24 @@ en:
     expectation_html: Expected %{value}
     unknown: No forecast available
   login:
-    title: Login as admin
+    title: Log in as admin
     missing_password_error: Unable to log in because no password has been configured.
     missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
     password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on your Docker host.
-    submit: Login
+    submit: Log in
     welcome: Logged in as administrator.
     bye: You have been logged out.
   lockup:
     headline: Protected access
     description: This SOLECTRUS instance is not public.
-    wrong: Not correct!
+    wrong: Incorrect!
     placeholder: Code word
     submit: Continue
   sponsoring:
     show:
       headline: SOLECTRUS needs you - really!
       p1: My name is Georg Ledermann and I develop SOLECTRUS full-time. Without a big company behind me, funded from my own pocket. This can't go on forever – the future of the project depends on your support.
-      p2: 'As a sponsor with a monthly payment starting at €5, you not only enable further development but also get real features: <strong>Custom consumers</strong>, <strong>multiple power generators</strong>, the <strong>power splitter</strong>, the <strong>heat pump page</strong>, <strong>trends & figures</strong>, <strong>financial charts</strong>, the <strong>power balance over time</strong>, and <strong>dark mode</strong>. More is in the works.'
+      p2: 'As a sponsor with a monthly payment starting at €5, you not only keep development going but also get real features: <strong>Custom consumers</strong>, <strong>multiple power generators</strong>, the <strong>power splitter</strong>, the <strong>heat pump page</strong>, <strong>trends & figures</strong>, <strong>financial charts</strong>, the <strong>power balance over time</strong>, and <strong>dark mode</strong>. More is in the works.'
       p3: Sound fair?
       more: Learn more about sponsorship
       continue: Continue
@@ -200,7 +200,7 @@ en:
     show:
       headline: Registration Required
       p1: SOLECTRUS is free to use in the basic version, but you need to register.
-      p2: Registration helps to understand how many people use the software and to plan future improvements.
+      p2: Registration helps to gauge how widely the software is used and to prioritize future development.
       continue: Register now
       login_required: Please log in as an administrator to complete the registration.
   crud:
@@ -219,12 +219,12 @@ en:
         plant_name:
           placeholder: e.g. SENEC.Home V3, 28 modules on the house roof in south orientation with 9.24 kWp
         operator_name:
-          placeholder: e.g. John Doe from Foo City
+          placeholder: e.g. John Doe from Springfield
       summaries:
         title: Daily summaries
         description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.
         zero: There are no summaries available.
-        fresh_percentage: There are %{value}% of the required summaries available.
+        fresh_percentage: '%{value}% of the required summaries are available.'
         reset:
           title: Reset
           confirmation: Rebuilding the summaries will take some time. Continue?
@@ -233,14 +233,14 @@ en:
       edit: Edit price
       new: Add price
       description:
-        electricity: Price per consumed kWh paid to the electricity supplier. Changes regularly, usually annually.
+        electricity: Price per kWh consumed, paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
     sensors:
       name: Sensors
       generators: Generators
       consumers: Consumers
       battery: Battery
-      single_inverter: In a multi-inverter configuration, these could be named here.
+      single_inverter: If multiple inverters were configured, they could be named here.
       inverter_as_total: Show only as total in the power balance
       enable_multi_inverter: Enable "Generation" page in the navigation
       enable_forecast: Enable "Forecast" page in the navigation
@@ -267,7 +267,7 @@ en:
         <br><br>
         <code>docker compose logs dashboard</code>
     back_to_home: ← Back to homepage
-    login: Login as administrator
+    login: Log in as administrator
 
   activemodel:
     attributes:

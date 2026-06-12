@@ -7,12 +7,12 @@ en:
     description: SOLECTRUS can display the readings from multiple inverters or strings, as well as a "balcony power plant" (plug-in solar device).
   relative_timeframe:
     title: Relative timeframes
-    description: Whether it's the last 30 days or the last 12 months - with SOLECTRUS, flexible timeframes can also be displayed.
+    description: Whether it's the last 30 days or the last 12 months – SOLECTRUS can also display flexible timeframes.
   insights:
     title: Insights
-    description: Here, additional key figures and trends are presented, which relate to the selected sensor and time period. These include yield per kWp, average per day, comparison with the previous month and previous year.
+    description: Shows additional key figures and trends relating to the selected sensor and time period, including yield per kWp, average per day, and comparisons with the previous month and year.
   heatpump:
-    title: Heatpump
+    title: Heat pump
     description: SOLECTRUS can monitor and visualize the heat output, coefficient of performance, and outdoor temperature.
   power_balance_chart:
     title: Power balance chart
@@ -25,4 +25,4 @@ en:
     description: Shows the top 10 days, weeks, months or years with the highest costs, revenue or savings.
   sponsoring_only: Exclusively for sponsors
   demo: Demo
-  about_sponsoring: How to become a sponsor?
+  about_sponsoring: How do I become a sponsor?
