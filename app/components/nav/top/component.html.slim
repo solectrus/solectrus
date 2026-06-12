@@ -46,4 +46,7 @@ header.relative.bg-indigo-600.dark:bg-indigo-900 data-controller='slide-over--co
 
   = render SlideOver::Component.new do
     - secondary_items.each do |item|
-      = item.call(with_icon: true, css_extra: ['py-2 px-6 text-gray-600 dark:text-gray-400', item.current ? 'font-bold' : 'hover:bg-indigo-100/75 dark:hover:bg-indigo-900'])
+      - if item.component
+        = render item.component.new(css_extra: ['py-2 px-6 text-gray-600 dark:text-gray-400', 'hover:bg-indigo-100/75 dark:hover:bg-indigo-900'])
+      - else
+        = item.call(with_icon: true, css_extra: ['py-2 px-6 text-gray-600 dark:text-gray-400', item.current ? 'font-bold' : 'hover:bg-indigo-100/75 dark:hover:bg-indigo-900'])

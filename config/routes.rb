@@ -176,6 +176,8 @@ Rails.application.routes.draw do
   post '/login', to: 'sessions#create', as: :sessions
   delete '/logout', to: 'sessions#destroy', as: :session
 
+  resource :locale, only: :update
+
   resources :notifications, only: %i[index show] do
     collection { get :latest }
     member { patch :mark_as_read }

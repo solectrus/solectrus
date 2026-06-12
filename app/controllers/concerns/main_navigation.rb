@@ -42,6 +42,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           settings_item,
           registration_item,
           notifications_item,
+          locale_switcher_item,
           ___,
           expand_item,
           compress_item,
@@ -55,6 +56,10 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
 
     def ___
       { name: '-' }
+    end
+
+    def locale_switcher_item
+      { component: LocaleSelector::Component }
     end
 
     def root_item

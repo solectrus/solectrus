@@ -60,6 +60,7 @@ import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons/faMagicWa
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 import { faTableList } from '@fortawesome/free-solid-svg-icons/faTableList';
 import { faChartBar } from '@fortawesome/free-solid-svg-icons/faChartBar';
+import { faLanguage } from '@fortawesome/free-solid-svg-icons/faLanguage';
 
 // -------------------------
 
@@ -125,6 +126,7 @@ export default class extends Controller {
       faBars,
       faTableList,
       faChartBar,
+      faLanguage,
     );
 
     dom.watch();

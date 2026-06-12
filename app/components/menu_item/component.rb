@@ -1,6 +1,6 @@
 class MenuItem::Component < ViewComponent::Base
   def initialize( # rubocop:disable Metrics/ParameterLists
-    name:,
+    name: nil,
     href: nil,
     data: {},
     sensor_name: nil,
@@ -11,7 +11,8 @@ class MenuItem::Component < ViewComponent::Base
     text: true,
     current: false,
     badge_count: nil,
-    badge_data: nil
+    badge_data: nil,
+    component: nil
   )
     super()
     @name = name
@@ -27,6 +28,7 @@ class MenuItem::Component < ViewComponent::Base
     @current = current
     @badge_count = badge_count
     @badge_data = badge_data
+    @component = component
   end
 
   def target
@@ -44,7 +46,8 @@ class MenuItem::Component < ViewComponent::Base
               :id,
               :separator_before,
               :badge_count,
-              :badge_data
+              :badge_data,
+              :component
 
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES

@@ -1,0 +1,22 @@
+/ Turbo disabled on purpose: switching the locale re-renders the whole UI.
+/ A redirect back to the same URL would otherwise trigger a Turbo morph
+/ refresh that resets lazy turbo-frames (chart/stats) to their spinner
+/ without reloading them — leaving an endless spinner. A full reload avoids that.
+= button_to locale_path,
+            method: :patch,
+            params: { locale: next_locale },
+            form: { data: { turbo: false } },
+            form_class: 'w-full',
+            class: [css_extra, 'w-full flex items-center gap-3 cursor-pointer text-left'],
+            'aria-label': t('.aria_label', language: native_name(current_locale)) do
+  i.fa.fa-fw.fa-language.fa-xl aria-hidden='true'
+  span.flex-1.text-left.uppercase.lg:normal-case.font-medium
+    = t('.title')
+
+  span.flex.items-center.gap-3.text-sm.font-semibold.tracking-wider.uppercase aria-hidden='true'
+    - locales.each do |locale|
+      span[
+        class= (locale == current_locale ? 'underline underline-offset-4 decoration-2' : 'opacity-50')
+        title= native_name(locale)
+      ]
+        = locale.to_s.upcase

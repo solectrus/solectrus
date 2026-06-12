@@ -1,0 +1,3 @@
+en:
+  title: Language
+  aria_label: 'Switch language (current: %{language})'
