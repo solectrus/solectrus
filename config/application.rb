@@ -69,6 +69,7 @@ module Solectrus
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
     config.x.rorvswild.api_key = ENV['RORVSWILD_API_KEY'].presence
     config.x.co2_emission_factor = ENV.fetch('CO2_EMISSION_FACTOR', 401).to_i # g / kWh
+    config.x.currency = ENV.fetch('CURRENCY', 'EUR').to_s.strip.upcase.presence || 'EUR' # ISO-4217 code, e.g. EUR, CHF, USD
 
     config.x.influx.token = ENV.fetch('INFLUX_TOKEN', nil)
     config.x.influx.schema = ENV.fetch('INFLUX_SCHEMA', 'http')

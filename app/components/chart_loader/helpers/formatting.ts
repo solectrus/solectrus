@@ -5,6 +5,7 @@ type FormatOptions = {
   target?: FormatTarget;
   autoKilo?: boolean;
   unitValue: string;
+  currency: string;
   locale: string;
   minValue: number;
   maxValue: number;
@@ -14,7 +15,7 @@ type FormatOptions = {
 export const getDecimalPlaces = (
   target: FormatTarget,
   kilo: boolean,
-  isEuro: boolean,
+  isCurrency: boolean,
   unitValue: string,
   minValue: number,
   maxValue: number,
@@ -28,7 +29,7 @@ export const getDecimalPlaces = (
     return { minDecimals: 0, maxDecimals };
   }
 
-  if (isEuro) {
+  if (isCurrency) {
     const showDecimals =
       target === 'axis' ? maxValue < 10 : minValue < 10 && maxValue < 100;
     const decimals = showDecimals ? 2 : 0;
@@ -46,18 +47,19 @@ export const formatNumber = (
     target = 'tooltip',
     autoKilo = true,
     unitValue,
+    currency,
     locale,
     minValue,
     maxValue,
   }: FormatOptions,
 ): string => {
   let unitValuePrefix = '';
-  const isEuro = unitValue.includes('€');
+  const isCurrency = currency !== '' && unitValue.includes(currency);
 
   // Decide the kilo prefix chart-wide from the axis range (not per value), so
   // every tooltip line and axis tick shares the same unit (e.g. all kWh, never
   // a mix of "48 kWh" and "464 Wh").
-  const kilo = autoKilo && !isEuro && (maxValue > 1000 || minValue < -1000);
+  const kilo = autoKilo && !isCurrency && (maxValue > 1000 || minValue < -1000);
   if (kilo) {
     number /= 1000.0;
     unitValuePrefix = 'k';
@@ -66,7 +68,7 @@ export const formatNumber = (
   const { minDecimals, maxDecimals } = getDecimalPlaces(
     target,
     kilo,
-    isEuro,
+    isCurrency,
     unitValue,
     minValue,
     maxValue,
