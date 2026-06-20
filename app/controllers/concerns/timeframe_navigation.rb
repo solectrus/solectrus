@@ -5,7 +5,7 @@ module TimeframeNavigation
     private
 
     helper_method def title
-      timeframe.now? ? 'Live' : timeframe.localized
+      timeframe.localized
     end
 
     def path_with_timeframe(timeframe)

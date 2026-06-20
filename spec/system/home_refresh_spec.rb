@@ -5,7 +5,7 @@ describe 'Home page auto-refresh' do
     it 'refreshes and shows updated data after 5 seconds' do
       visit '/inverter_power/now'
 
-      expect(page.title).to include('Live')
+      expect(page.title).to include('Aktuell')
       expect(page).to have_text('10,0 kW')
 
       add_influx_point(

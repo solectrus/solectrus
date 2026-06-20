@@ -274,7 +274,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   def localized # rubocop:disable Metrics/CyclomaticComplexity
     case id
     when :now
-      I18n.l(date, format:)
+      I18n.t('timeframe.now')
     when :day
       I18n.l(date, format: :long)
     when :hours

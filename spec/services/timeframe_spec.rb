@@ -120,7 +120,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('10:00')
+      expect(decoder.localized).to eq('Now')
     end
 
     it 'returns the correct corresponding_day' do

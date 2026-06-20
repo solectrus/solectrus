@@ -28,7 +28,7 @@ shared_examples_for 'balance navigation' do |paths|
   private
 
   def navigate_now(path)
-    expect_timeframe_page(path, stats_id: 'now', expected_path: 'now', title: 'Live', content: 'LADEN')
+    expect_timeframe_page(path, stats_id: 'now', expected_path: 'now', title: 'Aktuell', content: 'LADEN')
 
     if path == 'inverter_power'
       expect(page).to have_text(/\d+,\d+ kW/) # Match power values like "10,0 kW"

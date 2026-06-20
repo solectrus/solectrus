@@ -23,7 +23,7 @@ describe 'Heatpump navigation' do
   def navigate_now(path)
     expect(page).to have_css('#stats-now')
     expect(page).to have_current_path("/heatpump/#{path}/now")
-    expect(page.title).to include('Live')
+    expect(page.title).to include('Aktuell')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-now')
 
