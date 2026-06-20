@@ -75,13 +75,13 @@ bin/rubocop
 ESLint:
 
 ```
-bin/yarn lint
+bun run lint
 ```
 
 TypeScript:
 
 ```
-bin/yarn tsc
+bun run tsc
 ```
 
 There is a shortcut to run **all** test and linting tools:

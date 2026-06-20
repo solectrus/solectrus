@@ -7,16 +7,16 @@ CI.run do
 
   step 'Style: Ruby', 'bin/rubocop --parallel'
   step 'Style: Slim', 'bin/slim-lint .'
-  step 'Style: JavaScript', 'bin/yarn lint'
-  step 'Style: TypeScript', 'bin/yarn tsc'
+  step 'Style: JavaScript', 'bun run lint'
+  step 'Style: TypeScript', 'bun run tsc'
   step 'Style: Shell', "shellcheck $(git ls-files '*.sh')"
 
   step 'Security: Gem audit', 'bin/bundler-audit'
-  step 'Security: Yarn vulnerability audit', 'bin/yarn npm audit --recursive'
+  step 'Security: JavaScript vulnerability audit', 'bun audit'
   step 'Security: Brakeman code analysis',
        'bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error'
 
-  step 'Build: Vite assets', 'bin/yarn vite build --mode test'
+  step 'Build: Vite assets', 'bunx vite build --mode test'
 
   step 'Tests: Unit',
        'env COVERAGE_NAME=unit DISABLE_SPRING=1 bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"'

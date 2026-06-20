@@ -28,24 +28,18 @@ jobs:
       - name: Run Bundler Audit
         run: bin/bundler-audit check --update
 
-  yarn-security:
+  js-security:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@v7
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          cache: yarn
-          node-version-file: "package.json"
+      - name: Install JavaScript packages
+        run: bun install --frozen-lockfile
 
-      - name: Install Yarn packages
-        run: bin/yarn install --immutable
-
-      - name: Run Yarn security audit
-        run: bin/yarn npm audit --recursive
+      - name: Run JavaScript security audit
+        run: bun audit

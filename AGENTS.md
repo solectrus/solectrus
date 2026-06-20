@@ -23,8 +23,8 @@ Detailed documentation lives in `docs/`:
 ```bash
 bin/rubocop           # Ruby style (use -A for auto-correct)
 bin/slim-lint         # Slim templates
-bin/yarn tsc          # TypeScript type checking
-bin/yarn lint         # ESLint for TypeScript
+bun run tsc           # TypeScript type checking
+bun run lint          # ESLint for TypeScript
 bin/brakeman          # Security scan (run occasionally, not per-change)
 bin/rspec             # Tests
 ```
@@ -35,7 +35,7 @@ After creating or modifying code, **always** run the relevant linter(s) before c
 
 - **Ruby code** (`.rb`): Run `bin/rubocop` on changed files. Use `-A` to auto-correct, review the result.
 - **Slim templates** (`.slim`): Run `bin/slim-lint` on changed files.
-- **TypeScript code** (`.ts`): Run `bin/yarn tsc` (type checking) and `bin/yarn lint` (ESLint). Both must pass.
+- **TypeScript code** (`.ts`): Run `bun run tsc` (type checking) and `bun run lint` (ESLint). Both must pass.
 
 ## Frontend
 

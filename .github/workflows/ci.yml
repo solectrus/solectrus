@@ -36,18 +36,18 @@ jobs:
         run: bin/bundler-audit
 
       - name: Lint with ESLint
-        run: bin/yarn lint
+        run: bun run lint
 
       - name: Check for TypeScript errors
-        run: bin/yarn tsc
+        run: bun run tsc
 
       - name: Lint with SlimLint
         run: bin/slim-lint .
 
       - name: Check JS size limit
         run: |
-          bin/yarn vite build
-          bin/yarn size-limit
+          bunx vite build
+          bun run size-limit
 
       - name: Shellcheck shell scripts
         run: shellcheck $(git ls-files '*.sh')
@@ -94,7 +94,7 @@ jobs:
         run: bin/rails db:create db:migrate
 
       - name: Build Vite assets for test
-        run: bin/yarn vite build --mode test
+        run: bunx vite build --mode test
 
       - name: Run Unit tests with RSpec
         run: bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"
@@ -155,7 +155,7 @@ jobs:
 
       - name: Get Playwright version
         id: playwright-version
-        run: echo "version=$(node -p "require('./node_modules/playwright/package.json').version")" >> $GITHUB_OUTPUT
+        run: echo "version=$(bun -e "console.log(require('./node_modules/playwright/package.json').version)")" >> $GITHUB_OUTPUT
 
       - name: Cache Playwright browsers
         id: playwright-cache
@@ -166,7 +166,7 @@ jobs:
 
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: bin/yarn playwright install --with-deps --only-shell chromium
+        run: bunx playwright install --with-deps --only-shell chromium
 
       - name: Restore runtime log
         uses: actions/cache/restore@v5
@@ -180,7 +180,7 @@ jobs:
         run: bin/rails db:create db:migrate
 
       - name: Build Vite assets for test
-        run: bin/yarn vite build --mode test
+        run: bunx vite build --mode test
 
       - name: Run System tests with RSpec (group ${{ matrix.group }}/4)
         run: |

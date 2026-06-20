@@ -35,12 +35,3 @@
 /public/vite*
 
 Brewfile.lock.json
-
-# https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
-!.yarn/.gitkeep

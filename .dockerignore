@@ -14,7 +14,6 @@
 .simplecov
 .slim-lint.yml
 .vscode
-.yarnclean
 **/*.DS_Store
 bin/brakeman
 bin/bundler-audit
@@ -26,7 +25,6 @@ bin/rspec
 bin/rubocop
 bin/setup
 bin/slim-lint
-bin/yarn
 Brewfile
 Caddyfile
 AGENTS.md
@@ -48,7 +46,6 @@ node_modules
 Procfile*
 screenshot.webp
 spec
-yarn-error.log
 
 tmp/*
 !/tmp/pids/

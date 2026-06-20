@@ -1,0 +1,5 @@
+[install]
+# Supply-chain hardening: only install package versions published at least
+# 1 day ago, so freshly published (and quickly yanked) malicious releases
+# are not picked up during resolution.
+minimumReleaseAge = 86400 # seconds (1 day)
