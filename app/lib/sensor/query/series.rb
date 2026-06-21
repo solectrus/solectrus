@@ -4,17 +4,32 @@ module Sensor
     # to 30s for the P1H (last hour) timeframe and 5m otherwise; callers can
     # override `interval:` to drive forecast, scatter and similar charts.
     class Series < Helpers::Influx::Base
+      # Maps the requested aggregation to the Flux `aggregateWindow` function.
+      AGGREGATION_FLUX_FUNCTIONS = {
+        avg: 'mean',
+        sum: 'sum',
+        min: 'min',
+        max: 'max',
+      }.freeze
+      private_constant :AGGREGATION_FLUX_FUNCTIONS
+
       def initialize(
         sensor_names,
         timeframe,
         timestamp_method: nil,
-        interval: nil
+        interval: nil,
+        aggregation: :avg
       )
         super(sensor_names, timeframe)
+
+        unless AGGREGATION_FLUX_FUNCTIONS.key?(aggregation)
+          raise ArgumentError, "Unsupported aggregation: #{aggregation.inspect}"
+        end
 
         @timestamp_method =
           timestamp_method || (timeframe.short? ? :to_time : :to_date)
         @interval = interval || (timeframe.p1h? ? 30.seconds : 5.minutes)
+        @aggregation = aggregation
       end
 
       # Serialises the interval back into a Flux duration literal, e.g.
@@ -30,6 +45,12 @@ module Sensor
 
       def call(interpolate: false, fill_previous: false)
         raise ArgumentError, 'fill_previous excludes interpolate' if fill_previous && interpolate
+        # fill_previous carries the last sample forward (fn: last), so a
+        # non-default aggregation would be silently ignored while the result
+        # is still labelled with it. Reject the combination instead.
+        if fill_previous && @aggregation != :avg
+          raise ArgumentError, 'fill_previous requires the default :avg aggregation'
+        end
         return empty_result if available_sensors.empty?
         return empty_result if @timeframe.now?
 
@@ -179,7 +200,7 @@ module Sensor
         # across the window range; this also covers the selector path so
         # mixed forecast/live streams share a common x-axis grid (Chart.js
         # index-mode tooltips need that to pair values correctly).
-        fn = fill_previous ? 'last' : 'mean'
+        fn = fill_previous ? 'last' : AGGREGATION_FLUX_FUNCTIONS[@aggregation]
         tail = ["|> aggregateWindow(every: #{interval}, fn: #{fn})"]
         tail << '|> fill(column: "_value", usePrevious: true)' if fill_previous
         tail << "|> filter(fn: (r) => r._time >= #{@timeframe.beginning.iso8601})" if fill_previous
@@ -209,7 +230,7 @@ module Sensor
 
             time_key = time_cache[record.time] ||=
               Time.zone.parse(record.time).public_send(@timestamp_method)
-            result[[sensor, :avg, :avg]][time_key] = values['_value']&.round(1)
+            result[[sensor, @aggregation, @aggregation]][time_key] = values['_value']&.round(1)
           end
         end
 

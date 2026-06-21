@@ -170,6 +170,68 @@ describe Sensor::Query::Series do
     end
   end
 
+  describe '#call with a non-default aggregation' do
+    let(:base_day) { Date.current + 1.day }
+    let(:timeframe) { Timeframe.new(base_day.to_s) }
+    let(:morning) { base_day.in_time_zone.change(hour: 10) }
+
+    # Both samples fall into the 10:00-11:00 bucket, right-edge stamped 11:00.
+    let(:bucket) { morning + 1.hour }
+
+    before do
+      freeze_time
+
+      influx_batch do
+        add_influx_point(
+          name: Sensor::Config.measurement(:house_power),
+          fields: {
+            Sensor::Config.field(:house_power) => 1000.0,
+          },
+          time: morning + 5.minutes,
+        )
+        add_influx_point(
+          name: Sensor::Config.measurement(:house_power),
+          fields: {
+            Sensor::Config.field(:house_power) => 3000.0,
+          },
+          time: morning + 10.minutes,
+        )
+      end
+    end
+
+    def query(aggregation:)
+      described_class.new(
+        [:house_power],
+        timeframe,
+        timestamp_method: :to_time,
+        interval: 1.hour,
+        aggregation:,
+      )
+    end
+
+    it 'sums the bucket when aggregation: :sum' do
+      series = query(aggregation: :sum).call.house_power(:sum, :sum)
+      expect(series[bucket]).to eq(4000.0)
+    end
+
+    it 'averages the bucket when aggregation: :avg (the default)' do
+      series = query(aggregation: :avg).call.house_power(:avg, :avg)
+      expect(series[bucket]).to eq(2000.0)
+    end
+
+    it 'rejects an unsupported aggregation' do
+      expect do
+        described_class.new([:house_power], timeframe, aggregation: :median)
+      end.to raise_error(ArgumentError, /Unsupported aggregation/)
+    end
+
+    it 'rejects fill_previous with a non-default aggregation' do
+      expect do
+        query(aggregation: :sum).call(fill_previous: true)
+      end.to raise_error(ArgumentError, /fill_previous requires/)
+    end
+  end
+
   describe 'forecast mode (with timestamp_method and interval)' do
     subject(:series_query) do
       described_class.new(
