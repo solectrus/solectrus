@@ -62,6 +62,21 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.unit || raise(NotImplementedError, 'Subclass must define unit')
   end
 
+  # Natural aggregation for this sensor based on its unit, falling back to
+  # whatever the sensor actually supports. Energy/money/CO2 are summed
+  # (integral over time), percentages and temperatures averaged.
+  def default_aggregation
+    preferred =
+      case unit
+      when :watt, :euro, :euro_per_kwh, :gram then :sum
+      when :percent, :celsius then :avg
+      end
+
+    return preferred if preferred && allowed_aggregations.include?(preferred)
+
+    allowed_aggregations.first
+  end
+
   def color_background(index: nil, value: nil)
     data = color_data_dynamic(index:, value:)
     return data[:background] if data

@@ -584,7 +584,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # SQL aggregations - override in specific classes for custom logic
   def sql_aggregations_for_sensor(sensor_name)
     sensor_def = Sensor::Registry[sensor_name]
-    base_agg = preferred_aggregation_for_sensor(sensor_def)
+    base_agg = sensor_def.default_aggregation
     meta_agg = meta_aggregation_for_timeframe(sensor_def)
     [meta_agg, base_agg]
   end
@@ -615,23 +615,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # InfluxDB aggregations - can be overridden
   def influx_aggregations_for_sensor(_sensor_name)
     %i[avg avg] # Default for InfluxDB series data
-  end
-
-  # Determine preferred aggregation for sensor type
-  def preferred_aggregation_for_sensor(sensor_def)
-    aggregations = sensor_def.allowed_aggregations
-
-    # Prefer sum for power sensors (shows energy over time period)
-    return :sum if aggregations.include?(:sum) && sensor_def.unit == :watt
-
-    # For temperature sensors, prefer average
-    return :avg if aggregations.include?(:avg) && sensor_def.unit == :celsius
-
-    # For percentage sensors (SOC, autarky), prefer average
-    return :avg if aggregations.include?(:avg) && sensor_def.unit == :percent
-
-    # Default: use the first available aggregation
-    aggregations.first
   end
 
   # SQL grouping period - can be overridden
