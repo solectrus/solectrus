@@ -155,6 +155,7 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
+    hana (1.3.7)
     hashdiff (1.2.1)
     herb (0.10.1-aarch64-linux-musl)
     herb (0.10.1-arm64-darwin)
@@ -177,6 +178,11 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (2.19.9)
+    json_schemer (2.5.0)
+      bigdecimal
+      hana (~> 1.3)
+      regexp_parser (~> 2.0)
+      simpleidn (~> 0.2)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     listen (3.10.0)
@@ -213,6 +219,8 @@ GEM
       net-smtp
     marcel (1.2.1)
     matrix (0.4.3)
+    mcp (0.21.0)
+      json_schemer (>= 2.4)
     method_source (1.1.0)
     mime-types (3.7.0)
       logger
@@ -431,6 +439,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.2)
     simplecov_json_formatter (0.1.4)
+    simpleidn (0.2.3)
     slim (5.2.1)
       temple (~> 0.10.0)
       tilt (>= 2.1.0)
@@ -511,6 +520,7 @@ DEPENDENCIES
   influxdb-client (>= 2.9.0)
   lograge
   lookbook
+  mcp
   openssl
   ostruct
   parallel_tests

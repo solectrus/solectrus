@@ -76,4 +76,26 @@ describe ApplicationPolicy do
       it { is_expected.to be(false) }
     end
   end
+
+  describe '.mcp?' do
+    subject { described_class.mcp? }
+
+    context 'when sponsoring' do
+      before { allow(UpdateCheck).to receive(:sponsoring?).and_return(true) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context 'when not sponsoring, not eligible for free, and no free trial' do
+      before do
+        allow(UpdateCheck).to receive_messages(
+          sponsoring?: false,
+          eligible_for_free?: false,
+          free_trial?: false,
+        )
+      end
+
+      it { is_expected.to be(false) }
+    end
+  end
 end

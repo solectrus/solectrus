@@ -11,6 +11,31 @@
                    value: Setting.operator_name,
                    placeholder: t('settings.general.plant.operator_name.placeholder')
 
+  = f.group title: t('settings.general.mcp.title') do
+    - if ApplicationPolicy.mcp?
+      div data-controller='mcp-settings' data-mcp-settings-token-value=Setting.mcp_token
+        = f.check_box :mcp_enabled,
+                      checked: Setting.mcp_enabled,
+                      label: t('settings.general.mcp.enable'),
+                      hint: t('settings.general.mcp.hint'),
+                      data: { action: 'mcp-settings#toggle' }
+
+        - if Setting.mcp_token.present?
+          .mt-2.pl-7.flex.items-center.gap-3 data-mcp-settings-target='token' class=('hidden' unless Setting.mcp_enabled)
+            span.shrink-0.text-sm.text-gray-500.dark:text-gray-400 = t('settings.general.mcp.token')
+            code.font-mono.text-sm.break-all.select-none = Setting.mcp_token
+            button.shrink-0.text-indigo-600.dark:text-indigo-400.hover:text-indigo-700 type='button' data-action='mcp-settings#copy' aria-label=t('settings.general.mcp.copy') title=t('settings.general.mcp.copy')
+              span data-mcp-settings-target='copyIcon'
+                i.fa.fa-copy
+              span.hidden.text-green-600 data-mcp-settings-target='doneIcon'
+                i.fa.fa-check
+    - else
+      = f.check_box :mcp_enabled,
+                    checked: false,
+                    disabled: true,
+                    label: t('settings.general.mcp.enable'),
+                    hint: t('settings.general.mcp.sponsors_only')
+
   .sticky.bottom-4.z-20.flex.justify-end
     = render 'settings/fab_submit'
 

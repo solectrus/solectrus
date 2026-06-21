@@ -220,6 +220,13 @@ de:
           placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
         operator_name:
           placeholder: z.B. Max Mustermann in Musterstadt
+      mcp:
+        title: Zugriff für KI
+        enable: Model-Context-Protocol (MCP) aktivieren
+        hint: Erlaubt KI-Clients (z.B. Claude) lesenden Zugriff auf deine Sensordaten.
+        sponsors_only: KI-Zugriff (MCP) ist nur für Sponsoren verfügbar.
+        token: 'Zugriffs-Token:'
+        copy: Kopieren
       summaries:
         title: Tageszusammenfassungen
         description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.

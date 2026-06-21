@@ -220,6 +220,13 @@ en:
           placeholder: e.g. SENEC.Home V3, 28 modules on the house roof in south orientation with 9.24 kWp
         operator_name:
           placeholder: e.g. John Doe from Springfield
+      mcp:
+        title: Access for AI
+        enable: Enable Model Context Protocol (MCP)
+        hint: Allows AI clients (e.g. Claude) read-only access to your sensor data.
+        sponsors_only: AI access (MCP) is only available to sponsors.
+        token: 'Access token:'
+        copy: Copy
       summaries:
         title: Daily summaries
         description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.

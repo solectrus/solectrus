@@ -8,11 +8,18 @@ class Settings::GeneralsController < ApplicationController
   end
 
   def update
-    permitted_params.each_key do |key|
-      unless permitted_params[key].nil?
-        Setting.public_send(:"#{key}=", permitted_params[key].strip)
+    permitted_params.each do |key, value|
+      next if value.nil?
+
+      if key == 'mcp_enabled'
+        # Only sponsors may toggle MCP; ignore the param otherwise.
+        Setting.mcp_enabled = value == '1' if ApplicationPolicy.mcp?
+      else
+        Setting.public_send(:"#{key}=", value.strip)
       end
     end
+
+    Setting.ensure_mcp_token! if ApplicationPolicy.mcp? && Setting.mcp_enabled
 
     respond_with_flash notice: t('crud.success')
   end
@@ -24,6 +31,6 @@ class Settings::GeneralsController < ApplicationController
   end
 
   def permitted_params
-    params.expect(setting: %i[plant_name operator_name])
+    params.expect(setting: %i[plant_name operator_name mcp_enabled])
   end
 end

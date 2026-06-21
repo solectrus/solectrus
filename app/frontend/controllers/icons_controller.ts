@@ -13,6 +13,7 @@ import { faRotateLeft } from '@fortawesome/free-solid-svg-icons/faRotateLeft';
 
 import { faPlus } from '@fortawesome/free-solid-svg-icons/faPlus';
 import { faPencil } from '@fortawesome/free-solid-svg-icons/faPencil';
+import { faCopy } from '@fortawesome/free-solid-svg-icons/faCopy';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { faXmark } from '@fortawesome/free-solid-svg-icons/faXmark';
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
@@ -91,6 +92,7 @@ export default class extends Controller {
       faRotateLeft,
       faPlus,
       faPencil,
+      faCopy,
       faTrash,
       faXmark,
       faCheck,

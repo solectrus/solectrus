@@ -30,6 +30,20 @@ class Setting < RailsSettings::Base
   field :enable_heatpump, type: :boolean, default: true
   field :enable_forecast, type: :boolean, default: true
 
+  # Read-only data access via Model Context Protocol (/mcp). Disabled by
+  # default; admins opt in via the general settings. When enabled, access is
+  # protected by a bearer token (mcp_token).
+  field :mcp_enabled, type: :boolean, default: false
+  field :mcp_token, type: :string
+
+  # Generate the MCP bearer token unless one already exists. Keeping an
+  # existing token means toggling MCP off and on again does not invalidate
+  # already-configured clients.
+  def self.ensure_mcp_token!
+    self.mcp_token = SecureRandom.urlsafe_base64(24) if mcp_token.blank?
+    mcp_token
+  end
+
   def self.seed!
     current_id = Setting.setup_id
     if current_id.nil? || current_id.zero?

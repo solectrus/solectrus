@@ -56,6 +56,9 @@ gem 'influxdb-client', '>= 2.9.0'
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'
 
+# The official Ruby SDK for Model Context Protocol servers and clients (https://ruby.sdk.modelcontextprotocol.io)
+gem 'mcp'
+
 # Find out which locale the user preferes by reading the languages they specified in their browser (https://github.com/iain/http_accept_language)
 gem 'http_accept_language'
 

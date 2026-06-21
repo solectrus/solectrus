@@ -102,6 +102,10 @@ Rails.application.routes.draw do
     post 'unlock', to: 'lockup#unlock'
   end
 
+  # Model Context Protocol endpoint for read-only data access by AI clients.
+  # Disabled unless enabled in the settings; requires a bearer token.
+  post '/mcp', to: 'mcp#handle'
+
   get '/forecast', to: 'forecast/home#index', as: :forecast
 
   scope :forecast, module: :forecast do

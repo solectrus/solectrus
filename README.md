@@ -90,6 +90,14 @@ There is a shortcut to run **all** test and linting tools:
 bin/ci
 ```
 
+## AI access (Model Context Protocol)
+
+SOLECTRUS can expose its data to AI clients (such as Claude) through a
+[Model Context Protocol](https://modelcontextprotocol.io) server, so you can ask
+natural-language questions about your PV system. This is a sponsor-only,
+read-only feature that is disabled by default. See [docs/MCP.md](docs/MCP.md)
+for the available tools and how to connect a client.
+
 ## Performance Monitoring
 
 The [Live Demo](https://demo.solectrus.de) is hosted at Hetzner Cloud. For performance monitoring, it uses [RorVsWild](https://www.rorvswild.com), which is free for OpenSource projects. You can see internal metrics like CPU, memory, and disk usage, as well as request times and errors here:

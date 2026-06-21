@@ -53,6 +53,14 @@ module Rack
       req.ip if req.path == '/lockup/unlock' && req.post?
     end
 
+    # Throttle MCP requests by IP. SOLECTRUS is self-hosted and meant to be
+    # queried only by the operator's own AI client, so a single conversation
+    # turn's handful of tool calls is the realistic ceiling. Keep it tight to
+    # blunt scraping/abuse; raise it only if a heavy turn ever gets throttled.
+    throttle('mcp/ip', limit: 20, period: 1.minute) do |req|
+      req.ip if req.path == '/mcp' && req.post?
+    end
+
     # Throttle POST requests to /login by email param
     #
     # Key: "rack::attack:#{Time.now.to_i/:period}:logins/email:#{normalized_email}"

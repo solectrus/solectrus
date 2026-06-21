@@ -21,6 +21,30 @@ describe 'Settings' do
         get '/settings/general'
         expect(response).to have_http_status(:success)
       end
+
+      context 'when a sponsor' do
+        before { allow(ApplicationPolicy).to receive(:mcp?).and_return(true) }
+
+        it 'does not generate an MCP token on GET' do
+          Setting.mcp_token = nil
+
+          get '/settings/general'
+
+          expect(Setting.mcp_token).to be_blank
+        end
+      end
+
+      context 'when not a sponsor' do
+        before { allow(ApplicationPolicy).to receive(:mcp?).and_return(false) }
+
+        it 'does not generate an MCP token' do
+          Setting.mcp_token = nil
+
+          get '/settings/general'
+
+          expect(Setting.mcp_token).to be_blank
+        end
+      end
     end
   end
 
@@ -47,6 +71,57 @@ describe 'Settings' do
 
         expect(Setting.plant_name).to eq('Test')
         expect(Setting.operator_name).to eq('John')
+      end
+
+      context 'when a sponsor' do
+        before { allow(ApplicationPolicy).to receive(:mcp?).and_return(true) }
+
+        it 'enables MCP and generates an access token' do
+          patch '/settings/general',
+                params: {
+                  setting: {
+                    mcp_enabled: '1',
+                  },
+                }
+          expect(response).to have_http_status(:success)
+
+          expect(Setting.mcp_enabled).to be(true)
+          expect(Setting.mcp_token).to be_present
+        end
+
+        it 'keeps an existing token when re-enabling MCP' do
+          Setting.mcp_token = 'existing-token'
+
+          patch '/settings/general', params: { setting: { mcp_enabled: '1' } }
+
+          expect(Setting.mcp_token).to eq('existing-token')
+        end
+
+        it 'disables MCP' do
+          Setting.mcp_enabled = true
+
+          patch '/settings/general',
+                params: {
+                  setting: {
+                    mcp_enabled: '0',
+                  },
+                }
+          expect(response).to have_http_status(:success)
+
+          expect(Setting.mcp_enabled).to be(false)
+        end
+      end
+
+      context 'when not a sponsor' do
+        before { allow(ApplicationPolicy).to receive(:mcp?).and_return(false) }
+
+        it 'refuses to enable MCP' do
+          patch '/settings/general', params: { setting: { mcp_enabled: '1' } }
+          expect(response).to have_http_status(:success)
+
+          expect(Setting.mcp_enabled).to be(false)
+          expect(Setting.mcp_token).to be_blank
+        end
       end
     end
   end

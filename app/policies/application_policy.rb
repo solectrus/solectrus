@@ -34,6 +34,7 @@ class ApplicationPolicy
     finance_charts
     power_balance_chart
     finance_top10
+    mcp
   ].freeze
   private_constant :SPONSOR_FEATURES
 
