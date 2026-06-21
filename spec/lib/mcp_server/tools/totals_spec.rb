@@ -42,5 +42,94 @@ describe McpServer::Tools::Totals do
       expect(response.error?).to be(true)
       expect(response.content.first[:text]).to include('Unknown or unconfigured')
     end
+
+    context 'with the derived self_consumption sensor' do
+      before do
+        create_summary(
+          date: '2024-06-15',
+          values: [
+            [:inverter_power, :sum, 50_000],
+            [:grid_export_power, :sum, 30_000],
+          ],
+        )
+      end
+
+      # self_consumption = inverter_power - grid_export_power = 20_000
+      def self_consumption_for(sensors)
+        response =
+          described_class.call(
+            server_context: nil,
+            timeframe: '2024-06-15',
+            sensors:,
+          )
+        expect(response.error?).to be(false)
+        data = JSON.parse(response.content.first[:text], symbolize_names: true)
+        data[:totals].find { _1[:name] == 'self_consumption' }[:value]
+      end
+
+      it 'returns the same value regardless of which sensors are co-requested' do
+        expect(self_consumption_for(%w[self_consumption])).to eq(20_000.0)
+        expect(
+          self_consumption_for(%w[self_consumption self_consumption_quote]),
+        ).to eq(20_000.0)
+        expect(
+          self_consumption_for(
+            %w[self_consumption inverter_power grid_export_power],
+          ),
+        ).to eq(20_000.0)
+      end
+    end
+
+    it 'returns nil instead of raising for aggregation-less sensors only' do
+      # power_balance is a calculated, chart-only pseudo-sensor with no natural
+      # aggregation. Requesting it alone must not collapse the query to an empty
+      # sensor list and raise "Sensor names cannot be empty".
+      response =
+        described_class.call(
+          server_context: nil,
+          timeframe: '2024-06-15',
+          sensors: ['power_balance'],
+        )
+
+      expect(response.error?).to be(false)
+      data = JSON.parse(response.content.first[:text], symbolize_names: true)
+      total = data[:totals].find { _1[:name] == 'power_balance' }
+      expect(total[:value]).to be_nil
+    end
+
+    it 'rounds every percent-unit sensor consistently to whole percent' do
+      create_summary(
+        date: '2024-06-15',
+        values: [
+          [:inverter_power, :sum, 50_000],
+          [:grid_export_power, :sum, 30_000],
+          [:grid_import_power, :sum, 7_000],
+          [:house_power, :sum, 27_000],
+        ],
+      )
+
+      response =
+        described_class.call(
+          server_context: nil,
+          timeframe: '2024-06-15',
+          sensors: %w[autarky self_consumption_quote grid_quote],
+        )
+
+      expect(response.error?).to be(false)
+      data = JSON.parse(response.content.first[:text], symbolize_names: true)
+      percent_totals = data[:totals].select { _1[:unit] == 'percent' }
+      expect(percent_totals.size).to eq(3)
+
+      # All percent sensors share the same rounding (whole percent), so each
+      # value equals its own rounded integer.
+      percent_totals.each do |total|
+        expect(total[:value]).to eq(total[:value].round)
+      end
+
+      # grid_quote raw = 7000 * 100 / 27000 = 25.93, rounded to 26 by the
+      # response layer (its own calculation does not round).
+      grid_quote = percent_totals.find { _1[:name] == 'grid_quote' }
+      expect(grid_quote[:value]).to eq(26)
+    end
   end
 end

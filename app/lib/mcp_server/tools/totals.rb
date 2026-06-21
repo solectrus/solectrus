@@ -52,27 +52,52 @@ module McpServer
       end
 
       def self.totals(timeframe, aggregations)
+        # Only sensors with a natural aggregation can drive the SQL/Influx query.
+        # Aggregation-less derived sensors (e.g. chart-only pseudo-sensors) carry
+        # no total of their own; skip them here so they don't collapse the query
+        # to an empty sensor list and trip the "cannot be empty" guard. They are
+        # still reported (as nil, or as a computed value if a queried sibling
+        # pulls them in as a dependency) by build_totals.
+        queryable = aggregations.compact
+        return if queryable.empty?
+
         Sensor::Query::Total.new(timeframe) do |q|
-          aggregations.each do |sensor, aggregation|
-            q.public_send(aggregation, sensor.name) if aggregation
+          queryable.each do |sensor, aggregation|
+            q.public_send(aggregation, sensor.name)
           end
         end.call
       end
       private_class_method :totals
 
       def self.build_totals(data, aggregations)
-        present = data.sensor_names
+        present = data ? data.sensor_names : []
         aggregations.map do |sensor, aggregation|
+          value =
+            if present.include?(sensor.name)
+              format_value(sensor, data.public_send(sensor.name))
+            end
+
           {
             name: sensor.name,
             display_name: sensor.display_name,
             unit: sensor.unit,
             aggregation:,
-            value: present.include?(sensor.name) ? data.public_send(sensor.name) : nil,
+            value:,
           }
         end
       end
       private_class_method :build_totals
+
+      # Normalize values for the response. Percentages are rounded to a whole
+      # percent so every percent-unit sensor (autarky, self_consumption_quote,
+      # grid_quote, ...) is reported consistently, regardless of whether its own
+      # calculation already rounded.
+      def self.format_value(sensor, value)
+        return value.round if sensor.unit == :percent && value.is_a?(Numeric)
+
+        value
+      end
+      private_class_method :format_value
     end
   end
 end
