@@ -266,5 +266,30 @@ describe Sensor::Query::Helpers::Sql::Total do
         expect(result.grid_revenue).to be_nil
       end
     end
+
+    # Regression: an open/current period (e.g. the bare current year) must be
+    # clamped to today. Rows dated in the future part of the period would
+    # otherwise leak into the totals and skew derived ratios.
+    context 'with an open current-year timeframe' do
+      before { travel_to Date.new(2026, 6, 21) }
+
+      it 'ignores future-dated rows beyond today' do
+        create_summary(
+          date: '2026-03-15',
+          values: [[:grid_export_power, :sum, 40_000]],
+        )
+        create_summary(
+          date: '2026-09-15', # after today, still within the year
+          values: [[:grid_export_power, :sum, 50_000]],
+        )
+
+        result =
+          described_class.new(Timeframe.new('2026')) do |q|
+            q.sum :grid_export_power
+          end.call
+
+        expect(result.grid_export_power).to eq(40_000)
+      end
+    end
   end
 end

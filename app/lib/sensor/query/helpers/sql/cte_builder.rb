@@ -135,9 +135,12 @@ module Sensor
           def build_where_clause
             conditions = []
 
-            # Date range condition
-            start_date = timeframe.beginning.to_date
-            end_date = timeframe.ending.to_date
+            # Date range condition. Use the effective bounds (clamped to
+            # installation date and today) rather than the raw period, so an
+            # open/current period does not reach into future days without data.
+            # Consistent with every other query path (Summary, ranking, ...).
+            start_date = timeframe.effective_beginning_date
+            end_date = timeframe.effective_ending_date
             conditions << "sv.date BETWEEN DATE '#{start_date}' AND DATE '#{end_date}'"
 
             # Aggregation filter
