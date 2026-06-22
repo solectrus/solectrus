@@ -6,10 +6,11 @@ natural-language questions about your PV system ("Which day this year had the
 highest solar production?", "How was my self-consumption last month?").
 
 AI access (MCP) is a **sponsor-only feature** and is **disabled by default**.
-Sponsors enable it under **Settings → General → AI access (MCP)**, where an
-access token is generated and displayed. The endpoint is read-only and every
-request must carry this token as `Authorization: Bearer <token>`. Without an
-active sponsorship the endpoint is invisible (responds with 404).
+Sponsors enable it under **Settings → General → AI access (MCP)**. The endpoint
+is read-only and protected by OAuth 2.1 (authorization code + PKCE); the only
+credential is your existing **admin password** (`ADMIN_PASSWORD`). Without an
+active sponsorship — or while the toggle is off — the endpoint and the whole
+OAuth surface are invisible (respond with 404).
 
 It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools:
 
@@ -26,25 +27,48 @@ day/month/year) is chosen automatically based on the requested timeframe.
 
 ## Connecting a client
 
-Claude Desktop's remote-connector UI expects a publicly reachable, OAuth-capable
-server, which a local self-hosted instance is not. For local use, bridge the
-HTTP endpoint to stdio with [`mcp-remote`](https://www.npmjs.com/package/mcp-remote)
-in `claude_desktop_config.json`:
+The server is an OAuth 2.1 authorization server, so most clients need nothing
+but the URL. There is no token to copy and no client ID/secret to enter:
+registration is dynamic and the client is public (PKCE-protected). On first
+connect you are redirected to a SOLECTRUS page asking for your **admin
+password**; after that the client holds a short-lived access token (refreshed
+automatically).
+
+The only value you ever enter is the MCP URL:
+
+```
+https://your-host/mcp
+```
+
+The server is provider-agnostic: any AI client works, not just Claude. Remote
+clients use an HTTPS callback on their own domain (e.g.
+`https://claude.ai/api/mcp/auth_callback`), native clients a loopback URL
+(`http://localhost:<port>/callback`). Any HTTPS or loopback callback is
+accepted; the target host is shown to you on the password page so you can
+confirm where access is granted before entering your password.
+
+### claude.ai web and the Claude mobile apps
+
+Add a **custom connector** and paste the URL above. You will be redirected to
+SOLECTRUS once to enter your admin password.
+
+### Claude Desktop and Claude Code
+
+These bridge the HTTP endpoint via
+[`mcp-remote`](https://www.npmjs.com/package/mcp-remote), which performs the
+OAuth flow (opening a browser for the password step) automatically:
 
 ```json
 {
   "mcpServers": {
     "solectrus": {
       "command": "npx",
-      "args": [
-        "-y", "mcp-remote", "https://your-host/mcp",
-        "--header", "Authorization:Bearer ${SOLECTRUS_MCP_TOKEN}",
-        "--transport", "http-only"
-      ],
-      "env": { "SOLECTRUS_MCP_TOKEN": "your-token-from-the-settings" }
+      "args": ["-y", "mcp-remote", "https://your-host/mcp"]
     }
   }
 }
 ```
 
-(Use `--allow-http` if you point it at a plain-HTTP URL.)
+(Append `--allow-http` if you point it at a plain-HTTP URL.) For Claude Code,
+`claude mcp add --transport http solectrus https://your-host/mcp` works the
+same way.

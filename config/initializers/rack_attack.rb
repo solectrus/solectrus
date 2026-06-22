@@ -61,6 +61,18 @@ module Rack
       req.ip if req.path == '/mcp' && req.post?
     end
 
+    # Throttle the OAuth authorize POST by IP. This is the password-guess
+    # surface for the MCP connector, so keep it as tight as the login throttle.
+    throttle('oauth-authorize/ip', limit: 5, period: 1.minute) do |req|
+      req.ip if req.path == '/oauth/authorize' && req.post?
+    end
+
+    # Throttle the OAuth token endpoint by IP. Legitimate clients hit it once
+    # per authorization plus the occasional refresh, so a low ceiling is plenty.
+    throttle('oauth-token/ip', limit: 30, period: 1.minute) do |req|
+      req.ip if req.path == '/oauth/token' && req.post?
+    end
+
     # Throttle POST requests to /login by email param
     #
     # Key: "rack::attack:#{Time.now.to_i/:period}:logins/email:#{normalized_email}"

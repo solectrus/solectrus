@@ -179,6 +179,17 @@ de:
     submit: Anmelden
     welcome: Angemeldet als Administrator.
     bye: Du wurdest abgemeldet.
+  oauth:
+    authorize:
+      title: KI-Client verbinden
+      subtitle: Ein KI-Client möchte lesenden Zugriff auf deine SOLECTRUS-Daten. Gib dein Admin-Passwort ein, um ihn zuzulassen.
+      client_host: 'Angefragt von:'
+      client_local: Ein Client auf diesem Gerät
+      password_label: Admin-Passwort
+      submit: Zugriff erlauben
+      error: Falsches Passwort.
+      invalid_title: Ungültige Anfrage
+      invalid_body: Diese Autorisierungsanfrage ist ungültig oder unvollständig. Bitte starte erneut aus deinem KI-Client.
   lockup:
     headline: Geschützter Zugang
     description: Diese SOLECTRUS-Instanz ist nicht öffentlich.
@@ -225,8 +236,6 @@ de:
         enable: Model-Context-Protocol (MCP) aktivieren
         hint: Erlaubt KI-Clients (z.B. Claude) lesenden Zugriff auf deine Sensordaten.
         sponsors_only: KI-Zugriff (MCP) ist nur für Sponsoren verfügbar.
-        token: 'Zugriffs-Token:'
-        copy: Kopieren
       summaries:
         title: Tageszusammenfassungen
         description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.

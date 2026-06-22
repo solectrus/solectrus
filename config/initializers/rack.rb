@@ -9,20 +9,40 @@ Rack::Mime::MIME_TYPES['.webmanifest'] = 'application/manifest+json'
 Rails.application.config.middleware.insert(0, Rack::Brotli)
 Rails.application.config.middleware.insert(0, Rack::Deflater)
 
-if Rails.application.config.x.app_host
-  # Allow serving of images, stylesheets, and JavaScripts from the app_host only
-  Rails.application.config.middleware.insert_before 0, Rack::Cors do
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  # The MCP endpoint and its OAuth/discovery documents are called cross-origin
+  # by browser-based AI clients (e.g. claude.ai web), so they need permissive
+  # CORS regardless of app_host. Auth is via bearer token + PKCE (no cookies),
+  # so allowing any origin carries no CSRF risk. WWW-Authenticate is exposed so
+  # the client can discover the authorization server from the 401 response.
+  allow do
+    origins '*'
+    resource '/mcp',
+             headers: :any,
+             methods: %i[post options],
+             expose: %w[WWW-Authenticate]
+    resource '/oauth/*', headers: :any, methods: %i[post options]
+    resource '/.well-known/oauth-protected-resource',
+             headers: :any,
+             methods: %i[get options]
+    resource '/.well-known/oauth-authorization-server',
+             headers: :any,
+             methods: %i[get options]
+  end
+
+  # Everything else (assets, app endpoints): only from the app's own host.
+  if Rails.application.config.x.app_host
     allow do
       origins Rails.application.config.x.app_host
       resource '*', headers: :any, methods: %i[get post options]
     end
   end
+end
 
-  # CDN: Allow Cloudfront for assets only
-  if Rails.application.config.asset_host
-    require './app/middleware/cloudfront_denier'
+# CDN: Allow Cloudfront for assets only
+if Rails.application.config.x.app_host && Rails.application.config.asset_host
+  require './app/middleware/cloudfront_denier'
 
-    Rails.application.config.middleware.use CloudfrontDenier,
-                    target: "https://#{Rails.application.config.x.app_host}"
-  end
+  Rails.application.config.middleware.use CloudfrontDenier,
+                  target: "https://#{Rails.application.config.x.app_host}"
 end

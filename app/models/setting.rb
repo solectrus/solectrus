@@ -32,17 +32,14 @@ class Setting < RailsSettings::Base
 
   # Read-only data access via Model Context Protocol (/mcp). Disabled by
   # default; admins opt in via the general settings. When enabled, access is
-  # protected by a bearer token (mcp_token).
+  # protected by stateless OAuth (auth code + PKCE), authenticated with the
+  # existing admin password - no token is stored. See McpOauth.
   field :mcp_enabled, type: :boolean, default: false
-  field :mcp_token, type: :string
 
-  # Generate the MCP bearer token unless one already exists. Keeping an
-  # existing token means toggling MCP off and on again does not invalidate
-  # already-configured clients.
-  def self.ensure_mcp_token!
-    self.mcp_token = SecureRandom.urlsafe_base64(24) if mcp_token.blank?
-    mcp_token
-  end
+  # Rotatable salt mixed into the OAuth signing key. Rotating it invalidates
+  # every issued token at once (used to drop all clients when MCP is disabled).
+  # Blank until first rotated. See McpOauth.signing_key.
+  field :mcp_oauth_secret, type: :string
 
   def self.seed!
     current_id = Setting.setup_id

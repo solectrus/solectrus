@@ -103,8 +103,24 @@ Rails.application.routes.draw do
   end
 
   # Model Context Protocol endpoint for read-only data access by AI clients.
-  # Disabled unless enabled in the settings; requires a bearer token.
+  # Disabled unless enabled in the settings; requires an OAuth access token.
   post '/mcp', to: 'mcp#handle'
+
+  # Stateless OAuth 2.1 (authorization code + PKCE) protecting the MCP endpoint,
+  # plus the discovery documents. All gated on the same opt-in toggle as /mcp;
+  # when MCP is disabled they behave as 404. Clients discover the endpoints from
+  # the authorization-server metadata (which points them at /oauth/*).
+  get '/.well-known/oauth-protected-resource',
+      to: 'oauth/metadata#protected_resource'
+  get '/.well-known/oauth-authorization-server',
+      to: 'oauth/metadata#authorization_server'
+
+  scope :oauth, module: :oauth, as: :oauth do
+    post 'register', to: 'registrations#create'
+    get 'authorize', to: 'authorizations#new', as: :authorize
+    post 'authorize', to: 'authorizations#create'
+    post 'token', to: 'tokens#create'
+  end
 
   get '/forecast', to: 'forecast/home#index', as: :forecast
 

@@ -44,6 +44,9 @@ gem 'rack-cors', require: 'rack/cors'
 # Block & throttle abusive requests (https://github.com/rack/rack-attack)
 gem 'rack-attack'
 
+# JSON Web Token implementation in Ruby (https://github.com/jwt/ruby-jwt)
+gem 'jwt'
+
 # Brotli compression for Rack responses (http://github.com/marcotc/rack-brotli/)
 gem 'rack-brotli'
 

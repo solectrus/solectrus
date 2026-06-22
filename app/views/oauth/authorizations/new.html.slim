@@ -1,0 +1,37 @@
+.mx-auto.w-full.max-w-md.px-4
+  .relative.text-gray-800.dark:text-gray-300.bg-white.dark:bg-slate-800.rounded-2xl.shadow-xl.p-6.sm:p-8
+    .flex.items-center.gap-4
+      .flex.h-12.w-12.shrink-0.items-center.justify-center.rounded-full.bg-indigo-100.text-indigo-600.dark:bg-indigo-500.dark:bg-opacity-20.dark:text-indigo-300
+        i.fa.fa-plug.fa-lg
+      h1.font-bold.text-xl.sm:text-2xl.leading-tight
+        = t('oauth.authorize.title')
+
+    p.mt-4.text-sm.text-gray-500.dark:text-gray-400
+      = t('oauth.authorize.subtitle')
+
+    .mt-4.flex.items-center.gap-2.rounded-lg.bg-gray-50.dark:bg-slate-700.dark:bg-opacity-40.px-4.py-3.text-sm
+      i.fa.fa-circle-info.shrink-0.text-gray-400
+      - if local_client?
+        span.text-gray-500.dark:text-gray-400 = t('oauth.authorize.client_local')
+      - else
+        span.text-gray-500.dark:text-gray-400
+          = t('oauth.authorize.client_host')
+        span.font-semibold.break-all = client_host
+
+    - if flash[:alert]
+      .mt-5.flex.items-center.gap-2.rounded-lg.bg-red-50.px-4.py-3.text-sm.text-red-700.dark:bg-red-900.dark:bg-opacity-30.dark:text-red-300
+        i.fa.fa-circle-exclamation
+        span = flash[:alert]
+
+    / Native (non-Turbo) submit: the success response is a 302 to an external
+    / redirect_uri, which Turbo cannot follow across origins.
+    = form_with url: oauth_authorize_path, method: :post, html: { class: 'mt-6', data: { turbo: false } } do
+      - %i[response_type redirect_uri state code_challenge code_challenge_method].each do |key|
+        = hidden_field_tag key, authorize_params[key]
+
+      .form-control
+        = label_tag :password, t('oauth.authorize.password_label'), class: 'label'
+        = password_field_tag :password, nil, autofocus: true, required: true, autocomplete: 'current-password', class: 'form-input w-full'
+
+      .mt-6
+        = render Button::Component.new(type: :submit, title: t('oauth.authorize.submit'), options: { class: 'w-full justify-center py-2' })

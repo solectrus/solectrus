@@ -21,30 +21,6 @@ describe 'Settings' do
         get '/settings/general'
         expect(response).to have_http_status(:success)
       end
-
-      context 'when a sponsor' do
-        before { allow(ApplicationPolicy).to receive(:mcp?).and_return(true) }
-
-        it 'does not generate an MCP token on GET' do
-          Setting.mcp_token = nil
-
-          get '/settings/general'
-
-          expect(Setting.mcp_token).to be_blank
-        end
-      end
-
-      context 'when not a sponsor' do
-        before { allow(ApplicationPolicy).to receive(:mcp?).and_return(false) }
-
-        it 'does not generate an MCP token' do
-          Setting.mcp_token = nil
-
-          get '/settings/general'
-
-          expect(Setting.mcp_token).to be_blank
-        end
-      end
     end
   end
 
@@ -76,29 +52,23 @@ describe 'Settings' do
       context 'when a sponsor' do
         before { allow(ApplicationPolicy).to receive(:mcp?).and_return(true) }
 
-        it 'enables MCP and generates an access token' do
-          patch '/settings/general',
-                params: {
-                  setting: {
-                    mcp_enabled: '1',
-                  },
-                }
+        it 'enables MCP without rotating the signing secret' do
+          expect do
+            patch '/settings/general',
+                  params: {
+                    setting: {
+                      mcp_enabled: '1',
+                    },
+                  }
+          end.not_to change(Setting, :mcp_oauth_secret)
           expect(response).to have_http_status(:success)
 
           expect(Setting.mcp_enabled).to be(true)
-          expect(Setting.mcp_token).to be_present
         end
 
-        it 'keeps an existing token when re-enabling MCP' do
-          Setting.mcp_token = 'existing-token'
-
-          patch '/settings/general', params: { setting: { mcp_enabled: '1' } }
-
-          expect(Setting.mcp_token).to eq('existing-token')
-        end
-
-        it 'disables MCP' do
+        it 'disables MCP and drops all connected clients' do
           Setting.mcp_enabled = true
+          token = McpOauth.encode_access_token(base_url: 'http://www.example.com')
 
           patch '/settings/general',
                 params: {
@@ -109,6 +79,10 @@ describe 'Settings' do
           expect(response).to have_http_status(:success)
 
           expect(Setting.mcp_enabled).to be(false)
+          # Rotating the signing secret invalidates every issued token.
+          expect(
+            McpOauth.valid_access_token?(token, base_url: 'http://www.example.com'),
+          ).to be_nil
         end
       end
 
@@ -120,7 +94,6 @@ describe 'Settings' do
           expect(response).to have_http_status(:success)
 
           expect(Setting.mcp_enabled).to be(false)
-          expect(Setting.mcp_token).to be_blank
         end
       end
     end

@@ -9,13 +9,18 @@ class AdminUser
   validates :username, comparison: { equal_to: 'admin' }
   validate :verify_password
 
+  # Constant-time check against the configured admin password. The single
+  # source of truth for "is this the admin password?", reused wherever the
+  # admin credential is the only protection (e.g. the MCP OAuth flow).
+  def self.password_correct?(password)
+    expected = Rails.configuration.x.admin_password
+    expected.present? &&
+      ActiveSupport::SecurityUtils.secure_compare(password.to_s, expected.to_s)
+  end
+
   private
 
   def verify_password
-    expected = Rails.configuration.x.admin_password
-    return errors.add(:password, :invalid) if expected.blank?
-    return if ActiveSupport::SecurityUtils.secure_compare(password.to_s, expected)
-
-    errors.add(:password, :invalid)
+    errors.add(:password, :invalid) unless AdminUser.password_correct?(password)
   end
 end

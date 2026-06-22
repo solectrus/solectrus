@@ -179,6 +179,17 @@ en:
     submit: Log in
     welcome: Logged in as administrator.
     bye: You have been logged out.
+  oauth:
+    authorize:
+      title: Connect AI client
+      subtitle: An AI client wants read-only access to your SOLECTRUS data. Enter your admin password to allow it.
+      client_host: 'Requested by:'
+      client_local: A client on this device
+      password_label: Admin password
+      submit: Allow access
+      error: Wrong password.
+      invalid_title: Invalid request
+      invalid_body: This authorization request is invalid or incomplete. Please start again from your AI client.
   lockup:
     headline: Protected access
     description: This SOLECTRUS instance is not public.
@@ -225,8 +236,6 @@ en:
         enable: Enable Model Context Protocol (MCP)
         hint: Allows AI clients (e.g. Claude) read-only access to your sensor data.
         sponsors_only: AI access (MCP) is only available to sponsors.
-        token: 'Access token:'
-        copy: Copy
       summaries:
         title: Daily summaries
         description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.
