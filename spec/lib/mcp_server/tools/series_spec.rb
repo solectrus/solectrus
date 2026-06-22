@@ -72,6 +72,57 @@ describe McpServer::Tools::Series do
       end
     end
 
+    context 'with a resolution finer than the sensor cadence' do
+      # The forecast source only carries a sample every 15 minutes. 1m fits the
+      # point cap for a single day (1440 < 1500), so the cap alone would keep
+      # it; without cadence-snapping the response is a ~93% null grid.
+      let(:day) { (Date.current + 1.day).to_s }
+
+      before do
+        influx_batch do
+          96.times do |i|
+            time = (Date.current + 1.day).beginning_of_day + (i * 15).minutes
+            add_influx_point(
+              name: Sensor::Config.measurement(:inverter_power_forecast),
+              fields: {
+                Sensor::Config.field(:inverter_power_forecast) =>
+                  (8...16).cover?(time.hour) ? 1000 : 0,
+              },
+              time:,
+            )
+          end
+        end
+      end
+
+      it 'snaps the resolution to the native cadence and reports it' do
+        data =
+          series(
+            sensors: ['inverter_power_forecast'],
+            timeframe: day,
+            resolution: '1m',
+          )
+
+        expect(data[:resolution]).to eq('15m')
+      end
+
+      it 'does not return a mostly-null series' do
+        data =
+          series(
+            sensors: ['inverter_power_forecast'],
+            timeframe: day,
+            resolution: '1m',
+          )
+
+        points = data[:series].first[:points]
+        non_null = points.count { |p| !p[:value].nil? }
+
+        # At 1m this would be ~96/1440 (7%); snapped to 15m nearly every bucket
+        # carries a value.
+        expect(points.size).to be < 200
+        expect(non_null.fdiv(points.size)).to be > 0.8
+      end
+    end
+
     context 'with multiple sensors' do
       it 'returns one series per sensor' do
         data =
