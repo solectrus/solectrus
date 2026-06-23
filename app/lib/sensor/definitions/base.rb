@@ -1,5 +1,7 @@
 class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   include Sensor::Definitions::Dsl
+  # display_name / description / canonical_label and their derivation logic
+  include Sensor::Definitions::Describable
 
   # Allowed unit types
   VALID_UNITS = %i[
@@ -32,30 +34,6 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     return :anonymous if class_name.nil?
 
     class_name.demodulize.underscore.to_sym
-  end
-
-  def display_name(format = :long)
-    # 1. User-defined names have priority
-    name_from_settings = Setting.sensor_names[name].presence
-    return name_from_settings if name_from_settings
-
-    # 2. I18n-based
-    if %i[short long].exclude?(format)
-      raise ArgumentError, "Unknown display name format: #{format}"
-    end
-
-    key = format == :short ? "sensors.#{name}_short" : "sensors.#{name}"
-    I18n.t(
-      key,
-      default:
-        (
-          if format == :short
-            I18n.t("sensors.#{name}", default: name.to_s)
-          else
-            name.to_s
-          end
-        ),
-    )
   end
 
   def unit
