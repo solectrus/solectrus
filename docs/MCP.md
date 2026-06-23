@@ -17,7 +17,8 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
 - `list_sensors` — discover available sensors, units and aggregations
 - `get_system_info` — installation date, currency, timezone
 - `get_prices` — electricity tariff and feed-in compensation (time-dependent)
-- `get_current_values` — current live readings
+- `get_current_values` — current live readings, each with freshness metadata
+  (`last_seen_at`, `age_seconds`)
 - `get_totals` — aggregated values for a timeframe
 - `get_ranking` — best/worst (or chronological) days/weeks/months for one or more sensors
 - `get_series` — sub-daily time series (intraday curves) for one or more sensors

@@ -7,7 +7,7 @@ describe McpServer::Tools::CurrentValues do
         Sensor::Data::Single.new(
           { battery_soc: 85.5 },
           timeframe: Timeframe.now,
-          time: Time.current,
+          times: { battery_soc: Time.current },
         )
       allow(Sensor::Query::Latest).to receive(:new).with([:battery_soc]).and_return(
         instance_double(Sensor::Query::Latest, call: data),
@@ -40,7 +40,7 @@ describe McpServer::Tools::CurrentValues do
             grid_import_power: 0.0,
           },
           timeframe: Timeframe.now,
-          time: Time.current,
+          times: { inverter_power: Time.current },
         )
       allow(Sensor::Query::Latest).to receive(:new).with(requested).and_return(
         instance_double(Sensor::Query::Latest, call: data),
@@ -65,7 +65,7 @@ describe McpServer::Tools::CurrentValues do
         Sensor::Data::Single.new(
           all_names.index_with { 0.0 },
           timeframe: Timeframe.now,
-          time: Time.current,
+          times: all_names.index_with { Time.current },
         )
       allow(Sensor::Query::Latest).to receive(:new).and_return(
         instance_double(Sensor::Query::Latest, call: data),
@@ -83,6 +83,69 @@ describe McpServer::Tools::CurrentValues do
 
       expect(response.error?).to be(true)
       expect(response.content.first[:text]).to include('Unknown or unconfigured')
+    end
+
+    describe 'freshness metadata' do
+      it 'reports the timestamp and age of a recent reading' do
+        seen = 4.seconds.ago
+        data =
+          Sensor::Data::Single.new(
+            { battery_soc: 50.0 },
+            timeframe: Timeframe.now,
+            times: { battery_soc: seen },
+          )
+        allow(Sensor::Query::Latest).to receive(:new).with([:battery_soc]).and_return(
+          instance_double(Sensor::Query::Latest, call: data),
+        )
+
+        response = described_class.call(server_context: nil, sensors: ['battery_soc'])
+        parsed = JSON.parse(response.content.first[:text], symbolize_names: true)
+        value = parsed[:values].first
+
+        expect(value[:last_seen_at]).to eq(seen.iso8601)
+        expect(value[:age_seconds]).to be_between(0, 60)
+      end
+
+      it 'keeps the last_seen_at of a value dropped as too old' do
+        # The live query drops stale values (null payload) but keeps the
+        # timestamp, so a null value still reports when it was last seen.
+        seen = 2.hours.ago
+        data =
+          Sensor::Data::Single.new(
+            {},
+            timeframe: Timeframe.now,
+            times: { battery_soc: seen },
+          )
+        allow(Sensor::Query::Latest).to receive(:new).with([:battery_soc]).and_return(
+          instance_double(Sensor::Query::Latest, call: data),
+        )
+
+        response = described_class.call(server_context: nil, sensors: ['battery_soc'])
+        value = JSON.parse(response.content.first[:text], symbolize_names: true)[:values].first
+
+        expect(value[:value]).to be_nil
+        expect(value[:last_seen_at]).to eq(seen.iso8601)
+        expect(value[:age_seconds]).to be > 3600
+      end
+
+      it 'reports null timestamps for a sensor that never delivered' do
+        data =
+          Sensor::Data::Single.new(
+            {},
+            timeframe: Timeframe.now,
+            times: {},
+          )
+        allow(Sensor::Query::Latest).to receive(:new).with([:battery_soc]).and_return(
+          instance_double(Sensor::Query::Latest, call: data),
+        )
+
+        response = described_class.call(server_context: nil, sensors: ['battery_soc'])
+        value = JSON.parse(response.content.first[:text], symbolize_names: true)[:values].first
+
+        expect(value[:value]).to be_nil
+        expect(value[:last_seen_at]).to be_nil
+        expect(value[:age_seconds]).to be_nil
+      end
     end
   end
 end
