@@ -15,7 +15,9 @@ OAuth surface are invisible (respond with 404).
 It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools:
 
 - `list_sensors` — discover available sensors, units and aggregations
-- `get_system_info` — installation date, currency, timezone
+- `get_system_info` — installation date, currency, timezone, installed peak
+  power and which subsystems (battery, wallbox, heat pump, forecast) are
+  configured
 - `get_prices` — electricity tariff and feed-in compensation (time-dependent)
 - `get_current_values` — current live readings, each with freshness metadata
   (`last_seen_at`, `age_seconds`)
