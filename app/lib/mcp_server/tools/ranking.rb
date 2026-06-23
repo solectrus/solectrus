@@ -17,6 +17,9 @@ module McpServer
         coldest days last winter", or "house consumption per day in March".
         Returns, per sensor, a list of periods with their aggregated value.
 
+        Units: like get_totals, a summed power sensor ranks ENERGIES, so each
+        value is in Wh, not W (divide by 1000 for kWh).
+
         Parameters:
           - sensors: names (from list_sensors), one or more (required,
             at most #{MAX_SENSORS}). A single "sensor" is also accepted.

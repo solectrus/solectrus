@@ -18,7 +18,12 @@ module McpServer
       system. Call list_sensors first to discover available sensor names and
       units, then use get_current_values for live readings and get_totals for
       aggregated values over a timeframe. get_system_info provides installation
-      metadata and the currency; get_prices the (time-dependent) tariffs.
+      metadata, currency and which subsystems exist; get_prices the
+      (time-dependent) tariffs.
+
+      Units after aggregation: summing a power sensor (unit "watt") yields an
+      energy, so in get_totals/get_ranking the resulting `value` is in Wh, not
+      W (divide by 1000 for kWh) - don't read a watt-sum as a power.
     TEXT
     private_constant :INSTRUCTIONS
 

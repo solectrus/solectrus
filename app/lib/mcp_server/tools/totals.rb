@@ -8,10 +8,15 @@ module McpServer
       tool_name 'get_totals'
       title 'Get aggregated totals'
       description <<~TEXT.strip
-        Get aggregated values for a timeframe: produced/consumed energy (Wh),
+        Get aggregated values for a timeframe: produced/consumed energy,
         autarky and self-consumption (%), costs, revenue and savings (€), CO₂
-        reduction (g). Energy and money are summed over the period, percentages
+        reduction. Energy and money are summed over the period, percentages
         and temperatures averaged.
+
+        IMPORTANT — units after aggregation: summing a power sensor (unit
+        "watt") yields an ENERGY, not a power. So its `value` is in Wh, not W
+        (divide by 1000 for kWh) — never read a watt-sum as a power. All other
+        units aggregate unchanged.
 
         The `timeframe` uses SOLECTRUS notation, for example:
           "2026-06-21" (a day), "2026-W25" (a week), "2026-06" (a month),
@@ -88,7 +93,7 @@ module McpServer
       end
       private_class_method :build_totals
 
-      # Normalize values for the response. Percentages are rounded to a whole
+      # Normalize the reported value. Percentages are rounded to a whole
       # percent so every percent-unit sensor (autarky, self_consumption_quote,
       # grid_quote, ...) is reported consistently, regardless of whether its own
       # calculation already rounded.

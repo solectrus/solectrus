@@ -25,6 +25,10 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
 - `get_ranking` — best/worst (or chronological) days/weeks/months for one or more sensors
 - `get_series` — sub-daily time series (intraday curves) for one or more sensors
 
+> **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
+> *energy*, so in `get_totals`/`get_ranking` the resulting `value` is in Wh,
+> not W (divide by 1000 for kWh) — never read a watt-sum as a power.
+
 The backend (InfluxDB for live/hourly data, PostgreSQL summaries for
 day/month/year) is chosen automatically based on the requested timeframe.
 
