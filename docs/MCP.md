@@ -47,14 +47,50 @@ clients use an HTTPS callback on their own domain (e.g.
 accepted; the target host is shown to you on the password page so you can
 confirm where access is granted before entering your password.
 
+### Where does the client run? (cloud vs. local network)
+
+This distinction decides whether a homelab install works, because the client —
+not your browser — is what opens the connection:
+
+- **claude.ai web and the Claude mobile apps** connect from **Anthropic's
+  cloud**. They can only reach a **publicly resolvable HTTPS URL**. A
+  private LAN address such as `http://192.168.1.42:3000/mcp` is
+  invisible to them (wrong network, plain HTTP), so a homelab instance must
+  first be exposed to the internet over HTTPS (see below).
+- **Claude Desktop** runs **locally on your machine**, inside the
+  same network as SOLECTRUS. It reaches a homelab URL directly — no public
+  exposure needed, and plain HTTP is fine.
+- **ChatGPT** (web *and* desktop) always connects from **OpenAI's cloud** — even
+  the desktop app does not talk to a local server. So, like the claude.ai apps,
+  it needs a publicly reachable HTTPS URL; a LAN-only instance is unreachable.
+
+Which path fits you:
+
+- **You already reach SOLECTRUS from outside over HTTPS** (reverse proxy,
+  Cloudflare Tunnel, …) — the common setup if you check your PV system while
+  away. Then the **claude.ai web app and the mobile apps just work**: add a
+  custom connector with that `https://…/mcp` URL. This is the simplest option
+  for most users.
+- **Your instance is LAN-only** (e.g. `http://192.168.1.42:3000`, reachable only
+  at home). Then either expose it over HTTPS first (see below) to use the
+  claude.ai apps, or use **Claude Desktop**, which runs on your computer and
+  talks to the LAN URL directly.
+
 ### claude.ai web and the Claude mobile apps
 
 Add a **custom connector** and paste the URL above. You will be redirected to
 SOLECTRUS once to enter your admin password.
 
-### Claude Desktop and Claude Code
+This requires a **publicly reachable HTTPS URL**. If your instance only lives in
+your homelab,
+put a reverse proxy with a valid TLS certificate in front of it (Traefik, Caddy,
+nginx + Let's Encrypt) or expose it without opening a port using a
+[Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/),
+then use that `https://…/mcp` URL.
 
-These bridge the HTTP endpoint via
+### Claude Desktop
+
+This bridges the HTTP endpoint via
 [`mcp-remote`](https://www.npmjs.com/package/mcp-remote), which performs the
 OAuth flow (opening a browser for the password step) automatically:
 
@@ -69,6 +105,65 @@ OAuth flow (opening a browser for the password step) automatically:
 }
 ```
 
-(Append `--allow-http` if you point it at a plain-HTTP URL.) For Claude Code,
-`claude mcp add --transport http solectrus https://your-host/mcp` works the
-same way.
+**Plain HTTP (homelab):** if you point the client at a plain-HTTP LAN URL,
+append `--allow-http`, e.g.:
+
+```json
+{
+  "mcpServers": {
+    "solectrus": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://192.168.1.42:3000/mcp",
+        "--allow-http"
+      ]
+    }
+  }
+}
+```
+
+The OAuth callback then uses a local loopback URL
+(`http://localhost:<port>/callback`), which the server accepts — so the whole
+flow stays inside your network.
+
+### ChatGPT
+
+ChatGPT reaches MCP servers only from OpenAI's cloud (the desktop app included),
+so it needs a **publicly reachable HTTPS URL** — there is no local-bridge or
+plain-HTTP path like Claude Desktop's.
+
+Custom MCP connectors live behind **Developer mode**, which you enable on the
+web (chatgpt.com — not in the desktop app); it is available on the Plus, Pro,
+Business, Enterprise and Edu plans:
+
+1. chatgpt.com → **Settings → Apps & Connectors → Advanced settings** → turn on
+   **Developer mode**.
+2. **Connectors → Create**: give it a name, set the **MCP Server URL** to
+   `https://your-host/mcp`, and choose Authentication **OAuth**.
+3. Save → you are redirected to SOLECTRUS once to enter your admin password.
+
+On Plus/Pro the connector is read-only — which is all SOLECTRUS exposes anyway.
+Once added on the web it also appears in the ChatGPT desktop app.
+
+## Troubleshooting
+
+### Cloudflare blocks ChatGPT ("registration endpoint returned 403")
+
+If SOLECTRUS sits behind Cloudflare — **including via Cloudflare Tunnel** —
+Cloudflare's **Bot Fight Mode** can block ChatGPT during connection setup, with
+this error:
+
+```
+Dynamic client registration failed: registration endpoint returned 403
+```
+
+Claude usually passes while ChatGPT does not, so *"Claude works but ChatGPT
+doesn't"* is the typical signature.
+
+The **free** Bot Fight Mode cannot be excepted per path, so either:
+
+- turn **Bot Fight Mode off** (Security → Bots), or
+- on Cloudflare **Pro**, use **Super Bot Fight Mode** and add a skip for the
+  paths `/mcp`, `/oauth/*` and `/.well-known/oauth*`.
