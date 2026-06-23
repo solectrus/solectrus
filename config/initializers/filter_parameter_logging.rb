@@ -8,6 +8,8 @@ Rails.application.config.filter_parameters += %i[
   email
   secret
   token
+  code
+  verifier
   _key
   crypt
   salt
