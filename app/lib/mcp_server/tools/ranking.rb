@@ -4,6 +4,11 @@ module McpServer
     # from the PostgreSQL summaries. Answers "which day had the most/least ..."
     # without iterating over every single day.
     class Ranking < Base
+      # Each sensor is ranked with its own query, so bound the per-request work
+      # and require the caller to name the sensors instead of fanning out to all.
+      MAX_SENSORS = 20
+      private_constant :MAX_SENSORS
+
       tool_name 'get_ranking'
       title 'Rank days/weeks/months by a sensor'
       description <<~TEXT.strip
@@ -13,8 +18,8 @@ module McpServer
         Returns, per sensor, a list of periods with their aggregated value.
 
         Parameters:
-          - sensors: machine names (from list_sensors), one or more. A single
-            "sensor" is also accepted. Defaults to all sensors when omitted.
+          - sensors: names (from list_sensors), one or more (required,
+            at most #{MAX_SENSORS}). A single "sensor" is also accepted.
           - timeframe: the range to look at, in SOLECTRUS notation, e.g. "2026"
             (this year), "2026-06" (a month), "2026-01-01..2026-03-31" (range),
             "all" (since installation).
@@ -38,11 +43,11 @@ module McpServer
               type: 'string',
             },
             description:
-              'Sensor machine names (from list_sensors). Defaults to all sensors when omitted.',
+              "Sensor names (from list_sensors), one or more (max #{MAX_SENSORS}).",
           },
           sensor: {
             type: 'string',
-            description: 'Single sensor machine name (alternative to "sensors").',
+            description: 'Single sensor name (alternative to "sensors").',
           },
           timeframe: {
             type: 'string',
@@ -90,12 +95,9 @@ module McpServer
         **
       )
         requested = Array(sensors) | Array(sensor)
-        definitions = resolve_sensors(requested, allow_blank: true)
-
-        # When defaulting to all sensors, drop those without a natural
-        # aggregation (nothing meaningful to rank) unless the caller forces one.
-        if requested.blank? && aggregation.blank?
-          definitions = definitions.select(&:default_aggregation)
+        definitions = resolve_sensors(requested)
+        if definitions.size > MAX_SENSORS
+          raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
         end
 
         tf = Timeframe.new(timeframe)

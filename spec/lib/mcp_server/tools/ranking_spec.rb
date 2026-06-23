@@ -63,18 +63,24 @@ describe McpServer::Tools::Ranking do
       expect(data[:results].first[:ranking].size).to eq(3)
     end
 
-    it 'ranks all aggregatable sensors when none are given' do
-      error, data = call(timeframe: range)
-
-      expect(error).to be(false)
-      sensors = data[:results].pluck(:sensor)
-      rankable =
-        Sensor::Config.sensors.filter_map { |s| s.name.to_s if s.default_aggregation }
-      expect(sensors).to match_array(rankable)
-      expect(sensors).to include('house_power')
-    end
-
     context 'with invalid input' do
+      it 'requires at least one sensor' do
+        response = described_class.call(timeframe: '2024')
+
+        expect(response.error?).to be(true)
+        expect(response.content.first[:text]).to include('at least one sensor')
+      end
+
+      it 'rejects more than the allowed number of sensors' do
+        too_many = Sensor::Config.sensors.take(21)
+        names = too_many.map { _1.name.to_s }
+
+        response = described_class.call(sensors: names, timeframe: '2024')
+
+        expect(response.error?).to be(true)
+        expect(response.content.first[:text]).to include('Too many sensors')
+      end
+
       it 'reports an unknown sensor' do
         response = described_class.call(sensor: 'nonexistent', timeframe: '2024')
 
