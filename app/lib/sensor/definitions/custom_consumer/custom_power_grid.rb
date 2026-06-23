@@ -21,10 +21,6 @@ class Sensor::Definitions::CustomPowerGrid < Sensor::Definitions::Base
 
   requires_permission :power_splitter
 
-  def display_name(_format = :short)
-    "#{I18n.t('splitter.grid')} #{formatted_number}"
-  end
-
   def corresponding_base_sensor
     Sensor::Registry[:"custom_power_#{formatted_number}"]
   end

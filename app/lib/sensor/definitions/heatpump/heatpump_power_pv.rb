@@ -15,8 +15,4 @@ class Sensor::Definitions::HeatpumpPowerPv < Sensor::Definitions::Base
   aggregations stored: false, computed: [:sum], meta: [:sum]
 
   requires_permission :power_splitter
-
-  def display_name(_format = :short)
-    I18n.t('splitter.pv')
-  end
 end

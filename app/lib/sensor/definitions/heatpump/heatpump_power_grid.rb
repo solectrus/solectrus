@@ -13,8 +13,4 @@ class Sensor::Definitions::HeatpumpPowerGrid < Sensor::Definitions::Base
   def corresponding_base_sensor
     Sensor::Registry[:heatpump_power]
   end
-
-  def display_name(_format = :short)
-    I18n.t('splitter.grid')
-  end
 end
