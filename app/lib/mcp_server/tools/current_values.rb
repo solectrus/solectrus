@@ -11,7 +11,7 @@ module McpServer
         Get the most recent live reading of each sensor right now: current power
         flows in watts (solar production, grid import/export, house, heatpump,
         wallbox), battery state of charge, temperatures, etc. Optionally restrict
-        to specific sensors via the `sensors` parameter (machine names from
+        to specific sensors via the `sensors` parameter (names from
         list_sensors); the response contains exactly those sensors. A value of
         null means there is no fresh reading (e.g. the sensor is offline) and is
         distinct from a measured 0.
@@ -24,7 +24,7 @@ module McpServer
               type: 'string',
             },
             description:
-              'Optional list of sensor machine names. Defaults to all configured sensors.',
+              'Optional list of sensor names. Defaults to all configured sensors.',
           },
         },
       )

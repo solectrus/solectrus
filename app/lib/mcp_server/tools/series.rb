@@ -47,7 +47,7 @@ module McpServer
         when a peak deviates from the UI.
 
         Parameters:
-          - sensors: machine names (from list_sensors), one or more.
+          - sensors: names (from list_sensors), one or more.
           - timeframe: SOLECTRUS notation, e.g. "2026-06-21" (a day), "2026-W25"
             (a week), "2025-01-15..2025-02-12" (a range), "P24H" (last 24h).
           - resolution: "1m", "5m", "15m", "1h" or "1d". When omitted, defaults
@@ -71,7 +71,7 @@ module McpServer
             items: {
               type: 'string',
             },
-            description: 'Sensor machine names (from list_sensors).',
+            description: 'Sensor names (from list_sensors).',
           },
           timeframe: {
             type: 'string',

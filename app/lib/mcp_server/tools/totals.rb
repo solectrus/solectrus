@@ -19,7 +19,7 @@ module McpServer
           "P12M" (last 12 months), "2026-01-01..2026-03-31" (a date range),
           "day"/"week"/"month"/"year" (current period), "all" (since install).
 
-        Pass the sensor machine names from list_sensors via `sensors`.
+        Pass the sensor names from list_sensors via `sensors`.
       TEXT
       input_schema(
         properties: {
@@ -33,7 +33,7 @@ module McpServer
             items: {
               type: 'string',
             },
-            description: 'List of sensor machine names (from list_sensors).',
+            description: 'List of sensor names (from list_sensors).',
           },
         },
         required: %w[timeframe sensors],
