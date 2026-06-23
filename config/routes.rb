@@ -112,8 +112,17 @@ Rails.application.routes.draw do
   # the authorization-server metadata (which points them at /oauth/*).
   get '/.well-known/oauth-protected-resource',
       to: 'oauth/metadata#protected_resource'
+  # RFC 9728 inserts the resource path after the well-known segment, so clients
+  # request the metadata for the /mcp resource here. Same document as above.
+  get '/.well-known/oauth-protected-resource/mcp',
+      to: 'oauth/metadata#protected_resource'
   get '/.well-known/oauth-authorization-server',
       to: 'oauth/metadata#authorization_server'
+  # We are an OAuth 2.1 server, not an OpenID Connect provider. Clients probe
+  # this path during discovery; answer with a clean 404 instead of letting it
+  # fall through to a logged RoutingError.
+  get '/.well-known/openid-configuration',
+      to: 'oauth/metadata#openid_configuration'
 
   scope :oauth, module: :oauth, as: :oauth do
     post 'register', to: 'registrations#create'

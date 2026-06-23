@@ -29,6 +29,9 @@ describe 'OAuth (MCP)' do
       get '/.well-known/oauth-protected-resource'
       expect(response).to have_http_status(:not_found)
 
+      get '/.well-known/oauth-protected-resource/mcp'
+      expect(response).to have_http_status(:not_found)
+
       get '/.well-known/oauth-authorization-server'
       expect(response).to have_http_status(:not_found)
 
@@ -84,6 +87,26 @@ describe 'OAuth (MCP)' do
         expect(response.parsed_body['authorization_servers']).to eq(
           ['http://solar.example.org'],
         )
+      end
+    end
+
+    describe 'GET /.well-known/oauth-protected-resource/mcp' do
+      it 'serves the same metadata at the RFC 9728 path-aware location' do
+        get '/.well-known/oauth-protected-resource/mcp'
+
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body).to eq(
+          'resource' => 'http://www.example.com/mcp',
+          'authorization_servers' => ['http://www.example.com'],
+        )
+      end
+    end
+
+    describe 'GET /.well-known/openid-configuration' do
+      it 'returns a clean 404 (we are not an OIDC provider)' do
+        get '/.well-known/openid-configuration'
+
+        expect(response).to have_http_status(:not_found)
       end
     end
 

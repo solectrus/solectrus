@@ -8,6 +8,13 @@ class Oauth::MetadataController < Oauth::BaseController
     }
   end
 
+  # OpenID Connect discovery is not offered (we are an OAuth 2.1 server, not an
+  # OIDC provider). Clients probe this path anyway; answer with a clean 404 so
+  # it does not surface as a logged routing exception.
+  def openid_configuration
+    head :not_found
+  end
+
   # RFC 8414 - Authorization Server Metadata
   def authorization_server
     base = oauth_base_url
