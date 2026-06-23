@@ -20,7 +20,11 @@ module McpOauth
   ACCESS_TOKEN_TTL = 1.hour
   public_constant :ACCESS_TOKEN_TTL
 
-  REFRESH_TOKEN_TTL = 30.days
+  # Stateless refresh tokens cannot be rotated or individually revoked, so a
+  # stolen one grants access until it expires (only a global secret rotation
+  # cuts it short). Kept deliberately short to bound that window; a connected
+  # client refreshes well within this, so it is never user-visible.
+  REFRESH_TOKEN_TTL = 14.days
   private_constant :REFRESH_TOKEN_TTL
 
   # Stateless authorization codes cannot be made strictly single-use. We
