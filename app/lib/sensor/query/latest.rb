@@ -21,10 +21,14 @@ module Sensor
       end
 
       def create_data_instance(raw_data, timeframe)
+        # Pass the per-sensor timestamps through (including those of values just
+        # dropped as stale), so callers can report freshness and distinguish a
+        # stale reading from a sensor that never reported. The snapshot `time`
+        # is derived from these (their newest value).
         Sensor::Data::Single.new(
           raw_data[:payload],
           timeframe:,
-          time: raw_data[:time],
+          times: raw_data[:times],
         )
       end
 

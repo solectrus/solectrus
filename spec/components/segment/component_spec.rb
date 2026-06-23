@@ -36,7 +36,7 @@ describe Segment::Component, type: :component do
           :house_costs_pv => 2.0,
         },
         timeframe:,
-        time: updated_at,
+        times: { sensor_name => updated_at },
       ),
     )
   end

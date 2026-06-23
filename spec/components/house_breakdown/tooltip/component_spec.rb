@@ -13,7 +13,7 @@ describe HouseBreakdown::Tooltip::Component, type: :component do
       Sensor::Data::Single.new(
         raw_data,
         timeframe:,
-        time: updated_at,
+        times: { house_power: updated_at },
       ),
     )
   end

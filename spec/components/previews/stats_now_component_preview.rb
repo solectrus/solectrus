@@ -29,7 +29,7 @@ class StatsNowComponentPreview < ViewComponent::Preview
           grid_quote: 15.0,
         },
         timeframe: Timeframe.now,
-        time: Time.current,
+        times: { inverter_power: Time.current },
       ),
     )
   end

@@ -1,13 +1,24 @@
 class Sensor::Data::Base
-  def initialize(raw_data, timeframe:, time: nil)
+  # `times` maps a raw sensor name to the timestamp of its latest data point.
+  # It is populated for "latest"-style reads (Sensor::Query::Latest) and lets
+  # callers reason about per-sensor freshness; it defaults to {} otherwise.
+  def initialize(raw_data, timeframe:, times: {})
     @raw_data = raw_data
     @timeframe = timeframe
-    @time = time
+    @times = times || {}
+    # The snapshot timestamp is simply the newest of the per-sensor timestamps,
+    # so there is a single source of truth (no separate `time` to keep in sync).
+    @time = @times.values.compact.max
     validate!
     define_sensor_accessors
   end
 
-  attr_reader :timeframe, :raw_data, :time
+  attr_reader :timeframe, :raw_data, :time, :times
+
+  # Timestamp of the latest data point for a single raw sensor, or nil.
+  def time_for(sensor_name)
+    times[sensor_name]
+  end
 
   def single?
     false

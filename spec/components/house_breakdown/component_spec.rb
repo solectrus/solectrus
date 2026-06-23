@@ -34,7 +34,7 @@ describe HouseBreakdown::Component, type: :component do
           heatpump_power: 300,
         },
         timeframe:,
-        time: updated_at,
+        times: { house_power: updated_at },
       ),
     )
   end
@@ -104,7 +104,7 @@ describe HouseBreakdown::Component, type: :component do
             heatpump_power: 0,
           },
           timeframe:,
-          time: updated_at,
+          times: { house_power: updated_at },
         ),
       )
     end
