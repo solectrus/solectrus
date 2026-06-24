@@ -159,7 +159,7 @@ jobs:
 
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
@@ -169,7 +169,7 @@ jobs:
         run: bunx playwright install --with-deps --only-shell chromium
 
       - name: Restore runtime log
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: tmp/parallel_runtime_rspec.log
           key: parallel-runtime-${{ github.sha }}
@@ -270,7 +270,7 @@ jobs:
           cat runtime-logs/*/parallel_runtime_rspec.log | sort > tmp/parallel_runtime_rspec.log
 
       - name: Save runtime log to cache
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: tmp/parallel_runtime_rspec.log
           key: parallel-runtime-${{ github.sha }}
