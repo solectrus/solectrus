@@ -229,8 +229,8 @@ export class ColorManager {
     // so sensor outages show as gaps like plain-colour charts. The per-segment
     // styling below otherwise makes Chart.js bridge every gap regardless of the
     // numeric spanGaps limit. Dashed lines (forecast projections) and explicit
-    // spanGaps:true datasets (e.g. forward-filled SOC) connect sparse samples
-    // on purpose, so those keep spanning.
+    // spanGaps:true datasets connect sparse samples on purpose, so those keep
+    // spanning.
     if (lineDataset.spanGaps !== true && !lineDataset.borderDash) {
       lineDataset.spanGaps = false;
     }

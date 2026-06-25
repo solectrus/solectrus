@@ -171,8 +171,24 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     return unless master
 
     align_to_master_grid!(master[:labels], items)
+    labels = drop_leading_lookback(master[:labels], items)
 
-    { labels: master[:labels], datasets: datasets(items) }
+    { labels:, datasets: datasets(items) }
+  end
+
+  # Forward-fill seeding (#series_lookback) fetches buckets before the window
+  # start; they exist only to carry a value into the leading edge and are
+  # clipped from view. Drop them once the fill has run, so the payload holds
+  # exactly the requested window instead of the extended range.
+  def drop_leading_lookback(labels, items)
+    return labels unless series_lookback.positive? && labels.present?
+
+    cutoff = labels.first + series_lookback.in_milliseconds
+    drop = labels.index { |label| label >= cutoff } || 0
+    return labels if drop.zero?
+
+    items.each { |item| item[:data] = item[:data].drop(drop) }
+    labels.drop(drop)
   end
 
   def series
@@ -213,7 +229,27 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   def process_gaps(master_labels, values)
     values = bridge_short_gaps(master_labels, values)
+    values = fill_trailing_edge(master_labels, values) if sparse? && timeframe.now?
     values = fill_gaps_with_zero(values) if fill_gaps_with_zero?
+    values
+  end
+
+  # On the live view a sparse sensor's newest sample can sit a few minutes
+  # before the window edge, leaving trailing nulls between it and the point the
+  # live updater appends at "now" -- a visible gap. Carry the last value
+  # forward to the edge so the historical line meets the live tail. Capped at
+  # #gap_bridge_limit, so a collector that fell silent long ago still ends in a
+  # gap rather than a value dragged to "now".
+  def fill_trailing_edge(labels, values)
+    last = values.rindex { |value| !value.nil? }
+    return values unless last
+
+    values = values.dup
+    ((last + 1)...values.size).each do |j|
+      break if labels[j] - labels[last] > gap_bridge_limit
+
+      values[j] = values[last]
+    end
     values
   end
 
@@ -275,10 +311,16 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     span = (labels[stop] - labels[last]).to_f
     return if span > limit
 
-    a = values[last]
-    delta = values[stop] - a
-    (start...stop).each do |j|
-      values[j] = a + (delta * (labels[j] - labels[last]) / span)
+    if sparse?
+      # Persistent quantity: hold the last value as a flat step until the next
+      # sample, rather than ramping linearly between sparse readings.
+      values.fill(values[last], start...stop)
+    else
+      a = values[last]
+      delta = values[stop] - a
+      (start...stop).each do |j|
+        values[j] = a + (delta * (labels[j] - labels[last]) / span)
+      end
     end
   end
 
@@ -310,6 +352,9 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       noGradient: type == 'bar' || sensor.hatch_fill?,
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
+      # Sparse sensors carry their last value forward, so render crisp steps
+      # (vertical transitions), matching how a persistent quantity changes.
+      stepped: (true if sparse?),
     }.compact
   end
 
@@ -658,15 +703,35 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       chart_sensor_names,
       timeframe.now? ? Timeframe.new('P1H') : timeframe,
       interval:,
-    ).call(
-      interpolate: interpolate?,
-      fill_previous: fill_missing_with_previous?,
-    )
+    ).call(interpolate: interpolate?, lookback: series_lookback)
   end
 
   # Override this in subclasses to enable interpolation
   def interpolate?
     false
+  end
+
+  # A sensor counts as sparse/persistent when it deliberately raises its
+  # max_age above the default: its readings then arrive far apart (15+ min,
+  # often hours) while the measured quantity persists between them (battery
+  # SOC, fill levels, meter readings). Such sensors get leading-edge seeding,
+  # gap bridging up to max_age, flat-step holds and stepped rendering, so a
+  # value that legitimately persists between rare samples doesn't read as a
+  # gap. Dense sensors (the default) are unaffected.
+  def sparse?
+    return @sparse unless @sparse.nil?
+
+    @sparse =
+      chart_sensors.first&.max_age.to_i >
+      Sensor::Definitions::Dsl::DEFAULT_MAX_AGE.to_i
+  end
+
+  # Extra history (a duration) fetched before the window start: a sparse
+  # sensor looks back one max_age so #bridge_short_gaps can connect its last
+  # pre-window sample to the first in-window one, filling the leading edge
+  # instead of opening with a gap.
+  def series_lookback
+    sparse? ? chart_sensors.first.max_age : 0
   end
 
   # Override in subclasses whose sensors read 0 W while idle. Every nil left
@@ -683,8 +748,12 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # subclasses only need to override this to *narrow* the threshold (e.g.
   # cadence-jitter scale for the live "now" view) or to disable bridging
   # entirely by returning 0.
+  #
+  # A sparse sensor bridges up to its max_age, but no further: a real outage
+  # beyond it (e.g. a stopped collector) stays a visible break -- consistent
+  # with how Latest drops stale current values.
   def gap_bridge_limit
-    SPAN_GAPS_MS
+    sparse? ? chart_sensors.first.max_age.in_milliseconds : SPAN_GAPS_MS
   end
 
   # Chart.js spanGaps value for a specific dataset, mirroring the server-side
@@ -704,14 +773,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     return false unless gap_bridge_limit.positive?
 
     effective_gap_bridge_limit(labels, values)
-  end
-
-  # Override in subclasses for sparse, low-frequency sensors whose value
-  # persists between samples (e.g. battery SOC). Empty aggregation buckets
-  # are forward-filled with the most recent known value so the chart spans
-  # the full window without gaps on the leading/trailing edges.
-  def fill_missing_with_previous?
-    false
   end
 
   # Apply sensor value range validation to chart data

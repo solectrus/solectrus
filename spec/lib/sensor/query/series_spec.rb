@@ -110,63 +110,43 @@ describe Sensor::Query::Series do
     end
   end
 
-  describe '#call with fill_previous' do
-    subject(:series_query) { described_class.new([:car_battery_soc], timeframe) }
+  describe '#call with lookback' do
+    subject(:series_query) { described_class.new([:house_power], timeframe) }
 
     let(:timeframe) { Timeframe.new('P1H') }
 
-    before { stub_feature(:car) }
+    before do
+      freeze_time
 
-    context 'when combined with other fill strategies' do
-      it 'raises when combined with interpolate' do
-        expect do
-          series_query.call(fill_previous: true, interpolate: true)
-        end.to raise_error(ArgumentError, /fill_previous excludes/)
+      influx_batch do
+        # One sample before the 1h window, one inside it.
+        add_influx_point(
+          name: Sensor::Config.measurement(:house_power),
+          fields: {
+            Sensor::Config.field(:house_power) => 2000.0,
+          },
+          time: 80.minutes.ago,
+        )
+
+        add_influx_point(
+          name: Sensor::Config.measurement(:house_power),
+          fields: {
+            Sensor::Config.field(:house_power) => 2200.0,
+          },
+          time: 20.minutes.ago,
+        )
       end
     end
 
-    context 'with samples inside and outside the display window' do
-      before do
-        freeze_time
+    it 'excludes pre-window samples by default' do
+      values = series_query.call.house_power(:avg, :avg).values.compact
+      expect(values).to contain_exactly(2200.0)
+    end
 
-        influx_batch do
-          # One sample outside (before) the 1h display window, one inside.
-          # Without fill_previous, buckets before 25 min ago would be empty.
-          add_influx_point(
-            name: Sensor::Config.measurement(:car_battery_soc),
-            fields: {
-              Sensor::Config.field(:car_battery_soc) => 42.0,
-            },
-            time: 80.minutes.ago,
-          )
-
-          add_influx_point(
-            name: Sensor::Config.measurement(:car_battery_soc),
-            fields: {
-              Sensor::Config.field(:car_battery_soc) => 46.0,
-            },
-            time: 25.minutes.ago,
-          )
-        end
-      end
-
-      it 'forward-fills empty buckets with the last known value' do
-        series = series_query.call(fill_previous: true).car_battery_soc(:avg, :avg)
-
-        values = series.values.compact
-        expect(values).to include(42.0, 46.0)
-        # No empty buckets once fill_previous has propagated a value:
-        expect(series.values).not_to include(nil)
-      end
-
-      it 'extends the last known value up to the display window end' do
-        series = series_query.call(fill_previous: true).car_battery_soc(:avg, :avg)
-
-        # Newest sample is 25 min old; without fill_previous the trailing 25 min
-        # would be nil. With fill_previous the last bucket still reports 46%.
-        last_value = series.max_by { |time, _| time }.last
-        expect(last_value).to eq(46.0)
-      end
+    it 'extends the range backwards to include a pre-window sample' do
+      values =
+        series_query.call(lookback: 1.hour).house_power(:avg, :avg).values.compact
+      expect(values).to include(2000.0, 2200.0)
     end
   end
 
@@ -223,12 +203,6 @@ describe Sensor::Query::Series do
       expect do
         described_class.new([:house_power], timeframe, aggregation: :median)
       end.to raise_error(ArgumentError, /Unsupported aggregation/)
-    end
-
-    it 'rejects fill_previous with a non-default aggregation' do
-      expect do
-        query(aggregation: :sum).call(fill_previous: true)
-      end.to raise_error(ArgumentError, /fill_previous requires/)
     end
   end
 

@@ -43,18 +43,11 @@ module Sensor
         "#{seconds}s"
       end
 
-      def call(interpolate: false, fill_previous: false)
-        raise ArgumentError, 'fill_previous excludes interpolate' if fill_previous && interpolate
-        # fill_previous carries the last sample forward (fn: last), so a
-        # non-default aggregation would be silently ignored while the result
-        # is still labelled with it. Reject the combination instead.
-        if fill_previous && @aggregation != :avg
-          raise ArgumentError, 'fill_previous requires the default :avg aggregation'
-        end
+      def call(interpolate: false, lookback: 0)
         return empty_result if available_sensors.empty?
         return empty_result if @timeframe.now?
 
-        raw_data = fetch_aggregated_series(interpolate:, fill_previous:)
+        raw_data = fetch_aggregated_series(interpolate:, lookback:)
 
         create_data_instance(raw_data, @timeframe).tap do |data|
           ensure_sensor_accessors(data)
@@ -70,33 +63,34 @@ module Sensor
 
       private
 
-      def fetch_aggregated_series(interpolate: false, fill_previous: false)
-        query_string = build_series_flux_query(interpolate:, fill_previous:)
+      def fetch_aggregated_series(interpolate: false, lookback: 0)
+        query_string = build_series_flux_query(interpolate:, lookback:)
         result = query(query_string)
         parse_series_result(result)
       end
 
-      def build_series_flux_query(interpolate: false, fill_previous: false)
+      def build_series_flux_query(interpolate: false, lookback: 0)
         forecast, other = available_sensors.partition { |name| Sensor::Registry[name]&.forecast? }
 
         # plain-query is fine when there is no forecast at all, or when only
         # forecast samples are queried with interpolation: provider samples
         # already sit on the requested grid, so neither alignment with a
-        # dense sensor nor a cadence-shift is needed.
+        # dense sensor nor a cadence-shift is needed. lookback only seeds the
+        # leading edge of sparse single-sensor charts (no forecast), so it
+        # rides along here and is ignored by the forecast-shifted path.
         if forecast.empty? || (interpolate && other.empty?)
-          build_plain_query(interpolate:, fill_previous:)
+          build_plain_query(interpolate:, lookback:)
         else
           build_forecast_shifted_query(forecast, other, interpolate:)
         end
       end
 
-      def build_plain_query(interpolate:, fill_previous: false)
-        # 2h lookback caps forward-fill staleness: beyond it, gaps stay visible.
-        pipeline = base_pipeline(lookback: fill_previous ? 2.hours : 0)
+      def build_plain_query(interpolate:, lookback: 0)
+        pipeline = base_pipeline(lookback:)
         pipeline = densify(pipeline) if interpolate
 
         prefix = interpolate ? ['import "interpolate"'] : []
-        [*prefix, pipeline, *aggregation_tail(fill_previous:)].join("\n")
+        [*prefix, pipeline, *aggregation_tail].join("\n")
       end
 
       # Forecast providers store each sample at the end of its aggregation
@@ -138,6 +132,9 @@ module Sensor
         [*prefix, *definitions, input, range_reset, *aggregation_tail].join("\n")
       end
 
+      # `lookback` extends the range before the window start so a sparse,
+      # persistent sensor (e.g. battery SOC) carries its last pre-window
+      # sample into the leading edge instead of opening with an empty gap.
       def base_pipeline(sensors: available_sensors, lookback: 0)
         <<~FLUX.chomp
           #{from_bucket}
@@ -193,19 +190,15 @@ module Sensor
         FLUX
       end
 
-      def aggregation_tail(fill_previous: false)
-        # `last` pairs with fill_previous: carrying a value forward is only
-        # coherent if each bucket holds the most recent sample, not a mean.
+      def aggregation_tail
         # aggregateWindow's default createEmpty: true emits null buckets
-        # across the window range; this also covers the selector path so
-        # mixed forecast/live streams share a common x-axis grid (Chart.js
-        # index-mode tooltips need that to pair values correctly).
-        fn = fill_previous ? 'last' : AGGREGATION_FLUX_FUNCTIONS[@aggregation]
-        tail = ["|> aggregateWindow(every: #{interval}, fn: #{fn})"]
-        tail << '|> fill(column: "_value", usePrevious: true)' if fill_previous
-        tail << "|> filter(fn: (r) => r._time >= #{@timeframe.beginning.iso8601})" if fill_previous
-        tail << '|> keep(columns: ["_time","_field","_measurement","_value"])'
-        tail
+        # across the window range, so mixed forecast/live streams share a
+        # common x-axis grid (Chart.js index-mode tooltips need that to pair
+        # values correctly).
+        [
+          "|> aggregateWindow(every: #{interval}, fn: #{AGGREGATION_FLUX_FUNCTIONS[@aggregation]})",
+          '|> keep(columns: ["_time","_field","_measurement","_value"])',
+        ]
       end
 
       # Folds Flux records directly into the result shape consumed by
