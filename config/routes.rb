@@ -5,6 +5,17 @@
 #                      health_check GET    /up(.:format)                                             health#show
 #                skip_browser_check GET    /skip-browser-check(.:format)                             application#skip_browser_check
 #                          lookbook        /lookbook                                                 Lookbook::Engine
+#                     lockup_unlock GET    /lockup/unlock(.:format)                                  lockup#unlock
+#                            unlock POST   /lockup/unlock(.:format)                                  lockup#unlock
+#                               mcp POST   /mcp(.:format)                                            mcp#handle
+#                                   GET    /.well-known/oauth-protected-resource(.:format)           oauth/metadata#protected_resource
+#                                   GET    /.well-known/oauth-protected-resource/mcp(.:format)       oauth/metadata#protected_resource
+#                                   GET    /.well-known/oauth-authorization-server(.:format)         oauth/metadata#authorization_server
+#                                   GET    /.well-known/openid-configuration(.:format)               oauth/metadata#openid_configuration
+#                    oauth_register POST   /oauth/register(.:format)                                 oauth/registrations#create
+#                   oauth_authorize GET    /oauth/authorize(.:format)                                oauth/authorizations#new
+#                                   POST   /oauth/authorize(.:format)                                oauth/authorizations#create
+#                       oauth_token POST   /oauth/token(.:format)                                    oauth/tokens#create
 #                          forecast GET    /forecast(.:format)                                       forecast/home#index
 #                    forecast_chart GET    /forecast/:id(.:format)                                   forecast/charts#show {id: /inverter_power|outdoor_temp/}
 #                      balance_home GET    /(:sensor_name)(/:timeframe)(.:format)                    balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
@@ -30,6 +41,8 @@
 #                       new_session GET    /login(.:format)                                          sessions#new
 #                          sessions POST   /login(.:format)                                          sessions#create
 #                           session DELETE /logout(.:format)                                         sessions#destroy
+#                            locale PATCH  /locale(.:format)                                         locales#update
+#                                   PUT    /locale(.:format)                                         locales#update
 #              latest_notifications GET    /notifications/latest(.:format)                           notifications#latest
 #         mark_as_read_notification PATCH  /notifications/:id/mark_as_read(.:format)                 notifications#mark_as_read
 #                     notifications GET    /notifications(.:format)                                  notifications#index
@@ -38,6 +51,8 @@
 #             registration_required GET    /registration-required(.:format)                          registration_required#show
 #                        sponsoring GET    /sponsoring(.:format)                                     sponsorings#show
 #                                   GET    /favicon.ico(.:format)                                    redirect(301, /favicon-196.png)
+#                                   GET    /apple-touch-icon.png(.:format)                           redirect(301, /apple-icon-180.png)
+#                                   GET    /apple-touch-icon-precomposed.png(.:format)               redirect(301, /apple-icon-180.png)
 #             edit_settings_general GET    /settings/general(.:format)                               settings/generals#edit
 #                  settings_general PATCH  /settings/general(.:format)                               settings/generals#update
 #                                   PUT    /settings/general(.:format)                               settings/generals#update
