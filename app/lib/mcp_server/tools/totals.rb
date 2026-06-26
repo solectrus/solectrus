@@ -100,7 +100,7 @@ module McpServer
           {
             name: sensor.name,
             display_name: sensor.display_name,
-            unit: sensor.unit,
+            unit: aggregated_unit(sensor, aggregation),
             aggregation:,
             value:,
           }

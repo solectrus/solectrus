@@ -148,7 +148,7 @@ module McpServer
         {
           sensor: sensor.name,
           display_name: sensor.display_name,
-          unit: sensor.unit,
+          unit: aggregated_unit(sensor, agg),
           aggregation: agg,
           ranking: rows.map { |entry| { date: entry[:date].iso8601, value: entry[:value] } },
         }

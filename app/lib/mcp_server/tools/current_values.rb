@@ -14,6 +14,12 @@ module McpServer
         to specific sensors via the `sensors` parameter (names from
         list_sensors); the response contains exactly those sensors.
 
+        A few calculated sensors are chart-only composites with no live scalar
+        (e.g. power_balance, a stacked power-flow balance): they are omitted
+        from the default set and, if requested explicitly, always return a null
+        value with null freshness — that null means "no live reading exists",
+        not "the source is offline".
+
         Each sensor carries freshness metadata so a null value is never
         ambiguous:
           - last_seen_at: ISO 8601 timestamp of the latest data point, or null
@@ -40,6 +46,7 @@ module McpServer
 
       def self.call(sensors: nil, **)
         definitions = resolve_sensors(sensors, allow_blank: true)
+        definitions = definitions.reject { live_scalarless?(it) } if sensors.blank?
         data = Sensor::Query::Latest.new(definitions.map(&:name)).call
         now = Time.current
 
@@ -66,6 +73,20 @@ module McpServer
       rescue ArgumentError => e
         error_response(e.message)
       end
+
+      # A calculated sensor that derives from no inputs (e.g. power_balance, a
+      # stacked power-flow balance chart) has no live scalar reading to report:
+      # its value is always null, which would otherwise surface as a spurious
+      # "never seen" entry in the default sensor set. Dropped from the default
+      # set only - still returned (as null) if explicitly requested.
+      def self.live_scalarless?(sensor)
+        sensor.calculated? && sensor.dependencies.empty?
+      rescue ArgumentError
+        # A dependency block that needs context kwargs can't be a no-input
+        # composite; treat it as a normal sensor.
+        false
+      end
+      private_class_method :live_scalarless?
 
       # Freshness metadata for a single sensor reading. A present value is, by
       # construction, fresh (the live query drops values older than the sensor's

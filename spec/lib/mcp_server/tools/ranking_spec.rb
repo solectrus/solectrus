@@ -20,6 +20,8 @@ describe McpServer::Tools::Ranking do
       result = data[:results].first
       expect(result[:sensor]).to eq('house_power')
       expect(result[:aggregation]).to eq('sum')
+      # A summed watt sensor ranks energies, so the unit is watt-hours (BUG-3).
+      expect(result[:unit]).to eq('watt_hour')
       expect(result[:ranking].pluck(:date)).to eq(
         %w[2024-01-17 2024-01-15 2024-01-16],
       )

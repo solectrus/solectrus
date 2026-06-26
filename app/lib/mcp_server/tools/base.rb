@@ -49,6 +49,20 @@ module McpServer
           requested.map { |name| by_name[name] }
         end
 
+        # The unit a sensor's value carries AFTER aggregation. Summing a power
+        # sensor (unit "watt") integrates over time and yields an ENERGY, so its
+        # aggregated value is in watt-hours, not watts; every other unit and
+        # every non-sum aggregation (avg/min/max) keep the sensor's base unit.
+        # Lets get_totals/get_ranking report a unit that can be trusted on its
+        # own, without re-deriving it from the tool's prose.
+        def aggregated_unit(sensor, aggregation)
+          if aggregation&.to_sym == :sum && sensor.unit == :watt
+            :watt_hour
+          else
+            sensor.unit
+          end
+        end
+
         # Wrap a Ruby Hash/Array as a JSON text response.
         def json_response(data)
           MCP::Tool::Response.new([{ type: 'text', text: data.to_json }])

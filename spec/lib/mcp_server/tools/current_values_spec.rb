@@ -59,7 +59,7 @@ describe McpServer::Tools::CurrentValues do
       )
     end
 
-    it 'returns all configured sensors when no filter is given' do
+    it 'returns all configured live sensors when no filter is given' do
       all_names = Sensor::Config.sensors.map(&:name)
       data =
         Sensor::Data::Single.new(
@@ -75,7 +75,31 @@ describe McpServer::Tools::CurrentValues do
 
       expect(response.error?).to be(false)
       parsed = JSON.parse(response.content.first[:text], symbolize_names: true)
-      expect(parsed[:values].pluck(:name)).to match_array(all_names.map(&:to_s))
+      # All sensors except chart-only composites (no live scalar) are returned.
+      expect(parsed[:values].pluck(:name)).not_to include('power_balance')
+      expect(parsed[:values].pluck(:name)).to include('inverter_power', 'house_power')
+    end
+
+    it 'omits chart-only composites from the default set but returns them when asked' do
+      # power_balance is a calculated, chart-only pseudo-sensor with no live
+      # scalar reading; it must not surface as a spurious "never seen" null in
+      # the default set, yet stay available on explicit request.
+      data = Sensor::Data::Single.new({}, timeframe: Timeframe.now, times: {})
+      allow(Sensor::Query::Latest).to receive(:new).and_return(
+        instance_double(Sensor::Query::Latest, call: data),
+      )
+
+      default = described_class.call(server_context: nil)
+      default_names =
+        JSON.parse(default.content.first[:text], symbolize_names: true)[:values].pluck(:name)
+      expect(default_names).not_to include('power_balance')
+
+      explicit =
+        described_class.call(server_context: nil, sensors: ['power_balance'])
+      explicit_value =
+        JSON.parse(explicit.content.first[:text], symbolize_names: true)[:values].first
+      expect(explicit_value[:name]).to eq('power_balance')
+      expect(explicit_value[:value]).to be_nil
     end
 
     it 'reports unknown or unconfigured sensors' do

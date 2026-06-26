@@ -16,7 +16,18 @@ describe McpServer::Tools::Totals do
       data = JSON.parse(response.content.first[:text], symbolize_names: true)
       total = data[:totals].find { _1[:name] == 'house_power' }
       expect(total[:value]).to eq(12_345.0)
-      expect(total[:unit]).to eq('watt')
+      # Summing a watt sensor integrates over time -> energy, so the reported
+      # unit is watt-hours, not watts (BUG-3).
+      expect(total[:aggregation]).to eq('sum')
+      expect(total[:unit]).to eq('watt_hour')
+    end
+
+    it 'keeps the base watt unit for non-sum aggregations' do
+      # Only summing a watt sensor yields energy; avg/min/max stay watts.
+      helper = ->(agg) { McpServer::Tools::Base.__send__(:aggregated_unit, Sensor::Registry[:house_power], agg) }
+      expect(helper.call(:sum)).to eq(:watt_hour)
+      expect(helper.call(:max)).to eq(:watt)
+      expect(helper.call(:avg)).to eq(:watt)
     end
 
     it 'reports an invalid timeframe' do
