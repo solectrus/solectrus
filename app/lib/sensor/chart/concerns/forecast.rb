@@ -117,9 +117,7 @@ module Sensor
 
         # Extract sensor data by sensor name
         def extract_sensor_data(sensor_name)
-          return unless series&.raw_data
-
-          series.raw_data.find { |key, _| key.first == sensor_name }&.last
+          series&.raw_for(sensor_name)
         end
 
         # Build forecast data from sensor data

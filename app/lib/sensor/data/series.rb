@@ -45,6 +45,13 @@ class Sensor::Data::Series < Sensor::Data::Base
     true
   end
 
+  # The raw {time => value} hash for a sensor, irrespective of its aggregation
+  # combination. Returns nil when the sensor carries no data. Handy when the
+  # caller knows the sensor but not its aggregation key (e.g. forecast curves).
+  def raw_for(sensor_name)
+    raw_data.find { |key, _| key.first == sensor_name }&.last
+  end
+
   private
 
   def get_sensor_value(sensor_name, args)

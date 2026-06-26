@@ -116,6 +116,7 @@ describe 'MCP' do
             'get_totals',
             'get_ranking',
             'get_series',
+            'get_forecast',
           )
         end
       end

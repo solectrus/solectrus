@@ -25,6 +25,11 @@ module McpServer
           "day"/"week"/"month"/"year" (current period), "all" (since install).
 
         Pass the sensor names from list_sensors via `sensors`.
+
+        This tool is for historical measured or aggregated actual values. Do NOT
+        pass forecast sensors (e.g. "inverter_power_forecast") — those are
+        rejected, since the summaries hold no forecast. For the expected PV
+        generation forecast, use get_forecast.
       TEXT
       input_schema(
         properties: {
@@ -47,8 +52,18 @@ module McpServer
 
       def self.call(timeframe:, sensors:, **)
         tf = Timeframe.new(timeframe)
-        aggregations =
-          resolve_sensors(sensors).index_with(&:default_aggregation)
+        resolved = resolve_sensors(sensors)
+
+        forecast = resolved.select(&:forecast?)
+        if forecast.any?
+          return error_response(
+            "Forecast sensors (#{forecast.map(&:name).join(', ')}) are not " \
+              'supported by get_totals. Use get_forecast for the expected PV ' \
+              'generation forecast.',
+          )
+        end
+
+        aggregations = resolved.index_with(&:default_aggregation)
 
         data = totals(tf, aggregations)
         json_response(timeframe: tf.to_s, totals: build_totals(data, aggregations))

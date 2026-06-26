@@ -10,6 +10,7 @@ module McpServer
       Tools::Totals,
       Tools::Ranking,
       Tools::Series,
+      Tools::Forecast,
     ].freeze
     private_constant :TOOLS
 
@@ -24,6 +25,11 @@ module McpServer
       Units after aggregation: summing a power sensor (unit "watt") yields an
       energy, so in get_totals/get_ranking the resulting `value` is in Wh, not
       W (divide by 1000 for kWh) - don't read a watt-sum as a power.
+
+      get_totals covers historical actuals only and rejects forecast sensors.
+      For the expected PV generation (what's still coming today, per upcoming
+      day) use get_forecast; for the predicted power curve use get_series on a
+      forecast sensor (e.g. inverter_power_forecast).
     TEXT
     private_constant :INSTRUCTIONS
 

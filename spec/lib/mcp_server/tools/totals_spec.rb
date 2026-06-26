@@ -43,6 +43,20 @@ describe McpServer::Tools::Totals do
       expect(response.content.first[:text]).to include('Unknown or unconfigured')
     end
 
+    it 'rejects forecast sensors and points to get_forecast' do
+      response =
+        described_class.call(
+          server_context: nil,
+          timeframe: "#{Date.current + 1}..#{Date.current + 3}",
+          sensors: ['inverter_power_forecast'],
+        )
+
+      expect(response.error?).to be(true)
+      text = response.content.first[:text]
+      expect(text).to include('get_forecast')
+      expect(text).to include('not')
+    end
+
     context 'with the derived self_consumption sensor' do
       before do
         create_summary(

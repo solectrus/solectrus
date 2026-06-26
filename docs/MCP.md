@@ -21,9 +21,12 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
 - `get_prices` — electricity tariff and feed-in compensation (time-dependent)
 - `get_current_values` — current live readings, each with freshness metadata
   (`last_seen_at`, `age_seconds`)
-- `get_totals` — aggregated values for a timeframe
+- `get_totals` — aggregated **historical actual** values for a timeframe
 - `get_ranking` — best/worst (or chronological) days/weeks/months for one or more sensors
 - `get_series` — sub-daily time series (intraday curves) for one or more sensors
+- `get_forecast` — forecast for the coming days: expected PV generation (energy
+  still to come today and per upcoming day) plus the outdoor temperature
+  (daily min/max/avg)
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > *energy*, so in `get_totals`/`get_ranking` the resulting `value` is in Wh,
@@ -31,6 +34,51 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
 
 The backend (InfluxDB for live/hourly data, PostgreSQL summaries for
 day/month/year) is chosen automatically based on the requested timeframe.
+
+### Actuals vs. forecast
+
+`get_totals` is for **historical, measured** values only. Passing a forecast
+sensor (e.g. `inverter_power_forecast`) returns a clear error rather than a
+silent `null`, because the PostgreSQL summaries hold no forecast.
+
+For the **forecast of the coming days**, use `get_forecast`. It returns the PV
+generation as energy sums (Wh) and, when an outdoor temperature forecast is
+configured, the daily temperature (°C):
+
+```json
+{
+  "timezone": "Europe/Berlin",
+  "generated_at": "2026-06-26T08:52:00+02:00",
+  "generation": {
+    "unit": "Wh",
+    "today_remaining": 47250.0,
+    "days": [
+      { "date": "2026-06-27", "expected": 58800.0 },
+      { "date": "2026-06-28", "expected": 58800.0 }
+    ]
+  },
+  "temperature": {
+    "unit": "°C",
+    "days": [
+      { "date": "2026-06-26", "min": 12.0, "max": 20.0, "avg": 16.8 },
+      { "date": "2026-06-27", "min": 11.5, "max": 21.0, "avg": 17.2 }
+    ]
+  }
+}
+```
+
+- `generation.today_remaining` is the energy still expected **after now** —
+  already generated energy is excluded, so it never double-counts the current
+  day. `generation.days` lists the full expected energy per upcoming day, as far
+  as the forecast reaches (typically a few days); days too sparse to integrate
+  are omitted.
+- `temperature.days` gives daily min/max/avg for today and the upcoming days. It
+  is omitted entirely when no outdoor temperature forecast is configured.
+
+For the predicted power **curve** (intraday shape), use `get_series` on the
+forecast sensor instead. To judge whether a whole month/year will be good,
+combine `get_forecast` with `get_totals` for the measured part and earlier
+years.
 
 ## Connecting a client
 
