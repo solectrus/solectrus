@@ -7,13 +7,13 @@ class Sensor::Chart::FinanceBase < Sensor::Chart::Base
   def unit
     @unit ||=
       Sensor::UnitFormatter.format(
-        unit: :euro,
+        unit: :money,
         context: timeframe.short? ? :rate : :total,
         scaling: :off,
       )
   end
 
-  # No suggested_max for euro charts - let Chart.js auto-scale
+  # No suggested_max for money charts - let Chart.js auto-scale
   def suggested_max
     nil
   end
@@ -48,8 +48,8 @@ class Sensor::Chart::FinanceBase < Sensor::Chart::Base
     Price.at(name: price_type, date: timeframe.date)
   end
 
-  # Convert W to kW and multiply by price to get EUR/h
-  def calculate_euro_rate(watt_value, price)
+  # Convert W to kW and multiply by price to get money per hour
+  def calculate_money_rate(watt_value, price)
     return unless watt_value && price
 
     (watt_value * price).fdiv(1000)

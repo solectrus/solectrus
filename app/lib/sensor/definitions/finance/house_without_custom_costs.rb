@@ -1,5 +1,5 @@
 class Sensor::Definitions::HouseWithoutCustomCosts < Sensor::Definitions::Base
-  value unit: :euro, category: :economic
+  value unit: :money, category: :economic
 
   depends_on :house_power, :house_power_without_custom, :house_costs
 

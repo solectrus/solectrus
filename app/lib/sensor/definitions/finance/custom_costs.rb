@@ -13,7 +13,7 @@ class Sensor::Definitions::CustomCosts < Sensor::Definitions::Base
     :"custom_#{formatted_number}_costs"
   end
 
-  value unit: :euro, category: :economic
+  value unit: :money, category: :economic
 
   depends_on do
     [

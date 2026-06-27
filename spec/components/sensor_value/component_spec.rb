@@ -139,7 +139,7 @@ describe SensorValue::Component, type: :component do
           it 'strips minus sign from value' do
             render_inline(component)
 
-            # Euro values >= 10 are rounded to integer: 45.67 -> 46
+            # Money values >= 10 are rounded to integer: 45.67 -> 46
             expect(page).to have_css('strong.font-medium', text: '46')
             expect(page).to have_no_text('-')
           end

@@ -61,10 +61,10 @@ class Sensor::Chart::Savings < Sensor::Chart::FinanceBase
       sensor_data.map { |s| s[:data][index] || 0 }
 
     traditional_costs =
-      calculate_euro_rate(house + heatpump + wallbox, electricity_price)
+      calculate_money_rate(house + heatpump + wallbox, electricity_price)
     solar_price =
-      calculate_euro_rate(grid_import, electricity_price) -
-        calculate_euro_rate(grid_export, feed_in_price)
+      calculate_money_rate(grid_import, electricity_price) -
+        calculate_money_rate(grid_export, feed_in_price)
 
     traditional_costs - solar_price
   end

@@ -70,9 +70,9 @@ class Sensor::UnitFormatter
       '°C'
     when :percent
       '%'
-    when :euro
+    when :money
       context == :rate ? "#{Currency.symbol}/h" : Currency.symbol
-    when :euro_per_kwh
+    when :money_per_kwh
       "#{Currency.symbol}/kWh"
     else
       ''

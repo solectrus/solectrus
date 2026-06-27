@@ -1,6 +1,6 @@
 class Sensor::Definitions::FinanceBase < Sensor::Definitions::Base
   def unit
-    :euro
+    :money
   end
 
   def category

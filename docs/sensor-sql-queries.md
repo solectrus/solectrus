@@ -446,8 +446,8 @@ data = Sensor::Data::Single.new(
   {
     [:case_temp, :avg, :min] => 18.5,
     [:case_temp, :avg, :max] => 42.3,
-    [:traditional_costs, :sum, :sum] => 2345.67,  # Euro
-    [:grid_revenue, :sum, :sum] => 1234.89        # Euro
+    [:traditional_costs, :sum, :sum] => 2345.67,  # Money
+    [:grid_revenue, :sum, :sum] => 1234.89        # Money
   },
   timeframe: Timeframe.new('2025')
 )

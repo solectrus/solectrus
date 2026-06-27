@@ -50,7 +50,7 @@ class Sensor::Data::Base
 
     sensor = Sensor::Registry[sensor_name]
     case sensor.unit
-    when :watt, :celsius, :unitless, :percent, :gram, :euro, :euro_per_kwh
+    when :watt, :celsius, :unitless, :percent, :gram, :money, :money_per_kwh
       to_float(raw_value)
     when :boolean
       to_boolean(raw_value)

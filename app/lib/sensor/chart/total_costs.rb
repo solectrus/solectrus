@@ -63,7 +63,7 @@ class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
     feed_in_price
   )
     grid_costs =
-      calculate_euro_rate(
+      calculate_money_rate(
         sensor_data[:grid_import][:data][index] || 0,
         electricity_price,
       )
@@ -72,7 +72,7 @@ class Sensor::Chart::TotalCosts < Sensor::Chart::FinanceBase
     inverter = sensor_data[:inverter][:data][index] || 0
     grid_export = sensor_data[:grid_export][:data][index] || 0
     self_consumption = [inverter - grid_export, 0].max
-    opportunity_costs = calculate_euro_rate(self_consumption, feed_in_price)
+    opportunity_costs = calculate_money_rate(self_consumption, feed_in_price)
 
     # Use the sensor definition's calculation logic
     Sensor::Registry[:total_costs].calculate(grid_costs:, opportunity_costs:)

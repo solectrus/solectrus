@@ -52,14 +52,14 @@ describe Sensor::ValueFormatter do
       expect(formatter.to_s).to eq('')
     end
 
-    it 'formats euro without unit space' do
-      formatter = described_class.new(15.5, unit: :euro)
+    it 'formats money without unit space' do
+      formatter = described_class.new(15.5, unit: :money)
       expect(formatter.to_s).to eq('16 €')
     end
 
     it 'uses the configured currency symbol' do
       allow(Rails.configuration.x).to receive(:currency).and_return('CHF')
-      formatter = described_class.new(0.25, unit: :euro_per_kwh)
+      formatter = described_class.new(0.25, unit: :money_per_kwh)
       expect(formatter.to_s).to eq('0,2500 CHF/kWh')
     end
   end
@@ -245,8 +245,8 @@ describe Sensor::ValueFormatter do
         it { expect(result[:unit]).to eq('%') }
       end
 
-      context 'with euro values' do
-        let(:unit) { :euro }
+      context 'with money values' do
+        let(:unit) { :money }
 
         context 'when large amounts (>= 10 €)' do
           let(:value) { 123.45 }
@@ -263,8 +263,8 @@ describe Sensor::ValueFormatter do
         end
       end
 
-      context 'with euro per kWh values' do
-        let(:unit) { :euro_per_kwh }
+      context 'with money per kWh values' do
+        let(:unit) { :money_per_kwh }
         let(:value) { 0.30123 }
 
         it { expect(result[:value]).to eq('0,3012') }
@@ -344,20 +344,20 @@ describe Sensor::ValueFormatter do
         expect(result_t[:value]).to eq('2,5')
       end
 
-      it 'uses dynamic precision for euro (large amounts: 0, small amounts: 2)' do
+      it 'uses dynamic precision for money (large amounts: 0, small amounts: 2)' do
         # Large amounts (>= 10) use precision 0
-        formatter_large = described_class.new(123.456789, unit: :euro)
+        formatter_large = described_class.new(123.456789, unit: :money)
         result_large = formatter_large.to_h
         expect(result_large[:value]).to eq('123')
 
         # Small amounts (< 10) use precision 2
-        formatter_small = described_class.new(1.456789, unit: :euro)
+        formatter_small = described_class.new(1.456789, unit: :money)
         result_small = formatter_small.to_h
         expect(result_small[:value]).to eq('1,46')
       end
 
-      it 'uses precision 4 for euro_per_kwh' do
-        formatter = described_class.new(0.123456789, unit: :euro_per_kwh)
+      it 'uses precision 4 for money_per_kwh' do
+        formatter = described_class.new(0.123456789, unit: :money_per_kwh)
         result = formatter.to_h
 
         expect(result[:value]).to eq('0,1235')
@@ -406,25 +406,25 @@ describe Sensor::ValueFormatter do
       end
     end
 
-    describe 'euro formatting with size-based precision' do
-      it 'formats large euro amounts without decimals' do
-        formatter = described_class.new(1234.56, unit: :euro)
+    describe 'money formatting with size-based precision' do
+      it 'formats large money amounts without decimals' do
+        formatter = described_class.new(1234.56, unit: :money)
         result = formatter.to_h
 
         expect(result[:value]).to eq('1.235')
         expect(result[:unit]).to eq('€')
       end
 
-      it 'formats small euro amounts with decimals' do
-        formatter = described_class.new(5.99, unit: :euro)
+      it 'formats small money amounts with decimals' do
+        formatter = described_class.new(5.99, unit: :money)
         result = formatter.to_h
 
         expect(result[:value]).to eq('5,99')
         expect(result[:unit]).to eq('€')
       end
 
-      it 'handles euro boundary value correctly' do
-        formatter = described_class.new(10.00, unit: :euro)
+      it 'handles money boundary value correctly' do
+        formatter = described_class.new(10.00, unit: :money)
         result = formatter.to_h
 
         expect(result[:value]).to eq('10')
@@ -479,8 +479,8 @@ describe Sensor::ValueFormatter do
         expect(result).to eq({})
       end
 
-      it 'returns empty hash for nil value with euro unit' do
-        formatter = described_class.new(nil, unit: :euro)
+      it 'returns empty hash for nil value with money unit' do
+        formatter = described_class.new(nil, unit: :money)
         result = formatter.to_h
 
         expect(result).to eq({})
@@ -510,8 +510,8 @@ describe Sensor::ValueFormatter do
     end
 
     describe 'zero value handling' do
-      it 'formats zero euro without decimals' do
-        formatter = described_class.new(0, unit: :euro)
+      it 'formats zero money without decimals' do
+        formatter = described_class.new(0, unit: :money)
         result = formatter.to_h
 
         expect(result[:value]).to eq('0')
@@ -520,8 +520,8 @@ describe Sensor::ValueFormatter do
         expect(result[:unit]).to eq('€')
       end
 
-      it 'formats 0.0 euro without decimals' do
-        formatter = described_class.new(0.0, unit: :euro)
+      it 'formats 0.0 money without decimals' do
+        formatter = described_class.new(0.0, unit: :money)
         result = formatter.to_h
 
         expect(result[:value]).to eq('0')
@@ -530,18 +530,18 @@ describe Sensor::ValueFormatter do
         expect(result[:unit]).to eq('€')
       end
 
-      it 'formats very small euro amounts (0.01) with decimals' do
-        formatter = described_class.new(0.01, unit: :euro)
+      it 'formats very small money amounts (0.01) with decimals' do
+        formatter = described_class.new(0.01, unit: :money)
         result = formatter.to_h
 
         expect(result[:value]).to eq('0,01')
         expect(result[:unit]).to eq('€')
       end
 
-      it 'formats tiny euro amounts (0.001-0.004) as zero without decimals' do
+      it 'formats tiny money amounts (0.001-0.004) as zero without decimals' do
         # Values that round to 0 when rounded to 2 decimal places
         [0.001, 0.002, 0.003, 0.004].each do |value|
-          formatter = described_class.new(value, unit: :euro)
+          formatter = described_class.new(value, unit: :money)
           result = formatter.to_h
 
           expect(result[:value]).to eq('0')
@@ -570,7 +570,7 @@ describe Sensor::ValueFormatter do
       end
 
       it 'handles very small decimal values' do
-        formatter = described_class.new(0.0001234, unit: :euro_per_kwh)
+        formatter = described_class.new(0.0001234, unit: :money_per_kwh)
         result = formatter.to_h
 
         expect(result[:value]).to include('0,0001')

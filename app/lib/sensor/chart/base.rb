@@ -643,7 +643,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
         :sum
       else
         # For shorter timeframes, only temperature and percentage sensors should be averaged
-        # All other units (watt, gram, euro, etc.) should be summed
+        # All other units (watt, gram, money, etc.) should be summed
         %i[celsius percent].include?(sensor_def.unit) ? :avg : :sum
       end
 

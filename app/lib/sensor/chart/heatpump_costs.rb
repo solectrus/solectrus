@@ -97,8 +97,8 @@ class Sensor::Chart::HeatpumpCosts < Sensor::Chart::FinanceBase
     pv_power = [total_power - grid_power, 0].max
 
     [
-      calculate_euro_rate(grid_power, electricity_price),
-      calculate_euro_rate(pv_power, feed_in_price),
+      calculate_money_rate(grid_power, electricity_price),
+      calculate_money_rate(pv_power, feed_in_price),
     ]
   end
 

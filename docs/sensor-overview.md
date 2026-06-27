@@ -416,10 +416,10 @@ formatter = Sensor::ValueFormatter.new(2500, unit: :watt, context: :rate)
 formatter.to_h
 # => { value: "2.5", integer: "2", decimal: ".5", unit: "kW" }
 
-# Euro (dynamic precision)
-formatter = Sensor::ValueFormatter.new(1234.56, unit: :euro)
+# Money (dynamic precision)
+formatter = Sensor::ValueFormatter.new(1234.56, unit: :money)
 formatter.to_h
-# => { value: "1,235", unit: "€" }  # >= 10 EUR without decimals
+# => { value: "1,235", unit: "€" }  # >= 10 without decimals (€ = default currency)
 ```
 
 **Supported units:**
@@ -431,8 +431,8 @@ formatter.to_h
 - `:boolean` - Yes/No
 - `:string` - Pure text values
 - `:gram` - CO2 in g/kg/t
-- `:euro` - Currency
-- `:euro_per_kwh` - Electricity price
+- `:money` - Currency
+- `:money_per_kwh` - Electricity price
 
 #### View Component
 

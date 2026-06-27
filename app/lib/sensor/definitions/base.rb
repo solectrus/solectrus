@@ -12,8 +12,8 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     boolean
     string
     gram
-    euro
-    euro_per_kwh
+    money
+    money_per_kwh
   ].freeze
   private_constant :VALID_UNITS
 
@@ -46,7 +46,7 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   def default_aggregation
     preferred =
       case unit
-      when :watt, :euro, :euro_per_kwh, :gram then :sum
+      when :watt, :money, :money_per_kwh, :gram then :sum
       when :percent, :celsius then :avg
       end
 

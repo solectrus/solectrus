@@ -16,6 +16,6 @@ class Sensor::Chart::GridRevenue < Sensor::Chart::FinanceBase
     price = get_price(:feed_in)
     return data unless price
 
-    data.map { |value| calculate_euro_rate(value, price) }
+    data.map { |value| calculate_money_rate(value, price) }
   end
 end

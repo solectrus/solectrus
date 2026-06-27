@@ -2,7 +2,7 @@ class Sensor::Definitions::HeatpumpCosts < Sensor::Definitions::Base
   color background: 'bg-sensor-costs',
         text: 'text-white dark:text-red-200'
 
-  value unit: :euro, category: :economic
+  value unit: :money, category: :economic
 
   depends_on %i[heatpump_costs_grid heatpump_costs_pv]
   trend

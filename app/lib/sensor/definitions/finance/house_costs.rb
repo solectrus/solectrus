@@ -1,5 +1,5 @@
 class Sensor::Definitions::HouseCosts < Sensor::Definitions::Base
-  value unit: :euro, category: :economic
+  value unit: :money, category: :economic
 
   depends_on %i[house_costs_grid house_costs_pv]
 

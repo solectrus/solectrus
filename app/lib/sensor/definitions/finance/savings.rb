@@ -1,5 +1,5 @@
 class Sensor::Definitions::Savings < Sensor::Definitions::Base
-  value unit: :euro, category: :economic
+  value unit: :money, category: :economic
 
   color background: 'bg-sensor-savings',
         text: 'text-white dark:text-slate-400'

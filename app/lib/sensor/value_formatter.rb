@@ -53,8 +53,8 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
     celsius: 1,
     watt: 0,
     gram: 0,
-    euro: 2,
-    euro_per_kwh: 4,
+    money: 2,
+    money_per_kwh: 4,
     percent: 0,
     unitless: 1,
   }.freeze
@@ -74,8 +74,8 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
         value.to_s.to_utf8
       when :boolean
         boolean_text(value)
-      when :euro
-        format_euro_value(value)
+      when :money
+        format_money_value(value)
       when nil
         ''
       else
@@ -109,7 +109,7 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
   def determine_context(context)
     return context unless context == :auto
 
-    %i[gram euro].include?(unit) ? :total : :rate
+    %i[gram money].include?(unit) ? :total : :rate
   end
 
   def validate_scaling(scaling)
@@ -175,13 +175,13 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def format_euro_value(val)
+  def format_money_value(val)
     # Check if rounding to default precision results in zero
     # If so, display without decimals (e.g., "0" instead of "0,00")
     rounded_value = val.round(precision)
-    euro_precision =
+    money_precision =
       rounded_value.zero? || rounded_value.abs >= 10 ? 0 : precision
-    format_number(val, euro_precision)
+    format_number(val, money_precision)
   end
 
   # ==================== Helper Methods ====================

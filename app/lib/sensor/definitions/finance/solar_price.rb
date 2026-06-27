@@ -1,5 +1,5 @@
 class Sensor::Definitions::SolarPrice < Sensor::Definitions::Base
-  value unit: :euro, category: :economic
+  value unit: :money, category: :economic
 
   depends_on :grid_costs, :grid_revenue
 

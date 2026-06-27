@@ -86,7 +86,7 @@ Both data classes perform automatic type conversion based on the sensor unit:
 
 ```ruby
 # Numeric units → Float
-# :watt, :celsius, :unitless, :percent, :gram, :euro, :euro_per_kwh
+# :watt, :celsius, :unitless, :percent, :gram, :money, :money_per_kwh
 
 # Boolean unit → true/false
 # Accepts for true: 1, '1', 'true', 'on', 'yes'
@@ -119,8 +119,8 @@ VALID_UNITS = %i[
   boolean       # Yes/No
   string        # Text (status messages)
   gram          # Mass/CO2 (automatic g/kg/t)
-  euro          # Currency (dynamic precision)
-  euro_per_kwh  # Electricity price
+  money          # Currency (dynamic precision)
+  money_per_kwh  # Electricity price
 ].freeze
 ```
 
@@ -152,9 +152,9 @@ celsius: 1       # 23.5 °C
 watt: 0          # 2,500 W (for small values)
 watt: 1          # 2.5 kW (for kW/MW)
 gram: 0          # 500 kg
-euro: 2          # 5.23 € (< 10 EUR)
-euro: 0          # 1,235 € (>= 10 EUR)
-euro_per_kwh: 4  # 0.2523 €/kWh
+money: 2          # 5.23 € (< 10)
+money: 0          # 1,235 € (>= 10)
+money_per_kwh: 4  # 0.2523 €/kWh
 percent: 0       # 85 %
 
 # Overridable
@@ -477,7 +477,7 @@ The `calculate_with_prices` method receives:
 - Dependency values are passed as keyword arguments (for example `grid_import_power:` or `house_power:`)
 - `prices:` contains the currently loaded prices (for example `:electricity` and `:feed_in`)
 
-**Returns:** Calculated value in Euro
+**Returns:** Calculated value in the configured currency
 
 ```ruby
 def calculate_with_prices(grid_import_power:, prices:)
@@ -507,7 +507,7 @@ Finance sensors can be used as dependencies in calculated sensors:
 
 ```ruby
 class Sensor::Definitions::TotalCosts < Sensor::Definitions::Base
-  value unit: :euro, category: :economic
+  value unit: :money, category: :economic
 
   depends_on :grid_costs, :opportunity_costs  # Finance sensors as dependencies
 
@@ -792,7 +792,7 @@ Sensor::Registry[:my_sensor]
 
 ```ruby
 # => ArgumentError: Invalid unit :kilogram for sensor :my_sensor.
-#    Must be one of: watt, celsius, percent, unitless, boolean, string, gram, euro, euro_per_kwh
+#    Must be one of: watt, celsius, percent, unitless, boolean, string, gram, money, money_per_kwh
 
 # Fix: Use a valid unit from VALID_UNITS
 ```
