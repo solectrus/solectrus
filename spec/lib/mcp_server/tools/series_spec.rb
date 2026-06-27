@@ -70,6 +70,40 @@ describe McpServer::Tools::Series do
 
         expect(data[:resolution]).to eq('1h')
       end
+
+      it 'reports coarsened: false when the requested resolution is kept' do
+        data = series(sensors: ['battery_soc'], timeframe: 'P24H', resolution: '1h')
+
+        expect(data[:coarsened]).to be(false)
+      end
+
+      it 'reports coarsened: true when a too-fine resolution is downgraded' do
+        data = series(sensors: ['battery_soc'], timeframe: 'P30D', resolution: '1m')
+
+        expect(data[:coarsened]).to be(true)
+      end
+    end
+
+    context 'with the point budget shared across multiple sensors' do
+      # A single day at 1m is 1440 points - within the cap for ONE sensor, but
+      # three sensors at 1m would be 4320, overflowing the client. The budget is
+      # global, so the resolution coarsens until the WHOLE payload fits.
+      let(:sensors) { %w[house_power inverter_power grid_import_power] }
+      let(:day) { Date.current.to_s }
+
+      it 'coarsens so the total point count stays within the cap' do
+        data = series(sensors:, timeframe: day)
+
+        total_points = data[:series].sum { |s| s[:points].size }
+        expect(total_points).to be <= 1500
+      end
+
+      it 'does not keep 1m for three sensors on a single day' do
+        data = series(sensors:, timeframe: day, resolution: '1m')
+
+        expect(data[:resolution]).not_to eq('1m')
+        expect(data[:coarsened]).to be(true)
+      end
     end
 
     context 'with a resolution finer than the sensor cadence' do
@@ -303,6 +337,20 @@ describe McpServer::Tools::Series do
         balance_error, = call(sensors: ['power_balance'], timeframe: 'P2D')
         expect(balance_error).to be(true)
       end
+    end
+  end
+
+  describe 'value normalization' do
+    it 'collapses a signed negative zero to a plain 0.0' do
+      result = described_class.__send__(:normalize_value, -0.0)
+
+      # -0.0.to_json would serialise as "-0.0"; a normalized 0.0 must not.
+      expect(result.to_json).to eq('0.0')
+    end
+
+    it 'leaves non-zero values and null untouched' do
+      expect(described_class.__send__(:normalize_value, 42.5)).to eq(42.5)
+      expect(described_class.__send__(:normalize_value, nil)).to be_nil
     end
   end
 end

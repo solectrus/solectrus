@@ -4,24 +4,9 @@ module McpServer
     # sub-daily resolution (InfluxDB). This is what reveals intraday curves that
     # the daily-aggregated tools cannot show.
     class Series < Base
-      # Resolutions offered to the client, ascending, mapped to seconds.
-      RESOLUTIONS = [
-        ['1m', 60],
-        ['5m', 300],
-        ['15m', 900],
-        ['1h', 3600],
-        ['1d', 86_400],
-      ].freeze
-      private_constant :RESOLUTIONS
-
-      # Hard cap on points per sensor; the resolution is coarsened until the
-      # series fits within it.
-      MAX_POINTS = 1500
-      private_constant :MAX_POINTS
-
       # Hard cap on sensors per request. Each sensor is a separate InfluxDB
-      # subquery yielding up to MAX_POINTS, so bound the per-request work even
-      # though resolve_sensors already restricts to the configured set.
+      # subquery yielding up to the point budget, so bound the per-request work
+      # even though resolve_sensors already restricts to the configured set.
       MAX_SENSORS = 20
       private_constant :MAX_SENSORS
 
@@ -51,13 +36,17 @@ module McpServer
           - timeframe: SOLECTRUS notation, e.g. "2026-06-21" (a day), "2026-W25"
             (a week), "2025-01-15..2025-02-12" (a range), "P24H" (last 24h).
           - resolution: "1m", "5m", "15m", "1h" or "1d". When omitted, defaults
-            to the finest resolution (down to 1m) that keeps the series within
-            #{MAX_POINTS} points. A too-fine resolution is automatically
-            coarsened — both to stay within that point cap and to match the
-            data's own sample cadence (e.g. a 15-min forecast sensor is never
-            returned at 1m, which would be mostly null). The resolution actually
-            used is always returned in the response, so read it back rather than
-            assuming the requested one.
+            to the finest resolution (down to 1m) that keeps the WHOLE response
+            within #{Resolution::MAX_POINTS} points across all requested sensors — so with N
+            sensors each series is capped at #{Resolution::MAX_POINTS}/N points, not
+            #{Resolution::MAX_POINTS} each. A too-fine resolution — whether explicitly
+            requested or the default — is automatically coarsened, both to stay
+            within that shared point budget and to match the data's own sample
+            cadence (e.g. a 15-min forecast sensor is never returned at 1m, which
+            would be mostly null). The resolution actually used is always
+            returned as `resolution`, and `coarsened: true` flags that it is
+            coarser than the one you requested — read these back rather than
+            assuming the requested one was honoured.
           - aggregation: "mean" (default, the value curve), "min" or "max" —
             applied per resolution bucket. There is deliberately no "sum":
             summing a coarse series is not an energy integration and reads as a
@@ -112,7 +101,7 @@ module McpServer
         enforce_supported!(definitions, :series)
 
         agg = Aggregation.internal(aggregation)
-        interval, label = resolution_for(resolution, tf)
+        interval, label = Resolution.for(resolution, tf, definitions.size)
 
         sensor_names = definitions.map(&:name)
         data = fetch_series(sensor_names, tf, interval, agg)
@@ -121,7 +110,8 @@ module McpServer
         # 15-min forecast sensor) returns a mostly-null grid. Snap to the
         # sensor's actual cadence and re-query, so the reported resolution
         # reflects what the data supports.
-        snapped = CadenceSnapper.snap(series_values(definitions, data, agg), interval, RESOLUTIONS)
+        snapped =
+          CadenceSnapper.snap(series_values(definitions, data, agg), interval, Resolution::RESOLUTIONS)
         if snapped
           interval, label = snapped
           data = fetch_series(sensor_names, tf, interval, agg)
@@ -130,27 +120,13 @@ module McpServer
         json_response(
           timeframe: tf.to_s,
           resolution: label,
+          coarsened: Resolution.coarsened?(resolution, label),
           aggregation:,
           series: definitions.map { |sensor| series_for(sensor, data, agg) },
         )
       rescue ArgumentError => e
         error_response(e.message)
       end
-
-      # Pick the bucket: start at the requested resolution (or the finest when
-      # unset/unknown) and coarsen until the series fits within MAX_POINTS.
-      # Falls back to the coarsest bucket for extreme spans.
-      def self.resolution_for(resolution, timeframe)
-        span = (timeframe.ending - timeframe.beginning).to_i
-        start = RESOLUTIONS.index { |label, _| label == resolution } || 0
-
-        label, seconds =
-          RESOLUTIONS[start..].find { |_label, secs| span.fdiv(secs).ceil <= MAX_POINTS } ||
-          RESOLUTIONS.last
-
-        [seconds, label]
-      end
-      private_class_method :resolution_for
 
       def self.fetch_series(sensor_names, timeframe, interval, aggregation)
         Sensor::Query::Series.new(
@@ -187,10 +163,23 @@ module McpServer
           sensor: sensor.name,
           display_name: sensor.display_name,
           unit: mcp_unit(sensor),
-          points: (raw || {}).sort.map! { |time, value| { time: time.iso8601, value: } },
+          points:
+            (raw || {}).sort.map! do |time, value|
+              { time: time.iso8601, value: normalize_value(value) }
+            end,
         }
       end
       private_class_method :series_for
+
+      # Flux can hand back a signed negative zero (e.g. a sensor sitting at 0
+      # around midday), which serialises as "-0.0". Collapse it to a plain 0.0
+      # so the JSON output never carries a negative zero.
+      def self.normalize_value(value)
+        return 0.0 if value.is_a?(Float) && value.zero?
+
+        value
+      end
+      private_class_method :normalize_value
     end
   end
 end
