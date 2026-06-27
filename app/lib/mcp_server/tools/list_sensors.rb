@@ -29,6 +29,11 @@ module McpServer
         },
         calculated:
           'true means the value is derived from other sensors rather than measured directly.',
+        forecast:
+          'Sensors with category "forecast" hold predicted, not measured, ' \
+            'values. get_totals rejects them, so they advertise no ' \
+            'aggregations here. Use get_forecast for the expected energy, or ' \
+            'get_series ("mean"/"min"/"max") for the predicted curve.',
       }.freeze
       private_constant :CONVENTIONS
 
@@ -46,7 +51,7 @@ module McpServer
                 unit: sensor.unit,
                 category: sensor.category,
                 calculated: sensor.calculated?,
-                aggregations: sensor.allowed_aggregations,
+                aggregations: aggregations_for(sensor),
               }
             end
 
@@ -54,6 +59,19 @@ module McpServer
           json_response(sensors:, conventions:)
         end
       end
+
+      # The aggregations a client can actually use across the MCP tools.
+      # Forecast sensors are rejected by get_totals (and "sum" is rejected for
+      # power sensors in get_series), so a forecast sensor's stored aggregation
+      # (e.g. [:sum] on inverter_power_forecast) is usable nowhere - advertising
+      # it would promise an aggregation the tools later reject. Report none; the
+      # `forecast` convention explains how to access these sensors instead.
+      def self.aggregations_for(sensor)
+        return [] if sensor.forecast?
+
+        sensor.allowed_aggregations
+      end
+      private_class_method :aggregations_for
     end
   end
 end

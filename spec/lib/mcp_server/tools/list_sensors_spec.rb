@@ -40,5 +40,18 @@ describe McpServer::Tools::ListSensors do
       expect(data[:conventions][:suffixes]).to include(:_grid, :_pv, :_total)
       expect(data[:conventions][:units]).to be_present
     end
+
+    # Forecast sensors are rejected by get_totals, so advertising a stored
+    # aggregation (e.g. [:sum] on the watt-unit inverter_power_forecast) would
+    # promise an aggregation the tools later reject.
+    it 'advertises no aggregations for forecast sensors' do
+      forecasts = data[:sensors].select { _1[:category] == 'forecast' }
+      expect(forecasts).to be_present
+      expect(forecasts).to all(include(aggregations: []))
+    end
+
+    it 'documents how to access forecast sensors' do
+      expect(data[:conventions][:forecast]).to include('get_forecast')
+    end
   end
 end

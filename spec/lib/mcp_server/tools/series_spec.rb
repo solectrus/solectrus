@@ -228,6 +228,44 @@ describe McpServer::Tools::Series do
       end
     end
 
+    context 'with the unsupported sum aggregation' do
+      # get_series no longer offers "sum": a summed coarse series is not an
+      # energy integration, so it is rejected for every sensor and the client
+      # is pointed to get_totals for period totals.
+      it 'rejects sum and points to get_totals' do
+        error, text =
+          call(
+            sensors: ['inverter_power_forecast'],
+            timeframe: 'P2D',
+            resolution: '1d',
+            aggregation: 'sum',
+          )
+
+        expect(error).to be(true)
+        expect(text).to include('get_totals')
+      end
+
+      it 'rejects sum even on a non-power sensor' do
+        error, = call(sensors: ['battery_soc'], timeframe: 'P2D', aggregation: 'sum')
+
+        expect(error).to be(true)
+      end
+
+      it 'still allows mean/min/max' do
+        %w[mean min max].each do |aggregation|
+          error, =
+            call(
+              sensors: ['inverter_power_forecast'],
+              timeframe: 'P2D',
+              resolution: '1d',
+              aggregation:,
+            )
+
+          expect(error).to be(false), "expected #{aggregation} to be allowed"
+        end
+      end
+    end
+
     context 'with invalid input' do
       it 'rejects the now instant' do
         error, text = call(sensors: ['battery_soc'], timeframe: 'now')

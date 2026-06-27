@@ -58,8 +58,11 @@ module McpServer
             returned at 1m, which would be mostly null). The resolution actually
             used is always returned in the response, so read it back rather than
             assuming the requested one.
-          - aggregation: "mean" (default, the value curve), "sum", "min" or
-            "max" — applied per resolution bucket.
+          - aggregation: "mean" (default, the value curve), "min" or "max" —
+            applied per resolution bucket. There is deliberately no "sum":
+            summing a coarse series is not an energy integration and reads as a
+            misleading total. For period totals (Wh/kWh, costs) use get_totals,
+            for the forecast use get_forecast.
 
         Each point is {time, value}. A value of null means "no data" (e.g. a
         sensor was offline) and is deliberately distinct from a measured 0.
@@ -85,8 +88,10 @@ module McpServer
           },
           aggregation: {
             type: 'string',
-            enum: %w[mean sum min max],
-            description: 'Per-bucket aggregation. Defaults to "mean".',
+            enum: %w[mean min max],
+            description:
+              'Per-bucket aggregation. Defaults to "mean". For period totals ' \
+                '(Wh/kWh, costs) use get_totals, not a summed series.',
           },
         },
         required: %w[sensors timeframe],
@@ -104,7 +109,7 @@ module McpServer
           raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
         end
 
-        agg = internal_aggregation(aggregation)
+        agg = Aggregation.internal(aggregation)
         interval, label = resolution_for(resolution, tf)
 
         sensor_names = definitions.map(&:name)
@@ -129,13 +134,6 @@ module McpServer
       rescue ArgumentError => e
         error_response(e.message)
       end
-
-      # Translate the client-facing aggregation ("mean") to the internal symbol
-      # the query layer expects (:avg); sum/min/max pass through.
-      def self.internal_aggregation(aggregation)
-        aggregation.to_s == 'mean' ? :avg : aggregation.to_sym
-      end
-      private_class_method :internal_aggregation
 
       # Pick the bucket: start at the requested resolution (or the finest when
       # unset/unknown) and coarsen until the series fits within MAX_POINTS.
