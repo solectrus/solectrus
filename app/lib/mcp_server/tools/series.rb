@@ -109,6 +109,8 @@ module McpServer
           raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
         end
 
+        enforce_supported!(definitions, :series)
+
         agg = Aggregation.internal(aggregation)
         interval, label = resolution_for(resolution, tf)
 

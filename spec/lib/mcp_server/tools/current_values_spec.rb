@@ -80,10 +80,11 @@ describe McpServer::Tools::CurrentValues do
       expect(parsed[:values].pluck(:name)).to include('inverter_power', 'house_power')
     end
 
-    it 'omits chart-only composites from the default set but returns them when asked' do
+    it 'omits chart-only composites from the default set and rejects them when asked' do
       # power_balance is a calculated, chart-only pseudo-sensor with no live
       # scalar reading; it must not surface as a spurious "never seen" null in
-      # the default set, yet stay available on explicit request.
+      # the default set, and an explicit request is rejected rather than
+      # returning an ambiguous null.
       data = Sensor::Data::Single.new({}, timeframe: Timeframe.now, times: {})
       allow(Sensor::Query::Latest).to receive(:new).and_return(
         instance_double(Sensor::Query::Latest, call: data),
@@ -96,10 +97,18 @@ describe McpServer::Tools::CurrentValues do
 
       explicit =
         described_class.call(server_context: nil, sensors: ['power_balance'])
-      explicit_value =
-        JSON.parse(explicit.content.first[:text], symbolize_names: true)[:values].first
-      expect(explicit_value[:name]).to eq('power_balance')
-      expect(explicit_value[:value]).to be_nil
+      expect(explicit.error?).to be(true)
+      expect(explicit.content.first[:text]).to include('power_balance')
+    end
+
+    it 'rejects money sensors as having no live reading' do
+      # Money sensors (costs, revenue) are accumulated amounts, not live
+      # scalars; get_totals is the right tool for them.
+      response =
+        described_class.call(server_context: nil, sensors: ['solar_price'])
+
+      expect(response.error?).to be(true)
+      expect(response.content.first[:text]).to include('get_totals')
     end
 
     it 'reports unknown or unconfigured sensors' do

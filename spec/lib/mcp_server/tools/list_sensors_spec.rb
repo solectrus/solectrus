@@ -79,6 +79,15 @@ describe McpServer::Tools::ListSensors do
       expect(forecast[:supported_tools]).to include(forecast: true, totals: false, series: true)
     end
 
+    # Money sensors (costs, revenue) are accumulated amounts with no
+    # instantaneous live value and no meaningful per-bucket curve, so they are
+    # totals-only.
+    it 'flags money sensors as totals-only' do
+      money = data[:sensors].select { _1[:unit] == 'money' }
+      expect(money).to be_present
+      expect(money).to all(include(supported_tools: include(current: false, series: false, totals: true)))
+    end
+
     # specific_yield is W/kWp (Wh/kWp summed), not plain watts (BUG-3).
     it 'reports specific_yield with a per-kWp unit' do
       yield_sensor = data[:sensors].find { _1[:name] == 'specific_yield' }

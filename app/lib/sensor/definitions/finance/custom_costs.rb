@@ -22,6 +22,11 @@ class Sensor::Definitions::CustomCosts < Sensor::Definitions::Base
     ]
   end
 
+  # Deps derive purely from the consumer number; expose them statically so
+  # Sensor::Config#exists? prunes this sensor when its consumer is unconfigured
+  # (block-form depends_on alone would leak a phantom for every slot).
+  def static_dependencies = dependencies
+
   calculate do |**kwargs|
     custom_costs_grid = kwargs[:"custom_costs_#{formatted_number}_grid"]
     custom_costs_pv = kwargs[:"custom_costs_#{formatted_number}_pv"]

@@ -14,7 +14,8 @@ OAuth surface are invisible (respond with 404).
 
 It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools:
 
-- `list_sensors` — discover available sensors, units and aggregations
+- `list_sensors` — discover available sensors, their units, aggregations and
+  which tools each sensor supports (`supported_tools`)
 - `get_system_info` — installation date, currency, timezone, installed peak
   power and which subsystems (battery, wallbox, heat pump, forecast) are
   configured

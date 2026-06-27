@@ -294,6 +294,15 @@ describe McpServer::Tools::Series do
         expect(error).to be(true)
         expect(text).to include('not a valid timeframe')
       end
+
+      it 'rejects sensors with no curve (money, chart-only composites)' do
+        money_error, money_text = call(sensors: ['solar_price'], timeframe: 'P2D')
+        expect(money_error).to be(true)
+        expect(money_text).to include('get_totals')
+
+        balance_error, = call(sensors: ['power_balance'], timeframe: 'P2D')
+        expect(balance_error).to be(true)
+      end
     end
   end
 end

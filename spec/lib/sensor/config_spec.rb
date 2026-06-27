@@ -160,6 +160,35 @@ describe Sensor::Config do
         expect(described_class.exists?(:heatpump_cop)).to be(true)
       end
     end
+
+    # The per-consumer split/cost sensors derive their dependencies from the
+    # consumer number via a block-form depends_on. Without a static view of
+    # those deps, exists? cannot prune them and every one of the MAX slots
+    # leaks in as a phantom sensor (null everywhere).
+    context 'with per-consumer split/cost sensors' do
+      before do
+        described_class.setup({ 'INFLUX_SENSOR_CUSTOM_POWER_01' => 'consumer:power' })
+      end
+
+      it 'prunes split/cost sensors whose consumer is not configured' do
+        %i[
+          custom_power_02_pv
+          custom_02_costs
+          custom_costs_02_grid
+          custom_costs_02_pv
+        ].each do |name|
+          expect(
+            described_class.exists?(name, check_policy: false),
+          ).to be(false), "expected #{name} to be pruned"
+        end
+      end
+
+      it 'keeps split sensors of a configured consumer' do
+        expect(
+          described_class.exists?(:custom_power_01_pv, check_policy: false),
+        ).to be(true)
+      end
+    end
   end
 
   describe '.measurement' do

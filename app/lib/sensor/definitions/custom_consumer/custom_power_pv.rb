@@ -24,6 +24,12 @@ class Sensor::Definitions::CustomPowerPv < Sensor::Definitions::Base
     ]
   end
 
+  # The deps are derived purely from the consumer number, so expose them
+  # statically too: this lets Sensor::Config#exists? prune the sensor when its
+  # consumer is unconfigured. The block-form depends_on alone hides them, which
+  # would leak a phantom (null everywhere) for every unconfigured slot.
+  def static_dependencies = dependencies
+
   calculate do |**kwargs|
     custom_power_key = :"custom_power_#{formatted_number}"
     custom_power_grid_key = :"custom_power_#{formatted_number}_grid"

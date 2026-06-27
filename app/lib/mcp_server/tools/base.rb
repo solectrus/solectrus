@@ -87,6 +87,34 @@ module McpServer
         def error_response(message)
           MCP::Tool::Response.new([{ type: 'text', text: message }], error: true)
         end
+
+        # Hint explaining why a tool has no data for the rejected sensors,
+        # pointing at the right tool instead.
+        UNSUPPORTED_HINT = {
+          current:
+            'get_current_values has no live reading for these sensors. Money ' \
+              'sensors (costs, revenue) are accumulated amounts - use get_totals ' \
+              'over a timeframe; chart-only composites (e.g. power_balance) have ' \
+              'no live scalar.',
+          series:
+            'get_series has no curve for these sensors. Money sensors (costs, ' \
+              'revenue) are accumulated amounts and chart-only composites (e.g. ' \
+              'power_balance) have no live curve - use get_totals (Wh/kWh, costs) ' \
+              'or get_forecast.',
+        }.freeze
+
+        # Enforce the supported_tools matrix that list_sensors advertises:
+        # raises ArgumentError (which each tool's `call` rescues into an error
+        # response) when any sensor has no meaningful data for `tool`, so a
+        # client gets a clear error instead of a silent null series/value.
+        def enforce_supported!(definitions, tool)
+          unsupported =
+            definitions.reject { McpServer::SupportedTools.supports?(it, tool) }
+          return if unsupported.none?
+
+          raise ArgumentError,
+                "#{UNSUPPORTED_HINT[tool]} Affected: #{unsupported.map(&:name).join(', ')}."
+        end
       end
     end
   end

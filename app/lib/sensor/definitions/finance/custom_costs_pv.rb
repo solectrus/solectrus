@@ -20,6 +20,11 @@ class Sensor::Definitions::CustomCostsPv < Sensor::Definitions::FinanceBase
     ]
   end
 
+  # Deps derive purely from the consumer number; expose them statically so
+  # Sensor::Config#exists? prunes this sensor when its consumer is unconfigured
+  # (block-form depends_on alone would leak a phantom for every slot).
+  def static_dependencies = dependencies
+
   def required_prices
     [:feed_in]
   end

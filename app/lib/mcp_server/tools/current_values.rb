@@ -14,11 +14,12 @@ module McpServer
         to specific sensors via the `sensors` parameter (names from
         list_sensors); the response contains exactly those sensors.
 
-        A few calculated sensors are chart-only composites with no live scalar
-        (e.g. power_balance, a stacked power-flow balance): they are omitted
-        from the default set and, if requested explicitly, always return a null
-        value with null freshness — that null means "no live reading exists",
-        not "the source is offline".
+        Some sensors have no meaningful live reading: money sensors (costs,
+        revenue) are accumulated amounts, and a few calculated sensors are
+        chart-only composites with no live scalar (e.g. power_balance, a stacked
+        power-flow balance). They are omitted from the default set; requesting
+        one explicitly returns an error pointing to get_totals (see each
+        sensor's supported_tools.current flag in list_sensors).
 
         Each sensor carries freshness metadata so a null value is never
         ambiguous:
@@ -46,7 +47,17 @@ module McpServer
 
       def self.call(sensors: nil, **)
         definitions = resolve_sensors(sensors, allow_blank: true)
-        definitions = definitions.reject { live_scalarless?(it) } if sensors.blank?
+
+        if sensors.blank?
+          # Default set: only sensors with a meaningful live reading.
+          definitions =
+            definitions.select { McpServer::SupportedTools.supports?(it, :current) }
+        else
+          # Explicit request: reject sensors that have no live reading rather
+          # than returning a null that reads as "source offline".
+          enforce_supported!(definitions, :current)
+        end
+
         data = Sensor::Query::Latest.new(definitions.map(&:name)).call
         now = Time.current
 
@@ -76,12 +87,11 @@ module McpServer
 
       # A calculated sensor that derives from no inputs (e.g. power_balance, a
       # stacked power-flow balance chart) has no live scalar reading to report:
-      # its value is always null, which would otherwise surface as a spurious
-      # "never seen" entry in the default sensor set. Dropped from the default
-      # set only - still returned (as null) if explicitly requested.
+      # its value is always null. Such sensors are dropped from the default set
+      # and rejected when requested explicitly.
       #
-      # Public so list_sensors can advertise the same fact up front via the
-      # `current`/`series` flags in each sensor's supported_tools.
+      # Public so McpServer::SupportedTools can advertise and enforce the same
+      # fact via the `current`/`series` flags in each sensor's supported_tools.
       def self.live_scalarless?(sensor)
         sensor.calculated? && sensor.dependencies.empty?
       rescue ArgumentError

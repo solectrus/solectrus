@@ -35,13 +35,18 @@ module McpServer
             'aggregations here. Use get_forecast for the expected energy, or ' \
             'get_series ("mean"/"min"/"max") for the predicted curve.',
         supported_tools:
-          'Each sensor lists which tools return meaningful data for it, so a ' \
-            'client need not learn each tool\'s acceptance rules by trial: ' \
-            'current (get_current_values), totals (get_totals), series ' \
-            '(get_series), ranking (get_ranking), forecast (get_forecast). A ' \
-            'false flag means that tool has no usable data for the sensor - ' \
-            'e.g. a chart-only composite like power_balance has no live ' \
-            'scalar (current/series false) and returns null there.',
+          'Per sensor, which tools return meaningful data for it, so a client ' \
+            'need not learn each tool\'s rules by trial: current ' \
+            '(get_current_values), totals (get_totals), series (get_series), ' \
+            'ranking (get_ranking), forecast (get_forecast). current and ' \
+            'series are strict: a false flag means the tool rejects the sensor ' \
+            '(a chart-only composite like power_balance, or a money sensor, ' \
+            'has no live scalar). totals and ranking are advisory: false marks ' \
+            'sensors outside the primary/curated set - get_totals may still ' \
+            'return a null or sibling-derived value, and get_ranking can still ' \
+            'rank any summary-backed sensor (e.g. battery_soc). Prefer ' \
+            'true-flagged sensors, but do not treat false as a hard block for ' \
+            'totals/ranking.',
       }.freeze
       private_constant :CONVENTIONS
 
@@ -52,7 +57,6 @@ module McpServer
         I18n.with_locale(:en) do
           sensors =
             Sensor::Config.sensors.map do |sensor|
-              aggregations = aggregations_for(sensor)
               {
                 name: sensor.name,
                 display_name: sensor.display_name,
@@ -60,8 +64,8 @@ module McpServer
                 unit: mcp_unit(sensor),
                 category: sensor.category,
                 calculated: sensor.calculated?,
-                aggregations:,
-                supported_tools: supported_tools_for(sensor, aggregations),
+                aggregations: McpServer::SupportedTools.aggregations(sensor),
+                supported_tools: McpServer::SupportedTools.for(sensor),
               }
             end
 
@@ -69,44 +73,6 @@ module McpServer
           json_response(sensors:, conventions:)
         end
       end
-
-      # The aggregations a client can actually use across the MCP tools.
-      # Forecast sensors are rejected by get_totals (and "sum" is rejected for
-      # power sensors in get_series), so a forecast sensor's stored aggregation
-      # (e.g. [:sum] on inverter_power_forecast) is usable nowhere - advertising
-      # it would promise an aggregation the tools later reject. Report none; the
-      # `forecast` convention explains how to access these sensors instead.
-      def self.aggregations_for(sensor)
-        return [] if sensor.forecast?
-
-        sensor.allowed_aggregations
-      end
-      private_class_method :aggregations_for
-
-      # Which tools yield meaningful data for this sensor, mirroring each tool's
-      # own acceptance rules so the client doesn't discover them by trial:
-      #   - current/series: need a live or derivable scalar; chart-only
-      #     composites with no inputs (power_balance) have none and return null
-      #     there. Forecast sensors do have a curve, hence series (and get_series
-      #     is the documented way to read the predicted curve).
-      #   - totals: the sensor advertises a usable aggregation. `aggregations`
-      #     is exactly that signal - aggregations_for already drops forecast
-      #     sensors (which get_totals rejects), so this needs no extra guard.
-      #   - ranking: the curated, summary-backed rankable set (top10), gated by
-      #     the same policy the Top10 UI uses.
-      #   - forecast: the forecast-category sensors get_forecast covers.
-      def self.supported_tools_for(sensor, aggregations)
-        live = !McpServer::Tools::CurrentValues.live_scalarless?(sensor)
-
-        {
-          current: live,
-          totals: aggregations.any?,
-          series: live,
-          ranking: sensor.top10_enabled? && sensor.top10_permitted?,
-          forecast: sensor.forecast?,
-        }
-      end
-      private_class_method :supported_tools_for
     end
   end
 end

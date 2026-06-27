@@ -15,6 +15,11 @@ class Sensor::Definitions::CustomCostsGrid < Sensor::Definitions::FinanceBase
 
   depends_on { [:"custom_power_#{formatted_number}_grid"] }
 
+  # Deps derive purely from the consumer number; expose them statically so
+  # Sensor::Config#exists? prunes this sensor when its consumer is unconfigured
+  # (block-form depends_on alone would leak a phantom for every slot).
+  def static_dependencies = dependencies
+
   def required_prices
     [:electricity]
   end
