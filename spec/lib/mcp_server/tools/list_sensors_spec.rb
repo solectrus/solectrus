@@ -53,5 +53,36 @@ describe McpServer::Tools::ListSensors do
     it 'documents how to access forecast sensors' do
       expect(data[:conventions][:forecast]).to include('get_forecast')
     end
+
+    it 'advertises the supported tools per sensor' do
+      house = data[:sensors].find { _1[:name] == 'house_power' }
+      expect(house[:supported_tools]).to eq(
+        current: true,
+        totals: true,
+        series: true,
+        ranking: true,
+        forecast: false,
+      )
+      expect(data[:conventions][:supported_tools]).to include('get_current_values')
+    end
+
+    # power_balance is a chart-only composite with no live scalar, so it must
+    # flag current/series false even though it is listed (BUG-2: clients need a
+    # machine-readable signal, not just the prose in get_current_values).
+    it 'flags chart-only composites as having no live value' do
+      balance = data[:sensors].find { _1[:name] == 'power_balance' }
+      expect(balance[:supported_tools]).to include(current: false, series: false)
+    end
+
+    it 'flags forecast sensors as forecast-only' do
+      forecast = data[:sensors].find { _1[:category] == 'forecast' }
+      expect(forecast[:supported_tools]).to include(forecast: true, totals: false, series: true)
+    end
+
+    # specific_yield is W/kWp (Wh/kWp summed), not plain watts (BUG-3).
+    it 'reports specific_yield with a per-kWp unit' do
+      yield_sensor = data[:sensors].find { _1[:name] == 'specific_yield' }
+      expect(yield_sensor[:unit]).to eq('watt_per_kwp')
+    end
   end
 end

@@ -9,8 +9,8 @@ module McpServer
       title 'Get aggregated totals'
       description <<~TEXT.strip
         Get aggregated values for a timeframe: produced/consumed energy,
-        autarky and self-consumption (%), costs, revenue and savings (€), CO₂
-        reduction. Energy and money are summed over the period, percentages
+        autarky and self-consumption (%), costs, revenue and savings (money),
+        CO₂ reduction. Energy and money are summed over the period, percentages
         and temperatures averaged.
 
         IMPORTANT — units after aggregation: summing a power sensor (unit
@@ -100,7 +100,7 @@ module McpServer
           {
             name: sensor.name,
             display_name: sensor.display_name,
-            unit: aggregated_unit(sensor, aggregation),
+            unit: mcp_unit(sensor, aggregation),
             aggregation:,
             value:,
           }

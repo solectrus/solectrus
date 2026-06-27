@@ -184,7 +184,7 @@ module McpServer
         {
           sensor: sensor.name,
           display_name: sensor.display_name,
-          unit: sensor.unit,
+          unit: mcp_unit(sensor),
           points: (raw || {}).sort.map! { |time, value| { time: time.iso8601, value: } },
         }
       end

@@ -49,14 +49,30 @@ module McpServer
           requested.map { |name| by_name[name] }
         end
 
-        # The unit a sensor's value carries AFTER aggregation. Summing a power
-        # sensor (unit "watt") integrates over time and yields an ENERGY, so its
-        # aggregated value is in watt-hours, not watts; every other unit and
-        # every non-sum aggregation (avg/min/max) keep the sensor's base unit.
-        # Lets get_totals/get_ranking report a unit that can be trusted on its
-        # own, without re-deriving it from the tool's prose.
-        def aggregated_unit(sensor, aggregation)
-          if aggregation&.to_sym == :sum && sensor.unit == :watt
+        # The unit a sensor's value carries in MCP output, refining the domain's
+        # coarse `unit` in two MCP-specific ways so a client can trust the unit
+        # on its own without re-deriving it from the tool's prose:
+        #
+        #   - specific_yield is a power normalized by installed capacity
+        #     (W/kWp), not a plain power, and summed over time it becomes a
+        #     specific energy yield (Wh/kWp). The domain deliberately keeps
+        #     :watt there (it drives the aggregation default and the UI's kW
+        #     formatting); MCP reports the honest physical unit.
+        #   - summing any other :watt sensor integrates power over time and
+        #     yields an ENERGY, so its aggregated unit is watt_hour, not watt.
+        #
+        # The money unit is already currency-neutral (:money / :money_per_kwh);
+        # the concrete currency is reported once, as an ISO-4217 code, by
+        # get_system_info.
+        #
+        # `aggregation` is nil for live readings and series (no aggregation
+        # applied); every non-sum aggregation (avg/min/max) keeps the base unit.
+        def mcp_unit(sensor, aggregation = nil)
+          summed = aggregation&.to_sym == :sum
+
+          if sensor.name == :specific_yield
+            summed ? :watt_hour_per_kwp : :watt_per_kwp
+          elsif summed && sensor.unit == :watt
             :watt_hour
           else
             sensor.unit

@@ -372,7 +372,7 @@ en:
     traditional_costs: "Hypothetical cost if all consumption were bought from the grid (without PV)."
     savings: "Money saved thanks to the PV system (reference cost minus actual cost)."
     opportunity_costs: "Feed-in revenue forgone by self-consuming instead of exporting."
-    solar_price: "Effective price per kWh of self-generated solar electricity."
+    solar_price: "Solar price (monetary amount, not a price per kWh)."
     system_status: "Overall status reported by the SOLECTRUS data collector (textual state)."
     system_status_ok: "Whether the SOLECTRUS data collector is healthy (true = OK)."
     suffix:
@@ -396,8 +396,10 @@ en:
   sensor_units:
     watt: "Power in watts (W)."
     watt_hour: "Energy in watt-hours (Wh), e.g. a summed power sensor."
-    euro: "Money in euros."
-    euro_per_kwh: "Price per kilowatt-hour."
+    watt_per_kwp: "Specific power yield: power per installed kWp (W/kWp)."
+    watt_hour_per_kwp: "Specific energy yield: energy per installed kWp (Wh/kWp), e.g. a summed specific_yield."
+    money: "Monetary amount in the configured currency (its ISO-4217 code is in get_system_info)."
+    money_per_kwh: "Price per kilowatt-hour in the configured currency (its ISO-4217 code is in get_system_info)."
     percent: "Percentage (0-100)."
     celsius: "Temperature in degrees Celsius."
     gram: "Mass in grams (e.g. CO₂)."

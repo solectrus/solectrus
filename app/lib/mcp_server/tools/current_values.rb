@@ -64,7 +64,7 @@ module McpServer
               name: sensor.name,
               display_name: sensor.display_name,
               value:,
-              unit: sensor.unit,
+              unit: mcp_unit(sensor),
               **freshness(sensor, value, data, now),
             }
           end
@@ -79,6 +79,9 @@ module McpServer
       # its value is always null, which would otherwise surface as a spurious
       # "never seen" entry in the default sensor set. Dropped from the default
       # set only - still returned (as null) if explicitly requested.
+      #
+      # Public so list_sensors can advertise the same fact up front via the
+      # `current`/`series` flags in each sensor's supported_tools.
       def self.live_scalarless?(sensor)
         sensor.calculated? && sensor.dependencies.empty?
       rescue ArgumentError
@@ -86,7 +89,6 @@ module McpServer
         # composite; treat it as a normal sensor.
         false
       end
-      private_class_method :live_scalarless?
 
       # Freshness metadata for a single sensor reading. A present value is, by
       # construction, fresh (the live query drops values older than the sensor's

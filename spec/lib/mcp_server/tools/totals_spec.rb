@@ -24,10 +24,27 @@ describe McpServer::Tools::Totals do
 
     it 'keeps the base watt unit for non-sum aggregations' do
       # Only summing a watt sensor yields energy; avg/min/max stay watts.
-      helper = ->(agg) { McpServer::Tools::Base.__send__(:aggregated_unit, Sensor::Registry[:house_power], agg) }
+      helper = ->(agg) { McpServer::Tools::Base.__send__(:mcp_unit, Sensor::Registry[:house_power], agg) }
       expect(helper.call(:sum)).to eq(:watt_hour)
       expect(helper.call(:max)).to eq(:watt)
       expect(helper.call(:avg)).to eq(:watt)
+    end
+
+    it 'reports specific_yield as a per-kWp unit, not plain watts' do
+      # specific_yield is a power normalized by installed capacity (W/kWp);
+      # summed it becomes a specific energy yield (Wh/kWp). The domain keeps
+      # :watt, but MCP must report the honest physical unit.
+      helper = ->(agg) { McpServer::Tools::Base.__send__(:mcp_unit, Sensor::Registry[:specific_yield], agg) }
+      expect(helper.call(nil)).to eq(:watt_per_kwp)
+      expect(helper.call(:sum)).to eq(:watt_hour_per_kwp)
+      expect(helper.call(:max)).to eq(:watt_per_kwp)
+    end
+
+    it 'reports money as a currency-neutral unit, not "euro"' do
+      # The money unit is currency-neutral; the real currency is configurable
+      # and lives in get_system_info, so the unit must never name a currency.
+      unit = McpServer::Tools::Base.__send__(:mcp_unit, Sensor::Registry[:grid_costs], :sum)
+      expect(unit).to eq(:money)
     end
 
     it 'reports an invalid timeframe' do
