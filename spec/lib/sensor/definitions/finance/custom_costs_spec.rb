@@ -5,19 +5,19 @@ describe Sensor::Definitions::CustomCosts do # rubocop:disable RSpec/SpecFilePat
     subject { sensor.calculate(**params) }
 
     context 'with both values present' do
-      let(:params) { { custom_costs_01_grid: 10.0, custom_costs_01_pv: 5.0 } }
+      let(:params) { { custom_01_costs_grid: 10.0, custom_01_costs_pv: 5.0 } }
 
       it { is_expected.to eq(15.0) }
     end
 
-    context 'with custom_costs_01_grid nil' do
-      let(:params) { { custom_costs_01_grid: nil, custom_costs_01_pv: 5.0 } }
+    context 'with custom_01_costs_grid nil' do
+      let(:params) { { custom_01_costs_grid: nil, custom_01_costs_pv: 5.0 } }
 
       it { is_expected.to be_nil }
     end
 
-    context 'with custom_costs_01_pv nil' do
-      let(:params) { { custom_costs_01_grid: 10.0, custom_costs_01_pv: nil } }
+    context 'with custom_01_costs_pv nil' do
+      let(:params) { { custom_01_costs_grid: 10.0, custom_01_costs_pv: nil } }
 
       it { is_expected.to be_nil }
     end
@@ -26,6 +26,6 @@ describe Sensor::Definitions::CustomCosts do # rubocop:disable RSpec/SpecFilePat
   describe '#dependencies' do
     subject { sensor.dependencies }
 
-    it { is_expected.to eq(%i[custom_costs_01_grid custom_costs_01_pv]) }
+    it { is_expected.to eq(%i[custom_01_costs_grid custom_01_costs_pv]) }
   end
 end

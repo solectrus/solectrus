@@ -17,8 +17,8 @@ class Sensor::Definitions::CustomCosts < Sensor::Definitions::Base
 
   depends_on do
     [
-      :"custom_costs_#{formatted_number}_grid",
-      :"custom_costs_#{formatted_number}_pv",
+      :"custom_#{formatted_number}_costs_grid",
+      :"custom_#{formatted_number}_costs_pv",
     ]
   end
 
@@ -28,8 +28,8 @@ class Sensor::Definitions::CustomCosts < Sensor::Definitions::Base
   def static_dependencies = dependencies
 
   calculate do |**kwargs|
-    custom_costs_grid = kwargs[:"custom_costs_#{formatted_number}_grid"]
-    custom_costs_pv = kwargs[:"custom_costs_#{formatted_number}_pv"]
+    custom_costs_grid = kwargs[:"custom_#{formatted_number}_costs_grid"]
+    custom_costs_pv = kwargs[:"custom_#{formatted_number}_costs_pv"]
 
     custom_costs_grid + custom_costs_pv if custom_costs_grid && custom_costs_pv
   end

@@ -10,7 +10,7 @@ class Sensor::Definitions::CustomCostsPv < Sensor::Definitions::FinanceBase
   attr_reader :number
 
   def name
-    :"custom_costs_#{formatted_number}_pv"
+    :"custom_#{formatted_number}_costs_pv"
   end
 
   depends_on do

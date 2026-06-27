@@ -66,7 +66,7 @@ module Sensor
         case name.to_s
         when /\Acustom_(\d+)_costs\z/
           consumer_cost_label(Regexp.last_match(1), format)
-        when /\Acustom_costs_(\d+)_(grid|pv)\z/
+        when /\Acustom_(\d+)_costs_(grid|pv)\z/
           consumer_cost_label(Regexp.last_match(1), format, Regexp.last_match(2))
         end
       end
@@ -102,7 +102,7 @@ module Sensor
           split_description(:custom_power_total, Regexp.last_match(1))
         when /\Acustom_(\d+)_costs\z/
           t_derived(:custom_costs, number: Regexp.last_match(1).to_i)
-        when /\Acustom_costs_(\d+)_(grid|pv)\z/
+        when /\Acustom_(\d+)_costs_(grid|pv)\z/
           split_description(:custom_costs, Regexp.last_match(2), number: Regexp.last_match(1).to_i)
         end
       end

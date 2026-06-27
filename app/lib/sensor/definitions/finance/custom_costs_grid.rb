@@ -10,7 +10,7 @@ class Sensor::Definitions::CustomCostsGrid < Sensor::Definitions::FinanceBase
   attr_reader :number
 
   def name
-    :"custom_costs_#{formatted_number}_grid"
+    :"custom_#{formatted_number}_costs_grid"
   end
 
   depends_on { [:"custom_power_#{formatted_number}_grid"] }

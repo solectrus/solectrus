@@ -81,10 +81,10 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
   end
 
   def costs_grid_sensor_name
-    :"custom_costs_#{format('%02d', @number)}_grid"
+    :"custom_#{format('%02d', @number)}_costs_grid"
   end
 
   def costs_pv_sensor_name
-    :"custom_costs_#{format('%02d', @number)}_pv"
+    :"custom_#{format('%02d', @number)}_costs_pv"
   end
 end

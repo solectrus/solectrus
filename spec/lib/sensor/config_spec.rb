@@ -174,8 +174,8 @@ describe Sensor::Config do
         %i[
           custom_power_02_pv
           custom_02_costs
-          custom_costs_02_grid
-          custom_costs_02_pv
+          custom_02_costs_grid
+          custom_02_costs_pv
         ].each do |name|
           expect(
             described_class.exists?(name, check_policy: false),
