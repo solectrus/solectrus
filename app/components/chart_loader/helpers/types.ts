@@ -59,7 +59,5 @@ export type TooltipConfig = NonNullable<
 // Extended tick options with custom callback marker
 export type ExtendedTickOptions = {
   callback?:
-    | ((value: number | string) => string)
-    | 'formatTemperature'
-    | 'formatAbs';
+    ((value: number | string) => string) | 'formatTemperature' | 'formatAbs';
 };

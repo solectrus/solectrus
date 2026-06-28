@@ -54,8 +54,7 @@ export const handleChartClick = (
   const dataset = chart.data.datasets[elements[0].datasetIndex];
 
   const rawData = dataset.data?.[dataIndex] as
-    | { drilldownPath?: string; timestamp?: number }
-    | undefined;
+    { drilldownPath?: string; timestamp?: number } | undefined;
   if (rawData?.drilldownPath) {
     onDrilldownPath(rawData.drilldownPath);
     return;
@@ -82,8 +81,7 @@ export const handleHoverCursor = (
     }
     const dataset = chart.data.datasets[elements[0].datasetIndex];
     const rawData = dataset.data?.[elements[0].index] as
-      | { drilldownPath?: string }
-      | undefined;
+      { drilldownPath?: string } | undefined;
     if (rawData?.drilldownPath) {
       showPointer = true;
     }

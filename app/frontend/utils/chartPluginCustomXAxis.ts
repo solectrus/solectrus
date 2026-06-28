@@ -55,8 +55,7 @@ export function buildCustomXAxisPlugin(
   const xScale = scales?.x as Record<string, unknown> | undefined;
   const pluginsConfig = options.plugins as Record<string, unknown> | undefined;
   const customLabels = pluginsConfig?.customXAxisLabels as
-    | CustomLabelsConfig
-    | undefined;
+    CustomLabelsConfig | undefined;
 
   if (!customLabels?.enabled || !customLabels.labels?.length) return [];
 

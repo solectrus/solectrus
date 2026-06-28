@@ -529,10 +529,7 @@ export default class TooltipController extends Controller {
     if (middlewareData.arrow) {
       const { x: arrowX, y: arrowY } = middlewareData.arrow;
       const side = actualPlacement.split('-')[0] as
-        | 'top'
-        | 'right'
-        | 'bottom'
-        | 'left';
+        'top' | 'right' | 'bottom' | 'left';
       const staticSide: Record<typeof side, string> = {
         top: 'bottom',
         right: 'left',
