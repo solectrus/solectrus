@@ -53,6 +53,14 @@ Rails.application.configure do
     proxies = ranges.split(',').map { |r| IPAddr.new(r.strip) }
     config.action_dispatch.trusted_proxies =
       proxies + ActionDispatch::RemoteIp::TRUSTED_PROXIES
+
+    # When running behind a trusted reverse proxy (Cloudflare/Traefik), a
+    # misbehaving client-side proxy may inject a private `Client-IP` header that
+    # conflicts with `X-Forwarded-For`, triggering a false-positive
+    # IpSpoofAttackError. remote_ip is only used for logging here, and the real
+    # trust boundary is the reverse proxy, so the spoofing check is safe to
+    # disable. Self-hosters without a proxy keep the check enabled.
+    config.action_dispatch.ip_spoofing_check = false
   end
 
   # Log to STDOUT
