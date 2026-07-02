@@ -28,38 +28,15 @@ body:
       required: true
 
   - type: textarea
-    id: logs
+    id: diagnostics
     attributes:
-      label: Auszug aus dem Logfile, sofern zum Verständnis sinnvoll (z.B. bei einem Fehler 500)
-      description: Kann abgerufen werden mit `docker compose logs`, aber beschränke dich auf die relevanten Zeilen.
-      render: text
+      label: Logs & Konfiguration
+      description: >-
+        Am einfachsten mit **HELIOS**: Dort ein **Support-Paket** erstellen und
+        die ZIP-Datei hier per Drag & Drop ablegen – sie enthält Logs und
+        Konfiguration bereits anonymisiert.
 
-  - type: textarea
-    id: compose
-    attributes:
-      label: Deine vollständige `docker-compose.yml` oder `compose.yaml`
-      description: Kann wichtig sein, z.B. bei Konfigurationsproblemen
-      render: yaml
-      placeholder: |
-        z.B.:
-
-        services:
-          dashboard:
-            image: ghcr.io/solectrus/solectrus:latest
-        ...
-
-  - type: textarea
-    id: environment
-    attributes:
-      label: Deine vollständige `.env`
-      description: Kann wichtig sein, z.B. bei Konfigurationsproblemen. Aus Datenschutzgründen bitte alle sensiblen Informationen unkenntlich machen (Passwörter, API-Schlüssel, Geodaten, etc.)
-      render: text
-      placeholder: |
-        z.B:
-
-        # Domain name or IP address of your host
-        APP_HOST=raspberrypi
-
-        # Date of commissioning of your photovoltaic system
-        INSTALLATION_DATE=2023-04-03
-        ...
+        Ohne HELIOS: relevante Zeilen aus `docker compose logs` sowie deine
+        `compose.yaml` und `.env` einfügen. Bitte alle sensiblen Daten
+        unkenntlich machen (Passwörter, API-Schlüssel, Geodaten, etc.).
+      placeholder: Support-Paket (ZIP) hier ablegen – oder Logs und Konfiguration einfügen …
