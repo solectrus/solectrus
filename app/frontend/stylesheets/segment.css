@@ -1,4 +1,9 @@
 :root {
+  /* Both breakdown tables sit on a light panel in light mode and a dark panel
+     in dark mode. The bar is a translucent tint of the sensor color so dark
+     text stays readable on top; --table-bar-opacity drives the inverter table's
+     per-string bars the same way. */
+  --table-bar-opacity: 45%;
   --table-bar-color: color-mix(
     in srgb,
     var(--color-sensor-house) 25%,
@@ -7,6 +12,7 @@
 }
 
 .dark {
+  --table-bar-opacity: 75%;
   --table-bar-color: color-mix(
     in srgb,
     var(--color-sensor-house) 75%,

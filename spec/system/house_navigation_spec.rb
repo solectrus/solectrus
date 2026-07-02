@@ -22,22 +22,22 @@ describe 'House navigation' do
     visit '/house/house_power/day'
 
     # Initially segments are visible, table is hidden
-    expect(page).to have_css('[data-house-breakdown--component-target="segments"]:not(.hidden)')
-    expect(page).to have_css('[data-house-breakdown--component-target="table"].hidden', visible: :all)
+    expect(page).to have_css('[data-view-toggle-target="segments"]:not(.hidden)')
+    expect(page).to have_css('[data-view-toggle-target="table"].hidden', visible: :all)
 
     # Click the toggle button
     find('button[aria-label="Ansicht wechseln"]').click
 
     # Table should now be visible with sensor rows
-    expect(page).to have_css('[data-house-breakdown--component-target="table"]:not(.hidden)')
-    expect(page).to have_css('[data-house-breakdown--component-target="segments"].hidden', visible: :all)
+    expect(page).to have_css('[data-view-toggle-target="table"]:not(.hidden)')
+    expect(page).to have_css('[data-view-toggle-target="segments"].hidden', visible: :all)
     expect(page).to have_css('[id^="table-row-"]')
 
     # Toggle back to segments
     find('button[aria-label="Ansicht wechseln"]').click
 
-    expect(page).to have_css('[data-house-breakdown--component-target="segments"]:not(.hidden)')
-    expect(page).to have_css('[data-house-breakdown--component-target="table"].hidden', visible: :all)
+    expect(page).to have_css('[data-view-toggle-target="segments"]:not(.hidden)')
+    expect(page).to have_css('[data-view-toggle-target="table"].hidden', visible: :all)
   end
 
   it 'loads charts when clicking a segment' do

@@ -3,6 +3,9 @@ import autoAnimate, { type AnimationController } from '@formkit/auto-animate';
 
 type ViewMode = 'segments' | 'table';
 
+// Toggles a breakdown between a vertical segment view and a horizontal table
+// view. Shared by the house and inverter breakdown components; the localStorage
+// key is parameterized via the `key` value so each usage persists independently.
 export default class extends Controller {
   static readonly targets = ['segments', 'table', 'icon'];
   static readonly values = { key: { type: String, default: 'viewMode' } };

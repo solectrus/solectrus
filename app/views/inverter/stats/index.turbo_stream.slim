@@ -6,51 +6,5 @@
     = render Status::Component.new time: data.time
 
 = turbo_stream.update frame_id('stats'), method: :morph do
-  .h-full.w-full.flex.flex-col.gap-3 id= "stats-#{timeframe.id}"
-    .flex-1.flex.gap-5
-      // Clip
-      .flex.gap-10.items-end.px-3.md:px-5.py-2.md:py-3.xl:py-4
-        .w-5.border-b-2.border-t-2.border-l-2.border-slate-500.h-full.flex.justify-center
-          .flex.items-center.justify-center.text-sm.md:text-lg.-ml-5.text-slate-500.dark:text-slate-400
-            = link_to inverter_home_path(sensor_name: 'inverter_power', timeframe:),
-                      class: 'bg-white dark:bg-slate-900 py-2 md:py-4 pl-3',
-                      title: Sensor::Registry[:inverter_power].display_name,
-                      data: { \
-                        controller: 'tooltip',
-                        tooltip_placement_value: 'right',
-                        tooltip_force_tap_to_close_value: false,
-                        tooltip_touch_value: 'long',
-                        turbo_prefetch: 'false',
-                        action: 'stats-with-chart--component#loadChart',
-                        stats_with_chart__component_sensor_name_param: 'inverter_power',
-                        stats_with_chart__component_chart_url_param: inverter_charts_path(sensor_name: 'inverter_power', timeframe:),
-                      } do
-              div data= { 'stats-with-chart--component-target': sensor_name == :inverter_power ? 'current' : nil, 'sensor-name': sensor_name, value: data.inverter_power, time: data.time.to_i }
-                = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :rate : :total)
-
-              #tooltip-content-inverter_power.hidden data-tooltip-target= 'html'
-                .flex.flex-col.items-center.justify-center.gap-2.p-2
-                  i.fa.fa-2xl.fa-sun
-                  = Sensor::Registry[:inverter_power].display_name
-                  = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :rate : :total, precision: 3)
-
-      // Inner content
-      .flex-1.flex
-        = render SegmentContainer::Component.new tooltip_placement: 'bottom',
-                                                 data:,
-                                                 timeframe: do |balance|
-          - if data.inverter_power.nil? || data.inverter_power.zero?
-            - balance.with_segment :inverter_power,
-                                   percent: 100,
-                                   tooltip: false,
-                                   color_class: 'bg-slate-600 dark:bg-slate-600/70' do
-              p.text-xl
-                = t('data.inverter_no_production')
-          - else
-            - Sensor::Config.custom_inverter_sensors.reverse_each.with_index(0) do |sensor, index|
-              - balance.with_segment sensor.name,
-                                     inline: true,
-                                     color_index: Sensor::Config.custom_inverter_sensors.size - index
-
-            - balance.with_segment :inverter_power_difference,
-                                   inline: true
+  .h-full.w-full.flex.flex-col.min-h-0.gap-3 id= "stats-#{timeframe.id}"
+    = render InverterBreakdown::Component.new(data:, timeframe:, sensor_name:)
