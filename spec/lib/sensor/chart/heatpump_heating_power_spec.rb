@@ -45,7 +45,11 @@ describe Sensor::Chart::HeatpumpHeatingPower do
       expect(result).to eq([100, 0, 0, 200])
     end
 
-    it 'returns 0 when heating is on but the component value is missing' do
+    it 'bridges a short component gap instead of collapsing it to 0' do
+      # A single missing interior grid bucket (e.g. the coarser splitter
+      # cadence on a finer bucket grid). It is linearly interpolated across
+      # the gap rather than dropped to 0, so the stacked area stays
+      # continuous instead of combing down to the baseline.
       stub_series(
         heating: [800.0, 800.0, 800.0, 800.0],
         grid: [100, nil, 200, 300],
@@ -56,7 +60,24 @@ describe Sensor::Chart::HeatpumpHeatingPower do
         [100, nil, 200, 300],
         :heatpump_power_grid,
       )
-      expect(result).to eq([100, 0, 200, 300])
+      expect(result).to eq([100, 150, 200, 300])
+    end
+
+    it 'still collapses a missing component value to 0 while the heat pump is off' do
+      # Off-phase (heating_power == 0): the component contributes nothing
+      # regardless of a bridged value, so it stays 0 and no phantom bar
+      # appears.
+      stub_series(
+        heating: [800.0, 0, 800.0],
+        grid: [100, nil, 300],
+      )
+
+      result = chart.__send__(
+        :transform_data,
+        [100, nil, 300],
+        :heatpump_power_grid,
+      )
+      expect(result).to eq([100, 0, 300])
     end
 
     it 'preserves component resolution across heating-power gaps within the bridge window' do
