@@ -17,6 +17,56 @@ describe 'MCP' do
     post '/mcp', params: payload.to_json, headers:
   end
 
+  describe 'GET /mcp' do
+    context 'when MCP is disabled (default)' do
+      it 'returns http not found' do
+        get '/mcp'
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    # Sponsorship can lapse after MCP was enabled, so mcp_enabled stays true
+    # while the sponsor policy turns false. The page must go invisible then.
+    context 'when the operator is no longer a sponsor' do
+      before do
+        Setting.mcp_enabled = true
+        allow(ApplicationPolicy).to receive(:mcp?).and_return(false)
+      end
+
+      it 'returns http not found' do
+        get '/mcp'
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when MCP is enabled' do
+      before do
+        Setting.mcp_enabled = true
+        allow(ApplicationPolicy).to receive(:mcp?).and_return(true)
+      end
+
+      it 'returns http not found for anonymous visitors' do
+        get '/mcp'
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      context 'when logged in as admin' do
+        before { login_as_admin }
+
+        it 'renders a guide with the endpoint URL' do
+          get '/mcp'
+
+          expect(response).to have_http_status(:success)
+          expect(response.body).to include('http://www.example.com/mcp')
+          expect(response.body).to include(I18n.t('mcp_info.title'))
+        end
+      end
+    end
+  end
+
   describe 'POST /mcp' do
     context 'when MCP is disabled (default)' do
       it 'returns http not found, even with a valid token' do

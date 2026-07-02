@@ -202,6 +202,14 @@ de:
       error: Falsches Passwort.
       invalid_title: Ungültige Anfrage
       invalid_body: Diese Autorisierungsanfrage ist ungültig oder unvollständig. Bitte starte erneut aus deinem KI-Client.
+  mcp_info:
+    title: MCP-Endpunkt
+    intro: 'Über diese Schnittstelle (MCP, Model Context Protocol) erhalten KI-Clients lesenden Zugriff auf deine SOLECTRUS-Daten: Messwerte, Prognosen, Preise und Anlagendetails.'
+    url_label: 'Endpunkt-URL:'
+    how_title: So verbindest du dich
+    step_client: Füge in deinem KI-Client (z.B. Claude, ChatGPT oder einem lokalen Tool wie LM Studio) einen neuen MCP-Connector mit der obigen URL hinzu.
+    step_auth: Bestätige die Verbindung bei der Aufforderung mit deinem SOLECTRUS-Admin-Passwort.
+    step_use: Der KI-Client kann dann deine Daten auswerten. Frag z.B., ob dein Stromverbrauch in letzter Zeit ungewöhnliche Auffälligkeiten zeigt.
   lockup:
     headline: Geschützter Zugang
     description: Diese SOLECTRUS-Instanz ist nicht öffentlich.
@@ -246,8 +254,9 @@ de:
       mcp:
         title: Zugriff für KI
         enable: Model-Context-Protocol (MCP) aktivieren
-        hint: Erlaubt KI-Clients (z.B. Claude) lesenden Zugriff auf deine Sensordaten.
+        hint: Erlaubt KI-Clients (z.B. Claude oder ChatGPT) lesenden Zugriff auf deine SOLECTRUS-Daten (Messwerte, Prognosen, Preise und Anlagendetails).
         sponsors_only: KI-Zugriff (MCP) ist nur für Sponsoren verfügbar.
+        endpoint: 'Endpunkt:'
       summaries:
         title: Tageszusammenfassungen
         description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.

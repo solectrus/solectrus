@@ -58,6 +58,7 @@ import { faTrophy } from '@fortawesome/free-solid-svg-icons/faTrophy';
 import { faHouseCrack } from '@fortawesome/free-solid-svg-icons/faHouseCrack';
 import { faSolarPanel } from '@fortawesome/free-solid-svg-icons/faSolarPanel';
 import { faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons/faMagicWandSparkles';
+import { faRobot } from '@fortawesome/free-solid-svg-icons/faRobot';
 import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 import { faTableList } from '@fortawesome/free-solid-svg-icons/faTableList';
 import { faChartBar } from '@fortawesome/free-solid-svg-icons/faChartBar';
@@ -125,6 +126,7 @@ export default class extends Controller {
       faGrip,
       faTrophy,
       faMagicWandSparkles,
+      faRobot,
       faBars,
       faTableList,
       faChartBar,

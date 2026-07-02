@@ -43,7 +43,7 @@ describe 'Settings' do
                   operator_name: 'John',
                 },
               }
-        expect(response).to have_http_status(:success)
+        expect(response).to redirect_to(edit_settings_general_path)
 
         expect(Setting.plant_name).to eq('Test')
         expect(Setting.operator_name).to eq('John')
@@ -61,7 +61,7 @@ describe 'Settings' do
                     },
                   }
           end.not_to change(Setting, :mcp_oauth_secret)
-          expect(response).to have_http_status(:success)
+          expect(response).to redirect_to(edit_settings_general_path)
 
           expect(Setting.mcp_enabled).to be(true)
         end
@@ -76,7 +76,7 @@ describe 'Settings' do
                     mcp_enabled: '0',
                   },
                 }
-          expect(response).to have_http_status(:success)
+          expect(response).to redirect_to(edit_settings_general_path)
 
           expect(Setting.mcp_enabled).to be(false)
           # Rotating the signing secret invalidates every issued token.
@@ -91,7 +91,7 @@ describe 'Settings' do
 
         it 'refuses to enable MCP' do
           patch '/settings/general', params: { setting: { mcp_enabled: '1' } }
-          expect(response).to have_http_status(:success)
+          expect(response).to redirect_to(edit_settings_general_path)
 
           expect(Setting.mcp_enabled).to be(false)
         end

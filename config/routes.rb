@@ -8,6 +8,7 @@
 #                     lockup_unlock GET    /lockup/unlock(.:format)                                  lockup#unlock
 #                            unlock POST   /lockup/unlock(.:format)                                  lockup#unlock
 #                               mcp POST   /mcp(.:format)                                            mcp#handle
+#                                   GET    /mcp(.:format)                                            mcp_info#show
 #                                   GET    /.well-known/oauth-protected-resource(.:format)           oauth/metadata#protected_resource
 #                                   GET    /.well-known/oauth-protected-resource/mcp(.:format)       oauth/metadata#protected_resource
 #                                   GET    /.well-known/oauth-authorization-server(.:format)         oauth/metadata#authorization_server
@@ -120,6 +121,10 @@ Rails.application.routes.draw do
   # Model Context Protocol endpoint for read-only data access by AI clients.
   # Disabled unless enabled in the settings; requires an OAuth access token.
   post '/mcp', to: 'mcp#handle'
+  # A browser opening the endpoint (GET) would otherwise hit a bare 404. Show a
+  # short guide on how to connect an AI client instead - gated the same way, so
+  # it stays invisible when MCP is disabled or for non-sponsors.
+  get '/mcp', to: 'mcp_info#show'
 
   # Stateless OAuth 2.1 (authorization code + PKCE) protecting the MCP endpoint,
   # plus the discovery documents. All gated on the same opt-in toggle as /mcp;

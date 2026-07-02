@@ -17,6 +17,16 @@
                     checked: Setting.mcp_enabled,
                     label: t('settings.general.mcp.enable'),
                     hint: t('settings.general.mcp.hint')
+
+      - if McpOauth.available?
+        p.ps-7.-mt-3.text-xs.text-gray-500.dark:text-gray-400
+          = t('settings.general.mcp.endpoint')
+          = ' '
+          = link_to mcp_url,
+                    mcp_url,
+                    class: 'font-mono text-indigo-600 dark:text-indigo-400 hover:underline break-all',
+                    target: '_blank',
+                    rel: 'noopener'
     - else
       = f.check_box :mcp_enabled,
                     checked: false,

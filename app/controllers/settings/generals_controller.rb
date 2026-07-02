@@ -18,7 +18,9 @@ class Settings::GeneralsController < ApplicationController
       end
     end
 
-    respond_with_flash notice: t('crud.success')
+    # Redirect (instead of an inline flash) so the page re-renders and the MCP
+    # endpoint hint appears or disappears after toggling the checkbox.
+    redirect_to edit_settings_general_path, notice: t('crud.success')
   end
 
   private

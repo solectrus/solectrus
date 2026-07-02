@@ -36,6 +36,51 @@ describe 'Settings' do
       end
     end
 
+    context 'when MCP can be toggled (sponsor)' do
+      before { allow(ApplicationPolicy).to receive(:mcp?).and_return(true) }
+
+      let(:endpoint_label) do
+        I18n.t('settings.general.mcp.endpoint', locale: :de)
+      end
+      let(:save_button) { I18n.t('crud.save', locale: :de) }
+      let(:success_message) { I18n.t('crud.success', locale: :de) }
+
+      context 'when MCP is already enabled' do
+        before do
+          Setting.mcp_enabled = true
+          visit '/settings/general'
+        end
+
+        it 'shows the MCP endpoint linking to the info page' do
+          expect(page).to have_text(endpoint_label)
+          expect(page).to have_link(href: %r{/mcp\z})
+        end
+
+        it 'hides the endpoint after disabling and saving' do
+          uncheck 'setting_mcp_enabled'
+          click_on save_button
+
+          expect(page).to have_text(success_message)
+          expect(page).to have_no_text(endpoint_label)
+        end
+      end
+
+      context 'when MCP is disabled' do
+        before { visit '/settings/general' }
+
+        it 'shows the endpoint after enabling and saving' do
+          expect(page).to have_no_text(endpoint_label)
+
+          check 'setting_mcp_enabled'
+          click_on save_button
+
+          expect(page).to have_text(success_message)
+          expect(page).to have_text(endpoint_label)
+          expect(page).to have_link(href: %r{/mcp\z})
+        end
+      end
+    end
+
     context 'when visiting prices settings' do
       before { visit '/settings/prices' }
 

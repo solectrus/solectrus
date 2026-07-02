@@ -1,0 +1,23 @@
+.mx-auto.w-full.max-w-md.px-4
+  .relative.text-gray-800.dark:text-gray-300.bg-white.dark:bg-slate-800.rounded-2xl.shadow-xl.p-6.sm:p-8
+    .flex.items-center.gap-4
+      .flex.h-12.w-12.shrink-0.items-center.justify-center.rounded-full.bg-indigo-100.text-indigo-600.dark:bg-indigo-500.dark:bg-opacity-20.dark:text-indigo-300
+        i.fa.fa-robot.fa-lg
+      h1.font-bold.text-xl.sm:text-2xl.leading-tight
+        = t('mcp_info.title')
+
+    p.mt-4.text-sm.text-gray-500.dark:text-gray-400
+      = t('mcp_info.intro')
+
+    .mt-4.rounded-lg.bg-gray-50.dark:bg-slate-700.dark:bg-opacity-40.px-4.py-3.text-sm
+      .text-gray-500.dark:text-gray-400
+        = t('mcp_info.url_label')
+      .mt-1.font-mono.font-semibold.break-all
+        = mcp_url
+
+    h2.mt-6.font-semibold
+      = t('mcp_info.how_title')
+    ol.mt-2.ps-5.list-decimal.list-outside.space-y-1.text-sm.text-gray-500.dark:text-gray-400
+      li = t('mcp_info.step_client')
+      li = t('mcp_info.step_auth')
+      li = t('mcp_info.step_use')

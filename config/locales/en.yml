@@ -202,6 +202,14 @@ en:
       error: Wrong password.
       invalid_title: Invalid request
       invalid_body: This authorization request is invalid or incomplete. Please start again from your AI client.
+  mcp_info:
+    title: MCP endpoint
+    intro: 'Through this interface (MCP, Model Context Protocol), AI clients get read-only access to your SOLECTRUS data: measurements, forecasts, prices and system details.'
+    url_label: 'Endpoint URL:'
+    how_title: How to connect
+    step_client: In your AI client (e.g. Claude, ChatGPT, or a local tool like LM Studio), add a new MCP connector using the URL above.
+    step_auth: When prompted, authorize the connection with your SOLECTRUS admin password.
+    step_use: The AI client can then analyze your data. Try asking whether your electricity consumption has shown any unusual anomalies lately.
   lockup:
     headline: Protected access
     description: This SOLECTRUS instance is not public.
@@ -246,8 +254,9 @@ en:
       mcp:
         title: Access for AI
         enable: Enable Model Context Protocol (MCP)
-        hint: Allows AI clients (e.g. Claude) read-only access to your sensor data.
+        hint: Allows AI clients (e.g. Claude or ChatGPT) read-only access to your SOLECTRUS data (measurements, forecasts, prices and system details).
         sponsors_only: AI access (MCP) is only available to sponsors.
+        endpoint: 'Endpoint:'
       summaries:
         title: Daily summaries
         description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.
