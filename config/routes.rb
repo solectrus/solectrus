@@ -249,6 +249,10 @@ Rails.application.routes.draw do
     resources :prices, constraints: { name: Regexp.union(Price.names.keys) } do
       get '(:name)', on: :collection, action: :index, as: ''
     end
+
+    resources :cash_flows, except: :show do
+      patch :visibility, on: :collection
+    end
   end
   get '/settings', to: redirect('/settings/general')
 

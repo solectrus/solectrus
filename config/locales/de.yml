@@ -272,6 +272,15 @@ de:
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
+    cash_flows:
+      name: Amortisation
+      description: Zahlungsströme rund um die PV-Anlage – Investitionen und Kosten als negative, Erträge als positive Beträge. Zusammen mit der gemessenen Ersparnis wird daraus die Amortisation berechnet.
+      new: Neuer Eintrag
+      edit: Eintrag bearbeiten
+      amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
+      public: Amortisation für alle anzeigen
+      public_hint: Wenn aktiviert, sehen auch nicht angemeldete Besucher die Amortisations-Berechnung. Andernfalls bleibt sie nur für Admins sichtbar.
+      sponsors_only: Die Amortisations-Seite ist nur für Sponsoren verfügbar.
     sensors:
       name: Sensoren
       generators: Erzeuger
@@ -314,6 +323,7 @@ de:
   activerecord:
     models:
       price: Preis
+      cash_flow: Zahlungsstrom
       settings: Einstellungen
     attributes:
       price:
@@ -326,9 +336,16 @@ de:
         note: Notiz
         electricity_amount: Arbeitspreis in %{currency}/kWh
         feed_in_amount: Vergütungssatz in %{currency}/kWh
+      cash_flow:
+        date: Datum
+        amount: Betrag
+        amount_with_currency: Betrag in %{currency}
+        note: Zweck
       setting:
         plant_name: Bezeichnung der Anlage
         operator_name: Name des Betreibers
+        amortization_period_years: Gesamtlaufzeit (Jahre)
+        amortization_interest_rate: Kalkulationszins (% p. a.)
   sensor_descriptions:
     power_balance: "Strombilanz: Erzeugung minus Gesamtverbrauch. Positiv = Überschuss (Einspeisung oder Akkuladung), negativ = Defizit aus dem Netz."
     inverter_power: "Gesamte PV-Erzeugung (AC-Leistung des/der Wechselrichter)."

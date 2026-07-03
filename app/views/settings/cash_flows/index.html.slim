@@ -1,0 +1,31 @@
+= render 'settings/sub_nav'
+
+.flex.items-start.justify-between.mb-4.px-2
+  p.text-gray-500.text-sm.md:text-base.pr-16
+    = t 'settings.cash_flows.description'
+  = button_to new_settings_cash_flow_path,
+              method: :get,
+              data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+              class: 'size-14 shrink-0 rounded-full bg-indigo-600 dark:bg-indigo-800 text-white shadow-lg hover:bg-indigo-700 click-animation focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
+              title: t('crud.new') do
+    i.fa.fas.fa-plus.fa-lg
+
+/! Toggle: expose the amortization calculation to non-admin visitors.
+/! Placed above the list so it stays put as entries are added.
+= form_with model: Setting.new, url: visibility_settings_cash_flows_path, method: :patch, html: { class: 'px-2 mb-8' }, data: { controller: 'auto-submit' } do |f|
+  - if ApplicationPolicy.amortization?
+    = f.check_box :amortization_public,
+                  checked: Setting.amortization_public,
+                  label: t('settings.cash_flows.public'),
+                  hint: t('settings.cash_flows.public_hint'),
+                  data: { action: 'change->auto-submit#submit' }
+  - else
+    = f.check_box :amortization_public,
+                  checked: false,
+                  disabled: true,
+                  label: t('settings.cash_flows.public'),
+                  hint: t('settings.cash_flows.sponsors_only')
+
+= turbo_stream_from 'cash_flows'
+= tag.turbo_frame id: 'list' do
+  = render 'list', cash_flows: @cash_flows

@@ -25,6 +25,13 @@ class Setting < RailsSettings::Base
   field :sensor_names, type: :hash, default: {}
   field :inverter_as_total, type: :boolean, default: true
 
+  field :amortization_period_years, type: :integer, default: 20
+  field :amortization_interest_rate, type: :float, default: 3.0 # % p. a.
+
+  # Whether the amortization calculation is visible to non-admin visitors.
+  # Admins always see it; this opt-in exposes it to everyone else.
+  field :amortization_public, type: :boolean, default: false
+
   field :enable_multi_inverter, type: :boolean, default: true
   field :enable_custom_consumer, type: :boolean, default: true
   field :enable_heatpump, type: :boolean, default: true

@@ -35,6 +35,7 @@ class ApplicationPolicy
     power_balance_chart
     finance_top10
     mcp
+    amortization
   ].freeze
   private_constant :SPONSOR_FEATURES
 

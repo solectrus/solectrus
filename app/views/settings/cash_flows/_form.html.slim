@@ -1,0 +1,12 @@
+= form_with(model: cash_flow, url: cash_flow.persisted? ? settings_cash_flow_path(cash_flow) : settings_cash_flows_path, id: dom_id(cash_flow, :form), html: { data: { controller: 'form-dirty' } }) do |f|
+  = f.group do
+    = f.date_field :date,
+                   autofocus: true
+    = f.number_field :amount,
+                     step: '0.01',
+                     label: t('activerecord.attributes.cash_flow.amount_with_currency', currency: Currency.symbol),
+                     hint: t('settings.cash_flows.amount_hint')
+    = f.text_field :note
+
+  .flex.justify-end
+    = render 'settings/fab_submit'

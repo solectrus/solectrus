@@ -1,0 +1,57 @@
+- if cash_flows.any?
+  .table.w-full.select-text
+    .table-header-group.text-gray-800.dark:text-gray-400
+      .table-row
+        .table-cell.align-middle.p-2.tabular-nums.text-left.font-bold
+          = CashFlow.human_attribute_name(:date)
+        .table-cell.w-full.align-middle.p-2.text-left.font-bold
+          span.hidden.md:inline = CashFlow.human_attribute_name(:note)
+        .table-cell.align-middle.p-2.tabular-nums.text-right.font-bold
+          = CashFlow.human_attribute_name(:amount)
+        .table-cell
+
+    .table-row-group.text-gray-800.dark:text-gray-400
+      - cash_flows.each do |cash_flow|
+        .table-row.hover:bg-gray-100.dark:hover:bg-gray-700
+          .table-cell.align-middle.p-2.tabular-nums.text-left.w-1.whitespace-nowrap
+            time datetime= cash_flow.date.iso8601
+              = l cash_flow.date
+          .table-cell.w-full.align-middle.p-2.text-gray-500.text-sm
+            span.hidden.md:inline = cash_flow.note
+          .table-cell.align-middle.p-2.tabular-nums.text-right.w-1.whitespace-nowrap class=amount_color(cash_flow.amount)
+            = formatted_amount(cash_flow.amount)
+
+          .table-cell.align-middle.w-1.p-2
+            .flex.space-x-1
+              = render Button::Component.new path: edit_settings_cash_flow_path(cash_flow),
+                                             icon: 'pencil',
+                                             type: :button,
+                                             style: :secondary,
+                                             options: { \
+                                               method: :get,
+                                               data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                                               'aria-label': t('crud.edit'),
+                                             }
+
+              = render Button::Component.new path: settings_cash_flow_path(cash_flow),
+                                             icon: 'trash',
+                                             type: :button,
+                                             style: :secondary,
+                                             options: { \
+                                               method: :delete,
+                                               'aria-label': t('crud.delete'),
+                                               form: { data: { 'turbo-confirm': t('crud.confirm_delete') } },
+                                               class: 'hover:text-orange-500',
+                                             }
+
+    .table-footer-group.text-gray-800.dark:text-gray-200
+      .table-row.border-t.border-gray-300.dark:border-gray-600
+        .table-cell.align-middle.p-2.font-bold
+          = t('.total')
+        .table-cell.w-full
+        .table-cell.align-middle.p-2.tabular-nums.text-right.font-bold.whitespace-nowrap class=amount_color(total)
+          = formatted_amount(total)
+        .table-cell
+- else
+  p.text-gray-500.p-2
+    = t('.empty')

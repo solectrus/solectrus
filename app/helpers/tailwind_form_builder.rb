@@ -66,6 +66,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   delegate :tag, :link_to, :safe_join, :render, to: :template
 
   def input_field(field_type, method, **options)
+    hint = options.delete(:hint)
     options[:class] = [
       options[:class],
       'form-input',
@@ -86,10 +87,16 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
               objectify_options(options),
             ),
             (yield if block_given?),
+            (hint_tag(hint) if hint && !block_given?),
             errors(method),
           ].compact,
         )
     end
+  end
+
+  # Render a hint below an input, honoring embedded newlines as line breaks
+  def hint_tag(hint)
+    tag.span(safe_join(hint.split("\n"), tag.br), class: 'mt-3 label-hint')
   end
 
   def label_text(method, options)

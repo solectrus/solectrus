@@ -1,0 +1,5 @@
+- if request.get?
+  = render TurboModal::Component.new(title: t('settings.cash_flows.edit')) do
+    = render 'form', cash_flow: @cash_flow
+- else
+  = turbo_stream.replace(dom_id(@cash_flow, :form), partial: 'form', locals: { cash_flow: @cash_flow })
