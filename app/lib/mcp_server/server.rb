@@ -11,6 +11,7 @@ module McpServer
       Tools::Ranking,
       Tools::Series,
       Tools::Forecast,
+      Tools::Amortization,
     ].freeze
     private_constant :TOOLS
 
@@ -30,6 +31,10 @@ module McpServer
       For the expected PV generation (what's still coming today, per upcoming
       day) use get_forecast; for the predicted power curve use get_series on a
       forecast sensor (e.g. inverter_power_forecast).
+
+      For the profitability of the whole system - when the investment pays off,
+      break-even, NPV/IRR - use get_amortization (it combines the measured
+      savings with the manually kept cash flow register).
     TEXT
     private_constant :INSTRUCTIONS
 
