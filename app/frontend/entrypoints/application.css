@@ -25,6 +25,7 @@
 @import '../stylesheets/badge.css' layer(base);
 @import '../stylesheets/animations.css' layer(base);
 @import '../stylesheets/segment.css' layer(base);
+@import '../stylesheets/range.css' layer(base);
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
 
@@ -248,6 +249,7 @@
     --chart-axis-color: #475569;
     --chart-grid-color: #e5e5e5;
     --chart-zero-line-color: #94a3b8;
+    --chart-point-border: #ffffff;
     --chart-tooltip-bg: #ffffff;
     --chart-tooltip-text: #0f172a;
     --chart-tooltip-border: #94a3b8;
@@ -257,6 +259,8 @@
     --chart-axis-color: #888888;
     --chart-grid-color: #242a3b;
     --chart-zero-line-color: #666;
+    /* Blend point borders into the dark panel so they read as dots, not glowing halos */
+    --chart-point-border: #0f172a;
     --chart-tooltip-bg: #1f2937;
     --chart-tooltip-text: #e2e8f0;
     --chart-tooltip-border: #475569;

@@ -23,6 +23,7 @@ de:
     inverter: Erzeugung
     house: Hausverbrauch
     heatpump: Wärmepumpe
+    amortization: Amortisation
     essentials: Einzelwerte
     forecast: Prognose
     top10: Top 10
@@ -292,6 +293,12 @@ de:
       enable_forecast: Seite "Prognose" in der Navigation anbieten
       enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
       enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
+  amortization:
+    index:
+      no_cash_flows_title: Noch keine Zahlungsströme erfasst
+      no_cash_flows_body: Für die Amortisations-Berechnung muss der Administrator zunächst die Investitionen und Kosten der PV-Anlage als Zahlungsströme erfassen.
+      manage_cash_flows: Zahlungsströme erfassen
+      restricted: Diese Auswertung ist nur für Administratoren sichtbar.
   timeframe_select:
     index:
       title: Zeitraum wählen

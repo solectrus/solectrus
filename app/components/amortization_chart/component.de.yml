@@ -1,0 +1,7 @@
+de:
+  balance: Nominaler Saldo
+  today: heute
+  degree: Amortisiert
+  # Prefix for the tooltip title - values are the balance on the last day of
+  # the year, e.g. "Ende 2032"
+  end_of: Ende

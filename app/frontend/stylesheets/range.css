@@ -1,0 +1,66 @@
+/* Custom range sliders (amortization controls).
+   Safari only tints the thumb and the filled portion via accent-color and
+   leaves the track light, which looks too bright in dark mode. Style track
+   and thumb explicitly so all browsers render the same subdued slider. */
+
+input[type='range'].range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #e2e8f0; /* slate-200 */
+  cursor: pointer;
+}
+
+.dark input[type='range'].range-slider {
+  background: #334155; /* slate-700 */
+}
+
+/* WebKit / Blink */
+input[type='range'].range-slider::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+input[type='range'].range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: -0.3125rem; /* center the thumb on the 0.5rem track */
+  border-radius: 9999px;
+  background: #4f46e5; /* indigo-600 */
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+
+.dark input[type='range'].range-slider::-webkit-slider-thumb {
+  background: #6366f1; /* indigo-500 */
+  border-color: #0f172a; /* slate-900 (panel background) */
+}
+
+/* Firefox */
+input[type='range'].range-slider::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: #e2e8f0;
+}
+
+.dark input[type='range'].range-slider::-moz-range-track {
+  background: #334155;
+}
+
+input[type='range'].range-slider::-moz-range-thumb {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 9999px;
+  background: #4f46e5;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+}
+
+.dark input[type='range'].range-slider::-moz-range-thumb {
+  background: #6366f1;
+  border-color: #0f172a;
+}

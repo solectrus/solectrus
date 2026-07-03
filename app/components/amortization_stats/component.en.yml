@@ -1,0 +1,17 @@
+en:
+  uncertain_prognosis: Prognosis still uncertain – less than a year of measured data
+  not_available: '–'
+  npv: Present value benefit
+  npv_hint: "How much more the PV system yields over its full lifetime of %{years} years – compared with putting the money into a financial investment at %{rate} % instead.\n\nFuture savings and costs are converted to today's money (discounted).\n\nIt is based on the actually measured savings of each past year."
+  npv_hint_positive: So the system is worth more than that investment.
+  npv_hint_negative: So the investment would have been the better choice.
+  net_position: Nominal balance today
+  net_position_hint: 'Current balance of the system: everything saved so far minus all costs. Only up to today, without interest.'
+  profit_nominal: Nominal surplus
+  profit_nominal_hint: 'Expected profit after %{years} years: all savings minus all costs, without interest.'
+  irr: Effective PV return
+  irr_hint: "The annual return on the invested money – directly comparable with the interest rate of a financial investment.\n\nIt is based on the actually measured savings of each past year."
+  percent_per_year: '%{value} % p.a.'
+  savings_per_year: Annual savings
+  savings_per_year_hint: Measured savings of the last 365 days (%{per_day} per day on average) – basis for projecting future years.
+  required_annual_hint: From %{value} per year the system would pay off compared with %{rate} % interest.

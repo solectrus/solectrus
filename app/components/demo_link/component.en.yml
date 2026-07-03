@@ -23,6 +23,9 @@ en:
   finance_top10:
     title: Financial rankings
     description: Shows the top 10 days, weeks, months or years with the highest costs, revenue or savings.
+  amortization:
+    title: Amortization calculator
+    description: Shows when the PV system pays off, based on the recorded cash flows and the measured savings – with key figures and a chart over the entire period.
   sponsoring_only: Exclusively for sponsors
   demo: Demo
   about_sponsoring: How do I become a sponsor?

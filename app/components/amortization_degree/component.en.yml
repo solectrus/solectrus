@@ -1,0 +1,10 @@
+en:
+  today_label: Amortized until today
+  target_label: Fully amortized after
+  today: today
+  remaining: '%{duration} to go'
+  completed: reached
+  total_years: '%{total} years'
+  not_within_period: Not amortized within the operating period
+  no_prognosis_title: No prognosis possible yet
+  no_prognosis: The amortization calculation requires measured savings and at least one recorded investment. Please configure prices and add cash flows in the settings.

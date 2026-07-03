@@ -1,0 +1,50 @@
+.flex.h-full.flex-col
+  - if projection_uncertain
+    .mb-2.md:mb-4.flex.justify-center
+      span.inline-flex.items-center.gap-2.rounded-full.bg-amber-100.dark:bg-amber-900.px-3.py-1.text-xs.font-medium.text-amber-800.dark:text-amber-200
+        i.fa.fa-circle-exclamation
+        = t('.uncertain_prognosis')
+
+  / Two columns on the desktop split view (next to the chart) and on very short
+  / viewports (iPhone SE, to fit without scrolling); tall narrow phones keep one
+  / column so the tiles get a pleasant height
+  .grid.flex-1.min-h-0.auto-rows-fr.grid-cols-1.tiny:grid-cols-2.lg:landscape:grid-cols-2.gap-3.md:gap-4.text-center
+    /! Net present value - key figure for comparing with an investment
+    div class=stat_tile_class
+      .flex.items-center.justify-center.px-4.text-xs.uppercase.tracking-wide.font-semibold.text-gray-500.dark:text-gray-400
+        = t('.npv')
+        = info_icon npv_hint
+      .mt-1.5.md:mt-2.5.text-xl.md:text-3xl.font-bold.tabular-nums class=signed_color(npv)
+        = currency(npv)
+
+    div class=stat_tile_class
+      .flex.items-center.justify-center.px-4.text-xs.uppercase.tracking-wide.font-semibold.text-gray-500.dark:text-gray-400
+        = t('.net_position')
+        = info_icon t('.net_position_hint')
+      .mt-1.5.md:mt-2.5.text-xl.md:text-3xl.font-bold.tabular-nums class=signed_color(net_position)
+        = currency(net_position)
+
+    div class=stat_tile_class
+      .flex.items-center.justify-center.px-4.text-xs.uppercase.tracking-wide.font-semibold.text-gray-500.dark:text-gray-400
+        = t('.profit_nominal')
+        = info_icon t('.profit_nominal_hint', years: period_years)
+      .mt-1.5.md:mt-2.5.text-xl.md:text-3xl.font-bold.tabular-nums class=signed_color(profit_nominal)
+        = currency(profit_nominal)
+
+    /! Internal rate of return
+    div class=stat_tile_class
+      .flex.items-center.justify-center.px-4.text-xs.uppercase.tracking-wide.font-semibold.text-gray-500.dark:text-gray-400
+        = t('.irr')
+        = info_icon t('.irr_hint')
+      .mt-1.5.md:mt-2.5.text-xl.md:text-3xl.font-bold.tabular-nums class=signed_color(irr_percent)
+        = percentage(irr_percent)
+
+    div class="#{stat_tile_class} tiny:col-span-2 lg:landscape:col-span-2"
+      .flex.items-center.justify-center.px-4.text-xs.uppercase.tracking-wide.font-semibold.text-gray-500.dark:text-gray-400
+        = t('.savings_per_year')
+        = info_icon savings_per_year_hint
+      .mt-1.5.md:mt-2.5.text-xl.md:text-3xl.font-bold.tabular-nums class=signed_color(savings_per_year)
+        - if savings_per_year
+          = link_to currency(savings_per_year), balance_home_path(sensor_name: 'savings', timeframe: 'P365D'), class: 'hover:underline'
+        - else
+          = currency(savings_per_year)

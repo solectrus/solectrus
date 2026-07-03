@@ -1,0 +1,13 @@
+.flex-auto.flex.flex-col[
+  data-controller='amortization-chart--component'
+  data-amortization-chart--component-currency-value=currency_code
+  data-amortization-chart--component-balance-label-value=t('.balance')
+  data-amortization-chart--component-today-label-value=t('.today')
+  data-amortization-chart--component-degree-label-value=t('.degree')
+  data-amortization-chart--component-end-label-value=t('.end_of')
+]
+  script type='application/json' data-amortization-chart--component-target='data'
+    == chart_data.to_json
+
+  .relative.mt-2.flex-1.min-h-52
+    canvas.max-w-full data-amortization-chart--component-target='canvas'

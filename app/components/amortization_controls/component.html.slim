@@ -1,0 +1,33 @@
+= helpers.form_with url: helpers.amortization_path, method: :patch, data: { controller: 'amortization-controls--component auto-submit' } do
+  .grid.grid-cols-2.gap-x-6.lg:gap-x-16.gap-y-3
+    .form-control
+      .label.flex.justify-between.items-baseline.gap-2.py-1
+        span.label-text = t('.period')
+        span.label-text.font-semibold.tabular-nums.text-gray-800.dark:text-gray-100
+          span data-amortization-controls--component-target='periodValue'
+            = period_years
+          = " #{t('.years_unit')}"
+      input.range-slider.w-full[
+        type='range'
+        name='amortization[period_years]'
+        min=period_min max=period_max step=1 value=period_years
+        aria-label=t('.period')
+        data-amortization-controls--component-target='periodInput'
+        data-action='input->amortization-controls--component#updatePeriod change->auto-submit#submit'
+      ]
+
+    .form-control
+      .label.flex.justify-between.items-baseline.gap-2.py-1
+        span.label-text = t('.interest_rate')
+        span.label-text.font-semibold.tabular-nums.text-gray-800.dark:text-gray-100
+          span data-amortization-controls--component-target='rateValue'
+            = rate_label
+          | &nbsp;%
+      input.range-slider.w-full[
+        type='range'
+        name='amortization[interest_rate]'
+        min=interest_min max=interest_max step=interest_step value=interest_rate
+        aria-label=t('.interest_rate')
+        data-amortization-controls--component-target='rateInput'
+        data-action='input->amortization-controls--component#updateRate change->auto-submit#submit'
+      ]

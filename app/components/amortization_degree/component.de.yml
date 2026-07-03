@@ -1,0 +1,10 @@
+de:
+  today_label: Amortisiert bis heute
+  target_label: Voll amortisiert nach
+  today: heute
+  remaining: noch %{duration}
+  completed: erreicht
+  total_years: '%{total} Jahren'
+  not_within_period: Amortisation nicht innerhalb der Laufzeit
+  no_prognosis_title: Noch keine Prognose möglich
+  no_prognosis: Für die Amortisations-Berechnung werden gemessene Ersparnisse und mindestens eine erfasste Investition benötigt. Bitte Preise konfigurieren und Zahlungsströme in den Einstellungen erfassen.

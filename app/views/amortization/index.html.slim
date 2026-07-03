@@ -1,0 +1,57 @@
+- turbo_exempts_page_from_cache
+- content_for :full_height, true
+
+- if !admin? && !Setting.amortization_public
+  /! Admin decided the calculation is not public - hide it from other visitors
+  .flex-1.min-h-0.flex.flex-col.justify-center.gap-6
+    p.text-center.text-sm.md:text-base.text-gray-500.dark:text-gray-400
+      = t('.restricted')
+- elsif ApplicationPolicy.amortization?
+  - if @missing_or_stale_summary_days.present?
+    /! Measured savings incomplete - build the missing daily summaries first,
+    /! then reload (same mechanism as Top10), so the calculation runs on
+    /! complete data.
+    .flex-1.min-h-0
+      = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+  - elsif @result
+    /! Cash flows present: show the calculation
+    - if @result.prognosis?
+      /! Two-column dashboard on landscape (see StatsWithChart). The chart
+      /! needs width to be readable, so on small screens it is hidden and the
+      /! key figures fill the viewport on their own - no scrolling, no squeeze.
+      /! Wrapped in a Turbo frame so the parameter sliders can auto-refresh it.
+      = turbo_frame_tag 'amortization_detail', class: 'flex-1 min-h-0 flex flex-col lg:landscape:flex-row gap-5' do
+        /! Left half: degree teaser + key figures + parameter sliders
+        .flex-1.min-h-0.flex.flex-col.gap-6.py-2.lg:landscape:min-h-72
+          = render AmortizationDegree::Component.new(result: @result)
+          /! Key figures grow to fill the height between the timeline and the
+          /! sliders
+          .flex-1.min-h-0
+            = render AmortizationStats::Component.new(result: @result)
+
+          /! Sliders persist the parameters, so they stay admin-only
+          - if admin?
+            = render AmortizationControls::Component.new
+
+        /! Right half: chart over the whole period (landscape only)
+        .hidden.lg:landscape:flex.flex-1.min-h-52.flex-col
+          = render AmortizationChart::Component.new(result: @result)
+    - else
+      /! Not enough measured data yet - degree teaser shows the reason
+      .flex-1.min-h-0.flex.flex-col.justify-center.gap-6
+        = render AmortizationDegree::Component.new(result: @result)
+  - else
+    /! Cash flows missing: ask the admin to create them
+    = render Message::Component.new do |c|
+      - c.with_icon do
+        i.fa.fa-sack-dollar
+      = c.with_title { t('.no_cash_flows_title') }
+      = c.with_body { t('.no_cash_flows_body') }
+      - if admin?
+        = c.with_footer do
+          = render Button::Component.new title: t('.manage_cash_flows'),
+                                         path: settings_cash_flows_path,
+                                         style: :primary
+- else
+  /! Sponsor feature not available: promote it and link to the demo
+  = render DemoLink::Component.new(feature: 'amortization')

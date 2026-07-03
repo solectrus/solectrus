@@ -16,6 +16,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         (heatpump_item if Setting.enable_heatpump),
         essentials_item,
         top10_item,
+        amortization_item,
       ].compact
     end
 
@@ -30,8 +31,9 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
             forecast_item if Setting.enable_forecast &&
               Sensor::Config.exists?(:inverter_power_forecast)
           ),
-          top10_item,
           essentials_item,
+          top10_item,
+          amortization_item,
         ].compact
     end
 
@@ -121,6 +123,19 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         href:
           heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe: computed_timeframe),
         current: helpers.controller_namespace == 'heatpump',
+      }
+    end
+
+    def amortization_item
+      return unless admin? || Setting.amortization_public
+      return unless CashFlow.exists?
+
+      {
+        name: t('layout.amortization'),
+        icon: 'sack-dollar',
+        icon_only: true,
+        href: amortization_path,
+        current: helpers.controller_namespace == 'amortization',
       }
     end
 

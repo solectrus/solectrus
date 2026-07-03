@@ -1,0 +1,49 @@
+- if prognosis? && timeline?
+  .flex.flex-col.gap-5
+    /! Headline: current degree (left) vs. projected completion (right)
+    .flex.items-start.justify-between.gap-4
+      div
+        .text-sm.uppercase.tracking-wide.font-semibold.text-gray-500.dark:text-gray-400
+          = t('.today_label')
+        .text-4xl.md:text-6xl.font-bold.tabular-nums.tracking-tight class=(amortized? ? 'text-signal-positive' : 'text-gray-800 dark:text-gray-300')
+          = "#{display_percent} %"
+      .text-right
+        .text-sm.uppercase.tracking-wide.font-semibold.text-gray-500.dark:text-gray-400
+          = t('.target_label')
+        .text-lg.md:text-2xl.font-bold.tabular-nums.text-gray-800.dark:text-gray-300
+          = total_label
+        .text-sm.text-gray-500.dark:text-gray-400
+          = amortized? ? t('.completed') : remaining_label
+
+    /! Time track: solid = elapsed time, marker = today, dates at both ends
+    .relative.pt-6
+      - unless amortized?
+        div class="absolute top-0 -translate-x-1/2 whitespace-nowrap text-xs font-medium text-indigo-600 dark:text-indigo-400" style="left: #{elapsed_percent}%"
+          = t('.today')
+      div[
+        class='relative h-2 rounded-full bg-gray-200 dark:bg-slate-700'
+        role='progressbar'
+        aria-label=t('.today_label')
+        aria-valuenow=elapsed_percent
+        aria-valuemin='0'
+        aria-valuemax='100'
+      ]
+        div class="absolute inset-y-0 left-0 rounded-full progress-grow #{amortized? ? 'bg-signal-positive' : 'bg-indigo-500 dark:bg-indigo-600'}" style="width: #{elapsed_percent}%"
+        - unless amortized?
+          span class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 block h-3.5 w-3.5 rounded-full bg-indigo-600 dark:bg-indigo-500 ring-2 ring-white dark:ring-slate-900" style="left: #{elapsed_percent}%"
+      .mt-2.flex.justify-between.text-sm.text-gray-500.dark:text-gray-400
+        span = start_label
+        span = end_label
+- elsif prognosis?
+  /! No break-even within the period - show the bare degree
+  .text-center
+    .text-4xl.md:text-6xl.font-bold.tabular-nums.tracking-tight.text-gray-800.dark:text-gray-300
+      = "#{display_percent} %"
+    p.mt-3.text-sm.text-gray-500.dark:text-gray-400
+      = t('.not_within_period')
+- else
+  = render Message::Component.new do |c|
+    - c.with_icon do
+      i.fa.fa-sack-dollar
+    = c.with_title { t('.no_prognosis_title') }
+    = c.with_body { t('.no_prognosis') }

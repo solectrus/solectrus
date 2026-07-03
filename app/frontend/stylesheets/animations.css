@@ -82,6 +82,22 @@
   }
 }
 
+@keyframes progress-grow {
+  from {
+    width: 0;
+  }
+}
+
+.progress-grow {
+  animation: progress-grow 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion) {
+  .progress-grow {
+    animation: none;
+  }
+}
+
 /* Disable transitions during resize to prevent slow height/font-size adjustments */
 .transition-stopper * {
   transition: none !important;
