@@ -28,6 +28,8 @@ class AmortizationChart::Component < ViewComponent::Base
       # Balance as of today (= the "net position" KPI), so the today marker on
       # the chart matches that figure exactly instead of being interpolated.
       todayValue: result.net_position&.round(2),
+      # Amortization degree as of today, matching the "amortized so far" KPI.
+      todayDegree: today_degree,
     }
   end
 
@@ -46,6 +48,14 @@ class AmortizationChart::Component < ViewComponent::Base
   end
 
   private
+
+  # Same clamp/round as the AmortizationDegree KPI, so the today tooltip shows
+  # the identical percentage as the headline.
+  def today_degree
+    return unless result.degree_percent
+
+    [result.degree_percent.to_f, 0].max.round
+  end
 
   def today_year_progress
     today = Date.current

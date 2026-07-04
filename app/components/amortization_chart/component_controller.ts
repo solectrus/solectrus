@@ -43,6 +43,7 @@ interface AmortizationData {
   todayYear: number;
   todayYearProgress: number;
   todayValue: number | null;
+  todayDegree: number | null;
 }
 
 // One vertex of the line. x is the (fractional) year: an integer for a
@@ -302,6 +303,12 @@ export default class extends Controller<HTMLDivElement> {
             // split into columns by the renderer. No color swatches.
             displayColors: false,
             external: (context) => this.getTooltip().render(context),
+            // The today vertex belongs to both the measured and the projected
+            // dataset, so a hover there yields two identical items. Keep only
+            // the first item per x.
+            filter: (item, index, items) =>
+              items.findIndex((other) => other.parsed.x === item.parsed.x) ===
+              index,
             callbacks: {
               // Year marks are the balance on the last day of the year, so
               // title them "Ende 2032"; the synthetic vertex is "today".
@@ -363,7 +370,7 @@ export default class extends Controller<HTMLDivElement> {
       y: data.todayValue ?? before[before.length - 1]?.y ?? after[0]?.y ?? 0,
       year: null,
       projected: false,
-      degree: null,
+      degree: data.todayDegree,
       today: true,
     };
 
