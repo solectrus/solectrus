@@ -48,7 +48,7 @@ module Sensor
 
           def adapt_sql_calculation_for_final(sensor, meta_agg, _base_agg)
             # Finance sensors use SQL calculations with price joins
-            # Example: SUM(grid_export_power_sum * pf_eur_per_kwh / 1000.0)
+            # Example: SUM(grid_export_power_sum * pf_money_per_kwh / 1000.0)
             base_calculation = sensor.sql_calculation
 
             # Finance sensors ALWAYS need meta-aggregation because:

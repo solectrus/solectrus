@@ -15,7 +15,7 @@ class Sensor::Definitions::GridRevenue < Sensor::Definitions::FinanceBase
   end
 
   def sql_calculation
-    'COALESCE(grid_export_power_sum,0) * pf_eur_per_kwh / 1000.0'
+    'COALESCE(grid_export_power_sum,0) * pf_money_per_kwh / 1000.0'
   end
 
   def calculate_with_prices(grid_export_power:, prices:)

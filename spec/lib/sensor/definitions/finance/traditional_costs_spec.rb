@@ -9,7 +9,7 @@ describe Sensor::Definitions::TraditionalCosts do # rubocop:disable RSpec/SpecFi
     end
 
     it 'includes electricity price reference' do
-      expect(sql_calculation).to include('pb_eur_per_kwh')
+      expect(sql_calculation).to include('pb_money_per_kwh')
     end
 
     context 'when all sensors are configured' do
@@ -66,7 +66,7 @@ describe Sensor::Definitions::TraditionalCosts do # rubocop:disable RSpec/SpecFi
         expect(sql_calculation).not_to include('heatpump_power_sum')
         expect(sql_calculation).not_to include('wallbox_power_sum')
         expect(sql_calculation).to eq(
-          '(COALESCE(house_power_sum,0)) * pb_eur_per_kwh / 1000.0',
+          '(COALESCE(house_power_sum,0)) * pb_money_per_kwh / 1000.0',
         )
       end
     end

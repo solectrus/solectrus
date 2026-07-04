@@ -10,7 +10,7 @@ describe Sensor::Definitions::WallboxCostsPv do # rubocop:disable RSpec/SpecFile
     end
 
     it 'includes feed-in price reference' do
-      expect(sql_calculation).to include('pf_eur_per_kwh')
+      expect(sql_calculation).to include('pf_money_per_kwh')
     end
   end
 

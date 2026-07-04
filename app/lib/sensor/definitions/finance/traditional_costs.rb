@@ -14,7 +14,7 @@ class Sensor::Definitions::TraditionalCosts < Sensor::Definitions::FinanceBase
   def sql_calculation
     parts = dependencies.map { |dep| "COALESCE(#{dep}_sum,0)" }
 
-    "(#{parts.join(' + ')}) * pb_eur_per_kwh / 1000.0"
+    "(#{parts.join(' + ')}) * pb_money_per_kwh / 1000.0"
   end
 
   def calculate_with_prices(

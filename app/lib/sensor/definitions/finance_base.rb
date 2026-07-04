@@ -44,11 +44,11 @@ class Sensor::Definitions::FinanceBase < Sensor::Definitions::Base
 
   # Helper for building price references
   def electricity_price
-    'pb.eur_per_kwh'
+    'pb.money_per_kwh'
   end
 
   def feed_in_price
-    'pf.eur_per_kwh'
+    'pf.money_per_kwh'
   end
 
   # Helper for Wh to kWh conversion

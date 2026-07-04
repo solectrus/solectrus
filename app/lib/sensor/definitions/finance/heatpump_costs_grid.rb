@@ -6,7 +6,7 @@ class Sensor::Definitions::HeatpumpCostsGrid < Sensor::Definitions::FinanceBase
   end
 
   def sql_calculation
-    'heatpump_power_grid_sum * pb_eur_per_kwh / 1000.0'
+    'heatpump_power_grid_sum * pb_money_per_kwh / 1000.0'
   end
 
   def calculate_with_prices(heatpump_power_grid:, prices:)

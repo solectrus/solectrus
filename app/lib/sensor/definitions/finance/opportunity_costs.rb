@@ -9,7 +9,7 @@ class Sensor::Definitions::OpportunityCosts < Sensor::Definitions::FinanceBase
     # Opportunity costs = self-consumed energy * feed-in price
     # Self-consumed = inverter_power - grid_export_power
     # Only positive values (when there is actual self-consumption)
-    'GREATEST((COALESCE(inverter_power_sum,0) - COALESCE(grid_export_power_sum,0)), 0) * pf_eur_per_kwh / 1000.0'
+    'GREATEST((COALESCE(inverter_power_sum,0) - COALESCE(grid_export_power_sum,0)), 0) * pf_money_per_kwh / 1000.0'
   end
 
   def calculate_with_prices(inverter_power:, grid_export_power:, prices:)

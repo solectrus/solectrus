@@ -25,7 +25,7 @@ class Sensor::Definitions::CustomCostsGrid < Sensor::Definitions::FinanceBase
   end
 
   def sql_calculation
-    "custom_power_#{formatted_number}_grid_sum * pb_eur_per_kwh / 1000.0"
+    "custom_power_#{formatted_number}_grid_sum * pb_money_per_kwh / 1000.0"
   end
 
   def calculate_with_prices(prices:, **values)

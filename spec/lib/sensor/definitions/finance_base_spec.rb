@@ -46,13 +46,13 @@ describe Sensor::Definitions::FinanceBase do
   describe 'SQL helper methods' do
     describe '#electricity_price' do
       it 'returns correct price reference' do
-        expect(instance.electricity_price).to eq('pb.eur_per_kwh')
+        expect(instance.electricity_price).to eq('pb.money_per_kwh')
       end
     end
 
     describe '#feed_in_price' do
       it 'returns correct price reference' do
-        expect(instance.feed_in_price).to eq('pf.eur_per_kwh')
+        expect(instance.feed_in_price).to eq('pf.money_per_kwh')
       end
     end
 

@@ -6,7 +6,7 @@ class Sensor::Definitions::WallboxCostsGrid < Sensor::Definitions::FinanceBase
   end
 
   def sql_calculation
-    'wallbox_power_grid_sum * pb_eur_per_kwh / 1000.0'
+    'wallbox_power_grid_sum * pb_money_per_kwh / 1000.0'
   end
 
   def calculate_with_prices(wallbox_power_grid:, prices:)

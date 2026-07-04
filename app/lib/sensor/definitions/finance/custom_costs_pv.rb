@@ -30,7 +30,7 @@ class Sensor::Definitions::CustomCostsPv < Sensor::Definitions::FinanceBase
   end
 
   def sql_calculation
-    "GREATEST(COALESCE(custom_power_#{formatted_number}_sum,0) - COALESCE(custom_power_#{formatted_number}_grid_sum,0), 0) / 1000.0 * pf_eur_per_kwh"
+    "GREATEST(COALESCE(custom_power_#{formatted_number}_sum,0) - COALESCE(custom_power_#{formatted_number}_grid_sum,0), 0) / 1000.0 * pf_money_per_kwh"
   end
 
   def calculate_with_prices(prices:, **values)

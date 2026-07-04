@@ -6,7 +6,7 @@ class Sensor::Definitions::HeatpumpCostsPv < Sensor::Definitions::FinanceBase
   end
 
   def sql_calculation
-    'GREATEST(COALESCE(heatpump_power_sum,0) - COALESCE(heatpump_power_grid_sum,0), 0) / 1000.0 * pf_eur_per_kwh'
+    'GREATEST(COALESCE(heatpump_power_sum,0) - COALESCE(heatpump_power_grid_sum,0), 0) / 1000.0 * pf_money_per_kwh'
   end
 
   def calculate_with_prices(heatpump_power:, heatpump_power_grid:, prices:)

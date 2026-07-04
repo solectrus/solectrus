@@ -9,7 +9,7 @@ describe Sensor::Definitions::GridRevenue do # rubocop:disable RSpec/SpecFilePat
     end
 
     it 'includes feed-in price reference' do
-      expect(sql_calculation).to include('pf_eur_per_kwh')
+      expect(sql_calculation).to include('pf_money_per_kwh')
     end
 
     it 'includes grid export power reference' do

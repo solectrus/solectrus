@@ -35,7 +35,7 @@ module Sensor
                   name,
                   starts_at,
                   LEAD(starts_at, 1, 'infinity'::date) OVER (PARTITION BY name ORDER BY starts_at) AS next_start,
-                  value::numeric AS eur_per_kwh
+                  value::numeric AS money_per_kwh
                 FROM prices
                 WHERE name IN (#{price_names})
               ),
@@ -102,10 +102,10 @@ module Sensor
           def build_price_columns
             columns = []
             if required_prices.include?(:electricity)
-              columns << 'MAX(pb.eur_per_kwh) AS pb_eur_per_kwh'
+              columns << 'MAX(pb.money_per_kwh) AS pb_money_per_kwh'
             end
             if required_prices.include?(:feed_in)
-              columns << 'MAX(pf.eur_per_kwh) AS pf_eur_per_kwh'
+              columns << 'MAX(pf.money_per_kwh) AS pf_money_per_kwh'
             end
             columns
           end

@@ -393,7 +393,7 @@ WITH price_ranges AS (
     name,
     starts_at,
     LEAD(starts_at, 1, 'infinity'::date) OVER (PARTITION BY name ORDER BY starts_at) AS next_start,
-    value::numeric AS eur_per_kwh
+    value::numeric AS money_per_kwh
   FROM prices
   WHERE name IN ('electricity','feed_in')
 ),
@@ -407,8 +407,8 @@ daily AS (
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_export_power')  AS grid_export_power_sum,
     MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'case_temp')          AS case_temp_min,
     MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'case_temp')          AS case_temp_max,
-    MAX(pb.eur_per_kwh) AS pb_eur_per_kwh,
-    MAX(pf.eur_per_kwh) AS pf_eur_per_kwh
+    MAX(pb.money_per_kwh) AS pb_money_per_kwh,
+    MAX(pf.money_per_kwh) AS pf_money_per_kwh
   FROM summary_values sv
 
   LEFT JOIN price_ranges pb
@@ -434,8 +434,8 @@ SELECT
   SUM(grid_export_power_sum) AS grid_export_power_sum_sum,
   AVG(case_temp_min)       AS case_temp_avg_min,
   AVG(case_temp_max)       AS case_temp_avg_max,
-  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_eur_per_kwh / 1000.0) AS traditional_costs_sum_sum,
-  SUM(grid_export_power_sum * pf_eur_per_kwh / 1000.0) AS grid_revenue_sum_sum
+  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0) AS traditional_costs_sum_sum,
+  SUM(grid_export_power_sum * pf_money_per_kwh / 1000.0) AS grid_revenue_sum_sum
 FROM daily
 ```
 
@@ -507,7 +507,7 @@ WITH price_ranges AS (
     name,
     starts_at,
     LEAD(starts_at, 1, 'infinity'::date) OVER (PARTITION BY name ORDER BY starts_at) AS next_start,
-    value::numeric AS eur_per_kwh
+    value::numeric AS money_per_kwh
   FROM prices
   WHERE name IN ('electricity','feed_in')
 ),
@@ -521,8 +521,8 @@ daily AS (
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_export_power')  AS grid_export_power_sum,
     MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'case_temp')          AS case_temp_min,
     MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'case_temp')          AS case_temp_max,
-    MAX(pb.eur_per_kwh)                                                                     AS pb_eur_per_kwh,
-    MAX(pf.eur_per_kwh)                                                                     AS pf_eur_per_kwh
+    MAX(pb.money_per_kwh)                                                                   AS pb_money_per_kwh,
+    MAX(pf.money_per_kwh)                                                                   AS pf_money_per_kwh
   FROM summary_values sv
 
   LEFT JOIN price_ranges pb
@@ -549,8 +549,8 @@ SELECT
   SUM(grid_export_power_sum) AS grid_export_power_sum_sum,
   AVG(case_temp_min)         AS case_temp_avg_min,
   AVG(case_temp_max)         AS case_temp_avg_max,
-  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_eur_per_kwh / 1000.0) AS traditional_costs_sum_sum,
-  SUM(grid_export_power_sum * pf_eur_per_kwh / 1000.0) AS grid_revenue_sum_sum
+  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0) AS traditional_costs_sum_sum,
+  SUM(grid_export_power_sum * pf_money_per_kwh / 1000.0) AS grid_revenue_sum_sum
 
 FROM daily
 

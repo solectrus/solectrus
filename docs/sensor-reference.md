@@ -421,7 +421,7 @@ class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
 
   # SQL calculation: Only SELECT expression (embedded in query)
   def sql_calculation
-    'COALESCE(grid_import_power_sum,0) * pb_eur_per_kwh / 1000.0'
+    'COALESCE(grid_import_power_sum,0) * pb_money_per_kwh / 1000.0'
   end
 
   # InfluxDB calculation: Ruby implementation with prices
@@ -457,7 +457,7 @@ The `sql_calculation` method returns only the **SELECT expression** (not complet
 ```sql
 -- Automatically generated from sql_calculation
 SELECT
-  COALESCE(grid_import_power_sum,0) * pb_eur_per_kwh / 1000.0 AS grid_costs
+  COALESCE(grid_import_power_sum,0) * pb_money_per_kwh / 1000.0 AS grid_costs
 FROM ...
 WHERE timeframe = ...
 ```
@@ -465,8 +465,8 @@ WHERE timeframe = ...
 **Available columns** (directly accessible in sql_calculation):
 
 - `{sensor}_sum`, `{sensor}_max`, `{sensor}_min`, `{sensor}_avg` - Aggregated sensor values
-- `pb_eur_per_kwh` - Electricity Price (purchase price)
-- `pf_eur_per_kwh` - Feed-in Price (feed-in tariff)
+- `pb_money_per_kwh` - Electricity Price (purchase price)
+- `pf_money_per_kwh` - Feed-in Price (feed-in tariff)
 
 ### InfluxDB Calculation
 
@@ -495,8 +495,8 @@ end
 
 **Available in FinanceBase:**
 
-- `electricity_price` → `'pb.eur_per_kwh'` (for SQL)
-- `feed_in_price` → `'pf.eur_per_kwh'` (for SQL)
+- `electricity_price` → `'pb.money_per_kwh'` (for SQL)
+- `feed_in_price` → `'pf.money_per_kwh'` (for SQL)
 - `to_kwh(wh_expression)` → Converts Wh to kWh (for SQL)
 - `greatest(expression, fallback)` → GREATEST SQL function
 - `coalesce(expression, fallback)` → COALESCE SQL function

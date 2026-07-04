@@ -9,7 +9,7 @@ describe Sensor::Definitions::HouseCostsGrid do # rubocop:disable RSpec/SpecFile
     end
 
     it 'includes electricity price reference' do
-      expect(sql_calculation).to include('pb_eur_per_kwh')
+      expect(sql_calculation).to include('pb_money_per_kwh')
     end
 
     it 'includes power fields reference' do
