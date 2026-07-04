@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { debounce } from 'throttle-debounce';
 import { isReducedMotion } from '@/utils/device';
 import * as Turbo from '@hotwired/turbo';
 
@@ -16,6 +17,7 @@ import {
   Filler,
 } from 'chart.js';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
+import zoomPlugin from 'chartjs-plugin-zoom';
 
 import { applyCrosshairFix } from '../chart_loader/helpers/crosshair_fix';
 import GenericChartTooltip from '../chart_loader/helpers/generic_chart_tooltip';
@@ -28,6 +30,7 @@ Chart.register(
   Tooltip,
   Filler,
   CrosshairPlugin,
+  zoomPlugin,
 );
 
 applyCrosshairFix();
@@ -85,6 +88,8 @@ export default class extends Controller<HTMLDivElement> {
 
   private chart?: Chart<'line'>;
   private boundHandleThemeChange?: () => void;
+  private boundHandleDblClick?: () => void;
+  private boundHandleResize?: () => void;
   private genericTooltip?: GenericChartTooltip;
   private hatchPattern?: CanvasPattern | string;
   private hatchKey?: string;
@@ -97,6 +102,23 @@ export default class extends Controller<HTMLDivElement> {
       this.process();
     };
     document.addEventListener('theme:changed', this.boundHandleThemeChange);
+
+    // Double-click resets a drag-zoom, like the other charts.
+    this.boundHandleDblClick = () => this.chart?.resetZoom();
+    this.canvasTarget.addEventListener('dblclick', this.boundHandleDblClick);
+
+    // Rebuild on resize. The maximize/minimize buttons (chart-zoom controller)
+    // dispatch a window resize. A plain chart.resize() cannot recover the
+    // return from the fullscreen overlay: Chart.js' leftover inline canvas
+    // height keeps the flex container inflated, so it just re-measures the
+    // wrong size. Destroying first clears that inline size and lets the
+    // container collapse to its natural height before we rebuild - the same
+    // approach as the other charts. Skip the entry animation while resizing.
+    this.boundHandleResize = debounce(100, () => {
+      this.chart?.destroy();
+      this.process({ animate: false });
+    });
+    window.addEventListener('resize', this.boundHandleResize);
   }
 
   disconnect() {
@@ -106,12 +128,21 @@ export default class extends Controller<HTMLDivElement> {
         this.boundHandleThemeChange,
       );
 
+    if (this.boundHandleDblClick)
+      this.canvasTarget.removeEventListener(
+        'dblclick',
+        this.boundHandleDblClick,
+      );
+
+    if (this.boundHandleResize)
+      window.removeEventListener('resize', this.boundHandleResize);
+
     this.chart?.destroy();
     this.genericTooltip?.destroy();
     this.genericTooltip = undefined;
   }
 
-  private process() {
+  private process({ animate = true }: { animate?: boolean } = {}) {
     const data = this.getData();
     if (!data) return;
 
@@ -203,9 +234,10 @@ export default class extends Controller<HTMLDivElement> {
         // Track the nearest year by x without having to hit a point exactly.
         // One tooltip item, since each x lives in only one of the two halves.
         interaction: { mode: 'nearest', axis: 'x', intersect: false },
-        animation: isReducedMotion()
-          ? false
-          : { duration: 800, easing: 'easeOutQuart' },
+        animation:
+          isReducedMotion() || !animate
+            ? false
+            : { duration: 800, easing: 'easeOutQuart' },
         onClick: (_event: ChartEvent, elements: ActiveElement[]) => {
           if (!elements.length) return;
 
@@ -251,12 +283,16 @@ export default class extends Controller<HTMLDivElement> {
         plugins: {
           // Hairline via chartjs-plugin-crosshair, using the same red default
           // line and free (non-snapping) tracking as the other charts. Its
-          // option key is unknown to the Chart.js types here. Drag-to-zoom and
-          // cross-chart sync stay off.
+          // option key is unknown to the Chart.js types here. Crosshair's own
+          // drag-to-zoom stays off (it crashes on null points); chartjs-plugin-
+          // zoom handles drag-to-zoom instead. Cross-chart sync stays off.
           ...({
             crosshair: {
               sync: { enabled: false },
               zoom: { enabled: false },
+            },
+            zoom: {
+              zoom: { drag: { enabled: true }, mode: 'x' },
             },
           } as unknown as Record<string, never>),
           tooltip: {
@@ -474,7 +510,11 @@ export default class extends Controller<HTMLDivElement> {
         if (x === undefined) return;
 
         const { ctx } = chart;
-        const { top, bottom } = chart.chartArea;
+        const { top, bottom, left, right } = chart.chartArea;
+
+        // When zoomed in, "today" can fall outside the visible range; don't
+        // paint the marker into the axis padding.
+        if (x < left || x > right) return;
 
         ctx.save();
         ctx.strokeStyle = TODAY_COLOR;

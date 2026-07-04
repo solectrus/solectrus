@@ -2,6 +2,14 @@
 # simulation to the end of the total period. Negative values = not yet
 # amortized. Measured past and projected future are visually distinguished.
 class AmortizationChart::Component < ViewComponent::Base
+  # Round icon button, matching the maximize/minimize buttons of the other charts.
+  ICON_BUTTON_CLASS =
+    'flex items-center justify-center p-2 font-medium focus:outline-none ' \
+    'focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 text-sm gap-2 ' \
+    'hover:bg-gray-200 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800 ' \
+    'rounded-full size-8 border border-gray-300 dark:border-gray-600 cursor-pointer'.freeze
+  private_constant :ICON_BUTTON_CLASS
+
   def initialize(result:)
     super()
     @result = result
@@ -25,6 +33,16 @@ class AmortizationChart::Component < ViewComponent::Base
 
   def currency_code
     Currency.code
+  end
+
+  # Year span of the chart, shown as the fullscreen subtitle (like the timeframe
+  # on the other charts), e.g. "2020 - 2045".
+  def period_label
+    years = result.yearly_series.pluck(:year)
+    return if years.empty?
+
+    first, last = years.minmax
+    first == last ? first.to_s : "#{first} – #{last}"
   end
 
   private

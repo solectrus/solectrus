@@ -5,3 +5,5 @@ de:
   # Prefix for the tooltip title - values are the balance on the last day of
   # the year, e.g. "Ende 2032"
   end_of: Ende
+  maximize: Maximal vergrößern
+  minimize: Zurück zur normalen Größe

@@ -72,5 +72,19 @@ describe 'Amortization' do
       expect(page).to have_field('amortization[period_years]', type: 'range')
       expect(page).to have_field('amortization[interest_rate]', type: 'range')
     end
+
+    it 'maximizes the chart to fullscreen and back' do
+      visit '/amortization'
+
+      # The minimize button only shows once the chart is maximized
+      expect(page).to have_button('Maximal vergrößern')
+      expect(page).to have_no_button('Zurück zur normalen Größe')
+
+      click_button 'Maximal vergrößern'
+      expect(page).to have_button('Zurück zur normalen Größe')
+
+      click_button 'Zurück zur normalen Größe'
+      expect(page).to have_button('Maximal vergrößern')
+    end
   end
 end
