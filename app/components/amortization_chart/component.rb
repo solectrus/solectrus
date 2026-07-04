@@ -17,6 +17,9 @@ class AmortizationChart::Component < ViewComponent::Base
       projected: result.yearly_series.pluck(:projected),
       todayYear: Date.current.year,
       todayYearProgress: today_year_progress,
+      # Balance as of today (= the "net position" KPI), so the today marker on
+      # the chart matches that figure exactly instead of being interpolated.
+      todayValue: result.net_position&.round(2),
     }
   end
 
