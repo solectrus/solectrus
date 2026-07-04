@@ -325,13 +325,19 @@ export default class extends Controller<HTMLDivElement> {
 
         const previousElement = pointElements[index - 1];
         const nextElement = pointElements[index + 1];
-        // Each label marks a year; place "today" progress-of-the-year fraction
-        // of the way from the current year's mark toward the next one.
-        const spacing = nextElement
-          ? nextElement.x - currentElement.x
-          : currentElement.x - (previousElement?.x ?? currentElement.x);
         const progress = Math.min(Math.max(data.todayYearProgress, 0), 1);
-        const x = currentElement.x + progress * spacing;
+        // Each mark is the balance at the END of its year, so "today" - a
+        // fraction of the way through the current year - sits between the
+        // previous year's mark and the current one. Interpolate there. When the
+        // current year is the very first mark, there is no previous point to
+        // anchor to, so use the forward gap as the year width and step back.
+        const spacing = previousElement
+          ? currentElement.x - previousElement.x
+          : (nextElement?.x ?? currentElement.x) - currentElement.x;
+        const anchorX = previousElement
+          ? previousElement.x
+          : currentElement.x - spacing;
+        const x = anchorX + progress * spacing;
         const { ctx } = chart;
         const { top, bottom } = chart.chartArea;
 
