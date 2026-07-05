@@ -18,7 +18,7 @@ module McpServer
             uncapped, only flows up to today).
           - break_even_date: first day the nominal balance reaches zero (null if
             not within the period).
-          - commissioning_date: start of the payback period.
+          - installation_date: start of the payback period.
           - net_position: nominal balance as of today (excludes future-dated flows).
           - profit_nominal: nominal surplus at the end of the period (no interest).
           - npv: net present value at the calculatory rate (positive = beats an
@@ -86,7 +86,7 @@ module McpServer
           amortized: result.amortized?,
           degree_percent: round2(result.degree_percent),
           break_even_date: result.break_even_date&.iso8601,
-          commissioning_date: result.commissioning_date&.iso8601,
+          installation_date: result.installation_date&.iso8601,
           net_position: round2(result.net_position),
           profit_nominal: round2(result.profit_nominal),
           npv: round2(result.npv),

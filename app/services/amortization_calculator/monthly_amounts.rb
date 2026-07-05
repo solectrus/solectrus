@@ -10,12 +10,12 @@ class AmortizationCalculator
 
     attr_reader :savings, :cash_flows, :period_end_date
 
-    # Entries dated before commissioning (e.g. a down payment) must not be
+    # Entries dated before installation (e.g. a down payment) must not be
     # swallowed, so the simulation starts at the earlier of the two.
     def start_month
       @start_month ||=
         [
-          savings.effective_commissioning_date,
+          savings.effective_installation_date,
           cash_flows.first&.first,
         ].compact.min.beginning_of_month
     end

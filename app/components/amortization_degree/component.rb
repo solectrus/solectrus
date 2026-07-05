@@ -1,5 +1,5 @@
 # Public teaser: shows how far the PV system has amortized as a payback
-# timeline - commissioning on the left, the projected break-even on the right,
+# timeline - installation on the left, the projected break-even on the right,
 # "today" marked in between with the current degree. Deliberately free of any
 # currency amounts, so it can be shown to everyone.
 class AmortizationDegree::Component < ViewComponent::Base
@@ -13,7 +13,7 @@ class AmortizationDegree::Component < ViewComponent::Base
   delegate :amortized?,
            :prognosis?,
            :break_even_date,
-           :commissioning_date,
+           :installation_date,
            to: :result
 
   # Floored at 0 for display; the upper end is uncapped so an over-amortized
@@ -28,21 +28,21 @@ class AmortizationDegree::Component < ViewComponent::Base
     result.total_years.present?
   end
 
-  # Today's position on the commissioning -> break-even axis, in percent. This
+  # Today's position on the installation -> break-even axis, in percent. This
   # is the *time* elapsed, not the financial degree - the two run at different
   # speeds - and drives the "today" marker and the solid part of the track.
   # Fully elapsed once amortized.
   def elapsed_percent
     return 100 if amortized?
 
-    span = (break_even_date - commissioning_date).to_f
+    span = (break_even_date - installation_date).to_f
     return 0 if span <= 0
 
-    (((Date.current - commissioning_date) / span) * 100).clamp(0, 100).round
+    (((Date.current - installation_date) / span) * 100).clamp(0, 100).round
   end
 
   def start_label
-    l(commissioning_date, format: '%B %Y')
+    l(installation_date, format: '%B %Y')
   end
 
   def end_label

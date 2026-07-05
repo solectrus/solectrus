@@ -13,26 +13,26 @@ class AmortizationCalculator
 
     # Guard against the silent INSTALLATION_DATE fallback (2020-01-01):
     # clamp to the first day with measured data.
-    def effective_commissioning_date
-      @effective_commissioning_date ||=
+    def effective_installation_date
+      @effective_installation_date ||=
         [
           Rails.configuration.x.installation_date,
           SummaryValue.minimum(:date),
         ].compact.max
     end
 
-    def commissioning_month
-      @commissioning_month ||= effective_commissioning_date.beginning_of_month
+    def installation_month
+      @installation_month ||= effective_installation_date.beginning_of_month
     end
 
     def measured_days
-      @measured_days ||= (today - effective_commissioning_date).to_i + 1
+      @measured_days ||= (today - effective_installation_date).to_i + 1
     end
 
     # Measured savings of the given month, nil if there is no data (or the
     # month is outside the measured range). The current month is partial.
     def measured_for(month)
-      return unless month.between?(commissioning_month, current_month)
+      return unless month.between?(installation_month, current_month)
 
       measured_by_month[month]
     end
@@ -88,7 +88,7 @@ class AmortizationCalculator
 
     private
 
-    # All-time average since commissioning - the fallback projection rate while
+    # All-time average since installation - the fallback projection rate while
     # less than a full year of measured data is available.
     def all_time_savings_per_day
       return unless total_measured && measured_days.positive?
@@ -104,12 +104,12 @@ class AmortizationCalculator
       @measured_by_month ||= query_savings(measured_timeframe, group_by: :month)
     end
 
-    # Timeframe spanning commissioning up to today. With only a single day of
-    # measured data (commissioning == today) a range would be same-day, which
+    # Timeframe spanning installation up to today. With only a single day of
+    # measured data (installation == today) a range would be same-day, which
     # Timeframe rejects, so query that single day directly.
     def measured_timeframe
-      if effective_commissioning_date < today
-        Timeframe.new("#{effective_commissioning_date}..#{today}")
+      if effective_installation_date < today
+        Timeframe.new("#{effective_installation_date}..#{today}")
       else
         Timeframe.new(today.to_s)
       end

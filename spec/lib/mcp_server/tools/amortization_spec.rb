@@ -52,7 +52,7 @@ describe McpServer::Tools::Amortization do
         aggregate_failures do
           expect(data[:currency]).to eq(Rails.configuration.x.currency)
           expect(data[:period_years]).to eq(Setting.amortization_period_years)
-          expect(data[:commissioning_date]).to eq('2023-07-10')
+          expect(data[:installation_date]).to eq('2023-07-10')
           expect(data[:degree_percent]).to be_within(0.1).of(30.54 / 50 * 100)
           expect(data[:net_position]).to be_within(0.01).of(30.54 - 50)
           expect(data[:projection_uncertain]).to be(true)

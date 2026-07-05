@@ -53,7 +53,7 @@ describe AmortizationCalculator do
     it 'clamps the start to the first summary date (ENV fallback guard)' do
       # 342 days from 2023-07-10 to 2024-06-15, not 1628 days since 2020-01-01
       aggregate_failures do
-        expect(result.commissioning_date).to eq(Date.new(2023, 7, 10))
+        expect(result.installation_date).to eq(Date.new(2023, 7, 10))
         expect(result.savings_per_day).to be_within(0.001).of(
           total_savings / 342,
         )
@@ -178,7 +178,7 @@ describe AmortizationCalculator do
     end
   end
 
-  describe 'cash flow before commissioning' do
+  describe 'cash flow before installation' do
     before { seed_steady_year }
 
     it 'moves the simulation start and keeps the entry' do
@@ -217,7 +217,7 @@ describe AmortizationCalculator do
       by_year = result.yearly_series.index_by { |entry| entry[:year] }
 
       aggregate_failures do
-        # travel_to 2024-06-15, commissioning 2023-07: the start anchor (2023)
+        # travel_to 2024-06-15, installation 2023-07: the start anchor (2023)
         # and the first birthday (2024, ending June 2024) are in the past; every
         # later birthday is projected.
         expect(by_year[2023][:projected]).to be false
@@ -457,8 +457,8 @@ describe AmortizationCalculator do
       expect(result.break_even_date).to be_nil
     end
 
-    it 'handles a single day of measured data (commissioning today)' do
-      # Only today has measured savings, so commissioning == today. A
+    it 'handles a single day of measured data (installation today)' do
+      # Only today has measured savings, so installation == today. A
       # same-day range would be rejected by Timeframe; the calculation must
       # still succeed instead of raising.
       seed_savings_day(Date.new(2024, 6, 15), 10_000)
@@ -468,7 +468,7 @@ describe AmortizationCalculator do
       expect { r = result }.not_to raise_error
 
       aggregate_failures do
-        expect(r.commissioning_date).to eq(Date.new(2024, 6, 15))
+        expect(r.installation_date).to eq(Date.new(2024, 6, 15))
         expect(r.savings_per_day).to be_within(0.01).of(2.545)
         expect(r.prognosis?).to be true
       end

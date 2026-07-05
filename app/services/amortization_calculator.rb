@@ -49,7 +49,7 @@ class AmortizationCalculator
     Result.new(
       degree_percent: degree_percent(credits, debits),
       break_even_date: break_even_date(nominal),
-      commissioning_date: savings.effective_commissioning_date,
+      installation_date: savings.effective_installation_date,
       net_position: credits - debits,
       profit_nominal: nominal.last&.last,
       npv: discounting.npv_at(interest_rate),
@@ -85,13 +85,13 @@ class AmortizationCalculator
   end
 
   # Last day of the operating period: exactly period_years * 12 whole months
-  # from the commissioning month. Anchoring on the month (not the day) keeps
+  # from the installation month. Anchoring on the month (not the day) keeps
   # the monthly bucket count exact - a day-based end floored to the month start
   # counted one bucket too many, stretching the period to 20.08 instead of an
   # even 20.0 years.
   def period_end_date
     @period_end_date ||=
-      savings.commissioning_month + (period_years * 12).months - 1.day
+      savings.installation_month + (period_years * 12).months - 1.day
   end
 
   def monthly
@@ -175,16 +175,16 @@ class AmortizationCalculator
     nil
   end
 
-  # Points for the chart, anchored on the commissioning date rather than the
+  # Points for the chart, anchored on the installation date rather than the
   # calendar: a leading anchor at the operating start (carrying the initial
   # investment, so the chart opens at its deepest point) followed by one point
   # per PV-year birthday - the balance after each whole 12-month block counted
-  # from the commissioning month. Every segment thus spans a full year; the
+  # from the installation month. Every segment thus spans a full year; the
   # first and last year no longer show a shallower slope from a partial
   # calendar year (see #5712). Months after the current one are projected.
   def yearly_series(nominal)
     balance_at = nominal.to_h
-    commissioning_month = savings.commissioning_month
+    installation_month = savings.installation_month
     first_month, first_balance = nominal.first
 
     entries = [
@@ -192,9 +192,9 @@ class AmortizationCalculator
     ]
 
     (1..period_years).each do |elapsed|
-      month = commissioning_month + ((elapsed * 12) - 1).months
+      month = installation_month + ((elapsed * 12) - 1).months
       entries << yearly_entry(
-        year: commissioning_month.year + elapsed,
+        year: installation_month.year + elapsed,
         month:,
         balance: balance_at[month],
       )

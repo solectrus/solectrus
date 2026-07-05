@@ -57,21 +57,23 @@ class AmortizationChart::Component < ViewComponent::Base
     [result.degree_percent.to_f, 0].max.round
   end
 
-  # The x-axis marks are PV-year birthdays (x = commissioning year + elapsed
+  # The x-axis marks are PV-year birthdays (x = installation year + elapsed
   # years), so "today" is placed by how many PV years have elapsed since
-  # commissioning - not by the calendar year. The controller computes the
+  # installation - not by the calendar year. The controller computes the
   # today vertex as todayYear - 1 + progress, i.e. the previous birthday plus
   # the fraction into the current PV year.
   def today_year
-    result.commissioning_date.year + elapsed_pv_years.floor + 1
+    result.installation_date.year + elapsed_pv_years.floor + 1
   end
 
   def today_year_progress
-    (elapsed_pv_years - elapsed_pv_years.floor).clamp(0.0, 1.0)
+    elapsed = elapsed_pv_years
+    (elapsed - elapsed.floor).clamp(0.0, 1.0)
   end
 
   def elapsed_pv_years
-    (Date.current - result.commissioning_date).to_f / 365.25
+    @elapsed_pv_years ||=
+      (Date.current - result.installation_date).to_f / 365.25
   end
 
   def rounded_series(key)
