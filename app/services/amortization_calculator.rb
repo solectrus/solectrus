@@ -175,20 +175,41 @@ class AmortizationCalculator
     nil
   end
 
-  # One entry per year: nominal balance at the end of each calendar year (or
-  # at the end of the period). Months after the current one are projected.
+  # Points for the chart, anchored on the commissioning date rather than the
+  # calendar: a leading anchor at the operating start (carrying the initial
+  # investment, so the chart opens at its deepest point) followed by one point
+  # per PV-year birthday - the balance after each whole 12-month block counted
+  # from the commissioning month. Every segment thus spans a full year; the
+  # first and last year no longer show a shallower slope from a partial
+  # calendar year (see #5712). Months after the current one are projected.
   def yearly_series(nominal)
-    nominal
-      .group_by { |month, _balance| month.year }
-      .map do |year, rows|
-        month, balance = rows.last
-        {
-          year:,
-          nominal: balance,
-          projected: month > current_month,
-          degree: degree_by_month[month],
-        }
-      end
+    balance_at = nominal.to_h
+    commissioning_month = savings.commissioning_month
+    first_month, first_balance = nominal.first
+
+    entries = [
+      yearly_entry(year: first_month.year, month: first_month, balance: first_balance),
+    ]
+
+    (1..period_years).each do |elapsed|
+      month = commissioning_month + ((elapsed * 12) - 1).months
+      entries << yearly_entry(
+        year: commissioning_month.year + elapsed,
+        month:,
+        balance: balance_at[month],
+      )
+    end
+
+    entries
+  end
+
+  def yearly_entry(year:, month:, balance:)
+    {
+      year:,
+      nominal: balance,
+      projected: month > current_month,
+      degree: degree_by_month[month],
+    }
   end
 
   # Cumulative nominal amortization degree (credits / debits * 100) at the end

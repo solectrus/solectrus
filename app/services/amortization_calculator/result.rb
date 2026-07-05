@@ -31,8 +31,9 @@ class AmortizationCalculator
       :savings_per_year,
       # true if less than a full year of measured data is available.
       :projection_uncertain,
-      # Year-end balances for the chart:
-      # [{ year:, nominal:, projected: }]
+      # Balances for the chart: an anchor at the operating start followed by
+      # one point per PV-year birthday (12 months from commissioning).
+      # [{ year:, nominal:, projected:, degree: }]
       :yearly_series,
     ) do
       def amortized?

@@ -73,7 +73,6 @@ export default class extends Controller<HTMLDivElement> {
     balanceLabel: String,
     todayLabel: String,
     degreeLabel: String,
-    endLabel: String,
   };
 
   static readonly targets = ['canvas', 'data'];
@@ -85,7 +84,6 @@ export default class extends Controller<HTMLDivElement> {
   declare balanceLabelValue: string;
   declare todayLabelValue: string;
   declare degreeLabelValue: string;
-  declare endLabelValue: string;
 
   private chart?: Chart<'line'>;
   private boundHandleThemeChange?: () => void;
@@ -310,13 +308,13 @@ export default class extends Controller<HTMLDivElement> {
               items.findIndex((other) => other.parsed.x === item.parsed.x) ===
               index,
             callbacks: {
-              // Year marks are the balance on the last day of the year, so
-              // title them "Ende 2032"; the synthetic vertex is "today".
+              // Marks are PV-year birthdays (and the leading start anchor), so
+              // the title is just the year; the synthetic vertex is "today".
               title: (items) => {
                 const point = items[0]?.raw as ChartPoint | undefined;
                 if (!point) return '';
                 if (point.today) return this.todayLabelValue;
-                return `${this.endLabelValue} ${point.year}`.trim();
+                return point.year === null ? '' : String(point.year);
               },
               label: (item) => {
                 const point = item.raw as ChartPoint;

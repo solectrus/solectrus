@@ -23,7 +23,7 @@ class AmortizationChart::Component < ViewComponent::Base
       nominal: rounded_series(:nominal),
       degree: degree_series,
       projected: result.yearly_series.pluck(:projected),
-      todayYear: Date.current.year,
+      todayYear: today_year,
       todayYearProgress: today_year_progress,
       # Balance as of today (= the "net position" KPI), so the today marker on
       # the chart matches that figure exactly instead of being interpolated.
@@ -57,11 +57,21 @@ class AmortizationChart::Component < ViewComponent::Base
     [result.degree_percent.to_f, 0].max.round
   end
 
-  def today_year_progress
-    today = Date.current
-    days_in_year = today.end_of_year.yday
+  # The x-axis marks are PV-year birthdays (x = commissioning year + elapsed
+  # years), so "today" is placed by how many PV years have elapsed since
+  # commissioning - not by the calendar year. The controller computes the
+  # today vertex as todayYear - 1 + progress, i.e. the previous birthday plus
+  # the fraction into the current PV year.
+  def today_year
+    result.commissioning_date.year + elapsed_pv_years.floor + 1
+  end
 
-    (today.yday - 1).fdiv(days_in_year)
+  def today_year_progress
+    (elapsed_pv_years - elapsed_pv_years.floor).clamp(0.0, 1.0)
+  end
+
+  def elapsed_pv_years
+    (Date.current - result.commissioning_date).to_f / 365.25
   end
 
   def rounded_series(key)

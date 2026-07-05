@@ -2,8 +2,5 @@ en:
   balance: Nominal balance
   today: today
   degree: Amortized
-  # Prefix for the tooltip title - values are the balance on the last day of
-  # the year, e.g. "End of 2032"
-  end_of: End of
   maximize: Full size
   minimize: Back to normal size

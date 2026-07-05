@@ -217,27 +217,27 @@ describe AmortizationCalculator do
       by_year = result.yearly_series.index_by { |entry| entry[:year] }
 
       aggregate_failures do
-        # travel_to 2024-06-15: 2023 is fully in the past, the current year
-        # ends in the future (Dec 2024) and every later year is projected.
+        # travel_to 2024-06-15, commissioning 2023-07: the start anchor (2023)
+        # and the first birthday (2024, ending June 2024) are in the past; every
+        # later birthday is projected.
         expect(by_year[2023][:projected]).to be false
-        expect(by_year[2024][:projected]).to be true
+        expect(by_year[2024][:projected]).to be false
         expect(by_year[2025][:projected]).to be true
       end
     end
   end
 
   describe 'operating period length' do
-    # Commissioning in January so a one-month overshoot would spill into a
-    # whole extra calendar year and become visible in the yearly series.
-    it 'spans exactly period_years whole months from the commissioning month' do
+    it 'yields the start anchor plus exactly period_years birthdays' do
       seed_savings_day(Date.new(2023, 1, 10), 10_000)
       create_investment(amount: -50, date: Date.new(2023, 1, 1))
 
       years = result(period_years: 1).yearly_series.pluck(:year)
 
-      # A one-year period commissioned in Jan 2023 ends Dec 2023 - it must not
-      # reach into Jan 2024 (the previous off-by-one made it 12.08 months).
-      expect(years).to eq([2023])
+      # A one-year period commissioned in Jan 2023: the start anchor (2023) plus
+      # the single birthday one year on. No extra birthday from an off-by-one
+      # period end.
+      expect(years).to eq([2023, 2024])
     end
   end
 
@@ -245,14 +245,12 @@ describe AmortizationCalculator do
     before { seed_steady_year }
 
     it 'reports the cumulative degree (credits / debits) per year' do
-      create_investment(amount: -50, date: Date.new(2023, 8, 1))
+      create_investment(amount: -50, date: Date.new(2023, 7, 1))
       by_year = result.yearly_series.index_by { |entry| entry[:year] }
 
-      # End of 2023: six months of measured savings (Jul-Dec) against the 50
-      # debit - the same credits / debits ratio as degree_percent, per year.
-      expect(by_year[2023][:degree]).to be_within(0.01).of(
-        (6 * 2.545) / 50 * 100,
-      )
+      # Start anchor (Jul 2023): one measured month of savings against the 50
+      # debit - the same credits / debits ratio as degree_percent, per PV year.
+      expect(by_year[2023][:degree]).to be_within(0.01).of(2.545 / 50 * 100)
     end
 
     it 'is nil for years before the first debit' do
