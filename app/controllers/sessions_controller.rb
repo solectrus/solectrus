@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  include SafeReturnPath
+
   skip_before_action :check_for_registration
   skip_before_action :check_for_sponsoring
 
@@ -8,20 +10,14 @@ class SessionsController < ApplicationController
     redirect_to(balance_home_path) and return if admin?
 
     @admin_user = AdminUser.new
+    @return_to = safe_return_path(params[:return_to].presence || referer_path)
   end
 
   def create
     @admin_user = AdminUser.new(permitted_params)
 
     if @admin_user.valid?
-      reset_session
-      cookies.signed[:admin] = {
-        value: true,
-        max_age: 90.days.to_i,
-        httponly: true,
-        secure: request.ssl?,
-        same_site: :lax,
-      }
+      start_admin_session
 
       flash[:notice] = t('login.welcome')
       respond_to do |format|
@@ -32,6 +28,7 @@ class SessionsController < ApplicationController
       end
     else
       @admin_user.password = nil
+      @return_to = safe_return_path(params[:return_to])
 
       respond_to do |format|
         format.turbo_stream do
@@ -57,6 +54,17 @@ class SessionsController < ApplicationController
 
   private
 
+  def start_admin_session
+    reset_session
+    cookies.signed[:admin] = {
+      value: true,
+      max_age: 90.days.to_i,
+      httponly: true,
+      secure: request.ssl?,
+      same_site: :lax,
+    }
+  end
+
   helper_method def title
     t('layout.login')
   end
@@ -66,9 +74,17 @@ class SessionsController < ApplicationController
   end
 
   def redirect_path
-    return balance_home_path unless request.referer
+    safe_return_path(params[:return_to])
+  end
+
+  # Path (with query) of the page the user came from, used as default
+  # return target when no explicit return_to param is present.
+  def referer_path
+    return if request.referer.blank?
 
     uri = URI.parse(request.referer)
-    [uri.path, uri.query].compact.join('?')
+    [uri.path, uri.query].compact_blank.join('?')
+  rescue URI::InvalidURIError
+    nil
   end
 end

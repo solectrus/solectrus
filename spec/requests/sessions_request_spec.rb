@@ -38,6 +38,43 @@ describe 'Sessions' do
       expect(jar.signed[:admin]).to be true
     end
 
+    it 'redirects to return_to path for valid password' do
+      post '/login',
+           params: {
+             admin_user: {
+               username: 'admin',
+               password:,
+             },
+             return_to: '/forecast',
+           }
+
+      expect(response).to redirect_to('/forecast')
+    end
+
+    context 'with malicious return_to' do
+      [
+        '//evil.com',
+        '/\\evil.com',
+        'http://evil.com',
+        'https://evil.com/path',
+        'javascript:alert(1)',
+        'evil.com',
+      ].each do |bad_path|
+        it "ignores #{bad_path.inspect} and redirects to root" do
+          post '/login',
+               params: {
+                 admin_user: {
+                   username: 'admin',
+                   password:,
+                 },
+                 return_to: bad_path,
+               }
+
+          expect(response).to redirect_to('/')
+        end
+      end
+    end
+
     it 'sets cookie with httponly and SameSite flags' do
       post '/login', params: { admin_user: { username: 'admin', password: } }
 

@@ -1,5 +1,6 @@
 - if Rails.application.config.x.admin_password.present?
   = form_with model: @admin_user, url: sessions_path, id: dom_id(@admin_user) do |f|
+    = hidden_field_tag :return_to, @return_to
     = f.group do
       .hidden
         = f.text_field :username, value: 'admin', autocomplete: 'username'
@@ -10,7 +11,7 @@
                          autofocus: true
 
     = f.actions do
-      = render Button::Component.new path: balance_home_path,
+      = render Button::Component.new path: @return_to,
                                      title: t('login.cancel'),
                                      style: :secondary
       = f.submit t('login.submit')
