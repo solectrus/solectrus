@@ -13,7 +13,7 @@ describe 'Notifications' do
     it 'shows notification badge but cannot access notifications page' do
       visit '/'
       # Badge is shown to all users (look for message icon with red badge)
-      expect(page).to have_css('.fa-message + span.bg-red-500', text: '1')
+      expect(page).to have_css('#notification-badge-desktop a', text: '1')
 
       # But the page is protected
       visit '/notifications'
@@ -42,7 +42,7 @@ describe 'Notifications' do
 
     it 'shows notification badge with unread count' do
       visit '/'
-      expect(page).to have_css('.fa-message + span.bg-red-500', text: '1')
+      expect(page).to have_css('#notification-badge-desktop a', text: '1')
     end
 
     it 'can view notifications list' do
@@ -67,13 +67,20 @@ describe 'Notifications' do
       # Wait for modal to close
       expect(page).to have_no_css('dialog[open]')
 
+      # The modal closes client-side on click, but the PATCH that marks the
+      # notification as read is a separate round-trip. Wait for its Turbo Stream
+      # effect - the unread badge disappears (it renders only while unread) -
+      # before checking the persisted state, otherwise we race the still
+      # in-flight request.
+      expect(page).to have_no_css('#notification-badge-desktop a')
+
       # Notification should now be marked as read
       expect(unread_notification.reload).to be_read
     end
 
     it 'updates badge when notification is marked as read' do
       visit '/'
-      expect(page).to have_css('.fa-message + span.bg-red-500', text: '1')
+      expect(page).to have_css('#notification-badge-desktop a', text: '1')
 
       visit '/notifications'
       first(:link, 'Wichtige Neuigkeit').click
@@ -81,7 +88,7 @@ describe 'Notifications' do
 
       # Check that modal is closed first (positive assertion)
       expect(page).to have_text('Benachrichtigungen')
-      expect(page).to have_no_css('.fa-message + span.bg-red-500')
+      expect(page).to have_no_css('#notification-badge-desktop a')
     end
   end
 end
