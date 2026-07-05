@@ -8,8 +8,7 @@
   = c.with_footer do
     - if status_code == 403
       = render Button::Component.new path: new_session_path,
-                                     title: t('errors.login'),
-                                     options: { data: { turbo_frame: 'modal', controller: 'modal-launcher' } }
+                                     title: t('errors.login')
     - else
       = render Button::Component.new path: balance_home_path, \
                                      title: t('errors.back_to_home')

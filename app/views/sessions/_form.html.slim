@@ -10,6 +10,9 @@
                          autofocus: true
 
     = f.actions do
+      = render Button::Component.new path: balance_home_path,
+                                     title: t('login.cancel'),
+                                     style: :secondary
       = f.submit t('login.submit')
 - else
   p.mt-5.text-red-500.dark

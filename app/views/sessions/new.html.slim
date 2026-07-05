@@ -1,2 +1,8 @@
-= render TurboModal::Component.new(title: t('login.title')) do
-  = render 'form'
+.bg-linear-to-tr.from-indigo-100.to-indigo-100.via-white.w-full
+  .max-w-md.mx-auto.px-4.sm:px-6.lg:px-8.py-10
+
+    h1.text-2xl.md:text-3xl.font-medium.text-center
+      = t('login.title')
+
+    .mt-8
+      = render 'form'

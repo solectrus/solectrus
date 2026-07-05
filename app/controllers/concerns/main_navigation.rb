@@ -307,10 +307,6 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           name: t('layout.login'),
           icon: 'arrow-right-to-bracket',
           href: new_session_path,
-          data: {
-            turbo_frame: 'modal',
-            controller: 'modal-launcher',
-          },
         }
       end
     end

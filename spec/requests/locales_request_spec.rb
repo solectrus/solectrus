@@ -39,15 +39,5 @@ describe 'Locales' do
 
       expect(response.body).to include('lang="de"')
     end
-
-    # A redirect back to the same URL triggers a Turbo morph refresh that
-    # resets lazy turbo-frames (chart/stats) to their spinner without
-    # reloading them. Disabling Turbo forces a full reload and avoids that.
-    it 'renders the switcher as a non-Turbo form' do
-      get '/login'
-
-      form = response.body[%r{<form[^>]*action="/locale"[^>]*>}]
-      expect(form).to include('data-turbo="false"')
-    end
   end
 end

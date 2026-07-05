@@ -2,6 +2,8 @@ class SessionsController < ApplicationController
   skip_before_action :check_for_registration
   skip_before_action :check_for_sponsoring
 
+  layout 'blank'
+
   def new
     redirect_to(balance_home_path) and return if admin?
 

@@ -190,6 +190,7 @@ de:
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code>ADMIN_PASSWORD</code> ergänzt werden.
     password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf deinem Docker-Host.
     submit: Anmelden
+    cancel: Abbrechen
     welcome: Angemeldet als Administrator.
     bye: Du wurdest abgemeldet.
   oauth:
