@@ -12,8 +12,14 @@
 #    discounted balance at the end of the period (residual value 0).
 #    Positive = the system beats an investment yielding r. The internal
 #    rate of return (IRR) is the rate at which the NPV is exactly zero.
-class AmortizationCalculator
+class AmortizationCalculator # rubocop:disable Metrics/ClassLength
   def self.result
+    Rails.cache.fetch(cache_key, expires_in: 1.day) { new.result }
+  rescue TypeError
+    # A Result cached by an older app version may carry outdated struct
+    # members (e.g. a renamed field), which raises on deserialization. Discard
+    # the stale entry and recompute rather than failing the request.
+    Rails.cache.delete(cache_key)
     Rails.cache.fetch(cache_key, expires_in: 1.day) { new.result }
   end
 

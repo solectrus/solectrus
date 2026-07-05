@@ -433,6 +433,23 @@ describe AmortizationCalculator do
 
       expect(second.npv).not_to eq(first.npv)
     end
+
+    it 'discards a cached result with incompatible struct members' do
+      # A Result serialized by an older app version raises TypeError on
+      # deserialization (e.g. a renamed struct member). The stale entry must be
+      # dropped and recomputed instead of bubbling up as a 500.
+      first_read = true
+      allow(Rails.cache).to receive(:fetch).and_wrap_original do |original, *args, &block|
+        if first_read
+          first_read = false
+          raise TypeError, 'struct not compatible (:commissioning_date for :installation_date)'
+        end
+        original.call(*args, &block)
+      end
+
+      expect { described_class.result }.not_to raise_error
+      expect(described_class.result).to be_a(described_class::Result)
+    end
   end
 
   describe 'guards' do
