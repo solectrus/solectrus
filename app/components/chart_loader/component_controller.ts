@@ -119,6 +119,7 @@ export default class extends Controller<HTMLCanvasElement> {
   declare readonly dataTarget: HTMLScriptElement;
   declare readonly optionsTarget: HTMLScriptElement;
 
+  declare readonly hasCanvasTarget: boolean;
   declare readonly hasDataTarget: boolean;
   declare readonly hasOptionsTarget: boolean;
 
@@ -185,7 +186,9 @@ export default class extends Controller<HTMLCanvasElement> {
       document.removeEventListener('fullscreenchange', this.boundHandleResize);
     }
 
-    if (this.boundHandleDblClick)
+    // During a Turbo morph the canvas may already be removed from the DOM
+    // before this controller disconnects, so guard the target access.
+    if (this.boundHandleDblClick && this.hasCanvasTarget)
       this.canvasTarget.removeEventListener(
         'dblclick',
         this.boundHandleDblClick,
