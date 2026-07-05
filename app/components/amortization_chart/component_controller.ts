@@ -17,7 +17,6 @@ import {
   Filler,
 } from 'chart.js';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
-import zoomPlugin from 'chartjs-plugin-zoom';
 
 import { applyCrosshairFix } from '../chart_loader/helpers/crosshair_fix';
 import GenericChartTooltip from '../chart_loader/helpers/generic_chart_tooltip';
@@ -30,7 +29,6 @@ Chart.register(
   Tooltip,
   Filler,
   CrosshairPlugin,
-  zoomPlugin,
 );
 
 applyCrosshairFix();
@@ -44,6 +42,9 @@ interface AmortizationData {
   todayYearProgress: number;
   todayValue: number | null;
   todayDegree: number | null;
+  breakEvenX: number | null;
+  breakEvenDate: string | null;
+  breakEvenDuration: string | null;
 }
 
 // One vertex of the line. x is the (fractional) year: an integer for a
@@ -55,12 +56,24 @@ interface ChartPoint {
   projected: boolean;
   degree: number | null;
   today: boolean;
+  // Synthetic zero-crossing vertex at the exact break-even date, so the
+  // smoothed line meets zero right under the break-even ring.
+  breakEven: boolean;
+}
+
+// One line of an on-curve annotation label.
+interface LabelLine {
+  text: string;
+  color: string;
+  weight: number;
+  size: number;
 }
 
 type Rgb = [number, number, number];
 const POSITIVE_COLOR: Rgb = [5, 150, 105];
 const NEGATIVE_COLOR: Rgb = [220, 38, 38];
-const TODAY_COLOR = '#4f46e5';
+// Below this chart width we drop non-essential annotations (mobile).
+const COMPACT_WIDTH = 480;
 
 const rgb = (c: Rgb) => `rgb(${c.join(', ')})`;
 const rgba = (c: Rgb, alpha: number) => `rgba(${c.join(', ')}, ${alpha})`;
@@ -73,6 +86,7 @@ export default class extends Controller<HTMLDivElement> {
     balanceLabel: String,
     todayLabel: String,
     degreeLabel: String,
+    breakEvenLabel: String,
   };
 
   static readonly targets = ['canvas', 'data'];
@@ -84,10 +98,19 @@ export default class extends Controller<HTMLDivElement> {
   declare balanceLabelValue: string;
   declare todayLabelValue: string;
   declare degreeLabelValue: string;
+  declare breakEvenLabelValue: string;
+
+  // Intl formatters are expensive to construct and the annotation plugin's
+  // afterDraw re-runs them every frame, so build each lazily and reuse it.
+  private localeName = navigator.language.split('@')[0];
+  private currencyFormatter?: Intl.NumberFormat;
+  private percentFormatter?: Intl.NumberFormat;
+  private currencyShortWhole?: Intl.NumberFormat;
+  private currencyShortThousands?: Intl.NumberFormat;
+  private currencySymbolParts?: { symbol: string; symbolFirst: boolean };
 
   private chart?: Chart<'line'>;
   private boundHandleThemeChange?: () => void;
-  private boundHandleDblClick?: () => void;
   private boundHandleResize?: () => void;
   private genericTooltip?: GenericChartTooltip;
   private hatchPattern?: CanvasPattern | string;
@@ -101,10 +124,6 @@ export default class extends Controller<HTMLDivElement> {
       this.process();
     };
     document.addEventListener('theme:changed', this.boundHandleThemeChange);
-
-    // Double-click resets a drag-zoom, like the other charts.
-    this.boundHandleDblClick = () => this.chart?.resetZoom();
-    this.canvasTarget.addEventListener('dblclick', this.boundHandleDblClick);
 
     // Rebuild on resize. The maximize/minimize buttons (chart-zoom controller)
     // dispatch a window resize. A plain chart.resize() cannot recover the
@@ -125,12 +144,6 @@ export default class extends Controller<HTMLDivElement> {
       document.removeEventListener(
         'theme:changed',
         this.boundHandleThemeChange,
-      );
-
-    if (this.boundHandleDblClick)
-      this.canvasTarget.removeEventListener(
-        'dblclick',
-        this.boundHandleDblClick,
       );
 
     if (this.boundHandleResize)
@@ -164,9 +177,9 @@ export default class extends Controller<HTMLDivElement> {
     const { measured, projected } = this.buildSeries(data, todayX);
     const series = [measured, projected];
 
-    // Show only every n-th year label so they stay horizontal and never
-    // overlap - roughly a dozen labels regardless of the period length.
-    const labelStep = Math.max(1, Math.ceil(data.labels.length / 12));
+    // Narrow charts (mobile) get the compact "K" currency on the y-axis.
+    const containerWidth = this.element.clientWidth || 600;
+    const compact = containerWidth < COMPACT_WIDTH;
 
     const rootStyle = window.getComputedStyle(document.documentElement);
     const cssVar = (name: string) => rootStyle.getPropertyValue(name).trim();
@@ -174,9 +187,18 @@ export default class extends Controller<HTMLDivElement> {
     const gridColor = cssVar('--chart-grid-color');
     const zeroLineColor = cssVar('--chart-zero-line-color');
     const pointBorderColor = cssVar('--chart-point-border');
+    const accentColor = cssVar('--chart-accent-color');
+    const strongColor = cssVar('--chart-label-strong');
 
     const pointAt = (context: ScriptableContext<'line'>) =>
       context.raw as ChartPoint;
+
+    // Synthetic vertices (today, break-even) carry no visible dot; their
+    // markers are drawn by the annotation plugin instead.
+    const noMarker = (context: ScriptableContext<'line'>) => {
+      const point = pointAt(context);
+      return point.today || point.breakEven;
+    };
 
     const drilldownYear = (element: ActiveElement): number | null => {
       const point = series[element.datasetIndex]?.[element.index];
@@ -188,9 +210,11 @@ export default class extends Controller<HTMLDivElement> {
     // differ between the measured and projected halves.
     const commonDataset = {
       fill: 'origin' as const,
-      tension: 0.32,
+      // Monotone (not tension) so the extra break-even vertex between two close
+      // yearly points can't make the smoothed line overshoot into a kink.
+      cubicInterpolationMode: 'monotone' as const,
       pointHoverRadius: (context: ScriptableContext<'line'>) =>
-        pointAt(context).today ? 0 : 5,
+        noMarker(context) ? 0 : 5,
       pointBackgroundColor: (context: ScriptableContext<'line'>) =>
         rgba(signalColor(pointAt(context).y), 1),
       pointBorderColor,
@@ -208,7 +232,7 @@ export default class extends Controller<HTMLDivElement> {
             ...commonDataset,
             data: measured,
             pointRadius: (context: ScriptableContext<'line'>) =>
-              pointAt(context).today ? 0 : 3,
+              noMarker(context) ? 0 : 3,
             backgroundColor: (context: ScriptableContext<'line'>) =>
               this.areaGradient(context.chart),
           },
@@ -218,7 +242,7 @@ export default class extends Controller<HTMLDivElement> {
                   ...commonDataset,
                   data: projected,
                   pointRadius: (context: ScriptableContext<'line'>) =>
-                    pointAt(context).today ? 0 : 2,
+                    noMarker(context) ? 0 : 2,
                   backgroundColor: (context: ScriptableContext<'line'>) =>
                     this.hatchFill(context.chart),
                 },
@@ -226,7 +250,14 @@ export default class extends Controller<HTMLDivElement> {
             : []),
         ],
       },
-      plugins: [this.todayLinePlugin(todayX, firstYear, lastYear)],
+      plugins: [
+        this.annotationsPlugin(todayX, firstYear, lastYear, data, {
+          neutral: pointBorderColor,
+          muted: axisColor,
+          accent: accentColor,
+          strong: strongColor,
+        }),
+      ],
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -258,10 +289,16 @@ export default class extends Controller<HTMLDivElement> {
             grid: { display: false },
             ticks: {
               color: axisColor,
+              font: { size: 14 },
+              // Let Chart.js thin the year labels to the available width; the
+              // explicit min/max plus includeBounds keep the first and last year
+              // always visible.
               maxRotation: 0,
-              autoSkip: false,
-              stepSize: labelStep,
-              // Only whole years get a label; the fractional today vertex none.
+              autoSkip: true,
+              autoSkipPadding: 16,
+              includeBounds: true,
+              // The scale-generated ticks are whole years; the fractional today
+              // vertex is a data point, not a tick, so it never gets a label.
               callback: (value) =>
                 Number.isInteger(Number(value)) ? String(value) : '',
             },
@@ -275,7 +312,11 @@ export default class extends Controller<HTMLDivElement> {
             },
             ticks: {
               color: axisColor,
-              callback: (value) => this.formatCurrency(Number(value), true),
+              font: { size: 14 },
+              callback: (value) =>
+                compact
+                  ? this.formatCurrencyShort(Number(value))
+                  : this.formatCurrency(Number(value)),
             },
           },
         },
@@ -283,15 +324,12 @@ export default class extends Controller<HTMLDivElement> {
           // Hairline via chartjs-plugin-crosshair, using the same red default
           // line and free (non-snapping) tracking as the other charts. Its
           // option key is unknown to the Chart.js types here. Crosshair's own
-          // drag-to-zoom stays off (it crashes on null points); chartjs-plugin-
-          // zoom handles drag-to-zoom instead. Cross-chart sync stays off.
+          // drag-to-zoom stays off (it crashes on null points, and drag-to-zoom
+          // adds no value on this smooth curve). Cross-chart sync stays off.
           ...({
             crosshair: {
               sync: { enabled: false },
               zoom: { enabled: false },
-            },
-            zoom: {
-              zoom: { drag: { enabled: true }, mode: 'x' },
             },
           } as unknown as Record<string, never>),
           tooltip: {
@@ -303,10 +341,11 @@ export default class extends Controller<HTMLDivElement> {
             external: (context) => this.getTooltip().render(context),
             // The today vertex belongs to both the measured and the projected
             // dataset, so a hover there yields two identical items. Keep only
-            // the first item per x.
+            // the first item per x, and never the invisible break-even vertex.
             filter: (item, index, items) =>
+              (item.raw as ChartPoint).breakEven !== true &&
               items.findIndex((other) => other.parsed.x === item.parsed.x) ===
-              index,
+                index,
             callbacks: {
               // Marks are PV-year birthdays (and the leading start anchor), so
               // the title is just the year; the synthetic vertex is "today".
@@ -349,10 +388,35 @@ export default class extends Controller<HTMLDivElement> {
       projected: data.projected[index],
       degree: data.degree[index],
       today: false,
+      breakEven: false,
     }));
 
     const firstYear = data.labels[0];
     const lastYear = data.labels[data.labels.length - 1];
+
+    // Anchor the curve to the exact break-even (balance = 0). The line is only
+    // sampled yearly and smoothed (tension), so without this vertex it would
+    // cross zero a bit beside the break-even ring instead of right under it.
+    const breakEvenX = data.breakEvenX;
+    if (
+      breakEvenX != null &&
+      firstYear !== undefined &&
+      lastYear !== undefined &&
+      breakEvenX > firstYear &&
+      breakEvenX < lastYear
+    ) {
+      const insertAt = points.findIndex((point) => point.x > breakEvenX);
+      points.splice(insertAt === -1 ? points.length : insertAt, 0, {
+        x: breakEvenX,
+        y: 0,
+        year: null,
+        projected: breakEvenX > todayX,
+        degree: null,
+        today: false,
+        breakEven: true,
+      });
+    }
+
     if (
       firstYear === undefined ||
       lastYear === undefined ||
@@ -370,6 +434,7 @@ export default class extends Controller<HTMLDivElement> {
       projected: false,
       degree: data.todayDegree,
       today: true,
+      breakEven: false,
     };
 
     return { measured: [...before, today], projected: [today, ...after] };
@@ -445,7 +510,17 @@ export default class extends Controller<HTMLDivElement> {
   }
 
   private getTooltip(): GenericChartTooltip {
-    if (!this.genericTooltip) this.genericTooltip = new GenericChartTooltip();
+    if (!this.genericTooltip)
+      // Tint the nominal balance value red/green by sign; other rows (the
+      // degree) keep the default text color.
+      this.genericTooltip = new GenericChartTooltip((context) => {
+        if (context.label !== this.balanceLabelValue) return undefined;
+
+        const y = context.dataPoint?.parsed.y;
+        if (typeof y !== 'number') return undefined;
+
+        return rgb(signalColor(y));
+      });
     return this.genericTooltip;
   }
 
@@ -501,99 +576,298 @@ export default class extends Controller<HTMLDivElement> {
     return { gradient, zeroStop };
   }
 
-  private todayLinePlugin(
+  // The annotation layer: the key figures live directly on the curve instead of
+  // in a separate stats panel - "today" (dashed line, badge, net position +
+  // degree), the break-even point on the zero line, and the final balance at the
+  // end of the period. Drawn after the datasets so nothing overpaints them.
+  private annotationsPlugin(
     todayX: number,
     firstYear: number,
     lastYear: number,
+    data: AmortizationData,
+    colors: { neutral: string; muted: string; accent: string; strong: string },
   ): Plugin<'line'> {
     return {
-      id: 'amortizationTodayLine',
+      id: 'amortizationAnnotations',
       afterDraw: (chart) => {
-        if (todayX < firstYear || todayX > lastYear) return;
-
-        const x = chart.scales.x?.getPixelForValue(todayX);
-        if (x === undefined) return;
-
-        const { ctx } = chart;
-        const { top, bottom, left, right } = chart.chartArea;
-
-        // When zoomed in, "today" can fall outside the visible range; don't
-        // paint the marker into the axis padding.
-        if (x < left || x > right) return;
-
-        ctx.save();
-        ctx.strokeStyle = TODAY_COLOR;
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([3, 4]);
-        ctx.beginPath();
-        ctx.moveTo(x, top);
-        ctx.lineTo(x, bottom);
-        ctx.stroke();
-
-        ctx.setLineDash([]);
-        ctx.font = '600 10px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        const paddingX = 6;
-        const badgeHeight = 18;
-        const textWidth = ctx.measureText(this.todayLabelValue).width;
-        const badgeWidth = textWidth + paddingX * 2;
-        const badgeX = Math.min(
-          Math.max(x - badgeWidth / 2, chart.chartArea.left),
-          chart.chartArea.right - badgeWidth,
-        );
-        const badgeY = top + 4;
-
-        ctx.fillStyle = TODAY_COLOR;
-        this.roundedRect(ctx, badgeX, badgeY, badgeWidth, badgeHeight, 4);
-        ctx.fill();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(
-          this.todayLabelValue,
-          badgeX + badgeWidth / 2,
-          badgeY + badgeHeight / 2,
-        );
-        ctx.restore();
+        this.drawBreakEven(chart, data, colors);
+        this.drawFinalPoint(chart, data, lastYear);
+        this.drawToday(chart, todayX, firstYear, lastYear, data, colors);
       },
     };
   }
 
-  private roundedRect(
+  // Ring marker where the balance crosses zero, plus a two-line label with the
+  // localized break-even month. Skipped when break-even lies outside the drawn
+  // (possibly zoomed) range.
+  private drawBreakEven(
+    chart: Chart<'line'>,
+    data: AmortizationData,
+    colors: { neutral: string; muted: string; accent: string },
+  ) {
+    if (data.breakEvenX == null) return;
+
+    const { ctx } = chart;
+    const { left, right } = chart.chartArea;
+    const x = chart.scales.x?.getPixelForValue(data.breakEvenX);
+    const y = chart.scales.y?.getPixelForValue(0);
+    if (x === undefined || y === undefined || x < left || x > right) return;
+
+    this.drawDot(ctx, x, y, 5, colors.neutral, {
+      color: colors.accent,
+      width: 2.4,
+    });
+
+    const lines: LabelLine[] = [
+      {
+        text: this.breakEvenLabelValue.toUpperCase(),
+        color: colors.muted,
+        weight: 600,
+        size: 14,
+      },
+    ];
+    if (data.breakEvenDate)
+      lines.push({
+        text: data.breakEvenDate,
+        color: colors.muted,
+        weight: 400,
+        size: 16,
+      });
+    if (data.breakEvenDuration)
+      lines.push({
+        text: data.breakEvenDuration,
+        color: colors.muted,
+        weight: 400,
+        size: 15,
+      });
+
+    // Below and to the right of the ring: that quadrant (below zero, after the
+    // crossing) is empty, so the label clears the descending curve to the left.
+    this.drawLabel(chart, lines, x + 6, y + 10, 'right', 'top');
+  }
+
+  // Filled dot at the last vertex, closing off the projection line. The final
+  // balance itself is left to the tooltip, so no label is drawn here.
+  private drawFinalPoint(
+    chart: Chart<'line'>,
+    data: AmortizationData,
+    lastYear: number,
+  ) {
+    const value = data.nominal[data.nominal.length - 1];
+    if (value == null) return;
+
+    const { ctx } = chart;
+    const x = chart.scales.x?.getPixelForValue(lastYear);
+    const y = chart.scales.y?.getPixelForValue(value);
+    if (x === undefined || y === undefined) return;
+    if (x < chart.chartArea.left || x > chart.chartArea.right) return;
+
+    this.drawDot(ctx, x, y, 4.5, rgb(signalColor(value)));
+  }
+
+  // Dashed vertical line, a grey uppercase "today" caption at the top and a
+  // two-line callout with the current net position and amortization degree -
+  // the same figures as the KPI rail, so the two always agree.
+  private drawToday(
+    chart: Chart<'line'>,
+    todayX: number,
+    firstYear: number,
+    lastYear: number,
+    data: AmortizationData,
+    colors: { neutral: string; muted: string; accent: string; strong: string },
+  ) {
+    if (todayX < firstYear || todayX > lastYear) return;
+
+    const { ctx } = chart;
+    const { top, bottom, left, right } = chart.chartArea;
+    const x = chart.scales.x?.getPixelForValue(todayX);
+    if (x === undefined || x < left || x > right) return;
+
+    ctx.save();
+    ctx.strokeStyle = colors.accent;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, bottom);
+    ctx.stroke();
+    ctx.restore();
+
+    // Caption at the top, just right of the line: grey uppercase, matching the
+    // break-even label so the two markers read as a consistent pair.
+    ctx.save();
+    ctx.font = '600 14px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    const captionText = this.todayLabelValue.toUpperCase();
+    const captionWidth = ctx.measureText(captionText).width;
+    const captionX = Math.min(x + 6, right - captionWidth);
+    const captionTop = top + 4;
+    ctx.fillStyle = colors.muted;
+    ctx.fillText(captionText, captionX, captionTop);
+    ctx.restore();
+
+    // Callout: the amortization degree, just below the caption. It is the
+    // headline "how far am I" figure - big, bold and in the strong near-black
+    // foreground, with a small caption below.
+    if (data.todayDegree == null) return;
+
+    const lines: LabelLine[] = [
+      {
+        text: this.formatPercent(data.todayDegree),
+        color: colors.strong,
+        weight: 700,
+        size: 30,
+      },
+      {
+        text: this.degreeLabelValue.toLowerCase(),
+        color: colors.muted,
+        weight: 400,
+        size: 15,
+      },
+    ];
+
+    // Anchor the callout to whichever side of the today line has more room.
+    const side = x > (left + right) / 2 ? 'left' : 'right';
+    this.drawLabel(chart, lines, x, captionTop + 22, side, 'top');
+  }
+
+  // Filled marker dot, optionally ringed, used for the break-even and final
+  // vertices.
+  private drawDot(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    width: number,
-    height: number,
     radius: number,
+    fill: string,
+    stroke?: { color: string; width: number },
   ) {
+    ctx.save();
     ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) {
+      ctx.strokeStyle = stroke.color;
+      ctx.lineWidth = stroke.width;
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
-  private formatCurrency(value: number, compact = false): string {
-    return new Intl.NumberFormat(navigator.language.split('@')[0], {
+  // Draws a stack of short text lines near an anchor, clamped inside the chart
+  // area. `side` decides the horizontal anchor; `baseline` its vertical origin.
+  private drawLabel(
+    chart: Chart<'line'>,
+    lines: LabelLine[],
+    px: number,
+    py: number,
+    side: 'left' | 'right',
+    baseline: 'middle' | 'top' = 'middle',
+  ) {
+    if (!lines.length) return;
+
+    const { ctx } = chart;
+    const { left, right, top, bottom } = chart.chartArea;
+    // Per-line vertical advance: keep the uniform 24 px rhythm for normal lines,
+    // but give an oversized hero line (e.g. the amortization degree) the room it
+    // needs so the line below never overlaps it.
+    const lineHeights = lines.map((line) =>
+      Math.max(24, Math.round(line.size * 1.2)),
+    );
+    const gap = 8;
+
+    ctx.save();
+    ctx.textBaseline = 'top';
+
+    let widest = 0;
+    for (const line of lines) {
+      ctx.font = this.labelFont(line);
+      widest = Math.max(widest, ctx.measureText(line.text).width);
+    }
+
+    let x: number;
+    let align: CanvasTextAlign;
+    if (side === 'left') {
+      x = px - gap;
+      align = 'right';
+    } else {
+      x = px + gap;
+      align = 'left';
+    }
+
+    const blockHeight = lineHeights.reduce((sum, height) => sum + height, 0);
+    let y = baseline === 'top' ? py : py - blockHeight / 2;
+    y = Math.min(Math.max(y, top + 2), bottom - blockHeight);
+
+    // Keep the whole block inside the plot horizontally.
+    if (align === 'right') x = Math.max(x, left + widest);
+    else x = Math.min(x, right - widest);
+
+    ctx.textAlign = align;
+    let offset = 0;
+    lines.forEach((line, index) => {
+      ctx.font = this.labelFont(line);
+      ctx.fillStyle = line.color;
+      ctx.fillText(line.text, x, y + offset);
+      offset += lineHeights[index];
+    });
+    ctx.restore();
+  }
+
+  private labelFont(line: LabelLine): string {
+    return `${line.weight} ${line.size}px sans-serif`;
+  }
+
+  private formatCurrency(value: number): string {
+    this.currencyFormatter ??= new Intl.NumberFormat(this.localeName, {
       style: 'currency',
       currency: this.currencyValue,
       maximumFractionDigits: 0,
-      notation: compact ? 'compact' : 'standard',
-    }).format(value);
+    });
+    return this.currencyFormatter.format(value);
+  }
+
+  // Compact axis labels with a "K" thousands suffix, e.g. "30K €" / "$30K".
+  private formatCurrencyShort(value: number): string {
+    const useK = Math.abs(value) >= 1000;
+    this.currencyShortWhole ??= new Intl.NumberFormat(this.localeName, {
+      maximumFractionDigits: 0,
+    });
+    this.currencyShortThousands ??= new Intl.NumberFormat(this.localeName, {
+      maximumFractionDigits: 1,
+    });
+    const number =
+      (useK ? this.currencyShortThousands : this.currencyShortWhole).format(
+        useK ? value / 1000 : value,
+      ) + (useK ? 'K' : '');
+
+    const { symbol, symbolFirst } = this.currencySymbol();
+    return symbolFirst ? `${symbol}${number}` : `${number} ${symbol}`;
+  }
+
+  // Currency symbol and its placement, derived once from the locale/currency.
+  private currencySymbol(): { symbol: string; symbolFirst: boolean } {
+    if (this.currencySymbolParts) return this.currencySymbolParts;
+
+    const parts = new Intl.NumberFormat(this.localeName, {
+      style: 'currency',
+      currency: this.currencyValue,
+      maximumFractionDigits: 0,
+    }).formatToParts(0);
+    const symbol = parts.find((part) => part.type === 'currency')?.value ?? '';
+    const symbolFirst =
+      parts.findIndex((part) => part.type === 'currency') <
+      parts.findIndex((part) => part.type === 'integer');
+
+    return (this.currencySymbolParts = { symbol, symbolFirst });
   }
 
   private formatPercent(value: number): string {
-    return new Intl.NumberFormat(navigator.language.split('@')[0], {
+    this.percentFormatter ??= new Intl.NumberFormat(this.localeName, {
       style: 'percent',
       maximumFractionDigits: 0,
-    }).format(value / 100);
+    });
+    return this.percentFormatter.format(value / 100);
   }
 }

@@ -1,6 +1,9 @@
 en:
   balance: Nominal balance
   today: today
-  degree: Amortized
+  degree: Earned back
+  break_even: Break-even
+  break_even_after: after %{years} years
+  parameters: Adjust parameters
   maximize: Full size
   minimize: Back to normal size

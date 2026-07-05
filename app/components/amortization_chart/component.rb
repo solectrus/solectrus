@@ -30,6 +30,12 @@ class AmortizationChart::Component < ViewComponent::Base
       todayValue: result.net_position&.round(2),
       # Amortization degree as of today, matching the "amortized so far" KPI.
       todayDegree: today_degree,
+      # Fractional PV-year of the nominal break-even, on the same axis as the
+      # today marker, so the annotation sits on the authoritative date instead
+      # of a re-derived zero crossing. nil when break-even is never reached.
+      breakEvenX: break_even_x,
+      breakEvenDate: break_even_date_label,
+      breakEvenDuration: break_even_duration_label,
     }
   end
 
@@ -55,6 +61,31 @@ class AmortizationChart::Component < ViewComponent::Base
     return unless result.degree_percent
 
     [result.degree_percent.to_f, 0].max.round
+  end
+
+  # Break-even placed on the same fractional PV-year axis as "today": the
+  # installation year plus the elapsed years until break-even.
+  def break_even_x
+    return unless result.total_years
+
+    result.installation_date.year + result.total_years
+  end
+
+  def break_even_date_label
+    return unless result.break_even_date
+
+    l(result.break_even_date, format: '%B %Y')
+  end
+
+  # Total time from installation to break-even, e.g. "after 8.7 years" - the
+  # headline takeaway of the whole chart.
+  def break_even_duration_label
+    return unless result.total_years
+
+    t(
+      '.break_even_after',
+      years: helpers.number_with_precision(result.total_years, precision: 1),
+    )
   end
 
   # The x-axis marks are PV-year birthdays (x = installation year + elapsed

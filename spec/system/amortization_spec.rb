@@ -17,6 +17,9 @@ describe 'Amortization' do
 
       expect(page).to have_text(/Nominaler Saldo heute/i)
       expect(page).to have_css('canvas')
+
+      # Sliders live in a collapsible drawer, so open it first
+      click_button 'Parameter anpassen'
       expect(page).to have_field('amortization[period_years]', type: 'range')
     end
   end
@@ -58,10 +61,9 @@ describe 'Amortization' do
     it 'shows the detail view with stats and chart' do
       visit '/amortization'
 
-      # Timeline and tile labels are uppercased via CSS, so match
-      # case-insensitively
-      expect(page).to have_text(/Voll amortisiert/i)
-      expect(page).to have_text(/Barwertvorteil/i)
+      # Rail tile labels are uppercased via CSS, so match case-insensitively
+      expect(page).to have_text(/Amortisationsgrad/i)
+      expect(page).to have_text(/Kapitalwert/i)
       expect(page).to have_text(/Nominaler Saldo heute/i)
       expect(page).to have_css('canvas')
     end
@@ -69,6 +71,8 @@ describe 'Amortization' do
     it 'offers sliders to adjust the calculation parameters' do
       visit '/amortization'
 
+      # Sliders live in a collapsible drawer, so open it first
+      click_button 'Parameter anpassen'
       expect(page).to have_field('amortization[period_years]', type: 'range')
       expect(page).to have_field('amortization[interest_rate]', type: 'range')
     end

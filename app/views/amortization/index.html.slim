@@ -16,25 +16,54 @@
   - elsif @result
     /! Cash flows present: show the calculation
     - if @result.prognosis?
-      /! Two-column dashboard on landscape (see StatsWithChart). The chart
-      /! needs width to be readable, so on small screens it is hidden and the
-      /! key figures fill the viewport on their own - no scrolling, no squeeze.
-      /! Wrapped in a Turbo frame so the parameter sliders can auto-refresh it.
-      = turbo_frame_tag 'amortization_detail', class: 'flex-1 min-h-0 flex flex-col lg:landscape:flex-row gap-5' do
-        /! Left half: degree teaser + key figures + parameter sliders
-        .flex-1.min-h-0.flex.flex-col.gap-6.py-2.lg:landscape:min-h-72
-          = render AmortizationDegree::Component.new(result: @result)
-          /! Key figures grow to fill the height between the timeline and the
-          /! sliders
-          .flex-1.min-h-0
-            = render AmortizationStats::Component.new(result: @result)
+      /! Layout on every form factor: the compact KPI rail sits on top, the
+      /! balance curve fills the remaining height below it. The key figures also
+      /! live as annotations on the curve (break-even, today's net position +
+      /! degree, final balance). The parameter sliders sit in a drawer behind the
+      /! round button in the chart's top-right controls. Wrapped in a Turbo frame
+      /! so the sliders can auto-refresh it.
+      = turbo_frame_tag 'amortization_detail', class: 'flex-1 min-h-0 flex flex-col gap-3' do
+        /! Mobile-only page header (lg:hidden): sack icon + title + params drawer.
+        /! Styled like the settings mobile header - a full-bleed indigo bar (the
+        /! negative margins cancel #inner's padding to reach the card edges),
+        /! white label, indigo icon. On desktop the params control stays inside
+        /! the chart's top-right corner, so nothing changes there.
+        .flex.items-center.justify-between.gap-3.lg:hidden.-mx-4.-mt-4.sm:-mx-6.sm:-mt-5.px-4.sm:px-6.py-3.bg-indigo-600.dark:bg-indigo-900
+          .flex.items-center.gap-3.text-white.dark:text-gray-200
+            i.fa.fa-sack-dollar.text-xl.text-indigo-200.dark:text-gray-400
+            span.text-lg.font-medium = t('layout.amortization')
 
-          /! Sliders keep their parameters per browser (cookie), so they are
-          /! shown to everyone who may see the calculation
-          = render AmortizationControls::Component.new(result: @result)
+          div class='relative' data-controller='dropdown--component'
+            button[
+              type='button'
+              class='flex items-center justify-center size-9 rounded-full text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/60 cursor-pointer'
+              data-dropdown--component-target='button'
+              data-action='click->dropdown--component#toggle'
+              aria-haspopup='true'
+              aria-expanded='false'
+              aria-label=t('.parameters')
+            ]
+              i.fa.fa-sliders
+            div[
+              class='absolute top-full right-0 z-20 mt-2 hidden w-80 max-w-[calc(100vw-2rem)] rounded-lg bg-white dark:bg-gray-800 p-4 text-left shadow-lg ring-1 ring-black/5'
+              data-dropdown--component-target='menu'
+              data-transition-enter='transition ease-out duration-100'
+              data-transition-enter-start='opacity-0 scale-95'
+              data-transition-enter-end='opacity-100 scale-100'
+              data-transition-leave='transition ease-in duration-75'
+              data-transition-leave-start='opacity-100 scale-100'
+              data-transition-leave-end='opacity-0 scale-95'
+            ]
+              = render AmortizationControls::Component.new(result: @result)
 
-        /! Right half: chart over the whole period (landscape only)
-        .hidden.lg:landscape:flex.flex-1.min-h-52.flex-col
+        /! KPI rail. Kept in the DOM even when hidden on very short viewports
+        /! (sr-only, not display:none) so the figures stay available to screen
+        /! readers and the specs.
+        div class='tiny:sr-only'
+          = render AmortizationStats::Component.new(result: @result)
+
+        /! Chart fills the remaining height below the KPI rail, on every form factor
+        .flex-1.min-h-0.flex.flex-col
           = render AmortizationChart::Component.new(result: @result)
     - else
       /! Not enough measured data yet - degree teaser shows the reason

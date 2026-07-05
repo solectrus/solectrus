@@ -15,12 +15,18 @@ type TooltipBody = {
   after: string[];
 };
 
+type TooltipDataPoint = {
+  parsed: { x: number | null; y: number | null };
+  raw?: unknown;
+};
+
 type TooltipModel = {
   opacity: number;
   title: string[];
   body: TooltipBody[];
   footer: string[];
   labelColors: Array<{ backgroundColor: Color; borderColor: Color }>;
+  dataPoints?: TooltipDataPoint[];
   caretX: number;
   options: { displayColors?: unknown };
 };
@@ -30,9 +36,25 @@ type TooltipContext = {
   tooltip: TooltipModel;
 };
 
+// Optional hook to color a value cell (e.g. red/green by sign). Receives the
+// numeric data point so callers don't have to parse the formatted string.
+export type TooltipValueColorContext = {
+  label: string | null;
+  value: string;
+  lineIndex: number;
+  dataPoint?: TooltipDataPoint;
+};
+
+export type TooltipValueColorResolver = (
+  context: TooltipValueColorContext,
+) => string | undefined;
+
 // Custom HTML tooltip renderer for generic (non-power-balance) charts.
 export default class GenericChartTooltip {
   private tooltip?: HTMLDivElement;
+
+  // Optional per-value color hook, e.g. to tint a balance red/green by sign.
+  constructor(private readonly valueColor?: TooltipValueColorResolver) {}
 
   destroy() {
     this.tooltip?.remove();
@@ -94,8 +116,14 @@ export default class GenericChartTooltip {
     const rows = body
       .flatMap((bodyItem, index) => {
         const color = labelColors[index];
+        const dataPoint = tooltip.dataPoints?.[index];
         return bodyItem.lines.map((line, lineIndex) =>
-          this.renderRow(line, showColors ? color : undefined, lineIndex > 0),
+          this.renderRow(
+            line,
+            showColors ? color : undefined,
+            lineIndex,
+            dataPoint,
+          ),
         );
       })
       .join('');
@@ -108,11 +136,21 @@ export default class GenericChartTooltip {
   private renderRow(
     line: string,
     color: { backgroundColor: Color; borderColor: Color } | undefined,
-    isSubsequentLine: boolean,
+    lineIndex: number,
+    dataPoint?: TooltipDataPoint,
   ): string {
     if (!line) return '';
 
+    const isSubsequentLine = lineIndex > 0;
     const { label, value } = this.splitLabelValue(line);
+
+    const valueColor = this.valueColor?.({
+      label,
+      value,
+      lineIndex,
+      dataPoint,
+    });
+    const valueStyle = valueColor ? ` style="color:${valueColor};"` : '';
 
     const colorHtml =
       color && !isSubsequentLine
@@ -130,7 +168,7 @@ export default class GenericChartTooltip {
     return `
       <div class="chart-tooltip-row">
         ${labelHtml}
-        <div class="chart-tooltip-value">${escapeHtml(value)}</div>
+        <div class="chart-tooltip-value"${valueStyle}>${escapeHtml(value)}</div>
       </div>
     `;
   }

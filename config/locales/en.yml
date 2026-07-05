@@ -300,6 +300,7 @@ en:
       no_cash_flows_body: For the amortization calculation, the administrator first needs to record the PV system's investments and costs as cash flows.
       manage_cash_flows: Manage cash flows
       restricted: This analysis is only visible to administrators.
+      parameters: Adjust parameters
   timeframe_select:
     index:
       title: Select timeframe

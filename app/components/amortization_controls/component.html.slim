@@ -3,7 +3,7 @@
     .form-control
       .label.flex.justify-between.items-baseline.gap-2.py-1
         span.label-text = t('.period')
-        span.label-text.font-semibold.tabular-nums.text-gray-800.dark:text-gray-100
+        span.label-text.font-semibold.tabular-nums.whitespace-nowrap.text-gray-800.dark:text-gray-100
           span data-amortization-controls--component-target='periodValue'
             = period_years
           = " #{t('.years_unit')}"
@@ -19,7 +19,7 @@
     .form-control
       .label.flex.justify-between.items-baseline.gap-2.py-1
         span.label-text = t('.interest_rate')
-        span.label-text.font-semibold.tabular-nums.text-gray-800.dark:text-gray-100
+        span.label-text.font-semibold.tabular-nums.whitespace-nowrap.text-gray-800.dark:text-gray-100
           span data-amortization-controls--component-target='rateValue'
             = rate_label
           | &nbsp;%

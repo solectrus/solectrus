@@ -1,7 +1,8 @@
 de:
   uncertain_prognosis: Prognose noch unsicher – weniger als ein Jahr Messdaten
   not_available: '–'
-  npv: Barwertvorteil
+  degree: Amortisationsgrad
+  npv: Kapitalwert
   npv_hint: "So viel mehr bringt die PV-Anlage über die gesamte Laufzeit von %{years} Jahren – verglichen damit, das Geld stattdessen zu %{rate} % Zinsen anzulegen.\n\nKünftige Ersparnisse und Kosten sind dabei auf heutiges Geld umgerechnet (abgezinst).\n\nGrundlage ist die tatsächlich gemessene Ersparnis jedes vergangenen Jahres."
   npv_hint_positive: Die PV-Anlage lohnt sich also mehr als diese Geldanlage.
   npv_hint_negative: Die Geldanlage wäre also die bessere Wahl gewesen.
@@ -9,9 +10,9 @@ de:
   net_position_hint: 'Aktueller Kontostand der PV-Anlage: alles bisher Gesparte minus alle Kosten. Nur bis heute, ohne Zinsen.'
   profit_nominal: Nominaler Überschuss
   profit_nominal_hint: 'Voraussichtlicher Gewinn nach %{years} Jahren: alle Ersparnisse minus alle Kosten, ohne Zinsen.'
-  irr: Effektive PV-Rendite
+  irr: Effektive Rendite
   irr_hint: "Die jährliche Verzinsung des eingesetzten Geldes – direkt vergleichbar mit dem Zinssatz einer Geldanlage.\n\nGrundlage ist die tatsächlich gemessene Ersparnis jedes vergangenen Jahres."
   percent_per_year: '%{value} % p.a.'
-  savings_per_year: Jährliche Ersparnis
+  savings_per_year: Jährlicher Vorteil
   savings_per_year_hint: Gemessene Ersparnis der letzten 365 Tage (im Schnitt %{per_day} pro Tag) – Grundlage für die Prognose künftiger Jahre.
   required_annual_hint: Ab %{value} pro Jahr würde sich die PV-Anlage gegenüber %{rate} % Zinsen lohnen.

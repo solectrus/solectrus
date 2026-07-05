@@ -14,12 +14,25 @@ class AmortizationStats::Component < ViewComponent::Base
            :profit_nominal,
            :npv,
            :irr_percent,
+           :degree_percent,
            :required_annual_savings,
            :savings_per_day,
            :savings_per_year,
            :projection_uncertain,
            :period_years,
            to: :result
+
+  # Whole-percent amortization degree, floored at 0 - identical to the
+  # AmortizationDegree headline and the chart's today marker, so all three agree.
+  def display_degree
+    return unless degree_percent
+
+    [degree_percent.to_f, 0].max.round
+  end
+
+  def degree_text
+    display_degree ? "#{display_degree} %" : t('.not_available')
+  end
 
   def currency(value, precision: 0)
     return t('.not_available') unless value
@@ -39,9 +52,20 @@ class AmortizationStats::Component < ViewComponent::Base
     value.negative? ? 'text-signal-negative' : 'text-signal-positive'
   end
 
+  # Compact tiles for the secondary KPI rail below the chart (the headline
+  # figures now live as annotations on the curve).
   def stat_tile_class
-    'relative flex flex-col justify-center rounded-xl ' \
-      'bg-slate-200 dark:bg-slate-800 px-3 py-2.5 md:py-3'
+    'relative flex flex-col justify-center rounded-lg ' \
+      'bg-slate-200 dark:bg-slate-800 px-2.5 py-2'
+  end
+
+  def stat_label_class
+    'flex items-center justify-center gap-1 px-2 text-[10px] md:text-xs ' \
+      'uppercase tracking-wide font-semibold text-gray-500 dark:text-gray-400'
+  end
+
+  def stat_value_class
+    'mt-0.5 text-base md:text-lg font-bold tabular-nums'
   end
 
   # Renders the info icon with a rich-HTML tooltip. The hint text is split into

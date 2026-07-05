@@ -250,6 +250,10 @@
     --chart-grid-color: #e5e5e5;
     --chart-zero-line-color: #94a3b8;
     --chart-point-border: #ffffff;
+    /* Strong near-black foreground for hero annotation labels */
+    --chart-label-strong: #0f172a;
+    /* Indigo accent (today marker, break-even), matching the app's indigo */
+    --chart-accent-color: var(--color-indigo-600);
     --chart-tooltip-bg: #ffffff;
     --chart-tooltip-text: #0f172a;
     --chart-tooltip-border: #94a3b8;
@@ -261,6 +265,10 @@
     --chart-zero-line-color: #666;
     /* Blend point borders into the dark panel so they read as dots, not glowing halos */
     --chart-point-border: #0f172a;
+    /* Light foreground for hero annotation labels on the dark panel */
+    --chart-label-strong: #e2e8f0;
+    /* Lighter indigo so the accent stays legible on the dark panel */
+    --chart-accent-color: var(--color-indigo-300);
     --chart-tooltip-bg: #1f2937;
     --chart-tooltip-text: #e2e8f0;
     --chart-tooltip-border: #475569;
