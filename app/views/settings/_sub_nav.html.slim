@@ -1,29 +1,24 @@
 - content_for :fixed_nav, true
 - content_for :sub_nav do
+  - selected_href = (nav_items.find { |item| item[:current] } || nav_items.first)[:href]
+  - menu_items = nav_items.map { |item| MenuItem::Component.new(name: item[:name], href: item[:href], id: item[:href], current: item[:current]) }
   .lg:py-5
-    /! Mobile: dark underline tabs
-    .dark:bg-slate-900.-mx-4.sm:-mx-6.px-4.sm:px-6.pb-3.lg:hidden
-      .text-center.pt-3.pb-2
-        i.fa.fa-gear.text-indigo-200.dark:text-gray-400.text-2xl
+    /! Mobile: cog + label + native select dropdown
+    .dark:bg-slate-900.-mx-4.sm:-mx-6.px-4.sm:px-6.py-3.lg:hidden
+      .flex.items-center.justify-between.gap-3
+        .flex.items-center.gap-3.text-white.dark:text-gray-200
+          i.fa.fa-gear.text-indigo-200.dark:text-gray-400.text-xl
+          span.font-medium.text-lg = t('layout.settings')
 
-      / Horizontal scroll prevents the tabs from being clipped on narrow screens
-      nav.flex.gap-x-1.overflow-x-auto.border-b.border-indigo-400/30.dark:border-gray-700[
-        aria-label="Tabs"
-        class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        data-controller="scroll-active-into-view"
-      ]
-        - nav_items.each do |item|
-          - current_classes = 'border-white text-white'
-          - default_classes = 'border-transparent text-indigo-200 dark:text-gray-400 hover:text-white hover:border-indigo-300/50 dark:hover:border-gray-500'
-          = link_to item[:name],
-                    item[:href],
-                    class: [ \
-                      'shrink-0 py-2.5 px-3 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
-                      (item[:current] ? current_classes : default_classes),
-                    ],
-                    'aria-current': (item[:current] ? 'page' : nil)
+        = render Dropdown::Component.new( \
+            name: 'settings-nav',
+            items: menu_items,
+            selected: selected_href,
+            menu_position: :center,
+            button_class: 'text-white dark:text-gray-200',
+          )
 
-    /! Desktop: original pill buttons
+    /! Desktop: original pill buttons (unchanged)
     .hidden.lg:block
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
         = c.with_items nav_items
