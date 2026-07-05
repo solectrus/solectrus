@@ -1,23 +1,28 @@
 .text-gray-700.dark:text-gray-400
   div data-controller= 'select'
-    select.block.lg:hidden.border-0.focus:ring-0.font-medium.rounded.text-sm.w-full[
-      data-select-target= 'select'
-      data-action= 'select#onChange'
-      class= button_class
-      name= name
-    ]
-      - if grouped?
-        - items.each do |group|
-          optgroup label= group[:name]
-            - flat_items_for_group(group).each do |item|
-              - unless item.href.nil?
-                = render_option(item)
-      - else
-        - items.each do |item|
-          - unless item.href.nil?
-            = render_option(item)
+    / Mobile: native select shrink-wrapped to its selected label, with the
+    / chevron right after it, so the gap stays constant for any selection.
+    / The chevron uses currentColor, adapting to the surrounding text color.
+    .inline-flex.items-center.gap-1.rounded.px-2.lg:hidden class= button_class
+      select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-sm.px-0[
+        data-select-target= 'select'
+        data-action= 'select#onChange'
+        name= name
+      ]
+        - if grouped?
+          - items.each do |group|
+            optgroup label= group[:name]
+              - flat_items_for_group(group).each do |item|
+                - unless item.href.nil?
+                  = render_option(item)
+        - else
+          - items.each do |item|
+            - unless item.href.nil?
+              = render_option(item)
 
-    select.absolute.invisible.font-medium[
+      = chevron_icon('size-5 shrink-0 pointer-events-none')
+
+    select.absolute.invisible.font-medium.px-0[
       data-select-target= 'temp'
       name= "#{name}-temp"
     ]
@@ -37,16 +42,7 @@
       ]
         = button_text
 
-        svg.h-5.text-gray-400:dark:bg-gray-800[
-          viewbox= '0 0 20 20'
-          fill= 'currentColor'
-          aria-hidden= 'true'
-        ]
-          path[
-            clip-rule= 'evenodd'
-            fill-rule= 'evenodd'
-            d= 'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'
-          ]
+        = chevron_icon('h-5')
 
     .z-10.absolute.w-max.mt-2.rounded-md.shadow-lg.bg-white.dark:bg-gray-800.ring-1.ring-black/5.hidden.overflow-hidden[
       class=menu_position_classes
