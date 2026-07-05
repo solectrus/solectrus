@@ -95,5 +95,30 @@ describe 'Sessions' do
       jar = ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
       expect(jar.signed[:admin]).to be_nil
     end
+
+    it 'redirects to return_to path' do
+      login_as_admin
+      delete '/logout', params: { return_to: '/forecast' }
+
+      expect(response).to redirect_to('/forecast')
+    end
+
+    context 'with malicious return_to' do
+      [
+        '//evil.com',
+        '/\\evil.com',
+        'http://evil.com',
+        'https://evil.com/path',
+        'javascript:alert(1)',
+        'evil.com',
+      ].each do |bad_path|
+        it "ignores #{bad_path.inspect} and redirects to root" do
+          login_as_admin
+          delete '/logout', params: { return_to: bad_path }
+
+          expect(response).to redirect_to('/')
+        end
+      end
+    end
   end
 end

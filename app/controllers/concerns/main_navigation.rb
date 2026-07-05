@@ -297,7 +297,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         {
           name: t('layout.logout'),
           icon: 'arrow-right-from-bracket',
-          href: session_path,
+          href: session_path(return_to: logout_return_to),
           data: {
             'turbo-method': :delete,
           },
@@ -308,6 +308,21 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           icon: 'arrow-right-to-bracket',
           href: new_session_path,
         }
+      end
+    end
+
+    # Return to the current page after logout - unless it requires admin, in
+    # which case the now non-admin user would only hit a 403 there. Fall back
+    # to the homepage (via a blank return_to) for those pages.
+    def logout_return_to
+      return if admin_only_page?
+
+      request.fullpath
+    end
+
+    def admin_only_page?
+      self.class._process_action_callbacks.any? do |callback|
+        callback.kind == :before && callback.filter == :admin_required!
       end
     end
   end

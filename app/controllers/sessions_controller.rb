@@ -49,7 +49,7 @@ class SessionsController < ApplicationController
     cookies.delete :admin
 
     flash[:notice] = t('login.bye')
-    redirect_to balance_home_path, status: :see_other
+    redirect_to safe_return_path(params[:return_to]), status: :see_other
   end
 
   private

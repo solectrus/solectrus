@@ -37,7 +37,7 @@ describe 'Administrator login' do
       click_on 'Anmelden'
 
       expect(page).to have_no_link(href: '/login', visible: :all)
-      expect(page).to have_link(href: '/logout', visible: :all)
+      expect(page).to have_link(href: %r{/logout}, visible: :all)
     end
   end
 
@@ -54,7 +54,7 @@ describe 'Administrator login' do
       click_on 'Anmelden'
 
       expect(page).to have_current_path('/forecast')
-      expect(page).to have_link(href: '/logout', visible: :all)
+      expect(page).to have_link(href: %r{/logout}, visible: :all)
     end
 
     it 'returns to that page when cancelling' do
@@ -73,11 +73,31 @@ describe 'Administrator login' do
 
     it 'can logout' do
       page.execute_script(
-        "document.querySelector('a[href=\"/logout\"]').click()",
+        "document.querySelector('a[href^=\"/logout\"]').click()",
       )
 
       expect(page).to have_link(href: '/login', visible: :all)
-      expect(page).to have_no_link(href: '/logout', visible: :all)
+      expect(page).to have_no_link(href: %r{/logout}, visible: :all)
+    end
+
+    it 'returns to the current page when logging out from a public page' do
+      visit '/forecast'
+      page.execute_script(
+        "document.querySelector('a[href^=\"/logout\"]').click()",
+      )
+
+      expect(page).to have_current_path('/forecast')
+      expect(page).to have_link(href: '/login', visible: :all)
+    end
+
+    it 'returns to the homepage when logging out from an admin-only page' do
+      visit '/settings/general'
+      page.execute_script(
+        "document.querySelector('a[href^=\"/logout\"]').click()",
+      )
+
+      expect(page).to have_current_path('/power_balance/now')
+      expect(page).to have_link(href: '/login', visible: :all)
     end
   end
 end
