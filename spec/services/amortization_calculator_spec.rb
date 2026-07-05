@@ -63,6 +63,15 @@ describe AmortizationCalculator do
     it 'flags the prognosis as uncertain with less than a year of data' do
       expect(result.projection_uncertain).to be true
     end
+
+    it 'echoes the parameters it was computed with' do
+      r = result(period_years: 25, interest_rate: 4.5)
+
+      aggregate_failures do
+        expect(r.period_years).to eq(25)
+        expect(r.interest_rate).to eq(4.5)
+      end
+    end
   end
 
   describe 'amortization degree' do
@@ -428,8 +437,7 @@ describe AmortizationCalculator do
     it 'recomputes when a parameter changes' do
       first = described_class.result
 
-      Setting.amortization_interest_rate = 5.0
-      second = described_class.result
+      second = described_class.result(interest_rate: 5.0)
 
       expect(second.npv).not_to eq(first.npv)
     end

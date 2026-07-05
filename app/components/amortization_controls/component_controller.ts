@@ -2,7 +2,8 @@ import { Controller } from '@hotwired/stimulus';
 
 // Live-updates the value labels while a slider is being dragged. The form is
 // submitted on release (change event) by the shared `auto-submit` controller,
-// which persists the setting and re-renders the surrounding Turbo frame.
+// which recomputes and re-renders the surrounding Turbo frame and remembers the
+// values in per-browser cookies, so the next page load renders them directly.
 export default class extends Controller {
   static targets = ['periodInput', 'periodValue', 'rateInput', 'rateValue'];
 

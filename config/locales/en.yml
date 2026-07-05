@@ -351,8 +351,6 @@ en:
       setting:
         plant_name: Name of the plant
         operator_name: Name of the operator
-        amortization_period_years: Total period (years)
-        amortization_interest_rate: Discount rate (% p. a.)
   sensor_descriptions:
     power_balance: "Net power balance: PV generation minus total consumption. Positive means a surplus (exported or charging the battery), negative a deficit drawn from the grid."
     inverter_power: "Total PV generation (AC output of the inverter(s))."

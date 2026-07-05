@@ -51,7 +51,9 @@ describe McpServer::Tools::Amortization do
 
         aggregate_failures do
           expect(data[:currency]).to eq(Rails.configuration.x.currency)
-          expect(data[:period_years]).to eq(Setting.amortization_period_years)
+          expect(data[:period_years]).to eq(
+            AmortizationCalculator::DEFAULT_PERIOD_YEARS,
+          )
           expect(data[:installation_date]).to eq('2023-07-10')
           expect(data[:degree_percent]).to be_within(0.1).of(30.54 / 50 * 100)
           expect(data[:net_position]).to be_within(0.01).of(30.54 - 50)
@@ -88,7 +90,7 @@ describe McpServer::Tools::Amortization do
         aggregate_failures do
           # Echoes the clamped values actually used, not the raw request.
           expect(data[:period_years]).to eq(
-            AmortizationControls::Component::PERIOD_RANGE.max,
+            AmortizationCalculator::PERIOD_RANGE.max,
           )
           expect(data[:interest_rate]).to eq(10.0)
           expect(data[:profit_nominal]).to be_a(Numeric)

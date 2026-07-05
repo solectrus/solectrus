@@ -12,12 +12,12 @@ describe 'Amortization' do
       allow(Setting).to receive(:amortization_public).and_return(true)
     end
 
-    it 'shows the same detail view, but without the parameter sliders' do
+    it 'shows the detail view including the parameter sliders' do
       visit '/amortization'
 
       expect(page).to have_text(/Nominaler Saldo heute/i)
       expect(page).to have_css('canvas')
-      expect(page).to have_no_field('amortization[period_years]', type: 'range')
+      expect(page).to have_field('amortization[period_years]', type: 'range')
     end
   end
 

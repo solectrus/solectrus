@@ -13,14 +13,44 @@
 #    Positive = the system beats an investment yielding r. The internal
 #    rate of return (IRR) is the rate at which the NPV is exactly zero.
 class AmortizationCalculator
-  def self.result
-    Rails.cache.fetch(cache_key, expires_in: 1.day) { new.result }
+  # Valid parameter ranges and defaults for the calculation. The controls
+  # component, the controller and the MCP tool clamp user input into these
+  # ranges via .clamp_period / .clamp_interest before computing.
+  PERIOD_RANGE = 10..30
+  public_constant :PERIOD_RANGE
+
+  INTEREST_RANGE = 0.0..10.0
+  public_constant :INTEREST_RANGE
+
+  DEFAULT_PERIOD_YEARS = 20
+  public_constant :DEFAULT_PERIOD_YEARS
+
+  DEFAULT_INTEREST_RATE = 3.0 # % p. a.
+  public_constant :DEFAULT_INTEREST_RATE
+
+  # Coerce a raw (possibly nil, string or tampered) value to the default and
+  # clamp it into the allowed range.
+  def self.clamp_period(value)
+    (value || DEFAULT_PERIOD_YEARS).to_i.clamp(PERIOD_RANGE)
+  end
+
+  def self.clamp_interest(value)
+    (value || DEFAULT_INTEREST_RATE).to_f.clamp(INTEREST_RANGE)
+  end
+
+  def self.result(
+    period_years: DEFAULT_PERIOD_YEARS,
+    interest_rate: DEFAULT_INTEREST_RATE
+  )
+    key = cache_key(period_years:, interest_rate:)
+    compute = -> { Rails.cache.fetch(key, expires_in: 1.day) { new(period_years:, interest_rate:).result } }
+    compute.call
   rescue TypeError
     # A Result cached by an older app version may carry outdated struct
     # members (e.g. a renamed field), which raises on deserialization. Discard
     # the stale entry and recompute rather than failing the request.
-    Rails.cache.delete(cache_key)
-    Rails.cache.fetch(cache_key, expires_in: 1.day) { new.result }
+    Rails.cache.delete(key)
+    compute.call
   end
 
   # The result only changes with the calendar day (measured savings roll in
@@ -28,22 +58,23 @@ class AmortizationCalculator
   # content-addressed key invalidates immediately on any of these edits
   # without an explicit sweep; the day component keeps a stale entry from
   # surviving past midnight and lets old keys expire on their own.
-  def self.cache_key
+  def self.cache_key(period_years:, interest_rate:)
     [
       'amortization_calculator',
       Date.current,
       CashFlow.all.cache_key_with_version,
-      Setting.amortization_period_years,
-      Setting.amortization_interest_rate,
+      period_years,
+      interest_rate,
     ].join('/')
   end
 
   def initialize(
-    period_years: Setting.amortization_period_years,
-    interest_rate: Setting.amortization_interest_rate
+    period_years: DEFAULT_PERIOD_YEARS,
+    interest_rate: DEFAULT_INTEREST_RATE
   )
     @period_years = period_years
-    @interest_rate = interest_rate.to_f / 100
+    @interest_percent = interest_rate.to_f
+    @interest_rate = @interest_percent / 100
   end
 
   attr_reader :period_years, :interest_rate
@@ -65,6 +96,8 @@ class AmortizationCalculator
       savings_per_year: savings.savings_per_year,
       projection_uncertain: savings.projection_uncertain?,
       yearly_series: yearly_series(nominal),
+      period_years:,
+      interest_rate: @interest_percent,
     )
   end
 

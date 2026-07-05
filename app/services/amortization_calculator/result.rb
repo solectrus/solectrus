@@ -35,6 +35,12 @@ class AmortizationCalculator
       # one point per PV-year birthday (12 months from installation).
       # [{ year:, nominal:, projected:, degree: }]
       :yearly_series,
+      # The two parameters the result was computed with, echoed so the view
+      # (sliders, tooltips) and the MCP response reflect the values actually
+      # used: the operating period in whole years and the calculatory interest
+      # rate in % p.a.
+      :period_years,
+      :interest_rate,
     ) do
       def amortized?
         degree_percent.present? && degree_percent >= 100

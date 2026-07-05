@@ -29,9 +29,9 @@
           .flex-1.min-h-0
             = render AmortizationStats::Component.new(result: @result)
 
-          /! Sliders persist the parameters, so they stay admin-only
-          - if admin?
-            = render AmortizationControls::Component.new
+          /! Sliders keep their parameters per browser (cookie), so they are
+          /! shown to everyone who may see the calculation
+          = render AmortizationControls::Component.new(result: @result)
 
         /! Right half: chart over the whole period (landscape only)
         .hidden.lg:landscape:flex.flex-1.min-h-52.flex-col

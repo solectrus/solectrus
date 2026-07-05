@@ -1,23 +1,32 @@
-# Slider controls (admin + sponsor only) to adjust the two calculation
-# parameters - duration and calculatory interest rate - directly on the
-# amortization page. Releasing a slider auto-submits the form via Turbo,
-# which persists the value in Setting and re-renders the detail frame.
+# Slider controls (shown to every visitor who may see the calculation) to
+# adjust the two calculation parameters - duration and calculatory interest
+# rate - directly on the amortization page. Releasing a slider auto-submits the
+# form via Turbo, which recomputes and re-renders the detail frame with the
+# given parameters and remembers them in a per-browser cookie (not a global
+# Setting), so the next page load renders the same result server-side.
 class AmortizationControls::Component < ViewComponent::Base
-  PERIOD_RANGE = 10..30
-  INTEREST_RANGE = 0.0..10.0
+  # The parameter ranges are domain facts owned by AmortizationCalculator; the
+  # slider granularity is a view concern and stays here.
+  PERIOD_RANGE = AmortizationCalculator::PERIOD_RANGE
+  INTEREST_RANGE = AmortizationCalculator::INTEREST_RANGE
   INTEREST_STEP = 0.1
-  public_constant :PERIOD_RANGE
-  public_constant :INTEREST_RANGE
+  private_constant :PERIOD_RANGE
+  private_constant :INTEREST_RANGE
   private_constant :INTEREST_STEP
 
-  # Clamped to the effective range so the slider thumb and the value label
-  # agree even when a previously stored setting is below the current minimum.
-  def period_years
-    Setting.amortization_period_years.clamp(period_min, period_max)
+  def initialize(result:)
+    super()
+    @result = result
   end
 
-  def interest_rate
-    Setting.amortization_interest_rate
+  attr_reader :result
+
+  delegate :interest_rate, to: :result
+
+  # Clamped to the effective range so the slider thumb and the value label
+  # agree even when the requested period is below the current minimum.
+  def period_years
+    result.period_years.clamp(period_min, period_max)
   end
 
   def rate_label

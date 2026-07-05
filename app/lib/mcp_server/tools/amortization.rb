@@ -35,8 +35,8 @@ module McpServer
         are ISO 8601, rates and the degree are percent. period_years and
         interest_rate echo the values actually used (clamped into range).
 
-        Parameters (both optional, for what-if scenarios; default to the
-        configured settings):
+        Parameters (both optional, for what-if scenarios; default to 20 years
+        and 3 % p.a.):
           - period_years: total lifetime in years (10-30).
           - interest_rate: calculatory interest rate in % p.a. (0-10).
       TEXT
@@ -44,11 +44,11 @@ module McpServer
         properties: {
           period_years: {
             type: 'integer',
-            description: 'Total lifetime in years (10-30). Defaults to the configured value.',
+            description: 'Total lifetime in years (10-30). Defaults to 20.',
           },
           interest_rate: {
             type: 'number',
-            description: 'Calculatory interest rate in % p.a. (0-10). Defaults to the configured value.',
+            description: 'Calculatory interest rate in % p.a. (0-10). Defaults to 3.',
           },
         },
       )
@@ -61,16 +61,14 @@ module McpServer
       end
 
       def self.payload(period_years, interest_rate)
-        effective_period =
-          (period_years || Setting.amortization_period_years)
-            .to_i
-            .clamp(AmortizationControls::Component::PERIOD_RANGE)
-        effective_rate =
-          (interest_rate || Setting.amortization_interest_rate)
-            .to_f
-            .clamp(AmortizationControls::Component::INTEREST_RANGE)
+        effective_period = AmortizationCalculator.clamp_period(period_years)
+        effective_rate = AmortizationCalculator.clamp_interest(interest_rate)
 
-        result = result_for(period_years, interest_rate, effective_period, effective_rate)
+        result =
+          AmortizationCalculator.result(
+            period_years: effective_period,
+            interest_rate: effective_rate,
+          )
 
         {
           currency: Rails.configuration.x.currency,
@@ -102,21 +100,6 @@ module McpServer
         }
       end
       private_class_method :figures
-
-      # Without overrides use the cached, Setting-based result; a what-if
-      # scenario recomputes directly with the clamped parameters (and stays out
-      # of the cache).
-      def self.result_for(period_years, interest_rate, effective_period, effective_rate)
-        if period_years.nil? && interest_rate.nil?
-          AmortizationCalculator.result
-        else
-          AmortizationCalculator.new(
-            period_years: effective_period,
-            interest_rate: effective_rate,
-          ).result
-        end
-      end
-      private_class_method :result_for
 
       def self.round2(value)
         value&.round(2)

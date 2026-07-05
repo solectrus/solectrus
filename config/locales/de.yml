@@ -351,8 +351,6 @@ de:
       setting:
         plant_name: Bezeichnung der Anlage
         operator_name: Name des Betreibers
-        amortization_period_years: Gesamtlaufzeit (Jahre)
-        amortization_interest_rate: Kalkulationszins (% p. a.)
   sensor_descriptions:
     power_balance: "Strombilanz: Erzeugung minus Gesamtverbrauch. Positiv = Überschuss (Einspeisung oder Akkuladung), negativ = Defizit aus dem Netz."
     inverter_power: "Gesamte PV-Erzeugung (AC-Leistung des/der Wechselrichter)."

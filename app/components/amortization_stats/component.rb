@@ -18,6 +18,7 @@ class AmortizationStats::Component < ViewComponent::Base
            :savings_per_day,
            :savings_per_year,
            :projection_uncertain,
+           :period_years,
            to: :result
 
   def currency(value, precision: 0)
@@ -110,11 +111,7 @@ class AmortizationStats::Component < ViewComponent::Base
     ].join("\n\n")
   end
 
-  def period_years
-    Setting.amortization_period_years
-  end
-
   def rate_label
-    number_with_precision(Setting.amortization_interest_rate, precision: 1)
+    number_with_precision(result.interest_rate, precision: 1)
   end
 end

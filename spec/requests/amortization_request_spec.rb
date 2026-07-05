@@ -77,13 +77,13 @@ describe 'Amortization' do
           allow(Setting).to receive(:amortization_public).and_return(true)
         end
 
-        it 'shows the same detail view, but without the parameter sliders' do
+        it 'shows the detail view including the parameter sliders' do
           get '/amortization'
 
           expect(response).to have_http_status(:success)
           expect(response.body).to include('Nominal balance today')
           expect(response.body).to include('amortization-chart--component')
-          expect(response.body).not_to include('type="range"')
+          expect(response.body).to include('type="range"')
         end
       end
 
@@ -156,6 +156,14 @@ describe 'Amortization' do
           expect(response.body).to include('name="amortization[interest_rate]"')
           expect(response.body).to include('type="range"')
         end
+
+        it 'does not set a cookie for a visitor using the defaults' do
+          get '/amortization'
+
+          expect(response.headers['Set-Cookie'].to_s).not_to include(
+            'amortization_params',
+          )
+        end
       end
     end
 
@@ -213,12 +221,14 @@ describe 'Amortization' do
       { amortization: { period_years: '25', interest_rate: '2.5' } }
     end
 
-    context 'when not logged in' do
-      it 'returns http forbidden and keeps the settings' do
-        expect do
-          patch '/amortization', params: params
-        end.not_to change(Setting, :amortization_period_years)
+    context 'when not logged in and not made public' do
+      before do
+        allow(ApplicationPolicy).to receive(:amortization?).and_return(true)
+        allow(Setting).to receive(:amortization_public).and_return(false)
+      end
 
+      it 'returns http forbidden' do
+        patch '/amortization', params: params
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -235,21 +245,69 @@ describe 'Amortization' do
       end
     end
 
+    context 'when not logged in, sponsoring active and made public' do
+      before do
+        allow(ApplicationPolicy).to receive(:amortization?).and_return(true)
+        allow(Setting).to receive(:amortization_public).and_return(true)
+      end
+
+      it 'recomputes with the given parameters and re-renders the detail' do
+        patch '/amortization', params: params
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('id="amortization_detail"')
+        # The re-rendered sliders reflect the submitted values, nothing is
+        # persisted to a global Setting.
+        expect(response.body).to include('value="25"')
+      end
+    end
+
     context 'when logged in as admin with sponsoring' do
       before do
         allow(ApplicationPolicy).to receive(:amortization?).and_return(true)
         login_as_admin
       end
 
-      it 'persists the parameters and re-renders the detail' do
+      it 'recomputes with the given parameters and re-renders the detail' do
         patch '/amortization', params: params
 
         expect(response).to have_http_status(:success)
-        expect(Setting.amortization_period_years).to eq(25)
-        expect(Setting.amortization_interest_rate).to eq(2.5)
+        expect(response.body).to include('value="25"')
       end
 
-      it 'clamps values outside the slider range' do
+      it 'remembers the parameters in a single per-browser cookie' do
+        patch '/amortization', params: params
+
+        expect(JSON.parse(cookies['amortization_params'])).to eq(
+          'period_years' => 25,
+          'interest_rate' => 2.5,
+        )
+      end
+
+      it 'renders a later plain page load from the cookie, not the default' do
+        patch '/amortization', params: params
+
+        # No params this time - the value must come from the cookie set above.
+        allow(Summary).to receive(:missing_or_stale_days).and_return([])
+        get '/amortization'
+
+        expect(response.body).to include('value="25"')
+        expect(response.body).not_to include('value="20"')
+      end
+
+      it 'refreshes the cookie expiry on a later plain page load' do
+        patch '/amortization', params: params
+
+        allow(Summary).to receive(:missing_or_stale_days).and_return([])
+        get '/amortization'
+
+        # Sliding expiration: an existing cookie is re-set on every visit.
+        expect(response.headers['Set-Cookie'].to_s).to include(
+          'amortization_params',
+        )
+      end
+
+      it 'clamps values outside the slider range before rendering' do
         patch '/amortization',
               params: {
                 amortization: {
@@ -258,11 +316,9 @@ describe 'Amortization' do
                 },
               }
 
-        expect(Setting.amortization_period_years).to eq(
-          AmortizationControls::Component::PERIOD_RANGE.max,
-        )
-        expect(Setting.amortization_interest_rate).to eq(
-          AmortizationControls::Component::INTEREST_RANGE.min,
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include(
+          "value=\"#{AmortizationCalculator::PERIOD_RANGE.max}\"",
         )
       end
     end
