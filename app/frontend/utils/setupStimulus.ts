@@ -24,6 +24,24 @@ registerControllers(
 // Show progress bar immediately on navigation (default: 500ms delay)
 Turbo.config.drive.progressBarDelay = 0;
 
+// A morph refresh (turbo_refreshes_with :morph) to the same URL - e.g. after a
+// logout that redirects back to the current page - rewinds lazily-loaded
+// content frames (charts, tiles) to their server-rendered spinner placeholder.
+// Their `src` is unchanged, so Turbo never re-fetches them and they stay stuck
+// on the spinner. Reload every src-driven frame after a morph so its content
+// comes back.
+//
+// Frames marked `data-turbo-permanent` are preserved by the morph (their live
+// content survives untouched), so reloading them would be pure waste - e.g. the
+// live "now" page's stats frame. Skip them.
+document.addEventListener('turbo:morph', () => {
+  document
+    .querySelectorAll<Turbo.FrameElement>(
+      'turbo-frame[src]:not([data-turbo-permanent])',
+    )
+    .forEach((frame) => frame.reload());
+});
+
 // Error handling for missing Turbo frames
 document.addEventListener('turbo:frame-missing', (event) => {
   const {

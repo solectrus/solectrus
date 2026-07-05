@@ -90,6 +90,27 @@ describe 'Administrator login' do
       expect(page).to have_link(href: '/login', visible: :all)
     end
 
+    # Logging out redirects back to the current page, which - being the same
+    # URL - triggers a Turbo morph refresh. That morph rewinds the lazy chart
+    # frame to its spinner placeholder; without a reload it stays stuck. The
+    # chart must come back after logout.
+    it 'reloads lazy charts after logging out on a chart page' do
+      visit '/forecast'
+      within('#inverter-power-forecast-chart') do
+        expect(page).to have_css('canvas')
+      end
+
+      page.execute_script(
+        "document.querySelector('a[href^=\"/logout\"]').click()",
+      )
+
+      expect(page).to have_current_path('/forecast')
+      expect(page).to have_link(href: '/login', visible: :all)
+      within('#inverter-power-forecast-chart') do
+        expect(page).to have_css('canvas')
+      end
+    end
+
     it 'returns to the homepage when logging out from an admin-only page' do
       visit '/settings/general'
       page.execute_script(
