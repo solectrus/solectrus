@@ -280,6 +280,7 @@ de:
       new: Neuer Eintrag
       edit: Eintrag bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
+      category_hint: Bestimmt, wie der Betrag in die Amortisation einfließt – Investition erhöht die Investitionsbasis, Förderung/Erstattung senken sie, Betriebskosten/Reparatur/Entschädigung wirken auf den laufenden Ertrag, Sonstiges bleibt neutral.
       public: Amortisation für alle anzeigen
       public_hint: Wenn aktiviert, sehen auch nicht angemeldete Besucher die Amortisations-Berechnung. Andernfalls bleibt sie nur für Admins sichtbar.
       sponsors_only: Die Amortisations-Seite ist nur für Sponsoren verfügbar.
@@ -350,9 +351,22 @@ de:
         amount: Betrag
         amount_with_currency: Betrag in %{currency}
         note: Zweck
+        category: Kategorie
+        categories:
+          investment: Investition
+          subsidy: Förderung
+          refund: Erstattung
+          operating_cost: Betriebskosten
+          repair: Reparatur
+          compensation: Entschädigung
+          other: Sonstiges
       setting:
         plant_name: Bezeichnung der Anlage
         operator_name: Name des Betreibers
+    errors:
+      messages:
+        must_be_negative: muss für diese Kategorie negativ sein (Auszahlung)
+        must_be_positive: muss für diese Kategorie positiv sein (Einzahlung)
   sensor_descriptions:
     power_balance: "Strombilanz: Erzeugung minus Gesamtverbrauch. Positiv = Überschuss (Einspeisung oder Akkuladung), negativ = Defizit aus dem Netz."
     inverter_power: "Gesamte PV-Erzeugung (AC-Leistung des/der Wechselrichter)."

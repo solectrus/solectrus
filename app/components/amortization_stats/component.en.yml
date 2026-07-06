@@ -8,6 +8,13 @@ en:
   npv_hint_negative: So the investment would have been the better choice.
   net_position: Nominal balance today
   net_position_hint: 'Current balance of the system: everything saved so far minus all costs. Only up to today, without interest.'
+  operating_cashflow: Operating returns
+  operating_cashflow_hint: "Earned operationally so far – the numerator of the amortization degree.\n\nMeasured savings plus compensation, minus operating costs and repairs.\n\nSubsidies and refunds deliberately do not count here – they lower the net investment instead."
+  gross_investment: Gross investment
+  investment_reduction: Subsidy/refund
+  net_investment: Net investment
+  net_investment_hint: The amount that actually has to be earned back – the denominator of the amortization degree.
+  net_investment_breakdown: 'Gross investment %{gross} minus subsidy/refund %{reduction}.'
   profit_nominal: Nominal surplus
   profit_nominal_hint: 'Expected profit after %{years} years: all savings minus all costs, without interest.'
   irr: Effective return

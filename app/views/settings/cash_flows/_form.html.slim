@@ -2,6 +2,9 @@
   = f.group do
     = f.date_field :date,
                    autofocus: true
+    = f.select :category,
+               CashFlow.categories.keys.map { |key| [CashFlow.human_enum_name(:category, key), key] },
+               { hint: t('settings.cash_flows.category_hint') }
     = f.number_field :amount,
                      step: '0.01',
                      label: t('activerecord.attributes.cash_flow.amount_with_currency', currency: Currency.symbol),

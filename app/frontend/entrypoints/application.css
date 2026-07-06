@@ -189,7 +189,8 @@
   }
 }
 
-.form-input {
+.form-input,
+.form-select {
   @variant dark {
     @apply bg-black text-gray-300 ring-offset-slate-800 focus:border-indigo-500 focus:ring-offset-pink-700!;
   }

@@ -29,22 +29,28 @@ class AmortizationCalculator
 
     def amounts
       @amounts ||=
-        months.map { |month| savings.savings_for(month) + flows_in(month).sum(&:last) }
+        months.map do |month|
+          savings.savings_for(month) + flows_in(month).sum { |_date, amount, _category| amount }
+        end
     end
 
     def flows_in(month)
       flows_by_month.fetch(month, [])
     end
 
-    # Credits booked in the given month: savings plus positive cash flows.
-    def credits_in(month)
+    # Operating cash flow booked in the given month: measured/projected savings
+    # plus the manual operating flows (compensation adds, operating_cost/repair
+    # subtract). Subsidies/refunds are excluded - they lower the base, not the
+    # operating payback.
+    def operating_in(month)
       savings.savings_for(month) +
-        flows_in(month).sum { |_date, amount| amount.positive? ? amount : 0.0 }
+        sum_in(month, CashFlow::OPERATING_CATEGORIES)
     end
 
-    # Debits booked in the given month: the absolute value of negative flows.
-    def debits_in(month)
-      -flows_in(month).sum { |_date, amount| amount.negative? ? amount : 0.0 }
+    # Net investment booked in the given month: investment raises the base,
+    # subsidy/refund lower it. Their signed sum, negated, is the net figure.
+    def net_investment_in(month)
+      -sum_in(month, CashFlow::INVESTMENT_BASE_CATEGORIES)
     end
 
     # Zero-based index of the given date's month within the series, counted
@@ -55,11 +61,18 @@ class AmortizationCalculator
 
     private
 
+    # Signed sum of the given month's flows that fall into the given categories.
+    def sum_in(month, categories)
+      flows_in(month).sum do |_date, amount, category|
+        categories.include?(category) ? amount : 0.0
+      end
+    end
+
     # Bucket cash flows by month once, so the monthly walk stays O(flows)
     # instead of rescanning every cash flow for each of up to 480 months.
     def flows_by_month
       @flows_by_month ||=
-        cash_flows.group_by { |date, _amount| date.beginning_of_month }
+        cash_flows.group_by { |date, _amount, _category| date.beginning_of_month }
     end
   end
 end

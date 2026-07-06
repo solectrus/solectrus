@@ -1,8 +1,10 @@
 class AmortizationCalculator
   Result =
     Data.define(
-      # Uncapped nominal ratio (credits / debits * 100) of flows up to
-      # today, without interest. nil if there are no debits (yet).
+      # Operating amortization degree in percent (operating cash flow / net
+      # investment * 100), uncapped, flows up to today. Not derived from the
+      # nominal balance, so a subsidy/refund lowers the base without inflating
+      # the figure. nil without a net investment or any measured data.
       :degree_percent,
       # Nominal amortization: first day the plain cumulative balance reaches
       # zero (interpolated within the month), without interest. nil if the
@@ -13,6 +15,16 @@ class AmortizationCalculator
       :installation_date,
       # Nominal balance as of today, excluding future-dated flows.
       :net_position,
+      # Gross investment: magnitude of all investment outflows up to today.
+      :gross_investment,
+      # Investment reduction: subsidies and refunds that lower the base.
+      :investment_reduction,
+      # Net investment that actually has to be earned back
+      # (gross_investment - investment_reduction).
+      :net_investment,
+      # Operating cash flow up to today: measured savings plus manual operating
+      # flows (compensation, operating_cost, repair); excludes subsidies/refunds.
+      :operating_cashflow,
       # Nominal surplus at the end of the total period, without interest.
       :profit_nominal,
       # Net present value: discounted balance at the end of the period

@@ -4,6 +4,7 @@
 #
 #  id         :bigint           not null, primary key
 #  amount     :decimal(10, 2)   not null
+#  category   :string           not null
 #  date       :date             not null
 #  note       :string           not null
 #  created_at :datetime         not null
@@ -58,6 +59,68 @@ describe CashFlow do
       expect(
         described_class.new(date: Date.current, note: 'Revenue', amount: 500),
       ).to be_valid
+    end
+
+    it 'requires an outflow category to be negative' do
+      cash_flow =
+        described_class.new(
+          date: Date.current,
+          note: 'Grant',
+          amount: 500,
+          category: :investment,
+        )
+
+      expect(cash_flow).not_to be_valid
+      expect(cash_flow.errors[:amount]).to be_present
+    end
+
+    it 'requires an inflow category to be positive' do
+      cash_flow =
+        described_class.new(
+          date: Date.current,
+          note: 'Grant',
+          amount: -500,
+          category: :subsidy,
+        )
+
+      expect(cash_flow).not_to be_valid
+      expect(cash_flow.errors[:amount]).to be_present
+    end
+
+    it 'allows either sign for the neutral category' do
+      aggregate_failures do
+        expect(
+          described_class.new(date: Date.current, note: 'X', amount: -1, category: :other),
+        ).to be_valid
+        expect(
+          described_class.new(date: Date.current, note: 'X', amount: 1, category: :other),
+        ).to be_valid
+      end
+    end
+  end
+
+  describe 'category inference' do
+    it 'defaults an outflow to investment and an inflow to compensation' do
+      aggregate_failures do
+        expect(
+          described_class.create!(date: Date.current, note: 'Cost', amount: -500).category,
+        ).to eq('investment')
+        expect(
+          described_class.create!(date: Date.current, note: 'Revenue', amount: 500).category,
+        ).to eq('compensation')
+      end
+    end
+
+    it 'keeps an explicitly given category' do
+      cash_flow =
+        described_class.create!(
+          date: Date.current,
+          note: 'Grant',
+          amount: 500,
+          category: :subsidy,
+        )
+
+      expect(cash_flow.category).to eq('subsidy')
     end
   end
 

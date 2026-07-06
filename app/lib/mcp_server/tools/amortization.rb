@@ -13,13 +13,21 @@ module McpServer
         with the manually kept cash flow register (investments, costs, revenue).
 
         Returns:
-          - amortized: true once the plain cumulative balance has turned positive.
-          - degree_percent: how far the system is paid off (credits / debits,
-            uncapped, only flows up to today).
+          - amortized: true once the operating cash flow has earned back the net
+            investment (degree_percent >= 100).
+          - degree_percent: operating amortization degree (operating cash flow /
+            net investment, uncapped, only flows up to today). A subsidy/refund
+            lowers the net investment but does not inflate this figure.
           - break_even_date: first day the nominal balance reaches zero (null if
             not within the period).
           - installation_date: start of the payback period.
           - net_position: nominal balance as of today (excludes future-dated flows).
+          - gross_investment: magnitude of all investment outflows up to today.
+          - investment_reduction: subsidies and refunds that lower the base.
+          - net_investment: what actually has to be earned back
+            (gross_investment - investment_reduction).
+          - operating_cashflow: measured savings plus manual operating flows
+            (compensation, operating_cost, repair); excludes subsidies/refunds.
           - profit_nominal: nominal surplus at the end of the period (no interest).
           - npv: net present value at the calculatory rate (positive = beats an
             alternative investment yielding that rate).
@@ -86,6 +94,7 @@ module McpServer
           break_even_date: result.break_even_date&.iso8601,
           installation_date: result.installation_date&.iso8601,
           net_position: round2(result.net_position),
+          **investment_figures(result),
           profit_nominal: round2(result.profit_nominal),
           npv: round2(result.npv),
           irr_percent: round2(result.irr_percent),
@@ -100,6 +109,16 @@ module McpServer
         }
       end
       private_class_method :figures
+
+      def self.investment_figures(result)
+        {
+          gross_investment: round2(result.gross_investment),
+          investment_reduction: round2(result.investment_reduction),
+          net_investment: round2(result.net_investment),
+          operating_cashflow: round2(result.operating_cashflow),
+        }
+      end
+      private_class_method :investment_figures
 
       def self.round2(value)
         value&.round(2)

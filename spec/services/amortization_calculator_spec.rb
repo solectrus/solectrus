@@ -104,6 +104,70 @@ describe AmortizationCalculator do
     end
   end
 
+  describe 'cash flow categories' do
+    before { seed_steady_year }
+
+    it 'treats a subsidy as an investment reduction, not operating payback' do
+      create_investment(amount: -100)
+      CashFlow.create!(
+        date: Date.new(2023, 8, 1), amount: 40, note: 'Grant', category: :subsidy,
+      )
+
+      r = result
+
+      aggregate_failures do
+        expect(r.gross_investment).to be_within(0.01).of(100)
+        expect(r.investment_reduction).to be_within(0.01).of(40)
+        expect(r.net_investment).to be_within(0.01).of(60)
+        expect(r.operating_cashflow).to be_within(0.01).of(total_savings)
+        # operating cash flow / net investment - the subsidy lowers the base
+        # instead of inflating the numerator (which would give ~70 %).
+        expect(r.degree_percent).to be_within(0.01).of(total_savings / 60 * 100)
+      end
+    end
+
+    it 'subtracts operating costs and repairs from the operating cash flow' do
+      create_investment(amount: -100)
+      CashFlow.create!(
+        date: Date.new(2023, 9, 1), amount: -5, note: 'Fee', category: :operating_cost,
+      )
+      CashFlow.create!(
+        date: Date.new(2023, 10, 1), amount: -3, note: 'Fix', category: :repair,
+      )
+
+      r = result
+
+      aggregate_failures do
+        expect(r.net_investment).to be_within(0.01).of(100)
+        expect(r.operating_cashflow).to be_within(0.01).of(total_savings - 8)
+        expect(r.degree_percent).to be_within(0.01).of((total_savings - 8) / 100 * 100)
+      end
+    end
+
+    it 'adds compensation to the operating cash flow' do
+      create_investment(amount: -100)
+      CashFlow.create!(
+        date: Date.new(2023, 9, 1), amount: 10, note: 'Payout', category: :compensation,
+      )
+
+      expect(result.operating_cashflow).to be_within(0.01).of(total_savings + 10)
+    end
+
+    it 'ignores the neutral category in the investment and operating figures' do
+      create_investment(amount: -100)
+      CashFlow.create!(
+        date: Date.new(2023, 9, 1), amount: 20, note: 'Misc', category: :other,
+      )
+
+      r = result
+
+      aggregate_failures do
+        expect(r.net_investment).to be_within(0.01).of(100)
+        expect(r.operating_cashflow).to be_within(0.01).of(total_savings)
+      end
+    end
+  end
+
   describe 'net position' do
     before { seed_steady_year }
 

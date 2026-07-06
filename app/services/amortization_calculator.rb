@@ -84,10 +84,14 @@ class AmortizationCalculator
     credits, debits = ledger_until_today
 
     Result.new(
-      degree_percent: degree_percent(credits, debits),
+      degree_percent: categorization.degree_percent,
       break_even_date: break_even_date(nominal),
       installation_date: savings.effective_installation_date,
       net_position: credits - debits,
+      gross_investment: categorization.gross_investment,
+      investment_reduction: categorization.investment_reduction,
+      net_investment: categorization.net_investment,
+      operating_cashflow: categorization.operating_cashflow,
       profit_nominal: nominal.last&.last,
       npv: discounting.npv_at(interest_rate),
       irr_percent: discounting.irr_percent,
@@ -119,8 +123,14 @@ class AmortizationCalculator
     @cash_flows ||=
       CashFlow
         .order(:date)
-        .pluck(:date, :amount)
-        .map { |date, amount| [date, amount.to_f] }
+        .pluck(:date, :amount, :category)
+        .map { |date, amount, category| [date, amount.to_f, category] }
+  end
+
+  # Classified figures (investment base, operating cash flow, degree) from the
+  # flows booked up to today.
+  def categorization
+    @categorization ||= Categorization.new(cash_flows:, savings:, today:)
   end
 
   # Last day of the operating period: exactly period_years * 12 whole months
@@ -187,13 +197,6 @@ class AmortizationCalculator
     end
 
     [credits, debits]
-  end
-
-  def degree_percent(credits, debits)
-    return if debits.zero?
-    return unless savings.total_measured || credits.positive?
-
-    credits.fdiv(debits) * 100
   end
 
   # First month whose end balance reaches zero again after the balance has

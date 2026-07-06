@@ -53,19 +53,23 @@ class AmortizationCalculator
       }
     end
 
-    # Cumulative nominal amortization degree (credits / debits * 100) at the end
-    # of each month, as a running series so the chart can show it per year. nil
-    # while no debit has been booked yet.
+    # Cumulative operating amortization degree (operating cash flow / net
+    # investment * 100) at the end of each month, as a running series so the
+    # chart can show it per year. Matches the headline degree_percent, so a
+    # subsidy/refund lowers the base without inflating the curve. nil while no
+    # net investment has been booked yet.
     def degree_by_month
       @degree_by_month ||=
         begin
-          cum_credits = 0.0
-          cum_debits = 0.0
+          cum_operating = 0.0
+          cum_net_investment = 0.0
 
           monthly.months.index_with do |month|
-            cum_credits += monthly.credits_in(month)
-            cum_debits += monthly.debits_in(month)
-            cum_debits.zero? ? nil : cum_credits.fdiv(cum_debits) * 100
+            cum_operating += monthly.operating_in(month)
+            cum_net_investment += monthly.net_investment_in(month)
+            if cum_net_investment.positive?
+              cum_operating.fdiv(cum_net_investment) * 100
+            end
           end
         end
     end

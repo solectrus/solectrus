@@ -55,7 +55,7 @@ class Settings::CashFlowsController < ApplicationController
   end
 
   def permitted_params
-    params.expect(cash_flow: %i[date amount note])
+    params.expect(cash_flow: %i[date amount note category])
   end
 
   def load_cash_flow

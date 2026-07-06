@@ -11,6 +11,10 @@ class AmortizationStats::Component < ViewComponent::Base
   attr_reader :result
 
   delegate :net_position,
+           :gross_investment,
+           :investment_reduction,
+           :net_investment,
+           :operating_cashflow,
            :profit_nominal,
            :npv,
            :irr_percent,
@@ -21,6 +25,13 @@ class AmortizationStats::Component < ViewComponent::Base
            :projection_uncertain,
            :period_years,
            to: :result
+
+  # Whether the investment reduction (subsidy/refund) breakdown is worth showing
+  # at all - only when something actually lowers the base. investment_reduction
+  # is always numeric (0.0 when empty), never nil.
+  def investment_reduced?
+    investment_reduction.positive?
+  end
 
   # Whole-percent amortization degree, floored at 0 - identical to the
   # AmortizationDegree headline and the chart's today marker, so all three agree.
@@ -60,7 +71,7 @@ class AmortizationStats::Component < ViewComponent::Base
   end
 
   def stat_label_class
-    'flex items-center justify-center gap-1 px-2 text-[10px] md:text-xs ' \
+    'flex items-center justify-center gap-1 px-2 text-[10px] md:text-xs xl:text-sm ' \
       'uppercase tracking-wide font-semibold text-gray-500 dark:text-gray-400'
   end
 
@@ -137,5 +148,21 @@ class AmortizationStats::Component < ViewComponent::Base
 
   def rate_label
     number_with_precision(result.interest_rate, precision: 1)
+  end
+
+  # Explains the net investment and, when a subsidy/refund actually lowered it,
+  # shows the gross - reduction breakdown.
+  def net_investment_hint
+    hint = t('.net_investment_hint')
+    return hint unless investment_reduced?
+
+    [
+      hint,
+      t(
+        '.net_investment_breakdown',
+        gross: currency(gross_investment),
+        reduction: currency(investment_reduction),
+      ),
+    ].join("\n\n")
   end
 end

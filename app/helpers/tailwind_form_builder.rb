@@ -37,6 +37,30 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     input_field(:date_field, method, **, &)
   end
 
+  def select(method, choices = nil, options = {}, html_options = {}, &)
+    hint = options.delete(:hint)
+    label = label_text(method, options)
+    options.delete(:label)
+    html_options[:class] = [
+      html_options[:class],
+      'form-select w-full',
+      ('input-error' if error?(method)),
+    ].compact.join(' ')
+
+    tag.div class: 'form-control' do
+      label(method, class: 'label') do
+        tag.span(label, class: 'label-text')
+      end +
+        safe_join(
+          [
+            super,
+            (hint_tag(hint) if hint),
+            errors(method),
+          ].compact,
+        )
+    end
+  end
+
   def check_box(method, **options)
     hint = options.delete(:hint)
     options[:class] = [

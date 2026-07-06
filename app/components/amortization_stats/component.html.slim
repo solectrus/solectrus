@@ -5,18 +5,39 @@
         i.fa.fa-circle-exclamation
         = t('.uncertain_prognosis')
 
-  / Amortization degree, net position and nominal surplus are shown as
-  / annotations on the chart. The canvas has no text, so keep them in the DOM for
-  / screen readers (and the specs) - visually hidden to avoid duplicating the
-  / chart.
+  / Amortization degree, net position and nominal surplus live on the chart as
+  / annotations (the canvas has no text), so keep them in the DOM for screen
+  / readers and the specs. The gross investment / subsidy breakdown only lives in
+  / the net-investment tooltip, so keep it here too.
   .sr-only
     p = "#{t('.degree')}: #{degree_text}"
+    p = "#{t('.gross_investment')}: #{currency(gross_investment)}"
+    - if investment_reduced?
+      p = "#{t('.investment_reduction')}: #{currency(investment_reduction)}"
     p = "#{t('.net_position')}: #{currency(net_position)}"
     p = "#{t('.profit_nominal')}: #{currency(profit_nominal)}"
 
   / Secondary KPI rail: the figures that are not on the chart. On very short
   / viewports the whole rail is hidden by the parent (tiny:sr-only).
-  .grid.grid-cols-3.gap-2.md:gap-3.text-center
+  .grid.grid-cols-2.md:grid-cols-5.gap-2.md:gap-3.text-center
+    /! Net investment - the base that has to be earned back (the degree's
+    /! denominator). Red: it is the outstanding burden, matching the negative
+    /! part of the balance curve.
+    div class=stat_tile_class
+      div class=stat_label_class
+        = t('.net_investment')
+        = info_icon net_investment_hint
+      div class="#{stat_value_class} text-signal-negative"
+        = currency(net_investment)
+
+    /! Operating cash flow - what has been earned back so far (the numerator)
+    div class=stat_tile_class
+      div class=stat_label_class
+        = t('.operating_cashflow')
+        = info_icon t('.operating_cashflow_hint')
+      div class="#{stat_value_class} #{signed_color(operating_cashflow)}"
+        = currency(operating_cashflow)
+
     /! Net present value - key figure for comparing with an investment
     div class=stat_tile_class
       div class=stat_label_class
@@ -25,14 +46,7 @@
       div class="#{stat_value_class} #{signed_color(npv)}"
         = currency(npv)
 
-    /! Internal rate of return
-    div class=stat_tile_class
-      div class=stat_label_class
-        = t('.irr')
-        = info_icon t('.irr_hint')
-      div class="#{stat_value_class} #{signed_color(irr_percent)}"
-        = percentage(irr_percent)
-
+    /! Annual benefit
     div class=stat_tile_class
       div class=stat_label_class
         = t('.savings_per_year')
@@ -42,3 +56,13 @@
           = link_to currency(savings_per_year), balance_home_path(sensor_name: 'savings', timeframe: 'P365D'), class: 'hover:underline'
         - else
           = currency(savings_per_year)
+
+    /! Internal rate of return. Last tile spans the full width on the 2-column
+    /! phone layout, so it never sits alone in a half-empty row (single column
+    /! again from md on).
+    div class="#{stat_tile_class} col-span-2 md:col-span-1"
+      div class=stat_label_class
+        = t('.irr')
+        = info_icon t('.irr_hint')
+      div class="#{stat_value_class} #{signed_color(irr_percent)}"
+        = percentage(irr_percent)
