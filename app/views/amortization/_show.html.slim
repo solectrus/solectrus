@@ -1,6 +1,6 @@
 - turbo_exempts_page_from_cache
-/! The chart fills the viewport (fixed height); the table grows with its rows
-/! and lets the page scroll instead of being capped.
+/! Both views fill the viewport: the chart is a fixed-height canvas, the table is
+/! its own scroll area so its heading row stays pinned while the rows scroll.
 - if view == :details && @result&.prognosis?
   - content_for :fixed_nav, true
 - else
@@ -28,20 +28,21 @@
   - elsif @result
     /! Cash flows present: show the calculation
     - if @result.prognosis?
-      /! The compact KPI rail sits on top. Below it the chart fills the
-      /! remaining height (fixed layout), while the table simply grows with its
-      /! rows. Wrapped in a Turbo frame so the sliders can auto-refresh it
-      /! without touching the sub-nav.
-      = turbo_frame_tag 'amortization_detail', class: (view == :details ? 'flex flex-col gap-3' : 'flex-1 min-h-0 flex flex-col gap-3') do
-        /! KPI rail. Kept in the DOM even when hidden on very short viewports
-        /! (sr-only, not display:none) so the figures stay available to screen
-        /! readers and the specs.
-        div class='tiny:sr-only'
-          = render AmortizationStats::Component.new(result: @result)
-
+      /! Both views fill the remaining height. The details view is the table
+      /! alone, so it becomes its own scroll area and keeps its heading row
+      /! pinned; the chart view carries the compact KPI rail on top. Wrapped in a
+      /! Turbo frame so the sliders can auto-refresh it without touching the
+      /! sub-nav.
+      = turbo_frame_tag 'amortization_detail', class: 'flex-1 min-h-0 flex flex-col gap-3' do
         - if view == :details
           = render AmortizationTable::Component.new(result: @result)
         - else
+          /! KPI rail. Kept in the DOM even when hidden on very short viewports
+          /! (sr-only, not display:none) so the figures stay available to screen
+          /! readers and the specs.
+          div class='tiny:sr-only'
+            = render AmortizationStats::Component.new(result: @result)
+
           .flex-1.min-h-0.flex.flex-col
             = render AmortizationChart::Component.new(result: @result)
     - else

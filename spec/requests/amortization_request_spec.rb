@@ -226,9 +226,9 @@ describe 'Amortization' do
         get '/amortization/details'
 
         expect(response).to have_http_status(:success)
-        # KPI rail is shared with the overview, so the figures are present...
-        expect(response.body).to include('Nominal balance today')
-        # ...but the details view shows the table, not the chart.
+        # The details view is the table alone - no KPI rail (it stays on the
+        # overview), so its heading row can be pinned while the rows scroll.
+        expect(response.body).not_to include('Nominal balance today')
         expect(response.body).to include('Earned back')
         # The discounted twin of the nominal balance is its own column.
         expect(response.body).to include('Discounted balance')

@@ -53,16 +53,35 @@ class AmortizationTable::Component < ViewComponent::Base
 
   # Every column header carries a tooltip explaining the figure - the grouped
   # columns name the categories folded into them, the rest describe the value.
-  # Returned as [label, hint] pairs in display order.
+  # Returned as [label, hint, key] triples in display order; the key marks the
+  # year column, which is pinned on phones.
   def header_columns
     [
-      [t('.year'), t('.hints.year')],
-      *groups.map { |group| [group_label(group), t(".hints.#{group[:key]}")] },
-      [t('.savings'), t('.hints.savings')],
-      [t('.balance'), t('.hints.balance')],
-      [t('.npv'), t('.hints.npv')],
-      [t('.degree'), t('.hints.degree')],
+      [t('.year'), t('.hints.year'), :year],
+      *groups.map { |group| [group_label(group), t(".hints.#{group[:key]}"), :group] },
+      [t('.savings'), t('.hints.savings'), :savings],
+      [t('.balance'), t('.hints.balance'), :balance],
+      [t('.npv'), t('.hints.npv'), :npv],
+      [t('.degree'), t('.hints.degree'), :degree],
     ]
+  end
+
+  # Phone-only pinning for the year column: it stays put while the figures scroll
+  # sideways, so a row never loses its label. `max-md:` scopes this to phones with
+  # no desktop reset needed; the solid background matches the table's full-width
+  # backdrop so the scrolling cells pass cleanly behind the pinned column.
+  def year_column_class
+    'max-md:sticky max-md:left-0 max-md:z-10 max-md:bg-white dark:max-md:bg-gray-900'
+  end
+
+  # Phones only: the heading row stays pinned to the top of the table's (capped)
+  # scroll area while the rows scroll under it. Its own solid background (matching
+  # the full-width backdrop) covers the scrolling rows. The year heading is also
+  # the pinned column, so it sits above both the other headings and the pinned
+  # year cells scrolling up beneath it. Desktop keeps its plain, scrolling table.
+  def header_cell_class(key)
+    base = 'max-md:sticky max-md:top-0 max-md:bg-white dark:max-md:bg-gray-900'
+    key == :year ? "#{base} max-md:left-0 max-md:z-30" : "#{base} max-md:z-20"
   end
 
   # The group's total for a row: the signed sum of its category flows, shown as

@@ -1,14 +1,20 @@
 div
-  / Grow with the rows; only scroll sideways when the columns get too wide.
-  .overflow-x-auto
+  / Desktop: the table grows with its rows and the page scrolls. Phones: with the
+  / KPI rail gone, the table becomes its own capped scroll area (offset only by
+  / the fixed nav, so no content-dependent guessing), which lets the heading row
+  / and the pinned year column stay put while the figures scroll. It runs edge to
+  / edge (negative margin cancels the content panel's padding) on a plain solid
+  / backdrop - the backdrop is what the pinned header and year column scroll
+  / behind. It only scrolls sideways when the columns get too wide.
+  .overflow-x-auto class='max-md:-mx-4 max-md:max-h-[calc(100dvh-6rem-env(safe-area-inset-top)-var(--bottom-nav-offset))] max-md:bg-white dark:max-md:bg-gray-900'
     .table.min-w-full.select-text.text-sm.md:text-base.tabular-nums
       .table-header-group.text-gray-800.dark:text-gray-400
         .table-row
           / Every header carries a tooltip explaining the figure - the grouped
           / columns name the folded-in categories, so the condensed layout stays
           / self-explanatory.
-          - header_columns.each do |label, hint|
-            .table-cell.align-bottom.p-2.text-right.font-bold.whitespace-nowrap
+          - header_columns.each do |label, hint, key|
+            .table-cell.align-bottom.p-2.text-right.font-bold.whitespace-nowrap class=header_cell_class(key)
               span.cursor-help.underline.decoration-dotted.decoration-gray-300.dark:decoration-gray-600.underline-offset-4 data-controller='tooltip' title=hint
                 = label
 
@@ -23,7 +29,7 @@ div
             / PV years are not calendar years, so number them 1, 2, 3, ... -
             / year N is the Nth year of operation from the installation date. The
             / exact date range is one hover away in the tooltip on the number.
-            .table-cell.align-middle.p-2.text-right.whitespace-nowrap.font-medium class=separator
+            .table-cell.align-middle.p-2.text-right.whitespace-nowrap.font-medium class=[separator, year_column_class]
               span.cursor-help.underline.decoration-dotted.decoration-gray-300.dark:decoration-gray-600.underline-offset-4 data-controller='tooltip' title=period_label(row)
                 = index + 1
             - groups.each do |group|
