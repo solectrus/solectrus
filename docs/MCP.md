@@ -28,6 +28,9 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
 - `get_forecast` — forecast for the coming days: expected PV generation (energy
   still to come today and per upcoming day) plus the outdoor temperature
   (daily min/max/avg)
+- `get_amortization` — profitability of the whole system: whether and when the
+  investment pays off (break-even, NPV, IRR), combining the measured savings
+  with the manually kept cash flow register
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > *energy*, so in `get_totals`/`get_ranking` the resulting `value` is in Wh,
@@ -80,6 +83,17 @@ For the predicted power **curve** (intraday shape), use `get_series` on the
 forecast sensor instead. To judge whether a whole month/year will be good,
 combine `get_forecast` with `get_totals` for the measured part and earlier
 years.
+
+### Profitability
+
+For questions about whether the system pays off — break-even, payback,
+NPV/IRR — use `get_amortization`. It combines the measured savings with the
+manually kept cash flow register (investments, subsidies, operating costs,
+revenue) and returns the amortization degree, the net position as of today,
+the break-even date and the key financial figures. Two optional parameters
+allow what-if scenarios: `period_years` (10–30, default 20) and `interest_rate`
+(0–10 % p.a., default 3). If no cash flows are configured yet, the tool reports
+that there is nothing to amortize.
 
 ## Connecting a client
 
