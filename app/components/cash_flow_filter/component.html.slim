@@ -1,33 +1,18 @@
-= helpers.form_with url: helpers.settings_cash_flows_path, method: :get, data: { controller: 'auto-submit' }, html: { class: 'px-2 mb-6' } do
-  .flex.flex-wrap.items-end.gap-x-4.gap-y-3
-    .flex.flex-col.gap-1 data-controller='multi-select' data-multi-select-placeholder-value=t('settings.cash_flows.all_categories') data-multi-select-count-label-value=count_label_template
-      span.text-xs.font-medium.text-gray-500.dark:text-gray-400
-        = CashFlow.human_attribute_name(:category)
-      button.form-select.text-left.min-w-52 type='button' data-multi-select-target='button' data-action='multi-select#toggle'
-        span data-multi-select-target='label'
-          = summary_label
-      .w-max.rounded-md.border.border-gray-200.dark:border-gray-700.bg-white.dark:bg-black.py-1.shadow-lg data-multi-select-target='panel' hidden=true
-        - category_options.each do |label, value|
-          label.flex.items-center.gap-2.px-3.py-1.5.cursor-pointer.hover:bg-gray-100.dark:hover:bg-gray-800
-            = check_box_tag 'category[]', value, filter_categories.include?(value), id: nil, class: 'form-checkbox', data: { 'multi-select-target': 'checkbox', label:, action: 'multi-select#change' }
-            span.text-sm.whitespace-nowrap = label
-    label.flex.flex-col.gap-1
-      span.text-xs.font-medium.text-gray-500.dark:text-gray-400
-        = t('settings.cash_flows.from')
-      = date_field_tag :from,
-                       filter_from&.iso8601,
-                       class: 'form-input',
-                       data: { action: 'change->auto-submit#submit' }
-    label.flex.flex-col.gap-1
-      span.text-xs.font-medium.text-gray-500.dark:text-gray-400
-        = t('settings.cash_flows.to')
-      = date_field_tag :to,
-                       filter_to&.iso8601,
-                       class: 'form-input',
-                       data: { action: 'change->auto-submit#submit' }
-    - if filter_active?
-      = link_to helpers.settings_cash_flows_path,
-                class: 'inline-flex items-center gap-1 pb-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline',
-                data: { turbo_frame: '_top' } do
-        i.fa.fa-xmark
-        = t('settings.cash_flows.clear_filter')
+- if filter_active?
+  .flex.flex-wrap.items-center.gap-x-3.gap-y-2.mb-6.rounded-lg.px-3.py-2.bg-indigo-50.dark:bg-indigo-950/40.ring-1.ring-inset.ring-indigo-100.dark:ring-indigo-900
+    span.inline-flex.items-center.gap-1.5.text-xs.font-semibold.uppercase.tracking-wide.text-indigo-600.dark:text-indigo-400
+      i.fa.fa-filter
+      = t('settings.cash_flows.filtered_by')
+    .flex.flex-wrap.items-center.gap-1.5.mr-auto
+      - category_labels.each do |label|
+        span.inline-flex.items-center.rounded-full.px-2.5.py-0.5.text-sm.whitespace-nowrap.bg-white.dark:bg-gray-900.text-gray-700.dark:text-gray-200.ring-1.ring-inset.ring-gray-200.dark:ring-gray-700
+          = label
+      - if date_range
+        span.inline-flex.items-center.gap-1.5.rounded-full.px-2.5.py-0.5.text-sm.whitespace-nowrap.bg-white.dark:bg-gray-900.text-gray-700.dark:text-gray-200.ring-1.ring-inset.ring-gray-200.dark:ring-gray-700
+          i.far.fa-calendar.text-xs.text-gray-400.dark:text-gray-500
+          = date_range
+    = link_to helpers.settings_cash_flows_path,
+              class: 'inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50',
+              data: { turbo_frame: '_top' } do
+      i.fa.fa-xmark
+      = t('settings.cash_flows.clear_filter')

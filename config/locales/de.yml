@@ -284,10 +284,7 @@ de:
       public: Amortisationsberechnung für alle Benutzer anzeigen
       public_hint: Wenn aktiviert, sehen auch nicht angemeldete Besucher die Amortisations-Berechnung. Andernfalls bleibt sie nur für Admins sichtbar.
       sponsors_only: Die Amortisations-Seite ist nur für Sponsoren verfügbar.
-      all_categories: Alle Kategorien
-      categories_selected:
-        one: 1 Kategorie
-        other: "%{count} Kategorien"
+      filtered_by: Gefiltert nach
       from: Von
       to: Bis
       clear_filter: Filter entfernen

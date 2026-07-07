@@ -284,10 +284,7 @@ en:
       public: Show amortization calculation to all users
       public_hint: When enabled, visitors who are not logged in also see the amortization calculation. Otherwise it stays visible to admins only.
       sponsors_only: The amortization page is only available to sponsors.
-      all_categories: All categories
-      categories_selected:
-        one: 1 category
-        other: "%{count} categories"
+      filtered_by: Filtered by
       from: From
       to: To
       clear_filter: Clear filter

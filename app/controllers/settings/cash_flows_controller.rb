@@ -70,12 +70,6 @@ class Settings::CashFlowsController < ApplicationController
       Array(params[:category]).map(&:to_s) & CashFlow.categories.keys
   end
 
-  # The single active category, or nil when none or several are active - drives
-  # the (single-select) filter dropdown's selected state.
-  helper_method def filter_category
-    filter_categories.one? ? filter_categories.first : nil
-  end
-
   helper_method def filter_from
     @filter_from ||= parse_date(params[:from])
   end

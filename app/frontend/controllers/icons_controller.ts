@@ -65,6 +65,8 @@ import { faBars } from '@fortawesome/free-solid-svg-icons/faBars';
 import { faTableList } from '@fortawesome/free-solid-svg-icons/faTableList';
 import { faChartBar } from '@fortawesome/free-solid-svg-icons/faChartBar';
 import { faLanguage } from '@fortawesome/free-solid-svg-icons/faLanguage';
+import { faFilter } from '@fortawesome/free-solid-svg-icons/faFilter';
+import { faCalendar } from '@fortawesome/free-regular-svg-icons/faCalendar';
 
 // -------------------------
 
@@ -135,6 +137,8 @@ export default class extends Controller {
       faTableList,
       faChartBar,
       faLanguage,
+      faFilter,
+      faCalendar,
     );
 
     dom.watch();
