@@ -54,7 +54,7 @@ class AmortizationStats::Component < ViewComponent::Base
   def percentage(value)
     return t('.not_available') unless value
 
-    t('.percent_per_year', value: number_with_precision(value, precision: 1))
+    t('.percent', value: number_with_precision(value, precision: 1))
   end
 
   def signed_color(value)

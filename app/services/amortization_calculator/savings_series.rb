@@ -55,6 +55,16 @@ class AmortizationCalculator
       @total_measured ||= measured_by_month.values.compact.presence&.sum
     end
 
+    # Savings attributable to an inclusive day range: measured for past days,
+    # projected (daily rate) for days after today, mixed for a range straddling
+    # today. Used by the yearly table, whose PV years are day-accurate (anchored
+    # on the installation date), so the figure matches the range it links to.
+    def savings_in_range(from, to)
+      return 0.0 if to < from
+
+      savings_until(to) - savings_until(from.prev_day)
+    end
+
     # Rolling year captures seasonality and system changes (e.g. a heat pump
     # added later); with less than a year of data fall back to the all-time
     # average and flag the prognosis as uncertain.
@@ -102,6 +112,25 @@ class AmortizationCalculator
 
     def measured_by_month
       @measured_by_month ||= query_savings(measured_timeframe, group_by: :month)
+    end
+
+    # Cumulative measured savings from installation up to (and including) the
+    # given day, capped at today; days without a summary contribute nothing.
+    def savings_until(date)
+      return 0.0 if date < effective_installation_date
+
+      measured = measured_until([date, today].min)
+      future_days = date > today ? (date - today).to_i : 0
+
+      measured + (daily_projection_rate.to_f * future_days)
+    end
+
+    def measured_until(date)
+      measured_by_day.sum { |day, value| day <= date ? value.to_f : 0.0 }
+    end
+
+    def measured_by_day
+      @measured_by_day ||= query_savings(measured_timeframe, group_by: :day)
     end
 
     # Timeframe spanning installation up to today. With only a single day of

@@ -1,28 +1,61 @@
 /* Custom range sliders (amortization controls).
    Safari only tints the thumb and the filled portion via accent-color and
-   leaves the track light, which looks too bright in dark mode. Style track
-   and thumb explicitly so all browsers render the same subdued slider. */
+   leaves the track light, which looks too bright in dark mode. So we style
+   track and thumb explicitly for a consistent, subdued slider everywhere.
+
+   The three colors live in custom properties, so the dark-mode and bar
+   variants only reassign those - the per-engine thumb/track rules (which
+   cannot be grouped, an unknown vendor pseudo-element voids the whole rule)
+   are written once. */
 
 input[type='range'].range-slider {
+  --track: #e2e8f0; /* slate-200 */
+  --thumb: #4f46e5; /* indigo-600 */
+  --thumb-border: #ffffff;
+
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
   height: 0.5rem;
   border-radius: 9999px;
-  background: #e2e8f0; /* slate-200 */
+  background: var(--track);
   cursor: pointer;
 }
 
 .dark input[type='range'].range-slider {
-  background: #334155; /* slate-700 */
+  --track: #334155; /* slate-700 */
+  --thumb: #6366f1; /* indigo-500 */
+  --thumb-border: #0f172a; /* slate-900 (panel background) */
 }
 
-/* WebKit / Blink */
+/* Bar variant: the slider sits on the indigo sub-navigation bar, which stays
+   indigo in both themes, so it needs a light-on-indigo treatment. The compound
+   selector matches the specificity of the .dark rule above and, coming later,
+   wins over it in dark mode too (a pure-white thumb glares on indigo, so it is
+   dimmed to slate-300 there). */
+input[type='range'].range-slider.range-slider--bar {
+  --track: rgb(255 255 255 / 0.25);
+  --thumb: #ffffff;
+  --thumb-border: transparent;
+}
+
+.dark input[type='range'].range-slider.range-slider--bar {
+  --thumb: #cbd5e1; /* slate-300 */
+}
+
+/* Track */
 input[type='range'].range-slider::-webkit-slider-runnable-track {
   height: 0.5rem;
   border-radius: 9999px;
 }
 
+input[type='range'].range-slider::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--track);
+}
+
+/* Thumb */
 input[type='range'].range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -30,37 +63,16 @@ input[type='range'].range-slider::-webkit-slider-thumb {
   height: 1.125rem;
   margin-top: -0.3125rem; /* center the thumb on the 0.5rem track */
   border-radius: 9999px;
-  background: #4f46e5; /* indigo-600 */
-  border: 2px solid #ffffff;
+  background: var(--thumb);
+  border: 2px solid var(--thumb-border);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
-}
-
-.dark input[type='range'].range-slider::-webkit-slider-thumb {
-  background: #6366f1; /* indigo-500 */
-  border-color: #0f172a; /* slate-900 (panel background) */
-}
-
-/* Firefox */
-input[type='range'].range-slider::-moz-range-track {
-  height: 0.5rem;
-  border-radius: 9999px;
-  background: #e2e8f0;
-}
-
-.dark input[type='range'].range-slider::-moz-range-track {
-  background: #334155;
 }
 
 input[type='range'].range-slider::-moz-range-thumb {
   width: 1.125rem;
   height: 1.125rem;
   border-radius: 9999px;
-  background: #4f46e5;
-  border: 2px solid #ffffff;
+  background: var(--thumb);
+  border: 2px solid var(--thumb-border);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
-}
-
-.dark input[type='range'].range-slider::-moz-range-thumb {
-  background: #6366f1;
-  border-color: #0f172a;
 }

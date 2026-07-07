@@ -275,15 +275,22 @@ en:
         electricity: Price per kWh consumed, paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
     cash_flows:
-      name: Amortization
-      description: Cash flows related to the PV system – investments and costs as negative, revenues as positive amounts. Together with the measured savings, the amortization is calculated from this.
+      name: Cash flows
+      description: Investments, costs and subsidies around the PV system – the basis for the amortization calculation.
       new: New entry
       edit: Edit entry
       amount_hint: "Negative: outgoing payment (e.g. purchase or repair)\nPositive: incoming payment (e.g. subsidy or compensation)"
       category_hint: Determines how the amount enters the amortization – investment raises the investment base, subsidy/refund lower it, operating cost/repair/compensation affect the operating cash flow, other stays neutral.
-      public: Show amortization to everyone
+      public: Show amortization calculation to all users
       public_hint: When enabled, visitors who are not logged in also see the amortization calculation. Otherwise it stays visible to admins only.
       sponsors_only: The amortization page is only available to sponsors.
+      all_categories: All categories
+      categories_selected:
+        one: 1 category
+        other: "%{count} categories"
+      from: From
+      to: To
+      clear_filter: Clear filter
     sensors:
       name: Sensors
       generators: Generators
@@ -296,6 +303,9 @@ en:
       enable_custom_consumer: Enable "House consumption" page in the navigation
       enable_heatpump: Enable "Heat pump" page in the navigation
   amortization:
+    nav:
+      chart: Progression
+      details: Details
     index:
       no_cash_flows_title: No cash flows recorded yet
       no_cash_flows_body: For the amortization calculation, the administrator first needs to record the PV system's investments and costs as cash flows.

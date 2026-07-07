@@ -47,6 +47,13 @@ class AmortizationCalculator
       # one point per PV-year birthday (12 months from installation).
       # [{ year:, nominal:, projected:, degree: }]
       :yearly_series,
+      # Rows for the table view: one per PV year (1..N), anchored on the exact
+      # installation DATE (not rounded to whole months like yearly_series).
+      # Each carries the year's sensor savings, its cash flows per category, the
+      # cumulative nominal balance, the cumulative degree and the exact date
+      # range (period) the savings figure links to.
+      # [{ nominal:, npv:, savings:, flows: { category => amount }, degree:, projected:, period: }]
+      :yearly_table,
       # The two parameters the result was computed with, echoed so the view
       # (sliders, tooltips) and the MCP response reflect the values actually
       # used: the operating period in whole years and the calculatory interest

@@ -1,0 +1,20 @@
+de:
+  year: Jahr
+  groups:
+    investment: Investition
+    investment_reduction: Förderung/Erstattung
+    operating: Betrieb
+  hints:
+    year: Laufendes Betriebsjahr ab Inbetriebnahme (nicht das Kalenderjahr).
+    investment: Anschaffungskosten der PV-Anlage (Brutto-Investition).
+    investment_reduction: 'Zuschüsse, die die Investition senken: Förderungen und Erstattungen.'
+    operating: 'Laufende Posten zusammengefasst: Betriebskosten, Reparaturen, Entschädigungen und Sonstiges.'
+    savings: Gemessene Ersparnis dieses Jahres gegenüber Netzbezug; ab dem letzten Messjahr eine Prognose.
+    balance: 'Aufgelaufener Kontostand bis Jahresende: alle Ersparnisse und Zahlungen, ohne Zinsen.'
+    npv: Wie der nominale Saldo, aber künftige Beträge auf heutiges Geld abgezinst (mit dem eingestellten Diskontsatz).
+    degree: Anteil der Netto-Investition, der bis dahin zurückverdient ist (Amortisationsgrad).
+  savings: Ersparnis
+  balance: Nominaler Saldo
+  npv: Diskontierter Saldo
+  degree: Zurückverdient
+  projected: Prognose

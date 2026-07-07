@@ -1,0 +1,65 @@
+- turbo_exempts_page_from_cache
+/! The chart fills the viewport (fixed height); the table grows with its rows
+/! and lets the page scroll instead of being capped.
+- if view == :details && @result&.prognosis?
+  - content_for :fixed_nav, true
+- else
+  - content_for :full_height, true
+
+/! Sub-navigation in the top bar (chart/table switch plus the parameter
+/! sliders). Only shown when there is a real calculation to navigate between;
+/! the hint and teaser states have nothing to toggle between.
+- if @result&.prognosis?
+  - content_for :sub_nav do
+    = render AmortizationSubNav::Component.new(result: @result, view:)
+
+- if !admin? && !Setting.amortization_public
+  /! Admin decided the calculation is not public - hide it from other visitors
+  .flex-1.min-h-0.flex.flex-col.justify-center.gap-6
+    p.text-center.text-sm.md:text-base.text-gray-500.dark:text-gray-400
+      = t('amortization.index.restricted')
+- elsif ApplicationPolicy.amortization?
+  - if @missing_or_stale_summary_days.present?
+    /! Measured savings incomplete - build the missing daily summaries first,
+    /! then reload (same mechanism as Top10), so the calculation runs on
+    /! complete data.
+    .flex-1.min-h-0
+      = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+  - elsif @result
+    /! Cash flows present: show the calculation
+    - if @result.prognosis?
+      /! The compact KPI rail sits on top. Below it the chart fills the
+      /! remaining height (fixed layout), while the table simply grows with its
+      /! rows. Wrapped in a Turbo frame so the sliders can auto-refresh it
+      /! without touching the sub-nav.
+      = turbo_frame_tag 'amortization_detail', class: (view == :details ? 'flex flex-col gap-3' : 'flex-1 min-h-0 flex flex-col gap-3') do
+        /! KPI rail. Kept in the DOM even when hidden on very short viewports
+        /! (sr-only, not display:none) so the figures stay available to screen
+        /! readers and the specs.
+        div class='tiny:sr-only'
+          = render AmortizationStats::Component.new(result: @result)
+
+        - if view == :details
+          = render AmortizationTable::Component.new(result: @result)
+        - else
+          .flex-1.min-h-0.flex.flex-col
+            = render AmortizationChart::Component.new(result: @result)
+    - else
+      /! Not enough measured data yet - degree teaser shows the reason
+      .flex-1.min-h-0.flex.flex-col.justify-center.gap-6
+        = render AmortizationDegree::Component.new(result: @result)
+  - else
+    /! Cash flows missing: ask the admin to create them
+    = render Message::Component.new do |c|
+      - c.with_icon do
+        i.fa.fa-sack-dollar
+      = c.with_title { t('amortization.index.no_cash_flows_title') }
+      = c.with_body { t('amortization.index.no_cash_flows_body') }
+      - if admin?
+        = c.with_footer do
+          = render Button::Component.new title: t('amortization.index.manage_cash_flows'),
+                                         path: settings_cash_flows_path,
+                                         style: :primary
+- else
+  /! Sponsor feature not available: promote it and link to the demo
+  = render DemoLink::Component.new(feature: 'amortization')

@@ -1,0 +1,50 @@
+/! Sub-navigation in the top bar: switch between the chart and the table, each
+/! its own URL. The parameter sliders sit at the right edge - inline on desktop,
+/! behind a dropdown on mobile.
+.flex.items-center.gap-4.pt-2.pb-3.lg:landscape:py-5
+  .flex-1.min-w-0
+    = render Nav::Sub::Component.new(abbreviate: false) do |c|
+      = c.with_items nav_items
+
+  /! Desktop: the sliders live directly in the bar (light text on indigo).
+  /! Outside the detail frame, so they stay put across auto-submits.
+  .hidden.lg:landscape:block.shrink-0
+    = render AmortizationControls::Component.new(result:, view:, variant: :bar)
+
+  /! Shortcut to the cash-flow settings, where the figures behind the
+  /! calculation are maintained. Admin-only, since that page requires it.
+  /! Sits at the far right on desktop (after the inline sliders); on mobile
+  /! the sliders collapse into the dropdown below, so it stays left of it.
+  - if admin?
+    = link_to helpers.settings_cash_flows_path,
+              class: 'shrink-0 rounded-md p-2 text-gray-300 hover:bg-indigo-500 dark:text-gray-400 dark:hover:bg-indigo-950/50 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0',
+              data: { controller: 'tooltip' },
+              title: t('amortization.index.manage_cash_flows'),
+              'aria-label': t('amortization.index.manage_cash_flows') do
+      i.fa.fa-gear.fa-xl.block
+
+  /! Mobile: the same sliders behind a dropdown button - no room inline.
+  div class='relative shrink-0 lg:landscape:hidden' data-controller='dropdown--component'
+    button[
+      type='button'
+      class='rounded-md p-2 text-gray-300 hover:bg-indigo-500 dark:text-gray-400 dark:hover:bg-indigo-950/50 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
+      data-dropdown--component-target='button'
+      data-action='click->dropdown--component#toggle'
+      data-controller='tooltip'
+      title=t('amortization.index.parameters')
+      aria-label=t('amortization.index.parameters')
+      aria-haspopup='true'
+      aria-expanded='false'
+    ]
+      i.fa.fa-sliders.fa-xl.block
+    div[
+      class='absolute top-full right-0 z-20 mt-2 hidden w-96 max-w-[calc(100vw-2rem)] rounded-lg bg-white dark:bg-gray-800 p-4 text-left text-gray-700 dark:text-gray-300 shadow-lg ring-1 ring-black/5'
+      data-dropdown--component-target='menu'
+      data-transition-enter='transition ease-out duration-100'
+      data-transition-enter-start='opacity-0 scale-95'
+      data-transition-enter-end='opacity-100 scale-100'
+      data-transition-leave='transition ease-in duration-75'
+      data-transition-leave-start='opacity-100 scale-100'
+      data-transition-leave-end='opacity-0 scale-95'
+    ]
+      = render AmortizationControls::Component.new(result:, view:)

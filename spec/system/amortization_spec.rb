@@ -18,8 +18,7 @@ describe 'Amortization' do
       expect(page).to have_text(/Nominaler Saldo heute/i)
       expect(page).to have_css('canvas')
 
-      # Sliders live in a collapsible drawer, so open it first
-      click_button 'Parameter anpassen'
+      # On desktop the sliders sit inline in the sub-navigation bar
       expect(page).to have_field('amortization[period_years]', type: 'range')
     end
   end
@@ -71,10 +70,61 @@ describe 'Amortization' do
     it 'offers sliders to adjust the calculation parameters' do
       visit '/amortization'
 
-      # Sliders live in a collapsible drawer, so open it first
-      click_button 'Parameter anpassen'
+      # On desktop the sliders sit inline in the sub-navigation bar
       expect(page).to have_field('amortization[period_years]', type: 'range')
       expect(page).to have_field('amortization[interest_rate]', type: 'range')
+    end
+
+    it 'navigates from the chart to the table and back' do
+      visit '/amortization'
+
+      # The chart is the default view; the table stays on its own URL
+      expect(page).to have_css('canvas', visible: :visible)
+      expect(page).to have_no_text('Zurückverdient')
+
+      click_link 'Details'
+
+      expect(page).to have_current_path('/amortization/details')
+      aggregate_failures do
+        expect(page).to have_text('Jahr')
+        expect(page).to have_text('Ersparnis')
+        # The seeded -5000 cash flow gets its own investment column
+        expect(page).to have_text('Investition')
+        expect(page).to have_text('Nominaler Saldo')
+        expect(page).to have_text('Zurückverdient')
+        # Rows are PV years, not calendar years, so any savings link carries an
+        # explicit date range - never a bare /savings/<year>
+        expect(page).to have_no_link(href: %r{/savings/\d{4}$})
+      end
+
+      # The year number reveals its exact PV-year date range on hover
+      first('[data-controller="tooltip"]', text: '1').hover
+      expect(page).to have_text(/\d{2}\.\d{2}\.\d{4} – \d{2}\.\d{2}\.\d{4}/)
+
+      # Back to the chart tab reveals the canvas again
+      click_link 'Verlauf'
+      expect(page).to have_current_path('/amortization')
+      expect(page).to have_css('canvas', visible: :visible)
+    end
+
+    it 'drills a cash-flow cell down to the filtered settings list' do
+      visit '/amortization/details'
+
+      # The seeded -5000 investment cell links to the settings list, filtered to
+      # that category and the PV year - so the sum behind the cell is traceable.
+      # The category filter is multi-select, so it rides along as category[]
+      # (URL-encoded here) to match the checkbox form on the settings page.
+      first("a[href*='/settings/cash_flows?category%5B%5D=investment']")
+        .click
+
+      aggregate_failures do
+        expect(page).to have_current_path(
+          %r{/settings/cash_flows},
+          ignore_query: true,
+        )
+        expect(page).to have_text('Filter entfernen')
+        expect(page).to have_text('PV system') # the seeded investment
+      end
     end
 
     it 'maximizes the chart to fullscreen and back' do

@@ -63,6 +63,11 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
 
   def check_box(method, **options)
     hint = options.delete(:hint)
+    # Pull the label out before calling super, so it never leaks onto the input
+    # as an HTML attribute. May be an html_safe string (e.g. label text plus an
+    # info tooltip).
+    label_content = label_text(method, options)
+    options.delete(:label)
     options[:class] = [
       options[:class],
       'form-checkbox',
@@ -77,7 +82,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
         label(method, class: 'label flex flex-col py-0') do
           safe_join(
             [
-              tag.span(label_text(method, options), class: 'label-text'),
+              tag.span(label_content, class: 'label-text'),
               (tag.span(hint, class: 'label-hint') if hint),
             ].compact,
           )

@@ -9,34 +9,6 @@
           } do
 
   div class='absolute right-0 top-0 flex gap-3 z-10 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4'
-    /! Parameter drawer: adjust period and interest rate without leaving the
-    /! chart. Reuses the dropdown controller (toggle + click-outside +
-    /! transitions); the panel opens downward so it never pushes the layout.
-    /! Desktop only - on mobile the params live in the page header (lg:hidden).
-    div class='relative max-lg:hidden' data-controller='dropdown--component'
-      button[
-        type='button'
-        class=ICON_BUTTON_CLASS
-        data-dropdown--component-target='button'
-        data-action='click->dropdown--component#toggle'
-        data-controller='tooltip'
-        title=t('.parameters')
-        aria-haspopup='true'
-        aria-expanded='false'
-      ]
-        i.fa.fa-sliders
-      div[
-        class='absolute top-full right-0 z-20 mt-2 hidden w-96 max-w-[calc(100vw-2rem)] rounded-lg bg-white dark:bg-gray-800 p-4 text-left shadow-lg ring-1 ring-black/5'
-        data-dropdown--component-target='menu'
-        data-transition-enter='transition ease-out duration-100'
-        data-transition-enter-start='opacity-0 scale-95'
-        data-transition-enter-end='opacity-100 scale-100'
-        data-transition-leave='transition ease-in duration-75'
-        data-transition-leave-start='opacity-100 scale-100'
-        data-transition-leave-end='opacity-0 scale-95'
-      ]
-        = render AmortizationControls::Component.new(result:)
-
     button[
       class="#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden max-lg:hidden"
       data-chart-zoom-target='maximizeBtn'
@@ -68,5 +40,5 @@
   div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
     = render Loading::Component.new
 
-  .relative.mt-2.flex-1.min-h-52
+  div class='relative mt-2 flex-1 min-h-52'
     canvas.max-w-full data-amortization-chart--component-target='canvas'

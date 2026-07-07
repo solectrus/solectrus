@@ -21,6 +21,100 @@ describe 'Settings::CashFlows' do
         expect(response).to have_http_status(:success)
         expect(response.body).to include('Test')
       end
+
+      context 'with drill-down filters' do
+        before do
+          CashFlow.create!(
+            date: Date.new(2021, 3, 1),
+            amount: -5000,
+            category: 'investment',
+            note: 'Panels',
+          )
+          CashFlow.create!(
+            date: Date.new(2021, 5, 1),
+            amount: 800,
+            category: 'subsidy',
+            note: 'Grant',
+          )
+          CashFlow.create!(
+            date: Date.new(2023, 6, 1),
+            amount: -200,
+            category: 'repair',
+            note: 'Inverter fix',
+          )
+        end
+
+        it 'filters by category' do
+          get '/settings/cash_flows', params: { category: 'investment' }
+
+          aggregate_failures do
+            expect(response.body).to include('Panels')
+            expect(response.body).not_to include('Grant')
+            expect(response.body).not_to include('Inverter fix')
+          end
+        end
+
+        it 'filters by an inclusive date range' do
+          get '/settings/cash_flows',
+              params: {
+                from: '2021-01-01',
+                to: '2021-12-31',
+              }
+
+          aggregate_failures do
+            expect(response.body).to include('Panels')
+            expect(response.body).to include('Grant')
+            expect(response.body).not_to include('Inverter fix')
+          end
+        end
+
+        it 'combines category and range (the amortization drill-down)' do
+          get '/settings/cash_flows',
+              params: {
+                category: 'investment',
+                to: '2021-12-31',
+              }
+
+          aggregate_failures do
+            expect(response.body).to include('Panels')
+            expect(response.body).not_to include('Grant')
+            expect(response.body).not_to include('Inverter fix')
+          end
+        end
+
+        it 'filters by several categories at once (the group drill-down)' do
+          get '/settings/cash_flows',
+              params: {
+                category: %w[investment repair],
+              }
+
+          aggregate_failures do
+            expect(response.body).to include('Panels')
+            expect(response.body).to include('Inverter fix')
+            expect(response.body).not_to include('Grant')
+          end
+        end
+
+        it 'shows the active filter with a way back to the full list' do
+          get '/settings/cash_flows', params: { category: 'repair' }
+
+          aggregate_failures do
+            expect(response.body).to include('Clear filter')
+            expect(response.body).to include('href="/settings/cash_flows"')
+          end
+        end
+
+        it 'ignores an unknown category and shows the full list' do
+          get '/settings/cash_flows', params: { category: 'bogus' }
+
+          aggregate_failures do
+            expect(response.body).to include('Panels')
+            expect(response.body).to include('Grant')
+            expect(response.body).to include('Inverter fix')
+            expect(response.body).not_to include('Clear filter')
+          end
+        end
+      end
     end
   end
 

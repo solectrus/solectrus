@@ -82,6 +82,8 @@ class AmortizationCalculator
   def result
     nominal = nominal_series
     credits, debits = ledger_until_today
+    table = yearly_table
+    rows = table.to_a
 
     Result.new(
       degree_percent: categorization.degree_percent,
@@ -92,14 +94,17 @@ class AmortizationCalculator
       investment_reduction: categorization.investment_reduction,
       net_investment: categorization.net_investment,
       operating_cashflow: categorization.operating_cashflow,
-      profit_nominal: nominal.last&.last,
-      npv: discounting.npv_at(interest_rate),
-      irr_percent: discounting.irr_percent,
-      required_annual_savings:,
+      # End-of-period figures come straight from the day-accurate engine, so
+      # they match the table's last row and the chart's last point exactly.
+      profit_nominal: table.profit_nominal,
+      npv: table.npv,
+      irr_percent: table.irr_percent,
+      required_annual_savings: table.required_annual_savings,
       savings_per_day: savings.savings_per_day,
       savings_per_year: savings.savings_per_year,
       projection_uncertain: savings.projection_uncertain?,
-      yearly_series: yearly_series(nominal),
+      yearly_series: yearly_series(nominal, rows),
+      yearly_table: rows,
       period_years:,
       interest_rate: @interest_percent,
     )
@@ -157,29 +162,6 @@ class AmortizationCalculator
     end
   end
 
-  def discounting
-    @discounting ||= Discounting.new(amounts: monthly.amounts)
-  end
-
-  # Annual benefit needed so the NPV reaches zero at the given rate: the
-  # negative NPV of the cash flows alone (without any savings), spread over
-  # the period as a year-end annuity.
-  def required_annual_savings
-    flows_npv =
-      cash_flows.sum do |date, amount|
-        next 0.0 if date > period_end_date
-
-        amount / Discounting.factor(interest_rate, monthly.index_of(date))
-      end
-    return unless flows_npv.negative?
-
-    annuity_factor =
-      (1..period_years).sum do |year|
-        Discounting.factor(interest_rate, year * -12)
-      end
-    -flows_npv / annuity_factor
-  end
-
   # Plain nominal ledger up to today: measured savings and positive flows as
   # credits, negative flows as debits. Future-dated flows are excluded.
   def ledger_until_today
@@ -217,13 +199,27 @@ class AmortizationCalculator
     nil
   end
 
-  def yearly_series(nominal)
+  def yearly_series(nominal, rows)
     YearlySeries.new(
       nominal:,
       monthly:,
       savings:,
-      period_years:,
       current_month:,
+      yearly_table: rows,
     ).to_a
+  end
+
+  # The day-accurate engine, memoized: the single source of the per-year figures
+  # for the table (yearly_table.to_a), the chart (yearly_series) and the
+  # discounting KPIs (npv, irr, required_annual_savings), so no view can diverge.
+  def yearly_table
+    @yearly_table ||=
+      YearlyTable.new(
+        savings:,
+        cash_flows:,
+        period_years:,
+        today:,
+        interest_rate:,
+      )
   end
 end

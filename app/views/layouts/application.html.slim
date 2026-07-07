@@ -62,8 +62,8 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
           = render AppFlash::Component.new(notice:, alert:)
 
       main.relative.flex.flex-auto.min-h-0 class= [content_for?(:fixed_nav) ? 'overflow-y-auto bg-white dark:bg-slate-900 lg:-mt-32 lg:bg-transparent lg:dark:bg-transparent' : '-mt-32', content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : 'lg:landscape:flex-initial']
-        .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.lg:px-8.flex-auto.flex.min-h-0
-          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col#inner class=(content_for?(:fixed_nav) ? 'lg:rounded-lg self-start min-h-full' : 'lg:rounded-t-lg overflow-hidden min-h-0')
+        .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.lg:px-8.flex-auto.flex.min-h-0.min-w-0
+          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.min-w-0#inner class=(content_for?(:fixed_nav) ? 'lg:rounded-lg self-start min-h-full' : 'lg:rounded-t-lg overflow-hidden min-h-0')
             = yield
 
         = render 'shared/modal_backdrop'

@@ -8,7 +8,7 @@ de:
   npv_hint_negative: Die Geldanlage wäre also die bessere Wahl gewesen.
   net_position: Nominaler Saldo heute
   net_position_hint: 'Aktueller Kontostand der PV-Anlage: alles bisher Gesparte minus alle Kosten. Nur bis heute, ohne Zinsen.'
-  operating_cashflow: Operative Rückflüsse
+  operating_cashflow: Bisherige Rückflüsse
   operating_cashflow_hint: "Bisher operativ erwirtschaftet – der Zähler der Amortisationsquote.\n\nGemessene Ersparnis plus Entschädigungen, minus Betriebskosten und Reparaturen.\n\nFörderung und Erstattung zählen hier bewusst nicht mit – sie senken stattdessen die Netto-Investition."
   gross_investment: Brutto-Investition
   investment_reduction: Förderung/Erstattung
@@ -17,9 +17,9 @@ de:
   net_investment_breakdown: 'Brutto-Investition %{gross} minus Förderung/Erstattung %{reduction}.'
   profit_nominal: Nominaler Überschuss
   profit_nominal_hint: 'Voraussichtlicher Gewinn nach %{years} Jahren: alle Ersparnisse minus alle Kosten, ohne Zinsen.'
-  irr: Effektive Rendite
-  irr_hint: "Die jährliche Verzinsung des eingesetzten Geldes – direkt vergleichbar mit dem Zinssatz einer Geldanlage.\n\nGrundlage ist die tatsächlich gemessene Ersparnis jedes vergangenen Jahres."
-  percent_per_year: '%{value} % p.a.'
-  savings_per_year: Jährlicher Vorteil
+  irr: Rendite p.a.
+  irr_hint: "Die jährliche Verzinsung des eingesetzten Geldes – direkt vergleichbar mit dem Zinssatz einer Geldanlage. Sie ergibt sich allein aus Investition und Rückflüssen und ist unabhängig vom eingestellten Diskontsatz.\n\nGrundlage ist die tatsächlich gemessene Ersparnis jedes vergangenen Jahres."
+  percent: '%{value} %'
+  savings_per_year: Akt. Ersparnis p.a.
   savings_per_year_hint: Gemessene Ersparnis der letzten 365 Tage (im Schnitt %{per_day} pro Tag) – Grundlage für die Prognose künftiger Jahre.
   required_annual_hint: Ab %{value} pro Jahr würde sich die PV-Anlage gegenüber %{rate} % Zinsen lohnen.

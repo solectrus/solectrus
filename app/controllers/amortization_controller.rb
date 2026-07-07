@@ -3,7 +3,42 @@ class AmortizationController < ApplicationController
 
   before_action :require_visible_calculation, only: :update
 
-  def index
+  # Chart view (overview): the balance curve with the KPI rail.
+  def show
+    build_result
+  end
+
+  # Details view: the same calculation shown year by year as a table. Shares all
+  # of show's preparation (cash-flow check, summary building, cookie), only the
+  # rendered template differs.
+  def details
+    build_result
+  end
+
+  # Recomputes with the two calculation parameters the sliders sent and
+  # re-renders the detail Turbo frame. The effective values are remembered in a
+  # single per-browser cookie (not a global Setting), so the next plain page
+  # load renders the same result server-side without a client round-trip. The
+  # slider form carries the active view so the correct template is re-rendered.
+  def update
+    remember_params
+
+    @result = AmortizationCalculator.result(period_years:, interest_rate:)
+    render current_view == :details ? :details : :show
+  end
+
+  private
+
+  # Which of the two views is active: the current action, or - on a
+  # slider-triggered frame update (action 'update') - whichever tab the form
+  # declared via :view. The single source for both the render branch and the
+  # sub-navigation's active tab.
+  helper_method def current_view
+    action_name == 'details' || params[:view] == 'details' ? :details : :chart
+  end
+
+  # Shared preparation for both the chart and the table view.
+  def build_result
     # No cash flows yet means nothing to calculate - the view shows a hint to
     # create them instead.
     return unless CashFlow.exists?
@@ -23,18 +58,25 @@ class AmortizationController < ApplicationController
     @result = AmortizationCalculator.result(period_years:, interest_rate:)
   end
 
-  # Recomputes with the two calculation parameters the sliders sent and
-  # re-renders the detail Turbo frame. The effective values are remembered in a
-  # single per-browser cookie (not a global Setting), so the next plain page
-  # load renders the same result server-side without a client round-trip.
-  def update
-    remember_params
+  # Sub-navigation between the chart (overview) and the table (details). The
+  # active tab follows the current action, so a slider-triggered frame update
+  # (action_name 'update') keeps whichever tab the form declared via its view.
+  helper_method def nav_items
+    on_details = current_view == :details
 
-    @result = AmortizationCalculator.result(period_years:, interest_rate:)
-    render :index
+    [
+      {
+        name: t('amortization.nav.chart'),
+        href: amortization_path,
+        current: !on_details,
+      },
+      {
+        name: t('amortization.nav.details'),
+        href: details_amortization_path,
+        current: on_details,
+      },
+    ]
   end
-
-  private
 
   helper_method def title
     t('layout.amortization')
@@ -71,7 +113,7 @@ class AmortizationController < ApplicationController
 
   # Persists the effective parameters in one JSON cookie. cookies.permanent
   # asks for a 20-year expiry (browsers cap it at ~400 days), refreshed on
-  # every visit via the sliding expiration in #index.
+  # every visit via the sliding expiration in #show.
   def remember_params
     cookies.permanent[:amortization_params] = {
       period_years:,

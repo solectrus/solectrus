@@ -38,7 +38,7 @@ describe 'Cash flow settings' do
     it 'toggles public visibility of the amortization' do
       visit '/settings/cash_flows'
 
-      check 'Amortisation für alle anzeigen'
+      check 'Amortisationsberechnung für alle Benutzer anzeigen'
 
       expect(page).to have_text('Gespeichert')
       expect(Setting.amortization_public).to be(true)

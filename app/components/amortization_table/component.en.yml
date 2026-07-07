@@ -1,0 +1,20 @@
+en:
+  year: Year
+  groups:
+    investment: Investment
+    investment_reduction: Subsidy/Refund
+    operating: Operating
+  hints:
+    year: Operating year since commissioning (not the calendar year).
+    investment: Acquisition cost of the PV system (gross investment).
+    investment_reduction: 'Grants that lower the investment: subsidies and refunds.'
+    operating: 'Ongoing items combined: operating costs, repairs, compensation and other.'
+    savings: Measured savings this year versus grid supply; a forecast from the last measured year on.
+    balance: 'Cumulative balance up to year-end: all savings and payments, without interest.'
+    npv: Like the nominal balance, but future amounts discounted to today's money (using the selected discount rate).
+    degree: Share of the net investment earned back by then (amortization degree).
+  savings: Savings
+  balance: Nominal balance
+  npv: Discounted balance
+  degree: Earned back
+  projected: Forecast

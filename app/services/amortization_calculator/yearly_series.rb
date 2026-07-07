@@ -1,28 +1,28 @@
 class AmortizationCalculator
-  # Builds the per-year points for the amortization chart from the nominal
-  # monthly balance series: an anchor at the operating start followed by one
-  # point per PV-year birthday, each carrying the nominal balance and the
-  # cumulative amortization degree at that month.
+  # Builds the per-year points for the amortization chart: a leading anchor at
+  # the operating start (from the nominal monthly series, so the chart opens on
+  # the investment dip) followed by one point per PV-year birthday taken from
+  # the day-accurate yearly_table - so the chart plots exactly the figures the
+  # table tabulates, carrying the nominal balance and the amortization degree.
   class YearlySeries
-    def initialize(nominal:, monthly:, savings:, period_years:, current_month:)
+    def initialize(nominal:, monthly:, savings:, current_month:, yearly_table:)
       @nominal = nominal
       @monthly = monthly
       @savings = savings
-      @period_years = period_years
       @current_month = current_month
+      @yearly_table = yearly_table
     end
 
-    attr_reader :nominal, :monthly, :savings, :period_years, :current_month
+    attr_reader :nominal, :monthly, :savings, :current_month, :yearly_table
 
     # Points anchored on the installation date rather than the calendar: a
     # leading anchor at the operating start (carrying the initial investment, so
     # the chart opens at its deepest point) followed by one point per PV-year
-    # birthday - the balance after each whole 12-month block counted from the
-    # installation month. Every segment thus spans a full year; the first and
-    # last year no longer show a shallower slope from a partial calendar year
-    # (see #5712). Months after the current one are projected.
+    # birthday. The birthday points come straight from the day-accurate
+    # yearly_table, so the chart and the table plot the identical figures - the
+    # last point equals the table's last row (see #5712 for the full-year
+    # anchoring). Months/years after the current one are projected.
     def to_a
-      balance_at = nominal.to_h
       installation_month = savings.installation_month
       first_month, first_balance = nominal.first
 
@@ -30,13 +30,13 @@ class AmortizationCalculator
         entry(year: first_month.year, month: first_month, balance: first_balance),
       ]
 
-      (1..period_years).each do |elapsed|
-        month = installation_month + ((elapsed * 12) - 1).months
-        entries << entry(
-          year: installation_month.year + elapsed,
-          month:,
-          balance: balance_at[month],
-        )
+      yearly_table.each_with_index do |row, index|
+        entries << {
+          year: installation_month.year + index + 1,
+          nominal: row[:nominal],
+          projected: row[:projected],
+          degree: row[:degree],
+        }
       end
 
       entries

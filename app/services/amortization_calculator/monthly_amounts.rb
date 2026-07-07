@@ -53,12 +53,6 @@ class AmortizationCalculator
       -sum_in(month, CashFlow::INVESTMENT_BASE_CATEGORIES)
     end
 
-    # Zero-based index of the given date's month within the series, counted
-    # from the simulation start.
-    def index_of(date)
-      ((date.year * 12) + date.month) - (start_month.year * 12) - start_month.month
-    end
-
     private
 
     # Signed sum of the given month's flows that fall into the given categories.

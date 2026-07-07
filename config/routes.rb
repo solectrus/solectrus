@@ -208,8 +208,9 @@ Rails.application.routes.draw do
 
   resources :essentials, only: :index
 
-  get '/amortization', to: 'amortization#index', as: :amortization
-  patch '/amortization', to: 'amortization#update'
+  resource :amortization, only: %i[show update], controller: :amortization do
+    get :details, on: :member
+  end
 
   constraints period: /day|week|month|year/,
               calc: /sum|max|avg|min/,

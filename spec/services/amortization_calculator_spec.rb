@@ -290,13 +290,132 @@ describe AmortizationCalculator do
       by_year = result.yearly_series.index_by { |entry| entry[:year] }
 
       aggregate_failures do
-        # travel_to 2024-06-15, installation 2023-07: the start anchor (2023)
-        # and the first birthday (2024, ending June 2024) are in the past; every
-        # later birthday is projected.
+        # travel_to 2024-06-15, installation 2023-07: the start anchor (2023) is
+        # in the past. PV year 1 ends 2024-07-09 - still ahead of today - so its
+        # birthday (2024) already counts as projected, like every later one.
+        # Day-accurate, matching the table (the birthdays come from it).
         expect(by_year[2023][:projected]).to be false
-        expect(by_year[2024][:projected]).to be false
+        expect(by_year[2024][:projected]).to be true
         expect(by_year[2025][:projected]).to be true
       end
+    end
+
+    it 'plots the same day-accurate balances as the table' do
+      res = result
+      series = res.yearly_series
+      table = res.yearly_table
+
+      # The chart's birthday points ARE the table rows (after the leading start
+      # anchor), so the two views can never diverge - the last chart point
+      # equals the table's last nominal balance.
+      birthdays = series.drop(1)
+
+      aggregate_failures do
+        expect(birthdays.pluck(:nominal)).to eq(table.pluck(:nominal))
+        expect(series.last[:year]).to eq(table.last[:period].end.year)
+      end
+    end
+  end
+
+  describe 'yearly table (day-accurate)' do
+    before do
+      seed_steady_year
+      create_investment(amount: -50, date: Date.new(2023, 8, 1))
+    end
+
+    it 'anchors PV years on the exact installation date, not the calendar year' do
+      table = result.yearly_table
+
+      aggregate_failures do
+        # The table starts at PV year 1 (no empty year-0 row); year 1 starts
+        # exactly on the installation date (2023-07-10) - not Jan 1, not a month
+        # boundary - and runs a full year; year 2 picks up the next day.
+        expect(table.size).to eq(20) # period_years default
+        expect(table[0][:period].begin).to eq(Date.new(2023, 7, 10))
+        expect(table[0][:period].end).to eq(Date.new(2024, 7, 9))
+        expect(table[1][:period].begin).to eq(Date.new(2024, 7, 10))
+      end
+    end
+
+    it 'splits each PV year into savings and per-category flows that reconcile' do
+      table = result.yearly_table
+
+      aggregate_failures do
+        # savings plus all category flows of a row equals its balance change
+        # since the previous row (year 1 is measured against zero).
+        previous = 0.0
+        table.each do |row|
+          total = row[:savings] + row[:flows].values.sum
+          expect(total).to be_within(0.01).of(row[:nominal] - previous)
+          previous = row[:nominal]
+        end
+
+        # The -50 investment (Aug 2023) sits in PV year 1 as an 'investment'
+        # flow; the sensor savings are reported separately, not inside flows.
+        expect(table[0][:flows]['investment']).to be_within(0.01).of(-50)
+        expect(table[0][:savings]).to be_positive
+      end
+    end
+
+    it 'discounts the day-accurate balance, matching nominal exactly at 0%' do
+      table = result(interest_rate: 0.0).yearly_table
+
+      aggregate_failures do
+        expect(table).to all(include(:npv))
+        # No discounting at 0 %, so the discounted balance IS the nominal
+        # balance - both columns are the same day-accurate figure, row for row.
+        table.each { |row| expect(row[:npv]).to be_within(0.01).of(row[:nominal]) }
+      end
+    end
+
+    it 'ties the discounted column to the npv KPI and trails nominal at r > 0' do
+      res = result(interest_rate: 6.0)
+      table = res.yearly_table
+
+      aggregate_failures do
+        # The discounted column IS the running Kapitalwert, so its last row
+        # equals the headline npv exactly - the table and the KPI can't
+        # contradict each other (the sign-flip we saw is gone).
+        expect(table.last[:npv]).to be_within(0.01).of(res.npv)
+        # Savings are discounted, so the discounted balance trails nominal.
+        expect(table.last[:npv]).to be < table.last[:nominal]
+      end
+    end
+
+    it 'lowers the discounted balance as the rate rises' do
+      # The whole point of the column: unlike the nominal balance, it reacts to
+      # the rate. A profitable system's later balance shrinks as the rate rises.
+      low = result(interest_rate: 0.0).yearly_table.last[:npv]
+      high = result(interest_rate: 6.0).yearly_table.last[:npv]
+
+      expect(high).to be < low
+    end
+
+    it 'keeps the projected savings constant across future years' do
+      res = result
+      table = res.yearly_table
+
+      # Every PV year lying entirely in the future is a pure projection, so it
+      # must show the same expected savings. A leap year (366 days, e.g. PV year
+      # 5 spanning 29 Feb 2028) must not add a day's worth over a 365-day year.
+      future = table.select { |row| row[:period].begin > Date.new(2024, 6, 15) }
+
+      aggregate_failures do
+        expect(future.size).to eq(19) # years 2..20; year 1 straddles today
+        future.each do |row|
+          expect(row[:savings]).to be_within(0.01).of(res.savings_per_year)
+        end
+      end
+    end
+
+    it 'folds a pre-installation down payment into the first PV year' do
+      # A deposit paid before the operating start has no year-0 row to live in
+      # any more, so it must surface in year 1 rather than vanish.
+      CashFlow.create!(date: Date.new(2023, 1, 5), amount: -200, note: 'Deposit')
+
+      table = result.yearly_table
+
+      expect(table[0][:flows]['investment']).to be_within(0.01).of(-250)
     end
   end
 
@@ -391,8 +510,9 @@ describe AmortizationCalculator do
     # 17,000 investment, ~1,900 annual benefit, 20 years, 5 % discount rate.
     # Expected from the standard year-end formulas: nominal amortization
     # ~8.9 years, NPV ~+6,700, IRR ~9.4 %, minimum annual benefit ~1,364,
-    # nominal surplus ~21,000. Monthly (instead of year-end) flows shift NPV
-    # and IRR slightly.
+    # nominal surplus ~21,000. Day-accurate flows and mid-year savings shift NPV
+    # and IRR slightly and lower the required benefit to ~1,331 (savings, and so
+    # the break-even annuity, are discounted only half a year, not a full one).
     before do
       # 622,135 Wh per month = 158.33 savings = 1,900 per year. 13 months
       # so that a full measured year exists and the rolling-year projection
@@ -410,7 +530,7 @@ describe AmortizationCalculator do
         expect(r.profit_nominal).to be_within(800).of(21_000)
         expect(r.npv).to be_between(6_400, 7_700)
         expect(r.irr_percent).to be_between(9.0, 11.0)
-        expect(r.required_annual_savings).to be_within(10).of(1_364)
+        expect(r.required_annual_savings).to be_within(10).of(1_331)
         expect(r.break_even_date.year).to eq(2032)
       end
     end
@@ -455,7 +575,7 @@ describe AmortizationCalculator do
       end
     end
 
-    it 'loads measured monthly savings with one grouped query' do
+    it 'loads measured savings with grouped queries, one per resolution' do
       13.times do |index|
         seed_savings_day(Date.new(2023, 6, 10) + index.months, 10_000)
       end
@@ -465,7 +585,10 @@ describe AmortizationCalculator do
 
       result
 
-      expect(Sensor::Query::Total).to have_received(:new).twice
+      # Three grouped queries, each issued once: monthly savings (balance
+      # series), the rolling year (projection rate, full year of data here) and
+      # daily savings (the day-accurate table). None fan out per month or year.
+      expect(Sensor::Query::Total).to have_received(:new).exactly(3).times
     end
   end
 
@@ -485,17 +608,17 @@ describe AmortizationCalculator do
     it 'serves the class-level result from cache until an input changes' do
       allow(Sensor::Query::Total).to receive(:new).and_call_original
 
-      # With less than a full year of data the rolling-year query is skipped,
-      # so one computation issues a single savings query. The second call must
-      # hit the cache and query nothing.
+      # With less than a full year of data the rolling-year query is skipped, so
+      # one computation issues two savings queries (monthly + daily). The second
+      # call must hit the cache and query nothing.
       described_class.result
       described_class.result
-      expect(Sensor::Query::Total).to have_received(:new).once
+      expect(Sensor::Query::Total).to have_received(:new).twice
 
       # Editing the register changes the key, so the next call recomputes.
       CashFlow.create!(date: Date.new(2024, 1, 15), amount: -10, note: 'Extra')
       described_class.result
-      expect(Sensor::Query::Total).to have_received(:new).twice
+      expect(Sensor::Query::Total).to have_received(:new).exactly(4).times
     end
 
     it 'recomputes when a parameter changes' do

@@ -1,8 +1,26 @@
 = render 'settings/sub_nav'
 
-.flex.items-start.justify-between.mb-4.px-2
-  p.text-gray-500.text-sm.md:text-base.pr-16
-    = t 'settings.cash_flows.description'
+.flex.items-start.justify-between.gap-4.mb-8.px-2
+  .flex-1.min-w-0
+    p.text-gray-500.text-sm.md:text-base
+      = t 'settings.cash_flows.description'
+
+    /! Toggle: expose the amortization calculation to non-admin visitors.
+    /! Sits right under the intro so it reads as part of the explanation.
+    = form_with model: Setting.new, url: visibility_settings_cash_flows_path, method: :patch, html: { class: 'mt-3' }, data: { controller: 'auto-submit' } do |f|
+      - if ApplicationPolicy.amortization?
+        - public_label = safe_join([t('settings.cash_flows.public'), tag.span(render(InfoTooltip::Component.new(text: t('settings.cash_flows.public_hint'))), class: 'ml-1')])
+        = f.check_box :amortization_public,
+                      checked: Setting.amortization_public,
+                      label: public_label,
+                      data: { action: 'change->auto-submit#submit' }
+      - else
+        = f.check_box :amortization_public,
+                      checked: false,
+                      disabled: true,
+                      label: t('settings.cash_flows.public'),
+                      hint: t('settings.cash_flows.sponsors_only')
+
   = button_to new_settings_cash_flow_path,
               method: :get,
               data: { turbo_frame: 'modal', controller: 'modal-launcher' },
@@ -10,21 +28,10 @@
               title: t('crud.new') do
     i.fa.fas.fa-plus.fa-lg
 
-/! Toggle: expose the amortization calculation to non-admin visitors.
-/! Placed above the list so it stays put as entries are added.
-= form_with model: Setting.new, url: visibility_settings_cash_flows_path, method: :patch, html: { class: 'px-2 mb-8' }, data: { controller: 'auto-submit' } do |f|
-  - if ApplicationPolicy.amortization?
-    = f.check_box :amortization_public,
-                  checked: Setting.amortization_public,
-                  label: t('settings.cash_flows.public'),
-                  hint: t('settings.cash_flows.public_hint'),
-                  data: { action: 'change->auto-submit#submit' }
-  - else
-    = f.check_box :amortization_public,
-                  checked: false,
-                  disabled: true,
-                  label: t('settings.cash_flows.public'),
-                  hint: t('settings.cash_flows.sponsors_only')
+/! Interactive filter: narrow the list by category and/or date range (also the
+/! landing spot when drilling down from the amortization table). Kept outside the
+/! 'list' frame so a Turbo broadcast refresh does not drop it.
+= render CashFlowFilter::Component.new
 
 = turbo_stream_from 'cash_flows'
 = tag.turbo_frame id: 'list' do

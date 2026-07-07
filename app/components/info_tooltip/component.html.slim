@@ -1,0 +1,7 @@
+/ The tooltip controller sits on the wrapper, not on the <i>: Font Awesome
+/ replaces the <i> with an <svg> and discards its children, so the hidden
+/ html-target must be a sibling of the icon.
+span.inline-flex.align-middle.cursor-help data-controller='tooltip' data-tooltip-touch-value='true' data-tooltip-placement-value=placement
+  i.fa.fa-circle-info.font-normal.normal-case.text-gray-400.dark:text-gray-500
+  span.hidden data-tooltip-target='html'
+    = paragraphs

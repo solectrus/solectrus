@@ -14,14 +14,57 @@ class AmortizationControls::Component < ViewComponent::Base
   private_constant :INTEREST_RANGE
   private_constant :INTEREST_STEP
 
-  def initialize(result:)
+  # variant: :panel renders for a light dropdown (mobile), :bar renders compact
+  # with light text for the indigo sub-navigation bar (desktop, inline).
+  def initialize(result:, view: :chart, variant: :panel)
     super()
     @result = result
+    @view = view
+    @variant = variant
   end
 
-  attr_reader :result
+  attr_reader :result, :view, :variant
 
   delegate :interest_rate, to: :result
+
+  # Echoed back on submit so the update action re-renders the same view the
+  # sliders were adjusted on (chart or details).
+  def details_view?
+    view == :details
+  end
+
+  def bar?
+    variant == :bar
+  end
+
+  # The bar variant sits on the indigo sub-nav (light-on-indigo in both themes),
+  # so its slider needs a light track/thumb instead of the panel's dark-on-light
+  # treatment - see the .range-slider--bar rules.
+  def slider_class
+    ['range-slider w-full', ('range-slider--bar' if bar?)].compact.join(' ')
+  end
+
+  # Both sliders side by side and width-capped on the bar; a two-column grid
+  # filling the dropdown panel otherwise.
+  def wrapper_class
+    bar? ? 'flex items-end gap-5' : 'grid grid-cols-2 gap-x-6 lg:gap-x-16 gap-y-3'
+  end
+
+  # Keep each slider narrow enough to sit next to the tabs in the bar.
+  def control_class
+    bar? ? 'w-40' : ''
+  end
+
+  # Muted caption on both, but light on the indigo bar.
+  def caption_class
+    bar? ? 'text-gray-300 dark:text-gray-400' : 'text-gray-600 dark:text-gray-400'
+  end
+
+  # The value reads white on the indigo bar, dark on the light panel. In dark
+  # mode the bar is dimmed to gray-300 so the white is not glaring on indigo-900.
+  def value_class
+    bar? ? 'text-white dark:text-gray-300' : 'text-gray-800 dark:text-gray-100'
+  end
 
   # Clamped to the effective range so the slider thumb and the value label
   # agree even when the requested period is below the current minimum.

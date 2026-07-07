@@ -2,8 +2,7 @@ de:
   balance: Nominaler Saldo
   today: heute
   degree: Zurückverdient
-  break_even: Gewinnschwelle
+  break_even: Amortisation
   break_even_after: nach %{years} Jahren
-  parameters: Parameter anpassen
   maximize: Maximal vergrößern
   minimize: Zurück zur normalen Größe

@@ -18,7 +18,8 @@
     p = "#{t('.profit_nominal')}: #{currency(profit_nominal)}"
 
   / Secondary KPI rail: the figures that are not on the chart. On very short
-  / viewports the whole rail is hidden by the parent (tiny:sr-only).
+  / viewports the whole rail is hidden by the parent (tiny:sr-only). Equal-width
+  / tiles: two columns on phones, five in one row from md on.
   .grid.grid-cols-2.md:grid-cols-5.gap-2.md:gap-3.text-center
     /! Net investment - the base that has to be earned back (the degree's
     /! denominator). Red: it is the outstanding burden, matching the negative
