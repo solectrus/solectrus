@@ -341,12 +341,13 @@ describe AmortizationCalculator do
       table = result.yearly_table
 
       aggregate_failures do
-        # savings plus all category flows of a row equals its balance change
-        # since the previous row (year 1 is measured against zero).
-        previous = 0.0
+        # rounded savings plus all (rounded) category flows of a row equals its
+        # balance change since the previous row (year 1 is measured against
+        # zero) - the whole-euro basis makes the columns foot exactly.
+        previous = 0
         table.each do |row|
-          total = row[:savings] + row[:flows].values.sum
-          expect(total).to be_within(0.01).of(row[:nominal] - previous)
+          total = row[:savings].round + row[:flows].values.sum
+          expect(total).to eq(row[:nominal] - previous)
           previous = row[:nominal]
         end
 

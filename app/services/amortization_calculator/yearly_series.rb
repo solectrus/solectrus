@@ -47,7 +47,10 @@ class AmortizationCalculator
     def entry(year:, month:, balance:)
       {
         year:,
-        nominal: balance,
+        # Whole euros, like the year rows this anchor precedes (which read the
+        # yearly_table's rounded balance), so the chart plots one consistent
+        # basis end to end.
+        nominal: balance.round,
         projected: month > current_month,
         degree: degree_by_month[month],
       }

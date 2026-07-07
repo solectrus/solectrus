@@ -11,8 +11,11 @@ class AmortizationCalculator
   # sensor savings, its cash flows summed per category, the cumulative nominal
   # balance, the cumulative net present value (discounted twin of the nominal
   # balance), the cumulative amortization degree and its exact date range - so
-  # the savings figure links to precisely the days it covers. savings plus the
-  # sum of all category flows equals the balance change.
+  # the savings figure links to precisely the days it covers. The balance is a
+  # displayed euro figure, so it accumulates whole-euro amounts (each cash-flow
+  # entry and the year's savings rounded); the (rounded) savings plus the sum of
+  # all (rounded) category flows equals the balance change, so the table's
+  # columns foot to the balance to the euro.
   #
   # Discounting is day-accurate too: cash flows are discounted by their exact
   # date (an investment at t=0 is barely discounted), each PV year's savings at
@@ -102,9 +105,12 @@ class AmortizationCalculator
     end
 
     # Present value of one PV year: its savings at the year's mid-point plus each
-    # of its cash flows at that flow's exact date.
+    # of its cash flows at that flow's exact date. Both are discounted on the
+    # same whole-euro basis as the nominal balance (savings rounded per year, the
+    # cash-flow entries already rounded), so at a 0% rate the discounted column
+    # equals the nominal balance to the euro.
     def present_value(year, rate)
-      discount_savings(year[:savings], year[:elapsed], rate) +
+      discount_savings(year[:savings].round, year[:elapsed], rate) +
         flows_present_value_of(year, rate)
     end
 
@@ -160,7 +166,14 @@ class AmortizationCalculator
             entries = entries_for(from, ends_on)
             flows = aggregate(entries)
 
-            balance += year_savings + flows.values.sum
+            # The euro balance is a displayed figure, so it is kept in whole
+            # euros: rounding each cash-flow entry and the year's savings before
+            # they accumulate makes the table's rounded columns foot to the
+            # rounded balance exactly, and the chart (which reads this same
+            # nominal) can't drift a euro from the table. The savings sensor
+            # reading stays raw in the row (for the projection and the degree
+            # ratio); only its contribution to the balance is rounded.
+            balance += year_savings.round + flows.values.sum
             operating += year_savings + total_in(flows, CashFlow::OPERATING_CATEGORIES)
             net_investment -= total_in(flows, CashFlow::INVESTMENT_BASE_CATEGORIES)
 
@@ -196,11 +209,15 @@ class AmortizationCalculator
       @installation_date ||= savings.effective_installation_date
     end
 
-    # Cash flow entries in the row's window [from, to]. An open lower bound (from
-    # nil, year 1) also pulls in anything dated before the operating start.
+    # Cash flow entries in the row's window [from, to], each amount rounded to a
+    # whole euro. An open lower bound (from nil, year 1) also pulls in anything
+    # dated before the operating start. Rounding here is the single source of the
+    # whole-euro basis: the per-category sums (#aggregate), the nominal balance
+    # and the discounting all read these rounded amounts, so they stay mutually
+    # consistent - the discounted column still equals the nominal balance at 0%.
     def entries_for(from, to)
-      cash_flows.select do |date, _amount, _category|
-        date <= to && (from.nil? || date >= from)
+      cash_flows.filter_map do |date, amount, category|
+        [date, amount.round, category] if date <= to && (from.nil? || date >= from)
       end
     end
 
