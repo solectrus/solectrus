@@ -208,7 +208,8 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
         sensor_name:,
         timeframe: corresponding_date(record[:date]),
       )
-    elsif sensor.category == :inverter && Setting.enable_multi_inverter
+    elsif sensor.is_a?(Sensor::Definitions::CustomInverterPower) &&
+          Setting.enable_multi_inverter
       inverter_home_path(
         sensor_name:,
         timeframe: corresponding_date(record[:date]),
