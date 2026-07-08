@@ -7,7 +7,7 @@ module RakeHelper
   def rake_task_running?(*tasks)
     return false unless defined?(Rake)
 
-    tasks.any? { |task| Rake.application.top_level_tasks.include?(task) }
+    tasks.intersect?(Rake.application.top_level_tasks)
   end
 
   # Check if we should skip initialization for certain rake tasks
