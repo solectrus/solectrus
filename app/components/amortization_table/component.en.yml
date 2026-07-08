@@ -11,10 +11,10 @@ en:
     operating: 'Ongoing items combined: operating costs, repairs, compensation and other.'
     savings: Measured savings this year versus grid supply; a forecast from the last measured year on.
     balance: 'Cumulative balance up to year-end: all savings and payments, without interest.'
-    npv: Like the nominal balance, but future amounts discounted to today's money (using the selected discount rate).
+    npv: Like the undiscounted balance, but future amounts discounted to today's money (using the selected discount rate).
     degree: Share of the net investment earned back by then (amortization degree).
   savings: Savings
-  balance: Nominal balance
+  balance: Undiscounted balance
   npv: Discounted balance
   degree: Earned back
   projected: Forecast

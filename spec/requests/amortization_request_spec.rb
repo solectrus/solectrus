@@ -81,7 +81,7 @@ describe 'Amortization' do
           get '/amortization'
 
           expect(response).to have_http_status(:success)
-          expect(response.body).to include('Nominal balance today')
+          expect(response.body).to include('Undiscounted balance today')
           expect(response.body).to include('amortization-chart--component')
           expect(response.body).to include('type="range"')
         end
@@ -109,7 +109,7 @@ describe 'Amortization' do
           expect(response.body).to include(
             'Only visible to administrators',
           )
-          expect(response.body).not_to include('Nominal balance today')
+          expect(response.body).not_to include('Undiscounted balance today')
         end
 
         it 'shows no sub-navigation, sliders or settings shortcut' do
@@ -133,7 +133,7 @@ describe 'Amortization' do
 
           expect(response).to have_http_status(:success)
           expect(response.body).to include('Exclusively for sponsors')
-          expect(response.body).not_to include('Nominal balance today')
+          expect(response.body).not_to include('Undiscounted balance today')
         end
       end
 
@@ -162,7 +162,7 @@ describe 'Amortization' do
           get '/amortization'
 
           expect(response).to have_http_status(:success)
-          expect(response.body).to include('Nominal balance today')
+          expect(response.body).to include('Undiscounted balance today')
           expect(response.body).to include('amortization-chart--component')
         end
 
@@ -216,7 +216,7 @@ describe 'Amortization' do
 
         expect(response).to have_http_status(:success)
         expect(response.body).to include('sequential-frames')
-        expect(response.body).not_to include('Nominal balance today')
+        expect(response.body).not_to include('Undiscounted balance today')
       end
     end
   end
@@ -246,7 +246,7 @@ describe 'Amortization' do
         expect(response).to have_http_status(:success)
         # The details view is the table alone - no KPI rail (it stays on the
         # overview), so its heading row can be pinned while the rows scroll.
-        expect(response.body).not_to include('Nominal balance today')
+        expect(response.body).not_to include('Undiscounted balance today')
         expect(response.body).to include('Earned back')
         # The discounted twin of the nominal balance is its own column.
         expect(response.body).to include('Discounted balance')

@@ -15,7 +15,7 @@ describe 'Amortization' do
     it 'shows the detail view including the parameter sliders' do
       visit '/amortization'
 
-      expect(page).to have_text(/Nominaler Saldo heute/i)
+      expect(page).to have_text(/Unverzinster Saldo heute/i)
       expect(page).to have_css('canvas')
 
       # On desktop the sliders sit inline in the sub-navigation bar
@@ -64,7 +64,7 @@ describe 'Amortization' do
       # Rail tile labels are uppercased via CSS, so match case-insensitively
       expect(page).to have_text(/Amortisationsgrad/i)
       expect(page).to have_text(/Kapitalwert/i)
-      expect(page).to have_text(/Nominaler Saldo heute/i)
+      expect(page).to have_text(/Unverzinster Saldo heute/i)
       expect(page).to have_css('canvas')
     end
 
@@ -91,7 +91,7 @@ describe 'Amortization' do
         expect(page).to have_text('Ersparnis')
         # The seeded -5000 cash flow gets its own investment column
         expect(page).to have_text('Investition')
-        expect(page).to have_text('Nominaler Saldo')
+        expect(page).to have_text('Unverzinster Saldo')
         expect(page).to have_text('Zurückverdient')
         # Rows are PV years, not calendar years, so any savings link carries an
         # explicit date range - never a bare /savings/<year>

@@ -305,7 +305,7 @@ en:
       details: Details
     index:
       no_cash_flows_title: No cash flows recorded yet
-      no_cash_flows_body: For the amortization calculation, the administrator first needs to record the PV system's investments and costs as cash flows.
+      no_cash_flows_body: The amortization calculation shows when the PV system pays for itself. For this, the administrator first needs to record the PV system's investments and costs as cash flows.
       manage_cash_flows: Manage cash flows
       login: Log in as administrator
       restricted_title: Only visible to administrators

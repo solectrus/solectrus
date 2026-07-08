@@ -6,16 +6,16 @@ de:
   npv_hint: "So viel mehr bringt die PV-Anlage über die gesamte Laufzeit von %{years} Jahren – verglichen damit, das Geld stattdessen zu %{rate} % Zinsen anzulegen.\n\nKünftige Ersparnisse und Kosten sind dabei auf heutiges Geld umgerechnet (abgezinst).\n\nGrundlage ist die tatsächlich gemessene Ersparnis jedes vergangenen Jahres."
   npv_hint_positive: Die PV-Anlage lohnt sich also mehr als diese Geldanlage.
   npv_hint_negative: Die Geldanlage wäre also die bessere Wahl gewesen.
-  net_position: Nominaler Saldo heute
+  net_position: Unverzinster Saldo heute
   net_position_hint: 'Aktueller Kontostand der PV-Anlage: alles bisher Gesparte minus alle Kosten. Nur bis heute, ohne Zinsen.'
   operating_cashflow: Bisherige Rückflüsse
-  operating_cashflow_hint: "Bisher operativ erwirtschaftet – der Zähler der Amortisationsquote.\n\nGemessene Ersparnis plus Entschädigungen, minus Betriebskosten und Reparaturen.\n\nFörderung und Erstattung zählen hier bewusst nicht mit – sie senken stattdessen die Netto-Investition."
+  operating_cashflow_hint: "Bisher operativ erwirtschaftet – der Zähler des Amortisationsgrads.\n\nGemessene Ersparnis plus Entschädigungen, minus Betriebskosten und Reparaturen.\n\nFörderung und Erstattung zählen hier bewusst nicht mit – sie senken stattdessen die Netto-Investition."
   gross_investment: Brutto-Investition
   investment_reduction: Förderung/Erstattung
   net_investment: Netto-Investition
-  net_investment_hint: Der Betrag, der tatsächlich zurückverdient werden muss – der Nenner der Amortisationsquote.
+  net_investment_hint: Der Betrag, der tatsächlich zurückverdient werden muss – der Nenner des Amortisationsgrads.
   net_investment_breakdown: 'Brutto-Investition %{gross} minus Förderung/Erstattung %{reduction}.'
-  profit_nominal: Nominaler Überschuss
+  profit_nominal: Unverzinster Überschuss
   profit_nominal_hint: 'Voraussichtlicher Gewinn nach %{years} Jahren: alle Ersparnisse minus alle Kosten, ohne Zinsen.'
   irr: Rendite p.a.
   irr_hint: "Die jährliche Verzinsung des eingesetzten Geldes – direkt vergleichbar mit dem Zinssatz einer Geldanlage. Sie ergibt sich allein aus Investition und Rückflüssen und ist unabhängig vom eingestellten Diskontsatz.\n\nGrundlage ist die tatsächlich gemessene Ersparnis jedes vergangenen Jahres."

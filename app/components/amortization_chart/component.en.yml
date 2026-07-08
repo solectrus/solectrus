@@ -1,6 +1,6 @@
 en:
-  balance: Nominal balance
-  today: today
+  balance: Undiscounted balance
+  today: up to today
   degree: Earned back
   break_even: Amortization
   break_even_after: after %{years} years

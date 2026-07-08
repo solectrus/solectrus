@@ -191,7 +191,7 @@ de:
     password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf deinem Docker-Host.
     submit: Anmelden
     cancel: Abbrechen
-    welcome: Angemeldet als Administrator.
+    welcome: Angemeldet als Admin.
     bye: Du wurdest abgemeldet.
   oauth:
     authorize:
@@ -228,14 +228,14 @@ de:
       continue: Weiter
       skip: Vielleicht später
       p4: 'Falls du zunächst kein Abo abschließen möchtest: Kein Problem – die Basisfunktionen bleiben kostenlos. Dieser Hinweis taucht nur ab und zu auf.'
-      login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Administrator an.
+      login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Admin an.
   registration_required:
     show:
       headline: Registrierung erforderlich
       p1: SOLECTRUS ist im Basisumfang kostenfrei nutzbar, erfordert jedoch eine Registrierung.
       p2: Die Registrierung hilft dabei, die Verbreitung der Software besser einzuschätzen und die Weiterentwicklung gezielt zu priorisieren.
       continue: Jetzt registrieren
-      login_required: Um die Registrierung vorzunehmen, melde dich bitte als Administrator an.
+      login_required: Um die Registrierung vorzunehmen, melde dich bitte als Admin an.
   crud:
     new: Neu
     edit: Bearbeiten
@@ -276,7 +276,7 @@ de:
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
     cash_flows:
       name: Zahlungsströme
-      description: Investitionen, Kosten und Förderungen rund um die PV-Anlage – die Grundlage der Amortisations-Berechnung.
+      description: Investitionen, Kosten und Förderungen rund um die PV-Anlage – die Grundlage der Amortisationsrechnung.
       new: Neuer Eintrag
       edit: Eintrag bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
@@ -305,7 +305,7 @@ de:
       details: Details
     index:
       no_cash_flows_title: Noch keine Zahlungsströme erfasst
-      no_cash_flows_body: Für die Amortisations-Berechnung muss der Administrator zunächst die Investitionen und Kosten der PV-Anlage als Zahlungsströme erfassen.
+      no_cash_flows_body: Die Amortisationsrechnung zeigt, ab wann sich die PV-Anlage bezahlt macht. Dafür muss der Administrator zunächst die Investitionen und Kosten der PV-Anlage als Zahlungsströme erfassen.
       manage_cash_flows: Zahlungsströme erfassen
       login: Als Admin anmelden
       restricted_title: Nur für Admin verfügbar
@@ -332,7 +332,7 @@ de:
         <br><br>
         <code>docker compose logs dashboard</code>
     back_to_home: ← Zurück zur Startseite
-    login: Als Administrator anmelden
+    login: Als Admin anmelden
 
   activemodel:
     attributes:

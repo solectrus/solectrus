@@ -6,7 +6,7 @@ en:
   npv_hint: "How much more the PV system yields over its full lifetime of %{years} years – compared with putting the money into a financial investment at %{rate} % instead.\n\nFuture savings and costs are converted to today's money (discounted).\n\nIt is based on the actually measured savings of each past year."
   npv_hint_positive: So the system is worth more than that investment.
   npv_hint_negative: So the investment would have been the better choice.
-  net_position: Nominal balance today
+  net_position: Undiscounted balance today
   net_position_hint: 'Current balance of the system: everything saved so far minus all costs. Only up to today, without interest.'
   operating_cashflow: Returns to date
   operating_cashflow_hint: "Earned operationally so far – the numerator of the amortization degree.\n\nMeasured savings plus compensation, minus operating costs and repairs.\n\nSubsidies and refunds deliberately do not count here – they lower the net investment instead."
@@ -15,7 +15,7 @@ en:
   net_investment: Net investment
   net_investment_hint: The amount that actually has to be earned back – the denominator of the amortization degree.
   net_investment_breakdown: 'Gross investment %{gross} minus subsidy/refund %{reduction}.'
-  profit_nominal: Nominal surplus
+  profit_nominal: Undiscounted surplus
   profit_nominal_hint: 'Expected profit after %{years} years: all savings minus all costs, without interest.'
   irr: Return p.a.
   irr_hint: "The annual return on the invested money – directly comparable with the interest rate of a financial investment. It follows solely from the investment and the returns and is independent of the discount rate you set.\n\nIt is based on the actually measured savings of each past year."

@@ -1,6 +1,6 @@
 de:
-  balance: Nominaler Saldo
-  today: heute
+  balance: Unverzinster Saldo
+  today: bis heute
   degree: Zurückverdient
   break_even: Amortisation
   break_even_after: nach %{years} Jahren
