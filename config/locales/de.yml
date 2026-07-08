@@ -375,88 +375,88 @@ de:
         must_be_negative: muss für diese Kategorie negativ sein (Auszahlung)
         must_be_positive: muss für diese Kategorie positiv sein (Einzahlung)
   sensor_descriptions:
-    power_balance: "Strombilanz: Erzeugung minus Gesamtverbrauch. Positiv = Überschuss (Einspeisung oder Akkuladung), negativ = Defizit aus dem Netz."
-    inverter_power: "Gesamte PV-Erzeugung (AC-Leistung des/der Wechselrichter)."
-    inverter_power_difference: "Erzeugung ohne Zuordnung zu einem einzelnen String (Rundungs-/Restanteil)."
-    inverter_power_forecast: "Prognostizierte PV-Erzeugung."
-    inverter_power_forecast_clearsky: "Theoretische PV-Erzeugung bei klarem Himmel (ohne Wolken)."
-    inverter_power_total: "Summierte PV-Erzeugung über alle konfigurierten Wechselrichter."
-    specific_yield: "Spezifischer Ertrag: PV-Erzeugung bezogen auf die installierte Leistung (pro kWp)."
-    house_power: "Gesamter Hausverbrauch (Strom)."
-    house_power_without_custom: "Hausverbrauch ohne separat erfasste benutzerdefinierte Verbraucher."
-    total_consumption: "Gesamtverbrauch des Haushalts (alle Verbraucher zusammen)."
-    wallbox_power: "Ladeleistung der Wallbox (E-Auto)."
-    heatpump_power: "Elektrische Leistungsaufnahme der Wärmepumpe."
-    heatpump_power_env: "Von der Wärmepumpe aus der Umgebung gewonnene Wärme (Wärmeabgabe minus Stromaufnahme)."
-    heatpump_heating_power: "Von der Wärmepumpe erzeugte Heizleistung (Wärme)."
-    heatpump_cop: "Arbeitszahl (COP): Verhältnis von Wärmeabgabe zu Stromaufnahme."
-    heatpump_cop_scatter: "Arbeitszahl (COP) aufgetragen über der Außentemperatur (Streudaten)."
-    heatpump_tank_temp: "Temperatur des Warmwasserspeichers."
-    heatpump_tank_temp_setpoint: "Soll-Temperatur des Warmwasserspeichers."
-    heatpump_status: "Betriebsstatus der Wärmepumpe (Textwert)."
-    custom_power_total: "Summierte Leistung aller benutzerdefinierten Verbraucher."
-    grid_import_power: "Aus dem öffentlichen Netz bezogene Leistung (Netzbezug)."
-    grid_export_power: "In das öffentliche Netz eingespeiste Leistung (Einspeisung)."
-    grid_power: "Netto-Netzleistung: Einspeisung minus Netzbezug. Positiv = Einspeisung, negativ = Netzbezug."
-    grid_export_limit: "Aktive Einspeisebegrenzung des Wechselrichters (Prozent der Leistung)."
-    battery_charging_power: "In den Hausakku fließende Ladeleistung."
-    battery_discharging_power: "Aus dem Hausakku entnommene Leistung (Entladung)."
-    battery_power: "Netto-Akkuleistung: Entnahme minus Beladung. Positiv = Entnahme, negativ = Beladung."
-    battery_soc: "Ladestand des Hausakkus (SOC)."
-    case_temp: "Gehäusetemperatur des Akkus."
-    car_battery_soc: "Ladestand der E-Auto-Batterie (SOC)."
-    wallbox_car_connected: "Ob aktuell ein E-Auto mit der Wallbox verbunden ist."
-    outdoor_temp: "Außenlufttemperatur."
-    outdoor_temp_forecast: "Prognostizierte Außentemperatur."
-    co2_reduction: "Vermiedene CO₂-Emissionen durch die eigene PV-Erzeugung."
-    self_consumption: "Vor Ort verbrauchte PV-Erzeugung (nicht eingespeist)."
-    self_consumption_quote: "Eigenverbrauchsquote: Anteil der vor Ort verbrauchten PV-Erzeugung."
-    grid_quote: "Bezugsquote: Anteil des Verbrauchs, der aus dem Netz gedeckt wird."
-    autarky: "Autarkie: Anteil des Verbrauchs, der durch eigene PV und Akku gedeckt wird."
-    grid_costs: "Kosten für den aus dem Netz bezogenen Strom."
-    grid_revenue: "Erlös aus der Einspeisung ins Netz (Einspeisevergütung)."
-    grid_balance: "Netzbilanz: Einspeisevergütung minus Netzbezugskosten."
-    house_costs: "Stromkosten, die dem Hausverbrauch zuzurechnen sind."
-    house_without_custom_costs: "Stromkosten des Hausverbrauchs ohne benutzerdefinierte Verbraucher."
-    heatpump_costs: "Stromkosten, die der Wärmepumpe zuzurechnen sind."
-    wallbox_costs: "Stromkosten, die dem Laden des E-Autos zuzurechnen sind."
-    battery_charging_costs: "Kosten der Energie zum Laden des Hausakkus."
-    battery_savings: "Ersparnis durch Nutzung des Hausakkus statt Netzbezug."
-    total_costs: "Gesamte wirtschaftliche Stromkosten."
-    traditional_costs: "Hypothetische Kosten, wenn der gesamte Verbrauch aus dem Netz bezogen würde (ohne PV)."
-    savings: "Durch die PV-Anlage eingesparter Betrag (Vergleichspreis minus tatsächliche Kosten)."
-    opportunity_costs: "Entgangene Einspeisevergütung durch Eigenverbrauch statt Einspeisung."
-    solar_price: "Netto-Finanzergebnis für Netzstrom mit PV: Netzbezugskosten minus Einspeisevergütung. Positiv = Kosten, negativ = Gutschrift. Ein Geldbetrag, kein Preis pro kWh."
-    system_status: "Gesamtstatus, gemeldet vom SOLECTRUS-Datensammler (Textwert)."
-    system_status_ok: "Ob der SOLECTRUS-Datensammler fehlerfrei arbeitet (true = OK)."
+    power_balance: 'Strombilanz: Erzeugung minus Gesamtverbrauch. Positiv = Überschuss (Einspeisung oder Akkuladung), negativ = Defizit aus dem Netz.'
+    inverter_power: 'Gesamte PV-Erzeugung (AC-Leistung des/der Wechselrichter).'
+    inverter_power_difference: 'Erzeugung ohne Zuordnung zu einem einzelnen String (Rundungs-/Restanteil).'
+    inverter_power_forecast: 'Prognostizierte PV-Erzeugung.'
+    inverter_power_forecast_clearsky: 'Theoretische PV-Erzeugung bei klarem Himmel (ohne Wolken).'
+    inverter_power_total: 'Summierte PV-Erzeugung über alle konfigurierten Wechselrichter.'
+    specific_yield: 'Spezifischer Ertrag: PV-Erzeugung bezogen auf die installierte Leistung (pro kWp).'
+    house_power: 'Gesamter Hausverbrauch (Strom).'
+    house_power_without_custom: 'Hausverbrauch ohne separat erfasste benutzerdefinierte Verbraucher.'
+    total_consumption: 'Gesamtverbrauch des Haushalts (alle Verbraucher zusammen).'
+    wallbox_power: 'Ladeleistung der Wallbox (E-Auto).'
+    heatpump_power: 'Elektrische Leistungsaufnahme der Wärmepumpe.'
+    heatpump_power_env: 'Von der Wärmepumpe aus der Umgebung gewonnene Wärme (Wärmeabgabe minus Stromaufnahme).'
+    heatpump_heating_power: 'Von der Wärmepumpe erzeugte Heizleistung (Wärme).'
+    heatpump_cop: 'Arbeitszahl (COP): Verhältnis von Wärmeabgabe zu Stromaufnahme.'
+    heatpump_cop_scatter: 'Arbeitszahl (COP) aufgetragen über der Außentemperatur (Streudaten).'
+    heatpump_tank_temp: 'Temperatur des Warmwasserspeichers.'
+    heatpump_tank_temp_setpoint: 'Soll-Temperatur des Warmwasserspeichers.'
+    heatpump_status: 'Betriebsstatus der Wärmepumpe (Textwert).'
+    custom_power_total: 'Summierte Leistung aller benutzerdefinierten Verbraucher.'
+    grid_import_power: 'Aus dem öffentlichen Netz bezogene Leistung (Netzbezug).'
+    grid_export_power: 'In das öffentliche Netz eingespeiste Leistung (Einspeisung).'
+    grid_power: 'Netto-Netzleistung: Einspeisung minus Netzbezug. Positiv = Einspeisung, negativ = Netzbezug.'
+    grid_export_limit: 'Aktive Einspeisebegrenzung des Wechselrichters (Prozent der Leistung).'
+    battery_charging_power: 'In den Hausakku fließende Ladeleistung.'
+    battery_discharging_power: 'Aus dem Hausakku entnommene Leistung (Entladung).'
+    battery_power: 'Netto-Akkuleistung: Entnahme minus Beladung. Positiv = Entnahme, negativ = Beladung.'
+    battery_soc: 'Ladestand des Hausakkus (SOC).'
+    case_temp: 'Gehäusetemperatur des Akkus.'
+    car_battery_soc: 'Ladestand der E-Auto-Batterie (SOC).'
+    wallbox_car_connected: 'Ob aktuell ein E-Auto mit der Wallbox verbunden ist.'
+    outdoor_temp: 'Außenlufttemperatur.'
+    outdoor_temp_forecast: 'Prognostizierte Außentemperatur.'
+    co2_reduction: 'Vermiedene CO₂-Emissionen durch die eigene PV-Erzeugung.'
+    self_consumption: 'Vor Ort verbrauchte PV-Erzeugung (nicht eingespeist).'
+    self_consumption_quote: 'Eigenverbrauchsquote: Anteil der vor Ort verbrauchten PV-Erzeugung.'
+    grid_quote: 'Bezugsquote: Anteil des Verbrauchs, der aus dem Netz gedeckt wird.'
+    autarky: 'Autarkie: Anteil des Verbrauchs, der durch eigene PV und Akku gedeckt wird.'
+    grid_costs: 'Kosten für den aus dem Netz bezogenen Strom.'
+    grid_revenue: 'Erlös aus der Einspeisung ins Netz (Einspeisevergütung).'
+    grid_balance: 'Netzbilanz: Einspeisevergütung minus Netzbezugskosten.'
+    house_costs: 'Stromkosten, die dem Hausverbrauch zuzurechnen sind.'
+    house_without_custom_costs: 'Stromkosten des Hausverbrauchs ohne benutzerdefinierte Verbraucher.'
+    heatpump_costs: 'Stromkosten, die der Wärmepumpe zuzurechnen sind.'
+    wallbox_costs: 'Stromkosten, die dem Laden des E-Autos zuzurechnen sind.'
+    battery_charging_costs: 'Kosten der Energie zum Laden des Hausakkus.'
+    battery_savings: 'Ersparnis durch Nutzung des Hausakkus statt Netzbezug.'
+    total_costs: 'Gesamte wirtschaftliche Stromkosten.'
+    traditional_costs: 'Hypothetische Kosten, wenn der gesamte Verbrauch aus dem Netz bezogen würde (ohne PV).'
+    savings: 'Durch die PV-Anlage eingesparter Betrag (Vergleichspreis minus tatsächliche Kosten).'
+    opportunity_costs: 'Entgangene Einspeisevergütung durch Eigenverbrauch statt Einspeisung.'
+    solar_price: 'Netto-Finanzergebnis für Netzstrom mit PV: Netzbezugskosten minus Einspeisevergütung. Positiv = Kosten, negativ = Gutschrift. Ein Geldbetrag, kein Preis pro kWh.'
+    system_status: 'Gesamtstatus, gemeldet vom SOLECTRUS-Datensammler (Textwert).'
+    system_status_ok: 'Ob der SOLECTRUS-Datensammler fehlerfrei arbeitet (true = OK).'
     suffix:
-      grid: "Netz"
-      pv: "PV"
-      total: "Gesamt"
-      costs: "Kosten"
+      grid: 'Netz'
+      pv: 'PV'
+      total: 'Gesamt'
+      costs: 'Kosten'
     derived:
-      split: "Anteil von %{subject}, %{clause}."
-      total: "%{subject}, summiert über alle Wechselrichter/Verbraucher."
+      split: 'Anteil von %{subject}, %{clause}.'
+      total: '%{subject}, summiert über alle Wechselrichter/Verbraucher.'
       clause:
-        grid: "der aus dem Netz gedeckt wird (statt aus eigener PV)"
-        pv: "der aus eigener PV gedeckt wird (statt aus dem Netz)"
-      inverter_string: "PV-Erzeugung von Wechselrichter/String %{number}."
-      custom_power: "Leistungsaufnahme des benutzerdefinierten Verbrauchers %{number}."
-      custom_costs: "Stromkosten des benutzerdefinierten Verbrauchers %{number}."
+        grid: 'der aus dem Netz gedeckt wird (statt aus eigener PV)'
+        pv: 'der aus eigener PV gedeckt wird (statt aus dem Netz)'
+      inverter_string: 'PV-Erzeugung von Wechselrichter/String %{number}.'
+      custom_power: 'Leistungsaufnahme des benutzerdefinierten Verbrauchers %{number}.'
+      custom_costs: 'Stromkosten des benutzerdefinierten Verbrauchers %{number}.'
       subject:
-        custom_power: "der Leistung von Verbraucher %{number}"
-        custom_power_total: "der Gesamtleistung aller benutzerdefinierten Verbraucher"
-        custom_costs: "den Stromkosten von Verbraucher %{number}"
+        custom_power: 'der Leistung von Verbraucher %{number}'
+        custom_power_total: 'der Gesamtleistung aller benutzerdefinierten Verbraucher'
+        custom_costs: 'den Stromkosten von Verbraucher %{number}'
   sensor_units:
-    watt: "Leistung in Watt (W)."
-    watt_hour: "Energie in Wattstunden (Wh), z. B. ein aufsummierter Leistungssensor."
-    watt_per_kwp: "Spezifische Leistung: Leistung pro installiertem kWp (W/kWp)."
-    watt_hour_per_kwp: "Spezifischer Ertrag: Energie pro installiertem kWp (Wh/kWp), z. B. ein aufsummierter specific_yield."
-    money: "Geldbetrag in der konfigurierten Währung (ISO-4217-Code in get_system_info)."
-    money_per_kwh: "Preis pro Kilowattstunde in der konfigurierten Währung (ISO-4217-Code in get_system_info)."
-    percent: "Prozent (0–100)."
-    celsius: "Temperatur in Grad Celsius."
-    gram: "Masse in Gramm (z. B. CO₂)."
-    boolean: "Wahrheitswert (true/false)."
-    string: "Textwert."
-    unitless: "Dimensionslose Kennzahl."
+    watt: 'Leistung in Watt (W).'
+    watt_hour: 'Energie in Wattstunden (Wh), z. B. ein aufsummierter Leistungssensor.'
+    watt_per_kwp: 'Spezifische Leistung: Leistung pro installiertem kWp (W/kWp).'
+    watt_hour_per_kwp: 'Spezifischer Ertrag: Energie pro installiertem kWp (Wh/kWp), z. B. ein aufsummierter specific_yield.'
+    money: 'Geldbetrag in der konfigurierten Währung (ISO-4217-Code in get_system_info).'
+    money_per_kwh: 'Preis pro Kilowattstunde in der konfigurierten Währung (ISO-4217-Code in get_system_info).'
+    percent: 'Prozent (0–100).'
+    celsius: 'Temperatur in Grad Celsius.'
+    gram: 'Masse in Gramm (z. B. CO₂).'
+    boolean: 'Wahrheitswert (true/false).'
+    string: 'Textwert.'
+    unitless: 'Dimensionslose Kennzahl.'
