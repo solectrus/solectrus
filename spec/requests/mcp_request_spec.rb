@@ -7,12 +7,13 @@ describe 'MCP' do
     { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }
   end
 
-  def post_mcp(payload, token: access_token)
+  def post_mcp(payload, token: access_token, origin: nil)
     headers = {
       'CONTENT_TYPE' => 'application/json',
       'ACCEPT' => 'application/json, text/event-stream',
     }
     headers['Authorization'] = "Bearer #{token}" if token
+    headers['Origin'] = origin if origin
 
     post '/mcp', params: payload.to_json, headers:
   end
@@ -151,6 +152,16 @@ describe 'MCP' do
           expect(body.dig('result', 'serverInfo', 'version')).to eq(
             Rails.configuration.x.git.commit_version,
           )
+        end
+
+        # Browser-based AI clients (e.g. claude.ai web) call /mcp cross-origin.
+        # The transport's DNS rebinding protection is deliberately disabled (see
+        # McpController), so a foreign Origin must not be rejected. Guards against
+        # a future mcp gem re-enabling that protection by default.
+        it 'accepts a request from a foreign browser Origin' do
+          post_mcp(tools_list, origin: 'https://claude.ai')
+
+          expect(response).to have_http_status(:success)
         end
 
         it 'lists the available tools' do

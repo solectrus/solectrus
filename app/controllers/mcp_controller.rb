@@ -18,7 +18,24 @@ class McpController < ActionController::API
 
     server = McpServer::Server.build
     transport =
-      MCP::Server::Transports::StreamableHTTPTransport.new(server, stateless: true)
+      MCP::Server::Transports::StreamableHTTPTransport.new(
+        server,
+        stateless: true,
+        # The SDK's DNS rebinding protection validates the Host header (loopback
+        # hosts only by default) and the Origin header (same-origin only). It is
+        # both unnecessary and incompatible with our design here:
+        #   - Access already requires a resource-bound OAuth bearer token over
+        #     PKCE with no cookies (see McpOauth), so there is no CSRF/rebinding
+        #     vector a browser attacker without the token could exploit.
+        #   - We deliberately serve /mcp to any browser Origin (see the CORS
+        #     `origins '*'` rule in config/initializers/rack.rb) so that web AI
+        #     clients like claude.ai can call it. Origin validation would 403
+        #     exactly those clients, and we cannot enumerate their origins.
+        # Allow-listing our own host (e.g. via APP_HOST) would only satisfy the
+        # Host check; the Origin check would still 403 those browser clients, and
+        # their origins cannot be enumerated. So we turn the whole thing off.
+        dns_rebinding_protection: false,
+      )
 
     request.body.rewind
     status, headers, body = transport.handle_request(request)
