@@ -43,7 +43,7 @@ import {
 
 // Options & tooltip setup
 import {
-  applyCrosshairFix,
+  applyChartDefaults,
   applyFixedYAxisWidth,
   applyLocaleToTimeScale,
   applyTooltipTheme,
@@ -97,7 +97,7 @@ Chart.register(
   CrosshairPlugin,
 );
 
-applyCrosshairFix();
+applyChartDefaults();
 ensureFixedBottomTooltipPositioner(-14);
 
 const CHART_FONT_SIZE = 12;

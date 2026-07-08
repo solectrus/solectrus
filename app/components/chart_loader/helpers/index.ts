@@ -8,7 +8,7 @@ export {
   applyZeroLineHighlight,
 } from './axes';
 export { ColorManager } from './color_manager';
-export { applyCrosshairFix } from './crosshair_fix';
+export { applyChartDefaults } from './chart_defaults';
 export {
   extractNumericValue,
   isOverlapping,

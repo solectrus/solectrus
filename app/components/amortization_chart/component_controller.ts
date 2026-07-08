@@ -18,7 +18,7 @@ import {
 } from 'chart.js';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
-import { applyCrosshairFix } from '../chart_loader/helpers/crosshair_fix';
+import { applyChartDefaults } from '../chart_loader/helpers/chart_defaults';
 import GenericChartTooltip from '../chart_loader/helpers/generic_chart_tooltip';
 
 Chart.register(
@@ -31,7 +31,7 @@ Chart.register(
   CrosshairPlugin,
 );
 
-applyCrosshairFix();
+applyChartDefaults();
 
 interface AmortizationData {
   labels: number[];
@@ -696,7 +696,7 @@ export default class extends Controller<HTMLDivElement> {
     // Caption at the top, just right of the line: grey uppercase, matching the
     // break-even label so the two markers read as a consistent pair.
     ctx.save();
-    ctx.font = '600 14px sans-serif';
+    ctx.font = `600 14px ${Chart.defaults.font.family}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     const captionText = this.todayLabelValue.toUpperCase();
@@ -816,7 +816,7 @@ export default class extends Controller<HTMLDivElement> {
   }
 
   private labelFont(line: LabelLine): string {
-    return `${line.weight} ${line.size}px sans-serif`;
+    return `${line.weight} ${line.size}px ${Chart.defaults.font.family}`;
   }
 
   private formatCurrency(value: number): string {
