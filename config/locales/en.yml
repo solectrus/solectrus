@@ -379,88 +379,88 @@ en:
         must_be_negative: must be negative for this category (outflow)
         must_be_positive: must be positive for this category (inflow)
   sensor_descriptions:
-    power_balance: "Net power balance: PV generation minus total consumption. Positive means a surplus (exported or charging the battery), negative a deficit drawn from the grid."
-    inverter_power: "Total PV generation (AC output of the inverter(s))."
-    inverter_power_difference: "Generation not attributable to any individual string (rounding/unassigned remainder)."
-    inverter_power_forecast: "Forecasted PV generation."
-    inverter_power_forecast_clearsky: "Theoretical PV generation under a clear sky (no clouds)."
-    inverter_power_total: "Combined PV generation across all configured inverters."
-    specific_yield: "Specific yield: PV generation relative to the installed capacity (per kWp)."
-    house_power: "Total household electricity consumption."
-    house_power_without_custom: "Household consumption excluding separately tracked custom consumers."
-    total_consumption: "Total electricity consumption of the household (all consumers combined)."
-    wallbox_power: "Charging power of the EV wallbox."
-    heatpump_power: "Electrical power consumed by the heat pump."
-    heatpump_power_env: "Ambient heat harvested by the heat pump (heat output minus electrical input)."
-    heatpump_heating_power: "Thermal heating power produced by the heat pump."
-    heatpump_cop: "Coefficient of performance (COP): heat output divided by electrical input."
-    heatpump_cop_scatter: "COP plotted against outdoor temperature (scatter data)."
-    heatpump_tank_temp: "Hot-water tank temperature."
-    heatpump_tank_temp_setpoint: "Target hot-water tank temperature."
-    heatpump_status: "Operating status of the heat pump (textual state)."
-    custom_power_total: "Combined power of all user-defined custom consumers."
-    grid_import_power: "Power drawn from the public grid (grid import)."
-    grid_export_power: "Power fed into the public grid (feed-in)."
-    grid_power: "Net grid power: export minus import. Positive = feed-in (export), negative = grid import."
-    grid_export_limit: "Active feed-in limit applied to the inverter (percent of capacity)."
-    battery_charging_power: "Power flowing into the home battery (charging)."
-    battery_discharging_power: "Power drawn from the home battery (discharging)."
-    battery_power: "Net battery power: discharging minus charging. Positive = discharging, negative = charging."
-    battery_soc: "Home battery state of charge (SOC)."
-    case_temp: "Battery enclosure temperature."
-    car_battery_soc: "Electric vehicle battery state of charge (SOC)."
-    wallbox_car_connected: "Whether an electric vehicle is currently connected to the wallbox."
-    outdoor_temp: "Outdoor air temperature."
-    outdoor_temp_forecast: "Forecasted outdoor air temperature."
-    co2_reduction: "Avoided CO₂ emissions thanks to PV self-generation."
-    self_consumption: "PV generation consumed on-site (not exported)."
-    self_consumption_quote: "Self-consumption rate: share of PV generation consumed on-site."
-    grid_quote: "Grid share: portion of consumption covered by grid import."
-    autarky: "Autarky: share of consumption covered by own PV and battery."
-    grid_costs: "Cost of electricity imported from the grid."
-    grid_revenue: "Revenue from electricity fed into the grid (feed-in tariff)."
-    grid_balance: "Net grid balance: feed-in revenue minus grid import costs."
-    house_costs: "Electricity cost attributable to household consumption."
-    house_without_custom_costs: "Household electricity cost excluding custom consumers."
-    heatpump_costs: "Electricity cost attributable to the heat pump."
-    wallbox_costs: "Electricity cost attributable to EV charging."
-    battery_charging_costs: "Cost of the energy used to charge the home battery."
-    battery_savings: "Savings from using the home battery instead of grid import."
-    total_costs: "Total economic electricity costs."
-    traditional_costs: "Hypothetical cost if all consumption were bought from the grid (without PV)."
-    savings: "Money saved thanks to the PV system (reference cost minus actual cost)."
-    opportunity_costs: "Feed-in revenue forgone by self-consuming instead of exporting."
-    solar_price: "Net financial result for grid electricity with PV in place: grid import costs minus feed-in revenue. Positive = net cost, negative = net credit. A monetary amount, not a price per kWh."
-    system_status: "Overall status reported by the SOLECTRUS data collector (textual state)."
-    system_status_ok: "Whether the SOLECTRUS data collector is healthy (true = OK)."
+    power_balance: 'Net power balance: PV generation minus total consumption. Positive means a surplus (exported or charging the battery), negative a deficit drawn from the grid.'
+    inverter_power: 'Total PV generation (AC output of the inverter(s)).'
+    inverter_power_difference: 'Generation not attributable to any individual string (rounding/unassigned remainder).'
+    inverter_power_forecast: 'Forecasted PV generation.'
+    inverter_power_forecast_clearsky: 'Theoretical PV generation under a clear sky (no clouds).'
+    inverter_power_total: 'Combined PV generation across all configured inverters.'
+    specific_yield: 'Specific yield: PV generation relative to the installed capacity (per kWp).'
+    house_power: 'Total household electricity consumption.'
+    house_power_without_custom: 'Household consumption excluding separately tracked custom consumers.'
+    total_consumption: 'Total electricity consumption of the household (all consumers combined).'
+    wallbox_power: 'Charging power of the EV wallbox.'
+    heatpump_power: 'Electrical power consumed by the heat pump.'
+    heatpump_power_env: 'Ambient heat harvested by the heat pump (heat output minus electrical input).'
+    heatpump_heating_power: 'Thermal heating power produced by the heat pump.'
+    heatpump_cop: 'Coefficient of performance (COP): heat output divided by electrical input.'
+    heatpump_cop_scatter: 'COP plotted against outdoor temperature (scatter data).'
+    heatpump_tank_temp: 'Hot-water tank temperature.'
+    heatpump_tank_temp_setpoint: 'Target hot-water tank temperature.'
+    heatpump_status: 'Operating status of the heat pump (textual state).'
+    custom_power_total: 'Combined power of all user-defined custom consumers.'
+    grid_import_power: 'Power drawn from the public grid (grid import).'
+    grid_export_power: 'Power fed into the public grid (feed-in).'
+    grid_power: 'Net grid power: export minus import. Positive = feed-in (export), negative = grid import.'
+    grid_export_limit: 'Active feed-in limit applied to the inverter (percent of capacity).'
+    battery_charging_power: 'Power flowing into the home battery (charging).'
+    battery_discharging_power: 'Power drawn from the home battery (discharging).'
+    battery_power: 'Net battery power: discharging minus charging. Positive = discharging, negative = charging.'
+    battery_soc: 'Home battery state of charge (SOC).'
+    case_temp: 'Battery enclosure temperature.'
+    car_battery_soc: 'Electric vehicle battery state of charge (SOC).'
+    wallbox_car_connected: 'Whether an electric vehicle is currently connected to the wallbox.'
+    outdoor_temp: 'Outdoor air temperature.'
+    outdoor_temp_forecast: 'Forecasted outdoor air temperature.'
+    co2_reduction: 'Avoided CO₂ emissions thanks to PV self-generation.'
+    self_consumption: 'PV generation consumed on-site (not exported).'
+    self_consumption_quote: 'Self-consumption rate: share of PV generation consumed on-site.'
+    grid_quote: 'Grid share: portion of consumption covered by grid import.'
+    autarky: 'Autarky: share of consumption covered by own PV and battery.'
+    grid_costs: 'Cost of electricity imported from the grid.'
+    grid_revenue: 'Revenue from electricity fed into the grid (feed-in tariff).'
+    grid_balance: 'Net grid balance: feed-in revenue minus grid import costs.'
+    house_costs: 'Electricity cost attributable to household consumption.'
+    house_without_custom_costs: 'Household electricity cost excluding custom consumers.'
+    heatpump_costs: 'Electricity cost attributable to the heat pump.'
+    wallbox_costs: 'Electricity cost attributable to EV charging.'
+    battery_charging_costs: 'Cost of the energy used to charge the home battery.'
+    battery_savings: 'Savings from using the home battery instead of grid import.'
+    total_costs: 'Total economic electricity costs.'
+    traditional_costs: 'Hypothetical cost if all consumption were bought from the grid (without PV).'
+    savings: 'Money saved thanks to the PV system (reference cost minus actual cost).'
+    opportunity_costs: 'Feed-in revenue forgone by self-consuming instead of exporting.'
+    solar_price: 'Net financial result for grid electricity with PV in place: grid import costs minus feed-in revenue. Positive = net cost, negative = net credit. A monetary amount, not a price per kWh.'
+    system_status: 'Overall status reported by the SOLECTRUS data collector (textual state).'
+    system_status_ok: 'Whether the SOLECTRUS data collector is healthy (true = OK).'
     suffix:
-      grid: "Grid"
-      pv: "PV"
-      total: "Total"
-      costs: "Costs"
+      grid: 'Grid'
+      pv: 'PV'
+      total: 'Total'
+      costs: 'Costs'
     derived:
-      split: "Portion of %{subject} %{clause}."
-      total: "%{subject}, summed across all inverters/consumers."
+      split: 'Portion of %{subject} %{clause}.'
+      total: '%{subject}, summed across all inverters/consumers.'
       clause:
-        grid: "supplied from grid-imported electricity (as opposed to own PV)"
-        pv: "covered by own PV/solar generation (as opposed to grid import)"
-      inverter_string: "PV generation of inverter/string %{number}."
-      custom_power: "Power draw of user-defined custom consumer %{number}."
-      custom_costs: "Electricity cost of user-defined custom consumer %{number}."
+        grid: 'supplied from grid-imported electricity (as opposed to own PV)'
+        pv: 'covered by own PV/solar generation (as opposed to grid import)'
+      inverter_string: 'PV generation of inverter/string %{number}.'
+      custom_power: 'Power draw of user-defined custom consumer %{number}.'
+      custom_costs: 'Electricity cost of user-defined custom consumer %{number}.'
       subject:
-        custom_power: "the power of custom consumer %{number}"
-        custom_power_total: "the combined power of all custom consumers"
-        custom_costs: "the electricity cost of custom consumer %{number}"
+        custom_power: 'the power of custom consumer %{number}'
+        custom_power_total: 'the combined power of all custom consumers'
+        custom_costs: 'the electricity cost of custom consumer %{number}'
   sensor_units:
-    watt: "Power in watts (W)."
-    watt_hour: "Energy in watt-hours (Wh), e.g. a summed power sensor."
-    watt_per_kwp: "Specific power yield: power per installed kWp (W/kWp)."
-    watt_hour_per_kwp: "Specific energy yield: energy per installed kWp (Wh/kWp), e.g. a summed specific_yield."
-    money: "Monetary amount in the configured currency (its ISO-4217 code is in get_system_info)."
-    money_per_kwh: "Price per kilowatt-hour in the configured currency (its ISO-4217 code is in get_system_info)."
-    percent: "Percentage (0-100)."
-    celsius: "Temperature in degrees Celsius."
-    gram: "Mass in grams (e.g. CO₂)."
-    boolean: "Boolean state (true/false)."
-    string: "Textual value."
-    unitless: "Dimensionless ratio."
+    watt: 'Power in watts (W).'
+    watt_hour: 'Energy in watt-hours (Wh), e.g. a summed power sensor.'
+    watt_per_kwp: 'Specific power yield: power per installed kWp (W/kWp).'
+    watt_hour_per_kwp: 'Specific energy yield: energy per installed kWp (Wh/kWp), e.g. a summed specific_yield.'
+    money: 'Monetary amount in the configured currency (its ISO-4217 code is in get_system_info).'
+    money_per_kwh: 'Price per kilowatt-hour in the configured currency (its ISO-4217 code is in get_system_info).'
+    percent: 'Percentage (0-100).'
+    celsius: 'Temperature in degrees Celsius.'
+    gram: 'Mass in grams (e.g. CO₂).'
+    boolean: 'Boolean state (true/false).'
+    string: 'Textual value.'
+    unitless: 'Dimensionless ratio.'
