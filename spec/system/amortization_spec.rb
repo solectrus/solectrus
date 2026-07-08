@@ -32,7 +32,8 @@ describe 'Amortization' do
     it 'hides the calculation behind an admin-only hint' do
       visit '/amortization'
 
-      expect(page).to have_text('nur für Administratoren')
+      expect(page).to have_text('Nur für Admin verfügbar')
+      expect(page).to have_link('Als Admin anmelden')
       expect(page).to have_no_css('canvas')
     end
   end

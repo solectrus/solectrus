@@ -132,10 +132,10 @@ class AmortizationTable::Component < ViewComponent::Base
   # filtered to the group's categories (all at once) and the row's date range.
   # The row carries its own drill-down start (nil for year 1, which folds in
   # anything booked before the operating start), so the filter matches the figure
-  # the cell shows. Admin-only, since the settings page is; other viewers see
-  # plain amounts.
+  # the cell shows. Shown to everyone who may see the table; the settings page
+  # itself requires admin, so a non-admin lands on a hint to log in.
   def group_path(row, group)
-    return unless helpers.admin? && row[:period]
+    return unless row[:period]
 
     helpers.settings_cash_flows_path(
       category: group[:categories],

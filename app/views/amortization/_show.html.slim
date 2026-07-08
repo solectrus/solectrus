@@ -1,23 +1,33 @@
 - turbo_exempts_page_from_cache
 /! Both views fill the viewport: the chart is a fixed-height canvas, the table is
 /! its own scroll area so its heading row stays pinned while the rows scroll.
+/! @result is only built for a viewer who may actually see the calculation (the
+/! controller skips the work otherwise), so the hint/teaser states below fall
+/! into the plain full-height layout - both tabs then render identically.
 - if view == :details && @result&.prognosis?
   - content_for :fixed_nav, true
 - else
   - content_for :full_height, true
 
-/! Sub-navigation in the top bar (chart/table switch plus the parameter
-/! sliders). Only shown when there is a real calculation to navigate between;
-/! the hint and teaser states have nothing to toggle between.
+/! Sub-navigation in the top bar (chart/table switch plus the parameter sliders
+/! and the settings cog). Only shown when there is a real calculation to
+/! navigate between; the hint and teaser states have nothing to toggle between.
 - if @result&.prognosis?
   - content_for :sub_nav do
     = render AmortizationSubNav::Component.new(result: @result, view:)
 
 - if !admin? && !Setting.amortization_public
-  /! Admin decided the calculation is not public - hide it from other visitors
-  .flex-1.min-h-0.flex.flex-col.justify-center.gap-6
-    p.text-center.text-sm.md:text-base.text-gray-500.dark:text-gray-400
-      = t('amortization.index.restricted')
+  /! Admin decided the calculation is not public - hint that admin login is
+  /! needed to see it, rather than hiding the page outright.
+  = render Message::Component.new do |c|
+    - c.with_icon do
+      i.fa.fa-sack-dollar
+    = c.with_title { t('amortization.index.restricted_title') }
+    = c.with_body { t('amortization.index.restricted_body') }
+    = c.with_footer do
+      = render Button::Component.new title: t('amortization.index.login'),
+                                     path: new_session_path(return_to: request.fullpath),
+                                     style: :primary
 - elsif ApplicationPolicy.amortization?
   - if @missing_or_stale_summary_days.present?
     /! Measured savings incomplete - build the missing daily summaries first,

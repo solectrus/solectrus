@@ -39,6 +39,10 @@ class AmortizationController < ApplicationController
 
   # Shared preparation for both the chart and the table view.
   def build_result
+    # A viewer who may not see the calculation gets a hint instead, so there is
+    # nothing to compute for them.
+    return unless calculation_visible?
+
     # No cash flows yet means nothing to calculate - the view shows a hint to
     # create them instead.
     return unless CashFlow.exists?
@@ -88,14 +92,17 @@ class AmortizationController < ApplicationController
     @timeframe ||= Timeframe.all
   end
 
-  # The sliders are shown to everyone who may see the calculation, so the same
-  # visibility (sponsor feature, and either admin or made public) guards the
-  # update action.
-  def require_visible_calculation
-    return if ApplicationPolicy.amortization? &&
-      (admin? || Setting.amortization_public)
+  # Whether this viewer may see the calculation: the sponsor feature must be
+  # active and the calculation either admin-viewed or made public. Everyone else
+  # gets a hint, so nothing is computed and no sub-navigation is shown.
+  def calculation_visible?
+    ApplicationPolicy.amortization? && (admin? || Setting.amortization_public)
+  end
 
-    raise ForbiddenError
+  # The sliders are shown to everyone who may see the calculation, so the same
+  # visibility guards the update action.
+  def require_visible_calculation
+    raise ForbiddenError unless calculation_visible?
   end
 
   # The slider parameters, defaulted and clamped into the allowed range. Taken

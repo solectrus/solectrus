@@ -85,6 +85,15 @@ describe 'Amortization' do
           expect(response.body).to include('amortization-chart--component')
           expect(response.body).to include('type="range"')
         end
+
+        it 'offers the cash-flow settings shortcut to non-admins too' do
+          # The cog icon links everyone to the settings; a non-admin clicking it
+          # lands on the admin-required hint.
+          get '/amortization'
+
+          expect(response.body).to include('Manage cash flows')
+          expect(response.body).to include('/settings/cash_flows')
+        end
       end
 
       context 'when not logged in and not made public' do
@@ -98,9 +107,18 @@ describe 'Amortization' do
 
           expect(response).to have_http_status(:success)
           expect(response.body).to include(
-            'only visible to administrators',
+            'Only visible to administrators',
           )
           expect(response.body).not_to include('Nominal balance today')
+        end
+
+        it 'shows no sub-navigation, sliders or settings shortcut' do
+          # Nothing is computed for a viewer who may not see the calculation, so
+          # the sub-navigation (tabs, parameter sliders, settings cog) is absent.
+          get '/amortization'
+
+          expect(response.body).not_to include('amortization[period_years]')
+          expect(response.body).not_to include('/settings/cash_flows')
         end
       end
 
@@ -243,11 +261,13 @@ describe 'Amortization' do
         expect(response.body).to include('aria-current="location"')
       end
 
-      it 'keeps the cash-flow cells plain for non-admins' do
-        # The settings list is admin-only, so a public viewer gets no drill-down.
+      it 'drills the cash-flow cells down for non-admins too' do
+        # The drill-down link is offered to every viewer of the table; the
+        # settings page requires admin, so a non-admin clicking it lands on the
+        # admin-required hint.
         get '/amortization/details'
 
-        expect(response.body).not_to include('/settings/cash_flows?')
+        expect(response.body).to include('/settings/cash_flows?')
       end
     end
 
@@ -291,7 +311,7 @@ describe 'Amortization' do
         get '/amortization/details'
 
         expect(response).to have_http_status(:success)
-        expect(response.body).to include('only visible to administrators')
+        expect(response.body).to include('Only visible to administrators')
         expect(response.body).not_to include('Earned back')
       end
     end
