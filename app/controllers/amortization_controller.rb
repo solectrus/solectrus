@@ -1,6 +1,7 @@
 class AmortizationController < ApplicationController
   include SummaryChecker
 
+  before_action :ensure_enabled
   before_action :require_visible_calculation, only: :update
 
   # Chart view (overview): the balance curve with the KPI rail.
@@ -90,6 +91,15 @@ class AmortizationController < ApplicationController
   # need to be complete over the entire period the calculation spans.
   helper_method def timeframe
     @timeframe ||= Timeframe.all
+  end
+
+  # Disabling the feature entirely ('none' visibility) removes the navigation
+  # entry; a direct request must 404 like any unknown URL - for everyone,
+  # admins included.
+  def ensure_enabled
+    return if Setting.enable_amortization
+
+    raise ActionController::RoutingError, request.path
   end
 
   # Whether this viewer may see the calculation: the sponsor feature must be

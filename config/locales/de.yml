@@ -281,9 +281,11 @@ de:
       edit: Eintrag bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
       category_hint: Bestimmt, wie der Betrag in die Amortisation einfließt – Investition erhöht die Investitionsbasis, Förderung/Erstattung senken sie, Betriebskosten/Reparatur/Entschädigung wirken auf den laufenden Ertrag, Sonstiges bleibt neutral.
-      public: Amortisationsberechnung für alle Benutzer anzeigen
-      public_hint: Wenn aktiviert, sehen auch nicht angemeldete Besucher die Amortisations-Berechnung. Andernfalls bleibt sie nur für Admins sichtbar.
-      sponsors_only: Die Amortisations-Seite ist nur für Sponsoren verfügbar.
+      visibility_label: 'Amortisationsrechnung anzeigen:'
+      visibility_all: Für alle Nutzer
+      visibility_admins: Nur für Admin
+      visibility_none: Für niemanden (Seite ausblenden)
+      sponsors_only: Die Anzeige für alle Nutzer ist nur für Sponsoren verfügbar.
       filtered_by: Gefiltert nach
       from: Von
       to: Bis

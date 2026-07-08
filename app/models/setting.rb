@@ -25,6 +25,11 @@ class Setting < RailsSettings::Base
   field :sensor_names, type: :hash, default: {}
   field :inverter_as_total, type: :boolean, default: true
 
+  # Whether the amortization page is offered in the navigation at all. Enabled
+  # by default so existing installations discover the feature; admins who don't
+  # want it can turn it off in the cash flow settings.
+  field :enable_amortization, type: :boolean, default: true
+
   # Whether the amortization calculation is visible to non-admin visitors.
   # Admins always see it; this opt-in exposes it to everyone else.
   field :amortization_public, type: :boolean, default: false

@@ -183,6 +183,20 @@ describe 'Amortization' do
           )
         end
       end
+
+      context 'when disabled entirely (visibility "none")' do
+        before do
+          allow(ApplicationPolicy).to receive(:amortization?).and_return(true)
+          allow(Setting).to receive(:enable_amortization).and_return(false)
+          login_as_admin
+        end
+
+        it 'responds with 404, even for an admin' do
+          get '/amortization'
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
     end
 
     context 'with cash flows but no measured savings' do
@@ -344,6 +358,19 @@ describe 'Amortization' do
       it 'returns http forbidden' do
         patch '/amortization', params: params
         expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when disabled entirely (visibility "none")' do
+      before do
+        allow(ApplicationPolicy).to receive(:amortization?).and_return(true)
+        allow(Setting).to receive(:enable_amortization).and_return(false)
+        login_as_admin
+      end
+
+      it 'returns 404 before recomputing' do
+        patch '/amortization', params: params
+        expect(response).to have_http_status(:not_found)
       end
     end
 

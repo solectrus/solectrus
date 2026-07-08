@@ -127,8 +127,9 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     end
 
     def amortization_item
-      return unless admin? || Setting.amortization_public
-      return unless CashFlow.exists?
+      # Shown to everyone (not just admins) so the feature is discoverable;
+      # non-admins land on a hint to log in when the calculation isn't public.
+      return unless Setting.enable_amortization
 
       {
         name: t('layout.amortization'),

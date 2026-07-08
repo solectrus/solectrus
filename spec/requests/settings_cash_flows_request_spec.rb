@@ -177,7 +177,7 @@ describe 'Settings::CashFlows' do
     context 'when not logged in' do
       it 'returns http forbidden' do
         patch '/settings/cash_flows/visibility',
-              params: { setting: { amortization_public: '1' } }
+              params: { setting: { amortization_visibility: 'all' } }
 
         expect(response).to have_http_status(:forbidden)
       end
@@ -189,20 +189,29 @@ describe 'Settings::CashFlows' do
         login_as_admin
       end
 
-      it 'enables public visibility' do
+      it 'shows the calculation to all users' do
         patch '/settings/cash_flows/visibility',
-              params: { setting: { amortization_public: '1' } }
+              params: { setting: { amortization_visibility: 'all' } }
 
+        expect(Setting.enable_amortization).to be(true)
         expect(Setting.amortization_public).to be(true)
       end
 
-      it 'disables public visibility' do
+      it 'shows the calculation to admins only' do
         Setting.amortization_public = true
 
         patch '/settings/cash_flows/visibility',
-              params: { setting: { amortization_public: '0' } }
+              params: { setting: { amortization_visibility: 'admins' } }
 
+        expect(Setting.enable_amortization).to be(true)
         expect(Setting.amortization_public).to be(false)
+      end
+
+      it 'hides the page from everyone' do
+        patch '/settings/cash_flows/visibility',
+              params: { setting: { amortization_visibility: 'none' } }
+
+        expect(Setting.enable_amortization).to be(false)
       end
     end
 
@@ -212,11 +221,19 @@ describe 'Settings::CashFlows' do
         login_as_admin
       end
 
-      it 'ignores the setting' do
+      it 'keeps the calculation private even when set to all' do
         patch '/settings/cash_flows/visibility',
-              params: { setting: { amortization_public: '1' } }
+              params: { setting: { amortization_visibility: 'all' } }
 
+        expect(Setting.enable_amortization).to be(true)
         expect(Setting.amortization_public).to be(false)
+      end
+
+      it 'still hides the page from everyone' do
+        patch '/settings/cash_flows/visibility',
+              params: { setting: { amortization_visibility: 'none' } }
+
+        expect(Setting.enable_amortization).to be(false)
       end
     end
   end

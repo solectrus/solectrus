@@ -1,0 +1,6 @@
+= turbo_stream.update 'flash' do
+  = render AppFlash::Component.new(notice:, alert:)
+
+/! Refresh the primary navigation so the amortization icon appears or disappears
+/! immediately after changing the visibility, without waiting for a reload.
+= turbo_stream_update_primary_nav

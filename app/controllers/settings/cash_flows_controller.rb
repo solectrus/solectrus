@@ -13,15 +13,25 @@ class Settings::CashFlowsController < ApplicationController
     @cash_flows = filtered_cash_flows
   end
 
-  # Toggle whether non-admins may see the amortization calculation. Only
-  # meaningful with the sponsor feature, so ignore the param otherwise.
+  # Set who may see the amortization calculation: everyone ('all'), admins only
+  # ('admins'), or nobody ('none', which also removes the page from the
+  # navigation). Exposing it to non-admins is a sponsor feature, so 'all' falls
+  # back to admins-only without it.
   def visibility
-    if ApplicationPolicy.amortization?
-      Setting.amortization_public =
-        params.dig(:setting, :amortization_public) == '1'
+    case params.dig(:setting, :amortization_visibility)
+    when 'all'
+      Setting.enable_amortization = true
+      Setting.amortization_public = ApplicationPolicy.amortization?
+    when 'admins'
+      Setting.enable_amortization = true
+      Setting.amortization_public = false
+    when 'none'
+      Setting.enable_amortization = false
     end
 
-    respond_with_flash notice: t('crud.success')
+    # Renders visibility.turbo_stream.slim, which refreshes the flash and the
+    # primary navigation so the icon appears/disappears without a page reload.
+    flash.now[:notice] = t('crud.success')
   end
 
   def new
