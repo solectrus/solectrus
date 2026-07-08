@@ -1,19 +1,26 @@
 # Dynamic Pricing Concept
 
+> **Status:** Concept only, not yet implemented. Written 2026-03, last reviewed 2026-07-08 (currency support has been implemented since, see below).
+
 ## Related Issues / Discussions
 
+- #5340 - Dynamic pricing (meta issue for this concept)
 - #2150 - Dynamic tariffs (Tibber, aWATTar)
 - #2560 - Monthly base fee
-- #2797 - Currency configuration (e.g. CHF instead of EUR)
+- #2797 - Currency configuration (e.g. CHF instead of EUR) — **done**, implemented via #5623
 - #4832 - Time-of-use tariffs (§14a EnWG, module 3)
 - #4850 - Consumer-specific tariffs
 - #4947 - Dynamic feed-in tariffs (direct marketing)
 - #5227 - Heat pump electricity tariffs
-- #5334 - Renewable energy communities / energy sharing (multiple suppliers)
+- #5334 - Renewable energy communities / energy sharing (multiple suppliers) — discussion
+
+See also: #3198 (CO₂ emissions based on time-dependent grid intensity) — not part of this concept, but the dynamic path (consumption series × price series from InfluxDB) is exactly the calculation shape that a time-dependent CO₂ factor will need as well.
 
 ## Current State
 
-Prices are stored in PostgreSQL (`prices` table) with a fixed value per kWh, valid from a start date. There is one electricity price and one feed-in price at any given time, applying equally to all consumers. Costs are calculated at query time: the SQL path uses price JOINs via CTEs, the InfluxDB path multiplies in Ruby.
+Prices are stored in PostgreSQL (`prices` table) with a fixed value per kWh, valid from a start date. There is one electricity price and one feed-in price at any given time, applying equally to all consumers. Costs are calculated at query time: the SQL path uses price JOINs via CTEs (`price_ranges`, aliases `pb`/`pf` with `money_per_kwh`), the InfluxDB path multiplies in Ruby (`calculate_with_prices`).
+
+The currency is already configurable via the `CURRENCY` env var (ISO-4217, default `EUR`, see `Currency` module) — this part of the original concept has been implemented in the meantime.
 
 ## Goal
 
@@ -30,7 +37,7 @@ Additionally:
 - Different consumers can have **different prices** (e.g. heat pump on a cheaper rate)
 - A monthly **base fee** can be defined per price entry
 - Feed-in prices also support all three modes (for direct marketing)
-- The **currency** is configurable (e.g. CHF instead of EUR)
+- ~~The **currency** is configurable (e.g. CHF instead of EUR)~~ — already implemented (#5623)
 
 All of these can change over time independently. A realistic timeline might look like this:
 
@@ -99,15 +106,15 @@ Written by an external collector (Tibber API, aWATTar API, etc.). Interval depen
 
 For dynamic mode, the InfluxDB measurement is determined by `name`: `electricity` reads from `electricity_price`, `feed_in` reads from `feed_in_price`. This applies regardless of the `consumer` field - all consumers with dynamic electricity pricing share the same spot price series.
 
-### Currency
+### Currency (already implemented)
 
-The currency is a global setting (environment variable, e.g. `CURRENCY=CHF`), defaulting to `EUR`. It affects:
+The currency is a global setting (`CURRENCY` env var, ISO-4217 code, default `EUR`), implemented via #5623 (`Currency` module, `money_per_kwh` SQL aliases, `:money` unit in `Sensor::UnitFormatter`). It is purely a display concern:
 
 - Display: All monetary values are formatted with the configured currency symbol
 - Price input: Labels and placeholders show the configured currency
 - Calculations: No change needed — all formulas work in the configured currency unit, since prices and costs are always in the same currency
 
-All columns storing monetary values (`value`, `base_fee`, and finance sensor values in `summary_values`) are stored as plain decimals without currency reference. The currency is purely a display concern.
+All columns storing monetary values (`value` and, once added, `base_fee` and stored finance sensor values in `summary_values`) are plain decimals without currency reference. Nothing in this concept changes that.
 
 ### `summary_values` (extended)
 
@@ -125,8 +132,8 @@ Finance sensors change from computed to **stored** sensors. Their daily cost tot
 | `heatpump_costs_pv`        | feed_in                 | `heatpump_power` - `heatpump_power_grid`                                       |
 | `wallbox_costs_grid`       | electricity             | `wallbox_power_grid`                                                           |
 | `wallbox_costs_pv`         | feed_in                 | `wallbox_power` - `wallbox_power_grid`                                         |
-| `custom_costs_XX_grid`     | electricity             | `custom_power_XX_grid` (per custom consumer)                                   |
-| `custom_costs_XX_pv`       | feed_in                 | `custom_power_XX` - `custom_power_XX_grid`                                     |
+| `custom_XX_costs_grid`     | electricity             | `custom_power_XX_grid` (per custom consumer, XX = 01–20)                       |
+| `custom_XX_costs_pv`       | feed_in                 | `custom_power_XX` - `custom_power_XX_grid`                                     |
 | `battery_charging_costs`   | electricity             | `battery_charging_power_grid`                                                  |
 | `battery_savings`          | electricity + feed_in   | `battery_discharging_power`, `battery_charging_power`                          |
 | `opportunity_costs`        | feed_in                 | `inverter_power` - `grid_export_power` (self-consumed solar)                   |
@@ -134,21 +141,21 @@ Finance sensors change from computed to **stored** sensors. Their daily cost tot
 | `community_import_costs`   | electricity (community) | `community_import_power`                                                       |
 | `community_export_revenue` | feed_in (community)     | `community_export_power`                                                       |
 
-Each stored finance sensor adds one `:sum` record per day to `summary_values`. For a typical setup (house + heatpump + wallbox + 5 custom consumers), this adds ~22 records per day (~+46%). With energy community, ~24 records (~+50%).
+Each stored finance sensor adds one `:sum` record per day to `summary_values`. For a typical setup (house + heatpump + wallbox + 5 custom consumers), this adds ~~22 records per day (~~+46%). With energy community, ~~24 records (~~+50%).
 
 **Computed finance sensors** (derived from stored values, no price lookup needed):
 
-| Sensor                       | Calculation                                 |
-| ---------------------------- | ------------------------------------------- |
-| `house_costs`                | `house_costs_grid` + `house_costs_pv`       |
-| `heatpump_costs`             | `heatpump_costs_grid` + `heatpump_costs_pv` |
-| `wallbox_costs`              | `wallbox_costs_grid` + `wallbox_costs_pv`   |
-| `custom_costs`               | `custom_costs_grid` + `custom_costs_pv`     |
-| `grid_balance`               | `grid_revenue` - `grid_costs`               |
-| `solar_price`                | `grid_costs` - `grid_revenue`               |
-| `savings`                    | `traditional_costs` - `solar_price`         |
-| `house_without_custom_costs` | proportional from `house_costs`             |
-| `total_costs`                | `grid_costs` + `opportunity_costs`          |
+| Sensor                       | Calculation                                   |
+| ---------------------------- | --------------------------------------------- |
+| `house_costs`                | `house_costs_grid` + `house_costs_pv`         |
+| `heatpump_costs`             | `heatpump_costs_grid` + `heatpump_costs_pv`   |
+| `wallbox_costs`              | `wallbox_costs_grid` + `wallbox_costs_pv`     |
+| `custom_XX_costs`            | `custom_XX_costs_grid` + `custom_XX_costs_pv` |
+| `grid_balance`               | `grid_revenue` - `grid_costs`                 |
+| `solar_price`                | `grid_costs` - `grid_revenue`                 |
+| `savings`                    | `traditional_costs` - `solar_price`           |
+| `house_without_custom_costs` | proportional from `house_costs`               |
+| `total_costs`                | `grid_costs` + `opportunity_costs`            |
 
 ---
 
@@ -343,6 +350,8 @@ costs = zip(consumption_series, price_series).sum { |c, p| c * p / 1000.0 }
 
 **Missing data handling:** If InfluxDB price data is missing for a dynamic day (e.g. collector was down), the cost for that day is `nil` (not zero). The summary value is not written, which is consistent with how other sensors handle missing data.
 
+**Negative prices:** Spot prices can be negative (and with direct marketing, so can feed-in prices). Daily cost totals for dynamic mode may therefore be negative — the value-range clamping in `SummaryBuilder` (`clamp_values_to_sensor_ranges`) must allow negative values for finance sensors (as it already does for `battery_savings` and `grid_balance`).
+
 ### Base Fee Calculation
 
 The monthly base fee is **not** stored in `summary_values` (which are per-day). Instead, it is added at display time for monthly or yearly views:
@@ -362,6 +371,8 @@ yearly_costs = summary_values_sum + sum_of_monthly_base_fees
 For partial months (e.g. price change mid-month), each base fee is prorated: `base_fee * active_days / days_in_month`. When a tariff changes mid-month, both base fees are prorated and summed.
 
 Base fees only apply to views that span full months or longer (monthly, yearly, total). For day and week views, no base fee is shown.
+
+Base fees are intentionally **not** part of the `savings` sensor, so the amortization calculator (which combines measured `savings` with the manual `CashFlow` register) is unaffected. Users who want base fees reflected in their profitability calculation can record them as recurring cash flow entries — keeping them out of `savings` avoids double counting.
 
 ### SQL Path (queries for days, months, years)
 
@@ -395,6 +406,8 @@ The result is returned directly (not stored in `summary_values`), since hourly v
 | **`Influx::Total`**            | Finance calculation analogous to SummaryBuilder for hourly view                                                                                         |
 | **Settings UI**                | Price form: mode selector, ToU time slot editor, consumer assignment, base fee input                                                                    |
 | **Collector**                  | External collector for spot prices -> writes to `electricity_price` / `feed_in_price`                                                                   |
+| **`AmortizationCalculator`**   | No structural change (reads monthly `savings` via the SQL path), but cached results must be invalidated when summaries are rebuilt after price changes  |
+| **MCP server (`get_prices`)**  | Currently assumes one fixed value per entry; must expose `mode`, `time_slots`, `base_fee`, `consumer`                                                   |
 
 ---
 
