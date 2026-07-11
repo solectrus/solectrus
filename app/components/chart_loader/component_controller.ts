@@ -29,6 +29,7 @@ import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
 import { buildCustomXAxisPlugin } from '@/utils/chartPluginCustomXAxis';
+import { buildRoundedStackTopPlugin } from '@/utils/chartPluginRoundedStackTop';
 
 // Axes & styling
 import {
@@ -330,7 +331,7 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private buildCustomPlugins(options: Record<string, unknown>): Plugin[] {
-    return buildCustomXAxisPlugin(options);
+    return [...buildCustomXAxisPlugin(options), buildRoundedStackTopPlugin()];
   }
 
   private configurePowerBalanceTooltip(
