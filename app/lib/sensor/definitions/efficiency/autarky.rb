@@ -2,17 +2,23 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
   value unit: :percent, range: (0..100)
 
   color do |percent|
-    # Autarky color scheme: always neutral background, text/arc color depends on value
-    background = 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800'
-
-    text =
-      if percent.nil? || percent >= 67
-        'text-signal-positive'
-      elsif percent >= 34
-        'text-signal-warning'
-      else
-        'text-signal-negative'
-      end
+    if percent.nil?
+      # No value context (legend, Top 10 bar): flat identity color.
+      background = 'bg-sensor-autarky'
+      text = 'text-white dark:text-slate-400'
+    else
+      # With a value (radial badge, stats): neutral background, value colored by
+      # quality (red / orange / green).
+      background = 'xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800'
+      text =
+        if percent >= 67
+          'text-signal-positive'
+        elsif percent >= 34
+          'text-signal-warning'
+        else
+          'text-signal-negative'
+        end
+    end
 
     { background:, text:, border: '' }
   end
@@ -31,7 +37,40 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
 
   trend more_is_better: true, aggregation: :avg
 
-  aggregations stored: false, computed: [:avg], meta: [:avg]
+  # Averaged ratio: a partial period is misleading, so keep incomplete periods
+  # out of the Top 10 (complete_periods_only).
+  aggregations stored: false,
+               computed: [:avg],
+               meta: [:avg],
+               top10: {
+                 complete_periods_only: true,
+               }
 
   chart { |timeframe| Sensor::Chart::Autarky.new(timeframe:) }
+
+  def sql_calculation = autarky_sql(period: false)
+
+  # For period aggregations (week/month/year) sum the daily components first,
+  # then compute the ratio, instead of averaging daily autarky values.
+  def sql_calculation_period = autarky_sql(period: true)
+
+  private
+
+  # Autarky = share of consumption covered without the grid, floored at 0.
+  # NULLIF guards periods without any consumption.
+  def autarky_sql(period:)
+    total = total_consumption_sql(period:)
+    grid = sql_sum('COALESCE(grid_import_power_sum, 0)', period:)
+    "GREATEST((#{total} - #{grid}) * 100.0 / NULLIF(#{total}, 0), 0)"
+  end
+
+  # total_consumption is house_power plus the consumers excluded from it (heat
+  # pump, wallbox, opt-out custom sensors). Sum the summary fields it resolves to.
+  def total_consumption_sql(period:)
+    terms =
+      Sensor::Registry[:total_consumption].storable_fields.map do |field|
+        sql_sum("COALESCE(#{field}_sum, 0)", period:)
+      end
+    "(#{terms.join(' + ')})"
+  end
 end

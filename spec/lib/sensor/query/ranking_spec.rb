@@ -775,5 +775,138 @@ describe Sensor::Query::Ranking do
         end
       end
     end
+
+    context 'when using ratio sensor (autarky)' do
+      subject(:ranking) do
+        described_class.new(
+          sensor_name,
+          aggregation: :avg,
+          desc:,
+          period:,
+          start:,
+          stop:,
+        )
+      end
+
+      let(:sensor_name) { :autarky }
+      let(:period) { :day }
+      let(:desc) { true }
+      # A fully complete month, safely after installation and before today, so
+      # the complete-periods-only guard keeps both days/the month.
+      let(:start) { Date.new(2021, 6, 1) }
+      let(:stop) { Date.new(2021, 6, 30) }
+
+      before do
+        # autarky = (total_consumption - grid_import) / total_consumption * 100
+        # Day 1: (25 - 10) / 25 = 60 %
+        create_summary(
+          date: Date.new(2021, 6, 10),
+          values: [[:house_power, :sum, 25_000], [:grid_import_power, :sum, 10_000]],
+        )
+
+        # Day 2: (20 - 10) / 20 = 50 %
+        create_summary(
+          date: Date.new(2021, 6, 20),
+          values: [[:house_power, :sum, 20_000], [:grid_import_power, :sum, 10_000]],
+        )
+      end
+
+      it 'calculates the autarky ratio and returns ranking' do
+        result = call
+        expect(result.first).to eq(date: Date.new(2021, 6, 10), value: 60.0)
+        expect(result[1]).to eq(date: Date.new(2021, 6, 20), value: 50.0)
+      end
+
+      context 'when for months' do
+        let(:period) { :month }
+
+        it 'aggregates the ratio from summed components, not daily averages' do
+          # (25 + 20 - 10 - 10) / (25 + 20) = 25 / 45 = 55.5...%
+          result = call
+          expect(result.size).to eq(1)
+          expect(result[0][:date]).to eq(Date.new(2021, 6, 1))
+          expect(result[0][:value]).to be_within(0.01).of(55.56)
+        end
+      end
+
+      context 'when the latest period is incomplete' do
+        let(:period) { :year }
+        let(:start) { nil }
+        let(:stop) { nil }
+
+        before do
+          travel_to Date.new(2022, 7, 1) # mid-2022 => 2022 is incomplete
+
+          # 2021: complete year, 75 %
+          create_summary(
+            date: Date.new(2021, 6, 10),
+            values: [[:house_power, :sum, 20_000], [:grid_import_power, :sum, 5_000]],
+          )
+
+          # 2022: incomplete current year, 95 % - would win the ranking but must
+          # be excluded because averaged ratios need complete periods.
+          create_summary(
+            date: Date.new(2022, 3, 10),
+            values: [[:house_power, :sum, 10_000], [:grid_import_power, :sum, 500]],
+          )
+        end
+
+        it 'excludes the incomplete year even when sorting descending' do
+          expect(call.pluck(:date)).to eq([Date.new(2021, 1, 1)])
+        end
+      end
+    end
+
+    context 'when using ratio sensor (self_consumption_quote)' do
+      subject(:ranking) do
+        described_class.new(
+          sensor_name,
+          aggregation: :avg,
+          desc:,
+          period:,
+          start:,
+          stop:,
+        )
+      end
+
+      let(:sensor_name) { :self_consumption_quote }
+      let(:period) { :day }
+      let(:desc) { true }
+      let(:start) { Date.new(2021, 6, 1) }
+      let(:stop) { Date.new(2021, 6, 30) }
+
+      before do
+        # quote = (inverter - grid_export) / inverter * 100
+        # Day 1: (50 - 30) / 50 = 40 %
+        create_summary(
+          date: Date.new(2021, 6, 10),
+          values: [[:inverter_power, :sum, 50_000], [:grid_export_power, :sum, 30_000]],
+        )
+
+        # Day 2: (40 - 25) / 40 = 37.5 %
+        create_summary(
+          date: Date.new(2021, 6, 20),
+          values: [[:inverter_power, :sum, 40_000], [:grid_export_power, :sum, 25_000]],
+        )
+      end
+
+      it 'calculates the self-consumption quote and returns ranking' do
+        result = call
+        expect(result.first).to eq(date: Date.new(2021, 6, 10), value: 40.0)
+        expect(result[1]).to eq(date: Date.new(2021, 6, 20), value: 37.5)
+      end
+
+      context 'when for months' do
+        let(:period) { :month }
+
+        it 'aggregates the ratio from summed components, not daily averages' do
+          # (50 + 40 - 30 - 25) / (50 + 40) = 35 / 90 = 38.8...%
+          result = call
+          expect(result.size).to eq(1)
+          expect(result[0][:date]).to eq(Date.new(2021, 6, 1))
+          expect(result[0][:value]).to be_within(0.01).of(38.89)
+        end
+      end
+    end
   end
 end

@@ -107,11 +107,22 @@ module Sensor
         end
 
         # Aggregations
+        #
+        # +top10+ accepts +true+/+false+, or a Hash of options to both enable it
+        # and configure the ranking, e.g. `top10: { complete_periods_only: true }`.
         def aggregations(stored: nil, meta: nil, computed: nil, top10: false)
           meta_data[:summary_aggregations] = Array(stored) if stored
           meta_data[:summary_meta_aggregations] = Array(meta) if meta
           meta_data[:allowed_aggregations] = Array(computed) if computed
-          meta_data[:top10_enabled] = top10
+
+          if top10.is_a?(Hash)
+            meta_data[:top10_enabled] = true
+            meta_data[:top10_complete_periods_only] =
+              top10.fetch(:complete_periods_only, false)
+          else
+            meta_data[:top10_enabled] = top10
+            meta_data[:top10_complete_periods_only] = false
+          end
         end
 
         def top10_permitted(&block)

@@ -49,7 +49,7 @@ module Sensor
       private_constant :PERIOD_SQL
 
       def fetch_ranking_data
-        fields = storable_fields_for(sensor)
+        fields = sensor.storable_fields
         base_scope =
           SummaryValue.where(date: start..stop, field: fields, aggregation:)
 
@@ -115,19 +115,6 @@ module Sensor
         desc ? 'DESC' : 'ASC'
       end
 
-      # Recursively resolve sensor to fields that are actually stored in summary_values
-      def storable_fields_for(sensor, visited = Set.new)
-        return [sensor.name] if sensor.store_in_summary?
-        return [] if visited.include?(sensor.name)
-
-        sensor
-          .dependencies(context: :sql)
-          .flat_map do |dep|
-            storable_fields_for(Sensor::Registry[dep], visited + [sensor.name])
-          end
-          .uniq
-      end
-
       def calculate_date_range(start_param, stop_param)
         calculated_start = calculate_start(start_param)
         calculated_stop = calculate_stop(stop_param)
@@ -145,11 +132,18 @@ module Sensor
         end
       end
 
+      # Incomplete periods are skipped for ascending rankings (where a tiny
+      # partial period would otherwise win the "lowest" spot) and for sensors
+      # that opt in via +top10_complete_periods_only?+ (averaged ratios, whose
+      # partial values are misleading regardless of sort direction).
+      def exclude_incomplete_periods?
+        !desc || sensor.top10_complete_periods_only?
+      end
+
       def calculate_start(start_param)
         date = start_param || Rails.application.config.x.installation_date
-        return date if desc
+        return date unless exclude_incomplete_periods?
 
-        # For ascending rankings: always exclude incomplete periods
         beginning = date.public_send("beginning_of_#{period}")
 
         # If at period boundary and complete period, use it
@@ -165,9 +159,8 @@ module Sensor
 
       def calculate_stop(stop_param)
         date = stop_param || Date.current
-        return date if desc
+        return date unless exclude_incomplete_periods?
 
-        # For ascending: exclude incomplete period
         ending = date.public_send("end_of_#{period}")
 
         if date == ending && date < Date.current
@@ -269,7 +262,7 @@ module Sensor
             required_prices.merge(dep_sensor.required_prices)
           end
 
-          fields = storable_fields_for(dep_sensor)
+          fields = dep_sensor.storable_fields
           required_fields.merge(fields)
         end
 

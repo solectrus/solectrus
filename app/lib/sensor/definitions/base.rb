@@ -118,6 +118,16 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     evaluate_config_value(:top10_enabled, default: false)
   end
 
+  # Whether the Top 10 ranking must skip incomplete periods for this sensor,
+  # regardless of sort direction. Averaged ratio sensors (autarky,
+  # self-consumption quote) opt in via `top10: { complete_periods_only: true }`:
+  # a half-finished year can show an untypically high value that would wrongly
+  # top the ranking. Summed sensors don't need it -- a partial period just yields
+  # a smaller sum that naturally sorts low.
+  def top10_complete_periods_only?
+    evaluate_config_value(:top10_complete_periods_only, default: false)
+  end
+
   def top10_permitted?
     block = self.class.inherited_meta_data(:top10_permitted)
     return true unless block
@@ -171,6 +181,25 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
 
   def store_in_summary?
     summary_aggregations.any?
+  end
+
+  # The summary_values fields this sensor ultimately resolves to: itself when it
+  # is stored, otherwise the stored fields of its (transitive) SQL dependencies.
+  # Used to build ranking CTEs and derived SQL calculations.
+  def storable_fields(visited = Set.new)
+    return [name] if store_in_summary?
+    return [] if visited.include?(name)
+
+    dependencies(context: :sql)
+      .flat_map { |dep| Sensor::Registry[dep].storable_fields(visited + [name]) }
+      .uniq
+  end
+
+  # Ratio sensors compute their SQL over daily CTE rows. For period rankings the
+  # daily rows are summed before the ratio is taken, so a field expression must
+  # be wrapped in SUM(); for daily rankings it is used as-is.
+  def sql_sum(expr, period:)
+    period ? "SUM(#{expr})" : expr
   end
 
   def permitted?

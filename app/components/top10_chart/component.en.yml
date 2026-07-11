@@ -1,5 +1,5 @@
 en:
-  note_asc: Only complete periods are considered.
+  note_complete_periods: Only complete periods are considered.
   note_max: Maximum power (average over five minutes)
   blank: Not enough data available.
   house_power_max_not_possible: Sorry, the maximum house consumption cannot be calculated.

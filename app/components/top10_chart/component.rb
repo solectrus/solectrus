@@ -277,8 +277,14 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
   def note
     result = []
     result << t('.note_max') if calc.max?
-    result << t('.note_asc') if sort.asc?
+    result << t('.note_complete_periods') if complete_periods_only?
     safe_join(result, '. ')
+  end
+
+  # Incomplete periods are dropped for ascending rankings, and always for
+  # sensors that only make sense over complete periods (averaged ratios).
+  def complete_periods_only?
+    sort.asc? || sensor.top10_complete_periods_only?
   end
 
   def context
