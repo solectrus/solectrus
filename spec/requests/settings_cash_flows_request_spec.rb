@@ -287,6 +287,18 @@ describe 'Settings::CashFlows' do
 
         expect(Setting.enable_amortization).to be(false)
       end
+
+      it 'rejects an unknown visibility without changing the setting' do
+        Setting.enable_amortization = true
+
+        patch '/settings/cash_flows/visibility',
+              params: { setting: { amortization_visibility: 'bogus' } }
+
+        aggregate_failures do
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(Setting.enable_amortization).to be(true)
+        end
+      end
     end
 
     context 'when logged in as admin without sponsoring' do

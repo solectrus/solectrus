@@ -28,6 +28,8 @@ class Settings::CashFlowsController < ApplicationController
       Setting.amortization_public = false
     when 'none'
       Setting.enable_amortization = false
+    else
+      return head :unprocessable_content
     end
 
     # Renders visibility.turbo_stream.slim, which refreshes the flash and the
