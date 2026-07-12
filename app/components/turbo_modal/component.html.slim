@@ -2,14 +2,17 @@
   = tag.turbo_frame id: 'modal' do
     div data-controller='turbo-modal--component'
       / Native dialog for focus management and ESC key
+      / `overflow-clip` (not `hidden`, which is still a scroll container): while the
+      / panel is translated out of view, its transform overflow would otherwise make
+      / the dialog scroll to the bottom, cancelling out the slide-in animation.
       dialog[
-        class= 'fixed inset-0 m-0 p-0 border-0 bg-transparent max-w-none max-h-none w-full h-full flex items-end md:items-center justify-center overflow-y-auto z-50 backdrop:bg-transparent select-none'
+        class= 'fixed inset-0 m-0 p-0 border-0 bg-transparent max-w-none max-h-none w-full h-full flex items-end md:items-center justify-center overflow-clip z-50 backdrop:bg-transparent select-none'
         aria-labelledby= 'modal-title'
         data-action= 'click->turbo-modal--component#closeBackground cancel->turbo-modal--component#handleCancel turbo:submit-end->turbo-modal--component#submitEnd'
         data-turbo-modal--component-target= 'dialog'
       ]
         div[
-          class= 'relative text-gray-800 dark:text-gray-300 bg-white dark:bg-slate-800 rounded-t-lg md:rounded-lg px-4 pt-5 pb-10 text-left shadow-xl w-full md:max-w-3xl sm:p-6 opacity-0 translate-y-full max-h-[90vh] flex flex-col'
+          class= 'relative text-gray-800 dark:text-gray-300 bg-white dark:bg-slate-800 rounded-t-lg md:rounded-lg px-4 pt-5 pb-10 text-left shadow-xl w-full md:max-w-3xl sm:p-6 opacity-0 translate-y-full max-h-[90vh] flex flex-col overflow-y-auto'
           data-turbo-modal--component-target= 'inner'
           data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
           data-transition-enter-start= 'opacity-0 translate-y-full'
