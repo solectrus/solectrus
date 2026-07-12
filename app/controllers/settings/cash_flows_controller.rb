@@ -5,12 +5,14 @@ class Settings::CashFlowsController < ApplicationController
 
   before_action :load_cash_flow, only: %i[edit update destroy]
   before_action :new_cash_flow, only: %i[new create]
+  before_action :restore_filter, only: %i[create update destroy]
 
   # Optionally filtered by category and/or date range, so the amortization
   # table can drill down into the exact cash flows behind a cell (its category
   # within the PV year's date range).
   def index
     @cash_flows = filtered_cash_flows
+    remember_filter
   end
 
   # Set who may see the amortization calculation: everyone ('all'), admins only
@@ -42,7 +44,7 @@ class Settings::CashFlowsController < ApplicationController
 
   def create
     if @cash_flow.save
-      respond_with_flash notice: t('crud.success')
+      render_filtered_list
     else
       render :new, status: :unprocessable_content
     end
@@ -50,7 +52,7 @@ class Settings::CashFlowsController < ApplicationController
 
   def update
     if @cash_flow.update(permitted_params)
-      respond_with_flash notice: t('crud.success')
+      render_filtered_list
     else
       render :edit, status: :unprocessable_content
     end
@@ -58,10 +60,51 @@ class Settings::CashFlowsController < ApplicationController
 
   def destroy
     @cash_flow.destroy!
-    respond_with_flash notice: t('crud.success')
+    render_filtered_list
   end
 
   private
+
+  # Refresh the list straight from the mutating request (no Turbo broadcast, which
+  # could not know the viewer's filter). The filter, remembered from the last
+  # index render, stays applied so a new entry does not reveal the full list while
+  # the filter is still shown.
+  def render_filtered_list
+    flash.now[:notice] = t('crud.success')
+    render turbo_stream: [
+             turbo_stream.update(
+               'list',
+               partial: 'settings/cash_flows/list',
+               locals: {
+                 cash_flows: filtered_cash_flows,
+                 filter_categories:,
+                 filter_from:,
+                 filter_to:,
+               },
+             ),
+             turbo_stream_update_flash,
+           ]
+  end
+
+  # Persist the filter the index is currently showing, so a later mutation (which
+  # carries no filter params of its own) can re-apply the same one.
+  def remember_filter
+    session[:cash_flow_filter] = {
+      category: filter_categories,
+      from: filter_from&.iso8601,
+      to: filter_to&.iso8601,
+    }
+  end
+
+  # Load the remembered filter into the ivars the filter helpers memoize, so a
+  # mutation re-renders the list with the filter the user still sees.
+  def restore_filter
+    stored = session[:cash_flow_filter].to_h.with_indifferent_access
+    @filter_categories =
+      Array(stored[:category]).map(&:to_s) & CashFlow.categories.keys
+    @filter_from = parse_date(stored[:from])
+    @filter_to = parse_date(stored[:to])
+  end
 
   def filtered_cash_flows
     scope = CashFlow.ordered

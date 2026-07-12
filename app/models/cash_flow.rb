@@ -62,15 +62,6 @@ class CashFlow < ApplicationRecord
 
   scope :ordered, -> { order(date: :desc, created_at: :desc) }
 
-  after_commit do
-    broadcast_update_to 'cash_flows',
-                        partial: 'settings/cash_flows/list',
-                        target: 'list',
-                        locals: {
-                          cash_flows: CashFlow.ordered,
-                        }
-  end
-
   private
 
   def infer_category_from_sign

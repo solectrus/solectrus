@@ -35,7 +35,7 @@ describe 'Cash flow settings' do
 
       expect(page).to have_text('Gespeichert')
 
-      visit '/settings/cash_flows'
+      # The list refreshes in place, without reloading the page.
       expect(page).to have_text('Wechselrichter')
       expect(page).to have_text('5.000')
     end

@@ -153,6 +153,46 @@ describe 'Settings::CashFlows' do
         expect(CashFlow.last.amount).to eq(-5000)
       end
 
+      it 'refreshes the list in place' do
+        post '/settings/cash_flows', params: valid_params, as: :turbo_stream
+
+        aggregate_failures do
+          expect(response.body).to include(
+            'turbo-stream action="update" target="list"',
+          )
+          expect(response.body).to include('PV system')
+        end
+      end
+
+      it 'keeps an active filter applied after creating an entry' do
+        CashFlow.create!(
+          date: Date.new(2021, 3, 1),
+          amount: -5000,
+          category: 'investment',
+          note: 'Panels',
+        )
+
+        # Viewing the filtered list remembers the filter for the next mutation.
+        get '/settings/cash_flows', params: { category: 'investment' }
+
+        # The new subsidy is outside the active filter.
+        post '/settings/cash_flows',
+             params: {
+               cash_flow: {
+                 date: '2021-05-01',
+                 amount: '800',
+                 note: 'Grant',
+                 category: 'subsidy',
+               },
+             },
+             as: :turbo_stream
+
+        aggregate_failures do
+          expect(response.body).to include('Panels')
+          expect(response.body).not_to include('Grant')
+        end
+      end
+
       it 'rejects a zero amount' do
         post '/settings/cash_flows',
              params: {
