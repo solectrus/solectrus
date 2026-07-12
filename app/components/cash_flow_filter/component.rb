@@ -13,11 +13,6 @@ class CashFlowFilter::Component < ViewComponent::Base
            :filter_active?,
            to: :helpers
 
-  # One label per selected category, in canonical enum order.
-  def category_labels
-    filter_categories.map { |key| CashFlow.human_enum_name(:category, key) }
-  end
-
   # The active date bounds as one readable range, or nil when neither is set.
   def date_range
     return if filter_from.nil? && filter_to.nil?

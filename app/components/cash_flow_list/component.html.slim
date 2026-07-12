@@ -20,7 +20,7 @@
               = l cash_flow.date
           .hidden.sm:table-cell.align-middle.p-2.w-1.whitespace-nowrap
             .inline-flex.items-center.gap-1.5
-              span class=category_pill_class(cash_flow) = category_label(cash_flow)
+              = render CashFlowCategoryPill::Component.new(category: cash_flow.category)
               - if filterable?(cash_flow)
                 = link_to filter_path(cash_flow),
                           class: 'text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity',

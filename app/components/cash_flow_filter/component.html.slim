@@ -1,18 +1,17 @@
 - if filter_active?
   .flex.flex-wrap.items-center.gap-x-3.gap-y-2.mb-6.rounded-lg.px-3.py-2.bg-indigo-50.dark:bg-indigo-950/40.ring-1.ring-inset.ring-indigo-100.dark:ring-indigo-900
-    span.inline-flex.items-center.gap-1.5.text-xs.font-semibold.uppercase.tracking-wide.text-indigo-600.dark:text-indigo-400
+    span.inline-flex.items-center.gap-1.5.text-xs.font-semibold.uppercase.tracking-wide.text-indigo-600.dark:text-indigo-300
       i.fa.fa-filter
       = t('settings.cash_flows.filtered_by')
     .flex.flex-wrap.items-center.gap-1.5.mr-auto
-      - category_labels.each do |label|
-        span.inline-flex.items-center.rounded-full.px-2.5.py-0.5.text-sm.whitespace-nowrap.bg-white.dark:bg-gray-900.text-gray-700.dark:text-gray-200.ring-1.ring-inset.ring-gray-200.dark:ring-gray-700
-          = label
+      - filter_categories.each do |category|
+        = render CashFlowCategoryPill::Component.new(category:)
       - if date_range
         span.inline-flex.items-center.gap-1.5.rounded-full.px-2.5.py-0.5.text-sm.whitespace-nowrap.bg-white.dark:bg-gray-900.text-gray-700.dark:text-gray-200.ring-1.ring-inset.ring-gray-200.dark:ring-gray-700
           i.far.fa-calendar.text-xs.text-gray-400.dark:text-gray-500
           = date_range
     = link_to helpers.settings_cash_flows_path,
-              class: 'inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/50',
+              class: 'inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50',
               data: { turbo_frame: '_top' } do
       i.fa.fa-xmark
       = t('settings.cash_flows.clear_filter')
