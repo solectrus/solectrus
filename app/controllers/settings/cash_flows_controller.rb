@@ -5,7 +5,6 @@ class Settings::CashFlowsController < ApplicationController
 
   before_action :load_cash_flow, only: %i[edit update destroy]
   before_action :new_cash_flow, only: %i[new create]
-  before_action :restore_filter, only: %i[create update destroy]
 
   # Optionally filtered by category and/or date range, so the amortization
   # table can drill down into the exact cash flows behind a cell (its category
@@ -96,14 +95,17 @@ class Settings::CashFlowsController < ApplicationController
     }
   end
 
-  # Load the remembered filter into the ivars the filter helpers memoize, so a
-  # mutation re-renders the list with the filter the user still sees.
-  def restore_filter
-    stored = session[:cash_flow_filter].to_h.with_indifferent_access
-    @filter_categories =
-      Array(stored[:category]).map(&:to_s) & CashFlow.categories.keys
-    @filter_from = parse_date(stored[:from])
-    @filter_to = parse_date(stored[:to])
+  # Where the filter helpers read from. A mutation carries no filter params, so it
+  # falls back to the filter remembered from the last index render; every other
+  # action reads the live request params. Both sources share the same keys, so the
+  # helpers below stay identical regardless of the source.
+  def filter_source
+    @filter_source ||=
+      if action_name.in?(%w[create update destroy])
+        session[:cash_flow_filter].to_h.with_indifferent_access
+      else
+        params
+      end
   end
 
   def filtered_cash_flows
@@ -120,15 +122,15 @@ class Settings::CashFlowsController < ApplicationController
   # so an unexpected param can't reach the query.
   helper_method def filter_categories
     @filter_categories ||=
-      Array(params[:category]).map(&:to_s) & CashFlow.categories.keys
+      Array(filter_source[:category]).map(&:to_s) & CashFlow.categories.keys
   end
 
   helper_method def filter_from
-    @filter_from ||= parse_date(params[:from])
+    @filter_from ||= parse_date(filter_source[:from])
   end
 
   helper_method def filter_to
-    @filter_to ||= parse_date(params[:to])
+    @filter_to ||= parse_date(filter_source[:to])
   end
 
   helper_method def filter_active?
