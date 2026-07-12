@@ -29,9 +29,9 @@ class Sensor::Data::Base
   end
 
   def sensor_names
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError
-    # :nocov:
+    # simplecov:enable
   end
 
   # Uniform sensor accessor creation for all subclasses

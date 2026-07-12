@@ -1,5 +1,5 @@
-# :nocov:
+# simplecov:disable
 class MyPreviewController < ApplicationController
   include ViewComponent::PreviewActions
 end
-# :nocov:
+# simplecov:enable

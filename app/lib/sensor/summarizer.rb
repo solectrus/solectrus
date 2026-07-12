@@ -43,9 +43,9 @@ module Sensor
         # Race condition: Another job has created the summary in the meantime
         # We can safely ignore this error
         #
-        # :nocov:
+        # simplecov:disable
         Rails.logger.warn("Summary for #{date} already exists.")
-        # :nocov:
+        # simplecov:enable
       end
     end
 

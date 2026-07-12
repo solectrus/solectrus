@@ -15,24 +15,24 @@ class Sensor::Definitions::FinanceBase < Sensor::Definitions::Base
 
   # Required price types (electricity, feed_in) - must be implemented by subclasses
   def required_prices
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError, 'Subclass must implement #required_prices'
-    # :nocov:
+    # simplecov:enable
   end
 
   # SQL calculation expression - must be implemented by subclasses
   # Available variables: s (sums table), pb (electricity price), pf (feed_in price)
   def sql_calculation
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError, 'Subclass must implement #sql_calculation'
-    # :nocov:
+    # simplecov:enable
   end
 
   # Ruby calculation for InfluxDB contexts - must be implemented by subclasses
   def calculate_with_prices(dependencies:, electricity_price:, feed_in_price:)
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError, 'Subclass must implement #calculate_with_prices'
-    # :nocov:
+    # simplecov:enable
   end
 
   # Helper method to check if this finance definition needs a specific price type

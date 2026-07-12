@@ -552,9 +552,9 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   # Returns array of sensor names to fetch data for - MUST be implemented by subclasses
   def chart_sensor_names
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError, 'Subclasses must implement chart_sensor_names'
-    # :nocov:
+    # simplecov:enable
   end
 
   # Returns array of sensor definitions used for datasets
