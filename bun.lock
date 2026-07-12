@@ -7,7 +7,7 @@
       "dependencies": {
         "@floating-ui/dom": "^1.7.6",
         "@fontsource-variable/inter": "^5.2.8",
-        "@formkit/auto-animate": "^0.9.0",
+        "@formkit/auto-animate": "^0.10.0",
         "@fortawesome/fontawesome-svg-core": "^7.3.0",
         "@fortawesome/free-brands-svg-icons": "^7.3.0",
         "@fortawesome/free-regular-svg-icons": "^7.3.0",
@@ -82,7 +82,7 @@
 
     "@fontsource-variable/inter": ["@fontsource-variable/inter@5.2.8", "", {}, "sha512-kOfP2D+ykbcX/P3IFnokOhVRNoTozo5/JxhAIVYLpea/UBmCQ/YWPBfWIDuBImXX/15KH+eKh4xpEUyS2sQQGQ=="],
 
-    "@formkit/auto-animate": ["@formkit/auto-animate@0.9.0", "", {}, "sha512-VhP4zEAacXS3dfTpJpJ88QdLqMTcabMg0jwpOSxZ/VzfQVfl3GkZSCZThhGC5uhq/TxPHPzW0dzr4H9Bb1OgKA=="],
+    "@formkit/auto-animate": ["@formkit/auto-animate@0.10.0", "", {}, "sha512-KGomRttjUfORuPUaR/ZGQw+6xfMrTM+sxnILv7JAd9AmabU9rg9i6gF/iC0Ih+QpKCubJpCA/1DX9UHKE8cX+A=="],
 
     "@fortawesome/fontawesome-common-types": ["@fortawesome/fontawesome-common-types@7.3.0", "", {}, "sha512-X/vND0Y1l9fVJ9O79UgtZnXSpz4aNF3bXlDxiJAEAm6kgeSftp9wjjBPgqzazJV8YlmxfRoeXNfSCJ48sf/Hhw=="],
 
