@@ -104,6 +104,22 @@ describe 'Settings::CashFlows' do
           end
         end
 
+        it 'offers a per-row link to filter by the row category' do
+          get '/settings/cash_flows'
+
+          expect(response.body).to include(
+            'href="/settings/cash_flows?category=investment"',
+          )
+        end
+
+        it 'omits the row link for the category already filtered alone' do
+          get '/settings/cash_flows', params: { category: 'investment' }
+
+          expect(response.body).not_to include(
+            'href="/settings/cash_flows?category=investment"',
+          )
+        end
+
         it 'ignores an unknown category and shows the full list' do
           get '/settings/cash_flows', params: { category: 'bogus' }
 

@@ -14,12 +14,20 @@
 
     .table-row-group.text-gray-800.dark:text-gray-400
       - cash_flows.each do |cash_flow|
-        .table-row.hover:bg-gray-100.dark:hover:bg-gray-700
+        .table-row.group.hover:bg-gray-100.dark:hover:bg-gray-700
           .table-cell.align-middle.p-2.tabular-nums.text-left.w-1.whitespace-nowrap
             time datetime= cash_flow.date.iso8601
               = l cash_flow.date
           .hidden.sm:table-cell.align-middle.p-2.w-1.whitespace-nowrap
-            span class=category_pill_class(cash_flow) = category_label(cash_flow)
+            .inline-flex.items-center.gap-1.5
+              span class=category_pill_class(cash_flow) = category_label(cash_flow)
+              - if filterable?(cash_flow)
+                = link_to filter_path(cash_flow),
+                          class: 'text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity',
+                          data: { turbo_frame: '_top', controller: 'tooltip' },
+                          title: t('.filter_by_category'),
+                          'aria-label': t('.filter_by_category') do
+                  i.fa.fa-chevron-right.text-xs
           .table-cell.w-full.align-middle.p-2.text-gray-500.text-sm
             span.hidden.md:inline = cash_flow.note
           .table-cell.align-middle.p-2.tabular-nums.text-right.w-1.whitespace-nowrap class=amount_color(cash_flow.amount)

@@ -1,1 +1,1 @@
-= render CashFlowList::Component.new(cash_flows:)
+= render CashFlowList::Component.new(cash_flows:, filter_categories: local_assigns.fetch(:filter_categories, []), filter_from: local_assigns.fetch(:filter_from, nil), filter_to: local_assigns.fetch(:filter_to, nil))

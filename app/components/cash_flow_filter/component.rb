@@ -1,7 +1,8 @@
-# Read-only notice above the cash-flow list, shown only when the list arrived
-# pre-filtered through a drill-down link from the amortization table. There is
-# deliberately no UI to define a filter by hand (that proved unusable on mobile);
-# the single action offered is to clear it and return to the full list. Rendered
+# Read-only notice above the cash-flow list, shown only when the list is
+# filtered - either through a drill-down link from the amortization table or the
+# per-row category chevrons in the list itself. There is deliberately no UI to
+# compose a filter from scratch (date pickers proved unusable on mobile); the
+# single action offered here is to clear it and return to the full list. Rendered
 # outside the 'list' Turbo frame so a broadcast refresh does not drop the filter.
 # The effective filter values are owned by the controller (validated there) and
 # read back through the exposed helper methods.
