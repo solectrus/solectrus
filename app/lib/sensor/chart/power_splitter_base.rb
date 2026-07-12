@@ -65,21 +65,21 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
 
   # Subclasses must implement these methods to define sensor names
   def base_sensor_name
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError, 'Subclass must implement #base_sensor_name'
-    # :nocov:
+    # simplecov:enable
   end
 
   def grid_sensor_name
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError, 'Subclass must implement #grid_sensor_name'
-    # :nocov:
+    # simplecov:enable
   end
 
   def pv_sensor_name
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError, 'Subclass must implement #pv_sensor_name'
-    # :nocov:
+    # simplecov:enable
   end
 
   def build_main_dataset(chart_data_item)

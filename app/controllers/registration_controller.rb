@@ -24,9 +24,9 @@ class RegistrationController < ApplicationController
 
   def registration_domain
     if Rails.env.development?
-      # :nocov:
+      # simplecov:disable
       'registration.solectrus.localhost'
-      # :nocov:
+      # simplecov:enable
     else
       'registration.solectrus.de'
     end

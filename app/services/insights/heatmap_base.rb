@@ -16,23 +16,23 @@ class Insights::HeatmapBase
 
   # Abstract method - must be implemented by subclasses
   def valid_timeframe?
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError
-    # :nocov:
+    # simplecov:enable
   end
 
   # Abstract method - must be implemented by subclasses
   def build_data
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError
-    # :nocov:
+    # simplecov:enable
   end
 
   # Abstract method - subclasses define their grouping dimensions
   def grouping_expressions
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError
-    # :nocov:
+    # simplecov:enable
   end
 
   # Generic base_scope implementation
@@ -181,9 +181,9 @@ class Insights::HeatmapBase
 
   # Abstract method - subclasses define their date dimensions
   def date_dimensions
-    # :nocov:
+    # simplecov:disable
     raise NotImplementedError
-    # :nocov:
+    # simplecov:enable
   end
 
   # Generic data processing based on dimensions

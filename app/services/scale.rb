@@ -21,10 +21,10 @@ class Scale
         (extent * (Math.log(value)**FACTOR) / (Math.log(max)**FACTOR))
 
     if result.nan?
-      # :nocov:
+      # simplecov:disable
       Rails.logger.info "WARNING: Invalid input, cannot scale: value=#{value}, max=#{max}, target=#{target}"
       lower_bound
-      # :nocov:
+      # simplecov:enable
     else
       result.round
     end

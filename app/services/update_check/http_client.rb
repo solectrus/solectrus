@@ -53,9 +53,9 @@ class UpdateCheck::HttpClient
 
   def update_url
     if Rails.env.development?
-      # :nocov:
+      # simplecov:disable
       'https://update.solectrus.localhost'
-      # :nocov:
+      # simplecov:enable
     else
       'https://update.solectrus.de'
     end
@@ -63,9 +63,9 @@ class UpdateCheck::HttpClient
 
   def verify_mode
     if Rails.env.production?
-      # :nocov:
+      # simplecov:disable
       OpenSSL::SSL::VERIFY_PEER
-      # :nocov:
+      # simplecov:enable
     else
       OpenSSL::SSL::VERIFY_NONE
     end

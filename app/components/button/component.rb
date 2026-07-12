@@ -10,10 +10,10 @@ class Button::Component < ViewComponent::Base
     super()
 
     if title.nil? && icon.nil?
-      # :nocov:
+      # simplecov:disable
       raise ArgumentError,
             'You must provide either a title or an icon (or both)'
-      # :nocov:
+      # simplecov:enable
     end
 
     @path = path
@@ -35,9 +35,9 @@ class Button::Component < ViewComponent::Base
     when :submit
       :button_tag
     else
-      # :nocov:
+      # simplecov:disable
       raise ArgumentError, 'Type must be :link, :button or :submit'
-      # :nocov:
+      # simplecov:enable
     end
   end
 

@@ -31,16 +31,16 @@ module Sensor
       protected
 
       def fetch_raw_data
-        # :nocov:
+        # simplecov:disable
         raise NotImplementedError, 'Subclasses must implement #fetch_raw_data'
-        # :nocov:
+        # simplecov:enable
       end
 
       def create_data_instance(raw_data, timeframe)
-        # :nocov:
+        # simplecov:disable
         raise NotImplementedError,
               'Subclasses must implement #create_data_instance'
-        # :nocov:
+        # simplecov:enable
       end
 
       def required_sensor_names
