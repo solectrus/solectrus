@@ -7,4 +7,4 @@ de:
   total_years: '%{total} Jahren'
   not_within_period: Amortisation nicht innerhalb der Laufzeit
   no_prognosis_title: Noch keine Prognose möglich
-  no_prognosis: Für die Amortisationsrechnung werden gemessene Ersparnisse und mindestens eine erfasste Investition benötigt. Bitte Preise konfigurieren und Zahlungsströme in den Einstellungen erfassen.
+  no_prognosis: Für die Amortisationsrechnung werden gemessene Ersparnisse und mindestens eine erfasste Investition benötigt. Bitte Preise konfigurieren und Zahlungen in den Einstellungen erfassen.

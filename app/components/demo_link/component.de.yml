@@ -25,7 +25,7 @@ de:
     description: Zeigt die Top 10 der Tage, Wochen, Monate oder Jahre mit den höchsten Kosten, Einnahmen oder Einsparungen.
   amortization:
     title: Amortisationsrechnung
-    description: Zeigt auf Basis der erfassten Zahlungsströme und der gemessenen Ersparnis, wann sich die PV-Anlage amortisiert – mit Kennzahlen und Diagramm über die gesamte Laufzeit.
+    description: Zeigt auf Basis der erfassten Zahlungen und der gemessenen Ersparnis, wann sich die PV-Anlage amortisiert – mit Kennzahlen und Diagramm über die gesamte Laufzeit.
   sponsoring_only: Exklusiv für Sponsoren
   demo: Demo
   about_sponsoring: Wie wird man Sponsor?
