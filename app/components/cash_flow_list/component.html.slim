@@ -1,16 +1,18 @@
 - if cash_flows.any?
   .table.w-full.select-text
+    / Header cells stick to the viewport top while the list scrolls. Each cell
+    / carries the page background so rows never show through the sticky row.
     .table-header-group.text-gray-800.dark:text-gray-400
       .table-row
-        .table-cell.align-middle.p-2.tabular-nums.text-left.font-bold
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.tabular-nums.text-left.font-bold
           = CashFlow.human_attribute_name(:date)
-        .hidden.sm:table-cell.align-middle.p-2.text-left.font-bold
+        .hidden.sm:table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.text-left.font-bold
           = CashFlow.human_attribute_name(:category)
-        .table-cell.w-full.align-middle.p-2.text-left.font-bold
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.w-full.align-middle.p-2.text-left.font-bold
           span.hidden.md:inline = CashFlow.human_attribute_name(:note)
-        .table-cell.align-middle.p-2.tabular-nums.text-right.font-bold
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.tabular-nums.text-right.font-bold
           = CashFlow.human_attribute_name(:amount)
-        .table-cell
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900
 
     .table-row-group.text-gray-800.dark:text-gray-400
       - cash_flows.each do |cash_flow|
