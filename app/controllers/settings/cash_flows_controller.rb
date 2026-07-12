@@ -158,7 +158,15 @@ class Settings::CashFlowsController < ApplicationController
       if params[:cash_flow]
         CashFlow.new(permitted_params)
       else
-        CashFlow.new(date: Date.current)
+        CashFlow.new(date: Date.current, category: default_category)
       end
+  end
+
+  # Pre-select the filtered category for a new entry. A group drill-down covers
+  # several categories at once; the first one is used as the default.
+  def default_category
+    Array(
+      session[:cash_flow_filter].to_h.with_indifferent_access[:category],
+    ).first
   end
 end

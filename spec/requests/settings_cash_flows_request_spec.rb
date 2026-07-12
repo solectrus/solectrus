@@ -112,6 +112,24 @@ describe 'Settings::CashFlows' do
           )
         end
 
+        it 'preselects a single active category filter in the new form' do
+          get '/settings/cash_flows', params: { category: 'investment' }
+          get '/settings/cash_flows/new'
+
+          expect(response.body).to include(
+            'selected="selected" value="investment"',
+          )
+        end
+
+        it 'preselects the first category of a group filter' do
+          get '/settings/cash_flows', params: { category: %w[repair investment] }
+          get '/settings/cash_flows/new'
+
+          expect(response.body).to include(
+            'selected="selected" value="repair"',
+          )
+        end
+
         it 'omits the row link for the category already filtered alone' do
           get '/settings/cash_flows', params: { category: 'investment' }
 
