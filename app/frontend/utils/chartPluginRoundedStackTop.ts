@@ -9,6 +9,13 @@ const DEFAULT_RADIUS = 3;
 // split are sized to touch exactly. Only the unit's outer corners get rounded.
 const MERGE_GAP = 2;
 
+// Skip rounding entirely on charts with more columns than this. Beyond it the
+// bars get too thin for the corner radius to show (e.g. 365 daily columns are a
+// few px wide), while the per-bar-dataset clip below would run once per bar
+// dataset every frame -- wasted work on exactly the densest charts. Months
+// (<=31 columns) and shorter still round.
+const MAX_ROUNDED_COLUMNS = 31;
+
 type Tower = { left: number; right: number; top: number };
 
 // Chart.js only rounds the topmost segment of a stacked bar (the highest
@@ -27,9 +34,16 @@ type Tower = { left: number; right: number; top: number };
 export function buildRoundedStackTopPlugin(): Plugin {
   return {
     id: 'roundedStackTop',
-    beforeDatasetsDraw(chart: Chart) {
+    // Clip per bar dataset, not around the whole datasets-draw phase: a phase-
+    // wide clip (beforeDatasetsDraw) also clips line datasets drawn in the same
+    // phase -- e.g. the forecast temperature curve -- down to the thin bar
+    // columns, hiding them.
+    beforeDatasetDraw(chart: Chart, args: { meta: { type: string } }) {
+      if (args.meta.type !== 'bar') return;
+      if ((chart.data.labels?.length ?? 0) > MAX_ROUNDED_COLUMNS) return;
+
       const { ctx, chartArea } = chart;
-      // Save unconditionally so afterDatasetsDraw can restore unconditionally --
+      // Save unconditionally so afterDatasetDraw can restore unconditionally --
       // save/restore stay balanced even when there is nothing to clip.
       ctx.save();
 
@@ -108,7 +122,10 @@ export function buildRoundedStackTopPlugin(): Plugin {
 
       ctx.clip();
     },
-    afterDatasetsDraw(chart: Chart) {
+    afterDatasetDraw(chart: Chart, args: { meta: { type: string } }) {
+      if (args.meta.type !== 'bar') return;
+      if ((chart.data.labels?.length ?? 0) > MAX_ROUNDED_COLUMNS) return;
+
       chart.ctx.restore();
     },
   };
