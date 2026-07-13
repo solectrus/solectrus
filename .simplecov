@@ -1,10 +1,7 @@
-require 'simplecov_json_formatter'
-
 # Configuration only; coverage tracking is started explicitly via
 # `SimpleCov.start 'rails'` in spec/rails_helper.rb (SimpleCov 1.0+).
-# The collate task supplies its own formatter, so skip this config there.
-return if ENV['SIMPLECOV_COLLATE_ONLY']
-
+# Loaded on `require "simplecov"`, so `rake coverage:merge` picks up the
+# same groups and filters for the merged report.
 SimpleCov.configure do
   # Enable merging of coverage results from multiple test runs
   merging true
@@ -12,13 +9,6 @@ SimpleCov.configure do
 
   # Set command name from ENV or use default
   command_name ENV.fetch('COVERAGE_NAME', 'RSpec')
-
-  formatter SimpleCov::Formatter::MultiFormatter.new(
-              [
-                SimpleCov::Formatter::JSONFormatter,
-                SimpleCov::Formatter::HTMLFormatter,
-              ],
-            )
 
   group 'Services', 'app/services'
   group 'Components', 'app/components'

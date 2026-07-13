@@ -2,10 +2,7 @@ namespace :coverage do
   desc 'Merge coverage results from multiple test runs'
 
   task :merge do # rubocop:disable Rails/RakeEnvironment
-    # Prevent .simplecov from auto-starting coverage tracking
-    ENV['SIMPLECOV_COLLATE_ONLY'] = '1'
     require 'simplecov'
-    require 'simplecov_json_formatter'
 
     # Find all coverage result files (uploaded as coverage/ folders)
     coverage_files = Dir['coverage-parts/**/.resultset.json']
@@ -17,14 +14,9 @@ namespace :coverage do
     puts "Merging #{coverage_files.size} coverage files..."
     coverage_files.each { |f| puts "  - #{f}" }
 
-    SimpleCov.collate(coverage_files) do
-      formatter SimpleCov::Formatter::MultiFormatter.new(
-        [
-          SimpleCov::Formatter::JSONFormatter,
-          SimpleCov::Formatter::HTMLFormatter,
-        ],
-      )
-    end
+    # Formatter, groups and filters come from .simplecov. Writes the merged
+    # coverage/.resultset.json that CI uploads to Qlty.
+    SimpleCov.collate(coverage_files)
 
     puts 'Coverage merged successfully!'
   end
