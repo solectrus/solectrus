@@ -34,15 +34,12 @@ class Sensor::Data::Base
     # simplecov:enable
   end
 
-  # Uniform sensor accessor creation for all subclasses
-  def define_sensor_accessors
-    # Clear cached sensor names to ensure we get the current state
-    @sensor_names = nil
-    sensor_names.each do |sensor_name|
-      define_singleton_method(sensor_name) do |*args|
-        get_sensor_value(sensor_name, args)
-      end
-    end
+  # Adds a sensor value (a calculated one -- the stored sensors come in through
+  # the constructor) and publishes its accessor in the same step, so raw_data
+  # and the accessors cannot drift apart.
+  def store_sensor_value(sensor_name, value)
+    raw_data[sensor_name] = value
+    publish_sensor(sensor_name)
   end
 
   def convert_value(raw_value, sensor_name)
@@ -62,6 +59,25 @@ class Sensor::Data::Base
   end
 
   private
+
+  # Uniform sensor accessor creation for all subclasses
+  def define_sensor_accessors
+    # Clear cached sensor names to ensure we get the current state
+    @sensor_names = nil
+    sensor_names.each { |sensor_name| publish_sensor(sensor_name) }
+  end
+
+  # Makes a single sensor readable. Publishing one new sensor by redefining every
+  # accessor is what dominated the cost of a chart series, where this happens per
+  # data point and calculated sensor.
+  def publish_sensor(sensor_name)
+    # The name list is derived from raw_data, which may just have gained a key
+    @sensor_names = nil
+
+    define_singleton_method(sensor_name) do |*args|
+      get_sensor_value(sensor_name, args)
+    end
+  end
 
   # Subclasses must implement this method
   def get_sensor_value(sensor_name, args)

@@ -88,10 +88,7 @@ module Sensor
 
         if data.is_a?(Sensor::Data::Series)
           # Process all calculated sensors for each point once
-          data.points.each do |point|
-            process_calculated_sensors_for_point(point)
-            point.define_sensor_accessors
-          end
+          data.points.each { |point| process_calculated_sensors_for_point(point) }
 
           # For series data, also create series-level accessors for calculated sensors
           # This aggregates the calculated values from all points into time series
@@ -101,7 +98,6 @@ module Sensor
         else
           # Single/Aggregation: process all calculated sensors
           process_calculated_sensors_for_point(data)
-          data.define_sensor_accessors
         end
       end
 
@@ -117,10 +113,13 @@ module Sensor
         return if sensor_has_sql_result?(point, sensor_name)
 
         dependency_values = extract_dependency_values(point, sensor)
-        point.raw_data[sensor_name] = calculated_value(sensor, dependency_values)
 
-        # Refresh accessors after each calculation to make new sensor available for next calculations
-        point.define_sensor_accessors
+        # Storing publishes the accessor, so the sensors calculated next can
+        # depend on this value (DependencyResolver ordered them accordingly)
+        point.store_sensor_value(
+          sensor_name,
+          calculated_value(sensor, dependency_values),
+        )
       end
 
       # Seam for queries that calculate sensors the generic `calculate` block
@@ -157,10 +156,13 @@ module Sensor
         end
       end
 
+      # Rebuilt for every data point otherwise, and the sensors of a query
+      # cannot change while it runs.
       def calculated_sensors
-        required_sensor_names.select do |sensor_name|
-          should_calculate_sensor?(sensor_name)
-        end
+        @calculated_sensors ||=
+          required_sensor_names.select do |sensor_name|
+            should_calculate_sensor?(sensor_name)
+          end
       end
 
       def should_calculate_sensor?(sensor_name)
