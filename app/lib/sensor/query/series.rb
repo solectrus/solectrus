@@ -4,6 +4,10 @@ module Sensor
     # to 30s for the P1H (last hour) timeframe and 5m otherwise; callers can
     # override `interval:` to drive forecast, scatter and similar charts.
     class Series < Helpers::Influx::Base
+      # Turns power into money per data point (grid_costs, savings, ...), so the
+      # finance charts don't have to redo the calculation for short timeframes.
+      include Helpers::Influx::FinanceCalculation
+
       # Maps the requested aggregation to the Flux `aggregateWindow` function.
       AGGREGATION_FLUX_FUNCTIONS = {
         avg: 'mean',

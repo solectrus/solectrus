@@ -117,12 +117,16 @@ module Sensor
         return if sensor_has_sql_result?(point, sensor_name)
 
         dependency_values = extract_dependency_values(point, sensor)
-        calculated_value =
-          sensor.calculate(**dependency_values, context: query_type)
-        point.raw_data[sensor_name] = calculated_value
+        point.raw_data[sensor_name] = calculated_value(sensor, dependency_values)
 
         # Refresh accessors after each calculation to make new sensor available for next calculations
         point.define_sensor_accessors
+      end
+
+      # Seam for queries that calculate sensors the generic `calculate` block
+      # doesn't cover, see Helpers::Influx::FinanceCalculation.
+      def calculated_value(sensor, dependency_values)
+        sensor.calculate(**dependency_values, context: query_type)
       end
 
       def extract_dependency_values(point, sensor)

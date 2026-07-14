@@ -28,8 +28,4 @@ class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
 
     "(#{grid_costs_calc}) + (#{opportunity_costs_calc})"
   end
-
-  def calculate_with_prices(grid_costs:, opportunity_costs:, **)
-    grid_costs + opportunity_costs if grid_costs && opportunity_costs
-  end
 end

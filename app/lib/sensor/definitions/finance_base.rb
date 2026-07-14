@@ -28,8 +28,10 @@ class Sensor::Definitions::FinanceBase < Sensor::Definitions::Base
     # simplecov:enable
   end
 
-  # Ruby calculation for InfluxDB contexts - must be implemented by subclasses
-  def calculate_with_prices(dependencies:, electricity_price:, feed_in_price:)
+  # Ruby calculation for InfluxDB contexts - must be implemented by subclasses.
+  # Receives the sensor's dependencies as keywords, plus the prices it declared
+  # in #required_prices, keyed by price type.
+  def calculate_with_prices(prices:, **)
     # simplecov:disable
     raise NotImplementedError, 'Subclass must implement #calculate_with_prices'
     # simplecov:enable

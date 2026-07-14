@@ -27,6 +27,8 @@ module Sensor
         #   data.case_temp    # => 23.5
         #   data.battery_soc  # => 95.0
         class Total < Base
+          include FinanceCalculation
+
           def initialize(timeframe, &block)
             unless block
               raise ArgumentError, 'Block required for DSL configuration'
@@ -51,48 +53,10 @@ module Sensor
 
           attr_reader :sensor_requests
 
-          # Override to load prices once for finance sensors
-          def call
-            @prices = prices_for_finance_sensors
-            super
-          end
-
           protected
 
           def create_data_instance(raw_data, timeframe)
             Sensor::Data::Single.new(raw_data[:payload], timeframe:)
-          end
-
-          # Override to handle FinanceBase sensors (call calculate_with_prices with prices)
-          def process_single_calculated_sensor(point, sensor_name)
-            sensor = Sensor::Registry[sensor_name]
-            return if sensor_has_sql_result?(point, sensor_name)
-
-            dependency_values = extract_dependency_values(point, sensor)
-
-            calculated_value =
-              if finance_sensor?(sensor)
-                # FinanceBase: Call calculate_with_prices with explicit parameters
-                sensor.calculate_with_prices(
-                  **dependency_values,
-                  prices: @prices,
-                )
-              else
-                # Regular calculated sensors: Use calculate block
-                sensor.calculate(**dependency_values, context: query_type)
-              end
-
-            point.raw_data[sensor_name] = calculated_value
-
-            # Refresh accessors after each calculation
-            point.define_sensor_accessors
-          end
-
-          # Override to include FinanceBase sensors as "calculated"
-          def should_calculate_sensor?(sensor_name)
-            sensor = Sensor::Registry[sensor_name]
-            # FinanceBase sensors need Ruby calculation even though they have no calculate block
-            sensor.calculated? || finance_sensor?(sensor)
           end
 
           private
@@ -225,26 +189,6 @@ module Sensor
             end
 
             result
-          end
-
-          # Load prices once for all finance sensors
-          def prices_for_finance_sensors
-            return unless finance_sensors?
-
-            {
-              electricity: Price.at(name: :electricity, date: Date.current),
-              feed_in: Price.at(name: :feed_in, date: Date.current),
-            }
-          end
-
-          def finance_sensors?
-            required_sensor_names.any? do |name|
-              finance_sensor?(Sensor::Registry[name])
-            end
-          end
-
-          def finance_sensor?(sensor)
-            sensor.is_a?(Sensor::Definitions::FinanceBase)
           end
         end
       end
