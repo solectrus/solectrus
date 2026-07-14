@@ -1,11 +1,9 @@
 class Sensor::Definitions::TraditionalCosts < Sensor::Definitions::FinanceBase
-  depends_on do
-    [
-      :house_power,
-      (:heatpump_power if Sensor::Config.configured?(:heatpump_power)),
-      (:wallbox_power if Sensor::Config.configured?(:wallbox_power)),
-    ].compact
-  end
+  # What the same consumption would have cost without PV, so this must cover the
+  # complete consumption -- including custom consumers excluded from house_power
+  # (they are subtracted from house_power, in the live value as well as in the
+  # stored summary). Reuse total_consumption's dependencies to stay in sync.
+  depends_on { Sensor::Registry[:total_consumption].dependencies }
 
   def required_prices
     [:electricity]
@@ -17,19 +15,10 @@ class Sensor::Definitions::TraditionalCosts < Sensor::Definitions::FinanceBase
     "(#{parts.join(' + ')}) * pb_money_per_kwh / 1000.0"
   end
 
-  def calculate_with_prices(
-    house_power:,
-    prices:,
-    heatpump_power: nil,
-    wallbox_power: nil
-  )
+  def calculate_with_prices(prices:, **values)
     electricity_price = prices[:electricity]
     return unless electricity_price
 
-    # Build hash from parameters to match dependencies
-    values = { house_power:, heatpump_power:, wallbox_power: }
-
-    # Sum all power values from dependencies
     total_power = dependencies.sum { |dep| values[dep] || 0 }
 
     total_power * electricity_price / 1000.0

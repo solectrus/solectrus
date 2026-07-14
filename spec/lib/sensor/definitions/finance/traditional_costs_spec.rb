@@ -70,6 +70,18 @@ describe Sensor::Definitions::TraditionalCosts do # rubocop:disable RSpec/SpecFi
         )
       end
     end
+
+    context 'when a custom consumer is excluded from house_power' do
+      include_context 'with an excluded custom consumer'
+
+      it 'includes the excluded consumer in the sum' do
+        expect(sql_calculation).to eq(
+          '(COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + ' \
+            'COALESCE(wallbox_power_sum,0) + COALESCE(custom_power_01_sum,0)) ' \
+            '* pb_money_per_kwh / 1000.0',
+        )
+      end
+    end
   end
 
   describe '#calculate_with_prices' do
@@ -124,6 +136,27 @@ describe Sensor::Definitions::TraditionalCosts do # rubocop:disable RSpec/SpecFi
         result = instance.calculate_with_prices(house_power: 1000, prices:)
 
         expect(result).to eq(0.30) # 1000 * 0.30 / 1000
+      end
+    end
+
+    context 'when a custom consumer is excluded from house_power' do
+      include_context 'with an excluded custom consumer'
+
+      it 'adds the excluded consumer to the comparison price' do
+        result =
+          instance.calculate_with_prices(
+            house_power: 1000, # already reduced by custom_power_01
+            heatpump_power: 500,
+            wallbox_power: 300,
+            custom_power_01: 200,
+            prices:,
+          )
+
+        expect(result).to eq(0.6) # (1000 + 500 + 300 + 200) * 0.30 / 1000
+      end
+
+      it 'depends on the excluded consumer' do
+        expect(instance.dependencies).to include(:custom_power_01)
       end
     end
 
