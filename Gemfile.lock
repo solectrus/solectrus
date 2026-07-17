@@ -160,7 +160,7 @@ GEM
     herb (0.10.2-arm64-darwin)
     herb (0.10.2-x86_64-linux-gnu)
     herb (0.10.2-x86_64-linux-musl)
-    honeybadger (6.9.0)
+    honeybadger (6.9.1)
       logger
       ostruct
     htmlbeautifier (1.4.3)
