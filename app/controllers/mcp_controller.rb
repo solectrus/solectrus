@@ -59,7 +59,9 @@ class McpController < ActionController::API
   # Tokens are only ever read from the Authorization header, never from the
   # query string (forbidden by the MCP spec).
   def bearer_token
-    request.authorization.to_s[/\ABearer\s+(.+)\z/i, 1]
+    # `\S` anchors the capture so it cannot overlap with the preceding `\s+`,
+    # which would allow quadratic backtracking (ReDoS) on crafted headers.
+    request.authorization.to_s[/\ABearer\s+(\S.*)\z/i, 1]
   end
 
   # Point unauthenticated clients at the protected-resource metadata so they
