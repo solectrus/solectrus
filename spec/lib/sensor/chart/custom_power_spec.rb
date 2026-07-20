@@ -94,22 +94,31 @@ describe Sensor::Chart::CustomPower do
     it 'bridges a cadence gap so constant power does not drop to 0 (issue #5567)' do
       # A consumer polled every ~28s occasionally misses a single 30s bucket;
       # the bracketing samples show the same constant power.
-      result = now_chart.__send__(:process_gaps, labels(3), [40, nil, 40])
+      result = now_chart.__send__(:process_gaps, labels(3), [40, nil, 40], :custom_power_01)
       expect(result).to eq([40, 40.0, 40])
     end
 
     it 'collapses a long idle gap to 0 instead of bridging it' do
       # 8 missing buckets = 4 min, well over the 2-min cadence-jitter limit
       gap = [nil] * 8
-      result = now_chart.__send__(:process_gaps, labels(gap.size + 2), [40, *gap, 40])
+      result = now_chart.__send__(:process_gaps, labels(gap.size + 2), [40, *gap, 40], :custom_power_01)
       expect(result).to eq([40, *([0] * 8), 40])
     end
 
     it 'collapses a leading idle gap to 0 (consumer off at the window start)' do
       # The fridge was idle before its first compressor cycle; that leading
       # off-phase renders as a flat 0 baseline, like any interior idle phase.
-      result = now_chart.__send__(:process_gaps, labels(4), [nil, nil, 40, 40])
+      result = now_chart.__send__(:process_gaps, labels(4), [nil, nil, 40, 40], :custom_power_01)
       expect(result).to eq([0, 0, 40, 40])
+    end
+
+    # Unlike house_power, a consumer legitimately reads 0 W. A gap at the
+    # window edge has no following sample to prove it was a dropout, so it is
+    # taken at face value: the consumer is off. Only interior gaps (bracketed
+    # by two real samples) are treated as cadence jitter.
+    it 'collapses a trailing gap to 0 instead of holding the last value' do
+      result = now_chart.__send__(:process_gaps, labels(3), [40, 40, nil], :custom_power_01)
+      expect(result).to eq([40, 40, 0])
     end
 
     it 'respects an explicit gap_bridge_limit of 0 even with many real samples' do
@@ -125,7 +134,7 @@ describe Sensor::Chart::CustomPower do
 
       values = [40, 40, 40, 40, 40, nil, nil, 40, 40, 40]
       day_labels = Array.new(values.size) { |i| i * 5.minutes.in_milliseconds }
-      result = day_chart.__send__(:process_gaps, day_labels, values)
+      result = day_chart.__send__(:process_gaps, day_labels, values, :custom_power_01)
 
       expect(result).to eq([40, 40, 40, 40, 40, 0, 0, 40, 40, 40])
     end

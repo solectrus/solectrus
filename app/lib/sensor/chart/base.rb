@@ -224,14 +224,24 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     return values unless type == 'line' && values.any?(&:nil?)
     return values if Sensor::Registry[item[:sensor_name]]&.forecast?
 
-    process_gaps(master_labels, values)
+    process_gaps(master_labels, values, item[:sensor_name])
   end
 
-  def process_gaps(master_labels, values)
-    values = bridge_short_gaps(master_labels, values)
-    values = fill_trailing_edge(master_labels, values) if sparse? && timeframe.now?
+  def process_gaps(master_labels, values, sensor_name)
+    if bridge_gaps?(sensor_name)
+      values = bridge_short_gaps(master_labels, values)
+      values = fill_trailing_edge(master_labels, values) if sparse? && timeframe.now?
+    end
     values = fill_gaps_with_zero(values) if fill_gaps_with_zero?
     values
+  end
+
+  # Override in subclasses where bridging is valid for some sensors but not
+  # for others. A sensor that answers false keeps its nil buckets untouched,
+  # so #fill_gaps_with_zero? (if set) collapses them to 0 -- for sensors whose
+  # nil genuinely means "no power", not "no measurement".
+  def bridge_gaps?(_sensor_name)
+    true
   end
 
   # On the live view a sparse sensor's newest sample can sit a few minutes
@@ -299,6 +309,15 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # Need at least 3 samples (2 spacings) -- with a single spacing the
   # "cadence" is just the gap itself, which would always bridge across it
   # regardless of how long the outage really is.
+  #
+  # The median (not the minimum) is deliberate: a sensor's spacings are its
+  # nominal cadence plus jitter, and the minimum would lock onto the one
+  # tightest pair and under-bridge everything else. The trade-off is that a
+  # sensor missing more than half its buckets reports the sparser rate as
+  # its cadence, widening its own limit -- but at that point "polls every
+  # 10 min" and "polls every 5 min and drops half" are genuinely
+  # indistinguishable from the series alone, and over-bridging a flaky
+  # sensor beats breaking a slow one at every step.
   def detected_cadence_ms(labels, values)
     real_indices = values.each_index.reject { |i| values[i].nil? }
     return if real_indices.size < 3
@@ -307,7 +326,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     spacings.sort[spacings.size / 2]
   end
 
-  def interpolate_gap!(labels, values, start, stop, last, limit = gap_bridge_limit)
+  def interpolate_gap!(labels, values, start, stop, last, limit)
     span = (labels[stop] - labels[last]).to_f
     return if span > limit
 

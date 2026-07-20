@@ -134,7 +134,7 @@ describe Sensor::Chart::HeatpumpHeatingPower do
       values = Array.new(37, nil)
       [0, 12, 24, 36].each { |i| values[i] = 800.0 }
 
-      result = chart.__send__(:process_gaps, labels(37), values)
+      result = chart.__send__(:process_gaps, labels(37), values, :heatpump_heating_power)
 
       expect(result).to all(eq(800.0))
     end
@@ -146,7 +146,7 @@ describe Sensor::Chart::HeatpumpHeatingPower do
       values = Array.new(61, nil)
       [0, 12, 48, 60].each { |i| values[i] = 800.0 }
 
-      result = chart.__send__(:process_gaps, labels(61), values)
+      result = chart.__send__(:process_gaps, labels(61), values, :heatpump_heating_power)
 
       # 1 h gap on either side: bridged
       expect(result[1..11]).to all(eq(800.0))
@@ -156,7 +156,7 @@ describe Sensor::Chart::HeatpumpHeatingPower do
     end
 
     it 'keeps an explicit 0 (off-phase) as 0' do
-      result = chart.__send__(:process_gaps, labels(5), [800.0, 0, 0, 0, 800.0])
+      result = chart.__send__(:process_gaps, labels(5), [800.0, 0, 0, 0, 800.0], :heatpump_heating_power)
       expect(result).to eq([800.0, 0, 0, 0, 800.0])
     end
   end

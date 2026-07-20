@@ -52,7 +52,7 @@ describe Sensor::Chart::CarBatterySoc do
 
       it 'carries the last value forward to the window edge to meet the live tail' do
         labels = minute_labels(4)
-        result = chart.__send__(:process_gaps, labels, [40.0, 46.0, nil, nil])
+        result = chart.__send__(:process_gaps, labels, [40.0, 46.0, nil, nil], :car_battery_soc)
 
         expect(result).to eq([40.0, 46.0, 46.0, 46.0])
       end
@@ -63,7 +63,7 @@ describe Sensor::Chart::CarBatterySoc do
 
       it 'leaves the trailing edge as a gap (no value dragged to now)' do
         labels = minute_labels(4)
-        result = chart.__send__(:process_gaps, labels, [40.0, 46.0, nil, nil])
+        result = chart.__send__(:process_gaps, labels, [40.0, 46.0, nil, nil], :car_battery_soc)
 
         expect(result).to eq([40.0, 46.0, nil, nil])
       end

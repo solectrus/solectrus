@@ -1,6 +1,4 @@
 class Sensor::Chart::TotalConsumption < Sensor::Chart::Base
-  include Sensor::Chart::Concerns::GapBridging
-
   # Show the total consumption broken down into its parts. Order is the stacking
   # order (bottom to top): house, then any custom consumers excluded from
   # house_power, then heat pump, then wallbox. house_power is already net of all
@@ -53,26 +51,24 @@ class Sensor::Chart::TotalConsumption < Sensor::Chart::Base
       Sensor::Config.house_power_excluded_custom_sensors.map(&:name)
   end
 
-  def build_chart_data_items
-    items = super
-    # A stacked line fill (fill: '-1') needs a numeric value at every index.
-    pad_nil_values!(items) if type == 'line'
-    items
+  # Chart.js stacked line fill (fill: '-1') needs a numeric value at every
+  # index, so every nil left after Base#bridge_short_gaps collapses to 0.
+  def fill_gaps_with_zero?
+    true
   end
 
   # Heat pump, wallbox and excluded custom consumers are subtracted from
   # house_power, so their nil buckets mean "no power" (0) and must stay 0 --
-  # bridging them would carry a value that house_power has not been reduced by.
-  # house_power itself bridges short outages so a brief dropout doesn't read as
-  # a drop to zero.
-  def pad_nil_values!(items)
-    items.each do |item|
-      if item[:sensor_name] == :house_power
-        bridge_short_outages!(item[:data])
-      else
-        item[:data].map! { |value| value || 0 }
-      end
-    end
+  # bridging them would carry a value that house_power has not been reduced by,
+  # showing the same wattage twice (issue #5517). Only house_power is bridged.
+  #
+  # Mirrors TotalConsumption#calculate, which sums house_power with
+  # heatpump_power and wallbox_power whenever they are *configured* - not only
+  # when they appear in INFLUX_EXCLUDE_FROM_HOUSE_POWER. So from this chart's
+  # perspective they are always "already inside house_power", hence a fixed
+  # sensor check rather than the Sensor::Config lookup PowerBalance needs.
+  def bridge_gaps?(sensor_name)
+    sensor_name == :house_power
   end
 
   def datasets(chart_data_items)

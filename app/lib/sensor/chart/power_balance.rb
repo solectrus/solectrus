@@ -1,6 +1,4 @@
 class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
-  include Sensor::Chart::Concerns::GapBridging
-
   # Sensors to load from database (some are optional)
   DATA_SENSOR_NAMES = %i[
     inverter_power
@@ -110,38 +108,28 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     # Keep a list of sensors that actually have data in this timeframe.
     @display_sensor_names_with_data = items.pluck(:sensor_name)
 
-    # For stacked line charts, replace nil with 0 so that fill: '-1'
-    # works correctly even when the target dataset has sparse data.
-    # Physically correct: no measurement = no power = 0 W.
-    pad_nil_values!(items) if type == 'line'
-
     items
   end
 
-  # Chart.js stacked line fill (fill: '-1') needs numeric values at every
-  # index. Bridge short outages with the last known value and only mark
-  # longer gaps as 0 so brief sensor dropouts don't render as drops to zero.
-  # The 5-minute threshold mirrors `Sensor::Chart::Base::SPAN_GAPS_MS` so
-  # the inverter (sparse line) and power balance (stacked area) charts
-  # treat the same outage consistently.
-  #
-  # Sensors excluded from house_power (custom, wallbox, heatpump, ...) are
-  # filled with 0 instead of being bridged: the calculate block treats
-  # their nil buckets as 0 (no subtraction from house_power), so bridging
-  # them here would carry forward a value that house_power has not been
-  # reduced by - making the same wattage show up both inside house_power
-  # and as its own segment (issue #5517).
-  def pad_nil_values!(items)
-    threshold = gap_bridge_buckets
-    items.each do |item|
-      next if forecast_sensor?(item[:sensor_name])
+  # Chart.js stacked line fill (fill: '-1') needs a numeric value at every
+  # index, so every nil left after Base#bridge_short_gaps collapses to 0.
+  def fill_gaps_with_zero?
+    true
+  end
 
-      if excluded_sensor_names.include?(item[:sensor_name])
-        item[:data].map! { |value| value || 0 }
-      else
-        bridge_short_outages!(item[:data], threshold)
-      end
-    end
+  # Mirrors HousePower#calculate, which subtracts exactly the *configured*
+  # exclusions - hence the Sensor::Config lookup rather than a fixed sensor
+  # list. Those sensors keep a hard 0-fill instead of being bridged: the
+  # calculate block treats their nil buckets as 0 (no subtraction from
+  # house_power), so bridging them here would carry a value that house_power
+  # has not been reduced by - making the same wattage show up both inside
+  # house_power and as its own segment (issue #5517).
+  #
+  # Accepted trade-off: if house_power and an excluded consumer drop out in
+  # the same bucket, the stack understates the total for the bridged gap.
+  # Bridging the consumer instead would double-count it - worse.
+  def bridge_gaps?(sensor_name)
+    excluded_sensor_names.exclude?(sensor_name)
   end
 
   # Sensors that appear below zero (usage/outflow)

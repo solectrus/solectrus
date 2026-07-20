@@ -53,4 +53,44 @@ describe Sensor::Chart::TotalConsumption do
       expect(dataset[:colorClass]).to eq(Sensor::Registry[:house_power].color_background)
     end
   end
+
+  describe 'gap bridging' do
+    let(:timeframe) { Timeframe.new('2025-03-03') }
+    let(:chart) { described_class.new(timeframe:) }
+
+    # Simulate aggregateWindow output: a chronological array of values, some of
+    # which are nil (empty buckets), on a 1-minute label grid. The bridge limit
+    # is derived from the label spacing, not from #interval.
+    def pad(values, sensor_name: :house_power)
+      labels = values.each_index.map { |i| (i * 1.minute).in_milliseconds }
+      item = { sensor_name:, labels:, data: values.dup }
+      chart.__send__(:grid_aligned_values, labels, item)
+    end
+
+    it 'bridges short house_power outages by interpolating across the gap' do
+      # 4-minute gap at 1m interval - below the 5min limit
+      result = pad([100, 110, 120, nil, nil, nil, 130, 140])
+      expect(result).to eq([100, 110, 120, 122.5, 125, 127.5, 130, 140])
+    end
+
+    it 'fills long house_power outages with zero' do
+      # 20 nil samples at 1m interval = 21min > 5min limit
+      result = pad([100, 110, 120, *[nil] * 20, 130, 140])
+      expect(result.slice(3, 20)).to all(eq(0))
+    end
+
+    # These are subtracted from house_power, so a nil bucket means "no power".
+    # Bridging would carry a value house_power has not been reduced by.
+    it 'never bridges sensors subtracted from house_power' do
+      %i[heatpump_power wallbox_power custom_power_01].each do |name|
+        expect(pad([100, nil, nil, 100], sensor_name: name)).to eq([100, 0, 0, 100])
+      end
+    end
+
+    it 'keeps a trailing gap at 0 for sensors subtracted from house_power' do
+      %i[heatpump_power wallbox_power custom_power_01].each do |name|
+        expect(pad([100, 100, nil, nil], sensor_name: name)).to eq([100, 100, 0, 0])
+      end
+    end
+  end
 end
