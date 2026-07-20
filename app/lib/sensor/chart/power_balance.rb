@@ -117,6 +117,16 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     true
   end
 
+  # The bridged sensors (inverter, grid, battery, house_power) are
+  # continuously measured, so a gap at the window edge is a collector dropout
+  # rather than an idle phase (issue #5766). inverter_power only looks like a
+  # counter-example: production decays to a few watts before the inverter cuts
+  # out at night, so the carried value is visually zero on a kW scale -- and
+  # the carry is capped at the bridge limit either way.
+  def fill_trailing_edge?
+    true
+  end
+
   # Mirrors HousePower#calculate, which subtracts exactly the *configured*
   # exclusions - hence the Sensor::Config lookup rather than a fixed sensor
   # list. Those sensors keep a hard 0-fill instead of being bridged: the

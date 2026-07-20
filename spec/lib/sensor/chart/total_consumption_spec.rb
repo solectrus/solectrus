@@ -79,6 +79,13 @@ describe Sensor::Chart::TotalConsumption do
       expect(result.slice(3, 20)).to all(eq(0))
     end
 
+    # A trailing null run has no right-hand anchor to interpolate against, so
+    # without fill_trailing_edge house_power would drop to zero at the right
+    # edge - the artifact issue #5766 is about.
+    it 'bridges a short house_power outage at the right edge' do
+      expect(pad([100, 110, 120, nil, nil])).to eq([100, 110, 120, 120, 120])
+    end
+
     # These are subtracted from house_power, so a nil bucket means "no power".
     # Bridging would carry a value house_power has not been reduced by.
     it 'never bridges sensors subtracted from house_power' do

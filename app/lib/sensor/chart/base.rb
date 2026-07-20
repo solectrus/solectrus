@@ -227,10 +227,17 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     process_gaps(master_labels, values, item[:sensor_name])
   end
 
+  # The limit is derived once from the *raw* series and threaded through both
+  # steps, so an outage is judged identically wherever it falls in the window.
+  # Neither step may derive it itself: both densify the array (bridging with
+  # interpolated points, the trailing fill with carried ones), so whichever
+  # runs second would mistake the master-grid spacing for the sensor's cadence
+  # and fall back to the 5-minute floor.
   def process_gaps(master_labels, values, sensor_name)
     if bridge_gaps?(sensor_name)
-      values = bridge_short_gaps(master_labels, values)
-      values = fill_trailing_edge(master_labels, values) if sparse? && timeframe.now?
+      limit = effective_gap_bridge_limit(master_labels, values)
+      values = bridge_short_gaps(master_labels, values, limit)
+      values = fill_trailing_edge(master_labels, values, limit) if fill_trailing_edge?
     end
     values = fill_gaps_with_zero(values) if fill_gaps_with_zero?
     values
@@ -244,19 +251,39 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     true
   end
 
-  # On the live view a sparse sensor's newest sample can sit a few minutes
-  # before the window edge, leaving trailing nulls between it and the point the
-  # live updater appends at "now" -- a visible gap. Carry the last value
-  # forward to the edge so the historical line meets the live tail. Capped at
-  # #gap_bridge_limit, so a collector that fell silent long ago still ends in a
-  # gap rather than a value dragged to "now".
-  def fill_trailing_edge(labels, values)
+  # #bridge_short_gaps deliberately leaves trailing null runs alone: an
+  # interior gap is bracketed by two real samples (evidence of a dropout), a
+  # trailing one has no right-hand anchor, so it may equally well mean the
+  # measured thing stopped. Only override this where a trailing gap cannot
+  # mean that -- a continuously measured quantity, never an idle phase.
+  # Sparse sensors are the built-in case: on the live view their newest
+  # sample can sit a few minutes before the window edge, leaving a visible
+  # gap between it and the point the live updater appends at "now".
+  #
+  # Only consulted where #bridge_gaps? holds (see #process_gaps): a sensor
+  # whose nil means "no power" keeps its hard 0-fill either way.
+  def fill_trailing_edge?
+    sparse? && timeframe.now?
+  end
+
+  # Carry the last value forward to the window edge, so a trailing null run
+  # doesn't render as a gap (sparse sensors) or as a drop to zero (charts
+  # with #fill_gaps_with_zero?). Capped at the same cadence-adaptive limit
+  # #bridge_short_gaps applies to interior gaps, so a collector that fell
+  # silent long ago still ends in a gap rather than a value dragged to "now";
+  # a limit of 0 (bridging disabled, e.g. CustomPower on day/hours) opts out
+  # of the trailing fill altogether.
+  #
+  # +limit+ must come from the raw series -- see #process_gaps.
+  def fill_trailing_edge(labels, values, limit)
+    return values unless limit.positive?
+
     last = values.rindex { |value| !value.nil? }
     return values unless last
 
     values = values.dup
     ((last + 1)...values.size).each do |j|
-      break if labels[j] - labels[last] > gap_bridge_limit
+      break if labels[j] - labels[last] > limit
 
       values[j] = values[last]
     end
@@ -273,8 +300,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # Linearly interpolates null runs whose time gap is within the effective
   # bridge limit (see #effective_gap_bridge_limit); longer runs stay nil so
   # Chart.js breaks line and Filler-area together.
-  def bridge_short_gaps(labels, values)
-    limit = effective_gap_bridge_limit(labels, values)
+  def bridge_short_gaps(labels, values, limit = effective_gap_bridge_limit(labels, values))
     values = values.dup
     last = nil
     i = 0

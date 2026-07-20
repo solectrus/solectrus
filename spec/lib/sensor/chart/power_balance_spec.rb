@@ -227,6 +227,55 @@ describe Sensor::Chart::PowerBalance do
       expect(result).to eq([0, 0, 100, 110])
     end
 
+    # bridge_short_gaps cannot interpolate a trailing null run - there is no
+    # right-hand anchor - so without fill_trailing_edge these buckets would
+    # collapse to 0 and the stacked area would drop to zero at the right edge,
+    # which is exactly the artifact issue #5766 is about.
+    it 'bridges a short outage at the right edge instead of dropping to zero' do
+      result = pad([100, 110, 120, nil, nil])
+      expect(result).to eq([100, 110, 120, 120, 120])
+    end
+
+    it 'still drops to zero when the trailing outage exceeds the limit' do
+      # 8 nil samples at 1m interval = 8min > the 5min trailing limit, so the
+      # line ends at 0 rather than dragging the last value across the window.
+      result = pad([100, 110, 120, *[nil] * 8])
+      expect(result).to eq([100, 110, 120, 120, 120, 120, 120, 120, 0, 0, 0])
+    end
+
+    # The trailing fill must use the same cadence-adaptive limit as the
+    # interior bridging. Against the raw 5-minute floor a sensor polled
+    # slower than that would never get a trailing fill at all: a single
+    # missed sample already exceeds the floor, so the very artifact #5766 is
+    # about would survive at the right edge for every slow sensor.
+    it 'adapts the trailing limit to a slow sensor cadence' do
+      # 10-minute cadence -> interior and trailing limit are both 20 min, so
+      # two missed samples are carried and the third stays a gap (-> 0).
+      values = [100, 110, 120, 130, 140, 150, 160, 170, 180, nil, nil, nil]
+      result = pad(values, sensor_name: :house_power, step: 10.minutes)
+
+      expect(result).to eq(
+        [100, 110, 120, 130, 140, 150, 160, 170, 180, 180, 180, 0],
+      )
+    end
+
+    # Bridging interpolates the interior gaps first, densifying the array.
+    # The trailing limit must still come from the raw cadence -- derived from
+    # the interpolated points it would collapse to the master-grid spacing
+    # and judge a trailing outage stricter than an identical interior one.
+    it 'keeps the trailing limit cadence-based after interior gaps were bridged' do
+      # 10-min cadence on a 1-min master grid: samples at indices 0/10/20/30,
+      # then a trailing null run. Limit is 20 min everywhere: the interior
+      # nils are interpolated, the trailing run carries 20 min, then 0.
+      values = Array.new(61, nil)
+      [0, 10, 20, 30].each { |i| values[i] = 100.0 }
+
+      result = pad(values, sensor_name: :house_power)
+
+      expect(result[0..50]).to all(eq(100.0))
+      expect(result[51..60]).to all(eq(0))
+    end
+
     context 'with sensors excluded from house_power' do
       let(:env) do
         {

@@ -57,6 +57,12 @@ class Sensor::Chart::TotalConsumption < Sensor::Chart::Base
     true
   end
 
+  # house_power (the only bridged sensor here) is continuously measured, so a
+  # gap at the window edge is a collector dropout, not an idle phase (#5766).
+  def fill_trailing_edge?
+    true
+  end
+
   # Heat pump, wallbox and excluded custom consumers are subtracted from
   # house_power, so their nil buckets mean "no power" (0) and must stay 0 --
   # bridging them would carry a value that house_power has not been reduced by,
