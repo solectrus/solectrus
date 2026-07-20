@@ -100,4 +100,36 @@ describe Sensor::Chart::TotalConsumption do
       end
     end
   end
+
+  describe 'sensors without any data in the timeframe' do
+    let(:timeframe) { Timeframe.new('2025-W10') }
+
+    let(:env) do
+      {
+        'INFLUX_SENSOR_HOUSE_POWER' => 'pv:house_power',
+        'INFLUX_SENSOR_HEATPUMP_POWER' => 'pv:heatpump_power',
+      }
+    end
+
+    before do
+      Sensor::Config.setup(env)
+
+      # heatpump_power is configured, but never reported in this week.
+      create_summary(
+        date: '2025-03-03',
+        values: [[:house_power, :sum, 20_000]],
+      )
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    # #fill_gaps_with_zero? would otherwise turn the all-nil aligned series
+    # into a full-length row of zeros, so the tooltip would report a measured
+    # "0 W" for every bucket of a sensor that measured nothing at all.
+    it 'drops the dataset instead of rendering it as a flat zero series' do
+      dataset_ids = chart.data[:datasets].map { |d| d[:id].to_sym }
+
+      expect(dataset_ids).not_to include(:heatpump_power)
+    end
+  end
 end

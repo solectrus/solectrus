@@ -51,6 +51,17 @@ class Sensor::Chart::TotalConsumption < Sensor::Chart::Base
       Sensor::Config.house_power_excluded_custom_sensors.map(&:name)
   end
 
+  # A sensor with no data at all in this timeframe would otherwise render as a
+  # full-length flat 0 series: alignment turns it into all-nil against the
+  # master grid and #fill_gaps_with_zero? collapses that to zeros, claiming a
+  # measured 0 W where nothing was measured (the tooltip reads "0 W" for every
+  # bucket). Drop it instead, as PowerBalance already does.
+  def build_chart_data_items
+    items = super
+    items.reject! { |item| item[:data].all?(&:nil?) }
+    items
+  end
+
   # Chart.js stacked line fill (fill: '-1') needs a numeric value at every
   # index, so every nil left after Base#bridge_short_gaps collapses to 0.
   def fill_gaps_with_zero?
@@ -78,18 +89,21 @@ class Sensor::Chart::TotalConsumption < Sensor::Chart::Base
   end
 
   def datasets(chart_data_items)
-    chart_data_items.map do |chart_data|
+    chart_data_items.map.with_index do |chart_data, position|
       sensor = Sensor::Registry[chart_data[:sensor_name]]
       {
         id: sensor.name.to_s,
         label: sensor.display_name,
         data: chart_data[:data],
-      }.merge(style_for_dataset(sensor))
+      }.merge(style_for_dataset(sensor, position))
     end
   end
 
-  def style_for_dataset(sensor)
-    position = chart_sensor_names.index(sensor.name) || 0
+  # `fill: '-1'` fills down to the *previous rendered dataset*, so +position+
+  # is the index among the datasets that survived #build_chart_data_items --
+  # not in the configured sensor list. Otherwise dropping the bottom segment
+  # leaves the new bottom one filling against a dataset that isn't there.
+  def style_for_dataset(sensor, position)
     fill =
       if type == 'line'
         position.zero? ? 'origin' : '-1'
