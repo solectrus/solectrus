@@ -81,28 +81,16 @@ module Sensor
               end
           end
 
-          def query_with_time
-            start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-            result = yield
-            end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-            duration = end_time - start_time
-
-            [result, duration]
-          end
-
+          # Instrumenting *around* the call is what gives the event a duration -
+          # emitting it afterwards would leave every subscriber reading
+          # `event.duration` (APM tooling, for one) with a flat zero.
           def query_without_cache(string)
-            result, duration =
-              query_with_time { ::Influx.query_api.query(query: string) }
-
             ActiveSupport::Notifications.instrument(
               'query.sensor_influx',
               class: self.class.name,
               query: string,
               sensors: @sensor_names,
-              duration: duration,
-            )
-
-            result
+            ) { ::Influx.query_api.query(query: string) }
           end
 
           # Build a short cache key from the query string to avoid hitting the 250 chars

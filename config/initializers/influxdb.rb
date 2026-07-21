@@ -7,7 +7,7 @@ class FluxQueryLogSubscriber < ActiveSupport::LogSubscriber
     class_name = event.payload[:class]
     query_string = event.payload[:query]
     sensors = event.payload[:sensors].join(',')
-    duration = (event.payload[:duration] * 1000).round
+    duration = event.duration.round
 
     colored_class = color(class_name, :magenta)
     colored_query = color(query_string, :yellow, { bold: true })
