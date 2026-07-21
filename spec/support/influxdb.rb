@@ -20,7 +20,7 @@ module InfluxHelper
   end
 
   def add_influx_point(name:, fields:, time: Time.current)
-    point = { name:, fields: fields.symbolize_keys, time: time.to_i }
+    point = { name:, fields: float_fields(fields), time: time.to_i }
 
     @in_batch ? @points << point : add_influx_points([point])
   end
@@ -31,6 +31,17 @@ module InfluxHelper
       bucket: Rails.configuration.x.influx.bucket,
       org: Rails.configuration.x.influx.org,
     )
+  end
+
+  # InfluxDB pins a field to the type it was first written with, so an example
+  # writing an Integer where another wrote a Float has its points rejected -
+  # and which of the two runs first depends on the random spec order.
+  # Measurement values are floats in production anyway, so numbers go in as
+  # floats regardless of how the example spelled them.
+  def float_fields(fields)
+    fields.symbolize_keys.transform_values do |value|
+      value.is_a?(Numeric) ? value.to_f : value
+    end
   end
 
   def delete_influx_data(
