@@ -3,6 +3,17 @@ module Sensor
     module Helpers
       module Influx
         class Base < Sensor::Query::Base
+          # Part of the cache key, to be bumped whenever the shape of a cached
+          # result changes. Without it a deploy keeps serving entries written
+          # by the previous format, and #cache_options caches a past timeframe
+          # indefinitely - so such an entry outlives every TTL and breaks the
+          # page until Redis is flushed by hand.
+          #
+          # 2: Influx::CsvParser replaced InfluxDB2::FluxTable objects with
+          #    plain row hashes.
+          CACHE_VERSION = 2
+          private_constant :CACHE_VERSION
+
           def initialize(sensor_names, timeframe)
             super
             @cache_options = default_cache_options
@@ -95,7 +106,7 @@ module Sensor
 
           # Build a short cache key from the query string to avoid hitting the 250 chars
           def cache_key(string)
-            "sensor_influx:#{Digest::SHA256.hexdigest(string)}"
+            "sensor_influx:v#{CACHE_VERSION}:#{Digest::SHA256.hexdigest(string)}"
           end
 
           def cache_options(stop:)
