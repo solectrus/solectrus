@@ -77,6 +77,12 @@ module Solectrus
     config.x.influx.port = ENV.fetch('INFLUX_PORT', 8086)
     config.x.influx.bucket = ENV.fetch('INFLUX_BUCKET', nil)
     config.x.influx.org = ENV.fetch('INFLUX_ORG', nil)
+    # Two connections per web thread, because a request can hold more than
+    # one: Sensor::SummaryBuilder queries the sum and the non-sum
+    # aggregations in parallel futures, so a single summarizer request checks
+    # out two at a time. Sized rather than configurable - a setting of its own
+    # could only ever be too small (queueing) or too large (idle sockets).
+    config.x.influx.pool_size = ENV.fetch('RAILS_MAX_THREADS', 3).to_i * 2
 
     config.after_initialize do
       extend RakeHelper
