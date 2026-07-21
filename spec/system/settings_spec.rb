@@ -39,6 +39,10 @@ describe 'Settings' do
     context 'when MCP can be toggled (sponsor)' do
       before { allow(ApplicationPolicy).to receive(:mcp?).and_return(true) }
 
+      # System specs run without transactions, so both the direct assignment
+      # below and the form submits leak the enabled flag into the shared DB.
+      after { Setting.mcp_enabled = false }
+
       let(:endpoint_label) do
         I18n.t('settings.general.mcp.endpoint', locale: :de)
       end

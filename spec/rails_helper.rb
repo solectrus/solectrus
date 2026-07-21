@@ -46,6 +46,12 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 
+  # Settings are cached outside the database, so a write in one example
+  # survives the rollback of its transaction and leaks into whatever example
+  # runs next. Dropping the cache makes every example read the (restored)
+  # database state again.
+  config.before { Setting.clear_cache }
+
   # Disable transactional fixtures for system tests to allow data sharing
   # System tests have read-only access to shared InfluxDB and Postgres data
   config.around(:each, type: :system) do |example|
