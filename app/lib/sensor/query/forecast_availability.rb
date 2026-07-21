@@ -57,11 +57,9 @@ module Sensor
       def extract_time(flux_result)
         return if flux_result.blank?
 
-        flux_result.each do |table|
-          table.records.each do |record|
-            time_value = record.values['_time']
-            return Time.zone.parse(time_value) if time_value
-          end
+        flux_result.each do |record|
+          time_value = record['_time']
+          return Time.zone.parse(time_value) if time_value
         end
 
         nil

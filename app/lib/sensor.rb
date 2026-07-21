@@ -37,8 +37,7 @@ module Sensor
               FLUX
             end
 
-    result = Influx.query_api.query(query:)
-    result.any? { |table| table.records.any? }
+    Influx.query(query).any?
   rescue StandardError => e
     Rails.logger.error("Error checking InfluxDB for data: #{e.message}")
     false

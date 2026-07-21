@@ -90,7 +90,7 @@ module Sensor
               class: self.class.name,
               query: string,
               sensors: @sensor_names,
-            ) { ::Influx.query_api.query(query: string) }
+            ) { ::Influx.query(string) }
           end
 
           # Build a short cache key from the query string to avoid hitting the 250 chars
@@ -126,26 +126,23 @@ module Sensor
           def parse_flux_result(flux_result)
             result = { times: {} }
 
-            flux_result.each do |table|
-              table.records.each do |record|
-                sensor =
-                  find_sensor_by_measurement_and_field(
-                    record.values['_measurement'],
-                    record.values['_field'],
-                  )
+            flux_result.each do |record|
+              sensor =
+                find_sensor_by_measurement_and_field(
+                  record['_measurement'],
+                  record['_field'],
+                )
 
-                next unless sensor
+              next unless sensor
 
-                result[sensor] = record.values['_value']
+              result[sensor] = record['_value']
 
-                # Track per-sensor timestamp (used to detect stale "latest" values)
-                # and the overall newest time across all sensors (used for the
-                # adaptive poll-interval estimator and live-status indicators).
-                time = Time.zone.parse record.values['_time']
-                result[:times][sensor] = time
-                result[:time] = time if result[:time].nil? ||
-                  time > result[:time]
-              end
+              # Track per-sensor timestamp (used to detect stale "latest" values)
+              # and the overall newest time across all sensors (used for the
+              # adaptive poll-interval estimator and live-status indicators).
+              time = Time.zone.parse record['_time']
+              result[:times][sensor] = time
+              result[:time] = time if result[:time].nil? || time > result[:time]
             end
 
             result

@@ -3,19 +3,15 @@ describe Sensor::Query::ForecastAvailability do
     described_class.new(:inverter_power_forecast, :outdoor_temp_forecast)
   end
 
-  let(:query_api) { double('QueryApi') }
-
-  before { allow(Influx).to receive(:query_api).and_return(query_api) }
+  # Influx.query returns plain row hashes (see Influx::CsvParser)
+  def stub_max_time(time)
+    allow(Influx).to receive(:query).and_return([{ '_time' => time.iso8601 }])
+  end
 
   describe '#call' do
     context 'when sensors have complete forecast data' do
-      before do
-        # Max timestamp at 18:00 (after 16:00 cutoff)
-        max_time = (Date.current + 6.days).in_time_zone.change(hour: 18)
-        record = double(values: { '_time' => max_time.iso8601 })
-        table = double(records: [record])
-        allow(query_api).to receive(:query).and_return([table])
-      end
+      # Max timestamp at 18:00 (after 16:00 cutoff)
+      before { stub_max_time((Date.current + 6.days).in_time_zone.change(hour: 18)) }
 
       it 'returns the date of the max timestamp' do
         result = checker.call
@@ -24,13 +20,8 @@ describe Sensor::Query::ForecastAvailability do
     end
 
     context 'when last day has incomplete data (before 16:00)' do
-      before do
-        # Max timestamp at 14:00 (before 16:00 cutoff)
-        max_time = (Date.current + 6.days).in_time_zone.change(hour: 14)
-        record = double(values: { '_time' => max_time.iso8601 })
-        table = double(records: [record])
-        allow(query_api).to receive(:query).and_return([table])
-      end
+      # Max timestamp at 14:00 (before 16:00 cutoff)
+      before { stub_max_time((Date.current + 6.days).in_time_zone.change(hour: 14)) }
 
       it 'returns the previous day' do
         result = checker.call
@@ -39,7 +30,7 @@ describe Sensor::Query::ForecastAvailability do
     end
 
     context 'when no forecast data available' do
-      before { allow(query_api).to receive(:query).and_return([]) }
+      before { allow(Influx).to receive(:query).and_return([]) }
 
       it 'returns nil' do
         result = checker.call
@@ -48,13 +39,8 @@ describe Sensor::Query::ForecastAvailability do
     end
 
     context 'when limit is specified' do
-      before do
-        # Max timestamp 10 days in the future
-        max_time = (Date.current + 10.days).in_time_zone.change(hour: 18)
-        record = double(values: { '_time' => max_time.iso8601 })
-        table = double(records: [record])
-        allow(query_api).to receive(:query).and_return([table])
-      end
+      # Max timestamp 10 days in the future
+      before { stub_max_time((Date.current + 10.days).in_time_zone.change(hour: 18)) }
 
       it 'clamps to the limit' do
         result = checker.call(limit: 7.days)
@@ -63,10 +49,7 @@ describe Sensor::Query::ForecastAvailability do
     end
 
     it 'uses caching' do
-      max_time = (Date.current + 2.days).in_time_zone.change(hour: 18)
-      record = double(values: { '_time' => max_time.iso8601 })
-      table = double(records: [record])
-      allow(query_api).to receive(:query).and_return([table])
+      stub_max_time((Date.current + 2.days).in_time_zone.change(hour: 18))
 
       # First call should query
       result1 = checker.call

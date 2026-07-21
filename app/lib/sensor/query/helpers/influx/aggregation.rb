@@ -55,23 +55,21 @@ module Sensor
           def parse_flux_result(flux_result)
             result = {}
 
-            flux_result.each do |table|
-              table.records.each do |record|
-                sensor =
-                  find_sensor_by_measurement_and_field(
-                    record.values['_measurement'],
-                    record.values['_field'],
-                  )
-                next unless sensor
+            flux_result.each do |record|
+              sensor =
+                find_sensor_by_measurement_and_field(
+                  record['_measurement'],
+                  record['_field'],
+                )
+              next unless sensor
 
-                # Initialize sensor hash if not exists
-                result[sensor] ||= {}
+              # Initialize sensor hash if not exists
+              result[sensor] ||= {}
 
-                # Extract aggregation values from pivoted columns
-                result[sensor][:min] = record.values['min']
-                result[sensor][:max] = record.values['max']
-                result[sensor][:avg] = record.values['avg']
-              end
+              # Extract aggregation values from pivoted columns
+              result[sensor][:min] = record['min']
+              result[sensor][:max] = record['max']
+              result[sensor][:avg] = record['avg']
             end
 
             # Ensure all requested sensors have entries, even if no data was found

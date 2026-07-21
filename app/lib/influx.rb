@@ -4,8 +4,7 @@ require 'connection_pool'
 class Influx
   class QueryError < StandardError; end
 
-  # A drop-in replacement for InfluxDB2::QueryApi#query that keeps its
-  # connections open.
+  # Runs Flux queries over a pool of kept-alive connections.
   #
   # The gem opens a fresh connection for every request and closes it again in
   # an ensure block (InfluxDB2::DefaultApi#_request), with no option to keep it
@@ -13,9 +12,9 @@ class Influx
   # query cost ~250 ms, of which ~130 ms was connection setup, while the same
   # query against a local instance takes 3 ms.
   #
-  # Only the transport is ours. Payload building and CSV parsing still come
-  # from the gem, as do writes, health and version checks.
-  class PooledQueryApi
+  # Request payloads still come from the gem, as do writes, health and version
+  # checks; responses are parsed by Influx::CsvParser.
+  class QueryApi
     MAX_RETRIES = 2
     private_constant :MAX_RETRIES
 
@@ -41,12 +40,10 @@ class Influx
     POOL_TIMEOUT = 5
     private_constant :POOL_TIMEOUT
 
-    # Same signature and return value as InfluxDB2::QueryApi#query:
-    # an Array of InfluxDB2::FluxTable.
-    def query(query:)
-      parser = InfluxDB2::FluxCsvParser.new(post(query))
-      parser.parse
-      parser.tables
+    # Returns the response rows as plain hashes (column => value), flattened
+    # across Flux tables. See Influx::CsvParser for why not FluxTable objects.
+    def query(flux)
+      CsvParser.call(post(flux))
     end
 
     def reset!
@@ -173,11 +170,12 @@ class Influx
     )
 
   # Create query API once at initialization for thread-safety and performance
-  @query_api = PooledQueryApi.new
+  @query_api = QueryApi.new
 
   class << self
     attr_reader :client, :query_api
 
     delegate :ping, :health, to: :client
+    delegate :query, to: :query_api
   end
 end

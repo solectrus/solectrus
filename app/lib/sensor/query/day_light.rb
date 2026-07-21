@@ -31,18 +31,14 @@ module Sensor
 
       def time_range
         @time_range ||=
-          begin
-            records = raw.filter_map(&:records).flatten
-            times =
-              records.map { |record| Time.zone.parse(record.values['_time']) }
-            times.sort
-          end
+          raw.map { |record| Time.zone.parse(record['_time']) }.sort!
       end
 
       def raw
+        # The cached shape changed with Influx::CsvParser, hence the new key.
         Rails
           .cache
-          .fetch("day_light_time_range_#{@date}", expires_in: 24.hours) do
+          .fetch("day_light_rows_#{@date}", expires_in: 24.hours) do
             query <<~QUERY
               data = #{from_bucket}
               |> #{range(start: @date.beginning_of_day, stop: @date.end_of_day)}

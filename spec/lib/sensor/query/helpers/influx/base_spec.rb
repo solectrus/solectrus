@@ -47,9 +47,9 @@ describe Sensor::Query::Helpers::Influx::Base do
     # backend call that visibly takes time can tell the two apart.
     it 'measures the backend call' do
       delay = 0.02
-      allow(Influx.query_api).to receive(:query).and_wrap_original do |original, **kwargs|
+      allow(Influx).to receive(:query).and_wrap_original do |original, flux|
         sleep delay
-        original.call(**kwargs)
+        original.call(flux)
       end
 
       call

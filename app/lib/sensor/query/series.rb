@@ -217,18 +217,16 @@ module Sensor
         # in the mixed forecast/other path.
         time_cache = {}
 
-        flux_result.each do |table|
-          table.records.each do |record|
-            values = record.values
-            # Skip rows whose measurement/field don't map to a configured
-            # sensor (e.g. stray fields shared in the same Influx series).
-            sensor = find_sensor_by_measurement_and_field(values['_measurement'], values['_field'])
-            next unless sensor
+        flux_result.each do |record|
+          # Skip rows whose measurement/field don't map to a configured
+          # sensor (e.g. stray fields shared in the same Influx series).
+          sensor = find_sensor_by_measurement_and_field(record['_measurement'], record['_field'])
+          next unless sensor
 
-            time_key = time_cache[record.time] ||=
-              Time.zone.parse(record.time).public_send(@timestamp_method)
-            result[[sensor, @aggregation, @aggregation]][time_key] = values['_value']&.round(1)
-          end
+          raw_time = record['_time']
+          time_key = time_cache[raw_time] ||=
+            Time.zone.parse(raw_time).public_send(@timestamp_method)
+          result[[sensor, @aggregation, @aggregation]][time_key] = record['_value']&.round(1)
         end
 
         result

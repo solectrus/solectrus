@@ -175,17 +175,15 @@ module Sensor
           def parse_flux_result(flux_result)
             result = {}
 
-            flux_result.each do |table|
-              table.records.each do |record|
-                sensor =
-                  find_sensor_by_measurement_and_field(
-                    record.values['_measurement'],
-                    record.values['_field'],
-                  )
-                next unless sensor
+            flux_result.each do |record|
+              sensor =
+                find_sensor_by_measurement_and_field(
+                  record['_measurement'],
+                  record['_field'],
+                )
+              next unless sensor
 
-                result[sensor] = record.values['_value']
-              end
+              result[sensor] = record['_value']
             end
 
             result
