@@ -34,8 +34,12 @@ class AmortizationCalculator
     (value || DEFAULT_PERIOD_YEARS).to_i.clamp(PERIOD_RANGE)
   end
 
+  # Round to the slider's 0.1 step before clamping. Without quantization the
+  # rate stays a continuous float that flows verbatim into the content-addressed
+  # cache key, so a public visitor could sweep fractional values to bypass the
+  # cache (a full recompute every request) and flood the store with entries.
   def self.clamp_interest(value)
-    (value || DEFAULT_INTEREST_RATE).to_f.clamp(INTEREST_RANGE)
+    (value || DEFAULT_INTEREST_RATE).to_f.round(1).clamp(INTEREST_RANGE)
   end
 
   def self.result(

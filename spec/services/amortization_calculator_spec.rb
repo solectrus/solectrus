@@ -593,6 +593,38 @@ describe AmortizationCalculator do
     end
   end
 
+  describe '.clamp_interest' do
+    it 'defaults a blank value' do
+      expect(described_class.clamp_interest(nil)).to eq(
+        described_class::DEFAULT_INTEREST_RATE,
+      )
+    end
+
+    it 'clamps into the allowed range' do
+      expect(described_class.clamp_interest(-5)).to eq(0.0)
+      expect(described_class.clamp_interest(99)).to eq(10.0)
+    end
+
+    it 'quantizes to the 0.1 slider step so it cannot bypass the cache key' do
+      expect(described_class.clamp_interest('3.14159')).to eq(3.1)
+      expect(described_class.clamp_interest('3.001')).to eq(3.0)
+    end
+  end
+
+  describe '.clamp_period' do
+    it 'defaults a blank value' do
+      expect(described_class.clamp_period(nil)).to eq(
+        described_class::DEFAULT_PERIOD_YEARS,
+      )
+    end
+
+    it 'coerces to an integer within the allowed range' do
+      expect(described_class.clamp_period('5')).to eq(10)
+      expect(described_class.clamp_period('99')).to eq(30)
+      expect(described_class.clamp_period('22.9')).to eq(22)
+    end
+  end
+
   describe 'caching' do
     # The :with_cache shared context does not take effect reliably here, so
     # stub the cache store explicitly.
