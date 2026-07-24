@@ -37,6 +37,10 @@
 #                           summary GET    /summaries/:date(.:format)                                summaries#show
 #                         summaries DELETE /summaries(.:format)                                      summaries#delete_all
 #                        essentials GET    /essentials(.:format)                                     essentials#index
+#              details_amortization GET    /amortization/details(.:format)                           amortization#details
+#                      amortization GET    /amortization(.:format)                                   amortization#show
+#                                   PATCH  /amortization(.:format)                                   amortization#update
+#                                   PUT    /amortization(.:format)                                   amortization#update
 #                             top10 GET    /top10(/:period)(/:sensor_name)(/:calc)(/:sort)(.:format) top10#index {period: /day|week|month|year/, calc: /sum|max|avg|min/, sort: /asc|desc/}
 #                       top10_chart GET    /top10-chart/:period/:sensor_name/:calc/:sort(.:format)   top10_chart#index {period: /day|week|month|year/, calc: /sum|max|avg|min/, sort: /asc|desc/}
 #                       new_session GET    /login(.:format)                                          sessions#new
@@ -69,6 +73,14 @@
 #                                   PATCH  /settings/prices/:id(.:format)                            settings/prices#update
 #                                   PUT    /settings/prices/:id(.:format)                            settings/prices#update
 #                                   DELETE /settings/prices/:id(.:format)                            settings/prices#destroy
+#    visibility_settings_cash_flows PATCH  /settings/cash_flows/visibility(.:format)                 settings/cash_flows#visibility
+#               settings_cash_flows GET    /settings/cash_flows(.:format)                            settings/cash_flows#index
+#                                   POST   /settings/cash_flows(.:format)                            settings/cash_flows#create
+#            new_settings_cash_flow GET    /settings/cash_flows/new(.:format)                        settings/cash_flows#new
+#           edit_settings_cash_flow GET    /settings/cash_flows/:id/edit(.:format)                   settings/cash_flows#edit
+#                settings_cash_flow PATCH  /settings/cash_flows/:id(.:format)                        settings/cash_flows#update
+#                                   PUT    /settings/cash_flows/:id(.:format)                        settings/cash_flows#update
+#                                   DELETE /settings/cash_flows/:id(.:format)                        settings/cash_flows#destroy
 #                          settings GET    /settings(.:format)                                       redirect(301, /settings/general)
 #                              root GET    /                                                         balance/home#index
 #  turbo_recede_historical_location GET    /recede_historical_location(.:format)                     turbo/native/navigation#recede
