@@ -15,7 +15,8 @@ module McpServer
         list_sensors); the response contains exactly those sensors, and only
         then a display_name per sensor — without the parameter every configured
         sensor is returned, where the readable names would just be weight (they
-        are in list_sensors).
+        are in list_sensors). If all you need is whether data is still
+        arriving, get_system_info answers that in two fields.
 
         Some sensors have no meaningful live reading: money sensors (costs,
         revenue) are accumulated amounts, and a few calculated sensors are

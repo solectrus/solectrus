@@ -17,8 +17,9 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
 - `list_sensors` — discover available sensors, their units, aggregations and
   which tools each sensor supports (`supported_tools`)
 - `get_system_info` — installation date, currency, timezone, installed peak
-  power and which subsystems (battery, wallbox, heat pump, forecast) are
-  configured
+  power, which subsystems (battery, wallbox, heat pump, forecast) are
+  configured, and when data last arrived (the cheap "is the system still
+  delivering?" check)
 - `get_prices` — electricity tariff and feed-in compensation (time-dependent)
 - `get_current_values` — current live readings, each with freshness metadata
   (`last_seen_at`, `age_seconds`)
