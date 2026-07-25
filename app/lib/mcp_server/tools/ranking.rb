@@ -35,6 +35,13 @@ module McpServer
           - sort: "value" (default) keeps the value ranking; "chronological"
             returns the selected periods in date order, ready to plot as a trend
             curve (e.g. an outage spanning several days) without re-sorting.
+            There, a period between the first and the last entry that has no
+            data is reported with value null, so "no data point" stays distinct
+            from "the value was 0" instead of just missing from the list.
+            Nothing is padded before the first or after the last entry — those
+            tell you the range actually covered — and a list truncated by
+            `limit` is left alone, since a period missing there may just not
+            have made the cut. A value ranking never reports such periods.
           - limit: how many entries to return per sensor (1-100, default 10).
             Use a generous limit with sort="chronological" to get a full curve.
       TEXT
@@ -118,32 +125,20 @@ module McpServer
           period:,
           order:,
           sort:,
-          results: definitions.map { |definition| rank(definition, **options) },
+          results: definitions.map { |definition| rank(definition, options) },
         )
       rescue ArgumentError => e
         error_response(e.message)
       end
 
-      def self.rank(sensor, timeframe:, period:, aggregation:, desc:, chronological:, limit:) # rubocop:disable Metrics/ParameterLists
-        agg = aggregation || sensor.default_aggregation
+      def self.rank(sensor, options)
+        agg = (options[:aggregation] || sensor.default_aggregation)&.to_sym
         unless agg
           raise ArgumentError,
                 "Sensor #{sensor.name} has no natural aggregation; pass an explicit `aggregation`"
         end
-        agg = agg.to_sym
 
-        rows =
-          Sensor::Query::Ranking.new(
-            sensor.name,
-            aggregation: agg,
-            period:,
-            start: timeframe.effective_beginning_date,
-            stop: timeframe.effective_ending_date,
-            desc:,
-            limit:,
-          ).call
-
-        rows = rows.sort_by { |entry| entry[:date] } if chronological
+        rows = Rows.fetch(sensor, **options, aggregation: agg)
 
         {
           sensor: sensor.name,
