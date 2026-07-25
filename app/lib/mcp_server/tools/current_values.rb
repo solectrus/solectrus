@@ -12,7 +12,10 @@ module McpServer
         flows in watts (solar production, grid import/export, house, heatpump,
         wallbox), battery state of charge, temperatures, etc. Optionally restrict
         to specific sensors via the `sensors` parameter (names from
-        list_sensors); the response contains exactly those sensors.
+        list_sensors); the response contains exactly those sensors, and only
+        then a display_name per sensor — without the parameter every configured
+        sensor is returned, where the readable names would just be weight (they
+        are in list_sensors).
 
         Some sensors have no meaningful live reading: money sensors (costs,
         revenue) are accumulated amounts, and a few calculated sensors are
@@ -30,7 +33,10 @@ module McpServer
             that only writes sporadically (read age_seconds to tell those
             apart, and get_series/get_totals to see what it did deliver). Only
             a null last_seen_at means the sensor has no data point at all.
-          - age_seconds: how old that reading is (null if never seen).
+          - age_seconds: how long the sensor has been quiet. Present only
+            alongside a null value — a reported value is fresh by construction
+            (older readings are dropped), so its age adds nothing to
+            last_seen_at.
 
         A calculated sensor has no timestamp of its own and reports the newest
         one among the sensors it is derived from.
@@ -80,10 +86,10 @@ module McpServer
             value = data.respond_to?(sensor.name) ? data.public_send(sensor.name) : nil
             {
               name: sensor.name,
-              display_name: sensor.display_name,
+              **display_name(sensor, sensors),
               value:,
               unit: mcp_unit(sensor),
-              **Freshness.metadata(last_seen[sensor], now),
+              **Freshness.metadata(last_seen[sensor], now, value),
             }
           end
 
@@ -91,6 +97,17 @@ module McpServer
       rescue ArgumentError => e
         error_response(e.message)
       end
+
+      # The default set spans every configured sensor, where the human-readable
+      # name is pure weight: list_sensors carries it, and a client pulling all
+      # values at once is scanning data rather than labelling it. An explicit
+      # request is short and usually meant for presentation, so there it stays.
+      def self.display_name(sensor, requested)
+        return {} if requested.blank?
+
+        { display_name: sensor.display_name }
+      end
+      private_class_method :display_name
 
       # A calculated sensor that derives from no inputs (e.g. power_balance, a
       # stacked power-flow balance chart) has no live scalar reading to report:

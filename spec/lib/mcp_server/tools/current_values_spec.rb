@@ -80,6 +80,36 @@ describe McpServer::Tools::CurrentValues do
       expect(parsed[:values].pluck(:name)).to include('inverter_power', 'house_power')
     end
 
+    describe 'display names' do
+      let(:data) do
+        Sensor::Data::Single.new(
+          { battery_soc: 85.5 },
+          timeframe: Timeframe.now,
+          times: { battery_soc: Time.current },
+        )
+      end
+
+      before do
+        allow(Sensor::Query::Latest).to receive(:new).and_return(
+          instance_double(Sensor::Query::Latest, call: data),
+        )
+      end
+
+      def values(**args)
+        response = described_class.call(server_context: nil, **args)
+        JSON.parse(response.content.first[:text], symbolize_names: true)[:values]
+      end
+
+      it 'names explicitly requested sensors' do
+        expect(values(sensors: ['battery_soc']).first).to include(:display_name)
+      end
+
+      # ~70 sensors, each carrying a name that list_sensors already has.
+      it 'leaves the names out of the full default set' do
+        expect(values.first).not_to have_key(:display_name)
+      end
+    end
+
     it 'omits chart-only composites from the default set and rejects them when asked' do
       # power_balance is a calculated, chart-only pseudo-sensor with no live
       # scalar reading; it must not surface as a spurious "never seen" null in
@@ -119,7 +149,7 @@ describe McpServer::Tools::CurrentValues do
     end
 
     describe 'freshness metadata' do
-      it 'reports the timestamp and age of a recent reading' do
+      it 'reports the timestamp of a recent reading, without its age' do
         seen = 4.seconds.ago
         data =
           Sensor::Data::Single.new(
@@ -136,7 +166,8 @@ describe McpServer::Tools::CurrentValues do
         value = parsed[:values].first
 
         expect(value[:last_seen_at]).to eq(seen.iso8601)
-        expect(value[:age_seconds]).to be_between(0, 60)
+        # A reported value is fresh by construction, so its age is left out.
+        expect(value).not_to have_key(:age_seconds)
       end
 
       it 'keeps the last_seen_at of a value dropped as too old' do
