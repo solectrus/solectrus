@@ -55,6 +55,15 @@ module McpServer
             summing a coarse series is not an energy integration and reads as a
             misleading total. For period totals (Wh/kWh, costs) use get_totals,
             for the forecast use get_forecast.
+          - include_nulls: true (default) returns the complete bucket grid,
+            empty buckets included. Set it to false to get only the buckets that
+            carry a value — worth doing for sensors that write sporadically
+            rather than continuously (a device that only reports on load
+            change), where the grid is mostly empty and the nulls dominate the
+            response: a day at 5m is 288 points even when three of them have a
+            value. The remaining points still sit on the same grid, so a gap
+            between two consecutive timestamps means "no data" just as an
+            explicit null does.
 
         Each point is {time, value}. A value of null means "no data" (e.g. a
         sensor was offline) and is deliberately distinct from a measured 0.
@@ -85,12 +94,25 @@ module McpServer
               'Per-bucket aggregation. Defaults to "mean". For period totals ' \
                 '(Wh/kWh, costs) use get_totals, not a summed series.',
           },
+          include_nulls: {
+            type: 'boolean',
+            description:
+              'Keep empty buckets (default true). false omits them, which ' \
+                'shrinks the response a lot for sporadically written sensors.',
+          },
         },
         required: %w[sensors timeframe],
       )
       read_only idempotent: true
 
-      def self.call(sensors:, timeframe:, resolution: nil, aggregation: 'mean', **)
+      def self.call(
+        sensors:,
+        timeframe:,
+        resolution: nil,
+        aggregation: 'mean',
+        include_nulls: true,
+        **
+      )
         tf = Timeframe.new(timeframe)
         if tf.now?
           return error_response('Timeframe must cover a span, not the "now" instant.')
@@ -120,44 +142,22 @@ module McpServer
           resolution: label,
           coarsened: Resolution.coarsened?(resolution, label),
           aggregation:,
-          series: definitions.map { |sensor| series_for(sensor, data, agg) },
+          series:
+            definitions.map { |sensor| series_for(sensor, data, agg, include_nulls:) },
         )
       rescue ArgumentError => e
         error_response(e.message)
       end
 
-      def self.series_for(sensor, data, aggregation)
-        # `data` exposes an accessor for every requested sensor: raw sensors via
-        # Data::Series, derived sensors via the singleton accessor that
-        # process_calculated_sensors installs (house_power - sum(custom_power),
-        # autarky, ...). A raw sensor without any data returns nil, hence the
-        # `|| {}` guard.
-        raw =
-          if data.respond_to?(sensor.name)
-            data.public_send(sensor.name, aggregation, aggregation)
-          end
-
+      def self.series_for(sensor, data, aggregation, include_nulls:)
         {
           sensor: sensor.name,
           display_name: sensor.display_name,
           unit: mcp_unit(sensor),
-          points:
-            (raw || {}).sort.map! do |time, value|
-              { time: time.iso8601, value: normalize_value(value) }
-            end,
+          points: Points.build(data, sensor.name, aggregation, include_nulls:),
         }
       end
       private_class_method :series_for
-
-      # Flux can hand back a signed negative zero (e.g. a sensor sitting at 0
-      # around midday), which serialises as "-0.0". Collapse it to a plain 0.0
-      # so the JSON output never carries a negative zero.
-      def self.normalize_value(value)
-        return 0.0 if value.is_a?(Float) && value.zero?
-
-        value
-      end
-      private_class_method :normalize_value
     end
   end
 end

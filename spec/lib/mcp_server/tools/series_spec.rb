@@ -202,6 +202,28 @@ describe McpServer::Tools::Series do
         expect(resolutions.map { |requested| resolution_for(requested) }).to eq(resolutions)
       end
 
+      it 'returns the full grid including empty buckets by default' do
+        points =
+          series(
+            sensors: ['custom_power_12'],
+            timeframe: day,
+            resolution: '15m',
+          ).dig(:series, 0, :points)
+
+        expect(points.size).to eq(96)
+        expect(points.pluck(:value)).to include(nil)
+      end
+
+      it 'omits exactly the empty buckets with include_nulls: false' do
+        args = { sensors: ['custom_power_12'], timeframe: day, resolution: '15m' }
+        full = series(**args).dig(:series, 0, :points)
+        compact = series(**args, include_nulls: false).dig(:series, 0, :points)
+
+        # Same points, same timestamps - only the empty ones are gone.
+        expect(compact).to eq(full.reject { |point| point[:value].nil? })
+        expect(compact.size).to eq(6)
+      end
+
       it 'keeps every event visible at the resolution it returns' do
         points =
           series(
@@ -399,15 +421,15 @@ describe McpServer::Tools::Series do
 
   describe 'value normalization' do
     it 'collapses a signed negative zero to a plain 0.0' do
-      result = described_class.__send__(:normalize_value, -0.0)
+      result = McpServer::Tools::Series::Points.normalize_value(-0.0)
 
       # -0.0.to_json would serialise as "-0.0"; a normalized 0.0 must not.
       expect(result.to_json).to eq('0.0')
     end
 
     it 'leaves non-zero values and null untouched' do
-      expect(described_class.__send__(:normalize_value, 42.5)).to eq(42.5)
-      expect(described_class.__send__(:normalize_value, nil)).to be_nil
+      expect(McpServer::Tools::Series::Points.normalize_value(42.5)).to eq(42.5)
+      expect(McpServer::Tools::Series::Points.normalize_value(nil)).to be_nil
     end
   end
 end
