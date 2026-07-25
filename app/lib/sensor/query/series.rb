@@ -93,8 +93,30 @@ module Sensor
         pipeline = base_pipeline(lookback:)
         pipeline = densify(pipeline) if interpolate
 
-        prefix = interpolate ? ['import "interpolate"'] : []
-        [*prefix, pipeline, *aggregation_tail].join("\n")
+        [*script_prefix(interpolate:), pipeline, *aggregation_tail].join("\n")
+      end
+
+      # Imports and script options every query path shares.
+      def script_prefix(interpolate:)
+        [*('import "interpolate"' if interpolate), *location_option]
+      end
+
+      # `location` makes aggregateWindow cut its buckets on the configured
+      # timezone instead of UTC: a `1d` bucket is then a local day (23 or 25
+      # hours around a DST switch), not a UTC one that would split every local
+      # day in two.
+      #
+      # Only calendar-sized buckets need it: anything below a day is a
+      # fixed-length window whose boundaries carry no calendar meaning. That
+      # also leaves every chart query - an hour at most - byte for byte the one
+      # it was before.
+      def location_option
+        return [] if @interval.to_i < 1.day
+
+        [
+          'import "timezone"',
+          %(option location = timezone.location(name: "#{Time.zone.tzinfo.identifier}")),
+        ]
       end
 
       # Forecast providers store each sample at the end of its aggregation
@@ -132,8 +154,13 @@ module Sensor
         # timestamp.
         input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
         range_reset = "|> range(start: #{@timeframe.beginning.iso8601}, stop: #{@timeframe.ending.iso8601})"
-        prefix = interpolate ? ['import "interpolate"'] : []
-        [*prefix, *definitions, input, range_reset, *aggregation_tail].join("\n")
+        [
+          *script_prefix(interpolate:),
+          *definitions,
+          input,
+          range_reset,
+          *aggregation_tail,
+        ].join("\n")
       end
 
       # `lookback` extends the range before the window start so a sparse,

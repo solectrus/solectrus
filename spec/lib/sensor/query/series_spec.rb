@@ -108,6 +108,32 @@ describe Sensor::Query::Series do
         expect(result).to eq({})
       end
     end
+
+    # Buckets are cut on the configured timezone, not on UTC - otherwise a
+    # daily bucket in Europe/Berlin would end at 02:00 local time and every
+    # local day would be split across two of them.
+    context 'with daily buckets' do
+      subject(:series_query) do
+        described_class.new(
+          [:house_power],
+          timeframe,
+          interval: 1.day,
+          timestamp_method: :to_time,
+        )
+      end
+
+      let(:timeframe) do
+        Timeframe.new("#{Date.current - 2.days}..#{Date.current}")
+      end
+
+      it 'cuts them on local midnight' do
+        times = result.house_power(:avg, :avg).keys
+
+        # The last bucket ends with the timeframe, the earlier ones on
+        # midnight - in UTC they would end at 02:00 local time instead.
+        expect(times[..-2].map { |time| time.strftime('%H:%M') }).to all(eq('00:00'))
+      end
+    end
   end
 
   describe '#call with lookback' do
