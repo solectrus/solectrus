@@ -65,8 +65,15 @@ module McpServer
             between two consecutive timestamps means "no data" just as an
             explicit null does.
 
-        Each point is {time, value}. A value of null means "no data" (e.g. a
-        sensor was offline) and is deliberately distinct from a measured 0.
+        Each point is {time, value}. `time` is the END of its bucket: at
+        resolution "5m" the point labelled 07:05 covers 07:00–07:05, and the
+        last point of a series carries the end of the requested timeframe. A
+        value of null means "no data" (e.g. a sensor was offline) and is
+        deliberately distinct from a measured 0.
+
+        Buckets are cut on the installation's own timezone (reported by
+        get_system_info), not on UTC: a "1d" bucket is a local calendar day,
+        including the 23- or 25-hour day of a daylight-saving switch.
       TEXT
       input_schema(
         properties: {

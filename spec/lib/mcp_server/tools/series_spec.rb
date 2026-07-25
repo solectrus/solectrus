@@ -50,6 +50,52 @@ describe McpServer::Tools::Series do
       end
     end
 
+    context 'with the timestamp of a bucket' do
+      let(:day) { (Date.current - 1.day).to_s }
+      let(:sample) { (Date.current - 1.day).beginning_of_day + 7.hours + 3.minutes }
+
+      before do
+        add_influx_point(
+          name: Sensor::Config.measurement(:battery_soc),
+          fields: {
+            Sensor::Config.field(:battery_soc) => 55.0,
+          },
+          time: sample,
+        )
+      end
+
+      # The `time` of a point is the END of its bucket, so a sample at 07:03
+      # is reported at 07:05 with 5m buckets - not at 07:00. Without this being
+      # documented, a client has to rediscover it by cross-checking get_totals.
+      it 'labels a bucket with its end' do
+        points =
+          series(
+            sensors: ['battery_soc'],
+            timeframe: day,
+            resolution: '5m',
+            include_nulls: false,
+          ).dig(:series, 0, :points)
+
+        expect(points.pluck(:time)).to eq(
+          [(sample.beginning_of_hour + 5.minutes).iso8601],
+        )
+      end
+
+      # Daily buckets follow the installation's timezone, so a local day is one
+      # bucket. Aligned to UTC it used to be split in two, which reads like
+      # lost data when compared against get_totals.
+      it 'keeps a local day in a single bucket at 1d' do
+        points =
+          series(sensors: ['battery_soc'], timeframe: day, resolution: '1d')
+            .dig(:series, 0, :points)
+
+        expect(points.size).to eq(1)
+        expect(Time.iso8601(points.first[:time])).to be_within(1.second).of(
+          Date.parse(day).end_of_day,
+        )
+      end
+    end
+
     context 'with resolution selection' do
       it 'auto-selects a resolution within the point limit' do
         data = series(sensors: ['battery_soc'], timeframe: 'P7D')
