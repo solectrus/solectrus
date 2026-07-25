@@ -23,11 +23,17 @@ module McpServer
 
         Each sensor carries freshness metadata so a null value is never
         ambiguous:
-          - last_seen_at: ISO 8601 timestamp of the latest data point, or null
-            if the sensor never reported. With a null value, a present
-            last_seen_at means the source was seen before but is now offline;
-            a null last_seen_at means it never delivered.
+          - last_seen_at: ISO 8601 timestamp of the sensor's latest data point,
+            resolved across its whole history — not just the live window. So a
+            null value with a present last_seen_at means the source delivered
+            before and is not delivering right now: either offline, or a sensor
+            that only writes sporadically (read age_seconds to tell those
+            apart, and get_series/get_totals to see what it did deliver). Only
+            a null last_seen_at means the sensor has no data point at all.
           - age_seconds: how old that reading is (null if never seen).
+
+        A calculated sensor has no timestamp of its own and reports the newest
+        one among the sensors it is derived from.
 
         A measured 0 is a real value, distinct from null.
       TEXT
@@ -59,6 +65,7 @@ module McpServer
         end
 
         data = Sensor::Query::Latest.new(definitions.map(&:name)).call
+        last_seen = Freshness.resolve(definitions, data)
         now = Time.current
 
         # Return exactly the requested sensors (calculated sensors are derived
@@ -76,7 +83,7 @@ module McpServer
               display_name: sensor.display_name,
               value:,
               unit: mcp_unit(sensor),
-              **freshness(sensor, value, data, now),
+              **Freshness.metadata(last_seen[sensor], now),
             }
           end
 
@@ -99,25 +106,6 @@ module McpServer
         # composite; treat it as a normal sensor.
         false
       end
-
-      # Freshness metadata for a single sensor reading. A present value is, by
-      # construction, fresh (the live query drops values older than the sensor's
-      # max_age); for a null value, last_seen_at distinguishes "seen before but
-      # now offline" from "never reported".
-      #
-      # Raw sensors carry a per-sensor timestamp; calculated sensors don't, so
-      # when one produced a value (its dependencies were fresh) we attribute the
-      # overall latest reading time to it.
-      def self.freshness(sensor, value, data, now)
-        last_seen = data.time_for(sensor.name)
-        last_seen ||= data.time unless value.nil?
-
-        {
-          last_seen_at: last_seen&.iso8601,
-          age_seconds: last_seen ? (now - last_seen).round : nil,
-        }
-      end
-      private_class_method :freshness
     end
   end
 end

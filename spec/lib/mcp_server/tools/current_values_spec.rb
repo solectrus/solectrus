@@ -161,6 +161,49 @@ describe McpServer::Tools::CurrentValues do
         expect(value[:age_seconds]).to be > 3600
       end
 
+      # Regression: a sensor that writes only sporadically has nothing in the
+      # live window, which used to be reported as "it never delivered" - while
+      # get_totals happily returned energy for the very same sensor.
+      it 'looks beyond the live window for a sensor that is quiet right now' do
+        seen = 3.days.ago
+        add_influx_point(
+          name: Sensor::Config.measurement(:battery_soc),
+          fields: {
+            Sensor::Config.field(:battery_soc) => 42.0,
+          },
+          time: seen,
+        )
+        data = Sensor::Data::Single.new({}, timeframe: Timeframe.now, times: {})
+        allow(Sensor::Query::Latest).to receive(:new).with([:battery_soc]).and_return(
+          instance_double(Sensor::Query::Latest, call: data),
+        )
+
+        response = described_class.call(server_context: nil, sensors: ['battery_soc'])
+        value = JSON.parse(response.content.first[:text], symbolize_names: true)[:values].first
+
+        expect(value[:value]).to be_nil
+        expect(Time.iso8601(value[:last_seen_at])).to be_within(1.second).of(seen)
+        expect(value[:age_seconds]).to be > 2.days
+      end
+
+      it 'reports a calculated sensor as fresh as its newest input' do
+        seen = 10.seconds.ago
+        data =
+          Sensor::Data::Single.new(
+            { grid_import_power: 0.0, grid_export_power: 200.0, grid_power: -200.0 },
+            timeframe: Timeframe.now,
+            times: { grid_import_power: 1.minute.ago, grid_export_power: seen },
+          )
+        allow(Sensor::Query::Latest).to receive(:new).and_return(
+          instance_double(Sensor::Query::Latest, call: data),
+        )
+
+        response = described_class.call(server_context: nil, sensors: ['grid_power'])
+        value = JSON.parse(response.content.first[:text], symbolize_names: true)[:values].first
+
+        expect(value[:last_seen_at]).to eq(seen.iso8601)
+      end
+
       it 'reports null timestamps for a sensor that never delivered' do
         data =
           Sensor::Data::Single.new(
