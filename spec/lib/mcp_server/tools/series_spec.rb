@@ -106,10 +106,10 @@ describe McpServer::Tools::Series do
       end
     end
 
-    context 'with a resolution finer than the sensor cadence' do
-      # The forecast source only carries a sample every 15 minutes. 1m fits the
-      # point cap for a single day (1440 < 1500), so the cap alone would keep
-      # it; without cadence-snapping the response is a ~93% null grid.
+    context 'with a resolution finer than a forecast window' do
+      # Forecast providers carry one sample per 15 minutes at the finest. 1m
+      # fits the point cap for a single day (1440 < 1500), so the cap alone
+      # would keep it and the response would be a ~93% null grid.
       let(:day) { (Date.current + 1.day).to_s }
 
       before do
@@ -128,7 +128,7 @@ describe McpServer::Tools::Series do
         end
       end
 
-      it 'snaps the resolution to the native cadence and reports it' do
+      it 'lifts the resolution to the forecast window and reports it' do
         data =
           series(
             sensors: ['inverter_power_forecast'],
@@ -150,10 +150,67 @@ describe McpServer::Tools::Series do
         points = data[:series].first[:points]
         non_null = points.count { |p| !p[:value].nil? }
 
-        # At 1m this would be ~96/1440 (7%); snapped to 15m nearly every bucket
-        # carries a value.
+        # At 1m this would be ~96/1440 (7%); at 15m nearly every bucket carries
+        # a value.
         expect(points.size).to be < 200
         expect(non_null.fdiv(points.size)).to be > 0.8
+      end
+    end
+
+    # Regression: an event-based sensor (a coffee machine writing only on load
+    # change) had its cadence estimated from the aggregated grid. That estimate
+    # grew with the bucket size - samples merge, gaps widen - so the coarser
+    # the request, the coarser the estimate and the coarser the answer: 5m came
+    # back as 5m, but 15m and 1h both collapsed into 1d.
+    context 'with a sparse, event-based sensor' do
+      let(:day) { (Date.current - 1.day).to_s }
+      let(:resolutions) { %w[1m 5m 15m 1h] }
+      # Six brew cycles spread over the day, each written as two points (on,
+      # off) four minutes apart.
+      let(:brews) { [7.hours, 7.hours + 20.minutes, 9.hours, 12.hours + 30.minutes, 15.hours + 10.minutes, 18.hours] }
+      let(:cycle) { { 0.minutes => 1312.3, 4.minutes => 0.0 } }
+
+      before do
+        base = (Date.current - 1.day).beginning_of_day
+
+        influx_batch do
+          brews.each do |offset|
+            cycle.each do |delay, value|
+              add_influx_point(
+                name: Sensor::Config.measurement(:custom_power_12),
+                fields: {
+                  Sensor::Config.field(:custom_power_12) => value,
+                },
+                time: base + offset + delay,
+              )
+            end
+          end
+        end
+      end
+
+      def resolution_for(requested)
+        series(
+          sensors: ['custom_power_12'],
+          timeframe: day,
+          resolution: requested,
+        )[:resolution]
+      end
+
+      it 'never answers a coarser request with a coarser resolution' do
+        # Here in its strongest form: every requested resolution is honoured
+        # verbatim, because nothing about this sensor sets a floor.
+        expect(resolutions.map { |requested| resolution_for(requested) }).to eq(resolutions)
+      end
+
+      it 'keeps every event visible at the resolution it returns' do
+        points =
+          series(
+            sensors: ['custom_power_12'],
+            timeframe: day,
+            resolution: '15m',
+          ).dig(:series, 0, :points)
+
+        expect(points.count { |point| !point[:value].nil? }).to eq(6)
       end
     end
 

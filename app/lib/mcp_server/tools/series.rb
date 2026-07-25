@@ -40,10 +40,13 @@ module McpServer
             within #{Resolution::MAX_POINTS} points across all requested sensors — so with N
             sensors each series is capped at #{Resolution::MAX_POINTS}/N points, not
             #{Resolution::MAX_POINTS} each. A too-fine resolution — whether explicitly
-            requested or the default — is automatically coarsened, both to stay
-            within that shared point budget and to match the data's own sample
-            cadence (e.g. a 15-min forecast sensor is never returned at 1m, which
-            would be mostly null). The resolution actually used is always
+            requested or the default — is automatically coarsened, for exactly
+            two reasons: to stay within that shared point budget, and because
+            forecast sensors carry at most one sample per 15 minutes, so a
+            request for forecast sensors alone is never answered finer than
+            "15m" (it would be mostly null). Nothing else coarsens a request:
+            asking for a coarser resolution never gives you a coarser result
+            than asking for a finer one. The resolution actually used is always
             returned as `resolution`, and `coarsened: true` flags that it is
             coarser than the one you requested — read these back rather than
             assuming the requested one was honoured.
@@ -101,21 +104,16 @@ module McpServer
         enforce_supported!(definitions, :series)
 
         agg = Aggregation.internal(aggregation)
-        interval, label = Resolution.for(resolution, tf, definitions.size)
+        interval, label = Resolution.for(resolution, tf, definitions)
 
-        sensor_names = definitions.map(&:name)
-        data = fetch_series(sensor_names, tf, interval, agg)
-
-        # A resolution finer than the data's native cadence (e.g. 1m on a
-        # 15-min forecast sensor) returns a mostly-null grid. Snap to the
-        # sensor's actual cadence and re-query, so the reported resolution
-        # reflects what the data supports.
-        snapped =
-          CadenceSnapper.snap(series_values(definitions, data, agg), interval, Resolution::RESOLUTIONS)
-        if snapped
-          interval, label = snapped
-          data = fetch_series(sensor_names, tf, interval, agg)
-        end
+        data =
+          Sensor::Query::Series.new(
+            definitions.map(&:name),
+            tf,
+            interval:,
+            aggregation: agg,
+            timestamp_method: :to_time,
+          ).call
 
         json_response(
           timeframe: tf.to_s,
@@ -127,26 +125,6 @@ module McpServer
       rescue ArgumentError => e
         error_response(e.message)
       end
-
-      def self.fetch_series(sensor_names, timeframe, interval, aggregation)
-        Sensor::Query::Series.new(
-          sensor_names,
-          timeframe,
-          interval:,
-          aggregation:,
-          timestamp_method: :to_time,
-        ).call
-      end
-      private_class_method :fetch_series
-
-      # The raw {time => value} hash for each requested sensor that resolved to
-      # data, handed to CadenceSnapper to detect the native sample cadence.
-      def self.series_values(definitions, data, aggregation)
-        definitions.filter_map do |sensor|
-          data.public_send(sensor.name, aggregation, aggregation) if data.respond_to?(sensor.name)
-        end
-      end
-      private_class_method :series_values
 
       def self.series_for(sensor, data, aggregation)
         # `data` exposes an accessor for every requested sensor: raw sensors via
