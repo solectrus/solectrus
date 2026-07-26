@@ -53,6 +53,33 @@ describe Sensor::Query::Ranking do
           )
         end
 
+        # A day is whole by definition, so neither edge of the range may be
+        # dropped as "incomplete" - only today, and only because it is not
+        # over yet. Both edge days used to vanish, which hid exactly the day
+        # an ascending ranking is asked for (#5789).
+        context 'with data on the first and the last day of the range' do
+          before do
+            create_summary(
+              date: start,
+              values: [[:heatpump_power, :sum, 3_000]],
+            )
+            create_summary(
+              date: stop,
+              values: [[:heatpump_power, :sum, 1_000]],
+            )
+          end
+
+          it 'ranks the edge days along with the rest' do
+            expect(call.first(3)).to eq(
+              [
+                { date: Date.new(2024, 1, 31), value: 1_000 },
+                { date: Date.new(2024, 1, 1), value: 3_000 },
+                { date: Date.new(2024, 1, 16), value: 14_000 },
+              ],
+            )
+          end
+        end
+
         context 'when stop date is today' do
           let(:stop) { Date.current }
 

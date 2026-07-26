@@ -140,17 +140,30 @@ module Sensor
         !desc || sensor.top10_complete_periods_only?
       end
 
+      # The period boundaries `date` is measured against, as DATES. Without the
+      # coercion the four periods disagree on type: beginning_of_week/month/year
+      # return a Date, beginning_of_day and end_of_day a Time. A Date is never
+      # equal to a Time, so for :day the boundary check below could not match
+      # and every day-ranking silently lost its first and last day - the very
+      # days a "lowest day" question is most likely to be about (see #5789).
+      def period_beginning(date)
+        date.public_send("beginning_of_#{period}").to_date
+      end
+
+      def period_ending(date)
+        date.public_send("end_of_#{period}").to_date
+      end
+
       def calculate_start(start_param)
         date = start_param || Rails.application.config.x.installation_date
         return date unless exclude_incomplete_periods?
 
-        beginning = date.public_send("beginning_of_#{period}")
+        beginning = period_beginning(date)
 
-        # If at period boundary and complete period, use it
-        # Otherwise skip to next period (incomplete period)
-        if date == beginning &&
-             date >
-               Rails.application.config.x.installation_date.beginning_of_day
+        # If at period boundary and complete period, use it. Otherwise skip to
+        # next period (incomplete period) - the period holding the installation
+        # included: the system started up during it, so it never saw all of it.
+        if date == beginning && date > Rails.application.config.x.installation_date
           beginning
         else
           beginning + 1.public_send(period)
@@ -161,7 +174,7 @@ module Sensor
         date = stop_param || Date.current
         return date unless exclude_incomplete_periods?
 
-        ending = date.public_send("end_of_#{period}")
+        ending = period_ending(date)
 
         if date == ending && date < Date.current
           ending
