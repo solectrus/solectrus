@@ -143,6 +143,9 @@ module Sensor
         if other.any?
           definitions << other_stream(other)
           names << 'other'
+        else
+          definitions << bounds_stream
+          names << 'bounds'
         end
 
         # Reset the range on the union so every group shares the same
@@ -152,15 +155,30 @@ module Sensor
         # (including null-filled empty buckets, by default) for every sensor,
         # which keeps Chart.js index-mode tooltips paired at the correct
         # timestamp.
-        input = names.one? ? names.first : "union(tables: [#{names.join(', ')}])"
         range_reset = "|> range(start: #{@timeframe.beginning.iso8601}, stop: #{@timeframe.ending.iso8601})"
         [
           *script_prefix(interpolate:),
           *definitions,
-          input,
+          "union(tables: [#{names.join(', ')}])",
           range_reset,
           *aggregation_tail,
         ].join("\n")
+      end
+
+      # An empty table carrying the untouched request window.
+      #
+      # The range reset above cannot restore the bounds on its own: Flux's
+      # `range` only ever NARROWS the bounds it is handed, and `timeShift`
+      # moves `_stop` back by half a forecast window along with the samples. So
+      # a request for forecast sensors alone used to end its last bucket half a
+      # window early (23:52:29 instead of 23:59:59 for a 15m provider),
+      # contradicting the rule that the last bucket carries the end of the
+      # requested timeframe. `union` takes the WIDEST bounds of its inputs, so
+      # this stream restores them - which is exactly what a non-forecast stream
+      # does by accident when one is part of the request. Filtering an existing
+      # definition keeps it free of a second bucket scan.
+      def bounds_stream
+        'bounds = fc_0_raw |> filter(fn: (r) => false)'
       end
 
       # `lookback` extends the range before the window start so a sparse,

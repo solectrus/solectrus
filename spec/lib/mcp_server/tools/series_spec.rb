@@ -96,6 +96,70 @@ describe McpServer::Tools::Series do
       end
     end
 
+    # Regression: forecast samples are shifted back by half the provider's
+    # cadence to align them with live sensors, and that shift moved the query
+    # window's end along with them. A request for forecast sensors ALONE then
+    # ended its last bucket half a window early - 23:52:29 instead of 23:59:59
+    # for a 15m provider - while the same request with a live sensor added ended
+    # correctly. Both must carry the end of the requested timeframe.
+    context 'with the last bucket of the timeframe' do
+      let(:day) { (Date.current - 1.day).to_s }
+
+      before do
+        influx_batch do
+          96.times do |i|
+            time = (Date.current - 1.day).beginning_of_day + (i * 15).minutes
+            add_influx_point(
+              name: Sensor::Config.measurement(:inverter_power_forecast),
+              fields: {
+                Sensor::Config.field(:inverter_power_forecast) => i + 1000.0,
+              },
+              time:,
+            )
+          end
+
+          288.times do |i|
+            add_influx_point(
+              name: Sensor::Config.measurement(:house_power),
+              fields: {
+                Sensor::Config.field(:house_power) => i + 500.0,
+              },
+              time: (Date.current - 1.day).beginning_of_day + (i * 5).minutes,
+            )
+          end
+        end
+      end
+
+      def last_time(sensors)
+        points = series(sensors:, timeframe: day, resolution: '1h').dig(:series, 0, :points)
+        Time.iso8601(points.last[:time])
+      end
+
+      it 'ends a forecast-only series at the end of the timeframe' do
+        expect(last_time(['inverter_power_forecast'])).to be_within(1.second).of(
+          Date.parse(day).end_of_day,
+        )
+      end
+
+      it 'ends a measured series at the end of the timeframe' do
+        expect(last_time(['house_power'])).to be_within(1.second).of(
+          Date.parse(day).end_of_day,
+        )
+      end
+
+      it 'ends every series of a mixed request at the same bucket' do
+        data =
+          series(
+            sensors: %w[house_power inverter_power_forecast],
+            timeframe: day,
+            resolution: '1h',
+          )
+
+        last_times = data[:series].map { |s| s[:points].last[:time] }
+        expect(last_times.uniq).to eq([Date.parse(day).end_of_day.iso8601])
+      end
+    end
+
     context 'with resolution selection' do
       it 'auto-selects a resolution within the point limit' do
         data = series(sensors: ['battery_soc'], timeframe: 'P7D')
