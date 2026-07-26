@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@size-limit/file": "^12.1.0",
+    "@size-limit/file": "^13.0.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
@@ -43,7 +43,7 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "rails-vite-plugin": "^0.2.5",
     "sinon": "^22.1.0",
-    "size-limit": "^12.1.0",
+    "size-limit": "^13.0.1",
     "tailwindcss": "^4.3.3",
     "tailwindcss-displaymodes": "^1.0.8",
     "typescript": "^6.0.3",
