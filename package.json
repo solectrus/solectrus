@@ -51,6 +51,9 @@
     "vite": "^8.1.5",
     "vite-plugin-compression2": "^2.5.3"
   },
+  "overrides": {
+    "typescript": "^6"
+  },
   "size-limit": [
     {
       "limit": "225 kB",

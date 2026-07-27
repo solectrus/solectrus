@@ -57,6 +57,12 @@ updates:
       default-days: 1
     labels:
       - 'dependencies'
+    ignore:
+      # typescript-eslint does not support TypeScript 7 yet, stay on 6.x
+      # (enforced by the "overrides" entry in package.json)
+      - dependency-name: 'typescript'
+        update-types:
+          - 'version-update:semver-major'
     groups:
       vite:
         patterns:
