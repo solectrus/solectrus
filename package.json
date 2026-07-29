@@ -51,7 +51,7 @@
     "vite": "^8.2.0",
     "vite-plugin-compression2": "^2.5.3"
   },
-  "overrides": {
+  "resolutions": {
     "typescript": "^6"
   },
   "size-limit": [
