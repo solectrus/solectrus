@@ -145,4 +145,26 @@ describe PowerBalance do
       end
     end
   end
+
+  describe '#battery_discharging_power_grid_ratio' do
+    subject(:ratio) { power_balance.battery_discharging_power_grid_ratio }
+
+    context 'when part of the discharge came from the grid' do
+      let(:raw_data) do
+        {
+          battery_discharging_power: 6610,
+          battery_discharging_power_grid: 3279,
+        }
+      end
+
+      it { is_expected.to eq(50) }
+    end
+
+    # An older Power Splitter reports no such share
+    context 'without the grid sensor' do
+      let(:raw_data) { { battery_discharging_power: 6610 } }
+
+      it { is_expected.to be_nil }
+    end
+  end
 end

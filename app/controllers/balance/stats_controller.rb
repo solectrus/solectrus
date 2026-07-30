@@ -61,10 +61,10 @@ class Balance::StatsController < ApplicationController
       Sensor::Query::Total
         .new(timeframe) do |q|
           q.avg :autarky, :avg
-          q.sum :battery_charging_costs, :sum
           q.sum :battery_charging_power, :sum
           q.sum :battery_charging_power_grid, :sum
           q.sum :battery_discharging_power, :sum
+          q.sum :battery_discharging_power_grid, :sum
           q.sum :co2_reduction, :sum
           q.sum :grid_costs, :sum
           q.sum :grid_export_power, :sum

@@ -1,5 +1,5 @@
 // Shared helper types and dataset extensions for chart helpers.
-import type { ChartDataset, ChartOptions } from 'chart.js';
+import type { ChartData, ChartDataset, ChartOptions } from 'chart.js';
 
 export type TooltipField = {
   source: 'x' | 'y' | 'data';
@@ -22,6 +22,12 @@ export type DatasetWithId = ChartDataset & {
   hatchFill?: boolean;
   tooltipColor?: string;
   tooltipAbs?: boolean;
+};
+
+// A chart may state whether its fills cover each other instead of leaving that
+// to isOverlapping, whose dataset-count heuristic misreads stacked fills.
+export type ChartDataWithOverlap = ChartData & {
+  overlapping?: boolean;
 };
 
 export type ColorScaleStop = {

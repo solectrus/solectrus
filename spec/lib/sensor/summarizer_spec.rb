@@ -1,14 +1,8 @@
 describe Sensor::Summarizer do
   subject(:summarizer) { described_class.new(date) }
 
-  before do
-    stub_feature(:power_splitter, :heatpump, :car)
-
-    # Add prices for calculated sensors
-    Price.create!(name: :electricity, starts_at: 1.year.ago, value: 0.25)
-    Price.create!(name: :feed_in, starts_at: 1.year.ago, value: 0.08)
-
-    raw_data = {
+  let(:raw_data) do
+    {
       grid_import_power: 100,
       #
       inverter_power_1: 210,
@@ -69,6 +63,14 @@ describe Sensor::Summarizer do
       heatpump_heating_power: 200,
       inverter_power: 250,
     }
+  end
+
+  before do
+    stub_feature(:power_splitter, :heatpump, :car)
+
+    # Add prices for calculated sensors
+    Price.create!(name: :electricity, starts_at: 1.year.ago, value: 0.25)
+    Price.create!(name: :feed_in, starts_at: 1.year.ago, value: 0.08)
 
     allow(Sensor::Query::Helpers::Influx::Integral).to receive(:new).and_return(
       instance_double(
@@ -275,15 +277,18 @@ describe Sensor::Summarizer do
         expect(value_for(:wallbox_power_grid)).to eq(12.5) # instead of 20
         expect(value_for(:heatpump_power_grid)).to eq(18.8) # instead of 30
         expect(value_for(:battery_charging_power_grid)).to eq(6.3) # instead of 10
-        expect(value_for(:custom_power_20_grid)).to eq(60) # instead of 80
+
+        # The custom sensors sit inside the house, so their grid shares are
+        # capped first at their own consumption (custom_power_20: 80 -> 60) and
+        # then scaled down together to fit under the house's 62.5
+        expect(value_for(:custom_power_01_grid)).to eq(3) # instead of 10
+        expect(value_for(:custom_power_02_grid)).to eq(6) # instead of 20
+        expect(value_for(:custom_power_06_grid)).to eq(8.9) # instead of 30
+        expect(value_for(:custom_power_08_grid)).to eq(11.9) # instead of 40
+        expect(value_for(:custom_power_09_grid)).to eq(14.9) # instead of 50
+        expect(value_for(:custom_power_20_grid)).to eq(17.9) # instead of 80
 
         # Not changed
-        expect(value_for(:custom_power_01_grid)).to eq(10)
-        expect(value_for(:custom_power_02_grid)).to eq(20)
-        expect(value_for(:custom_power_06_grid)).to eq(30)
-        expect(value_for(:custom_power_08_grid)).to eq(40)
-        expect(value_for(:custom_power_09_grid)).to eq(50)
-
         expect(value_for(:inverter_power_1)).to eq(210)
         expect(value_for(:inverter_power_2)).to eq(40)
         expect(value_for(:inverter_power_forecast)).to eq(30)
@@ -291,6 +296,36 @@ describe Sensor::Summarizer do
         expect(value_for(:heatpump_power)).to eq(50)
         expect(value_for(:grid_import_power)).to eq(100)
         expect(value_for(:grid_export_power)).to eq(50)
+      end
+
+      # A Power Splitter reporting more grid than the sensor it is a share of
+      # (meter failure, rounding) must not propagate: the grid sources define
+      # the target the consumers are scaled to, so an inflated one would inflate
+      # every consumer's costs with it.
+      context 'when a grid share exceeds the sensor it belongs to' do
+        let(:raw_data) do
+          super().merge(
+            battery_discharging_power: 20,
+            battery_discharging_power_grid: 50,
+          )
+        end
+
+        it 'caps the grid share at that sensor' do
+          call
+
+          expect(value_for(:battery_discharging_power_grid)).to eq(20)
+        end
+
+        it 'scales the consumers to the capped grid total' do
+          call
+
+          # 100 grid import + 20 from the battery, not + 50
+          expect(
+            value_for(:house_power_grid) + value_for(:wallbox_power_grid) +
+              value_for(:heatpump_power_grid) +
+              value_for(:battery_charging_power_grid),
+          ).to be_within(0.1).of(120)
+        end
       end
 
       private

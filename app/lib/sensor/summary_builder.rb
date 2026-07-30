@@ -61,9 +61,13 @@ module Sensor
     end
 
     def calculate_sensor_value(sensor, aggregation_type, summary_data)
+      # Resolved once: #dependencies re-evaluates the definition's block on
+      # every call, and this runs for every sensor of every summary row.
+      dependencies = sensor.dependencies(context: :influx)
+
       # Build dependency data using Array-Key format for the calculated sensor
       dependency_data =
-        sensor.dependencies(context: :influx).to_h do |dep_name|
+        dependencies.to_h do |dep_name|
           value = get_dependency_value(dep_name, aggregation_type, summary_data)
           [[dep_name, aggregation_type], value]
         end
@@ -79,9 +83,7 @@ module Sensor
       data = Sensor::Data::Single.new(dependency_data, timeframe:)
       # Extract dependency values as explicit parameters (keyword arguments)
       dependency_values =
-        sensor.dependencies(context: :influx).index_with do |dependency_name|
-          data.public_send(dependency_name)
-        end
+        dependencies.index_with { |dep_name| data.public_send(dep_name) }
       sensor.calculate(**dependency_values)
     end
 
@@ -276,7 +278,7 @@ module Sensor
       # Create temporary Data::Single object for helper methods
       temp_data = Sensor::Data::Single.new(all_data, timeframe:)
       nullify_sums_without_corresponding_max(temp_data, all_data)
-      nullify_grid_sensors_without_base_sensors(temp_data, all_data)
+      fix_grid_sensors_against_base_sensors(temp_data, all_data)
       clamp_values_to_sensor_ranges(all_data)
     end
 
@@ -306,9 +308,12 @@ module Sensor
       end
     end
 
-    # Fix the power-splitter sums in a similar way:
-    # Nullify power-splitter sums when there is no corresponding sum value
-    def nullify_grid_sensors_without_base_sensors(summary_data, all_data)
+    # Fix the power-splitter sums against the sensor they are a share of:
+    # nullify them when that sensor has no value, and cap them at it, because a
+    # share cannot exceed the whole. Without the cap a Power Splitter reporting
+    # too much (meter failure, rounding) propagates: the PV share turns negative
+    # and, for the grid sources, the target the consumers are scaled to grows.
+    def fix_grid_sensors_against_base_sensors(summary_data, all_data)
       summary_data.sensor_names.each do |sensor_name|
         sensor = Sensor::Registry[sensor_name]
         next unless sensor.category == :power_splitter
@@ -317,10 +322,17 @@ module Sensor
         base_sensor_name = sensor.corresponding_base_sensor.name
         base_sum_value =
           get_sensor_aggregation_value(summary_data, base_sensor_name, :sum)
+        sum_value = get_sensor_aggregation_value(summary_data, sensor_name, :sum)
 
-        # Nullify grid sensor sum if base sensor sum is nil or not present
-        unless base_sum_value
+        if base_sum_value.nil?
           set_sensor_aggregation_value(all_data, sensor_name, :sum, nil)
+        elsif sum_value && sum_value > base_sum_value
+          set_sensor_aggregation_value(
+            all_data,
+            sensor_name,
+            :sum,
+            base_sum_value,
+          )
         end
       end
     end
@@ -359,11 +371,37 @@ module Sensor
       # Create temporary Data::Single object for helper methods
       temp_data = Sensor::Data::Single.new(all_data, timeframe:)
 
-      sensors = main_consumer_sensors + [Sensor::Registry[:grid_import_power]]
+      # Both grid sources take part: the consumers' grid shares are scaled to
+      # their sum, not to the grid import alone (see SummaryCorrector#grid_total)
+      sensors = main_consumer_sensors + SummaryCorrector.grid_source_sensors
       apply_correction_to_sensors(sensors, temp_data, all_data)
 
       sensors = custom_consumer_sensors
       apply_correction_to_sensors(sensors, temp_data, all_data)
+      cap_custom_grid_to_house(all_data)
+    end
+
+    # The custom sensors of this pass are part of the house, so their grid
+    # shares cannot add up to more than the house's own. They need not fill it
+    # though -- they only cover part of what the house consumes -- so scale them
+    # down when they overshoot instead of scaling them to match.
+    def cap_custom_grid_to_house(all_data)
+      house = all_data[%i[house_power_grid sum]]
+      return unless house
+
+      keys =
+        custom_consumer_sensors
+          .grep(Sensor::Definitions::CustomPowerGrid)
+          .filter_map do |sensor|
+            key = [sensor.name, :sum]
+            key if all_data[key]
+          end
+
+      total = keys.sum { |key| all_data[key] }
+      return if total <= house
+
+      factor = house.fdiv(total)
+      keys.each { |key| all_data[key] = (all_data[key] * factor).round(1) }
     end
 
     def apply_correction_to_sensors(sensors, _summary_data, all_data)

@@ -1,3 +1,6 @@
+# No costs of its own: what is charged from the grid is billed to the consumers
+# that take it back out again, through their own _grid share. The tooltip shows
+# the PV share of the charging alone.
 class Sensor::Definitions::BatteryChargingPower < Sensor::Definitions::Base
   value unit: :watt, range: (0..), category: :battery, nameable: true
 

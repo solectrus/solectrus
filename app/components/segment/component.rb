@@ -1,4 +1,25 @@
 class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
+  COSTS_SENSOR_NAMES = %i[
+    wallbox_power
+    heatpump_power
+    house_power
+    house_power_without_custom
+  ].freeze
+  private_constant :COSTS_SENSOR_NAMES
+
+  # What the battery takes in from the grid has no costs of its own -- it is
+  # billed to the consumers taking it back out -- so this shows the ratio plus a
+  # note instead of an amount (see #costs_note).
+  #
+  # The discharge is deliberately absent, for the reason the charging chart
+  # leaves it whole: its grid share is an attribution from the Power Splitter's
+  # ledger and depends on what was stored days earlier. Sitting next to the grid
+  # import on the source side, a red bar would read as a grid draw that is not
+  # happening. The share stays where it buys something -- in the ratio of the
+  # charging, and in the costs of the consumers that took the energy.
+  NOTED_SENSOR_NAMES = %i[battery_charging_power].freeze
+  private_constant :NOTED_SENSOR_NAMES
+
   def initialize(sensor, **options, &block)
     super()
     @sensor = sensor
@@ -76,57 +97,49 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     @default_percent ||= data.public_send(:"#{sensor.name}_percent").to_f
   end
 
+  # Rendered twice by the template (as condition and as argument), so both this
+  # and #power_grid_ratio memoize -- their lookups walk the whole summary.
   def costs
-    if %i[
-         wallbox_power
-         heatpump_power
-         house_power
-         house_power_without_custom
-         battery_charging_power
-       ].exclude?(sensor.name) && !sensor.name.to_s.start_with?('custom_')
-      return
-    end
-    return unless ApplicationPolicy.power_splitter?
+    return @costs if defined?(@costs)
 
-    costs_field = "#{sensor.name}_costs".sub('_power', '')
-    # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, battery_charging_costs
-    # Note: battery_charging_costs only includes grid costs because battery charging is almost
-    # exclusively from PV (no opportunity costs). Grid costs only occur for rare emergency charging.
-    data.public_send(costs_field)
+    @costs = fetch_costs
   end
 
   def sensors_with_grid_ratio
-    %i[
-      wallbox_power
-      heatpump_power
-      house_power
-      battery_charging_power
-      house_power_without_custom
-    ] + Sensor::Config.custom_power_sensors.map(&:name)
+    @sensors_with_grid_ratio ||=
+      [
+        *COSTS_SENSOR_NAMES,
+        *NOTED_SENSOR_NAMES,
+        *Sensor::Config.custom_power_sensors.map(&:name),
+      ]
   end
 
   def power_grid_ratio
-    return unless sensor.name.in?(sensors_with_grid_ratio)
+    return @power_grid_ratio if defined?(@power_grid_ratio)
 
-    data.public_send(:"#{sensor.name}_grid_ratio")
+    @power_grid_ratio =
+      if sensor.name.in?(sensors_with_grid_ratio)
+        data.public_send(:"#{sensor.name}_grid_ratio")
+      end
+  end
+
+  # The battery segments show a grid share but no amount of their own. Say
+  # where that money went instead, so the gap does not read as "free". Only
+  # worth saying while there is a grid share to talk about -- the same
+  # condition the red part of the bar is drawn under.
+  def costs_note
+    return unless sensor.name.in?(NOTED_SENSOR_NAMES)
+    return unless power_grid_ratio&.positive?
+
+    t("splitter.costs_note.#{sensor.name}")
   end
 
   def costs_grid
-    return unless ApplicationPolicy.power_splitter?
-
-    costs_field = sensor.costs_grid_sensor_name
-    return unless costs_field
-
-    data.public_send(costs_field)
+    sensor_costs(sensor.costs_grid_sensor_name)
   end
 
   def costs_pv
-    return unless ApplicationPolicy.power_splitter?
-
-    costs_field = sensor.costs_pv_sensor_name
-    return unless costs_field
-
-    data.public_send(costs_field)
+    sensor_costs(sensor.costs_pv_sensor_name)
   end
 
   def now?
@@ -233,6 +246,27 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   private
+
+  def fetch_costs
+    if COSTS_SENSOR_NAMES.exclude?(sensor.name) &&
+         !sensor.name.to_s.start_with?('custom_')
+      return
+    end
+    return unless ApplicationPolicy.power_splitter?
+
+    costs_field = "#{sensor.name}_costs".sub('_power', '')
+    # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, ...
+    data.public_send(costs_field)
+  end
+
+  # Checked before the policy, because resolving the feature flag is the
+  # expensive part and most sensors have no split costs field at all.
+  def sensor_costs(costs_field)
+    return unless costs_field && data.respond_to?(costs_field)
+    return unless ApplicationPolicy.power_splitter?
+
+    data.public_send(costs_field)
+  end
 
   def tiny?
     percent < 0.3

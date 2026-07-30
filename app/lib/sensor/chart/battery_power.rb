@@ -8,13 +8,15 @@ class Sensor::Chart::BatteryPower < Sensor::Chart::Base
     %i[battery_charging_power battery_discharging_power]
   end
 
-  # Transform import data to negative values
+  # Discharging grows downward, so it is negated -- but only after the base
+  # class has clamped the values to their sensor's range. Skipping that clamp
+  # let a Power Splitter share that overshoots its own total (see
+  # SummaryBuilder#fix_grid_sensors_against_base_sensors) turn negative, and
+  # negating it grew the bar upward into the charging half of the chart.
   def transform_data(data, sensor_name)
-    case sensor_name
-    when :battery_discharging_power
-      data.map { |value| -value if value } # Make discharging negative
-    else
-      data # Charging stays positive
-    end
+    validated = super
+    return validated unless sensor_name == :battery_discharging_power
+
+    validated.map { |value| -value if value }
   end
 end

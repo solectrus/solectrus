@@ -5,6 +5,7 @@ import ChartBackgroundGradient from '@/utils/chartGradientDefault';
 import { resolveColor, colorToRgba, lightenColor, toRgb } from '@/utils/color';
 
 import type {
+  ChartDataWithOverlap,
   ColorScaleStop,
   DatasetWithId,
   LineDatasetWithSegment,
@@ -123,8 +124,10 @@ export class ColorManager {
   }
 
   private getMinAlpha(data: ChartData): number {
-    const isSparseLine =
-      this.typeValue === 'line' && !this.isOverlapping(data.datasets);
+    const overlapping =
+      (data as ChartDataWithOverlap).overlapping ??
+      this.isOverlapping(data.datasets);
+    const isSparseLine = this.typeValue === 'line' && !overlapping;
     return isSparseLine ? 0.2 : 0.7;
   }
 

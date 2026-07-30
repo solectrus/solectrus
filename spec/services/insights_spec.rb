@@ -145,4 +145,54 @@ describe Insights do
       it { is_expected.to eq(3.0) }
     end
   end
+
+  describe '#power_grid_ratio' do
+    subject { insights.power_grid_ratio }
+
+    let(:sensor) { Sensor::Registry[:battery_power] }
+
+    before { stub_feature(:power_splitter) }
+
+    context 'when the battery was partly charged from the grid' do
+      before do
+        create_summary(
+          date: Date.new(2025, 1, 1),
+          values: [
+            [:battery_charging_power, :sum, 8000],
+            [:battery_charging_power_grid, :sum, 2000],
+            [:battery_discharging_power, :sum, 6000],
+          ],
+        )
+      end
+
+      # The charging share, not the discharging one: that is where grid
+      # electricity enters the battery.
+      it { is_expected.to eq(25) }
+
+      it 'says where the money for it went' do
+        expect(insights.costs_note).to eq(
+          'Grid electricity is attributed to the consumers.',
+        )
+      end
+    end
+
+    context 'when the battery was charged from PV alone' do
+      before do
+        create_summary(
+          date: Date.new(2025, 1, 1),
+          values: [
+            [:battery_charging_power, :sum, 8000],
+            [:battery_charging_power_grid, :sum, 0],
+            [:battery_discharging_power, :sum, 6000],
+          ],
+        )
+      end
+
+      it { is_expected.to eq(0) }
+
+      it 'has nothing to explain' do
+        expect(insights.costs_note).to be_nil
+      end
+    end
+  end
 end

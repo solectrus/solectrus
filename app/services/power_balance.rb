@@ -130,6 +130,13 @@ class PowerBalance
     grid_ratio(:battery_charging_power, :battery_charging_power_grid)
   end
 
+  # How much of what the battery handed out had been charged from the grid
+  # earlier. With an older Power Splitter that reports no such share,
+  # #grid_ratio finds no sensor and returns nil.
+  def battery_discharging_power_grid_ratio
+    grid_ratio(:battery_discharging_power, :battery_discharging_power_grid)
+  end
+
   # ============================================================================
   # EXPORT LIMIT
   # ============================================================================

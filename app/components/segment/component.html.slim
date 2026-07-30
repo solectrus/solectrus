@@ -59,8 +59,10 @@
           - else
             = render SensorValue::Component.new(data, sensor.name, context: :total, precision: 3, class: 'text-xl')
 
-            - if costs
-              = render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs: costs_grid, pv_costs: costs_pv)
+            / The battery has a grid share but no costs of its own -- what it
+            / stores is billed to the consumers taking it back out
+            - if costs || power_grid_ratio
+              = render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs: costs_grid, pv_costs: costs_pv, note: costs_note)
 
             - elsif sensor.name == :grid_export_power
               = render SensorValue::Component.new(data, :grid_revenue, sign: :positive, class: 'text-xl')

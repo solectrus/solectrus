@@ -13,28 +13,19 @@ class Insights # rubocop:disable Metrics/ClassLength
     @value[sensor_name] ||= data.public_send(sensor_name).to_f
   end
 
+  # The battery is missing on purpose: it has no costs of its own. What is
+  # charged into it from the grid is billed to the consumers that take it back
+  # out again, through their own grid share.
+  #
+  # Rendered several times by the template, so this and #power_grid_ratio
+  # memoize -- their lookups walk the whole summary.
   def costs
-    if %i[
-         wallbox_power
-         heatpump_power
-         house_power
-         house_power_without_custom
-         battery_power
-       ].exclude?(sensor.name) && !sensor.name.to_s.start_with?('custom_')
-      return
-    end
-    return unless ApplicationPolicy.power_splitter?
+    return @costs if defined?(@costs)
 
-    costs_field =
-      if sensor.name == :battery_power
-        'battery_charging_costs'
-        # NOTE: battery_charging_costs already only includes grid costs (no opportunity costs)
-      else
-        "#{sensor.name}_costs".sub('_power', '')
-        # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, ...
+    @costs =
+      if sensor_supports_costs? && ApplicationPolicy.power_splitter?
+        data.public_send(costs_sensor_name)
       end
-
-    data.public_send(costs_field)
   end
 
   def costs_grid
@@ -46,23 +37,39 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   def sensors_with_grid_ratio
-    %i[
-      wallbox_power
-      heatpump_power
-      house_power
-      battery_power
-      house_power_without_custom
-    ] + Sensor::Config.custom_power_sensors.map(&:name)
+    @sensors_with_grid_ratio ||=
+      %i[
+        wallbox_power
+        heatpump_power
+        house_power
+        house_power_without_custom
+        battery_power
+      ] + Sensor::Config.custom_power_sensors.map(&:name)
   end
 
+  # battery_power stands for both directions, and its grid ratio is the one of
+  # the charging: that is where grid electricity enters the battery. The
+  # discharge has a ratio of its own, but it is an attribution from the Power
+  # Splitter's ledger rather than something the battery does at that moment.
   def power_grid_ratio
-    return unless sensor.name.in?(sensors_with_grid_ratio)
+    return @power_grid_ratio if defined?(@power_grid_ratio)
 
-    if sensor.name == :battery_power
-      data.battery_charging_power_grid_ratio
-    else
-      data.public_send(:"#{sensor.name}_grid_ratio")
-    end
+    @power_grid_ratio =
+      if sensor.name == :battery_power
+        data.battery_charging_power_grid_ratio
+      elsif sensor.name.in?(sensors_with_grid_ratio)
+        data.public_send(:"#{sensor.name}_grid_ratio")
+      end
+  end
+
+  # The battery has a grid share but no costs of its own (see #costs), so say
+  # where that money went instead. Only worth saying while there is a grid
+  # share to talk about.
+  def costs_note
+    return unless sensor.name == :battery_power
+    return unless power_grid_ratio&.positive?
+
+    I18n.t('splitter.costs_note.battery_charging_power')
   end
 
   def multi_inverter?
@@ -167,14 +174,6 @@ class Insights # rubocop:disable Metrics/ClassLength
   def costs_by_source(source)
     return unless ApplicationPolicy.power_splitter?
 
-    # Battery is a special case: it has no opportunity costs (pv_costs) because
-    # battery charging is almost exclusively from PV. Only grid costs exist
-    # for rare emergency charging from the grid.
-    if sensor.name == :battery_power
-      return source == :grid ? data.battery_charging_costs : nil
-    end
-
-    # Use sensor definition for other power sensors
     costs_field =
       source == :grid ? sensor.costs_grid_sensor_name : sensor.costs_pv_sensor_name
     return unless costs_field
@@ -251,11 +250,12 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   def battery_sensors
-    if sensor.name == :battery_power
-      %i[battery_charging_power battery_discharging_power]
-    else
-      []
-    end
+    return [] unless sensor.name == :battery_power
+
+    # The grid share feeds #power_grid_ratio. An older Power Splitter reports
+    # none, and the ratio then stays nil.
+    %i[battery_charging_power battery_discharging_power] +
+      %i[battery_charging_power_grid].select { Sensor::Config.exists?(it) }
   end
 
   def grid_power_sensors
@@ -272,13 +272,16 @@ class Insights # rubocop:disable Metrics/ClassLength
   def cost_sensors
     return [] unless ApplicationPolicy.power_splitter?
     return [] unless sensor_supports_costs?
-
-    costs_sensor_name = cost_sensor_name_for(sensor.name)
     unless Sensor::Config.exists?(costs_sensor_name, check_policy: false)
       return []
     end
 
     [costs_sensor_name]
+  end
+
+  # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, ...
+  def costs_sensor_name
+    "#{sensor.name}_costs".sub('_power', '').to_sym
   end
 
   def sensor_supports_costs?
@@ -287,17 +290,7 @@ class Insights # rubocop:disable Metrics/ClassLength
       heatpump_power
       house_power
       house_power_without_custom
-      battery_power
     ].include?(sensor.name) || sensor.name.to_s.start_with?('custom_')
-  end
-
-  def cost_sensor_name_for(sensor_name)
-    if sensor_name == :battery_power
-      :battery_charging_costs
-    else
-      "#{sensor_name}_costs".sub('_power', '').to_sym
-      # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, ...
-    end
   end
 
   def build_inverter_sensor_data

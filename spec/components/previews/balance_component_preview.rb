@@ -31,7 +31,6 @@ class BalanceComponentPreview < ViewComponent::Preview
             %i[wallbox_costs sum] => 30.0,
             %i[heatpump_costs sum] => 8.0,
             %i[house_costs sum] => 15.0,
-            %i[battery_charging_costs sum] => 10.0,
           },
           timeframe: Timeframe.day,
         ),

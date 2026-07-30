@@ -88,8 +88,6 @@ en:
     grid_revenue_short: Revenue
     battery_discharging_power: Battery discharge
     battery_charging_power: Battery charge
-    battery_charging_power_grid: Battery charge (Grid)
-    battery_charging_power_pv: Battery charge (PV)
     battery_power: Battery charge and discharge
     battery_soc: Home battery SOC
     battery_soc_short: SOC
@@ -138,7 +136,6 @@ en:
     house_costs: House costs
     house_without_custom_costs: House costs (excl. custom)
     wallbox_costs: EV charging costs
-    battery_charging_costs: Battery charging costs
     system_status: System status
     system_status_ok: System status OK
   splitter:
@@ -146,6 +143,8 @@ en:
     pv: Energy from PV
     pv_percent: '%{percent}% from PV'
     total: Power consumption
+    costs_note:
+      battery_charging_power: Grid electricity is attributed to the consumers.
   balance_sheet:
     left: Source
     right: Usage
@@ -416,7 +415,7 @@ en:
     self_consumption: 'PV generation consumed on-site (not exported).'
     self_consumption_quote: 'Self-consumption rate: share of PV generation consumed on-site.'
     grid_quote: 'Grid share: portion of consumption covered by grid import.'
-    autarky: 'Autarky: share of consumption covered by own PV and battery.'
+    autarky: 'Autarky: share of consumption not bought from the grid. Grid energy counts when it is imported, even if the home battery hands it out later.'
     grid_costs: 'Cost of electricity imported from the grid.'
     grid_revenue: 'Revenue from electricity fed into the grid (feed-in tariff).'
     grid_balance: 'Net grid balance: feed-in revenue minus grid import costs.'
@@ -424,8 +423,7 @@ en:
     house_without_custom_costs: 'Household electricity cost excluding custom consumers.'
     heatpump_costs: 'Electricity cost attributable to the heat pump.'
     wallbox_costs: 'Electricity cost attributable to EV charging.'
-    battery_charging_costs: 'Cost of the energy used to charge the home battery.'
-    battery_savings: 'Savings from using the home battery instead of grid import.'
+    battery_savings: 'Savings from PV stored in the home battery. Grid energy passing through it does not count.'
     total_costs: 'Total economic electricity costs.'
     traditional_costs: 'Hypothetical cost if all consumption were bought from the grid (without PV).'
     savings: 'Money saved thanks to the PV system (reference cost minus actual cost).'

@@ -88,8 +88,6 @@ de:
     grid_revenue_short: Vergütung
     battery_discharging_power: Akkuentnahme
     battery_charging_power: Akkubeladung
-    battery_charging_power_grid: Akkubeladung (Netz)
-    battery_charging_power_pv: Akkubeladung (PV)
     battery_power: Akkubeladung und -entnahme
     battery_soc: Ladestand Hausakku
     battery_soc_short: Ladestand
@@ -138,7 +136,6 @@ de:
     house_costs: Hauskosten
     house_without_custom_costs: Hauskosten (ohne benutzerdef.)
     wallbox_costs: E-Auto-Kosten
-    battery_charging_costs: Akku-Ladekosten
     system_status: Systemstatus
     system_status_ok: Systemstatus OK
   splitter:
@@ -146,6 +143,8 @@ de:
     pv: Energie aus Photovoltaik
     pv_percent: '%{percent}% aus Photovoltaik'
     total: Stromverbrauch
+    costs_note:
+      battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -416,7 +415,7 @@ de:
     self_consumption: 'Vor Ort verbrauchte PV-Erzeugung (nicht eingespeist).'
     self_consumption_quote: 'Eigenverbrauchsquote: Anteil der vor Ort verbrauchten PV-Erzeugung.'
     grid_quote: 'Bezugsquote: Anteil des Verbrauchs, der aus dem Netz gedeckt wird.'
-    autarky: 'Autarkie: Anteil des Verbrauchs, der durch eigene PV und Akku gedeckt wird.'
+    autarky: 'Autarkie: Anteil des Verbrauchs, der nicht aus dem Netz bezogen wurde. Netzstrom zählt beim Bezug, auch wenn er erst später aus dem Hausakku entnommen wird.'
     grid_costs: 'Kosten für den aus dem Netz bezogenen Strom.'
     grid_revenue: 'Erlös aus der Einspeisung ins Netz (Einspeisevergütung).'
     grid_balance: 'Netzbilanz: Einspeisevergütung minus Netzbezugskosten.'
@@ -424,8 +423,7 @@ de:
     house_without_custom_costs: 'Stromkosten des Hausverbrauchs ohne benutzerdefinierte Verbraucher.'
     heatpump_costs: 'Stromkosten, die der Wärmepumpe zuzurechnen sind.'
     wallbox_costs: 'Stromkosten, die dem Laden des E-Autos zuzurechnen sind.'
-    battery_charging_costs: 'Kosten der Energie zum Laden des Hausakkus.'
-    battery_savings: 'Ersparnis durch Nutzung des Hausakkus statt Netzbezug.'
+    battery_savings: 'Ersparnis durch PV-Strom, der im Hausakku zwischengespeichert wurde. Netzstrom, der durch den Akku läuft, zählt nicht.'
     total_costs: 'Gesamte wirtschaftliche Stromkosten.'
     traditional_costs: 'Hypothetische Kosten, wenn der gesamte Verbrauch aus dem Netz bezogen würde (ohne PV).'
     savings: 'Durch die PV-Anlage eingesparter Betrag (Vergleichspreis minus tatsächliche Kosten).'

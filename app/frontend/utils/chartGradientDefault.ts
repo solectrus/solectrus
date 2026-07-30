@@ -31,7 +31,10 @@ export default class ChartGradientDefault {
 
     this.extent = datasetExtent / extent;
     this.minAlpha = minAlpha;
-    // Stacked bar must not be gradiented, just use the given Alpha
+    // A gradient under a stacked segment would fade into the one next to it,
+    // so a dataset carrying a stack group keeps the flat alpha instead. Areas
+    // are affected as much as bars, which is why a stacked-area chart that
+    // wants to keep its gradient has to stack through the value axis.
     this.maxAlpha = dataset.stack ? minAlpha : 1;
   }
 

@@ -336,6 +336,62 @@ describe SummaryCorrector do
         end
       end
 
+      context 'when the battery hands out grid energy' do
+        let(:params) do
+          {
+            grid_import_power: 60,
+            battery_discharging_power_grid: 30,
+            #
+            house_power: 40,
+            house_power_grid: 40,
+            #
+            heatpump_power: 50,
+            heatpump_power_grid: 50,
+            #
+            wallbox_power: 60,
+            wallbox_power_grid: 60,
+          }
+        end
+
+        it 'scales to the grid import plus the discharged grid energy' do
+          # Target is 90, as without the attribution
+          is_expected.to eq(
+            house_power_grid: 24,
+            heatpump_power_grid: 30,
+            wallbox_power_grid: 36,
+          )
+        end
+      end
+
+      # Real case (2024-01-17): house is over its consumption and gets capped,
+      # and the remainder is shared with a battery that has almost no headroom.
+      # A single even split would drop the battery's share instead of handing it
+      # to the heat pump, which still has room.
+      context 'when a consumer can only take a sliver of its share' do
+        let(:params) do
+          {
+            grid_import_power: 1000,
+            #
+            house_power: 300,
+            house_power_grid: 400,
+            #
+            heatpump_power: 800,
+            heatpump_power_grid: 500,
+            #
+            battery_charging_power: 1,
+            battery_charging_power_grid: 0,
+          }
+        end
+
+        it 'passes the undistributable share on instead of dropping it' do
+          is_expected.to eq(
+            house_power_grid: 300,
+            heatpump_power_grid: 699,
+            battery_charging_power_grid: 1,
+          )
+        end
+      end
+
       context 'when grid values are invalid (larger as consumption)' do
         let(:params) do
           {

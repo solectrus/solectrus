@@ -36,7 +36,6 @@ class StatsRangeComponentPreview < ViewComponent::Preview
           %i[wallbox_costs sum] => 20.0,
           %i[heatpump_costs sum] => 10.0,
           %i[house_costs sum] => 25.0,
-          %i[battery_charging_costs sum] => 15.0,
         },
         timeframe:,
       ),

@@ -173,7 +173,15 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     align_to_master_grid!(master[:labels], items)
     labels = drop_leading_lookback(master[:labels], items)
 
-    { labels:, datasets: datasets(items) }
+    { labels:, datasets: datasets(items), overlapping: overlapping_datasets? }.compact
+  end
+
+  # Whether the fills cover each other, which decides how opaque they have to
+  # be drawn. nil leaves that to the frontend, which infers it from the data --
+  # a heuristic that gives up above two datasets. Charts that stack their fills
+  # answer false: stacked areas tile instead of covering each other, however
+  # many there are, so they can keep the translucent look of a single series.
+  def overlapping_datasets?
   end
 
   # Forward-fill seeding (#series_lookback) fetches buckets before the window

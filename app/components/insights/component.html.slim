@@ -91,6 +91,11 @@
       - tile.with_footer do
         = t('.charge')
 
+    - if insights.power_grid_ratio
+      = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
+        - tile.with_body do
+          = render SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, note: insights.costs_note)
+
   - elsif sensor.name == :battery_soc
     - unless timeframe.day?
       .col-span-2.grid.grid-cols-3.gap-3.sm:gap-6

@@ -16,6 +16,20 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
     @sign = sign
   end
 
+  # Money drops its decimals from 10 upwards, and when rounding would leave
+  # nothing but zeros ("0" instead of "0,00").
+  def self.money_precision(value, precision = DEFAULT_PRECISION[:money])
+    rounded = value.round(precision)
+    rounded.zero? || rounded.abs >= 10 ? 0 : precision
+  end
+
+  # A caller that builds a total out of parts it also displays has to round
+  # those parts the way they are shown -- otherwise the numbers on screen stop
+  # adding up (43 minus 41 appearing as 1,96). See SplittedCosts::Component.
+  def self.round_money(value)
+    value.round(money_precision(value))
+  end
+
   def to_h
     return {} if value.nil?
 
@@ -176,12 +190,7 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
   end
 
   def format_money_value(val)
-    # Check if rounding to default precision results in zero
-    # If so, display without decimals (e.g., "0" instead of "0,00")
-    rounded_value = val.round(precision)
-    money_precision =
-      rounded_value.zero? || rounded_value.abs >= 10 ? 0 : precision
-    format_number(val, money_precision)
+    format_number(val, self.class.money_precision(val, precision))
   end
 
   # ==================== Helper Methods ====================
