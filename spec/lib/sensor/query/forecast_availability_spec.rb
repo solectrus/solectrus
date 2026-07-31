@@ -48,16 +48,26 @@ describe Sensor::Query::ForecastAvailability do
       end
     end
 
-    it 'uses caching' do
-      stub_max_time((Date.current + 2.days).in_time_zone.change(hour: 18))
+    context 'with an active cache' do
+      before do
+        allow(Rails).to receive(:cache).and_return(
+          ActiveSupport::Cache::MemoryStore.new,
+        )
+      end
 
-      # First call should query
-      result1 = checker.call
-      expect(result1).to eq(Date.current + 2.days)
+      it 'caches a positive result' do
+        stub_max_time((Date.current + 2.days).in_time_zone.change(hour: 18))
+        2.times { checker.call }
 
-      # Second call should use cache
-      result2 = checker.call
-      expect(result2).to eq(Date.current + 2.days)
+        expect(Influx).to have_received(:query).once
+      end
+
+      it 'does not cache a missing forecast' do
+        allow(Influx).to receive(:query).and_return([])
+        2.times { checker.call }
+
+        expect(Influx).to have_received(:query).twice
+      end
     end
   end
 end

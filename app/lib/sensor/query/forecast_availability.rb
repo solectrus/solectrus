@@ -11,7 +11,12 @@ module Sensor
         cache_key =
           "forecast_availability:#{sensor_names.sort.join(',')}:#{limit}"
 
-        Rails.cache.fetch(cache_key, expires_in: 15.minutes) { max_date }
+        # skip_nil: A missing forecast is a transient state (forecast data
+        # arrives asynchronously). Caching the nil would keep the "no data"
+        # page up for 15 minutes after the data has actually landed.
+        Rails.cache.fetch(cache_key, expires_in: 15.minutes, skip_nil: true) do
+          max_date
+        end
       end
 
       attr_reader :limit
