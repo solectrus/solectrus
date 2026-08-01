@@ -58,15 +58,22 @@ class AmortizationCalculator
   end
 
   # The result only changes with the calendar day (measured savings roll in
-  # once per day), the cash flow register, or the two parameters. A
-  # content-addressed key invalidates immediately on any of these edits
-  # without an explicit sweep; the day component keeps a stale entry from
+  # once per day), the cash flow register, the price history, or the two
+  # parameters. A content-addressed key invalidates immediately on any of these
+  # edits without an explicit sweep; the day component keeps a stale entry from
   # surviving past midnight and lets old keys expire on their own.
+  #
+  # The prices belong in the key even though no summary stores a money value:
+  # the savings sensor is computed per day from the price valid on that day and
+  # joined fresh on every query, so editing a price changes the measured past
+  # retroactively - without this, the page would keep showing yesterday's
+  # figures until midnight.
   def self.cache_key(period_years:, interest_rate:)
     [
       'amortization_calculator',
       Date.current,
       CashFlow.all.cache_key_with_version,
+      Price.all.cache_key_with_version,
       period_years,
       interest_rate,
     ].join('/')
@@ -84,7 +91,7 @@ class AmortizationCalculator
   attr_reader :period_years, :interest_rate
 
   def result
-    nominal = nominal_series
+    nominal = monthly.cumulative
     credits, debits = ledger_until_today
     table = yearly_table
     rows = table.to_a
@@ -154,16 +161,6 @@ class AmortizationCalculator
 
   def monthly
     @monthly ||= MonthlyAmounts.new(savings:, cash_flows:, period_end_date:)
-  end
-
-  # Plain cumulative balance at the end of each month, no interest:
-  # [[month_start, balance], ...]
-  def nominal_series
-    balance = 0.0
-
-    monthly.months.each_with_index.map do |month, index|
-      [month, balance += monthly.amounts[index]]
-    end
   end
 
   # Plain nominal ledger up to today: measured savings and positive flows as

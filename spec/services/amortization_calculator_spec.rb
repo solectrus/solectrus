@@ -662,6 +662,25 @@ describe AmortizationCalculator do
       expect(second.npv).not_to eq(first.npv)
     end
 
+    it 'recomputes when a price changes' do
+      # No summary stores a money value: the savings sensor is computed per day
+      # from the price valid on that day, joined fresh on every query. Editing a
+      # price therefore changes the measured past, and the cached result must
+      # not survive it.
+      before_change = described_class.result.operating_cashflow
+
+      # The key carries Price.all.cache_key_with_version, i.e. COUNT plus
+      # MAX(updated_at). A real edit always produces the newest timestamp; here
+      # the suite has frozen time to 2024 while the prices were seeded with the
+      # actual clock, so touching one would move it backwards and leave the
+      # maximum untouched. Stamp it explicitly to reproduce what an edit does.
+      Price
+        .find_by!(name: :electricity)
+        .update!(value: 0.5, updated_at: Price.maximum(:updated_at) + 1.second)
+
+      expect(described_class.result.operating_cashflow).not_to eq(before_change)
+    end
+
     it 'discards a cached result with incompatible struct members' do
       # A Result serialized by an older app version raises TypeError on
       # deserialization (e.g. a renamed struct member). The stale entry must be

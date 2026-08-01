@@ -34,6 +34,19 @@ class AmortizationCalculator
         end
     end
 
+    # Plain cumulative balance at the end of each month, no interest:
+    # [[month_start, balance], ...]. The running total of #amounts, and the
+    # basis of both the break-even date and the balance chart.
+    def cumulative
+      @cumulative ||=
+        begin
+          balance = 0.0
+          months.each_with_index.map do |month, index|
+            [month, balance += amounts[index]]
+          end
+        end
+    end
+
     def flows_in(month)
       flows_by_month.fetch(month, [])
     end
