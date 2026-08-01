@@ -491,6 +491,116 @@ describe AmortizationCalculator do
     end
   end
 
+  describe 'internal rate of return over time' do
+    # One seeded day per month from 2021-07 to 2024-06, so the history has two
+    # full years of evaluable dates behind it (it only starts once a year of
+    # measured data exists).
+    def seed_three_years
+      36.times do |index|
+        seed_savings_day(Date.new(2021, 7, 10) + index.months, 10_000)
+      end
+    end
+
+    def irr_on(history, date)
+      history.find { |entry| entry[:date] == date }&.fetch(:irr_percent)
+    end
+
+    # One seeded day every 30 days from the installation up to today, so the
+    # rolling year is populated whatever the system's age.
+    def seed_since(installation)
+      date = installation
+      while date <= Date.current
+        seed_savings_day(date, 10_000)
+        date += 30
+      end
+      create_investment(amount: -300, date: installation)
+    end
+
+    it 'is empty with less than a year of measured data' do
+      seed_steady_year
+      create_investment(amount: -300)
+
+      expect(result.irr_history).to be_empty
+    end
+
+    it 'is empty for a system installed today' do
+      # Only minutes of readings: no projection basis at all, and the whole
+      # history would rest on a single partial day.
+      seed_since(Date.current)
+
+      expect(result.irr_history).to be_empty
+    end
+
+    it 'yields a single sample on the day the first year completes' do
+      # measured_days counts inclusively, so day 365 is installation + 364 -
+      # the first evaluable date and today are one and the same.
+      seed_since(Date.current - 364)
+
+      expect(result.irr_history.pluck(:date)).to eq([Date.current])
+    end
+
+    it 'yields a curve right after the first year, not a lone point' do
+      # A year completed mid-month: the first evaluable date lies days back, so
+      # there must be a segment to draw even before the month is out.
+      seed_since(Date.current - 369)
+
+      expect(result.irr_history.pluck(:date)).to eq(
+        [Date.current - 5, Date.current],
+      )
+    end
+
+    it 'samples the first evaluable date, every month end and today' do
+      seed_three_years
+      create_investment(amount: -300, date: Date.new(2021, 7, 10))
+
+      dates = result.irr_history.pluck(:date)
+
+      aggregate_failures do
+        # 2021-07-10 plus 364 days is the first day with a full year of data
+        # (measured_days counts inclusively), and it is sampled itself - not
+        # only the month end after it, which would mark three evaluable weeks
+        # as not yet evaluable.
+        expect(dates.first).to eq(Date.new(2022, 7, 9))
+        expect(dates[1]).to eq(Date.new(2022, 7, 31))
+        expect(dates.last).to eq(Date.new(2024, 6, 15))
+        expect(dates).to eq(dates.sort)
+        expect(dates).to eq(dates.uniq)
+      end
+    end
+
+    it 'ends on the headline figure' do
+      seed_three_years
+      create_investment(amount: -300, date: Date.new(2021, 7, 10))
+
+      r = result
+
+      expect(r.irr_history.last[:irr_percent]).to be_within(0.001).of(
+        r.irr_percent,
+      )
+    end
+
+    it 'leaves earlier dates untouched by a payment booked later' do
+      seed_three_years
+      create_investment(amount: -300, date: Date.new(2021, 7, 10))
+      without_repair = irr_on(result.irr_history, Date.new(2023, 12, 31))
+
+      CashFlow.create!(
+        date: Date.new(2024, 5, 15),
+        amount: -100,
+        note: 'Repair',
+      )
+      r = result
+
+      aggregate_failures do
+        # The repair steps the curve down where it happened, not retroactively.
+        expect(irr_on(r.irr_history, Date.new(2023, 12, 31))).to be_within(
+          0.001,
+        ).of(without_repair)
+        expect(r.irr_history.last[:irr_percent]).to be < without_repair
+      end
+    end
+  end
+
   describe 'required annual savings' do
     before { seed_steady_year }
 

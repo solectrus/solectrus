@@ -103,7 +103,23 @@ describe 'Amortization' do
       expect(page).to have_text(/\d{2}\.\d{2}\.\d{4} – \d{2}\.\d{2}\.\d{4}/)
 
       # Back to the chart tab reveals the canvas again
-      click_link 'Verlauf'
+      click_link 'Saldo'
+      expect(page).to have_current_path('/amortization')
+      expect(page).to have_css('canvas', visible: :visible)
+    end
+
+    it 'navigates to the return history and back' do
+      visit '/amortization'
+
+      click_link 'Rendite'
+
+      expect(page).to have_current_path('/amortization/returns')
+      # The seeded system data holds a single measured day, so the history has
+      # nothing to say yet and the view explains why instead of drawing an
+      # empty canvas.
+      expect(page).to have_text('Noch kein Verlauf verfügbar')
+
+      click_link 'Saldo'
       expect(page).to have_current_path('/amortization')
       expect(page).to have_css('canvas', visible: :visible)
     end

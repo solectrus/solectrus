@@ -270,7 +270,7 @@ describe 'Amortization' do
       it 'offers the sub-navigation with the table tab current' do
         get '/amortization/details'
 
-        expect(response.body).to include('>Progression</span>')
+        expect(response.body).to include('>Balance</span>')
         expect(response.body).to include('>Details</span>')
         expect(response.body).to include('aria-current="location"')
       end
@@ -327,6 +327,95 @@ describe 'Amortization' do
         expect(response).to have_http_status(:success)
         expect(response.body).to include('Only visible to administrators')
         expect(response.body).not_to include('Earned back')
+      end
+    end
+  end
+
+  describe 'GET /amortization/returns' do
+    before do
+      allow(Summary).to receive(:missing_or_stale_days).and_return([])
+      allow(ApplicationPolicy).to receive(:amortization?).and_return(true)
+      allow(Setting).to receive(:amortization_public).and_return(true)
+      CashFlow.create!(date: Date.new(2021, 7, 10), amount: -300, note: 'PV')
+    end
+
+    def seed_savings_day(date)
+      create_summary(
+        date:,
+        values: [
+          [:house_power, :sum, 10_000],
+          [:grid_import_power, :sum, 0],
+          [:grid_export_power, :sum, 0],
+        ],
+      )
+    end
+
+    context 'with more than a year of measured savings' do
+      before do
+        36.times { |index| seed_savings_day(Date.new(2021, 7, 10) + index.months) }
+      end
+
+      it 'renders the return history chart instead of the balance chart' do
+        get '/amortization/returns'
+
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(response.body).to include(
+            'amortization-return-chart--component',
+          )
+          expect(response.body).not_to include('amortization-chart--component')
+        end
+      end
+
+      it 'offers the sub-navigation with the return tab current' do
+        get '/amortization/returns'
+
+        aggregate_failures do
+          expect(response.body).to include('>Balance</span>')
+          expect(response.body).to include('>Return</span>')
+          expect(response.body).to include('aria-current="location"')
+        end
+      end
+    end
+
+    context 'with less than a year of measured savings' do
+      before { seed_savings_day(Date.new(2024, 6, 10)) }
+
+      it 'shows a hint instead of an empty chart' do
+        get '/amortization/returns'
+
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(response.body).to include('No history available yet')
+          expect(response.body).not_to include(
+            'amortization-return-chart--component',
+          )
+        end
+      end
+    end
+
+    context 'when the first year completes on this very day' do
+      before do
+        # measured_days counts inclusively, so day 365 is installation + 364:
+        # the first evaluable date and today are the same, leaving a single
+        # sample - not enough for a curve.
+        date = Date.current - 364
+        while date <= Date.current
+          seed_savings_day(date)
+          date += 30
+        end
+      end
+
+      it 'shows the hint rather than a chart with a lone point' do
+        get '/amortization/returns'
+
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(response.body).to include('No history available yet')
+          expect(response.body).not_to include(
+            'amortization-return-chart--component',
+          )
+        end
       end
     end
   end
@@ -424,6 +513,16 @@ describe 'Amortization' do
         # The details view re-renders the table, not the chart.
         expect(response.body).to include('Earned back')
         expect(response.body).not_to include('amortization-chart--component')
+      end
+
+      it 're-renders the return history when the sliders live on that view' do
+        patch '/amortization', params: params.merge(view: 'returns')
+
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(response.body).to include('value="25"')
+          expect(response.body).not_to include('amortization-chart--component')
+        end
       end
 
       it 'remembers the parameters in a single per-browser cookie' do

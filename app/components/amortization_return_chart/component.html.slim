@@ -1,0 +1,55 @@
+- if history?
+  = tag.div class: 'relative flex-auto flex flex-col group/zoom group-data-zoomed/zoom:fixed group-data-zoomed/zoom:inset-0 group-data-zoomed/zoom:z-45 group-data-zoomed/zoom:p-6 group-data-zoomed/zoom:bg-white dark:group-data-zoomed/zoom:bg-slate-900',
+            data: { \
+              controller: 'amortization-return-chart--component chart-zoom',
+              amortization_return_chart__component_return_label_value: t('.return'),
+              amortization_return_chart__component_empty_title_value: t('.empty_period_title'),
+              amortization_return_chart__component_empty_body_value: t('.empty_period_body'),
+            } do
+
+    div class='absolute right-0 top-0 flex items-center gap-3 z-10 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4'
+      /! The curve is easy to misread (it starts above zero), so the explanation
+      /! sits here next to the chart controls rather than costing a headline.
+      = render InfoIcon::Component.new(text: hint, position: info_icon_class, icon_class: '')
+
+      button[
+        class="#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden max-lg:hidden"
+        data-chart-zoom-target='maximizeBtn'
+        data-action='chart-zoom#maximize'
+        data-controller='tooltip'
+        title=t('.maximize')
+      ]
+        i.fa.fa-up-right-and-down-left-from-center
+
+      button[
+        class="#{ICON_BUTTON_CLASS} hidden group-data-zoomed/zoom:flex"
+        data-action='chart-zoom#minimize'
+        data-controller='tooltip'
+        title=t('.minimize')
+      ]
+        i.fa.fa-down-left-and-up-right-to-center
+
+    div class='hidden text-center group-data-zoomed/zoom:block group-data-zoomed/zoom:relative group-data-zoomed/zoom:z-6'
+      div class='md:inline-flex md:items-baseline md:gap-2'
+        div class='font-bold text-gray-800 dark:text-gray-200'
+          = t('.title')
+        - if period_label
+          div class='font-normal text-gray-500 dark:text-gray-400'
+            = period_label
+
+    script type='application/json' data-amortization-return-chart--component-target='data'
+      == chart_data.to_json
+
+    div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
+      = render Loading::Component.new
+
+    div class='relative mt-2 flex-1 min-h-52'
+      canvas.max-w-full data-amortization-return-chart--component-target='canvas'
+- else
+  /! Less than a year of measured data: the projection rate is still an all-time
+  /! average over a few weeks, so a history of it would show noise, not a trend.
+  = render Message::Component.new do |c|
+    - c.with_icon do
+      i.fa.fa-chart-line
+    = c.with_title { t('.empty_title') }
+    = c.with_body { t('.empty_body') }

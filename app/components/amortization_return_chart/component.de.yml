@@ -1,0 +1,14 @@
+de:
+  title: Rendite im Zeitverlauf
+  hint_what: Jeder Punkt steht für einen Monat und zeigt, welche Rendite die PV-Anlage mit dem damaligen Kenntnisstand hatte. Es zählt die bis dahin gemessene Ersparnis, der Rest der %{years} Jahre ist hochgerechnet. Weil immer die volle Laufzeit gemeint ist, fängt die Kurve nicht bei null an.
+  hint_volatility: Für jeden Punkt wird mit der Ersparnis der 365 Tage davor hochgerechnet. Dieser Wert gilt für die ganze Restlaufzeit, deshalb verschiebt schon ein schwaches Jahr oder ein neuer Strompreis die Kurve deutlich.
+  hint_limits: Hochgerechnet wird nur die Ersparnis, Zahlungen zählen einmalig an ihrem Datum.
+  hint_reference: Die Rendite ist der Zinssatz, den die PV-Anlage selbst erwirtschaftet. Der eingestellte Diskontsatz ändert daran nichts, er ist nur der Vergleichsmaßstab und wird als gestrichelte Linie eingezeichnet, sofern er in die Skala passt.
+  info: Erläuterung zum Renditeverlauf
+  return: Rendite p.a.
+  empty_period_title: Erstes Jahr
+  empty_period_body: keine Hochrechnung
+  empty_title: Noch kein Verlauf verfügbar
+  empty_body: Der Renditeverlauf zeigt, wie sich die erwartete Rendite mit jeder gemessenen Ersparnis und jeder Zahlung verändert hat. Dafür wird mindestens ein Jahr Messdaten benötigt.
+  maximize: Maximal vergrößern
+  minimize: Zurück zur normalen Größe

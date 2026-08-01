@@ -1,7 +1,7 @@
 = helpers.form_with url: helpers.amortization_path, method: :patch, data: { controller: 'amortization-controls--component auto-submit', turbo_frame: 'amortization_detail' } do
-  / Re-render the same view the sliders live on (chart or details)
-  - if details_view?
-    = hidden_field_tag :view, 'details'
+  / Re-render the same view the sliders live on (chart, details or returns)
+  - if echoed_view
+    = hidden_field_tag :view, echoed_view
   div class=wrapper_class
     div class="form-control #{control_class}"
       .flex.justify-between.items-baseline.gap-2.py-1.text-sm

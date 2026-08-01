@@ -54,6 +54,12 @@ class AmortizationCalculator
       # range (period) the savings figure links to.
       # [{ nominal:, npv:, savings:, flows: { category => amount }, degree:, projected:, period: }]
       :yearly_table,
+      # How the internal rate of return developed: for each past evaluation
+      # date, the rate the calculation would have yielded on that day (measured
+      # savings up to then, projected from then). Empty while less than a year
+      # of measured data exists; the last entry equals irr_percent.
+      # [{ date:, irr_percent: }]
+      :irr_history,
       # The two parameters the result was computed with, echoed so the view
       # (sliders, tooltips) and the MCP response reflect the values actually
       # used: the operating period in whole years and the calculatory interest

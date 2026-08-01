@@ -222,6 +222,7 @@ Rails.application.routes.draw do
 
   resource :amortization, only: %i[show update], controller: :amortization do
     get :details, on: :member
+    get :returns, on: :member
   end
 
   constraints period: /day|week|month|year/,

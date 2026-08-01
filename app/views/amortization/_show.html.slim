@@ -46,6 +46,12 @@
       = turbo_frame_tag 'amortization_detail', class: 'flex-1 min-h-0 flex flex-col gap-3' do
         - if view == :details
           = render AmortizationTable::Component.new(result: @result)
+        - elsif view == :returns
+          /! History of the return - a chart of its own, no KPI rail: the rail's
+          /! figures are all end-of-period values and would compete with the
+          /! curve's story of how the rate got where it is.
+          .flex-1.min-h-0.flex.flex-col
+            = render AmortizationReturnChart::Component.new(result: @result)
         - else
           /! KPI rail. Kept in the DOM even when hidden on very short viewports
           /! (sr-only, not display:none) so the figures stay available to screen

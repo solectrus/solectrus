@@ -16,6 +16,12 @@ class AmortizationController < ApplicationController
     build_result
   end
 
+  # Returns view: how the internal rate of return has moved over time. Shares
+  # all of show's preparation, only the rendered template differs.
+  def returns
+    build_result
+  end
+
   # Recomputes with the two calculation parameters the sliders sent and
   # re-renders the detail Turbo frame. The effective values are remembered in a
   # single per-browser cookie (not a global Setting), so the next plain page
@@ -25,17 +31,25 @@ class AmortizationController < ApplicationController
     remember_params
 
     @result = AmortizationCalculator.result(period_years:, interest_rate:)
-    render current_view == :details ? :details : :show
+    render current_view == :chart ? :show : current_view
   end
 
   private
 
-  # Which of the two views is active: the current action, or - on a
+  # The tabs, in navigation order. :chart is the default (and the show action),
+  # the others are named after their own action and template.
+  VIEWS = %i[chart details returns].freeze
+  private_constant :VIEWS
+
+  # Which of the views is active: the current action, or - on a
   # slider-triggered frame update (action 'update') - whichever tab the form
   # declared via :view. The single source for both the render branch and the
-  # sub-navigation's active tab.
+  # sub-navigation's active tab; anything unknown falls back to the chart.
   helper_method def current_view
-    action_name == 'details' || params[:view] == 'details' ? :details : :chart
+    requested =
+      (action_name == 'update' ? params[:view] : action_name).to_s.to_sym
+
+    VIEWS.include?(requested) ? requested : :chart
   end
 
   # Shared preparation for both the chart and the table view.
@@ -63,24 +77,25 @@ class AmortizationController < ApplicationController
     @result = AmortizationCalculator.result(period_years:, interest_rate:)
   end
 
-  # Sub-navigation between the chart (overview) and the table (details). The
-  # active tab follows the current action, so a slider-triggered frame update
-  # (action_name 'update') keeps whichever tab the form declared via its view.
+  # Sub-navigation between the two charts and the table. The charts come first -
+  # the same calculation in euros and in percent - with the year-by-year table
+  # last as the drill-down. The active tab follows the current action, so a
+  # slider-triggered frame update (action_name 'update') keeps whichever tab the
+  # form declared via its view.
   helper_method def nav_items
-    on_details = current_view == :details
+    paths = {
+      chart: amortization_path,
+      returns: returns_amortization_path,
+      details: details_amortization_path,
+    }
 
-    [
+    paths.map do |view, href|
       {
-        name: t('amortization.nav.chart'),
-        href: amortization_path,
-        current: !on_details,
-      },
-      {
-        name: t('amortization.nav.details'),
-        href: details_amortization_path,
-        current: on_details,
-      },
-    ]
+        name: t("amortization.nav.#{view}"),
+        href:,
+        current: current_view == view,
+      }
+    end
   end
 
   helper_method def title

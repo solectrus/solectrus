@@ -3,7 +3,7 @@ class AmortizationCalculator
   # plus the daily rate used to project the future.
   class SavingsSeries
     DAYS_PER_YEAR = 365
-    private_constant :DAYS_PER_YEAR
+    public_constant :DAYS_PER_YEAR
 
     def initialize(today:)
       @today = today
@@ -96,6 +96,13 @@ class AmortizationCalculator
       daily_projection_rate * DAYS_PER_YEAR
     end
 
+    # Measured savings per day since installation. Also the raw basis the IRR
+    # history reads, so replaying the calculation on dozens of past dates costs
+    # no further query.
+    def measured_by_day
+      @measured_by_day ||= query_savings(measured_timeframe, group_by: :day)
+    end
+
     private
 
     # All-time average since installation - the fallback projection rate while
@@ -127,10 +134,6 @@ class AmortizationCalculator
 
     def measured_until(date)
       measured_by_day.sum { |day, value| day <= date ? value.to_f : 0.0 }
-    end
-
-    def measured_by_day
-      @measured_by_day ||= query_savings(measured_timeframe, group_by: :day)
     end
 
     # Timeframe spanning installation up to today. With only a single day of

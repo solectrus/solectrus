@@ -1,0 +1,14 @@
+en:
+  title: Return over time
+  hint_what: Every point stands for one month and shows the return the system had with the knowledge available at the time. What counts is the savings measured up to that point, the rest of the %{years} years is extrapolated. Since the full period is always included, the curve does not start at zero.
+  hint_volatility: For each point, the extrapolation uses the savings of the 365 days before it. That figure covers the whole remaining period, so a weak year or a new electricity price moves the curve noticeably.
+  hint_limits: Only the savings are extrapolated, payments count once, on their date.
+  hint_reference: The return is the interest rate the system itself earns. The discount rate you set does not change it, it is only the benchmark and is drawn as a dashed line whenever it fits within the scale.
+  info: About the return history
+  return: Return p.a.
+  empty_period_title: First year
+  empty_period_body: no extrapolation
+  empty_title: No history available yet
+  empty_body: The return history shows how the expected return has changed with every measured saving and every payment. At least one year of measured data is required for this.
+  maximize: Full size
+  minimize: Back to normal size

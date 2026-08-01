@@ -116,6 +116,7 @@ class AmortizationCalculator
       projection_uncertain: savings.projection_uncertain?,
       yearly_series: yearly_series(nominal, rows),
       yearly_table: rows,
+      irr_history: irr_history,
       period_years:,
       interest_rate: @interest_percent,
     )
@@ -208,6 +209,13 @@ class AmortizationCalculator
       current_month:,
       yearly_table: rows,
     ).to_a
+  end
+
+  # How the internal rate of return has moved over time: the same figure
+  # recomputed for a series of past evaluation dates, so the headline rate can
+  # be read as the current end of a curve instead of a number without history.
+  def irr_history
+    IrrHistory.new(savings:, cash_flows:, period_years:, today:).to_a
   end
 
   # The day-accurate engine, memoized: the single source of the per-year figures

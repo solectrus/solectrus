@@ -144,6 +144,10 @@ Metrics/MethodLength:
 
 Metrics/BlockLength:
   Max: 110
+  Exclude:
+    # The routing DSL is one block by design - its length tracks the app's URL
+    # surface, not complexity, and every new route would push it over again.
+    - config/routes.rb
 
 Metrics/ClassLength:
   Max: 150

@@ -28,9 +28,9 @@ class AmortizationControls::Component < ViewComponent::Base
   delegate :interest_rate, to: :result
 
   # Echoed back on submit so the update action re-renders the same view the
-  # sliders were adjusted on (chart or details).
-  def details_view?
-    view == :details
+  # sliders were adjusted on. The chart is the default, so it needs no field.
+  def echoed_view
+    view.to_s if view != :chart
   end
 
   def bar?
