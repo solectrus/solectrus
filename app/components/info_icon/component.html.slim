@@ -1,0 +1,6 @@
+span class=wrapper_class data-controller='tooltip' data-tooltip-touch-value='true'
+  i class='fa fa-circle-info font-normal normal-case text-gray-400 dark:text-gray-500'
+  span.hidden data-tooltip-target='html'
+    - paragraphs.each_with_index do |paragraph, index|
+      p class=('mt-2' if index.nonzero?)
+        = paragraph

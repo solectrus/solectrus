@@ -79,45 +79,9 @@ class AmortizationStats::Component < ViewComponent::Base
     'mt-0.5 text-base md:text-lg font-bold tabular-nums'
   end
 
-  # Renders the info icon with a rich-HTML tooltip. The hint text is split into
-  # paragraphs on blank lines (\n\n), so long hints stay readable.
-  #
-  # The tooltip controller sits on the wrapper, not on the <i>: Font Awesome
-  # replaces the <i> with an <svg> and discards its children, so the hidden
-  # html-target must be a sibling of the icon. The wrapper carries the absolute
-  # positioning so it has a real bounding box for the tooltip to anchor to.
+  # Info icon in the tile's bottom-right corner, carrying the hint as a tooltip.
   def info_icon(text)
-    tag.span(
-      class: 'absolute bottom-2 right-2 cursor-help',
-      data: {
-        controller: 'tooltip',
-        tooltip_touch_value: 'true',
-      },
-    ) do
-      safe_join(
-        [
-          tag.i(
-            class:
-              'fa fa-circle-info font-normal normal-case text-gray-400 dark:text-gray-500',
-          ),
-          tag.span(
-            tooltip_paragraphs(text),
-            class: 'hidden',
-            data: {
-              tooltip_target: 'html',
-            },
-          ),
-        ],
-      )
-    end
-  end
-
-  def tooltip_paragraphs(text)
-    safe_join(
-      text.split("\n\n").map.with_index do |paragraph, index|
-        tag.p(paragraph, class: ('mt-2' if index.nonzero?))
-      end,
-    )
+    render InfoIcon::Component.new(text:)
   end
 
   def npv_hint
