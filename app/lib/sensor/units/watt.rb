@@ -20,4 +20,9 @@ class Sensor::Units::Watt < Sensor::Units::Base
 
     decimal_while_short(printed_value)
   end
+
+  # Three decimals of a kWh are watt-hours again
+  def exact_precision
+    3
+  end
 end

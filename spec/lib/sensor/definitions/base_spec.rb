@@ -172,6 +172,24 @@ describe Sensor::Definitions::Base do
     end
   end
 
+  describe '#exact_precision' do
+    {
+      watt: 3, # kWh with three decimals is Wh again
+      gram: 3,
+      money: 2,
+      money_per_kwh: 4,
+      percent: 2,
+      celsius: 2,
+    }.each do |unit, precision|
+      it "returns #{precision} for #{unit}" do
+        unit_class =
+          Class.new(described_class) { define_method(:unit) { unit } }
+
+        expect(unit_class.new.exact_precision).to eq(precision)
+      end
+    end
+  end
+
   describe '#value_range' do
     it 'returns nil by default' do
       sensor = test_class.new

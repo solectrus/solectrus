@@ -41,6 +41,12 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     allowed_aggregations.first
   end
 
+  # Decimals needed to show a value the way it was measured, for places that
+  # must not round (tooltips). Comes with the unit; a sensor may override it.
+  def exact_precision
+    Sensor::Units[unit].exact_precision
+  end
+
   def color_background(index: nil, value: nil)
     data = color_data_dynamic(index:, value:)
     return data[:background] if data

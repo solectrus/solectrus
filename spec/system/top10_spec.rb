@@ -71,4 +71,13 @@ describe 'Top 10' do
       end
     end
   end
+
+  # The bar label is rounded, so the exact value lives in a tooltip
+  it 'reveals the exact value on hover' do
+    visit '/top10/day/inverter_power/sum/desc'
+    expect(page).to have_css('#chart-day')
+
+    first('#chart-day [data-controller="tooltip"]').hover
+    expect(page).to have_css('.floating-tooltip.show', text: /\d,\d{3}\s*kWh/)
+  end
 end

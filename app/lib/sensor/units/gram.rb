@@ -27,4 +27,9 @@ class Sensor::Units::Gram < Sensor::Units::Base
 
     decimal_while_short(printed_value)
   end
+
+  # Three decimals of a kg are grams again
+  def exact_precision
+    3
+  end
 end

@@ -29,6 +29,12 @@ class Sensor::Units::Base
     0
   end
 
+  # Decimals that show a value the way it was measured, for places that must
+  # not round (tooltips).
+  def exact_precision
+    2
+  end
+
   # How the value itself is printed
   def format(printed_value, precision:)
     ActionController::Base.helpers.number_with_precision(
