@@ -13,6 +13,8 @@ updates:
       timezone: Europe/Berlin
     open-pull-requests-limit: 10
     versioning-strategy: lockfile-only
+    cooldown:
+      default-days: 3
     allow:
       - dependency-type: direct
       - dependency-type: indirect
@@ -54,7 +56,7 @@ updates:
     open-pull-requests-limit: 10
     versioning-strategy: auto
     cooldown:
-      default-days: 1
+      default-days: 3
     labels:
       - 'dependencies'
     ignore:
@@ -93,5 +95,7 @@ updates:
       interval: cron
       cronjob: '30 3 * * *'
       timezone: Europe/Berlin
+    cooldown:
+      default-days: 3
     labels:
       - 'dependencies'
