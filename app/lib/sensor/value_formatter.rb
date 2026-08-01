@@ -1,4 +1,4 @@
-class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
+class Sensor::ValueFormatter
   def initialize(
     value,
     unit:,
@@ -10,24 +10,16 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
     @value = value
     @unit = unit
     @explicit_precision = precision
-    @precision = precision || DEFAULT_PRECISION[@unit] || 2
-    @context = determine_context(context)
+    @context = context == :auto ? definition.default_context : context
     @scaling = validate_scaling(scaling)
     @sign = sign
-  end
-
-  # Money drops its decimals from 10 upwards, and when rounding would leave
-  # nothing but zeros ("0" instead of "0,00").
-  def self.money_precision(value, precision = DEFAULT_PRECISION[:money])
-    rounded = value.round(precision)
-    rounded.zero? || rounded.abs >= 10 ? 0 : precision
   end
 
   # A caller that builds a total out of parts it also displays has to round
   # those parts the way they are shown -- otherwise the numbers on screen stop
   # adding up (43 minus 41 appearing as 1,96). See SplittedCosts::Component.
   def self.round_money(value)
-    value.round(money_precision(value))
+    value.round(new(value, unit: :money).precision)
   end
 
   def to_h
@@ -52,51 +44,46 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
     [formatted_value, unit_string].compact.join(' ')
   end
 
+  # Decimals the value is printed with: what its unit asks for, unless the
+  # caller knows better -- or rounding would leave nothing but zeros
+  # ("0 kWh", not "0,0 kWh").
+  def precision
+    @precision ||=
+      if displayed_value.is_a?(Numeric)
+        wanted = requested_precision
+        displayed_value.round(wanted).zero? ? 0 : wanted
+      else
+        0
+      end
+  end
+
   private
 
-  attr_reader :value,
-              :unit,
-              :precision,
-              :context,
-              :scaling,
-              :explicit_precision,
-              :sign
-
-  # Default precision for each unit type
-  DEFAULT_PRECISION = {
-    celsius: 1,
-    watt: 0,
-    gram: 0,
-    money: 2,
-    money_per_kwh: 4,
-    percent: 0,
-    unitless: 1,
-  }.freeze
-  private_constant :DEFAULT_PRECISION
+  attr_reader :value, :unit, :context, :scaling, :explicit_precision, :sign
 
   VALID_SCALING_SYMBOLS = %i[auto off kilo mega].freeze
   private_constant :VALID_SCALING_SYMBOLS
 
+  def definition
+    @definition ||= Sensor::Units[unit]
+  end
+
   # ==================== Value Formatting ====================
 
   def formatted_value
-    result =
-      case unit
-      when :watt, :gram
-        format_with_scaling(value)
-      when :string
-        value.to_s.to_utf8
-      when :boolean
-        boolean_text(value)
-      when :money
-        format_money_value(value)
-      when nil
-        ''
-      else
-        format_number(value, precision)
-      end
+    add_sign_prefix(definition.format(displayed_value, precision:))
+  end
 
-    add_sign_prefix(result)
+  # The number that actually gets printed: watt and gram are shown scaled
+  # (kWh, kg), every other unit as it is.
+  def displayed_value
+    @displayed_value ||=
+      definition.scalable? ? value.to_f / divisor : value
+  end
+
+  # Only scalable units ever divide, so the others need no formatter to answer
+  def divisor
+    definition.scalable? ? unit_formatter.divisor : 1
   end
 
   def add_sign_prefix(result)
@@ -118,13 +105,22 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
       Sensor::UnitFormatter.new(unit:, value: value || 0, context:, scaling:)
   end
 
-  # ==================== Context & Validation ====================
+  # ==================== Precision ====================
 
-  def determine_context(context)
-    return context unless context == :auto
+  def requested_precision
+    return explicit_precision if explicit_precision && !raw_scale?
 
-    %i[gram money].include?(unit) ? :total : :rate
+    definition.precision(displayed_value, divisor:)
   end
+
+  # A caller's precision refers to the number as printed ("three decimals of
+  # a kWh"). A scalable unit at base scale (raw watt-hours, raw grams) is
+  # whole numbers to begin with, so there is nothing left to refine.
+  def raw_scale?
+    definition.scalable? && divisor == 1
+  end
+
+  # ==================== Validation ====================
 
   def validate_scaling(scaling)
     return scaling if scaling.is_a?(Numeric)
@@ -134,65 +130,6 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
           "Invalid scaling #{scaling.inspect}. Must be one of: #{VALID_SCALING_SYMBOLS.join(', ')} or a number"
   end
 
-  # ==================== Specific Formatters ====================
-
-  def boolean_text(val)
-    val ? I18n.t('general.yes') : I18n.t('general.no')
-  end
-
-  def format_with_scaling(val)
-    scaled_value = val.to_f / unit_formatter.divisor
-    scale_precision = determine_scale_precision_with_override(val)
-
-    # If rounding to the target precision results in zero, use precision 0 instead
-    # This ensures "0 kWh" instead of "0,0 kWh" for small values like 0.01 kWh
-    scale_precision = 0 if scaled_value.round(scale_precision).zero?
-
-    format_number(scaled_value, scale_precision)
-  end
-
-  def determine_scale_precision_with_override(val)
-    # Use explicit precision if provided AND the value is scaled
-    # For unscaled values (divisor = 1), always use precision 0
-    divisor = unit_formatter.divisor
-    if explicit_precision && divisor > 1
-      explicit_precision
-    else
-      determine_scale_precision(val)
-    end
-  end
-
-  def determine_scale_precision(val)
-    divisor = unit_formatter.divisor
-    return 0 if gram_with_kilo_scale?(divisor)
-    return 0 if large_kilowatt_value?(divisor, val)
-
-    precision_for_divisor(divisor)
-  end
-
-  def gram_with_kilo_scale?(divisor)
-    unit == :gram && divisor == 1_000
-  end
-
-  def large_kilowatt_value?(divisor, val)
-    unit == :watt && divisor == 1_000 && val.abs >= 100_000
-  end
-
-  def precision_for_divisor(divisor)
-    case divisor
-    when 1
-      0
-    when 1_000, 1_000_000
-      1
-    else
-      precision
-    end
-  end
-
-  def format_money_value(val)
-    format_number(val, self.class.money_precision(val, precision))
-  end
-
   # ==================== Helper Methods ====================
 
   def split_formatted_value(formatted)
@@ -200,14 +137,5 @@ class Sensor::ValueFormatter # rubocop:disable Metrics/ClassLength
     parts = formatted.split(separator, 2)
     decimal_part = parts.second ? "#{separator}#{parts.second}" : nil
     [parts.first, decimal_part]
-  end
-
-  def format_number(num, num_precision)
-    ActionController::Base.helpers.number_with_precision(
-      num,
-      precision: num_precision,
-      delimiter: I18n.t('number.format.delimiter'),
-      separator: I18n.t('number.format.separator'),
-    )
   end
 end

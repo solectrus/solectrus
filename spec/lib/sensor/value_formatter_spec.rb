@@ -430,6 +430,14 @@ describe Sensor::ValueFormatter do
         expect(result[:value]).to eq('10')
         expect(result[:unit]).to eq('€')
       end
+
+      it 'keeps the decimals of large amounts when a precision is given' do
+        formatter = described_class.new(1234.5678, unit: :money, precision: 2)
+        result = formatter.to_h
+
+        expect(result[:value]).to eq('1.234,57')
+        expect(result[:unit]).to eq('€')
+      end
     end
   end
 

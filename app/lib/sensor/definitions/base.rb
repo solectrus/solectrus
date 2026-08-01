@@ -3,20 +3,6 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   # display_name / description / canonical_label and their derivation logic
   include Sensor::Definitions::Describable
 
-  # Allowed unit types
-  VALID_UNITS = %i[
-    watt
-    celsius
-    percent
-    unitless
-    boolean
-    string
-    gram
-    money
-    money_per_kwh
-  ].freeze
-  private_constant :VALID_UNITS
-
   delegate :value_range,
            :summary_aggregations,
            :allowed_aggregations,
@@ -268,10 +254,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   end
 
   def validate_unit!
-    return if VALID_UNITS.include?(unit)
+    return if Sensor::Units.names.include?(unit)
 
     raise ArgumentError,
           "Invalid unit #{unit.inspect} for sensor #{name.inspect}. " \
-            "Must be one of: #{VALID_UNITS.join(', ')}"
+            "Must be one of: #{Sensor::Units.names.join(', ')}"
   end
 end
