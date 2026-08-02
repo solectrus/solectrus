@@ -6,7 +6,7 @@ module McpServer
       module Rows
         module_function
 
-        # [{ date:, value: }, ...], ordered by value or by date.
+        # [{ date:, value:, partial: }, ...], ordered by value or by date.
         def fetch(sensor, aggregation:, timeframe:, period:, desc:, chronological:, limit:) # rubocop:disable Metrics/ParameterLists
           rows =
             Sensor::Query::Ranking.new(
@@ -18,9 +18,42 @@ module McpServer
               desc:,
               limit:,
             ).call
-          return rows unless chronological
+          rows = with_gaps(rows.sort_by { |entry| entry[:date] }, period, limit) if chronological
 
-          with_gaps(rows.sort_by { |entry| entry[:date] }, period, limit)
+          mark_partial(rows, timeframe, period)
+        end
+
+        # A ranked period is labelled with its START but summed over the days
+        # inside the timeframe alone, so a period the timeframe cuts into is a
+        # fragment under a label claiming the whole of it - and by its date
+        # alone indistinguishable from the whole periods it competes with.
+        # Mark it, so a client reads the value as the fragment it is.
+        #
+        # Both edges can be cut, and under a value ranking either can surface
+        # anywhere in the list, so the marker travels with the row rather than
+        # being implied by its position. The marker is set only where it
+        # applies: its presence is the whole signal, and the common case stays
+        # as cheap as it was.
+        def mark_partial(rows, timeframe, period)
+          rows.map do |entry|
+            partial?(entry[:date], timeframe, period) ? entry.merge(partial: true) : entry
+          end
+        end
+
+        # Two ways a period ends up a fragment. Either the timeframe cuts one
+        # of its edges - measured against the dates the query itself ranked
+        # over, not the timeframe's nominal ones.
+        #
+        # Or it holds today, which the timeframe bounds cannot express:
+        # effective_ending_date is capped at today, so a period ending today
+        # never looks cut by them - yet the day is not over. That is the
+        # ordinary case for the default period="day", whose newest entry is a
+        # few hours of measurement competing against whole days.
+        def partial?(date, timeframe, period)
+          ending = date + 1.public_send(period) - 1.day
+
+          date < timeframe.effective_beginning_date ||
+            ending > timeframe.effective_ending_date || ending >= Date.current
         end
 
         # A period without data has no summary row, so it drops out of the

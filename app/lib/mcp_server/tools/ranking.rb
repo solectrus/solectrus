@@ -23,6 +23,20 @@ module McpServer
         `aggregation` defaults to each sensor's natural one, `period` to "day",
         `order` to "desc" — which also decides WHICH periods the limit keeps.
 
+        A period the timeframe cuts into carries `partial: true`, and only
+        then. Each entry is labelled with its period's START, but summed over
+        the days inside the timeframe alone: with period="month" over
+        "2026-06-15..2026-07-15" the entry dated "2026-06-01" holds June 15-30,
+        not June — half the month under a label claiming all of it. The date
+        may even fall before the timeframe ("2025-12-29" for the first week of
+        year "2026"). So never compare a flagged entry with an unflagged one
+        directly — the fragment is smaller for having been cut, not for having
+        produced less. The current period is flagged the same way, being
+        equally unfinished — today included, under the default period="day".
+        order="asc" takes the other route and leaves cut
+        periods out entirely, so no stub can win a "lowest" ranking; the price
+        is that it covers a narrower span than the timeframe names.
+
         sort="chronological" returns the selected periods in date order, ready
         to plot as a trend curve without re-sorting. There, a period between the
         first and the last entry that has no data is reported with value null,
@@ -135,9 +149,11 @@ module McpServer
           display_name: sensor.display_name,
           unit:,
           aggregation: agg,
+          # Rows carries the `partial` marker where there is one; splatting the
+          # row keeps it without this layer having to know about it.
           ranking:
-            rows.map do |entry|
-              { date: entry[:date].iso8601, value: Precision.round(entry[:value], unit) }
+            rows.map do |row|
+              { **row, date: row[:date].iso8601, value: Precision.round(row[:value], unit) }
             end,
         }
       end

@@ -110,6 +110,77 @@ describe McpServer::Tools::Ranking do
       end
     end
 
+    # A ranked period is labelled with its start but summed over the days the
+    # timeframe actually covers, so an edge period can be a fragment under a
+    # label claiming the whole month/week/year. Unflagged, it competes against
+    # whole periods in the same list - and wins an ascending ranking for the
+    # wrong reason.
+    describe 'periods the timeframe cuts short' do
+      def ranking(**args)
+        _error, data = call(sensor: 'house_power', sort: 'chronological', limit: 50, **args)
+        data[:results].first[:ranking]
+      end
+
+      it 'flags a month the timeframe starts inside' do
+        expect(ranking(timeframe: '2024-01-10..2024-03-31', period: 'month').first).to eq(
+          # January, but only from the 10th: the 15th to the 17th, not the month.
+          { date: '2024-01-01', value: 69_000.0, partial: true },
+        )
+      end
+
+      it 'flags a month the timeframe ends inside' do
+        create_summary(date: '2024-03-05', values: [[:house_power, :sum, 5_000]])
+
+        expect(ranking(timeframe: '2024-01-01..2024-03-10', period: 'month').last).to eq(
+          { date: '2024-03-01', value: 5_000.0, partial: true },
+        )
+      end
+
+      # The week holding New Year starts in the previous year (1 Jan 2025 is a
+      # Wednesday), so its date can even fall outside the timeframe that
+      # produced it - the one case where a client could spot the fragment
+      # itself, and only for a timeframe that names its dates.
+      it 'flags a week reaching back before the timeframe' do
+        create_summary(date: '2025-01-02', values: [[:house_power, :sum, 8_000]])
+
+        expect(ranking(timeframe: '2025', period: 'week')).to eq(
+          [{ date: '2024-12-30', value: 8_000.0, partial: true }],
+        )
+      end
+
+      it 'leaves a period the timeframe covers whole unflagged' do
+        expect(ranking(timeframe: '2024-01-01..2024-01-31', period: 'month')).to eq(
+          [{ date: '2024-01-01', value: 69_000.0 }],
+        )
+      end
+
+      it 'leaves plain days unflagged' do
+        expect(ranking(timeframe: range).pluck(:partial)).to all(be_nil)
+      end
+
+      # The day still running is a fragment for a reason the timeframe bounds
+      # cannot state: they are capped at today, so a period ending today never
+      # looks cut by them. Left unflagged it is a few hours of measurement
+      # ranked against whole days - and period="day" is the default.
+      context 'with the period still running' do
+        before do
+          create_summary(date: Date.current, values: [[:house_power, :sum, 3_000]])
+          create_summary(date: Date.yesterday, values: [[:house_power, :sum, 21_000]])
+        end
+
+        it 'flags today but not yesterday' do
+          entries = ranking(timeframe: 'month').index_by { |entry| entry[:date] }
+
+          expect(entries[Date.current.iso8601]).to include(partial: true)
+          expect(entries[Date.yesterday.iso8601]).not_to include(:partial)
+        end
+
+        it 'flags the running month' do
+          expect(ranking(timeframe: 'year', period: 'month').last).to include(partial: true)
+        end
+      end
+    end
+
     it 'ranks multiple sensors in one call' do
       create_summary(date: '2024-01-15', values: [[:house_power, :sum, 25_000], [:inverter_power_1, :sum, 40_000]])
 
