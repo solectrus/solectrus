@@ -37,7 +37,15 @@ module McpServer
             (rolling year, or all-time average below a year of data);
             per_year = per_day * 365.
           - projection_uncertain: less than a year of measured data.
-          - yearly_series: nominal balance at each year-end, with a projected flag.
+          - yearly_series: the nominal balance and the amortization degree per
+            PV year. PV years run from installation anniversary to anniversary,
+            NOT along the calendar: the entry labelled year 2029 is the balance
+            on the 2029 anniversary of installation_date, not on 31 December —
+            so break_even_date falls between the last negative entry and the
+            first positive one, and reporting an entry as "end of <year>" is
+            wrong by the months between the anniversary and New Year. The first
+            entry is the operating start itself, carrying the investment dip.
+            `projected` marks a year that is not yet measured.
 
         Money is in the system currency (get_system_info) with 2 decimals, dates
         are ISO 8601, rates and degrees are percent with 1 decimal.
