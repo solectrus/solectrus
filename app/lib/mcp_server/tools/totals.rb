@@ -18,6 +18,11 @@ module McpServer
         (divide by 1000 for kWh) — never read a watt-sum as a power. All other
         units aggregate unchanged.
 
+        A name this instance does not have is skipped, not rejected: the rest is
+        answered and the skipped names come back in `unknown_sensors`, so read
+        that field instead of assuming all-or-nothing. Only a call left with no
+        valid name at all fails.
+
         A timeframe that cannot hold data at all — entirely in the future, or
         ending before the installation date — still answers with null values but
         carries a `timeframe_note` saying which of the two it is. Report that as

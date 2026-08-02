@@ -57,6 +57,11 @@ module McpServer
         not UTC: a "1d" bucket is a local calendar day, including the 23- or
         25-hour day of a daylight-saving switch.
 
+        A name this instance does not have is skipped, not rejected: the rest is
+        answered and the skipped names come back in `unknown_sensors`, so read
+        that field instead of assuming all-or-nothing. Only a call left with no
+        valid name at all fails.
+
         A timeframe that cannot hold measured data — entirely in the future, or
         ending before the installation date — carries a `timeframe_note`, so an
         all-null curve is never mistaken for an outage. A forecast sensor over a
