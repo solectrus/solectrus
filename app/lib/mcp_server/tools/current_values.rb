@@ -43,6 +43,21 @@ module McpServer
         one among the sensors it is derived from.
 
         A measured 0 is a real value, distinct from null.
+
+        Two derived sensors return null deliberately, as a guard against
+        reporting noise as a number — not because their source is missing:
+          - self_consumption_quote is null while generation is below 50 W. A
+            self-consumption ratio computed against near-zero generation is
+            noise, not a meaningful 100 %.
+          - inverter_power_difference is null while the difference is below 5 W
+            or below 1 % of generation. That range is measurement noise between
+            two independently sampled sensors, not a real loss.
+
+        For the same reason, two sensors measuring the same thing can disagree
+        by a watt or two live (e.g. inverter_power 31 W next to
+        inverter_power_total 32 W): each sensor reports its own newest data
+        point, and those are not written at exactly the same instant. Over a
+        timeframe (get_totals) the skew averages out.
       TEXT
       input_schema(
         properties: {

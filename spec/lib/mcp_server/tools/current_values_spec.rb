@@ -254,5 +254,35 @@ describe McpServer::Tools::CurrentValues do
         expect(value[:age_seconds]).to be_nil
       end
     end
+
+    # The tool description promises these two nulls are deliberate guards
+    # against reporting noise as a number, not a missing source. Pinned here so
+    # the contract and the calculation cannot drift apart - and so nobody
+    # "fixes" a guard that is doing its job.
+    describe 'deliberate null guards' do
+      it 'suppresses self_consumption_quote below 50 W of generation' do
+        quote = Sensor::Registry[:self_consumption_quote]
+
+        # 31 W generated, 31 W self-consumed is not a meaningful 100 %.
+        expect(quote.calculate(self_consumption: 31, inverter_power: 31)).to be_nil
+        expect(quote.calculate(self_consumption: 100, inverter_power: 100)).to eq(100)
+      end
+
+      it 'suppresses inverter_power_difference below 5 W' do
+        difference = Sensor::Registry[:inverter_power_difference]
+
+        # 31 W against 32 W is sampling skew between two sensors, not a loss.
+        expect(difference.calculate(inverter_power: 31, inverter_power_total: 32)).to be_nil
+        expect(difference.calculate(inverter_power: 1000, inverter_power_total: 900)).to eq(100)
+      end
+
+      it 'suppresses inverter_power_difference below 1 % of generation' do
+        difference = Sensor::Registry[:inverter_power_difference]
+
+        expect(
+          difference.calculate(inverter_power: 10_000, inverter_power_total: 9_950),
+        ).to be_nil
+      end
+    end
   end
 end
