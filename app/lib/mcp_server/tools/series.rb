@@ -157,11 +157,13 @@ module McpServer
       end
 
       def self.series_for(sensor, data, aggregation, include_nulls:)
+        unit = mcp_unit(sensor)
+
         {
           sensor: sensor.name,
           display_name: sensor.display_name,
-          unit: mcp_unit(sensor),
-          points: Points.build(data, sensor.name, aggregation, include_nulls:),
+          unit:,
+          points: Points.build(data, sensor.name, aggregation, unit:, include_nulls:),
         }
       end
       private_class_method :series_for

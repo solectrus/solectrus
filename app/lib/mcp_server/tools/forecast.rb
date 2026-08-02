@@ -69,10 +69,10 @@ module McpServer
 
         {
           unit: 'Wh',
-          today_remaining: round(today_remaining_wh(entries, now)),
+          today_remaining: energy(today_remaining_wh(entries, now)),
           days:
             upcoming_days(entries, now).map do |date, wh|
-              { date: date.iso8601, expected: round(wh) }
+              { date: date.iso8601, expected: energy(wh) }
             end,
         }
       end
@@ -119,9 +119,9 @@ module McpServer
 
         {
           date: date.iso8601,
-          min: values.min.round(1),
-          max: values.max.round(1),
-          avg: (values.sum / values.size).round(1),
+          min: temperature(values.min),
+          max: temperature(values.max),
+          avg: temperature(values.sum / values.size),
         }
       end
       private_class_method :temperature_day
@@ -160,10 +160,15 @@ module McpServer
       end
       private_class_method :entries_for
 
-      def self.round(value)
-        value&.round(2)
+      def self.energy(value)
+        Precision.round(value, :watt_hour)
       end
-      private_class_method :round
+      private_class_method :energy
+
+      def self.temperature(value)
+        Precision.round(value, :celsius)
+      end
+      private_class_method :temperature
     end
   end
 end

@@ -92,32 +92,19 @@ module McpServer
       def self.build_totals(data, aggregations)
         present = data ? data.sensor_names : []
         aggregations.map do |sensor, aggregation|
-          value =
-            if present.include?(sensor.name)
-              format_value(sensor, data.public_send(sensor.name))
-            end
+          unit = mcp_unit(sensor, aggregation)
+          value = data.public_send(sensor.name) if present.include?(sensor.name)
 
           {
             name: sensor.name,
             display_name: sensor.display_name,
-            unit: mcp_unit(sensor, aggregation),
+            unit:,
             aggregation:,
-            value:,
+            value: Precision.round(value, unit),
           }
         end
       end
       private_class_method :build_totals
-
-      # Normalize the reported value. Percentages are rounded to a whole
-      # percent so every percent-unit sensor (autarky, self_consumption_quote,
-      # grid_quote, ...) is reported consistently, regardless of whether its own
-      # calculation already rounded.
-      def self.format_value(sensor, value)
-        return value.round if sensor.unit == :percent && value.is_a?(Numeric)
-
-        value
-      end
-      private_class_method :format_value
     end
   end
 end

@@ -85,11 +85,12 @@ module McpServer
             # every requested sensor; guard anyway so a missing accessor reads
             # as "no value" rather than raising.
             value = data.respond_to?(sensor.name) ? data.public_send(sensor.name) : nil
+            unit = mcp_unit(sensor)
             {
               name: sensor.name,
               **display_name(sensor, sensors),
-              value:,
-              unit: mcp_unit(sensor),
+              value: Precision.round(value, unit),
+              unit:,
               **Freshness.metadata(last_seen[sensor], now, value),
             }
           end

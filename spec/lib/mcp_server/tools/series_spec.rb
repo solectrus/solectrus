@@ -531,15 +531,27 @@ describe McpServer::Tools::Series do
 
   describe 'value normalization' do
     it 'collapses a signed negative zero to a plain 0.0' do
-      result = McpServer::Tools::Series::Points.normalize_value(-0.0)
+      result = McpServer::Tools::Series::Points.normalize_value(-0.0, :watt)
 
       # -0.0.to_json would serialise as "-0.0"; a normalized 0.0 must not.
       expect(result.to_json).to eq('0.0')
     end
 
+    # Rounding a small negative value is a second way to produce a -0.0, so
+    # the collapse has to happen after it, not before.
+    it 'collapses a negative zero produced by rounding' do
+      result = McpServer::Tools::Series::Points.normalize_value(-0.04, :watt)
+
+      expect(result.to_json).to eq('0.0')
+    end
+
     it 'leaves non-zero values and null untouched' do
-      expect(McpServer::Tools::Series::Points.normalize_value(42.5)).to eq(42.5)
-      expect(McpServer::Tools::Series::Points.normalize_value(nil)).to be_nil
+      expect(McpServer::Tools::Series::Points.normalize_value(42.5, :watt)).to eq(42.5)
+      expect(McpServer::Tools::Series::Points.normalize_value(nil, :watt)).to be_nil
+    end
+
+    it 'rounds by the unit policy' do
+      expect(McpServer::Tools::Series::Points.normalize_value(42.55555, :percent)).to eq(42.6)
     end
   end
 end

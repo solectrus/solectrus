@@ -27,6 +27,11 @@ module McpServer
       energy, so in get_totals/get_ranking the resulting `value` is in Wh, not
       W (divide by 1000 for kWh) - don't read a watt-sum as a power.
 
+      Every value is rounded by its unit alone, identically in every tool, so
+      the same sensor never comes back rounded from one tool and unrounded from
+      another. list_sensors publishes the exact decimals per unit in
+      conventions.precision.
+
       get_totals covers historical actuals only and rejects forecast sensors.
       For the expected PV generation (what's still coming today, per upcoming
       day) use get_forecast; for the predicted power curve use get_series on a

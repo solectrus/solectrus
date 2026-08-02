@@ -60,7 +60,7 @@ module McpServer
             {
               name:,
               unit: "#{currency}/kWh",
-              current: Price.at(name:, date: on)&.to_f,
+              current: Precision.round(Price.at(name:, date: on), :money_per_kwh),
               history: history_for(name, sort:, order:, limit: capped),
             }
           end
@@ -79,7 +79,7 @@ module McpServer
         Price.where(name:).order(clause).limit(limit).map do |price|
           {
             starts_at: price.starts_at.iso8601,
-            value: price.value.to_f,
+            value: Precision.round(price.value, :money_per_kwh),
             note: price.note,
           }
         end

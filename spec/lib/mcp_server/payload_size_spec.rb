@@ -47,20 +47,20 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
 
   # Upper bound per call, in bytes. Not a measurement but a contract: a change
   # that pushes a response past its ceiling has to be seen and the ceiling
-  # moved deliberately. Set ~15 % above the sizes measured when this file was
-  # written, so ordinary noise does not trip them.
+  # moved deliberately. Set ~15 % above the sizes currently measured, so
+  # ordinary noise does not trip them but a lost improvement does.
   def ceilings
     {
-      'get_current_values (all sensors)' => 15_000,
+      'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 79_000,
       'get_system_info' => 400,
       'get_prices' => 1_900,
-      'get_totals (12 sensors, month)' => 1_700,
-      'get_series (1 sensor, day, 1h)' => 1_700,
+      'get_totals (12 sensors, month)' => 1_500,
+      'get_series (1 sensor, day, 1h)' => 1_600,
       'get_series (5 sensors, day, 1m)' => 85_000,
-      'get_ranking (3 sensors, all, day)' => 2_200,
+      'get_ranking (3 sensors, all, day)' => 1_700,
       'get_forecast' => 1_350,
-      'get_amortization' => 2_500,
+      'get_amortization' => 2_100,
     }
   end
 

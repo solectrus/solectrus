@@ -11,12 +11,12 @@ module McpServer
         # affordable, and it stays unambiguous because the remaining points sit
         # on the same grid - a missing timestamp reads exactly like an explicit
         # null.
-        def build(data, sensor_name, aggregation, include_nulls:)
+        def build(data, sensor_name, aggregation, unit:, include_nulls:)
           buckets = raw(data, sensor_name, aggregation) || {}
           buckets = buckets.compact unless include_nulls
 
           buckets.sort.map! do |time, value|
-            { time: time.iso8601, value: normalize_value(value) }
+            { time: time.iso8601, value: normalize_value(value, unit) }
           end
         end
 
@@ -30,13 +30,15 @@ module McpServer
           data.public_send(sensor_name, aggregation, aggregation)
         end
 
-        # Flux can hand back a signed negative zero (e.g. a sensor sitting at 0
-        # around midday), which serialises as "-0.0". Collapse it to a plain 0.0
-        # so the JSON output never carries a negative zero.
-        def normalize_value(value)
-          return 0.0 if value.is_a?(Float) && value.zero?
+        # Rounded by the unit policy like every other serialized value, then
+        # stripped of a signed negative zero: Flux can hand back a -0.0 (e.g. a
+        # sensor sitting at 0 around midday), and rounding a small negative
+        # value can produce one too. Neither should reach the JSON output.
+        def normalize_value(value, unit)
+          rounded = McpServer::Precision.round(value, unit)
+          return 0.0 if rounded.is_a?(Float) && rounded.zero?
 
-          value
+          rounded
         end
       end
     end

@@ -139,13 +139,17 @@ module McpServer
         end
 
         rows = Rows.fetch(sensor, **options, aggregation: agg)
+        unit = mcp_unit(sensor, agg)
 
         {
           sensor: sensor.name,
           display_name: sensor.display_name,
-          unit: mcp_unit(sensor, agg),
+          unit:,
           aggregation: agg,
-          ranking: rows.map { |entry| { date: entry[:date].iso8601, value: entry[:value] } },
+          ranking:
+            rows.map do |entry|
+              { date: entry[:date].iso8601, value: Precision.round(entry[:value], unit) }
+            end,
         }
       end
       private_class_method :rank

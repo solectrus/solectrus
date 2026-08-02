@@ -139,7 +139,7 @@ describe McpServer::Tools::Totals do
       expect(total[:value]).to be_nil
     end
 
-    it 'rounds every percent-unit sensor consistently to whole percent' do
+    it 'rounds every percent-unit sensor consistently to one decimal' do
       create_summary(
         date: '2024-06-15',
         values: [
@@ -162,16 +162,18 @@ describe McpServer::Tools::Totals do
       percent_totals = data[:totals].select { _1[:unit] == 'percent' }
       expect(percent_totals.size).to eq(3)
 
-      # All percent sensors share the same rounding (whole percent), so each
-      # value equals its own rounded integer.
+      # All percent sensors share one rounding, decided by the unit alone -
+      # regardless of whether the sensor's own calculation already rounded. So
+      # each value survives being rounded to one decimal again, and each is a
+      # Float, never an Integer that would read as "unrounded".
       percent_totals.each do |total|
-        expect(total[:value]).to eq(total[:value].round)
+        expect(total[:value]).to eql(total[:value].round(1))
       end
 
-      # grid_quote raw = 7000 * 100 / 27000 = 25.93, rounded to 26 by the
+      # grid_quote raw = 7000 * 100 / 27000 = 25.925..., rounded to 25.9 by the
       # response layer (its own calculation does not round).
       grid_quote = percent_totals.find { _1[:name] == 'grid_quote' }
-      expect(grid_quote[:value]).to eq(26)
+      expect(grid_quote[:value]).to eq(25.9)
     end
   end
 end

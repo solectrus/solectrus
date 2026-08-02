@@ -11,8 +11,10 @@ module McpServer
         battery, grid, house, heatpump, finances, ...). Returns each sensor's
         name (use these for other tools), human-readable display name,
         a semantic description, unit and the aggregations it supports. Also
-        returns a `conventions` block explaining the naming suffixes and field
-        meanings. Call this first to discover valid sensor names.
+        returns a `conventions` block explaining the naming suffixes, the field
+        meanings and — under `precision` — how many decimals each unit is
+        rounded to, so you never have to guess whether a value was rounded.
+        Call this first to discover valid sensor names.
       TEXT
       input_schema(properties: {})
       read_only idempotent: true
@@ -50,6 +52,22 @@ module McpServer
       }.freeze
       private_constant :CONVENTIONS
 
+      # Publishes the rounding policy so a client knows the precision it is
+      # getting instead of having to guess whether a value was rounded - which
+      # is what decides whether further arithmetic on it is valid.
+      PRECISION = {
+        note:
+          'Decimals every tool rounds a value to, keyed by the sensor\'s unit ' \
+            'and by nothing else - so the same sensor reads identically in ' \
+            'get_current_values, get_totals, get_series and get_ranking. A ' \
+            'unit with 0 decimals is serialized as an integer, any other as a ' \
+            'float. Units not listed here (boolean, string) pass through ' \
+            'unchanged. Note that a summed watt sensor is rounded as the ' \
+            'watt_hour it has become, not as a watt.',
+        decimals: McpServer::Precision::DECIMALS,
+      }.freeze
+      private_constant :PRECISION
+
       def self.call(**)
         # Force English so the discovery output (display names + descriptions)
         # is deterministic regardless of the instance's locale. User-defined
@@ -69,7 +87,8 @@ module McpServer
               }
             end
 
-          conventions = CONVENTIONS.merge(units: I18n.t('sensor_units'))
+          conventions =
+            CONVENTIONS.merge(units: I18n.t('sensor_units'), precision: PRECISION)
           json_response(sensors:, conventions:)
         end
       end

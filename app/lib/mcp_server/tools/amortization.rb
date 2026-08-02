@@ -39,9 +39,11 @@ module McpServer
           - projection_uncertain: true with less than a year of measured data.
           - yearly_series: nominal balance at each year-end (projected flag per year).
 
-        All money values are in the system currency (see get_system_info); dates
-        are ISO 8601, rates and the degree are percent. period_years and
-        interest_rate echo the values actually used (clamped into range).
+        All money values are in the system currency (see get_system_info) and
+        carry 2 decimals; dates are ISO 8601; rates and the degree are percent
+        with 1 decimal — including `degree` inside yearly_series, which used to
+        be reported unrounded. period_years and interest_rate echo the values
+        actually used (clamped into range).
 
         Parameters (both optional, for what-if scenarios; default to 20 years
         and 3 % p.a.):
@@ -90,21 +92,21 @@ module McpServer
       def self.figures(result)
         {
           amortized: result.amortized?,
-          degree_percent: round2(result.degree_percent),
+          degree_percent: percent(result.degree_percent),
           break_even_date: result.break_even_date&.iso8601,
           installation_date: result.installation_date&.iso8601,
-          net_position: round2(result.net_position),
+          net_position: money(result.net_position),
           **investment_figures(result),
-          profit_nominal: round2(result.profit_nominal),
-          npv: round2(result.npv),
-          irr_percent: round2(result.irr_percent),
-          required_annual_savings: round2(result.required_annual_savings),
-          savings_per_day: round2(result.savings_per_day),
-          savings_per_year: round2(result.savings_per_year),
+          profit_nominal: money(result.profit_nominal),
+          npv: money(result.npv),
+          irr_percent: percent(result.irr_percent),
+          required_annual_savings: money(result.required_annual_savings),
+          savings_per_day: money(result.savings_per_day),
+          savings_per_year: money(result.savings_per_year),
           projection_uncertain: result.projection_uncertain,
           yearly_series:
             result.yearly_series.map do |entry|
-              entry.merge(nominal: round2(entry[:nominal]))
+              entry.merge(nominal: money(entry[:nominal]), degree: percent(entry[:degree]))
             end,
         }
       end
@@ -112,18 +114,23 @@ module McpServer
 
       def self.investment_figures(result)
         {
-          gross_investment: round2(result.gross_investment),
-          investment_reduction: round2(result.investment_reduction),
-          net_investment: round2(result.net_investment),
-          operating_cashflow: round2(result.operating_cashflow),
+          gross_investment: money(result.gross_investment),
+          investment_reduction: money(result.investment_reduction),
+          net_investment: money(result.net_investment),
+          operating_cashflow: money(result.operating_cashflow),
         }
       end
       private_class_method :investment_figures
 
-      def self.round2(value)
-        value&.round(2)
+      def self.money(value)
+        Precision.round(value, :money)
       end
-      private_class_method :round2
+      private_class_method :money
+
+      def self.percent(value)
+        Precision.round(value, :percent)
+      end
+      private_class_method :percent
 
       def self.no_data_response
         json_response(
