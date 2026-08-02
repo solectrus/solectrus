@@ -212,6 +212,22 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     respond_to?(:sql_calculation)
   end
 
+  # Whether a ranking of this sensor rests on something the summaries actually
+  # hold. A ranking orders periods by a value it reads out of summary_values,
+  # so it needs either a stored field of its own or a SQL expression deriving
+  # one.
+  #
+  # A sensor with neither is assembled in Ruby from OTHER sensors' fields, and
+  # the ranking query can only guess at what it does with them: it adds them
+  # up. That is right for a sensor that really is their sum (total_consumption,
+  # custom_power_total) and wrong for every other shape - house_power_without_custom
+  # subtracts its custom sensors, each _pv split subtracts its _grid half,
+  # grid_balance nets revenue against costs. The guess cannot tell the two
+  # apart, so nothing outside the summaries counts as rankable.
+  def rankable?
+    store_in_summary? || sql_calculated?
+  end
+
   def configured?
     Sensor::Config.exists?(name)
   end

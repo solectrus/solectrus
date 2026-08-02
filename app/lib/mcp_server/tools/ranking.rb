@@ -18,7 +18,8 @@ module McpServer
         sensor, a list of periods with their aggregated value.
 
         Units: like get_totals, a summed power sensor ranks ENERGIES, so each
-        value is in Wh, not W (divide by 1000 for kWh).
+        value is in Wh, not W (divide by 1000 for kWh). Only a sensor the
+        summaries store can be ranked; a derived one is rejected by name.
 
         `aggregation` defaults to each sensor's natural one, `period` to "day",
         `order` to "desc" — which also decides WHICH periods the limit keeps.
@@ -115,6 +116,8 @@ module McpServer
         if definitions.size > MAX_SENSORS
           raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
         end
+
+        enforce_rankable!(definitions)
 
         tf = parse_timeframe(timeframe)
         options = {

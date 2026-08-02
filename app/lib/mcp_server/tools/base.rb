@@ -209,6 +209,27 @@ module McpServer
           raise ArgumentError,
                 "#{UNSUPPORTED_HINT[tool]} Affected: #{unsupported.map(&:name).join(', ')}."
         end
+
+        # The same shape of gate for get_ranking, which cannot go through the
+        # matrix above: "r" marks the curated Top10 set, while a ranking is
+        # possible for every sensor the summaries store. Why a derived one has
+        # none at all, and what the query would otherwise guess:
+        # Sensor::Definitions::Base#rankable?.
+        #
+        # A sensor with no aggregation at all (a status string) is left to the
+        # more specific complaint about that, raised per sensor further down.
+        def enforce_rankable!(definitions)
+          unrankable =
+            definitions.reject { it.rankable? || it.default_aggregation.nil? }
+          return if unrankable.none?
+
+          raise ArgumentError,
+                'get_ranking has no ranking for these sensors: they are ' \
+                  'derived from other sensors rather than stored in the ' \
+                  'summaries, so there is no per-period value to order by. Use ' \
+                  'get_totals for their value over a timeframe, or get_series ' \
+                  "for their curve. Affected: #{unrankable.map(&:name).join(', ')}."
+        end
       end
     end
   end

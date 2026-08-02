@@ -81,11 +81,11 @@ module McpServer
             'a chart-only composite like power_balance has no live scalar. "c" ' \
             'without "s" means the sensor has a present state but no curve: a ' \
             'boolean or string sensor cannot be averaged into a time bucket, so ' \
-            'read it with get_current_values. A missing t or r is advisory: the ' \
-            'sensor is outside the primary set, but get_totals may still return ' \
-            'a value and get_ranking can still rank any summary-backed sensor. ' \
-            'Prefer sensors that carry the letter, but do not read a missing t ' \
-            'or r as a hard block.',
+            'read it with get_current_values. A missing t is advisory: the ' \
+            'sensor may still have a value. A missing r is advisory only where ' \
+            'the summaries store the sensor - get_ranking ranks those too, "r" ' \
+            'just marks the curated set. It rejects one derived from others ' \
+            '(the _pv splits, the _costs family): no per-period value to rank.',
       }.freeze
       private_constant :CONVENTIONS
 
