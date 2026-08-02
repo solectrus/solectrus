@@ -161,6 +161,16 @@ describe McpServer::Tools::ListSensors do
       expect(data[:conventions][:precision][:decimals]).to include(watt: 1, watt_hour: 0)
     end
 
+    # Rounding each value independently means a sum of parts can miss the
+    # rounded whole by 1 Wh. Left unsaid, a model reports that as a data
+    # inconsistency - the cross-checks it runs are exactly these identities.
+    it 'warns that independently rounded values can miss an identity by a digit' do
+      expect(data[:conventions][:precision][:note]).to include(
+        'rounded independently',
+        'not an inconsistency',
+      )
+    end
+
     it 'documents how to access forecast sensors' do
       expect(data[:conventions][:forecast]).to include('get_forecast')
     end

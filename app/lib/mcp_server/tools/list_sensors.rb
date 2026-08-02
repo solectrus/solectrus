@@ -97,7 +97,11 @@ module McpServer
             'unit with 0 decimals is serialized as an integer, any other as a ' \
             'float. Units not listed here (boolean, string) pass through ' \
             'unchanged. Note that a summed watt sensor is rounded as the ' \
-            'watt_hour it has become, not as a watt.',
+            'watt_hour it has become, not as a watt. Every value is rounded ' \
+            'independently, so an identity between sensors can be off by the ' \
+            'last digit - self_consumption may come back 1 Wh away from ' \
+            'inverter_power minus grid_export_power. That is the rounding, not ' \
+            'an inconsistency in the data; do not report it as one.',
         decimals: McpServer::Precision::DECIMALS,
       }.freeze
       private_constant :PRECISION
