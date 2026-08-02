@@ -20,6 +20,13 @@ module McpServer
         energy-accurate period totals (kWh, costs) use get_totals, not an
         integration of a coarse series here.
 
+        A bucket's value is the unweighted mean of its samples, not a
+        time-weighted one, so it drifts from the energy-weighted figure the
+        summaries hold — the wider the bucket, the more. That reaches the
+        averaged ratios too (autarky, self-consumption rate), derived here from
+        the bucket's mean powers: at "1d" they can read a few tenths of a point
+        beside get_totals and get_ranking, which are the period-accurate answer.
+
         Aggregation, per bucket: "mean" (default) is the curve the SOLECTRUS UI
         shows. "max"/"min" report the extreme sample in a bucket and so surface
         short-lived spikes the mean hides — use "max" with a fine resolution for

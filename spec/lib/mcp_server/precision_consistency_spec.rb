@@ -13,80 +13,35 @@
 #
 # The subject is the agreement between four tools, not one class.
 describe 'MCP precision consistency' do # rubocop:disable RSpec/DescribeClass
-  # Deliberately shares that survive a tenth but not a whole number: rounding
-  # anywhere below the precision policy turns 80.4 into 80 and 64.6 into 65.
-  #
-  #   autarky = (5000 - 980) / 5000 = 80.4 %
-  #   self_consumption_quote = (5000 - 1770) / 5000 = 64.6 %
-  let(:expected_autarky) { 80.4 }
-  let(:expected_quote) { 64.6 }
-
-  # inverter_power is not measured directly in this configuration, so the live
-  # side carries it as inverter_power_1 while the summaries store the sum.
-  let(:dependencies) do
-    { house_power: 5_000, grid_import_power: 980, grid_export_power: 1_770 }
-  end
-
   let(:day) { Date.new(2024, 6, 14) }
 
-  before do
-    travel_to Time.zone.local(2024, 6, 15, 12, 0)
-
-    create_summary(
-      date: day,
-      values: [
-        *dependencies.map { |sensor, value| [sensor, :sum, value] },
-        [:inverter_power, :sum, 5_000],
-      ],
-    )
-
-    influx_batch do
-      # Spread over the day for get_series, plus a fresh point so
-      # get_current_values has something that is not stale.
-      [day.in_time_zone + 8.hours, day.in_time_zone + 16.hours, 5.minutes.ago].each do |time|
-        dependencies.merge(inverter_power_1: 5_000).each do |sensor, value|
-          add_influx_point(
-            name: Sensor::Config.measurement(sensor),
-            fields: {
-              Sensor::Config.field(sensor) => value.to_f,
-            },
-            time:,
-          )
-        end
-      end
-    end
-  end
+  before { travel_to Time.zone.local(2024, 6, 15, 12, 0) }
 
   def parse(response)
     JSON.parse(response.content.first[:text], symbolize_names: true)
   end
 
-  def totals_values
+  def totals_values(sensors)
     parse(
-      McpServer::Tools::Totals.call(
-        timeframe: day.iso8601,
-        sensors: %w[autarky self_consumption_quote],
-      ),
+      McpServer::Tools::Totals.call(timeframe: day.iso8601, sensors:),
     )[:totals].to_h { |entry| [entry[:name].to_sym, entry[:value]] }
   end
 
-  def ranking_values
+  def ranking_values(sensors)
     parse(
-      McpServer::Tools::Ranking.call(
-        timeframe: day.iso8601,
-        sensors: %w[autarky self_consumption_quote],
-      ),
+      McpServer::Tools::Ranking.call(timeframe: day.iso8601, sensors:),
     )[:results].to_h { |result| [result[:sensor].to_sym, result[:ranking].sole[:value]] }
   end
 
-  # The buckets without data are null; the ones with data all carry the same
-  # constant share, so a single distinct value per sensor is expected.
-  def series_values
+  # The distinct non-null values per sensor: a bucket without data is null,
+  # and the ones with data are compared as a set, so a constant day collapses
+  # to one value per sensor and a "1d" request yields the single bucket.
+  def series_values(sensors, resolution:)
     parse(
       McpServer::Tools::Series.call(
         timeframe: day.iso8601,
-        sensors: %w[autarky self_consumption_quote],
-        resolution: '1h',
+        sensors:,
+        resolution:,
       ),
     )[:series].to_h do |entry|
       distinct = entry[:points].pluck(:value)
@@ -96,40 +51,149 @@ describe 'MCP precision consistency' do # rubocop:disable RSpec/DescribeClass
     end
   end
 
-  def current_values
+  def current_values(sensors)
     parse(
-      McpServer::Tools::CurrentValues.call(
-        sensors: %w[autarky self_consumption_quote],
-      ),
+      McpServer::Tools::CurrentValues.call(sensors:),
     )[:values].to_h { |entry| [entry[:name].to_sym, entry[:value]] }
   end
 
-  it 'reports the same percentage in get_totals and get_ranking' do
-    expected = { autarky: expected_autarky, self_consumption_quote: expected_quote }
+  describe 'with a day of constant values' do
+    let(:sensors) { %w[autarky self_consumption_quote] }
 
-    expect(totals_values).to eq(expected)
-    expect(ranking_values).to eq(expected)
+    # Deliberately shares that survive a tenth but not a whole number: rounding
+    # anywhere below the precision policy turns 80.4 into 80 and 64.6 into 65.
+    #
+    #   autarky = (5000 - 980) / 5000 = 80.4 %
+    #   self_consumption_quote = (5000 - 1770) / 5000 = 64.6 %
+    let(:expected_autarky) { 80.4 }
+    let(:expected_quote) { 64.6 }
+
+    # inverter_power is not measured directly in this configuration, so the live
+    # side carries it as inverter_power_1 while the summaries store the sum.
+    let(:dependencies) do
+      { house_power: 5_000, grid_import_power: 980, grid_export_power: 1_770 }
+    end
+
+    before do
+      create_summary(
+        date: day,
+        values: [
+          *dependencies.map { |sensor, value| [sensor, :sum, value] },
+          [:inverter_power, :sum, 5_000],
+        ],
+      )
+
+      influx_batch do
+        # Spread over the day for get_series, plus a fresh point so
+        # get_current_values has something that is not stale.
+        [day.in_time_zone + 8.hours, day.in_time_zone + 16.hours, 5.minutes.ago].each do |time|
+          dependencies.merge(inverter_power_1: 5_000).each do |sensor, value|
+            add_influx_point(
+              name: Sensor::Config.measurement(sensor),
+              fields: {
+                Sensor::Config.field(sensor) => value.to_f,
+              },
+              time:,
+            )
+          end
+        end
+      end
+    end
+
+    it 'reports the same percentage in get_totals and get_ranking' do
+      expected = { autarky: expected_autarky, self_consumption_quote: expected_quote }
+
+      expect(totals_values(sensors)).to eq(expected)
+      expect(ranking_values(sensors)).to eq(expected)
+    end
+
+    it 'reports the same percentage in get_series and get_current_values' do
+      expect(series_values(sensors, resolution: '1h')).to eq(
+        autarky: [expected_autarky],
+        self_consumption_quote: [expected_quote],
+      )
+      expect(current_values(sensors)).to eq(
+        autarky: expected_autarky,
+        self_consumption_quote: expected_quote,
+      )
+    end
+
+    it 'agrees across all four tools' do
+      expect(
+        [
+          totals_values(sensors),
+          ranking_values(sensors),
+          series_values(sensors, resolution: '1h').transform_values(&:sole),
+          current_values(sensors),
+        ].uniq,
+      ).to have_attributes(size: 1)
+    end
   end
 
-  it 'reports the same percentage in get_series and get_current_values' do
-    expect(series_values).to eq(
-      autarky: [expected_autarky],
-      self_consumption_quote: [expected_quote],
-    )
-    expect(current_values).to eq(
-      autarky: expected_autarky,
-      self_consumption_quote: expected_quote,
-    )
-  end
+  # The agreement above rests on a day whose values never change - it has to,
+  # because get_current_values reports an instant and needs something
+  # comparable. But a constant day also hides the one disagreement that is not
+  # a rounding one: get_totals and get_ranking derive an averaged ratio from
+  # the period's ENERGIES (the summaries are time-weighted integrals), while
+  # get_series derives it from a bucket's mean powers - and a Flux mean weights
+  # SAMPLES, not time. The two coincide only while the sample density is even
+  # across the bucket. Constant values make it even by construction.
+  #
+  # So this dataset makes it uneven on purpose: one morning sample against two
+  # afternoon ones. The tools then part ways by 7.6 points, which is not a
+  # defect to be fixed here but the documented reach of get_series - what is
+  # guarded is that each tool keeps computing its OWN rule.
+  describe 'with a day whose sample density is uneven' do
+    # Morning: 12 h at 200 W, fully imported. Afternoon: 12 h at 1000 W, fully
+    # self-supplied. Energy-wise that is 14400 Wh consumed, 2400 Wh imported.
+    let(:expected_energy_ratio) { 83.3 } # (14400 - 2400) / 14400
 
-  it 'agrees across all four tools' do
-    expect(
-      [
-        totals_values,
-        ranking_values,
-        series_values.transform_values(&:sole),
-        current_values,
-      ].uniq,
-    ).to have_attributes(size: 1)
+    # The same day sampled once in the morning and twice in the afternoon, so
+    # the afternoon carries two thirds of the weight in an unweighted mean:
+    # house_power averages 733.3 W and grid_import_power 66.7 W.
+    let(:expected_sample_ratio) { 90.9 } # (733.3 - 66.7) / 733.3
+
+    before do
+      create_summary(
+        date: day,
+        values: [[:house_power, :sum, 14_400], [:grid_import_power, :sum, 2_400]],
+      )
+
+      influx_batch do
+        {
+          6 => { house_power: 200, grid_import_power: 200 },
+          13 => { house_power: 1_000, grid_import_power: 0 },
+          15 => { house_power: 1_000, grid_import_power: 0 },
+        }.each do |hour, values|
+          values.each do |sensor, value|
+            add_influx_point(
+              name: Sensor::Config.measurement(sensor),
+              fields: {
+                Sensor::Config.field(sensor) => value.to_f,
+              },
+              time: day.in_time_zone + hour.hours,
+            )
+          end
+        end
+      end
+    end
+
+    it 'derives the ratio from the energies in get_totals and get_ranking' do
+      expect(totals_values(%w[autarky])).to eq(autarky: expected_energy_ratio)
+      expect(ranking_values(%w[autarky])).to eq(autarky: expected_energy_ratio)
+    end
+
+    it 'derives the ratio from the bucket means in get_series' do
+      values = series_values(%w[autarky total_consumption grid_import_power], resolution: '1d')
+      consumption = values[:total_consumption].sole
+      import = values[:grid_import_power].sole
+
+      # Not a magic number: exactly the share the same response reports its own
+      # mean powers to carry.
+      expect(values[:autarky]).to eq([expected_sample_ratio])
+      expect(
+        ((consumption - import) * 100 / consumption).round(1),
+      ).to eq(expected_sample_ratio)
+    end
   end
 end
