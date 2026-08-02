@@ -44,6 +44,10 @@ module McpServer
             have made the cut. A value ranking never reports such periods.
           - limit: how many entries to return per sensor (1-100, default 10).
             Use a generous limit with sort="chronological" to get a full curve.
+
+        A timeframe that cannot hold data at all — one entirely in the future,
+        or one ending before the installation date — still answers with an empty
+        ranking, but carries a `timeframe_note` saying which of the two it is.
       TEXT
       input_schema(
         properties: {
@@ -110,7 +114,7 @@ module McpServer
           raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
         end
 
-        tf = Timeframe.new(timeframe)
+        tf = parse_timeframe(timeframe)
         options = {
           timeframe: tf,
           period: period.to_sym,
@@ -122,6 +126,7 @@ module McpServer
 
         json_response(
           timeframe: tf.to_s,
+          **timeframe_note(tf),
           period:,
           order:,
           sort:,

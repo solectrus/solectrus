@@ -26,6 +26,11 @@ module McpServer
 
         Pass the sensor names from list_sensors via `sensors`.
 
+        A timeframe that cannot hold data at all — one entirely in the future,
+        or one ending before the installation date — still answers with null
+        values, but carries a `timeframe_note` saying which of the two it is.
+        Report that as "not yet" or "not back then", never as "no data".
+
         This tool is for historical measured or aggregated actual values. Do NOT
         pass forecast sensors (e.g. "inverter_power_forecast") — those are
         rejected, since the summaries hold no forecast. For the expected PV
@@ -51,7 +56,7 @@ module McpServer
       read_only idempotent: true
 
       def self.call(timeframe:, sensors:, **)
-        tf = Timeframe.new(timeframe)
+        tf = parse_timeframe(timeframe)
         resolved = resolve_sensors(sensors)
 
         forecast = resolved.select(&:forecast?)
@@ -66,7 +71,11 @@ module McpServer
         aggregations = resolved.index_with(&:default_aggregation)
 
         data = totals(tf, aggregations)
-        json_response(timeframe: tf.to_s, totals: build_totals(data, aggregations))
+        json_response(
+          timeframe: tf.to_s,
+          **timeframe_note(tf),
+          totals: build_totals(data, aggregations),
+        )
       rescue ArgumentError => e
         error_response(e.message)
       end

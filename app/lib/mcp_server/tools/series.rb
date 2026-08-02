@@ -3,7 +3,10 @@ module McpServer
     # Returns a time-ordered measurement series for one or more sensors, down to
     # sub-daily resolution (InfluxDB). This is what reveals intraday curves that
     # the daily-aggregated tools cannot show.
-    class Series < Base
+    # Two thirds of this class are the tool's contract - its description and
+    # input schema - not logic; the code itself is the `call` below plus two
+    # helpers, everything else lives in Resolution/Aggregation/Points.
+    class Series < Base # rubocop:disable Metrics/ClassLength
       # Hard cap on sensors per request. Each sensor is a separate InfluxDB
       # subquery yielding up to the point budget, so bound the per-request work
       # even though resolve_sensors already restricts to the configured set.
@@ -54,17 +57,20 @@ module McpServer
             misleading total. For period totals (Wh/kWh, costs) use get_totals,
             for the forecast use get_forecast.
           - include_nulls: true (default) returns the complete bucket grid,
-            empty buckets included. Set it to false to get only the buckets that
-            carry a value — worth doing for sensors that write sporadically
-            rather than continuously (a device that only reports on load
-            change), where the grid is mostly empty and the nulls dominate the
-            response: a day at 5m is 288 points even when three of them have a
-            value. The remaining points still sit on the same grid, so a gap
-            between two consecutive timestamps means "no data" just as an
-            explicit null does.
+            empty buckets included. false returns only the buckets carrying a
+            value — worth doing for sensors that write sporadically rather than
+            continuously (a device reporting only on load change), where a day
+            at 5m is 288 points even when three of them have a value. The
+            remaining points still sit on the same grid, so a gap between two
+            timestamps means "no data" just as an explicit null does.
 
         Each series reports `point_count` alongside its `points`, so a
         truncated or unexpectedly coarse curve is visible without counting.
+
+        A timeframe that cannot hold measured data — entirely in the future, or
+        ending before the installation date — carries a `timeframe_note`, so an
+        all-null curve is never mistaken for an outage. A forecast sensor over a
+        future timeframe is the normal case and gets no such note.
 
         Each point is {time, value}. `time` is the END of its bucket: at
         resolution "5m" the point labelled 07:05 covers 07:00–07:05, and the
@@ -121,7 +127,7 @@ module McpServer
         include_nulls: true,
         **
       )
-        tf = Timeframe.new(timeframe)
+        tf = parse_timeframe(timeframe)
         if tf.now?
           return error_response('Timeframe must cover a span, not the "now" instant.')
         end
@@ -147,6 +153,7 @@ module McpServer
 
         json_response(
           timeframe: tf.to_s,
+          **measured_timeframe_note(definitions, tf),
           resolution: label,
           coarsened: !coarsened_by.nil?,
           **Resolution.explain(coarsened_by, resolution, label, definitions.size),
@@ -157,6 +164,15 @@ module McpServer
       rescue ArgumentError => e
         error_response(e.message)
       end
+
+      # A timeframe in the future is the whole point of a forecast sensor, so
+      # the "nothing measured yet" note only applies without one.
+      def self.measured_timeframe_note(definitions, timeframe)
+        return {} if definitions.any?(&:forecast?)
+
+        timeframe_note(timeframe)
+      end
+      private_class_method :measured_timeframe_note
 
       def self.series_for(sensor, data, aggregation, include_nulls:)
         unit = mcp_unit(sensor)

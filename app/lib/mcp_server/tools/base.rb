@@ -19,6 +19,54 @@ module McpServer
 
         protected
 
+        # The forms a `timeframe` parameter accepts, named once so an error can
+        # state them instead of leaving a client to guess from the tool
+        # description it evidently misread.
+        TIMEFRAME_FORMS =
+          '"2026-06-21" (a day), "2026-W25" (a week), "2026-06" (a month), ' \
+            '"2026" (a year), "2026-01-01..2026-03-31" (a date range), "P24H"/' \
+            '"P30D"/"P12M" (rolling), "day"/"week"/"month"/"year" (the current ' \
+            'period), "all" (since installation)'.freeze
+        private_constant :TIMEFRAME_FORMS
+
+        # Timeframe.new, with the accepted forms appended to the error. The
+        # domain class stays free of that prose: which forms exist is its
+        # business, but spelling them out for a language model is this layer's.
+        def parse_timeframe(string)
+          Timeframe.new(string)
+        rescue ArgumentError => e
+          raise e unless e.message.end_with?('is not a valid timeframe')
+
+          raise ArgumentError, "#{e.message}. Accepted: #{TIMEFRAME_FORMS}."
+        end
+
+        # A `timeframe_note` explaining why a timeframe holds no data, as a hash
+        # to splat into the response - empty when it can hold data.
+        #
+        # Without it, a timeframe in the future and one before the system
+        # existed both come back as a null value, indistinguishable from a
+        # sensor outage - and a model reports "no data" where it should report
+        # "not yet" or "not back then".
+        def timeframe_note(timeframe)
+          installation = Rails.configuration.x.installation_date
+
+          if timeframe.beginning.to_date > Date.current
+            {
+              timeframe_note:
+                'This timeframe lies entirely in the future, so nothing has ' \
+                  'been measured for it yet. Use get_forecast for what is expected.',
+            }
+          elsif installation && timeframe.ending.to_date < installation
+            {
+              timeframe_note:
+                'This timeframe ends before the installation date ' \
+                  "(#{installation.iso8601}), so no data was ever recorded for it.",
+            }
+          else
+            {}
+          end
+        end
+
         # Resolve client-supplied sensor names to the corresponding Sensor
         # definitions, validated against the sensors actually configured and
         # permitted on this instance (Sensor::Config.sensors). Names outside

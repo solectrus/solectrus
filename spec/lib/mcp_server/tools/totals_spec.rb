@@ -71,6 +71,73 @@ describe McpServer::Tools::Totals do
       expect(response.content.first[:text]).to include('Unknown or unconfigured')
     end
 
+    # A null value alone reads like a sensor outage. These two timeframes
+    # cannot hold data by construction, and saying so is what lets a model
+    # answer "not yet" or "not back then" instead of "no data".
+    describe 'a timeframe that cannot hold data' do
+      def note_for(timeframe)
+        response =
+          described_class.call(server_context: nil, timeframe:, sensors: ['house_power'])
+        JSON.parse(response.content.first[:text], symbolize_names: true)[:timeframe_note]
+      end
+
+      it 'explains a timeframe entirely in the future' do
+        expect(note_for((Date.current + 1.year).strftime('%Y-%m'))).to include('future')
+      end
+
+      it 'points at get_forecast for a future timeframe' do
+        expect(note_for((Date.current + 1.year).strftime('%Y-%m'))).to include('get_forecast')
+      end
+
+      it 'explains a timeframe before the installation date' do
+        installation = Rails.configuration.x.installation_date
+
+        expect(note_for((installation - 1.year).strftime('%Y-%m'))).to include(
+          'installation date',
+          installation.iso8601,
+        )
+      end
+
+      it 'stays silent for a timeframe that can hold data' do
+        expect(note_for('2024-06-15')).to be_nil
+      end
+    end
+
+    describe 'an invalid timeframe' do
+      # "'letzte Woche' is not a valid timeframe" told a client that it was
+      # wrong but not what right looks like.
+      it 'states the accepted forms' do
+        response =
+          described_class.call(
+            server_context: nil,
+            timeframe: 'letzte Woche',
+            sensors: ['house_power'],
+          )
+
+        expect(response.error?).to be(true)
+        expect(response.content.first[:text]).to include(
+          'not a valid timeframe',
+          'Accepted:',
+          '"2026-W25"',
+          '"all"',
+        )
+      end
+
+      # A range with its dates the wrong way round is a different mistake, and
+      # listing the forms there would just bury the actual reason.
+      it 'leaves an inverted range error alone' do
+        response =
+          described_class.call(
+            server_context: nil,
+            timeframe: '2024-06-15..2024-06-01',
+            sensors: ['house_power'],
+          )
+
+        expect(response.content.first[:text]).to include('must be AFTER')
+        expect(response.content.first[:text]).not_to include('Accepted:')
+      end
+    end
+
     # A rejected name is a dead end unless the error says where the valid ones
     # are. The client cannot tell a typo from a sensor this instance simply
     # does not have, and re-reading the index settles both.
