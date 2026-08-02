@@ -76,4 +76,34 @@ describe Sensor::Definitions::Describable do
       end
     end
   end
+
+  # Separates the labels an operator chose from the ones the app derived, so a
+  # caller can publish the former without carrying the latter twice.
+  describe '#user_defined_name?' do
+    before do
+      allow(Setting).to receive(:sensor_names).and_return(
+        { custom_power_01: 'Waschmaschine' },
+      )
+    end
+
+    it 'is true for a sensor the operator named' do
+      expect(sensor(:custom_power_01)).to be_user_defined_name
+    end
+
+    it 'is false for a sensor left at its translated label' do
+      expect(sensor(:house_power)).not_to be_user_defined_name
+    end
+
+    # A custom cost sensor has no name of its own - it borrows the consumer's.
+    # So it inherits whether that name was chosen by the operator, otherwise
+    # "Waschmaschine (Costs)" would be just as undiscoverable as the consumer.
+    it 'is true for the cost sensor borrowing that name' do
+      expect(sensor(:custom_01_costs)).to be_user_defined_name
+      expect(sensor(:custom_01_costs).display_name).to eq('Waschmaschine (Costs)')
+    end
+
+    it 'is false for the cost sensor of an unnamed consumer' do
+      expect(sensor(:custom_02_costs)).not_to be_user_defined_name
+    end
+  end
 end

@@ -43,6 +43,21 @@ module Sensor
         I18n.t("sensors.#{name}", default: name.to_s.humanize)
       end
 
+      # Whether the operator named this sensor themselves - directly, or
+      # through the consumer a custom cost sensor borrows its label from
+      # ("Waschmaschine" -> "Waschmaschine (Costs)"). It marks the display
+      # names that cannot be derived from the sensor's name, which a caller
+      # skipping display_name to save space still has to carry: nothing about
+      # custom_power_01 reveals that it is the washing machine.
+      def user_defined_name?
+        return true if Setting.sensor_names[name].present?
+
+        number = name.to_s[/\Acustom_(\d+)_costs(?:_(?:grid|pv))?\z/, 1]
+        return false unless number
+
+        Sensor::Registry.find(:"custom_power_#{number}")&.user_defined_name? || false
+      end
+
       private
 
       # Label for a sensor without a localized name. Split sensors become

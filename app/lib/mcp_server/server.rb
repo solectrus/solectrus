@@ -4,6 +4,7 @@ module McpServer
   module Server
     TOOLS = [
       Tools::ListSensors,
+      Tools::SensorDetails,
       Tools::SystemInfo,
       Tools::Prices,
       Tools::CurrentValues,
@@ -17,11 +18,14 @@ module McpServer
 
     INSTRUCTIONS = <<~TEXT.strip
       This server exposes read-only data of a SOLECTRUS photovoltaic monitoring
-      system. Call list_sensors first to discover available sensor names and
-      units, then use get_current_values for live readings and get_totals for
-      aggregated values over a timeframe. get_system_info provides installation
-      metadata, currency and which subsystems exist; get_prices the
-      (time-dependent) tariffs.
+      system. Call list_sensors first to discover available sensor names - it
+      returns a compact index (name, description, and which tools work for each
+      sensor); get_sensor_details fills in unit, category and aggregations for
+      the few sensors you picked, on the rare occasion you need them before
+      making a call. Then use get_current_values for live readings and
+      get_totals for aggregated values over a timeframe. get_system_info
+      provides installation metadata, currency and which subsystems exist;
+      get_prices the (time-dependent) tariffs.
 
       Units after aggregation: summing a power sensor (unit "watt") yields an
       energy, so in get_totals/get_ranking the resulting `value` is in Wh, not

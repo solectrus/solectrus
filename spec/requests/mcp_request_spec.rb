@@ -171,6 +171,7 @@ describe 'MCP' do
           names = response.parsed_body.dig('result', 'tools').pluck('name')
           expect(names).to contain_exactly(
             'list_sensors',
+            'get_sensor_details',
             'get_system_info',
             'get_prices',
             'get_current_values',

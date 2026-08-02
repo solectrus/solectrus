@@ -52,7 +52,8 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   def ceilings
     {
       'get_current_values (all sensors)' => 13_500,
-      'list_sensors' => 79_000,
+      'list_sensors' => 17_000,
+      'get_sensor_details (3 sensors)' => 1_000,
       'get_system_info' => 400,
       'get_prices' => 1_900,
       'get_totals (12 sensors, month)' => 1_500,
@@ -217,6 +218,9 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
     {
       'get_current_values (all sensors)' => -> { payload(McpServer::Tools::CurrentValues) },
       'list_sensors' => -> { payload(McpServer::Tools::ListSensors) },
+      'get_sensor_details (3 sensors)' => lambda {
+        payload(McpServer::Tools::SensorDetails, sensors: %w[house_power savings battery_soc])
+      },
       'get_system_info' => -> { payload(McpServer::Tools::SystemInfo) },
       'get_prices' => -> { payload(McpServer::Tools::Prices) },
       'get_totals (12 sensors, month)' => lambda {

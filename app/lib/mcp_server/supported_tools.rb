@@ -24,6 +24,26 @@ module McpServer
       self.for(sensor)[tool]
     end
 
+    # One letter per tool, for the compact `tools` field.
+    LETTERS = {
+      current: 'c',
+      totals: 't',
+      series: 's',
+      ranking: 'r',
+      forecast: 'f',
+    }.freeze
+    public_constant :LETTERS
+
+    # The matrix as a compact code, e.g. "ctsr". Spelling five booleans out per
+    # sensor cost ~97 bytes and a quarter of the whole list_sensors response -
+    # for seven distinct combinations across ~200 sensors. The letters are
+    # explained once, in the conventions block.
+    def code(sensor)
+      matrix = self.for(sensor)
+
+      LETTERS.filter_map { |tool, letter| letter if matrix[tool] }.join
+    end
+
     # The aggregations a client can actually use across the MCP tools. Forecast
     # sensors are rejected by get_totals, so their stored aggregation is usable
     # nowhere - report none (the `forecast` convention documents how to read

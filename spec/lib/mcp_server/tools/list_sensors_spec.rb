@@ -5,35 +5,151 @@ describe McpServer::Tools::ListSensors do
       JSON.parse(response.content.first[:text], symbolize_names: true)
     end
 
-    it 'lists configured sensors with their metadata' do
-      names = data[:sensors].pluck(:name)
-      expect(names).to include('house_power', 'battery_soc')
-
-      soc = data[:sensors].find { _1[:name] == 'battery_soc' }
-      expect(soc).to include(unit: 'percent', calculated: false)
-      expect(soc[:aggregations]).to be_present
+    it 'lists the configured sensors by name' do
+      expect(data[:sensors].pluck(:name)).to include('house_power', 'battery_soc')
     end
 
-    it 'includes a human-readable display name and description' do
+    it 'describes a sensor semantically' do
       house = data[:sensors].find { _1[:name] == 'house_power' }
-      expect(house[:display_name]).to eq('House consumption')
       expect(house[:description]).to eq('Total household electricity consumption.')
     end
 
-    it 'never leaks a raw machine name as the display name' do
-      leaks = data[:sensors].select { _1[:display_name] == _1[:name] }
-      expect(leaks).to be_empty
+    # A sensor is a mechanical split when its name is another LISTED sensor's
+    # name plus _grid/_pv - the same rule the tool applies.
+    def split?(name, names)
+      %w[_grid _pv].any? do |suffix|
+        name.end_with?(suffix) && names.include?(name.delete_suffix(suffix))
+      end
     end
 
-    it 'provides a description for every sensor' do
-      missing = data[:sensors].reject { _1[:description].present? }
-      expect(missing).to be_empty
+    # Every entry that survives the filter is a distinct concept, so every one
+    # of them has to carry its own description - that is what the index is for.
+    it 'provides a description for every listed sensor' do
+      expect(data[:sensors].reject { _1[:description].present? }).to be_empty
     end
 
-    it 'derives display name and description for split sensors' do
-      grid = data[:sensors].find { _1[:name] == 'house_costs_grid' }
-      expect(grid[:display_name]).to eq('House costs (Grid)')
-      expect(grid[:description]).to start_with('Portion of "House costs"')
+    # A split says nothing its name and the suffix convention do not, and on an
+    # instance with many consumers the splits are 40 % of this response. So
+    # they are dropped from the index and reconstructible from split_bases.
+    describe 'split sensors' do
+      let(:names) { data[:sensors].pluck(:name) }
+
+      it 'are not listed at all' do
+        expect(names).not_to include('house_costs_grid', 'house_power_pv')
+      end
+
+      it 'keep their base sensor listed with its description' do
+        base = data[:sensors].find { _1[:name] == 'house_costs' }
+
+        expect(base[:description]).to be_present
+      end
+
+      # Without this list a client would have to guess which sensors can take a
+      # suffix, and would sooner or later try battery_soc_grid.
+      it 'name their base sensors in the conventions' do
+        expect(data[:conventions][:suffixes][:split_bases]).to include(
+          'house_costs',
+          'house_power',
+        )
+      end
+
+      it 'list each base exactly once, even though it has two splits' do
+        bases = data[:conventions][:suffixes][:split_bases]
+
+        expect(bases).to eq(bases.uniq)
+      end
+
+      # The list is the contract: a sensor outside it must not have a split,
+      # and one inside it must not have been listed as a sensor itself.
+      it 'agree with what was filtered out' do
+        bases = data[:conventions][:suffixes][:split_bases]
+
+        expect(bases).to all(be_in(names))
+        expect(names & bases.flat_map { |b| ["#{b}_grid", "#{b}_pv"] }).to be_empty
+      end
+
+      it 'are explained in the conventions' do
+        expect(data[:conventions][:suffixes][:note]).to include('NOT listed')
+      end
+
+      # The note promises the split's tools code is the base's without the r,
+      # which is the only thing left telling a client what a split supports.
+      # Prose alone would drift the moment a sensor family changes.
+      it 'carry the base sensor tools without ranking' do
+        suffixes = %w[_grid _pv]
+        mismatched =
+          data[:conventions][:suffixes][:split_bases].reject do |base|
+            expected = McpServer::SupportedTools.code(Sensor::Registry.find(base.to_sym)).delete('r')
+
+            suffixes.all? do |suffix|
+              sensor = Sensor::Registry.find(:"#{base}#{suffix}")
+              sensor.nil? || McpServer::SupportedTools.code(sensor) == expected
+            end
+          end
+
+        expect(mismatched).to be_empty
+      end
+
+      # _total aggregates a family rather than splitting one sensor, and there
+      # are only a handful of them.
+      it 'do not swallow a _total sensor' do
+        total = data[:sensors].find { _1[:name] == 'inverter_power_total' }
+
+        expect(total[:description]).to be_present
+      end
+
+      # A name merely ending in _pv/_grid without a base sensor behind it is
+      # not a split, and dropping it would make it unreachable - nothing would
+      # name it. No sensor is currently shaped that way, so asserting it
+      # against the response would pass vacuously; the rule is pinned on the
+      # predicate that decides it instead.
+      it 'are recognized by the base sensor, not by the suffix' do
+        names = Set[:house_power, :house_power_pv, :feed_in_pv]
+
+        expect(described_class.__send__(:split?, :house_power_pv, names)).to be(true)
+        expect(described_class.__send__(:split?, :feed_in_pv, names)).to be(false)
+      end
+    end
+
+    # The index carries only what is needed to PICK a sensor. Unit, category
+    # and aggregations are a get_sensor_details call away, and every data tool
+    # reports them anyway - spelling them out for a few hundred sensors up
+    # front is what made this response cost a quarter of a context window.
+    it 'omits the per-sensor datasheet fields' do
+      keys = data[:sensors].flat_map(&:keys).uniq
+
+      expect(keys - [:display_name]).to contain_exactly(:name, :description, :tools)
+    end
+
+    # The one label a client cannot derive: the operator's own name for a
+    # sensor is what the user says out loud, and neither custom_power_01 nor
+    # "custom consumer 1" reveals that it is the washing machine. Sensors the
+    # operator left alone are named by their description already, so repeating
+    # an English label for each of them would just cost bytes.
+    describe 'the operator\'s own sensor names' do
+      before do
+        allow(Setting).to receive(:sensor_names).and_return(
+          { house_power: 'Hausverbrauch' },
+        )
+      end
+
+      def entry(name)
+        data[:sensors].find { _1[:name] == name }
+      end
+
+      it 'carries the configured name' do
+        expect(entry('house_power')[:display_name]).to eq('Hausverbrauch')
+      end
+
+      it 'omits the field where nothing was configured' do
+        expect(entry('battery_soc')).not_to have_key(:display_name)
+      end
+
+      it 'tells a client what the field is for' do
+        expect(data[:conventions][:display_name]).to include(
+          'the name the user knows it by',
+        )
+      end
     end
 
     it 'explains the naming conventions' do
@@ -41,57 +157,50 @@ describe McpServer::Tools::ListSensors do
       expect(data[:conventions][:units]).to be_present
     end
 
-    # Forecast sensors are rejected by get_totals, so advertising a stored
-    # aggregation (e.g. [:sum] on the watt-unit inverter_power_forecast) would
-    # promise an aggregation the tools later reject.
-    it 'advertises no aggregations for forecast sensors' do
-      forecasts = data[:sensors].select { _1[:category] == 'forecast' }
-      expect(forecasts).to be_present
-      expect(forecasts).to all(include(aggregations: []))
+    it 'publishes the rounding policy' do
+      expect(data[:conventions][:precision][:decimals]).to include(watt: 1, watt_hour: 0)
     end
 
     it 'documents how to access forecast sensors' do
       expect(data[:conventions][:forecast]).to include('get_forecast')
     end
 
-    it 'advertises the supported tools per sensor' do
-      house = data[:sensors].find { _1[:name] == 'house_power' }
-      expect(house[:supported_tools]).to eq(
-        current: true,
-        totals: true,
-        series: true,
-        ranking: true,
-        forecast: false,
-      )
-      expect(data[:conventions][:supported_tools]).to include('get_current_values')
-    end
+    describe 'the tools code' do
+      def code_for(name)
+        data[:sensors].find { _1[:name] == name }[:tools]
+      end
 
-    # power_balance is a chart-only composite with no live scalar, so it must
-    # flag current/series false even though it is listed (BUG-2: clients need a
-    # machine-readable signal, not just the prose in get_current_values).
-    it 'flags chart-only composites as having no live value' do
-      balance = data[:sensors].find { _1[:name] == 'power_balance' }
-      expect(balance[:supported_tools]).to include(current: false, series: false)
-    end
+      it 'lists every tool that works for a sensor' do
+        expect(code_for('house_power')).to eq('ctsr')
+      end
 
-    it 'flags forecast sensors as forecast-only' do
-      forecast = data[:sensors].find { _1[:category] == 'forecast' }
-      expect(forecast[:supported_tools]).to include(forecast: true, totals: false, series: true)
-    end
+      it 'explains its letters' do
+        expect(data[:conventions][:tools]).to include(
+          'get_current_values',
+          'get_ranking',
+        )
+      end
 
-    # Money sensors (costs, revenue) are accumulated amounts with no
-    # instantaneous live value and no meaningful per-bucket curve, so they are
-    # totals-only.
-    it 'flags money sensors as totals-only' do
-      money = data[:sensors].select { _1[:unit] == 'money' }
-      expect(money).to be_present
-      expect(money).to all(include(supported_tools: include(current: false, series: false, totals: true)))
-    end
+      # power_balance is a chart-only composite with no live scalar, so it must
+      # advertise neither c nor s even though it is listed - clients need a
+      # machine-readable signal, not just the prose in get_current_values.
+      it 'omits c and s for a chart-only composite' do
+        expect(code_for('power_balance')).not_to include('c', 's')
+      end
 
-    # specific_yield is W/kWp (Wh/kWp summed), not plain watts (BUG-3).
-    it 'reports specific_yield with a per-kWp unit' do
-      yield_sensor = data[:sensors].find { _1[:name] == 'specific_yield' }
-      expect(yield_sensor[:unit]).to eq('watt_per_kwp')
+      # Money sensors (costs, revenue) are accumulated amounts with no
+      # instantaneous value and no meaningful per-bucket curve, so they carry
+      # neither c nor s.
+      it 'marks money sensors as totals-only' do
+        expect(code_for('grid_costs')).to eq('tr')
+        expect(data[:sensors].select { _1[:tools].match?(/[cs]/) }.pluck(:name)).not_to include(
+          'grid_costs',
+        )
+      end
+
+      it 'marks a forecast sensor as forecast-capable and not summable' do
+        expect(code_for('inverter_power_forecast')).to eq('csf')
+      end
     end
   end
 end
