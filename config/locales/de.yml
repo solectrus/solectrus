@@ -425,7 +425,7 @@ de:
     heatpump_costs: 'Stromkosten, die der Wärmepumpe zuzurechnen sind.'
     wallbox_costs: 'Stromkosten, die dem Laden des E-Autos zuzurechnen sind.'
     battery_savings: 'Ersparnis durch PV-Strom, der im Hausakku zwischengespeichert wurde. Netzstrom, der durch den Akku läuft, zählt nicht.'
-    total_costs: 'Gesamte wirtschaftliche Stromkosten.'
+    total_costs: 'Gesamte wirtschaftliche Stromkosten: Netzbezugskosten plus Opportunitätskosten. Nicht die Summe der Kostensensoren der einzelnen Verbraucher.'
     traditional_costs: 'Hypothetische Kosten, wenn der gesamte Verbrauch aus dem Netz bezogen würde (ohne PV).'
     savings: 'Durch die PV-Anlage eingesparter Betrag (Vergleichspreis minus tatsächliche Kosten).'
     opportunity_costs: 'Entgangene Einspeisevergütung durch Eigenverbrauch statt Einspeisung.'
