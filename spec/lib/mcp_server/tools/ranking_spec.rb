@@ -216,6 +216,63 @@ describe McpServer::Tools::Ranking do
       end
     end
 
+    # A ranking that leaves the cut periods out is answering a narrower
+    # question than it was asked: autarky over "2024-01-19..2024-03-10" reports
+    # February alone while inverter_power reports all three months. Dropping
+    # them is right - an average is not smaller for covering half a month, so a
+    # fragment would win on the strength of being one - but doing it in silence
+    # lets an incomplete ranking look complete.
+    describe 'a ranking narrowed to whole periods' do
+      before do
+        %w[2024-01-20 2024-02-10 2024-03-05].each do |date|
+          create_summary(
+            date:,
+            values: [
+              [:house_power, :sum, 25_000],
+              [:grid_import_power, :sum, 5_000],
+              [:inverter_power, :sum, 40_000],
+            ],
+          )
+        end
+      end
+
+      def result(**args)
+        _error, data =
+          call(timeframe: '2024-01-19..2024-03-10', period: 'month', limit: 50, **args)
+        data[:results].first
+      end
+
+      it 'says so for an averaged ratio, in either direction' do
+        %w[desc asc].each do |order|
+          expect(result(sensor: 'autarky', order:)).to include(
+            complete_periods_only: true,
+          )
+          expect(result(sensor: 'autarky', order:)[:ranking].pluck(:date)).to eq(
+            %w[2024-02-01],
+          )
+        end
+      end
+
+      it 'says so for an ascending ranking of any sensor' do
+        expect(result(sensor: 'inverter_power', order: 'asc')).to include(
+          complete_periods_only: true,
+        )
+      end
+
+      # The common case pays nothing, and the flag's presence is the whole
+      # signal: here the cut months are ranked, carrying `partial` instead.
+      it 'stays silent where every period the timeframe cuts is ranked' do
+        ranked = result(sensor: 'inverter_power')
+
+        expect(ranked).not_to include(:complete_periods_only)
+        expect(ranked[:ranking].pluck(:date)).to contain_exactly(
+          '2024-01-01',
+          '2024-02-01',
+          '2024-03-01',
+        )
+      end
+    end
+
     it 'ranks multiple sensors in one call' do
       create_summary(date: '2024-01-15', values: [[:house_power, :sum, 25_000], [:inverter_power_1, :sum, 40_000]])
 

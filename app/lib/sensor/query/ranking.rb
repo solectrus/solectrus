@@ -28,6 +28,24 @@ module Sensor
                   :limit,
                   :valid_range
 
+      # Whether this ranking narrowed itself to whole periods, dropping the
+      # ones its range cuts into. Public because a caller that presents the
+      # ranking has to be able to say so: the list then covers a narrower span
+      # than the range it was asked for, and silently shorter is the one thing
+      # a ranking must not be.
+      #
+      # Incomplete periods are skipped for ascending rankings, where a tiny
+      # partial period would otherwise win the "lowest" spot - the month with
+      # the least production is never the one that has barely started.
+      #
+      # And for sensors that opt in via +top10_complete_periods_only?+:
+      # averaged ratios, which are not smaller for covering less, so a
+      # fragment would win either direction on the strength of being a
+      # fragment.
+      def complete_periods_only?
+        !desc || sensor.top10_complete_periods_only?
+      end
+
       def call
         return [] unless valid_range
 
@@ -132,14 +150,6 @@ module Sensor
         end
       end
 
-      # Incomplete periods are skipped for ascending rankings (where a tiny
-      # partial period would otherwise win the "lowest" spot) and for sensors
-      # that opt in via +top10_complete_periods_only?+ (averaged ratios, whose
-      # partial values are misleading regardless of sort direction).
-      def exclude_incomplete_periods?
-        !desc || sensor.top10_complete_periods_only?
-      end
-
       # The period boundaries `date` is measured against, as DATES. Without the
       # coercion the four periods disagree on type: beginning_of_week/month/year
       # return a Date, beginning_of_day and end_of_day a Time. A Date is never
@@ -156,7 +166,7 @@ module Sensor
 
       def calculate_start(start_param)
         date = start_param || Rails.application.config.x.installation_date
-        return date unless exclude_incomplete_periods?
+        return date unless complete_periods_only?
 
         beginning = period_beginning(date)
 
@@ -172,7 +182,7 @@ module Sensor
 
       def calculate_stop(stop_param)
         date = stop_param || Date.current
-        return date unless exclude_incomplete_periods?
+        return date unless complete_periods_only?
 
         ending = period_ending(date)
 

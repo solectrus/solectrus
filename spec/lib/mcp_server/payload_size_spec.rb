@@ -51,7 +51,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   # ordinary noise does not trip them but a lost improvement does.
   def ceilings
     {
-      'tool definitions + instructions' => 23_000,
+      'tool definitions + instructions' => 23_500,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 17_000,
       'get_sensor_details (3 sensors)' => 1_000,

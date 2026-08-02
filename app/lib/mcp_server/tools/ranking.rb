@@ -33,9 +33,13 @@ module McpServer
         directly — the fragment is smaller for having been cut, not for having
         produced less. The current period is flagged the same way, being
         equally unfinished — today included, under the default period="day".
-        order="asc" takes the other route and leaves cut
-        periods out entirely, so no stub can win a "lowest" ranking; the price
-        is that it covers a narrower span than the timeframe names.
+
+        Some rankings leave cut periods OUT instead, where a fragment would win
+        for being one: order="asc" (the lowest month is never the one that just
+        started) and every averaged ratio (autarky, self-consumption rate — an
+        average is not smaller for covering less, so both directions). Those
+        carry `complete_periods_only: true` and span less than the timeframe
+        names — the edge periods are missing from the LIST, not from the data.
 
         sort="chronological" returns the selected periods in date order, ready
         to plot as a trend curve without re-sorting. There, a period between the
@@ -142,7 +146,7 @@ module McpServer
                 "Sensor #{sensor.name} has no natural aggregation; pass an explicit `aggregation`"
         end
 
-        rows = Rows.fetch(sensor, **options, aggregation: agg)
+        rows, complete_only = Rows.fetch(sensor, **options, aggregation: agg)
         unit = mcp_unit(sensor, agg)
 
         {
@@ -150,6 +154,10 @@ module McpServer
           display_name: sensor.display_name,
           unit:,
           aggregation: agg,
+          # Set only where it applies, and then the whole signal: this ranking
+          # left the cut periods out, so it spans less than the timeframe names
+          # and entries are missing rather than absent from the data.
+          **(complete_only ? { complete_periods_only: true } : {}),
           # Rows carries the `partial` marker where there is one; splatting the
           # row keeps it without this layer having to know about it.
           ranking:

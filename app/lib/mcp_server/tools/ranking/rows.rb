@@ -6,9 +6,12 @@ module McpServer
       module Rows
         module_function
 
-        # [{ date:, value:, partial: }, ...], ordered by value or by date.
+        # [[{ date:, value:, partial: }, ...], complete_periods_only], the rows
+        # ordered by value or by date. The flag travels with them because the
+        # query answers a narrower question than it was asked whenever it is
+        # set, and the response has to say so.
         def fetch(sensor, aggregation:, timeframe:, period:, desc:, chronological:, limit:) # rubocop:disable Metrics/ParameterLists
-          rows =
+          query =
             Sensor::Query::Ranking.new(
               sensor.name,
               aggregation:,
@@ -17,10 +20,11 @@ module McpServer
               stop: timeframe.effective_ending_date,
               desc:,
               limit:,
-            ).call
+            )
+          rows = query.call
           rows = with_gaps(rows.sort_by { |entry| entry[:date] }, period, limit) if chronological
 
-          mark_partial(rows, timeframe, period)
+          [mark_partial(rows, timeframe, period), query.complete_periods_only?]
         end
 
         # A ranked period is labelled with its START but summed over the days
