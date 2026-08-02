@@ -35,21 +35,19 @@ module McpServer
           - sensors: names (from list_sensors), one or more.
           - timeframe: SOLECTRUS notation, e.g. "2026-06-21" (a day), "2026-W25"
             (a week), "2025-01-15..2025-02-12" (a range), "P24H" (last 24h).
-          - resolution: "1m", "5m", "15m", "1h" or "1d". When omitted, defaults
-            to the finest resolution (down to 1m) that keeps the WHOLE response
-            within #{Resolution::MAX_POINTS} points across all requested sensors — so with N
-            sensors each series is capped at #{Resolution::MAX_POINTS}/N points, not
-            #{Resolution::MAX_POINTS} each. A too-fine resolution — whether explicitly
-            requested or the default — is automatically coarsened, for exactly
-            two reasons: to stay within that shared point budget, and because
-            forecast sensors carry at most one sample per 15 minutes, so a
-            request for forecast sensors alone is never answered finer than
-            "15m" (it would be mostly null). Nothing else coarsens a request:
-            asking for a coarser resolution never gives you a coarser result
-            than asking for a finer one. The resolution actually used is always
-            returned as `resolution`, and `coarsened: true` flags that it is
-            coarser than the one you requested — read these back rather than
-            assuming the requested one was honoured.
+          - resolution: "1m", "5m", "15m", "1h" or "1d". When omitted, the
+            finest one that keeps the WHOLE response within
+            #{Resolution::MAX_POINTS} points across all requested sensors — the
+            budget is shared, so with N sensors each series gets
+            #{Resolution::MAX_POINTS}/N points, not #{Resolution::MAX_POINTS} each.
+            Exactly two things coarsen a request (explicit or default): that
+            shared budget, and the forecast cadence — providers write at most
+            one sample per 15 minutes, so forecast sensors alone are never
+            answered finer than "15m". Nothing else does, so asking for a
+            coarser resolution never yields a coarser result than asking for a
+            finer one. Read back `resolution` (what was actually used),
+            `coarsened` and — only when coarsened — `coarsened_reason`, which
+            names the constraint and what you can change about it.
           - aggregation: "mean" (default, the value curve), "min" or "max" —
             applied per resolution bucket. There is deliberately no "sum":
             summing a coarse series is not an energy integration and reads as a
@@ -64,6 +62,9 @@ module McpServer
             value. The remaining points still sit on the same grid, so a gap
             between two consecutive timestamps means "no data" just as an
             explicit null does.
+
+        Each series reports `point_count` alongside its `points`, so a
+        truncated or unexpectedly coarse curve is visible without counting.
 
         Each point is {time, value}. `time` is the END of its bucket: at
         resolution "5m" the point labelled 07:05 covers 07:00–07:05, and the
@@ -133,7 +134,7 @@ module McpServer
         enforce_supported!(definitions, :series)
 
         agg = Aggregation.internal(aggregation)
-        interval, label = Resolution.for(resolution, tf, definitions)
+        interval, label, coarsened_by = Resolution.for(resolution, tf, definitions)
 
         data =
           Sensor::Query::Series.new(
@@ -147,7 +148,8 @@ module McpServer
         json_response(
           timeframe: tf.to_s,
           resolution: label,
-          coarsened: Resolution.coarsened?(resolution, label),
+          coarsened: !coarsened_by.nil?,
+          **Resolution.explain(coarsened_by, resolution, label, definitions.size),
           aggregation:,
           series:
             definitions.map { |sensor| series_for(sensor, data, agg, include_nulls:) },
@@ -158,12 +160,14 @@ module McpServer
 
       def self.series_for(sensor, data, aggregation, include_nulls:)
         unit = mcp_unit(sensor)
+        points = Points.build(data, sensor.name, aggregation, unit:, include_nulls:)
 
         {
           sensor: sensor.name,
           display_name: sensor.display_name,
           unit:,
-          points: Points.build(data, sensor.name, aggregation, unit:, include_nulls:),
+          point_count: points.size,
+          points:,
         }
       end
       private_class_method :series_for

@@ -161,18 +161,29 @@ describe McpServer::Tools::Series do
     end
 
     context 'with resolution selection' do
+      let(:budget) { McpServer::Tools::Series::Resolution::MAX_POINTS }
+
       it 'auto-selects a resolution within the point limit' do
         data = series(sensors: ['battery_soc'], timeframe: 'P7D')
 
         expect(data[:resolution]).to be_in(%w[1m 5m 15m 1h 1d])
-        expect(data[:series].first[:points].size).to be <= 1500
+        expect(data[:series].first[:points].size).to be <= budget
       end
 
       it 'coarsens a too-fine resolution and reports the one actually used' do
         data = series(sensors: ['battery_soc'], timeframe: 'P30D', resolution: '1m')
 
         expect(data[:resolution]).not_to eq('1m')
-        expect(data[:series].first[:points].size).to be <= 1500
+        expect(data[:series].first[:points].size).to be <= budget
+      end
+
+      # The canonical request - one sensor, one day - has to stay at 5m: that
+      # is what the budget is sized around.
+      it 'keeps a single sensor over a day at 5m' do
+        data = series(sensors: ['battery_soc'], timeframe: (Date.current - 1).to_s)
+
+        # 288 buckets - the budget is sized so this one does not fall to 15m.
+        expect(data[:resolution]).to eq('5m')
       end
 
       it 'keeps a resolution that already fits' do
@@ -187,25 +198,46 @@ describe McpServer::Tools::Series do
         expect(data[:coarsened]).to be(false)
       end
 
+      it 'omits the reason when nothing was coarsened' do
+        data = series(sensors: ['battery_soc'], timeframe: 'P24H', resolution: '1h')
+
+        expect(data).not_to have_key(:coarsened_reason)
+      end
+
       it 'reports coarsened: true when a too-fine resolution is downgraded' do
         data = series(sensors: ['battery_soc'], timeframe: 'P30D', resolution: '1m')
 
         expect(data[:coarsened]).to be(true)
       end
+
+      # A bare boolean leaves a client guessing what to change. Name the
+      # constraint and the lever.
+      it 'names the point budget as the reason and what to change' do
+        data = series(sensors: ['battery_soc'], timeframe: 'P30D', resolution: '1m')
+
+        expect(data[:coarsened_reason]).to include('1m', budget.to_s, 'shorter timeframe')
+      end
+
+      it 'reports the point count per series' do
+        data = series(sensors: ['battery_soc'], timeframe: 'P24H', resolution: '1h')
+
+        series_entry = data[:series].first
+        expect(series_entry[:point_count]).to eq(series_entry[:points].size)
+      end
     end
 
     context 'with the point budget shared across multiple sensors' do
-      # A single day at 1m is 1440 points - within the cap for ONE sensor, but
-      # three sensors at 1m would be 4320, overflowing the client. The budget is
-      # global, so the resolution coarsens until the WHOLE payload fits.
+      # The budget is global, not per sensor: three sensors over a day at 5m
+      # would be 864 points, so the resolution coarsens until the WHOLE payload
+      # fits - what reaches the client is one context window, not three.
       let(:sensors) { %w[house_power inverter_power grid_import_power] }
       let(:day) { Date.current.to_s }
+      let(:budget) { McpServer::Tools::Series::Resolution::MAX_POINTS }
 
       it 'coarsens so the total point count stays within the cap' do
         data = series(sensors:, timeframe: day)
 
-        total_points = data[:series].sum { |s| s[:points].size }
-        expect(total_points).to be <= 1500
+        expect(data[:series].sum { |s| s[:point_count] }).to be <= budget
       end
 
       it 'does not keep 1m for three sensors on a single day' do
@@ -214,12 +246,19 @@ describe McpServer::Tools::Series do
         expect(data[:resolution]).not_to eq('1m')
         expect(data[:coarsened]).to be(true)
       end
+
+      it 'names the sensor count in the reason' do
+        data = series(sensors:, timeframe: day, resolution: '1m')
+
+        expect(data[:coarsened_reason]).to include('3 sensor(s)')
+      end
     end
 
     context 'with a resolution finer than a forecast window' do
-      # Forecast providers carry one sample per 15 minutes at the finest. 1m
-      # fits the point cap for a single day (1440 < 1500), so the cap alone
-      # would keep it and the response would be a ~93% null grid.
+      # Forecast providers carry one sample per 15 minutes at the finest. The
+      # point budget alone would settle on 5m for a single day, and 2 of every
+      # 3 buckets would be null - so the forecast cadence puts its own floor
+      # under the resolution, independent of the budget.
       let(:day) { (Date.current + 1.day).to_s }
 
       before do
@@ -265,6 +304,20 @@ describe McpServer::Tools::Series do
         expect(points.size).to be < 200
         expect(non_null.fdiv(points.size)).to be > 0.8
       end
+
+      # The forecast cadence is not a budget that can be traded against, so the
+      # reason must not tell the client to ask for fewer sensors.
+      it 'names the forecast window as the reason, not the budget' do
+        data =
+          series(
+            sensors: ['inverter_power_forecast'],
+            timeframe: day,
+            resolution: '1m',
+          )
+
+        expect(data[:coarsened_reason]).to include('forecast providers')
+        expect(data[:coarsened_reason]).not_to include('fewer')
+      end
     end
 
     # Regression: an event-based sensor (a coffee machine writing only on load
@@ -307,9 +360,18 @@ describe McpServer::Tools::Series do
       end
 
       it 'never answers a coarser request with a coarser resolution' do
-        # Here in its strongest form: every requested resolution is honoured
-        # verbatim, because nothing about this sensor sets a floor.
-        expect(resolutions.map { |requested| resolution_for(requested) }).to eq(resolutions)
+        # The invariant a client relies on: asking for a coarser bucket can
+        # never come back finer than asking for a finer one. Which resolutions
+        # survive verbatim depends on the point budget (a day at 1m is 1440
+        # points and does not fit), the ordering does not.
+        answered =
+          resolutions.map { |requested| resolutions.index(resolution_for(requested)) }
+
+        expect(answered).to eq(answered.sort)
+      end
+
+      it 'honours every resolution that fits the point budget' do
+        expect(%w[5m 15m 1h].map { |requested| resolution_for(requested) }).to eq(%w[5m 15m 1h])
       end
 
       it 'returns the full grid including empty buckets by default' do

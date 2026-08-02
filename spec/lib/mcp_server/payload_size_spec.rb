@@ -57,7 +57,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       'get_prices' => 1_900,
       'get_totals (12 sensors, month)' => 1_500,
       'get_series (1 sensor, day, 1h)' => 1_600,
-      'get_series (5 sensors, day, 1m)' => 85_000,
+      'get_series (5 sensors, day, 1m)' => 8_000,
       'get_ranking (3 sensors, all, day)' => 1_700,
       'get_forecast' => 1_350,
       'get_amortization' => 2_100,
