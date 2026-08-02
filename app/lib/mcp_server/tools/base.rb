@@ -43,7 +43,8 @@ module McpServer
           unknown = requested - by_name.keys
           if unknown.any?
             raise ArgumentError,
-                  "Unknown or unconfigured sensors: #{unknown.join(', ')}"
+                  "Unknown or unconfigured sensors: #{unknown.join(', ')}. " \
+                    'Call list_sensors for the names this instance actually has.'
           end
 
           requested.map { |name| by_name[name] }

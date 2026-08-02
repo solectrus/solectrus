@@ -71,6 +71,29 @@ describe McpServer::Tools::Totals do
       expect(response.content.first[:text]).to include('Unknown or unconfigured')
     end
 
+    # A rejected name is a dead end unless the error says where the valid ones
+    # are. The client cannot tell a typo from a sensor this instance simply
+    # does not have, and re-reading the index settles both.
+    describe 'rejecting an unknown sensor name' do
+      def error_for(*sensors)
+        described_class.call(
+          server_context: nil,
+          timeframe: '2024-06-15',
+          sensors:,
+        ).content.first[:text]
+      end
+
+      it 'points at list_sensors' do
+        expect(error_for('hause_power')).to include('list_sensors')
+      end
+
+      it 'lists only the unknown one when a valid sensor rides along' do
+        expect(error_for('house_power', 'hause_power')).to include(
+          'Unknown or unconfigured sensors: hause_power.',
+        )
+      end
+    end
+
     it 'rejects forecast sensors and points to get_forecast' do
       response =
         described_class.call(
