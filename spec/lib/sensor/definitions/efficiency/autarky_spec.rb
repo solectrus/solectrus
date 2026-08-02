@@ -87,7 +87,7 @@ describe Sensor::Definitions::Autarky do # rubocop:disable RSpec/SpecFilePathFor
           # Day 1: (10k - 1k) / 10k * 100 = 90%
           # Day 2: (12k - 3k) / 12k * 100 = 75%
           # Total: (22k - 4k) / 22k * 100 =  81.8181..
-          expect(result.autarky).to eq(82)
+          expect(result.autarky).to be_within(0.001).of(81.8181)
         end
       end
     end

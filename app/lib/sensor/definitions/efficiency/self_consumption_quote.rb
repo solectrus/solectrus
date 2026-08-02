@@ -10,7 +10,10 @@ class Sensor::Definitions::SelfConsumptionQuote < Sensor::Definitions::Base
     return unless self_consumption && inverter_power
     return if inverter_power < 50
 
-    (self_consumption * 100.0 / inverter_power).clamp(0, 100).round
+    # Unrounded, like Autarky#calculate: the decimals belong to the
+    # presentation layer, and #sql_calculation computes the same share without
+    # rounding.
+    (self_consumption * 100.0 / inverter_power).clamp(0, 100)
   end
 
   trend more_is_better: true, aggregation: :avg

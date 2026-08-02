@@ -30,9 +30,13 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
     return if total_consumption.zero?
     return unless grid_import_power
 
-    raw = (total_consumption - grid_import_power) * 100 / total_consumption
+    # 100.0, and no rounding: how many decimals a share deserves is the
+    # presentation layer's call (percent prints none, MCP keeps a tenth), and
+    # rounding here would make this block disagree with #sql_calculation, which
+    # computes the same share and cannot round.
+    raw = (total_consumption - grid_import_power) * 100.0 / total_consumption
 
-    [raw.round, 0].max
+    [raw, 0].max
   end
 
   trend more_is_better: true, aggregation: :avg
