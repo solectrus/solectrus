@@ -166,7 +166,9 @@ module McpServer
             'get_series has no curve for these sensors. Money sensors (costs, ' \
               'revenue) are accumulated amounts and chart-only composites (e.g. ' \
               'power_balance) have no live curve - use get_totals (Wh/kWh, costs) ' \
-              'or get_forecast.',
+              'or get_forecast. Boolean and string sensors (e.g. a car-connected ' \
+              'flag, a status text) cannot be averaged into a bucket at all - ' \
+              'get_current_values reports their present state.',
         }.freeze
 
         # Enforce the supported_tools matrix that list_sensors advertises:

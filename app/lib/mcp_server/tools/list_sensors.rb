@@ -76,11 +76,14 @@ module McpServer
             'one letter each: c = get_current_values, t = get_totals, ' \
             's = get_series, r = get_ranking, f = get_forecast. A missing c or s ' \
             'is strict - that tool rejects the sensor, because a money sensor or ' \
-            'a chart-only composite like power_balance has no live scalar. A ' \
-            'missing t or r is advisory: the sensor is outside the primary set, ' \
-            'but get_totals may still return a value and get_ranking can still ' \
-            'rank any summary-backed sensor. Prefer sensors that carry the ' \
-            'letter, but do not read a missing t or r as a hard block.',
+            'a chart-only composite like power_balance has no live scalar. "c" ' \
+            'without "s" means the sensor has a present state but no curve: a ' \
+            'boolean or string sensor cannot be averaged into a time bucket, so ' \
+            'read it with get_current_values. A missing t or r is advisory: the ' \
+            'sensor is outside the primary set, but get_totals may still return ' \
+            'a value and get_ranking can still rank any summary-backed sensor. ' \
+            'Prefer sensors that carry the letter, but do not read a missing t ' \
+            'or r as a hard block.',
       }.freeze
       private_constant :CONVENTIONS
 

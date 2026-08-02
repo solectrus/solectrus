@@ -588,6 +588,29 @@ describe McpServer::Tools::Series do
         balance_error, = call(sensors: ['power_balance'], timeframe: 'P2D')
         expect(balance_error).to be(true)
       end
+
+      # InfluxDB refuses to fold a bool or string column into a bucket
+      # ("unsupported aggregate column type bool"), and that error is no
+      # ArgumentError, so it used to escape the tool as a bare internal error
+      # - for a sensor list_sensors had advertised as series-capable.
+      %w[wallbox_car_connected heatpump_status].each do |sensor|
+        it "rejects the non-numeric #{sensor} with a usable message" do
+          error, text = call(sensors: [sensor], timeframe: 'P2D')
+
+          expect(error).to be(true)
+          expect(text).to include('get_current_values', sensor)
+        end
+      end
+
+      # One such sensor in the list took the whole response down with it, the
+      # numeric sensors alongside it included.
+      it 'rejects a mixed request rather than failing the whole query' do
+        error, text = call(sensors: %w[house_power heatpump_status], timeframe: 'P2D')
+
+        expect(error).to be(true)
+        expect(text).to include('heatpump_status')
+        expect(text).not_to include('house_power')
+      end
     end
   end
 

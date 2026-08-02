@@ -14,7 +14,7 @@ module McpServer
       {
         current: live,
         totals: aggregations(sensor).any?,
-        series: live,
+        series: live && numeric?(sensor),
         ranking: sensor.top10_enabled? && sensor.top10_permitted?,
         forecast: sensor.forecast?,
       }
@@ -67,6 +67,19 @@ module McpServer
       return false if sensor.unit == :money
 
       !McpServer::Tools::CurrentValues.live_scalarless?(sensor)
+    end
+
+    # Units InfluxDB cannot fold into a time bucket. A live reading of such a
+    # sensor is perfectly meaningful - "is the car plugged in", "what is the
+    # heat pump doing" - and get_current_values reports it; the mean/min/max
+    # over a bucket that get_series would ask for is not, and aggregateWindow
+    # rejects the column outright ("unsupported aggregate column type bool").
+    # So these sensors are live but curve-less: `c` without `s`.
+    NON_AGGREGATABLE_UNITS = %i[boolean string].freeze
+    private_constant :NON_AGGREGATABLE_UNITS
+
+    def numeric?(sensor)
+      NON_AGGREGATABLE_UNITS.exclude?(sensor.unit)
     end
   end
 end

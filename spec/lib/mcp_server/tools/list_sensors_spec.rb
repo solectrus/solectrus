@@ -211,6 +211,14 @@ describe McpServer::Tools::ListSensors do
       it 'marks a forecast sensor as forecast-capable and not summable' do
         expect(code_for('inverter_power_forecast')).to eq('csf')
       end
+
+      # A boolean or string sensor has a present state but no curve: no
+      # aggregation folds it into a time bucket. Advertising the s made
+      # clients ask get_series for something the query could not answer.
+      it 'marks a non-numeric sensor as live but curve-less' do
+        expect(code_for('wallbox_car_connected')).to eq('c')
+        expect(code_for('heatpump_status')).to eq('c')
+      end
     end
   end
 end
