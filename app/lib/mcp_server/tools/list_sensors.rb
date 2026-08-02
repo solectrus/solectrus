@@ -50,7 +50,9 @@ module McpServer
               'outside `split_bases` below carries either suffix. Most of ' \
               'them have both, but where only one direction is meaningful ' \
               'only that one exists, so a name you form off the list is a ' \
-              'good guess, not a guarantee. Those names are valid ' \
+              'good guess, not a guarantee. A guess that misses is skipped ' \
+              'and reported under `unknown_sensors`, costing its own entry ' \
+              'rather than the whole call. Those names are valid ' \
               'input wherever the base sensor is; their tools code is the ' \
               'base\'s without the r. Their meaning is the base sensor\'s ' \
               'description narrowed by the suffix; get_sensor_details spells ' \

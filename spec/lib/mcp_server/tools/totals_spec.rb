@@ -138,25 +138,45 @@ describe McpServer::Tools::Totals do
       end
     end
 
-    # A rejected name is a dead end unless the error says where the valid ones
-    # are. The client cannot tell a typo from a sensor this instance simply
-    # does not have, and re-reading the index settles both.
-    describe 'rejecting an unknown sensor name' do
-      def error_for(*sensors)
+    # conventions.suffixes asks a client to form _pv/_grid names itself and
+    # calls such a name "a good guess, not a guarantee". A guess that misses
+    # therefore costs its own entry, not the whole call - three requested
+    # sensors of which one is a typo are still two answers.
+    describe 'an unknown sensor name' do
+      def response_for(*sensors)
         described_class.call(
           server_context: nil,
           timeframe: '2024-06-15',
           sensors:,
-        ).content.first[:text]
+        )
       end
 
-      it 'points at list_sensors' do
-        expect(error_for('hause_power')).to include('list_sensors')
+      it 'answers the valid sensors and reports the unknown one' do
+        response = response_for('house_power', 'hause_power')
+
+        expect(response.error?).to be(false)
+        data = JSON.parse(response.content.first[:text], symbolize_names: true)
+        expect(data[:totals].pluck(:name)).to eq(%w[house_power])
+        expect(data[:unknown_sensors]).to eq(%w[hause_power])
       end
 
-      it 'lists only the unknown one when a valid sensor rides along' do
-        expect(error_for('house_power', 'hause_power')).to include(
+      it 'stays silent about unknown sensors when every name resolved' do
+        response = response_for('house_power')
+        data = JSON.parse(response.content.first[:text], symbolize_names: true)
+
+        expect(data).not_to include(:unknown_sensors)
+      end
+
+      # A request where nothing is left to answer is still an error, and the
+      # error has to say where the valid names are: the client cannot tell a
+      # typo from a sensor this instance simply does not have.
+      it 'fails when no name is left' do
+        response = response_for('hause_power')
+
+        expect(response.error?).to be(true)
+        expect(response.content.first[:text]).to include(
           'Unknown or unconfigured sensors: hause_power.',
+          'list_sensors',
         )
       end
     end

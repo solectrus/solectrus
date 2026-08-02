@@ -101,7 +101,7 @@ module McpServer
           return error_response('Timeframe must cover a span, not the "now" instant.')
         end
 
-        definitions = resolve_sensors(sensors)
+        definitions, unknown = resolve_sensors(sensors)
         if definitions.size > MAX_SENSORS
           raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
         end
@@ -123,6 +123,7 @@ module McpServer
         json_response(
           timeframe: tf.to_s,
           **measured_timeframe_note(definitions, tf),
+          **unknown_sensors_note(unknown),
           resolution: label,
           coarsened: !coarsened_by.nil?,
           **Resolution.explain(coarsened_by, resolution, label, definitions.size),

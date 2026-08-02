@@ -52,7 +52,7 @@ module McpServer
       read_only idempotent: true
 
       def self.call(sensors:, **)
-        definitions = resolve_sensors(sensors)
+        definitions, unknown = resolve_sensors(sensors)
         if definitions.size > MAX_SENSORS
           raise ArgumentError,
                 "Too many sensors (max #{MAX_SENSORS}). list_sensors already " \
@@ -63,7 +63,10 @@ module McpServer
         # depend on the instance's locale. User-defined sensor names still take
         # priority, as they are locale-independent.
         I18n.with_locale(:en) do
-          json_response(sensors: definitions.map { details_for(it) })
+          json_response(
+            **unknown_sensors_note(unknown),
+            sensors: definitions.map { details_for(it) },
+          )
         end
       rescue ArgumentError => e
         error_response(e.message)

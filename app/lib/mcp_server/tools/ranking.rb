@@ -107,7 +107,7 @@ module McpServer
         **
       )
         requested = Array(sensors) | Array(sensor)
-        definitions = resolve_sensors(requested)
+        definitions, unknown = resolve_sensors(requested)
         if definitions.size > MAX_SENSORS
           raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
         end
@@ -125,6 +125,7 @@ module McpServer
         json_response(
           timeframe: tf.to_s,
           **timeframe_note(tf),
+          **unknown_sensors_note(unknown),
           period:,
           order:,
           sort:,

@@ -87,9 +87,16 @@ module McpServer
         # Resolve client-supplied sensor names to the corresponding Sensor
         # definitions, validated against the sensors actually configured and
         # permitted on this instance (Sensor::Config.sensors). Names outside
-        # that set - unknown, unconfigured, or not permitted by policy - raise
-        # ArgumentError, so a tool surfaces a clean error instead of leaking
-        # data for sensors that list_sensors never advertised.
+        # that set - unknown, unconfigured, or not permitted by policy - never
+        # yield data, so a tool cannot leak sensors that list_sensors never
+        # advertised.
+        #
+        # Returns [definitions, unknown_names]. A bad name is reported back
+        # rather than raised: conventions.suffixes asks clients to form
+        # _pv/_grid names themselves and calls such a name "a good guess, not a
+        # guarantee", so a wrong guess has to cost its own entry instead of the
+        # whole call - two valid sensors alongside it are still two answers.
+        # Only a request with nothing left to answer raises.
         #
         # With `allow_blank`, a blank list defaults to all available sensors;
         # otherwise at least one sensor is required.
@@ -97,7 +104,7 @@ module McpServer
           available = Sensor::Config.sensors
 
           if names.blank?
-            return available if allow_blank
+            return [available, []] if allow_blank
 
             raise ArgumentError, 'Provide at least one sensor'
           end
@@ -105,14 +112,33 @@ module McpServer
           by_name = available.index_by(&:name)
           requested = Array(names).map { |name| name.to_s.to_sym }
 
+          definitions = requested.filter_map { |name| by_name[name] }
           unknown = requested - by_name.keys
-          if unknown.any?
+
+          if definitions.empty?
             raise ArgumentError,
                   "Unknown or unconfigured sensors: #{unknown.join(', ')}. " \
                     'Call list_sensors for the names this instance actually has.'
           end
 
-          requested.map { |name| by_name[name] }
+          [definitions, unknown]
+        end
+
+        # The `unknown_sensors` report, as a hash to splat into the response -
+        # empty when every name resolved, so the common case pays nothing.
+        # Without it a skipped name would be silent, and a client comparing
+        # three requested sensors against two returned ones could only guess
+        # which of its guesses missed.
+        def unknown_sensors_note(unknown)
+          return {} if unknown.empty?
+
+          {
+            unknown_sensors: unknown,
+            unknown_sensors_note:
+              'Not configured on this instance and skipped; the other sensors ' \
+                'were answered normally. Call list_sensors for the names this ' \
+                'instance actually has.',
+          }
         end
 
         # The unit a sensor's value carries in MCP output, refining the domain's

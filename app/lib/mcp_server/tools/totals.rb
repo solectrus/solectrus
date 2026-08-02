@@ -45,7 +45,7 @@ module McpServer
 
       def self.call(timeframe:, sensors:, **)
         tf = parse_timeframe(timeframe)
-        resolved = resolve_sensors(sensors)
+        resolved, unknown = resolve_sensors(sensors)
 
         forecast = resolved.select(&:forecast?)
         if forecast.any?
@@ -62,6 +62,7 @@ module McpServer
         json_response(
           timeframe: tf.to_s,
           **timeframe_note(tf),
+          **unknown_sensors_note(unknown),
           totals: build_totals(data, aggregations),
         )
       rescue ArgumentError => e

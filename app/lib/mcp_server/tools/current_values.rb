@@ -60,7 +60,7 @@ module McpServer
       read_only idempotent: false
 
       def self.call(sensors: nil, **)
-        definitions = resolve_sensors(sensors, allow_blank: true)
+        definitions, unknown = resolve_sensors(sensors, allow_blank: true)
 
         if sensors.blank?
           # Default set: only sensors with a meaningful live reading.
@@ -96,7 +96,11 @@ module McpServer
             }
           end
 
-        json_response(time: data.time&.iso8601, values:)
+        json_response(
+          time: data.time&.iso8601,
+          **unknown_sensors_note(unknown),
+          values:,
+        )
       rescue ArgumentError => e
         error_response(e.message)
       end

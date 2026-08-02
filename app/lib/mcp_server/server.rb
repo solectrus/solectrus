@@ -32,6 +32,10 @@ module McpServer
       Every value is rounded by its unit alone, identically in every tool;
       list_sensors publishes the decimals per unit in conventions.precision.
 
+      A sensor name this instance does not have is skipped and reported under
+      `unknown_sensors`, so a wrong guess costs its own entry rather than the
+      whole call; only a request with no valid name left fails.
+
       get_totals covers historical actuals only and rejects forecast sensors:
       use get_forecast for the expected PV energy, get_series on a forecast
       sensor for the predicted curve. For the profitability of the whole system
