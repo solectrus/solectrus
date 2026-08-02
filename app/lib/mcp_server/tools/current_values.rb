@@ -8,56 +8,42 @@ module McpServer
       tool_name 'get_current_values'
       title 'Get current sensor values'
       description <<~TEXT.strip
-        Get the most recent live reading of each sensor right now: current power
-        flows in watts (solar production, grid import/export, house, heatpump,
-        wallbox), battery state of charge, temperatures, etc. Optionally restrict
-        to specific sensors via the `sensors` parameter (names from
-        list_sensors); the response contains exactly those sensors, and only
-        then a display_name per sensor — without the parameter every configured
-        sensor is returned, where the readable names would just be weight (they
-        are in list_sensors). If all you need is whether data is still
-        arriving, get_system_info answers that in two fields.
+        The most recent live reading of each sensor right now: power flows in
+        watts (solar production, grid import/export, house, heatpump, wallbox),
+        battery state of charge, temperatures. Without `sensors` every
+        configured sensor is returned; with it, exactly those — and only then a
+        display_name each, which would be pure weight across the full set. If
+        all you need is whether data is still arriving, get_system_info answers
+        that in two fields.
 
-        Some sensors have no meaningful live reading: money sensors (costs,
-        revenue) are accumulated amounts, and a few calculated sensors are
-        chart-only composites with no live scalar (e.g. power_balance, a stacked
-        power-flow balance). They are omitted from the default set; requesting
-        one explicitly returns an error pointing to get_totals (see each
-        sensor's supported_tools.current flag in list_sensors).
+        Money sensors (accumulated amounts) and chart-only composites like
+        power_balance have no live reading. They are left out of the default set
+        and rejected when requested explicitly — see the "c" in each sensor's
+        `tools` from list_sensors.
 
-        Each sensor carries freshness metadata so a null value is never
-        ambiguous:
-          - last_seen_at: ISO 8601 timestamp of the sensor's latest data point,
-            resolved across its whole history — not just the live window. So a
-            null value with a present last_seen_at means the source delivered
-            before and is not delivering right now: either offline, or a sensor
-            that only writes sporadically (read age_seconds to tell those
-            apart, and get_series/get_totals to see what it did deliver). Only
-            a null last_seen_at means the sensor has no data point at all.
-          - age_seconds: how long the sensor has been quiet. Present only
-            alongside a null value — a reported value is fresh by construction
-            (older readings are dropped), so its age adds nothing to
-            last_seen_at.
+        Freshness metadata makes a null unambiguous:
+          - last_seen_at: the sensor's latest data point across its whole
+            history, not just the live window. A null value WITH a last_seen_at
+            means the source delivered before and is not delivering now —
+            offline, or a sensor that only writes sporadically. Only a null
+            last_seen_at means it never delivered at all.
+          - age_seconds: how long it has been quiet. Present only alongside a
+            null value; a reported value is fresh by construction.
 
         A calculated sensor has no timestamp of its own and reports the newest
-        one among the sensors it is derived from.
+        one among its inputs. A measured 0 is a real value, distinct from null.
 
-        A measured 0 is a real value, distinct from null.
+        Two derived sensors return null deliberately, guarding against reporting
+        noise as a number — their source is not missing:
+          - self_consumption_quote, while generation is below 50 W: a ratio
+            against near-zero generation is noise, not a meaningful 100 %.
+          - inverter_power_difference, while the difference is below 5 W or
+            below 1 % of generation: that range is sampling noise, not a loss.
 
-        Two derived sensors return null deliberately, as a guard against
-        reporting noise as a number — not because their source is missing:
-          - self_consumption_quote is null while generation is below 50 W. A
-            self-consumption ratio computed against near-zero generation is
-            noise, not a meaningful 100 %.
-          - inverter_power_difference is null while the difference is below 5 W
-            or below 1 % of generation. That range is measurement noise between
-            two independently sampled sensors, not a real loss.
-
-        For the same reason, two sensors measuring the same thing can disagree
-        by a watt or two live (e.g. inverter_power 31 W next to
-        inverter_power_total 32 W): each sensor reports its own newest data
-        point, and those are not written at exactly the same instant. Over a
-        timeframe (get_totals) the skew averages out.
+        For the same reason two sensors measuring the same thing can disagree by
+        a watt live (inverter_power 31 W next to inverter_power_total 32 W):
+        each reports its own newest point, and those are not written at the same
+        instant. Over a timeframe (get_totals) the skew averages out.
       TEXT
       input_schema(
         properties: {

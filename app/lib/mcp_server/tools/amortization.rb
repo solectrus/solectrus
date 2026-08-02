@@ -13,42 +13,36 @@ module McpServer
         with the manually kept cash flow register (investments, costs, revenue).
 
         Returns:
-          - amortized: true once the operating cash flow has earned back the net
+          - amortized: the operating cash flow has earned back the net
             investment (degree_percent >= 100).
-          - degree_percent: operating amortization degree (operating cash flow /
-            net investment, uncapped, only flows up to today). A subsidy/refund
-            lowers the net investment but does not inflate this figure.
-          - break_even_date: first day the nominal balance reaches zero (null if
-            not within the period).
+          - degree_percent: operating cash flow / net investment, uncapped, only
+            flows up to today. A subsidy lowers the net investment but does not
+            inflate this figure.
+          - break_even_date: first day the nominal balance reaches zero, null if
+            not within the period.
           - installation_date: start of the payback period.
-          - net_position: nominal balance as of today (excludes future-dated flows).
-          - gross_investment: magnitude of all investment outflows up to today.
-          - investment_reduction: subsidies and refunds that lower the base.
-          - net_investment: what actually has to be earned back
-            (gross_investment - investment_reduction).
+          - net_position: nominal balance today, excluding future-dated flows.
+          - gross_investment: all investment outflows up to today, as a magnitude.
+          - investment_reduction: subsidies and refunds lowering the base.
+          - net_investment: gross_investment - investment_reduction, i.e. what
+            actually has to be earned back.
           - operating_cashflow: measured savings plus manual operating flows
             (compensation, operating_cost, repair); excludes subsidies/refunds.
-          - profit_nominal: nominal surplus at the end of the period (no interest).
-          - npv: net present value at the calculatory rate (positive = beats an
-            alternative investment yielding that rate).
-          - irr_percent: internal rate of return (rate at which the NPV is zero).
+          - profit_nominal: nominal surplus at the end of the period, no interest.
+          - npv: net present value at the calculatory rate; positive beats an
+            alternative investment yielding that rate.
+          - irr_percent: internal rate of return, the rate where the NPV is zero.
           - required_annual_savings: annual benefit needed for a non-negative NPV.
-          - savings_per_day / savings_per_year: average savings rate used for the
-            projection (rolling year, or all-time average with less than a year of
-            data); savings_per_year = savings_per_day * 365.
-          - projection_uncertain: true with less than a year of measured data.
-          - yearly_series: nominal balance at each year-end (projected flag per year).
+          - savings_per_day / savings_per_year: the projection's savings rate
+            (rolling year, or all-time average below a year of data);
+            per_year = per_day * 365.
+          - projection_uncertain: less than a year of measured data.
+          - yearly_series: nominal balance at each year-end, with a projected flag.
 
-        All money values are in the system currency (see get_system_info) and
-        carry 2 decimals; dates are ISO 8601; rates and the degree are percent
-        with 1 decimal — including `degree` inside yearly_series, which used to
-        be reported unrounded. period_years and interest_rate echo the values
-        actually used (clamped into range).
-
-        Parameters (both optional, for what-if scenarios; default to 20 years
-        and 3 % p.a.):
-          - period_years: total lifetime in years (10-30).
-          - interest_rate: calculatory interest rate in % p.a. (0-10).
+        Money is in the system currency (get_system_info) with 2 decimals, dates
+        are ISO 8601, rates and degrees are percent with 1 decimal.
+        period_years and interest_rate echo the values actually used, clamped
+        into range.
       TEXT
       input_schema(
         properties: {

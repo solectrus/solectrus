@@ -23,20 +23,17 @@ module McpServer
       tool_name 'get_forecast'
       title 'Get the PV generation and temperature forecast'
       description <<~TEXT.strip
-        Get the forecast for the coming days (typically a few, as far as the
-        forecast reaches):
+        The forecast for the coming days, as far as it reaches — "what's still
+        coming today?", "how much will tomorrow bring?", "how warm will it get?"
 
-        - `generation`: expected PV generation as energy sums (Wh) — how much is
-          still expected for the rest of today (`today_remaining`, only the part
-          after now, so already generated energy is not counted) and the full
-          expected energy per upcoming day (`days`).
-        - `temperature`: outdoor temperature forecast as daily min/max/avg (°C),
-          for today and the upcoming days — only present when an outdoor
-          temperature forecast is configured.
+        - `generation`: expected PV generation in Wh (÷1000 for kWh).
+          `today_remaining` counts only the part AFTER now, so energy already
+          generated today is not included; `days` gives the full expected energy
+          per upcoming day.
+        - `temperature`: daily min/max/avg in °C for today and the upcoming
+          days. Present only when an outdoor temperature forecast is configured.
 
-        Use this for "what's still coming today?", "how much will tomorrow
-        bring?", "how warm will it get the next days?". For measured, historical
-        values use get_totals instead. Energies are in Wh (÷1000 for kWh).
+        For measured, historical values use get_totals.
       TEXT
       input_schema(properties: {})
       read_only idempotent: false

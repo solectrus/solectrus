@@ -8,20 +8,14 @@ module McpServer
       tool_name 'get_prices'
       title 'Get electricity and feed-in prices'
       description <<~TEXT.strip
-        Get the configured electricity tariff (grid import price) and feed-in
+        The configured electricity tariff (grid import price) and feed-in
         compensation (export price). Prices are time-dependent: each entry is
         valid from its `starts_at` date onwards. Returns, per price type, the
-        value effective on the given date plus its change history (each entry
-        with `starts_at`, value and an optional note).
+        value effective on `date` plus its change history.
 
-        Parameters:
-          - date: ISO 8601 date (e.g. "2026-06-21") selecting which value is
-            reported as `current`. Defaults to today. `current` is always
-            derived from the full history, independent of `limit`.
-          - sort: order the history by "date" (starts_at, default) or "value".
-          - order: "desc" (default, newest/highest first) or "asc".
-          - limit: max history entries per price type (1-100). Defaults to 10,
-            so an unbounded history is not returned in full unless requested.
+        `current` is always derived from the FULL history, independent of
+        `limit` — which caps only the returned history, so an unbounded price
+        history is never dumped in full unless asked for.
 
         All values are per kWh in the system currency (see get_system_info).
       TEXT

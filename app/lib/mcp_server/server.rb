@@ -17,33 +17,25 @@ module McpServer
     private_constant :TOOLS
 
     INSTRUCTIONS = <<~TEXT.strip
-      This server exposes read-only data of a SOLECTRUS photovoltaic monitoring
-      system. Call list_sensors first to discover available sensor names - it
-      returns a compact index (name, description, and which tools work for each
-      sensor); get_sensor_details fills in unit, category and aggregations for
-      the few sensors you picked, on the rare occasion you need them before
-      making a call. Then use get_current_values for live readings and
-      get_totals for aggregated values over a timeframe. get_system_info
-      provides installation metadata, currency and which subsystems exist;
-      get_prices the (time-dependent) tariffs.
+      Read-only data of a SOLECTRUS photovoltaic monitoring system. Call
+      list_sensors first: it is a compact index of name, description and which
+      tools work for each sensor. get_sensor_details fills in unit, category and
+      aggregations for the few you picked, on the rare occasion you need them
+      before a call. Then get_current_values for live readings, get_totals for a
+      timeframe; get_system_info for installation metadata and currency,
+      get_prices for the (time-dependent) tariffs.
 
       Units after aggregation: summing a power sensor (unit "watt") yields an
-      energy, so in get_totals/get_ranking the resulting `value` is in Wh, not
-      W (divide by 1000 for kWh) - don't read a watt-sum as a power.
+      ENERGY, so in get_totals/get_ranking the `value` is in Wh, not W (divide
+      by 1000 for kWh) - never read a watt-sum as a power.
 
-      Every value is rounded by its unit alone, identically in every tool, so
-      the same sensor never comes back rounded from one tool and unrounded from
-      another. list_sensors publishes the exact decimals per unit in
-      conventions.precision.
+      Every value is rounded by its unit alone, identically in every tool;
+      list_sensors publishes the decimals per unit in conventions.precision.
 
-      get_totals covers historical actuals only and rejects forecast sensors.
-      For the expected PV generation (what's still coming today, per upcoming
-      day) use get_forecast; for the predicted power curve use get_series on a
-      forecast sensor (e.g. inverter_power_forecast).
-
-      For the profitability of the whole system - when the investment pays off,
-      break-even, NPV/IRR - use get_amortization (it combines the measured
-      savings with the manually kept cash flow register).
+      get_totals covers historical actuals only and rejects forecast sensors:
+      use get_forecast for the expected PV energy, get_series on a forecast
+      sensor for the predicted curve. For the profitability of the whole system
+      (payback, break-even, NPV/IRR) use get_amortization.
     TEXT
     private_constant :INSTRUCTIONS
 

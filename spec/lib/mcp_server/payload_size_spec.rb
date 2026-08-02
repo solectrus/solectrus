@@ -51,6 +51,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   # ordinary noise does not trip them but a lost improvement does.
   def ceilings
     {
+      'tool definitions + instructions' => 23_000,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 17_000,
       'get_sensor_details (3 sensors)' => 1_000,
@@ -213,9 +214,20 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
     response.content.first[:text]
   end
 
+  # Every tool's name, description, input schema and annotations, as the client
+  # receives them in `tools/list`. Not a response but the entry fee: it is sent
+  # before a single measurement is read, so it belongs in the same benchmark.
+  def tool_definitions
+    server = McpServer::Server.build
+    definitions = server.tools.values.map { it.to_h.to_json }
+
+    (definitions + [server.instructions.to_s]).join
+  end
+
   # The benchmark set: the calls a model realistically makes in one session.
   def benchmarks
     {
+      'tool definitions + instructions' => -> { tool_definitions },
       'get_current_values (all sensors)' => -> { payload(McpServer::Tools::CurrentValues) },
       'list_sensors' => -> { payload(McpServer::Tools::ListSensors) },
       'get_sensor_details (3 sensors)' => lambda {

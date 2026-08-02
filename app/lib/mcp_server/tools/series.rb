@@ -3,10 +3,7 @@ module McpServer
     # Returns a time-ordered measurement series for one or more sensors, down to
     # sub-daily resolution (InfluxDB). This is what reveals intraday curves that
     # the daily-aggregated tools cannot show.
-    # Two thirds of this class are the tool's contract - its description and
-    # input schema - not logic; the code itself is the `call` below plus two
-    # helpers, everything else lives in Resolution/Aggregation/Points.
-    class Series < Base # rubocop:disable Metrics/ClassLength
+    class Series < Base
       # Hard cap on sensors per request. Each sensor is a separate InfluxDB
       # subquery yielding up to the point budget, so bound the per-request work
       # even though resolve_sensors already restricts to the configured set.
@@ -16,71 +13,47 @@ module McpServer
       tool_name 'get_series'
       title 'Get a time series for sensors'
       description <<~TEXT.strip
-        Get a chronological measurement series for one or more sensors, down to
-        sub-daily resolution. Use this for intraday curves and trends that the
-        aggregated tools cannot show, e.g. "power consumption per hour
-        yesterday", "battery SoC over the last week", "nightly base load",
-        "heat pump compressor cycling", "charge/discharge curve today".
+        Chronological measurement series for one or more sensors, down to
+        sub-daily resolution — the intraday curves the aggregated tools cannot
+        show ("consumption per hour yesterday", "battery SoC over the last
+        week", "nightly base load"). These are averaged value curves; for
+        energy-accurate period totals (kWh, costs) use get_totals, not an
+        integration of a coarse series here.
 
-        This returns averaged value curves; for energy-accurate totals over a
-        period (kWh, costs) use get_totals instead of integrating a
-        coarse series here.
+        Aggregation, per bucket: "mean" (default) is the curve the SOLECTRUS UI
+        shows. "max"/"min" report the extreme sample in a bucket and so surface
+        short-lived spikes the mean hides — use "max" with a fine resolution for
+        a true instantaneous peak. There is deliberately no "sum": summing a
+        coarse series is not an energy integration.
 
-        The default aggregation "mean" matches the smoothed line curve shown in
-        the SOLECTRUS UI exactly. "max"/"min" instead report the highest/lowest
-        sample within each bucket, so they can surface short-lived spikes or dips
-        that are averaged away in the UI curve and thus not visible there. Use
-        "mean" for "what does the UI show", and "max" (ideally with a fine
-        resolution) for a true instantaneous peak — and explain the difference
-        when a peak deviates from the UI.
+        Resolution: when omitted, the finest that keeps the WHOLE response
+        within #{Resolution::MAX_POINTS} points — the budget is SHARED, so N
+        sensors get #{Resolution::MAX_POINTS}/N points each. Exactly two things
+        coarsen a request: that budget, and the forecast cadence (providers
+        write at most one sample per 15 min, so forecast sensors alone are never
+        answered finer than "15m"). Nothing else, so a coarser request never
+        yields a coarser result than a finer one. Read back `resolution`,
+        `coarsened`, and `coarsened_reason` (only when coarsened) — it names the
+        constraint and what to change.
 
-        Parameters:
-          - sensors: names (from list_sensors), one or more.
-          - timeframe: SOLECTRUS notation, e.g. "2026-06-21" (a day), "2026-W25"
-            (a week), "2025-01-15..2025-02-12" (a range), "P24H" (last 24h).
-          - resolution: "1m", "5m", "15m", "1h" or "1d". When omitted, the
-            finest one that keeps the WHOLE response within
-            #{Resolution::MAX_POINTS} points across all requested sensors — the
-            budget is shared, so with N sensors each series gets
-            #{Resolution::MAX_POINTS}/N points, not #{Resolution::MAX_POINTS} each.
-            Exactly two things coarsen a request (explicit or default): that
-            shared budget, and the forecast cadence — providers write at most
-            one sample per 15 minutes, so forecast sensors alone are never
-            answered finer than "15m". Nothing else does, so asking for a
-            coarser resolution never yields a coarser result than asking for a
-            finer one. Read back `resolution` (what was actually used),
-            `coarsened` and — only when coarsened — `coarsened_reason`, which
-            names the constraint and what you can change about it.
-          - aggregation: "mean" (default, the value curve), "min" or "max" —
-            applied per resolution bucket. There is deliberately no "sum":
-            summing a coarse series is not an energy integration and reads as a
-            misleading total. For period totals (Wh/kWh, costs) use get_totals,
-            for the forecast use get_forecast.
-          - include_nulls: true (default) returns the complete bucket grid,
-            empty buckets included. false returns only the buckets carrying a
-            value — worth doing for sensors that write sporadically rather than
-            continuously (a device reporting only on load change), where a day
-            at 5m is 288 points even when three of them have a value. The
-            remaining points still sit on the same grid, so a gap between two
-            timestamps means "no data" just as an explicit null does.
+        include_nulls (default true) returns the complete bucket grid. false
+        drops the empty buckets, which pays off for sporadically written sensors
+        where a day at 5m is 288 points carrying three values; the rest stay on
+        the same grid, so a gap reads exactly like an explicit null.
 
-        Each series reports `point_count` alongside its `points`, so a
-        truncated or unexpectedly coarse curve is visible without counting.
+        Each point is {time, value}, and `time` is the END of its bucket: at
+        "5m" the point 07:05 covers 07:00–07:05, and the last point carries the
+        end of the requested timeframe. null means "no data", deliberately
+        distinct from a measured 0. Each series also reports `point_count`.
+
+        Buckets are cut on the installation's timezone (see get_system_info),
+        not UTC: a "1d" bucket is a local calendar day, including the 23- or
+        25-hour day of a daylight-saving switch.
 
         A timeframe that cannot hold measured data — entirely in the future, or
         ending before the installation date — carries a `timeframe_note`, so an
         all-null curve is never mistaken for an outage. A forecast sensor over a
-        future timeframe is the normal case and gets no such note.
-
-        Each point is {time, value}. `time` is the END of its bucket: at
-        resolution "5m" the point labelled 07:05 covers 07:00–07:05, and the
-        last point of a series carries the end of the requested timeframe. A
-        value of null means "no data" (e.g. a sensor was offline) and is
-        deliberately distinct from a measured 0.
-
-        Buckets are cut on the installation's own timezone (reported by
-        get_system_info), not on UTC: a "1d" bucket is a local calendar day,
-        including the 23- or 25-hour day of a daylight-saving switch.
+        future timeframe is normal and gets none.
       TEXT
       input_schema(
         properties: {

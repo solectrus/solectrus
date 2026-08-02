@@ -12,42 +12,30 @@ module McpServer
       tool_name 'get_ranking'
       title 'Rank days/weeks/months by a sensor'
       description <<~TEXT.strip
-        Rank the best or worst periods for one or more sensors over a timeframe,
-        e.g. "which day this year had the highest solar production", "the 5
-        coldest days last winter", or "house consumption per day in March".
-        Returns, per sensor, a list of periods with their aggregated value.
+        Rank the best or worst periods for one or more sensors over a timeframe:
+        "which day this year had the highest solar production", "the 5 coldest
+        days last winter", "house consumption per day in March". Returns, per
+        sensor, a list of periods with their aggregated value.
 
         Units: like get_totals, a summed power sensor ranks ENERGIES, so each
         value is in Wh, not W (divide by 1000 for kWh).
 
-        Parameters:
-          - sensors: names (from list_sensors), one or more (required,
-            at most #{MAX_SENSORS}). A single "sensor" is also accepted.
-          - timeframe: the range to look at, in SOLECTRUS notation, e.g. "2026"
-            (this year), "2026-06" (a month), "2026-01-01..2026-03-31" (range),
-            "all" (since installation).
-          - period: granularity of each ranked entry ("day", "week", "month",
-            "year"). Defaults to "day".
-          - aggregation: "sum" (energy/money), "max", "avg" or "min". Defaults to
-            each sensor's natural aggregation.
-          - order: "desc" (highest first, default) or "asc" (lowest first) -
-            selects which periods the limit keeps.
-          - sort: "value" (default) keeps the value ranking; "chronological"
-            returns the selected periods in date order, ready to plot as a trend
-            curve (e.g. an outage spanning several days) without re-sorting.
-            There, a period between the first and the last entry that has no
-            data is reported with value null, so "no data point" stays distinct
-            from "the value was 0" instead of just missing from the list.
-            Nothing is padded before the first or after the last entry — those
-            tell you the range actually covered — and a list truncated by
-            `limit` is left alone, since a period missing there may just not
-            have made the cut. A value ranking never reports such periods.
-          - limit: how many entries to return per sensor (1-100, default 10).
-            Use a generous limit with sort="chronological" to get a full curve.
+        `aggregation` defaults to each sensor's natural one, `period` to "day",
+        `order` to "desc" — which also decides WHICH periods the limit keeps.
 
-        A timeframe that cannot hold data at all — one entirely in the future,
-        or one ending before the installation date — still answers with an empty
-        ranking, but carries a `timeframe_note` saying which of the two it is.
+        sort="chronological" returns the selected periods in date order, ready
+        to plot as a trend curve without re-sorting. There, a period between the
+        first and the last entry that has no data is reported with value null,
+        so "no data point" stays distinct from "the value was 0". Nothing is
+        padded outside that span — the first and last entry tell you the range
+        actually covered — and a list truncated by `limit` is left alone, since
+        a period missing there may simply not have made the cut. A value ranking
+        (the default) never reports such periods, so pair "chronological" with a
+        generous limit to get a full curve.
+
+        A timeframe that cannot hold data at all — entirely in the future, or
+        ending before the installation date — answers with an empty ranking plus
+        a `timeframe_note` saying which of the two it is.
       TEXT
       input_schema(
         properties: {
@@ -66,7 +54,8 @@ module McpServer
           timeframe: {
             type: 'string',
             description:
-              'Range to rank within, e.g. "2026", "2026-06", "2026-01-01..2026-03-31", "all".',
+              'Range to rank within: "2026", "2026-06", "2026-W25", ' \
+                '"2026-01-01..2026-03-31", "P30D"/"P12M", "all" (since installation).',
           },
           period: {
             type: 'string',

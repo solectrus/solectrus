@@ -8,25 +8,23 @@ module McpServer
       tool_name 'get_system_info'
       title 'Get system information'
       description <<~TEXT.strip
-        Get metadata about this SOLECTRUS installation, as background context
-        before interpreting values:
+        Metadata about this SOLECTRUS installation, as background before
+        interpreting values:
           - installation_date: bounds the "all" timeframe.
-          - currency (ISO-4217) and timezone. All timestamps and all
+          - currency (ISO-4217) and timezone — all timestamps and all
             day/week/month boundaries follow that timezone.
-          - installed_peak_power_kwp: installed PV peak power (only if known).
+          - installed_peak_power_kwp: installed PV peak power, if known.
           - has_battery / has_wallbox / has_heatpump / has_forecast: which
             subsystems are configured, derived from the actual sensor setup.
-          - data: when this installation last received anything at all
-            (last_seen_at, age_seconds; null before the very first data point).
-            Use it as the health check "is data still arriving?" — seconds old
-            means live, minutes or more means the data collector is behind or
-            down — instead of pulling every live value with get_current_values
-            just to read their timestamps.
+          - data: when this installation last received anything (last_seen_at,
+            age_seconds; null before the very first data point). This is the
+            health check "is data still arriving?" — seconds old means live,
+            minutes or more means the collector is behind or down — so use it
+            instead of pulling every live value just to read its timestamp.
 
-        For the (time-dependent) electricity and feed-in tariffs, use
-        get_prices. Only values that can be reliably derived from configuration
-        or data are returned; unknown ones (e.g. installed_peak_power_kwp on an
-        unregistered instance) are omitted rather than guessed.
+        Tariffs are in get_prices. Values that cannot be reliably derived (e.g.
+        installed_peak_power_kwp on an unregistered instance) are omitted rather
+        than guessed.
       TEXT
       input_schema(properties: {})
       # `data` is a live reading, so an identical call does not return an

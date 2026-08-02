@@ -7,33 +7,31 @@ module McpServer
       tool_name 'list_sensors'
       title 'List available sensors'
       description <<~TEXT.strip
-        List the sensors available on this SOLECTRUS instance (solar inverter,
-        battery, grid, house, heatpump, finances, ...). Per sensor you get its
-        name — use these for every other tool — a semantic description, and
-        `tools`: which tools return meaningful data for it. Call this first to
-        discover valid sensor names.
+        The sensors available on this SOLECTRUS instance (solar inverter,
+        battery, grid, house, heatpump, finances, ...). Call this first to
+        discover valid sensor names. Per sensor: its name — use these for every
+        other tool — a semantic description, and `tools`, which tools return
+        meaningful data for it.
 
-        A `display_name` is included wherever the operator named the sensor
-        themselves — that is the word the user will use for it, so match their
+        A `display_name` appears wherever the operator named the sensor
+        themselves. That is the word the user will use for it, so match their
         wording against it: "Waschmaschine" is custom_power_01, whose name and
         description only ever say "custom consumer 1". Sensors without one are
-        already named by their description.
+        named by their description already.
+
+        An index, not a datasheet: unit, category and aggregations for several
+        hundred sensors would cost far more context than they are worth up
+        front. get_sensor_details returns those for the few you picked, and you
+        will rarely need it, because every data tool already reports unit and
+        display name for what it returns.
 
         Sensors ending in "_grid" or "_pv" are NOT listed: they split a base
         sensor by where the energy came from, and say nothing their name and the
         suffix do not. conventions.suffixes names every base sensor that has
         them; the names themselves stay valid input for every tool.
 
-        This is an index, not a datasheet. An instance can carry several hundred
-        sensors, and unit, display name, category and available aggregations for
-        all of them would cost far more context than they are worth up front.
-        get_sensor_details returns those for the few sensors you actually
-        picked — and you will rarely need it, because every data tool already
-        reports the unit and display name of the sensors it returns.
-
-        The `conventions` block explains the naming suffixes, the `tools`
-        letters, the units, and — under `precision` — how many decimals each
-        unit is rounded to.
+        The `conventions` block explains the suffixes, the `tools` letters, the
+        units, and under `precision` how many decimals each unit is rounded to.
       TEXT
       input_schema(properties: {})
       read_only idempotent: true

@@ -13,30 +13,28 @@ module McpServer
       tool_name 'get_sensor_details'
       title 'Get full metadata for specific sensors'
       description <<~TEXT.strip
-        Get the full metadata of specific sensors, beyond the name, description
-        and `tools` that list_sensors returns for all of them:
+        Full metadata of specific sensors, beyond the name, description and
+        `tools` that list_sensors returns for all of them:
 
           - display_name: the human-readable label.
-          - unit: the physical unit of the value (see conventions.units in
-            list_sensors). Note that get_totals/get_ranking report the unit
-            AFTER aggregation, where a summed "watt" sensor becomes
-            "watt_hour" — this tool reports the unaggregated unit.
-          - category: which subsystem the sensor belongs to (inverter, battery,
-            grid, consumer, economic, forecast, ...).
-          - calculated: true means the value is derived from other sensors
-            rather than measured directly.
-          - aggregations: the aggregations usable across the tools. Empty for
-            forecast sensors, which get_totals rejects.
+          - unit: the UNAGGREGATED unit — note that get_totals/get_ranking
+            report the unit after aggregation, where a summed "watt" becomes
+            "watt_hour". Units are explained in list_sensors' conventions.
+          - category: inverter, battery, grid, consumer, economic, forecast, ...
+          - calculated: the value is derived from other sensors, not measured.
+          - aggregations: what is usable across the tools; empty for forecast
+            sensors, which get_totals rejects.
           - tools: the same code list_sensors returns — c = get_current_values,
             t = get_totals, s = get_series, r = get_ranking, f = get_forecast.
+          - description: also for the _grid/_pv split sensors, where
+            list_sensors omits it.
 
-        You will rarely need this: every data tool already reports the unit and
-        display name of the sensors it returns, and `tools` from list_sensors is
-        enough to decide which tool to call. Reach for it when you have to
-        commit to a unit or an aggregation BEFORE making a call, or to explain a
-        sensor to a user.
+        You will rarely need this: every data tool already reports unit and
+        display name for what it returns, and `tools` from list_sensors decides
+        which tool to call. Reach for it to commit to a unit or an aggregation
+        BEFORE a call, or to explain a sensor to a user.
 
-        Pass at most #{MAX_SENSORS} names — asking for everything rebuilds the
+        At most #{MAX_SENSORS} names — asking for everything rebuilds the
         payload list_sensors exists to avoid.
       TEXT
       input_schema(

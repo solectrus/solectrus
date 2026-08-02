@@ -18,18 +18,10 @@ module McpServer
         (divide by 1000 for kWh) — never read a watt-sum as a power. All other
         units aggregate unchanged.
 
-        The `timeframe` uses SOLECTRUS notation, for example:
-          "2026-06-21" (a day), "2026-W25" (a week), "2026-06" (a month),
-          "2026" (a year), "P24H" (last 24 hours), "P30D" (last 30 days),
-          "P12M" (last 12 months), "2026-01-01..2026-03-31" (a date range),
-          "day"/"week"/"month"/"year" (current period), "all" (since install).
-
-        Pass the sensor names from list_sensors via `sensors`.
-
-        A timeframe that cannot hold data at all — one entirely in the future,
-        or one ending before the installation date — still answers with null
-        values, but carries a `timeframe_note` saying which of the two it is.
-        Report that as "not yet" or "not back then", never as "no data".
+        A timeframe that cannot hold data at all — entirely in the future, or
+        ending before the installation date — still answers with null values but
+        carries a `timeframe_note` saying which of the two it is. Report that as
+        "not yet" or "not back then", never as "no data".
 
         This tool is for historical measured or aggregated actual values. Do NOT
         pass forecast sensors (e.g. "inverter_power_forecast") — those are
@@ -41,7 +33,9 @@ module McpServer
           timeframe: {
             type: 'string',
             description:
-              'SOLECTRUS timeframe, e.g. "2026-06", "2026", "P24H", "P30D", "2026-01-01..2026-03-31", "month".',
+              'SOLECTRUS timeframe: "2026-06-21", "2026-W25", "2026-06", "2026", ' \
+                '"2026-01-01..2026-03-31", "P24H"/"P30D"/"P12M", ' \
+                '"day"/"week"/"month"/"year" (current), "all" (since installation).',
           },
           sensors: {
             type: 'array',
