@@ -284,14 +284,23 @@ module Sensor
 
         Sensor::Query::Helpers::Sql::CteBuilder.new(
           sensor_requests:,
-          timeframe:
-            Timeframe.new(
-              "#{start.strftime('%Y-%m-%d')}..#{stop.strftime('%Y-%m-%d')}",
-            ),
+          timeframe: date_window,
           required_prices: required_prices.to_a,
           required_fields: required_fields.to_a,
           required_aggregations: [:sum],
         )
+      end
+
+      # The window the CTE reads over, as a Timeframe. A range spans at least
+      # two days, so a ranking of a single day - "2026-07-31" ranked by day -
+      # has to name that day as a day. Spelled as a range it would be a range
+      # of one, which Timeframe rejects, and the whole ranking failed with it
+      # (for SQL-calculated sensors, the only ones that build a CTE at all).
+      def date_window
+        first = start.strftime('%Y-%m-%d')
+        return Timeframe.new(first) if start == stop
+
+        Timeframe.new("#{first}..#{stop.strftime('%Y-%m-%d')}")
       end
 
       def build_sensor_requests(sql_deps, custom_sql)

@@ -181,6 +181,41 @@ describe McpServer::Tools::Ranking do
       end
     end
 
+    # A single day is one of the timeframe forms the tool advertises, and a
+    # ranking over it is a valid ranking with one entry. A sensor computed in
+    # SQL (any ratio, any cost) re-derives a timeframe from the ranked
+    # start/stop dates, and spelled that single day as the range
+    # "2024-01-15..2024-01-15" - which is no range at all, and was rejected as
+    # one.
+    context 'with a single day as the timeframe' do
+      before do
+        create_summary(
+          date: '2024-01-15',
+          values: [
+            [:house_power, :sum, 25_000],
+            [:grid_import_power, :sum, 5_000],
+          ],
+        )
+      end
+
+      it 'ranks a stored sensor' do
+        _error, data = call(sensor: 'house_power', timeframe: '2024-01-15')
+
+        expect(data[:results].first[:ranking]).to eq(
+          [{ date: '2024-01-15', value: 25_000 }],
+        )
+      end
+
+      it 'ranks a sensor computed in SQL' do
+        error, data = call(sensor: 'autarky', timeframe: '2024-01-15')
+
+        expect(error).to be(false)
+        expect(data[:results].first[:ranking]).to eq(
+          [{ date: '2024-01-15', value: 80.0 }],
+        )
+      end
+    end
+
     it 'ranks multiple sensors in one call' do
       create_summary(date: '2024-01-15', values: [[:house_power, :sum, 25_000], [:inverter_power_1, :sum, 40_000]])
 
