@@ -100,7 +100,9 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   end
 
   def configured?(sensor_name)
-    configurations&.key?(sensor_name)
+    ensure_configurations!
+
+    configurations.key?(sensor_name)
   end
 
   def mapping(sensor_name)

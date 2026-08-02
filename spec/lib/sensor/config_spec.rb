@@ -191,6 +191,31 @@ describe Sensor::Config do
     end
   end
 
+  # `depends_on` blocks branch on this answer, so a nil - which is what
+  # `configurations&.key?` gave before anything had built the configuration -
+  # hands a sensor dependencies it does not have.
+  describe '.configured?' do
+    it 'answers for a configured and an unconfigured sensor' do
+      expect(described_class.configured?(:inverter_power)).to be(true)
+      expect(described_class.configured?(:wallbox_power)).to be(false)
+    end
+
+    context 'when the configuration has not been materialized yet' do
+      before { instance.instance_variable_set(:@configurations, nil) }
+
+      after { described_class.setup(env) }
+
+      it 'materializes it instead of answering nil' do
+        # ENV, not the `env` above: that is what a cold process would read.
+        expect(described_class.configured?(:house_power)).to be(true)
+      end
+
+      it 'answers false rather than nil for a sensor ENV does not configure' do
+        expect(described_class.configured?(:non_existent_sensor)).to be(false)
+      end
+    end
+  end
+
   describe '.measurement' do
     it 'returns correct measurement for configured sensors' do
       expect(described_class.measurement(:inverter_power)).to eq('pv')
