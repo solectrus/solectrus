@@ -4,6 +4,20 @@ module McpServer
     # subclasses, so they keep the gem's `tool_name`/`input_schema`/`call` DSL,
     # while this base provides a few SOLECTRUS-specific helpers.
     class Base < MCP::Tool
+      # Every `timeframe` spelling there is, in one place: the input schemas
+      # publish it up front and parse_timeframe repeats it when a client got it
+      # wrong anyway. There are few enough forms to list them all, and listing
+      # them all is the point - an "e.g." invites a model to extrapolate, and
+      # what it extrapolates ("last-week", "yesterday", "2026-06-21..now") is
+      # never accepted. A closed set leaves nothing to invent.
+      TIMEFRAME_FORMS =
+        '"2026-06-21" (a day), "2026-W25" (a week), "2026-06" (a month), ' \
+          '"2026" (a year), "2026-01-01..2026-03-31" (a date range), ' \
+          '"P24H"/"P30D"/"P12M" (a rolling window ending now), ' \
+          '"day"/"week"/"month"/"year" (the current period), ' \
+          '"all" (since installation)'.freeze
+      public_constant :TIMEFRAME_FORMS
+
       class << self
         # Declare the annotations shared by every (read-only) SOLECTRUS tool.
         # `idempotent:` says whether repeating an identical call yields the same
@@ -17,17 +31,20 @@ module McpServer
           )
         end
 
-        protected
+        # The `timeframe` input-schema property. `lead` carries what the
+        # individual tool needs on top (get_series rejects the instant "now",
+        # get_ranking ranks periods within the range); the accepted forms
+        # themselves are the same everywhere and stated as a closed set.
+        def timeframe_property(lead)
+          {
+            type: 'string',
+            description:
+              "#{lead} Use exactly one of these forms, nothing else is " \
+                "accepted: #{TIMEFRAME_FORMS}.",
+          }
+        end
 
-        # The forms a `timeframe` parameter accepts, named once so an error can
-        # state them instead of leaving a client to guess from the tool
-        # description it evidently misread.
-        TIMEFRAME_FORMS =
-          '"2026-06-21" (a day), "2026-W25" (a week), "2026-06" (a month), ' \
-            '"2026" (a year), "2026-01-01..2026-03-31" (a date range), "P24H"/' \
-            '"P30D"/"P12M" (rolling), "day"/"week"/"month"/"year" (the current ' \
-            'period), "all" (since installation)'.freeze
-        private_constant :TIMEFRAME_FORMS
+        protected
 
         # Timeframe.new, with the accepted forms appended to the error. The
         # domain class stays free of that prose: which forms exist is its

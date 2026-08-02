@@ -30,13 +30,7 @@ module McpServer
       TEXT
       input_schema(
         properties: {
-          timeframe: {
-            type: 'string',
-            description:
-              'SOLECTRUS timeframe: "2026-06-21", "2026-W25", "2026-06", "2026", ' \
-                '"2026-01-01..2026-03-31", "P24H"/"P30D"/"P12M", ' \
-                '"day"/"week"/"month"/"year" (current), "all" (since installation).',
-          },
+          timeframe: timeframe_property('The period to aggregate over.'),
           sensors: {
             type: 'array',
             items: {

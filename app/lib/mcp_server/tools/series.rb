@@ -64,11 +64,7 @@ module McpServer
             },
             description: 'Sensor names (from list_sensors).',
           },
-          timeframe: {
-            type: 'string',
-            description:
-              'SOLECTRUS timeframe with a span, e.g. "2026-06-21", "2026-W25", "2025-01-15..2025-02-12", "P24H".',
-          },
+          timeframe: timeframe_property('The period the curve covers.'),
           resolution: {
             type: 'string',
             enum: %w[1m 5m 15m 1h 1d],

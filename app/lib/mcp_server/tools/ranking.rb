@@ -51,12 +51,7 @@ module McpServer
             type: 'string',
             description: 'Single sensor name (alternative to "sensors").',
           },
-          timeframe: {
-            type: 'string',
-            description:
-              'Range to rank within: "2026", "2026-06", "2026-W25", ' \
-                '"2026-01-01..2026-03-31", "P30D"/"P12M", "all" (since installation).',
-          },
+          timeframe: timeframe_property('The range to rank within.'),
           period: {
             type: 'string',
             enum: %w[day week month year],
