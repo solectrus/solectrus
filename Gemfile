@@ -29,7 +29,9 @@ gem 'pg', '~> 1.1'
 gem 'puma', '>= 5.0'
 
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
-gem 'redis', '>= 4.0.1'
+# Upper bound required: Action Cable's redis pubsub adapter declares
+# `gem "redis", ">= 4", "< 6"`, so redis 6 breaks broadcasting in production.
+gem 'redis', '>= 4.0.1', '< 6'
 
 # Boot large ruby/rails apps faster (https://github.com/rails/bootsnap)
 gem 'bootsnap', require: false
