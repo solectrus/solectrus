@@ -742,6 +742,15 @@ describe AmortizationCalculator do
       expect(described_class.clamp_period('99')).to eq(30)
       expect(described_class.clamp_period('22.9')).to eq(22)
     end
+
+    # A period that has already ended says nothing about the investment, so an
+    # older system cannot be looked at over the shortest period any more.
+    it 'raises the minimum with the age of the system' do
+      travel_to Date.new(2035, 6, 1) do
+        expect(described_class.period_range).to eq(15..30)
+        expect(described_class.clamp_period('10')).to eq(15)
+      end
+    end
   end
 
   describe 'caching' do

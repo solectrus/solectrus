@@ -7,10 +7,8 @@
 class AmortizationControls::Component < ViewComponent::Base
   # The parameter ranges are domain facts owned by AmortizationCalculator; the
   # slider granularity is a view concern and stays here.
-  PERIOD_RANGE = AmortizationCalculator::PERIOD_RANGE
   INTEREST_RANGE = AmortizationCalculator::INTEREST_RANGE
   INTEREST_STEP = 0.1
-  private_constant :PERIOD_RANGE
   private_constant :INTEREST_RANGE
   private_constant :INTEREST_STEP
 
@@ -18,13 +16,16 @@ class AmortizationControls::Component < ViewComponent::Base
   # with light text for the indigo sub-navigation bar (desktop, inline).
   def initialize(period_years:, interest_rate:, view: :chart, variant: :panel)
     super()
-    @period_years = period_years
+    # Clamped like at every other entry point, so thumb and label agree even if
+    # a caller hands in a period the calculation would not accept - the minimum
+    # rises with the system's age (see AmortizationCalculator.period_range).
+    @period_years = AmortizationCalculator.clamp_period(period_years)
     @interest_rate = interest_rate
     @view = view
     @variant = variant
   end
 
-  attr_reader :interest_rate, :view, :variant
+  attr_reader :period_years, :interest_rate, :view, :variant
 
   # Echoed back on submit so the update action re-renders the same view the
   # sliders were adjusted on. The chart is the default, so it needs no field.
@@ -65,35 +66,20 @@ class AmortizationControls::Component < ViewComponent::Base
     bar? ? 'text-white dark:text-gray-300' : 'text-gray-800 dark:text-gray-100'
   end
 
-  # Clamped to the effective range so the slider thumb and the value label
-  # agree even when the requested period is below the current minimum.
-  def period_years
-    @period_years.clamp(period_min, period_max)
-  end
-
   def rate_label
     number_with_precision(interest_rate, precision: 1)
   end
 
-  # The period must not end in the past, so the slider minimum rises with the
-  # system's age: it is the smallest whole number of years reaching at least
-  # today, bounded by PERIOD_RANGE. A system running for 12+ years therefore
-  # cannot be evaluated with a period below 12.
-  def period_min
-    minimum_operating_years.clamp(PERIOD_RANGE.min, PERIOD_RANGE.max)
-  end
-
-  def period_max = PERIOD_RANGE.max
+  # The slider offers exactly the periods the calculation accepts - including
+  # the minimum that rises with the system's age, so thumb and computed value
+  # cannot drift apart.
+  def period_min = period_range.min
+  def period_max = period_range.max
   def interest_min = INTEREST_RANGE.min
   def interest_max = INTEREST_RANGE.max
   def interest_step = INTEREST_STEP
 
   private
 
-  def minimum_operating_years
-    date = Rails.configuration.x.installation_date
-    years = Date.current.year - date.year
-    years += 1 if date + years.years < Date.current
-    years
-  end
+  def period_range = @period_range ||= AmortizationCalculator.period_range
 end

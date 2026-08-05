@@ -19,10 +19,19 @@ class AmortizationCalculator
     public_constant :DEFAULT_INTEREST_RATE
 
     class_methods do
+      # The periods this installation can actually be evaluated with:
+      # PERIOD_RANGE, raised from below by the system's age. A period that has
+      # already ended says nothing about the investment, so the minimum grows
+      # with the years the system has been running - one running for 12 years
+      # cannot be looked at over 10.
+      def period_range
+        minimum_operating_years.clamp(PERIOD_RANGE)..PERIOD_RANGE.max
+      end
+
       # Coerce a raw (possibly nil, string or tampered) value to the default and
       # clamp it into the allowed range.
       def clamp_period(value)
-        (value || DEFAULT_PERIOD_YEARS).to_i.clamp(PERIOD_RANGE)
+        (value || DEFAULT_PERIOD_YEARS).to_i.clamp(period_range)
       end
 
       # Round to the slider's 0.1 step before clamping. Without quantization the
@@ -32,6 +41,16 @@ class AmortizationCalculator
       # the store with entries.
       def clamp_interest(value)
         (value || DEFAULT_INTEREST_RATE).to_f.round(1).clamp(INTEREST_RANGE)
+      end
+
+      private
+
+      # The smallest whole number of years reaching at least today.
+      def minimum_operating_years
+        date = Rails.configuration.x.installation_date
+        years = Date.current.year - date.year
+        years += 1 if date + years.years < Date.current
+        years
       end
     end
   end

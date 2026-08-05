@@ -58,7 +58,9 @@ module McpServer
         properties: {
           period_years: {
             type: 'integer',
-            description: 'Total lifetime in years (10-30). Defaults to 20.',
+            description:
+              'Total lifetime in years (10-30, never below the age of the ' \
+                'system). Defaults to 20.',
           },
           interest_rate: {
             type: 'number',
