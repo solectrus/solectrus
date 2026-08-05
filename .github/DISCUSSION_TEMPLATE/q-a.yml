@@ -1,0 +1,44 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Willkommen im Q&A
+
+        Hier bist du richtig, wenn du eine Antwort suchst – ob Verständnisfrage, „Wie mache ich X?“ oder „Ist das so gedacht?“. Auch Probleme bei Installation und Konfiguration gehören hierher. Frag ruhig, auch wenn dir die Frage banal vorkommt.
+
+        Nur wenn sich in SOLECTRUS etwas **ändern** soll, bist du woanders besser aufgehoben. Solche Anliegen gehören als Issue angelegt, denn nur Issues werden eingeplant und umgesetzt:
+
+        - Etwas funktioniert nicht wie beschrieben → [Fehlerbericht](https://github.com/solectrus/solectrus/issues/new?template=1-bug-report.yaml)
+        - Dir fehlt eine Funktion → [Anforderungsbeschreibung](https://github.com/solectrus/solectrus/issues/new?template=2-feature-request.yaml)
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Deine Frage (auf Deutsch oder Englisch)
+      description: Beschreibe, was du erreichen möchtest und woran es hakt. Screenshots sind willkommen – schreib bitte einen Satz dazu, worauf wir schauen sollen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Support-Paket
+      description: |-
+        Geht es um deine laufende Installation? Dann erstelle am besten gleich mit **HELIOS** ein **Support-Paket** und lege die ZIP-Datei hier per Drag & Drop ab. Sie enthält Konfiguration, Logs und Systeminfos, wobei Passwörter und Schlüssel bereits geschwärzt sind – und erspart eine Menge an Rückfragen.
+
+        Falls du HELIOS noch nicht verwendest: Ein Blick darauf lohnt sich, denn es macht den Betrieb von SOLECTRUS deutlich einfacher und lässt sich jederzeit nachrüsten – deine bestehende Konfiguration wird dabei einfach übernommen. Sehr empfehlenswert, siehe [solectrus.de/install](https://solectrus.de/install/).
+      placeholder: Support-Paket (ZIP) hier ablegen …
+
+  - type: input
+    id: version
+    attributes:
+      label: Welche Version von SOLECTRUS verwendest du?
+      description: Nur nötig, wenn du kein Support-Paket anhängen kannst.
+      placeholder: z.B. v1.2.1
+
+  - type: input
+    id: machine
+    attributes:
+      label: Auf welchem Gerät läuft bei dir SOLECTRUS?
+      description: Nur nötig, wenn du kein Support-Paket anhängen kannst.
+      placeholder: z.B. Raspberry Pi 4 mit Debian 12 (Bookworm)

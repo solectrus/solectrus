@@ -7,5 +7,6 @@ body:
     id: description
     attributes:
       label: Beschreibung (auf Deutsch oder Englisch)
+      description: Beschreibe, was dir fehlt und wozu du es brauchst. Ein konkreter Anwendungsfall hilft mehr als eine fertig ausgedachte Lösung. Bitte nur ein Thema pro Issue.
     validations:
       required: true

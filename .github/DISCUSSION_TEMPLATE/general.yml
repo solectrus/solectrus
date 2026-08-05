@@ -1,0 +1,24 @@
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Willkommen im Forum
+
+        Hier bist du richtig, wenn du etwas fragen, mitteilen, zeigen oder besprechen möchtest – auch eine noch unfertige Überlegung, zu der du gerne andere Meinungen hättest.
+
+        Schau nur kurz, ob eine der anderen Kategorien noch genauer passt:
+
+        - **Q&A** – du hast eine Frage, oder es klemmt bei Installation und Konfiguration
+        - **Show and tell** – du möchtest deinen Aufbau oder deine Lösung zeigen
+        - **Polls** – du möchtest die Community abstimmen lassen
+        - **Lounge** – alles, was sonst nirgends passt
+
+        Nur wenn sich in SOLECTRUS etwas **ändern** soll, bist du woanders besser aufgehoben. Hinweise auf Fehler, Vorschläge für Erweiterungen und neue Features gehören als [Issue](https://github.com/solectrus/solectrus/issues/new/choose) angelegt, denn nur Issues werden eingeplant und umgesetzt. Eine fertig ausformulierte Anforderung kommt dort weiter – hier bliebe sie liegen.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Worum geht es? (auf Deutsch oder Englisch)
+      description: Erzähl einfach frei heraus – eine feste Struktur braucht es hier nicht.
+    validations:
+      required: true
