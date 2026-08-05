@@ -16,16 +16,15 @@ class AmortizationControls::Component < ViewComponent::Base
 
   # variant: :panel renders for a light dropdown (mobile), :bar renders compact
   # with light text for the indigo sub-navigation bar (desktop, inline).
-  def initialize(result:, view: :chart, variant: :panel)
+  def initialize(period_years:, interest_rate:, view: :chart, variant: :panel)
     super()
-    @result = result
+    @period_years = period_years
+    @interest_rate = interest_rate
     @view = view
     @variant = variant
   end
 
-  attr_reader :result, :view, :variant
-
-  delegate :interest_rate, to: :result
+  attr_reader :interest_rate, :view, :variant
 
   # Echoed back on submit so the update action re-renders the same view the
   # sliders were adjusted on. The chart is the default, so it needs no field.
@@ -69,7 +68,7 @@ class AmortizationControls::Component < ViewComponent::Base
   # Clamped to the effective range so the slider thumb and the value label
   # agree even when the requested period is below the current minimum.
   def period_years
-    result.period_years.clamp(period_min, period_max)
+    @period_years.clamp(period_min, period_max)
   end
 
   def rate_label

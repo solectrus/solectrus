@@ -1,22 +1,26 @@
 - turbo_exempts_page_from_cache
+/! The page shell only - everything that is known without running the
+/! calculation, so the first paint does not wait for it. The calculation itself
+/! is fetched into the detail frame below (see AmortizationController#content).
+/!
 /! Both views fill the viewport: the chart is a fixed-height canvas, the table is
 /! its own scroll area so its heading row stays pinned while the rows scroll.
-/! @result is only built for a viewer who may actually see the calculation (the
-/! controller skips the work otherwise), so the hint/teaser states below fall
-/! into the plain full-height layout - both tabs then render identically.
-- if view == :details && @result&.prognosis?
+/! The hint states have no calculation to show and fall into the plain
+/! full-height layout - both tabs then render identically.
+- if current_view == :details && calculation_expected?
   - content_for :fixed_nav, true
 - else
   - content_for :full_height, true
 
 /! Sub-navigation in the top bar (chart/table switch plus the parameter sliders
 /! and the settings cog). Only shown when there is a real calculation to
-/! navigate between; the hint and teaser states have nothing to toggle between.
-- if @result&.prognosis?
+/! navigate between; the hint states have nothing to toggle between.
+- if calculation_expected?
   - content_for :sub_nav do
-    = render AmortizationSubNav::Component.new(result: @result, view:)
+    = render AmortizationSubNav::Component.new(period_years:, interest_rate:, view: current_view)
 
-- if !admin? && !Setting.amortization_public
+- case page_state
+- when :restricted
   /! Admin decided the calculation is not public - hint that admin login is
   /! needed to see it, rather than hiding the page outright.
   = render Message::Component.new do |c|
@@ -28,55 +32,32 @@
       = render Button::Component.new title: t('amortization.index.login'),
                                      path: new_session_path(return_to: request.fullpath),
                                      style: :primary
-- elsif ApplicationPolicy.amortization?
-  - if @missing_or_stale_summary_days.present?
-    /! Measured savings incomplete - build the missing daily summaries first,
-    /! then reload (same mechanism as Top10), so the calculation runs on
-    /! complete data.
-    .flex-1.min-h-0
-      = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
-  - elsif @result
-    /! Cash flows present: show the calculation
-    - if @result.prognosis?
-      /! Both views fill the remaining height. The details view is the table
-      /! alone, so it becomes its own scroll area and keeps its heading row
-      /! pinned; the chart view carries the compact KPI rail on top. Wrapped in a
-      /! Turbo frame so the sliders can auto-refresh it without touching the
-      /! sub-nav.
-      = turbo_frame_tag 'amortization_detail', class: 'flex-1 min-h-0 flex flex-col gap-3' do
-        - if view == :details
-          = render AmortizationTable::Component.new(result: @result)
-        - elsif view == :returns
-          /! History of the return - a chart of its own, no KPI rail: the rail's
-          /! figures are all end-of-period values and would compete with the
-          /! curve's story of how the rate got where it is.
-          .flex-1.min-h-0.flex.flex-col
-            = render AmortizationReturnChart::Component.new(result: @result)
-        - else
-          /! KPI rail. Kept in the DOM even when hidden on very short viewports
-          /! (sr-only, not display:none) so the figures stay available to screen
-          /! readers and the specs.
-          div class='tiny:sr-only'
-            = render AmortizationStats::Component.new(result: @result)
-
-          .flex-1.min-h-0.flex.flex-col
-            = render AmortizationChart::Component.new(result: @result)
-    - else
-      /! Not enough measured data yet - degree teaser shows the reason
-      .flex-1.min-h-0.flex.flex-col.justify-center.gap-6
-        = render AmortizationDegree::Component.new(result: @result)
-  - else
-    /! Cash flows missing: ask the admin to create them
-    = render Message::Component.new do |c|
-      - c.with_icon do
-        i.fa.fa-sack-dollar
-      = c.with_title { t('amortization.index.no_cash_flows_title') }
-      = c.with_body { t('amortization.index.no_cash_flows_body') }
-      - if admin?
-        = c.with_footer do
-          = render Button::Component.new title: t('amortization.index.manage_cash_flows'),
-                                         path: settings_cash_flows_path,
-                                         style: :primary
-- else
+- when :unavailable
   /! Sponsor feature not available: promote it and link to the demo
   = render DemoLink::Component.new(feature: 'amortization')
+- when :no_cash_flows
+  /! Cash flows missing: ask the admin to create them
+  = render Message::Component.new do |c|
+    - c.with_icon do
+      i.fa.fa-sack-dollar
+    = c.with_title { t('amortization.index.no_cash_flows_title') }
+    = c.with_body { t('amortization.index.no_cash_flows_body') }
+    - if admin?
+      = c.with_footer do
+        = render Button::Component.new title: t('amortization.index.manage_cash_flows'),
+                                       path: settings_cash_flows_path,
+                                       style: :primary
+- else
+  /! The frame the sliders re-render, so an auto-submit never touches the
+  /! sub-nav. An already cached calculation goes straight in; otherwise the
+  /! frame fetches it as soon as the shell is on screen - a spinner until it
+  /! arrives. Incomplete daily summaries are handled on that path too, so the
+  /! check and the calculation it guards cannot drift apart.
+  = turbo_frame_tag 'amortization_detail',
+                    src: (content_amortization_path(view: current_view) unless @result),
+                    class: 'flex-1 min-h-0 flex flex-col gap-3' do
+    - if @result
+      = render 'detail'
+    - else
+      .flex-1.flex.justify-center.items-center
+        = render Loading::Component.new

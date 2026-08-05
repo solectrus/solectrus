@@ -9,7 +9,7 @@
   /! Desktop: the sliders live directly in the bar (light text on indigo).
   /! Outside the detail frame, so they stay put across auto-submits.
   .hidden.lg:landscape:block.shrink-0
-    = render AmortizationControls::Component.new(result:, view:, variant: :bar)
+    = render AmortizationControls::Component.new(period_years:, interest_rate:, view:, variant: :bar)
 
   /! Shortcut to the cash-flow settings, where the figures behind the
   /! calculation are maintained. Shown to everyone who may see the page; the
@@ -47,4 +47,4 @@
       data-transition-leave-start='opacity-100 scale-100'
       data-transition-leave-end='opacity-0 scale-95'
     ]
-      = render AmortizationControls::Component.new(result:, view:)
+      = render AmortizationControls::Component.new(period_years:, interest_rate:, view:)

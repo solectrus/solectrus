@@ -9,6 +9,19 @@ describe 'Amortization' do
     Summary.delete_all
   end
 
+  # The page shell leaves the calculation to a Turbo frame that fetches it
+  # separately, so anything computed lives behind this request, not behind the
+  # page URL.
+  def get_content(view: nil)
+    get '/amortization/content',
+        params: {
+          view:,
+        }.compact,
+        headers: {
+          'Turbo-Frame' => 'amortization_detail',
+        }
+  end
+
   describe 'GET /amortization' do
     # By default treat the daily summaries as complete, so the calculation runs.
     # The dedicated context below covers the incomplete case.
@@ -77,13 +90,42 @@ describe 'Amortization' do
           allow(Setting).to receive(:amortization_public).and_return(true)
         end
 
-        it 'shows the detail view including the parameter sliders' do
+        it 'shows the shell with the parameter sliders and the detail frame' do
           get '/amortization'
 
-          expect(response).to have_http_status(:success)
-          expect(response.body).to include('Undiscounted balance today')
-          expect(response.body).to include('amortization-chart--component')
-          expect(response.body).to include('type="range"')
+          aggregate_failures do
+            expect(response).to have_http_status(:success)
+            expect(response.body).to include('type="range"')
+            # Not cached (null store in test), so the frame fetches it
+            expect(response.body).to include('src="/amortization/content')
+            expect(response.body).not_to include('amortization-chart--component')
+          end
+        end
+
+        it 'renders an already cached calculation with the shell' do
+          # Nothing to wait for, so the frame is filled right away instead of
+          # fetching itself.
+          allow(AmortizationCalculator).to receive(:cached_result).and_return(
+            AmortizationCalculator.new.result,
+          )
+
+          get '/amortization'
+
+          aggregate_failures do
+            expect(response).to have_http_status(:success)
+            expect(response.body).to include('amortization-chart--component')
+            expect(response.body).not_to include('src="/amortization/content')
+          end
+        end
+
+        it 'shows the calculation in the detail frame' do
+          get_content
+
+          aggregate_failures do
+            expect(response).to have_http_status(:success)
+            expect(response.body).to include('Undiscounted balance today')
+            expect(response.body).to include('amortization-chart--component')
+          end
         end
 
         it 'offers the cash-flow settings shortcut to non-admins too' do
@@ -159,14 +201,16 @@ describe 'Amortization' do
         it 'shows the detail view even when not made public' do
           allow(Setting).to receive(:amortization_public).and_return(false)
 
-          get '/amortization'
+          get_content
 
           expect(response).to have_http_status(:success)
           expect(response.body).to include('Undiscounted balance today')
           expect(response.body).to include('amortization-chart--component')
         end
 
-        it 'renders the parameter sliders inside the detail frame' do
+        it 'renders the parameter sliders next to the detail frame' do
+          # The sliders sit in the sub-navigation, outside the frame, so they
+          # come with the shell and stay put while the calculation is fetched.
           get '/amortization'
 
           expect(response.body).to include('id="amortization_detail"')
@@ -207,7 +251,7 @@ describe 'Amortization' do
       end
 
       it 'shows the no-prognosis message' do
-        get '/amortization'
+        get_content
 
         expect(response).to have_http_status(:success)
         expect(response.body).to include('No prognosis possible yet')
@@ -226,11 +270,22 @@ describe 'Amortization' do
       end
 
       it 'builds the missing summaries first instead of calculating' do
+        get_content
+
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(response.body).to include('sequential-frames')
+          expect(response.body).not_to include('Undiscounted balance today')
+        end
+      end
+
+      it 'hides the sub-navigation until the summaries are complete' do
         get '/amortization'
 
-        expect(response).to have_http_status(:success)
-        expect(response.body).to include('sequential-frames')
-        expect(response.body).not_to include('Undiscounted balance today')
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(response.body).not_to include('type="range"')
+        end
       end
     end
   end
@@ -255,7 +310,7 @@ describe 'Amortization' do
       end
 
       it 'renders the yearly table instead of the chart' do
-        get '/amortization/details'
+        get_content(view: 'details')
 
         expect(response).to have_http_status(:success)
         # The details view is the table alone - no KPI rail (it stays on the
@@ -279,7 +334,7 @@ describe 'Amortization' do
         # The drill-down link is offered to every viewer of the table; the
         # settings page requires admin, so a non-admin clicking it lands on the
         # admin-required hint.
-        get '/amortization/details'
+        get_content(view: 'details')
 
         expect(response.body).to include('/settings/cash_flows?')
       end
@@ -302,7 +357,7 @@ describe 'Amortization' do
       end
 
       it 'drills each cash-flow cell down to the filtered settings list' do
-        get '/amortization/details'
+        get_content(view: 'details')
 
         aggregate_failures do
           expect(response.body).to include('/settings/cash_flows?')
@@ -356,7 +411,7 @@ describe 'Amortization' do
       end
 
       it 'renders the return history chart instead of the balance chart' do
-        get '/amortization/returns'
+        get_content(view: 'returns')
 
         aggregate_failures do
           expect(response).to have_http_status(:success)
@@ -382,7 +437,7 @@ describe 'Amortization' do
       before { seed_savings_day(Date.new(2024, 6, 10)) }
 
       it 'shows a hint instead of an empty chart' do
-        get '/amortization/returns'
+        get_content(view: 'returns')
 
         aggregate_failures do
           expect(response).to have_http_status(:success)
@@ -407,7 +462,7 @@ describe 'Amortization' do
       end
 
       it 'shows the hint rather than a chart with a lone point' do
-        get '/amortization/returns'
+        get_content(view: 'returns')
 
         aggregate_failures do
           expect(response).to have_http_status(:success)
@@ -420,8 +475,73 @@ describe 'Amortization' do
     end
   end
 
-  describe 'PATCH /amortization' do
+  describe 'GET /amortization/content' do
     before do
+      allow(Summary).to receive(:missing_or_stale_days).and_return([])
+      allow(ApplicationPolicy).to receive(:amortization?).and_return(true)
+      allow(Setting).to receive(:amortization_public).and_return(true)
+      CashFlow.create!(date: Date.new(2023, 8, 1), amount: -50, note: 'PV')
+
+      create_summary(
+        date: Date.new(2023, 8, 10),
+        values: [
+          [:house_power, :sum, 10_000],
+          [:grid_import_power, :sum, 0],
+          [:grid_export_power, :sum, 0],
+        ],
+      )
+    end
+
+    it 'renders the calculation into the detail frame' do
+      get_content
+
+      aggregate_failures do
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('id="amortization_detail"')
+        expect(response.body).to include('amortization-chart--component')
+      end
+    end
+
+    it 'redirects a plain request to the page it belongs to' do
+      # Nothing to show on its own - the fragment only makes sense inside the
+      # page shell.
+      get '/amortization/content', params: { view: 'details' }
+
+      expect(response).to redirect_to('/amortization/details')
+    end
+
+    context 'when the calculation is not visible' do
+      before do
+        allow(Setting).to receive(:amortization_public).and_return(false)
+      end
+
+      it 'returns http forbidden' do
+        get_content
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when disabled entirely (visibility "none")' do
+      before do
+        allow(Setting).to receive(:enable_amortization).and_return(false)
+        login_as_admin
+      end
+
+      it 'responds with 404, even for an admin' do
+        get_content
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'PATCH /amortization' do
+    # The sliders are only on screen once the summaries are complete, and the
+    # recomputation checks that again before it runs.
+    before do
+      allow(Summary).to receive(:missing_or_stale_days).and_return([])
+
       CashFlow.create!(date: Date.new(2023, 8, 1), amount: -50, note: 'PV')
 
       create_summary(
@@ -482,13 +602,20 @@ describe 'Amortization' do
       end
 
       it 'recomputes with the given parameters and re-renders the detail' do
+        allow(AmortizationCalculator).to receive(:result).and_call_original
+
         patch '/amortization', params: params
 
-        expect(response).to have_http_status(:success)
-        expect(response.body).to include('id="amortization_detail"')
-        # The re-rendered sliders reflect the submitted values, nothing is
-        # persisted to a global Setting.
-        expect(response.body).to include('value="25"')
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(response.body).to include('id="amortization_detail"')
+          # Recomputed with the submitted values, nothing is persisted to a
+          # global Setting.
+          expect(AmortizationCalculator).to have_received(:result).with(
+            period_years: 25,
+            interest_rate: 2.5,
+          )
+        end
       end
     end
 
@@ -499,17 +626,24 @@ describe 'Amortization' do
       end
 
       it 'recomputes with the given parameters and re-renders the detail' do
+        allow(AmortizationCalculator).to receive(:result).and_call_original
+
         patch '/amortization', params: params
 
-        expect(response).to have_http_status(:success)
-        expect(response.body).to include('value="25"')
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(response.body).to include('amortization-chart--component')
+          expect(AmortizationCalculator).to have_received(:result).with(
+            period_years: 25,
+            interest_rate: 2.5,
+          )
+        end
       end
 
       it 're-renders the table when the sliders live on the details view' do
         patch '/amortization', params: params.merge(view: 'details')
 
         expect(response).to have_http_status(:success)
-        expect(response.body).to include('value="25"')
         # The details view re-renders the table, not the chart.
         expect(response.body).to include('Earned back')
         expect(response.body).not_to include('amortization-chart--component')
@@ -520,7 +654,6 @@ describe 'Amortization' do
 
         aggregate_failures do
           expect(response).to have_http_status(:success)
-          expect(response.body).to include('value="25"')
           expect(response.body).not_to include('amortization-chart--component')
         end
       end
@@ -538,7 +671,6 @@ describe 'Amortization' do
         patch '/amortization', params: params
 
         # No params this time - the value must come from the cookie set above.
-        allow(Summary).to receive(:missing_or_stale_days).and_return([])
         get '/amortization'
 
         expect(response.body).to include('value="25"')
@@ -548,7 +680,6 @@ describe 'Amortization' do
       it 'refreshes the cookie expiry on a later plain page load' do
         patch '/amortization', params: params
 
-        allow(Summary).to receive(:missing_or_stale_days).and_return([])
         get '/amortization'
 
         # Sliding expiration: an existing cookie is re-set on every visit.
@@ -558,6 +689,8 @@ describe 'Amortization' do
       end
 
       it 'clamps values outside the slider range before rendering' do
+        allow(AmortizationCalculator).to receive(:result).and_call_original
+
         patch '/amortization',
               params: {
                 amortization: {
@@ -566,10 +699,13 @@ describe 'Amortization' do
                 },
               }
 
-        expect(response).to have_http_status(:success)
-        expect(response.body).to include(
-          "value=\"#{AmortizationCalculator::PERIOD_RANGE.max}\"",
-        )
+        aggregate_failures do
+          expect(response).to have_http_status(:success)
+          expect(AmortizationCalculator).to have_received(:result).with(
+            period_years: AmortizationCalculator::PERIOD_RANGE.max,
+            interest_rate: AmortizationCalculator::INTEREST_RANGE.min,
+          )
+        end
       end
     end
   end

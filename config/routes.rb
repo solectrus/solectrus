@@ -38,6 +38,8 @@
 #                         summaries DELETE /summaries(.:format)                                      summaries#delete_all
 #                        essentials GET    /essentials(.:format)                                     essentials#index
 #              details_amortization GET    /amortization/details(.:format)                           amortization#details
+#              returns_amortization GET    /amortization/returns(.:format)                           amortization#returns
+#              content_amortization GET    /amortization/content(.:format)                           amortization#content
 #                      amortization GET    /amortization(.:format)                                   amortization#show
 #                                   PATCH  /amortization(.:format)                                   amortization#update
 #                                   PUT    /amortization(.:format)                                   amortization#update
@@ -223,6 +225,9 @@ Rails.application.routes.draw do
   resource :amortization, only: %i[show update], controller: :amortization do
     get :details, on: :member
     get :returns, on: :member
+    # The calculation, lazily loaded into the detail frame of any of the views
+    # above (which one it is rides along as :view)
+    get :content, on: :member
   end
 
   constraints period: /day|week|month|year/,

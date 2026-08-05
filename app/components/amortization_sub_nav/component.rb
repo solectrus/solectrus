@@ -3,14 +3,19 @@
 # desktop, a slider dropdown on mobile - plus an admin shortcut to the cash-flow
 # settings. Rendered into the top bar (content_for :sub_nav) and only shown when
 # a real calculation exists to navigate between.
+#
+# Takes the two calculation parameters rather than the result, so the bar renders
+# with the page shell while the calculation is still on its way into the detail
+# frame.
 class AmortizationSubNav::Component < ViewComponent::Base
-  def initialize(result:, view: :chart)
+  def initialize(period_years:, interest_rate:, view: :chart)
     super()
-    @result = result
+    @period_years = period_years
+    @interest_rate = interest_rate
     @view = view
   end
 
-  attr_reader :result, :view
+  attr_reader :period_years, :interest_rate, :view
 
   delegate :nav_items, :admin?, to: :helpers
 end

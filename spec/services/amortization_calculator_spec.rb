@@ -800,6 +800,37 @@ describe AmortizationCalculator do
       expect(described_class.result.operating_cashflow).not_to eq(before_change)
     end
 
+    describe '.cached_result' do
+      it 'returns nothing and computes nothing on a miss' do
+        allow(Sensor::Query::Total).to receive(:new).and_call_original
+
+        expect(described_class.cached_result(period_years: 20, interest_rate: 3.0)).to be_nil
+        expect(Sensor::Query::Total).not_to have_received(:new)
+      end
+
+      it 'returns the entry .result has written for the same parameters' do
+        computed = described_class.result(period_years: 20, interest_rate: 3.0)
+
+        cached = described_class.cached_result(period_years: 20, interest_rate: 3.0)
+
+        aggregate_failures do
+          expect(cached).to be_a(described_class::Result)
+          expect(cached.npv).to eq(computed.npv)
+        end
+      end
+
+      it 'treats an incompatible entry as a miss instead of raising' do
+        described_class.result
+
+        allow(Rails.cache).to receive(:read).and_raise(
+          TypeError,
+          'struct not compatible (:commissioning_date for :installation_date)',
+        )
+
+        expect(described_class.cached_result(period_years: 20, interest_rate: 3.0)).to be_nil
+      end
+    end
+
     it 'discards a cached result with incompatible struct members' do
       # A Result serialized by an older app version raises TypeError on
       # deserialization (e.g. a renamed struct member). The stale entry must be

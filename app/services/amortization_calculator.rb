@@ -57,6 +57,17 @@ class AmortizationCalculator
     compute.call
   end
 
+  # The result if it happens to be cached already, nil otherwise - never
+  # computes. Lets a caller render the figures right away when they are cheap
+  # to get and defer the work only when it would actually cost something.
+  def self.cached_result(period_years:, interest_rate:)
+    Rails.cache.read(cache_key(period_years:, interest_rate:))
+  rescue TypeError
+    # Same as in .result: an entry written by an older app version may no
+    # longer deserialize. Treat it as a miss and let the caller recompute.
+    nil
+  end
+
   # The result only changes with the calendar day (measured savings roll in
   # once per day), the cash flow register, the price history, or the two
   # parameters. A content-addressed key invalidates immediately on any of these
