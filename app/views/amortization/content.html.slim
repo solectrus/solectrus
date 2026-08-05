@@ -2,6 +2,6 @@
 /! the response to a slider change, so the frame is the only thing that gets
 /! recomputed and replaced.
 /! Only the frame's contents are replaced, so its layout classes stay with the
-/! placeholder in _show.html.slim.
+/! placeholder in show.html.slim.
 = turbo_frame_tag 'amortization_detail' do
-  = render 'detail'
+  = render AmortizationDetail::Component.new(page: @page, view: current_view)

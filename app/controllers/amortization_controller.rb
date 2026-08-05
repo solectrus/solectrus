@@ -1,30 +1,39 @@
 class AmortizationController < ApplicationController
-  include SummaryChecker
   include AmortizationNavigation
 
   before_action :ensure_enabled
   before_action :require_visible_calculation, only: %i[content update]
 
-  # Chart view (overview): the balance curve with the KPI rail.
+  # Chart view (overview): the balance curve with the KPI rail. Only the page
+  # shell - the calculation is fetched into the detail frame separately (see
+  # #content), so navigation, sub-navigation and sliders are on screen
+  # immediately.
   def show
-    prepare_page
+    @page = AmortizationPage.shell(visibility:, preferences:)
+
+    # Refresh the expiry on every visit (sliding expiration) so a customized
+    # setting survives for regular visitors well beyond the browsers' ~400-day
+    # cap - but only if the visitor already has one, to avoid handing a cookie
+    # to everyone who just looks at the defaults.
+    remember_params if @page.calculation? && preferences.customized?
+
+    render :show
   end
 
   # The other two tabs - the return history and the year-by-year table - show
-  # the same calculation and need the same preparation (cash-flow check, summary
-  # building, cookie); only the template Rails renders for them differs.
+  # the same calculation in the same shell; which of them is active is decided
+  # by #current_view, so all three actions render the same template.
   def returns = show
 
   def details = show
 
   # The calculation itself, rendered into the detail frame the page shell left
   # empty. On a cold cache the computation takes noticeably longer than the rest
-  # of the page, so it is fetched separately: navigation, sub-navigation and
-  # sliders are on screen immediately, the figures follow into the frame.
+  # of the page, which is why it gets a request of its own.
   def content
     redirect_to view_path and return unless turbo_frame_request?
 
-    build_result
+    @page = detail_page
   end
 
   # Recomputes with the two calculation parameters the sliders sent and
@@ -35,84 +44,17 @@ class AmortizationController < ApplicationController
   def update
     remember_params
 
-    build_result
+    @page = detail_page
     render :content
   end
 
   private
 
-  # Everything the page shell needs - deliberately without the calculation
-  # itself, which the detail frame fetches separately (see #content).
-  def prepare_page
-    # Every other state is a hint with nothing behind it to prepare.
-    return unless page_state == :calculation
-
-    # The measured savings come from the daily summaries. Build any missing ones
-    # first (same mechanism as Top10) so the calculation - and its day-long
-    # cache entry - runs on complete data instead of a partial set.
-    load_missing_or_stale_summary_days(timeframe)
-
-    # Deferring the calculation only pays off while it is expensive. It is
-    # cached for a day, so on every visit but the first the figures are a cache
-    # read away - cheaper than the round-trip the frame would make for them, and
-    # without the spinner flash. On a miss @result stays nil and the frame
-    # fetches it (see #content).
-    @result =
-      AmortizationCalculator.cached_result(period_years:, interest_rate:)
-
-    # Refresh the expiry on every visit (sliding expiration) so a customized
-    # setting survives for regular visitors well beyond the browsers' ~400-day
-    # cap - but only if the visitor already has one, to avoid handing a cookie
-    # to everyone who just looks at the defaults.
-    remember_params if preferences.customized?
-  end
-
-  # The calculation runs on complete daily summaries only - the frame shows the
-  # builder for the missing ones instead. Checked here rather than in the shell
-  # alone: the frame arrives a moment later, and its result is cached for a day
-  # under a key that knows nothing about summary completeness, so a partial set
-  # would be served until midnight.
-  def build_result
-    load_missing_or_stale_summary_days(timeframe)
-    return if @missing_or_stale_summary_days.present?
-
-    @result = AmortizationCalculator.result(period_years:, interest_rate:)
-  end
-
-  # What the page shell shows - the states are mutually exclusive and the
-  # template renders exactly one of them, so the decision is made here instead
-  # of being spelled out again as a chain of booleans in the view. Whatever
-  # keeps this viewer from the calculation is the visibility's answer, in the
-  # order it decides; only what there is to calculate from is asked here. Asked
-  # several times per render (layout, sub-navigation, body), hence memoized.
-  helper_method def page_state
-    @page_state ||=
-      visibility.denial_reason ||
-        (CashFlow.exists? ? :calculation : :no_cash_flows)
-  end
-
-  # Whether the page will show a real calculation - as far as that can be told
-  # without computing it. Drives the layout and the sub-navigation, so both come
-  # with the shell instead of waiting for the frame. Only the rare "no prognosis
-  # possible yet" case cannot be told apart here; it then renders inside the
-  # calculation's layout rather than the hint's.
-  helper_method def calculation_expected?
-    page_state == :calculation && @missing_or_stale_summary_days.blank?
-  end
-
-  helper_method def title
-    t('layout.amortization')
-  end
-
-  # The whole operating range (installation date up to today) - the summaries
-  # need to be complete over the entire period the calculation spans.
-  helper_method def timeframe
-    @timeframe ||= Timeframe.all
-  end
-
-  # Who this viewer is, as far as the amortization page cares: the session is
-  # read here and nowhere below.
   def visibility = @visibility ||= AmortizationVisibility.new(admin: admin?)
+
+  def detail_page
+    AmortizationPage.detail(visibility:, preferences:)
+  end
 
   def ensure_enabled
     return if visibility.enabled?
@@ -121,13 +63,16 @@ class AmortizationController < ApplicationController
   end
 
   # The sliders are shown to everyone who may see the calculation, so the same
-  # visibility guards the update action.
+  # visibility guards the frame and the update action.
   def require_visible_calculation
     raise ForbiddenError unless visibility.visible?
   end
 
-  # The effective slider parameters for this request. Known without computing
-  # anything, so the sliders render with the shell.
+  helper_method def title
+    t('layout.amortization')
+  end
+
+  # The effective slider parameters for this request.
   def preferences
     @preferences ||=
       AmortizationPreferences.new(
@@ -135,10 +80,6 @@ class AmortizationController < ApplicationController
         cookie: cookies[AmortizationPreferences::COOKIE_NAME],
       )
   end
-
-  helper_method def period_years = preferences.period_years
-
-  helper_method def interest_rate = preferences.interest_rate
 
   # What the slider form sent, if anything. Anything else arriving under
   # :amortization is not a submission and leaves the cookie (or the default) in
@@ -151,11 +92,9 @@ class AmortizationController < ApplicationController
   end
 
   # Persists the effective parameters in one JSON cookie. cookies.permanent
-  # asks for a 20-year expiry (browsers cap it at ~400 days), refreshed on
-  # every visit via the sliding expiration in #prepare_page.
+  # asks for a 20-year expiry (browsers cap it at ~400 days).
   def remember_params
-    cookies.permanent[AmortizationPreferences::COOKIE_NAME] = preferences
-      .to_h
-      .to_json
+    cookies.permanent[AmortizationPreferences::COOKIE_NAME] =
+      preferences.to_cookie
   end
 end

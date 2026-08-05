@@ -1,1 +1,61 @@
-= render 'show'
+- turbo_exempts_page_from_cache
+/! The page shell only - everything that is known without running the
+/! calculation, so the first paint does not wait for it. The calculation itself
+/! is fetched into the detail frame below (see AmortizationController#content).
+/!
+/! Both views fill the viewport: the chart is a fixed-height canvas, the table is
+/! its own scroll area so its heading row stays pinned while the rows scroll.
+/! The hint states have no calculation to show and fall into the plain
+/! full-height layout - both tabs then render identically.
+- if current_view == :details && @page.calculation_expected?
+  - content_for :fixed_nav, true
+- else
+  - content_for :full_height, true
+
+/! Sub-navigation in the top bar (chart/table switch plus the parameter sliders
+/! and the settings cog). Only shown when there is a real calculation to
+/! navigate between; the hint states have nothing to toggle between.
+- if @page.calculation_expected?
+  - content_for :sub_nav do
+    = render AmortizationSubNav::Component.new(period_years: @page.period_years, interest_rate: @page.interest_rate, view: current_view)
+
+- case @page.state
+- when :restricted
+  /! Admin decided the calculation is not public - hint that admin login is
+  /! needed to see it, rather than hiding the page outright.
+  = render Message::Component.new do |c|
+    - c.with_icon do
+      i.fa.fa-sack-dollar
+    = c.with_title { t('amortization.index.restricted_title') }
+    = c.with_body { t('amortization.index.restricted_body') }
+    = c.with_footer do
+      = render Button::Component.new title: t('amortization.index.login'),
+                                     path: new_session_path(return_to: request.fullpath),
+                                     style: :primary
+- when :unavailable
+  /! Sponsor feature not available: promote it and link to the demo
+  = render DemoLink::Component.new(feature: 'amortization')
+- when :no_cash_flows
+  /! Cash flows missing: ask the admin to create them
+  = render Message::Component.new do |c|
+    - c.with_icon do
+      i.fa.fa-sack-dollar
+    = c.with_title { t('amortization.index.no_cash_flows_title') }
+    = c.with_body { t('amortization.index.no_cash_flows_body') }
+    - if admin?
+      = c.with_footer do
+        = render Button::Component.new title: t('amortization.index.manage_cash_flows'),
+                                       path: settings_cash_flows_path,
+                                       style: :primary
+- else
+  /! The frame the sliders re-render, so an auto-submit never touches the
+  /! sub-nav. Whatever the shell already knows - a cached calculation, or the
+  /! summary builder standing in for it - goes straight in; only a calculation
+  /! that still has to run is fetched once the shell is on screen, with a
+  /! spinner until it arrives.
+  - detail_ready = @page.detail_ready?
+  = render LazyFrame::Component.new id: 'amortization_detail',
+                                    src: (content_amortization_path(view: current_view) unless detail_ready),
+                                    class: 'flex-1 min-h-0 flex flex-col gap-3' do
+    - if detail_ready
+      = render AmortizationDetail::Component.new(page: @page, view: current_view)

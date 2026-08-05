@@ -35,10 +35,14 @@ class AmortizationPreferences
     cookie_params.present?
   end
 
-  # The effective values, for writing back into the cookie.
+  # The effective values.
   def to_h
     { period_years:, interest_rate: }
   end
+
+  # The effective values in the form the cookie carries them - the counterpart
+  # of the parsing below, so both directions of the format stay in one place.
+  def to_cookie = to_h.to_json
 
   private
 

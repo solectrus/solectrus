@@ -12,6 +12,7 @@ SimpleCov.configure do
 
   group 'Services', 'app/services'
   group 'Policies', 'app/policies'
+  group 'Presenters', 'app/presenters'
   group 'Components', 'app/components'
   group 'Middleware', 'app/middleware'
 
