@@ -139,11 +139,7 @@ describe Summary do
     end
   end
 
-  shared_examples 'Freshness tests' do |fresh, fresh_percentage, missing_or_stale_days|
-    it 'returns correct fresh?' do
-      expect(described_class.fresh?(timeframe)).to eq(fresh)
-    end
-
+  shared_examples 'Freshness tests' do |fresh_percentage, missing_or_stale_days|
     it 'returns correct fresh_percentage' do
       expect(described_class.fresh_percentage(timeframe)).to eq(
         fresh_percentage,
@@ -172,7 +168,7 @@ describe Summary do
         end
       end
 
-      it_behaves_like 'Freshness tests', true, 100, []
+      it_behaves_like 'Freshness tests', 100, []
     end
 
     context 'when all summaries are present, but some are stale and some are fresh' do
@@ -186,7 +182,6 @@ describe Summary do
       end
 
       it_behaves_like 'Freshness tests',
-                      false,
                       75,
                       (Date.new(2023, 2, 1)..Date.new(2023, 2, 7)).to_a
     end
@@ -195,7 +190,6 @@ describe Summary do
       it { is_expected.to eq(0) }
 
       it_behaves_like 'Freshness tests',
-                      false,
                       0,
                       (Date.new(2023, 2, 1)..Date.new(2023, 2, 28)).to_a
     end

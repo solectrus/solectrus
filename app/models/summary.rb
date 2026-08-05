@@ -41,26 +41,29 @@ class Summary < ApplicationRecord
   MAX_CURRENT_TOLERANCE = 6.hours.in_minutes # minutes ago
   public_constant :MAX_CURRENT_TOLERANCE
 
-  def self.fresh?(timeframe)
-    return if timeframe.now?
-
-    from = timeframe.effective_beginning_date
-    to = timeframe.effective_ending_date
-
-    missing_or_stale_days(from:, to:).empty?
-  end
-
+  # How much of the timeframe is covered by an up-to-date summary, in percent.
   def self.fresh_percentage(timeframe)
     return if timeframe.now?
 
     from = timeframe.effective_beginning_date
     to = timeframe.effective_ending_date
 
-    missing_count = missing_or_stale_days(from:, to:).length
     total_count = (to - from).to_i + 1
-    fresh_count = total_count - missing_count
+    fresh_count = total_count - missing_or_stale_days_for(timeframe).length
 
     (fresh_count * 100.0 / total_count)
+  end
+
+  # The same question for a whole timeframe: which of its days have no summary
+  # yet, or a stale one. "Now" and the hour-resolution timeframes are answered
+  # from raw measurements, so they need no summaries at all.
+  def self.missing_or_stale_days_for(timeframe)
+    return [] if timeframe.now? || timeframe.hours?
+
+    missing_or_stale_days(
+      from: timeframe.effective_beginning_date,
+      to: timeframe.effective_ending_date,
+    )
   end
 
   def self.missing_or_stale_days(from:, to:)

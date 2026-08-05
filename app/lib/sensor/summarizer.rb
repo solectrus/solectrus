@@ -8,11 +8,7 @@ module Sensor
       when Timeframe
         raise ArgumentError if date_or_timeframe.now?
 
-        dates_to_process =
-          Summary.missing_or_stale_days(
-            from: date_or_timeframe.effective_beginning_date,
-            to: date_or_timeframe.effective_ending_date,
-          )
+        dates_to_process = Summary.missing_or_stale_days_for(date_or_timeframe)
 
         dates_to_process.each { |date| new(date).call }
         dates_to_process.count
