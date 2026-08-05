@@ -1,5 +1,6 @@
 class AmortizationController < ApplicationController
   include SummaryChecker
+  include AmortizationNavigation
 
   before_action :ensure_enabled
   before_action :require_visible_calculation, only: %i[content update]
@@ -39,31 +40,6 @@ class AmortizationController < ApplicationController
   end
 
   private
-
-  # The tabs, in navigation order, each with the page it lives on: the charts
-  # come first - the same calculation in euros and in percent - with the
-  # year-by-year table last as the drill-down. :chart is the default (and the
-  # show action), the others are named after their own action.
-  VIEWS = {
-    chart: :amortization_path,
-    returns: :returns_amortization_path,
-    details: :details_amortization_path,
-  }.freeze
-  private_constant :VIEWS
-
-  # Which of the views is active: whichever tab the request declared via :view -
-  # that is how a request that only (re)renders the detail frame says which tab
-  # it belongs to - otherwise the current action. The single source for both the
-  # render branch and the sub-navigation's active tab; anything unknown (the
-  # 'show' and 'update' actions included) falls back to the chart.
-  helper_method def current_view
-    requested = (params[:view].presence || action_name).to_s.to_sym
-
-    VIEWS.key?(requested) ? requested : :chart
-  end
-
-  # The page a view lives on - the frame fragments have no URL of their own.
-  def view_path(view = current_view) = public_send(VIEWS[view])
 
   # Everything the page shell needs - deliberately without the calculation
   # itself, which the detail frame fetches separately (see #content).
@@ -129,19 +105,6 @@ class AmortizationController < ApplicationController
   # calculation's layout rather than the hint's.
   helper_method def calculation_expected?
     page_state == :calculation && @missing_or_stale_summary_days.blank?
-  end
-
-  # Sub-navigation between the two charts and the table. The active tab follows
-  # the current action, so a frame render (action 'content' or 'update') keeps
-  # whichever tab the request declared via its view.
-  helper_method def nav_items
-    VIEWS.each_key.map do |view|
-      {
-        name: t("amortization.nav.#{view}"),
-        href: view_path(view),
-        current: current_view == view,
-      }
-    end
   end
 
   helper_method def title
