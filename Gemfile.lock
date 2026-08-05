@@ -156,10 +156,10 @@ GEM
       rspec (>= 2.99.0, < 4.0)
     hana (1.3.7)
     hashdiff (1.2.1)
-    herb (0.10.2-aarch64-linux-musl)
-    herb (0.10.2-arm64-darwin)
-    herb (0.10.2-x86_64-linux-gnu)
-    herb (0.10.2-x86_64-linux-musl)
+    herb (0.10.3-aarch64-linux-musl)
+    herb (0.10.3-arm64-darwin)
+    herb (0.10.3-x86_64-linux-gnu)
+    herb (0.10.3-x86_64-linux-musl)
     honeybadger (6.9.1)
       logger
       ostruct
