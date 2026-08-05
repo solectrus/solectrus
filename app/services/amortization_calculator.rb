@@ -13,34 +13,9 @@
 #    Positive = the system beats an investment yielding r. The internal
 #    rate of return (IRR) is the rate at which the NPV is exactly zero.
 class AmortizationCalculator
-  # Valid parameter ranges and defaults for the calculation. The controls
-  # component, the controller and the MCP tool clamp user input into these
-  # ranges via .clamp_period / .clamp_interest before computing.
-  PERIOD_RANGE = 10..30
-  public_constant :PERIOD_RANGE
-
-  INTEREST_RANGE = 0.0..10.0
-  public_constant :INTEREST_RANGE
-
-  DEFAULT_PERIOD_YEARS = 20
-  public_constant :DEFAULT_PERIOD_YEARS
-
-  DEFAULT_INTEREST_RATE = 3.0 # % p. a.
-  public_constant :DEFAULT_INTEREST_RATE
-
-  # Coerce a raw (possibly nil, string or tampered) value to the default and
-  # clamp it into the allowed range.
-  def self.clamp_period(value)
-    (value || DEFAULT_PERIOD_YEARS).to_i.clamp(PERIOD_RANGE)
-  end
-
-  # Round to the slider's 0.1 step before clamping. Without quantization the
-  # rate stays a continuous float that flows verbatim into the content-addressed
-  # cache key, so a public visitor could sweep fractional values to bypass the
-  # cache (a full recompute every request) and flood the store with entries.
-  def self.clamp_interest(value)
-    (value || DEFAULT_INTEREST_RATE).to_f.round(1).clamp(INTEREST_RANGE)
-  end
+  # Valid parameter ranges, defaults and the clamps every entry point runs user
+  # input through.
+  include Parameters
 
   def self.result(
     period_years: DEFAULT_PERIOD_YEARS,
