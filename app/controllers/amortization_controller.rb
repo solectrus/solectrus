@@ -88,7 +88,7 @@ class AmortizationController < ApplicationController
     # setting survives for regular visitors well beyond the browsers' ~400-day
     # cap - but only if the visitor already has one, to avoid handing a cookie
     # to everyone who just looks at the defaults.
-    remember_params if cookie_params.present?
+    remember_params if preferences.customized?
   end
 
   # The calculation runs on complete daily summaries only - the frame shows the
@@ -182,43 +182,36 @@ class AmortizationController < ApplicationController
     raise ForbiddenError unless calculation_visible?
   end
 
-  # The slider parameters, defaulted and clamped into the allowed range. Taken
-  # from the request when a slider was just moved, otherwise from the
-  # per-browser cookie set on the last change, otherwise the default. Clamping
-  # also guards against a tampered cookie. Known without computing anything, so
-  # the sliders render with the shell.
-  helper_method def period_years
-    @period_years ||= AmortizationCalculator.clamp_period(stored(:period_years))
+  # The effective slider parameters for this request. Known without computing
+  # anything, so the sliders render with the shell.
+  def preferences
+    @preferences ||=
+      AmortizationPreferences.new(
+        submitted: submitted_params,
+        cookie: cookies[AmortizationPreferences::COOKIE_NAME],
+      )
   end
 
-  helper_method def interest_rate
-    @interest_rate ||=
-      AmortizationCalculator.clamp_interest(stored(:interest_rate))
+  helper_method def period_years = preferences.period_years
+
+  helper_method def interest_rate = preferences.interest_rate
+
+  # What the slider form sent, if anything. Anything else arriving under
+  # :amortization is not a submission and leaves the cookie (or the default) in
+  # charge.
+  def submitted_params
+    submitted = params[:amortization]
+    return {} unless submitted.is_a?(ActionController::Parameters)
+
+    submitted.permit(:period_years, :interest_rate).to_h
   end
 
   # Persists the effective parameters in one JSON cookie. cookies.permanent
   # asks for a 20-year expiry (browsers cap it at ~400 days), refreshed on
   # every visit via the sliding expiration in #prepare_page.
   def remember_params
-    cookies.permanent[:amortization_params] = {
-      period_years:,
-      interest_rate:,
-    }.to_json
-  end
-
-  def stored(name)
-    params.dig(:amortization, name).presence || cookie_params[name.to_s]
-  end
-
-  # Both parameters live in one JSON cookie; an absent or malformed cookie
-  # falls back to an empty hash (and thus to the defaults).
-  def cookie_params
-    @cookie_params ||=
-      begin
-        parsed = JSON.parse(cookies[:amortization_params].to_s)
-        parsed.is_a?(Hash) ? parsed : {}
-      rescue JSON::ParserError
-        {}
-      end
+    cookies.permanent[AmortizationPreferences::COOKIE_NAME] = preferences
+      .to_h
+      .to_json
   end
 end
