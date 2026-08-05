@@ -22,8 +22,9 @@ class CashFlowCategoryPill::Component < ViewComponent::Base
   private_constant :BASE
 
   # Colour by economic effect so a pill's hue tells what it does: the investment
-  # stands on its own (indigo); the inflows subsidy/refund/compensation share a
-  # green family (money coming in); the running costs operating_cost/repair share
+  # stands on its own (indigo); the inflows subsidy/refund/compensation/
+  # manual_savings share a green family (money coming in); the running costs
+  # operating_cost/repair share
   # a red/warm family; other stays a neutral amber. Within a family the categories
   # use distinct but related hues at the same brightness, not lightness steps.
   # Dark mode uses a faint tint + coloured ring instead of a filled background, so
@@ -35,6 +36,7 @@ class CashFlowCategoryPill::Component < ViewComponent::Base
     'subsidy' => 'bg-lime-100 text-lime-700 ring-lime-300 dark:bg-lime-400/10 dark:text-lime-400 dark:ring-lime-400/30',
     'refund' => 'bg-green-100 text-green-700 ring-green-300 dark:bg-green-400/10 dark:text-green-300 dark:ring-green-400/30',
     'compensation' => 'bg-teal-100 text-teal-700 ring-teal-300 dark:bg-teal-400/10 dark:text-teal-300 dark:ring-teal-400/30',
+    'manual_savings' => 'bg-emerald-100 text-emerald-700 ring-emerald-300 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-400/30',
     # Running costs (red/warm family)
     'operating_cost' => 'bg-red-100 text-red-700 ring-red-300 dark:bg-red-400/10 dark:text-red-300 dark:ring-red-400/30',
     'repair' => 'bg-orange-100 text-orange-700 ring-orange-300 dark:bg-orange-400/10 dark:text-orange-300 dark:ring-orange-400/30',

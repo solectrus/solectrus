@@ -87,6 +87,21 @@ describe CashFlow do
       expect(cash_flow.errors[:amount]).to be_present
     end
 
+    it 'requires manually recorded savings to be positive' do
+      aggregate_failures do
+        expect(
+          described_class.new(
+            date: Date.current, note: 'Savings 2019', amount: 800, category: :manual_savings,
+          ),
+        ).to be_valid
+        expect(
+          described_class.new(
+            date: Date.current, note: 'Savings 2019', amount: -800, category: :manual_savings,
+          ),
+        ).not_to be_valid
+      end
+    end
+
     it 'allows either sign for the neutral category' do
       aggregate_failures do
         expect(

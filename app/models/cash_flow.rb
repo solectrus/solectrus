@@ -27,6 +27,7 @@ class CashFlow < ApplicationRecord
          operating_cost: 'operating_cost',
          repair: 'repair',
          compensation: 'compensation',
+         manual_savings: 'manual_savings',
          other: 'other',
        },
        validate: true
@@ -36,7 +37,7 @@ class CashFlow < ApplicationRecord
   OUTFLOW_CATEGORIES = %w[investment operating_cost repair].freeze
   public_constant :OUTFLOW_CATEGORIES
 
-  INFLOW_CATEGORIES = %w[subsidy refund compensation].freeze
+  INFLOW_CATEGORIES = %w[subsidy refund compensation manual_savings].freeze
   public_constant :INFLOW_CATEGORIES
 
   # Categories that shape the (net) investment base: investment raises it,
@@ -45,8 +46,21 @@ class CashFlow < ApplicationRecord
   public_constant :INVESTMENT_BASE_CATEGORIES
 
   # Categories that flow into the operating cash flow (alongside the measured
-  # savings): compensation adds, operating_cost/repair subtract.
-  OPERATING_CATEGORIES = %w[compensation operating_cost repair].freeze
+  # savings): compensation/manual_savings add, operating_cost/repair subtract.
+  #
+  # manual_savings covers periods the sensors never saw - typically the years
+  # before SOLECTRUS was installed, but also gaps from an outage or a migration.
+  # It adds up with the measured savings without overlapping them as long as it
+  # stays in those periods: the measured series starts at the first day with data
+  # (see AmortizationCalculator::SavingsSeries) and contributes nothing for days
+  # without a summary. Nothing enforces that, though - an entry dated inside the
+  # measured range does get counted twice.
+  OPERATING_CATEGORIES = %w[
+    compensation
+    manual_savings
+    operating_cost
+    repair
+  ].freeze
   public_constant :OPERATING_CATEGORIES
 
   validates :date, presence: true

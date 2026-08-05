@@ -8,7 +8,7 @@ de:
     year: Laufendes Betriebsjahr ab Inbetriebnahme (nicht das Kalenderjahr).
     investment: Anschaffungskosten der PV-Anlage (Brutto-Investition).
     investment_reduction: 'Zuschüsse, die die Investition senken: Förderungen und Erstattungen.'
-    operating: 'Laufende Posten zusammengefasst: Betriebskosten, Reparaturen, Entschädigungen und Sonstiges.'
+    operating: 'Laufende Posten zusammengefasst: Betriebskosten, Reparaturen, Entschädigungen, manuell erfasste Ersparnis und Sonstiges.'
     savings: Gemessene Ersparnis dieses Jahres gegenüber Netzbezug; ab dem letzten Messjahr eine Prognose.
     balance: 'Aufgelaufener Kontostand bis Jahresende: alle Ersparnisse und Zahlungen, ohne Zinsen.'
     npv: Wie der unverzinste Saldo, aber künftige Beträge auf heutiges Geld abgezinst (mit dem eingestellten Diskontsatz).

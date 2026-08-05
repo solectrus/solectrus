@@ -27,7 +27,9 @@ module McpServer
           - net_investment: gross_investment - investment_reduction, i.e. what
             actually has to be earned back.
           - operating_cashflow: measured savings plus manual operating flows
-            (compensation, operating_cost, repair); excludes subsidies/refunds.
+            (compensation, manual_savings, operating_cost, repair); excludes
+            subsidies/refunds. manual_savings covers periods without measured
+            data, e.g. before SOLECTRUS was installed.
           - profit_nominal: nominal surplus at the end of the period, no interest.
           - npv: net present value at the calculatory rate; positive beats an
             alternative investment yielding that rate.

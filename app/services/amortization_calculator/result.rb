@@ -23,7 +23,8 @@ class AmortizationCalculator
       # (gross_investment - investment_reduction).
       :net_investment,
       # Operating cash flow up to today: measured savings plus manual operating
-      # flows (compensation, operating_cost, repair); excludes subsidies/refunds.
+      # flows (compensation, manual_savings, operating_cost, repair); excludes
+      # subsidies/refunds.
       :operating_cashflow,
       # Nominal surplus at the end of the total period, without interest.
       :profit_nominal,

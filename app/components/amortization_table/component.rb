@@ -17,7 +17,7 @@ class AmortizationTable::Component < ViewComponent::Base
     result.yearly_table
   end
 
-  # The seven per-category cash-flow columns folded into three grouped columns:
+  # The eight per-category cash-flow columns folded into three grouped columns:
   # the one-off investment, the investment-reducing grants/refunds, and the
   # ongoing operating items. Keeps the table narrow enough to fit without
   # horizontal scrolling while still breaking the figures out per category -
@@ -27,7 +27,10 @@ class AmortizationTable::Component < ViewComponent::Base
   GROUPS = [
     { key: 'investment', categories: %w[investment] },
     { key: 'investment_reduction', categories: %w[subsidy refund] },
-    { key: 'operating', categories: %w[operating_cost repair compensation other] },
+    {
+      key: 'operating',
+      categories: %w[operating_cost repair compensation manual_savings other],
+    },
   ].freeze
   private_constant :GROUPS
 

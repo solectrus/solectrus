@@ -52,8 +52,9 @@ class AmortizationCalculator
     end
 
     # Operating cash flow booked in the given month: measured/projected savings
-    # plus the manual operating flows (compensation adds, operating_cost/repair
-    # subtract). Subsidies/refunds are excluded - they lower the base, not the
+    # plus the manual operating flows (compensation/manual_savings add,
+    # operating_cost/repair subtract). Subsidies/refunds are excluded - they
+    # lower the base, not the
     # operating payback.
     def operating_in(month)
       savings.savings_for(month) +

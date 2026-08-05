@@ -28,7 +28,8 @@ class AmortizationCalculator
     end
 
     # Operating cash flow: measured savings plus manual operating flows
-    # (compensation adds, operating_cost/repair subtract). Subsidies/refunds are
+    # (compensation/manual_savings add, operating_cost/repair subtract).
+    # Subsidies/refunds are
     # deliberately excluded - they lower the base, they are not operating payback.
     def operating_cashflow
       savings.total_measured.to_f + operating_flows

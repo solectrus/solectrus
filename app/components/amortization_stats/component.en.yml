@@ -9,7 +9,7 @@ en:
   net_position: Undiscounted balance today
   net_position_hint: 'Current balance of the system: everything saved so far minus all costs. Only up to today, without interest.'
   operating_cashflow: Returns to date
-  operating_cashflow_hint: "Earned operationally so far – the numerator of the amortization degree.\n\nMeasured savings plus compensation, minus operating costs and repairs.\n\nSubsidies and refunds deliberately do not count here – they lower the net investment instead."
+  operating_cashflow_hint: "Earned operationally so far – the numerator of the amortization degree.\n\nMeasured savings plus manually recorded savings and compensation, minus operating costs and repairs.\n\nSubsidies and refunds deliberately do not count here – they lower the net investment instead."
   gross_investment: Gross investment
   investment_reduction: Subsidy/refund
   net_investment: Net investment

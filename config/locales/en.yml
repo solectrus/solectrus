@@ -279,7 +279,7 @@ en:
       new: New entry
       edit: Edit entry
       amount_hint: "Negative: outgoing payment (e.g. purchase or repair)\nPositive: incoming payment (e.g. subsidy or compensation)"
-      category_hint: Determines how the amount enters the amortization – investment raises the investment base, subsidy/refund lower it, operating cost/repair/compensation affect the operating cash flow, other stays neutral.
+      category_hint: Determines how the amount enters the amortization – investment raises the investment base, subsidy/refund lower it, operating cost/repair/compensation affect the operating cash flow, manual savings extend it to periods without measured data, other stays neutral.
       visibility_label: 'Show amortization calculation to:'
       visibility_all: For all users
       visibility_admins: For admins only
@@ -370,6 +370,7 @@ en:
           operating_cost: Operating cost
           repair: Repair
           compensation: Compensation
+          manual_savings: Savings (manual)
           other: Other
       setting:
         plant_name: Name of the plant

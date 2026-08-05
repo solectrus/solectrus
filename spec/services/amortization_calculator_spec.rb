@@ -153,6 +153,15 @@ describe AmortizationCalculator do
       expect(result.operating_cashflow).to be_within(0.01).of(total_savings + 10)
     end
 
+    it 'adds manually recorded savings to the operating cash flow' do
+      create_investment(amount: -100)
+      CashFlow.create!(
+        date: Date.new(2023, 9, 1), amount: 10, note: 'Savings 2019', category: :manual_savings,
+      )
+
+      expect(result.operating_cashflow).to be_within(0.01).of(total_savings + 10)
+    end
+
     it 'ignores the neutral category in the investment and operating figures' do
       create_investment(amount: -100)
       CashFlow.create!(

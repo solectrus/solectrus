@@ -279,7 +279,7 @@ de:
       new: Neuer Eintrag
       edit: Eintrag bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
-      category_hint: Bestimmt, wie der Betrag in die Amortisation einfließt – Investition erhöht die Investitionsbasis, Förderung/Erstattung senken sie, Betriebskosten/Reparatur/Entschädigung wirken auf den laufenden Ertrag, Sonstiges bleibt neutral.
+      category_hint: Bestimmt, wie der Betrag in die Amortisation einfließt – Investition erhöht die Investitionsbasis, Förderung/Erstattung senken sie, Betriebskosten/Reparatur/Entschädigung wirken auf den laufenden Ertrag, Ersparnis (manuell) ergänzt ihn um Zeiträume ohne Messdaten, Sonstiges bleibt neutral.
       visibility_label: 'Amortisationsrechnung anzeigen:'
       visibility_all: Für alle Nutzer
       visibility_admins: Nur für Admin
@@ -370,6 +370,7 @@ de:
           operating_cost: Betriebskosten
           repair: Reparatur
           compensation: Entschädigung
+          manual_savings: Ersparnis (manuell)
           other: Sonstiges
       setting:
         plant_name: Bezeichnung der Anlage
