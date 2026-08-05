@@ -4,21 +4,17 @@
       .flex-1.min-h-0.flex.flex-col.lg:landscape:flex-row.gap-5[
         data= refresh_options
       ]
-        = tag.turbo_frame id: helpers.frame_id('stats'),
-                          class: 'lg:flex-1 h-3/5 min-h-72 lg:h-auto flex',
-                          src: stats_path,
-                          target: '_top',
-                          data: { stats_with_chart__component_target: 'stats', turbo_permanent: true } do
-          .flex-1.flex.justify-center.items-center
-            = render Loading::Component.new
+        = render LazyFrame::Component.new id: helpers.frame_id('stats'),
+                                          src: stats_path,
+                                          class: 'lg:flex-1 h-3/5 min-h-72 lg:h-auto flex',
+                                          target: '_top',
+                                          data: { stats_with_chart__component_target: 'stats', turbo_permanent: true }
 
-        = tag.turbo_frame id: helpers.frame_id('chart'),
-                          class: 'flex-1 min-h-20 flex relative',
-                          src: charts_path,
-                          target: '_top',
-                          data: { stats_with_chart__component_target: 'chart' } do
-          .flex-1.flex.justify-center.items-center
-            = render Loading::Component.new
+        = render LazyFrame::Component.new id: helpers.frame_id('chart'),
+                                          src: charts_path,
+                                          class: 'flex-1 min-h-20 flex relative',
+                                          target: '_top',
+                                          data: { stats_with_chart__component_target: 'chart' }
     - else
       .flex-1.flex.items-center.justify-center
         = render EmptyState::Component.new

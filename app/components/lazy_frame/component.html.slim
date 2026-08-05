@@ -1,0 +1,6 @@
+= tag.turbo_frame(id:, src:, **options) do
+  - if content.present?
+    = content
+  - else
+    .flex-1.flex.justify-center.items-center
+      = render Loading::Component.new

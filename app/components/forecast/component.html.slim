@@ -2,20 +2,16 @@
   .flex.flex-col.flex-1.gap-2 data={ controller: 'forecast--component' }
     - if show_outdoor_temp?
       .flex-1.flex.flex-col
-        = tag.turbo_frame id: 'outdoor-temp-forecast-chart',
-                          class: 'flex-1 flex flex-col relative',
-                          src: helpers.forecast_chart_path(:outdoor_temp, days:),
-                          loading: 'lazy' do
-          .flex-1.flex.justify-center.items-center
-            = render Loading::Component.new
+        = render LazyFrame::Component.new id: 'outdoor-temp-forecast-chart',
+                                          src: helpers.forecast_chart_path(:outdoor_temp, days:),
+                                          class: 'flex-1 flex flex-col relative',
+                                          loading: 'lazy'
 
     .flex-1.flex.flex-col
-      = tag.turbo_frame id: 'inverter-power-forecast-chart',
-                        class: 'flex-1 flex flex-col relative',
-                        src: helpers.forecast_chart_path(:inverter_power, days:),
-                        loading: 'lazy' do
-        .flex-1.flex.justify-center.items-center
-          = render Loading::Component.new
+      = render LazyFrame::Component.new id: 'inverter-power-forecast-chart',
+                                        src: helpers.forecast_chart_path(:inverter_power, days:),
+                                        class: 'flex-1 flex flex-col relative',
+                                        loading: 'lazy'
 - else
   .flex.flex-1.items-center.justify-center
     .text-center

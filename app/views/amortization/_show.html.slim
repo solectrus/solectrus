@@ -53,11 +53,8 @@
   /! frame fetches it as soon as the shell is on screen - a spinner until it
   /! arrives. Incomplete daily summaries are handled on that path too, so the
   /! check and the calculation it guards cannot drift apart.
-  = turbo_frame_tag 'amortization_detail',
-                    src: (content_amortization_path(view: current_view) unless @result),
-                    class: 'flex-1 min-h-0 flex flex-col gap-3' do
+  = render LazyFrame::Component.new id: 'amortization_detail',
+                                    src: (content_amortization_path(view: current_view) unless @result),
+                                    class: 'flex-1 min-h-0 flex flex-col gap-3' do
     - if @result
       = render 'detail'
-    - else
-      .flex-1.flex.justify-center.items-center
-        = render Loading::Component.new
