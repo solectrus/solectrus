@@ -129,7 +129,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     def amortization_item
       # Shown to everyone (not just admins) so the feature is discoverable;
       # non-admins land on a hint to log in when the calculation isn't public.
-      return unless Setting.enable_amortization
+      return unless AmortizationVisibility.enabled?
 
       {
         name: t('layout.amortization'),

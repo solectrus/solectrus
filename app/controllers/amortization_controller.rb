@@ -81,21 +81,14 @@ class AmortizationController < ApplicationController
 
   # What the page shell shows - the states are mutually exclusive and the
   # template renders exactly one of them, so the decision is made here instead
-  # of being spelled out again as a chain of booleans in the view. The order is
-  # deliberate: a viewer who is only missing the login is told so rather than
-  # being sent to the sponsor teaser. Asked several times per render (layout,
-  # sub-navigation, body), hence memoized.
+  # of being spelled out again as a chain of booleans in the view. Whatever
+  # keeps this viewer from the calculation is the visibility's answer, in the
+  # order it decides; only what there is to calculate from is asked here. Asked
+  # several times per render (layout, sub-navigation, body), hence memoized.
   helper_method def page_state
     @page_state ||=
-      if !viewer_allowed?
-        :restricted
-      elsif !ApplicationPolicy.amortization?
-        :unavailable
-      elsif !CashFlow.exists?
-        :no_cash_flows
-      else
-        :calculation
-      end
+      visibility.denial_reason ||
+        (CashFlow.exists? ? :calculation : :no_cash_flows)
   end
 
   # Whether the page will show a real calculation - as far as that can be told
@@ -117,32 +110,20 @@ class AmortizationController < ApplicationController
     @timeframe ||= Timeframe.all
   end
 
-  # Disabling the feature entirely ('none' visibility) removes the navigation
-  # entry; a direct request must 404 like any unknown URL - for everyone,
-  # admins included.
+  # Who this viewer is, as far as the amortization page cares: the session is
+  # read here and nowhere below.
+  def visibility = @visibility ||= AmortizationVisibility.new(admin: admin?)
+
   def ensure_enabled
-    return if Setting.enable_amortization
+    return if visibility.enabled?
 
     raise ActionController::RoutingError, request.path
-  end
-
-  # Whether this viewer is past the login barrier: the calculation is either
-  # public or the viewer is an admin. Says nothing about the sponsor feature.
-  def viewer_allowed?
-    admin? || Setting.amortization_public
-  end
-
-  # Whether this viewer may see the calculation: the sponsor feature must be
-  # active and the calculation either admin-viewed or made public. Everyone else
-  # gets a hint, so nothing is computed and no sub-navigation is shown.
-  def calculation_visible?
-    ApplicationPolicy.amortization? && viewer_allowed?
   end
 
   # The sliders are shown to everyone who may see the calculation, so the same
   # visibility guards the update action.
   def require_visible_calculation
-    raise ForbiddenError unless calculation_visible?
+    raise ForbiddenError unless visibility.visible?
   end
 
   # The effective slider parameters for this request. Known without computing

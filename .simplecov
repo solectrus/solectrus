@@ -11,6 +11,7 @@ SimpleCov.configure do
   command_name ENV.fetch('COVERAGE_NAME', 'RSpec')
 
   group 'Services', 'app/services'
+  group 'Policies', 'app/policies'
   group 'Components', 'app/components'
   group 'Middleware', 'app/middleware'
 

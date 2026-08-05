@@ -14,27 +14,19 @@ class Settings::CashFlowsController < ApplicationController
     remember_filter
   end
 
-  # Set who may see the amortization calculation: everyone ('all'), admins only
-  # ('admins'), or nobody ('none', which also removes the page from the
-  # navigation). Exposing it to non-admins is a sponsor feature, so 'all' falls
-  # back to admins-only without it.
+  # Set who may see the amortization calculation: everyone, admins only, or
+  # nobody (which also removes the page from the navigation).
   def visibility
-    case params.dig(:setting, :amortization_visibility)
-    when 'all'
-      Setting.enable_amortization = true
-      Setting.amortization_public = ApplicationPolicy.amortization?
-    when 'admins'
-      Setting.enable_amortization = true
-      Setting.amortization_public = false
-    when 'none'
-      Setting.enable_amortization = false
-    else
-      return head :unprocessable_content
-    end
+    AmortizationVisibility.level =
+      params.dig(:setting, :amortization_visibility)
 
     # Renders visibility.turbo_stream.slim, which refreshes the flash and the
     # primary navigation so the icon appears/disappears without a page reload.
     flash.now[:notice] = t('crud.success')
+  rescue ArgumentError
+    # Which levels exist is the visibility object's rule, so an unknown one is
+    # rejected there rather than being checked a second time here.
+    head :unprocessable_content
   end
 
   def new
