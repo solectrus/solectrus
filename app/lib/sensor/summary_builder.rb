@@ -3,13 +3,70 @@ module Sensor
   # It uses Sensor::Query::Helpers::Influx::Integral and Sensor::Query::Helpers::Influx::Aggregation
   # to collect raw data and returns a single Sensor::Data::Single object.
   class SummaryBuilder # rubocop:disable Metrics/ClassLength
-    def initialize(timeframe)
+    # Which sensors a summary is built from does not depend on the day, so
+    # Sensor::Summarizer resolves this once for a whole batch of days and
+    # Influx::DailyBatch queries them all in one go.
+    class << self
+      def needed_aggregations
+        Sensor::Config
+          .sensors
+          .select(&:store_in_summary?)
+          .flat_map(&:summary_aggregations)
+          .uniq
+      end
+
+      def sum_sensor_names
+        sensors_for_aggregation(:sum).map(&:name)
+      end
+
+      def aggregation_sensor_names
+        names =
+          (needed_aggregations - [:sum]).flat_map do |aggregation|
+            sensors_for_aggregation(aggregation).map(&:name)
+          end
+        names.uniq!
+        names
+      end
+
+      def sensors_for_aggregation(aggregation_type)
+        case aggregation_type
+        when :sum
+          # Only sensors that have raw InfluxDB data (includes house_power
+          # even if calculated)
+          sensors_for_summary_aggregation(:sum).select do |sensor|
+            sensor.unit == :watt && Sensor::Config.configured?(sensor.name)
+          end
+        when :max, :min, :avg
+          # Only sensors that specifically support this aggregation type
+          sensors_for_summary_aggregation(aggregation_type).select do |sensor|
+            Sensor::Config.configured?(sensor.name)
+          end
+        else
+          []
+        end
+      end
+
+      private
+
+      def sensors_for_summary_aggregation(aggregation_type)
+        Sensor::Config.sensors.select do |sensor|
+          sensor.store_in_summary? &&
+            sensor.summary_aggregations.include?(aggregation_type)
+        end
+      end
+    end
+
+    # `prefetched` carries the query results Influx::DailyBatch has already
+    # fetched for this day, as `{ sum:, aggregation: }`. Without it the two
+    # queries are run here, one day at a time.
+    def initialize(timeframe, prefetched: nil)
       raise ArgumentError unless timeframe.day?
 
       @timeframe = timeframe
+      @prefetched = prefetched
     end
 
-    attr_reader :timeframe
+    attr_reader :timeframe, :prefetched
 
     def call
       raw_data = collect_all_sensor_data
@@ -31,21 +88,27 @@ module Sensor
       has_sum = needed_aggregations.include?(:sum)
       non_sum_aggregations = needed_aggregations - [:sum]
 
-      # Run independent queries in parallel
-      sum_future =
-        if has_sum
-          Concurrent::Future.execute { collect_data_for_aggregation(:sum) }
-        end
+      sum_task = (defer { collect_data_for_aggregation(:sum) } if has_sum)
 
-      non_sum_future =
+      non_sum_task =
         unless non_sum_aggregations.empty?
-          Concurrent::Future.execute { collect_combined_non_sum_aggregations(non_sum_aggregations) }
+          defer { collect_combined_non_sum_aggregations(non_sum_aggregations) }
         end
 
       result = {}
-      result.merge!(sum_future.value!) if sum_future
-      result.merge!(non_sum_future.value!) if non_sum_future
+      result.merge!(sum_task.call) if sum_task
+      result.merge!(non_sum_task.call) if non_sum_task
       result
+    end
+
+    # The two queries are independent, so they run in parallel - unless the
+    # rows already came in through a batch, where there is no IO left to
+    # overlap and a thread would only add overhead.
+    def defer(&block)
+      return block if prefetched
+
+      future = Concurrent::Future.execute(&block)
+      -> { future.value! }
     end
 
     def collect_calculated_sensor_data(raw_data)
@@ -123,10 +186,11 @@ module Sensor
     def collect_sum_data(sensors)
       # Use Integral query for sum values
       sum_query_result =
-        Sensor::Query::Helpers::Influx::Integral.new(
-          sensors.map(&:name),
-          timeframe,
-        ).call
+        prefetched&.dig(:sum) ||
+          Sensor::Query::Helpers::Influx::Integral.new(
+            sensors.map(&:name),
+            timeframe,
+          ).call
 
       sensors.to_h do |sensor|
         # Only try to access sensors that have accessor methods defined
@@ -180,10 +244,11 @@ module Sensor
     end
 
     def fetch_aggregation_data(all_sensors)
-      Sensor::Query::Helpers::Influx::Aggregation.new(
-        all_sensors.map(&:name),
-        timeframe,
-      ).call
+      prefetched&.dig(:aggregation) ||
+        Sensor::Query::Helpers::Influx::Aggregation.new(
+          all_sensors.map(&:name),
+          timeframe,
+        ).call
     end
 
     def build_aggregation_result(all_sensors, aggregation_types, query_result)
@@ -222,39 +287,7 @@ module Sensor
     end
 
     def sensors_for_aggregation(aggregation_type)
-      case aggregation_type
-      when :sum
-        watt_sensors_for_sum
-      when :max, :min, :avg
-        # Only sensors that specifically support this aggregation type
-        sensors_for_summary_aggregation(aggregation_type).select do |s|
-          sensor_has_influx_data?(s)
-        end
-      else
-        []
-      end
-    end
-
-    def watt_sensors_for_sum
-      # Only sensors that have raw InfluxDB data (includes house_power even if calculated)
-      sensors_for_summary_aggregation(:sum).select do |s|
-        s.unit == :watt && sensor_has_influx_data?(s)
-      end
-    end
-
-    def available_aggregation_sensors
-      # Only sensors that have raw InfluxDB data for max/min/avg
-      Sensor::Config.sensors.select do |s|
-        s.store_in_summary? &&
-          s.summary_aggregations.intersect?(%i[max min avg]) &&
-          sensor_has_influx_data?(s)
-      end
-    end
-
-    def sensors_for_summary_aggregation(aggregation_type)
-      Sensor::Config.sensors.select do |s|
-        s.store_in_summary? && s.summary_aggregations.include?(aggregation_type)
-      end
+      self.class.sensors_for_aggregation(aggregation_type)
     end
 
     def sensor_has_influx_data?(sensor)
@@ -262,12 +295,7 @@ module Sensor
     end
 
     def needed_aggregations
-      @needed_aggregations ||=
-        Sensor::Config
-          .sensors
-          .select(&:store_in_summary?)
-          .flat_map(&:summary_aggregations)
-          .uniq
+      @needed_aggregations ||= self.class.needed_aggregations
     end
 
     # ============================================

@@ -1,150 +1,50 @@
 describe Sensor::Summarizer do
-  subject(:summarizer) { described_class.new(date) }
-
-  let(:raw_data) do
-    {
-      grid_import_power: 100,
-      #
-      inverter_power_1: 210,
-      inverter_power_2: 40,
-      inverter_power_forecast: 30,
-      house_power: 200,
-      heatpump_power: 50,
-      grid_export_power: 50,
-      battery_charging_power: 10,
-      battery_discharging_power: 20,
-      wallbox_power: 30,
-      custom_power_01: 10,
-      custom_power_02: 20,
-      custom_power_03: nil,
-      custom_power_04: nil,
-      custom_power_05: nil,
-      custom_power_06: 30,
-      custom_power_07: nil,
-      custom_power_08: 40,
-      custom_power_09: 50,
-      custom_power_10: nil,
-      custom_power_11: nil,
-      custom_power_12: nil,
-      custom_power_13: nil,
-      custom_power_14: nil,
-      custom_power_15: nil,
-      custom_power_16: nil,
-      custom_power_17: nil,
-      custom_power_18: nil,
-      custom_power_19: nil,
-      custom_power_20: 60,
-      #
-      house_power_grid: 100,
-      wallbox_power_grid: 20,
-      heatpump_power_grid: 30,
-      battery_charging_power_grid: 10,
-      custom_power_01_grid: 10,
-      custom_power_02_grid: 20,
-      custom_power_03_grid: nil,
-      custom_power_04_grid: nil,
-      custom_power_05_grid: nil,
-      custom_power_06_grid: 30,
-      custom_power_07_grid: nil,
-      custom_power_08_grid: 40,
-      custom_power_09_grid: 50,
-      custom_power_10_grid: nil,
-      custom_power_11_grid: nil,
-      custom_power_12_grid: nil,
-      custom_power_13_grid: nil,
-      custom_power_14_grid: nil,
-      custom_power_15_grid: nil,
-      custom_power_16_grid: nil,
-      custom_power_17_grid: nil,
-      custom_power_18_grid: nil,
-      custom_power_19_grid: nil,
-      custom_power_20_grid: 80,
-      #
-      heatpump_heating_power: 200,
-      inverter_power: 250,
-    }
-  end
-
-  before do
-    stub_feature(:power_splitter, :heatpump, :car)
-
-    # Add prices for calculated sensors
-    Price.create!(name: :electricity, starts_at: 1.year.ago, value: 0.25)
-    Price.create!(name: :feed_in, starts_at: 1.year.ago, value: 0.08)
-
-    allow(Sensor::Query::Helpers::Influx::Integral).to receive(:new).and_return(
-      instance_double(
-        Sensor::Query::Helpers::Influx::Integral,
-        call: double('Sensor::Data::Single', raw_data),
-      ),
-    )
-
-    aggregation_raw_data = {
-      %i[battery_charging_power max] => 10,
-      %i[battery_discharging_power max] => 20,
-      %i[battery_soc max] => 30,
-      %i[battery_soc min] => 30,
-      %i[battery_soc avg] => 30,
-      %i[car_battery_soc max] => 40,
-      %i[car_battery_soc min] => 40,
-      %i[car_battery_soc avg] => 40,
-      %i[case_temp max] => 50,
-      %i[case_temp min] => 50,
-      %i[case_temp avg] => 50,
-      %i[grid_export_power max] => 60,
-      %i[grid_import_power max] => 70,
-      %i[heatpump_power max] => 80,
-      %i[house_power max] => 90,
-      %i[inverter_power_1 max] => 100,
-      %i[inverter_power_2 max] => 50,
-      %i[wallbox_power max] => 110,
-      %i[inverter_power max] => 260,
-      %i[outdoor_temp max] => 40,
-      %i[outdoor_temp min] => 20,
-      %i[outdoor_temp avg] => 30,
-      %i[heatpump_tank_temp max] => 60,
-      %i[heatpump_tank_temp min] => 33,
-      %i[heatpump_tank_temp avg] => 40,
-    }
-
-    allow(Sensor::Query::Helpers::Influx::Aggregation).to receive(:new).and_return(
-      instance_double(
-        Sensor::Query::Helpers::Influx::Aggregation,
-        call:
-          Sensor::Data::Single.new(
-            aggregation_raw_data,
-            timeframe: Timeframe.now,
-          ),
-      ),
-    )
-  end
+  subject(:summarizer) { described_class.new([date]) }
 
   describe '.call' do
     context 'with Date parameter' do
       subject(:call) { described_class.call(date) }
 
       let(:date) { Date.current }
-      let(:summarizer_instance) { instance_double(described_class) }
+      let(:summarizer_instance) { instance_double(described_class, call: 1) }
 
       before do
-        allow(described_class).to receive(:new).with(date).and_return(
+        allow(described_class).to receive(:new).with([date]).and_return(
           summarizer_instance,
         )
-        allow(summarizer_instance).to receive(:call)
       end
 
       it 'creates and calls instance with the given date' do
         call
 
-        expect(described_class).to have_received(:new).with(date)
+        expect(described_class).to have_received(:new).with([date])
         expect(summarizer_instance).to have_received(:call)
+      end
+    end
+
+    context 'with Range parameter' do
+      subject(:call) { described_class.call(range) }
+
+      let(:range) { Date.parse('2023-01-01')..Date.parse('2023-01-03') }
+      let(:summarizer_instance) { instance_double(described_class, call: 3) }
+
+      before do
+        allow(described_class).to receive(:new).and_return(summarizer_instance)
+      end
+
+      # Which of them still need work is decided per day while building, so
+      # the range is handed over as it is
+      it 'creates one instance for all days of the range' do
+        call
+
+        expect(described_class).to have_received(:new).with(range.to_a)
       end
     end
 
     context 'with Timeframe parameter' do
       let(:timeframe) { Timeframe.new('2023-01-02') }
       let(:dates) { [Date.parse('2023-01-01'), Date.parse('2023-01-02')] }
-      let(:summarizer_instance) { instance_double(described_class, call: nil) }
+      let(:summarizer_instance) { instance_double(described_class, call: 2) }
 
       before do
         allow(Summary).to receive(:missing_or_stale_days).and_return(dates)
@@ -160,12 +60,11 @@ describe Sensor::Summarizer do
         )
       end
 
-      it 'creates instance for each date and calls it' do
+      it 'creates a single instance for all missing days' do
         described_class.call(timeframe)
 
-        expect(described_class).to have_received(:new).with(dates.first)
-        expect(described_class).to have_received(:new).with(dates.second)
-        expect(summarizer_instance).to have_received(:call).twice
+        expect(described_class).to have_received(:new).with(dates)
+        expect(summarizer_instance).to have_received(:call).once
       end
 
       it 'returns count of processed dates' do
@@ -179,7 +78,7 @@ describe Sensor::Summarizer do
           described_class.call('invalid')
         end.to raise_error(
           ArgumentError,
-          'Expected Date or Timeframe, got String',
+          'Expected Date, Range or Timeframe, got String',
         )
       end
 
@@ -196,13 +95,133 @@ describe Sensor::Summarizer do
   describe '#call' do
     subject(:call) { summarizer.call }
 
+    let(:raw_data) do
+      {
+        grid_import_power: 100,
+        #
+        inverter_power_1: 210,
+        inverter_power_2: 40,
+        inverter_power_forecast: 30,
+        house_power: 200,
+        heatpump_power: 50,
+        grid_export_power: 50,
+        battery_charging_power: 10,
+        battery_discharging_power: 20,
+        wallbox_power: 30,
+        custom_power_01: 10,
+        custom_power_02: 20,
+        custom_power_03: nil,
+        custom_power_04: nil,
+        custom_power_05: nil,
+        custom_power_06: 30,
+        custom_power_07: nil,
+        custom_power_08: 40,
+        custom_power_09: 50,
+        custom_power_10: nil,
+        custom_power_11: nil,
+        custom_power_12: nil,
+        custom_power_13: nil,
+        custom_power_14: nil,
+        custom_power_15: nil,
+        custom_power_16: nil,
+        custom_power_17: nil,
+        custom_power_18: nil,
+        custom_power_19: nil,
+        custom_power_20: 60,
+        #
+        house_power_grid: 100,
+        wallbox_power_grid: 20,
+        heatpump_power_grid: 30,
+        battery_charging_power_grid: 10,
+        custom_power_01_grid: 10,
+        custom_power_02_grid: 20,
+        custom_power_03_grid: nil,
+        custom_power_04_grid: nil,
+        custom_power_05_grid: nil,
+        custom_power_06_grid: 30,
+        custom_power_07_grid: nil,
+        custom_power_08_grid: 40,
+        custom_power_09_grid: 50,
+        custom_power_10_grid: nil,
+        custom_power_11_grid: nil,
+        custom_power_12_grid: nil,
+        custom_power_13_grid: nil,
+        custom_power_14_grid: nil,
+        custom_power_15_grid: nil,
+        custom_power_16_grid: nil,
+        custom_power_17_grid: nil,
+        custom_power_18_grid: nil,
+        custom_power_19_grid: nil,
+        custom_power_20_grid: 80,
+        #
+        heatpump_heating_power: 200,
+        inverter_power: 250,
+      }
+    end
+
+    let(:sum_result) { double('Sensor::Data::Single', raw_data) }
+
+    let(:aggregation_result) do
+      Sensor::Data::Single.new(
+        {
+          %i[battery_charging_power max] => 10,
+          %i[battery_discharging_power max] => 20,
+          %i[battery_soc max] => 30,
+          %i[battery_soc min] => 30,
+          %i[battery_soc avg] => 30,
+          %i[car_battery_soc max] => 40,
+          %i[car_battery_soc min] => 40,
+          %i[car_battery_soc avg] => 40,
+          %i[case_temp max] => 50,
+          %i[case_temp min] => 50,
+          %i[case_temp avg] => 50,
+          %i[grid_export_power max] => 60,
+          %i[grid_import_power max] => 70,
+          %i[heatpump_power max] => 80,
+          %i[house_power max] => 90,
+          %i[inverter_power_1 max] => 100,
+          %i[inverter_power_2 max] => 50,
+          %i[wallbox_power max] => 110,
+          %i[inverter_power max] => 260,
+          %i[outdoor_temp max] => 40,
+          %i[outdoor_temp min] => 20,
+          %i[outdoor_temp avg] => 30,
+          %i[heatpump_tank_temp max] => 60,
+          %i[heatpump_tank_temp min] => 33,
+          %i[heatpump_tank_temp avg] => 40,
+        },
+        timeframe: Timeframe.now,
+      )
+    end
+
+    before do
+      stub_feature(:power_splitter, :heatpump, :car)
+
+      # Add prices for calculated sensors
+      Price.create!(name: :electricity, starts_at: 1.year.ago, value: 0.25)
+      Price.create!(name: :feed_in, starts_at: 1.year.ago, value: 0.08)
+
+      allow(Sensor::Query::Helpers::Influx::Integral).to receive(:new).and_return(
+        instance_double(
+          Sensor::Query::Helpers::Influx::Integral,
+          call: sum_result,
+        ),
+      )
+
+      allow(Sensor::Query::Helpers::Influx::Aggregation).to receive(:new).and_return(
+        instance_double(
+          Sensor::Query::Helpers::Influx::Aggregation,
+          call: aggregation_result,
+        ),
+      )
+    end
+
     context 'when no summary exists for the given date' do
       let(:date) { Date.current }
       let(:summary) { Summary.last }
 
-      it 'initializes with date and timeframe' do
-        expect(summarizer.date).to eq(date)
-        expect(summarizer.timeframe).to be_a(Timeframe)
+      it 'initializes with the dates to build' do
+        expect(summarizer.dates).to eq([date])
       end
 
       it 'creates Summary' do
@@ -374,6 +393,76 @@ describe Sensor::Summarizer do
 
       it 'updates Summary' do
         expect { call }.to(change { summary.reload.updated_at })
+      end
+    end
+
+    context 'with several days' do
+      subject(:call) { described_class.new(dates).call }
+
+      let(:dates) { [Date.current - 2, Date.current - 1, Date.current] }
+      let(:prefetched) do
+        dates.index_with { { sum: sum_result, aggregation: aggregation_result } }
+      end
+
+      before do
+        allow(Sensor::Query::Helpers::Influx::DailyBatch).to receive(
+          :new,
+        ).and_return(
+          instance_double(
+            Sensor::Query::Helpers::Influx::DailyBatch,
+            call: prefetched,
+          ),
+        )
+      end
+
+      it 'fetches all days in one batch' do
+        call
+
+        expect(Sensor::Query::Helpers::Influx::DailyBatch).to have_received(
+          :new,
+        ).with(
+          dates,
+          sum_sensor_names: Sensor::SummaryBuilder.sum_sensor_names,
+          aggregation_sensor_names:
+            Sensor::SummaryBuilder.aggregation_sensor_names,
+        )
+      end
+
+      it 'creates a Summary per day' do
+        expect { call }.to change(Summary, :count).by(3)
+      end
+
+      it 'returns the number of days built' do
+        expect(call).to eq(3)
+      end
+
+      # On a spinning disk every commit costs an fsync, so a day must not get
+      # its own write
+      it 'writes the values of all days in one statement' do
+        statements = []
+        collect = ->(*, payload) { statements << payload[:sql] }
+
+        ActiveSupport::Notifications.subscribed(collect, 'sql.active_record') do
+          call
+        end
+
+        expect(statements.grep(/INSERT INTO "summary_values"/).size).to eq(1)
+      end
+
+      context 'when one of them is already fresh' do
+        before { Summary.create!(date: dates.first, updated_at: Time.current) }
+
+        it 'skips it' do
+          expect(call).to eq(2)
+        end
+
+        it 'leaves it out of the batch' do
+          call
+
+          expect(Sensor::Query::Helpers::Influx::DailyBatch).to have_received(
+            :new,
+          ).with(dates.drop(1), any_args)
+        end
       end
     end
   end

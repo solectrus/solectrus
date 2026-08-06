@@ -4,8 +4,10 @@ class SummariesController < ApplicationController
   before_action :admin_required!, only: %i[delete_all]
 
   def show
-    @date = Date.parse(params[:date])
-    Sensor::Summarizer.call(@date)
+    @from = Date.parse(params[:date])
+    @to = requested_to
+
+    Sensor::Summarizer.call(@from..@to)
   end
 
   def delete_all
@@ -23,5 +25,16 @@ class SummariesController < ApplicationController
              ),
              turbo_stream_update_flash,
            ]
+  end
+
+  private
+
+  # One request answers for one chunk, so a hand-crafted range cannot make it
+  # summarize years at a time.
+  def requested_to
+    return @from unless params[:to]
+
+    to = Date.parse(params[:to])
+    to.clamp(@from, @from + Sensor::Summarizer::CHUNK_SIZE - 1)
   end
 end

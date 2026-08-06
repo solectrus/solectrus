@@ -28,6 +28,38 @@ describe 'Summaries' do
         expect(Summary.last.date).to eq(date)
       end
     end
+
+    context 'with a range of days' do
+      subject(:request) { get "/summaries/#{date}?to=#{date + 2}" }
+
+      it 'creates a Summary for each of them' do
+        expect { request }.to change(Summary, :count).by(3)
+        expect(Summary.pluck(:date)).to contain_exactly(
+          date,
+          date + 1,
+          date + 2,
+        )
+      end
+    end
+
+    context 'with a range longer than a chunk' do
+      subject(:request) { get "/summaries/#{date}?to=#{date + 500}" }
+
+      # A hand-crafted range must not make one request summarize years
+      it 'builds at most one chunk' do
+        expect { request }.to change(Summary, :count).by(
+          Sensor::Summarizer::CHUNK_SIZE,
+        )
+      end
+    end
+
+    context 'with a reversed range' do
+      subject(:request) { get "/summaries/#{date}?to=#{date - 5}" }
+
+      it 'falls back to the single day' do
+        expect { request }.to change(Summary, :count).by(1)
+      end
+    end
   end
 
   describe 'DELETE /delete_all' do

@@ -19,13 +19,38 @@ module Sensor
             @cache_options = default_cache_options
           end
 
+          # This query's measurement/field predicate. Exposed so
+          # Influx::DailyBatch can assemble the same pipeline for many days
+          # into one program without rebuilding the selection itself.
+          def flux_predicate
+            filter_predicate
+          end
+
+          # The rows this query would fetch, but only when they are already
+          # cached. Nil means the query still has to run - Influx::DailyBatch
+          # asks first, so its Flux program covers only the missing days.
+          def cached_rows
+            key = cache_key(flux_query)
+            return unless @cache_options
+
+            Rails.cache.read(key)
+          end
+
+          # Builds the result from rows fetched elsewhere (Influx::DailyBatch)
+          # instead of running the query. Caching them puts them where a later
+          # single-day run looks, under this very query's key.
+          def call_with(rows, cache: false)
+            store_rows(rows) if cache
+            @rows = rows
+            call
+          end
+
           protected
 
           def fetch_raw_data
             return empty_result if available_sensors.empty?
 
-            flux_query = build_flux_query
-            flux_result = query(flux_query)
+            flux_result = @rows || query(flux_query)
 
             result = parse_flux_result(flux_result)
             {
@@ -37,11 +62,29 @@ module Sensor
 
           private
 
+          # Memoised because building it settles @cache_options as a side
+          # effect (see #range), and #cached_rows needs both before the query
+          # has run.
+          def flux_query
+            @flux_query ||= build_flux_query
+          end
+
+          def store_rows(rows)
+            key = cache_key(flux_query)
+            return unless @cache_options
+
+            Rails.cache.write(key, rows, **@cache_options)
+          end
+
           def from_bucket
             "from(bucket: \"#{Rails.configuration.x.influx.bucket}\")"
           end
 
           def filter(selected_sensors: available_sensors)
+            "filter(fn: #{filter_predicate(selected_sensors:)})"
+          end
+
+          def filter_predicate(selected_sensors: available_sensors)
             # Group sensors by their measurement
             grouped =
               selected_sensors.each_with_object(
@@ -52,7 +95,7 @@ module Sensor
                 result[measurement] << field if measurement && field
               end
 
-            return 'filter(fn: (r) => false)' if grouped.empty?
+            return '(r) => false' if grouped.empty?
 
             # Generate filter conditions
             filter_conditions =
@@ -65,8 +108,7 @@ module Sensor
                 "r[\"_measurement\"] == \"#{measurement}\" and (#{field_conditions})"
               end
 
-            # Combine all conditions into the final filter string
-            "filter(fn: (r) => #{filter_conditions.join(' or ')})"
+            "(r) => #{filter_conditions.join(' or ')}"
           end
 
           def range(start:, stop: nil)

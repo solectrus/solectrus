@@ -87,8 +87,9 @@ export default class extends Controller {
     // Skip if the time estimate is not enabled
     if (!this.hasTimeEstimateTarget) return;
 
-    // Avoid showing the remaining time estimate until we have enough data
-    if (index < 3) return;
+    // Needs at least one finished frame to average over. A frame covers a
+    // batch of days, so one of them is already a usable sample.
+    if (index < 1) return;
 
     // Calculate the estimated remaining time and render it
     const estimatedRemainingSeconds = this.estimateRemainingTimeSeconds(index);

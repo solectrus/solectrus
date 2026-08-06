@@ -7,21 +7,29 @@ class SummaryBuilder::Component < ViewComponent::Base
 
   attr_reader :timeframe, :missing_or_stale_days
 
+  # One request per day would spend most of its time on the request itself, so
+  # a batch of days is built at once (see Sensor::Summarizer::CHUNK_SIZE) and
+  # each chunk gets one frame and one step of the progress bar.
+  def chunks
+    @chunks ||=
+      missing_or_stale_days.each_slice(Sensor::Summarizer::CHUNK_SIZE).to_a
+  end
+
   # Do we need a full progress bar or just a simple loading spinner?
   def loading_spinner?
     missing_or_stale_days.length < 3
   end
 
-  class DayComponent < ViewComponent::Base
-    with_collection_parameter :date
-
-    def initialize(date:, completed: false)
+  class ChunkComponent < ViewComponent::Base
+    def initialize(from:, to:, size: 1, completed: false)
       super()
-      @date = date
+      @from = from
+      @to = to
+      @size = size
       @completed = completed
     end
 
-    attr_reader :date, :completed
+    attr_reader :from, :to, :size, :completed
 
     def call
       helpers.turbo_frame_tag(dom_id, **turbo_frame_tag_options) do
@@ -32,11 +40,16 @@ class SummaryBuilder::Component < ViewComponent::Base
     private
 
     def dom_id
-      "d_#{date}"
+      "d_#{from}_#{to}"
     end
 
     def turbo_frame_tag_options
-      { 'data-src': summary_path(date:) }
+      {
+        'data-src': summary_path(date: from, to:),
+        # A trailing chunk covers fewer days than the others, so the bar shows
+        # what it is really worth
+        style: "flex: #{size}",
+      }
     end
 
     def css_classes
