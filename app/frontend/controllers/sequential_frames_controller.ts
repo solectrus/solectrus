@@ -129,16 +129,14 @@ export default class extends Controller {
     this.showTimeEstimate();
   }
 
-  // Calculate the average time per frame and estimate remaining time
+  // Calculate the average time per frame and estimate remaining time.
+  // `index` is the frame about to start, so exactly `index` of them are done.
   estimateRemainingTimeSeconds(index: number) {
     const elapsedTime = Date.now() - this.startTime;
-    const averageTimePerFrame = elapsedTime / (index + 1);
-    const remainingFrames = this.frameElements.length - (index + 1);
-    const estimatedRemainingSeconds = Math.ceil(
-      (remainingFrames * averageTimePerFrame) / 1000,
-    );
+    const averageTimePerFrame = elapsedTime / index;
+    const remainingFrames = this.frameElements.length - index;
 
-    return estimatedRemainingSeconds;
+    return Math.ceil((remainingFrames * averageTimePerFrame) / 1000);
   }
 
   showTimeEstimate() {
