@@ -108,24 +108,24 @@ describe McpServer::Tools::Series do
         )
       end
 
-      # Daily buckets follow the installation's timezone, so a local day is one
-      # bucket. Aligned to UTC it used to be split in two, which reads like
-      # lost data when compared against get_totals.
-      it 'keeps a local day in a single bucket at 1d' do
+      # Buckets follow the installation's timezone, so a local day starts and
+      # ends at local midnight. Aligned to UTC it used to be cut elsewhere,
+      # which reads like lost data when compared against get_totals.
+      it 'covers a local day with 24 hourly buckets' do
         points =
-          series(sensors: ['battery_soc'], timeframe: day, resolution: '1d')
+          series(sensors: ['battery_soc'], timeframe: day, resolution: '1h')
             .dig(:series, 0, :points)
 
-        expect(points.size).to eq(1)
+        expect(points.size).to eq(24)
         expect(Time.iso8601(points.first[:time])).to eq(
-          Date.parse(day).tomorrow.beginning_of_day,
+          Date.parse(day).beginning_of_day + 1.hour,
         )
       end
 
       # aggregateWindow clips the last bucket at the query's range stop, which
       # is the last nanosecond of the day and reaches Flux as 23:59:59. So the
       # closing point used to sit one second off the grid every other point is
-      # on - at 1d a month read 00:00, 00:00, ..., 23:59:59, which a client can
+      # on - at 1h a day read 01:00, ..., 23:00, 23:59:59, which a client can
       # only take for a bucket of its own.
       it 'closes the last bucket of a day at the next midnight, not 23:59:59' do
         points =
@@ -137,19 +137,21 @@ describe McpServer::Tools::Series do
         )
       end
 
-      # Every point sits on the same grid, so the closing one has to as well.
-      it 'keeps every point on the bucket grid at 1d' do
+      # Every point sits on the same grid, so the closing one has to as well -
+      # including the one that closes a day inside the range rather than the
+      # range itself.
+      it 'keeps every point on the bucket grid' do
         points =
           series(
             sensors: ['battery_soc'],
             timeframe: "#{day}..#{Date.current}",
-            resolution: '1d',
+            resolution: '1h',
           ).dig(:series, 0, :points)
 
-        times = points.map { Time.iso8601(_1[:time]).strftime('%H:%M:%S') }
+        times = points.map { Time.iso8601(_1[:time]).strftime('%M:%S') }
         times.uniq!
 
-        expect(times).to eq(['00:00:00'])
+        expect(times).to eq(['00:00'])
       end
     end
 
@@ -218,14 +220,14 @@ describe McpServer::Tools::Series do
       let(:budget) { McpServer::Tools::Series::Resolution::MAX_POINTS }
 
       it 'auto-selects a resolution within the point limit' do
-        data = series(sensors: ['battery_soc'], timeframe: 'P7D')
+        data = series(sensors: ['battery_soc'], timeframe: 'P72H')
 
         expect(data[:resolution]).to be_in(%w[1m 5m 15m 1h 1d])
         expect(data[:series].first[:points].size).to be <= budget
       end
 
       it 'coarsens a too-fine resolution and reports the one actually used' do
-        data = series(sensors: ['battery_soc'], timeframe: 'P30D', resolution: '1m')
+        data = series(sensors: ['battery_soc'], timeframe: 'P48H', resolution: '1m')
 
         expect(data[:resolution]).not_to eq('1m')
         expect(data[:series].first[:points].size).to be <= budget
@@ -259,7 +261,7 @@ describe McpServer::Tools::Series do
       end
 
       it 'reports coarsened: true when a too-fine resolution is downgraded' do
-        data = series(sensors: ['battery_soc'], timeframe: 'P30D', resolution: '1m')
+        data = series(sensors: ['battery_soc'], timeframe: 'P48H', resolution: '1m')
 
         expect(data[:coarsened]).to be(true)
       end
@@ -267,7 +269,7 @@ describe McpServer::Tools::Series do
       # A bare boolean leaves a client guessing what to change. Name the
       # constraint and the lever.
       it 'names the point budget as the reason and what to change' do
-        data = series(sensors: ['battery_soc'], timeframe: 'P30D', resolution: '1m')
+        data = series(sensors: ['battery_soc'], timeframe: 'P48H', resolution: '1m')
 
         expect(data[:coarsened_reason]).to include('1m', budget.to_s, 'shorter timeframe')
       end
@@ -305,6 +307,115 @@ describe McpServer::Tools::Series do
         data = series(sensors:, timeframe: day, resolution: '1m')
 
         expect(data[:coarsened_reason]).to include('3 sensor(s)')
+      end
+    end
+
+    # get_series reads the raw InfluxDB samples, which is what makes it the
+    # intraday tool and nothing more: a bucket holds the mean of its samples,
+    # while the PostgreSQL summaries hold an exact figure per period. From a
+    # week upwards the question is theirs.
+    #
+    # Without a cap the tool answered "all" with 2080 points - and
+    # coarsened: false, because nothing HAD been coarsened: the ladder had run
+    # out at "1d" and fell back to it unchecked. That one response was larger
+    # than every other call of the session together, and it grows by a point a
+    # day.
+    context 'with a timeframe longer than the tool answers' do
+      let(:max_hours) { McpServer::Tools::Series::MAX_SPAN.in_hours.to_i }
+
+      def rejects?(timeframe, sensors: ['battery_soc'])
+        call(sensors:, timeframe:).first
+      end
+
+      it 'rejects a rolling month' do
+        expect(rejects?('P30D')).to be(true)
+      end
+
+      it 'rejects the whole installation history' do
+        expect(rejects?('all')).to be(true)
+      end
+
+      it 'rejects a calendar week, month and year' do
+        expect(%w[week 2024-06 2024].map { rejects?(_1) }).to eq([true, true, true])
+      end
+
+      it 'names the limit and the tools that answer instead' do
+        _error, text = call(sensors: ['battery_soc'], timeframe: 'P30D')
+
+        expect(text).to include("#{max_hours} hours", 'get_totals', 'get_ranking')
+      end
+
+      # The UI offers 72 hours at most, but the data does not stop there and
+      # neither does the timeframe grammar, whose hour window runs to P99H.
+      it 'answers the longest hour window the grammar states' do
+        expect(rejects?("P#{max_hours}H")).to be(false)
+      end
+
+      # Four days is the longest date range that fits, and it stays four days
+      # across a daylight-saving switch - which a bound of 72 hours would not
+      # have.
+      it 'answers a four-day range and rejects a five-day one' do
+        four = "#{(Date.current - 3).iso8601}..#{Date.current.iso8601}"
+        five = "#{(Date.current - 4).iso8601}..#{Date.current.iso8601}"
+
+        expect([rejects?(four), rejects?(five)]).to eq([false, true])
+      end
+
+      # A forecast horizon is the provider's, not a measurement, and no summary
+      # holds it - so there is nothing to send the client to and the cap does
+      # not apply.
+      it 'exempts a forecast-only request' do
+        expect(rejects?('P7D', sensors: ['inverter_power_forecast'])).to be(false)
+      end
+
+      it 'does not exempt a forecast sensor riding along with a measured one' do
+        expect(
+          rejects?('P7D', sensors: %w[house_power inverter_power_forecast]),
+        ).to be(true)
+      end
+    end
+
+    # The budget outlives the timeframe cap, because "1h" over a window the cap
+    # allows can still cost more than the sensors sharing it may spend.
+    context 'with a request the point budget cannot carry at 1h' do
+      let(:budget) { McpServer::Tools::Series::Resolution::MAX_POINTS }
+
+      # 6 sensors over 99 hours is 99 points each against a share of 66.
+      let(:sensors) do
+        %w[
+          house_power
+          inverter_power
+          grid_import_power
+          grid_export_power
+          battery_soc
+          heatpump_power
+        ]
+      end
+
+      it 'rejects rather than answering over budget' do
+        error, = call(sensors:, timeframe: 'P99H')
+
+        expect(error).to be(true)
+      end
+
+      it 'names the share and the two levers' do
+        _error, text = call(sensors:, timeframe: 'P99H')
+
+        expect(text).to include("#{budget} shared by 6 sensors", 'fewer sensors')
+      end
+
+      it 'answers the same sensors over a shorter window' do
+        error, = call(sensors:, timeframe: 'P24H')
+
+        expect(error).to be(false)
+      end
+
+      # The one request that reaches the budget with a single sensor: a
+      # forecast, which the timeframe cap lets through.
+      it 'points a long forecast request at get_forecast' do
+        _error, text = call(sensors: ['inverter_power_forecast'], timeframe: 'P12M')
+
+        expect(text).to include('get_forecast')
       end
     end
 

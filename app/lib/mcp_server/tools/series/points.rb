@@ -38,8 +38,8 @@ module McpServer
         # Flux as the range stop with the fraction cut off (23:59:59).
         # aggregateWindow clips its final bucket at that stop, so a day's last
         # point arrives one second short of the grid every other point sits on:
-        # at "1d" a month reads 00:00, 00:00, ..., 23:59:59, which a client can
-        # only take for a bucket of its own.
+        # at "1h" a day reads 01:00, 02:00, ..., 23:00, 23:59:59, which a client
+        # can only take for a bucket of its own.
         #
         # Left to the serializer rather than fixed in Timeframe: the stop is
         # what every UI chart queries with too, and a global shift would move

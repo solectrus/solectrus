@@ -30,7 +30,10 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
   them as much as a null one)
 - `get_totals` — aggregated **historical actual** values for a timeframe
 - `get_ranking` — best/worst (or chronological) days/weeks/months for one or more sensors
-- `get_series` — sub-daily time series (intraday curves) for one or more sensors
+- `get_series` — sub-daily time series (intraday curves) for one or more
+  sensors, over a short window only (at most 99 hours). It reads the raw
+  InfluxDB samples; anything from a week upwards is a `get_totals` or
+  `get_ranking` question, answered from the PostgreSQL summaries
 - `get_forecast` — forecast for the coming days: expected PV generation (energy
   still to come today and per upcoming day) plus the outdoor temperature
   (daily min/max/avg)

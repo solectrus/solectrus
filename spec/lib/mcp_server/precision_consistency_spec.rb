@@ -35,7 +35,8 @@ describe 'MCP precision consistency' do # rubocop:disable RSpec/DescribeClass
 
   # The distinct non-null values per sensor: a bucket without data is null,
   # and the ones with data are compared as a set, so a constant day collapses
-  # to one value per sensor and a "1d" request yields the single bucket.
+  # to one value per sensor, and a day sampled inside a single hour to that
+  # hour's bucket alone.
   def series_values(sensors, resolution:)
     parse(
       McpServer::Tools::Series.call(
@@ -139,18 +140,20 @@ describe 'MCP precision consistency' do # rubocop:disable RSpec/DescribeClass
   # SAMPLES, not time. The two coincide only while the sample density is even
   # across the bucket. Constant values make it even by construction.
   #
-  # So this dataset makes it uneven on purpose: one morning sample against two
-  # afternoon ones. The tools then part ways by 7.6 points, which is not a
-  # defect to be fixed here but the documented reach of get_series - what is
-  # guarded is that each tool keeps computing its OWN rule.
+  # So this dataset makes it uneven on purpose, inside a single hour - the
+  # coarsest bucket get_series offers: one sample against two. The tools then
+  # part ways by 7.6 points, which is not a defect to be fixed here but the
+  # documented reach of get_series - what is guarded is that each tool keeps
+  # computing its OWN rule.
   describe 'with a day whose sample density is uneven' do
-    # Morning: 12 h at 200 W, fully imported. Afternoon: 12 h at 1000 W, fully
-    # self-supplied. Energy-wise that is 14400 Wh consumed, 2400 Wh imported.
+    # The day's true energies, as the summaries hold them: 14400 Wh consumed,
+    # 2400 Wh imported.
     let(:expected_energy_ratio) { 83.3 } # (14400 - 2400) / 14400
 
-    # The same day sampled once in the morning and twice in the afternoon, so
-    # the afternoon carries two thirds of the weight in an unweighted mean:
-    # house_power averages 733.3 W and grid_import_power 66.7 W.
+    # The samples that reach InfluxDB, all inside the 13:00 bucket: one at
+    # 200 W fully imported, two at 1000 W fully self-supplied. In an unweighted
+    # mean the second value carries two thirds of the weight, so house_power
+    # averages 733.3 W and grid_import_power 66.7 W.
     let(:expected_sample_ratio) { 90.9 } # (733.3 - 66.7) / 733.3
 
     before do
@@ -161,17 +164,17 @@ describe 'MCP precision consistency' do # rubocop:disable RSpec/DescribeClass
 
       influx_batch do
         {
-          6 => { house_power: 200, grid_import_power: 200 },
-          13 => { house_power: 1_000, grid_import_power: 0 },
-          15 => { house_power: 1_000, grid_import_power: 0 },
-        }.each do |hour, values|
+          0 => { house_power: 200, grid_import_power: 200 },
+          20 => { house_power: 1_000, grid_import_power: 0 },
+          40 => { house_power: 1_000, grid_import_power: 0 },
+        }.each do |minute, values|
           values.each do |sensor, value|
             add_influx_point(
               name: Sensor::Config.measurement(sensor),
               fields: {
                 Sensor::Config.field(sensor) => value.to_f,
               },
-              time: day.in_time_zone + hour.hours,
+              time: day.in_time_zone + 13.hours + minute.minutes,
             )
           end
         end
@@ -184,7 +187,7 @@ describe 'MCP precision consistency' do # rubocop:disable RSpec/DescribeClass
     end
 
     it 'derives the ratio from the bucket means in get_series' do
-      values = series_values(%w[autarky total_consumption grid_import_power], resolution: '1d')
+      values = series_values(%w[autarky total_consumption grid_import_power], resolution: '1h')
       consumption = values[:total_consumption].sole
       import = values[:grid_import_power].sole
 

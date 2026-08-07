@@ -18,6 +18,11 @@
 # what a null bucket means for every sparse sensor and reaches the web UI's
 # chart queries - deliberately not done here.
 #
+# The tables below drive Sensor::Query::Series directly, so they cover "1d" as
+# well, which the web UI charts request. get_series itself stops at "1h" and at
+# Series::MAX_SPAN, which is what keeps a client from meeting the widest gap
+# here through the tool: the wider the bucket, the further the mean drifts.
+#
 # The subject is the relationship between get_series and get_totals, not one
 # class.
 describe 'get_series energy consistency' do # rubocop:disable RSpec/DescribeClass

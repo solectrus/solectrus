@@ -86,8 +86,8 @@ module McpServer
     # What to do instead, wherever the cadence rules a split out.
     SPLIT_INSTEAD =
       'Ask for the BASE sensor to read live power, and read the split with ' \
-        'get_totals or get_series over a timeframe that has ENDED - a past day ' \
-        'is as exact as a year.'.freeze
+        'get_totals for any period that has ENDED, or with get_series for a ' \
+        'past day - a past day is as exact as a year.'.freeze
 
     # --- Response conventions -----------------------------------------------
 

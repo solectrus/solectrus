@@ -7,13 +7,12 @@ module McpServer
         module_function
 
         # Resolutions offered to the client, ascending, mapped to seconds.
-        RESOLUTIONS = [
-          ['1m', 60],
-          ['5m', 300],
-          ['15m', 900],
-          ['1h', 3600],
-          ['1d', 86_400],
-        ].freeze
+        #
+        # It ends at "1h" because Series::MAX_SPAN ends the tool at 99 hours: a
+        # daily bucket would hold four points at most, and a value per day is
+        # what get_ranking reads from the summaries - exactly, rather than as
+        # the mean of whatever samples the day happened to carry.
+        RESOLUTIONS = [['1m', 60], ['5m', 300], ['15m', 900], ['1h', 3600]].freeze
         private_constant :RESOLUTIONS
 
         # Hard cap on points across the WHOLE response, shared by all requested
@@ -29,9 +28,8 @@ module McpServer
         # 400 is the smallest round number that still keeps the canonical
         # request - one sensor over one day - at 5m (288 points), with enough
         # headroom that a change to the resolution ladder does not silently
-        # cost a whole step. A month then answers at 1d rather than 1h, which
-        # is the right trade: for a month, get_totals and get_ranking are the
-        # tools, not a 720-point curve.
+        # cost a whole step. It also carries four sensors over the longest
+        # timeframe the tool answers (Series::MAX_SPAN) at "1h".
         #
         # This is the MCP budget only. The web UI does not go through this
         # module; it drives Sensor::Query::Series with its own interval.
@@ -60,6 +58,8 @@ module McpServer
         def for(requested, timeframe, definitions, include_nulls: true)
           span = billable_span(timeframe, definitions, include_nulls)
           budgeted = within_budget(requested, span, definitions.size)
+          raise ArgumentError, over_budget(span, definitions) unless budgeted
+
           floor = floor_for(definitions)
           interval = [budgeted, floor].max
           label = RESOLUTIONS.rassoc(interval).first
@@ -160,14 +160,61 @@ module McpServer
         # and coarsen until each sensor's series fits within its share of the
         # budget. Sharing MAX_POINTS across the `sensor_count` requested sensors
         # keeps an N-sensor request from overflowing the client by Nx, and
-        # clamps an explicitly requested resolution too. Falls back to the
-        # coarsest bucket for extreme spans.
+        # clamps an explicitly requested resolution too. Returns nil where not
+        # even the coarsest bucket fits.
         def within_budget(requested, span, sensor_count)
-          budget = [MAX_POINTS / sensor_count, 1].max
+          budget = per_sensor_budget(sensor_count)
           start = RESOLUTIONS.index { |label, _| label == requested } || 0
 
           entry = RESOLUTIONS[start..].find { |_label, secs| span.fdiv(secs).ceil <= budget }
-          (entry || RESOLUTIONS.last).last
+          entry&.last
+        end
+
+        # What one sensor may spend, MAX_POINTS being shared by all of them.
+        def per_sensor_budget(sensor_count)
+          [MAX_POINTS / sensor_count, 1].max
+        end
+
+        # The one request the ladder cannot answer: at "1h", its coarsest
+        # bucket, the series still exceeds the budget, and there is no coarser
+        # step to escape to.
+        #
+        # It used to be answered anyway - the ladder fell back to its last
+        # entry without checking that the entry fit - and that broke the budget
+        # silently, with `coarsened: false`, because nothing HAD been coarsened:
+        # the ladder had simply run out. "all" on a system running since 2020
+        # came back as 2080 points that way.
+        #
+        # Two requests reach it now that Series::MAX_SPAN caps the timeframe:
+        # more sensors than the budget can carry over the window asked for, and
+        # a forecast-only request, which is exempt from that cap. Both are
+        # rejected rather than answered over budget, because the alternative -
+        # a truncated series - answers a different question than the one asked:
+        # a curve cut to its first 400 points still plots as a whole one.
+        def over_budget(span, definitions)
+          hours = span.fdiv(RESOLUTIONS.last.last).ceil
+          budget = per_sensor_budget(definitions.size)
+
+          "This request needs #{hours} points per sensor at \"1h\", the " \
+            "coarsest bucket get_series offers, above the #{budget} it may " \
+            "spend#{shared_budget(definitions.size)}. Ask for at most " \
+            "#{budget} hours at this sensor count, or for fewer sensors." \
+            "#{forecast_hint(definitions)}"
+        end
+
+        def shared_budget(sensor_count)
+          return '' if sensor_count == 1
+
+          " (#{MAX_POINTS} shared by #{sensor_count} sensors)"
+        end
+
+        # A forecast-only request is the one that can reach the budget with a
+        # single sensor, and shortening its timeframe is rarely what the client
+        # wanted - it asked for a horizon.
+        def forecast_hint(definitions)
+          return '' unless definitions.all?(&:forecast?)
+
+          ' get_forecast reports the expected energy per day without a curve.'
         end
       end
     end
