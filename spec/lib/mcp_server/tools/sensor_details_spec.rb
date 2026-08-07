@@ -89,6 +89,27 @@ describe McpServer::Tools::SensorDetails do
       )
     end
 
+    # Money is an energy multiplied by a tariff - nothing meters a cost. Most
+    # economic sensors state that arithmetic as SQL over the summaries rather
+    # than as a Ruby `calculate` block, and the flag used to follow the block
+    # alone, so the most obviously derived family in the system read as
+    # measured.
+    it 'marks an economic sensor as calculated, whether it computes in Ruby or SQL' do
+      sql_derived = %w[grid_costs grid_revenue opportunity_costs house_costs_grid]
+      ruby_derived = %w[total_costs savings]
+      entries = details(*sql_derived, *ruby_derived)
+
+      expect(entries.pluck(:name)).to eq(sql_derived + ruby_derived)
+      expect(entries.pluck(:calculated)).to all(be(true))
+    end
+
+    # The flag has to keep separating the two, or it says nothing.
+    it 'still marks a metered sensor as measured' do
+      expect(details('grid_import_power', 'battery_soc').pluck(:calculated)).to all(
+        be(false),
+      )
+    end
+
     describe 'with invalid input' do
       it 'reports an unknown sensor' do
         response = call(sensors: ['nonexistent'])

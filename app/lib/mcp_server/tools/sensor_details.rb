@@ -16,9 +16,9 @@ module McpServer
             report the unit after aggregation. #{Facts::WATT_SUM_IS_ENERGY}
             Units are explained in list_sensors' conventions.
           - category: inverter, battery, grid, consumer, economic, forecast, ...
-          - calculated: derived rather than measured — computed from other
-            sensors, or, for a power_splitter sensor, split off one by the
-            Power Splitter service.
+          - calculated: derived rather than measured, in Ruby or in SQL. True
+            for every economic sensor (nothing meters a cost) and for both
+            halves of a power split. False means a device wrote the number.
           - aggregations: exactly what get_ranking accepts for its
             `aggregation`. Empty where the sensor has none.
           - default_aggregation: the one get_totals applies and get_ranking

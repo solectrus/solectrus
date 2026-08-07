@@ -100,16 +100,23 @@ module McpServer
       sensor.rankable? && !sensor.default_aggregation.nil?
     end
 
-    # Whether the value is derived rather than measured.
+    # Whether the value is derived rather than measured. One question, and the
+    # answer a client needs: may I treat this number as a reading, or is it the
+    # result of arithmetic over other sensors?
     #
-    # Broader than the domain's `calculated?`, which only knows about a
-    # `calculate` block: the _grid halves of a power split carry no block, but
-    # nothing measures them either - the Power Splitter service derives them
-    # from the base sensor and the grid flow and writes the result back. For a
-    # client the distinction that matters is measured vs. derived, and every
-    # power_splitter sensor is on the derived side of it.
+    # Broader than the domain's `calculated?`, which only knows about a Ruby
+    # `calculate` block. Two families carry no such block and are derived all
+    # the same:
+    #   - the economic sensors, whose money comes from an energy multiplied by
+    #     a tariff. Nothing meters a cost. Most of them state that arithmetic
+    #     as SQL over the summaries (`sql_calculated?`) rather than as a Ruby
+    #     block, and reporting those as measured was the plain opposite of what
+    #     they are.
+    #   - the _grid halves of a power split. The Power Splitter service derives
+    #     them from the base sensor and the grid flow and writes the result
+    #     back, so every power_splitter sensor is on the derived side.
     def calculated?(sensor)
-      sensor.calculated? || sensor.category == :power_splitter
+      sensor.calculated? || sensor.sql_calculated? || sensor.category == :power_splitter
     end
 
     # Whether the sensor has a meaningful instantaneous reading (drives the
