@@ -86,7 +86,7 @@ services:
     labels:
       - com.centurylinklabs.watchtower.scope=solectrus
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 3000 || exit 1"]
+      test: ['CMD-SHELL', 'nc -z 127.0.0.1 3000 || exit 1']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -95,8 +95,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   postgresql:
     image: postgres:18-alpine
@@ -108,7 +108,7 @@ services:
     labels:
       - com.centurylinklabs.watchtower.scope=solectrus
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 20s
       retries: 5
@@ -117,8 +117,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   redis:
     image: redis:8-alpine
@@ -129,7 +129,7 @@ services:
     labels:
       - com.centurylinklabs.watchtower.scope=solectrus
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 20s
       retries: 5
@@ -138,8 +138,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   influxdb:
     image: influxdb:2.9-alpine
@@ -159,7 +159,7 @@ services:
     labels:
       - com.centurylinklabs.watchtower.scope=solectrus
     healthcheck:
-      test: ["CMD", "influx", "ping"]
+      test: ['CMD', 'influx', 'ping']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -168,8 +168,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   power-splitter:
     image: ghcr.io/solectrus/power-splitter:latest
@@ -226,8 +226,8 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'
 
   watchtower:
     image: nickfedor/watchtower:latest
@@ -242,5 +242,5 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: '10m'
+        max-file: '3'

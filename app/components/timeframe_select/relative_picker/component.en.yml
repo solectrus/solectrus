@@ -2,12 +2,12 @@ en:
   hours: Hours
   days: Days
   months: Months
-  last_24_hours: "<strong>24</strong>"
-  last_48_hours: "<strong>48</strong>"
-  last_72_hours: "<strong>72</strong>"
-  last_7_days: "<strong>7</strong>"
-  last_30_days: "<strong>30</strong>"
-  last_90_days: "<strong>90</strong>"
-  last_365_days: "<strong>365</strong>"
-  last_12_months: "<strong>12</strong>"
-  since_installation: "<strong>%{months}</strong> (since installation)"
+  last_24_hours: '<strong>24</strong>'
+  last_48_hours: '<strong>48</strong>'
+  last_72_hours: '<strong>72</strong>'
+  last_7_days: '<strong>7</strong>'
+  last_30_days: '<strong>30</strong>'
+  last_90_days: '<strong>90</strong>'
+  last_365_days: '<strong>365</strong>'
+  last_12_months: '<strong>12</strong>'
+  since_installation: '<strong>%{months}</strong> (since installation)'

@@ -122,8 +122,12 @@
   --color-sensor-co2: var(--palette-standard-light-co2);
   --color-sensor-autarky: var(--palette-standard-light-autarky);
   --color-sensor-heatpump-cop: var(--palette-standard-light-heatpump-cop);
-  --color-sensor-heatpump-heating: var(--palette-standard-light-heatpump-heating);
-  --color-sensor-forecast-clearsky: var(--palette-standard-light-forecast-clearsky);
+  --color-sensor-heatpump-heating: var(
+    --palette-standard-light-heatpump-heating
+  );
+  --color-sensor-forecast-clearsky: var(
+    --palette-standard-light-forecast-clearsky
+  );
   --color-sensor-consumer-other: #d6dde7;
 
   /* Signal colors for positive/warning/negative indicators (autarky badge,
@@ -184,8 +188,12 @@
     --color-sensor-co2: var(--palette-standard-dark-co2);
     --color-sensor-autarky: var(--palette-standard-dark-autarky);
     --color-sensor-heatpump-cop: var(--palette-standard-dark-heatpump-cop);
-    --color-sensor-heatpump-heating: var(--palette-standard-dark-heatpump-heating);
-    --color-sensor-forecast-clearsky: var(--palette-standard-dark-forecast-clearsky);
+    --color-sensor-heatpump-heating: var(
+      --palette-standard-dark-heatpump-heating
+    );
+    --color-sensor-forecast-clearsky: var(
+      --palette-standard-dark-forecast-clearsky
+    );
 
     /* Signal colors: keep light-mode values for readability */
     --color-signal-negative: var(--palette-standard-light-grid);
@@ -248,16 +256,36 @@
     --color-sensor-co2: var(--palette-contrast-light-co2);
     --color-sensor-autarky: var(--palette-contrast-light-autarky);
     --color-sensor-heatpump-cop: var(--palette-contrast-light-heatpump-cop);
-    --color-sensor-heatpump-heating: var(--palette-contrast-light-heatpump-heating);
-    --color-sensor-forecast-clearsky: var(--palette-contrast-light-forecast-clearsky);
+    --color-sensor-heatpump-heating: var(
+      --palette-contrast-light-heatpump-heating
+    );
+    --color-sensor-forecast-clearsky: var(
+      --palette-contrast-light-forecast-clearsky
+    );
 
     --color-signal-warning: var(--palette-contrast-light-autarky-mid);
 
     --color-sensor-inverter-1: var(--color-sensor-pv);
-    --color-sensor-inverter-2: color-mix(in oklch, var(--color-sensor-pv) 92%, black);
-    --color-sensor-inverter-3: color-mix(in oklch, var(--color-sensor-pv) 84%, black);
-    --color-sensor-inverter-4: color-mix(in oklch, var(--color-sensor-pv) 76%, black);
-    --color-sensor-inverter-5: color-mix(in oklch, var(--color-sensor-pv) 68%, black);
+    --color-sensor-inverter-2: color-mix(
+      in oklch,
+      var(--color-sensor-pv) 92%,
+      black
+    );
+    --color-sensor-inverter-3: color-mix(
+      in oklch,
+      var(--color-sensor-pv) 84%,
+      black
+    );
+    --color-sensor-inverter-4: color-mix(
+      in oklch,
+      var(--color-sensor-pv) 76%,
+      black
+    );
+    --color-sensor-inverter-5: color-mix(
+      in oklch,
+      var(--color-sensor-pv) 68%,
+      black
+    );
   }
 
   .dark.palette-contrast {
@@ -275,8 +303,12 @@
     --color-sensor-co2: var(--palette-contrast-dark-co2);
     --color-sensor-autarky: var(--palette-contrast-dark-autarky);
     --color-sensor-heatpump-cop: var(--palette-contrast-dark-heatpump-cop);
-    --color-sensor-heatpump-heating: var(--palette-contrast-dark-heatpump-heating);
-    --color-sensor-forecast-clearsky: var(--palette-contrast-dark-forecast-clearsky);
+    --color-sensor-heatpump-heating: var(
+      --palette-contrast-dark-heatpump-heating
+    );
+    --color-sensor-forecast-clearsky: var(
+      --palette-contrast-dark-forecast-clearsky
+    );
 
     /* Signal colors: keep light-mode values for readability */
     --color-signal-negative: var(--palette-contrast-light-grid);
@@ -284,9 +316,25 @@
     --color-signal-positive: var(--palette-contrast-light-pv);
 
     --color-sensor-inverter-1: var(--color-sensor-pv);
-    --color-sensor-inverter-2: color-mix(in oklch, var(--color-sensor-pv) 92%, black);
-    --color-sensor-inverter-3: color-mix(in oklch, var(--color-sensor-pv) 84%, black);
-    --color-sensor-inverter-4: color-mix(in oklch, var(--color-sensor-pv) 76%, black);
-    --color-sensor-inverter-5: color-mix(in oklch, var(--color-sensor-pv) 68%, black);
+    --color-sensor-inverter-2: color-mix(
+      in oklch,
+      var(--color-sensor-pv) 92%,
+      black
+    );
+    --color-sensor-inverter-3: color-mix(
+      in oklch,
+      var(--color-sensor-pv) 84%,
+      black
+    );
+    --color-sensor-inverter-4: color-mix(
+      in oklch,
+      var(--color-sensor-pv) 76%,
+      black
+    );
+    --color-sensor-inverter-5: color-mix(
+      in oklch,
+      var(--color-sensor-pv) 68%,
+      black
+    );
   }
 }
