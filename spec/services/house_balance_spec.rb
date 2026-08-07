@@ -5,6 +5,29 @@ describe HouseBalance do
   let(:raw_data) { {} }
   let(:timeframe) { Timeframe.now }
 
+  # A power split has no instantaneous value, so the "now" query does not load
+  # house_power_grid and the wrapped data has no accessor for it. Every splitter
+  # figure has to degrade to nil there rather than raise - the view guards that
+  # keep them off the "now" page are one refactoring away from being wrong, and
+  # a NoMethodError would take the whole house page down with them.
+  describe 'without the grid share, as in the "now" timeframe' do
+    let(:raw_data) do
+      { house_power: 200.0, house_power_without_custom: 50.0, custom_power_01: 150.0 }
+    end
+
+    it 'reports no grid share rather than raising' do
+      expect(house_balance.house_power_grid_ratio).to be_nil
+      expect(house_balance.house_power_without_custom_grid).to be_nil
+      expect(house_balance.house_power_without_custom_grid_ratio).to be_nil
+      expect(house_balance.custom_power_01_grid_ratio).to be_nil
+    end
+
+    it 'still answers the figures that do not need it' do
+      expect(house_balance.house_power).to eq(200.0)
+      expect(house_balance.house_power_without_custom_percent).to eq(25.0)
+    end
+  end
+
   describe '#house_power_without_custom_grid_ratio' do
     subject(:ratio) { house_balance.house_power_without_custom_grid_ratio }
 

@@ -148,6 +148,26 @@ describe Sensor::Definitions::Base do
     end
   end
 
+  # The Power Splitter recomputes the grid/PV division on its own cycle of
+  # several minutes and writes one value per cycle, so a split divides a PERIOD
+  # rather than reading an instant. Subtracting such a value from a base sensor
+  # sampled seconds ago mixes two states of the system and can yield a share
+  # larger than the whole - a negative _pv. Every "now" view in the UI has
+  # always hidden the split; the rule lives here so the next caller does not
+  # have to rediscover it.
+  describe '#instantaneous?' do
+    it 'is true for an ordinary sensor' do
+      expect(Sensor::Registry[:house_power]).to be_instantaneous
+    end
+
+    it 'is false for every power split, measured or derived' do
+      splits = Sensor::Registry.by_category(:power_splitter)
+
+      expect(splits).not_to be_empty
+      expect(splits.select(&:instantaneous?)).to be_empty
+    end
+  end
+
   describe '#store_in_summary?' do
     it 'returns false when no summary aggregations' do
       sensor = test_class.new

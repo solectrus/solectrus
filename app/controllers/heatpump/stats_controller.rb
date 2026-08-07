@@ -26,6 +26,11 @@ class Heatpump::StatsController < ApplicationController
     Sensor::Summarizer.call(timeframe)
   end
 
+  # Without heatpump_power_pv/_grid: a power split has no instantaneous value
+  # (Sensor::Definitions::Base#instantaneous?), and the "now" view has never shown
+  # one -- the donut and the ratio bar both fall back to the plain
+  # heatpump_power there. Loading them anyway only pulled two more series out
+  # of InfluxDB for nobody.
   def data_now
     data =
       Sensor::Query::Latest.new(
@@ -37,8 +42,6 @@ class Heatpump::StatsController < ApplicationController
           heatpump_cop
           outdoor_temp
           heatpump_power_env
-          heatpump_power_pv
-          heatpump_power_grid
         ],
       ).call
     HeatpumpBalance.new(data)

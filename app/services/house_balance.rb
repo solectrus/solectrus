@@ -86,7 +86,7 @@ class HouseBalance
 
   # Grid power consumption for "other consumers" (house without custom sensors)
   def house_power_without_custom_grid
-    return unless house_power_grid
+    return unless respond_to?(:house_power_grid) && house_power_grid
 
     house_power_grid - custom_power_grid_total
   end
@@ -142,11 +142,16 @@ class HouseBalance
     end
   end
 
-  # Explicitly delegate commonly used methods for performance
+  # Explicitly delegate commonly used methods for performance.
+  #
+  # house_power_grid is deliberately NOT among them: a power split has no
+  # instantaneous value (Sensor::Definitions::Base#instantaneous?), so the "now"
+  # query does not load it and the wrapped data has no accessor for it. An
+  # explicit delegate would answer respond_to? with true and then raise on the
+  # call, defeating the guards below - delegate_missing_to reports it honestly.
   delegate :house_power,
            :house_power_without_custom,
            :custom_power_total,
-           :house_power_grid,
            :house_costs,
            :time,
            to: :@sensor_data

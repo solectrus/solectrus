@@ -95,6 +95,25 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     category == :forecast
   end
 
+  # Whether this sensor carries a meaningful reading of a single INSTANT.
+  #
+  # The power splitters do not. The Power Splitter service recomputes the
+  # grid/PV division on its own cycle of several minutes and writes one value
+  # per cycle, so that value divides a PERIOD rather than reading a moment.
+  # Pairing it with a base sensor sampled seconds ago mixes two states of the
+  # system, and their difference can then exceed the whole - which is how a
+  # negative _pv share arises.
+  #
+  # This is about the instant, not about resolution: once a window is over,
+  # every cycle inside it has been written and the division is exact, so a
+  # completed day splits as faithfully as a completed year. What a split can
+  # never answer is "right now" - and that is what every "now" view in the UI
+  # has always hidden. Stating it once keeps the next caller from rediscovering
+  # it the hard way.
+  def instantaneous?
+    category != :power_splitter
+  end
+
   def chart_enabled?
     self.class.meta_data[:chart].present?
   end

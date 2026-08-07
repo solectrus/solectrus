@@ -26,18 +26,16 @@ class House::StatsController < ApplicationController
     Sensor::Summarizer.call(timeframe)
   end
 
+  # Without the _grid sensors: a power split has no instantaneous value
+  # (Sensor::Definitions::Base#instantaneous?), and the "now" view has never shown
+  # one -- every splitter tooltip here returns early on timeframe.now?.
+  # Loading them anyway only pulled one series per custom consumer out of
+  # InfluxDB for nobody.
   def data_now
     data =
       Sensor::Query::Latest.new(
-        %i[
-          house_power
-          house_power_without_custom
-          house_power_grid
-          grid_import_power
-        ] +
-          Sensor::Config
-            .house_power_included_custom_sensors
-            .flat_map { |sensor| [sensor.name, :"#{sensor.name}_grid"] },
+        %i[house_power house_power_without_custom grid_import_power] +
+          Sensor::Config.house_power_included_custom_sensors.map(&:name),
       ).call
     HouseBalance.new(data)
   end

@@ -25,10 +25,27 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
   # Check if power splitting is allowed (requires power_splitter feature)
   def splitting_allowed?
     return false unless ApplicationPolicy.power_splitter?
-    return false if timeframe.now? || timeframe.hours? || timeframe.day?
+    return false unless stackable_presentation?
 
     # Only allow splitting if we have grid data configured
     Sensor::Config.exists?(grid_sensor_name)
+  end
+
+  # The split exists as a stacked BAR presentation and nowhere else:
+  # #build_grid_dataset and #build_pv_dataset set `stack`, barPercentage and
+  # bar-only borders, and the stacking itself rests on the x scale's
+  # `stacked: true`, which Chart.js honours for bars (the y scale does not
+  # stack at all). A short timeframe renders as a LINE chart (Base#type), where
+  # every one of those options is ignored and the three datasets are simply
+  # drawn over each other - which reads as an empty chart.
+  #
+  # This is a rendering limit, NOT a data one. Over a day that is already over,
+  # every Power Splitter cycle has been written and the division is as exact as
+  # it is for a year (see Sensor::Definitions::Base#instantaneous? for what a
+  # split genuinely cannot answer: a single instant). Showing the split on a
+  # day would need a stacked-AREA rendering, which this chart does not have.
+  def stackable_presentation?
+    type != 'line'
   end
 
   # The grid sensor can be auto-configured and permitted (sponsor) while the
