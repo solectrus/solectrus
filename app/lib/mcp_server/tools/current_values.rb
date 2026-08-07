@@ -19,16 +19,10 @@ module McpServer
         reading. Three kinds do not; they are left out of the default set and
         rejected when named explicitly — see the "c" in each sensor's `tools`
         from list_sensors:
-          - money sensors (costs, revenue), which are accumulated amounts —
-            use get_totals over a timeframe;
-          - the _grid/_pv power splits. The Power Splitter recomputes the
-            division on its own cycle of several minutes and writes one value
-            per cycle, so a split divides a PERIOD and has no reading of "right
-            now". Ask for the base sensor live, and for the split use
-            get_totals over a window that is already over — a past day is as
-            exact as a year;
-          - chart-only composites like power_balance, which have no live
-            scalar.
+          - #{Facts::MONEY_ACCUMULATED}
+          - the _grid/_pv power splits. #{Facts::SPLIT_CADENCE}
+            #{Facts::SPLIT_INSTEAD}
+          - #{Facts::CHART_ONLY}
 
         Freshness metadata makes a null unambiguous and a number comparable:
           - last_seen_at: the sensor's latest data point across its whole
@@ -58,20 +52,17 @@ module McpServer
       TEXT
       input_schema(
         properties: {
-          sensors: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            description:
+          sensors:
+            sensors_property(
               'Optional list of sensor names. Defaults to every configured ' \
                 'sensor that has a live reading.',
-          },
+              required: false,
+            ),
         },
       )
       read_only idempotent: false
 
-      def self.call(sensors: nil, **)
+      def self.perform(sensors: nil, **)
         definitions, unknown = resolve_sensors(sensors, allow_blank: true)
 
         if sensors.blank?
@@ -96,13 +87,7 @@ module McpServer
         # yields a null value, distinct from a measured 0.
         values = definitions.map { value_for(it, data, last_seen, now, sensors) }
 
-        json_response(
-          time: data.time&.iso8601,
-          **unknown_sensors_note(unknown),
-          values:,
-        )
-      rescue ArgumentError => e
-        error_response(e.message)
+        { time: data.time&.iso8601, **unknown_sensors_note(unknown), values: }
       end
 
       # One sensor's entry: its value, the unit it carries and the freshness

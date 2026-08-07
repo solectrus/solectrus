@@ -1,24 +1,27 @@
 module McpServer
   module Tools
     # Shared base for all SOLECTRUS MCP tools. Subclasses are plain MCP::Tool
-    # subclasses, so they keep the gem's `tool_name`/`input_schema`/`call` DSL,
-    # while this base provides a few SOLECTRUS-specific helpers.
+    # subclasses, so they keep the gem's `tool_name`/`input_schema` DSL, while
+    # this base provides the SOLECTRUS-specific helpers and the one `call`
+    # they all share.
     class Base < MCP::Tool
-      # Every `timeframe` spelling there is, in one place: the input schemas
-      # publish it up front and parse_timeframe repeats it when a client got it
-      # wrong anyway. There are few enough forms to list them all, and listing
-      # them all is the point - an "e.g." invites a model to extrapolate, and
-      # what it extrapolates ("last-week", "yesterday", "2026-06-21..now") is
-      # never accepted. A closed set leaves nothing to invent.
-      TIMEFRAME_FORMS =
-        '"2026-06-21" (a day), "2026-W25" (a week), "2026-06" (a month), ' \
-          '"2026" (a year), "2026-01-01..2026-03-31" (a date range), ' \
-          '"P24H"/"P30D"/"P12M" (a rolling window ending now), ' \
-          '"day"/"week"/"month"/"year" (the current period), ' \
-          '"all" (since installation)'.freeze
-      public_constant :TIMEFRAME_FORMS
+      # Per-request sensor cap, for the tools that run one query per sensor.
+      # Stated in the input schema (where a client can act on it before
+      # spending a round trip) and enforced by resolve_sensors as the backstop.
+      MAX_SENSORS = 20
+      public_constant :MAX_SENSORS
 
       class << self
+        # The entry point the MCP gem calls. Subclasses implement `perform` and
+        # return the response Hash; serializing it and turning a rejected
+        # argument into an error response is identical in all ten tools, so
+        # `perform` is left to say only what its tool actually answers.
+        def call(**)
+          json_response(perform(**))
+        rescue ArgumentError => e
+          error_response(e.message)
+        end
+
         # Declare the annotations shared by every (read-only) SOLECTRUS tool.
         # `idempotent:` says whether repeating an identical call yields the same
         # result - false for live readings, true for historical aggregates.
@@ -40,7 +43,21 @@ module McpServer
             type: 'string',
             description:
               "#{lead} Use exactly one of these forms, nothing else is " \
-                "accepted: #{TIMEFRAME_FORMS}.",
+                "accepted: #{Facts::TIMEFRAME_FORMS}.",
+          }
+        end
+
+        # The `sensors` input-schema property. `max` publishes the per-request
+        # cap; `required: false` is the one tool that defaults to all sensors.
+        def sensors_property(lead, max: nil, required: true)
+          {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            **(required ? { minItems: 1 } : {}),
+            **(max ? { maxItems: max } : {}),
+            description: lead,
           }
         end
 
@@ -54,16 +71,23 @@ module McpServer
         rescue ArgumentError => e
           raise e unless e.message.end_with?('is not a valid timeframe')
 
-          raise ArgumentError, "#{e.message}. Accepted: #{TIMEFRAME_FORMS}."
+          raise ArgumentError, "#{e.message}. Accepted: #{Facts::TIMEFRAME_FORMS}."
+        end
+
+        # The fields every timeframe-based response opens with. `note:` is false
+        # where Facts::TIMEFRAME_NOTE does not apply - a forecast sensor over a
+        # future timeframe is the point of the call, not a gap in the data.
+        def timeframe_preamble(timeframe, unknown, note: true)
+          {
+            timeframe: timeframe.to_s,
+            **(note ? timeframe_note(timeframe) : {}),
+            **unknown_sensors_note(unknown),
+          }
         end
 
         # A `timeframe_note` explaining why a timeframe holds no data, as a hash
-        # to splat into the response - empty when it can hold data.
-        #
-        # Without it, a timeframe in the future and one before the system
-        # existed both come back as a null value, indistinguishable from a
-        # sensor outage - and a model reports "no data" where it should report
-        # "not yet" or "not back then".
+        # to splat into the response - empty when it can hold data. Why it has
+        # to be said at all: Facts::TIMEFRAME_NOTE.
         def timeframe_note(timeframe)
           installation = Rails.configuration.x.installation_date
 
@@ -92,15 +116,16 @@ module McpServer
         # advertised.
         #
         # Returns [definitions, unknown_names]. A bad name is reported back
-        # rather than raised: conventions.suffixes asks clients to form
-        # _pv/_grid names themselves and calls such a name "a good guess, not a
-        # guarantee", so a wrong guess has to cost its own entry instead of the
-        # whole call - two valid sensors alongside it are still two answers.
-        # Only a request with nothing left to answer raises.
+        # rather than raised, for the reason Facts::UNKNOWN_SENSORS gives the
+        # client: conventions.suffixes asks it to form _pv/_grid names itself
+        # and calls such a name a good guess, so a wrong guess has to cost its
+        # own entry instead of the whole call. Only a request with nothing left
+        # to answer raises.
         #
         # With `allow_blank`, a blank list defaults to all available sensors;
-        # otherwise at least one sensor is required.
-        def resolve_sensors(names, allow_blank: false)
+        # otherwise at least one sensor is required. `max` caps how many
+        # resolved sensors a single request may carry.
+        def resolve_sensors(names, allow_blank: false, max: nil)
           available = Sensor::Config.sensors
 
           if names.blank?
@@ -121,7 +146,20 @@ module McpServer
                     'Call list_sensors for the names this instance actually has.'
           end
 
+          enforce_cap!(definitions, max)
+
           [definitions, unknown]
+        end
+
+        # The runtime half of MAX_SENSORS. The schema states the same number, so
+        # a client normally never reaches this - it is the backstop for one that
+        # ignores the schema.
+        def enforce_cap!(definitions, max)
+          return unless max && definitions.size > max
+
+          raise ArgumentError,
+                "Too many sensors (max #{max}). list_sensors already carries " \
+                  'the name, description and tools of every sensor.'
         end
 
         # The `unknown_sensors` report, as a hash to splat into the response -
@@ -150,8 +188,8 @@ module McpServer
         #     specific energy yield (Wh/kWp). The domain deliberately keeps
         #     :watt there (it drives the aggregation default and the UI's kW
         #     formatting); MCP reports the honest physical unit.
-        #   - summing any other :watt sensor integrates power over time and
-        #     yields an ENERGY, so its aggregated unit is watt_hour, not watt.
+        #   - any other summed :watt sensor becomes watt_hour, per
+        #     Facts::WATT_SUM_IS_ENERGY.
         #   - a :gram sensor (co2_reduction) is an AMOUNT only once it has been
         #     aggregated over a period. Unaggregated it is computed from a
         #     power, so it is a rate - the grams avoided per hour at the
@@ -195,28 +233,18 @@ module McpServer
         # pointing at the right tool instead.
         UNSUPPORTED_HINT = {
           current:
-            'get_current_values has no live reading for these sensors. Money ' \
-              'sensors (costs, revenue) are accumulated amounts - use get_totals ' \
-              'over a timeframe. A _grid/_pv power split divides a period rather ' \
-              'than reading an instant (the Power Splitter writes one value per ' \
-              'cycle of several minutes), so it has no reading of "right now" - ' \
-              'ask for its BASE sensor live, and read the split with get_totals ' \
-              'or get_series over a timeframe that has ENDED. Chart-only ' \
-              'composites (e.g. power_balance) have no live scalar.',
+            "get_current_values has no live reading for these sensors. #{Facts::MONEY_ACCUMULATED} " \
+              "#{Facts::SPLIT_CADENCE} #{Facts::SPLIT_INSTEAD} #{Facts::CHART_ONLY}",
           series:
-            'get_series has no curve for these sensors. Money sensors (costs, ' \
-              'revenue) are accumulated amounts and chart-only composites (e.g. ' \
-              'power_balance) have no live curve - use get_totals (Wh/kWh, costs) ' \
-              'or get_forecast. Boolean and string sensors (e.g. a car-connected ' \
-              'flag, a status ' \
-              'text) cannot be averaged into a bucket at all - ' \
-              'get_current_values reports their present state.',
+            "get_series has no curve for these sensors. #{Facts::MONEY_ACCUMULATED} " \
+              "#{Facts::CHART_ONLY} Use get_totals (Wh/kWh, costs) or get_forecast instead. " \
+              "#{Facts::NON_AGGREGATABLE}",
         }.freeze
 
         # Enforce the supported_tools matrix that list_sensors advertises:
-        # raises ArgumentError (which each tool's `call` rescues into an error
-        # response) when any sensor has no meaningful data for `tool`, so a
-        # client gets a clear error instead of a silent null series/value.
+        # raises ArgumentError (which `call` turns into an error response) when
+        # any sensor has no meaningful data for `tool`, so a client gets a clear
+        # error instead of a silent null series/value.
         def enforce_supported!(definitions, tool)
           unsupported =
             definitions.reject { McpServer::SupportedTools.supports?(it, tool) }

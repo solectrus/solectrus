@@ -13,20 +13,11 @@ module McpServer
         CO₂ reduction. Energy and money are summed over the period, percentages
         and temperatures averaged.
 
-        IMPORTANT — units after aggregation: summing a power sensor (unit
-        "watt") yields an ENERGY, not a power. So its `value` is in Wh, not W
-        (divide by 1000 for kWh) — never read a watt-sum as a power. All other
-        units aggregate unchanged.
+        IMPORTANT — units after aggregation: #{Facts::WATT_SUM_IS_ENERGY}
 
-        A name this instance does not have is skipped, not rejected: the rest is
-        answered and the skipped names come back in `unknown_sensors`, so read
-        that field instead of assuming all-or-nothing. Only a call left with no
-        valid name at all fails.
+        #{Facts::UNKNOWN_SENSORS}
 
-        A timeframe that cannot hold data at all — entirely in the future, or
-        ending before the installation date — still answers with null values but
-        carries a `timeframe_note` saying which of the two it is. Report that as
-        "not yet" or "not back then", never as "no data".
+        #{Facts::TIMEFRAME_NOTE}
 
         This tool is for historical measured or aggregated actual values. Do NOT
         pass forecast sensors (e.g. "inverter_power_forecast") — those are
@@ -36,44 +27,35 @@ module McpServer
       input_schema(
         properties: {
           timeframe: timeframe_property('The period to aggregate over.'),
-          sensors: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            minItems: 1,
-            description: 'List of sensor names (from list_sensors).',
-          },
+          sensors: sensors_property('List of sensor names (from list_sensors).'),
         },
         required: %w[timeframe sensors],
       )
       read_only idempotent: true
 
-      def self.call(timeframe:, sensors:, **)
+      def self.perform(timeframe:, sensors:, **)
         tf = parse_timeframe(timeframe)
         resolved, unknown = resolve_sensors(sensors)
-
-        forecast = resolved.select(&:forecast?)
-        if forecast.any?
-          return error_response(
-            "Forecast sensors (#{forecast.map(&:name).join(', ')}) are not " \
-              'supported by get_totals. Use get_forecast for the expected PV ' \
-              'generation forecast.',
-          )
-        end
+        reject_forecast!(resolved)
 
         aggregations = resolved.index_with(&:default_aggregation)
 
-        data = totals(tf, aggregations)
-        json_response(
-          timeframe: tf.to_s,
-          **timeframe_note(tf),
-          **unknown_sensors_note(unknown),
-          totals: build_totals(data, aggregations),
-        )
-      rescue ArgumentError => e
-        error_response(e.message)
+        {
+          **timeframe_preamble(tf, unknown),
+          totals: build_totals(totals(tf, aggregations), aggregations),
+        }
       end
+
+      def self.reject_forecast!(resolved)
+        forecast = resolved.select(&:forecast?)
+        return if forecast.none?
+
+        raise ArgumentError,
+              "Forecast sensors (#{forecast.map(&:name).join(', ')}) are not " \
+                'supported by get_totals. Use get_forecast for the expected PV ' \
+                'generation forecast.'
+      end
+      private_class_method :reject_forecast!
 
       def self.totals(timeframe, aggregations)
         # Only sensors with a natural aggregation can drive the SQL/Influx query.

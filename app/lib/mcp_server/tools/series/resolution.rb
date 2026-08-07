@@ -44,8 +44,7 @@ module McpServer
         FORECAST_FLOOR = 900
         private_constant :FORECAST_FLOOR
 
-        # The Power Splitter recomputes the grid/PV division on its own cycle of
-        # several minutes and writes one value per cycle. A bucket below that
+        # Facts::SPLIT_CADENCE, as a floor: a bucket below the splitter cycle
         # carries a value in some buckets and nothing in the rest, which reads
         # as an outage rather than as the cadence it is.
         SPLITTER_FLOOR = 300

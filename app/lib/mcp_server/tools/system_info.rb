@@ -19,8 +19,7 @@ module McpServer
           - data: when this installation last received anything (last_seen_at,
             age_seconds; null before the very first data point). This is the
             health check "is data still arriving?" — seconds old means live,
-            minutes or more means the collector is behind or down — so use it
-            instead of pulling every live value just to read its timestamp.
+            minutes or more means the collector is behind or down.
 
         Tariffs are in get_prices. Values that cannot be reliably derived (e.g.
         installed_peak_power_kwp on an unregistered instance) are omitted rather
@@ -31,7 +30,7 @@ module McpServer
       # identical result.
       read_only idempotent: false
 
-      def self.call(**)
+      def self.perform(**)
         info = {
           installation_date: Rails.configuration.x.installation_date.iso8601,
           currency: Rails.configuration.x.currency,
@@ -48,7 +47,7 @@ module McpServer
         kwp = UpdateCheck.kwp&.to_f
         info[:installed_peak_power_kwp] = kwp if kwp&.positive?
 
-        json_response(**info)
+        info
       end
 
       def self.configured?(sensor_name)

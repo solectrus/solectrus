@@ -50,20 +50,16 @@ module McpServer
               'outside `split_bases` below carries either suffix. Most of ' \
               'them have both, but where only one direction is meaningful ' \
               'only that one exists, so a name you form off the list is a ' \
-              'good guess, not a guarantee. A guess that misses is skipped ' \
-              'and reported under `unknown_sensors`, costing its own entry ' \
-              'rather than the whole call. A split divides a PERIOD: the Power ' \
-              'Splitter recomputes the division on its own cycle of several ' \
-              'minutes and writes one value per cycle, so it never reads an ' \
-              'instant. It therefore carries no c - get_current_values rejects ' \
-              'it, ask for the base sensor for live power. It does carry s, but ' \
-              'get_series answers only over a timeframe that has ENDED, and ' \
-              'never finer than the splitter cycle. get_totals has no such ' \
-              'condition, and get_ranking answers where the summaries store the ' \
-              'split (the _grid halves, the _costs family; the _pv power splits ' \
-              'are derived from the base and carry no r). Their meaning is the ' \
-              'base sensor\'s description narrowed by the suffix; ' \
-              'get_sensor_details spells them out.',
+              "good guess, not a guarantee. #{McpServer::Facts::UNKNOWN_SENSORS} " \
+              "#{McpServer::Facts::SPLIT_CADENCE} It therefore carries no c - " \
+              'get_current_values rejects it, ask for the base sensor for live ' \
+              'power. It does carry s, but get_series answers only over a ' \
+              'timeframe that has ENDED, and never finer than the splitter ' \
+              'cycle. get_totals has no such condition, and get_ranking answers ' \
+              'where the summaries store the split (the _grid halves, the ' \
+              '_costs family; the _pv power splits are derived from the base ' \
+              'and carry no r). Their meaning is the base sensor\'s description ' \
+              'narrowed by the suffix; get_sensor_details spells them out.',
           _grid: 'The share of the base sensor supplied from grid import.',
           _pv: 'The share of the base sensor covered by own PV/solar generation.',
           _total: 'Aggregate across all inverters/consumers of the base sensor.',
@@ -85,19 +81,16 @@ module McpServer
             'past period, not what arrived.',
         tools:
           'Per sensor, `tools` lists which tools return meaningful data for it, ' \
-            'one letter each: c = get_current_values, t = get_totals, ' \
-            's = get_series, r = get_ranking, f = get_forecast. c, s and r are ' \
-            'strict: a missing letter means that tool REJECTS the sensor, so do ' \
-            'not call it. A money sensor or a chart-only composite like ' \
-            'power_balance has no live scalar and carries neither c nor s; "c" ' \
-            'without "s" means a present state but no curve (a boolean or string ' \
-            'sensor cannot be averaged into a time bucket); a missing r means the ' \
-            'summaries hold no per-period value to order by, which is the case ' \
-            'for a sensor derived from others (the _pv power splits, ' \
-            'house_power_without_custom, grid_balance). t is the one advisory ' \
-            'letter: get_totals accepts any non-forecast sensor, and a sensor ' \
-            'without t may still come back with a value if a sibling pulls it in ' \
-            'as a dependency - while one WITH t can come back null where its ' \
+            "one letter each: #{McpServer::Facts.tool_letters}. " \
+            "#{McpServer::Facts::TOOL_STRICTNESS} A money sensor or a chart-only " \
+            'composite like power_balance has no live scalar and carries neither ' \
+            'c nor s; "c" without "s" means a present state but no curve (a ' \
+            'boolean or string sensor cannot be averaged into a time bucket); a ' \
+            'missing r means the summaries hold no per-period value to order by, ' \
+            'which is the case for a sensor derived from others (the _pv power ' \
+            'splits, house_power_without_custom, grid_balance). A sensor without ' \
+            't may still come back with a value if a sibling pulls it in as a ' \
+            'dependency - while one WITH t can come back null where its ' \
             'calculation suppresses a result (inverter_power_difference below ' \
             '1 % of generation).',
       }.freeze
@@ -123,16 +116,13 @@ module McpServer
       }.freeze
       private_constant :PRECISION
 
-      def self.call(**)
+      def self.perform(**)
         # Force English so the discovery output (descriptions) is deterministic
         # regardless of the instance's locale.
         I18n.with_locale(:en) do
           splits, listed = McpServer::SplitSensors.partition(Sensor::Config.sensors)
 
-          json_response(
-            sensors: listed.map { entry_for(it) },
-            conventions: conventions_for(splits),
-          )
+          { sensors: listed.map { entry_for(it) }, conventions: conventions_for(splits) }
         end
       end
 

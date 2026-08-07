@@ -28,14 +28,14 @@ module McpServer
     # Whether get_series returns a meaningful curve.
     #
     # Deliberately NOT tied to #live?. The two questions only look alike: a
-    # curve is a sequence of periods, and a power split divides periods - it
-    # just cannot divide an instant. So a split keeps its "s" while losing its
-    # "c", and get_series carries the one condition the letter cannot express
-    # by rejecting a timeframe that has not ended yet (Tools::Series).
+    # curve is a sequence of periods, and a power split divides periods
+    # (Facts::SPLIT_CADENCE) - it just cannot divide an instant. So a split
+    # keeps its "s" while losing its "c", and get_series carries the one
+    # condition the letter cannot express by rejecting a timeframe that has not
+    # ended yet (Tools::Series).
     #
-    # What is out here has no periods to show either: money sensors are
-    # accumulated amounts, chart-only composites have no scalar at all, and
-    # InfluxDB cannot fold a boolean or string into a bucket.
+    # What is out here has no periods to show either: Facts::MONEY_ACCUMULATED,
+    # Facts::CHART_ONLY and Facts::NON_AGGREGATABLE.
     def curve?(sensor)
       return false if sensor.unit == :money
       return false if McpServer::Tools::CurrentValues.live_scalarless?(sensor)
@@ -113,20 +113,13 @@ module McpServer
     end
 
     # Whether the sensor has a meaningful instantaneous reading (drives the
-    # current/series flags).
+    # current/series flags). Three kinds have none: Facts::MONEY_ACCUMULATED,
+    # a power split (Facts::SPLIT_CADENCE, decided by
+    # Sensor::Definitions::Base#instantaneous?) and Facts::CHART_ONLY.
     #
-    #   - Money sensors are accumulated amounts (costs, revenue). They have no
-    #     instantaneous live scalar, and a per-bucket "mean" curve would be
-    #     meaningless, so they are totals-only - read them with get_totals over
-    #     a timeframe.
-    #   - A power split divides a period, not an instant: the Power Splitter
-    #     writes one value per cycle of several minutes, so it has no reading
-    #     of "right now" at all (Sensor::Definitions::Base#instantaneous?).
-    #     The whole SOLECTRUS UI has always hidden the split in its "now"
-    #     views; MCP was the one surface still handing it out as a live watt
-    #     reading, subtracted from a base sensor sampled seconds ago.
-    #   - Chart-only composites with no inputs (e.g. power_balance) likewise
-    #     have no live scalar and return null there.
+    # The whole SOLECTRUS UI has always hidden the split in its "now" views;
+    # MCP was the one surface still handing it out as a live watt reading,
+    # subtracted from a base sensor sampled seconds ago.
     def live?(sensor)
       return false if sensor.unit == :money
       return false unless sensor.instantaneous?

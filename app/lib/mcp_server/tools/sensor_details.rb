@@ -5,11 +5,6 @@ module McpServer
     # aggregations it supports. Requested for a handful of sensors at a time,
     # which is what keeps the discovery index affordable.
     class SensorDetails < Base
-      # A details request for dozens of sensors is the payload list_sensors was
-      # just slimmed down to avoid, so bound it.
-      MAX_SENSORS = 20
-      private_constant :MAX_SENSORS
-
       tool_name 'get_sensor_details'
       title 'Get full metadata for specific sensors'
       description <<~TEXT.strip
@@ -18,8 +13,8 @@ module McpServer
 
           - display_name: the human-readable label.
           - unit: the UNAGGREGATED unit — note that get_totals/get_ranking
-            report the unit after aggregation, where a summed "watt" becomes
-            "watt_hour". Units are explained in list_sensors' conventions.
+            report the unit after aggregation. #{Facts::WATT_SUM_IS_ENERGY}
+            Units are explained in list_sensors' conventions.
           - category: inverter, battery, grid, consumer, economic, forecast, ...
           - calculated: derived rather than measured — computed from other
             sensors, or, for a power_splitter sensor, split off one by the
@@ -28,10 +23,8 @@ module McpServer
             `aggregation`. Empty where the sensor has none.
           - default_aggregation: the one get_totals applies and get_ranking
             defaults to. null where there is none.
-          - tools: the same code list_sensors returns — c = get_current_values,
-            t = get_totals, s = get_series, r = get_ranking, f = get_forecast.
-            c, s and r are strict: a missing letter means that tool rejects the
-            sensor.
+          - tools: the same code list_sensors returns, whose `conventions` block
+            explains the letters.
           - description: also for the _grid/_pv split sensors, where
             list_sensors omits it.
 
@@ -45,39 +38,28 @@ module McpServer
       TEXT
       input_schema(
         properties: {
-          sensors: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            minItems: 1,
-            maxItems: MAX_SENSORS,
-            description: "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
-          },
+          sensors:
+            sensors_property(
+              "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
+              max: MAX_SENSORS,
+            ),
         },
         required: %w[sensors],
       )
       read_only idempotent: true
 
-      def self.call(sensors:, **)
-        definitions, unknown = resolve_sensors(sensors)
-        if definitions.size > MAX_SENSORS
-          raise ArgumentError,
-                "Too many sensors (max #{MAX_SENSORS}). list_sensors already " \
-                  'carries the name, description and tools of every sensor.'
-        end
+      def self.perform(sensors:, **)
+        definitions, unknown = resolve_sensors(sensors, max: MAX_SENSORS)
 
         # English for the same reason as list_sensors: discovery output must not
         # depend on the instance's locale. User-defined sensor names still take
         # priority, as they are locale-independent.
         I18n.with_locale(:en) do
-          json_response(
+          {
             **unknown_sensors_note(unknown),
             sensors: definitions.map { details_for(it) },
-          )
+          }
         end
-      rescue ArgumentError => e
-        error_response(e.message)
       end
 
       def self.details_for(sensor)

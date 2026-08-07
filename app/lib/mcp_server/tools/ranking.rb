@@ -4,11 +4,6 @@ module McpServer
     # from the PostgreSQL summaries. Answers "which day had the most/least ..."
     # without iterating over every single day.
     class Ranking < Base
-      # Each sensor is ranked with its own query, so bound the per-request work
-      # and require the caller to name the sensors instead of fanning out to all.
-      MAX_SENSORS = 20
-      private_constant :MAX_SENSORS
-
       tool_name 'get_ranking'
       title 'Rank days/weeks/months by a sensor'
       description <<~TEXT.strip
@@ -17,9 +12,8 @@ module McpServer
         days last winter", "house consumption per day in March". Returns, per
         sensor, a list of periods with their aggregated value.
 
-        Units: like get_totals, a summed power sensor ranks ENERGIES, so each
-        value is in Wh, not W (divide by 1000 for kWh). Only a sensor the
-        summaries store can be ranked; a derived one is rejected by name.
+        Units: #{Facts::WATT_SUM_IS_ENERGY} Only a sensor the summaries store can
+        be ranked; a derived one is rejected by name.
 
         `aggregation` defaults to each sensor's natural one, `period` to "day",
         `order` to "desc" — which also decides WHICH periods the limit keeps.
@@ -52,22 +46,15 @@ module McpServer
         (the default) never reports such periods, so pair "chronological" with a
         generous limit to get a full curve.
 
-        A timeframe that cannot hold data at all — entirely in the future, or
-        ending before the installation date — answers with an empty ranking plus
-        a `timeframe_note` saying which of the two it is.
+        #{Facts::TIMEFRAME_NOTE}
       TEXT
       input_schema(
         properties: {
-          sensors: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            minItems: 1,
-            maxItems: MAX_SENSORS,
-            description:
-              "Sensor names (from list_sensors), one or more (max #{MAX_SENSORS}).",
-          },
+          sensors:
+            sensors_property(
+              "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
+              max: MAX_SENSORS,
+            ),
           sensor: {
             type: 'string',
             description: 'Single sensor name (alternative to "sensors").',
@@ -110,7 +97,7 @@ module McpServer
       )
       read_only idempotent: true
 
-      def self.call( # rubocop:disable Metrics/ParameterLists
+      def self.perform( # rubocop:disable Metrics/ParameterLists
         timeframe:,
         sensors: nil,
         sensor: nil,
@@ -122,10 +109,7 @@ module McpServer
         **
       )
         requested = Array(sensors) | Array(sensor)
-        definitions, unknown = resolve_sensors(requested)
-        if definitions.size > MAX_SENSORS
-          raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
-        end
+        definitions, unknown = resolve_sensors(requested, max: MAX_SENSORS)
 
         enforce_rankable!(definitions)
 
@@ -139,17 +123,13 @@ module McpServer
           limit: limit.to_i.clamp(1, 100),
         }
 
-        json_response(
-          timeframe: tf.to_s,
-          **timeframe_note(tf),
-          **unknown_sensors_note(unknown),
+        {
+          **timeframe_preamble(tf, unknown),
           period:,
           order:,
           sort:,
           results: definitions.map { |definition| rank(definition, options) },
-        )
-      rescue ArgumentError => e
-        error_response(e.message)
+        }
       end
 
       def self.rank(sensor, options)

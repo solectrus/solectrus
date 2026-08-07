@@ -52,8 +52,8 @@ module McpServer
       )
       read_only idempotent: false
 
-      def self.call(date: nil, sort: 'date', order: 'desc', limit: 10, **)
-        on = date.present? ? Date.parse(date) : Date.current
+      def self.perform(date: nil, sort: 'date', order: 'desc', limit: 10, **)
+        on = parse_date(date)
         currency = Rails.configuration.x.currency
         capped = limit.to_i.clamp(1, 100)
 
@@ -70,10 +70,19 @@ module McpServer
             }
           end
 
-        json_response(date: on.iso8601, currency:, sort:, order:, limit: capped, prices:)
-      rescue ArgumentError => e
-        error_response("Invalid date: #{e.message}")
+        { date: on.iso8601, currency:, sort:, order:, limit: capped, prices: }
       end
+
+      # Re-raised with the "Invalid date" lead, since Date.parse's own message
+      # ("invalid date") says nothing about which argument was wrong.
+      def self.parse_date(date)
+        return Date.current if date.blank?
+
+        Date.parse(date)
+      rescue ArgumentError => e
+        raise ArgumentError, "Invalid date: #{e.message}"
+      end
+      private_class_method :parse_date
 
       def self.history_for(name, sort:, order:, limit:)
         direction = order.to_s == 'asc' ? :asc : :desc

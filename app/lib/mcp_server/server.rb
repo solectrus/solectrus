@@ -25,16 +25,12 @@ module McpServer
       timeframe; get_system_info for installation metadata and currency,
       get_prices for the (time-dependent) tariffs.
 
-      Units after aggregation: summing a power sensor (unit "watt") yields an
-      ENERGY, so in get_totals/get_ranking the `value` is in Wh, not W (divide
-      by 1000 for kWh) - never read a watt-sum as a power.
+      Units after aggregation, in get_totals and get_ranking:
+      #{Facts::WATT_SUM_IS_ENERGY}
 
-      Every value is rounded by its unit alone, identically in every tool;
-      list_sensors publishes the decimals per unit in conventions.precision.
+      #{Facts::ROUNDING}
 
-      A sensor name this instance does not have is skipped and reported under
-      `unknown_sensors`, so a wrong guess costs its own entry rather than the
-      whole call; only a request with no valid name left fails.
+      #{Facts::UNKNOWN_SENSORS}
 
       get_totals covers historical actuals only and rejects forecast sensors:
       use get_forecast for the expected PV energy, get_series on a forecast

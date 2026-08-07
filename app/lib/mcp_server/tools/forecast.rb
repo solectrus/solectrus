@@ -38,11 +38,9 @@ module McpServer
       input_schema(properties: {})
       read_only idempotent: false
 
-      def self.call(**)
+      def self.perform(**)
         unless Sensor::Config.exists?(GENERATION_SENSOR)
-          return error_response(
-            "Forecast sensor '#{GENERATION_SENSOR}' is not configured.",
-          )
+          raise ArgumentError, "Forecast sensor '#{GENERATION_SENSOR}' is not configured."
         end
 
         now = Time.current
@@ -56,7 +54,7 @@ module McpServer
         temperature = temperature_section(series, now)
         result[:temperature] = temperature if temperature
 
-        json_response(result)
+        result
       end
 
       # --- Generation (energy, Wh) -----------------------------------------

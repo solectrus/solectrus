@@ -4,12 +4,6 @@ module McpServer
     # sub-daily resolution (InfluxDB). This is what reveals intraday curves that
     # the daily-aggregated tools cannot show.
     class Series < Base
-      # Hard cap on sensors per request. Each sensor is a separate InfluxDB
-      # subquery yielding up to the point budget, so bound the per-request work
-      # even though resolve_sensors already restricts to the configured set.
-      MAX_SENSORS = 20
-      private_constant :MAX_SENSORS
-
       tool_name 'get_series'
       title 'Get a time series for sensors'
       description <<~TEXT.strip
@@ -65,32 +59,23 @@ module McpServer
         25-hour day of a daylight-saving switch.
 
         A _grid/_pv power split is answered only over a timeframe that has
-        ENDED, and never finer than "5m": the Power Splitter writes one value
-        per cycle of several minutes, so a running window ends in buckets with
-        no split yet. Ask for a past day, week or month instead; "5m" is as
-        fine as a split gets, whatever else you change.
+        ENDED, and never finer than "5m". #{Facts::SPLIT_CADENCE} So a running
+        window ends in buckets with no split yet. Ask for a past day, week or
+        month instead; "5m" is as fine as a split gets, whatever else you
+        change.
 
-        A name this instance does not have is skipped, not rejected: the rest is
-        answered and the skipped names come back in `unknown_sensors`, so read
-        that field instead of assuming all-or-nothing. Only a call left with no
-        valid name at all fails.
+        #{Facts::UNKNOWN_SENSORS}
 
-        A timeframe that cannot hold measured data — entirely in the future, or
-        ending before the installation date — carries a `timeframe_note`, so an
-        all-null curve is never mistaken for an outage. A forecast sensor over a
-        future timeframe is normal and gets none.
+        #{Facts::TIMEFRAME_NOTE} A forecast sensor over a future timeframe is
+        normal and gets none.
       TEXT
       input_schema(
         properties: {
-          sensors: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            minItems: 1,
-            maxItems: MAX_SENSORS,
-            description: "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
-          },
+          sensors:
+            sensors_property(
+              "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
+              max: MAX_SENSORS,
+            ),
           timeframe: timeframe_property('The period the curve covers.'),
           resolution: {
             type: 'string',
@@ -101,9 +86,8 @@ module McpServer
             type: 'string',
             enum: %w[mean min max],
             default: 'mean',
-            description:
-              'Per-bucket aggregation. For period totals (Wh/kWh, costs) use ' \
-                'get_totals, not a summed series.',
+            # Why there is no "sum" is stated twice in the description already.
+            description: 'Per-bucket aggregation.',
           },
           include_nulls: {
             type: 'boolean',
@@ -118,7 +102,7 @@ module McpServer
       )
       read_only idempotent: true
 
-      def self.call(
+      def self.perform(
         sensors:,
         timeframe:,
         resolution: nil,
@@ -127,14 +111,9 @@ module McpServer
         **
       )
         tf = parse_timeframe(timeframe)
-        if tf.now?
-          return error_response('Timeframe must cover a span, not the "now" instant.')
-        end
+        raise ArgumentError, 'Timeframe must cover a span, not the "now" instant.' if tf.now?
 
-        definitions, unknown = resolve_sensors(sensors)
-        if definitions.size > MAX_SENSORS
-          raise ArgumentError, "Too many sensors (max #{MAX_SENSORS})"
-        end
+        definitions, unknown = resolve_sensors(sensors, max: MAX_SENSORS)
 
         enforce_supported!(definitions, :series)
         enforce_completed_timeframe!(definitions, tf)
@@ -152,49 +131,35 @@ module McpServer
             timestamp_method: :to_time,
           ).call
 
-        json_response(
-          timeframe: tf.to_s,
-          **measured_timeframe_note(definitions, tf),
-          **unknown_sensors_note(unknown),
+        {
+          # A timeframe in the future is the whole point of a forecast sensor,
+          # so the "nothing measured yet" note only applies without one.
+          **timeframe_preamble(tf, unknown, note: definitions.none?(&:forecast?)),
           resolution: label,
           coarsened: !coarsened_by.nil?,
           **Resolution.explain(coarsened_by, resolution, label, definitions.size),
           aggregation:,
           series:
             definitions.map { |sensor| series_for(sensor, data, agg, tf, include_nulls:) },
-        )
-      rescue ArgumentError => e
-        error_response(e.message)
+        }
       end
 
-      # A power split is exact only once its window has ENDED: the Power
-      # Splitter recomputes the division on its own cycle of several minutes,
-      # so the newest buckets of a running window carry a base value whose
-      # split does not exist yet. That is a per-call condition the `s` flag
-      # cannot express, so it is enforced here rather than by withholding the
-      # letter - a curve over a finished window is perfectly sound.
+      # A power split is exact only once its window has ENDED (see
+      # Facts::SPLIT_CADENCE): the newest buckets of a running window carry a
+      # base value whose split does not exist yet. That is a per-call condition
+      # the `s` flag cannot express, so it is enforced here rather than by
+      # withholding the letter - a curve over a finished window is sound.
       def self.enforce_completed_timeframe!(definitions, timeframe)
         splits = definitions.reject(&:instantaneous?)
         return if splits.none? || timeframe.past?
 
         raise ArgumentError,
               'A _grid/_pv power split is only exact over a timeframe that has ' \
-                'ENDED, because the Power Splitter writes one value per cycle of ' \
-                'several minutes and the newest buckets of a running window have ' \
-                'no split yet. Ask for a past day, week or month instead, or use ' \
-                'get_totals. Affected: ' \
+                "ENDED. #{Facts::SPLIT_CADENCE} Ask for a past day, week or month " \
+                'instead, or use get_totals. Affected: ' \
                 "#{splits.map(&:name).join(', ')}."
       end
       private_class_method :enforce_completed_timeframe!
-
-      # A timeframe in the future is the whole point of a forecast sensor, so
-      # the "nothing measured yet" note only applies without one.
-      def self.measured_timeframe_note(definitions, timeframe)
-        return {} if definitions.any?(&:forecast?)
-
-        timeframe_note(timeframe)
-      end
-      private_class_method :measured_timeframe_note
 
       def self.series_for(sensor, data, aggregation, timeframe, include_nulls:)
         unit = mcp_unit(sensor)

@@ -76,10 +76,10 @@ module McpServer
       )
       read_only idempotent: true
 
-      def self.call(period_years: nil, interest_rate: nil, **)
-        return no_data_response unless CashFlow.exists?
+      def self.perform(period_years: nil, interest_rate: nil, **)
+        return no_data_payload unless CashFlow.exists?
 
-        json_response(**payload(period_years, interest_rate))
+        payload(period_years, interest_rate)
       end
 
       def self.payload(period_years, interest_rate)
@@ -144,15 +144,15 @@ module McpServer
       end
       private_class_method :percent
 
-      def self.no_data_response
-        json_response(
+      def self.no_data_payload
+        {
           available: false,
           message:
             'No cash flows configured yet, so there is nothing to amortize. ' \
               'Add investments/costs/revenue in the settings first.',
-        )
+        }
       end
-      private_class_method :no_data_response
+      private_class_method :no_data_payload
     end
   end
 end

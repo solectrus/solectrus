@@ -52,10 +52,10 @@ A sensor ending in `_grid` or `_pv` does not measure anything of its own: the
 Power Splitter service divides a base sensor by where the energy came from.
 Both halves therefore report `calculated: true`.
 
-**A split is an aggregate and nothing else.** The Power Splitter recomputes the
-division on its own cycle of several minutes and writes one value per cycle, so
-that value divides a _period_ rather than reading an instant. Pairing it with a
-base sensor sampled seconds ago mixes two states of the system, and the
+**A split is an aggregate and nothing else.** The Power Splitter writes one
+value per cycle of several minutes, so a split divides a _period_ and never
+reads an instant. Pairing it with a base sensor sampled seconds ago mixes two
+states of the system, and the
 difference can then exceed the whole — which is how a negative `_pv` share
 arises.
 
