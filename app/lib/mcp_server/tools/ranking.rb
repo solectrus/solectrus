@@ -6,6 +6,28 @@ module McpServer
     class Ranking < Base
       tool_name 'get_ranking'
       title 'Rank days/weeks/months by a sensor'
+
+      # Entries per sensor a single ranking may return. It bounds what one
+      # response costs, and it bounds the SPAN a chronological curve can cover:
+      # beyond it a client has to ask for a coarser period, which is why
+      # get_series names this number when it sends one here.
+      MAX_LIMIT = 100
+      public_constant :MAX_LIMIT
+
+      # Entries across the WHOLE response, shared by the requested sensors -
+      # the same idea as the point budget in get_series, and for the same
+      # reason: what reaches the client is one context window, not one per
+      # sensor. Without it a ranking was the largest response this server could
+      # produce, at 20 sensors x 100 entries = 65 kB, three times what a series
+      # can cost since its budget became a hard limit.
+      #
+      # 400 keeps every request that was reasonable before: a single sensor
+      # still gets the full MAX_LIMIT, and so does a request of up to four. Only
+      # beyond that does the list per sensor shorten, which is also where a
+      # client is asking for a table it cannot read anyway.
+      MAX_ENTRIES = 400
+      public_constant :MAX_ENTRIES
+
       description <<~TEXT.strip
         Rank the best or worst periods for one or more sensors over a
         timeframe: "which day this year had the highest solar production", "the
@@ -42,6 +64,11 @@ module McpServer
         period missing there may simply not have made the cut). A value ranking
         never reports such periods, so pair "chronological" with a generous
         limit for a full curve.
+
+        `limit` counts per sensor but the budget is SHARED: N sensors get
+        #{MAX_ENTRIES}/N entries each at most, so a long list and many sensors
+        need separate calls. Read back `limit`; `limit_note` says when the
+        budget shortened it.
       TEXT
       input_schema(
         properties: {
@@ -83,9 +110,11 @@ module McpServer
           limit: {
             type: 'integer',
             minimum: 1,
-            maximum: 100,
+            maximum: MAX_LIMIT,
             default: 10,
-            description: 'Entries per sensor.',
+            description:
+              "Entries per sensor, capped by a budget of #{MAX_ENTRIES} " \
+                'shared by all requested sensors.',
           },
         },
         required: %w[timeframe],
@@ -113,13 +142,14 @@ module McpServer
         enforce_rankable!(definitions)
 
         tf = parse_timeframe(timeframe)
+        effective = effective_limit(limit, definitions.size)
         options = {
           timeframe: tf,
           period: period.to_sym,
           aggregation:,
           desc: order.to_s != 'asc',
           chronological: sort.to_s == 'chronological',
-          limit: limit.to_i.clamp(1, 100),
+          limit: effective,
         }
 
         {
@@ -127,9 +157,38 @@ module McpServer
           period:,
           order:,
           sort:,
+          limit: effective,
+          **limit_note(limit, effective, definitions.size),
           results: definitions.map { |definition| rank(definition, options) },
         }
       end
+
+      # The entries one sensor gets: what the client asked for, unless the
+      # shared budget cannot pay for it. The schema states MAX_LIMIT too, so the
+      # clamp is the backstop for a client that ignores it.
+      def self.effective_limit(requested, sensor_count)
+        share = (MAX_ENTRIES / sensor_count).clamp(1, MAX_LIMIT)
+
+        requested.to_i.clamp(1, share)
+      end
+      private_class_method :effective_limit
+
+      # Why the list is shorter than asked for, as a hash to splat into the
+      # response - empty when nothing was cut, so the common case pays nothing.
+      # A silently shortened list is the one thing a chronological ranking must
+      # not do: it reads as "the data ends here" rather than "the budget did".
+      def self.limit_note(requested, effective, sensor_count)
+        return {} if effective >= requested.to_i.clamp(1, MAX_LIMIT)
+
+        {
+          limit_note:
+            "Requested #{requested}, returning #{effective} entries per " \
+              "sensor: #{sensor_count} sensors share a budget of " \
+              "#{MAX_ENTRIES} entries. Ask for fewer sensors to get a longer " \
+              'list, or repeat the call per sensor.',
+        }
+      end
+      private_class_method :limit_note
 
       # `default_aggregation` is guaranteed here: enforce_aggregatable! has
       # already rejected every sensor whose allowed list is empty, which is the

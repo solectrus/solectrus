@@ -295,6 +295,53 @@ describe McpServer::Tools::Ranking do
       expect(data[:results].first[:ranking].size).to eq(3)
     end
 
+    # `limit` counts per sensor, so without a shared budget a ranking was the
+    # largest response this server could produce: 20 sensors at limit 100 came
+    # back as 1800 entries and 65 kB, three times what get_series can cost
+    # since its point budget became a hard limit. What reaches the client is
+    # one context window, not one per sensor.
+    context 'with the entry budget shared across sensors' do
+      let(:budget) { McpServer::Tools::Ranking::MAX_ENTRIES }
+      let(:sensors) do
+        Sensor::Config.sensors.select(&:rankable?).take(20).map! { _1.name.to_s }
+      end
+
+      def limit_for(count, limit)
+        _error, data = call(sensors: sensors.take(count), timeframe: range, limit:)
+        data
+      end
+
+      it 'leaves a single sensor at the full limit' do
+        expect(limit_for(1, 100)[:limit]).to eq(100)
+      end
+
+      # 400 / 4 is exactly MAX_LIMIT, so everything that was reasonable before
+      # is answered unchanged.
+      it 'leaves four sensors at the full limit' do
+        expect(limit_for(4, 100)[:limit]).to eq(100)
+      end
+
+      it 'shortens the list once the sensors outgrow the budget' do
+        data = limit_for(20, 100)
+
+        expect(data[:limit]).to eq(budget / 20)
+        expect(data[:results].sum { _1[:ranking].size }).to be <= budget
+      end
+
+      # A shortened list must not read as "the data ends here".
+      it 'says why it shortened the list' do
+        expect(limit_for(20, 100)[:limit_note]).to include('20 sensors', budget.to_s)
+      end
+
+      it 'stays silent where nothing was shortened' do
+        expect(limit_for(20, 10)).not_to have_key(:limit_note)
+      end
+
+      it 'reports the limit it applied even then' do
+        expect(limit_for(20, 10)[:limit]).to eq(10)
+      end
+    end
+
     context 'with invalid input' do
       it 'requires at least one sensor' do
         response = described_class.call(timeframe: '2024')
