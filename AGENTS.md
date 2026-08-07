@@ -1,62 +1,39 @@
 # SOLECTRUS
 
-Rails 8.1 full-stack application for photovoltaic monitoring.
-
-## Stack
-
-- Ruby 4.0, PostgreSQL + InfluxDB (time-series data)
-- Hotwire (Turbo + Stimulus), TypeScript, Vite, ViewComponent
-- Tailwind CSS v4, Slim templates
-- RSpec + Playwright
+Rails 8.1 full-stack application for photovoltaic monitoring. PostgreSQL for records, InfluxDB for time-series data.
 
 ## Documentation
 
-Detailed documentation lives in `docs/`:
+- `docs/conventions.md` — frontend and testing conventions (ViewComponent, forms, Tailwind, RSpec, Playwright helpers)
+- `docs/sensor-overview.md` — sensor architecture and core concepts
+- `docs/sensor-reference.md` — sensor DSL and technical details
+- `docs/sensor-sql-queries.md` — SQL query patterns for daily+ timeframes
+- `docs/MCP.md` — the built-in MCP server and the tools it exposes
 
-- `docs/conventions.md` - Project-specific frontend and testing conventions
-- `docs/sensor-overview.md` - Sensor system architecture and core concepts
-- `docs/sensor-reference.md` - Sensor DSL and technical details
-- `docs/sensor-sql-queries.md` - SQL query patterns for daily+ timeframes
+## Mandatory linting
 
-## Code Quality
+After changing code, run the matching linter and fix what it reports:
 
-```bash
-bin/rubocop           # Ruby style (use -A for auto-correct)
-bin/slim-lint         # Slim templates
-bun run tsc           # TypeScript type checking
-bun run lint          # ESLint for TypeScript
-bin/brakeman          # Security scan (run occasionally, not per-change)
-bin/rspec             # Tests
-```
+- Ruby (`.rb`): `bin/rubocop` (`-A` to auto-correct, review the result)
+- Slim (`.slim`): `bin/slim-lint`
+- TypeScript (`.ts`): `bun run tsc` **and** `bun run lint` — both must pass
+- Shell (`.sh`): `shellcheck`
+- Markdown, JSON, YAML, CSS: `bun run format` (Prettier)
 
-### Mandatory Linting
-
-After creating or modifying code, **always** run the relevant linter(s) before considering the task complete. Fix any issues found.
-
-- **Ruby code** (`.rb`): Run `bin/rubocop` on changed files. Use `-A` to auto-correct, review the result.
-- **Slim templates** (`.slim`): Run `bin/slim-lint` on changed files.
-- **TypeScript code** (`.ts`): Run `bun run tsc` (type checking) and `bun run lint` (ESLint). Both must pass.
+`bin/brakeman` occasionally for security scans, not per change.
 
 ## Frontend
 
-- Stimulus controllers use **TypeScript** (`.ts` files), not JavaScript
-- See `docs/conventions.md` for ViewComponent, forms, and Tailwind patterns
+Stimulus controllers are TypeScript (`.ts`), never JavaScript.
+
+## Development
+
+`bin/setup` once, then `bin/dev` to start Rails, Vite and Caddy together.
 
 ## Testing
 
-### Running Tests
+`bin/rspec [path]`. InfluxDB must be running — start it with `bin/influxdb-restart.sh`, never by hand. The script recreates the `influxdb_v2` container with the org, bucket and token the test environment expects. The local InfluxDB exists for the tests alone, so dropping its data costs nothing — run the script whenever a spec cannot reach InfluxDB.
 
-- Model specs: `bin/rspec spec/models/<model>_spec.rb`
-- Request specs: `bin/rspec spec/requests/<controller>_request_spec.rb`
-- System specs: `PLAYWRIGHT_HEADLESS=true bin/rspec spec/system/<feature>_spec.rb`
+System specs drive Playwright and are slow — run them only when UI behavior or JavaScript is affected and a request spec cannot cover it. Always with `PLAYWRIGHT_HEADLESS=true`, otherwise browser windows open in the foreground and block the user. They run against compiled assets, so after any frontend change run `bunx vite build --mode test` first.
 
-**System specs are slow** (Playwright browser automation). Only run when:
-
-- UI behavior or JavaScript interactions are affected
-- Request specs cannot verify the functionality
-
-Always use `PLAYWRIGHT_HEADLESS=true` for system tests — without it, browser windows appear in foreground and block user interaction.
-
-### Test Guidelines
-
-See `docs/conventions.md` for RSpec conventions, Playwright helpers, and testing guidance.
+`bin/ci` runs the full gate: every linter above, the security audits, the asset build and both spec runs. It is what CI does, so use it before a release rather than after each change.
