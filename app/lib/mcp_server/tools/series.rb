@@ -32,13 +32,14 @@ module McpServer
 
         Resolution: when omitted, the finest that keeps the WHOLE response
         within #{Resolution::MAX_POINTS} points — the budget is SHARED, so N
-        sensors get #{Resolution::MAX_POINTS}/N points each. Exactly two things
-        coarsen a request: that budget, and the forecast cadence (providers
-        write at most one sample per 15 min, so forecast sensors alone are never
-        answered finer than "15m"). Nothing else, so a coarser request never
-        yields a coarser result than a finer one. Read back `resolution`,
-        `coarsened`, and `coarsened_reason` (only when coarsened) — it names the
-        constraint and what to change.
+        sensors get #{Resolution::MAX_POINTS}/N points each. Exactly three
+        things coarsen a request: that budget; the forecast cadence, which
+        floors forecast sensors alone at "15m" (providers write one sample per
+        15 min); and the Power Splitter cycle, which floors _grid/_pv splits
+        alone at "5m". Nothing else, so a coarser request never yields a
+        coarser result than a finer one. Read back `resolution`, `coarsened`,
+        and `coarsened_reason` (only when coarsened) — it names the constraint
+        and what to change.
 
         include_nulls (default true) returns the complete bucket grid. false
         drops the empty buckets, which pays off for sporadically written sensors
@@ -59,10 +60,8 @@ module McpServer
         25-hour day of a daylight-saving switch.
 
         A _grid/_pv power split is answered only over a timeframe that has
-        ENDED, and never finer than "5m". #{Facts::SPLIT_CADENCE} So a running
-        window ends in buckets with no split yet. Ask for a past day, week or
-        month instead; "5m" is as fine as a split gets, whatever else you
-        change.
+        ENDED. #{Facts::SPLIT_CADENCE} A running window ends in buckets with no
+        split yet; the error saying so names what to ask for instead.
 
         #{Facts::UNKNOWN_SENSORS}
 

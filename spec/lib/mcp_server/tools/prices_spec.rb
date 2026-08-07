@@ -42,6 +42,20 @@ describe McpServer::Tools::Prices do
       expect(data[:date]).to eq('2024-06-15')
     end
 
+    # A date before the first configured tariff has no price to be effective,
+    # and the tool says so instead of reaching forward to the oldest entry.
+    # The description now states this, so the behaviour is pinned next to it.
+    it 'reports null where the history begins after the date' do
+      before_any_price = (Price.minimum(:starts_at) - 1.day).iso8601
+      response = described_class.call(server_context: nil, date: before_any_price)
+
+      data = JSON.parse(response.content.first[:text], symbolize_names: true)
+      electricity = data[:prices].find { _1[:name] == 'electricity' }
+
+      expect(electricity).to have_key(:effective)
+      expect(electricity[:effective]).to be_nil
+    end
+
     it 'sorts the history by value and limits it' do
       response =
         described_class.call(

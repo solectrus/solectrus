@@ -33,7 +33,8 @@ module McpServer
           - age_seconds: how long ago that was, for a reported value too.
             "Live" only means "within the sensor's max_age" (15 min for most,
             2 h for the sparse ones), so two readings here can describe states
-            minutes apart. Compare ages before comparing values.
+            minutes apart. Compare ages before comparing values; the top-level
+            `time` is the newest of them, not an instant they share.
 
         A calculated sensor has no timestamp of its own and reports the newest
         one among its inputs. A measured 0 is a real value, distinct from null.

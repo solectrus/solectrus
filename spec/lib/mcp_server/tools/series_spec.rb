@@ -11,6 +11,33 @@ describe McpServer::Tools::Series do
 
   before { freeze_time }
 
+  # The description enumerates the constraints that coarsen a request, and a
+  # client acts on that enumeration: it decides whether to shorten a timeframe
+  # or to accept the answer. It said "exactly two things" long after the
+  # splitter cycle became a third, so a `coarsened_reason` naming the Power
+  # Splitter matched no rule the client had been given.
+  describe '.description' do
+    # Each cause Resolution.explain can report, with the word the description
+    # has to carry for a client to recognise it in the answer.
+    {
+      point_budget: 'budget',
+      forecast_window: 'forecast',
+      splitter_cycle: 'Power Splitter',
+    }.each do |cause, word|
+      it "names the #{cause} constraint" do
+        explained =
+          McpServer::Tools::Series::Resolution.explain(cause, '1m', '5m', 1)
+
+        expect(explained[:coarsened_reason]).to be_present
+        expect(described_class.description).to include(word)
+      end
+    end
+
+    it 'counts them correctly' do
+      expect(described_class.description.squish).to include('three things')
+    end
+  end
+
   describe '.call' do
     context 'with measured data and a gap' do
       before do

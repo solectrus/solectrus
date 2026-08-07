@@ -17,7 +17,8 @@ module McpServer
         historical tariff, not today's, so read it together with the `date`
         echoed at the top level. It is always derived from the FULL history,
         independent of `limit`, which caps only the returned history so an
-        unbounded one is never dumped unless asked for.
+        unbounded one is never dumped unless asked for, and null where the
+        history begins after `date`.
 
         All values are per kWh in the system currency (see get_system_info).
       TEXT

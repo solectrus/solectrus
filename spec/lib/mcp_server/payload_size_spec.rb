@@ -58,7 +58,16 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # and the schemas now carry their own bounds - maxItems, minimum/maximum,
       # default - instead of stating them in prose only. That is prose a model
       # would otherwise have to be told twice.
-      'tool definitions + instructions' => 26_600,
+      #
+      # Moved again from 26_600, by 140 bytes of correction: get_series said
+      # "exactly two things coarsen a request" while it could report three,
+      # get_prices left the null `effective` unstated, get_current_values left
+      # the top-level `time` open to being read as a shared instant, and
+      # get_sensor_details did not say that an economic sensor is calculated.
+      # A description a client cannot trust costs more than the bytes do, and
+      # the growth was paid for by dropping two sentences the error messages
+      # already carry.
+      'tool definitions + instructions' => 26_800,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 17_000,
       'get_sensor_details (3 sensors)' => 1_000,
