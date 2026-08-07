@@ -44,6 +44,7 @@ module McpServer
       celsius: 1,
       unitless: 2,
       gram: 0,
+      gram_per_hour: 0,
     }.freeze
     public_constant :DECIMALS
 

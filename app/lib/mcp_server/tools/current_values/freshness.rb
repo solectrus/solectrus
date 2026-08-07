@@ -24,16 +24,17 @@ module McpServer
           seen.merge(unseen.index_with { |sensor| newest(sensor) { |name| history[name] } })
         end
 
-        # What a client reads back per sensor. age_seconds accompanies only a
-        # missing value, where it answers "how long has it been quiet?" - a
-        # value that is present is fresh by construction (the live query drops
-        # readings older than the sensor's max_age), so stating its age costs
-        # a field per sensor to say what last_seen_at already says.
-        def metadata(last_seen, now, value)
-          metadata = { last_seen_at: last_seen&.iso8601 }
-          return metadata unless value.nil?
-
-          metadata.merge(age_seconds: last_seen ? (now - last_seen).round : nil)
+        # What a client reads back per sensor: when the sensor last delivered,
+        # and how long ago that was.
+        #
+        # age_seconds accompanies a reported value too. "Fresh by construction"
+        # only means "within max_age", which is 15 minutes for most sensors and
+        # two hours for the sparse ones - wide enough that two live readings can
+        # describe states minutes apart, and a client comparing them has to know
+        # by how much. Deriving it from last_seen_at requires the client to know
+        # the server's clock, which is exactly what it does not have.
+        def metadata(last_seen, now)
+          { last_seen_at: last_seen&.iso8601, age_seconds: last_seen ? (now - last_seen).round : nil }
         end
 
         # Only raw sensors carry a timestamp of their own, so a calculated

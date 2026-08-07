@@ -78,13 +78,23 @@ describe McpServer::Precision do
       expect(described_class::DECIMALS.keys).to include(*numeric_units)
     end
 
-    # mcp_unit refines :watt into these after aggregation, so they need an
+    # mcp_unit refines the domain's coarse units into these, so they need an
     # entry of their own.
     it 'covers the units aggregation introduces' do
       expect(described_class::DECIMALS.keys).to include(
         :watt_hour,
         :watt_per_kwp,
         :watt_hour_per_kwp,
+        :gram_per_hour,
+      )
+    end
+
+    # The table is published verbatim in list_sensors' conventions next to
+    # `units`, which is the I18n glossary - a unit in one and not the other
+    # leaves a client with a number it cannot name.
+    it 'names every unit the glossary explains, and no others' do
+      expect(described_class::DECIMALS.keys.map(&:to_s)).to all(
+        be_in(I18n.t('sensor_units', locale: :en).keys.map(&:to_s)),
       )
     end
   end

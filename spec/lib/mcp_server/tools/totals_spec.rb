@@ -1,6 +1,9 @@
 describe McpServer::Tools::Totals do
   before do
-    create_summary(date: '2024-06-15', values: [[:house_power, :sum, 12_345]])
+    create_summary(
+      date: '2024-06-15',
+      values: [[:house_power, :sum, 12_345], [:inverter_power, :sum, 20_000]],
+    )
   end
 
   describe '.call' do
@@ -38,6 +41,31 @@ describe McpServer::Tools::Totals do
       expect(helper.call(nil)).to eq(:watt_per_kwp)
       expect(helper.call(:sum)).to eq(:watt_hour_per_kwp)
       expect(helper.call(:max)).to eq(:watt_per_kwp)
+    end
+
+    # co2_reduction is computed from a power, so unaggregated it is a RATE -
+    # the grams avoided per hour at the current generation. Reporting that as
+    # "gram" invited a client to add live readings up into a daily total.
+    it 'reports co2_reduction as a rate live and as an amount once aggregated' do
+      helper = ->(agg) { McpServer::Tools::Base.__send__(:mcp_unit, Sensor::Registry[:co2_reduction], agg) }
+      expect(helper.call(nil)).to eq(:gram_per_hour)
+      expect(helper.call(:sum)).to eq(:gram)
+      expect(helper.call(:avg)).to eq(:gram)
+      expect(helper.call(:max)).to eq(:gram)
+    end
+
+    it 'reports an aggregated co2_reduction in grams' do
+      response =
+        described_class.call(
+          server_context: nil,
+          timeframe: '2024-06-15',
+          sensors: ['co2_reduction'],
+        )
+
+      total =
+        JSON.parse(response.content.first[:text], symbolize_names: true)[:totals].first
+      expect(total[:unit]).to eq('gram')
+      expect(total[:value]).to be_positive
     end
 
     it 'reports money as a currency-neutral unit, not "euro"' do

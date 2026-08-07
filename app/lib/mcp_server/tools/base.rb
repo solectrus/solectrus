@@ -142,8 +142,8 @@ module McpServer
         end
 
         # The unit a sensor's value carries in MCP output, refining the domain's
-        # coarse `unit` in two MCP-specific ways so a client can trust the unit
-        # on its own without re-deriving it from the tool's prose:
+        # coarse `unit` in three MCP-specific ways so a client can trust the
+        # unit on its own without re-deriving it from the tool's prose:
         #
         #   - specific_yield is a power normalized by installed capacity
         #     (W/kWp), not a plain power, and summed over time it becomes a
@@ -152,22 +152,33 @@ module McpServer
         #     formatting); MCP reports the honest physical unit.
         #   - summing any other :watt sensor integrates power over time and
         #     yields an ENERGY, so its aggregated unit is watt_hour, not watt.
+        #   - a :gram sensor (co2_reduction) is an AMOUNT only once it has been
+        #     aggregated over a period. Unaggregated it is computed from a
+        #     power, so it is a rate - the grams avoided per hour at the
+        #     current generation - and reporting that as "gram" invited a
+        #     client to add live readings up into a daily total. Hence
+        #     gram_per_hour live and in a series, gram in get_totals/get_ranking.
         #
         # The money unit is already currency-neutral (:money / :money_per_kwh);
         # the concrete currency is reported once, as an ISO-4217 code, by
         # get_system_info.
         #
         # `aggregation` is nil for live readings and series (no aggregation
-        # applied); every non-sum aggregation (avg/min/max) keeps the base unit.
+        # applied); every non-sum aggregation (avg/min/max) keeps the base unit,
+        # because it aggregates values that were already summed per period.
         def mcp_unit(sensor, aggregation = nil)
-          summed = aggregation&.to_sym == :sum
+          case sensor.unit
+          when :watt then watt_unit(sensor, aggregation&.to_sym == :sum)
+          when :gram then aggregation.nil? ? :gram_per_hour : :gram
+          else sensor.unit
+          end
+        end
 
+        def watt_unit(sensor, summed)
           if sensor.name == :specific_yield
             summed ? :watt_hour_per_kwp : :watt_per_kwp
-          elsif summed && sensor.unit == :watt
-            :watt_hour
           else
-            sensor.unit
+            summed ? :watt_hour : :watt
           end
         end
 
@@ -186,14 +197,19 @@ module McpServer
           current:
             'get_current_values has no live reading for these sensors. Money ' \
               'sensors (costs, revenue) are accumulated amounts - use get_totals ' \
-              'over a timeframe; chart-only composites (e.g. power_balance) have ' \
-              'no live scalar.',
+              'over a timeframe. A _grid/_pv power split divides a period rather ' \
+              'than reading an instant (the Power Splitter writes one value per ' \
+              'cycle of several minutes), so it has no reading of "right now" - ' \
+              'ask for its BASE sensor live, and read the split with get_totals ' \
+              'or get_series over a timeframe that has ENDED. Chart-only ' \
+              'composites (e.g. power_balance) have no live scalar.',
           series:
             'get_series has no curve for these sensors. Money sensors (costs, ' \
               'revenue) are accumulated amounts and chart-only composites (e.g. ' \
               'power_balance) have no live curve - use get_totals (Wh/kWh, costs) ' \
               'or get_forecast. Boolean and string sensors (e.g. a car-connected ' \
-              'flag, a status text) cannot be averaged into a bucket at all - ' \
+              'flag, a status ' \
+              'text) cannot be averaged into a bucket at all - ' \
               'get_current_values reports their present state.',
         }.freeze
 

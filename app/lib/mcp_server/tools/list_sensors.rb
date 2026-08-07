@@ -52,11 +52,18 @@ module McpServer
               'only that one exists, so a name you form off the list is a ' \
               'good guess, not a guarantee. A guess that misses is skipped ' \
               'and reported under `unknown_sensors`, costing its own entry ' \
-              'rather than the whole call. Those names are valid ' \
-              'input wherever the base sensor is; their tools code is the ' \
-              'base\'s without the r. Their meaning is the base sensor\'s ' \
-              'description narrowed by the suffix; get_sensor_details spells ' \
-              'them out.',
+              'rather than the whole call. A split divides a PERIOD: the Power ' \
+              'Splitter recomputes the division on its own cycle of several ' \
+              'minutes and writes one value per cycle, so it never reads an ' \
+              'instant. It therefore carries no c - get_current_values rejects ' \
+              'it, ask for the base sensor for live power. It does carry s, but ' \
+              'get_series answers only over a timeframe that has ENDED, and ' \
+              'never finer than the splitter cycle. get_totals has no such ' \
+              'condition, and get_ranking answers where the summaries store the ' \
+              'split (the _grid halves, the _costs family; the _pv power splits ' \
+              'are derived from the base and carry no r). Their meaning is the ' \
+              'base sensor\'s description narrowed by the suffix; ' \
+              'get_sensor_details spells them out.',
           _grid: 'The share of the base sensor supplied from grid import.',
           _pv: 'The share of the base sensor covered by own PV/solar generation.',
           _total: 'Aggregate across all inverters/consumers of the base sensor.',
@@ -70,22 +77,29 @@ module McpServer
             'returns, and get_sensor_details for any sensor you ask about.',
         forecast:
           'A sensor whose description says "forecasted" holds predicted, not ' \
-            'measured, values, and carries "f" in its tools. get_totals rejects ' \
-            'them; use get_forecast for the expected energy, or get_series for ' \
-            'the predicted curve.',
+            'measured, values, and carries "f" in its tools - never "t", since ' \
+            'get_totals covers measured actuals and rejects them. Use ' \
+            'get_forecast for the expected energy, or get_series for the ' \
+            'predicted curve. get_ranking does answer for one that the ' \
+            'summaries store ("r"), but it ranks what was PREDICTED for each ' \
+            'past period, not what arrived.',
         tools:
           'Per sensor, `tools` lists which tools return meaningful data for it, ' \
             'one letter each: c = get_current_values, t = get_totals, ' \
-            's = get_series, r = get_ranking, f = get_forecast. A missing c or s ' \
-            'is strict - that tool rejects the sensor, because a money sensor or ' \
-            'a chart-only composite like power_balance has no live scalar. "c" ' \
-            'without "s" means the sensor has a present state but no curve: a ' \
-            'boolean or string sensor cannot be averaged into a time bucket, so ' \
-            'read it with get_current_values. A missing t is advisory: the ' \
-            'sensor may still have a value. A missing r is advisory only where ' \
-            'the summaries store the sensor - get_ranking ranks those too, "r" ' \
-            'just marks the curated set. It rejects one derived from others ' \
-            '(the _pv splits, the _costs family): no per-period value to rank.',
+            's = get_series, r = get_ranking, f = get_forecast. c, s and r are ' \
+            'strict: a missing letter means that tool REJECTS the sensor, so do ' \
+            'not call it. A money sensor or a chart-only composite like ' \
+            'power_balance has no live scalar and carries neither c nor s; "c" ' \
+            'without "s" means a present state but no curve (a boolean or string ' \
+            'sensor cannot be averaged into a time bucket); a missing r means the ' \
+            'summaries hold no per-period value to order by, which is the case ' \
+            'for a sensor derived from others (the _pv power splits, ' \
+            'house_power_without_custom, grid_balance). t is the one advisory ' \
+            'letter: get_totals accepts any non-forecast sensor, and a sensor ' \
+            'without t may still come back with a value if a sibling pulls it in ' \
+            'as a dependency - while one WITH t can come back null where its ' \
+            'calculation suppresses a result (inverter_power_difference below ' \
+            '1 % of generation).',
       }.freeze
       private_constant :CONVENTIONS
 
@@ -109,19 +123,11 @@ module McpServer
       }.freeze
       private_constant :PRECISION
 
-      # Suffixes that make a sensor a mechanical split of another one. _total is
-      # not among them: it aggregates a family rather than dividing one sensor,
-      # and there are only a handful of them.
-      SPLIT_SUFFIXES = %w[_grid _pv].freeze
-      private_constant :SPLIT_SUFFIXES
-
       def self.call(**)
         # Force English so the discovery output (descriptions) is deterministic
         # regardless of the instance's locale.
         I18n.with_locale(:en) do
-          available = Sensor::Config.sensors
-          names = available.to_set(&:name)
-          splits, listed = available.partition { split?(it.name, names) }
+          splits, listed = McpServer::SplitSensors.partition(Sensor::Config.sensors)
 
           json_response(
             sensors: listed.map { entry_for(it) },
@@ -150,7 +156,7 @@ module McpServer
       # assumed symmetric, so a family carrying only one of the two suffixes
       # still lists its base, and exactly once.
       def self.conventions_for(splits)
-        bases = splits.to_set { base_name(it.name) }.sort
+        bases = splits.to_set { McpServer::SplitSensors.base_name(it.name) }.sort
 
         CONVENTIONS.merge(
           suffixes: CONVENTIONS[:suffixes].merge(split_bases: bases),
@@ -159,22 +165,6 @@ module McpServer
         )
       end
       private_class_method :conventions_for
-
-      # Recognized by the base sensor actually being listed, not by the name
-      # ending in _grid/_pv alone - otherwise a sensor that merely happens to
-      # end that way would silently vanish from the index.
-      def self.split?(name, names)
-        SPLIT_SUFFIXES.any? do |suffix|
-          name.end_with?(suffix) && names.include?(:"#{name.to_s.delete_suffix(suffix)}")
-        end
-      end
-      private_class_method :split?
-
-      def self.base_name(name)
-        suffix = SPLIT_SUFFIXES.find { name.end_with?(it) }
-        name.to_s.delete_suffix(suffix.to_s)
-      end
-      private_class_method :base_name
     end
   end
 end

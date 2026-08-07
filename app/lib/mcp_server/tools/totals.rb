@@ -41,6 +41,7 @@ module McpServer
             items: {
               type: 'string',
             },
+            minItems: 1,
             description: 'List of sensor names (from list_sensors).',
           },
         },

@@ -22,6 +22,27 @@ describe McpServer::Tools::CurrentValues do
       expect(value[:unit]).to eq('percent')
     end
 
+    # Live, co2_reduction is computed from a power and is therefore a RATE.
+    # Reporting it as "gram" invited a client to add live readings up into a
+    # daily total; only get_totals returns an amount.
+    it 'reports the live co2_reduction as a rate, not as an amount' do
+      data =
+        Sensor::Data::Single.new(
+          { inverter_power: 5_000.0, co2_reduction: 2_000 },
+          timeframe: Timeframe.now,
+          times: { inverter_power: Time.current },
+        )
+      allow(Sensor::Query::Latest).to receive(:new).and_return(
+        instance_double(Sensor::Query::Latest, call: data),
+      )
+
+      response = described_class.call(server_context: nil, sensors: ['co2_reduction'])
+      value = JSON.parse(response.content.first[:text], symbolize_names: true)[:values].first
+
+      expect(value[:unit]).to eq('gram_per_hour')
+      expect(value[:value]).to eq(2_000)
+    end
+
     it 'returns exactly the requested sensors, not the dependencies pulled in for calculated ones' do
       requested = %i[inverter_power house_power battery_soc grid_power]
 
@@ -59,25 +80,38 @@ describe McpServer::Tools::CurrentValues do
       )
     end
 
-    it 'returns all configured live sensors when no filter is given' do
-      all_names = Sensor::Config.sensors.map(&:name)
-      data =
-        Sensor::Data::Single.new(
-          all_names.index_with { 0.0 },
-          timeframe: Timeframe.now,
-          times: all_names.index_with { Time.current },
+    describe 'the default set' do
+      subject(:names) do
+        response = described_class.call(server_context: nil)
+        expect(response.error?).to be(false)
+        JSON.parse(response.content.first[:text], symbolize_names: true)[:values].pluck(:name)
+      end
+
+      before do
+        all_names = Sensor::Config.sensors.map(&:name)
+        data =
+          Sensor::Data::Single.new(
+            all_names.index_with { 0.0 },
+            timeframe: Timeframe.now,
+            times: all_names.index_with { Time.current },
+          )
+        allow(Sensor::Query::Latest).to receive(:new).and_return(
+          instance_double(Sensor::Query::Latest, call: data),
         )
-      allow(Sensor::Query::Latest).to receive(:new).and_return(
-        instance_double(Sensor::Query::Latest, call: data),
-      )
+      end
 
-      response = described_class.call(server_context: nil)
+      it 'returns the configured live sensors' do
+        expect(names).to include('inverter_power', 'house_power')
+      end
 
-      expect(response.error?).to be(false)
-      parsed = JSON.parse(response.content.first[:text], symbolize_names: true)
-      # All sensors except chart-only composites (no live scalar) are returned.
-      expect(parsed[:values].pluck(:name)).not_to include('power_balance')
-      expect(parsed[:values].pluck(:name)).to include('inverter_power', 'house_power')
+      # Chart-only composites have no live scalar.
+      it 'omits sensors without a live reading' do
+        expect(names).not_to include('power_balance')
+      end
+
+      it 'omits the _grid/_pv splits, which have no instantaneous value' do
+        expect(names).not_to include('house_power_grid', 'house_power_pv')
+      end
     end
 
     describe 'display names' do
@@ -149,7 +183,11 @@ describe McpServer::Tools::CurrentValues do
     end
 
     describe 'freshness metadata' do
-      it 'reports the timestamp of a recent reading, without its age' do
+      # "Live" only means "within max_age" - 15 minutes for most sensors, two
+      # hours for the sparse ones - so two reported values can describe states
+      # minutes apart. Without an age on a non-null value a client cannot tell,
+      # and cannot derive it either: it does not know the server's clock.
+      it 'reports the timestamp AND the age of a recent reading' do
         seen = 4.seconds.ago
         data =
           Sensor::Data::Single.new(
@@ -166,8 +204,7 @@ describe McpServer::Tools::CurrentValues do
         value = parsed[:values].first
 
         expect(value[:last_seen_at]).to eq(seen.iso8601)
-        # A reported value is fresh by construction, so its age is left out.
-        expect(value).not_to have_key(:age_seconds)
+        expect(value[:age_seconds]).to be_within(1).of(4)
       end
 
       it 'keeps the last_seen_at of a value dropped as too old' do
@@ -252,6 +289,48 @@ describe McpServer::Tools::CurrentValues do
         expect(value[:value]).to be_nil
         expect(value[:last_seen_at]).to be_nil
         expect(value[:age_seconds]).to be_nil
+      end
+    end
+
+    # A _pv split is its base sensor minus the _grid share, and the Power
+    # Splitter writes the grid half once per cycle of several minutes. Live,
+    # that value was subtracted from a base sensor sampled seconds ago - two
+    # states of the system, whose difference could exceed the whole and come
+    # back as a negative house_power_pv. A split divides a period, so it has no
+    # instantaneous value to report at all.
+    describe 'the power splits' do
+      it 'rejects a split and points at the base sensor instead' do
+        response =
+          described_class.call(server_context: nil, sensors: ['house_power_pv'])
+
+        expect(response.error?).to be(true)
+        expect(response.content.first[:text]).to include('house_power_pv', 'get_totals')
+      end
+
+      it 'rejects the stored _grid half just the same' do
+        response =
+          described_class.call(server_context: nil, sensors: ['house_power_grid'])
+
+        expect(response.error?).to be(true)
+      end
+
+      # The base sensor is measured every few seconds and stays live - it is
+      # what a client asks for instead.
+      it 'keeps the base sensor live' do
+        data =
+          Sensor::Data::Single.new(
+            { house_power: 900.0 },
+            timeframe: Timeframe.now,
+            times: { house_power: Time.current },
+          )
+        allow(Sensor::Query::Latest).to receive(:new).and_return(
+          instance_double(Sensor::Query::Latest, call: data),
+        )
+
+        response = described_class.call(server_context: nil, sensors: ['house_power'])
+        value = JSON.parse(response.content.first[:text], symbolize_names: true)[:values].first
+
+        expect(value[:value]).to eq(900.0)
       end
     end
 

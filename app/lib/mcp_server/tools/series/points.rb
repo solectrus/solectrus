@@ -11,12 +11,13 @@ module McpServer
         # affordable, and it stays unambiguous because the remaining points sit
         # on the same grid - a missing timestamp reads exactly like an explicit
         # null.
-        def build(data, sensor_name, aggregation, unit:, include_nulls:)
+        def build(data, sensor_name, aggregation, unit:, include_nulls:, timeframe: nil)
           buckets = raw(data, sensor_name, aggregation) || {}
           buckets = buckets.compact unless include_nulls
+          closing = closing_bucket(timeframe)
 
           buckets.sort.map! do |time, value|
-            { time: time.iso8601, value: normalize_value(value, unit) }
+            { time: normalize_time(time, closing), value: normalize_value(value, unit) }
           end
         end
 
@@ -28,6 +29,33 @@ module McpServer
           return unless data.respond_to?(sensor_name)
 
           data.public_send(sensor_name, aggregation, aggregation)
+        end
+
+        # The last bucket of a calendar timeframe, as the timestamp Flux labels
+        # it with - or nil where there is nothing to correct.
+        #
+        # Timeframe#ending is the last nanosecond of the period, and it reaches
+        # Flux as the range stop with the fraction cut off (23:59:59).
+        # aggregateWindow clips its final bucket at that stop, so a day's last
+        # point arrives one second short of the grid every other point sits on:
+        # at "1d" a month reads 00:00, 00:00, ..., 23:59:59, which a client can
+        # only take for a bucket of its own.
+        #
+        # Left to the serializer rather than fixed in Timeframe: the stop is
+        # what every UI chart queries with too, and a global shift would move
+        # every one of them for an MCP presentation detail.
+        def closing_bucket(timeframe)
+          ending = timeframe&.ending
+          return unless ending && ending == ending.end_of_day
+
+          Time.zone.parse(ending.iso8601)
+        end
+
+        # The bucket's end, on the grid the other points sit on: the closing
+        # bucket of a calendar day ends at the next midnight, not one second
+        # before it.
+        def normalize_time(time, closing)
+          (time == closing ? closing + 1.second : time).iso8601
         end
 
         # Rounded by the unit policy like every other serialized value, then

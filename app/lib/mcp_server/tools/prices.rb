@@ -13,9 +13,11 @@ module McpServer
         valid from its `starts_at` date onwards. Returns, per price type, the
         value effective on `date` plus its change history.
 
-        `current` is always derived from the FULL history, independent of
-        `limit` — which caps only the returned history, so an unbounded price
-        history is never dumped in full unless asked for.
+        `effective` is the price valid ON `date` — a past `date` yields a
+        historical tariff, not today's, so read it together with the `date`
+        echoed at the top level. It is always derived from the FULL history,
+        independent of `limit`, which caps only the returned history so an
+        unbounded one is never dumped unless asked for.
 
         All values are per kWh in the system currency (see get_system_info).
       TEXT
@@ -23,22 +25,28 @@ module McpServer
         properties: {
           date: {
             type: 'string',
+            format: 'date',
             description:
               'ISO 8601 date selecting the effective price, e.g. "2026-06-21". Defaults to today.',
           },
           sort: {
             type: 'string',
             enum: %w[date value],
-            description: 'Sort the history by "date" (default) or "value".',
+            default: 'date',
+            description: 'Sort the history by "date" or "value".',
           },
           order: {
             type: 'string',
             enum: %w[desc asc],
-            description: '"desc" = newest/highest first (default), "asc" = oldest/lowest first.',
+            default: 'desc',
+            description: '"desc" = newest/highest first, "asc" = oldest/lowest first.',
           },
           limit: {
             type: 'integer',
-            description: 'Max history entries per price type (1-100). Defaults to 10.',
+            minimum: 1,
+            maximum: 100,
+            default: 10,
+            description: 'Max history entries per price type.',
           },
         },
       )
@@ -54,7 +62,10 @@ module McpServer
             {
               name:,
               unit: "#{currency}/kWh",
-              current: Precision.round(Price.at(name:, date: on), :money_per_kwh),
+              # Named for what it is - the price valid on `date` - rather than
+              # "current", which claimed today's tariff even when `date` asked
+              # about 2023.
+              effective: Precision.round(Price.at(name:, date: on), :money_per_kwh),
               history: history_for(name, sort:, order:, limit: capped),
             }
           end

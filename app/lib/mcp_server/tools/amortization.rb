@@ -58,13 +58,19 @@ module McpServer
         properties: {
           period_years: {
             type: 'integer',
+            minimum: AmortizationCalculator::PERIOD_RANGE.min,
+            maximum: AmortizationCalculator::PERIOD_RANGE.max,
+            default: AmortizationCalculator::DEFAULT_PERIOD_YEARS,
             description:
-              'Total lifetime in years (10-30, never below the age of the ' \
-                'system). Defaults to 20.',
+              'Total lifetime in years. Raised further where the system is ' \
+                'already older; the response echoes what was applied.',
           },
           interest_rate: {
             type: 'number',
-            description: 'Calculatory interest rate in % p.a. (0-10). Defaults to 3.',
+            minimum: AmortizationCalculator::INTEREST_RANGE.min,
+            maximum: AmortizationCalculator::INTEREST_RANGE.max,
+            default: AmortizationCalculator::DEFAULT_INTEREST_RATE,
+            description: 'Calculatory interest rate in % p.a.',
           },
         },
       )

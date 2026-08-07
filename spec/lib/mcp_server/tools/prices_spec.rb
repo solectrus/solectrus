@@ -18,7 +18,7 @@ describe McpServer::Tools::Prices do
       data = JSON.parse(response.content.first[:text], symbolize_names: true)
 
       electricity = data[:prices].find { _1[:name] == 'electricity' }
-      expect(electricity[:current]).to eq(0.35)
+      expect(electricity[:effective]).to eq(0.35)
       expect(electricity[:unit]).to eq("#{Rails.configuration.x.currency}/kWh")
       expect(electricity[:history].pluck(:value)).to include(0.35, 0.30)
 
@@ -26,7 +26,20 @@ describe McpServer::Tools::Prices do
       expect(latest[:note]).to eq('New contract')
 
       feed_in = data[:prices].find { _1[:name] == 'feed_in' }
-      expect(feed_in[:current]).to eq(0.08)
+      expect(feed_in[:effective]).to eq(0.08)
+    end
+
+    # "current" claimed today's tariff for a value that follows `date`, so a
+    # question about 2024 came back labelled as the price now.
+    it 'names the value after the date it belongs to, not after today' do
+      response = described_class.call(server_context: nil, date: '2024-06-15')
+
+      data = JSON.parse(response.content.first[:text], symbolize_names: true)
+      electricity = data[:prices].find { _1[:name] == 'electricity' }
+
+      expect(electricity).not_to have_key(:current)
+      expect(electricity[:effective]).to eq(0.30)
+      expect(data[:date]).to eq('2024-06-15')
     end
 
     it 'sorts the history by value and limits it' do
@@ -44,8 +57,8 @@ describe McpServer::Tools::Prices do
       electricity = data[:prices].find { _1[:name] == 'electricity' }
       expect(electricity[:history].size).to eq(1)
       expect(electricity[:history].first[:value]).to eq(0.35)
-      # current is still derived from the full history, not the limited slice
-      expect(electricity[:current]).to eq(0.35)
+      # effective is still derived from the full history, not the limited slice
+      expect(electricity[:effective]).to eq(0.35)
     end
 
     it 'clamps the limit into 1..100' do

@@ -90,9 +90,39 @@ describe McpServer::Tools::Series do
             .dig(:series, 0, :points)
 
         expect(points.size).to eq(1)
-        expect(Time.iso8601(points.first[:time])).to be_within(1.second).of(
-          Date.parse(day).end_of_day,
+        expect(Time.iso8601(points.first[:time])).to eq(
+          Date.parse(day).tomorrow.beginning_of_day,
         )
+      end
+
+      # aggregateWindow clips the last bucket at the query's range stop, which
+      # is the last nanosecond of the day and reaches Flux as 23:59:59. So the
+      # closing point used to sit one second off the grid every other point is
+      # on - at 1d a month read 00:00, 00:00, ..., 23:59:59, which a client can
+      # only take for a bucket of its own.
+      it 'closes the last bucket of a day at the next midnight, not 23:59:59' do
+        points =
+          series(sensors: ['battery_soc'], timeframe: day, resolution: '1h')
+            .dig(:series, 0, :points)
+
+        expect(points.last[:time]).to eq(
+          Date.parse(day).tomorrow.beginning_of_day.iso8601,
+        )
+      end
+
+      # Every point sits on the same grid, so the closing one has to as well.
+      it 'keeps every point on the bucket grid at 1d' do
+        points =
+          series(
+            sensors: ['battery_soc'],
+            timeframe: "#{day}..#{Date.current}",
+            resolution: '1d',
+          ).dig(:series, 0, :points)
+
+        times = points.map { Time.iso8601(_1[:time]).strftime('%H:%M:%S') }
+        times.uniq!
+
+        expect(times).to eq(['00:00:00'])
       end
     end
 
@@ -104,6 +134,7 @@ describe McpServer::Tools::Series do
     # correctly. Both must carry the end of the requested timeframe.
     context 'with the last bucket of the timeframe' do
       let(:day) { (Date.current - 1.day).to_s }
+      let(:closing) { Date.parse(day).tomorrow.beginning_of_day }
 
       before do
         influx_batch do
@@ -136,15 +167,11 @@ describe McpServer::Tools::Series do
       end
 
       it 'ends a forecast-only series at the end of the timeframe' do
-        expect(last_time(['inverter_power_forecast'])).to be_within(1.second).of(
-          Date.parse(day).end_of_day,
-        )
+        expect(last_time(['inverter_power_forecast'])).to eq(closing)
       end
 
       it 'ends a measured series at the end of the timeframe' do
-        expect(last_time(['house_power'])).to be_within(1.second).of(
-          Date.parse(day).end_of_day,
-        )
+        expect(last_time(['house_power'])).to eq(closing)
       end
 
       it 'ends every series of a mixed request at the same bucket' do
@@ -156,7 +183,7 @@ describe McpServer::Tools::Series do
           )
 
         last_times = data[:series].map { |s| s[:points].last[:time] }
-        expect(last_times.uniq).to eq([Date.parse(day).end_of_day.iso8601])
+        expect(last_times.uniq).to eq([closing.iso8601])
       end
     end
 
@@ -251,6 +278,173 @@ describe McpServer::Tools::Series do
         data = series(sensors:, timeframe: day, resolution: '1m')
 
         expect(data[:coarsened_reason]).to include('3 sensor(s)')
+      end
+    end
+
+    # A running day spans 24 hours no matter what time it is, but the buckets
+    # still ahead cannot carry a point. With include_nulls: false they are
+    # dropped before the client sees them, so charging the budget for them
+    # coarsened the answer for points that were never sent: three sensors over
+    # today fell from 5m to 1h at breakfast and recovered by midnight.
+    context 'with the running day and include_nulls: false' do
+      let(:sensors) { %w[house_power inverter_power grid_import_power] }
+
+      # 08:00 - a third of the day gone, two thirds of the buckets empty.
+      before { travel_to Time.zone.now.beginning_of_day + 8.hours }
+
+      def resolution(**args)
+        series(sensors:, timeframe: Date.current.to_s, **args)[:resolution]
+      end
+
+      it 'does not charge the budget for buckets that lie ahead' do
+        expect(resolution(include_nulls: false)).to eq('5m')
+      end
+
+      it 'still charges for them when the empty buckets are returned' do
+        expect(resolution(include_nulls: true)).to eq('15m')
+      end
+
+      it 'keeps the whole span for a forecast sensor, whose future buckets carry values' do
+        data =
+          series(
+            sensors: ['inverter_power_forecast'],
+            timeframe: Date.current.to_s,
+            include_nulls: false,
+          )
+
+        expect(data[:resolution]).to eq('15m')
+      end
+
+      # The budget is a context-window budget, so dropping the empty tail must
+      # not let the response through it.
+      it 'stays within the point budget' do
+        data =
+          series(sensors:, timeframe: Date.current.to_s, include_nulls: false)
+
+        expect(data[:series].sum { _1[:point_count] }).to be <=
+          McpServer::Tools::Series::Resolution::MAX_POINTS
+      end
+    end
+
+    # A curve is a sequence of periods, and a power split divides periods - it
+    # only cannot divide an instant. So a split keeps its curve, under the two
+    # conditions the `s` flag cannot carry: the window has to be over, and the
+    # bucket cannot be finer than the Power Splitter's cycle.
+    context 'with a power split' do
+      let(:day) { (Date.current - 1.day).to_s }
+
+      before do
+        stub_feature(:power_splitter)
+
+        influx_batch do
+          288.times do |i|
+            add_influx_point(
+              name: Sensor::Config.measurement(:house_power_grid),
+              fields: {
+                Sensor::Config.field(:house_power_grid) => 400.0,
+              },
+              time: (Date.current - 1.day).beginning_of_day + (i * 5).minutes,
+            )
+          end
+        end
+      end
+
+      it 'answers over a day that has ended' do
+        data = series(sensors: ['house_power_grid'], timeframe: day)
+
+        expect(data[:series].first[:points].pluck(:value).compact).to all(eq(400.0))
+      end
+
+      it 'rejects the running day, whose newest buckets have no split yet' do
+        error, text = call(sensors: ['house_power_grid'], timeframe: Date.current.to_s)
+
+        expect(error).to be(true)
+        expect(text).to include('ENDED', 'house_power_grid')
+      end
+
+      it 'rejects a rolling window that ends now' do
+        error, = call(sensors: ['house_power_grid'], timeframe: 'P24H')
+
+        expect(error).to be(true)
+      end
+
+      # Below the splitter cycle most buckets are empty by construction, which
+      # reads as an outage rather than as the cadence it is.
+      #
+      # Today the point budget already caps a whole day at 5m, so the floor
+      # changes no outcome on its own - the shortest window get_series answers
+      # for a split is a full past day. It is raised here to show the floor
+      # holds independently, because a budget is a context-window decision that
+      # can move, while the splitter cadence is physical.
+      it 'never answers finer than the splitter cycle' do
+        stub_const("#{McpServer::Tools::Series::Resolution}::MAX_POINTS", 2_000)
+
+        data =
+          series(sensors: ['house_power_grid'], timeframe: day, resolution: '1m')
+
+        expect(data[:resolution]).to eq('5m')
+        expect(data[:coarsened_reason]).to include('Power Splitter')
+      end
+
+      it 'lets an ordinary sensor go finer under the same budget' do
+        stub_const("#{McpServer::Tools::Series::Resolution}::MAX_POINTS", 2_000)
+
+        data = series(sensors: ['house_power'], timeframe: day, resolution: '1m')
+
+        expect(data[:resolution]).to eq('1m')
+      end
+
+      # At the real budget both constraints land on 5m: a day at 1m is 1440
+      # points (over the 400 budget) and the splitter cycle floors at 5m
+      # anyway. Naming the budget there is advice a client cannot act on - it
+      # shortens the timeframe as told and still gets 5m, because the floor was
+      # the binding constraint all along. So where the floor is what the answer
+      # rests on, the floor is what gets named.
+      it 'names the splitter cycle, not the budget, when both bind' do
+        data =
+          series(sensors: ['house_power_grid'], timeframe: day, resolution: '1m')
+
+        expect(data[:resolution]).to eq('5m')
+        expect(data[:coarsened_reason]).to include('Power Splitter')
+        expect(data[:coarsened_reason]).not_to include('Request fewer sensors')
+      end
+
+      # One densely written sensor in the request lifts the floor - the same
+      # rule the forecast floor follows.
+      #
+      # Only the FLOOR, though: the second sensor also halves the shared point
+      # budget, and at the shipped budget that costs more than the floor gave.
+      # So the budget is raised far enough to isolate the floor, the way the
+      # spec above does. Asserting this at the shipped budget is what let the
+      # earlier version of this example pass on 15m - coarser than the 5m the
+      # split gets alone, and the opposite of what it claims to show.
+      it 'lifts the floor when a base sensor rides along' do
+        stub_const("#{McpServer::Tools::Series::Resolution}::MAX_POINTS", 4_000)
+
+        data =
+          series(
+            sensors: %w[house_power house_power_grid],
+            timeframe: day,
+            resolution: '1m',
+          )
+
+        expect(data[:resolution]).to eq('1m')
+      end
+
+      # The flip side, and why the advice to "add the base sensor" is gone from
+      # the tool: at the shipped budget a second sensor buys a coarser grid,
+      # not a finer one.
+      it 'does not go finer for a base sensor at the shipped budget' do
+        alone = series(sensors: %w[house_power_grid], timeframe: day, resolution: '1m')
+        paired =
+          series(
+            sensors: %w[house_power house_power_grid],
+            timeframe: day,
+            resolution: '1m',
+          )
+
+        expect(alone[:resolution]).to eq('5m')
+        expect(paired[:resolution]).to eq('15m')
       end
     end
 

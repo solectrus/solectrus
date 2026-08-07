@@ -49,16 +49,26 @@ module McpServer
         include_nulls (default true) returns the complete bucket grid. false
         drops the empty buckets, which pays off for sporadically written sensors
         where a day at 5m is 288 points carrying three values; the rest stay on
-        the same grid, so a gap reads exactly like an explicit null.
+        the same grid, so a gap reads exactly like an explicit null. It also
+        buys resolution on the RUNNING period: buckets still ahead cannot carry
+        a point, so they do not count against the budget.
 
         Each point is {time, value}, and `time` is the END of its bucket: at
         "5m" the point 07:05 covers 07:00–07:05, and the last point carries the
-        end of the requested timeframe. null means "no data", deliberately
-        distinct from a measured 0. Each series also reports `point_count`.
+        end of the requested timeframe — a day ends at the NEXT midnight
+        (00:00), on the same grid as every other point. null means "no data",
+        deliberately distinct from a measured 0. Each series also reports
+        `point_count`.
 
         Buckets are cut on the installation's timezone (see get_system_info),
         not UTC: a "1d" bucket is a local calendar day, including the 23- or
         25-hour day of a daylight-saving switch.
+
+        A _grid/_pv power split is answered only over a timeframe that has
+        ENDED, and never finer than "5m": the Power Splitter writes one value
+        per cycle of several minutes, so a running window ends in buckets with
+        no split yet. Ask for a past day, week or month instead; "5m" is as
+        fine as a split gets, whatever else you change.
 
         A name this instance does not have is skipped, not rejected: the rest is
         answered and the skipped names come back in `unknown_sensors`, so read
@@ -77,7 +87,9 @@ module McpServer
             items: {
               type: 'string',
             },
-            description: 'Sensor names (from list_sensors).',
+            minItems: 1,
+            maxItems: MAX_SENSORS,
+            description: "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
           },
           timeframe: timeframe_property('The period the curve covers.'),
           resolution: {
@@ -88,15 +100,18 @@ module McpServer
           aggregation: {
             type: 'string',
             enum: %w[mean min max],
+            default: 'mean',
             description:
-              'Per-bucket aggregation. Defaults to "mean". For period totals ' \
-                '(Wh/kWh, costs) use get_totals, not a summed series.',
+              'Per-bucket aggregation. For period totals (Wh/kWh, costs) use ' \
+                'get_totals, not a summed series.',
           },
           include_nulls: {
             type: 'boolean',
+            default: true,
             description:
-              'Keep empty buckets (default true). false omits them, which ' \
-                'shrinks the response a lot for sporadically written sensors.',
+              'Keep empty buckets. false omits them, which shrinks the response ' \
+                'a lot for sporadically written sensors and keeps a finer ' \
+                'resolution on the running period.',
           },
         },
         required: %w[sensors timeframe],
@@ -122,9 +137,11 @@ module McpServer
         end
 
         enforce_supported!(definitions, :series)
+        enforce_completed_timeframe!(definitions, tf)
 
         agg = Aggregation.internal(aggregation)
-        interval, label, coarsened_by = Resolution.for(resolution, tf, definitions)
+        interval, label, coarsened_by =
+          Resolution.for(resolution, tf, definitions, include_nulls:)
 
         data =
           Sensor::Query::Series.new(
@@ -144,11 +161,31 @@ module McpServer
           **Resolution.explain(coarsened_by, resolution, label, definitions.size),
           aggregation:,
           series:
-            definitions.map { |sensor| series_for(sensor, data, agg, include_nulls:) },
+            definitions.map { |sensor| series_for(sensor, data, agg, tf, include_nulls:) },
         )
       rescue ArgumentError => e
         error_response(e.message)
       end
+
+      # A power split is exact only once its window has ENDED: the Power
+      # Splitter recomputes the division on its own cycle of several minutes,
+      # so the newest buckets of a running window carry a base value whose
+      # split does not exist yet. That is a per-call condition the `s` flag
+      # cannot express, so it is enforced here rather than by withholding the
+      # letter - a curve over a finished window is perfectly sound.
+      def self.enforce_completed_timeframe!(definitions, timeframe)
+        splits = definitions.reject(&:instantaneous?)
+        return if splits.none? || timeframe.past?
+
+        raise ArgumentError,
+              'A _grid/_pv power split is only exact over a timeframe that has ' \
+                'ENDED, because the Power Splitter writes one value per cycle of ' \
+                'several minutes and the newest buckets of a running window have ' \
+                'no split yet. Ask for a past day, week or month instead, or use ' \
+                'get_totals. Affected: ' \
+                "#{splits.map(&:name).join(', ')}."
+      end
+      private_class_method :enforce_completed_timeframe!
 
       # A timeframe in the future is the whole point of a forecast sensor, so
       # the "nothing measured yet" note only applies without one.
@@ -159,9 +196,10 @@ module McpServer
       end
       private_class_method :measured_timeframe_note
 
-      def self.series_for(sensor, data, aggregation, include_nulls:)
+      def self.series_for(sensor, data, aggregation, timeframe, include_nulls:)
         unit = mcp_unit(sensor)
-        points = Points.build(data, sensor.name, aggregation, unit:, include_nulls:)
+        points =
+          Points.build(data, sensor.name, aggregation, unit:, include_nulls:, timeframe:)
 
         {
           sensor: sensor.name,

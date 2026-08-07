@@ -65,12 +65,13 @@ describe McpServer::Tools::Ranking do
       expect(data[:results].first[:ranking].first[:value]).to eq(10_868)
     end
 
-    # No "r" either, but it has a stored field of its own, and the conventions
-    # explicitly keep those rankable.
-    it 'ranks a summary-backed sensor without the r flag' do
+    # It has a stored field of its own, so it ranks - and now says so. The "r"
+    # used to mark the curated Top 10 set of the UI instead, which left a
+    # working call advertised as unavailable.
+    it 'ranks a summary-backed split and advertises it with the r flag' do
       error, data = call(sensor: 'house_power_grid', timeframe:)
 
-      expect(McpServer::SupportedTools.code(Sensor::Registry[:house_power_grid])).not_to include('r')
+      expect(McpServer::SupportedTools.code(Sensor::Registry[:house_power_grid])).to include('r')
       expect(error).to be(false)
       expect(data[:results].first[:ranking].first[:value]).to eq(4_200)
     end

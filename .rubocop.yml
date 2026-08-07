@@ -151,6 +151,12 @@ Metrics/BlockLength:
 
 Metrics/ClassLength:
   Max: 150
+  Exclude:
+    # An MCP tool is mostly its `description` heredoc: the protocol carries no
+    # documentation of its own, so everything a model needs to call the tool
+    # correctly lives inside the class. Counting that prose as class length
+    # measures the wrong thing.
+    - 'app/lib/mcp_server/tools/*.rb'
 
 Metrics/ModuleLength:
   Max: 110

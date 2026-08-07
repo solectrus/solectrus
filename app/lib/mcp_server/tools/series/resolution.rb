@@ -44,34 +44,60 @@ module McpServer
         FORECAST_FLOOR = 900
         private_constant :FORECAST_FLOOR
 
+        # The Power Splitter recomputes the grid/PV division on its own cycle of
+        # several minutes and writes one value per cycle. A bucket below that
+        # carries a value in some buckets and nothing in the rest, which reads
+        # as an outage rather than as the cadence it is.
+        SPLITTER_FLOOR = 300
+        private_constant :SPLITTER_FLOOR
+
         # The bucket to query, as [seconds, label, coarsened_by].
         #
-        # Exactly two things decide it: the shared point budget caps how fine it
-        # can be, and forecast sensors put a floor under it. Both follow from
-        # the request alone, never from the data that comes back - which is what
-        # guarantees the monotonicity a client relies on: a coarser request can
-        # never yield a coarser result than a finer one.
-        def for(requested, timeframe, definitions)
-          budgeted = within_budget(requested, timeframe, definitions.size)
-          # One measured sensor in the request is enough to keep the fine grid:
-          # the densest sensor decides.
-          interval = definitions.all?(&:forecast?) ? [budgeted, FORECAST_FLOOR].max : budgeted
+        # Three things decide it: the shared point budget caps how fine it can
+        # be, and forecast sensors and power splits each put a floor under it.
+        # All follow from the request alone, never from the data that comes back
+        # - which is what guarantees the monotonicity a client relies on: a
+        # coarser request can never yield a coarser result than a finer one.
+        def for(requested, timeframe, definitions, include_nulls: true)
+          span = billable_span(timeframe, definitions, include_nulls)
+          budgeted = within_budget(requested, span, definitions.size)
+          floor = floor_for(definitions)
+          interval = [budgeted, floor].max
           label = RESOLUTIONS.rassoc(interval).first
 
-          [interval, label, coarsened_by(requested, label, interval, budgeted)]
+          [interval, label, coarsened_by(requested, label, interval, floor, definitions)]
         end
 
-        # Which of the two constraints downgraded an explicitly requested
+        # The coarsest cadence among the requested sensors, or none when a
+        # densely written one is in the request: one measured sensor is enough
+        # to keep the fine grid, because the densest sensor decides what the
+        # shared bucket grid is worth.
+        def floor_for(definitions)
+          return FORECAST_FLOOR if definitions.all?(&:forecast?)
+          return SPLITTER_FLOOR if definitions.none?(&:instantaneous?)
+
+          0
+        end
+
+        # Which of the three constraints downgraded an explicitly requested
         # resolution, or nil when none did - so a client never assumes its
         # requested resolution was honoured verbatim, and the response can name
         # something the client can act on rather than a bare boolean.
         #
+        # The budget only explains the answer where it lands STRICTLY coarser
+        # than the floor. Where both would settle on the same bucket - a split
+        # over a past day is exactly that case at the shipped budget - the
+        # floor is the one to name: it is the constraint that cannot be traded
+        # against, so naming the budget sends a client off to shorten a
+        # timeframe that will land on the same bucket again.
+        #
         # An auto-selected resolution (no `requested`) is never "coarsened":
         # there was nothing to honour.
-        def coarsened_by(requested, label, interval, budgeted)
+        def coarsened_by(requested, label, interval, floor, definitions)
           return if requested.blank? || label == requested
+          return :point_budget if interval > floor
 
-          interval > budgeted ? :forecast_window : :point_budget
+          definitions.all?(&:forecast?) ? :forecast_window : :splitter_cycle
         end
 
         # The `coarsened_reason` field, as a hash to splat into the response -
@@ -98,9 +124,37 @@ module McpServer
                   'at most one sample per 15 minutes, so a finer grid would be almost ' \
                   'entirely null. This is as fine as forecast data gets.',
             }
+          when :splitter_cycle
+            {
+              coarsened_reason:
+                "Requested #{requested}, returning #{label}: the Power Splitter writes " \
+                  'one value per cycle of several minutes, so a finer grid would leave ' \
+                  'most buckets empty. This is as fine as a power split gets, and no ' \
+                  'shorter timeframe changes it.',
+            }
           else
             {}
           end
+        end
+
+        # The part of the timeframe that can produce a point, which is what the
+        # budget has to cover - not the timeframe itself.
+        #
+        # They differ for the running period: asking for today at 08:00 spans 24
+        # hours, but 16 of them lie ahead and hold nothing. With
+        # include_nulls: false those buckets are dropped before the client ever
+        # sees them, so charging the budget for them coarsened the answer for
+        # points that were never sent - three sensors over today fell from 5m to
+        # 1h at breakfast and recovered by midnight.
+        #
+        # Only with include_nulls: false, where the empty tail really does
+        # vanish, and never with a forecast sensor in the request, whose whole
+        # point is that its future buckets carry values.
+        def billable_span(timeframe, definitions, include_nulls)
+          span = (timeframe.ending - timeframe.beginning).to_i
+          return span if include_nulls || definitions.any?(&:forecast?)
+
+          (Time.current - timeframe.beginning).to_i.clamp(1, span)
         end
 
         # Start at the requested resolution (or the finest when unset/unknown)
@@ -109,9 +163,8 @@ module McpServer
         # keeps an N-sensor request from overflowing the client by Nx, and
         # clamps an explicitly requested resolution too. Falls back to the
         # coarsest bucket for extreme spans.
-        def within_budget(requested, timeframe, sensor_count)
+        def within_budget(requested, span, sensor_count)
           budget = [MAX_POINTS / sensor_count, 1].max
-          span = (timeframe.ending - timeframe.beginning).to_i
           start = RESOLUTIONS.index { |label, _| label == requested } || 0
 
           entry = RESOLUTIONS[start..].find { |_label, secs| span.fdiv(secs).ceil <= budget }

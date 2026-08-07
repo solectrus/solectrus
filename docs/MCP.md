@@ -22,7 +22,9 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
   power, which subsystems (battery, wallbox, heat pump, forecast) are
   configured, and when data last arrived (the cheap "is the system still
   delivering?" check)
-- `get_prices` — electricity tariff and feed-in compensation (time-dependent)
+- `get_prices` — electricity tariff and feed-in compensation (time-dependent);
+  per price type the value `effective` on the requested date plus the change
+  history
 - `get_current_values` — current live readings, each with freshness metadata
   (`last_seen_at`, `age_seconds`)
 - `get_totals` — aggregated **historical actual** values for a timeframe
@@ -36,11 +38,47 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
   with the manually kept cash flow register
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
-> *energy*, so in `get_totals`/`get_ranking` the resulting `value` is in Wh,
-> not W (divide by 1000 for kWh) — never read a watt-sum as a power.
+> _energy_, so in `get_totals`/`get_ranking` the resulting `value` is in Wh,
+> not W (divide by 1000 for kWh) — never read a watt-sum as a power. The same
+> holds for `co2_reduction`: live it is a rate (`gram_per_hour`, the CO₂
+> avoided at the current generation), aggregated an amount (`gram`).
 
 The backend (InfluxDB for live/hourly data, PostgreSQL summaries for
 day/month/year) is chosen automatically based on the requested timeframe.
+
+### Split sensors (`_grid` / `_pv`)
+
+A sensor ending in `_grid` or `_pv` does not measure anything of its own: the
+Power Splitter service divides a base sensor by where the energy came from.
+Both halves therefore report `calculated: true`.
+
+**A split is an aggregate and nothing else.** The Power Splitter recomputes the
+division on its own cycle of several minutes and writes one value per cycle, so
+that value divides a _period_ rather than reading an instant. Pairing it with a
+base sensor sampled seconds ago mixes two states of the system, and the
+difference can then exceed the whole — which is how a negative `_pv` share
+arises.
+
+The condition is that the window is **over**, not that it is long: once a day
+has ended, every cycle inside it has been written and the division is as exact
+as it is for a year.
+
+So a split carries no `c` — `get_current_values` rejects it and leaves it out
+of the default set. Ask for the **base sensor** for live power. It does carry
+`s`, but `get_series` answers only over a timeframe that has **ended**, and
+never finer than `5m`. Nothing lifts that floor in practice: the shortest
+timeframe a split can be asked for is a whole day, and a day already costs `5m`
+under the shared point budget. `get_totals` has no such condition, and
+`get_ranking` answers wherever the summaries store the split.
+
+(The SOLECTRUS UI shows the split only from a week upwards. That is a rendering
+limit, not a data one: the split is drawn as stacked bars, and shorter
+timeframes render as line charts.)
+
+`list_sensors` also omits the splits from its index — they roughly double the
+response without carrying anything their base sensor and the suffix do not.
+`conventions.suffixes.split_bases` names every base that has them, and
+`get_sensor_details` answers for a split by name.
 
 ### Actuals vs. forecast
 
@@ -133,7 +171,7 @@ not your browser — is what opens the connection:
 - **Claude Desktop** runs **locally on your machine**, inside the
   same network as SOLECTRUS. It reaches a homelab URL directly — no public
   exposure needed, and plain HTTP is fine.
-- **ChatGPT** (web *and* desktop) always connects from **OpenAI's cloud** — even
+- **ChatGPT** (web _and_ desktop) always connects from **OpenAI's cloud** — even
   the desktop app does not talk to a local server. So, like the claude.ai apps,
   it needs a publicly reachable HTTPS URL; a LAN-only instance is unreachable.
 
@@ -232,8 +270,8 @@ this error:
 Dynamic client registration failed: registration endpoint returned 403
 ```
 
-Claude usually passes while ChatGPT does not, so *"Claude works but ChatGPT
-doesn't"* is the typical signature.
+Claude usually passes while ChatGPT does not, so _"Claude works but ChatGPT
+doesn't"_ is the typical signature.
 
 The **free** Bot Fight Mode cannot be excepted per path, so either:
 

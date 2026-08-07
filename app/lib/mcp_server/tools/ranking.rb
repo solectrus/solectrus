@@ -63,6 +63,8 @@ module McpServer
             items: {
               type: 'string',
             },
+            minItems: 1,
+            maxItems: MAX_SENSORS,
             description:
               "Sensor names (from list_sensors), one or more (max #{MAX_SENSORS}).",
           },
@@ -74,26 +76,34 @@ module McpServer
           period: {
             type: 'string',
             enum: %w[day week month year],
-            description: 'Granularity of each ranked entry. Defaults to "day".',
+            default: 'day',
+            description: 'Granularity of each ranked entry.',
           },
           aggregation: {
             type: 'string',
             enum: %w[sum max avg min],
-            description: "Defaults to each sensor's natural aggregation.",
+            description:
+              "Defaults to the sensor's natural one. Only what " \
+                'get_sensor_details lists under `aggregations` is accepted.',
           },
           order: {
             type: 'string',
             enum: %w[desc asc],
-            description: '"desc" = highest first (default), "asc" = lowest first.',
+            default: 'desc',
+            description: '"desc" = highest first, "asc" = lowest first.',
           },
           sort: {
             type: 'string',
             enum: %w[value chronological],
-            description: '"value" (default) or "chronological" (date order).',
+            default: 'value',
+            description: '"value" or "chronological" (date order).',
           },
           limit: {
             type: 'integer',
-            description: 'Entries per sensor (1-100). Defaults to 10.',
+            minimum: 1,
+            maximum: 100,
+            default: 10,
+            description: 'Entries per sensor.',
           },
         },
         required: %w[timeframe],

@@ -72,22 +72,30 @@ describe McpServer::Tools::ListSensors do
         expect(data[:conventions][:suffixes][:note]).to include('NOT listed')
       end
 
-      # The note promises the split's tools code is the base's without the r,
-      # which is the only thing left telling a client what a split supports.
-      # Prose alone would drift the moment a sensor family changes.
-      it 'carry the base sensor tools without ranking' do
+      # The note promises a split never reads an instant but does have a curve
+      # over a finished window, which is the only thing left telling a client
+      # what a split supports. Prose alone would drift the moment a sensor
+      # family changes.
+      it 'carry no c, whatever their base sensor carries' do
         suffixes = %w[_grid _pv]
-        mismatched =
-          data[:conventions][:suffixes][:split_bases].reject do |base|
-            expected = McpServer::SupportedTools.code(Sensor::Registry.find(base.to_sym)).delete('r')
-
-            suffixes.all? do |suffix|
-              sensor = Sensor::Registry.find(:"#{base}#{suffix}")
-              sensor.nil? || McpServer::SupportedTools.code(sensor) == expected
-            end
+        splits =
+          data[:conventions][:suffixes][:split_bases].flat_map do |base|
+            suffixes.filter_map { Sensor::Registry.find(:"#{base}#{_1}") }
           end
 
-        expect(mismatched).to be_empty
+        expect(splits).not_to be_empty
+        expect(splits.map { McpServer::SupportedTools.code(_1) }).to all(
+          match(/\A[tsr]*\z/),
+        )
+      end
+
+      # The r is what distinguishes the two halves: the summaries store a
+      # _grid half, so get_ranking answers for it, while a _pv half is derived
+      # from the base and has no per-period value to order by. Both keep the s:
+      # a curve is a sequence of periods, which is exactly what a split has.
+      it 'rank the stored _grid half but not the derived _pv half' do
+        expect(McpServer::SupportedTools.code(Sensor::Registry[:house_power_grid])).to eq('tsr')
+        expect(McpServer::SupportedTools.code(Sensor::Registry[:house_power_pv])).to eq('ts')
       end
 
       # _total aggregates a family rather than splitting one sensor, and there
@@ -106,8 +114,8 @@ describe McpServer::Tools::ListSensors do
       it 'are recognized by the base sensor, not by the suffix' do
         names = Set[:house_power, :house_power_pv, :feed_in_pv]
 
-        expect(described_class.__send__(:split?, :house_power_pv, names)).to be(true)
-        expect(described_class.__send__(:split?, :feed_in_pv, names)).to be(false)
+        expect(McpServer::SplitSensors.split?(:house_power_pv, names)).to be(true)
+        expect(McpServer::SplitSensors.split?(:feed_in_pv, names)).to be(false)
       end
     end
 
@@ -208,8 +216,32 @@ describe McpServer::Tools::ListSensors do
         )
       end
 
+      # No t: get_totals covers measured actuals and rejects it. The r stays -
+      # the summaries do store what was predicted per day, and get_ranking
+      # answers for it, so hiding the letter only hid a call that works.
       it 'marks a forecast sensor as forecast-capable and not summable' do
-        expect(code_for('inverter_power_forecast')).to eq('csf')
+        expect(code_for('inverter_power_forecast')).to eq('csrf')
+      end
+
+      # Every strict letter has to mean what the tool does, or a client cannot
+      # act on the matrix at all. get_ranking is the one that used to disagree:
+      # "r" marked the curated Top 10 set of the UI, not what the tool accepts.
+      it 'agrees with what get_ranking accepts' do
+        # The two gates get_ranking applies: the summaries have to back the
+        # sensor, and it needs an aggregation to rank by.
+        rejected = lambda do |sensor|
+          McpServer::Tools::Base.__send__(:enforce_rankable!, [sensor])
+          sensor.default_aggregation.nil?
+        rescue ArgumentError
+          true
+        end
+
+        mismatched =
+          Sensor::Config.sensors.reject do |sensor|
+            McpServer::SupportedTools.supports?(sensor, :ranking) == !rejected.call(sensor)
+          end
+
+        expect(mismatched.map(&:name)).to be_empty
       end
 
       # A boolean or string sensor has a present state but no curve: no

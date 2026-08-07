@@ -51,7 +51,14 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   # ordinary noise does not trip them but a lost improvement does.
   def ceilings
     {
-      'tool definitions + instructions' => 24_600,
+      # Moved from 24_600: three tools gained behaviour a client cannot infer
+      # (get_current_values drops the _grid/_pv splits from its default set and
+      # refuses a split its inputs do not support, get_series spends no budget
+      # on buckets that lie ahead, get_prices renamed `current` to `effective`),
+      # and the schemas now carry their own bounds - maxItems, minimum/maximum,
+      # default - instead of stating them in prose only. That is prose a model
+      # would otherwise have to be told twice.
+      'tool definitions + instructions' => 26_600,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 17_000,
       'get_sensor_details (3 sensors)' => 1_000,

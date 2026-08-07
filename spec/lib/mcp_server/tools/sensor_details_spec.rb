@@ -17,9 +17,21 @@ describe McpServer::Tools::SensorDetails do
         category: 'battery',
         calculated: false,
         aggregations: %w[avg min max],
-        # No "r": battery_soc is outside the curated ranking set. get_ranking
-        # can still rank it - the letter is advisory for t and r.
-        tools: 'cts',
+        default_aggregation: 'avg',
+        # "r" because get_ranking answers for it: the summaries store it. The
+        # letter used to mark the curated Top 10 set of the UI instead, so a
+        # working call read as unavailable.
+        tools: 'ctsr',
+      )
+    end
+
+    # get_totals applies one of the listed aggregations without being told
+    # which. Naming it is what lets a client commit to a unit before the call
+    # rather than reading it back off the answer.
+    it 'names the aggregation get_totals will apply' do
+      expect(details('house_power').first).to include(
+        aggregations: %w[sum max],
+        default_aggregation: 'sum',
       )
     end
 
@@ -51,14 +63,30 @@ describe McpServer::Tools::SensorDetails do
       expect(details('specific_yield').first[:unit]).to eq('watt_per_kwp')
     end
 
-    # Forecast sensors are rejected by get_totals, so advertising a stored
-    # aggregation would promise one the tools later reject.
-    it 'advertises no aggregations for forecast sensors' do
-      expect(details('inverter_power_forecast').first[:aggregations]).to eq([])
+    # `aggregations` answers one question - what to pass get_ranking - and
+    # get_ranking does rank a forecast sensor. Reporting [] here to express
+    # that get_totals rejects it made the field say two things at once and
+    # denied an aggregation the tool then demanded; the missing "t" says it
+    # instead.
+    it 'advertises the aggregation get_ranking accepts for a forecast sensor' do
+      details = details('inverter_power_forecast').first
+
+      expect(details[:aggregations]).to eq(%w[sum])
+      expect(details[:tools]).not_to include('t')
     end
 
     it 'marks a derived sensor as calculated' do
       expect(details('autarky').first[:calculated]).to be(true)
+    end
+
+    # Nothing measures a power split: the Power Splitter service derives both
+    # halves from the base sensor and the grid flow. The _grid half carries no
+    # `calculate` block, only a stored field, so it used to report itself as a
+    # measurement - which invited a client to trust it over the base sensor.
+    it 'marks both halves of a power split as calculated' do
+      expect(details('house_power_grid', 'house_power_pv').pluck(:calculated)).to eq(
+        [true, true],
+      )
     end
 
     describe 'with invalid input' do

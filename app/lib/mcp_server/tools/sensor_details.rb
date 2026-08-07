@@ -21,11 +21,17 @@ module McpServer
             report the unit after aggregation, where a summed "watt" becomes
             "watt_hour". Units are explained in list_sensors' conventions.
           - category: inverter, battery, grid, consumer, economic, forecast, ...
-          - calculated: the value is derived from other sensors, not measured.
-          - aggregations: what is usable across the tools; empty for forecast
-            sensors, which get_totals rejects.
+          - calculated: derived rather than measured — computed from other
+            sensors, or, for a power_splitter sensor, split off one by the
+            Power Splitter service.
+          - aggregations: exactly what get_ranking accepts for its
+            `aggregation`. Empty where the sensor has none.
+          - default_aggregation: the one get_totals applies and get_ranking
+            defaults to. null where there is none.
           - tools: the same code list_sensors returns — c = get_current_values,
             t = get_totals, s = get_series, r = get_ranking, f = get_forecast.
+            c, s and r are strict: a missing letter means that tool rejects the
+            sensor.
           - description: also for the _grid/_pv split sensors, where
             list_sensors omits it.
 
@@ -44,6 +50,8 @@ module McpServer
             items: {
               type: 'string',
             },
+            minItems: 1,
+            maxItems: MAX_SENSORS,
             description: "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
           },
         },
@@ -79,8 +87,9 @@ module McpServer
           description: sensor.description,
           unit: mcp_unit(sensor),
           category: sensor.category,
-          calculated: sensor.calculated?,
+          calculated: McpServer::SupportedTools.calculated?(sensor),
           aggregations: McpServer::SupportedTools.aggregations(sensor),
+          default_aggregation: McpServer::SupportedTools.default_aggregation(sensor),
           tools: McpServer::SupportedTools.code(sensor),
         }
       end
