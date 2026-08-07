@@ -13,7 +13,7 @@ class Sensor::Definitions::SelfConsumptionQuote < Sensor::Definitions::Base
     # Unrounded, like Autarky#calculate: the decimals belong to the
     # presentation layer, and #sql_calculation computes the same share without
     # rounding.
-    (self_consumption * 100.0 / inverter_power).clamp(0, 100)
+    self_consumption * 100.0 / inverter_power
   end
 
   trend more_is_better: true, aggregation: :avg

@@ -101,8 +101,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   # grid/PV division on its own cycle of several minutes and writes one value
   # per cycle, so that value divides a PERIOD rather than reading a moment.
   # Pairing it with a base sensor sampled seconds ago mixes two states of the
-  # system, and their difference can then exceed the whole - which is how a
-  # negative _pv share arises.
+  # system, and their difference can then exceed the whole. The declared range
+  # floors that at 0, so the mix reads as a plausible zero rather than as an
+  # impossible negative - which is worse, not better, and is why the live
+  # reading is withheld instead of repaired.
   #
   # This is about the instant, not about resolution: once a window is over,
   # every cycle inside it has been written and the division is exact, so a

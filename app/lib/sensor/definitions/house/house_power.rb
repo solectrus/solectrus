@@ -33,7 +33,7 @@ class Sensor::Definitions::HousePower < Sensor::Definitions::Base
         .compact
         .sum
 
-    [house_power - excluded_total, 0].max
+    house_power - excluded_total
   end
 
   aggregations stored: %i[sum max], top10: true

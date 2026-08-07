@@ -9,7 +9,7 @@ class Sensor::Definitions::HeatpumpPowerPv < Sensor::Definitions::Base
   calculate do |heatpump_power:, heatpump_power_grid:, **|
     return unless heatpump_power && heatpump_power_grid
 
-    [heatpump_power - heatpump_power_grid, 0].max
+    heatpump_power - heatpump_power_grid
   end
 
   aggregations stored: false, computed: [:sum], meta: [:sum]

@@ -13,7 +13,7 @@ class Sensor::Definitions::GridQuote < Sensor::Definitions::Base
       return # no consumption and no production
     end
 
-    (grid_import_power * 100.0 / total_consumption).clamp(0, 100)
+    grid_import_power * 100.0 / total_consumption
   end
 
   aggregations stored: false, computed: [:avg], meta: [:avg]

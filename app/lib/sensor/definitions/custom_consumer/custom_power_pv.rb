@@ -40,7 +40,7 @@ class Sensor::Definitions::CustomPowerPv < Sensor::Definitions::Base
     custom_power_grid = kwargs[custom_power_grid_key]
     return custom_power unless custom_power_grid
 
-    [custom_power - custom_power_grid, 0].max
+    custom_power - custom_power_grid
   end
 
   aggregations stored: false, computed: [:sum], meta: [:sum]

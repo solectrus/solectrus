@@ -34,9 +34,7 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
     # presentation layer's call (percent prints none, MCP keeps a tenth), and
     # rounding here would make this block disagree with #sql_calculation, which
     # computes the same share and cannot round.
-    raw = (total_consumption - grid_import_power) * 100.0 / total_consumption
-
-    [raw, 0].max
+    (total_consumption - grid_import_power) * 100.0 / total_consumption
   end
 
   trend more_is_better: true, aggregation: :avg

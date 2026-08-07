@@ -6,9 +6,10 @@ class Sensor::Definitions::SelfConsumption < Sensor::Definitions::Base
   calculate do |inverter_power:, grid_export_power:, **|
     return unless inverter_power && grid_export_power
 
-    # Self-consumed PV = generation minus what was exported to the grid.
-    # Clamp at >= 0: you cannot self-consume more than you generate.
-    [inverter_power - grid_export_power, 0].max
+    # Self-consumed PV = generation minus what was exported to the grid. You
+    # cannot self-consume more than you generate, and that is what the declared
+    # range says - no floor of its own here.
+    inverter_power - grid_export_power
   end
 
   # Declare a natural (summed) aggregation so this derived sensor is queryable

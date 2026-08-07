@@ -446,6 +446,35 @@ describe McpServer::Tools::Series do
         expect(alone[:resolution]).to eq('5m')
         expect(paired[:resolution]).to eq('15m')
       end
+
+      # The _pv half is computed here, in the InfluxDB path, which applies no
+      # clamp of its own - the summary and chart layers that do are not
+      # involved. So a grid half written above the base sensor it divides used
+      # to leave the tool reporting a negative solar share, a value the sensor
+      # declares impossible. The declared range now floors every calculate
+      # result (spec/lib/sensor/definitions/dsl_spec.rb); this pins that the
+      # floor reaches the series a client actually reads.
+      it 'reports no negative solar share when the grid half exceeds the base' do
+        influx_batch do
+          288.times do |i|
+            add_influx_point(
+              name: Sensor::Config.measurement(:house_power),
+              fields: {
+                Sensor::Config.field(:house_power) => 100.0,
+              },
+              time: (Date.current - 1.day).beginning_of_day + (i * 5).minutes,
+            )
+          end
+        end
+
+        values = series(sensors: ['house_power_pv'], timeframe: day)[:series]
+          .first[:points]
+          .pluck(:value)
+          .compact
+
+        expect(values).not_to be_empty
+        expect(values).to all(eq(0.0))
+      end
     end
 
     context 'with a resolution finer than a forecast window' do

@@ -12,7 +12,7 @@ class Sensor::Definitions::HousePowerWithoutCustom < Sensor::Definitions::Base
     return unless house_power
     return house_power unless custom_power_total
 
-    [house_power - custom_power_total, 0].max
+    house_power - custom_power_total
   end
 
   aggregations stored: false, computed: [:sum], meta: [:sum]

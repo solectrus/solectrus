@@ -81,11 +81,32 @@ module Sensor
           getter_or_setter(:permitted, value, default: true, &)
         end
 
+        # A calculate block states the arithmetic. `range:` states what its
+        # result may be. Both were declared side by side while only the block
+        # was enforced, so every sensor whose arithmetic can leave the range
+        # had to repeat the bound by hand - and a sensor that forgot published
+        # a value it declares impossible. house_power_pv did: it subtracted its
+        # grid half from its base sensor and reported a negative solar share.
+        #
+        # The result now passes through #clamp_value, so a declared range holds
+        # for every sensor and needs saying once. Sensors without one are
+        # untouched, and so is a nil or non-numeric result.
+        #
+        # The block still becomes a method of its own rather than a lambda
+        # called from here: define_method is what gives its `return unless ...`
+        # guards method semantics, and its keyword parameters are what raise on
+        # a missing dependency instead of silently binding nil.
         def calculate(&)
           return meta_data[:calculate_block] unless block_given?
 
           meta_data[:calculate_block] = proc(&)
-          define_method(:calculate, &)
+
+          define_method(:calculate_unclamped, &)
+          private :calculate_unclamped
+
+          define_method(:calculate) do |**kwargs|
+            clamp_value(calculate_unclamped(**kwargs))
+          end
         end
 
         def chart(&block)

@@ -55,9 +55,10 @@ Both halves therefore report `calculated: true`.
 **A split is an aggregate and nothing else.** The Power Splitter writes one
 value per cycle of several minutes, so a split divides a _period_ and never
 reads an instant. Pairing it with a base sensor sampled seconds ago mixes two
-states of the system, and the
-difference can then exceed the whole — which is how a negative `_pv` share
-arises.
+states of the system, and the difference can then exceed the whole. Every `_pv`
+half declares a range of `0..`, so that mix no longer surfaces as an impossible
+negative share — it surfaces as a plausible zero, which is the worse failure
+and the reason the live reading is withheld rather than repaired.
 
 The condition is that the window is **over**, not that it is long: once a day
 has ended, every cycle inside it has been written and the division is as exact

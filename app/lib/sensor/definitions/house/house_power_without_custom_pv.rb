@@ -10,7 +10,7 @@ class Sensor::Definitions::HousePowerWithoutCustomPv < Sensor::Definitions::Base
     return unless house_power_pv
 
     custom_pv_total = custom_power_total_pv || 0
-    [house_power_pv - custom_pv_total, 0].max
+    house_power_pv - custom_pv_total
   end
 
   aggregations stored: false, computed: [:sum], meta: %i[sum avg]

@@ -9,7 +9,7 @@ class Sensor::Definitions::WallboxPowerPv < Sensor::Definitions::Base
   calculate do |wallbox_power:, wallbox_power_grid:, **|
     return unless wallbox_power && wallbox_power_grid
 
-    [wallbox_power - wallbox_power_grid, 0].max
+    wallbox_power - wallbox_power_grid
   end
 
   aggregations stored: false, computed: [:sum], meta: [:sum]

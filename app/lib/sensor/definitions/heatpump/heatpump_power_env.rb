@@ -10,8 +10,7 @@ class Sensor::Definitions::HeatpumpPowerEnv < Sensor::Definitions::Base
     return unless heatpump_heating_power && heatpump_power
 
     # Environmental energy = heating power - electrical power
-    env_power = heatpump_heating_power - heatpump_power
-    [env_power, 0].max
+    heatpump_heating_power - heatpump_power
   end
 
   aggregations stored: false, computed: [:sum], meta: [:sum]
