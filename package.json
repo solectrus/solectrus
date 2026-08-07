@@ -4,6 +4,7 @@
   "scripts": {
     "lint": "eslint --cache .",
     "format": "prettier . --write --plugin=prettier-plugin-tailwindcss",
+    "format:check": "prettier . --check --plugin=prettier-plugin-tailwindcss",
     "tsc": "tsc --noEmit"
   },
   "dependencies": {

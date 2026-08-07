@@ -10,6 +10,7 @@ CI.run do
   step 'Style: JavaScript', 'bun run lint'
   step 'Style: TypeScript', 'bun run tsc'
   step 'Style: Shell', "shellcheck $(git ls-files '*.sh')"
+  step 'Style: Markdown, JSON, YAML, CSS', 'bun run format:check'
 
   step 'Security: Gem audit', 'bin/bundler-audit'
   step 'Security: JavaScript vulnerability audit', 'bun audit'
