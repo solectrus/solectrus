@@ -63,15 +63,47 @@ module McpServer
 
         protected
 
-        # Timeframe.new, with the accepted forms appended to the error. The
-        # domain class stays free of that prose: which forms exist is its
-        # business, but spelling them out for a language model is this layer's.
+        # Timeframe.new, with an error a model can act on. The domain class
+        # stays free of that prose: which forms exist is its business, but
+        # spelling them out for a language model is this layer's.
+        #
+        # `beginning` is touched on purpose. Timeframe validates by regex
+        # alone, so a well-shaped but impossible date ("2026-02-30",
+        # "2026-W99") passes the constructor and only fails later, deep inside
+        # a query, as a bare "invalid date" naming neither the argument that
+        # was wrong nor what a right one looks like.
         def parse_timeframe(string)
-          Timeframe.new(string)
-        rescue ArgumentError => e
-          raise e unless e.message.end_with?('is not a valid timeframe')
+          Timeframe.new(string).tap(&:beginning)
+        rescue ArgumentError
+          raise ArgumentError, invalid_timeframe(string)
+        end
 
-          raise ArgumentError, "#{e.message}. Accepted: #{Facts::TIMEFRAME_FORMS}."
+        # One message per way a timeframe can be wrong, each ending in the fix.
+        # A range is worth its own two: there the fix is a single concrete
+        # string, and listing the whole grammar would bury it.
+        def invalid_timeframe(string)
+          from, to = range_dates(string)
+
+          if from && to && from > to
+            "Invalid timeframe \"#{string}\": the end date must be AFTER the " \
+              "start date. Use \"#{to}..#{from}\"."
+          elsif from && to && from == to
+            "Invalid timeframe \"#{string}\": a range spans at least two days. " \
+              "For a single day use \"#{from}\"."
+          else
+            "'#{string}' is not a valid timeframe. Accepted: #{Facts::TIMEFRAME_FORMS}."
+          end
+        end
+
+        # The two dates of a "from..to" string, or nothing where the string is
+        # not that shape or either half is not a date.
+        def range_dates(string)
+          from, to, extra = string.to_s.split('..')
+          return if to.blank? || extra
+
+          [Date.parse(from), Date.parse(to)]
+        rescue Date::Error
+          nil
         end
 
         # The fields every timeframe-based response opens with. `note:` is false
@@ -254,17 +286,27 @@ module McpServer
                 "#{UNSUPPORTED_HINT[tool]} Affected: #{unsupported.map(&:name).join(', ')}."
         end
 
-        # The same shape of gate for get_ranking, which cannot go through the
-        # matrix above: "r" marks the curated Top10 set, while a ranking is
-        # possible for every sensor the summaries store. Why a derived one has
-        # none at all, and what the query would otherwise guess:
+        # get_totals and get_ranking both read a per-period value, so both
+        # reject a sensor that has none to read - a status text, a setpoint, a
+        # chart-only composite. Answering null instead made "wrong question"
+        # look like "no data in this timeframe", the one thing a null must
+        # never mean.
+        def enforce_aggregatable!(definitions, tool)
+          without = definitions.select { it.allowed_aggregations.empty? }
+          return if without.none?
+
+          raise ArgumentError,
+                "#{tool} cannot answer for these sensors. #{Facts::NO_AGGREGATION} " \
+                  "Affected: #{without.map(&:name).join(', ')}."
+        end
+
+        # The second half of get_ranking's gate, applied after the one above:
+        # a sensor CAN be aggregated and still have nothing to rank, because
+        # the summaries do not store it. Why a derived one has no row there,
+        # and what the query would otherwise guess:
         # Sensor::Definitions::Base#rankable?.
-        #
-        # A sensor with no aggregation at all (a status string) is left to the
-        # more specific complaint about that, raised per sensor further down.
         def enforce_rankable!(definitions)
-          unrankable =
-            definitions.reject { it.rankable? || it.default_aggregation.nil? }
+          unrankable = definitions.reject(&:rankable?)
           return if unrankable.none?
 
           raise ArgumentError,

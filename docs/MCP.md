@@ -26,7 +26,8 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
   per price type the value `effective` on the requested date plus the change
   history
 - `get_current_values` — current live readings, each with freshness metadata
-  (`last_seen_at`, `age_seconds`)
+  (`last_seen_at` and `age_seconds`, on every entry — a reported value carries
+  them as much as a null one)
 - `get_totals` — aggregated **historical actual** values for a timeframe
 - `get_ranking` — best/worst (or chronological) days/weeks/months for one or more sensors
 - `get_series` — sub-daily time series (intraday curves) for one or more sensors
@@ -81,11 +82,22 @@ response without carrying anything their base sensor and the suffix do not.
 `conventions.suffixes.split_bases` names every base that has them, and
 `get_sensor_details` answers for a split by name.
 
+### A `null` always means "no data"
+
+`get_totals` and `get_ranking` both read a per-period value, and both reject a
+sensor that has none instead of answering `null`. That covers every sensor whose
+`aggregations` are empty — a status text, a setpoint, a chart-only composite
+such as `power_balance` — and, for `get_totals` alone, a forecast sensor, since
+the summaries hold no forecast. (`get_ranking` does answer for one: it ranks
+what was _predicted_ for each past period.) No argument would help in either
+case, so the error says what the sensor is rather than what to pass — which is
+what keeps a `null` value meaning "this timeframe holds no data" and nothing
+else. The `t` and `r` letters in each sensor's `tools` mark the same sets, so
+the call can be avoided rather than corrected.
+
 ### Actuals vs. forecast
 
-`get_totals` is for **historical, measured** values only. Passing a forecast
-sensor (e.g. `inverter_power_forecast`) returns a clear error rather than a
-silent `null`, because the PostgreSQL summaries hold no forecast.
+`get_totals` is for **historical, measured** values only.
 
 For the **forecast of the coming days**, use `get_forecast`. It returns the PV
 generation as energy sums (Wh) and, when an outdoor temperature forecast is

@@ -64,6 +64,16 @@ module McpServer
         'cannot be averaged into a time bucket at all - get_current_values ' \
         'reports their present state.'.freeze
 
+    # Why get_totals and get_ranking reject a sensor outright instead of
+    # answering null: both read a per-period value, and these sensors have
+    # none to read. Stated as what the sensor IS, because no argument the
+    # client could pass instead would help.
+    NO_AGGREGATION =
+      'They carry no aggregation at all (`aggregations: []` in ' \
+        'get_sensor_details), so no per-period value exists and no ' \
+        '`aggregation` argument can supply one. Use get_current_values for ' \
+        'their present state, or get_series for their curve.'.freeze
+
     # --- Power splits (_grid/_pv) -------------------------------------------
 
     # The one fact that governs every split: it divides a period, not an
@@ -103,11 +113,13 @@ module McpServer
         .join(', ')
     end
 
-    # The half of the legend a client has to act on: which letters are a
-    # rejection rule and which is merely advice.
+    # The half of the legend a client has to act on. Every letter is a
+    # rejection rule; none is a promise, which is the one asymmetry a client
+    # cannot derive from the matrix itself.
     TOOL_STRICTNESS =
-      'c, s and r are strict: a missing letter means that tool REJECTS the ' \
-        'sensor. t is advisory - get_totals accepts any non-forecast sensor.'.freeze
+      'A missing letter means that tool REJECTS the sensor. Its presence is ' \
+        'no promise of a number: a value can still be null where the ' \
+        "sensor's own calculation suppresses one.".freeze
 
     # Every fact is meant to be composed into a description elsewhere; that is
     # the whole purpose of the module.
@@ -117,6 +129,7 @@ module McpServer
                     :MONEY_ACCUMULATED,
                     :CHART_ONLY,
                     :NON_AGGREGATABLE,
+                    :NO_AGGREGATION,
                     :SPLIT_CADENCE,
                     :SPLIT_INSTEAD,
                     :UNKNOWN_SENSORS,

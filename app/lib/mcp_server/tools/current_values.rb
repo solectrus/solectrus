@@ -16,40 +16,35 @@ module McpServer
         get_system_info answers that in two fields.
 
         Without `sensors` you get every configured sensor that HAS a live
-        reading. Three kinds do not; they are left out of the default set and
-        rejected when named explicitly — see the "c" in each sensor's `tools`
-        from list_sensors:
-          - #{Facts::MONEY_ACCUMULATED}
-          - the _grid/_pv power splits. #{Facts::SPLIT_CADENCE}
-            #{Facts::SPLIT_INSTEAD}
-          - #{Facts::CHART_ONLY}
+        reading. Money sensors, the _grid/_pv power splits and chart-only
+        composites have none: they carry no "c" in their `tools`, stay out of
+        the default set, and naming one is an error that says what to ask
+        instead.
 
-        Freshness metadata makes a null unambiguous and a number comparable:
-          - last_seen_at: the sensor's latest data point across its whole
-            history, not just the live window. A null value WITH a last_seen_at
-            means the source delivered before and is not delivering now —
-            offline, or a sensor that only writes sporadically. Only a null
+        Every entry carries `last_seen_at` and `age_seconds` — for a reported
+        value as much as for a null one:
+          - last_seen_at: when that sensor last delivered anything, across its
+            whole history rather than the live window. A null value WITH a
+            last_seen_at means the source delivered before and is not
+            delivering now — offline, or writing only sporadically. Only a null
             last_seen_at means it never delivered at all.
-          - age_seconds: how long ago that was, for a reported value too.
-            "Live" only means "within the sensor's max_age" (15 min for most,
-            2 h for the sparse ones), so two readings here can describe states
-            minutes apart. Compare ages before comparing values; the top-level
-            `time` is the newest of them, not an instant they share.
+          - age_seconds: how old that reading is. "Live" only means "within the
+            sensor's max_age" (15 min for most, 2 h for the sparse ones), so
+            two values here can describe states minutes apart — compare their
+            ages before comparing them. The top-level `time` is the newest of
+            them, not an instant they share, and the same skew is why two
+            sensors measuring the same thing can differ by a watt
+            (inverter_power 31 W next to inverter_power_total 32 W). Over a
+            timeframe (get_totals) it averages out.
 
         A calculated sensor has no timestamp of its own and reports the newest
         one among its inputs. A measured 0 is a real value, distinct from null.
 
-        Two derived sensors return null deliberately, guarding against
-        reporting noise as a number — their source is not missing:
-          - self_consumption_quote, while generation is below 50 W: a ratio
-            against near-zero generation is noise, not a meaningful 100 %.
-          - inverter_power_difference, while the difference is below 5 W or
-            below 1 % of generation: that range is sampling noise, not a loss.
-
-        For the same reason two sensors measuring the same thing can disagree by
-        a watt live (inverter_power 31 W next to inverter_power_total 32 W):
-        each reports its own newest point, and those are not written at the same
-        instant. Over a timeframe (get_totals) the skew averages out.
+        Two derived sensors return null deliberately rather than report noise
+        as a number — their source is not missing: self_consumption_quote below
+        50 W of generation (a ratio against near-zero generation is not a
+        meaningful 100 %), and inverter_power_difference below 5 W or below 1 %
+        of generation (sampling noise, not a loss).
       TEXT
       input_schema(
         properties: {

@@ -151,18 +151,47 @@ describe McpServer::Tools::Totals do
         )
       end
 
-      # A range with its dates the wrong way round is a different mistake, and
-      # listing the forms there would just bury the actual reason.
-      it 'leaves an inverted range error alone' do
+      def error_for(timeframe)
         response =
-          described_class.call(
-            server_context: nil,
-            timeframe: '2024-06-15..2024-06-01',
-            sensors: ['house_power'],
-          )
+          described_class.call(server_context: nil, timeframe:, sensors: ['house_power'])
+        expect(response.error?).to be(true)
+        response.content.first[:text]
+      end
 
-        expect(response.content.first[:text]).to include('must be AFTER')
-        expect(response.content.first[:text]).not_to include('Accepted:')
+      # A range with its dates the wrong way round is a different mistake, and
+      # listing the whole grammar there would bury the one string that fixes
+      # it.
+      it 'hands an inverted range the corrected string' do
+        text = error_for('2024-06-15..2024-06-01')
+
+        expect(text).to include('must be AFTER', '"2024-06-01..2024-06-15"')
+        expect(text).not_to include('Accepted:')
+      end
+
+      # A range needs two days by definition, so "X..X" is not a shorter range
+      # but the day form written the long way.
+      it 'points a zero-length range at the day form' do
+        text = error_for('2024-06-15..2024-06-15')
+
+        expect(text).to include('at least two days', '"2024-06-15"')
+      end
+
+      # Timeframe validates by regex, so a date that cannot exist passes its
+      # constructor and used to fail much later as a bare "invalid date" -
+      # naming neither the argument nor what a valid one looks like.
+      it 'names the argument and the forms for a date that cannot exist' do
+        expect(error_for('2024-02-30')).to include(
+          'not a valid timeframe',
+          'Accepted:',
+        )
+      end
+
+      it 'does the same for an impossible week' do
+        expect(error_for('2024-W99')).to include('not a valid timeframe')
+      end
+
+      it 'does the same for an impossible date inside a range' do
+        expect(error_for('2024-02-30..2024-03-05')).to include('not a valid timeframe')
       end
     end
 
@@ -260,21 +289,43 @@ describe McpServer::Tools::Totals do
       end
     end
 
-    it 'returns nil instead of raising for aggregation-less sensors only' do
-      # power_balance is a calculated, chart-only pseudo-sensor with no natural
-      # aggregation. Requesting it alone must not collapse the query to an empty
-      # sensor list and raise "Sensor names cannot be empty".
-      response =
-        described_class.call(
-          server_context: nil,
-          timeframe: '2024-06-15',
-          sensors: ['power_balance'],
-        )
+    # A sensor with no aggregation at all has no total, ever - power_balance is
+    # a chart-only composite, system_status a status text. Answering them with
+    # `value: null` made "you asked the wrong tool" look exactly like "this
+    # timeframe holds no data", the one thing a null here must not mean. Every
+    # other tool rejects what it cannot answer, so this one does too.
+    describe 'a sensor with no aggregation at all' do
+      def response_for(*sensors)
+        described_class.call(server_context: nil, timeframe: '2024-06-15', sensors:)
+      end
 
-      expect(response.error?).to be(false)
-      data = JSON.parse(response.content.first[:text], symbolize_names: true)
-      total = data[:totals].find { _1[:name] == 'power_balance' }
-      expect(total[:value]).to be_nil
+      it 'rejects it by name instead of answering null' do
+        response = response_for('power_balance')
+
+        expect(response.error?).to be(true)
+        expect(response.content.first[:text]).to include(
+          'no aggregation at all',
+          'power_balance',
+        )
+      end
+
+      # The whole call fails rather than half of it: unlike an unknown name,
+      # this is a sensor the instance really has, so silently dropping it would
+      # answer a different question than the one asked.
+      it 'rejects the call even when a valid sensor is alongside' do
+        expect(response_for('house_power', 'power_balance').error?).to be(true)
+      end
+
+      it 'leaves a sensor that does have one alone' do
+        expect(response_for('house_power').error?).to be(false)
+      end
+
+      # The `t` flag says exactly this now, so a client can avoid the call
+      # instead of learning from the error.
+      it 'is the same set the tools code marks without "t"' do
+        expect(McpServer::SupportedTools.code(Sensor::Registry[:power_balance])).not_to include('t')
+        expect(McpServer::SupportedTools.code(Sensor::Registry[:house_power])).to include('t')
+      end
     end
 
     it 'rounds every percent-unit sensor consistently to one decimal' do

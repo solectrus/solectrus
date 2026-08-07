@@ -7,46 +7,41 @@ module McpServer
       tool_name 'get_ranking'
       title 'Rank days/weeks/months by a sensor'
       description <<~TEXT.strip
-        Rank the best or worst periods for one or more sensors over a timeframe:
-        "which day this year had the highest solar production", "the 5 coldest
-        days last winter", "house consumption per day in March". Returns, per
-        sensor, a list of periods with their aggregated value.
+        Rank the best or worst periods for one or more sensors over a
+        timeframe: "which day this year had the highest solar production", "the
+        5 coldest days last winter", "house consumption per day in March".
+        Returns, per sensor, a list of periods with their aggregated `value`
+        and the `unit` it carries after aggregation (a summed watt sensor
+        reports watt_hour). Only a sensor the summaries store, and that has an
+        aggregation to order by, can be ranked — the rest carry no "r" in
+        their `tools` and are rejected by name.
 
-        Units: #{Facts::WATT_SUM_IS_ENERGY} Only a sensor the summaries store can
-        be ranked; a derived one is rejected by name.
-
-        `aggregation` defaults to each sensor's natural one, `period` to "day",
-        `order` to "desc" — which also decides WHICH periods the limit keeps.
+        `order` decides WHICH periods the limit keeps, not just their sequence.
 
         A period the timeframe cuts into carries `partial: true`, and only
-        then. Each entry is labelled with its period's START, but summed over
-        the days inside the timeframe alone: with period="month" over
-        "2026-06-15..2026-07-15" the entry dated "2026-06-01" holds June 15-30,
-        not June — half the month under a label claiming all of it. The date
-        may even fall before the timeframe ("2025-12-29" for the first week of
-        year "2026"). So never compare a flagged entry with an unflagged one
-        directly — the fragment is smaller for having been cut, not for having
-        produced less. The current period is flagged the same way, being
-        equally unfinished — today included, under the default period="day".
+        then — the period still running included, today under the default
+        period="day". Such an entry is labelled with its period's START but
+        summed over the days inside the timeframe alone: with period="month"
+        over "2026-06-15..2026-07-15" the entry dated "2026-06-01" holds June
+        15-30. Its date may even fall before the timeframe ("2025-12-29" for
+        the first week of "2026"). Never compare a flagged entry with an
+        unflagged one: it is smaller for having been cut, not for having
+        produced less.
 
-        Some rankings leave cut periods OUT instead, where a fragment would win
-        for being one: order="asc" (the lowest month is never the one that just
-        started) and every averaged ratio (autarky, self-consumption rate — an
-        average is not smaller for covering less, so both directions). Those
-        carry `complete_periods_only: true` and span less than the timeframe
-        names — the edge periods are missing from the LIST, not from the data.
+        Where a fragment would instead WIN for being one, cut periods are left
+        out: order="asc" and every averaged ratio (autarky, self-consumption
+        rate — an average is not smaller for covering less, so both
+        directions). Those results carry `complete_periods_only: true` and span
+        less than the timeframe names — the edge periods are missing from the
+        LIST, not from the data.
 
         sort="chronological" returns the selected periods in date order, ready
-        to plot as a trend curve without re-sorting. There, a period between the
-        first and the last entry that has no data is reported with value null,
-        so "no data point" stays distinct from "the value was 0". Nothing is
-        padded outside that span — the first and last entry tell you the range
-        actually covered — and a list truncated by `limit` is left alone, since
-        a period missing there may simply not have made the cut. A value ranking
-        (the default) never reports such periods, so pair "chronological" with a
-        generous limit to get a full curve.
-
-        #{Facts::TIMEFRAME_NOTE}
+        to plot. A period without data between the first and the last entry is
+        reported with value null, distinct from a measured 0; nothing is padded
+        outside that span, and a list truncated by `limit` is left alone (a
+        period missing there may simply not have made the cut). A value ranking
+        never reports such periods, so pair "chronological" with a generous
+        limit for a full curve.
       TEXT
       input_schema(
         properties: {
@@ -83,7 +78,7 @@ module McpServer
             type: 'string',
             enum: %w[value chronological],
             default: 'value',
-            description: '"value" or "chronological" (date order).',
+            description: 'Order of the returned entries.',
           },
           limit: {
             type: 'integer',
@@ -111,6 +106,10 @@ module McpServer
         requested = Array(sensors) | Array(sensor)
         definitions, unknown = resolve_sensors(requested, max: MAX_SENSORS)
 
+        # Order matters: a sensor with no aggregation at all is unrankable for
+        # the more specific reason, and saying "not stored in the summaries"
+        # would send a client looking for a summary that would not help.
+        enforce_aggregatable!(definitions, 'get_ranking')
         enforce_rankable!(definitions)
 
         tf = parse_timeframe(timeframe)
@@ -132,13 +131,11 @@ module McpServer
         }
       end
 
+      # `default_aggregation` is guaranteed here: enforce_aggregatable! has
+      # already rejected every sensor whose allowed list is empty, which is the
+      # only way it can be nil.
       def self.rank(sensor, options)
-        agg = (options[:aggregation] || sensor.default_aggregation)&.to_sym
-        unless agg
-          raise ArgumentError,
-                "Sensor #{sensor.name} has no natural aggregation; pass an explicit `aggregation`"
-        end
-
+        agg = (options[:aggregation] || sensor.default_aggregation).to_sym
         rows, complete_only = Rows.fetch(sensor, **options, aggregation: agg)
         unit = mcp_unit(sensor, agg)
 

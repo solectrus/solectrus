@@ -11,30 +11,25 @@ module McpServer
         Full metadata of specific sensors, beyond the name, description and
         `tools` that list_sensors returns for all of them:
 
-          - display_name: the human-readable label.
-          - unit: the UNAGGREGATED unit — note that get_totals/get_ranking
-            report the unit after aggregation. #{Facts::WATT_SUM_IS_ENERGY}
-            Units are explained in list_sensors' conventions.
+          - unit: the UNAGGREGATED unit — get_totals and get_ranking report the
+            unit after aggregation instead, which for a summed watt sensor is
+            watt_hour. Units are explained in list_sensors' conventions.
           - category: inverter, battery, grid, consumer, economic, forecast, ...
           - calculated: derived rather than measured, in Ruby or in SQL. True
             for every economic sensor (nothing meters a cost) and for both
             halves of a power split. False means a device wrote the number.
           - aggregations: exactly what get_ranking accepts for its
-            `aggregation`. Empty where the sensor has none.
-          - default_aggregation: the one get_totals applies and get_ranking
-            defaults to. null where there is none.
-          - tools: the same code list_sensors returns, whose `conventions` block
-            explains the letters.
-          - description: also for the _grid/_pv split sensors, where
-            list_sensors omits it.
+            `aggregation`, with default_aggregation the one get_totals applies.
+            An empty list (and a null default) means both tools reject the
+            sensor — there is no per-period value to give.
+          - display_name, description and tools: as in list_sensors, but for a
+            _grid/_pv split too, which that index leaves out.
 
-        You will rarely need this: every data tool already reports unit and
-        display name for what it returns, and `tools` from list_sensors decides
-        which tool to call. Reach for it to commit to a unit or an aggregation
-        BEFORE a call, or to explain a sensor to a user.
-
-        At most #{MAX_SENSORS} names — asking for everything rebuilds the
-        payload list_sensors exists to avoid.
+        You will rarely need this: the data tools report unit and display name
+        for what they return, and `tools` from list_sensors decides which tool
+        to call. Reach for it to commit to a unit or an aggregation BEFORE a
+        call, or to explain a sensor to a user. Asking for everything rebuilds
+        the payload list_sensors exists to avoid.
       TEXT
       input_schema(
         properties: {

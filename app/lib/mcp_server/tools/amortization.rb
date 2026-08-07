@@ -13,41 +13,37 @@ module McpServer
         with the manually kept cash flow register (investments, costs, revenue).
 
         Returns:
-          - amortized: the operating cash flow has earned back the net
-            investment (degree_percent >= 100).
-          - degree_percent: operating cash flow / net investment, uncapped, only
-            flows up to today. A subsidy lowers the net investment but does not
-            inflate this figure.
+          - amortized / degree_percent: whether the operating cash flow has
+            earned the net investment back, and how far it has got. The degree
+            is uncapped and counts only flows up to today; a subsidy lowers the
+            net investment but does not inflate it.
           - break_even_date: first day the nominal balance reaches zero, null if
-            not within the period.
-          - installation_date: start of the payback period.
+            not within the period. installation_date starts that period.
           - net_position: nominal balance today, excluding future-dated flows.
-          - gross_investment: all investment outflows up to today, as a magnitude.
-          - investment_reduction: subsidies and refunds lowering the base.
-          - net_investment: gross_investment - investment_reduction, i.e. what
-            actually has to be earned back.
+          - gross_investment (all investment outflows up to today, as a
+            magnitude), investment_reduction (subsidies and refunds) and their
+            difference net_investment — what actually has to be earned back.
           - operating_cashflow: measured savings plus manual operating flows
             (compensation, manual_savings, operating_cost, repair); excludes
             subsidies/refunds. manual_savings covers periods without measured
             data, e.g. before SOLECTRUS was installed.
-          - profit_nominal: nominal surplus at the end of the period, no interest.
-          - npv: net present value at the calculatory rate; positive beats an
-            alternative investment yielding that rate.
-          - irr_percent: internal rate of return, the rate where the NPV is zero.
-          - required_annual_savings: annual benefit needed for a non-negative NPV.
+          - profit_nominal (surplus at the end of the period, no interest), npv
+            (positive beats an alternative investment at the calculatory rate),
+            irr_percent (the rate where the NPV is zero) and
+            required_annual_savings (the annual benefit a non-negative NPV
+            needs).
           - savings_per_day / savings_per_year: the projection's savings rate
             (rolling year, or all-time average below a year of data);
-            per_year = per_day * 365.
-          - projection_uncertain: less than a year of measured data.
+            per_year = per_day * 365. projection_uncertain marks less than a
+            year of measured data.
           - yearly_series: the nominal balance and the amortization degree per
-            PV year. PV years run from installation anniversary to anniversary,
-            NOT along the calendar: the entry labelled year 2029 is the balance
-            on the 2029 anniversary of installation_date, not on 31 December —
-            so break_even_date falls between the last negative entry and the
-            first positive one, and reporting an entry as "end of <year>" is
-            wrong by the months between the anniversary and New Year. The first
-            entry is the operating start itself, carrying the investment dip.
-            `projected` marks a year that is not yet measured.
+            PV year. PV years run anniversary to anniversary of
+            installation_date, NOT along the calendar: the entry labelled 2029
+            is the balance on that anniversary, so reporting it as "end of
+            2029" is wrong by the months up to New Year, and break_even_date
+            falls between the last negative entry and the first positive one.
+            The first entry is the operating start itself, carrying the
+            investment dip. `projected` marks a year not yet measured.
 
         Money is in the system currency (get_system_info) with 2 decimals, dates
         are ISO 8601, rates and degrees are percent with 1 decimal.

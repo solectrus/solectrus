@@ -10,63 +10,36 @@ module McpServer
         Chronological measurement series for one or more sensors, down to
         sub-daily resolution — the intraday curves the aggregated tools cannot
         show ("consumption per hour yesterday", "battery SoC over the last
-        week", "nightly base load"). These are averaged value curves; for
-        energy-accurate period totals (kWh, costs) use get_totals, not an
-        integration of a coarse series here.
+        week", "nightly base load").
 
-        A bucket's value is the unweighted mean of its samples, not a
-        time-weighted one, so it drifts from the energy-weighted figure the
-        summaries hold — the wider the bucket, the more, and UPWARD for a
-        sensor written on change: its idle minutes carry no samples, so a
-        coarse curve can integrate to a multiple of what get_totals reports.
-        That reaches the averaged ratios too (autarky, self-consumption
-        rate), derived here from the bucket's mean powers: at "1d" they can read
-        a few tenths of a point beside get_totals and get_ranking, which are the
-        period-accurate answer.
+        These are averaged value curves, NOT an energy source: a bucket holds
+        the unweighted mean of its samples, so integrating a coarse series
+        drifts from what the summaries hold — upward for a sensor written on
+        change, whose idle minutes carry no samples, by up to a multiple. The
+        averaged ratios drift with it (autarky, self-consumption rate), by a
+        few tenths of a point at "1d". For period totals (kWh, costs) and for
+        ratios, get_totals and get_ranking are the accurate answer.
 
-        Aggregation, per bucket: "mean" (default) is the curve the SOLECTRUS UI
-        shows. "max"/"min" report the extreme sample in a bucket and so surface
-        short-lived spikes the mean hides — use "max" with a fine resolution for
-        a true instantaneous peak. There is deliberately no "sum": summing a
-        coarse series is not an energy integration.
+        Each point is {time, value}, `time` being the END of its bucket: at
+        "5m" the point 07:05 covers 07:00–07:05, and a day ends at the NEXT
+        midnight (00:00), on the same grid as every other point. A null value
+        means "no data", distinct from a measured 0. Buckets are cut on the
+        installation's timezone (get_system_info), so a "1d" bucket is a local
+        calendar day — 23 or 25 hours across a daylight-saving switch.
 
-        Resolution: when omitted, the finest that keeps the WHOLE response
-        within #{Resolution::MAX_POINTS} points — the budget is SHARED, so N
-        sensors get #{Resolution::MAX_POINTS}/N points each. Exactly three
-        things coarsen a request: that budget; the forecast cadence, which
-        floors forecast sensors alone at "15m" (providers write one sample per
-        15 min); and the Power Splitter cycle, which floors _grid/_pv splits
-        alone at "5m". Nothing else, so a coarser request never yields a
-        coarser result than a finer one. Read back `resolution`, `coarsened`,
-        and `coarsened_reason` (only when coarsened) — it names the constraint
-        and what to change.
-
-        include_nulls (default true) returns the complete bucket grid. false
-        drops the empty buckets, which pays off for sporadically written sensors
-        where a day at 5m is 288 points carrying three values; the rest stay on
-        the same grid, so a gap reads exactly like an explicit null. It also
-        buys resolution on the RUNNING period: buckets still ahead cannot carry
-        a point, so they do not count against the budget.
-
-        Each point is {time, value}, and `time` is the END of its bucket: at
-        "5m" the point 07:05 covers 07:00–07:05, and the last point carries the
-        end of the requested timeframe — a day ends at the NEXT midnight
-        (00:00), on the same grid as every other point. null means "no data",
-        deliberately distinct from a measured 0. Each series also reports
-        `point_count`.
-
-        Buckets are cut on the installation's timezone (see get_system_info),
-        not UTC: a "1d" bucket is a local calendar day, including the 23- or
-        25-hour day of a daylight-saving switch.
+        Resolution, when omitted: the finest that keeps the WHOLE response
+        within #{Resolution::MAX_POINTS} points — a budget SHARED by the
+        requested sensors, so N of them get #{Resolution::MAX_POINTS}/N each.
+        Exactly three things coarsen a request: that budget; the forecast
+        cadence, flooring forecast sensors alone at "15m"; and the Power
+        Splitter cycle, flooring _grid/_pv splits alone at "5m". Nothing else,
+        so a coarser request never yields a coarser result than a finer one.
+        Read back `resolution` and `coarsened`; `coarsened_reason` names the
+        constraint and what to change.
 
         A _grid/_pv power split is answered only over a timeframe that has
         ENDED. #{Facts::SPLIT_CADENCE} A running window ends in buckets with no
-        split yet; the error saying so names what to ask for instead.
-
-        #{Facts::UNKNOWN_SENSORS}
-
-        #{Facts::TIMEFRAME_NOTE} A forecast sensor over a future timeframe is
-        normal and gets none.
+        split yet.
       TEXT
       input_schema(
         properties: {
@@ -79,22 +52,27 @@ module McpServer
           resolution: {
             type: 'string',
             enum: %w[1m 5m 15m 1h 1d],
-            description: 'Bucket size. Defaults to the finest that fits the point limit.',
+            description: 'Bucket size. Defaults to the finest that fits the point budget.',
           },
           aggregation: {
             type: 'string',
             enum: %w[mean min max],
             default: 'mean',
-            # Why there is no "sum" is stated twice in the description already.
-            description: 'Per-bucket aggregation.',
+            description:
+              'Per bucket. "mean" is the curve the SOLECTRUS UI shows; ' \
+                '"max"/"min" give the extreme sample, so "max" at a fine ' \
+                'resolution is the true instantaneous peak. No "sum" - summing ' \
+                'a coarse series is not an energy integration.',
           },
           include_nulls: {
             type: 'boolean',
             default: true,
             description:
-              'Keep empty buckets. false omits them, which shrinks the response ' \
-                'a lot for sporadically written sensors and keeps a finer ' \
-                'resolution on the running period.',
+              'Keep empty buckets. false omits them - far smaller for ' \
+                'sporadically written sensors, and the rest stay on the same ' \
+                'grid, so a gap reads like an explicit null. It also buys ' \
+                'resolution on a running period, whose buckets still ahead ' \
+                'then cost no budget.',
           },
         },
         required: %w[sensors timeframe],

@@ -1,14 +1,15 @@
 module McpServer
   # Single source of truth for which MCP tools return meaningful data for a
   # given sensor. list_sensors advertises this matrix up front; the data tools
-  # (get_series, get_current_values, get_ranking) enforce it, rejecting
-  # unsupported sensor/tool combinations instead of silently returning a null
-  # series or value.
+  # enforce it, rejecting unsupported sensor/tool combinations instead of
+  # silently returning a null series or value.
   #
   # Every flag answers the same question - "does THIS tool answer for this
-  # sensor?" - so a client can act on the matrix alone. Where a tool rejects
-  # what it cannot answer, the flag is the rejection rule itself, not a
-  # separate opinion about it.
+  # sensor?" - so a client can act on the matrix alone, and every flag is the
+  # rejection rule itself rather than a separate opinion about it. The reverse
+  # is not promised: a sensor carrying a flag can still come back null where
+  # its own calculation suppresses a result (inverter_power_difference below
+  # 1 % of generation), which is a per-value condition no static flag states.
   module SupportedTools
     module_function
 
@@ -69,7 +70,9 @@ module McpServer
 
     # One meaning, everywhere it appears: the values get_ranking accepts for its
     # `aggregation` parameter (Sensor::Query::Ranking validates against exactly
-    # this list), and the set get_totals draws its default from.
+    # this list), and the set get_totals draws its default from. An empty list
+    # is therefore what makes the `t` flag false and what both tools reject on
+    # (Tools::Base.enforce_aggregatable!) - there is no per-period value.
     #
     # It used to be reported as empty for forecast sensors, on the grounds that
     # get_totals rejects them - which made the field answer two questions at

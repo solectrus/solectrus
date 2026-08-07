@@ -16,14 +16,16 @@ module McpServer
     ].freeze
     private_constant :TOOLS
 
+    # The conventions that hold across every tool, stated here so no tool
+    # description has to repeat them (Facts explains why each is said at all).
     INSTRUCTIONS = <<~TEXT.strip
       Read-only data of a SOLECTRUS photovoltaic monitoring system. Call
-      list_sensors first: it is a compact index of name, description and which
-      tools work for each sensor. get_sensor_details fills in unit, category and
-      aggregations for the few you picked, on the rare occasion you need them
-      before a call. Then get_current_values for live readings, get_totals for a
-      timeframe; get_system_info for installation metadata and currency,
-      get_prices for the (time-dependent) tariffs.
+      list_sensors first: it indexes every sensor name, and the other tools take
+      those names. Then get_current_values for live readings, get_totals for a
+      timeframe, get_ranking for best/worst periods, get_series for intraday
+      curves; get_system_info for installation metadata and currency,
+      get_prices for the (time-dependent) tariffs, get_forecast for expected PV
+      energy, get_amortization for payback, break-even and NPV/IRR.
 
       Units after aggregation, in get_totals and get_ranking:
       #{Facts::WATT_SUM_IS_ENERGY}
@@ -32,10 +34,7 @@ module McpServer
 
       #{Facts::UNKNOWN_SENSORS}
 
-      get_totals covers historical actuals only and rejects forecast sensors:
-      use get_forecast for the expected PV energy, get_series on a forecast
-      sensor for the predicted curve. For the profitability of the whole system
-      (payback, break-even, NPV/IRR) use get_amortization.
+      #{Facts::TIMEFRAME_NOTE}
     TEXT
     private_constant :INSTRUCTIONS
 

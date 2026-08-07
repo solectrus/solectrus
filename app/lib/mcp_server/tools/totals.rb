@@ -11,18 +11,16 @@ module McpServer
         Get aggregated values for a timeframe: produced/consumed energy,
         autarky and self-consumption (%), costs, revenue and savings (money),
         CO₂ reduction. Energy and money are summed over the period, percentages
-        and temperatures averaged.
+        and temperatures averaged. Each entry reports the `unit` it carries
+        AFTER that aggregation — a summed watt sensor reports watt_hour.
 
-        IMPORTANT — units after aggregation: #{Facts::WATT_SUM_IS_ENERGY}
+        Historical, measured actuals only: a forecast sensor (e.g.
+        "inverter_power_forecast") is rejected, since the summaries hold no
+        forecast. Use get_forecast for the expected PV generation.
 
-        #{Facts::UNKNOWN_SENSORS}
-
-        #{Facts::TIMEFRAME_NOTE}
-
-        This tool is for historical measured or aggregated actual values. Do NOT
-        pass forecast sensors (e.g. "inverter_power_forecast") — those are
-        rejected, since the summaries hold no forecast. For the expected PV
-        generation forecast, use get_forecast.
+        A null `value` means the timeframe holds no data for that sensor, never
+        that the sensor is the wrong one to ask: a sensor with no aggregation
+        at all carries no "t" in its `tools` and is rejected by name.
       TEXT
       input_schema(
         properties: {
@@ -37,6 +35,7 @@ module McpServer
         tf = parse_timeframe(timeframe)
         resolved, unknown = resolve_sensors(sensors)
         reject_forecast!(resolved)
+        enforce_aggregatable!(resolved, 'get_totals')
 
         aggregations = resolved.index_with(&:default_aggregation)
 
@@ -57,18 +56,12 @@ module McpServer
       end
       private_class_method :reject_forecast!
 
+      # Every sensor here has a natural aggregation - enforce_aggregatable!
+      # rejected the rest - so the query can never collapse to an empty sensor
+      # list and trip the "cannot be empty" guard.
       def self.totals(timeframe, aggregations)
-        # Only sensors with a natural aggregation can drive the SQL/Influx query.
-        # Aggregation-less derived sensors (e.g. chart-only pseudo-sensors) carry
-        # no total of their own; skip them here so they don't collapse the query
-        # to an empty sensor list and trip the "cannot be empty" guard. They are
-        # still reported (as nil, or as a computed value if a queried sibling
-        # pulls them in as a dependency) by build_totals.
-        queryable = aggregations.compact
-        return if queryable.empty?
-
         Sensor::Query::Total.new(timeframe) do |q|
-          queryable.each do |sensor, aggregation|
+          aggregations.each do |sensor, aggregation|
             q.public_send(aggregation, sensor.name)
           end
         end.call

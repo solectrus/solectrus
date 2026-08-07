@@ -67,9 +67,16 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # A description a client cannot trust costs more than the bytes do, and
       # the growth was paid for by dropping two sentences the error messages
       # already carry.
-      'tool definitions + instructions' => 26_800,
+      #
+      # Lowered from 26_800 and 17_000: each cross-tool convention is now
+      # stated once, in the server instructions or in list_sensors'
+      # `conventions`, instead of in every description that needed it - the
+      # timeframe note and the unknown-sensor rule were carried by three tools
+      # each. Ratcheting the ceilings down is what keeps that from creeping
+      # back one sentence at a time.
+      'tool definitions + instructions' => 23_500,
       'get_current_values (all sensors)' => 13_500,
-      'list_sensors' => 17_000,
+      'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
       'get_system_info' => 400,
       'get_prices' => 1_900,

@@ -153,9 +153,12 @@ describe McpServer::Tools::ListSensors do
         expect(entry('battery_soc')).not_to have_key(:display_name)
       end
 
+      # Said in the tool description rather than in `conventions`, because it
+      # decides how the client READS the user's question - which it does before
+      # the call, not after it.
       it 'tells a client what the field is for' do
-        expect(data[:conventions][:display_name]).to include(
-          'the name the user knows it by',
+        expect(described_class.description.squish).to include(
+          'the word the user will say',
         )
       end
     end
@@ -174,7 +177,7 @@ describe McpServer::Tools::ListSensors do
     # inconsistency - the cross-checks it runs are exactly these identities.
     it 'warns that independently rounded values can miss an identity by a digit' do
       expect(data[:conventions][:precision][:note]).to include(
-        'rounded independently',
+        'rounded on its own',
         'not an inconsistency',
       )
     end

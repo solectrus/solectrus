@@ -7,31 +7,26 @@ module McpServer
       tool_name 'list_sensors'
       title 'List available sensors'
       description <<~TEXT.strip
-        The sensors available on this SOLECTRUS instance (solar inverter,
-        battery, grid, house, heatpump, finances, ...). Call this first to
-        discover valid sensor names. Per sensor: its name — use these for every
-        other tool — a semantic description, and `tools`, which tools return
-        meaningful data for it.
+        The sensors this SOLECTRUS instance has (solar inverter, battery, grid,
+        house, heatpump, finances, ...). Call this first: every other tool takes
+        these names.
 
-        A `display_name` appears wherever the operator named the sensor
-        themselves. That is the word the user will use for it, so match their
-        wording against it: "Waschmaschine" is custom_power_01, whose name and
-        description only ever say "custom consumer 1". Sensors without one are
-        named by their description already.
+        Per sensor: `name`, a semantic description, and `tools` — which tools
+        return meaningful data for it. Plus `display_name` wherever the operator
+        named the sensor themselves, which is the word the user will say, so
+        match their wording against it: "Waschmaschine" is custom_power_01,
+        whose name and description only ever say "custom consumer 1". Its
+        absence means the sensor carries no name of its own, not that it has
+        none to show.
 
         An index, not a datasheet: unit, category and aggregations for several
-        hundred sensors would cost far more context than they are worth up
-        front. get_sensor_details returns those for the few you picked, and you
-        will rarely need it, because every data tool already reports unit and
-        display name for what it returns.
+        hundred sensors would cost far more up front than they are worth, and
+        every data tool reports unit and display name for what it returns
+        anyway. get_sensor_details fills them in for a few named sensors.
 
-        Sensors ending in "_grid" or "_pv" are NOT listed: they split a base
-        sensor by where the energy came from, and say nothing their name and the
-        suffix do not. conventions.suffixes names every base sensor that has
-        them; the names themselves stay valid input for every tool.
-
-        The `conventions` block explains the suffixes, the `tools` letters, the
-        units, and under `precision` how many decimals each unit is rounded to.
+        The `conventions` block in the response explains the rest: the `tools`
+        letters, the _grid/_pv sensors this index leaves out, the units, and the
+        decimals each unit is rounded to.
       TEXT
       input_schema(properties: {})
       read_only idempotent: true
@@ -43,56 +38,39 @@ module McpServer
       CONVENTIONS = {
         suffixes: {
           note:
-            'The _grid and _pv variants of a sensor are NOT listed under ' \
-              '`sensors`: they split a base sensor by energy source, and on an ' \
-              'instance with many consumers they are 40 % of this response ' \
-              'without carrying anything their name does not. No sensor ' \
-              'outside `split_bases` below carries either suffix. Most of ' \
-              'them have both, but where only one direction is meaningful ' \
-              'only that one exists, so a name you form off the list is a ' \
-              "good guess, not a guarantee. #{McpServer::Facts::UNKNOWN_SENSORS} " \
-              "#{McpServer::Facts::SPLIT_CADENCE} It therefore carries no c - " \
-              'get_current_values rejects it, ask for the base sensor for live ' \
-              'power. It does carry s, but get_series answers only over a ' \
-              'timeframe that has ENDED, and never finer than the splitter ' \
-              'cycle. get_totals has no such condition, and get_ranking answers ' \
-              'where the summaries store the split (the _grid halves, the ' \
-              '_costs family; the _pv power splits are derived from the base ' \
-              'and carry no r). Their meaning is the base sensor\'s description ' \
-              'narrowed by the suffix; get_sensor_details spells them out.',
+            'The _grid and _pv variants are NOT listed under `sensors`: they ' \
+              'split a base sensor by energy source, and on an instance with ' \
+              'many consumers they are 40 % of this response without carrying ' \
+              'anything their name does not. Only the bases in `split_bases` ' \
+              'have them, most in both directions but not all, so a name formed ' \
+              'off that list is a good guess rather than a guarantee - a miss ' \
+              'comes back in `unknown_sensors`, it does not fail the call. ' \
+              "#{McpServer::Facts::SPLIT_CADENCE} So a split carries no c (ask " \
+              'the base sensor for live power), and get_series answers for it ' \
+              'only over a timeframe that has ENDED and never finer than the ' \
+              'splitter cycle. get_totals and get_ranking have no such ' \
+              'condition. get_sensor_details gives a split its description and ' \
+              'its own `tools`.',
           _grid: 'The share of the base sensor supplied from grid import.',
           _pv: 'The share of the base sensor covered by own PV/solar generation.',
           _total: 'Aggregate across all inverters/consumers of the base sensor.',
         },
-        display_name:
-          'Present only where the operator named the sensor themselves, and ' \
-            'then it is the name the user knows it by - match what they say ' \
-            'against it before falling back to the description. Its absence ' \
-            'says the sensor carries no name of its own, not that it has none ' \
-            'to show: every data tool reports a display name for what it ' \
-            'returns, and get_sensor_details for any sensor you ask about.',
         forecast:
           'A sensor whose description says "forecasted" holds predicted, not ' \
-            'measured, values, and carries "f" in its tools - never "t", since ' \
-            'get_totals covers measured actuals and rejects them. Use ' \
-            'get_forecast for the expected energy, or get_series for the ' \
-            'predicted curve. get_ranking does answer for one that the ' \
-            'summaries store ("r"), but it ranks what was PREDICTED for each ' \
-            'past period, not what arrived.',
+            'measured, values: it carries "f" and never "t". Use get_forecast ' \
+            'for the expected energy, get_series for the predicted curve. ' \
+            'get_ranking answers for one the summaries store ("r"), but it ' \
+            'ranks what was PREDICTED for a past period, not what arrived.',
         tools:
-          'Per sensor, `tools` lists which tools return meaningful data for it, ' \
-            "one letter each: #{McpServer::Facts.tool_letters}. " \
-            "#{McpServer::Facts::TOOL_STRICTNESS} A money sensor or a chart-only " \
-            'composite like power_balance has no live scalar and carries neither ' \
-            'c nor s; "c" without "s" means a present state but no curve (a ' \
-            'boolean or string sensor cannot be averaged into a time bucket); a ' \
-            'missing r means the summaries hold no per-period value to order by, ' \
-            'which is the case for a sensor derived from others (the _pv power ' \
-            'splits, house_power_without_custom, grid_balance). A sensor without ' \
-            't may still come back with a value if a sibling pulls it in as a ' \
-            'dependency - while one WITH t can come back null where its ' \
-            'calculation suppresses a result (inverter_power_difference below ' \
-            '1 % of generation).',
+          'Which tools return meaningful data for this sensor, one letter ' \
+            "each: #{McpServer::Facts.tool_letters}. " \
+            "#{McpServer::Facts::TOOL_STRICTNESS} Why a letter is missing: a " \
+            'money sensor or a chart-only composite like power_balance has no ' \
+            'live scalar (neither c nor s); a boolean or string sensor has a ' \
+            'state but no curve (c without s); a sensor with no aggregation at ' \
+            'all has nothing to total or rank (neither t nor r); and a sensor ' \
+            'derived from others rather than stored in the summaries has no r ' \
+            '(the _pv power splits, house_power_without_custom, grid_balance).',
       }.freeze
       private_constant :CONVENTIONS
 
@@ -101,17 +79,15 @@ module McpServer
       # is what decides whether further arithmetic on it is valid.
       PRECISION = {
         note:
-          'Decimals every tool rounds a value to, keyed by the sensor\'s unit ' \
-            'and by nothing else - so the same sensor reads identically in ' \
-            'get_current_values, get_totals, get_series and get_ranking. A ' \
-            'unit with 0 decimals is serialized as an integer, any other as a ' \
-            'float. Units not listed here (boolean, string) pass through ' \
-            'unchanged. Note that a summed watt sensor is rounded as the ' \
-            'watt_hour it has become, not as a watt. Every value is rounded ' \
-            'independently, so an identity between sensors can be off by the ' \
-            'last digit - self_consumption may come back 1 Wh away from ' \
-            'inverter_power minus grid_export_power. That is the rounding, not ' \
-            'an inconsistency in the data; do not report it as one.',
+          'Decimals a value is rounded to, keyed by its unit and by nothing ' \
+            'else - so a sensor reads identically in every tool. 0 decimals ' \
+            'serializes as an integer, anything else as a float; units not ' \
+            'listed (boolean, string) pass through unchanged. A summed watt ' \
+            'sensor is rounded as the watt_hour it has become. Every value is ' \
+            'rounded on its own, so an identity between sensors can be off by ' \
+            'the last digit - self_consumption 1 Wh away from inverter_power ' \
+            'minus grid_export_power. That is the rounding, not an ' \
+            'inconsistency in the data; do not report it as one.',
         decimals: McpServer::Precision::DECIMALS,
       }.freeze
       private_constant :PRECISION

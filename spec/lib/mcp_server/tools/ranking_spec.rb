@@ -328,11 +328,38 @@ describe McpServer::Tools::Ranking do
         expect(response.content.first[:text]).to include('not a valid timeframe')
       end
 
-      it 'reports a sensor without a natural aggregation' do
-        response = described_class.call(sensor: 'system_status', timeframe: '2024')
+      # A sensor with no aggregation at all cannot be ranked by any argument:
+      # `aggregation` is validated against the sensor's own (empty) list, so
+      # "pass an explicit aggregation" - what this used to say - sent the
+      # client into a retry that could only fail again.
+      describe 'a sensor with no aggregation at all' do
+        def text_for(**args)
+          response = described_class.call(timeframe: '2024', **args)
+          expect(response.error?).to be(true)
+          response.content.first[:text]
+        end
 
-        expect(response.error?).to be(true)
-        expect(response.content.first[:text]).to include('no natural aggregation')
+        it 'says the sensor cannot be ranked, not what to pass' do
+          text = text_for(sensor: 'system_status')
+
+          expect(text).to include('no aggregation at all', 'system_status')
+          expect(text).not_to include('pass an explicit')
+        end
+
+        it 'says the same when an aggregation IS passed' do
+          expect(text_for(sensor: 'system_status', aggregation: 'sum')).to include(
+            'no aggregation at all',
+          )
+        end
+
+        # Two different reasons a ranking is impossible, and only the more
+        # specific one is actionable: pointing house_power_without_custom at
+        # the summaries helps, pointing system_status at them does not.
+        it 'prefers it over the "not stored in the summaries" reason' do
+          expect(
+            text_for(sensors: %w[system_status house_power_without_custom]),
+          ).to include('no aggregation at all')
+        end
       end
 
       it 'reports an unsupported aggregation' do

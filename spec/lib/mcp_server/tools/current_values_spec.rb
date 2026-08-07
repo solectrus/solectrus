@@ -183,6 +183,17 @@ describe McpServer::Tools::CurrentValues do
     end
 
     describe 'freshness metadata' do
+      # The behaviour below has always been "both fields, on every entry", but
+      # the description presented them under a heading about nulls and granted
+      # a valid value only a subordinate clause - so a client could read them
+      # as something a reported value does not carry, and skip the age
+      # comparison the next paragraph asks it to make.
+      it 'documents the two fields as accompanying a valid value too' do
+        expect(described_class.description.squish).to include(
+          'for a reported value as much as for a null one',
+        )
+      end
+
       # "Live" only means "within max_age" - 15 minutes for most sensors, two
       # hours for the sparse ones - so two reported values can describe states
       # minutes apart. Without an age on a non-null value a client cannot tell,
