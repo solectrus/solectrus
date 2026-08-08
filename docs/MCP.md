@@ -98,6 +98,13 @@ what keeps a `null` value meaning "this timeframe holds no data" and nothing
 else. The `t` and `r` letters in each sensor's `tools` mark the same sets, so
 the call can be avoided rather than corrected.
 
+Every rejection also says what to ask instead, and reads that off the same
+matrix rather than naming a tool from memory — so it can never point at a tool
+that rejects the sensor too, and it says plainly where nothing answers at all
+(a chart-only composite carries an empty `tools` for exactly that reason). Where
+one sensor is rejected and another name was merely unknown, the error carries
+both, so a typo does not cost a second round trip.
+
 ### Actuals vs. forecast
 
 `get_totals` is for **historical, measured** values only.

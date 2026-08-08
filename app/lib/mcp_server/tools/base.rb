@@ -157,13 +157,20 @@ module McpServer
         # With `allow_blank`, a blank list defaults to all available sensors;
         # otherwise at least one sensor is required. `max` caps how many
         # resolved sensors a single request may carry.
-        def resolve_sensors(names, allow_blank: false, max: nil)
+        # `blank_message` is what a tool with more than one way to name a sensor
+        # has to say instead of the default: get_ranking takes either `sensors`
+        # or `sensor`, and its schema can only mark both optional, so the error
+        # is the one place a client learns that one of them is required.
+        def resolve_sensors(names, allow_blank: false, max: nil, blank_message: nil)
           available = Sensor::Config.sensors
 
           if names.blank?
             return [available, []] if allow_blank
 
-            raise ArgumentError, 'Provide at least one sensor'
+            raise ArgumentError,
+                  blank_message ||
+                    'Provide at least one sensor name in `sensors`. Call ' \
+                      'list_sensors for the names this instance has.'
           end
 
           by_name = available.index_by(&:name)
@@ -280,60 +287,101 @@ module McpServer
           MCP::Tool::Response.new([{ type: 'text', text: message }], error: true)
         end
 
-        # Hint explaining why a tool has no data for the rejected sensors,
-        # pointing at the right tool instead.
-        UNSUPPORTED_HINT = {
-          current:
-            "get_current_values has no live reading for these sensors. #{Facts::MONEY_ACCUMULATED} " \
-              "#{Facts::SPLIT_CADENCE} #{Facts::SPLIT_INSTEAD} #{Facts::CHART_ONLY}",
-          series:
-            "get_series has no curve for these sensors. #{Facts::MONEY_ACCUMULATED} " \
-              "#{Facts::CHART_ONLY} Use get_totals (Wh/kWh, costs) or get_forecast instead. " \
-              "#{Facts::NON_AGGREGATABLE}",
+        # The sentence a rejection opens with, per tool. What follows is the
+        # reason, per sensor.
+        UNSUPPORTED_LEAD = {
+          current: 'get_current_values has no live reading for these sensors.',
+          series: 'get_series has no curve for these sensors.',
+          totals: 'get_totals has no total for these sensors.',
+          ranking: 'get_ranking has no ranking for these sensors.',
         }.freeze
+
+        # One fact per reason McpServer::SupportedTools can report. Only the
+        # reasons a request actually hit are sent: a client asking for one
+        # sensor should not have to work out which of four paragraphs describes
+        # it.
+        #
+        # None of them names a tool to ask instead - that half is composed from
+        # the matrix, per sensor, by #instead_clause.
+        UNSUPPORTED_REASON = {
+          money: Facts::MONEY_ACCUMULATED,
+          split: "#{Facts::SPLIT_CADENCE} #{Facts::SPLIT_INSTEAD}",
+          chart_only: Facts::CHART_ONLY,
+          non_aggregatable: Facts::NON_AGGREGATABLE,
+          no_aggregation: Facts::NO_AGGREGATION,
+          forecast: Facts::FORECAST_NOT_MEASURED,
+          not_summarized: Facts::NOT_SUMMARIZED,
+        }.freeze
+
+        # Reasons whose fact already says what to ask instead, and says it more
+        # specifically than the matrix can: a live power split sends the client
+        # to the BASE sensor, which is a different sensor rather than a
+        # different tool, so no matrix could have named it.
+        SELF_EXPLAINING = %i[split].freeze
+        private_constant :SELF_EXPLAINING
 
         # Enforce the supported_tools matrix that list_sensors advertises:
         # raises ArgumentError (which `call` turns into an error response) when
         # any sensor has no meaningful data for `tool`, so a client gets a clear
         # error instead of a silent null series/value.
-        def enforce_supported!(definitions, tool)
+        #
+        # `unknown` travels along because a rejection ends the whole call, and
+        # the names resolve_sensors skipped would be lost with it.
+        def enforce_supported!(definitions, tool, unknown = [])
           unsupported =
             definitions.reject { McpServer::SupportedTools.supports?(it, tool) }
           return if unsupported.none?
 
           raise ArgumentError,
-                "#{UNSUPPORTED_HINT[tool]} Affected: #{unsupported.map(&:name).join(', ')}."
+                [
+                  UNSUPPORTED_LEAD[tool],
+                  *unsupported_reasons(unsupported, tool),
+                  *skipped_note(unknown),
+                ].join(' ')
         end
 
-        # get_totals and get_ranking both read a per-period value, so both
-        # reject a sensor that has none to read - a status text, a setpoint, a
-        # chart-only composite. Answering null instead made "wrong question"
-        # look like "no data in this timeframe", the one thing a null must
-        # never mean.
-        def enforce_aggregatable!(definitions, tool)
-          without = definitions.select { it.allowed_aggregations.empty? }
-          return if without.none?
-
-          raise ArgumentError,
-                "#{tool} cannot answer for these sensors. #{Facts::NO_AGGREGATION} " \
-                  "Affected: #{without.map(&:name).join(', ')}."
+        # The rejected sensors grouped by reason AND by what is left to ask, so
+        # each combination is stated once and carries the names it applies to.
+        # Grouping by the reason alone would have been shorter and wrong: two
+        # sensors can be rejected for the same reason and still have different
+        # tools left over.
+        def unsupported_reasons(unsupported, tool)
+          unsupported
+            .group_by { [McpServer::SupportedTools.rejection(it, tool), instead_clause(it, tool)] }
+            .map do |(reason, instead), sensors|
+              "#{sensors.map(&:name).join(', ')}: #{UNSUPPORTED_REASON[reason]}#{instead}"
+            end
         end
 
-        # The second half of get_ranking's gate, applied after the one above:
-        # a sensor CAN be aggregated and still have nothing to rank, because
-        # the summaries do not store it. Why a derived one has no row there,
-        # and what the query would otherwise guess:
-        # Sensor::Definitions::Base#rankable?.
-        def enforce_rankable!(definitions)
-          unrankable = definitions.reject(&:rankable?)
-          return if unrankable.none?
+        # What to ask instead, read off the matrix rather than remembered - so
+        # a rejection can never name a tool that rejects the sensor too. "No
+        # tool answers for it" is an answer as well, and the one a chart-only
+        # composite needs: without it a client keeps trying.
+        def instead_clause(sensor, tool)
+          reason = McpServer::SupportedTools.rejection(sensor, tool)
+          return '' if SELF_EXPLAINING.include?(reason)
 
-          raise ArgumentError,
-                'get_ranking has no ranking for these sensors: they are ' \
-                  'derived from other sensors rather than stored in the ' \
-                  'summaries, so there is no per-period value to order by. Use ' \
-                  'get_totals for their value over a timeframe, or get_series ' \
-                  "for their curve. Affected: #{unrankable.map(&:name).join(', ')}."
+          others = McpServer::SupportedTools.alternatives(sensor, except: tool)
+          return ' No other tool answers for it.' if others.empty?
+
+          " Use #{tool_list(others)} instead."
+        end
+
+        def tool_list(flags)
+          flags
+            .map { Facts.tool_name(it) }
+            .to_sentence(two_words_connector: ' or ', last_word_connector: ' or ')
+        end
+
+        # An unknown name is normally reported in `unknown_sensors` and the call
+        # answered anyway. Where something else fails the call outright, that
+        # report never gets built, so the name is carried into the error
+        # instead: a client sending one good name, one rejected and one typo
+        # otherwise learns about the typo only on a second round trip.
+        def skipped_note(unknown)
+          return [] if unknown.empty?
+
+          ["Also not configured on this instance and skipped: #{unknown.join(', ')}."]
         end
       end
     end

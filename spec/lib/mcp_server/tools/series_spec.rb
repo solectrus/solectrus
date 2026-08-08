@@ -950,6 +950,40 @@ describe McpServer::Tools::Series do
         expect(balance_error).to be(true)
       end
 
+      # The rejection used to state every reason a sensor COULD have been
+      # rejected for - four paragraphs, whichever sensor was asked for. The one
+      # that did not apply was not merely noise: power_balance was sent to
+      # get_totals, which rejects it as well (its `tools` is empty).
+      describe 'the reason a sensor was rejected' do
+        # A phrase per reason the message can carry, so an example can assert
+        # that the other two are absent.
+        let(:reasons) { ['accumulated', 'chart-only composite', 'Boolean and string'] }
+
+        {
+          'solar_price' => %w[accumulated get_totals],
+          'power_balance' => ['chart-only composite'],
+          'heatpump_status' => ['Boolean and string'],
+        }.each do |sensor, expected|
+          it "names only the one that applies to #{sensor}" do
+            _error, text = call(sensors: [sensor], timeframe: 'P2D')
+
+            expect(text).to include(sensor, *expected)
+            (reasons - expected).each { expect(text).not_to include(_1) }
+          end
+        end
+
+        # With several rejected sensors every reason is needed - but each one
+        # carries the names it applies to, so the client does not have to guess
+        # which is which.
+        it 'pairs each reason with its sensors in a mixed request' do
+          _error, text =
+            call(sensors: %w[solar_price power_balance], timeframe: 'P2D')
+
+          expect(text).to match(/solar_price: .*accumulated/)
+          expect(text).to match(/power_balance: .*chart-only composite/)
+        end
+      end
+
       # InfluxDB refuses to fold a bool or string column into a bucket
       # ("unsupported aggregate column type bool"), and that error is no
       # ArgumentError, so it used to escape the tool as a bare internal error

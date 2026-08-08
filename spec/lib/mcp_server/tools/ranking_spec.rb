@@ -343,11 +343,14 @@ describe McpServer::Tools::Ranking do
     end
 
     context 'with invalid input' do
-      it 'requires at least one sensor' do
+      # The schema can only mark both `sensors` and `sensor` optional, so this
+      # error is the one place a client learns that one of them is required -
+      # and it has to name them, or the client cannot act on it.
+      it 'requires at least one sensor, naming both ways to pass one' do
         response = described_class.call(timeframe: '2024')
 
         expect(response.error?).to be(true)
-        expect(response.content.first[:text]).to include('at least one sensor')
+        expect(response.content.first[:text]).to include('`sensors`', '`sensor`')
       end
 
       it 'rejects more than the allowed number of sensors' do

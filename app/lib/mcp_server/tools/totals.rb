@@ -34,8 +34,7 @@ module McpServer
       def self.perform(timeframe:, sensors:, **)
         tf = parse_timeframe(timeframe)
         resolved, unknown = resolve_sensors(sensors)
-        reject_forecast!(resolved)
-        enforce_aggregatable!(resolved, 'get_totals')
+        enforce_supported!(resolved, :totals, unknown)
 
         aggregations = resolved.index_with(&:default_aggregation)
 
@@ -45,20 +44,9 @@ module McpServer
         }
       end
 
-      def self.reject_forecast!(resolved)
-        forecast = resolved.select(&:forecast?)
-        return if forecast.none?
-
-        raise ArgumentError,
-              "Forecast sensors (#{forecast.map(&:name).join(', ')}) are not " \
-                'supported by get_totals. Use get_forecast for the expected PV ' \
-                'generation forecast.'
-      end
-      private_class_method :reject_forecast!
-
-      # Every sensor here has a natural aggregation - enforce_aggregatable!
-      # rejected the rest - so the query can never collapse to an empty sensor
-      # list and trip the "cannot be empty" guard.
+      # Every sensor here has a natural aggregation - the `totals` flag rejected
+      # the rest - so the query can never collapse to an empty sensor list and
+      # trip the "cannot be empty" guard.
       def self.totals(timeframe, aggregations)
         Sensor::Query::Total.new(timeframe) do |q|
           aggregations.each do |sensor, aggregation|

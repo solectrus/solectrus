@@ -70,7 +70,7 @@ module McpServer
         else
           # Explicit request: reject sensors that have no live reading rather
           # than returning a null that reads as "source offline".
-          enforce_supported!(definitions, :current)
+          enforce_supported!(definitions, :current, unknown)
         end
 
         data = Sensor::Query::Latest.new(definitions.map(&:name)).call
@@ -115,21 +115,6 @@ module McpServer
         { display_name: mcp_display_name(sensor) }
       end
       private_class_method :display_name
-
-      # A calculated sensor that derives from no inputs (e.g. power_balance, a
-      # stacked power-flow balance chart) has no live scalar reading to report:
-      # its value is always null. Such sensors are dropped from the default set
-      # and rejected when requested explicitly.
-      #
-      # Public so McpServer::SupportedTools can advertise and enforce the same
-      # fact via the `current`/`series` flags in each sensor's supported_tools.
-      def self.live_scalarless?(sensor)
-        sensor.calculated? && sensor.dependencies.empty?
-      rescue ArgumentError
-        # A dependency block that needs context kwargs can't be a no-input
-        # composite; treat it as a normal sensor.
-        false
-      end
     end
   end
 end

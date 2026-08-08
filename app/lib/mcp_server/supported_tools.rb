@@ -39,13 +39,79 @@ module McpServer
     # Facts::CHART_ONLY and Facts::NON_AGGREGATABLE.
     def curve?(sensor)
       return false if sensor.unit == :money
-      return false if McpServer::Tools::CurrentValues.live_scalarless?(sensor)
+      return false if sensor.chart_only?
 
       numeric?(sensor)
     end
 
     def supports?(sensor, tool)
       self.for(sensor)[tool]
+    end
+
+    # The tools that DO answer for this sensor, minus the one that just
+    # rejected it. Every rejection message composes its "what to ask instead"
+    # from this rather than naming a tool from memory.
+    #
+    # A hard-coded suggestion is right for the sensor its author had in mind
+    # and wrong for the next one: "Use get_current_values or get_series" sent a
+    # client asking for power_balance to two tools that reject it as well, and
+    # nothing in the code could notice, because the sentence was a string. An
+    # empty result is an answer too - for some sensors nothing answers.
+    def alternatives(sensor, except: nil)
+      matrix = self.for(sensor)
+
+      LETTERS.each_key.select { |tool| matrix[tool] && tool != except }
+    end
+
+    # WHY a tool has no data for this sensor, as a key the caller turns into
+    # prose - or nil where the tool does answer.
+    #
+    # It lives here, next to the predicates it mirrors, so a reason cannot
+    # contradict the flag it explains: both walk the same conditions in the
+    # same order. Stating the reasons in the rejecting tool instead is what
+    # made it a catch-all, listing every reason a sensor could have been
+    # rejected for - which sent a client asking for power_balance to
+    # get_totals, a tool that rejects it too.
+    def rejection(sensor, tool)
+      case tool
+      when :series then series_rejection(sensor)
+      when :current then current_rejection(sensor)
+      when :totals then totals_rejection(sensor)
+      when :ranking then ranking_rejection(sensor)
+      end
+    end
+
+    def series_rejection(sensor)
+      return :money if sensor.unit == :money
+      return :chart_only if sensor.chart_only?
+
+      :non_aggregatable unless numeric?(sensor)
+    end
+
+    def current_rejection(sensor)
+      return :money if sensor.unit == :money
+      return :split unless sensor.instantaneous?
+
+      :chart_only if sensor.chart_only?
+    end
+
+    # Mirrors the `totals` flag: a forecast first, since that is the reason a
+    # client can act on (get_forecast exists), and only then the absence of an
+    # aggregation, which is a property of the sensor rather than of the ask.
+    def totals_rejection(sensor)
+      return :forecast if sensor.forecast?
+
+      :no_aggregation if aggregations(sensor).empty?
+    end
+
+    # Mirrors the `ranking` flag, in the order the two reasons refine each
+    # other: a sensor with no aggregation at all has nothing to order by, which
+    # is more specific than "the summaries do not store it" - and answering the
+    # latter would send a client looking for a summary that would not help.
+    def ranking_rejection(sensor)
+      return :no_aggregation if aggregations(sensor).empty?
+
+      :not_summarized unless rankable?(sensor)
     end
 
     # One letter per tool, for the compact `tools` field.
@@ -71,8 +137,8 @@ module McpServer
     # One meaning, everywhere it appears: the values get_ranking accepts for its
     # `aggregation` parameter (Sensor::Query::Ranking validates against exactly
     # this list), and the set get_totals draws its default from. An empty list
-    # is therefore what makes the `t` flag false and what both tools reject on
-    # (Tools::Base.enforce_aggregatable!) - there is no per-period value.
+    # is therefore what clears both the `t` and the `r` flag, and what both
+    # tools reject on - there is no per-period value.
     #
     # It used to be reported as empty for forecast sensors, on the grounds that
     # get_totals rejects them - which made the field answer two questions at
@@ -90,8 +156,8 @@ module McpServer
       sensor.default_aggregation
     end
 
-    # Whether get_ranking answers for this sensor - the same predicate
-    # Tools::Base#enforce_rankable! rejects on, so the advertised "r" and the
+    # Whether get_ranking answers for this sensor. The tool enforces the flag
+    # itself (Tools::Base#enforce_supported!), so the advertised "r" and the
     # tool's behaviour cannot disagree.
     #
     # This is NOT the curated Top 10 set the SOLECTRUS UI offers: get_ranking
@@ -134,7 +200,7 @@ module McpServer
       return false if sensor.unit == :money
       return false unless sensor.instantaneous?
 
-      !McpServer::Tools::CurrentValues.live_scalarless?(sensor)
+      !sensor.chart_only?
     end
 
     # Units InfluxDB cannot fold into a time bucket. A live reading of such a

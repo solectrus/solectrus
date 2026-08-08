@@ -175,6 +175,16 @@ describe McpServer::Tools::CurrentValues do
       expect(response.content.first[:text]).to include('get_totals')
     end
 
+    # A split and a money sensor are rejected for different reasons, and the
+    # message used to carry both regardless - the splitter cadence for a price,
+    # the accumulation for a split.
+    it 'names only the reason that applies to the rejected sensor' do
+      response = described_class.call(server_context: nil, sensors: ['solar_price'])
+
+      expect(response.content.first[:text]).to include('solar_price', 'accumulated')
+      expect(response.content.first[:text]).not_to include('Power Splitter')
+    end
+
     it 'reports unknown or unconfigured sensors' do
       response = described_class.call(server_context: nil, sensors: ['nonexistent'])
 

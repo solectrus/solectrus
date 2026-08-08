@@ -133,13 +133,16 @@ module McpServer
         **
       )
         requested = Array(sensors) | Array(sensor)
-        definitions, unknown = resolve_sensors(requested, max: MAX_SENSORS)
-
-        # Order matters: a sensor with no aggregation at all is unrankable for
-        # the more specific reason, and saying "not stored in the summaries"
-        # would send a client looking for a summary that would not help.
-        enforce_aggregatable!(definitions, 'get_ranking')
-        enforce_rankable!(definitions)
+        definitions, unknown =
+          resolve_sensors(
+            requested,
+            max: MAX_SENSORS,
+            blank_message:
+              'Provide a sensor to rank: `sensors` for a list, or `sensor` ' \
+                'for a single name. Call list_sensors for the names this ' \
+                'instance has.',
+          )
+        enforce_supported!(definitions, :ranking, unknown)
 
         tf = parse_timeframe(timeframe)
         effective = effective_limit(limit, definitions.size)
@@ -190,9 +193,9 @@ module McpServer
       end
       private_class_method :limit_note
 
-      # `default_aggregation` is guaranteed here: enforce_aggregatable! has
-      # already rejected every sensor whose allowed list is empty, which is the
-      # only way it can be nil.
+      # `default_aggregation` is guaranteed here: the `ranking` flag has already
+      # rejected every sensor whose allowed list is empty, which is the only way
+      # it can be nil.
       def self.rank(sensor, options)
         agg = (options[:aggregation] || sensor.default_aggregation).to_sym
         rows, complete_only = Rows.fetch(sensor, **options, aggregation: agg)

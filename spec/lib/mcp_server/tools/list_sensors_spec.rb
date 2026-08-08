@@ -230,11 +230,12 @@ describe McpServer::Tools::ListSensors do
       # act on the matrix at all. get_ranking is the one that used to disagree:
       # "r" marked the curated Top 10 set of the UI, not what the tool accepts.
       it 'agrees with what get_ranking accepts' do
-        # The two gates get_ranking applies: the summaries have to back the
-        # sensor, and it needs an aggregation to rank by.
+        # The gate get_ranking applies before it queries anything. Driven
+        # through the tool's own guard rather than through the flag, so the
+        # test still fails if the two ever stop sharing a predicate.
         rejected = lambda do |sensor|
-          McpServer::Tools::Base.__send__(:enforce_rankable!, [sensor])
-          sensor.default_aggregation.nil?
+          McpServer::Tools::Base.__send__(:enforce_supported!, [sensor], :ranking)
+          false
         rescue ArgumentError
           true
         end

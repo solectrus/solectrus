@@ -50,29 +50,49 @@ module McpServer
         'is in Wh, not W (÷1000 for kWh) - never read a watt-sum as a power. ' \
         'All other units aggregate unchanged.'.freeze
 
-    # --- Sensors without a live reading -------------------------------------
+    # --- Why a tool rejects a sensor ----------------------------------------
+    #
+    # None of these names a tool to ask instead. That half is composed per
+    # sensor from SupportedTools.alternatives, because a fact is about the
+    # sensor while the alternative is about the matrix - and a fact that
+    # guessed at the matrix got it wrong: "use get_current_values or
+    # get_series" sent a client asking for power_balance to two tools that
+    # reject it as well.
 
     MONEY_ACCUMULATED =
       'Money sensors (costs, revenue) are accumulated amounts with no ' \
-        'instantaneous reading - use get_totals over a timeframe.'.freeze
+        'instantaneous reading.'.freeze
 
+    # No example sensor here on purpose: the only place this appears names the
+    # sensors it applies to, and "power_balance: Chart-only composites (e.g.
+    # power_balance)" said the same name twice.
     CHART_ONLY =
-      'Chart-only composites (e.g. power_balance) have no live scalar at all.'.freeze
+      'A chart-only composite has no value of its own: it exists to feed a ' \
+        'chart, which composes what it shows from other sensors.'.freeze
 
     NON_AGGREGATABLE =
       'Boolean and string sensors (e.g. a car-connected flag, a status text) ' \
-        'cannot be averaged into a time bucket at all - get_current_values ' \
-        'reports their present state.'.freeze
+        'cannot be averaged into a time bucket at all.'.freeze
 
     # Why get_totals and get_ranking reject a sensor outright instead of
     # answering null: both read a per-period value, and these sensors have
     # none to read. Stated as what the sensor IS, because no argument the
     # client could pass instead would help.
     NO_AGGREGATION =
-      'They carry no aggregation at all (`aggregations: []` in ' \
+      'Carries no aggregation at all (`aggregations: []` in ' \
         'get_sensor_details), so no per-period value exists and no ' \
-        '`aggregation` argument can supply one. Use get_current_values for ' \
-        'their present state, or get_series for their curve.'.freeze
+        '`aggregation` argument can supply one.'.freeze
+
+    # get_totals is measured actuals; a forecast has no place in a summary.
+    FORECAST_NOT_MEASURED =
+      'Holds predicted values, which the summaries of measured data do not ' \
+        'carry.'.freeze
+
+    # The second half of get_ranking's gate: a sensor CAN be aggregated and
+    # still have nothing to rank, because the summaries do not store it.
+    NOT_SUMMARIZED =
+      'Derived from other sensors rather than stored in the summaries, so ' \
+        'there is no per-period value to order by.'.freeze
 
     # --- Power splits (_grid/_pv) -------------------------------------------
 
@@ -107,9 +127,15 @@ module McpServer
     TOOL_NAMES = { current: 'get_current_values' }.freeze
     private_constant :TOOL_NAMES
 
+    # The public name of a tool flag. Every message that names a tool goes
+    # through here, so the legend and the prose cannot drift apart.
+    def self.tool_name(flag)
+      TOOL_NAMES.fetch(flag, "get_#{flag}")
+    end
+
     def self.tool_letters
       SupportedTools::LETTERS
-        .map { |flag, letter| "#{letter} = #{TOOL_NAMES.fetch(flag, "get_#{flag}")}" }
+        .map { |flag, letter| "#{letter} = #{tool_name(flag)}" }
         .join(', ')
     end
 
@@ -130,6 +156,8 @@ module McpServer
                     :CHART_ONLY,
                     :NON_AGGREGATABLE,
                     :NO_AGGREGATION,
+                    :FORECAST_NOT_MEASURED,
+                    :NOT_SUMMARIZED,
                     :SPLIT_CADENCE,
                     :SPLIT_INSTEAD,
                     :UNKNOWN_SENSORS,

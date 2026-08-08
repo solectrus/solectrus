@@ -125,7 +125,7 @@ module McpServer
 
         definitions, unknown = resolve_sensors(sensors, max: MAX_SENSORS)
 
-        enforce_supported!(definitions, :series)
+        enforce_supported!(definitions, :series, unknown)
         enforce_short_timeframe!(definitions, tf)
         enforce_completed_timeframe!(definitions, tf)
 
