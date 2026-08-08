@@ -7,9 +7,9 @@ class Sensor::Definitions::HeatpumpCopScatter < Sensor::Definitions::Base
     Sensor::Chart::HeatpumpCopScatter.new(timeframe:)
   end
 
-  # Chart-only sensor without a stored value.
-  # Block must accept the kwargs the framework passes (dependencies + context).
-  calculate { |**| nil }
+  # A scatter of COP against temperature: the chart pairs the two dependencies
+  # into points, so the sensor itself carries no value at any single instant.
+  chart_only
 
   requires_permission :heatpump
 end

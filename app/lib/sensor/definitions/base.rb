@@ -120,6 +120,13 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.meta_data[:chart].present?
   end
 
+  # Whether this sensor only feeds a chart and never carries a scalar value of
+  # its own (see the `chart_only` DSL). Any tool reporting single values has to
+  # say so instead of returning a null that reads as an outage.
+  def chart_only?
+    self.class.meta_data[:chart_only].present?
+  end
+
   def chart(timeframe, **)
     config = self.class.meta_data[:chart]
     return unless config

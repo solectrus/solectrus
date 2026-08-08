@@ -115,6 +115,24 @@ module Sensor
           meta_data[:chart] = { block: }
         end
 
+        # A sensor that exists only to drive a chart. It has no scalar value of
+        # its own - the chart composes what it shows from other sensors - so
+        # every reading of it is null, in every timeframe, forever.
+        #
+        # Declared rather than inferred, because the two ways it used to be
+        # inferred both got it wrong. Guessing from an empty dependency list
+        # missed heatpump_cop_scatter, which depends on three sensors and still
+        # has no value of its own; guessing from `calculate { nil }` would read
+        # an implementation detail as an intent. A consumer that has to tell a
+        # user "there is nothing to ask here" needs the intent.
+        def chart_only
+          meta_data[:chart_only] = true
+
+          # No inputs can produce a value for it, but it still has to answer
+          # #calculate like any other derived sensor.
+          calculate { |**| nil }
+        end
+
         def requires_permission(permission)
           meta_data[:permitted] = lambda do |*|
             ApplicationPolicy.instance.feature_enabled?(permission)
