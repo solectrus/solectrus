@@ -76,6 +76,10 @@ describe McpServer::Tools::Forecast do
 
         expect(data[:today_remaining]).to be < full_next_day
       end
+
+      it 'carries no note' do
+        expect(forecast).not_to have_key(:forecast_note)
+      end
     end
 
     context 'when an upcoming day lacks data' do
@@ -86,12 +90,19 @@ describe McpServer::Tools::Forecast do
       end
     end
 
+    # A configured sensor the provider has never written to. Reported as
+    # `today_remaining: 0` this used to read as a weather forecast - "nothing
+    # expected today" - although not a single data point backs it.
     context 'without forecast data' do
-      it 'reports nothing expected' do
+      it 'reports no forecast rather than a forecast of nothing' do
         data = forecast[:generation]
 
-        expect(data[:today_remaining]).to eq(0)
+        expect(data[:today_remaining]).to be_nil
         expect(data[:days]).to be_empty
+      end
+
+      it 'says why the numbers are absent' do
+        expect(forecast[:forecast_note]).to include('NOT a forecast of zero')
       end
     end
 

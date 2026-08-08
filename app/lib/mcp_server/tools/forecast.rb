@@ -15,10 +15,23 @@ module McpServer
       # Upper bound for the Influx scan; the real horizon emerges from the data.
       MAX_HORIZON = 10.days
 
+      # An absent forecast is not a forecast of zero, and nothing in the
+      # numbers distinguishes the two: `today_remaining` is a plain Wh figure,
+      # so an empty scan reported as 0 becomes a claim about the weather made
+      # from no data at all. Same reasoning as Facts::TIMEFRAME_NOTE, for the
+      # one gap no timeframe can explain - the provider is not configured yet,
+      # has not been fetched yet, or is failing.
+      NO_DATA_NOTE =
+        'No forecast data is stored, so this is NOT a forecast of zero: the ' \
+          'forecast provider has delivered nothing (not set up yet, not ' \
+          'fetched yet, or failing). Report it as "no forecast available", ' \
+          'never as "no generation expected".'.freeze
+
       private_constant :GENERATION_SENSOR,
                        :TEMPERATURE_SENSOR,
                        :FETCH_INTERVAL,
-                       :MAX_HORIZON
+                       :MAX_HORIZON,
+                       :NO_DATA_NOTE
 
       tool_name 'get_forecast'
       title 'Get the PV generation and temperature forecast'
@@ -33,6 +46,10 @@ module McpServer
         - `temperature`: daily min/max/avg in °C for today and the upcoming
           days. Present only when an outdoor temperature forecast is configured.
 
+        Where no forecast has been stored at all, `today_remaining` is null and
+        a `forecast_note` says so. That is "no forecast available", never "no
+        generation expected".
+
         For measured, historical values use get_totals.
       TEXT
       input_schema(properties: {})
@@ -45,11 +62,13 @@ module McpServer
 
         now = Time.current
         series = fetch_series(now)
+        entries = entries_for(series, GENERATION_SENSOR)
 
         result = {
           timezone: Time.zone.name,
           generated_at: now.iso8601,
-          generation: generation_section(series, now),
+          **(entries.empty? ? { forecast_note: NO_DATA_NOTE } : {}),
+          generation: generation_section(entries, now),
         }
         temperature = temperature_section(series, now)
         result[:temperature] = temperature if temperature
@@ -59,12 +78,14 @@ module McpServer
 
       # --- Generation (energy, Wh) -----------------------------------------
 
-      def self.generation_section(series, now)
-        entries = entries_for(series, GENERATION_SENSOR)
-
+      # `today_remaining` is null rather than 0 where nothing was delivered:
+      # 0 is a forecast, null is the absence of one, and only the second is
+      # true. `days` needs no such guard - an empty list cannot be misread as
+      # a prediction. NO_DATA_NOTE spells the distinction out.
+      def self.generation_section(entries, now)
         {
           unit: 'Wh',
-          today_remaining: energy(today_remaining_wh(entries, now)),
+          today_remaining: entries.any? ? energy(today_remaining_wh(entries, now)) : nil,
           days:
             upcoming_days(entries, now).map do |date, wh|
               { date: date.iso8601, expected: energy(wh) }
