@@ -96,5 +96,50 @@ describe McpServer::Tools::Prices do
       expect(response.error?).to be(true)
       expect(response.content.first[:text]).to include('Invalid date')
     end
+
+    # The history used to be cut from the newest end regardless of `date`, so a
+    # question about 2024 came back with `effective` from 2024 next to a list
+    # holding only 2025 - the number above the list appeared nowhere in it.
+    context 'with a date the history reaches past' do
+      def electricity(**)
+        response = described_class.call(server_context: nil, **)
+        data = JSON.parse(response.content.first[:text], symbolize_names: true)
+
+        data[:prices].find { _1[:name] == 'electricity' }
+      end
+
+      it 'cuts the history at the date, not at the newest entry' do
+        entry = electricity(date: '2024-06-15', limit: 1)
+
+        expect(entry[:effective]).to eq(0.30)
+        expect(entry[:history].pluck(:starts_at)).to eq(%w[2024-01-01])
+      end
+
+      it 'keeps `effective` in the history even at a limit of 1' do
+        entry = electricity(date: '2024-06-15', limit: 1)
+
+        expect(entry[:history].pluck(:value)).to include(entry[:effective])
+      end
+
+      it 'lists a tariff starting after the date as upcoming, not as history' do
+        entry = electricity(date: '2024-06-15')
+
+        expect(entry[:history].pluck(:starts_at)).not_to include('2025-01-01')
+        expect(entry[:upcoming].pluck(:starts_at)).to eq(%w[2025-01-01])
+      end
+
+      it 'omits `upcoming` where nothing is pending' do
+        entry = electricity(date: '2025-06-15')
+
+        expect(entry).not_to have_key(:upcoming)
+      end
+
+      it 'still orders what it kept' do
+        dates = electricity(date: '2025-06-15', order: 'asc')[:history].pluck(:starts_at)
+
+        expect(dates).to eq(dates.sort)
+        expect(dates.last).to eq('2025-01-01')
+      end
+    end
   end
 end

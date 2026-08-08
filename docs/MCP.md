@@ -23,8 +23,8 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
   configured, and when data last arrived (the cheap "is the system still
   delivering?" check)
 - `get_prices` — electricity tariff and feed-in compensation (time-dependent);
-  per price type the value `effective` on the requested date plus the change
-  history
+  per price type the value `effective` on the requested date, the change
+  `history` up to that date, and any change scheduled after it under `upcoming`
 - `get_current_values` — current live readings, each with freshness metadata
   (`last_seen_at` and `age_seconds`, on every entry — a reported value carries
   them as much as a null one)
