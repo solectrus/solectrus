@@ -25,6 +25,13 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
     resource '/.well-known/oauth-protected-resource',
              headers: :any,
              methods: %i[get options]
+    # RFC 9728 inserts the resource path after the well-known segment, so a
+    # client discovering the metadata for /mcp asks here (see config/routes.rb).
+    # Rack::Cors matches a path without a wildcard exactly, so the rule above
+    # does not cover it and the browser drops the answer it gets.
+    resource '/.well-known/oauth-protected-resource/mcp',
+             headers: :any,
+             methods: %i[get options]
     resource '/.well-known/oauth-authorization-server',
              headers: :any,
              methods: %i[get options]

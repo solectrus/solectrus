@@ -64,6 +64,17 @@ describe 'OAuth (MCP)' do
 
         expect(response.headers['Access-Control-Allow-Origin']).to eq('*')
       end
+
+      # Serving the RFC 9728 path-aware location is no use to a browser client
+      # without the header: it reaches the 200 and then drops it.
+      it 'allows any origin on the path-aware resource metadata too' do
+        get '/.well-known/oauth-protected-resource/mcp',
+            headers: {
+              'Origin' => 'https://claude.ai',
+            }
+
+        expect(response.headers['Access-Control-Allow-Origin']).to eq('*')
+      end
     end
 
     describe 'GET /.well-known/oauth-protected-resource' do
