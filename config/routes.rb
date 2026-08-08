@@ -139,6 +139,11 @@ Rails.application.routes.draw do
   # short guide on how to connect an AI client instead - gated the same way, so
   # it stays invisible when MCP is disabled or for non-sponsors.
   get '/mcp', to: 'mcp_info#show'
+  # Streamable HTTP also defines DELETE (session termination). This transport is
+  # stateless and has no session to terminate, and the spec asks for 405 rather
+  # than a 404 that reads as "no endpoint here". GET is answered by the info
+  # page above, which returns 405 to an MCP client (see McpInfoController).
+  match '/mcp', to: 'mcp#unsupported_method', via: %i[delete put patch]
 
   # Stateless OAuth 2.1 (authorization code + PKCE) protecting the MCP endpoint,
   # plus the discovery documents. All gated on the same opt-in toggle as /mcp;

@@ -44,6 +44,17 @@ class McpController < ActionController::API
     render status:, body: Array(body).join
   end
 
+  # Every other Streamable HTTP method. The spec asks a server that does not
+  # offer them to say so with 405 and an Allow header, which tells a client to
+  # stop trying; a 404 tells it the endpoint moved. Still invisible when MCP is
+  # off, since that is the one thing a 404 must keep saying.
+  def unsupported_method
+    return head :not_found unless mcp_available?
+
+    response.set_header('Allow', 'POST')
+    head :method_not_allowed
+  end
+
   private
 
   def mcp_available?

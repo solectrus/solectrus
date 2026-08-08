@@ -10,11 +10,25 @@
 # page; everyone else gets a 404, so it never reveals to anonymous visitors that
 # MCP is available here.
 class McpInfoController < ApplicationController
+  before_action :answer_mcp_client
   before_action :ensure_admin_and_mcp_available
 
   layout 'blank'
 
   private
+
+  # An MCP client asking for the GET stream is not a browser looking for a
+  # guide. Streamable HTTP requires 405 where a server offers no such stream,
+  # so it stops waiting for one; a 404 reads as "wrong URL" and sends it
+  # rediscovering an endpoint that is right here. Recognised by the Accept
+  # header, the one thing that separates the two callers on the same path.
+  def answer_mcp_client
+    return unless request.accepts.any? { |type| type.to_s == 'text/event-stream' }
+    return head :not_found unless McpOauth.available?
+
+    response.set_header('Allow', 'POST')
+    head :method_not_allowed
+  end
 
   # 404 (not 403) so the page never reveals whether MCP is enabled here.
   def ensure_admin_and_mcp_available

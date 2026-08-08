@@ -12,7 +12,11 @@ credential is your existing **admin password** (`ADMIN_PASSWORD`). Without an
 active sponsorship — or while the toggle is off — the endpoint and the whole
 OAuth surface are invisible (respond with 404).
 
-It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools:
+It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools.
+`POST` is the only method: the transport is stateless, so there is no GET stream
+and no session to terminate, and every other method answers `405` with
+`Allow: POST`. (A browser opening `/mcp` gets a short setup guide instead, for
+the admin alone.)
 
 - `list_sensors` — discover available sensors: a compact index of name,
   description and which tools work for each sensor (`tools`)

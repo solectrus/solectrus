@@ -65,6 +65,54 @@ describe 'MCP' do
           expect(response.body).to include(I18n.t('mcp_info.title'))
         end
       end
+
+      # An MCP client asking for the GET stream is not a browser looking for a
+      # guide. Streamable HTTP requires 405 where a server offers no such
+      # stream, so the client stops waiting for one; the 404 it used to get
+      # reads as "wrong URL" and sends it rediscovering an endpoint that is
+      # right here.
+      context 'when an MCP client asks for the event stream' do
+        it 'returns http method not allowed, naming what is allowed' do
+          get '/mcp', headers: { 'Accept' => 'text/event-stream' }
+
+          expect(response).to have_http_status(:method_not_allowed)
+          expect(response.headers['Allow']).to eq('POST')
+        end
+
+        it 'still hides the endpoint when MCP is disabled' do
+          Setting.mcp_enabled = false
+
+          get '/mcp', headers: { 'Accept' => 'text/event-stream' }
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
+
+  # Session termination, which a stateless transport has none of. Answering 404
+  # said "no endpoint here", which is the one thing that is not true.
+  describe 'DELETE /mcp' do
+    context 'when MCP is enabled' do
+      before do
+        Setting.mcp_enabled = true
+        allow(ApplicationPolicy).to receive(:mcp?).and_return(true)
+      end
+
+      it 'returns http method not allowed, naming what is allowed' do
+        delete '/mcp'
+
+        expect(response).to have_http_status(:method_not_allowed)
+        expect(response.headers['Allow']).to eq('POST')
+      end
+    end
+
+    context 'when MCP is disabled (default)' do
+      it 'stays invisible' do
+        delete '/mcp'
+
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 
