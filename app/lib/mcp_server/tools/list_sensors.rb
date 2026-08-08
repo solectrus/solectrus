@@ -111,7 +111,7 @@ module McpServer
       def self.entry_for(sensor)
         {
           name: sensor.name,
-          **(sensor.user_defined_name? ? { display_name: sensor.display_name } : {}),
+          **(sensor.user_defined_name? ? { display_name: mcp_display_name(sensor) } : {}),
           description: sensor.description,
           tools: McpServer::SupportedTools.code(sensor),
         }

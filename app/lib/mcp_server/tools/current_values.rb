@@ -112,7 +112,7 @@ module McpServer
       def self.display_name(sensor, requested)
         return {} if requested.blank?
 
-        { display_name: sensor.display_name }
+        { display_name: mcp_display_name(sensor) }
       end
       private_class_method :display_name
 

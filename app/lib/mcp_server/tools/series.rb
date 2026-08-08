@@ -204,7 +204,7 @@ module McpServer
 
         {
           sensor: sensor.name,
-          display_name: sensor.display_name,
+          display_name: mcp_display_name(sensor),
           unit:,
           point_count: points.size,
           points:,

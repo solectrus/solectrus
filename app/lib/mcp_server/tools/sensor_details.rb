@@ -60,7 +60,7 @@ module McpServer
       def self.details_for(sensor)
         {
           name: sensor.name,
-          display_name: sensor.display_name,
+          display_name: mcp_display_name(sensor),
           description: sensor.description,
           unit: mcp_unit(sensor),
           category: sensor.category,

@@ -200,7 +200,7 @@ module McpServer
 
         {
           sensor: sensor.name,
-          display_name: sensor.display_name,
+          display_name: mcp_display_name(sensor),
           unit:,
           aggregation: agg,
           # Set only where it applies, and then the whole signal: this ranking

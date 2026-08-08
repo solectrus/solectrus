@@ -76,7 +76,7 @@ module McpServer
 
           {
             name: sensor.name,
-            display_name: sensor.display_name,
+            display_name: mcp_display_name(sensor),
             unit:,
             aggregation:,
             value: Precision.round(value, unit),

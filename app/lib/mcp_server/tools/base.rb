@@ -244,6 +244,25 @@ module McpServer
           end
         end
 
+        # A soft hyphen marks where a browser MAY break a word. It is invisible,
+        # it is not part of the name, and it has no meaning outside a rendered
+        # page - but it survives JSON, so a client echoes it back at the user
+        # and a comparison against "Hausverbrauch" fails for a reason nobody can
+        # see.
+        SOFT_HYPHEN = "\u00AD".freeze
+        private_constant :SOFT_HYPHEN
+
+        # The sensor's name as DATA rather than as layout.
+        #
+        # Stripped here rather than at the source because the source is
+        # Setting.sensor_names, which holds whatever an admin saved in the
+        # settings form - and a break in "Haus-verbrauch" is right on a
+        # rendered page. Removing it there would take it away from the page
+        # that wants it.
+        def mcp_display_name(sensor)
+          sensor.display_name.delete(SOFT_HYPHEN)
+        end
+
         def watt_unit(sensor, summed)
           if sensor.name == :specific_yield
             summed ? :watt_hour_per_kwp : :watt_per_kwp
