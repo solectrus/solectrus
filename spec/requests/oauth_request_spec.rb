@@ -225,6 +225,45 @@ describe 'OAuth (MCP)' do
         expect(response.body).not_to include('code=')
       end
 
+      # The admin password is the only credential guarding MCP access, and this
+      # is the one endpoint that checks it without a session - reachable from
+      # the internet on any instance following docs/MCP.md. Unthrottled it
+      # answered guesses as fast as they arrived.
+      describe 'guessing the password' do
+        def guess(times)
+          times.times do
+            post '/oauth/authorize', params: authorize_params(password: 'wrong')
+          end
+        end
+
+        it 'stops answering after ten attempts from one address' do
+          guess(10)
+          expect(response).to have_http_status(:unauthorized)
+
+          guess(1)
+          expect(response).to have_http_status(:too_many_requests)
+          expect(response.body).to include(I18n.t('oauth.authorize.throttled_title'))
+        end
+
+        # A throttled attempt must not be handed back to the client's callback:
+        # that would return the attempt to whoever is making it.
+        it 'renders rather than redirecting' do
+          guess(11)
+
+          expect(response.headers['Location']).to be_nil
+        end
+
+        # The limit guards the credential check, so the correct password is
+        # refused too - otherwise an attacker learns when they have found it.
+        it 'refuses the right password too, once the limit is reached' do
+          guess(11)
+
+          post '/oauth/authorize', params: authorize_params(password: admin_password)
+
+          expect(response).to have_http_status(:too_many_requests)
+        end
+      end
+
       it 'does not redirect to a disallowed redirect_uri even with the password' do
         post '/oauth/authorize',
              params:

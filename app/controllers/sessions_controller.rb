@@ -4,6 +4,15 @@ class SessionsController < ApplicationController
   skip_before_action :check_for_registration
   skip_before_action :check_for_sponsoring
 
+  # The same credential the OAuth authorization page checks, and the same
+  # reason to bound guesses: ADMIN_PASSWORD is the only thing between a
+  # reachable instance and full access. Throttling one entrance and not the
+  # other would only decide which door an attacker knocks on.
+  rate_limit to: 10,
+             within: 3.minutes,
+             only: :create,
+             with: -> { render_too_many_attempts }
+
   layout 'blank'
 
   def new
@@ -53,6 +62,25 @@ class SessionsController < ApplicationController
   end
 
   private
+
+  # Answered in the shape the form expects, so a throttled attempt reads like
+  # a rejected one rather than breaking the page: the Turbo request replaces
+  # the form, the plain one re-renders it. The reason rides on the model like
+  # a validation error, because the blank layout renders no flash.
+  def render_too_many_attempts
+    @admin_user = AdminUser.new
+    @admin_user.errors.add(:password, t('login.throttled'))
+    @return_to = safe_return_path(params[:return_to])
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream:
+                 turbo_stream.replace(helpers.dom_id(@admin_user), partial: 'form'),
+               status: :too_many_requests
+      end
+      format.html { render :new, status: :too_many_requests }
+    end
+  end
 
   def start_admin_session
     reset_session

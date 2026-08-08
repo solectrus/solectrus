@@ -24,6 +24,20 @@ class Oauth::AuthorizationsController < ActionController::Base
     policy.form_action :self, :http, :https
   end
 
+  # The admin password is the only credential guarding MCP access, and this is
+  # the one endpoint that checks it without a session - reachable from the
+  # internet on any instance following docs/MCP.md, which describes exposing it
+  # through a tunnel so a browser-based AI client can connect. Unthrottled, it
+  # answers guesses as fast as they arrive.
+  #
+  # Ten per three minutes costs a real admin nothing: they type the password
+  # once, when connecting a client. It also holds for the login form, which
+  # checks the same password (SessionsController).
+  rate_limit to: 10,
+             within: 3.minutes,
+             only: :create,
+             with: -> { render_too_many_attempts }
+
   def new
     return render_invalid_request unless valid_authorize_request?
 
@@ -97,5 +111,12 @@ class Oauth::AuthorizationsController < ActionController::Base
   def render_invalid_request
     # The redirect_uri is untrusted/invalid here, so we must NOT redirect to it.
     render :error, status: :bad_request
+  end
+
+  # Rendered rather than redirected for the same reason: the client is not
+  # owed a callback here, and a redirect would hand the attempt straight back
+  # to whoever is making it.
+  def render_too_many_attempts
+    render :throttled, status: :too_many_requests
   end
 end

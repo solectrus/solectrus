@@ -189,6 +189,7 @@ de:
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code>ADMIN_PASSWORD</code> ergänzt werden.
     password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf deinem Docker-Host.
     submit: Anmelden
+    throttled: Zu viele Anmeldeversuche von dieser Adresse. Bitte warte einige Minuten.
     cancel: Abbrechen
     welcome: Angemeldet als Admin.
     bye: Du wurdest abgemeldet.
@@ -203,6 +204,8 @@ de:
       error: Falsches Passwort.
       invalid_title: Ungültige Anfrage
       invalid_body: Diese Autorisierungsanfrage ist ungültig oder unvollständig. Bitte starte erneut aus deinem KI-Client.
+      throttled_title: Zu viele Versuche
+      throttled_body: Von dieser Adresse kamen zu viele Autorisierungsversuche. Warte einige Minuten und starte erneut aus deinem KI-Client.
   mcp_info:
     title: MCP-Endpunkt
     intro: 'Über diese Schnittstelle (MCP, Model Context Protocol) erhalten KI-Clients lesenden Zugriff auf deine SOLECTRUS-Daten: Messwerte, Prognosen, Preise und Anlagendetails.'

@@ -189,6 +189,7 @@ en:
     missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
     password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on your Docker host.
     submit: Log in
+    throttled: Too many login attempts from this address. Please wait a few minutes.
     cancel: Cancel
     welcome: Logged in as administrator.
     bye: You have been logged out.
@@ -203,6 +204,8 @@ en:
       error: Wrong password.
       invalid_title: Invalid request
       invalid_body: This authorization request is invalid or incomplete. Please start again from your AI client.
+      throttled_title: Too many attempts
+      throttled_body: Too many authorization attempts were made from this address. Please wait a few minutes and start again from your AI client.
   mcp_info:
     title: MCP endpoint
     intro: 'Through this interface (MCP, Model Context Protocol), AI clients get read-only access to your SOLECTRUS data: measurements, forecasts, prices and system details.'

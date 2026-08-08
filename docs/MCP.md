@@ -8,7 +8,9 @@ highest solar production?", "How was my self-consumption last month?").
 AI access (MCP) is a **sponsor-only feature** and is **disabled by default**.
 Sponsors enable it under **Settings → General → AI access (MCP)**. The endpoint
 is read-only and protected by OAuth 2.1 (authorization code + PKCE); the only
-credential is your existing **admin password** (`ADMIN_PASSWORD`). Without an
+credential is your existing **admin password** (`ADMIN_PASSWORD`), and the
+authorization page accepts ten attempts per three minutes from one address —
+enough for the one time you type it, not enough to guess it. Without an
 active sponsorship — or while the toggle is off — the endpoint and the whole
 OAuth surface are invisible (respond with 404).
 

@@ -38,6 +38,37 @@ describe 'Sessions' do
       expect(jar.signed[:admin]).to be true
     end
 
+    # ADMIN_PASSWORD is the only thing between a reachable instance and full
+    # access, and it is checked here and on the OAuth authorization page.
+    # Throttling one entrance and not the other would only decide which door an
+    # attacker knocks on.
+    describe 'guessing the password' do
+      def guess(times)
+        times.times do
+          post '/login', params: { admin_user: { password: 'invalid' } }
+        end
+      end
+
+      it 'stops answering after ten attempts from one address' do
+        guess(10)
+        expect(response).to have_http_status(:unauthorized)
+
+        guess(1)
+        expect(response).to have_http_status(:too_many_requests)
+        expect(response.body).to include(I18n.t('login.throttled'))
+      end
+
+      it 'grants no session once the limit is reached, right password or not' do
+        guess(11)
+
+        post '/login', params: { admin_user: { username: 'admin', password: } }
+
+        expect(response).to have_http_status(:too_many_requests)
+        jar = ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
+        expect(jar.signed[:admin]).to be_nil
+      end
+    end
+
     it 'redirects to return_to path for valid password' do
       post '/login',
            params: {

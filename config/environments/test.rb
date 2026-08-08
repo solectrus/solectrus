@@ -25,6 +25,13 @@ Rails.application.configure do
   config.consider_all_requests_local = true
   config.cache_store = :null_store
 
+  # Rate limiting counts through a cache, and a null store counts nothing - the
+  # throttle on the login and OAuth authorization endpoints would be untestable
+  # and silently unprotected here. Its own store, so nothing else starts caching
+  # in tests. Cleared between examples (spec/support/rate_limiting.rb), or the
+  # counter would carry across the suite and lock out the tests that log in.
+  config.action_controller.cache_store = :memory_store
+
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
 
