@@ -124,9 +124,14 @@ module McpServer
       end
       private_class_method :temperature_section
 
-      # Reuses Day#valid? (>= 2 samples over >= 8 h) to drop boundary-bucket
-      # artifacts and partial days at the edge of the forecast horizon - the
-      # same data-sufficiency gate the generation side applies.
+      # Day#valid? (>= 2 samples over >= 8 h) drops boundary-bucket artifacts
+      # and the partial day at the edge of the forecast horizon.
+      #
+      # The generation side gates on Day#total_wh, which shares the 8-hour span
+      # but additionally wants the day to open near zero - a curve that starts
+      # at full power is a day the horizon cut into. So the two sections can
+      # end on different dates, and neither list's length follows from the
+      # other's.
       def self.temperature_day(date, entries)
         return unless Sensor::Forecast::Day.new(date, entries).valid?
 
