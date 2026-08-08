@@ -48,7 +48,7 @@ class Oauth::TokensController < Oauth::BaseController
   # shared across hostnames (derived from secret_key_base), so the iss claim is
   # what binds a code/refresh token to the host it was minted for.
   def issued_here?(payload)
-    payload['iss'] == McpOauth.issuer(oauth_base_url)
+    payload['iss'] == McpOauth::Urls.issuer(oauth_base_url)
   end
 
   def issue_tokens

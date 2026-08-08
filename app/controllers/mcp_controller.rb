@@ -78,7 +78,7 @@ class McpController < ActionController::API
   # Point unauthenticated clients at the protected-resource metadata so they
   # can discover the authorization server and start the OAuth flow (RFC 9728).
   def request_authentication
-    metadata_url = McpOauth.protected_resource_metadata_url(request.base_url)
+    metadata_url = McpOauth::Urls.protected_resource_metadata_url(request.base_url)
     response.set_header(
       'WWW-Authenticate',
       %(Bearer resource_metadata="#{metadata_url}"),

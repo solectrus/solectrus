@@ -65,33 +65,12 @@ module McpOauth
       Setting.mcp_oauth_secret = SecureRandom.hex(32)
     end
 
-    # --- URLs, all derived from the request base URL (never hardcoded) ---
-
-    def issuer(base_url) = base_url
-    def resource_url(base_url) = "#{base_url}/mcp"
-    def authorization_endpoint(base_url) = "#{base_url}/oauth/authorize"
-    def token_endpoint(base_url) = "#{base_url}/oauth/token"
-    def registration_endpoint(base_url) = "#{base_url}/oauth/register"
-
-    def protected_resource_metadata_url(base_url) = "#{base_url}/.well-known/oauth-protected-resource"
-
-    # Append the authorization code (and optional state) to the client's
-    # redirect_uri, preserving any query the client already put there.
-    def callback_url(redirect_uri, code:, state: nil)
-      uri = URI.parse(redirect_uri)
-      query = URI.decode_www_form(uri.query || '')
-      query << ['code', code]
-      query << ['state', state] if state.present?
-      uri.query = URI.encode_www_form(query)
-      uri.to_s
-    end
-
     # --- Token minting ---
 
     def encode_code(base_url:, redirect_uri:, code_challenge:)
       encode(
         typ: 'code',
-        iss: issuer(base_url),
+        iss: Urls.issuer(base_url),
         redirect_uri:,
         code_challenge:,
         exp: CODE_TTL.from_now.to_i,
@@ -101,8 +80,8 @@ module McpOauth
     def encode_access_token(base_url:)
       encode(
         typ: 'access',
-        iss: issuer(base_url),
-        aud: resource_url(base_url),
+        iss: Urls.issuer(base_url),
+        aud: Urls.resource_url(base_url),
         sub: 'admin',
         exp: ACCESS_TOKEN_TTL.from_now.to_i,
       )
@@ -111,7 +90,7 @@ module McpOauth
     def encode_refresh_token(base_url:)
       encode(
         typ: 'refresh',
-        iss: issuer(base_url),
+        iss: Urls.issuer(base_url),
         sub: 'admin',
         exp: REFRESH_TOKEN_TTL.from_now.to_i,
       )
@@ -129,8 +108,8 @@ module McpOauth
     def valid_access_token?(token, base_url:)
       payload = decode(token)
       payload if payload['typ'] == 'access' &&
-        payload['aud'] == resource_url(base_url) &&
-        payload['iss'] == issuer(base_url)
+        payload['aud'] == Urls.resource_url(base_url) &&
+        payload['iss'] == Urls.issuer(base_url)
     rescue JWT::DecodeError
       nil
     end

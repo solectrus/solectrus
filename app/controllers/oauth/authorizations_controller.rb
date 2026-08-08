@@ -54,7 +54,7 @@ class Oauth::AuthorizationsController < ActionController::Base
     end
 
     callback =
-      McpOauth.callback_url(
+      McpOauth::Urls.callback(
         authorize_params[:redirect_uri],
         code: mint_code,
         state: authorize_params[:state],
