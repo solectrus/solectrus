@@ -200,6 +200,15 @@ describe 'OAuth (MCP)' do
 
         expect(response).to have_http_status(:bad_request)
       end
+
+      # The page names the target host, and that is the whole guard. A
+      # redirect_uri without an authority leaves it with nothing to name.
+      it 'rejects a redirect_uri that carries no host' do
+        get '/oauth/authorize',
+            params: authorize_params(redirect_uri: 'https:/evil.com/callback')
+
+        expect(response).to have_http_status(:bad_request)
+      end
     end
 
     describe 'POST /oauth/authorize' do
@@ -262,6 +271,22 @@ describe 'OAuth (MCP)' do
 
           expect(response).to have_http_status(:too_many_requests)
         end
+      end
+
+      # Without an authority the browser resolves the Location we send against
+      # the request URL, and on a plain-http instance that reads the host back
+      # out of the path: "https:/evil.com/callback" becomes
+      # "https://evil.com/callback". So no code may be minted for one.
+      it 'mints no code for a redirect_uri that carries no host' do
+        post '/oauth/authorize',
+             params:
+               authorize_params(
+                 redirect_uri: 'https:/evil.com/callback',
+                 password: admin_password,
+               )
+
+        expect(response).to have_http_status(:bad_request)
+        expect(response.headers['Location']).to be_nil
       end
 
       it 'does not redirect to a disallowed redirect_uri even with the password' do

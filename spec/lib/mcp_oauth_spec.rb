@@ -137,6 +137,15 @@ describe McpOauth do
       expect(described_class.valid_redirect_uri?('http://localhost:51763')).to be(false)
     end
 
+    # URI.parse reads these as a path alone. The consent page then names no
+    # host, and a browser resolving the Location against a plain-http instance
+    # reads the host back out of that path.
+    it 'rejects a redirect without a host' do
+      expect(described_class.valid_redirect_uri?('https:/evil.com/callback')).to be(false)
+      expect(described_class.valid_redirect_uri?('https:///callback')).to be(false)
+      expect(described_class.valid_redirect_uri?('https://@/callback')).to be(false)
+    end
+
     it 'rejects blank or malformed input' do
       expect(described_class.valid_redirect_uri?(nil)).to be(false)
       expect(described_class.valid_redirect_uri?('::::')).to be(false)
