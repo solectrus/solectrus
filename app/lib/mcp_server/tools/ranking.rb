@@ -151,6 +151,12 @@ module McpServer
         enforce_supported!(definitions, :ranking, unknown)
 
         tf = parse_timeframe(timeframe)
+
+        # After the validations, so a rejected call spends no time building
+        # summaries it will not read. A ranking reads nothing else, so a day
+        # without a summary does not rank low - it is absent from the list.
+        pending = McpServer::Summaries.refresh(tf)
+
         effective = effective_limit(limit, definitions.size)
         options = {
           timeframe: tf,
@@ -163,6 +169,7 @@ module McpServer
 
         {
           **timeframe_preamble(tf, unknown),
+          **pending,
           period:,
           order:,
           sort:,

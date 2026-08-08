@@ -82,6 +82,12 @@ module McpServer
         effective_period = AmortizationCalculator.clamp_period(period_years)
         effective_rate = AmortizationCalculator.clamp_interest(interest_rate)
 
+        # The measured half reads the summaries of the whole history
+        # (AmortizationCalculator::SavingsSeries), so the same on-demand build
+        # applies. Usually that is the running day alone: over a span this
+        # long a summary counts stale only every few hours.
+        pending = McpServer::Summaries.refresh(Timeframe.all)
+
         result =
           AmortizationCalculator.result(
             period_years: effective_period,
@@ -92,6 +98,7 @@ module McpServer
           currency: Rails.configuration.x.currency,
           period_years: effective_period,
           interest_rate: effective_rate,
+          **pending,
           **figures(result),
         }
       end

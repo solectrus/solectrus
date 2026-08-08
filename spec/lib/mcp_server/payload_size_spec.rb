@@ -73,7 +73,10 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # ~50 while every point carried its own ISO timestamp.
       'get_series (1 sensor, day, 1h)' => 500,
       'get_series (5 sensors, day, 1m)' => 11_000,
-      'get_ranking (3 sensors, all, day)' => 1_000,
+      # Ranks over "all" with almost nothing summarized, so it is the one call
+      # here that carries a `summary_note`. A real instance answers "all" with
+      # the running day pending at most, and pays nothing for it.
+      'get_ranking (3 sensors, all, day)' => 1_150,
       'get_forecast' => 1_350,
       'get_amortization' => 2_100,
     }

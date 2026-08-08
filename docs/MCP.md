@@ -56,6 +56,15 @@ the admin alone.)
 The backend (InfluxDB for live/hourly data, PostgreSQL summaries for
 day/month/year) is chosen automatically based on the requested timeframe.
 
+Those summaries are built on demand, and a tool call that needs them builds
+them first — just as opening the corresponding page does. The running day
+matters most here: it has no summary until something asks for one, so without
+this a question about today would be answered `null` while the inverter was
+feeding in. A call builds at most a month of missing days; where more are
+pending — an instance whose history was never opened in a browser — the answer
+carries a `summary_note` saying how many days it is missing, and the summaries
+page builds the rest with a progress bar.
+
 ### Curves and rankings are an axis plus values
 
 `get_series` and `get_ranking` return the axis once and then a bare `values`

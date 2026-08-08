@@ -364,5 +364,42 @@ describe McpServer::Tools::Totals do
       grid_quote = percent_totals.find { _1[:name] == 'grid_quote' }
       expect(grid_quote[:value]).to eq(25.9)
     end
+
+    # The running day has no summary until something asks for one, and a web
+    # request that needs summaries builds them first. MCP renders no page, so
+    # it used to be the one caller that never did: "how much did I produce
+    # today?" answered null while the inverter was feeding in.
+    it 'answers for the running day, which has no summary yet' do
+      # Fixed midday, so the seeded hours always land inside the running day.
+      travel_to Time.zone.local(2024, 6, 15, 12, 0, 0)
+
+      influx_batch do
+        6.times do |quarter|
+          add_influx_point(
+            name: Sensor::Config.measurement(:house_power),
+            fields: {
+              Sensor::Config.field(:house_power) => 2_000.0,
+            },
+            time: Time.current - (quarter * 15).minutes,
+          )
+        end
+      end
+      Summary.where(date: Date.current).delete_all
+      expect(Summary.where(date: Date.current)).not_to exist
+
+      response =
+        described_class.call(
+          server_context: nil,
+          timeframe: 'day',
+          sensors: ['house_power'],
+        )
+
+      total =
+        JSON.parse(response.content.first[:text], symbolize_names: true)[
+          :totals,
+        ].first
+      expect(total[:value]).to be_positive
+      expect(Summary.where(date: Date.current)).to exist
+    end
   end
 end

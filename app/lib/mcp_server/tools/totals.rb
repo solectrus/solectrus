@@ -38,8 +38,13 @@ module McpServer
 
         aggregations = resolved.index_with(&:default_aggregation)
 
+        # After the validations, so a rejected call spends no time building
+        # summaries it will not read.
+        pending = McpServer::Summaries.refresh(tf)
+
         {
           **timeframe_preamble(tf, unknown),
+          **pending,
           totals: build_totals(totals(tf, aggregations), aggregations),
         }
       end
