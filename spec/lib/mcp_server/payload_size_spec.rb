@@ -45,35 +45,18 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
 
   def ranking_sensors = %w[inverter_power house_power grid_import_power]
 
-  # Upper bound per call, in bytes. Not a measurement but a contract: a change
-  # that pushes a response past its ceiling has to be seen and the ceiling
-  # moved deliberately. Set ~15 % above the sizes currently measured, so
-  # ordinary noise does not trip them but a lost improvement does.
+  # Upper bound per call, in bytes. Not a measurement but a contract, and it
+  # runs in both directions. A change that pushes a response past its ceiling
+  # has to be seen and the ceiling raised on purpose. A change that makes a
+  # response smaller has to bring its ceiling down with it, or the saving
+  # leaks back one field at a time.
+  #
+  # Set ~15 % above what is measured today, so ordinary noise does not trip
+  # them. Why any single number moved is in `git log` for this file, not here:
+  # a ceiling explains what it guards, and the trail of what it used to be
+  # outgrew the numbers it annotated.
   def ceilings
     {
-      # Moved from 24_600: three tools gained behaviour a client cannot infer
-      # (get_current_values drops the _grid/_pv splits from its default set and
-      # refuses a split its inputs do not support, get_series spends no budget
-      # on buckets that lie ahead, get_prices renamed `current` to `effective`),
-      # and the schemas now carry their own bounds - maxItems, minimum/maximum,
-      # default - instead of stating them in prose only. That is prose a model
-      # would otherwise have to be told twice.
-      #
-      # Moved again from 26_600, by 140 bytes of correction: get_series said
-      # "exactly two things coarsen a request" while it could report three,
-      # get_prices left the null `effective` unstated, get_current_values left
-      # the top-level `time` open to being read as a shared instant, and
-      # get_sensor_details did not say that an economic sensor is calculated.
-      # A description a client cannot trust costs more than the bytes do, and
-      # the growth was paid for by dropping two sentences the error messages
-      # already carry.
-      #
-      # Lowered from 26_800 and 17_000: each cross-tool convention is now
-      # stated once, in the server instructions or in list_sensors'
-      # `conventions`, instead of in every description that needed it - the
-      # timeframe note and the unknown-sensor rule were carried by three tools
-      # each. Ratcheting the ceilings down is what keeps that from creeping
-      # back one sentence at a time.
       'tool definitions + instructions' => 23_500,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
