@@ -15,10 +15,10 @@ active sponsorship — or while the toggle is off — the endpoint and the whole
 OAuth surface are invisible (respond with 404).
 
 It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools.
-`POST` is the only method: the transport is stateless, so there is no GET stream
-and no session to terminate, and every other method answers `405` with
-`Allow: POST`. (A browser opening `/mcp` gets a short setup guide instead, for
-the admin alone.)
+`POST` is the only method that carries the protocol: the transport is stateless,
+so there is no GET stream and no session to terminate, and `PUT`, `PATCH` and
+`DELETE` answer `405` with `Allow: POST`. (A browser opening `/mcp` gets a short
+setup guide instead, for the admin alone.)
 
 - `list_sensors` — discover available sensors: a compact index of name,
   description and which tools work for each sensor (`tools`)
@@ -50,8 +50,9 @@ the admin alone.)
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > _energy_, so in `get_totals`/`get_ranking` the resulting `value` is in Wh,
 > not W (divide by 1000 for kWh) — never read a watt-sum as a power. The same
-> holds for `co2_reduction`: live it is a rate (`gram_per_hour`, the CO₂
-> avoided at the current generation), aggregated an amount (`gram`).
+> holds for `co2_reduction`: unaggregated — a live reading or a `get_series`
+> curve — it is a rate (`gram_per_hour`, the CO₂ avoided at the current
+> generation), aggregated an amount (`gram`).
 
 The backend (InfluxDB for live/hourly data, PostgreSQL summaries for
 day/month/year) is chosen automatically based on the requested timeframe.
@@ -140,8 +141,8 @@ under the shared point budget. `get_totals` has no such condition, and
 limit, not a data one: the split is drawn as stacked bars, and shorter
 timeframes render as line charts.)
 
-`list_sensors` also omits the splits from its index — they roughly double the
-response without carrying anything their base sensor and the suffix do not.
+`list_sensors` also omits the splits from its index — they lengthen it without
+carrying anything their base sensor and the suffix do not.
 `conventions.suffixes.split_bases` names every base that has them, and
 `get_sensor_details` answers for a split by name.
 
@@ -203,6 +204,22 @@ configured, the daily temperature (°C):
 - `temperature.days` gives daily min/max/avg for today and the upcoming days. It
   is omitted entirely when no outdoor temperature forecast is configured.
 
+Where no forecast has been stored at all — the provider is not set up, has not
+been fetched yet, or is failing — `today_remaining` is `null` and a
+`forecast_note` says so, next to an empty `days` list:
+
+```json
+{
+  "timezone": "Europe/Berlin",
+  "generated_at": "2026-06-26T08:52:00+02:00",
+  "forecast_note": "No forecast data is stored, so this is NOT a forecast of zero: …",
+  "generation": { "unit": "Wh", "today_remaining": null, "days": [] }
+}
+```
+
+A `0` would be a number, and a number reads as a prediction. Report that case as
+"no forecast available", never as "no generation expected".
+
 For the predicted power **curve** (intraday shape), use `get_series` on the
 forecast sensor instead. To judge whether a whole month/year will be good,
 combine `get_forecast` with `get_totals` for the measured part and earlier
@@ -216,8 +233,12 @@ manually kept cash flow register (investments, subsidies, operating costs,
 revenue) and returns the amortization degree, the net position as of today,
 the break-even date and the key financial figures. Two optional parameters
 allow what-if scenarios: `period_years` (10–30, default 20) and `interest_rate`
-(0–10 % p.a., default 3). If no cash flows are configured yet, the tool reports
-that there is nothing to amortize.
+(0–10 % p.a., default 3). Both are clamped into range rather than rejected, and
+the response echoes what was applied. The lower bound of `period_years` grows
+with the age of the system: a period that has already ended says nothing about
+the investment, so a system running for 12 years cannot be evaluated over 10.
+If no cash flows are configured yet, the tool reports that there is nothing to
+amortize.
 
 ## Connecting a client
 
