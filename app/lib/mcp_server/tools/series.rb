@@ -87,7 +87,10 @@ module McpServer
             ),
           resolution: {
             type: 'string',
-            enum: %w[1m 5m 15m 1h],
+            # Read off the ladder that implements it, never spelled out again:
+            # the two lists drifting is what once turned resolution "1d" into
+            # the finest bucket instead of the coarsest.
+            enum: Resolution::LABELS,
             description: 'Bucket size. Defaults to the finest that fits the point budget.',
           },
           aggregation: {

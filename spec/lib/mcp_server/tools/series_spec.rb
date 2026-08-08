@@ -947,7 +947,7 @@ describe McpServer::Tools::Series do
         error, = call(
           sensors: ['battery_soc'],
           timeframe: '2024-01-01..2024-01-03',
-          resolution: '1d',
+          resolution: '1h',
         )
 
         expect(error).to be(false)
@@ -963,7 +963,7 @@ describe McpServer::Tools::Series do
           call(
             sensors: ['inverter_power_forecast'],
             timeframe: 'P2D',
-            resolution: '1d',
+            resolution: '1h',
             aggregation: 'sum',
           )
 
@@ -983,7 +983,7 @@ describe McpServer::Tools::Series do
             call(
               sensors: ['inverter_power_forecast'],
               timeframe: 'P2D',
-              resolution: '1d',
+              resolution: '1h',
               aggregation:,
             )
 
@@ -1019,6 +1019,29 @@ describe McpServer::Tools::Series do
 
         expect(error).to be(true)
         expect(text).to include('not a valid timeframe')
+      end
+
+      # The schema rejects these first; this is the backstop for a client
+      # working from a cached schema, and "1d" WAS a valid label until
+      # recently, so those clients exist. What it replaces is worse than an
+      # error: an unknown label fell through to index 0 and answered the
+      # COARSEST request with the FINEST bucket - 1440 points where 1 was
+      # asked for, reported as `coarsened: true` with advice to shorten the
+      # timeframe.
+      it 'rejects a resolution outside the ladder, listing the ones that exist' do
+        %w[1d 30m 1H].each do |bad|
+          error, text = call(sensors: ['battery_soc'], timeframe: 'P3H', resolution: bad)
+
+          expect(error).to be(true), "expected #{bad} to be rejected"
+          expect(text).to include("Unknown resolution \"#{bad}\"", *described_class::Resolution::LABELS)
+        end
+      end
+
+      # Two lists of the same thing drift, and this pair already did.
+      it 'offers exactly the ladder it implements' do
+        enum = described_class.input_schema.to_h.dig(:properties, :resolution, :enum)
+
+        expect(enum).to eq(described_class::Resolution::LABELS)
       end
 
       it 'rejects sensors with no curve (money, chart-only composites)' do

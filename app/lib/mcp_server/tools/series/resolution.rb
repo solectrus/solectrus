@@ -15,6 +15,17 @@ module McpServer
         RESOLUTIONS = [['1m', 60], ['5m', 300], ['15m', 900], ['1h', 3600]].freeze
         private_constant :RESOLUTIONS
 
+        # The labels the input schema publishes, taken from the ladder itself.
+        #
+        # They used to be a second list, spelled out in Series' input_schema,
+        # with nothing keeping the two in step. A label the ladder does not
+        # carry falls through the lookup below to index 0, so the request comes
+        # back at the FINEST bucket instead of being refused - 288 points where
+        # 24 were asked for, reported as coarsened by the point budget, with
+        # advice to shorten a timeframe that was never the problem.
+        LABELS = RESOLUTIONS.map(&:first).freeze
+        public_constant :LABELS
+
         # Hard cap on points across the WHOLE response, shared by all requested
         # sensors (every sensor returns the same bucket count). The resolution
         # is coarsened until the combined series fit within it.
@@ -56,6 +67,7 @@ module McpServer
         # - which is what guarantees the monotonicity a client relies on: a
         # coarser request can never yield a coarser result than a finer one.
         def for(requested, timeframe, definitions, include_nulls: true)
+          validate!(requested)
           span = billable_span(timeframe, definitions, include_nulls)
           budgeted = within_budget(requested, span, definitions.size)
           raise ArgumentError, over_budget(span, definitions) unless budgeted
@@ -156,15 +168,38 @@ module McpServer
           (Time.current - timeframe.beginning).to_i.clamp(1, span)
         end
 
-        # Start at the requested resolution (or the finest when unset/unknown)
-        # and coarsen until each sensor's series fits within its share of the
+        # A resolution outside the ladder, refused by name.
+        #
+        # The schema rejects it first, so this is the backstop for a client
+        # working from a cached schema - and "1d" was a valid label until this
+        # tool was bounded to 99 hours, so those clients exist. Refusing beats
+        # guessing: the guess this replaced returned the finest bucket for the
+        # coarsest request, which is the one answer that can blow up a context
+        # window while looking like an ordinary reply.
+        def validate!(requested)
+          return if requested.blank? || LABELS.include?(requested)
+
+          raise ArgumentError,
+                "Unknown resolution \"#{requested}\". Use one of: " \
+                  "#{LABELS.join(', ')}. A bucket coarser than \"1h\" is a " \
+                  'summary question - get_ranking(sort: "chronological") ' \
+                  'reads a value per day, week, month or year from the ' \
+                  'summaries, exact per period rather than a mean per bucket.'
+        end
+
+        # Start at the requested resolution (or the finest when unset) and
+        # coarsen until each sensor's series fits within its share of the
         # budget. Sharing MAX_POINTS across the `sensor_count` requested sensors
         # keeps an N-sensor request from overflowing the client by Nx, and
         # clamps an explicitly requested resolution too. Returns nil where not
         # even the coarsest bucket fits.
+        #
+        # `requested` is known to be a valid label or blank by now (validate!),
+        # so the lookup cannot miss - which is what makes starting at index 0
+        # mean "nothing was asked for" rather than "something unrecognized was".
         def within_budget(requested, span, sensor_count)
           budget = per_sensor_budget(sensor_count)
-          start = RESOLUTIONS.index { |label, _| label == requested } || 0
+          start = requested.blank? ? 0 : LABELS.index(requested)
 
           entry = RESOLUTIONS[start..].find { |_label, secs| span.fdiv(secs).ceil <= budget }
           entry&.last
