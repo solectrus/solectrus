@@ -65,11 +65,12 @@ module McpServer
 
         sort="chronological" returns the selected periods in date order, ready
         to plot. A period without data between the first and the last entry is
-        reported with value null, distinct from a measured 0; nothing is padded
-        outside that span, and a list truncated by `limit` is left alone (a
-        period missing there may simply not have made the cut). A value ranking
-        never reports such periods, so pair "chronological" with a generous
-        limit for a full curve.
+        reported with value null, distinct from a measured 0, as long as the
+        filled list fits `limit`. Where it does not, and where `limit` truncated
+        the list already, the entries are left as they are and their `indices`
+        show where they sit. Nothing is ever padded outside the first and last
+        entry, and a value ranking reports no such periods at all — so pair
+        "chronological" with a generous limit for a full curve.
 
         `limit` counts per sensor but the budget is SHARED: N sensors get
         #{MAX_ENTRIES}/N entries each at most, so a long list and many sensors

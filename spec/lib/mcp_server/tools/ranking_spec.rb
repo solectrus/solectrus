@@ -102,6 +102,19 @@ describe McpServer::Tools::Ranking do
         expect(ranking(limit: 4).pluck(:value)).to all(be_present)
       end
 
+      # Filling regardless was the one way this tool could answer with more
+      # entries than the limit it reports - so neither that limit nor the
+      # budget the sensors share bounded the response.
+      it 'never answers with more entries than the limit it reports' do
+        # The four days with data span six, which limit: 5 cannot hold.
+        expect(ranking(limit: 5).size).to eq(4)
+        expect(ranking(limit: 5).pluck(:value)).to all(be_present)
+      end
+
+      it 'fills the gaps as soon as they fit' do
+        expect(ranking(limit: 6).size).to eq(6)
+      end
+
       it 'keeps a value ranking free of periods without data' do
         _error, data =
           call(sensor: 'house_power', timeframe: range, sort: 'value', limit: 50)

@@ -115,14 +115,23 @@ module McpServer
         # A list truncated by the limit is left alone - a period missing from a
         # top-N selection may simply not have made the cut, and a null would
         # claim it has no data.
+        #
+        # And so is a list whose gaps do not fit inside the limit. Filling them
+        # regardless was the one way this tool could answer with MORE entries
+        # than the limit it reports, so neither that limit nor the budget the
+        # sensors share bounded the response: a handful of entries scattered
+        # over a few years fills with a null per day between them. Their
+        # `indices` still show where the entries sit.
         def with_gaps(rows, period, limit)
           return rows if rows.size < 2 || rows.size >= limit
 
           by_date = rows.index_by { |entry| entry[:date] }
-          dates = period_range(rows.first[:date], rows.last[:date], period)
-          dates |= by_date.keys
-          dates.sort!
+          dates =
+            period_range(rows.first[:date], rows.last[:date], period) |
+              by_date.keys
+          return rows if dates.size > limit
 
+          dates.sort!
           dates.map { |date| by_date[date] || { date:, value: nil } }
         end
 
