@@ -395,6 +395,63 @@ describe 'OAuth (MCP)' do
         expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body['error']).to eq('invalid_grant')
       end
+
+      # A refresh hands back a new refresh token, so the fortnight it is valid
+      # for bounds only an abandoned token. Without a deadline that outlives
+      # the rotation, a token in use renewed itself forever - and a stolen one
+      # with it.
+      describe 'the chain of refreshes' do
+        def refresh_once(token)
+          post '/oauth/token',
+               params: { grant_type: 'refresh_token', refresh_token: token }
+          response.parsed_body['refresh_token']
+        end
+
+        it 'keeps the deadline the authorization was granted with' do
+          first = McpOauth.encode_refresh_token(base_url: 'http://www.example.com')
+          deadline = McpOauth.decode(first)['chain_exp']
+
+          second = refresh_once(first)
+
+          expect(McpOauth.decode(second)['chain_exp']).to eq(deadline)
+        end
+
+        it 'refuses to reach past it, however often it is refreshed' do
+          token = McpOauth.encode_refresh_token(base_url: 'http://www.example.com')
+          deadline = McpOauth.decode(token)['chain_exp']
+
+          # A client renewing every fortnight, well past the 90 days.
+          6.times do
+            travel 13.days
+            token = refresh_once(token)
+            expect(token).to be_present
+          end
+          travel 13.days
+
+          expect(refresh_once(token)).to be_nil
+          expect(response.parsed_body['error']).to eq('invalid_grant')
+          expect(deadline).to be < Time.current.to_i
+        end
+
+        # A token minted before the deadline existed carries none. Dropping
+        # those would disconnect every client on an upgrade, for a theft
+        # nobody reported.
+        it 'starts a chain for a token issued before there were any' do
+          legacy =
+            JWT.encode(
+              {
+                typ: 'refresh',
+                iss: 'http://www.example.com',
+                sub: 'admin',
+                exp: 3.days.from_now.to_i,
+              },
+              McpOauth.signing_key,
+              'HS256',
+            )
+
+          expect(McpOauth.decode(refresh_once(legacy))['chain_exp']).to be_present
+        end
+      end
     end
 
     describe 'POST /oauth/token (unknown grant)' do

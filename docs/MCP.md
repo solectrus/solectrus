@@ -241,6 +241,18 @@ clients use an HTTPS callback on their own domain (e.g.
 accepted; the target host is shown to you on the password page so you can
 confirm where access is granted before entering your password.
 
+### Ending access
+
+One authorization lasts **90 days**, however often the client refreshes in
+between. After that the client asks for the admin password again.
+
+To end it sooner, switch AI access off under **Settings → General**. That
+rotates the OAuth signing secret, so every connected client is dropped at once
+and switching it back on does not bring old connections back.
+
+There is no per-client revocation: tokens are stateless and nothing is stored
+server-side, which is also why no client list exists to revoke from.
+
 ### Where does the client run? (cloud vs. local network)
 
 This distinction decides whether a homelab install works, because the client —

@@ -21,11 +21,26 @@ module McpOauth
   public_constant :ACCESS_TOKEN_TTL
 
   # Stateless refresh tokens cannot be rotated or individually revoked, so a
-  # stolen one grants access until it expires (only a global secret rotation
-  # cuts it short). Kept deliberately short to bound that window; a connected
-  # client refreshes well within this, so it is never user-visible.
+  # stolen one grants access until it expires. Kept short so a token that stops
+  # being refreshed dies quickly; a connected client refreshes well within
+  # this, so it is never user-visible.
   REFRESH_TOKEN_TTL = 14.days
   private_constant :REFRESH_TOKEN_TTL
+
+  # How long ONE authorization may keep granting access, however often it is
+  # refreshed.
+  #
+  # A refresh hands back a new refresh token, so the 14 days above bound only
+  # an ABANDONED token. They bound nothing for a token in use: every refresh
+  # started the fortnight over, and a stolen one renewed itself forever as long
+  # as it was used at least once a fortnight. Only rotating the signing secret
+  # ended that, and nothing told the admin to.
+  #
+  # The deadline is minted once, when the admin consents, and carried across
+  # every refresh. So an authorization ends on a fixed date and the admin
+  # re-consents about once a quarter.
+  REFRESH_CHAIN_TTL = 90.days
+  public_constant :REFRESH_CHAIN_TTL
 
   # Stateless authorization codes cannot be made strictly single-use. We
   # mitigate this with a very short lifetime plus binding to
@@ -87,12 +102,24 @@ module McpOauth
       )
     end
 
-    def encode_refresh_token(base_url:)
+    # `chain_exp` is the deadline of the authorization this token continues -
+    # nil starts a new chain, which is what an exchanged authorization code
+    # does. A refresh token issued before the deadline existed carries none
+    # either, so an upgrade starts its chain rather than dropping a client that
+    # was connected all along.
+    #
+    # The deadline caps the token's own lifetime, so an exhausted chain needs
+    # no check of its own: the token is expired, and JWT.decode refuses it like
+    # any other expired token.
+    def encode_refresh_token(base_url:, chain_exp: nil)
+      deadline = chain_exp.presence || REFRESH_CHAIN_TTL.from_now.to_i
+
       encode(
         typ: 'refresh',
         iss: Urls.issuer(base_url),
         sub: 'admin',
-        exp: REFRESH_TOKEN_TTL.from_now.to_i,
+        chain_exp: deadline,
+        exp: [REFRESH_TOKEN_TTL.from_now.to_i, deadline].min,
       )
     end
 

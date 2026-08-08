@@ -19,6 +19,8 @@ class Oauth::TokensController < Oauth::BaseController
     issue_tokens
   end
 
+  # The chain deadline travels with the token, so a refresh continues the
+  # authorization the admin granted rather than starting a new one.
   def refresh
     payload = decode_grant(:refresh_token)
 
@@ -26,7 +28,7 @@ class Oauth::TokensController < Oauth::BaseController
       return render_error('invalid_grant')
     end
 
-    issue_tokens
+    issue_tokens(chain_exp: payload['chain_exp'])
   end
 
   # Decode a grant JWT (auth code or refresh token), returning the payload or
@@ -51,14 +53,14 @@ class Oauth::TokensController < Oauth::BaseController
     payload['iss'] == McpOauth::Urls.issuer(oauth_base_url)
   end
 
-  def issue_tokens
+  def issue_tokens(chain_exp: nil)
     base = oauth_base_url
 
     render json: {
       access_token: McpOauth.encode_access_token(base_url: base),
       token_type: 'Bearer',
       expires_in: McpOauth::ACCESS_TOKEN_TTL.to_i,
-      refresh_token: McpOauth.encode_refresh_token(base_url: base),
+      refresh_token: McpOauth.encode_refresh_token(base_url: base, chain_exp:),
     }
   end
 
