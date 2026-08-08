@@ -10,10 +10,9 @@ module McpServer
       description <<~TEXT.strip
         The most recent live reading of each sensor right now: power flows in
         watts (solar production, grid import/export, house, heatpump, wallbox),
-        battery state of charge, temperatures. With `sensors`, exactly those —
-        and only then a display_name each, which would be pure weight across a
-        large set. If all you need is whether data is still arriving,
-        get_system_info answers that in two fields.
+        battery state of charge, temperatures. With `sensors`, exactly those,
+        and a display_name each. If all you need is whether data is still
+        arriving, get_system_info answers that in two fields.
 
         Without `sensors` you get every configured sensor that HAS a live
         reading. Money sensors, the _grid/_pv power splits and chart-only
@@ -33,8 +32,7 @@ module McpServer
             two values here can describe states minutes apart — compare their
             ages before comparing them. The top-level `time` is the newest of
             them, not an instant they share, and the same skew is why two
-            sensors measuring the same thing can differ by a watt
-            (inverter_power 31 W next to inverter_power_total 32 W). Over a
+            sensors measuring the same thing can differ by a watt. Over a
             timeframe (get_totals) it averages out.
 
         A calculated sensor has no timestamp of its own and reports the newest

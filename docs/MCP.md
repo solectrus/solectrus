@@ -33,7 +33,9 @@ It is served at `POST /mcp` via stateless Streamable HTTP and offers these tools
 - `get_series` — sub-daily time series (intraday curves) for one or more
   sensors, over a short window only (at most 99 hours). It reads the raw
   InfluxDB samples; anything from a week upwards is a `get_totals` or
-  `get_ranking` question, answered from the PostgreSQL summaries
+  `get_ranking` question, answered from the PostgreSQL summaries. Every point
+  is labelled with the end of its bucket, on one grid; a bucket the window cuts
+  into carries `partial: true`
 - `get_forecast` — forecast for the coming days: expected PV generation (energy
   still to come today and per upcoming day) plus the outdoor temperature
   (daily min/max/avg)

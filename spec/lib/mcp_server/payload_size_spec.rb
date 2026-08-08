@@ -57,7 +57,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   # outgrew the numbers it annotated.
   def ceilings
     {
-      'tool definitions + instructions' => 23_500,
+      'tool definitions + instructions' => 24_000,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,

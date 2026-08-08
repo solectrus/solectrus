@@ -214,6 +214,86 @@ describe McpServer::Tools::Series do
         last_times = data[:series].map { |s| s[:points].last[:time] }
         expect(last_times.uniq).to eq([closing.iso8601])
       end
+
+      # A day that has ended is measured all the way through, so nothing in it
+      # is a fragment. Timeframe#ending is its last NANOSECOND, which the
+      # closing bucket compares as reaching past - and briefly did, marking
+      # every completed day's last hour as incomplete.
+      it 'marks no bucket of a completed day as partial' do
+        points = series(sensors: ['house_power'], timeframe: day, resolution: '1h').dig(:series, 0, :points)
+
+        expect(points.select { _1[:partial] }).to be_empty
+      end
+    end
+
+    # aggregateWindow clips its final bucket at the range stop, so the last
+    # point of a running window used to arrive off the grid every other point
+    # sits on ("05:00, 06:00, 06:44:29") - which a client reading the points as
+    # a raster can only take for a bucket of its own.
+    context 'with a window that opens and closes mid-bucket' do
+      # Every minute, so each bucket the window touches carries a value -
+      # including the sliver of the opening one that lies inside it. An empty
+      # bucket is deliberately never marked partial, so a gap there would test
+      # the wrong thing.
+      before do
+        influx_batch do
+          240.times do |i|
+            add_influx_point(
+              name: Sensor::Config.measurement(:house_power),
+              fields: {
+                Sensor::Config.field(:house_power) => i + 100.0,
+              },
+              time: Time.current.beginning_of_hour - 3.hours + i.minutes,
+            )
+          end
+        end
+      end
+
+      def points
+        series(sensors: ['house_power'], timeframe: 'P2H', resolution: '1h').dig(:series, 0, :points)
+      end
+
+      it 'puts every point on the grid' do
+        off_grid = points.reject { Time.iso8601(_1[:time]).min.zero? }
+
+        expect(off_grid).to be_empty
+      end
+
+      # Both edges get cut, and the opening one is the easier to misread: it
+      # sits at the start of the curve, where a client looks for a baseline.
+      it 'marks both cut edges as partial, and nothing between them' do
+        flagged = points.map { _1[:partial] == true }
+
+        expect(flagged.first).to be(true)
+        expect(flagged.last).to be(true)
+        expect(flagged[1..-2]).to all(be(false))
+      end
+    end
+
+    # The period still running: "day" nominally ends at midnight, so the bucket
+    # holding the current hour compares as complete against that bound while it
+    # is half over.
+    context 'with the period still running' do
+      before do
+        influx_batch do
+          add_influx_point(
+            name: Sensor::Config.measurement(:house_power),
+            fields: {
+              Sensor::Config.field(:house_power) => 500.0,
+            },
+            time: Time.current.beginning_of_hour + 1.minute,
+          )
+        end
+      end
+
+      it 'marks the current bucket but not the empty ones ahead of it' do
+        points = series(sensors: ['house_power'], timeframe: 'day', resolution: '1h').dig(:series, 0, :points)
+        flagged = points.select { _1[:partial] }
+
+        expect(flagged.size).to eq(1)
+        expect(flagged.first[:value]).not_to be_nil
+        expect(points.select { _1[:value].nil? && _1[:partial] }).to be_empty
+      end
     end
 
     context 'with resolution selection' do

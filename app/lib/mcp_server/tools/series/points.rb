@@ -4,6 +4,14 @@ module McpServer
       # Serialises one sensor's {time => value} hash into the point list a
       # client receives.
       module Points
+        # The raster a series sits on: how wide one bucket is, and where the
+        # window begins and ends. Together they decide both where a point is
+        # labelled and whether its bucket is complete, which is why they travel
+        # as one value rather than as three arguments that could be passed
+        # apart.
+        Grid = Data.define(:interval, :beginning, :ending)
+        public_constant :Grid
+
         module_function
 
         # Sorted {time, value} points. An empty bucket is a point without a
@@ -11,13 +19,23 @@ module McpServer
         # affordable, and it stays unambiguous because the remaining points sit
         # on the same grid - a missing timestamp reads exactly like an explicit
         # null.
-        def build(data, sensor_name, aggregation, unit:, include_nulls:, timeframe: nil)
+        def build(data, sensor_name, aggregation, unit:, include_nulls:, grid: nil)
           buckets = raw(data, sensor_name, aggregation) || {}
           buckets = buckets.compact unless include_nulls
-          closing = closing_bucket(timeframe)
 
           buckets.sort.map! do |time, value|
-            { time: normalize_time(time, closing), value: normalize_value(value, unit) }
+            at = grid_end(time, grid&.interval)
+            rounded = normalize_value(value, unit)
+
+            {
+              time: at.iso8601,
+              value: rounded,
+              # `partial` qualifies a value; an empty bucket has none to
+              # qualify. Without that guard every bucket still ahead of now
+              # carried the marker on a running period - 16 of them by
+              # breakfast, all saying "this null is incomplete".
+              **(!rounded.nil? && incomplete?(at, grid) ? { partial: true } : {}),
+            }
           end
         end
 
@@ -31,31 +49,59 @@ module McpServer
           data.public_send(sensor_name, aggregation, aggregation)
         end
 
-        # The last bucket of a calendar timeframe, as the timestamp Flux labels
-        # it with - or nil where there is nothing to correct.
+        # A bucket's end on the grid every other bucket sits on.
         #
-        # Timeframe#ending is the last nanosecond of the period, and it reaches
-        # Flux as the range stop with the fraction cut off (23:59:59).
-        # aggregateWindow clips its final bucket at that stop, so a day's last
-        # point arrives one second short of the grid every other point sits on:
-        # at "1h" a day reads 01:00, 02:00, ..., 23:00, 23:59:59, which a client
-        # can only take for a bucket of its own.
+        # aggregateWindow clips its FINAL bucket at the range stop, so the last
+        # point of a window arrives off-grid whenever the stop is not a grid
+        # tick - which is both of the stops this tool ever passes. A calendar
+        # day stops at 23:59:59, so a day at "1h" read 01:00, 02:00, ..., 23:00,
+        # 23:59:59. A window still running stops at now, so "P2H" at "1h" read
+        # 05:00, 06:00, 06:44:29. Either way a client reading the points as a
+        # raster can only take the last one for a bucket of its own.
+        #
+        # Rounding UP to the next tick states what the bucket covers rather than
+        # how far it happened to be filled, and it needs no special case: a
+        # point already on the grid rounds to itself. Ticks are counted from
+        # local midnight, which every offered resolution divides evenly, so they
+        # follow local time like the buckets themselves.
         #
         # Left to the serializer rather than fixed in Timeframe: the stop is
         # what every UI chart queries with too, and a global shift would move
         # every one of them for an MCP presentation detail.
-        def closing_bucket(timeframe)
-          ending = timeframe&.ending
-          return unless ending && ending == ending.end_of_day
+        def grid_end(time, interval)
+          return time unless interval
 
-          Time.zone.parse(ending.iso8601)
+          base = time.beginning_of_day
+          steps = ((time - base) / interval).ceil
+
+          base + (steps * interval)
         end
 
-        # The bucket's end, on the grid the other points sit on: the closing
-        # bucket of a calendar day ends at the next midnight, not one second
-        # before it.
-        def normalize_time(time, closing)
-          (time == closing ? closing + 1.second : time).iso8601
+        # Whether the window cuts into this bucket, so it holds less
+        # measurement than a full one and must not be compared with the rest.
+        # The same signal get_ranking gives for a period the timeframe cuts
+        # into, and for the same reason: the value is smaller for having been
+        # cut, not for having measured less.
+        #
+        # Both edges, because both get cut. A rolling window ("P2H" at 07:42)
+        # opens mid-bucket as surely as it closes mid-bucket, and the opening
+        # one is the easier of the two to misread - it sits at the start of the
+        # curve, where a client looks for a baseline.
+        def incomplete?(grid_end, grid)
+          return false unless grid&.interval
+
+          (grid.ending.present? && grid_end > exclusive_end(grid.ending)) ||
+            (grid.beginning.present? && (grid_end - grid.interval) < grid.beginning)
+        end
+
+        # Timeframe#ending is the last NANOSECOND of the period, so a calendar
+        # day ends at 23:59:59.999999999 and its final bucket, labelled with the
+        # next midnight, compares as reaching past it - marking a bucket that is
+        # in fact complete. Rounding the fraction up gives the exclusive end the
+        # comparison actually wants, and leaves a whole-second end (the "now" a
+        # rolling window stops at) exactly where it is.
+        def exclusive_end(ending)
+          ending.ceil
         end
 
         # Rounded by the unit policy like every other serialized value, then

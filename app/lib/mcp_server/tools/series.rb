@@ -42,17 +42,20 @@ module McpServer
         These are averaged value curves, NOT an energy source: a bucket holds
         the unweighted mean of its samples, so integrating a coarse series
         drifts from what the summaries hold — upward for a sensor written on
-        change, whose idle minutes carry no samples, by up to a multiple. The
-        averaged ratios drift with it (autarky, self-consumption rate), the
-        more so the coarser the bucket. For period totals (kWh, costs) and for
-        ratios, get_totals and get_ranking are the accurate answer.
+        change, whose idle minutes carry no samples, by up to a multiple.
+        Averaged ratios (autarky, self-consumption rate) drift with it, the
+        more so the coarser the bucket. For period totals and for ratios, the
+        two summary tools above are the accurate answer.
 
         Each point is {time, value}, `time` being the END of its bucket: at
         "5m" the point 07:05 covers 07:00–07:05, and a day's last bucket ends
-        at the NEXT midnight (00:00), on the same grid as every other point. A
-        null value means "no data", distinct from a measured 0. Buckets are cut
-        on the installation's timezone (get_system_info), so they follow local
-        time across a daylight-saving switch.
+        at the NEXT midnight (00:00). Every point sits on that grid, including
+        the edge buckets a rolling window cuts into — those are only partly
+        filled and say so with `partial: true`, the same signal get_ranking
+        gives. Never read a flagged point as a low one. A null value means "no
+        data", distinct from a measured 0. Buckets are cut on the
+        installation's timezone (get_system_info), so they follow local time
+        across a daylight-saving switch.
 
         Resolution, when omitted: the finest that keeps the WHOLE response
         within #{Resolution::MAX_POINTS} points — a budget SHARED by the
@@ -151,7 +154,9 @@ module McpServer
           **Resolution.explain(coarsened_by, resolution, label, definitions.size),
           aggregation:,
           series:
-            definitions.map { |sensor| series_for(sensor, data, agg, tf, include_nulls:) },
+            definitions.map do |sensor|
+              series_for(sensor, data, agg, include_nulls:, grid: grid_for(tf, interval, sensor))
+            end,
         }
       end
 
@@ -197,10 +202,35 @@ module McpServer
       end
       private_class_method :enforce_completed_timeframe!
 
-      def self.series_for(sensor, data, aggregation, timeframe, include_nulls:)
+      def self.grid_for(timeframe, interval, sensor)
+        Points::Grid.new(
+          interval:,
+          beginning: timeframe.beginning,
+          ending: measured_until(timeframe, sensor),
+        )
+      end
+      private_class_method :grid_for
+
+      # Where measurement stops for this sensor, which is what decides whether
+      # a bucket is fully filled.
+      #
+      # Not the timeframe's end, because the period still running cannot
+      # express it: "day" nominally ends at midnight, so the bucket holding the
+      # current hour compares as complete against that bound while it is half
+      # over. get_ranking marks today for exactly the same reason.
+      #
+      # A forecast sensor is exempt: its buckets lie ahead of now by design and
+      # hold complete predictions, not half-taken measurements.
+      def self.measured_until(timeframe, sensor)
+        return timeframe.ending if sensor.forecast?
+
+        [timeframe.ending, Time.current].min
+      end
+      private_class_method :measured_until
+
+      def self.series_for(sensor, data, aggregation, include_nulls:, grid:)
         unit = mcp_unit(sensor)
-        points =
-          Points.build(data, sensor.name, aggregation, unit:, include_nulls:, timeframe:)
+        points = Points.build(data, sensor.name, aggregation, unit:, include_nulls:, grid:)
 
         {
           sensor: sensor.name,
