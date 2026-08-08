@@ -30,21 +30,23 @@ module McpServer
         # sensors (every sensor returns the same bucket count). The resolution
         # is coarsened until the combined series fit within it.
         #
-        # A point costs about 50 bytes / 34 tokens (measured, see
-        # spec/lib/mcp_server/payload_size_spec.rb), most of it the ISO
-        # timestamp. That is what makes this budget a context-window budget
-        # rather than a transfer one: at 1500 points a single response was
-        # ~51k tokens, a quarter of a typical context.
+        # A point costs about 6 bytes (measured, see
+        # spec/lib/mcp_server/payload_size_spec.rb): the axis is stated once,
+        # so a point is the value and nothing else. It was ~50 bytes while
+        # every point carried its own ISO timestamp, and 400 was set against
+        # THAT price - the budget outlived the format it was priced for, and
+        # went on refusing at 2.3 kB what it had been meant to refuse at 20 kB.
         #
-        # 400 is the smallest round number that still keeps the canonical
-        # request - one sensor over one day - at 5m (288 points), with enough
-        # headroom that a change to the resolution ladder does not silently
-        # cost a whole step. It also carries four sensors over the longest
-        # timeframe the tool answers (Series::MAX_SPAN) at "1h".
+        # 1440 is a full day at "1m", the finest bucket the ladder offers -
+        # the natural ceiling of a question this tool answers, and one a client
+        # asks ("the minute curve of yesterday") and used to get silently
+        # coarsened to 5m. It costs ~8 kB for one sensor, still under half of
+        # what the old budget cost at the old price.
         #
-        # This is the MCP budget only. The web UI does not go through this
-        # module; it drives Sensor::Query::Series with its own interval.
-        MAX_POINTS = 400
+        # It stays a context-window budget rather than a transfer one: what
+        # reaches the client is one context, not one per sensor, which is why
+        # the sensors share it.
+        MAX_POINTS = 1440
         public_constant :MAX_POINTS
 
         # Forecast providers write one sample per forecast window, 15 minutes

@@ -57,16 +57,23 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   # outgrew the numbers it annotated.
   def ceilings
     {
-      'tool definitions + instructions' => 24_000,
+      # The entry fee: sent once per session, before a single value is read.
+      # It is the one ceiling that buys something elsewhere - the axis a curve
+      # and a ranking share is described here instead of being repeated in
+      # every response, which is what the two data ceilings below cost now.
+      'tool definitions + instructions' => 25_500,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
       'get_system_info' => 400,
       'get_prices' => 1_900,
       'get_totals (12 sensors, month)' => 1_500,
-      'get_series (1 sensor, day, 1h)' => 1_600,
-      'get_series (5 sensors, day, 1m)' => 8_000,
-      'get_ranking (3 sensors, all, day)' => 1_700,
+      # A curve is the largest thing this server returns, so these two are the
+      # ceilings worth watching. A point is a bare value: ~6 bytes, against
+      # ~50 while every point carried its own ISO timestamp.
+      'get_series (1 sensor, day, 1h)' => 500,
+      'get_series (5 sensors, day, 1m)' => 11_000,
+      'get_ranking (3 sensors, all, day)' => 1_000,
       'get_forecast' => 1_350,
       'get_amortization' => 2_100,
     }

@@ -17,9 +17,12 @@ module McpServer
       # Entries across the WHOLE response, shared by the requested sensors -
       # the same idea as the point budget in get_series, and for the same
       # reason: what reaches the client is one context window, not one per
-      # sensor. Without it a ranking was the largest response this server could
-      # produce, at 20 sensors x 100 entries = 65 kB, three times what a series
-      # can cost since its budget became a hard limit.
+      # sensor.
+      #
+      # An entry costs about 6 bytes now that the axis is stated once, so the
+      # unbounded worst case (20 sensors x 100 entries) is ~12 kB rather than
+      # the 65 kB that first justified a cap. The cap stays anyway: MAX_LIMIT
+      # bounds one sensor, and without this nothing bounds their sum.
       #
       # 400 keeps every request that was reasonable before: a single sensor
       # still gets the full MAX_LIMIT, and so does a request of up to four. Only
@@ -40,15 +43,14 @@ module McpServer
 
         `order` decides WHICH periods the limit keeps, not just their sequence.
 
-        A period the timeframe cuts into carries `partial: true`, and only
+        A period the timeframe cuts into is listed in `partial_at`, and only
         then — the period still running included, today under the default
-        period="day". Such an entry is labelled with its period's START but
-        summed over the days inside the timeframe alone: with period="month"
-        over "2026-06-15..2026-07-15" the entry dated "2026-06-01" holds June
-        15-30. Its date may even fall before the timeframe ("2025-12-29" for
-        the first week of "2026"). Never compare a flagged entry with an
-        unflagged one: it is smaller for having been cut, not for having
-        produced less.
+        period="day". Such an entry covers its period's START but is summed
+        over the days inside the timeframe alone: with period="month" over
+        "2026-06-15..2026-07-15" the entry at "2026-06-01" holds June 15-30.
+        Its period may even begin before the timeframe ("2025-12-29" for the
+        first week of "2026"). Never compare a flagged entry with an unflagged
+        one: it is smaller for having been cut, not for having produced less.
 
         Where a fragment would instead WIN for being one, cut periods are left
         out: order="asc" and every averaged ratio (autarky, self-consumption
@@ -56,6 +58,10 @@ module McpServer
         directions). Those results carry `complete_periods_only: true` and span
         less than the timeframe names — the edge periods are missing from the
         LIST, not from the data.
+
+        On the axis: `start` is the EARLIEST period in the list, which under
+        sort="value" is NOT the first entry — that ordering is by size, so it
+        always carries `indices` too.
 
         sort="chronological" returns the selected periods in date order, ready
         to plot. A period without data between the first and the last entry is
@@ -201,6 +207,8 @@ module McpServer
         rows, complete_only = Rows.fetch(sensor, **options, aggregation: agg)
         unit = mcp_unit(sensor, agg)
 
+        rounded = rows.map { |row| row.merge(value: Precision.round(row[:value], unit)) }
+
         {
           sensor: sensor.name,
           display_name: mcp_display_name(sensor),
@@ -210,12 +218,7 @@ module McpServer
           # left the cut periods out, so it spans less than the timeframe names
           # and entries are missing rather than absent from the data.
           **(complete_only ? { complete_periods_only: true } : {}),
-          # Rows carries the `partial` marker where there is one; splatting the
-          # row keeps it without this layer having to know about it.
-          ranking:
-            rows.map do |row|
-              { **row, date: row[:date].iso8601, value: Precision.round(row[:value], unit) }
-            end,
+          **Rows.axis(rounded, options[:period]),
         }
       end
       private_class_method :rank

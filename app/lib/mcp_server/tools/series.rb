@@ -47,15 +47,21 @@ module McpServer
         more so the coarser the bucket. For period totals and for ratios, the
         two summary tools above are the accurate answer.
 
-        Each point is {time, value}, `time` being the END of its bucket: at
-        "5m" the point 07:05 covers 07:00–07:05, and a day's last bucket ends
-        at the NEXT midnight (00:00). Every point sits on that grid, including
-        the edge buckets a rolling window cuts into — those are only partly
-        filled and say so with `partial: true`, the same signal get_ranking
-        gives. Never read a flagged point as a low one. A null value means "no
-        data", distinct from a measured 0. Buckets are cut on the
-        installation's timezone (get_system_info), so they follow local time
-        across a daylight-saving switch.
+        On the axis: `start` is the END of the window's FIRST bucket, carrying
+        a value or not — at "5m" the point 07:05 covers 07:00–07:05, and a
+        day's last bucket ends at the NEXT midnight (00:00). It is the same
+        axis for every sensor in the response and for either include_nulls, so
+        curves can be read against each other by index, and it is present even
+        when `values` is empty. `indices` appears only with include_nulls:
+        false, where the dropped buckets leave gaps. `partial_at` flags the
+        buckets a window cuts into: both edges of a rolling one, and the period
+        still running.
+
+        `step_seconds` counts REAL seconds: add it to the instant `start` names
+        and convert to local time — do not carry its UTC offset forward as
+        fixed. Bucket edges follow the installation's timezone
+        (get_system_info), so across a daylight-saving switch a day holds 23 or
+        25 points and the local hours skip or repeat one. Neither is a gap.
 
         Resolution, when omitted: the finest that keeps the WHOLE response
         within #{Resolution::MAX_POINTS} points — a budget SHARED by the
@@ -66,8 +72,9 @@ module McpServer
         so a coarser request never yields a coarser result than a finer one.
         Read back `resolution` and `coarsened`; `coarsened_reason` names the
         constraint and what to change. Where even "1h" does not fit, the
-        request is rejected rather than answered over budget: a whole day costs
-        24 points per sensor, so a day is answered for 16 sensors at most.
+        request is rejected rather than answered over budget. The budget holds
+        a full day at "1m" for one sensor, and a day costs 24 points per sensor
+        at "1h", so the sensor cap is what binds a day-long request first.
 
         A _grid/_pv power split is answered only over a timeframe that has
         ENDED. #{Facts::SPLIT_CADENCE} A running window ends in buckets with no
@@ -107,11 +114,11 @@ module McpServer
             type: 'boolean',
             default: true,
             description:
-              'Keep empty buckets. false omits them - far smaller for ' \
-                'sporadically written sensors, and the rest stay on the same ' \
-                'grid, so a gap reads like an explicit null. It also buys ' \
-                'resolution on a running period, whose buckets still ahead ' \
-                'then cost no budget.',
+              'Keep empty buckets. false omits them and sends `indices` ' \
+                'instead - a null traded for an index, so it only pays off ' \
+                'where MOST buckets are empty. Its other effect is ' \
+                'unconditional: on a running period the buckets still ahead ' \
+                'then cost no budget, which buys resolution.',
           },
         },
         required: %w[sensors timeframe],
@@ -233,14 +240,12 @@ module McpServer
 
       def self.series_for(sensor, data, aggregation, include_nulls:, grid:)
         unit = mcp_unit(sensor)
-        points = Points.build(data, sensor.name, aggregation, unit:, include_nulls:, grid:)
 
         {
           sensor: sensor.name,
           display_name: mcp_display_name(sensor),
           unit:,
-          point_count: points.size,
-          points:,
+          **Points.build(data, sensor.name, aggregation, unit:, include_nulls:, grid:),
         }
       end
       private_class_method :series_for

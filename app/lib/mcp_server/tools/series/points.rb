@@ -1,8 +1,17 @@
 module McpServer
   module Tools
     class Series < Base
-      # Serialises one sensor's {time => value} hash into the point list a
-      # client receives.
+      # Serialises one sensor's {time => value} hash into the curve a client
+      # receives: a bare list of values on a stated axis, rather than a list of
+      # {time, value} objects.
+      #
+      # Why the axis is stated once instead of repeated per point: a point cost
+      # ~50 bytes, of which ~33 were an ISO timestamp that `start` and
+      # `step_seconds` already determine. One sensor over one day at "5m" is
+      # 288 points - 14.8 kB of which 9.5 kB was the same timestamp written 288
+      # times, each differing from its neighbour by five minutes. The client
+      # pays that in context, and a curve is the largest thing this server
+      # returns.
       module Points
         # The raster a series sits on: how wide one bucket is, and where the
         # window begins and ends. Together they decide both where a point is
@@ -14,29 +23,107 @@ module McpServer
 
         module_function
 
-        # Sorted {time, value} points. An empty bucket is a point without a
-        # value; dropping those is what makes a sporadically written sensor
-        # affordable, and it stays unambiguous because the remaining points sit
-        # on the same grid - a missing timestamp reads exactly like an explicit
-        # null.
+        # The curve as an axis plus a list of values, ready to splat into the
+        # per-sensor entry.
+        #
+        # `start` is the window's first bucket, `step_seconds` the bucket
+        # width, so the time of values[i] is start + i * step_seconds.
+        # `indices` appears only where that arithmetic does not hold - with
+        # include_nulls: false, where the empty buckets are gone and the
+        # remaining ones keep their place on the grid through their index. An
+        # empty bucket that IS sent is an explicit null, distinct from a
+        # measured 0.
         def build(data, sensor_name, aggregation, unit:, include_nulls:, grid: nil)
           buckets = raw(data, sensor_name, aggregation) || {}
           buckets = buckets.compact unless include_nulls
 
-          buckets.sort.map! do |time, value|
-            at = grid_end(time, grid&.interval)
-            rounded = normalize_value(value, unit)
+          entries =
+            buckets.sort.map! do |time, value|
+              [grid_end(time, grid&.interval), normalize_value(value, unit)]
+            end
 
-            {
-              time: at.iso8601,
-              value: rounded,
-              # `partial` qualifies a value; an empty bucket has none to
-              # qualify. Without that guard every bucket still ahead of now
-              # carried the marker on a running period - 16 of them by
-              # breakfast, all saying "this null is incomplete".
-              **(!rounded.nil? && incomplete?(at, grid) ? { partial: true } : {}),
-            }
-          end
+          axis(entries, grid)
+        end
+
+        # The axis is stated even when no bucket carried a value: the timeframe
+        # and the resolution fix the grid, so an empty curve still knows where
+        # it would have started. Leaving it out made the one response a client
+        # cannot interpret - `values: []` with nothing to say what the values
+        # would have meant - and forced a special case on the reader for the
+        # case that needs it least.
+        def axis(entries, grid)
+          start = grid_start(grid) || entries.first&.first
+          return { point_count: 0, values: [] } unless start
+
+          {
+            start: start.iso8601,
+            **step_note(grid),
+            point_count: entries.size,
+            **index_note(entries, start, grid&.interval),
+            **partial_note(entries, grid),
+            values: entries.map(&:last),
+          }
+        end
+
+        def step_note(grid)
+          grid&.interval ? { step_seconds: grid.interval.to_i } : {}
+        end
+
+        # The grid position of each value, sent only where it is not the
+        # position in `values` anyway - the common case, since include_nulls
+        # defaults to true and a full grid indexes itself.
+        def index_note(entries, start, step)
+          indices = offsets(entries, start, step)
+          return {} if indices.each_with_index.all? { |index, i| index == i }
+
+          { indices: }
+        end
+
+        # How many steps each bucket sits from `start`. Without an interval
+        # there is no axis to count along, and the single entry that can occur
+        # then sits at zero.
+        def offsets(entries, start, step)
+          return Array.new(entries.size, 0) unless step
+
+          entries.map { |at, _| ((at - start) / step).round }
+        end
+
+        # The END of the window's FIRST bucket, whether or not it carries a
+        # value - the fixed zero of the axis.
+        #
+        # Anchoring on the first value instead is off by however many empty
+        # buckets precede it, and that shifts per sensor and per include_nulls
+        # setting. Two sensors in one response would then carry two axes for
+        # one grid, and the same curve would read differently depending on
+        # whether its empty buckets were sent.
+        #
+        # The first bucket is the one that ENDS strictly after the window
+        # opens, so a window opening exactly on a tick still gets the bucket
+        # that follows it, never the one that already closed.
+        def grid_start(grid)
+          return unless grid&.interval && grid.beginning
+
+          base = grid.beginning.beginning_of_day
+          steps = ((grid.beginning - base) / grid.interval).floor + 1
+
+          base + (steps * grid.interval)
+        end
+
+        # Positions in `values` whose bucket the window cuts into. Positions
+        # rather than grid indices, so one rule covers both shapes: whatever
+        # `indices` does, this always points into the array beside it.
+        #
+        # `partial` qualifies a value; an empty bucket has none to qualify.
+        # Without that guard a running period marked every bucket still ahead of
+        # now - 16 of them by breakfast, all saying "this null is incomplete".
+        def partial_note(entries, grid)
+          at =
+            entries.each_index.select do |i|
+              time, value = entries[i]
+              !value.nil? && incomplete?(time, grid)
+            end
+
+          at.empty? ? {} : { partial_at: at }
         end
 
         # `data` exposes an accessor for every requested sensor: raw sensors via

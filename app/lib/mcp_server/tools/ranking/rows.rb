@@ -4,7 +4,49 @@ module McpServer
       # Produces the ranked rows of a single sensor: the query itself, plus the
       # chronological presentation on top of it.
       module Rows
+        # How many periods lie between two period starts, per period type. The
+        # ranked dates are period starts already (the SQL truncates them), so
+        # counting them is exact rather than a division of elapsed seconds -
+        # which months and years do not admit anyway.
+        STEPS = {
+          day: ->(from, to) { (to - from).to_i },
+          week: ->(from, to) { (to - from).to_i / 7 },
+          month: ->(from, to) { ((to.year * 12) + to.month) - ((from.year * 12) + from.month) },
+          year: ->(from, to) { to.year - from.year },
+        }.freeze
+        private_constant :STEPS
+
         module_function
+
+        # The ranking as an axis plus a list of values, in the shape
+        # Series::Points uses for a curve and for the same reason: a `date` per
+        # entry was most of the payload, and at the shared budget of 400 entries
+        # it was the largest thing this tool could return.
+        #
+        # `start` is the first entry's period and `period` (echoed at the top
+        # level) its width, so entry i covers start + i periods. `indices`
+        # appears wherever that does not hold, which for a value ranking is
+        # always - it is ordered by size, so its periods are not consecutive.
+        def axis(rows, period)
+          return { entry_count: 0, values: [] } if rows.empty?
+
+          # The EARLIEST date, not the first entry: a value ranking is ordered
+          # by size, so its first entry can sit anywhere in time and anchoring
+          # there would hand out negative indices. Under sort="chronological"
+          # the two are the same date anyway.
+          start = rows.pluck(:date).min
+          step = STEPS[period]
+          indices = rows.map { |row| step.call(start, row[:date]) }
+          partial_at = rows.each_index.select { rows[it][:partial] }
+
+          {
+            start: start.iso8601,
+            entry_count: rows.size,
+            **(indices.each_with_index.all? { |n, i| n == i } ? {} : { indices: }),
+            **(partial_at.empty? ? {} : { partial_at: }),
+            values: rows.pluck(:value),
+          }
+        end
 
         # [[{ date:, value:, partial: }, ...], complete_periods_only], the rows
         # ordered by value or by date. The flag travels with them because the

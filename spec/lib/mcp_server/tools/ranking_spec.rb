@@ -1,7 +1,31 @@
 describe McpServer::Tools::Ranking do
   def call(**args)
     response = described_class.call(**args)
-    [response.error?, JSON.parse(response.content.first[:text], symbolize_names: true)]
+    data = JSON.parse(response.content.first[:text], symbolize_names: true)
+    data[:results]&.each { |result| result[:ranking] = expand(result, data[:period]) }
+    [response.error?, data]
+  end
+
+  # Rebuilds the {date, value} list the compact axis describes - exactly the
+  # arithmetic a client performs. It keeps the expectations below about
+  # behaviour rather than about serialization, and doubles as an executable
+  # statement of what `start`/`indices`/`partial_at` mean. The format itself is
+  # pinned separately, further down.
+  def expand(result, period)
+    return [] if result[:values].blank?
+
+    start = Date.parse(result[:start].to_s)
+    partial = result[:partial_at] || []
+
+    result[:values].each_with_index.map do |value, i|
+      index = result[:indices] ? result[:indices][i] : i
+
+      {
+        date: (start + index.public_send(period.to_s)).iso8601,
+        value:,
+        **(partial.include?(i) ? { partial: true } : {}),
+      }
+    end
   end
 
   before do

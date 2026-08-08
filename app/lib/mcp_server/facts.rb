@@ -117,6 +117,22 @@ module McpServer
         'read that field instead of assuming all-or-nothing. Only a call with ' \
         'no valid name left fails.'.freeze
 
+    # The shape get_series and get_ranking both return. Stated once, in the
+    # server instructions, because it is the same shape in both and a client
+    # only has to learn it once - and because spelling it out per tool cost
+    # more than the format saves on a short call.
+    COMPACT_AXIS =
+      'A curve or ranking comes as an AXIS plus a bare `values` list, never ' \
+        'as dated objects: values[i] sits at `start` + i steps, one step ' \
+        'being `step_seconds` (get_series) or one `period` (get_ranking). Two ' \
+        'optional fields qualify it, each absent when it has nothing to say: ' \
+        '`indices` gives the step offset of every value, and appears wherever ' \
+        'they are not consecutive - without it, values[i] IS at offset i. ' \
+        '`partial_at` lists POSITIONS IN `values` whose step is only partly ' \
+        'covered, so it holds less than a full one: never read a flagged ' \
+        'value as a low one. A null value means "no data", distinct from a ' \
+        'measured 0.'.freeze
+
     ROUNDING =
       'Every value is rounded by its unit alone, identically in every tool; ' \
         'list_sensors publishes the decimals per unit in conventions.precision.'.freeze
@@ -152,6 +168,7 @@ module McpServer
     public_constant :TIMEFRAME_FORMS,
                     :TIMEFRAME_NOTE,
                     :WATT_SUM_IS_ENERGY,
+                    :COMPACT_AXIS,
                     :MONEY_ACCUMULATED,
                     :CHART_ONLY,
                     :NON_AGGREGATABLE,

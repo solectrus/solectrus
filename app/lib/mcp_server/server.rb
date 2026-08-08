@@ -30,6 +30,8 @@ module McpServer
       Units after aggregation, in get_totals and get_ranking:
       #{Facts::WATT_SUM_IS_ENERGY}
 
+      #{Facts::COMPACT_AXIS}
+
       #{Facts::ROUNDING}
 
       #{Facts::UNKNOWN_SENSORS}

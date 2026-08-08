@@ -6,7 +6,30 @@ describe McpServer::Tools::Series do
 
   def series(**args)
     _error, text = call(**args)
-    JSON.parse(text, symbolize_names: true)
+    data = JSON.parse(text, symbolize_names: true)
+    data[:series]&.each { |entry| entry[:points] = expand(entry) }
+    data
+  end
+
+  # Rebuilds the {time, value} list the compact axis describes - exactly the
+  # arithmetic a client performs. It keeps the behavioural expectations below
+  # about behaviour rather than about serialization, and doubles as an
+  # executable statement of what `start`/`step_seconds`/`indices`/`partial_at`
+  # mean. The format itself is pinned separately, further down.
+  def expand(entry)
+    start = Time.zone.parse(entry[:start].to_s)
+    step = entry[:step_seconds]
+    partial = entry[:partial_at] || []
+
+    entry[:values].each_with_index.map do |value, i|
+      index = entry[:indices] ? entry[:indices][i] : i
+
+      {
+        time: (start + (index * step)).iso8601,
+        value:,
+        **(partial.include?(i) ? { partial: true } : {}),
+      }
+    end
   end
 
   before { freeze_time }
@@ -224,6 +247,151 @@ describe McpServer::Tools::Series do
 
         expect(points.select { _1[:partial] }).to be_empty
       end
+
+      # The wire format itself, which every other example reads through
+      # `expand`. Pinned here so a change to the shape fails loudly rather than
+      # silently teaching the helper a new one.
+      describe 'the compact axis' do
+        def entry(**args)
+          _error, text =
+            call(sensors: ['house_power'], timeframe: day, resolution: '1h', **args)
+          JSON.parse(text, symbolize_names: true).dig(:series, 0)
+        end
+
+        it 'states the axis once and sends values as bare scalars' do
+          data = entry
+
+          expect(data[:start]).to eq((Date.parse(day).beginning_of_day + 1.hour).iso8601)
+          expect(data[:step_seconds]).to eq(3600)
+          expect(data[:point_count]).to eq(24)
+          expect(data[:values].size).to eq(24)
+          expect(data[:values]).to all(satisfy { _1.nil? || _1.is_a?(Numeric) })
+        end
+
+        # The whole point of the format: with a full grid, position IS index,
+        # so nothing has to be sent to say so.
+        it 'omits indices where the buckets are consecutive' do
+          expect(entry).not_to have_key(:indices)
+        end
+
+        it 'omits partial_at where no bucket is cut' do
+          expect(entry).not_to have_key(:partial_at)
+        end
+
+        # The timeframe and the resolution fix the grid, so an empty curve
+        # still knows where it would have started. Without the axis, `values:
+        # []` is the one response a client cannot interpret - and it would
+        # force a special case on the reader for the case that needs it least.
+        it 'states the axis even when no bucket carried a value' do
+          data = entry(sensors: ['heatpump_power'])
+
+          expect(data[:point_count]).to eq(0)
+          expect(data[:values]).to be_empty
+          expect(data[:start]).to be_present
+          expect(data[:step_seconds]).to eq(3600)
+        end
+      end
+    end
+
+    # An implicit axis puts the daylight-saving arithmetic on the client, where
+    # a timestamp per point used to carry it. `step_seconds` counts REAL
+    # seconds, so the axis stays correct - but only for a client that converts
+    # to local time rather than carrying the offset in `start` forward.
+    context 'with a day that crosses a daylight-saving switch' do
+      # Every half hour, so each bucket of either day carries a value and the
+      # point count reflects the day's length rather than where data happens
+      # to stop.
+      def seed(day)
+        influx_batch do
+          52.times do |i|
+            add_influx_point(
+              name: Sensor::Config.measurement(:battery_soc),
+              fields: {
+                Sensor::Config.field(:battery_soc) => 50.0,
+              },
+              time: Date.parse(day).beginning_of_day + (i * 30).minutes,
+            )
+          end
+        end
+      end
+
+      def local_hours(day)
+        seed(day)
+        entry = series(sensors: ['battery_soc'], timeframe: day, resolution: '1h').dig(:series, 0)
+        start = Time.zone.parse(entry[:start])
+
+        (0...entry[:point_count]).map { (start + (it * entry[:step_seconds])).in_time_zone.hour }
+      end
+
+      # 02:00 never happens, so the day is an hour short.
+      it 'holds 23 points on the short day, skipping the hour that does not exist' do
+        hours = local_hours('2026-03-29')
+
+        expect(hours.size).to eq(23)
+        expect(hours.first(3)).to eq([1, 3, 4])
+      end
+
+      # 02:00 happens twice, so the day is an hour long.
+      it 'holds 25 points on the long day, repeating the hour that happens twice' do
+        hours = local_hours('2025-10-26')
+
+        expect(hours.size).to eq(25)
+        expect(hours.first(4)).to eq([1, 2, 2, 3])
+      end
+    end
+
+    # Dropping the empty buckets breaks "values[i] is at index i", so the kept
+    # ones have to carry their grid position - otherwise a sporadically written
+    # sensor comes back as a dense curve with every value at the wrong time.
+    context 'with empty buckets dropped from a sparse sensor' do
+      let(:day) { (Date.current - 1.day).to_s }
+
+      before do
+        influx_batch do
+          [1, 5, 6, 20].each do |hour|
+            add_influx_point(
+              name: Sensor::Config.measurement(:battery_soc),
+              fields: {
+                Sensor::Config.field(:battery_soc) => hour + 40.0,
+              },
+              time: Date.parse(day).beginning_of_day + hour.hours + 30.minutes,
+            )
+          end
+        end
+      end
+
+      def entry(**args)
+        _error, text =
+          call(sensors: ['battery_soc'], timeframe: day, resolution: '1h', **args)
+        JSON.parse(text, symbolize_names: true).dig(:series, 0)
+      end
+
+      it 'sends the grid position of every kept value' do
+        data = entry(include_nulls: false)
+
+        expect(data[:values]).not_to include(nil)
+        expect(data[:indices].size).to eq(data[:values].size)
+        ascending = data[:indices].uniq
+        ascending.sort!
+        expect(data[:indices]).to eq(ascending)
+        expect(data[:indices]).not_to eq((0...data[:values].size).to_a)
+      end
+
+      # The dropped form has to describe the same curve as the full one, or the
+      # saving is a lie. This is the arithmetic a client does, checked against
+      # the answer that spells every bucket out.
+      it 'describes the same curve as the full grid' do
+        sparse = entry(include_nulls: false)
+        full = entry(include_nulls: true)
+
+        placed =
+          sparse[:indices].zip(sparse[:values]).to_h
+        rebuilt =
+          (0...full[:values].size).map { placed[it] }
+
+        expect(rebuilt).to eq(full[:values])
+        expect(sparse[:start]).to eq(full[:start])
+      end
     end
 
     # aggregateWindow clips its final bucket at the range stop, so the last
@@ -302,7 +470,7 @@ describe McpServer::Tools::Series do
       it 'auto-selects a resolution within the point limit' do
         data = series(sensors: ['battery_soc'], timeframe: 'P72H')
 
-        expect(data[:resolution]).to be_in(%w[1m 5m 15m 1h 1d])
+        expect(data[:resolution]).to be_in(McpServer::Tools::Series::Resolution::LABELS)
         expect(data[:series].first[:points].size).to be <= budget
       end
 
@@ -313,13 +481,14 @@ describe McpServer::Tools::Series do
         expect(data[:series].first[:points].size).to be <= budget
       end
 
-      # The canonical request - one sensor, one day - has to stay at 5m: that
-      # is what the budget is sized around.
-      it 'keeps a single sensor over a day at 5m' do
+      # The canonical fine request - one sensor over one day at the finest
+      # bucket - is exactly what the budget is sized around: 1440 points, not
+      # one step coarser. It used to land on 5m, because the budget was still
+      # priced for a point that carried its own ISO timestamp.
+      it 'keeps a single sensor over a day at 1m' do
         data = series(sensors: ['battery_soc'], timeframe: (Date.current - 1).to_s)
 
-        # 288 buckets - the budget is sized so this one does not fall to 15m.
-        expect(data[:resolution]).to eq('5m')
+        expect(data[:resolution]).to eq('1m')
       end
 
       it 'keeps a resolution that already fits' do
@@ -460,7 +629,8 @@ describe McpServer::Tools::Series do
     context 'with a request the point budget cannot carry at 1h' do
       let(:budget) { McpServer::Tools::Series::Resolution::MAX_POINTS }
 
-      # 6 sensors over 99 hours is 99 points each against a share of 66.
+      # 99 hours at "1h" is 99 points per sensor, so the request tips over once
+      # the share falls below that - at 15 sensors, which get 96 each.
       let(:sensors) do
         %w[
           house_power
@@ -469,6 +639,15 @@ describe McpServer::Tools::Series do
           grid_export_power
           battery_soc
           heatpump_power
+          wallbox_power
+          heatpump_tank_temp
+          outdoor_temp
+          case_temp
+          battery_power
+          grid_power
+          total_consumption
+          self_consumption
+          inverter_power_total
         ]
       end
 
@@ -481,7 +660,10 @@ describe McpServer::Tools::Series do
       it 'names the share and the two levers' do
         _error, text = call(sensors:, timeframe: 'P99H')
 
-        expect(text).to include("#{budget} shared by 6 sensors", 'fewer sensors')
+        expect(text).to include(
+          "#{budget} shared by #{sensors.size} sensors",
+          'fewer sensors',
+        )
       end
 
       it 'answers the same sensors over a shorter window' do
@@ -515,11 +697,11 @@ describe McpServer::Tools::Series do
       end
 
       it 'does not charge the budget for buckets that lie ahead' do
-        expect(resolution(include_nulls: false)).to eq('5m')
+        expect(resolution(include_nulls: false)).to eq('1m')
       end
 
       it 'still charges for them when the empty buckets are returned' do
-        expect(resolution(include_nulls: true)).to eq('15m')
+        expect(resolution(include_nulls: true)).to eq('5m')
       end
 
       it 'keeps the whole span for a forecast sensor, whose future buckets carry values' do
@@ -650,8 +832,9 @@ describe McpServer::Tools::Series do
       end
 
       # The flip side, and why the advice to "add the base sensor" is gone from
-      # the tool: at the shipped budget a second sensor buys a coarser grid,
-      # not a finer one.
+      # the tool: adding one never buys a finer grid. It cannot, whichever
+      # constraint binds - the splitter floor holds the split at 5m on its own,
+      # and a second sensor only ever halves the shared budget.
       it 'does not go finer for a base sensor at the shipped budget' do
         alone = series(sensors: %w[house_power_grid], timeframe: day, resolution: '1m')
         paired =
@@ -662,7 +845,7 @@ describe McpServer::Tools::Series do
           )
 
         expect(alone[:resolution]).to eq('5m')
-        expect(paired[:resolution]).to eq('15m')
+        expect(paired[:resolution]).to eq('5m')
       end
 
       # The _pv half is computed here, in the InfluxDB path, which applies no

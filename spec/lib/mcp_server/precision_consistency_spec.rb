@@ -30,7 +30,7 @@ describe 'MCP precision consistency' do # rubocop:disable RSpec/DescribeClass
   def ranking_values(sensors)
     parse(
       McpServer::Tools::Ranking.call(timeframe: day.iso8601, sensors:),
-    )[:results].to_h { |result| [result[:sensor].to_sym, result[:ranking].sole[:value]] }
+    )[:results].to_h { |result| [result[:sensor].to_sym, result[:values].sole] }
   end
 
   # The distinct non-null values per sensor: a bucket without data is null,
@@ -45,7 +45,7 @@ describe 'MCP precision consistency' do # rubocop:disable RSpec/DescribeClass
         resolution:,
       ),
     )[:series].to_h do |entry|
-      distinct = entry[:points].pluck(:value)
+      distinct = entry[:values].dup
       distinct.compact!
       distinct.uniq!
       [entry[:sensor].to_sym, distinct]

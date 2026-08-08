@@ -62,7 +62,7 @@ describe McpServer::Tools::Ranking do
       error, data = call(sensor: 'house_power', timeframe:)
 
       expect(error).to be(false)
-      expect(data[:results].first[:ranking].first[:value]).to eq(10_868)
+      expect(data[:results].first[:values].first).to eq(10_868)
     end
 
     # It has a stored field of its own, so it ranks - and now says so. The "r"
@@ -73,14 +73,14 @@ describe McpServer::Tools::Ranking do
 
       expect(McpServer::SupportedTools.code(Sensor::Registry[:house_power_grid])).to include('r')
       expect(error).to be(false)
-      expect(data[:results].first[:ranking].first[:value]).to eq(4_200)
+      expect(data[:results].first[:values].first).to eq(4_200)
     end
 
     it 'ranks a sensor that states its value as SQL' do
       error, data = call(sensor: 'grid_costs', timeframe:)
 
       expect(error).to be(false)
-      expect(data[:results].first[:ranking]).not_to be_empty
+      expect(data[:results].first[:values]).not_to be_empty
     end
   end
 

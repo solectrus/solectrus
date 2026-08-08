@@ -37,9 +37,7 @@ the admin alone.)
 - `get_series` — sub-daily time series (intraday curves) for one or more
   sensors, over a short window only (at most 99 hours). It reads the raw
   InfluxDB samples; anything from a week upwards is a `get_totals` or
-  `get_ranking` question, answered from the PostgreSQL summaries. Every point
-  is labelled with the end of its bucket, on one grid; a bucket the window cuts
-  into carries `partial: true`
+  `get_ranking` question, answered from the PostgreSQL summaries
 - `get_forecast` — forecast for the coming days: expected PV generation (energy
   still to come today and per upcoming day) plus the outdoor temperature
   (daily min/max/avg)
@@ -55,6 +53,51 @@ the admin alone.)
 
 The backend (InfluxDB for live/hourly data, PostgreSQL summaries for
 day/month/year) is chosen automatically based on the requested timeframe.
+
+### Curves and rankings are an axis plus values
+
+`get_series` and `get_ranking` return the axis once and then a bare `values`
+list — not one dated object per entry:
+
+```json
+{
+  "sensor": "inverter_power",
+  "unit": "watt",
+  "start": "2026-08-06T00:05:00+02:00",
+  "step_seconds": 300,
+  "point_count": 288,
+  "values": [0.0, 0.0, 12.4, null, 210.7, "…"]
+}
+```
+
+`values[i]` sits at `start` + i steps — one step being `step_seconds` for a
+curve, one `period` for a ranking. Two optional fields qualify that, and each
+is absent when it has nothing to say:
+
+- `indices` gives the step offset of every value, for the cases where they are
+  not consecutive: `include_nulls: false` in `get_series`, which drops the
+  empty buckets, and `sort: "value"` in `get_ranking`, which orders by size.
+  Without it, `values[i]` is at offset i.
+- `partial_at` lists **positions in `values`** whose step the window only
+  partly covers — both edges of a rolling window, the period still running.
+  Such a value is smaller for having been cut, not for having measured less,
+  so never compare it with an unflagged one.
+
+A `null` value means "no data", distinct from a measured `0`. `get_series`
+states its axis even when `values` is empty — the timeframe and the resolution
+fix the grid whether or not a bucket carried anything.
+
+`step_seconds` counts **real** seconds. Add it to the instant `start` names and
+convert to local time; do not carry the UTC offset in `start` forward as if it
+were fixed. Bucket edges follow the installation's timezone, so across a
+daylight-saving switch a calendar day holds 23 or 25 points rather than 24, and
+the local hours skip or repeat one. Neither is a gap in the data.
+
+The reason is context, not bandwidth. A point cost about 50 bytes, of which
+~33 were an ISO timestamp that `start` and `step_seconds` already determine —
+one sensor over one day at `5m` is 288 points, and it fell from 14.8 kB to
+1.8 kB. A curve is the largest thing this server returns, and the client pays
+for it in its context window.
 
 ### Split sensors (`_grid` / `_pv`)
 
