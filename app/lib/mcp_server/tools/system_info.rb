@@ -17,9 +17,10 @@ module McpServer
           - has_battery / has_wallbox / has_heatpump / has_forecast: which
             subsystems are configured, derived from the actual sensor setup.
           - data: when this installation last received anything (last_seen_at,
-            age_seconds; null before the very first data point). This is the
-            health check "is data still arriving?" — seconds old means live,
-            minutes or more means the collector is behind or down.
+            age_seconds; null only if it never received anything at all). This
+            is the health check "is data still arriving?" — seconds old means
+            live, anything beyond that means the collector is behind or down,
+            and age_seconds says for how long.
 
         Tariffs are in get_prices. Values that cannot be reliably derived (e.g.
         installed_peak_power_kwp on an unregistered instance) are omitted rather
@@ -55,12 +56,8 @@ module McpServer
       end
       private_class_method :configured?
 
-      # The newest data point across all sensors that have a live reading -
-      # one query, two fields, and the client is spared pulling ~70 values
-      # just to find out whether anything is still being written.
       def self.data_freshness
-        live = Sensor::Config.sensors.select { McpServer::SupportedTools.supports?(it, :current) }
-        last_seen = live.any? ? Sensor::Query::Latest.new(live.map(&:name)).call.time : nil
+        last_seen = last_delivery
 
         {
           last_seen_at: last_seen&.iso8601,
@@ -68,6 +65,27 @@ module McpServer
         }
       end
       private_class_method :data_freshness
+
+      # The newest data point across all sensors that have a live reading -
+      # one query, two fields, and the client is spared pulling ~70 values
+      # just to find out whether anything is still being written.
+      #
+      # That query looks back a day and no further, which is right for the
+      # dashboard it was built for and wrong here: an installation quiet for
+      # longer has nothing in it, so a null would report "never received any
+      # data" about the very outage this field exists to surface - and the
+      # longer the outage lasts, the more confident the wrong answer becomes.
+      # An empty live window, and only that, is therefore worth the scan back
+      # to the installation date. A delivering instance never reaches it.
+      def self.last_delivery
+        live = Sensor::Config.sensors.select { McpServer::SupportedTools.supports?(it, :current) }
+        return if live.empty?
+
+        names = live.map(&:name)
+        Sensor::Query::Latest.new(names).call.time ||
+          Sensor::Query::LastSeen.new(names).call.values.compact.max
+      end
+      private_class_method :last_delivery
     end
   end
 end

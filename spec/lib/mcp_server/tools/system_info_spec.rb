@@ -42,6 +42,28 @@ describe McpServer::Tools::SystemInfo do
         expect(data[:age_seconds]).to be_between(0, 60)
       end
 
+      # Sensor::Query::Latest looks back exactly one day, so an installation
+      # that stopped delivering longer ago than that has nothing in the live
+      # window. Reported as a null, that says "never received any data" about
+      # the very outage this field exists to surface - and the longer the
+      # outage lasts, the more confident the wrong answer becomes.
+      it 'dates an outage older than the live window instead of nulling it' do
+        seen = 3.days.ago
+        add_influx_point(
+          name: Sensor::Config.measurement(:house_power),
+          fields: {
+            Sensor::Config.field(:house_power) => 500.0,
+          },
+          time: seen,
+        )
+
+        response = described_class.call(server_context: nil)
+        data = JSON.parse(response.content.first[:text], symbolize_names: true)[:data]
+
+        expect(Time.iso8601(data[:last_seen_at])).to be_within(1.second).of(seen)
+        expect(data[:age_seconds]).to be > 2.days
+      end
+
       it 'reports nulls before the first data point' do
         response = described_class.call(server_context: nil)
         data = JSON.parse(response.content.first[:text], symbolize_names: true)[:data]

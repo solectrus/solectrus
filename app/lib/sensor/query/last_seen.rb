@@ -9,8 +9,9 @@ module Sensor
     # question about the past. That leaves it unable to tell "quiet for a
     # while" from "never delivered at all", which is exactly what this answers,
     # at the price of a scan back to the installation date. So ask it only
-    # about the sensors in doubt; today its sole caller is the MCP tool
-    # get_current_values, for the sensors missing from the live window.
+    # about the sensors in doubt: get_current_values asks for the sensors
+    # missing from the live window, get_system_info only when that window is
+    # empty for every sensor at once.
     class LastSeen < Helpers::Influx::Base
       def initialize(sensor_names)
         super(sensor_names, Timeframe.new('all'))
