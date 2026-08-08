@@ -30,7 +30,17 @@ class Sensor::Data::Series < Sensor::Data::Base
     super
   end
 
-  attr_reader :points
+  # The instants `points` sits on, in the same order - point i was built for
+  # timestamps[i].
+  #
+  # Published because a point cannot answer for itself: Single carries only a
+  # day-granular Timeframe, not the instant it was built for. Anything pairing
+  # points back with times had to rebuild this list from raw_data and trust
+  # that it came out identical. It did, but the two derivations sat in
+  # different files, and a change to either would have shifted every
+  # calculated value onto a neighbouring timestamp - silently, since both
+  # lists stay the same LENGTH.
+  attr_reader :points, :timestamps
 
   def sensor_names
     @sensor_names ||=
@@ -82,11 +92,15 @@ class Sensor::Data::Series < Sensor::Data::Base
   end
 
   def build_points(raw_data, _timeframe)
+    @timestamps = []
     return [] if raw_data.empty?
 
-    # Collect all timestamps
+    # The union across sensors, not one sensor's keys: sensors may sit on
+    # different grids (forecast at bucket midpoints, live data at right
+    # edges), so taking the first sensor's would drop the others' instants.
     all_timestamps = raw_data.values.flat_map(&:keys).uniq
     all_timestamps.sort!
+    @timestamps = all_timestamps
 
     # Create Single data objects for each timestamp
     all_timestamps.map do |timestamp|

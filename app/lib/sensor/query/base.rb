@@ -179,29 +179,23 @@ module Sensor
         Sensor::DependencyResolver.new(name, context: query_type).available?
       end
 
-      # Create a series-level accessor for a calculated sensor
+      # Create a series-level accessor for a calculated sensor: the value each
+      # point computed, keyed by the instant that point was built for.
+      #
+      # The instants come from the Series itself rather than being derived
+      # again from raw_data. Both derivations produced the same list, but they
+      # sat in different files with nothing tying them together - and since a
+      # mismatch would have kept the same LENGTH, it would have moved every
+      # calculated value onto a neighbouring timestamp instead of failing.
       def create_series_accessor_for_calculated_sensor(data, sensor_name)
         data.define_singleton_method(sensor_name) do |*|
-          time_series = {}
-
-          if raw_data.any? && raw_data.values.first.is_a?(Hash)
-            # Use the same union-of-timestamps as build_points so each
-            # point lines up with its actual timestamp. Sensors may sit
-            # on different time grids (e.g. forecast at bucket midpoints
-            # vs. live data at bucket right-edges), so picking only the
-            # first sensor's keys would mis-pair points and timestamps.
-            timestamps = raw_data.values.flat_map(&:keys)
-            timestamps.uniq!
-            timestamps.sort!
-
-            points.each_with_index do |point, index|
+          points
+            .each_with_index
+            .with_object({}) do |(point, index), time_series|
               next unless point.respond_to?(sensor_name) && index < timestamps.size
 
               time_series[timestamps[index]] = point.public_send(sensor_name)
             end
-          end
-
-          time_series
         end
       end
 

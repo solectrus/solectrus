@@ -3,6 +3,53 @@ describe Sensor::Data::Series do
 
   let(:timeframe) { Timeframe.new('2025') }
 
+  # Points carry no instant of their own - a Single holds a day-granular
+  # Timeframe, not the moment it was built for - so anything pairing a
+  # calculated value back with its time reads this list. It used to be derived
+  # a second time, in Query::Base, from the same raw_data. Both derivations
+  # agreed, but a mismatch would have kept the same LENGTH and therefore moved
+  # every calculated value onto a neighbouring timestamp instead of failing.
+  describe '#timestamps' do
+    let(:series_data) do
+      {
+        %i[house_power sum sum] => {
+          Date.new(2025, 1, 1) => 1.0,
+          Date.new(2025, 3, 1) => 3.0,
+        },
+        # A second sensor on a different grid, so the union matters.
+        %i[case_temp avg avg] => {
+          Date.new(2025, 2, 1) => 2.0,
+        },
+      }
+    end
+
+    it 'lines up one-to-one with points, in order' do
+      expect(data.timestamps.size).to eq(data.points.size)
+      expect(data.timestamps).to eq(data.timestamps.sort)
+    end
+
+    it 'spans the union across sensors, not one sensor grid' do
+      expect(data.timestamps).to eq(
+        [Date.new(2025, 1, 1), Date.new(2025, 2, 1), Date.new(2025, 3, 1)],
+      )
+    end
+
+    # A point holds the value of that instant alone, so pairing it with the
+    # wrong timestamp is invisible in the value and only wrong in time - the
+    # failure this list exists to prevent.
+    it 'pairs each point with the timestamp it was built for' do
+      paired = data.timestamps.zip(data.points).to_h
+
+      expect(paired[Date.new(2025, 1, 1)].house_power).to eq(1.0)
+      expect(paired[Date.new(2025, 2, 1)].case_temp).to eq(2.0)
+      expect(paired[Date.new(2025, 3, 1)].house_power).to eq(3.0)
+    end
+
+    it 'is empty when there is nothing to place' do
+      expect(described_class.new({}, timeframe:).timestamps).to eq([])
+    end
+  end
+
   describe 'initialization' do
     it 'accepts Hash as series_data' do
       expect { described_class.new({}, timeframe:) }.not_to raise_error
