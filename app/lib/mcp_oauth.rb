@@ -66,10 +66,19 @@ module McpOauth
 
     # Derived from secret_key_base, so no extra secret is required. Rails'
     # key_generator caches the derived key per salt, so this is cheap to call
-    # per request. The rotatable mcp_oauth_secret is mixed into the salt:
-    # rotating it changes the key and thereby invalidates every issued token.
+    # per request.
+    #
+    # Two things are mixed into the salt, and each one ends every issued token
+    # when it changes. The rotatable mcp_oauth_secret, which disabling MCP
+    # rotates. And the admin password, because it is the only credential this
+    # flow ever checks: an admin who changes it is revoking access, and without
+    # this the tokens it granted outlived it by up to their chain deadline.
     def signing_key
-      salt = ['solectrus-mcp-oauth', Setting.mcp_oauth_secret.presence].compact
+      salt = [
+        'solectrus-mcp-oauth',
+        Setting.mcp_oauth_secret.presence,
+        Rails.configuration.x.admin_password.presence,
+      ].compact
       Rails.application.key_generator.generate_key(salt.join('-'), 32)
     end
 

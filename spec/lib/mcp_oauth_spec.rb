@@ -6,8 +6,28 @@ describe McpOauth do
       key = described_class.signing_key
 
       expect(key.bytesize).to eq(32)
-      # Deterministic while the rotatable secret is blank: the base salt only.
-      expect(Rails.application.key_generator.generate_key('solectrus-mcp-oauth', 32)).to eq(key)
+      expect(described_class.signing_key).to eq(key)
+    end
+
+    # The admin password is the only credential this flow checks, so changing
+    # it is an act of revocation. Before, it revoked nothing: every access and
+    # refresh token minted under the old password kept working, for up to the
+    # chain deadline, and only rotating the OAuth secret ended them.
+    it 'ends every issued token when the admin password changes' do
+      allow(Rails.configuration.x).to receive(:admin_password).and_return('old')
+      token = described_class.encode_access_token(base_url:)
+      expect(described_class.valid_access_token?(token, base_url:)).to be_present
+
+      allow(Rails.configuration.x).to receive(:admin_password).and_return('new')
+
+      expect(described_class.valid_access_token?(token, base_url:)).to be_nil
+    end
+
+    it 'keeps the key stable while the password does not change' do
+      allow(Rails.configuration.x).to receive(:admin_password).and_return('same')
+      key = described_class.signing_key
+
+      expect(described_class.signing_key).to eq(key)
     end
   end
 

@@ -244,11 +244,13 @@ confirm where access is granted before entering your password.
 ### Ending access
 
 One authorization lasts **90 days**, however often the client refreshes in
-between. After that the client asks for the admin password again.
+between. After that the client asks for the admin password again. There are two
+ways to end it sooner, and both drop **every** connected client at once:
 
-To end it sooner, switch AI access off under **Settings → General**. That
-rotates the OAuth signing secret, so every connected client is dropped at once
-and switching it back on does not bring old connections back.
+- **Change `ADMIN_PASSWORD`.** It is the only credential this flow checks, so
+  changing it invalidates every access and refresh token ever issued.
+- **Switch AI access off** under Settings → General. This rotates the OAuth
+  signing secret, so switching it back on does not bring old connections back.
 
 There is no per-client revocation: tokens are stateless and nothing is stored
 server-side, which is also why no client list exists to revoke from.
