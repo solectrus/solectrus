@@ -116,6 +116,18 @@ describe Sensor::Chart::InverterPower do
     end
   end
 
+  describe '#tooltip_unit' do
+    def tooltip_unit(timeframe) = described_class.new(timeframe: Timeframe.new(timeframe)).tooltip_unit
+
+    it 'pins the tooltip to plain watts while the chart shows power' do
+      expect(tooltip_unit('2025-03-03')).to eq('W')
+    end
+
+    it 'leaves the scaling alone once the power is summed to energy' do
+      expect(tooltip_unit('2025')).to be_nil
+    end
+  end
+
   describe '#sunrise / #sunset' do
     let(:chart) { described_class.new(timeframe:) }
     let(:timeframe) { Timeframe.new('2025-03-03') }

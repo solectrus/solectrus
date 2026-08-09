@@ -40,6 +40,30 @@ export const getDecimalPlaces = (
   return { minDecimals: 0, maxDecimals };
 };
 
+// Tooltip callbacks fire on every mouse move, once per dataset. Reuse the
+// formatters instead of allocating a new Intl.NumberFormat per hover; the key
+// space is one locale times a handful of decimal combinations.
+const numberFormatters = new Map<string, Intl.NumberFormat>();
+
+const numberFormatter = (
+  locale: string,
+  minimumFractionDigits: number,
+  maximumFractionDigits: number,
+): Intl.NumberFormat => {
+  const key = `${locale}|${minimumFractionDigits}|${maximumFractionDigits}`;
+
+  let formatter = numberFormatters.get(key);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, {
+      minimumFractionDigits,
+      maximumFractionDigits,
+    });
+    numberFormatters.set(key, formatter);
+  }
+
+  return formatter;
+};
+
 // Formats a number for axis or tooltip display, optionally applying kilo units.
 export const formatNumber = (
   number: number,
@@ -74,10 +98,11 @@ export const formatNumber = (
     maxValue,
   );
 
-  const numberAsString = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: minDecimals,
-    maximumFractionDigits: maxDecimals,
-  }).format(number);
+  const numberAsString = numberFormatter(
+    locale,
+    minDecimals,
+    maxDecimals,
+  ).format(number);
 
   return `${numberAsString} ${unitValuePrefix}${unitValue}`;
 };

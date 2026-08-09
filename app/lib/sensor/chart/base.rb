@@ -63,6 +63,11 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       )
   end
 
+  # A chart can pin its tooltip to one unit instead of letting the frontend
+  # scale it with the axis (Wh to kWh above 1000). Nil keeps that scaling.
+  def tooltip_unit
+  end
+
   def crosshair_options
     return unless timeframe.short?
 
@@ -205,14 +210,20 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   def datasets(chart_data_items)
     chart_data_items.map do |chart_data|
-      sensor = Sensor::Registry[chart_data[:sensor_name]]
-      {
-        id: sensor.name.to_s,
-        label: sensor.display_name,
-        data: chart_data[:data],
-        spanGaps: chart_data[:span_gaps_ms],
-      }.compact.merge(style_for_sensor(sensor))
+      build_dataset(chart_data[:sensor_name], chart_data)
     end
+  end
+
+  def build_dataset(sensor_name, chart_data)
+    sensor = Sensor::Registry[sensor_name]
+
+    {
+      id: sensor.name.to_s,
+      label: sensor.display_name,
+      data: chart_data[:data],
+      spanGaps: chart_data[:span_gaps_ms],
+      tooltipUnit: tooltip_unit,
+    }.compact.merge(style_for_sensor(sensor))
   end
 
   def align_to_master_grid!(master_labels, items)

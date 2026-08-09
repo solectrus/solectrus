@@ -381,8 +381,10 @@ export default class extends Controller<HTMLCanvasElement> {
     tooltip.callbacks = buildTooltipCallbacks(
       {
         locale: this.locale,
-        unit: this.unitValue,
         formattedNumber: (value) => this.formattedNumber(value),
+        // A pinned unit is the one the value already has, so never scale it.
+        formattedNumberInUnit: (value, unit) =>
+          this.formattedNumber(value, 'tooltip', false, unit),
         extractNumericValue,
       },
       data,
@@ -411,13 +413,14 @@ export default class extends Controller<HTMLCanvasElement> {
     number: number,
     target: 'axis' | 'tooltip' = 'tooltip',
     autoKilo: boolean = true,
+    unit: string = this.unitValue,
   ) {
     const minValue = this.chart?.scales.y.min ?? this.minValue;
     const maxValue = this.chart?.scales.y.max ?? this.maxValue;
     return formatNumber(number, {
       target,
       autoKilo,
-      unitValue: this.unitValue,
+      unitValue: unit,
       currency: this.currencyValue,
       locale: this.locale,
       minValue,

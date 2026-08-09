@@ -4,6 +4,14 @@ describe Sensor::Chart::Base do
   # any specific chart subclass.
   subject(:chart) { Sensor::Chart::HousePower.new(timeframe: Timeframe.now) }
 
+  describe '#build_dataset' do
+    it 'omits the tooltip unit while the chart does not pin one' do
+      dataset = chart.__send__(:build_dataset, :house_power, { data: [1, 2] })
+
+      expect(dataset).not_to have_key(:tooltipUnit)
+    end
+  end
+
   describe '#sparse?' do
     it 'is false for a sensor with the default max_age' do
       expect(chart.__send__(:sparse?)).to be(false)

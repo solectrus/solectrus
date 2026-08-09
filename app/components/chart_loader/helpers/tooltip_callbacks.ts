@@ -14,8 +14,8 @@ const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
 
 type TooltipHelpers = {
   locale: string;
-  unit: string;
   formattedNumber: (value: number) => string;
+  formattedNumberInUnit: (value: number, unit: string) => string;
   extractNumericValue: (value: unknown, mode: 'max' | 'min') => number | null;
 };
 
@@ -32,12 +32,12 @@ export const buildTooltipCallbacks = (
   ) => { backgroundColor: Color; borderColor: Color } | undefined;
   footer: (tooltipItems: TooltipItem<ChartType>[]) => string | undefined;
 } => {
-  const { locale, unit, formattedNumber, extractNumericValue } = helpers;
-
-  // The inverter tooltip only stays in plain watts while the chart really
-  // shows power. Aggregated timeframes sum to energy (Wh), which must be
-  // scaled like any other value.
-  const showsWatts = unit === 'W';
+  const {
+    locale,
+    formattedNumber,
+    formattedNumberInUnit,
+    extractNumericValue,
+  } = helpers;
 
   const tooltipValue = (tooltipItem: TooltipItem<ChartType>): number | null => {
     const parsedY = tooltipItem.parsed?.y;
@@ -46,14 +46,12 @@ export const buildTooltipCallbacks = (
     return extractNumericValue(tooltipItem.raw, 'max');
   };
 
-  // Tooltip callbacks fire on every mouse move; reuse one formatter instead
-  // of allocating a new Intl.NumberFormat per hover.
-  const wattsFormatter = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-  const formatWatts = (value: number): string =>
-    `${wattsFormatter.format(value)} W`;
+  // A chart may pin its tooltip to one unit instead of scaling it with the
+  // axis (Sensor::Chart::Base#tooltip_unit).
+  const formatForDataset = (value: number, dataset: DatasetWithId): string =>
+    dataset.tooltipUnit
+      ? formattedNumberInUnit(value, dataset.tooltipUnit)
+      : formattedNumber(value);
 
   return {
     title: (tooltipItems) => {
@@ -173,14 +171,8 @@ export const buildTooltipCallbacks = (
         return `${label}${formattedValue} °C`;
       }
 
-      // Keep the inverter_power chart in a single unit (W) so actual,
-      // forecast and clearsky values stay visually comparable.
-      const isInverterPowerDataset =
-        datasetId?.startsWith('inverter_power') ||
-        tooltipItem.dataset.stack === 'InverterPower';
-
-      if (isInverterPowerDataset && showsWatts) {
-        return `${label}${formatWatts(parsedValue ?? 0)}`;
+      if (dataset.tooltipUnit) {
+        return `${label}${formatForDataset(parsedValue ?? 0, dataset)}`;
       }
 
       if (parsedValue !== null) {
@@ -225,10 +217,12 @@ export const buildTooltipCallbacks = (
           return acc;
         }, 0);
 
+        // The sum carries the unit of the rows it adds up.
         if (sum)
-          return flags.isInverterStack && showsWatts
-            ? formatWatts(sum)
-            : formattedNumber(sum);
+          return formatForDataset(
+            sum,
+            tooltipItems[0].dataset as DatasetWithId,
+          );
       }
 
       const heatpumpCostsItems = tooltipItems.filter(

@@ -22,15 +22,9 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     end
   end
 
-  # Override datasets to provide stacked multi-inverter datasets
-  def datasets(chart_data_items)
-    if stackable?
-      # Simple: show all sensors that have data
-      chart_data_items.map { |item| build_dataset(item[:sensor_name], item) }
-    else
-      super # Use base class implementation
-    end
-  end
+  # Actual, forecast and clearsky stay comparable in plain watts. Longer
+  # timeframes sum the power to energy, which scales like any other chart.
+  def tooltip_unit = (unit if timeframe.short?)
 
   # Stackable when multi-inverter is configured and variant is 'split'
   def stackable?
@@ -80,6 +74,15 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
   def sunset = forecast_daylight_range&.last
 
   private
+
+  # Stack the individual inverters onto each other, but only in the split
+  # variant: the total is a single dataset that must stay unstacked.
+  def build_dataset(sensor_name, chart_data)
+    return super unless stackable?
+    return super if Sensor::Registry[sensor_name].forecast?
+
+    super.merge(stack: 'InverterPower')
+  end
 
   def forecast_daylight_range
     @forecast_daylight_range ||= begin
@@ -196,17 +199,5 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     sorted_points.zip(data_values).map! do |(time_key, _), value|
       normalize_timestamp(time_key) >= now ? value : nil
     end
-  end
-
-  def build_dataset(sensor_name, chart_data)
-    sensor = Sensor::Registry[sensor_name]
-
-    {
-      id: sensor.name,
-      label: sensor.display_name,
-      data: chart_data[:data],
-      spanGaps: chart_data[:span_gaps_ms],
-      stack: (sensor.forecast? ? nil : 'InverterPower'),
-    }.compact.merge(style_for_sensor(sensor))
   end
 end
