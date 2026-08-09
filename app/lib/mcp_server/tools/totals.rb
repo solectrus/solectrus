@@ -47,7 +47,7 @@ module McpServer
         pending = McpServer::Summaries.refresh(tf)
 
         {
-          **timeframe_preamble(tf, unknown),
+          **timeframe_preamble(tf, unknown, running: true),
           **pending,
           totals: build_totals(totals(tf, aggregations), aggregations),
         }

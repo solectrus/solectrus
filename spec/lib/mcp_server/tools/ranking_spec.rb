@@ -227,6 +227,15 @@ describe McpServer::Tools::Ranking do
         it 'flags the running month' do
           expect(ranking(timeframe: 'year', period: 'month').last).to include(partial: true)
         end
+
+        # get_totals says it in a `timeframe_note`, having no entry to mark.
+        # Here every entry carries the answer, so the note would repeat per
+        # call what the payload states per value.
+        it 'says it on the entry rather than in a note' do
+          _error, data = call(sensor: 'house_power', timeframe: 'month')
+
+          expect(data).not_to have_key(:timeframe_note)
+        end
       end
     end
 

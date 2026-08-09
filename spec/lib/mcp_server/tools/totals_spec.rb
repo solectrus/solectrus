@@ -131,6 +131,40 @@ describe McpServer::Tools::Totals do
       end
     end
 
+    # A total is one number for the whole period, and nothing in it says the
+    # period is half over. "How much did I use this month?" answered against
+    # last month's total therefore compares nine days with thirty-one.
+    # get_ranking and get_series need no such note - they flag the running
+    # period on the entry it belongs to.
+    describe 'a period that has not ended yet' do
+      def note_for(timeframe)
+        response =
+          described_class.call(server_context: nil, timeframe:, sensors: ['house_power'])
+        JSON.parse(response.content.first[:text], symbolize_names: true)[:timeframe_note]
+      end
+
+      it 'says so for the running day' do
+        expect(note_for('day')).to include('has not ended yet')
+      end
+
+      it 'says so for the running month and year' do
+        expect(note_for('month')).to include('has not ended yet')
+        expect(note_for('year')).to include('has not ended yet')
+      end
+
+      it 'stays silent for a period that is over' do
+        expect(note_for('2024-06-15')).to be_nil
+        expect(note_for('2024-06')).to be_nil
+      end
+
+      # A rolling window covers its full width wherever it is asked - "the last
+      # 24 hours" are 24 hours, not a day that has barely started.
+      it 'stays silent for a rolling window' do
+        expect(note_for('P24H')).to be_nil
+        expect(note_for('P30D')).to be_nil
+      end
+    end
+
     describe 'an invalid timeframe' do
       # "'letzte Woche' is not a valid timeframe" told a client that it was
       # wrong but not what right looks like.

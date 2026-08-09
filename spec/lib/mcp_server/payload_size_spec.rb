@@ -67,7 +67,9 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       'get_sensor_details (3 sensors)' => 1_000,
       'get_system_info' => 400,
       'get_prices' => 1_900,
-      'get_totals (12 sensors, month)' => 1_500,
+      # Over the running month, so the response carries the note saying the
+      # period is not over - the common case for a "how am I doing" question.
+      'get_totals (12 sensors, month)' => 1_750,
       # A curve is the largest thing this server returns, so these two are the
       # ceilings worth watching. A point is a bare value: ~6 bytes, against
       # ~50 while every point carried its own ISO timestamp.

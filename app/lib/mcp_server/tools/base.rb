@@ -131,18 +131,26 @@ module McpServer
         # The fields every timeframe-based response opens with. `note:` is false
         # where Facts::TIMEFRAME_NOTE does not apply - a forecast sensor over a
         # future timeframe is the point of the call, not a gap in the data.
-        def timeframe_preamble(timeframe, unknown, note: true)
+        #
+        # `running:` adds the third case to that note, and only get_totals asks
+        # for it: a curve and a ranking mark the same fact on the entry it
+        # applies to (`partial_at`), so for them the note would repeat per call
+        # what the payload already says per value. A total has no entry to
+        # carry it - one number for the whole period, and nothing in it says
+        # the period is half over.
+        def timeframe_preamble(timeframe, unknown, note: true, running: false)
           {
             timeframe: timeframe.to_s,
-            **(note ? timeframe_note(timeframe) : {}),
+            **(note ? timeframe_note(timeframe, running:) : {}),
             **unknown_sensors_note(unknown),
           }
         end
 
-        # A `timeframe_note` explaining why a timeframe holds no data, as a hash
-        # to splat into the response - empty when it can hold data. Why it has
-        # to be said at all: Facts::TIMEFRAME_NOTE.
-        def timeframe_note(timeframe)
+        # A `timeframe_note` explaining why a timeframe holds no data - or less
+        # of it than its name suggests - as a hash to splat into the response,
+        # empty when there is nothing to say. Why the first two have to be said
+        # at all: Facts::TIMEFRAME_NOTE.
+        def timeframe_note(timeframe, running: false)
           installation = Rails.configuration.x.installation_date
 
           if timeframe.beginning.to_date > Date.current
@@ -156,6 +164,13 @@ module McpServer
               timeframe_note:
                 'This timeframe ends before the installation date ' \
                   "(#{installation.iso8601}), so no data was ever recorded for it.",
+            }
+          elsif running && timeframe.ending > Time.current
+            {
+              timeframe_note:
+                'This period has not ended yet, so every value covers it only ' \
+                  'up to now. Such a value is smaller for being cut short, not ' \
+                  'for measuring less - never compare it with a completed period.',
             }
           else
             {}
