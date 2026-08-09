@@ -90,7 +90,9 @@ module McpServer
             enum: %w[sum max avg min],
             description:
               "Defaults to the sensor's natural one. Only what " \
-                'get_sensor_details lists under `aggregations` is accepted.',
+                'get_sensor_details lists under `aggregations` is accepted. ' \
+                "#{Facts::SUMMARY_EXTREMES} That is the peak the UI shows; " \
+                'for the raw one ask get_series with "max" at "1m".',
           },
           order: {
             type: 'string',

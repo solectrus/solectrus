@@ -61,6 +61,19 @@ module McpServer
         'is in Wh, not W (÷1000 for kWh) - never read a watt-sum as a power. ' \
         'All other units aggregate unchanged.'.freeze
 
+    # Why the same day has two peaks, and why neither tool is wrong. The
+    # summarizer aggregates min/max over 5-minute means rather than raw samples
+    # (Sensor::Query::Helpers::Influx::Aggregation), so a spike shorter than
+    # that window is averaged away before it can win. get_series reads the
+    # samples themselves and finds it. On a measured day the two answered
+    # 8800.6 W and 9536 W for the same sensor - 8 % apart, both correct, and
+    # whichever tool the client happened to call decided the number. Each side
+    # states it now, so a peak comes back qualified rather than reconciled
+    # after the fact.
+    SUMMARY_EXTREMES =
+      'A summary min/max is the extreme of 5-minute MEANS, not of the raw ' \
+        'samples, so a spike shorter than that is averaged away.'.freeze
+
     # --- Why a tool rejects a sensor ----------------------------------------
     #
     # None of these names a tool to ask instead. That half is composed per
@@ -189,6 +202,7 @@ module McpServer
     public_constant :TIMEFRAME_FORMS,
                     :TIMEFRAME_NOTE,
                     :WATT_SUM_IS_ENERGY,
+                    :SUMMARY_EXTREMES,
                     :COMPACT_AXIS,
                     :MONEY_ACCUMULATED,
                     :CHART_ONLY,

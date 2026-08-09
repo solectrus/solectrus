@@ -99,8 +99,10 @@ module McpServer
             default: 'mean',
             description:
               'Per bucket. "mean" is the curve the SOLECTRUS UI shows; ' \
-                '"max"/"min" give the extreme sample, so "max" at a fine ' \
-                'resolution is the true instantaneous peak. No "sum" - summing ' \
+                '"max"/"min" give the extreme SAMPLE, so "max" at a fine ' \
+                'resolution is the true instantaneous peak. ' \
+                "#{Facts::SUMMARY_EXTREMES} So get_ranking reads LOWER for " \
+                'the same period; the two do not conflict. No "sum" - summing ' \
                 'a coarse series is not an energy integration.',
           },
           include_nulls: {
