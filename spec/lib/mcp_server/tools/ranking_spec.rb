@@ -350,6 +350,32 @@ describe McpServer::Tools::Ranking do
       expect(data[:results].pluck(:sensor)).to eq(%w[house_power inverter_power_1])
     end
 
+    # Two ways to name a sensor, and the schema can only mark both optional.
+    # Filling both in is answerable, so it is answered - but a client sending
+    # one name in each field and reading back two results otherwise cannot tell
+    # a merge from a field that was ignored.
+    describe 'with both `sensors` and `sensor` given' do
+      def data_for
+        _error, data =
+          call(sensors: ['house_power'], sensor: 'inverter_power', timeframe: range)
+        data
+      end
+
+      it 'answers both, in the order it merged them' do
+        expect(data_for[:results].pluck(:sensor)).to eq(%w[house_power inverter_power])
+      end
+
+      it 'says that it merged them' do
+        expect(data_for[:sensors_note]).to include('MERGED', '`sensors`', '`sensor`')
+      end
+
+      it 'stays silent when only one of them is given' do
+        _error, data = call(sensor: 'house_power', timeframe: range)
+
+        expect(data).not_to have_key(:sensors_note)
+      end
+    end
+
     it 'clamps the limit to a minimum of 1' do
       _error, data = call(sensor: 'house_power', timeframe: range, limit: 0)
 

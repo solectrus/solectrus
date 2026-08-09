@@ -171,6 +171,7 @@ module McpServer
 
         {
           **timeframe_preamble(tf, unknown),
+          **merged_note(sensors, sensor),
           **pending,
           period:,
           order:,
@@ -180,6 +181,24 @@ module McpServer
           results: definitions.map { |definition| rank(definition, options) },
         }
       end
+
+      # `sensors` and `sensor` are two ways to name the same thing, and the
+      # schema can only mark both optional. Filling both in is answerable - the
+      # union is the only thing it can mean - so the call is not rejected over
+      # a second round trip. But it is a mistake, and a silent one: a client
+      # sending one name in each field and reading back two results cannot tell
+      # whether the tool merged them or ignored one of the fields.
+      def self.merged_note(sensors, sensor)
+        return {} if Array(sensors).empty? || Array(sensor).empty?
+
+        {
+          sensors_note:
+            'Both `sensors` and `sensor` were given. They were MERGED into ' \
+              'one list (`sensors` first, a repeated name kept once), and ' \
+              'nothing was dropped. Pass only one of the two.',
+        }
+      end
+      private_class_method :merged_note
 
       # The entries one sensor gets: what the client asked for, unless the
       # shared budget cannot pay for it. The schema states MAX_LIMIT too, so the
