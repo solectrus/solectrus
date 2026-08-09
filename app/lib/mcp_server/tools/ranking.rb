@@ -31,52 +31,40 @@ module McpServer
       MAX_ENTRIES = 400
       public_constant :MAX_ENTRIES
 
+      # Kept to what a client needs BEFORE it calls: which sensors can be
+      # ranked, what `order` and `sort` decide, how a cut period reads, and the
+      # shared entry budget. What the response says about itself - `limit_note`,
+      # `complete_periods_only`, `unknown_sensors` - is left to the response.
       description <<~TEXT.strip
         Rank the best or worst periods for one or more sensors over a
-        timeframe: "which day this year had the highest solar production", "the
-        5 coldest days last winter", "house consumption per day in March".
-        Returns, per sensor, a list of periods with their aggregated `value`
-        and the `unit` it carries after aggregation (a summed watt sensor
-        reports watt_hour). Only a sensor the summaries store, and that has an
-        aggregation to order by, can be ranked — the rest carry no "r" in
-        their `tools` and are rejected by name.
+        timeframe: "which day this year had the highest solar production",
+        "house consumption per day in March". Returns, per sensor, a list of
+        periods with their aggregated `value` and its `unit`. Only a sensor the
+        summaries store, and that has an aggregation to order by, can be ranked
+        — the rest carry no "r" in their `tools` and are rejected by name.
 
         `order` decides WHICH periods the limit keeps, not just their sequence.
 
-        A period the timeframe cuts into is named in `partial_at` — by its ISO
-        period start, the same label `start` carries, never by a position in
-        `values` — and only then: the period still running included, today
-        under the default period="day". Such an entry covers its period's START but is summed
-        over the days inside the timeframe alone: with period="month" over
-        "2026-06-15..2026-07-15" the entry at "2026-06-01" holds June 15-30.
-        Its period may even begin before the timeframe ("2025-12-29" for the
-        first week of "2026"). Never compare a flagged entry with an unflagged
-        one: it is smaller for having been cut, not for having produced less.
+        An entry is labelled with its period START but summed over the days
+        inside the timeframe alone, so a period the timeframe cuts into is a
+        fragment: with period="month" over "2026-06-15..2026-07-15" the entry
+        "2026-06-01" holds June 15-30. `partial_at` names those periods, the
+        one still running included — today under the default period="day".
 
         Where a fragment would instead WIN for being one, cut periods are left
-        out: order="asc", and any aggregation="avg" in either direction (an
-        average is not smaller for covering less). Those results carry
-        `complete_periods_only: true` and span
-        less than the timeframe names — the edge periods are missing from the
-        LIST, not from the data.
+        out and `complete_periods_only` says so: order="asc", and
+        aggregation="avg" in either direction (an average is not smaller for
+        covering less).
 
-        On the axis: `start` is the EARLIEST period in the list, which under
-        sort="value" is NOT the first entry — that ordering is by size, so it
-        always carries `indices` too.
-
-        sort="chronological" returns the selected periods in date order, ready
-        to plot. A period without data between the first and the last entry is
-        reported with value null, distinct from a measured 0, as long as the
-        filled list fits `limit`. Where it does not, and where `limit` truncated
-        the list already, the entries are left as they are and their `indices`
-        show where they sit. Nothing is ever padded outside the first and last
-        entry, and a value ranking reports no such periods at all — so pair
-        "chronological" with a generous limit for a full curve.
+        sort="value" orders by size, so `start` is the EARLIEST period rather
+        than the first entry. sort="chronological" returns the periods in date
+        order, ready to plot, with a null for a period without data between the
+        first and the last entry — as long as the filled list fits `limit`, so
+        pair it with a generous one.
 
         `limit` counts per sensor but the budget is SHARED: N sensors get
         #{MAX_ENTRIES}/N entries each at most, so a long list and many sensors
-        need separate calls. Read back `limit`; `limit_note` says when the
-        budget shortened it.
+        need separate calls.
       TEXT
       input_schema(
         properties: {

@@ -24,58 +24,49 @@ module McpServer
       MAX_SPAN = Timeframe::MAX_HOURS.hours
       public_constant :MAX_SPAN
 
+      # What belongs here and what does not: a description is read before every
+      # call, so it carries what decides whether to make one - the window cap,
+      # the point budget, the split condition, the accuracy warning. What the
+      # response states about itself (`coarsened_reason`, `unknown_sensors`)
+      # does not, however useful: the client reads it once it has the payload.
       description <<~TEXT.strip
         Chronological measurement series for one or more sensors, down to
         sub-daily resolution — the intraday curves the aggregated tools cannot
         show ("consumption per hour yesterday", "battery SoC since this
-        morning", "nightly base load").
+        morning").
 
         A SHORT window only: raw InfluxDB samples, at most
         #{MAX_SPAN.in_hours.to_i} hours ("P#{MAX_SPAN.in_hours.to_i}H", or a
-        4-day range); a longer one is REJECTED. Anything from a week
-        upwards is a summary question — get_totals for the total,
-        get_ranking(sort: "chronological") for a value per period, with a
-        period coarse enough that the span fits its #{Ranking::MAX_LIMIT}
-        entries. Both read PostgreSQL, exact per period rather than a mean per
-        bucket. A forecast sensor is exempt: no summary holds its horizon.
+        4-day range); a longer one is REJECTED. From a week upwards the
+        question belongs to the summaries — get_totals for the total,
+        get_ranking(sort: "chronological") for a value per period, coarse
+        enough to fit its #{Ranking::MAX_LIMIT} entries. A forecast sensor is
+        exempt: no summary holds its horizon.
 
-        These are averaged value curves, NOT an energy source: a bucket holds
-        the unweighted mean of its samples, so integrating a coarse series
-        drifts from what the summaries hold — upward for a sensor written on
-        change, whose idle minutes carry no samples, by up to a multiple.
-        Averaged ratios (autarky, self-consumption rate) drift with it, the
-        more so the coarser the bucket. For period totals and for ratios, the
-        two summary tools above are the accurate answer.
+        These are averaged curves, NOT an energy source: a bucket holds the
+        unweighted mean of its samples, so integrating a coarse series drifts
+        from what the summaries hold — upward for a sensor written on change,
+        by up to a multiple. Averaged ratios (autarky, self-consumption rate)
+        drift with it. For period totals and for ratios, ask the two tools
+        above.
 
         On the axis: `start` is the END of the window's FIRST bucket, carrying
-        a value or not — at "5m" the point 07:05 covers 07:00–07:05, and a
-        day's last bucket ends at the NEXT midnight (00:00). It is the same
-        axis for every sensor in the response and for either include_nulls, so
-        curves can be read against each other by index, and it is present even
-        when `values` is empty. `indices` appears only with include_nulls:
-        false, where the dropped buckets leave gaps. `partial_at` names the
-        buckets a window cuts into — by their end, as `start` names its own,
-        never by a position in `values`: both edges of a rolling window, and
-        the period still running.
-
-        `step_seconds` counts REAL seconds: add it to the instant `start` names
-        and convert to local time — do not carry its UTC offset forward as
-        fixed. Bucket edges follow the installation's timezone
-        (get_system_info), so across a daylight-saving switch a day holds 23 or
-        25 points and the local hours skip or repeat one. Neither is a gap.
+        a value or not — at "5m" the point 07:05 covers 07:00–07:05. It is the
+        same axis for every sensor and for either include_nulls, so curves can
+        be read against each other. `step_seconds` counts REAL seconds: add it
+        to `start` and convert to local time rather than carrying the UTC
+        offset in `start` forward. Bucket edges follow the installation's
+        timezone, so a daylight-saving day holds 23 or 25 points. Neither is a
+        gap.
 
         Resolution, when omitted: the finest that keeps the WHOLE response
         within #{Resolution::MAX_POINTS} points — a budget SHARED by the
         requested sensors, so N of them get #{Resolution::MAX_POINTS}/N each.
         Exactly three things coarsen a request: that budget; the forecast
         cadence, flooring forecast sensors alone at "15m"; and the Power
-        Splitter cycle, flooring _grid/_pv splits alone at "5m". Nothing else,
-        so a coarser request never yields a coarser result than a finer one.
-        Read back `resolution` and `coarsened`; `coarsened_reason` names the
-        constraint and what to change. Where even "1h" does not fit, the
-        request is rejected rather than answered over budget. The budget holds
-        a full day at "1m" for one sensor, and a day costs 24 points per sensor
-        at "1h", so the sensor cap is what binds a day-long request first.
+        Splitter cycle, flooring _grid/_pv splits alone at "5m". Nothing else.
+        Where even "1h" does not fit, the request is REJECTED rather than
+        answered over budget — ask for fewer sensors or a shorter window.
 
         A _grid/_pv power split is answered only over a timeframe that has
         ENDED. #{Facts::SPLIT_CADENCE} A running window ends in buckets with no
