@@ -52,6 +52,9 @@ setup guide instead, for the admin alone.)
 - `get_amortization` — profitability of the whole system: whether and when the
   investment pays off (break-even, NPV, IRR), combining the measured savings
   with the manually kept cash flow register
+- `get_cash_flows` — that register itself: the single investments, subsidies,
+  costs and revenue with date, category, amount and note, filterable by
+  category and date range
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > _energy_, so in `get_totals`, `get_periods` and `get_ranking` the `value` is in Wh,
@@ -250,6 +253,18 @@ with the age of the system: a period that has already ended says nothing about
 the investment, so a system running for 12 years cannot be evaluated over 10.
 If no cash flows are configured yet, the tool reports that there is nothing to
 amortize.
+
+The figures aggregate the register, so a question about a single entry ("what
+did the battery cost?", "which repairs were there?") is answered by
+`get_cash_flows` instead. It returns the entries themselves — date, category,
+amount and the note that was typed with them — optionally narrowed by
+`categories` and by a `from`/`to` date range, `desc` by date and capped at
+`limit` (default 50, at most 200). `total_count`, `sum` and `sum_by_category`
+always cover every matching entry, so a limited list still adds up to the
+totals above it. The category, not the sign of the amount, decides how an entry
+counts: `investment`/`subsidy`/`refund` shape the investment base,
+`compensation`/`manual_savings`/`operating_cost`/`repair` the operating cash
+flow, and `other` counts nowhere.
 
 ## Connecting a client
 

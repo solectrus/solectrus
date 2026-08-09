@@ -61,7 +61,7 @@ module McpServer
       read_only idempotent: false
 
       def self.perform(date: nil, sort: 'date', order: 'desc', limit: 10, **)
-        on = parse_date(date)
+        on = parse_date(date) || Date.current
         currency = Rails.configuration.x.currency
         capped = limit.to_i.clamp(1, 100)
 
@@ -81,17 +81,6 @@ module McpServer
 
         { date: on.iso8601, currency:, sort:, order:, limit: capped, prices: }
       end
-
-      # Re-raised with the "Invalid date" lead, since Date.parse's own message
-      # ("invalid date") says nothing about which argument was wrong.
-      def self.parse_date(date)
-        return Date.current if date.blank?
-
-        Date.parse(date)
-      rescue ArgumentError => e
-        raise ArgumentError, "Invalid date: #{e.message}"
-      end
-      private_class_method :parse_date
 
       # The changes in effect up to `on`, capped by `limit`.
       #

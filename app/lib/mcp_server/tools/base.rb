@@ -63,6 +63,19 @@ module McpServer
 
         protected
 
+        # A single ISO date argument, nil when it was not given. Date.parse's
+        # own message ("invalid date") names neither the argument that was
+        # wrong nor what a right one looks like, so `label` puts the parameter
+        # back into it.
+        def parse_date(value, label = 'date')
+          return if value.blank?
+
+          Date.parse(value.to_s)
+        rescue ArgumentError, TypeError
+          raise ArgumentError,
+                "Invalid #{label}: #{value.inspect} is not an ISO 8601 date (e.g. \"2026-06-21\")."
+        end
+
         # Timeframe.new, with an error a model can act on. The domain class
         # stays free of that prose: which forms exist is its business, but
         # spelling them out for a language model is this layer's.

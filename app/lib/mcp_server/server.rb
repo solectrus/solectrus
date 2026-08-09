@@ -14,6 +14,7 @@ module McpServer
       Tools::Series,
       Tools::Forecast,
       Tools::Amortization,
+      Tools::CashFlows,
     ].freeze
     private_constant :TOOLS
 
@@ -27,7 +28,8 @@ module McpServer
       for best/worst periods, get_series for intraday curves;
       get_system_info for installation metadata and currency,
       get_prices for the (time-dependent) tariffs, get_forecast for expected PV
-      energy, get_amortization for payback, break-even and NPV/IRR.
+      energy, get_amortization for payback, break-even and NPV/IRR, and
+      get_cash_flows for the single investments and costs behind it.
 
       Units after aggregation, in get_totals and get_ranking:
       #{Facts::WATT_SUM_IS_ENERGY}

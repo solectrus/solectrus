@@ -229,6 +229,7 @@ describe 'MCP' do
             'get_series',
             'get_forecast',
             'get_amortization',
+            'get_cash_flows',
           )
         end
       end
