@@ -302,6 +302,25 @@ describe McpServer::Tools::Ranking do
         end
       end
 
+      # The rule used to be an opt-in the two ratios set and nothing else, so
+      # an averaged temperature or state of charge ranked its cut months
+      # against whole ones - the identical distortion, unflagged. An average is
+      # not smaller for covering less, whatever the sensor measures.
+      it 'says so for any averaged sensor, not just the two ratios' do
+        create_summary(date: '2024-02-10', values: [[:outdoor_temp, :avg, 21]])
+
+        expect(result(sensor: 'outdoor_temp', aggregation: 'avg')).to include(
+          complete_periods_only: true,
+        )
+      end
+
+      # A summed fragment is simply a smaller sum, which sorts low on its own.
+      it 'stays silent for a summed sensor ranked descending' do
+        expect(result(sensor: 'inverter_power', aggregation: 'sum')).not_to include(
+          :complete_periods_only,
+        )
+      end
+
       it 'says so for an ascending ranking of any sensor' do
         expect(result(sensor: 'inverter_power', order: 'asc')).to include(
           complete_periods_only: true,

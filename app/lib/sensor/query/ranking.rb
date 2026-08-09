@@ -34,16 +34,21 @@ module Sensor
       # than the range it was asked for, and silently shorter is the one thing
       # a ranking must not be.
       #
-      # Incomplete periods are skipped for ascending rankings, where a tiny
-      # partial period would otherwise win the "lowest" spot - the month with
-      # the least production is never the one that has barely started.
+      # Two cases, and both are about a fragment WINNING for being one:
       #
-      # And for sensors that opt in via +top10_complete_periods_only?+:
-      # averaged ratios, which are not smaller for covering less, so a
-      # fragment would win either direction on the strength of being a
-      # fragment.
+      #   - an ascending ranking of anything, where a period that has barely
+      #     started takes the "lowest" spot on the strength of its own length.
+      #   - an averaged aggregation in either direction. An average is not
+      #     smaller for covering less, so a sunny half-month outranks every
+      #     whole one.
+      #
+      # The second used to be an opt-in per sensor, which only the two ratios
+      # (autarky, self-consumption rate) ever set - so the identical distortion
+      # went unflagged for outdoor_temp, battery_soc and every other averaged
+      # sensor. It follows from the aggregation, so it is read off the
+      # aggregation.
       def complete_periods_only?
-        !desc || sensor.top10_complete_periods_only?
+        !desc || aggregation == :avg
       end
 
       def call

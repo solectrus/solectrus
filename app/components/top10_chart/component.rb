@@ -17,15 +17,19 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
     @sensor ||= Sensor::Registry[sensor_name]
   end
 
-  def top10_for_period
-    @top10_for_period ||=
+  def ranking
+    @ranking ||=
       Sensor::Query::Ranking.new(
         sensor_name,
         aggregation: calc.to_sym,
         period: period.to_sym,
         desc: sort.desc?,
         limit: 10,
-      ).call
+      )
+  end
+
+  def top10_for_period
+    @top10_for_period ||= ranking.call
   end
 
   def maximum
@@ -281,11 +285,10 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
     safe_join(result, '. ')
   end
 
-  # Incomplete periods are dropped for ascending rankings, and always for
-  # sensors that only make sense over complete periods (averaged ratios).
-  def complete_periods_only?
-    sort.asc? || sensor.top10_complete_periods_only?
-  end
+  # Read off the query rather than restated here: the note has to describe the
+  # list that was actually built, and a second copy of the rule can only drift
+  # from the one that selects the periods.
+  delegate :complete_periods_only?, to: :ranking
 
   def context
     if sensor.unit == :watt

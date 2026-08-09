@@ -138,16 +138,6 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     evaluate_config_value(:top10_enabled, default: false)
   end
 
-  # Whether the Top 10 ranking must skip incomplete periods for this sensor,
-  # regardless of sort direction. Averaged ratio sensors (autarky,
-  # self-consumption quote) opt in via `top10: { complete_periods_only: true }`:
-  # a half-finished year can show an untypically high value that would wrongly
-  # top the ranking. Summed sensors don't need it -- a partial period just yields
-  # a smaller sum that naturally sorts low.
-  def top10_complete_periods_only?
-    evaluate_config_value(:top10_complete_periods_only, default: false)
-  end
-
   def top10_permitted?
     block = self.class.inherited_meta_data(:top10_permitted)
     return true unless block

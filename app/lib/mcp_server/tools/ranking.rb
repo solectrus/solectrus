@@ -54,9 +54,9 @@ module McpServer
         one: it is smaller for having been cut, not for having produced less.
 
         Where a fragment would instead WIN for being one, cut periods are left
-        out: order="asc" and every averaged ratio (autarky, self-consumption
-        rate — an average is not smaller for covering less, so both
-        directions). Those results carry `complete_periods_only: true` and span
+        out: order="asc", and any aggregation="avg" in either direction (an
+        average is not smaller for covering less). Those results carry
+        `complete_periods_only: true` and span
         less than the timeframe names — the edge periods are missing from the
         LIST, not from the data.
 

@@ -18,14 +18,9 @@ class Sensor::Definitions::SelfConsumptionQuote < Sensor::Definitions::Base
 
   trend more_is_better: true, aggregation: :avg
 
-  # Averaged ratio: a partial period is misleading, so keep incomplete periods
-  # out of the Top 10 (complete_periods_only).
-  aggregations stored: false,
-               computed: [:avg],
-               meta: [:avg],
-               top10: {
-                 complete_periods_only: true,
-               }
+  # Averaged ratio: a partial period is misleading, and the ranking keeps
+  # incomplete periods out for every :avg aggregation.
+  aggregations stored: false, computed: [:avg], meta: [:avg], top10: true
 
   chart { |timeframe| Sensor::Chart::SelfConsumptionQuote.new(timeframe:) }
 
