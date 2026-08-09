@@ -14,14 +14,14 @@ module McpServer
       # curve costs and the less it is worth - a month asked here is a
       # get_totals or get_ranking question.
       #
-      # 99 hours because that is the longest window the Timeframe grammar
-      # states in hours ("P99H"). The UI stops at 72, but nothing in the data
-      # does, and a bound taken from the grammar needs no second rule to
-      # explain it. It is not a round number of days on purpose: the longest
-      # date range it admits is 4 days, which stays 4 days across a
+      # The longest hour window the grammar states, read off it rather than
+      # written out again - the two agreeing is what lets a client take "P99H"
+      # from the description and have it accepted. The UI stops at 72, but
+      # nothing in the data does. It is not a round number of days on purpose:
+      # the longest date range it admits is 4 days, which stays 4 days across a
       # daylight-saving switch, where a 72-hour bound would have accepted a
       # 3-day range in June and rejected the same one in October.
-      MAX_SPAN = 99.hours
+      MAX_SPAN = Timeframe::MAX_HOURS.hours
       public_constant :MAX_SPAN
 
       description <<~TEXT.strip

@@ -63,6 +63,13 @@ describe Timeframe do
       it { is_expected.to match('all') }
       it { is_expected.to match('2022-01-01..2022-03-15') }
 
+      # An hour window is answered from the raw samples, so its width is a
+      # performance question. MAX_HOURS is the bound, and the pattern is what
+      # enforces it - a reader takes the number from the constant, so the two
+      # have to agree.
+      it { is_expected.to match("P#{Timeframe::MAX_HOURS}H") }
+      it { is_expected.not_to match("P#{Timeframe::MAX_HOURS + 1}H") }
+
       it { is_expected.not_to match('2022-01-01..foo') }
       it { is_expected.not_to match('foo..2022-03-15') }
       it { is_expected.not_to match('foo') }

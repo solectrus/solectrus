@@ -78,20 +78,42 @@ module McpServer
           raise ArgumentError, invalid_timeframe(string)
         end
 
-        # One message per way a timeframe can be wrong, each ending in the fix.
-        # A range is worth its own two: there the fix is a single concrete
-        # string, and listing the whole grammar would bury it.
-        def invalid_timeframe(string)
-          from, to = range_dates(string)
+        # An hour window past the bound, e.g. "P120H". It is a valid FORM with
+        # a number the grammar does not carry, so it is not a typo - and the
+        # generic message reads the whole grammar back at a client that
+        # already wrote a correct form, without ever naming the one number it
+        # got wrong.
+        OVERLONG_HOURS = /\AP\d+H\z/
+        private_constant :OVERLONG_HOURS
 
-          if from && to && from > to
+        # One message per way a timeframe can be wrong, each ending in the fix.
+        # The specific ones come first: where a single concrete string is the
+        # fix, listing the whole grammar would bury it.
+        def invalid_timeframe(string)
+          overlong_hours(string) || invalid_range(string) ||
+            "'#{string}' is not a valid timeframe. Accepted: #{Facts::TIMEFRAME_FORMS}."
+        end
+
+        def overlong_hours(string)
+          return unless string.to_s.match?(OVERLONG_HOURS)
+
+          "Invalid timeframe \"#{string}\": an hour window ends at " \
+            "#{Timeframe::MAX_HOURS} hours (\"P#{Timeframe::MAX_HOURS}H\"). " \
+            'It is read from raw samples, which a wider window makes ' \
+            'expensive. Ask in whole days instead ("P5D", ending yesterday) ' \
+            'or name a date range.'
+        end
+
+        def invalid_range(string)
+          from, to = range_dates(string)
+          return unless from && to
+
+          if from > to
             "Invalid timeframe \"#{string}\": the end date must be AFTER the " \
               "start date. Use \"#{to}..#{from}\"."
-          elsif from && to && from == to
+          elsif from == to
             "Invalid timeframe \"#{string}\": a range spans at least two days. " \
               "For a single day use \"#{from}\"."
-          else
-            "'#{string}' is not a valid timeframe. Accepted: #{Facts::TIMEFRAME_FORMS}."
           end
         end
 

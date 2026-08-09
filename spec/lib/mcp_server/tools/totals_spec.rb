@@ -176,6 +176,28 @@ describe McpServer::Tools::Totals do
         expect(text).to include('at least two days', '"2024-06-15"')
       end
 
+      # "P120H" is a correct FORM carrying a number the grammar does not: an
+      # hour window is read from raw samples and ends at 99 hours. Answering it
+      # with the whole grammar told a client that got the form right to read
+      # nine forms again, and never named the number it had to change.
+      it 'names the hour bound for an hour window past it' do
+        text = error_for("P#{Timeframe::MAX_HOURS + 1}H")
+
+        expect(text).to include("#{Timeframe::MAX_HOURS} hours", 'P5D')
+        expect(text).not_to include('Accepted:')
+      end
+
+      it 'answers the longest hour window there is' do
+        response =
+          described_class.call(
+            server_context: nil,
+            timeframe: "P#{Timeframe::MAX_HOURS}H",
+            sensors: ['house_power'],
+          )
+
+        expect(response.error?).to be(false)
+      end
+
       # Timeframe validates by regex, so a date that cannot exist passes its
       # constructor and used to fail much later as a bare "invalid date" -
       # naming neither the argument nor what a valid one looks like.

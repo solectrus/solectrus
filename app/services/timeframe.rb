@@ -1,6 +1,12 @@
 class Timeframe # rubocop:disable Metrics/ClassLength
   include ActionView::Helpers::DateHelper
 
+  # The longest hour window there is. An hour window is answered from the raw
+  # InfluxDB samples rather than from the summaries, so its cost grows with its
+  # width - the bound is a performance rule, not a spelling one. REGEX_HOURS
+  # spells it as two digits and is what enforces it.
+  MAX_HOURS = 99
+
   REGEX_HOURS = /P\d{1,2}H/
   REGEX_DAY = /\d{4}-\d{2}-\d{2}/
   REGEX_DAYS = /P\d{1,3}D/
@@ -47,6 +53,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   private_constant :REGEX_PATTERN
   public_constant :REGEX
   public_constant :FULL_REGEX
+  public_constant :MAX_HOURS
 
   # Shortcut methods
   REGEX_KEYWORD
