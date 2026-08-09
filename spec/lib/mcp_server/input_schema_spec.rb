@@ -22,6 +22,7 @@ describe 'MCP input schemas' do # rubocop:disable RSpec/DescribeClass
       McpServer::Tools::Series => 20,
       McpServer::Tools::Ranking => 20,
       McpServer::Tools::SensorDetails => 20,
+      McpServer::Tools::Totals => 20,
     }.each do |tool, cap|
       it "declares it for #{tool.tool_name}" do
         expect(property(tool, :sensors)).to include(maxItems: cap)

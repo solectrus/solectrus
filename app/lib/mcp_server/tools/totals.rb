@@ -25,7 +25,11 @@ module McpServer
       input_schema(
         properties: {
           timeframe: timeframe_property('The period to aggregate over.'),
-          sensors: sensors_property('List of sensor names (from list_sensors).'),
+          sensors:
+            sensors_property(
+              "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
+              max: MAX_SENSORS,
+            ),
         },
         required: %w[timeframe sensors],
       )
@@ -33,7 +37,7 @@ module McpServer
 
       def self.perform(timeframe:, sensors:, **)
         tf = parse_timeframe(timeframe)
-        resolved, unknown = resolve_sensors(sensors)
+        resolved, unknown = resolve_sensors(sensors, max: MAX_SENSORS)
         enforce_supported!(resolved, :totals, unknown)
 
         aggregations = resolved.index_with(&:default_aggregation)
