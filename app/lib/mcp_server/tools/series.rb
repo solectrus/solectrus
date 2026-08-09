@@ -57,7 +57,9 @@ module McpServer
         to `start` and convert to local time rather than carrying the UTC
         offset in `start` forward. Bucket edges follow the installation's
         timezone, so a daylight-saving day holds 23 or 25 points. Neither is a
-        gap.
+        gap. `partial_at` names the buckets the window only cuts into, by their
+        bucket END like `start` — such a value covers less time, so never read
+        it as a low one.
 
         Resolution, when omitted: the finest that keeps the WHOLE response
         within #{Resolution::MAX_POINTS} points — a budget SHARED by the

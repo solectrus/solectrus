@@ -169,8 +169,11 @@ module McpServer
             {
               timeframe_note:
                 'This period has not ended yet, so every value covers it only ' \
-                  'up to now. Such a value is smaller for being cut short, not ' \
-                  'for measuring less - never compare it with a completed period.',
+                  'up to now. A SUMMED value is therefore smaller for being ' \
+                  'cut short, not for measuring less. An AVERAGED one (see ' \
+                  "each entry's `aggregation`) is not smaller at all - it is " \
+                  'the mean of a shorter stretch. Never compare either with a ' \
+                  'completed period.',
             }
           else
             {}

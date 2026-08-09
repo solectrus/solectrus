@@ -163,6 +163,33 @@ describe McpServer::Tools::Totals do
         expect(note_for('P24H')).to be_nil
         expect(note_for('P30D')).to be_nil
       end
+
+      # One response carries both kinds, and only the sums are cut short: an
+      # autarky of 81 % is the mean of the hours measured so far, not a
+      # percentage that grows towards midnight. "Such a value is smaller for
+      # being cut short" said the wrong thing about half the payload, and a
+      # client acting on it reported a full-day autarky as an understatement.
+      it 'separates a summed value from an averaged one' do
+        note = note_for('day')
+
+        expect(note).to include('SUMMED', 'smaller for being cut short')
+        expect(note).to include('AVERAGED', 'not smaller at all')
+      end
+
+      # The note talks about two kinds of value; the entries are what say
+      # which kind each one is.
+      it 'sends the aggregation it points at' do
+        response =
+          described_class.call(
+            server_context: nil,
+            timeframe: 'day',
+            sensors: %w[house_power autarky],
+          )
+        data = JSON.parse(response.content.first[:text], symbolize_names: true)
+
+        expect(data[:timeframe_note]).to include('`aggregation`')
+        expect(data[:totals].pluck(:aggregation)).to eq(%w[sum avg])
+      end
     end
 
     describe 'an invalid timeframe' do

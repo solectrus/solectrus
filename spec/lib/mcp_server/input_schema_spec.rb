@@ -42,6 +42,56 @@ describe 'MCP input schemas' do # rubocop:disable RSpec/DescribeClass
     end
   end
 
+  # The grammar is published as a closed set, so a client takes each
+  # parenthesis for a promise about what the form covers - and only ONE of the
+  # three P-forms rolls. Timeframe ends an hour window at Time.current, but a
+  # day window yesterday and a month window with last month. While all three
+  # were called "a rolling window ending now", a client reported a P30D total
+  # as "the last 30 days" including today, and the day window it had actually
+  # been given stops before today.
+  describe 'the published timeframe grammar' do
+    let(:grammar) { McpServer::Facts::TIMEFRAME_FORMS }
+
+    def timeframe_tools
+      McpServer::Server.build.tools.values.select { property(it, :timeframe) }
+    end
+
+    it 'reaches every tool that takes a timeframe' do
+      expect(timeframe_tools).not_to be_empty
+      timeframe_tools.each do |tool|
+        expect(property(tool, :timeframe)[:description]).to include(grammar),
+                                                            tool.tool_name
+      end
+    end
+
+    it 'calls the hour window rolling, and only that one' do
+      expect(grammar).to include('"P24H" (a rolling window ending NOW)')
+      expect(grammar).not_to include('"P24H"/"P30D"/"P12M"')
+    end
+
+    it 'agrees with Timeframe on the hour window' do
+      freeze_time
+
+      expect(Timeframe.new('P24H').ending).to eq(Time.current)
+    end
+
+    it 'agrees with Timeframe on the day window' do
+      expect(grammar).to include('ending yesterday')
+      expect(Timeframe.new('P30D').ending.to_date).to eq(Date.yesterday)
+    end
+
+    it 'agrees with Timeframe on the month window' do
+      expect(grammar).to include('ending with last month')
+      expect(Timeframe.new('P12M').ending.to_date).to be < Date.current.beginning_of_month
+    end
+
+    # The one clause a client acts on: whether a figure it is about to report
+    # can contain a day that is only half measured.
+    it 'says that neither reaches into today' do
+      expect(grammar).to include('neither of those two reaches into today')
+    end
+  end
+
   describe 'a list of sensor names' do
     # An empty array is rejected by every tool that requires names; saying so
     # in the schema saves the round trip.

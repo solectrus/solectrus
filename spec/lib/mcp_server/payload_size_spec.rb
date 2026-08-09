@@ -61,7 +61,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # It is the one ceiling that buys something elsewhere - the axis a curve
       # and a ranking share is described here instead of being repeated in
       # every response, which is what the two data ceilings below cost now.
-      'tool definitions + instructions' => 24_500,
+      'tool definitions + instructions' => 25_000,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,

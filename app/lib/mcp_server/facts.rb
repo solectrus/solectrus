@@ -25,10 +25,21 @@ module McpServer
     # is the point - an "e.g." invites a model to extrapolate, and what it
     # extrapolates ("last-week", "yesterday", "2026-06-21..now") is never
     # accepted. A closed set leaves nothing to invent.
+    #
+    # The three P-forms are spelled out separately because only ONE of them
+    # rolls. Timeframe#ending is Time.current for an hour window, but
+    # yesterday's end of day for "PnD" and last month's for "PnM" - so "P30D"
+    # is thirty whole days that stop before today, not the thirty days up to
+    # this minute. Calling all three "a rolling window ending now" made a
+    # client report a partial today inside a figure it had been told covers
+    # the last 30 days, and contradicted the note get_totals sends for the
+    # period still running.
     TIMEFRAME_FORMS =
       '"2026-06-21" (a day), "2026-W25" (a week), "2026-06" (a month), ' \
         '"2026" (a year), "2026-01-01..2026-03-31" (a date range), ' \
-        '"P24H"/"P30D"/"P12M" (a rolling window ending now), ' \
+        '"P24H" (a rolling window ending NOW), "P30D" (30 WHOLE days, ending ' \
+        'yesterday), "P12M" (12 WHOLE months, ending with last month) - ' \
+        'neither of those two reaches into today, ' \
         '"day"/"week"/"month"/"year" (the current period), ' \
         '"all" (since installation)'.freeze
 

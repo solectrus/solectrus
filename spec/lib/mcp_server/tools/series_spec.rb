@@ -56,6 +56,18 @@ describe McpServer::Tools::Series do
     it 'counts them correctly' do
       expect(described_class.description.squish).to include('three things')
     end
+
+    # `partial_at` is sent on every running window and on every rolling one,
+    # so it is the field a client meets first. Unnamed in the description it
+    # arrives as a bare list of timestamps, and the value it flags reads as a
+    # low measurement rather than as a bucket the window only cuts into.
+    it 'names `partial_at` and what it names' do
+      description = described_class.description.squish
+
+      expect(description).to include('`partial_at`')
+      expect(description).to include('bucket END')
+      expect(description).to include('never read it as a low one')
+    end
   end
 
   describe '.call' do
