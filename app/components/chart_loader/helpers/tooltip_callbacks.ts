@@ -14,6 +14,7 @@ const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
 
 type TooltipHelpers = {
   locale: string;
+  unit: string;
   formattedNumber: (value: number) => string;
   extractNumericValue: (value: unknown, mode: 'max' | 'min') => number | null;
 };
@@ -31,7 +32,12 @@ export const buildTooltipCallbacks = (
   ) => { backgroundColor: Color; borderColor: Color } | undefined;
   footer: (tooltipItems: TooltipItem<ChartType>[]) => string | undefined;
 } => {
-  const { locale, formattedNumber, extractNumericValue } = helpers;
+  const { locale, unit, formattedNumber, extractNumericValue } = helpers;
+
+  // The inverter tooltip only stays in plain watts while the chart really
+  // shows power. Aggregated timeframes sum to energy (Wh), which must be
+  // scaled like any other value.
+  const showsWatts = unit === 'W';
 
   const tooltipValue = (tooltipItem: TooltipItem<ChartType>): number | null => {
     const parsedY = tooltipItem.parsed?.y;
@@ -173,7 +179,7 @@ export const buildTooltipCallbacks = (
         datasetId?.startsWith('inverter_power') ||
         tooltipItem.dataset.stack === 'InverterPower';
 
-      if (isInverterPowerDataset) {
+      if (isInverterPowerDataset && showsWatts) {
         return `${label}${formatWatts(parsedValue ?? 0)}`;
       }
 
@@ -220,7 +226,7 @@ export const buildTooltipCallbacks = (
         }, 0);
 
         if (sum)
-          return flags.isInverterStack
+          return flags.isInverterStack && showsWatts
             ? formatWatts(sum)
             : formattedNumber(sum);
       }

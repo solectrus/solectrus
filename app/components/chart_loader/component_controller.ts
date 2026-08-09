@@ -381,6 +381,7 @@ export default class extends Controller<HTMLCanvasElement> {
     tooltip.callbacks = buildTooltipCallbacks(
       {
         locale: this.locale,
+        unit: this.unitValue,
         formattedNumber: (value) => this.formattedNumber(value),
         extractNumericValue,
       },
