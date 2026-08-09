@@ -145,6 +145,36 @@ describe McpServer::Tools::Forecast do
       end
     end
 
+    # The two lists deliberately start a day apart: today's generation is
+    # `today_remaining` and would be counted twice as a day of its own, while a
+    # temperature has no such half. Nothing in the payload states that, so a
+    # client zipping the lists by index reads tomorrow's warmth onto tomorrow's
+    # energy by luck and not by rule.
+    context 'with both sections present' do
+      before do
+        seed_generation(today + 1)
+        seed_temperature(today)
+        seed_temperature(today + 1)
+      end
+
+      it 'starts generation tomorrow and temperature today' do
+        data = forecast
+
+        expect(data[:generation][:days].first[:date]).to eq((today + 1).iso8601)
+        expect(data[:temperature][:days].first[:date]).to eq(today.iso8601)
+      end
+
+      it 'says so in the description, since the payload cannot' do
+        description = described_class.description.squish
+
+        expect(description).to include(
+          '`days` therefore start TOMORROW',
+          '`days` start TODAY',
+          'never by its position',
+        )
+      end
+    end
+
     context 'without a temperature forecast configured' do
       before do
         allow(Sensor::Config).to receive(:exists?).and_call_original

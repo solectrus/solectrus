@@ -41,10 +41,14 @@ module McpServer
 
         - `generation`: expected PV generation in Wh (÷1000 for kWh).
           `today_remaining` counts only the part AFTER now, so energy already
-          generated today is not included; `days` gives the full expected energy
-          per upcoming day.
-        - `temperature`: daily min/max/avg in °C for today and the upcoming
-          days. Present only when an outdoor temperature forecast is configured.
+          generated today is not included. Its `days` therefore start
+          TOMORROW, each with the full expected energy of that day.
+        - `temperature`: daily min/max/avg in °C. Its `days` start TODAY — a
+          temperature has no "already had it" half to leave out. Present only
+          when an outdoor temperature forecast is configured.
+
+        So the two lists begin on DIFFERENT dates and can end on different
+        ones too: read every entry by its own `date`, never by its position.
 
         Where no forecast has been stored at all, `today_remaining` is null and
         a `forecast_note` says so. That is "no forecast available", never "no
