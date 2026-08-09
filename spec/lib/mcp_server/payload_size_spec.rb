@@ -61,7 +61,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # It is the one ceiling that buys something elsewhere - the axis a curve
       # and a ranking share is described here instead of being repeated in
       # every response, which is what the two data ceilings below cost now.
-      'tool definitions + instructions' => 25_000,
+      'tool definitions + instructions' => 27_000,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
@@ -79,6 +79,9 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # here that carries a `summary_note`. A real instance answers "all" with
       # the running day pending at most, and pays nothing for it.
       'get_ranking (3 sensors, all, day)' => 1_150,
+      # A dense year of months: no `indices`, no gaps left out, so this is what
+      # the shape costs at its most ordinary - the call behind a chart.
+      'get_periods (3 sensors, 2024, month)' => 1_300,
       'get_forecast' => 1_350,
       'get_amortization' => 2_100,
     }
@@ -267,11 +270,27 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       'get_series (5 sensors, day, 1m)' => lambda {
         payload(McpServer::Tools::Series, sensors: series_sensors, timeframe: series_day.to_s, resolution: '1m')
       },
+      'get_forecast' => -> { payload(McpServer::Tools::Forecast) },
+      'get_amortization' => -> { payload(McpServer::Tools::Amortization) },
+    }.merge(summary_benchmarks)
+  end
+
+  # The two tools that read the PostgreSQL summaries, over the same sensors:
+  # they answer the same periods and differ only in how many come back and in
+  # what order, so measuring them side by side is what shows the shape's cost.
+  def summary_benchmarks
+    {
       'get_ranking (3 sensors, all, day)' => lambda {
         payload(McpServer::Tools::Ranking, sensors: ranking_sensors, timeframe: 'all')
       },
-      'get_forecast' => -> { payload(McpServer::Tools::Forecast) },
-      'get_amortization' => -> { payload(McpServer::Tools::Amortization) },
+      'get_periods (3 sensors, 2024, month)' => lambda {
+        payload(
+          McpServer::Tools::Periods,
+          sensors: ranking_sensors,
+          timeframe: '2024',
+          period: 'month',
+        )
+      },
     }
   end
 

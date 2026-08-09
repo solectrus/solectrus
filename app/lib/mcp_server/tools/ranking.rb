@@ -7,10 +7,10 @@ module McpServer
       tool_name 'get_ranking'
       title 'Rank days/weeks/months by a sensor'
 
-      # Entries per sensor a single ranking may return. It bounds what one
-      # response costs, and it bounds the SPAN a chronological curve can cover:
-      # beyond it a client has to ask for a coarser period, which is why
-      # get_series names this number when it sends one here.
+      # Entries per sensor a single ranking may return, bounding what one
+      # response costs. A top-N list has no reason to be longer; a client that
+      # wanted the periods themselves rather than the biggest of them is
+      # asking get_periods.
       MAX_LIMIT = 100
       public_constant :MAX_LIMIT
 
@@ -32,16 +32,18 @@ module McpServer
       public_constant :MAX_ENTRIES
 
       # Kept to what a client needs BEFORE it calls: which sensors can be
-      # ranked, what `order` and `sort` decide, how a cut period reads, and the
-      # shared entry budget. What the response says about itself - `limit_note`,
-      # `complete_periods_only`, `unknown_sensors` - is left to the response.
+      # ranked, what `order` decides, how a cut period reads, the shared entry
+      # budget, and the tool for the question this one does not answer. What
+      # the response says about itself - `limit_note`, `complete_periods_only`,
+      # `unknown_sensors` - is left to the response.
       description <<~TEXT.strip
         Rank the best or worst periods for one or more sensors over a
         timeframe: "which day this year had the highest solar production",
-        "house consumption per day in March". Returns, per sensor, a list of
-        periods with their aggregated `value` and its `unit`. Only a sensor the
-        summaries store, and that has an aggregation to order by, can be ranked
-        — the rest carry no "r" in their `tools` and are rejected by name.
+        "the three cheapest months". Returns, per sensor, a list of periods
+        with their aggregated `value` and its `unit`, ordered BY SIZE. Only a
+        sensor the summaries store, and that has an aggregation to order by,
+        can be ranked — the rest carry no "r" in their `tools` and are rejected
+        by name.
 
         `order` decides WHICH periods the limit keeps, not just their sequence.
 
@@ -56,11 +58,10 @@ module McpServer
         aggregation="avg" in either direction (an average is not smaller for
         covering less).
 
-        sort="value" orders by size, so `start` is the EARLIEST period rather
-        than the first entry. sort="chronological" returns the periods in date
-        order, ready to plot, with a null for a period without data between the
-        first and the last entry — as long as the filled list fits `limit`, so
-        pair it with a generous one.
+        Ordered by size, `start` is the EARLIEST period rather than the first
+        entry, and `indices` gives each entry's offset from it in `period`
+        steps — never a position in `values`. For the same periods in DATE
+        order, dense and ready to plot, ask get_periods.
 
         `limit` counts per sensor but the budget is SHARED: N sensors get
         #{MAX_ENTRIES}/N entries each at most, so a long list and many sensors
@@ -97,12 +98,6 @@ module McpServer
             default: 'desc',
             description: '"desc" = highest first, "asc" = lowest first.',
           },
-          sort: {
-            type: 'string',
-            enum: %w[value chronological],
-            default: 'value',
-            description: 'Order of the returned entries.',
-          },
           limit: {
             type: 'integer',
             minimum: 1,
@@ -124,7 +119,7 @@ module McpServer
         period: 'day',
         aggregation: nil,
         order: 'desc',
-        sort: 'value',
+        sort: nil,
         limit: 10,
         **
       )
@@ -153,22 +148,40 @@ module McpServer
           period: period.to_sym,
           aggregation:,
           desc: order.to_s != 'asc',
-          chronological: sort.to_s == 'chronological',
           limit: effective,
         }
 
         {
           **timeframe_preamble(tf, unknown),
           **merged_note(sensors, sensor),
+          **retired_sort_note(sort),
           **pending,
           period:,
           order:,
-          sort:,
           limit: effective,
           **limit_note(limit, effective, definitions.size),
           results: definitions.map { |definition| rank(definition, options) },
         }
       end
+
+      # `sort` used to choose between a value ranking and a chronological list,
+      # and get_periods answers the second question now. The schema no longer
+      # offers the argument, but a client works from the schema it cached, and
+      # ignoring the argument in silence hands it a ranking where it asked for
+      # a curve - the one answer that looks right and is not. Answered rather
+      # than rejected: the ranking it gets is a real one, and the note is what
+      # tells it where the other question went.
+      def self.retired_sort_note(sort)
+        return {} if sort.blank?
+
+        {
+          sort_note:
+            '`sort` is no longer accepted and was ignored: get_ranking always ' \
+              'orders by value. For the periods in date order, dense and ready ' \
+              'to plot, call get_periods with the same timeframe and period.',
+        }
+      end
+      private_class_method :retired_sort_note
 
       # `sensors` and `sensor` are two ways to name the same thing, and the
       # schema can only mark both optional. Filling both in is answerable - the
@@ -200,8 +213,9 @@ module McpServer
 
       # Why the list is shorter than asked for, as a hash to splat into the
       # response - empty when nothing was cut, so the common case pays nothing.
-      # A silently shortened list is the one thing a chronological ranking must
-      # not do: it reads as "the data ends here" rather than "the budget did".
+      # Shortening is right here - a top-10 cut to five is still a top-5 - but
+      # doing it in silence is not: the list then reads as "there were only
+      # five" rather than "the budget paid for five".
       def self.limit_note(requested, effective, sensor_count)
         return {} if effective >= requested.to_i.clamp(1, MAX_LIMIT)
 
@@ -234,7 +248,7 @@ module McpServer
           # left the cut periods out, so it spans less than the timeframe names
           # and entries are missing rather than absent from the data.
           **(complete_only ? { complete_periods_only: true } : {}),
-          **Rows.axis(rounded, options[:period]),
+          **PeriodAxis.axis(rounded, options[:period]),
         }
       end
       private_class_method :rank

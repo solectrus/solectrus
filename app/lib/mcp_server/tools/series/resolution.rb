@@ -184,9 +184,9 @@ module McpServer
           raise ArgumentError,
                 "Unknown resolution \"#{requested}\". Use one of: " \
                   "#{LABELS.join(', ')}. A bucket coarser than \"1h\" is a " \
-                  'summary question - get_ranking(sort: "chronological") ' \
-                  'reads a value per day, week, month or year from the ' \
-                  'summaries, exact per period rather than a mean per bucket.'
+                  'summary question - get_periods reads a value per day, ' \
+                  'week, month or year from the summaries, exact per period ' \
+                  'rather than a mean per bucket.'
         end
 
         # Start at the requested resolution (or the finest when unset) and

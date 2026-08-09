@@ -37,11 +37,15 @@ setup guide instead, for the admin alone.)
   (`last_seen_at` and `age_seconds`, on every entry — a reported value carries
   them as much as a null one)
 - `get_totals` — aggregated **historical actual** values for a timeframe
-- `get_ranking` — best/worst (or chronological) days/weeks/months for one or more sensors
+- `get_periods` — `get_totals` grouped: one value per day/week/month/year, in
+  date order and dense (a period without data comes back as `null`). The series
+  behind a chart, and literally the query the web UI plots its bars from
+- `get_ranking` — best/worst days/weeks/months for one or more sensors, ordered
+  by value
 - `get_series` — sub-daily time series (intraday curves) for one or more
   sensors, over a short window only (at most 99 hours). It reads the raw
   InfluxDB samples; anything from a week upwards is a `get_totals` or
-  `get_ranking` question, answered from the PostgreSQL summaries
+  `get_periods` question, answered from the PostgreSQL summaries
 - `get_forecast` — forecast for the coming days: expected PV generation (energy
   still to come today and per upcoming day) plus the outdoor temperature
   (daily min/max/avg)
@@ -50,7 +54,7 @@ setup guide instead, for the admin alone.)
   with the manually kept cash flow register
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
-> _energy_, so in `get_totals`/`get_ranking` the resulting `value` is in Wh,
+> _energy_, so in `get_totals`, `get_periods` and `get_ranking` the `value` is in Wh,
 > not W (divide by 1000 for kWh) — never read a watt-sum as a power. The same
 > holds for `co2_reduction`: unaggregated — a live reading or a `get_series`
 > curve — it is a rate (`gram_per_hour`, the CO₂ avoided at the current
@@ -70,8 +74,8 @@ page builds the rest with a progress bar.
 
 ### Curves and rankings are an axis plus values
 
-`get_series` and `get_ranking` return the axis once and then a bare `values`
-list — not one dated object per entry:
+`get_series`, `get_periods` and `get_ranking` return the axis once and then a
+bare `values` list — not one dated object per entry:
 
 ```json
 {
@@ -85,13 +89,14 @@ list — not one dated object per entry:
 ```
 
 `values[i]` sits at `start` + i steps — one step being `step_seconds` for a
-curve, one `period` for a ranking. Two optional fields qualify that, and each
-is absent when it has nothing to say:
+curve, one `period` for the two summary tools. Two optional fields qualify
+that, and each is absent when it has nothing to say:
 
 - `indices` gives the step offset of every value, for the cases where they are
   not consecutive: `include_nulls: false` in `get_series`, which drops the
-  empty buckets, and `sort: "value"` in `get_ranking`, which orders by size.
-  Without it, `values[i]` is at offset i.
+  empty buckets, and `get_ranking`, which orders by size. Without it,
+  `values[i]` is at offset i — always so in `get_periods`, whose list is dense
+  by construction.
 - `partial_at` **names the steps** the window covers only partly — both edges
   of a rolling window, the period still running. It names them the way `start`
   names its own: an ISO period start in a ranking (`"2026-06-01"`), a bucket
@@ -140,7 +145,7 @@ of the default set. Ask for the **base sensor** for live power. It does carry
 never finer than `5m`. Nothing lifts that floor in practice: the shortest
 timeframe a split can be asked for is a whole day, and a day already costs `5m`
 under the shared point budget. `get_totals` has no such condition, and
-`get_ranking` answers wherever the summaries store the split.
+`get_periods`/`get_ranking` answer wherever the summaries store the split.
 
 (The SOLECTRUS UI shows the split only from a week upwards. That is a rendering
 limit, not a data one: the split is drawn as stacked bars, and shorter
@@ -153,8 +158,8 @@ carrying anything their base sensor and the suffix do not.
 
 ### A `null` always means "no data"
 
-`get_totals` and `get_ranking` both read a per-period value, and both reject a
-sensor that has none instead of answering `null`. That covers every sensor whose
+`get_totals`, `get_periods` and `get_ranking` all read a per-period value, and
+all reject a sensor that has none instead of answering `null`. That covers every sensor whose
 `aggregations` are empty — a status text, a setpoint, a chart-only composite
 such as `power_balance` — and, for `get_totals` alone, a forecast sensor, since
 the summaries hold no forecast. (`get_ranking` does answer for one: it ranks

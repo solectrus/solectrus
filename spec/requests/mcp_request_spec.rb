@@ -224,6 +224,7 @@ describe 'MCP' do
             'get_prices',
             'get_current_values',
             'get_totals',
+            'get_periods',
             'get_ranking',
             'get_series',
             'get_forecast',

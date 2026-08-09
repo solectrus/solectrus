@@ -33,6 +33,28 @@ describe McpServer::Tools::Ranking do
 
   let(:range) { '2024-01-01..2024-01-31' }
 
+  # Both optional axis fields reach the client, and a field it receives
+  # without a word about it is a field it has to guess at. `indices` is the
+  # guess that silently reorders a ranking: read as positions in `values`
+  # rather than as offsets from `start`, every value ranking comes out wrong -
+  # and sort="value" is the default, so it is the common answer.
+  describe '.description' do
+    it 'names the index space `indices` counts in' do
+      _error, data = call(sensor: 'house_power', timeframe: range)
+
+      expect(data[:results].first).to have_key(:indices)
+      expect(described_class.description.squish).to include(
+        '`indices`',
+        'offset from it in `period` steps',
+        'never a position in `values`',
+      )
+    end
+
+    it 'names `partial_at`' do
+      expect(described_class.description).to include('`partial_at`')
+    end
+  end
+
   describe '.call' do
     it 'ranks days descending by default' do
       error, data = call(sensor: 'house_power', timeframe: range)
@@ -55,93 +77,15 @@ describe McpServer::Tools::Ranking do
       expect(data[:results].first[:ranking].first[:date]).to eq('2024-01-16')
     end
 
-    it 'sorts chronologically when requested' do
-      _error, data =
-        call(sensor: 'house_power', timeframe: range, sort: 'chronological')
+    # A ranking is a SELECTION, so a period missing from it may simply not have
+    # made the cut - padding it with an explicit null would claim it holds no
+    # data. That promise belongs to get_periods, which returns every period.
+    it 'never pads a period without data' do
+      create_summary(date: '2024-01-20', values: [[:house_power, :sum, 12_000]])
 
-      expect(data[:results].first[:ranking].pluck(:date)).to eq(
-        %w[2024-01-15 2024-01-16 2024-01-17],
-      )
-    end
+      _error, data = call(sensor: 'house_power', timeframe: range, limit: 50)
 
-    # A day without data has no summary row, so it used to vanish from a
-    # chronological list without a trace - the client had to spot the date gap
-    # itself and then confirm with get_totals that it really means "no data"
-    # rather than an artefact of the sorting.
-    context 'with a day that has no data at all' do
-      before { create_summary(date: '2024-01-20', values: [[:house_power, :sum, 12_000]]) }
-
-      def ranking(**args)
-        _error, data =
-          call(sensor: 'house_power', timeframe: range, sort: 'chronological', limit: 50, **args)
-        data[:results].first[:ranking]
-      end
-
-      # The 18th and 19th have no summary row at all; the timeframe spans all
-      # of January, but nothing is padded outside the data's own range.
-      it 'reports the missing days with a null value' do
-        expect(ranking.pluck(:date)).to eq(
-          %w[
-            2024-01-15
-            2024-01-16
-            2024-01-17
-            2024-01-18
-            2024-01-19
-            2024-01-20
-          ],
-        )
-        expect(ranking.pluck(:value)).to eq([25_000.0, 14_000.0, 30_000.0, nil, nil, 12_000.0])
-      end
-
-      it 'leaves a list truncated by the limit alone' do
-        # With limit: 4 the four days with data fill the list, so a missing day
-        # cannot be told from one that did not make the cut.
-        expect(ranking(limit: 4).pluck(:value)).to all(be_present)
-      end
-
-      # Filling regardless was the one way this tool could answer with more
-      # entries than the limit it reports - so neither that limit nor the
-      # budget the sensors share bounded the response.
-      it 'never answers with more entries than the limit it reports' do
-        # The four days with data span six, which limit: 5 cannot hold.
-        expect(ranking(limit: 5).size).to eq(4)
-        expect(ranking(limit: 5).pluck(:value)).to all(be_present)
-      end
-
-      it 'fills the gaps as soon as they fit' do
-        expect(ranking(limit: 6).size).to eq(6)
-      end
-
-      it 'keeps a value ranking free of periods without data' do
-        _error, data =
-          call(sensor: 'house_power', timeframe: range, sort: 'value', limit: 50)
-
-        expect(data[:results].first[:ranking].pluck(:value)).to all(be_present)
-      end
-    end
-
-    context 'with a month that has no data at all' do
-      before { create_summary(date: '2024-04-10', values: [[:house_power, :sum, 12_000]]) }
-
-      it 'reports the missing months with a null value' do
-        _error, data =
-          call(
-            sensor: 'house_power',
-            timeframe: '2024-01-01..2024-04-30',
-            period: 'month',
-            sort: 'chronological',
-            limit: 50,
-          )
-
-        expect(data[:results].first[:ranking]).to eq(
-          [
-            { date: '2024-01-01', value: 69_000.0 },
-            { date: '2024-02-01', value: nil },
-            { date: '2024-03-01', value: nil },
-            { date: '2024-04-01', value: 12_000.0 },
-          ],
-        )
-      end
+      expect(data[:results].first[:ranking].pluck(:value)).to all(be_present)
     end
 
     # A ranked period is labelled with its start but summed over the days the
@@ -151,12 +95,18 @@ describe McpServer::Tools::Ranking do
     # wrong reason.
     describe 'periods the timeframe cuts short' do
       def ranking(**args)
-        _error, data = call(sensor: 'house_power', sort: 'chronological', limit: 50, **args)
+        _error, data = call(sensor: 'house_power', limit: 50, **args)
         data[:results].first[:ranking]
       end
 
+      # By date, because a ranking is ordered by size: which position an entry
+      # lands on is what this tool decides, not what these examples are about.
+      def entry(date, **args)
+        ranking(**args).find { it[:date] == date }
+      end
+
       it 'flags a month the timeframe starts inside' do
-        expect(ranking(timeframe: '2024-01-10..2024-03-31', period: 'month').first).to eq(
+        expect(entry('2024-01-01', timeframe: '2024-01-10..2024-03-31', period: 'month')).to eq(
           # January, but only from the 10th: the 15th to the 17th, not the month.
           { date: '2024-01-01', value: 69_000.0, partial: true },
         )
@@ -165,7 +115,7 @@ describe McpServer::Tools::Ranking do
       it 'flags a month the timeframe ends inside' do
         create_summary(date: '2024-03-05', values: [[:house_power, :sum, 5_000]])
 
-        expect(ranking(timeframe: '2024-01-01..2024-03-10', period: 'month').last).to eq(
+        expect(entry('2024-03-01', timeframe: '2024-01-01..2024-03-10', period: 'month')).to eq(
           { date: '2024-03-01', value: 5_000.0, partial: true },
         )
       end
@@ -225,7 +175,9 @@ describe McpServer::Tools::Ranking do
         end
 
         it 'flags the running month' do
-          expect(ranking(timeframe: 'year', period: 'month').last).to include(partial: true)
+          expect(
+            entry(Date.current.beginning_of_month.iso8601, timeframe: 'year', period: 'month'),
+          ).to include(partial: true)
         end
 
         # get_totals says it in a `timeframe_note`, having no entry to mark.
@@ -378,10 +330,38 @@ describe McpServer::Tools::Ranking do
         expect(data_for[:sensors_note]).to include('MERGED', '`sensors`', '`sensor`')
       end
 
-      it 'stays silent when only one of them is given' do
+      it 'stays silent when only one of them is given for `sensors`' do
         _error, data = call(sensor: 'house_power', timeframe: range)
 
         expect(data).not_to have_key(:sensors_note)
+      end
+    end
+
+    # A client works from the schema it cached, and this one used to offer
+    # `sort`. Dropping the argument in silence hands such a client a ranking
+    # where it asked for a curve - which looks like an answer and is the wrong
+    # question.
+    describe 'with the retired `sort` argument' do
+      def data_for(**args)
+        _error, data = call(sensor: 'house_power', timeframe: range, **args)
+        data
+      end
+
+      it 'still answers, as a ranking' do
+        expect(data_for(sort: 'chronological')[:results].first[:ranking].pluck(:date)).to eq(
+          %w[2024-01-17 2024-01-15 2024-01-16],
+        )
+      end
+
+      it 'says the argument was ignored and where the question went' do
+        expect(data_for(sort: 'chronological')[:sort_note]).to include(
+          '`sort` is no longer accepted',
+          'get_periods',
+        )
+      end
+
+      it 'stays silent when it is not sent' do
+        expect(data_for).not_to have_key(:sort_note)
       end
     end
 

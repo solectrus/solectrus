@@ -333,6 +333,7 @@ module McpServer
           current: 'get_current_values has no live reading for these sensors.',
           series: 'get_series has no curve for these sensors.',
           totals: 'get_totals has no total for these sensors.',
+          periods: 'get_periods has no per-period value for these sensors.',
           ranking: 'get_ranking has no ranking for these sensors.',
         }.freeze
 

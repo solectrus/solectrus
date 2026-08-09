@@ -143,7 +143,17 @@ describe 'MCP input schemas' do # rubocop:disable RSpec/DescribeClass
     it 'declares them for get_ranking' do
       expect(property(McpServer::Tools::Ranking, :period)).to include(default: 'day')
       expect(property(McpServer::Tools::Ranking, :order)).to include(default: 'desc')
-      expect(property(McpServer::Tools::Ranking, :sort)).to include(default: 'value')
+    end
+
+    it 'declares them for get_periods' do
+      expect(property(McpServer::Tools::Periods, :period)).to include(default: 'day')
+    end
+
+    # A ranking orders by value, full stop. The chronological mode it used to
+    # carry is get_periods now, and a client still sending `sort` would get a
+    # ranking back while believing it had asked for a curve.
+    it 'no longer offers get_ranking a sort order' do
+      expect(property(McpServer::Tools::Ranking, :sort)).to be_nil
     end
 
     it 'declares them for get_prices' do

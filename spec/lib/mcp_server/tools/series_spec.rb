@@ -609,10 +609,14 @@ describe McpServer::Tools::Series do
         expect(%w[week 2024-06 2024].map { rejects?(_1) }).to eq([true, true, true])
       end
 
+      # The rejection is only as good as where it sends the client, so the two
+      # tools it names have to be the two that actually answer over a longer
+      # window - not the one that used to, under a flag it no longer has.
       it 'names the limit and the tools that answer instead' do
         _error, text = call(sensors: ['battery_soc'], timeframe: 'P30D')
 
-        expect(text).to include("#{max_hours} hours", 'get_totals', 'get_ranking')
+        expect(text).to include("#{max_hours} hours", 'get_totals', 'get_periods')
+        expect(text).not_to include('sort')
       end
 
       # The UI offers 72 hours at most, but the data does not stop there and

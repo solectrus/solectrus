@@ -39,9 +39,8 @@ module McpServer
         #{MAX_SPAN.in_hours.to_i} hours ("P#{MAX_SPAN.in_hours.to_i}H", or a
         4-day range); a longer one is REJECTED. From a week upwards the
         question belongs to the summaries — get_totals for the total,
-        get_ranking(sort: "chronological") for a value per period, coarse
-        enough to fit its #{Ranking::MAX_LIMIT} entries. A forecast sensor is
-        exempt: no summary holds its horizon.
+        get_periods for a value per day, week, month or year. A forecast
+        sensor is exempt: no summary holds its horizon.
 
         These are averaged curves, NOT an energy source: a bucket holds the
         unweighted mean of its samples, so integrating a coarse series drifts
@@ -181,11 +180,11 @@ module McpServer
                 "#{span.fdiv(1.day).ceil} days. Its buckets are means " \
                 'over samples, which drift from the energy a longer period ' \
                 'holds. Use get_totals for the total over the period, or ' \
-                'get_ranking(sort: "chronological") for a value per period. ' \
-                "A ranking returns at most #{Ranking::MAX_LIMIT} entries, so " \
-                'ask it for period "day" over a span of that many days, and ' \
-                'for "week", "month" or "year" over a longer one. Both read ' \
-                'the summaries, which are exact per period.'
+                'get_periods for a value per period - it answers up to ' \
+                "#{Periods::MAX_ENTRIES} of them, so ask it for period " \
+                '"day" over a span of that many days, and for "week", ' \
+                '"month" or "year" over a longer one. Both read the ' \
+                'summaries, which are exact per period.'
       end
       private_class_method :enforce_short_timeframe!
 

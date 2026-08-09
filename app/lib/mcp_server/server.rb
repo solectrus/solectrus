@@ -9,6 +9,7 @@ module McpServer
       Tools::Prices,
       Tools::CurrentValues,
       Tools::Totals,
+      Tools::Periods,
       Tools::Ranking,
       Tools::Series,
       Tools::Forecast,
@@ -22,8 +23,9 @@ module McpServer
       Read-only data of a SOLECTRUS photovoltaic monitoring system. Call
       list_sensors first: it indexes every sensor name, and the other tools take
       those names. Then get_current_values for live readings, get_totals for a
-      timeframe, get_ranking for best/worst periods, get_series for intraday
-      curves; get_system_info for installation metadata and currency,
+      timeframe, get_periods for a value per day/week/month/year, get_ranking
+      for best/worst periods, get_series for intraday curves;
+      get_system_info for installation metadata and currency,
       get_prices for the (time-dependent) tariffs, get_forecast for expected PV
       energy, get_amortization for payback, break-even and NPV/IRR.
 

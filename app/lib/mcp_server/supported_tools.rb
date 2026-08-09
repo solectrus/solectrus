@@ -17,11 +17,19 @@ module McpServer
     def for(sensor)
       live = live?(sensor)
 
+      totals = !sensor.forecast? && aggregations(sensor).any?
+
       {
         current: live,
-        totals: !sensor.forecast? && aggregations(sensor).any?,
+        totals:,
         series: curve?(sensor),
         ranking: rankable?(sensor),
+        # get_periods is get_totals grouped - the same query over the same
+        # sensors - so it is the same predicate and deliberately NOT a letter
+        # of its own. A second letter that could never differ from "t" would
+        # cost every sensor a byte in list_sensors to say what "t" already
+        # says.
+        periods: totals,
         forecast: sensor.forecast?,
       }
     end
@@ -76,7 +84,7 @@ module McpServer
       case tool
       when :series then series_rejection(sensor)
       when :current then current_rejection(sensor)
-      when :totals then totals_rejection(sensor)
+      when :totals, :periods then totals_rejection(sensor)
       when :ranking then ranking_rejection(sensor)
       end
     end

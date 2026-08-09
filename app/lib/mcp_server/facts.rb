@@ -135,12 +135,12 @@ module McpServer
     COMPACT_AXIS =
       'A curve or ranking comes as an AXIS plus a bare `values` list, never ' \
         'as dated objects: values[i] sits at `start` + i steps, one step ' \
-        'being `step_seconds` (get_series) or one `period` (get_ranking). Two ' \
+        'being `step_seconds` (get_series) or one `period` (get_ranking/get_periods). Two ' \
         'optional fields qualify it, each absent when it has nothing to say: ' \
         '`indices` gives the step offset of every value, and appears wherever ' \
         'they are not consecutive - without it, values[i] IS at offset i. ' \
         '`partial_at` NAMES the steps the window covers only partly, as the ' \
-        'ISO period start (get_ranking) or bucket end (get_series) `start` ' \
+        'ISO period start (get_ranking/get_periods) or bucket end (get_series) `start` ' \
         'itself carries - never as a position, so it needs no index space. ' \
         'Such a step holds less than a full one: never read a flagged value ' \
         'as a low one. A null value means "no data", distinct from a ' \
@@ -151,9 +151,17 @@ module McpServer
         'list_sensors publishes the decimals per unit in conventions.precision.'.freeze
 
     # The `tools` letter legend, derived from the matrix it describes so a
-    # letter cannot be added to SupportedTools without appearing here. Only
-    # `current` breaks the get_<flag> pattern.
-    TOOL_NAMES = { current: 'get_current_values' }.freeze
+    # letter cannot be added to SupportedTools without appearing here.
+    #
+    # Two flags break the get_<flag> pattern: `current`, and `totals` - whose
+    # single letter gates two tools, because get_periods is get_totals grouped
+    # and answers for exactly the sensors it answers for. Naming both keeps
+    # "t" from reading as a promise about one tool only, in the legend and in
+    # every "use X instead" clause composed from the matrix.
+    TOOL_NAMES = {
+      current: 'get_current_values',
+      totals: 'get_totals/get_periods',
+    }.freeze
     private_constant :TOOL_NAMES
 
     # The public name of a tool flag. Every message that names a tool goes
