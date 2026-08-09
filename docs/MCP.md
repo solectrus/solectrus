@@ -21,7 +21,9 @@ so there is no GET stream and no session to terminate, and `PUT`, `PATCH` and
 setup guide instead, for the admin alone.)
 
 - `list_sensors` — discover available sensors: a compact index of name,
-  description and which tools work for each sensor (`tools`)
+  description and which tools work for each sensor (`tools`). A sensor no tool
+  answers for is left out: the index exists to pick a sensor to call something
+  with
 - `get_sensor_details` — unit, display name, category and aggregations for a
   handful of named sensors, on the rare occasion the index is not enough
 - `get_system_info` — installation date, currency, timezone, installed peak
@@ -165,7 +167,8 @@ the call can be avoided rather than corrected.
 Every rejection also says what to ask instead, and reads that off the same
 matrix rather than naming a tool from memory — so it can never point at a tool
 that rejects the sensor too, and it says plainly where nothing answers at all
-(a chart-only composite carries an empty `tools` for exactly that reason). Where
+(a chart-only composite carries an empty `tools`, which is also why
+`list_sensors` leaves it out). Where
 one sensor is rejected and another name was merely unknown, the error carries
 both, so a typo does not cost a second round trip.
 

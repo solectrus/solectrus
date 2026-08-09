@@ -202,11 +202,31 @@ describe McpServer::Tools::ListSensors do
         )
       end
 
-      # power_balance is a chart-only composite with no live scalar, so it must
-      # advertise neither c nor s even though it is listed - clients need a
-      # machine-readable signal, not just the prose in get_current_values.
-      it 'omits c and s for a chart-only composite' do
-        expect(code_for('power_balance')).not_to include('c', 's')
+      # An index is for PICKING a sensor to call something with. A sensor every
+      # tool rejects cannot be picked, so listing it advertises a dead end -
+      # and invites the call its empty `tools` was meant to prevent.
+      describe 'a sensor no tool answers for' do
+        let(:unanswerable) do
+          Sensor::Config.sensors.select { McpServer::SupportedTools.code(_1).empty? }
+        end
+
+        it 'exists on this instance' do
+          expect(unanswerable.map(&:name)).to include(:power_balance)
+        end
+
+        it 'is left out of the index' do
+          expect(data[:sensors].pluck(:name)).not_to include(
+            *unanswerable.map { _1.name.to_s },
+          )
+        end
+
+        it 'leaves no listed sensor without a tool' do
+          expect(data[:sensors].pluck(:tools)).to all(be_present)
+        end
+
+        it 'is explained in the conventions' do
+          expect(data[:conventions][:tools]).to include('NO tool answers for')
+        end
       end
 
       # Money sensors (costs, revenue) are accumulated amounts with no

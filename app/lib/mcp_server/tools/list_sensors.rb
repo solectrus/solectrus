@@ -65,12 +65,15 @@ module McpServer
           'Which tools return meaningful data for this sensor, one letter ' \
             "each: #{McpServer::Facts.tool_letters}. " \
             "#{McpServer::Facts::TOOL_STRICTNESS} Why a letter is missing: a " \
-            'money sensor or a chart-only composite like power_balance has no ' \
-            'live scalar (neither c nor s); a boolean or string sensor has a ' \
-            'state but no curve (c without s); a sensor with no aggregation at ' \
-            'all has nothing to total or rank (neither t nor r); and a sensor ' \
-            'derived from others rather than stored in the summaries has no r ' \
-            '(the _pv power splits, house_power_without_custom, grid_balance).',
+            'money sensor has no live scalar (neither c nor s); a boolean or ' \
+            'string sensor has a state but no curve (c without s); a sensor ' \
+            'with no aggregation at all has nothing to total or rank (neither ' \
+            't nor r); and a sensor derived from others rather than stored in ' \
+            'the summaries has no r (the _pv power splits, ' \
+            'house_power_without_custom, grid_balance). A sensor NO tool ' \
+            'answers for is not listed here at all - a chart-only composite ' \
+            'such as power_balance, which exists to feed a chart and carries ' \
+            'no value of its own. get_sensor_details describes it by name.',
       }.freeze
       private_constant :CONVENTIONS
 
@@ -98,9 +101,20 @@ module McpServer
         I18n.with_locale(:en) do
           splits, listed = McpServer::SplitSensors.partition(Sensor::Config.sensors)
 
-          { sensors: listed.map { entry_for(it) }, conventions: conventions_for(splits) }
+          { sensors: answerable(listed).map { entry_for(it) }, conventions: conventions_for(splits) }
         end
       end
+
+      # An index exists so a client can PICK a sensor to call something with.
+      # A sensor with an empty `tools` is the one entry that can never be
+      # picked: every tool rejects it, and the letters say so. Listing it costs
+      # a description and a name to advertise a dead end - and invites the call
+      # the letters were meant to prevent. get_sensor_details still answers for
+      # it by name, as it does for the splits this index leaves out.
+      def self.answerable(sensors)
+        sensors.reject { McpServer::SupportedTools.code(it).empty? }
+      end
+      private_class_method :answerable
 
       # `display_name` only where the operator set one. Those names are the
       # words the user actually says ("Wie viel zieht die Waschmaschine?"), and
