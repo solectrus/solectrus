@@ -37,7 +37,14 @@ module McpServer
           start = rows.pluck(:date).min
           step = STEPS[period]
           indices = rows.map { |row| step.call(start, row[:date]) }
-          partial_at = rows.each_index.select { rows[it][:partial] }
+
+          # By period START, not by position in `values`. A position would be a
+          # second index space next to `indices` - which counts PERIODS from
+          # `start` - and under sort="value" the two disagree: with indices
+          # [1, 0, 2] a partial_at of [1, 2] names the first and second entry
+          # while reading as the second and third period. A date belongs to no
+          # index space at all.
+          partial_at = rows.filter_map { it[:date].iso8601 if it[:partial] }
 
           {
             start: start.iso8601,

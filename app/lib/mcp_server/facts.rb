@@ -128,9 +128,11 @@ module McpServer
         'optional fields qualify it, each absent when it has nothing to say: ' \
         '`indices` gives the step offset of every value, and appears wherever ' \
         'they are not consecutive - without it, values[i] IS at offset i. ' \
-        '`partial_at` lists POSITIONS IN `values` whose step is only partly ' \
-        'covered, so it holds less than a full one: never read a flagged ' \
-        'value as a low one. A null value means "no data", distinct from a ' \
+        '`partial_at` NAMES the steps the window covers only partly, as the ' \
+        'ISO period start (get_ranking) or bucket end (get_series) `start` ' \
+        'itself carries - never as a position, so it needs no index space. ' \
+        'Such a step holds less than a full one: never read a flagged value ' \
+        'as a low one. A null value means "no data", distinct from a ' \
         'measured 0.'.freeze
 
     ROUNDING =

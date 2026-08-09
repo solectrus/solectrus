@@ -43,9 +43,10 @@ module McpServer
 
         `order` decides WHICH periods the limit keeps, not just their sequence.
 
-        A period the timeframe cuts into is listed in `partial_at`, and only
-        then — the period still running included, today under the default
-        period="day". Such an entry covers its period's START but is summed
+        A period the timeframe cuts into is named in `partial_at` — by its ISO
+        period start, the same label `start` carries, never by a position in
+        `values` — and only then: the period still running included, today
+        under the default period="day". Such an entry covers its period's START but is summed
         over the days inside the timeframe alone: with period="month" over
         "2026-06-15..2026-07-15" the entry at "2026-06-01" holds June 15-30.
         Its period may even begin before the timeframe ("2025-12-29" for the

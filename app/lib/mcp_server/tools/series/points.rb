@@ -109,18 +109,20 @@ module McpServer
           base + (steps * grid.interval)
         end
 
-        # Positions in `values` whose bucket the window cuts into. Positions
-        # rather than grid indices, so one rule covers both shapes: whatever
-        # `indices` does, this always points into the array beside it.
+        # The buckets the window cuts into, named by their END - the same label
+        # `start` carries, so it reads against the axis rather than against the
+        # array. A position in `values` would be a second index space next to
+        # `indices`, which counts STEPS from `start`: with include_nulls: false
+        # the two disagree, and nothing in the response says which one a reader
+        # is holding. get_ranking names its cut periods the same way.
         #
         # `partial` qualifies a value; an empty bucket has none to qualify.
         # Without that guard a running period marked every bucket still ahead of
         # now - 16 of them by breakfast, all saying "this null is incomplete".
         def partial_note(entries, grid)
           at =
-            entries.each_index.select do |i|
-              time, value = entries[i]
-              !value.nil? && incomplete?(time, grid)
+            entries.filter_map do |time, value|
+              time.iso8601 if !value.nil? && incomplete?(time, grid)
             end
 
           at.empty? ? {} : { partial_at: at }

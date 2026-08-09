@@ -90,10 +90,13 @@ is absent when it has nothing to say:
   not consecutive: `include_nulls: false` in `get_series`, which drops the
   empty buckets, and `sort: "value"` in `get_ranking`, which orders by size.
   Without it, `values[i]` is at offset i.
-- `partial_at` lists **positions in `values`** whose step the window only
-  partly covers — both edges of a rolling window, the period still running.
-  Such a value is smaller for having been cut, not for having measured less,
-  so never compare it with an unflagged one.
+- `partial_at` **names the steps** the window covers only partly — both edges
+  of a rolling window, the period still running. It names them the way `start`
+  names its own: an ISO period start in a ranking (`"2026-06-01"`), a bucket
+  end in a curve (`"2026-08-06T07:05:00+02:00"`). Never a position in `values`,
+  which would be a second index space beside `indices` and disagree with it as
+  soon as the two differ. Such a value is smaller for having been cut, not for
+  having measured less, so never compare it with an unflagged one.
 
 A `null` value means "no data", distinct from a measured `0`. `get_series`
 states its axis even when `values` is empty — the timeframe and the resolution

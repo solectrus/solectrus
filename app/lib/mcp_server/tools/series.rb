@@ -53,9 +53,10 @@ module McpServer
         axis for every sensor in the response and for either include_nulls, so
         curves can be read against each other by index, and it is present even
         when `values` is empty. `indices` appears only with include_nulls:
-        false, where the dropped buckets leave gaps. `partial_at` flags the
-        buckets a window cuts into: both edges of a rolling one, and the period
-        still running.
+        false, where the dropped buckets leave gaps. `partial_at` names the
+        buckets a window cuts into — by their end, as `start` names its own,
+        never by a position in `values`: both edges of a rolling window, and
+        the period still running.
 
         `step_seconds` counts REAL seconds: add it to the instant `start` names
         and convert to local time — do not carry its UTC offset forward as

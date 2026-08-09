@@ -23,12 +23,9 @@ describe McpServer::Tools::Series do
 
     entry[:values].each_with_index.map do |value, i|
       index = entry[:indices] ? entry[:indices][i] : i
+      time = (start + (index * step)).iso8601
 
-      {
-        time: (start + (index * step)).iso8601,
-        value:,
-        **(partial.include?(i) ? { partial: true } : {}),
-      }
+      { time:, value:, **(partial.include?(time) ? { partial: true } : {}) }
     end
   end
 
@@ -435,6 +432,18 @@ describe McpServer::Tools::Series do
         expect(flagged.first).to be(true)
         expect(flagged.last).to be(true)
         expect(flagged[1..-2]).to all(be(false))
+      end
+
+      # By bucket END, the label `start` carries - not by position in `values`.
+      # A position would be a second index space beside `indices`, which counts
+      # STEPS, and nothing in the response says which one a reader is holding.
+      it 'names the cut buckets the way the axis names its own' do
+        _error, text = call(sensors: ['house_power'], timeframe: 'P2H', resolution: '1h')
+        entry = JSON.parse(text, symbolize_names: true).dig(:series, 0)
+        start = Time.zone.parse(entry[:start])
+        last = start + ((entry[:values].size - 1) * entry[:step_seconds])
+
+        expect(entry[:partial_at]).to eq([start.iso8601, last.iso8601])
       end
     end
 

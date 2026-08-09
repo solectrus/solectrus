@@ -19,12 +19,9 @@ describe McpServer::Tools::Ranking do
 
     result[:values].each_with_index.map do |value, i|
       index = result[:indices] ? result[:indices][i] : i
+      date = (start + index.public_send(period.to_s)).iso8601
 
-      {
-        date: (start + index.public_send(period.to_s)).iso8601,
-        value:,
-        **(partial.include?(i) ? { partial: true } : {}),
-      }
+      { date:, value:, **(partial.include?(date) ? { partial: true } : {}) }
     end
   end
 
@@ -189,6 +186,21 @@ describe McpServer::Tools::Ranking do
         expect(ranking(timeframe: '2024-01-01..2024-01-31', period: 'month')).to eq(
           [{ date: '2024-01-01', value: 69_000.0 }],
         )
+      end
+
+      # `indices` counts PERIODS from `start`, so a partial_at counting
+      # POSITIONS in `values` was a second index space in the same object - and
+      # a value ranking, ordered by size, is exactly where the two disagree.
+      # Here entry 1 is January while period offset 1 is February.
+      it 'names the cut periods by their period start, not by their position' do
+        create_summary(date: '2024-02-20', values: [[:house_power, :sum, 80_000]])
+
+        _error, data =
+          call(sensor: 'house_power', timeframe: '2024-01-10..2024-02-29', period: 'month')
+        result = data[:results].first
+
+        expect(result[:indices]).to eq([1, 0])
+        expect(result[:partial_at]).to eq(%w[2024-01-01])
       end
 
       it 'leaves plain days unflagged' do
