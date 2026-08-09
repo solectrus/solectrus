@@ -431,7 +431,7 @@ en:
     battery_savings: 'Savings from PV stored in the home battery. Grid energy passing through it does not count.'
     total_costs: 'Total economic electricity costs: grid import costs plus opportunity costs. Not the sum of the per-consumer cost sensors.'
     traditional_costs: 'Hypothetical cost if all consumption were bought from the grid (without PV).'
-    savings: 'Money saved thanks to the PV system (reference cost minus actual cost).'
+    savings: 'Money saved thanks to the PV system: cost without PV minus the net cost with it (grid import less feed-in revenue).'
     opportunity_costs: 'Feed-in revenue forgone by self-consuming instead of exporting.'
     solar_price: 'Net financial result for grid electricity with PV in place: grid import costs minus feed-in revenue. Positive = net cost, negative = net credit. A monetary amount, not a price per kWh.'
     system_status: 'Overall status reported by the SOLECTRUS data collector (textual state).'

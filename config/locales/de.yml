@@ -431,7 +431,7 @@ de:
     battery_savings: 'Ersparnis durch PV-Strom, der im Hausakku zwischengespeichert wurde. Netzstrom, der durch den Akku läuft, zählt nicht.'
     total_costs: 'Gesamte wirtschaftliche Stromkosten: Netzbezugskosten plus Opportunitätskosten. Nicht die Summe der Kostensensoren der einzelnen Verbraucher.'
     traditional_costs: 'Hypothetische Kosten, wenn der gesamte Verbrauch aus dem Netz bezogen würde (ohne PV).'
-    savings: 'Durch die PV-Anlage eingesparter Betrag (Vergleichspreis minus tatsächliche Kosten).'
+    savings: 'Durch die PV-Anlage eingesparter Betrag: Kosten ohne PV minus Netto-Kosten mit PV (Netzbezug abzüglich Einspeisevergütung).'
     opportunity_costs: 'Entgangene Einspeisevergütung durch Eigenverbrauch statt Einspeisung.'
     solar_price: 'Netto-Finanzergebnis für Netzstrom mit PV: Netzbezugskosten minus Einspeisevergütung. Positiv = Kosten, negativ = Gutschrift. Ein Geldbetrag, kein Preis pro kWh.'
     system_status: 'Gesamtstatus, gemeldet vom SOLECTRUS-Datensammler (Textwert).'
