@@ -15,10 +15,12 @@ module McpServer
         arriving, get_system_info answers that in two fields.
 
         Without `sensors` you get every configured sensor that HAS a live
-        reading. Money sensors, the _grid/_pv power splits and chart-only
-        composites have none: they carry no "c" in their `tools`, stay out of
-        the default set, and naming one is an error that says what to ask
-        instead.
+        reading, and a display_name only where the operator named the sensor
+        themselves ("Geschirrspüler" for custom_power_06) — the rest read off
+        their own name. Money sensors, the _grid/_pv power splits and
+        chart-only composites have no live reading: they carry no "c" in their
+        `tools`, stay out of the default set, and naming one is an error that
+        says what to ask instead.
 
         Every entry carries `last_seen_at` and `age_seconds` — for a reported
         value as much as for a null one:
@@ -103,12 +105,25 @@ module McpServer
       end
       private_class_method :value_for
 
-      # The default set spans every configured sensor, where the human-readable
-      # name is pure weight: list_sensors carries it, and a client pulling all
-      # values at once is scanning data rather than labelling it. An explicit
-      # request is short and usually meant for presentation, so there it stays.
+      # An explicit request is short and usually meant for presentation, so
+      # every entry keeps its label. The default set spans every configured
+      # sensor, where a label the sensor's own name already gives away is pure
+      # weight - "Erzeugung" adds nothing to inverter_power, and list_sensors
+      # carries it for the client that wants it anyway.
+      #
+      # A name the OPERATOR set is the exception, and the same one list_sensors
+      # makes: nothing about custom_power_06 reveals that it is the dishwasher.
+      # Dropping those made the default call - the first one a client makes for
+      # "what is happening right now" - answer in names the user never says.
+      #
+      # How many carry one is the operator's choice, not a handful by
+      # construction: on an instance that has named its sensors it is around
+      # half the set, and the response grows by that many fields. Worth it -
+      # they are the half whose names the user actually speaks - but it is a
+      # real cost, and the payload benchmark does not see it, because no name
+      # is configured in the test environment.
       def self.display_name(sensor, requested)
-        return {} if requested.blank?
+        return {} if requested.blank? && !sensor.user_defined_name?
 
         { display_name: mcp_display_name(sensor) }
       end

@@ -134,13 +134,32 @@ describe McpServer::Tools::CurrentValues do
         JSON.parse(response.content.first[:text], symbolize_names: true)[:values]
       end
 
+      def entry(name)
+        values.find { _1[:name] == name }
+      end
+
       it 'names explicitly requested sensors' do
         expect(values(sensors: ['battery_soc']).first).to include(:display_name)
       end
 
-      # ~70 sensors, each carrying a name that list_sensors already has.
-      it 'leaves the names out of the full default set' do
-        expect(values.first).not_to have_key(:display_name)
+      # ~70 sensors, each carrying a name its own name already gives away.
+      it 'leaves the derived names out of the full default set' do
+        expect(entry('battery_soc')).not_to have_key(:display_name)
+      end
+
+      # The one label no client can derive. Without it the default call - the
+      # first one made for "what is happening right now" - answers in
+      # custom_power_06 where the user says the operator's own word for it.
+      context 'when the operator named a sensor themselves' do
+        before do
+          allow(Setting).to receive(:sensor_names).and_return(
+            { custom_power_06: 'Geschirrspüler' },
+          )
+        end
+
+        it 'keeps that name in the default set' do
+          expect(entry('custom_power_06')[:display_name]).to eq('Geschirrspüler')
+        end
       end
     end
 
