@@ -38,10 +38,13 @@ class McpController < ActionController::API
       )
 
     request.body.rewind
+    method = jsonrpc_method
+    request.body.rewind
     status, headers, body = transport.handle_request(request)
 
     headers.each { |key, value| response.set_header(key, value) }
-    render status:, body: Array(body).join
+    render status:,
+           body: McpServer::ResultCompliance.apply(Array(body).join, method:)
   end
 
   # Every other Streamable HTTP method. The spec asks a server that does not
@@ -56,6 +59,17 @@ class McpController < ActionController::API
   end
 
   private
+
+  # Which result the response carries follows from the method that was asked
+  # for (see McpServer::ResultCompliance). Reading it never gates the request:
+  # the transport parses and validates the body itself, and a body we cannot
+  # read leaves the response as the gem wrote it.
+  def jsonrpc_method
+    body = JSON.parse(request.body.read)
+    body['method'] if body.is_a?(Hash)
+  rescue JSON::ParserError
+    nil
+  end
 
   def mcp_available?
     McpOauth.available?

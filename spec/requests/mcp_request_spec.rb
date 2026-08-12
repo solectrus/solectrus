@@ -233,6 +233,17 @@ describe 'MCP' do
           )
         end
 
+        # MCP 2026-07-28 makes `resultType` mandatory in every result, and the
+        # mcp gem does not emit it although it negotiates that revision. A
+        # client on 2026-07-28 rejects the whole tool list without it.
+        it 'marks the result as complete' do
+          post_mcp(tools_list)
+
+          expect(response.parsed_body.dig('result', 'resultType')).to eq(
+            'complete',
+          )
+        end
+
         # MCP 2026-07-28 makes the SEP-2549 cache hints mandatory on
         # tools/list, and the mcp gem emits them only when the server is built
         # with them. A client on that revision rejects the whole tool list
@@ -243,6 +254,20 @@ describe 'MCP' do
           expect(response.parsed_body['result']).to include(
             'ttlMs' => 300_000,
             'cacheScope' => 'private',
+          )
+        end
+
+        # Sessionless discovery (SEP-2575) is the second cacheable result, and
+        # the one the gem leaves without hints.
+        it 'answers sessionless discovery with every required member' do
+          post_mcp({ jsonrpc: '2.0', id: 1, method: 'server/discover' })
+
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body['result']).to include(
+            'resultType' => 'complete',
+            'ttlMs' => 300_000,
+            'cacheScope' => 'private',
+            'supportedVersions' => include('2026-07-28'),
           )
         end
       end
