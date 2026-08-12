@@ -232,6 +232,19 @@ describe 'MCP' do
             'get_cash_flows',
           )
         end
+
+        # MCP 2026-07-28 makes the SEP-2549 cache hints mandatory on
+        # tools/list, and the mcp gem emits them only when the server is built
+        # with them. A client on that revision rejects the whole tool list
+        # without them.
+        it 'states how long the tool list may be cached' do
+          post_mcp(tools_list)
+
+          expect(response.parsed_body['result']).to include(
+            'ttlMs' => 300_000,
+            'cacheScope' => 'private',
+          )
+        end
       end
     end
   end

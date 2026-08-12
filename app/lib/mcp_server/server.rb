@@ -44,6 +44,24 @@ module McpServer
     TEXT
     private_constant :INSTRUCTIONS
 
+    # MCP revision 2026-07-28 makes the SEP-2549 cache hints required members
+    # of tools/list, but the mcp gem emits them only when they are configured
+    # here. A client on that revision rejects the whole tool list without them.
+    #
+    # The tools are a fixed list with static descriptions, so the response only
+    # ever changes with a new release. Five minutes let a client reuse it
+    # within a conversation - it weighs ~30 KB - and still pick up a changed
+    # list soon after an update.
+    # Public, because ResultCompliance states the same policy on the one
+    # result the gem leaves without hints.
+    CACHE_TTL = 5.minutes
+    public_constant :CACHE_TTL
+
+    # `private` because nothing here is shareable across operators, and because
+    # it is what the TypeScript and Python SDKs default to.
+    CACHE_SCOPE = 'private'.freeze
+    public_constant :CACHE_SCOPE
+
     def self.build(server_context: {})
       MCP::Server.new(
         name: 'solectrus',
@@ -51,6 +69,8 @@ module McpServer
         version: Rails.configuration.x.git.commit_version,
         instructions: INSTRUCTIONS,
         tools: TOOLS,
+        ttl_ms: CACHE_TTL.in_milliseconds,
+        cache_scope: CACHE_SCOPE,
         server_context:,
       )
     end
