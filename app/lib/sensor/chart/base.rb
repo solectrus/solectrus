@@ -252,14 +252,26 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # interpolated points, the trailing fill with carried ones), so whichever
   # runs second would mistake the master-grid spacing for the sensor's cadence
   # and fall back to the 5-minute floor.
+  #
+  # Buckets after now are cut off first and appended untouched: they are nil
+  # because their time has not come, not because a measurement is missing.
+  # The grid runs to midnight whenever a forecast dataset (the longest one)
+  # defines it, and filling those buckets carries the last sample into the
+  # future or drops the series to the baseline -- a cliff at now.
   def process_gaps(master_labels, values, sensor_name)
+    now = timestamp_to_ms(Time.current)
+    cut = master_labels.index { |label| label > now } || master_labels.size
+    past_labels = master_labels.take(cut)
+    past_values = values.take(cut)
+    future_values = values.drop(cut)
+
     if bridge_gaps?(sensor_name)
-      limit = effective_gap_bridge_limit(master_labels, values)
-      values = bridge_short_gaps(master_labels, values, limit)
-      values = fill_trailing_edge(master_labels, values, limit) if fill_trailing_edge?
+      limit = effective_gap_bridge_limit(past_labels, past_values)
+      past_values = bridge_short_gaps(past_labels, past_values, limit)
+      past_values = fill_trailing_edge(past_labels, past_values, limit) if fill_trailing_edge?
     end
-    values = fill_gaps_with_zero(values) if fill_gaps_with_zero?
-    values
+    past_values = fill_gaps_with_zero(past_values) if fill_gaps_with_zero?
+    past_values + future_values
   end
 
   # Override in subclasses where bridging is valid for some sensors but not

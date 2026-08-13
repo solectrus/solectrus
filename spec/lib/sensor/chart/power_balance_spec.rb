@@ -276,6 +276,28 @@ describe Sensor::Chart::PowerBalance do
       expect(result[51..60]).to all(eq(0))
     end
 
+    # On the live view the forecast dataset is the longest one, so the master
+    # grid it defines runs to midnight -- hours past now. The buckets after now
+    # are nil because their time has not come, not because a measurement is
+    # missing: filling them carried the last sample forward and then dropped
+    # the whole stack to zero, which drew a cliff at now.
+    it 'leaves buckets after now untouched' do
+      now = Time.zone.local(2025, 3, 3, 12, 0, 0)
+      travel_to now
+
+      step = 5.minutes
+      labels = (-3..3).map { |i| (now + (i * step)).to_i * 1000 }
+      item = {
+        sensor_name: :inverter_power,
+        labels:,
+        data: [100, 110, 120, nil, nil, nil, nil],
+      }
+
+      expect(chart.__send__(:grid_aligned_values, labels, item)).to eq(
+        [100, 110, 120, 120, nil, nil, nil],
+      )
+    end
+
     context 'with sensors excluded from house_power' do
       let(:env) do
         {
@@ -397,6 +419,38 @@ describe Sensor::Chart::PowerBalance do
         data[:datasets].find { |d| d[:id] == 'custom_power_01' }
 
       expect(custom_dataset[:stack]).to eq('usage')
+    end
+  end
+
+  describe 'remaining forecast' do
+    let(:timeframe) { Timeframe.new('2025-03-03') }
+
+    # Provider samples at 17:25, 17:40 and 17:55 on a 5-minute grid
+    let(:points) do
+      (0..6).map do |i|
+        [Time.zone.local(2025, 3, 3, 17, 25) + (i * 5.minutes), nil]
+      end
+    end
+    let(:values) { [5600.0, nil, nil, 5372.0, nil, nil, 5004.0] }
+
+    # The seeded bucket is where the measured area hands over to the forecast.
+    # Copying the next sample into it back-dates that value by a provider
+    # cadence, which offsets the handover along the forecast curve.
+    it 'seeds the handover bucket with the interpolated forecast' do
+      travel_to Time.zone.local(2025, 3, 3, 17, 48, 0)
+
+      # 17:45 is the handover bucket, a third of the way from 17:40 to 17:55
+      expect(chart.__send__(:mask_past_forecast_values, points, values)).to eq(
+        [nil, nil, nil, nil, 5249.333333333333, nil, 5004.0],
+      )
+    end
+
+    it 'seeds it with the sample itself when one falls on the bucket' do
+      travel_to Time.zone.local(2025, 3, 3, 17, 43, 0)
+
+      expect(chart.__send__(:mask_past_forecast_values, points, values)).to eq(
+        [nil, nil, nil, 5372.0, nil, nil, 5004.0],
+      )
     end
   end
 

@@ -278,22 +278,38 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     }
   end
 
-  # Hide forecast values before now, but seed the master-grid bucket
-  # directly before now with the next future sample's value so the
-  # forecast area starts max one bucket before now instead of leaving
-  # a wedge until the next provider sample.
+  # Hide forecast values before now, but seed the last bucket before it - the
+  # one where the measured area hands over to the forecast - so the forecast
+  # starts there instead of leaving a wedge until the next provider sample.
   def mask_past_forecast_values(sorted_points, data_values)
     now = Time.current
     normalized = sorted_points.map { |time_key, _| normalize_timestamp(time_key) }
-    anchor_idx = normalized.rindex { |ts| ts < now }
-    next_value = anchor_idx && data_values[(anchor_idx + 1)..].find { |v| v }
+    future_idx = normalized.index { |timestamp| timestamp > now } || normalized.size
 
     data_values.map.with_index do |value, idx|
-      if normalized[idx] >= now
+      if idx >= future_idx
         value
-      elsif idx == anchor_idx
-        next_value
+      elsif idx == future_idx - 1
+        forecast_at(normalized, data_values, idx)
       end
     end
+  end
+
+  # Forecast at +index+, interpolated between the nearest samples on either
+  # side. The seeded bucket is the only point where the forecast area touches
+  # the measured one, so it has to carry the forecast for its own timestamp:
+  # copying the next sample back-dates it by up to a provider cadence (15 min)
+  # and offsets the whole handover along the forecast curve.
+  def forecast_at(timestamps, values, index)
+    return values[index] if values[index]
+
+    before = (index - 1).downto(0).find { |i| values[i] }
+    after = ((index + 1)...values.size).find { |i| values[i] }
+    return after && values[after] if before.nil?
+    return values[before] if after.nil?
+
+    span = timestamps[after] - timestamps[before]
+    ratio = (timestamps[index] - timestamps[before]) / span
+    values[before] + ((values[after] - values[before]) * ratio)
   end
 end
