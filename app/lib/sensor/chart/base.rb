@@ -227,23 +227,34 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   def align_to_master_grid!(master_labels, items)
+    cut = future_cut_index(master_labels)
+
     items.each do |item|
-      item[:data] = grid_aligned_values(master_labels, item)
+      item[:data] = grid_aligned_values(master_labels, item, cut)
       item[:labels] = master_labels
       item[:span_gaps_ms] = compute_span_gaps_ms(master_labels, item[:data])
     end
+  end
+
+  # Index of the first bucket after now, or the grid size when none is. Read
+  # once per build and threaded through the datasets: every dataset has to cut
+  # at the same bucket, and a clock that ticks over a bucket boundary between
+  # two reads would move the cut for the datasets that follow.
+  def future_cut_index(labels)
+    now = timestamp_to_ms(Time.current)
+    labels.index { |label| label > now } || labels.size
   end
 
   # Skip forecast sensors: their provider cadence is sparser than the live
   # 5-min grid by design. Linearly filling the gaps would defeat Chart.js'
   # tension/monotone smoothing -- with sparse points it draws a smooth
   # Hermite curve through the original samples instead.
-  def grid_aligned_values(master_labels, item)
+  def grid_aligned_values(master_labels, item, cut = future_cut_index(master_labels))
     values = align_values(master_labels, item[:labels], item[:data])
     return values unless type == 'line' && values.any?(&:nil?)
     return values if Sensor::Registry[item[:sensor_name]]&.forecast?
 
-    process_gaps(master_labels, values, item[:sensor_name])
+    process_gaps(master_labels, values, item[:sensor_name], cut)
   end
 
   # The limit is derived once from the *raw* series and threaded through both
@@ -253,14 +264,13 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # runs second would mistake the master-grid spacing for the sensor's cadence
   # and fall back to the 5-minute floor.
   #
-  # Buckets after now are cut off first and appended untouched: they are nil
-  # because their time has not come, not because a measurement is missing.
-  # The grid runs to midnight whenever a forecast dataset (the longest one)
-  # defines it, and filling those buckets carries the last sample into the
-  # future or drops the series to the baseline -- a cliff at now.
-  def process_gaps(master_labels, values, sensor_name)
-    now = timestamp_to_ms(Time.current)
-    cut = master_labels.index { |label| label > now } || master_labels.size
+  # Buckets after +cut+ (see #future_cut_index) are split off first and appended
+  # untouched: they are nil because their time has not come, not because a
+  # measurement is missing. The grid runs to midnight whenever a forecast
+  # dataset (the longest one) defines it, and filling those buckets carries the
+  # last sample into the future or drops the series to the baseline -- a cliff
+  # at now.
+  def process_gaps(master_labels, values, sensor_name, cut = future_cut_index(master_labels))
     past_labels = master_labels.take(cut)
     past_values = values.take(cut)
     future_values = values.drop(cut)
@@ -502,7 +512,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       # sits on that grid, so an un-snapped start would leave a sub-bucket
       # gap at the left edge.
       bucket = 30.seconds.in_milliseconds
-      now_ms = Time.current.to_i * 1000
+      now_ms = timestamp_to_ms(Time.current)
       grid_start = (now_ms + bucket - 1) / bucket * bucket
       options[:max] = now_ms
       options[:min] = grid_start - 1.hour.in_milliseconds
