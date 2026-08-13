@@ -272,12 +272,24 @@ describe McpServer::Tools::Periods do
       end
 
       it 'counts the sensors into the budget' do
-        sensors = Sensor::Config.sensors.select(&:rankable?).take(20).map! { it.name.to_s }
+        # Supported by get_periods, so the budget is what rejects the call -
+        # a sensor the tool has no per-period value for would be refused first.
+        sensors =
+          Sensor::Config
+            .sensors
+            .select { McpServer::SupportedTools.supports?(it, :periods) }
+            .take(20)
+            .map! { it.name.to_s }
 
-        # 36 months fit comfortably for one sensor and not at all for twenty.
+        # 36 months fit comfortably for one sensor and not at all for twelve,
+        # so any count above that proves the multiplication rather than the
+        # timeframe. Stated as a count instead of assumed, because the
+        # configured sensors are process state other specs rewrite.
+        expect(sensors.size).to be >= 12
+
         expect(
           error_for(sensors:, timeframe: '2022-01-01..2024-12-31', period: 'month'),
-        ).to include('720 entries', '36 periods x 20 sensor(s)')
+        ).to include("#{sensors.size * 36} entries", "36 periods x #{sensors.size} sensor(s)")
       end
 
       it 'answers the same range at a period that fits' do
