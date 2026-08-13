@@ -285,11 +285,13 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     now = Time.current
     normalized = sorted_points.map { |time_key, _| normalize_timestamp(time_key) }
     future_idx = normalized.index { |timestamp| timestamp > now } || normalized.size
+    # -1 when nothing precedes now: no bucket to seed, and no index matches
+    seed_idx = future_idx - 1
 
     data_values.map.with_index do |value, idx|
       if idx >= future_idx
         value
-      elsif idx == future_idx - 1
+      elsif idx == seed_idx
         forecast_at(normalized, data_values, idx)
       end
     end
