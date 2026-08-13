@@ -78,13 +78,13 @@ describe Notification::Show::Component, type: :component do
 
     context 'when the body contains a link to a solectrus.de subdomain' do
       let(:body) do
-        '<a href="https://docs.solectrus.de/setup">Docs</a>'
+        '<a href="https://demo.solectrus.de/house">Demo</a>'
       end
 
       it 'appends UTM parameters' do
         render_inline(component)
 
-        href = page.find('a', text: 'Docs')['href']
+        href = page.find('a', text: 'Demo')['href']
         expect(href).to include('utm_source=solectrus-app')
         expect(href).to include('utm_medium=notification')
       end

@@ -270,7 +270,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.docs'),
         icon: 'circle-question',
-        href: 'https://docs.solectrus.de',
+        href: 'https://solectrus.de/docs/',
       }
     end
 
