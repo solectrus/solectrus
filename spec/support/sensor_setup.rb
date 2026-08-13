@@ -41,11 +41,29 @@ RSpec.configure do |config|
   # Include the module with sensor helper methods
   config.include SensorTestHelpers
 
-  # Reset sensor configuration after each test to prevent test pollution
-  # Some tests call Sensor::Config.setup with modified ENV variables
-  config.after do
-    # Only reset if configuration was changed by the test
-    # This is detected by checking if the current config differs from ENV
-    Sensor::Config.setup(ENV) if Sensor::Config.instance.env != ENV
+  # Restore the configured sensors before each test, because they are process
+  # state three different things rewrite: `Sensor::Config.setup` with a
+  # modified env, `stub_feature`, and every spec that leaves a registration
+  # state in the UpdateCheck cache - permissions decide which sensors exist, so
+  # a cached "unregistered" cuts the set from 194 sensors to 63.
+  #
+  # Recognized by the RESULT rather than by its causes: the sensor names are
+  # compared against the set the suite started with. The former guard compared
+  # the env alone, which named only the first cause - so a spec inherited a
+  # foreign sensor set, and one reading Sensor::Config.sensors passed or failed
+  # by test order.
+  #
+  # BEFORE rather than after, because a stub is still installed while the after
+  # hooks run: rebuilding there would memoize the stubbed answer again.
+  baseline = nil
+
+  config.before do
+    baseline ||= Sensor::Config.sensors.map(&:name)
+    next if Sensor::Config.instance.env == ENV && Sensor::Config.sensors.map(&:name) == baseline
+
+    # Drops the cached registration state as well, which the permissions - and
+    # with them the sensor set - are computed from.
+    UpdateCheck.clear_cache!
+    Sensor::Config.setup(ENV)
   end
 end
