@@ -402,12 +402,20 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       # sample, rather than ramping linearly between sparse readings.
       values.fill(values[last], start...stop)
     else
-      a = values[last]
-      delta = values[stop] - a
       (start...stop).each do |j|
-        values[j] = a + (delta * (labels[j] - labels[last]) / span)
+        values[j] = linear_interpolate(labels, values, last, stop, j)
       end
     end
+  end
+
+  # The value at +index+ on the straight line between the samples at +before+
+  # and +after+, weighted by their distance on the x +axis+. The axis only has
+  # to be monotone and subtractable, so this serves both grids in use: epoch
+  # milliseconds and Time objects.
+  def linear_interpolate(axis, values, before, after, index)
+    span = (axis[after] - axis[before]).to_f
+    values[before] +
+      ((values[after] - values[before]) * (axis[index] - axis[before]) / span)
   end
 
   # Collapses every nil left after bridge_short_gaps to 0, for consumers where

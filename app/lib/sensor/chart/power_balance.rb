@@ -308,8 +308,6 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
     return after && values[after] if before.nil?
     return values[before] if after.nil?
 
-    span = timestamps[after] - timestamps[before]
-    ratio = (timestamps[index] - timestamps[before]) / span
-    values[before] + ((values[after] - values[before]) * ratio)
+    linear_interpolate(timestamps, values, before, after, index)
   end
 end
