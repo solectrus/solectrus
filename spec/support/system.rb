@@ -10,6 +10,10 @@ PLAYWRIGHT_OPTIONS = {
   reduced_motion: :reduce,
 }.freeze
 
+# Rails takes a screenshot of every failed system test. It writes it to
+# Capybara.save_path, which is the directory the CI workflow uploads.
+Capybara.save_path = Rails.root.join('tmp', 'capybara')
+
 Capybara.register_driver :playwright_desktop do |app|
   Capybara::Playwright::Driver.new(
     app,

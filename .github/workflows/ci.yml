@@ -147,6 +147,8 @@ jobs:
       CI: true
       RUBY_YJIT_ENABLE: 1
       LANG: de_DE.UTF-8
+      # Save the page HTML next to the screenshot of a failed system test
+      RAILS_SYSTEM_TESTING_SCREENSHOT_HTML: 1
 
     steps:
       - uses: actions/checkout@v7
@@ -195,7 +197,7 @@ jobs:
             --runtime-log tmp/parallel_runtime_rspec.log \
             --only-group ${{ matrix.group }} \
             -n 4 \
-            -o '--format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'
+            -o '--format progress --format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log'
         env:
           SKIP_VITE_BUILD: 1
           COVERAGE_NAME: system-${{ matrix.group }}
