@@ -19,6 +19,8 @@ class Sensor::Definitions::Co2Reduction < Sensor::Definitions::Base
 
   aggregations stored: false, computed: [:sum], meta: %i[sum avg min max], top10: true
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::Co2Reduction.new(timeframe:) }
 
   def sql_calculation

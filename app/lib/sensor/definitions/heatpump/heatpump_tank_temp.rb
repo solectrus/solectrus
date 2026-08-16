@@ -12,6 +12,8 @@ class Sensor::Definitions::HeatpumpTankTemp < Sensor::Definitions::Base
   aggregations stored: %i[avg min max], top10: true
   trend aggregation: :avg, more_is_better: true
 
+  home_pages :heatpump
+
   chart { |timeframe| Sensor::Chart::HeatpumpTankTemp.new(timeframe:) }
 
   requires_permission :heatpump

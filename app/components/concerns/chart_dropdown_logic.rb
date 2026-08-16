@@ -29,52 +29,24 @@ module ChartDropdownLogic
 
   private
 
-  def menu_config
-    { items: filtered_menu_items }
-  end
-
-  def filtered_menu_items
-    sanitize_menu_items(select_available_menu_items)
-  end
-
-  def select_available_menu_items
-    menu_items.select { |item| separator?(item) || sensor_names.include?(item) }
-  end
-
-  def sanitize_menu_items(items)
-    sanitized = []
-    items.each do |item|
-      next if duplicate_separator?(item, sanitized)
-
-      sanitized << item
-    end
-
-    remove_trailing_separator(sanitized)
-  end
-
-  def duplicate_separator?(item, sanitized)
-    separator?(item) && (sanitized.empty? || separator?(sanitized.last))
-  end
-
-  def remove_trailing_separator(items)
-    items.pop if items.last && separator?(items.last)
-    items
-  end
-
-  def separator?(item)
-    item == SEPARATOR
-  end
-
+  # Which sensors a page shows is a decision of the sensors, not of the menu.
   def sensor_names
-    @sensor_names ||= Sensor::Config.chart_sensors.filter_map { |sensor| sensor.name if include_sensor?(sensor) }
+    @sensor_names ||= Sensor::HomePage.sensor_names(page_key)
   end
 
-  def include_sensor?(sensor)
-    menu_items.include?(sensor.name)
+  def menu_config
+    { items: menu_items }
   end
 
-  # Subclasses override to define menu order and separators.
-  def menu_items
-    []
+  # The order of the menu. Subclasses arrange the sensors of their page, but
+  # they can only arrange what they get.
+  def menu_items = sensor_names
+
+  # One separator between two groups, and none around an empty one, so the
+  # menu cannot draw a line around nothing. Every group gets a leading
+  # separator and the first one loses it again, so no group at all gives an
+  # empty menu instead of nil.
+  def join_groups(*groups)
+    groups.compact_blank.flat_map { [SEPARATOR, *it] }.drop(1)
   end
 end

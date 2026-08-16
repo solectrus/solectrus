@@ -201,8 +201,9 @@ class Insights # rubocop:disable Metrics/ClassLength
       *specific_yield_sensor,
       *house_power_excluded_sensors,
       *grid_sensor,
-      *battery_sensors,
-      *grid_power_sensors,
+      # A combined chart draws two sensors, so both belong to the insights.
+      *sensor.chart_partner_names,
+      *battery_grid_sensor,
       *grid_power_cost_sensors,
       *cost_sensors,
     ]
@@ -249,17 +250,13 @@ class Insights # rubocop:disable Metrics/ClassLength
       .include?(sensor_name)
   end
 
-  def battery_sensors
+  # The grid share feeds #power_grid_ratio. An older Power Splitter reports
+  # none, and the ratio then stays nil.
+  def battery_grid_sensor
     return [] unless sensor.name == :battery_power
+    return [] unless Sensor::Config.exists?(:battery_charging_power_grid)
 
-    # The grid share feeds #power_grid_ratio. An older Power Splitter reports
-    # none, and the ratio then stays nil.
-    %i[battery_charging_power battery_discharging_power] +
-      %i[battery_charging_power_grid].select { Sensor::Config.exists?(it) }
-  end
-
-  def grid_power_sensors
-    sensor.name == :grid_power ? %i[grid_import_power grid_export_power] : []
+    [:battery_charging_power_grid]
   end
 
   def grid_power_cost_sensors

@@ -1,6 +1,8 @@
 class Sensor::Definitions::PowerBalance < Sensor::Definitions::Base
   value unit: :watt, category: :other
 
+  home_pages :balance
+
   chart do |timeframe|
     Sensor::Chart::PowerBalance.new(timeframe:)
   end

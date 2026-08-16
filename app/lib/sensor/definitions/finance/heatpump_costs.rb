@@ -7,6 +7,8 @@ class Sensor::Definitions::HeatpumpCosts < Sensor::Definitions::Base
   depends_on %i[heatpump_costs_grid heatpump_costs_pv]
   trend
 
+  home_pages :heatpump
+
   chart { |timeframe| Sensor::Chart::HeatpumpCosts.new(timeframe:) }
 
   calculate do |heatpump_costs_grid:, heatpump_costs_pv:, **|

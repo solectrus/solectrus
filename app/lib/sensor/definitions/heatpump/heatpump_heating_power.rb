@@ -6,6 +6,8 @@ class Sensor::Definitions::HeatpumpHeatingPower < Sensor::Definitions::Base
 
   aggregations stored: [:sum], top10: true
 
+  home_pages :heatpump
+
   chart { |timeframe| Sensor::Chart::HeatpumpHeatingPower.new(timeframe:) }
 
   trend

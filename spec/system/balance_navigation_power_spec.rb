@@ -1,10 +1,12 @@
 describe 'Balance page (power sensors)' do
+  # The single inverters are missing on purpose. With inverter_as_total the
+  # balance shows the sum, and its dropdown does not offer them, so the page
+  # sends them to the inverter page. That page covers them in
+  # spec/system/inverter_navigation_spec.rb.
   it_behaves_like(
     'balance navigation',
     %w[
       inverter_power
-      inverter_power_1
-      inverter_power_2
       house_power
       heatpump_power
       wallbox_power

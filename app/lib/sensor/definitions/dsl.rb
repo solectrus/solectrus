@@ -109,10 +109,13 @@ module Sensor
           end
         end
 
-        def chart(&block)
+        # A chart of its own. `entries:` names the sensors a page offers
+        # instead of this one: a combined chart like grid_power is picked as
+        # its import half or its export half, and the URL carries that name.
+        def chart(entries: nil, &block)
           raise ArgumentError, 'chart requires a block' unless block
 
-          meta_data[:chart] = { block: }
+          meta_data[:chart] = { block:, entries: }
         end
 
         # A sensor that exists only to drive a chart. It has no scalar value of
@@ -131,6 +134,17 @@ module Sensor
           # No inputs can produce a value for it, but it still has to answer
           # #calculate like any other derived sensor.
           calculate { |**| nil }
+        end
+
+        # The home pages that offer a chart of this sensor, in the order a
+        # link prefers them: house_power is a system total on the power
+        # balance and the subject of the house page, so a link goes to the
+        # balance. A sensor without a declaration is on no page.
+        #
+        # A block states pages that depend on the settings. It runs on the
+        # sensor and returns the same list.
+        def home_pages(*keys, &block)
+          meta_data[:home_pages] = block || keys
         end
 
         def requires_permission(permission)

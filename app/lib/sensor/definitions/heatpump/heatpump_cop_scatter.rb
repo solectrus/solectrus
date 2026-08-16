@@ -3,6 +3,8 @@ class Sensor::Definitions::HeatpumpCopScatter < Sensor::Definitions::Base
 
   depends_on :heatpump_cop, :outdoor_temp, :heatpump_power
 
+  home_pages :heatpump
+
   chart do |timeframe|
     Sensor::Chart::HeatpumpCopScatter.new(timeframe:)
   end

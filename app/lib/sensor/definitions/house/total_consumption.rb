@@ -40,6 +40,10 @@ class Sensor::Definitions::TotalConsumption < Sensor::Definitions::Base
 
   chart { |timeframe| Sensor::Chart::TotalConsumption.new(timeframe:) }
 
+  # Without a heat pump or a wallbox the sum equals house_power, and the
+  # balance would offer the same chart twice.
+  home_pages { Sensor::Config.total_consumption_relevant? ? [:balance] : [] }
+
   private
 
   def excluded_custom_sensor_names

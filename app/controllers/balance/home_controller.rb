@@ -1,32 +1,9 @@
-class Balance::HomeController < ApplicationController
-  include ParamsHandling
-  include TimeframeNavigation
-  include SummaryChecker
-
-  def index
-    unless sensor_name && timeframe
-      redirect_to(default_path)
-      return
-    end
-
-    if timeframe.future? && Sensor::Config.exists?(:inverter_power_forecast)
-      redirect_to forecast_path
-      return
-    end
-
-    load_missing_or_stale_summary_days(timeframe)
-  end
-
+class Balance::HomeController < HomePageController
   private
 
-  def default_path
-    balance_home_path(
-      sensor_name: sensor_name || redirect_sensor,
-      timeframe: 'now',
-    )
-  end
+  def page_key = :balance
 
-  def redirect_sensor
+  def default_sensor_name
     if ApplicationPolicy.power_balance_chart?
       # If the power balance chart is available, we want to show it by default.
       :power_balance

@@ -17,7 +17,11 @@ class Sensor::Definitions::GridPower < Sensor::Definitions::Base
 
   aggregations stored: false, computed: [:sum], meta: [:sum]
 
-  chart { |timeframe| Sensor::Chart::GridPower.new(timeframe:) }
+  home_pages :balance
+
+  chart(entries: %i[grid_import_power grid_export_power]) do |timeframe|
+    Sensor::Chart::GridPower.new(timeframe:)
+  end
 
   trend more_is_better: true
 end

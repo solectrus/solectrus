@@ -6,8 +6,8 @@ class TimeframeSelectController < ApplicationController
     if turbo_frame_request?
       render :index
     else
-      # Fallback
-      redirect_to balance_home_path(sensor_name: sensor.name, timeframe:)
+      # Fallback: the home page that shows this sensor, not always the balance
+      redirect_to helpers.sensor_home_path(sensor.name, timeframe:)
     end
   end
 

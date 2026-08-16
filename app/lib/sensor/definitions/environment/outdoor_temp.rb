@@ -16,5 +16,7 @@ class Sensor::Definitions::OutdoorTemp < Sensor::Definitions::Base
 
   trend aggregation: :avg, more_is_better: true
 
+  home_pages :heatpump
+
   chart { |timeframe| Sensor::Chart::OutdoorTemp.new(timeframe:) }
 end

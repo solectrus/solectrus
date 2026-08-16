@@ -40,4 +40,8 @@ class Sensor::Definitions::CustomInverterPower < Sensor::Definitions::Base
   end
 
   trend more_is_better: true
+
+  # The inverter page always breaks the single inverters out. The balance only
+  # shows them when it does not already show their sum as inverter_power.
+  home_pages { Setting.inverter_as_total ? [:inverter] : %i[balance inverter] }
 end

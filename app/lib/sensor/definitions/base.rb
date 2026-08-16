@@ -120,6 +120,25 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.meta_data[:chart].present?
   end
 
+  # The names a page offers for this chart. Usually the name of the sensor
+  # itself, but a combined chart is offered as each of its halves, and each
+  # half is what the URL then carries (see the `chart` DSL).
+  def chart_entry_names
+    @chart_entry_names ||=
+      self.class.meta_data.dig(:chart, :entries) || [name].freeze
+  end
+
+  # The entry names of this chart other than `of`. Asked of a half, that is
+  # the other half. Asked of the combined sensor itself, both halves, because
+  # it is never one of its own entries. Asked of a plain sensor, none.
+  def chart_partner_names(of = name) = chart_entry_names - [of]
+
+  # The home pages that show this sensor (see the `home_pages` DSL). A sensor
+  # whose pages depend on the settings declares a block, and it runs here.
+  def home_pages
+    evaluate_config_value(:home_pages, default: [])
+  end
+
   # Whether this sensor only feeds a chart and never carries a scalar value of
   # its own (see the `chart_only` DSL). Any tool reporting single values has to
   # say so instead of returning a null that reads as an outage.

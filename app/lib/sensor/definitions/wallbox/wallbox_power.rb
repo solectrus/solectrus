@@ -8,6 +8,8 @@ class Sensor::Definitions::WallboxPower < Sensor::Definitions::Base
 
   aggregations stored: %i[sum max], top10: true
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::WallboxPower.new(timeframe:) }
 
   trend

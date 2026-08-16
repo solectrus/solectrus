@@ -11,6 +11,8 @@ class Sensor::Definitions::TotalCosts < Sensor::Definitions::FinanceBase
 
   aggregations stored: false, computed: [:sum], meta: %i[sum min max], top10: true
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::TotalCosts.new(timeframe:) }
 
   def chart_enabled?

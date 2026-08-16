@@ -17,6 +17,8 @@ class Sensor::Definitions::Savings < Sensor::Definitions::Base
 
   aggregations stored: false, computed: [:sum], meta: %i[sum min max], top10: true
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::Savings.new(timeframe:) }
 
   # SQL calculation for rankings

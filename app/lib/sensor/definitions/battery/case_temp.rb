@@ -12,5 +12,7 @@ class Sensor::Definitions::CaseTemp < Sensor::Definitions::Base
   aggregations stored: %i[min max avg], computed: [:avg], meta: %i[min max avg], top10: true
   trend aggregation: :avg, more_is_better: false
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::CaseTemp.new(timeframe:) }
 end

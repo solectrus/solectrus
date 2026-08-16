@@ -36,6 +36,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
                    :custom_inverter_sensors,
                    :custom_power_sensors,
                    :chart_sensors,
+                   :chart_sensor_by_name,
                    :top10_sensors,
                    :multi_inverter?,
                    :single_consumer?,
@@ -200,8 +201,20 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     sensors.select(&:top10_enabled?)
   end
 
+  # Unlike top10_enabled?, chart_enabled? is static metadata, so the result
+  # only changes when `sensors` does.
   def chart_sensors
-    sensors.select(&:chart_enabled?)
+    @chart_sensors ||= sensors.select(&:chart_enabled?)
+  end
+
+  # The chart sensor a menu or a URL addresses by this name. Usually the
+  # sensor of that name, but a combined chart is offered as its halves (see
+  # `chart entries:`), and a half then addresses the chart that offers it.
+  #
+  # This is not the sensor that draws the chart - a half draws its own, see
+  # ChartLoader::Component. It is the sensor a menu entry belongs to.
+  def chart_sensor_by_name
+    @chart_sensor_by_name ||= chart_sensors.index_by(&:name).merge(combined_chart_halves)
   end
 
   def clear_cache!
@@ -211,6 +224,8 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
       @inverter_sensors
       @custom_inverter_sensors
       @custom_power_sensors
+      @chart_sensors
+      @chart_sensor_by_name
       @house_power_excluded_custom_sensors
       @house_power_included_custom_sensors
     ].each do |var|
@@ -219,6 +234,14 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   end
 
   private
+
+  # The claim of a combined chart on its halves. It wins over the entry a half
+  # makes for itself, because the menu offers the half for the combined chart.
+  def combined_chart_halves
+    chart_sensors.each_with_object({}) do |sensor, index|
+      sensor.chart_partner_names.each { index[it] = sensor }
+    end
+  end
 
   def parse_configurations
     Sensor::Registry.all.each do |sensor| # rubocop:disable Rails/FindEach

@@ -32,7 +32,11 @@ class Sensor::Definitions::BatteryPower < Sensor::Definitions::Base
 
   aggregations stored: false, computed: [:sum], meta: [:sum]
 
-  chart { |timeframe| Sensor::Chart::BatteryPower.new(timeframe:) }
+  home_pages :balance
+
+  chart(
+    entries: %i[battery_charging_power battery_discharging_power],
+  ) { |timeframe| Sensor::Chart::BatteryPower.new(timeframe:) }
 
   trend more_is_better: true
 end

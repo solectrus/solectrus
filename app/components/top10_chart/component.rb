@@ -205,30 +205,7 @@ class Top10Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Clas
   end
 
   def timeframe_path(record)
-    sensor = Sensor::Registry[sensor_name]
-
-    if sensor.is_a?(Sensor::Definitions::CustomPower)
-      house_home_path(
-        sensor_name:,
-        timeframe: corresponding_date(record[:date]),
-      )
-    elsif sensor.is_a?(Sensor::Definitions::CustomInverterPower) &&
-          Setting.enable_multi_inverter
-      inverter_home_path(
-        sensor_name:,
-        timeframe: corresponding_date(record[:date]),
-      )
-    elsif sensor.category == :heatpump
-      heatpump_home_path(
-        sensor_name:,
-        timeframe: corresponding_date(record[:date]),
-      )
-    else
-      balance_home_path(
-        sensor_name:,
-        timeframe: corresponding_date(record[:date]),
-      )
-    end
+    helpers.sensor_home_path(sensor_name, timeframe: corresponding_date(record[:date]))
   end
 
   def corresponding_week(value)

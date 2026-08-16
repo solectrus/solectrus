@@ -167,4 +167,31 @@ describe HeatmapTile::Component, type: :component do
       expect(max_value).to eq(4.5)
     end
   end
+
+  describe '#link_path_for_date' do
+    subject(:path) do
+      component.send(:link_path_for_date, '2025-03-01') # rubocop:disable Style/Send
+    end
+
+    let(:data) { {} }
+
+    # Rendering first, because `helpers` needs the view context
+    before { render_inline(component) }
+
+    # Which page a sensor belongs to is covered in spec/lib/sensor/home_page_spec.rb.
+    # Here it only matters that the tile follows that decision, for both URL
+    # shapes: routing by category alone sent a custom consumer to the power
+    # balance, which does not show it.
+    context 'with a custom consumer' do
+      let(:sensor) { Sensor::Config.house_power_included_custom_sensors.first }
+
+      it { is_expected.to start_with('/house/') }
+    end
+
+    context 'with a sensor of the power balance' do
+      let(:sensor) { Sensor::Registry[:house_power] }
+
+      it { is_expected.to start_with('/house_power/') }
+    end
+  end
 end

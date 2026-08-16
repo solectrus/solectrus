@@ -80,6 +80,13 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
     Sensor::Chart::CustomPower.new(timeframe:, sensor_name: name, variant:)
   end
 
+  # A consumer the house page breaks down belongs there. One the settings take
+  # out of house_power is not part of that breakdown, so it stands on the
+  # power balance instead.
+  home_pages do
+    Sensor::Config.house_power_excluded_custom_sensors.include?(self) ? [:balance] : [:house]
+  end
+
   def costs_grid_sensor_name
     :"custom_#{format('%02d', @number)}_costs_grid"
   end

@@ -38,6 +38,8 @@ class Sensor::Definitions::HousePower < Sensor::Definitions::Base
 
   aggregations stored: %i[sum max], top10: true
 
+  home_pages :balance, :house
+
   chart { |timeframe| Sensor::Chart::HousePower.new(timeframe:) }
 
   trend

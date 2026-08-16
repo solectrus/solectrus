@@ -7,6 +7,8 @@ class Sensor::Definitions::GridRevenue < Sensor::Definitions::FinanceBase
   depends_on :grid_export_power
   trend more_is_better: true
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::GridRevenue.new(timeframe:) }
   aggregations stored: false, computed: [:sum], top10: true
 

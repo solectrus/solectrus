@@ -22,6 +22,8 @@ class Sensor::Definitions::SelfConsumptionQuote < Sensor::Definitions::Base
   # incomplete periods out for every :avg aggregation.
   aggregations stored: false, computed: [:avg], meta: [:avg], top10: true
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::SelfConsumptionQuote.new(timeframe:) }
 
   def sql_calculation = quote_sql(period: false)

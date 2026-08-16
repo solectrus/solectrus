@@ -51,7 +51,7 @@ class InverterBreakdown::TableRow::Component < ViewComponent::Base
     }
   end
 
-  # The remainder ("unassigned") sensor has no dedicated detail page.
+  # The remainder ("unassigned") sensor has no dedicated home page.
   def chart_link
     return if sensor.name == :inverter_power_difference
 

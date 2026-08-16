@@ -7,14 +7,14 @@ class InverterChartDropdown::Component < ViewComponent::Base
 
   private
 
+  def page_key = :inverter
+
+  # A separator sets the total apart from the single inverters.
   def menu_items
-    @menu_items ||= begin
-      sensors = Sensor::Config.inverter_sensors.map(&:name)
-      if sensors.first == :inverter_power && sensors.length > 1
-        [sensors.first, :_, *sensors.drop(1)]
-      else
-        sensors
-      end
-    end
+    @menu_items ||=
+      join_groups(
+        [:inverter_power] & sensor_names,
+        sensor_names - [:inverter_power],
+      )
   end
 end

@@ -17,6 +17,8 @@ class Sensor::Definitions::HeatpumpCop < Sensor::Definitions::Base
 
   trend aggregation: :avg, more_is_better: true
 
+  home_pages :heatpump
+
   chart do |timeframe|
     Sensor::Chart::HeatpumpCop.new(timeframe:)
   end

@@ -17,6 +17,8 @@ class Sensor::Definitions::HousePowerWithoutCustom < Sensor::Definitions::Base
 
   aggregations stored: false, computed: [:sum], meta: [:sum]
 
+  home_pages :house
+
   chart { |timeframe| Sensor::Chart::HousePowerWithoutCustom.new(timeframe:) }
 
   def costs_grid_sensor_name

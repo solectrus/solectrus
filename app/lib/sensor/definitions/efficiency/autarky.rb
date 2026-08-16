@@ -43,6 +43,8 @@ class Sensor::Definitions::Autarky < Sensor::Definitions::Base
   # incomplete periods out for every :avg aggregation.
   aggregations stored: false, computed: [:avg], meta: [:avg], top10: true
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::Autarky.new(timeframe:) }
 
   def sql_calculation = autarky_sql(period: false)

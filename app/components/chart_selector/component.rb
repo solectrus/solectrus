@@ -24,20 +24,13 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     override = menu_config.dig(:display_names, sensor_name)
     return override if override
 
-    # For individual sensors that are part of a combined chart,
-    # show the main sensor with the other one in parentheses
-    case sensor_name
-    when :grid_import_power
-      "#{Sensor::Registry[:grid_import_power].display_name} (& #{Sensor::Registry[:grid_export_power].display_name})"
-    when :grid_export_power
-      "#{Sensor::Registry[:grid_export_power].display_name} (& #{Sensor::Registry[:grid_import_power].display_name})"
-    when :battery_charging_power
-      "#{Sensor::Registry[:battery_charging_power].display_name} (& #{Sensor::Registry[:battery_discharging_power].display_name})"
-    when :battery_discharging_power
-      "#{Sensor::Registry[:battery_discharging_power].display_name} (& #{Sensor::Registry[:battery_charging_power].display_name})"
-    else
-      Sensor::Registry[sensor_name]&.display_name
-    end
+    own = Sensor::Registry[sensor_name].display_name
+    partner = combined_partner
+    return own unless partner
+
+    # A combined chart is offered as each of its halves, so the half names the
+    # other one and the user sees which two the chart draws.
+    "#{own} (& #{Sensor::Registry[partner].display_name})"
   end
 
   def sensor_groups
@@ -69,6 +62,15 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   end
 
   private
+
+  # The other half of the combined chart this sensor is offered as, if it is
+  # offered as a half at all (see the `chart entries:` DSL).
+  def combined_partner
+    owner = Sensor::Config.chart_sensor_by_name[sensor_name]
+    return if owner.nil? || owner.name == sensor_name
+
+    owner.chart_partner_names(sensor_name).first
+  end
 
   def all_items
     @all_items ||= sensor_groups.flat_map { |group| group[:items] || [] }
@@ -209,24 +211,11 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     end
   end
 
+  # A combined chart gets one entry per half, so the menu shows two items
+  # where the page lists one sensor.
   def available_sensors
-    @available_sensors ||= expand_sensor_list(sensor_names)
-  end
-
-  def expand_sensor_list(sensors)
-    expanded = sensors.dup
-
-    # Replace grid_power with individual sensors
-    if expanded.delete(:grid_power)
-      expanded.push(:grid_import_power, :grid_export_power)
-    end
-
-    # Replace battery_power with individual sensors
-    if expanded.delete(:battery_power)
-      expanded.push(:battery_charging_power, :battery_discharging_power)
-    end
-
-    expanded
+    @available_sensors ||=
+      sensor_names.flat_map { |name| Sensor::Registry[name].chart_entry_names }
   end
 
   # Define the order in which categories should appear

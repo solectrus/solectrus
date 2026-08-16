@@ -23,6 +23,8 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
   # Always store inverter_power in summary, whether directly measured or calculated
   aggregations stored: %i[sum max], meta: %i[sum max min avg], top10: true
 
+  home_pages :balance, :inverter
+
   chart do |timeframe, variant: nil|
     Sensor::Chart::InverterPower.new(timeframe:, variant:)
   end
