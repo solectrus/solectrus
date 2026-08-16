@@ -10,6 +10,10 @@ PLAYWRIGHT_OPTIONS = {
   reduced_motion: :reduce,
 }.freeze
 
+# The default of 2 seconds is too tight for Turbo frames plus chart rendering
+# on a shared CI runner. Waiting longer costs nothing as long as tests pass.
+Capybara.default_max_wait_time = ENV['CI'] ? 10 : 5
+
 # Rails takes a screenshot of every failed system test. It writes it to
 # Capybara.save_path, which is the directory the CI workflow uploads.
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
