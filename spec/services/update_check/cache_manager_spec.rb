@@ -6,7 +6,7 @@ describe UpdateCheck::CacheManager do
   let(:test_data) { { version: 'v1.2.1', registration_status: 'complete' } }
   let(:cache_key) { cache_manager.cache_key }
   let(:fresh_until) { 1.hour.from_now }
-  let(:stale_until) { 25.hours.from_now }
+  let(:usable_until) { 25.hours.from_now }
 
   before do
     allow(Rails.configuration.x.git).to receive(:commit_version).and_return(
@@ -23,7 +23,7 @@ describe UpdateCheck::CacheManager do
 
     context 'when only local cache exists and is valid' do
       before do
-        cache_manager.set(test_data, fresh_until:, stale_until:)
+        cache_manager.set(test_data, fresh_until:, usable_until:)
         Rails.cache.clear # Clear Rails cache but keep local cache
       end
 
@@ -31,14 +31,14 @@ describe UpdateCheck::CacheManager do
         expect(result).to include(
           data: test_data,
           fresh_until: be_within(1.second).of(fresh_until),
-          stale_until: be_within(1.second).of(stale_until),
+          usable_until: be_within(1.second).of(usable_until),
         )
       end
     end
 
     context 'when only Rails cache exists' do
       before do
-        cache_manager.set(test_data, fresh_until:, stale_until:)
+        cache_manager.set(test_data, fresh_until:, usable_until:)
         # Clear local cache only
         cache_manager.instance_variable_get(:@local_cache).clear
       end
@@ -57,7 +57,7 @@ describe UpdateCheck::CacheManager do
     end
 
     context 'when local cache is expired but Rails cache is valid' do
-      before { cache_manager.set(test_data, fresh_until:, stale_until:) }
+      before { cache_manager.set(test_data, fresh_until:, usable_until:) }
 
       it 'returns data from Rails cache' do
         travel 6.minutes do
@@ -71,7 +71,7 @@ describe UpdateCheck::CacheManager do
         cache_manager.set(
           test_data,
           fresh_until: 1.second.from_now,
-          stale_until: 2.seconds.from_now,
+          usable_until: 2.seconds.from_now,
         )
         travel 6.minutes
       end
@@ -82,14 +82,14 @@ describe UpdateCheck::CacheManager do
 
   describe '#set' do
     it 'stores wrapped entry in both caches' do
-      cache_manager.set(test_data, fresh_until:, stale_until:)
+      cache_manager.set(test_data, fresh_until:, usable_until:)
 
       expect(Rails.cache.read(cache_key)).to include(data: test_data)
       expect(cache_manager.get[:data]).to eq(test_data)
     end
 
-    it 'sets Rails cache TTL to stale_until' do
-      cache_manager.set(test_data, fresh_until:, stale_until:)
+    it 'sets Rails cache TTL to usable_until' do
+      cache_manager.set(test_data, fresh_until:, usable_until:)
 
       travel 24.hours do
         expect(Rails.cache.read(cache_key)).to be_present
@@ -100,11 +100,11 @@ describe UpdateCheck::CacheManager do
       end
     end
 
-    it 'sets 5-minute expiration for local cache regardless of stale_until' do
+    it 'sets 5-minute expiration for local cache regardless of usable_until' do
       cache_manager.set(
         test_data,
         fresh_until:,
-        stale_until: 1.day.from_now,
+        usable_until: 1.day.from_now,
       )
 
       travel 4.minutes do
@@ -118,7 +118,7 @@ describe UpdateCheck::CacheManager do
   end
 
   describe '#delete' do
-    before { cache_manager.set(test_data, fresh_until:, stale_until:) }
+    before { cache_manager.set(test_data, fresh_until:, usable_until:) }
 
     it 'removes data from both caches' do
       expect(cache_manager.cached?).to be true
@@ -168,14 +168,14 @@ describe UpdateCheck::CacheManager do
     end
 
     context 'when local cache exists and is valid' do
-      before { cache_manager.set(test_data, fresh_until:, stale_until:) }
+      before { cache_manager.set(test_data, fresh_until:, usable_until:) }
 
       it { is_expected.to be true }
     end
 
     context 'when local cache exists but is expired' do
       before do
-        cache_manager.set(test_data, fresh_until:, stale_until:)
+        cache_manager.set(test_data, fresh_until:, usable_until:)
         travel 6.minutes # Local cache expires after 5 minutes
       end
 
@@ -191,7 +191,7 @@ describe UpdateCheck::CacheManager do
     end
 
     context 'when Rails cache exists and is valid' do
-      before { cache_manager.set(test_data, fresh_until:, stale_until:) }
+      before { cache_manager.set(test_data, fresh_until:, usable_until:) }
 
       it { is_expected.to be true }
     end
@@ -201,7 +201,7 @@ describe UpdateCheck::CacheManager do
         cache_manager.set(
           test_data,
           fresh_until: 30.seconds.from_now,
-          stale_until: 1.minute.from_now,
+          usable_until: 1.minute.from_now,
         )
         travel 2.minutes
       end
@@ -218,13 +218,13 @@ describe UpdateCheck::CacheManager do
     end
 
     context 'when both caches exist' do
-      before { cache_manager.set(test_data, fresh_until:, stale_until:) }
+      before { cache_manager.set(test_data, fresh_until:, usable_until:) }
 
       it { is_expected.to be true }
     end
 
     context 'when local cache is expired but Rails cache is valid' do
-      before { cache_manager.set(test_data, fresh_until:, stale_until:) }
+      before { cache_manager.set(test_data, fresh_until:, usable_until:) }
 
       it 'returns true because Rails cache is still valid' do
         travel 6.minutes do
@@ -238,7 +238,7 @@ describe UpdateCheck::CacheManager do
         cache_manager.set(
           test_data,
           fresh_until: 1.second.from_now,
-          stale_until: 2.seconds.from_now,
+          usable_until: 2.seconds.from_now,
         )
         travel 6.minutes
       end

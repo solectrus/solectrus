@@ -7,16 +7,16 @@ class UpdateCheck::CacheManager
     @mutex = Mutex.new
   end
 
-  # Returns the wrapped entry { data:, fresh_until:, stale_until: } or nil.
+  # Returns the wrapped entry { data:, fresh_until:, usable_until: } or nil.
   def get
     local_cache || @mutex.synchronize { rails_cache }
   end
 
-  def set(data, fresh_until:, stale_until:)
-    entry = { data:, fresh_until:, stale_until: }
+  def set(data, fresh_until:, usable_until:)
+    entry = { data:, fresh_until:, usable_until: }
     @mutex.synchronize do
       memoize_local(entry)
-      Rails.cache.write(cache_key, entry, expires_in: (stale_until - Time.current).seconds)
+      Rails.cache.write(cache_key, entry, expires_in: (usable_until - Time.current).seconds)
     end
   end
 

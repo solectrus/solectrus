@@ -539,7 +539,7 @@ describe UpdateCheck do
       end
 
       # After 12 hours, the cache is stale (past fresh_until) but still
-      # within the grace period (stale_until = fresh_until + 24h).
+      # within the grace period (usable_until = fresh_until + 24h).
       travel 12.hours + 1.second do
         expect(cached?).to be true
 
@@ -581,7 +581,7 @@ describe UpdateCheck do
         instance.cache_manager.set(
           sign_data(data),
           fresh_until: 1.hour.from_now,
-          stale_until: 25.hours.from_now,
+          usable_until: 25.hours.from_now,
         )
       end
 
@@ -632,7 +632,7 @@ describe UpdateCheck do
           cache_manager.set(
             tampered,
             fresh_until: 1.hour.from_now,
-            stale_until: 25.hours.from_now,
+            usable_until: 25.hours.from_now,
           )
 
           allow(Rails.logger).to receive(:error)
@@ -699,7 +699,7 @@ describe UpdateCheck do
         stub_success
         instance.latest
 
-        # 12h fresh + 24h grace + buffer = past stale_until
+        # 12h fresh + 24h grace + buffer = past usable_until
         travel 36.hours + 1.minute do
           stub_failure
           allow(Rails.logger).to receive(:error)
@@ -765,6 +765,28 @@ describe UpdateCheck do
 
         expect { instance.latest }.not_to raise_error
         expect(instance.registration_status).to eq('complete')
+      end
+
+      # The cache store belongs to the installation, so an entry can outlive the
+      # expiry it was written with. The grace period is therefore read from the
+      # entry itself, which is the thing that carries the grant.
+      it 'switches to unknown when the entry outlives its stale phase' do
+        stub_success
+        instance.latest
+
+        travel 13.hours do
+          entry = Rails.cache.read(cache_manager.cache_key)
+          Rails.cache.write(
+            cache_manager.cache_key,
+            entry.merge(usable_until: 1.minute.ago),
+            expires_in: 1.hour,
+          )
+
+          stub_failure
+          allow(Rails.logger).to receive(:error)
+
+          expect(instance.registration_status).to eq('unknown')
+        end
       end
 
       it 'recovers cleanly when the server comes back during the grace period' do

@@ -7,7 +7,7 @@ RSpec.configure do |config|
     UpdateCheck.instance.cache_manager.set(
       UpdateCheck.instance.fallback_data,
       fresh_until: 1.hour.from_now,
-      stale_until: 25.hours.from_now,
+      usable_until: 25.hours.from_now,
     )
   end
 end

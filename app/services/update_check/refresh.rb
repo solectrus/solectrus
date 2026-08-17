@@ -45,12 +45,22 @@ module UpdateCheck::Refresh
     entry = cache_manager.get
     return unless entry.is_a?(Hash) && entry[:data].is_a?(Hash)
     return unless entry[:fresh_until].acts_like?(:time)
+    return unless entry[:usable_until].acts_like?(:time)
 
     entry
   end
 
   def fresh?(entry)
     entry && Time.current < entry[:fresh_until]
+  end
+
+  # Whether an entry may still be served. The stale phase has an end of its own,
+  # and the cache store drops the entry at that moment too - but that store
+  # belongs to the installation, so an entry can outlive its own expiry there.
+  # Reading the field keeps the grace period at STALE_GRACE_PERIOD wherever the
+  # entry comes from, which matters because the entry carries the grant.
+  def usable?(entry)
+    entry && Time.current < entry[:usable_until]
   end
 
   # Cache is either stale (within grace period) or completely gone.
@@ -68,7 +78,7 @@ module UpdateCheck::Refresh
     previous_reason = cached_entry&.dig(:data, :premium_reason).presence
 
     UpdateCheck::NotificationImporter.new(data.delete(:notifications)).call
-    cache_manager.set(data, fresh_until:, stale_until: fresh_until + STALE_GRACE_PERIOD)
+    cache_manager.set(data, fresh_until:, usable_until: fresh_until + STALE_GRACE_PERIOD)
 
     @last_verified_signature = data[:signature]
     @verified_result = verified_data(data)
@@ -88,7 +98,7 @@ module UpdateCheck::Refresh
     cache_manager.throttle_retry!(RETRY_THROTTLE)
     message = result[:error_message]
 
-    if entry
+    if usable?(entry)
       # Stale phase: keep serving the last known-good status.
       Rails.logger.warn("UpdateCheck failed (using cached status): #{message}")
       resolve_entry(entry)
@@ -108,6 +118,6 @@ module UpdateCheck::Refresh
 
   # Last known-good status when we can't (or won't) refresh right now.
   def stale_or_unknown(entry)
-    entry ? resolve_entry(entry) : UNKNOWN
+    usable?(entry) ? resolve_entry(entry) : UNKNOWN
   end
 end
