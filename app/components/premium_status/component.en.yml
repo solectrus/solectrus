@@ -3,10 +3,6 @@ en:
     title: Sponsorship is active
     description: Thank you for your support!
     icon: fa-heart
-  eligible_for_free:
-    title: Approved for free use
-    description: All features available
-    icon: fa-gift
   intro:
     title: Trial period
     description: All features, to get to know them. The basic features remain

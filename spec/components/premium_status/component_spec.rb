@@ -12,8 +12,8 @@ describe PremiumStatus::Component, type: :component do
     )
   end
 
-  # Whatever the state, the sidebar ends with one box.
-  it 'always renders a box' do
+  # Whatever the state it names, the sidebar ends with one box.
+  it 'renders a box' do
     expect(html).to include('bg-amber-100')
   end
 
@@ -109,14 +109,15 @@ describe PremiumStatus::Component, type: :component do
     end
   end
 
+  # The live demo runs on this grant. The visitor did not ask for it and cannot
+  # act on it, so the sidebar keeps quiet instead of explaining it.
   context 'when eligible for free' do
     before do
       allow(PremiumStatus).to receive(:reason).and_return(:eligible_for_free)
     end
 
-    it 'says what it means' do
-      expect(html).to include('Approved for free use')
-      expect(html).to include('bg-emerald-100')
+    it 'renders nothing at all' do
+      expect(html).to be_blank
     end
   end
 
@@ -241,6 +242,13 @@ describe PremiumStatus::Component, type: :component do
     it 'covers every reason this component knows' do
       described_class::KNOWN_REASONS.each do |reason|
         expect(de.keys).to include(reason.to_s)
+      end
+    end
+
+    # A silent reason renders nothing, so a text for it is dead weight.
+    it 'names no reason the component keeps quiet about' do
+      described_class::SILENT_REASONS.each do |reason|
+        expect(de.keys).not_to include(reason.to_s)
       end
     end
   end

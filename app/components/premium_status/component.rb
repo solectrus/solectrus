@@ -10,26 +10,25 @@
 # the same for all of them and renders whatever is set, so a text change needs
 # no Ruby.
 #
-# There is always a box at the bottom edge of the sidebar. Its color carries
-# the state at a glance: green is fine, amber asks for something, gray is the
-# local development mode.
+# The box sits at the bottom edge of the sidebar. Its color carries the state
+# at a glance: green is fine, amber asks for something, gray is the local
+# development mode.
 class PremiumStatus::Component < ViewComponent::Base
   # Every grant this app can name. The update server can report one that is not
   # here, because a later release of the server can add a grant. Such a grant
   # opens the features all the same (see PremiumStatus), and the box then names
   # the feature set instead of the grant.
-  KNOWN_REASONS = %i[
-    sponsoring
-    eligible_for_free
-    free_trial
-    intro
-    development
-  ].freeze
+  KNOWN_REASONS = %i[sponsoring free_trial intro development].freeze
   public_constant :KNOWN_REASONS
+
+  # A grant the user did not ask for and cannot act on. The live demo is such
+  # an installation. To name it in the sidebar only raises the question why
+  # this installation is free, so the box stays away.
+  SILENT_REASONS = %i[eligible_for_free].freeze
+  public_constant :SILENT_REASONS
 
   TONES = {
     sponsoring: :positive,
-    eligible_for_free: :positive,
     intro: :positive,
     free_trial: :positive,
     granted: :positive,
@@ -55,6 +54,10 @@ class PremiumStatus::Component < ViewComponent::Base
     'sponsoring' => :sponsoring_path,
   }.freeze
   private_constant :LINKS
+
+  def render?
+    SILENT_REASONS.exclude?(::PremiumStatus.reason)
+  end
 
   def title
     value(:title)

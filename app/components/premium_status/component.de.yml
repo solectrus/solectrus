@@ -3,10 +3,6 @@ de:
     title: Sponsoring aktiv
     description: Danke für deine Unterstützung!
     icon: fa-heart
-  eligible_for_free:
-    title: Berechtigt zur kostenfreien Nutzung
-    description: Alle Funktionen verfügbar
-    icon: fa-gift
   intro:
     title: Testphase
     description: Alle Funktionen zum Kennenlernen. Danach bleiben die
