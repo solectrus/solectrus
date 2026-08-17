@@ -1,0 +1,24 @@
+.flex.items-start.gap-3.p-4.text-sm class=box_class
+  - if icon
+    i.fa.fa-fw.fa-lg.shrink-0 class=[icon, 'mt-0.5'] aria-hidden='true'
+
+  div
+    div
+      span.font-semibold
+        = title
+
+      - if countdown
+        span
+          = " · #{countdown}"
+
+    - if description
+      .mt-1
+        = description
+
+    - if cta_text
+      .mt-2
+        = link_to cta_link,
+                  class: 'underline underline-offset-2 font-medium',
+                  data: { turbo: false } do
+          = cta_text
+          span.ml-1 &rarr;

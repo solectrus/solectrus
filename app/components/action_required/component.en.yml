@@ -1,7 +1,6 @@
 en:
   pending: Incomplete registration
   unregistered: Registration required
-  complete: A subscription supports ongoing development!
   unknown: Registration status unknown
   prompt: Sponsorship required!
-  sponsoring: Thanks for your support!
+  login_required: please log in as admin

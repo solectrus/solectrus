@@ -46,11 +46,8 @@ class ApplicationPolicy
   end
 
   def feature_enabled?(feature)
-    SPONSOR_FEATURES.include?(feature) &&
-      (eligible_for_free? || sponsoring? || free_trial?)
+    SPONSOR_FEATURES.include?(feature) && PremiumStatus.active?
   end
-
-  delegate :eligible_for_free?, :sponsoring?, :free_trial?, to: UpdateCheck
 end
 
 # Prevent runtime redefinition in production.

@@ -1,9 +1,6 @@
 describe 'Sponsoring page' do
   before do
-    allow(UpdateCheck).to receive_messages(
-      eligible_for_free?: false,
-      sponsoring?: false,
-    )
+    allow(PremiumStatus).to receive(:reason).and_return(nil)
 
     visit '/sponsoring'
   end

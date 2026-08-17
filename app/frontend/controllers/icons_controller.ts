@@ -68,6 +68,12 @@ import { faLanguage } from '@fortawesome/free-solid-svg-icons/faLanguage';
 import { faFilter } from '@fortawesome/free-solid-svg-icons/faFilter';
 import { faCalendar } from '@fortawesome/free-regular-svg-icons/faCalendar';
 
+import { faHeart } from '@fortawesome/free-solid-svg-icons/faHeart';
+import { faGift } from '@fortawesome/free-solid-svg-icons/faGift';
+import { faHourglassHalf } from '@fortawesome/free-solid-svg-icons/faHourglassHalf';
+import { faLock } from '@fortawesome/free-solid-svg-icons/faLock';
+import { faCode } from '@fortawesome/free-solid-svg-icons/faCode';
+
 // -------------------------
 
 let faBootstrapped = false;
@@ -139,6 +145,11 @@ export default class extends Controller {
       faLanguage,
       faFilter,
       faCalendar,
+      faHeart,
+      faGift,
+      faHourglassHalf,
+      faLock,
+      faCode,
     );
 
     dom.watch();

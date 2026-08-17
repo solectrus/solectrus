@@ -20,12 +20,27 @@ describe 'Registration', with_setup_id: 0 do
         expect(response).to redirect_to(balance_home_path)
       end
 
-      it 'can skip registration' do
+      it 'can skip the sponsoring prompt' do
         allow(UpdateCheck).to receive(:skip_prompt!)
 
         get '/registration/skip'
 
         expect(UpdateCheck).to have_received(:skip_prompt!)
+        expect(response).to redirect_to(balance_home_path)
+      end
+
+      # Closing the banner answers the registration question, not the
+      # sponsoring one.
+      it 'can snooze the registration banner' do
+        allow(UpdateCheck).to receive_messages(
+          snooze_banner!: nil,
+          skip_prompt!: nil,
+        )
+
+        get '/registration/snooze'
+
+        expect(UpdateCheck).to have_received(:snooze_banner!)
+        expect(UpdateCheck).not_to have_received(:skip_prompt!)
         expect(response).to redirect_to(balance_home_path)
       end
     end

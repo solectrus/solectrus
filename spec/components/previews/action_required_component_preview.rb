@@ -6,7 +6,6 @@ class ActionRequiredComponentPreview < ViewComponent::Preview
   def unregistered
     render ActionRequired::Component.new(
              registration_status: 'unregistered',
-             admin: false,
            )
   end
 
@@ -14,7 +13,6 @@ class ActionRequiredComponentPreview < ViewComponent::Preview
   def pending
     render ActionRequired::Component.new(
              registration_status: 'pending',
-             admin: false,
            )
   end
 
@@ -22,7 +20,6 @@ class ActionRequiredComponentPreview < ViewComponent::Preview
   def registered_not_sponsoring
     render ActionRequired::Component.new(
              registration_status: 'complete',
-             admin: false,
            )
   end
 
@@ -30,7 +27,6 @@ class ActionRequiredComponentPreview < ViewComponent::Preview
   def unknown
     render ActionRequired::Component.new(
              registration_status: 'unknown',
-             admin: false,
            )
   end
 

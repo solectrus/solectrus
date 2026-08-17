@@ -1,7 +1,6 @@
 de:
   pending: Registrierung unvollständig
   unregistered: Registrierung erforderlich
-  complete: Ein Abo unterstützt die Weiterentwicklung!
   unknown: Registrierungsstatus unbekannt
   prompt: Sponsoring benötigt!
-  sponsoring: Danke für deine Unterstützung!
+  login_required: bitte als Admin anmelden

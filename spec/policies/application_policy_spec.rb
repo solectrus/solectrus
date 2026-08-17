@@ -1,101 +1,33 @@
 describe ApplicationPolicy do
   subject { described_class }
 
-  describe '.power_splitter?' do
-    subject { described_class.power_splitter? }
+  # Which grant unlocks a feature is decided by the update server and read by
+  # PremiumStatus. This policy only asks whether any grant applies.
+  %i[power_splitter power_balance_chart mcp].each do |feature|
+    describe ".#{feature}?" do
+      subject { described_class.public_send(:"#{feature}?") }
 
-    context 'when sponsoring' do
-      before { allow(UpdateCheck).to receive(:sponsoring?).and_return(true) }
+      context 'when premium is active' do
+        before { allow(PremiumStatus).to receive(:active?).and_return(true) }
 
-      it { is_expected.to be(true) }
-    end
-
-    context 'when eligible for free' do
-      before do
-        allow(UpdateCheck).to receive(:eligible_for_free?).and_return(true)
+        it { is_expected.to be(true) }
       end
 
-      it { is_expected.to be(true) }
-    end
+      context 'when premium is not active' do
+        before { allow(PremiumStatus).to receive(:active?).and_return(false) }
 
-    context 'when free trial is active' do
-      before do
-        allow(UpdateCheck).to receive(:free_trial?).and_return(true)
+        it { is_expected.to be(false) }
       end
-
-      it { is_expected.to be(true) }
-    end
-
-    context 'when not sponsoring, not eligible for free, and no free trial' do
-      before do
-        allow(UpdateCheck).to receive_messages(
-          sponsoring?: false,
-          eligible_for_free?: false,
-          free_trial?: false,
-        )
-      end
-
-      it { is_expected.to be(false) }
     end
   end
 
-  describe '.power_balance_chart?' do
-    subject { described_class.power_balance_chart? }
+  describe 'an unknown feature' do
+    before { allow(PremiumStatus).to receive(:active?).and_return(true) }
 
-    context 'when sponsoring' do
-      before { allow(UpdateCheck).to receive(:sponsoring?).and_return(true) }
-
-      it { is_expected.to be(true) }
-    end
-
-    context 'when eligible for free' do
-      before do
-        allow(UpdateCheck).to receive(:eligible_for_free?).and_return(true)
-      end
-
-      it { is_expected.to be(true) }
-    end
-
-    context 'when free trial is active' do
-      before do
-        allow(UpdateCheck).to receive(:free_trial?).and_return(true)
-      end
-
-      it { is_expected.to be(true) }
-    end
-
-    context 'when not sponsoring, not eligible for free, and no free trial' do
-      before do
-        allow(UpdateCheck).to receive_messages(
-          sponsoring?: false,
-          eligible_for_free?: false,
-          free_trial?: false,
-        )
-      end
-
-      it { is_expected.to be(false) }
-    end
-  end
-
-  describe '.mcp?' do
-    subject { described_class.mcp? }
-
-    context 'when sponsoring' do
-      before { allow(UpdateCheck).to receive(:sponsoring?).and_return(true) }
-
-      it { is_expected.to be(true) }
-    end
-
-    context 'when not sponsoring, not eligible for free, and no free trial' do
-      before do
-        allow(UpdateCheck).to receive_messages(
-          sponsoring?: false,
-          eligible_for_free?: false,
-          free_trial?: false,
-        )
-      end
-
-      it { is_expected.to be(false) }
+    it 'stays disabled' do
+      expect(described_class.instance.feature_enabled?(:nonexistent)).to be(
+        false,
+      )
     end
   end
 end

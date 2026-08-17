@@ -22,7 +22,6 @@ header.relative.bg-indigo-600.dark:bg-indigo-900 data-controller='slide-over--co
               - unless helpers.banner? || current_page?(sponsoring_path) || !UpdateCheck.action_required?
                 = render ActionRequired::Component.new( \
                     registration_status: UpdateCheck.registration_status,
-                    admin: helpers.admin?,
                   )
 
               span#notification-badge-desktop

@@ -50,6 +50,17 @@ class UpdateCheck::CacheManager
     Rails.cache.write(skip_cache_key, true, expires_in: skip_prompt_duration)
   end
 
+  # The banner has a switch of its own. It asks for the registration, which is
+  # the deadline that stops the installation, so it must not be silenced by an
+  # answer given to the sponsoring question.
+  def snoozed_banner?
+    Rails.cache.read(banner_snooze_key) || false
+  end
+
+  def snooze_banner!(duration)
+    Rails.cache.write(banner_snooze_key, true, expires_in: duration)
+  end
+
   def cached_local?
     local_cache.present?
   end
@@ -68,6 +79,10 @@ class UpdateCheck::CacheManager
 
   def skip_cache_key
     "UpdateCheck:Skip:#{Rails.configuration.x.git.commit_version}"
+  end
+
+  def banner_snooze_key
+    "UpdateCheck:BannerSnooze:#{Rails.configuration.x.git.commit_version}"
   end
 
   def retry_throttle_key

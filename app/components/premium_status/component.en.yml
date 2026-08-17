@@ -1,0 +1,55 @@
+en:
+  sponsoring:
+    title: Sponsorship is active
+    description: Thank you for your support!
+    icon: fa-heart
+  eligible_for_free:
+    title: Approved for free use
+    description: All features available
+    icon: fa-gift
+  intro:
+    title: Trial period
+    description: All features, to get to know them. The basic features remain
+      afterwards.
+    icon: fa-hourglass-half
+    countdown:
+      zero: ends today
+      one: 1 day left
+      other: '%{count} days left'
+  free_trial:
+    title: Free month is active
+    description: All features unlocked. The basic features remain afterwards.
+    icon: fa-hourglass-half
+    countdown:
+      zero: ends today
+      one: 1 day left
+      other: '%{count} days left'
+  granted:
+    title: All features
+    description: Enabled for this installation
+    icon: fa-gift
+    countdown:
+      zero: ends today
+      one: 1 day left
+      other: '%{count} days left'
+  development:
+    title: Development mode
+    description: All features available
+    icon: fa-code
+  locked_with_trial:
+    title: No active sponsorship
+    description: The full feature set is for sponsors only
+    icon: fa-lock
+    cta_text: Start the free month
+    cta_link: registration
+  locked:
+    title: No active sponsorship
+    description: The full feature set is for sponsors only
+    icon: fa-lock
+    cta_text: Become a sponsor
+    cta_link: sponsoring
+  offline:
+    title: Status unknown
+    description: The update server cannot be reached. The sponsor features stay
+      locked until it answers again.
+    icon: fa-circle-exclamation

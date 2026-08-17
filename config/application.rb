@@ -100,7 +100,7 @@ module Solectrus
 
           # Check for updates before sensor initialization
           # This ensures update check logging happens first
-          UpdateCheck.sponsoring? unless Rails.env.test?
+          UpdateCheck.instance.latest unless Rails.env.test?
 
           # Initialize sensor system after database is ready
           Sensor::Registry.all

@@ -65,12 +65,23 @@ module UpdateCheck::Refresh
   def store_success(result)
     data = result[:data]
     fresh_until = Time.current + result[:expires_in]
+    previous_reason = cached_entry&.dig(:data, :premium_reason).presence
 
     UpdateCheck::NotificationImporter.new(data.delete(:notifications)).call
     cache_manager.set(data, fresh_until:, stale_until: fresh_until + STALE_GRACE_PERIOD)
 
     @last_verified_signature = data[:signature]
     @verified_result = verified_data(data)
+
+    # The sensor list is built once per process and filters out what the feature
+    # flags forbid (see Sensor::Config#sensors), so a grant that appears or
+    # disappears between two checks would never reach it. Every installation
+    # meets that moment at the end of its intro phase, and a sponsor meets it
+    # whenever a check follows one that failed. This is the only place that sees
+    # the answer change.
+    Sensor::Config.clear_cache! if data[:premium_reason].presence != previous_reason
+
+    @verified_result
   end
 
   def handle_failure(result, entry)

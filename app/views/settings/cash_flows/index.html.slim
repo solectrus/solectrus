@@ -14,7 +14,7 @@
       - visibility_choices = AmortizationVisibility::LEVELS.map { |level| [t("settings.cash_flows.visibility_#{level}"), level] }
       = f.select :amortization_visibility,
                  options_for_select(visibility_choices, selected: AmortizationVisibility.level, disabled: ('all' unless AmortizationVisibility.licensed?)),
-                 { label: t('settings.cash_flows.visibility_label'), hint: (t('settings.cash_flows.sponsors_only') unless AmortizationVisibility.licensed?) },
+                 { label: t('settings.cash_flows.visibility_label'), hint: (t('premium.sponsors_only') unless AmortizationVisibility.licensed?) },
                  { class: 'max-w-xs', data: { action: 'change->auto-submit#submit' } }
 
   = button_to new_settings_cash_flow_path,

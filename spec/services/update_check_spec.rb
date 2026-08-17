@@ -25,21 +25,16 @@ describe UpdateCheck do
         )
       end
 
-      it 'handles grace period' do
+      # This answer names no deadline. Nothing is enforced then, whatever the
+      # local clock says - the app never derives a deadline of its own.
+      it 'enforces nothing while the answer names no deadline' do
+        expect(instance).not_to be_registration_reminder_due
         expect(instance).not_to be_registration_grace_period_expired
 
-        travel 15.days do
-          expect(instance).to be_registration_grace_period_expired
+        travel 1.year do
+          expect(instance).not_to be_registration_reminder_due
+          expect(instance).not_to be_registration_grace_period_expired
         end
-      end
-
-      it 'handles missing setup_id by seeding it' do
-        Setting.where(var: 'setup_id').delete_all
-        Setting.clear_cache
-
-        expect(Setting.setup_id).to be_nil
-        expect(instance).not_to be_registration_grace_period_expired
-        expect(Setting.setup_id).to be_present
       end
 
       it 'has shortcuts' do
@@ -81,6 +76,11 @@ describe UpdateCheck do
 
       it 'has unknown shortcuts' do
         expect(instance.registration_status).to eq('unknown')
+      end
+
+      # Nothing was answered, which is not the same as an answered "no".
+      it 'reports that it knows nothing' do
+        expect(instance).to be_unknown
       end
 
       it 'logs the error' do
@@ -265,12 +265,20 @@ describe UpdateCheck do
           body: signed_json(
             version: 'v0.16.0',
             registration_status: 'unregistered',
+            registration_reminder_at: 3.days.from_now.iso8601,
             prompt: true,
           ),
         )
       end
 
-      it { is_expected.to be true }
+      # Nothing is expected of a fresh installation yet, so no warning either.
+      it { is_expected.to be false }
+
+      it 'is required once the reminder is due' do
+        travel 4.days do
+          expect(instance).to be_action_required
+        end
+      end
     end
 
     context 'when registered only' do
@@ -309,7 +317,7 @@ describe UpdateCheck do
           body: signed_json(
             version: 'v0.16.0',
             registration_status: 'complete',
-            subscription_plan: 'sponsoring',
+            premium_reason: 'sponsoring',
           ),
         )
       end
@@ -318,88 +326,40 @@ describe UpdateCheck do
     end
   end
 
-  describe '#eligible_for_free?' do
-    subject(:eligible_for_free) { instance.eligible_for_free? }
-
+  describe '#premium_reason' do
     include_context 'with signature verification'
 
     let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
-    context 'when server returns eligible_for_free' do
-      before do
-        stub_request(:get, 'https://update.solectrus.de').to_return(
-          headers:,
-          body: signed_json(
-            version: 'v1.2.1',
-            registration_status: 'complete',
-            eligible_for_free: true,
-          ),
-        )
-      end
-
-      it { is_expected.to be true }
-    end
-
-    context 'when server does not return eligible_for_free' do
-      before do
-        stub_request(:get, 'https://update.solectrus.de').to_return(
-          headers:,
-          body: signed_json(
-            version: 'v1.2.1',
-            registration_status: 'complete',
-          ),
-        )
-      end
-
-      it { is_expected.to be false }
-    end
-  end
-
-  describe '#free_trial?' do
-    subject(:free_trial) { instance.free_trial? }
-
-    include_context 'with signature verification'
-
-    let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
-
-    context 'when free_trial_ends_at is in the future' do
-      # Freeze time so the stubbed ISO8601 timestamp (second precision)
-      # matches the expected value exactly, avoiding flaky drift around tick boundaries.
+    context 'when the server names a reason' do
       before do
         freeze_time
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
             version: 'v1.2.1',
-            registration_status: 'complete',
-            free_trial_ends_at: 30.days.from_now.iso8601,
+            registration_status: 'unregistered',
+            premium_reason: 'intro',
+            premium_ends_at: 2.days.from_now.iso8601,
+            trial_available: true,
           ),
         )
       end
 
-      it { is_expected.to be true }
+      it 'returns it as a symbol' do
+        expect(instance.premium_reason).to eq(:intro)
+      end
 
-      it 'returns parsed end date' do
-        expect(instance.free_trial_ends_at).to eq(30.days.from_now.change(usec: 0))
+      it 'returns the parsed end date' do
+        expect(instance.premium_ends_at).to eq(2.days.from_now.change(usec: 0))
+      end
+
+      it 'reports the free trial as available' do
+        expect(instance.trial_available?).to be true
       end
     end
 
-    context 'when free_trial_ends_at is in the past' do
-      before do
-        stub_request(:get, 'https://update.solectrus.de').to_return(
-          headers:,
-          body: signed_json(
-            version: 'v1.2.1',
-            registration_status: 'complete',
-            free_trial_ends_at: 1.day.ago.iso8601,
-          ),
-        )
-      end
-
-      it { is_expected.to be false }
-    end
-
-    context 'when free_trial_ends_at is not present' do
+    context 'when the server sends no premium fields' do
       before do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
@@ -410,16 +370,112 @@ describe UpdateCheck do
         )
       end
 
-      it { is_expected.to be false }
+      it { expect(instance.premium_reason).to be_nil }
+      it { expect(instance.premium_ends_at).to be_nil }
+      it { expect(instance.trial_available?).to be false }
+    end
+  end
 
-      it 'returns nil for free_trial_ends_at' do
-        expect(instance.free_trial_ends_at).to be_nil
+  # Both deadlines come from the update server as absolute times. Nothing here
+  # knows how long a phase lasts, so nothing here can be changed by moving the
+  # local clock or the local setup_id.
+  describe 'the registration deadlines' do
+    include_context 'with signature verification'
+
+    let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
+
+    context 'when the answer names both' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: signed_json(
+            version: 'v1.2.1',
+            registration_status: 'unregistered',
+            registration_reminder_at: 3.days.from_now.iso8601,
+            registration_due_at: 7.days.from_now.iso8601,
+          ),
+        )
       end
+
+      it 'stays quiet before the reminder' do
+        expect(instance).not_to be_registration_reminder_due
+        expect(instance).not_to be_registration_grace_period_expired
+      end
+
+      it 'asks once the reminder is due' do
+        travel 4.days do
+          expect(instance).to be_registration_reminder_due
+          expect(instance).not_to be_registration_grace_period_expired
+        end
+      end
+
+      it 'locks out once the deadline passed' do
+        travel 8.days do
+          expect(instance).to be_registration_grace_period_expired
+        end
+      end
+
+      it 'ignores the local setup_id' do
+        Setting.setup_id = 1.year.ago.to_i
+
+        expect(instance).not_to be_registration_reminder_due
+        expect(instance).not_to be_registration_grace_period_expired
+      end
+    end
+
+    # Which is what a registered installation gets, and what every
+    # installation gets while the update server is unreachable.
+    context 'when the answer names neither' do
+      before do
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: signed_json(
+            version: 'v1.2.1',
+            registration_status: 'unregistered',
+          ),
+        )
+      end
+
+      it 'enforces nothing' do
+        expect(instance.registration_reminder_at).to be_nil
+        expect(instance.registration_due_at).to be_nil
+        expect(instance).not_to be_registration_reminder_due
+        expect(instance).not_to be_registration_grace_period_expired
+      end
+    end
+  end
+
+  describe '.snooze_banner!' do
+    include_context 'with cache'
+
+    it 'sets status for some time' do
+      expect { instance.snooze_banner! }.to change(
+        instance,
+        :snoozed_banner?,
+      ).from(false).to(true)
+
+      travel 24.hours + 1 do
+        expect(instance.snoozed_banner?).to be false
+      end
+    end
+
+    # Two questions, two switches: the registration deadline is not answered by
+    # a "maybe later" given to the sponsoring question.
+    it 'leaves the sponsoring prompt alone' do
+      instance.snooze_banner!
+
+      expect(instance.skipped_prompt?).to be false
     end
   end
 
   describe '.skip_prompt!' do
     include_context 'with cache'
+
+    it 'leaves the registration banner alone' do
+      instance.skip_prompt!
+
+      expect(instance.snoozed_banner?).to be false
+    end
 
     it 'sets status for some time' do
       expect { instance.skip_prompt! }.to change(
@@ -737,23 +793,92 @@ describe UpdateCheck do
       end
     end
 
-    it 'clears sensor cache when sponsoring status changes' do
-      # No sponsoring initially
-      allow(described_class).to receive(:sponsoring?).and_return(false)
+    it 'clears sensor cache when the premium status changes' do
+      # No premium initially
+      allow(described_class).to receive(:premium_reason).and_return(nil)
 
-      # Heatpump sensors should NOT be available without sponsoring
+      # Heatpump sensors should NOT be available without premium
       expect(Sensor::Config.chart_sensors.map(&:name)).not_to include(
         :heatpump_heating_power,
       )
 
-      # Now with sponsoring
-      allow(described_class).to receive(:sponsoring?).and_return(true)
+      # Now with a sponsorship
+      allow(described_class).to receive(:premium_reason).and_return(:sponsoring)
       described_class.clear_cache!
 
       # Heatpump sensors should NOW be available
       expect(Sensor::Config.chart_sensors.map(&:name)).to include(
         :heatpump_heating_power,
       )
+    end
+
+    # The sensor list is built once per process, and it drops what the feature
+    # flags forbid. Nothing else would notice a grant that appears or disappears
+    # between two checks, so the list would keep the answer of the check that
+    # happened to run first - until the next restart.
+    describe 'the sensor cache after a check' do
+      include_context 'with signature verification'
+
+      let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
+
+      def stub_answer(premium_reason)
+        body = { version: 'v1.2.1', registration_status: 'complete' }
+        body[:premium_reason] = premium_reason if premium_reason
+
+        stub_request(:get, 'https://update.solectrus.de').to_return(
+          headers:,
+          body: signed_json(body),
+        )
+      end
+
+      def heatpump_charted?
+        Sensor::Config.chart_sensors.map(&:name).include?(
+          :heatpump_heating_power,
+        )
+      end
+
+      # A sponsor whose first check of the process failed, or ran before the
+      # sponsorship was recognized.
+      it 'follows a grant that appears' do
+        stub_answer(nil)
+        instance.latest
+        expect(heatpump_charted?).to be(false)
+
+        travel 13.hours do
+          stub_answer('sponsoring')
+          instance.latest
+
+          expect(heatpump_charted?).to be(true)
+        end
+      end
+
+      # Every installation meets this at the end of its intro phase.
+      it 'follows a grant that disappears' do
+        stub_answer('intro')
+        instance.latest
+        expect(heatpump_charted?).to be(true)
+
+        travel 13.hours do
+          stub_answer(nil)
+          instance.latest
+
+          expect(heatpump_charted?).to be(false)
+        end
+      end
+
+      it 'keeps the list when the answer does not change' do
+        stub_answer('sponsoring')
+        instance.latest
+
+        allow(Sensor::Config).to receive(:clear_cache!)
+
+        travel 13.hours do
+          stub_answer('sponsoring')
+          instance.latest
+        end
+
+        expect(Sensor::Config).not_to have_received(:clear_cache!)
+      end
     end
   end
 end

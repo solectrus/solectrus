@@ -2,6 +2,8 @@ de:
   general:
     'yes': Ja
     'no': Nein
+  premium:
+    sponsors_only: Nur für Sponsoren
   charts:
     heatpump_cop_scatter:
       heatpump_power: Stromverbrauch
@@ -41,14 +43,6 @@ de:
     notifications: Benachrichtigungen
     version_outdated: Neue Version <strong>%{latest_version}</strong> verfügbar!
     version_uptodate: Dies ist die neueste Version
-    prompt_for_sponsoring: Gefällt dir SOLECTRUS? Unterstütze die Weiterentwicklung mit einem Sponsoring und erhalte weitere Features.
-    missing_sponsoring_header: Sponsoring benötigt
-    missing_sponsoring: Nur durch Sponsoren kann die Weiterentwicklung von SOLECTRUS sichergestellt werden.
-    missing_sponsoring_cta: Mehr erfahren...
-    active_sponsoring_header: Sponsoring aktiv
-    active_sponsoring: Herzlichen Dank für deine Unterstützung!
-    free_trial_header: Gratis-Monat aktiv
-    free_trial: 'Voller Funktionsumfang bis zum %{ends_at}'
     incomplete_custom_consumers: Selbstdefinierte Stromverbraucher
     missing_custom_consumers: Hier könnten bis zu 20 zusätzliche Stromverbraucher visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_CUSTOM_POWER_01</code> bis <code>_20</code>).
     incomplete_multi_inverter: Mehrere Stromerzeuger
@@ -259,7 +253,6 @@ de:
         title: Zugriff für KI
         enable: Model-Context-Protocol (MCP) aktivieren
         hint: Erlaubt KI-Clients (z.B. Claude oder ChatGPT) lesenden Zugriff auf deine SOLECTRUS-Daten (Messwerte, Prognosen, Preise und Anlagendetails).
-        sponsors_only: KI-Zugriff (MCP) ist nur für Sponsoren verfügbar.
         endpoint: 'Endpunkt:'
       summaries:
         title: Tageszusammenfassungen
@@ -287,7 +280,6 @@ de:
       visibility_all: Für alle Nutzer
       visibility_admins: Nur für Admin
       visibility_none: Für niemanden (Seite ausblenden)
-      sponsors_only: Die Anzeige für alle Nutzer ist nur für Sponsoren verfügbar.
       filtered_by: Gefiltert nach
       from: Von
       to: Bis

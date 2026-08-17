@@ -1,9 +1,19 @@
 module ApplicationHelper
+  # The banner asks for the missing registration, so it needs both halves of
+  # that sentence: a registration that is missing, and a reminder that is due.
+  # The update server sends the reminder date only while the registration is
+  # missing, but the banner has no text for any other case, so the second half
+  # is asked for here instead of assumed.
+  #
+  # It reads its own snooze and not the one of the sponsoring prompt. The two
+  # questions are answered in different places and end differently: without a
+  # sponsorship the app keeps working, without a registration it does not.
   def banner?
     return false if controller.is_a?(ErrorsController)
-    return false if UpdateCheck.skipped_prompt?
+    return false if UpdateCheck.snoozed_banner?
+    return false unless UpdateCheck.unregistered?
 
-    UpdateCheck.unregistered?
+    UpdateCheck.registration_reminder_due?
   end
 
   def extra_stimulus_controllers(*controller_names)

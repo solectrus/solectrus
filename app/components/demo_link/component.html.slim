@@ -5,19 +5,32 @@
   = c.with_body do
     = t('description', scope: ".#{feature}")
 
+    / One box for the whole answer: the reason in full size, and below it the
+    / way in, while there is one.
     .mt-8
-      .inline.text-2xl.md:text-3xl.font-bold.text-gray-700.dark:text-gray-300.sm:text-4xl.rounded-xl.bg-amber-100.dark:bg-amber-900.px-2.md:px-4.py-1.md:py-2
-        = t('.sponsoring_only')
+      / The cap keeps the box from stretching to the width of the sentence,
+      / which would leave the headline small inside a wide band.
+      .inline-block.max-w-xl.rounded-xl.bg-amber-100.dark:bg-amber-900.text-gray-700.dark:text-gray-300.px-4.md:px-6.py-2.md:py-3
+        .text-2xl.md:text-3xl.font-bold.sm:text-4xl
+          = t('.sponsoring_only')
+
+        / Every visitor sees the offer, admin or not: whoever cannot start the
+        / month can still tell the person who can. It stays a notice and gets
+        / no button, because the registration page that starts the month turns
+        / away everyone without the admin session.
+        - if PremiumStatus.trial_available?
+          .mt-1.md:mt-2.text-base.md:text-lg
+            = t('.trial_hint')
 
   = c.with_footer do
     .flex.gap-10.justify-center
-      - if url
+      - if demo_url
         = render Button::Component.new title: t('.demo'),
-                                      path: { **url, host: 'https://demo.solectrus.de', port: 443, protocol: 'https' },
+                                      path: demo_url,
                                       options: { target: '_blank' },
                                       style: :primary
 
       = render Button::Component.new title: t('.about_sponsoring'),
-                                    path: 'https://solectrus.de/sponsoring',
-                                    options: { target: '_blank' },
+                                    path: sponsoring_path,
+                                    options: { data: { turbo: false } },
                                     style: :secondary

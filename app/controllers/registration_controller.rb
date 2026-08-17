@@ -8,7 +8,14 @@ class RegistrationController < ApplicationController
       when nil
         redirect_to(registration_url, allow_other_host: true)
       when 'skip'
+        # The answer to the sponsoring question, given on the sponsoring page.
         UpdateCheck.skip_prompt!
+
+        redirect_to(balance_home_path)
+      when 'snooze'
+        # The registration banner is closed. It comes back tomorrow, and the
+        # deadline behind it is not moved by this.
+        UpdateCheck.snooze_banner!
 
         redirect_to(balance_home_path)
       else

@@ -1,0 +1,57 @@
+de:
+  sponsoring:
+    title: Sponsoring aktiv
+    description: Danke für deine Unterstützung!
+    icon: fa-heart
+  eligible_for_free:
+    title: Berechtigt zur kostenfreien Nutzung
+    description: Alle Funktionen verfügbar
+    icon: fa-gift
+  intro:
+    title: Testphase
+    description: Alle Funktionen zum Kennenlernen. Danach bleiben die
+      Basisfunktionen.
+    icon: fa-hourglass-half
+    countdown:
+      zero: endet heute
+      one: noch 1 Tag
+      other: noch %{count} Tage
+  free_trial:
+    title: Gratismonat aktiv
+    description: Alle Funktionen freigeschaltet. Danach bleiben die
+      Basisfunktionen.
+    icon: fa-hourglass-half
+    countdown:
+      zero: endet heute
+      one: noch 1 Tag
+      other: noch %{count} Tage
+  granted:
+    title: Voller Funktionsumfang
+    description: Für diese Installation freigeschaltet
+    icon: fa-gift
+    countdown:
+      zero: endet heute
+      one: noch 1 Tag
+      other: noch %{count} Tage
+  development:
+    title: Entwicklungsmodus
+    description: Alle Funktionen verfügbar
+    icon: fa-code
+  locked_with_trial:
+    title: Kein Sponsoring aktiv
+    description: Voller Funktionsumfang nur für Sponsoren
+    icon: fa-lock
+    cta_text: Gratismonat starten
+    cta_link: registration
+  locked:
+    title: Kein Sponsoring aktiv
+    description: Voller Funktionsumfang nur für Sponsoren
+    icon: fa-lock
+    cta_text: Sponsor werden
+    cta_link: sponsoring
+  offline:
+    title: Status unbekannt
+    description:
+      Der Update-Server ist nicht erreichbar. Bis er wieder antwortet,
+      bleiben die Sponsoren-Funktionen gesperrt.
+    icon: fa-circle-exclamation

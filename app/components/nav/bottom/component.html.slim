@@ -32,23 +32,7 @@
       - unless ThemeConfig.x.static?
         = render ThemeSelector::Component.new
 
-    - if UpdateCheck.prompt? && !helpers.current_page?(helpers.sponsoring_path)
-      .bg-amber-100.dark:bg-pink-700.px-5.py-4.my-5.text-sm.font-normal.text-amber-800.dark:text-pink-200
-        - if helpers.admin?
-          = I18n.t('layout.prompt_for_sponsoring')
-          br
-          br
-          = link_to I18n.t('layout.missing_sponsoring_cta'), helpers.sponsoring_path, class: 'text-amber-800 dark:text-gray-300 underline underline-offset-2 font-medium'
-        - else
-          = I18n.t('layout.missing_sponsoring')
-
-    - elsif UpdateCheck.free_trial?
-      .py-1.bg-sky-600.text-white.text-center.text-xs
-        = I18n.t('layout.free_trial_header')
-
-    - elsif UpdateCheck.sponsoring?
-      .py-1.bg-emerald-600.text-white.text-center.text-xs
-        = I18n.t('layout.active_sponsoring_header')
+    = render PremiumStatus::Component.new
 
   nav.group.w-full.flex.items-center.justify-evenly.bg-indigo-600.dark:bg-indigo-900.border-t.border-indigo-300/25.dark:border-indigo-950/25[
     aria-label="Main navigation"

@@ -27,5 +27,6 @@ en:
     title: Amortization calculator
     description: Shows when the PV system pays off, based on the recorded cash flows and the measured savings – with key figures and a chart over the entire period.
   sponsoring_only: Exclusively for sponsors
+  trial_hint: By the way, you can try the full feature set free for one month.
   demo: Demo
-  about_sponsoring: How do I become a sponsor?
+  about_sponsoring: Learn more about sponsoring
