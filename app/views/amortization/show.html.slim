@@ -34,7 +34,8 @@
                                      style: :primary
 - when :unavailable
   /! Sponsor feature not available: promote it and link to the demo
-  = render DemoLink::Component.new(feature: 'amortization')
+  = render DemoLink::Component.new feature: 'amortization',
+                                   url: { controller: 'amortization', action: 'show' }
 - when :no_cash_flows
   /! Cash flows missing: ask the admin to create them
   = render Message::Component.new do |c|

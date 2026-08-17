@@ -67,6 +67,14 @@ describe 'Amortization' do
           expect(response).to have_http_status(:success)
           expect(response.body).to include('Exclusively for sponsors')
         end
+
+        it 'links to the same page on the demo installation' do
+          get '/amortization'
+
+          expect(response.body).to include(
+            'https://demo.solectrus.de/amortization',
+          )
+        end
       end
     end
 
