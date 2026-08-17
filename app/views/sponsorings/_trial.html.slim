@@ -1,0 +1,17 @@
+/ The month is chosen on the registration site, behind the same link as the
+/ subscription. A button of its own would lead to the very same place, so this
+/ stays a sentence. It shares the line with the button, because it qualifies
+/ what the button leads to.
+/
+/ It is rendered in both branches of the page: whoever cannot start the month
+/ can still tell the person who can, and their button is the login.
+/
+/ The distance to what comes before belongs to the caller, which is what puts
+/ this on a line or on its own.
+/
+/ No color and no line of its own. The sentence is an offer and not a warning,
+/ and next to the button it is read without one. The only mark it carries is
+/ the word the offer stands on, which the text sets in strong.
+- if PremiumStatus.trial_available?
+  p
+    == t('sponsoring.show.trial')

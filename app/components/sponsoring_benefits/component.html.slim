@@ -1,0 +1,28 @@
+/ No size of its own: the list takes the size of the page, which puts it one
+/ step below the plea and one above the link that follows it. It is what the
+/ offer is, so nothing around it is read louder.
+aside
+  p.font-medium
+    = t('.intro')
+
+  / Two columns on every screen: ten items in one column cost a phone a third
+  / of its height. 312px in ten rows become 152px in five on a 390px screen,
+  / which is what keeps the whole page on one screen there.
+  /
+  / Half a phone leaves 153px for a label, so the labels are kept short enough
+  / for one line. A longer one still wraps or hyphenates instead of running
+  / into the column beside it: German compounds carry no other break point.
+  /
+  / The cap keeps the two columns side by side. Spread over the whole page,
+  / the second one drifts away from the first and the list falls apart.
+  ul.mt-4.md:mt-5.grid.grid-cols-2.max-w-3xl.gap-x-4.sm:gap-x-8.gap-y-2.hyphens-auto.break-words
+    - benefits.each do |label|
+      li.flex.items-start.gap-2.sm:gap-3
+
+        / A square in the one accent the app has. The radius stays at 2px:
+        / rounded-sm is 4px, and on a square this small that is a circle.
+        / The top margin puts the square on the middle of the first line,
+        / which is where a wrapped label keeps it.
+        span.mt-2.shrink-0.rounded-xs.bg-indigo-600 class="size-2.5"
+
+        = label

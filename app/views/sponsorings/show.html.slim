@@ -1,50 +1,91 @@
-.bg-linear-to-tr.from-amber-100.to-amber-100.via-white.w-full
-  .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-4.sm:px-6.lg:px-8.py-10.text-lg
-    h1.text-2xl.md:text-3xl.font-bold.leading-relaxed
+/ One column, three parts, and a hairline between them: the plea, the offer,
+/ the decision. Nothing is boxed and nothing is stacked side by side, so the
+/ page reads top to bottom in the same order on every screen.
+/
+/ The surface is flat and warm. A gradient and a panel on top of it were two
+/ layers that carried no meaning of their own.
+.relative.bg-amber-50.w-full
+  / The page has three ways out, and each one gets a form of its own so they
+  / are not read as one row of links: the corner dismisses the page, the button
+  / below leads on, and the sentence in the plea links out.
+  /
+  / The corner of the surface is where a notice is closed, so the link sits
+  / there and not in the column. Only an admin gets it: the skip is recorded
+  / for them alone, and without that record the gate sends everyone else
+  / straight back to this page.
+  - if admin?
+    = link_to registration_path(status: 'skip'),
+              class: 'absolute right-4 top-4 inline-flex items-center gap-2 rounded text-sm text-gray-500 hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:right-6 sm:top-6 sm:text-base lg:right-8 click-animation',
+              data: { turbo: false } do
+      = t('sponsoring.show.skip')
+      i.fas.fa-xmark.text-lg
+
+  / A phone has no room beside the corner link, so there the content starts
+  / below it.
+  .max-w-5xl.mx-auto.px-4.sm:px-6.lg:px-8.pt-12.sm:pt-10.md:pt-14.pb-8.md:pb-14.text-base.md:text-lg
+    / On a phone the headline needs the step to text-2xl: at text-xl it sits too
+    / close to the plea below it, and the mark around it has nothing to hold.
+    h1.text-2xl.md:text-4xl.font-bold.leading-relaxed
       span.bg-amber-300.box-decoration-clone.px-2.dark:text-gray-900
         == t('sponsoring.show.headline')
 
-    p.mt-5.md:mt-10
-      == t('sponsoring.show.p1')
+    / One rhythm for the whole page: every part keeps the same distance to the
+    / hairline that separates it from the next one. A phone gets the smaller of
+    / the two distances, so the whole page can stay on one screen there.
+    .mt-6.md:mt-8.divide-y.divide-amber-200
+      .pb-6.md:pb-8
+        / max-w-prose keeps the line under 65 characters. Without it the
+        / paragraph runs the full width of the page on a wide screen.
+        p.max-w-prose.md:text-xl
+          == t('sponsoring.show.p1')
 
-    p.mt-5
-      == t('sponsoring.show.p2')
+      .py-6.md:py-8
+        = render SponsoringBenefits::Component.new
 
-    = render Button::Component.new path: 'https://solectrus.de/sponsoring',
-                                   title: t('sponsoring.show.more'),
-                                   type: :link,
-                                   style: :secondary,
-                                   options: { rel: 'noopener', target: '_blank' }
+        / A footnote to the list, not one more argument: it stays small and
+        / quiet, and it keeps the short distance that binds it to the list. It
+        / answers what the list raises, which is what the reader without a
+        / subscription asks at that moment.
+        p.mt-3.md:mt-4.max-w-prose.text-sm.text-gray-500.dark:text-gray-300
+          = t('sponsoring.show.p4')
 
-    - if admin?
-      p.mt-10
-        == t('sponsoring.show.p3')
+        / The link follows the list, because that is what it continues: it
+        / leads to the page that describes every one of these features.
+        /
+        / It stays one step below the list. The list is the offer, the link only
+        / points at more of it, so it must not be the larger of the two.
+        .mt-5.md:mt-6
+          = render Button::Component.new path: SolectrusLink.url('https://solectrus.de/sponsoring', campaign: 'sponsoring-page'),
+                                         title: t('sponsoring.show.more'),
+                                         type: :link,
+                                         style: :secondary,
+                                         options: { \
+                                          class: 'text-base',
+                                          rel: 'noopener',
+                                          target: '_blank',
+                                        }
 
-      .flex.items-center.justify-between.mt-5
-        = render Button::Component.new path: registration_path,
-                                       title: t('sponsoring.show.continue'),
-                                       type: :link,
-                                       options: { \
-                                        class: 'font-medium text-xl uppercase',
-                                        data: { turbo: false },
-                                      }
+      .pt-6.md:pt-8
+        / Whoever is not an admin cannot start anything from here, so this
+        / branch asks for the login first. What follows is the same row in both
+        / cases, which is why the month is rendered once.
+        - unless admin?
+          p.max-w-prose
+            = t('sponsoring.show.login_required')
 
-        = render Button::Component.new path: registration_path(status: 'skip'),
-                                       title: t('sponsoring.show.skip'),
-                                       options: { \
-                                         data: { turbo: false },
-                                       },
-                                       type: :link,
-                                       style: :secondary
+        / The button and the month it can start share one line, the month at
+        / the far end of it. A phone puts the month on the next line.
+        .flex.flex-wrap.items-center.justify-between.gap-4 class=('mt-5' unless admin?)
+          - if admin?
+            = render Button::Component.new path: registration_path,
+                                           title: t('sponsoring.show.continue'),
+                                           type: :link,
+                                           options: { \
+                                            class: 'font-medium text-lg px-5',
+                                            data: { turbo: false },
+                                          }
+          - else
+            = render Button::Component.new path: new_session_path,
+                                           title: t('layout.login')
 
-      p.mt-16.text-base.text-gray-500.dark:text-gray-300
-        = t('sponsoring.show.p4')
-
-    - else
-      p.mt-10.mb-5
-        = t('sponsoring.show.login_required')
-
-      = render Button::Component.new( \
-          path: new_session_path,
-          title: t('layout.login'),
-        )
+          = render 'trial'

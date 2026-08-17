@@ -216,14 +216,13 @@ en:
     submit: Continue
   sponsoring:
     show:
-      headline: SOLECTRUS needs you - really!
-      p1: My name is Georg Ledermann and I develop SOLECTRUS full-time. Without a big company behind me, funded from my own pocket. This can't go on forever – the future of the project depends on your support.
-      p2: 'As a sponsor with a monthly payment starting at €5, you not only keep development going but also get real features: <strong>Custom consumers</strong>, <strong>multiple power generators</strong>, the <strong>power splitter</strong>, the <strong>heat pump page</strong>, <strong>trends & figures</strong>, <strong>financial charts</strong>, the <strong>amortization calculator</strong>, the <strong>power balance over time</strong>, <strong>AI access (MCP)</strong>, and <strong>dark mode</strong>. More is in the works.'
-      p3: Sound fair?
+      headline: SOLECTRUS needs you!
+      p1: My name is Georg Ledermann and I develop SOLECTRUS full-time, funded from my own pocket. Without your support this cannot go on forever.
       more: Learn more about sponsorship
+      trial: 'Tip: Start a <strong>free month</strong> and try all of this at no cost.'
       continue: Continue
       skip: Maybe later
-      p4: "Don't want to subscribe just yet? No problem – the basic features remain free. This notice only pops up now and then."
+      p4: The basic features stay free, even without a subscription.
       login_required: To sponsor or see more options, please log in as an administrator.
   registration_required:
     show:

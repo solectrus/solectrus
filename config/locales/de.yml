@@ -216,14 +216,13 @@ de:
     submit: Weiter
   sponsoring:
     show:
-      headline: SOLECTRUS braucht dich - wirklich!
-      p1: Mein Name ist Georg Ledermann und ich entwickle SOLECTRUS in Vollzeit. Ohne große Firma im Rücken, finanziert aus eigener Tasche. Das geht nicht ewig gut – die Zukunft des Projekts hängt also von deiner Unterstützung ab.
-      p2: 'Als Sponsor ermöglichst du mit einer monatlichen Zahlung ab €5 nicht nur die Weiterentwicklung, sondern bekommst auch echte Features: <strong>Selbstdefinierte Verbraucher</strong>, <strong>mehrere Stromerzeuger</strong>, den <strong>Power-Splitter</strong>, die <strong>Wärmepumpen-Seite</strong>, <strong>Trends & Kennzahlen</strong>, <strong>Finanzdiagramme</strong>, die <strong>Amortisationsrechnung</strong>, die <strong>Strombilanz im Zeitverlauf</strong>, den <strong>KI-Zugriff (MCP)</strong> und den <strong>Dunkelmodus</strong>. Weiteres ist in Planung.'
-      p3: Klingt das fair?
+      headline: SOLECTRUS braucht dich!
+      p1: Mein Name ist Georg Ledermann und ich entwickle SOLECTRUS in Vollzeit, finanziert aus eigener Tasche. Ohne deine Unterstützung geht das nicht ewig gut.
       more: Mehr über das Sponsoring erfahren
+      trial: 'Tipp: Starte einen <strong>Gratis-Monat</strong> und probiere das alles kostenfrei aus.'
       continue: Weiter
       skip: Vielleicht später
-      p4: 'Falls du zunächst kein Abo abschließen möchtest: Kein Problem – die Basisfunktionen bleiben kostenlos. Dieser Hinweis taucht nur ab und zu auf.'
+      p4: Auch ohne Abo bleiben die Basisfunktionen kostenfrei.
       login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Admin an.
   registration_required:
     show:
