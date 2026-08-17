@@ -206,7 +206,12 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     def about_item
       {
         name: t('layout.about'),
-        href: 'https://solectrus.de',
+        href:
+          SolectrusLink.url(
+            'https://solectrus.de',
+            campaign: 'main-nav',
+            content: 'about',
+          ),
         icon: 'circle-info',
       }
     end
@@ -270,7 +275,12 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.docs'),
         icon: 'circle-question',
-        href: 'https://solectrus.de/docs/',
+        href:
+          SolectrusLink.url(
+            'https://solectrus.de/docs/',
+            campaign: 'main-nav',
+            content: 'docs',
+          ),
       }
     end
 
