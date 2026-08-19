@@ -70,6 +70,16 @@ Bundler/OrderedGems:
 Bundler/GemVersion:
   Enabled: false
 
+### Performance
+
+# Disabled upstream by default, but EnabledByDefault turns it on here. The cop
+# asks for bang methods (compact!, uniq!, flatten!) that return nil when they
+# change nothing, so every call site needs a guard. The receiver is already a
+# fresh array from map/flat_map/filter_map, so the win is one intermediate
+# array - not worth the readability cost.
+Performance/ChainArrayAllocation:
+  Enabled: false
+
 ### Layout
 
 Layout/CommentIndentation:
