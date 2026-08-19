@@ -2,6 +2,7 @@ describe 'MCP' do
   # Request specs run against host www.example.com, so issuer/resource are
   # derived from that base URL.
   let(:base_url) { 'http://www.example.com' }
+  let(:modern_protocol_version) { '2026-07-28' }
   let(:access_token) { McpOauth.encode_access_token(base_url:) }
   let(:tools_list) do
     { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }
@@ -16,6 +17,29 @@ describe 'MCP' do
     headers['Origin'] = origin if origin
 
     post '/mcp', params: payload.to_json, headers:
+  end
+
+  # The same request on the stateless lifecycle of MCP 2026-07-28: the version
+  # and the client capabilities ride in the `_meta` envelope, and the mirror
+  # headers repeat the version and the method so an intermediary can route
+  # without parsing the body.
+  def post_mcp_modern(payload, token: access_token)
+    meta = {
+      'io.modelcontextprotocol/protocolVersion' => modern_protocol_version,
+      'io.modelcontextprotocol/clientCapabilities' => {},
+    }
+    envelope =
+      payload.merge(params: (payload[:params] || {}).merge(_meta: meta))
+
+    post '/mcp',
+         params: envelope.to_json,
+         headers: {
+           'CONTENT_TYPE' => 'application/json',
+           'ACCEPT' => 'application/json, text/event-stream',
+           'Authorization' => "Bearer #{token}",
+           'MCP-Protocol-Version' => modern_protocol_version,
+           'Mcp-Method' => payload[:method],
+         }
   end
 
   describe 'GET /mcp' do
@@ -233,21 +257,10 @@ describe 'MCP' do
           )
         end
 
-        # MCP 2026-07-28 makes `resultType` mandatory in every result, and the
-        # mcp gem does not emit it although it negotiates that revision. A
-        # client on 2026-07-28 rejects the whole tool list without it.
-        it 'marks the result as complete' do
-          post_mcp(tools_list)
-
-          expect(response.parsed_body.dig('result', 'resultType')).to eq(
-            'complete',
-          )
-        end
-
-        # MCP 2026-07-28 makes the SEP-2549 cache hints mandatory on
-        # tools/list, and the mcp gem emits them only when the server is built
-        # with them. A client on that revision rejects the whole tool list
-        # without them.
+        # The SEP-2549 cache hints are mandatory on tools/list at 2026-07-28,
+        # and the mcp gem emits our values only when the server is built with
+        # them. Without them a client sees the spec default `ttlMs: 0` and
+        # refetches the ~30 KB list on every turn.
         it 'states how long the tool list may be cached' do
           post_mcp(tools_list)
 
@@ -257,8 +270,32 @@ describe 'MCP' do
           )
         end
 
-        # Sessionless discovery (SEP-2575) is the second cacheable result, and
-        # the one the gem leaves without hints.
+        # The stateless lifecycle of MCP 2026-07-28 (SEP-2575) is what browser
+        # clients on that revision speak: no initialize handshake, a `_meta`
+        # envelope per request instead. Its results carry `resultType`, which
+        # a legacy result must not have.
+        it 'answers a modern request with the required result members' do
+          post_mcp_modern(tools_list)
+
+          expect(response).to have_http_status(:success)
+          expect(response.parsed_body['result']).to include(
+            'resultType' => 'complete',
+            'ttlMs' => 300_000,
+            'cacheScope' => 'private',
+          )
+        end
+
+        # The counterpart: a client that came through the initialize handshake
+        # speaks a pre-2026 revision, which has no `resultType`. Such a client
+        # reads the unknown member as an error, so it must stay absent.
+        it 'leaves a legacy result unstamped' do
+          post_mcp(tools_list)
+
+          expect(response.parsed_body['result']).not_to have_key('resultType')
+        end
+
+        # Sessionless discovery (SEP-2575) lets a client probe the server
+        # before - or instead of - the initialize handshake.
         it 'answers sessionless discovery with every required member' do
           post_mcp({ jsonrpc: '2.0', id: 1, method: 'server/discover' })
 

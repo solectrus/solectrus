@@ -44,23 +44,20 @@ module McpServer
     TEXT
     private_constant :INSTRUCTIONS
 
-    # MCP revision 2026-07-28 makes the SEP-2549 cache hints required members
-    # of tools/list, but the mcp gem emits them only when they are configured
-    # here. A client on that revision rejects the whole tool list without them.
+    # The SEP-2549 cache hints of tools/list. Without them the gem falls back
+    # to the spec default `ttlMs: 0`, which tells a client not to cache at all.
     #
     # The tools are a fixed list with static descriptions, so the response only
     # ever changes with a new release. Five minutes let a client reuse it
     # within a conversation - it weighs ~30 KB - and still pick up a changed
     # list soon after an update.
-    # Public, because ResultCompliance states the same policy on the one
-    # result the gem leaves without hints.
     CACHE_TTL = 5.minutes
-    public_constant :CACHE_TTL
+    private_constant :CACHE_TTL
 
     # `private` because nothing here is shareable across operators, and because
     # it is what the TypeScript and Python SDKs default to.
     CACHE_SCOPE = 'private'.freeze
-    public_constant :CACHE_SCOPE
+    private_constant :CACHE_SCOPE
 
     def self.build(server_context: {})
       MCP::Server.new(
