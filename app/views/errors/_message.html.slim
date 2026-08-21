@@ -6,9 +6,14 @@
     == t("errors.#{status_code}.description")
 
   = c.with_footer do
+    / Break out of the frame: this partial also renders inside the `modal`
+    / frame, and neither target page contains that frame. Without `_top`
+    / Turbo empties the frame, which closes the modal and goes nowhere.
     - if status_code == 403
-      = render Button::Component.new path: new_session_path,
-                                     title: t('errors.login')
+      = render Button::Component.new path: new_session_path, \
+                                     title: t('errors.login'), \
+                                     options: { data: { turbo_frame: '_top' } }
     - else
       = render Button::Component.new path: balance_home_path, \
-                                     title: t('errors.back_to_home')
+                                     title: t('errors.back_to_home'), \
+                                     options: { data: { turbo_frame: '_top' } }
