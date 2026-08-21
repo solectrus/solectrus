@@ -86,6 +86,14 @@ module Sensor
       def process_calculated_sensors(data)
         return if calculated_sensors.empty?
 
+        # The sensors this result carries data for, as opposed to the ones the
+        # query asked for: InfluxDB leaves out a sensor it found nothing for.
+        # That is what lets a calculate block read a nil dependency -- named
+        # here, the measurement is missing; absent, the sensor contributed
+        # nothing at all. Taken before the first #store_sensor_value, which
+        # publishes the calculated sensors into the very same list.
+        @sensor_names_with_data = data.sensor_names
+
         if data.is_a?(Sensor::Data::Series)
           # Process all calculated sensors for each point once
           data.points.each { |point| process_calculated_sensors_for_point(point) }
@@ -125,7 +133,11 @@ module Sensor
       # Seam for queries that calculate sensors the generic `calculate` block
       # doesn't cover, see Helpers::Influx::FinanceCalculation.
       def calculated_value(sensor, dependency_values)
-        sensor.calculate(**dependency_values, context: query_type)
+        sensor.calculate(
+          **dependency_values,
+          context: query_type,
+          sensor_names_with_data: @sensor_names_with_data,
+        )
       end
 
       def extract_dependency_values(point, sensor)

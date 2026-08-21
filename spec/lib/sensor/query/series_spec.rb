@@ -485,4 +485,78 @@ describe Sensor::Query::Series do
       end
     end
   end
+
+  # inverter_power is calculated here (INFLUX_SENSOR_INVERTER_POWER is unset in
+  # .env.test), so it is the sum of the two individual inverters -- a big roof
+  # one and a small balcony one, the setup of issue #5857.
+  describe 'a calculated sum over inverters with independent gaps' do
+    subject(:series_query) do
+      described_class.new(
+        [:inverter_power],
+        timeframe,
+        timestamp_method: :to_time,
+        interval: 5.minutes,
+      )
+    end
+
+    let(:base_day) { Date.current + 1.day }
+    let(:timeframe) { Timeframe.new(base_day.to_s) }
+    let(:morning) { base_day.in_time_zone.change(hour: 10) }
+
+    # Right-edge stamps of the three 5-minute buckets the samples fall into.
+    def first_bucket = morning + 5.minutes
+    def gap_bucket = morning + 10.minutes
+    def last_bucket = morning + 15.minutes
+
+    def add_inverter_point(sensor_name, value, time)
+      add_influx_point(
+        name: Sensor::Config.measurement(sensor_name),
+        fields: {
+          Sensor::Config.field(sensor_name) => value,
+        },
+        time:,
+      )
+    end
+
+    before { freeze_time }
+
+    context 'when the roof inverter misses a bucket the balcony one covers' do
+      before do
+        influx_batch do
+          add_inverter_point(:inverter_power_1, 1800.0, morning + 2.minutes)
+          add_inverter_point(:inverter_power_1, 1800.0, morning + 12.minutes)
+
+          [2, 7, 12].each do |minutes|
+            add_inverter_point(:inverter_power_2, 107.0, morning + minutes.minutes)
+          end
+        end
+      end
+
+      it 'reports the gap instead of the balcony inverter alone (issue #5857)' do
+        series = series_query.call.inverter_power(:avg, :avg)
+
+        expect(series[first_bucket]).to eq(1907.0)
+        expect(series[gap_bucket]).to be_nil
+        expect(series[last_bucket]).to eq(1907.0)
+      end
+    end
+
+    context 'when the balcony inverter has no data in the timeframe at all' do
+      before do
+        influx_batch do
+          [2, 7, 12].each do |minutes|
+            add_inverter_point(:inverter_power_1, 1800.0, morning + minutes.minutes)
+          end
+        end
+      end
+
+      it 'sums the inverters that do report' do
+        series = series_query.call.inverter_power(:avg, :avg)
+
+        expect(series[first_bucket]).to eq(1800.0)
+        expect(series[gap_bucket]).to eq(1800.0)
+        expect(series[last_bucket]).to eq(1800.0)
+      end
+    end
+  end
 end
