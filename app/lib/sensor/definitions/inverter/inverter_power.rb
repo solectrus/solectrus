@@ -32,6 +32,22 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
     dependencies.any?
   end
 
+  # The single inverters that answer for a day whose own field is empty.
+  #
+  # The calculate block does that per point, which is enough while a point is
+  # a day. A SQL query that folds a whole timeframe into one number has no
+  # such point: it reads the column alone, and a column that is empty on some
+  # days drops those days out of the answer. The chart keeps them, because it
+  # groups by day and thus keeps its points, so the two disagreed.
+  #
+  # Sensor::Query::Helpers::Sql::SelectBuilder fills the column from these
+  # sensors before it aggregates.
+  def sql_fallback_sensors
+    return [] if Sensor::Config.configured?(:inverter_power)
+
+    Sensor::Config.custom_inverter_sensors.map(&:name)
+  end
+
   # Always store inverter_power in summary, whether directly measured or calculated
   aggregations stored: %i[sum max], meta: %i[sum max min avg], top10: true
 

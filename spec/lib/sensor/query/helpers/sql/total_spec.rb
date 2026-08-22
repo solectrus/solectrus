@@ -356,6 +356,14 @@ describe Sensor::Query::Helpers::Sql::Total do
           end.call.inverter_power
         end
 
+        def ungrouped_over_both_days
+          both_days = Timeframe.new("#{first_date}..#{first_date + 1.day}")
+
+          described_class.new(both_days) do |q|
+            q.sum :inverter_power, :sum
+          end.call.inverter_power
+        end
+
         it 'prefers that total, and falls back where the field is empty' do
           result = query.call.inverter_power(:sum, :sum)
 
@@ -368,6 +376,12 @@ describe Sensor::Query::Helpers::Sql::Total do
         it 'answers the same ungrouped, with the field and without' do
           expect(ungrouped_total(first_date)).to eq(99_000)
           expect(ungrouped_total(first_date + 1.day)).to eq(31_000)
+        end
+
+        # SUM skips a row where the field is empty, so a total over both days
+        # answered 99000 while the chart drew 99000 and 31000.
+        it 'counts the day without the field in a total over both' do
+          expect(ungrouped_over_both_days).to eq(99_000 + 31_000)
         end
       end
 

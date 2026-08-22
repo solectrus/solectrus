@@ -40,9 +40,53 @@ module Sensor
                 "#{calculation} AS #{final_column}"
               else
                 # Standard sensors use meta-aggregation on base columns
-                base_column = "#{sensor_name}_#{base_agg}"
-                "#{meta_agg.upcase}(#{base_column}) AS #{final_column}"
+                column = daily_column(sensor, base_agg)
+                "#{meta_agg.upcase}(#{column}) AS #{final_column}"
               end
+            end
+          end
+
+          # The daily value the meta-aggregation runs over.
+          #
+          # A grouped query keeps one row per period, so the calculate block of
+          # a sensor still sees each of them and fills the empty days itself.
+          # An ungrouped query folds every day into one number, where an empty
+          # day would simply disappear: SUM skips it, AVG does not count it.
+          # Such a sensor names what answers instead, per day, and the fallback
+          # becomes part of the column (see InverterPower#sql_fallback_sensors).
+          def daily_column(sensor, base_agg)
+            base_column = "#{sensor.name}_#{base_agg}"
+            return base_column if group_by
+
+            fallback = fallback_expression(sensor, base_agg)
+            return base_column unless fallback
+
+            "COALESCE(#{base_column}, #{fallback})"
+          end
+
+          # The sum of the fallback sensors, ignoring the ones without a value,
+          # and NULL if none of them has one - the same answer the calculate
+          # block gives for that day. `unnest` keeps that NULL handling for any
+          # number of sensors, which `a + b` would not.
+          def fallback_expression(sensor, base_agg)
+            return unless sensor.respond_to?(:sql_fallback_sensors)
+
+            columns =
+              sensor
+                .sql_fallback_sensors
+                .filter_map do |name|
+                  "#{name}_#{base_agg}" if requested?(name, base_agg)
+                end
+            return if columns.empty?
+
+            "(SELECT SUM(v) FROM unnest(ARRAY[#{columns.join(', ')}]) AS v)"
+          end
+
+          # Whether the daily CTE holds a column for this sensor, which it does
+          # for every sensor the query itself asks for.
+          def requested?(sensor_name, base_agg)
+            sensor_requests.any? do |name, _meta_agg, agg|
+              name == sensor_name && agg == base_agg
             end
           end
 
