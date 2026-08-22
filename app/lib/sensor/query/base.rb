@@ -117,7 +117,7 @@ module Sensor
 
       def process_single_calculated_sensor(point, sensor_name, sensor_names_with_data)
         sensor = Sensor::Registry[sensor_name]
-        return if sensor_has_sql_result?(point, sensor_name)
+        return if query_answered_sensor?(point, sensor_name)
 
         dependency_values = extract_dependency_values(point, sensor)
 
@@ -158,12 +158,28 @@ module Sensor
         # Dependency sensor not available (not configured or no data) - use nil
       end
 
-      def sensor_has_sql_result?(point, sensor_name)
-        # Skip if this sensor already has a SQL query result
-        # SQL queries use array keys like [:sensor_name, :meta_agg, :base_agg]
-        # This prevents overwriting SQL results with calculated results
-        point.raw_data.any? do |key, _|
-          key.is_a?(Array) && key.first == sensor_name
+      # Whether the query itself already answered for this sensor, in which
+      # case the calculate block must not overwrite that answer. An answer is
+      # keyed by aggregation, so only a SQL result and Influx::Aggregation
+      # can hold one.
+      #
+      # Series#build_points keys a point by the bare sensor name. That key is
+      # gone by the time such a point arrives here, so a series recomputes
+      # every calculated sensor. A sensor the summary stores must therefore
+      # name its own field as a dependency to get the stored value back.
+      # InverterPower.depends_on does that.
+      def query_answered_sensor?(point, sensor_name)
+        # SQL fills a column for every stored field it was asked for, NULLs
+        # included, so only a value counts as an answer. Influx fills its gaps
+        # with nil too, but there a key has to count: such a point holds one
+        # key per aggregation, and a calculate block reads a dependency
+        # without naming one, which raises as soon as there are two.
+        key_alone_counts = query_type != :sql
+
+        point.raw_data.any? do |key, value|
+          next false unless key.is_a?(Array) && key.first == sensor_name
+
+          key_alone_counts || !value.nil?
         end
       end
 

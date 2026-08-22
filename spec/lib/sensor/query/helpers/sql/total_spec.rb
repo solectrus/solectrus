@@ -337,6 +337,40 @@ describe Sensor::Query::Helpers::Sql::Total do
         end
       end
 
+      context 'when the summary stores a total of its own' do
+        before do
+          create_summary(
+            date: first_date,
+            values: [
+              [:inverter_power, :sum, 99_000],
+              [:inverter_power_1, :sum, 30_000],
+              [:inverter_power_2, :sum, 2_000],
+            ],
+          )
+          roof_only(first_date + 1.day, 31_000)
+        end
+
+        def ungrouped_total(date)
+          described_class.new(Timeframe.new(date.to_s)) do |q|
+            q.sum :inverter_power, :sum
+          end.call.inverter_power
+        end
+
+        it 'prefers that total, and falls back where the field is empty' do
+          result = query.call.inverter_power(:sum, :sum)
+
+          expect(result[first_date]).to eq(99_000)
+          expect(result[first_date + 1.day]).to eq(31_000)
+        end
+
+        # An empty field used to end the lookup, so the second day answered
+        # 31000 grouped and nil ungrouped.
+        it 'answers the same ungrouped, with the field and without' do
+          expect(ungrouped_total(first_date)).to eq(99_000)
+          expect(ungrouped_total(first_date + 1.day)).to eq(31_000)
+        end
+      end
+
       context 'when the balcony inverter misses a day in between' do
         before do
           roof_and_balcony(first_date, roof: 30_000, balcony: 2_000)

@@ -6,9 +6,21 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
 
   icon 'fa-sun'
 
-  # Conditional dependencies: only use total if inverter_power not configured
-  depends_on do
-    Sensor::Config.configured?(:inverter_power) ? [] : [:inverter_power_total]
+  # A measured inverter_power needs nothing; anything else is the sum of the
+  # single inverters.
+  #
+  # A summary already holds that sum, so a SQL query reads its own field first.
+  # It falls back to the single inverters only if that field is empty.
+  #
+  # Summing them instead answers a question the summary has already answered,
+  # and answers it differently. Sensor::SummaryBuilder counts every inverter
+  # that reported that day. A column of the same row is NULL for a day before
+  # the user added that inverter.
+  depends_on do |context: :unknown|
+    next [] if Sensor::Config.configured?(:inverter_power)
+    next %i[inverter_power inverter_power_total] if context == :sql
+
+    %i[inverter_power_total]
   end
 
   calculate do |inverter_power: nil, inverter_power_total: nil, **|
