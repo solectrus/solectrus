@@ -21,6 +21,15 @@ class Sensor::Data::Single < Sensor::Data::Base
       raw_data.keys.filter_map { |key| extract_sensor_name(key) }.uniq
   end
 
+  # The sensors that hold a value, as opposed to the ones this result merely
+  # has a key for (see Series#reporting_sensor_names for the same distinction
+  # along a time axis).
+  def sensor_names_with_values
+    raw_data
+      .filter_map { |key, value| extract_sensor_name(key) unless value.nil? }
+      .uniq
+  end
+
   def single?
     true
   end

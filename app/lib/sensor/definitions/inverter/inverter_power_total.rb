@@ -14,11 +14,14 @@ class Sensor::Definitions::InverterPowerTotal < Sensor::Definitions::Base
   # An inverter without a reading in this bucket makes the TOTAL unknown, not
   # smaller: summing the rest looks measured, so a missed sample renders as a
   # drop to the remaining inverter rather than as a gap the charts can bridge.
-  # Which inverters count comes from +sensor_names_with_data+ (see
-  # Sensor::Query::Base), not from the configuration: one added later, or one
-  # whose collector stood still all day, is absent from the result rather than
-  # nil inside it. Without that list (Sensor::SummaryBuilder) a value is the
-  # only evidence there is.
+  #
+  # That holds only for an inverter that REPORTS at this moment. One the user
+  # added later, or removed, or whose collector stood still for the whole
+  # timeframe, delivers nothing here. It must not veto the others.
+  #
+  # +sensor_names_with_data+ tells the two apart (see Sensor::Query::Base).
+  # The configuration never does. Without that list (Sensor::SummaryBuilder) a
+  # value is the only evidence there is.
   calculate do |sensor_names_with_data: nil, **kwargs|
     inverters = kwargs.select { |name, _| name.start_with?('inverter_power_') }
 

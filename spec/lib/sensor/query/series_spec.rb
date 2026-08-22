@@ -488,7 +488,7 @@ describe Sensor::Query::Series do
 
   # inverter_power is calculated here (INFLUX_SENSOR_INVERTER_POWER is unset in
   # .env.test), so it is the sum of the two individual inverters -- a big roof
-  # one and a small balcony one, the setup of issue #5857.
+  # one and a small balcony one.
   describe 'a calculated sum over inverters with independent gaps' do
     subject(:series_query) do
       described_class.new(
@@ -518,6 +518,12 @@ describe Sensor::Query::Series do
       )
     end
 
+    def add_roof_points
+      [2, 7, 12].each do |minutes|
+        add_inverter_point(:inverter_power_1, 1800.0, morning + minutes.minutes)
+      end
+    end
+
     before { freeze_time }
 
     context 'when the roof inverter misses a bucket the balcony one covers' do
@@ -532,7 +538,7 @@ describe Sensor::Query::Series do
         end
       end
 
-      it 'reports the gap instead of the balcony inverter alone (issue #5857)' do
+      it 'reports the gap instead of the balcony inverter alone' do
         series = series_query.call.inverter_power(:avg, :avg)
 
         expect(series[first_bucket]).to eq(1907.0)
@@ -544,9 +550,7 @@ describe Sensor::Query::Series do
     context 'when the balcony inverter has no data in the timeframe at all' do
       before do
         influx_batch do
-          [2, 7, 12].each do |minutes|
-            add_inverter_point(:inverter_power_1, 1800.0, morning + minutes.minutes)
-          end
+          add_roof_points
         end
       end
 
@@ -556,6 +560,24 @@ describe Sensor::Query::Series do
         expect(series[first_bucket]).to eq(1800.0)
         expect(series[gap_bucket]).to eq(1800.0)
         expect(series[last_bucket]).to eq(1800.0)
+      end
+    end
+
+    context 'when the balcony inverter starts within the timeframe' do
+      before do
+        influx_batch do
+          add_roof_points
+
+          add_inverter_point(:inverter_power_2, 107.0, morning + 12.minutes)
+        end
+      end
+
+      it 'leaves the buckets before it at the roof inverter' do
+        series = series_query.call.inverter_power(:avg, :avg)
+
+        expect(series[first_bucket]).to eq(1800.0)
+        expect(series[gap_bucket]).to eq(1800.0)
+        expect(series[last_bucket]).to eq(1907.0)
       end
     end
   end

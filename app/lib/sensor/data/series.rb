@@ -51,6 +51,26 @@ class Sensor::Data::Series < Sensor::Data::Base
       end
   end
 
+  # One list of sensor names per point, in the order of #points.
+  #
+  # A sensor counts as reporting from its first value to its last, so a nil
+  # BETWEEN those two still names it. That is the point: such a nil is a gap
+  # in a sensor that is there, and only a gap can leave a derived value
+  # unknown (see Sensor::Definitions::InverterPowerTotal). A nil before the
+  # first value or after the last names nothing, because the sensor was not
+  # there yet, or is gone.
+  #
+  # A key cannot draw that line. SQL answers with a column for every stored
+  # field it was asked for, NULLs included, so an inverter added halfway
+  # through the month looks present on every day of it.
+  def reporting_sensor_names
+    coverage = sensor_coverage
+
+    Array.new(points.size) do |index|
+      coverage.filter_map { |name, range| name if range.cover?(index) }
+    end
+  end
+
   def series?
     true
   end
@@ -63,6 +83,30 @@ class Sensor::Data::Series < Sensor::Data::Base
   end
 
   private
+
+  # The range of point indices each sensor delivers over. Grouped by sensor
+  # first, because a SQL result carries one key per aggregation and the range
+  # is the sensor's, not one key's.
+  def sensor_coverage
+    index_of = timestamps.each_with_index.to_h
+
+    raw_data
+      .group_by { |key, _| key.first }
+      .filter_map do |name, entries|
+        indices = value_indices(entries, index_of)
+        next if indices.empty?
+
+        first, last = indices.minmax
+        [name, first..last]
+      end
+      .to_h
+  end
+
+  def value_indices(entries, index_of)
+    entries.flat_map do |_, time_series|
+      time_series.filter_map { |time, value| index_of[time] unless value.nil? }
+    end
+  end
 
   def get_sensor_value(sensor_name, args)
     return get_aggregated_sensor_data(sensor_name, args) unless args.empty?

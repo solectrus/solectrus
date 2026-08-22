@@ -252,6 +252,100 @@ describe Sensor::Data::Series do
     end
   end
 
+  describe '#reporting_sensor_names' do
+    let(:jan) { Date.new(2025, 1, 1) }
+    let(:feb) { Date.new(2025, 2, 1) }
+    let(:mar) { Date.new(2025, 3, 1) }
+
+    context 'when a sensor starts and another stops mid-window' do
+      let(:series_data) do
+        {
+          %i[inverter_power_1 sum sum] => {
+            jan => 1.0,
+            feb => 2.0,
+            mar => 3.0,
+          },
+          %i[inverter_power_2 sum sum] => {
+            jan => nil,
+            feb => nil,
+            mar => 3.0,
+          },
+          %i[house_power sum sum] => {
+            jan => 1.0,
+            feb => nil,
+            mar => nil,
+          },
+        }
+      end
+
+      it 'names a sensor only from its first value to its last' do
+        expect(data.reporting_sensor_names).to eq(
+          [
+            %i[inverter_power_1 house_power],
+            %i[inverter_power_1],
+            %i[inverter_power_1 inverter_power_2],
+          ],
+        )
+      end
+    end
+
+    context 'when a sensor misses a point inside its window' do
+      let(:series_data) do
+        {
+          %i[inverter_power_1 sum sum] => {
+            jan => 1.0,
+            feb => nil,
+            mar => 3.0,
+          },
+        }
+      end
+
+      it 'keeps naming it, because that nil is a gap' do
+        expect(data.reporting_sensor_names[1]).to eq(%i[inverter_power_1])
+      end
+    end
+
+    context 'when a sensor carries only nils' do
+      let(:series_data) do
+        {
+          %i[inverter_power_1 sum sum] => {
+            jan => 1.0,
+          },
+          %i[inverter_power_2 sum sum] => {
+            jan => nil,
+          },
+        }
+      end
+
+      it 'leaves it out everywhere' do
+        expect(data.reporting_sensor_names).to eq([%i[inverter_power_1]])
+      end
+    end
+
+    # Both aggregations of one field arrive as separate keys, and the window
+    # is the sensor's, not one key's.
+    context 'with several aggregation keys for the same sensor' do
+      let(:series_data) do
+        {
+          %i[inverter_power_1 sum sum] => {
+            jan => 1.0,
+            feb => nil,
+          },
+          %i[inverter_power_1 max max] => {
+            jan => nil,
+            feb => 2.0,
+          },
+        }
+      end
+
+      it 'spans what any of them delivers' do
+        expect(data.reporting_sensor_names).to eq(
+          [%i[inverter_power_1], %i[inverter_power_1]],
+        )
+      end
+    end
+  end
+
   describe 'empty time series' do
     let(:series_data) { { %i[house_power sum sum] => {} } }
 

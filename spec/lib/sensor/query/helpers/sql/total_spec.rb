@@ -291,5 +291,67 @@ describe Sensor::Query::Helpers::Sql::Total do
         expect(result.grid_export_power).to eq(40_000)
       end
     end
+
+    # inverter_power is calculated here (INFLUX_SENSOR_INVERTER_POWER is unset
+    # in .env.test), so it is the sum of a roof and a balcony inverter. SQL
+    # answers with a column per stored field, NULLs included, so a day before
+    # the balcony inverter existed must not read as a day it missed.
+    context 'with an inverter that only covers part of the timeframe' do
+      subject(:query) do
+        described_class.new(timeframe) do |q|
+          q.sum :inverter_power, :sum
+          q.group_by :day
+        end
+      end
+
+      let(:first_date) { Rails.configuration.x.installation_date }
+      let(:timeframe) { Timeframe.new("#{first_date}..#{first_date + 2.days}") }
+
+      def roof_only(date, value)
+        create_summary(date:, values: [[:inverter_power_1, :sum, value]])
+      end
+
+      def roof_and_balcony(date, roof:, balcony:)
+        create_summary(
+          date:,
+          values: [
+            [:inverter_power_1, :sum, roof],
+            [:inverter_power_2, :sum, balcony],
+          ],
+        )
+      end
+
+      context 'when the balcony inverter is added on the last day' do
+        before do
+          roof_only(first_date, 30_000)
+          roof_only(first_date + 1.day, 32_000)
+          roof_and_balcony(first_date + 2.days, roof: 31_000, balcony: 2_000)
+        end
+
+        it 'keeps the earlier days at the roof inverter alone' do
+          result = query.call.inverter_power(:sum, :sum)
+
+          expect(result[first_date]).to eq(30_000)
+          expect(result[first_date + 1.day]).to eq(32_000)
+          expect(result[first_date + 2.days]).to eq(33_000)
+        end
+      end
+
+      context 'when the balcony inverter misses a day in between' do
+        before do
+          roof_and_balcony(first_date, roof: 30_000, balcony: 2_000)
+          roof_only(first_date + 1.day, 32_000)
+          roof_and_balcony(first_date + 2.days, roof: 31_000, balcony: 2_500)
+        end
+
+        it 'reports the gap instead of the roof inverter alone' do
+          result = query.call.inverter_power(:sum, :sum)
+
+          expect(result[first_date]).to eq(32_000)
+          expect(result[first_date + 1.day]).to be_nil
+          expect(result[first_date + 2.days]).to eq(33_500)
+        end
+      end
+    end
   end
 end

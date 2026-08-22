@@ -86,37 +86,36 @@ module Sensor
       def process_calculated_sensors(data)
         return if calculated_sensors.empty?
 
-        # The sensors this result carries data for, as opposed to the ones the
-        # query asked for: InfluxDB leaves out a sensor it found nothing for.
-        # That is what lets a calculate block read a nil dependency -- named
-        # here, the measurement is missing; absent, the sensor contributed
-        # nothing at all. Taken before the first #store_sensor_value, which
-        # publishes the calculated sensors into the very same list.
-        @sensor_names_with_data = data.sensor_names
-
         if data.is_a?(Sensor::Data::Series)
-          # Process all calculated sensors for each point once
-          data.points.each { |point| process_calculated_sensors_for_point(point) }
+          data.points.zip(data.reporting_sensor_names) do |point, names|
+            process_calculated_sensors_for_point(point, names)
+          end
 
-          # For series data, also create series-level accessors for calculated sensors
-          # This aggregates the calculated values from all points into time series
           calculated_sensors.each do |sensor_name|
             create_series_accessor_for_calculated_sensor(data, sensor_name)
           end
         else
-          # Single/Aggregation: process all calculated sensors
-          process_calculated_sensors_for_point(data)
+          # Read before the first #store_sensor_value, which publishes the
+          # calculated sensors into the very list this asks for.
+          process_calculated_sensors_for_point(
+            data,
+            data.sensor_names_with_values,
+          )
         end
       end
 
-      def process_calculated_sensors_for_point(point)
+      def process_calculated_sensors_for_point(point, sensor_names_with_data)
         # Process in dependency order - DependencyResolver already provides correct order
         calculated_sensors.each do |sensor_name|
-          process_single_calculated_sensor(point, sensor_name)
+          process_single_calculated_sensor(
+            point,
+            sensor_name,
+            sensor_names_with_data,
+          )
         end
       end
 
-      def process_single_calculated_sensor(point, sensor_name)
+      def process_single_calculated_sensor(point, sensor_name, sensor_names_with_data)
         sensor = Sensor::Registry[sensor_name]
         return if sensor_has_sql_result?(point, sensor_name)
 
@@ -126,17 +125,17 @@ module Sensor
         # depend on this value (DependencyResolver ordered them accordingly)
         point.store_sensor_value(
           sensor_name,
-          calculated_value(sensor, dependency_values),
+          calculated_value(sensor, dependency_values, sensor_names_with_data),
         )
       end
 
       # Seam for queries that calculate sensors the generic `calculate` block
       # doesn't cover, see Helpers::Influx::FinanceCalculation.
-      def calculated_value(sensor, dependency_values)
+      def calculated_value(sensor, dependency_values, sensor_names_with_data)
         sensor.calculate(
           **dependency_values,
           context: query_type,
-          sensor_names_with_data: @sensor_names_with_data,
+          sensor_names_with_data:,
         )
       end
 

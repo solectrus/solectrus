@@ -22,7 +22,7 @@ module Sensor
           # Only sensors without a calculate block need the price-based
           # calculation; total_costs is a FinanceBase sensor that carries one
           # and is summed from its dependencies like any other.
-          def calculated_value(sensor, dependency_values)
+          def calculated_value(sensor, dependency_values, sensor_names_with_data)
             return super if sensor.calculated?
 
             sensor.calculate_with_prices(**dependency_values, prices:)
