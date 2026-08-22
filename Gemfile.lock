@@ -425,13 +425,17 @@ GEM
       lint_roller (~> 1.1)
       rubocop (~> 1.72, >= 1.72.1)
       rubocop-ast (>= 1.44.0, < 2.0)
-    rubocop-view_component (0.6.0)
+    rubocop-view_component (0.7.0)
       activesupport
       herb
       lint_roller (~> 1.1)
       parser
-      rubocop (>= 1.72.2)
+      rubocop (>= 1.89.0)
+      rubydex
     ruby-progressbar (1.13.0)
+    rubydex (0.3.0-aarch64-linux)
+    rubydex (0.3.0-arm64-darwin)
+    rubydex (0.3.0-x86_64-linux)
     securerandom (0.4.1)
     shellany (0.0.1)
     shoulda-matchers (8.0.1)
