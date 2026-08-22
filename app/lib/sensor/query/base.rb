@@ -192,39 +192,19 @@ module Sensor
       end
 
       # Create a series-level accessor for a calculated sensor: the value each
-      # point computed, keyed by the instant that point was built for.
-      #
-      # The instants come from the Series itself rather than being derived
-      # again from raw_data. Both derivations produced the same list, but they
-      # sat in different files with nothing tying them together - and since a
-      # mismatch would have kept the same LENGTH, it would have moved every
-      # calculated value onto a neighbouring timestamp instead of failing.
+      # point computed, keyed by the instant that point was built for. Series
+      # pairs the two itself, see its #timestamps.
       def create_series_accessor_for_calculated_sensor(data, sensor_name)
         data.define_singleton_method(sensor_name) do |*|
-          points
-            .each_with_index
-            .with_object({}) do |(point, index), time_series|
-              next unless point.respond_to?(sensor_name) && index < timestamps.size
-
-              time_series[timestamps[index]] = point.public_send(sensor_name)
-            end
+          points.zip(timestamps).to_h do |point, time|
+            [time, point.public_send(sensor_name)]
+          end
         end
       end
 
       # Common empty result method - can be overridden by subclasses
       def empty_result
         {}
-      end
-
-      # Check if data contains aggregation structures
-      def contains_aggregation_data?(data)
-        return false unless data.is_a?(Hash)
-
-        aggregation_keys = %i[sum min max avg]
-        data.any? do |key, value|
-          key != :timestamp && value.is_a?(Hash) &&
-            value.keys.intersect?(aggregation_keys)
-        end
       end
 
       # Default query type - subclasses should override
