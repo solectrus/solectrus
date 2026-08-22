@@ -41,12 +41,6 @@ module Sensor
           forecast_data.select { |timestamp, _| today?(timestamp) }
       end
 
-      def future_forecast_power_expected?
-        today_entries.any? do |timestamp, value|
-          future?(timestamp) && positive?(value)
-        end
-      end
-
       def today?(timestamp)
         timestamp.to_date == Date.current
       end

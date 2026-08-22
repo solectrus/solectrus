@@ -271,8 +271,4 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def tiny?
     percent < 0.3
   end
-
-  def number_method
-    now? ? :to_watt : :to_watt_hour
-  end
 end

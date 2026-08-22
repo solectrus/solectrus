@@ -5,4 +5,10 @@ require 'bundler/setup'
 # Explicit RuboCop config increases performance slightly while avoiding config confusion.
 ARGV.unshift('--config', File.expand_path('../.rubocop.yml', __dir__))
 
+# A cop that raises is reported on stderr and then ignored: RuboCop still exits
+# 0, so CI stays green while the cop inspects nothing. That hid a whole plugin
+# for a release (rubocop-view_component needs AllCops/UseProjectIndex). Turn
+# such an error into a failure instead.
+ARGV.unshift('--raise-cop-error')
+
 load Gem.bin_path('rubocop', 'rubocop')

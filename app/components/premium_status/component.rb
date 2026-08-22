@@ -56,7 +56,7 @@ class PremiumStatus::Component < ViewComponent::Base
   private_constant :LINKS
 
   def render?
-    SILENT_REASONS.exclude?(::PremiumStatus.reason)
+    SILENT_REASONS.exclude?(PremiumStatus.reason)
   end
 
   def title
@@ -95,7 +95,7 @@ class PremiumStatus::Component < ViewComponent::Base
   private
 
   def build_countdown
-    ends_at = ::PremiumStatus.ends_at
+    ends_at = PremiumStatus.ends_at
     return unless ends_at
 
     days_left = (ends_at.to_date - Date.current).to_i.clamp(0..)
@@ -111,7 +111,7 @@ class PremiumStatus::Component < ViewComponent::Base
   end
 
   def granted_scenario
-    reason = ::PremiumStatus.reason
+    reason = PremiumStatus.reason
     return unless reason
 
     KNOWN_REASONS.include?(reason) ? reason : :granted
@@ -121,7 +121,7 @@ class PremiumStatus::Component < ViewComponent::Base
   # update server answered "no", or it did not answer at all. Only the first
   # one is about the installation, and only the first one can be acted on.
   def locked_scenario
-    return :offline if ::PremiumStatus.unknown?
+    return :offline if PremiumStatus.unknown?
 
     trial_offer? ? :locked_with_trial : :locked
   end
@@ -132,7 +132,7 @@ class PremiumStatus::Component < ViewComponent::Base
   def trial_offer?
     return @trial_offer if defined?(@trial_offer)
 
-    @trial_offer = helpers.admin? && ::PremiumStatus.trial_available?
+    @trial_offer = helpers.admin? && PremiumStatus.trial_available?
   end
 
   def scope

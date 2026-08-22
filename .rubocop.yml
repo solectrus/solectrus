@@ -10,6 +10,10 @@ plugins:
 
 AllCops:
   TargetRubyVersion: 4.0
+  # Required by rubocop-view_component >= 0.7: its cops resolve a class to its
+  # ancestors instead of matching the file path, and they raise without the
+  # index. Every `class` node in the project errors otherwise.
+  UseProjectIndex: true
   Exclude:
     - app/frontend/**/*
     - bin/**/*
@@ -265,6 +269,14 @@ Lint/ConstantResolution:
   Enabled: false
 
 Lint/NumberConversion:
+  Enabled: false
+
+# RuboCop reads Ruby, and a ViewComponent calls most of its private methods
+# from the Slim template next to it. A controller reaches them through
+# `helper_method`, a helper through a turbo_stream template. The cop sees none
+# of that: it reported eleven methods, nine of which are in daily use. The
+# other two were really dead and are gone, so nothing is hidden here.
+Lint/UnusedPrivateMethod:
   Enabled: false
 
 # RSpec
