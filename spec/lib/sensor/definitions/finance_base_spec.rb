@@ -81,6 +81,85 @@ describe Sensor::Definitions::FinanceBase do
     end
   end
 
+  # One declaration, read by both backends: #with_base_fee_sql builds the SQL
+  # term from it, #with_base_fee the InfluxDB one. Thus a sensor cannot bill the
+  # fee in SQL and forget it in InfluxDB.
+  describe 'base fee' do
+    it 'is carried by no sensor unless it says so' do
+      expect(instance).not_to be_carries_base_fee
+      expect(instance.with_base_fee(1.0, 2)).to eq(1.0)
+    end
+
+    context 'with the fee on its own' do
+      subject(:sensor) { Sensor::Registry[:grid_base_fee] }
+
+      it 'declares it' do
+        expect(sensor).to be_carries_base_fee
+      end
+
+      it 'reads the daily column in SQL' do
+        expect(sensor.sql_calculation).to eq('COALESCE(pb_base_fee_per_day, 0)')
+      end
+
+      it 'is the fee alone' do
+        expect(sensor.with_base_fee(nil, 2)).to eq(2)
+      end
+    end
+
+    # The house carries the fee on top of its energy costs. A missing reading
+    # cancels the energy costs but not the fee, in both backends alike.
+    context 'with a consumer that carries the fee' do
+      subject(:sensor) { Sensor::Registry[:house_costs_grid] }
+
+      it 'declares it' do
+        expect(sensor).to be_carries_base_fee
+      end
+
+      it 'adds the daily column in SQL, and keeps it where the energy is NULL' do
+        energy = 'house_power_grid_sum * pb_money_per_kwh / 1000.0'
+
+        expect(sensor.sql_calculation).to eq(
+          "COALESCE(#{energy} + pb_base_fee_per_day, #{energy}, pb_base_fee_per_day)",
+        )
+      end
+
+      it 'adds the whole fee to a value' do
+        expect(sensor.with_base_fee(1.0, 2)).to eq(3.0)
+      end
+
+      it 'keeps the fee without a value' do
+        expect(sensor.with_base_fee(nil, 2)).to eq(2)
+      end
+
+      it 'keeps a gap a gap without a fee' do
+        expect(sensor.with_base_fee(nil, 0)).to be_nil
+      end
+    end
+
+    # The fee does not grow with the consumption, so the other consumers carry
+    # none of it.
+    it 'is carried by no other consumer' do
+      %i[heatpump_costs_grid wallbox_costs_grid].each do |name|
+        sensor = Sensor::Registry[name]
+
+        expect(sensor).not_to be_carries_base_fee
+        expect(sensor.sql_calculation).not_to include('pb_base_fee_per_day')
+        expect(sensor.with_base_fee(1.0, 2)).to eq(1.0)
+      end
+    end
+
+    # A composed sensor inherits the fee from the sensors it splices, so it must
+    # not declare one of its own.
+    it 'is inherited by a composed sensor' do
+      %i[grid_costs total_costs].each do |name|
+        sensor = Sensor::Registry[name]
+
+        expect(sensor).not_to be_carries_base_fee
+        expect(sensor.sql_calculation).to include('pb_base_fee_per_day')
+      end
+    end
+  end
+
   describe 'abstract methods' do
     let(:base_instance) { described_class.new }
 
