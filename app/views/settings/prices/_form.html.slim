@@ -4,10 +4,15 @@
   = f.group do
     = f.date_field :starts_at,
                    autofocus: true
-    = f.number_field :value,
+    = f.number_field :amount_per_kwh,
                      in: 0..2,
                      step: '0.00001',
                      label: t("activerecord.attributes.price.#{price.name}_amount", currency: Currency.symbol)
+    - if price.electricity?
+      = f.number_field :amount_per_month,
+                       in: 0..999,
+                       step: '0.01',
+                       label: t('activerecord.attributes.price.electricity_amount_per_month', currency: Currency.symbol)
     = f.text_field :note
 
   .flex.items-center.justify-end
