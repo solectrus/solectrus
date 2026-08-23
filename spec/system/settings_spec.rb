@@ -117,7 +117,7 @@ describe 'Settings' do
 
         # Fill out the form, save and check if the price is listed
         fill_in 'price_starts_at', with: '2023-01-01'
-        fill_in 'price_value', with: '0.1234'
+        fill_in 'price_amount_per_kwh', with: '0.1234'
         fill_in 'price_note', with: 'Das ist ein Test'
         within('dialog') { click_on 'Speichern' }
         within '#list' do
@@ -128,12 +128,12 @@ describe 'Settings' do
 
         # Edit the price and try to save with empty price value
         click_on 'Bearbeiten', match: :first
-        fill_in 'price_value', with: ''
+        fill_in 'price_amount_per_kwh', with: ''
         within('dialog') { click_on 'Speichern' }
         expect(page).to have_text('muss ausgefüllt werden')
 
         # Change the price value and check if the price is updated
-        fill_in 'price_value', with: '0.5678'
+        fill_in 'price_amount_per_kwh', with: '0.5678'
         within('dialog') { click_on 'Speichern' }
         within '#list' do
           expect(page).to have_text('0,5678 €')

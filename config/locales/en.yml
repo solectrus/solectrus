@@ -269,7 +269,7 @@ en:
       edit: Edit price
       new: Add price
       description:
-        electricity: Price per kWh consumed, paid to the electricity supplier. Changes regularly, usually annually.
+        electricity: Charge paid to the electricity supplier, split into a rate per kWh consumed and a monthly base fee. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
     cash_flows:
       name: Cash flows
@@ -350,9 +350,14 @@ en:
           electricity: Electricity price
           feed_in: Feed-in
         starts_at: Effective from
-        value: Amount
+        amount_per_kwh: Amount
+        amounts_per_kwh:
+          electricity: Unit rate
+          feed_in: Unit rate
+        amount_per_month: Base fee
         note: Note
         electricity_amount: Rate in %{currency}/kWh
+        electricity_amount_per_month: Base fee in %{currency}/month
         feed_in_amount: Rate in %{currency}/kWh
       cash_flow:
         date: Date

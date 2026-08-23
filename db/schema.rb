@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_060000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_20_060000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -41,6 +41,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_060000) do
   end
 
   create_table "prices", force: :cascade do |t|
+    t.decimal "amount_per_month", precision: 8, scale: 2
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.string "note"

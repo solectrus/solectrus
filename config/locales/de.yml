@@ -269,7 +269,7 @@ de:
       edit: Preis bearbeiten
       new: Neuer Preis
       description:
-        electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
+        electricity: An den Stromversorger zu zahlendes Entgelt, aufgeteilt in Arbeitspreis pro bezogene kWh und monatlichen Grundpreis. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
     cash_flows:
       name: Zahlungen
@@ -350,9 +350,14 @@ de:
           electricity: Strompreis
           feed_in: Einspeisung
         starts_at: Gültig ab
-        value: Betrag
+        amount_per_kwh: Betrag
+        amounts_per_kwh:
+          electricity: Arbeitspreis
+          feed_in: Vergütungssatz
+        amount_per_month: Grundpreis
         note: Notiz
         electricity_amount: Arbeitspreis in %{currency}/kWh
+        electricity_amount_per_month: Grundpreis in %{currency}/Monat
         feed_in_amount: Vergütungssatz in %{currency}/kWh
       cash_flow:
         date: Datum
