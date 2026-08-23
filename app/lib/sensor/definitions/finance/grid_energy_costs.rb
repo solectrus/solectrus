@@ -7,6 +7,11 @@
 class Sensor::Definitions::GridEnergyCosts < Sensor::Definitions::FinanceBase
   value
 
+  # The larger half of grid_costs, so it keeps the color of that sum: a bar
+  # split into its two parts still reads as the grid costs it was before.
+  color background: 'bg-sensor-costs',
+        text: 'text-white dark:text-red-200'
+
   depends_on :grid_import_power
 
   aggregations stored: false, computed: [:sum], meta: [:sum]
