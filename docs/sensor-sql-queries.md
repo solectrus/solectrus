@@ -412,7 +412,8 @@ WITH price_ranges AS (
     name,
     starts_at,
     LEAD(starts_at, 1, 'infinity'::date) OVER (PARTITION BY name ORDER BY starts_at) AS next_start,
-    value::numeric AS money_per_kwh
+    value::numeric AS money_per_kwh,
+    amount_per_month::numeric AS money_per_month
   FROM prices
   WHERE name IN ('electricity','feed_in')
 ),
@@ -430,6 +431,7 @@ daily AS (
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'heatpump_power')     AS heatpump_power_sum,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'wallbox_power')      AS wallbox_power_sum,
     MAX(pb.money_per_kwh) AS pb_money_per_kwh,
+    MAX(pb.money_per_month) / EXTRACT(DAY FROM (date_trunc('month', sv.date) + INTERVAL '1 month - 1 day')) AS pb_base_fee_per_day,
     MAX(pf.money_per_kwh) AS pf_money_per_kwh
   FROM summary_values sv
 
@@ -453,7 +455,7 @@ SELECT
   AVG(case_temp_min)       AS case_temp_avg_min,
   AVG(case_temp_max)       AS case_temp_avg_max,
   SUM(COALESCE(grid_export_power_sum,0) * pf_money_per_kwh / 1000.0) AS grid_revenue_sum_sum,
-  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0) AS traditional_costs_sum_sum
+  SUM(COALESCE((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0 + pb_base_fee_per_day, (COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0, pb_base_fee_per_day)) AS traditional_costs_sum_sum
 FROM daily
 ```
 
@@ -544,7 +546,8 @@ WITH price_ranges AS (
     name,
     starts_at,
     LEAD(starts_at, 1, 'infinity'::date) OVER (PARTITION BY name ORDER BY starts_at) AS next_start,
-    value::numeric AS money_per_kwh
+    value::numeric AS money_per_kwh,
+    amount_per_month::numeric AS money_per_month
   FROM prices
   WHERE name IN ('electricity','feed_in')
 ),
@@ -562,6 +565,7 @@ daily AS (
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'house_power')        AS house_power_sum,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'wallbox_power')      AS wallbox_power_sum,
     MAX(pb.money_per_kwh)                                                                   AS pb_money_per_kwh,
+    MAX(pb.money_per_month) / EXTRACT(DAY FROM (date_trunc('month', sv.date) + INTERVAL '1 month - 1 day')) AS pb_base_fee_per_day,
     MAX(pf.money_per_kwh)                                                                   AS pf_money_per_kwh
   FROM summary_values sv
 
@@ -590,7 +594,7 @@ SELECT
   SUM(heatpump_power_sum)    AS heatpump_power_sum_sum,
   SUM(house_power_sum)       AS house_power_sum_sum,
   SUM(wallbox_power_sum)     AS wallbox_power_sum_sum,
-  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0) AS traditional_costs_sum_sum
+  SUM(COALESCE((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0 + pb_base_fee_per_day, (COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0, pb_base_fee_per_day)) AS traditional_costs_sum_sum
 
 FROM daily
 

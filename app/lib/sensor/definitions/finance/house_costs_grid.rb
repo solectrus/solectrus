@@ -1,20 +1,17 @@
 class Sensor::Definitions::HouseCostsGrid < Sensor::Definitions::FinanceBase
-  depends_on :house_power_grid
+  include Sensor::Definitions::ConsumerGridCosts
 
-  def required_prices
-    [:electricity]
+  def power_sensor
+    :house_power_grid
   end
 
-  def sql_calculation
-    'house_power_grid_sum * pb_money_per_kwh / 1000.0'
-  end
-
-  def calculate_with_prices(house_power_grid:, prices:)
-    return unless house_power_grid
-
-    electricity_price = prices[:electricity]
-    return unless electricity_price
-
-    house_power_grid * electricity_price / 1000.0
+  # The house carries the whole base fee: the household is what the grid
+  # connection is for, and the fee is due without a heat pump or a wallbox.
+  #
+  # Only where grid_base_fee exists, which is where the grid meter is. Without
+  # it grid_costs has no fee either, and the per-consumer costs would no longer
+  # add up to it.
+  def carries_base_fee?
+    Sensor::Config.exists?(:grid_base_fee)
   end
 end

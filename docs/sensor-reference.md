@@ -605,7 +605,7 @@ The `sql_calculation` method returns only the **SELECT expression** (not complet
 ```sql
 -- Automatically generated from sql_calculation
 SELECT
-  COALESCE(grid_import_power_sum,0) * pb_money_per_kwh / 1000.0 AS grid_costs
+  COALESCE(grid_export_power_sum,0) * pf_money_per_kwh / 1000.0 AS grid_revenue
 FROM ...
 WHERE timeframe = ...
 ```
@@ -615,6 +615,7 @@ WHERE timeframe = ...
 - `{sensor}_sum`, `{sensor}_max`, `{sensor}_min`, `{sensor}_avg` - Aggregated sensor values
 - `pb_money_per_kwh` - Electricity Price (purchase price)
 - `pf_money_per_kwh` - Feed-in Price (feed-in tariff)
+- `pb_base_fee_per_day` - The part of the monthly base fee that falls on this day
 
 ### InfluxDB Calculation
 
@@ -628,14 +629,71 @@ The `calculate_with_prices` method receives:
 **Returns:** Calculated value in the configured currency
 
 ```ruby
-def calculate_with_prices(grid_import_power:, prices:)
-  return unless grid_import_power
+def calculate_with_prices(grid_export_power:, prices:)
+  return unless grid_export_power
 
-  electricity_price = prices[:electricity]
-  return unless electricity_price
+  feed_in_price = prices[:feed_in]
+  return unless feed_in_price
 
   # Convert Wh to kWh and multiply by price
-  grid_import_power * electricity_price / 1000.0
+  grid_export_power * feed_in_price / 1000.0
+end
+```
+
+### Base Fee
+
+The electricity tariff has two parts. The rate per kWh depends on the energy that you use. The base fee is a fixed monthly amount for the grid connection. The grid costs are the sum of the two:
+
+```
+grid_costs = grid_energy_costs + grid_base_fee
+```
+
+Each half is a sensor of its own, and `grid_costs` is composed from them. Thus the breakdown in the tooltip reads the numbers that the sum is made of, and it cannot drift away from the number that it splits. `savings`, `solar_price`, and `total_costs` splice the `sql_calculation` of `grid_costs`, so they get both halves with it.
+
+A sensor carries the complete fee or no part of it. The fee does not change with the consumption, so a share of it would bill a consumer for costs that it does not cause. A sensor declares one time that it carries the fee, with `carries_base_fee?`. The default is `false`.
+
+Both backends read that one declaration, so a sensor cannot bill the fee in SQL and forget it in InfluxDB:
+
+- In SQL, `with_base_fee_sql` puts the term into the `sql_calculation`.
+- In the InfluxDB paths, `FinanceBase#with_base_fee` adds the fee to the result of `calculate_with_prices`. The query does this, not the sensor, so `calculate_with_prices` prices the energy alone.
+
+Three sensors carry the fee:
+
+- `grid_base_fee` is one of the two halves of `grid_costs`. The tooltip shows it as a row of its own.
+- `traditional_costs` compares the costs without PV. The fee is on the bill with or without PV, so it cancels out in `savings` and does not change the amortization.
+- `house_costs_grid` carries the fee for the household. The household is the reason for the grid connection, and a heat pump or a wallbox does not make the fee higher. Thus `heatpump_costs_grid`, `wallbox_costs_grid`, and the custom consumers price their energy alone. The costs per consumer still add up to `grid_costs`.
+
+The house carries the fee only if `grid_base_fee` exists, which requires a grid meter. Without a grid meter, `grid_costs` has no fee, and the house has none either.
+
+On the house page, `house_without_custom_costs` splits the house costs by power. No custom consumer carries a part of the fee, so this split applies to the energy costs alone, and the rest of the house keeps the complete fee.
+
+A missing reading cancels the energy costs, but not the fee. The grid connection costs the same amount if the meter stops. If there is no fee either, the value stays `nil`, and a gap in the data still reads as a gap. In SQL, `with_base_fee_sql` gives the same result with `COALESCE(energy + fee, energy, fee)`.
+
+Each backend gets the fee in the unit that its own values have:
+
+| Backend         | Column or value       | What it contains                                                  |
+| --------------- | --------------------- | ----------------------------------------------------------------- |
+| SQL             | `pb_base_fee_per_day` | The share of one day, because one row of the daily CTE is one day |
+| `Influx::Total` | `BaseFee.for`         | The amount for the whole timeframe, because the values are energy |
+| `Series`        | `BaseFee.per_hour`    | The amount per hour, because the values are power                 |
+
+```ruby
+# The house, from Sensor::Definitions::HouseCostsGrid
+def carries_base_fee?
+  Sensor::Config.exists?(:grid_base_fee)
+end
+
+# Every consumer, from Sensor::Definitions::ConsumerGridCosts
+def sql_calculation
+  with_base_fee_sql("#{power_sensor}_sum * pb_money_per_kwh / 1000.0")
+end
+
+def calculate_with_prices(prices:, **values)
+  electricity_price = prices[:electricity]
+  power = values[power_sensor]
+  return unless electricity_price && power
+
+  power * electricity_price / 1000.0
 end
 ```
 
@@ -646,6 +704,7 @@ end
 - `to_kwh(wh_expression)` → Converts Wh to kWh (for SQL)
 - `greatest(expression, fallback)` → GREATEST SQL function
 - `coalesce(expression, fallback)` → COALESCE SQL function
+- `with_base_fee_sql(expression)` → the expression plus the base fee of one day, if the sensor carries the fee
 
 ### Finance Sensor as Dependency
 

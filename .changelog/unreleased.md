@@ -18,6 +18,8 @@ Keep every section, an empty one included.
 
 ## New features
 
+- Prices: an electricity tariff can carry a base fee for the grid connection now. It is prorated by day, so a day, a week and a month each show the part that falls on it, and the grid costs contain it. The house costs carry the base fee. The costs of the heat pump, the wallbox and the other consumers do not, because they do not make the fee higher (#2560)
+
 ## Improvements
 
 - Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form

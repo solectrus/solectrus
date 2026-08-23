@@ -35,7 +35,8 @@ module Sensor
                   name,
                   starts_at,
                   LEAD(starts_at, 1, 'infinity'::date) OVER (PARTITION BY name ORDER BY starts_at) AS next_start,
-                  value::numeric AS money_per_kwh
+                  value::numeric AS money_per_kwh,
+                  amount_per_month::numeric AS money_per_month
                 FROM prices
                 WHERE name IN (#{price_names})
               ),
@@ -103,11 +104,30 @@ module Sensor
             columns = []
             if required_prices.include?(:electricity)
               columns << 'MAX(pb.money_per_kwh) AS pb_money_per_kwh'
+              columns << base_fee_column
             end
             if required_prices.include?(:feed_in)
               columns << 'MAX(pf.money_per_kwh) AS pf_money_per_kwh'
             end
             columns
+          end
+
+          # The share of the monthly base fee that falls on this day: the
+          # monthly amount divided by the length of its month. Over a full
+          # month the shares add up to exactly the monthly amount, over a
+          # partial one they prorate by day. BaseFee applies the same rule in the
+          # InfluxDB path.
+          #
+          # MAX is no maximum: join and GROUP BY share the key sv.date, so a
+          # group holds one price row only. PostgreSQL just wants an aggregate
+          # around a column outside the GROUP BY, as the money_per_kwh line
+          # above does.
+          def base_fee_column
+            <<~SQL.squish
+              MAX(pb.money_per_month)
+                / EXTRACT(DAY FROM (date_trunc('month', sv.date) + INTERVAL '1 month - 1 day'))
+                AS #{Sensor::Definitions::FinanceBase::BASE_FEE_COLUMN}
+            SQL
           end
 
           def build_join_clauses
