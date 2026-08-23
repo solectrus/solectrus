@@ -21,14 +21,32 @@ module Sensor
 
           # Only sensors without a calculate block need the price-based
           # calculation; total_costs is a FinanceBase sensor that carries one
-          # and is summed from its dependencies like any other.
+          # and is summed from its dependencies like any other -- base fee
+          # included, because grid_costs, which it sums, already contains it.
           def calculated_value(sensor, dependency_values, sensor_names_with_data)
             return super if sensor.calculated?
 
-            sensor.calculate_with_prices(**dependency_values, prices:)
+            value = sensor.calculate_with_prices(**dependency_values, prices:)
+            sensor.with_base_fee(value, base_fee)
           end
 
           private
+
+          # The base fee that belongs to a single data point. Read from the
+          # declarations alone, like #prices: a query whose sensors carry no
+          # fee - a feed-in chart, say - never touches the price table for it.
+          def base_fee
+            @base_fee ||=
+              finance_sensors.any?(&:carries_base_fee?) ? base_fee_for(timeframe) : 0
+          end
+
+          # The fee in the unit of the values the query hands to the sensors.
+          # This one integrates power into energy for the whole timeframe, so
+          # the fee is the amount for that timeframe; Series works on power and
+          # overrides with a rate.
+          def base_fee_for(timeframe)
+            BaseFee.for(timeframe)
+          end
 
           # Loaded once per query, and only the price types the involved sensors
           # actually declare: a pure grid_costs query has no business reading the
