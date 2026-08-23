@@ -155,4 +155,33 @@ describe BaseFee do
       expect(per_hour('2025-01')).to be_zero
     end
   end
+
+  # Asked by callers that split a value into fee and energy, before they build
+  # the second half.
+  describe '.any?' do
+    it 'is false without any electricity price' do
+      expect(described_class).not_to be_any
+    end
+
+    it 'is false for a tariff that has no base fee' do
+      create_price('2024-01-01')
+
+      expect(described_class).not_to be_any
+    end
+
+    it 'is true once a record carries a base fee' do
+      create_price('2024-01-01', 12)
+
+      expect(described_class).to be_any
+    end
+
+    # A record without an amount cancels an older one, but the history still
+    # holds a fee, so the split stays meaningful for the older dates.
+    it 'is true where only an older record carries a base fee' do
+      create_price('2024-01-01', 12)
+      create_price('2025-01-01')
+
+      expect(described_class).to be_any
+    end
+  end
 end

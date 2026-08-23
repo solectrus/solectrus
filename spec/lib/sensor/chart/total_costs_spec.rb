@@ -36,16 +36,63 @@ describe Sensor::Chart::TotalCosts do
 
     # grid costs:        500 * 0.4 / 1000 = 0.20
     # opportunity costs: (2000 - 800) * 0.1 / 1000 = 0.12
-    it 'adds grid costs and opportunity costs' do
-      values = chart.data[:datasets].first[:data].compact
+    it 'stacks grid costs and opportunity costs' do
+      grid_costs, opportunity_costs = chart.data[:datasets]
 
-      expect(values).to all(be_within(0.0001).of(0.32))
+      expect(grid_costs[:id]).to eq('grid_costs')
+      expect(opportunity_costs[:id]).to eq('opportunity_costs')
+
+      # The segments share one timestamp grid, so they are read in pairs. Only
+      # the grid side reports a gap as nil: opportunity_costs counts a missing
+      # reading as no self-consumption, which is zero rather than unknown.
+      pairs =
+        grid_costs[:data]
+          .zip(opportunity_costs[:data])
+          .reject { |grid, _pv| grid.nil? }
+
+      expect(pairs).to be_present
+      expect(pairs.map(&:first)).to all(be_within(0.0001).of(0.2))
+      expect(pairs.map(&:second)).to all(be_within(0.0001).of(0.12))
+    end
+
+    it 'stacks every segment onto one bar' do
+      stacks = chart.data[:datasets].pluck(:stack)
+
+      expect(stacks).to all(eq('TotalCosts'))
     end
 
     it 'produces Float values' do
-      values = chart.data[:datasets].first[:data].compact
+      values =
+        chart.data[:datasets].flat_map { |dataset| dataset[:data] }.compact
 
       expect(values).to all(be_a(Float))
+    end
+
+    context 'with a base fee' do
+      before do
+        Price.delete_all
+        Price.electricity.create!(
+          starts_at: 1.year.ago.to_date,
+          amount_per_kwh: 0.4,
+          amount_per_month: 12,
+        )
+      end
+
+      # The grid costs contribute their own split, so the bar carries the same
+      # parts ConsumeDetails::Component breaks the sum into.
+      it 'splits the grid side into base fee and energy costs' do
+        base_fee, energy_costs, opportunity_costs = chart.data[:datasets]
+
+        expect(base_fee[:id]).to eq('grid_base_fee')
+        expect(energy_costs[:id]).to eq('grid_energy_costs')
+        expect(opportunity_costs[:id]).to eq('opportunity_costs')
+      end
+
+      it 'keeps every segment on one stack' do
+        stacks = chart.data[:datasets].pluck(:stack)
+
+        expect(stacks).to all(eq('TotalCosts'))
+      end
     end
   end
 end
