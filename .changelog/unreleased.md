@@ -30,7 +30,7 @@ Keep every section, an empty one included.
 - The sponsorship page now tells you how to close it: with "Maybe later", after you log in as administrator. An update no longer brings the page back
 - In dark mode, red and green text is easier to read, for example amounts, trends and error messages. It has the color of the matching bar in the balance
 - AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
-- Grid costs: the tooltip names the energy costs and the base fee separately, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
+- Grid costs: the tooltip names the energy costs and the base fee separately, and the cost chart stacks the two, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
 - Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
 
 ## Fixes

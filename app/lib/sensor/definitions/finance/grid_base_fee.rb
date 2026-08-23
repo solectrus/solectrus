@@ -7,6 +7,11 @@
 class Sensor::Definitions::GridBaseFee < Sensor::Definitions::FinanceBase
   value
 
+  # A darker shade of the costs color: the fee is a part of grid_costs, and the
+  # chart stacks it below the energy costs.
+  color background: 'bg-sensor-base-fee',
+        text: 'text-white dark:text-red-200'
+
   # The fee buys the grid connection, so it is reported where the grid meter is.
   depends_on :grid_import_power
 
