@@ -821,7 +821,7 @@ describe AmortizationCalculator do
       # maximum untouched. Stamp it explicitly to reproduce what an edit does.
       Price
         .find_by!(name: :electricity)
-        .update!(value: 0.5, updated_at: Price.maximum(:updated_at) + 1.second)
+        .update!(amount_per_kwh: 0.5, updated_at: Price.maximum(:updated_at) + 1.second)
 
       expect(described_class.result.operating_cashflow).not_to eq(before_change)
     end

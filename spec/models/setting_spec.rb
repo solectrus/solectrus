@@ -34,7 +34,7 @@ describe Setting do
 
     context 'when there is a price' do
       before do
-        Price.electricity.create! value: 0.30,
+        Price.electricity.create! amount_per_kwh: 0.30,
                                   created_at: Time.zone.at(42),
                                   starts_at: Time.current
       end
