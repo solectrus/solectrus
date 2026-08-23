@@ -10,7 +10,11 @@ describe Sensor::Query::Series do
     subject(:result) { series_query.call }
 
     before do
-      freeze_time
+      # Pinned to a date in mid-month, not merely frozen: a window that reaches
+      # over midnight into another month falls on two days that divide the
+      # monthly base fee by a different number of days, and the hourly share is
+      # then neither of the two.
+      travel_to Time.zone.local(2025, 3, 15, 12, 0)
 
       # Setup test data with house_power and heatpump_power (which should be subtracted)
       influx_batch do
@@ -106,6 +110,53 @@ describe Sensor::Query::Series do
 
       it 'returns empty result' do
         expect(result).to eq({})
+      end
+    end
+
+    # A data point of a finance sensor is a rate here, not an amount: it comes
+    # from a power reading. The base fee therefore joins as a rate as well, and
+    # the same amount lands on every bucket.
+    context 'with a base fee' do
+      subject(:series_query) do
+        described_class.new(%i[grid_import_power grid_costs], timeframe)
+      end
+
+      let(:timeframe) { Timeframe.new('P2H') }
+
+      before do
+        Price.delete_all
+        Price.create!(
+          name: :electricity,
+          amount_per_kwh: 0.30,
+          amount_per_month: 30,
+          starts_at: 1.year.ago.to_date,
+        )
+
+        influx_batch do
+          [90, 60].each do |minutes_ago|
+            add_influx_point(
+              name: Sensor::Config.measurement(:grid_import_power),
+              fields: {
+                Sensor::Config.field(:grid_import_power) => 1000.0,
+              },
+              time: minutes_ago.minutes.ago,
+            )
+          end
+        end
+      end
+
+      it 'adds the hourly share of the base fee to every data point' do
+        hourly_fee = 30.0 / Date.current.end_of_month.day / 24
+        power = result.grid_import_power(:avg, :avg).values
+        costs = result.grid_costs(:avg, :avg).values
+
+        # A bucket without a reading draws nothing, but the connection it pays
+        # for is there all the same, so the fee falls due on it as well.
+        expected =
+          power.map { |watt| (watt.to_f * 0.30 / 1000.0) + hourly_fee }
+
+        expect(power.compact).not_to be_empty
+        expect(costs).to match(expected.map { |value| be_within(0.0001).of(value) })
       end
     end
 

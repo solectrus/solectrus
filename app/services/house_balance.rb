@@ -102,14 +102,19 @@ class HouseBalance
   end
 
   # Grid costs for "other consumers" (house without custom sensors)
-  # Calculated proportionally: house_power_without_custom / house_power * house_costs_grid
+  # The energy costs proportionally: house_power_without_custom / house_power
+  # of house_costs_grid without the base fee, plus the whole base fee, which no
+  # custom consumer carries a share of.
   # This ensures consistency with house_without_custom_costs calculation
   def house_without_custom_costs_grid
     return unless respond_to?(:house_costs_grid) && house_costs_grid
     return unless house_power&.positive? && house_power_without_custom
 
-    @memo[:house_without_custom_costs_grid] ||=
-      house_power_without_custom / house_power * house_costs_grid
+    @memo[:house_without_custom_costs_grid] ||= begin
+      fee = house_base_fee
+      (house_power_without_custom / house_power * (house_costs_grid - fee)) +
+        fee
+    end
   end
 
   # Opportunity costs for "other consumers" (house without custom sensors)
@@ -124,6 +129,15 @@ class HouseBalance
   end
 
   private
+
+  # The base fee in house_costs_grid, which is the whole grid_base_fee where
+  # the house carries one (see Sensor::Definitions::HouseCostsGrid).
+  def house_base_fee
+    return 0 unless Sensor::Registry[:house_costs_grid].carries_base_fee?
+    return 0 unless @sensor_data.respond_to?(:grid_base_fee)
+
+    @sensor_data.grid_base_fee.to_f
+  end
 
   # Generic percent helper with memoization for custom power sensors
   # Calculates percentage of each custom sensor relative to total house power
