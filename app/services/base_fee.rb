@@ -21,6 +21,20 @@ class BaseFee
     new(timeframe).per_hour
   end
 
+  # Whether the tariff carries a base fee at all. A caller that splits a value
+  # into fee and energy asks this first: without a fee there is nothing to
+  # split off, and a second segment would stay empty at every point.
+  def self.any?(schedule = fee_schedule)
+    schedule.any? { |_, monthly| monthly&.positive? }
+  end
+
+  # Every electricity record, newest first: the first one starting on or before
+  # a date is the one that applies. Records without an amount are kept, because
+  # a newer record without a base fee cancels an older one that had one.
+  def self.fee_schedule
+    Price.list_for(:electricity).pluck(:starts_at, :amount_per_month)
+  end
+
   def initialize(timeframe)
     @timeframe = timeframe
   end
@@ -66,7 +80,7 @@ class BaseFee
   # that from the schedule alone skips the day walk - the common case, on every
   # render of the stats page.
   def any_fee?
-    from && to && schedule.any? { |_, monthly| monthly&.positive? }
+    from && to && self.class.any?(schedule)
   end
 
   def fee_on(date)
@@ -78,11 +92,7 @@ class BaseFee
     monthly / Time.days_in_month(date.month, date.year)
   end
 
-  # Every electricity record, newest first: the first one starting on or before
-  # a date is the one that applies. Records without an amount are kept, because
-  # a newer record without a base fee cancels an older one that had one.
   def schedule
-    @schedule ||=
-      Price.list_for(:electricity).pluck(:starts_at, :amount_per_month)
+    @schedule ||= self.class.fee_schedule
   end
 end
