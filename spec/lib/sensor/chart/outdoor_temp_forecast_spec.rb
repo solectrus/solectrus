@@ -31,7 +31,7 @@ describe Sensor::Chart::OutdoorTempForecast do
     end
   end
 
-  # rubocop:disable RSpec/MultipleMemoizedHelpers
+  # rubocop:disable-next RSpec/MultipleMemoizedHelpers
   describe 'Sensor::Forecast::TemperatureAggregator' do
     let(:date) { Date.current }
     let(:forecast_entries) do
@@ -152,7 +152,6 @@ describe Sensor::Chart::OutdoorTempForecast do
       end
     end
   end
-  # rubocop:enable RSpec/MultipleMemoizedHelpers
 
   describe 'BoundaryAdjuster with edge strategy' do
     let(:boundary_interval) { 15.minutes }

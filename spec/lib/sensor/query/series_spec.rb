@@ -205,7 +205,7 @@ describe Sensor::Query::Series do
       end
     end
 
-    def query(aggregation:)
+    def build_series(aggregation:)
       described_class.new(
         [:house_power],
         timeframe,
@@ -216,12 +216,12 @@ describe Sensor::Query::Series do
     end
 
     it 'sums the bucket when aggregation: :sum' do
-      series = query(aggregation: :sum).call.house_power(:sum, :sum)
+      series = build_series(aggregation: :sum).call.house_power(:sum, :sum)
       expect(series[bucket]).to eq(4000.0)
     end
 
     it 'averages the bucket when aggregation: :avg (the default)' do
-      series = query(aggregation: :avg).call.house_power(:avg, :avg)
+      series = build_series(aggregation: :avg).call.house_power(:avg, :avg)
       expect(series[bucket]).to eq(2000.0)
     end
 

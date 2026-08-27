@@ -279,6 +279,12 @@ Lint/NumberConversion:
 Lint/UnusedPrivateMethod:
   Enabled: false
 
+# The cop needs a complete index of all method names, but `delegate` defines
+# its methods at runtime. `Influx.query` is delegated to the query API, so the
+# cop misses the definition and reports the call as a typo of `query_api`.
+Lint/NameTypo:
+  Enabled: false
+
 # RSpec
 
 RSpec/MultipleExpectations:
