@@ -25,8 +25,10 @@ describe Status::Component, type: :component do
     it { is_expected.to be_live }
 
     it 'renders the current state in green' do
-      expect(render_inline(component).css('time').text).to eq('TEST')
-      expect(render_inline(component).css('time .bg-green-600')).to be_present
+      rendered = render_inline(component)
+
+      expect(rendered.css('time').text).to eq('TEST')
+      expect(rendered.css('time .bg-green-600')).to be_present
     end
   end
 
@@ -37,8 +39,10 @@ describe Status::Component, type: :component do
     it { is_expected.to be_live }
 
     it 'renders the current state in green' do
-      expect(render_inline(component).css('time').text).to eq('TEST')
-      expect(render_inline(component).css('time .bg-green-600')).to be_present
+      rendered = render_inline(component)
+
+      expect(rendered.css('time').text).to eq('TEST')
+      expect(rendered.css('time .bg-green-600')).to be_present
     end
   end
 
@@ -49,8 +53,10 @@ describe Status::Component, type: :component do
     it { is_expected.to be_live }
 
     it 'renders the current state in red' do
-      expect(render_inline(component).css('time').text).to eq('TEST')
-      expect(render_inline(component).css('time .bg-yellow-600')).to be_present
+      rendered = render_inline(component)
+
+      expect(rendered.css('time').text).to eq('TEST')
+      expect(rendered.css('time .bg-yellow-600')).to be_present
     end
   end
 end
