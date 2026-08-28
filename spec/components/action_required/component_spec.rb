@@ -1,7 +1,15 @@
 describe ActionRequired::Component, type: :component do
   subject(:component) { described_class.new(registration_status:) }
 
-  before { render_inline(component) }
+  # No trial by default - the free month is a case of its own below.
+  let(:trial_available) { false }
+
+  before do
+    allow(PremiumStatus).to receive(:trial_available?).and_return(
+      trial_available,
+    )
+    render_inline(component)
+  end
 
   context 'when registration status is complete' do
     let(:registration_status) { 'complete' }
@@ -20,10 +28,7 @@ describe ActionRequired::Component, type: :component do
     end
 
     context 'when the free month is still unused' do
-      before do
-        allow(PremiumStatus).to receive(:trial_available?).and_return(true)
-        render_inline(component)
-      end
+      let(:trial_available) { true }
 
       it 'still leads to the sponsoring page, which offers the month itself' do
         expect(page).to have_link(href: '/sponsoring')
