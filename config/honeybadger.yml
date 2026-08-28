@@ -5,3 +5,9 @@ exceptions:
 logging:
   path: 'STDOUT'
   level: 'WARN'
+
+# Performance monitoring is done by RorVsWild, so the built-in instrumentation
+# of Honeybadger only collects the same data a second time. Error tracking,
+# uptime checks and deployments are not affected by this setting.
+insights:
+  enabled: false
