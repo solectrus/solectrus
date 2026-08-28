@@ -74,6 +74,10 @@ describe 'Amortization' do
       # On desktop the sliders sit inline in the sub-navigation bar
       expect(page).to have_field('amortization[period_years]', type: 'range')
       expect(page).to have_field('amortization[interest_rate]', type: 'range')
+
+      # The detail frame loads separately - wait for it, so the example does not
+      # end while its request is still on the way.
+      expect(page).to have_css('canvas')
     end
 
     it 'navigates from the chart to the table and back' do

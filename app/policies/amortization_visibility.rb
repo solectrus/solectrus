@@ -51,7 +51,15 @@ class AmortizationVisibility
     @admin = admin
   end
 
-  delegate :level, :enabled?, :licensed?, to: :class
+  delegate :level, :enabled?, to: :class
+
+  # Asked twice per request - once to admit the viewer, once again for the page
+  # state. Memoized so both answers agree even if the policy changes in between.
+  def licensed?
+    return @licensed if defined?(@licensed)
+
+    @licensed = self.class.licensed?
+  end
 
   # Whether the viewer is past the login barrier: the calculation is either
   # public or the viewer is an admin. Says nothing about the sponsor feature.
