@@ -19,26 +19,24 @@ describe UpdateCheck do
     before { allow(Rails.logger).to receive(:info) }
 
     context 'when the request succeeds', vcr: { cassette_name: 'version' } do
+      # The whole answer is cached, except the signature and the notifications.
+      # The deadlines are absolute times from the recorded answer, so what they
+      # mean for the local clock is tested with stubs further down.
       it do
         is_expected.to eq(
-          { version: 'v1.2.1', registration_status: 'unregistered' },
+          {
+            version: 'v1.3.0',
+            registration_status: 'unregistered',
+            premium_reason: 'intro',
+            premium_ends_at: '2026-09-13T17:22:21+02:00',
+            registration_reminder_at: '2026-09-02T17:22:21+02:00',
+            registration_due_at: '2026-09-06T17:22:21+02:00',
+          },
         )
       end
 
-      # This answer names no deadline. Nothing is enforced then, whatever the
-      # local clock says - the app never derives a deadline of its own.
-      it 'enforces nothing while the answer names no deadline' do
-        expect(instance).not_to be_registration_reminder_due
-        expect(instance).not_to be_registration_grace_period_expired
-
-        travel 1.year do
-          expect(instance).not_to be_registration_reminder_due
-          expect(instance).not_to be_registration_grace_period_expired
-        end
-      end
-
       it 'has shortcuts' do
-        expect(instance.latest_version).to eq('v1.2.1')
+        expect(instance.latest_version).to eq('v1.3.0')
         expect(instance.registration_status).to eq('unregistered')
         expect(instance).to be_unregistered
       end
@@ -56,7 +54,7 @@ describe UpdateCheck do
       # Without a re-entrancy guard this deadlocks with "recursive locking".
       it 'does not deadlock when the User-Agent reads feature flags' do
         expect { latest }.not_to raise_error
-        expect(instance.latest_version).to eq('v1.2.1')
+        expect(instance.latest_version).to eq('v1.3.0')
       end
     end
 
@@ -218,7 +216,7 @@ describe UpdateCheck do
       stub_request(:get, 'https://update.solectrus.de').to_return(
         headers:,
         body: signed_json(
-          version: 'v1.2.1',
+          version: 'v1.3.0',
           registration_status: 'complete',
           notifications:,
         ),
@@ -237,7 +235,7 @@ describe UpdateCheck do
 
       expect(result).not_to have_key(:notifications)
       expect(result).to eq(
-        version: 'v1.2.1',
+        version: 'v1.3.0',
         registration_status: 'complete',
       )
     end
@@ -337,7 +335,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.2.1',
+            version: 'v1.3.0',
             registration_status: 'unregistered',
             premium_reason: 'intro',
             premium_ends_at: 2.days.from_now.iso8601,
@@ -364,7 +362,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.2.1',
+            version: 'v1.3.0',
             registration_status: 'complete',
           ),
         )
@@ -389,7 +387,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.2.1',
+            version: 'v1.3.0',
             registration_status: 'unregistered',
             registration_reminder_at: 3.days.from_now.iso8601,
             registration_due_at: 7.days.from_now.iso8601,
@@ -430,7 +428,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.2.1',
+            version: 'v1.3.0',
             registration_status: 'unregistered',
           ),
         )
@@ -441,6 +439,15 @@ describe UpdateCheck do
         expect(instance.registration_due_at).to be_nil
         expect(instance).not_to be_registration_reminder_due
         expect(instance).not_to be_registration_grace_period_expired
+      end
+
+      # Whatever the local clock says - the app never derives a deadline of
+      # its own.
+      it 'stays quiet however far the clock moves' do
+        travel 1.year do
+          expect(instance).not_to be_registration_reminder_due
+          expect(instance).not_to be_registration_grace_period_expired
+        end
       end
     end
   end
@@ -587,13 +594,13 @@ describe UpdateCheck do
 
       context 'with valid signed cache' do
         before do
-          sign_and_cache(version: 'v1.2.1', registration_status: 'complete')
+          sign_and_cache(version: 'v1.3.0', registration_status: 'complete')
         end
 
         it 'returns verified data without signature key' do
           result = instance.latest
 
-          expect(result).to eq(version: 'v1.2.1', registration_status: 'complete')
+          expect(result).to eq(version: 'v1.3.0', registration_status: 'complete')
           expect(result).not_to have_key(:signature)
         end
 
@@ -613,13 +620,13 @@ describe UpdateCheck do
 
           result = instance.latest
 
-          expect(result).to eq(version: 'v1.2.1', registration_status: 'complete')
+          expect(result).to eq(version: 'v1.3.0', registration_status: 'complete')
         end
       end
 
       context 'with tampered cache' do
         before do
-          sign_and_cache(version: 'v1.2.1', registration_status: 'complete')
+          sign_and_cache(version: 'v1.3.0', registration_status: 'complete')
 
           # Tamper with cached data
           cache_manager = instance.cache_manager
@@ -663,7 +670,7 @@ describe UpdateCheck do
         stub_request(:get, 'https://update.solectrus.de').to_return(
           headers:,
           body: signed_json(
-            version: 'v1.2.1',
+            version: 'v1.3.0',
             registration_status: 'complete',
           ),
         )
@@ -805,12 +812,12 @@ describe UpdateCheck do
           stub_request(:get, 'https://update.solectrus.de').to_return(
             headers:,
             body: signed_json(
-              version: 'v1.2.1',
+              version: 'v1.3.0',
               registration_status: 'complete',
             ),
           )
 
-          expect(instance.latest_version).to eq('v1.2.1')
+          expect(instance.latest_version).to eq('v1.3.0')
         end
       end
     end
@@ -844,7 +851,7 @@ describe UpdateCheck do
       let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
       def stub_answer(premium_reason)
-        body = { version: 'v1.2.1', registration_status: 'complete' }
+        body = { version: 'v1.3.0', registration_status: 'complete' }
         body[:premium_reason] = premium_reason if premium_reason
 
         stub_request(:get, 'https://update.solectrus.de').to_return(

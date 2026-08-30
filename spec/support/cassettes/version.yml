@@ -10,8 +10,8 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - SOLECTRUS-c53550f1/v1.2.1 (Darwin; arm64; 25.5.0; 1780652508) INFLUXDB/2.9.1
-        POSTGRESQL/18.4
+      - SOLECTRUS-071befdf/v1.3.0 (Darwin; arm64; 25.6.0; 1788103341) FEATURES/0 INFLUXDB/2.9.1
+        POSTGRESQL/18.6
   response:
     status:
       code: 200
@@ -24,9 +24,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Fri, 05 Jun 2026 09:41:50 GMT
+      - Sun, 30 Aug 2026 15:22:45 GMT
       Etag:
-      - W/"d825c3857a116338cff780c91819e27a"
+      - W/"2690dd956089d36bd86285b87de41b10"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -40,27 +40,13 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - c75eb975-a972-44a7-bd8d-155889304907
+      - 4aa90096-76be-4106-bc6f-7ba1e6b1e92b
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"version":"v1.2.1","registration_status":"unregistered","notifications":[{"id":10,"title":"HELIOS
-        ist unterwegs","published_at":"2026-05-09T15:30:55+02:00","body":"<div>Ein
-        neues Tool macht SOLECTRUS-Installation und -Konfiguration endlich einfach
-        – keine Kommandozeile, kein Hantieren mit Docker, alles im Browser. Funktional
-        fast fertig. Wer mehr wissen möchte, findet die Details im Blog.<br><br><a
-        href=\"https://solectrus.de/blog/2026-05-09-helios-ist-unterwegs/?utm_source=solectrus-app&amp;utm_medium=notification&amp;utm_campaign=helios-announcement\">https://solectrus.de/blog/2026-05-09-helios-ist-unterwegs/</a></div>"},{"id":11,"title":"Version
-        1.2 räumt die Oberfläche auf","published_at":"2026-06-01T13:45:03+02:00","body":"<div>Frisch
-        veröffentlicht: zwei größere Neuerungen und jede Menge Feinschliff. Das erwartet
-        dich:<br><br></div><ul><li>Neue Menüleiste am unteren Bildschirmrand – wechsle
-        auf dem Smartphone direkt zwischen den wichtigsten Bereichen</li><li>Hausverbrauch
-        jetzt auch als Tabelle – alle Verbraucher mit genauen Werten auf einen Blick</li><li>Diagramme
-        berücksichtigen Sensorausfälle – längere Lücken werden ehrlich angezeigt statt
-        überbrückt</li><li>... und viele kleinere Verbesserungen und Korrekturen –
-        an der Oberfläche und unter der Haube</li></ul><div><br>Alle Details mit Screenshots
-        und Beispielen im Blog:<br><a href=\"https://solectrus.de/blog/2026-05-30-version-1-2/?utm_source=solectrus-app&amp;utm_medium=notification&amp;utm_campaign=version-1-2\">https://solectrus.de/blog/2026-05-30-version-1-2/</a></div>"}],"signature":"bqXwcAZb3WifAlhd900xivWhi/147/VV9GQvR2QjlS/2YrbAbmLf7Iebdi9130uYBcfXp/Mg2bW/5tzgBnr8Bw=="}'
-  recorded_at: Fri, 05 Jun 2026 09:41:50 GMT
+      string: '{"version":"v1.3.0","registration_status":"unregistered","premium_reason":"intro","premium_ends_at":"2026-09-13T17:22:21+02:00","registration_reminder_at":"2026-09-02T17:22:21+02:00","registration_due_at":"2026-09-06T17:22:21+02:00","signature":"LBmi5XBOcw/X6OOuD9ZzTVd9vB1LbauiScFBlYFJTfGJcjKxquHzpb/P6cs4DpmWFw8VX0O+3pROB0eEdP+/Ag=="}'
+  recorded_at: Sun, 30 Aug 2026 15:22:45 GMT
 recorded_with: VCR 6.4.0
