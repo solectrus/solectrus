@@ -10,7 +10,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
       )
 
       allow(Rails.configuration.x.git).to receive(:commit_version).and_return(
-        'v1.2.1',
+        'v1.3.0',
       )
 
       allow(Rails.configuration.x).to receive(:app_name).and_return('SOLECTRUS')
@@ -28,7 +28,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
 
     it 'starts with the application, version and system info' do
       expect(user_agent.to_s).to start_with(
-        'SOLECTRUS/v1.2.1 (Linux; aarch64; 6.1.0; 0)',
+        'SOLECTRUS/v1.3.0 (Linux; aarch64; 6.1.0; 0)',
       )
     end
 

@@ -17,7 +17,7 @@ body:
     attributes:
       label: Welche Version von SOLECTRUS verwendest du?
       description: Bitte prüfe vorher, ob du die [neueste Version](https://github.com/solectrus/solectrus/releases) nutzt – möglicherweise ist dein Problem dort schon behoben.
-      placeholder: z.B. v1.2.1
+      placeholder: z.B. v1.3.0
     validations:
       required: true
 
