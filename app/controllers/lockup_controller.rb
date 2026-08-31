@@ -5,6 +5,8 @@ class LockupController < ApplicationController
   skip_before_action :check_for_registration
   skip_before_action :check_for_sponsoring
 
+  before_action :ensure_lockup_enabled
+
   layout 'blank'
 
   def unlock
@@ -21,5 +23,12 @@ class LockupController < ApplicationController
       @wrong = true
       render :unlock, status: :unprocessable_content
     end
+  end
+
+  private
+
+  # Without a codeword there is nothing to unlock, so the page must not answer
+  def ensure_lockup_enabled
+    redirect_to root_path if lockup_codeword.blank?
   end
 end

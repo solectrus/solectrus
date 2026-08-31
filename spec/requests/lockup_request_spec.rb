@@ -158,5 +158,22 @@ describe 'Lockup' do
 
       expect(response).not_to redirect_to(%r{/lockup/unlock})
     end
+
+    describe 'GET /lockup/unlock' do
+      it 'redirects to root' do
+        get '/lockup/unlock'
+
+        expect(response).to redirect_to('/')
+      end
+    end
+
+    describe 'POST /lockup/unlock' do
+      it 'redirects to root without setting a cookie' do
+        post '/lockup/unlock', params: { lockup: { codeword: 'anything' } }
+
+        expect(response).to redirect_to('/')
+        expect(cookies[:lockup]).to be_blank
+      end
+    end
   end
 end
