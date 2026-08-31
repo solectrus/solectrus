@@ -34,7 +34,21 @@ body:
     attributes:
       label: Logs & Konfiguration
       description: |-
-        Am einfachsten mit [HELIOS](https://solectrus.de/install/): Dort ein **Support-Paket** erstellen und die ZIP-Datei hier per Drag & Drop ablegen. Sie enthält Konfiguration, Logs und Systeminfos, wobei Passwörter und Schlüssel bereits geschwärzt sind.
+        **Ohne Logs und Konfiguration lässt sich ein Fehler oft nicht nachvollziehen.**
+
+        Am einfachsten mit HELIOS: Es erstellt ein **Support-Paket** als ZIP-Datei mit `compose.yaml`, `.env`, Systeminfos und den letzten Logzeilen jedes Containers. **Passwörter, Tokens, Koordinaten und Hostnamen werden automatisch anonymisiert**, das Archiv kannst du also gefahrlos öffentlich anhängen. Du findest es in HELIOS im Menü oben rechts unter **Support**: Das ZIP herunterladen und hier per Drag & Drop ablegen.
 
         Ohne HELIOS: relevante Zeilen aus `docker compose logs` sowie deine `compose.yaml` und `.env` einfügen. Bitte alle sensiblen Daten unkenntlich machen (Passwörter, API-Schlüssel, Geodaten, etc.).
+
+        Du nutzt HELIOS noch nicht? Ein Umstieg lohnt sich: [HELIOS](https://solectrus.de/install/) vereinfacht Installation, Konfiguration und Updates von SOLECTRUS erheblich – und liefert eben dieses Support-Paket auf Knopfdruck.
       placeholder: Support-Paket (ZIP) hier ablegen – oder Logs und Konfiguration einfügen …
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: support-bundle
+    attributes:
+      label: Support-Paket angehängt
+      options:
+        - label: Ich habe ein Support-Paket (ZIP) angehängt – oder oben erklärt, warum das nicht geht.
+          required: true
