@@ -15,7 +15,9 @@ Try it out at https://demo.solectrus.de
 
 ## Installation
 
-SOLECTRUS is a self‑hosted solution — just bring your own server (a Raspberry Pi works great, but any Linux box will do). To get started, visit https://configurator.solectrus.de/ and generate your Docker configuration interactively.
+SOLECTRUS is a self‑hosted solution — just bring your own server (a Raspberry Pi works great, but any Linux box will do).
+
+The recommended way to install SOLECTRUS is [HELIOS](https://solectrus.de/install/), the companion app that manages your installation. HELIOS sets up the Docker containers, keeps the configuration in one place, and installs updates with one click. It also creates a support package with anonymized logs and configuration if you need help.
 
 ## Development
 
