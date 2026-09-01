@@ -72,3 +72,39 @@ Turbo.StreamActions.update_all = function (this: Element) {
     });
   }
 };
+
+// A turbo-frame that fills itself from a `src` shows a spinner until its
+// response arrives, and Turbo marks it `complete` only after a successful
+// render. It retries nothing by itself: neither a fetch that died mid-flight -
+// the tab went to the background, the phone locked, the connection dropped -
+// nor one that hangs forever on a socket that is long dead. Either way the
+// spinner stays. So reload a frame that has no content yet: right after a
+// failed fetch, and when the tab comes back - a request still in flight from
+// before the tab went away is picked up as well, because that one is dead too.
+//
+// A `complete` frame matches nothing here, so a healthy page is untouched. That
+// includes the SummaryBuilder, whose chunks sequential-frames drives one by
+// one: a chunk it has not started yet has no `src`, so only the one in flight
+// is ever picked up. Frames marked `loading="lazy"` are left alone - reloading
+// one would defeat the deferred load it was marked for.
+const stuckFrames = 'turbo-frame[src]:not([complete]):not([loading="lazy"])';
+
+const reloadStuckFrames = () => {
+  if (document.hidden) return;
+
+  document
+    .querySelectorAll<Turbo.FrameElement>(stuckFrames)
+    .forEach((frame) => frame.reload());
+};
+
+document.addEventListener('visibilitychange', reloadStuckFrames);
+
+// Turbo still has the frame marked busy at this point, so wait a moment - and
+// don't hammer a connection that is down. A burst of failures collapses into a
+// single sweep, and a retry that fails again lands here anew.
+let retrySweep: ReturnType<typeof setTimeout>;
+
+document.addEventListener('turbo:fetch-request-error', () => {
+  clearTimeout(retrySweep);
+  retrySweep = setTimeout(reloadStuckFrames, 2000);
+});
