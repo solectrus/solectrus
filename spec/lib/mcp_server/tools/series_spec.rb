@@ -408,11 +408,18 @@ describe McpServer::Tools::Series do
     # sits on ("05:00, 06:00, 06:44:29") - which a client reading the points as
     # a raster can only take for a bucket of its own.
     context 'with a window that opens and closes mid-bucket' do
-      # Every minute, so each bucket the window touches carries a value -
-      # including the sliver of the opening one that lies inside it. An empty
-      # bucket is deliberately never marked partial, so a gap there would test
-      # the wrong thing.
+      # Half past the hour, because the outer freeze_time keeps whatever time
+      # the suite happens to run at: on the stroke of an hour a "P2H" window
+      # opens and closes ON a bucket edge, cuts nothing, and the context tests
+      # the opposite of what it names. Once an hour, that made it fail.
+      #
+      # The points come every minute, so each bucket the window touches carries
+      # a value - including the sliver of the opening one that lies inside it.
+      # An empty bucket is deliberately never marked partial, so a gap there
+      # would test the wrong thing.
       before do
+        travel_to Time.current.change(min: 30, sec: 0)
+
         influx_batch do
           240.times do |i|
             add_influx_point(

@@ -162,7 +162,12 @@ describe McpServer::Tools::Ranking do
       # looks cut by them. Left unflagged it is a few hours of measurement
       # ranked against whole days - and period="day" is the default.
       context 'with the period still running' do
+        # Midway through the month, because the example below wants today and
+        # yesterday in the same one. On the first of a month yesterday falls
+        # into the month before, and a ranking over "month" never sees it.
         before do
+          travel_to Time.current.change(day: 15, hour: 12)
+
           create_summary(date: Date.current, values: [[:house_power, :sum, 3_000]])
           create_summary(date: Date.yesterday, values: [[:house_power, :sum, 21_000]])
         end
