@@ -49,9 +49,3 @@ class ApplicationPolicy
     SPONSOR_FEATURES.include?(feature) && PremiumStatus.active?
   end
 end
-
-# Prevent runtime redefinition in production.
-unless Rails.env.local?
-  ApplicationPolicy.instance
-  ApplicationPolicy.freeze
-end

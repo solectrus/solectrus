@@ -8,6 +8,19 @@ echo ""
 echo "Copyright (C) 2020-2026 Georg Ledermann"
 echo "License: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html"
 
+# Checks the installation, like config/installation.rb does later.
+mounted=$(awk -v dir="${PWD}" '
+  $5 == dir || index($5, dir "/") == 1 { print $5; exit }
+' /proc/self/mountinfo 2>/dev/null || true)
+
+if [ -n "${mounted}" ]; then
+  echo "Error: Invalid installation (${mounted}). Stopping..." >&2
+  exit 1
+fi
+
+# Nothing of this installation sets these.
+unset RUBYOPT RUBYLIB
+
 # If running the rails server then wait for services
 # and create or migrate existing database
 if [ "${1}" = "./bin/rails" ] && [ "${2}" = "server" ]; then

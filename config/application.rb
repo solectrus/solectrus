@@ -18,6 +18,9 @@ require 'action_cable/engine'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Before the first initializer, on purpose (see the file).
+require_relative 'installation'
+
 module Solectrus
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -129,15 +132,21 @@ module Solectrus
       Rails.logger.info(
         "[Influx::PollInterval] starting with interval=#{Influx::PollInterval.current.to_i}s",
       )
+    end
 
-      # Freeze UpdateCheck after boot so it can't be reopened at runtime.
-      # Guarded by eager_load to ensure all nested UpdateCheck::* constants are
-      # already defined (otherwise autoloading one later raises FrozenError);
-      # the !local? check keeps the class open for stubs in dev/test, including
-      # CI where eager_load is on.
-      if Rails.application.config.eager_load && !Rails.env.local?
+    config.after_initialize do
+      next if Rails.env.local?
+
+      Installation.verify!(Rails.root.to_s)
+
+      # Frozen after boot, and all three together. Guarded by eager_load,
+      # because a nested constant that is autoloaded into a frozen class raises
+      # FrozenError. The Singleton instances come first for the same reason.
+      if Rails.application.config.eager_load
         UpdateCheck.instance
-        UpdateCheck.freeze
+        ApplicationPolicy.instance
+
+        [UpdateCheck, PremiumStatus, ApplicationPolicy].each(&:freeze)
       end
     end
 
