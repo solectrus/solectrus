@@ -103,69 +103,6 @@ describe McpOauth do
     end
   end
 
-  describe '.valid_redirect_uri?' do
-    it 'accepts any https callback (provider-agnostic, host shown for consent)' do
-      expect(described_class.valid_redirect_uri?('https://claude.ai/api/mcp/auth_callback')).to be(true)
-      expect(described_class.valid_redirect_uri?('https://chatgpt.com/connector/callback')).to be(true)
-      expect(described_class.valid_redirect_uri?('https://some-ai.example/cb')).to be(true)
-    end
-
-    it 'accepts loopback http callbacks on any port and path' do
-      expect(described_class.valid_redirect_uri?('http://localhost/callback')).to be(true)
-      expect(described_class.valid_redirect_uri?('http://localhost:51763/callback')).to be(true)
-      expect(described_class.valid_redirect_uri?('http://127.0.0.1:8080/callback')).to be(true)
-      # mcp-remote uses /oauth/callback; the path is client-specific.
-      expect(described_class.valid_redirect_uri?('http://localhost:15597/oauth/callback')).to be(true)
-    end
-
-    it 'accepts the IPv6 loopback (brackets stripped via #hostname)' do
-      expect(described_class.valid_redirect_uri?('http://[::1]/callback')).to be(true)
-      expect(described_class.valid_redirect_uri?('http://[::1]:9999/callback')).to be(true)
-    end
-
-    it 'rejects plain http to non-loopback hosts (would leak the code)' do
-      expect(described_class.valid_redirect_uri?('http://evil.com/callback')).to be(false)
-      expect(described_class.valid_redirect_uri?('http://example.com/cb')).to be(false)
-    end
-
-    it 'rejects non-http(s) schemes' do
-      expect(described_class.valid_redirect_uri?('ftp://example.com/cb')).to be(false)
-    end
-
-    it 'rejects a redirect without a path' do
-      expect(described_class.valid_redirect_uri?('https://example.com')).to be(false)
-      expect(described_class.valid_redirect_uri?('http://localhost:51763')).to be(false)
-    end
-
-    # URI.parse reads these as a path alone. The consent page then names no
-    # host, and a browser resolving the Location against a plain-http instance
-    # reads the host back out of that path.
-    it 'rejects a redirect without a host' do
-      expect(described_class.valid_redirect_uri?('https:/evil.com/callback')).to be(false)
-      expect(described_class.valid_redirect_uri?('https:///callback')).to be(false)
-      expect(described_class.valid_redirect_uri?('https://@/callback')).to be(false)
-    end
-
-    it 'rejects blank or malformed input' do
-      expect(described_class.valid_redirect_uri?(nil)).to be(false)
-      expect(described_class.valid_redirect_uri?('::::')).to be(false)
-    end
-  end
-
-  describe '.loopback_redirect?' do
-    it 'is true for loopback http callbacks' do
-      expect(described_class.loopback_redirect?('http://localhost:11158/oauth/callback')).to be(true)
-      expect(described_class.loopback_redirect?('http://127.0.0.1/callback')).to be(true)
-      expect(described_class.loopback_redirect?('http://[::1]:9999/callback')).to be(true)
-    end
-
-    it 'is false for remote https callbacks and malformed input' do
-      expect(described_class.loopback_redirect?('https://claude.ai/api/mcp/auth_callback')).to be(false)
-      expect(described_class.loopback_redirect?('https://localhost/callback')).to be(false)
-      expect(described_class.loopback_redirect?('::::')).to be(false)
-    end
-  end
-
   describe '.valid_admin_password?' do
     before do
       allow(Rails.configuration.x).to receive(:admin_password).and_return('s3cret')
