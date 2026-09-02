@@ -294,6 +294,12 @@ callback host, so you see where access goes before you type your password.
 And the code is bound to a PKCE challenge that stays inside the client, so a
 code that reaches the wrong host cannot be exchanged for a token.
 
+The host on that page is the one your browser resolves, not the one the
+client wrote. A URL can spell its host with a percent escape. It can also
+spell it with a letter from another alphabet. Both read as a familiar name,
+but they go to a different host. The page decodes the escape. It shows the
+other name in its `xn--` form, as the address bar does.
+
 ### Ending access
 
 One authorization lasts **90 days**, however often the client refreshes in

@@ -16,6 +16,12 @@ describe 'OAuth (MCP)' do
     }.merge(overrides)
   end
 
+  # What the admin actually reads, without the hidden fields that carry the
+  # request through to the POST.
+  def page_text
+    response.parsed_body.text
+  end
+
   # Drive the whole authorization step and return the freshly minted code.
   def obtain_code
     post '/oauth/authorize', params: authorize_params(password: admin_password)
@@ -188,6 +194,22 @@ describe 'OAuth (MCP)' do
 
         expect(response.body).to include(I18n.t('oauth.authorize.client_host'))
         expect(response.body).to include('some-ai.example')
+      end
+
+      # The page names the host, so the name has to be the destination. A
+      # percent escape in the authority is a legal URL that the stdlib keeps
+      # verbatim while the browser resolves it, so the page would have named
+      # "%65vil.com" while the code went to "evil.com".
+      it 'names the host the browser will resolve, not the one written' do
+        get '/oauth/authorize',
+            params: authorize_params(redirect_uri: 'https://%65vil.com/cb')
+
+        expect(response).to have_http_status(:ok)
+
+        # The shown host is the resolved one. The hidden field still carries
+        # the URL as written, because the token exchange compares that string.
+        expect(page_text).to include('evil.com')
+        expect(page_text).not_to include('%65vil.com')
       end
 
       it 'describes a local client for a loopback callback (not "localhost")' do

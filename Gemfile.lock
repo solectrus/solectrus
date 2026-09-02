@@ -503,6 +503,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  addressable
   amazing_print
   annotaterb
   benchmark

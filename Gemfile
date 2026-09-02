@@ -7,6 +7,9 @@ ruby file: '.ruby-version'
 # URI is a module providing classes to handle Uniform Resource Identifiers (https://github.com/ruby/uri)
 gem 'uri', '>= 0.12.2'
 
+# URI Implementation (https://github.com/sporkmonger/addressable)
+gem 'addressable'
+
 # SSL/TLS and general-purpose cryptography for Ruby (https://github.com/ruby/openssl)
 gem 'openssl'
 

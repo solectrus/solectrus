@@ -23,12 +23,22 @@ module McpOauth
 
     # Append the authorization code (and optional state) to the client's
     # redirect_uri, preserving any query the client already put there.
+    #
+    # Only the host is normalized, and for two reasons. A Location header must
+    # be ASCII, which a host spelled in another script is not. And the consent
+    # page named the normalized host, so normalizing here is what makes the
+    # page's promise true - the code goes to the host the admin read.
+    #
+    # The rest is left exactly as the client wrote it. Normalizing the whole
+    # URL would rewrite escapes in the query ("%3D" back to "="), which
+    # changes the state the client gets back.
     def callback(redirect_uri, code:, state: nil)
-      uri = URI.parse(redirect_uri)
+      uri = Addressable::URI.parse(redirect_uri)
       query = URI.decode_www_form(uri.query || '')
       query << ['code', code]
       query << ['state', state] if state.present?
       uri.query = URI.encode_www_form(query)
+      uri.host = uri.normalized_host
       uri.to_s
     end
   end

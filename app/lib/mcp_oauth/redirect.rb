@@ -39,21 +39,36 @@ module McpOauth
     # local callback from a remote one: the browser resolves the host, this
     # server does not, and the two answers can differ.
     #
-    # A host is required, because the whole guard is that the admin sees one.
-    # "https:/evil.com/cb" carries none: URI.parse reads it as path
-    # "/evil.com/cb", so the consent page shows an empty host, and the browser
-    # resolves the Location we send against the request URL - which invents the
-    # host back out of the path whenever the two schemes differ, as they do on
-    # a plain-http instance (docs/MCP.md offers one). The code then reaches a
+    # A host is required, because the whole guard is that the admin reads one.
+    # "https:/evil.com/cb" carries none: it parses as the path "/evil.com/cb",
+    # so the consent page would name an empty host, and the browser resolves
+    # the Location we send against the request URL - which invents the host
+    # back out of the path whenever the two schemes differ, as they do on a
+    # plain-http instance (docs/MCP.md offers one). The code then reaches a
     # host that was never named.
     def valid?(redirect_uri)
       return false if redirect_uri.blank?
 
-      uri = URI.parse(redirect_uri)
-      SCHEMES.include?(uri.scheme) && uri.host.present? &&
-        uri.path.present?
-    rescue URI::InvalidURIError
+      uri = Addressable::URI.parse(redirect_uri)
+      SCHEMES.include?(uri.normalized_scheme) &&
+        uri.normalized_host.present? && uri.path.present?
+    rescue Addressable::URI::InvalidURIError
       false
+    end
+
+    # The host to name on the consent page, as the browser will resolve it.
+    #
+    # Not the host as written: RFC 3986 allows a percent escape in the
+    # authority, so "http://%65vil.com/cb" is a legal URL that the stdlib keeps
+    # verbatim while every browser goes to "evil.com". The page would name a
+    # host that never sees the code, and that the page names the true host is
+    # the whole guard. Normalizing decodes the escape, and it also punycodes a
+    # look-alike name, so a host spelled with a Cyrillic letter shows as
+    # "xn--..." here exactly as it does in the address bar.
+    def host(redirect_uri)
+      Addressable::URI.parse(redirect_uri).normalized_host
+    rescue Addressable::URI::InvalidURIError
+      nil
     end
 
     # A native client's loopback callback (http://localhost etc.)? Such a
@@ -61,10 +76,11 @@ module McpOauth
     # the consent page describes it as a local client instead of showing the
     # uninformative host "localhost".
     def loopback?(redirect_uri)
-      uri = URI.parse(redirect_uri.to_s)
-      # #hostname (not #host) strips IPv6 brackets: "[::1]" -> "::1".
-      uri.scheme == 'http' && LOOPBACK_HOSTS.include?(uri.hostname)
-    rescue URI::InvalidURIError
+      uri = Addressable::URI.parse(redirect_uri.to_s)
+      uri.normalized_scheme == 'http' &&
+        # Strip the brackets an IPv6 host carries: "[::1]" -> "::1".
+        LOOPBACK_HOSTS.include?(uri.normalized_host.to_s.delete('[]'))
+    rescue Addressable::URI::InvalidURIError
       false
     end
 
@@ -73,9 +89,9 @@ module McpOauth
     # the admin knows whether that network is theirs, and the server accepts
     # the callback either way.
     def plaintext?(redirect_uri)
-      uri = URI.parse(redirect_uri)
-      uri.scheme == 'http' && !loopback?(redirect_uri)
-    rescue URI::InvalidURIError
+      uri = Addressable::URI.parse(redirect_uri)
+      uri.normalized_scheme == 'http' && !loopback?(redirect_uri)
+    rescue Addressable::URI::InvalidURIError
       false
     end
   end
