@@ -19,9 +19,23 @@ describe McpOauth::Redirect do
       expect(described_class.valid?('http://[::1]:9999/callback')).to be(true)
     end
 
-    it 'rejects plain http to non-loopback hosts (would leak the code)' do
-      expect(described_class.valid?('http://evil.com/callback')).to be(false)
-      expect(described_class.valid?('http://example.com/cb')).to be(false)
+    # A browser-based client on the LAN (Open WebUI, LM Studio) rarely has TLS,
+    # and reaches SOLECTRUS by address or by name.
+    it 'accepts plain http on the admin network, by address or by name' do
+      expect(described_class.valid?('http://192.168.1.98:8080/oauth/oidc/callback')).to be(true)
+      expect(described_class.valid?('http://10.0.0.5/callback')).to be(true)
+      expect(described_class.valid?('http://[fd00::1]:8080/cb')).to be(true)
+      expect(described_class.valid?('http://openwebui:8080/cb')).to be(true)
+      expect(described_class.valid?('http://openwebui.local/cb')).to be(true)
+      expect(described_class.valid?('http://openwebui.fritz.box/cb')).to be(true)
+    end
+
+    # The consent page names the host, and the code is bound to a PKCE
+    # challenge the client keeps. A scheme rule adds nothing on top: phishing
+    # only ever needs an https host, which is accepted anyway.
+    it 'accepts a public host over plain http as well' do
+      expect(described_class.valid?('http://some-ai.example/cb')).to be(true)
+      expect(described_class.valid?('http://8.8.8.8/cb')).to be(true)
     end
 
     it 'rejects non-http(s) schemes' do

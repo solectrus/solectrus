@@ -193,6 +193,7 @@ de:
       subtitle: Ein KI-Client möchte lesenden Zugriff auf deine SOLECTRUS-Daten. Gib dein Admin-Passwort ein, um ihn zuzulassen.
       client_host: 'Angefragt von:'
       client_local: Ein Client auf diesem Gerät
+      client_insecure: Unverschlüsselte Verbindung – die Freigabe wird im Klartext an diesen Host übertragen. Erlaube das nur in deinem eigenen Netzwerk.
       password_label: Admin-Passwort
       submit: Zugriff erlauben
       error: Falsches Passwort.

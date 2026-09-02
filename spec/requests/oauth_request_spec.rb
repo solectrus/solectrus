@@ -198,6 +198,32 @@ describe 'OAuth (MCP)' do
         expect(response.body).not_to include(I18n.t('oauth.authorize.client_host'))
       end
 
+      # The scheme is accepted, so the page has to say what it costs: only the
+      # admin knows whether that host sits on his own network.
+      it 'warns about an unencrypted callback' do
+        get '/oauth/authorize',
+            params:
+              authorize_params(redirect_uri: 'http://192.168.1.98:8080/cb')
+
+        expect(response.body).to include(
+          I18n.t('oauth.authorize.client_insecure'),
+        )
+      end
+
+      it 'warns neither for https nor for a loopback callback' do
+        get '/oauth/authorize',
+            params: authorize_params(redirect_uri: 'https://claude.ai/cb')
+        expect(response.body).not_to include(
+          I18n.t('oauth.authorize.client_insecure'),
+        )
+
+        # Default redirect_uri is a loopback callback (native client).
+        get '/oauth/authorize', params: authorize_params
+        expect(response.body).not_to include(
+          I18n.t('oauth.authorize.client_insecure'),
+        )
+      end
+
       it 'rejects a non-S256 challenge method' do
         get '/oauth/authorize',
             params: authorize_params(code_challenge_method: 'plain')
@@ -205,11 +231,25 @@ describe 'OAuth (MCP)' do
         expect(response).to have_http_status(:bad_request)
       end
 
-      it 'rejects plain http to a non-loopback host' do
+      it 'rejects a scheme that is not http(s)' do
         get '/oauth/authorize',
-            params: authorize_params(redirect_uri: 'http://evil.com/callback')
+            params: authorize_params(redirect_uri: 'ftp://evil.com/callback')
 
         expect(response).to have_http_status(:bad_request)
+      end
+
+      # A browser-based client on the LAN (Open WebUI, LM Studio) has no TLS,
+      # and its callback host is not the admin's own machine either.
+      it 'accepts plain http to a LAN address and names the host' do
+        get '/oauth/authorize',
+            params:
+              authorize_params(
+                redirect_uri: 'http://192.168.1.98:8080/oauth/oidc/callback',
+              )
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include(I18n.t('oauth.authorize.client_host'))
+        expect(response.body).to include('192.168.1.98')
       end
 
       # The page names the target host, and that is the whole guard. A
@@ -304,7 +344,7 @@ describe 'OAuth (MCP)' do
         post '/oauth/authorize',
              params:
                authorize_params(
-                 redirect_uri: 'http://evil.com/callback',
+                 redirect_uri: 'https:/evil.com/callback',
                  password: admin_password,
                )
 

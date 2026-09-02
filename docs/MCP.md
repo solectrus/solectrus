@@ -282,11 +282,17 @@ https://your-host/mcp
 ```
 
 The server is provider-agnostic: any AI client works, not just Claude. Remote
-clients use an HTTPS callback on their own domain (e.g.
+clients use an HTTPS callback on their own domain (for example
 `https://claude.ai/api/mcp/auth_callback`), native clients a loopback URL
-(`http://localhost:<port>/callback`). Any HTTPS or loopback callback is
-accepted; the target host is shown to you on the password page so you can
-confirm where access is granted before entering your password.
+(`http://localhost:<port>/callback`), and a client on your own network its
+own address or name (`http://192.168.1.98:8080/callback`,
+`http://openwebui.fritz.box/callback`). Any http(s) callback is accepted,
+because a self-hosted client on your network rarely has TLS.
+
+Two steps guard this, and neither is the URL. The password page names the
+callback host, so you see where access goes before you type your password.
+And the code is bound to a PKCE challenge that stays inside the client, so a
+code that reaches the wrong host cannot be exchanged for a token.
 
 ### Ending access
 

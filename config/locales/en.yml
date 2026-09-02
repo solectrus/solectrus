@@ -193,6 +193,7 @@ en:
       subtitle: An AI client wants read-only access to your SOLECTRUS data. Enter your admin password to allow it.
       client_host: 'Requested by:'
       client_local: A client on this device
+      client_insecure: Unencrypted connection – the authorization is sent to this host in cleartext. Allow this only inside your own network.
       password_label: Admin password
       submit: Allow access
       error: Wrong password.

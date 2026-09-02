@@ -18,14 +18,27 @@ module McpOauth
     LOOPBACK_HOSTS = %w[localhost 127.0.0.1 ::1].freeze
     private_constant :LOOPBACK_HOSTS
 
+    SCHEMES = %w[http https].freeze
+    private_constant :SCHEMES
+
     module_function
 
-    # Provider-agnostic, so any AI client can connect: accept any HTTPS callback
-    # (the target host is shown to the admin on the authorization page, so the
-    # consent step - not a hardcoded allowlist - is what guards against a
-    # phishing redirect to a foreign host) plus loopback HTTP for native
-    # clients. Plain HTTP to non-loopback hosts is rejected (it would leak the
-    # code in cleartext to a remote host).
+    # Provider-agnostic, so any AI client can connect: any http(s) URL with a
+    # host and a path. Plain HTTP is accepted because a self-hosted client
+    # rarely has TLS - a native client bridging over loopback, Open WebUI in a
+    # container on the LAN, a second machine reached by name.
+    #
+    # What guards this is not the URL but the two steps around it. The consent
+    # page names the host before the admin types the password, so a redirect to
+    # a foreign host has to be waved through by hand. And the code is bound to
+    # a PKCE challenge, so a code that reaches the wrong host cannot be
+    # exchanged without the verifier that never left the client.
+    #
+    # A scheme rule would add nothing to that. It cannot stop phishing, which
+    # only ever needs an HTTPS host we accept anyway, and it cannot tell a
+    # local callback from a remote one: the browser resolves the host, this
+    # server does not, and the two answers can differ.
+    #
     # A host is required, because the whole guard is that the admin sees one.
     # "https:/evil.com/cb" carries none: URI.parse reads it as path
     # "/evil.com/cb", so the consent page shows an empty host, and the browser
@@ -37,8 +50,8 @@ module McpOauth
       return false if redirect_uri.blank?
 
       uri = URI.parse(redirect_uri)
-      uri.host.present? && uri.path.present? &&
-        (uri.scheme == 'https' || loopback?(redirect_uri))
+      SCHEMES.include?(uri.scheme) && uri.host.present? &&
+        uri.path.present?
     rescue URI::InvalidURIError
       false
     end
@@ -51,6 +64,17 @@ module McpOauth
       uri = URI.parse(redirect_uri.to_s)
       # #hostname (not #host) strips IPv6 brackets: "[::1]" -> "::1".
       uri.scheme == 'http' && LOOPBACK_HOSTS.include?(uri.hostname)
+    rescue URI::InvalidURIError
+      false
+    end
+
+    # An http callback to a host that is not the admin's own machine. The code
+    # then crosses the network in cleartext, so the consent page says so: only
+    # the admin knows whether that network is theirs, and the server accepts
+    # the callback either way.
+    def plaintext?(redirect_uri)
+      uri = URI.parse(redirect_uri)
+      uri.scheme == 'http' && !loopback?(redirect_uri)
     rescue URI::InvalidURIError
       false
     end

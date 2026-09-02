@@ -18,6 +18,11 @@
           = t('oauth.authorize.client_host')
         span.font-semibold.break-all = client_host
 
+    - if insecure_client?
+      .mt-2.flex.items-center.gap-2.rounded-lg.bg-amber-50.dark:bg-amber-900.dark:bg-opacity-30.px-4.py-3.text-sm.text-amber-800.dark:text-amber-300
+        i.fa.fa-triangle-exclamation.shrink-0
+        span = t('oauth.authorize.client_insecure')
+
     - if flash[:alert]
       .mt-5.flex.items-center.gap-2.rounded-lg.bg-red-50.px-4.py-3.text-sm.text-red-700.dark:bg-red-900.dark:bg-opacity-30.dark:text-red-300
         i.fa.fa-circle-exclamation

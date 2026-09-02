@@ -17,9 +17,9 @@ class Oauth::AuthorizationsController < ActionController::Base
   # A successful authorize POST 302-redirects to the client's external
   # redirect_uri. Browsers enforce `form-action` against that redirect target,
   # so the app-wide `form-action 'self'` would block it. The redirect_uri is
-  # already validated server-side (https or loopback only; see McpOauth::Redirect) and the
-  # target host is shown to the admin for consent, which is the real protection
-  # here, so we simply allow any http(s) target in the CSP.
+  # already validated server-side (see McpOauth::Redirect) and the host is
+  # shown to the admin for consent, which is the real protection here, so we
+  # simply allow any http(s) target in the CSP.
   content_security_policy do |policy|
     policy.form_action :self, :http, :https
   end
@@ -80,6 +80,12 @@ class Oauth::AuthorizationsController < ActionController::Base
   # showing the uninformative host "localhost".
   helper_method def local_client?
     McpOauth::Redirect.loopback?(authorize_params[:redirect_uri])
+  end
+
+  # An http callback to a host that is not the admin's own machine, so the
+  # consent page can warn that the code crosses the network in cleartext.
+  helper_method def insecure_client?
+    McpOauth::Redirect.plaintext?(authorize_params[:redirect_uri])
   end
 
   helper_method def authorize_params
