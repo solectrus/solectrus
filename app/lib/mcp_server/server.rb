@@ -72,6 +72,8 @@ module McpServer
         #{core_sensors}. Never invent a name around them - anything else comes
         from list_sensors.
 
+        #{Facts::NOTHING_FOUND}
+
         Units after aggregation, in get_totals and get_ranking:
         #{Facts::WATT_SUM_IS_ENERGY}
 

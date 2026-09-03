@@ -135,6 +135,23 @@ module McpServer
 
     # --- Response conventions -----------------------------------------------
 
+    # What to do when this instance has nothing for the thing the user named.
+    # UNKNOWN_SENSORS says how a data tool answers; this says what to do with
+    # that answer, and it is a different failure: a model that
+    # searched for a device the instance does not have stopped there and
+    # reported only the miss, leaving the half of the question it could answer
+    # unanswered - twice out of three measured runs.
+    #
+    # Saying "answer the rest" alone was not enough: the next measurement
+    # had the model answer with "shall I show you the PV yield instead?" - it
+    # had understood that the rest belongs in the reply and still made it the
+    # next turn. So the rule names that move and rules it out.
+    NOTHING_FOUND =
+      'When this instance has no sensor for something the user named, say so ' \
+        'and STILL answer the rest of the question from the sensors it does ' \
+        'have - in the SAME reply, never as an offer to show it next. A ' \
+        'missing half withholds nothing from the half that exists.'.freeze
+
     UNKNOWN_SENSORS =
       'A name this instance does not have is skipped, not rejected: the rest ' \
         'is answered and the skipped names come back in `unknown_sensors`, so ' \
@@ -213,6 +230,7 @@ module McpServer
                     :SPLIT_CADENCE,
                     :SPLIT_INSTEAD,
                     :UNKNOWN_SENSORS,
+                    :NOTHING_FOUND,
                     :ROUNDING,
                     :TOOL_STRICTNESS
   end
