@@ -260,12 +260,12 @@ describe 'MCP' do
         # The SEP-2549 cache hints are mandatory on tools/list at 2026-07-28,
         # and the mcp gem emits our values only when the server is built with
         # them. Without them a client sees the spec default `ttlMs: 0` and
-        # refetches the ~30 KB list on every turn.
+        # refetches the ~28 KB list on every turn.
         it 'states how long the tool list may be cached' do
           post_mcp(tools_list)
 
           expect(response.parsed_body['result']).to include(
-            'ttlMs' => 300_000,
+            'ttlMs' => 3_600_000,
             'cacheScope' => 'private',
           )
         end
@@ -280,7 +280,7 @@ describe 'MCP' do
           expect(response).to have_http_status(:success)
           expect(response.parsed_body['result']).to include(
             'resultType' => 'complete',
-            'ttlMs' => 300_000,
+            'ttlMs' => 3_600_000,
             'cacheScope' => 'private',
           )
         end
@@ -302,7 +302,7 @@ describe 'MCP' do
           expect(response).to have_http_status(:success)
           expect(response.parsed_body['result']).to include(
             'resultType' => 'complete',
-            'ttlMs' => 300_000,
+            'ttlMs' => 3_600_000,
             'cacheScope' => 'private',
             'supportedVersions' => include('2026-07-28'),
           )

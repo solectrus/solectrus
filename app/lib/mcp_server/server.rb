@@ -51,10 +51,12 @@ module McpServer
     # to the spec default `ttlMs: 0`, which tells a client not to cache at all.
     #
     # The tools are a fixed list with static descriptions, so the response only
-    # ever changes with a new release. Five minutes let a client reuse it
-    # within a conversation - it weighs ~30 KB - and still pick up a changed
-    # list soon after an update.
-    CACHE_TTL = 5.minutes
+    # ever changes with a new release - and a client that reconnects after one
+    # reads the new version out of `serverInfo` anyway. It weighs ~28 KB, which
+    # a long conversation would otherwise pay several times over, so the hint
+    # spans a working session rather than a few turns. An update still reaches
+    # a client within the hour, and immediately on its next connect.
+    CACHE_TTL = 1.hour
     private_constant :CACHE_TTL
 
     # `private` because nothing here is shareable across operators, and because
