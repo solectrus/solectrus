@@ -1,0 +1,928 @@
+{
+  "recorded_at": "2026-09-03T09:18:59+02:00",
+  "commit": "7e1e8ec10",
+  "summary": {
+    "totals_yesterday_direct / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 1.0,
+      "context_tokens": 15875.333333333334,
+      "cost_usd": 0.09282209999999999,
+      "seconds": 39.7,
+      "failures": {}
+    },
+    "current_values_now / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 1.0,
+      "context_tokens": 15772.0,
+      "cost_usd": 0.09086179999999999,
+      "seconds": 39.8,
+      "failures": {}
+    },
+    "watt_sum_is_energy / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 1.0,
+      "context_tokens": 15819.0,
+      "cost_usd": 0.038979799999999995,
+      "seconds": 37.3,
+      "failures": {}
+    },
+    "resolve_display_name / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 2.0,
+      "context_tokens": 16517.666666666668,
+      "cost_usd": 0.0676908,
+      "seconds": 51.400000000000006,
+      "failures": {}
+    },
+    "ranking_best_day / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 1.0,
+      "context_tokens": 16099.333333333334,
+      "cost_usd": 0.0972296,
+      "seconds": 48.300000000000004,
+      "failures": {}
+    },
+    "partial_month_not_low / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 2.0,
+      "context_tokens": 16160.0,
+      "cost_usd": 0.0895792,
+      "seconds": 57.9,
+      "failures": {}
+    },
+    "series_intraday / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 1.0,
+      "context_tokens": 22537.666666666668,
+      "cost_usd": 0.12286369999999999,
+      "seconds": 50.7,
+      "failures": {}
+    },
+    "forecast_not_totals / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 1.0,
+      "context_tokens": 15817.666666666666,
+      "cost_usd": 0.0765737,
+      "seconds": 38.6,
+      "failures": {}
+    },
+    "open_discovery / haiku": {
+      "runs": 3,
+      "passed": 3,
+      "tool_calls": 1.0,
+      "context_tokens": 19811.333333333332,
+      "cost_usd": 0.12379019999999999,
+      "seconds": 83.3,
+      "failures": {}
+    }
+  },
+  "records": [
+    {
+      "case": "totals_yesterday_direct",
+      "prompt": "Wie viel Strom hat meine PV-Anlage gestern erzeugt?",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "timeframe": "2026-09-02",
+            "sensors": [
+              "inverter_power"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 15872,
+      "cost_usd": 0.022406499999999996,
+      "seconds": 12.7,
+      "answer": "Deine PV-Anlage hat gestern **73,48 kWh** erzeugt."
+    },
+    {
+      "case": "current_values_now",
+      "prompt": "Wie viel Strom produziert meine Anlage gerade?",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_current_values"
+      ],
+      "calls": [
+        {
+          "name": "get_current_values",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 6,
+      "context_tokens": 15770,
+      "cost_usd": 0.0347718,
+      "seconds": 13.0,
+      "answer": "Deine Anlage produziert gerade **2.272,6 Watt** (ca. 2,3 kW). Die Messung ist gerade eben erfolgt."
+    },
+    {
+      "case": "totals_yesterday_direct",
+      "prompt": "Wie viel Strom hat meine PV-Anlage gestern erzeugt?",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "timeframe": "2026-09-02",
+            "sensors": [
+              "inverter_power"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 10,
+      "context_tokens": 15838,
+      "cost_usd": 0.0349503,
+      "seconds": 13.1,
+      "answer": "Deine PV-Anlage hat gestern **73,5 kWh** Strom erzeugt."
+    },
+    {
+      "case": "totals_yesterday_direct",
+      "prompt": "Wie viel Strom hat meine PV-Anlage gestern erzeugt?",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "timeframe": "2026-09-02",
+            "sensors": [
+              "inverter_power"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 15916,
+      "cost_usd": 0.0354653,
+      "seconds": 13.9,
+      "answer": "Deine PV-Anlage hat gestern (2. September) **73,5 kWh** erzeugt."
+    },
+    {
+      "case": "current_values_now",
+      "prompt": "Wie viel Strom produziert meine Anlage gerade?",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_current_values"
+      ],
+      "calls": [
+        {
+          "name": "get_current_values",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 15797,
+      "cost_usd": 0.0353568,
+      "seconds": 14.2,
+      "answer": "Deine Anlage produziert gerade **2.272,6 Watt** (knapp 2,3 kW)."
+    },
+    {
+      "case": "current_values_now",
+      "prompt": "Wie viel Strom produziert meine Anlage gerade?",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_current_values"
+      ],
+      "calls": [
+        {
+          "name": "get_current_values",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 18,
+      "context_tokens": 15749,
+      "cost_usd": 0.0207332,
+      "seconds": 12.6,
+      "answer": "Deine Anlage produziert gerade **2.273 Watt** (knapp 2,3 kW). Die Messung ist von vor einer Minute (09:16 Uhr)."
+    },
+    {
+      "case": "watt_sum_is_energy",
+      "prompt": "Was hat mein Haus gestern verbraucht? Nenne Zahl und Einheit.",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "sensors": [
+              "house_power"
+            ],
+            "timeframe": "2026-09-02"
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 15848,
+      "cost_usd": 0.0221168,
+      "seconds": 11.5,
+      "answer": "Dein Haus hat gestern **13,6 kWh** verbraucht."
+    },
+    {
+      "case": "resolve_display_name",
+      "prompt": "Wie viel Strom hat die Waschmaschine gestern verbraucht?",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "list_sensors",
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "list_sensors",
+          "arguments": {
+            "query": "Waschmaschine"
+          },
+          "error": null
+        },
+        {
+          "name": "get_totals",
+          "arguments": {
+            "timeframe": "2026-09-02",
+            "sensors": [
+              "custom_power_01"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 2,
+      "input_tokens": 60,
+      "output_tokens": 10,
+      "context_tokens": 16489,
+      "cost_usd": 0.027105099999999997,
+      "seconds": 16.6,
+      "answer": "Die Waschmaschine hat gestern **2,25 kWh** (2250 Wh) verbraucht."
+    },
+    {
+      "case": "resolve_display_name",
+      "prompt": "Wie viel Strom hat die Waschmaschine gestern verbraucht?",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "list_sensors",
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "list_sensors",
+          "arguments": {
+            "query": "Waschmaschine"
+          },
+          "error": null
+        },
+        {
+          "name": "get_totals",
+          "arguments": {
+            "timeframe": "2026-09-02",
+            "sensors": [
+              "custom_power_01"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 2,
+      "input_tokens": 60,
+      "output_tokens": 8,
+      "context_tokens": 16499,
+      "cost_usd": 0.027082899999999997,
+      "seconds": 16.7,
+      "answer": "Die Waschmaschine hat gestern **2,25 kWh** (2250 Wh) verbraucht."
+    },
+    {
+      "case": "resolve_display_name",
+      "prompt": "Wie viel Strom hat die Waschmaschine gestern verbraucht?",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "list_sensors",
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "list_sensors",
+          "arguments": {
+            "query": "Waschmaschine"
+          },
+          "error": null
+        },
+        {
+          "name": "get_totals",
+          "arguments": {
+            "sensors": [
+              "custom_power_01"
+            ],
+            "timeframe": "2026-09-02"
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 2,
+      "input_tokens": 60,
+      "output_tokens": 8,
+      "context_tokens": 16565,
+      "cost_usd": 0.013502799999999999,
+      "seconds": 18.1,
+      "answer": "Die Waschmaschine hat gestern **2,25 kWh** (2250 Wh) verbraucht."
+    },
+    {
+      "case": "watt_sum_is_energy",
+      "prompt": "Was hat mein Haus gestern verbraucht? Nenne Zahl und Einheit.",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "timeframe": "2026-09-02",
+            "sensors": [
+              "house_power"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 10,
+      "context_tokens": 15801,
+      "cost_usd": 0.008206999999999999,
+      "seconds": 12.5,
+      "answer": "Dein Haus hat gestern **13.600 Wh** (oder **13,6 kWh**) verbraucht."
+    },
+    {
+      "case": "watt_sum_is_energy",
+      "prompt": "Was hat mein Haus gestern verbraucht? Nenne Zahl und Einheit.",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "timeframe": "2026-09-02",
+            "sensors": [
+              "house_power"
+            ]
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 10,
+      "context_tokens": 15808,
+      "cost_usd": 0.008656,
+      "seconds": 13.3,
+      "answer": "Dein Haus hat gestern **13.600 Wh** (oder **13,6 kWh**) verbraucht."
+    },
+    {
+      "case": "ranking_best_day",
+      "prompt": "Welcher Tag im letzten Monat hatte die höchste PV-Erzeugung?",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_ranking"
+      ],
+      "calls": [
+        {
+          "name": "get_ranking",
+          "arguments": {
+            "timeframe": "2026-08",
+            "sensor": "inverter_power",
+            "period": "day",
+            "order": "desc",
+            "limit": 1
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 16,
+      "context_tokens": 15984,
+      "cost_usd": 0.0362815,
+      "seconds": 14.3,
+      "answer": "Der **7. August** hatte die höchste PV-Erzeugung im August mit **74,4 kWh**."
+    },
+    {
+      "case": "ranking_best_day",
+      "prompt": "Welcher Tag im letzten Monat hatte die höchste PV-Erzeugung?",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_ranking"
+      ],
+      "calls": [
+        {
+          "name": "get_ranking",
+          "arguments": {
+            "timeframe": "2026-08",
+            "sensors": [
+              "inverter_power"
+            ],
+            "period": "day",
+            "order": "desc",
+            "limit": 1
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 16052,
+      "cost_usd": 0.022411599999999997,
+      "seconds": 15.4,
+      "answer": "Der **7. August 2026** war der Tag mit der höchsten PV-Erzeugung im August mit **74,4 kWh**."
+    },
+    {
+      "case": "ranking_best_day",
+      "prompt": "Welcher Tag im letzten Monat hatte die höchste PV-Erzeugung?",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_ranking"
+      ],
+      "calls": [
+        {
+          "name": "get_ranking",
+          "arguments": {
+            "sensor": "inverter_power",
+            "timeframe": "P30D",
+            "period": "day",
+            "order": "desc",
+            "limit": 1
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 16262,
+      "cost_usd": 0.0385365,
+      "seconds": 18.6,
+      "answer": "Der **7. August 2026** war der beste Tag im letzten Monat mit **74,4 kWh** PV-Erzeugung."
+    },
+    {
+      "case": "partial_month_not_low",
+      "prompt": "Vergleiche die PV-Erzeugung im letzten Monat mit der in diesem Monat.",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals",
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-08"
+          },
+          "error": null
+        },
+        {
+          "name": "get_totals",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-09"
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 2,
+      "input_tokens": 50,
+      "output_tokens": 8,
+      "context_tokens": 16163,
+      "cost_usd": 0.0251222,
+      "seconds": 18.8,
+      "answer": "**August 2026:** 1.298,5 kWh (kompletter Monat)  \n**September 2026:** 124,0 kWh (bisher, nur 3 Tage)\n\nWarnung: September ist noch nicht vorbei – die Summe ist daher verkürzt.\n\nFür einen aussagekräftigen Vergleich pro Tag:\n- **August:** ~41,9 kWh/Tag (1.298,5 kWh ÷ 31 Tage)\n- **September:** ~41,3 kWh/Tag (124,0 kWh ÷ 3 Tage)\n\nDie tägliche Erzeugung ist bis jetzt praktisch identisch."
+    },
+    {
+      "case": "partial_month_not_low",
+      "prompt": "Vergleiche die PV-Erzeugung im letzten Monat mit der in diesem Monat.",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals",
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-08"
+          },
+          "error": null
+        },
+        {
+          "name": "get_totals",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-09-01..2026-09-03"
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 2,
+      "input_tokens": 50,
+      "output_tokens": 7,
+      "context_tokens": 16152,
+      "cost_usd": 0.0400248,
+      "seconds": 20.9,
+      "answer": "**August 2026** (voller Monat): **1.298,55 kWh**  \n**September 2026** (1.–3. September, 3 Tage): **124,03 kWh**\n\nHochgerechnet auf Tagesebene:\n- **August**: 41,9 kWh/Tag\n- **September**: 41,3 kWh/Tag\n\nDie Tagesleistung ist praktisch identisch. Der September ist noch sehr jung, daher ist ein Vergleich des ganzen Monats erst später aussagekräftig."
+    },
+    {
+      "case": "partial_month_not_low",
+      "prompt": "Vergleiche die PV-Erzeugung im letzten Monat mit der in diesem Monat.",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_totals",
+        "get_totals"
+      ],
+      "calls": [
+        {
+          "name": "get_totals",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-08"
+          },
+          "error": null
+        },
+        {
+          "name": "get_totals",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-09-01..2026-09-03"
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 2,
+      "input_tokens": 50,
+      "output_tokens": 7,
+      "context_tokens": 16165,
+      "cost_usd": 0.0244322,
+      "seconds": 18.2,
+      "answer": "**August 2026:** 1.298,55 kWh  \n**September 2026 (1.–3. Sept.):** 124,03 kWh\n\nDer August war deutlich produktiver – aber Vorsicht: September ist gerade erst 3 Tage alt. Für einen aussagekräftigen Vergleich müsstest du bis Ende September warten. Auf die bisherigen 3 Tage hochgerechnet würde September bei etwa 1.270 kWh landen, was etwa dem August entspricht."
+    },
+    {
+      "case": "series_intraday",
+      "prompt": "Zeig mir den Tagesverlauf der PV-Erzeugung von gestern. Wann war das Maximum?",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_series"
+      ],
+      "calls": [
+        {
+          "name": "get_series",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-09-02"
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 12,
+      "context_tokens": 22613,
+      "cost_usd": 0.0358718,
+      "seconds": 15.7,
+      "answer": "Gestern (2. September) war ein sehr schöner Tag für die PV-Erzeugung:\n\n**Maximum: 8.447,7 W um 13:01 Uhr**\n\nDer Tagesverlauf zeigt einen klassischen, fast perfekt symmetrischen Bogen:\n- **Start**: Gegen 05:30 Uhr erste nennenswerte Erzeugung\n- **Anstieg**: Kontinuierlich bis zum Mittag\n- **Peak**: 13:01 Uhr mit knapp 8,4 kW\n- **Abfall**: Symmetrisch von da an\n- **Ende**: Gegen 19:00 Uhr fällt die Erzeugung auf Null\n\nDas ist ein idealtypischer Sommertag ohne Bewölkung. Die Erzeugung folgt exakt dem Sonnenstand."
+    },
+    {
+      "case": "series_intraday",
+      "prompt": "Zeig mir den Tagesverlauf der PV-Erzeugung von gestern. Wann war das Maximum?",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_series"
+      ],
+      "calls": [
+        {
+          "name": "get_series",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-09-02"
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 10,
+      "context_tokens": 22503,
+      "cost_usd": 0.050857099999999995,
+      "seconds": 17.9,
+      "answer": "Gestern (2. September) war das **Maximum um 13:01 Uhr mit 8.448 W** (etwa 8,4 kW).\n\nDie PV-Anlage:\n- **Startete** um ca. 05:30 Uhr\n- **Erreichte das Peak** um **13:01 Uhr** (Mittag, beste Sonneneinstrahlung)\n- **Endete** um ca. 20:00 Uhr\n\nDer Tagesverlauf zeigt eine klassische Glockenform mit sanftem Anstieg am Morgen, Plateau um die Mittagszeit und allmählichem Abfall am Nachmittag/Abend."
+    },
+    {
+      "case": "forecast_not_totals",
+      "prompt": "Wie viel PV-Ertrag wird für morgen erwartet?",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_forecast"
+      ],
+      "calls": [
+        {
+          "name": "get_forecast",
+          "arguments": {},
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 15808,
+      "cost_usd": 0.0344829,
+      "seconds": 12.0,
+      "answer": "Für morgen ist keine Vorhersage verfügbar. Der Forecast-Provider hat bisher keine Daten geliefert – möglicherweise ist die Vorhersage noch nicht eingerichtet oder abgerufen worden."
+    },
+    {
+      "case": "series_intraday",
+      "prompt": "Zeig mir den Tagesverlauf der PV-Erzeugung von gestern. Wann war das Maximum?",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_series"
+      ],
+      "calls": [
+        {
+          "name": "get_series",
+          "arguments": {
+            "sensors": [
+              "inverter_power"
+            ],
+            "timeframe": "2026-09-02"
+          },
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 10,
+      "context_tokens": 22497,
+      "cost_usd": 0.0361348,
+      "seconds": 17.1,
+      "answer": "Gestern (2. September) war ein schöner Sonnentag. Die PV-Anlage startete nach Sonnenaufgang gegen 5:30 Uhr mit der Stromerzeugung und stieg kontinuierlich an.\n\n**Maximum: 13:01 Uhr mit 8.447,7 Watt (≈ 8,4 kW)**\n\nDer Tagesverlauf war symmetrisch und ohne nennenswerte Unterbrechungen – typisch für einen sonnigen Tag. Die Erzeugung ging gegen 20:00 Uhr wieder auf Null zurück."
+    },
+    {
+      "case": "forecast_not_totals",
+      "prompt": "Wie viel PV-Ertrag wird für morgen erwartet?",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_forecast"
+      ],
+      "calls": [
+        {
+          "name": "get_forecast",
+          "arguments": {},
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 15852,
+      "cost_usd": 0.0208164,
+      "seconds": 12.8,
+      "answer": "Es sind keine Vorhersagedaten verfügbar. Der Forecast-Provider wurde wahrscheinlich noch nicht eingerichtet oder liefert aktuell keine Daten. Das ist nicht dasselbe wie „kein Ertrag erwartet\" – die Vorhersage fehlt einfach."
+    },
+    {
+      "case": "forecast_not_totals",
+      "prompt": "Wie viel PV-Ertrag wird für morgen erwartet?",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "get_forecast"
+      ],
+      "calls": [
+        {
+          "name": "get_forecast",
+          "arguments": {},
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 15793,
+      "cost_usd": 0.0212744,
+      "seconds": 13.8,
+      "answer": "Es ist derzeit kein Forecast vorhanden. Der Forecast-Provider ist entweder noch nicht eingerichtet, die Daten wurden noch nicht abgerufen oder es gibt ein technisches Problem beim Abrufen der Prognosedaten.\n\nUm die erwartete Solarproduktion für morgen anzeigen zu können, müsste ein Wetter-Forecast-Service konfiguriert werden."
+    },
+    {
+      "case": "open_discovery",
+      "prompt": "Was für Sensoren hat meine Anlage überhaupt?",
+      "model": "haiku",
+      "run": 0,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "list_sensors"
+      ],
+      "calls": [
+        {
+          "name": "list_sensors",
+          "arguments": {},
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 4,
+      "context_tokens": 19795,
+      "cost_usd": 0.05086059999999999,
+      "seconds": 27.8,
+      "answer": "Deine Anlage hat eine umfangreiche Sensorausstattung. Hier die Übersicht nach Kategorien:\n\n**PV & Inverter**\n- Gesamterzeugung (`inverter_power`), 2 einzelne Strings/Wechselrichter\n- Prognose und Soll-Himmelsstrahlung\n- Spezifische Erträge (pro kWp)\n\n**Batterie**\n- Ladezustand (SOC), Lade-/Entladeleistung, Gehäusetemperatur\n\n**Netz**\n- Netzbezug & Netzeinspeisung (aktuell + historisch)\n- Einspeisebegrenzung\n\n**Verbrauch**\n- Gesamthaus-Verbrauch\n- **Wärmepumpe** (Leistung, Heizleistung, COP, Tanktemperatur, Status)\n- **Wallbox/Auto** (Ladeleistung, Batterie-SOC, Fahrzeugerkennung)\n- **20 frei konfigurierbare Verbraucher** – davon ist `custom_power_01` als \"Waschmaschine\" benannt, die übrigen sind noch unbenannt\n\n**Kennzahlen**\n- Eigenversorgung, Eigenverbrauchsquote\n- CO₂-Vermeidung\n- Netzquote\n\n**Wirtschaft**\n- Gesamtersparnis, Netzkosten, Einspeisevergütung\n- Einzelne Kostenanalysen pro Verbraucher\n- Batteriespeicher-Ersparnis\n\n**Umwelt**\n- Außentemperatur (gemessen + Prognose)\n\n**System**\n- Datensystem-Status\n\nDu hast also Batterie, Wärmepumpe, Wallbox und gute Feinanalyse-Möglichkeiten für bis zu 20 Verbraucher. Welche Fragen hast du zu den Daten?"
+    },
+    {
+      "case": "open_discovery",
+      "prompt": "Was für Sensoren hat meine Anlage überhaupt?",
+      "model": "haiku",
+      "run": 1,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "list_sensors"
+      ],
+      "calls": [
+        {
+          "name": "list_sensors",
+          "arguments": {},
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 8,
+      "context_tokens": 19830,
+      "cost_usd": 0.0357408,
+      "seconds": 26.5,
+      "answer": "Deine Anlage hat folgende Sensoren:\n\n**Kernenergie:**\n- PV-Erzeugung: Inverter 1 & 2, Gesamt, Prognose (mit Clearsky-Referenz)\n- Hausverbrauch: Gesamtverbrauch, ohne benutzerdefinierte Verbraucher\n- Netzanbindung: Import, Export, Netzlimit\n- Batterie: Laden/Entladen, SoC, Temperatur\n\n**Verbraucher:**\n- Wärmepumpe (Leistung, Heizleistung, COP, Tank-Temp, Status)\n- Wallbox/EV (Leistung, Auto-Status)\n- 20 benutzerdefinierte Verbraucher (davon nur \"Waschmaschine\" benannt)\n\n**Wirtschaftlichkeit:**\n- Kosten/Ertrag pro Verbraucher (Netz, Wärmepumpe, Wallbox, Custom 1-20)\n- Einsparungen, Netzerlös, Opportunitätskosten\n- Autarkie- und Eigenverbrauchsquote\n- CO₂-Vermeidung\n\n**Wetter & Status:**\n- Außentemperatur (gemessen + Prognose)\n- System-Status Collector\n- Wärmepumpen-Status\n\nDu kannst also deine PV-Anlage mit Batterie, Wärmepumpe und Wallbox tracken, plus beliebige weitere Stromverbraucher monitoren. Die Kosten- und Ertragsanalytik ist inklusive."
+    },
+    {
+      "case": "open_discovery",
+      "prompt": "Was für Sensoren hat meine Anlage überhaupt?",
+      "model": "haiku",
+      "run": 2,
+      "passed": true,
+      "failures": [],
+      "tools": [
+        "list_sensors"
+      ],
+      "calls": [
+        {
+          "name": "list_sensors",
+          "arguments": {},
+          "error": null
+        }
+      ],
+      "tool_calls": 1,
+      "input_tokens": 40,
+      "output_tokens": 6,
+      "context_tokens": 19809,
+      "cost_usd": 0.0371888,
+      "seconds": 29.0,
+      "answer": "Deine Anlage hat eine sehr umfangreiche Sensorausstattung. Hier die Übersicht:\n\n## Kernkomponenten\n- **PV-Erzeugung**: 2 Inverter/Strings + Gesamterzeugung\n- **Batterie**: Ladezustand, Lade-/Entladeleistung, Temperatur\n- **Netz**: Stromimport und -export (Einspeisung)\n- **Hausverbrauch**: Gesamtverbrauch + einzelne Verbraucher\n- **Wärmepumpe**: Leistung, Heizleistung, COP, Tank-Temperatur\n- **Wallbox**: EV-Ladepower, Fahrzeug-Zustand\n\n## Benutzerdefinierte Verbraucher\n20 Steckplätze für eigene Verbraucher, davon **Waschmaschine** bereits benannt.\n\n## Weitere Sensoren\n- **Wirtschaftlich**: Kosten, Ersparnisse, Feed-in-Erträge, Eigenverbrauchsquote\n- **Effizienz**: Autarkie, Selbstverbrauch, Vermiedene CO₂-Emissionen\n- **Wetter**: Außentemperatur gemessen + Vorhersage\n- **Prognose**: PV-Erzeugungsvorhersage (inklusive Clear-Sky-Modell)\n\n## Spezial-Features\n- Power-Splitter: Alle Verbraucher/Kosten aufspaltbar nach **Grid** vs. **PV-Quelle**\n- Live-Daten, tägliche/wöchentliche/monatliche/jährliche Aggregationen\n- Rang-Analysen (beste/schlechteste Tage, etc.)\n\nWas möchtest du von deiner Anlage wissen?"
+    }
+  ]
+}

@@ -20,6 +20,7 @@ bin/bundler-audit
 bin/ci
 bin/dev
 bin/influxdb-restart.sh
+bin/llm-test
 bin/open
 bin/rspec
 bin/rubocop

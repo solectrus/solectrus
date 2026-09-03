@@ -1,0 +1,109 @@
+# The first ten cases, chosen around what the recent MCP changes touched:
+# discovery that is no longer a prerequisite, the list_sensors filter, and the
+# conventions the server states once in its instructions.
+#
+# Keys: prompt, expect_tools, forbid_tools, max_tool_calls, expect_args,
+# expect_facts (names from Dataset.facts), answer_must_match,
+# answer_must_not_match, allow_tool_errors, judge, note.
+
+- id: totals_yesterday_direct
+  note: >
+    The sensor is obvious from the question, so discovery costs a round trip
+    for nothing. This is what making list_sensors a discovery tool was for.
+  prompt: Wie viel Strom hat meine PV-Anlage gestern erzeugt?
+  expect_tools: [get_totals]
+  forbid_tools: [list_sensors]
+  max_tool_calls: 2
+  expect_args:
+    get_totals:
+      sensors: [inverter_power]
+  expect_facts: [pv_yesterday_kwh]
+  judge: Names the generated energy in kWh or Wh.
+
+- id: current_values_now
+  note: A live reading, which needs neither discovery nor a timeframe.
+  prompt: Wie viel Strom produziert meine Anlage gerade?
+  expect_tools: [get_current_values]
+  forbid_tools: [list_sensors, get_totals]
+  max_tool_calls: 2
+  expect_facts: [pv_now_watt]
+  judge: Names a momentary power in W or kW, not an energy.
+
+- id: resolve_display_name
+  note: >
+    "Waschmaschine" is the operator's own name for custom_power_01, so it can
+    only be resolved through list_sensors - and the query filter exists so that
+    costs one entry instead of the whole index.
+  prompt: Wie viel Strom hat die Waschmaschine gestern verbraucht?
+  expect_tools: [list_sensors, get_totals]
+  max_tool_calls: 3
+  expect_args:
+    list_sensors:
+      query: Waschmaschine
+  expect_facts: [washer_yesterday_kwh]
+  judge: Resolves the washing machine to custom_power_01 and names its consumption.
+
+- id: watt_sum_is_energy
+  note: >
+    Summing a watt sensor yields energy. A model that reads the sum as a power
+    answers in kW, which is the single most expensive misreading in the whole
+    server.
+  prompt: Was hat mein Haus gestern verbraucht? Nenne Zahl und Einheit.
+  expect_tools: [get_totals]
+  max_tool_calls: 2
+  expect_facts: [house_yesterday_kwh]
+  answer_must_not_match: ['\d\s*kw\b(?!h)']
+  judge: States the consumption as an energy (kWh or Wh), never as a power (W or kW).
+
+- id: ranking_best_day
+  note: The server points at get_ranking for best/worst; get_periods would be the detour.
+  prompt: Welcher Tag im letzten Monat hatte die höchste PV-Erzeugung?
+  expect_tools: [get_ranking]
+  max_tool_calls: 3
+  expect_facts: [best_day_last_month_day, best_day_last_month_kwh]
+  judge: Names one day of last month and the energy of that day.
+
+- id: partial_month_not_low
+  note: >
+    The running month ends today and is therefore half a month. partial_at says
+    so; a model that ignores it reports a collapse in production.
+  prompt: Vergleiche die PV-Erzeugung im letzten Monat mit der in diesem Monat.
+  max_tool_calls: 3
+  expect_facts: [pv_last_month_kwh]
+  judge: >
+    Says that the running month is not over yet (only part of it is measured)
+    instead of presenting its smaller figure as a decline.
+
+- id: series_intraday
+  note: An intraday curve is get_series; the daily aggregates cannot answer it.
+  prompt: Zeig mir den Tagesverlauf der PV-Erzeugung von gestern. Wann war das Maximum?
+  expect_tools: [get_series]
+  forbid_tools: [get_periods]
+  max_tool_calls: 3
+  judge: Names a time of day between 11:00 and 15:00 as the peak.
+
+- id: forecast_not_totals
+  note: >
+    Tomorrow has no measurements, and get_totals rejects a forecast sensor. The
+    honest answer is "no forecast data", never a measured value relabelled.
+  prompt: Wie viel PV-Ertrag wird für morgen erwartet?
+  expect_tools: [get_forecast]
+  forbid_tools: [get_totals]
+  max_tool_calls: 3
+  allow_tool_errors: true
+  judge: >
+    Says that no forecast data is available, and does not present measured
+    values as a forecast.
+
+- id: open_discovery
+  note: >
+    The one case that is meant to call list_sensors without a filter. It is the
+    cost probe for the full index - watch its input tokens, not its pass rate.
+  prompt: Was für Sensoren hat meine Anlage überhaupt?
+  expect_tools: [list_sensors]
+  max_tool_calls: 2
+  judge: >
+    Describes the sensor groups of this installation. Reporting the index is
+    not invention: naming single sensors, quoting the names the operator gave
+    them, or counting them approximately are all fine. Only a made-up
+    MEASUREMENT fails this - a watt, kWh or money figure that no tool returned.

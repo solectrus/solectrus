@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# LLM tests for the MCP server: how well a model finds its way with the tool
+# descriptions we ship. Runs through the `claude` CLI (and therefore the Claude
+# subscription), never from bin/ci.
+ENV['RAILS_ENV'] = 'test'
+
+# Before the boot, because the boot is the first two seconds of silence.
+warn 'Booting Rails (test) ...'
+
+require_relative '../config/environment'
+require 'active_support/testing/time_helpers'
+
+Dir[File.expand_path('../spec/llm_test/harness/*.rb', __dir__)].each { require _1 }
+
+LlmTest::Cli.call(ARGV)
