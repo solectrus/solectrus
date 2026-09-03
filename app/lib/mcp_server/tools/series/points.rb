@@ -59,10 +59,34 @@ module McpServer
             start: start.iso8601,
             **step_note(grid),
             point_count: entries.size,
+            **peak_note(entries),
             **index_note(entries, start, grid&.interval),
             **partial_note(entries, grid),
             values: entries.map(&:last),
           }
+        end
+
+        # Where the curve's highest value sits. Derivable from the axis, and
+        # stated anyway, because deriving it means finding the index of the
+        # maximum in up to 1440 bare numbers and converting that index to a
+        # time - and "when was the peak?" is one of the questions this tool
+        # exists for. Measurement says what the arithmetic is worth: on a
+        # curve peaking at 13:01, two runs out of three answered 12:02 and
+        # 17:13, each with the right value on the wrong clock.
+        #
+        # It costs ~60 bytes against the ~10 kB the curve itself weighs, and it
+        # describes THIS curve: with a coarse resolution or `aggregation`, the
+        # peak is the highest bucket returned, not the highest sample measured
+        # (see Facts::SUMMARY_EXTREMES for the same distinction one level up).
+        def peak_note(entries)
+          # An empty bucket is a nil value, and nil does not compare - so the
+          # ordering has to put it below every measurement rather than filter
+          # it out (`entries.compact` drops no entry: the pairs are there, it
+          # is their values that are missing).
+          at, value = entries.max_by { |_time, entry| entry || -Float::INFINITY }
+          return {} if value.nil?
+
+          { peak: { at: at.iso8601, value: } }
         end
 
         def step_note(grid)

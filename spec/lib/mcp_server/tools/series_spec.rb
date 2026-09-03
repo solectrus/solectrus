@@ -299,6 +299,27 @@ describe McpServer::Tools::Series do
           expect(data[:start]).to be_present
           expect(data[:step_seconds]).to eq(3600)
         end
+
+        # The one thing on the axis a client cannot derive reliably: locating
+        # the maximum means finding an index in up to 1440 bare numbers and
+        # converting it to a time. A small model answered 12:02 and 17:13 for a
+        # curve peaking at 13:01, twice out of three runs, each with the right
+        # value on the wrong clock.
+        describe 'the peak' do
+          it 'names the highest bucket with its time' do
+            data = entry
+            highest = data[:values].compact.max
+            at = Time.zone.parse(data[:start]) + (data[:values].index(highest) * 1.hour)
+
+            expect(data[:peak]).to eq({ at: at.iso8601, value: highest })
+          end
+
+          # A curve with nothing measured has no peak to name, and nil does not
+          # compare - the empty buckets must not win the ordering.
+          it 'omits the peak where no bucket carried a value' do
+            expect(entry(sensors: ['heatpump_power'])).not_to have_key(:peak)
+          end
+        end
       end
     end
 

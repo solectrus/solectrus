@@ -90,6 +90,7 @@ bare `values` list — not one dated object per entry:
   "start": "2026-08-06T00:05:00+02:00",
   "step_seconds": 300,
   "point_count": 288,
+  "peak": { "at": "2026-08-06T13:05:00+02:00", "value": 8447.7 },
   "values": [0.0, 0.0, 12.4, null, 210.7, "…"]
 }
 ```
@@ -110,6 +111,14 @@ that, and each is absent when it has nothing to say:
   which would be a second index space beside `indices` and disagree with it as
   soon as the two differ. Such a value is smaller for having been cut, not for
   having measured less, so never compare it with an unflagged one.
+
+`get_series` adds `peak`: the highest bucket of the curve, with its time. It is
+derivable from the axis, and stated anyway, because deriving it means finding
+the index of the maximum in up to 1440 bare numbers and converting that index
+to a time. Measurement says what that arithmetic costs: on a curve peaking at
+13:01, two runs out of three answered 12:02 and 17:13 — each with the right
+value on the wrong clock. `peak` describes the curve as returned, so at a
+coarse resolution it names a bucket, not a sample.
 
 A `null` value means "no data", distinct from a measured `0`. `get_series`
 states its axis even when `values` is empty — the timeframe and the resolution

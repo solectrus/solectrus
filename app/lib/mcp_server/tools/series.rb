@@ -57,7 +57,10 @@ module McpServer
         offset in `start` forward. Bucket edges follow the installation's
         timezone, so a daylight-saving day holds 23 or 25 points. Neither is a
         gap. `partial_at` names the buckets the window only cuts into, by their
-        bucket END like `start` — never read it as a low one.
+        bucket END like `start` — never read it as a low one. `peak` names the
+        highest bucket of the curve with its time, so "when was the maximum?"
+        needs no counting along `values`; it describes the curve as returned,
+        which at a coarse resolution is a bucket rather than a sample.
 
         Resolution, when omitted: the finest that keeps the WHOLE response
         within #{Resolution::MAX_POINTS} points — a budget SHARED by the
