@@ -21,15 +21,18 @@ module McpServer
     # The conventions that hold across every tool, stated here so no tool
     # description has to repeat them (Facts explains why each is said at all).
     INSTRUCTIONS = <<~TEXT.strip
-      Read-only data of a SOLECTRUS photovoltaic monitoring system. Call
-      list_sensors first: it indexes every sensor name, and the other tools take
-      those names. Then get_current_values for live readings, get_totals for a
+      Read-only data of a SOLECTRUS photovoltaic monitoring system.
+      get_current_values for live readings, get_totals for a
       timeframe, get_periods for a value per day/week/month/year, get_ranking
       for best/worst periods, get_series for intraday curves;
       get_system_info for installation metadata and currency,
       get_prices for the (time-dependent) tariffs, get_forecast for expected PV
       energy, get_amortization for payback, break-even and NPV/IRR, and
       get_cash_flows for the single investments and costs behind it.
+
+      list_sensors is for DISCOVERY alone: call it to learn which sensors
+      exist, or to resolve a sensor the user named. It is not a prerequisite -
+      when you already know the sensor name, call the data tool directly.
 
       Units after aggregation, in get_totals and get_ranking:
       #{Facts::WATT_SUM_IS_ENERGY}

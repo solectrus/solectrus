@@ -27,7 +27,7 @@ module McpServer
           timeframe: timeframe_property('The period to aggregate over.'),
           sensors:
             sensors_property(
-              "Sensor names (from list_sensors), at most #{MAX_SENSORS}.",
+              "Sensor names, at most #{MAX_SENSORS}. list_sensors resolves a name you do not know.",
               max: MAX_SENSORS,
             ),
         },

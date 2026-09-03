@@ -8,8 +8,11 @@ module McpServer
       title 'List available sensors'
       description <<~TEXT.strip
         The sensors this SOLECTRUS instance has (solar inverter, battery, grid,
-        house, heatpump, finances, ...). Call this first: every other tool takes
-        these names.
+        house, heatpump, finances, ...). Use it to DISCOVER the available
+        sensors, or to resolve a sensor the user mentioned. It is not a
+        prerequisite: when you already know the sensor name, call
+        get_current_values, get_totals, get_series or any other data tool
+        directly.
 
         Per sensor: `name`, a semantic description, and `tools` — which tools
         return meaningful data for it. Plus `display_name` wherever the operator
