@@ -12,38 +12,33 @@ module McpServer
         pays off, plus the key financial figures. Combines the measured savings
         with the manually kept cash flow register (investments, costs, revenue).
 
-        Returns:
-          - amortized / degree_percent: whether the operating cash flow has
-            earned the net investment back, and how far it has got. The degree
-            is uncapped and counts only flows up to today; a subsidy lowers the
-            net investment but does not inflate it.
+        What the fields mean where the name does not say it:
+          - degree_percent is uncapped and counts only flows up to today; a
+            subsidy lowers the net investment but does not inflate it.
           - break_even_date: first day the nominal balance reaches zero, null if
-            not within the period. installation_date starts that period.
+            not within the period, which starts at installation_date.
           - net_position: nominal balance today, excluding future-dated flows.
-          - gross_investment (all investment outflows up to today, as a
-            magnitude), investment_reduction (subsidies and refunds) and their
-            difference net_investment — what actually has to be earned back.
+          - net_investment is gross_investment (outflows up to today, as a
+            magnitude) minus investment_reduction (subsidies and refunds) —
+            what actually has to be earned back.
           - operating_cashflow: measured savings plus manual operating flows
             (compensation, manual_savings, operating_cost, repair); excludes
             subsidies/refunds. manual_savings covers periods without measured
             data, e.g. before SOLECTRUS was installed.
-          - profit_nominal (surplus at the end of the period, no interest), npv
-            (positive beats an alternative investment at the calculatory rate),
-            irr_percent (the rate where the NPV is zero) and
-            required_annual_savings (the annual benefit a non-negative NPV
-            needs).
+          - npv is positive where the system beats an alternative investment at
+            the calculatory rate, irr_percent is the rate where it is zero, and
+            required_annual_savings the annual benefit a non-negative NPV needs.
           - savings_per_day / savings_per_year: the projection's savings rate
             (rolling year, or all-time average below a year of data);
             per_year = per_day * 365. projection_uncertain marks less than a
             year of measured data.
-          - yearly_series: the nominal balance and the amortization degree per
-            PV year. PV years run anniversary to anniversary of
-            installation_date, NOT along the calendar: the entry labelled 2029
-            is the balance on that anniversary, so reporting it as "end of
-            2029" is wrong by the months up to New Year, and break_even_date
-            falls between the last negative entry and the first positive one.
-            The first entry is the operating start itself, carrying the
-            investment dip. `projected` marks a year not yet measured.
+          - yearly_series runs anniversary to anniversary of installation_date,
+            NOT along the calendar: the entry labelled 2029 is the balance on
+            that anniversary, so reporting it as "end of 2029" is wrong by the
+            months up to New Year, and break_even_date falls between the last
+            negative entry and the first positive one. The first entry is the
+            operating start itself, carrying the investment dip. `projected`
+            marks a year not yet measured.
 
         Money is in the system currency (get_system_info) with 2 decimals, dates
         are ISO 8601, rates and degrees are percent with 1 decimal.

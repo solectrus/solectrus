@@ -10,41 +10,38 @@ module McpServer
       description <<~TEXT.strip
         The most recent live reading of each sensor right now: power flows in
         watts (solar production, grid import/export, house, heatpump, wallbox),
-        battery state of charge, temperatures. With `sensors`, exactly those,
-        and a display_name each. If all you need is whether data is still
-        arriving, get_system_info answers that in two fields.
+        battery state of charge, temperatures. With `sensors`, exactly those.
+        To check only whether data is still arriving, get_system_info answers
+        that in two fields.
 
         Without `sensors` you get every configured sensor that HAS a live
-        reading, and a display_name only where the operator named the sensor
-        themselves ("Geschirrspüler" for custom_power_06) — the rest read off
-        their own name. Money sensors, the _grid/_pv power splits and
-        chart-only composites have no live reading: they carry no "c" in their
-        `tools`, stay out of the default set, and naming one is an error that
-        says what to ask instead.
+        reading. Money sensors, the _grid/_pv power splits and chart-only
+        composites have none: they carry no "c" in their `tools`, stay out of
+        the default set, and naming one is an error that says what to ask
+        instead. `display_name` is there where the operator named the sensor
+        themselves ("Geschirrspüler" for custom_power_06).
 
-        Every entry carries `last_seen_at` and `age_seconds` — for a reported
-        value as much as for a null one:
-          - last_seen_at: when that sensor last delivered anything, across its
-            whole history rather than the live window. A null value WITH a
-            last_seen_at means the source delivered before and is not
-            delivering now — offline, or writing only sporadically. Only a null
-            last_seen_at means it never delivered at all.
-          - age_seconds: how old that reading is. "Live" only means "within the
-            sensor's max_age" (15 min for most, 2 h for the sparse ones), so
-            two values here can describe states minutes apart — compare their
-            ages before comparing them. The top-level `time` is the newest of
-            them, not an instant they share, and the same skew is why two
-            sensors measuring the same thing can differ by a watt. Over a
-            timeframe (get_totals) it averages out.
+        Every entry carries `last_seen_at` (when that sensor last delivered
+        anything, across its whole history) and `age_seconds` (how old this
+        reading is) — for a reported value as much as for a null one:
+          - A null value WITH a last_seen_at means the source delivered before
+            and is not delivering now — offline, or writing only sporadically.
+            Only a null last_seen_at means it never delivered at all.
+          - "Live" only means "within the sensor's max_age" (15 min for most,
+            2 h for the sparse ones), so two entries can describe states
+            minutes apart — compare their ages before comparing their values.
+            The top-level `time` is the newest of them, not an instant they
+            share, and the same skew is why two sensors measuring the same
+            thing can differ by a watt. Over a timeframe (get_totals) it
+            averages out.
 
         A calculated sensor has no timestamp of its own and reports the newest
         one among its inputs. A measured 0 is a real value, distinct from null.
 
         Two derived sensors return null deliberately rather than report noise
         as a number — their source is not missing: self_consumption_quote below
-        50 W of generation (a ratio against near-zero generation is not a
-        meaningful 100 %), and inverter_power_difference below 5 W or below 1 %
-        of generation (sampling noise, not a loss).
+        50 W of generation, and inverter_power_difference below 5 W or below
+        1 % of generation.
       TEXT
       input_schema(
         properties: {
