@@ -65,7 +65,13 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # once per session. It saves 13 KB the first time a client resolves one
       # sensor instead of pulling the whole index, so the ceiling gives way to
       # it rather than the other way round.
-      'tool definitions + instructions' => 30_500,
+      #
+      # The core sensor names in the instructions cost ~450 bytes on the same
+      # terms. Measurement says what they buy: without them a model spends a
+      # list_sensors call before it can ask for the PV generation, or invents
+      # a name (pv_production, pv_generation) and pays for the rejection and
+      # the recovery on top.
+      'tool definitions + instructions' => 31_000,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
