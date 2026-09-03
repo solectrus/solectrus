@@ -276,5 +276,112 @@ describe McpServer::Tools::ListSensors do
         expect(code_for('heatpump_status')).to eq('c')
       end
     end
+
+    # Once the sensor names are known, the one reason left to call this tool is
+    # to resolve a sensor the USER named - and for that the full index costs
+    # many times what the single entry does.
+    describe 'filtering' do
+      def filtered(**)
+        response = described_class.call(server_context: nil, **)
+        JSON.parse(response.content.first[:text], symbolize_names: true)
+      end
+
+      it 'returns only what matches the query' do
+        result = filtered(query: 'heatpump')
+
+        expect(result[:sensors]).to be_present
+        expect(result[:sensors].pluck(:name)).to all(include('heatpump'))
+        expect(result[:sensors].size).to be < data[:sensors].size
+      end
+
+      # "household" appears in the description of house_power, not in its
+      # name. A user says the word, not the identifier.
+      it 'matches the description, not the name alone' do
+        expect(filtered(query: 'household')[:sensors].pluck(:name)).to include('house_power')
+      end
+
+      it 'ignores case and surrounding space' do
+        expect(filtered(query: '  HeatPump  ')[:sensors]).to eq(filtered(query: 'heatpump')[:sensors])
+      end
+
+      # The operator's own name is the word the user says, so it has to be
+      # searchable - looking for "Waschmaschine" is the whole point.
+      it 'matches the name the operator gave a sensor' do
+        allow(Setting).to receive(:sensor_names).and_return({ custom_power_01: 'Waschmaschine' })
+
+        # Its cost sensor carries the same name, and matches too - that is
+        # the operator naming a thing, not a sensor.
+        expect(filtered(query: 'waschmaschine')[:sensors].pluck(:name)).to include('custom_power_01')
+      end
+
+      it 'restricts to a category' do
+        result = filtered(category: 'battery')
+
+        expect(result[:sensors].pluck(:name)).to include('battery_soc')
+        expect(result[:sensors].pluck(:name)).not_to include('house_power')
+      end
+
+      it 'combines query and category' do
+        names = filtered(category: 'battery', query: 'soc')[:sensors].pluck(:name)
+
+        expect(names).to include('battery_soc')
+        expect(names).to all(include('soc'))
+      end
+
+      # An empty list would read as "this instance has no such sensor" and send
+      # the client looking for the sensor rather than for its own typo.
+      it 'rejects a category this instance does not have' do
+        response = described_class.call(server_context: nil, category: 'nonsense')
+
+        expect(response.error?).to be(true)
+        expect(response.content.first[:text]).to include('Unknown category: nonsense')
+      end
+
+      # A query that matches nothing is not an error - the word came from the
+      # user, and the way out is a wider search, not a failed call.
+      it 'says what to do when nothing matched' do
+        result = filtered(query: 'zzzz')
+
+        expect(result[:sensors]).to be_empty
+        expect(result[:filter_note]).to include('whole index')
+      end
+
+      it 'echoes the filter it applied' do
+        expect(filtered(query: 'heatpump')[:filter]).to eq({ query: 'heatpump' })
+        expect(data).not_to have_key(:filter)
+      end
+
+      # The conventions are 4.4 KB against 8.5 KB of sensors. On a query that
+      # returns one entry they would be the answer and the sensor the
+      # footnote, so a filtered response keeps the `tools` letters - what the
+      # entry is read WITH - and points at the full call for the rest.
+      describe 'the conventions block' do
+        subject(:conventions) { filtered(query: 'heatpump')[:conventions] }
+
+        it 'keeps the tools letters' do
+          expect(conventions[:tools]).to eq(data[:conventions][:tools])
+        end
+
+        it 'drops the instance-wide blocks' do
+          expect(conventions.keys).to contain_exactly(:tools, :note)
+        end
+
+        it 'says where the rest is' do
+          expect(conventions[:note]).to include('list_sensors without arguments')
+        end
+
+        it 'stays whole without a filter' do
+          expect(data[:conventions].keys).to include(:suffixes, :units, :precision)
+        end
+      end
+
+      # The saving is the point of the argument, not a side effect of it.
+      it 'costs a fraction of the full index' do
+        one = described_class.call(server_context: nil, query: 'heatpump').content.first[:text]
+        all = described_class.call(server_context: nil).content.first[:text]
+
+        expect(one.bytesize).to be < (all.bytesize / 4)
+      end
+    end
   end
 end

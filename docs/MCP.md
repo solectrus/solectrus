@@ -23,7 +23,10 @@ setup guide instead, for the admin alone.)
 - `list_sensors` — discover available sensors: a compact index of name,
   description and which tools work for each sensor (`tools`). A sensor no tool
   answers for is left out: the index exists to pick a sensor to call something
-  with
+  with. A client that knows the sensor name does not call it at all — the data
+  tools take the name directly. `query` (a substring of the name, the
+  description or the name the operator gave) and `category` narrow the index to
+  the sensor a user named, which is what most calls want
 - `get_sensor_details` — unit, display name, category and aggregations for a
   handful of named sensors, on the rare occasion the index is not enough
 - `get_system_info` — installation date, currency, timezone, installed peak
@@ -157,7 +160,10 @@ timeframes render as line charts.)
 `list_sensors` also omits the splits from its index — they lengthen it without
 carrying anything their base sensor and the suffix do not.
 `conventions.suffixes.split_bases` names every base that has them, and
-`get_sensor_details` answers for a split by name.
+`get_sensor_details` answers for a split by name. A filtered call (`query` or
+`category`) carries no `split_bases`: the whole `conventions` block is 4.4 KB
+against 8.5 KB of sensors, so a filtered response keeps the `tools` letters
+alone and names the call that gives the rest.
 
 ### A `null` always means "no data"
 

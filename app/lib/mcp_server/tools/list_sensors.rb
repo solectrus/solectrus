@@ -22,6 +22,10 @@ module McpServer
         absence means the sensor carries no name of its own, not that it has
         none to show.
 
+        Pass `query` to resolve ONE sensor the user named: the whole index
+        costs many times the single entry. `category` narrows it likewise.
+        Without either, the full index — what exploring an instance needs.
+
         An index, not a datasheet: unit, category and aggregations for several
         hundred sensors would cost far more up front than they are worth, and
         every data tool reports unit and display name for what it returns
@@ -29,9 +33,29 @@ module McpServer
 
         The `conventions` block in the response explains the rest: the `tools`
         letters, the _grid/_pv sensors this index leaves out, the units, and the
-        decimals each unit is rounded to.
+        decimals each unit is rounded to. A filtered response carries the
+        `tools` letters alone — ask without arguments for the whole block.
       TEXT
-      input_schema(properties: {})
+      input_schema(
+        properties: {
+          query: {
+            type: 'string',
+            description:
+              'Case-insensitive substring, matched against name, ' \
+                'display_name and description. The way to resolve a sensor ' \
+                'the user named ("Waschmaschine", "heatpump").',
+          },
+          category: {
+            type: 'string',
+            description:
+              'One category: inverter, battery, grid, consumer, heatpump, ' \
+                'car, economic, forecast, status, other. An unknown one is ' \
+                'rejected with the list this instance has.',
+            # Not an enum: the categories a given instance has depend on its
+            # configuration, and a schema is built once at boot.
+          },
+        },
+      )
       read_only idempotent: true
 
       # Explains the systematic naming/field conventions once, so a client does
@@ -98,15 +122,82 @@ module McpServer
       }.freeze
       private_constant :PRECISION
 
-      def self.perform(**)
+      def self.perform(query: nil, category: nil, **)
         # Force English so the discovery output (descriptions) is deterministic
-        # regardless of the instance's locale.
+        # regardless of the instance's locale. The filter runs inside it too,
+        # so `query` matches the same descriptions the response returns.
         I18n.with_locale(:en) do
           splits, listed = McpServer::SplitSensors.partition(Sensor::Config.sensors)
+          sensors = answerable(listed)
+          filtered = filter(sensors, query:, category:)
 
-          { sensors: answerable(listed).map { entry_for(it) }, conventions: conventions_for(splits) }
+          {
+            **filter_note(query:, category:, matched: filtered.size),
+            sensors: filtered.map { entry_for(it) },
+            conventions: conventions_for(splits, filtered: filtered.size < sensors.size),
+          }
         end
       end
+
+      # Resolving one sensor the user named is what is left to call this tool
+      # for once the names are known, and the full index costs several times
+      # what the one entry does. Matching runs over description as well as
+      # name, because the word the user says ("heat pump") reaches a sensor
+      # through its prose as often as through its name.
+      def self.filter(sensors, query:, category:)
+        sensors = by_category(sensors, category) if category.present?
+        return sensors if query.blank?
+
+        needle = query.to_s.strip.downcase
+        sensors.select { haystack_for(it).include?(needle) }
+      end
+      private_class_method :filter
+
+      def self.haystack_for(sensor)
+        [sensor.name, sensor.description, (mcp_display_name(sensor) if sensor.user_defined_name?)]
+          .compact
+          .join(' ')
+          .downcase
+      end
+      private_class_method :haystack_for
+
+      # A category this instance does not have is rejected rather than answered
+      # with an empty list: an empty list reads as "no such sensor", which
+      # would send the client looking for the sensor instead of for its typo.
+      def self.by_category(sensors, category)
+        wanted = category.to_s.strip.downcase.to_sym
+        matching = sensors.select { it.category == wanted }
+        return matching if matching.any?
+
+        raise ArgumentError,
+              "Unknown category: #{category}. This instance has: " \
+                "#{sensors.map(&:category).uniq.sort.join(', ')}."
+      end
+      private_class_method :by_category
+
+      # Says WHY the list is short, and what to do when it is empty - without
+      # it a filtered response is indistinguishable from an instance that has
+      # nothing, and the client stops rather than widening the search.
+      def self.filter_note(query:, category:, matched:)
+        applied = { **(query.present? ? { query: } : {}), **(category.present? ? { category: } : {}) }
+        return {} if applied.empty?
+
+        {
+          filter: applied,
+          **(
+            if matched.zero?
+              {
+                filter_note:
+                  'No sensor matched. Try a shorter or different `query`, or ' \
+                    'call without arguments for the whole index.',
+              }
+            else
+              {}
+            end
+          ),
+        }
+      end
+      private_class_method :filter_note
 
       # An index exists so a client can PICK a sensor to call something with.
       # A sensor with an empty `tools` is the one entry that can never be
@@ -138,7 +229,16 @@ module McpServer
       # The bases are read back off the splits that actually exist rather than
       # assumed symmetric, so a family carrying only one of the two suffixes
       # still lists its base, and exactly once.
-      def self.conventions_for(splits)
+      #
+      # A filtered response keeps the `tools` letters alone. The whole block is
+      # 4.4 KB against 8.5 KB of sensors, so on a `query` that returns one
+      # entry the conventions would be the answer and the sensor the footnote.
+      # The letters stay because they are what the entry is read WITH; the
+      # rest - suffixes, units, precision - is instance-wide knowledge the full
+      # index carries, and the note says where to get it.
+      def self.conventions_for(splits, filtered: false)
+        return filtered_conventions if filtered
+
         bases = splits.to_set { McpServer::SplitSensors.base_name(it.name) }.sort
 
         CONVENTIONS.merge(
@@ -148,6 +248,17 @@ module McpServer
         )
       end
       private_class_method :conventions_for
+
+      def self.filtered_conventions
+        {
+          tools: CONVENTIONS[:tools],
+          note:
+            'Filtered response: only the `tools` letters are explained here. ' \
+              'For the _grid/_pv suffixes, the units and the rounding, call ' \
+              'list_sensors without arguments.',
+        }
+      end
+      private_class_method :filtered_conventions
     end
   end
 end

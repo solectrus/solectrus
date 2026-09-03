@@ -61,7 +61,11 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # It is the one ceiling that buys something elsewhere - the axis a curve
       # and a ranking share is described here instead of being repeated in
       # every response, which is what the two data ceilings below cost now.
-      'tool definitions + instructions' => 30_000,
+      # The `query`/`category` filter of list_sensors costs ~700 bytes here,
+      # once per session. It saves 13 KB the first time a client resolves one
+      # sensor instead of pulling the whole index, so the ceiling gives way to
+      # it rather than the other way round.
+      'tool definitions + instructions' => 30_500,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
