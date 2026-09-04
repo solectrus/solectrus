@@ -1,0 +1,19 @@
+.hidden data-tooltip-target= 'html'
+  strong
+    = l(date, format: date_format)
+
+  - if grid_power?
+    .text-xs.mt-1
+      - grid_fields.each do |field|
+        .label-value-row
+          span = label_for(field)
+          span
+            =< render SensorValue::Component.new(value[field], field, sign: sign_for(field), precision: 0)
+
+      .label-value-row.font-bold
+        span Saldo:
+        span
+          = render SensorValue::Component.new(grid_balance.abs, :grid_balance, sign: grid_balance.negative? ? :negative : :positive, precision: 0)
+  - else
+    br
+    = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)

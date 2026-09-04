@@ -21,12 +21,12 @@
       = render SensorValue::Component.new(data, :heatpump_power, context: :total, class: 'text-2xl md:text-3xl')
   - if show_tooltip?
     #tooltip-content-heatpump_power.hidden data-tooltip-target= 'html'
-      table.border-separate.border-spacing-x-2.border-spacing-y-1
+      .space-y-1
         - tooltip_rows.each do |row|
-          tr
-            td.align-middle
-              div class="size-3 rounded-sm border border-gray-500 dark:border-slate-400 #{row[:bg]}"
-            td.text-left.text-sm.opacity-75.align-middle
-              = row[:label]
-            td.text-right.font-semibold.align-middle.whitespace-nowrap
+          .label-value-row
+            .flex.items-center.gap-2
+              div class="size-3 rounded-sm border border-gray-500 dark:border-slate-400 shrink-0 #{row[:bg]}"
+              span.text-sm.opacity-75
+                = row[:label]
+            span.font-semibold.whitespace-nowrap
               = render SensorValue::Component.new(data, row[:sensor], context: :total)

@@ -20,6 +20,7 @@
 
 /* Import app specific styles */
 @import '../stylesheets/floating_tooltip.css' layer(base);
+@import '../stylesheets/label_value.css' layer(base);
 @import '../stylesheets/chart_tooltip.css' layer(base);
 @import '../stylesheets/flow.css' layer(base);
 @import '../stylesheets/badge.css' layer(base);

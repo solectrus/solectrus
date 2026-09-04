@@ -14,6 +14,10 @@ const LONG_PRESS_DURATION = 500;
 // A long-press is canceled if the finger moves further than this (px) while
 // waiting — prevents the tooltip from firing mid-swipe or mid-scroll
 const LONG_PRESS_MOVE_TOLERANCE = 10;
+// Where the arrow sits on the side it points away from: half of its 12px size,
+// plus the 1px border of the box, because an absolutely positioned element
+// starts at the padding box of its container
+const ARROW_STATIC_OFFSET = '-7px';
 
 /**
  * Tooltip controller using Floating UI
@@ -422,18 +426,24 @@ export default class TooltipController extends Controller {
   private createTooltip(initialContent = ''): void {
     this.tooltip = document.createElement('div');
     this.tooltip.className = 'floating-tooltip';
-    this.tooltip.style.visibility = 'hidden';
+
+    // The inner element carries the box and the show animation. It is kept
+    // apart from the outer element because Floating UI measures the outer one,
+    // and a transform would falsify that measurement (see the stylesheet).
+    const inner = document.createElement('div');
+    inner.className = 'floating-tooltip-inner';
+    this.tooltip.appendChild(inner);
 
     this.tooltipContent = document.createElement('div');
     this.tooltipContent.className = 'floating-tooltip-content';
     if (initialContent) {
       this.tooltipContent.innerHTML = initialContent;
     }
-    this.tooltip.appendChild(this.tooltipContent);
+    inner.appendChild(this.tooltipContent);
 
     this.arrowElement = document.createElement('div');
     this.arrowElement.className = 'floating-tooltip-arrow';
-    this.tooltip.appendChild(this.arrowElement);
+    inner.appendChild(this.arrowElement);
   }
 
   /**
@@ -479,7 +489,6 @@ export default class TooltipController extends Controller {
 
     await this.updateTooltipPosition(target, placement);
 
-    this.tooltip.style.visibility = 'visible';
     this.tooltip.classList.add('show');
 
     this.positionCleanup = autoUpdate(target, this.tooltip, () =>
@@ -493,7 +502,6 @@ export default class TooltipController extends Controller {
   private hideTooltip(): void {
     if (!this.tooltip) return;
 
-    this.tooltip.style.visibility = 'hidden';
     this.tooltip.classList.remove('show');
 
     this.positionCleanup?.();
@@ -542,7 +550,7 @@ export default class TooltipController extends Controller {
         top: arrowY === null ? '' : `${arrowY}px`,
         right: '',
         bottom: '',
-        [staticSide[side]]: '-6px',
+        [staticSide[side]]: ARROW_STATIC_OFFSET,
       });
     }
 

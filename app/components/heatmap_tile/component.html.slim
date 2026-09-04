@@ -11,30 +11,7 @@
             = link_to link_path_for_date(date),
                       class: ['aspect-square', background_class(value)],
                       style: "opacity: #{opacity(value)}" do
-              .hidden data-tooltip-target= 'html'
-                strong
-                  = l(date)
-
-                - if sensor.name == :grid_power
-                  table.text-xs.mt-1
-                    - grid_fields.each do |field|
-                      tr
-                        td
-                          - case field
-                          - when :grid_revenue
-                            | Export:
-                          - when :grid_costs
-                            | Import:
-                        td.text-right.pl-2
-                          =< render SensorValue::Component.new(value[field], field, sign: field == :grid_costs ? :negative : :positive, precision: 0)
-
-                    tr.font-bold
-                      td Saldo:
-                      td.text-right.pl-2
-                        = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
-                - else
-                  br
-                  = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)
+              = render HeatmapTile::Tooltip::Component.new(value:, sensor:, date:)
 
               span.block.h-full
         - else
@@ -58,30 +35,7 @@
           = link_to link_path_for_date(date.strftime('%Y-%m')),
                     class: ['aspect-square', background_class(value)],
                     style: "opacity: #{opacity(value)}" do
-              .hidden data-tooltip-target= 'html'
-                strong
-                  = l(date, format: :month)
-
-                - if sensor.name == :grid_power
-                  table.text-xs.mt-1
-                    - grid_fields.each do |field|
-                      tr
-                        td
-                          - case field
-                          - when :grid_revenue
-                            | Export:
-                          - when :grid_costs
-                            | Import:
-                        td.text-right.pl-2
-                          =< render SensorValue::Component.new(value[field], field, sign: field == :grid_costs ? :negative : :positive, precision: 0)
-
-                    tr.font-bold
-                      td Saldo:
-                      td.text-right.pl-2
-                        = render SensorValue::Component.new(grid_balance(value).abs, :grid_balance, sign: grid_balance(value).negative? ? :negative : :positive, precision: 0)
-                - else
-                  br
-                  = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)
+              = render HeatmapTile::Tooltip::Component.new(value:, sensor:, date:, date_format: :month)
 
               span.block.h-full
         - else

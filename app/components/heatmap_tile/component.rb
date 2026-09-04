@@ -79,10 +79,6 @@ class HeatmapTile::Component < ViewComponent::Base
     sensor.name == :grid_power
   end
 
-  def grid_fields
-    %i[grid_revenue grid_costs]
-  end
-
   def grid_balance(value)
     return 0 unless value.is_a?(Hash)
 

@@ -1,0 +1,37 @@
+/*
+ * A row that shows a label and the value that belongs to it.
+ */
+.label-value-row {
+  @apply flex items-baseline justify-between gap-x-2;
+
+  /*
+   * A value is one unit and must stay on one line. If it breaks, the digits of
+   * a number move to different lines, and "303 €" reads as "30" and "3 €".
+   */
+  > :last-child {
+    @apply whitespace-nowrap;
+  }
+}
+
+/*
+ * A label can carry a name the user typed in the settings, of any length and
+ * without a space to break at. A tooltip is narrow, so such a name would leave
+ * the tooltip. Thus a word in the label breaks where it must.
+ */
+.floating-tooltip .label-value-row > :first-child {
+  @apply wrap-anywhere;
+}
+
+/*
+ * A container that a small screen makes too narrow to hold a label and its
+ * value on one line. There the value goes below its label, and both are
+ * centered. A segment tooltip is such a container: it stands beside a bar and
+ * keeps a narrow column. A large screen gives the room for one line, so the
+ * rows stay side by side.
+ *
+ * The container sets this, not the row, because the rows can come from a
+ * shared component that also renders outside such a container.
+ */
+.label-value-stacked .label-value-row {
+  @apply max-md:flex-col max-md:items-center max-md:text-center;
+}

@@ -41,7 +41,7 @@
         i.fa.fa-circle-exclamation
 
       .hidden id="tooltip-content-#{sensor.name}" data-tooltip-target="html"
-        .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
+        .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2.label-value-stacked
           - unless inline
             = render SensorIcon::Component.new(sensor, data:, class: 'fa-2xl')
 
@@ -77,15 +77,13 @@
               = render SensorValue::Component.new(data, :heatpump_costs_grid, sign: :negative, class: 'text-xl')
 
           - if sensor.name == :inverter_power && Sensor::Config.multi_inverter?
-            table.mt-3
-              tbody
-                - Sensor::Config.custom_inverter_sensors.reverse_each do |inverter_sensor|
-                  - if data.respond_to?(inverter_sensor.name)
-                    tr
-                      td.text-left.pr-1
-                        = inverter_sensor.display_name
-                      td.text-right.pl-1.tabular-nums
-                        = render SensorValue::Component.new(data, inverter_sensor.name, context: now? ? :rate : :total, precision: 3)
+            .mt-3.space-y-2
+              - Sensor::Config.custom_inverter_sensors.reverse_each do |inverter_sensor|
+                - if data.respond_to?(inverter_sensor.name)
+                  .label-value-row
+                    span = inverter_sensor.display_name
+                    span.tabular-nums
+                      = render SensorValue::Component.new(data, inverter_sensor.name, context: now? ? :rate : :total, precision: 3)
 
           - if sensor.name == :inverter_power && data.respond_to?(:co2_reduction) && data.co2_reduction&.nonzero?
             .text-center.mt-2
