@@ -1,4 +1,18 @@
 class HeatmapTile::Tooltip::Component < ViewComponent::Base
+  # The two parts of a grid balance. Each part takes the label of the sensor
+  # that shows the same direction, and the sign it is shown with.
+  GRID_FIELDS = {
+    grid_revenue: {
+      label: :grid_export_power,
+      sign: :positive,
+    },
+    grid_costs: {
+      label: :grid_import_power,
+      sign: :negative,
+    },
+  }.freeze
+  private_constant :GRID_FIELDS
+
   def initialize(value:, sensor:, date:, date_format: :default)
     super()
     @value = value
@@ -15,21 +29,7 @@ class HeatmapTile::Tooltip::Component < ViewComponent::Base
     sensor.name == :grid_power
   end
 
-  def grid_fields
-    %i[grid_revenue grid_costs]
-  end
-
   def grid_balance
-    return 0 unless value.is_a?(Hash)
-
-    value[:grid_balance]
-  end
-
-  def label_for(field)
-    field == :grid_revenue ? 'Export:' : 'Import:'
-  end
-
-  def sign_for(field)
-    field == :grid_costs ? :negative : :positive
+    @grid_balance ||= value[:grid_balance]
   end
 end

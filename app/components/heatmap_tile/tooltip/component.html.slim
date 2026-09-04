@@ -4,14 +4,14 @@
 
   - if grid_power?
     .text-xs.mt-1
-      - grid_fields.each do |field|
+      - GRID_FIELDS.each do |field, options|
         .label-value-row
-          span = label_for(field)
+          span = t("sensors.#{options[:label]}")
           span
-            =< render SensorValue::Component.new(value[field], field, sign: sign_for(field), precision: 0)
+            =< render SensorValue::Component.new(value[field], field, sign: options[:sign], precision: 0)
 
       .label-value-row.font-bold
-        span Saldo:
+        span = t('sensors.grid_balance')
         span
           = render SensorValue::Component.new(grid_balance.abs, :grid_balance, sign: grid_balance.negative? ? :negative : :positive, precision: 0)
   - else
