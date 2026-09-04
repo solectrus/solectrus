@@ -65,7 +65,9 @@
       aria-expanded="false"
       aria-label=t('.more')
     ]
-      span class="#{PILL_BASE} group-aria-expanded/more:bg-white/20 group-aria-expanded/more:rounded-full"
+      span.relative class="#{PILL_BASE} group-aria-expanded/more:bg-white/20 group-aria-expanded/more:rounded-full"
         i.fa.fa-fw.fa-lg.fa-bars
+        span#bottom-nav-notification-dot.absolute.top-0.right-1
+          = render Notification::Dot::Component.new
       span.leading-tight.truncate class="text-[0.65rem]"
         = t('.more')

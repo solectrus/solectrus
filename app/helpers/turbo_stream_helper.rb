@@ -30,13 +30,16 @@ module TurboStreamHelper
     end
   end
 
-  def turbo_stream_update_notification_badge
-    content = render Notification::Badge::Component.new
-
+  def turbo_stream_update_notification_indicators
     safe_join(
-      %i[desktop mobile].map do |device|
-        turbo_stream.update("notification-badge-#{device}") { content }
-      end,
+      [
+        turbo_stream.update('notification-badge-desktop') do
+          render Notification::Badge::Component.new
+        end,
+        turbo_stream.update('bottom-nav-notification-dot') do
+          render Notification::Dot::Component.new
+        end,
+      ],
     )
   end
 
