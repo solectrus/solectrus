@@ -29,13 +29,8 @@ div class="donut-chart flex-1 min-h-0 flex items-center justify-center @containe
       .hidden data-tooltip-target="html"
         .space-y-1
           - segments.each do |seg|
-            .label-value-row
-              .flex.items-center.gap-2
-                div class="size-3 rounded-sm border border-gray-500 dark:border-slate-400 shrink-0" style="background: var(#{seg[:color_var]})"
-                span.text-sm.opacity-75
-                  = seg[:label]
-              span.font-semibold.whitespace-nowrap
-                = number_to_percentage(seg[:percent], precision: 0)
+            = render TooltipRow::Component.new(label: seg[:label], color_var: seg[:color_var]) do
+              = number_to_percentage(seg[:percent], precision: 0)
           - if tooltip_footer
             .label-value-separator.pt-1.mt-1.text-center.font-semibold.whitespace-nowrap
               = tooltip_footer
