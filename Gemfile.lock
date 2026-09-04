@@ -442,7 +442,7 @@ GEM
     shoulda-matchers (8.0.1)
       activesupport (>= 7.2)
     simplecov (1.1.1)
-    simpleidn (0.2.3)
+    simpleidn (0.3.0)
     slim (5.2.2)
       temple (~> 0.10.0)
       tilt (>= 2.1.0)
