@@ -15,12 +15,17 @@ class InsightsController < ApplicationController
 
   private
 
+  # The page that holds the frame decides which navigation the insights belong
+  # to. A browser does not always send a referer -- its referrer policy can
+  # remove it -- and the balance is then the default.
   def controller_namespace
-    if request.referer.include?('/house/')
+    referer = request.referer.to_s
+
+    if referer.include?('/house/')
       'house'
-    elsif request.referer.include?('/inverter/')
+    elsif referer.include?('/inverter/')
       'inverter'
-    elsif request.referer.include?('/heatpump/')
+    elsif referer.include?('/heatpump/')
       'heatpump'
     else
       'balance'
