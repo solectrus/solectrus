@@ -325,3 +325,15 @@
     );
   }
 }
+
+/* Keyboard focus indicator. `focus-visible` keeps the ring away from mouse
+   clicks, where it only adds noise. */
+@utility focus-ring {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-800;
+}
+
+/* Same ring, drawn inside the element. For rows and other full-width targets,
+   where an outer ring would cross the neighboring border. */
+@utility focus-ring-inset {
+  @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset;
+}

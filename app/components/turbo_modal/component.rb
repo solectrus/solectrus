@@ -8,8 +8,15 @@ class TurboModal::Component < ViewComponent::Base
 
   include Turbo::FramesHelper
 
-  def initialize(title: nil)
+  def initialize(title: nil, narrow: false)
     super()
     @title = title
+    @narrow = narrow
+  end
+
+  # Width on desktop. Forms need the room, running text does not: a narrow
+  # panel keeps a line below ~65 characters.
+  def width_class
+    @narrow ? 'md:max-w-xl' : 'md:max-w-3xl'
   end
 end

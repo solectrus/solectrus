@@ -35,7 +35,7 @@ class NotificationsController < ApplicationController
   private
 
   helper_method def notifications
-    @notifications ||= Notification.by_published_at.load
+    @notifications ||= Notification.by_published_at.select(:id, :title, :published_at, :read_at).load
   end
 
   helper_method def notification
