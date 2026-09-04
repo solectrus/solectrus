@@ -29,7 +29,7 @@
           span = t('.opportunity_costs')
           = render SensorValue::Component.new(pv_costs, :total_costs, sign: :negative)
 
-      div class= ('label-value-row border-t border-slate-300 dark:border-slate-500 pt-2 mt-3' if breakdown?)
+      div class= ('label-value-row label-value-separator pt-2 mt-3' if breakdown?)
         - if breakdown?
           strong
             = t('.total_costs')

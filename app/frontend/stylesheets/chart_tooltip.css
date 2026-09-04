@@ -30,21 +30,17 @@
   @apply flex flex-col gap-1;
 }
 
-.chartjs-tooltip .chart-tooltip-separator {
-  @apply my-1 border-t border-gray-300;
-  @apply dark:border-slate-600;
-}
-
-.chartjs-tooltip .chart-tooltip-row {
-  @apply flex items-center justify-between gap-3;
+/*
+ * A chart tooltip uses the shared .label-value-row, but aligns it on the
+ * middle and gives it more space between the two sides: every value there
+ * stands in a column of a fixed width (see .chart-tooltip-value).
+ */
+.chartjs-tooltip .label-value-row {
+  @apply items-center gap-x-3;
 }
 
 .chartjs-tooltip .chart-tooltip-label {
   @apply flex items-center gap-2 whitespace-nowrap;
-}
-
-.chartjs-tooltip .chart-tooltip-color {
-  @apply size-3 shrink-0 rounded-sm border border-gray-500 dark:border-slate-400;
 }
 
 .chartjs-tooltip .chart-tooltip-value {

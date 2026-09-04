@@ -37,7 +37,7 @@ div class="donut-chart flex-1 min-h-0 flex items-center justify-center @containe
               span.font-semibold.whitespace-nowrap
                 = number_to_percentage(seg[:percent], precision: 0)
           - if tooltip_footer
-            .border-t.border-gray-300.dark:border-slate-600.pt-1.mt-1.text-center.font-semibold.whitespace-nowrap
+            .label-value-separator.pt-1.mt-1.text-center.font-semibold.whitespace-nowrap
               = tooltip_footer
 
       / Center content (COP)

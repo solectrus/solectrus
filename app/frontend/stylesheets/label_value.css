@@ -35,3 +35,20 @@
 .label-value-stacked .label-value-row {
   @apply max-md:flex-col max-md:items-center max-md:text-center;
 }
+
+/*
+ * The color square in front of a label. It names the sensor the value belongs
+ * to, and it gets its color from the place that renders it.
+ */
+.label-value-swatch {
+  @apply size-3 shrink-0 rounded-sm border border-gray-500 dark:border-slate-400;
+}
+
+/*
+ * The line that separates a group of rows from a total or from the next group.
+ * The space around the line belongs to the place that uses it, because a
+ * tooltip needs less of it than a card.
+ */
+.label-value-separator {
+  @apply border-t border-gray-300 dark:border-slate-600;
+}

@@ -155,7 +155,7 @@ export default class PowerBalanceTooltip {
       .join('');
     const separator =
       sourceRows && usageRows
-        ? '<div class="chart-tooltip-separator"></div>'
+        ? '<div class="label-value-separator my-1"></div>'
         : '';
 
     const titleHtml = title
@@ -224,9 +224,9 @@ export default class PowerBalanceTooltip {
     );
 
     return `
-      <div class="chart-tooltip-row">
+      <div class="label-value-row">
         <div class="chart-tooltip-label">
-          <span class="chart-tooltip-color" style="background:${backgroundColor};"></span>
+          <span class="label-value-swatch" style="background:${backgroundColor};"></span>
           <span class="chart-tooltip-name">${label}</span>
         </div>
         <div class="chart-tooltip-value">${formattedValue}</div>

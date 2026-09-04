@@ -154,9 +154,9 @@ export default class GenericChartTooltip {
 
     const colorHtml =
       color && !isSubsequentLine
-        ? `<span class="chart-tooltip-color" style="background:${colorToString(color.backgroundColor)};"></span>`
+        ? `<span class="label-value-swatch" style="background:${colorToString(color.backgroundColor)};"></span>`
         : color && isSubsequentLine
-          ? '<span class="chart-tooltip-color" style="background:transparent;border-color:transparent;"></span>'
+          ? '<span class="label-value-swatch" style="background:transparent;border-color:transparent;"></span>'
           : '';
 
     const labelHtml = label
@@ -166,7 +166,7 @@ export default class GenericChartTooltip {
         : '';
 
     return `
-      <div class="chart-tooltip-row">
+      <div class="label-value-row">
         ${labelHtml}
         <div class="chart-tooltip-value"${valueStyle}>${escapeHtml(value)}</div>
       </div>
@@ -183,7 +183,7 @@ export default class GenericChartTooltip {
       )
       .join('');
 
-    return `<div class="chart-tooltip-separator"></div>${footerRows}`;
+    return `<div class="label-value-separator my-1"></div>${footerRows}`;
   }
 
   private splitLabelValue(line: string): {
