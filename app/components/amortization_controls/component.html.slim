@@ -4,9 +4,9 @@
     = hidden_field_tag :view, echoed_view
   div class=wrapper_class
     div class="form-control #{control_class}"
-      .flex.justify-between.items-baseline.gap-2.py-1.text-sm
+      .label-value-row.py-1.text-sm
         span class=caption_class = t('.period')
-        span class="font-semibold tabular-nums whitespace-nowrap #{value_class}"
+        span class="font-semibold tabular-nums #{value_class}"
           span data-amortization-controls--component-target='periodValue'
             = period_years
           = " #{t('.years_unit')}"
@@ -21,9 +21,9 @@
       ]
 
     div class="form-control #{control_class}"
-      .flex.justify-between.items-baseline.gap-2.py-1.text-sm
+      .label-value-row.py-1.text-sm
         span class=caption_class = t('.interest_rate')
-        span class="font-semibold tabular-nums whitespace-nowrap #{value_class}"
+        span class="font-semibold tabular-nums #{value_class}"
           span data-amortization-controls--component-target='rateValue'
             = rate_label
           | &nbsp;%
