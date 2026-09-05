@@ -11,26 +11,8 @@ module Lockup
     return unless lockup_codeword
 
     return if cookies.signed[:lockup] == codeword_digest
-    return if migrate_legacy_lockup_cookie
 
     redirect_to lockup_unlock_path(return_to: request.path)
-  end
-
-  # Migrate unsigned cookie from the old lockup gem
-  # to a signed cookie. Validates content against current codeword.
-  def migrate_legacy_lockup_cookie
-    legacy_value = cookies[:lockup]
-    return if legacy_value.blank?
-
-    cookies.delete(:lockup)
-
-    return unless ActiveSupport::SecurityUtils.secure_compare(
-      legacy_value.to_s.downcase,
-      lockup_codeword.to_s.downcase,
-    )
-
-    cookies.signed[:lockup] = lockup_cookie(codeword_digest)
-    true
   end
 
   def lockup_cookie(value)

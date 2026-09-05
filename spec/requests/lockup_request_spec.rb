@@ -113,41 +113,13 @@ describe 'Lockup' do
       end
     end
 
-    context 'with legacy unsigned cookie' do
-      context 'when cookie contains correct codeword' do
-        before do
-          cookies[:lockup] = codeword.downcase
-        end
+    context 'with an unsigned cookie holding the codeword' do
+      before { cookies[:lockup] = codeword }
 
-        it 'migrates to signed cookie and grants access' do
-          get '/'
+      it 'is rejected and redirects to unlock page' do
+        get '/'
 
-          expect(response).not_to redirect_to(%r{/lockup/unlock})
-        end
-      end
-
-      context 'when cookie contains correct codeword in different case' do
-        before do
-          cookies[:lockup] = codeword.upcase
-        end
-
-        it 'migrates to signed cookie and grants access' do
-          get '/'
-
-          expect(response).not_to redirect_to(%r{/lockup/unlock})
-        end
-      end
-
-      context 'when cookie contains wrong value' do
-        before do
-          cookies[:lockup] = 'fakevalue'
-        end
-
-        it 'rejects and redirects to unlock page' do
-          get '/'
-
-          expect(response).to redirect_to(%r{/lockup/unlock})
-        end
+        expect(response).to redirect_to(%r{/lockup/unlock})
       end
     end
   end
