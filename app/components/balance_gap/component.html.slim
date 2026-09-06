@@ -1,0 +1,32 @@
+.balance-gap.badge class= 'h-auto py-2 text-center text-yellow-500 dark:text-yellow-400'
+  div data-controller= 'tooltip' data-tooltip-touch-value= 'long'
+    i.fa.fas.fa-circle-exclamation.fa-xl
+
+    template data-tooltip-target= 'html'
+      h3.font-bold.text-center
+        = t('.title', percent:)
+
+      dl.mt-5
+        .grid.grid-cols-2.gap-4
+          dt
+            = t('balance_sheet.left')
+          dd.font-mono.text-right
+            = sources
+
+        .grid.grid-cols-2.gap-4
+          dt
+            |&minus;&nbsp;
+            = t('balance_sheet.right')
+          dd.font-mono.text-right
+            = sinks
+
+        hr.my-2
+        .grid.grid-cols-2.gap-4
+          dt
+            |&#61;&nbsp;
+            = t('.difference')
+          dd.font-mono.text-right
+            = difference
+
+      p.mt-5.text-gray-400.text-sm
+        = t(explanation_key)

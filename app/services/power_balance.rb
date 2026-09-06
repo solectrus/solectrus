@@ -15,6 +15,7 @@
 # All original sensor data methods are delegated to the wrapped object.
 class PowerBalance
   include BalanceCustomPower
+  include BalanceCompleteness
 
   # ============================================================================
   # CONFIGURATION
@@ -35,6 +36,10 @@ class PowerBalance
     grid_export_power
   ].freeze
   private_constant :BASE_MINUS_SENSOR_NAMES
+
+  def self.plus_sensor_names
+    PLUS_SENSOR_NAMES
+  end
 
   def self.minus_sensor_names
     Sensor::Config.house_power_excluded_custom_sensors.map(&:name) +

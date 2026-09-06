@@ -61,6 +61,141 @@ describe PowerBalance do
     end
   end
 
+  describe '#imbalance' do
+    subject(:imbalance) { power_balance.imbalance }
+
+    it 'returns zero when sources and sinks match' do
+      expect(imbalance).to eq(0.0)
+    end
+
+    context 'when a consumer stays unrecorded' do
+      let(:raw_data) { super().merge(house_power: 300) }
+
+      it 'returns what the sources deliver beyond the sinks' do
+        expect(imbalance).to eq(200.0)
+      end
+    end
+
+    context 'when a core sensor has no value' do
+      let(:raw_data) { super().merge(grid_export_power: nil) }
+
+      it 'returns nil' do
+        expect(imbalance).to be_nil
+      end
+    end
+
+    context 'when the battery does not report its charging' do
+      let(:raw_data) { super().merge(battery_charging_power: nil) }
+
+      it 'returns nil' do
+        expect(imbalance).to be_nil
+      end
+    end
+
+    context 'when the installation has no battery at all' do
+      let(:raw_data) do
+        super().merge(
+          battery_charging_power: nil,
+          battery_discharging_power: nil,
+        )
+      end
+
+      before do
+        allow(Sensor::Config).to receive(:configured?).and_call_original
+        %i[
+          battery_soc
+          battery_charging_power
+          battery_discharging_power
+        ].each do |name|
+          allow(Sensor::Config).to receive(:configured?).with(name).and_return(
+            false,
+          )
+        end
+      end
+
+      it 'compares the remaining sides' do
+        # (1000 + 900) - (150 + 500 + 1300 + 50)
+        expect(imbalance).to eq(-100.0)
+      end
+    end
+
+    context 'when a sensor of one side was not queried' do
+      let(:raw_data) { super().except(:battery_charging_power) }
+
+      it 'returns nil' do
+        expect(imbalance).to be_nil
+      end
+    end
+  end
+
+  describe '#imbalance_percent' do
+    subject(:imbalance_percent) { power_balance.imbalance_percent }
+
+    context 'when a consumer stays unrecorded' do
+      let(:raw_data) { super().merge(house_power: 300) }
+
+      it 'returns the share of the incoming energy' do
+        expect(imbalance_percent).to be_within(0.01).of(9.09) # 200 / 2200 * 100
+      end
+    end
+
+    context 'when nothing came in' do
+      let(:raw_data) do
+        super().merge(
+          grid_import_power: 0,
+          battery_discharging_power: 0,
+          inverter_power: 0,
+        )
+      end
+
+      it 'returns nil' do
+        expect(imbalance_percent).to be_nil
+      end
+    end
+  end
+
+  describe '#imbalance_relevant?' do
+    subject(:imbalance_relevant?) { power_balance.imbalance_relevant? }
+
+    it 'is false when sources and sinks match' do
+      expect(imbalance_relevant?).to be false
+    end
+
+    # The incoming energy is 2200 W, so one percent of it is 22 W
+
+    context 'when the sources exceed the sinks by twelve percent' do
+      let(:raw_data) { super().merge(house_power: 236) }
+
+      it 'is true' do
+        expect(imbalance_relevant?).to be true
+      end
+    end
+
+    context 'when the sources exceed the sinks by three percent' do
+      let(:raw_data) { super().merge(house_power: 434) }
+
+      it 'is false' do
+        expect(imbalance_relevant?).to be false
+      end
+    end
+
+    context 'when the sinks exceed the sources by three percent' do
+      let(:raw_data) { super().merge(house_power: 566) }
+
+      it 'is false' do
+        expect(imbalance_relevant?).to be false
+      end
+    end
+
+    context 'when the sinks exceed the sources by twelve percent' do
+      let(:raw_data) { super().merge(house_power: 764) }
+
+      it 'is true' do
+        expect(imbalance_relevant?).to be true
+      end
+    end
+  end
+
   describe '#inverter_power_percent' do
     subject(:inverter_power_percent) { power_balance.inverter_power_percent }
 

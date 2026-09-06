@@ -5,6 +5,7 @@
   = balance.with_center do
     = render ConsumptionBadge::Component.new(data:, timeframe:)
 
-    div class="flex-1"
+    div class="flex-1 flex items-center justify-center"
+      = render BalanceGap::Component.new(data:)
 
     = render FinanceBadge::Component.new(data:, timeframe:)

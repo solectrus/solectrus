@@ -17,6 +17,7 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- Balance sheet: if the two columns do not add up to the same energy, a sign between them names the difference, what it means for your sensors, and what it does to your savings (#5890)
 - Mobile navigation: an unread notification shows a red dot on the "More" button
 - Notifications: the dialog and the list have a cleaner look
 - AI access: an assistant knows your sensors, names the time of the daily peak, and answers what it can when a sensor is missing
