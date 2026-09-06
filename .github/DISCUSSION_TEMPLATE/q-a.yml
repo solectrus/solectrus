@@ -22,12 +22,24 @@ body:
   - type: textarea
     id: diagnostics
     attributes:
-      label: Support-Paket
+      label: Support-Paket oder Logs & Konfiguration
       description: |-
-        Geht es um deine laufende Installation? Dann erstelle am besten gleich mit **HELIOS** ein **Support-Paket** und lege die ZIP-Datei hier per Drag & Drop ab. Sie enthält Konfiguration, Logs und Systeminfos, wobei Passwörter und Schlüssel bereits geschwärzt sind – und erspart eine Menge an Rückfragen.
+        Geht es um deine bestehende Installation? Dann erspart uns das hier viele Rückfragen.
 
-        Falls du HELIOS noch nicht verwendest: Ein Blick darauf lohnt sich, denn es macht den Betrieb von SOLECTRUS deutlich einfacher und lässt sich jederzeit nachrüsten – deine bestehende Konfiguration wird dabei einfach übernommen. Sehr empfehlenswert, siehe [solectrus.de/install](https://solectrus.de/install/).
-      placeholder: Support-Paket (ZIP) hier ablegen …
+        **Mit HELIOS:** Support-Paket erstellen (Menü oben rechts unter *Support*) und die ZIP-Datei hier ablegen. Sie enthält Konfiguration, Logs und Systeminfos – Passwörter und Schlüssel sind bereits geschwärzt.
+
+        **Ohne HELIOS:** `compose.yaml`, `.env` und die passenden Zeilen aus `docker compose logs` einfügen. Sensible Daten bitte vorher unkenntlich machen.
+
+        Noch kein HELIOS? Es macht Installation, Konfiguration und Updates deutlich einfacher und lässt sich jederzeit nachrüsten: [solectrus.de/install](https://solectrus.de/install/)
+      placeholder: Support-Paket (ZIP) hier ablegen – oder Logs und Konfiguration einfügen …
+
+  - type: checkboxes
+    id: support-bundle
+    attributes:
+      label: Bestätigung
+      options:
+        - label: Ich habe ein Support-Paket oder meine Logs und Konfiguration angehängt – oder es geht nicht um meine bestehende Installation.
+          required: true
 
   - type: input
     id: version
