@@ -23,6 +23,12 @@ After changing code, run the matching linter and fix what it reports:
 
 `bin/brakeman` occasionally for security scans, not per change.
 
+## Changelog
+
+If a user can see or feel a change, add a line to `.changelog/unreleased.md` in
+the same commit. The file carries the rules for the wording. The release skill
+turns it into the GitHub release notes and empties it.
+
 ## Frontend
 
 Stimulus controllers are TypeScript (`.ts`), never JavaScript.
