@@ -13,7 +13,7 @@ concurrency:
 jobs:
   cleanup:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 30
 
     permissions:
       packages: write
@@ -25,3 +25,6 @@ jobs:
           package: solectrus
           delete-untagged: true
           delete-partial-images: true
+          # Untagged digests from a CI run in flight are not garbage yet -
+          # the publish job still needs them to build the manifest list.
+          older-than: '1 day'
