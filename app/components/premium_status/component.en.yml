@@ -5,8 +5,7 @@ en:
     icon: fa-heart
   intro:
     title: Trial period
-    description: All features, to get to know them. The basic features remain
-      afterwards.
+    description: All features are unlocked. A sponsorship keeps them for you.
     icon: fa-hourglass-half
     countdown:
       zero: ends today
@@ -14,7 +13,7 @@ en:
       other: '%{count} days left'
   free_trial:
     title: Free month is active
-    description: All features unlocked. The basic features remain afterwards.
+    description: All features are unlocked. A sponsorship keeps them for you.
     icon: fa-hourglass-half
     countdown:
       zero: ends today

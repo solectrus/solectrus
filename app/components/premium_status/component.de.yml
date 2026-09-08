@@ -5,8 +5,8 @@ de:
     icon: fa-heart
   intro:
     title: Testphase
-    description: Alle Funktionen zum Kennenlernen. Danach bleiben die
-      Basisfunktionen.
+    description: Alle Funktionen sind freigeschaltet. Mit einem Sponsoring
+      behältst du sie dauerhaft.
     icon: fa-hourglass-half
     countdown:
       zero: endet heute
@@ -14,8 +14,8 @@ de:
       other: noch %{count} Tage
   free_trial:
     title: Gratismonat aktiv
-    description: Alle Funktionen freigeschaltet. Danach bleiben die
-      Basisfunktionen.
+    description: Alle Funktionen sind freigeschaltet. Mit einem Sponsoring
+      behältst du sie dauerhaft.
     icon: fa-hourglass-half
     countdown:
       zero: endet heute

@@ -30,11 +30,11 @@ describe PremiumStatus::Component, type: :component do
       expect(html).to include('2 days left')
     end
 
-    # A phase that ends must say so. Otherwise the user learns about the end by
-    # losing the features.
-    it 'says what the phase gives, and what stays after it' do
-      expect(html).to include('All features')
-      expect(html).to include('basic features remain afterwards')
+    # A phase that ends must say so, and it must name the way to keep the
+    # features. Otherwise the user learns about the end by losing them.
+    it 'says what the phase gives, and how to keep it' do
+      expect(html).to include('All features are unlocked')
+      expect(html).to include('A sponsorship keeps them for you')
     end
 
     # A first installation gets these days in silence. The free month exists,
