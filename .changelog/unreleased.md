@@ -25,6 +25,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- Amortization: while the "Return" tab waits for data, it shows its chart icon and says that a history needs more than one year
 - Lock screen: the unlock page now follows dark mode
 - AI access: the consent page now shows the callback host the way the browser reads it, with escapes resolved
 - Power balance: on a phone the tooltip of a segment is now narrower and puts the value under its label, so it stays inside the screen (#5886)

@@ -9,6 +9,6 @@ de:
   empty_period_title: Erstes Jahr
   empty_period_body: keine Hochrechnung
   empty_title: Noch kein Verlauf verfügbar
-  empty_body: Der Renditeverlauf zeigt, wie sich die erwartete Rendite mit jeder gemessenen Ersparnis und jeder Zahlung verändert hat. Dafür wird mindestens ein Jahr Messdaten benötigt.
+  empty_body: Der Renditeverlauf zeigt, wie sich die erwartete Rendite mit jeder gemessenen Ersparnis und jeder Zahlung verändert hat. Dafür werden mehr als ein Jahr Messdaten benötigt.
   maximize: Maximal vergrößern
   minimize: Zurück zur normalen Größe

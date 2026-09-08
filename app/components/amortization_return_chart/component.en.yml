@@ -9,6 +9,6 @@ en:
   empty_period_title: First year
   empty_period_body: no extrapolation
   empty_title: No history available yet
-  empty_body: The return history shows how the expected return has changed with every measured saving and every payment. At least one year of measured data is required for this.
+  empty_body: The return history shows how the expected return has changed with every measured saving and every payment. This needs more than one year of measured data.
   maximize: Full size
   minimize: Back to normal size
