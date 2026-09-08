@@ -7,6 +7,13 @@ module InfluxHelper
     attr_reader :write_api, :delete_api
   end
 
+  # Whether this example put points into InfluxDB. The helper is mixed into
+  # every example, so the flag starts out nil for each one and the after hook
+  # can skip the delete request for the examples that wrote nothing.
+  def influx_written?
+    @influx_written.present?
+  end
+
   def influx_batch(&)
     @points = []
     @in_batch = true
@@ -26,6 +33,8 @@ module InfluxHelper
   end
 
   def add_influx_points(points)
+    @influx_written = true
+
     InfluxHelper.write_api.write(
       data: points,
       bucket: Rails.configuration.x.influx.bucket,
@@ -48,6 +57,7 @@ module InfluxHelper
     start: Time.zone.at(0),
     stop: Time.zone.at((2**63) / 1_000_000_000)
   )
+    @influx_written = false
     InfluxHelper.delete_api.delete(start, stop)
   end
 end
@@ -56,8 +66,16 @@ RSpec.configure do |config|
   config.include InfluxHelper
 
   # Clean up InfluxDB data after each test, but NOT for system tests
-  # System tests share InfluxDB data for performance
+  # System tests share InfluxDB data for performance.
+  #
+  # The delete is an HTTP round trip, and only a fraction of the examples write
+  # points at all - the application never writes to InfluxDB, it only queries.
+  # Skipping the request for an example that wrote nothing saves about 4 ms on
+  # each of them.
   config.after do |example|
-    delete_influx_data unless example.metadata[:type] == :system
+    next if example.metadata[:type] == :system
+    next unless influx_written?
+
+    delete_influx_data
   end
 end
