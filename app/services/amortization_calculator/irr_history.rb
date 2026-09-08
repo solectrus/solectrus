@@ -99,11 +99,11 @@ class AmortizationCalculator
       (dates << today).uniq
     end
 
-    # Earliest date with a full year of measured data behind it - measured_days
-    # counts inclusively, so the year is complete one day before the
-    # anniversary.
+    # Earliest date with a full year of measured data behind it - the 365 days
+    # the projection rate reads must lie within the measured range (same rule
+    # as MeasuredRange#full_year?).
     def first_date
-      @first_date ||= installation_date + SavingsSeries::DAYS_PER_YEAR - 1
+      @first_date ||= installation_date + 365.days
     end
   end
 end

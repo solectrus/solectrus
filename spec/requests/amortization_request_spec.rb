@@ -459,10 +459,10 @@ describe 'Amortization' do
 
     context 'when the first year completes on this very day' do
       before do
-        # measured_days counts inclusively, so day 365 is installation + 364:
-        # the first evaluable date and today are the same, leaving a single
-        # sample - not enough for a curve.
-        date = Date.current - 364
+        # The measured year is the 365 days before today, so it is complete
+        # exactly today: the first evaluable date and today are the same,
+        # leaving a single sample - not enough for a curve.
+        date = Date.current - 365.days
         while date <= Date.current
           seed_savings_day(date)
           date += 30

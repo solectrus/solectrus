@@ -2,31 +2,24 @@ class AmortizationCalculator
   # Measured savings from the summary table (month-by-month for the past)
   # plus the daily rate used to project the future.
   class SavingsSeries
-    DAYS_PER_YEAR = 365
-    public_constant :DAYS_PER_YEAR
-
     def initialize(today:)
       @today = today
     end
 
     attr_reader :today
 
-    # Guard against the silent INSTALLATION_DATE fallback (2020-01-01):
-    # clamp to the first day with measured data.
-    def effective_installation_date
-      @effective_installation_date ||=
-        [
-          Rails.configuration.x.installation_date,
-          SummaryValue.minimum(:date),
-        ].compact.max
+    # How long the system has been measuring - the age of the data is a fact of
+    # its own (MeasuredRange), shared with the snapshots and the page.
+    def measured_range
+      @measured_range ||= MeasuredRange.new(today:)
     end
+
+    def effective_installation_date = measured_range.installation_date
+
+    def measured_days = measured_range.days
 
     def installation_month
       @installation_month ||= effective_installation_date.beginning_of_month
-    end
-
-    def measured_days
-      @measured_days ||= (today - effective_installation_date).to_i + 1
     end
 
     # Measured savings of the given month, nil if there is no data (or the
@@ -68,14 +61,12 @@ class AmortizationCalculator
     # Rolling year captures seasonality and system changes (e.g. a heat pump
     # added later); with less than a year of data fall back to the all-time
     # average and flag the prognosis as uncertain.
-    def projection_uncertain?
-      measured_days < DAYS_PER_YEAR
-    end
+    def projection_uncertain? = !measured_range.full_year?
 
     def daily_projection_rate
       @daily_projection_rate ||=
         if !projection_uncertain? && rolling_year_savings
-          rolling_year_savings.fdiv(DAYS_PER_YEAR)
+          rolling_year_savings.fdiv(365)
         else
           all_time_savings_per_day
         end
@@ -83,7 +74,7 @@ class AmortizationCalculator
 
     # Average daily savings of the projection basis: the rolling year when a
     # full year of data exists, the all-time average otherwise. Same basis as
-    # savings_per_year (= savings_per_day * DAYS_PER_YEAR), so the "per day" and
+    # savings_per_year (= savings_per_day * 365), so the "per day" and
     # "per year" figures stay consistent instead of mixing rolling year and
     # all-time.
     def savings_per_day
@@ -93,7 +84,7 @@ class AmortizationCalculator
     def savings_per_year
       return unless daily_projection_rate
 
-      daily_projection_rate * DAYS_PER_YEAR
+      daily_projection_rate * 365
     end
 
     # Measured savings per day since installation. Also the raw basis the IRR
@@ -153,7 +144,7 @@ class AmortizationCalculator
     # also keeps it from skewing the projection rate.
     def rolling_year_savings
       @rolling_year_savings ||=
-        query_savings(Timeframe.new("#{today - DAYS_PER_YEAR}..#{today - 1}"))
+        query_savings(Timeframe.new("#{today - 365.days}..#{today - 1.day}"))
     end
 
     def query_savings(timeframe, group_by: nil)

@@ -9,9 +9,6 @@ class AmortizationCalculator
   # touches the database: every snapshot reads from the shared prefix-summed
   # daily series, which is what makes evaluating dozens of dates affordable.
   class SavingsSnapshot
-    DAYS_PER_YEAR = SavingsSeries::DAYS_PER_YEAR
-    private_constant :DAYS_PER_YEAR
-
     def initialize(measured:, installation_date:, today:)
       @measured = measured
       @installation_date = installation_date
@@ -20,17 +17,17 @@ class AmortizationCalculator
 
     attr_reader :measured, :today
 
-    def effective_installation_date
-      @installation_date
+    # The snapshot day's own range: the installation date is handed in, so the
+    # same arithmetic serves a past day as it does today.
+    def measured_range
+      @measured_range ||= MeasuredRange.new(today:, installation_date: @installation_date)
     end
 
-    def measured_days
-      (today - effective_installation_date).to_i + 1
-    end
+    def effective_installation_date = measured_range.installation_date
 
-    def projection_uncertain?
-      measured_days < DAYS_PER_YEAR
-    end
+    def measured_days = measured_range.days
+
+    def projection_uncertain? = !measured_range.full_year?
 
     # Savings attributable to an inclusive day range: measured for days up to
     # the snapshot day, projected for days after it - the same rule
@@ -42,7 +39,7 @@ class AmortizationCalculator
     end
 
     def savings_per_year
-      daily_projection_rate * DAYS_PER_YEAR
+      daily_projection_rate * 365
     end
 
     # Rolling year once a full year of data has accrued, all-time average
@@ -53,7 +50,7 @@ class AmortizationCalculator
         if projection_uncertain?
           measured.total_until(today) / measured_days
         else
-          rolling_year_savings.fdiv(DAYS_PER_YEAR)
+          rolling_year_savings.fdiv(365)
         end
     end
 
@@ -63,7 +60,7 @@ class AmortizationCalculator
     # same window the live projection uses.
     def rolling_year_savings
       measured.total_until(today - 1) -
-        measured.total_until(today - 1 - DAYS_PER_YEAR)
+        measured.total_until(today - 1.day - 365.days)
     end
 
     def savings_until(date)

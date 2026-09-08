@@ -541,9 +541,10 @@ describe AmortizationCalculator do
     end
 
     it 'yields a single sample on the day the first year completes' do
-      # measured_days counts inclusively, so day 365 is installation + 364 -
-      # the first evaluable date and today are one and the same.
-      seed_since(Date.current - 364)
+      # The measured year is the 365 days before today, so it is complete
+      # exactly today - the first evaluable date and today are one and the
+      # same.
+      seed_since(Date.current - 365.days)
 
       expect(result.irr_history.pluck(:date)).to eq([Date.current])
     end
@@ -551,7 +552,7 @@ describe AmortizationCalculator do
     it 'yields a curve right after the first year, not a lone point' do
       # A year completed mid-month: the first evaluable date lies days back, so
       # there must be a segment to draw even before the month is out.
-      seed_since(Date.current - 369)
+      seed_since(Date.current - 365.days - 5.days)
 
       expect(result.irr_history.pluck(:date)).to eq(
         [Date.current - 5, Date.current],
@@ -565,11 +566,10 @@ describe AmortizationCalculator do
       dates = result.irr_history.pluck(:date)
 
       aggregate_failures do
-        # 2021-07-10 plus 364 days is the first day with a full year of data
-        # (measured_days counts inclusively), and it is sampled itself - not
-        # only the month end after it, which would mark three evaluable weeks
-        # as not yet evaluable.
-        expect(dates.first).to eq(Date.new(2022, 7, 9))
+        # 2022-07-10 is the first day with 365 days of measured data behind
+        # it. It is sampled itself, not only the month end after it, which
+        # would mark three evaluable weeks as not yet evaluable.
+        expect(dates.first).to eq(Date.new(2022, 7, 10))
         expect(dates[1]).to eq(Date.new(2022, 7, 31))
         expect(dates.last).to eq(Date.new(2024, 6, 15))
         expect(dates).to eq(dates.sort)
