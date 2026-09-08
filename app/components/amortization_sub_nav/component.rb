@@ -8,14 +8,20 @@
 # with the page shell while the calculation is still on its way into the detail
 # frame.
 class AmortizationSubNav::Component < ViewComponent::Base
-  def initialize(period_years:, interest_rate:, view: :chart)
+  def initialize(
+    period_years:,
+    interest_rate:,
+    projection_uncertain:,
+    view: :chart
+  )
     super()
     @period_years = period_years
     @interest_rate = interest_rate
     @view = view
+    @projection_uncertain = projection_uncertain
   end
 
-  attr_reader :period_years, :interest_rate, :view
+  attr_reader :period_years, :interest_rate, :view, :projection_uncertain
 
   delegate :nav_items, :admin?, to: :helpers
 end

@@ -22,7 +22,6 @@ class AmortizationStats::Component < ViewComponent::Base
            :required_annual_savings,
            :savings_per_day,
            :savings_per_year,
-           :projection_uncertain,
            :period_years,
            to: :result
 

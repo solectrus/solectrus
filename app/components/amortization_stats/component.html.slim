@@ -1,10 +1,4 @@
 .flex.flex-col.gap-2
-  - if projection_uncertain
-    .flex.justify-center
-      span.inline-flex.items-center.gap-2.rounded-full.bg-amber-100.dark:bg-amber-900.px-3.py-1.text-xs.font-medium.text-amber-800.dark:text-amber-200
-        i.fa.fa-circle-exclamation
-        = t('.uncertain_prognosis')
-
   / Amortization degree, net position and nominal surplus live on the chart as
   / annotations (the canvas has no text), so keep them in the DOM for screen
   / readers and the specs. The gross investment / subsidy breakdown only lives in

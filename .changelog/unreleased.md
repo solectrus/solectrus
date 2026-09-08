@@ -17,6 +17,7 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- Amortization: the hint about a still uncertain prognosis is now a warning sign next to the sliders, so the key figures stay clean
 - Balance sheet: if the two columns do not add up to the same energy, a sign between them names the difference, what it means for your sensors, and what it does to your savings (#5890)
 - Mobile navigation: an unread notification shows a red dot on the "More" button
 - Notifications: the dialog and the list have a cleaner look

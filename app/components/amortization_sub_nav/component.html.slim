@@ -6,6 +6,19 @@
     = render Nav::Sub::Component.new(abbreviate: false) do |c|
       = c.with_items nav_items
 
+  /! Amber warning next to the parameters it qualifies: the projection they feed
+  /! rests on less than a year of measured data. Stays visible on mobile too,
+  /! where the sliders themselves move into the dropdown to its right.
+  - if projection_uncertain
+    span[
+      class='shrink-0 cursor-help text-amber-300 dark:text-amber-400'
+      data-controller='tooltip'
+      data-tooltip-touch-value='true'
+      title=t('.uncertain_prognosis')
+      aria-label=t('.uncertain_prognosis')
+    ]
+      i.fa.fa-triangle-exclamation.fa-lg.block
+
   /! Desktop: the sliders live directly in the bar (light text on indigo).
   /! Outside the detail frame, so they stay put across auto-submits.
   .hidden.lg:landscape:block.shrink-0

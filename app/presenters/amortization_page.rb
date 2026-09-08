@@ -45,6 +45,13 @@ class AmortizationPage
   # calculation's layout rather than the hint's.
   def calculation_expected? = calculation? && missing_or_stale_days.blank?
 
+  # Whether the projection rests on less than a year of measured data. The age
+  # of the data is a fact of its own, so the sub-navigation gets it without a
+  # calculation and warns right with the page shell.
+  def projection_uncertain?
+    calculation_expected? && !MeasuredRange.current.full_year?
+  end
+
   # The whole operating range (installation date up to today) - the summaries
   # need to be complete over the entire period the calculation spans.
   def timeframe = @timeframe ||= Timeframe.all
