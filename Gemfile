@@ -16,6 +16,13 @@ gem 'openssl'
 # Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 8.1.3'
 
+# This is a JSON implementation as a Ruby extension in C. (https://ruby.github.io/json)
+# Upper bound required: json 3 dropped the positional options Hash of
+# `JSON.parse`, which `ActiveSupport::JSON.decode` still passes.
+# TODO: Remove once Rails > 8.1.3.1 is released with the fix for
+# https://github.com/rails/rails/issues/58685
+gem 'json', '< 3'
+
 # Vite integration for Rails (https://github.com/skryukov/rails_vite)
 gem 'rails_vite'
 

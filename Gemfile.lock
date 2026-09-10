@@ -522,6 +522,7 @@ DEPENDENCIES
   honeybadger
   http_accept_language
   influxdb-client (>= 2.9.0)
+  json (< 3)
   jwt
   lograge
   lookbook
