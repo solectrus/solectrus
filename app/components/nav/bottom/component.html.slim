@@ -65,9 +65,15 @@
       aria-expanded="false"
       aria-label=t('.more')
     ]
-      span.relative class="#{PILL_BASE} group-aria-expanded/more:bg-white/20 group-aria-expanded/more:rounded-full"
-        i.fa.fa-fw.fa-lg.fa-bars
-        span#bottom-nav-notification-dot.absolute.top-0.right-1
-          = render Notification::Dot::Component.new
+      span class="#{PILL_BASE} group-aria-expanded/more:bg-white/20 group-aria-expanded/more:rounded-full"
+        / The dot hangs on the icon, not on the pill around it, so it sits at
+        / the corner of the bars. Its ring carries the navigation background and
+        / cuts it free from the bar it overlaps. The open menu paints the pill
+        / in another color, which the ring cannot follow - and the menu names
+        / the notifications with their own count anyway, so the dot goes away.
+        span.relative.flex
+          i.fa.fa-fw.fa-lg.fa-bars
+          span#bottom-nav-notification-dot.absolute.-top-1.-right-1 class="group-aria-expanded/more:hidden"
+            = render Notification::Dot::Component.new
       span.leading-tight.truncate class="text-[0.65rem]"
         = t('.more')
