@@ -10,14 +10,50 @@ describe 'Notifications' do
       )
     end
 
-    it 'shows notification badge but cannot access notifications page' do
+    it 'shows notification badge but cannot read the notification' do
       visit '/'
       # Badge is shown to all users (look for message icon with red badge)
       expect(page).to have_css('#notification-badge-desktop a', text: '1')
 
-      # But the page is protected
-      visit '/notifications'
+      # The message itself stays protected
+      visit "/notifications/#{Notification.first.id}"
       expect(page).to have_text('ForbiddenError')
+    end
+
+    # The badge stays visible for guests on purpose: on a public instance it is
+    # the only hint that something is waiting, and the admin often browses from
+    # a device where they are not signed in. Landing on a forbidden page would
+    # never tell them why the red mark does not go away.
+    it 'explains why the notification cannot be read' do
+      visit '/'
+      find('#notification-badge-desktop a').click
+
+      expect(page).to have_text('Hier erscheinen Neuigkeiten zu SOLECTRUS.')
+      expect(page).to have_text('bleibt die rote Markierung stehen')
+      expect(page).to have_css('#notification-unread-count', text: '1')
+      expect(page).to have_no_text('Das ist der Inhalt der Nachricht.')
+    end
+
+    # A count of zero would be an odd thing to show, so the red mark on the icon
+    # appears only while something is actually unread.
+    context 'when everything is read' do
+      before { Notification.find_each(&:mark_as_read!) }
+
+      it 'explains the page without showing a count' do
+        visit '/notifications'
+
+        expect(page).to have_text('Hier erscheinen Neuigkeiten zu SOLECTRUS.')
+        expect(page).to have_no_css('#notification-unread-count')
+        expect(page).to have_no_text('bleibt die rote Markierung stehen')
+      end
+    end
+
+    it 'leads from the explanation to the login and back' do
+      visit '/notifications'
+      click_on 'Als Admin anmelden'
+
+      expect(page).to have_field('admin_user_password')
+      expect(page).to have_field('return_to', with: '/notifications', type: :hidden)
     end
   end
 

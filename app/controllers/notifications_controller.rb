@@ -2,12 +2,15 @@ class NotificationsController < ApplicationController
   skip_before_action :check_for_registration
   skip_before_action :check_for_sponsoring
 
-  before_action :admin_required!
+  # Reading a notification and marking it as read stay with the admin. The list
+  # page is the one exception: a guest who followed the red mark lands here and
+  # is told why they see nothing and why the mark does not go away.
+  before_action :admin_required!, except: :index
 
   rescue_from ActiveRecord::RecordNotFound, with: :redirect_to_index
 
   def index
-    redirect_to root_path if notifications.empty?
+    redirect_to root_path unless Notification.any_notifications?
   end
 
   def show

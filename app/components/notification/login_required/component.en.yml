@@ -1,0 +1,5 @@
+en:
+  headline: Notifications
+  intro: News about SOLECTRUS appears here.
+  admin_only: Only the administrator of this instance can read them.
+  mark_stays: The red mark stays until someone logs in.

@@ -5,4 +5,7 @@
   .text-center.pt-3.pb-2.lg:hidden
     i.fa.fa-message.text-indigo-200.dark:text-gray-400.text-2xl
 
-= render Notification::List::Component.new(notifications:)
+- if admin?
+  = render Notification::List::Component.new(notifications:)
+- else
+  = render Notification::LoginRequired::Component.new

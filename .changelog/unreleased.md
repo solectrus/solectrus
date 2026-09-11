@@ -26,6 +26,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- Notifications: if you are not signed in, the red mark now leads to a page that says why you cannot read the message, and that the mark stays until the operator logs in
 - Logout: a page that is open to everyone keeps you on that page after a logout, instead of sending you to the home page
 - Amortization: while the "Return" tab waits for data, it shows its chart icon and says that a history needs more than one year
 - Lock screen: the unlock page now follows dark mode

@@ -27,7 +27,7 @@ describe 'Error pages' do
 
   describe 'error 403' do
     it 'renders a custom 403 error page' do
-      without_detailed_exceptions { get '/notifications' }
+      without_detailed_exceptions { get '/notifications/latest' }
 
       expect(response).to have_http_status(:forbidden)
       expect(response.body).to include(I18n.t('errors.403.title'))
@@ -35,7 +35,7 @@ describe 'Error pages' do
 
     it 'lets the login link break out of the modal frame' do
       without_detailed_exceptions do
-        get '/notifications', headers: { 'Turbo-Frame' => 'modal' }
+        get '/notifications/latest', headers: { 'Turbo-Frame' => 'modal' }
       end
 
       expect(response).to have_http_status(:forbidden)

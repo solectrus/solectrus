@@ -37,6 +37,16 @@ class Notification < ApplicationRecord
       end
   end
 
+  # Both read the same cached pair, so asking for one costs no more than asking
+  # for the other.
+  def self.any_notifications?
+    stats.first
+  end
+
+  def self.unread_count
+    stats.last
+  end
+
   def read?
     read_at?
   end

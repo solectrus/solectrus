@@ -1,0 +1,25 @@
+= render Message::Component.new do |c|
+  / The same icon the guest just clicked, enlarged and in the flow rather than
+  / as a watermark: the count on it is the reason they are here.
+  - c.with_icon do
+    .relative
+      .size-24.rounded-full.bg-indigo-100.dark:bg-indigo-900/60.flex.items-center.justify-center
+        i.fa.fa-message.text-4xl.text-indigo-600.dark:text-indigo-400
+      - if unread?
+        span#notification-unread-count.absolute.-top-1.-right-1.bg-red-500.dark:bg-red-700.text-white.dark:text-gray-200.text-sm.font-bold.rounded-full.min-w-7.h-7.flex.items-center.justify-center.px-2.ring-4.ring-white.dark:ring-slate-900
+          = unread_count
+
+  = c.with_title { t('.headline') }
+
+  = c.with_body do
+    p = t('.intro')
+    p.mt-4
+      = t('.admin_only')
+      / Only worth saying while a mark is actually standing there.
+      - if unread?
+        =< t('.mark_stays')
+
+  = c.with_footer do
+    = render Button::Component.new path: login_path,
+                                   title: t('layout.login'),
+                                   options: { data: { turbo: false } }
