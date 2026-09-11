@@ -8,7 +8,7 @@
 
     .mt-6.pt-4.border-t.border-gray-200.dark:border-slate-700.flex.justify-end.shrink-0
       = render Button::Component.new path: mark_as_read_notification_path(notification),
-                                     title: t('crud.ok'),
+                                     title: t('.understood'),
                                      type: :button,
                                      options: { \
                                        method: :patch,

@@ -61,8 +61,8 @@ describe 'Notifications' do
       # Modal should be open
       expect(page).to have_css('dialog[open]')
 
-      # Click OK to mark as read and close modal
-      click_on 'OK'
+      # Click the button to mark as read and close modal
+      click_on 'Verstanden'
 
       # Wait for modal to close
       expect(page).to have_no_css('dialog[open]')
@@ -84,7 +84,7 @@ describe 'Notifications' do
 
       visit '/notifications'
       first(:link, 'Wichtige Neuigkeit').click
-      click_on 'OK'
+      click_on 'Verstanden'
 
       # Check that modal is closed first (positive assertion)
       expect(page).to have_text('Benachrichtigungen')

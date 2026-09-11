@@ -237,7 +237,6 @@ en:
     edit: Edit
     delete: Delete
     save: Save
-    ok: OK
     confirm_delete: Are you sure you want to delete?
     success: Saved
     error: An error occurred
