@@ -43,7 +43,7 @@
       = t('.not_within_period')
 - else
   = render Message::Component.new do |c|
-    - c.with_icon do
+    - c.with_watermark do
       i.fa.fa-sack-dollar
     = c.with_title { t('.no_prognosis_title') }
     = c.with_body { t('.no_prognosis') }

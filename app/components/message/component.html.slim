@@ -1,11 +1,15 @@
 .flex.min-h-full.flex-col.bg-white.dark:bg-slate-900.pt-16.pb-12.relative.overflow-hidden
-  - if icon
+  - if watermark
     .absolute.top-0.left-1/2.-translate-x-1/2.text-gray-100.dark:text-slate-800 class= 'text-[12rem] lg:text-[15rem]'
-      = icon
+      = watermark
 
   .mx-auto.flex.w-full.grow.flex-col.justify-center.px-4.sm:px-6.lg:px-8.relative
-    div class=(icon ? 'pt-48 pb-16' : 'py-16')
+    div class=(watermark ? 'pt-48 pb-16' : 'py-16')
       .text-center
+        - if icon
+          .flex.justify-center
+            = icon
+
         - if header
           p.text-3xl.md:text-6xl.xl:text-5xl.font-semibold.text-gray-600.dark:text-gray-400.select-text
             = header
@@ -14,8 +18,10 @@
           h1.mt-8.text-4xl.font-bold.tracking-tight.text-gray-900.dark:text-gray-300.sm:text-5xl.select-text
             = title
 
+        / A div, not a p: callers put block elements in this slot, and a block
+        / inside a paragraph breaks the paragraph open in the browser.
         - if body
-          p.mt-4.text-sm.sm:text-base.leading-relaxed.text-gray-500.dark:text-gray-400.select-text.max-w-lg.mx-auto
+          .mt-4.text-sm.sm:text-base.leading-relaxed.text-gray-500.dark:text-gray-400.select-text.max-w-lg.mx-auto
             = body
 
         - if footer

@@ -24,7 +24,7 @@
   /! Admin decided the calculation is not public - hint that admin login is
   /! needed to see it, rather than hiding the page outright.
   = render Message::Component.new do |c|
-    - c.with_icon do
+    - c.with_watermark do
       i.fa.fa-sack-dollar
     = c.with_title { t('amortization.index.restricted_title') }
     = c.with_body { t('amortization.index.restricted_body') }
@@ -39,7 +39,7 @@
 - when :no_cash_flows
   /! Cash flows missing: ask the admin to create them
   = render Message::Component.new do |c|
-    - c.with_icon do
+    - c.with_watermark do
       i.fa.fa-sack-dollar
     = c.with_title { t('amortization.index.no_cash_flows_title') }
     = c.with_body { t('amortization.index.no_cash_flows_body') }

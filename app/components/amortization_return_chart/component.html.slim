@@ -49,7 +49,7 @@
   /! Less than a year of measured data: the projection rate is still an all-time
   /! average over a few weeks, so a history of it would show noise, not a trend.
   = render Message::Component.new do |c|
-    - c.with_icon do
+    - c.with_watermark do
       i.fa.fa-chart-line
     = c.with_title { t('.empty_title') }
     = c.with_body { t('.empty_body') }
