@@ -6,7 +6,13 @@ class ApplicationController < ActionController::Base
 
   default_form_builder TailwindFormBuilder
 
+  # Marks the page as admin-only for MainNavigation, which needs to know where
+  # a logout returns to. Rails evaluates the callback conditions (only:,
+  # except:, if:) before it calls this, so the flag is set exactly for the
+  # actions that really need the admin.
   def admin_required!
+    @admin_only_page = true
+
     admin? || raise(ForbiddenError)
   end
 

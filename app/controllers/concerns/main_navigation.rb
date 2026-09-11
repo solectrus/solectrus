@@ -331,10 +331,11 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       request.fullpath
     end
 
+    # True when `admin_required!` ran for this action. Asking the callback
+    # itself keeps its `only:` and `except:` conditions in the answer - a page
+    # a controller opens to guests is not an admin-only page.
     def admin_only_page?
-      self.class._process_action_callbacks.any? do |callback|
-        callback.kind == :before && callback.filter == :admin_required!
-      end
+      @admin_only_page.present?
     end
   end
 end

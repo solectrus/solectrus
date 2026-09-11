@@ -26,6 +26,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- Logout: a page that is open to everyone keeps you on that page after a logout, instead of sending you to the home page
 - Amortization: while the "Return" tab waits for data, it shows its chart icon and says that a history needs more than one year
 - Lock screen: the unlock page now follows dark mode
 - AI access: the consent page now shows the callback host the way the browser reads it, with escapes resolved

@@ -83,4 +83,18 @@ describe 'Summaries' do
       end
     end
   end
+
+  # `admin_required!` guards delete_all alone, so showing a summary is an
+  # ordinary page and a logout has to stay on it.
+  describe 'the logout target' do
+    before { login_as_admin }
+
+    it 'stays on the summary' do
+      get "/summaries/#{date}"
+
+      expect(response.body).to include(
+        CGI.escapeHTML(session_path(return_to: summary_path(date))),
+      )
+    end
+  end
 end
