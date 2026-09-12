@@ -1,5 +1,5 @@
 de:
-  title: Die Bilanz geht nicht auf
+  title: Die Bilanz ist nicht ausgeglichen
   difference: Differenz
   explanation_sources: Ein Sensor misst zu hoch bei der Herkunft, zu niedrig bei der Verwendung, oder er fehlt ganz.
   explanation_sinks: Ein Sensor misst zu hoch bei der Verwendung, zu niedrig bei der Herkunft, oder er fehlt ganz.
