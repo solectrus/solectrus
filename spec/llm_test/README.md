@@ -137,10 +137,11 @@ become the baseline for a server that ships the sentence.
 
 ## How a case works
 
-A case is one entry in `spec/llm_test/cases/*.yml`. There are two files:
+A case is one entry in `spec/llm_test/cases/*.yml`. There are three files:
 `core.yml` holds the questions a user asks most, `conventions.yml` one case per
-rule in `McpServer::Facts`. `--only` matches a case id as a regular expression,
-so a subset runs with `--only 'totals|current|resolve'`.
+rule in `McpServer::Facts`, and `money.yml` the tariffs, the cash flow register
+and the amortization. `--only` matches a case id as a regular expression, so a
+subset runs with `--only 'totals|current|resolve'`.
 
 One case looks like this:
 
@@ -190,8 +191,21 @@ the value from the same curves that the fixture was built from.
 - Measurements in InfluxDB, one per minute, for yesterday and today.
 - One consumer carries an operator name ("Waschmaschine" for
   `custom_power_01`), because only `list_sensors` can resolve such a name.
+- An electricity tariff with a history and a rise scheduled two months out, and
+  a feed-in price that never moved. The scheduled one is what a client must not
+  quote as the current price.
+- A cash flow register: two investments that can be told apart by name, a
+  subsidy, the yearly insurance, one repair, and the savings of the years
+  before SOLECTRUS measured anything. Every entry sits outside the measured
+  range, so a manual saving and a measured one cannot count the same day twice.
 
 One generator feeds both stores, so InfluxDB and the summaries always agree.
+
+What the fixture cannot show: it measures two months while its cash flows reach
+back to the installation in 2020, so get_amortization takes its operating start
+from the first summary (`MeasuredRange#installation_date`) while `yearly_series`
+is labelled from the investment. On a real instance the two are the same day.
+A case on the anniversary reading would measure that gap, not the description.
 
 ## How the model reaches the server
 
