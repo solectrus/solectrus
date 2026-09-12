@@ -181,7 +181,9 @@ de:
     title: Als Admin anmelden
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
     missing_password_hint: Um einen Administrator-Login zu ermöglichen, muss in den Umgebungsvariablen ein Eintrag für <code>ADMIN_PASSWORD</code> ergänzt werden.
+    missing_password_hint_helios: Um einen Administrator-Login zu ermöglichen, muss das Admin-Passwort in HELIOS unter <em>Grundeinstellungen &rsaquo; Zugriffsschutz</em> gesetzt werden.
     password_hint: Das Passwort befindet sich als <code>ADMIN_PASSWORD</code> in der <code>.env</code>-Datei auf deinem Docker-Host.
+    password_hint_helios: HELIOS verwaltet das Passwort. Ändern kannst du es dort unter <em>Grundeinstellungen &rsaquo; Zugriffsschutz</em>.
     submit: Anmelden
     throttled: Zu viele Anmeldeversuche von dieser Adresse. Bitte warte einige Minuten.
     cancel: Abbrechen

@@ -1,3 +1,4 @@
+- helios = HeliosCheck.available?
 - if Rails.application.config.x.admin_password.present?
   = form_with model: @admin_user, url: sessions_path, id: dom_id(@admin_user) do |f|
     = hidden_field_tag :return_to, @return_to
@@ -5,7 +6,7 @@
       .hidden
         = f.text_field :username, value: 'admin', autocomplete: 'username'
       = f.password_field :password,
-                         hint: t('login.password_hint').html_safe,
+                         hint: t(helios ? 'login.password_hint_helios' : 'login.password_hint').html_safe,
                          required: true,
                          autocomplete: 'current-password',
                          autofocus: true
@@ -19,4 +20,4 @@
   p.mt-5.text-red-500.dark:text-red-400
     = t('login.missing_password_error')
   p.mt-5.text-sm
-    == t('login.missing_password_hint')
+    == t(helios ? 'login.missing_password_hint_helios' : 'login.missing_password_hint')

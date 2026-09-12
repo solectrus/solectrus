@@ -181,7 +181,9 @@ en:
     title: Log in as admin
     missing_password_error: Unable to log in because no password has been configured.
     missing_password_hint: To enable administrator login, an entry for <code>ADMIN_PASSWORD</code> must be added to the environment variables.
+    missing_password_hint_helios: To enable administrator login, set the admin password in HELIOS, under <em>Basic Settings &rsaquo; Access protection</em>.
     password_hint: The password is stored as <code>ADMIN_PASSWORD</code> in the <code>.env</code> file on your Docker host.
+    password_hint_helios: HELIOS manages the password. You can change it there, under <em>Basic Settings &rsaquo; Access protection</em>.
     submit: Log in
     throttled: Too many login attempts from this address. Please wait a few minutes.
     cancel: Cancel
