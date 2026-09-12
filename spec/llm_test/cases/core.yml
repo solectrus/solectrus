@@ -66,10 +66,11 @@
 - id: partial_month_not_low
   note: >
     The running month ends today and is therefore half a month. partial_at says
-    so; a model that ignores it reports a collapse in production.
+    so; a model that ignores it reports a collapse in production. There is no
+    expect_facts here: a model can also compare the same days of both months,
+    which is correct and does not carry the full month total.
   prompt: Vergleiche die PV-Erzeugung im letzten Monat mit der in diesem Monat.
   max_tool_calls: 3
-  expect_facts: [pv_last_month_kwh]
   judge: >
     Says that the running month is not over yet (only part of it is measured)
     instead of presenting its smaller figure as a decline.
