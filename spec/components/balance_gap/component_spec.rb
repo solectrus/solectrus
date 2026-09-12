@@ -43,14 +43,14 @@ describe BalanceGap::Component, type: :component do
       expect(rendered_content).to include('15.0 kWh') # sources
       expect(rendered_content).to include('13.0 kWh') # sinks
       expect(rendered_content).to include('2.0 kWh') # difference
-      expect(rendered_content).to include('+13 %') # share
+      expect(rendered_content).to include('13 %') # share
     end
 
     it 'says what it means for the sensors' do
       render_inline(component)
 
-      expect(rendered_content).to include('a consumer is missing')
-      expect(rendered_content).to include('a source measures too high')
+      expect(rendered_content).to include('too high on the source side')
+      expect(rendered_content).to include('too low on the usage side')
     end
   end
 
@@ -61,28 +61,8 @@ describe BalanceGap::Component, type: :component do
       render_inline(component)
 
       expect(page).to have_css '.balance-gap'
-      expect(rendered_content).to include('recorded too high')
-      expect(rendered_content).to include('a source is missing')
-    end
-
-    context 'when the installation has a battery' do
-      before { allow(data).to receive(:battery?).and_return(true) }
-
-      it 'names the loss of the battery as a cause as well' do
-        render_inline(component)
-
-        expect(rendered_content).to include('loss of the battery')
-      end
-    end
-
-    context 'when the installation has no battery' do
-      before { allow(data).to receive(:battery?).and_return(false) }
-
-      it 'says nothing about a battery' do
-        render_inline(component)
-
-        expect(rendered_content).not_to include('loss of the battery')
-      end
+      expect(rendered_content).to include('too high on the usage side')
+      expect(rendered_content).to include('too low on the source side')
     end
   end
 

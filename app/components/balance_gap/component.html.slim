@@ -3,8 +3,8 @@
     i.fa.fas.fa-triangle-exclamation.fa-xl
 
     template data-tooltip-target= 'html'
-      h3.font-bold.text-center
-        = t('.title', percent:)
+      h3.mt-2.font-bold.text-center
+        = t('.title')
 
       dl.mt-5
         .grid.grid-cols-2.gap-4
@@ -25,8 +25,13 @@
           dt
             |&#61;&nbsp;
             = t('.difference')
+            span.ml-1.text-gray-400
+              | (#{percent})
           dd.font-mono.text-right
             = difference
 
       p.mt-5.text-gray-400.text-sm
         = t(explanation_key)
+
+      p.mt-3.text-gray-400.text-sm
+        = t('.consequence')

@@ -20,13 +20,8 @@ class BalanceGap::Component < ViewComponent::Base
     data.imbalance.positive?
   end
 
-  # Which of the two causes the reader gets to see. A battery loses energy on
-  # every cycle, and that loss can only make the sinks look small -- so it
-  # belongs in the explanation, but only where a battery exists.
   def explanation_key
-    return '.explanation_sources' if sources_exceed_sinks?
-
-    data.battery? ? '.explanation_sinks_battery' : '.explanation_sinks'
+    sources_exceed_sinks? ? '.explanation_sources' : '.explanation_sinks'
   end
 
   def sources
@@ -42,11 +37,11 @@ class BalanceGap::Component < ViewComponent::Base
   end
 
   # The share the threshold judges, so the reader sees what made this appear.
+  # The sign stays out: the difference above already names the direction.
   def percent
     Sensor::ValueFormatter.new(
-      data.imbalance_percent,
+      data.imbalance_percent.abs,
       unit: :percent,
-      sign: true,
     ).to_s
   end
 

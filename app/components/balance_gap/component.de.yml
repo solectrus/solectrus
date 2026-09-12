@@ -1,6 +1,6 @@
 de:
-  title: 'Die Bilanz geht nicht auf (%{percent})'
+  title: Die Bilanz geht nicht auf
   difference: Differenz
-  explanation_sources: Entweder fehlt ein Verbraucher in der Messung, oder eine Quelle misst zu hoch. Verbrauch, Autarkie und Ersparnis sind nicht verlässlich.
-  explanation_sinks: Entweder ist ein Verbraucher zu hoch erfasst, oder eine Quelle fehlt in der Messung. Verbrauch, Autarkie und Ersparnis sind nicht verlässlich.
-  explanation_sinks_battery: Ein Teil davon sind Verluste des Speichers. Bleibt mehr übrig, ist ein Verbraucher zu hoch erfasst, oder eine Quelle fehlt in der Messung. Verbrauch, Autarkie und Ersparnis sind nicht verlässlich.
+  explanation_sources: Ein Sensor misst zu hoch bei der Herkunft, zu niedrig bei der Verwendung, oder er fehlt ganz.
+  explanation_sinks: Ein Sensor misst zu hoch bei der Verwendung, zu niedrig bei der Herkunft, oder er fehlt ganz.
+  consequence: Die errechneten Werte für Verbrauch, Autarkie und Ersparnis stimmen dann nicht.

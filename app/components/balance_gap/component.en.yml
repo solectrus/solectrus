@@ -1,6 +1,6 @@
 en:
-  title: 'The balance does not add up (%{percent})'
+  title: The balance does not add up
   difference: Difference
-  explanation_sources: Either a consumer is missing from the measurement, or a source measures too high. Consumption, autarky and savings are not reliable.
-  explanation_sinks: Either a consumer is recorded too high, or a source is missing from the measurement. Consumption, autarky and savings are not reliable.
-  explanation_sinks_battery: A part of this is the loss of the battery. If more is left over, a consumer is recorded too high, or a source is missing from the measurement. Consumption, autarky and savings are not reliable.
+  explanation_sources: A sensor measures too high on the source side, too low on the usage side, or it is missing entirely.
+  explanation_sinks: A sensor measures too high on the usage side, too low on the source side, or it is missing entirely.
+  consequence: The calculated values for consumption, autarky and savings are then wrong.
