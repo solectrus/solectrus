@@ -64,6 +64,11 @@ class Heatpump::PowerCard::Component < ViewComponent::Base
     @grid_ratio = data.heatpump_power_grid_ratio
   end
 
+  # Parts and total share one unit, so they visibly add up
+  def tooltip_scaling
+    data.heatpump_power
+  end
+
   def tooltip_rows
     [
       { bg: 'bg-sensor-pv', label: I18n.t('splitter.pv'), sensor: :heatpump_power_pv },

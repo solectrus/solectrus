@@ -23,6 +23,7 @@ Keep every section, an empty one included.
 - Notifications: the dialog and the list have a cleaner look
 - AI access: an assistant knows your sensors, names the time of the daily peak, and answers what it can when a sensor is missing
 - AI access: a callback address with `http` is accepted now, not only `https`, so a client from a local network, such as Open WebUI, can connect (#5880)
+- Heat pump: the tooltip of the consumption tile shows the exact values and the total, as the power balance does (#5903)
 
 ## Fixes
 

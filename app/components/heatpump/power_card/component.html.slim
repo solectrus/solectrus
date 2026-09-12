@@ -24,4 +24,9 @@
       .space-y-1
         - tooltip_rows.each do |row|
           = render TooltipRow::Component.new(label: row[:label], color_class: row[:bg]) do
-            = render SensorValue::Component.new(data, row[:sensor], context: :total)
+            = render SensorValue::Component.new(data, row[:sensor], context: :total, precision: 3, scaling: tooltip_scaling)
+
+        .label-value-row.label-value-separator.pt-2.mt-3
+          strong
+            = t('splitter.total')
+          = render SensorValue::Component.new(data, :heatpump_power, context: :total, precision: 3, scaling: tooltip_scaling)
