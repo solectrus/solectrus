@@ -11,8 +11,17 @@ module LlmTest
   # shipped tool list and the shipped descriptions, byte for byte, without an
   # HTTP server or an OAuth token in the way.
   class Bridge
-    def initialize(path)
+    # The two responses that carry descriptions: everything the model reads
+    # before it acts. A tool RESULT is deliberately not ablated - a phrase
+    # removed from a value would edit the very number a case asserts on.
+    DESCRIBING_METHODS = %w[initialize tools/list].freeze
+    private_constant :DESCRIBING_METHODS
+
+    # `ablate` is the text to strip from the shipped descriptions, or nil.
+    # Ablation.for builds it; see there for what it is good for.
+    def initialize(path, ablate: nil)
       @path = path
+      @ablate = ablate
       @server = McpServer::Server.build
     end
 
@@ -53,10 +62,19 @@ module LlmTest
     # The executor gives the thread a database connection and the usual Rails
     # per-request setup, which the tools need as much here as in a controller.
     def handle(line)
-      Rails.application.executor.wrap { @server.handle_json(line.strip) }
+      response = Rails.application.executor.wrap { @server.handle_json(line.strip) }
+      return response unless @ablate && describing?(line)
+
+      @ablate.apply(response)
     rescue StandardError => e
       warn "MCP bridge: #{e.class} #{e.message}"
       nil
+    end
+
+    def describing?(line)
+      DESCRIBING_METHODS.include?(JSON.parse(line)['method'])
+    rescue JSON::ParserError
+      false
     end
   end
 end

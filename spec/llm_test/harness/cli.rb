@@ -45,6 +45,7 @@ module LlmTest
         only: nil,
         baseline: nil,
         save: nil,
+        ablate: nil,
       }
       parser.parse!(argv)
     end
@@ -54,8 +55,9 @@ module LlmTest
 
       cases = load_cases
       abort 'No cases selected.' if cases.empty?
+      ablate # resolved here, so a text that matches nothing aborts before the seeding
 
-      finish(Report.new(run(cases)))
+      finish(Report.new(run(cases), ablated: @options[:ablate]))
     end
 
     private
@@ -67,7 +69,7 @@ module LlmTest
 
       travel_to(Dataset.now) do
         seed
-        bridge = Bridge.new(SOCKET).start
+        bridge = Bridge.new(SOCKET, ablate:).start
 
         begin
           announce(cases)
@@ -103,6 +105,18 @@ module LlmTest
       puts "Running #{runs} tests: #{cases.size} cases x " \
              "#{@options[:models].join(', ')} x #{@options[:runs]} runs, " \
              "#{@options[:jobs]} at a time. A single run takes 10-30 seconds."
+    end
+
+    # Built once and kept, so the announcement and the bridge cannot disagree
+    # about what was removed.
+    def ablate
+      return @ablate if defined?(@ablate)
+
+      @ablate = Ablation.for(@options[:ablate])
+      puts @ablate.report if @ablate
+      @ablate
+    rescue Ablation::Error => e
+      abort e.message
     end
 
     # Creates the test database on first use and loads the current schema into
@@ -152,6 +166,9 @@ module LlmTest
         end
         opts.on('--judge-model MODEL', "Model that grades the answers (default: #{Judge::DEFAULT_MODEL})") do |model|
           @options[:judge] = model
+        end
+        opts.on('--ablate NAME', 'Strip a Facts constant (or literal text) from the shipped tool list') do |name|
+          @options[:ablate] = name
         end
         opts.on('--verbose', 'Print every tool call and every answer') { @options[:verbose] = true }
       end

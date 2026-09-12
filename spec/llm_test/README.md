@@ -35,6 +35,7 @@ bin/llm-test --models haiku,sonnet       # a second model
 bin/llm-test --runs 5 --jobs 8           # more runs, more of them at a time
 bin/llm-test --no-judge                  # mechanical checks alone, no LLM judge
 bin/llm-test --judge-model sonnet        # a stronger grader when a verdict looks wrong
+bin/llm-test --ablate TIMEFRAME_FORMS    # run without that text, to see what it buys
 bin/llm-test --save spec/llm_test/baselines/before.json
 bin/llm-test --baseline spec/llm_test/baselines/before.json
 ```
@@ -85,6 +86,41 @@ bin/llm-test --runs 5 --baseline spec/llm_test/baselines/before.json
 The diff shows the pass rate, the average number of tool calls and the context
 size, for each case and model, before and after. A `!` marks a case that got
 worse.
+
+## Ablation: does a sentence still earn its bytes?
+
+The suite guards a description in one direction. A case turns red when a rule
+stops being carried, and `spec/lib/mcp_server/payload_size_spec.rb` turns red
+when the payload grows. Nothing asks the other question: is this sentence still
+worth what every session pays for it? So prose can only accumulate.
+
+`--ablate` asks it. The named text is removed from `initialize` and
+`tools/list` as they cross the bridge, so the model works with a server that
+never said it. The server itself is not touched.
+
+```sh
+bin/llm-test --runs 8 --only 'totals|p30d' --ablate TIMEFRAME_FORMS
+```
+
+It takes a constant of `McpServer::Facts`, or any literal text. Before the run
+it reports what it removes and where, and it refuses an ablation that matches
+nothing - a run that removed no byte proves nothing, but reads exactly like one
+that proved the text worthless.
+
+Everything still green means the text is a candidate for deletion. Read that
+carefully:
+
+- **Enough runs.** A rule that holds in 4 of 5 runs looks intact in three. Use
+  `--runs 8` or more, and `--only` to keep it cheap.
+- **The right cases.** An ablation only measures what a case can reach. Removing
+  a fact no case depends on is always green and says nothing.
+- **Green can mean redundant, not worthless.** `WATT_SUM_IS_ENERGY` ablated from
+  the instructions stayed green, because get_totals says the same thing in its
+  own description and every entry carries `unit: watt_hour`. The finding is that
+  the fact is stated three times, not that it does not matter.
+
+A result file of an ablated run carries the `ablated` key, so it cannot quietly
+become the baseline for a server that ships the sentence.
 
 ## How a case works
 

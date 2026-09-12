@@ -11,8 +11,12 @@ module LlmTest
     ROW = '%-30s %-9s %-16s %-8s %-10s %s'.freeze
     public_constant :ROW
 
-    def initialize(records)
+    # `ablated` names the text that was withheld from the tool list, so a run
+    # that measured a server WITHOUT one of its sentences cannot be read - or
+    # saved - as a reference for the one that ships.
+    def initialize(records, ablated: nil)
       @records = records
+      @ablated = ablated
     end
 
     # case + model -> the aggregate a report line and a diff are built from.
@@ -114,6 +118,7 @@ module LlmTest
     def to_h
       {
         'recorded_at' => Time.current.iso8601,
+        **(@ablated ? { 'ablated' => @ablated } : {}),
         'commit' => `git rev-parse --short HEAD`.strip,
         'summary' => summary.transform_keys { _1.join(' / ') },
         'records' => @records.map { _1.except(:rate_limit) },
