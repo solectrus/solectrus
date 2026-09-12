@@ -234,6 +234,11 @@ module LlmTest
       best = days.max_by { energy_wh(:inverter_power, _1) }
 
       {
+        'pv_last_30_days_kwh' => pv_last_30_days_kwh,
+        # The raw sample peak, which is what get_series with aggregation "max"
+        # reads. A summary max would be the extreme of 5-minute means and
+        # therefore lower (Facts::SUMMARY_EXTREMES).
+        'pv_peak_yesterday_watt' => curve(:inverter_power, yesterday).max,
         'pv_yesterday_kwh' => energy_wh(:inverter_power, yesterday) / 1000.0,
         'house_yesterday_kwh' => energy_wh(:house_power, yesterday) / 1000.0,
         'washer_yesterday_kwh' => energy_wh(:custom_power_01, yesterday) / 1000.0,
@@ -241,8 +246,20 @@ module LlmTest
         'pv_last_month_kwh' => days.sum { energy_wh(:inverter_power, _1) } / 1000.0,
         'best_day_last_month_kwh' => energy_wh(:inverter_power, best) / 1000.0,
         'best_day_last_month_day' => best.day.to_f,
-        'pv_now_watt' => power(:inverter_power, today, ((now - today.beginning_of_day) / STEP).to_i - 1),
+        'pv_now_watt' => pv_now_watt,
       }
+    end
+
+    # The last measurement written for today, which is what a live reading
+    # returns.
+    def pv_now_watt
+      power(:inverter_power, today, ((now - today.beginning_of_day) / STEP).to_i - 1)
+    end
+
+    # The 30 days "P30D" covers: 30 WHOLE days ending yesterday, today
+    # excluded. Which is the fact the case about that form is built on.
+    def pv_last_30_days_kwh
+      ((yesterday - 29)..yesterday).sum { energy_wh(:inverter_power, _1) } / 1000.0
     end
   end
 

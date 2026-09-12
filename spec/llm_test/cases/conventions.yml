@@ -1,0 +1,122 @@
+# The conventions the server states once in McpServer::Facts, one case each.
+# Every fact here is one the tool descriptions argue for in prose, and none of
+# them had a measurement until now: a rule that is only written down is a rule
+# that can rot.
+#
+# What is missing here, and why: the rejection reasons
+# (Facts::NON_AGGREGATABLE, NO_AGGREGATION, MONEY_ACCUMULATED) need a sensor
+# that HAS data, and this fixture carries none for the wallbox, the car flag or
+# any money sensor. A first attempt asked how long the car hung on the wallbox;
+# the model read wallbox_power, found null, and blamed the collector - a
+# correct reading of an empty fixture, so the case measured the fixture rather
+# than the rejection message. Those cases wait for the fixture to seed prices
+# and cash flows.
+#
+# Keys: see cases/core.yml and spec/llm_test/README.md.
+
+- id: nothing_found_answers_the_rest
+  note: >
+    Facts::NOTHING_FOUND. This instance has no gas sensor, and a model that
+    stops at the miss leaves the half it can answer unanswered - measured at
+    two runs out of three before the rule was written. The follow-up failure
+    was an offer ("shall I show you the electricity instead?"), which is why
+    the answer has to carry the number itself.
+  prompt: Wie viel Gas und wie viel Strom hat mein Haus gestern verbraucht?
+  max_tool_calls: 3
+  expect_facts: [house_yesterday_kwh]
+  judge: >
+    Says in the SAME reply that this installation has no gas data AND names the
+    electricity consumption of the house. Offering the electricity figure for a
+    next turn instead of giving it fails.
+
+- id: timeframe_before_installation
+  note: >
+    Facts::TIMEFRAME_NOTE. The installation date is 2020-11-27, so 2019 holds
+    no data and never could. "No data" reads as an outage; the honest answer is
+    "not back then".
+
+    Which tool carries that answer is left open on purpose. Measured runs took
+    both routes: get_totals, which sends the `timeframe_note`, and
+    get_system_info alone, which settles the question from installation_date in
+    one call and never queries data that cannot exist. The second is cheaper
+    and just as correct, so expecting get_totals here would measure the case
+    rather than the server.
+  prompt: Wie viel Strom hat meine PV-Anlage im Jahr 2019 erzeugt?
+  max_tool_calls: 3
+  judge: >
+    Says that the system did not exist yet in 2019 (it was installed later),
+    not that the data is missing or the sensor has no values.
+
+- id: periods_not_repeated_totals
+  note: >
+    A value per day is get_periods, in one call. The detour is seven get_totals
+    calls, which max_tool_calls catches - the server says "get_totals grouped"
+    for exactly this reason.
+
+    The judge counts no days on purpose. Measured runs read "letzte Woche" as
+    "P7D" and as "week", and both are legitimate: the running week holds six
+    days on a Saturday, which the response marks with `partial_at` rather than
+    hiding. Demanding seven entries failed a run that had done everything this
+    case is about.
+  prompt: Zeig mir die PV-Erzeugung pro Tag in der letzten Woche.
+  expect_tools: [get_periods]
+  forbid_tools: [get_ranking, get_series]
+  max_tool_calls: 2
+  expect_args:
+    get_periods:
+      period: day
+  judge: >
+    Gives one generation figure per DAY over the week it queried, not a single
+    total for the whole week.
+
+- id: p30d_excludes_today
+  note: >
+    Facts::TIMEFRAME_FORMS. Only "P24H" rolls to this minute; "P30D" ends
+    yesterday. expect_args asks whether the model reaches for that form, the
+    judge whether it then reads it correctly. A partial today moves the sum by
+    about a percent, which no fact check can tell from rounding, so
+    expect_facts only holds the answer to the right 30 days.
+
+    The prompt says "abgeschlossene Tage" because the plain "die letzten 30
+    Tage" does not decide the form: in 4 of 21 measured runs the model built a
+    date range of its own, which ends today. Saying so in the server
+    instructions did not help - 8 of 11 runs with that sentence against 8 of 10
+    without, so it was taken out again rather than paid for in every session.
+    A whole-days question and a whole-days form is what this case can decide.
+  prompt: >
+    Wie viel Strom hat meine PV-Anlage in den letzten 30 abgeschlossenen Tagen
+    erzeugt? Ist der heutige Tag da mit drin?
+  expect_tools: [get_totals]
+  max_tool_calls: 3
+  expect_args:
+    get_totals:
+      timeframe: P30D
+  expect_facts: [pv_last_30_days_kwh]
+  judge: >
+    Says that today is NOT part of the 30 days - the window ends yesterday.
+    Answering that today is included, or leaving the question open, fails.
+
+- id: raw_peak_is_series
+  note: >
+    Facts::SUMMARY_EXTREMES. A summary max is the extreme of 5-minute means, so
+    get_ranking reads lower than the true peak. Asked for the raw one, both
+    descriptions point at get_series with aggregation "max". On a measured day
+    the two tools answered 8800.6 W and 9536 W for the same sensor.
+  prompt: >
+    Wie hoch war gestern die höchste momentane PV-Leistung? Ich will den echten
+    Spitzenwert der Rohdaten, keinen Mittelwert.
+  expect_tools: [get_series]
+  max_tool_calls: 3
+  expect_args:
+    get_series:
+      aggregation: max
+  expect_facts: [pv_peak_yesterday_watt]
+  judge: Names the peak as a power in W or kW, not as an energy.
+# Not here, and why: the rejection reasons (Facts::NON_AGGREGATABLE,
+# NO_AGGREGATION, MONEY_ACCUMULATED) need a sensor that HAS data, and this
+# fixture carries none for the wallbox, the car flag or any money sensor. A
+# first attempt asked how long the car hung on the wallbox; the model read
+# wallbox_power, found null, and blamed the collector - a correct reading of an
+# empty fixture, so the case measured the fixture rather than the rejection
+# message. It belongs with the prices and cash flows the fixture does not seed
+# yet.

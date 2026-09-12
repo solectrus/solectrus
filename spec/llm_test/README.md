@@ -88,7 +88,12 @@ worse.
 
 ## How a case works
 
-A case is one entry in `spec/llm_test/cases/*.yml`:
+A case is one entry in `spec/llm_test/cases/*.yml`. There are two files:
+`core.yml` holds the questions a user asks most, `conventions.yml` one case per
+rule in `McpServer::Facts`. `--only` matches a case id as a regular expression,
+so a subset runs with `--only 'totals|current|resolve'`.
+
+One case looks like this:
 
 ```yaml
 - id: totals_yesterday_direct
