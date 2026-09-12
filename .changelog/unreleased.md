@@ -32,6 +32,7 @@ Keep every section, an empty one included.
 - Lock screen: the unlock page now follows dark mode
 - AI access: the consent page now shows the callback host the way the browser reads it, with escapes resolved
 - Power balance: on a phone the tooltip of a segment is now narrower and puts the value under its label, so it stays inside the screen (#5886)
+- Daily summaries: building them for a long timeframe now stays on the page and finishes, instead of ending on an empty page
 - A section that hangs on its loading spinner now loads again by itself, for example when you come back to a tab after hours
 
 ## Maintenance

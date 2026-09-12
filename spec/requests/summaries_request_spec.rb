@@ -53,6 +53,30 @@ describe 'Summaries' do
       end
     end
 
+    context 'with a range wider than a chunk of missing days' do
+      subject(:request) { get "/summaries/#{date}?to=#{date + 500}" }
+
+      # The frame that asks for a chunk carries the first and the last missing
+      # day in its id, and those can be far apart. The answer must keep that
+      # range, or Turbo finds no matching frame and leaves the page.
+      it 'renders the frame for the requested range' do
+        request
+
+        expect(response.body).to include(%(id="d_#{date}_#{date + 500}"))
+      end
+    end
+
+    context 'with fresh days between the missing ones' do
+      subject(:request) { get "/summaries/#{date}?to=#{date + 20}" }
+
+      before { ((date + 1)..(date + 19)).each { |day| Summary.create!(date: day) } }
+
+      it 'builds the missing days of the whole range' do
+        expect { request }.to change(Summary, :count).by(2)
+        expect(Summary.where(date: [date, date + 20]).count).to eq(2)
+      end
+    end
+
     context 'with a reversed range' do
       subject(:request) { get "/summaries/#{date}?to=#{date - 5}" }
 
