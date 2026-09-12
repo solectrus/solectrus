@@ -1,0 +1,98 @@
+# The money half of the server: get_prices, get_cash_flows, get_amortization,
+# and the one rejection that only a money sensor produces. None of these tools
+# had a case before, and together they are a third of what a session pays for
+# the tool list.
+#
+# What is NOT here: the anniversary reading of `yearly_series`. The tool takes
+# its operating start from the first day with measured data
+# (MeasuredRange#installation_date), and this fixture measures two months while
+# its cash flows reach back to 2020 - so the series is labelled from the
+# investment while `installation_date` reports the first summary. A real
+# instance has both at the same day. A case on that would measure the gap, not
+# the description.
+#
+# Keys: see cases/core.yml and spec/llm_test/README.md.
+
+- id: price_upcoming_is_not_current
+  note: >
+    get_prices' own rule: "Never quote an `upcoming` value as the current
+    price." The fixture has a tariff rise scheduled two months out, and nothing
+    but its date tells it apart from the one in force.
+  prompt: Was kostet mich aktuell eine Kilowattstunde aus dem Netz?
+  expect_tools: [get_prices]
+  max_tool_calls: 2
+  expect_facts: [electricity_price_now]
+  judge: >
+    Gives the price per kWh that is in force today. It may also mention the
+    scheduled increase, but only as one that starts at a later date -
+    presenting it as the current price fails. The tariff carries no name in
+    SOLECTRUS, so do not ask for one.
+
+- id: price_on_a_past_date
+  note: >
+    The other half of the same rule: `effective` is the price valid ON `date`,
+    so a past date has to yield the historical tariff. Tied to
+    INSTALLATION_DATE of the test environment (2020-11-27), which 2021 has to
+    lie after.
+  prompt: Was hat mich die Kilowattstunde im Juni 2021 gekostet?
+  expect_tools: [get_prices]
+  max_tool_calls: 2
+  expect_facts: [electricity_price_2021]
+  judge: Names the tariff of 2021, not the one in force today.
+
+- id: cash_flow_single_entry
+  note: >
+    A question about ONE entry of the register has no answer in the
+    amortization figures, which only ever return it aggregated. This is the
+    split get_cash_flows exists for.
+  prompt: Was hat mein Batteriespeicher gekostet?
+  expect_tools: [get_cash_flows]
+  forbid_tools: [get_amortization]
+  max_tool_calls: 3
+  expect_facts: [battery_investment]
+  judge: Names what the battery cost, as one entry of the register.
+
+- id: amortization_net_investment
+  note: >
+    net_investment is the gross investment minus the subsidies and refunds -
+    what actually has to be earned back. A model that reports the gross figure
+    answers a question nobody asked, and overstates the debt by the subsidy.
+
+    What this case really guards is the ROUTE, and an ablation says so:
+    without the sentence that defines net_investment, 5 of 8 runs went to
+    get_cash_flows and added the register up themselves. Every one of them
+    still named the right number - this register is small enough to fit in a
+    single response. It is the bigger register that the sentence protects,
+    where `entries` is capped and only `sum_by_category` still covers
+    everything. So the ablation reads greener than it is, and the 73 bytes
+    stay.
+  prompt: >
+    Was hat mich meine PV-Anlage netto gekostet, also nach Abzug der Förderung?
+  expect_tools: [get_amortization]
+  max_tool_calls: 3
+  expect_facts: [net_investment]
+  judge: >
+    Gives the net investment, and says that the subsidy lowered it. Reporting
+    the gross investment as the answer fails.
+
+- id: money_needs_no_apology
+  note: >
+    Facts::MONEY_ACCUMULATED, from the side that turned out to matter. The
+    first version of this case demanded the rejection and a period figure, and
+    failed 3 of 3 runs - for a reason worth keeping: the model never asked for
+    the money sensor at all. It read inverter_power and the tariff and showed
+    the arithmetic ("81.9 W x 0.35 EUR/kWh = 0.029 EUR/h"). Nothing was
+    rejected, nothing was invented, and the rule did its work before a call
+    was made.
+
+    So what is left to guard is the failure the rule exists against: answering
+    a money question with "no data". Not which of the two honest routes the
+    model takes.
+  prompt: Wie viel Geld spare ich gerade in diesem Moment durch meine PV-Anlage?
+  max_tool_calls: 4
+  allow_tool_errors: true
+  judge: >
+    Does not report the savings as missing, unavailable or not measured. Either
+    it names a figure for a period, or it gives a momentary rate as its OWN
+    calculation from power and tariff - a derived rate presented as a value the
+    system measured fails.

@@ -147,6 +147,90 @@ module LlmTest
       Setting.sensor_names = SENSOR_NAMES.stringify_keys
       seed_summaries!
       seed_influx!
+      seed_prices!
+      seed_cash_flows!
+    end
+
+    # When this installation went live. The money half of the fixture hangs off
+    # it rather than off `today`, because that is what get_amortization counts
+    # from - and what makes a yearly_series entry an anniversary rather than a
+    # calendar year.
+    def installation_date = Rails.configuration.x.installation_date
+
+    ### Money ###################################################################
+
+    # The electricity tariff has three entries and the feed-in one, so a single
+    # response shows both shapes: a price with a history and a scheduled change
+    # ahead of it, and a price that never moved.
+    #
+    # The scheduled one is the point. It is the value a client must NOT quote
+    # as the current tariff, and nothing but a date tells the two apart.
+    def prices
+      {
+        electricity: [
+          [installation_date, 0.25],
+          [Date.new(today.year - 2, 1, 1), 0.35],
+          [(today >> 2).beginning_of_month, 0.45],
+        ],
+        feed_in: [[installation_date, 0.0832]],
+      }
+    end
+
+    def seed_prices!
+      Price.delete_all
+
+      Price.insert_all!(
+        prices.flat_map do |name, entries|
+          entries.map do |starts_at, value|
+            { name:, starts_at:, value:, created_at: now, updated_at: now }
+          end
+        end,
+      )
+    end
+
+    # The cash flow register: two investments that can be told apart by name,
+    # a subsidy that lowers the base without being a payback, the small
+    # recurring costs, and the manual savings of the years before SOLECTRUS
+    # measured anything.
+    #
+    # Every entry sits OUTSIDE the measured range (which begins with the first
+    # summary, two months ago), so the manual savings and the measured ones
+    # cannot count the same day twice.
+    def cash_flows
+      [
+        [installation_date, :investment, -14_000, 'Photovoltaik-Anlage'],
+        [installation_date, :investment, -6_000, 'Batteriespeicher'],
+        [installation_date + 4.months, :subsidy, 3_000, 'Förderung'],
+        [installation_date + 30.months, :repair, -450, 'Reparatur am Wechselrichter'],
+        *insurance_entries,
+        *manual_savings_entries,
+      ]
+    end
+
+    # One premium per full year since the installation.
+    def insurance_entries
+      ((installation_date.year + 1)..(today.year - 1)).map do |year|
+        [Date.new(year, 3, 1), :operating_cost, -120, "Versicherung #{year}"]
+      end
+    end
+
+    # What the system saved before SOLECTRUS was installed, one entry per year.
+    # Dated at the end of the year, so none of them reaches into the measured
+    # range.
+    def manual_savings_entries
+      ((installation_date.year + 1)..(today.year - 1)).map do |year|
+        [Date.new(year, 12, 31), :manual_savings, 2_200, "Ersparnis #{year} (vor SOLECTRUS)"]
+      end
+    end
+
+    def seed_cash_flows!
+      CashFlow.delete_all
+
+      CashFlow.insert_all!(
+        cash_flows.map do |date, category, amount, note|
+          { date:, category:, amount:, note:, created_at: now, updated_at: now }
+        end,
+      )
     end
 
     def seed_summaries!
@@ -247,7 +331,30 @@ module LlmTest
         'best_day_last_month_kwh' => energy_wh(:inverter_power, best) / 1000.0,
         'best_day_last_month_day' => best.day.to_f,
         'pv_now_watt' => pv_now_watt,
+        **money_facts,
       }
+    end
+
+    # The money facts are arithmetic on the seed above, never a reading of the
+    # calculator: a fact computed by the code under test would agree with it by
+    # construction.
+    def money_facts
+      investments = cash_flows.select { _1[1] == :investment }.sum { _1[2].abs }
+      subsidies = cash_flows.select { _1[1] == :subsidy }.sum { _1[2] }
+
+      {
+        'electricity_price_now' => price_at(:electricity, today),
+        'electricity_price_2021' => price_at(:electricity, Date.new(2021, 6, 1)),
+        'battery_investment' => cash_flows.find { _1[3] == 'Batteriespeicher' }[2].abs.to_f,
+        'gross_investment' => investments.to_f,
+        'net_investment' => (investments - subsidies).to_f,
+      }
+    end
+
+    # The tariff in force on a date, read the way Price.at reads it - from the
+    # seed above, so a changed price list moves the fact with it.
+    def price_at(name, date)
+      prices[name].select { _1.first <= date }.max_by(&:first).last
     end
 
     # The last measurement written for today, which is what a live reading
