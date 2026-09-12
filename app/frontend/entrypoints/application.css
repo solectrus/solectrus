@@ -228,6 +228,10 @@
   @apply pointer-events-none fixed inset-x-0 top-0 z-60 h-1.25 bg-indigo-300;
 
   contain: layout style;
+
+  @variant dark {
+    @apply bg-indigo-500;
+  }
 }
 
 @layer base {

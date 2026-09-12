@@ -25,6 +25,7 @@ Keep every section, an empty one included.
 - AI access: a callback address with `http` is accepted now, not only `https`, so a client from a local network, such as Open WebUI, can connect (#5880)
 - Heat pump: the tooltip of the consumption tile shows the exact values and the total, as the power balance does (#5903)
 - Login: if HELIOS is running, the password hint names the place in HELIOS instead of the `.env` file
+- Loading bar: in dark mode it is less bright, and it stays hidden for short page changes
 
 ## Fixes
 

@@ -21,8 +21,8 @@ registerControllers(
   import.meta.glob('../../components/**/*_controller.{js,ts}', { eager: true }),
 );
 
-// Show progress bar immediately on navigation (default: 500ms delay)
-Turbo.config.drive.progressBarDelay = 0;
+// Hide the progress bar for short navigations (Turbo default: 500ms)
+Turbo.config.drive.progressBarDelay = 250;
 
 // A morph refresh (turbo_refreshes_with :morph) to the same URL - e.g. after a
 // logout that redirects back to the current page - rewinds lazily-loaded
