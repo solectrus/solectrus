@@ -7,3 +7,4 @@ spec/support/cassettes/*
 
 # Written by bin/llm-test, in the format the harness produces
 spec/llm_test/baselines/
+spec/llm_test/results/
