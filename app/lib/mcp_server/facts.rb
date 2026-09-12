@@ -26,6 +26,14 @@ module McpServer
     # extrapolates ("last-week", "yesterday", "2026-06-21..now") is never
     # accepted. A closed set leaves nothing to invent.
     #
+    # It is published in all four timeframe arguments rather than once in the
+    # instructions, and that repetition is measured: withheld from the schemas
+    # (bin/llm-test --ablate TIMEFRAME_FORMS), 49 of 64 runs passed instead of
+    # all of them. The model then invented "last 7 days" and asked for a single
+    # day as "2026-09-11..2026-09-11", and recovered only from the rejection -
+    # which repeats this list anyway, one round trip later. 370 bytes per
+    # argument against a wasted turn.
+    #
     # The three P-forms are spelled out separately because only ONE of them
     # rolls. Timeframe#ending is Time.current for an hour window, but
     # yesterday's end of day for "PnD" and last month's for "PnM" - so "P30D"

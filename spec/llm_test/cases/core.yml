@@ -69,6 +69,13 @@
     so; a model that ignores it reports a collapse in production. There is no
     expect_facts here: a model can also compare the same days of both months,
     which is correct and does not carry the full month total.
+
+    When this case goes red with a rejected call, look at the timeframe before
+    you read it as a finding: once in 17 measured runs the model asked for
+    "2026-08..2026-09", a month RANGE, which the forms do not allow - a
+    plausible extrapolation of the date range they do show. It recovers one
+    round trip later. At that rate it is not worth a sentence in
+    Facts::TIMEFRAME_FORMS, which every timeframe argument would pay for.
   prompt: Vergleiche die PV-Erzeugung im letzten Monat mit der in diesem Monat.
   max_tool_calls: 3
   judge: >

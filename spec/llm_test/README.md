@@ -102,10 +102,12 @@ never said it. The server itself is not touched.
 bin/llm-test --runs 8 --only 'totals|p30d' --ablate TIMEFRAME_FORMS
 ```
 
-It takes a constant of `McpServer::Facts`, or any literal text. Before the run
-it reports what it removes and where, and it refuses an ablation that matches
-nothing - a run that removed no byte proves nothing, but reads exactly like one
-that proved the text worthless.
+It takes a constant of `McpServer::Facts`, or any literal text. Type a sentence
+as one line however the source wraps it - the words are matched with anything
+whitespace-like between them, so a re-wrapped description does not break an
+ablation. Before the run it reports what it removes and where, and it refuses
+an ablation that matches nothing - a run that removed no byte proves nothing,
+but reads exactly like one that proved the text worthless.
 
 Everything still green means the text is a candidate for deletion. Read that
 carefully:
@@ -118,6 +120,17 @@ carefully:
   the instructions stayed green, because get_totals says the same thing in its
   own description and every entry carries `unit: watt_hour`. The finding is that
   the fact is stated three times, not that it does not matter.
+- **Red can mean a different route, not a wrong answer.** Read the failures
+  before you conclude anything. Ablating the sentence that defines
+  net_investment turned `amortization_net_investment` red in 5 of 8 runs - and
+  every one of those answers carried the right number, reached through
+  get_cash_flows instead. What the sentence buys is the route, which this
+  fixture is too small to show the cost of.
+
+Two ablations so far, and both ended with the text staying: `TIMEFRAME_FORMS`
+(49 of 64 runs, so it earns its four repetitions) and the net_investment
+sentence. The value is not the deletion. It is knowing which sentence is load
+bearing.
 
 A result file of an ablated run carries the `ablated` key, so it cannot quietly
 become the baseline for a server that ships the sentence.
