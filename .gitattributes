@@ -10,3 +10,6 @@ bun.lock linguist-generated
 vendor/* linguist-vendored
 config/credentials/*.yml.enc diff=rails_credentials
 config/credentials.yml.enc diff=rails_credentials
+
+# Append-only list. Keep both sides instead of raising a conflict on rebase.
+.changelog/unreleased.md merge=union
