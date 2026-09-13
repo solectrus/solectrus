@@ -10,6 +10,17 @@ const networkErrorMessages = [
   'NetworkError when attempting to fetch resource', // Firefox
 ];
 
+// Benign browser noise: a ResizeObserver could not deliver all of its
+// notifications within one animation frame, so the browser retries on the
+// next one. Nothing is lost and no layout breaks, but Safari and Chrome
+// report it through window.onerror. See w3c/csswg-drafts#5023.
+const resizeObserverMessages = [
+  'ResizeObserver loop completed with undelivered notifications',
+  'ResizeObserver loop limit exceeded',
+];
+
+const ignoredMessages = [...networkErrorMessages, ...resizeObserverMessages];
+
 const honeybadgerApiKey = metaContent('honeybadger-api-key');
 if (honeybadgerApiKey) {
   const gitCommitVersion = metaContent('git-commit-version');
@@ -26,7 +37,7 @@ if (honeybadgerApiKey) {
     if (notice?.name === 'AbortError') return false;
 
     const message = notice?.message ?? '';
-    if (networkErrorMessages.some((needle) => message.includes(needle)))
+    if (ignoredMessages.some((needle) => message.includes(needle)))
       return false;
   });
 }
