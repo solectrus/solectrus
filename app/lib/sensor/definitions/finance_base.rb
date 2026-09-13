@@ -44,15 +44,6 @@ class Sensor::Definitions::FinanceBase < Sensor::Definitions::Base
 
   protected
 
-  # Helper for building price references
-  def electricity_price
-    'pb.money_per_kwh'
-  end
-
-  def feed_in_price
-    'pf.money_per_kwh'
-  end
-
   # Helper for Wh to kWh conversion
   def to_kwh(wh_expression)
     "(#{wh_expression}) / 1000.0"

@@ -495,8 +495,6 @@ end
 
 **Available in FinanceBase:**
 
-- `electricity_price` → `'pb.money_per_kwh'` (for SQL)
-- `feed_in_price` → `'pf.money_per_kwh'` (for SQL)
 - `to_kwh(wh_expression)` → Converts Wh to kWh (for SQL)
 - `greatest(expression, fallback)` → GREATEST SQL function
 - `coalesce(expression, fallback)` → COALESCE SQL function

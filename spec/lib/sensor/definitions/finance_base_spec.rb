@@ -12,7 +12,7 @@ describe Sensor::Definitions::FinanceBase do
       end
 
       # Make protected methods public for testing
-      public :electricity_price, :feed_in_price, :to_kwh, :greatest, :coalesce
+      public :to_kwh, :greatest, :coalesce
     end
   end
 
@@ -44,18 +44,6 @@ describe Sensor::Definitions::FinanceBase do
 
   # Test SQL helper methods
   describe 'SQL helper methods' do
-    describe '#electricity_price' do
-      it 'returns correct price reference' do
-        expect(instance.electricity_price).to eq('pb.money_per_kwh')
-      end
-    end
-
-    describe '#feed_in_price' do
-      it 'returns correct price reference' do
-        expect(instance.feed_in_price).to eq('pf.money_per_kwh')
-      end
-    end
-
     describe '#to_kwh' do
       it 'converts Wh expression to kWh' do
         expect(instance.to_kwh('sums.power_sum')).to eq(
