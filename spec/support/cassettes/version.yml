@@ -10,7 +10,7 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - SOLECTRUS-071befdf/v1.3.0 (Darwin; arm64; 25.6.0; 1788103341) FEATURES/0 INFLUXDB/2.9.1
+      - SOLECTRUS-2f26aaf7/v1.3.1 (Darwin; arm64; 25.6.0; 1789377420) FEATURES/0 INFLUXDB/2.9.1
         POSTGRESQL/18.6
   response:
     status:
@@ -24,9 +24,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Sun, 30 Aug 2026 15:22:45 GMT
+      - Mon, 14 Sep 2026 09:17:01 GMT
       Etag:
-      - W/"2690dd956089d36bd86285b87de41b10"
+      - W/"7fa514fc4bc07cbb3817ed23274696be"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -40,13 +40,28 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - 4aa90096-76be-4106-bc6f-7ba1e6b1e92b
+      - e16e243a-3926-42ca-8e4c-b40b3243e640
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"version":"v1.3.0","registration_status":"unregistered","premium_reason":"intro","premium_ends_at":"2026-09-13T17:22:21+02:00","registration_reminder_at":"2026-09-02T17:22:21+02:00","registration_due_at":"2026-09-06T17:22:21+02:00","signature":"LBmi5XBOcw/X6OOuD9ZzTVd9vB1LbauiScFBlYFJTfGJcjKxquHzpb/P6cs4DpmWFw8VX0O+3pROB0eEdP+/Ag=="}'
-  recorded_at: Sun, 30 Aug 2026 15:22:45 GMT
+      string: '{"version":"v1.3.1","registration_status":"unregistered","premium_reason":"intro","premium_ends_at":"2026-09-28T11:17:00+02:00","registration_reminder_at":"2026-09-17T11:17:00+02:00","registration_due_at":"2026-09-21T11:17:00+02:00","notifications":[{"id":13,"title":"Version
+        1.3 berechnet die Amortisation der PV-Anlage","published_at":"2026-08-30T20:08:43+02:00","body":"<div>Die
+        aktuelle Version 1.3 bringt u.a. diese Neuerungen:<br><br></div><ul><li>Neue
+        Seite „Amortisation\" ermittelt die Rendite der PV-Anlage und wann die Investition
+        sich amortisiert hat</li><li>KI-Zugriff über MCP: Claude oder ChatGPT beantworten
+        Fragen zu den eigenen Messwerten</li><li>Der Power-Splitter rechnet nun auch
+        dann korrekt, wenn der Akku aus dem Netz geladen wird</li><li>Verbesserte
+        Performance, Fehlerkorrekturen und eine Vielzahl kleinerer Verbesserungen</li></ul><div><br>Alle
+        Details mit Screenshots und Beispielen im Blog:<br><a href=\"https://solectrus.de/blog/2026-08-30-version-1-3/\">https://solectrus.de/blog/2026-08-30-version-1-3/</a></div>"},{"id":14,"title":"Hilf
+        mit, SOLECTRUS noch besser zu machen!","published_at":"2026-09-10T11:33:00+02:00","body":"<div>Um
+        die zukünftige Entwicklung von SOLECTRUS besser steuern zu können, sind Informationen
+        über die PV-Anlagen der Nutzer sehr hilfreich. Es gibt daher jetzt einen kleinen
+        <strong>Fragebogen</strong> mit ein paar freiwilligen Fragen zur technischen
+        Ausstattung deiner Anlage.<br><br>Klicke in SOLECTRUS auf \"<a href=\"/registration\">Registrierung</a>\",
+        um zu diesem Fragebogen zu gelangen. Danke, dass du dir <strong>eine&nbsp;
+        Minute</strong> Zeit nimmst!</div>"}],"signature":"P5Ak6sfUkx3qgDqJIGA8jHL1C04Ck3Nw+zspbxe4kQeAgGfMJ0FRlFKObUwUyejoJH/pwGruK6qiJsV/+DJKBA=="}'
+  recorded_at: Mon, 14 Sep 2026 09:17:01 GMT
 recorded_with: VCR 6.4.0

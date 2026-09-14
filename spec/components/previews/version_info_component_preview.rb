@@ -5,8 +5,8 @@ class VersionInfoComponentPreview < ViewComponent::Preview
   # @label up-to-date
   def up_to_date
     render VersionInfo::Component.new(
-             current_version: 'v1.3.0',
-             commit_time: Time.parse('2022-11-06T15:13:16+01:00'),
+             current_version: 'v1.3.1',
+             commit_time: Time.parse('2026-09-14T10:35:19+02:00'),
              github_url: 'https://github.com/solectrus/solectrus',
            )
   end

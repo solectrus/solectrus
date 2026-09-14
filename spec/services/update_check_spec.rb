@@ -25,18 +25,18 @@ describe UpdateCheck do
       it do
         is_expected.to eq(
           {
-            version: 'v1.3.0',
+            version: 'v1.3.1',
             registration_status: 'unregistered',
             premium_reason: 'intro',
-            premium_ends_at: '2026-09-13T17:22:21+02:00',
-            registration_reminder_at: '2026-09-02T17:22:21+02:00',
-            registration_due_at: '2026-09-06T17:22:21+02:00',
+            premium_ends_at: '2026-09-28T11:17:00+02:00',
+            registration_reminder_at: '2026-09-17T11:17:00+02:00',
+            registration_due_at: '2026-09-21T11:17:00+02:00',
           },
         )
       end
 
       it 'has shortcuts' do
-        expect(instance.latest_version).to eq('v1.3.0')
+        expect(instance.latest_version).to eq('v1.3.1')
         expect(instance.registration_status).to eq('unregistered')
         expect(instance).to be_unregistered
       end
@@ -54,7 +54,7 @@ describe UpdateCheck do
       # Without a re-entrancy guard this deadlocks with "recursive locking".
       it 'does not deadlock when the User-Agent reads feature flags' do
         expect { latest }.not_to raise_error
-        expect(instance.latest_version).to eq('v1.3.0')
+        expect(instance.latest_version).to eq('v1.3.1')
       end
     end
 
