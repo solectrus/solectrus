@@ -220,8 +220,9 @@ Every run starts with `--tools ""`, so Claude Code brings no tool of its own.
 The model has our 12 MCP tools and nothing else.
 
 One Ruby process answers all the parallel runs, so a tool call waits for the
-others. The runs therefore raise the MCP timeouts of the CLI (`MCP_TIMEOUT`,
-`MCP_TOOL_TIMEOUT`), which assume a server per client. Without that, a busy
-bridge shows up as a rejected `list_sensors` - or as a run that starts with no
-tools at all, because the handshake timed out. A rejected call now carries the
-reason, which tells the two apart.
+others. The MCP timeouts of the CLI assume a server per client, and the harness
+does not raise them. A busy bridge therefore shows up as a rejected
+`list_sensors` - or as a run that starts with no tools at all, because the
+handshake timed out. A rejected call carries the reason, which tells the two
+apart. If such a failure appears, lower `--jobs` before you read it as a
+finding about a description.
