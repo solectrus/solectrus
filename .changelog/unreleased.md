@@ -7,8 +7,8 @@ refactorings, tests, CI, lint fixes. Reverted before the release? Delete the lin
 
 How to write it: one line, English, the words of the user interface. Name what
 changed for the user, not how it was built. Add "(#5886)" when an issue or a
-discussion drove the change. Under "Fixes", write what works now, never what was
-broken.
+discussion drove the change. Under "Fixes", write what works now, and name
+what went wrong before, so a reader knows the bug.
 
 Keep every section, an empty one included.
 -->
@@ -29,14 +29,14 @@ Keep every section, an empty one included.
 
 ## Fixes
 
-- Notifications: if you are not signed in, the red mark now leads to a page that says why you cannot read the message, and that the mark stays until the operator logs in
-- Logout: a page that is open to everyone keeps you on that page after a logout, instead of sending you to the home page
-- Amortization: while the "Return" tab waits for data, it shows its chart icon and says that a history needs more than one year
-- Lock screen: the unlock page now follows dark mode
-- AI access: the consent page now shows the callback host the way the browser reads it, with escapes resolved
-- Power balance: on a phone the tooltip of a segment is now narrower and puts the value under its label, so it stays inside the screen (#5886)
+- Notifications: if you are not signed in, the red mark now leads to a page that explains why only the operator can read a message, instead of a forbidden page
+- Logout: if you sign out on a page that is open to everyone, you now stay on that page, instead of landing on the home page
+- Amortization: the "Return" tab now shows its chart icon instead of a placeholder, and says that the curve needs more than one year of history
+- Lock screen: the unlock page now follows dark mode, instead of staying bright
+- AI access: the consent page now shows the callback host the way the browser reads it, instead of leaving the escapes visible
+- Power balance: on a phone the tooltip of a segment is now narrower and puts the value under its label, instead of running off the screen (#5886)
 - Daily summaries: building them for a long timeframe now stays on the page and finishes, instead of ending on an empty page
-- A section that hangs on its loading spinner now loads again by itself, for example when you come back to a tab after hours
+- Pages: a section now loads again by itself, for example when you come back to a tab after hours, instead of hanging on its loading spinner
 
 ## Maintenance
 
