@@ -22,6 +22,7 @@ Detailed technical documentation for the SOLECTRUS Sensor System.
 - [Performance Optimizations](#performance-optimizations)
 - [Common Patterns](#common-patterns)
 - [Troubleshooting](#troubleshooting)
+- [Further Documentation](#further-documentation)
 
 > 📖 **See also:** [Sensor Overview](sensor-overview.md) for an introduction and [SQL Queries](sensor-sql-queries.md) for detailed SQL examples
 
@@ -108,23 +109,30 @@ Both data classes perform automatic type conversion based on the sensor unit:
 
 ### Available Unit Types
 
-All unit types are validated in `Sensor::Definitions::Base::VALID_UNITS`:
+Each unit is a class under `app/lib/sensor/units/`. The registry in
+`Sensor::Units` maps the unit name to that class, and `Sensor::Units.names`
+lists every name a sensor may declare:
 
 ```ruby
-VALID_UNITS = %i[
-  watt          # Power/Energy (automatic W/kW/MW or Wh/kWh/MWh)
-  celsius       # Temperature in °C
-  percent       # Percent (0-100)
-  unitless      # Dimensionless numbers (COP, etc.)
-  boolean       # Yes/No
-  string        # Text (status messages)
-  gram          # Mass/CO2 (automatic g/kg/t)
-  money          # Currency (dynamic precision)
-  money_per_kwh  # Electricity price
-].freeze
+Sensor::Units.names
+# => [:watt,          # Power/Energy (automatic W/kW/MW or Wh/kWh/MWh)
+#     :gram,          # Mass/CO2 (automatic g/kg/t)
+#     :money,         # Currency (dynamic precision)
+#     :money_per_kwh, # Electricity price
+#     :celsius,       # Temperature in °C
+#     :percent,       # Percent (0-100)
+#     :unitless,      # Dimensionless numbers (COP, etc.)
+#     :boolean,       # Yes/No
+#     :string]        # Text (status messages)
 ```
 
-Invalid units cause an `ArgumentError` during loading.
+`Sensor::Definitions::Base#validate_unit!` checks the unit of every definition
+against that list when the registry loads. An invalid unit raises an
+`ArgumentError`.
+
+Everything that depends on the unit lives in the unit class: how a value is
+scaled, how it is labeled, and how many decimals it deserves. A sensor can
+override `#exact_precision` to change the last one.
 
 ### Automatic Scaling
 
@@ -148,18 +156,23 @@ Watt and Gram scale automatically:
 
 ```ruby
 # Default precision per unit
-celsius: 1       # 23.5 °C
-watt: 0          # 2,500 W (for small values)
-watt: 1          # 2.5 kW (for kW/MW)
-gram: 0          # 500 kg
+celsius: 1        # 23.5 °C
+watt: 0           # 2,500 W (unscaled), and 250 kW (scaled but >= 100)
+watt: 1           # 2.5 kW (scaled and < 100)
+gram: 0           # 500 g and 500 kg
+gram: 1           # 1.5 t (only the tonne step scales far enough)
 money: 2          # 5.23 € (< 10)
 money: 0          # 1,235 € (>= 10)
 money_per_kwh: 4  # 0.2523 €/kWh
-percent: 0       # 85 %
+percent: 0        # 85 %
 
 # Overridable
 Sensor::ValueFormatter.new(value, unit: :watt, precision: 2)
 ```
+
+A scaled value keeps one decimal only while the printed number stays below a
+hundred. `Sensor::Units::Base#decimal_while_short` decides that, so a big
+number never carries a decimal that says nothing.
 
 ## DSL Reference
 
@@ -170,9 +183,23 @@ The DSL in `Sensor::Definitions::Dsl` provides the following methods:
 ```ruby
 value unit: :watt,              # Required: Unit type
       range: (0..),             # Optional: Value range (for clamping)
-      category: :inverter,      # Optional: Category
+      category: :inverter,      # Optional: Category (default: :other)
       nameable: true            # Optional: User-nameable
 ```
+
+`range` is enforced. Every result of a `calculate` block passes through
+`#clamp_value`, so a declared bound holds without the block repeating it. A
+sensor with `unit: :percent` gets `(0..100)` even when it declares no range.
+
+### `max_age` - Staleness Limit
+
+```ruby
+max_age 2.hours   # Default: Sensor::Definitions::Dsl::DEFAULT_MAX_AGE (15 minutes)
+```
+
+A "latest" reading older than `max_age` counts as stale. The current stats hide
+it. Override this for a sensor that reports rarely. `car_battery_soc` does,
+because a car only reports while it is awake.
 
 ### `depends_on` - Dependencies
 
@@ -191,12 +218,25 @@ depends_on :sensor1, if: -> { ApplicationPolicy.feature? }
 
 ```ruby
 calculate do |sensor1:, sensor2:, **|
+  return unless sensor1 && sensor2
+
   sensor1 + sensor2
 end
 
 # Makes the sensor a "calculated sensor"
 # Dependencies are automatically passed as keyword arguments
 ```
+
+The block becomes a method of the sensor rather than a lambda, and three things
+follow from that:
+
+- `return unless ...` works as a guard, the way it reads.
+- A dependency the caller left out raises `ArgumentError` instead of binding
+  `nil` silently, because the keywords are required.
+- Always close the trailing `**`. Without it, an extra dependency raises too.
+
+The result then passes through `#clamp_value`, so a declared `range` holds
+whatever the block returned.
 
 ### `color` - Color Definition
 
@@ -214,11 +254,23 @@ color background: gradient(
       ),
       text: 'text-red-100 dark:text-red-300'
 
+# Static color with the optional extras: a border class, and hatch_fill to
+# draw the bars of the chart hatched (the forecast uses it)
+color background: 'bg-sensor-pv',
+      text: 'text-white dark:text-slate-400',
+      border: 'border-emerald-200 dark:border-emerald-900',
+      hatch_fill: true
+
 # Dynamic color (block)
 color do |index|
   { background: backgrounds[index - 1], text: COLOR_TEXT }
 end
 ```
+
+The block takes one argument. It is the value where the caller has one, for
+example the percentage behind a radial badge, and the index otherwise, for
+example the position of a custom consumer. The block returns a hash with
+`:background` and `:text`, and `:border` if it has one.
 
 ### `icon` - Icon Definition
 
@@ -228,15 +280,33 @@ icon 'fa-sun'
 
 # Dynamic icon (block)
 icon do |data|
-  data.positive? ? 'fa-arrow-up' : 'fa-arrow-down'
+  value = data.respond_to?(:battery_soc) ? data.battery_soc : nil
+
+  case value
+  when 0...15 then 'fa-battery-empty'
+  when 61...85 then 'fa-battery-three-quarters'
+  else 'fa-battery-half'
+  end
 end
 ```
+
+The block receives the whole `Sensor::Data` object, not a number, and it can be
+`nil`. Read your own sensor off it behind a `respond_to?` guard, the way
+`battery_soc` does, because the container holds only the sensors that query
+loaded. The reader is `sensor.icon(data:)`, a keyword argument:
+`SensorIcon::Component` calls it that way.
 
 ### `chart` - Chart Integration
 
 ```ruby
 # Chart
 chart { |timeframe| Sensor::Chart::MyChart.new(timeframe:) }
+
+# A combined chart that a page offers under other names. `entries:` names the
+# sensors a page lists instead of this one, and the URL carries that name.
+chart(entries: %i[grid_import_power grid_export_power]) do |timeframe|
+  Sensor::Chart::GridPower.new(timeframe:)
+end
 
 # Scatter chart (define as separate sensor if needed)
 # class Sensor::Definitions::MyScatterSensor < Sensor::Definitions::Base
@@ -249,6 +319,34 @@ chart { |timeframe| Sensor::Chart::MyChart.new(timeframe:) }
 # Access chart
 sensor.chart(timeframe)                      # Returns chart
 ```
+
+### `chart_only` - Sensor Without a Value
+
+```ruby
+chart_only
+```
+
+A chart-only sensor exists to drive a chart. The chart composes what it shows
+from other sensors, so the sensor itself reads `null` in every timeframe.
+`chart_only` declares that intent and installs `calculate { nil }`. Declare it
+instead of letting a consumer guess: `power_balance` has no dependencies, and
+`heatpump_cop_scatter` depends on three sensors, but neither has a value of its
+own.
+
+### `home_pages` - Where the Chart Appears
+
+```ruby
+# Static: the pages that offer a chart of this sensor
+home_pages :balance, :inverter
+
+# Dynamic: a block runs on the sensor and returns the same list
+home_pages { Sensor::Config.total_consumption_relevant? ? [:balance] : [] }
+```
+
+The order is the order a link prefers. `house_power` is a system total on the
+power balance and the subject of the house page, so a link goes to the balance.
+A sensor without a declaration is on no page. `Sensor::HomePage` collects the
+answers for the controller, for `SensorPathHelper` and for the chart dropdown.
 
 ### `aggregations` - Aggregation Definition
 
@@ -281,7 +379,25 @@ permitted { ApplicationPolicy.custom_check? }
 trend more_is_better: true   # Rising values = better
 trend more_is_better: false  # Falling values = better
 trend                        # Default: more_is_better: false
+trend aggregation: :avg      # Default: :sum
 ```
+
+### Naming and Description
+
+Neither the display name nor the description comes from the DSL. Both live in
+`Sensor::Definitions::Describable`, which reads them from I18n so they stay
+bilingual:
+
+```ruby
+sensor.display_name          # => "Generation"   (config/locales: sensors.inverter_power)
+sensor.display_name(:short)  # => sensors.inverter_power_short, falling back to the long name
+sensor.description           # => config/locales: sensor_descriptions.inverter_power
+```
+
+A user-defined name in `Setting.sensor_names` wins over both. The systematic
+variants (the `_grid`, `_pv` and `_total` suffixes, and the `custom_*`
+families) are composed from translatable fragments, so they need no key of
+their own.
 
 ## Calculated Sensors
 
@@ -302,16 +418,16 @@ The query system:
 
 ```ruby
 class Sensor::Definitions::Autarky < Sensor::Definitions::Base
-  value unit: :percent
+  value unit: :percent, range: (0..100)
 
   depends_on :grid_import_power, :total_consumption
 
   calculate do |grid_import_power:, total_consumption:, **|
-    return unless total_consumption&.positive?
+    return unless total_consumption
+    return if total_consumption.zero?
     return unless grid_import_power
 
-    raw = (total_consumption - grid_import_power) * 100 / total_consumption
-    [raw.round, 0].max
+    (total_consumption - grid_import_power) * 100.0 / total_consumption
   end
 end
 ```
@@ -320,12 +436,24 @@ end
 
 ```ruby
 class Sensor::Definitions::TotalConsumption < Sensor::Definitions::Base
-  value unit: :watt
+  value unit: :watt, range: (0..)
 
-  depends_on :house_power, :wallbox_power, :heatpump_power
+  # A consumer that is not configured is left out, so the calculate block
+  # never waits for a sensor that cannot report. The real definition also adds
+  # back the custom consumers that house_power excludes.
+  depends_on do
+    [
+      :house_power,
+      (:heatpump_power if Sensor::Config.configured?(:heatpump_power)),
+      (:wallbox_power if Sensor::Config.configured?(:wallbox_power)),
+    ].compact
+  end
 
-  calculate do |house_power:, wallbox_power:, heatpump_power:, **|
-    (house_power || 0) + (wallbox_power || 0) + (heatpump_power || 0)
+  # Stay nil (not 0) when no consumer has data, so an empty period renders as
+  # a gap instead of a misleading 0 baseline.
+  calculate do |house_power:, wallbox_power: nil, heatpump_power: nil, **|
+    values = [house_power, wallbox_power, heatpump_power].compact
+    values.sum unless values.empty?
   end
 end
 ```
@@ -363,8 +491,8 @@ end
 Dependencies can differ based on query context (`:influx` vs `:sql`):
 
 ```ruby
-class Sensor::Definitions::HousePowerPv < Sensor::Definitions::Base
-  value unit: :watt, category: :power_splitter
+class Sensor::Definitions::HousePower < Sensor::Definitions::Base
+  value unit: :watt, range: (0..), category: :consumer, nameable: true
 
   # Dependencies differ based on context
   depends_on do |context: :unknown|
@@ -372,17 +500,24 @@ class Sensor::Definitions::HousePowerPv < Sensor::Definitions::Base
       # SQL has already applied exclusions in the database
       [:house_power]
     else
-      # InfluxDB needs all sensors for manual exclusion
+      # InfluxDB needs all excluded sensors for manual exclusion
       [:house_power, *Sensor::Config.house_power_excluded_sensors.map(&:name)]
     end
   end
 
-  calculate do |house_power:, **values|
-    excluded_power = Sensor::Config.house_power_excluded_sensors.sum do |sensor|
-      values[sensor.name] || 0
-    end
+  # The context reaches the calculate block too
+  calculate do |house_power:, context: :unknown, **excluded_sensor_values|
+    return unless house_power
+    return house_power if context == :sql
 
-    [house_power - excluded_power, 0].max
+    excluded_total =
+      excluded_sensor_values
+        .slice(*Sensor::Config.house_power_excluded_sensors.map(&:name))
+        .values
+        .compact
+        .sum
+
+    house_power - excluded_total
   end
 end
 ```
@@ -406,13 +541,15 @@ Finance sensors inherit from `Sensor::Definitions::FinanceBase` and typically im
 class Sensor::Definitions::GridCosts < Sensor::Definitions::FinanceBase
   value
 
-  color background: 'bg-red-500 dark:bg-red-700',
-        text: 'text-red-100 dark:text-red-400'
+  color background: 'bg-sensor-costs',
+        text: 'text-white dark:text-red-200'
 
   depends_on :grid_import_power
 
+  home_pages :balance
+
   chart { |timeframe| Sensor::Chart::GridCosts.new(timeframe:) }
-  aggregations stored: false, computed: [:sum], meta: [:sum], top10: true
+  aggregations stored: false, computed: [:sum], meta: %i[sum min max], top10: true
   trend
 
   def required_prices
@@ -438,12 +575,23 @@ end
 
 ### Dual-Backend Architecture
 
-`FinanceBase` subclasses are expected to implement **both** calculation methods:
+A `FinanceBase` subclass needs two calculations, one per backend:
 
 1. **`sql_calculation`** - For SQL/SummaryValues queries (daily+)
 2. **`calculate_with_prices`** - For InfluxDB queries (hourly)
 
-There are also non-finance sensors with `sql_calculation` support, for example `heatpump_cop`, `co2_reduction`, `solar_price`, and `savings`. Those are not all `FinanceBase` subclasses and may still rely on a regular `calculate` block for post-processing.
+The second one is for a sensor that turns power into money on its own. A
+`FinanceBase` sensor that carries a regular `calculate` block instead is summed
+from its dependencies like any other sensor, and needs no
+`calculate_with_prices`: `Influx::FinanceCalculation` skips it as soon as
+`calculated?` answers true. `total_costs` is that case, adding `grid_costs` and
+`opportunity_costs`.
+
+`sql_calculation` is not limited to `FinanceBase`. Six sensors inherit from
+`Sensor::Definitions::Base` and still contribute a SQL expression: `autarky`,
+`self_consumption_quote`, `heatpump_cop`, `co2_reduction`, `solar_price` and
+`savings`. They keep their regular `calculate` block for the InfluxDB path and
+for post-processing.
 
 **Why dual backends?**
 
@@ -543,15 +691,29 @@ Sensor::Registry[:car_battery_soc].permitted?  # => true/false
 Sensor::Config.exists?(:car_battery_soc)       # => false if not permitted
 ```
 
-**Available features currently used by sensor definitions and related UI gates:**
+**All sponsor features**, from the `SPONSOR_FEATURES` list inside
+`ApplicationPolicy` (a `private_constant`, so read it there). Each one gets a
+class-level predicate, for example `ApplicationPolicy.heatpump?`:
 
-- `:car` - Car/Wallbox extended
-- `:heatpump` - Heat pump
-- `:power_splitter` - Grid/PV split
-- `:custom_consumer` - Custom power sensors
-- `:multi_inverter` - Multiple inverters
-- `:finance_charts` - Financial charts
-- `:finance_top10` - Financial Top10 rankings
+| Feature                | Meaning                              |
+| ---------------------- | ------------------------------------ |
+| `:power_splitter`      | Grid/PV split                        |
+| `:themes`              | Color themes                         |
+| `:car`                 | Car/Wallbox extended                 |
+| `:custom_consumer`     | Custom power sensors                 |
+| `:multi_inverter`      | Multiple inverters                   |
+| `:relative_timeframe`  | Relative timeframes (P7D, P30D, ...) |
+| `:insights`            | Figures and trends behind a chart    |
+| `:heatpump`            | Heat pump                            |
+| `:finance_charts`      | Financial charts                     |
+| `:power_balance_chart` | Power balance chart                  |
+| `:finance_top10`       | Financial Top10 rankings             |
+| `:mcp`                 | AI access (see [MCP](MCP.md))        |
+| `:amortization`        | Amortization calculator              |
+
+Sensor definitions name only `:car`, `:heatpump` and `:power_splitter` through
+`requires_permission`, plus `:finance_top10` through `top10_permitted`. Charts
+gate themselves with `permitted_feature_name`, and the rest gate UI elsewhere.
 
 ## Ranking System
 
@@ -571,7 +733,26 @@ Sensor::Query::Ranking.new(:outdoor_temp, aggregation: :max, period: :day).call 
 Sensor::Query::Ranking.new(:outdoor_temp, aggregation: :min, period: :day, desc: false).call  # Coldest days
 ```
 
-Supports all sensors with `allowed_aggregations`. Use `top10_permitted` to gate access in the UI.
+Options and their defaults: `aggregation: :sum`, `period: :day`, `desc: true`,
+`limit: 10`, plus `start` and `stop` to narrow the range. `period` accepts
+`:day`, `:week`, `:month` and `:year`; anything else raises. `aggregation` is
+checked against the `allowed_aggregations` of the sensor, so a sensor that
+cannot answer for it raises instead of returning an empty list. Use
+`top10_permitted` to gate access in the UI.
+
+`#complete_periods_only?` says whether the ranking dropped the periods its
+range only cuts into. It does so in two cases, and both are about a fragment
+winning for being one:
+
+- An **ascending** ranking (`desc: false`), where a period that has barely
+  started takes the lowest spot on the strength of its own length.
+- An **averaged** aggregation in either direction, because an average is not
+  smaller for covering less. A sunny half-month outranks every whole one.
+
+The flag follows from the aggregation rather than from a per-sensor opt-in, so
+`outdoor_temp` and `battery_soc` are covered the same way the two ratios are. A
+caller that presents the ranking reads it to say that the list covers a
+narrower span than the range it asked for.
 
 ## Summarizer System
 
@@ -579,9 +760,12 @@ The summarizer system stores aggregated values in `summary_values`:
 
 ```ruby
 # Summarizer runs synchronously
-# Accepts either a Date or a Timeframe
+# Accepts a Date, a Range of dates or a Timeframe
 Sensor::Summarizer.call(date)          # Single date
-Sensor::Summarizer.call(timeframe)     # Multiple dates in timeframe
+Sensor::Summarizer.call(date1..date2)  # Every date in the range
+Sensor::Summarizer.call(timeframe)     # The missing or stale days of the timeframe
+
+# Anything else raises an ArgumentError, and so does Timeframe.now
 
 # Stores records in `summary_values` for each configured sensor/aggregation pair:
 # - field: "inverter_power", aggregation: "sum"
@@ -638,9 +822,11 @@ end
 
 ```ruby
 RSpec.describe SensorValue::Component do
+  subject(:component) { SensorValue::Component.new(2500, :inverter_power) }
+
   it 'formats watt values' do
-    component = SensorValue::Component.new(2500, :inverter_power)
-    expect(component.value).to eq('2.5')
+    expect(component.integer_part).to eq('2')
+    expect(component.decimal_part).to eq('5') # separator is exposed on its own
     expect(component.unit).to eq('kW')
   end
 end
@@ -704,11 +890,13 @@ end
 # 2. Set ENV variable (for raw sensors)
 INFLUX_SENSOR_MY_SENSOR=measurement:field
 
-# 3. Add localization
+# 3. Add localization (en.yml and de.yml, both are shipped)
 # config/locales/en.yml
 sensors:
   my_sensor: "My Sensor"
-  my_sensor_short: "My"
+  my_sensor_short: "My"       # Optional, falls back to the long name
+sensor_descriptions:
+  my_sensor: "What this sensor measures"
 
 # 4. Done! Registry loads automatically
 Sensor::Registry[:my_sensor]
@@ -756,19 +944,32 @@ end
 
 ### Custom Formatting
 
+The unit decides the precision. Some places must not round, for example a
+tooltip. They ask the sensor for `exact_precision`, and a sensor can override
+it:
+
 ```ruby
-# Override standard formatting
 class Sensor::Definitions::MySensor < Sensor::Definitions::Base
   value unit: :watt
 
-  # Custom precision
-  def formatter_options
-    { precision: 3 }
+  def exact_precision
+    3
   end
 end
+```
 
-# Or in view
-<%= render SensorValue::Component.new(data, :my_sensor, precision: 3) %>
+For a single place, pass the option to the component instead. Every option
+except `:class` and `:sign` goes straight to `Sensor::ValueFormatter`:
+
+- `precision:` - decimals, overriding the unit
+- `context:` - `:rate` or `:total` (`:auto` asks the unit, and is the default)
+- `scaling:` - `:auto`, `:off`, `:kilo`, `:mega`, or a number to divide by.
+  Anything else raises.
+- `sign:` - print a leading `+` for a positive value
+
+```slim
+= render SensorValue::Component.new(data, :my_sensor, precision: 3)
+= render SensorValue::Component.new(data, :my_sensor, context: :total)
 ```
 
 ## Troubleshooting
@@ -790,20 +991,38 @@ Sensor::Registry[:my_sensor]
 
 ```ruby
 # => ArgumentError: Invalid unit :kilogram for sensor :my_sensor.
-#    Must be one of: watt, celsius, percent, unitless, boolean, string, gram, money, money_per_kwh
+#    Must be one of: watt, gram, money, money_per_kwh, celsius, percent, unitless, boolean, string
 
-# Fix: Use a valid unit from VALID_UNITS
+# Fix: Use a name from Sensor::Units.names
 ```
 
-### Dependencies Not Found
+### Sensor Missing Although It Is Defined
+
+A missing dependency raises nothing. A calculated sensor exists only while
+every one of its static dependencies exists, so one unconfigured raw sensor
+removes it from `Sensor::Config.sensors` without a word:
 
 ```ruby
-# => ArgumentError: Unconfigured sensor: my_dependency
+Sensor::Config.exists?(:my_sensor)  # => false
+
+# Ask the dependencies one by one to find the one that answers false
+Sensor::Registry[:my_sensor].static_dependencies.map do |dep|
+  [dep, Sensor::Config.exists?(dep)]
+end
 
 # Checks:
-# 1. Dependency configured (ENV variable)?
-# 2. Dependency has permitted? = true?
+# 1. Dependency configured (INFLUX_SENSOR_* variable)?
+# 2. Dependency has permitted? = true? (Sensor::Config.exists?(name, check_policy: false) tells the two apart)
 # 3. Dependency exists in registry?
+```
+
+### Circular Dependency
+
+```ruby
+# => ArgumentError: Circular dependency detected in sensors: [...]
+
+# Sensor::DependencyResolver raises this when the graph has no topological
+# order. Fix: break the cycle in the `depends_on` declarations it names.
 ```
 
 ### Chart Not Displayed

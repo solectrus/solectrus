@@ -83,6 +83,10 @@ app/lib/sensor/
 ├── definitions/               # Sensor definitions
 │   ├── base.rb               # Base class with validation
 │   ├── dsl.rb                # DSL for declarative definitions
+│   ├── describable.rb        # Display name and description (I18n)
+│   ├── colors.rb             # Color and gradient handling for the DSL
+│   ├── finance_base.rb       # Base class for finance sensors
+│   ├── power_balance.rb      # Chart-only composite
 │   ├── battery/              # Battery sensors
 │   ├── car/                  # Electric vehicle sensors
 │   ├── custom_consumer/      # Custom Power (1-20)
@@ -100,6 +104,7 @@ app/lib/sensor/
 │   ├── base.rb              # Common query logic
 │   ├── total.rb             # Dispatcher (auto-selects Influx/SQL)
 │   ├── latest.rb             # Current values (InfluxDB)
+│   ├── last_seen.rb          # Timestamp of the last reading
 │   ├── series.rb             # Time series (InfluxDB)
 │   ├── ranking.rb            # Top10 rankings (SQL)
 │   ├── power_peak.rb         # Power peak detection
@@ -111,6 +116,8 @@ app/lib/sensor/
 │       │   ├── total.rb         # Hourly aggregations (P1H-P99H)
 │       │   ├── integral.rb      # Energy sums
 │       │   ├── aggregation.rb   # Min/Max/Avg
+│       │   ├── daily_batch.rb   # One Flux query for many days
+│       │   ├── finance_calculation.rb # Prices applied in Ruby
 │       │   └── dsl_builder.rb   # DSL parser for Influx
 │       └── sql/
 │           ├── total.rb         # Daily+ aggregations
@@ -123,7 +130,8 @@ app/lib/sensor/
 ├── chart/                    # Chart integration
 │   ├── base.rb              # Base for all charts
 │   ├── concerns/            # Shared chart modules
-│   │   └── forecast.rb      # Forecast integration
+│   │   ├── forecast.rb      # Forecast integration
+│   │   └── opposite_direction_bars.rb # Bars above and below zero
 │   ├── inverter_power.rb    # Inverter chart
 │   ├── autarky.rb           # Autarky chart
 │   └── ...                  # Specialized charts
@@ -132,6 +140,12 @@ app/lib/sensor/
 │   ├── day.rb               # Daily forecast data
 │   ├── energy_calculator.rb # Energy calculations
 │   └── ...                  # Additional forecast helpers
+│
+├── units/                    # One class per unit
+│   ├── base.rb              # Scaling, label and precision defaults
+│   ├── watt.rb              # W/kW/MW and Wh/kWh/MWh
+│   ├── money.rb             # Currency
+│   └── ...                  # celsius, percent, gram, boolean, text, ...
 │
 ├── data/                     # Data containers
 │   ├── base.rb              # Common functionality
@@ -142,6 +156,8 @@ app/lib/sensor/
 ├── config_logger.rb          # Configuration logging
 ├── legacy_config_adapter.rb  # Legacy ENV variable adapter
 ├── registry.rb               # Sensor registry (auto-discovery)
+├── home_page.rb              # Which home page shows which sensor
+├── units.rb                  # Unit registry (Sensor::Units)
 ├── value_formatter.rb        # Value formatting
 ├── unit_formatter.rb         # Unit formatting
 ├── dependency_resolver.rb    # Dependency resolution
@@ -185,7 +201,10 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
   trend more_is_better: true
 
   # Aggregations (stored = saved in Summary, computed = calculable, meta = SQL, top10 = ranking)
-  aggregations stored: [:sum, :max], computed: [:sum], meta: %i[sum max min avg], top10: true
+  aggregations stored: %i[sum max], meta: %i[sum max min avg], top10: true
+
+  # The home pages that offer a chart of this sensor
+  home_pages :balance, :inverter
 
   # Chart integration
   chart { |timeframe, variant: nil| Sensor::Chart::InverterPower.new(timeframe:, variant:) }
@@ -196,33 +215,38 @@ end
 
 ```ruby
 class Sensor::Definitions::Autarky < Sensor::Definitions::Base
-  value unit: :percent
+  value unit: :percent, range: (0..100)
 
-  # Dynamic color based on value (0-33% red, 34-66% orange, 67-100% green)
+  # Dynamic color. The block gets the value, or nil where there is none
+  # (legend, Top 10 bar), and returns background, text and border classes.
   color do |percent|
-    if percent.nil? || percent >= 67
-      { background: '...green...', text: '...green...' }
+    if percent.nil?
+      { background: 'bg-sensor-autarky', text: '...', border: '' }
+    elsif percent >= 67
+      { background: '...', text: 'text-signal-positive', border: '' }
     elsif percent >= 34
-      { background: '...orange...', text: '...orange...' }
+      { background: '...', text: 'text-signal-warning', border: '' }
     else
-      { background: '...red...', text: '...red...' }
+      { background: '...', text: 'text-signal-negative', border: '' }
     end
   end
 
   # Declare dependencies
   depends_on :grid_import_power, :total_consumption
 
-  # Calculation logic
+  # Calculation logic. It does not round: how many decimals a share deserves
+  # is the decision of the presentation layer, and rounding here would make
+  # this block disagree with #sql_calculation.
   calculate do |grid_import_power:, total_consumption:, **|
     return unless total_consumption
     return if total_consumption.zero?
     return unless grid_import_power
 
-    raw = (total_consumption - grid_import_power) * 100 / total_consumption
-    [raw.round, 0].max
+    (total_consumption - grid_import_power) * 100.0 / total_consumption
   end
 
-  aggregations stored: false, computed: [:avg], meta: [:avg]
+  aggregations stored: false, computed: [:avg], meta: [:avg], top10: true
+  home_pages :balance
   chart { |timeframe| Sensor::Chart::Autarky.new(timeframe:) }
 end
 ```
@@ -238,8 +262,9 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
     super()
   end
 
-  value unit: :watt, category: :consumer, nameable: true
+  value unit: :watt, range: (0..), category: :consumer, nameable: true
   aggregations stored: [:sum], top10: true
+  trend
 
   def name
     :"custom_power_#{format('%02d', @number)}"
@@ -323,9 +348,15 @@ data.inverter_power(:sum, :sum)  # => {Date1 => energy1, Date2 => energy2, ...}
 - **InfluxDB** (`Helpers::Influx::Total`): Hourly data (P1H-P99H), calculated live via Flux integrals
 - **SQL** (`Helpers::Sql::Total`): Daily+ data (days, weeks, months, years), from `summary_values`, optionally extended with price data and SQL-calculated fields
 
+The dispatcher asks one question, `timeframe.hours?`. **Charts draw the line
+elsewhere**: `Sensor::Chart::Base#use_sql_for_timeframe?` also keeps a single
+day on InfluxDB, because a chart of one day needs the intraday curve that the
+daily summary no longer holds. So `Timeframe.day` reads SQL through
+`Query::Total` and InfluxDB through a chart.
+
 > 💡 **More details:** Complete SQL query examples with generated SQL can be found in [sensor-sql-queries.md](sensor-sql-queries.md)
 
-`Sensor::Query::Series` is separate from `Total`: it always loads chart series from InfluxDB and exposes them as `(:avg, :avg)` time series because the data is aggregated with `mean()`.
+`Sensor::Query::Series` is separate from `Total`: it always reads InfluxDB, whatever the timeframe. Its `aggregation:` defaults to `:avg`, so a chart gets `(:avg, :avg)` time series aggregated with `mean()`. A caller that wants another one passes it, as the MCP `get_series` tool does.
 
 #### 3.3 Automatic Dependency Resolution
 
@@ -346,6 +377,19 @@ data.wallbox_power       # => 500.0 (from DB)
 data.heatpump_power      # => 200.0 (from DB)
 data.grid_import_power   # => 225.0 (from DB)
 ```
+
+Two things about that query are worth knowing. Only the raw sensors reach SQL,
+each as `(:sum, :sum)` whatever aggregation the block asked for:
+
+```ruby
+[[:grid_import_power, :sum, :sum], [:heatpump_power, :sum, :sum],
+ [:house_power, :sum, :sum], [:wallbox_power, :sum, :sum]]
+```
+
+And `autarky` is absent from that list although it has a `sql_calculation`.
+Ruby builds `total_consumption` and then `autarky` from the mapped result. The
+SQL expression serves the ranking path instead, where a period has to be
+ordered by a value SQL can sort.
 
 ### 4. Data Containers
 
@@ -419,8 +463,12 @@ formatter.to_h
 # Money (dynamic precision)
 formatter = Sensor::ValueFormatter.new(1234.56, unit: :money)
 formatter.to_h
-# => { value: "1,235", unit: "€" }  # >= 10 without decimals (€ = default currency)
+# => { value: "1,235", integer: "1,235", decimal: nil, unit: "€" }
+#    >= 10 without decimals (€ = default currency)
 ```
+
+`to_h` always returns these four keys. `decimal` carries the separator, so the
+two parts concatenate back to `value`.
 
 **Supported units:**
 
@@ -442,8 +490,13 @@ formatter.to_h
 # Basic usage
 <%= render SensorValue::Component.new(data, :inverter_power) %>
 # => <span class="sensor-value sensor-inverter-power">
-#      <strong>2</strong><small>.5</small> <small>kW</small>
+#      <span class="sensor-value-number">
+#        <strong class="font-medium">2</strong>
+#        <small class="sensor-value-decimal">.5</small>
+#      </span>
+#      <small class="sensor-value-unit"> kW</small>
 #    </span>
+# A missing value renders as <strong class="font-medium">–</strong> instead
 
 # With sign option (keeps absolute value for display and colors by sign)
 <%= render SensorValue::Component.new(data, :grid_power, sign: :value_based) %>
@@ -474,21 +527,31 @@ render json: chart.call
 - `BatteryPower` - Battery power
 - `HousePower` - House consumption
 - `GridPower` - Grid (import/export)
-- ... (15+ charts)
+- ... (about 35 charts)
 
 #### Chart Permissions
 
-Charts can implement access control via `permitted?`:
+A chart names the sponsor feature it needs. `Sensor::Chart::Base#permitted?` asks
+`ApplicationPolicy` for that feature, so a subclass only overrides the name:
 
 ```ruby
-class Sensor::Chart::Savings < Sensor::Chart::Base
-  def permitted?
-    ApplicationPolicy.finance_charts?
+class Sensor::Chart::FinanceBase < Sensor::Chart::Base
+  def permitted_feature_name
+    :finance_charts
+  end
+end
+
+# Every finance chart inherits it
+class Sensor::Chart::Savings < Sensor::Chart::FinanceBase
+  def chart_sensor_names
+    [:savings]
   end
 end
 ```
 
-`ChartLoader::Component` checks `permitted?` and displays a sponsor hint if access is blocked. Finance charts inherit this behavior via `Sensor::Chart::FinanceBase`.
+A chart without a `permitted_feature_name` is open to everyone.
+`ChartLoader::Component` asks `permitted?` and shows a sponsor hint when the
+answer is false.
 
 ### 7. Configuration
 

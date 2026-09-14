@@ -10,7 +10,9 @@ Detailed SQL query examples for the SQL branch of the Sensor System.
 
 This document covers only the SQL path for daily and longer timeframes. In that mode, queries run against `summary_values`, optionally joined with the `prices` table. The DSL supports both simple single values and grouped time series with meta-aggregations and automatic finance calculations.
 
-The SQL snippets below are representative. The current builder emits compact SQL, and price lookups are attached with `LEFT JOIN`s so sensor values can still be returned when a price row is missing.
+The SQL snippets below are formatted for reading. The builder emits the same statements on one line, and price lookups are attached with `LEFT JOIN`s so sensor values can still be returned when a price row is missing.
+
+One rule shapes every `daily` CTE below, so read it once here: the CTE holds the **cross product** of every required field and every requested base aggregation. One `q.min` in the block therefore gives a `_min` column to each field, not only to the sensor that asked for it. The final `SELECT` stays narrow and reads just the columns it needs.
 
 ## Core Functionality
 
@@ -41,7 +43,7 @@ The SQL snippets below are representative. The current builder emits compact SQL
 - **Sensor-agnostic**: The SQL builder is agnostic regarding concrete sensors. All required information is obtained from the registry.
 - **Stored base data**: `summary_values` only contains per-day stored aggregations, never arbitrary calculated values.
 - **Calculated sensors**: Non-stored calculated sensors are either resolved after the SQL query in Ruby or, if they provide `sql_calculation`, exposed through SQL expressions.
-- **Finance and other SQL-calculated sensors**: `FinanceBase` sensors and a few regular sensors such as `heatpump_cop`, `co2_reduction`, `solar_price`, and `savings` can participate in the SQL path via `sql_calculation`.
+- **Finance and other SQL-calculated sensors**: `FinanceBase` sensors and six regular sensors (`autarky`, `self_consumption_quote`, `heatpump_cop`, `co2_reduction`, `solar_price`, `savings`) can participate in the SQL path via `sql_calculation`.
 
 ## API Specification
 
@@ -155,11 +157,16 @@ end.call
 
 This generates this query:
 
+Two base aggregations are requested (`sum` and `min`), so both fields get both
+columns. `house_power_min` and `case_temp_sum` are never read:
+
 ```sql
 WITH daily AS (
   SELECT
     sv.date,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'house_power') AS house_power_sum,
+    MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'house_power') AS house_power_min,
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'case_temp')   AS case_temp_sum,
     MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'case_temp')   AS case_temp_min
   FROM summary_values sv
 
@@ -322,14 +329,26 @@ end.call
 
 **Generated SQL:**
 
+Three base aggregations are requested, so every one of the five fields gets all
+three columns. Only six of the fifteen are read:
+
 ```sql
 WITH daily AS (
   SELECT
     sv.date,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'house_power')        AS house_power_sum,
+    MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'house_power')        AS house_power_min,
+    MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'house_power')        AS house_power_max,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'heatpump_power')     AS heatpump_power_sum,
+    MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'heatpump_power')     AS heatpump_power_min,
+    MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'heatpump_power')     AS heatpump_power_max,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'wallbox_power')      AS wallbox_power_sum,
+    MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'wallbox_power')      AS wallbox_power_min,
+    MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'wallbox_power')      AS wallbox_power_max,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_export_power')  AS grid_export_power_sum,
+    MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'grid_export_power')  AS grid_export_power_min,
+    MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'grid_export_power')  AS grid_export_power_max,
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'case_temp')          AS case_temp_sum,
     MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'case_temp')          AS case_temp_min,
     MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'case_temp')          AS case_temp_max
   FROM summary_values sv
@@ -401,12 +420,15 @@ WITH price_ranges AS (
 daily AS (
   SELECT
     sv.date,
+    MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'case_temp')          AS case_temp_min,
+    MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'case_temp')          AS case_temp_max,
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'case_temp')          AS case_temp_sum,
+    -- ... the same three columns for grid_export_power, house_power,
+    -- heatpump_power and wallbox_power (the cross product) ...
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_export_power')  AS grid_export_power_sum,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'house_power')        AS house_power_sum,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'heatpump_power')     AS heatpump_power_sum,
     SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'wallbox_power')      AS wallbox_power_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_export_power')  AS grid_export_power_sum,
-    MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'case_temp')          AS case_temp_min,
-    MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'case_temp')          AS case_temp_max,
     MAX(pb.money_per_kwh) AS pb_money_per_kwh,
     MAX(pf.money_per_kwh) AS pf_money_per_kwh
   FROM summary_values sv
@@ -422,22 +444,22 @@ daily AS (
    AND sv.date < pf.next_start
 
   WHERE sv.date BETWEEN DATE '2025-01-01' AND DATE '2025-12-31'
-    AND sv.aggregation IN ('sum','min','max')
-    AND sv.field IN ('house_power','heatpump_power','wallbox_power','grid_export_power','case_temp')
+    AND sv.aggregation IN ('min','max','sum')
+    AND sv.field IN ('case_temp','grid_export_power','house_power','heatpump_power','wallbox_power')
   GROUP BY sv.date
 )
 
 SELECT
-  SUM(house_power_sum)     AS house_power_sum_sum,
-  SUM(heatpump_power_sum)  AS heatpump_power_sum_sum,
-  SUM(wallbox_power_sum)   AS wallbox_power_sum_sum,
-  SUM(grid_export_power_sum) AS grid_export_power_sum_sum,
   AVG(case_temp_min)       AS case_temp_avg_min,
   AVG(case_temp_max)       AS case_temp_avg_max,
-  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0) AS traditional_costs_sum_sum,
-  SUM(grid_export_power_sum * pf_money_per_kwh / 1000.0) AS grid_revenue_sum_sum
+  SUM(COALESCE(grid_export_power_sum,0) * pf_money_per_kwh / 1000.0) AS grid_revenue_sum_sum,
+  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0) AS traditional_costs_sum_sum
 FROM daily
 ```
+
+The four power sensors reach the CTE because the two finance sensors need
+them. They stay out of the final `SELECT`, because the block never asked for
+them.
 
 **Return:**
 
@@ -467,7 +489,22 @@ Sensor::Query::Total.new(Timeframe.new('2025-09')) do |q|
 end.call
 ```
 
-**Note:** `savings` has both a `calculate` block and an `sql_calculation`. In the SQL path, `savings` itself is selected directly from SQL via `sql_calculation`. Some dependent sensors are still loaded so the mapped result can expose intermediate values such as `traditional_costs` and `solar_price`, and Ruby post-processing remains available for calculated sensors that do not already have their own SQL result.
+**Note:** `savings` has both a `calculate` block and an `sql_calculation`, and
+this path uses the block. The resolver replaces `savings` with what it is made
+of, so the requests that reach the builder are its parts, not `savings` itself:
+
+```ruby
+[[:grid_export_power, :sum, :sum], [:grid_import_power, :sum, :sum],
+ [:grid_costs, :sum, :sum], [:grid_revenue, :sum, :sum],
+ [:heatpump_power, :sum, :sum], [:house_power, :sum, :sum],
+ [:wallbox_power, :sum, :sum], [:traditional_costs, :sum, :sum]]
+```
+
+SQL therefore returns the power sums and the three cost expressions
+(`grid_costs`, `grid_revenue`, `traditional_costs`). Ruby then builds
+`solar_price` and `savings` from them after the result is mapped. The
+`sql_calculation` of `savings` composes the expressions of `traditional_costs`
+and `solar_price`, and the ranking path uses it.
 
 **Return:**
 
@@ -515,12 +552,15 @@ WITH price_ranges AS (
 daily AS (
   SELECT
     sv.date,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'house_power')        AS house_power_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'heatpump_power')     AS heatpump_power_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'wallbox_power')      AS wallbox_power_sum,
-    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_export_power')  AS grid_export_power_sum,
     MIN(sv.value) FILTER (WHERE sv.aggregation = 'min' AND sv.field = 'case_temp')          AS case_temp_min,
     MAX(sv.value) FILTER (WHERE sv.aggregation = 'max' AND sv.field = 'case_temp')          AS case_temp_max,
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'case_temp')          AS case_temp_sum,
+    -- ... the same three columns for grid_export_power, heatpump_power,
+    -- house_power and wallbox_power (the cross product) ...
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'grid_export_power')  AS grid_export_power_sum,
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'heatpump_power')     AS heatpump_power_sum,
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'house_power')        AS house_power_sum,
+    SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'wallbox_power')      AS wallbox_power_sum,
     MAX(pb.money_per_kwh)                                                                   AS pb_money_per_kwh,
     MAX(pf.money_per_kwh)                                                                   AS pf_money_per_kwh
   FROM summary_values sv
@@ -536,21 +576,21 @@ daily AS (
    AND sv.date < pf.next_start
 
   WHERE sv.date BETWEEN DATE '2025-01-01' AND DATE '2025-12-31'
-    AND sv.aggregation IN ('sum','min','max')
-    AND sv.field IN ('house_power','heatpump_power','wallbox_power','grid_export_power','case_temp')
+    AND sv.aggregation IN ('min','max','sum')
+    AND sv.field IN ('case_temp','grid_export_power','heatpump_power','house_power','wallbox_power')
   GROUP BY sv.date
 )
 
 SELECT
   date_trunc('month', date)::date AS month,
-  SUM(house_power_sum)       AS house_power_sum_sum,
-  SUM(heatpump_power_sum)    AS heatpump_power_sum_sum,
-  SUM(wallbox_power_sum)     AS wallbox_power_sum_sum,
-  SUM(grid_export_power_sum) AS grid_export_power_sum_sum,
   AVG(case_temp_min)         AS case_temp_avg_min,
   AVG(case_temp_max)         AS case_temp_avg_max,
-  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0) AS traditional_costs_sum_sum,
-  SUM(grid_export_power_sum * pf_money_per_kwh / 1000.0) AS grid_revenue_sum_sum
+  SUM(grid_export_power_sum) AS grid_export_power_sum_sum,
+  SUM(COALESCE(grid_export_power_sum,0) * pf_money_per_kwh / 1000.0) AS grid_revenue_sum_sum,
+  SUM(heatpump_power_sum)    AS heatpump_power_sum_sum,
+  SUM(house_power_sum)       AS house_power_sum_sum,
+  SUM(wallbox_power_sum)     AS wallbox_power_sum_sum,
+  SUM((COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + COALESCE(wallbox_power_sum,0)) * pb_money_per_kwh / 1000.0) AS traditional_costs_sum_sum
 
 FROM daily
 
@@ -655,7 +695,7 @@ Costs and revenues are determined via SQL calculations with power sensors and pr
 Performance is important for the generated SQL query:
 
 - **Selective fields**: Only actually needed fields are included in WHERE clause
-- **Selective aggregations**: Only needed aggregations are filtered
+- **Selective aggregations**: The WHERE clause carries only the base aggregations the block asked for. Inside the CTE they are not selective: each of those aggregations becomes a column for each field, so the column count is fields × aggregations. The columns nobody reads cost a `FILTER` over rows the query already scans, not a second scan.
 - **Minimal JOINs**: Price `LEFT JOIN`s are only added when cost or revenue sensors are requested
 
 ## Further Documentation
