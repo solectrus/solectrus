@@ -9,6 +9,7 @@ Rails 8.1 full-stack application for photovoltaic monitoring. PostgreSQL for rec
 - `docs/sensor-overview.md` — sensor architecture and core concepts
 - `docs/sensor-reference.md` — sensor DSL and technical details
 - `docs/sensor-sql-queries.md` — SQL query patterns for daily+ timeframes
+- `docs/pricing/` — tariff concepts, not yet implemented; start at its `README.md`
 - `docs/MCP.md` — the built-in MCP server and the tools it exposes
 - `spec/llm_test/README.md` — the LLM tests that measure how a model uses those tools
 
