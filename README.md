@@ -58,6 +58,13 @@ This starts the app and opens https://solectrus.localhost in your default browse
 
 On the first run, Caddy will ask for your password to install its local CA certificate.
 
+### Documentation
+
+- [conventions.md](docs/conventions.md) — frontend and testing conventions (ViewComponent, forms, Tailwind in Slim, RSpec)
+- [sensor-overview.md](docs/sensor-overview.md) — sensor architecture and core concepts
+- [sensor-reference.md](docs/sensor-reference.md) — the sensor DSL and technical details
+- [sensor-sql-queries.md](docs/sensor-sql-queries.md) — the SQL behind daily and longer timeframes
+
 ### Testing
 
 After preparing development environment (see above):
