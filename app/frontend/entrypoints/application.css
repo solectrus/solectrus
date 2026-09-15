@@ -33,6 +33,13 @@
 @theme {
   --breakpoint-3xl: 1920px;
 
+  /* The app frame: body background, top navigation, and the theme-color the
+     browser paints its toolbar with. The dark value sits in the .dark block
+     below, so `bg-chrome` follows the theme without a dark: variant.
+     ThemeConfig holds the same two values for the server-rendered meta tag
+     and the web manifest. A spec fails if the two drift apart. */
+  --color-chrome: #4f46e5; /* indigo-600 */
+
   --font-sans:
     'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
@@ -250,6 +257,11 @@
   }
 
   :root {
+    /* The app picks its own theme, so tell the browser which one is active.
+       Without this, Safari follows the macOS appearance instead and dims the
+       theme-color of a light page while the system runs dark. */
+    color-scheme: light;
+
     --bottom-nav-offset: calc(4.5rem + env(safe-area-inset-bottom));
 
     --chart-axis-color: #475569;
@@ -266,6 +278,10 @@
   }
 
   .dark {
+    color-scheme: dark;
+
+    --color-chrome: #312e81; /* indigo-900 */
+
     --chart-axis-color: #888888;
     --chart-grid-color: #242a3b;
     --chart-zero-line-color: #666;

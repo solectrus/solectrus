@@ -34,4 +34,39 @@ module ApplicationHelper
 
     "#{controller_namespace}-#{prefix}-#{timeframe_identifier}"
   end
+
+  # The theme the visitor picked, written by the theme selector. A cookie and
+  # not localStorage, so the server can render the right theme right away
+  # instead of letting the browser correct it after the first paint. nil means
+  # the visitor follows the operating system.
+  #
+  # A helper and not a controller method: the login and OAuth pages use the
+  # blank layout but do not inherit from ApplicationController.
+  def chosen_theme
+    cookies[:theme]
+  end
+
+  # The classes the stylesheet keys its colors off: the theme, and the palette
+  # the sensor colors come from. Both ride on a cookie, so the first response
+  # carries them and the browser paints the right colors at once. Without the
+  # palette class, a visitor on the contrast palette sees the standard sensor
+  # colors until the theme selector connects.
+  def html_theme_classes
+    contrast =
+      ApplicationPolicy.themes? && cookies[:color_palette] == 'contrast'
+
+    class_names(
+      ThemeConfig.x.html_class(chosen_theme),
+      'palette-contrast' => contrast,
+    ).presence
+  end
+
+  # Paints the frame color before the stylesheet arrives, so the page does not
+  # start white. An inline style, because that is the only thing the browser
+  # has at that moment. The variable takes over as soon as the stylesheet is
+  # there and follows the theme from then on, including a switch without a
+  # reload. The value behind the comma only fills the gap before that.
+  def chrome_background_style
+    "background-color: var(--color-chrome, #{ThemeConfig.x.color(chosen_theme)})"
+  end
 end

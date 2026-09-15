@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { readCookie, writeCookie } from '@/utils/cookie';
 
 type Theme = 'auto' | 'light' | 'dark';
 
@@ -16,9 +17,6 @@ export default class extends Controller<HTMLElement> {
 
   declare readonly darkValue: string;
   declare readonly lightValue: string;
-
-  readonly darkThemeColor = '#1e1b4b';
-  readonly lightThemeColor = '#a5b4fc';
 
   private boundHandleColorSchemeChange?: () => void;
   private boundHandleMorph?: () => void;
@@ -87,7 +85,7 @@ export default class extends Controller<HTMLElement> {
   apply() {
     const isDark = this.isCurrentlyDark;
     this.updateHtmlClass(isDark);
-    this.updateMetaTag(isDark);
+    this.updateMetaTag();
     this.updateButtons();
 
     // Only broadcast if there was an actual change
@@ -119,12 +117,38 @@ export default class extends Controller<HTMLElement> {
     document.documentElement.classList.toggle('dark', isDark);
   }
 
-  updateMetaTag(isDark: boolean) {
-    const color = isDark ? this.darkThemeColor : this.lightThemeColor;
+  // Read the color the page actually paints instead of keeping a second copy
+  // of it here. updateHtmlClass runs first, so --color-chrome already resolves
+  // to the value of the new theme.
+  updateMetaTag() {
+    const color = getComputedStyle(document.documentElement)
+      .getPropertyValue('--color-chrome')
+      .trim();
 
-    const themeMetaTag = document.querySelector('meta[name="theme-color"]');
+    // No stylesheet yet. The server rendered the correct color, so leave it.
+    if (!color) return;
+
+    // :not([media]) matters. The server puts the prefers-color-scheme variant
+    // first, so a plain query would return that one and leave the fallback
+    // below it untouched.
+    const themeMetaTag = document.querySelector(
+      'meta[name="theme-color"]:not([media])',
+    );
     if (themeMetaTag) {
       themeMetaTag.setAttribute('content', color);
+    }
+
+    // While the visitor follows the system, the variant is the right answer
+    // and stays. It only goes once they picked a theme, because it would then
+    // override that choice. Never before the line above: dropping it first
+    // lets the untouched fallback show the wrong color for one frame, which
+    // is what made the toolbar color flicker between reloads.
+    if (this.theme === 'auto') return;
+
+    for (const variant of document.querySelectorAll(
+      'meta[name="theme-color"][media]',
+    )) {
+      variant.remove();
     }
   }
 
@@ -136,21 +160,16 @@ export default class extends Controller<HTMLElement> {
   }
 
   get theme(): Theme {
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark' || storedTheme === 'light') {
-      return storedTheme;
+    const stored = readCookie('theme');
+    if (stored === 'dark' || stored === 'light') {
+      return stored;
     }
 
     return 'auto';
   }
 
   set theme(value: Theme) {
-    if (value === 'auto') {
-      localStorage.removeItem('theme');
-      return;
-    }
-
-    localStorage.setItem('theme', value);
+    writeCookie('theme', value === 'auto' ? null : value);
   }
 
   get prefersDarkScheme(): MediaQueryList {

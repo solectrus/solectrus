@@ -19,4 +19,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors and switched over once the browser had read your choice. Pick your theme and your color palette again after this update, because the app now keeps both in a different place.
+- Scrollbars and native form controls now follow the theme of the app. They followed the theme of the operating system before.
+
 ## Maintenance

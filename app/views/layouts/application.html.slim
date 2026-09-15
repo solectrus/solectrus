@@ -1,5 +1,5 @@
 doctype html
-html class= ThemeConfig.x.html_class lang= I18n.locale
+html class= html_theme_classes lang= I18n.locale style= chrome_background_style
   head
     meta charset="utf-8"
 
@@ -14,7 +14,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
     meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"
     meta name="mobile-web-app-capable" content="yes"
     meta name="application-name" content="SOLECTRUS"
-    meta name="theme-color" content= ThemeConfig.x.color data-turbo-permanent= true id= 'theme-color'
+    = render ThemeColor::Component.new(chosen: chosen_theme)
     meta name="version" content= Rails.configuration.x.git.commit_version
     meta name="date" content= Rails.configuration.x.git.commit_time
     meta name="env" content= Rails.env
@@ -41,7 +41,7 @@ html class= ThemeConfig.x.html_class lang= I18n.locale
 
     = yield :head
 
-  body.bg-indigo-600.dark:bg-indigo-900.select-none.font-sans.antialiased[
+  body.bg-chrome.select-none.font-sans.antialiased[
     class=('overflow-hidden' if content_for?(:full_height) || content_for?(:fixed_nav))
     data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url

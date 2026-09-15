@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { readCookie, writeCookie } from '@/utils/cookie';
 
 type ColorPalette = 'contrast' | 'standard';
 
@@ -61,16 +62,10 @@ export default class extends Controller<HTMLElement> {
   }
 
   get colorPalette(): ColorPalette {
-    const stored = localStorage.getItem('colorPalette');
-    if (stored === 'contrast') return 'contrast';
-    return 'standard';
+    return readCookie('color_palette') === 'contrast' ? 'contrast' : 'standard';
   }
 
   set colorPalette(value: ColorPalette) {
-    if (value === 'standard') {
-      localStorage.removeItem('colorPalette');
-      return;
-    }
-    localStorage.setItem('colorPalette', value);
+    writeCookie('color_palette', value === 'standard' ? null : value);
   }
 }
