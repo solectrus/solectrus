@@ -1,7 +1,12 @@
 / Shared backdrop for modal - controlled by modal-launcher controller on links
+  It rests with `hidden`, not with `opacity-0` alone. Safari reads the color of
+  its toolbar from a fixed element that covers the viewport and ignores the
+  opacity while doing so, so a backdrop that only became transparent handed it
+  the gray of this backdrop instead of the color of the app. `enter` drops the
+  class and `leave` puts it back, see utils/transition.
 div[
   id= 'modal-backdrop'
-  class= 'fixed inset-0 z-40 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity opacity-0 pointer-events-none'
+  class= 'hidden fixed inset-0 z-40 bg-gray-500/75 dark:bg-gray-900/75 transition-opacity opacity-0 pointer-events-none'
   data-transition-enter= 'motion-safe:ease-out motion-safe:duration-300'
   data-transition-enter-start= 'opacity-0'
   data-transition-enter-end= 'opacity-100'

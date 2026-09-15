@@ -67,7 +67,10 @@ export default class extends Controller<HTMLElement> {
     if (!this.backdrop) return;
 
     this.backdrop.removeEventListener('click', this.handleBackdropClick);
-    this.backdrop.classList.add('pointer-events-none', 'opacity-0');
+    // 'hidden' too, not just a transparent backdrop. Safari reads the color of
+    // its toolbar from a fixed element that covers the viewport and ignores
+    // the opacity, so a backdrop left behind here would tint the toolbar gray.
+    this.backdrop.classList.add('pointer-events-none', 'opacity-0', 'hidden');
     this.backdrop.classList.remove('opacity-100');
     delete this.backdrop.dataset.preloaded; // Clean up any leftover marker
   }
