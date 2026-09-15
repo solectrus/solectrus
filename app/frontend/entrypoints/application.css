@@ -57,6 +57,27 @@
   }
 }
 
+/* An app installed on an iPhone keeps a low band there. A strip of no height
+   leaves nothing for iOS to read the color of the status bar from, and iOS 26
+   and later then paint their own band of frosted glass over that edge.
+   Measured in the iOS 27 simulator: 8px keeps the band away, 4px does not, so
+   this holds twice the threshold. The band sits right below the status bar and
+   carries the same color, so it reads as part of it.
+
+   Everything else keeps no band, because there it would stand above the
+   content as a stripe of its own: a browser, where the toolbar takes the color
+   of the page without it, and an app installed on Android or on a desktop,
+   where the frame of the window leaves no system bar over the page. Only
+   WebKit on a touch device knows `-webkit-touch-callout`, which is what keeps
+   them out. */
+@supports (-webkit-touch-callout: none) {
+  @media (width < 64rem) and (display-mode: standalone) {
+    body.theme-strip-collapsed {
+      --theme-strip-height: 16px;
+    }
+  }
+}
+
 @utility bar-gradient {
   @apply relative overflow-hidden;
 }

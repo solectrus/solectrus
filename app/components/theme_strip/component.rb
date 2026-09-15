@@ -18,7 +18,8 @@
 #   arrives, and a strip styled by a class has no size or color at that moment.
 #   This is what made the toolbar color differ from one reload to the next.
 # - Visible and tall enough. Safari skips a strip that something covers, and
-#   `opacity: 0` counts as covered, and it ignores a strip of a few pixels.
+#   `opacity: 0` counts as covered. A strip of 8px still counts, one of 4px
+#   does not, measured in the iOS 27 simulator with an installed web app.
 # - Ending where the navigation ends, because the content begins there. A
 #   taller strip covers the top of the page, and lifting the whole content over
 #   it with a z-index breaks the fullscreen chart.
@@ -52,9 +53,11 @@ class ThemeStrip::Component < ViewComponent::Base
       'right: 0',
       # As high as the navigation gets, which is h-16 from the md breakpoint
       # up. A page that starts its content at the top edge drops the variable
-      # to zero below lg, where no navigation stands above that content. The
-      # page says so on the body, because this element is permanent and keeps
-      # the styles it was rendered with. The fallback holds until the
+      # to zero below lg, where no navigation stands above that content. An
+      # installed app keeps a low band there instead, because a strip of no
+      # height gives iOS nothing to read, see application.css. The page says
+      # which one it is on the body, because this element is permanent and
+      # keeps the styles it was rendered with. The fallback holds until the
       # stylesheet arrives, which is when Safari reads the color.
       'height: var(--theme-strip-height, 4rem)',
       # Above the header background, below the navigation (z-40).
