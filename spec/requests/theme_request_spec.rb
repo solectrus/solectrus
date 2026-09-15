@@ -39,6 +39,10 @@ describe 'Theme of the first response' do
     theme_strip_tag[/style="(position: fixed[^"]*)"/, 1]
   end
 
+  def body_class
+    response.body[/<body[^>]*class="([^"]*)"/, 1]
+  end
+
   # The script that applies the theme of the operating system. nil when the
   # server knows the theme and renders the class itself.
   def system_theme_script
@@ -77,17 +81,32 @@ describe 'Theme of the first response' do
     # It stands behind the navigation and stops where that ends, because the
     # content starts there. A taller strip covers the top of the page, and
     # lifting the content over it with a z-index breaks the fullscreen chart.
+    # The fallback carries that height until the stylesheet arrives.
     it 'is as high as the navigation' do
-      expect(theme_strip).to include('height: 4rem')
+      expect(theme_strip).to include('height: var(--theme-strip-height, 4rem)')
+    end
+
+    # Turbo keeps this element and the styles it was rendered with. A style
+    # that differs from page to page therefore freezes on the page the visitor
+    # opened first, and the strip covered the top of every other one.
+    it 'carries the same styles on every page' do
+      style_above_a_sub_nav = theme_strip
+
+      get '/essentials'
+
+      expect(theme_strip).to eq(style_above_a_sub_nav)
     end
 
     # A page without a sub navigation starts its content at the top edge. Below
     # lg no navigation stands above that content, so the stylesheet drops the
-    # height to zero there and the strip cannot cover it.
+    # height to zero there and the strip cannot cover it. The page says which
+    # one it is on the body, which Turbo does replace.
     it 'gives way where the content starts at the top edge' do
+      expect(body_class).not_to include('theme-strip-collapsed')
+
       get '/essentials'
 
-      expect(theme_strip).to include('height: var(--theme-strip-height, 4rem)')
+      expect(body_class).to include('theme-strip-collapsed')
     end
 
     it 'sits behind the navigation and takes no clicks' do

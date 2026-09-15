@@ -31,14 +31,6 @@
 #   When Turbo replaces the body and the element goes with it, the toolbar
 #   falls back to the body on the first click after loading.
 class ThemeStrip::Component < ViewComponent::Base
-  # Below lg the strip has to give way on a page that has no room above its
-  # content, see the comment on `height`.
-  def initialize(collapse_on_phone: false)
-    super()
-
-    @collapse_on_phone = collapse_on_phone
-  end
-
   def call
     tag.div id: 'theme-strip',
             style:,
@@ -52,27 +44,19 @@ class ThemeStrip::Component < ViewComponent::Base
 
   private
 
-  # As high as the navigation gets, which is h-16 from the md breakpoint up.
-  #
-  # Below lg that navigation is gone, and the page can begin its content right
-  # at the top edge, where the strip would cover it. The stylesheet drops the
-  # variable to zero at those widths. The fallback holds until the stylesheet
-  # arrives, which is when Safari reads the color.
-  def height
-    if @collapse_on_phone
-      'height: var(--theme-strip-height, 4rem)'
-    else
-      'height: 4rem'
-    end
-  end
-
   def style
     [
       'position: fixed',
       'top: 0',
       'left: 0',
       'right: 0',
-      height,
+      # As high as the navigation gets, which is h-16 from the md breakpoint
+      # up. A page that starts its content at the top edge drops the variable
+      # to zero below lg, where no navigation stands above that content. The
+      # page says so on the body, because this element is permanent and keeps
+      # the styles it was rendered with. The fallback holds until the
+      # stylesheet arrives, which is when Safari reads the color.
+      'height: var(--theme-strip-height, 4rem)',
       # Above the header background, below the navigation (z-40).
       'z-index: 1',
       'pointer-events: none',

@@ -47,10 +47,12 @@
 
 /* The ThemeStrip covers the top edge of the viewport, and the top navigation
    lies over it. Below lg that navigation is gone, so a page without a sub
-   navigation starts its content there and the strip has to give way. See
+   navigation starts its content there and the strip has to give way. The page
+   says so on the body, because the strip itself is permanent and keeps the
+   inline styles of the page that first rendered it. See
    components/theme_strip/component.rb. */
 @media (width < 64rem) {
-  :root {
+  body.theme-strip-collapsed {
     --theme-strip-height: 0px;
   }
 }
