@@ -48,6 +48,13 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]
+    / Below lg the strip fits only above a sub navigation of full height. A page
+      without one starts its content at the top edge, and a page with a fixed
+      navigation carries a shorter header than the strip is high.
+    = render ThemeStrip::Component.new( \
+        collapse_on_phone: !content_for?(:sub_nav) || content_for?(:fixed_nav),
+      )
+
     .flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black class=(content_for?(:full_height) || content_for?(:fixed_nav) ? 'h-dvh overflow-hidden' : 'min-h-dvh')
       - if banner?
         = render Banner::Component.new registration_status: UpdateCheck.registration_status,

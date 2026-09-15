@@ -45,6 +45,16 @@
     'Apple Color Emoji', 'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
 }
 
+/* The ThemeStrip covers the top edge of the viewport, and the top navigation
+   lies over it. Below lg that navigation is gone, so a page without a sub
+   navigation starts its content there and the strip has to give way. See
+   components/theme_strip/component.rb. */
+@media (width < 64rem) {
+  :root {
+    --theme-strip-height: 0px;
+  }
+}
+
 @utility bar-gradient {
   @apply relative overflow-hidden;
 }

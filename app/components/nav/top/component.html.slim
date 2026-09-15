@@ -1,5 +1,9 @@
-header.relative.bg-indigo-600.dark:bg-indigo-900 data-controller='slide-over--component' class=(compact ? 'lg:pb-32' : 'pb-32')
-  nav.absolute.w-full.z-40.bg-indigo-600.dark:bg-indigo-900.border-b.border-indigo-300/25.dark:border-indigo-950/25.lg:border-none.hidden.lg:block
+header.relative.bg-chrome data-controller='slide-over--component' class=(compact ? 'lg:pb-32' : 'pb-32')
+  / No background of its own: the ThemeStrip lies behind it in the same color
+    and shows through. That strip is what Safari reads the toolbar color from,
+    and it only works while the strip is not covered. The header behind both
+    carries the color for everything this navigation does not span.
+  nav.absolute.w-full.z-40.border-b.border-indigo-300/25.dark:border-indigo-950/25.lg:border-none.hidden.lg:block
     .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-2.sm:px-4.lg:px-6.lg:landscape:px-8
       .relative.h-14.md:h-16.flex.items-center.justify-between.lg:border-b.lg:border-indigo-200/25
         .px-2.flex.items-center.lg:px-0.gap-6.flex-1.dark:lg:border-indigo-700
@@ -37,8 +41,11 @@ header.relative.bg-indigo-600.dark:bg-indigo-900 data-controller='slide-over--co
                 svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
                   path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
 
+  / Over the ThemeStrip, like the navigation above. Without a desktop
+    navigation there is nothing above this, so it starts at the top edge, where
+    the strip lies and would cover it.
   - if sub_nav
-    .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-4.sm:px-6.lg:px-6.lg:landscape:px-8.lg:pt-16
+    .relative.z-10.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.px-4.sm:px-6.lg:px-6.lg:landscape:px-8.lg:pt-16
       = sub_nav
   - else
     .sm:py-3

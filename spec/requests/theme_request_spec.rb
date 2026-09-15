@@ -28,6 +28,17 @@ describe 'Theme of the first response' do
     "background-color: var(--color-chrome, #{color})"
   end
 
+  # Safari reads the color from a fixed element at the top edge before it
+  # falls back to the body, and it takes that color as it is instead of
+  # lightening it.
+  def theme_strip_tag
+    response.body[/<div[^>]*id="theme-strip"[^>]*>/]
+  end
+
+  def theme_strip
+    theme_strip_tag[/style="(position: fixed[^"]*)"/, 1]
+  end
+
   # The script that applies the theme of the operating system. nil when the
   # server knows the theme and renders the class itself.
   def system_theme_script
@@ -47,6 +58,67 @@ describe 'Theme of the first response' do
           content: tag[/content="([^"]*)"/, 1],
         }
       end
+  end
+
+  describe 'the strip Safari reads its toolbar color from' do
+    before { get page }
+
+    # Every one of these has to be inline. Safari reads the page before the
+    # stylesheet arrives, and a strip styled by a class has no size or color
+    # at that moment.
+    it 'carries its size and color without the stylesheet' do
+      expect(theme_strip).to include(
+        'position: fixed',
+        'top: 0',
+        chrome_style(ThemeConfig::LIGHT_COLOR),
+      )
+    end
+
+    # It stands behind the navigation and stops where that ends, because the
+    # content starts there. A taller strip covers the top of the page, and
+    # lifting the content over it with a z-index breaks the fullscreen chart.
+    it 'is as high as the navigation' do
+      expect(theme_strip).to include('height: 4rem')
+    end
+
+    # A page without a sub navigation starts its content at the top edge. Below
+    # lg no navigation stands above that content, so the stylesheet drops the
+    # height to zero there and the strip cannot cover it.
+    it 'gives way where the content starts at the top edge' do
+      get '/essentials'
+
+      expect(theme_strip).to include('height: var(--theme-strip-height, 4rem)')
+    end
+
+    it 'sits behind the navigation and takes no clicks' do
+      expect(theme_strip).to include('z-index: 1', 'pointer-events: none')
+    end
+
+    # The whole point: a Turbo visit replaces the body, and Safari reads the
+    # color again in that moment. This element is what it finds.
+    it 'survives a Turbo visit' do
+      expect(theme_strip_tag).to include('data-turbo-permanent')
+    end
+
+    # The strip lies behind the navigation. Give the navigation a background
+    # again and it hides the strip, and Safari reads the body instead, which
+    # it lightens. The header behind both still carries the color.
+    it 'is not hidden by the navigation' do
+      nav = response.body[/<nav[^>]*class="([^"]*)"/, 1]
+
+      expect(nav).to be_present
+      expect(nav).not_to match(/\bbg-/)
+    end
+
+    # The strip and the html element carry inline styles, because the
+    # stylesheet is not there yet when Safari reads the color. Drop
+    # unsafe-inline from style-src and the browser refuses those styles, and
+    # the toolbar color goes back to being wrong.
+    it 'is allowed by the content security policy' do
+      style_src = response.headers['Content-Security-Policy'][/style-src[^;]*/]
+
+      expect(style_src).to include("'unsafe-inline'")
+    end
   end
 
   context 'when the visitor picked dark' do

@@ -66,6 +66,9 @@ module ApplicationHelper
   # has at that moment. The variable takes over as soon as the stylesheet is
   # there and follows the theme from then on, including a switch without a
   # reload. The value behind the comma only fills the gap before that.
+  #
+  # The ThemeStrip paints the same color for the same reason and calls this, so
+  # the variable and its fallback are named in one place.
   def chrome_background_style
     "background-color: var(--color-chrome, #{ThemeConfig.x.color(chosen_theme)})"
   end

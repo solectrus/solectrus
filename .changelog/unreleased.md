@@ -21,6 +21,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- The Safari toolbar now has the same color as the app header, and keeps it while you move through the app. The color was too light, and it changed with every reload and with every page you opened. It still needs a moment to follow when you switch between the light and the dark theme.
 - The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors and switched over once the browser had read your choice. Pick your theme and your color palette again after this update, because the app now keeps both in a different place.
 - The page opens in the dark theme right away when your system is set to dark and you follow it. It painted light first and turned dark a moment later.
 - Scrollbars and native form controls now follow the theme of the app. They followed the theme of the operating system before.
