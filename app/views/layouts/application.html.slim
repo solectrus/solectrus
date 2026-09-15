@@ -15,6 +15,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
     meta name="mobile-web-app-capable" content="yes"
     meta name="application-name" content="SOLECTRUS"
     = render ThemeColor::Component.new(chosen: chosen_theme)
+    = render SystemTheme::Component.new(chosen: chosen_theme)
     meta name="version" content= Rails.configuration.x.git.commit_version
     meta name="date" content= Rails.configuration.x.git.commit_time
     meta name="env" content= Rails.env

@@ -28,6 +28,12 @@ describe 'Theme of the first response' do
     "background-color: var(--color-chrome, #{color})"
   end
 
+  # The script that applies the theme of the operating system. nil when the
+  # server knows the theme and renders the class itself.
+  def system_theme_script
+    response.body[%r{<script src="(/system-theme\.js[^"]*)"}, 1]
+  end
+
   # Slim sorts attributes alphabetically, so match the tag as a whole and pick
   # the attributes out of it instead of relying on their order.
   def theme_color_tags
@@ -45,6 +51,11 @@ describe 'Theme of the first response' do
 
   context 'when the visitor picked dark' do
     before { get page, headers: { 'Cookie' => 'theme=dark' } }
+
+    # Nothing is left for the browser to decide, so no script goes out.
+    it 'sends no script for the system theme' do
+      expect(system_theme_script).to be_nil
+    end
 
     it 'renders the dark theme right away' do
       expect(html_class).to eq('dark')
@@ -123,6 +134,31 @@ describe 'Theme of the first response' do
           { media: nil, content: ThemeConfig::LIGHT_COLOR },
         ],
       )
+    end
+
+    # The theme hangs on the dark class, and the server cannot name it here.
+    # The script sets it while the head is parsed, before anything paints.
+    # Without it the page paints light on a dark system and the theme selector
+    # corrects it once its modules have loaded.
+    it 'applies the theme of the system before the first paint' do
+      expect(system_theme_script).to start_with('/system-theme.js?v=')
+      expect(Rails.public_path.join('system-theme.js')).to exist
+    end
+
+    # A module or a deferred script would run after the paint, which is the
+    # flash this prevents. The tag has to stay a plain, blocking one.
+    it 'does not defer the script' do
+      tag = response.body[%r{<script src="/system-theme\.js[^>]*>}]
+
+      expect(tag).not_to include('defer', 'async', 'module')
+    end
+
+    # No nonce and no hash needed, so the policy can stay as it is.
+    it 'is allowed by the content security policy without an exception' do
+      script_src =
+        response.headers['Content-Security-Policy'][/script-src[^;]*/]
+
+      expect(script_src).to include("'self'")
     end
   end
 
