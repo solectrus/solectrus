@@ -17,6 +17,8 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- The app description that your device shows for the installed app now uses your language. It was always English before.
+
 ## Fixes
 
 - The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors and switched over once the browser had read your choice. Pick your theme and your color palette again after this update, because the app now keeps both in a different place.

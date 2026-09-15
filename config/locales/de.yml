@@ -20,6 +20,8 @@ de:
     power_splitter: Aufteilungen
     status: Status
     other: Andere
+  manifest:
+    description: Photovoltaik-Dashboard
   layout:
     balance: Strombilanz
     inverter: Erzeugung

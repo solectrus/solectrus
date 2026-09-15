@@ -20,6 +20,8 @@ en:
     power_splitter: Power split
     status: Status
     other: Other
+  manifest:
+    description: Photovoltaic Dashboard
   layout:
     balance: Power balance
     inverter: Generation

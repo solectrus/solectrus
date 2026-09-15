@@ -26,7 +26,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
     - if Rails.configuration.x.honeybadger.api_key
       meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key
 
-    link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials"
+    link rel="manifest" href= manifest_path crossorigin="use-credentials"
     link rel="icon" type="image/png" sizes="196x196" href="/favicon-196.png"
     = render 'shared/apple_touch_icons'
 

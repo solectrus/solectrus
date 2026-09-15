@@ -126,6 +126,13 @@ Rails.application.routes.draw do
   get 'up' => 'health#show', :as => :health_check
   get 'skip-browser-check', to: 'application#skip_browser_check'
 
+  # Rendered by Rails, so the theme colors stay in one place (ThemeConfig).
+  # format: false keeps the dot in the path instead of parsing an extension.
+  get 'manifest.webmanifest',
+      to: 'manifest#show',
+      as: :manifest,
+      format: false
+
   mount Lookbook::Engine, at: '/lookbook' if Rails.env.development?
 
   scope :lockup do
