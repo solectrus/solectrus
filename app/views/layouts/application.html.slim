@@ -11,7 +11,16 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
     meta name="format-detection" content="telephone=no"
     meta name="apple-mobile-web-app-title" content="SOLECTRUS"
     meta name="apple-mobile-web-app-capable" content="yes"
-    meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"
+    / A translucent status bar makes iOS 26 and later paint a band of frosted
+      glass over the top 100 pixels of an installed web app, so the status bar
+      stays readable over whatever scrolls below it. The band blurred the row
+      the app puts there. light-content asks for the white status bar text that
+      the dark app frame needs, and iOS paints no band for it. An older iOS does
+      not know the value and falls back to a status bar it colors itself, which
+      is what it does for every value except the translucent one.
+      iOS reads this tag when the visitor adds the app to the home screen. An
+      app that is already there keeps the band until it is added again.
+    meta name="apple-mobile-web-app-status-bar-style" content="light-content"
     meta name="mobile-web-app-capable" content="yes"
     meta name="application-name" content="SOLECTRUS"
     = render ThemeColor::Component.new(chosen: chosen_theme)

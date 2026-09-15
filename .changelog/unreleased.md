@@ -21,6 +21,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- The top of the app is sharp again when you open it from the home screen of an iPhone. iOS 26 and later paint a band of frosted glass over that edge, and it made the connection status behind it look blurred. Add the app to your home screen again after this update, because iOS reads the setting only at that moment. (#5916)
 - The tooltip for the savings now fits on a phone screen. Its title and its explanation were too long, so the text was cut off. (#5917)
 - The Safari toolbar now has the same color as the app header, and keeps it while you move through the app. The color was too light, and it changed with every reload and with every page you opened. It still needs a moment to follow when you switch between the light and the dark theme.
 - The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors and switched over once the browser had read your choice. Pick your theme and your color palette again after this update, because the app now keeps both in a different place.
