@@ -15,14 +15,8 @@
 .floating-tooltip {
   @apply pointer-events-none fixed top-0 left-0 z-50 w-max max-w-80;
 
-  /*
-   * A tooltip on a phone stands beside a bar that reaches almost to the edge
-   * of the screen, so the space next to it is 57% of the viewport at most.
-   * Floating UI cannot correct an overflow there: shift() moves the tooltip
-   * along the cross axis alone, and flip() finds even less room on the
-   * opposite side. Thus the tooltip must stay narrow enough on its own.
-   */
-  @apply max-md:max-w-[57vw];
+  /* Keep the box off the edges of a screen that is narrower than the cap */
+  @apply max-md:max-w-[min(20rem,100vw-1.5rem)];
 
   visibility: hidden;
   transition: visibility 200ms;
@@ -50,6 +44,23 @@
       opacity 175ms ease-out,
       transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
   }
+}
+
+/*
+ * A tooltip on a phone that stands beside a bar has 57% of the viewport at
+ * most, because the bar reaches almost to the edge of the screen. Floating
+ * UI cannot correct an overflow there: shift() moves the tooltip along the
+ * cross axis alone, and flip() finds even less room on the opposite side.
+ * Thus such a tooltip must stay narrow enough on its own. A tooltip above or
+ * below its target keeps the full width, because there shift() has the whole
+ * screen to move in.
+ *
+ * The side comes from the placement that was asked for, not from the one
+ * flip() picked: a width that reacts to the result changes the result.
+ */
+.floating-tooltip[data-side='left'],
+.floating-tooltip[data-side='right'] {
+  @apply max-md:max-w-[57vw];
 }
 
 .floating-tooltip-arrow {

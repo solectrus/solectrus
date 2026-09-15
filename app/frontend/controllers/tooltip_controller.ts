@@ -483,6 +483,11 @@ export default class TooltipController extends Controller {
     // Ensure tooltip is in correct container (dialog or body)
     this.ensureTooltipInCorrectContainer();
 
+    // The stylesheet limits the width of a tooltip that stands beside its
+    // target. It reads the side that was asked for, not the one flip() picked,
+    // because a width that reacts to the result changes the result.
+    this.tooltip.dataset.side = placement.split('-')[0];
+
     // Cleanup existing position watcher before creating a new one
     this.positionCleanup?.();
     this.positionCleanup = null;
