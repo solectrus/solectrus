@@ -17,7 +17,7 @@ describe SensorIcon::Component, type: :component do
       let(:sensor) { Sensor::Registry[:house_power] }
 
       it 'renders the correct icon class' do
-        expect(component.call).to include('fa-home')
+        expect(component.call).to include('fa-house')
       end
     end
 

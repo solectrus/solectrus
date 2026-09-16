@@ -29,7 +29,7 @@
                           data: { turbo_frame: '_top', controller: 'tooltip' },
                           title: t('.filter_by_category'),
                           'aria-label': t('.filter_by_category') do
-                  i.fa.fa-chevron-right.text-xs
+                  = icon 'chevron-right', class: 'text-xs'
           .table-cell.w-full.align-middle.p-2.text-gray-500.text-sm
             span.hidden.md:inline = cash_flow.note
           .table-cell.align-middle.p-2.tabular-nums.text-right.w-1.whitespace-nowrap class=amount_color(cash_flow.amount)

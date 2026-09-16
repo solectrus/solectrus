@@ -4,7 +4,7 @@ class Sensor::Definitions::HousePower < Sensor::Definitions::Base
   color background: 'bg-sensor-house',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-home'
+  icon 'house'
 
   # For SQL queries: only need house_power (exclusions already applied)
   # For InfluxDB queries: need all excluded sensors for calculation

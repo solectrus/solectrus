@@ -13,7 +13,7 @@ class Sensor::Definitions::CustomInverterPower < Sensor::Definitions::Base
 
   value unit: :watt, range: (0..), category: :inverter, nameable: true
 
-  icon 'fa-sun'
+  icon 'sun'
 
   color do |index|
     # Green color variations (based on emerald-600)

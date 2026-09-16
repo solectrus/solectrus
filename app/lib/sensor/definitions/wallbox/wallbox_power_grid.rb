@@ -4,7 +4,7 @@ class Sensor::Definitions::WallboxPowerGrid < Sensor::Definitions::Base
   color background: 'bg-sensor-grid',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-car'
+  icon 'car'
 
   aggregations stored: [:sum]
 

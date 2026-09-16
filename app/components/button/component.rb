@@ -18,13 +18,13 @@ class Button::Component < ViewComponent::Base
 
     @path = path
     @title = title
-    @icon = icon
+    @icon_option = icon
     @type = type || :link
     @style = style || :primary
     @options = options
   end
 
-  attr_reader :path, :title, :icon, :style, :options
+  attr_reader :path, :title, :icon_option, :style, :options
 
   def method
     case @type
@@ -81,7 +81,7 @@ class Button::Component < ViewComponent::Base
   end
 
   def btn_secondary_class
-    if icon
+    if icon_option
       %w[
         hover:scale-125
         focus:outline-hidden
@@ -101,10 +101,10 @@ class Button::Component < ViewComponent::Base
   end
 
   def icon_name
-    icon.is_a?(Hash) ? icon[:name] : icon
+    icon_option.is_a?(Hash) ? icon_option[:name] : icon_option
   end
 
   def icon_class
-    ['fa', "fa-#{icon_name}", ('w-8' unless title)]
+    'w-8' unless title
   end
 end

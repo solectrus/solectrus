@@ -1,0 +1,79 @@
+# The icons this app renders, by Font Awesome style.
+#
+# Add an icon here by its canonical name, then run `bin/rails icons:generate`.
+# That reads the path data out of the @fortawesome packages and writes
+# config/icons.generated.yml, which the app renders from. An alias fails the
+# task and names the canonical icon to use instead (house, not home).
+#
+# An icon that nothing renders any more belongs out of this list. Search for
+# its name first: some are passed in as a variable, not written in the markup.
+
+solid:
+  - arrow-down-short-wide
+  - arrow-down-wide-short
+  - arrow-left
+  - arrow-right
+  - arrow-right-from-bracket
+  - arrow-right-to-bracket
+  - arrow-trend-down
+  - arrow-trend-up
+  - bars
+  - battery-empty
+  - battery-full
+  - battery-half
+  - battery-quarter
+  - battery-three-quarters
+  - bolt
+  - car
+  - chart-bar
+  - chart-line
+  - check
+  - chevron-left
+  - chevron-right
+  - circle-exclamation
+  - circle-info
+  - circle-question
+  - code
+  - compress
+  - copy
+  - down-left-and-up-right-to-center
+  - expand
+  - fan
+  - filter
+  - gear
+  - gift
+  - grip
+  - heart
+  - hourglass-half
+  - house
+  - house-crack
+  - id-card
+  - language
+  - leaf
+  - lock
+  - message
+  - pencil
+  - piggy-bank
+  - plug
+  - plus
+  - robot
+  - rotate-left
+  - sack-dollar
+  - sliders
+  - solar-panel
+  - sun
+  - table-list
+  - trash
+  - triangle-exclamation
+  - trophy
+  - up-right-and-down-left-from-center
+  - wand-magic-sparkles
+  - xmark
+
+regular:
+  - calendar
+  - circle-check
+  - lightbulb
+
+brands:
+  - github

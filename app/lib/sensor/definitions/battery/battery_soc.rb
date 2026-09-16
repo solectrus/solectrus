@@ -22,15 +22,15 @@ class Sensor::Definitions::BatterySoc < Sensor::Definitions::Base
 
     case value
     when 0...15
-      'fa-battery-empty'
+      'battery-empty'
     when 16...30
-      'fa-battery-quarter'
+      'battery-quarter'
     when 31...60, nil
-      'fa-battery-half'
+      'battery-half'
     when 61...85
-      'fa-battery-three-quarters'
+      'battery-three-quarters'
     else
-      'fa-battery-full'
+      'battery-full'
     end
   end
 

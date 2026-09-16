@@ -23,7 +23,7 @@
 
           #tooltip-content-inverter_power.hidden data-tooltip-target= 'html'
             .flex.flex-col.items-center.justify-center.gap-2.p-2
-              i.fa.fa-2xl.fa-sun
+              = icon 'sun', class: 'fa-2xl'
               = Sensor::Registry[:inverter_power].display_name
               = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :rate : :total, precision: 3)
 
@@ -38,8 +38,8 @@
           ]
             span.hidden data-tooltip-target="html"
               = t('.toggle_view')
-            i.fas.fa-table-list data-view-toggle-target="icon"
-            i.fas.fa-chart-bar.hidden data-view-toggle-target="icon"
+            = icon 'table-list', data: { view_toggle_target: 'icon' }
+            = icon 'chart-bar', class: 'hidden', data: { view_toggle_target: 'icon' }
 
         .w-0.flex-1.border-l-2.border-slate-500
 

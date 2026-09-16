@@ -121,3 +121,11 @@ are trademarks of Georg Ledermann and are not covered by that license: forking a
 contributing is welcome, but if you distribute a modified version or run it as a
 service for others, it must use a different name. See [TRADEMARK.md](TRADEMARK.md)
 for details.
+
+### Third-party licenses
+
+The icons are from [Font Awesome Free](https://fontawesome.com) by Fonticons, Inc.
+They are licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and are used unchanged.
+SOLECTRUS keeps their path data in `config/icons.generated.yml` and draws each
+icon on the server. See [the full license](https://fontawesome.com/license/free).

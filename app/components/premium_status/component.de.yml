@@ -3,7 +3,7 @@ de:
     title: Sponsoring aktiv
     description: Danke für deine Unterstützung!
     compact_description: Vielen Dank!
-    icon: fa-heart
+    icon: heart
     countdown:
       zero: endet heute
       one: noch 1 Tag
@@ -14,7 +14,7 @@ de:
       Alle Funktionen sind freigeschaltet. Mit einem Sponsoring behältst du sie
       dauerhaft.
     compact_description: Alles freigeschaltet
-    icon: fa-hourglass-half
+    icon: hourglass-half
     countdown:
       zero: endet heute
       one: noch 1 Tag
@@ -25,7 +25,7 @@ de:
       Alle Funktionen sind freigeschaltet. Mit einem Sponsoring behältst du sie
       dauerhaft.
     compact_description: Alles freigeschaltet
-    icon: fa-hourglass-half
+    icon: hourglass-half
     countdown:
       zero: endet heute
       one: noch 1 Tag
@@ -34,7 +34,7 @@ de:
     title: Voller Funktionsumfang
     description: Für diese Installation freigeschaltet
     compact_description: ''
-    icon: fa-gift
+    icon: gift
     countdown:
       zero: endet heute
       one: noch 1 Tag
@@ -42,17 +42,17 @@ de:
   development:
     title: Entwicklungsmodus
     description: Alle Funktionen verfügbar
-    icon: fa-code
+    icon: code
   locked_with_trial:
     title: Kein Sponsoring aktiv
     description: Voller Funktionsumfang nur für Sponsoren
-    icon: fa-lock
+    icon: lock
     cta_text: Gratismonat starten
     cta_link: registration
   locked:
     title: Kein Sponsoring aktiv
     description: Voller Funktionsumfang nur für Sponsoren
-    icon: fa-lock
+    icon: lock
     cta_text: Sponsor werden
     cta_link: sponsoring
   offline:
@@ -61,4 +61,4 @@ de:
       Der Update-Server ist nicht erreichbar. Bis er wieder antwortet, bleiben die
       Sponsoren-Funktionen gesperrt.
     compact_description: Server nicht erreichbar
-    icon: fa-circle-exclamation
+    icon: circle-exclamation

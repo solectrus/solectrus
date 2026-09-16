@@ -4,7 +4,7 @@ class Sensor::Definitions::HousePowerGrid < Sensor::Definitions::Base
   color background: 'bg-sensor-grid',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-home'
+  icon 'house'
 
   aggregations stored: [:sum]
 

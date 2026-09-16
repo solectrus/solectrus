@@ -71,7 +71,7 @@ class Dropdown::Component < ViewComponent::Base
   end
 
   def icons?
-    flat_items.any?(&:icon)
+    flat_items.any?(&:icon_name)
   end
 
   def menu_class

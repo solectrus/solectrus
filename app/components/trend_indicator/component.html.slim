@@ -6,7 +6,7 @@
     - if trend.same?
       | &plusmn; 0#{diff_suffix}
     - else
-      i.fa class= [icon, color_class]
+      = icon icon_name, class: color_class
 
       span< class=color_class
         - if show_diff_value?

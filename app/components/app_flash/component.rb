@@ -23,11 +23,19 @@ class AppFlash::Component < ViewComponent::Base
     end
   end
 
-  def icon_class
+  def icon_name
     if notice
-      'far fa-circle-check text-emerald-800 dark:text-emerald-300'
+      'circle-check'
     elsif alert
-      'fas fa-circle-exclamation text-red-700 dark:text-red-200'
+      'circle-exclamation'
+    end
+  end
+
+  def icon_color
+    if notice
+      'text-emerald-800 dark:text-emerald-300'
+    elsif alert
+      'text-red-700 dark:text-red-200'
     end
   end
 

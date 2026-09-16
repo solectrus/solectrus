@@ -4,7 +4,7 @@ class Sensor::Definitions::InverterPower < Sensor::Definitions::Base
   color background: 'bg-sensor-pv',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-sun'
+  icon 'sun'
 
   # A measured inverter_power needs nothing; anything else is the sum of the
   # single inverters.

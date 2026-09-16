@@ -7,7 +7,7 @@
     .dark:bg-slate-900.-mx-4.sm:-mx-6.px-4.sm:px-6.py-3.lg:hidden
       .flex.items-center.justify-between.gap-3
         .flex.items-center.gap-3.text-white.dark:text-gray-200
-          i.fa.fa-gear.text-indigo-200.dark:text-gray-400.text-xl
+          = icon 'gear', class: 'text-indigo-200 dark:text-gray-400 text-xl'
           span.font-medium.text-lg = t('layout.settings')
 
         = render Dropdown::Component.new( \

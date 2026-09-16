@@ -177,7 +177,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     def forecast_item
       {
         name: t('layout.forecast'),
-        icon: 'magic-wand-sparkles',
+        icon: 'wand-magic-sparkles',
         icon_only: true,
         href: forecast_path,
         current: helpers.controller_namespace == 'forecast',

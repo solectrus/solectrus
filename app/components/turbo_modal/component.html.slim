@@ -31,7 +31,7 @@
                       class: 'absolute top-5 right-5 text-gray-400 dark:text-gray-600 cursor-pointer rounded focus-ring',
                       'aria-label': t('.close'),
                       data: { action: 'turbo-modal--component#closeDialog' } do
-            i.fa.fa-xmark.fa-lg
+            = icon 'xmark', class: 'fa-lg'
 
 - else
   h1 class= 'font-bold text-2xl text-gray-800 dark:text-gray-300'

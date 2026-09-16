@@ -10,6 +10,7 @@
   data-transition-leave-end=   'translate-y-32'
 ]
   .flex.justify-center.items-center.mx-auto
-    i class= icon_class
+    - if icon_name
+      = icon icon_name, class: icon_color
     p.text-base.font-medium.ml-2 class= text_class
       = text

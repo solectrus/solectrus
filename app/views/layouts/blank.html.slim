@@ -38,7 +38,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
   / This layout has no theme selector, so the controller rides on the body to
     apply the theme the visitor picked. Same condition as the selector itself.
   body.min-h-dvh.flex.flex-col.bg-chrome.select-none.font-sans.antialiased[
-    data-controller= ['icons', ('theme-selector--component' if ApplicationPolicy.themes? && !ThemeConfig.x.static?)].compact.join(' ')
+    data-controller= [('theme-selector--component' if ApplicationPolicy.themes? && !ThemeConfig.x.static?)].compact.join(' ')
   ]
     = render ThemeStrip::Component.new
 

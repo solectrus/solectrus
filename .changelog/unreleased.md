@@ -22,6 +22,7 @@ Keep every section, an empty one included.
 - The sponsoring status in the menu of a phone now takes one line, with its two texts at the left and the right edge, and it sits directly above the navigation bar. It took two lines and stood in the empty space below the color buttons. The texts are shorter there, and the box drops the explanation next to a button, because the button already says what you can do. The sidebar on a large screen keeps the layout and the texts it had.
 - The text of a notification is now easier to read on a phone. It was 14px there and 16px on a large screen, and the lines sat closer together than they do now.
 - The page appears sooner on a phone. The app measured the width of the chart selector before it painted anything, and that measurement held the first picture back. The selector also sits closer to its arrow now, because the old measurement made it too wide.
+- The icons now arrive with the page. The browser had to build all 60 of them on every page you opened, which took work away from the rest of the page and made the icons jump into place a moment late. The app also sends 33 kB less to your browser.
 
 ## Fixes
 

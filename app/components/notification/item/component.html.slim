@@ -4,7 +4,7 @@
           data: { turbo_frame: 'modal', controller: 'modal-launcher' } do
   .flex.items-center.gap-4
     .relative.flex-shrink-0.w-10.h-10.rounded-full.bg-indigo-100.dark:bg-indigo-900.flex.items-center.justify-center
-      i.fa.fa-message.text-indigo-600.dark:text-indigo-400
+      = icon 'message', class: 'text-indigo-600 dark:text-indigo-400'
       - if unread?
         span.absolute.top-0.right-0.w-3.h-3.rounded-full.bg-red-500.border-2.border-white.dark:border-slate-800
 

@@ -38,7 +38,7 @@
         = render SensorValue::Component.new(data, sensor.name, context: now? ? :rate : :total)
 
       - if sensor.name == :grid_export_power && data.respond_to?(:grid_export_limit_active?) && data.grid_export_limit_active?
-        i.fa.fa-circle-exclamation
+        = icon 'circle-exclamation'
 
       .hidden id="tooltip-content-#{sensor.name}" data-tooltip-target="html"
         .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2.label-value-stacked

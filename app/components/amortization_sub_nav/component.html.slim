@@ -22,7 +22,7 @@
       title=t('.uncertain_prognosis')
       aria-label=t('.uncertain_prognosis')
     ]
-      i.fa.fa-triangle-exclamation.fa-lg.block
+      = icon 'triangle-exclamation', class: 'fa-lg block'
 
   /! Desktop: the sliders live directly in the bar (light text on indigo).
   /! Outside the detail frame, so they stay put across auto-submits.
@@ -39,7 +39,7 @@
             data: { controller: 'tooltip' },
             title: t('amortization.index.manage_cash_flows'),
             'aria-label': t('amortization.index.manage_cash_flows') do
-    i.fa.fa-gear.fa-xl.block
+    = icon 'gear', class: 'fa-xl block'
 
   /! Mobile: the same sliders behind a dropdown button - no room inline.
   div class='relative shrink-0 lg:landscape:hidden' data-controller='dropdown--component'
@@ -54,7 +54,7 @@
       aria-haspopup='true'
       aria-expanded='false'
     ]
-      i.fa.fa-sliders.fa-xl.block
+      = icon 'sliders', class: 'fa-xl block'
     div[
       class='absolute top-full right-0 z-40 mt-2 hidden w-96 max-w-[calc(100vw-2rem)] rounded-lg bg-white dark:bg-gray-800 p-4 text-left text-gray-700 dark:text-gray-300 shadow-lg ring-1 ring-black/5'
       data-dropdown--component-target='menu'

@@ -4,7 +4,7 @@ class Sensor::Definitions::WallboxPower < Sensor::Definitions::Base
   color background: 'bg-sensor-wallbox',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-car'
+  icon 'car'
 
   aggregations stored: %i[sum max], top10: true
 

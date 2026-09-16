@@ -22,7 +22,7 @@ class MenuItem::Component < ViewComponent::Base
     @id = id
     @separator_before = separator_before
 
-    @icon = icon
+    @icon_name = icon
     @icon_only = icon_only
     @text = text
     @current = current
@@ -37,7 +37,7 @@ class MenuItem::Component < ViewComponent::Base
 
   attr_reader :name,
               :href,
-              :icon,
+              :icon_name,
               :icon_only,
               :text,
               :current,
@@ -101,8 +101,8 @@ class MenuItem::Component < ViewComponent::Base
   end
 
   def render_icon
-    if icon
-      tag.i(class: "fa fa-fw fa-#{icon} fa-xl")
+    if icon_name
+      icon(icon_name, class: 'fa-fw fa-xl')
     else
       tag.span(class: 'w-6 block')
     end

@@ -4,7 +4,7 @@ class Sensor::Definitions::GridPower < Sensor::Definitions::Base
   color background: 'bg-sensor-grid',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-bolt'
+  icon 'bolt'
 
   depends_on :grid_import_power, :grid_export_power
 

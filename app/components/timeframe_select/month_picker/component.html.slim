@@ -24,7 +24,7 @@ div(
           = "#{I18n.t('date.month_names')[date.month]} #{date.year}"
         - else
           = t('.select_month')
-      i.fas.fa-arrow-right.text-gray-400
+      = icon 'arrow-right', class: 'text-gray-400'
 
     / Month picker panel (replaces modal content)
     .absolute.inset-0.bg-white.dark:bg-slate-800.z-50 data-timeframe-select--month-picker--component-target="modal"
@@ -32,7 +32,7 @@ div(
         / Header with back button and centered title
         .relative.p-4.border-b.border-gray-200.dark:border-gray-700
           button type="button" class=TimeframeSelect::Component::BACK_BUTTON_CLASSES data-action="timeframe-select--month-picker--component#close"
-            i.fas.fa-arrow-left
+            = icon 'arrow-left'
             span.hidden.sm:inline = t('.back')
           div class='text-lg font-medium text-gray-900 dark:text-white text-center'
             = t('.select_month')
@@ -42,10 +42,10 @@ div(
           / Year navigation
           .flex.justify-between.items-center.mb-4
             button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#previousYear" data-timeframe-select--month-picker--component-target="prevYearButton" aria-label=t('.previous_year')
-              i.fas.fa-chevron-left
+              = icon 'chevron-left'
             .text-xl.font-medium.text-gray-900.dark:text-white data-timeframe-select--month-picker--component-target="yearDisplay"
             button.text-gray-600.dark:text-gray-400.hover:text-gray-900.dark:hover:text-white.p-2.rounded.focus:outline-none.focus:ring-2.focus:ring-gray-400.cursor-pointer type="button" data-action="timeframe-select--month-picker--component#nextYear" data-timeframe-select--month-picker--component-target="nextYearButton" aria-label=t('.next_year')
-              i.fas.fa-chevron-right
+              = icon 'chevron-right'
 
           / Month grid (3x4)
           .flex-1.min-h-0.grid.grid-cols-3.grid-rows-4.gap-3

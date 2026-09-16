@@ -4,7 +4,7 @@ class Sensor::Definitions::HeatpumpPower < Sensor::Definitions::Base
   color background: 'bg-sensor-heatpump',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-fan'
+  icon 'fan'
 
   aggregations stored: %i[sum max], top10: true
 

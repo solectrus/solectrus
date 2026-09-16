@@ -4,7 +4,7 @@ class Sensor::Definitions::HeatpumpPowerGrid < Sensor::Definitions::Base
   color background: 'bg-sensor-grid',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-fan'
+  icon 'fan'
 
   aggregations stored: [:sum]
 

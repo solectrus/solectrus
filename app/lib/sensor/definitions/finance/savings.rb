@@ -4,7 +4,7 @@ class Sensor::Definitions::Savings < Sensor::Definitions::Base
   color background: 'bg-sensor-savings',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-piggy-bank'
+  icon 'piggy-bank'
 
   depends_on :solar_price, :traditional_costs
   trend more_is_better: true

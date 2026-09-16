@@ -22,7 +22,7 @@
                   class: "#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden",
                   data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' },
                   title: t('layout.insights') do
-          i.far.fa-lg.fa-lightbulb
+          = icon 'lightbulb', class: 'fa-lg'
 
       button[
         class="#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden"
@@ -31,7 +31,7 @@
         data-controller='tooltip'
         title=t('.maximize')
       ]
-        i.fa.fa-up-right-and-down-left-from-center
+        = icon 'up-right-and-down-left-from-center'
 
       button[
         class="#{ICON_BUTTON_CLASS} hidden group-data-zoomed/zoom:flex"
@@ -39,7 +39,7 @@
         data-controller='tooltip'
         title=t('.minimize')
       ]
-        i.fa.fa-down-left-and-up-right-to-center
+        = icon 'down-left-and-up-right-to-center'
 
     div class='hidden text-center group-data-zoomed/zoom:block group-data-zoomed/zoom:relative group-data-zoomed/zoom:z-6'
       div class='md:inline-flex md:items-baseline md:gap-2'

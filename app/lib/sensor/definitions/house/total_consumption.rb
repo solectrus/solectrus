@@ -6,7 +6,7 @@ class Sensor::Definitions::TotalConsumption < Sensor::Definitions::Base
   color background: 'bg-sensor-house',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-plug'
+  icon 'plug'
 
   # Custom consumers excluded from house_power are subtracted from house_power
   # (both the live InfluxDB value and the stored summary value, which is built

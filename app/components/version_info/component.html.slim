@@ -4,7 +4,7 @@
             class: 'focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',
             target: '_blank',
             rel: 'noopener' do
-      i.fab.fa-github.fa-lg
+      = icon 'github', class: 'fa-lg'
 
     code.select-text[
       data-controller = 'tooltip'
@@ -32,4 +32,4 @@
                 title: t('layout.version_uptodate'),
                 target: '_blank',
                 rel: 'noopener' do
-        i.far.fa-circle-check
+        = icon 'circle-check'

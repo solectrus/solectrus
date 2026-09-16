@@ -6,11 +6,11 @@ class TrendIndicator::Component < ViewComponent::Base
 
   attr_reader :trend
 
-  def icon
+  def icon_name
     if trend.diff.positive?
-      'fa-arrow-trend-up'
+      'arrow-trend-up'
     elsif trend.diff.negative?
-      'fa-arrow-trend-down'
+      'arrow-trend-down'
     end
   end
 

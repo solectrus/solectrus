@@ -15,7 +15,7 @@ describe ActionRequired::Component, type: :component do
     let(:registration_status) { 'complete' }
 
     it 'renders yellow icon' do
-      expect(page).to have_css('div i.fa-circle-exclamation.text-amber-300')
+      expect(page).to have_css('div svg.fa-circle-exclamation.text-amber-300')
     end
 
     # Not the reason a single feature is locked - this icon has one message.
@@ -40,7 +40,7 @@ describe ActionRequired::Component, type: :component do
     let(:registration_status) { 'unknown' }
 
     it 'renders red icon' do
-      expect(page).to have_css('div i.fa-circle-exclamation.text-red-300')
+      expect(page).to have_css('div svg.fa-circle-exclamation.text-red-300')
     end
   end
 
@@ -48,7 +48,7 @@ describe ActionRequired::Component, type: :component do
     let(:registration_status) { 'pending' }
 
     it 'renders yellow icon' do
-      expect(page).to have_css('div i.fa-circle-exclamation.text-amber-300')
+      expect(page).to have_css('div svg.fa-circle-exclamation.text-amber-300')
     end
   end
 
@@ -56,7 +56,7 @@ describe ActionRequired::Component, type: :component do
     let(:registration_status) { 'unregistered' }
 
     it 'renders yellow icon' do
-      expect(page).to have_css('div i.fa-circle-exclamation.text-amber-300')
+      expect(page).to have_css('div svg.fa-circle-exclamation.text-amber-300')
     end
 
     # Only an admin can register, so only an admin is sent there.

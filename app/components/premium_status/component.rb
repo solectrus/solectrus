@@ -95,7 +95,7 @@ class PremiumStatus::Component < ViewComponent::Base
     @compact ? compact_description : value(:description)
   end
 
-  def icon
+  def icon_name
     value(:icon)
   end
 

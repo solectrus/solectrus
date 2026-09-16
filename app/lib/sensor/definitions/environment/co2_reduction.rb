@@ -4,7 +4,7 @@ class Sensor::Definitions::Co2Reduction < Sensor::Definitions::Base
   color background: 'bg-sensor-co2',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-leaf'
+  icon 'leaf'
 
   depends_on :inverter_power
 

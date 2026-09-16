@@ -33,7 +33,7 @@ class InfoIcon::Component < ViewComponent::Base
   end
 
   def full_icon_class
-    "fa fa-circle-info font-normal normal-case #{icon_class}"
+    "font-normal normal-case #{icon_class}"
   end
 
   def paragraphs

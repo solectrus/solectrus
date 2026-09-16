@@ -9,7 +9,7 @@
             form_class: 'w-full',
             class: [css_extra, 'w-full flex items-center gap-3 cursor-pointer text-left'],
             'aria-label': t('.aria_label', language: native_name(current_locale)) do
-  i.fa.fa-fw.fa-language.fa-xl aria-hidden='true'
+  = icon 'language', class: 'fa-fw fa-xl'
   span.flex-1.text-left.uppercase.lg:normal-case.font-medium
     = t('.title')
 

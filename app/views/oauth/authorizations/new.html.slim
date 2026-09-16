@@ -2,7 +2,7 @@
   .relative.text-gray-800.dark:text-gray-300.bg-white.dark:bg-slate-800.rounded-2xl.shadow-xl.p-6.sm:p-8
     .flex.items-center.gap-4
       .flex.h-12.w-12.shrink-0.items-center.justify-center.rounded-full.bg-indigo-100.text-indigo-600.dark:bg-indigo-500.dark:bg-opacity-20.dark:text-indigo-300
-        i.fa.fa-plug.fa-lg
+        = icon 'plug', class: 'fa-lg'
       h1.font-bold.text-xl.sm:text-2xl.leading-tight
         = t('oauth.authorize.title')
 
@@ -10,7 +10,7 @@
       = t('oauth.authorize.subtitle')
 
     .mt-4.flex.items-center.gap-2.rounded-lg.bg-gray-50.dark:bg-slate-700.dark:bg-opacity-40.px-4.py-3.text-sm
-      i.fa.fa-circle-info.shrink-0.text-gray-400
+      = icon 'circle-info', class: 'shrink-0 text-gray-400'
       - if local_client?
         span.text-gray-500.dark:text-gray-400 = t('oauth.authorize.client_local')
       - else
@@ -20,12 +20,12 @@
 
     - if insecure_client?
       .mt-2.flex.items-center.gap-2.rounded-lg.bg-amber-50.dark:bg-amber-900.dark:bg-opacity-30.px-4.py-3.text-sm.text-amber-800.dark:text-amber-300
-        i.fa.fa-triangle-exclamation.shrink-0
+        = icon 'triangle-exclamation', class: 'shrink-0'
         span = t('oauth.authorize.client_insecure')
 
     - if flash[:alert]
       .mt-5.flex.items-center.gap-2.rounded-lg.bg-red-50.px-4.py-3.text-sm.text-red-700.dark:bg-red-900.dark:bg-opacity-30.dark:text-red-300
-        i.fa.fa-circle-exclamation
+        = icon 'circle-exclamation'
         span = flash[:alert]
 
     / Native (non-Turbo) submit: the success response is a 302 to an external

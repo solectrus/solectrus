@@ -3,7 +3,7 @@
 
 - content_for :sub_nav do
   .text-center.pt-3.pb-2.lg:hidden
-    i.fa.fa-message.text-indigo-200.dark:text-gray-400.text-2xl
+    = icon 'message', class: 'text-indigo-200 dark:text-gray-400 text-2xl'
 
 - if admin?
   = render Notification::List::Component.new(notifications:)

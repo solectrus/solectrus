@@ -15,7 +15,7 @@
             data-tooltip-placement-value= 'right'
             data-tooltip-touch-value= 'true'
           ]
-            i.fa.fa-sm.fa-circle-exclamation
+            = icon 'circle-exclamation', class: 'fa-sm'
 
         = link_to house_home_path(sensor_name: 'house_power', timeframe:),
                   class: 'bg-white dark:bg-slate-900 pb-2 md:pb-4 pl-3',
@@ -55,8 +55,8 @@
         ]
           span.hidden data-tooltip-target="html"
             = t('.toggle_view')
-          i.fas.fa-table-list data-view-toggle-target="icon"
-          i.fas.fa-chart-bar.hidden data-view-toggle-target="icon"
+          = icon 'table-list', data: { view_toggle_target: 'icon' }
+          = icon 'chart-bar', class: 'hidden', data: { view_toggle_target: 'icon' }
 
         .w-0.flex-1.border-l-2.border-slate-500
 

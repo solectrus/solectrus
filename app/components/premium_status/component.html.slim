@@ -1,6 +1,6 @@
 .flex.text-sm class=[box_class, box_layout]
-  - if icon
-    i.fa.fa-fw.shrink-0 class=[icon, icon_layout] aria-hidden='true'
+  - if icon_name
+    = icon icon_name, class: ['fa-fw shrink-0', icon_layout]
 
   div class=body_layout
     / The name of the state. In the compact layout it holds the left edge.

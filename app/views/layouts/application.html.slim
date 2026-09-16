@@ -57,7 +57,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
   body.bg-chrome.select-none.font-sans.antialiased[
     class=('overflow-hidden' if content_for?(:full_height) || content_for?(:fixed_nav))
     class=('theme-strip-collapsed' if !content_for?(:sub_nav) || content_for?(:fixed_nav))
-    data-controller= ['icons', 'fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
+    data-controller= ['fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
   ]

@@ -25,7 +25,7 @@
   /! needed to see it, rather than hiding the page outright.
   = render Message::Component.new do |c|
     - c.with_watermark do
-      i.fa.fa-sack-dollar
+      = icon 'sack-dollar'
     = c.with_title { t('amortization.index.restricted_title') }
     = c.with_body { t('amortization.index.restricted_body') }
     = c.with_footer do
@@ -40,7 +40,7 @@
   /! Cash flows missing: ask the admin to create them
   = render Message::Component.new do |c|
     - c.with_watermark do
-      i.fa.fa-sack-dollar
+      = icon 'sack-dollar'
     = c.with_title { t('amortization.index.no_cash_flows_title') }
     = c.with_body { t('amortization.index.no_cash_flows_body') }
     - if admin?

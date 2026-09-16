@@ -7,21 +7,21 @@ describe TrendIndicator::Component do
   let(:sensor) { double('Sensor', trend_aggregation: trend_aggregation, unit: :watt) }
   let(:trend_aggregation) { :sum }
 
-  describe '#icon' do
-    subject { component.icon }
+  describe '#icon_name' do
+    subject { component.icon_name }
 
     context 'when diff is positive' do
       let(:diff) { 1 }
       let(:more_is_better) { true }
 
-      it { is_expected.to eq('fa-arrow-trend-up') }
+      it { is_expected.to eq('arrow-trend-up') }
     end
 
     context 'when diff is negative' do
       let(:diff) { -1 }
       let(:more_is_better) { true }
 
-      it { is_expected.to eq('fa-arrow-trend-down') }
+      it { is_expected.to eq('arrow-trend-down') }
     end
 
     context 'when diff is zero' do

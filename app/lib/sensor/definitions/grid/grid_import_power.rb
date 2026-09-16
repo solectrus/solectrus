@@ -4,7 +4,7 @@ class Sensor::Definitions::GridImportPower < Sensor::Definitions::Base
   color background: 'bg-sensor-grid',
         text: 'text-white dark:text-slate-400'
 
-  icon 'fa-bolt'
+  icon 'bolt'
 
   aggregations stored: %i[sum max], top10: true
 

@@ -3,7 +3,7 @@ en:
     title: Sponsorship is active
     description: Thank you for your support!
     compact_description: Thank you!
-    icon: fa-heart
+    icon: heart
     countdown:
       zero: ends today
       one: 1 day left
@@ -12,7 +12,7 @@ en:
     title: Trial period
     description: All features are unlocked. A sponsorship keeps them for you.
     compact_description: All features unlocked
-    icon: fa-hourglass-half
+    icon: hourglass-half
     countdown:
       zero: ends today
       one: 1 day left
@@ -21,7 +21,7 @@ en:
     title: Free month is active
     description: All features are unlocked. A sponsorship keeps them for you.
     compact_description: All features unlocked
-    icon: fa-hourglass-half
+    icon: hourglass-half
     countdown:
       zero: ends today
       one: 1 day left
@@ -30,7 +30,7 @@ en:
     title: All features
     description: Enabled for this installation
     compact_description: ''
-    icon: fa-gift
+    icon: gift
     countdown:
       zero: ends today
       one: 1 day left
@@ -38,17 +38,17 @@ en:
   development:
     title: Development mode
     description: All features available
-    icon: fa-code
+    icon: code
   locked_with_trial:
     title: No active sponsorship
     description: The full feature set is for sponsors only
-    icon: fa-lock
+    icon: lock
     cta_text: Start the free month
     cta_link: registration
   locked:
     title: No active sponsorship
     description: The full feature set is for sponsors only
-    icon: fa-lock
+    icon: lock
     cta_text: Become a sponsor
     cta_link: sponsoring
   offline:
@@ -57,4 +57,4 @@ en:
       The update server cannot be reached. The sponsor features stay locked until
       it answers again.
     compact_description: Server cannot be reached
-    icon: fa-circle-exclamation
+    icon: circle-exclamation

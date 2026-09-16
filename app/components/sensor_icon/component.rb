@@ -9,22 +9,16 @@ class SensorIcon::Component < ViewComponent::Base
   attr_reader :sensor, :data, :options
 
   def call
-    return unless icon_class_name
+    return unless icon_name
 
-    tag.i(class: icon_class, style: icon_style)
+    icon(icon_name, class: options[:class], style: options[:style])
   end
 
   private
 
-  def icon_class
-    ['fa', icon_class_name, options[:class]]
-  end
-
-  def icon_style
-    options[:style]
-  end
-
-  def icon_class_name
+  # The name comes from the sensor definition, which carries it for the state
+  # the data is in - a battery icon follows the charge, for one.
+  def icon_name
     sensor.icon(data:)
   end
 end

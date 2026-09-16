@@ -4,7 +4,7 @@
   - c.with_icon do
     .relative
       .size-24.rounded-full.bg-indigo-100.dark:bg-indigo-900/60.flex.items-center.justify-center
-        i.fa.fa-message.text-4xl.text-indigo-600.dark:text-indigo-400
+        = icon 'message', class: 'text-4xl text-indigo-600 dark:text-indigo-400'
       - if unread?
         span#notification-unread-count.absolute.-top-1.-right-1.bg-red-500.dark:bg-red-700.text-white.dark:text-gray-200.text-sm.font-bold.rounded-full.min-w-7.h-7.flex.items-center.justify-center.px-2.ring-4.ring-white.dark:ring-slate-900
           = unread_count
