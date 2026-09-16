@@ -19,11 +19,18 @@ class Notification::Show::Component < ViewComponent::Base
 
   # Typography of the notification body. The line width comes from the narrow
   # modal panel, so the prose itself must not limit it again.
+  #
+  # The size stays at 16px on every screen. A phone had 14px here, which was
+  # smaller than the list of notifications behind the panel, and this is the
+  # one text on the page a user reads from end to end.
+  #
+  # A paragraph keeps the line height of prose, which is 1.75. The class
+  # leading-relaxed had cut it to 1.625, below what prose gives on its own.
   BODY_CLASS = [
-    'prose prose-sm sm:prose-base max-w-none',
+    'prose prose-base max-w-none',
     'text-gray-700 dark:text-gray-300',
-    'prose-headings:text-inherit prose-headings:text-base prose-headings:font-semibold prose-headings:mt-6 prose-headings:mb-2',
-    'prose-p:my-4 prose-p:leading-relaxed',
+    'prose-headings:text-inherit prose-headings:text-lg prose-headings:font-semibold prose-headings:mt-6 prose-headings:mb-2',
+    'prose-p:my-4',
     'prose-ul:my-4 prose-ol:my-4 prose-li:my-1.5 marker:text-indigo-400 dark:marker:text-indigo-500',
     'prose-a:text-indigo-600 dark:prose-a:text-indigo-400 prose-a:font-medium prose-a:break-words prose-a:underline-offset-2 prose-a:decoration-indigo-300 dark:prose-a:decoration-indigo-700 hover:prose-a:text-indigo-500',
     'prose-strong:text-inherit prose-em:text-inherit prose-code:text-inherit',
