@@ -2,7 +2,7 @@
   data-controller="nav--bottom--component"
   data-nav--bottom--component-height-class-value="h-[calc(100dvh-var(--bottom-nav-offset))]"
 ]
-  .h-0.transition-height.ease-out.duration-200.overflow-y-auto.z-40.fixed.inset-x-0.w-full.bg-indigo-600.dark:bg-indigo-900.text-gray-300.dark:text-gray-400.lg:hidden[
+  .h-0.flex.flex-col.transition-height.ease-out.duration-200.overflow-y-auto.z-40.fixed.inset-x-0.w-full.bg-indigo-600.dark:bg-indigo-900.text-gray-300.dark:text-gray-400.lg:hidden[
     data-nav--bottom--component-target="dropdown"
     class="bottom-(--bottom-nav-offset)"
   ]
@@ -32,7 +32,11 @@
       - unless ThemeConfig.x.static?
         = render ThemeSelector::Component.new
 
-    = render PremiumStatus::Component.new
+    / The box states the sponsoring status. mt-auto holds it at the lower edge
+    / of the menu, so it always meets the navigation bar below. This menu
+    / shares its height with the page, so the box comes in its compact layout.
+    .mt-auto
+      = render PremiumStatus::Component.new(compact: true)
 
   nav.group.w-full.flex.items-center.justify-evenly.bg-indigo-600.dark:bg-indigo-900.border-t.border-indigo-300/25.dark:border-indigo-950/25[
     aria-label="Main navigation"

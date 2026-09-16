@@ -13,6 +13,11 @@
 # The box sits at the bottom edge of the sidebar. Its color carries the state
 # at a glance: green is fine, amber asks for something, gray is the local
 # development mode.
+#
+# It has two layouts. The wide one gives the description and the call to
+# action a line of their own. The compact one runs all parts into a single
+# line, separated by a middot. The menu on a phone asks for the compact one,
+# because it shares its height with the page below it.
 class PremiumStatus::Component < ViewComponent::Base
   # Every grant this app can name. The update server can report one that is not
   # here, because a later release of the server can add a grant. Such a grant
@@ -55,7 +60,20 @@ class PremiumStatus::Component < ViewComponent::Base
   }.freeze
   private_constant :LINKS
 
+  # scenario and ends_at name a state directly instead of reading it from the
+  # policy. Only the Lookbook preview passes them, because it must show every
+  # state on one page and an installation is in exactly one of them. The app
+  # itself leaves both out and the policy decides.
+  def initialize(compact: false, scenario: nil, ends_at: nil)
+    super()
+    @compact = compact
+    @scenario = scenario
+    @given_ends_at = ends_at
+  end
+
   def render?
+    return true if @scenario
+
     SILENT_REASONS.exclude?(PremiumStatus.reason)
   end
 
@@ -63,8 +81,18 @@ class PremiumStatus::Component < ViewComponent::Base
     value(:title)
   end
 
+  # The compact layout has one line for the whole box, so a scenario can carry
+  # a shorter text for it. Most of them do, because the long text needs two
+  # lines or three on the screen of a phone. A scenario that is short enough
+  # already names no second text, and both layouts then use the same one.
+  #
+  # A scenario with a call to action drops the description in the compact
+  # layout. The two together are wider than the screen of a phone, and the
+  # button already says what the user can do.
   def description
-    value(:description)
+    return if @compact && cta_text
+
+    @compact ? compact_description : value(:description)
   end
 
   def icon
@@ -92,10 +120,70 @@ class PremiumStatus::Component < ViewComponent::Base
     BOXES[TONES[scenario]]
   end
 
+  # The second part of the box. A scenario can carry a description, a call to
+  # action, or both.
+  def detail?
+    description.present? || cta_text.present?
+  end
+
+  def box_layout
+    @compact ? 'items-baseline gap-2 px-4 py-2' : 'items-start gap-3 p-4'
+  end
+
+  def icon_layout
+    @compact ? nil : 'fa-lg mt-0.5'
+  end
+
+  # The compact layout is a single row. It sends the two parts to opposite
+  # ends, which keeps the middle free and makes the row easy to scan. The wide
+  # layout stacks them, so neither part is a flex item there.
+  def body_layout
+    'flex grow items-baseline justify-between gap-4' if @compact
+  end
+
+  # min-w-0 lets a long title wrap. With shrink-0 the row keeps the title on
+  # one line and pushes it out of the box, which iOS Safari really does.
+  def title_layout
+    @compact ? 'min-w-0' : 'block'
+  end
+
+  # The compact layout needs the description and the call to action in one box,
+  # because that box is what the row pushes to the right. min-w-0 lets its text
+  # wrap instead of making the row wider than the whole box. The wide layout
+  # wants no box around them at all, and "contents" removes it.
+  def detail_layout
+    @compact ? 'min-w-0 text-right' : 'contents'
+  end
+
+  def description_layout
+    @compact ? 'inline' : 'block mt-1'
+  end
+
+  def cta_layout
+    @compact ? 'inline' : 'block mt-2'
+  end
+
+  # Only the compact layout needs a mark between the two, because there it
+  # follows the description in the same line.
+  def cta_separator
+    ' · ' if @compact && description
+  end
+
   private
 
+  # A scenario names compact_description when the long text needs a second line
+  # on a phone. An empty one means the title says enough on its own, and the
+  # row then carries no second text. A scenario without the key keeps the long
+  # text for both layouts.
+  def compact_description
+    short = t("#{scope}.compact_description", default: nil)
+    return value(:description) if short.nil?
+
+    short.presence
+  end
+
   def build_countdown
-    ends_at = PremiumStatus.ends_at
+    ends_at = @given_ends_at || PremiumStatus.ends_at
     return unless ends_at
 
     days_left = (ends_at.to_date - Date.current).to_i.clamp(0..)

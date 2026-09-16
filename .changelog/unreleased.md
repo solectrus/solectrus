@@ -18,6 +18,8 @@ Keep every section, an empty one included.
 ## Improvements
 
 - The app description that your device shows for the installed app now uses your language. It was always English before.
+- A cancelled sponsorship now shows the days that are left. The status said that the sponsorship is active and named no end, so the last day came without warning.
+- The sponsoring status in the menu of a phone now takes one line, with its two texts at the left and the right edge, and it sits directly above the navigation bar. It took two lines and stood in the empty space below the color buttons. The texts are shorter there, and the box drops the explanation next to a button, because the button already says what you can do. The sidebar on a large screen keeps the layout and the texts it had.
 
 ## Fixes
 

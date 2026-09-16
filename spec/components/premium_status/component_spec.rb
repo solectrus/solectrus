@@ -48,11 +48,6 @@ describe PremiumStatus::Component, type: :component do
       expect(html).to include('bg-emerald-100')
     end
 
-    # Slim splits a class written as .mt-0.5 into "mt-0" and "5".
-    it 'keeps fractional spacing classes intact' do
-      expect(html).to include('mt-0.5')
-    end
-
     # The update server keeps the offer back during the phase, but an admin
     # session must not conjure one either.
     context 'with an admin session' do
@@ -79,11 +74,22 @@ describe PremiumStatus::Component, type: :component do
     before { allow(PremiumStatus).to receive(:reason).and_return(:sponsoring) }
 
     # A sponsor knows what the sponsorship gives. Thanks are the better use of
-    # the second line here.
+    # the space here.
     it 'thanks the sponsor' do
       expect(html).to include('Sponsorship is active')
       expect(html).to include('Thank you for your support!')
       expect(html).to include('bg-emerald-100')
+    end
+
+    # A cancelled subscription runs to the end of the period it is paid for.
+    # The update server sends that end, and the user must see it coming.
+    context 'with the subscription cancelled' do
+      before { allow(PremiumStatus).to receive(:ends_at).and_return(18.days.from_now) }
+
+      it 'names the days that are left' do
+        expect(html).to include('Sponsorship is active')
+        expect(html).to include('18 days left')
+      end
     end
   end
 
@@ -205,13 +211,98 @@ describe PremiumStatus::Component, type: :component do
     end
   end
 
+  # The menu on a phone shares its height with the page below it, so the box
+  # there runs every part into a single row. The sidebar on a desktop has the
+  # height to spare and keeps the two lines.
+  describe 'the compact layout' do
+    subject(:compact) { render_inline(described_class.new(compact: true)).to_html }
+
+    before { allow(PremiumStatus).to receive(:reason).and_return(:development) }
+
+    it 'says the same as the wide one' do
+      expect(compact).to include('Development mode')
+      expect(compact).to include('All features available')
+      expect(compact).to include('bg-gray-100')
+    end
+
+    # The row sends the title to the left edge and the rest to the right edge.
+    it 'holds the two parts apart' do
+      expect(compact).to include('justify-between')
+      expect(compact).to include('text-right')
+    end
+
+    # A part of its own line costs height, and height is what this layout saves.
+    it 'gives no part a line of its own' do
+      expect(compact).not_to include('block mt-1')
+      expect(compact).not_to include('block mt-2')
+    end
+
+    it 'leaves the wide layout stacked' do
+      expect(html).to include('block mt-1')
+      expect(html).not_to include('justify-between')
+    end
+
+    # The title, the description and the link together are wider than the
+    # screen of a phone. The link is the part that carries the message.
+    context 'with a call to action' do
+      before do
+        allow(PremiumStatus).to receive_messages(reason: nil, unknown?: false)
+      end
+
+      it 'keeps the link and drops the description' do
+        expect(compact).to include('No active sponsorship')
+        expect(compact).to include('Become a sponsor')
+        expect(compact).not_to include('The full feature set')
+      end
+
+      it 'still spells the description out in the wide layout' do
+        expect(html).to include('The full feature set is for sponsors only')
+      end
+    end
+  end
+
+  # The Lookbook preview shows every state on one page, so it names the state
+  # instead of letting the policy decide it.
+  describe 'a state given from outside' do
+    before do
+      allow(PremiumStatus).to receive_messages(reason: :development, ends_at: nil)
+    end
+
+    it 'renders that state, not the one the policy reports' do
+      given =
+        render_inline(
+          described_class.new(scenario: :locked, ends_at: nil),
+        ).to_html
+
+      expect(given).to include('No active sponsorship')
+      expect(given).not_to include('Development mode')
+    end
+
+    it 'counts down from the date it was given' do
+      given =
+        render_inline(
+          described_class.new(scenario: :intro, ends_at: 5.days.from_now),
+        ).to_html
+
+      expect(given).to include('5 days left')
+    end
+
+    # A silent reason must not hide a state the preview asked for.
+    it 'renders even when the policy keeps quiet' do
+      allow(PremiumStatus).to receive(:reason).and_return(:eligible_for_free)
+
+      expect(render_inline(described_class.new(scenario: :locked)).to_html)
+        .to include('No active sponsorship')
+    end
+  end
+
   # A scenario only names the keys it needs, and the template renders whatever
   # it finds. A typo would therefore not fail, it would silently drop the icon
   # or the link - so the structure is checked here instead.
   describe 'the locale files' do
     subject(:de) { scenarios('de') }
 
-    let(:known_keys) { %w[title description icon countdown cta_text cta_link] }
+    let(:known_keys) { %w[title description compact_description icon countdown cta_text cta_link] }
 
     def scenarios(locale)
       file = "app/components/premium_status/component.#{locale}.yml"
@@ -223,7 +314,7 @@ describe PremiumStatus::Component, type: :component do
       de.each_value { |scenario| expect(scenario.keys - known_keys).to be_empty }
     end
 
-    # Two lines everywhere: the title names the reason, the description says
+    # One line everywhere: the title names the reason, the description says
     # what it means for the user.
     it 'gives every scenario a title, a description and an icon' do
       de.each_value do |scenario|

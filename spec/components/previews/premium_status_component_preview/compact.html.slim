@@ -1,0 +1,11 @@
+/ The layout of the preview pads the page by 20px on each side. The box fills
+/ the whole width of the device, so -mx-5 takes that padding back and the line
+/ breaks here are the ones a phone really shows.
+.flex.flex-col.gap-5.-mx-5
+  - scenarios.each do |scenario|
+    div
+      .px-5.mb-1.text-xs.font-mono.text-gray-400
+        = scenario[:label]
+
+      - component = PremiumStatus::Component.new(compact:, scenario: scenario[:name], ends_at: scenario[:ends_at])
+      = render component

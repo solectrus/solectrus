@@ -1,24 +1,32 @@
-.flex.items-start.gap-3.p-4.text-sm class=box_class
+.flex.text-sm class=[box_class, box_layout]
   - if icon
-    i.fa.fa-fw.fa-lg.shrink-0 class=[icon, 'mt-0.5'] aria-hidden='true'
+    i.fa.fa-fw.shrink-0 class=[icon, icon_layout] aria-hidden='true'
 
-  div
-    div
-      span.font-semibold
-        = title
+  div class=body_layout
+    / The name of the state. In the compact layout it holds the left edge.
+    span.font-semibold class=title_layout
+      = title
 
       - if countdown
-        span
+        span.font-normal
           = " · #{countdown}"
 
-    - if description
-      .mt-1
-        = description
+    / What the state means, and what the user can do about it. The compact
+    / layout keeps the two together and pushes them against the right edge, so
+    / the line carries text at both of its ends. The wide layout wants them as
+    / two lines of their own, so there this wrapper carries "contents" and
+    / leaves no box behind.
+    - if detail?
+      span class=detail_layout
+        / Renders nothing when the scenario has no description.
+        span class=description_layout
+          = description
 
-    - if cta_text
-      .mt-2
-        = link_to cta_link,
-                  class: 'underline underline-offset-2 font-medium',
-                  data: { turbo: false } do
-          = cta_text
-          span.ml-1 &rarr;
+        - if cta_text
+          span class=cta_layout
+            = cta_separator
+            = link_to cta_link,
+                      class: 'underline underline-offset-2 font-medium',
+                      data: { turbo: false } do
+              = cta_text
+              span.ml-1 &rarr;
