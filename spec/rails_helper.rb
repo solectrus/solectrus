@@ -1,6 +1,19 @@
 require 'simplecov'
 SimpleCov.start 'rails'
 
+# Every parallel_tests worker needs its own InfluxDB bucket, otherwise the
+# cleanup after one example deletes the points another worker just wrote.
+# config/application.rb reads INFLUX_BUCKET while it boots, so the name must be
+# final before config/environment is required below. That is also why dotenv
+# runs here instead of waiting for its railtie. Dotenv never overwrites a key
+# that ENV already has, so the later load by the railtie changes nothing.
+# spec/support/influx_bucket.rb creates the bucket if it does not exist yet.
+require 'dotenv'
+Dotenv.load('.env.test.local', '.env.test')
+
+# A plain bin/rspec run has no TEST_ENV_NUMBER, and the suffix is then empty.
+ENV['INFLUX_BUCKET'] = "#{ENV.fetch('INFLUX_BUCKET', nil)}#{ENV.fetch('TEST_ENV_NUMBER', nil)}"
+
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'

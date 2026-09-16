@@ -123,3 +123,13 @@ From `spec/support/system.rb`:
 - Don't test private methods or trivial code
 - Prefer real objects over mocks
 - Use mocks only for external APIs or expensive operations
+
+### Parallel Runs
+
+`bin/ci` runs the specs on several processes at the same time. Each process gets its own Postgres database and its own InfluxDB bucket. Both carry the number that `parallel_tests` puts into `TEST_ENV_NUMBER`. A plain `bin/rspec` run gets no such number and keeps the `solectrus_test` database and the `my-bucket` bucket.
+
+A spec must not depend on a name or a resource that all processes share:
+
+- Read the bucket name from `Rails.configuration.x.influx.bucket`. Do not write `my-bucket` into a spec.
+- Do not let one spec file depend on data that another spec file wrote. `parallel_tests` splits the files over the processes, and the two files can land in different processes.
+- If a spec needs a port or a file path of its own, put `TEST_ENV_NUMBER` into the name.

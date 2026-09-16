@@ -5,6 +5,7 @@ Rails 8.1 full-stack application for photovoltaic monitoring. PostgreSQL for rec
 ## Documentation
 
 - `docs/conventions.md` — frontend and testing conventions (ViewComponent, forms, Tailwind, RSpec, Playwright helpers)
+- `docs/ci.md` — `bin/ci`, its steps and how it runs them on several processes
 - `docs/sensor-overview.md` — sensor architecture and core concepts
 - `docs/sensor-reference.md` — sensor DSL and technical details
 - `docs/sensor-sql-queries.md` — SQL query patterns for daily+ timeframes
@@ -51,4 +52,4 @@ there is worth. See `spec/llm_test/README.md`.
 
 For display problems on iOS, the `ios-simulator` skill runs SOLECTRUS on an iPhone in the simulator, as a page in Safari or as the installed PWA.
 
-`bin/ci` runs the full gate: every linter above, the security audits, the asset build and both spec runs. It is what CI does, so use it before a release rather than after each change.
+`bin/ci` runs the full gate: every linter above, the security audits, the asset build and both spec runs. It is what CI does, so use it before a release rather than after each change. It runs the linters and the specs on several processes at the same time, which `docs/ci.md` describes.
