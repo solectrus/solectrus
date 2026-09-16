@@ -4,7 +4,9 @@
     / chevron right after it, so the gap stays constant for any selection.
     / The chevron uses currentColor, adapting to the surrounding text color.
     .inline-flex.items-center.gap-1.rounded.px-2.lg:hidden class= button_class
-      select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-sm.px-0[
+      / field-sizing-content shrink-wraps the select to its selected option in
+      / CSS. Where a browser lacks it, select_controller measures instead.
+      select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-sm.px-0.field-sizing-content[
         data-select-target= 'select'
         data-action= 'select#onChange'
         name= name
