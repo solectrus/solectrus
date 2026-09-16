@@ -23,7 +23,7 @@ export function setupServiceWorker() {
   // Where the built assets live: /vite/assets/ in production, /vite-test/assets/
   // under test. Taken from the URL of this very module, so the worker does not
   // need a second source of truth for it.
-  const assets = new URL('.', import.meta.url).pathname;
+  const assets = new URL(/* @vite-ignore */ '.', import.meta.url).pathname;
 
   // After load, so the registration never competes with the first paint for
   // bandwidth or main thread time.
