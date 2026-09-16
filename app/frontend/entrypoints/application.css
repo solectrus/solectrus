@@ -52,6 +52,16 @@
    inline styles of the page that first rendered it. See
    components/theme_strip/component.rb. */
 @media (width < 64rem) {
+  /* The fallback of 4rem is the height of the desktop navigation, which is
+     not here. What reaches the top edge below lg is the sub navigation of the
+     page, and that one can be shorter. The strip is fixed and paints over the
+     page, so it has to stay under the shortest of them. It only has to be
+     tall enough for the browser to read its color, and 8px is the measured
+     threshold (see the block below). */
+  :root {
+    --theme-strip-height: 16px;
+  }
+
   body.theme-strip-collapsed {
     --theme-strip-height: 0px;
   }

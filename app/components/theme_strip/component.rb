@@ -52,13 +52,15 @@ class ThemeStrip::Component < ViewComponent::Base
       'left: 0',
       'right: 0',
       # As high as the navigation gets, which is h-16 from the md breakpoint
-      # up. A page that starts its content at the top edge drops the variable
-      # to zero below lg, where no navigation stands above that content. An
-      # installed app keeps a low band there instead, because a strip of no
-      # height gives iOS nothing to read, see application.css. The page says
-      # which one it is on the body, because this element is permanent and
-      # keeps the styles it was rendered with. The fallback holds until the
-      # stylesheet arrives, which is when Safari reads the color.
+      # up. Below lg that navigation is gone, and the stylesheet drops the
+      # variable to a low band, because the strip is fixed and must stay under
+      # the shortest sub navigation. A page that starts its content at the top
+      # edge drops it to zero there. An installed app keeps the low band even
+      # then, because a strip of no height gives iOS nothing to read, see
+      # application.css. The page says which one it is on the body, because
+      # this element is permanent and keeps the styles it was rendered with.
+      # The fallback holds until the stylesheet arrives, which is when Safari
+      # reads the color.
       'height: var(--theme-strip-height, 4rem)',
       # Above the header background, below the navigation (z-40).
       'z-index: 1',
