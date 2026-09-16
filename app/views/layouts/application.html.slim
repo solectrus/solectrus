@@ -46,6 +46,9 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
       meta name="server-time" content= Time.current.to_i
       = vite_typescript_tag 'test', 'data-turbo-track': 'reload'
       = vite_stylesheet_tag 'test.css', 'data-turbo-track': 'reload', media: 'screen'
+    / Ahead of the stylesheet, so the font starts downloading with it instead
+    / of waiting for it to be parsed.
+    = render FontPreload::Component.new
     = vite_typescript_tag 'application', 'data-turbo-track': 'reload'
     = vite_stylesheet_tag 'application.css', 'data-turbo-track': 'reload', media: 'screen'
 
