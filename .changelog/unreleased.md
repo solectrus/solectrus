@@ -32,3 +32,5 @@ Keep every section, an empty one included.
 - Scrollbars and native form controls now follow the theme of the app. They followed the theme of the operating system before.
 
 ## Maintenance
+
+- Updated to Ruby 4.0.7
