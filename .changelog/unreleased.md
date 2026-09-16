@@ -24,6 +24,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- The month and day names in the charts now use the language you picked in SOLECTRUS. They followed the language of the browser, so a German app showed "Jan, Feb, Mar" when the browser was set to English.
 - The top of the app is sharp again when you open it from the home screen of an iPhone. iOS 26 and later paint a band of frosted glass over that edge, and it made the connection status behind it look blurred. The band also stayed on Essentials, Notifications and Settings, and it is gone there too. Add the app to your home screen again after this update, because iOS reads the setting only at that moment. (#5916)
 - The tooltip for the savings now fits on a phone screen. Its title and its explanation were too long, so the text was cut off. (#5917)
 - The Safari toolbar now has the same color as the app header, and keeps it while you move through the app. The color was too light, and it changed with every reload and with every page you opened. It still needs a moment to follow when you switch between the light and the dark theme.

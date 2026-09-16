@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { debounce } from 'throttle-debounce';
 import { isReducedMotion, isTouchEnabled } from '@/utils/device';
+import { appLocale } from '@/utils/locale';
 import * as Turbo from '@hotwired/turbo';
 
 import {
@@ -155,12 +156,6 @@ export default class extends Controller<HTMLCanvasElement> {
   private powerBalanceTooltip?: PowerBalanceTooltip;
   private genericTooltip?: GenericChartTooltip;
 
-  private sanitizeLocale(locale: string): string {
-    // Remove invalid suffixes like @posix that some browsers return
-    // e.g., "en-US@posix" -> "en-US"
-    return locale.split('@')[0];
-  }
-
   connect() {
     this.process();
 
@@ -250,7 +245,7 @@ export default class extends Controller<HTMLCanvasElement> {
     if (!options.scales?.x || !options.scales?.y) return;
 
     // I18n
-    this.locale = this.sanitizeLocale(navigator.language) || 'en';
+    this.locale = appLocale();
     // Set locale for time-based charts (skip for scatter charts with linear x-axis)
     applyLocaleToTimeScale(options.scales.x as TimeScaleOptions, this.locale);
 

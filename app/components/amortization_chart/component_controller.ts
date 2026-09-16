@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { debounce } from 'throttle-debounce';
 import { isReducedMotion } from '@/utils/device';
+import { appLocale } from '@/utils/locale';
 import * as Turbo from '@hotwired/turbo';
 
 import {
@@ -102,7 +103,7 @@ export default class extends Controller<HTMLDivElement> {
 
   // Intl formatters are expensive to construct and the annotation plugin's
   // afterDraw re-runs them every frame, so build each lazily and reuse it.
-  private localeName = navigator.language.split('@')[0];
+  private localeName = appLocale();
   private currencyFormatter?: Intl.NumberFormat;
   private percentFormatter?: Intl.NumberFormat;
   private currencyShortWhole?: Intl.NumberFormat;
