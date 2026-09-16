@@ -85,19 +85,34 @@ jobs:
       RUBY_YJIT_ENABLE: 1
       LANG: de_DE.UTF-8
 
+      # The runner has four cores. Every worker boots Rails once before it
+      # runs an example, so more workers than cores cost more than they
+      # return. config/ci.rb holds the measurements behind the same limit
+      # for bin/ci, which has run the unit specs this way all along.
+      UNIT_WORKERS: 4
+
     steps:
       - uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup
 
+      # One database per worker, numbered by TEST_ENV_NUMBER.
+      # config/database.yml turns that number into the database name.
       - name: Setup PostgreSQL
-        run: bin/rails db:create db:migrate
+        run: bin/rake "parallel:create[$UNIT_WORKERS]" "parallel:load_schema[$UNIT_WORKERS]"
 
       - name: Build Vite assets for test
         run: bunx vite build --mode test
 
-      - name: Run Unit tests with RSpec
-        run: bin/rspec --exclude-pattern "spec/system/**/*_spec.rb"
+      # No runtime log here: the unit specs split by file size, and
+      # config/ci.rb says why that beats a split by runtime for them.
+      - name: Run Unit tests with RSpec (${{ env.UNIT_WORKERS }} processes)
+        run: |
+          bundle exec parallel_rspec -n "$UNIT_WORKERS" \
+            --serialize-stdout --combine-stderr \
+            --exclude-pattern "spec/system/" \
+            -o "--format progress" \
+            spec
         env:
           SKIP_VITE_BUILD: 1
           COVERAGE_NAME: unit
@@ -285,7 +300,9 @@ jobs:
 
   ci-success:
     runs-on: ubuntu-24.04
-    needs: [lint, unit-test, system-test, coverage-report, docker-build]
+    # coverage-report is not a gate. It uploads to Qlty and caches the
+    # runtime log, and waiting for it only holds up publish.
+    needs: [lint, unit-test, system-test, docker-build]
     if: always()
     timeout-minutes: 5
     steps:
