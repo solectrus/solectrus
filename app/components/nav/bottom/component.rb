@@ -4,7 +4,8 @@ class Nav::Bottom::Component < ViewComponent::Base
 
   MAX_BAR_ITEMS = 4
   PILL_BASE = 'flex items-center justify-center px-3 py-1 min-h-7'.freeze
-  PILL_ACTIVE = 'bg-white/20 rounded-full group-has-aria-expanded:bg-transparent'.freeze
+  PILL_ACTIVE =
+    'bg-white/20 rounded-full group-has-[[aria-expanded=true]]/nav:bg-transparent'.freeze
   private_constant :MAX_BAR_ITEMS, :PILL_BASE, :PILL_ACTIVE
 
   def initialize(items:, secondary_items:)

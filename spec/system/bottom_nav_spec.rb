@@ -11,6 +11,20 @@ describe 'Bottom navigation (mobile)' do
     expect(page).to have_current_path(%r{/inverter_power/})
   end
 
+  # optimistic-nav moves the marking to the tapped item before the page it
+  # points to arrives, and the page then brings the marking of the server. Both
+  # have to end up on the same item, and on one item only.
+  it 'marks exactly one item after a navigation' do
+    visit '/'
+
+    within('nav[aria-label="Main navigation"]') do
+      click_on 'Erzeugung'
+
+      expect(page).to have_css('a[aria-current]', count: 1)
+      expect(page).to have_css('a[aria-current][aria-label="Erzeugung"]')
+    end
+  end
+
   it 'toggles the "More" menu with extra and secondary items' do
     visit '/'
 

@@ -365,6 +365,15 @@
   .click-animation {
     @apply transition-transform duration-100 group-active:scale-95 active:scale-95;
   }
+
+  /* On touch, `:active` comes too late to read as a reaction, so
+     setupTapFeedback.ts marks the pressed link on `pointerdown` instead. The
+     descendant rule mirrors `group-active:`, for the targets that carry the
+     animation on an inner element. */
+  .click-animation.is-pressed,
+  .is-pressed .click-animation {
+    @apply scale-95;
+  }
 }
 
 @utility stripes {

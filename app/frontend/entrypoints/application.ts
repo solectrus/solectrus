@@ -6,8 +6,10 @@ import '@/utils/setupHoneyBadger';
 import '@/utils/setupStimulus';
 import { metaContent } from '@/utils/metaContent';
 import { setupServiceWorker } from '@/utils/setupServiceWorker';
+import { setupTapFeedback } from '@/utils/setupTapFeedback';
 
 setupServiceWorker();
+setupTapFeedback();
 
 if (metaContent('env') != 'development') {
   // Prevent right-click on touch devices

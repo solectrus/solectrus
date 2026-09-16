@@ -1,6 +1,8 @@
 nav.w-full.flex.items-stretch.justify-between.lg:landscape:justify-start.gap-1.font-medium.uppercase.sm:landscape:text-sm.md:landscape:text-base.md:landscape:tracking-wider.lg:landscape:gap-0.lg:landscape:space-x-4[
   aria-label="Tabs"
   class=(abbreviate ? 'text-sm' : 'text-xs sm:text-sm')
+  data-controller="optimistic-nav"
+  data-action="turbo:click->optimistic-nav#markCurrent turbo:fetch-request-error@document->optimistic-nav#restore turbo:load@document->optimistic-nav#settle"
 ]
   - items.each do |item|
     = item
