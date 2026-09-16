@@ -165,4 +165,31 @@ describe ThemeConfig do
       expect(chrome_color('\.dark')).to eq(described_class::DARK_COLOR)
     end
   end
+
+  # The offline page has no build step and no server, so it carries the two
+  # colors by hand. This is the third copy, and the only one Rails never
+  # renders. Without this spec it drifts and nobody sees it, because the page
+  # only shows up when the app is unreachable.
+  describe 'the colors of the offline page' do
+    let(:page) { Rails.public_path.join('offline.html').read }
+
+    # The light values come first in the file, the dark ones inside the
+    # prefers-color-scheme block, so the first match is light and the second
+    # one is dark.
+    def colors(pattern)
+      page.scan(pattern).flatten
+    end
+
+    it 'uses both colors for the theme-color meta tags' do
+      expect(colors(/<meta\s+name="theme-color".*?content="(#\h{6})"/m)).to eq(
+        [described_class::LIGHT_COLOR, described_class::DARK_COLOR],
+      )
+    end
+
+    it 'uses both colors for the chrome of the page' do
+      expect(colors(/--chrome:\s*(#\h{6})/)).to eq(
+        [described_class::LIGHT_COLOR, described_class::DARK_COLOR],
+      )
+    end
+  end
 end

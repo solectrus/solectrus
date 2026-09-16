@@ -69,6 +69,7 @@ Rails.application.configure do
         ].compact,
       )
       policy.manifest_src :self
+      policy.worker_src :self
       policy.frame_ancestors(*Rails.configuration.x.frame_ancestors || [:none])
     end
     policy.base_uri :self

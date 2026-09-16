@@ -1,0 +1,154 @@
+<!doctype html>
+<!--
+  Shown by public/service-worker.js when a page cannot be reached.
+
+  It is deliberately plain: no build step, no stylesheet, no web font, no script.
+  Whatever it needs has to survive a browser that cannot reach the server at all.
+
+  The layout follows app/views/layouts/blank.html.slim, which is what the app
+  uses for its own standalone pages: the chrome color over the whole viewport,
+  the logo behind it at low opacity, and one light panel carrying the text. So
+  this reads as SOLECTRUS without data, not as a generic error page.
+
+  It carries both languages, and the service worker sets the lang attribute
+  before it hands the page over.
+-->
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#312e81"
+    />
+    <title>SOLECTRUS</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --chrome: #4f46e5;
+        --panel-from: #f3f4f6;
+        --panel-to: #ffffff;
+        --heading: #374151;
+        --body: #4b5563;
+        --button: #4f46e5;
+        --button-hover: #4338ca;
+        --button-text: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --chrome: #312e81;
+          --panel-from: #0f172a;
+          --panel-to: #1e293b;
+          --heading: #cbd5e1;
+          --body: #94a3b8;
+          --button: #3730a3;
+          --button-hover: #312e81;
+          --button-text: #d1d5db;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: var(--chrome);
+        font-family: Inter, system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* The watermark of the blank layout: the logo, fixed behind everything. */
+      body > svg {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.1;
+        fill: #a5b4fc;
+      }
+      .panel {
+        position: relative;
+        width: 100%;
+        padding: 2.5rem 1rem;
+        background: linear-gradient(
+          to top right,
+          var(--panel-from),
+          var(--panel-to)
+        );
+      }
+      .inner {
+        max-width: 80rem;
+        margin: 0 auto;
+        padding: 0 0.5rem;
+        font-size: 1.125rem;
+      }
+      h1 {
+        margin: 0;
+        color: var(--heading);
+        font-size: 1.5rem;
+        font-weight: 500;
+      }
+      p {
+        margin: 1.25rem 0 0;
+        max-width: 38rem;
+        color: var(--body);
+        line-height: 1.6;
+      }
+      a {
+        display: inline-block;
+        margin-top: 1.75rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        background: var(--button);
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+        color: var(--button-text);
+        font-size: 1rem;
+        font-weight: 500;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+      a:hover {
+        background: var(--button-hover);
+      }
+      html[lang='en'] .de,
+      html:not([lang='en']) .en {
+        display: none;
+      }
+      @media (min-width: 768px) {
+        h1 {
+          font-size: 1.875rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg viewBox="0 0 1200 1200" aria-hidden="true">
+      <path
+        d="m747.775 44.2c245.861 65.31 427.225 289.542 427.225 555.8 0 314.622-253.236 570.56-566.779 574.94 41.679-83.59 94.576-189.745 151.182-303.438 149.04-299.567 230.764-466.538 231.549-473.168 1.31-9.085.524-11.05-8.905-20.381-17.026-17.188-11.002-17.924-205.095 26.765-94.296 21.854-173.662 40.27-176.019 41.006-2.881.737-4.715 0-4.715-1.964 0-1.719 34.313-89.87 75.961-195.946 41.909-105.831 75.961-195.946 75.961-199.63 0-1.331-.124-2.661-.365-3.984zm-367.512 24.346c-39.478 141.435-171.707 647.798-171.707 660.539 0 16.943 17.026 31.921 36.147 31.921 4.191 0 88.272-18.907 186.497-41.743 98.487-23.081 179.686-41.497 180.734-41.252 1.048.491-37.456 151.503-85.39 335.909-14.918 57.08-27.922 107.14-38.984 150.07-263.581-52.32-462.56-285.102-462.56-563.99 0-239.537 146.788-445.06 355.263-531.454z"
+      />
+    </svg>
+
+    <div class="panel">
+      <div class="inner de">
+        <h1>Keine Verbindung</h1>
+        <p>
+          Dein Gerät hat SOLECTRUS nicht erreicht. Prüfe dein Netzwerk und
+          versuche es noch einmal.
+        </p>
+        <a href="/">Erneut versuchen</a>
+      </div>
+
+      <div class="inner en">
+        <h1>No connection</h1>
+        <p>
+          Your device did not reach SOLECTRUS. Check your network and try again.
+        </p>
+        <a href="/">Try again</a>
+      </div>
+    </div>
+  </body>
+</html>

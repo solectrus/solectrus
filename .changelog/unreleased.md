@@ -15,6 +15,8 @@ Keep every section, an empty one included.
 
 ## New features
 
+- SOLECTRUS now tells you when your device cannot reach it. You saw the error page of the browser before, which does not say which app failed. The page comes in your language and offers to try again.
+
 ## Improvements
 
 - The app description that your device shows for the installed app now uses your language. It was always English before.

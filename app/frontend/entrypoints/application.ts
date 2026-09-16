@@ -5,6 +5,9 @@ import.meta.glob('../images/**', { eager: true });
 import '@/utils/setupHoneyBadger';
 import '@/utils/setupStimulus';
 import { metaContent } from '@/utils/metaContent';
+import { setupServiceWorker } from '@/utils/setupServiceWorker';
+
+setupServiceWorker();
 
 if (metaContent('env') != 'development') {
   // Prevent right-click on touch devices
