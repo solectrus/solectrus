@@ -19,6 +19,14 @@ const LONG_PRESS_MOVE_TOLERANCE = 10;
 // starts at the padding box of its container
 const ARROW_STATIC_OFFSET = '-7px';
 
+// The one tooltip element of the document and the two nodes inside it that a
+// controller writes to
+interface SharedTooltip {
+  tooltip: HTMLElement;
+  content: HTMLElement;
+  arrow: HTMLElement;
+}
+
 /**
  * Tooltip controller using Floating UI
  *
@@ -46,6 +54,23 @@ const ARROW_STATIC_OFFSET = '-7px';
  */
 export default class TooltipController extends Controller {
   private static activeTooltip: TooltipController | null = null;
+
+  // One tooltip element for the whole document, built on first use. At most
+  // one tooltip stands on the screen anyway, because `setActiveTooltip` hides
+  // the one before it, so a single element does what one element per
+  // controller did.
+  //
+  // It is also what keeps the box still on a Turbo render. Such a render
+  // replaces the element a tooltip hangs on, so its controller disconnects
+  // and the one on the new element takes over. Both drive the same box, and
+  // that box keeps the opacity and the scale it has: `disconnect` drops the
+  // `show` class, the stylesheet fades the box out over 200ms, and the
+  // controller that takes over puts the class back and turns the fade around.
+  // Nothing here measures time - the transition is the window.
+  //
+  // A tooltip of its own per controller had to be built and to grow from
+  // nothing every time, although the pointer never moved - a blink.
+  private static sharedTooltip: SharedTooltip | null = null;
 
   static readonly values = {
     // Where to place the tooltip relative to the target element
@@ -81,9 +106,6 @@ export default class TooltipController extends Controller {
   declare delegateValue: boolean;
   declare readonly hasHtmlTarget: boolean;
 
-  private tooltip: HTMLElement | null = null;
-  private tooltipContent: HTMLElement | null = null;
-  private arrowElement: HTMLElement | null = null;
   private positionCleanup: (() => void) | null = null;
   private overlay: HTMLElement | null = null;
   private titleObserver: MutationObserver | null = null;
@@ -115,14 +137,12 @@ export default class TooltipController extends Controller {
     const content = this.getContent();
     if (!content) return;
 
-    this.createTooltip(content);
     this.setupEventListeners();
   }
 
   private connectDelegated(): void {
     if (!this.supportsHover()) return;
 
-    this.createTooltip();
     this.element.addEventListener(
       'pointerenter',
       this.handleDelegatedPointerEnter,
@@ -136,14 +156,12 @@ export default class TooltipController extends Controller {
   }
 
   disconnect() {
-    // Release active tooltip reference to prevent stale references
+    // The tooltip element outlives every controller, so only the controller
+    // that put it on the screen may take it down. For every other one this
+    // does nothing, which is what leaves the box alone when a Turbo render
+    // replaces an unrelated element.
+    this.hide();
     TooltipController.releaseActiveTooltip(this);
-
-    // Common cleanup
-    if (this.isVisible) {
-      this.removeOverlay();
-      this.isVisible = false;
-    }
 
     if (this.touchTimer) {
       clearTimeout(this.touchTimer);
@@ -171,9 +189,6 @@ export default class TooltipController extends Controller {
     } else {
       this.removeEventListeners();
     }
-
-    this.hideTooltip();
-    this.cleanupTooltip();
   }
 
   private watchTitle(): void {
@@ -330,7 +345,7 @@ export default class TooltipController extends Controller {
   };
 
   private readonly show = async (): Promise<void> => {
-    if (!this.tooltip || this.isVisible) return;
+    if (this.isVisible) return;
 
     const content = this.getContent();
     if (!content) return;
@@ -359,7 +374,7 @@ export default class TooltipController extends Controller {
     await this.showTooltipAt(target, this.effectivePlacement);
 
     // Check if controller was disconnected during async operation
-    if (!this.tooltip || !this.isVisible) return;
+    if (!this.isVisible) return;
 
     if (observeElement) {
       this.observeContentChanges(observeElement);
@@ -369,7 +384,7 @@ export default class TooltipController extends Controller {
   }
 
   readonly hide = (): void => {
-    if (!this.isVisible || !this.tooltip) return;
+    if (!this.isVisible) return;
 
     this.isVisible = false;
     this.openedByTouch = false;
@@ -419,42 +434,60 @@ export default class TooltipController extends Controller {
     }
   }
 
+  private get tooltip(): HTMLElement {
+    return TooltipController.shared().tooltip;
+  }
+
+  private get tooltipContent(): HTMLElement {
+    return TooltipController.shared().content;
+  }
+
+  private get arrowElement(): HTMLElement {
+    return TooltipController.shared().arrow;
+  }
+
   /**
-   * Creates the tooltip element with arrow
+   * Builds the one tooltip element with arrow, on first use
    * Note: Does not append to DOM yet - that happens in ensureTooltipInCorrectContainer()
    */
-  private createTooltip(initialContent = ''): void {
-    this.tooltip = document.createElement('div');
-    this.tooltip.className = 'floating-tooltip';
+  private static shared(): SharedTooltip {
+    if (TooltipController.sharedTooltip) return TooltipController.sharedTooltip;
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'floating-tooltip';
 
     // The inner element carries the box and the show animation. It is kept
     // apart from the outer element because Floating UI measures the outer one,
     // and a transform would falsify that measurement (see the stylesheet).
     const inner = document.createElement('div');
     inner.className = 'floating-tooltip-inner';
-    this.tooltip.appendChild(inner);
+    tooltip.appendChild(inner);
 
-    this.tooltipContent = document.createElement('div');
-    this.tooltipContent.className = 'floating-tooltip-content';
-    if (initialContent) {
-      this.tooltipContent.innerHTML = initialContent;
-    }
-    inner.appendChild(this.tooltipContent);
+    const content = document.createElement('div');
+    content.className = 'floating-tooltip-content';
+    inner.appendChild(content);
 
-    this.arrowElement = document.createElement('div');
-    this.arrowElement.className = 'floating-tooltip-arrow';
-    inner.appendChild(this.arrowElement);
+    const arrowElement = document.createElement('div');
+    arrowElement.className = 'floating-tooltip-arrow';
+    inner.appendChild(arrowElement);
+
+    TooltipController.sharedTooltip = { tooltip, content, arrow: arrowElement };
+
+    return TooltipController.sharedTooltip;
   }
 
   /**
-   * Ensures the tooltip is in the correct container (dialog or body)
+   * Ensures the tooltip is in the correct container (dialog or root element)
    * Called before showing the tooltip to handle dynamic dialog opening
    */
   private ensureTooltipInCorrectContainer(): void {
-    if (!this.tooltip) return;
-
     const openDialog = document.querySelector('dialog[open]');
-    const desiredParent = openDialog || document.body;
+
+    // The root element, not `body`: Turbo replaces the body on every visit and
+    // drops what a script appended to it. A child of the root element is left
+    // where it is, and so is the fade it is in the middle of. That is what
+    // lets one controller hand the box to the next.
+    const desiredParent = openDialog || document.documentElement;
 
     // Append to correct parent if not already there
     if (this.tooltip.parentElement !== desiredParent) {
@@ -466,8 +499,6 @@ export default class TooltipController extends Controller {
    * Updates the tooltip content, preserving the arrow element
    */
   private updateTooltipContent(content: string): void {
-    if (!this.tooltipContent) return;
-
     this.tooltipContent.innerHTML = content;
   }
 
@@ -478,9 +509,7 @@ export default class TooltipController extends Controller {
     target: HTMLElement,
     placement: Placement = 'bottom',
   ): Promise<void> {
-    if (!this.tooltip) return;
-
-    // Ensure tooltip is in correct container (dialog or body)
+    // Ensure tooltip is in correct container (dialog or root element)
     this.ensureTooltipInCorrectContainer();
 
     // The stylesheet limits the width of a tooltip that stands beside its
@@ -494,10 +523,24 @@ export default class TooltipController extends Controller {
 
     await this.updateTooltipPosition(target, placement);
 
+    // The line above waits, and this controller can go away while it does.
+    // The element is shared, so a `show` and a watcher left behind here would
+    // act on the tooltip of whoever comes next.
+    if (!this.isVisible) return;
+
     this.tooltip.classList.add('show');
 
-    this.positionCleanup = autoUpdate(target, this.tooltip, () =>
-      this.updateTooltipPosition(target, placement),
+    // `layoutShift` reports every move of the target, and a press is such a
+    // move: `click-animation` scales the target to 95%, which lifts the edge
+    // the tooltip hangs on by a pixel, and the tooltip would follow. A tooltip
+    // is open while the pointer rests on its target, and a target does not
+    // travel on its own in that moment, so nothing is lost. Scrolling and
+    // resizing still reposition the tooltip.
+    this.positionCleanup = autoUpdate(
+      target,
+      this.tooltip,
+      () => this.updateTooltipPosition(target, placement),
+      { layoutShift: false },
     );
   }
 
@@ -505,8 +548,6 @@ export default class TooltipController extends Controller {
    * Hides the tooltip and stops position updates
    */
   private hideTooltip(): void {
-    if (!this.tooltip) return;
-
     this.tooltip.classList.remove('show');
 
     this.positionCleanup?.();
@@ -520,8 +561,6 @@ export default class TooltipController extends Controller {
     target: HTMLElement,
     placement: Placement = 'bottom',
   ): Promise<void> {
-    if (!this.tooltip || !this.arrowElement) return;
-
     const {
       x,
       y,
@@ -590,18 +629,5 @@ export default class TooltipController extends Controller {
     if (TooltipController.activeTooltip === controller) {
       TooltipController.activeTooltip = null;
     }
-  }
-
-  /**
-   * Cleans up the tooltip when the controller disconnects
-   */
-  private cleanupTooltip(): void {
-    this.positionCleanup?.();
-    this.positionCleanup = null;
-
-    this.tooltip?.remove();
-    this.tooltip = null;
-    this.tooltipContent = null;
-    this.arrowElement = null;
   }
 }
