@@ -49,4 +49,6 @@ or the server instructions change — never as part of a normal test run. Before
 you add prose to a description, `--ablate` measures what the sentence already
 there is worth. See `spec/llm_test/README.md`.
 
+For display problems on iOS, the `ios-simulator` skill runs SOLECTRUS on an iPhone in the simulator, as a page in Safari or as the installed PWA.
+
 `bin/ci` runs the full gate: every linter above, the security audits, the asset build and both spec runs. It is what CI does, so use it before a release rather than after each change.
