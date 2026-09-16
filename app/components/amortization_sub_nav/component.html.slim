@@ -1,7 +1,12 @@
 /! Sub-navigation in the top bar: switch between the chart and the table, each
 /! its own URL. The parameter sliders sit at the right edge - inline on desktop,
 /! behind a dropdown on mobile.
-.flex.items-center.gap-4.pt-2.pb-3.lg:landscape:py-5
+/!
+/! py-2 on a phone: the row is 40px high, because the two icon buttons keep a
+/! tap target of that size. An equal padding puts the row in the middle of the
+/! bar. pt-2/pb-3 had made the bar 4px higher than it has to be, and it had
+/! pushed the row up by 4px.
+.flex.items-center.gap-4.py-2.lg:landscape:py-5
   .flex-1.min-w-0
     = render Nav::Sub::Component.new(abbreviate: false) do |c|
       = c.with_items nav_items
