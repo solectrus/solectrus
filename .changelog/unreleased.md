@@ -15,29 +15,29 @@ Keep every section, an empty one included.
 
 ## New features
 
-- SOLECTRUS now tells you when your device cannot reach it. You saw the error page of the browser before, which does not say which app failed. The page comes in your language and offers to try again.
+- SOLECTRUS now shows its own page when your device is offline, with a button to try again. You saw the error page of the browser before.
 
 ## Improvements
 
-- The app description that your device shows for the installed app now uses your language. It was always English before.
-- A cancelled sponsorship now shows the days that are left. The status said that the sponsorship is active and named no end, so the last day came without warning.
-- The sponsoring status in the menu of a phone now takes one line, with its two texts at the left and the right edge, and it sits directly above the navigation bar. It took two lines and stood in the empty space below the color buttons. The texts are shorter there, and the box drops the explanation next to a button, because the button already says what you can do. The sidebar on a large screen keeps the layout and the texts it had.
-- The text of a notification is now easier to read on a phone. It was 14px there and 16px on a large screen, and the lines sat closer together than they do now.
-- The page appears sooner on a phone. The app measured the width of the chart selector before it painted anything, and that measurement held the first picture back. The selector also sits closer to its arrow now, because the old measurement made it too wide.
-- The navigation bar and the timeframe tabs answer a tap at once on a phone. The marker moves to the item you tapped, and the item gets smaller while your finger is on it. Nothing happened for about half a second before, until the new page arrived.
-- The icons now arrive with the page. The browser had to build all 60 of them on every page you opened, which took work away from the rest of the page and made the icons jump into place a moment late. The app also sends 33 kB less to your browser.
+- The navigation bar and the timeframe tabs now react to a tap at once on a phone. Nothing happened for about half a second, until the new page arrived.
+- The page appears sooner on a phone. The chart selector is also narrower and sits closer to its arrow.
+- The icons now come from the server, as SVG in the page itself. JavaScript built them in the browser before, so they arrived a moment late and the page moved a little when they did.
+- The text of a notification is now bigger on a phone, with more space between the lines.
+- The installed app now shows its description in your language. It was always English before.
+- A cancelled sponsorship now shows the days that are left. The status said "active" and named no end.
+- On a phone, the sponsoring status now takes one line above the navigation bar. It took two lines below the color buttons.
 
 ## Fixes
 
-- The month and day names in the charts now use the language you picked in SOLECTRUS. They followed the language of the browser, so a German app showed "Jan, Feb, Mar" when the browser was set to English.
-- The top of the app is sharp again when you open it from the home screen of an iPhone. iOS 26 and later paint a band of frosted glass over that edge, and it made the connection status behind it look blurred. The band also stayed on Essentials, Notifications and Settings, and it is gone there too. Add the app to your home screen again after this update, because iOS reads the setting only at that moment. (#5916)
-- The tooltip for the savings now fits on a phone screen. Its title and its explanation were too long, so the text was cut off. (#5917)
-- The Safari toolbar now has the same color as the app header, and keeps it while you move through the app. The color was too light, and it changed with every reload and with every page you opened. It still needs a moment to follow when you switch between the light and the dark theme.
-- The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors and switched over once the browser had read your choice. Pick your theme and your color palette again after this update, because the app now keeps both in a different place.
-- The page opens in the dark theme right away when your system is set to dark and you follow it. It painted light first and turned dark a moment later.
-- Scrollbars and native form controls now follow the theme of the app. They followed the theme of the operating system before.
-- The tooltip of the main navigation now stays calm when you click an item. It went away and appeared again twice, because the new page and the updated navigation each built it anew. It also moved up by one pixel while the mouse button was down.
-- The menu no longer offers "Fullscreen" on an iPhone, where Safari has no fullscreen mode. The item rarely appeared, only after the page reloaded itself, and a tap on it produced an error.
+- The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors. Pick your theme and your color palette again after this update, because the app cannot take over your old choice.
+- The page opens in the dark theme right away when your system is set to dark and you follow it. It painted light first.
+- The top of the app is sharp again when you open it from the home screen of an iPhone. iOS 26 and later painted a band of frosted glass over that edge. Add the app to your home screen again after this update, because iOS reads the setting only at that moment. (#5916)
+- The month and day names in the charts now follow the language you picked in SOLECTRUS. They followed the language of the browser.
+- Scrollbars and native form controls now follow the theme of the app, not the theme of the operating system.
+- The Safari toolbar now keeps the color of the app header. The color was too light, and it changed with every reload and every page. It still needs a moment when you switch between the light and the dark theme.
+- The tooltip for the savings now fits on a phone screen. Its text was too long and was cut off. (#5917)
+- The tooltip of the main navigation stays calm when you click an item. It went away and appeared again twice.
+- The menu no longer offers "Fullscreen" on an iPhone, where Safari has no fullscreen mode. A tap on it produced an error.
 
 ## Maintenance
 
