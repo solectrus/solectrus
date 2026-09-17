@@ -30,6 +30,13 @@ export type ChartDataWithOverlap = ChartData & {
   overlapping?: boolean;
 };
 
+// The lowest and highest value of what is shown together: the axis for a
+// tick, the lines of one tooltip for a tooltip.
+export type Range = {
+  min: number;
+  max: number;
+};
+
 export type ColorScaleStop = {
   value: number;
   colorClass: string;

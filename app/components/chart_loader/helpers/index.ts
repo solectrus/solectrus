@@ -36,14 +36,13 @@ export {
 } from './power_balance';
 export { default as GenericChartTooltip } from './generic_chart_tooltip';
 export { default as PowerBalanceTooltip } from './power_balance_tooltip';
-export {
-  buildTooltipCallbacks,
-  isTemperatureDataset,
-} from './tooltip_callbacks';
+export { buildTooltipCallbacks } from './tooltip_callbacks';
 export { ensureFixedBottomTooltipPositioner } from './tooltip_positioner';
+export { tooltipRange } from './tooltip_range';
 export type {
   DatasetWithId,
   ExtendedTickOptions,
+  Range,
   TimeScaleOptions,
   TooltipConfig,
 } from './types';

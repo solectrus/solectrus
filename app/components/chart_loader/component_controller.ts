@@ -69,8 +69,8 @@ import {
 import {
   buildTooltipCallbacks,
   GenericChartTooltip,
-  isTemperatureDataset,
   PowerBalanceTooltip,
+  tooltipRange,
 } from './helpers';
 
 // Data & formatting
@@ -82,7 +82,7 @@ import {
   maxOf,
   minOf,
 } from './helpers';
-import type { DatasetWithId, TimeScaleOptions, TooltipConfig } from './helpers';
+import type { Range, TimeScaleOptions, TooltipConfig } from './helpers';
 
 Chart.register(
   LineElement,
@@ -259,7 +259,7 @@ export default class extends Controller<HTMLCanvasElement> {
     applyTooltipTheme(options, this.getCssVar.bind(this));
 
     applyYAxisTickFormatter(options, (value, target) =>
-      this.formattedNumber(value, target),
+      this.formattedNumber(value, { target }),
     );
     applyXAxisTemperatureFormatter(options);
     applyZeroLineHighlight(options, axisColors);
@@ -347,7 +347,11 @@ export default class extends Controller<HTMLCanvasElement> {
       buildTooltip: () => {
         const useKilo = this.typeValue !== 'line';
         return new PowerBalanceTooltip(
-          (value) => this.formattedNumber(Math.abs(value), 'tooltip', useKilo),
+          (value) =>
+            this.formattedNumber(Math.abs(value), {
+              autoKilo: useKilo,
+              range: tooltipRange(this.chart?.tooltip?.dataPoints),
+            }),
           this.sourceLabelValue,
           this.usageLabelValue,
         );
@@ -377,7 +381,8 @@ export default class extends Controller<HTMLCanvasElement> {
     tooltip.callbacks = buildTooltipCallbacks(
       {
         locale: this.locale,
-        formattedNumber: (value) => this.formattedNumber(value),
+        formattedNumber: (value, range) =>
+          this.formattedNumber(value, { range }),
         extractNumericValue,
       },
       data,
@@ -402,56 +407,36 @@ export default class extends Controller<HTMLCanvasElement> {
       return JSON.parse(this.optionsTarget.textContent);
   }
 
+  // Without a range, the axis scales the value.
   private formattedNumber(
     number: number,
-    target: 'axis' | 'tooltip' = 'tooltip',
-    autoKilo: boolean = true,
-    unit: string = this.unitValue,
+    {
+      target = 'tooltip',
+      autoKilo = true,
+      range,
+    }: {
+      target?: 'axis' | 'tooltip';
+      autoKilo?: boolean;
+      range?: Range;
+    } = {},
   ) {
-    const { min: minValue, max: maxValue } =
-      (target === 'tooltip' ? this.tooltipRange() : undefined) ??
-      this.axisRange();
     return formatNumber(number, {
       target,
       autoKilo,
-      unitValue: unit,
+      unitValue: this.unitValue,
       currency: this.currencyValue,
       locale: this.locale,
-      minValue,
-      maxValue,
+      range: range ?? this.axisRange(),
     });
   }
 
   // The range of the axis, for everything that is not shown inside one
   // tooltip. Both ends come from the same source, so they never mix.
-  private axisRange(): { min: number; max: number } {
+  private axisRange(): Range {
     return {
       min: this.chart?.scales.y.min ?? this.minValue,
       max: this.chart?.scales.y.max ?? this.maxValue,
     };
-  }
-
-  // The values the open tooltip shows at once. They scale it instead of the
-  // axis, so a tooltip of small values stays in watts while the axis is in
-  // kilowatts. Chart.js fills dataPoints before it renders, so every line of
-  // one tooltip reads the same range and they keep one unit. Datasets of
-  // another quantity (a temperature, named tooltip fields) stay out: they must
-  // not scale the others.
-  private tooltipRange(): { min: number; max: number } | undefined {
-    const values = (this.chart?.tooltip?.dataPoints ?? [])
-      .filter((point) => {
-        const dataset = point.dataset as DatasetWithId;
-        return !dataset.tooltipFields?.length && !isTemperatureDataset(dataset);
-      })
-      .flatMap((point) => [
-        extractNumericValue(point.raw, 'min'),
-        extractNumericValue(point.raw, 'max'),
-      ])
-      .filter((value) => value !== null);
-
-    if (!values.length) return;
-
-    return { min: Math.min(...values), max: Math.max(...values) };
   }
 
   private handleDblClick() {

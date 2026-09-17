@@ -1,4 +1,6 @@
 // Number and interval formatting for axes and tooltips.
+import type { Range } from './types';
+
 type FormatTarget = 'axis' | 'tooltip';
 
 type FormatOptions = {
@@ -7,10 +9,7 @@ type FormatOptions = {
   unitValue: string;
   currency: string;
   locale: string;
-  // The range of the values that are shown together: the axis for a tick, the
-  // lines of one tooltip for a tooltip.
-  minValue: number;
-  maxValue: number;
+  range: Range;
 };
 
 // Determines min/max decimal places based on target, unit, and range.
@@ -19,21 +18,19 @@ export const getDecimalPlaces = (
   kilo: boolean,
   isCurrency: boolean,
   unitValue: string,
-  minValue: number,
-  maxValue: number,
+  { min, max }: Range,
 ): { minDecimals: number; maxDecimals: number } => {
   if (kilo) {
     // Decide from the largest value of the range, so all lines in a tooltip
     // share the same precision. Above 100 kWh the fractional digit is just
     // noise (e.g. 523,7 kWh), so drop it; keep it for smaller values.
-    const kiloMax = Math.max(Math.abs(minValue), Math.abs(maxValue)) / 1000;
+    const kiloMax = Math.max(Math.abs(min), Math.abs(max)) / 1000;
     const maxDecimals = kiloMax >= 100 ? 0 : 1;
     return { minDecimals: 0, maxDecimals };
   }
 
   if (isCurrency) {
-    const showDecimals =
-      target === 'axis' ? maxValue < 10 : minValue < 10 && maxValue < 100;
+    const showDecimals = target === 'axis' ? max < 10 : min < 10 && max < 100;
     const decimals = showDecimals ? 2 : 0;
     return { minDecimals: decimals, maxDecimals: decimals };
   }
@@ -75,8 +72,7 @@ export const formatNumber = (
     unitValue,
     currency,
     locale,
-    minValue,
-    maxValue,
+    range,
   }: FormatOptions,
 ): string => {
   let unitValuePrefix = '';
@@ -85,7 +81,8 @@ export const formatNumber = (
   // Decide the kilo prefix from the range, not per value, so everything that
   // is shown together shares one unit (e.g. all kWh, never a mix of "48 kWh"
   // and "464 Wh").
-  const kilo = autoKilo && !isCurrency && (maxValue > 1000 || minValue < -1000);
+  const kilo =
+    autoKilo && !isCurrency && (range.max > 1000 || range.min < -1000);
   if (kilo) {
     number /= 1000.0;
     unitValuePrefix = 'k';
@@ -96,8 +93,7 @@ export const formatNumber = (
     kilo,
     isCurrency,
     unitValue,
-    minValue,
-    maxValue,
+    range,
   );
 
   const numberAsString = numberFormatter(

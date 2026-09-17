@@ -1,7 +1,8 @@
 // Builds tooltip callbacks (title/label/footer/labelColor) based on data and stacks.
 
 import type { ChartData, ChartType, Color, TooltipItem } from 'chart.js';
-import type { DatasetWithId } from './types';
+import { isTemperatureDataset, tooltipRange } from './tooltip_range';
+import type { DatasetWithId, Range } from './types';
 
 type TooltipFlags = {
   isPowerSplitterStack: boolean;
@@ -12,15 +13,9 @@ type TooltipFlags = {
 
 const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
 
-// A dataset whose id contains "_temp" carries a temperature in degrees
-// Celsius, not the unit of the chart. The payload has no per-dataset unit, so
-// the id is the only marker.
-export const isTemperatureDataset = (dataset: DatasetWithId): boolean =>
-  Boolean(dataset.id?.includes('_temp'));
-
 type TooltipHelpers = {
   locale: string;
-  formattedNumber: (value: number) => string;
+  formattedNumber: (value: number, range?: Range) => string;
   extractNumericValue: (value: unknown, mode: 'max' | 'min') => number | null;
 };
 
@@ -114,6 +109,10 @@ export const buildTooltipCallbacks = (
 
       if (isPowerSplitterStack && !tooltipItem.dataset.stack) return '';
 
+      // Every line of one tooltip reads the range of the same render, so they
+      // keep one unit.
+      const range = tooltipRange(tooltipItem.chart.tooltip?.dataPoints);
+
       // Show label prefix when multiple datasets are displayed in tooltip
       const tooltipDatasets = data.datasets.filter(
         (ds) => (ds as DatasetWithId).tooltip !== false,
@@ -129,10 +128,11 @@ export const buildTooltipCallbacks = (
         dataset.tooltipAbs && rawValue !== null ? Math.abs(rawValue) : rawValue;
 
       if (tooltipItem.parsed._custom) {
-        if (parsedValue !== null) return label + formattedNumber(parsedValue);
+        if (parsedValue !== null)
+          return label + formattedNumber(parsedValue, range);
         const fallback =
           tooltipItem.parsed._custom.max ?? tooltipItem.parsed._custom.min;
-        return label + formattedNumber(fallback);
+        return label + formattedNumber(fallback, range);
       }
 
       if (
@@ -164,13 +164,16 @@ export const buildTooltipCallbacks = (
       }
 
       if (parsedValue !== null) {
-        return label + formattedNumber(parsedValue);
+        return label + formattedNumber(parsedValue, range);
       }
 
       const fallbackY = tooltipItem.parsed.y!;
       return (
         label +
-        formattedNumber(dataset.tooltipAbs ? Math.abs(fallbackY) : fallbackY)
+        formattedNumber(
+          dataset.tooltipAbs ? Math.abs(fallbackY) : fallbackY,
+          range,
+        )
       );
     },
 
@@ -187,11 +190,12 @@ export const buildTooltipCallbacks = (
       if (!tooltipItems.length) return;
 
       const dataIndex = tooltipItems[0].dataIndex;
+      const range = tooltipRange(tooltipItems);
 
       if (flags.isPowerSplitterStack) {
         const totalDataset = data.datasets.find((ds) => !ds.stack);
         const sum = totalDataset?.data?.[dataIndex] as number | undefined;
-        if (sum) return formattedNumber(sum);
+        if (sum) return formattedNumber(sum, range);
       }
 
       if (
@@ -205,7 +209,7 @@ export const buildTooltipCallbacks = (
           return acc;
         }, 0);
 
-        if (sum) return formattedNumber(sum);
+        if (sum) return formattedNumber(sum, range);
       }
 
       const heatpumpCostsItems = tooltipItems.filter(
@@ -217,7 +221,7 @@ export const buildTooltipCallbacks = (
           return acc;
         }, 0);
 
-        if (sum) return formattedNumber(sum);
+        if (sum) return formattedNumber(sum, range);
       }
     },
   };
