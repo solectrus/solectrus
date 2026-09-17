@@ -1,6 +1,7 @@
 // Builds tooltip callbacks (title/label/footer/labelColor) based on data and stacks.
 
 import type { ChartData, ChartType, Color, TooltipItem } from 'chart.js';
+import { dateTimeFormatter, numberFormatter } from './formatting';
 import { isTemperatureDataset, tooltipRange } from './tooltip_range';
 import type { DatasetWithId, Range } from './types';
 
@@ -54,19 +55,12 @@ export const buildTooltipCallbacks = (
 
       const date = new Date(timestamp);
       if (dataset.showTime) {
-        const timeFormat = new Intl.DateTimeFormat(locale, {
-          hour: '2-digit',
-          minute: '2-digit',
-        });
+        const timeFormat = dateTimeFormatter(locale, 'time');
         const endDate = new Date(timestamp + 3600000);
         return `${timeFormat.format(date)} – ${timeFormat.format(endDate)}`;
       }
 
-      return new Intl.DateTimeFormat(locale, {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-      }).format(date);
+      return dateTimeFormatter(locale, 'date').format(date);
     },
 
     label: (tooltipItem) => {
@@ -93,10 +87,7 @@ export const buildTooltipCallbacks = (
 
           if (field.transform === 'divideBy1000') value /= 1000;
 
-          const formattedValue = new Intl.NumberFormat(locale, {
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 1,
-          }).format(value);
+          const formattedValue = numberFormatter(locale, 1, 1).format(value);
 
           const unitStr = field.unit ? ` ${field.unit}` : '';
           lines.push(`${field.name}: ${formattedValue}${unitStr}`);
@@ -156,10 +147,9 @@ export const buildTooltipCallbacks = (
       // watts. The tenth belongs to how a temperature reads, so it stays even
       // for a whole degree.
       if (isTemperatureDataset(dataset)) {
-        const formattedValue = new Intl.NumberFormat(locale, {
-          minimumFractionDigits: 1,
-          maximumFractionDigits: 1,
-        }).format(parsedValue ?? 0);
+        const formattedValue = numberFormatter(locale, 1, 1).format(
+          parsedValue ?? 0,
+        );
         return `${label}${formattedValue} °C`;
       }
 

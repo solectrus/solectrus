@@ -44,7 +44,7 @@ export const getDecimalPlaces = (
 // space is one locale times a handful of decimal combinations.
 const numberFormatters = new Map<string, Intl.NumberFormat>();
 
-const numberFormatter = (
+export const numberFormatter = (
   locale: string,
   minimumFractionDigits: number,
   maximumFractionDigits: number,
@@ -58,6 +58,33 @@ const numberFormatter = (
       maximumFractionDigits,
     });
     numberFormatters.set(key, formatter);
+  }
+
+  return formatter;
+};
+
+// The tooltip title is built on the same renders, so its date formatters are
+// cached the same way. The styles are named instead of passed as options, so
+// the key space stays one locale times the styles listed here.
+const dateTimeStyles = {
+  time: { hour: '2-digit', minute: '2-digit' },
+  date: { day: '2-digit', month: '2-digit', year: 'numeric' },
+} as const satisfies Record<string, Intl.DateTimeFormatOptions>;
+
+export type DateTimeStyle = keyof typeof dateTimeStyles;
+
+const dateTimeFormatters = new Map<string, Intl.DateTimeFormat>();
+
+export const dateTimeFormatter = (
+  locale: string,
+  style: DateTimeStyle,
+): Intl.DateTimeFormat => {
+  const key = `${locale}|${style}`;
+
+  let formatter = dateTimeFormatters.get(key);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, dateTimeStyles[style]);
+    dateTimeFormatters.set(key, formatter);
   }
 
   return formatter;
