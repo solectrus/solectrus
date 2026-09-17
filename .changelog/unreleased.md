@@ -3,7 +3,10 @@ Release notes for the next release. Add a line in the SAME commit that makes the
 change. The release skill takes this file, translates it, and empties it again.
 
 What goes in: a change a user can see or feel. Not dependency bumps,
-refactorings, tests, CI, lint fixes. Reverted before the release? Delete the line.
+refactorings, tests, CI, lint fixes. Reverted before the release? Delete the
+line. A bug that arose after the last release gets no line either, because no
+user has seen it. To tell the two apart, run `git tag --contains <sha>` on the
+commit that caused the bug. An empty result means that no release carries it.
 
 How to write it: one line, English, the words of the user interface. Name what
 changed for the user, not how it was built. Add "(#5886)" when an issue or a
