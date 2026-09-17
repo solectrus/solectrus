@@ -22,7 +22,6 @@ export type DatasetWithId = ChartDataset & {
   hatchFill?: boolean;
   tooltipColor?: string;
   tooltipAbs?: boolean;
-  tooltipUnit?: string;
 };
 
 // A chart may state whether its fills cover each other instead of leaving that

@@ -20,9 +20,6 @@ module Sensor
           )
       end
 
-      # The unit above is always a rate, so the tooltip can follow it
-      def tooltip_unit = unit
-
       def actual_days
         forecast_data.size.clamp(1, 14)
       end

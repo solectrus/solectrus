@@ -38,6 +38,7 @@ Keep every section, an empty one included.
 - The month and day names in the charts now follow the language you picked in SOLECTRUS. They followed the language of the browser.
 - Scrollbars and native form controls now follow the theme of the app, not the theme of the operating system.
 - The Safari toolbar now keeps the color of the app header. The color was too light, and it changed with every reload and every page. It still needs a moment when you switch between the light and the dark theme.
+- The tooltip of the generation charts now says kW for large values. It always said W, so a value stood there as "7.164 W" instead of "7,2 kW".
 - The tooltip for the savings now fits on a phone screen. Its text was too long and was cut off. (#5917)
 - The tooltip of the main navigation stays calm when you click an item. It went away and appeared again twice.
 - The menu no longer offers "Fullscreen" on an iPhone, where Safari has no fullscreen mode. A tap on it produced an error.

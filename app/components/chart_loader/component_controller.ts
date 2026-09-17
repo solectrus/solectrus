@@ -377,9 +377,6 @@ export default class extends Controller<HTMLCanvasElement> {
       {
         locale: this.locale,
         formattedNumber: (value) => this.formattedNumber(value),
-        // A pinned unit is the one the value already has, so never scale it.
-        formattedNumberInUnit: (value, unit) =>
-          this.formattedNumber(value, 'tooltip', false, unit),
         extractNumericValue,
       },
       data,

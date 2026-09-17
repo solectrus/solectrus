@@ -15,7 +15,6 @@ const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
 type TooltipHelpers = {
   locale: string;
   formattedNumber: (value: number) => string;
-  formattedNumberInUnit: (value: number, unit: string) => string;
   extractNumericValue: (value: unknown, mode: 'max' | 'min') => number | null;
 };
 
@@ -32,12 +31,7 @@ export const buildTooltipCallbacks = (
   ) => { backgroundColor: Color; borderColor: Color } | undefined;
   footer: (tooltipItems: TooltipItem<ChartType>[]) => string | undefined;
 } => {
-  const {
-    locale,
-    formattedNumber,
-    formattedNumberInUnit,
-    extractNumericValue,
-  } = helpers;
+  const { locale, formattedNumber, extractNumericValue } = helpers;
 
   const tooltipValue = (tooltipItem: TooltipItem<ChartType>): number | null => {
     const parsedY = tooltipItem.parsed?.y;
@@ -45,13 +39,6 @@ export const buildTooltipCallbacks = (
 
     return extractNumericValue(tooltipItem.raw, 'max');
   };
-
-  // A chart may pin its tooltip to one unit instead of scaling it with the
-  // axis (Sensor::Chart::Base#tooltip_unit).
-  const formatForDataset = (value: number, dataset: DatasetWithId): string =>
-    dataset.tooltipUnit
-      ? formattedNumberInUnit(value, dataset.tooltipUnit)
-      : formattedNumber(value);
 
   return {
     title: (tooltipItems) => {
@@ -171,10 +158,6 @@ export const buildTooltipCallbacks = (
         return `${label}${formattedValue} °C`;
       }
 
-      if (dataset.tooltipUnit) {
-        return `${label}${formatForDataset(parsedValue ?? 0, dataset)}`;
-      }
-
       if (parsedValue !== null) {
         return label + formattedNumber(parsedValue);
       }
@@ -217,12 +200,7 @@ export const buildTooltipCallbacks = (
           return acc;
         }, 0);
 
-        // The sum carries the unit of the rows it adds up.
-        if (sum)
-          return formatForDataset(
-            sum,
-            tooltipItems[0].dataset as DatasetWithId,
-          );
+        if (sum) return formattedNumber(sum);
       }
 
       const heatpumpCostsItems = tooltipItems.filter(

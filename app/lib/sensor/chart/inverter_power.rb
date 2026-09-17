@@ -22,10 +22,6 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     end
   end
 
-  # Actual, forecast and clearsky stay comparable in plain watts. Longer
-  # timeframes sum the power to energy, which scales like any other chart.
-  def tooltip_unit = (unit if timeframe.short?)
-
   # Stackable when multi-inverter is configured and variant is 'split'
   def stackable?
     Sensor::Config.multi_inverter? && ApplicationPolicy.multi_inverter? &&
