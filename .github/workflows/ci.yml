@@ -44,6 +44,9 @@ jobs:
       - name: Lint with SlimLint
         run: bin/slim-lint .
 
+      - name: Check formatting with Prettier
+        run: bun run format:check
+
       - name: Check JS size limit
         run: |
           bunx vite build

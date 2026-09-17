@@ -2,6 +2,7 @@ db/schema.rb
 public/*
 coverage/*
 tmp/*
+vendor/*
 spec/support/cassettes/*
 .ruby-lsp
 
