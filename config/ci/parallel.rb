@@ -41,37 +41,17 @@ class ParallelCI < ActiveSupport::ContinuousIntegration
   # Runs every `check` of the block at the same time and reports them as one
   # step.
   #
-  # A green check prints its name and nothing else. Nine commands writing at
-  # once is unreadable, and on a green run none of it is worth reading: the
-  # 800 progress dots of RuboCop, the full Brakeman report, the asset table.
-  # A failing check prints everything it wrote, which is the part you need.
+  # A green check prints its name and its runtime, and nothing else. Nine
+  # commands writing at once is unreadable, and on a green run none of it is
+  # worth reading: the 800 progress dots of RuboCop, the full Brakeman report,
+  # the asset table. A failing check prints everything it wrote, which is the
+  # part you need, below the list of all the checks.
   def parallel_step(title, &)
     commands = Checks.new.tap { it.instance_eval(&) }.commands
 
     heading title, "#{commands.size} checks, at the same time", type: :title
 
-    report(title) do
-      # A thread per command is what keeps this a single step, and every thread
-      # only waits for a process of its own. transform_values starts them all
-      # before the first Thread#value blocks.
-      running =
-        commands.transform_values do |command|
-          Thread.new { Open3.capture2e(command) } # rubocop:disable ThreadSafety/NewThread
-        end
-
-      running.each do |name, thread|
-        output, status = thread.value
-
-        if status.success?
-          echo "  ✅ #{name}", type: :success
-        else
-          echo "  ❌ #{name}", type: :error
-          $stdout.puts output
-        end
-
-        results << status.success?
-      end
-    end
+    report(title) { report_checks(commands) }
   end
 
   # A step that runs the specs of the given paths on several processes.
@@ -113,5 +93,49 @@ class ParallelCI < ActiveSupport::ContinuousIntegration
     heartbeat = { PARALLEL_TEST_HEARTBEAT_INTERVAL: 86_400 }
 
     step title, self.class.with_env(command, heartbeat.merge(env))
+  end
+
+  private
+
+  # Starts every command in a thread of its own and returns the queue they
+  # report to. A thread per command is what keeps this a single step, and every
+  # thread only waits for a process of its own.
+  def start_checks(commands)
+    Queue.new.tap do |done|
+      commands.each do |name, command|
+        # rubocop:disable-next ThreadSafety/NewThread
+        Thread.new do
+          started_at = Time.now.to_f
+          output, status = Open3.capture2e(command)
+          done << [name, status.success?, Time.now.to_f - started_at, output]
+        rescue StandardError => e
+          done << [name, false, Time.now.to_f - started_at, "#{e.class}: #{e.message}"]
+        end
+      end
+    end
+  end
+
+  # Prints a line per check, in the order the checks finish, so that the list
+  # fills up while the slow checks still run. Waiting for the threads in the
+  # order they were declared instead holds back every line behind the slowest
+  # check before it, and the whole block lands at once after 30 quiet seconds.
+  def report_checks(commands)
+    done = start_checks(commands)
+    failures = {}
+
+    commands.size.times do
+      name, success, elapsed, output = done.pop
+      echo "  #{success ? '✅' : '❌'} #{name} (#{elapsed.round(1)}s)", type: success ? :success : :error
+
+      failures[name] = output unless success
+      results << success
+    end
+
+    # The output of a failing check comes after the list. Printed in place, it
+    # pushes the checks that still run off the screen.
+    failures.each do |name, output|
+      echo "\n❌ #{name}", type: :error
+      $stdout.puts output
+    end
   end
 end
