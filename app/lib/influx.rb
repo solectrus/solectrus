@@ -40,24 +40,25 @@ class Influx
     POOL_TIMEOUT = 5
     private_constant :POOL_TIMEOUT
 
+    def initialize
+      @pool = build_pool
+    end
+
     # Returns the response rows as plain hashes (column => value), flattened
     # across Flux tables. See Influx::CsvParser for why not FluxTable objects.
     def query(flux)
       CsvParser.call(post(flux))
     end
 
+    # The pool stays the same object and opens fresh connections on the next
+    # checkout.
     def reset!
-      pool_mutex.synchronize do
-        @pool&.shutdown do |http|
-          http.finish if http.started?
-        rescue StandardError
-          # Ignore close errors on broken connections
-        end
-        @pool = nil
-      end
+      pool.reload { |http| finish_quietly(http) }
     end
 
     private
+
+    attr_reader :pool
 
     def post(flux)
       pool.with { |http| execute(http, build_request(flux), flux) }
@@ -115,27 +116,26 @@ class Influx
     end
 
     def reconnect(http)
-      http.finish if http.started?
-    rescue StandardError
-      # The connection is being replaced anyway
+      finish_quietly(http)
     ensure
       http.start
     end
 
-    def pool_mutex
-      @pool_mutex ||= Mutex.new
+    # Closing a dropped connection can raise, and the socket is going away
+    # either way.
+    def finish_quietly(http)
+      http.finish if http.started?
+    rescue StandardError
+      # The connection is broken or already gone, nothing left to close
     end
 
-    # Blocks (up to POOL_TIMEOUT) once every connection is checked out rather
-    # than opening overflow connections, mirroring QuestdbClient: a bounded
-    # wait is the better failure mode than an unbounded number of sockets.
-    def pool
-      pool_mutex.synchronize do
-        @pool ||=
-          ConnectionPool.new(
-            size: config.pool_size,
-            timeout: POOL_TIMEOUT,
-          ) { build_connection }
+    # The pool opens no connection here, only on the first checkout. It blocks
+    # (up to POOL_TIMEOUT) once every connection is checked out rather than
+    # opening overflow connections, mirroring QuestdbClient: a bounded wait is
+    # the better failure mode than an unbounded number of sockets.
+    def build_pool
+      ConnectionPool.new(size: config.pool_size, timeout: POOL_TIMEOUT) do
+        build_connection
       end
     end
 

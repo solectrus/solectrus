@@ -12,6 +12,8 @@ require 'dotenv'
 Dotenv.load('.env.test.local', '.env.test')
 
 # A plain bin/rspec run has no TEST_ENV_NUMBER, and the suffix is then empty.
+# rubocop:disable-next ThreadSafety/EnvMutation -- process-wide on purpose,
+# in the single thread that loads the suite.
 ENV['INFLUX_BUCKET'] = "#{ENV.fetch('INFLUX_BUCKET', nil)}#{ENV.fetch('TEST_ENV_NUMBER', nil)}"
 
 # This file is copied to spec/ when you run 'rails generate rspec:install'
