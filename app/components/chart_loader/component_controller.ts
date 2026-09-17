@@ -70,7 +70,6 @@ import {
   buildTooltipCallbacks,
   GenericChartTooltip,
   PowerBalanceTooltip,
-  tooltipRange,
 } from './helpers';
 
 // Data & formatting
@@ -345,13 +344,12 @@ export default class extends Controller<HTMLCanvasElement> {
         this.powerBalanceTooltip = tooltipInstance;
       },
       buildTooltip: () => {
-        const useKilo = this.typeValue !== 'line';
+        // A line chart shows power, which stays in watts. Only a bar chart
+        // of energy scales with the range of the tooltip.
+        const autoKilo = this.typeValue !== 'line';
         return new PowerBalanceTooltip(
-          (value) =>
-            this.formattedNumber(Math.abs(value), {
-              autoKilo: useKilo,
-              range: tooltipRange(this.chart?.tooltip?.dataPoints),
-            }),
+          (value, range) =>
+            this.formattedNumber(Math.abs(value), { autoKilo, range }),
           this.sourceLabelValue,
           this.usageLabelValue,
         );

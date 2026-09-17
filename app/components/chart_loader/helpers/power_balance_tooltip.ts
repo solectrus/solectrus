@@ -1,6 +1,7 @@
 // Renders and positions the custom HTML tooltip for power-balance charts.
-import type { Chart, Color } from 'chart.js';
+import type { Chart, ChartType, Color, TooltipItem } from 'chart.js';
 
+import { tooltipRange } from './tooltip_range';
 import {
   colorToString,
   createTooltipElement,
@@ -8,13 +9,11 @@ import {
   hideTooltip,
   positionTooltipElement,
 } from './tooltip_utils';
+import type { DatasetWithId, Range } from './types';
 
 type TooltipModel = {
   opacity: number;
-  dataPoints?: Array<{
-    dataset: { id?: string; label?: string };
-    parsed: { y?: number | null };
-  }>;
+  dataPoints?: TooltipItem<ChartType>[];
   labelColors?: Array<{ backgroundColor: Color; borderColor: Color }>;
   title?: string | string[];
   caretX: number;
@@ -25,11 +24,8 @@ export type TooltipContext = {
   tooltip: TooltipModel;
 };
 
-type TooltipItem = {
-  dp: {
-    dataset: { label?: string; id?: string };
-    parsed: { y?: number | null };
-  };
+type TooltipRow = {
+  dp: TooltipItem<ChartType>;
   color?: { backgroundColor: Color; borderColor: Color };
   datasetId: string;
   order: number;
@@ -38,12 +34,12 @@ type TooltipItem = {
 // Custom HTML tooltip renderer for power-balance charts.
 export default class PowerBalanceTooltip {
   private tooltip?: HTMLDivElement;
-  private readonly formatValue: (value: number, useKilo: boolean) => string;
+  private readonly formatValue: (value: number, range?: Range) => string;
   private readonly sourceLabel: string;
   private readonly usageLabel: string;
 
   constructor(
-    formatValue: (value: number, useKilo: boolean) => string,
+    formatValue: (value: number, range?: Range) => string,
     sourceLabel: string,
     usageLabel: string,
   ) {
@@ -68,16 +64,13 @@ export default class PowerBalanceTooltip {
 
     if (!tooltip || tooltip.opacity === 0) return hideTooltip(tooltipEl);
 
-    const dataPoints = (tooltip.dataPoints ?? []) as Array<{
-      dataset: { id?: string; label?: string };
-      parsed: { y?: number | null };
-    }>;
+    const dataPoints = tooltip.dataPoints;
 
-    if (!dataPoints.length) return hideTooltip(tooltipEl);
+    if (!dataPoints?.length) return hideTooltip(tooltipEl);
 
     const items = dataPoints
       .map((dp, index) => {
-        const datasetId = dp.dataset?.id ?? '';
+        const datasetId = (dp.dataset as DatasetWithId)?.id ?? '';
         return {
           dp,
           datasetId,
@@ -97,7 +90,10 @@ export default class PowerBalanceTooltip {
     const usageItems = isForecastOnly
       ? []
       : items.filter((item) => usageIds.has(item.datasetId));
-    const useKilo = this.shouldUseKilo(items);
+
+    // The rows of one render share one unit, so the range covers them all.
+    // Pass the array Chart.js built, because it keys the shared cache.
+    const range = tooltipRange(dataPoints);
 
     const contentEl = tooltipEl.querySelector(
       '.chart-tooltip-content',
@@ -106,13 +102,13 @@ export default class PowerBalanceTooltip {
       ? this.buildSimpleTooltipHtml(
           this.normalizeTitle(tooltip.title),
           items,
-          useKilo,
+          range,
         )
       : this.buildTooltipHtml(
           this.normalizeTitle(tooltip.title),
           sourceItems,
           usageItems,
-          useKilo,
+          range,
         );
 
     this.positionTooltip(tooltipEl, chart, tooltip);
@@ -143,15 +139,15 @@ export default class PowerBalanceTooltip {
 
   private buildTooltipHtml(
     title: string | undefined,
-    sourceItems: TooltipItem[],
-    usageItems: TooltipItem[],
-    useKilo: boolean,
+    sourceItems: TooltipRow[],
+    usageItems: TooltipRow[],
+    range?: Range,
   ): string {
     const sourceRows = sourceItems
-      .map((item) => this.renderRow(item, useKilo))
+      .map((item) => this.renderRow(item, range))
       .join('');
     const usageRows = usageItems
-      .map((item) => this.renderRow(item, useKilo))
+      .map((item) => this.renderRow(item, range))
       .join('');
     const separator =
       sourceRows && usageRows
@@ -178,10 +174,10 @@ export default class PowerBalanceTooltip {
 
   private buildSimpleTooltipHtml(
     title: string | undefined,
-    items: TooltipItem[],
-    useKilo: boolean,
+    items: TooltipRow[],
+    range?: Range,
   ): string {
-    const rows = items.map((item) => this.renderRow(item, useKilo)).join('');
+    const rows = items.map((item) => this.renderRow(item, range)).join('');
     const titleHtml = title
       ? `<div class="chart-tooltip-title">${escapeHtml(title)}</div>`
       : '';
@@ -194,31 +190,18 @@ export default class PowerBalanceTooltip {
     `;
   }
 
-  private shouldUseKilo(items: TooltipItem[]): boolean {
-    const values = items
-      .map((item) => item.dp.parsed.y)
-      .filter((value): value is number => typeof value === 'number');
-
-    if (!values.length) return false;
-
-    const nonZeroValues = values.filter((value) => value !== 0);
-    if (!nonZeroValues.length) return false;
-
-    return nonZeroValues.every((value) => Math.abs(value) > 500);
-  }
-
   private normalizeTitle(title?: string | string[]): string | undefined {
     if (!title) return;
     if (Array.isArray(title)) return title.filter(Boolean).join(' ');
     return title;
   }
 
-  private renderRow(item: TooltipItem, useKilo: boolean): string {
-    const value = item.dp.parsed.y;
+  private renderRow(item: TooltipRow, range?: Range): string {
+    const value = item.dp.parsed?.y;
     if (value == null) return '';
 
-    const label = escapeHtml(String(item.dp.dataset.label ?? ''));
-    const formattedValue = escapeHtml(this.formatValue(value, useKilo));
+    const label = escapeHtml(String(item.dp.dataset?.label ?? ''));
+    const formattedValue = escapeHtml(this.formatValue(value, range));
     const backgroundColor = colorToString(
       item.color?.backgroundColor ?? 'transparent',
     );
