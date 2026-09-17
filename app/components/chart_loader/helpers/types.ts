@@ -11,6 +11,9 @@ export type TooltipField = {
 
 export type DatasetWithId = ChartDataset & {
   id?: string;
+  // The quantity the sensor measures, as its definition names it
+  // ('watt', 'celsius', 'percent', 'money', ...), not a printable label.
+  unit?: string;
   tooltip?: boolean;
   tooltipFields?: TooltipField[];
   showTime?: boolean;

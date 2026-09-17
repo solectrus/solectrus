@@ -427,6 +427,10 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   def style_for_sensor(sensor)
     {
+      # The quantity the sensor measures, as its definition names it. The
+      # tooltip reads it to tell a dataset that shows the unit of the chart
+      # from one that brings its own -- a temperature beside power.
+      unit: sensor.unit,
       fill: true,
       tension: 0.4,
       cubicInterpolationMode: 'monotone',

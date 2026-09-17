@@ -152,14 +152,14 @@ export const buildTooltipCallbacks = (
         }
       }
 
-      const isTemperature = isTemperatureDataset(dataset);
-
-      if (isTemperature) {
-        const value = parsedValue ?? 0;
+      // A temperature prints its own unit instead of the chart's, which may be
+      // watts. The tenth belongs to how a temperature reads, so it stays even
+      // for a whole degree.
+      if (isTemperatureDataset(dataset)) {
         const formattedValue = new Intl.NumberFormat(locale, {
           minimumFractionDigits: 1,
           maximumFractionDigits: 1,
-        }).format(value);
+        }).format(parsedValue ?? 0);
         return `${label}${formattedValue} °C`;
       }
 

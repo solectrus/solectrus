@@ -4,20 +4,24 @@ import type { ChartType, TooltipItem } from 'chart.js';
 import { extractNumericValue } from './data_extents';
 import type { DatasetWithId, Range } from './types';
 
-// A dataset whose id contains "_temp" carries a temperature in degrees
-// Celsius, not the unit of the chart. The payload has no per-dataset unit, so
-// the id is the only marker.
+// A dataset that measures a temperature. The unit comes from the sensor
+// definition (Sensor::Definitions::Base#unit), so nothing has to read it off
+// the dataset id.
 export const isTemperatureDataset = (dataset: DatasetWithId): boolean =>
-  Boolean(dataset.id?.includes('_temp'));
+  dataset.unit === 'celsius';
+
+// A dataset that shows a quantity of its own instead of the one the chart is
+// scaled in: a temperature, or the named rows a scatter tooltip brings along
+// (tooltipFields). It prints its own unit, so its values must not scale the
+// other lines of the tooltip.
+const hasOwnQuantity = (dataset: DatasetWithId): boolean =>
+  Boolean(dataset.tooltipFields?.length) || isTemperatureDataset(dataset);
 
 const computeRange = (
   points: readonly TooltipItem<ChartType>[],
 ): Range | undefined => {
   const values = points
-    .filter((point) => {
-      const dataset = point.dataset as DatasetWithId;
-      return !dataset.tooltipFields?.length && !isTemperatureDataset(dataset);
-    })
+    .filter((point) => !hasOwnQuantity(point.dataset as DatasetWithId))
     .flatMap((point) => [
       extractNumericValue(point.raw, 'min'),
       extractNumericValue(point.raw, 'max'),
@@ -41,10 +45,10 @@ const cache = new WeakMap<
 // The values one tooltip shows at once. They scale it instead of the axis, so
 // a tooltip of small values stays in watts while the axis is in kilowatts.
 //
-// Datasets of another quantity (a temperature, named tooltip fields) stay out,
-// because they must not scale the others. A footer sum stays out as well: four
-// rows of "400 W" keep more precision than four rows of "0,4 kW", and the sum
-// below them follows the unit of the rows it adds up.
+// Datasets of another quantity stay out (#hasOwnQuantity), because they must
+// not scale the others. A footer sum stays out as well: four rows of "400 W"
+// keep more precision than four rows of "0,4 kW", and the sum below them
+// follows the unit of the rows it adds up.
 export const tooltipRange = (
   points?: readonly TooltipItem<ChartType>[],
 ): Range | undefined => {

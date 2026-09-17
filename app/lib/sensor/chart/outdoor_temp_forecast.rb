@@ -209,6 +209,9 @@ module Sensor
 
         {
           id: "#{sensor.name}_curve_high_res",
+          # This builder and #build_point_dataset skip #style_for_sensor, so
+          # they name the unit themselves.
+          unit: sensor.unit,
           label: sensor.display_name,
           data: points,
           type: 'line',
@@ -277,6 +280,7 @@ module Sensor
       def build_point_dataset(sensor, data, id:, label: '', style: {})
         {
           id: id,
+          unit: sensor.unit,
           label: label,
           tooltip: false,
           data: data,
