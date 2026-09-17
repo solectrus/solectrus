@@ -91,7 +91,6 @@ jobs:
       RAILS_ENV: test
       DISABLE_SPRING: 1
       RUBY_YJIT_ENABLE: 1
-      LANG: de_DE.UTF-8
 
       # The runner has four cores. Every worker boots Rails once before it
       # runs an example, so more workers than cores cost more than they
@@ -174,7 +173,6 @@ jobs:
       RAILS_ENV: test
       DISABLE_SPRING: 1
       RUBY_YJIT_ENABLE: 1
-      LANG: de_DE.UTF-8
       # Save the page HTML next to the screenshot of a failed system test
       RAILS_SYSTEM_TESTING_SCREENSHOT_HTML: 1
 
