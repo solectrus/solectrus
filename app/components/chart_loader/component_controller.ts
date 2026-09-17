@@ -69,6 +69,7 @@ import {
 import {
   buildTooltipCallbacks,
   GenericChartTooltip,
+  isTemperatureDataset,
   PowerBalanceTooltip,
 } from './helpers';
 
@@ -81,7 +82,7 @@ import {
   maxOf,
   minOf,
 } from './helpers';
-import type { TimeScaleOptions, TooltipConfig } from './helpers';
+import type { DatasetWithId, TimeScaleOptions, TooltipConfig } from './helpers';
 
 Chart.register(
   LineElement,
@@ -407,8 +408,9 @@ export default class extends Controller<HTMLCanvasElement> {
     autoKilo: boolean = true,
     unit: string = this.unitValue,
   ) {
-    const minValue = this.chart?.scales.y.min ?? this.minValue;
-    const maxValue = this.chart?.scales.y.max ?? this.maxValue;
+    const { min: minValue, max: maxValue } =
+      (target === 'tooltip' ? this.tooltipRange() : undefined) ??
+      this.axisRange();
     return formatNumber(number, {
       target,
       autoKilo,
@@ -418,6 +420,38 @@ export default class extends Controller<HTMLCanvasElement> {
       minValue,
       maxValue,
     });
+  }
+
+  // The range of the axis, for everything that is not shown inside one
+  // tooltip. Both ends come from the same source, so they never mix.
+  private axisRange(): { min: number; max: number } {
+    return {
+      min: this.chart?.scales.y.min ?? this.minValue,
+      max: this.chart?.scales.y.max ?? this.maxValue,
+    };
+  }
+
+  // The values the open tooltip shows at once. They scale it instead of the
+  // axis, so a tooltip of small values stays in watts while the axis is in
+  // kilowatts. Chart.js fills dataPoints before it renders, so every line of
+  // one tooltip reads the same range and they keep one unit. Datasets of
+  // another quantity (a temperature, named tooltip fields) stay out: they must
+  // not scale the others.
+  private tooltipRange(): { min: number; max: number } | undefined {
+    const values = (this.chart?.tooltip?.dataPoints ?? [])
+      .filter((point) => {
+        const dataset = point.dataset as DatasetWithId;
+        return !dataset.tooltipFields?.length && !isTemperatureDataset(dataset);
+      })
+      .flatMap((point) => [
+        extractNumericValue(point.raw, 'min'),
+        extractNumericValue(point.raw, 'max'),
+      ])
+      .filter((value) => value !== null);
+
+    if (!values.length) return;
+
+    return { min: Math.min(...values), max: Math.max(...values) };
   }
 
   private handleDblClick() {

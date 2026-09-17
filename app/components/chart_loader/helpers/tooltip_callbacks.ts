@@ -12,6 +12,12 @@ type TooltipFlags = {
 
 const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
 
+// A dataset whose id contains "_temp" carries a temperature in degrees
+// Celsius, not the unit of the chart. The payload has no per-dataset unit, so
+// the id is the only marker.
+export const isTemperatureDataset = (dataset: DatasetWithId): boolean =>
+  Boolean(dataset.id?.includes('_temp'));
+
 type TooltipHelpers = {
   locale: string;
   formattedNumber: (value: number) => string;
@@ -104,7 +110,6 @@ export const buildTooltipCallbacks = (
         return lines;
       }
 
-      const datasetId = dataset.id;
       const { isPowerSplitterStack, isHeatingStack } = flags;
 
       if (isPowerSplitterStack && !tooltipItem.dataset.stack) return '';
@@ -147,7 +152,7 @@ export const buildTooltipCallbacks = (
         }
       }
 
-      const isTemperature = datasetId?.includes('_temp');
+      const isTemperature = isTemperatureDataset(dataset);
 
       if (isTemperature) {
         const value = parsedValue ?? 0;
