@@ -105,6 +105,21 @@
     rgba(0, 0, 0, 1) 100%
   );
 }
+/* The two menu items for fullscreen. They start hidden, because the server
+   cannot know whether the browser has the Fullscreen API - Safari on the
+   iPhone has none, and a tap on an item shown there throws. The fullscreen
+   controller marks <html> when the API is there, and `:fullscreen` picks the
+   item that fits the current state. A browser that knows neither marker keeps
+   both items away. */
+[data-fullscreen-btn] {
+  display: none;
+}
+
+html[data-fullscreen-api]:not(:fullscreen) [data-fullscreen-btn='on'],
+html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
+  display: block;
+}
+
 /* Fullscreen mode: maximize available space (desktop only) */
 @media (min-width: 1024px) {
   :fullscreen {

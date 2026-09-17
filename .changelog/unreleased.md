@@ -37,6 +37,7 @@ Keep every section, an empty one included.
 - The page opens in the dark theme right away when your system is set to dark and you follow it. It painted light first and turned dark a moment later.
 - Scrollbars and native form controls now follow the theme of the app. They followed the theme of the operating system before.
 - The tooltip of the main navigation now stays calm when you click an item. It went away and appeared again twice, because the new page and the updated navigation each built it anew. It also moved up by one pixel while the mouse button was down.
+- The menu no longer offers "Fullscreen" on an iPhone, where Safari has no fullscreen mode. The item rarely appeared, only after the page reloaded itself, and a tap on it produced an error.
 
 ## Maintenance
 

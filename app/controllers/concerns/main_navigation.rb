@@ -254,7 +254,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.fullscreen_on'),
         icon: 'expand',
         data: {
-          'fullscreen-target' => 'btnOn',
+          'fullscreen-btn' => 'on',
           :action => 'click->fullscreen#on',
         },
       }
@@ -265,7 +265,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.fullscreen_off'),
         icon: 'compress',
         data: {
-          'fullscreen-target' => 'btnOff',
+          'fullscreen-btn' => 'off',
           :action => 'click->fullscreen#off',
         },
       }
