@@ -209,7 +209,7 @@ jobs:
             parallel-runtime-
 
       - name: Setup PostgreSQL
-        run: bin/rails db:create db:migrate
+        run: bin/rails db:create db:schema:load
 
       - name: Build Vite assets for test
         run: bunx vite build --mode test
