@@ -223,22 +223,19 @@ jobs:
           SKIP_VITE_BUILD: 1
           COVERAGE_NAME: system-${{ matrix.group }}
 
-      - name: Upload runtime log
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: runtime-log-${{ matrix.group }}
-          path: tmp/parallel_runtime_rspec.log
-          if-no-files-found: ignore
-          retention-days: 1
-
-      - name: Upload coverage artifact
+      # Coverage and runtime log travel in one artifact. Two paths make the
+      # repository root the archive root, so the files land under coverage/
+      # and tmp/ inside it. if-no-files-found stays at the default: it only
+      # fires when BOTH paths are empty, which is still worth a warning.
+      - name: Upload coverage and runtime log
         uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-system-${{ matrix.group }}
           include-hidden-files: true
-          path: coverage/
+          path: |
+            coverage/
+            tmp/parallel_runtime_rspec.log
           retention-days: 1
 
       - name: Upload Playwright artifacts
@@ -281,16 +278,12 @@ jobs:
           token: ${{secrets.QLTY_COVERAGE_TOKEN}}
           files: coverage/.resultset.json
 
-      - name: Download runtime logs
-        uses: actions/download-artifact@v8
-        with:
-          pattern: runtime-log-*
-          path: runtime-logs
-
+      # The runtime logs come with the coverage artifacts. coverage-unit
+      # holds no runtime log, and the glob passes it over.
       - name: Merge and cache runtime log
         run: |
           mkdir -p tmp
-          cat runtime-logs/*/parallel_runtime_rspec.log | sort > tmp/parallel_runtime_rspec.log
+          cat coverage-parts/*/tmp/parallel_runtime_rspec.log | sort > tmp/parallel_runtime_rspec.log
 
       - name: Save runtime log to cache
         uses: actions/cache/save@v6
@@ -375,6 +368,10 @@ jobs:
       - name: Build and push by digest
         id: build
         uses: docker/build-push-action@v7
+        env:
+          # The build record only feeds the job summary, which stays. Without
+          # this the action also uploads it as a .dockerbuild artifact.
+          DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           context: .
           platforms: ${{ matrix.platform }}
