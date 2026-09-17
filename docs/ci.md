@@ -1,6 +1,6 @@
 # Continuous Integration
 
-`bin/ci` runs the full gate: every linter, the security audits, the asset build and both spec runs. It is what CI does, so use it before a release rather than after each change.
+`bin/ci` runs the full gate: every linter, the security audits, the asset build and both spec runs. It does locally what GitHub CI does, and it adds the gem and package audits, which GitHub CI runs nightly. Use it before a release rather than after each change.
 
 ## Layout
 

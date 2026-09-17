@@ -29,11 +29,12 @@ jobs:
       - name: Lint with RuboCop
         run: bin/rubocop --parallel
 
+      # Brakeman reads only this repository, so it belongs here. The gem and
+      # package audits read an advisory database that changes on its own, and
+      # a new advisory must not break a build that did not change. They run in
+      # the nightly security-checks workflow instead.
       - name: Brakeman security scan
         run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
-
-      - name: Scan for known security vulnerabilities in gems used
-        run: bin/bundler-audit
 
       - name: Lint with ESLint
         run: bun run lint

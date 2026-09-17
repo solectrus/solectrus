@@ -52,4 +52,4 @@ there is worth. See `spec/llm_test/README.md`.
 
 For display problems on iOS, the `ios-simulator` skill runs SOLECTRUS on an iPhone in the simulator, as a page in Safari or as the installed PWA.
 
-`bin/ci` runs the full gate: every linter above, the security audits, the asset build and both spec runs. It is what CI does, so use it before a release rather than after each change. It runs the linters and the specs on several processes at the same time, which `docs/ci.md` describes.
+`bin/ci` runs the full gate: every linter above, the security audits, the asset build and both spec runs. It does locally what GitHub CI does, and it adds the gem and package audits, which GitHub CI runs nightly. Use it before a release rather than after each change. It runs the linters and the specs on several processes at the same time, which `docs/ci.md` describes.
