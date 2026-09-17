@@ -14,10 +14,6 @@ const LONG_PRESS_DURATION = 500;
 // A long-press is canceled if the finger moves further than this (px) while
 // waiting — prevents the tooltip from firing mid-swipe or mid-scroll
 const LONG_PRESS_MOVE_TOLERANCE = 10;
-// Where the arrow sits on the side it points away from: half of its 12px size,
-// plus the 1px border of the box, because an absolutely positioned element
-// starts at the padding box of its container
-const ARROW_STATIC_OFFSET = '-7px';
 
 // The one tooltip element of the document and the two nodes inside it that a
 // controller writes to
@@ -578,24 +574,18 @@ export default class TooltipController extends Controller {
 
     Object.assign(this.tooltip.style, { left: `${x}px`, top: `${y}px` });
 
+    // The stylesheet takes it from here: the placement below decides which of
+    // the two coordinates the arrow follows, and how far it stands outside
+    // the box.
     if (middlewareData.arrow) {
       const { x: arrowX, y: arrowY } = middlewareData.arrow;
-      const side = actualPlacement.split('-')[0] as
-        'top' | 'right' | 'bottom' | 'left';
-      const staticSide: Record<typeof side, string> = {
-        top: 'bottom',
-        right: 'left',
-        bottom: 'top',
-        left: 'right',
-      };
 
-      Object.assign(this.arrowElement.style, {
-        left: arrowX === null ? '' : `${arrowX}px`,
-        top: arrowY === null ? '' : `${arrowY}px`,
-        right: '',
-        bottom: '',
-        [staticSide[side]]: ARROW_STATIC_OFFSET,
-      });
+      if (arrowX !== undefined) {
+        this.tooltip.style.setProperty('--arrow-x', `${arrowX}px`);
+      }
+      if (arrowY !== undefined) {
+        this.tooltip.style.setProperty('--arrow-y', `${arrowY}px`);
+      }
     }
 
     this.tooltip.dataset.placement = actualPlacement;

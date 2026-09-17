@@ -68,19 +68,42 @@
   @apply dark:border-slate-400 dark:bg-slate-900;
 }
 
-/* Hide specific arrow borders based on tooltip placement */
+/*
+ * The arrow moves along the edge of the box it sits on, and it stands 7px
+ * beyond the opposite edge: half of its 12px size, plus the 1px border of the
+ * box, because an absolutely positioned element starts at the padding box of
+ * its container.
+ *
+ * Which of the two coordinates of Floating UI the arrow follows comes from the
+ * placement, together with the two borders that the arrow hides. One tooltip
+ * element serves the whole document, so it carries the coordinate of the
+ * tooltip before it. That coordinate belongs to a placement that is gone, and
+ * these rules do not read it.
+ */
 .floating-tooltip[data-placement^='top'] .floating-tooltip-arrow {
   @apply border-t-0 border-l-0;
+
+  left: var(--arrow-x);
+  bottom: -7px;
 }
 
 .floating-tooltip[data-placement^='bottom'] .floating-tooltip-arrow {
   @apply border-r-0 border-b-0;
+
+  left: var(--arrow-x);
+  top: -7px;
 }
 
 .floating-tooltip[data-placement^='left'] .floating-tooltip-arrow {
   @apply border-b-0 border-l-0;
+
+  top: var(--arrow-y);
+  right: -7px;
 }
 
 .floating-tooltip[data-placement^='right'] .floating-tooltip-arrow {
   @apply border-t-0 border-r-0;
+
+  top: var(--arrow-y);
+  left: -7px;
 }
