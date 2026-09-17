@@ -16,18 +16,30 @@ body:
     id: version
     attributes:
       label: Welche Version von SOLECTRUS verwendest du?
-      description: Bitte prüfe vorher, ob du die [neueste Version](https://github.com/solectrus/solectrus/releases) nutzt – möglicherweise ist dein Problem dort schon behoben.
-      placeholder: z.B. v1.3.1
+      description: |-
+        Bitte **vollständig** angeben, so wie von SOLECTRUS angezeigt. Das ist besonders wichtig bei Verwendung der Entwicklungs-Version, weil sich diesemehrmals täglich ändern kann.
+
+        Prüfe bitte auch, ob du die [neueste Version](https://github.com/solectrus/solectrus/releases) nutzt, manche Fehler wurden möglicherweise bereits behoben.
+      placeholder: z.B. v1.3.1 oder v1.3.1-48-g10991a9
     validations:
       required: true
 
   - type: input
     id: machine
     attributes:
-      label: Auf welchem Gerät läuft bei dir SOLECTRUS?
+      label: Auf welchem Server läuft bei dir SOLECTRUS?
       placeholder: z.B. Raspberry Pi 4 mit Debian 12 (Bookworm)
     validations:
       required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Mit welchem Browser nutzt du SOLECTRUS?
+      description: Bitte mit Versionsnummer. Nötig bei Problemen mit Darstellung oder Bedienung.
+      placeholder: z.B. Chrome 153 unter Windows 11
+    validations:
+      required: false
 
   - type: textarea
     id: diagnostics
@@ -49,6 +61,7 @@ body:
     id: support-bundle
     attributes:
       label: Support-Paket angehängt
+      description: Das Paket enthält viele Systeminformationen und vermeidet damit Rückfragen.
       options:
-        - label: Ich habe ein Support-Paket (ZIP) angehängt – oder oben erklärt, warum das nicht geht.
+        - label: Ich habe ein Support-Paket (ZIP) angehängt – oder oben erklärt, warum das nicht geht oder nicht nötig ist.
           required: true
