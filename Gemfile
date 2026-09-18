@@ -43,9 +43,6 @@ gem 'puma', '>= 5.0'
 # `gem "redis", ">= 4", "< 6"`, so redis 6 breaks broadcasting in production.
 gem 'redis', '>= 4.0.1', '< 6'
 
-# Boot large ruby/rails apps faster (https://github.com/rails/bootsnap)
-gem 'bootsnap', require: false
-
 # The best solution for store global settings in Rails applications. (https://github.com/huacnlee/rails-settings-cached)
 gem 'rails-settings-cached'
 
@@ -92,6 +89,11 @@ gem 'groupdate'
 gem 'calculate-all'
 
 group :development, :test do
+  # Boot large ruby/rails apps faster (https://github.com/rails/bootsnap).
+  # Development and test only: a container starts fresh every time, so the
+  # image would write the cache and never read it (see config/boot.rb).
+  gem 'bootsnap', require: false
+
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   # gem 'debug', platforms: %i[ mri windows ], require: 'debug/prelude'
 

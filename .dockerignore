@@ -33,6 +33,9 @@ compose.yaml
 config/brakeman.ignore
 config/bundler-audit.yml
 config/ci.rb
+# The Docker image runs production alone, and config/docker_image.rb reads
+# these two lines. The first one tells it from a working copy, and an
+# environment without its configuration does not start.
 config/environments/development.rb
 config/environments/test.rb
 config/rorvswild.yml

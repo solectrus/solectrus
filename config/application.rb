@@ -18,8 +18,10 @@ require 'action_cable/engine'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-# Before the first initializer, on purpose (see the file).
-require_relative 'installation'
+# DockerImage comes from config/boot.rb, which line 1 loads. Here, before the
+# application class, so no environment but the configured one gets as far as
+# building it.
+DockerImage.verify_environment!(__dir__, Rails.env)
 
 module Solectrus
   class Application < Rails::Application
@@ -136,8 +138,6 @@ module Solectrus
 
     config.after_initialize do
       next if Rails.env.local?
-
-      Installation.verify!(Rails.root.to_s)
 
       # Frozen after boot, and all three together. Guarded by eager_load,
       # because a nested constant that is autoloaded into a frozen class raises

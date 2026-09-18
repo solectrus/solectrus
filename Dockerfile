@@ -11,6 +11,12 @@ RUN rm -r package.json vite.config.mts tsconfig.json public/vite/assets/test*
 
 FROM ghcr.io/ledermann/rails-base-final:4.0.7-alpine
 
+# Tells the Docker image from a working copy (see config/docker_image.rb). The
+# directory belongs to root and the application does not, so the application
+# cannot take the file away. A working copy carries every file of the
+# repository and this one is in none of them.
+RUN touch .image
+
 USER app
 
 # Enable YJIT
