@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
 
     steps:
@@ -62,7 +62,7 @@ jobs:
         uses: raven-actions/actionlint@v2
 
   unit-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
 
     services:
@@ -134,7 +134,7 @@ jobs:
           retention-days: 1
 
   system-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -253,7 +253,7 @@ jobs:
           if-no-files-found: ignore
 
   coverage-report:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [unit-test, system-test]
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 5
@@ -297,7 +297,7 @@ jobs:
           key: parallel-runtime-${{ github.sha }}
 
   ci-success:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # coverage-report is not a gate. It uploads to Qlty and caches the
     # runtime log, and waiting for it only holds up publish.
     needs: [lint, unit-test, system-test, docker-build]
@@ -323,9 +323,9 @@ jobs:
       matrix:
         include:
           - platform: linux/amd64
-            runner: ubuntu-24.04
+            runner: ubuntu-26.04
           - platform: linux/arm64
-            runner: ubuntu-24.04-arm
+            runner: ubuntu-26.04-arm
 
     steps:
       - uses: actions/checkout@v7
@@ -419,7 +419,7 @@ jobs:
           retention-days: 1
 
   publish:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [ci-success]
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
     timeout-minutes: 10
