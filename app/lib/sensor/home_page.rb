@@ -9,16 +9,27 @@
 # "which sensors are mine?". A link can therefore not point at a page that
 # sends the user away again.
 #
-# The fourth question is about the page itself: the settings can switch it
-# off, and `available?` answers for the controller and for a link alike.
+# Two more questions are about the page itself. The settings can switch it
+# off, and `available?` answers for the controller and for a link alike. A
+# sponsorship can be what opens it, and `permitted?` answers that.
 module Sensor::HomePage
-  # The setting that switches a page off. The power balance is the start page
-  # and has none.
+  # What holds a page back: the setting that switches it off, and the feature
+  # a sponsorship opens it with. The power balance is the start page and has
+  # neither.
   PAGES = {
-    balance: nil,
-    heatpump: :enable_heatpump,
-    inverter: :enable_multi_inverter,
-    house: :enable_custom_consumer,
+    balance: {},
+    heatpump: {
+      setting: :enable_heatpump,
+      feature: :heatpump,
+    },
+    inverter: {
+      setting: :enable_multi_inverter,
+      feature: :multi_inverter,
+    },
+    house: {
+      setting: :enable_custom_consumer,
+      feature: :custom_consumer,
+    },
   }.freeze
   private_constant :PAGES
 
@@ -27,15 +38,29 @@ module Sensor::HomePage
 
     # Whether the settings switch this page on.
     def available?(key)
-      setting = page_setting(key)
+      setting = page(key)[:setting]
 
       setting.nil? || Setting.public_send(setting)
+    end
+
+    # The feature a sponsorship opens this page with, or nothing when the page
+    # is free. The upsell of the page names it as well, see
+    # DemoLink::Component.
+    def feature(key) = page(key)[:feature]
+
+    # Whether a sponsorship opens this page. The page renders an upsell in
+    # place of its data without one, and its frames answer nothing (see
+    # SponsoredFrame).
+    def permitted?(key)
+      name = feature(key)
+
+      name.nil? || ApplicationPolicy.instance.feature_enabled?(name)
     end
 
     # The sensors of a page, in the order the installation lists them. The
     # menu of the page arranges them, see ChartDropdownLogic.
     def sensor_names(key)
-      page_setting(key) # rejects a page that does not exist
+      page(key) # rejects a page that does not exist
 
       Sensor::Config.chart_sensors.filter_map do |sensor|
         sensor.name if sensor.home_pages.include?(key)
@@ -63,9 +88,9 @@ module Sensor::HomePage
 
     def target_page(pages) = pages.find { available?(it) } || :balance
 
-    # The setting that switches the page off, nil for the start page. An
-    # unknown key comes from the code, never from a request, so it raises.
-    def page_setting(key)
+    # What holds this page back, empty for the start page. An unknown key comes
+    # from the code, never from a request, so it raises.
+    def page(key)
       PAGES.fetch(key) { raise ArgumentError, "Unknown home page: #{key}" }
     end
 

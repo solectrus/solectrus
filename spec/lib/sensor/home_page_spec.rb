@@ -128,4 +128,49 @@ describe Sensor::HomePage do
       expect(described_class).to be_accepts(:balance, :heatpump_cop)
     end
   end
+
+  # What the upsell of a page names, see DemoLink::Component.
+  describe '.feature' do
+    it 'names the feature of a page behind a sponsorship' do
+      expect(described_class.feature(:house)).to eq(:custom_consumer)
+      expect(described_class.feature(:heatpump)).to eq(:heatpump)
+      expect(described_class.feature(:inverter)).to eq(:multi_inverter)
+    end
+
+    it 'names none for the start page' do
+      expect(described_class.feature(:balance)).to be_nil
+    end
+  end
+
+  # What the page reads to render an upsell in place of its data, and what its
+  # frames read to answer nothing, see SponsoredFrame.
+  describe '.permitted?' do
+    context 'without any feature' do
+      before { stub_feature }
+
+      it 'permits the start page' do
+        expect(described_class).to be_permitted(:balance)
+      end
+
+      it 'holds back the pages a sponsorship opens' do
+        expect(described_class).not_to be_permitted(:heatpump)
+        expect(described_class).not_to be_permitted(:house)
+        expect(described_class).not_to be_permitted(:inverter)
+      end
+    end
+
+    context 'with the features' do
+      before { stub_feature(:custom_consumer, :heatpump, :multi_inverter) }
+
+      it 'permits every page' do
+        locked = described_class.all.reject { described_class.permitted?(it) }
+
+        expect(locked).to be_empty
+      end
+    end
+
+    it 'raises for an unknown page' do
+      expect { described_class.permitted?(:nope) }.to raise_error(ArgumentError)
+    end
+  end
 end

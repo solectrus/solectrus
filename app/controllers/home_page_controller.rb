@@ -5,6 +5,10 @@ class HomePageController < ApplicationController
   include TimeframeNavigation
   include SummaryChecker
 
+  # The page decides what it may show and what its upsell names, and both
+  # answers come from the key (see Sensor::HomePage).
+  helper_method :page_key
+
   def index
     return redirect_to(balance_home_path) unless Sensor::HomePage.available?(page_key)
     return redirect_to(path_for(default_sensor_name, timeframe)) unless supported_sensor?

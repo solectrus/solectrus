@@ -1,6 +1,7 @@
 class Inverter::StatsController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
+  include SponsoredFrame
 
   before_action :refresh_summaries_if_needed
 

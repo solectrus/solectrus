@@ -1,6 +1,7 @@
 class Balance::ChartsController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
+  include SponsoredFrame
 
   def index
     if turbo_frame_request?
