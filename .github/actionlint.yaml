@@ -1,0 +1,8 @@
+# actionlint 1.7.12 does not know the ubuntu-26.04 runner images yet, and it
+# rejects the labels as unknown. Declaring them here silences that, at the
+# price of no label check for these two. Remove this file when actionlint
+# knows the images: https://github.com/rhysd/actionlint/issues/682
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04
+    - ubuntu-26.04-arm
