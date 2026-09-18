@@ -394,6 +394,16 @@ jobs:
           cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }},ignore-error=true
           cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }}
 
+      # What the Docker image must do and must refuse needs a container, so no
+      # spec can cover it (see config/docker_image.rb). The build pushes by
+      # digest and loads nothing, so it comes back from the registry. Each
+      # runner pulls the platform it built.
+      - name: Test the Docker image
+        run: |
+          image="ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}"
+          docker pull "$image"
+          bin/image-test.sh "$image"
+
       - name: Export digest
         run: |
           mkdir -p /tmp/digests

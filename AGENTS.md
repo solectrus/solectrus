@@ -50,6 +50,12 @@ or the server instructions change — never as part of a normal test run. Before
 you add prose to a description, `--ablate` measures what the sentence already
 there is worth. See `spec/llm_test/README.md`.
 
+`bin/image-test.sh` runs the Docker image the Dockerfile builds and checks
+that it works. Nothing else starts it: GitHub CI builds it and pushes it
+without running it. It needs Docker, and it builds the image itself when you
+name none. CI runs it on every build, so run it locally when you change
+the `Dockerfile`, `docker/entrypoint.sh` or `config/docker_image.rb`.
+
 For display problems on iOS, the `ios-simulator` skill runs SOLECTRUS on an iPhone in the simulator, as a page in Safari or as the installed PWA.
 
 `bin/ci` runs the full gate: every linter above, the security audits, the asset build and both spec runs. It does locally what GitHub CI does, and it adds the gem and package audits, which GitHub CI runs nightly. Use it before a release rather than after each change. It runs the linters and the specs on several processes at the same time, which `docs/ci.md` describes.
