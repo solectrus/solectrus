@@ -13,7 +13,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
         'v1.3.0',
       )
 
-      allow(Rails.configuration.x).to receive(:app_name).and_return('SOLECTRUS')
+      allow(AppDigest).to receive(:current).and_return(nil)
 
       # Default: all optional service tokens disabled so each context can
       # opt-in to exactly the one it wants to verify
@@ -30,6 +30,15 @@ describe UserAgentBuilder, with_setup_id: 0 do
       expect(user_agent.to_s).to start_with(
         'SOLECTRUS/v1.3.0 (Linux; aarch64; 6.1.0; 0)',
       )
+    end
+
+    # An installation has one, a working copy has not.
+    context 'with a digest of the installation' do
+      before { allow(AppDigest).to receive(:current).and_return('1a2b3c4d') }
+
+      it 'names it beside the application' do
+        expect(user_agent.to_s).to start_with('SOLECTRUS-1a2b3c4d/v1.3.0')
+      end
     end
 
     it 'includes the profile code' do

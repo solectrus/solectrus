@@ -40,8 +40,10 @@ class UserAgentBuilder
     "#{name}/#{version}" if version.present?
   end
 
+  # In production the name carries the digest of the files, in development and
+  # test there is none to carry (see AppDigest.current).
   def app_name
-    Rails.configuration.x.app_name
+    ['SOLECTRUS', AppDigest.current].compact.join('-')
   end
 
   def version
