@@ -14,7 +14,11 @@ describe VersionInfo::Component, type: :component do
       UpdateCheck.instance.clear_cache!
     end
 
-    it 'returns the latest version', vcr: { cassette_name: 'version' } do
+    it 'returns the latest version',
+       :recorded_answer,
+       vcr: {
+         cassette_name: 'version',
+       } do
       expect(component.latest_version).to eq 'v1.3.1'
     end
   end
@@ -78,7 +82,7 @@ describe VersionInfo::Component, type: :component do
   describe '#latest_release_url' do
     subject { component.latest_release_url }
 
-    context 'when latest version is present', vcr: 'version' do
+    context 'when latest version is present', :recorded_answer, vcr: 'version' do
       before do
         # Clear default cache so VCR cassette response is used instead
         allow(UpdateCheck).to receive(:skip_http?).and_return(false)

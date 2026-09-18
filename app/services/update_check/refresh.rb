@@ -1,8 +1,11 @@
 module UpdateCheck::Refresh
   # How long to keep serving the last known-good status when the
   # update server is unreachable.
+  #
+  # Public, because the same window decides how long a cached answer stays
+  # usable after the moment it names (see UpdateCheck::SignatureCache).
   STALE_GRACE_PERIOD = 24.hours
-  private_constant :STALE_GRACE_PERIOD
+  public_constant :STALE_GRACE_PERIOD
 
   # Minimum time between retry attempts while in the stale phase.
   # Avoids hammering the server (and racking up timeouts on every
@@ -10,8 +13,10 @@ module UpdateCheck::Refresh
   RETRY_THROTTLE = 15.minutes
   private_constant :RETRY_THROTTLE
 
+  # Public, because a cached answer that cannot be used ends the same way (see
+  # UpdateCheck::SignatureCache#discard_cache).
   UNKNOWN = { registration_status: 'unknown' }.freeze
-  private_constant :UNKNOWN
+  public_constant :UNKNOWN
 
   private
 
@@ -72,16 +77,29 @@ module UpdateCheck::Refresh
     result[:status] == :ok ? store_success(result) : handle_failure(result, entry)
   end
 
+  # The two moments the cache keeps beside an answer are written by this
+  # installation, so neither decides whether the answer counts - that is the
+  # signed moment inside it, which UpdateCheck::SignatureCache asks on every
+  # call. Both are derived from that same moment, so nothing that is not
+  # signed reaches this decision: a moment moved in the cache store can delay
+  # a refresh, it cannot keep a dead answer alive.
   def store_success(result)
     data = result[:data]
-    fresh_until = Time.current + result[:expires_in]
+    binding = UpdateCheck::BindingVerifier.new(data)
+    fresh_until = binding.expires_at
     previous_reason = cached_entry&.dig(:data, :premium_reason).presence
 
     UpdateCheck::NotificationImporter.new(data.delete(:notifications)).call
-    cache_manager.set(data, fresh_until:, usable_until: fresh_until + STALE_GRACE_PERIOD)
+    cache_manager.set(
+      data,
+      fresh_until:,
+      usable_until: binding.valid_until(grace: STALE_GRACE_PERIOD),
+    )
+    Rails.logger.info(
+      "Checked for update availability, valid until #{fresh_until}",
+    )
 
-    @last_verified_signature = data[:signature]
-    @verified_result = verified_data(data)
+    memoize_verified(data)
 
     # The sensor list is built once per process and filters out what the feature
     # flags forbid (see Sensor::Config#sensors), so a grant that appears or

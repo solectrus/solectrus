@@ -28,6 +28,8 @@ class HeliosCheck
     delegate :available?, :version, :browser_url, :clear_cache!, to: :instance
   end
 
+  # In development and test no Helios runs beside the application to probe, in
+  # production one can (see UpdateCheck.skip_http?).
   def self.skip_http?
     Rails.env.local?
   end

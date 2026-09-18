@@ -17,10 +17,20 @@ RSpec.shared_context 'with signature verification' do
   end
 
   # Return a hash with signature added (for direct cache seeding).
+  #
+  # Every answer of the update server is bound to one installation and to one
+  # moment, and both are signed with it (see UpdateCheck::BindingVerifier). A
+  # spec that does not care about the binding gets a valid one, a spec that
+  # does passes its own.
   def sign_data(data)
-    canonical = canonical_json(data.except(:signature, :notifications))
+    bound = binding_fields.merge(data)
+    canonical = canonical_json(bound.except(:signature, :notifications))
     signature = Base64.strict_encode64(test_private_key.sign(nil, canonical))
-    data.merge(signature:)
+    bound.merge(signature:)
+  end
+
+  def binding_fields
+    { setup_id: Setting.setup_id.to_s, expires_at: 12.hours.from_now.iso8601 }
   end
 
   private

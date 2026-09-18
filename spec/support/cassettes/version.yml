@@ -1,3 +1,9 @@
+# Recorded against the live update server, with one field moved by hand: the
+# answer expires twelve hours after the recording, which would age the fixture
+# out within a day. `expires_at` was pushed ten years ahead and the body was
+# re-signed with the real key of the update server, so the recorded answer
+# still proves the real key against the real canonicalization.
+# Re-record with `VCR=all`, then move the field and re-sign again.
 ---
 http_interactions:
 - request:
@@ -10,8 +16,8 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - SOLECTRUS-2f26aaf7/v1.3.1 (Darwin; arm64; 25.6.0; 1789377420) FEATURES/0 INFLUXDB/2.9.1
-        POSTGRESQL/18.6
+      - SOLECTRUS-2c884ced/v1.3.1-61-gbfa06f5 (Darwin; arm64; 27.0.0; 1789377420)
+        FEATURES/0 INFLUXDB/2.9.1 POSTGRESQL/18.6
   response:
     status:
       code: 200
@@ -24,9 +30,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Mon, 14 Sep 2026 09:17:01 GMT
+      - Thu, 17 Sep 2026 19:14:08 GMT
       Etag:
-      - W/"7fa514fc4bc07cbb3817ed23274696be"
+      - W/"7e596ea29b89523c646e4f538b51b36c"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -40,14 +46,14 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - e16e243a-3926-42ca-8e4c-b40b3243e640
+      - fe246b67-633c-492d-bbd0-d2bbfeb8e8f8
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"version":"v1.3.1","registration_status":"unregistered","premium_reason":"intro","premium_ends_at":"2026-09-28T11:17:00+02:00","registration_reminder_at":"2026-09-17T11:17:00+02:00","registration_due_at":"2026-09-21T11:17:00+02:00","notifications":[{"id":13,"title":"Version
+      string: '{"version":"v1.3.1","registration_status":"unregistered","premium_reason":"intro","premium_ends_at":"2026-09-28T11:17:00+02:00","setup_id":"1789377420","expires_at":"2036-09-17T21:14:09+02:00","registration_reminder_at":"2026-09-17T11:17:00+02:00","registration_due_at":"2026-09-21T11:17:00+02:00","notifications":[{"id":13,"title":"Version
         1.3 berechnet die Amortisation der PV-Anlage","published_at":"2026-08-30T20:08:43+02:00","body":"<div>Die
         aktuelle Version 1.3 bringt u.a. diese Neuerungen:<br><br></div><ul><li>Neue
         Seite „Amortisation\" ermittelt die Rendite der PV-Anlage und wann die Investition
@@ -62,6 +68,6 @@ http_interactions:
         <strong>Fragebogen</strong> mit ein paar freiwilligen Fragen zur technischen
         Ausstattung deiner Anlage.<br><br>Klicke in SOLECTRUS auf \"<a href=\"/registration\">Registrierung</a>\",
         um zu diesem Fragebogen zu gelangen. Danke, dass du dir <strong>eine&nbsp;
-        Minute</strong> Zeit nimmst!</div>"}],"signature":"P5Ak6sfUkx3qgDqJIGA8jHL1C04Ck3Nw+zspbxe4kQeAgGfMJ0FRlFKObUwUyejoJH/pwGruK6qiJsV/+DJKBA=="}'
-  recorded_at: Mon, 14 Sep 2026 09:17:01 GMT
+        Minute</strong> Zeit nimmst!</div>"}],"signature":"CFWT+p2uqHw9aFzE9BHwL0lIZxBcmaz+6bXZyD4DOCITcjJG2dfscP/ylLD8jKYH82oJP4bT/oqq+Z8YnC7GDw=="}'
+  recorded_at: Thu, 17 Sep 2026 19:14:09 GMT
 recorded_with: VCR 6.4.0

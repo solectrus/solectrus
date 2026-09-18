@@ -1,22 +1,23 @@
 class UpdateCheck::HttpClient
   # Returns either:
-  #   { status: :ok, data: {...}, expires_in: <seconds> }
+  #   { status: :ok, data: {...} }
   # or:
   #   { status: :error, error_message: "..." }
   #
   # The caller (UpdateCheck) decides how to react to errors
   # (e.g. fall back to stale cache, choose log level).
+  #
+  # How long the answer counts is not decided here. The update server names
+  # that moment inside the answer and signs it with the rest, so the caller
+  # reads it there (see UpdateCheck::BindingVerifier). A header beside the
+  # answer carries no signature and decides nothing.
   def fetch_update_data
     response = fetch_http_response
     unless response.is_a?(Net::HTTPSuccess)
       return error("Error #{response.code} - #{response.message}")
     end
 
-    json = parse_json(response)
-    expires_in = expiration_from(response) || 12.hours
-    Rails.logger.info "Checked for update availability, valid for #{expires_in / 60} minutes"
-
-    { status: :ok, data: json, expires_in: }
+    { status: :ok, data: parse_json(response) }
   rescue Net::OpenTimeout, Net::ReadTimeout => e
     error("timeout: #{e}")
   rescue OpenSSL::SSL::SSLError => e
@@ -61,13 +62,15 @@ class UpdateCheck::HttpClient
     end
   end
 
+  # The certificate of the update server is checked in production. Only
+  # development and test talk to a local server of their own.
   def verify_mode
-    if Rails.env.production?
+    if Rails.env.local?
+      OpenSSL::SSL::VERIFY_NONE
+    else
       # simplecov:disable
       OpenSSL::SSL::VERIFY_PEER
       # simplecov:enable
-    else
-      OpenSSL::SSL::VERIFY_NONE
     end
   end
 
@@ -76,6 +79,7 @@ class UpdateCheck::HttpClient
     raise StandardError, 'Invalid response' unless valid_json?(result)
 
     verify_signature!(result)
+    verify_binding!(result)
     result
   end
 
@@ -85,16 +89,18 @@ class UpdateCheck::HttpClient
     raise StandardError, "Signature verification failed: #{e.message}"
   end
 
+  # An answer of the update server names the installation it was written for
+  # and the moment it stops being fresh. A reply that carries neither is no
+  # answer to this request, and one whose moment has passed is an answer played
+  # back (see UpdateCheck::BindingVerifier).
+  def verify_binding!(json)
+    UpdateCheck::BindingVerifier.new(json).verify!
+  rescue UpdateCheck::BindingVerifier::InvalidBindingError => e
+    raise StandardError, "Binding verification failed: #{e.message}"
+  end
+
   def valid_json?(response)
     response.is_a?(Hash) && response.key?(:version) &&
       response.key?(:registration_status)
-  end
-
-  def expiration_from(response)
-    cache_control = response['Cache-Control']
-    return unless cache_control
-
-    max_age = cache_control[/max-age=(\d+)/, 1]
-    max_age&.to_i
   end
 end

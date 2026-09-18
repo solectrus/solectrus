@@ -18,7 +18,11 @@ describe UpdateCheck do
 
     before { allow(Rails.logger).to receive(:info) }
 
-    context 'when the request succeeds', vcr: { cassette_name: 'version' } do
+    context 'when the request succeeds',
+            :recorded_answer,
+            vcr: {
+              cassette_name: 'version',
+            } do
       # The whole answer is cached, except the signature and the notifications.
       # The deadlines are absolute times from the recorded answer, so what they
       # mean for the local clock is tested with stubs further down.
@@ -41,11 +45,13 @@ describe UpdateCheck do
         expect(instance).to be_unregistered
       end
 
+      # The moment comes out of the signed answer, not out of a header beside
+      # it. The recorded one names 2036.
       it 'adds logging' do
         latest
 
         expect(Rails.logger).to have_received(:info).with(
-          'Checked for update availability, valid for 720 minutes',
+          /Checked for update availability, valid until 2036-09-17/,
         )
       end
 
@@ -265,6 +271,9 @@ describe UpdateCheck do
             registration_status: 'unregistered',
             registration_reminder_at: 3.days.from_now.iso8601,
             prompt: true,
+            # The clock moves past the reminder below, and an answer that expires
+            # on the way would be dropped before it is read.
+            expires_at: 30.days.from_now.iso8601,
           ),
         )
       end
@@ -391,6 +400,9 @@ describe UpdateCheck do
             registration_status: 'unregistered',
             registration_reminder_at: 3.days.from_now.iso8601,
             registration_due_at: 7.days.from_now.iso8601,
+            # The clock moves past both deadlines below, and an answer that
+            # expires on the way would be dropped before it is read.
+            expires_at: 30.days.from_now.iso8601,
           ),
         )
       end
@@ -513,62 +525,80 @@ describe UpdateCheck do
   describe 'caching' do
     include_context 'with cache'
 
-    it 'caches the version' do
-      allow(Rails.logger).to receive(:error)
+    # The moments an entry lives by are the ones the answer names, so the
+    # answer here is signed by hand. The recorded one carries a moment ten
+    # years out, which says nothing about a local clock.
+    context 'with an answer signed for this moment' do
+      include_context 'with signature verification'
 
-      # We start with an empty cache
-      expect(cached?).to be false
+      let(:update_url) { 'https://update.solectrus.de' }
 
-      # The first request will fill the cache
-      VCR.use_cassette('version') { expect(instance.latest).to be_present }
-      expect(cached?).to be true
-
-      # The second request will be served from the cache
-      expect(instance.latest).to be_present
-
-      # After one minute, both the local cache and the Rails cache are still filled
-      travel 1.minute do
-        expect(cached?).to be true
-        expect(cached_local?).to be true
-        expect(cached_rails?).to be true
-      end
-
-      # After 5 minutes, the local cache is empty, but the Rails cache is still filled
-      travel 5.minutes + 1.second do
-        expect(cached?).to be true
-        expect(cached_local?).to be false
-        expect(cached_rails?).to be true
-
-        # The next access will fill the local cache again (from the Rails cache)
-        instance.latest
-        expect(cached_local?).to be true
-        expect(cached_rails?).to be true
-      end
-
-      # After 12 hours, the cache is stale (past fresh_until) but still
-      # within the grace period (usable_until = fresh_until + 24h).
-      travel 12.hours + 1.second do
-        expect(cached?).to be true
-
-        # A new request is attempted, but fails (no VCR stub). With the
-        # stale entry available, the failure is downgraded to a warning
-        # and the previous status is kept.
-        allow(Rails.logger).to receive(:warn)
-        instance.latest
-
-        expect(Rails.logger).to have_received(:warn).with(
-          /UpdateCheck failed \(using cached status\)/,
+      before do
+        stub_request(:get, update_url).to_return(
+          body: signed_json(version: 'v1.3.0', registration_status: 'complete'),
         )
-        expect(cached?).to be true
       end
 
-      # After 36 hours (12h fresh + 24h stale grace), the cache is gone.
-      travel 36.hours + 1.second do
+      it 'caches the version' do
+        allow(Rails.logger).to receive(:error)
+
+        # We start with an empty cache
         expect(cached?).to be false
+
+        # The first request will fill the cache
+        expect(instance.latest).to be_present
+        expect(cached?).to be true
+
+        # The second request will be served from the cache
+        expect(instance.latest).to be_present
+
+        # After one minute, both the local cache and the Rails cache are still filled
+        travel 1.minute do
+          expect(cached?).to be true
+          expect(cached_local?).to be true
+          expect(cached_rails?).to be true
+        end
+
+        # After 5 minutes, the local cache is empty, but the Rails cache is still filled
+        travel 5.minutes + 1.second do
+          expect(cached?).to be true
+          expect(cached_local?).to be false
+          expect(cached_rails?).to be true
+
+          # The next access will fill the local cache again (from the Rails cache)
+          instance.latest
+          expect(cached_local?).to be true
+          expect(cached_rails?).to be true
+        end
+
+        # After 12 hours, the entry is past the moment the answer named, but
+        # still within the grace period this installation allows.
+        travel 12.hours + 1.second do
+          expect(cached?).to be true
+
+          # A new request is attempted, but fails. With the stale entry
+          # available, the failure is downgraded to a warning and the previous
+          # status is kept.
+          stub_request(:get, update_url).to_return(status: [500, 'Boom'])
+          allow(Rails.logger).to receive(:warn)
+          instance.latest
+
+          expect(Rails.logger).to have_received(:warn).with(
+            /UpdateCheck failed \(using cached status\)/,
+          )
+          expect(cached?).to be true
+        end
+
+        # After the grace period on top of that moment, the entry is gone. The
+        # clock skew the binding allows counts here too.
+        travel 12.hours + UpdateCheck::Refresh::STALE_GRACE_PERIOD +
+                 10.minutes do
+          expect(cached?).to be false
+        end
       end
     end
 
-    it 'can be reset' do
+    it 'can be reset', :recorded_answer do
       allow(Rails.logger).to receive(:error)
 
       # Fill the cache
@@ -655,8 +685,100 @@ describe UpdateCheck do
           instance.latest
 
           expect(Rails.logger).to have_received(:error).with(
-            'UpdateCheck: invalid signature in cache, clearing',
+            'UpdateCheck: Invalid signature in cache, clearing',
           )
+        end
+      end
+    end
+
+    # A signature says who wrote an answer, not who it was written for or how
+    # long it counts. Those two come from the answer itself.
+    describe 'binding verification on cache read' do
+      include_context 'with signature verification'
+
+      before { allow(Rails.logger).to receive(:error) }
+
+      # The entry claims to be fresh for a year, so nothing but the answer
+      # itself can end it.
+      def sign_and_cache(data)
+        instance.cache_manager.set(
+          sign_data(data),
+          fresh_until: 1.year.from_now,
+          usable_until: 1.year.from_now,
+        )
+      end
+
+      let(:grant) do
+        {
+          version: 'v1.3.0',
+          registration_status: 'complete',
+          premium_reason: 'sponsoring',
+        }
+      end
+
+      context 'when the answer was written for another installation' do
+        before { sign_and_cache(grant.merge(setup_id: 'another-installation')) }
+
+        it 'refuses it, however fresh the entry claims to be' do
+          expect(instance.latest).to eq(registration_status: 'unknown')
+        end
+
+        it 'drops it, so the next call asks the update server' do
+          instance.latest
+
+          expect(cached?).to be false
+        end
+
+        # The throttle belongs to the request, not to the answer. A failed
+        # request sets it, and it keeps the next requests away from a server
+        # that just did not answer. A refused answer says nothing about that
+        # server, so it does not shorten the wait.
+        it 'keeps a throttle an earlier failure has set' do
+          instance.cache_manager.throttle_retry!(15.minutes)
+
+          instance.latest
+
+          expect(instance.cache_manager.retry_throttled?).to be true
+        end
+
+        # The list is built once per process and leaves out what the feature
+        # flags forbid, so a list built while the answer counted would outlive
+        # the answer.
+        it 'rebuilds the sensor list the answer had opened' do
+          allow(Sensor::Config).to receive(:clear_cache!)
+
+          instance.latest
+
+          expect(Sensor::Config).to have_received(:clear_cache!)
+        end
+      end
+
+      context 'when the answer is kept beyond its moment' do
+        before do
+          sign_and_cache(
+            grant.merge(
+              expires_at:
+                (UpdateCheck::Refresh::STALE_GRACE_PERIOD.ago - 10.minutes).iso8601,
+            ),
+          )
+        end
+
+        it 'refuses it' do
+          expect(instance.latest).to eq(registration_status: 'unknown')
+        end
+      end
+
+      # The signature is memoized because it cannot change. The moment can, and
+      # it passes while this process runs.
+      context 'when the moment passes while the process runs' do
+        before { sign_and_cache(grant) }
+
+        it 'stops serving the answer' do
+          expect(instance.latest).to include(premium_reason: 'sponsoring')
+
+          travel(13.hours + UpdateCheck::Refresh::STALE_GRACE_PERIOD) do
+            expect(instance.latest).to eq(registration_status: 'unknown')
+          end
         end
       end
     end
@@ -706,8 +828,9 @@ describe UpdateCheck do
         stub_success
         instance.latest
 
-        # 12h fresh + 24h grace + buffer = past usable_until
-        travel 36.hours + 1.minute do
+        # 12h until the signed moment, plus the grace period and the clock
+        # skew the binding allows on top of it.
+        travel 36.hours + 10.minutes do
           stub_failure
           allow(Rails.logger).to receive(:error)
 

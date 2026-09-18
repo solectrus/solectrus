@@ -26,24 +26,17 @@ describe UpdateCheck::HttpClient do
         )
       end
 
-      it 'returns the parsed JSON data with expiration' do
+      it 'returns the parsed JSON data' do
         expect(result).to eq(
           status: :ok,
-          data: {
-            version: 'v1.3.0',
-            registration_status: 'unregistered',
-            signature: JSON.parse(response_body, symbolize_names: true)[:signature],
-          },
-          expires_in: 43_200,
+          data: JSON.parse(response_body, symbolize_names: true),
         )
       end
 
-      it 'logs successful check' do
-        result
-
-        expect(Rails.logger).to have_received(:info).with(
-          'Checked for update availability, valid for 720 minutes',
-        )
+      # The update server signs the moment its answer stops counting, so a
+      # Cache-Control header beside it says nothing this client reads.
+      it 'ignores the Cache-Control header' do
+        expect(result).not_to have_key(:expires_in)
       end
 
       it 'sends correct headers' do
@@ -64,19 +57,62 @@ describe UpdateCheck::HttpClient do
       context 'when Cache-Control header is missing' do
         let(:headers) { {} }
 
-        it 'uses default expiration of 12 hours' do
-          expect(result[:expires_in]).to eq(12.hours)
+        it 'answers the same' do
+          expect(result[:status]).to eq(:ok)
         end
       end
+    end
 
-      context 'when Cache-Control has different format' do
-        let(:headers) do
-          { 'Cache-Control' => 'public, max-age=7200, must-revalidate' }
-        end
+    # A well signed answer can still be the answer to another question: one
+    # written for another installation, or one saved from an earlier day and
+    # played back (see UpdateCheck::BindingVerifier).
+    context 'when the answer is not bound to this installation' do
+      include_context 'with signature verification'
 
-        it 'extracts max-age correctly' do
-          expect(result[:expires_in]).to eq(7200)
-        end
+      before do
+        stub_request(:get, update_url).to_return(
+          status: 200,
+          body:
+            signed_json(
+              version: 'v1.3.0',
+              registration_status: 'unregistered',
+              setup_id: 'another-installation',
+            ),
+        )
+      end
+
+      it 'returns an error result' do
+        expect(result).to eq(
+          status: :error,
+          error_message:
+            'Binding verification failed: Answer of another installation',
+        )
+      end
+    end
+
+    # The grace period the cache path allows is not allowed here. The update
+    # server answered, so a moment already past means the answer is one saved
+    # from an earlier day and played back.
+    context 'when the answer is past the moment it names' do
+      include_context 'with signature verification'
+
+      before do
+        stub_request(:get, update_url).to_return(
+          status: 200,
+          body:
+            signed_json(
+              version: 'v1.3.0',
+              registration_status: 'unregistered',
+              expires_at: 10.minutes.ago.iso8601,
+            ),
+        )
+      end
+
+      it 'returns an error result' do
+        expect(result).to eq(
+          status: :error,
+          error_message: 'Binding verification failed: Expired answer',
+        )
       end
     end
 

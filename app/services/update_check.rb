@@ -34,6 +34,9 @@ class UpdateCheck
              to: :instance
   end
 
+  # Development and test reach no update server and answer from
+  # UpdateCheck::Fallback instead. Production asks the server, and the Docker
+  # image runs no other environment (see DockerImage.verify_environment!).
   def self.skip_http?
     Rails.env.local?
   end
@@ -136,11 +139,8 @@ class UpdateCheck
   end
 
   def clear_cache!
-    reset_verified_cache!
-    cache_manager.delete
+    drop_answer!
     cache_manager.clear_retry_throttle
-    # Also clear sensor cache since permissions may have changed
-    Sensor::Config.clear_cache!
   end
 
   def skip_prompt!
@@ -160,6 +160,17 @@ class UpdateCheck
   delegate :skipped_prompt?, :snoozed_banner?, to: :cache_manager
 
   private
+
+  # Everything a single answer of the update server opened. The retry throttle
+  # is not part of it: it belongs to the request and not to the answer, so
+  # only a caller that wants the next request now clears it too (see
+  # UpdateCheck::SignatureCache#discard_cache).
+  def drop_answer!
+    reset_verified_cache!
+    cache_manager.delete
+    # Also clear sensor cache since permissions may have changed
+    Sensor::Config.clear_cache!
+  end
 
   # Every moment in the answer is an ISO 8601 string.
   def time_from(key)
