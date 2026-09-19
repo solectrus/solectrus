@@ -23,6 +23,14 @@ describe 'Charts' do
     )
   end
 
+  let(:by_season_path) do
+    balance_charts_path(
+      sensor_name: 'house_power',
+      timeframe: 'all',
+      compare: 'by_season',
+    )
+  end
+
   describe 'GET /charts' do
     before do
       create_summary(
@@ -133,6 +141,45 @@ describe 'Charts' do
         get balance_home_path(
               sensor_name: 'house_power',
               timeframe: '2023-04-01..2023-06-30',
+            )
+
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with the comparison by season' do
+      it 'compares the years on a category axis' do
+        get_chart(by_season_path)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('"type":"category"')
+        expect(response.body).to include('"label":"2023"')
+        expect(response.body).to include('"label":"2024"')
+      end
+
+      it 'keeps the comparison when the sensor selector offers another sensor' do
+        get_chart(by_season_path)
+
+        expect(response.body).to include('/inverter_power/all/by_season')
+      end
+
+      # A season is a range as well, and a winter runs over the turn of the
+      # year. That page has to answer too.
+      it 'opens the season a bar was aimed at' do
+        create_summary(
+          date: Date.new(2023, 12, 10),
+          values: [[:house_power, :sum, 500.0]],
+        )
+
+        get_chart(by_season_path)
+
+        expect(response.body).to include(
+          '/house_power/2023-12-01..2024-02-29',
+        )
+
+        get balance_home_path(
+              sensor_name: 'house_power',
+              timeframe: '2023-12-01..2024-02-29',
             )
 
         expect(response).to have_http_status(:ok)

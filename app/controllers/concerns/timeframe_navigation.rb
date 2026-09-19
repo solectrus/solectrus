@@ -123,11 +123,11 @@ module TimeframeNavigation
       reading.relative? ? t('data.all_months') : t('data.all_years')
     end
 
-    # The chart of the whole record can be read other ways: the same month or
-    # quarter of every year side by side. That says how the chart is drawn,
-    # not which period it covers, so those entries are named after the
-    # comparison they offer rather than after a span, and they stand below the
-    # spans and behind a line.
+    # The chart of the whole record can be read other ways: the same month,
+    # quarter or season of every year side by side. That says how the chart
+    # is drawn, not which period it covers, so those entries are named after
+    # the comparison they offer rather than after a span, and they stand below
+    # the spans and behind a line.
     #
     # The whole record is the period it draws, so its entry is the one that
     # leads back out of a comparison.
