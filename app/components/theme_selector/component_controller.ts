@@ -1,5 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
-import { readCookie, writeCookie } from '@/utils/cookie';
+import {
+  migrateFromLocalStorage,
+  readCookie,
+  writeCookie,
+} from '@/utils/cookie';
 
 type Theme = 'auto' | 'light' | 'dark';
 
@@ -24,6 +28,8 @@ export default class extends Controller<HTMLElement> {
   private colorSchemeChangeTimeout?: ReturnType<typeof setTimeout>;
 
   connect() {
+    migrateFromLocalStorage('theme', 'theme');
+
     this.apply();
     this.addListeners();
   }

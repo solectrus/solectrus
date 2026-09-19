@@ -19,3 +19,14 @@ export function writeCookie(name: string, value: string | null) {
 
   document.cookie = `${name}=${value ?? ''}; path=/; max-age=${age}; samesite=lax${secure}`;
 }
+
+// Both preferences lived in localStorage before. Move a leftover value into the
+// cookie once, so nobody has to pick their theme and palette again. The legacy
+// key goes in any case: a later return to the default must not resurrect it.
+export function migrateFromLocalStorage(name: string, legacyKey: string) {
+  const legacy = localStorage.getItem(legacyKey);
+  if (legacy === null) return;
+
+  localStorage.removeItem(legacyKey);
+  if (readCookie(name) === null) writeCookie(name, legacy);
+}

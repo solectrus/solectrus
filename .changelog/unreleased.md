@@ -33,7 +33,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
-- The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors. Pick your theme and your color palette again after this update, because the app cannot take over your old choice.
+- The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors.
 - The page opens in the dark theme right away when your system is set to dark and you follow it. It painted light first.
 - The top of the app is sharp again when you open it from the home screen of an iPhone. iOS 26 and later painted a band of frosted glass over that edge. Add the app to your home screen again after this update, because iOS reads the setting only at that moment. (#5916)
 - The month and day names in the charts now follow the language you picked in SOLECTRUS. They followed the language of the browser.

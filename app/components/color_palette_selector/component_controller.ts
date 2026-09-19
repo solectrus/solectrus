@@ -1,5 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
-import { readCookie, writeCookie } from '@/utils/cookie';
+import {
+  migrateFromLocalStorage,
+  readCookie,
+  writeCookie,
+} from '@/utils/cookie';
 
 type ColorPalette = 'contrast' | 'standard';
 
@@ -12,6 +16,8 @@ export default class extends Controller<HTMLElement> {
   private boundHandleMorph?: () => void;
 
   connect() {
+    migrateFromLocalStorage('color_palette', 'colorPalette');
+
     this.updateButtons();
     this.updateHtmlClass();
 
