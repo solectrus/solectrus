@@ -8,11 +8,15 @@ module TimeframeNavigation
       timeframe.localized
     end
 
-    def path_with_timeframe(timeframe)
+    # `compare` is named even when there is nothing to compare, so that a tab
+    # leading away from the year comparison does not carry it along: `url_for`
+    # would otherwise take the segment from the path of the current page.
+    def path_with_timeframe(timeframe, compare: nil)
       url_for(
         controller: "#{helpers.controller_namespace}/home",
         sensor_name:,
         timeframe:,
+        compare:,
         action: 'index',
         **selection_params,
       )
@@ -55,6 +59,7 @@ module TimeframeNavigation
     # A period of the past has a single reading and gets no menu.
     def menu_items_for(period)
       entries = readings(period).map { |reading| reading_entry(reading, period) }
+      entries = with_year_comparison(entries) if period == :all
 
       entries unless entries.one?
     end
@@ -117,6 +122,37 @@ module TimeframeNavigation
     # timeframe can name. Beyond that "all months" is a month or two short.
     def all_reading_name(reading)
       reading.relative? ? t('data.all_months') : t('data.all_years')
+    end
+
+    # The chart of the whole record can be read another way: the same month
+    # of every year side by side. That says how the chart is drawn, not which
+    # period it covers, so its entry is named after the comparison it offers
+    # rather than after a span, and it stands below the spans and behind a
+    # line.
+    #
+    # The whole record is the period it draws, so its entry is the one that
+    # leads back out of a comparison.
+    def with_year_comparison(entries)
+      return entries unless Sensor::Chart::YearComparison.available_for?(sensor)
+
+      whole, *rest = entries
+
+      [
+        whole.merge(current: whole[:current] && !year_comparison?),
+        *rest,
+        *Sensor::Chart::YearComparison.variants.each_with_index.map do |variant, index|
+          comparison_entry(variant, separator_before: index.zero?)
+        end,
+      ]
+    end
+
+    def comparison_entry(variant, separator_before:)
+      {
+        name: t(variant::LABEL_KEY),
+        href: path_with_timeframe('all', compare: variant::PARAM),
+        current: year_comparison == variant::PARAM,
+        separator_before:,
+      }
     end
   end
 end

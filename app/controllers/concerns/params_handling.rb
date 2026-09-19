@@ -21,6 +21,7 @@ module ParamsHandling
           :sort,
           :calc,
           :interval,
+          :compare,
         )
     end
 
@@ -52,6 +53,31 @@ module ParamsHandling
       return unless timeframe&.day?
 
       ALLOWED_INTERVALS[permitted_params[:interval]]
+    end
+
+    # How the chart compares the years, as the path spells it ("by_month"),
+    # or nil when it draws one bar per year as usual. Only `all` has years
+    # to compare, so the param is ignored everywhere else -- as :interval is
+    # outside of a day.
+    helper_method def year_comparison
+      return @year_comparison if defined?(@year_comparison)
+
+      @year_comparison = evaluate_year_comparison
+    end
+
+    helper_method def year_comparison?
+      year_comparison.present?
+    end
+
+    # The menu asks this once per entry and the layout twice more, so the
+    # answer is worked out once per request.
+    def evaluate_year_comparison
+      compare = permitted_params[:compare]
+      return unless Sensor::Chart::YearComparison.for(compare)
+      return unless timeframe&.all?
+      return unless Sensor::Chart::YearComparison.available_for?(sensor)
+
+      compare
     end
 
     helper_method def timeframe
