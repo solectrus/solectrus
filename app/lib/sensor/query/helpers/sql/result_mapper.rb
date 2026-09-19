@@ -112,6 +112,7 @@ module Sensor
             day: 'date',
             month: 'month',
             quarter: 'quarter',
+            season: 'season',
             week: 'week',
             year: 'year',
           }.freeze
@@ -163,7 +164,7 @@ module Sensor
               (start_date..end_date).to_a
             when :month
               stepped_range(start_date, end_date, 1.month)
-            when :quarter
+            when :quarter, :season
               stepped_range(start_date, end_date, 3.months)
             when :year
               [start_date.beginning_of_year]
@@ -180,9 +181,13 @@ module Sensor
             ).step(step).to_a
           end
 
-          # The first day of the period a date falls in.
+          # The first day of the period a date falls in. A meteorological
+          # season is the quarter a month ahead, moved back again: December
+          # belongs to the winter that ends in the next year.
           def period_beginning(date)
             case group_by
+            when :season
+              (date + 1.month).beginning_of_quarter - 1.month
             when :quarter
               date.beginning_of_quarter
             else
