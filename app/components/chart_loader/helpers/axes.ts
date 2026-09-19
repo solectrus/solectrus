@@ -37,6 +37,23 @@ export const applyXAxisTemperatureFormatter = (options: ChartOptions): void => {
   }
 };
 
+// The two answers of the font callback below. Returned by identity, so a tick
+// resolved on every layout does not allocate a fresh object each time.
+const EMPHASIZED_FONT = { weight: 'bold' } as const;
+const PLAIN_FONT = {} as const;
+
+// Draws one X-axis label in bold, the one the chart named. A chart of twelve
+// months carries no year on its axis, so the month we are in is told apart by
+// its weight rather than by its place.
+export const applyXAxisEmphasis = (options: ChartOptions): void => {
+  const xTicks = options.scales?.x?.ticks as ExtendedTickOptions | undefined;
+  const emphasized = xTicks?.emphasize;
+  if (emphasized === undefined) return;
+
+  options.scales!.x!.ticks!.font = (context) =>
+    context.index === emphasized ? EMPHASIZED_FONT : PLAIN_FONT;
+};
+
 // Highlights the zero line on the X-axis grid when configured.
 export const applyZeroLineHighlight = (
   options: ChartOptions,

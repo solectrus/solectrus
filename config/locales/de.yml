@@ -159,6 +159,7 @@ de:
     all: Gesamt
     all_years: Alle Jahre
     all_months: Alle Monate
+    months_across_years: Monate im Jahresvergleich
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme

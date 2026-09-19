@@ -147,6 +147,32 @@ describe 'Home' do
       end
     end
 
+    # Twelve months next to each other, once per year, need the whole width.
+    context 'with the year comparison' do
+      before do
+        allow(Sensor).to receive(:data?).and_return(true)
+        allow(Summary).to receive(:missing_or_stale_days_for).and_return([])
+      end
+
+      it 'drops the stats to give the chart the whole width' do
+        get balance_home_path(
+              sensor_name: 'house_power',
+              timeframe: 'all',
+              compare: 'by_month',
+            )
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('balance-chart-all')
+        expect(response.body).not_to include('balance-stats-all')
+      end
+
+      it 'keeps the stats without the comparison' do
+        get balance_home_path(sensor_name: 'house_power', timeframe: 'all')
+
+        expect(response.body).to include('balance-stats-all')
+      end
+    end
+
     # Clicking a tab again used to walk through the readings of its period,
     # and nothing announced that. The current tab carries them as a menu.
     context 'with the menu of the current timeframe' do
@@ -200,6 +226,34 @@ describe 'Home' do
 
         expect(menu_names).to eq(
           [Timeframe.new('2024-03').localized, I18n.t('timeframe.month'), I18n.t('timeframe.days', count: 30)],
+        )
+      end
+
+      # The comparison says how the chart is drawn, the entries above it say
+      # which period it covers, so it comes last and behind a line.
+      it 'sets the year comparison off from the periods it compares' do
+        get balance_home_path(sensor_name: 'house_power', timeframe: 'all')
+
+        expect(menu_names).to eq(
+          [
+            I18n.t('data.all_years'),
+            I18n.t('data.all_months'),
+            I18n.t('data.months_across_years'),
+          ],
+        )
+        expect(menu_entries.first[:classes]).not_to include('border-t')
+        expect(menu_entries.last[:classes]).to include('border-t')
+        expect(response.body).to include('/house_power/all/by_month')
+      end
+
+      # Nothing to compare for a sensor without a value of its own. The tab
+      # keeps the menu, because the whole record and the rolling window of its
+      # length are readings of it either way.
+      it 'leaves the comparison out for a sensor without a value of its own' do
+        get balance_home_path(sensor_name: 'power_balance', timeframe: 'all')
+
+        expect(menu_names).to eq(
+          [I18n.t('data.all_years'), I18n.t('data.all_months')],
         )
       end
     end

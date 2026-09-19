@@ -12,6 +12,7 @@ import {
   BarController,
   LineController,
   ScatterController,
+  CategoryScale,
   LinearScale,
   TimeScale,
   Filler,
@@ -35,6 +36,7 @@ import { buildRoundedStackTopPlugin } from '@/utils/chartPluginRoundedStackTop';
 // Axes & styling
 import {
   applyAxisStyles,
+  applyXAxisEmphasis,
   applyXAxisTemperatureFormatter,
   applyYAxisTickFormatter,
   applyYAxisZeroLine,
@@ -52,7 +54,6 @@ import {
   configureChartTooltip,
   ensureFixedBottomTooltipPositioner,
   configurePowerBalanceTooltip,
-  createTouchIndexState,
   getPowerBalanceFlags,
   handleDoubleClickReset,
 } from './helpers';
@@ -63,6 +64,7 @@ import {
   handleChartClick,
   handleHoverCursor,
   handleTouchOrClick,
+  touchTargetOf,
 } from './helpers';
 
 // Tooltips
@@ -91,6 +93,7 @@ Chart.register(
   BarController,
   LineController,
   ScatterController,
+  CategoryScale,
   LinearScale,
   TimeScale,
   Filler,
@@ -159,7 +162,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private maxValue: number = 0;
   private minValue: number = 0;
   private locale: string = 'en';
-  private lastTouchedIndex: number | null = null;
+  private lastTouchedTarget: string | null = null;
   private powerBalanceTooltip?: PowerBalanceTooltip;
   private genericTooltip?: GenericChartTooltip;
 
@@ -268,6 +271,7 @@ export default class extends Controller<HTMLCanvasElement> {
       this.formattedNumber(value, { target }),
     );
     applyXAxisTemperatureFormatter(options);
+    applyXAxisEmphasis(options);
     applyZeroLineHighlight(options, axisColors);
     applyY1TemperatureFormatter(options);
     applyYAxisZeroLine(options, axisColors, this.minValue);
@@ -283,15 +287,15 @@ export default class extends Controller<HTMLCanvasElement> {
         (path) =>
           handleTouchOrClick(
             isTouchEnabled,
-            this.touchIndexState(),
-            elements[0].index,
+            this.touchTargetState(),
+            touchTargetOf(elements[0]),
             () => Turbo.visit(path),
           ),
         (timestamp) =>
           handleTouchOrClick(
             isTouchEnabled,
-            this.touchIndexState(),
-            elements[0].index,
+            this.touchTargetState(),
+            touchTargetOf(elements[0]),
             () => this.navigateToDrilldown(timestamp),
           ),
       );
@@ -449,13 +453,13 @@ export default class extends Controller<HTMLCanvasElement> {
     handleDoubleClickReset(this.chart);
   }
 
-  private touchIndexState() {
-    return createTouchIndexState(
-      () => this.lastTouchedIndex,
-      (value) => {
-        this.lastTouchedIndex = value;
+  private touchTargetState() {
+    return {
+      get: () => this.lastTouchedTarget,
+      set: (value: string | null) => {
+        this.lastTouchedTarget = value;
       },
-    );
+    };
   }
 
   private navigateToDrilldown(timestamp: number) {

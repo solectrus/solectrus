@@ -30,10 +30,17 @@ class Nav::Sub::Menu::Component < ViewComponent::Base
       %w[relative w-full uppercase select-none cursor-pointer]
   end
 
+  # An entry that answers a different question than the ones above it is set
+  # off by a line, and by the air above its own text.
   def entry_classes(item)
     [
       'block py-3 px-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700',
       ('font-bold' if item[:current]),
+      (
+        if item[:separator_before]
+          'border-t border-gray-200 dark:border-gray-600 pt-4'
+        end
+      ),
     ]
   end
 end
