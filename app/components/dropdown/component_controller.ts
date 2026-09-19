@@ -36,6 +36,18 @@ export default class extends Controller {
     }
   }
 
+  // Where a native select stands in for the menu, the entry it picked is one of
+  // the links of that menu. Clicking the link rather than following its href
+  // keeps whatever the link itself decides about the navigation.
+  choose(event: Event) {
+    const select = event.target;
+    if (!(select instanceof HTMLSelectElement) || !select.value) return;
+
+    this.menuTarget
+      .querySelector<HTMLAnchorElement>(`a[href="${CSS.escape(select.value)}"]`)
+      ?.click();
+  }
+
   handleClickOutside(event: Event) {
     if (!(event.target instanceof HTMLElement)) return;
 

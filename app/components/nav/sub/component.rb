@@ -16,82 +16,36 @@ class Nav::Sub::Component < ViewComponent::Base
     end
   end
 
+  # One tab. It leads to its timeframe, and a timeframe that can be shown in
+  # more than one way carries that choice as a menu. The menu opens from the
+  # current tab alone, because the others lead somewhere first.
   class ItemComponent < ViewComponent::Base
-    def initialize(name:, href:, current: false)
+    include NavTabLook
+
+    def initialize(name:, href:, current: false, menu: nil)
       super()
       @name = name
       @href = href
       @current = current
+      @menu = menu
       @abbreviate = false
     end
 
-    attr_reader :name, :href, :current
-    attr_writer :abbreviate
+    attr_reader :href, :menu
 
     def call
-      link_to href,
+      return render(menu_component) if menu.present? && current
+
+      link_to label,
+              href,
               class: css_classes,
-              'aria-current': (current ? 'location' : nil) do
-        safe_join(
-          [
-            tag.span(short_name, class: 'sm:hidden'),
-            tag.span(name, class: 'hidden sm:inline'),
-          ],
-        )
-      end
+              'aria-current': (current ? 'location' : nil)
     end
 
     private
 
-    def short_name
-      @abbreviate ? name.first : name
-    end
-
-    def css_classes
-      base_classes = %w[
-        py-1
-        px-2
-        lg:landscape:px-3
-        lg:landscape:py-2
-        flex-1
-        lg:landscape:flex-initial
-        text-center
-        click-animation
-      ]
-
-      if current
-        base_classes +
-          %w[
-            text-gray-800
-            bg-gray-200
-            dark:bg-gray-400
-            dark:text-gray-800
-            rounded-full
-            lg:landscape:rounded-md
-            focus:outline-none
-            focus:ring-2
-            focus:ring-gray-800
-            dark:focus:ring-slate-300
-            focus:ring-offset-0
-          ]
-      else
-        base_classes +
-          %w[
-            text-gray-300
-            dark:text-gray-400
-            rounded-full
-            lg:landscape:rounded-md
-            lg:landscape:hover:text-gray-200
-            lg:landscape:hover:bg-indigo-500
-            dark:lg:landscape:hover:bg-indigo-950/50
-            dark:lg:landscape:hover:text-gray-300
-            focus:outline-none
-            focus:ring-2
-            focus:ring-gray-300
-            dark:focus:ring-gray-400
-            focus:ring-offset-0
-          ]
-      end
+    def menu_component
+      Nav::Sub::Menu::Component.new(name:, items: menu, abbreviate: @abbreviate)
     end
   end
 end
