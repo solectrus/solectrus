@@ -19,7 +19,7 @@ Keep every section, an empty one included.
 ## New features
 
 - An amber dot at the HELIOS menu item and at the button that opens the menu shows when HELIOS needs your attention: the configuration is incomplete, or the services wait for a restart or fail
-- The chart of the total timeframe can now compare the years month by month or quarter by quarter. Pick "Months across the years" or "Quarters across the years" in the OVERALL menu to turn the comparison on, and the chart then fills the whole width. A month or a quarter that stands on fewer days than it has is drawn hatched: the one that is still running, and the first one, if your records start after its first day. Click a bar to open that month or that quarter. (#2131)
+- The chart of the total timeframe can now compare the years month by month, quarter by quarter, or season by season. Pick "Months across the years", "Quarters across the years" or "Seasons across the years" in the OVERALL menu to turn the comparison on, and the chart then fills the whole width. A period that stands on fewer days than it has is drawn hatched: the one that is still running, and the first one, if your records start after its first day. Click a bar to open that period. A season runs over three months, winter from December to February, and it counts into the year it begins in. (#2131)
 - The timeframe tabs now name what they can show. The current tab opens a menu with its readings, for example "This month" and "Last 30 days", or "This year", "Last 12 months" and "Last 365 days". You reached these by clicking the tab again before, which nothing told you.
 
 ## Improvements

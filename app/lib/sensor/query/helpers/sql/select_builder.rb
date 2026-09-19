@@ -119,6 +119,12 @@ module Sensor
             day: 'date',
             month: "date_trunc('month', date)::date AS month",
             quarter: "date_trunc('quarter', date)::date AS quarter",
+            # A meteorological season is a quarter moved a month ahead:
+            # December falls in with January and February. Moving the date
+            # into that quarter groups it, and moving the result back names
+            # the first day of the season, the December of a winter included.
+            season:
+              "(date_trunc('quarter', date + interval '1 month') - interval '1 month')::date AS season",
             week: "date_trunc('week', date)::date AS week",
             year: "date_trunc('year', date)::date AS year",
           }.freeze
