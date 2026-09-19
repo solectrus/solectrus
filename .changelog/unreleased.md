@@ -19,6 +19,7 @@ Keep every section, an empty one included.
 ## New features
 
 - An amber dot at the HELIOS menu item and at the button that opens the menu shows when HELIOS needs your attention: the configuration is incomplete, or the services wait for a restart or fail
+- The chart of the total timeframe can now compare the years month by month. Pick "Months across the years" in the OVERALL menu to turn the comparison on, and the chart then fills the whole width. A month that stands on fewer days than it has is drawn hatched: the month that is still running, and the first month, if your records start after the first day of it. Click a bar to open that month. (#2131)
 - The timeframe tabs now name what they can show. The current tab opens a menu with its readings, for example "This month" and "Last 30 days", or "This year", "Last 12 months" and "Last 365 days". You reached these by clicking the tab again before, which nothing told you.
 
 ## Improvements
