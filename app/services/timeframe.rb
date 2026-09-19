@@ -350,14 +350,15 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     [ending.to_date, max_date].compact.min
   end
 
-  # How long each period a caller can ask about lasts. A quarter is no
-  # duration of its own in ActiveSupport, so the lengths are named here rather
-  # than read off the period with `1.public_send(period)`.
+  # How long each period a caller can ask about lasts. A quarter and a season
+  # are no durations of their own in ActiveSupport, so the lengths are named
+  # here rather than read off the period with `1.public_send(period)`.
   PERIOD_LENGTH = {
     day: 1.day,
     week: 1.week,
     month: 1.month,
     quarter: 3.months,
+    season: 3.months,
     year: 1.year,
   }.freeze
   private_constant :PERIOD_LENGTH

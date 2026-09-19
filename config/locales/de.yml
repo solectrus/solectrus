@@ -162,6 +162,14 @@ de:
     months_across_years: Monate im Jahresvergleich
     quarters_across_years: Quartale im Jahresvergleich
     quarter_with_year: '%{quarter}. Quartal %{year}'
+    seasons_across_years: Jahreszeiten im Jahresvergleich
+    season_with_year: '%{season} %{year}'
+    season_with_years: '%{season} %{from}/%{to}'
+    seasons:
+      winter: Winter
+      spring: Frühling
+      summer: Sommer
+      autumn: Herbst
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme

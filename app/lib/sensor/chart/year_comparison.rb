@@ -4,7 +4,7 @@
 # years developed, but not whether this May beat the last one.
 #
 # How the year is cut is left to the subclasses: ByMonth draws twelve bars per
-# year, ByQuarter four. This class holds everything else.
+# year, ByQuarter and BySeason four. This class holds everything else.
 #
 # The chart draws the value of ONE sensor, never the composition its regular
 # chart may draw (the inverters of a multi-inverter installation, the split of
@@ -20,7 +20,7 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
   # and everything that builds such a path read it here -- as `Timeframe::REGEX`
   # owns the spelling of a timeframe.
   def self.variants
-    [ByMonth, ByQuarter]
+    [ByMonth, ByQuarter, BySeason]
   end
 
   # The comparison this spelling names, or nil if it names none.
@@ -220,8 +220,8 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
     timeframe.partial_period?(date.to_date, period)
   end
 
-  # Three months from `date`, as a range. No timeframe names a quarter, so a
-  # click on one leads to its days instead.
+  # Three months from `date`, as a range. No timeframe names a quarter or a
+  # season, so a click on one leads to its days instead.
   def three_month_range(date)
     "#{date.iso8601}..#{(date + 2.months).end_of_month.iso8601}"
   end

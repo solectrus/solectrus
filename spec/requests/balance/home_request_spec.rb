@@ -240,6 +240,7 @@ describe 'Home' do
             I18n.t('data.all_months'),
             I18n.t('data.months_across_years'),
             I18n.t('data.quarters_across_years'),
+            I18n.t('data.seasons_across_years'),
           ],
         )
         expect(menu_entries.first[:classes]).not_to include('border-t')
@@ -247,6 +248,7 @@ describe 'Home' do
         expect(menu_entries.last[:classes]).not_to include('border-t')
         expect(response.body).to include('/house_power/all/by_month')
         expect(response.body).to include('/house_power/all/by_quarter')
+        expect(response.body).to include('/house_power/all/by_season')
       end
 
       # Nothing to compare for a sensor without a value of its own. The tab
