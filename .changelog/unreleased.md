@@ -18,6 +18,8 @@ Keep every section, an empty one included.
 
 ## New features
 
+- The timeframe tabs now name what they can show. The current tab opens a menu with its readings, for example "This month" and "Last 30 days", or "This year", "Last 12 months" and "Last 365 days". You reached these by clicking the tab again before, which nothing told you.
+
 ## Improvements
 
 ## Fixes

@@ -146,5 +146,62 @@ describe 'Home' do
         expect(response).to have_http_status(:ok)
       end
     end
+
+    # Clicking a tab again used to walk through the readings of its period,
+    # and nothing announced that. The current tab carries them as a menu.
+    context 'with the menu of the current timeframe' do
+      before do
+        allow(Sensor).to receive(:data?).and_return(true)
+        allow(Summary).to receive(:missing_or_stale_days_for).and_return([])
+      end
+
+      def menu_entries
+        menu = response.body[%r{<div class="relative flex-1.*?</div>\s*</div>}m]
+
+        menu
+          .to_s
+          .scan(%r{<a[^>]*class="([^"]*)"[^>]*role="menuitem"[^>]*>([^<]*)</a>})
+          .map { |classes, name| { name: name.strip, classes: } }
+      end
+
+      def menu_names = menu_entries.pluck(:name)
+
+      it 'offers this month and the last 30 days' do
+        get balance_home_path(sensor_name: 'house_power', timeframe: 'month')
+
+        expect(menu_names).to eq(
+          [I18n.t('timeframe.month'), I18n.t('timeframe.days', count: 30)],
+        )
+      end
+
+      # The same menu wherever it was opened from, so it does not reorder
+      # itself as the reading changes.
+      it 'reads the same from the rolling window' do
+        get balance_home_path(sensor_name: 'house_power', timeframe: 'P30D')
+
+        expect(menu_names).to eq(
+          [I18n.t('timeframe.month'), I18n.t('timeframe.days', count: 30)],
+        )
+      end
+
+      it 'offers all three readings of a year' do
+        get balance_home_path(sensor_name: 'house_power', timeframe: 'year')
+
+        expect(menu_names).to eq(
+          [I18n.t('timeframe.year'), I18n.t('timeframe.months', count: 12), I18n.t('timeframe.days', count: 365)],
+        )
+      end
+
+      # A month that is over has no "last 30 days" of its own, so the readings
+      # below it are the ones that are running. It stands above them and says
+      # where the page is before it offers the ways on.
+      it 'offers the ways on from a period of the past' do
+        get balance_home_path(sensor_name: 'house_power', timeframe: '2024-03')
+
+        expect(menu_names).to eq(
+          [Timeframe.new('2024-03').localized, I18n.t('timeframe.month'), I18n.t('timeframe.days', count: 30)],
+        )
+      end
+    end
   end
 end

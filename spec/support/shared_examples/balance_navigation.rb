@@ -62,8 +62,15 @@ shared_examples_for 'balance navigation' do |paths|
     )
   end
 
+  # The current tab opens a menu with the readings of its period, so a second
+  # click on it picks from that menu instead of walking on to the next one.
+  def select_reading(tab, reading)
+    select_timeframe(tab)
+    within('nav[aria-label="Tabs"]') { click_on reading }
+  end
+
   def navigate_24_hours(path)
-    select_timeframe('Tag') # Second click to open 24H view
+    select_reading('Tag', 'Letzte 24 Stunden')
 
     expect_timeframe_page(path, stats_id: 'hours', expected_path: 'P24H', title: 'Letzte 24 Stunden')
 
