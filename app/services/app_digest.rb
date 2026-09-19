@@ -6,7 +6,8 @@
 # and a task names itself to nobody.
 #
 # Every installation of a release reads the same files and names the same
-# digest. That is what makes one that differs worth a look.
+# digest, on every architecture. That is what makes one that differs worth a
+# look.
 class AppDigest
   include Singleton
 
@@ -40,18 +41,17 @@ class AppDigest
     @current ||= digest_of(Rails.root)
   end
 
-  # The path of a file is hashed with its size, the time of its last change and
-  # its content. A file that only moves changes the digest, and so does one
-  # that is put back the way it was found.
+  # The path of a file is hashed with its content. A file that only moves
+  # changes the digest.
+  #
+  # What a file says about itself does not count, only what it holds. The CI
+  # builds one image per architecture, each on a runner of its own, so the
+  # same release carries the same bytes under different timestamps.
   def digest_of(root)
     digest = Digest::SHA256.new
 
     files(root).each do |file|
-      stat = file.lstat
-
       digest << file.relative_path_from(root).to_s
-      digest << stat.size.to_s
-      digest << stat.mtime.to_i.to_s
       digest << file.binread
     end
 

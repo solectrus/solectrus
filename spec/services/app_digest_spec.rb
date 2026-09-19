@@ -58,14 +58,15 @@ describe AppDigest do
       expect(digest).not_to eq(before_change)
     end
 
-    # The time of the last change is hashed too, so a file that is put back
-    # the way it was found is still a change.
-    it 'changes when only the time of a file changes' do
+    # Only what a file holds counts. The CI builds one image per
+    # architecture, and the same file carries a different time in each of
+    # them.
+    it 'is the same when only the time of a file changes' do
       before_change = digest
       file = root.join('app/models/user.rb')
       file.utime(file.atime, file.mtime + 60)
 
-      expect(digest).not_to eq(before_change)
+      expect(digest).to eq(before_change)
     end
 
     it 'leaves out what the application writes while it runs' do
