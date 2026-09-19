@@ -29,6 +29,7 @@ Keep every section, an empty one included.
 - The installed app now shows its description in your language. It was always English before.
 - A cancelled sponsorship now shows the days that are left. The status said "active" and named no end.
 - On a phone, the sponsoring status now takes one line above the navigation bar. It took two lines below the color buttons.
+- The chart menu now lists "Total consumption" under "Usage". It stood under "Other" before.
 
 ## Fixes
 

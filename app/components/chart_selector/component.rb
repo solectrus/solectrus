@@ -134,6 +134,7 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
       # Usage (Verwendung) - where power goes
     when :house_power,
          :house_power_without_custom,
+         :total_consumption,
          :wallbox_power,
          :heatpump_power,
          :grid_export_power,
