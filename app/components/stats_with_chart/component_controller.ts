@@ -526,7 +526,9 @@ export default class extends Controller {
   // reload, and vice versa. allSettled keeps both moving while still surfacing
   // errors to the console for debugging.
   private async reloadFrames(options: { chart: boolean }) {
-    const reloads = [this.statsTarget.reload()];
+    // The year comparison drops the stats frame to give the chart the whole
+    // width, so there may be nothing to reload on that side.
+    const reloads = this.hasStatsTarget ? [this.statsTarget.reload()] : [];
     if (options.chart) reloads.push(this.chartTarget.reload());
 
     const results = await Promise.allSettled(reloads);

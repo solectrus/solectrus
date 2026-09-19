@@ -1,12 +1,22 @@
 class ChartLoader::Component < ViewComponent::Base
-  def initialize(sensor_name:, timeframe:, variant: nil, interval: nil)
+  # `year_comparison` is given rather than read from the controller, because
+  # the forecast page renders this component too and has no such parameter.
+  # It names the comparison ("by_month"), or nothing at all.
+  def initialize(
+    sensor_name:,
+    timeframe:,
+    variant: nil,
+    interval: nil,
+    year_comparison: nil
+  )
     super()
     @sensor = Sensor::Registry[sensor_name]
     @timeframe = timeframe
     @variant = variant
     @interval = interval
+    @year_comparison = year_comparison
   end
-  attr_reader :sensor, :timeframe, :variant, :interval
+  attr_reader :sensor, :timeframe, :variant, :interval, :year_comparison
 
   delegate :type,
            :data,
@@ -56,8 +66,12 @@ class ChartLoader::Component < ViewComponent::Base
 
   def chart
     @chart ||=
-      sensor.chart(timeframe, variant:)&.tap do |c|
-        c.interval = timeframe.day? ? interval : nil
+      if (comparison = Sensor::Chart::YearComparison.for(year_comparison))
+        comparison.new(timeframe:, sensor_name: sensor.name)
+      else
+        sensor.chart(timeframe, variant:)&.tap do |c|
+          c.interval = timeframe.day? ? interval : nil
+        end
       end
   end
 end

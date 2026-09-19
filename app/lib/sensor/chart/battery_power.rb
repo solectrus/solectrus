@@ -2,11 +2,12 @@ class Sensor::Chart::BatteryPower < Sensor::Chart::Base
   # Discharging is negated to grow downward (see #transform_data).
   include Sensor::Chart::Concerns::OppositeDirectionBars
 
-  private
-
-  def chart_sensor_names
+  # Public: the year comparison draws the same pair.
+  def opposite_sensor_names
     %i[battery_charging_power battery_discharging_power]
   end
+
+  private
 
   # Discharging grows downward, so it is negated -- but only after the base
   # class has clamped the values to their sensor's range. Skipping that clamp
