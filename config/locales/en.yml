@@ -160,6 +160,8 @@ en:
     all_years: All years
     all_months: All months
     months_across_years: Months across the years
+    quarters_across_years: Quarters across the years
+    quarter_with_year: Q%{quarter} %{year}
     time: 'Time since last measurement:'
     blank: No data available!
     heatpump_cop_below_one: Power consumption exceeds heat generated

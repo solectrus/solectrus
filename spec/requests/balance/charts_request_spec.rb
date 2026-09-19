@@ -15,6 +15,14 @@ describe 'Charts' do
     )
   end
 
+  let(:by_quarter_path) do
+    balance_charts_path(
+      sensor_name: 'house_power',
+      timeframe: 'all',
+      compare: 'by_quarter',
+    )
+  end
+
   describe 'GET /charts' do
     before do
       create_summary(
@@ -94,6 +102,40 @@ describe 'Charts' do
 
         expect(response.body).to include("/house_power/#{year}\"")
         expect(response.body).not_to include("/house_power/#{year}/by_month")
+      end
+    end
+
+    context 'with the comparison by quarter' do
+      it 'compares the years on a category axis' do
+        get_chart(by_quarter_path)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('"type":"category"')
+        expect(response.body).to include('"label":"2023"')
+        expect(response.body).to include('"label":"2024"')
+      end
+
+      it 'keeps the comparison when the sensor selector offers another sensor' do
+        get_chart(by_quarter_path)
+
+        expect(response.body).to include('/inverter_power/all/by_quarter')
+      end
+
+      # No timeframe names a quarter, so a click leads to the three months of
+      # it as a range. That page has to answer.
+      it 'opens the quarter a bar was aimed at' do
+        get_chart(by_quarter_path)
+
+        expect(response.body).to include(
+          '/house_power/2023-04-01..2023-06-30',
+        )
+
+        get balance_home_path(
+              sensor_name: 'house_power',
+              timeframe: '2023-04-01..2023-06-30',
+            )
+
+        expect(response).to have_http_status(:ok)
       end
     end
   end

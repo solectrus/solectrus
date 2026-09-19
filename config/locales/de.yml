@@ -160,6 +160,8 @@ de:
     all_years: Alle Jahre
     all_months: Alle Monate
     months_across_years: Monate im Jahresvergleich
+    quarters_across_years: Quartale im Jahresvergleich
+    quarter_with_year: '%{quarter}. Quartal %{year}'
     time: Letzte Messung vor
     blank: Keine Daten vorhanden!
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
