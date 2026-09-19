@@ -20,6 +20,10 @@ describe Sensor::Chart::YearComparison do
       expect(described_class.for('by_month')).to eq(described_class::ByMonth)
     end
 
+    it 'finds the comparison by quarter' do
+      expect(described_class.for('by_quarter')).to eq(described_class::ByQuarter)
+    end
+
     it 'answers nothing for an unknown spelling' do
       expect(described_class.for('by_week')).to be_nil
     end

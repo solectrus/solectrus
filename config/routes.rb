@@ -159,11 +159,11 @@ Rails.application.routes.draw do
 
   constraints SensorConstraint.new(:chart_enabled?) do
     constraints timeframe: Timeframe::REGEX do
-      # A chart of the total timeframe can compare the years month by month,
-      # which the path says as a segment of its own (".../all/by_month"). The
-      # segment is optional and spelled out by the constraint, so one route
-      # answers every way of reading the chart and `url_for` writes the
-      # segment rather than a query parameter.
+      # A chart of the total timeframe can compare the years month by month or
+      # quarter by quarter, which the path says as a segment of its own
+      # (".../all/by_month"). The segment is optional and spelled out by the
+      # constraint, so one route answers every way of reading the chart and
+      # `url_for` writes the segment rather than a query parameter.
       compare = { compare: Sensor::Chart::YearComparison.regex }
 
       # Balance

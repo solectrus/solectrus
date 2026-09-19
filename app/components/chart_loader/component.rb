@@ -1,7 +1,7 @@
 class ChartLoader::Component < ViewComponent::Base
   # `year_comparison` is given rather than read from the controller, because
   # the forecast page renders this component too and has no such parameter.
-  # It names the comparison ("by_month"), or nothing at all.
+  # It names the comparison ("by_month", "by_quarter"), or nothing at all.
   def initialize(
     sensor_name:,
     timeframe:,

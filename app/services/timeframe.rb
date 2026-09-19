@@ -350,6 +350,18 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     [ending.to_date, max_date].compact.min
   end
 
+  # How long each period a caller can ask about lasts. A quarter is no
+  # duration of its own in ActiveSupport, so the lengths are named here rather
+  # than read off the period with `1.public_send(period)`.
+  PERIOD_LENGTH = {
+    day: 1.day,
+    week: 1.week,
+    month: 1.month,
+    quarter: 3.months,
+    year: 1.year,
+  }.freeze
+  private_constant :PERIOD_LENGTH
+
   # Whether the period starting on `date` stands on fewer days than the period
   # has. Two ways that happens. Either this timeframe cuts one of its edges --
   # measured against the dates the data really covers, not the nominal ones.
@@ -358,7 +370,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   # is capped at today, so a period ending today never looks cut by them, yet
   # the day is not over.
   def partial_period?(date, period)
-    period_ending = date + 1.public_send(period) - 1.day
+    period_ending = date + PERIOD_LENGTH[period] - 1.day
 
     date < effective_beginning_date || period_ending > effective_ending_date ||
       period_ending >= Date.current

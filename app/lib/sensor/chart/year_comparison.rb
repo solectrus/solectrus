@@ -4,7 +4,7 @@
 # years developed, but not whether this May beat the last one.
 #
 # How the year is cut is left to the subclasses: ByMonth draws twelve bars per
-# year. This class holds everything else.
+# year, ByQuarter four. This class holds everything else.
 #
 # The chart draws the value of ONE sensor, never the composition its regular
 # chart may draw (the inverters of a multi-inverter installation, the split of
@@ -20,7 +20,7 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
   # and everything that builds such a path read it here -- as `Timeframe::REGEX`
   # owns the spelling of a timeframe.
   def self.variants
-    [ByMonth]
+    [ByMonth, ByQuarter]
   end
 
   # The comparison this spelling names, or nil if it names none.
@@ -204,7 +204,7 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
     {
       x: period_labels[index_for(date)],
       y: value,
-      # The axis has room for "Sep" only, and it names no year. The
+      # The axis has room for "Sep" or "Q3" only, and it names no year. The
       # tooltip speaks for one bar, so it names both and spells the period out.
       tooltipTitle: tooltip_title(date.to_date),
       drilldownPath: drilldown_path(date.to_date),
@@ -218,6 +218,12 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
   # timeframe, and it answers the same question for the MCP tools.
   def partial?(date)
     timeframe.partial_period?(date.to_date, period)
+  end
+
+  # Three months from `date`, as a range. No timeframe names a quarter, so a
+  # click on one leads to its days instead.
+  def three_month_range(date)
+    "#{date.iso8601}..#{(date + 2.months).end_of_month.iso8601}"
   end
 
   def drilldown_path(date)

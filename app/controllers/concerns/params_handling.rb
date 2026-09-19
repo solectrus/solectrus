@@ -55,10 +55,10 @@ module ParamsHandling
       ALLOWED_INTERVALS[permitted_params[:interval]]
     end
 
-    # How the chart compares the years, as the path spells it ("by_month"),
-    # or nil when it draws one bar per year as usual. Only `all` has years
-    # to compare, so the param is ignored everywhere else -- as :interval is
-    # outside of a day.
+    # How the chart compares the years, as the path spells it ("by_month",
+    # "by_quarter"), or nil when it draws one bar per year as usual. Only
+    # `all` has years to compare, so the param is ignored everywhere else --
+    # as :interval is outside of a day.
     helper_method def year_comparison
       return @year_comparison if defined?(@year_comparison)
 

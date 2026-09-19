@@ -118,6 +118,7 @@ module Sensor
           GROUP_BY_HASH = {
             day: 'date',
             month: "date_trunc('month', date)::date AS month",
+            quarter: "date_trunc('quarter', date)::date AS quarter",
             week: "date_trunc('week', date)::date AS week",
             year: "date_trunc('year', date)::date AS year",
           }.freeze

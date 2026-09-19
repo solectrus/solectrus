@@ -229,9 +229,9 @@ describe 'Home' do
         )
       end
 
-      # The comparison says how the chart is drawn, the entries above it say
-      # which period it covers, so it comes last and behind a line.
-      it 'sets the year comparison off from the periods it compares' do
+      # The comparisons say how the chart is drawn, the entries above them say
+      # which period it covers, so they come last and behind a line.
+      it 'sets the year comparisons off from the periods they compare' do
         get balance_home_path(sensor_name: 'house_power', timeframe: 'all')
 
         expect(menu_names).to eq(
@@ -239,11 +239,14 @@ describe 'Home' do
             I18n.t('data.all_years'),
             I18n.t('data.all_months'),
             I18n.t('data.months_across_years'),
+            I18n.t('data.quarters_across_years'),
           ],
         )
         expect(menu_entries.first[:classes]).not_to include('border-t')
-        expect(menu_entries.last[:classes]).to include('border-t')
+        expect(menu_entries.third[:classes]).to include('border-t')
+        expect(menu_entries.last[:classes]).not_to include('border-t')
         expect(response.body).to include('/house_power/all/by_month')
+        expect(response.body).to include('/house_power/all/by_quarter')
       end
 
       # Nothing to compare for a sensor without a value of its own. The tab
