@@ -18,32 +18,32 @@ Keep every section, an empty one included.
 
 ## New features
 
-- SOLECTRUS now shows its own page when your device is offline, with a button to try again. You saw the error page of the browser before.
-
 ## Improvements
 
-- The navigation bar and the timeframe tabs now react to a tap at once on a phone. Nothing happened for about half a second, until the new page arrived.
-- The page appears sooner on a phone. The chart selector is also narrower and sits closer to its arrow.
-- The icons now come from the server, as SVG in the page itself. JavaScript built them in the browser before, so they arrived a moment late and the page moved a little when they did.
-- The text of a notification is now bigger on a phone, with more space between the lines.
-- The installed app now shows its description in your language. It was always English before.
-- A cancelled sponsorship now shows the days that are left. The status said "active" and named no end.
-- On a phone, the sponsoring status now takes one line above the navigation bar. It took two lines below the color buttons.
-- The chart menu now lists "Total consumption" under "Usage". It stood under "Other" before.
+### Speed
+
+- The navigation bar and the timeframe tabs mark your tap at once on a phone, which feels snappier. Before, the mark came only with the new page, a quarter of a second later.
+- A page appears sooner on a phone. Before, the app measured the chart selector first, and that held the page back. The selector is also narrower now.
+- The icons come as inline SVG with the page. Before, the browser built them afterwards, so they came late and the layout jumped.
+
+### Other
+
+- The chart menu lists "Total consumption" under "Usage". Before, it stood under "Other".
+- A notification uses the text size of the rest of the page on a phone, with more space between the lines. Before, it was the smallest text on the screen.
+- The installed app shows its description in your language. Before, it was English for everyone.
+- SOLECTRUS shows a page of its own when your device cannot reach it, with a button to try again. Before, you saw the error page of the browser, which names no app.
 
 ## Fixes
 
-- The page opens in the theme and the sensor colors you picked. It started in the light theme with the standard colors.
-- The page opens in the dark theme right away when your system is set to dark and you follow it. It painted light first.
-- The top of the app is sharp again when you open it from the home screen of an iPhone. iOS 26 and later painted a band of frosted glass over that edge. Add the app to your home screen again after this update, because iOS reads the setting only at that moment. (#5916)
-- The month and day names in the charts now follow the language you picked in SOLECTRUS. They followed the language of the browser.
-- Scrollbars and native form controls now follow the theme of the app, not the theme of the operating system.
-- The Safari toolbar now keeps the color of the app header. The color was too light, and it changed with every reload and every page. It still needs a moment when you switch between the light and the dark theme.
-- A chart tooltip now names the unit that fits the values it shows. A small value read "0 kW" when the chart reached above 1 kW, and now it reads "17 W". Values that stand in one tooltip still share one unit.
-- The tooltip of the generation charts now says kW for large values. It always said W, so a value stood there as "7.164 W" instead of "7,2 kW".
-- The tooltip for the savings now fits on a phone screen. Its text was too long and was cut off. (#5917)
-- The tooltip of the main navigation stays calm when you click an item. It went away and appeared again twice.
-- The menu no longer offers "Fullscreen" on an iPhone, where Safari has no fullscreen mode. A tap on it produced an error.
+- The page opens in the theme and the sensor colors you picked, and follows your system theme from the first paint. Before, it flashed light.
+- A chart tooltip uses the unit that fits its own values. Before, a small value read "0 kW", and the generation charts read "7.164 W" instead of "7,2 kW". Lines in one tooltip still share one unit.
+- The month and day names in the charts follow the language you picked in SOLECTRUS. Before, they followed the language of the browser.
+- The top of the app is sharp again on the home screen of an iPhone. Before, iOS 26 and later painted frosted glass over that edge. Add the app to your home screen again, because iOS reads the setting only at that moment. (#5916)
+- The menu no longer offers "Fullscreen" on an iPhone. Before, a tap on it produced an error, because Safari has no fullscreen mode there.
+- The Safari toolbar keeps the color of the app header. Before, it was too light and changed with every page. A theme switch still takes a moment.
+- Scrollbars and native form controls follow the theme of the app. Before, they stayed light in the dark app.
+- The tooltip for the savings fits on a phone screen. Before, its text was cut off. (#5917)
+- The tooltip of the main navigation no longer flickers on a click. Before, it went away and appeared again twice.
 
 ## Maintenance
 
