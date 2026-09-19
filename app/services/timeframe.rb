@@ -350,6 +350,20 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     [ending.to_date, max_date].compact.min
   end
 
+  # Whether the period starting on `date` stands on fewer days than the period
+  # has. Two ways that happens. Either this timeframe cuts one of its edges --
+  # measured against the dates the data really covers, not the nominal ones.
+  #
+  # Or it holds today, which the bounds cannot express: effective_ending_date
+  # is capped at today, so a period ending today never looks cut by them, yet
+  # the day is not over.
+  def partial_period?(date, period)
+    period_ending = date + 1.public_send(period) - 1.day
+
+    date < effective_beginning_date || period_ending > effective_ending_date ||
+      period_ending >= Date.current
+  end
+
   def ending # rubocop:disable Metrics/CyclomaticComplexity
     case id
     when :now, :hours
