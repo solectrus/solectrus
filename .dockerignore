@@ -19,6 +19,7 @@ bin/brakeman
 bin/bundler-audit
 bin/ci
 bin/dev
+bin/image-test.sh
 bin/influxdb-restart.sh
 bin/llm-test
 bin/open
