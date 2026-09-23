@@ -8,15 +8,13 @@
 // A classic script, not a module: Safari only learned module workers in 16.4,
 // and there is nothing here that needs the syntax.
 
-// Bumped by hand when public/offline.html changes. A change to this file makes
-// the browser reinstall the worker by itself, because it compares the bytes. A
-// change to the offline page alone is invisible to it, and bumping this string
-// is what makes it visible. The asset cache takes its name from the manifest,
-// so a new build rotates it without help.
-const VERSION = 'v1';
-
+// Each release installs the worker anew, because setupServiceWorker.ts puts
+// the version into its URL. The install fetches the offline page again and
+// replaces the copy in this cache, so the name needs no version of its own.
+// The asset cache takes its name from the manifest, so a new build rotates it
+// without help.
 const OFFLINE_PAGE = '/offline.html';
-const OFFLINE_CACHE = `offline-${VERSION}`;
+const OFFLINE_CACHE = 'offline';
 
 // Where the built assets live. setupServiceWorker.ts passes it in, because the
 // path differs between production (/vite/assets/) and test (/vite-test/assets/).
@@ -98,9 +96,8 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Drop what an earlier build left behind. The names hold the digest and the
-// version, so anything that is not the current pair is from a release before
-// this one.
+// Drop what an earlier build left behind. The name of the asset cache holds
+// the digest of its build, so any other one is from a release before this one.
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {

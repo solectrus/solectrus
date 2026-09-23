@@ -25,11 +25,18 @@ export function setupServiceWorker() {
   // need a second source of truth for it.
   const assets = new URL(/* @vite-ignore */ '.', import.meta.url).pathname;
 
+  // The version in the URL makes every release install the worker anew. The
+  // browser compares only the bytes of the script, and those stay the same
+  // from one release to the next, so without it a new build would never be
+  // precached and the cache of the old one would stay behind.
+  const params = new URLSearchParams({
+    assets,
+    v: metaContent('version') ?? '',
+  });
+
   // After load, so the registration never competes with the first paint for
   // bandwidth or main thread time.
   window.addEventListener('load', () => {
-    void navigator.serviceWorker.register(
-      `/service-worker.js?assets=${encodeURIComponent(assets)}`,
-    );
+    void navigator.serviceWorker.register(`/service-worker.js?${params}`);
   });
 }
