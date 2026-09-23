@@ -44,6 +44,7 @@ Keep every section, an empty one included.
 - A chart tooltip uses the unit that fits its own values. Before, a small value read "0 kW", and the generation charts read "7.164 W" instead of "7,2 kW". Lines in one tooltip still share one unit.
 - The month and day names in the charts follow the language you picked in SOLECTRUS. Before, they followed the language of the browser.
 - The top of the app is sharp again on the home screen of an iPhone. Before, iOS 26 and later painted frosted glass over that edge. Add the app to your home screen again, because iOS reads the setting only at that moment. (#5916)
+- The installed app shows the SOLECTRUS logo while it starts on an iPhone 14 Pro or newer. Before, the screen stayed blank. Add the app to your home screen again, because iOS reads the start screen only at that moment.
 - The menu no longer offers "Fullscreen" on an iPhone. Before, a tap on it produced an error, because Safari has no fullscreen mode there.
 - The Safari toolbar keeps the color of the app header. Before, it was too light and changed with every page. A theme switch still takes a moment.
 - Scrollbars and native form controls follow the theme of the app. Before, they stayed light in the dark app.
