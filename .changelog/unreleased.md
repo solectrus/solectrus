@@ -16,6 +16,11 @@ what went wrong before, so a reader knows the bug.
 Keep every section, an empty one included.
 -->
 
+## Before you update
+
+- The Docker container stops at once when it runs as root. If your `compose.yaml` sets `user: root` or `user: "0"`, remove that line.
+- The Docker container starts only with `RAILS_ENV=production`, which the image sets by itself. If your `compose.yaml` or `.env` sets `RAILS_ENV`, remove it.
+
 ## New features
 
 ## Improvements
