@@ -19,9 +19,6 @@ RUN touch .image
 
 USER app
 
-# Enable YJIT
-ENV RUBY_YJIT_ENABLE=1
-
 # Entrypoint prepares the database.
 ENTRYPOINT ["docker/entrypoint.sh"]
 

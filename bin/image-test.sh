@@ -55,6 +55,21 @@ echo "The Docker image runs:"
 check "the application boots" MATCH 'Rails [0-9]' -- \
   "${IMAGE}" ./bin/rails --version
 
+# A tool that recreates a container from the configuration of the old one can
+# keep the env vars of an older image. The version comes from the file the base
+# image writes, so the old value must not arrive.
+version="$(docker image inspect "${IMAGE}" \
+  --format '{{range .Config.Env}}{{println .}}{{end}}' | sed -n 's/^COMMIT_VERSION=//p')"
+
+check "its own version at the start" MATCH "^Version ${version}, built on" -- \
+  -e COMMIT_VERSION=v0.0.0-stale "${IMAGE}" true
+
+# The application reads the same file (see config/initializers/git.rb). Booting
+# it needs a database, so this asks the reader directly.
+check "its own version in the application" MATCH "^version=${version}\$" -- \
+  --entrypoint ruby -e COMMIT_VERSION=v0.0.0-stale "${IMAGE}" \
+  -e 'require "/app/lib/build_info"; puts "version=#{BuildInfo.read["COMMIT_VERSION"]}"'
+
 # The mark of the Docker image lies in it, so nothing may put a file there.
 check "its own root belongs to root" MATCH 'Permission denied' -- \
   --entrypoint sh "${IMAGE}" -c 'touch /app/.probe'

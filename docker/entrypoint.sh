@@ -1,6 +1,12 @@
 #!/bin/sh -e
+
+# The base image writes the Git metadata to this file. The env vars of the same
+# name can hold the values of an older image (see lib/build_info.rb).
+version=$(sed -n 's/^COMMIT_VERSION=//p' /etc/build-info)
+built=$(sed -n 's/^COMMIT_TIME=//p' /etc/build-info)
+
 echo "SOLECTRUS Photovoltaic Dashboard"
-echo "Version ${COMMIT_VERSION}, built on ${COMMIT_TIME}"
+echo "Version ${version}, built on ${built}"
 echo "Using $(ruby -v)"
 echo "Based on Alpine Linux $(cat /etc/alpine-release)"
 
@@ -18,7 +24,7 @@ fi
 # and create or migrate existing database
 if [ "${1}" = "./bin/rails" ] && [ "${2}" = "server" ]; then
   # Check for necessary environment variables
-  if [ -z "${COMMIT_VERSION}" ]; then
+  if [ -z "${version}" ]; then
     echo "Error: Invalid Docker image. Stopping..." >&2
     exit 1
   fi

@@ -40,6 +40,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- SOLECTRUS shows the version that runs. Before, it could show the version before an update, when an update tool recreated the Docker container.
 - The page opens in the theme and the sensor colors you picked, and follows your system theme from the first paint. Before, it flashed light.
 - A chart tooltip uses the unit that fits its own values. Before, a small value read "0 kW", and the generation charts read "7.164 W" instead of "7,2 kW". Lines in one tooltip still share one unit.
 - The month and day names in the charts follow the language you picked in SOLECTRUS. Before, they followed the language of the browser.

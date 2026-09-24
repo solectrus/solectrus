@@ -1,5 +1,13 @@
+# An initializer cannot autoload from lib, which is reloadable.
+require_relative '../../lib/build_info'
+
+# The Docker image names its commit in a file, not in the environment, which can
+# hold the values of an older image (see BuildInfo). A working copy has no such
+# file and asks git.
+commit = BuildInfo.read
+
 Rails.configuration.x.git.commit_version =
-  ENV.fetch('COMMIT_VERSION') do
+  commit.fetch('COMMIT_VERSION') do
     version_prefix_file = Rails.root.join('VERSION_PREFIX')
     if version_prefix_file.exist?
       prefix = version_prefix_file.read.strip
@@ -12,6 +20,6 @@ Rails.configuration.x.git.commit_version =
   end
 
 Rails.configuration.x.git.commit_time =
-  Time.zone.parse(ENV.fetch('COMMIT_TIME') { `git show -s --format=%cI` })
+  Time.zone.parse(commit.fetch('COMMIT_TIME') { `git show -s --format=%cI` })
 
 Rails.configuration.x.git.home = 'https://github.com/solectrus/solectrus'
