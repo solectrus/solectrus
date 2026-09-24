@@ -54,9 +54,6 @@ Rails.application.configure do
   # Annotate rendered view with file names.
   config.action_view.annotate_rendered_view_with_filenames = true
 
-  # Uncomment if you wish to allow Action Cable access from any origin.
-  # config.action_cable.disable_request_forgery_protection = true
-
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
   config.assume_ssl =
     ActiveModel::Type::Boolean.new.cast ENV.fetch('FORCE_SSL', 'false')

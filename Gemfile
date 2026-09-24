@@ -39,8 +39,7 @@ gem 'pg', '~> 1.1'
 gem 'puma', '>= 5.0'
 
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
-# Upper bound required: Action Cable's redis pubsub adapter declares
-# `gem "redis", ">= 4", "< 6"`, so redis 6 breaks broadcasting in production.
+# Upper bound kept until the Redis cache store is tested with redis 6.
 gem 'redis', '>= 4.0.1', '< 6'
 
 # The best solution for store global settings in Rails applications. (https://github.com/huacnlee/rails-settings-cached)

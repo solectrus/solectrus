@@ -17,7 +17,5 @@ SimpleCov.configure do
   group 'Middleware', 'app/middleware'
 
   skip 'app/jobs/application_job.rb'
-  skip 'app/channels/application_cable/connection.rb'
-  skip 'app/channels/application_cable/channel.rb'
   skip 'app/models/application_record.rb'
 end

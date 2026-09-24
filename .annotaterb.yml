@@ -47,7 +47,7 @@
   - created_at
   - updated_at
 :ignore_columns:
-:ignore_routes: cable
+:ignore_routes:
 :models: true
 :routes: false
 :skip_on_db_migrate: false

@@ -7,7 +7,7 @@ brew 'caddy'
 brew 'postgresql@18'
 brew 'libpq'
 
-# Redis - for ActionCable support and caching
+# Redis - for caching
 brew 'redis'
 
 # Shellcheck - for linting shell scripts

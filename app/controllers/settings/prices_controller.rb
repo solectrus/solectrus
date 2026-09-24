@@ -44,8 +44,7 @@ class Settings::PricesController < ApplicationController
 
   private
 
-  # Refresh the list straight from the mutating request, so it does not depend
-  # on a Turbo broadcast reaching the page.
+  # Refresh the list straight from the mutating request.
   def render_list
     flash.now[:notice] = t('crud.success')
     render turbo_stream: [
