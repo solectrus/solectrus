@@ -54,7 +54,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
     end
 
     context 'when Helios is available' do
-      before { allow(HeliosCheck).to receive(:version).and_return('v0.1.1-4-g6bebca2') }
+      before { allow(HeliosCheck).to receive(:version).with(cached: false).and_return('v0.1.1-4-g6bebca2') }
 
       it 'appends a helios token with version' do
         expect(user_agent.to_s).to include('HELIOS/v0.1.1-4-g6bebca2')
@@ -87,7 +87,7 @@ describe UserAgentBuilder, with_setup_id: 0 do
 
     context 'when all service versions are available' do
       before do
-        allow(HeliosCheck).to receive(:version).and_return('v0.1.1-4-g6bebca2')
+        allow(HeliosCheck).to receive(:version).with(cached: false).and_return('v0.1.1-4-g6bebca2')
         allow(ServiceVersions).to receive_messages(
           influxdb: Gem::Version.new('2.8.0'),
           postgresql: Gem::Version.new('16.1'),

@@ -38,16 +38,23 @@ class HeliosCheck
     version.present?
   end
 
-  def version
+  # `cached: false` asks HELIOS instead of the cache and renews the cache with
+  # the answer. For a caller that reports the version (see UserAgentBuilder):
+  # the cache can hold the version from before an update of HELIOS. Such a
+  # caller runs rarely and beside a request of its own, so the probe costs no
+  # page.
+  def version(cached: true)
     return if self.class.skip_http?
 
-    cached =
-      Rails.cache.fetch(
+    Rails
+      .cache
+      .fetch(
         CACHE_KEY,
         expires_in: CACHE_DURATION,
         race_condition_ttl: CACHE_RACE_TTL,
+        force: !cached,
       ) { probe || false }
-    cached.presence
+      .presence
   end
 
   def browser_url(request)

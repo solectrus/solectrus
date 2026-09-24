@@ -21,7 +21,7 @@ class UserAgentBuilder
   end
 
   def helios_token
-    token_for('HELIOS', HeliosCheck.version)
+    token_for('HELIOS', HeliosCheck.version(cached: false))
   end
 
   def influxdb_token

@@ -67,6 +67,43 @@ describe HeliosCheck do
     end
   end
 
+  # The cache can hold the version from before an update of HELIOS.
+  describe '#version, not cached' do
+    subject(:uncached_version) { instance.version(cached: false) }
+
+    before do
+      Rails.cache.write('HeliosCheck:version', '2.5.0')
+      stub_request(:get, 'http://helios:3000/up').to_return(
+        status: 200,
+        headers: {
+          'X-Version' => '2.5.1',
+        },
+      )
+    end
+
+    it { is_expected.to eq('2.5.1') }
+
+    it 'renews the cache' do
+      uncached_version
+      expect(instance.version).to eq('2.5.1')
+    end
+
+    context 'when helios is unreachable' do
+      before { stub_request(:get, 'http://helios:3000/up').to_timeout }
+
+      it 'forgets the version' do
+        expect(uncached_version).to be_nil
+        expect(instance).not_to be_available
+      end
+    end
+
+    context 'when running in test/development' do
+      before { allow(described_class).to receive(:skip_http?).and_return(true) }
+
+      it { is_expected.to be_nil }
+    end
+  end
+
   describe '#available?' do
     subject(:available) { instance.available? }
 
