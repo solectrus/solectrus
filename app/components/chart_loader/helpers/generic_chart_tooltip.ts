@@ -28,6 +28,7 @@ type TooltipModel = {
   labelColors: Array<{ backgroundColor: Color; borderColor: Color }>;
   dataPoints?: TooltipDataPoint[];
   caretX: number;
+  caretY: number;
   options: { displayColors?: unknown };
 };
 
@@ -206,8 +207,22 @@ export default class GenericChartTooltip {
   ) {
     const canvasRect = chart.canvas.getBoundingClientRect();
     const centerY =
-      canvasRect.top + (chart.chartArea.top + chart.chartArea.bottom) / 2;
+      canvasRect.top +
+      (this.followsCaret(chart, tooltip)
+        ? tooltip.caretY
+        : (chart.chartArea.top + chart.chartArea.bottom) / 2);
 
     positionTooltipElement(tooltipEl, chart, tooltip.caretX, centerY);
+  }
+
+  // By default the tooltip is centered vertically in the chart. A floating
+  // min/max bar or a scatter point can be far away from that center, so there
+  // the tooltip follows the caret of the Chart.js positioner. Not beside a
+  // crosshair line, which the plugin marks by adding this property to the chart.
+  private followsCaret(chart: Chart, tooltip: TooltipModel): boolean {
+    if ('crosshair' in chart) return false;
+    if ((chart.config as { type?: string }).type === 'scatter') return true;
+
+    return Array.isArray(tooltip.dataPoints?.[0]?.raw);
   }
 }

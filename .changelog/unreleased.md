@@ -52,6 +52,7 @@ Keep every section, an empty one included.
 - The tooltip of the main navigation no longer flickers on a click. Before, it went away and appeared again twice.
 - The chart "Heat generated" names its parts like the donut beside it: "Energy from PV" and "Energy from grid". Before, it named the heat pump instead of the source of the energy.
 - The percentages in the tooltip of the heat pump donut add up to 100 %. Before, rounding could make them 99 % or 101 %.
+- In the charts that show a minimum and a maximum per bar, such as the hot water temperature, and in the chart "COP vs. Outdoor temperature", the tooltip appears at the height of the bar or point you point at. Before, it stayed in the vertical middle of the chart, often far away from it.
 
 ## Maintenance
 
