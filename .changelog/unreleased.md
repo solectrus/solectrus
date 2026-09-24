@@ -19,7 +19,7 @@ Keep every section, an empty one included.
 ## Before you update
 
 - The Docker container stops at once when it runs as root. If your `compose.yaml` sets `user: root` or `user: "0"`, remove that line.
-- The Docker container starts only with `RAILS_ENV=production`, which the image sets by itself. If your `compose.yaml` or `.env` sets `RAILS_ENV`, remove it.
+- The Docker container starts only with `RAILS_ENV=production`, which the image sets by itself. If your `compose.yaml` or `.env` sets `RAILS_ENV` to another value, remove that line.
 
 ## New features
 
@@ -36,7 +36,7 @@ Keep every section, an empty one included.
 - The chart menu lists "Total consumption" under "Usage". Before, it stood under "Other".
 - A notification uses the text size of the rest of the page on a phone, with more space between the lines. Before, it was the smallest text on the screen.
 - The installed app shows its description in your language. Before, it was English for everyone.
-- SOLECTRUS shows a page of its own when your device cannot reach it, with a button to try again. Before, you saw the error page of the browser, which names no app.
+- SOLECTRUS shows a page of its own when your device cannot reach it, with a button to try again. This needs HTTPS. Before, you saw the error page of the browser, which names no app.
 
 ## Fixes
 
