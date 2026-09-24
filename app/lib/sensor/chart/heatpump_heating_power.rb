@@ -158,11 +158,13 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
     end
   end
 
+  # The labels of the donut beside the chart
   def dataset_label(sensor)
-    if timeframe.now? && sensor.name == :heatpump_power
-      I18n.t('splitter.total')
-    else
-      sensor.display_name
+    case sensor.name
+    when :heatpump_power then I18n.t('splitter.total')
+    when :heatpump_power_pv then I18n.t('splitter.pv')
+    when :heatpump_power_grid then I18n.t('splitter.grid')
+    else sensor.display_name
     end
   end
 

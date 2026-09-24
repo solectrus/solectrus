@@ -50,6 +50,7 @@ Keep every section, an empty one included.
 - Scrollbars and native form controls follow the theme of the app. Before, they stayed light in the dark app.
 - The tooltip for the savings fits on a phone screen. Before, its text was cut off. (#5917)
 - The tooltip of the main navigation no longer flickers on a click. Before, it went away and appeared again twice.
+- The chart "Heat generated" names its parts like the donut beside it: "Energy from PV" and "Energy from grid". Before, it named the heat pump instead of the source of the energy.
 
 ## Maintenance
 

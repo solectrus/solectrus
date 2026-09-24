@@ -184,4 +184,17 @@ describe Sensor::Chart::HeatpumpHeatingPower do
       expect { chart.__send__(:bridged_heating_power) }.not_to raise_error
     end
   end
+
+  describe 'dataset labels' do
+    it 'names the energy sources like the donut beside the chart' do
+      stub_series(heating: [800.0], grid: [100])
+      labels = chart.data[:datasets].to_h { [it[:id], it[:label]] }
+
+      expect(labels).to include(
+        heatpump_power_pv: I18n.t('splitter.pv'),
+        heatpump_power_grid: I18n.t('splitter.grid'),
+        heatpump_power_env: Sensor::Registry[:heatpump_power_env].display_name,
+      )
+    end
+  end
 end
