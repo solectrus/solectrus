@@ -37,6 +37,10 @@ export function setupServiceWorker() {
   // After load, so the registration never competes with the first paint for
   // bandwidth or main thread time.
   window.addEventListener('load', () => {
-    void navigator.serviceWorker.register(`/service-worker.js?${params}`);
+    // A browser refuses the worker without a trusted certificate, or in a
+    // private window. The app works without it, so there is nothing to report.
+    navigator.serviceWorker
+      .register(`/service-worker.js?${params}`)
+      .catch(() => {});
   });
 }
