@@ -79,8 +79,10 @@
   prompt: Vergleiche die PV-Erzeugung im letzten Monat mit der in diesem Monat.
   max_tool_calls: 3
   judge: >
-    Says that the running month is not over yet (only part of it is measured)
-    instead of presenting its smaller figure as a decline.
+    Says that the running month is not over yet (only part of it is
+    measured). Naming the difference so far passes, as long as the answer
+    says that. Presenting the smaller figure as a decline without that
+    remark fails.
 
 - id: series_intraday
   note: An intraday curve is get_series; the daily aggregates cannot answer it.
