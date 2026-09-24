@@ -1,7 +1,6 @@
 class CashFlowList::Component < ViewComponent::Base
-  # The active filter is passed in as plain data (not read from the controller),
-  # because the list is also re-rendered from a Turbo broadcast - where no
-  # controller and no filter exist, so the defaults apply (full, unfiltered list).
+  # The active filter is passed in as plain data. The defaults give the full,
+  # unfiltered list.
   def initialize(cash_flows:, filter_categories: [], filter_from: nil, filter_to: nil)
     super()
     @cash_flows = cash_flows

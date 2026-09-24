@@ -3,7 +3,8 @@
 # per-row category chevrons in the list itself. There is deliberately no UI to
 # compose a filter from scratch (date pickers proved unusable on mobile); the
 # single action offered here is to clear it and return to the full list. Rendered
-# outside the 'list' Turbo frame so a broadcast refresh does not drop the filter.
+# outside the 'list' Turbo frame so the list refresh after a change does not drop
+# the filter.
 # The effective filter values are owned by the controller (validated there) and
 # read back through the exposed helper methods.
 class CashFlowFilter::Component < ViewComponent::Base
