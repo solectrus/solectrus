@@ -41,7 +41,27 @@ class DonutChart::Component < ViewComponent::Base
     @segment_overlays ||= build_segment_overlays
   end
 
+  # Whole percentages for the tooltip, one per segment. Largest remainder
+  # method: the rounded values add up to the rounded total (usually 100),
+  # which rounding each value on its own does not guarantee (72 + 14 + 15).
+  def rounded_percents
+    @rounded_percents ||= build_rounded_percents
+  end
+
   private
+
+  def build_rounded_percents
+    percents = segments.map { |seg| seg[:percent].to_f }
+    rounded = percents.map(&:floor)
+    missing = percents.sum.round - rounded.sum
+
+    percents
+      .each_index
+      .max_by(missing) { |i| percents[i] - rounded[i] }
+      .each { |i| rounded[i] += 1 }
+
+    rounded
+  end
 
   def build_donut_style
     stops = []

@@ -28,9 +28,9 @@ div class="donut-chart flex-1 min-h-0 flex items-center justify-center @containe
       / Single tooltip content for all segments
       .hidden data-tooltip-target="html"
         .space-y-1
-          - segments.each do |seg|
+          - segments.zip(rounded_percents).each do |seg, percent|
             = render TooltipRow::Component.new(label: seg[:label], color_var: seg[:color_var]) do
-              = number_to_percentage(seg[:percent], precision: 0)
+              = number_to_percentage(percent, precision: 0)
           - if tooltip_footer
             .label-value-separator.pt-1.mt-1.text-center.font-semibold.whitespace-nowrap
               = tooltip_footer

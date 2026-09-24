@@ -38,6 +38,30 @@ describe DonutChart::Component, type: :component do
     end
   end
 
+  describe '#rounded_percents' do
+    subject(:rounded_percents) do
+      described_class.new(segments: percents.map { |percent| { percent: } }).rounded_percents
+    end
+
+    context 'when rounding each value would exceed 100' do
+      let(:percents) { [71.7, 13.8, 14.5] }
+
+      it { is_expected.to eq([72, 14, 14]) }
+    end
+
+    context 'when rounding each value would fall short of 100' do
+      let(:percents) { [33.3, 33.3, 33.4] }
+
+      it { is_expected.to eq([33, 33, 34]) }
+    end
+
+    context 'with whole numbers' do
+      let(:percents) { [60, 40] }
+
+      it { is_expected.to eq([60, 40]) }
+    end
+  end
+
   describe '#placeholder?' do
     it 'is true without segments' do
       expect(described_class.new).to be_placeholder
