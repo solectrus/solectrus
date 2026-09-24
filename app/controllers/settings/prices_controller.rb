@@ -23,7 +23,7 @@ class Settings::PricesController < ApplicationController
 
   def create
     if @price.save
-      respond_with_flash notice: t('crud.success')
+      render_list
     else
       render :new, status: :unprocessable_content
     end
@@ -31,7 +31,7 @@ class Settings::PricesController < ApplicationController
 
   def update
     if @price.update(permitted_params)
-      respond_with_flash notice: t('crud.success')
+      render_list
     else
       render :edit, status: :unprocessable_content
     end
@@ -39,10 +39,27 @@ class Settings::PricesController < ApplicationController
 
   def destroy
     @price.destroy!
-    respond_with_flash notice: t('crud.success')
+    render_list
   end
 
   private
+
+  # Refresh the list straight from the mutating request, so it does not depend
+  # on a Turbo broadcast reaching the page.
+  def render_list
+    flash.now[:notice] = t('crud.success')
+    render turbo_stream: [
+             turbo_stream.update(
+               'list',
+               partial: 'settings/prices/list',
+               locals: {
+                 prices: Price.list_for(name),
+                 name:,
+               },
+             ),
+             turbo_stream_update_flash,
+           ]
+  end
 
   helper_method def title
     Price.human_enum_name(:name, name)

@@ -135,6 +135,29 @@ describe 'Settings' do
     end
   end
 
+  describe 'PATCH /settings/prices/:id' do
+    before { login_as_admin }
+
+    let!(:price) do
+      Price.create!(
+        name: :electricity,
+        starts_at: Date.new(2024, 1, 1),
+        value: 0.3,
+      )
+    end
+
+    it 'responds with the updated list' do
+      patch "/settings/prices/#{price.id}",
+            params: { price: { note: 'New tariff' } },
+            as: :turbo_stream
+
+      expect(response.body).to include(
+        '<turbo-stream action="update" target="list">',
+      )
+      expect(response.body).to include('New tariff')
+    end
+  end
+
   describe 'GET /settings/sensors' do
     context 'when not logged in' do
       it 'returns http forbidden' do

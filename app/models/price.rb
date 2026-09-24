@@ -25,16 +25,6 @@ class Price < ApplicationRecord
 
   enum :name, electricity: 'electricity', feed_in: 'feed_in'
 
-  after_commit do |price|
-    broadcast_update_to "prices_#{price.name}",
-                        partial: 'settings/prices/list',
-                        target: 'list',
-                        locals: {
-                          prices: Price.list_for(price.name),
-                          name: price.name,
-                        }
-  end
-
   scope :list_for, ->(name) { where(name:).order(starts_at: :desc) }
 
   def self.seed!

@@ -11,6 +11,5 @@
               title: t('crud.new') do
     = icon 'plus', class: 'fa-lg'
 
-= turbo_stream_from "prices_#{name}"
 = tag.turbo_frame id: 'list' do
   = render 'list', prices: @prices, name:
