@@ -57,4 +57,4 @@ Keep every section, an empty one included.
 
 ## Maintenance
 
-- Updated to Ruby 4.0.7
+- Updated to Ruby 4.0.7 and Rails 8.1.4
