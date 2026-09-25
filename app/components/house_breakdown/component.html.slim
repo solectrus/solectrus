@@ -18,7 +18,7 @@
             = icon 'circle-exclamation', class: 'fa-sm'
 
         = link_to house_home_path(sensor_name: 'house_power', timeframe:),
-                  class: 'bg-white dark:bg-slate-900 pb-2 md:pb-4 pl-3',
+                  class: 'relative touch-target bg-white dark:bg-slate-900 pb-2 md:pb-4 pl-3',
                   title: Sensor::Registry[:house_power].display_name,
                   data: { \
                     controller: 'tooltip',
@@ -45,7 +45,7 @@
                     pv_costs: data.house_costs_pv,
                   )
 
-        button.mt-0.mb-3.flex.items-center.justify-center.size-8.rounded-full.border.border-gray-300.dark:border-gray-600.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.text-slate-500.dark:text-slate-400.cursor-pointer.transition-colors[
+        button.mt-0.mb-3.relative.touch-target.flex.items-center.justify-center.size-8.rounded-full.border.border-gray-300.dark:border-gray-600.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.text-slate-500.dark:text-slate-400.cursor-pointer.transition-colors[
           data-controller="tooltip"
           data-tooltip-placement-value="right"
           data-tooltip-force-tap-to-close-value="false"

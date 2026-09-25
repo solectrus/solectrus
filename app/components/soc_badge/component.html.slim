@@ -1,5 +1,7 @@
+/ On a touch screen, the margin lets the 44px tap targets of the two links
+/ meet between them instead of overlapping
 .soc-badge.badge[
-  class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 dark:xl:tall:bg-slate-800'
+  class= 'flex flex-col gap-1 pointer-coarse:[&>a+a]:mt-4 rounded-3xl xl:tall:bg-slate-200 dark:xl:tall:bg-slate-800'
   style= "--value: #{percent};"
 ]
   - %i[battery_soc car_battery_soc].each do |soc_sensor|
@@ -15,7 +17,7 @@
                   stats_with_chart__component_sensor_name_param: soc_sensor,
                   stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: soc_sensor, timeframe:),
                 },
-                class: 'click-animation' do
+                class: 'click-animation relative touch-target' do
         .soc-row class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'
           - case soc_sensor
           - when :battery_soc
