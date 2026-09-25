@@ -17,7 +17,7 @@ class ChartLoader::Component < ViewComponent::Base
            :permitted_feature_name,
            to: :chart
 
-  ICON_BUTTON_CLASS = 'flex items-center justify-center p-2 font-medium focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 text-sm gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800 rounded-full size-8 border border-gray-300 dark:border-gray-600 cursor-pointer'
+  ICON_BUTTON_CLASS = 'flex items-center justify-center p-2 font-medium focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 text-sm gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800 rounded-full size-8 border border-gray-300 dark:border-gray-600 cursor-pointer relative touch-target'
     .freeze
   private_constant :ICON_BUTTON_CLASS
 

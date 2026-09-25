@@ -73,7 +73,7 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def paginate_button_classes
-    interactive_button_classes(padding_x: 'lg:landscape:px-2')
+    interactive_button_classes(padding_x: 'lg:landscape:px-2 relative touch-target')
   end
 
   def timeframe_link_classes(additional_classes = nil)
