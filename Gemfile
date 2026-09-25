@@ -12,14 +12,7 @@ gem 'addressable'
 gem 'openssl'
 
 # Full-stack web application framework. (https://rubyonrails.org)
-gem 'rails', '~> 8.1.3'
-
-# This is a JSON implementation as a Ruby extension in C. (https://ruby.github.io/json)
-# Upper bound required: json 3 dropped the positional options Hash of
-# `JSON.parse`, which `ActiveSupport::JSON.decode` still passes.
-# TODO: Remove once Rails > 8.1.3.1 is released with the fix for
-# https://github.com/rails/rails/issues/58685
-gem 'json', '< 3'
+gem 'rails', '~> 8.1.4'
 
 # Vite integration for Rails (https://github.com/skryukov/rails_vite)
 gem 'rails_vite'
@@ -37,8 +30,7 @@ gem 'pg', '~> 1.1'
 gem 'puma', '>= 5.0'
 
 # A Ruby client library for Redis (https://github.com/redis/redis-rb)
-# Upper bound kept until the Redis cache store is tested with redis 6.
-gem 'redis', '>= 4.0.1', '< 6'
+gem 'redis', '>= 4.0.1'
 
 # The best solution for store global settings in Rails applications. (https://github.com/huacnlee/rails-settings-cached)
 gem 'rails-settings-cached'
