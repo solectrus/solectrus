@@ -18,44 +18,8 @@ Keep every section, an empty one included.
 
 ## New features
 
-None
-
 ## Improvements
-
-### Speed
-
-- The navigation bar and the timeframe tabs mark your tap at once on a phone, which feels snappier. Before, the mark came only with the new page, a quarter of a second later.
-- A page appears sooner on a phone. Before, the app measured the chart selector first, and that held the page back. The selector is also narrower now.
-- The icons come with the page. Before, the browser drew them afterwards, so they came late and the layout jumped.
-
-### Other
-
-- The chart menu lists "Total consumption" under "Usage". Before, it stood under "Other".
-- A notification uses the text size of the rest of the page on a phone, with more space between the lines. Before, it was the smallest text on the screen.
-- The installed app shows its description in your language. Before, it was English for everyone.
-- SOLECTRUS shows a page of its own when your device cannot reach it, with a button to try again. This needs HTTPS. Before, you saw the error page of the browser, which names no app.
 
 ## Fixes
 
-- SOLECTRUS shows the version that runs. Before, it could show the version before an update, when an update tool recreated the Docker container.
-- The page opens in the theme and the sensor colors you picked, and follows your system theme from the first paint. Before, it flashed light.
-- A chart tooltip uses the unit that fits its own values. Before, a small value read "0 kW", and the generation charts read "7,164 W" instead of "7.2 kW". Lines in one tooltip still share one unit.
-- The month and day names in the charts follow the language you picked in SOLECTRUS. Before, they followed the language of the browser.
-- The top of the app is sharp again on the home screen of an iPhone. Before, iOS 26 and later painted frosted glass over that edge. Add the app to your home screen again, because iOS reads the setting only at that moment. (#5916)
-- The installed app shows the SOLECTRUS logo while it starts on an iPhone 14 Pro or newer. Before, the screen stayed blank. Add the app to your home screen again, because iOS reads the start screen only at that moment.
-- The menu no longer offers "Fullscreen" on an iPhone. Before, a tap on it produced an error, because Safari has no fullscreen mode there.
-- The Safari toolbar keeps the color of the app header. Before, it was too light and changed with every page. A theme switch still takes a moment.
-- Scrollbars and native form controls follow the theme of the app. Before, they stayed light in the dark app.
-- The tooltip for the savings fits on a phone screen. Before, its text was cut off. (#5917)
-- The tooltip of the main navigation no longer flickers on a click. Before, it went away and appeared again twice.
-- The chart "Heat generated" names its parts like the donut beside it: "Energy from PV" and "Energy from grid". Before, it named the heat pump instead of the source of the energy.
-- The percentages in the tooltip of the heat pump donut add up to 100 %. Before, rounding could make them 99 % or 101 %.
-- In the charts that show a minimum and a maximum per bar, such as the hot water temperature, and in the chart "COP vs. Outdoor temperature", the tooltip appears at the height of the bar or point you point at. Before, it stayed in the vertical middle of the chart, often far away from it.
-- The list of prices updates more robustly after a save. Before, a saved change sometimes did not appear.
-- SOLECTRUS starts more robustly when Redis is set up wrong. Before, a missing Redis password stopped the start.
-
 ## Maintenance
-
-- Updated to Ruby 4.0.7 and Rails 8.1.4.
-- The Docker container stops at once when it runs as root. If your `compose.yaml` sets `user: root` or `user: "0"`, remove that line.
-- The Docker container starts only with `RAILS_ENV=production`, which the image sets by itself. If your `compose.yaml` or `.env` sets `RAILS_ENV` to another value, remove that line.
