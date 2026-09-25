@@ -46,7 +46,7 @@ body:
     attributes:
       label: Welche Version von SOLECTRUS verwendest du?
       description: Nur nötig, wenn du kein Support-Paket anhängen kannst.
-      placeholder: z.B. v1.3.1
+      placeholder: z.B. v1.3.2
 
   - type: input
     id: machine

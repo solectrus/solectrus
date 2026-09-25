@@ -16,8 +16,8 @@ http_interactions:
       Accept:
       - application/json
       User-Agent:
-      - SOLECTRUS-2c884ced/v1.3.1-61-gbfa06f5 (Darwin; arm64; 27.0.0; 1789377420)
-        FEATURES/0 INFLUXDB/2.9.1 POSTGRESQL/18.6
+      - SOLECTRUS/v1.3.2-4-g178bce2 (Darwin; arm64; 27.0.0; 1789377420) FEATURES/0
+        INFLUXDB/2.9.1 POSTGRESQL/18.6
   response:
     status:
       code: 200
@@ -30,9 +30,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Thu, 17 Sep 2026 19:14:08 GMT
+      - Fri, 25 Sep 2026 15:33:43 GMT
       Etag:
-      - W/"7e596ea29b89523c646e4f538b51b36c"
+      - W/"3269207aea683ddf68ba00916ac843ed"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Strict-Transport-Security:
@@ -46,14 +46,14 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - fe246b67-633c-492d-bbd0-d2bbfeb8e8f8
+      - 4fdc97a7-a178-413e-876e-c40c03220c3b
       X-Xss-Protection:
       - 1; mode=block
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"version":"v1.3.1","registration_status":"unregistered","premium_reason":"intro","premium_ends_at":"2026-09-28T11:17:00+02:00","setup_id":"1789377420","expires_at":"2036-09-17T21:14:09+02:00","registration_reminder_at":"2026-09-17T11:17:00+02:00","registration_due_at":"2026-09-21T11:17:00+02:00","notifications":[{"id":13,"title":"Version
+      string: '{"version":"v1.3.2","registration_status":"unregistered","premium_reason":"intro","premium_ends_at":"2026-09-28T11:17:00+02:00","setup_id":"1789377420","expires_at":"2036-09-26T05:33:43+02:00","registration_reminder_at":"2026-09-17T11:17:00+02:00","registration_due_at":"2026-09-21T11:17:00+02:00","notifications":[{"id":13,"title":"Version
         1.3 berechnet die Amortisation der PV-Anlage","published_at":"2026-08-30T20:08:43+02:00","body":"<div>Die
         aktuelle Version 1.3 bringt u.a. diese Neuerungen:<br><br></div><ul><li>Neue
         Seite „Amortisation\" ermittelt die Rendite der PV-Anlage und wann die Investition
@@ -68,6 +68,6 @@ http_interactions:
         <strong>Fragebogen</strong> mit ein paar freiwilligen Fragen zur technischen
         Ausstattung deiner Anlage.<br><br>Klicke in SOLECTRUS auf \"<a href=\"/registration\">Registrierung</a>\",
         um zu diesem Fragebogen zu gelangen. Danke, dass du dir <strong>eine&nbsp;
-        Minute</strong> Zeit nimmst!</div>"}],"signature":"CFWT+p2uqHw9aFzE9BHwL0lIZxBcmaz+6bXZyD4DOCITcjJG2dfscP/ylLD8jKYH82oJP4bT/oqq+Z8YnC7GDw=="}'
-  recorded_at: Thu, 17 Sep 2026 19:14:09 GMT
+        Minute</strong> Zeit nimmst!</div>"}],"signature":"IHWPqysuWNHI8p4mRvXFFznLM5jdMcU/GCVG45ai4cpO5akj1NXzp/8sG+6wlWk3yrCgt1N6Myu07ZEKsUD5Aw=="}'
+  recorded_at: Fri, 25 Sep 2026 15:33:43 GMT
 recorded_with: VCR 6.4.0

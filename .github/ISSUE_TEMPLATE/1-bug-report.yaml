@@ -20,7 +20,7 @@ body:
         Bitte **vollständig** angeben, so wie von SOLECTRUS angezeigt. Das ist besonders wichtig bei Verwendung der Entwicklungs-Version, weil sich diesemehrmals täglich ändern kann.
 
         Prüfe bitte auch, ob du die [neueste Version](https://github.com/solectrus/solectrus/releases) nutzt, manche Fehler wurden möglicherweise bereits behoben.
-      placeholder: z.B. v1.3.1 oder v1.3.1-48-g10991a9
+      placeholder: z.B. v1.3.2 oder v1.3.2-48-g10991a9
     validations:
       required: true
 
