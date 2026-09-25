@@ -36,7 +36,7 @@
 #                          insights GET              /insights/:sensor_name(/:timeframe)(.:format)             insights#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                  timeframe_select GET              /timeframe-select/:sensor_name(/:timeframe)(.:format)     timeframe_select#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                           summary GET              /summaries/:date(.:format)                                summaries#show
-#                         summaries DELETE           /summaries(.:format)                                      summaries#delete_all
+#                         summaries DELETE           /summaries(.:format)                                      summaries#reset
 #                        essentials GET              /essentials(.:format)                                     essentials#index
 #              details_amortization GET              /amortization/details(.:format)                           amortization#details
 #              returns_amortization GET              /amortization/returns(.:format)                           amortization#returns
@@ -197,7 +197,7 @@ Rails.application.routes.draw do
   end
 
   resources :summaries, only: :show, param: :date
-  delete '/summaries', to: 'summaries#delete_all'
+  delete '/summaries', to: 'summaries#reset'
 
   resources :essentials, only: :index
 

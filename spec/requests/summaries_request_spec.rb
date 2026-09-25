@@ -86,7 +86,7 @@ describe 'Summaries' do
     end
   end
 
-  describe 'DELETE /delete_all' do
+  describe 'DELETE /summaries' do
     subject(:request) { delete '/summaries' }
 
     before { Summary.create! date: Date.current }
@@ -108,7 +108,7 @@ describe 'Summaries' do
     end
   end
 
-  # `admin_required!` guards delete_all alone, so showing a summary is an
+  # `admin_required!` guards reset alone, so showing a summary is an
   # ordinary page and a logout has to stay on it.
   describe 'the logout target' do
     before { login_as_admin }

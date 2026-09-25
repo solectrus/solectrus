@@ -1,7 +1,7 @@
 class SummariesController < ApplicationController
   include SummaryChecker
 
-  before_action :admin_required!, only: %i[delete_all]
+  before_action :admin_required!, only: %i[reset]
 
   def show
     @from = Date.parse(params[:date])
@@ -10,7 +10,7 @@ class SummariesController < ApplicationController
     Sensor::Summarizer.new(pending_days).call
   end
 
-  def delete_all
+  def reset
     Summary.reset!
 
     flash.now[:notice] = t('settings.general.summaries.reset.flash')
