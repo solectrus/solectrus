@@ -6,7 +6,7 @@
         .w-0.flex-1.border-l-2.border-slate-500.mb-2
 
         = link_to inverter_home_path(sensor_name: 'inverter_power', timeframe:),
-                  class: 'bg-white dark:bg-slate-900 pb-2 md:pb-4 pl-3',
+                  class: 'relative touch-target bg-white dark:bg-slate-900 pb-2 md:pb-4 pl-3',
                   title: Sensor::Registry[:inverter_power].display_name,
                   data: { \
                     controller: 'tooltip',
@@ -28,7 +28,7 @@
               = render SensorValue::Component.new(data, :inverter_power, context: timeframe.now? ? :rate : :total, precision: 3)
 
         - if breakdown?
-          button.mt-0.mb-3.flex.items-center.justify-center.size-8.rounded-full.border.border-gray-300.dark:border-gray-600.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.text-slate-500.dark:text-slate-400.cursor-pointer.transition-colors[
+          button.mt-0.mb-3.relative.touch-target.flex.items-center.justify-center.size-8.rounded-full.border.border-gray-300.dark:border-gray-600.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.text-slate-500.dark:text-slate-400.cursor-pointer.transition-colors[
             data-controller="tooltip"
             data-tooltip-placement-value="right"
             data-tooltip-force-tap-to-close-value="false"
