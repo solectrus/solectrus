@@ -71,12 +71,6 @@ gem 'rorvswild'
 # Class to build custom data structures, similar to a Hash. (https://github.com/ruby/ostruct)
 gem 'ostruct'
 
-# The simplest way to group temporal data (https://github.com/ankane/groupdate)
-gem 'groupdate'
-
-# Fetch from database results of several aggregate functions at once (http://github.com/codesnik/calculate-all)
-gem 'calculate-all'
-
 group :development, :test do
   # Boot large ruby/rails apps faster (https://github.com/rails/bootsnap).
   # Development and test only: a container starts fresh every time, so the
@@ -91,9 +85,6 @@ group :development, :test do
 
   # RSpec for Rails (https://github.com/rspec/rspec-rails)
   gem 'rspec-rails'
-
-  # rspec-collection_matchers-1.2.1 (https://github.com/rspec/rspec-collection_matchers)
-  gem 'rspec-collection_matchers', require: false
 
   # Automatic Ruby code style checking tool. (https://github.com/rubocop/rubocop)
   gem 'rubocop', require: false

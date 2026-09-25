@@ -27,7 +27,6 @@ end
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
-require 'rspec/collection_matchers'
 require 'webmock/rspec'
 
 # Requires supporting ruby files with custom matchers and macros, etc, in

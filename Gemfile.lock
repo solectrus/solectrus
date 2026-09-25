@@ -95,8 +95,6 @@ GEM
     bundler-audit (0.9.3)
       bundler (>= 1.2.0)
       thor (~> 1.0)
-    calculate-all (0.4.0)
-      activesupport (>= 4.0.0)
     capybara (3.40.0)
       addressable
       matrix
@@ -138,8 +136,6 @@ GEM
       reline
     globalid (1.4.0)
       activesupport (>= 6.1)
-    groupdate (6.8.0)
-      activesupport (>= 7.2)
     guard (2.20.2)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -366,8 +362,6 @@ GEM
       rspec-core (~> 3.13.0)
       rspec-expectations (~> 3.13.0)
       rspec-mocks (~> 3.13.0)
-    rspec-collection_matchers (1.2.1)
-      rspec-expectations (>= 2.99.0.beta1)
     rspec-core (3.13.6)
       rspec-support (~> 3.13.0)
     rspec-expectations (3.13.5)
@@ -513,12 +507,10 @@ DEPENDENCIES
   bootsnap
   brakeman
   bundler-audit
-  calculate-all
   capybara (>= 3.26)
   capybara-playwright-driver
   dotenv
   foreman
-  groupdate
   guard-rspec
   honeybadger
   http_accept_language
@@ -540,7 +532,6 @@ DEPENDENCIES
   rails_vite
   redis (>= 4.0.1)
   rorvswild
-  rspec-collection_matchers
   rspec-rails
   rubocop
   rubocop-capybara
