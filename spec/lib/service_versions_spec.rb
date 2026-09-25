@@ -117,6 +117,10 @@ describe ServiceVersions do
       it { is_expected.to eq(Gem::Version.new('7.4.0')) }
     end
 
+    context 'with a real Redis', :redis do
+      it { is_expected.to be >= Gem::Version.new('7.2') }
+    end
+
     context 'when Rails.cache is not Redis-backed' do
       it { is_expected.to be_nil }
     end

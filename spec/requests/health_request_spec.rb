@@ -13,6 +13,15 @@ describe 'Health Check' do
     end
   end
 
+  context 'with Redis', :redis do
+    it 'reports it' do
+      get '/up'
+
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body['redis']).to eq('ok')
+    end
+  end
+
   context 'when PostgreSQL is down' do
     before do
       allow(ApplicationRecord.connection).to receive(:select_value).and_raise(
