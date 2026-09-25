@@ -6,6 +6,7 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
       balance.with_title do
         link_to I18n.t('balance_sheet.left'),
                 balance_home_path(sensor_name: 'power_balance', timeframe:),
+                class: 'relative touch-target',
                 data: {
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'power_balance',
@@ -45,6 +46,7 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
       balance.with_title do
         link_to I18n.t('balance_sheet.right'),
                 balance_home_path(sensor_name: 'power_balance', timeframe:),
+                class: 'relative touch-target',
                 data: {
                   action: 'stats-with-chart--component#loadChart',
                   stats_with_chart__component_sensor_name_param: 'power_balance',

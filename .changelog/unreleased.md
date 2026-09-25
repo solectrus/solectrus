@@ -20,6 +20,8 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- On a phone, small controls are easier to tap: the period tabs, the arrows next to the date, the round chart buttons, the info icons, the buttons, the charge levels, "Source" and "Usage" below the balance, and the total of the inverter and house breakdown. The labels of the key figures and the "More" menu use a larger font
+
 ## Fixes
 
 ## Maintenance

@@ -23,7 +23,8 @@
           = relative_change(price, index)
 
         .table-cell.align-middle.w-1.p-2
-          .flex.space-x-1
+          / Apart enough that the tap targets of the icons do not overlap them
+          .flex.space-x-1.pointer-coarse:space-x-3
             = render Button::Component.new path: edit_settings_price_path(price),
                                            icon: 'pencil',
                                            type: :button,

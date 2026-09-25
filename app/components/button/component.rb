@@ -45,6 +45,8 @@ class Button::Component < ViewComponent::Base
     %w[
       inline-flex
       items-center
+      relative
+      touch-target
       py-1
       md:py-2
       border
