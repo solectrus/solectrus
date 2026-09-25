@@ -22,4 +22,6 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- Buttons show the pointer cursor again, for example "Reset" for the summaries or "Save" in forms. Before, they showed the default arrow
+
 ## Maintenance

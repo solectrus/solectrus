@@ -50,6 +50,8 @@ class Button::Component < ViewComponent::Base
       border
       border-transparent
       rounded
+      cursor-pointer
+      disabled:cursor-default
     ] +
       case style
       when :primary
