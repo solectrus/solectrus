@@ -29,10 +29,6 @@ export default defineConfig(({ mode }) => ({
               test: /node_modules\/(chart|luxon)/,
             },
             {
-              name: 'icons',
-              test: /node_modules\/@fortawesome/,
-            },
-            {
               name: 'hotwire',
               test: /node_modules\/(stimulus|@hotwired|@rails)/,
             },
