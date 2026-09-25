@@ -18,8 +18,12 @@ class Summary < ApplicationRecord
            foreign_key: :date,
            inverse_of: :summary
 
+  # TRUNCATE creates new empty files instead of reading the old rows, so a
+  # reset also works when a data page on disk is corrupted.
   def self.reset!
-    delete_all
+    connection.execute(
+      "TRUNCATE #{SummaryValue.quoted_table_name}, #{quoted_table_name}",
+    )
     Rails.cache.clear
   end
 

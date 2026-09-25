@@ -20,6 +20,8 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- Resetting the summaries now also works when the database is damaged, for example by a failing SD card (#5952)
+
 ## Fixes
 
 - Buttons show the pointer cursor again, for example "Reset" for the summaries or "Save" in forms. Before, they showed the default arrow
