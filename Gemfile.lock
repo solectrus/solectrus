@@ -251,7 +251,6 @@ GEM
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    openssl (4.0.2)
     ostruct (0.6.3)
     parallel (2.2.0)
     parallel_tests (5.8.0)
@@ -519,8 +518,6 @@ DEPENDENCIES
   lograge
   lookbook
   mcp
-  openssl
-  ostruct
   parallel_tests
   pg (~> 1.1)
   puma (>= 5.0)
@@ -550,7 +547,6 @@ DEPENDENCIES
   spring-commands-rspec
   stimulus-rails
   turbo-rails
-  uri (>= 0.12.2)
   vcr
   view_component
   web-console

@@ -2,14 +2,8 @@ source 'https://rubygems.org'
 
 ruby file: '.ruby-version'
 
-# URI is a module providing classes to handle Uniform Resource Identifiers (https://github.com/ruby/uri)
-gem 'uri', '>= 0.12.2'
-
 # URI Implementation (https://github.com/sporkmonger/addressable)
 gem 'addressable'
-
-# SSL/TLS and general-purpose cryptography for Ruby (https://github.com/ruby/openssl)
-gem 'openssl'
 
 # Full-stack web application framework. (https://rubyonrails.org)
 gem 'rails', '~> 8.1.4'
@@ -67,9 +61,6 @@ gem 'http_accept_language'
 
 # Ruby on Rails applications monitoring (https://www.rorvswild.com)
 gem 'rorvswild'
-
-# Class to build custom data structures, similar to a Hash. (https://github.com/ruby/ostruct)
-gem 'ostruct'
 
 group :development, :test do
   # Boot large ruby/rails apps faster (https://github.com/rails/bootsnap).
