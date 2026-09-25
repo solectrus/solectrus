@@ -25,5 +25,6 @@ Keep every section, an empty one included.
 ## Fixes
 
 - Buttons show the pointer cursor again, for example "Reset" for the summaries or "Save" in forms. Before, they showed the default arrow
+- The amortization table now rounds the yearly cash flows correctly. Before, a year with many entries could be off by a few euros
 
 ## Maintenance

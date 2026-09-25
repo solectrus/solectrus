@@ -427,6 +427,23 @@ describe AmortizationCalculator do
 
       expect(table[0][:flows]['investment']).to be_within(0.01).of(-250)
     end
+
+    it 'rounds a category once per year, not entry by entry' do
+      # Eight entries of 110.71 each round up to 111 on their own (888), but
+      # the cash-flow list the cell drills down to sums them to 885.68 (886).
+      8.times do |index|
+        CashFlow.create!(
+          date: Date.new(2023, 9, 1) + index.months,
+          amount: 110.71,
+          category: 'compensation',
+          note: 'Compensation',
+        )
+      end
+
+      table = result.yearly_table
+
+      expect(table[0][:flows]['compensation']).to eq(886)
+    end
   end
 
   describe 'operating period length' do

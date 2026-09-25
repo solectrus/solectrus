@@ -12,8 +12,8 @@ class AmortizationCalculator
   # balance, the cumulative net present value (discounted twin of the nominal
   # balance), the cumulative amortization degree and its exact date range - so
   # the savings figure links to precisely the days it covers. The balance is a
-  # displayed euro figure, so it accumulates whole-euro amounts (each cash-flow
-  # entry and the year's savings rounded); the (rounded) savings plus the sum of
+  # displayed euro figure, so it accumulates whole-euro amounts (each category's
+  # cash flows and the year's savings rounded); the (rounded) savings plus the sum of
   # all (rounded) category flows equals the balance change, so the table's
   # columns foot to the balance to the euro.
   #
@@ -167,7 +167,7 @@ class AmortizationCalculator
             flows = aggregate(entries)
 
             # The euro balance is a displayed figure, so it is kept in whole
-            # euros: rounding each cash-flow entry and the year's savings before
+            # euros: rounding the cash flows (see #entries_for) and the year's savings before
             # they accumulate makes the table's rounded columns foot to the
             # rounded balance exactly, and the chart (which reads this same
             # nominal) can't drift a euro from the table. The savings sensor
@@ -209,15 +209,27 @@ class AmortizationCalculator
       @installation_date ||= savings.effective_installation_date
     end
 
-    # Cash flow entries in the row's window [from, to], each amount rounded to a
-    # whole euro. An open lower bound (from nil, year 1) also pulls in anything
-    # dated before the operating start. Rounding here is the single source of the
+    # Cash flow entries in the row's window [from, to], each amount in whole
+    # euros. An open lower bound (from nil, year 1) also pulls in anything dated
+    # before the operating start. Rounding here is the single source of the
     # whole-euro basis: the per-category sums (#aggregate), the nominal balance
     # and the discounting all read these rounded amounts, so they stay mutually
     # consistent - the discounted column still equals the nominal balance at 0%.
+    #
+    # Rounded cumulatively per category (each entry is the step between the
+    # rounded running totals before and after it), not entry by entry: the
+    # year's category sum then equals the raw sum rounded once, so it matches
+    # the cash-flow list the table drills down to. Rounding every entry on its
+    # own would drift by up to half a euro per entry (8 x 110.71 -> 888 vs 886).
     def entries_for(from, to)
+      running = Hash.new(0.0)
+
       cash_flows.filter_map do |date, amount, category|
-        [date, amount.round, category] if date <= to && (from.nil? || date >= from)
+        next if date > to || (from && date < from)
+
+        before = running[category].round
+        running[category] = (running[category] + amount).round(2)
+        [date, running[category].round - before, category]
       end
     end
 
