@@ -30,7 +30,8 @@
 @import '../stylesheets/segment.css' layer(base);
 @import '../stylesheets/range.css' layer(base);
 
-/* No layer(): its rules override a utility of the component (`gap-1`) */
+/* No layer(): its rules override utilities of the component (`gap-1`,
+   `touch-target`) */
 @import '../../components/soc_badge/component.css';
 
 /* No layer() — file contains its own @theme and @layer base blocks */
@@ -402,4 +403,19 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
    where an outer ring would cross the neighboring border. */
 @utility focus-ring-inset {
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset;
+}
+
+/* Hit area of at least 44×44px on a touch screen, as Apple asks for, while the
+   visible element keeps its size. A pseudo element centered on the element
+   takes the taps. The element must be positioned (`relative`, `absolute`),
+   because the utility leaves `position` to the caller. */
+@utility touch-target {
+  @media (pointer: coarse) {
+    &::after {
+      @apply absolute top-1/2 left-1/2 -translate-1/2;
+      content: '';
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+    }
+  }
 }

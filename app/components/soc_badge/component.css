@@ -33,3 +33,19 @@
     }
   }
 }
+
+/* The two links stand only 4px apart. Their tap targets (`touch-target`) grow
+   away from each other instead of overlapping: the upper one upward, the lower
+   one downward, both meeting in the gap. */
+@media (pointer: coarse) {
+  .soc-badge > a:has(+ a)::after {
+    top: auto;
+    bottom: -2px;
+    translate: -50% 0;
+  }
+
+  .soc-badge > a + a::after {
+    top: -2px;
+    translate: -50% 0;
+  }
+}
