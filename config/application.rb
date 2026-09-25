@@ -114,11 +114,13 @@ module Solectrus
       end
 
       if Rails.cache.respond_to?(:redis)
-        # Check Redis connection
+        # Check Redis connection. The cache store fails safe without Redis, so
+        # any Redis error (refused, timeout, missing or wrong password) must
+        # not stop the boot either.
         begin
           Rails.cache.redis.with(&:ping)
           Rails.logger.info 'Redis available, cache enabled'
-        rescue Redis::CannotConnectError => e
+        rescue Redis::BaseError => e
           Rails.logger.error "Redis unavailable: #{e.message}"
         end
       end
