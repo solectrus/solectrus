@@ -1,5 +1,7 @@
 .annotaterb.yml
+.bundle
 .byebug_history
+.changelog
 .dockerignore
 .env*
 .eslint*
@@ -11,6 +13,7 @@
 .prettierrc.json
 .rspec
 .rubocop.yml
+.ruby-lsp
 .simplecov
 .slim-lint.yml
 .vscode
@@ -28,28 +31,38 @@ bin/rubocop
 bin/setup
 bin/slim-lint
 Brewfile
+bunfig.toml
 Caddyfile
 AGENTS.md
+CLAUDE.md
 compose.yaml
 config/brakeman.ignore
 config/bundler-audit.yml
+config/ci
 config/ci.rb
 # The Docker image runs production alone, and config/docker_image.rb reads
 # these two lines. The first one tells it from a working copy, and an
 # environment without its configuration does not start.
 config/environments/development.rb
 config/environments/test.rb
+config/icons.yml
 config/rorvswild.yml
 coverage
 Dockerfile
 docs
 eslint.config.mjs
 Guardfile
+lib/icon_generator.rb
+lib/tasks/annotate_rb.rake
+lib/tasks/coverage.rake
+lib/tasks/icons.rake
 log/*
 logo.svg
 node_modules
 Procfile*
+public/vite*
 screenshot.webp
+script
 spec
 
 tmp/*
