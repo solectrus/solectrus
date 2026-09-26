@@ -156,9 +156,9 @@ describe 'Heatpump navigation' do
 
   def check_insights(_path)
     click_on('Kennzahlen & Trend')
-    expect(page).to have_css('#modal-title')
+    expect(page).to have_css('#modal-sheet-title')
 
     click_on('Schließen')
-    expect(page).to have_no_css('#modal-title')
+    expect(page).to have_no_css('#modal-sheet-title')
   end
 end

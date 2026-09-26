@@ -27,6 +27,10 @@
 @import '../stylesheets/animations.css' layer(base);
 @import '../stylesheets/segment.css' layer(base);
 @import '../stylesheets/range.css' layer(base);
+
+/* Stylesheets beside their ViewComponent */
+@import '../../components/bottom_sheet/component.css' layer(base);
+
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
 
@@ -39,6 +43,14 @@
      ThemeConfig holds the same two values for the server-rendered meta tag
      and the web manifest. A spec fails if the two drift apart. */
   --color-chrome: #4f46e5; /* indigo-600 */
+
+  /* Text of lower weight, like the subtitle of an iOS cell. The dark value
+     sits in the .dark block below, as for --color-chrome. */
+  --color-muted: var(--color-gray-500);
+
+  /* The curve of iOS for a sheet or a page that moves in: fast start, long
+     soft landing */
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
 
   --font-sans:
     'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif,
@@ -339,6 +351,7 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
     color-scheme: dark;
 
     --color-chrome: #312e81; /* indigo-900 */
+    --color-muted: var(--color-slate-400);
 
     --chart-axis-color: #888888;
     --chart-grid-color: #242a3b;
@@ -423,6 +436,15 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
    where an outer ring would cross the neighboring border. */
 @utility focus-ring-inset {
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset;
+}
+
+/* A panel of frosted glass, as on macOS and iOS: no border, but large
+   corners, a hairline ring, a soft wide shadow, and the page shining through
+   with a blur. The floating tooltip and the chart tooltip use it. */
+@utility glass-panel {
+  @apply rounded-xl bg-white/95 text-gray-900 ring-1 ring-black/5 backdrop-blur-xl backdrop-saturate-150;
+  @apply shadow-[0_10px_30px_-5px_rgb(0_0_0/0.2)];
+  @apply dark:bg-slate-800/95 dark:text-slate-200 dark:shadow-[0_10px_30px_-5px_rgb(0_0_0/0.6)] dark:ring-white/10;
 }
 
 /* Hit area of at least 44×44px on a touch screen, as Apple asks for, while the

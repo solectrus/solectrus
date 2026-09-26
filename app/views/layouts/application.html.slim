@@ -90,6 +90,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
 
         = render 'shared/modal_backdrop'
         = tag.turbo_frame id: 'modal', target: '_top'
+        = render BottomSheet::Component.new(id: 'tooltip-sheet', data: { turbo_permanent: true })
 
       = render Nav::Bottom::Component.new(items: all_mobile_items, secondary_items: desktop_secondary_items)
 
