@@ -29,6 +29,7 @@ Keep every section, an empty one included.
 - The battery case temperature now shows blue for a normal temperature, and red only from about 45 °C. Before, all values from 40 °C were bright red. In dark mode, the colors of the case temperature and the heat pump tank temperature now match the other charts
 - The sponsorship page now tells you how to close it: with "Maybe later", after you log in as administrator. An update no longer brings the page back
 - In dark mode, red and green text is easier to read, for example amounts, trends and error messages. It has the color of the matching bar in the balance
+- AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
 - Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
 
 ## Fixes
