@@ -131,8 +131,8 @@
   --color-sensor-consumer-other: #d6dde7;
 
   /* Signal colors for positive/warning/negative indicators (autarky badge,
-     trend arrows, signed values). Stays at light-mode brightness in dark mode
-     so text/arc remain readable on neutral badge background. */
+     trend arrows, signed values). Dark mode lightens them, so text/arc remain
+     readable on a dark background (see the end of this file). */
   --color-signal-negative: var(--color-sensor-grid);
   --color-signal-warning: var(--palette-standard-light-autarky-mid);
   --color-signal-positive: var(--color-sensor-pv);
@@ -195,7 +195,7 @@
       --palette-standard-dark-forecast-clearsky
     );
 
-    /* Signal colors: keep light-mode values for readability */
+    /* Signal colors: light-mode values, lightened further below */
     --color-signal-negative: var(--palette-standard-light-grid);
     --color-signal-warning: var(--palette-standard-dark-autarky-mid);
     --color-signal-positive: var(--palette-standard-light-pv);
@@ -310,7 +310,7 @@
       --palette-contrast-dark-forecast-clearsky
     );
 
-    /* Signal colors: keep light-mode values for readability */
+    /* Signal colors: light-mode values, lightened further below */
     --color-signal-negative: var(--palette-contrast-light-grid);
     --color-signal-warning: var(--palette-contrast-dark-autarky-mid);
     --color-signal-positive: var(--palette-contrast-light-pv);
@@ -336,5 +336,21 @@
       var(--color-sensor-pv) 68%,
       black
     );
+  }
+
+  /* Signal colors in dark mode as text: the hue of the sensor color that the
+     balance shows, so a red amount belongs to the red grid segment beside
+     it. Lightness and chroma are fixed: light enough to read on every dark
+     surface, and saturated enough to look red and not salmon. The group of a
+     bottom sheet (slate-700/50 on slate-800) is the lightest surface, and
+     there both palettes reach at least 4.6:1. Any red text in dark mode
+     uses this color. A browser without relative colors keeps the light-mode
+     values above. */
+  @supports (color: oklch(from red l c h)) {
+    .dark,
+    .dark.palette-contrast {
+      --color-signal-negative: oklch(from var(--color-sensor-grid) 0.72 0.16 h);
+      --color-signal-positive: oklch(from var(--color-sensor-pv) 0.72 0.16 h);
+    }
   }
 }

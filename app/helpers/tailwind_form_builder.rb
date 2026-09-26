@@ -143,7 +143,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   def errors(method)
     return unless errors_for(method)
 
-    tag.ul class: 'mt-2 text-sm text-red-500' do
+    tag.ul class: 'mt-2 text-sm text-signal-negative' do
       safe_join(errors_for(method).map { |error| tag.li(error) })
     end
   end

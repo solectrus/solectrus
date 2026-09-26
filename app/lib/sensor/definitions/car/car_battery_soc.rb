@@ -18,7 +18,7 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
       # 0-5%: red (critical battery)
       {
         background: 'xl:tall:bg-red-200 dark:xl:tall:bg-red-900',
-        text: 'text-red-600 dark:text-red-600',
+        text: 'text-signal-negative',
         border: 'border-red-200 dark:border-red-900',
       }
     elsif percent <= 20
