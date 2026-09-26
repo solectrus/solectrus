@@ -34,6 +34,18 @@ Capybara.register_driver :playwright_mobile do |app|
   )
 end
 
+# A phone with a touch screen, for behavior that only a touch device gets.
+# The driver passes the context options of Playwright in camel case.
+Capybara.register_driver :playwright_touch do |app|
+  Capybara::Playwright::Driver.new(
+    app,
+    **PLAYWRIGHT_OPTIONS,
+    viewport: { width: 375, height: 812 },
+    hasTouch: true,
+    isMobile: true,
+  )
+end
+
 module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
   include InfluxHelper
   include ActiveSupport::Testing::TimeHelpers

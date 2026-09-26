@@ -246,9 +246,9 @@ describe 'House navigation' do
     return if path == 'house_power_without_custom'
 
     click_on('Kennzahlen & Trend')
-    expect(page).to have_css('#modal-title')
+    expect(page).to have_css('#modal-sheet-title')
 
     click_on('Schließen')
-    expect(page).to have_no_css('#modal-title')
+    expect(page).to have_no_css('#modal-sheet-title')
   end
 end

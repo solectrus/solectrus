@@ -19,6 +19,41 @@ describe 'Tooltip' do
     expect(arrow_distance_from('right')).to be < 2
   end
 
+  # iOS turns a popover into a sheet on a compact screen, and so does a
+  # tooltip that a touch opens on a phone
+  context 'with a touch screen' do
+    before { driven_by :playwright_touch }
+
+    it 'shows the tooltip in a bottom sheet' do
+      visit '/inverter_power/now'
+      add_tap_tooltip('Hint of the probe')
+
+      find_by_id('probe').click
+      expect(page).to have_css(
+        'dialog#tooltip-sheet[open]',
+        text: 'Hint of the probe',
+      )
+      expect(page).to have_no_css('.floating-tooltip.show')
+
+      # A phone shows no close button, the sheet goes on a swipe or Escape
+      find('dialog#tooltip-sheet').send_keys(:escape)
+      expect(page).to have_no_css('dialog#tooltip-sheet[open]')
+    end
+  end
+
+  # A tooltip that opens on a tap, independent of the data a page shows
+  def add_tap_tooltip(hint)
+    page.execute_script(<<~JS, hint)
+      const probe = document.createElement('span');
+      probe.id = 'probe';
+      probe.textContent = 'Probe';
+      probe.title = arguments[0];
+      probe.dataset.controller = 'tooltip';
+      probe.dataset.tooltipTouchValue = 'true';
+      document.querySelector('main').prepend(probe);
+    JS
+  end
+
   # How far the center of the arrow stands from one edge of the box, in pixels.
   # The arrow reaches a new place over a transition, so in the frame that
   # changes the placement it still stands at the old one.

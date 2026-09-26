@@ -9,6 +9,13 @@ import {
   type Placement,
 } from '@floating-ui/dom';
 import { isTouchEnabled } from '@/utils/device';
+import { COMPACT_QUERY } from '@/utils/bottomSheet';
+import {
+  closeTooltipSheet,
+  isTooltipSheetAvailable,
+  openTooltipSheet,
+  updateTooltipSheet,
+} from '@/utils/tooltipSheet';
 
 const LONG_PRESS_DURATION = 500;
 // A long-press is canceled if the finger moves further than this (px) while
@@ -29,8 +36,8 @@ interface SharedTooltip {
  * Displays tooltips with:
  * - Smart positioning that flips/shifts to stay in viewport
  * - Hybrid device support (mouse hover + optional touch modes)
- * - Bounce animation on show
- * - Arrow pointing to target element
+ * - A bottom sheet instead of the floating box on a phone, when a touch
+ *   opens the tooltip, as iOS turns a popover into a sheet there
  *
  * Operating modes:
  * 1. Standard mode (default):
@@ -111,6 +118,7 @@ export default class TooltipController extends Controller {
   private longPressStartY = 0;
   private isVisible = false;
   private openedByTouch = false;
+  private inSheet = false;
 
   connect() {
     if (this.delegateValue) {
@@ -364,6 +372,12 @@ export default class TooltipController extends Controller {
   ): Promise<void> {
     TooltipController.setActiveTooltip(this);
 
+    if (this.opensAsSheet(target)) {
+      this.isVisible = true;
+      this.showSheet(content, observeElement);
+      return;
+    }
+
     this.updateTooltipContent(content);
     this.isVisible = true;
 
@@ -379,6 +393,29 @@ export default class TooltipController extends Controller {
     this.createOverlay();
   }
 
+  // A phone shows what a touch opens in a bottom sheet. A tap on a link is
+  // the exception: the link navigates at once, and the sheet would only
+  // flash before the next page closes it.
+  private opensAsSheet(target: HTMLElement): boolean {
+    if (!this.openedByTouch) return false;
+    if (!window.matchMedia(COMPACT_QUERY).matches) return false;
+    if (this.touchValue === 'true' && target.tagName === 'A') return false;
+
+    return isTooltipSheetAvailable();
+  }
+
+  private showSheet(content: string, observeElement?: HTMLElement): void {
+    this.inSheet = true;
+
+    // The sheet reports every close, also one it did on its own (swipe, tap
+    // beside it, Escape, visit)
+    openTooltipSheet(content, () => {
+      if (this.inSheet) this.hide();
+    });
+
+    if (observeElement) this.observeContentChanges(observeElement);
+  }
+
   readonly hide = (): void => {
     if (!this.isVisible) return;
 
@@ -386,7 +423,12 @@ export default class TooltipController extends Controller {
     this.openedByTouch = false;
     TooltipController.releaseActiveTooltip(this);
 
-    this.hideTooltip();
+    if (this.inSheet) {
+      this.inSheet = false;
+      closeTooltipSheet();
+    } else {
+      this.hideTooltip();
+    }
 
     this.contentObserver?.disconnect();
     this.contentObserver = null;
@@ -400,7 +442,11 @@ export default class TooltipController extends Controller {
 
     this.contentObserver = new MutationObserver(() => {
       const content = target.innerHTML;
-      if (content) {
+      if (!content) return;
+
+      if (this.inSheet) {
+        updateTooltipSheet(content);
+      } else {
         this.updateTooltipContent(content);
       }
     });
@@ -492,7 +538,7 @@ export default class TooltipController extends Controller {
   }
 
   /**
-   * Updates the tooltip content, preserving the arrow element
+   * Updates the tooltip content
    */
   private updateTooltipContent(content: string): void {
     this.tooltipContent.innerHTML = content;
@@ -568,15 +614,16 @@ export default class TooltipController extends Controller {
         offset(10),
         flip(),
         shift({ padding: 5 }),
-        arrow({ element: this.arrowElement }),
+        // The padding keeps the arrow off the rounded corners of the box
+        arrow({ element: this.arrowElement, padding: 12 }),
       ],
     });
 
     Object.assign(this.tooltip.style, { left: `${x}px`, top: `${y}px` });
 
     // The stylesheet takes it from here: the placement below decides which of
-    // the two coordinates the arrow follows, and how far it stands outside
-    // the box.
+    // the two coordinates the arrow follows, on which edge it sits, and out
+    // of which side the box grows.
     if (middlewareData.arrow) {
       const { x: arrowX, y: arrowY } = middlewareData.arrow;
 
@@ -592,10 +639,7 @@ export default class TooltipController extends Controller {
   }
 
   private get effectivePlacement(): Placement {
-    if (
-      this.mobilePlacementValue &&
-      window.matchMedia('(max-width: 767px)').matches
-    )
+    if (this.mobilePlacementValue && window.matchMedia(COMPACT_QUERY).matches)
       return this.mobilePlacementValue as Placement;
 
     return this.placementValue;

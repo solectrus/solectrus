@@ -1,0 +1,112 @@
+/*
+ * BottomSheet::Component, see utils/bottomSheet.ts. On a phone it sits on
+ * the lower edge of the screen over its full width, with large upper corners, as a
+ * sheet of iOS does. From md on it stands in the middle as a dialog.
+ *
+ * The dialog covers the whole viewport and dims it. Its own background serves
+ * as the dim area and not ::backdrop, because the color of ::backdrop does not
+ * transition in every browser. #modal-backdrop has the same color, so the
+ * sheet can take over from it without a visible step.
+ */
+.bottom-sheet {
+  @apply fixed inset-0 m-0 h-full max-h-none w-full max-w-none border-0 p-0 backdrop:bg-transparent;
+  @apply flex items-end justify-center overflow-clip bg-transparent md:items-center md:p-6;
+
+  /* A drag on the dim area must not scroll the page below */
+  @apply touch-none overscroll-contain;
+  @apply not-open:hidden;
+  @apply transition-colors duration-300 ease-out;
+
+  &.is-open,
+  &.is-instant {
+    @apply bg-black/40 dark:bg-black/60;
+  }
+
+  &.is-instant {
+    @apply transition-none;
+  }
+}
+
+.bottom-sheet-panel {
+  @apply relative flex max-h-[90dvh] w-full flex-col overflow-clip rounded-t-4xl bg-white text-gray-800 shadow-2xl select-none;
+  @apply dark:bg-slate-800 dark:text-gray-300;
+  @apply md:rounded-3xl;
+  /* It takes the focus on open instead of the close button, see
+     utils/bottomSheet.ts */
+  @apply outline-none;
+
+  /* The panel reaches the lower edge of the screen, and its padding keeps the
+     content above the home indicator */
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(100%);
+  transition: transform 450ms var(--ease-ios);
+
+  .bottom-sheet.is-open & {
+    transform: translateY(0);
+  }
+
+  /* A dialog in the middle fades in and grows a little, as on macOS */
+  @variant md {
+    padding-bottom: 0;
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+      opacity 200ms ease-out,
+      transform 300ms var(--ease-ios);
+
+    .bottom-sheet.is-open & {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-sheet-panel {
+    transform: none;
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+
+    .bottom-sheet.is-open & {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}
+
+/* The grabber and a row with the title and the close button. The content
+   below keeps the full width. */
+.bottom-sheet-header {
+  @apply relative flex shrink-0 items-start gap-4 px-6 pt-6 pb-3;
+}
+
+.bottom-sheet-grabber {
+  @apply absolute top-2 left-1/2 h-1.5 w-10 -translate-x-1/2 rounded-full bg-gray-300 md:hidden dark:bg-slate-600;
+}
+
+.bottom-sheet-title {
+  @apply min-w-0 flex-1 text-xl leading-tight font-bold sm:text-2xl;
+}
+
+/* On a phone, a swipe down closes the sheet, as on iOS, and the button only
+   serves a screen reader. Tab passes it by (utils/bottomSheet.ts). A dialog
+   in the middle has no swipe, so there it shows. */
+.bottom-sheet-close {
+  @apply -mt-1 -mr-3 ml-auto flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full;
+  @apply max-md:sr-only;
+  @apply text-muted bg-gray-100 dark:bg-slate-700;
+  @apply focus-ring;
+}
+
+.bottom-sheet-content {
+  @apply flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pb-6 text-left;
+
+  /* Content that fits belongs to the swipe that closes the sheet, apart from
+     a horizontal pan of a wide element inside. Only content that overflows
+     keeps the vertical pan for itself. A dialog in the middle has no swipe. */
+  @apply max-md:touch-pan-x;
+
+  &.is-scrollable {
+    @apply max-md:touch-pan-y;
+  }
+}

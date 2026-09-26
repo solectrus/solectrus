@@ -1,7 +1,6 @@
-/* Chart.js external tooltip */
+/* Chart.js external tooltip, in the frosted glass of the floating tooltip */
 .chartjs-tooltip {
-  @apply pointer-events-none fixed z-50 max-w-[320px] rounded border border-gray-400 bg-white px-2 py-1 text-sm text-gray-900 shadow-lg;
-  @apply dark:border-slate-400 dark:bg-slate-900 dark:text-slate-300;
+  @apply glass-panel pointer-events-none fixed z-50 max-w-[320px] px-3 py-2 text-sm;
   @apply invisible opacity-0;
 
   transform: none;
