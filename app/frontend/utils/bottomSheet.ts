@@ -134,6 +134,19 @@ export class BottomSheet {
     this.panel.addEventListener('transitionend', onTransitionEnd);
   }
 
+  // The centered line above the content, with an optional detail below it.
+  // An empty text hides it.
+  setCaption(title: string, detail = ''): void {
+    const titleElement = this.dialog.querySelector(
+      '.bottom-sheet-caption-title',
+    );
+    const detailElement = this.dialog.querySelector(
+      '.bottom-sheet-caption-detail',
+    );
+    if (titleElement) titleElement.textContent = title;
+    if (detailElement) detailElement.textContent = detail;
+  }
+
   // showModal() focuses the first element with autofocus, else the first
   // focusable one: the close button. With a hardware keyboard (as in the iOS
   // Simulator) that focus counts as focus-visible, and the button hidden on a

@@ -20,6 +20,16 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   NOTED_SENSOR_NAMES = %i[battery_charging_power].freeze
   private_constant :NOTED_SENSOR_NAMES
 
+  # The money a flow earns or costs, for the segments without costs split into
+  # a PV and a grid part: sensor of the amount and its sign
+  AMOUNTS = {
+    grid_export_power: %i[grid_revenue positive],
+    grid_import_power: %i[grid_costs negative],
+    heatpump_power_pv: %i[heatpump_costs_pv negative],
+    heatpump_power_grid: %i[heatpump_costs_grid negative],
+  }.freeze
+  private_constant :AMOUNTS
+
   def initialize(sensor, **options, &block)
     super()
     @sensor = sensor
@@ -132,6 +142,13 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     return unless power_grid_ratio&.positive?
 
     t("splitter.costs_note.#{sensor.name}")
+  end
+
+  # The tooltip shows it below the energy, as a second value of the header
+  def amount
+    return if now? || costs || power_grid_ratio
+
+    AMOUNTS[sensor.name]
   end
 
   def costs_grid

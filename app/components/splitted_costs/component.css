@@ -1,0 +1,56 @@
+/*
+ * SplittedCosts::Component: the share of PV and grid, and the costs that
+ * follow from it. It stands centered in a narrow column, in a floating
+ * tooltip and on the insights page.
+ */
+.splitted-costs {
+  @apply text-center text-sm;
+}
+
+.splitted-costs-note {
+  @apply mt-2 text-xs opacity-75;
+}
+
+.splitted-costs-list {
+  @apply mt-2 space-y-1;
+}
+
+.splitted-costs-list-spaced {
+  @apply mt-5;
+}
+
+.splitted-costs-total {
+  @apply mt-3 pt-2;
+}
+
+.splitted-costs-amount {
+  @apply text-xl;
+}
+
+/*
+ * In a tooltip on a phone, the bottom sheet shows the costs as a group of a
+ * list (see tooltip_content.css). The share stands above it on the sheet
+ * itself: on the lighter surface of a group, the dark sensor colors of the
+ * bar would look different from the same colors in the balance. The note
+ * stands below the share.
+ */
+.bottom-sheet .tooltip-layout .splitted-costs {
+  @apply flex flex-col gap-5 text-left text-base;
+
+  .tooltip-group:has(.splitted-costs-ratio) {
+    @apply bg-transparent px-0;
+
+    > * {
+      @apply py-0;
+    }
+  }
+
+  .splitted-costs-note {
+    @apply text-subhead text-muted -mt-3 opacity-100;
+  }
+
+  /* The group draws the line above the total */
+  .splitted-costs-total {
+    @apply m-0 border-t-0 font-semibold;
+  }
+}

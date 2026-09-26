@@ -374,7 +374,7 @@ export default class TooltipController extends Controller {
 
     if (this.opensAsSheet(target)) {
       this.isVisible = true;
-      this.showSheet(content, observeElement);
+      this.showSheet(target, content, observeElement);
       return;
     }
 
@@ -404,12 +404,16 @@ export default class TooltipController extends Controller {
     return isTooltipSheetAvailable();
   }
 
-  private showSheet(content: string, observeElement?: HTMLElement): void {
+  private showSheet(
+    target: HTMLElement,
+    content: string,
+    observeElement?: HTMLElement,
+  ): void {
     this.inSheet = true;
 
     // The sheet reports every close, also one it did on its own (swipe, tap
     // beside it, Escape, visit)
-    openTooltipSheet(content, () => {
+    openTooltipSheet(target, content, () => {
       if (this.inSheet) this.hide();
     });
 

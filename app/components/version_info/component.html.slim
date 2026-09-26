@@ -10,9 +10,14 @@
     code.select-text[
       data-controller = 'tooltip'
       data-tooltip-touch-value= 'true'
-      title= l(commit_time)
+      data-sheet-caption= current_version
     ]
       = current_version
+      / The sheet names the version in its caption, the date stands below it
+      span.hidden data-tooltip-target= 'html'
+        / A single line needs no padding beyond that of the tooltip itself
+        .tooltip-layout.p-0
+          .tooltip-detail.mt-0.text-center.whitespace-nowrap = l(commit_time)
 
   - if version_valid?
     - case outdated?

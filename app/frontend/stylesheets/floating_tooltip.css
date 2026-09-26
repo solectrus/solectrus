@@ -28,7 +28,7 @@
 }
 
 .floating-tooltip-inner {
-  @apply glass-panel relative px-3 py-2 text-sm;
+  @apply glass-panel relative px-4 py-3 text-sm;
 
   opacity: 0;
   transform: scale(0.96);

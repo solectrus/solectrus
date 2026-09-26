@@ -51,13 +51,14 @@
             = render RectBadge::Component.new(title: t('sensors.heatpump_costs_short'), css_class: 'h-full rounded-l-none justify-center px-3 md:px-4') do
               = render SensorValue::Component.new(data.heatpump_costs, :total_costs, sign: :negative)
             #tooltip-content-heatpump_costs.hidden data-tooltip-target= 'html'
-              = render SplittedCosts::Component.new( \
-                  costs: data.heatpump_costs,
-                  power_grid_ratio: data.heatpump_power_grid_ratio,
-                  grid_costs: data.heatpump_costs_grid,
-                  pv_costs: data.heatpump_costs_pv,
-                  show_power_breakdown: false,
-                )
+              .tooltip-layout.tooltip-layout-table
+                = render SplittedCosts::Component.new( \
+                    costs: data.heatpump_costs,
+                    power_grid_ratio: data.heatpump_power_grid_ratio,
+                    grid_costs: data.heatpump_costs_grid,
+                    pv_costs: data.heatpump_costs_pv,
+                    show_power_breakdown: false,
+                  )
 
     ruby:
       donut_heating_url = heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:)
@@ -103,7 +104,7 @@
           )
         end
 
-      = render DonutChart::Component.new(segments: donut_segments, url: donut_heating_url, chart_url: donut_chart_url, tooltip_placement: 'bottom') do |chart|
+      = render DonutChart::Component.new(segments: donut_segments, url: donut_heating_url, chart_url: donut_chart_url, tooltip_placement: 'bottom', title: Sensor::Registry[:heatpump_heating_power].display_name) do |chart|
         - chart.with_center do
           = render Heatpump::CopBadge::Component.new(data:, timeframe:)
 
@@ -136,7 +137,7 @@
           )
         end
 
-      = render DonutChart::Component.new(segments: donut_segments, url: donut_heating_url, chart_url: donut_chart_url, tooltip_placement: 'bottom') do |chart|
+      = render DonutChart::Component.new(segments: donut_segments, url: donut_heating_url, chart_url: donut_chart_url, tooltip_placement: 'bottom', title: Sensor::Registry[:heatpump_heating_power].display_name) do |chart|
         - chart.with_center do
           .flex.flex-col.items-center
             p class="hidden md:block text-slate-500 dark:text-slate-400 text-center leading-tight text-[clamp(0.6rem,6cqmin,0.875rem)]"

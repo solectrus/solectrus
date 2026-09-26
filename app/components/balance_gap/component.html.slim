@@ -3,35 +3,19 @@
     = icon 'triangle-exclamation', class: 'fa-xl'
 
     template data-tooltip-target= 'html'
-      h3.mt-2.font-bold.text-center
-        = t('.title')
+      .tooltip-layout.tooltip-layout-table
+        = render TooltipHeader::Component.new(title: t('.title'))
 
-      dl.mt-5
-        .grid.grid-cols-2.gap-4
-          dt
-            = t('balance_sheet.left')
-          dd.font-mono.text-right
+        dl.tooltip-group
+          = render CalcRow::Component.new(label: t('balance_sheet.left')) do
             = sources
-
-        .grid.grid-cols-2.gap-4
-          dt
-            |&minus;&nbsp;
-            = t('balance_sheet.right')
-          dd.font-mono.text-right
+          = render CalcRow::Component.new(label: t('balance_sheet.right'), operator: :minus) do
             = sinks
-
-        hr.my-2
-        .grid.grid-cols-2.gap-4
-          dt
-            |&#61;&nbsp;
-            = t('.difference')
-            span.ml-1.text-gray-400
-              | (#{percent})
-          dd.font-mono.text-right
+          = render CalcRow::Component.new(label: difference_label, operator: :equals) do
             = difference
 
-      p.mt-5.text-gray-400.text-sm
-        = t(explanation_key)
+        p.tooltip-footnote
+          = t(explanation_key)
 
-      p.mt-3.text-gray-400.text-sm
-        = t('.consequence')
+        p.tooltip-footnote
+          = t('.consequence')

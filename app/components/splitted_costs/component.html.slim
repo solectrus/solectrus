@@ -1,24 +1,26 @@
-.text-center.text-sm
+.splitted-costs
   - if show_power_breakdown? && power_grid_ratio
-    div
-      = render SensorValue::Component.new(power_pv_ratio, :autarky)
-      =< t('.generated')
-    .w-full.flex.gap-px.rounded.overflow-hidden.mt-1
-      - if power_pv_ratio.positive?
-        .h-3.bg-sensor-pv[
-          style= "width: #{power_pv_ratio}%;"
-        ]
-      - if power_grid_ratio.positive?
-        .h-3.bg-sensor-grid[
-          style= "width: #{power_grid_ratio}%;"
-        ]
+    .tooltip-group
+      .splitted-costs-ratio
+        div
+          = render SensorValue::Component.new(power_pv_ratio, :autarky)
+          =< t('.generated')
+        .w-full.flex.gap-px.rounded.overflow-hidden.mt-1
+          - if power_pv_ratio.positive?
+            .h-3.bg-sensor-pv[
+              style= "width: #{power_pv_ratio}%;"
+            ]
+          - if power_grid_ratio.positive?
+            .h-3.bg-sensor-grid[
+              style= "width: #{power_grid_ratio}%;"
+            ]
 
   - if note
-    .mt-2.text-xs.opacity-75
+    .splitted-costs-note
       = note
 
   - if costs?
-    div class= [show_power_breakdown? ? 'mt-5' : 'mt-2', 'space-y-1']
+    div class= ['tooltip-group splitted-costs-list', ('splitted-costs-list-spaced' if show_power_breakdown?)]
       - if grid_costs
         .label-value-row
           span = t('.grid_costs')
@@ -26,11 +28,15 @@
 
       - if pv_costs
         .label-value-row
-          span = t('.opportunity_costs')
+          span
+            - if grid_costs
+              |&plus;&nbsp;
+            = t('.opportunity_costs')
           = render SensorValue::Component.new(pv_costs, :total_costs, sign: :negative, precision:)
 
-      div class= ('label-value-row label-value-separator pt-2 mt-3' if breakdown?)
+      div class= ('label-value-row label-value-separator splitted-costs-total tooltip-total' if breakdown?)
         - if breakdown?
-          strong
+          strong.font-semibold
+            |&#61;&nbsp;
             = t('.total_costs')
-        = render SensorValue::Component.new(costs, :total_costs, sign: :negative, precision:, class: 'text-xl')
+        = render SensorValue::Component.new(costs, :total_costs, sign: :negative, precision:, class: 'splitted-costs-amount')

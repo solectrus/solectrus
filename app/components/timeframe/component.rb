@@ -10,13 +10,14 @@ class Timeframe::Component < ViewComponent::Base
     forecast_days.present?
   end
 
-  # The name of the period, also for the forecast
+  # The period for the bottom sheet of a tooltip. The sheet covers this
+  # navigation, so it repeats the period (utils/tooltipSheet.ts).
   def period_name
     forecast_mode? ? t('forecast.next_days', count: forecast_days) : timeframe.localized
   end
 
   # First and last date of a period whose name does not say them. A phone
-  # hides them.
+  # hides them in the navigation, the sheet has the room.
   def period_dates
     return if forecast_mode?
 

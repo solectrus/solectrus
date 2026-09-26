@@ -1,7 +1,9 @@
 .label-value-row
   .flex.items-center.gap-2
+    - unless operator.nil?
+      span.tooltip-operator = operator
     div class= ['label-value-swatch', color_class] style= swatch_style
-    span.text-sm.opacity-75
+    span.tooltip-row-label
       = label
   span.font-semibold.whitespace-nowrap
     = content

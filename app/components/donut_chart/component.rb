@@ -17,15 +17,16 @@ class DonutChart::Component < ViewComponent::Base
   RING_HIDDEN_CLASS = '[@container(max-height:4rem)]:hidden'.freeze
   private_constant :RING_HIDDEN_CLASS
 
-  def initialize(segments: nil, url: nil, chart_url: nil, tooltip_placement: 'bottom')
+  def initialize(segments: nil, url: nil, chart_url: nil, tooltip_placement: 'bottom', title: nil)
     super()
     @segments = segments # [{percent:, color_var:, label:, sensor_name:}] or nil for placeholder
     @url = url
     @chart_url = chart_url
     @tooltip_placement = tooltip_placement
+    @title = title # heading of the tooltip in the sheet
   end
 
-  attr_reader :segments, :url, :chart_url, :tooltip_placement
+  attr_reader :segments, :url, :chart_url, :tooltip_placement, :title
 
   def placeholder?
     segments.blank?

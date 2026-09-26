@@ -1,0 +1,34 @@
+/*
+ * TooltipRow::Component: the label is smaller and lighter than its value in
+ * the narrow tooltip. The sheet has the room to show it at full size.
+ */
+.tooltip-row-label {
+  @apply text-sm opacity-75;
+}
+
+.bottom-sheet .tooltip-layout .tooltip-row-label {
+  @apply text-base opacity-100;
+}
+
+/* The operator of a calculation takes the same width in every row. An empty
+   one holds a space, so the row still has a baseline to align the value to. */
+.tooltip-operator {
+  @apply w-3 shrink-0 text-center;
+
+  &:empty::before {
+    content: '\00a0';
+  }
+}
+
+/* In the sheet, the swatch is a dot, as in a list of iOS. A row of a
+   calculation drops it: its label names the source, and on a phone the
+   operator, the dot, the label and the value do not fit on one line. */
+.bottom-sheet .tooltip-layout {
+  .label-value-swatch {
+    @apply rounded-full border-0;
+  }
+
+  .label-value-row:has(.tooltip-operator) .label-value-swatch {
+    @apply hidden;
+  }
+}
