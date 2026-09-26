@@ -10,6 +10,7 @@ describe ForecastComment::Component, type: :component do
     instance_double(
       Sensor::Chart::InverterPower,
       forecast_deviation:,
+      inverter_power: inverter_power_forecast + forecast_deviation,
       inverter_power_forecast:,
       remaining_forecast_wh: nil,
       sunrise: nil,
@@ -141,6 +142,7 @@ describe ForecastComment::Component, type: :component do
       instance_double(
         Sensor::Chart::InverterPower,
         forecast_deviation:,
+        inverter_power: inverter_power_forecast + forecast_deviation,
         inverter_power_forecast:,
         remaining_forecast_wh: nil,
         sunrise: 10.hours.ago,
@@ -167,8 +169,11 @@ describe ForecastComment::Component, type: :component do
         expect(page).to have_text I18n.t('forecast.better_html', value: '2 kWh')
       end
 
-      it 'has tooltip-content' do
-        expect(page).to have_css('div', id: 'forecast-expectation')
+      it 'has tooltip-content with the forecast and the generation' do
+        tooltip = page.find_by_id('forecast-expectation', visible: :all)
+
+        expect(tooltip).to have_css('.tooltip-value', text: '10 kWh', visible: :all)
+        expect(tooltip).to have_css('.label-value-row', text: /12 kWh/, visible: :all)
       end
     end
 

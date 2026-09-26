@@ -2,9 +2,13 @@
   div class=panel_class tabindex='-1'
     .bottom-sheet-header
       .bottom-sheet-grabber aria-hidden='true'
-      - if title?
-        h1.bottom-sheet-title id=title_id
-          = title
+      .bottom-sheet-heading
+        .bottom-sheet-caption
+          p.bottom-sheet-caption-title
+          p.bottom-sheet-caption-detail
+        - if title?
+          h1.bottom-sheet-title id=title_id
+            = title
       button.bottom-sheet-close type='button' aria-label=t('.close')
         = icon 'xmark', class: 'fa-fw'
     .bottom-sheet-content
