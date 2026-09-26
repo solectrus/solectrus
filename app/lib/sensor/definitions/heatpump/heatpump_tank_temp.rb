@@ -4,8 +4,8 @@ class Sensor::Definitions::HeatpumpTankTemp < Sensor::Definitions::Base
   color background: gradient(
           from: 30,
           to: 60,
-          start: 'bg-orange-400',
-          stop: 'bg-red-700',
+          start: 'bg-orange-400 dark:bg-orange-800',
+          stop: 'bg-red-700 dark:bg-red-900',
         ),
         text: 'text-white dark:text-red-100'
 

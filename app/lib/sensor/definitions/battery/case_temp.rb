@@ -1,11 +1,12 @@
 class Sensor::Definitions::CaseTemp < Sensor::Definitions::Base
   value unit: :celsius, category: :battery, nameable: true
 
+  # Up to 25 degrees is comfortable, from 45 it gets hot
   color background: gradient(
-          from: 10,
-          to: 40,
-          start: 'bg-sky-400 dark:bg-sky-600',
-          stop: 'bg-red-400 dark:bg-red-600',
+          from: 25,
+          to: 45,
+          start: 'bg-blue-500 dark:bg-blue-800',
+          stop: 'bg-red-500 dark:bg-red-800',
         ),
         text: 'text-white dark:text-gray-100'
 
