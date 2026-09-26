@@ -48,6 +48,11 @@
      sits in the .dark block below, as for --color-chrome. */
   --color-muted: var(--color-gray-500);
 
+  /* The sizes of the iOS type scale that the sheet uses: the title bar
+     (17px) and secondary text (15px) */
+  --text-headline: 1.0625rem;
+  --text-subhead: 0.9375rem;
+
   /* The curve of iOS for a sheet or a page that moves in: fast start, long
      soft landing */
   --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);

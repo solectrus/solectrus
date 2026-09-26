@@ -35,6 +35,12 @@ describe 'Tooltip' do
       )
       expect(page).to have_no_css('.floating-tooltip.show')
 
+      # The sheet covers the navigation, so it names the period itself
+      expect(page).to have_css(
+        'dialog#tooltip-sheet .bottom-sheet-caption',
+        text: 'Aktuell',
+      )
+
       # A phone shows no close button, the sheet goes on a swipe or Escape
       find('dialog#tooltip-sheet').send_keys(:escape)
       expect(page).to have_no_css('dialog#tooltip-sheet[open]')

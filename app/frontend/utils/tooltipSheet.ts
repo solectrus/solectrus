@@ -14,7 +14,11 @@ export function isTooltipSheetAvailable(): boolean {
   return find() !== null;
 }
 
-export function openTooltipSheet(html: string, handleClose: () => void): void {
+export function openTooltipSheet(
+  target: HTMLElement,
+  html: string,
+  handleClose: () => void,
+): void {
   const current = find();
   if (!current) return;
 
@@ -23,7 +27,22 @@ export function openTooltipSheet(html: string, handleClose: () => void): void {
   onClose = handleClose;
 
   updateTooltipSheet(html);
+  showPeriod(current, target);
   current.open();
+}
+
+// The sheet covers the navigation that names the period of the figures, so
+// it repeats the period. Only a figure of the page belongs to that period:
+// a tooltip outside of <main>, like the version in the menu, has none. A
+// page without a period leaves the line empty.
+function showPeriod(sheet: BottomSheet, target: HTMLElement): void {
+  const navigation = target.closest('main')
+    ? document.querySelector<HTMLElement>('[data-timeframe-label]')
+    : null;
+  sheet.setCaption(
+    navigation?.dataset.timeframeLabel ?? '',
+    navigation?.dataset.timeframeDates ?? '',
+  );
 }
 
 export function updateTooltipSheet(html: string): void {
