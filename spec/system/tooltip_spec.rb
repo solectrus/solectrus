@@ -35,21 +35,65 @@ describe 'Tooltip' do
       )
       expect(page).to have_no_css('.floating-tooltip.show')
 
+      # The sheet covers the navigation, so it names the period itself
+      expect(page).to have_css(
+        'dialog#tooltip-sheet .bottom-sheet-caption',
+        text: 'Aktuell',
+      )
+
       # A phone shows no close button, the sheet goes on a swipe or Escape
       find('dialog#tooltip-sheet').send_keys(:escape)
       expect(page).to have_no_css('dialog#tooltip-sheet[open]')
     end
+
+    # The version names itself in the caption, it has no period
+    it 'shows the caption of the tooltip instead of the period' do
+      visit '/inverter_power/now'
+      add_tap_tooltip('Hint of the probe', sheet_caption: 'v1.2.3')
+
+      find_by_id('probe').click
+      expect(page).to have_css(
+        'dialog#tooltip-sheet[open] .bottom-sheet-caption',
+        exact_text: 'v1.2.3',
+      )
+    end
+
+    # Content with a title names the period below it, as the insights do
+    it 'shows the period below the title of the content' do
+      visit '/inverter_power/now'
+      add_tap_tooltip(
+        nil,
+        html:
+          '<div class="tooltip-layout"><div class="tooltip-header">' \
+          '<div class="tooltip-heading"><div class="tooltip-title">Title</div>' \
+          '</div></div></div>',
+      )
+
+      find_by_id('probe').click
+      expect(page).to have_css(
+        'dialog#tooltip-sheet[open] .tooltip-title + .tooltip-period',
+        exact_text: 'Aktuell',
+      )
+      expect(page).to have_no_css('dialog#tooltip-sheet .bottom-sheet-caption')
+    end
   end
 
   # A tooltip that opens on a tap, independent of the data a page shows
-  def add_tap_tooltip(hint)
-    page.execute_script(<<~JS, hint)
+  def add_tap_tooltip(hint, sheet_caption: nil, html: nil)
+    page.execute_script(<<~JS, hint, sheet_caption, html)
       const probe = document.createElement('span');
       probe.id = 'probe';
       probe.textContent = 'Probe';
-      probe.title = arguments[0];
+      if (arguments[0]) probe.title = arguments[0];
       probe.dataset.controller = 'tooltip';
       probe.dataset.tooltipTouchValue = 'true';
+      if (arguments[1]) probe.dataset.sheetCaption = arguments[1];
+      if (arguments[2]) {
+        const content = document.createElement("template");
+        content.dataset.tooltipTarget = "html";
+        content.innerHTML = arguments[2];
+        probe.append(content);
+      }
       document.querySelector('main').prepend(probe);
     JS
   end

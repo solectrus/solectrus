@@ -84,8 +84,34 @@
   @apply absolute top-2 left-1/2 h-1.5 w-10 -translate-x-1/2 rounded-full bg-gray-300 md:hidden dark:bg-slate-600;
 }
 
+.bottom-sheet-heading {
+  @apply min-w-0 flex-1;
+}
+
+/* The context of the content, like the period of a figure, in the manner of
+   the title bar of an iOS sheet: centered, 17px semibold, with an optional
+   detail below. Utils/bottomSheet.ts sets it, and without a text it takes no
+   room. */
+.bottom-sheet-caption {
+  @apply mt-1 mb-3 text-center leading-snug;
+
+  &:not(:has(:not(:empty))) {
+    display: none;
+  }
+}
+
+.bottom-sheet-caption-title {
+  @apply text-headline font-semibold;
+}
+
+.bottom-sheet-caption-detail {
+  @apply text-subhead text-muted;
+
+  @apply empty:hidden;
+}
+
 .bottom-sheet-title {
-  @apply min-w-0 flex-1 text-xl leading-tight font-bold sm:text-2xl;
+  @apply text-xl leading-tight font-bold sm:text-2xl;
 }
 
 /* On a phone, a swipe down closes the sheet, as on iOS, and the button only
