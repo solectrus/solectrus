@@ -22,6 +22,7 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
 - Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
 
 ## Fixes
