@@ -25,7 +25,7 @@ Keep every section, an empty one included.
 - In dark mode, the warning color for a low battery level or a medium autarky is now a lighter amber, so it is easier to tell apart from red
 - The codeword page now answers with HTTP status 403, so bots and crawlers see that the site is locked (#5974)
 - On a phone, small controls are easier to tap: the period tabs, the arrows next to the date, the round chart buttons, the info icons, the buttons, the charge levels, "Source" and "Usage" below the balance, and the total of the inverter and house breakdown. The labels of the key figures and the "More" menu use a larger font
-- On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. Tooltips on a computer have a new, lighter look
+- On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. For a bar or a key figure of the balance and for the forecast, the panel shows the details as a list, with the label on the left and the value on the right, and it names the selected period. Tooltips on a computer have a new, lighter look
 
 ## Fixes
 

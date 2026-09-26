@@ -23,6 +23,7 @@
 /* Import app specific styles */
 @import '../stylesheets/floating_tooltip.css' layer(base);
 @import '../stylesheets/label_value.css' layer(base);
+@import '../stylesheets/tooltip_content.css' layer(base);
 @import '../stylesheets/chart_tooltip.css' layer(base);
 @import '../stylesheets/flow.css' layer(base);
 @import '../stylesheets/badge.css' layer(base);
@@ -32,6 +33,8 @@
 
 /* Stylesheets beside their ViewComponent */
 @import '../../components/bottom_sheet/component.css' layer(base);
+@import '../../components/splitted_costs/component.css' layer(base);
+@import '../../components/tooltip_row/component.css' layer(base);
 
 /* No layer(): its rules override utilities of the component (`gap-1`,
    `touch-target`) */
@@ -53,6 +56,11 @@
   /* Text of lower weight, like the subtitle of an iOS cell. The dark value
      sits in the .dark block below, as for --color-chrome. */
   --color-muted: var(--color-gray-500);
+
+  /* The sizes of the iOS type scale that the sheet uses: the title bar
+     (17px) and secondary text (15px) */
+  --text-headline: 1.0625rem;
+  --text-subhead: 0.9375rem;
 
   /* The curve of iOS for a sheet or a page that moves in: fast start, long
      soft landing */

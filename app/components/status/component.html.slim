@@ -1,7 +1,6 @@
 time.lg:landscape:ml-4.flex.items-center.py-1.px-2.rounded.text-sm.font-bold.tracking-wider.cursor-default.truncate[
   data-controller= (message.present? ? 'tooltip' : nil)
   data-tooltip-touch-value= ('true' if message.present?)
-  title= message
   datetime= time&.iso8601
   class= outer_class
 ]
@@ -9,3 +8,9 @@ time.lg:landscape:ml-4.flex.items-center.py-1.px-2.rounded.text-sm.font-bold.tra
     = text
   span.ml-2.flex.h-3.w-3.relative
     span.relative.inline-flex.rounded-full.h-3.w-3 class= dot_class
+
+  - if message.present?
+    span.hidden data-tooltip-target= 'html'
+      .tooltip-layout
+        = render TooltipHeader::Component.new(title: text) do
+          .tooltip-detail = message
