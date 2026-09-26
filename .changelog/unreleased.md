@@ -26,6 +26,7 @@ Keep every section, an empty one included.
 - The codeword page now answers with HTTP status 403, so bots and crawlers see that the site is locked (#5974)
 - Each page loads faster, because the server no longer builds an unused text of the navigation, which took up to 100 ms
 - On a phone, small controls are easier to tap: the period tabs, the arrows next to the date, the round chart buttons, the info icons, the buttons, the charge levels, "Source" and "Usage" below the balance, and the total of the inverter and house breakdown. The labels of the key figures and the "More" menu use a larger font
+- On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. Tooltips on a computer have a new, lighter look
 
 ## Fixes
 
