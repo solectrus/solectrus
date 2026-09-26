@@ -22,15 +22,15 @@
       - if grid_costs
         .label-value-row
           span = t('.grid_costs')
-          = render SensorValue::Component.new(grid_costs, :total_costs, sign: :negative)
+          = render SensorValue::Component.new(grid_costs, :total_costs, sign: :negative, precision:)
 
       - if pv_costs
         .label-value-row
           span = t('.opportunity_costs')
-          = render SensorValue::Component.new(pv_costs, :total_costs, sign: :negative)
+          = render SensorValue::Component.new(pv_costs, :total_costs, sign: :negative, precision:)
 
       div class= ('label-value-row label-value-separator pt-2 mt-3' if breakdown?)
         - if breakdown?
           strong
             = t('.total_costs')
-        = render SensorValue::Component.new(costs, :total_costs, sign: :negative, class: 'text-xl')
+        = render SensorValue::Component.new(costs, :total_costs, sign: :negative, precision:, class: 'text-xl')

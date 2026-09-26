@@ -81,28 +81,34 @@ describe SplittedCosts::Component, type: :component do
       end
     end
 
-    context 'with breakdown' do
-      # Simulates rounding issue: 0.154 + 0.014 = 0.168
-      # Without fix: displayed as 0.15 + 0.01 = 0.16, but total shows 0.17
-      # With fix: total = 0.15 + 0.01 = 0.16
-      let(:grid_costs) { 0.154 }
-      let(:pv_costs) { 0.014 }
-      let(:costs) { 0.168 }
+    # Rounded on their own, the parts show 2,32 and 3,50 -- 5,82 in sum,
+    # while the key figure shows 5,83. The missing cent goes to the last part,
+    # the rest of the total.
+    context 'with parts that round away from the total' do
+      let(:grid_costs) { 2.323 }
+      let(:pv_costs) { 3.504 }
+      let(:costs) { 5.827 }
 
-      it 'calculates total from rounded parts' do
-        expect(component.costs).to eq(0.16)
+      it 'keeps the total of the key figure' do
+        expect(component.costs).to eq(5.83)
+      end
+
+      it 'rounds the parts to add up to it' do
+        expect([component.grid_costs, component.pv_costs]).to eq([2.32, 3.51])
       end
     end
 
-    # Money loses its decimals from 10 upwards, so the parts have to be rounded
-    # the same way -- otherwise 43 plus 12 shows up as 56
-    context 'with parts large enough to lose their decimals' do
+    # Money loses its decimals from 10 upwards. When all amounts are that
+    # large, total and parts show whole amounts.
+    context 'with amounts large enough to lose their decimals' do
       let(:grid_costs) { 43.28 }
       let(:pv_costs) { 12.35 }
       let(:costs) { 55.63 }
 
-      it 'calculates total from the parts as displayed' do
-        expect(component.costs).to eq(55)
+      it 'rounds total and parts to whole amounts that add up' do
+        expect(component.precision).to eq(0)
+        expect([component.grid_costs, component.pv_costs]).to eq([43.0, 13.0])
+        expect(component.costs).to eq(56)
       end
     end
   end

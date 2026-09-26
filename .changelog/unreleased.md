@@ -26,5 +26,6 @@ Keep every section, an empty one included.
 
 - Buttons show the pointer cursor again, for example "Reset" for the summaries or "Save" in forms. Before, they showed the default arrow
 - The amortization table now rounds the yearly cash flows correctly. Before, a year with many entries could be off by a few euros
+- The values in a tooltip now add up to the total shown with them, in the charts as well, and the heating shares add up to 100 %. All values of a tooltip show the same number of decimals, for example 4,83 € + 10,20 € = 15,03 €. Before, each value was rounded on its own, so the total could be off by one in the last digit, for example 12 € + 3 € = 16 €
 
 ## Maintenance

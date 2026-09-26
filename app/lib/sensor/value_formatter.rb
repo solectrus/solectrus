@@ -15,13 +15,6 @@ class Sensor::ValueFormatter
     @sign = sign
   end
 
-  # A caller that builds a total out of parts it also displays has to round
-  # those parts the way they are shown -- otherwise the numbers on screen stop
-  # adding up (43 minus 41 appearing as 1,96). See SplittedCosts::Component.
-  def self.round_money(value)
-    value.round(new(value, unit: :money).precision)
-  end
-
   def to_h
     return {} if value.nil?
 
@@ -57,6 +50,11 @@ class Sensor::ValueFormatter
       end
   end
 
+  # Only scalable units ever divide, so the others need no formatter to answer
+  def divisor
+    definition.scalable? ? unit_formatter.divisor : 1
+  end
+
   private
 
   attr_reader :value, :unit, :context, :scaling, :explicit_precision, :sign
@@ -79,11 +77,6 @@ class Sensor::ValueFormatter
   def displayed_value
     @displayed_value ||=
       definition.scalable? ? value.to_f / divisor : value
-  end
-
-  # Only scalable units ever divide, so the others need no formatter to answer
-  def divisor
-    definition.scalable? ? unit_formatter.divisor : 1
   end
 
   def add_sign_prefix(result)

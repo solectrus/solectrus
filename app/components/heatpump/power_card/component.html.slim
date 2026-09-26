@@ -22,11 +22,11 @@
   - if show_tooltip?
     #tooltip-content-heatpump_power.hidden data-tooltip-target= 'html'
       .space-y-1
-        - tooltip_rows.each do |row|
+        - tooltip_rows.zip(tooltip_values.parts).each do |row, value|
           = render TooltipRow::Component.new(label: row[:label], color_class: row[:bg]) do
-            = render SensorValue::Component.new(data, row[:sensor], context: :total, precision: 3, scaling: tooltip_scaling)
+            = render SensorValue::Component.new(value, row[:sensor], **tooltip_values.options)
 
         .label-value-row.label-value-separator.pt-2.mt-3
           strong
             = t('splitter.total')
-          = render SensorValue::Component.new(data, :heatpump_power, context: :total, precision: 3, scaling: tooltip_scaling)
+          = render SensorValue::Component.new(tooltip_values.sum, :heatpump_power, **tooltip_values.options)

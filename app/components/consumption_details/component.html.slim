@@ -3,13 +3,13 @@ dl
     dt
       = Sensor::Registry[:inverter_power].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :inverter_power, **consistent_options)
+      = render SensorValue::Component.new(self_consumption.parts.first, :inverter_power, **self_consumption.options)
 
     dt.whitespace-nowrap
       |&minus;&nbsp;
       = Sensor::Registry[:grid_export_power].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :grid_export_power, **consistent_options)
+      = render SensorValue::Component.new(self_consumption.parts.last&.abs, :grid_export_power, **self_consumption.options)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
@@ -17,14 +17,14 @@ dl
       |&#61;&nbsp;
       = Sensor::Registry[:self_consumption].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :self_consumption, **consistent_options)
+      = render SensorValue::Component.new(self_consumption.sum, :self_consumption, **self_consumption.options)
 
   .mt-2.grid.grid-cols-2.gap-4
     dt.whitespace-nowrap
       |&divide;&nbsp;
       = Sensor::Registry[:inverter_power].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :inverter_power, **consistent_options)
+      = render SensorValue::Component.new(self_consumption.parts.first, :inverter_power, **self_consumption.options)
 
   hr.my-2
   .grid.grid-cols-2.gap-4

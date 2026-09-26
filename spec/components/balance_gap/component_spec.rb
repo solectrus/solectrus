@@ -54,6 +54,55 @@ describe BalanceGap::Component, type: :component do
     end
   end
 
+  # Rounded on their own, 15,04 - 13,06 = 1,98 shows as 15,0 - 13,1 = 2,0
+  context 'with values that round away from the difference' do
+    let(:raw_data) do
+      super().merge(%i[grid_import_power sum] => 5_040.0, %i[house_power sum] => 10_060.0)
+    end
+
+    it 'shows values that add up' do
+      sources, sinks, difference =
+        [component.sources, component.sinks, component.difference].map(&:to_f)
+
+      expect((sources - sinks).round(1)).to eq(difference)
+      expect(difference).to eq(2.0)
+    end
+  end
+
+  # In the unit of the difference, 6 kWh would show as 6000 Wh
+  context 'with a difference below one kWh' do
+    let(:raw_data) do
+      super().merge(
+        %i[inverter_power sum] => 5_000.0,
+        %i[grid_import_power sum] => 1_000.0,
+        %i[grid_export_power sum] => 1_000.0,
+        %i[house_power sum] => 4_300.0,
+      )
+    end
+
+    it 'keeps all three in kWh' do
+      expect(component.sources).to eq('6.0 kWh')
+      expect(component.sinks).to eq('5.3 kWh')
+      expect(component.difference).to eq('0.7 kWh')
+    end
+  end
+
+  # In the unit of the sides, 80 kWh would show as 0.1 MWh
+  context 'with sides much larger than the difference' do
+    let(:raw_data) do
+      super().merge(
+        %i[inverter_power sum] => 1_000_000.0,
+        %i[grid_import_power sum] => 500_000.0,
+        %i[grid_export_power sum] => 300_000.0,
+        %i[house_power sum] => 1_120_000.0,
+      )
+    end
+
+    it 'keeps the digits of the difference' do
+      expect(component.difference).to eq('80.0 kWh')
+    end
+  end
+
   context 'when a consumption is counted twice' do
     let(:raw_data) { super().merge(%i[house_power sum] => 14_000.0) }
 

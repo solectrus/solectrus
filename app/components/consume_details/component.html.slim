@@ -13,7 +13,7 @@ dl.mt-2.space-y-2
       => "\u21D2"
       = t('.grid.import_costs')
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :grid_costs, sign: :negative)
+      = render SensorValue::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
 
 h3.mt-5.font-bold.text-base
   = t('.pv.header')
@@ -30,11 +30,11 @@ dl.mt-2.space-y-2
       => "\u21D2"
       = t('.pv.opportunity_costs')
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :opportunity_costs, sign: :negative)
+      = render SensorValue::Component.new(costs.parts.last, :opportunity_costs, sign: :negative, **costs.options)
 
 dl.mt-5
   .flex.items-center.justify-between.gap-4
     dt.font-bold.text-base
       = t('.total_costs')
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :total_costs, sign: :negative)
+      = render SensorValue::Component.new(costs.sum, :total_costs, sign: :negative, **costs.options)

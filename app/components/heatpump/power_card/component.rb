@@ -64,9 +64,16 @@ class Heatpump::PowerCard::Component < ViewComponent::Base
     @grid_ratio = data.heatpump_power_grid_ratio
   end
 
-  # Parts and total share one unit, so they visibly add up
-  def tooltip_scaling
-    data.heatpump_power
+  # Parts and total share one unit and one rounding, so they visibly add up
+  def tooltip_values
+    @tooltip_values ||=
+      RoundedSum.new(
+        tooltip_rows.map { data.public_send(it[:sensor]) },
+        unit: :watt,
+        context: :total,
+        precision: 3,
+        scaling: data.heatpump_power,
+      )
   end
 
   def tooltip_rows

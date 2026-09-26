@@ -13,14 +13,27 @@ class SplittedCosts::Component < ViewComponent::Base
     @show_power_breakdown = show_power_breakdown
   end
 
-  attr_reader :grid_costs, :pv_costs, :power_grid_ratio, :note
+  attr_reader :power_grid_ratio, :note
 
-  # When breakdown is shown, calculate total from rounded parts
-  # to ensure displayed values add up correctly
+  # With a breakdown, the total is the one the key figures show, and the parts
+  # add up to it as shown: 2,323 and 3,504 show as 2,32 + 3,51 = 5,83, not
+  # 2,32 + 3,50.
   def costs
-    return @costs unless breakdown?
+    breakdown? ? rounded.sum : @costs
+  end
 
-    display_rounded(grid_costs) + display_rounded(pv_costs)
+  def grid_costs
+    rounded.parts.first if @grid_costs
+  end
+
+  def pv_costs
+    rounded.parts.last if @pv_costs
+  end
+
+  # All amounts of the breakdown share one precision, so 4,83 + 10,20 = 15,03
+  # instead of 4,83 + 10 = 15
+  def precision
+    rounded.precision if breakdown?
   end
 
   def power_pv_ratio
@@ -30,7 +43,7 @@ class SplittedCosts::Component < ViewComponent::Base
   end
 
   def breakdown?
-    grid_costs || pv_costs
+    @grid_costs || @pv_costs
   end
 
   def costs?
@@ -43,9 +56,7 @@ class SplittedCosts::Component < ViewComponent::Base
 
   private
 
-  # Round a part the way it is displayed, so the total built from the parts
-  # matches what the eye adds up.
-  def display_rounded(value)
-    Sensor::ValueFormatter.round_money(value.to_f)
+  def rounded
+    @rounded ||= RoundedSum.new([@grid_costs.to_f, @pv_costs.to_f], unit: :money)
   end
 end

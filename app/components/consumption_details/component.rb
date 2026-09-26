@@ -7,6 +7,24 @@ class ConsumptionDetails::Component < ViewComponent::Base
 
   attr_accessor :data, :timeframe
 
+  # Self-consumption = PV - grid export, with one rounding, so it visibly adds
+  # up
+  def self_consumption
+    @self_consumption ||=
+      RoundedSum.new(
+        [data.inverter_power, data.grid_export_power && -data.grid_export_power],
+        range: Sensor::Registry[:self_consumption].value_range,
+        unit: :watt,
+        **consistent_options,
+      )
+  end
+
+  def power_or_energy
+    timeframe.now? ? :rate : :total
+  end
+
+  private
+
   def consistent_options
     max = [
       data.inverter_power,
@@ -15,9 +33,5 @@ class ConsumptionDetails::Component < ViewComponent::Base
     ].compact.max
 
     { context: power_or_energy, scaling: max, precision: 3 }
-  end
-
-  def power_or_energy
-    timeframe.now? ? :rate : :total
   end
 end

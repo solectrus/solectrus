@@ -23,7 +23,10 @@ class GridCostsGraph::Component < ViewComponent::Base
     (revenue.fdiv(max) * 100).round
   end
 
-  def profit
-    revenue - costs
+  # Costs, revenue and their balance share one rounding, so they visibly add
+  # up. The costs come first and keep their value, as in the other tooltips,
+  # and the revenue takes the rest.
+  def amounts
+    @amounts ||= RoundedSum.new([-costs, revenue], unit: :money)
   end
 end

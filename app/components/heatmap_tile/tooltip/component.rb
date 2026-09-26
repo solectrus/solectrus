@@ -30,6 +30,21 @@ class HeatmapTile::Tooltip::Component < ViewComponent::Base
   end
 
   def grid_balance
-    @grid_balance ||= value[:grid_balance]
+    grid_amounts.sum
+  end
+
+  # Revenue, costs and their balance share one rounding, so they visibly add
+  # up. The costs come first and keep their value, as in the other tooltips,
+  # and the revenue takes the rest.
+  def grid_amounts
+    @grid_amounts ||=
+      RoundedSum.new(
+        [value[:grid_costs] && -value[:grid_costs], value[:grid_revenue]],
+        unit: :money,
+      )
+  end
+
+  def grid_amount(field)
+    field == :grid_costs ? grid_amounts.parts.first : grid_amounts.parts.last
   end
 end

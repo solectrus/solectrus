@@ -8,12 +8,12 @@
         .label-value-row
           span = t("sensors.#{options[:label]}")
           span
-            =< render SensorValue::Component.new(value[field], field, sign: options[:sign], precision: 0)
+            =< render SensorValue::Component.new(grid_amount(field), field, sign: options[:sign], **grid_amounts.options)
 
       .label-value-row.font-bold
         span = t('sensors.grid_balance')
         span
-          = render SensorValue::Component.new(grid_balance.abs, :grid_balance, sign: grid_balance.negative? ? :negative : :positive, precision: 0)
+          = render SensorValue::Component.new(grid_balance.abs, :grid_balance, sign: grid_balance.negative? ? :negative : :positive, **grid_amounts.options)
   - else
     br
     = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)

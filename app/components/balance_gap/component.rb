@@ -25,15 +25,15 @@ class BalanceGap::Component < ViewComponent::Base
   end
 
   def sources
-    format_energy(data.total_plus)
+    format_energy(energy.parts.first)
   end
 
   def sinks
-    format_energy(data.total_minus)
+    format_energy(-energy.parts.last)
   end
 
   def difference
-    format_energy(data.imbalance)
+    format_energy(energy.sum)
   end
 
   # The share the threshold judges, so the reader sees what made this appear.
@@ -47,7 +47,20 @@ class BalanceGap::Component < ViewComponent::Base
 
   private
 
+  # All three share the unit and the rounding, so they visibly add up. The unit
+  # follows the difference, so it keeps its digits, but stays at least kWh, so
+  # 12 kWh never show as 12000 Wh.
+  def energy
+    @energy ||=
+      RoundedSum.new(
+        [data.total_plus, -data.total_minus],
+        unit: :watt,
+        context: :total,
+        scaling: [data.imbalance.abs, 1_000].max,
+      )
+  end
+
   def format_energy(value)
-    Sensor::ValueFormatter.new(value, unit: :watt, context: :total).to_s
+    Sensor::ValueFormatter.new(value, unit: :watt, **energy.options).to_s
   end
 end

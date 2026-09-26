@@ -6,14 +6,14 @@ dl.mt-5
     dt
       = Sensor::Registry[:grid_import_power].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :grid_costs, sign: :negative)
+      = render SensorValue::Component.new(solar_price.parts.first, :grid_costs, sign: :negative, **solar_price.options)
 
   .grid.grid-cols-2.gap-4
     dt
       |&plus;&nbsp;
       = Sensor::Registry[:grid_export_power].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :grid_revenue, sign: :positive)
+      = render SensorValue::Component.new(solar_price.parts.last, :grid_revenue, sign: :positive, **solar_price.options)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
@@ -21,14 +21,14 @@ dl.mt-5
       |&#61;&nbsp;
       = Sensor::Registry[:solar_price].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :solar_price, sign: :value_based_reverse)
+      = render SensorValue::Component.new(solar_price.sum, :solar_price, sign: :value_based_reverse, **solar_price.options)
 
   .mt-5.grid.grid-cols-2.gap-4
     dt
       |&minus;&nbsp;
       = Sensor::Registry[:traditional_costs].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :traditional_costs, sign: :negative)
+      = render SensorValue::Component.new(savings.parts.last, :traditional_costs, sign: :negative, **savings.options)
 
   hr.my-2
   .grid.grid-cols-2.gap-4
@@ -36,7 +36,7 @@ dl.mt-5
       |&#61;&nbsp;
       = Sensor::Registry[:savings].display_name(:short)
     dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :savings, sign: :value_based)
+      = render SensorValue::Component.new(savings.sum, :savings, sign: :value_based, **savings.options)
 
     - if data.battery_savings_percent&.positive?
       dt
