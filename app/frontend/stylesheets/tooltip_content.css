@@ -1,0 +1,183 @@
+/*
+ * The content of a tooltip. The same markup shows in two places: in a
+ * floating tooltip beside its target, and on a phone in the bottom sheet.
+ * The floating tooltip is narrow, so its content stands centered in one
+ * column. The sheet has the full width of the screen, so there the content
+ * reads as a list of iOS: a header on the left, then groups of rows with the
+ * label on the left and the value on the right.
+ *
+ * The markup carries these classes and no utilities for layout, because a
+ * utility wins over any rule here and would hold the sheet to the layout of
+ * the floating tooltip.
+ */
+.tooltip-layout {
+  @apply flex min-w-32 flex-col items-center justify-center gap-2 p-2 text-center;
+}
+
+/* An icon (.tooltip-icon) beside a heading: the title (.tooltip-title), the
+   main value (.tooltip-value) and at times a second value below it */
+.tooltip-header,
+.tooltip-heading {
+  @apply flex flex-col items-center gap-2;
+}
+
+/* A total is larger than a rate */
+.tooltip-value-lg {
+  @apply text-xl;
+}
+
+/* Rows that belong together. A component inside can mark its own groups,
+   which keep their own spacing in the floating tooltip. */
+.tooltip-layout > .tooltip-group {
+  @apply mt-2 w-full space-y-2;
+}
+
+/* A smaller group, for a detail of lower weight */
+.tooltip-group-sm {
+  @apply text-xs;
+}
+
+/* A row that keeps its value below the label, also on a large screen */
+.tooltip-layout .label-value-column {
+  @apply flex-col items-center text-center;
+}
+
+/*
+ * A calculation: each step is a group of rows, and its last row with "="
+ * (.tooltip-result) is the result of the step. A hidden element takes no
+ * part in the gap, so the gap only separates what shows.
+ */
+.tooltip-layout-table {
+  /* A calculation is read, not glanced at, so its text is larger than in a
+     plain tooltip */
+  @apply text-subhead items-stretch gap-5 p-0 text-left;
+
+  /* Rows of a calculation need air, the eye follows them line by line */
+  > .tooltip-group {
+    @apply mt-0 space-y-3;
+  }
+
+  .label-value-row {
+    @apply gap-x-4;
+  }
+
+  .tooltip-title {
+    @apply font-bold;
+  }
+}
+
+/* A number of a calculation, with digits of the same width */
+.tooltip-number {
+  @apply text-right tabular-nums;
+}
+
+/* Decimals and units shrink only a little, a tooltip is small already */
+.tooltip-layout :is(.sensor-value-decimal, .sensor-value-unit) {
+  font-size: 0.9em;
+}
+
+.tooltip-result {
+  @apply border-t border-gray-300 pt-3 dark:border-slate-600;
+}
+
+/* The final result of a calculation. No header repeats it, so it stands out
+   here. Its value is the last child or sits in the last child. */
+.tooltip-layout .tooltip-total {
+  @apply font-semibold;
+
+  > .sensor-value:last-child,
+  > :last-child .sensor-value {
+    @apply text-lg;
+  }
+}
+
+/* A second line below a row that tells where its value comes from, like the
+   subtitle of an iOS cell. Gray, but as large as the text of the tooltip:
+   its decimals and unit keep that size, smaller would not read. */
+.tooltip-detail {
+  @apply text-muted mt-0.5 text-sm;
+
+  :is(.sensor-value-decimal, .sensor-value-unit) {
+    font-size: 1em;
+  }
+}
+
+/* A note below everything else */
+.tooltip-footnote {
+  @apply text-sm text-gray-400;
+}
+
+.bottom-sheet .tooltip-layout {
+  @apply items-stretch gap-5 p-0 text-left text-base;
+
+  .tooltip-header {
+    @apply flex-row gap-4;
+  }
+
+  .tooltip-heading {
+    @apply items-start gap-0.5;
+  }
+
+  .tooltip-icon {
+    @apply w-12 shrink-0 text-4xl;
+  }
+
+  .tooltip-title {
+    @apply text-muted;
+  }
+
+  /* Without a value, the title is the heading itself */
+  .tooltip-heading:not(:has(.tooltip-value)) .tooltip-title {
+    @apply text-xl font-semibold text-inherit;
+  }
+
+  .tooltip-value {
+    @apply text-3xl font-semibold;
+  }
+
+  .tooltip-group {
+    @apply m-0 space-y-0 divide-y divide-gray-200 rounded-2xl bg-gray-100 px-4 text-base dark:divide-slate-600/60 dark:bg-slate-700/50;
+
+    > * {
+      @apply py-3;
+    }
+
+    /* A value reads at a glance: a little larger than its label. A value
+       inside a label keeps the size of the label. */
+    .label-value-row > .sensor-value:last-child,
+    .label-value-row > :last-child .sensor-value {
+      @apply text-lg;
+    }
+
+    .tooltip-total > .sensor-value:last-child,
+    .tooltip-total > :last-child .sensor-value {
+      @apply text-2xl;
+    }
+  }
+
+  /* The sheet has room for a label and its value on one line. The gap stays
+     small, so a label as long as "Energie aus Photovoltaik" with a swatch and
+     an operator still fits beside its value on a 393px screen. */
+  .label-value-row {
+    @apply flex-row items-baseline justify-between gap-x-3 text-left;
+  }
+
+  .tooltip-title {
+    @apply font-normal;
+  }
+
+  /* The group draws the line above the result */
+  .tooltip-result {
+    @apply border-t-0 font-semibold;
+  }
+
+  /* Secondary text in the sheet is 15px, the size of an iOS subtitle */
+  .tooltip-detail {
+    @apply text-subhead;
+  }
+
+  /* Below a group, as on iOS: small, gray, in line with the rows */
+  .tooltip-footnote {
+    @apply text-subhead text-muted px-4;
+  }
+}

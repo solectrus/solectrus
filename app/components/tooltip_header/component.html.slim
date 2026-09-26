@@ -1,0 +1,8 @@
+.tooltip-header
+  = icon
+  .tooltip-heading
+    .tooltip-title
+      = title
+    - if sensor_name
+      = render main_value
+    = content

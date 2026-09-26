@@ -10,9 +10,12 @@
     code.select-text[
       data-controller = 'tooltip'
       data-tooltip-touch-value= 'true'
-      title= l(commit_time)
     ]
       = current_version
+      span.hidden data-tooltip-target= 'html'
+        .tooltip-layout
+          = render TooltipHeader::Component.new(title: current_version) do
+            .tooltip-detail = l(commit_time)
 
   - if version_valid?
     - case outdated?

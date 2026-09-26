@@ -24,7 +24,7 @@ Keep every section, an empty one included.
 - The battery case temperature now shows blue for a normal temperature, and red only from about 45 °C. Before, all values from 40 °C were bright red. In dark mode, the colors of the case temperature and the heat pump tank temperature now match the other charts
 - The sponsorship page now tells you how to close it: with "Maybe later", after you log in as administrator. An update no longer brings the page back
 - On a phone, small controls are easier to tap: the period tabs, the arrows next to the date, the round chart buttons, the info icons, the buttons, the charge levels, "Source" and "Usage" below the balance, and the total of the inverter and house breakdown. The labels of the key figures and the "More" menu use a larger font
-- On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. The panel names the selected period. Tooltips on a computer have a new, lighter look
+- On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. For a bar or a key figure of the balance and for the forecast, the panel shows the details as a list, with the label on the left and the value on the right, and it names the selected period. Tooltips on a computer have a new, lighter look
 - In dark mode, red and green text is easier to read, for example amounts, trends and error messages. It has the color of the matching bar in the balance
 
 ## Fixes

@@ -21,6 +21,7 @@
 /* Import app specific styles */
 @import '../stylesheets/floating_tooltip.css' layer(base);
 @import '../stylesheets/label_value.css' layer(base);
+@import '../stylesheets/tooltip_content.css' layer(base);
 @import '../stylesheets/chart_tooltip.css' layer(base);
 @import '../stylesheets/flow.css' layer(base);
 @import '../stylesheets/badge.css' layer(base);
@@ -30,6 +31,8 @@
 
 /* Stylesheets beside their ViewComponent */
 @import '../../components/bottom_sheet/component.css' layer(base);
+@import '../../components/splitted_costs/component.css' layer(base);
+@import '../../components/tooltip_row/component.css' layer(base);
 
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';

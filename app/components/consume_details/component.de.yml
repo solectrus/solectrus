@@ -1,14 +1,10 @@
 de:
   grid:
-    header: Kosten durch Netzbezug
-    import_power: Aus dem Netz bezogene Energie
     import_costs: Netzbezugskosten
+    detail_html: '%{energy} aus dem Netz'
 
   pv:
-    header: Opportunitätskosten Eigenverbrauch
     opportunity_costs: Entg. Einspeisevergütung
+    detail_html: '%{energy} selbst verbraucht'
 
   total_costs: Wirtschaftliche Kosten
-
-  from: von
-  to: bis

@@ -27,10 +27,11 @@ div class="donut-chart flex-1 min-h-0 flex items-center justify-center @containe
 
       / Single tooltip content for all segments
       .hidden data-tooltip-target="html"
-        .space-y-1
-          - segments.zip(rounded_percents).each do |seg, percent|
-            = render TooltipRow::Component.new(label: seg[:label], color_var: seg[:color_var]) do
-              = number_to_percentage(percent, precision: 0)
+        .tooltip-layout.tooltip-layout-table
+          .tooltip-group
+            - segments.zip(rounded_percents).each do |seg, percent|
+              = render TooltipRow::Component.new(label: seg[:label], color_var: seg[:color_var]) do
+                = number_to_percentage(percent, precision: 0)
 
       / Center content (COP)
       .absolute.inset-1/4.flex.items-center.justify-center.pointer-events-none

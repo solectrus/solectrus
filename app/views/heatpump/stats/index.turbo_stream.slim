@@ -51,13 +51,14 @@
             = render RectBadge::Component.new(title: t('sensors.heatpump_costs_short'), css_class: 'h-full rounded-l-none justify-center px-3 md:px-4') do
               = render SensorValue::Component.new(data.heatpump_costs, :total_costs, sign: :negative)
             #tooltip-content-heatpump_costs.hidden data-tooltip-target= 'html'
-              = render SplittedCosts::Component.new( \
-                  costs: data.heatpump_costs,
-                  power_grid_ratio: data.heatpump_power_grid_ratio,
-                  grid_costs: data.heatpump_costs_grid,
-                  pv_costs: data.heatpump_costs_pv,
-                  show_power_breakdown: false,
-                )
+              .tooltip-layout.tooltip-layout-table
+                = render SplittedCosts::Component.new( \
+                    costs: data.heatpump_costs,
+                    power_grid_ratio: data.heatpump_power_grid_ratio,
+                    grid_costs: data.heatpump_costs_grid,
+                    pv_costs: data.heatpump_costs_pv,
+                    show_power_breakdown: false,
+                  )
 
     ruby:
       donut_heating_url = heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:)
