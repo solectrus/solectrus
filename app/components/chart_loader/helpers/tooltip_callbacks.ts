@@ -3,7 +3,11 @@
 import type { ChartData, ChartType, Color, TooltipItem } from 'chart.js';
 import { roundedParts, roundedSum } from '@/utils/roundedParts';
 
-import { dateTimeFormatter, numberFormatter } from './formatting';
+import {
+  dateTimeFormatter,
+  formatInterval,
+  numberFormatter,
+} from './formatting';
 import { isTemperatureDataset, tooltipRange } from './tooltip_range';
 import { perRender } from './tooltip_utils';
 import type { DatasetWithId, Range } from './types';
@@ -185,12 +189,18 @@ export const buildTooltipCallbacks = (
       const parsedValue =
         dataset.tooltipAbs && rawValue !== null ? Math.abs(rawValue) : rawValue;
 
+      // A temperature prints its own unit instead of the chart's, which may be
+      // watts. The tenth belongs to how a temperature reads, so it stays even
+      // for a whole degree.
+      const formattedValue = (value: number) =>
+        isTemperatureDataset(dataset)
+          ? `${numberFormatter(locale, 1, 1).format(value)} °C`
+          : formattedNumber(value, range);
+
+      // A min/max bar shows both ends
       if (tooltipItem.parsed._custom) {
-        if (parsedValue !== null)
-          return label + formattedNumber(parsedValue, range);
-        const fallback =
-          tooltipItem.parsed._custom.max ?? tooltipItem.parsed._custom.min;
-        return label + formattedNumber(fallback, range);
+        const { min, max } = tooltipItem.parsed._custom;
+        return label + formatInterval(min, max, formattedValue);
       }
 
       if (
@@ -215,19 +225,8 @@ export const buildTooltipCallbacks = (
         }
       }
 
-      // A temperature prints its own unit instead of the chart's, which may be
-      // watts. The tenth belongs to how a temperature reads, so it stays even
-      // for a whole degree.
-      if (isTemperatureDataset(dataset)) {
-        const formattedValue = numberFormatter(locale, 1, 1).format(
-          parsedValue ?? 0,
-        );
-        return `${label}${formattedValue} °C`;
-      }
-
-      if (parsedValue !== null) {
-        return label + formattedNumber(parsedValue, range);
-      }
+      if (parsedValue !== null || isTemperatureDataset(dataset))
+        return label + formattedValue(parsedValue ?? 0);
 
       const fallbackY = tooltipItem.parsed.y!;
       return (
