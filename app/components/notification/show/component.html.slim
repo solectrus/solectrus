@@ -1,4 +1,4 @@
-= render TurboModal::Component.new(title:, narrow: true) do
+= render TurboModal::Component.new(title:, width: :narrow) do
   .flex.flex-col.flex-1.min-h-0
     time class='shrink-0 text-sm text-gray-500 dark:text-gray-400'
       = formatted_published_at

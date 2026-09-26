@@ -28,11 +28,10 @@
 }
 
 .floating-tooltip-inner {
-  @apply relative rounded border border-gray-400 bg-white px-2 py-1 text-sm text-gray-900 shadow-lg;
-  @apply dark:border-slate-400 dark:bg-slate-900 dark:text-slate-300;
+  @apply glass-panel relative px-3 py-2 text-sm;
 
   opacity: 0;
-  transform: scale(0.5);
+  transform: scale(0.96);
   transition:
     opacity 200ms ease-out,
     transform 200ms ease-out;
@@ -41,9 +40,26 @@
     opacity: 1;
     transform: scale(1);
     transition:
-      opacity 175ms ease-out,
-      transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      opacity 150ms ease-out,
+      transform 250ms var(--ease-ios);
   }
+}
+
+/* The box grows out of the side that faces its target */
+.floating-tooltip[data-placement^='top'] .floating-tooltip-inner {
+  transform-origin: bottom center;
+}
+
+.floating-tooltip[data-placement^='bottom'] .floating-tooltip-inner {
+  transform-origin: top center;
+}
+
+.floating-tooltip[data-placement^='left'] .floating-tooltip-inner {
+  transform-origin: center right;
+}
+
+.floating-tooltip[data-placement^='right'] .floating-tooltip-inner {
+  transform-origin: center left;
 }
 
 /*
@@ -63,47 +79,47 @@
   @apply max-md:max-w-[57vw];
 }
 
+/*
+ * The arrow is a square of the color of the box, turned by 45 degrees and
+ * centered on the edge that faces the target. Half of it lies on the box, in
+ * the same color, so only the outer half shows. Its two outer sides carry
+ * the hairline of the box.
+ *
+ * It moves along that edge with the coordinate of Floating UI. Which of the
+ * two coordinates it follows comes from the placement. One tooltip element
+ * serves the whole document, so it carries the coordinate of the tooltip
+ * before it. That coordinate belongs to a placement that is gone, and these
+ * rules do not read it.
+ */
 .floating-tooltip-arrow {
-  @apply absolute size-3 rotate-45 border border-gray-400 bg-white;
-  @apply dark:border-slate-400 dark:bg-slate-900;
+  @apply absolute size-3 rotate-45 border border-black/5 bg-white/95;
+  @apply dark:border-white/10 dark:bg-slate-800/95;
 }
 
-/*
- * The arrow moves along the edge of the box it sits on, and it stands 7px
- * beyond the opposite edge: half of its 12px size, plus the 1px border of the
- * box, because an absolutely positioned element starts at the padding box of
- * its container.
- *
- * Which of the two coordinates of Floating UI the arrow follows comes from the
- * placement, together with the two borders that the arrow hides. One tooltip
- * element serves the whole document, so it carries the coordinate of the
- * tooltip before it. That coordinate belongs to a placement that is gone, and
- * these rules do not read it.
- */
 .floating-tooltip[data-placement^='top'] .floating-tooltip-arrow {
   @apply border-t-0 border-l-0;
 
   left: var(--arrow-x);
-  bottom: -7px;
+  bottom: -6px;
 }
 
 .floating-tooltip[data-placement^='bottom'] .floating-tooltip-arrow {
   @apply border-r-0 border-b-0;
 
   left: var(--arrow-x);
-  top: -7px;
+  top: -6px;
 }
 
 .floating-tooltip[data-placement^='left'] .floating-tooltip-arrow {
   @apply border-b-0 border-l-0;
 
   top: var(--arrow-y);
-  right: -7px;
+  right: -6px;
 }
 
 .floating-tooltip[data-placement^='right'] .floating-tooltip-arrow {
   @apply border-t-0 border-r-0;
 
   top: var(--arrow-y);
-  left: -7px;
+  left: -6px;
 }
