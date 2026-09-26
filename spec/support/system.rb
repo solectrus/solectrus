@@ -95,6 +95,7 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
         [:car_battery_soc, :min, 30.0],
         [:car_battery_soc, :max, 85.0],
         [:case_temp, :min, 30.0],
+        [:case_temp, :max, 35.0],
         [:heatpump_heating_power, :sum, 2400],
         [:outdoor_temp, :avg, 10.0],
         [:outdoor_temp, :min, 5.0],

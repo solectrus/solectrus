@@ -4,6 +4,10 @@ class Sensor::Chart::MinmaxBase < Sensor::Chart::Base
   # - chart_sensor_names (returns array with single sensor name)
   # - suggested_min (optional)
 
+  # Pixels
+  MIN_BAR_LENGTH = 2
+  private_constant :MIN_BAR_LENGTH
+
   def build_sql_series
     sensor_name = chart_sensor_names.first
 
@@ -16,7 +20,7 @@ class Sensor::Chart::MinmaxBase < Sensor::Chart::Base
       .call
   end
 
-  def build_data # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  def build_data
     return super unless use_sql_for_timeframe?
 
     sensor_name = chart_sensor_names.first
@@ -31,19 +35,7 @@ class Sensor::Chart::MinmaxBase < Sensor::Chart::Base
 
     min_points.each do |timestamp, min_val|
       labels << (timestamp.to_time.to_i * 1000)
-      max_val = max_points[timestamp]
-
-      # Ensure a visible bar when min == max by adding a tiny offset
-      # (to avoid zero-height bars)
-      if min_val && max_val && min_val == max_val
-        if max_val < 100
-          max_val += 0.4
-        else
-          min_val -= 0.4
-        end
-      end
-
-      data << [min_val, max_val]
+      data << bar(min_val, max_points[timestamp])
     end
 
     # Return nil if no data points were collected
@@ -52,12 +44,32 @@ class Sensor::Chart::MinmaxBase < Sensor::Chart::Base
     sensor = Sensor::Registry[sensor_name]
     {
       labels:,
-      datasets: [{ **style_for_sensor(sensor), id: sensor.name, data: }],
+      datasets: [
+        {
+          **style_for_sensor(sensor),
+          id: sensor.name,
+          data:,
+          # Keeps a bar visible where min equals max. The data stays exact, so
+          # the tooltip shows a single value instead of a made-up range.
+          minBarLength: MIN_BAR_LENGTH,
+          # At the edge of the axis (a SOC of 100 %) such a bar leaves the
+          # chart area, and Chart.js would cut it off
+          clip: MIN_BAR_LENGTH,
+        },
+      ],
     }
   end
 
   # MinMax charts should have rounded corners on all sides
   def bar_border_skip # rubocop:disable Naming/PredicateMethod
     false
+  end
+
+  private
+
+  # Chart.js reads a missing end as 0, which minBarLength would draw, so a
+  # period without both ends has no bar at all
+  def bar(min_val, max_val)
+    [min_val, max_val] if min_val && max_val
   end
 end

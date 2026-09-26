@@ -41,6 +41,31 @@ describe Sensor::Chart::HeatpumpTankTemp do
       end
     end
 
+    context 'when min equals max' do
+      before do
+        create_summary(
+          date: '2025-03-05',
+          values: [
+            [:heatpump_tank_temp, :min, 35],
+            [:heatpump_tank_temp, :max, 35],
+          ],
+        )
+      end
+
+      it 'keeps the values exact and the bar visible' do
+        dataset = chart.data[:datasets].first
+
+        expect(dataset[:data]).to include([35, 35])
+        expect(dataset[:minBarLength]).to be_positive
+        expect(dataset[:clip]).to eq(dataset[:minBarLength])
+      end
+    end
+
+    it 'leaves a day without values empty' do
+      expect(chart.data[:datasets].first[:data]).to include(nil)
+      expect(chart.data[:datasets].first[:data]).not_to include([nil, nil])
+    end
+
     it 'excludes setpoint sensor' do
       expect(chart.chart_sensor_names).to eq(%i[heatpump_tank_temp])
     end
