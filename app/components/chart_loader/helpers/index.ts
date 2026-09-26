@@ -15,7 +15,7 @@ export {
   maxOf,
   minOf,
 } from './data_extents';
-export { formatInterval, formatNumber } from './formatting';
+export { formatInterval, formatNumber, roundingDigits } from './formatting';
 export {
   buildDrilldownUrl,
   createTouchIndexState,

@@ -77,6 +77,7 @@ import {
   ColorManager,
   extractNumericValue,
   formatNumber,
+  roundingDigits,
   isOverlapping,
   maxOf,
   minOf,
@@ -104,6 +105,12 @@ ensureFixedBottomTooltipPositioner(-14);
 
 const CHART_FONT_SIZE = 12;
 const CHART_FONT_SIZE_FULLSCREEN = 17;
+
+type ScaleOverrides = {
+  target?: 'axis' | 'tooltip';
+  autoKilo?: boolean;
+  range?: Range;
+};
 
 export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
@@ -381,6 +388,7 @@ export default class extends Controller<HTMLCanvasElement> {
         locale: this.locale,
         formattedNumber: (value, range) =>
           this.formattedNumber(value, { range }),
+        roundingDigits: (range) => roundingDigits(this.scaleOptions({ range })),
         extractNumericValue,
       },
       data,
@@ -405,27 +413,27 @@ export default class extends Controller<HTMLCanvasElement> {
       return JSON.parse(this.optionsTarget.textContent);
   }
 
-  // Without a range, the axis scales the value.
-  private formattedNumber(
-    number: number,
-    {
-      target = 'tooltip',
-      autoKilo = true,
-      range,
-    }: {
-      target?: 'axis' | 'tooltip';
-      autoKilo?: boolean;
-      range?: Range;
-    } = {},
-  ) {
+  private formattedNumber(number: number, options: ScaleOverrides = {}) {
     return formatNumber(number, {
+      locale: this.locale,
+      ...this.scaleOptions(options),
+    });
+  }
+
+  // The scale of a number, which formattedNumber and roundingDigits share.
+  // Without a range, the axis scales the value.
+  private scaleOptions({
+    target = 'tooltip',
+    autoKilo = true,
+    range,
+  }: ScaleOverrides) {
+    return {
       target,
       autoKilo,
       unitValue: this.unitValue,
       currency: this.currencyValue,
-      locale: this.locale,
       range: range ?? this.axisRange(),
-    });
+    };
   }
 
   // The range of the axis, for everything that is not shown inside one

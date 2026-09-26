@@ -2,6 +2,7 @@
 import type { ChartType, TooltipItem } from 'chart.js';
 
 import { extractNumericValue } from './data_extents';
+import { perRender } from './tooltip_utils';
 import type { DatasetWithId, Range } from './types';
 
 // A dataset that measures a temperature. The unit comes from the sensor
@@ -33,15 +34,6 @@ const computeRange = (
   return { min: Math.min(...values), max: Math.max(...values) };
 };
 
-// Chart.js builds a fresh dataPoints array for every tooltip render, so the
-// array itself keys the cache: the labels, the footer and the power-balance
-// renderer all read one render's range, and it is computed once. The map is
-// weak, so the last tooltip of a destroyed chart cannot keep it alive.
-const cache = new WeakMap<
-  readonly TooltipItem<ChartType>[],
-  Range | undefined
->();
-
 // The values one tooltip shows at once. They scale it instead of the axis, so
 // a tooltip of small values stays in watts while the axis is in kilowatts.
 //
@@ -49,14 +41,4 @@ const cache = new WeakMap<
 // not scale the others. A footer sum stays out as well: four rows of "400 W"
 // keep more precision than four rows of "0,4 kW", and the sum below them
 // follows the unit of the rows it adds up.
-export const tooltipRange = (
-  points?: readonly TooltipItem<ChartType>[],
-): Range | undefined => {
-  if (!points?.length) return;
-  if (cache.has(points)) return cache.get(points);
-
-  const range = computeRange(points);
-  cache.set(points, range);
-
-  return range;
-};
+export const tooltipRange = perRender(computeRange);

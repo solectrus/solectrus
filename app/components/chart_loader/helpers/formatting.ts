@@ -90,19 +90,15 @@ export const dateTimeFormatter = (
   return formatter;
 };
 
-// Formats a number for axis or tooltip display, optionally applying kilo units.
-export const formatNumber = (
-  number: number,
-  {
-    target = 'tooltip',
-    autoKilo = true,
-    unitValue,
-    currency,
-    locale,
-    range,
-  }: FormatOptions,
-): string => {
-  let unitValuePrefix = '';
+type ScaleOptions = Omit<FormatOptions, 'locale'>;
+
+const numberScale = ({
+  target = 'tooltip',
+  autoKilo = true,
+  unitValue,
+  currency,
+  range,
+}: ScaleOptions) => {
   const isCurrency = currency !== '' && unitValue.includes(currency);
 
   // Decide the kilo prefix from the range, not per value, so everything that
@@ -110,26 +106,35 @@ export const formatNumber = (
   // and "464 Wh").
   const kilo =
     autoKilo && !isCurrency && (range.max > 1000 || range.min < -1000);
-  if (kilo) {
-    number /= 1000.0;
-    unitValuePrefix = 'k';
-  }
 
-  const { minDecimals, maxDecimals } = getDecimalPlaces(
-    target,
+  return {
     kilo,
-    isCurrency,
-    unitValue,
-    range,
-  );
+    ...getDecimalPlaces(target, kilo, isCurrency, unitValue, range),
+  };
+};
+
+// Decimals of the raw value that formatNumber keeps: 2 for "5,83 €", -2 for
+// "3,5 kWh" printed from Wh
+export const roundingDigits = (options: ScaleOptions): number => {
+  const { kilo, maxDecimals } = numberScale(options);
+
+  return kilo ? maxDecimals - 3 : maxDecimals;
+};
+
+// Formats a number for axis or tooltip display, optionally applying kilo units.
+export const formatNumber = (
+  number: number,
+  { locale, ...options }: FormatOptions,
+): string => {
+  const { kilo, minDecimals, maxDecimals } = numberScale(options);
 
   const numberAsString = numberFormatter(
     locale,
     minDecimals,
     maxDecimals,
-  ).format(number);
+  ).format(kilo ? number / 1000.0 : number);
 
-  return `${numberAsString} ${unitValuePrefix}${unitValue}`;
+  return `${numberAsString} ${kilo ? 'k' : ''}${options.unitValue}`;
 };
 
 // Formats a min/max interval using a shared formatter.

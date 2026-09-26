@@ -1,5 +1,22 @@
 // Shared utilities for tooltip renderers.
-import type { Chart, Color } from 'chart.js';
+import type { Chart, ChartType, Color, TooltipItem } from 'chart.js';
+
+// Computes a value once per tooltip render. Chart.js builds a fresh dataPoints
+// array for every render, so the array itself keys the cache: the labels, the
+// footer and the power-balance renderer of one render share one result. The
+// map is weak, so the last tooltip of a destroyed chart cannot keep it alive.
+export const perRender = <T>(
+  compute: (points: readonly TooltipItem<ChartType>[]) => T,
+): ((points?: readonly TooltipItem<ChartType>[]) => T | undefined) => {
+  const cache = new WeakMap<readonly TooltipItem<ChartType>[], T>();
+
+  return (points) => {
+    if (!points?.length) return;
+    if (!cache.has(points)) cache.set(points, compute(points));
+
+    return cache.get(points);
+  };
+};
 
 export const escapeHtml = (value: string): string =>
   value
