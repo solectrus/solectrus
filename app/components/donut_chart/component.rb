@@ -1,6 +1,5 @@
 class DonutChart::Component < ViewComponent::Base
   renders_one :center
-  renders_one :tooltip_footer
 
   ARC_STEP_DEGREES = 5.0
   private_constant :ARC_STEP_DEGREES
