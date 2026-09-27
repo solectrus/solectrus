@@ -13,7 +13,7 @@
   .insights-row-value
     = content
 
-  - if url
+  - if chevron?
     = icon 'chevron-right', class: 'insights-row-chevron'
   - else
     span.insights-row-chevron.insights-row-chevron-spacer

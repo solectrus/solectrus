@@ -24,8 +24,20 @@ const CLOSE_TIMEOUT_MS = 500;
 const OPEN_CLASS = 'is-open';
 const INSTANT_CLASS = 'is-instant';
 
-// A drag that starts on one of these is a tap or an input, not a swipe
-const INTERACTIVE = 'a, button, input, select, textarea, label, summary';
+// A drag that starts on one of these is an input, not a swipe. A link or a
+// button may start a swipe, as on iOS, where a whole page can be links.
+const FORM_FIELD = 'input, select, textarea';
+// A drag further than this (px) is no tap: a click this soon (ms) after it
+// must not follow a link
+const TAP_SLOP = 10;
+const CLICK_AFTER_DRAG_MS = 300;
+
+// Areas that scroll on their own: the content, and an area inside it that
+// covers it, like a second page. Each gets `is-scrollable` while it
+// overflows, and the stylesheet gives it the vertical pan only then.
+const SCROLL_AREA = '.bottom-sheet-content, .bottom-sheet-scroll';
+// Where a drag moves the panel even over an area that scrolls
+const HANDLE = '.bottom-sheet-header, [data-bottom-sheet-handle]';
 
 interface BottomSheetOptions {
   // Runs once the sheet is closed and its animation is over
@@ -50,6 +62,8 @@ export class BottomSheet {
   private dragLastY = 0;
   private dragLastTime = 0;
   private dragVelocity = 0;
+  private dragMoved = false;
+  private dragEndedAt = -Infinity;
 
   constructor(
     readonly dialog: HTMLDialogElement,
@@ -68,10 +82,12 @@ export class BottomSheet {
     panel.addEventListener('pointermove', this.moveDrag);
     panel.addEventListener('pointerup', this.endDrag);
     panel.addEventListener('pointercancel', this.endDrag);
+    panel.addEventListener('click', this.swallowClickAfterDrag, true);
 
     // The content can grow or shrink while the sheet is open
     this.resizeObserver = new ResizeObserver(() => this.markScrollable());
-    this.resizeObserver.observe(content);
+    for (const area of panel.querySelectorAll(SCROLL_AREA))
+      this.resizeObserver.observe(area);
   }
 
   // `instant` skips the fade of the dim area, for a backdrop that is on the
@@ -160,10 +176,12 @@ export class BottomSheet {
 
   // For content that changed while the sheet is open
   markScrollable(): void {
-    this.content.classList.toggle(
-      'is-scrollable',
-      this.content.scrollHeight > this.content.clientHeight,
-    );
+    for (const area of this.panel.querySelectorAll(SCROLL_AREA)) {
+      area.classList.toggle(
+        'is-scrollable',
+        area.scrollHeight > area.clientHeight,
+      );
+    }
   }
 
   destroy(): void {
@@ -174,6 +192,7 @@ export class BottomSheet {
     this.panel.removeEventListener('pointermove', this.moveDrag);
     this.panel.removeEventListener('pointerup', this.endDrag);
     this.panel.removeEventListener('pointercancel', this.endDrag);
+    this.panel.removeEventListener('click', this.swallowClickAfterDrag, true);
   }
 
   private readonly handleClick = (event: MouseEvent): void => {
@@ -205,13 +224,14 @@ export class BottomSheet {
     if (this.state !== 'open') return;
     if (!window.matchMedia(COMPACT_QUERY).matches) return;
     if (!(event.target instanceof Element)) return;
-    if (event.target.closest(INTERACTIVE)) return;
+    if (event.target.closest(FORM_FIELD)) return;
 
-    // Content that scrolls keeps its vertical pan. There, only the header
-    // drags the panel.
+    // An area that scrolls keeps its vertical pan. There, only a handle, like
+    // the header, drags the panel.
+    const area = event.target.closest(SCROLL_AREA);
     if (
-      this.content.classList.contains('is-scrollable') &&
-      !event.target.closest('.bottom-sheet-header')
+      area?.classList.contains('is-scrollable') &&
+      !event.target.closest(HANDLE)
     )
       return;
 
@@ -220,14 +240,18 @@ export class BottomSheet {
     this.dragLastY = event.clientY;
     this.dragLastTime = event.timeStamp;
     this.dragVelocity = 0;
+    this.dragMoved = false;
     this.panel.style.transition = 'none';
-    this.panel.setPointerCapture(event.pointerId);
+    // No pointer capture: a touch stays with the element it started on
+    // anyway, and the moves bubble up to the panel. A capture on the panel
+    // would take the click away from a link that the finger only tapped.
   };
 
   private readonly moveDrag = (event: PointerEvent): void => {
     if (this.dragStartY === null) return;
 
     const delta = event.clientY - this.dragStartY;
+    if (Math.abs(delta) > TAP_SLOP) this.dragMoved = true;
     // Upwards, and with unsaved changes also downwards, the panel only gives
     // a little, like a rubber band
     const offset = delta > 0 && !this.dragLocked ? delta : delta / 5;
@@ -245,6 +269,7 @@ export class BottomSheet {
 
     const delta = event.clientY - this.dragStartY;
     this.dragStartY = null;
+    if (this.dragMoved) this.dragEndedAt = event.timeStamp;
 
     if (
       event.type === 'pointerup' &&
@@ -258,5 +283,15 @@ export class BottomSheet {
     // Back to the resting position
     this.panel.style.transition = '';
     this.panel.style.transform = '';
+  };
+
+  // A drag that started on a link and moved the panel is no tap. Should the
+  // lift of the finger still cause a click, it must not follow the link.
+  private readonly swallowClickAfterDrag = (event: MouseEvent): void => {
+    if (event.timeStamp - this.dragEndedAt > CLICK_AFTER_DRAG_MS) return;
+
+    this.dragEndedAt = -Infinity;
+    event.preventDefault();
+    event.stopPropagation();
   };
 }

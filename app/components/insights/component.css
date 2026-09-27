@@ -31,7 +31,9 @@
 /* A row that leads on dims while pressed. A highlight to the edge of the
    group would take the separator along, which stands indented. */
 .insights-row-link {
-  @apply transition-opacity hover:opacity-75 active:opacity-50;
+  @apply rounded-lg transition-opacity hover:opacity-75 active:opacity-50;
+  /* Inset: the gap of an offset ring would not match the color of the group */
+  @apply focus-ring-inset;
 }
 
 .insights-row-chevron {
@@ -112,6 +114,82 @@
 
   .tooltip-group:has(.insights-row-link) & {
     @apply block;
+  }
+}
+
+/* The page of the heatmap. On a phone, it covers the panel of the sheet and
+   slides in from the right, as a page pushed on iOS (component_controller.ts).
+   A larger screen has the room for the heatmap in the list, so there the page
+   is a part of it, without its own header. */
+.insights-subpage {
+  @variant max-md {
+    @apply absolute inset-0 z-10 flex flex-col overflow-y-auto bg-white px-6 outline-none dark:bg-slate-800;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    visibility: hidden;
+    transform: translateX(100%);
+    transition:
+      transform 300ms var(--ease-ios),
+      visibility 0s 300ms;
+
+    &.is-open {
+      visibility: visible;
+      transform: none;
+      transition: transform 300ms var(--ease-ios);
+    }
+
+    /* A swipe to the right goes back, so the page keeps the horizontal pan
+       from the browser, unlike the rest of the sheet (bottom_sheet). Only a
+       page that scrolls leaves it the vertical pan. */
+    @apply touch-none;
+
+    &.is-scrollable {
+      @apply touch-pan-y;
+    }
+  }
+}
+
+/* The way back above a large title, as on iOS. A period as long as "Since
+   commissioning ..." leaves the way back its room. */
+.insights-subpage-header {
+  @apply hidden max-md:block max-md:shrink-0 max-md:py-4;
+}
+
+/*
+ * The heatmap of a year has the page to itself, so the grid stands upright
+ * (the upright variant, see heatmap_tile) and fills the height the sheet
+ * has. The page must not change the height of the sheet, so a sheet with
+ * such a heatmap has room for it from the start, also for a short list. Only
+ * a smaller screen scrolls the page, below a row height of about 12px.
+ */
+.bottom-sheet-panel:has(.insights-subpage .heatmap-year) {
+  @variant max-md {
+    min-height: min(40rem, 90dvh);
+  }
+}
+
+/* The group holds at least the smallest grid and its padding, so a grid that
+   does not fit scrolls the page instead of leaving its group */
+.insights-subpage .tooltip-group:has(.heatmap-year) {
+  @apply max-md:flex max-md:min-h-106 max-md:flex-1 max-md:flex-col;
+
+  > * {
+    @apply max-md:min-h-0 max-md:flex-1;
+  }
+}
+
+.insights-back {
+  @apply -ml-2 inline-flex min-h-11 max-w-full cursor-pointer items-center gap-1 rounded-lg px-2 text-indigo-600 dark:text-indigo-400;
+  @apply focus-ring;
+}
+
+.insights-subpage-detail {
+  @apply text-subhead text-muted mt-0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .insights-subpage,
+  .insights-subpage.is-open {
+    transition: none;
   }
 }
 
