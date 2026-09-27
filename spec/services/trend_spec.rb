@@ -202,4 +202,61 @@ describe Trend do
       end
     end
   end
+
+  describe '#comparable?' do
+    let(:sensor) { Sensor::Registry[:inverter_power] }
+    let(:timeframe) { Timeframe.new('2025-04') }
+    let(:base) { :previous_year }
+
+    def create_base(value)
+      create_summary(
+        date: Date.new(2024, 4, 1),
+        values: [
+          [:inverter_power, :sum, value],
+          [:inverter_power_1, :sum, value],
+        ],
+      )
+    end
+
+    context 'with a base value' do
+      before { create_base(1000) }
+
+      it { is_expected.to be_comparable }
+    end
+
+    context 'with a base value of zero' do
+      before { create_base(0) }
+
+      it { is_expected.not_to be_comparable }
+    end
+
+    context 'without data for the base period' do
+      it { is_expected.not_to be_comparable }
+    end
+  end
+
+  describe '#precision' do
+    subject { trend.precision }
+
+    let(:timeframe) { Timeframe.new('2025-04') }
+    let(:base) { :previous_year }
+
+    context 'when sensor uses sum aggregation' do
+      let(:sensor) { double('Sensor', trend_aggregation: :sum, unit: :watt) }
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'when sensor uses avg aggregation' do
+      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :watt) }
+
+      it { is_expected.to eq(1) }
+    end
+
+    context 'when sensor unit is percent' do
+      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :percent) }
+
+      it { is_expected.to eq(0) }
+    end
+  end
 end
