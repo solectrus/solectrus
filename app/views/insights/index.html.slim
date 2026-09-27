@@ -1,14 +1,14 @@
-= render TurboModal::Component.new do |modal|
+- insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:) if ApplicationPolicy.insights?
+
+= render TurboModal::Component.new(width: :medium) do |modal|
   - modal.with_title do
-    .flex.gap-3.items-center
+    / One row for name, period and total, so the list starts high up
+    .insights-heading
       = render SensorIcon::Component.new(sensor)
-      = sensor.display_name
+      .min-w-0.flex-1
+        .truncate = sensor.display_name
+        .insights-heading-period = timeframe.localized
+      - if (total = insights&.heading_total)
+        = render total
 
-  .mt-2.mb-4
-    = timeframe.localized
-
-  - if ApplicationPolicy.insights?
-    = render Insights::Component.new(sensor:, timeframe:, controller_namespace:)
-  - else
-    = render DemoLink::Component.new feature: 'insights',
-                                     url: { controller: 'balance/home', timeframe: params[:timeframe] }
+  = render(insights || DemoLink::Component.new(feature: 'insights', url: { controller: 'balance/home', timeframe: params[:timeframe] }))
