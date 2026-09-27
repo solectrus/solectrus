@@ -34,5 +34,6 @@ Keep every section, an empty one included.
 - A round badge at 0 %, for example an empty battery, now shows an empty ring. Before, a dot stayed at its top
 - The selection of the timeframe now opens also when the browser sends no referrer. Before, it failed with a server error
 - When you return to the browser tab, the stats and the chart now load again only once, and only for a period that can still change. Before, each return loaded them again, often twice
+- On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page. Before, Safari enlarged the page and kept it enlarged after the selection
 
 ## Maintenance
