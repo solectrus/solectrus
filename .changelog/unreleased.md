@@ -24,4 +24,6 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page. Before, Safari enlarged the page and kept it enlarged after the selection
+
 ## Maintenance
