@@ -30,5 +30,6 @@ Keep every section, an empty one included.
 - The values in a tooltip now add up to the total shown with them, in the charts as well, and the heating shares add up to 100 %. All values of a tooltip show the same number of decimals, for example 4,83 € + 10,20 € = 15,03 €. Before, each value was rounded on its own, so the total could be off by one in the last digit, for example 12 € + 3 € = 16 €
 - A min/max bar with the same minimum and maximum now shows the exact value in its tooltip. Before, the value was 0,4 too high, for example 35,4 % instead of 35 %
 - The tooltip of a min/max bar now shows both the minimum and the maximum again, for example 26,5 °C - 34,4 °C. Before, it showed the maximum only (#5953)
+- The switches for the color scheme, the color palette and the table view of the house and inverter breakdown now work in a browser that blocks website data. Before, they did not respond there
 
 ## Maintenance

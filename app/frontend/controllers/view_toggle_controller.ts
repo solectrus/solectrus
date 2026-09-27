@@ -36,8 +36,15 @@ export default class extends Controller {
   toggle() {
     const mode: ViewMode =
       this.currentMode === 'segments' ? 'table' : 'segments';
-    localStorage.setItem(this.keyValue, mode);
     this.setMode(mode);
+
+    // A browser can deny access to localStorage (Safari with blocked website
+    // data), then the toggle still works, but the choice is not kept
+    try {
+      localStorage.setItem(this.keyValue, mode);
+    } catch {
+      // Nothing to keep
+    }
   }
 
   iconTargetConnected() {
@@ -89,8 +96,12 @@ export default class extends Controller {
   }
 
   private get storedMode(): ViewMode {
-    return localStorage.getItem(this.keyValue) === 'table'
-      ? 'table'
-      : 'segments';
+    try {
+      return localStorage.getItem(this.keyValue) === 'table'
+        ? 'table'
+        : 'segments';
+    } catch {
+      return 'segments';
+    }
   }
 }
