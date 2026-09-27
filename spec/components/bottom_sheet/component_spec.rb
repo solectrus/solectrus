@@ -26,6 +26,12 @@ describe BottomSheet::Component, type: :component do
     expect(page.css('.bottom-sheet-panel.md\:max-w-3xl')).to be_present
   end
 
+  it 'takes a medium width' do
+    page = render_inline(described_class.new(id: 'probe', width: :medium))
+
+    expect(page.css('.bottom-sheet-panel.md\:max-w-2xl')).to be_present
+  end
+
   it 'labels the close button' do
     page = I18n.with_locale(:de) { render_inline(described_class.new(id: 'probe')) }
 
