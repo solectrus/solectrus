@@ -34,29 +34,68 @@ describe Insights::Component, type: :component do
     end
   end
 
-  describe '#show_total?' do
-    subject { component.show_total? }
+  describe '#running_period?' do
+    subject { component.running_period? }
 
-    let(:sensor) { Sensor::Registry[sensor_name] }
+    let(:sensor) { Sensor::Registry[:inverter_power] }
 
+    context 'with the current month' do
+      let(:timeframe) { Timeframe.new(Date.current.strftime('%Y-%m')) }
+
+      it { is_expected.to be true }
+    end
+
+    context 'with the current year' do
+      let(:timeframe) { Timeframe.new(Date.current.year.to_s) }
+
+      it { is_expected.to be true }
+    end
+
+    context 'with a past year' do
+      let(:timeframe) { Timeframe.new('2020') }
+
+      it { is_expected.to be false }
+    end
+
+    context 'with today' do
+      let(:timeframe) { Timeframe.day }
+
+      it { is_expected.to be false }
+    end
+  end
+
+  describe '#inverter_precision' do
+    subject { component.inverter_precision }
+
+    let(:sensor) { Sensor::Registry[:inverter_power] }
+
+    before do
+      allow(component.insights).to receive(:inverter_sensor_values).and_return(
+        [
+          { name: :inverter_power_1, value: 1_700, percentage: 0 },
+          { name: :inverter_power_2, value: largest, percentage: 100 },
+        ],
+      )
+    end
+
+    context 'when the largest value has no decimals' do
+      let(:largest) { 5_986_000 }
+
+      it { is_expected.to eq(0) }
+    end
+
+    context 'when the largest value has decimals' do
+      let(:largest) { 5_800 }
+
+      it { is_expected.to eq(1) }
+    end
+  end
+
+  describe '#heading_total' do
     context 'when sensor uses avg aggregation' do
-      let(:sensor_name) { :heatpump_cop }
+      let(:sensor) { Sensor::Registry[:heatpump_cop] }
 
-      it { is_expected.to be false }
-    end
-
-    context 'when sensor is inverter_power' do
-      let(:sensor_name) { :inverter_power }
-
-      # inverter_power already shows total in its dedicated section
-      it { is_expected.to be false }
-    end
-
-    context 'when sensor is house_power' do
-      let(:sensor_name) { :house_power }
-
-      # house_power already shows total in its dedicated section
-      it { is_expected.to be false }
+      it { expect(component.heading_total).to be_nil }
     end
   end
 end

@@ -1,32 +1,12 @@
-- if trend.valid? && trend.base_value&.nonzero?
-  div[
-    data-controller= 'tooltip'
-    data-tooltip-touch-value= 'true'
-  ]
-    - if trend.same?
-      | &plusmn; 0#{diff_suffix}
-    - else
-      = icon icon_name, class: color_class
+.trend-indicator
+  - if trend.same?
+    | &plusmn; 0#{diff_suffix}
+  - else
+    = icon icon_name, class: color_class
 
-      span< class=color_class
-        - if show_diff_value?
-          = Sensor::ValueFormatter.new(trend.diff, unit: :unitless, precision: diff_precision, sign: true).to_s
-          =< diff_suffix
-        - else
-          = Sensor::ValueFormatter.new(trend.percent, unit: :percent, precision: 0, sign: true).to_s
-
-    .hidden data-tooltip-target= 'html'
-      .text-center
-        - if show_diff_value?
-          => formatted_value(trend.current_value)
-          =< t('.compared_to')
-          =< formatted_value(trend.base_value)
-          =< t('.in')
-        - else
-          => formatted_value(trend.diff.abs)
-          - if trend.percent.positive?
-            =< t('.more_than')
-          - else
-            =< t('.less_than')
-        div
-          = trend.base_timeframe.localized
+    span< class=color_class
+      - if show_diff_value?
+        = Sensor::ValueFormatter.new(trend.diff, unit: :unitless, precision: trend.precision, sign: true).to_s
+        =< diff_suffix
+      - else
+        = Sensor::ValueFormatter.new(trend.percent, unit: :percent, precision: 0, sign: true).to_s

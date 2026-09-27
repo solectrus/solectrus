@@ -101,8 +101,19 @@ class Trend
     @base_value ||= base_data.public_send(sensor.name)
   end
 
+  # A trend needs a base value, and a zero gives no ratio to compare with
+  def comparable?
+    base_value.present? && !base_value.zero?
+  end
+
+  # Decimal places of a value of the trend: an average has one, a sum or a
+  # percentage none
+  def precision
+    sensor.trend_aggregation == :avg && sensor.unit != :percent ? 1 : 0
+  end
+
   def factor
-    return unless base_value&.nonzero?
+    return unless comparable?
 
     current_value.fdiv(base_value)
   end

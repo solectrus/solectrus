@@ -1,0 +1,123 @@
+/*
+ * Insights::Component in the sheet. The groups and the rows come
+ * from tooltip_content.css. This adds what a page of a list has beyond a
+ * tooltip: rows that lead to another page.
+ */
+
+/* The heading of the sheet: icon, name with the period below, and the
+   total on the right */
+.insights-heading {
+  @apply flex items-center gap-3;
+}
+
+.insights-heading-period {
+  @apply text-subhead text-muted font-normal;
+}
+
+.insights-heading-total {
+  @apply shrink-0 font-semibold whitespace-nowrap;
+}
+
+/* Without a title above a group, as on iOS, more room than in a tooltip
+   keeps the groups apart */
+.bottom-sheet .insights {
+  @apply gap-5;
+}
+
+.insights-row {
+  @apply flex items-center gap-3;
+}
+
+/* A row that leads on dims while pressed. A highlight to the edge of the
+   group would take the separator along, which stands indented. */
+.insights-row-link {
+  @apply transition-opacity hover:opacity-75 active:opacity-50;
+}
+
+.insights-row-chevron {
+  @apply shrink-0 text-sm text-gray-400 dark:text-slate-500;
+}
+
+/* As on iOS, the value and the chevron stand in the vertical middle of the
+   row, also beside a label with a detail below it. The value is a little
+   larger than its label, like the values of a tooltip. */
+.insights-row-value {
+  @apply shrink-0 text-lg whitespace-nowrap;
+}
+
+/* Rows with a bar for a share, like the strings of the inverter, as one row of
+   the list. The grid lines up the bars. Where other rows of the group have a
+   chevron, the room of it keeps the values in one column with theirs. */
+.insights-bars {
+  @apply grid grid-cols-[auto_minmax(3rem,1fr)_auto] items-center gap-x-3 gap-y-1.5;
+
+  .tooltip-group:has(.insights-row-link) & {
+    padding-right: calc(1.25 * var(--text-sm) + --spacing(3));
+  }
+
+  .insights-row-value {
+    @apply text-right;
+  }
+}
+
+.insights-bar-track {
+  @apply h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-slate-600;
+}
+
+.insights-bar {
+  @apply h-full rounded-full;
+}
+
+/* The label and the detail. The note to a label measures its width. */
+.insights-row-main {
+  container-type: inline-size;
+}
+
+/* A note to the label, like the period of a comparison. With room, it stands
+   in parentheses beside the label. */
+.insights-row-label-note {
+  @apply text-muted whitespace-nowrap;
+
+  &::before {
+    content: '(';
+  }
+
+  &::after {
+    content: ')';
+  }
+}
+
+/* The column beside a value on a phone is too narrow for a long note beside
+   its label, and a line break would leave the parenthesis alone: there the
+   note takes a gray line of its own, without parentheses. On the smallest
+   phones even that line is too short, so the note may wrap. */
+.insights-row-label-note-long {
+  @container (width < 18rem) {
+    @apply text-subhead block whitespace-normal;
+
+    &::before,
+    &::after {
+      content: none;
+    }
+  }
+}
+
+/* A row without a link holds the room of the chevron, where another row of
+   its group has one: so the values of a group end in one column. An empty
+   box as wide as the icon holds it: Font Awesome gives every icon 1.25em.
+   A hidden icon would show, because Font Awesome sets its display outside
+   of the layers, which wins over hiding it here. */
+.insights-row-chevron-spacer {
+  @apply hidden w-[1.25em];
+
+  .tooltip-group:has(.insights-row-link) & {
+    @apply block;
+  }
+}
+
+/* A value in the detail, like that of the earlier period. It reads in the
+   color of the text, so it stands apart from the gray period beside the
+   label. */
+.insights-row-detail-value {
+  @apply text-gray-800 dark:text-gray-300;
+}
