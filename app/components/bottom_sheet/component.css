@@ -126,13 +126,25 @@
 
 .bottom-sheet-content {
   @apply flex min-h-0 flex-1 flex-col overflow-y-auto px-6 pb-6 text-left;
+}
 
-  /* Content that fits belongs to the swipe that closes the sheet, apart from
-     a horizontal pan of a wide element inside. Only content that overflows
-     keeps the vertical pan for itself. A dialog in the middle has no swipe. */
+/* Content that fits belongs to the swipe that closes the sheet, apart from
+   a horizontal pan of a wide element inside. Only content that overflows
+   keeps the vertical pan for itself. The same holds for an area inside that
+   scrolls on its own, like a second page (.bottom-sheet-scroll). A dialog in
+   the middle has no swipe, and there such an area may be a plain part of the
+   content, which must not stop its pan. */
+.bottom-sheet-content,
+.bottom-sheet-scroll {
   @apply max-md:touch-pan-x;
 
   &.is-scrollable {
     @apply max-md:touch-pan-y;
   }
+}
+
+/* A handle drags the panel also inside an area that scrolls, so the browser
+   must not pan it */
+[data-bottom-sheet-handle] {
+  @apply max-md:touch-none;
 }
