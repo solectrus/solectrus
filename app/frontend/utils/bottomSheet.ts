@@ -1,7 +1,10 @@
+import { hasUnsavedChanges } from '@/utils/unsavedChanges';
+
 // Behavior of a sheet (BottomSheet::Component): open and close with an
 // animation, and close on a swipe down, on a tap beside the panel, on the
-// close button and on Escape. The stylesheet beside the component decides
-// how it looks and moves.
+// close button and on Escape. A swipe leaves a form with unsaved changes
+// open, as iOS does. The stylesheet beside the component decides how it
+// looks and moves.
 
 // Below this width the sheet sits on the lower edge and a swipe moves it.
 // From md on it stands in the middle as a dialog, without a swipe. A tooltip
@@ -42,6 +45,8 @@ export class BottomSheet {
   private readonly resizeObserver: ResizeObserver;
 
   private dragStartY: number | null = null;
+  // A form with unsaved changes: the panel only gives, it does not close
+  private dragLocked = false;
   private dragLastY = 0;
   private dragLastTime = 0;
   private dragVelocity = 0;
@@ -198,6 +203,7 @@ export class BottomSheet {
       return;
 
     this.dragStartY = event.clientY;
+    this.dragLocked = hasUnsavedChanges(this.content);
     this.dragLastY = event.clientY;
     this.dragLastTime = event.timeStamp;
     this.dragVelocity = 0;
@@ -209,8 +215,9 @@ export class BottomSheet {
     if (this.dragStartY === null) return;
 
     const delta = event.clientY - this.dragStartY;
-    // Upwards the panel only gives a little, like a rubber band
-    const offset = delta > 0 ? delta : delta / 5;
+    // Upwards, and with unsaved changes also downwards, the panel only gives
+    // a little, like a rubber band
+    const offset = delta > 0 && !this.dragLocked ? delta : delta / 5;
     this.panel.style.transform = `translateY(${offset}px)`;
 
     const elapsed = event.timeStamp - this.dragLastTime;
@@ -228,6 +235,7 @@ export class BottomSheet {
 
     if (
       event.type === 'pointerup' &&
+      !this.dragLocked &&
       (delta > CLOSE_DISTANCE || this.dragVelocity > CLOSE_VELOCITY)
     ) {
       this.close();
