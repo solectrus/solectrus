@@ -14,6 +14,10 @@ class DonutChart::Component < ViewComponent::Base
   DONUT_MASK = 'radial-gradient(circle, transparent 50%, black 50%)'.freeze
   private_constant :DONUT_MASK
 
+  # Below this size the ring is hidden and only the center stays
+  RING_HIDDEN_CLASS = '[@container(max-height:4rem)]:hidden'.freeze
+  private_constant :RING_HIDDEN_CLASS
+
   def initialize(segments: nil, url: nil, chart_url: nil, tooltip_placement: 'bottom')
     super()
     @segments = segments # [{percent:, color_var:, label:, sensor_name:}] or nil for placeholder
@@ -26,6 +30,10 @@ class DonutChart::Component < ViewComponent::Base
 
   def placeholder?
     segments.blank?
+  end
+
+  def ring_hidden_class
+    RING_HIDDEN_CLASS
   end
 
   def placeholder_style
