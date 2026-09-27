@@ -1,13 +1,13 @@
 de:
-  intro: 'Als Sponsor erhältst du außerdem zahlreiche weitere Funktionen:'
+  intro: 'Die Basisfunktionen bleiben kostenfrei, als Sponsor erhältst du zusätzlich:'
   benefits:
-    custom_consumers: Eigene Verbraucher
-    generators: Mehrere Erzeuger
-    splitter: Power-Splitter
-    heatpump: Wärmepumpe
-    trends: Trends
-    finance: Finanzdiagramme
-    amortization: Amortisation
-    balance: Strombilanz-Verlauf
-    mcp: KI-Zugriff (MCP)
+    custom_consumers: Alle Verbraucher
+    generators: Erzeuger inkl. BKW
+    splitter: PV- & Netzstrom je Gerät
+    heatpump: Wärmepumpe & COP
+    trends: Trends & Vergleiche
+    finance: Kosten & Ersparnis
+    amortization: Rendite-Rechner
+    balance: Strombilanz-Diagramm
+    mcp: KI-Auswertung (MCP)
     dark_mode: Dunkelmodus

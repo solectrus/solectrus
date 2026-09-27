@@ -5,20 +5,18 @@
 / The surface is flat and warm. A gradient and a panel on top of it were two
 / layers that carried no meaning of their own.
 .relative.bg-amber-50.w-full
-  / The page has three ways out, and each one gets a form of its own so they
-  / are not read as one row of links: the corner dismisses the page, the button
-  / below leads on, and the sentence in the plea links out.
-  /
-  / The corner of the surface is where a notice is closed, so the link sits
-  / there and not in the column. Only an admin gets it: the skip is recorded
-  / for them alone, and without that record the gate sends everyone else
-  / straight back to this page.
+  / The corner of the surface is where a notice is closed. It repeats the
+  / "maybe later" of the decision below as an icon, for the reader who looks
+  / there first. Only an admin gets it: the skip is recorded for them alone,
+  / and without that record the gate sends everyone else straight back to this
+  / page.
   - if admin?
     = link_to registration_path(status: 'skip'),
-              class: 'absolute right-4 top-4 inline-flex items-center gap-2 rounded text-sm text-gray-500 hover:text-gray-900 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:right-6 sm:top-6 sm:text-base lg:right-8 click-animation',
+              class: 'absolute right-4 top-4 inline-flex items-center rounded p-1 text-gray-500 hover:text-gray-900 focus-ring sm:right-6 sm:top-6 lg:right-8 click-animation',
+              title: t('sponsoring.show.skip'),
+              aria: { label: t('sponsoring.show.skip') },
               data: { turbo: false } do
-      = t('sponsoring.show.skip')
-      = icon 'xmark', class: 'text-lg'
+      = icon 'xmark', class: 'text-xl'
 
   / A phone has no room beside the corner link, so there the content starts
   / below it.
@@ -42,20 +40,14 @@
       .py-6.md:py-8
         = render SponsoringBenefits::Component.new
 
-        / A footnote to the list, not one more argument: it stays small and
-        / quiet, and it keeps the short distance that binds it to the list. It
-        / answers what the list raises, which is what the reader without a
-        / subscription asks at that moment.
-        p.mt-3.md:mt-4.max-w-prose.text-sm.text-gray-500.dark:text-gray-300
-          = t('sponsoring.show.p4')
-
         / The link follows the list, because that is what it continues: it
-        / leads to the page that describes every one of these features.
+        / leads to the page that lists every feature and marks the ones for
+        / sponsors.
         /
         / It stays one step below the list. The list is the offer, the link only
         / points at more of it, so it must not be the larger of the two.
         .mt-5.md:mt-6
-          = render Button::Component.new path: SolectrusLink.url('https://solectrus.de/sponsoring', campaign: 'sponsoring-page'),
+          = render Button::Component.new path: SolectrusLink.url('https://solectrus.de/features/', campaign: 'sponsoring-page'),
                                          title: t('sponsoring.show.more'),
                                          type: :link,
                                          style: :secondary,
@@ -66,17 +58,17 @@
                                         }
 
       .pt-6.md:pt-8
-        / Whoever is not an admin cannot start anything from here, so this
-        / branch asks for the login first. What follows is the same row in both
-        / cases, which is why the month is rendered once.
-        - unless admin?
-          p
-            = t('sponsoring.show.login_required')
+        - if admin?
+          / The month is chosen on the registration site, behind the same
+          / button as the subscription, so it stays a sentence. Only an admin
+          / gets it: nobody else can start it, and after the login it is here.
+          - if PremiumStatus.trial_available?
+            p.mb-5.max-w-prose
+              == t('sponsoring.show.trial')
 
-        / The button and the month it can start share one line, the month at
-        / the far end of it. A phone puts the month on the next line.
-        .flex.flex-wrap.items-center.justify-between.gap-4 class=('mt-5' unless admin?)
-          - if admin?
+          / Both answers sit in one row, so "maybe later" is read as one of
+          / the two choices and not as a way out that must be searched for.
+          .flex.flex-wrap.items-center.gap-3
             = render Button::Component.new path: registration_path,
                                            title: t('sponsoring.show.continue'),
                                            type: :link,
@@ -84,8 +76,22 @@
                                             class: 'font-medium text-lg px-5',
                                             data: { turbo: false },
                                           }
-          - else
-            = render Button::Component.new path: new_session_path,
-                                           title: t('layout.login')
+            = render Button::Component.new path: registration_path(status: 'skip'),
+                                           title: t('sponsoring.show.skip'),
+                                           type: :link,
+                                           style: :secondary,
+                                           options: { \
+                                            class: 'text-lg px-5',
+                                            data: { turbo: false },
+                                          }
 
-          = render 'trial'
+        - else
+          / Only an admin can close this page. The notice names that, so the
+          / login is not read as the first step to pay.
+          p.max-w-prose
+            = t('sponsoring.show.login_required')
+
+          .mt-5
+            = render Button::Component.new path: new_session_path(return_to: sponsoring_path),
+                                           title: t('layout.login'),
+                                           options: { class: 'font-medium text-lg px-5' }

@@ -22,6 +22,7 @@ Keep every section, an empty one included.
 
 - Resetting the summaries now also works when the database is damaged, for example by a failing SD card (#5952)
 - The battery case temperature now shows blue for a normal temperature, and red only from about 45 °C. Before, all values from 40 °C were bright red. In dark mode, the colors of the case temperature and the heat pump tank temperature now match the other charts
+- The sponsorship page now tells you how to close it: with "Maybe later", after you log in as administrator. An update no longer brings the page back
 
 ## Fixes
 

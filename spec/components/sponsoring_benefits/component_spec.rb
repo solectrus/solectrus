@@ -4,9 +4,15 @@ describe SponsoringBenefits::Component, type: :component do
   it 'names every feature' do
     result = render_inline(component)
 
-    expect(result.to_html).to include('Custom consumers')
+    expect(result.to_html).to include('All consumers')
     expect(result.to_html).to include('Dark mode')
     expect(result.css('li').size).to eq(component.benefits.size)
+  end
+
+  it 'says that the basic features stay free' do
+    result = render_inline(component)
+
+    expect(result.to_html).to include('The basic features stay free')
   end
 
   # The component renders whatever the locale file lists, so a feature added to

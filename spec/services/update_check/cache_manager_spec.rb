@@ -247,6 +247,19 @@ describe UpdateCheck::CacheManager do
     end
   end
 
+  # An update must not bring back a sponsoring page the admin just dismissed.
+  describe '#skip_prompt!' do
+    it 'outlives an update' do
+      cache_manager.skip_prompt!(7.days)
+
+      allow(Rails.configuration.x.git).to receive(:commit_version).and_return(
+        'def456',
+      )
+
+      expect(cache_manager.skipped_prompt?).to be true
+    end
+  end
+
   describe '#cache_key' do
     subject(:cache_key) { cache_manager.cache_key }
 

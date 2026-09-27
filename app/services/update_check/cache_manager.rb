@@ -77,8 +77,10 @@ class UpdateCheck::CacheManager
     "UpdateCheck:#{Rails.configuration.x.git.commit_version}"
   end
 
+  # No version in the key: an update must not bring back a page the admin has
+  # just dismissed. The answer itself decides again after the skip expires.
   def skip_cache_key
-    "UpdateCheck:Skip:#{Rails.configuration.x.git.commit_version}"
+    'UpdateCheck:Skip'
   end
 
   def banner_snooze_key

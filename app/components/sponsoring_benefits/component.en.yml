@@ -1,13 +1,13 @@
 en:
-  intro: 'As a sponsor you also get many additional features:'
+  intro: 'The basic features stay free. As a sponsor, you also get:'
   benefits:
-    custom_consumers: Custom consumers
-    generators: Multiple generators
-    splitter: Power splitter
-    heatpump: Heat pump
-    trends: Trends
-    finance: Financial charts
-    amortization: Amortization
-    balance: Balance over time
-    mcp: AI access (MCP)
+    custom_consumers: All consumers
+    generators: Generators + balcony PV
+    splitter: PV & grid power per device
+    heatpump: Heat pump & COP
+    trends: Trends & comparisons
+    finance: Costs & savings
+    amortization: Payback calculator
+    balance: Power balance chart
+    mcp: AI analysis (MCP)
     dark_mode: Dark mode

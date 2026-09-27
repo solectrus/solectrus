@@ -28,29 +28,42 @@ describe 'Sponsorings' do
           expect(response.body).to include('free month')
         end
 
-        # It is a sentence and not a button, so it reaches everyone. Whoever
-        # cannot start the month can still tell the person who can.
-        it 'names it without an admin session too' do
+        # Only an admin can start the month. Anybody else reads it as the one
+        # way to get past this page, and after the login it is shown anyway.
+        it 'does not name it without an admin session' do
           get '/sponsoring'
 
-          expect(response.body).to include('free month')
+          expect(response.body).not_to include('free month')
         end
       end
 
-      # The corner link closes the page. It records the skip, and that only
-      # works for an admin - everyone else would be sent back here at once.
-      context 'with the corner link that closes the page' do
-        it 'offers it to an admin' do
-          login_as_admin
+      # "Maybe later" records the skip, and that only works for an admin -
+      # everyone else would be sent back here at once.
+      context 'with an admin session' do
+        before { login_as_admin }
+
+        it 'offers maybe later next to the options' do
           get '/sponsoring'
 
-          expect(response.body).to include('/registration/skip')
+          expect(response.body).to include('/registration/skip').and include(
+                  'Maybe later',
+                ).and include('See sponsorship options')
         end
+      end
 
-        it 'does not offer it without an admin session' do
+      context 'without an admin session' do
+        it 'does not offer maybe later' do
           get '/sponsoring'
 
           expect(response.body).not_to include('/registration/skip')
+        end
+
+        it 'asks for the login to close the page' do
+          get '/sponsoring'
+
+          expect(response.body).to include('To close this notice').and include(
+                  new_session_path(return_to: sponsoring_path),
+                )
         end
       end
 

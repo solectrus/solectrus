@@ -223,12 +223,11 @@ de:
     show:
       headline: SOLECTRUS braucht dich!
       p1: Mein Name ist Georg Ledermann und ich entwickle SOLECTRUS in Vollzeit, finanziert aus eigener Tasche. Ohne deine Unterstützung geht das nicht ewig gut.
-      more: Mehr über das Sponsoring erfahren
+      more: Mehr über den vollen Funktionsumfang erfahren
       trial: 'Tipp: Starte einen <strong>Gratis-Monat</strong> und probiere das alles kostenfrei aus.'
-      continue: Weiter
+      continue: Sponsoring-Optionen ansehen
       skip: Vielleicht später
-      p4: Auch ohne Abo bleiben die Basisfunktionen kostenfrei.
-      login_required: Um das Sponsoring vorzunehmen oder weitere Optionen zu sehen, melde dich bitte als Admin an.
+      login_required: Um diesen Hinweis zu schließen, logge dich hier als Administrator ein.
   registration_required:
     show:
       headline: Registrierung erforderlich
