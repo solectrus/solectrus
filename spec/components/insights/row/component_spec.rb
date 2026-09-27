@@ -30,4 +30,11 @@ describe Insights::Row::Component, type: :component do
 
     expect(page.css('.insights-row-label-note-long').text).to eq('Aug 1-27, 2026')
   end
+
+  it 'is a button with an action' do
+    page = render_inline(described_class.new(label: 'Heatmap', action: 'insights--component#push')) { '' }
+
+    expect(page.css('button.insights-row-link').attr('data-action').value).to eq('insights--component#push')
+    expect(page.css('svg.insights-row-chevron')).to be_present
+  end
 end

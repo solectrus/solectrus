@@ -17,6 +17,16 @@
 @custom-variant short (@media (max-height: 859px));
 @custom-variant tiny (@media (max-height: 735px));
 
+/* The heatmap of a year on the page of its own in the insights sheet of a
+   phone, where its grid stands upright (heatmap_tile, insights) */
+@custom-variant upright {
+  @media (width < 48rem) {
+    .insights-subpage & {
+      @slot;
+    }
+  }
+}
+
 /* Import styles from external libraries */
 @import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
 

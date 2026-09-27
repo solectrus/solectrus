@@ -1,5 +1,5 @@
 / The sheet shows this as a list of iOS (tooltip_content.css): groups of rows
-.tooltip-layout.insights
+.tooltip-layout.insights data-controller= 'insights--component' data-action= 'cancel@document->insights--component#back:capture'
   - if sensor.name == :inverter_power
     - if insights.multi_inverter? || insights.specific_yield
       .tooltip-group
@@ -55,9 +55,33 @@
       = render Insights::TrendRow::Component.new(trend: insights.yearly_trend, label: t('.previous_year'), url: (yearly_trend_base_path if insights.yearly_trend))
 
   - if insights.heatmap_data
-    .tooltip-group
-      div
-        = render HeatmapTile::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
+    / On a phone, the heatmap is a page of its own, which a row pushes into
+    / the sheet (component_controller.ts). A larger screen shows it here.
+    .tooltip-group.md:hidden
+      = render Insights::Row::Component.new(label: t('.heatmap'), action: 'insights--component#push')
+
+    / It scrolls on its own and covers the content, so the sheet treats it as
+    / a scroll area with its header as a handle (utils/bottomSheet.ts)
+    .insights-subpage.bottom-sheet-scroll[
+      tabindex= '-1'
+      data-insights--component-target= 'subpage'
+      data-action= 'pointerdown->insights--component#swipeStart pointerup->insights--component#swipeEnd'
+    ]
+      .insights-subpage-header data-bottom-sheet-handle= ''
+        .bottom-sheet-grabber aria-hidden= 'true'
+        div
+          button.insights-back[
+            type= 'button'
+            data-action= 'insights--component#pop'
+          ]
+            = icon 'chevron-left'
+            span.truncate = sensor.display_name
+        h2.bottom-sheet-title.mt-1 = t('.heatmap')
+        p.insights-subpage-detail = timeframe.localized
+
+      .tooltip-group
+        div
+          = render HeatmapTile::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
 
   - min_day = insights.minimum(:date)
   - max_day = insights.maximum(:date)
