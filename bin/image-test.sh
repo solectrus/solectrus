@@ -74,6 +74,11 @@ check "its own version in the application" MATCH "^version=${version}\$" -- \
 check "its own root belongs to root" MATCH 'Permission denied' -- \
   --entrypoint sh "${IMAGE}" -c 'touch /app/.probe'
 
+# The base image gives the code to root and leaves the app only the folders it
+# writes at runtime, so a running container cannot change its own code.
+check "its own code belongs to root" MATCH 'Permission denied' -- \
+  --entrypoint sh "${IMAGE}" -c 'touch /app/app/.probe'
+
 echo ""
 echo "The Docker image refuses:"
 
