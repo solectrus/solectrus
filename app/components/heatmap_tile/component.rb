@@ -8,14 +8,45 @@ class HeatmapTile::Component < ViewComponent::Base
 
   attr_reader :data, :sensor, :timeframe
 
+  # The year grid on the page of its own in the insights sheet of a phone
+  # (the upright variant): a column for each month, a row for each day, the
+  # numbers of the days on the left. Each month is 32 cells, its name and 31
+  # days. Laid out in columns of 32 from the right, the months run from left
+  # to right with the numbers on the left.
+  UPRIGHT_GRID =
+    'upright:[direction:rtl] upright:*:[direction:ltr] ' \
+    'upright:grid-flow-col upright:grid-cols-none upright:auto-cols-fr ' \
+    'upright:grid-rows-[auto_repeat(31,minmax(0,1fr))] ' \
+    'upright:items-stretch upright:gap-0.5 upright:h-full upright:min-h-100 ' \
+    'upright:*:aspect-auto'.freeze
+  private_constant :UPRIGHT_GRID
+
+  # The name of a month heads its column. A column is too narrow for a name in
+  # a readable size, so only every other month shows its name, and the name
+  # reaches into the empty head of its neighbors.
+  UPRIGHT_MONTH = 'upright:justify-center upright:p-0 upright:pb-1 upright:text-sm upright:whitespace-nowrap'.freeze
+  private_constant :UPRIGHT_MONTH
+
+  # The numbers of the days
+  UPRIGHT_DAY = 'upright:flex upright:items-center upright:justify-end upright:m-0 upright:pr-1 upright:text-sm'.freeze
+  private_constant :UPRIGHT_DAY
+
   private
 
   def years
     timeframe.year? ? [] : data.keys.sort
   end
 
+  # All twelve months, also those still to come or before the first data,
+  # so the upright grid on a phone always has the same shape
   def months
-    timeframe.year? ? data.keys.sort : []
+    timeframe.year? ? (1..12).to_a : []
+  end
+
+  # The wide grid from md on lists the months from the latest down, so a month
+  # without data would leave empty rows above the data. There it hides.
+  def month_class(month)
+    'md:hidden' unless data.key?(month)
   end
 
   def value_for(year, month)
