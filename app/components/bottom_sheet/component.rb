@@ -10,9 +10,11 @@ class BottomSheet::Component < ViewComponent::Base
   renders_one :title
 
   # Width on a larger screen. Forms need the room, running text does not: a
-  # narrow panel keeps a line below ~65 characters.
+  # narrow panel keeps a line below ~65 characters. Lists with a chart take
+  # the width between.
   WIDTHS = {
     narrow: 'md:max-w-xl',
+    medium: 'md:max-w-2xl',
     wide: 'md:max-w-3xl',
   }.freeze
   private_constant :WIDTHS
