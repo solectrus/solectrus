@@ -64,12 +64,14 @@ class Insights::Component < ViewComponent::Base
   # share also without prices. The battery has a grid share but no costs of
   # its own: what it stores is billed to the consumers taking it back out.
   def splitted_costs
+    return splitted_costs_with_prices if insights.custom_power_sensor?
+
     case sensor.name
     when :house_power, :wallbox_power, :heatpump_power
       splitted_costs_with_prices
     when :inverter_power
       splitted_costs_with_prices if insights.costs
-    when :battery_power
+    when :battery_power, :battery_charging_power
       if insights.power_grid_ratio
         SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, note: insights.costs_note)
       end
