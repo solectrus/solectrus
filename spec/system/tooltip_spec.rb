@@ -45,17 +45,31 @@ describe 'Tooltip' do
       find('dialog#tooltip-sheet').send_keys(:escape)
       expect(page).to have_no_css('dialog#tooltip-sheet[open]')
     end
+
+    # A segment of the balance opens its insights, which hold its values
+    it 'opens the page of a sheet URL in the modal instead' do
+      visit '/inverter_power/now'
+      add_tap_tooltip(
+        'Hint of the probe',
+        sheet_url: '/insights/inverter_power/2025-01',
+      )
+
+      find_by_id('probe').click
+      expect(page).to have_css('dialog#modal-sheet[open] .insights')
+      expect(page).to have_no_css('dialog#tooltip-sheet[open]')
+    end
   end
 
   # A tooltip that opens on a tap, independent of the data a page shows
-  def add_tap_tooltip(hint)
-    page.execute_script(<<~JS, hint)
+  def add_tap_tooltip(hint, sheet_url: nil)
+    page.execute_script(<<~JS, hint, sheet_url)
       const probe = document.createElement('span');
       probe.id = 'probe';
       probe.textContent = 'Probe';
       probe.title = arguments[0];
       probe.dataset.controller = 'tooltip';
       probe.dataset.tooltipTouchValue = 'true';
+      if (arguments[1]) probe.dataset.tooltipSheetUrlValue = arguments[1];
       document.querySelector('main').prepend(probe);
     JS
   end
