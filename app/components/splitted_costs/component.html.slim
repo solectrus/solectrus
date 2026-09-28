@@ -15,6 +15,11 @@
               style= "width: #{power_grid_ratio}%;"
             ]
 
+  / What the caller adds, like the energy by source, stands below the share
+  - if content.present?
+    .tooltip-group
+      = content
+
   - if note
     .splitted-costs-note
       = note
