@@ -52,7 +52,12 @@
           = render SensorValue::Component.new(data, related, context: :total)
 
     - if (costs = splitted_costs)
-      = render costs
+      = render costs do
+        - power_sources&.each do |source, value|
+          = render Insights::Row::Component.new(label: t("splitter.#{source}")) do |row|
+            - row.with_swatch
+              .label-value-swatch class= "bg-sensor-#{source}"
+            = render SensorValue::Component.new(value, sensor.name, **total_format.except(:unit))
 
   - if permitted?
     - if sensor.name == :grid_power && insights.grid_costs && insights.feed_in_revenue

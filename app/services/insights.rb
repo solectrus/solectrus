@@ -92,6 +92,14 @@ class Insights # rubocop:disable Metrics/ClassLength
     name if name && data.public_send(name)&.nonzero?
   end
 
+  # The energy by its source, like { pv: 7654, grid: 2346 }
+  def power_by_source
+    return unless (names = power_source_sensor_names)
+
+    values = names.transform_values { data.public_send(it) }
+    values if values.values.all?
+  end
+
   def custom_power_sensor?
     sensor.name.in?(Sensor::Config.custom_power_sensors.map(&:name))
   end
@@ -236,6 +244,7 @@ class Insights # rubocop:disable Metrics/ClassLength
       *grid_power_cost_sensors,
       *cost_sensors,
       RELATED_SENSOR_NAMES[sensor.name],
+      *power_source_sensor_names&.values,
     ]
     sensors.compact!
     sensors.uniq!
@@ -280,6 +289,14 @@ class Insights # rubocop:disable Metrics/ClassLength
       .by_category(:power_splitter)
       .map(&:name)
       .include?(sensor_name)
+  end
+
+  # Nil without a Power Splitter, which is the one to know the sources
+  def power_source_sensor_names
+    return unless ApplicationPolicy.power_splitter?
+
+    names = sensor.power_source_sensor_names
+    names if names&.values&.all? { Sensor::Config.exists?(it) }
   end
 
   # The grid share feeds #power_grid_ratio. An older Power Splitter reports
