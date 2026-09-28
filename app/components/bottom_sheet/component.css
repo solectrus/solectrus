@@ -115,11 +115,11 @@
 }
 
 /* On a phone, a swipe down closes the sheet, as on iOS, and the button only
-   serves a screen reader or a keyboard. A dialog in the middle has no swipe,
-   so there it shows. */
+   serves a screen reader. Tab passes it by (utils/bottomSheet.ts). A dialog
+   in the middle has no swipe, so there it shows. */
 .bottom-sheet-close {
   @apply -mt-1 -mr-3 ml-auto flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full;
-  @apply max-md:not-focus-visible:sr-only;
+  @apply max-md:sr-only;
   @apply text-muted bg-gray-100 dark:bg-slate-700;
   @apply focus-ring;
 }

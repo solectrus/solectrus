@@ -166,9 +166,15 @@ export class BottomSheet {
   // showModal() focuses the first element with autofocus, else the first
   // focusable one: the close button. With a hardware keyboard (as in the iOS
   // Simulator) that focus counts as focus-visible, and the button hidden on a
-  // phone shows up. The panel takes that focus instead. Tab still reaches
-  // the button.
+  // phone shows up. The panel takes that focus instead. On a phone, Tab also
+  // passes the button by: it only serves a screen reader there.
   private focusPanelInsteadOfClose(): void {
+    const closeButton = this.dialog.querySelector('.bottom-sheet-close');
+    closeButton?.setAttribute(
+      'tabindex',
+      window.matchMedia(COMPACT_QUERY).matches ? '-1' : '0',
+    );
+
     if (document.activeElement?.closest('.bottom-sheet-close')) {
       this.panel.focus({ preventScroll: true });
     }
