@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { enter } from '@/utils/transition';
+import { preloadModalBackdrop } from '@/utils/modal';
 import type TooltipController from './tooltip_controller';
 
 export default class extends Controller<HTMLElement> {
@@ -20,18 +20,9 @@ export default class extends Controller<HTMLElement> {
     // Hide tooltip if present (tooltip controller is on the same element)
     this.hideTooltip();
 
-    const backdrop = document.getElementById('modal-backdrop');
-    if (!backdrop) return;
-
-    // Mark backdrop as preloaded so modal controller knows to skip animation
-    backdrop.dataset.preloaded = 'true';
-
-    // Enable pointer events and animate in the backdrop
-    backdrop.classList.remove('pointer-events-none');
-    enter(backdrop);
-
     // Let Turbo handle the actual frame request normally
     // The modal controller will take over the backdrop
+    preloadModalBackdrop();
   };
 
   private hideTooltip(): void {

@@ -7,6 +7,16 @@ module SensorPathHelper
     public_send(sensor_path_helpers[sensor_name], sensor_name:, timeframe:)
   end
 
+  # The insights of a sensor, which the light bulb next to the chart and, on
+  # a phone, a long press on a segment open. A sensor without a trend and the
+  # current values have none.
+  def sensor_insights_path(sensor, timeframe:)
+    return if timeframe.now?
+    return unless sensor.trendable?
+
+    insights_path(sensor_name: sensor.name, timeframe:)
+  end
+
   private
 
   # A heatmap asks once per day and a Top10 table once per row, always for the

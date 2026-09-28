@@ -10,6 +10,7 @@ import {
 } from '@floating-ui/dom';
 import { isTouchEnabled } from '@/utils/device';
 import { COMPACT_QUERY } from '@/utils/bottomSheet';
+import { openModal } from '@/utils/modal';
 import {
   closeTooltipSheet,
   isTooltipSheetAvailable,
@@ -37,7 +38,8 @@ interface SharedTooltip {
  * - Smart positioning that flips/shifts to stay in viewport
  * - Hybrid device support (mouse hover + optional touch modes)
  * - A bottom sheet instead of the floating box on a phone, when a touch
- *   opens the tooltip, as iOS turns a popover into a sheet there
+ *   opens the tooltip, as iOS turns a popover into a sheet there. With a
+ *   sheet URL, the modal opens that page instead.
  *
  * Operating modes:
  * 1. Standard mode (default):
@@ -99,6 +101,13 @@ export default class TooltipController extends Controller {
       type: Boolean,
       default: false,
     },
+
+    // A page for the modal that a phone opens in place of the sheet of the
+    // tooltip, because it holds the same values and more (empty = the sheet)
+    sheetUrl: {
+      type: String,
+      default: '',
+    },
   };
 
   static readonly targets = ['html'];
@@ -107,6 +116,7 @@ export default class TooltipController extends Controller {
   declare mobilePlacementValue: string;
   declare touchValue: 'true' | 'false' | 'long';
   declare delegateValue: boolean;
+  declare sheetUrlValue: string;
   declare readonly hasHtmlTarget: boolean;
 
   private positionCleanup: (() => void) | null = null;
@@ -370,6 +380,13 @@ export default class TooltipController extends Controller {
     content: string,
     observeElement?: HTMLElement,
   ): Promise<void> {
+    if (this.sheetUrlValue && this.opensAsSheet(target)) {
+      TooltipController.activeTooltip?.hide();
+      this.openedByTouch = false;
+      openModal(this.sheetUrlValue);
+      return;
+    }
+
     TooltipController.setActiveTooltip(this);
 
     if (this.opensAsSheet(target)) {
