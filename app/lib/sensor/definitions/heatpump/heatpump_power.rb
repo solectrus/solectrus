@@ -21,4 +21,9 @@ class Sensor::Definitions::HeatpumpPower < Sensor::Definitions::Base
   def costs_pv_sensor_name
     :heatpump_costs_pv
   end
+
+  # As the tooltip of the heat pump card shows it (Heatpump::PowerCard::Component)
+  def power_source_sensor_names
+    { pv: :heatpump_power_pv, grid: :heatpump_power_grid }
+  end
 end
