@@ -31,6 +31,14 @@
 #   SIMULATE_TRIAL_AVAILABLE       true = the free month is still unused
 #   SIMULATE_PROMPT                true = the server asks for a sponsorship
 #
+# One more variable describes the plant, not a phase, so the scenarios leave
+# it alone:
+#
+#   SIMULATE_KWP                   Peak power of the plant in kWp, which the
+#                                  update server knows from the registration.
+#                                  The yield per kWp needs it. Without it that
+#                                  yield is missing.
+#
 # If a change seems to have no effect, run `bin/spring stop` first - a
 # preloaded application keeps the environment it booted with.
 return unless Rails.env.development?
@@ -44,6 +52,7 @@ module UpdateCheckSimulation
       prompt: simulated?('PROMPT'),
       **simulated_registration,
       **simulated_premium,
+      kwp: simulated('KWP')&.to_f,
     }.compact_blank.freeze
   end
 
