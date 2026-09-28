@@ -1,4 +1,4 @@
-- insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:) if ApplicationPolicy.insights?
+- insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:)
 
 = render TurboModal::Component.new(width: :medium) do |modal|
   - modal.with_title do
@@ -8,7 +8,11 @@
       .min-w-0.flex-1
         .truncate = sensor.display_name
         .insights-heading-period = timeframe.localized
-      - if (total = insights&.heading_total)
+      - if (total = insights.heading_total)
         = render total
 
-  = render(insights || DemoLink::Component.new(feature: 'insights', url: { controller: 'balance/home', timeframe: params[:timeframe] }))
+  = render insights
+
+  / In place of the figures that need the permission
+  - unless insights.permitted?
+    = render DemoLink::Component.new(feature: 'insights', url: { controller: 'balance/home', timeframe: params[:timeframe] })

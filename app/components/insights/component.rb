@@ -11,6 +11,27 @@ class Insights::Component < ViewComponent::Base
 
   delegate :data, to: :insights
 
+  # Everyone sees what the tooltip of a balance segment shows: the total and
+  # the values beside it. The figures beyond it need this permission.
+  def permitted?
+    ApplicationPolicy.insights?
+  end
+
+  # The values of the tooltip, for a sensor and a period that a page shows the
+  # user. Without the permission, a sensor that needs a permission of its own,
+  # a sensor that only a page with a permission shows, or a relative period
+  # (SponsoredFrame) has none.
+  def tooltip_values?
+    return @tooltip_values if defined?(@tooltip_values)
+
+    @tooltip_values =
+      permitted? ||
+        (
+          permitted_timeframe? && sensor.permitted? &&
+            Sensor::HomePage.shown?(sensor.name)
+        )
+  end
+
   def per_day_value?
     return false if timeframe.days_passed <= 1
     return false unless sensor.allowed_aggregations.first == :sum
@@ -55,6 +76,7 @@ class Insights::Component < ViewComponent::Base
 
   # The total for the heading of the sheet
   def heading_total
+    return unless tooltip_values?
     return unless (total = total_value)
 
     Insights::HeadingTotal::Component.new(total:, running: running_period?)
@@ -119,6 +141,10 @@ class Insights::Component < ViewComponent::Base
   end
 
   private
+
+  def permitted_timeframe?
+    !timeframe.relative? || ApplicationPolicy.relative_timeframe?
+  end
 
   def splitted_costs_with_prices
     SplittedCosts::Component.new(

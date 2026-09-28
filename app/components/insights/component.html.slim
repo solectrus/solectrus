@@ -1,7 +1,10 @@
-/ The sheet shows this as a list of iOS (tooltip_content.css): groups of rows
+/ The sheet shows this as a list of iOS (tooltip_content.css): groups of rows.
+/ Everyone sees what the tooltip of a balance segment shows. The figures
+/ beyond it need a permission (permitted?). Without it, the view adds a
+/ teaser (insights/index.html.slim).
 .tooltip-layout.insights data-controller= 'insights--component' data-action= 'cancel@document->insights--component#back:capture'
   - if sensor.name == :inverter_power
-    - if insights.multi_inverter? || insights.specific_yield
+    - if insights.multi_inverter? || (permitted? && insights.specific_yield)
       .tooltip-group
         - if insights.multi_inverter?
           / The share of each string as a bar, all in one row of the list
@@ -14,92 +17,95 @@
               .insights-row-value
                 = render SensorValue::Component.new(sensor_data[:value], sensor_data[:name], context: :total, scaling: :kilo, precision: inverter_precision)
 
-        - if insights.specific_yield
+        - if permitted? && insights.specific_yield
           = render Insights::Row::Component.new(label: t('.per_kwp')) do
             = render SensorValue::Component.new(insights.specific_yield, :specific_yield, context: :total, scaling: :kilo)
 
-  - elsif sensor.name == :grid_power
-    .tooltip-group
-      = render Insights::Row::Component.new(label: Sensor::Registry[:grid_import_power].display_name) do
-        = render SensorValue::Component.new(data, :grid_import_power, context: :total, scaling: :kilo)
-      = render Insights::Row::Component.new(label: Sensor::Registry[:grid_export_power].display_name) do
-        = render SensorValue::Component.new(data, :grid_export_power, context: :total, scaling: :kilo)
+  - elsif permitted?
+    - if sensor.name == :grid_power
+      .tooltip-group
+        = render Insights::Row::Component.new(label: Sensor::Registry[:grid_import_power].display_name) do
+          = render SensorValue::Component.new(data, :grid_import_power, context: :total, scaling: :kilo)
+        = render Insights::Row::Component.new(label: Sensor::Registry[:grid_export_power].display_name) do
+          = render SensorValue::Component.new(data, :grid_export_power, context: :total, scaling: :kilo)
 
-  - elsif sensor.name == :battery_power
-    .tooltip-group
-      = render Insights::Row::Component.new(label: t('.discharge')) do
-        = render SensorValue::Component.new(data, :battery_discharging_power, context: :total, scaling: :kilo, precision: 0)
-      = render Insights::Row::Component.new(label: t('.charge')) do
-        = render SensorValue::Component.new(data, :battery_charging_power, context: :total, scaling: :kilo, precision: 0)
+    - elsif sensor.name == :battery_power
+      .tooltip-group
+        = render Insights::Row::Component.new(label: t('.discharge')) do
+          = render SensorValue::Component.new(data, :battery_discharging_power, context: :total, scaling: :kilo, precision: 0)
+        = render Insights::Row::Component.new(label: t('.charge')) do
+          = render SensorValue::Component.new(data, :battery_charging_power, context: :total, scaling: :kilo, precision: 0)
 
-  - elsif sensor.name == :battery_soc && !timeframe.day?
-    .tooltip-group
-      = render Insights::Row::Component.new(label: t('.full')) do
-        span = days(insights.battery_full_days)
-      = render Insights::Row::Component.new(label: t('.empty')) do
-        span = days(insights.battery_empty_days)
-      = render Insights::Row::Component.new(label: t('.charged_consecutively'), url: battery_soc_longest_streak_path) do
-        span = days(insights.battery_soc_longest_streak[:length])
+    - elsif sensor.name == :battery_soc && !timeframe.day?
+      .tooltip-group
+        = render Insights::Row::Component.new(label: t('.full')) do
+          span = days(insights.battery_full_days)
+        = render Insights::Row::Component.new(label: t('.empty')) do
+          span = days(insights.battery_empty_days)
+        = render Insights::Row::Component.new(label: t('.charged_consecutively'), url: battery_soc_longest_streak_path) do
+          span = days(insights.battery_soc_longest_streak[:length])
 
-  - if (related = insights.related_sensor_name)
-    .tooltip-group
-      = render Insights::Row::Component.new(label: Sensor::Registry[related].display_name) do
-        = render SensorValue::Component.new(data, related, context: :total)
+  - if tooltip_values?
+    - if (related = insights.related_sensor_name)
+      .tooltip-group
+        = render Insights::Row::Component.new(label: Sensor::Registry[related].display_name) do
+          = render SensorValue::Component.new(data, related, context: :total)
 
-  - if (costs = splitted_costs)
-    = render costs
+    - if (costs = splitted_costs)
+      = render costs
 
-  - if sensor.name == :grid_power && insights.grid_costs && insights.feed_in_revenue
-    .tooltip-group
-      div
-        = render GridCostsGraph::Component.new(costs: insights.grid_costs, revenue: insights.feed_in_revenue)
-
-  - if [insights.monthly_trend, insights.yearly_trend].any? { it&.comparable? }
-    .tooltip-group
-      = render Insights::TrendRow::Component.new(trend: insights.monthly_trend, label: t('.previous_month'), url: (monthly_trend_base_path if insights.monthly_trend))
-      = render Insights::TrendRow::Component.new(trend: insights.yearly_trend, label: t('.previous_year'), url: (yearly_trend_base_path if insights.yearly_trend))
-
-  - if insights.heatmap_data
-    / On a phone, the heatmap is a page of its own, which a row pushes into
-    / the sheet (component_controller.ts). A larger screen shows it here.
-    .tooltip-group.md:hidden
-      = render Insights::Row::Component.new(label: t('.heatmap'), action: 'insights--component#push')
-
-    / It scrolls on its own and covers the content, so the sheet treats it as
-    / a scroll area with its header as a handle (utils/bottomSheet.ts)
-    .insights-subpage.bottom-sheet-scroll[
-      tabindex= '-1'
-      data-insights--component-target= 'subpage'
-      data-action= 'pointerdown->insights--component#swipeStart pointerup->insights--component#swipeEnd'
-    ]
-      .insights-subpage-header data-bottom-sheet-handle= ''
-        .bottom-sheet-grabber aria-hidden= 'true'
-        div
-          button.insights-back[
-            type= 'button'
-            data-action= 'insights--component#pop'
-          ]
-            = icon 'chevron-left'
-            span.truncate = sensor.display_name
-        h2.bottom-sheet-title.mt-1 = t('.heatmap')
-        p.insights-subpage-detail = timeframe.localized
-
+  - if permitted?
+    - if sensor.name == :grid_power && insights.grid_costs && insights.feed_in_revenue
       .tooltip-group
         div
-          = render HeatmapTile::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
+          = render GridCostsGraph::Component.new(costs: insights.grid_costs, revenue: insights.feed_in_revenue)
 
-  - min_day = insights.minimum(:date)
-  - max_day = insights.maximum(:date)
-  - if min_day || max_day || per_day_value?
-    .tooltip-group
-      - if min_day
-        = render Insights::Row::Component.new(label: t('.minimum'), note: l(min_day), url: day_path(min_day)) do
-          = render SensorValue::Component.new(insights.minimum(:value), sensor.name, context: :total, scaling: :kilo)
+    - if [insights.monthly_trend, insights.yearly_trend].any? { it&.comparable? }
+      .tooltip-group
+        = render Insights::TrendRow::Component.new(trend: insights.monthly_trend, label: t('.previous_month'), url: (monthly_trend_base_path if insights.monthly_trend))
+        = render Insights::TrendRow::Component.new(trend: insights.yearly_trend, label: t('.previous_year'), url: (yearly_trend_base_path if insights.yearly_trend))
 
-      - if max_day
-        = render Insights::Row::Component.new(label: t('.maximum'), note: l(max_day), url: day_path(max_day)) do
-          = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :total, scaling: :kilo)
+    - if insights.heatmap_data
+      / On a phone, the heatmap is a page of its own, which a row pushes into
+      / the sheet (component_controller.ts). A larger screen shows it here.
+      .tooltip-group.md:hidden
+        = render Insights::Row::Component.new(label: t('.heatmap'), action: 'insights--component#push')
 
-      - if per_day_value?
-        = render Insights::Row::Component.new(label: t('.average_per_day')) do
-          = render SensorValue::Component.new(insights.per_day_value, sensor.name, context: :total, scaling: :kilo)
+      / It scrolls on its own and covers the content, so the sheet treats it as
+      / a scroll area with its header as a handle (utils/bottomSheet.ts)
+      .insights-subpage.bottom-sheet-scroll[
+        tabindex= '-1'
+        data-insights--component-target= 'subpage'
+        data-action= 'pointerdown->insights--component#swipeStart pointerup->insights--component#swipeEnd'
+      ]
+        .insights-subpage-header data-bottom-sheet-handle= ''
+          .bottom-sheet-grabber aria-hidden= 'true'
+          div
+            button.insights-back[
+              type= 'button'
+              data-action= 'insights--component#pop'
+            ]
+              = icon 'chevron-left'
+              span.truncate = sensor.display_name
+          h2.bottom-sheet-title.mt-1 = t('.heatmap')
+          p.insights-subpage-detail = timeframe.localized
+
+        .tooltip-group
+          div
+            = render HeatmapTile::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
+
+    - min_day = insights.minimum(:date)
+    - max_day = insights.maximum(:date)
+    - if min_day || max_day || per_day_value?
+      .tooltip-group
+        - if min_day
+          = render Insights::Row::Component.new(label: t('.minimum'), note: l(min_day), url: day_path(min_day)) do
+            = render SensorValue::Component.new(insights.minimum(:value), sensor.name, context: :total, scaling: :kilo)
+
+        - if max_day
+          = render Insights::Row::Component.new(label: t('.maximum'), note: l(max_day), url: day_path(max_day)) do
+            = render SensorValue::Component.new(insights.maximum(:value), sensor.name, context: :total, scaling: :kilo)
+
+        - if per_day_value?
+          = render Insights::Row::Component.new(label: t('.average_per_day')) do
+            = render SensorValue::Component.new(insights.per_day_value, sensor.name, context: :total, scaling: :kilo)
