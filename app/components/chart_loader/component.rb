@@ -30,10 +30,7 @@ class ChartLoader::Component < ViewComponent::Base
   end
 
   def path_to_insights
-    return if timeframe.now?
-    return unless sensor.trendable?
-
-    helpers.insights_path(sensor_name: sensor.name, timeframe:)
+    helpers.sensor_insights_path(sensor, timeframe:)
   end
 
   def demo_url
