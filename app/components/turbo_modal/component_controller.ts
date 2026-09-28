@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { BottomSheet } from '@/utils/bottomSheet';
+import { hideModalBackdrop, isModalBackdropPreloaded } from '@/utils/modal';
 
 // Shows the page of a modal frame request in a BottomSheet, and removes it from
 // the frame once it is closed
@@ -20,12 +21,12 @@ export default class extends Controller<HTMLElement> {
     // modal-launcher shows this backdrop at the click, while the frame loads.
     // The sheet dims the page itself. It takes over from the preloaded
     // backdrop without a fade, because both have the same color.
-    this.sheet.open({ instant: backdrop()?.dataset.preloaded === 'true' });
-    hideBackdrop();
+    this.sheet.open({ instant: isModalBackdropPreloaded() });
+    hideModalBackdrop();
   }
 
   disconnect(): void {
-    hideBackdrop();
+    hideModalBackdrop();
     this.sheet?.destroy();
     this.sheet = null;
   }
@@ -40,20 +41,4 @@ export default class extends Controller<HTMLElement> {
   submitEnd(event: CustomEvent): void {
     if (event.detail.success) this.closeDialog();
   }
-}
-
-function backdrop(): HTMLElement | null {
-  return document.getElementById('modal-backdrop');
-}
-
-// 'hidden' too, not just a transparent backdrop. Safari reads the color of
-// its toolbar from a fixed element that covers the viewport and ignores the
-// opacity, so a backdrop left behind here would tint the toolbar gray.
-function hideBackdrop(): void {
-  const element = backdrop();
-  if (!element) return;
-
-  element.classList.add('pointer-events-none', 'opacity-0', 'hidden');
-  element.classList.remove('opacity-100');
-  delete element.dataset.preloaded;
 }
