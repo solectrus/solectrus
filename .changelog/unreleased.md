@@ -29,6 +29,7 @@ Keep every section, an empty one included.
 - On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. For a bar or a key figure of the balance and for the forecast, the panel shows the details as a list, with the label on the left and the value on the right, and it names the selected period. Tooltips on a computer have a new, lighter look
 - The insights of a sensor (the light bulb next to the chart) now show as lists, as on an iPhone: the total at the top, then groups for the comparison with earlier periods and for the daily values. A comparison names the earlier period and its value. A row that leads to another period shows an arrow. On a phone, the heatmap is a page of its own, which a tap on its row opens. There the heatmap of a year stands upright, shows all twelve months and uses the full height
 - The insights now show everything that the tooltip of a bar shows: the share from photovoltaics for the battery charging and for a consumer on the house page, the costs of a consumer, the CO₂ reduction for the generation, the grid import costs for the grid import and the feed-in revenue for the feed-in
+- Without a sponsorship, the light bulb next to the chart now also shows the total and the values of the tooltip, above the note on the insights
 
 ## Fixes
 
