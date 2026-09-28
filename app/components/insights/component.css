@@ -31,9 +31,29 @@
 /* A row that leads on dims while pressed. A highlight to the edge of the
    group would take the separator along, which stands indented. */
 .insights-row-link {
-  @apply rounded-lg transition-opacity hover:opacity-75 active:opacity-50;
-  /* Inset: the gap of an offset ring would not match the color of the group */
-  @apply focus-ring-inset;
+  @apply relative transition-opacity outline-none hover:opacity-75 active:opacity-50;
+
+  /* The keyboard focus rings the row in the manner of focus-ring: outside
+     the gray group with a gap, where the row meets its edge, and on the
+     separator towards another row. A row alone in its group rings the whole
+     box. The group has px-4, the separator is the border below a row. */
+  &:focus-visible::after {
+    @apply pointer-events-none absolute rounded-md outline-2 outline-indigo-500;
+    content: '';
+    inset: 0 calc(-1 * --spacing(4) - 2px);
+  }
+
+  &:first-child:focus-visible::after {
+    top: -2px;
+    border-top-left-radius: calc(var(--radius-2xl) + 2px);
+    border-top-right-radius: calc(var(--radius-2xl) + 2px);
+  }
+
+  &:last-child:focus-visible::after {
+    bottom: -2px;
+    border-bottom-left-radius: calc(var(--radius-2xl) + 2px);
+    border-bottom-right-radius: calc(var(--radius-2xl) + 2px);
+  }
 }
 
 .insights-row-chevron {

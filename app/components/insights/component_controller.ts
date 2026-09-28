@@ -30,9 +30,17 @@ export default class extends Controller<HTMLElement> {
     this.subpageTarget.focus({ preventScroll: true });
   }
 
-  pop(): void {
+  // The row takes the focus again, but shows its ring only after the
+  // keyboard. The browser cannot tell: the focus before came from a script,
+  // and a tap on iOS focuses nothing. A click from the keyboard has no count
+  // (detail 0).
+  pop(event?: Event): void {
+    this.popTo(event instanceof MouseEvent ? event.detail === 0 : undefined);
+  }
+
+  private popTo(focusVisible?: boolean): void {
     this.subpageTarget.classList.remove('is-open');
-    this.opener?.focus({ preventScroll: true });
+    this.opener?.focus({ preventScroll: true, focusVisible });
     this.opener = null;
   }
 
@@ -67,6 +75,6 @@ export default class extends Controller<HTMLElement> {
     const dy = Math.abs(event.clientY - this.swipeStartY);
     this.swipeStartX = null;
 
-    if (dx > SWIPE_BACK_DISTANCE && dx > dy) this.pop();
+    if (dx > SWIPE_BACK_DISTANCE && dx > dy) this.popTo(false);
   }
 }
