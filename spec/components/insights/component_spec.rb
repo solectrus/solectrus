@@ -98,4 +98,60 @@ describe Insights::Component, type: :component do
       it { expect(component.heading_total).to be_nil }
     end
   end
+
+  context 'with the heat pump and a Power Splitter' do
+    before do
+      stub_feature(:power_splitter)
+      create_summary(
+        date: Date.new(2025, 1, 1),
+        values: [
+          [:heatpump_power, :sum, 10_000],
+          [:heatpump_power_grid, :sum, 2_346],
+        ],
+      )
+    end
+
+    # The tooltip of the heat pump card shows the energy by its source
+    describe '#power_sources' do
+      let(:sensor) { Sensor::Registry[:heatpump_power] }
+
+      it 'adds up to the total of the heading' do
+        expect(component.power_sources).to eq(pv: 7_700, grid: 2_300)
+      end
+    end
+
+    describe '#splitted_costs of the energy' do
+      let(:sensor) { Sensor::Registry[:heatpump_power] }
+
+      it 'shows the costs on the balance' do
+        expect(component.splitted_costs).to be_costs
+      end
+
+      # The costs have a card of their own there
+      it 'leaves the costs out on the heat pump page' do
+        component =
+          described_class.new(
+            sensor:,
+            timeframe:,
+            controller_namespace: 'heatpump',
+          )
+
+        expect(component.splitted_costs).not_to be_costs
+        expect(component.splitted_costs.power_grid_ratio).to eq(23)
+      end
+    end
+
+    # The tooltip of the costs card shows the parts of the costs
+    describe '#splitted_costs' do
+      let(:sensor) { Sensor::Registry[:heatpump_costs] }
+
+      it 'splits the costs into grid and PV' do
+        costs = component.splitted_costs
+
+        expect(costs.grid_costs).to be_positive
+        expect(costs.pv_costs).to be_positive
+        expect(costs).not_to be_show_power_breakdown
+      end
+    end
+  end
 end

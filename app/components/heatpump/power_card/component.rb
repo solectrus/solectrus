@@ -43,6 +43,8 @@ class Heatpump::PowerCard::Component < ViewComponent::Base
         tooltip_placement_value: 'bottom',
         tooltip_force_tap_to_close_value: false,
         tooltip_touch_value: 'long',
+        # A phone opens the insights, which hold the values of the tooltip
+        tooltip_sheet_url_value: helpers.sensor_insights_path(Sensor::Registry[:heatpump_power], timeframe:),
       )
     end
     attrs
