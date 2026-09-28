@@ -41,6 +41,11 @@
       = render Insights::Row::Component.new(label: t('.charged_consecutively'), url: battery_soc_longest_streak_path) do
         span = days(insights.battery_soc_longest_streak[:length])
 
+  - if (related = insights.related_sensor_name)
+    .tooltip-group
+      = render Insights::Row::Component.new(label: Sensor::Registry[related].display_name) do
+        = render SensorValue::Component.new(data, related, context: :total)
+
   - if (costs = splitted_costs)
     = render costs
 
