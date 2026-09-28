@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - develop
-      - next
     tags:
       - v*
   pull_request:
@@ -427,7 +426,9 @@ jobs:
   publish:
     runs-on: ubuntu-26.04
     needs: [ci-success]
-    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    # Only a stable release gets fixed tags, and develop is the one channel for
+    # unreleased code. A pull request builds and tests its image, but no tag.
+    if: ${{ github.event_name == 'push' }}
     timeout-minutes: 10
     permissions:
       packages: write
@@ -459,11 +460,9 @@ jobs:
           images: ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch
-            type=raw,value=${{ github.head_ref }},enable=${{ github.event_name == 'pull_request' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
