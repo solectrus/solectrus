@@ -1,4 +1,17 @@
 class Insights # rubocop:disable Metrics/ClassLength
+  BATTERY_SENSOR_NAMES = %i[battery_power battery_charging_power].freeze
+  private_constant :BATTERY_SENSOR_NAMES
+
+  # The value that the tooltip of a balance segment shows below the energy
+  # (Segment::Component). The insights show it too, so they leave nothing of
+  # the tooltip out.
+  RELATED_SENSOR_NAMES = {
+    inverter_power: :co2_reduction,
+    grid_import_power: :grid_costs,
+    grid_export_power: :grid_revenue,
+  }.freeze
+  private_constant :RELATED_SENSOR_NAMES
+
   def initialize(sensor:, timeframe:)
     @sensor = sensor
     @timeframe = timeframe
@@ -43,19 +56,19 @@ class Insights # rubocop:disable Metrics/ClassLength
         heatpump_power
         house_power
         house_power_without_custom
-        battery_power
       ] + Sensor::Config.custom_power_sensors.map(&:name)
   end
 
-  # battery_power stands for both directions, and its grid ratio is the one of
-  # the charging: that is where grid electricity enters the battery. The
-  # discharge has a ratio of its own, but it is an attribution from the Power
-  # Splitter's ledger rather than something the battery does at that moment.
+  # The battery has the grid ratio of its charging: that is where grid
+  # electricity enters it. battery_power stands for both directions and takes
+  # the same one. The discharge has a ratio of its own, but it is an
+  # attribution from the Power Splitter's ledger rather than something the
+  # battery does at that moment.
   def power_grid_ratio
     return @power_grid_ratio if defined?(@power_grid_ratio)
 
     @power_grid_ratio =
-      if sensor.name == :battery_power
+      if sensor.name.in?(BATTERY_SENSOR_NAMES)
         data.battery_charging_power_grid_ratio
       elsif sensor.name.in?(sensors_with_grid_ratio)
         data.public_send(:"#{sensor.name}_grid_ratio")
@@ -66,10 +79,21 @@ class Insights # rubocop:disable Metrics/ClassLength
   # where that money went instead. Only worth saying while there is a grid
   # share to talk about.
   def costs_note
-    return unless sensor.name == :battery_power
+    return unless sensor.name.in?(BATTERY_SENSOR_NAMES)
     return unless power_grid_ratio&.positive?
 
     I18n.t('splitter.costs_note.battery_charging_power')
+  end
+
+  # A missing price leaves the money without a value, and a period without
+  # PV saves no CO2: the insights then skip the row
+  def related_sensor_name
+    name = RELATED_SENSOR_NAMES[sensor.name]
+    name if name && data.public_send(name)&.nonzero?
+  end
+
+  def custom_power_sensor?
+    sensor.name.in?(Sensor::Config.custom_power_sensors.map(&:name))
   end
 
   def multi_inverter?
@@ -153,9 +177,14 @@ class Insights # rubocop:disable Metrics/ClassLength
       end
   end
 
+  # A consumer takes its grid ratio from the house page, which knows it for
+  # every consumer. The power balance knows it only for a consumer that the
+  # house power leaves out.
   def data
+    balance_class = custom_power_sensor? ? HouseBalance : PowerBalance
+
     @data ||=
-      PowerBalance.new(
+      balance_class.new(
         Sensor::Query::Total
           .new(timeframe) do |q|
             required_sensors.each do |sensor_name|
@@ -206,6 +235,7 @@ class Insights # rubocop:disable Metrics/ClassLength
       *battery_grid_sensor,
       *grid_power_cost_sensors,
       *cost_sensors,
+      RELATED_SENSOR_NAMES[sensor.name],
     ]
     sensors.compact!
     sensors.uniq!
@@ -253,7 +283,7 @@ class Insights # rubocop:disable Metrics/ClassLength
   # The grid share feeds #power_grid_ratio. An older Power Splitter reports
   # none, and the ratio then stays nil.
   def battery_grid_sensor
-    return [] unless sensor.name == :battery_power
+    return [] unless sensor.name.in?(BATTERY_SENSOR_NAMES)
     return [] unless Sensor::Config.exists?(:battery_charging_power_grid)
 
     [:battery_charging_power_grid]
