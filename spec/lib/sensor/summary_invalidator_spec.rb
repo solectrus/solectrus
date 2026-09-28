@@ -90,5 +90,159 @@ describe Sensor::SummaryInvalidator do
         expect { validation }.to change(Setting, :summary_config)
       end
     end
+
+    # The test configuration calculates inverter_power from
+    # inverter_power_1 (my-pv:inverter_power) and inverter_power_2
+    # (balcony:inverter_power).
+    context 'with a summary of a past day' do
+      let(:current_sensors) { current_config[:sensors_in_summary] }
+
+      before do
+        create_summary(
+          date: Date.yesterday,
+          values: [['inverter_power', 'sum', 1000]],
+        )
+
+        Setting.summary_config =
+          current_config.merge(sensors_in_summary: stored_sensors)
+      end
+
+      context 'when an added sensor has data for that day' do
+        let(:stored_sensors) { current_sensors.except(:inverter_power_2) }
+
+        before do
+          add_influx_point(
+            name: 'balcony',
+            fields: { inverter_power: 500 },
+            time: Date.yesterday.middle_of_day,
+          )
+        end
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(Summary, :count).from(2).to(0)
+        end
+      end
+
+      context 'when an added sensor has data for today only' do
+        let(:stored_sensors) { current_sensors.except(:inverter_power_2) }
+
+        before do
+          add_influx_point(
+            name: 'balcony',
+            fields: {
+              inverter_power: 500,
+            },
+          )
+        end
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
+
+      context 'when an added sensor has no data' do
+        let(:stored_sensors) { current_sensors.except(:inverter_power_2) }
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
+
+      context 'when a removed inverter is part of that summary' do
+        let(:stored_sensors) do
+          current_sensors.merge(inverter_power_3: 'old-pv:inverter_power')
+        end
+
+        before do
+          create_summary(
+            date: Date.yesterday,
+            values: [
+              ['inverter_power', 'sum', 1000],
+              ['inverter_power_3', 'sum', 500],
+            ],
+          )
+        end
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(Summary, :count).from(2).to(0)
+        end
+      end
+
+      context 'when a removed inverter has zero in that summary' do
+        let(:stored_sensors) do
+          current_sensors.merge(inverter_power_3: 'old-pv:inverter_power')
+        end
+
+        before do
+          create_summary(
+            date: Date.yesterday,
+            values: [
+              ['inverter_power', 'sum', 1000],
+              ['inverter_power_3', 'sum', 0],
+            ],
+          )
+        end
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
+
+      context 'when a removed inverter is not part of that summary' do
+        let(:stored_sensors) do
+          current_sensors.merge(inverter_power_3: 'old-pv:inverter_power')
+        end
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
+
+      context 'when a removed sensor other than an inverter is part of it' do
+        let(:stored_sensors) { current_sensors }
+
+        before do
+          Sensor::Config.setup(
+            ENV.to_hash.merge('INFLUX_SENSOR_WALLBOX_POWER' => ''),
+          )
+
+          create_summary(
+            date: Date.yesterday,
+            values: [
+              ['inverter_power', 'sum', 1000],
+              ['wallbox_power', 'sum', 500],
+            ],
+          )
+        end
+
+        after { Sensor::Config.setup(ENV) }
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
+
+      context 'when inverter_power was measured before' do
+        let(:stored_sensors) do
+          current_sensors.merge(inverter_power: 'my-pv:total_power')
+        end
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(Summary, :count).from(2).to(0)
+        end
+      end
+
+      context 'when InfluxDB cannot be queried' do
+        let(:stored_sensors) { current_sensors.except(:inverter_power_2) }
+
+        before do
+          allow(Influx).to receive(:query).and_raise(Influx::QueryError)
+        end
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(Summary, :count).from(2).to(0)
+        end
+      end
+    end
   end
 end
