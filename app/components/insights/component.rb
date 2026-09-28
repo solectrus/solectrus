@@ -94,9 +94,25 @@ class Insights::Component < ViewComponent::Base
     when :inverter_power
       splitted_costs_with_prices if insights.costs
     when :battery_power, :battery_charging_power
-      if insights.power_grid_ratio
-        SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, note: insights.costs_note)
-      end
+      splitted_costs_of_battery
+    when :heatpump_costs
+      splitted_costs_by_source
+    end
+  end
+
+  # The energy by its source, below the share. The parts take the digits of
+  # the total in the heading, so they add up to it as shown.
+  def power_sources
+    return unless (parts = insights.power_by_source)
+
+    parts.keys.zip(RoundedSum.new(parts.values, **total_format).parts).to_h
+  end
+
+  # The format of the total in the heading
+  def total_format
+    @total_format ||= begin
+      format = { unit: sensor.unit, context: :total, scaling: :kilo }
+      format.merge(precision: Sensor::ValueFormatter.new(data.public_send(sensor.name), **format).precision)
     end
   end
 
@@ -147,11 +163,38 @@ class Insights::Component < ViewComponent::Base
   end
 
   def splitted_costs_with_prices
+    return SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio) if costs_on_own_card?
+
     SplittedCosts::Component.new(
       power_grid_ratio: insights.power_grid_ratio,
       costs: insights.costs,
       grid_costs: insights.costs_grid,
       pv_costs: insights.costs_pv,
+    )
+  end
+
+  # The heat pump page shows the costs on a card of their own, with insights
+  # of their own. The energy there leaves them out, as its tooltip does.
+  def costs_on_own_card?
+    controller_namespace == 'heatpump' && sensor.name == :heatpump_power
+  end
+
+  def splitted_costs_of_battery
+    return unless insights.power_grid_ratio
+
+    SplittedCosts::Component.new(power_grid_ratio: insights.power_grid_ratio, note: insights.costs_note)
+  end
+
+  # A costs sensor is the costs itself: its parts, as the tooltip of the costs
+  # card on the heat pump page shows them
+  def splitted_costs_by_source
+    return unless insights.costs_grid && insights.costs_pv
+
+    SplittedCosts::Component.new(
+      power_grid_ratio: nil,
+      grid_costs: insights.costs_grid,
+      pv_costs: insights.costs_pv,
+      show_power_breakdown: false,
     )
   end
 end

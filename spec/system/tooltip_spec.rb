@@ -89,6 +89,15 @@ describe 'Tooltip' do
       expect(page).to have_css('dialog#modal-sheet[open] .insights')
       expect(page).to have_no_css('dialog#tooltip-sheet[open]')
     end
+
+    # A KPI tile of the heat pump has no tooltip, only insights
+    it 'opens the page of a sheet URL without tooltip content' do
+      visit '/inverter_power/now'
+      add_tap_tooltip(nil, sheet_url: '/insights/inverter_power/2025-01')
+
+      find_by_id('probe').click
+      expect(page).to have_css('dialog#modal-sheet[open] .insights')
+    end
   end
 
   # A tooltip that opens on a tap, independent of the data a page shows

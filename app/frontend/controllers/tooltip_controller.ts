@@ -103,7 +103,8 @@ export default class TooltipController extends Controller {
     },
 
     // A page for the modal that a phone opens in place of the sheet of the
-    // tooltip, because it holds the same values and more (empty = the sheet)
+    // tooltip, because it holds the same values and more (empty = the sheet).
+    // It also works without tooltip content, then only a phone reacts.
     sheetUrl: {
       type: String,
       default: '',
@@ -148,8 +149,8 @@ export default class TooltipController extends Controller {
       (this.element as HTMLElement).ariaLabel = title;
     }
 
-    const content = this.getContent();
-    if (!content) return;
+    // Without content, a sheet URL alone is enough: a phone opens its page
+    if (!this.getContent() && !this.sheetUrlValue) return;
 
     this.setupEventListeners();
   }
@@ -362,8 +363,6 @@ export default class TooltipController extends Controller {
     if (this.isVisible) return;
 
     const content = this.getContent();
-    if (!content) return;
-
     const contentElement = this.hasHtmlTarget
       ? this.element.querySelector('[data-tooltip-target="html"]')
       : null;
@@ -386,6 +385,10 @@ export default class TooltipController extends Controller {
       openModal(this.sheetUrlValue);
       return;
     }
+
+    // An element with a sheet URL but no content has nothing to show beyond
+    // the phone
+    if (!content) return;
 
     TooltipController.setActiveTooltip(this);
 
