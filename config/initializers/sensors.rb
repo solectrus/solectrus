@@ -1,3 +1,5 @@
+# Not part of the Docker image: .dockerignore excludes this file.
+#
 # Sensor System Setup
 # The initial setup is done in config/application.rb to ensure proper initialization order
 

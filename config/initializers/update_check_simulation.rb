@@ -1,3 +1,5 @@
+# Not part of the Docker image: .dockerignore excludes this file.
+#
 # Simulates any phase of the registration and premium lifecycle, so the whole
 # flow can be walked through by hand instead of waiting days for it.
 #
