@@ -173,4 +173,30 @@ describe Sensor::HomePage do
       expect { described_class.permitted?(:nope) }.to raise_error(ArgumentError)
     end
   end
+
+  # What the insights read to show the values of a tooltip without the
+  # permission
+  describe '.shown?' do
+    context 'without any feature' do
+      before { stub_feature }
+
+      it 'shows a sensor of the start page' do
+        expect(described_class).to be_shown(:battery_charging_power)
+      end
+
+      it 'shows no sensor that only a page with a permission renders' do
+        expect(described_class).not_to be_shown(:custom_power_01)
+        expect(described_class).not_to be_shown(:inverter_power_1)
+      end
+    end
+
+    context 'with the features' do
+      before { stub_feature(:custom_consumer, :multi_inverter) }
+
+      it 'shows the sensors of these pages' do
+        expect(described_class).to be_shown(:custom_power_01)
+        expect(described_class).to be_shown(:inverter_power_1)
+      end
+    end
+  end
 end

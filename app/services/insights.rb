@@ -267,6 +267,8 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   def grid_sensor
+    return [] unless ApplicationPolicy.power_splitter?
+
     grid_sensor_name = :"#{sensor.name}_grid"
     return [] unless power_splitter_sensor?(grid_sensor_name)
 
