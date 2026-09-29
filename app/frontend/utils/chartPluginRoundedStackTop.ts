@@ -16,7 +16,7 @@ const MERGE_GAP = 2;
 // (<=31 columns) and shorter still round.
 const MAX_ROUNDED_COLUMNS = 31;
 
-type Tower = { left: number; right: number; top: number };
+type Tower = { left: number; right: number; top: number; bottom: number };
 
 // Chart.js only rounds the topmost segment of a stacked bar (the highest
 // dataset with value > 0, see BarController). When a thin segment caps a large
@@ -42,15 +42,15 @@ export function buildRoundedStackTopPlugin(): Plugin {
       if (args.meta.type !== 'bar') return;
       if ((chart.data.labels?.length ?? 0) > MAX_ROUNDED_COLUMNS) return;
 
-      const { ctx, chartArea } = chart;
+      const { ctx } = chart;
       // Save unconditionally so afterDatasetDraw can restore unconditionally --
       // save/restore stay balanced even when there is nothing to clip.
       ctx.save();
       ctx.beginPath();
 
-      // Bucket upward bar segments into towers, grouped per period (column). Bars
-      // of a column sharing a center and width stack into one tower; the highest
-      // (smallest y) segment sets its top.
+      // Bucket bar segments into towers, grouped per period (column) and
+      // direction. Bars of a column sharing a center and width stack into one
+      // tower; the outermost segment sets its rounded end.
       const columns = new Map<number, Tower[]>();
 
       // One radius for the whole chart (the largest any bar asks for, floored at
@@ -70,57 +70,62 @@ export function buildRoundedStackTopPlugin(): Plugin {
             true,
           );
           if (x == null || y == null || base == null || width == null) return;
-          // A downward segment (grid import, battery discharge) has no top to
-          // round, but the clip must keep it visible.
-          if (y > base)
-            ctx.rect(x - width / 2, base, width, chartArea.bottom - base);
-          // Only upward, non-empty segments contribute: a null or non-positive
-          // segment has its head on the base, so it adds no height.
-          if (base - y <= 0) return;
+          // A null segment has its head on the base, so it adds no height.
+          if (y === base) return;
 
           radius = Math.max(radius, topRadius(bar));
 
           const left = x - width / 2;
           const right = x + width / 2;
-          let list = columns.get(index);
+          const top = Math.min(y, base);
+          const bottom = Math.max(y, base);
+          // Downward segments (a negated series, e.g. the usage stack of the
+          // power balance) form their own towers, which round at the bottom.
+          // The key ~index keeps them apart from the upward ones.
+          const key = y > base ? ~index : index;
+          let list = columns.get(key);
           if (!list) {
             list = [];
-            columns.set(index, list);
+            columns.set(key, list);
           }
           const tower = list.find(
             (t) =>
               Math.round(t.left) === Math.round(left) &&
               Math.round(t.right) === Math.round(right),
           );
-          if (tower) tower.top = Math.min(tower.top, y);
-          else list.push({ left, right, top: y });
+          if (tower) {
+            tower.top = Math.min(tower.top, top);
+            tower.bottom = Math.max(tower.bottom, bottom);
+          } else list.push({ left, right, top, bottom });
         });
       }
 
       if (!columns.size) return;
 
-      const bottom = chartArea.bottom;
-
-      for (const list of columns.values()) {
+      for (const [key, list] of columns) {
         list.sort((a, b) => a.left - b.left);
 
         list.forEach((tower, i) => {
           const width = tower.right - tower.left;
-          const height = bottom - tower.top;
+          const height = tower.bottom - tower.top;
           const limit = Math.min(width / 2, height / 2);
           const r = Math.max(0, Math.min(radius, limit));
           // Towers close enough to touch merge into one visual unit: the shared
-          // seam stays square, only the unit's outer top corners round.
+          // seam stays square, only the unit's outer corners round.
           const touchesLeft =
             i > 0 && tower.left - list[i - 1].right <= MERGE_GAP;
           const touchesRight =
             i < list.length - 1 && list[i + 1].left - tower.right <= MERGE_GAP;
-          ctx.roundRect(tower.left, tower.top, width, height, [
-            touchesLeft ? 0 : r,
-            touchesRight ? 0 : r,
-            0,
-            0,
-          ]);
+          const rl = touchesLeft ? 0 : r;
+          const rr = touchesRight ? 0 : r;
+          // Corners: top-left, top-right, bottom-right, bottom-left.
+          ctx.roundRect(
+            tower.left,
+            tower.top,
+            width,
+            height,
+            key < 0 ? [0, 0, rr, rl] : [rl, rr, 0, 0],
+          );
         });
       }
 
