@@ -46,6 +46,7 @@ export function buildRoundedStackTopPlugin(): Plugin {
       // Save unconditionally so afterDatasetDraw can restore unconditionally --
       // save/restore stay balanced even when there is nothing to clip.
       ctx.save();
+      ctx.beginPath();
 
       // Bucket upward bar segments into towers, grouped per period (column). Bars
       // of a column sharing a center and width stack into one tower; the highest
@@ -69,6 +70,10 @@ export function buildRoundedStackTopPlugin(): Plugin {
             true,
           );
           if (x == null || y == null || base == null || width == null) return;
+          // A downward segment (grid import, battery discharge) has no top to
+          // round, but the clip must keep it visible.
+          if (y > base)
+            ctx.rect(x - width / 2, base, width, chartArea.bottom - base);
           // Only upward, non-empty segments contribute: a null or non-positive
           // segment has its head on the base, so it adds no height.
           if (base - y <= 0) return;
@@ -95,7 +100,6 @@ export function buildRoundedStackTopPlugin(): Plugin {
       if (!columns.size) return;
 
       const bottom = chartArea.bottom;
-      ctx.beginPath();
 
       for (const list of columns.values()) {
         list.sort((a, b) => a.left - b.left);
