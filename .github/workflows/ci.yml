@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - 'preview-*'
     tags:
       - v*
   pull_request:
@@ -426,8 +427,8 @@ jobs:
   publish:
     runs-on: ubuntu-26.04
     needs: [ci-success]
-    # Only a stable release gets fixed tags, and develop is the one channel for
-    # unreleased code. A pull request builds and tests its image, but no tag.
+    # A push to develop, a "preview-*" branch or a release tag publishes the
+    # image. A pull request builds and tests its image, but no tag.
     if: ${{ github.event_name == 'push' }}
     timeout-minutes: 10
     permissions:
