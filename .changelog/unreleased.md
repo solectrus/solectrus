@@ -35,7 +35,6 @@ Keep every section, an empty one included.
 - The tooltip of a min/max bar now shows both the minimum and the maximum again, for example 26,5 °C - 34,4 °C. Before, it showed the maximum only (#5953)
 - The switches for the color scheme, the color palette and the table view of the house and inverter breakdown now work in a browser that blocks website data. Before, they did not respond there
 - The summaries now reset themselves when you add a sensor that already has older data, or remove an inverter. Before, the history of such a sensor stayed empty until you reset the summaries yourself (#5959)
-- On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page. Before, Safari enlarged the page and kept it enlarged after the selection
 - The chart of the grid now shows the grid import of every period, and the chart of the battery shows every discharge. Before, the bar was missing in a period without feed-in or without charging, for example the grid import of a winter month in the year chart. The tooltip showed the value (#5962)
 - In the power balance, every column below zero now has a rounded end. Before, a column ended square when a thin part, for example the battery charging, sat at its end
 
