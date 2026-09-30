@@ -3,6 +3,8 @@
 # out within a day. `expires_at` was pushed ten years ahead and the body was
 # re-signed with the real key of the update server, so the recorded answer
 # still proves the real key against the real canonicalization.
+# The version in the answer does not have to follow the releases. Re-record
+# only when the key or the format of the answer changes.
 # Re-record with `VCR=all`, then move the field and re-sign again.
 ---
 http_interactions:
