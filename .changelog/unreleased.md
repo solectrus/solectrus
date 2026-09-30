@@ -37,5 +37,6 @@ Keep every section, an empty one included.
 - The summaries now reset themselves when you add a sensor that already has older data, or remove an inverter. Before, the history of such a sensor stayed empty until you reset the summaries yourself (#5959)
 - The chart of the grid now shows the grid import of every period, and the chart of the battery shows every discharge. Before, the bar was missing in a period without feed-in or without charging, for example the grid import of a winter month in the year chart. The tooltip showed the value (#5962)
 - In the power balance, every column below zero now has a rounded end. Before, a column ended square when a thin part, for example the battery charging, sat at its end
+- The SOLECTRUS logo in the background of the sponsorship and login pages is centered again. Before, it sat too low
 
 ## Maintenance
