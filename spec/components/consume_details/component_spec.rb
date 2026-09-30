@@ -119,7 +119,7 @@ describe ConsumeDetails::Component, type: :component do
 
     it 'prints rows that add up to the sums' do
       # 0.64 + 0.57 = 1.21, and 1.21 + 0.96 = 2.17
-      expect(numbers).to eq(%w[2.0 0.64 0.57 1.21 10.0 0.96 2.17])
+      expect(numbers).to eq(%w[0.64 2.0 0.57 1.21 0.96 10.0 2.17])
     end
   end
 

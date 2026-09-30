@@ -170,6 +170,7 @@ class Insights::Component < ViewComponent::Base
       costs: insights.costs,
       grid_costs: insights.costs_grid,
       pv_costs: insights.costs_pv,
+      base_fee: insights.base_fee,
     )
   end
 
