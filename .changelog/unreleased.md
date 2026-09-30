@@ -20,6 +20,8 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- The codeword page now answers with HTTP status 403, so bots and crawlers see that the site is locked (#5974)
+
 ## Fixes
 
 ## Maintenance

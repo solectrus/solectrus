@@ -12,16 +12,19 @@ class LockupController < ApplicationController
   def unlock
     @return_to = params.dig(:lockup, :return_to) || params[:return_to]
 
-    return unless request.post? && params.dig(:lockup, :codeword).present?
+    # Until unlocked, the page answers 403, so crawlers do not take it as content
+    unless request.post? && params.dig(:lockup, :codeword).present?
+      return render(:unlock, status: :forbidden)
+    end
 
     codeword = params[:lockup][:codeword].to_s
 
     if ActiveSupport::SecurityUtils.secure_compare(codeword, lockup_codeword)
       cookies.signed[:lockup] = lockup_cookie(codeword_digest)
-      redirect_to safe_return_path(@return_to)
+      redirect_to safe_return_path(@return_to), status: :see_other
     else
       @wrong = true
-      render :unlock, status: :unprocessable_content
+      render :unlock, status: :forbidden
     end
   end
 

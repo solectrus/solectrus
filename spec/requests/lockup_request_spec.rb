@@ -25,21 +25,31 @@ describe 'Lockup' do
     end
 
     describe 'GET /lockup/unlock' do
-      it 'shows the unlock form' do
+      it 'shows the unlock form with status 403' do
         get '/lockup/unlock'
 
-        expect(response).to have_http_status(:success)
+        expect(response).to have_http_status(:forbidden)
         expect(response.body).to include(I18n.t('lockup.headline'))
       end
     end
 
     describe 'POST /lockup/unlock' do
+      context 'with blank codeword' do
+        it 'shows the unlock form with status 403' do
+          post '/lockup/unlock', params: { lockup: { codeword: '' } }
+
+          expect(response).to have_http_status(:forbidden)
+          expect(response.body).to include(I18n.t('lockup.headline'))
+        end
+      end
+
       context 'with correct codeword' do
         it 'sets cookie and redirects to root' do
           post '/lockup/unlock',
                params: { lockup: { codeword: } }
 
           expect(response).to redirect_to('/')
+          expect(response).to have_http_status(:see_other)
         end
       end
 
@@ -75,7 +85,7 @@ describe 'Lockup' do
           post '/lockup/unlock',
                params: { lockup: { codeword: 'wrong' } }
 
-          expect(response).to have_http_status(:unprocessable_content)
+          expect(response).to have_http_status(:forbidden)
           expect(response.body).to include(
             ERB::Util.html_escape(I18n.t('lockup.wrong')),
           )
