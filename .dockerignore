@@ -26,6 +26,7 @@ bin/image-test.sh
 bin/influxdb-restart.sh
 bin/llm-test
 bin/open
+bin/preview-rebuild
 bin/rspec
 bin/rubocop
 bin/setup

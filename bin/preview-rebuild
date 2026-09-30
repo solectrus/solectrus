@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+
+# Rebuild the current preview branch ("preview-*") from develop.
+#
+# A preview branch bundles feature branches for the live demo. It is thrown
+# away and rebuilt at will: reset to develop, merge the feature branches again,
+# then carry over the commits made on the preview branch itself (such as
+# VERSION_PREFIX, or an adjustment that two features need together).
+#
+# Without arguments, it merges the branches that the preview branch merged
+# before, in the same order. Arguments name the branches instead. A branch that
+# develop already contains is skipped.
+#
+# git rerere replays the resolution of a conflict it has seen before. On a
+# conflict it has not seen, the script stops: resolve it, commit, and run the
+# script again. The run starts over and replays that resolution too.
+#
+# The script does not push.
+
+set -euo pipefail
+
+preview=$(git branch --show-current)
+if [[ $preview != preview-* ]]; then
+  echo "Switch to a preview-* branch first (current: ${preview:-detached HEAD})." >&2
+  exit 1
+fi
+
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "Commit, stash or abort your changes first." >&2
+  exit 1
+fi
+
+if [[ $(git config --bool rerere.enabled || true) != true ]]; then
+  echo "Enabling git rerere for this repository, to record conflict resolutions."
+  git config rerere.enabled true
+fi
+
+# The state before the rebuild. A run that stops keeps it, so the next run
+# starts from the same branches and commits, not from the half-built branch.
+source_ref="refs/preview-rebuild/$preview"
+if git rev-parse --quiet --verify "$source_ref" >/dev/null; then
+  echo "Resuming the rebuild of the state before the last run."
+else
+  git update-ref "$source_ref" HEAD
+fi
+source=$(git rev-parse --short "$source_ref")
+
+# The develop commit the last rebuild started from. What follows it on the
+# preview branch belongs to the preview branch, even after develop was
+# rewritten (a squash, for example). Without a record, develop marks the start.
+base_ref="refs/preview-base/$preview"
+base=develop
+if recorded=$(git rev-parse --quiet --verify "$base_ref") &&
+  git merge-base --is-ancestor "$recorded" "$source"; then
+  base=$recorded
+fi
+
+stop() {
+  cat >&2 <<EOF
+
+$1
+Resolve it and commit, then run $0 again.
+To give up: git merge --abort; git reset --hard $source && git update-ref -d $source_ref
+EOF
+  exit 1
+}
+
+# Conflicts that rerere resolved in full need no one, so commit them. The
+# editor is set by GIT_EDITOR, which wins over core.editor and is set by the
+# terminal of an IDE such as VS Code.
+resolve_or_stop() {
+  if [[ -n $(git diff --name-only --diff-filter=U) ]]; then
+    git diff --name-only --diff-filter=U | sed 's/^/  conflict: /' >&2
+    stop "$1"
+  fi
+  GIT_EDITOR=true git "$2" --continue >/dev/null
+  echo "  conflicts resolved by rerere"
+}
+
+if (($#)); then
+  branches=$(printf '%s\n' "$@")
+else
+  branches=$(
+    git log --reverse --first-parent --merges --format=%s "$base..$source" |
+      sed -n "s/^Merge branch '\(.*\)' into $preview\$/\1/p" |
+      grep -vx develop |
+      awk '!seen[$0]++' || true
+  )
+fi
+
+# Commits on the preview branch itself: first parents only, so nothing from a
+# merged branch.
+own_commits=$(git rev-list --reverse --first-parent --no-merges "$base..$source")
+
+behind=$(git rev-list --count develop..origin/develop 2>/dev/null || echo 0)
+if ((behind > 0)); then
+  echo "Note: develop is $behind commit(s) behind origin/develop."
+fi
+
+echo "Rebuilding $preview (was $source) from develop"
+git reset --quiet --hard develop
+new_base=$(git rev-parse HEAD)
+
+while read -r branch; do
+  [[ -n $branch ]] || continue
+
+  if ! git rev-parse --quiet --verify "$branch^{commit}" >/dev/null; then
+    stop "Branch $branch does not exist."
+  fi
+
+  if git merge-base --is-ancestor "$branch" develop; then
+    echo "- $branch: already in develop, skipped"
+    continue
+  fi
+
+  echo "- merge $branch"
+  git -c rerere.autoUpdate=true merge --quiet --no-ff --no-edit "$branch" ||
+    resolve_or_stop "Merging $branch stopped on a conflict." merge
+done <<<"$branches"
+
+for commit in $own_commits; do
+  echo "- pick $(git log -1 --format='%h %s' "$commit")"
+  git -c rerere.autoUpdate=true cherry-pick --empty=drop "$commit" >/dev/null ||
+    resolve_or_stop "Picking $commit stopped on a conflict." cherry-pick
+done
+
+git update-ref "$base_ref" "$new_base"
+git update-ref -d "$source_ref"
+
+echo
+echo "Done. Changes against the state before: git diff $source HEAD"
+echo "Push with: git push --force-with-lease"
