@@ -142,6 +142,8 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
       labels: period_labels,
       datasets: years.each_with_index.flat_map { |year, index| datasets_of(year, opacity_for(index, years.size)) },
       overlapping: false,
+      averages: chart_sensor_names.index_with { averages_of(it) },
+      averageLabel: I18n.t('data.average'),
     }
   end
 
@@ -150,6 +152,18 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
     chart_sensor_names.filter_map do |name|
       year_points = points_for(name).select { |date, _| date.year == year }
       dataset_for(name, year, year_points, opacity) if year_points.any?
+    end
+  end
+
+  # The average of each period across the years, nil where fewer than two
+  # years are complete. A hatched period stands on fewer days than the others
+  # and would pull the average down.
+  def averages_of(name)
+    complete = points_for(name).reject { partial?(it.first) }.group_by { index_for(it.first) }
+
+    period_labels.each_index.map do |index|
+      values = complete.fetch(index, []).map(&:second)
+      values.sum.fdiv(values.size) if values.size > 1
     end
   end
 
@@ -179,6 +193,8 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
       style_for_sensor(sensor).except(:colorScale).merge(
         id: "#{name}-#{year}",
         label: dataset_label(sensor, year),
+        # Which list of `averages` the dataset belongs to.
+        sensorName: name,
         data:,
         # Every year is a stack of its own: the bars of one year share a place
         # per period, the years stand side by side. The client reads the

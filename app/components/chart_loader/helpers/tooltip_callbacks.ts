@@ -10,7 +10,12 @@ import {
 } from './formatting';
 import { isTemperatureDataset, tooltipRange } from './tooltip_range';
 import { perRender } from './tooltip_utils';
-import type { ChartPointExtras, DatasetWithId, Range } from './types';
+import type {
+  ChartDataWithAverages,
+  ChartPointExtras,
+  DatasetWithId,
+  Range,
+} from './types';
 
 type TooltipFlags = {
   isPowerSplitterStack: boolean;
@@ -268,6 +273,19 @@ export const buildTooltipCallbacks = (
       const rounded = roundedSumOf(tooltipItems);
       if (rounded)
         return formattedNumber(rounded.sum, tooltipRange(tooltipItems));
+
+      // The average of the group the bar stands in, of the sensor the bar
+      // shows. On a category axis the parsed x is the index of the label.
+      const { averages, averageLabel } = data as ChartDataWithAverages;
+      const dataset = tooltipItems[0].dataset as DatasetWithId;
+      const average =
+        dataset.sensorName &&
+        averages?.[dataset.sensorName]?.[tooltipItems[0].parsed.x ?? -1];
+      if (typeof average === 'number')
+        return `${averageLabel}: ${formattedNumber(
+          dataset.tooltipAbs ? Math.abs(average) : average,
+          tooltipRange(tooltipItems),
+        )}`;
     },
   };
 };

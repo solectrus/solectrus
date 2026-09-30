@@ -1,4 +1,5 @@
 // Barrel export for chart helper modules.
+export { buildAverageMarksPlugin } from './average_marks';
 export { applyAxisStyles, getAxisColors } from './axis_styles';
 export {
   applyXAxisEmphasis,
