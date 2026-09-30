@@ -104,10 +104,12 @@ describe 'Settings' do
         end
       end
 
-      it 'can see buttons for add/edit, but not delete' do
+      it 'offers no delete for the last price' do
         expect(page).to have_button('Neu')
-        expect(page).to have_button('Bearbeiten')
         expect(page).to have_no_button('Löschen')
+
+        click_on 'Bearbeiten'
+        within('dialog') { expect(page).to have_no_button('Löschen') }
       end
 
       it 'can create and delete a price' do
@@ -137,8 +139,12 @@ describe 'Settings' do
           expect(page).to have_text('0,5678 €')
         end
 
-        # Delete the price and check if the price is not listed anymore
-        accept_confirm { click_on 'Löschen', match: :first }
+        # Delete the price from the edit form and check it is gone
+        within '#list' do
+          expect(page).to have_no_button('Löschen')
+        end
+        click_on 'Bearbeiten', match: :first
+        within('dialog') { accept_confirm { click_on 'Löschen' } }
         within '#list' do
           expect(page).to have_no_text('01.01.2023')
         end

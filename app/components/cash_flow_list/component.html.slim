@@ -35,28 +35,18 @@
           .table-cell.align-middle.p-2.tabular-nums.text-right.w-1.whitespace-nowrap class=amount_color(cash_flow.amount)
             = formatted_amount(cash_flow.amount)
 
-          .table-cell.align-middle.w-1.p-2
-            .flex.space-x-1
-              = render Button::Component.new path: edit_settings_cash_flow_path(cash_flow),
-                                             icon: 'pencil',
-                                             type: :button,
-                                             style: :secondary,
-                                             options: { \
-                                               method: :get,
-                                               data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-                                               'aria-label': t('crud.edit'),
-                                             }
-
-              = render Button::Component.new path: settings_cash_flow_path(cash_flow),
-                                             icon: 'trash',
-                                             type: :button,
-                                             style: :secondary,
-                                             options: { \
-                                               method: :delete,
-                                               'aria-label': t('crud.delete'),
-                                               form: { data: { 'turbo-confirm': t('crud.confirm_delete') } },
-                                               class: 'hover:text-orange-500',
-                                             }
+          / No right padding: the icon sits centered in a wider button, whose own
+          / space already matches the inset of the date on the left.
+          .table-cell.align-middle.w-1.py-2.pl-2
+            = render Button::Component.new path: edit_settings_cash_flow_path(cash_flow),
+                                           icon: 'pencil',
+                                           type: :button,
+                                           style: :secondary,
+                                           options: { \
+                                             method: :get,
+                                             data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                                             'aria-label': t('crud.edit'),
+                                           }
 
     .table-footer-group.text-gray-800.dark:text-gray-200
       .table-row.border-t.border-gray-300.dark:border-gray-600

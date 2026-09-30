@@ -20,6 +20,8 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
+
 ## Fixes
 
 ## Maintenance

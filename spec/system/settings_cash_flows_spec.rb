@@ -39,6 +39,19 @@ describe 'Cash flow settings' do
       expect(page).to have_text('Wechselrichter')
       expect(page).to have_text('5.000')
     end
+
+    it 'deletes an entry from the edit form' do
+      CashFlow.create!(date: Date.new(2023, 8, 1), amount: -5000, note: 'Wechselrichter')
+      visit '/settings/cash_flows'
+
+      expect(page).to have_text('Wechselrichter')
+      expect(page).to have_no_button('Löschen')
+
+      click_on 'Bearbeiten'
+      within('#modal') { accept_confirm { click_on 'Löschen' } }
+
+      expect(page).to have_text('Noch keine Einträge vorhanden.')
+    end
   end
 
   context 'when admin user is logged in with sponsoring' do
