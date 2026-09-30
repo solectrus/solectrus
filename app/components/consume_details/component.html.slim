@@ -8,9 +8,24 @@ dl.mt-2.space-y-2
     dd.font-mono.text-right
       = render SensorValue::Component.new(data, :grid_import_power, context: :total, sign: :negative)
 
+  - if base_fee?
+    .flex.items-center.justify-between.gap-4
+      dt
+        => "\u21D2"
+        = t('sensors.grid_energy_costs_short')
+      dd.font-mono.text-right
+        = render SensorValue::Component.new(import_costs.parts.last, :grid_energy_costs, sign: :negative, **import_costs.options)
+
+    .flex.items-center.justify-between.gap-4
+      dt
+        => '+'
+        = t('sensors.grid_base_fee_short')
+      dd.font-mono.text-right
+        = render SensorValue::Component.new(import_costs.parts.first, :grid_base_fee, sign: :negative, **import_costs.options)
+
   .flex.items-center.justify-between.gap-4
     dt
-      => "\u21D2"
+      => base_fee? ? '=' : "\u21D2"
       = t('.grid.import_costs')
     dd.font-mono.text-right
       = render SensorValue::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
