@@ -22,26 +22,15 @@
         .table-cell.align-middle.p-2.tabular-nums.w-10.text-right.text-sm.whitespace-nowrap
           = relative_change(price, index)
 
-        .table-cell.align-middle.w-1.p-2
-          .flex.space-x-1
-            = render Button::Component.new path: edit_settings_price_path(price),
-                                           icon: 'pencil',
-                                           type: :button,
-                                           style: :secondary,
-                                           options: { \
-                                             method: :get,
-                                             data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-                                             'aria-label': t('crud.edit'),
-                                           }
-
-            - if prices.size > 1
-              = render Button::Component.new path: settings_price_path(price),
-                                             icon: 'trash',
-                                             type: :button,
-                                             style: :secondary,
-                                             options: { \
-                                               method: :delete,
-                                               'aria-label': t('crud.delete'),
-                                               form: { data: { 'turbo-confirm': t('crud.confirm_delete') } },
-                                               class: 'hover:text-orange-500',
-                                             }
+        / No right padding: the icon sits centered in a wider button, whose own
+        / space already matches the inset of the date on the left.
+        .table-cell.align-middle.w-1.py-2.pl-2
+          = render Button::Component.new path: edit_settings_price_path(price),
+                                         icon: 'pencil',
+                                         type: :button,
+                                         style: :secondary,
+                                         options: { \
+                                           method: :get,
+                                           data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                                           'aria-label': t('crud.edit'),
+                                         }

@@ -90,4 +90,27 @@ describe Price do
       end
     end
   end
+
+  describe '#destroyable?' do
+    before do
+      described_class.delete_all
+      described_class.seed!
+    end
+
+    let(:price) { described_class.electricity.first }
+
+    it 'keeps the last price of a tariff' do
+      expect(price).not_to be_destroyable
+    end
+
+    it 'allows to delete a price when the tariff has another one' do
+      described_class.electricity.create!(starts_at: Date.current, value: 0.3)
+
+      expect(price).to be_destroyable
+    end
+
+    it 'is false for a new price' do
+      expect(described_class.electricity.new).not_to be_destroyable
+    end
+  end
 end
