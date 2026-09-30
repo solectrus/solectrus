@@ -1,0 +1,16 @@
+- if breakdown?
+  .text-sm.space-y-1
+    .label-value-row
+      span = t('sensors.grid_base_fee_short')
+      = render SensorValue::Component.new(costs.parts.first, :grid_base_fee, sign: :negative, **costs.options)
+
+    .label-value-row
+      span = t('sensors.grid_energy_costs_short')
+      = render SensorValue::Component.new(costs.parts.last, :grid_energy_costs, sign: :negative, **costs.options)
+
+    .label-value-row.label-value-separator.pt-2.mt-3
+      strong = t('sensors.grid_costs_short')
+      = render SensorValue::Component.new(costs.sum, :grid_costs, sign: :negative, class: 'text-xl', **costs.options)
+
+- else
+  = render SensorValue::Component.new(data, :grid_costs, sign: :negative, class: 'text-xl')

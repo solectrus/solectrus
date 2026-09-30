@@ -60,4 +60,10 @@ class Sensor::Definitions::HousePower < Sensor::Definitions::Base
   def costs_pv_sensor_name
     :house_costs_pv
   end
+
+  # The house carries the whole base fee (see
+  # Sensor::Definitions::HouseCostsGrid).
+  def costs_carry_base_fee?
+    Sensor::Registry[:house_costs_grid].carries_base_fee?
+  end
 end
