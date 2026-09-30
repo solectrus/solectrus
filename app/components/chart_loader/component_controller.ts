@@ -37,6 +37,7 @@ import { buildRoundedStackTopPlugin } from '@/utils/chartPluginRoundedStackTop';
 import {
   applyAxisStyles,
   applyXAxisEmphasis,
+  buildAverageMarksPlugin,
   applyXAxisTemperatureFormatter,
   applyYAxisTickFormatter,
   applyYAxisZeroLine,
@@ -337,7 +338,11 @@ export default class extends Controller<HTMLCanvasElement> {
   }
 
   private buildCustomPlugins(options: Record<string, unknown>): Plugin[] {
-    return [...buildCustomXAxisPlugin(options), buildRoundedStackTopPlugin()];
+    return [
+      ...buildCustomXAxisPlugin(options),
+      buildRoundedStackTopPlugin(),
+      buildAverageMarksPlugin(this.getCssVar.bind(this)),
+    ];
   }
 
   private configurePowerBalanceTooltip(
