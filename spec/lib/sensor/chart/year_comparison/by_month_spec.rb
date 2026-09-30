@@ -72,6 +72,19 @@ describe Sensor::Chart::YearComparison::ByMonth do
       expect(chart).not_to be_blank
     end
 
+    it 'averages a month across the years' do
+      expect(chart.data[:averages][:house_power][4]).to eq(1750.0)
+    end
+
+    # One year alone is its own average.
+    it 'leaves a month of a single year without an average' do
+      expect(chart.data[:averages][:house_power][6]).to be_nil
+    end
+
+    it 'names the average for the tooltip' do
+      expect(chart.data[:averageLabel]).to eq(I18n.t('data.average'))
+    end
+
     it 'leaves a month that is over unmarked' do
       point = chart.data[:datasets].first[:data].first
 
@@ -87,6 +100,11 @@ describe Sensor::Chart::YearComparison::ByMonth do
         point = chart.data[:datasets].first[:data].first
 
         expect(point[:partial]).to be(true)
+      end
+
+      # The hatched May of 2023 leaves one complete May, too few to average.
+      it 'keeps the month out of the average' do
+        expect(chart.data[:averages][:house_power][4]).to be_nil
       end
 
       context 'when the record begins on the first of the month' do
@@ -174,6 +192,11 @@ describe Sensor::Chart::YearComparison::ByMonth do
 
     it 'shows magnitudes in the tooltip' do
       expect(datasets.pluck(:tooltipAbs)).to all(be(true))
+    end
+
+    it 'averages each direction on its own' do
+      expect(chart.data[:averages][:grid_export_power][4]).to eq(800.0)
+      expect(chart.data[:averages][:grid_import_power][4]).to eq(-200.0)
     end
 
     it 'labels the y axis with magnitudes' do

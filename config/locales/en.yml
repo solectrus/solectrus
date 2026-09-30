@@ -159,6 +159,7 @@ en:
     all: Overall
     all_years: All years
     all_months: All months
+    average: Average
     months_across_years: Months across the years
     quarters_across_years: Quarters across the years
     quarter_with_year: Q%{quarter} %{year}

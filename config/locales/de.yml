@@ -159,6 +159,7 @@ de:
     all: Gesamt
     all_years: Alle Jahre
     all_months: Alle Monate
+    average: Durchschnitt
     months_across_years: Monate im Jahresvergleich
     quarters_across_years: Quartale im Jahresvergleich
     quarter_with_year: '%{quarter}. Quartal %{year}'
