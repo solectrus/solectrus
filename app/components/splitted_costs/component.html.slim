@@ -19,18 +19,36 @@
 
   - if costs?
     div class= [show_power_breakdown? ? 'mt-5' : 'mt-2', 'space-y-1']
+      - if base_fee?
+        .label-value-row
+          span
+            = operator(nil)
+            = t('sensors.grid_base_fee_short')
+          = render SensorValue::Component.new(base_fee, :total_costs, sign: :negative, precision:)
+
+        .label-value-row
+          span
+            = operator('+')
+            = t('sensors.grid_energy_costs_short')
+          = render SensorValue::Component.new(energy_costs, :total_costs, sign: :negative, precision:)
+
       - if grid_costs
         .label-value-row
-          span = t('.grid_costs')
+          span
+            = operator('=')
+            = t('.grid_costs')
           = render SensorValue::Component.new(grid_costs, :total_costs, sign: :negative, precision:)
 
       - if pv_costs
         .label-value-row
-          span = t('.opportunity_costs')
+          span
+            = operator('+')
+            = t('.opportunity_costs')
           = render SensorValue::Component.new(pv_costs, :total_costs, sign: :negative, precision:)
 
       div class= ('label-value-row label-value-separator pt-2 mt-3' if breakdown?)
         - if breakdown?
           strong
+            = operator('=')
             = t('.total_costs')
         = render SensorValue::Component.new(costs, :total_costs, sign: :negative, precision:, class: 'text-xl')

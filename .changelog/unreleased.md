@@ -23,6 +23,7 @@ Keep every section, an empty one included.
 ## Improvements
 
 - AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
+- Grid costs: the tooltip names the energy costs and the base fee separately, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
 - Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
 
 ## Fixes

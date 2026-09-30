@@ -67,7 +67,9 @@ class Balance::StatsController < ApplicationController
           q.sum :battery_discharging_power, :sum
           q.sum :battery_discharging_power_grid, :sum
           q.sum :co2_reduction, :sum
+          q.sum :grid_base_fee, :sum
           q.sum :grid_costs, :sum
+          q.sum :grid_energy_costs, :sum
           q.sum :grid_export_power, :sum
           q.sum :grid_import_power, :sum
           q.avg :grid_quote, :avg
