@@ -1,24 +1,18 @@
+/! Locals: `title` and `back_href` override the title bar on a phone. By
+/! default a section page names its section and leads back to the overview.
+ruby:
+  current_item = nav_items.find { |item| item[:current] }
+  title = local_assigns[:title] || current_item&.dig(:name) || t('layout.settings')
+  back_href = local_assigns[:back_href] || (settings_path if current_item)
+  back_label = local_assigns[:back_label] || t('layout.settings')
+
 - content_for :fixed_nav, true
 - content_for :sub_nav do
-  - selected_href = (nav_items.find { |item| item[:current] } || nav_items.first)[:href]
-  - menu_items = nav_items.map { |item| MenuItem::Component.new(name: item[:name], href: item[:href], id: item[:href], current: item[:current]) }
   .lg:py-5
-    /! Mobile: cog + label + native select dropdown
-    .dark:bg-slate-900.-mx-4.sm:-mx-6.px-4.sm:px-6.py-3.lg:hidden
-      .flex.items-center.justify-between.gap-3
-        .flex.items-center.gap-3.text-white.dark:text-gray-200
-          = icon 'gear', class: 'text-indigo-200 dark:text-gray-400 text-xl'
-          span.font-medium.text-lg = t('layout.settings')
-
-        = render Dropdown::Component.new( \
-            name: 'settings-nav',
-            items: menu_items,
-            selected: selected_href,
-            menu_position: :center,
-            button_class: 'text-white dark:text-gray-200',
-          )
+    .lg:hidden
+      = render Nav::TitleBar::Component.new(title:, back_href:, back_label:)
 
     /! Desktop: original pill buttons (unchanged)
     .hidden.lg:block
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
-        = c.with_items nav_items
+        = c.with_items(nav_items.map { |item| item.slice(:name, :href, :current) })
