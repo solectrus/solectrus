@@ -24,6 +24,11 @@ Keep every section, an empty one included.
 
 - In dark mode, the warning color for a low battery level or a medium autarky is now a lighter amber, so it is easier to tell apart from red
 - The codeword page now answers with HTTP status 403, so bots and crawlers see that the site is locked (#5974)
+- Resetting the summaries now also works when the database is damaged, for example by a failing SD card (#5952)
+- The battery case temperature now shows blue for a normal temperature, and red only from about 45 °C. Before, all values from 40 °C were bright red. In dark mode, the colors of the case temperature and the heat pump tank temperature now match the other charts
+- The sponsorship page now tells you how to close it: with "Maybe later", after you log in as administrator. An update no longer brings the page back
+- In dark mode, red and green text is easier to read, for example amounts, trends and error messages. It has the color of the matching bar in the balance
+- Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
 
 ## Fixes
 

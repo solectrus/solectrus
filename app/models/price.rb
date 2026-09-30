@@ -35,6 +35,11 @@ class Price < ApplicationRecord
     end
   end
 
+  # A tariff always keeps at least one price, so its last one cannot go.
+  def destroyable?
+    persisted? && Price.where(name:).many?
+  end
+
   # Get the price valid for a specific date
   def self.at(name:, date:)
     Price
