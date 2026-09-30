@@ -1,8 +1,27 @@
 describe 'Settings' do
   describe 'GET /settings' do
-    it 'returns http success' do
-      get '/settings'
-      expect(response).to redirect_to('/settings/general')
+    context 'when not logged in' do
+      it 'returns http forbidden' do
+        get '/settings'
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'lists the settings sections' do
+        get '/settings'
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include(
+          'href="/settings/general"',
+          'href="/settings/sensors"',
+          'href="/settings/prices/electricity"',
+          'href="/settings/prices/feed_in"',
+          'href="/settings/cash_flows"',
+        )
+      end
     end
   end
 
@@ -173,6 +192,51 @@ describe 'Settings' do
         get '/settings/sensors'
         expect(response).to have_http_status(:success)
       end
+
+      it 'lists the sensor groups' do
+        get '/settings/sensors'
+
+        expect(response.body).to include(
+          'href="/settings/sensors/generators"',
+          'href="/settings/sensors/consumers"',
+        )
+      end
+    end
+  end
+
+  describe 'GET /settings/sensors/:section' do
+    context 'when not logged in' do
+      it 'returns http forbidden' do
+        get '/settings/sensors/generators'
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'shows the form of the group, leading back to the groups' do
+        get '/settings/sensors/consumers'
+
+        expect(response).to have_http_status(:success)
+
+        html = response.parsed_body
+        expect(html.at_css('input[name="sensor_names[custom_power_01]"]')).to be_present
+        expect(html.at_css('input[name="sensor_names[inverter_power_1]"]')).to be_nil
+        expect(html.at_css('.nav-title-bar')['data-parent']).to eq('/settings/sensors')
+      end
+
+      it 'redirects for an unknown group' do
+        get '/settings/sensors/foo'
+        expect(response).to redirect_to('/settings/sensors')
+      end
+
+      it 'redirects when the group has no sensors' do
+        allow(Sensor::Config).to receive(:nameable_sensors).and_return([])
+
+        get '/settings/sensors/battery'
+        expect(response).to redirect_to('/settings/sensors')
+      end
     end
   end
 
@@ -208,6 +272,28 @@ describe 'Settings' do
         expect(Setting.sensor_names[:custom_power_02]).to eq('Test2')
         expect(Setting.sensor_names[:inverter_power_1]).to eq('Roof')
         expect(Setting.sensor_names[:inverter_power_2]).to eq('Fence')
+      end
+
+      it 'keeps the names of the other groups when one group is saved' do
+        patch '/settings/sensors',
+              params: {
+                sensor_names: {
+                  inverter_power_1: 'Roof',
+                },
+              }
+        patch '/settings/sensors',
+              params: {
+                sensor_names: {
+                  custom_power_01: 'Washer',
+                },
+              },
+              headers: {
+                'HTTP_REFERER' => 'http://www.example.com/settings/sensors/consumers',
+              }
+
+        expect(response).to redirect_to('/settings/sensors/consumers')
+        expect(Setting.sensor_names[:inverter_power_1]).to eq('Roof')
+        expect(Setting.sensor_names[:custom_power_01]).to eq('Washer')
       end
 
       it 'does nothing for unknown keys' do

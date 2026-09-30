@@ -65,6 +65,7 @@
 #             edit_settings_general GET              /settings/general(.:format)                               settings/generals#edit
 #                  settings_general PATCH            /settings/general(.:format)                               settings/generals#update
 #                                   PUT              /settings/general(.:format)                               settings/generals#update
+#          section_settings_sensors GET              /settings/sensors/:section(.:format)                      settings/sensors#section
 #             edit_settings_sensors GET              /settings/sensors(.:format)                               settings/sensors#edit
 #                  settings_sensors PATCH            /settings/sensors(.:format)                               settings/sensors#update
 #                                   PUT              /settings/sensors(.:format)                               settings/sensors#update
@@ -85,7 +86,7 @@
 #                settings_cash_flow PATCH            /settings/cash_flows/:id(.:format)                        settings/cash_flows#update
 #                                   PUT              /settings/cash_flows/:id(.:format)                        settings/cash_flows#update
 #                                   DELETE           /settings/cash_flows/:id(.:format)                        settings/cash_flows#destroy
-#                          settings GET              /settings(.:format)                                       redirect(301, /settings/general)
+#                          settings GET              /settings(.:format)                                       settings/overviews#show
 #                              root GET              /                                                         balance/home#index
 #  turbo_recede_historical_location GET              /recede_historical_location(.:format)                     turbo/native/navigation#recede
 #  turbo_resume_historical_location GET              /resume_historical_location(.:format)                     turbo/native/navigation#resume
@@ -247,7 +248,9 @@ Rails.application.routes.draw do
 
   scope :settings, as: :settings, module: 'settings' do
     resource :general, only: %i[edit update], path_names: { edit: '' }
-    resource :sensors, only: %i[edit update], path_names: { edit: '' }
+    resource :sensors, only: %i[edit update], path_names: { edit: '' } do
+      get ':section', action: :section, as: :section
+    end
 
     resources :prices, constraints: { name: Regexp.union(Price.names.keys) } do
       get '(:name)', on: :collection, action: :index, as: ''
@@ -257,7 +260,7 @@ Rails.application.routes.draw do
       patch :visibility, on: :collection
     end
   end
-  get '/settings', to: redirect('/settings/general')
+  get '/settings', to: 'settings/overviews#show', as: :settings
 
   root to: 'balance/home#index'
 end

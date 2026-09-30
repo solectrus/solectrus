@@ -1,0 +1,11 @@
+nav.overflow-hidden.rounded-xl.border.border-gray-200.dark:border-slate-700 aria-label=label
+  ul.divide-y.divide-gray-200.dark:divide-slate-700
+    - items.each do |item|
+      li
+        = link_to item[:href],
+                  data: { nav_title: item[:name], turbo_prefetch: false },
+                  class: 'flex items-center gap-3 px-4 py-3 text-gray-800 dark:text-slate-300 active:bg-gray-100 dark:active:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800/50 focus-ring-inset' do
+          span.flex.size-8.shrink-0.items-center.justify-center.rounded-lg.bg-gray-100.text-gray-500.dark:bg-slate-800.dark:text-slate-400
+            = icon item[:icon], class: 'text-base'
+          span.flex-1.min-w-0.truncate.text-base = item[:name]
+          = icon 'chevron-right', class: 'text-sm text-gray-400 dark:text-slate-500'
