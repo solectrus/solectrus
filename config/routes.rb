@@ -4,6 +4,7 @@
 #                            Prefix Verb             URI Pattern                                               Controller#Action
 #                      health_check GET              /up(.:format)                                             health#show
 #                skip_browser_check GET              /skip-browser-check(.:format)                             application#skip_browser_check
+#                          manifest GET              /manifest.webmanifest                                     manifest#show
 #                          lookbook                  /lookbook                                                 Lookbook::Engine
 #                     lockup_unlock GET              /lockup/unlock(.:format)                                  lockup#unlock
 #                            unlock POST             /lockup/unlock(.:format)                                  lockup#unlock
@@ -92,6 +93,7 @@
 #
 # Routes for Lookbook::Engine:
 #                Prefix Verb URI Pattern              Controller#Action
+#                 cable      /cable                   #<ActionCable::Server::Base:0x000000012e85e470 @config=#<ActionCable::Server::Configuration:0x000000012e85e4c0 @log_tags=[], @connection_class=#<Proc:0x000000012e47eb98 /Users/ledermann/.local/share/mise/installs/ruby/4.0.7/lib/ruby/gems/4.0.0/gems/lookbook-2.3.15/lib/lookbook/cable/cable.rb:48 (lambda)>, @worker_pool_size=4, @disable_request_forgery_protection=false, @allow_same_origin_as_host=true, @filter_parameters=[], @health_check_application=#<Proc:0x000000012e47ec88 /Users/ledermann/.local/share/mise/installs/ruby/4.0.7/lib/ruby/gems/4.0.0/gems/actioncable-8.1.4/lib/action_cable/server/configuration.rb:32 (lambda)>, @cable={"adapter" => "async"}, @mount_path=nil, @logger=#<ActiveSupport::BroadcastLogger:0x000000012d0150a8 @broadcasts=[#<ActiveSupport::Logger:0x000000012d91f6f8 @level=0, @progname=nil, @default_formatter=#<Logger::Formatter:0x000000012d019d88 @datetime_format=nil>, @formatter=#<ActiveSupport::Logger::SimpleFormatter:0x000000012d015828 @datetime_format=nil, @thread_key="activesupport_tagged_logging_tags:7360">, @logdev=#<Logger::LogDevice:0x000000012cf124a8 @shift_period_suffix="%Y%m%d", @shift_size=104857600, @shift_age=1, @filename="/Users/ledermann/Projects/solectrus/solectrus/log/development.log", @dev=#<File:/Users/ledermann/Projects/solectrus/solectrus/log/development.log>, @binmode=false, @reraise_write_errors=[], @skip_header=false, @mon_data=#<Monitor:0x000000012cf11a58>, @mon_data_owner_object_id=5992>, @level_override={}, @local_level_key=:logger_thread_safe_level_6000>], @progname="Broadcast">>, @mutex=#<Monitor:0x000000012e85e3d0>, @pubsub=nil, @worker_pool=nil, @event_loop=nil, @remote_connections=nil>
 #         lookbook_home GET  /                        lookbook/application#index
 #   lookbook_page_index GET  /pages(.:format)         lookbook/pages#index
 #         lookbook_page GET  /pages/*path(.:format)   lookbook/pages#show
