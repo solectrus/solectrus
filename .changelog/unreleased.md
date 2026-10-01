@@ -18,6 +18,8 @@ Keep every section, an empty one included.
 
 ## New features
 
+- An amber dot at the HELIOS menu item and at the button that opens the menu shows when HELIOS needs your attention: the configuration is incomplete, or the services wait for a restart or fail
+
 ## Improvements
 
 - In dark mode, the warning color for a low battery level or a medium autarky is now a lighter amber, so it is easier to tell apart from red

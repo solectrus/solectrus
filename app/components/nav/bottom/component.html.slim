@@ -80,9 +80,22 @@
         / cuts it free from the bar it overlaps. The open menu paints the pill
         / in another color, which the ring cannot follow - and the menu names
         / the notifications with their own count anyway, so the dot goes away.
-        span.relative.flex
+        / The amber dot for HELIOS lies in front of the red one. With both, the
+        / red dot moves to the right and peeks out behind the amber one,
+        / whose ring cuts it off. The ring is thinner then, so more of the red
+        / dot shows. :has() follows the red dot, so the ring grows again when a
+        / Turbo Stream removes the red dot.
+        span.relative.flex class="group/dots"
           = icon 'bars', class: 'fa-fw fa-lg'
-          span#bottom-nav-notification-dot.absolute.-top-1.-right-1 class="group-aria-expanded/more:hidden"
+          span#bottom-nav-notification-dot.absolute.-top-1[
+            class=(helios_dot? ? '-right-2.5' : '-right-1')
+            class="group-aria-expanded/more:hidden"
+          ]
             = render Notification::Dot::Component.new
+          - if helios_dot?
+            span.absolute.-top-1.-right-1.rounded-full.bg-amber-400.dark:bg-amber-500.ring-4.ring-indigo-600.dark:ring-indigo-900[
+              class="size-2.5 group-aria-expanded/more:hidden group-has-[#bottom-nav-notification-dot>*]/dots:ring-1"
+              aria-hidden="true"
+            ]
       span.leading-tight.truncate class="text-[0.65rem]"
         = t('.more')

@@ -31,15 +31,27 @@ header.relative.bg-chrome data-controller='slide-over--component' class=(compact
               span#notification-badge-desktop
                 = render Notification::Badge::Component.new
 
+              / The amber dot says that HELIOS needs the user. It hangs on the
+                icon, at its upper right corner. Its ring carries the background
+                of the button, plain or hovered, and cuts the dot free from the
+                bar. The dark hover color is half transparent, so the ring mixes
+                it with the header background as the browser does.
               button.rounded-md.p-2.focus:outline-none.focus:ring-2.focus:ring-gray-300.dark:focus:ring-gray-400.focus:ring-offset-0.text-gray-300.hover:bg-indigo-500.dark:text-gray-400.dark:hover:bg-indigo-950/50[
+                class="group/menu"
                 data-action="click->slide-over--component#open"
                 aria-haspopup= 'true'
                 aria-expanded= 'false'
                 aria-label= 'Navigation'
                 type= 'button'
               ]
-                svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
-                  path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                span.relative.block
+                  svg.block.h-6.w-6 aria-hidden="true" fill="none" stroke="currentColor" viewbox="0 0 24 24"
+                    path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  - if helios_dot?
+                    span.absolute.-top-1.-right-1.rounded-full.bg-amber-400.dark:bg-amber-500.ring-4.ring-chrome[
+                      class="size-2.5 group-hover/menu:ring-indigo-500 dark:group-hover/menu:ring-[color-mix(in_srgb,var(--color-indigo-950)_50%,var(--color-chrome))]"
+                      aria-hidden="true"
+                    ]
 
   / Over the ThemeStrip, like the navigation above. Without a desktop
     navigation there is nothing above this, so it starts at the top edge, where

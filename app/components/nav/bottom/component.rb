@@ -23,6 +23,10 @@ class Nav::Bottom::Component < ViewComponent::Base
     @items.first(MAX_BAR_ITEMS)
   end
 
+  def helios_dot?
+    @secondary_items.any? { it[:dot] }
+  end
+
   private
 
   def pill_classes(active:)

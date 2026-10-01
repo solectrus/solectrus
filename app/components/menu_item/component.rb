@@ -12,6 +12,7 @@ class MenuItem::Component < ViewComponent::Base
     current: false,
     badge_count: nil,
     badge_data: nil,
+    dot: false,
     component: nil
   )
     super()
@@ -28,6 +29,7 @@ class MenuItem::Component < ViewComponent::Base
     @current = current
     @badge_count = badge_count
     @badge_data = badge_data
+    @dot = dot
     @component = component
   end
 
@@ -47,6 +49,7 @@ class MenuItem::Component < ViewComponent::Base
               :separator_before,
               :badge_count,
               :badge_data,
+              :dot,
               :component
 
   CSS_CLASSES = %w[block w-full].freeze
@@ -95,6 +98,7 @@ class MenuItem::Component < ViewComponent::Base
           (render_icon if with_icon),
           (render_text(with_icon:) if text),
           (render_badge if badge_count&.positive?),
+          (render_dot if dot),
         ].compact,
       )
     end
@@ -126,6 +130,13 @@ class MenuItem::Component < ViewComponent::Base
         'bg-red-500 dark:bg-red-700 text-white dark:text-gray-300 ' \
           'text-xs font-bold rounded-full min-w-5 h-5 flex items-center justify-center px-1.5',
       data: badge_data,
+    )
+  end
+
+  def render_dot
+    tag.span(
+      class: 'block size-2.5 rounded-full bg-amber-400 dark:bg-amber-500',
+      'aria-hidden': true,
     )
   end
 end

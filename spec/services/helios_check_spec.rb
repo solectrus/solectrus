@@ -104,6 +104,70 @@ describe HeliosCheck do
     end
   end
 
+  describe '#action_required?' do
+    subject(:action_required) { instance.action_required? }
+
+    context 'when helios sets X-Action-Required' do
+      before do
+        stub_request(:get, 'http://helios:3000/up').to_return(
+          status: 200,
+          headers: {
+            'X-Version' => '2.5.1',
+            'X-Action-Required' => '1',
+          },
+        )
+      end
+
+      it { is_expected.to be true }
+
+      # The user fixes the request in HELIOS, so the dot must leave soon.
+      it 'asks again after 30 seconds' do
+        action_required
+        travel(29.seconds) { instance.action_required? }
+        expect(a_request(:get, 'http://helios:3000/up')).to have_been_made.twice
+
+        travel(31.seconds) { instance.action_required? }
+        expect(a_request(:get, 'http://helios:3000/up')).to have_been_made.times(3)
+      end
+    end
+
+    # Also an older HELIOS, which does not know the header.
+    context 'when helios leaves X-Action-Required out' do
+      before do
+        stub_request(:get, 'http://helios:3000/up').to_return(
+          status: 200,
+          headers: {
+            'X-Version' => '2.5.1',
+          },
+        )
+      end
+
+      it { is_expected.to be false }
+
+      # A new request of HELIOS can reach the user late.
+      it 'asks again after an hour' do
+        action_required
+        travel(59.minutes) { instance.action_required? }
+        expect(a_request(:get, 'http://helios:3000/up')).to have_been_made.twice
+
+        travel(61.minutes) { instance.action_required? }
+        expect(a_request(:get, 'http://helios:3000/up')).to have_been_made.times(3)
+      end
+    end
+
+    context 'when helios is unreachable' do
+      before { stub_request(:get, 'http://helios:3000/up').to_timeout }
+
+      it { is_expected.to be false }
+    end
+
+    context 'when running in test/development' do
+      before { allow(described_class).to receive(:skip_http?).and_return(true) }
+
+      it { is_expected.to be false }
+    end
+  end
+
   describe '#available?' do
     subject(:available) { instance.available? }
 

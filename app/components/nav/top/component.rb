@@ -22,6 +22,10 @@ class Nav::Top::Component < ViewComponent::Base
     primary_items.find(&:current) || secondary_items.find(&:current)
   end
 
+  def helios_dot?
+    secondary_items.any?(&:dot)
+  end
+
   # Nested component for rendering navigation items
   class ItemsComponent < ViewComponent::Base
     def initialize(items:)

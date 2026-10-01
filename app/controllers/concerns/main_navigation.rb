@@ -291,6 +291,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.helios'),
         icon: 'sun',
         href: HeliosCheck.browser_url(request),
+        dot: HeliosCheck.action_required?,
       }
     end
 

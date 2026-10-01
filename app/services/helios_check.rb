@@ -10,8 +10,12 @@ class HeliosCheck
   BROWSER_PORT = 3999
   HEALTH_PATH = '/up'.freeze
   VERSION_HEADER = 'X-Version'.freeze
+  ACTION_REQUIRED_HEADER = 'X-Action-Required'.freeze
   CACHE_KEY = 'HeliosCheck:version'.freeze
   CACHE_DURATION = 24.hours
+  ACTION_REQUIRED_CACHE_KEY = 'HeliosCheck:action_required'.freeze
+  ACTION_REQUIRED_CACHE_DURATION = 30.seconds
+  NO_ACTION_CACHE_DURATION = 1.hour
   CACHE_RACE_TTL = 30
   PROBE_TIMEOUT = 1
   private_constant :HOSTNAME,
@@ -19,13 +23,22 @@ class HeliosCheck
                    :BROWSER_PORT,
                    :HEALTH_PATH,
                    :VERSION_HEADER,
+                   :ACTION_REQUIRED_HEADER,
                    :CACHE_KEY,
                    :CACHE_DURATION,
+                   :ACTION_REQUIRED_CACHE_KEY,
+                   :ACTION_REQUIRED_CACHE_DURATION,
+                   :NO_ACTION_CACHE_DURATION,
                    :CACHE_RACE_TTL,
                    :PROBE_TIMEOUT
 
   class << self
-    delegate :available?, :version, :browser_url, :clear_cache!, to: :instance
+    delegate :available?,
+             :version,
+             :action_required?,
+             :browser_url,
+             :clear_cache!,
+             to: :instance
   end
 
   # In development and test no Helios runs beside the application to probe, in
@@ -53,8 +66,26 @@ class HeliosCheck
         expires_in: CACHE_DURATION,
         race_condition_ttl: CACHE_RACE_TTL,
         force: !cached,
-      ) { probe || false }
+      ) { probe(VERSION_HEADER).presence || false }
       .presence
+  end
+
+  # HELIOS asks the user to come over: its configuration is incomplete, or its
+  # stack waits for a restart or fails. The two answers keep for different
+  # times. A new request of HELIOS can reach the user an hour late. A request
+  # the user has done in HELIOS must leave the page soon, or it confuses them.
+  def action_required?
+    return false unless available?
+
+    Rails.cache.fetch(
+      ACTION_REQUIRED_CACHE_KEY,
+      race_condition_ttl: CACHE_RACE_TTL,
+    ) do |_key, options|
+      required = probe(ACTION_REQUIRED_HEADER) == '1'
+      options.expires_in =
+        required ? ACTION_REQUIRED_CACHE_DURATION : NO_ACTION_CACHE_DURATION
+      required
+    end
   end
 
   def browser_url(request)
@@ -63,11 +94,12 @@ class HeliosCheck
 
   def clear_cache!
     Rails.cache.delete(CACHE_KEY)
+    Rails.cache.delete(ACTION_REQUIRED_CACHE_KEY)
   end
 
   private
 
-  def probe
+  def probe(header)
     response =
       Net::HTTP.start(
         HOSTNAME,
@@ -76,9 +108,7 @@ class HeliosCheck
         read_timeout: PROBE_TIMEOUT,
       ) { |http| http.get(HEALTH_PATH) }
 
-    return unless response.is_a?(Net::HTTPSuccess)
-
-    response[VERSION_HEADER].presence
+    response[header] if response.is_a?(Net::HTTPSuccess)
   rescue StandardError => e
     Rails.logger.debug { "HeliosCheck: not available: #{e.class}: #{e.message}" }
     nil
