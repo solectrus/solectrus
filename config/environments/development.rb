@@ -71,15 +71,6 @@ Rails.application.configure do
 
   config.hosts.clear
 
-  config.view_component.previews.paths << Rails.root.join(
-    'spec',
-    'components',
-    'previews',
-  )
-  config.view_component.previews.default_layout = 'component_preview'
-  config.view_component.previews.enabled = true
-  config.view_component.previews.controller = 'MyPreviewController'
-
   config.lookbook.preview_display_options = {
     theme: %w[light dark],
   }

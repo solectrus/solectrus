@@ -161,5 +161,12 @@ module Solectrus
     # Disable preloading JS/CSS via Link header to avoid browser warnings like this one:
     # "... was preloaded using link preload but not used within a few seconds ..."
     config.action_view.preload_links_header = false
+
+    # Component previews, shown by Lookbook in development and rendered by
+    # spec/components/previews_spec.rb in test. ViewComponent enables them in
+    # these two environments only.
+    config.view_component.previews.paths << "#{root}/spec/components/previews"
+    config.view_component.previews.default_layout = 'component_preview'
+    config.view_component.previews.controller = 'MyPreviewController'
   end
 end
