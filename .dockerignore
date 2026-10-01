@@ -47,6 +47,7 @@ config/environments/development.rb
 config/environments/test.rb
 config/icons.yml
 config/initializers/sensors.rb
+config/initializers/helios_check_simulation.rb
 config/initializers/update_check_simulation.rb
 config/rorvswild.yml
 coverage
