@@ -35,7 +35,6 @@ Brewfile
 bunfig.toml
 Caddyfile
 AGENTS.md
-CLAUDE.md
 compose.yaml
 config/brakeman.ignore
 config/bundler-audit.yml
