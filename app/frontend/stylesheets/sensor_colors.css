@@ -52,7 +52,7 @@
   --palette-contrast-dark-autarky: #064e3b; /* zuccini */
   --palette-contrast-dark-heatpump-cop: #5c3a10; /* horses neck */
   --palette-contrast-dark-heatpump-heating: #c2410c; /* tia maria */
-  --palette-contrast-dark-autarky-mid: #d97706; /* amber-600 */
+  --palette-contrast-dark-autarky-mid: #fbbf24; /* amber-400 */
   --palette-contrast-dark-forecast-clearsky: #4b5563; /* river bed */
 
   /* Standard palette (light mode) — NTC color names */
@@ -90,7 +90,7 @@
   --palette-standard-dark-autarky: #064e3b; /* zuccini */
   --palette-standard-dark-heatpump-cop: #02446b; /* regal blue */
   --palette-standard-dark-heatpump-heating: #c2410c; /* tia maria */
-  --palette-standard-dark-autarky-mid: #d97706; /* amber-600 */
+  --palette-standard-dark-autarky-mid: #fbbf24; /* amber-400 */
   --palette-standard-dark-forecast-clearsky: #4b5563; /* river bed */
 
   /* Preview swatches — follow light/dark mode (overridden in .dark) */
