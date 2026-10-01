@@ -1,4 +1,7 @@
+# @label TimeframeSelect
 class TimeframeSelectComponentPreview < ViewComponent::Preview
+  # @param sensor_name
+  # @param controller_namespace
   def default(sensor_name: 'inverter_power', controller_namespace: 'balance')
     timeframe = Timeframe.new('2024-01')
 

@@ -4,68 +4,53 @@ class InsightsTileComponentPreview < ViewComponent::Preview
   # @!group Misc
 
   def default
-    render InsightsTile::Component.new do |tile|
-      tile.with_title { 'Title here' }
-      tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
-      end
-      tile.with_footer { 'Footer content here.' }
-    end
+    tile
   end
 
   def stripes
-    render InsightsTile::Component.new stripes: true do |tile|
-      tile.with_title { 'Title here' }
-      tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
-      end
-      tile.with_footer { 'Footer content here.' }
-    end
+    tile(options: { stripes: true })
   end
 
   def with_extra_class
-    render InsightsTile::Component.new css_class: 'font-mono' do |tile|
-      tile.with_title { 'Title here' }
-      tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
-      end
-      tile.with_footer { 'Footer content here.' }
-    end
+    tile(options: { css_class: 'font-mono' })
   end
 
   def with_link
-    render InsightsTile::Component.new url: '/#' do |tile|
-      tile.with_title { 'Title here' }
-      tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
-      end
-      tile.with_footer { 'Footer content here.' }
-    end
+    tile(options: { url: '/#' })
   end
 
   def without_footer
-    render InsightsTile::Component.new do |tile|
-      tile.with_title { 'Title here' }
-      tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
-      end
-    end
+    tile(footer: nil)
   end
 
   def without_title
-    render InsightsTile::Component.new do |tile|
-      tile.with_body do
-        render SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo)
-      end
-      tile.with_footer { 'Footer content here.' }
-    end
+    tile(title: nil)
   end
 
   def body_only
-    render InsightsTile::Component.new do |tile|
-      tile.with_body { 'This is the body' }
-    end
+    tile(title: nil, body: 'This is the body', footer: nil)
   end
 
   # @!endgroup
+
+  private
+
+  # The slots render in a template: a block in the preview class runs in the
+  # preview, not in the view, so a component rendered there would be lost.
+  def tile(
+    options: {},
+    title: 'Title here',
+    body: nil,
+    footer: 'Footer content here.'
+  )
+    render_with_template(
+      template: 'insights_tile_component_preview/tile',
+      locals: {
+        options:,
+        title:,
+        body:,
+        footer:,
+      },
+    )
+  end
 end

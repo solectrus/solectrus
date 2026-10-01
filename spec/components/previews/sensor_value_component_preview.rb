@@ -1,4 +1,5 @@
-class SensorValue::ComponentPreview < ViewComponent::Preview
+# @label SensorValue
+class SensorValueComponentPreview < ViewComponent::Preview
   # @!group Power Sensors
 
   def inverter_power_watts
@@ -52,9 +53,9 @@ class SensorValue::ComponentPreview < ViewComponent::Preview
     render SensorValue::Component.new(data, :grid_costs)
   end
 
-  def electricity_price
-    data = data_example(electricity_price: 0.30123)
-    render SensorValue::Component.new(data, :electricity_price)
+  def solar_price
+    data = data_example(solar_price: -12.34)
+    render SensorValue::Component.new(data, :solar_price)
   end
 
   # @!group Weight Sensors (CO2)
@@ -118,8 +119,8 @@ class SensorValue::ComponentPreview < ViewComponent::Preview
   end
 
   def very_small_decimal
-    data = data_example(electricity_price: 0.0001234)
-    render SensorValue::Component.new(data, :electricity_price)
+    data = data_example(grid_costs: 0.0001234)
+    render SensorValue::Component.new(data, :grid_costs)
   end
 
   def floating_point_precision
@@ -127,34 +128,23 @@ class SensorValue::ComponentPreview < ViewComponent::Preview
     render SensorValue::Component.new(data, :inverter_power)
   end
 
-  # @!group Styling Examples
+  # @!group Styling
 
-  def with_custom_css_classes
+  def with_positive_signal
     data = data_example(inverter_power: 2500)
     render SensorValue::Component.new(
              data,
              :inverter_power,
-             class: 'text-emerald-600 font-bold text-lg',
+             class: 'text-signal-positive',
            )
   end
 
-  # @!group Examples with Custom Styling
-
-  def with_green_styling
-    data = data_example(inverter_power: 2500)
-    render SensorValue::Component.new(
-             data,
-             :inverter_power,
-             class: 'text-emerald-600',
-           )
-  end
-
-  def with_red_styling
+  def with_negative_signal
     data = data_example(grid_import_power: 1500)
     render SensorValue::Component.new(
              data,
              :grid_import_power,
-             class: 'text-red-600',
+             class: 'text-signal-negative',
            )
   end
 
@@ -163,7 +153,7 @@ class SensorValue::ComponentPreview < ViewComponent::Preview
     render SensorValue::Component.new(
              data,
              :battery_soc,
-             class: 'text-lg font-bold text-blue-600',
+             class: 'text-lg font-bold',
            )
   end
 
@@ -174,6 +164,8 @@ class SensorValue::ComponentPreview < ViewComponent::Preview
 
     render SensorValue::Component.new(data, :opportunity_costs, sign: :negative)
   end
+
+  # @!endgroup
 
   private
 

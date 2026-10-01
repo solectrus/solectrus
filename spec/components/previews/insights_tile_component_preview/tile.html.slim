@@ -1,0 +1,5 @@
+= render InsightsTile::Component.new(**options) do |tile|
+  - tile.with_title { title } if title
+  - tile.with_body do
+    = body || render(SensorValue::Component.new(10_000, :inverter_power, context: :total, scaling: :kilo))
+  - tile.with_footer { footer } if footer
