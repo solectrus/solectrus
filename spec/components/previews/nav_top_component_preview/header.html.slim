@@ -1,0 +1,7 @@
+= render Nav::Top::Component.new(unread_count: unread) do |c|
+  - c.with_primary_items(primary)
+  - c.with_secondary_items(secondary)
+  - c.with_sub_nav do
+    .py-3
+      = render Nav::Sub::Component.new do |sub|
+        - sub.with_items(%w[day week month].map { { name: I18n.t("data.#{it}"), href: '#', current: it == 'day' } })

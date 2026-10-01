@@ -1,0 +1,14 @@
+/ Each frame loads the hidden scenario "phone" as a page of its own. The width
+/ of the frame then sets the breakpoints, not the width of the preview pane.
+/ The frame passes the theme on, and "bare" drops the padding of the layout.
+- theme = params.dig(:lookbook, :display, :theme)
+.flex.flex-wrap.justify-center.gap-8
+  - labels.each do |variant, label|
+    - query = { variant:, lookbook: { display: { bare: true, theme: }.compact } }
+    figure.flex.flex-col.items-center.gap-2
+      iframe.rounded-3xl.border-8.border-gray-800.dark:border-slate-600.bg-white[
+        class="w-[375px] h-[667px]"
+        src=preview_view_component_path('nav_bottom_component/phone', query)
+        title=label
+      ]
+      figcaption.text-xs.font-mono.text-gray-400 = label

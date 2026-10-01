@@ -1,0 +1,12 @@
+/ The bar sits in the page flow, so it needs the full height above it to
+/ reach the lower edge of the frame.
+.h-dvh.flex.flex-col.justify-end
+  = render Nav::Bottom::Component.new(items:, secondary_items:, unread_count: unread)
+
+/ The menu opens on a tap only. The Stimulus controller is connected by the
+/ load event, so the tap comes then.
+- if open
+  javascript:
+    addEventListener('load', () =>
+      document.querySelector('[data-nav--bottom--component-target="button"]').click()
+    );
