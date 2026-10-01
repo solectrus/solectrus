@@ -1,7 +1,7 @@
 # @label GridCostsGraph
 # @display max_width 32rem
 class GridCostsGraphComponentPreview < ViewComponent::Preview
-  # @!group Misc
+  # @!group Overview
 
   # @label Default
   def default

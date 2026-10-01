@@ -1,5 +1,7 @@
 # @label BalanceGap
 class BalanceGapComponentPreview < ViewComponent::Preview
+  # @!group Overview
+
   # A consumer is missing from the measurement, so the sources deliver more than
   # the sinks account for.
   def missing_consumer
@@ -15,6 +17,8 @@ class BalanceGapComponentPreview < ViewComponent::Preview
   def balanced
     render BalanceGap::Component.new data: data
   end
+
+  # @!endgroup
 
   private
 

@@ -1,6 +1,6 @@
 # @label Status
 class StatusComponentPreview < ViewComponent::Preview
-  # @!group Misc
+  # @!group Overview
 
   def without_state
     render Status::Component.new(time: 3.seconds.ago)

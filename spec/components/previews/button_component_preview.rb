@@ -1,5 +1,7 @@
 # @label Button
 class ButtonComponentPreview < ViewComponent::Preview
+  # @!group Overview
+
   # @param title
   def primary(title: 'Click me')
     render Button::Component.new(title:, path: '#')
@@ -25,4 +27,6 @@ class ButtonComponentPreview < ViewComponent::Preview
   def secondary(title: 'Edit', icon: 'pencil')
     render Button::Component.new(style: :secondary, title:, icon:, path: '#')
   end
+
+  # @!endgroup
 end

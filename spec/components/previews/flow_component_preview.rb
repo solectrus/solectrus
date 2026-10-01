@@ -1,7 +1,7 @@
 # @label Flow
 # @display max_width 8rem
 class FlowComponentPreview < ViewComponent::Preview
-  # @!group Misc
+  # @!group Overview
 
   # @label 1_000
   def value1000

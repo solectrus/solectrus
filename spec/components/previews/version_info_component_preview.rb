@@ -1,6 +1,6 @@
 # @label VersionInfo
 class VersionInfoComponentPreview < ViewComponent::Preview
-  # @!group Misc
+  # @!group Overview
 
   # @label up-to-date
   def up_to_date

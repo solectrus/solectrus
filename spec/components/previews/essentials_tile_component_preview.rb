@@ -1,7 +1,7 @@
 # @label EssentialsTile
 # @display max_width 20rem
 class EssentialsTileComponentPreview < ViewComponent::Preview
-  # @!group Misc
+  # @!group Overview
   def now
     timeframe Timeframe.now
     render EssentialsTile::Component.new data:,

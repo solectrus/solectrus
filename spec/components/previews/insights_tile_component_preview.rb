@@ -1,7 +1,7 @@
 # @label InsightsTile
 # @display max_width 24rem
 class InsightsTileComponentPreview < ViewComponent::Preview
-  # @!group Misc
+  # @!group Overview
 
   def default
     tile

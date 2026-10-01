@@ -1,7 +1,7 @@
 # @label Banner
 # @display max_width 100%
 class BannerComponentPreview < ViewComponent::Preview
-  # @!group Non-Admin
+  # @!group Overview
   def pending_non_admin
     render Banner::Component.new registration_status: 'pending', admin: false
   end
@@ -10,9 +10,7 @@ class BannerComponentPreview < ViewComponent::Preview
     render Banner::Component.new registration_status: 'unregistered',
                                  admin: false
   end
-  # @!endgroup
 
-  # @!group Admin
   def unregistered_admin
     render Banner::Component.new registration_status: 'unregistered',
                                  admin: true

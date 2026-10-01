@@ -1,6 +1,6 @@
 # @label ActionRequired
 class ActionRequiredComponentPreview < ViewComponent::Preview
-  # @!group Misc
+  # @!group Overview
 
   # @label Not registered yet
   def unregistered
