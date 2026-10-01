@@ -1,14 +1,20 @@
-.annotaterb.yml
-.bundle
-.byebug_history
-.changelog
-.dockerignore
-.env*
-.eslint*
+# Keeps out of the Docker image what only development, test and CI need.
+#
+# The image runs production alone (see config/docker_image.rb). Files the build
+# needs but production does not, like package.json, cannot go here. The
+# Dockerfile removes them after the build.
+
+# Version control and repository metadata
 .git
 .gitattributes
 .github
 .gitignore
+.dockerignore
+Dockerfile
+
+# Editor, linter and tool configuration
+.annotaterb.yml
+.eslintcache
 .prettierignore
 .prettierrc.json
 .rspec
@@ -17,7 +23,27 @@
 .simplecov
 .slim-lint.yml
 .vscode
+bunfig.toml
+eslint.config.mjs
+Guardfile
 **/*.DS_Store
+
+# Local environment and process setup
+.bundle
+.env*
+Brewfile
+Caddyfile
+compose.yaml
+Procfile*
+
+# Documentation and assets for the repository page
+.changelog
+AGENTS.md
+docs
+logo.svg
+screenshot.webp
+
+# Development, test and CI tooling
 bin/brakeman
 bin/bundler-audit
 bin/ci
@@ -31,43 +57,40 @@ bin/rspec
 bin/rubocop
 bin/setup
 bin/slim-lint
-Brewfile
-bunfig.toml
-Caddyfile
-AGENTS.md
-compose.yaml
 config/brakeman.ignore
 config/bundler-audit.yml
 config/ci
 config/ci.rb
-# The Docker image runs production alone, and config/docker_image.rb reads
-# these two lines. The first one tells it from a working copy, and an
-# environment without its configuration does not start.
-config/environments/development.rb
-config/environments/test.rb
-config/icons.yml
-config/initializers/sensors.rb
-config/initializers/helios_check_simulation.rb
-config/initializers/update_check_simulation.rb
-config/rorvswild.yml
-coverage
-Dockerfile
-docs
-eslint.config.mjs
-Guardfile
-lib/icon_generator.rb
-lib/tasks/annotate_rb.rake
-lib/tasks/coverage.rake
-lib/tasks/icons.rake
-log/*
-logo.svg
-node_modules
-Procfile*
-public/vite*
-screenshot.webp
 script
 spec
 
+# The image carries the configuration of production alone. Started under any
+# other name, it stops at boot (see config/docker_image.rb).
+config/environments/development.rb
+config/environments/test.rb
+
+# Initializers that do something in development only
+config/initializers/helios_check_simulation.rb
+config/initializers/sensors.rb
+config/initializers/update_check_simulation.rb
+
+# Icon generator, the image reads config/icons.generated.yml
+config/icons.yml
+lib/icon_generator.rb
+lib/tasks/icons.rake
+
+# Other development-only Rake tasks and settings
+config/rorvswild.yml
+lib/tasks/annotate_rb.rake
+lib/tasks/coverage.rake
+
+# Local build output, logs and temporary files. The directories stay, with
+# their .keep files, but not what a local run wrote into them.
+coverage
+log/*
+node_modules
+public/vite*
 tmp/*
-!/tmp/pids/
-!/tmp/pids/.keep
+!tmp/pids/
+tmp/pids/*
+!tmp/pids/.keep
