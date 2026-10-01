@@ -2,6 +2,8 @@
 
 @source '../../**/*.{slim,rb}';
 @source '../../frontend/**/*.{js,ts}';
+/* Lookbook previews; absent from the Docker image, so production skips them */
+@source '../../../spec/components/previews/**/*.{slim,rb}';
 
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
