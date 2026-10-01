@@ -56,6 +56,19 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         ].compact
     end
 
+    # The components that show this count get it from here. They never ask the
+    # database themselves.
+    helper_method def unread_notifications_count
+      notification_stats.last
+    end
+
+    # Up to five places on a page ask for the stats, so the request reads the
+    # cache once and keeps the answer. An action that changes notifications
+    # must do so before the first read. The views read only when they render.
+    def notification_stats
+      @notification_stats ||= Notification.stats
+    end
+
     def ___
       { name: '-' }
     end
@@ -237,7 +250,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     end
 
     def notifications_item
-      any, unread_count = Notification.stats
+      any, unread_count = notification_stats
       return unless any
 
       {

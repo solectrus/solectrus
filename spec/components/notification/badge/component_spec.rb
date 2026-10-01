@@ -1,12 +1,7 @@
 describe Notification::Badge::Component, type: :component do
-  subject(:component) { described_class.new }
+  subject(:component) { described_class.new(unread_count: 1) }
 
   before do
-    Notification.create!(
-      title: 'Important Message',
-      body: '<p>Body</p>',
-      published_at: 1.day.ago,
-    )
     allow(vc_test_controller).to receive(:admin?).and_return(admin)
   end
 
@@ -36,6 +31,18 @@ describe Notification::Badge::Component, type: :component do
       render_inline(component)
 
       expect(page.find('a')['data-turbo-frame']).to eq('_top')
+    end
+  end
+
+  context 'without unread notifications' do
+    subject(:component) { described_class.new(unread_count: 0) }
+
+    let(:admin) { true }
+
+    it 'renders nothing' do
+      render_inline(component)
+
+      expect(page).to have_no_css('a')
     end
   end
 end

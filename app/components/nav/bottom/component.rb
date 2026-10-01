@@ -8,11 +8,14 @@ class Nav::Bottom::Component < ViewComponent::Base
     'bg-white/20 rounded-full group-has-[[aria-expanded=true]]/nav:bg-transparent'.freeze
   private_constant :MAX_BAR_ITEMS, :PILL_BASE, :PILL_ACTIVE
 
-  def initialize(items:, secondary_items:)
+  def initialize(items:, secondary_items:, unread_count:)
     super()
     @items = items
     @secondary_items = secondary_items
+    @unread_count = unread_count
   end
+
+  attr_reader :unread_count
 
   def before_render
     @items.drop(MAX_BAR_ITEMS).each { |item| with_extra_menu_item(**item) }

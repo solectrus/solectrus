@@ -74,7 +74,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
         = render Banner::Component.new registration_status: UpdateCheck.registration_status,
                                        admin: admin?
 
-      = render Nav::Top::Component.new(compact: content_for?(:fixed_nav)) do |c|
+      = render Nav::Top::Component.new(compact: content_for?(:fixed_nav), unread_count: unread_notifications_count) do |c|
         = c.with_primary_items desktop_primary_items
         = c.with_secondary_items desktop_secondary_items
         = c.with_sub_nav { yield :sub_nav }
@@ -91,7 +91,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
         = render 'shared/modal_backdrop'
         = tag.turbo_frame id: 'modal', target: '_top'
 
-      = render Nav::Bottom::Component.new(items: all_mobile_items, secondary_items: desktop_secondary_items)
+      = render Nav::Bottom::Component.new(items: all_mobile_items, secondary_items: desktop_secondary_items, unread_count: unread_notifications_count)
 
       footer.hidden.lg:landscape:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
         .flex.items-center.gap-2

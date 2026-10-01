@@ -12,13 +12,12 @@ module TurboStreamHelper
   private
 
   def turbo_stream_update_primary_nav
-    component = Nav::Top::Component.new
-    component.with_primary_items(desktop_primary_items)
+    # Without the root item, which is the logo (see Nav::Top::Component).
+    items =
+      desktop_primary_items.drop(1).map { MenuItem::Component.new(**it) }
 
     turbo_stream.update('primary-nav-desktop') do
-      render Nav::Top::Component::ItemsComponent.new(
-               items: component.primary_items_without_root,
-             )
+      render Nav::Top::Component::ItemsComponent.new(items:)
     end
   end
 
@@ -34,10 +33,10 @@ module TurboStreamHelper
     safe_join(
       [
         turbo_stream.update('notification-badge-desktop') do
-          render Notification::Badge::Component.new
+          render Notification::Badge::Component.new(unread_count: unread_notifications_count)
         end,
         turbo_stream.update('bottom-nav-notification-dot') do
-          render Notification::Dot::Component.new
+          render Notification::Dot::Component.new(unread_count: unread_notifications_count)
         end,
       ],
     )

@@ -91,7 +91,7 @@
             class=(helios_dot? ? '-right-2.5' : '-right-1')
             class="group-aria-expanded/more:hidden"
           ]
-            = render Notification::Dot::Component.new
+            = render Notification::Dot::Component.new(unread_count:)
           - if helios_dot?
             span.absolute.-top-1.-right-1.rounded-full.bg-amber-400.dark:bg-amber-500.ring-4.ring-indigo-600.dark:ring-indigo-900[
               class="size-2.5 group-aria-expanded/more:hidden group-has-[#bottom-nav-notification-dot>*]/dots:ring-1"

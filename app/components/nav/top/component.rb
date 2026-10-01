@@ -3,12 +3,13 @@ class Nav::Top::Component < ViewComponent::Base
   renders_many :secondary_items, MenuItem::Component
   renders_one :sub_nav
 
-  def initialize(compact: false)
+  def initialize(unread_count:, compact: false)
     super()
     @compact = compact
+    @unread_count = unread_count
   end
 
-  attr_reader :compact
+  attr_reader :compact, :unread_count
 
   def root_item
     primary_items.first

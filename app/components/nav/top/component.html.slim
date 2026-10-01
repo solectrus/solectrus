@@ -29,7 +29,7 @@ header.relative.bg-chrome data-controller='slide-over--component' class=(compact
                   )
 
               span#notification-badge-desktop
-                = render Notification::Badge::Component.new
+                = render Notification::Badge::Component.new(unread_count:)
 
               / The amber dot says that HELIOS needs the user. It hangs on the
                 icon, at its upper right corner. Its ring carries the background

@@ -1,9 +1,12 @@
 # Shown to a guest on the notifications page. Without the login they cannot read
 # anything here, and the red mark would stay forever without telling them why.
 class Notification::LoginRequired::Component < ViewComponent::Base
-  def unread_count
-    @unread_count ||= ::Notification.unread_count
+  def initialize(unread_count:)
+    super()
+    @unread_count = unread_count
   end
+
+  attr_reader :unread_count
 
   def unread?
     unread_count.positive?

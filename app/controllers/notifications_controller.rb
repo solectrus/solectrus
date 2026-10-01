@@ -10,7 +10,8 @@ class NotificationsController < ApplicationController
   rescue_from ActiveRecord::RecordNotFound, with: :redirect_to_index
 
   def index
-    redirect_to root_path unless Notification.any_notifications?
+    any, = notification_stats
+    redirect_to root_path unless any
   end
 
   def show

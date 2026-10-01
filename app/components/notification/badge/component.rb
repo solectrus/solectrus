@@ -1,9 +1,12 @@
 class Notification::Badge::Component < ViewComponent::Base
   delegate :admin?, to: :helpers
 
-  def unread_count
-    @unread_count ||= ::Notification.unread_count
+  def initialize(unread_count:)
+    super()
+    @unread_count = unread_count
   end
+
+  attr_reader :unread_count
 
   # Guests see the badge too: on a publicly reachable instance it is the only
   # hint that something is waiting, and the admin often browses from a device

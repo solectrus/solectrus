@@ -8,4 +8,4 @@
 - if admin?
   = render Notification::List::Component.new(notifications:)
 - else
-  = render Notification::LoginRequired::Component.new
+  = render Notification::LoginRequired::Component.new(unread_count: unread_notifications_count)

@@ -5,4 +5,4 @@
 
 turbo-stream action="update_all" targets="[data-notification-badge]"
   template
-    = Notification.unread.count.nonzero?
+    = unread_notifications_count.nonzero?
