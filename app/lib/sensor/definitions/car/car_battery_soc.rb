@@ -25,14 +25,14 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
       # 6-20%: orange/yellow (low battery)
       {
         background: 'xl:tall:bg-orange-200 dark:xl:tall:bg-amber-900',
-        text: 'text-orange-600 dark:text-amber-600',
+        text: 'text-signal-warning',
         border: 'border-orange-200 dark:border-amber-900',
       }
     else
       # 21-100%: green (good battery level)
       {
         background: 'xl:tall:bg-emerald-200 dark:xl:tall:bg-emerald-900',
-        text: 'text-emerald-600 dark:text-emerald-600',
+        text: 'text-signal-positive',
         border: 'border-emerald-200 dark:border-emerald-900',
       }
     end

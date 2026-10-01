@@ -24,4 +24,6 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- The charge level of the car battery now shows the same colors as the home battery and the autarky. Before, its green was too dark in dark mode (#5976)
+
 ## Maintenance
