@@ -40,6 +40,14 @@ describe UpdateCheck::NotificationImporter do
         expect { call }.to change(Notification, :count).by(2)
       end
 
+      # upsert_all skips the callbacks of the model, which clear the cache.
+      it 'clears the cached stats, so the badge shows the new notifications' do
+        allow(Notification).to receive(:invalidate_stats_cache)
+        call
+
+        expect(Notification).to have_received(:invalidate_stats_cache)
+      end
+
       it 'sets the correct attributes' do
         call
 

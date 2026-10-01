@@ -16,6 +16,7 @@ class UpdateCheck::NotificationImporter
       unique_by: :id,
       update_only: %i[title body published_at],
     )
+    Notification.invalidate_stats_cache
   rescue ActiveRecord::ActiveRecordError => e
     Rails.logger.warn("Failed to import notifications: #{e.message}")
   end

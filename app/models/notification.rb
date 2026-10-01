@@ -24,7 +24,13 @@ class Notification < ApplicationRecord
   scope :read, -> { where.not(read_at: nil) }
   scope :by_published_at, -> { order(published_at: :desc) }
 
-  after_commit :invalidate_stats_cache
+  after_commit { self.class.invalidate_stats_cache }
+
+  # A bulk write such as upsert_all skips the callback above, so its caller
+  # clears the cache with this.
+  def self.invalidate_stats_cache
+    Rails.cache.delete('notification_stats')
+  end
 
   def self.stats
     Rails
@@ -59,11 +65,5 @@ class Notification < ApplicationRecord
     else
       I18n.l(date, format: '%d.%m.%Y')
     end
-  end
-
-  private
-
-  def invalidate_stats_cache
-    Rails.cache.delete('notification_stats')
   end
 end
