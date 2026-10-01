@@ -1,4 +1,5 @@
 # @label InsightsTile
+# @logical_path data_display
 # @display max_width 24rem
 class InsightsTileComponentPreview < ViewComponent::Preview
   # @!group Overview

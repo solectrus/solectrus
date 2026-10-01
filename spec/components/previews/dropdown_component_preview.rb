@@ -1,4 +1,5 @@
 # @label Dropdown
+# @logical_path navigation
 class DropdownComponentPreview < ViewComponent::Preview
   def default
     render Dropdown::Component.new name: 'sensor-selector',

@@ -1,4 +1,5 @@
 # @label VersionInfo
+# @logical_path feedback
 class VersionInfoComponentPreview < ViewComponent::Preview
   # @!group Overview
 

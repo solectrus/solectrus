@@ -1,4 +1,5 @@
 # @label TimeframeSelect
+# @logical_path navigation
 class TimeframeSelectComponentPreview < ViewComponent::Preview
   # @param sensor_name
   # @param controller_namespace

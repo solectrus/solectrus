@@ -1,4 +1,5 @@
 # @label ConsumeDetails
+# @logical_path data_display
 class ConsumeDetailsComponentPreview < ViewComponent::Preview
   def default
     render ConsumeDetails::Component.new data:

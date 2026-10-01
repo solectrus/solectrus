@@ -1,4 +1,5 @@
 # @label Status
+# @logical_path feedback
 class StatusComponentPreview < ViewComponent::Preview
   # @!group Overview
 

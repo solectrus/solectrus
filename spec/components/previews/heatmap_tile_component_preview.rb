@@ -1,4 +1,5 @@
 # @label HeatmapTile
+# @logical_path data_visualization
 class HeatmapTileComponentPreview < ViewComponent::Preview # rubocop:disable Metrics/ClassLength
   def default
     data = {

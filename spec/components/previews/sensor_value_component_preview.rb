@@ -1,4 +1,5 @@
 # @label SensorValue
+# @logical_path data_display
 class SensorValueComponentPreview < ViewComponent::Preview
   # @!group Power Sensors
 

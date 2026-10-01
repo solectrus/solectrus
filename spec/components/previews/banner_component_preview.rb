@@ -1,4 +1,5 @@
 # @label Banner
+# @logical_path feedback
 # @display max_width 100%
 class BannerComponentPreview < ViewComponent::Preview
   # @!group Overview

@@ -1,4 +1,5 @@
 # @label RadialBadge
+# @logical_path data_display
 # @display max_width 6.5rem
 class RadialBadgeComponentPreview < ViewComponent::Preview
   # Autarky: 0-33% negative, 34-66% warning, 67-100% positive

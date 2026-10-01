@@ -1,4 +1,5 @@
 # @label Button
+# @logical_path general
 class ButtonComponentPreview < ViewComponent::Preview
   # @!group Overview
 

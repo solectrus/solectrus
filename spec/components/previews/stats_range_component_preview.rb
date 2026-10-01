@@ -1,4 +1,5 @@
 # @label StatsRange
+# @logical_path data_visualization
 # @display max_width 48rem
 class StatsRangeComponentPreview < ViewComponent::Preview
   def default

@@ -1,4 +1,5 @@
 # @label GridCostsGraph
+# @logical_path data_visualization
 # @display max_width 32rem
 class GridCostsGraphComponentPreview < ViewComponent::Preview
   # @!group Overview

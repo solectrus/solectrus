@@ -1,4 +1,5 @@
 # @label PremiumStatus
+# @logical_path feedback
 # @display max_width 100%
 class PremiumStatusComponentPreview < ViewComponent::Preview
   # Every state the box can show, with an end date where the state has one.

@@ -1,4 +1,5 @@
 # @label StatsNow
+# @logical_path data_visualization
 # @display max_width 48rem
 class StatsNowComponentPreview < ViewComponent::Preview
   def default

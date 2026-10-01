@@ -1,4 +1,5 @@
 # @label Flow
+# @logical_path data_visualization
 # @display max_width 8rem
 class FlowComponentPreview < ViewComponent::Preview
   # @!group Overview

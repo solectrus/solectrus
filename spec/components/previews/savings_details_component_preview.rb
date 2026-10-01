@@ -1,4 +1,5 @@
 # @label SavingsDetails
+# @logical_path data_display
 class SavingsDetailsComponentPreview < ViewComponent::Preview
   def default
     render SavingsDetails::Component.new data:

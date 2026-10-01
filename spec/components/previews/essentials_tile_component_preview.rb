@@ -1,4 +1,5 @@
 # @label EssentialsTile
+# @logical_path data_display
 # @display max_width 20rem
 class EssentialsTileComponentPreview < ViewComponent::Preview
   # @!group Overview

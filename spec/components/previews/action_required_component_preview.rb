@@ -1,4 +1,5 @@
 # @label ActionRequired
+# @logical_path feedback
 class ActionRequiredComponentPreview < ViewComponent::Preview
   # @!group Overview
 

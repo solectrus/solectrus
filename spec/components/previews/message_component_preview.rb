@@ -1,4 +1,5 @@
 # @label Message
+# @logical_path feedback
 # @display max_width 100%
 class MessageComponentPreview < ViewComponent::Preview
   def generic

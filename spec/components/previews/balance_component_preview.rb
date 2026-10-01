@@ -1,4 +1,5 @@
 # @label Balance
+# @logical_path data_visualization
 # @display max_width 24rem
 class BalanceComponentPreview < ViewComponent::Preview
   def default

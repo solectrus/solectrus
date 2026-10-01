@@ -1,4 +1,5 @@
 # @label BalanceGap
+# @logical_path feedback
 class BalanceGapComponentPreview < ViewComponent::Preview
   # @!group Overview
 
