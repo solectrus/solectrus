@@ -1,0 +1,4 @@
+.flex.flex-col.h-80
+  = render DonutChart::Component.new(segments:, url: '#') do |chart|
+    - if center
+      - chart.with_center { center }
