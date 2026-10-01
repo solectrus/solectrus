@@ -74,6 +74,10 @@ config/initializers/helios_check_simulation.rb
 config/initializers/sensors.rb
 config/initializers/update_check_simulation.rb
 
+# Component previews, rendered in development and test only
+app/controllers/my_preview_controller.rb
+app/views/layouts/component_preview.html.slim
+
 # Icon generator, the image reads config/icons.generated.yml
 config/icons.yml
 lib/icon_generator.rb
