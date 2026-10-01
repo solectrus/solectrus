@@ -8,5 +8,13 @@ html class= (params.dig(:lookbook, :display, :theme) == 'dark' ? 'dark' : nil)
     = vite_stylesheet_tag 'application.css', 'data-turbo-track': 'reload', media: 'screen'
 
   body.h-screen.bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400
-    div class= 'p-5 mx-auto h-full' style= "max-width: #{params.dig(:lookbook, :display, :max_width) || '100%'}"
-      = yield
+    / With a max_width, the preview fills that width. Without one, it keeps
+    / its own width. Both sit in the center. The heading of a grouped scenario
+    / is an h6 that Lookbook resets with an inline "all: unset".
+    - max_width = params.dig(:lookbook, :display, :max_width)
+    .p-5.h-full
+      div[
+        class= ['h-full', max_width ? 'mx-auto' : 'flex flex-col items-center [&>div>h6]:text-center!']
+        style= ("max-width: #{max_width}" if max_width)
+      ]
+        = yield

@@ -1,4 +1,5 @@
 # @label StatsRange
+# @display max_width 48rem
 class StatsRangeComponentPreview < ViewComponent::Preview
   def default
     render StatsRange::Component.new(data:, timeframe:, sensor:)

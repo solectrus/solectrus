@@ -1,4 +1,5 @@
 # @label Balance
+# @display max_width 24rem
 class BalanceComponentPreview < ViewComponent::Preview
   def default
     render Balance::Component.new timeframe: Timeframe.day, data:, sensor:

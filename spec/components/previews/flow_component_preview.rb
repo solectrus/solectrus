@@ -1,4 +1,5 @@
 # @label Flow
+# @display max_width 8rem
 class FlowComponentPreview < ViewComponent::Preview
   # @!group Misc
 

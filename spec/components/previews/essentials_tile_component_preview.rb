@@ -1,4 +1,5 @@
 # @label EssentialsTile
+# @display max_width 20rem
 class EssentialsTileComponentPreview < ViewComponent::Preview
   # @!group Misc
   def now

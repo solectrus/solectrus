@@ -1,4 +1,5 @@
 # @label StatsNow
+# @display max_width 48rem
 class StatsNowComponentPreview < ViewComponent::Preview
   def default
     render StatsNow::Component.new data:, sensor:

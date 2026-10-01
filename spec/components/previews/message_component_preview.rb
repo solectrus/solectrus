@@ -1,4 +1,5 @@
 # @label Message
+# @display max_width 100%
 class MessageComponentPreview < ViewComponent::Preview
   def generic
     render Message::Component.new do |component|

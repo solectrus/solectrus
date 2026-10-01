@@ -1,4 +1,5 @@
 # @label Banner
+# @display max_width 100%
 class BannerComponentPreview < ViewComponent::Preview
   # @!group Non-Admin
   def pending_non_admin
