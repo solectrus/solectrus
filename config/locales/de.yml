@@ -27,6 +27,7 @@ de:
     inverter: Erzeugung
     house: Hausverbrauch
     heatpump: Wärmepumpe
+    car: E-Auto
     amortization: Amortisation
     essentials: Einzelwerte
     forecast: Prognose
@@ -38,6 +39,7 @@ de:
     docs: Dokumentation
     helios: Konfiguration mit HELIOS
     settings: Einstellungen
+    charging_sessions: Ladevorgänge
     registration: Registrierung
     registration_and_sponsoring: Registrierung & Sponsoring
     login: Als Admin anmelden
@@ -51,6 +53,8 @@ de:
     missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
     incomplete_heatpump: Wärmepumpe
     missing_heatpump: Hier könnten Arbeitszahl, erzeugte Wärme und weitere interessante Messwerte deiner Wärmepumpe visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
+    incomplete_car: E-Auto
+    missing_car: Hier könnten Kilometerstand, Reichweite und Ladekosten deines E-Autos visualisiert werden. Ergänze deine Konfiguration um den Kilometerstand des Autos (<code>INFLUX_SENSOR_CAR_MILEAGE_1</code>) und für das Laden zu Hause um die Wallbox (<code>INFLUX_SENSOR_WALLBOX_POWER</code>).
     insights: Kennzahlen & Trend
   timeframe:
     now: Aktuell
@@ -106,12 +110,23 @@ de:
     battery_soc: Ladestand Hausakku
     battery_soc_short: Ladestand
     car_battery_soc: Ladestand E-Auto
+    car_battery_soc_short: Ladestand
+    car_charging_power_short: Ladeleistung
+    wallbox_car_connected_short: Verbunden
+    wallbox_car_disconnected_short: Nicht verbunden
+    car_odometer_short: Kilometerstand
     car_mileage: Fahrleistung
     car_mileage_short: Fahrleistung
     car_range: Reichweite
     car_range_short: Reichweite
     car_max_range: Maximale Reichweite
     car_max_range_short: Max. Reichweite
+    car_distance_short: Fahrleistung
+    car_km_per_day_unit: Tag
+    car_avg_max_range_short: Ø Max. Reichweite
+    car_cost_per_100km_short: Ø Fahrkosten/100 km
+    car_consumption_per_100km_short: Ø Verbrauch/100 km
+    car_charged_short: Geladen
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
@@ -168,7 +183,23 @@ de:
   cars:
     default_name: Auto %{number}
   car_breakdown:
+    home: Wallbox
+    guest_excluded: Gastladungen (nicht enthalten)
+    cost_incomplete: Ein Ladevorgang hat keine Kosten, weil für seinen Tag kein Preis hinterlegt ist. Die Ladekosten sind deshalb zu klein.
+    home_pv: Photovoltaik
+    home_grid: Netzbezug
+    offsite: Auswärtsladung
+    offsite_sessions: Ladevorgänge auswärts
+    guest: Gastladung
+    guest_sessions: Ladevorgänge von Gästen
+    charging: Laden
+    driving: Fahren
+    wallbox_short: Wallbox
+    wallbox_sessions: Ladevorgänge an der Wallbox
+    guest_short: Gast
+    offsite_short: Auswärts
     daily_rate: Jeder Tag zur Rate der %{days} Tage davor und danach
+    total: Gesamt
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -190,6 +221,7 @@ de:
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
     heatpump_no_heating: Kein Heizbetrieb
     inverter_no_production: Keine Erzeugung
+    car_no_distance: Keine Fahrtdaten im gewählten Zeitraum vorhanden.
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln
@@ -347,6 +379,7 @@ de:
       enable_forecast: Seite "Prognose" in der Navigation anbieten
       enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
       enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
+      enable_car: Seite "E-Auto" in der Navigation anbieten
   amortization:
     nav:
       chart: Saldo

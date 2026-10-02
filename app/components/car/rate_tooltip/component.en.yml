@@ -1,0 +1,4 @@
+en:
+  energy: Energy for driving
+  reason: Charging and driving do not happen on the same day. Each day therefore takes the rate of the %{days} days before and after it.
+  charge_losses: The values include the charging losses.

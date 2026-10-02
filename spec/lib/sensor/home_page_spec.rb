@@ -156,11 +156,12 @@ describe Sensor::HomePage do
         expect(described_class).not_to be_permitted(:heatpump)
         expect(described_class).not_to be_permitted(:house)
         expect(described_class).not_to be_permitted(:inverter)
+        expect(described_class).not_to be_permitted(:cars)
       end
     end
 
     context 'with the features' do
-      before { stub_feature(:custom_consumer, :heatpump, :multi_inverter) }
+      before { stub_feature(:car, :custom_consumer, :heatpump, :multi_inverter) }
 
       it 'permits every page' do
         locked = described_class.all.reject { described_class.permitted?(it) }

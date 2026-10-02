@@ -1,0 +1,4 @@
+en:
+  text:
+    one: '1 charging session is not assigned to a car and counts for no car:'
+    other: '%{count} charging sessions are not assigned to a car and count for no car:'

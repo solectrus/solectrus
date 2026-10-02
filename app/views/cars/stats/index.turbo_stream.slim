@@ -1,0 +1,67 @@
+= turbo_stream.update frame_id('timeframe') do
+  = render Timeframe::Component.new(timeframe:)
+
+- if timeframe.now?
+  = turbo_stream.update frame_id('status') do
+    = render Status::Component.new time: data.time
+
+= turbo_stream.update frame_id('stats'), method: :morph do
+  ruby:
+    focus_ring_classes = 'focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0'
+
+  .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5 id= "stats-#{timeframe.id}"
+    = render Car::Select::Component.new(cars: all_cars, car:)
+
+    - if timeframe.now?
+      / The battery of each selected car: the range on an arc from 0 to the
+      / maximum range, filled to the state of charge. The charging power and
+      / the connection state of the wallbox stand as two pills above.
+      - if data.wallbox_power || !data.wallbox_car_connected.nil?
+        ruby:
+          pill_classes = 'flex items-center gap-2 rounded-full px-4 py-1.5 md:py-2 text-sm md:text-base bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+          charging = data.wallbox_power.to_f.positive?
+        .flex.flex-wrap.justify-center.gap-2
+          - if data.wallbox_power
+            = link_to cars_home_path(sensor_name: 'car_charging', timeframe:),
+                      class: class_names(pill_classes, 'click-animation', focus_ring_classes, 'font-semibold text-slate-700 dark:text-slate-200': charging),
+                      title: t('sensors.car_charging_power_short'),
+                      data: { \
+                        turbo_prefetch: 'false',
+                        'stats-with-chart--component-target': 'current',
+                        'sensor-name': 'wallbox_power',
+                        value: data.wallbox_power,
+                        time: data.time.to_i,
+                        action: 'stats-with-chart--component#loadChart',
+                        stats_with_chart__component_sensor_name_param: 'car_charging',
+                        stats_with_chart__component_chart_url_param: cars_charts_path(sensor_name: 'car_charging', timeframe:),
+                      } do
+              = icon 'bolt', class: charging ? 'text-sensor-pv' : 'opacity-40'
+              = render SensorValue::Component.new(data, :wallbox_power, context: :rate)
+
+          - unless data.wallbox_car_connected.nil?
+            div class=pill_classes
+              = icon 'plug', class: data.wallbox_car_connected ? 'text-sensor-pv' : 'opacity-40'
+              = t(data.wallbox_car_connected ? 'sensors.wallbox_car_connected_short' : 'sensors.wallbox_car_disconnected_short')
+
+      .flex-1.min-h-0.flex.gap-4
+        - data.live.each do |live|
+          .flex-1.min-w-0.flex.flex-col.items-center.gap-2
+            - if data.live.size > 1
+              .font-semibold.text-slate-700.dark:text-slate-300
+                = live.car.display_name
+            = render Car::RangeGauge::Component.new(live:, timeframe:)
+            / The odometer as a mechanical counter
+            = render Car::Odometer::Component.new(value: live.odometer, car: live.car, timeframe:)
+
+    - elsif data.car_distance.nil?
+      .flex-1.flex.items-center.justify-center.text-slate-500.dark:text-slate-400.text-center.px-4
+        = t('data.car_no_distance')
+
+    - else
+      / Charging on the left and driving on the right, like the source and the
+      / usage of the power balance
+      .flex-1.min-h-0.grid.grid-cols-2.gap-4.md:gap-6
+        = render Car::ChargingCard::Component.new(balance: data, timeframe:)
+        = render Car::DrivingCard::Component.new(balance: data, timeframe:)
+
+      = render Car::NotAssignedNote::Component.new(balance: data, timeframe:, all: car.nil?)

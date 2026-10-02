@@ -11,6 +11,9 @@ de:
   heatpump:
     title: Wärmepumpe
     description: SOLECTRUS kann die erzeugte Wärme, die Arbeitszahl sowie die Außentemperatur überwachen und anschaulich visualisieren.
+  car:
+    title: E-Auto
+    description: SOLECTRUS zeigt, was das Fahren eines E-Autos kostet – pro Tag, Monat und Jahr sowie pro 100 km. Dazu kommen der Verbrauch inklusive Ladeverlusten, die gefahrene Strecke nach Stromquelle und die maximale Reichweite.
   power_balance_chart:
     title: Diagramm zur Strombilanz
     description: Zeigt Herkunft und Verbrauch des Stroms im zeitlichen Verlauf.

@@ -1,12 +1,15 @@
 class ChartLoader::Component < ViewComponent::Base
-  def initialize(sensor_name:, timeframe:, variant: nil, interval: nil)
+  # `cars` are the cars of the car page. Only the car charts take them, so
+  # they go to the chart only when the page has them.
+  def initialize(sensor_name:, timeframe:, variant: nil, interval: nil, cars: nil)
     super()
+    @cars = cars
     @sensor = Sensor::Registry[sensor_name]
     @timeframe = timeframe
     @variant = variant
     @interval = interval
   end
-  attr_reader :sensor, :timeframe, :variant, :interval
+  attr_reader :sensor, :timeframe, :variant, :interval, :cars
 
   delegate :type,
            :data,
@@ -57,7 +60,7 @@ class ChartLoader::Component < ViewComponent::Base
 
   def chart
     @chart ||=
-      sensor.chart(timeframe, variant:)&.tap do |c|
+      sensor.chart(timeframe, variant:, **({ cars: } if cars))&.tap do |c|
         c.interval = timeframe.day? ? interval : nil
       end
   end

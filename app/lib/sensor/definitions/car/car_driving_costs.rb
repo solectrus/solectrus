@@ -3,6 +3,8 @@ class Sensor::Definitions::CarDrivingCosts < Sensor::Definitions::Base
 
   color background: 'bg-sensor-costs', text: 'text-white dark:text-slate-400'
 
+  home_pages :cars
+
   chart { |timeframe, cars: nil, **| Sensor::Chart::CarDrivingCosts.new(timeframe:, cars:) }
 
   # The chart builds each cost from the distance and the rate of a window

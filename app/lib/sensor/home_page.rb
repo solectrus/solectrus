@@ -1,4 +1,4 @@
-# The four home pages: power balance, house, heat pump and inverter. Which
+# The home pages: power balance, house, heat pump, inverter and car. Which
 # page shows a sensor is a property of the sensor (`home_pages` in its
 # definition), so this module only collects the answers.
 #
@@ -15,7 +15,8 @@
 module Sensor::HomePage
   # What holds a page back: the setting that switches it off, and the feature
   # a sponsorship opens it with. The power balance is the start page and has
-  # neither.
+  # neither. A key is the prefix of the route helper of the page, so
+  # SensorPathHelper can build a path from it.
   PAGES = {
     balance: {},
     heatpump: {
@@ -29,6 +30,10 @@ module Sensor::HomePage
     house: {
       setting: :enable_custom_consumer,
       feature: :custom_consumer,
+    },
+    cars: {
+      setting: :enable_car,
+      feature: :car,
     },
   }.freeze
   private_constant :PAGES

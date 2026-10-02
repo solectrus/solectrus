@@ -1,0 +1,4 @@
+de:
+  text:
+    one: '1 Ladevorgang ist keinem Auto zugeordnet und zählt für kein Auto:'
+    other: '%{count} Ladevorgänge sind keinem Auto zugeordnet und zählen für kein Auto:'

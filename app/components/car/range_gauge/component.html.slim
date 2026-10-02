@@ -1,0 +1,32 @@
+div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-2 @container-size"
+  / The block above the arc. The arc keeps its height free.
+  = content
+  div class="relative aspect-4/3 w-[min(100cqi,calc((100cqb-3rem)*4/3),40rem)] @container text-slate-700 dark:text-slate-300"
+    = link_to chart_link_url(sensor_name(:car_battery_soc)), class: 'click-animation absolute inset-0 block focus:outline-none', tabindex: -1, aria: { hidden: true }, data: chart_link_data(sensor_name(:car_battery_soc)) do
+      svg.size-full viewBox='0 0 400 300' aria-hidden='true'
+        path.fill-none.stroke-slate-200.dark:stroke-slate-700 d=Car::RangeGauge::Component::ARC stroke-width='26' stroke-linecap='round'
+        - if soc&.positive?
+          path.fill-none class=level_class(:stroke) d=Car::RangeGauge::Component::ARC stroke-width='26' stroke-linecap='round' pathLength='100' stroke-dasharray="#{fill_percent} 100"
+
+    / The center: the range, with the state of charge as a badge below
+    div class="absolute inset-x-0 top-[30%] bottom-[24%] flex flex-col items-center justify-center pointer-events-none"
+      - if range
+        = link_to chart_link_url(sensor_name(:car_range)), class: 'click-animation pointer-events-auto block text-center focus:outline-none', data: chart_link_data(sensor_name(:car_range)) do
+          span class="block font-medium tabular-nums leading-none text-[clamp(1.75rem,15cqi,4.5rem)]"
+            = render SensorValue::Component.new(range, sensor_name(:car_range))
+          span class="block mt-1 uppercase tracking-wide text-slate-500 dark:text-slate-400 text-[clamp(0.625rem,3cqi,0.875rem)]"
+            = t('sensors.car_range_short')
+
+      - if soc
+        = link_to chart_link_url(sensor_name(:car_battery_soc)),
+                  class: class_names('click-animation pointer-events-auto rounded-full px-4 py-1 font-semibold text-white tabular-nums focus:outline-none', level_class(:bg), range ? 'mt-3 text-[clamp(0.875rem,5cqi,1.5rem)]' : 'text-[clamp(1.5rem,12cqi,3.5rem)]'),
+                  title: t('sensors.car_battery_soc_short'),
+                  data: chart_link_data(sensor_name(:car_battery_soc)) do
+          = "#{soc.round} %"
+
+    / The two ends of the arc
+    div class="absolute top-[91%] left-[17.5%] -translate-x-1/2 whitespace-nowrap text-slate-500 dark:text-slate-400 text-[clamp(0.75rem,4cqi,1.125rem)]"
+      = render SensorValue::Component.new(0, sensor_name(:car_range))
+    - if max_range
+      = link_to chart_link_url(sensor_name(:car_max_range)), class: 'click-animation absolute top-[91%] left-[82.5%] -translate-x-1/2 whitespace-nowrap text-slate-500 dark:text-slate-400 text-[clamp(0.75rem,4cqi,1.125rem)] focus:outline-none', title: t('sensors.car_max_range_short'), data: chart_link_data(sensor_name(:car_max_range)) do
+        = render SensorValue::Component.new(max_range, sensor_name(:car_max_range))

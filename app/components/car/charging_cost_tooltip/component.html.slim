@@ -1,0 +1,46 @@
+table.border-separate.border-spacing-x-2.border-spacing-y-1
+  - if split?
+    tr
+      td.align-middle
+        .size-3.rounded-sm.border.border-gray-500.dark:border-slate-400.bg-sensor-pv
+      td.text-left.text-sm.opacity-75.align-middle = t('car_breakdown.home_pv')
+      td.text-right.font-semibold.align-middle.whitespace-nowrap
+        = render cost_value(costs.parts[:pv], sign: :negative)
+    tr
+      td.align-middle
+        .size-3.rounded-sm.border.border-gray-500.dark:border-slate-400.bg-sensor-grid
+      td.text-left.text-sm.opacity-75.align-middle = t('car_breakdown.home_grid')
+      td.text-right.font-semibold.align-middle.whitespace-nowrap
+        = render cost_value(costs.parts[:grid], sign: :negative)
+  - else
+    tr
+      td.align-middle
+        .size-3.rounded-sm.border.border-gray-500.dark:border-slate-400.bg-sensor-wallbox
+      td.text-left.text-sm.opacity-75.align-middle = t('car_breakdown.home')
+      td.text-right.font-semibold.align-middle.whitespace-nowrap
+        = render cost_value(costs.parts[:wallbox], sign: :negative)
+  tr
+    td.align-middle
+      .size-3.rounded-sm.border.border-gray-500.dark:border-slate-400.bg-sensor-offsite
+    td.text-left.text-sm.opacity-75.align-middle = t('car_breakdown.offsite')
+    td.text-right.font-semibold.align-middle.whitespace-nowrap
+      - if offsite_cost
+        = render cost_value(costs.parts[:offsite], sign: :negative)
+      - else
+        = '–'
+  tr
+    td colspan=3
+      hr.my-1.border-gray-400.dark:border-slate-500.opacity-50
+  tr
+    td
+    td.text-left.text-sm.opacity-75.align-middle = t('car_breakdown.total')
+    td.text-right.font-semibold.align-middle.whitespace-nowrap
+      = render cost_value(costs.sum, sign: :negative)
+  - if guest_cost
+    tr
+      td
+      td.text-left.text-sm.opacity-75.align-middle = t('car_breakdown.guest_excluded')
+      td.text-right.font-semibold.align-middle.whitespace-nowrap.opacity-75
+        = render SensorValue::Component.new(guest_cost, :total_costs)
+- unless balance.charging_costs_complete?
+  p.mt-2.max-w-72.text-sm = t('car_breakdown.cost_incomplete')

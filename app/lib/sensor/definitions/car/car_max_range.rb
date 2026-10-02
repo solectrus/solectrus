@@ -42,6 +42,8 @@ class Sensor::Definitions::CarMaxRange < Sensor::Definitions::Base
   # Higher max range is better (less battery degradation).
   trend aggregation: :avg, more_is_better: true
 
+  home_pages :cars
+
   chart { |timeframe, **| Sensor::Chart::CarMaxRange.new(timeframe:, car_number:) }
 
   requires_permission :car

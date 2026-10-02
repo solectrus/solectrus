@@ -1,4 +1,4 @@
-# The four home pages: power balance, house, heat pump and inverter. They
+# The home pages: power balance, house, heat pump, inverter and car. They
 # differ in the sensors they show and in their default, not in their flow.
 class HomePageController < ApplicationController
   include ParamsHandling

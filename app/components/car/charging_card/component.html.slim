@@ -1,0 +1,68 @@
+= render Car::Card::Component.new(title: t('car_breakdown.charging')) do
+  = link_to chart_link_url('car_charging'), class: 'click-animation block min-w-0 text-center focus:outline-none', data: chart_link_data('car_charging') do
+    .text-3xl.md:text-4xl.font-semibold.leading-none.text-slate-700.dark:text-slate-200.whitespace-nowrap
+      = render energy_value(total_wh)
+
+  / The sources as a column of segments, like the source column of the power
+  / balance. The segment CSS shows the icon, the value and the title as the
+  / height allows. The tooltips open to the right, like the source column.
+  div class="flex-1 min-h-20 flex flex-col rounded-lg overflow-hidden text-white dark:text-slate-300 divide-y divide-slate-100 dark:divide-slate-900"
+    - segments.each do |segment|
+      = link_to chart_link_url('car_charging'),
+                class: ['segment', segment[:color_class]],
+                style: "height: #{segment[:percent].round(1)}%",
+                data: { \
+                  controller: 'tooltip',
+                  tooltip_placement_value: 'right',
+                  tooltip_force_tap_to_close_value: false,
+                  tooltip_touch_value: 'long',
+                  **chart_link_data('car_charging'),
+                } do
+        .content.click-animation
+          = helpers.icon(segment[:icon], class: 'icon')
+          .font-light.leading-tight.title = segment[:label]
+          .value.tabular-nums
+            = render energy_value(segment[:energy])
+
+        .hidden data-tooltip-target='html'
+          .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2.label-value-stacked
+            = helpers.icon(segment[:icon], class: 'fa-2xl')
+            = segment[:label]
+            = render energy_value(segment[:energy], class: 'text-xl')
+            = "#{segment[:whole_percent]} %"
+            - if segment[:cost]
+              = render cost_value(segment[:cost], class: 'text-xl')
+
+  - if balance.charging_costs
+    = render Car::StatRow::Component.new(title: t('sensors.car_charging_costs'), sensor_name: 'car_charging_costs', timeframe:, tooltip: Car::ChargingCostTooltip::Component.new(balance:)) do
+      = render SensorValue::Component.new(balance.charging_costs, :total_costs, sign: :negative)
+
+  = render Car::StatRow::Component.new(title: t('sensors.car_avg_max_range_short'), sensor_name: max_range_sensor_name, timeframe:) do
+    - if max_range_sensor_name
+      = render SensorValue::Component.new(balance.car_max_range, max_range_sensor_name)
+    - else
+      = '–'
+
+  / The wallbox, offsite and guest sessions, always shown, so the layout stays the same
+  div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 md:gap-2"
+    - sessions.each do |kind, params|
+      - totals = session_totals(kind)
+      = link_to helpers.charging_sessions_path(timeframe:, **params),
+                class: badge_classes(kind),
+                data: { \
+                  controller: 'tooltip',
+                  tooltip_placement_value: 'top',
+                  tooltip_force_tap_to_close_value: false,
+                  tooltip_touch_value: 'long',
+                } do
+        span.truncate.text-xs.md:text-sm.text-slate-500.dark:text-slate-400
+          = t("car_breakdown.#{kind}_short")
+        span.text-sm.md:text-base.font-semibold.tabular-nums.text-slate-700.dark:text-slate-300
+          = totals[:count] || 0
+
+        .hidden data-tooltip-target='html'
+          .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2.label-value-stacked
+            = t("car_breakdown.#{kind}_sessions")
+            = render energy_value(totals[:wh], class: 'text-xl')
+            - if totals[:cost]
+              = render session_cost(kind, totals[:cost], class: 'text-xl')

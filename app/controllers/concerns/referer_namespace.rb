@@ -4,7 +4,7 @@
 # (as opposed to ApplicationHelper#controller_namespace which uses
 # the current controller path).
 module RefererNamespace
-  NAMESPACE_SEGMENTS = %w[house inverter heatpump].freeze
+  NAMESPACE_SEGMENTS = %w[house inverter heatpump cars].freeze
   private_constant :NAMESPACE_SEGMENTS
 
   private

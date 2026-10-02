@@ -1,6 +1,8 @@
 class Sensor::Definitions::CarChargingCosts < Sensor::Definitions::Base
   value unit: :money, category: :economic
 
+  home_pages :cars
+
   chart { |timeframe, cars: nil, **| Sensor::Chart::CarChargingCosts.new(timeframe:, cars:) }
 
   # The chart builds the costs from the wallbox sensors and the charging

@@ -3,6 +3,8 @@ class Sensor::Definitions::CarCostRate < Sensor::Definitions::Base
 
   color background: 'bg-sensor-car-cost-rate', text: 'text-white dark:text-slate-400'
 
+  home_pages :cars
+
   chart { |timeframe, cars: nil, **| Sensor::Chart::CarCostRate.new(timeframe:, cars:) }
 
   # The chart builds each rate from a window of daily values (see

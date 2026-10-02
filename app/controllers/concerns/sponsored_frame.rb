@@ -18,8 +18,8 @@ module SponsoredFrame
       head :not_found
     end
 
-    # The namespace of the controller is the key of the page, for all four of
-    # them: Balance, Heatpump, House and Inverter.
+    # The namespace of the controller is the key of the page, for all five of
+    # them: Balance, Cars, Heatpump, House and Inverter.
     def permitted_page?
       Sensor::HomePage.permitted?(helpers.controller_namespace.to_sym)
     end

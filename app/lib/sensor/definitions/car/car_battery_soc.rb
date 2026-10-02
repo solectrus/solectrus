@@ -42,7 +42,7 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
 
   aggregations stored: %i[min max avg], meta: %i[min max avg]
 
-  home_pages :balance
+  home_pages :balance, :cars
 
   chart { |timeframe, **| Sensor::Chart::CarBatterySoc.new(timeframe:, car_number:) }
 

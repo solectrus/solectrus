@@ -1,0 +1,8 @@
+= content_tag wrapper_tag, **wrapper_options do
+  span class=label_classes
+    = title
+  span class=value_classes
+    = content
+  - if tooltip
+    .hidden data-tooltip-target= 'html'
+      = render tooltip

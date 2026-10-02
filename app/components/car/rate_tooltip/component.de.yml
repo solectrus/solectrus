@@ -1,0 +1,4 @@
+de:
+  energy: Energie fürs Fahren
+  reason: Laden und Fahren passieren nicht am selben Tag. Deshalb gilt für jeden Tag die Rate der %{days} Tage davor und danach.
+  charge_losses: Die Werte enthalten die Ladeverluste.

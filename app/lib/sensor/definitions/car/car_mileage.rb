@@ -22,6 +22,8 @@ class Sensor::Definitions::CarMileage < Sensor::Definitions::Base
   # Distance is the SUM of the daily distances across the period.
   trend
 
+  home_pages :cars
+
   # The car page gives its cars (see CarSelectable). Without them, the chart
   # shows this car.
   chart do |timeframe, cars: nil, **|

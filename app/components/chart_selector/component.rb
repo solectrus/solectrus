@@ -207,6 +207,8 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
       helpers.heatpump_charts_path(sensor_name:, timeframe:)
     when 'inverter'
       helpers.inverter_charts_path(sensor_name:, timeframe:)
+    when 'cars'
+      helpers.cars_charts_path(sensor_name:, timeframe:)
     else
       helpers.balance_charts_path(sensor_name:, timeframe:)
     end

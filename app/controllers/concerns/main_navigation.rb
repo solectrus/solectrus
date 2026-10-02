@@ -8,12 +8,10 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       [
         root_item,
         (inverter_item if Setting.enable_multi_inverter),
-        (
-          forecast_item if Setting.enable_forecast &&
-            Sensor::Config.exists?(:inverter_power_forecast)
-        ),
+        (forecast_item if forecast_enabled?),
         (house_item if Setting.enable_custom_consumer),
         (heatpump_item if Setting.enable_heatpump),
+        (car_item if Setting.enable_car),
         essentials_item,
         top10_item,
         amortization_item,
@@ -21,20 +19,29 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     end
 
     helper_method def all_mobile_items
-      @all_mobile_items ||=
-        [
-          root_item,
-          (inverter_item if Setting.enable_multi_inverter),
-          (house_item if Setting.enable_custom_consumer),
-          (heatpump_item if Setting.enable_heatpump),
-          (
-            forecast_item if Setting.enable_forecast &&
-              Sensor::Config.exists?(:inverter_power_forecast)
-          ),
-          essentials_item,
-          top10_item,
-          amortization_item,
-        ].compact
+      @all_mobile_items ||= build_mobile_items
+    end
+
+    def build_mobile_items
+      [
+        root_item,
+        (inverter_item if Setting.enable_multi_inverter),
+        (house_item if Setting.enable_custom_consumer),
+        (heatpump_item if Setting.enable_heatpump),
+        (car_item if Setting.enable_car),
+        (forecast_item if forecast_enabled?),
+        essentials_item,
+        top10_item,
+        amortization_item,
+      ].compact
+    end
+
+    def forecast_enabled?
+      return @forecast_enabled if defined?(@forecast_enabled)
+
+      @forecast_enabled =
+        Setting.enable_forecast &&
+          Sensor::Config.exists?(:inverter_power_forecast)
     end
 
     helper_method def desktop_secondary_items
@@ -42,6 +49,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         [
           helios_item,
           settings_item,
+          charging_sessions_item,
           registration_item,
           notifications_item,
           locale_switcher_item,
@@ -97,6 +105,11 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
               sensor_name: 'heatpump_power',
               timeframe: computed_timeframe,
             )
+          when 'cars', 'charging_sessions'
+            balance_home_path(
+              sensor_name: 'wallbox_power',
+              timeframe: computed_timeframe,
+            )
           else
             balance_home_path
           end,
@@ -136,6 +149,17 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         href:
           heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe: computed_timeframe),
         current: helpers.controller_namespace == 'heatpump',
+      }
+    end
+
+    def car_item
+      {
+        name: t('layout.car'),
+        icon: 'car',
+        icon_only: true,
+        href:
+          cars_home_path(sensor_name: 'car_charging', timeframe: computed_timeframe),
+        current: helpers.controller_namespace == 'cars',
       }
     end
 
@@ -314,6 +338,19 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         icon: 'gear',
         href: settings_general_path,
         current: helpers.controller_namespace == 'settings',
+      }
+    end
+
+    def charging_sessions_item
+      return unless Setting.enable_car
+
+      {
+        name: t('layout.charging_sessions'),
+        icon: 'charging-station',
+        href:
+          charging_sessions_path(kind: Sensor::Config.exists?(:wallbox_power) ? 'wallbox' : 'offsite'),
+        current:
+          helpers.controller.is_a?(ChargingSessionsController),
       }
     end
 
