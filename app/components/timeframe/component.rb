@@ -1,10 +1,16 @@
 class Timeframe::Component < ViewComponent::Base
-  def initialize(timeframe:, forecast_days: nil)
+  # A page that is not a sensor page gives its own addresses: `path_for` turns
+  # a timeframe into the address of the page, and `select_path` opens the
+  # timeframe select. `label_for_all` names the timeframe "all".
+  def initialize(timeframe:, forecast_days: nil, path_for: nil, select_path: nil, label_for_all: nil)
     super()
     @timeframe = timeframe
     @forecast_days = forecast_days
+    @path_for = path_for
+    @select_path = select_path
+    @label_for_all = label_for_all
   end
-  attr_reader :timeframe, :forecast_days
+  attr_reader :timeframe, :forecast_days, :label_for_all
 
   def forecast_mode?
     forecast_days.present?
@@ -36,7 +42,7 @@ class Timeframe::Component < ViewComponent::Base
     if timeframe.next
       true
     else
-      timeframe.id == :day && Sensor::Config.exists?(:inverter_power_forecast)
+      timeframe.id == :day && forecast_next?
     end
   end
 
@@ -44,12 +50,8 @@ class Timeframe::Component < ViewComponent::Base
     return if forecast_mode?
 
     if timeframe.next
-      url_for(
-        controller: "#{helpers.controller_namespace}/home",
-        sensor_name: helpers.sensor_name,
-        timeframe: timeframe.next,
-      )
-    elsif Sensor::Config.exists?(:inverter_power_forecast)
+      path_to(timeframe.next)
+    elsif forecast_next?
       forecast_path
     end
   end
@@ -58,15 +60,12 @@ class Timeframe::Component < ViewComponent::Base
     if forecast_mode?
       balance_home_path(sensor_name: 'inverter_power', timeframe: 'day')
     else
-      url_for(
-        controller: "#{helpers.controller_namespace}/home",
-        sensor_name: helpers.sensor_name,
-        timeframe: timeframe.prev,
-      )
+      path_to(timeframe.prev)
     end
   end
 
   def timeframe_select_path
+    return @select_path if @select_path
     return if forecast_mode?
 
     helpers.timeframe_select_path(sensor_name: helpers.sensor_name, timeframe:)
@@ -81,6 +80,21 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   private
+
+  def path_to(target_timeframe)
+    return @path_for.call(target_timeframe) if @path_for
+
+    url_for(
+      controller: "#{helpers.controller_namespace}/home",
+      sensor_name: helpers.sensor_name,
+      timeframe: target_timeframe,
+    )
+  end
+
+  # Forward from today into the forecast, which only a sensor page has
+  def forecast_next?
+    @path_for.nil? && Sensor::Config.exists?(:inverter_power_forecast)
+  end
 
   def interactive_button_classes(additional_classes: nil, padding_x: 'px-2')
     [

@@ -17,7 +17,7 @@
 
     - when :all
       = link_to timeframe_select_path, class: timeframe_link_classes('text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
-        == timeframe.localized
+        == label_for_all || timeframe.localized
 
     - when :day
       = link_to timeframe_select_path, class: timeframe_link_classes('md:w-72 text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do

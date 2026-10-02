@@ -16,6 +16,7 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
     { value: 'P90D', label_key: '.last_90_days', group: :days, threshold: -> { 90.days.ago.to_date } },
     { value: 'P365D', label_key: '.last_365_days', group: :days, threshold: -> { 365.days.ago.to_date } },
     { value: 'P12M', label_key: '.last_12_months', group: :months, threshold: -> { 12.months.ago.to_date } },
+    { value: 'all', label_key: '.last_all', group: :all },
   ].freeze
   private_constant :OPTION_DEFINITIONS
 
@@ -59,7 +60,7 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
           }
         end
 
-        groups << { heading: t(".#{group_key}"), options: }
+        groups << { heading: t(".#{group_key}", default: nil), options: }
       end
 
     groups
