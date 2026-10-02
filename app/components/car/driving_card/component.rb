@@ -51,38 +51,26 @@ class Car::DrivingCard::Component < ViewComponent::Base
     )
   end
 
-  # The cost per 100 km is the driving cost divided by the distance
+  # The cost per 100 km comes from the rates of the days. The tooltip says
+  # how a day gets its rate, without a calculation: a calculation from the
+  # driving cost would be circular, and no sum of the period gives the rate.
   def cost_rate_tooltip
-    rate_tooltip(
-      sum: row(nil, t('sensors.car_driving_costs'), cost_value(driving.cost)),
-      distance: driving.cost_distance,
-      rate: row('=', t('sensors.car_cost_per_100km_short'), cost_value(driving.cost_per_100km)),
-    )
+    rate_tooltip(distance: driving.cost_distance, reason: '.cost_reason')
   end
 
-  # The consumption is the energy for driving divided by the distance
+  # The consumption comes from the rates of the days, like the cost per 100 km
   def consumption_rate_tooltip
-    energy = SensorValue::Component.new(driving.energy_wh, :wallbox_power, context: :total, scaling: :kilo, precision: 0)
-
-    rate_tooltip(
-      sum: row(nil, t('.energy'), energy),
-      distance: driving.distance,
-      rate: row('=', t('sensors.car_consumption_per_100km_short'), consumption_value(driving.consumption_per_100km)),
-    )
+    rate_tooltip(distance: driving.distance, reason: '.consumption_reason')
   end
 
   private
 
   delegate :driving, to: :balance
 
-  # The distance holds the days with this rate. A day without a cost has an
+  # The distance holds the days with this rate: a day without a cost has an
   # energy rate, but no cost rate.
-  def rate_tooltip(sum:, distance:, rate:)
-    tooltip(
-      terms: [sum, row('÷', t('sensors.car_distance_short'), distance_value(distance))],
-      result: rate,
-      notes: [t('.reason', days: Car::DailyRates::MARGIN_DAYS), t('.charge_losses'), unrated_note(distance)],
-    )
+  def rate_tooltip(distance:, reason:)
+    tooltip(notes: [t(reason, days: Car::DailyRates::MARGIN_DAYS), t('.charge_losses'), unrated_note(distance)])
   end
 
   # The kilometers of the period on days without a rate. The card shows them

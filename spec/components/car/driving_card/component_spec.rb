@@ -13,7 +13,7 @@ describe Car::DrivingCard::Component, type: :component do
       car_km_per_day: 27.1,
       car_driving_costs: 372.8,
       car_cost_per_100km: 3.77,
-      car_consumption_per_100km: 0.212,
+      car_consumption_per_100km: 21.18,
       driving:,
       cars: [Car.new(id: 1)],
     )
@@ -43,23 +43,19 @@ describe Car::DrivingCard::Component, type: :component do
     expect(urls).to include(a_string_including('car_cost_rate'), a_string_including('car_consumption_rate'))
   end
 
-  # The user can multiply the distance by the rate, and divide a sum by the
-  # distance
-  it 'explains each value with its calculation' do
+  # The driving cost is the distance times the cost per 100 km. The rates
+  # explain how a day gets its rate, so the two tooltips do not explain each
+  # other.
+  it 'explains each value without a circle' do
     distance = label(:car_distance_short)
     cost_rate = label(:car_cost_per_100km_short)
     driving_costs = label(:car_driving_costs)
-    consumption_rate = label(:car_consumption_per_100km_short)
 
     expect(tooltips).to contain_exactly(
       "#{distance} 9,877 km × #{cost_rate} 3.77 € = #{driving_costs} 373 €",
-      a_string_starting_with("#{driving_costs} 372.80 € ÷ #{distance} 9,877 km = #{cost_rate} 3.77 €"),
-      a_string_starting_with("Energy for driving 2,092 kWh ÷ #{distance} 9,877 km = #{consumption_rate} 21.2 kWh"),
+      a_string_including('the charging cost of the 14 days before and after it, divided by their distance', 'charging losses'),
+      a_string_including('the charged energy of the 14 days before and after it, divided by their distance', 'charging losses'),
     )
-  end
-
-  it 'says that each day of a rate has a window of its own' do
-    expect(tooltips.last).to include('Each day therefore takes the rate of the 14 days before and after it', 'charging losses')
   end
 
   it 'has no note when all days have a rate' do
