@@ -1,6 +1,7 @@
 class TimeframeSelectController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
+  include RefererNamespace
 
   def index
     if turbo_frame_request?
@@ -11,19 +12,5 @@ class TimeframeSelectController < ApplicationController
     end
   end
 
-  helper_method :controller_namespace
-
-  private
-
-  def controller_namespace
-    if request.referer.include?('/house/')
-      'house'
-    elsif request.referer.include?('/inverter/')
-      'inverter'
-    elsif request.referer.include?('/heatpump/')
-      'heatpump'
-    else
-      'balance'
-    end
-  end
+  helper_method :referer_namespace
 end
