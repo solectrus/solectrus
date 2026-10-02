@@ -141,6 +141,8 @@ de:
     total: Stromverbrauch
     costs_note:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
+  cars:
+    default_name: Auto %{number}
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -340,10 +342,39 @@ de:
 
   activerecord:
     models:
+      car: Auto
       price: Preis
       cash_flow: Zahlung
+      charging_session: Ladevorgang
       settings: Einstellungen
     attributes:
+      car:
+        id: Nummer
+        name: Name
+        active_from: In Gebrauch ab
+        active_until: In Gebrauch bis
+        color: Farbe
+      charging_session:
+        kind: Art
+        kinds:
+          wallbox: Wallbox
+          offsite: Auswärtsladung
+        car: Auto
+        car_id: Auto
+        guest: Gastladung
+        kwh_grid: Energie aus dem Netz
+        started_at: Beginn
+        ended_at: Ende
+        kwh: Energie
+        cost: Kosten
+        power_type: Stromart
+        power_types:
+          ac: AC (Wechselstrom)
+          dc: DC (Gleichstrom)
+        evse_id: EVSE-ID
+        provider: Anbieter
+        address: Adresse
+        note: Bemerkung
       price:
         name: Name
         names:
@@ -373,6 +404,21 @@ de:
         plant_name: Bezeichnung der Anlage
         operator_name: Name des Betreibers
     errors:
+      models:
+        car:
+          attributes:
+            active_until:
+              before_active_from: darf nicht vor dem ersten Tag liegen
+          offsite_sessions_outside:
+            one: Der Zeitraum lässt 1 Auswärtsladung des Autos aus.
+            other: Der Zeitraum lässt %{count} Auswärtsladungen des Autos aus.
+        charging_session:
+          attributes:
+            guest:
+              wallbox_only: ist nur an der eigenen Wallbox möglich
+              without_car: ist nur ohne Auto möglich
+            car_id:
+              inactive: ist an diesem Tag nicht in Gebrauch
       messages:
         must_be_negative: muss für diese Kategorie negativ sein (Auszahlung)
         must_be_positive: muss für diese Kategorie positiv sein (Einzahlung)

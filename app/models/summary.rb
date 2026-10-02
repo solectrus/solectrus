@@ -2,9 +2,10 @@
 #
 # Table name: summaries
 #
-#  date       :date             not null, primary key
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  charging_sessions_version :integer
+#  date                      :date             not null, primary key
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
 #
 # Indexes
 #

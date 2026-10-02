@@ -141,6 +141,8 @@ en:
     total: Power consumption
     costs_note:
       battery_charging_power: Grid electricity is attributed to the consumers.
+  cars:
+    default_name: Car %{number}
   balance_sheet:
     left: Source
     right: Usage
@@ -340,10 +342,39 @@ en:
 
   activerecord:
     models:
+      car: Car
       price: Price
       cash_flow: Cash flow
+      charging_session: Charging session
       settings: Settings
     attributes:
+      car:
+        id: Number
+        name: Name
+        active_from: In use from
+        active_until: In use until
+        color: Color
+      charging_session:
+        kind: Type
+        kinds:
+          wallbox: Wallbox
+          offsite: Offsite charging
+        car: Car
+        car_id: Car
+        guest: Guest charging
+        kwh_grid: Energy from the grid
+        started_at: Start
+        ended_at: End
+        kwh: Energy
+        cost: Cost
+        power_type: Current type
+        power_types:
+          ac: AC (alternating current)
+          dc: DC (direct current)
+        evse_id: EVSE ID
+        provider: Provider
+        address: Address
+        note: Note
       price:
         name: Name
         names:
@@ -373,6 +404,21 @@ en:
         plant_name: Name of the plant
         operator_name: Name of the operator
     errors:
+      models:
+        car:
+          attributes:
+            active_until:
+              before_active_from: must not be before the first day of use
+          offsite_sessions_outside:
+            one: The period leaves out 1 offsite charging session of the car.
+            other: The period leaves out %{count} offsite charging sessions of the car.
+        charging_session:
+          attributes:
+            guest:
+              wallbox_only: is possible only at the own wallbox
+              without_car: is possible only without a car
+            car_id:
+              inactive: is not in use on this day
       messages:
         must_be_negative: must be negative for this category (outflow)
         must_be_positive: must be positive for this category (inflow)

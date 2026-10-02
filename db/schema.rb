@@ -10,14 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_060000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_27_102209) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "aggregation_enum", ["sum", "max", "min", "avg"]
-  create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10", "custom_power_01_grid", "custom_power_02_grid", "custom_power_03_grid", "custom_power_04_grid", "custom_power_05_grid", "custom_power_06_grid", "custom_power_07_grid", "custom_power_08_grid", "custom_power_09_grid", "custom_power_10_grid", "custom_power_11", "custom_power_12", "custom_power_13", "custom_power_14", "custom_power_15", "custom_power_16", "custom_power_17", "custom_power_18", "custom_power_19", "custom_power_20", "custom_power_11_grid", "custom_power_12_grid", "custom_power_13_grid", "custom_power_14_grid", "custom_power_15_grid", "custom_power_16_grid", "custom_power_17_grid", "custom_power_18_grid", "custom_power_19_grid", "custom_power_20_grid", "inverter_power_1", "inverter_power_2", "inverter_power_3", "inverter_power_4", "inverter_power_5", "heatpump_heating_power", "outdoor_temp", "heatpump_tank_temp", "battery_discharging_power_grid"]
+  create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc_1", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10", "custom_power_01_grid", "custom_power_02_grid", "custom_power_03_grid", "custom_power_04_grid", "custom_power_05_grid", "custom_power_06_grid", "custom_power_07_grid", "custom_power_08_grid", "custom_power_09_grid", "custom_power_10_grid", "custom_power_11", "custom_power_12", "custom_power_13", "custom_power_14", "custom_power_15", "custom_power_16", "custom_power_17", "custom_power_18", "custom_power_19", "custom_power_20", "custom_power_11_grid", "custom_power_12_grid", "custom_power_13_grid", "custom_power_14_grid", "custom_power_15_grid", "custom_power_16_grid", "custom_power_17_grid", "custom_power_18_grid", "custom_power_19_grid", "custom_power_20_grid", "inverter_power_1", "inverter_power_2", "inverter_power_3", "inverter_power_4", "inverter_power_5", "heatpump_heating_power", "outdoor_temp", "heatpump_tank_temp", "battery_discharging_power_grid", "car_battery_soc_2", "car_battery_soc_3", "car_battery_soc_4", "car_battery_soc_5", "car_mileage_1", "car_mileage_2", "car_mileage_3", "car_mileage_4", "car_mileage_5", "car_max_range_1", "car_max_range_2", "car_max_range_3", "car_max_range_4", "car_max_range_5", "car_range_1", "car_range_2", "car_range_3", "car_range_4", "car_range_5"]
+
+  create_table "cars", id: :integer, default: nil, force: :cascade do |t|
+    t.string "name"
+    t.date "active_from", null: false
+    t.date "active_until"
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.check_constraint "active_until IS NULL OR active_until >= active_from", name: "cars_period_order"
+  end
 
   create_table "cash_flows", force: :cascade do |t|
     t.decimal "amount", precision: 10, scale: 2, null: false
@@ -27,6 +37,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_060000) do
     t.string "note", null: false
     t.datetime "updated_at", null: false
     t.index ["date"], name: "index_cash_flows_on_date"
+  end
+
+  create_table "charging_sessions", force: :cascade do |t|
+    t.string "kind", null: false
+    t.integer "car_id"
+    t.boolean "guest", default: false, null: false
+    t.datetime "started_at", null: false
+    t.datetime "ended_at"
+    t.decimal "kwh", precision: 10, scale: 3, null: false
+    t.decimal "kwh_grid", precision: 10, scale: 3
+    t.decimal "cost", precision: 10, scale: 2
+    t.decimal "cost_grid", precision: 10, scale: 2
+    t.string "evse_id"
+    t.string "power_type"
+    t.string "provider"
+    t.string "address"
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["car_id", "started_at"], name: "index_charging_sessions_on_car_id_and_started_at"
+    t.index ["kind", "started_at"], name: "index_charging_sessions_on_kind_and_started_at"
+    t.index ["started_at"], name: "index_charging_sessions_on_wallbox_start", unique: true, where: "((kind)::text = 'wallbox'::text)"
+    t.check_constraint "NOT guest OR kind::text = 'wallbox'::text AND car_id IS NULL", name: "charging_sessions_guest"
+    t.check_constraint "ended_at IS NULL OR ended_at >= started_at", name: "charging_sessions_period_order"
+    t.check_constraint "kind::text <> 'offsite'::text OR car_id IS NOT NULL", name: "charging_sessions_offsite_car"
+    t.check_constraint "kind::text <> 'wallbox'::text OR ended_at IS NOT NULL", name: "charging_sessions_wallbox_end"
+    t.check_constraint "kwh > 0::numeric", name: "charging_sessions_kwh"
+    t.check_constraint "kwh_grid IS NULL OR kwh_grid >= 0::numeric AND kwh_grid <= kwh", name: "charging_sessions_kwh_grid"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -61,6 +99,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_060000) do
   create_table "summaries", primary_key: "date", id: :date, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "charging_sessions_version"
     t.index ["updated_at"], name: "index_summaries_on_updated_at"
   end
 
@@ -72,5 +111,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_060000) do
     t.index ["field", "aggregation", "date"], name: "index_summary_values_on_field_and_aggregation_and_date"
   end
 
+  add_foreign_key "charging_sessions", "cars", name: "charging_sessions_car_id_fkey"
   add_foreign_key "summary_values", "summaries", column: "date", primary_key: "date", on_delete: :cascade
 end

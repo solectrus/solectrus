@@ -82,6 +82,11 @@ RSpec.configure do |config|
     Setting.delete_all
     Setting.clear_cache
     Setting.seed!
+
+    # System tests run without a transaction, and their pages create the cars
+    # (see Car::Provisioning) and the charging sessions of the daily build
+    ChargingSession.delete_all
+    Car.delete_all
   end
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
