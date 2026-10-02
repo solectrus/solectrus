@@ -1,11 +1,16 @@
 class SummaryBuilder::Component < ViewComponent::Base
-  def initialize(timeframe:, missing_or_stale_days:)
+  # `charging_sessions` tells the build of each chunk that the days of the page
+  # include the days whose sessions wait for the detection (see
+  # Summary.missing_or_stale_days). Otherwise a chunk finds other days than
+  # the page.
+  def initialize(timeframe:, missing_or_stale_days:, charging_sessions: false)
     super()
     @timeframe = timeframe
     @missing_or_stale_days = missing_or_stale_days
+    @charging_sessions = charging_sessions
   end
 
-  attr_reader :timeframe, :missing_or_stale_days
+  attr_reader :timeframe, :missing_or_stale_days, :charging_sessions
 
   # One request per day would spend most of its time on the request itself, so
   # a batch of days is built at once (see Sensor::Summarizer::CHUNK_SIZE) and
@@ -21,15 +26,16 @@ class SummaryBuilder::Component < ViewComponent::Base
   end
 
   class ChunkComponent < ViewComponent::Base
-    def initialize(from:, to:, size: 1, completed: false)
+    def initialize(from:, to:, size: 1, completed: false, charging_sessions: false)
       super()
       @from = from
       @to = to
       @size = size
       @completed = completed
+      @charging_sessions = charging_sessions
     end
 
-    attr_reader :from, :to, :size, :completed
+    attr_reader :from, :to, :size, :completed, :charging_sessions
 
     def call
       helpers.turbo_frame_tag(dom_id, **turbo_frame_tag_options) do
@@ -45,7 +51,7 @@ class SummaryBuilder::Component < ViewComponent::Base
 
     def turbo_frame_tag_options
       {
-        'data-src': summary_path(date: from, to:),
+        'data-src': summary_path(date: from, to:, charging_sessions: (1 if charging_sessions)),
         # A trailing chunk covers fewer days than the others, so the bar shows
         # what it is really worth
         style: "flex: #{size}",

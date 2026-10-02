@@ -3,7 +3,8 @@ module Sensor
     module Helpers
       module Influx
         # The selection of sensors in a hand-built Flux program, and the way
-        # back from a row to its sensor (see DailyDiffs)
+        # back from a row to its sensor (see DailyCurves, DailyDiffs and
+        # ChargingSession::Detection)
         module SensorFilter
           # The Flux predicate that selects the given sensors
           def self.predicate(sensor_names)

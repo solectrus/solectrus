@@ -66,6 +66,50 @@ describe Price do
     it { is_expected.to validate_uniqueness_of(:starts_at).scoped_to(:name) }
   end
 
+  describe 'a change of a price' do
+    let!(:first) { described_class.electricity.create!(starts_at: Date.new(2026, 1, 1), value: 0.30) }
+    let!(:second) { described_class.electricity.create!(starts_at: Date.new(2026, 4, 1), value: 0.32) }
+
+    before do
+      described_class.where.not(id: [first.id, second.id]).delete_all
+      [Date.new(2025, 12, 31), Date.new(2026, 1, 1), Date.new(2026, 3, 31), Date.new(2026, 4, 1)].each do |date|
+        Summary.create!(date:, charging_sessions_version: ChargingSession::Detection::VERSION)
+      end
+    end
+
+    def pending_days = Summary.where(charging_sessions_version: nil).order(:date).pluck(:date)
+
+    it 'marks the days of the price for the detection' do
+      first.update!(value: 0.31)
+
+      expect(pending_days).to eq([Date.new(2026, 1, 1), Date.new(2026, 3, 31)])
+    end
+
+    it 'marks the days up to today for the last price' do
+      second.update!(value: 0.33)
+
+      expect(pending_days).to eq([Date.new(2026, 4, 1)])
+    end
+
+    it 'marks the days of the old and of the new start' do
+      second.update!(starts_at: Date.new(2026, 3, 31))
+
+      expect(pending_days).to eq([Date.new(2026, 3, 31), Date.new(2026, 4, 1)])
+    end
+
+    it 'marks the days of a removed price' do
+      first.destroy!
+
+      expect(pending_days).to eq([Date.new(2026, 1, 1), Date.new(2026, 3, 31)])
+    end
+
+    it 'marks nothing for a new note' do
+      first.update!(note: 'Tariff')
+
+      expect(pending_days).to be_empty
+    end
+  end
+
   describe '.seed!' do
     before { described_class.delete_all }
 

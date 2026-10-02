@@ -62,16 +62,22 @@ class Summary < ApplicationRecord
   # The same question for a whole timeframe: which of its days have no summary
   # yet, or a stale one. "Now" and the hour-resolution timeframes are answered
   # from raw measurements, so they need no summaries at all.
-  def self.missing_or_stale_days_for(timeframe)
+  #
+  # `charging_sessions` also counts a day whose charging sessions wait for the
+  # detection (see ChargingSession::Detection). Only a caller that reads the
+  # sessions turns it on, so a new version of the detection rebuilds no day
+  # for the other pages.
+  def self.missing_or_stale_days_for(timeframe, charging_sessions: false)
     return [] if timeframe.now? || timeframe.hours?
 
     missing_or_stale_days(
       from: timeframe.effective_beginning_date,
       to: timeframe.effective_ending_date,
+      charging_sessions:,
     )
   end
 
-  def self.missing_or_stale_days(from:, to:)
+  def self.missing_or_stale_days(from:, to:, charging_sessions: false)
     find_by_sql(
       [
         <<~SQL.squish,
@@ -94,6 +100,10 @@ class Summary < ApplicationRecord
             /* Today or a future day is considered STALE if the last update was beyond the allowed tolerance time */
             s.date >= :threshold_date
             AND s.updated_at < :current_tolerance_time
+
+          OR
+            /* A day is PENDING when the detection of its charging sessions is missing or older than the current version */
+            :detection AND (s.charging_sessions_version IS NULL OR s.charging_sessions_version < :detection_version)
         SQL
         {
           from:,
@@ -102,6 +112,8 @@ class Summary < ApplicationRecord
           threshold_date:,
           current_tolerance_time: current_tolerance_minutes(from:, to:).minutes.ago,
           required_distance: "#{1.day.in_minutes + REQUIRED_DISTANCE} minutes",
+          detection: charging_sessions && ChargingSession::Detection.enabled?,
+          detection_version: ChargingSession::Detection::VERSION,
         },
       ],
     ).pluck(:date)
@@ -127,6 +139,12 @@ class Summary < ApplicationRecord
 
   def stale?(current_tolerance: CURRENT_TOLERANCE)
     !fresh?(current_tolerance:)
+  end
+
+  # Whether the charging sessions of the day wait for the detection
+  def detection_pending?
+    ChargingSession::Detection.enabled? &&
+      (charging_sessions_version.nil? || charging_sessions_version < ChargingSession::Detection::VERSION)
   end
 
   def self.threshold_date

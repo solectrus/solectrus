@@ -165,7 +165,7 @@ describe Summary do
     context 'when all summaries are present and fresh' do
       before do
         (timeframe.beginning.to_date..timeframe.ending.to_date).each do |date|
-          described_class.create!(date:, updated_at: date + 2.days)
+          described_class.create!(date:, updated_at: date + 2.days, charging_sessions_version: ChargingSession::Detection::VERSION)
         end
       end
 
@@ -178,6 +178,7 @@ describe Summary do
           described_class.create!(
             date:,
             updated_at: date.day <= 7 ? date.middle_of_day : date + 2.days,
+            charging_sessions_version: ChargingSession::Detection::VERSION,
           )
         end
       end
@@ -221,13 +222,53 @@ describe Summary do
     end
   end
 
+  describe 'the detection of the charging sessions in .missing_or_stale_days' do
+    let(:date) { Date.yesterday }
+
+    before do
+      described_class.create!(date:, updated_at: 1.minute.ago, charging_sessions_version: version)
+    end
+
+    context 'with a fresh summary without the detection' do
+      let(:version) { nil }
+
+      it 'counts the day as pending' do
+        expect(described_class.missing_or_stale_days(from: date, to: date, charging_sessions: true)).to eq([date])
+      end
+
+      it 'counts nothing for a caller that reads no session' do
+        expect(described_class.missing_or_stale_days(from: date, to: date)).to be_empty
+      end
+    end
+
+    context 'with an older version of the detection' do
+      let(:version) { ChargingSession::Detection::VERSION - 1 }
+
+      it 'counts the day as pending' do
+        expect(described_class.missing_or_stale_days(from: date, to: date, charging_sessions: true)).to eq([date])
+      end
+    end
+
+    context 'with the current version' do
+      let(:version) { ChargingSession::Detection::VERSION }
+
+      it 'counts the day as fresh' do
+        expect(described_class.missing_or_stale_days(from: date, to: date, charging_sessions: true)).to be_empty
+      end
+    end
+  end
+
   describe 'dynamic current-day tolerance in .missing_or_stale_days' do
     # Today's summary exists but was last calculated 30 minutes ago. This is
     # stale for a day view (5 min tolerance) but acceptable for a long
     # timeframe like the running year (capped at MAX_CURRENT_TOLERANCE).
     before do
       travel_to Time.new(2024, 7, 1, 12, 0, 0, '+02:00')
-      described_class.create!(date: Date.current, updated_at: 30.minutes.ago)
+      described_class.create!(
+        date: Date.current,
+        updated_at: 30.minutes.ago,
+        charging_sessions_version: ChargingSession::Detection::VERSION,
+      )
     end
 
     it 'marks today stale in a day view (tight tolerance)' do

@@ -89,4 +89,39 @@ describe Car do
       expect(described_class.new(id: 2, color: '#ff0000').display_color).to eq('#ff0000')
     end
   end
+
+  describe 'a change of the period' do
+    let(:car) { described_class.create!(id: 1) }
+    let(:day) { Date.new(2026, 3, 15) }
+
+    before do
+      travel_to Date.new(2026, 9, 23).in_time_zone.change(hour: 12)
+      ((day - 1)..(day + 1)).each do |date|
+        Summary.create!(date:, charging_sessions_version: ChargingSession::Detection::VERSION)
+      end
+      ChargingSession.create!(
+        kind: :wallbox, car:, started_at: day.in_time_zone.change(hour: 12), ended_at: day.in_time_zone.change(hour: 13), kwh: 10,
+      )
+    end
+
+    it 'takes the car from each wallbox session outside the period' do
+      car.update!(active_until: day - 1)
+
+      expect(ChargingSession.sole.car_id).to be_nil
+    end
+
+    # Shortly after local midnight is the previous day in UTC
+    it 'keeps the car of a session on the first day of the period' do
+      ChargingSession.sole.update!(started_at: day.in_time_zone.change(hour: 0, min: 30))
+      car.update!(active_from: day)
+
+      expect(ChargingSession.sole.car_id).to eq(car.id)
+    end
+
+    it 'marks the days between the old and the new bound for the detection' do
+      car.update!(active_until: day)
+
+      expect(Summary.where(charging_sessions_version: nil).pluck(:date)).to contain_exactly(day, day + 1)
+    end
+  end
 end

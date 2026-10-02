@@ -238,7 +238,7 @@ module LlmTest
 
       dates = (first_day..yesterday).to_a
       Summary.insert_all!(
-        dates.map { { date: _1, created_at: now, updated_at: now } },
+        dates.map { { date: _1, created_at: now, updated_at: now, charging_sessions_version: ChargingSession::Detection::VERSION } },
       )
       SummaryValue.insert_all!(dates.flat_map { summary_values(_1) })
     end

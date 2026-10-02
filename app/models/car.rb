@@ -44,6 +44,7 @@ class Car < ApplicationRecord
   validate :period_in_order
   validate :offsite_sessions_in_period, if: -> { will_save_change_to_active_from? || will_save_change_to_active_until? }
 
+  after_save :reset_detection, if: -> { saved_change_to_active_from? || saved_change_to_active_until? }
   after_commit :clear_names
 
   # The id is the order of the cars
@@ -108,6 +109,41 @@ class Car < ApplicationRecord
   # end of its last day, without an end for a car in use
   def period_times
     active_from.beginning_of_day..active_until&.end_of_day
+  end
+
+  # The candidates of a wallbox session change on the days between the old and
+  # the new bound. A session of this car outside the new period loses the car
+  # at once, and the next build runs the detection on these days again (see
+  # ChargingSession::Detection).
+  def reset_detection
+    days = changed_days
+    return if days.empty?
+
+    charging_sessions
+      .wallbox
+      .where.not(started_at: period_times)
+      .update_all(car_id: nil) # rubocop:disable Rails/SkipsModelValidations
+
+    Summary.where(date: days).update_all(charging_sessions_version: nil) # rubocop:disable Rails/SkipsModelValidations
+  end
+
+  # The days between the old and the new value of each bound. A missing
+  # bound reaches the installation date (a new car) or today (no last day).
+  def changed_days
+    from_before, from_after = saved_change_to_active_from || [active_from, active_from]
+    until_before, until_after = saved_change_to_active_until || [active_until, active_until]
+
+    [
+      bound_range(from_before, from_after, Rails.configuration.x.installation_date),
+      bound_range(until_before, until_after, Date.current),
+    ].compact
+  end
+
+  def bound_range(before, after, open_end)
+    return if before == after
+
+    dates = [before || open_end, after || open_end]
+    dates.min..dates.max
   end
 
   def clear_names

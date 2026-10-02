@@ -57,32 +57,44 @@ module Sensor
       pending = pending_summaries(chunk)
       return 0 if pending.empty?
 
+      # A fresh summary whose charging sessions wait for the detection needs
+      # the detection alone.
+      rebuild = pending.select { |_, summary| rebuild?(summary) }
+
+      # The detection waits for InfluxDB, so it overlaps with the queries and
+      # the build of the values. It needs no database once preloaded.
+      detection = ChargingSession::Detection.new(pending.map(&:first)).preload
+      sessions = Concurrent::Future.execute { detection.call }
+
       # Building the values needs no transaction, and holding one open across
       # every InfluxDB query of a chunk would keep it running for as long as
       # the slowest of them.
-      built = build(pending)
-      persist(built)
+      prefetched = prefetch(rebuild.map(&:first))
+      built = build(rebuild, prefetched)
+      persist(built, (pending - rebuild).map(&:first), detection, sessions.value!)
 
-      built.size
+      pending.size
     end
 
-    # Days whose summary is missing or stale, paired with the record to write.
-    # Checked before any InfluxDB query, so a day that turns out to be fresh
-    # costs nothing.
+    # Days whose summary is missing or stale, or whose charging sessions wait
+    # for the detection, paired with the record to write. Checked before any
+    # InfluxDB query, so a day that turns out to be fresh costs nothing.
     def pending_summaries(chunk)
       existing = Summary.where(date: chunk).index_by(&:date)
 
       chunk.filter_map do |date|
         summary = existing[date] || Summary.new(date:)
-        next unless summary.new_record? || summary.stale?(current_tolerance: 0)
+        next unless rebuild?(summary) || summary.detection_pending?
 
         [date, summary]
       end
     end
 
-    def build(pending)
-      prefetched = prefetch(pending.map(&:first))
+    def rebuild?(summary)
+      summary.new_record? || summary.stale?(current_tolerance: 0)
+    end
 
+    def build(pending, prefetched)
       pending.map do |date, summary|
         data =
           Sensor::SummaryBuilder.new(
@@ -124,26 +136,46 @@ module Sensor
     # Everything a chunk writes goes into one transaction: on a spinning disk
     # each commit costs an fsync, which dominated the writes when every day
     # committed on its own.
-    def persist(built)
+    #
+    # Each built day gets the current version of the detection, also without a
+    # session and without a wallbox. A day without the mark is pending
+    # forever.
+    def persist(built, detected_dates, detection, sessions)
       ActiveRecord::Base.transaction do
         upsert_summaries(built)
+        mark_detected(detected_dates) if detected_dates.any?
         upsert_summary_values(built.flat_map { |entry| entry[:valid_records] })
         cleanup_empty_values(built)
+        detection.persist(sessions)
       end
     end
 
     def upsert_summaries(built)
+      return if built.empty?
+
       now = Time.current
 
       Summary.upsert_all(
-        built.map { |entry| { date: entry[:date], created_at: now, updated_at: now } },
+        built.map do |entry|
+          {
+            date: entry[:date],
+            created_at: now,
+            updated_at: now,
+            charging_sessions_version: ChargingSession::Detection::VERSION,
+          }
+        end,
         unique_by: :date,
         # A day that is already there only gets touched, and Rails must not add
         # a touch of its own - it would assign updated_at twice in one
         # statement, which Postgres rejects.
-        update_only: %i[updated_at],
+        update_only: %i[updated_at charging_sessions_version],
         record_timestamps: false,
       )
+    end
+
+    # A fresh summary keeps its time, so it stays as fresh as it was
+    def mark_detected(dates)
+      Summary.where(date: dates).update_all(charging_sessions_version: ChargingSession::Detection::VERSION) # rubocop:disable Rails/SkipsModelValidations
     end
 
     def upsert_summary_values(records)
