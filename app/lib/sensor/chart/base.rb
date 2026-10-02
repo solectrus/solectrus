@@ -827,8 +827,11 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # Extra history (a duration) fetched before the window start: a sparse
   # sensor looks back one max_age so #bridge_short_gaps can connect its last
   # pre-window sample to the first in-window one, filling the leading edge
-  # instead of opening with a gap.
+  # instead of opening with a gap. The SQL path fetches no history before the
+  # window, so it has no lookback to drop either.
   def series_lookback
+    return 0 if use_sql_for_timeframe?
+
     sparse? ? chart_sensors.first.max_age : 0
   end
 
