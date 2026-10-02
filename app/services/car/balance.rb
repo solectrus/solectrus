@@ -68,7 +68,7 @@ class Car::Balance
   # The driving of the period, day by day at the rates of the window around
   # each day. It gives the rates and the driving cost.
   def driving
-    @driving ||= Car::DailyRates.for(timeframe, cars, sessions: window_sessions).totals
+    @driving ||= Car::DailyRates.new(timeframe, cars).totals
   end
 
   # Total kilometers driven in the period by the selected cars. For "now"
@@ -177,21 +177,7 @@ class Car::Balance
   end
 
   def sessions
-    @sessions ||=
-      begin
-        from, to = period
-        window_sessions.select { it.started_at.between?(from, to) }
-      end
-  end
-
-  # The sessions of the period and of the rate windows around it, in one
-  # query. A window holds the margin of Car::RateWindow on each side at most.
-  def window_sessions
-    @window_sessions ||=
-      ChargingSession
-        .of_cars(cars)
-        .in_range(timeframe.beginning - Car::RateWindow::MARGIN_DAYS.days, timeframe.ending + Car::RateWindow::MARGIN_DAYS.days)
-        .to_a
+    @sessions ||= ChargingSession.of_cars(cars).in_range(*period).to_a
   end
 
   def period

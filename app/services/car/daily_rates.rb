@@ -1,19 +1,35 @@
-# Car::DailyRates gives each day of one car the rates of the window around it:
-# the day plus Car::RateWindow::MARGIN_DAYS on each side, inside
-# Car::RateWindow.bounds. The battery sits between charging and driving, so a
-# day alone gives a wrong rate (see Car::Balance for the rationale).
+# Car::DailyRates gives each day of a car the rates of the window around it:
+# the day plus MARGIN_DAYS on each side. The battery sits between charging and
+# driving, so the car drives on energy that it charged on other days, and a
+# day alone gives a wrong rate (see Car::Balance for the rationale). In the
+# past, the window sits in the center, so a winter day keeps winter data. A
+# window that reaches beyond today ends today.
 #
 # Each day drives its distance at the rates of its own window. The driving of
 # a period is the sum of its days, so the driving cost and the driven energy
 # add up: the days give the month, and the months give the year. A rate of a
-# period is this sum divided by the distance. The selection "all" adds the
-# cars (see .for).
+# period is this sum divided by the distance. Several cars add up, each day
+# of a car at the rates of its own window.
 #
 # A window with less than MIN_DISTANCE or without charged energy gives no
 # rate, because a single charge would decide it. Such a day has no driving
 # cost, and its distance does not count for a rate. A window with a session
 # without a cost gives no cost rate, because its cost is too small.
+#
+# The distance comes from the daily summaries of the odometer of the car. The
+# energy and the cost come from the charging sessions of the car, without a
+# proportional calculation: the detection stores the energy, the grid share
+# and the cost of each wallbox session (see ChargingSession::Detection), and
+# the user enters each offsite session. A guest session and a session that is
+# not assigned belong to no car, so they count for no car. A session belongs
+# to the local date of its start.
 class Car::DailyRates
+  # Days on each side of a day. Long enough that charge-vs-drive imbalance
+  # (battery SoC) averages out, short enough to keep the season and to fix a
+  # recent rate soon (see docs/cars.md for the measurement).
+  MARGIN_DAYS = 14
+  public_constant :MARGIN_DAYS
+
   MIN_DISTANCE = 100
   public_constant :MIN_DISTANCE
 
@@ -51,128 +67,140 @@ class Car::DailyRates
     end
   public_constant :Totals
 
-  # The charged energy and cost of a window for each km of the window. The
-  # cost is nil when a session of the window has no cost.
-  Rate = Data.define(:wh_per_km, :cost_per_km)
-  public_constant :Rate
+  # The daily values that a window adds up
+  KEYS = %i[distance energy_wh cost uncosted].freeze
+  private_constant :KEYS
 
-  # The rates of the given cars. Several cars add up, each with the rates of
-  # its own windows. `sessions` are charging sessions that the caller has
-  # already loaded (see Car::Ledger).
-  def self.for(timeframe, cars, sessions: nil)
-    rates =
-      cars.map do |car|
-        new(
-          timeframe.effective_beginning_date..timeframe.effective_ending_date,
-          car:,
-          bounds: Car::RateWindow.bounds(timeframe, car:),
-          sessions:,
-        )
-      end
-
-    Sum.new(rates)
+  def initialize(timeframe, cars)
+    @timeframe = timeframe
+    @cars = cars
   end
 
-  def initialize(dates, car:, bounds: nil..Date.current, sessions: nil)
-    @dates = dates
-    @car = car
-    @bounds = bounds
-    @sessions = sessions
-  end
-
-  attr_reader :dates, :car
-
-  # The driving of the given dates, by default all dates. The days of the
-  # range are a slice of the days, so the columns of a chart read each day
-  # one time.
+  # The driving of the given dates, by default all dates of the timeframe. A
+  # date outside the timeframe counts as empty.
   def totals(range = dates)
-    from = [range.begin, dates.begin].max
-    to = [range.end, dates.end].min
-    return Totals.empty if from > to
-
-    day_list[(from - dates.begin).to_i..(to - dates.begin).to_i].compact.sum(Totals.empty)
+    range.filter_map { days[it] }.sum(Totals.empty)
   end
 
-  # The rate of the window around the date, or nil without a rate. The days
-  # of the window outside ledger_dates count as empty.
-  def rate_on(date)
-    window = ledger.totals(window_of(date..date))
-    return if window.distance < MIN_DISTANCE || !window.energy_wh.positive?
+  # The days that the rates read without a fresh summary or without a
+  # detection (see Summary.missing_or_stale_days). Without a car there is
+  # nothing to read.
+  def missing_or_stale_days
+    return [] unless reach
 
-    Rate.new(
-      wh_per_km: window.energy_wh / window.distance,
-      cost_per_km: (window.cost / window.distance if window.costed?),
-    )
-  end
-
-  # The days that the rates read, inside the bounds
-  def ledger_dates
-    window_of(dates)
+    Summary.missing_or_stale_days(from: reach.begin, to: reach.end, charging_sessions: true)
   end
 
   private
 
-  attr_reader :bounds
+  attr_reader :timeframe, :cars
 
-  def window_of(range)
-    Car::RateWindow.with_margin(range, bounds:)
+  def dates
+    @dates ||= timeframe.effective_beginning_date..timeframe.effective_ending_date
   end
 
-  # The days in the order of the dates, so an index is a day offset
-  def day_list
-    @day_list ||= days.values
-  end
-
-  # { date => Totals of the day at the rate of its window, or nil }
+  # { date => Totals of the cars, or nil without a rate }
   def days
-    @days ||=
-      dates.index_with do |date|
-        next unless bounds.cover?(date)
+    @days ||= dates.index_with { |date| cars.filter_map { day(it, date) }.presence&.sum(Totals.empty) }
+  end
 
-        distance = ledger.totals(date..date).distance
-        rate = rate_on(date) if distance.positive?
-        next unless rate
+  # The driving of a car on a date at the rates of the window around it, or
+  # nil without a rate
+  def day(car, date)
+    return unless bounds(car).cover?(date)
 
-        cost_distance = rate.cost_per_km ? distance : 0.0
-        Totals.new(
-          distance:,
-          energy_wh: distance * rate.wh_per_km,
-          cost_distance:,
-          cost: cost_distance * (rate.cost_per_km || 0.0),
-        )
+    distance = sum(car, date..date, :distance)
+    return unless distance.positive?
+
+    window = window(date..date, car)
+    window_distance = sum(car, window, :distance)
+    window_energy_wh = sum(car, window, :energy_wh)
+    return if window_distance < MIN_DISTANCE || !window_energy_wh.positive?
+
+    cost_distance = sum(car, window, :uncosted).zero? ? distance : 0.0
+    Totals.new(
+      distance:,
+      energy_wh: distance * (window_energy_wh / window_distance),
+      cost_distance:,
+      cost: cost_distance * (sum(car, window, :cost) / window_distance),
+    )
+  end
+
+  # The days that a window of the car can hold: from the installation date
+  # to today, inside the period of use of the car. Each window ends at these
+  # bounds, so the rate of a new car holds no energy of the car before it.
+  def bounds(car)
+    (@bounds ||= {})[car.id] ||=
+      [timeframe.min_date, car.active_from].compact.max..[Date.current, car.active_until].compact.min
+  end
+
+  # The given dates plus MARGIN_DAYS on each side, inside the bounds of the car
+  def window(range, car)
+    bounds = bounds(car)
+    [range.begin - MARGIN_DAYS, bounds.begin].compact.max..[range.end + MARGIN_DAYS, bounds.end].min
+  end
+
+  # The days that the rates of a car read: the window of the dates
+  def span(car)
+    (@spans ||= {})[car.id] ||= window(dates, car)
+  end
+
+  # The days that the rates of all cars read, or nil without any
+  def reach
+    return @reach if defined?(@reach)
+
+    windows = cars.map { span(it) }.reject { it.begin > it.end }
+    @reach = (windows.map(&:begin).min..windows.map(&:end).max if windows.any?)
+  end
+
+  # The sum of a daily value of a car over a range inside its span. It is the
+  # difference of two running sums, so the window of each day of a long period
+  # costs no loop over its days.
+  def sum(car, range, key)
+    first = span(car).begin
+    sums = running_sums(car)[key]
+    sums[(range.end - first).to_i + 1] - sums[(range.begin - first).to_i]
+  end
+
+  # { key => [0, day 1, day 1 + day 2, ...] } over the span of the car
+  def running_sums(car)
+    (@running_sums ||= {})[car.id] ||=
+      begin
+        rows = span(car).map { daily_values(car, it) }
+        KEYS.index_with { |key| rows.each_with_object([0]) { |row, sums| sums << (sums.last + row[key]) } }
       end
   end
 
-  def ledger
-    @ledger ||= Car::Ledger.new(ledger_dates, car:, sessions: @sessions)
+  def daily_values(car, date)
+    sessions = sessions_by_day.dig(car.id, date) || []
+    {
+      distance: distances.dig(car.id, date) || 0.0,
+      energy_wh: sessions.sum(&:kwh).to_f * 1000.0,
+      cost: sessions.sum { it.cost.to_f },
+      uncosted: sessions.count { it.cost.nil? },
+    }
   end
 
-  # The rates of several cars as one: the totals add up, and a day of each
-  # car keeps the rate of its own window.
-  class Sum
-    def initialize(rates)
-      @rates = rates
-    end
-
-    attr_reader :rates
-
-    def totals(range = nil)
-      rates.sum(Totals.empty) { range ? it.totals(range) : it.totals }
-    end
-
-    # The days that the rates of all cars read without a fresh summary or
-    # without a detection (see Summary.missing_or_stale_days). Without a car
-    # there is nothing to read.
-    def missing_or_stale_days
-      ranges = rates.map(&:ledger_dates).reject { it.begin > it.end }
-      return [] if ranges.empty?
-
-      Summary.missing_or_stale_days(
-        from: ranges.map(&:begin).min,
-        to: ranges.map(&:end).max,
-        charging_sessions: true,
-      )
-    end
+  # { car id => { date => distance } } of the odometers, in one query
+  def distances
+    @distances ||=
+      begin
+        car_ids = cars.to_h { [Sensor::Cars.sensor_name(:car_mileage, it.id).to_s, it.id] }
+        SummaryValue
+          .where(date: reach, field: car_ids.keys, aggregation: :sum)
+          .pluck(:field, :date, :value)
+          .group_by(&:first)
+          .to_h { |field, rows| [car_ids[field], rows.to_h { |_, date, value| [date, value] }] }
+      end
   end
-  public_constant :Sum
+
+  # { car id => { local date => [session, ...] } }, in one query
+  def sessions_by_day
+    @sessions_by_day ||=
+      ChargingSession
+        .of_cars(cars)
+        .in_range(reach.begin.beginning_of_day, reach.end.end_of_day)
+        .group_by(&:car_id)
+        .transform_values { it.group_by(&:date) }
+  end
 end

@@ -28,7 +28,7 @@ class Cars::HomeController < HomePageController
 
     @missing_or_stale_summary_days =
       (
-        Car::DailyRates.for(timeframe, cars).missing_or_stale_days +
+        Car::DailyRates.new(timeframe, cars).missing_or_stale_days +
           Summary.missing_or_stale_days_for(timeframe, charging_sessions: true)
       ).uniq.sort
   end

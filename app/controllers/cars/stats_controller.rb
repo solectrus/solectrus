@@ -27,7 +27,7 @@ class Cars::StatsController < ApplicationController
     # directly, without going through HomeController#index.
     #
     # The rates per 100 km read a window around each day, so these days count, too.
-    Sensor::Summarizer.new(Car::DailyRates.for(timeframe, cars).missing_or_stale_days).call
+    Sensor::Summarizer.new(Car::DailyRates.new(timeframe, cars).missing_or_stale_days).call
   end
 
   def data_now

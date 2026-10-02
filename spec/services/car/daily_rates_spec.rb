@@ -1,12 +1,13 @@
 require 'rails_helper'
 
 describe Car::DailyRates do
-  subject(:daily_rates) { described_class.new(dates, car:, bounds: min_date..today) }
+  subject(:daily_rates) { described_class.new(timeframe, cars) }
 
   let(:car) { Car.create!(id: 1) }
+  let(:cars) { [car] }
   let(:today) { Date.new(2026, 9, 23) }
   let(:min_date) { Date.new(2025, 1, 1) }
-  let(:dates) { Date.new(2026, 1, 1)..Date.new(2026, 3, 31) }
+  let(:timeframe) { Timeframe.new('2026-01-01..2026-03-31', min_date:) }
 
   def summary(date, field, aggregation, value)
     Summary.find_or_create_by!(date:)
@@ -14,8 +15,8 @@ describe Car::DailyRates do
   end
 
   # Grid energy at 0.30 EUR/kWh, or without a cost
-  def charge(date, energy_wh, cost: true, car_record: car)
-    start = date.in_time_zone.change(hour: 12)
+  def charge(date, energy_wh, cost: true, car_record: car, hour: 12, **attributes)
+    start = date.in_time_zone.change(hour:)
     kwh = energy_wh / 1000.0
     ChargingSession.create!(
       kind: :wallbox,
@@ -25,8 +26,11 @@ describe Car::DailyRates do
       kwh:,
       kwh_grid: kwh,
       cost: (kwh * 0.30 if cost),
+      **attributes,
     )
   end
+
+  def january = daily_rates.totals(Date.new(2026, 1, 1)..Date.new(2026, 1, 31))
 
   before do
     travel_to today.in_time_zone.change(hour: 12)
@@ -45,15 +49,13 @@ describe Car::DailyRates do
 
   describe '#totals' do
     it 'drives each day at the rate of its own window' do
-      totals = daily_rates.totals(Date.new(2026, 1, 1)..Date.new(2026, 1, 31))
-
-      expect(totals.distance).to eq(150)
-      expect(totals.cost).to be_within(0.001).of(9.0)
-      expect(totals.cost_per_100km).to be_within(0.001).of(6.0)
-      expect(totals.consumption_per_100km).to be_within(0.001).of(20.0)
+      expect(january.distance).to eq(150)
+      expect(january.cost).to be_within(0.001).of(9.0)
+      expect(january.cost_per_100km).to be_within(0.001).of(6.0)
+      expect(january.consumption_per_100km).to be_within(0.001).of(20.0)
     end
 
-    it 'gives no rate to a period without a rate' do
+    it 'gives no rate to a window with less than 100 km' do
       totals = daily_rates.totals(Date.new(2026, 2, 1)..Date.new(2026, 2, 28))
 
       expect(totals).not_to be_rated
@@ -72,12 +74,10 @@ describe Car::DailyRates do
     it 'gives no cost rate to a window with a session without a cost' do
       charge(Date.new(2026, 1, 11), 5_000, cost: false)
 
-      totals = daily_rates.totals(Date.new(2026, 1, 1)..Date.new(2026, 1, 31))
-
-      expect(totals).to be_rated
-      expect(totals).not_to be_cost_rated
-      expect(totals.cost_per_100km).to be_nil
-      expect(totals.consumption_per_100km).to be_within(0.001).of(23.333)
+      expect(january).to be_rated
+      expect(january).not_to be_cost_rated
+      expect(january.cost_per_100km).to be_nil
+      expect(january.consumption_per_100km).to be_within(0.001).of(23.333)
     end
 
     it 'adds up: the months give the quarter' do
@@ -85,78 +85,100 @@ describe Car::DailyRates do
 
       expect(months.sum(&:cost)).to be_within(0.001).of(daily_rates.totals.cost)
     end
-  end
 
-  describe '#rate_on' do
-    it 'gives the charged energy and cost of the window for each km' do
-      rate = daily_rates.rate_on(Date.new(2026, 1, 12))
+    it 'counts an offsite session' do
+      ChargingSession.create!(kind: :offsite, car:, started_at: Date.new(2026, 1, 11).in_time_zone.change(hour: 12), kwh: 15, cost: 7.5)
 
-      expect(rate.wh_per_km).to be_within(0.001).of(200)
-      expect(rate.cost_per_km).to be_within(0.001).of(0.06)
+      expect(january.consumption_per_100km).to be_within(0.001).of(30.0)
+      expect(january.cost_per_100km).to be_within(0.001).of(11.0)
     end
 
-    it 'gives no rate to a window with less than 100 km' do
-      expect(daily_rates.rate_on(Date.new(2026, 2, 20))).to be_nil
-    end
-  end
+    it 'counts no guest session, no session without a car and no session of another car' do
+      charge(Date.new(2026, 1, 11), 5_000, car_record: nil, guest: true, hour: 18)
+      charge(Date.new(2026, 1, 11), 6_000, car_record: nil, hour: 19)
+      charge(Date.new(2026, 1, 11), 7_000, car_record: Car.create!(id: 2), hour: 20)
 
-  describe '#ledger_dates' do
-    it 'is the dates plus the margin on each side' do
-      expect(daily_rates.ledger_dates).to eq(Date.new(2025, 12, 18)..Date.new(2026, 4, 14))
+      expect(january.consumption_per_100km).to be_within(0.001).of(20.0)
     end
 
-    context 'with a recent period' do
-      let(:dates) { Date.new(2026, 9, 1)..today }
+    # The window of January 12 ends on January 26
+    it 'books a session to the local date of its start' do
+      charge(Date.new(2026, 1, 26), 15_000, hour: 23)
+      charge(Date.new(2026, 1, 27), 15_000, hour: 0)
 
-      it 'ends today' do
-        expect(daily_rates.ledger_dates).to eq(Date.new(2026, 8, 18)..today)
-      end
-    end
-
-    context 'with a period near the installation date' do
-      let(:dates) { Date.new(2025, 1, 1)..Date.new(2025, 1, 31) }
-
-      it 'starts at the installation date' do
-        expect(daily_rates.ledger_dates).to eq(min_date..Date.new(2025, 2, 14))
-      end
-    end
-  end
-
-  describe '.for' do
-    let(:timeframe) { Timeframe.new('2026-01', min_date:) }
-
-    it 'takes the dates and the installation date of the timeframe' do
-      rates = described_class.for(timeframe, [car])
-
-      expect(rates.rates.sole.dates).to eq(Date.new(2026, 1, 1)..Date.new(2026, 1, 31))
+      expect(january.consumption_per_100km).to be_within(0.001).of(30.0)
     end
 
     it 'ends the windows at the period of the car' do
       car.update!(active_from: Date.new(2026, 1, 11))
 
       # The charge of January 10 belongs to the car before
-      expect(described_class.for(timeframe, [car]).totals.distance).to eq(0)
+      expect(january.distance).to eq(0)
     end
 
-    it 'adds the cars' do
-      other = Car.create!(id: 2)
-      charge(Date.new(2026, 1, 12), 20_000, car_record: other)
-      summary(Date.new(2026, 1, 12), :car_mileage_2, :sum, 100)
+    context 'with two cars' do
+      let(:cars) { [car, Car.create!(id: 2)] }
 
-      totals = described_class.for(timeframe, [car, other]).totals
+      before do
+        charge(Date.new(2026, 1, 12), 20_000, car_record: cars.last)
+        summary(Date.new(2026, 1, 12), :car_mileage_2, :sum, 100)
+      end
 
-      expect(totals.distance).to eq(250)
-      expect(totals.cost).to be_within(0.001).of(15.0)
+      it 'adds the cars, each at its own rate' do
+        expect(january.distance).to eq(250)
+        expect(january.cost).to be_within(0.001).of(15.0)
+      end
+
+      it 'reads the distances and the sessions of all cars in one query each' do
+        queries = []
+        ActiveSupport::Notifications.subscribed(->(*, payload) { queries << payload[:name] }, 'sql.active_record') do
+          [1, 2, 3].each { daily_rates.totals(Date.new(2026, it, 1).all_month) }
+        end
+
+        expect(queries.tally).to include('SummaryValue Pluck' => 1, 'ChargingSession Load' => 1)
+      end
+    end
+  end
+
+  describe '#missing_or_stale_days' do
+    # The days that the rates read
+    def reach
+      reached = nil
+      allow(Summary).to receive(:missing_or_stale_days) do |from:, to:, **|
+        reached = from..to
+        []
+      end
+
+      daily_rates.missing_or_stale_days
+      reached
     end
 
-    it 'includes the days around the dates in the days to build' do
-      rates = described_class.for(Timeframe.new('2026-06-26', min_date:), [car])
+    it 'reads the dates plus the margin on each side' do
+      expect(reach).to eq(Date.new(2025, 12, 18)..Date.new(2026, 4, 14))
+    end
 
-      expect(rates.missing_or_stale_days).to include(
-        Date.new(2026, 6, 12),
-        Date.new(2026, 6, 26),
-        Date.new(2026, 7, 10),
-      )
+    context 'with a recent period' do
+      let(:timeframe) { Timeframe.new('2026-09', min_date:) }
+
+      it 'ends today' do
+        expect(reach).to eq(Date.new(2026, 8, 18)..today)
+      end
+    end
+
+    context 'with a period near the installation date' do
+      let(:timeframe) { Timeframe.new('2025-01', min_date:) }
+
+      it 'starts at the installation date' do
+        expect(reach).to eq(min_date..Date.new(2025, 2, 14))
+      end
+    end
+
+    context 'without a car' do
+      let(:cars) { [] }
+
+      it 'reads nothing' do
+        expect(reach).to be_nil
+      end
     end
   end
 end

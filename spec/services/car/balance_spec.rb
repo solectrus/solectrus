@@ -22,8 +22,8 @@ describe Car::Balance do
   end
 
   before do
-    allow(Car::DailyRates).to receive(:for).with(timeframe, selected_cars, sessions: anything).and_return(
-      instance_double(Car::DailyRates::Sum, totals: driving),
+    allow(Car::DailyRates).to receive(:new).with(timeframe, selected_cars).and_return(
+      instance_double(Car::DailyRates, totals: driving),
     )
 
     wallbox(10, kwh: 10, kwh_grid: 4, cost: 1.6, car_id: 1)
@@ -98,28 +98,13 @@ describe Car::Balance do
     end
   end
 
-  describe 'a session in the window of the rates, outside the period' do
+  describe 'a session before the period' do
     before do
       ChargingSession.create!(kind: :offsite, car_id: 1, started_at: Time.zone.local(2025, 12, 25, 12), kwh: 50, cost: 9.0)
     end
 
     it 'does not count for the charging of the period' do
       expect(balance.charged_wh).to eq(38_000)
-    end
-
-    it 'goes to the rates with the sessions of the period, from one query' do
-      queries = []
-      ActiveSupport::Notifications.subscribed(->(*, payload) { queries << payload[:name] }, 'sql.active_record') do
-        balance.driving
-        balance.charged_wh
-      end
-
-      expect(Car::DailyRates).to have_received(:for).with(
-        timeframe,
-        selected_cars,
-        sessions: include(an_object_having_attributes(kwh: 50), an_object_having_attributes(kwh: 8)),
-      )
-      expect(queries.count('ChargingSession Load')).to eq(1)
     end
   end
 

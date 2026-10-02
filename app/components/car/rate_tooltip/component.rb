@@ -60,6 +60,6 @@ class Car::RateTooltip::Component < ViewComponent::Base
   end
 
   def margin_days
-    Car::RateWindow::MARGIN_DAYS
+    Car::DailyRates::MARGIN_DAYS
   end
 end

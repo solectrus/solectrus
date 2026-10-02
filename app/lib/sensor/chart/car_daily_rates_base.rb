@@ -64,10 +64,10 @@ class Sensor::Chart::CarDailyRatesBase < Sensor::Chart::Base
   end
 
   def daily_rates
-    @daily_rates ||= Car::DailyRates.for(timeframe, cars)
+    @daily_rates ||= Car::DailyRates.new(timeframe, cars)
   end
 
   def daily_rate_note
-    I18n.t('car_breakdown.daily_rate', days: Car::RateWindow::MARGIN_DAYS)
+    I18n.t('car_breakdown.daily_rate', days: Car::DailyRates::MARGIN_DAYS)
   end
 end
