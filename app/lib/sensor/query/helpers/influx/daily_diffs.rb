@@ -2,18 +2,21 @@ module Sensor
   module Query
     module Helpers
       module Influx
-        # The interpolated daily diff of sparse monotonic sensors, like a car
-        # odometer, for many days in one Flux program (see
-        # Sensor::Query::InterpolatedDiff).
+        # The daily increase of meters, like a car odometer, that report far
+        # less often than once a day, for many days in one Flux program.
         #
-        # A day needs the last reading at or before each of its two
-        # boundaries and the first reading after them. For a run of
-        # consecutive days, these are among the first and the last reading of
-        # each day, plus the last reading before the run and the first
-        # reading after it. One query
-        # fetches exactly these points, and InterpolatedDiff interpolates from
-        # them. The per-day lookups it replaces cost two round trips for each
-        # day and sensor.
+        # The increase of a day is the reading at the start of the next day
+        # minus the reading at the start of the day. Each reading at such a
+        # boundary is interpolated linearly between the last reading at or
+        # before it and the first reading after it. A day without a reading
+        # thus gets its share of the distance between the readings around it.
+        # The boundary of the next day makes the diffs of consecutive days
+        # telescope: their sum is the increase over the whole range.
+        #
+        # For a run of consecutive days, the points around each boundary are
+        # among the first and the last reading of each day, plus the last
+        # reading before the run and the first reading after it. One query
+        # fetches exactly these points.
         #
         # Influx::DailyBatch runs it next to its other programs, so the diffs
         # cost no extra round trip.
@@ -32,15 +35,45 @@ module Sensor
             points = fetch_points
 
             dates.index_with do |date|
-              timeframe = Timeframe.new(date.iso8601)
-
-              sensor_names.index_with do |name|
-                InterpolatedDiff.call(sensor_name: name, timeframe:, points: points[name])
-              end
+              day = Timeframe.new(date.iso8601)
+              sensor_names.index_with { diff(points[it], day) }
             end
           end
 
           private
+
+          # The increase over the day, or nil without a reading. The running
+          # day ends now instead of extrapolating into the future.
+          def diff(points, day)
+            start_value = value_at(points, day.beginning)
+            end_value = value_at(points, [day.beginning_of_next, Time.current].min)
+            [end_value - start_value, 0].max if start_value && end_value
+          end
+
+          # The reading at the time, interpolated between the readings around
+          # it. A reading exactly at the time counts as the one before it.
+          def value_at(points, time)
+            return if time <= installation_time
+
+            before = points.select { |t, _| t <= time }.max_by(&:first)
+            after = points.select { |t, _| t > time }.min_by(&:first)
+            interpolate(before, after, time)
+          end
+
+          def interpolate(before, after, time)
+            # Without an earlier reading, the first reading stands in. A
+            # meter cannot have read more before, so the first day keeps its
+            # increase.
+            return after&.last unless before
+
+            # Without a later reading, the last reading stands in. For a
+            # meter this only underestimates.
+            before_time, before_value = before
+            return before_value if after.nil? || before_time == time
+
+            after_time, after_value = after
+            before_value + ((after_value - before_value) * (time - before_time).fdiv(after_time - before_time))
+          end
 
           # { sensor_name => [[Time, value], ...] }
           def fetch_points

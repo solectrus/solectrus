@@ -168,7 +168,7 @@ module Sensor
         # +meter+ marks a meter, like an odometer, that is read far less
         # often than once a day. Its daily :sum is the increase of the
         # reading, interpolated at each day boundary (see
-        # Sensor::Query::InterpolatedDiff).
+        # Sensor::Query::Helpers::Influx::DailyDiffs).
         def aggregations(
           stored: nil,
           meta: nil,

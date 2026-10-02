@@ -15,6 +15,8 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
     end
   end
 
+  def diffs = call.transform_values { it[:car_mileage_1] }
+
   # Sparse readings: a day without a reading, a day with several, and
   # readings before and after the dates
   let(:readings) do
@@ -30,12 +32,12 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
   # With a gap: March 10 is not asked for, but its boundary counts
   let(:dates) { [Date.new(2024, 3, 8), Date.new(2024, 3, 9), Date.new(2024, 3, 11)] }
 
-  it 'returns the same diff as each day on its own' do
-    dates.each do |date|
-      single = Sensor::Query::InterpolatedDiff.call(sensor_name: :car_mileage_1, timeframe: Timeframe.new(date.iso8601))
-
-      expect(call[date][:car_mileage_1]).to be_within(0.001).of(single), "differs for #{date}"
-    end
+  # 40 km in the 37 hours from March 7, 18:00, to March 9, 07:00, and 180 km
+  # in the 59 hours from March 9, 19:00, to March 12, 06:00
+  it 'interpolates the reading at each midnight' do
+    expect(diffs[Date.new(2024, 3, 8)]).to be_within(0.001).of(40 * 24 / 37.0)
+    expect(diffs[Date.new(2024, 3, 9)]).to be_within(0.001).of(((180 * 5 / 59.0) + 1100) - ((40 * 30 / 37.0) + 1000))
+    expect(diffs[Date.new(2024, 3, 11)]).to be_within(0.001).of(180 * 24 / 59.0)
   end
 
   it 'needs one query for all days' do
@@ -46,16 +48,17 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
     expect(Influx).to have_received(:query).once
   end
 
+  context 'with consecutive days' do
+    let(:dates) { (Date.new(2024, 3, 7)..Date.new(2024, 3, 12)).to_a }
+
+    # The first reading stands in before it, and the last one after it
+    it 'adds up to the increase over the whole range' do
+      expect(diffs.values.sum).to be_within(0.001).of(280)
+    end
+  end
+
   context 'with dates far apart' do
     let(:dates) { [Date.new(2024, 3, 8), Date.new(2024, 3, 11), Date.new(2024, 9, 1)] }
-
-    it 'returns the same diff as each day on its own' do
-      dates.each do |date|
-        single = Sensor::Query::InterpolatedDiff.call(sensor_name: :car_mileage_1, timeframe: Timeframe.new(date.iso8601))
-
-        expect(call[date][:car_mileage_1]).to be_within(0.001).of(single), "differs for #{date}"
-      end
-    end
 
     it 'reads the days asked for, not the span between them' do
       allow(Influx).to receive(:query).and_call_original
@@ -64,13 +67,57 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
 
       expect(Influx).to have_received(:query).with(satisfy { it.scan('|> first()').size == 6 })
     end
+
+    it 'gives the same diffs as the consecutive days' do
+      expect(diffs[Date.new(2024, 3, 11)]).to be_within(0.001).of(180 * 24 / 59.0)
+    end
+
+    it 'gives no increase after the last reading' do
+      expect(diffs[Date.new(2024, 9, 1)]).to eq(0)
+    end
+  end
+
+  context 'with a reading exactly at midnight' do
+    let(:readings) do
+      [
+        [Time.zone.local(2024, 3, 9, 12), 900],
+        [Time.zone.local(2024, 3, 10), 1234],
+        [Time.zone.local(2024, 3, 10, 12), 1300],
+        [Time.zone.local(2024, 3, 11, 12), 1400],
+      ]
+    end
+    let(:dates) { [Date.new(2024, 3, 10)] }
+
+    it 'takes this reading without interpolating' do
+      expect(diffs[Date.new(2024, 3, 10)]).to be_within(0.001).of(1350 - 1234)
+    end
+  end
+
+  context 'with the running day' do
+    let(:readings) { [[Time.zone.local(2024, 3, 10, 8), 1000], [Time.zone.local(2024, 3, 10, 10), 1040]] }
+    let(:dates) { [Date.new(2024, 3, 10)] }
+
+    before { travel_to Time.zone.local(2024, 3, 10, 12) }
+
+    it 'ends now instead of extrapolating' do
+      expect(diffs[Date.new(2024, 3, 10)]).to eq(40)
+    end
+  end
+
+  context 'with the installation day' do
+    let(:dates) { [Rails.configuration.x.installation_date] }
+    let(:readings) { [[dates.first.in_time_zone.change(hour: 8), 1000], [dates.first.in_time_zone.change(hour: 20), 1100]] }
+
+    it 'gives no diff, because nothing was read before' do
+      expect(diffs[dates.first]).to be_nil
+    end
   end
 
   context 'without a reading' do
     let(:readings) { [] }
 
     it 'returns nil' do
-      expect(call.values.pluck(:car_mileage_1)).to all(be_nil)
+      expect(diffs.values).to all(be_nil)
     end
   end
 

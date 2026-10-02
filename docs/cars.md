@@ -144,13 +144,13 @@ car sensors.
 
 `car_mileage_<n>` stores the distance of each day as the aggregation `sum`. A car writes
 its odometer only while it is online, so a day can have one reading or none.
-`Sensor::Query::InterpolatedDiff` therefore interpolates the odometer at each midnight
-between the readings around it. The daily values then add up exactly: the sum of a range is
+`Influx::DailyDiffs` therefore interpolates the odometer at each midnight between the
+readings around it. The daily values then add up exactly: the sum of a range is
 the odometer at its end minus the odometer at its start.
 
-The definition marks the sensor as a meter (`meter: true`). The summary build reads a meter
-with `Influx::DailyDiffs` and not with the integral of a power. One Flux program gives the
-readings around midnight for all meters and all days of a build.
+The definition marks the sensor as a meter (`meter: true`), so the summary build reads it
+this way and not with the integral of a power. One Flux program gives the readings around
+midnight for all meters and all days of a build.
 
 ### Maximum range
 

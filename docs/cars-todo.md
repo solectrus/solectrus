@@ -38,7 +38,7 @@ None of these changes the design above.
 
 - Manual odometer readings, for the history before the odometer sensor or for a car
   without one. This is postponed. It needs a table for the readings, and
-  `Sensor::Query::InterpolatedValue` must merge them with the InfluxDB readings. A new
+  `Influx::DailyDiffs` must merge them with the InfluxDB readings. A new
   reading changes the distance of each day up to the readings around it, so these days must
   be built again. Two readings that are months apart give the same distance to each day
   between them, so the page must mark such days. A car without an odometer variable makes
