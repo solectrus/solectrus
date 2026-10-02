@@ -1,0 +1,26 @@
+= form_with(model: car, url: settings_car_path(car), id: dom_id(car, :form), html: { data: { controller: 'form-dirty' } }) do |f|
+  - if car.errors[:base].any?
+    .mb-4.text-signal-negative
+      = car.errors[:base].to_sentence
+
+  = f.group do
+    / The color is a small square beside the name, as high as its input
+    .grid.gap-4 class='grid-cols-[1fr_auto]'
+      = f.text_field :name, autofocus: true, placeholder: Car.display_name_of(car.id), hint: t('settings.cars.name_hint')
+      .form-control
+        / The square speaks for itself. Its hidden label keeps it level with
+          the input of the name.
+        span.label aria-hidden='true'
+          span.label-text.invisible = Car.human_attribute_name(:color)
+        = color_field :car,
+                      :color,
+                      value: car.display_color,
+                      class: 'form-input size-[42px] p-1 cursor-pointer',
+                      title: Car.human_attribute_name(:color),
+                      aria: { label: Car.human_attribute_name(:color) }
+    .grid.grid-cols-1.md:grid-cols-2.gap-4
+      = f.date_field :active_from, required: true, hint: t('settings.cars.active_from_hint')
+      = f.date_field :active_until, hint: t('settings.cars.active_until_hint')
+
+  .flex.justify-end
+    = render 'settings/fab_submit'

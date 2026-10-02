@@ -353,6 +353,17 @@ en:
       description:
         electricity: Price per kWh consumed, paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
+    cars:
+      name: Cars
+      edit: Edit car %{number}
+      description: Each car has a number, which names its variables, for example INFLUX_SENSOR_CAR_MILEAGE_2. A number with a variable gets its car by itself. Here you give each car a name, a period of use and a color.
+      never_removed: SOLECTRUS never removes a car. A car that you sell keeps its number and its history. Give it a last day of use, and give the next car a new number.
+      variable_change: If you change a variable of a number, SOLECTRUS rebuilds the daily summaries, and the history of the number changes.
+      empty: No car is configured. Add the variables of a car to your configuration, for example <code>INFLUX_SENSOR_CAR_MILEAGE_1</code>. Up to %{max} cars are possible.
+      period: Period of use
+      name_hint: Without a name, SOLECTRUS uses the number.
+      active_from_hint: The first day with this car.
+      active_until_hint: Empty means the car is in use.
     cash_flows:
       name: Cash flows
       description: Investments, costs and subsidies around the PV system – the basis for the amortization calculation.

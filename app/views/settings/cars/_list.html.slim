@@ -1,0 +1,33 @@
+- if cars.empty?
+  .flex.flex-col.items-center.justify-center.py-16.gap-4.text-gray-300.dark:text-gray-700
+    = icon 'car', class: 'text-8xl opacity-40'
+    p.text-gray-500.text-sm.md:text-base.text-center.max-w-prose.px-4
+      = raw t('settings.cars.empty', max: Sensor::Cars::MAX)
+- else
+  .grid.w-full class="grid-cols-[auto_1fr_auto_auto]"
+    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold
+      .p-2 = Car.human_attribute_name(:id)
+      .p-2 = Car.human_attribute_name(:name)
+      .p-2 = t('settings.cars.period')
+      .p-2
+    - cars.each do |car|
+      .col-span-full.grid.grid-cols-subgrid.items-center.hover:bg-gray-100.dark:hover:bg-gray-700
+        .p-2.flex.items-center.gap-2.tabular-nums
+          span.size-3.rounded-full style="background-color: #{car.display_color}"
+          = car.id
+        .p-2.min-w-0
+          .truncate = car.display_name
+          .text-xs.text-gray-500.truncate
+            = Sensor::Cars::CONFIGURABLE_ROLES.filter_map { Sensor::Config.mapping(Sensor::Cars.sensor_name(it, car.id)) }.join(', ')
+        .p-2.text-sm.tabular-nums.whitespace-nowrap
+          = "#{l(car.active_from)} – #{car.active_until ? l(car.active_until) : '…'}"
+        .p-2
+          = render Button::Component.new path: edit_settings_car_path(car),
+                                         icon: 'pencil',
+                                         type: :button,
+                                         style: :secondary,
+                                         options: { \
+                                           method: :get,
+                                           data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                                           'aria-label': t('crud.edit'),
+                                         }

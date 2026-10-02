@@ -1,0 +1,9 @@
+= render 'settings/sub_nav'
+
+.px-2.mb-4.space-y-2.text-gray-500.text-sm.md:text-base.max-w-prose
+  p = t('settings.cars.description')
+  p = t('settings.cars.never_removed')
+  p = t('settings.cars.variable_change')
+
+= tag.turbo_frame id: 'list' do
+  = render 'list', cars: @cars
