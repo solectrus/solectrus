@@ -26,10 +26,6 @@ class Cars::HomeController < HomePageController
   def load_missing_or_stale_summary_days(timeframe)
     return super if timeframe.now? || timeframe.hours?
 
-    @missing_or_stale_summary_days =
-      (
-        Car::DailyRates.new(timeframe, cars).missing_or_stale_days +
-          Summary.missing_or_stale_days_for(timeframe, charging_sessions: true)
-      ).uniq.sort
+    @missing_or_stale_summary_days = Car::DailyRates.new(timeframe, cars).missing_or_stale_days
   end
 end

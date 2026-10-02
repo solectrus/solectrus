@@ -141,8 +141,8 @@ describe Car::DailyRates do
   end
 
   describe '#missing_or_stale_days' do
-    # The days that the rates read
-    def reach
+    # The days to build
+    def days_to_build
       reached = nil
       allow(Summary).to receive(:missing_or_stale_days) do |from:, to:, **|
         reached = from..to
@@ -154,14 +154,14 @@ describe Car::DailyRates do
     end
 
     it 'reads the dates plus the margin on each side' do
-      expect(reach).to eq(Date.new(2025, 12, 18)..Date.new(2026, 4, 14))
+      expect(days_to_build).to eq(Date.new(2025, 12, 18)..Date.new(2026, 4, 14))
     end
 
     context 'with a recent period' do
       let(:timeframe) { Timeframe.new('2026-09', min_date:) }
 
       it 'ends today' do
-        expect(reach).to eq(Date.new(2026, 8, 18)..today)
+        expect(days_to_build).to eq(Date.new(2026, 8, 18)..today)
       end
     end
 
@@ -169,15 +169,23 @@ describe Car::DailyRates do
       let(:timeframe) { Timeframe.new('2025-01', min_date:) }
 
       it 'starts at the installation date' do
-        expect(reach).to eq(min_date..Date.new(2025, 2, 14))
+        expect(days_to_build).to eq(min_date..Date.new(2025, 2, 14))
+      end
+    end
+
+    context 'with a car that starts in the timeframe' do
+      before { car.update!(active_from: Date.new(2026, 2, 15)) }
+
+      it 'also builds the days of the timeframe before the car' do
+        expect(days_to_build).to eq(Date.new(2026, 1, 1)..Date.new(2026, 4, 14))
       end
     end
 
     context 'without a car' do
       let(:cars) { [] }
 
-      it 'reads nothing' do
-        expect(reach).to be_nil
+      it 'reads the dates' do
+        expect(days_to_build).to eq(Date.new(2026, 1, 1)..Date.new(2026, 3, 31))
       end
     end
   end

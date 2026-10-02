@@ -82,13 +82,15 @@ class Car::DailyRates
     range.filter_map { days[it] }.sum(Totals.empty)
   end
 
-  # The days that the rates read without a fresh summary or without a
-  # detection (see Summary.missing_or_stale_days). Without a car there is
-  # nothing to read.
+  # The days of the timeframe and the days that the rates read, without a
+  # fresh summary or without a detection (see Summary.missing_or_stale_days)
   def missing_or_stale_days
-    return [] unless reach
-
-    Summary.missing_or_stale_days(from: reach.begin, to: reach.end, charging_sessions: true)
+    ranges = [dates, reach].compact
+    Summary.missing_or_stale_days(
+      from: ranges.map(&:begin).min,
+      to: ranges.map(&:end).max,
+      charging_sessions: true,
+    )
   end
 
   private
