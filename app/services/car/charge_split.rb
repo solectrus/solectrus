@@ -13,11 +13,15 @@ class Car::ChargeSplit
   end
 
   def split?
-    wallbox.all?(&:kwh_grid)
+    ApplicationPolicy.power_splitter? && wallbox.all?(&:kwh_grid)
   end
 
-  # The energy (Wh) of the own wallbox, with or without a split
+  # The energy (Wh) and the cost of the own wallbox and of the offsite
+  # sessions, with or without a split
   def wallbox_wh = wh(wallbox.sum(&:kwh))
+  def offsite_wh = wh(offsite.sum { it.kwh.to_f })
+  def wallbox_cost = wallbox.sum { it.cost.to_f }
+  def offsite_cost = offsite.sum { it.cost.to_f }
 
   # The charged energy (Wh) by source
   def energy
@@ -26,7 +30,7 @@ class Car::ChargeSplit
     {
       pv: wh(wallbox.sum(&:kwh_pv)),
       grid: wh(wallbox.sum(&:kwh_grid)),
-      offsite: wh(offsite.sum(&:kwh)),
+      offsite: offsite_wh,
     }
   end
 
@@ -37,7 +41,7 @@ class Car::ChargeSplit
     {
       pv: wallbox.sum { it.cost.to_f - it.cost_grid.to_f },
       grid: wallbox.sum { it.cost_grid.to_f },
-      offsite: offsite.sum { it.cost.to_f },
+      offsite: offsite_cost,
     }
   end
 

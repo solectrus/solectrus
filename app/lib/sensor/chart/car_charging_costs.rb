@@ -28,7 +28,7 @@ class Sensor::Chart::CarChargingCosts < Sensor::Chart::WallboxCosts
           build_cost_dataset(
             :wallbox_costs,
             Sensor::Registry[:wallbox_power].display_name,
-            sessions_by_bucket.map { |sessions| presence(sessions.select(&:wallbox?).sum { it.cost.to_f }) },
+            splits.map { presence(it.wallbox_cost) },
             Sensor::Registry[:wallbox_power].color_background,
           ),
         ]
@@ -39,7 +39,7 @@ class Sensor::Chart::CarChargingCosts < Sensor::Chart::WallboxCosts
       build_cost_dataset(
         :offsite,
         ChargingSession.human_enum_name(:kind, :offsite),
-        sessions_by_bucket.map { |sessions| presence(sessions.select(&:offsite?).sum { it.cost.to_f }) },
+        splits.map { presence(it.offsite_cost) },
         'bg-sensor-offsite',
       ),
     ]

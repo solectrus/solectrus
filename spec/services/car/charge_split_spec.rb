@@ -6,6 +6,8 @@ describe Car::ChargeSplit do
   let(:car) { Car.create!(id: 1) }
 
   before do
+    stub_feature(:power_splitter)
+
     # 2 kWh grid for 0.60 and 8 kWh PV for 0.80
     start = Time.zone.local(2026, 1, 15, 12)
     ChargingSession.create!(kind: :wallbox, car:, started_at: start, ended_at: start + 1.hour, kwh: 10, kwh_grid: 2, cost: 1.4, cost_grid: 0.6)

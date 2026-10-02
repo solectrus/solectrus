@@ -64,7 +64,7 @@ class Sensor::Chart::CarCharging < Sensor::Chart::Base
       build_dataset(
         id: 'offsite',
         label: ChargingSession.human_enum_name(:kind, :offsite),
-        data: sessions_by_bucket.map { |sessions| presence(sessions.select(&:offsite?).sum { it.kwh.to_f } * 1000.0) },
+        data: splits.map { presence(it.offsite_wh) },
         color_class: 'bg-sensor-offsite',
       ),
     ]

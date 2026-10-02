@@ -30,7 +30,7 @@ class Car::ChargingCard::Component < ViewComponent::Base
   attr_reader :balance, :timeframe
 
   def split?
-    ApplicationPolicy.power_splitter? && energy_parts.present? && total_wh.positive?
+    energy_parts.present? && total_wh.positive?
   end
 
   def total_wh

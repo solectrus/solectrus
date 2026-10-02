@@ -43,9 +43,8 @@ module Sensor
           @splits ||= sessions_by_bucket.map { Car::ChargeSplit.new(it) }
         end
 
-        # Each session splits only with the power splitter
         def split?
-          ApplicationPolicy.power_splitter? && splits.all?(&:split?)
+          splits.all?(&:split?)
         end
 
         # Nil for an empty column, so it has no bar
