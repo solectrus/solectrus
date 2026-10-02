@@ -1,0 +1,25 @@
+- if sessions.empty?
+  .flex.flex-col.items-center.justify-center.py-16.gap-4.text-gray-300.dark:text-gray-700
+    = icon 'charging-station', class: 'text-8xl opacity-40'
+    p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
+      = empty_message
+    p.text-gray-500.text-sm.md:text-base.text-center.max-w-prose.px-4
+      = t "charging_sessions.description.#{kind}"
+- else
+  .grid.w-full.select-text class=(pv_share? ? 'grid-cols-[auto_auto_auto_0_auto_auto] sm:grid-cols-[auto_auto_auto_1fr_auto_auto]' : 'grid-cols-[auto_auto_0_auto_auto_auto] md:grid-cols-[auto_auto_1fr_auto_auto_auto]')
+    = render ChargingSession::Rows::Component.new(sessions:, pagy:)
+
+    .col-span-full.grid.grid-cols-subgrid.sticky.bottom-0.z-10.bg-white.dark:bg-slate-900.text-gray-800.dark:text-gray-400.font-bold
+      .col-start-1.col-span-2.border-t.border-current.p-1.sm:p-2.pt-3.sm:pt-4.text-left.whitespace-nowrap
+        = total_count
+        small.font-light<
+          = t('charging_sessions.count', count: total_count)
+      .border-t.border-current.p-1.sm:p-2.pt-3.sm:pt-4.tabular-nums.text-right.whitespace-nowrap class=(pv_share? ? 'col-start-3' : 'col-start-4')
+        = render SensorValue::Component.new(total_kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
+      - if pv_share? && total_pv_percent
+        .col-start-4.hidden.sm:block.sm:mx-6.border-t.border-current.p-1.sm:p-2.pt-3.sm:pt-4.tabular-nums.whitespace-nowrap
+          = render ChargingSession::PvShareBar::Component.new(percent: total_pv_percent)
+      .col-start-5.border-t.border-current.p-1.sm:p-2.pt-3.sm:pt-4.tabular-nums.text-right.whitespace-nowrap
+        - if cost_incomplete?
+          span.text-gray-400 title=t('charging_sessions.cost_incomplete') ≥
+        = number_to_currency(total_cost, unit: Currency.symbol)

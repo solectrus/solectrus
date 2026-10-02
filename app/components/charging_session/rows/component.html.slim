@@ -1,0 +1,7 @@
+- sessions.each do |charging_session|
+  = render ChargingSession::Row::Component.new(charging_session:)
+
+- if pagy&.next
+  = helpers.turbo_frame_tag next_page_frame_id, src: next_page_src, loading: :lazy, class: 'col-span-full grid grid-cols-subgrid' do
+    .col-span-full.text-center.py-4.text-gray-400
+      = icon 'spinner', class: 'fa-spin'

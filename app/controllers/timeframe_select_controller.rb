@@ -12,5 +12,14 @@ class TimeframeSelectController < ApplicationController
     end
   end
 
-  helper_method :referer_namespace
+  private
+
+  # The page of the sensor in the section the user came from
+  helper_method def timeframe_select_base_url
+    if referer_namespace == 'balance'
+      "/#{sensor_name}"
+    else
+      "/#{referer_namespace}/#{sensor_name}"
+    end
+  end
 end

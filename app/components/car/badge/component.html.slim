@@ -1,0 +1,8 @@
+span class=class_names('inline-flex items-center gap-1.5 max-w-full rounded-full px-2 py-0.5 text-xs sm:text-sm', 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' => state != :not_assigned, 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200' => state == :not_assigned)
+  - if color
+    span class='size-2.5 rounded-full shrink-0' style="background-color: #{color}"
+  - elsif state == :guest
+    = helpers.icon 'user', class: 'fa-xs opacity-60'
+  - else
+    = helpers.icon 'circle-question', class: 'fa-xs'
+  span.truncate = label

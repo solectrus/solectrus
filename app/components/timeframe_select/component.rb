@@ -6,21 +6,20 @@ class TimeframeSelect::Component < ViewComponent::Base
 
   public_constant :LABEL_CLASSES, :INPUT_CLASSES, :BACK_BUTTON_CLASSES
 
-  def initialize(timeframe:, sensor_name:, controller_namespace:)
+  # The selected timeframe goes to the end of `base_url`. `car` is the
+  # selected car of the car page or of the list of the charging sessions,
+  # which the new address keeps.
+  def initialize(timeframe:, base_url:, car: nil)
     super()
     @timeframe = timeframe
-    @sensor_name = sensor_name
-    @controller_namespace = controller_namespace
+    @base_url = base_url
+    @car = car
   end
 
-  attr_reader :timeframe, :sensor_name, :controller_namespace
+  attr_reader :timeframe, :base_url
 
-  def base_url
-    if controller_namespace == 'balance'
-      "/#{sensor_name}"
-    else
-      "/#{controller_namespace}/#{sensor_name}"
-    end
+  def query
+    @car.present? ? "?#{{ car: @car }.to_query}" : ''
   end
 
   def min_date

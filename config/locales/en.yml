@@ -63,6 +63,7 @@ en:
     year: This year
     years: Last %{count} years
     all: Since commissioning %{since} ago
+    total: All entries
   sensors:
     car_roles:
       car_battery_soc: SOC
@@ -262,6 +263,28 @@ en:
       p2: Registration helps to gauge how widely the software is used and to prioritize future development.
       continue: Register now
       login_required: Please log in as an administrator to complete the registration.
+  charging_sessions:
+    edit: Edit charging session
+    new: New charging session
+    guest: Guest
+    not_assigned: Not assigned
+    no_cost: No cost, because the day has no price
+    cost_incomplete: At least, because a charging session has no cost
+    count:
+      one: charging session
+      other: charging sessions
+    description:
+      wallbox: Charging sessions at your own wallbox. SOLECTRUS finds them in the power curve of the wallbox and assigns them to a car. A guest charge or a session that is not assigned counts for no car.
+      offsite: Charging sessions at public charging stations or on other people's wallboxes. This energy and cost is added to the car.
+    empty:
+      wallbox:
+        all: No charging sessions at the wallbox found
+        filtered: No charging sessions at the wallbox for %{timeframe}
+      offsite:
+        all: No offsite charging sessions recorded
+        filtered: No offsite charging sessions for %{timeframe}
+    form:
+      charging_point: Charging point
   crud:
     new: New
     edit: Edit

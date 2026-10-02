@@ -1,99 +1,107 @@
 # == Route Map
 #
 # Routes for application:
-#                            Prefix Verb             URI Pattern                                               Controller#Action
-#                      health_check GET              /up(.:format)                                             health#show
-#                skip_browser_check GET              /skip-browser-check(.:format)                             application#skip_browser_check
-#                          manifest GET              /manifest.webmanifest                                     manifest#show
-#                          lookbook                  /lookbook                                                 Lookbook::Engine
-#                     lockup_unlock GET              /lockup/unlock(.:format)                                  lockup#unlock
-#                            unlock POST             /lockup/unlock(.:format)                                  lockup#unlock
-#                               mcp POST             /mcp(.:format)                                            mcp#handle
-#                                   GET              /mcp(.:format)                                            mcp_info#show
-#                                   DELETE|PUT|PATCH /mcp(.:format)                                            mcp#unsupported_method
-#                                   GET              /.well-known/oauth-protected-resource(.:format)           oauth/metadata#protected_resource
-#                                   GET              /.well-known/oauth-protected-resource/mcp(.:format)       oauth/metadata#protected_resource
-#                                   GET              /.well-known/oauth-authorization-server(.:format)         oauth/metadata#authorization_server
-#                                   GET              /.well-known/openid-configuration(.:format)               oauth/metadata#openid_configuration
-#                    oauth_register POST             /oauth/register(.:format)                                 oauth/registrations#create
-#                   oauth_authorize GET              /oauth/authorize(.:format)                                oauth/authorizations#new
-#                                   POST             /oauth/authorize(.:format)                                oauth/authorizations#create
-#                       oauth_token POST             /oauth/token(.:format)                                    oauth/tokens#create
-#                          forecast GET              /forecast(.:format)                                       forecast/home#index
-#                    forecast_chart GET              /forecast/:id(.:format)                                   forecast/charts#show {id: /inverter_power|outdoor_temp/}
-#                      balance_home GET              /(:sensor_name)(/:timeframe)(.:format)                    balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                     balance_stats GET              /stats/:sensor_name(/:timeframe)(.:format)                balance/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                    balance_charts GET              /charts/:sensor_name(/:timeframe)(.:format)               balance/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                        house_home GET              /house(/:sensor_name)(/:timeframe)(.:format)              house/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                       house_stats GET              /house/stats/:sensor_name(/:timeframe)(.:format)          house/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                      house_charts GET              /house/charts/:sensor_name(/:timeframe)(.:format)         house/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                     heatpump_home GET              /heatpump(/:sensor_name)(/:timeframe)(.:format)           heatpump/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                    heatpump_stats GET              /heatpump/stats/:sensor_name(/:timeframe)(.:format)       heatpump/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                   heatpump_charts GET              /heatpump/charts/:sensor_name(/:timeframe)(.:format)      heatpump/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                     inverter_home GET              /inverter(/:sensor_name)(/:timeframe)(.:format)           inverter/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                    inverter_stats GET              /inverter/stats/:sensor_name(/:timeframe)(.:format)       inverter/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                   inverter_charts GET              /inverter/charts/:sensor_name(/:timeframe)(.:format)      inverter/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                             tiles GET              /tiles/:sensor_name(/:timeframe)(.:format)                tiles#show {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                          insights GET              /insights/:sensor_name(/:timeframe)(.:format)             insights#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                  timeframe_select GET              /timeframe-select/:sensor_name(/:timeframe)(.:format)     timeframe_select#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                           summary GET              /summaries/:date(.:format)                                summaries#show
-#                         summaries DELETE           /summaries(.:format)                                      summaries#reset
-#                        essentials GET              /essentials(.:format)                                     essentials#index
-#              details_amortization GET              /amortization/details(.:format)                           amortization#details
-#              returns_amortization GET              /amortization/returns(.:format)                           amortization#returns
-#              content_amortization GET              /amortization/content(.:format)                           amortization#content
-#                      amortization GET              /amortization(.:format)                                   amortization#show
-#                                   PATCH            /amortization(.:format)                                   amortization#update
-#                                   PUT              /amortization(.:format)                                   amortization#update
-#                             top10 GET              /top10(/:period)(/:sensor_name)(/:calc)(/:sort)(.:format) top10#index {period: /day|week|month|year/, calc: /sum|max|avg|min/, sort: /asc|desc/}
-#                       top10_chart GET              /top10-chart/:period/:sensor_name/:calc/:sort(.:format)   top10_chart#index {period: /day|week|month|year/, calc: /sum|max|avg|min/, sort: /asc|desc/}
-#                       new_session GET              /login(.:format)                                          sessions#new
-#                          sessions POST             /login(.:format)                                          sessions#create
-#                           session DELETE           /logout(.:format)                                         sessions#destroy
-#                            locale PATCH            /locale(.:format)                                         locales#update
-#                                   PUT              /locale(.:format)                                         locales#update
-#              latest_notifications GET              /notifications/latest(.:format)                           notifications#latest
-#         mark_as_read_notification PATCH            /notifications/:id/mark_as_read(.:format)                 notifications#mark_as_read
-#                     notifications GET              /notifications(.:format)                                  notifications#index
-#                      notification GET              /notifications/:id(.:format)                              notifications#show
-#                      registration GET              /registration(/:status)(.:format)                         registration#show
-#             registration_required GET              /registration-required(.:format)                          registration_required#show
-#                        sponsoring GET              /sponsoring(.:format)                                     sponsorings#show
-#                                   GET              /favicon.ico(.:format)                                    redirect(301, /favicon-196.png)
-#                                   GET              /apple-touch-icon.png(.:format)                           redirect(301, /apple-icon-180.png)
-#                                   GET              /apple-touch-icon-precomposed.png(.:format)               redirect(301, /apple-icon-180.png)
-#             edit_settings_general GET              /settings/general(.:format)                               settings/generals#edit
-#                  settings_general PATCH            /settings/general(.:format)                               settings/generals#update
-#                                   PUT              /settings/general(.:format)                               settings/generals#update
-#             edit_settings_sensors GET              /settings/sensors(.:format)                               settings/sensors#edit
-#                  settings_sensors PATCH            /settings/sensors(.:format)                               settings/sensors#update
-#                                   PUT              /settings/sensors(.:format)                               settings/sensors#update
-#                   settings_prices GET              /settings/prices(/:name)(.:format)                        settings/prices#index {name: /electricity|feed_in/}
-#                                   GET              /settings/prices(.:format)                                settings/prices#index
-#                                   POST             /settings/prices(.:format)                                settings/prices#create
-#                new_settings_price GET              /settings/prices/new(.:format)                            settings/prices#new
-#               edit_settings_price GET              /settings/prices/:id/edit(.:format)                       settings/prices#edit
-#                    settings_price GET              /settings/prices/:id(.:format)                            settings/prices#show
-#                                   PATCH            /settings/prices/:id(.:format)                            settings/prices#update
-#                                   PUT              /settings/prices/:id(.:format)                            settings/prices#update
-#                                   DELETE           /settings/prices/:id(.:format)                            settings/prices#destroy
-#    visibility_settings_cash_flows PATCH            /settings/cash_flows/visibility(.:format)                 settings/cash_flows#visibility
-#               settings_cash_flows GET              /settings/cash_flows(.:format)                            settings/cash_flows#index
-#                                   POST             /settings/cash_flows(.:format)                            settings/cash_flows#create
-#            new_settings_cash_flow GET              /settings/cash_flows/new(.:format)                        settings/cash_flows#new
-#           edit_settings_cash_flow GET              /settings/cash_flows/:id/edit(.:format)                   settings/cash_flows#edit
-#                settings_cash_flow PATCH            /settings/cash_flows/:id(.:format)                        settings/cash_flows#update
-#                                   PUT              /settings/cash_flows/:id(.:format)                        settings/cash_flows#update
-#                                   DELETE           /settings/cash_flows/:id(.:format)                        settings/cash_flows#destroy
-#                          settings GET              /settings(.:format)                                       redirect(301, /settings/general)
-#                              root GET              /                                                         balance/home#index
-#  turbo_recede_historical_location GET              /recede_historical_location(.:format)                     turbo/native/navigation#recede
-#  turbo_resume_historical_location GET              /resume_historical_location(.:format)                     turbo/native/navigation#resume
-# turbo_refresh_historical_location GET              /refresh_historical_location(.:format)                    turbo/native/navigation#refresh
+#                             Prefix Verb             URI Pattern                                                    Controller#Action
+#                       health_check GET              /up(.:format)                                                  health#show
+#                 skip_browser_check GET              /skip-browser-check(.:format)                                  application#skip_browser_check
+#                           manifest GET              /manifest.webmanifest                                          manifest#show
+#                           lookbook                  /lookbook                                                      Lookbook::Engine
+#                      lockup_unlock GET              /lockup/unlock(.:format)                                       lockup#unlock
+#                             unlock POST             /lockup/unlock(.:format)                                       lockup#unlock
+#                                mcp POST             /mcp(.:format)                                                 mcp#handle
+#                                    GET              /mcp(.:format)                                                 mcp_info#show
+#                                    DELETE|PUT|PATCH /mcp(.:format)                                                 mcp#unsupported_method
+#                                    GET              /.well-known/oauth-protected-resource(.:format)                oauth/metadata#protected_resource
+#                                    GET              /.well-known/oauth-protected-resource/mcp(.:format)            oauth/metadata#protected_resource
+#                                    GET              /.well-known/oauth-authorization-server(.:format)              oauth/metadata#authorization_server
+#                                    GET              /.well-known/openid-configuration(.:format)                    oauth/metadata#openid_configuration
+#                     oauth_register POST             /oauth/register(.:format)                                      oauth/registrations#create
+#                    oauth_authorize GET              /oauth/authorize(.:format)                                     oauth/authorizations#new
+#                                    POST             /oauth/authorize(.:format)                                     oauth/authorizations#create
+#                        oauth_token POST             /oauth/token(.:format)                                         oauth/tokens#create
+#                           forecast GET              /forecast(.:format)                                            forecast/home#index
+#                     forecast_chart GET              /forecast/:id(.:format)                                        forecast/charts#show {id: /inverter_power|outdoor_temp/}
+#                       balance_home GET              /(:sensor_name)(/:timeframe)(.:format)                         balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                      balance_stats GET              /stats/:sensor_name(/:timeframe)(.:format)                     balance/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                     balance_charts GET              /charts/:sensor_name(/:timeframe)(.:format)                    balance/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                         house_home GET              /house(/:sensor_name)(/:timeframe)(.:format)                   house/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                        house_stats GET              /house/stats/:sensor_name(/:timeframe)(.:format)               house/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                       house_charts GET              /house/charts/:sensor_name(/:timeframe)(.:format)              house/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                      heatpump_home GET              /heatpump(/:sensor_name)(/:timeframe)(.:format)                heatpump/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                     heatpump_stats GET              /heatpump/stats/:sensor_name(/:timeframe)(.:format)            heatpump/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                    heatpump_charts GET              /heatpump/charts/:sensor_name(/:timeframe)(.:format)           heatpump/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                      inverter_home GET              /inverter(/:sensor_name)(/:timeframe)(.:format)                inverter/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                     inverter_stats GET              /inverter/stats/:sensor_name(/:timeframe)(.:format)            inverter/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                    inverter_charts GET              /inverter/charts/:sensor_name(/:timeframe)(.:format)           inverter/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                              tiles GET              /tiles/:sensor_name(/:timeframe)(.:format)                     tiles#show {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                           insights GET              /insights/:sensor_name(/:timeframe)(.:format)                  insights#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                   timeframe_select GET              /timeframe-select/:sensor_name(/:timeframe)(.:format)          timeframe_select#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                            summary GET              /summaries/:date(.:format)                                     summaries#show
+#                          summaries DELETE           /summaries(.:format)                                           summaries#reset
+#                         essentials GET              /essentials(.:format)                                          essentials#index
+#               details_amortization GET              /amortization/details(.:format)                                amortization#details
+#               returns_amortization GET              /amortization/returns(.:format)                                amortization#returns
+#               content_amortization GET              /amortization/content(.:format)                                amortization#content
+#                       amortization GET              /amortization(.:format)                                        amortization#show
+#                                    PATCH            /amortization(.:format)                                        amortization#update
+#                                    PUT              /amortization(.:format)                                        amortization#update
+#                              top10 GET              /top10(/:period)(/:sensor_name)(/:calc)(/:sort)(.:format)      top10#index {period: /day|week|month|year/, calc: /sum|max|avg|min/, sort: /asc|desc/}
+#                        top10_chart GET              /top10-chart/:period/:sensor_name/:calc/:sort(.:format)        top10_chart#index {period: /day|week|month|year/, calc: /sum|max|avg|min/, sort: /asc|desc/}
+#                        new_session GET              /login(.:format)                                               sessions#new
+#                           sessions POST             /login(.:format)                                               sessions#create
+#                            session DELETE           /logout(.:format)                                              sessions#destroy
+#                             locale PATCH            /locale(.:format)                                              locales#update
+#                                    PUT              /locale(.:format)                                              locales#update
+#               latest_notifications GET              /notifications/latest(.:format)                                notifications#latest
+#          mark_as_read_notification PATCH            /notifications/:id/mark_as_read(.:format)                      notifications#mark_as_read
+#                      notifications GET              /notifications(.:format)                                       notifications#index
+#                       notification GET              /notifications/:id(.:format)                                   notifications#show
+#                       registration GET              /registration(/:status)(.:format)                              registration#show
+#              registration_required GET              /registration-required(.:format)                               registration_required#show
+#                         sponsoring GET              /sponsoring(.:format)                                          sponsorings#show
+#                                    GET              /favicon.ico(.:format)                                         redirect(301, /favicon-196.png)
+#                                    GET              /apple-touch-icon.png(.:format)                                redirect(301, /apple-icon-180.png)
+#                                    GET              /apple-touch-icon-precomposed.png(.:format)                    redirect(301, /apple-icon-180.png)
+#              edit_settings_general GET              /settings/general(.:format)                                    settings/generals#edit
+#                   settings_general PATCH            /settings/general(.:format)                                    settings/generals#update
+#                                    PUT              /settings/general(.:format)                                    settings/generals#update
+#              edit_settings_sensors GET              /settings/sensors(.:format)                                    settings/sensors#edit
+#                   settings_sensors PATCH            /settings/sensors(.:format)                                    settings/sensors#update
+#                                    PUT              /settings/sensors(.:format)                                    settings/sensors#update
+#                    settings_prices GET              /settings/prices(/:name)(.:format)                             settings/prices#index {name: /electricity|feed_in/}
+#                                    GET              /settings/prices(.:format)                                     settings/prices#index
+#                                    POST             /settings/prices(.:format)                                     settings/prices#create
+#                 new_settings_price GET              /settings/prices/new(.:format)                                 settings/prices#new
+#                edit_settings_price GET              /settings/prices/:id/edit(.:format)                            settings/prices#edit
+#                     settings_price GET              /settings/prices/:id(.:format)                                 settings/prices#show
+#                                    PATCH            /settings/prices/:id(.:format)                                 settings/prices#update
+#                                    PUT              /settings/prices/:id(.:format)                                 settings/prices#update
+#                                    DELETE           /settings/prices/:id(.:format)                                 settings/prices#destroy
+#     visibility_settings_cash_flows PATCH            /settings/cash_flows/visibility(.:format)                      settings/cash_flows#visibility
+#                settings_cash_flows GET              /settings/cash_flows(.:format)                                 settings/cash_flows#index
+#                                    POST             /settings/cash_flows(.:format)                                 settings/cash_flows#create
+#             new_settings_cash_flow GET              /settings/cash_flows/new(.:format)                             settings/cash_flows#new
+#            edit_settings_cash_flow GET              /settings/cash_flows/:id/edit(.:format)                        settings/cash_flows#edit
+#                 settings_cash_flow PATCH            /settings/cash_flows/:id(.:format)                             settings/cash_flows#update
+#                                    PUT              /settings/cash_flows/:id(.:format)                             settings/cash_flows#update
+#                                    DELETE           /settings/cash_flows/:id(.:format)                             settings/cash_flows#destroy
+#                           settings GET              /settings(.:format)                                            redirect(301, /settings/general)
+# charging_sessions_timeframe_select GET              /charging_sessions/timeframe-select/:kind/:timeframe(.:format) charging_sessions/timeframe_select#index {kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                  charging_sessions GET              /charging_sessions(/:kind)(/:timeframe)(.:format)              charging_sessions#index {kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                                    POST             /charging_sessions(.:format)                                   charging_sessions#create
+#               new_charging_session GET              /charging_sessions/new(.:format)                               charging_sessions#new
+#              edit_charging_session GET              /charging_sessions/:id/edit(.:format)                          charging_sessions#edit
+#                   charging_session PATCH            /charging_sessions/:id(.:format)                               charging_sessions#update
+#                                    PUT              /charging_sessions/:id(.:format)                               charging_sessions#update
+#                                    DELETE           /charging_sessions/:id(.:format)                               charging_sessions#destroy
+#                               root GET              /                                                              balance/home#index
+#   turbo_recede_historical_location GET              /recede_historical_location(.:format)                          turbo/native/navigation#recede
+#   turbo_resume_historical_location GET              /resume_historical_location(.:format)                          turbo/native/navigation#resume
+#  turbo_refresh_historical_location GET              /refresh_historical_location(.:format)                         turbo/native/navigation#refresh
 #
 # Routes for Lookbook::Engine:
 #                Prefix Verb URI Pattern              Controller#Action
-#                 cable      /cable                   #<ActionCable::Server::Base:0x000000012e85e470 @config=#<ActionCable::Server::Configuration:0x000000012e85e4c0 @log_tags=[], @connection_class=#<Proc:0x000000012e47eb98 /Users/ledermann/.local/share/mise/installs/ruby/4.0.7/lib/ruby/gems/4.0.0/gems/lookbook-2.3.15/lib/lookbook/cable/cable.rb:48 (lambda)>, @worker_pool_size=4, @disable_request_forgery_protection=false, @allow_same_origin_as_host=true, @filter_parameters=[], @health_check_application=#<Proc:0x000000012e47ec88 /Users/ledermann/.local/share/mise/installs/ruby/4.0.7/lib/ruby/gems/4.0.0/gems/actioncable-8.1.4/lib/action_cable/server/configuration.rb:32 (lambda)>, @cable={"adapter" => "async"}, @mount_path=nil, @logger=#<ActiveSupport::BroadcastLogger:0x000000012d0150a8 @broadcasts=[#<ActiveSupport::Logger:0x000000012d91f6f8 @level=0, @progname=nil, @default_formatter=#<Logger::Formatter:0x000000012d019d88 @datetime_format=nil>, @formatter=#<ActiveSupport::Logger::SimpleFormatter:0x000000012d015828 @datetime_format=nil, @thread_key="activesupport_tagged_logging_tags:7360">, @logdev=#<Logger::LogDevice:0x000000012cf124a8 @shift_period_suffix="%Y%m%d", @shift_size=104857600, @shift_age=1, @filename="/Users/ledermann/Projects/solectrus/solectrus/log/development.log", @dev=#<File:/Users/ledermann/Projects/solectrus/solectrus/log/development.log>, @binmode=false, @reraise_write_errors=[], @skip_header=false, @mon_data=#<Monitor:0x000000012cf11a58>, @mon_data_owner_object_id=5992>, @level_override={}, @local_level_key=:logger_thread_safe_level_6000>], @progname="Broadcast">>, @mutex=#<Monitor:0x000000012e85e3d0>, @pubsub=nil, @worker_pool=nil, @event_loop=nil, @remote_connections=nil>
+#                 cable      /cable                   #<ActionCable::Server::Base:0x000000012f0a7e60 @config=#<ActionCable::Server::Configuration:0x000000012f0a7eb0 @log_tags=[], @connection_class=#<Proc:0x000000012f9ff8c8 /Users/ledermann/.local/share/mise/installs/ruby/4.0.7/lib/ruby/gems/4.0.0/gems/lookbook-2.3.15/lib/lookbook/cable/cable.rb:48 (lambda)>, @worker_pool_size=4, @disable_request_forgery_protection=false, @allow_same_origin_as_host=true, @filter_parameters=[], @health_check_application=#<Proc:0x000000012f9ff9b8 /Users/ledermann/.local/share/mise/installs/ruby/4.0.7/lib/ruby/gems/4.0.0/gems/actioncable-8.1.4/lib/action_cable/server/configuration.rb:32 (lambda)>, @cable={"adapter" => "async"}, @mount_path=nil, @logger=#<ActiveSupport::BroadcastLogger:0x000000012ce4be70 @broadcasts=[#<ActiveSupport::Logger:0x000000012c5d8720 @level=0, @progname=nil, @default_formatter=#<Logger::Formatter:0x000000012cee1f88 @datetime_format=nil>, @formatter=#<ActiveSupport::Logger::SimpleFormatter:0x000000012ce4f0c0 @datetime_format=nil, @thread_key="activesupport_tagged_logging_tags:7376">, @logdev=#<Logger::LogDevice:0x000000012c5d96c0 @shift_period_suffix="%Y%m%d", @shift_size=104857600, @shift_age=1, @filename="/Users/ledermann/Projects/solectrus/solectrus/log/development.log", @dev=#<File:/Users/ledermann/Projects/solectrus/solectrus/log/development.log>, @binmode=false, @reraise_write_errors=[], @skip_header=false, @mon_data=#<Monitor:0x000000012c5d9620>, @mon_data_owner_object_id=6008>, @level_override={}, @local_level_key=:logger_thread_safe_level_6016>], @progname="Broadcast">>, @mutex=#<Monitor:0x000000012f0a7dc0>, @pubsub=nil, @worker_pool=nil, @event_loop=nil, @remote_connections=nil>
 #         lookbook_home GET  /                        lookbook/application#index
 #   lookbook_page_index GET  /pages(.:format)         lookbook/pages#index
 #         lookbook_page GET  /pages/*path(.:format)   lookbook/pages#show
@@ -258,6 +266,29 @@ Rails.application.routes.draw do
     end
   end
   get '/settings', to: redirect('/settings/general')
+
+  # The timeframe select of the list of the charging sessions
+  get '/charging_sessions/timeframe-select/:kind/:timeframe',
+      to: 'charging_sessions/timeframe_select#index',
+      as: :charging_sessions_timeframe_select,
+      constraints: {
+        kind: Regexp.union(ChargingSession.kinds.keys),
+        timeframe: Timeframe::REGEX,
+      }
+
+  resources :charging_sessions,
+            except: %i[index show],
+            constraints: {
+              kind: Regexp.union(ChargingSession.kinds.keys),
+            } do
+    get '(:kind)(/:timeframe)',
+        on: :collection,
+        action: :index,
+        as: '',
+        constraints: {
+          timeframe: Timeframe::REGEX,
+        }
+  end
 
   root to: 'balance/home#index'
 end

@@ -1,0 +1,9 @@
+nav class=class_names('flex flex-wrap justify-center gap-2', classes) aria-label=label
+  - items.each do |item|
+    = link_to item.href,
+              class: pill_classes(item.current),
+              aria: { current: (item.current ? 'page' : nil) },
+              data: link_data do
+      - if item.color
+        span class='size-2.5 rounded-full shrink-0' style="background-color: #{item.color}"
+      = item.label

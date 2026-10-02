@@ -1,0 +1,45 @@
+= form_with(model: charging_session, id: dom_id(charging_session, :form), html: { data: { controller: 'form-dirty' } }) do |f|
+  - if charging_session.wallbox?
+    / The detection writes the energy, the time and the cost of a wallbox
+    / session. The user decides who charged.
+    = f.group do
+      = render ChargingSession::Facts::Component.new(charging_session:)
+
+      = f.select :car_id,
+                 wallbox_holder_options(charging_session),
+                 { selected: charging_session.guest? ? ChargingSessionList::CarFilter::GUEST : charging_session.car_id.to_s },
+                 autofocus: true
+
+      = f.text_area :note, rows: 3
+
+  - else
+    = f.group do
+      = f.select :car_id, car_options(charging_session)
+      .grid.grid-cols-1.md:grid-cols-2.gap-4
+        = f.datetime_local_field :started_at,
+                                 autofocus: true
+        = f.datetime_local_field :ended_at
+      .grid.grid-cols-1.md:grid-cols-2.gap-4
+        = f.number_field :kwh,
+                         in: 0..10_000,
+                         step: '0.001',
+                         suffix: 'kWh'
+        = f.number_field :cost,
+                         in: 0..10_000,
+                         step: '0.01',
+                         suffix: Currency.symbol
+
+    = f.group(title: t('charging_sessions.form.charging_point')) do
+      = f.text_field :provider
+      = f.text_field :address
+      .grid.grid-cols-1.md:grid-cols-2.gap-4
+        = f.text_field :evse_id
+        = f.select :power_type,
+                   ChargingSession.power_types.keys.map { |pt| [ChargingSession.human_enum_name(:power_type, pt), pt] },
+                   include_blank: true
+
+    = f.group(title: ChargingSession.human_attribute_name(:note)) do
+      = f.text_area :note, rows: 3, label: false
+
+  .flex.justify-end
+    = render 'settings/fab_submit'

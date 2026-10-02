@@ -1,0 +1,18 @@
+.rounded-lg.p-4.bg-gray-100.dark:bg-gray-900/40
+  p.text-sm.text-gray-500.dark:text-gray-400
+    time datetime=started_at.iso8601
+      = date
+    span.tabular-nums.whitespace-nowrap
+      | &nbsp;· #{time_range}
+
+  .mt-2.flex.items-baseline.justify-between.gap-4
+    = render SensorValue::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, class: 'text-3xl font-medium tabular-nums')
+    - if charging_session.cost
+      span.text-2xl.tabular-nums
+        = number_to_currency(charging_session.cost, unit: Currency.symbol)
+    - else
+      span.text-2xl.text-gray-400 title=t('charging_sessions.no_cost') –
+
+  - if charging_session.pv_percent
+    .mt-3.text-sm.text-gray-500.dark:text-gray-400
+      = render ChargingSession::PvShareBar::Component.new(percent: charging_session.pv_percent)

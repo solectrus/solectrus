@@ -5,10 +5,12 @@ import * as Turbo from '@hotwired/turbo';
 export default class extends Controller<HTMLElement> {
   static readonly values = {
     baseUrl: String,
+    query: String,
     id: String,
   };
 
   declare readonly baseUrlValue: string;
+  declare readonly queryValue: string;
   declare readonly idValue: string;
 
   // Mapping from timeframe ID to picker button for auto-open.
@@ -30,7 +32,8 @@ export default class extends Controller<HTMLElement> {
     const { value } = event.detail;
 
     if (value) {
-      Turbo.visit(`${this.baseUrlValue}/${value}`);
+      // The query keeps a parameter of the page, like the selected car
+      Turbo.visit(`${this.baseUrlValue}/${value}${this.queryValue}`);
     }
   }
 

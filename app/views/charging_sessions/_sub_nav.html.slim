@@ -1,0 +1,37 @@
+- content_for :fixed_nav, true
+- content_for :sub_nav do
+  .relative.flex.flex-col-reverse.gap-2.lg:landscape:gap-0.lg:landscape:items-center.justify-between.lg:landscape:flex-row.pt-2.pb-3.lg:landscape:py-5
+    /! Mobile shows dark underline tabs, desktop shows pill buttons
+    .dark:bg-slate-900.-mx-4.sm:-mx-6.px-4.sm:px-6.pb-3.lg:landscape:p-0.lg:landscape:m-0.lg:landscape:dark:bg-transparent
+      .text-center.pt-3.pb-2.lg:hidden
+        = icon 'charging-station', class: 'text-indigo-200 dark:text-gray-400 text-2xl'
+
+      nav.flex.justify-evenly.border-b.border-indigo-400/30.dark:border-gray-700.lg:hidden[
+        aria-label="Tabs"
+      ]
+        - nav_items.each do |item|
+          - current_classes = 'border-white text-white'
+          - default_classes = 'border-transparent text-indigo-200 dark:text-gray-400 hover:text-white hover:border-indigo-300/50 dark:hover:border-gray-500'
+          = link_to item[:name],
+                    item[:href],
+                    class: [ \
+                      'py-2.5 px-2 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
+                      (item[:current] ? current_classes : default_classes),
+                    ],
+                    'aria-current': (item[:current] ? 'page' : nil)
+
+      .hidden.lg:block
+        = render Nav::Sub::Component.new(abbreviate: false) do |c|
+          = c.with_items nav_items
+
+    / A new session is an offsite session, the detection writes the others
+    = button_to new_charging_session_path,
+                method: :get,
+                data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                class: 'fixed top-4 right-4 z-30 flex items-center justify-center size-14 rounded-full bg-indigo-600 dark:bg-indigo-800 text-white shadow-lg ring-2 ring-white dark:ring-slate-900 hover:bg-indigo-700 click-animation focus:outline-none focus:ring-2 focus:ring-white lg:landscape:absolute lg:landscape:top-full lg:landscape:right-auto lg:landscape:left-1/2 lg:landscape:-translate-x-1/2 lg:landscape:-translate-y-1/2',
+                title: t('crud.new') do
+      = icon 'plus'
+
+    .flex.flex-col.items-center.w-full.lg:landscape:w-auto.lg:landscape:flex-row.lg:landscape:justify-end
+      .lg:landscape:h-8.space-x-4.flex.items-center.justify-between.lg:landscape:justify-end.w-full.lg:landscape:flex-1
+        = render Timeframe::Component.new(timeframe:, path_for: ->(target) { charging_sessions_path(kind:, timeframe: target, car: car_param) }, select_path: charging_sessions_timeframe_select_path(kind:, timeframe:, car: car_param), label_for_all: t('timeframe.total'))

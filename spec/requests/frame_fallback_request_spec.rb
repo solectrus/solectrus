@@ -37,5 +37,11 @@ describe 'Frame fallback' do
   describe 'GET /timeframe-select/:sensor_name/:timeframe' do
     it_behaves_like 'a frame that falls back',
                     path_helper: :timeframe_select_path
+
+    it 'knows only the sensors with a chart' do
+      get '/timeframe-select/wallbox/2025'
+
+      expect(response).to have_http_status(:not_found)
+    end
   end
 end
