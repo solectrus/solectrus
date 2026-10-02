@@ -11,10 +11,11 @@ class Sensor::Definitions::CarMaxRange < Sensor::Definitions::Base
 
   icon 'road'
 
-  # A summary stores the daily average, so a SQL query reads its own field.
-  # The formula over the averages of a period is not the average of its days.
+  # A summary stores the daily average, so a SQL query reads its own field
+  # alone. The formula over the averages of a period is not the average of its
+  # days, and a day without its own field has no range or charge either.
   depends_on do |context: :unknown|
-    next [name, range_name, soc_name] if context == :sql
+    next [name] if context == :sql
 
     [range_name, soc_name]
   end

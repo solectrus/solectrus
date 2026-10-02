@@ -6,10 +6,8 @@ describe Sensor::Definitions::CarMaxRange do # rubocop:disable RSpec/SpecFilePat
       expect(sensor.dependencies).to eq(%i[car_range_1 car_battery_soc_1])
     end
 
-    it 'reads its own stored field first in SQL' do
-      expect(sensor.dependencies(context: :sql)).to eq(
-        %i[car_max_range_1 car_range_1 car_battery_soc_1],
-      )
+    it 'reads only its own stored field in SQL' do
+      expect(sensor.dependencies(context: :sql)).to eq(%i[car_max_range_1])
     end
 
     it 'exposes the live values as static dependencies' do
