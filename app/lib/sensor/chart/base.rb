@@ -21,6 +21,15 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   attr_reader :timeframe, :variant
   attr_accessor :interval
 
+  # Whether the chart can draw this timeframe. Most charts draw every
+  # timeframe. A page neither offers nor accepts a chart for a timeframe it
+  # cannot draw.
+  def self.supports?(_timeframe) = true
+
+  def supported?
+    self.class.supports?(timeframe)
+  end
+
   def type
     timeframe.short? ? 'line' : 'bar'
   end

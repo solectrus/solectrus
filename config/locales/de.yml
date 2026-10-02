@@ -85,6 +85,15 @@ de:
     house_power: "Haus\u00ADverbrauch"
     house_power_without_custom: Andere Verbraucher
     wallbox_power: E-Auto
+    wallbox_power_short: Stromverbrauch
+    car_charging: Beladungen
+    car_charging_short: Beladungen
+    wallbox_costs_short: Kosten
+    car_charging_costs: Ladekosten
+    car_charging_costs_short: Kosten
+    car_consumption_rate: Verbrauch/100 km
+    car_cost_rate: Fahrkosten/100 km
+    car_driving_costs: Fahrkosten
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
     grid_power: Netzbezug und -einspeisung
@@ -157,6 +166,8 @@ de:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
   cars:
     default_name: Auto %{number}
+  car_breakdown:
+    daily_rate: Jeder Tag zur Rate der %{days} Tage davor und danach
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -470,6 +481,11 @@ de:
     car_range: 'Verbleibende Reichweite des E-Autos.'
     car_max_range: 'Geschätzte Reichweite, hochgerechnet auf eine voll geladene Batterie (100%).'
     car_mileage: 'Vom E-Auto im Zeitraum zurückgelegte Fahrstrecke.'
+    car_charging_costs: 'Ladekosten des E-Autos (Wallbox und auswärtiges Laden).'
+    car_charging: 'In das E-Auto geladene Energie (Wallbox und auswärtiges Laden zusammen).'
+    car_consumption_rate: 'Verbrauch des E-Autos in kWh pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
+    car_cost_rate: 'Kosten des E-Autos pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
+    car_driving_costs: 'Fahrkosten des E-Autos: die gefahrenen Kilometer jedes Tages mal die Kosten pro 100 km der Tage um ihn herum.'
     wallbox_car_connected: 'Ob aktuell ein E-Auto mit der Wallbox verbunden ist.'
     outdoor_temp: 'Außenlufttemperatur.'
     outdoor_temp_forecast: 'Prognostizierte Außentemperatur.'
@@ -522,6 +538,8 @@ de:
     percent: 'Prozent (0–100).'
     celsius: 'Temperatur in Grad Celsius.'
     kilometer: 'Strecke in Kilometern (km).'
+    kwh_per_100km: 'Energieverbrauch in Kilowattstunden pro 100 km.'
+    money_per_100km: 'Kosten pro 100 km in der konfigurierten Währung (ISO-4217-Code in get_system_info).'
     gram: 'Masse in Gramm (z. B. CO₂), über einen Zeitraum aggregiert.'
     gram_per_hour: 'Massenstrom in Gramm pro Stunde (g/h), z. B. das bei aktueller Erzeugung vermiedene CO₂. Über einen Zeitraum aggregiert wird daraus ein Gramm-Wert.'
     boolean: 'Wahrheitswert (true/false).'

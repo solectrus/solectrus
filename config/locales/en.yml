@@ -85,6 +85,15 @@ en:
     house_power: House consumption
     house_power_without_custom: Other consumers
     wallbox_power: EV charging
+    wallbox_power_short: Power consumption
+    car_charging: Charging sessions
+    car_charging_short: Charging sessions
+    wallbox_costs_short: Costs
+    car_charging_costs: Charging costs
+    car_charging_costs_short: Costs
+    car_consumption_rate: Usage/100 km
+    car_cost_rate: Driving cost/100 km
+    car_driving_costs: Driving costs
     grid_import_power: Grid import
     grid_export_power: Grid export
     grid_power: Grid import and export
@@ -157,6 +166,8 @@ en:
       battery_charging_power: Grid electricity is attributed to the consumers.
   cars:
     default_name: Car %{number}
+  car_breakdown:
+    daily_rate: Each day at the rate of the %{days} days before and after it
   balance_sheet:
     left: Source
     right: Usage
@@ -470,6 +481,11 @@ en:
     car_range: 'Remaining driving range of the electric vehicle.'
     car_max_range: 'Estimated range extrapolated to a fully charged (100%) battery.'
     car_mileage: 'Distance driven by the electric vehicle in the period.'
+    car_charging_costs: 'Charging costs of the electric vehicle (wallbox and offsite charging).'
+    car_charging: 'Energy charged into the electric vehicle (wallbox and offsite charging combined).'
+    car_consumption_rate: 'Consumption of the electric vehicle in kWh per 100 km. Each day takes the rate of the 28 days around it.'
+    car_cost_rate: 'Cost of the electric vehicle per 100 km. Each day takes the rate of the 28 days around it.'
+    car_driving_costs: 'Driving costs of the electric vehicle: the distance of each day times the cost per 100 km of the days around it.'
     wallbox_car_connected: 'Whether an electric vehicle is currently connected to the wallbox.'
     outdoor_temp: 'Outdoor air temperature.'
     outdoor_temp_forecast: 'Forecasted outdoor air temperature.'
@@ -522,6 +538,8 @@ en:
     percent: 'Percentage (0-100).'
     celsius: 'Temperature in degrees Celsius.'
     kilometer: 'Distance in kilometres (km).'
+    kwh_per_100km: 'Energy consumption in kilowatt hours per 100 km.'
+    money_per_100km: 'Cost per 100 km in the configured currency (ISO 4217 code in get_system_info).'
     gram: 'Mass in grams (e.g. CO₂), aggregated over a period.'
     gram_per_hour: 'Mass rate in grams per hour (g/h), e.g. the CO₂ avoided at the current generation. Aggregated over a period it becomes a gram.'
     boolean: 'Boolean state (true/false).'

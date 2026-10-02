@@ -13,5 +13,7 @@ class Sensor::Definitions::CarRange < Sensor::Definitions::Base
   # The daily average is what car_max_range is calculated from.
   aggregations stored: %i[avg], meta: %i[avg]
 
+  chart { |timeframe, **| Sensor::Chart::CarRange.new(timeframe:, car_number:) }
+
   requires_permission :car
 end
