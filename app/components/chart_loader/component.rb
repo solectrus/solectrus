@@ -13,6 +13,7 @@ class ChartLoader::Component < ViewComponent::Base
            :options,
            :blank?,
            :unit,
+           :decimals,
            :permitted?,
            :permitted_feature_name,
            to: :chart

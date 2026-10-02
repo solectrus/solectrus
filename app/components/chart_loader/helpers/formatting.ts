@@ -3,10 +3,16 @@ import type { Range } from './types';
 
 type FormatTarget = 'axis' | 'tooltip';
 
+// Only power (W/Wh) and mass (g, g/h) units are auto-scaled with a kilo prefix.
+// Units like km, °C or % are not compatible with that scaling (no "kkm" etc).
+const SCALABLE_UNITS = new Set(['W', 'Wh', 'g', 'g/h']);
+
 type FormatOptions = {
   target?: FormatTarget;
   autoKilo?: boolean;
   unitValue: string;
+  // Fixed by the chart when its unit has a precision of its own
+  decimals?: number;
   currency: string;
   locale: string;
   range: Range;
@@ -19,7 +25,16 @@ export const getDecimalPlaces = (
   isCurrency: boolean,
   unitValue: string,
   { min, max }: Range,
+  decimals?: number,
 ): { minDecimals: number; maxDecimals: number } => {
+  // A fixed precision shows in full in the tooltip. An axis tick drops the
+  // trailing zeros: "3 €/100 km", but "2,5 €/100 km" between two of them.
+  if (decimals !== undefined)
+    return {
+      minDecimals: target === 'axis' ? 0 : decimals,
+      maxDecimals: decimals,
+    };
+
   if (kilo) {
     // Decide from the largest value of the range, so all lines in a tooltip
     // share the same precision. Above 100 kWh the fractional digit is just
@@ -31,8 +46,8 @@ export const getDecimalPlaces = (
 
   if (isCurrency) {
     const showDecimals = target === 'axis' ? max < 10 : min < 10 && max < 100;
-    const decimals = showDecimals ? 2 : 0;
-    return { minDecimals: decimals, maxDecimals: decimals };
+    const cents = showDecimals ? 2 : 0;
+    return { minDecimals: cents, maxDecimals: cents };
   }
 
   const maxDecimals = unitValue === '' || unitValue === '°C' ? 1 : 0;
@@ -96,6 +111,7 @@ const numberScale = ({
   target = 'tooltip',
   autoKilo = true,
   unitValue,
+  decimals,
   currency,
   range,
 }: ScaleOptions) => {
@@ -103,13 +119,17 @@ const numberScale = ({
 
   // Decide the kilo prefix from the range, not per value, so everything that
   // is shown together shares one unit (e.g. all kWh, never a mix of "48 kWh"
-  // and "464 Wh").
+  // and "464 Wh"). Only scalable units (W/Wh, g/g/h) get the prefix, so
+  // distance (km) or temperature (°C) never become "kkm" etc.
   const kilo =
-    autoKilo && !isCurrency && (range.max > 1000 || range.min < -1000);
+    autoKilo &&
+    !isCurrency &&
+    SCALABLE_UNITS.has(unitValue) &&
+    (range.max > 1000 || range.min < -1000);
 
   return {
     kilo,
-    ...getDecimalPlaces(target, kilo, isCurrency, unitValue, range),
+    ...getDecimalPlaces(target, kilo, isCurrency, unitValue, range, decimals),
   };
 };
 

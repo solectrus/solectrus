@@ -116,6 +116,7 @@ export default class extends Controller<HTMLCanvasElement> {
   static readonly values = {
     type: String,
     unit: String,
+    decimals: Number,
     currency: String,
     sourceLabel: String,
     usageLabel: String,
@@ -137,6 +138,9 @@ export default class extends Controller<HTMLCanvasElement> {
 
   declare unitValue: string;
   declare readonly hasUnitValue: boolean;
+
+  declare decimalsValue: number;
+  declare readonly hasDecimalsValue: boolean;
 
   declare currencyValue: string;
   declare readonly hasCurrencyValue: boolean;
@@ -431,6 +435,7 @@ export default class extends Controller<HTMLCanvasElement> {
       target,
       autoKilo,
       unitValue: this.unitValue,
+      decimals: this.hasDecimalsValue ? this.decimalsValue : undefined,
       currency: this.currencyValue,
       range: range ?? this.axisRange(),
     };

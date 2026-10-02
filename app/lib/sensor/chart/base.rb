@@ -63,6 +63,12 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       )
   end
 
+  # The decimals of a value in the tooltip, and the most an axis tick shows.
+  # Nil leaves them to the frontend, which guesses them from the unit and the
+  # range. A chart whose unit has a fixed precision names it here.
+  def decimals
+  end
+
   def crosshair_options
     return unless timeframe.short?
 
