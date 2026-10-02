@@ -14,7 +14,7 @@ describe 'Charging sessions' do
   end
 
   describe 'GET /charging_sessions' do
-    it 'redirects to the first kind' do
+    it 'redirects to the default kind' do
       get '/charging_sessions'
       expect(response).to redirect_to('/charging_sessions/wallbox')
     end

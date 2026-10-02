@@ -118,7 +118,7 @@ class Car < ApplicationRecord
       .where.not(started_at: period_times)
       .update_all(car_id: nil) # rubocop:disable Rails/SkipsModelValidations
 
-    Summary.where(date: days).update_all(charging_sessions_version: nil) # rubocop:disable Rails/SkipsModelValidations
+    Summary.reset_detection(days)
   end
 
   # The days between the old and the new value of each bound. A missing

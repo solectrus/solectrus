@@ -190,7 +190,6 @@ de:
     home_grid: Netzbezug
     offsite: Auswärtsladung
     offsite_sessions: Ladevorgänge auswärts
-    guest: Gastladung
     guest_sessions: Ladevorgänge von Gästen
     charging: Laden
     driving: Fahren

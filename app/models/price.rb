@@ -59,7 +59,7 @@ class Price < ApplicationRecord
         days_of(price_name, start) if price_name && start
       end
 
-    Summary.where(date: days).update_all(charging_sessions_version: nil) # rubocop:disable Rails/SkipsModelValidations
+    Summary.reset_detection(days)
   end
 
   # The days with the price of the given name that starts on the given date

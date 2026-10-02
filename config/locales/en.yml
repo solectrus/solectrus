@@ -190,7 +190,6 @@ en:
     home_grid: Grid
     offsite: Offsite charging
     offsite_sessions: Charging sessions away from home
-    guest: Guest charging
     guest_sessions: Charging sessions of guests
     charging: Charging
     driving: Driving

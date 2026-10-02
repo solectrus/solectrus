@@ -3,9 +3,9 @@ module ChargingSessionHelper
   # The current car stays a choice, so a form never drops it unseen.
   def car_options(charging_session)
     date = charging_session.started_at&.in_time_zone&.to_date || Date.current
-    cars = Car::Provisioning.call.select { it.active_on?(date) || it.id == charging_session.car_id }
-
-    cars.map { [it.display_name, it.id] }
+    cars
+      .select { it.active_on?(date) || it.id == charging_session.car_id }
+      .map { [it.display_name, it.id] }
   end
 
   # The list of wallbox sessions shows the PV share instead of the address,

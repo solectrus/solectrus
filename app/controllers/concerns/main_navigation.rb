@@ -348,7 +348,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.charging_sessions'),
         icon: 'charging-station',
         href:
-          charging_sessions_path(kind: Sensor::Config.exists?(:wallbox_power) ? 'wallbox' : 'offsite'),
+          charging_sessions_path(kind: ChargingSession.default_kind),
         current:
           helpers.controller.is_a?(ChargingSessionsController),
       }

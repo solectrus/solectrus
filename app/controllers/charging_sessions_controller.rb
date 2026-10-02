@@ -8,24 +8,25 @@ class ChargingSessionsController < ApplicationController
 
   def index
     unless kind.in?(ChargingSession.kinds.keys)
-      redirect_to charging_sessions_path(
-        kind: ChargingSession.kinds.keys.first,
-      )
+      redirect_to charging_sessions_path(kind: ChargingSession.default_kind)
       return
     end
 
     remember_list
-    @pagy, @charging_sessions = pagy(:countless, list_scope)
+    next_page = request.headers['Turbo-Frame']&.start_with?(ChargingSession::Rows::Component::FRAME_PREFIX)
 
-    if request.headers['Turbo-Frame']&.start_with?(ChargingSession::Rows::Component::FRAME_PREFIX)
-      render ChargingSession::Page::Component.new(
-               sessions: @charging_sessions,
-               pagy: @pagy,
-             ),
-             layout: false
-    else
-      @missing_or_stale_summary_days = pending_days
-    end
+    # While days wait for the detection, the page shows the build instead of the list
+    @missing_or_stale_summary_days = pending_days unless next_page
+    return if @missing_or_stale_summary_days.present?
+
+    @pagy, @charging_sessions = pagy(:countless, list_scope)
+    return unless next_page
+
+    render ChargingSession::Page::Component.new(
+             sessions: @charging_sessions,
+             pagy: @pagy,
+           ),
+           layout: false
   end
 
   def new

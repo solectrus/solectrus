@@ -147,6 +147,11 @@ class Summary < ApplicationRecord
       (charging_sessions_version.nil? || charging_sessions_version < ChargingSession::Detection::VERSION)
   end
 
+  # The next build runs the detection on the given days again
+  def self.reset_detection(days)
+    where(date: days).update_all(charging_sessions_version: nil) # rubocop:disable Rails/SkipsModelValidations
+  end
+
   def self.threshold_date
     if REQUIRED_DISTANCE.minutes.ago.today?
       # We are beyond the required distance from yesterday. Only today is open.

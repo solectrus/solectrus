@@ -42,6 +42,12 @@
 class ChargingSession < ApplicationRecord
   enum :kind, wallbox: 'wallbox', offsite: 'offsite'
 
+  # The list opens with the wallbox sessions, or with the offsite sessions
+  # without a wallbox
+  def self.default_kind
+    Sensor::Config.exists?(:wallbox_power) ? 'wallbox' : 'offsite'
+  end
+
   enum :power_type, ac: 'ac', dc: 'dc'
 
   belongs_to :car, optional: true

@@ -14,31 +14,34 @@ class ChargingSession::Filter::Component < ViewComponent::Base
   attr_reader :kind, :timeframe, :cars, :current
 
   def render?
-    choices.size > 2
-  end
-
-  # [label, parameter, color] of each choice
-  def choices
-    @choices ||= [
-      [t('.all'), nil, nil],
-      *cars.map { [it.display_name, it.id.to_s, it.display_color] },
-      *(if kind == 'wallbox'
-          [
-[t('.not_assigned'), ChargingSessionList::CarFilter::NOT_ASSIGNED, nil],
-[t('.guest'), ChargingSessionList::CarFilter::GUEST, nil],
-]
-        end),
-    ]
+    items.size > 2
   end
 
   def items
-    choices.map do |label, param, color|
-      PillNav::Component::Item.new(
-        label:,
-        href: helpers.charging_sessions_path(kind:, timeframe:, car: param),
-        current: current == param,
-        color:,
-      )
-    end
+    @items ||= [
+      item(t('.all'), nil),
+      *cars.map { item(it.display_name, it.id.to_s, it.display_color) },
+      *wallbox_items,
+    ]
+  end
+
+  private
+
+  def wallbox_items
+    return [] unless kind == 'wallbox'
+
+    [
+      item(t('.not_assigned'), ChargingSessionList::CarFilter::NOT_ASSIGNED),
+      item(t('.guest'), ChargingSessionList::CarFilter::GUEST),
+    ]
+  end
+
+  def item(label, param, color = nil)
+    PillNav::Component::Item.new(
+      label:,
+      href: helpers.charging_sessions_path(kind:, timeframe:, car: param),
+      current: current == param,
+      color:,
+    )
   end
 end

@@ -43,22 +43,22 @@ class Cars::StatsController < ApplicationController
   end
 
   def data_range
-    data =
-      Sensor::Query::Total
-        .new(timeframe) do |q|
-          q.sum :wallbox_power, :sum
+    Car::Balance.new(range_totals, cars:)
+  end
 
-          # The distance is only available through the daily summary,
-          # which is not populated for hourly (sub-day) timeframes.
-          next if timeframe.hours?
+  # The distance is only available through the daily summary, which is not
+  # populated for hourly (sub-day) timeframes. The charged energy comes from
+  # the sessions (see Car::Balance).
+  def range_totals
+    return Sensor::Data::Single.new({}, timeframe:) if timeframe.hours?
 
-          cars.each do |car|
-            q.sum Sensor::Cars.sensor_name(:car_mileage, car.id)
-          end
-          q.avg Sensor::Cars.sensor_name(:car_max_range, cars.sole.id), :avg if cars.one?
+    Sensor::Query::Total
+      .new(timeframe) do |q|
+        cars.each do |car|
+          q.sum Sensor::Cars.sensor_name(:car_mileage, car.id)
         end
-        .call
-
-    Car::Balance.new(data, cars:)
+        q.avg Sensor::Cars.sensor_name(:car_max_range, cars.sole.id), :avg if cars.one?
+      end
+      .call
   end
 end
