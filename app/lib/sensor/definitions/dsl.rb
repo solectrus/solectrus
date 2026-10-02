@@ -164,11 +164,27 @@ module Sensor
         # +top10+ enables the ranking. Whether it drops the periods its range
         # cuts into is not configured here: it follows from the aggregation
         # and from the sort direction, and Sensor::Query::Ranking decides it.
-        def aggregations(stored: nil, meta: nil, computed: nil, top10: false)
+        #
+        # +meter+ marks a meter, like an odometer, that is read far less
+        # often than once a day. Its daily :sum is the increase of the
+        # reading, interpolated at each day boundary (see
+        # Sensor::Query::InterpolatedDiff).
+        def aggregations(
+          stored: nil,
+          meta: nil,
+          computed: nil,
+          top10: false,
+          meter: false
+        )
           meta_data[:summary_aggregations] = Array(stored) if stored
           meta_data[:summary_meta_aggregations] = Array(meta) if meta
           meta_data[:allowed_aggregations] = Array(computed) if computed
           meta_data[:top10_enabled] = top10
+          meta_data[:meter] = meter
+        end
+
+        def meter?
+          meta_data.fetch(:meter, false)
         end
 
         def top10_permitted(&block)

@@ -24,29 +24,33 @@ module Sensor
           DAY = 'day'.freeze
           private_constant :DAY
 
-          def initialize(dates, sum_sensor_names:, aggregation_sensor_names:)
+          def initialize(dates, sum_sensor_names:, aggregation_sensor_names:, meter_sensor_names:)
             @dates = dates
             @sum_sensor_names = sum_sensor_names
             @aggregation_sensor_names = aggregation_sensor_names
+            @meter_sensor_names = meter_sensor_names
           end
 
-          attr_reader :dates, :sum_sensor_names, :aggregation_sensor_names
+          attr_reader :dates, :sum_sensor_names, :aggregation_sensor_names, :meter_sensor_names
 
-          # => { Date => { sum: Sensor::Data::Single, aggregation: ... } }
+          # => { Date => { sum: Sensor::Data::Single, aggregation: ...,
+          #                diffs: { sensor_name => value } } }
           #
           # A value is nil when that kind was not asked for at all; the caller
           # then falls back to querying the day on its own.
           def call
-            # The two programs are independent, so they overlap just like the
-            # two per-day queries they replace.
+            # The programs are independent, so they overlap just like the
+            # per-day queries they replace.
             sum = Concurrent::Future.execute { resolve(:sum) }
             aggregation = Concurrent::Future.execute { resolve(:aggregation) }
+            diff = Concurrent::Future.execute { DailyDiffs.new(dates, meter_sensor_names).call }
 
             sums = sum.value!
             aggregations = aggregation.value!
+            diffs = diff.value!
 
             dates.index_with do |date|
-              { sum: sums[date], aggregation: aggregations[date] }
+              { sum: sums[date], aggregation: aggregations[date], diffs: diffs[date] }
             end
           end
 

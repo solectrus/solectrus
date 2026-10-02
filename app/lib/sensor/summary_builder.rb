@@ -19,6 +19,15 @@ module Sensor
         sensors_for_aggregation(:sum).map(&:name)
       end
 
+      # A meter, like an odometer, stores its daily increase as :sum. It
+      # comes from the readings around midnight (see Influx::DailyDiffs),
+      # not from the integral of a power.
+      def meter_sensor_names
+        sensors_for_summary_aggregation(:sum).filter_map do |sensor|
+          sensor.name if sensor.meter? && Sensor::Config.configured?(sensor.name)
+        end
+      end
+
       def aggregation_sensor_names
         names =
           (needed_aggregations - [:sum]).flat_map do |aggregation|
@@ -89,6 +98,7 @@ module Sensor
       non_sum_aggregations = needed_aggregations - [:sum]
 
       sum_task = (defer { collect_data_for_aggregation(:sum) } if has_sum)
+      meter_task = (defer { collect_meter_data } if meter_sensor_names.any?)
 
       non_sum_task =
         unless non_sum_aggregations.empty?
@@ -97,11 +107,12 @@ module Sensor
 
       result = {}
       result.merge!(sum_task.call) if sum_task
+      result.merge!(meter_task.call) if meter_task
       result.merge!(non_sum_task.call) if non_sum_task
       result
     end
 
-    # The two queries are independent, so they run in parallel - unless the
+    # The queries are independent, so they run in parallel - unless the
     # rows already came in through a batch, where there is no IO left to
     # overlap and a thread would only add overhead.
     def defer(&block)
@@ -225,6 +236,18 @@ module Sensor
       end
     end
 
+    # The daily increase of each meter, from the batch when it holds the day.
+    # A single day reads all meters in one program of its own.
+    def collect_meter_data
+      diffs =
+        prefetched&.dig(:diffs) ||
+          Sensor::Query::Helpers::Influx::DailyDiffs
+            .new([timeframe.date], meter_sensor_names)
+            .call[timeframe.date]
+
+      meter_sensor_names.to_h { [[it, :sum], diffs[it]] }
+    end
+
     def collect_combined_non_sum_aggregations(aggregation_types)
       all_sensors = collect_sensors_for_aggregation_types(aggregation_types)
       return {} if all_sensors.empty?
@@ -296,6 +319,10 @@ module Sensor
 
     def needed_aggregations
       @needed_aggregations ||= self.class.needed_aggregations
+    end
+
+    def meter_sensor_names
+      @meter_sensor_names ||= self.class.meter_sensor_names
     end
 
     # ============================================
