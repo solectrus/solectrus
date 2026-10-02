@@ -32,6 +32,8 @@ class Sensor::LegacyConfigAdapter
       adapted_env.delete('INFLUX_MEASUREMENT_FORECAST')
     end
 
+    adapt_aliases(adapted_env)
+
     log_summary
 
     adapted_env
@@ -60,12 +62,38 @@ class Sensor::LegacyConfigAdapter
   }.freeze
   private_constant :FALLBACK_SENSORS
 
+  # Permanent aliases, alias => variable. Unlike the legacy mode above, an
+  # alias applies always and is not deprecated: an installation with one car
+  # can keep the name without a number.
+  ALIASES = {
+    'INFLUX_SENSOR_CAR_BATTERY_SOC' => 'INFLUX_SENSOR_CAR_BATTERY_SOC_1',
+  }.freeze
+  private_constant :ALIASES
+
   # Default values for legacy measurement variables (from v0.14.5 and earlier)
   FALLBACK_MEASUREMENTS = {
     'INFLUX_MEASUREMENT_PV' => 'SENEC',
     'INFLUX_MEASUREMENT_FORECAST' => 'Forecast',
   }.freeze
   private_constant :FALLBACK_MEASUREMENTS
+
+  # Copies each alias to its variable. If both exist, the variable wins.
+  def adapt_aliases(adapted_env)
+    ALIASES.each do |alias_name, name|
+      value = adapted_env.delete(alias_name)
+      next if value.blank?
+
+      if adapted_env[name].present?
+        alias_conflicts << "#{alias_name} is ignored, because #{name} is set"
+      else
+        adapted_env[name] = value
+      end
+    end
+  end
+
+  def alias_conflicts
+    @alias_conflicts ||= []
+  end
 
   def build_from_deprecated_config(sensor_name)
     measurement_env_var, field = FALLBACK_SENSORS[sensor_name]
@@ -97,6 +125,8 @@ class Sensor::LegacyConfigAdapter
   end
 
   def log_summary
+    log_alias_conflicts
+
     if warnings.empty?
       log_line 'Configuration is up-to-date, no legacy conversion required'
       return
@@ -111,5 +141,12 @@ class Sensor::LegacyConfigAdapter
 
     log_blank
     log_line 'After updating, you can remove INFLUX_MEASUREMENT_PV and INFLUX_MEASUREMENT_FORECAST.'
+  end
+
+  def log_alias_conflicts
+    return if alias_conflicts.empty?
+
+    log_section_header('⚠️  CONFLICTING ALIASES', char: '·')
+    alias_conflicts.each { |conflict| log_line("- #{conflict}") }
   end
 end

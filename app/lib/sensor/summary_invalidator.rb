@@ -75,12 +75,19 @@ class Sensor::SummaryInvalidator
     config ? JSON.parse(config.to_json) : nil
   end
 
+  # Sensors with a new name, old name => new name. Their daily values move to
+  # the new name with a migration, so a stored configuration with the old name
+  # describes the same summaries. Without this, the new name looks like an
+  # added sensor with history, which resets all summaries.
+  RENAMED_SENSORS = { 'car_battery_soc' => 'car_battery_soc_1' }.freeze
+  private_constant :RENAMED_SENSORS
+
   private_class_method def self.relevant_changes?(old_config, new_config)
     # Compare base configuration (version, time_zone, excluded_from_house_power)
     base_keys = %w[version time_zone excluded_from_house_power]
     return true if base_keys.any? { |key| old_config[key] != new_config[key] }
 
-    old_sensors = old_config['sensors_in_summary'] || {}
+    old_sensors = (old_config['sensors_in_summary'] || {}).transform_keys { RENAMED_SENSORS.fetch(it, it) }
     new_sensors = new_config['sensors_in_summary'] || {}
 
     changed_sensor?(old_sensors, new_sensors) ||

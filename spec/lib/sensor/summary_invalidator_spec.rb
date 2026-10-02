@@ -123,6 +123,27 @@ describe Sensor::SummaryInvalidator do
         end
       end
 
+      # The migration moves the daily values of car_battery_soc to the number
+      # of the first car, so the summaries stay valid.
+      context 'when the state of charge of the car got its number' do
+        let(:stored_sensors) do
+          current_sensors.except(:car_battery_soc_1).merge(car_battery_soc: current_sensors[:car_battery_soc_1])
+        end
+
+        before do
+          add_influx_point(
+            name: Sensor::Config.measurement(:car_battery_soc_1),
+            fields: { Sensor::Config.field(:car_battery_soc_1) => 80 },
+            time: Date.yesterday.middle_of_day,
+          )
+        end
+
+        it 'does not delete summaries' do
+          expect(current_sensors).to include(:car_battery_soc_1)
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
+
       context 'when an added sensor has data for today only' do
         let(:stored_sensors) { current_sensors.except(:inverter_power_2) }
 

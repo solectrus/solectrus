@@ -1,7 +1,7 @@
 describe Sensor::Chart::CarBatterySoc do
-  let(:chart) { described_class.new(timeframe:) }
+  let(:chart) { described_class.new(timeframe:, car_number: 1) }
   let(:timeframe) { Timeframe.new('P1H') }
-  let(:max_age) { Sensor::Registry[:car_battery_soc].max_age }
+  let(:max_age) { Sensor::Registry[:car_battery_soc_1].max_age }
 
   def minute_labels(count)
     start = Time.zone.local(2025, 3, 3, 10, 0, 0)
@@ -52,7 +52,7 @@ describe Sensor::Chart::CarBatterySoc do
 
       it 'carries the last value forward to the window edge to meet the live tail' do
         labels = minute_labels(4)
-        result = chart.__send__(:process_gaps, labels, [40.0, 46.0, nil, nil], :car_battery_soc)
+        result = chart.__send__(:process_gaps, labels, [40.0, 46.0, nil, nil], :car_battery_soc_1)
 
         expect(result).to eq([40.0, 46.0, 46.0, 46.0])
       end
@@ -63,7 +63,7 @@ describe Sensor::Chart::CarBatterySoc do
 
       it 'leaves the trailing edge as a gap (no value dragged to now)' do
         labels = minute_labels(4)
-        result = chart.__send__(:process_gaps, labels, [40.0, 46.0, nil, nil], :car_battery_soc)
+        result = chart.__send__(:process_gaps, labels, [40.0, 46.0, nil, nil], :car_battery_soc_1)
 
         expect(result).to eq([40.0, 46.0, nil, nil])
       end
@@ -72,7 +72,7 @@ describe Sensor::Chart::CarBatterySoc do
 
   describe '#style_for_sensor' do
     it 'renders the line as steps' do
-      style = chart.__send__(:style_for_sensor, Sensor::Registry[:car_battery_soc])
+      style = chart.__send__(:style_for_sensor, Sensor::Registry[:car_battery_soc_1])
       expect(style[:stepped]).to be(true)
     end
   end

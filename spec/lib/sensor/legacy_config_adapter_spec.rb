@@ -382,6 +382,31 @@ describe Sensor::LegacyConfigAdapter do
       end
     end
 
+    context 'with the state of charge of the car without a number' do
+      let(:env) do
+        { 'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'pv:grid', 'INFLUX_SENSOR_CAR_BATTERY_SOC' => 'car:soc' }
+      end
+
+      it 'is a permanent alias of the first car' do
+        allow(Rails.logger).to receive(:info)
+
+        expect(adapted).to include('INFLUX_SENSOR_CAR_BATTERY_SOC_1' => 'car:soc')
+        expect(adapted).not_to have_key('INFLUX_SENSOR_CAR_BATTERY_SOC')
+        expect(Rails.logger).not_to have_received(:info).with(include('CONFLICTING ALIASES'))
+      end
+
+      context 'when the numbered variable is set, too' do
+        let(:env) { super().merge('INFLUX_SENSOR_CAR_BATTERY_SOC_1' => 'car:soc_1') }
+
+        it 'takes the numbered variable and warns' do
+          allow(Rails.logger).to receive(:info)
+
+          expect(adapted).to include('INFLUX_SENSOR_CAR_BATTERY_SOC_1' => 'car:soc_1')
+          expect(Rails.logger).to have_received(:info).with(include('CONFLICTING ALIASES'))
+        end
+      end
+    end
+
     context 'with unmapped sensor types' do
       let(:env) { { 'INFLUX_MEASUREMENT_PV' => 'SENEC' } }
 

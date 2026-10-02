@@ -35,6 +35,7 @@
   --palette-contrast-light-heatpump-heating: #f97316; /* ecstasy */
   --palette-contrast-light-autarky-mid: #d97706; /* amber-600 */
   --palette-contrast-light-forecast-clearsky: #9ca3af; /* gray chateau */
+  --palette-contrast-light-car-range: #c026d3; /* purple pizzazz */
 
   /* Contrast palette (dark mode) — NTC color names */
   --palette-contrast-dark-grid: #7d2222; /* crown of thorns */
@@ -54,6 +55,7 @@
   --palette-contrast-dark-heatpump-heating: #c2410c; /* tia maria */
   --palette-contrast-dark-autarky-mid: #fbbf24; /* amber-400 */
   --palette-contrast-dark-forecast-clearsky: #4b5563; /* river bed */
+  --palette-contrast-dark-car-range: #86198f; /* seance */
 
   /* Standard palette (light mode) — NTC color names */
   --palette-standard-light-grid: #b64242; /* apple blossom */
@@ -73,6 +75,7 @@
   --palette-standard-light-heatpump-heating: #f97316; /* ecstasy */
   --palette-standard-light-autarky-mid: #d97706; /* amber-600 */
   --palette-standard-light-forecast-clearsky: #9ca3af; /* gray chateau */
+  --palette-standard-light-car-range: #6b5b95; /* butterfly bush */
 
   /* Standard palette (dark mode) — NTC color names */
   --palette-standard-dark-grid: #621921; /* persian plum */
@@ -92,6 +95,7 @@
   --palette-standard-dark-heatpump-heating: #c2410c; /* tia maria */
   --palette-standard-dark-autarky-mid: #fbbf24; /* amber-400 */
   --palette-standard-dark-forecast-clearsky: #4b5563; /* river bed */
+  --palette-standard-dark-car-range: #3f3566; /* martinique */
 
   /* Preview swatches — follow light/dark mode (overridden in .dark) */
   --palette-standard-preview-battery: var(--palette-standard-light-battery);
@@ -128,6 +132,7 @@
   --color-sensor-forecast-clearsky: var(
     --palette-standard-light-forecast-clearsky
   );
+  --color-sensor-car-range: var(--palette-standard-light-car-range);
   --color-sensor-consumer-other: #d6dde7;
 
   /* Signal colors for positive/warning/negative indicators (autarky badge,
@@ -194,6 +199,7 @@
     --color-sensor-forecast-clearsky: var(
       --palette-standard-dark-forecast-clearsky
     );
+    --color-sensor-car-range: var(--palette-standard-dark-car-range);
 
     /* Signal colors: light-mode values, lightened further below */
     --color-signal-negative: var(--palette-standard-light-grid);
@@ -262,6 +268,7 @@
     --color-sensor-forecast-clearsky: var(
       --palette-contrast-light-forecast-clearsky
     );
+    --color-sensor-car-range: var(--palette-contrast-light-car-range);
 
     --color-signal-warning: var(--palette-contrast-light-autarky-mid);
 
@@ -309,6 +316,7 @@
     --color-sensor-forecast-clearsky: var(
       --palette-contrast-dark-forecast-clearsky
     );
+    --color-sensor-car-range: var(--palette-contrast-dark-car-range);
 
     /* Signal colors: light-mode values, lightened further below */
     --color-signal-negative: var(--palette-contrast-light-grid);

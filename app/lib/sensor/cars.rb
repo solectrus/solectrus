@@ -22,6 +22,10 @@ module Sensor::Cars
   NAME_PATTERN = /\A(#{ROLES.join('|')})_(\d+)\z/
   private_constant :NAME_PATTERN
 
+  # The variable of a car sensor, with the number of the car
+  VARIABLE_PATTERN = /\AINFLUX_SENSOR_(?:#{CONFIGURABLE_ROLES.map(&:upcase).join('|')})_(\d+)\z/
+  private_constant :VARIABLE_PATTERN
+
   def self.numbers = (1..MAX)
 
   # The numbers with a variable for one of their sensors at least. Only
@@ -58,4 +62,41 @@ module Sensor::Cars
   def self.role_of(sensor_name)
     sensor_name.to_s[NAME_PATTERN, 1]&.to_sym
   end
+
+  # Two problems the sensors of the cars cannot show by themselves, for the
+  # log of Sensor::Config. `configurations` maps a sensor name to its
+  # measurement and field.
+  def self.config_warnings(env, configurations)
+    number_warnings(env) + shared_field_warnings(configurations)
+  end
+
+  # The registry makes no sensor above MAX, so without a warning such a car
+  # is invisible and the user has no hint.
+  def self.number_warnings(env)
+    env.filter_map do |name, value|
+      number = name[VARIABLE_PATTERN, 1]&.to_i
+      next if number.nil? || value.blank? || numbers.cover?(number)
+
+      "#{name} is ignored, the number of a car must be between 1 and #{MAX}"
+    end
+  end
+  private_class_method :number_warnings
+
+  # Each car must have fields of its own. Otherwise the daily values of two
+  # cars hold the same readings, and the odometer of one car joins the
+  # readings of another.
+  def self.shared_field_warnings(configurations)
+    CONFIGURABLE_ROLES.flat_map do |role|
+      by_field =
+        numbers.group_by do |number|
+          config = configurations[sensor_name(role, number)]
+          "#{config.measurement}:#{config.field}" if config
+        end
+
+      by_field.filter_map do |field, shared|
+        "The cars #{shared.join(' and ')} all read #{field}, but each car needs its own field" if field && shared.many?
+      end
+    end
+  end
+  private_class_method :shared_field_warnings
 end

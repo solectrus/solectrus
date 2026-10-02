@@ -34,7 +34,6 @@ class Balance::StatsController < ApplicationController
         battery_charging_power
         battery_discharging_power
         battery_soc
-        car_battery_soc
         case_temp
         grid_export_limit
         grid_export_power
@@ -48,7 +47,8 @@ class Balance::StatsController < ApplicationController
         system_status_ok
         wallbox_car_connected
         wallbox_power
-      ] + Sensor::Config.custom_inverter_sensors.map(&:name)
+      ] + Sensor::Config.custom_inverter_sensors.map(&:name) +
+        [Sensor::Cars.balance_soc_sensor_name].compact
 
     unless Setting.inverter_as_total
       sensor_names.push(:inverter_power_total)

@@ -98,6 +98,35 @@ describe Sensor::Config do
           )
         end
       end
+
+      context 'with the variables of several cars' do
+        let(:env_with_cars) do
+          {
+            'INFLUX_SENSOR_GRID_IMPORT_POWER' => 'pv:grid',
+            'INFLUX_SENSOR_CAR_MILEAGE_1' => 'car:odometer',
+            'INFLUX_SENSOR_CAR_MILEAGE_2' => 'car:odometer',
+            'INFLUX_SENSOR_CAR_MILEAGE_6' => 'car6:odometer',
+          }
+        end
+
+        before { allow(Rails.logger).to receive(:info) }
+
+        after { described_class.setup(ENV) }
+
+        it 'warns about a number above the limit' do
+          described_class.setup(env_with_cars)
+
+          expect(Rails.logger).to have_received(:info).with(
+            include('INFLUX_SENSOR_CAR_MILEAGE_6 is ignored', 'between 1 and 5'),
+          )
+        end
+
+        it 'warns about two cars that read the same field' do
+          described_class.setup(env_with_cars)
+
+          expect(Rails.logger).to have_received(:info).with(include('The cars 1 and 2 all read car:odometer'))
+        end
+      end
     end
   end
 

@@ -41,6 +41,7 @@ class SocBadgeComponentPreview < ViewComponent::Preview
     render SocBadge::Component.new(
              battery_soc: battery_soc.to_f,
              car_battery_soc: car_battery_soc.to_f,
+             car_soc_sensor: :car_battery_soc_1,
              time: Time.current,
              timeframe: Timeframe.now,
              car_connected:,

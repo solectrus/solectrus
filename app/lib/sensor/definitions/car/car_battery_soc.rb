@@ -1,5 +1,7 @@
 class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
-  value unit: :percent, range: (0..100), category: :battery, nameable: true
+  include Sensor::Definitions::CarNumber
+
+  value unit: :percent, range: (0..100), category: :car
 
   # Car SOC is only updated while the car is connected/online, so gaps of
   # multiple hours are normal and should not be treated as stale.
@@ -42,7 +44,7 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
 
   home_pages :balance
 
-  chart { |timeframe| Sensor::Chart::CarBatterySoc.new(timeframe:) }
+  chart { |timeframe, **| Sensor::Chart::CarBatterySoc.new(timeframe:, car_number:) }
 
   requires_permission :car
 end

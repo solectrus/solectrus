@@ -14,7 +14,7 @@ en:
     generation_grid_battery: Generation, Grid & Battery
     consumer: Consumers
     heatpump: Heat Pump
-    car: Car
+    car: Electric vehicle
     economic: Finance
     forecast: Forecast
     power_splitter: Power split
@@ -64,6 +64,14 @@ en:
     years: Last %{count} years
     all: Since commissioning %{since} ago
   sensors:
+    car_roles:
+      car_battery_soc: SOC
+      car_mileage: Odometer
+      car_range: Range
+      car_max_range: Max. range
+    car_sensor:
+      named: '%{car} (%{role})'
+      unnamed: 'Car %{number}: %{role}'
     power_balance: Power balance
     inverter_power: Generation
     inverter_power_1: Generation 1
@@ -88,6 +96,12 @@ en:
     battery_soc: Home battery SOC
     battery_soc_short: SOC
     car_battery_soc: EV SOC
+    car_mileage: Distance driven
+    car_mileage_short: Distance driven
+    car_range: Range
+    car_range_short: Range
+    car_max_range: Maximum range
+    car_max_range_short: Max. range
     case_temp: Case
     grid_export_limit: Limit
     heatpump_power: Heat pump
@@ -453,6 +467,9 @@ en:
     battery_soc: 'Home battery state of charge (SOC).'
     case_temp: 'Battery enclosure temperature.'
     car_battery_soc: 'Electric vehicle battery state of charge (SOC).'
+    car_range: 'Remaining driving range of the electric vehicle.'
+    car_max_range: 'Estimated range extrapolated to a fully charged (100%) battery.'
+    car_mileage: 'Distance driven by the electric vehicle in the period.'
     wallbox_car_connected: 'Whether an electric vehicle is currently connected to the wallbox.'
     outdoor_temp: 'Outdoor air temperature.'
     outdoor_temp_forecast: 'Forecasted outdoor air temperature.'
@@ -482,6 +499,7 @@ en:
       total: 'Total'
       costs: 'Costs'
     derived:
+      car: '%{description} Car: %{car}.'
       split: 'Portion of %{subject} %{clause}.'
       total: '%{subject}, summed across all inverters/consumers.'
       clause:
@@ -503,6 +521,7 @@ en:
     money_per_kwh: 'Price per kilowatt-hour in the configured currency (its ISO-4217 code is in get_system_info).'
     percent: 'Percentage (0-100).'
     celsius: 'Temperature in degrees Celsius.'
+    kilometer: 'Distance in kilometres (km).'
     gram: 'Mass in grams (e.g. CO₂), aggregated over a period.'
     gram_per_hour: 'Mass rate in grams per hour (g/h), e.g. the CO₂ avoided at the current generation. Aggregated over a period it becomes a gram.'
     boolean: 'Boolean state (true/false).'

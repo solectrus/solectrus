@@ -20,6 +20,15 @@ class StatsNow::Component < ViewComponent::Base
       end
   end
 
+  # The state of charge of the first car, beside the house battery
+  def car_soc_sensor
+    Sensor::Cars.balance_soc_sensor_name
+  end
+
+  def car_battery_soc
+    data.public_send(car_soc_sensor) if car_soc_sensor && data.respond_to?(car_soc_sensor)
+  end
+
   def timeframe
     Timeframe.now
   end

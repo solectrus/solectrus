@@ -148,7 +148,7 @@ describe Sensor::Query::Latest do
       end
     end
 
-    context 'with car_battery_soc (longer max_age)' do
+    context 'with car_battery_soc_1 (longer max_age)' do
       before do
         influx_batch do
           add_influx_point(
@@ -163,8 +163,8 @@ describe Sensor::Query::Latest do
       end
 
       it 'keeps values within the 2 hour tolerance' do
-        result = described_class.new(:car_battery_soc).call
-        expect(result.car_battery_soc).to eq(60.0)
+        result = described_class.new(:car_battery_soc_1).call
+        expect(result.car_battery_soc_1).to eq(60.0)
       end
     end
   end
