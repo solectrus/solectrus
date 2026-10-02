@@ -42,6 +42,15 @@ describe Sensor::Chart::CarMileage do
     expect(dataset[:data].first(3)).to eq([150, nil, 50])
   end
 
+  context 'with a day' do
+    subject(:chart) { described_class.new(timeframe: Timeframe.new('2026-01-25'), cars: [Car.new(id: 1)]) }
+
+    it 'has no data, because the distance comes from the daily summaries' do
+      expect(chart).not_to be_supported
+      expect(chart.data).to be_nil
+    end
+  end
+
   it 'does not stack the columns' do
     expect(chart.options.dig(:scales, :y, :stacked)).to be_falsy
   end

@@ -90,7 +90,7 @@ describe 'Car Stats' do
       it 'keeps the car in each link of the page' do
         get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2), headers:)
 
-        expect(response.body).to include(cars_charts_path(sensor_name: 'car_mileage_2', timeframe: day.to_s, car: 2))
+        expect(response.body).to include(cars_charts_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2))
       end
 
       %w[x 5].each do |param|
@@ -140,7 +140,6 @@ describe 'Car Stats' do
             I18n.t('car_breakdown.home_pv'),
             I18n.t('car_breakdown.home_grid'),
             I18n.t('car_breakdown.offsite'),
-            cars_charts_path(sensor_name: 'car_mileage_1', timeframe: day.to_s, car: 1),
           )
         end
       end

@@ -1,21 +1,15 @@
 # The odometer of the car as a mechanical counter: one box for each digit,
-# with six digits at least. A click loads the distance chart.
+# with six digits at least.
 class Car::Odometer::Component < ViewComponent::Base
-  include CarChartLink
-
   MIN_DIGITS = 6
   private_constant :MIN_DIGITS
 
-  def initialize(value:, car:, timeframe:)
+  def initialize(value:)
     super()
     @value = value
-    @car = car
-    @timeframe = timeframe
   end
 
-  attr_reader :value, :car, :timeframe
-
-  def sensor_name = Sensor::Cars.sensor_name(:car_mileage, car.id)
+  attr_reader :value
 
   def render?
     value.present?

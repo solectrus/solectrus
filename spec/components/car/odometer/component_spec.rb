@@ -1,5 +1,5 @@
 describe Car::Odometer::Component, type: :component do
-  subject(:component) { described_class.new(value:, car: Car.new(id: 1), timeframe: Timeframe.now) }
+  subject(:component) { described_class.new(value:) }
 
   let(:html) { render_inline(component) }
 

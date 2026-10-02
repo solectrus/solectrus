@@ -11,16 +11,19 @@ class Car::DrivingCard::Component < ViewComponent::Base
 
   attr_reader :balance, :timeframe
 
-  # A rate chart needs buckets of a day at least, so on a day the two rate
-  # rows open no chart.
-  def rate_chart(sensor_name)
-    sensor_name if Sensor::Chart::CarRateBase.supports?(timeframe)
-  end
-
   # The distance of the first selected car. Its chart shows each car in the
   # selection "all" (see Sensor::Chart::CarMileage).
   def distance_sensor_name
     Sensor::Cars.sensor_name(:car_mileage, balance.cars.first.id)
+  end
+
+  # The distance loads its chart, where the chart can draw the timeframe
+  def distance_wrapper
+    classes = 'block min-w-0 text-center'
+    chart = chart_sensor_name(distance_sensor_name)
+    return [:div, { class: classes }] unless chart
+
+    [:a, { href: chart_link_url(chart), class: "click-animation focus:outline-none #{classes}", data: chart_link_data(chart) }]
   end
 
   def km_per_day

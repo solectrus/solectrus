@@ -165,71 +165,10 @@ describe Sensor::Chart::CarRateBase do
 
     context 'with a day' do
       let(:timeframe) { Timeframe.new('2026-01-15') }
-      let(:labels) { [10, 11].map { Time.zone.local(2026, 1, 15, it).to_i * 1000 } }
-      let(:distance_datasets) { [{ id: 'car_mileage_1', data: [100, nil] }] }
 
-      before do
-        distance_chart =
-          instance_double(
-            Sensor::Chart::CarMileage,
-            data: { labels:, datasets: distance_datasets },
-            'interval=': nil,
-          )
-        allow(Sensor::Chart::CarMileage).to receive(:new).and_return(distance_chart)
-      end
-
-      it 'is supported' do
-        expect(chart).to be_supported
-      end
-
-      it 'is labelled in a currency, not per hour' do
-        expect(chart.unit).to eq('€')
-      end
-
-      it 'gives each hour its distance at the cost of the window of its day' do
-        expect(chart.data[:labels]).to eq(labels)
-        expect(rates(chart)).to eq([6.0, nil])
-      end
-
-      it 'explains each hour with its distance' do
-        notes = chart.data[:datasets].first[:tooltipNotes]
-
-        expect(notes.map { it&.first }).to eq(
-          ["100 km × 6.00 #{Sensor::UnitFormatter.format(unit: :money_per_100km, context: :total)}", nil],
-        )
-      end
-
-      context 'with two cars' do
-        subject(:chart) { described_class.new(timeframe:, cars: Car.ordered.to_a) }
-
-        let(:distance_datasets) do
-          [{ id: 'car_mileage_1', data: [100, nil] }, { id: 'car_mileage_2', data: [50, 20] }]
-        end
-
-        # 30 kWh for 18 EUR and 150 km: 12 EUR/100 km
-        before do
-          start = Date.new(2026, 1, 25).in_time_zone.change(hour: 14)
-          ChargingSession.create!(
-            kind: :wallbox,
-            car: Car.create!(id: 2),
-            started_at: start,
-            ended_at: start + 1.hour,
-            kwh: 30,
-            kwh_grid: 30,
-            cost: 18,
-          )
-          summary(Date.new(2026, 1, 25), :car_mileage_2, :sum, 150)
-        end
-
-        it 'adds the cost of each car at its own rate' do
-          expect(rates(chart)).to eq([12.0, 2.4])
-        end
-
-        it 'reads the distances of both cars at once' do
-          chart.data
-
-          expect(Sensor::Chart::CarMileage).to have_received(:new).once
-        end
+      it 'has no data, because a column needs the distance of a whole day' do
+        expect(chart).not_to be_supported
+        expect(chart.data).to be_nil
       end
     end
   end

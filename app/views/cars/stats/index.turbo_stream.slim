@@ -51,7 +51,7 @@
                 = live.car.display_name
             = render Car::RangeGauge::Component.new(live:, timeframe:)
             / The odometer as a mechanical counter
-            = render Car::Odometer::Component.new(value: live.odometer, car: live.car, timeframe:)
+            = render Car::Odometer::Component.new(value: live.odometer)
 
     - elsif data.car_distance.nil?
       .flex-1.flex.items-center.justify-center.text-slate-500.dark:text-slate-400.text-center.px-4

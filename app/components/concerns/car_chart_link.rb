@@ -3,6 +3,13 @@
 module CarChartLink
   private
 
+  # The sensor whose chart a click loads, or nil when its chart cannot draw
+  # the timeframe. A rate, the distance and the driving cost need a day at
+  # least.
+  def chart_sensor_name(sensor_name)
+    sensor_name if Sensor::Registry[sensor_name.to_sym].chart(timeframe).supported?
+  end
+
   def chart_link_url(sensor_name)
     helpers.cars_home_path(sensor_name:, timeframe:)
   end

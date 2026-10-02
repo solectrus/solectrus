@@ -1,4 +1,4 @@
-= link_to chart_link_url(sensor_name), class: 'click-animation flex flex-col items-center gap-1.5 focus:outline-none', title: t('sensors.car_odometer_short'), data: chart_link_data(sensor_name) do
+.flex.flex-col.items-center.gap-1.5 title= t('sensors.car_odometer_short')
   .flex.items-center.gap-1
     - digits.each do |digit|
       span.flex.items-center.justify-center.w-7.h-10.md:w-8.md:h-11.rounded-md.bg-slate-800.dark:bg-slate-950.text-white.dark:text-slate-200.font-mono.text-2xl.md:text-3xl

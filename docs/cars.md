@@ -365,24 +365,21 @@ A cost is a sum, and a rate is not. The user interface must never add a rate.
 | --------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `car_charging`, `car_charging_costs`    | sessions of the selected cars, stacked into PV, grid and offsite                                    |
 | `car_consumption_rate`, `car_cost_rate` | sum of the days of the column ÷ their distance                                                      |
-| `car_driving_costs`                     | sum of the days of the column; an hour at the rate of its day                                       |
+| `car_driving_costs`                     | sum of the days of the column                                                                       |
 | `car_mileage_<n>`                       | distance of the column, without a split (see [Distance without a split](#distance-without-a-split)) |
 | `car_range_<n>`                         | now, hours and a day only, because the range of a day depends on the charge                         |
 
 A week and a month have a column for each day, a year for each month, and all for each
 year. A session belongs to a full day, so now, the hours view and a day show the power
 curve and the cost of the wallbox alone in the charts `car_charging` and
-`car_charging_costs`. A rate of an hour means nothing, so now, the hours view and a day
-have no rate chart. A column without a day with a rate has a gap. A column that the
+`car_charging_costs`. The distance, the rates and the driving cost come from the daily
+summaries, so now, the hours view and a day have none of their charts, and their values
+open no chart there. A column without a day with a rate has a gap. A column that the
 installation date, today or the edge of a range cuts is hatched.
 
 The tooltip of a rate column and a driving cost column says that each day takes the rate of
 the 14 days before and after it. The driving cost column shows the calculation
 (distance × EUR/100 km) first.
-
-The hourly driving cost uses the difference between two odometer readings of the same day.
-The tile also holds the distance between midnight and the first reading, so the hours can
-add up to less than the tile.
 
 In the selection "all", the distance chart stacks a column for each car in the color of the
 car.
@@ -421,7 +418,8 @@ make.
 
 The live view shows the charging power and the plug of the wallbox one time. Below them
 each selected car has a gauge of its range, filled to the state of charge, and its
-odometer. Each value opens its chart.
+odometer. The charging power and the gauge open their chart. The odometer opens none,
+because the distance chart needs a day at least.
 
 ### A period
 

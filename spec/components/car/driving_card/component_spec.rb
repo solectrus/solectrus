@@ -39,10 +39,8 @@ describe Car::DrivingCard::Component, type: :component do
   context 'with a day' do
     let(:timeframe) { Timeframe.new('2025-06-15') }
 
-    it 'opens no rate chart' do
-      urls = html.css('a').filter_map { it['data-stats-with-chart--component-chart-url-param'] }
-
-      expect(urls).not_to include(a_string_including('car_cost_rate'))
+    it 'opens no chart, because each needs a whole day' do
+      expect(html.css('a')).to be_empty
     end
   end
 end
