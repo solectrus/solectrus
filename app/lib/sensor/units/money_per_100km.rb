@@ -11,8 +11,4 @@ class Sensor::Units::MoneyPer100km < Sensor::Units::Base
   def precision(_printed_value, **)
     2
   end
-
-  def exact_precision
-    2
-  end
 end

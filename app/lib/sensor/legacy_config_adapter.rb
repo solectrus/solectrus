@@ -125,7 +125,7 @@ class Sensor::LegacyConfigAdapter
   end
 
   def log_summary
-    log_alias_conflicts
+    log_warnings('⚠️  CONFLICTING ALIASES', alias_conflicts)
 
     if warnings.empty?
       log_line 'Configuration is up-to-date, no legacy conversion required'
@@ -141,12 +141,5 @@ class Sensor::LegacyConfigAdapter
 
     log_blank
     log_line 'After updating, you can remove INFLUX_MEASUREMENT_PV and INFLUX_MEASUREMENT_FORECAST.'
-  end
-
-  def log_alias_conflicts
-    return if alias_conflicts.empty?
-
-    log_section_header('⚠️  CONFLICTING ALIASES', char: '·')
-    alias_conflicts.each { |conflict| log_line("- #{conflict}") }
   end
 end

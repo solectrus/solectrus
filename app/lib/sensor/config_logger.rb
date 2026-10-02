@@ -18,6 +18,13 @@ module Sensor::ConfigLogger
     log_blank if blank_after
   end
 
+  def log_warnings(title, warnings)
+    return if warnings.empty?
+
+    log_section_header(title, char: '·')
+    warnings.each { |warning| log_line("- #{warning}") }
+  end
+
   def log_section_footer(char: '─')
     log_line char * SECTION_WIDTH
   end

@@ -338,13 +338,6 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     log_warnings('⚠️  CARS', @car_warnings)
   end
 
-  def log_warnings(title, warnings)
-    return if warnings.empty?
-
-    log_section_header(title, char: '·')
-    warnings.each { |warning| log_line("- #{warning}") }
-  end
-
   def check_for_duplicates(sensor_name)
     sensor_measurement = measurement(sensor_name)
     sensor_field = field(sensor_name)
