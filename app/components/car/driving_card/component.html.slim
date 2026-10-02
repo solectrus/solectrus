@@ -11,14 +11,14 @@
   / left, like the usage column of the power balance.
   .flex-1.flex.flex-col
 
-    = render Car::StatRow::Component.new(title: t('sensors.car_driving_costs'), sensor_name: chart_sensor_name('car_driving_costs'), timeframe:, large: true, tooltip_placement: 'left', tooltip: Car::DrivingCostTooltip::Component.new(balance:)) do
+    = render Car::StatRow::Component.new(title: t('sensors.car_driving_costs'), sensor_name: chart_sensor_name('car_driving_costs'), timeframe:, large: true, tooltip_placement: 'left', tooltip: driving_cost_tooltip) do
       - if balance.car_driving_costs
         = render SensorValue::Component.new(balance.car_driving_costs, :total_costs, sign: :negative)
       - else
         = '–'
 
-    = render Car::StatRow::Component.new(title: t('sensors.car_cost_per_100km_short'), sensor_name: chart_sensor_name('car_cost_rate'), timeframe:, large: true, tooltip_placement: 'left', tooltip: (Car::RateTooltip::Component.new(driving: balance.driving, rate: :cost, distance: balance.car_distance) if balance.car_cost_per_100km)) do
+    = render Car::StatRow::Component.new(title: t('sensors.car_cost_per_100km_short'), sensor_name: chart_sensor_name('car_cost_rate'), timeframe:, large: true, tooltip_placement: 'left', tooltip: (cost_rate_tooltip if balance.car_cost_per_100km)) do
       = render SensorValue::Component.new(balance.car_cost_per_100km, :total_costs)
 
-    = render Car::StatRow::Component.new(title: t('sensors.car_consumption_per_100km_short'), sensor_name: chart_sensor_name('car_consumption_rate'), timeframe:, large: true, tooltip_placement: 'left', tooltip: (Car::RateTooltip::Component.new(driving: balance.driving, rate: :consumption, distance: balance.car_distance) if balance.car_consumption_per_100km)) do
-      = render SensorValue::Component.new(balance.car_consumption_per_100km&.*(1000), :wallbox_power, context: :total, scaling: :kilo, precision: 1)
+    = render Car::StatRow::Component.new(title: t('sensors.car_consumption_per_100km_short'), sensor_name: chart_sensor_name('car_consumption_rate'), timeframe:, large: true, tooltip_placement: 'left', tooltip: (consumption_rate_tooltip if balance.car_consumption_per_100km)) do
+      = render consumption_value(balance.car_consumption_per_100km)

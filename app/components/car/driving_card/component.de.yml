@@ -1,4 +1,6 @@
 de:
+  no_rate: Für die Fahrkosten fehlen Daten. Die Tage rund um eine Fahrt brauchen mindestens 100 km und geladene Energie.
   energy: Energie fürs Fahren
   reason: Laden und Fahren passieren nicht am selben Tag. Deshalb gilt für jeden Tag die Rate der %{days} Tage davor und danach.
   charge_losses: Die Werte enthalten die Ladeverluste.
+  unrated: Ohne %{distance}, für die Ladedaten fehlen.

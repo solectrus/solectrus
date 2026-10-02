@@ -1,5 +1,6 @@
 # The driving of a period: the distance with its average for each day, the
-# driving cost and the two rates per 100 km it comes from.
+# driving cost and the two rates per 100 km it comes from. The tooltip of
+# each value shows its calculation.
 class Car::DrivingCard::Component < ViewComponent::Base
   include CarChartLink
 
@@ -29,5 +30,83 @@ class Car::DrivingCard::Component < ViewComponent::Base
   def km_per_day
     distance = Sensor::ValueFormatter.new(balance.car_km_per_day, unit: :kilometer)
     "Ø #{distance}/#{t('sensors.car_km_per_day_unit')}"
+  end
+
+  # Rendered in kWh/100 km, like the value of the tile
+  def consumption_value(kwh_per_km)
+    SensorValue::Component.new(kwh_per_km&.*(1000), :wallbox_power, context: :total, scaling: :kilo, precision: 1)
+  end
+
+  # The driving cost is the distance times the cost per 100 km
+  def driving_cost_tooltip
+    return tooltip(notes: [t('.no_rate')]) unless balance.car_driving_costs
+
+    tooltip(
+      terms: [
+        row(nil, t('sensors.car_distance_short'), distance_value(driving.cost_distance)),
+        row('×', t('sensors.car_cost_per_100km_short'), cost_value(balance.car_cost_per_100km)),
+      ],
+      result: row('=', t('sensors.car_driving_costs'), SensorValue::Component.new(balance.car_driving_costs, :total_costs, sign: :negative)),
+      notes: [unrated_note(driving.cost_distance)],
+    )
+  end
+
+  # The cost per 100 km is the driving cost divided by the distance
+  def cost_rate_tooltip
+    rate_tooltip(
+      sum: row(nil, t('sensors.car_driving_costs'), cost_value(driving.cost)),
+      distance: driving.cost_distance,
+      rate: row('=', t('sensors.car_cost_per_100km_short'), cost_value(driving.cost_per_100km)),
+    )
+  end
+
+  # The consumption is the energy for driving divided by the distance
+  def consumption_rate_tooltip
+    energy = SensorValue::Component.new(driving.energy_wh, :wallbox_power, context: :total, scaling: :kilo, precision: 0)
+
+    rate_tooltip(
+      sum: row(nil, t('.energy'), energy),
+      distance: driving.distance,
+      rate: row('=', t('sensors.car_consumption_per_100km_short'), consumption_value(driving.consumption_per_100km)),
+    )
+  end
+
+  private
+
+  delegate :driving, to: :balance
+
+  # The distance holds the days with this rate. A day without a cost has an
+  # energy rate, but no cost rate.
+  def rate_tooltip(sum:, distance:, rate:)
+    tooltip(
+      terms: [sum, row('÷', t('sensors.car_distance_short'), distance_value(distance))],
+      result: rate,
+      notes: [t('.reason', days: Car::DailyRates::MARGIN_DAYS), t('.charge_losses'), unrated_note(distance)],
+    )
+  end
+
+  # The kilometers of the period on days without a rate. The card shows them
+  # in its distance, but the calculation leaves them out (see
+  # Car::DailyRates). Rounded like the distance on the card, so a rest below
+  # 0.5 km has no note.
+  def unrated_note(rated_distance)
+    unrated = (balance.car_distance.to_f - rated_distance).round
+    t('.unrated', distance: Sensor::ValueFormatter.new(unrated, unit: :kilometer).to_s) if unrated.positive?
+  end
+
+  def tooltip(notes:, terms: [], result: nil)
+    Car::CalculationTooltip::Component.new(terms:, result:, notes: notes.compact)
+  end
+
+  def row(operator, label, value)
+    Car::CalculationTooltip::Component::Row.new(operator:, label:, value:)
+  end
+
+  def distance_value(distance)
+    SensorValue::Component.new(distance, distance_sensor_name)
+  end
+
+  def cost_value(cost)
+    SensorValue::Component.new(cost, :total_costs, precision: 2)
   end
 end
