@@ -86,9 +86,21 @@ Open:
   `ChargingSession::Detection#integrals` copy `combine`, `bucket`, the range and the
   instrumentation from `Influx::DailyBatch`. One shared module removes the copies. The
   query of the detection then also reaches the query log.
-- A stats request of the car page loads the sessions two times. `Car::Balance#sessions`
-  reads the sessions of the timeframe, and `Car::DailyRates` reads them again with 14 days
-  on each side. `Car::Balance` can take its sessions from `Car::DailyRates`.
+- The car page loads the charging sessions as records, three times per timeframe.
+  `Car::Balance#sessions` and `Car::DailyRates#sessions_by_day` load them in the stats
+  request, and `Sensor::Chart::Concerns::CarSessions` loads them again in the chart request.
+  The cost grows with the number of sessions. It is highest for the timeframe "all" of an
+  installation with many years of sessions. One SQL aggregate per car, local date and kind
+  removes the loads. It sums `kwh`, `kwh_grid`, `cost` and `cost_grid`, and it counts the sessions,
+  the sessions without a cost and the wallbox sessions without `kwh_grid`.
+
+  The rows of the aggregate grow with the days, not with the sessions. `Car::DailyRates`
+  needs only these daily sums. `Car::Balance` adds the rows of each kind, as
+  `ChargingSession.totals` does for the guest sessions. The chart adds the rows of the days
+  of each column. `Car::ChargeSplit` then needs a constructor that takes sums instead of
+  sessions. The local date in SQL uses `AT TIME ZONE` with the name of the time zone, as
+  `Summary` does, and it must give the same day as `ChargingSession#date`.
+
 - `Influx::DailyDiffs` reads without a time limit. For each block of 7 days, `last()` reads
   back to the installation date, and `first()` reads up to today. The cost grows with the
   age of the installation. A short lookback that grows only when it finds no reading
