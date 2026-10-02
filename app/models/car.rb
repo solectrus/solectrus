@@ -76,12 +76,6 @@ class Car < ApplicationRecord
 
   def display_color = color || self.class.default_color(id)
 
-  # The days of use, from the first day of use to the last day of use or
-  # today
-  def period(today: Date.current)
-    active_from..(active_until || today)
-  end
-
   def active_on?(date)
     active_from <= date && (active_until.nil? || active_until >= date)
   end
