@@ -64,7 +64,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
     parse_configurations
     auto_configure_power_splitter_sensors
-    @car_warnings = Sensor::Cars.config_warnings(@env, configurations)
+    @car_warnings = Sensor::Cars.config_warnings(@env)
 
     log_configurations
 

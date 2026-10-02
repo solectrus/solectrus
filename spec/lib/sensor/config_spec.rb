@@ -124,7 +124,7 @@ describe Sensor::Config do
         it 'warns about two cars that read the same field' do
           described_class.setup(env_with_cars)
 
-          expect(Rails.logger).to have_received(:info).with(include('The cars 1 and 2 all read car:odometer'))
+          expect(Rails.logger).to have_received(:info).with(include('CAR_MILEAGE_2 and CAR_MILEAGE_1 both use car:odometer'))
         end
       end
     end
