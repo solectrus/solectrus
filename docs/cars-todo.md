@@ -77,14 +77,41 @@ None of these changes the design above.
 
 ## 4. Simplifications
 
-A review of the branch found these points. The simplifications are done. Measure the summary
-build before and after each change that touches it.
+A review of the branch found these points. Measure the summary build before and after each
+change that touches it.
 
-Not done, because with up to five cars each query takes about 1 ms. Do them when more cars
-or more sessions make them count:
+Open:
 
-- `Car::Ledger` reads the distances and the sessions of each car in queries of its own.
-  `Car::DailyRates.for` can read them for all cars at once and give them to the ledgers.
+- The Flux programs repeat code. `Influx::DailyCurves`, `Influx::DailyDiffs` and
+  `ChargingSession::Detection#integrals` copy `combine`, `bucket`, the range and the
+  instrumentation from `Influx::DailyBatch`. One shared module removes the copies. The
+  query of the detection then also reaches the query log.
+- A stats request of the car page loads the sessions two times. `Car::Balance#sessions`
+  reads the sessions of the timeframe, and `Car::DailyRates` reads them again with 14 days
+  on each side. `Car::Balance` can take its sessions from `Car::DailyRates`.
+- `Influx::DailyDiffs` reads without a time limit. For each block of 7 days, `last()` reads
+  back to the installation date, and `first()` reads up to today. The cost grows with the
+  age of the installation. A short lookback that grows only when it finds no reading
+  removes this.
+- The detection is a part of the summary core. `Summary` has the column
+  `charging_sessions_version`, and the flag `charging_sessions:` goes through about seven
+  layers. Dynamic prices will need the same step
+  ([A change of a price](cars.md#a-change-of-a-price)). A general mechanism for steps per
+  day, with one store for their versions, makes the next step a registration instead of a
+  new column and a new flag.
+- `MainNavigation#root_item`, `ChartSelector::Component` and `config/routes.rb` each name
+  the home pages, although `Sensor::HomePage` holds them.
+- `Timeframe::Component` takes `path_for`, `select_path` and `label_for_all` for the page
+  of the charging sessions, and `TimeframeSelect::Component` takes `car:`. A `path_for`
+  also turns off the forecast link. One object with the paths of a page, or a URL template
+  with a placeholder for the timeframe, removes these special cases.
+- The rename from `car_battery_soc` to `car_battery_soc_1` is in three places:
+  `Sensor::LegacyConfigAdapter::ALIASES`, `Sensor::SummaryInvalidator::RENAMED_SENSORS` and
+  the migration. One table of renames can feed the first two.
+
+Not done, because with up to five cars each query takes about 1 ms. Do it when more cars
+or more sessions make it count:
+
 - `Car::Balance` reads the guest totals and the totals that are not assigned in two
   queries. One query with `FILTER` gives both.
 
