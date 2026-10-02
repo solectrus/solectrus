@@ -21,7 +21,7 @@ class Sensor::Chart::CarDailyRatesBase < Sensor::Chart::Base
   private
 
   def build_data
-    return if !supported? || buckets.none?
+    return if buckets.none?
 
     sensor = chart_sensors.first
     totals = buckets.map { daily_rates.totals(it) }

@@ -18,10 +18,6 @@ class Sensor::Chart::CarMileage < Sensor::Chart::Base
 
   private
 
-  def build_data
-    super if supported?
-  end
-
   # The columns of the cars stack
   def build_dataset(sensor_name, chart_data)
     super.merge(label: Car.display_name_of(Sensor::Registry[sensor_name].car_number), stack: 'Car-Mileage')

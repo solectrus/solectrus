@@ -39,8 +39,9 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     chart_sensors.first&.display_name
   end
 
+  # A chart that cannot draw the timeframe has no data
   def data
-    @data ||= build_data
+    @data ||= (build_data if supported?)
   end
 
   def blank?

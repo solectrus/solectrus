@@ -12,12 +12,4 @@ class Sensor::Chart::CarRange < Sensor::Chart::Base
   def chart_sensor_names
     [Sensor::Cars.sensor_name(:car_range, car_number)]
   end
-
-  private
-
-  def build_data
-    return unless supported?
-
-    super
-  end
 end
