@@ -5,24 +5,12 @@
 #
 # The tooltip of a column shows this calculation and says that each day has
 # a window of its own.
-class Sensor::Chart::CarDrivingCosts < Sensor::Chart::Base
-  include Sensor::Chart::Concerns::CarDailyRates
-
-  # The distance of a column comes from the daily summaries, so a column must
-  # be a day at least.
-  def self.supports?(timeframe)
-    !timeframe.short?
-  end
-
+class Sensor::Chart::CarDrivingCosts < Sensor::Chart::CarDailyRatesBase
   def chart_sensor_names
     %i[car_driving_costs]
   end
 
   private
-
-  def build_data
-    build_bucket_data if supported?
-  end
 
   def value(totals)
     totals.cost if totals.cost_rated?

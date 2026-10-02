@@ -1,4 +1,4 @@
-describe Sensor::Chart::CarRateBase do
+describe Sensor::Chart::CarDailyRatesBase do
   let(:today) { Date.new(2026, 9, 23) }
 
   before do
