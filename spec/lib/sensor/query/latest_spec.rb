@@ -195,6 +195,18 @@ describe Sensor::Query::Latest do
       ensure
         Sensor::Config.setup(ENV)
       end
+
+      # A configuration for tests can give two cars the same field
+      context 'when a second car reads the same field' do
+        before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_BATTERY_SOC_2' => 'Trabant:soc')) }
+        after { Sensor::Config.setup(ENV) }
+
+        it 'gives the value to both cars' do
+          result = described_class.new(%i[car_battery_soc_1 car_battery_soc_2]).call
+
+          expect([result.car_battery_soc_1, result.car_battery_soc_2]).to eq([60.0, 60.0])
+        end
+      end
     end
   end
 end

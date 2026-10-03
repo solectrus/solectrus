@@ -260,13 +260,14 @@ module Sensor
         flux_result.each do |record|
           # Skip rows whose measurement/field don't map to a configured
           # sensor (e.g. stray fields shared in the same Influx series).
-          sensor = find_sensor_by_measurement_and_field(record['_measurement'], record['_field'])
-          next unless sensor
+          sensors = sensors_by_measurement_and_field(record['_measurement'], record['_field'])
+          next if sensors.empty?
 
           raw_time = record['_time']
           time_key = time_cache[raw_time] ||=
             Time.zone.parse(raw_time).public_send(@timestamp_method)
-          result[[sensor, @aggregation, @aggregation]][time_key] = record['_value']&.round(1)
+          value = record['_value']&.round(1)
+          sensors.each { |sensor| result[[sensor, @aggregation, @aggregation]][time_key] = value }
         end
 
         result

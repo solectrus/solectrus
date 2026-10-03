@@ -56,20 +56,10 @@ module Sensor
             result = {}
 
             flux_result.each do |record|
-              sensor =
-                find_sensor_by_measurement_and_field(
-                  record['_measurement'],
-                  record['_field'],
-                )
-              next unless sensor
-
-              # Initialize sensor hash if not exists
-              result[sensor] ||= {}
-
               # Extract aggregation values from pivoted columns
-              result[sensor][:min] = record['min']
-              result[sensor][:max] = record['max']
-              result[sensor][:avg] = record['avg']
+              sensors_by_measurement_and_field(record['_measurement'], record['_field']).each do |sensor|
+                result[sensor] = { min: record['min'], max: record['max'], avg: record['avg'] }
+              end
             end
 
             # Ensure all requested sensors have entries, even if no data was found

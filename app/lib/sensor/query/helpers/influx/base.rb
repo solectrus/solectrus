@@ -137,14 +137,14 @@ module Sensor
             { expires_in: 3.minutes }
           end
 
-          def find_sensor_by_measurement_and_field(measurement, field)
+          # The sensors that read a field. Two sensors can read the same field,
+          # so a row can belong to more than one.
+          def sensors_by_measurement_and_field(measurement, field)
             sensor_lookup[[measurement, field]]
           end
 
           def sensor_lookup
-            @sensor_lookup ||= available_sensors.index_by do |sensor|
-              [Sensor::Config.measurement(sensor), Sensor::Config.field(sensor)]
-            end
+            @sensor_lookup ||= SensorFilter.lookup(available_sensors)
           end
 
           # Standard InfluxDB result parsing - can be used by subclasses
@@ -152,21 +152,17 @@ module Sensor
             result = { times: {} }
 
             flux_result.each do |record|
-              sensor =
-                find_sensor_by_measurement_and_field(
-                  record['_measurement'],
-                  record['_field'],
-                )
-
-              next unless sensor
-
-              result[sensor] = record['_value']
+              sensors = sensors_by_measurement_and_field(record['_measurement'], record['_field'])
+              next if sensors.empty?
 
               # Track per-sensor timestamp (used to detect stale "latest" values)
               # and the overall newest time across all sensors (used for the
               # adaptive poll-interval estimator and live-status indicators).
               time = Time.zone.parse record['_time']
-              result[:times][sensor] = time
+              sensors.each do |sensor|
+                result[sensor] = record['_value']
+                result[:times][sensor] = time
+              end
               result[:time] = time if result[:time].nil? || time > result[:time]
             end
 
