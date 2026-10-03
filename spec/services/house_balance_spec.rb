@@ -94,6 +94,26 @@ describe HouseBalance do
       end
     end
 
+    # No custom consumer carries a share of the base fee, so the rest of the
+    # house keeps it in full.
+    context 'with a base fee in the house costs' do
+      let(:raw_data) do
+        {
+          house_power: 1000.0,
+          house_power_without_custom: 400.0,
+          house_costs_grid: 2.50,
+          grid_base_fee: 0.50,
+        }
+      end
+
+      it 'splits the energy costs, but keeps the whole fee' do
+        # 0.4 * (2.50 - 0.50) + 0.50 = 1.30
+        expect(house_balance.house_without_custom_costs_grid).to be_within(
+          0.001,
+        ).of(1.30)
+      end
+    end
+
     context 'when house_power is zero' do
       let(:raw_data) do
         {

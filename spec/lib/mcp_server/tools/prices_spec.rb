@@ -1,16 +1,26 @@
 describe McpServer::Tools::Prices do
   before do
-    Price.create!(name: 'electricity', starts_at: '2024-01-01', value: 0.30)
+    Price.create!(name: 'electricity', starts_at: '2024-01-01', amount_per_kwh: 0.30)
     Price.create!(
       name: 'electricity',
       starts_at: '2025-01-01',
-      value: 0.35,
+      amount_per_kwh: 0.35,
       note: 'New contract',
     )
-    Price.create!(name: 'feed_in', starts_at: '2024-01-01', value: 0.08)
+    Price.create!(name: 'feed_in', starts_at: '2024-01-01', amount_per_kwh: 0.08)
   end
 
   describe '.call' do
+    def prices(**)
+      response = described_class.call(server_context: nil, **)
+
+      JSON.parse(response.content.first[:text], symbolize_names: true)[:prices]
+    end
+
+    def electricity(**)
+      prices(**).find { _1[:name] == 'electricity' }
+    end
+
     it 'returns the price effective on the given date plus history' do
       response = described_class.call(server_context: nil, date: '2025-06-15')
 
@@ -19,7 +29,7 @@ describe McpServer::Tools::Prices do
 
       electricity = data[:prices].find { _1[:name] == 'electricity' }
       expect(electricity[:effective]).to eq(0.35)
-      expect(electricity[:unit]).to eq("#{Rails.configuration.x.currency}/kWh")
+      expect(electricity[:unit_per_kwh]).to eq("#{Rails.configuration.x.currency}/kWh")
       expect(electricity[:history].pluck(:value)).to include(0.35, 0.30)
 
       latest = electricity[:history].find { _1[:starts_at] == '2025-01-01' }
@@ -27,6 +37,31 @@ describe McpServer::Tools::Prices do
 
       feed_in = data[:prices].find { _1[:name] == 'feed_in' }
       expect(feed_in[:effective]).to eq(0.08)
+    end
+
+    context 'with a base fee' do
+      before do
+        Price
+          .find_by!(name: 'electricity', starts_at: '2025-01-01')
+          .update!(amount_per_month: 12.5)
+      end
+
+      it 'reports the base fee next to the rate per kWh' do
+        entry = electricity(date: '2025-06-15')
+        latest = entry[:history].find { _1[:starts_at] == '2025-01-01' }
+
+        expect(entry[:effective_base_fee_per_month]).to eq(12.5)
+        expect(latest[:base_fee_per_month]).to eq(12.5)
+      end
+
+      it 'omits the base fee where a tariff has none' do
+        history = electricity(date: '2025-06-15')[:history]
+        older = history.find { _1[:starts_at] == '2024-01-01' }
+        expect(older).not_to have_key(:base_fee_per_month)
+
+        feed_in = prices(date: '2025-06-15').find { _1[:name] == 'feed_in' }
+        expect(feed_in).not_to have_key(:effective_base_fee_per_month)
+      end
     end
 
     # "current" claimed today's tariff for a value that follows `date`, so a
@@ -101,13 +136,6 @@ describe McpServer::Tools::Prices do
     # question about 2024 came back with `effective` from 2024 next to a list
     # holding only 2025 - the number above the list appeared nowhere in it.
     context 'with a date the history reaches past' do
-      def electricity(**)
-        response = described_class.call(server_context: nil, **)
-        data = JSON.parse(response.content.first[:text], symbolize_names: true)
-
-        data[:prices].find { _1[:name] == 'electricity' }
-      end
-
       it 'cuts the history at the date, not at the newest entry' do
         entry = electricity(date: '2024-06-15', limit: 1)
 

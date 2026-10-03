@@ -249,6 +249,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   # (e.g., { pv: :heatpump_power_pv, grid: :heatpump_power_grid })
   def power_source_sensor_names = nil
 
+  # Whether the grid costs of this sensor contain the base fee of the tariff,
+  # which a cost breakdown names then.
+  def costs_carry_base_fee? = false
+
   def sql_calculated?
     respond_to?(:sql_calculation)
   end

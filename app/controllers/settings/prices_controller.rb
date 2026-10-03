@@ -65,7 +65,9 @@ class Settings::PricesController < ApplicationController
   end
 
   def permitted_params
-    params.expect(price: %i[name starts_at value note])
+    params.expect(
+      price: %i[name starts_at amount_per_kwh amount_per_month note],
+    )
   end
 
   helper_method def name

@@ -67,6 +67,13 @@ module Sensor
 
       private
 
+      # A data point here is a power reading, which the finance sensors turn
+      # into a rate (watt times money per kWh gives money per hour), so the
+      # base fee joins them as a rate as well.
+      def base_fee_for(timeframe)
+        BaseFee.per_hour(timeframe)
+      end
+
       def fetch_aggregated_series(interpolate: false, lookback: 0)
         query_string = build_series_flux_query(interpolate:, lookback:)
         result = query(query_string)

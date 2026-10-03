@@ -11,5 +11,23 @@
                      hint: t('settings.cash_flows.amount_hint')
     = f.text_field :note
 
-  .flex.justify-end
+  .flex.items-center.justify-end
+    / The delete button submits this form as a DELETE to the record instead.
+    - if cash_flow.persisted?
+      = render Button::Component.new icon: 'trash',
+                                     type: :submit,
+                                     style: :secondary,
+                                     options: { \
+                                       formaction: settings_cash_flow_path(cash_flow),
+                                       formmethod: :delete,
+                                       formnovalidate: true,
+                                       title: t('crud.delete'),
+                                       'aria-label': t('crud.delete'),
+                                       data: { \
+                                         turbo_confirm: t('crud.confirm_delete'),
+                                         controller: 'tooltip',
+                                         tooltip_placement_value: 'right',
+                                       },
+                                       class: 'mr-auto text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-500',
+                                     }
     = render 'settings/fab_submit'

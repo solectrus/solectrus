@@ -165,6 +165,11 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     sensor_costs(sensor.costs_pv_sensor_name)
   end
 
+  # The part of #costs_grid that is the base fee, where the sensor carries it.
+  def base_fee
+    data.try(:grid_base_fee) if sensor.costs_carry_base_fee?
+  end
+
   def now?
     parent.timeframe.now?
   end

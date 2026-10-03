@@ -122,6 +122,10 @@ de:
     total_costs_short: Kosten
     grid_costs: Netzbezugskosten
     grid_costs_short: Netzkosten
+    grid_base_fee: Grundpreis Netzanschluss
+    grid_base_fee_short: Grundpreis
+    grid_energy_costs: Verbrauchspreis Netzbezug
+    grid_energy_costs_short: Verbrauchspreis
     autarky: Autarkie
     inverter_power_total: Gesamterzeugung
     specific_yield: Spezifischer Ertrag
@@ -282,7 +286,7 @@ de:
       edit: Preis bearbeiten
       new: Neuer Preis
       description:
-        electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
+        electricity: An den Stromversorger zu zahlendes Entgelt, aufgeteilt in Arbeitspreis pro bezogene kWh und monatlichen Grundpreis. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
     cash_flows:
       name: Zahlungen
@@ -363,9 +367,14 @@ de:
           electricity: Strompreis
           feed_in: Einspeisung
         starts_at: Gültig ab
-        value: Betrag
+        amount_per_kwh: Betrag
+        amounts_per_kwh:
+          electricity: Arbeitspreis
+          feed_in: Vergütungssatz
+        amount_per_month: Grundpreis
         note: Notiz
         electricity_amount: Arbeitspreis in %{currency}/kWh
+        electricity_amount_per_month: Grundpreis in %{currency}/Monat
         feed_in_amount: Vergütungssatz in %{currency}/kWh
       cash_flow:
         date: Datum
@@ -428,7 +437,9 @@ de:
     self_consumption_quote: 'Eigenverbrauchsquote: Anteil der vor Ort verbrauchten PV-Erzeugung.'
     grid_quote: 'Bezugsquote: Anteil des Verbrauchs, der aus dem Netz gedeckt wird.'
     autarky: 'Autarkie: Anteil des Verbrauchs, der nicht aus dem Netz bezogen wurde. Netzstrom zählt beim Bezug, auch wenn er erst später aus dem Hausakku entnommen wird.'
-    grid_costs: 'Kosten für den aus dem Netz bezogenen Strom.'
+    grid_costs: 'Kosten für den aus dem Netz bezogenen Strom, einschließlich des monatlichen Grundpreises.'
+    grid_base_fee: 'Monatlicher Grundpreis für den Netzanschluss, tagesanteilig verteilt. Er ist Teil der Netzbezugskosten.'
+    grid_energy_costs: 'Verbrauchspreis-Anteil der Netzbezugskosten: Kosten für die aus dem Netz bezogene Energie, ohne den Grundpreis. Beide zusammen ergeben die Netzbezugskosten.'
     grid_revenue: 'Erlös aus der Einspeisung ins Netz (Einspeisevergütung).'
     grid_balance: 'Netzbilanz: Einspeisevergütung minus Netzbezugskosten.'
     house_costs: 'Stromkosten, die dem Hausverbrauch zuzurechnen sind.'
