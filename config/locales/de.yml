@@ -177,7 +177,6 @@ de:
     worse_html: '%{value} weniger als erwartet'
     expect_html: Erwartet werden %{value}
     expect_remaining_html: Erwartet werden noch %{value}
-    expectation_html: Erwartet wurden %{value}
     unknown: Keine Prognose verfügbar
   login:
     title: Als Admin anmelden

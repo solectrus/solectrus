@@ -153,6 +153,29 @@ describe Insights do
 
     before { stub_feature(:power_splitter) }
 
+    context 'with the charging of the battery' do
+      let(:sensor) { Sensor::Registry[:battery_charging_power] }
+
+      before do
+        create_summary(
+          date: Date.new(2025, 1, 1),
+          values: [
+            [:battery_charging_power, :sum, 8000],
+            [:battery_charging_power_grid, :sum, 2000],
+            [:battery_discharging_power, :sum, 6000],
+          ],
+        )
+      end
+
+      it { is_expected.to eq(25) }
+
+      it 'says where the money for it went' do
+        expect(insights.costs_note).to eq(
+          'Grid electricity is attributed to the consumers.',
+        )
+      end
+    end
+
     context 'when the battery was partly charged from the grid' do
       before do
         create_summary(
@@ -193,6 +216,56 @@ describe Insights do
       it 'has nothing to explain' do
         expect(insights.costs_note).to be_nil
       end
+    end
+  end
+
+  describe '#related_sensor_name' do
+    subject { insights.related_sensor_name }
+
+    context 'with the inverter' do
+      let(:sensor) { Sensor::Registry[:inverter_power] }
+
+      before do
+        create_summary(
+          date: Date.new(2025, 1, 1),
+          values: [[:inverter_power, :sum, 10_000]],
+        )
+      end
+
+      it { is_expected.to eq(:co2_reduction) }
+    end
+
+    context 'with the grid import and a price' do
+      let(:sensor) { Sensor::Registry[:grid_import_power] }
+
+      before do
+        create_summary(
+          date: Date.new(2025, 1, 1),
+          values: [[:grid_import_power, :sum, 10_000]],
+        )
+      end
+
+      it { is_expected.to eq(:grid_costs) }
+    end
+
+    context 'with the grid import but no price' do
+      let(:sensor) { Sensor::Registry[:grid_import_power] }
+
+      before do
+        Price.where(name: :electricity).delete_all
+        create_summary(
+          date: Date.new(2025, 1, 1),
+          values: [[:grid_import_power, :sum, 10_000]],
+        )
+      end
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'with a sensor without a related one' do
+      let(:sensor) { Sensor::Registry[:house_power] }
+
+      it { is_expected.to be_nil }
     end
   end
 end

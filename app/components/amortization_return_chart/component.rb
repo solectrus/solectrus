@@ -20,7 +20,7 @@ class AmortizationReturnChart::Component < ViewComponent::Base
     'flex items-center justify-center p-2 font-medium focus:outline-none ' \
     'focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 text-sm gap-2 ' \
     'hover:bg-gray-200 dark:hover:bg-gray-700 bg-gray-100 dark:bg-gray-800 ' \
-    'rounded-full size-8 border border-gray-300 dark:border-gray-600'.freeze
+    'relative touch-target rounded-full size-8 border border-gray-300 dark:border-gray-600'.freeze
   private_constant :ICON_BUTTON_SHAPE
 
   ICON_BUTTON_CLASS = "#{ICON_BUTTON_SHAPE} cursor-pointer".freeze

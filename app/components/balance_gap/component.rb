@@ -45,6 +45,10 @@ class BalanceGap::Component < ViewComponent::Base
     ).to_s
   end
 
+  def difference_label
+    safe_join([t('.difference'), tag.span("(#{percent})", class: 'ml-1 text-gray-400')])
+  end
+
   private
 
   # All three share the unit and the rounding, so they visibly add up. The unit
