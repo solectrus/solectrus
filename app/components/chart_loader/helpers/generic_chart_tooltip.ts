@@ -24,6 +24,7 @@ type TooltipModel = {
   opacity: number;
   title: string[];
   body: TooltipBody[];
+  afterBody: string[];
   footer: string[];
   labelColors: Array<{ backgroundColor: Color; borderColor: Color }>;
   dataPoints?: TooltipDataPoint[];
@@ -91,9 +92,10 @@ export default class GenericChartTooltip {
   private buildHtml(tooltip: TooltipModel): string {
     const titleHtml = this.renderTitle(tooltip.title);
     const bodyHtml = this.renderBody(tooltip);
+    const notesHtml = this.renderNotes(tooltip.afterBody);
     const footerHtml = this.renderFooter(tooltip.footer);
 
-    return `${titleHtml}${bodyHtml}${footerHtml}`;
+    return `${titleHtml}${bodyHtml}${notesHtml}${footerHtml}`;
   }
 
   private renderTitle(title: string[]): string {
@@ -172,6 +174,17 @@ export default class GenericChartTooltip {
         <div class="chart-tooltip-value"${valueStyle}>${escapeHtml(value)}</div>
       </div>
     `;
+  }
+
+  private renderNotes(notes: string[] | undefined): string {
+    const lines = (notes ?? []).filter(Boolean);
+    if (!lines.length) return '';
+
+    return lines
+      .map(
+        (line) => `<div class="chart-tooltip-note">${escapeHtml(line)}</div>`,
+      )
+      .join('');
   }
 
   private renderFooter(footer: string[]): string {

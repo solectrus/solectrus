@@ -63,6 +63,18 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       )
   end
 
+  # The decimals of a value in the tooltip, and the most an axis tick shows.
+  # Nil leaves them to the frontend, which guesses them from the unit and the
+  # range. A chart whose unit has a fixed precision names it here.
+  def decimals
+  end
+
+  # Whether the frontend scales the values with a kilo prefix: W to kW, but
+  # never km to "kkm"
+  def scalable?
+    chart_sensors.any? && Sensor::Units[chart_sensors.first.unit].scalable?
+  end
+
   def crosshair_options
     return unless timeframe.short?
 
