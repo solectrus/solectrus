@@ -6,6 +6,7 @@ import { resolveColor, colorToRgba, lightenColor, toRgb } from '@/utils/color';
 
 import type {
   ChartDataWithOverlap,
+  ChartPointExtras,
   ColorScaleStop,
   DatasetWithId,
   LineDatasetWithSegment,
@@ -74,12 +75,24 @@ export class ColorManager {
               ? resolvedColor
               : colorToRgba(resolvedColor, opacity);
 
-          if (datasetWithId.hatchFill) {
+          // `hatchFill` hatches the whole dataset, `hatchPartial` only the
+          // single values the chart marked as incomplete. The rest of such a
+          // dataset keeps its plain fill, which a whole-dataset hatch has no
+          // use for. A sensor that hatches by itself carries both flags, and
+          // the whole dataset wins there.
+          const { hatchFill, hatchPartial } = datasetWithId;
+          if (hatchFill || hatchPartial) {
+            const plainFill = hatchFill ? undefined : fillColor;
+
             dataset.backgroundColor = (context: {
               chart: Chart;
+              raw?: unknown;
             }): CanvasPattern | string | undefined => {
+              const raw = context.raw as ChartPointExtras | undefined;
+              if (!hatchFill && !raw?.partial) return plainFill;
+
               const { ctx, chartArea } = context.chart;
-              if (!chartArea) return;
+              if (!chartArea) return plainFill;
               return this.createHatchPattern(ctx, resolvedColor);
             };
             dataset.borderColor = lineColor;

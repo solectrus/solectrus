@@ -93,24 +93,12 @@ module McpServer
     # presence is the whole signal, and the common case stays cheap.
     def mark_partial(rows, timeframe, period)
       rows.map do |entry|
-        partial?(entry[:date], timeframe, period) ? entry.merge(partial: true) : entry
+        if timeframe.partial_period?(entry[:date], period)
+          entry.merge(partial: true)
+        else
+          entry
+        end
       end
-    end
-
-    # Two ways a period ends up a fragment. Either the timeframe cuts one of
-    # its edges - measured against the dates the query actually read over, not
-    # the timeframe's nominal ones.
-    #
-    # Or it holds today, which the timeframe bounds cannot express:
-    # effective_ending_date is capped at today, so a period ending today never
-    # looks cut by them - yet the day is not over. That is the ordinary case
-    # for period="day", whose newest entry is a few hours of measurement
-    # standing next to whole days.
-    def partial?(date, timeframe, period)
-      ending = date + 1.public_send(period) - 1.day
-
-      date < timeframe.effective_beginning_date ||
-        ending > timeframe.effective_ending_date || ending >= Date.current
     end
 
     # Every period start from `first` to `last`. The dates are period starts

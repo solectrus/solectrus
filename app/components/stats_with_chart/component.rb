@@ -7,6 +7,10 @@ class StatsWithChart::Component < ViewComponent::Base
 
   attr_reader :sensor_name, :timeframe
 
+  # The year comparison puts twelve months next to each other, once per year.
+  # That needs the whole width, so the stats step aside for it.
+  delegate :year_comparison?, to: :helpers
+
   def refresh_options
     {
       controller: 'stats-with-chart--component',
@@ -25,19 +29,24 @@ class StatsWithChart::Component < ViewComponent::Base
     }
   end
 
+  # Only the chart knows the comparison, so `compare` stays out of the path of
+  # the stats. Left in, it would land as a query parameter on a route that has
+  # no segment for it.
   def stats_path
-    helpers.url_for(
-      helpers.permitted_params.to_hash.symbolize_keys.merge(
-        controller: "#{helpers.controller_namespace}/stats",
-      ),
-    )
+    frame_path('stats', except: [:compare])
   end
 
   def charts_path
+    frame_path('charts')
+  end
+
+  private
+
+  def frame_path(kind, except: [])
+    params = helpers.permitted_params.to_hash.symbolize_keys.except(*except)
+
     helpers.url_for(
-      helpers.permitted_params.to_hash.symbolize_keys.merge(
-        controller: "#{helpers.controller_namespace}/charts",
-      ),
+      params.merge(controller: "#{helpers.controller_namespace}/#{kind}"),
     )
   end
 end

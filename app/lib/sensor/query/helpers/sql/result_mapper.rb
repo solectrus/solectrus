@@ -111,6 +111,8 @@ module Sensor
           DATE_HASH = {
             day: 'date',
             month: 'month',
+            quarter: 'quarter',
+            season: 'season',
             week: 'week',
             year: 'year',
           }.freeze
@@ -161,13 +163,35 @@ module Sensor
             when :day
               (start_date..end_date).to_a
             when :month
-              (start_date.beginning_of_month..end_date.beginning_of_month).step(
-                1.month,
-              ).to_a
+              stepped_range(start_date, end_date, 1.month)
+            when :quarter, :season
+              stepped_range(start_date, end_date, 3.months)
             when :year
               [start_date.beginning_of_year]
             else
               []
+            end
+          end
+
+          # Every period of the first day it holds to every period of the last
+          # one, one step at a time.
+          def stepped_range(start_date, end_date, step)
+            (
+              period_beginning(start_date)..period_beginning(end_date)
+            ).step(step).to_a
+          end
+
+          # The first day of the period a date falls in. A meteorological
+          # season is the quarter a month ahead, moved back again: December
+          # belongs to the winter that ends in the next year.
+          def period_beginning(date)
+            case group_by
+            when :season
+              (date + 1.month).beginning_of_quarter - 1.month
+            when :quarter
+              date.beginning_of_quarter
+            else
+              date.beginning_of_month
             end
           end
 

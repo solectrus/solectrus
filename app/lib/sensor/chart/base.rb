@@ -154,6 +154,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   # Override in subclasses to use a fixed chart color instead of the sensor's color
+  # Stays public in every subclass: YearComparison asks the regular chart of
+  # a sensor for the color it picked.
   def color_class(sensor)
     sensor.color_background
   end
@@ -660,27 +662,31 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   def build_chart_data_item(sensor_name)
+    sorted_points = sorted_points_for(sensor_name)
     # Return empty dataset for sensors without data (e.g., inverter_power for future days)
-    return empty_dataset(sensor_name) unless series.respond_to?(sensor_name)
-
-    # Get the correct aggregations for this sensor
-    aggregations = aggregations_for_sensor(sensor_name)
-    points_hash = series.public_send(sensor_name, *aggregations)
-
-    # Return empty dataset if no data available
-    return empty_dataset(sensor_name) unless points_hash
-
-    # Sort by timestamp to ensure chronological order
-    sorted_points = points_hash.sort_by { |time_key, _| time_key }
-
-    # Filter out future data points (except for forecast sensors)
-    sorted_points = filter_future_points(sorted_points, sensor_name)
+    return empty_dataset(sensor_name) if sorted_points.empty?
 
     {
       sensor_name:,
       labels: sorted_points.map { |time_key, _| timestamp_to_ms(time_key) },
       data: transform_data(sorted_points.map(&:second), sensor_name),
     }
+  end
+
+  # The series of one sensor as [[time_key, value], ...], in chronological
+  # order and without the points that lie in the future. A sensor the series
+  # does not carry (e.g. inverter_power for a future day) reads as no points
+  # at all. Charts that shape the result differently start here as well.
+  def sorted_points_for(sensor_name)
+    return [] unless series.respond_to?(sensor_name)
+
+    # Get the correct aggregations for this sensor
+    aggregations = aggregations_for_sensor(sensor_name)
+    points_hash = series.public_send(sensor_name, *aggregations)
+    return [] if points_hash.blank?
+
+    # Sort by timestamp, then drop what lies ahead (except for forecast sensors)
+    filter_future_points(points_hash.sort_by { |time_key, _| time_key }, sensor_name)
   end
 
   def empty_dataset(sensor_name)
@@ -728,16 +734,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   # Determine meta aggregation based on timeframe and sensor type
   def meta_aggregation_for_timeframe(sensor_def)
-    preferred_meta_agg =
-      case timeframe.id
-      when :year, :years, :all, :months
-        # For yearly and multi-month charts, we want totals (sums) for each period
-        :sum
-      else
-        # For shorter timeframes, only temperature and percentage sensors should be averaged
-        # All other units (watt, gram, money, etc.) should be summed
-        %i[celsius percent].include?(sensor_def.unit) ? :avg : :sum
-      end
+    preferred_meta_agg = preferred_meta_aggregation(sensor_def)
 
     # Ensure the sensor actually supports this meta aggregation
     supported_meta_aggs = sensor_def.summary_meta_aggregations
@@ -747,6 +744,25 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       # Fallback to the first supported meta aggregation
       supported_meta_aggs.first
     end
+  end
+
+  # The aggregation this chart would like, before the sensor is asked whether
+  # it supports it. A chart whose buckets are not the ones the timeframe names
+  # overrides this alone and keeps the fallback above.
+  def preferred_meta_aggregation(sensor_def)
+    case timeframe.id
+    when :year, :years, :all, :months
+      # For yearly and multi-month charts, we want totals (sums) for each period
+      :sum
+    else
+      aggregation_by_unit(sensor_def)
+    end
+  end
+
+  # Only temperature and percentage sensors are averaged. All other units
+  # (watt, gram, money, etc.) are summed.
+  def aggregation_by_unit(sensor_def)
+    %i[celsius percent].include?(sensor_def.unit) ? :avg : :sum
   end
 
   # InfluxDB aggregations - can be overridden
