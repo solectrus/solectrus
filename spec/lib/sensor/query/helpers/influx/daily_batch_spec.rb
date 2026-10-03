@@ -114,6 +114,45 @@ describe Sensor::Query::Helpers::Influx::DailyBatch do
       end
     end
 
+    # A configuration for tests can give two cars the same fields
+    context 'with two cars that read the same fields' do
+      before do
+        stub_const(
+          'ENV',
+          ENV.to_h.merge(
+            'INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:mileage',
+            'INFLUX_SENSOR_CAR_ODOMETER_2' => 'Trabant:mileage',
+            'INFLUX_SENSOR_CAR_BATTERY_SOC_1' => 'Trabant:soc',
+            'INFLUX_SENSOR_CAR_BATTERY_SOC_2' => 'Trabant:soc',
+          ),
+        )
+        stub_feature(:car)
+
+        influx_batch do
+          seeded_dates.each_with_index do |date, day|
+            add_influx_point(name: 'Trabant', fields: { 'mileage' => (day * 40) + 1000.0 }, time: date.beginning_of_day)
+            add_influx_point(name: 'Trabant', fields: { 'soc' => day + 50.0 }, time: date.middle_of_day)
+          end
+        end
+      end
+
+      it 'gives the values to both cars' do
+        result = call[dates[1]]
+
+        expect(result[:diffs].values_at(:car_odometer_1, :car_odometer_2)).to eq([40, 40])
+        expect(result[:aggregation].car_battery_soc_1(:avg)).to eq(51)
+        expect(result[:aggregation].car_battery_soc_2(:avg)).to eq(51)
+      end
+
+      it 'returns the same values as the day on its own' do
+        date = dates[1]
+        separate = Sensor::SummaryBuilder.new(Timeframe.new(date.iso8601)).call
+
+        expect(separate.car_odometer_2).to eq(40)
+        expect(separate.car_battery_soc_2(:avg)).to eq(separate.car_battery_soc_1(:avg))
+      end
+    end
+
     context 'when a day has no data at all' do
       let(:dates) { [Date.current, 400.days.ago.to_date] }
 

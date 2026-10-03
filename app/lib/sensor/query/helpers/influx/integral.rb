@@ -26,15 +26,10 @@ module Sensor
             result = {}
 
             flux_result.each do |record|
-              sensor =
-                find_sensor_by_measurement_and_field(
-                  record['_measurement'],
-                  record['_field'],
-                )
-              next unless sensor
-
               # Integral values are single energy values in Wh
-              result[sensor] = record['_value']
+              sensors_by_measurement_and_field(record['_measurement'], record['_field']).each do |sensor|
+                result[sensor] = record['_value']
+              end
             end
 
             result
