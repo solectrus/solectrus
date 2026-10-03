@@ -499,6 +499,10 @@ export class ColorManager {
   }
 
   private resolveColorClass(colorClass: string): string | undefined {
+    // A color of the user, like the color of a car, is a hex code, because
+    // Tailwind has no class for a color that only the database knows.
+    if (colorClass.startsWith('#')) return resolveColor(colorClass);
+
     const cached = this.colorClassCache.get(colorClass);
     if (cached) return cached;
 
