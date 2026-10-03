@@ -51,6 +51,11 @@
   @apply text-base tabular-nums;
 }
 
+.chartjs-tooltip .chart-tooltip-note {
+  @apply text-xs whitespace-nowrap text-gray-600 tabular-nums;
+  @apply dark:text-slate-400;
+}
+
 .chartjs-tooltip .chart-tooltip-footer {
   @apply text-right text-base font-bold tabular-nums;
 }

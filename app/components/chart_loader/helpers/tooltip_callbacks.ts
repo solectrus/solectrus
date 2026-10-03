@@ -1,4 +1,5 @@
-// Builds tooltip callbacks (title/label/footer/labelColor) based on data and stacks.
+// Builds tooltip callbacks (title/label/afterBody/footer/labelColor) based on
+// data and stacks.
 
 import type { ChartData, ChartType, Color, TooltipItem } from 'chart.js';
 import { roundedParts, roundedSum } from '@/utils/roundedParts';
@@ -28,7 +29,7 @@ type TooltipHelpers = {
   extractNumericValue: (value: unknown, mode: 'max' | 'min') => number | null;
 };
 
-// Builds Chart.js tooltip callbacks (title/label/footer).
+// Builds Chart.js tooltip callbacks (title/label/afterBody/footer).
 export const buildTooltipCallbacks = (
   helpers: TooltipHelpers,
   data: ChartData,
@@ -36,6 +37,7 @@ export const buildTooltipCallbacks = (
 ): {
   title: (tooltipItems: TooltipItem<ChartType>[]) => string | undefined;
   label: (tooltipItem: TooltipItem<ChartType>) => string | string[];
+  afterBody: (tooltipItems: TooltipItem<ChartType>[]) => string[] | undefined;
   labelColor: (
     tooltipItem: TooltipItem<ChartType>,
   ) => { backgroundColor: Color; borderColor: Color } | undefined;
@@ -236,6 +238,15 @@ export const buildTooltipCallbacks = (
           range,
         )
       );
+    },
+
+    // The notes that the server gives the data point, such as the calculation
+    // behind the value.
+    afterBody: (tooltipItems) => {
+      if (!tooltipItems.length) return;
+
+      const { dataset, dataIndex } = tooltipItems[0];
+      return (dataset as DatasetWithId).tooltipNotes?.[dataIndex] ?? undefined;
     },
 
     // Return the solid resolved color for tooltip color swatches.
