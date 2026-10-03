@@ -1,6 +1,7 @@
 class InsightsController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
+  include RefererNamespace
 
   def index
     if turbo_frame_request?
@@ -19,16 +20,6 @@ class InsightsController < ApplicationController
   # to. A browser does not always send a referer -- its referrer policy can
   # remove it -- and the balance is then the default.
   def controller_namespace
-    referer = request.referer.to_s
-
-    if referer.include?('/house/')
-      'house'
-    elsif referer.include?('/inverter/')
-      'inverter'
-    elsif referer.include?('/heatpump/')
-      'heatpump'
-    else
-      'balance'
-    end
+    referer_namespace
   end
 end
