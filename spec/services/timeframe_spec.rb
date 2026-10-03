@@ -1692,7 +1692,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Since commissioning over 3 years ago')
+      expect(decoder.localized).to eq('Since commissioning')
     end
 
     it 'returns the correct corresponding_day' do

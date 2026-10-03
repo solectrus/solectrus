@@ -20,6 +20,8 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
+
 ## Fixes
 
 ## Maintenance
