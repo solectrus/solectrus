@@ -449,6 +449,8 @@ export default class extends Controller {
   // live tail diverged. Returns the clamped electrical sample, or null when no
   // cap applies (chart without the heat stack, or sum within budget).
   private heatStackClamp(targets: HTMLElement[]): number | null {
+    if (this.effectiveSensor !== HEAT_STACK.generated) return null;
+
     const electrical = this.targetValue(HEAT_STACK.electrical, targets);
     const environmental = this.targetValue(HEAT_STACK.environmental, targets);
     const generated = this.targetValue(HEAT_STACK.generated, targets);
