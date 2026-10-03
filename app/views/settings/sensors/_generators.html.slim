@@ -1,0 +1,18 @@
+- if Sensor::Config.multi_inverter?
+  = render 'settings/sensors/sensor_fields', f:, sensors: @inverter_sensors
+
+  hr.my-5.text-transparent
+  = f.check_box 'general[inverter_as_total]',
+                checked: Setting.inverter_as_total,
+                label: I18n.t('settings.sensors.inverter_as_total')
+- else
+  p.mb-5.text-gray-500
+    = t('settings.sensors.single_inverter')
+
+= f.check_box 'general[enable_multi_inverter]',
+              checked: Setting.enable_multi_inverter,
+              label: I18n.t('settings.sensors.enable_multi_inverter')
+- if Sensor::Config.exists?(:inverter_power_forecast)
+  = f.check_box 'general[enable_forecast]',
+                checked: Setting.enable_forecast,
+                label: I18n.t('settings.sensors.enable_forecast')

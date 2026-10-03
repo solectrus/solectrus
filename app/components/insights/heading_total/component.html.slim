@@ -1,0 +1,5 @@
+/ Flex drops the whitespace between the elements, so a gap spaces them
+.insights-heading-total.inline-flex.items-baseline class= 'gap-1.5'
+  - if running?
+    span.text-subhead.text-muted.font-normal = t('.so_far')
+  = render total

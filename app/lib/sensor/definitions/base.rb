@@ -245,6 +245,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   # Returns the sensor name for PV/opportunity costs (e.g., :house_costs_pv)
   def costs_pv_sensor_name = nil
 
+  # Returns the energy by its source, which the insights show
+  # (e.g., { pv: :heatpump_power_pv, grid: :heatpump_power_grid })
+  def power_source_sensor_names = nil
+
   def sql_calculated?
     respond_to?(:sql_calculation)
   end

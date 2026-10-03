@@ -57,6 +57,8 @@ class Nav::Sub::Component < ViewComponent::Base
         lg:landscape:flex-initial
         text-center
         click-animation
+        relative
+        touch-target
       ]
 
       if current

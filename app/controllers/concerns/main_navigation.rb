@@ -69,6 +69,19 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       @notification_stats ||= Notification.stats
     end
 
+    # A phone opens the settings on their overview list, desktop on the first
+    # section, whose tabs lead to the others. Derived from the desktop list, so
+    # its items (the notification stats among them) are built only once.
+    helper_method def mobile_secondary_items
+      @mobile_secondary_items ||=
+        begin
+          desktop_href = settings_general_path
+          desktop_secondary_items.map do |item|
+            item[:href] == desktop_href ? item.merge(href: settings_path) : item
+          end
+        end
+    end
+
     def ___
       { name: '-' }
     end

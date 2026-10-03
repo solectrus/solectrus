@@ -70,7 +70,7 @@ class AmortizationStats::Component < ViewComponent::Base
   end
 
   def stat_label_class
-    'flex items-center justify-center gap-1 px-2 text-[10px] md:text-xs xl:text-sm ' \
+    'flex items-center justify-center gap-1 px-2 text-[11px] md:text-xs xl:text-sm ' \
       'uppercase tracking-wide font-semibold text-gray-500 dark:text-gray-400'
   end
 

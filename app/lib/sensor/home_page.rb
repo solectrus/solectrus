@@ -11,7 +11,9 @@
 #
 # Two more questions are about the page itself. The settings can switch it
 # off, and `available?` answers for the controller and for a link alike. A
-# sponsorship can be what opens it, and `permitted?` answers that.
+# sponsorship can be what opens it, and `permitted?` answers that. The
+# insights combine all three: `shown?` tells whether a page that the user may
+# open renders the sensor.
 module Sensor::HomePage
   # What holds a page back: the setting that switches it off, and the feature
   # a sponsorship opens it with. The power balance is the start page and has
@@ -55,6 +57,14 @@ module Sensor::HomePage
       name = feature(key)
 
       name.nil? || ApplicationPolicy.instance.feature_enabled?(name)
+    end
+
+    # Whether a page that the settings switch on and the user may open
+    # renders this sensor
+    def shown?(sensor_name)
+      all.any? do |key|
+        available?(key) && permitted?(key) && accepts?(key, sensor_name)
+      end
     end
 
     # The sensors of a page, in the order the installation lists them. The
