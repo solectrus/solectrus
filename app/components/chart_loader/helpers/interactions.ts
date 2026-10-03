@@ -90,7 +90,8 @@ export const handleHoverCursor = (
   event.native.target.style.cursor = showPointer ? 'pointer' : 'default';
 };
 
-// Builds a drilldown URL by advancing the current aggregation level.
+// Builds a drilldown URL by advancing the current aggregation level. The
+// timeframe ends the path, a query stays as it is.
 export const buildDrilldownUrl = (
   currentUrl: string,
   timestamp: number,
@@ -120,13 +121,15 @@ export const buildDrilldownUrl = (
     { regex: /(\/P\d{1,2}Y)$/, format: () => `${year}` },
   ];
 
+  const url = new URL(currentUrl);
+
   for (const { regex, format } of drilldownLevels) {
-    const match = regex.exec(currentUrl);
+    const match = regex.exec(url.pathname);
     const value = match?.[1];
     if (!value) continue;
 
-    const formattedDate = format();
-    return currentUrl.replace(value, `/${formattedDate}`);
+    url.pathname = `${url.pathname.slice(0, -value.length)}/${format()}`;
+    return url.toString();
   }
 
   return null;
