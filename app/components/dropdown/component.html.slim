@@ -6,8 +6,10 @@
     .inline-flex.items-center.gap-1.rounded.px-2.lg:hidden class= button_class
       / field-sizing-content shrink-wraps the select to its selected option in
       / CSS. Where a browser lacks it, select_controller measures instead.
-      select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-sm.px-0.field-sizing-content[
+      / A disabled select keeps the color of the text around it
+      select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-sm.px-0.field-sizing-content.disabled:text-current.disabled:opacity-100[
         data-select-target= 'select'
+        disabled= disabled
         data-action= 'select#onChange'
         name= name
       ]
@@ -22,7 +24,7 @@
             - unless item.href.nil?
               = render_option(item)
 
-      = chevron_icon('size-5 shrink-0 pointer-events-none')
+      = chevron_icon(class_names('size-5 shrink-0 pointer-events-none', 'opacity-50' => disabled))
 
     select.absolute.invisible.font-medium.px-0[
       data-select-target= 'temp'
@@ -37,14 +39,19 @@
       button#options-menu.flex.rounded-md.px-2.sm:px-4.py-2.font-medium.focus:outline-none.focus:ring-2.focus:ring-gray-700.dark:focus:ring-gray-400.focus:ring-offset-0.text-sm.gap-2[
         type= 'button'
         class= button_class
+        class= ('pointer-events-none' if disabled)
+        disabled= disabled
         data-dropdown--component-target="button"
-        data-action="click->dropdown--component#toggle"
+        data-action= ('click->dropdown--component#toggle' unless disabled)
         aria-haspopup= 'true'
         aria-expanded= 'false'
       ]
+        / The leading visual of the selected item, like in the menu
+        - if selected_item&.leading && !display_name
+          span.flex.self-center = selected_item.leading
         = button_text
 
-        = chevron_icon('h-5')
+        = chevron_icon(class_names('h-5', 'opacity-50' => disabled))
 
     .z-10.absolute.w-max.mt-2.rounded-md.shadow-lg.bg-white.dark:bg-gray-800.ring-1.ring-black/5.hidden.overflow-hidden[
       class=menu_position_classes

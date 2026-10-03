@@ -1,6 +1,7 @@
 class MenuItem::Component < ViewComponent::Base
   def initialize( # rubocop:disable Metrics/ParameterLists
     name: nil,
+    short_name: nil,
     href: nil,
     data: {},
     sensor_name: nil,
@@ -13,10 +14,12 @@ class MenuItem::Component < ViewComponent::Base
     badge_count: nil,
     badge_data: nil,
     dot: false,
+    leading: nil,
     component: nil
   )
     super()
     @name = name
+    @short_name = short_name
     @href = href
     @data = data
     @sensor_name = sensor_name
@@ -30,6 +33,7 @@ class MenuItem::Component < ViewComponent::Base
     @badge_count = badge_count
     @badge_data = badge_data
     @dot = dot
+    @leading = leading
     @component = component
   end
 
@@ -38,6 +42,7 @@ class MenuItem::Component < ViewComponent::Base
   end
 
   attr_reader :name,
+              :short_name,
               :href,
               :icon_name,
               :icon_only,
@@ -50,6 +55,7 @@ class MenuItem::Component < ViewComponent::Base
               :badge_count,
               :badge_data,
               :dot,
+              :leading,
               :component
 
   CSS_CLASSES = %w[block w-full].freeze
@@ -96,6 +102,7 @@ class MenuItem::Component < ViewComponent::Base
       safe_join(
         [
           (render_icon if with_icon),
+          leading,
           (render_text(with_icon:) if text),
           (render_badge if badge_count&.positive?),
           (render_dot if dot),
