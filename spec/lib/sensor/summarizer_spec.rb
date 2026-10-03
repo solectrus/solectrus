@@ -198,8 +198,8 @@ describe Sensor::Summarizer do
       stub_feature(:power_splitter, :heatpump, :car)
 
       # Add prices for calculated sensors
-      Price.create!(name: :electricity, starts_at: 1.year.ago, value: 0.25)
-      Price.create!(name: :feed_in, starts_at: 1.year.ago, value: 0.08)
+      Price.create!(name: :electricity, starts_at: 1.year.ago, amount_per_kwh: 0.25)
+      Price.create!(name: :feed_in, starts_at: 1.year.ago, amount_per_kwh: 0.08)
 
       allow(Sensor::Query::Helpers::Influx::Integral).to receive(:new).and_return(
         instance_double(
