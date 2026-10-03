@@ -62,7 +62,7 @@ de:
     months: Letzte %{count} Monate
     year: Dieses Jahr
     years: Letzte %{count} Jahre
-    all: Seit Inbetriebnahme vor %{since}
+    all: Seit Inbetriebnahme
   sensors:
     power_balance: Strombilanz
     inverter_power: Erzeugung

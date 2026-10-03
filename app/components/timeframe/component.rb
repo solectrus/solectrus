@@ -80,6 +80,13 @@ class Timeframe::Component < ViewComponent::Base
     interactive_button_classes(additional_classes: "font-bold lg:font-normal text-base leading-5 #{additional_classes}")
   end
 
+  LABEL_WIDTHS = { day: 'md:w-72', week: 'w-36', month: 'w-36', year: 'w-16' }.freeze
+  private_constant :LABEL_WIDTHS
+
+  def label_classes
+    "text-center #{LABEL_WIDTHS[timeframe.id]}"
+  end
+
   private
 
   def interactive_button_classes(additional_classes: nil, padding_x: 'px-2')

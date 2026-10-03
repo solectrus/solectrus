@@ -62,7 +62,7 @@ en:
     months: Last %{count} months
     year: This year
     years: Last %{count} years
-    all: Since commissioning %{since} ago
+    all: Since commissioning
   sensors:
     power_balance: Power balance
     inverter_power: Generation
