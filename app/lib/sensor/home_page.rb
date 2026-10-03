@@ -15,26 +15,36 @@
 module Sensor::HomePage
   # What holds a page back: the setting that switches it off, and the feature
   # a sponsorship opens it with. The power balance is the start page and has
-  # neither.
+  # neither. The balance sensor stands for the page on the start page. A key
+  # is the prefix of the route helper of the page, so SensorPathHelper can
+  # build a path from it.
   PAGES = {
     balance: {},
     heatpump: {
       setting: :enable_heatpump,
       feature: :heatpump,
+      balance_sensor: :heatpump_power,
     },
     inverter: {
       setting: :enable_multi_inverter,
       feature: :multi_inverter,
+      balance_sensor: :inverter_power,
     },
     house: {
       setting: :enable_custom_consumer,
       feature: :custom_consumer,
+      balance_sensor: :house_power,
     },
   }.freeze
   private_constant :PAGES
 
   class << self
     def all = PAGES.keys
+
+    # The sensor the start page selects when the user comes from this page,
+    # so the topic stays. Nothing for the start page itself, and nothing for
+    # a page that is no home page: the navigation asks on every page.
+    def balance_sensor(key) = PAGES.dig(key, :balance_sensor)
 
     # Whether the settings switch this page on.
     def available?(key)

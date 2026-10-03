@@ -170,8 +170,8 @@ Rails.application.routes.draw do
           to: 'balance/charts#index',
           as: :balance_charts
 
-      # House / Heatpump / Inverter
-      %i[house heatpump inverter].each do |item|
+      # The other home pages
+      (Sensor::HomePage.all - [:balance]).each do |item|
         get "/#{item}(/:sensor_name)(/:timeframe)",
             to: "#{item}/home#index",
             as: :"#{item}_home"

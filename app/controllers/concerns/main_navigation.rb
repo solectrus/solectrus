@@ -81,22 +81,8 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.balance'),
         href:
-          case helpers.controller_namespace
-          when 'house'
-            balance_home_path(
-              sensor_name: 'house_power',
-              timeframe: computed_timeframe,
-            )
-          when 'inverter'
-            balance_home_path(
-              sensor_name: 'inverter_power',
-              timeframe: computed_timeframe,
-            )
-          when 'heatpump'
-            balance_home_path(
-              sensor_name: 'heatpump_power',
-              timeframe: computed_timeframe,
-            )
+          if (sensor_name = root_sensor_name)
+            balance_home_path(sensor_name:, timeframe: computed_timeframe)
           else
             balance_home_path
           end,
@@ -106,6 +92,10 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           action: 'click->force-reload#perform',
         },
       }
+    end
+
+    def root_sensor_name
+      Sensor::HomePage.balance_sensor(helpers.controller_namespace.to_sym)
     end
 
     def inverter_item
