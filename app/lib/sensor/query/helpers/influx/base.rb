@@ -85,30 +85,7 @@ module Sensor
           end
 
           def filter_predicate(selected_sensors: available_sensors)
-            # Group sensors by their measurement
-            grouped =
-              selected_sensors.each_with_object(
-                Hash.new { |h, k| h[k] = [] },
-              ) do |sensor, result|
-                measurement = Sensor::Config.measurement(sensor)
-                field = Sensor::Config.field(sensor)
-                result[measurement] << field if measurement && field
-              end
-
-            return '(r) => false' if grouped.empty?
-
-            # Generate filter conditions
-            filter_conditions =
-              grouped.map do |measurement, fields|
-                field_conditions =
-                  fields
-                    .map { |field| "r[\"_field\"] == \"#{field}\"" }
-                    .join(' or ')
-
-                "r[\"_measurement\"] == \"#{measurement}\" and (#{field_conditions})"
-              end
-
-            "(r) => #{filter_conditions.join(' or ')}"
+            SensorFilter.predicate(selected_sensors)
           end
 
           def range(start:, stop: nil)
@@ -138,12 +115,7 @@ module Sensor
           # emitting it afterwards would leave every subscriber reading
           # `event.duration` (APM tooling, for one) with a flat zero.
           def query_without_cache(string)
-            ActiveSupport::Notifications.instrument(
-              'query.sensor_influx',
-              class: self.class.name,
-              query: string,
-              sensors: @sensor_names,
-            ) { ::Influx.query(string) }
+            FluxProgram.query(string, class_name: self.class.name, sensors: @sensor_names)
           end
 
           # Build a short cache key from the query string to avoid hitting the 250 chars

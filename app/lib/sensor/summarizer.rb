@@ -113,6 +113,7 @@ module Sensor
         sum_sensor_names: Sensor::SummaryBuilder.sum_sensor_names,
         aggregation_sensor_names:
           Sensor::SummaryBuilder.aggregation_sensor_names,
+        meter_sensor_names: Sensor::SummaryBuilder.meter_sensor_names,
       ).call
     end
 

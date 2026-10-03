@@ -24,29 +24,33 @@ module Sensor
           DAY = 'day'.freeze
           private_constant :DAY
 
-          def initialize(dates, sum_sensor_names:, aggregation_sensor_names:)
+          def initialize(dates, sum_sensor_names:, aggregation_sensor_names:, meter_sensor_names:)
             @dates = dates
             @sum_sensor_names = sum_sensor_names
             @aggregation_sensor_names = aggregation_sensor_names
+            @meter_sensor_names = meter_sensor_names
           end
 
-          attr_reader :dates, :sum_sensor_names, :aggregation_sensor_names
+          attr_reader :dates, :sum_sensor_names, :aggregation_sensor_names, :meter_sensor_names
 
-          # => { Date => { sum: Sensor::Data::Single, aggregation: ... } }
+          # => { Date => { sum: Sensor::Data::Single, aggregation: ...,
+          #                diffs: { sensor_name => value } } }
           #
           # A value is nil when that kind was not asked for at all; the caller
           # then falls back to querying the day on its own.
           def call
-            # The two programs are independent, so they overlap just like the
-            # two per-day queries they replace.
+            # The programs are independent, so they overlap just like the
+            # per-day queries they replace.
             sum = Concurrent::Future.execute { resolve(:sum) }
             aggregation = Concurrent::Future.execute { resolve(:aggregation) }
+            diff = Concurrent::Future.execute { DailyDiffs.new(dates, meter_sensor_names).call }
 
             sums = sum.value!
             aggregations = aggregation.value!
+            diffs = diff.value!
 
             dates.index_with do |date|
-              { sum: sums[date], aggregation: aggregations[date] }
+              { sum: sums[date], aggregation: aggregations[date], diffs: diffs[date] }
             end
           end
 
@@ -78,17 +82,7 @@ module Sensor
           end
 
           def fetch(kind, pending)
-            flux = flux_for(kind, pending)
-
-            # Same event as a per-day query emits, so this stays visible to
-            # log and APM subscribers - it is the biggest query of them all
-            rows =
-              ActiveSupport::Notifications.instrument(
-                'query.sensor_influx',
-                class: self.class.name,
-                query: flux,
-                sensors: sensor_names_for(kind),
-              ) { ::Influx.query(flux) }
+            rows = FluxProgram.query(flux_for(kind, pending), class_name: self.class.name, sensors: sensor_names_for(kind))
 
             rows.group_by { |row| Date.parse(row[DAY]) }
           end
@@ -139,7 +133,7 @@ module Sensor
               end
 
             <<~FLUX
-              #{preamble(predicate)}
+              #{FluxProgram.source(predicate)}
               tag = (day, tables=<-) => tables
                 |> set(key: "#{DAY}", value: day)
                 |> keep(columns: ["_value", "#{DAY}", "_field", "_measurement"])
@@ -168,7 +162,7 @@ module Sensor
               end
 
             <<~FLUX
-              #{preamble(predicate)}
+              #{FluxProgram.source(predicate)}
               operation = (name, tables=<-) => tables
                 |> set(key: "operation", value: name)
                 |> keep(columns: ["_value", "operation", "_field", "_measurement"])
@@ -178,33 +172,14 @@ module Sensor
             FLUX
           end
 
-          # Naming the selection once keeps the program small: it is by far its
-          # longest part and would otherwise be repeated for every single day.
-          def preamble(predicate)
-            <<~FLUX
-              sensors = #{predicate}
-              source = (start, stop) => from(bucket: "#{bucket}")
-                |> range(start: start, stop: stop)
-                |> filter(fn: sensors)
-            FLUX
-          end
-
           def range_args(date)
             timeframe = timeframe_for(date)
 
-            "start: #{timeframe.beginning.iso8601}, stop: #{timeframe.ending.iso8601}"
+            FluxProgram.range_args(timeframe.beginning, timeframe.ending)
           end
 
-          # Flux knows no union of a single table, so a lone day is yielded as
-          # it is.
           def combine(count, prefix)
-            names = Array.new(count) { |index| "#{prefix}#{index}" }
-
-            count == 1 ? names.first : "union(tables: [#{names.join(', ')}])"
-          end
-
-          def bucket
-            Rails.configuration.x.influx.bucket
+            FluxProgram.union(Array.new(count) { |index| "#{prefix}#{index}" })
           end
         end
       end
