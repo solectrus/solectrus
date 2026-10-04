@@ -20,6 +20,7 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- The power balance shows only the charge level of the home battery again, as a round badge. The charge level of the car is now on the car page
 - The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
 - A tooltip of a live value stays open while you read it. Before, the next refresh of the values closed it
 
