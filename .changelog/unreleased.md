@@ -25,6 +25,7 @@ Keep every section, an empty one included.
 - In dark mode, the warning color for a low battery level or a medium autarky is now a lighter amber, so it is easier to tell apart from red
 - The codeword page now answers with HTTP status 403, so bots and crawlers see that the site is locked (#5974)
 - Each page loads faster, because the server no longer builds an unused text of the navigation, which took up to 100 ms
+- The power balance shows only the charge level of the home battery again, as a round badge. The charge level of the car is now on the car page
 - The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
 - A tooltip of a live value stays open while you read it. Before, the next refresh of the values closed it
 
