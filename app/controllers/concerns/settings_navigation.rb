@@ -18,7 +18,8 @@ module SettingsNavigation
           name: t('settings.cash_flows.name'),
           href: settings_cash_flows_path,
         },
-      ]
+        ({ name: t('settings.cars.name'), href: settings_cars_path } if Setting.enable_car),
+      ].compact
 
       items.map do |item|
         item.merge(current: helpers.current_page?(item[:href]))

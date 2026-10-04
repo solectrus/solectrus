@@ -1,0 +1,5 @@
+- if request.get?
+  = render TurboModal::Component.new(title: t('settings.cars.edit', number: @car.id)) do
+    = render 'form', car: @car
+- else
+  = turbo_stream.replace(dom_id(@car, :form), partial: 'form', locals: { car: @car })

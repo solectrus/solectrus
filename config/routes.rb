@@ -76,6 +76,10 @@
 #                                   PATCH            /settings/prices/:id(.:format)                            settings/prices#update
 #                                   PUT              /settings/prices/:id(.:format)                            settings/prices#update
 #                                   DELETE           /settings/prices/:id(.:format)                            settings/prices#destroy
+#                     settings_cars GET              /settings/cars(.:format)                                  settings/cars#index
+#                 edit_settings_car GET              /settings/cars/:id/edit(.:format)                         settings/cars#edit
+#                      settings_car PATCH            /settings/cars/:id(.:format)                              settings/cars#update
+#                                   PUT              /settings/cars/:id(.:format)                              settings/cars#update
 #    visibility_settings_cash_flows PATCH            /settings/cash_flows/visibility(.:format)                 settings/cash_flows#visibility
 #               settings_cash_flows GET              /settings/cash_flows(.:format)                            settings/cash_flows#index
 #                                   POST             /settings/cash_flows(.:format)                            settings/cash_flows#create
@@ -246,6 +250,8 @@ Rails.application.routes.draw do
     resources :prices, constraints: { name: Regexp.union(Price.names.keys) } do
       get '(:name)', on: :collection, action: :index, as: ''
     end
+
+    resources :cars, only: %i[index edit update]
 
     resources :cash_flows, except: :show do
       patch :visibility, on: :collection

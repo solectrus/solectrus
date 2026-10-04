@@ -37,6 +37,7 @@ class Setting < RailsSettings::Base
   field :enable_multi_inverter, type: :boolean, default: true
   field :enable_custom_consumer, type: :boolean, default: true
   field :enable_heatpump, type: :boolean, default: true
+  field :enable_car, type: :boolean, default: true
   field :enable_forecast, type: :boolean, default: true
 
   # Read-only data access via Model Context Protocol (/mcp). Disabled by

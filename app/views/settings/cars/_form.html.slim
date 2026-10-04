@@ -1,0 +1,35 @@
+= form_with(model: car, url: settings_car_path(car), id: dom_id(car, :form), html: { data: { controller: 'form-dirty' } }) do |f|
+  - if car.errors[:base].any?
+    .mb-4.text-signal-negative
+      = car.errors[:base].to_sentence
+
+  = f.group do
+    / The short name and the color stand beside the name. The color is a
+      small square, as high as its input.
+    .grid.gap-4 class='grid-cols-[1fr_auto_auto]'
+      = f.text_field :name, autofocus: true, placeholder: Car.display_name_of(car.id)
+      = f.text_field :short_name, required: true, maxlength: Car::SHORT_NAME_MAX
+      .form-control
+        / The square speaks for itself. Its hidden label keeps it level with
+          the input of the name.
+        span.label aria-hidden='true'
+          span.label-text.invisible = Car.human_attribute_name(:color)
+        = color_field :car,
+                      :color,
+                      value: car.display_color,
+                      class: 'form-input size-[42px] p-1 cursor-pointer',
+                      title: Car.human_attribute_name(:color),
+                      aria: { label: Car.human_attribute_name(:color) }
+    .grid.grid-cols-1.md:grid-cols-2.gap-4
+      = f.date_field :active_from, required: true, hint: t('settings.cars.active_from_hint')
+      = f.date_field :active_until, hint: t('settings.cars.active_until_hint')
+
+  / The sensors come from the configuration, so the form only shows them
+  = f.group title: t('settings.sensors.name') do
+    dl.grid.gap-x-6.gap-y-2.text-sm class='grid-cols-[auto_1fr]'
+      - Sensor::Cars::CONFIGURABLE_ROLES.map { [it, Sensor::Config.mapping(car.sensor_name(it))] }.select(&:last).each do |role, mapping|
+        dt.text-gray-500.dark:text-gray-400 = t("sensors.car_roles.#{role}")
+        dd.font-mono.min-w-0.truncate title=mapping = mapping
+
+  .flex.justify-end
+    = render 'settings/fab_submit'

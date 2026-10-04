@@ -306,6 +306,18 @@ de:
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
+    cars:
+      name: E-Autos
+      vehicles: Fahrzeuge
+      edit: Auto %{number} bearbeiten
+      description: Jedes Auto hat eine Nummer, die seine Variablen benennt, zum Beispiel INFLUX_SENSOR_CAR_ODOMETER_2. Eine Nummer mit einer Variablen bekommt ihr Auto von selbst. Hier gibst du jedem Auto einen Namen, einen Zeitraum und eine Farbe.
+      never_removed: SOLECTRUS entfernt nie ein Auto. Ein verkauftes Auto behält seine Nummer und seine Historie. Gib ihm einen letzten Tag und dem nächsten Auto eine neue Nummer.
+      variable_change: Wenn du eine Variable einer Nummer änderst, baut SOLECTRUS die Tageszusammenfassungen neu auf, und die Historie der Nummer ändert sich.
+      empty: Es ist kein Auto konfiguriert. Ergänze deine Konfiguration um die Variablen eines Autos, zum Beispiel <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Bis zu %{max} Autos sind möglich.
+      period: Zeitraum
+      today: heute
+      active_from_hint: Der erste Tag mit diesem Auto.
+      active_until_hint: Leer lassen, wenn das Auto in Gebrauch ist.
     cash_flows:
       name: Zahlungen
       description: Investitionen, Kosten und Förderungen rund um die PV-Anlage – die Grundlage der Amortisationsrechnung.
@@ -384,6 +396,7 @@ de:
       car:
         id: Nummer
         name: Name
+        short_name: Kurzname
         active_from: In Gebrauch ab
         active_until: In Gebrauch bis
         color: Farbe

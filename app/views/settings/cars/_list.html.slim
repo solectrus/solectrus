@@ -1,0 +1,30 @@
+- if cars.empty?
+  = render EmptyList::Component.new(icon: 'car', text: raw(t('settings.cars.empty', max: Sensor::Cars::MAX)))
+- else
+  .grid.w-full class="grid-cols-[auto_1fr_auto_auto_auto]"
+    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold
+      .p-2 = Car.human_attribute_name(:id)
+      .p-2 = Car.human_attribute_name(:name)
+      .p-2 = Car.human_attribute_name(:short_name)
+      .p-2 = t('settings.cars.period')
+      .p-2.flex.justify-center
+        = render InfoIcon::Component.new(text: %w[description never_removed variable_change].map { t("settings.cars.#{it}") }.join("\n\n"), position: '')
+    - cars.each do |car|
+      .col-span-full.grid.grid-cols-subgrid.items-center.hover:bg-gray-100.dark:hover:bg-gray-700
+        .p-2.tabular-nums = car.id
+        .p-2.min-w-0.flex.items-center.gap-2
+          = car_icon(car.display_color)
+          span.truncate = car.display_name
+        .p-2.whitespace-nowrap = car.short_name
+        .p-2.text-sm.tabular-nums.whitespace-nowrap
+          = "#{l(car.active_from)} – #{car.active_until ? l(car.active_until) : t('settings.cars.today')}"
+        .p-2
+          = render Button::Component.new path: edit_settings_car_path(car),
+                                         icon: 'pencil',
+                                         type: :button,
+                                         style: :secondary,
+                                         options: { \
+                                           method: :get,
+                                           data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                                           'aria-label': t('crud.edit'),
+                                         }

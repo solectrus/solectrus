@@ -1,0 +1,5 @@
+= render 'settings/sub_nav'
+
+.pt-4
+  = tag.turbo_frame id: 'list' do
+    = render 'list', cars: @cars
