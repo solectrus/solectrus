@@ -98,6 +98,11 @@ module Solectrus
 
       ThemeConfig.setup(ENV)
 
+      # The block below already reads and resets tables, so a test database
+      # with an older schema fails before rails_helper can load the current
+      # one. Load it here instead, rails_helper then finds nothing to do.
+      ActiveRecord::Migration.maintain_test_schema! if Rails.env.test?
+
       ActiveRecord::Base.connection_pool.with_connection do
         if ActiveRecord::Base.connection.table_exists?(:settings)
           # Ensure settings are seeded on every start

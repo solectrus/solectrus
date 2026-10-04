@@ -38,8 +38,9 @@ ParallelCI.run do
     check 'InfluxDB', 'bin/influxdb-restart.sh'
     check 'Remove previous coverage results', 'rm -rf coverage/.resultset.json'
 
-    # One database per worker. Creating them is idempotent, and rails_helper
-    # loads the schema into an empty one through maintain_test_schema!.
+    # One database per worker. Creating them is idempotent, and the boot of
+    # the test environment loads the schema into an empty or outdated one
+    # through maintain_test_schema! (config/application.rb).
     check 'Test databases', "bin/rake 'parallel:create[#{MAX_WORKERS}]'", env: { RAILS_ENV: 'test', DISABLE_SPRING: 1 }
   end
 
