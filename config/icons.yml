@@ -59,6 +59,7 @@ solid:
   - robot
   - rotate-left
   - sack-dollar
+  - slash
   - sliders
   - solar-panel
   - sun
