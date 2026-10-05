@@ -103,14 +103,14 @@ describe Sensor::Query::Helpers::Influx::DailyBatch do
 
       it 'reads the distance outside the aggregation program' do
         expect(Sensor::SummaryBuilder.aggregation_sensor_names).not_to include(:car_odometer_1)
-        expect(call[dates[1]][:diffs][:car_odometer_1]).to eq(40)
+        expect(batch.meter_diffs.call[dates[1]][:car_odometer_1]).to eq(40)
       end
 
       it 'returns the same distance as the day on its own' do
         date = dates[1]
         separate = Sensor::SummaryBuilder.new(Timeframe.new(date.iso8601)).call
 
-        expect(separate.car_odometer_1).to eq(call[date][:diffs][:car_odometer_1])
+        expect(separate.car_odometer_1).to eq(batch.meter_diffs.call[date][:car_odometer_1])
       end
     end
 
@@ -139,7 +139,7 @@ describe Sensor::Query::Helpers::Influx::DailyBatch do
       it 'gives the values to both cars' do
         result = call[dates[1]]
 
-        expect(result[:diffs].values_at(:car_odometer_1, :car_odometer_2)).to eq([40, 40])
+        expect(batch.meter_diffs.call[dates[1]].values_at(:car_odometer_1, :car_odometer_2)).to eq([40, 40])
         expect(result[:aggregation].car_battery_soc_1(:avg)).to eq(51)
         expect(result[:aggregation].car_battery_soc_2(:avg)).to eq(51)
       end
