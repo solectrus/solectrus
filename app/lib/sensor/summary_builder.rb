@@ -67,12 +67,15 @@ module Sensor
 
     # `prefetched` carries the query results Influx::DailyBatch has already
     # fetched for this day, as `{ sum:, aggregation: }`. Without it the two
-    # queries are run here, one day at a time.
-    def initialize(timeframe, prefetched: nil)
+    # queries are run here, one day at a time. `meter_diffs` is the
+    # Influx::DailyDiffs of the chunk that the build of the summaries shares
+    # with its meter gaps (see Sensor::Summarizer::MeterGaps).
+    def initialize(timeframe, prefetched: nil, meter_diffs: nil)
       raise ArgumentError unless timeframe.day?
 
       @timeframe = timeframe
       @prefetched = prefetched
+      @meter_diffs = meter_diffs
     end
 
     attr_reader :timeframe, :prefetched
@@ -236,14 +239,11 @@ module Sensor
       end
     end
 
-    # The daily increase of each meter, from the batch when it holds the day.
-    # A single day reads all meters in one program of its own.
+    # The daily increase of each meter, from the shared diffs. Without them
+    # the day reads all meters in one program of its own.
     def collect_meter_data
-      diffs =
-        prefetched&.dig(:diffs) ||
-          Sensor::Query::Helpers::Influx::DailyDiffs
-            .new([timeframe.date], meter_sensor_names)
-            .call[timeframe.date]
+      meter_diffs = @meter_diffs || Sensor::Query::Helpers::Influx::DailyDiffs.new([timeframe.date], meter_sensor_names)
+      diffs = meter_diffs.call[timeframe.date]
 
       meter_sensor_names.to_h { [[it, :sum], diffs[it]] }
     end

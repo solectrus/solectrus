@@ -33,14 +33,18 @@ module Sensor
           def initialize(dates, sensor_names)
             @dates = dates
             @sensor_names = sensor_names.select { Sensor::Config.configured?(it) }
+            # The points read once, also when two threads ask for them (see
+            # DailyBatch and Summarizer::MeterGaps)
+            @points = Concurrent::Delay.new { @sensor_names.empty? || @dates.empty? ? {} : fetch_points }
           end
 
           attr_reader :dates, :sensor_names
 
           # { Date => { sensor_name => value or nil } }: the increase over the
-          # day, or nil without a reading
+          # day, or nil without a reading. The build of the summaries reads it
+          # once per day, so it is computed once.
           def call
-            bounds.transform_values do |by_sensor|
+            @call ||= bounds.transform_values do |by_sensor|
               by_sensor.transform_values do |(start_value, end_value)|
                 [end_value - start_value, 0].max if start_value && end_value
               end
@@ -54,14 +58,16 @@ module Sensor
           def bounds
             return {} if sensor_names.empty? || dates.empty?
 
-            points = fetch_points
-
             dates.index_with do |date|
               day = Timeframe.new(date.iso8601)
               stop = [day.beginning_of_next, Time.current].min
               sensor_names.index_with { [value_at(points[it], day.beginning), value_at(points[it], stop, first_stands_in: false)] }
             end
           end
+
+          # { sensor_name => [[Time, value], ...] }: the plausible readings
+          # around the boundaries of the days, sorted by time
+          def points = @points.value!
 
           private
 

@@ -44,7 +44,14 @@ module Sensor
 
     # Returns the number of days that were (re)built
     def call
-      dates.each_slice(CHUNK_SIZE).sum { |chunk| process(chunk) }
+      count = dates.each_slice(CHUNK_SIZE).sum { |chunk| process(chunk) }
+
+      # The days that lost the increase of a meter to a gap go, so they are
+      # missing now. One more round builds them at once, and no page has to
+      # wait for them. A gap that this round finds waits for the next build.
+      repaired = gap_dates.uniq.sort
+      @gap_dates = []
+      count + repaired.each_slice(CHUNK_SIZE).sum { |chunk| process(chunk) }
     end
 
     private
@@ -63,15 +70,31 @@ module Sensor
       # Each step waits for InfluxDB, so it overlaps with the queries and the
       # build of the values. It needs no database once made.
       steps = start_steps(pending)
+      dates = rebuild.map(&:first)
+      batch = batch_for(dates)
+      diffs = meter_diffs(dates, batch)
+      gaps = MeterGaps.new(dates, diffs, built: built_dates)
 
       # Building the values needs no transaction, and holding one open across
       # every InfluxDB query of a chunk would keep it running for as long as
       # the slowest of them.
-      built = build(rebuild, prefetch(rebuild.map(&:first)))
+      built = build(rebuild, batch ? batch.call : {}, diffs)
       steps.each(&:result)
-      persist(built, steps)
+      gaps.result
+      persist(built, steps, gaps)
+      built_dates.merge(dates)
 
       pending.size
+    end
+
+    # The days that this run built, so each of them saw every reading up to
+    # now (see MeterGaps)
+    def built_dates
+      @built_dates ||= Set.new
+    end
+
+    def gap_dates
+      @gap_dates ||= []
     end
 
     # Days whose summary is missing or stale, or on which a step waits, paired
@@ -101,12 +124,15 @@ module Sensor
       end
     end
 
-    def build(pending, prefetched)
+    # Each day reads the meters from the diffs that the chunk shares with its
+    # gaps (see #meter_diffs)
+    def build(pending, prefetched, meter_diffs)
       pending.map do |date, summary|
         data =
           Sensor::SummaryBuilder.new(
             Timeframe.new(date.iso8601),
             prefetched: prefetched[date],
+            meter_diffs:,
           ).call
 
         records = summary_records(date, data)
@@ -122,10 +148,16 @@ module Sensor
       end
     end
 
+    # The gaps of the meters read the points of the daily increase, so the
+    # build and the gaps share one query (see MeterGaps)
+    def meter_diffs(dates, batch)
+      batch&.meter_diffs || Sensor::Query::Helpers::Influx::DailyDiffs.new(dates, Sensor::SummaryBuilder.meter_sensor_names)
+    end
+
     # A single day is left to the per-day queries: batching one day would only
     # build the same pipelines under a cache key nothing else shares.
-    def prefetch(dates)
-      return {} if dates.size < 2
+    def batch_for(dates)
+      return if dates.size < 2
 
       Sensor::Query::Helpers::Influx::DailyBatch.new(
         dates,
@@ -133,7 +165,7 @@ module Sensor
         aggregation_sensor_names:
           Sensor::SummaryBuilder.aggregation_sensor_names,
         meter_sensor_names: Sensor::SummaryBuilder.meter_sensor_names,
-      ).call
+      )
     end
 
     # ============================================
@@ -145,67 +177,11 @@ module Sensor
     # committed on its own.
     #
     # The steps write in the same transaction (see StepRun#persist)
-    def persist(built, steps)
+    def persist(built, steps, gaps)
       ActiveRecord::Base.transaction do
-        upsert_summaries(built)
-        upsert_summary_values(built.flat_map { |entry| entry[:valid_records] })
-        cleanup_empty_values(built)
-
+        Writer.new(built).call
         steps.each(&:persist)
-      end
-    end
-
-    def upsert_summaries(built)
-      return if built.empty?
-
-      now = Time.current
-
-      Summary.upsert_all(
-        built.map do |entry|
-          {
-            date: entry[:date],
-            created_at: now,
-            updated_at: now,
-          }
-        end,
-        unique_by: :date,
-        # A day that is already there only gets touched, and Rails must not add
-        # a touch of its own - it would assign updated_at twice in one
-        # statement, which Postgres rejects.
-        update_only: %i[updated_at],
-        record_timestamps: false,
-      )
-    end
-
-    def upsert_summary_values(records)
-      return if records.empty?
-
-      SummaryValue.upsert_all(
-        records,
-        unique_by: %i[date aggregation field],
-        update_only: %i[value],
-      )
-    end
-
-    # Delete values that exist but have no value anymore (rare case). Only a
-    # summary that was there before can have any, so a new one is skipped.
-    def cleanup_empty_values(built)
-      empty_records =
-        built.flat_map do |entry|
-          next [] if entry[:new_record]
-
-          entry[:records] - entry[:valid_records]
-        end
-      return if empty_records.empty?
-
-      build_deletion_query(empty_records)&.delete_all
-    end
-
-    def build_deletion_query(records)
-      records.reduce(nil) do |query, record|
-        condition =
-          SummaryValue.where(record.slice(:date, :aggregation, :field))
-        query&.or(condition) || condition
+        gap_dates.concat(gaps.remove!(built.pluck(:date)))
       end
     end
 

@@ -29,29 +29,32 @@ module Sensor
             @sum_sensor_names = sum_sensor_names
             @aggregation_sensor_names = aggregation_sensor_names
             @meter_sensor_names = meter_sensor_names
+            @meter_diffs = DailyDiffs.new(dates, meter_sensor_names)
           end
 
           attr_reader :dates, :sum_sensor_names, :aggregation_sensor_names, :meter_sensor_names
 
-          # => { Date => { sum: Sensor::Data::Single, aggregation: ...,
-          #                diffs: { sensor_name => value } } }
+          # The daily increase of the meters. Sensor::SummaryBuilder and
+          # Sensor::Summarizer::MeterGaps read it.
+          attr_reader :meter_diffs
+
+          # => { Date => { sum: Sensor::Data::Single, aggregation: ... } }
           #
           # A value is nil when that kind was not asked for at all; the caller
-          # then falls back to querying the day on its own.
+          # then falls back to querying the day on its own. The diffs of the
+          # meters are ready in #meter_diffs afterwards.
           def call
             # The programs are independent, so they overlap just like the
             # per-day queries they replace.
             sum = Concurrent::Future.execute { resolve(:sum) }
             aggregation = Concurrent::Future.execute { resolve(:aggregation) }
-            diff = Concurrent::Future.execute { DailyDiffs.new(dates, meter_sensor_names).call }
+            diff = Concurrent::Future.execute { meter_diffs.call }
 
             sums = sum.value!
             aggregations = aggregation.value!
-            diffs = diff.value!
+            diff.wait!
 
-            dates.index_with do |date|
-              { sum: sums[date], aggregation: aggregations[date], diffs: diffs[date] }
-            end
+            dates.index_with { { sum: sums[it], aggregation: aggregations[it] } }
           end
 
           private
