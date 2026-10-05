@@ -2,7 +2,7 @@
   .flex.flex-col-reverse.gap-2.lg:landscape:gap-0.lg:landscape:items-center.justify-between.lg:landscape:flex-row.pt-2.pb-3.lg:landscape:py-5
     = tag.turbo_frame id: frame_id('second-nav'), target: '_top' do
       = render Nav::Sub::Component.new do |c|
-        = c.with_items nav_items
+        - c.with_items nav_items
 
     .flex.flex-col.items-center.w-full.lg:landscape:w-auto.lg:landscape:flex-row.lg:landscape:justify-end
       - if timeframe.now?

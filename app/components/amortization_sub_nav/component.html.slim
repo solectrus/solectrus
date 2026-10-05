@@ -9,7 +9,7 @@
 .flex.items-center.gap-4.py-2.lg:landscape:py-5
   .flex-1.min-w-0
     = render Nav::Sub::Component.new(abbreviate: false) do |c|
-      = c.with_items nav_items
+      - c.with_items nav_items
 
   /! Amber warning next to the parameters it qualifies: the projection they feed
   /! rests on less than a year of measured data. Stays visible on mobile too,

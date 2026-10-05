@@ -21,4 +21,4 @@
     /! Desktop: original pill buttons (unchanged)
     .hidden.lg:block
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
-        = c.with_items nav_items
+        - c.with_items nav_items

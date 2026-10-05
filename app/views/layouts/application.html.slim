@@ -75,8 +75,8 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
                                        admin: admin?
 
       = render Nav::Top::Component.new(compact: content_for?(:fixed_nav), unread_count: unread_notifications_count) do |c|
-        = c.with_primary_items desktop_primary_items
-        = c.with_secondary_items desktop_secondary_items
+        - c.with_primary_items desktop_primary_items
+        - c.with_secondary_items desktop_secondary_items
         = c.with_sub_nav { yield :sub_nav }
 
       = tag.turbo_frame id: 'flash' do

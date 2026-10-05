@@ -24,6 +24,7 @@ Keep every section, an empty one included.
 
 - In dark mode, the warning color for a low battery level or a medium autarky is now a lighter amber, so it is easier to tell apart from red
 - The codeword page now answers with HTTP status 403, so bots and crawlers see that the site is locked (#5974)
+- Each page loads faster, because the server no longer builds an unused text of the navigation, which took up to 100 ms
 
 ## Fixes
 
