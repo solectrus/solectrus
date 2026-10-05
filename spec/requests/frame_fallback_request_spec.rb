@@ -37,5 +37,14 @@ describe 'Frame fallback' do
   describe 'GET /timeframe-select/:sensor_name/:timeframe' do
     it_behaves_like 'a frame that falls back',
                     path_helper: :timeframe_select_path
+
+    it 'renders the frame when the request has no referer' do
+      get timeframe_select_path(sensor_name: 'house_power', timeframe: '2025'),
+          headers: {
+            'Turbo-Frame' => 'timeframe-select',
+          }
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 end
