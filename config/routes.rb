@@ -35,7 +35,6 @@
 #                   inverter_charts GET              /inverter/charts/:sensor_name(/:timeframe)(.:format)      inverter/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                             tiles GET              /tiles/:sensor_name(/:timeframe)(.:format)                tiles#show {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                          insights GET              /insights/:sensor_name(/:timeframe)(.:format)             insights#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                  timeframe_select GET              /timeframe-select/:sensor_name(/:timeframe)(.:format)     timeframe_select#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                           summary GET              /summaries/:date(.:format)                                summaries#show
 #                         summaries DELETE           /summaries(.:format)                                      summaries#reset
 #                        essentials GET              /essentials(.:format)                                     essentials#index
@@ -190,11 +189,6 @@ Rails.application.routes.draw do
       get '/insights/:sensor_name(/:timeframe)',
           to: 'insights#index',
           as: :insights
-
-      # Timeframe Select
-      get '/timeframe-select/:sensor_name(/:timeframe)',
-          to: 'timeframe_select#index',
-          as: :timeframe_select
     end
   end
 

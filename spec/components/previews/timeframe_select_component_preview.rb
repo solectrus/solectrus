@@ -2,14 +2,10 @@
 # @logical_path navigation
 class TimeframeSelectComponentPreview < ViewComponent::Preview
   # @param sensor_name
-  # @param controller_namespace
-  def default(sensor_name: 'inverter_power', controller_namespace: 'balance')
+  def default(sensor_name: 'inverter_power')
     timeframe = Timeframe.new('2024-01')
+    page = TimeframePage::Sensor.new(namespace: 'balance', sensor_name:)
 
-    render TimeframeSelect::Component.new(
-             timeframe:,
-             sensor_name:,
-             controller_namespace:,
-           )
+    render TimeframeSelect::Component.new(timeframe:, page:)
   end
 end
