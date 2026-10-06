@@ -2,8 +2,33 @@ class Settings::SensorsController < ApplicationController
   include SettingsNavigation
 
   before_action :admin_required!
+  before_action :load_sensors, only: %i[edit]
 
   def edit
+  end
+
+  def update
+    Setting.sensor_names = permitted_params[:sensor_names]&.to_h
+
+    %i[
+      inverter_as_total
+      enable_multi_inverter
+      enable_custom_consumer
+      enable_heatpump
+      enable_forecast
+    ].each do |key|
+      value = permitted_params.dig(:general, key)
+      next unless value
+
+      Setting.public_send("#{key}=", value == '1')
+    end
+
+    redirect_to settings_sensors_path, notice: t('crud.success')
+  end
+
+  private
+
+  def load_sensors
     @inverter_sensors = []
     @consumer_sensors = []
     @battery_sensors = []
@@ -33,26 +58,16 @@ class Settings::SensorsController < ApplicationController
       end
   end
 
-  def update
-    Setting.sensor_names = permitted_params[:sensor_names]&.to_h
-
-    %i[
-      inverter_as_total
-      enable_multi_inverter
-      enable_custom_consumer
-      enable_heatpump
-      enable_forecast
-    ].each do |key|
-      value = permitted_params.dig(:general, key)
-      next unless value
-
-      Setting.public_send("#{key}=", value == '1')
+  # The groups of the form, each with a partial of its own
+  helper_method def sensor_sections
+    @sensor_sections ||= [
+      { id: 'generators' },
+      ({ id: 'consumers' } if @consumer_sensors.any?),
+      ({ id: 'battery' } if @battery_sensors.any?),
+    ].compact.map do |section|
+      section.merge(name: t("settings.sensors.#{section[:id]}"))
     end
-
-    redirect_to settings_sensors_path, notice: t('crud.success')
   end
-
-  private
 
   helper_method def title
     t('layout.settings')
