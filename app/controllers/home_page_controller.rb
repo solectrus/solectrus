@@ -4,6 +4,7 @@ class HomePageController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
   include SummaryChecker
+  include TimeframeSelectModal
 
   # The page decides what it may show and what its upsell names, and both
   # answers come from the key (see Sensor::HomePage).
@@ -19,6 +20,12 @@ class HomePageController < ApplicationController
   end
 
   private
+
+  # The addresses of the page for its timeframe select. They keep the
+  # selection of the page (see #selection_params).
+  helper_method def timeframe_page
+    TimeframePage::Sensor.new(namespace: controller_path.split('/').first, sensor_name:, params: selection_params)
+  end
 
   # Each page shows a fixed set of sensors. Without this check any
   # chart-enabled sensor renders on any page, so a hand-edited URL like

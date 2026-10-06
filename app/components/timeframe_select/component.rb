@@ -6,22 +6,17 @@ class TimeframeSelect::Component < ViewComponent::Base
 
   public_constant :LABEL_CLASSES, :INPUT_CLASSES, :BACK_BUTTON_CLASSES
 
-  def initialize(timeframe:, sensor_name:, controller_namespace:)
+  # `page` gives the address of the selected timeframe (see
+  # TimeframePage::Sensor)
+  def initialize(timeframe:, page:)
     super()
     @timeframe = timeframe
-    @sensor_name = sensor_name
-    @controller_namespace = controller_namespace
+    @page = page
   end
 
-  attr_reader :timeframe, :sensor_name, :controller_namespace
+  attr_reader :timeframe
 
-  def base_url
-    if controller_namespace == 'balance'
-      "/#{sensor_name}"
-    else
-      "/#{controller_namespace}/#{sensor_name}"
-    end
-  end
+  delegate :base_url, to: :@page
 
   def min_date
     Rails.application.config.x.installation_date
