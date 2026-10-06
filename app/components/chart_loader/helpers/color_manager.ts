@@ -74,10 +74,15 @@ export class ColorManager {
               ? resolvedColor
               : colorToRgba(resolvedColor, opacity);
 
-          if (datasetWithId.hatchFill) {
+          const hatchFill = datasetWithId.hatchFill;
+          if (hatchFill) {
             dataset.backgroundColor = (context: {
               chart: Chart;
+              dataIndex: number;
             }): CanvasPattern | string | undefined => {
+              if (Array.isArray(hatchFill) && !hatchFill[context.dataIndex])
+                return fillColor;
+
               const { ctx, chartArea } = context.chart;
               if (!chartArea) return;
               return this.createHatchPattern(ctx, resolvedColor);

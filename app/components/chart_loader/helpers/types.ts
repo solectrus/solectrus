@@ -22,7 +22,9 @@ export type DatasetWithId = ChartDataset & {
   colorClass?: string;
   colorScale?: ColorScaleStop[];
   opacities?: number[];
-  hatchFill?: boolean;
+  // Hatches the whole dataset, or with one entry for each data point only
+  // the points that are true
+  hatchFill?: boolean | boolean[];
   tooltipColor?: string;
   tooltipAbs?: boolean;
 };
