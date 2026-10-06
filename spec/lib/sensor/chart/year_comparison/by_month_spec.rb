@@ -4,6 +4,12 @@ describe Sensor::Chart::YearComparison::ByMonth do
   let(:timeframe) { Timeframe.all }
   let(:sensor_name) { :house_power }
 
+  # Whether the dataset hatches the point at `index`
+  def hatched?(dataset, index = 0)
+    hatch = dataset[:hatchFill]
+    hatch.is_a?(Array) ? hatch[index] : hatch
+  end
+
   describe '#data' do
     before do
       create_summary(
@@ -86,9 +92,7 @@ describe Sensor::Chart::YearComparison::ByMonth do
     end
 
     it 'leaves a month that is over unmarked' do
-      point = chart.data[:datasets].first[:data].first
-
-      expect(point).not_to have_key(:partial)
+      expect(hatched?(chart.data[:datasets].first)).to be(false)
     end
 
     # The record begins on the day the installation went live, so its first
@@ -97,9 +101,7 @@ describe Sensor::Chart::YearComparison::ByMonth do
       let(:timeframe) { Timeframe.new('all', min_date: Date.new(2023, 5, 17)) }
 
       it 'marks the bar of the month the record begins in' do
-        point = chart.data[:datasets].first[:data].first
-
-        expect(point[:partial]).to be(true)
+        expect(hatched?(chart.data[:datasets].first)).to be(true)
       end
 
       # The hatched May of 2023 leaves one complete May, too few to average.
@@ -111,9 +113,7 @@ describe Sensor::Chart::YearComparison::ByMonth do
         let(:timeframe) { Timeframe.new('all', min_date: Date.new(2023, 5, 1)) }
 
         it 'leaves the bar alone' do
-          point = chart.data[:datasets].first[:data].first
-
-          expect(point).not_to have_key(:partial)
+          expect(hatched?(chart.data[:datasets].first)).to be(false)
         end
       end
     end
@@ -130,10 +130,9 @@ describe Sensor::Chart::YearComparison::ByMonth do
 
       it 'marks the bar of the running month' do
         dataset = chart.data[:datasets].find { _1[:label] == Date.current.year.to_s }
-        point = dataset[:data].find { _1[:x] == I18n.t('date.abbr_month_names')[Date.current.month] }
+        index = dataset[:data].index { _1[:x] == I18n.t('date.abbr_month_names')[Date.current.month] }
 
-        expect(point[:partial]).to be(true)
-        expect(dataset[:hatchPartial]).to be(true)
+        expect(hatched?(dataset, index)).to be(true)
       end
     end
 
