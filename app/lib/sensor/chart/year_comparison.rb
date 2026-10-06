@@ -205,7 +205,10 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
         opacity:,
       )
 
-    dataset[:hatchPartial] = true if data.any? { it[:partial] }
+    # One entry per point, so only the partial periods are hatched. A sensor
+    # that hatches by itself keeps the hatch on the whole dataset.
+    partial = points.map { |date, _value| partial?(date) }
+    dataset[:hatchFill] = partial if partial.any? && !dataset[:hatchFill]
     dataset[:tooltipPrefix] = false unless opposite_directions?
     dataset
   end
@@ -224,7 +227,6 @@ class Sensor::Chart::YearComparison < Sensor::Chart::Base
       # tooltip speaks for one bar, so it names both and spells the period out.
       tooltipTitle: tooltip_title(date.to_date),
       drilldownPath: drilldown_path(date.to_date),
-      partial: (true if partial?(date)),
     }.compact
   end
 
