@@ -16,6 +16,17 @@ describe Sensor::Chart::YearComparison::BySeason do
     dataset_of(year)[:data].find { it[:x] == label(season) }
   end
 
+  # Whether the dataset hatches the point at `index`
+  def hatched?(dataset, index)
+    hatch = dataset[:hatchFill]
+    hatch.is_a?(Array) ? hatch[index] : hatch
+  end
+
+  def hatched_of?(year, season)
+    dataset = dataset_of(year)
+    hatched?(dataset, dataset[:data].index(point_of(year, season)))
+  end
+
   describe '#data' do
     before do
       # The summer of 2023.
@@ -92,7 +103,7 @@ describe Sensor::Chart::YearComparison::BySeason do
     end
 
     it 'leaves a season that is over unmarked' do
-      expect(point_of(2023, :winter)).not_to have_key(:partial)
+      expect(hatched_of?(2023, :winter)).to be(false)
     end
 
     # The record begins on the day the installation went live, so the winter
@@ -102,7 +113,7 @@ describe Sensor::Chart::YearComparison::BySeason do
       let(:timeframe) { Timeframe.new('all', min_date: Date.new(2023, 12, 6)) }
 
       it 'marks the bar of the season the record begins in' do
-        expect(point_of(2023, :winter)[:partial]).to be(true)
+        expect(hatched_of?(2023, :winter)).to be(true)
       end
 
       context 'when the record begins on the first day of a season' do
@@ -111,7 +122,7 @@ describe Sensor::Chart::YearComparison::BySeason do
         end
 
         it 'leaves the bar alone' do
-          expect(point_of(2023, :winter)).not_to have_key(:partial)
+          expect(hatched_of?(2023, :winter)).to be(false)
         end
       end
     end
@@ -133,14 +144,13 @@ describe Sensor::Chart::YearComparison::BySeason do
 
       it 'marks the bar of the running season' do
         dataset = dataset_of(beginning.year)
-        point =
-          dataset[:data].find do
+        index =
+          dataset[:data].index do
             it[:x] == chart.data[:labels][(shifted.quarter + 2) % 4]
           end
 
         expect(beginning).to be <= Date.current
-        expect(point[:partial]).to be(true)
-        expect(dataset[:hatchPartial]).to be(true)
+        expect(hatched?(dataset, index)).to be(true)
       end
     end
   end
