@@ -61,4 +61,9 @@ class ApplicationController < ActionController::Base
   # Override this method to set a custom timeframe
   def timeframe
   end
+
+  # The parameters of a selection beside the timeframe, for example the car
+  # of the car page. Each link to the same page keeps them, and a link to
+  # another page does not get them (see ApplicationHelper#selection_params).
+  def selection_params = {}
 end

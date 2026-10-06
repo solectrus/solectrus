@@ -14,6 +14,7 @@ module TimeframeNavigation
         sensor_name:,
         timeframe:,
         action: 'index',
+        **selection_params,
       )
     end
 

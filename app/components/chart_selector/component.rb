@@ -174,6 +174,7 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
           controller: "#{helpers.controller_namespace}/home",
           sensor_name:,
           timeframe:,
+          **helpers.selection_params,
         ),
       data: {
         action: 'stats-with-chart--component#loadChart dropdown--component#toggle',
@@ -198,18 +199,12 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   end
 
   def charts_path(sensor_name:)
-    namespace = helpers.controller_namespace
-
-    case namespace
-    when 'house'
-      helpers.house_charts_path(sensor_name:, timeframe:)
-    when 'heatpump'
-      helpers.heatpump_charts_path(sensor_name:, timeframe:)
-    when 'inverter'
-      helpers.inverter_charts_path(sensor_name:, timeframe:)
-    else
-      helpers.balance_charts_path(sensor_name:, timeframe:)
-    end
+    url_for(
+      controller: "#{helpers.controller_namespace}/charts",
+      sensor_name:,
+      timeframe:,
+      **helpers.selection_params,
+    )
   end
 
   # A combined chart gets one entry per half, so the menu shows two items

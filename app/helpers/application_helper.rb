@@ -35,6 +35,12 @@ module ApplicationHelper
     "#{controller_namespace}-#{prefix}-#{timeframe_identifier}"
   end
 
+  # See ApplicationController#selection_params. A preview has no such
+  # controller.
+  def selection_params
+    controller.respond_to?(:selection_params, true) ? controller.__send__(:selection_params) : {}
+  end
+
   # The theme the visitor picked, written by the theme selector. A cookie and
   # not localStorage, so the server can render the right theme right away
   # instead of letting the browser correct it after the first paint. nil means

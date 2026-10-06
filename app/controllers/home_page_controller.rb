@@ -43,6 +43,7 @@ class HomePageController < ApplicationController
       action: 'index',
       sensor_name: name,
       timeframe: keep_timeframe || 'now',
+      **selection_params,
     )
   end
 

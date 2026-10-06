@@ -29,6 +29,7 @@ class StatsWithChart::Component < ViewComponent::Base
     helpers.url_for(
       helpers.permitted_params.to_hash.symbolize_keys.merge(
         controller: "#{helpers.controller_namespace}/stats",
+        **helpers.selection_params,
       ),
     )
   end
@@ -37,6 +38,7 @@ class StatsWithChart::Component < ViewComponent::Base
     helpers.url_for(
       helpers.permitted_params.to_hash.symbolize_keys.merge(
         controller: "#{helpers.controller_namespace}/charts",
+        **helpers.selection_params,
       ),
     )
   end
