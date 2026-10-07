@@ -57,32 +57,51 @@ module Sensor
       pending = pending_summaries(chunk)
       return 0 if pending.empty?
 
+      # A fresh summary on which a step waits needs this step alone
+      rebuild = pending.select { |_, summary| rebuild?(summary) }
+
+      # Each step waits for InfluxDB, so it overlaps with the queries and the
+      # build of the values. It needs no database once made.
+      steps = start_steps(pending)
+
       # Building the values needs no transaction, and holding one open across
       # every InfluxDB query of a chunk would keep it running for as long as
       # the slowest of them.
-      built = build(pending)
-      persist(built)
+      built = build(rebuild, prefetch(rebuild.map(&:first)))
+      steps.each(&:result)
+      persist(built, steps)
 
-      built.size
+      pending.size
     end
 
-    # Days whose summary is missing or stale, paired with the record to write.
-    # Checked before any InfluxDB query, so a day that turns out to be fresh
-    # costs nothing.
+    # Days whose summary is missing or stale, or on which a step waits, paired
+    # with the record to write. Checked before any InfluxDB query, so a day
+    # that turns out to be fresh costs nothing.
     def pending_summaries(chunk)
       existing = Summary.where(date: chunk).index_by(&:date)
 
       chunk.filter_map do |date|
         summary = existing[date] || Summary.new(date:)
-        next unless summary.new_record? || summary.stale?(current_tolerance: 0)
+        next unless rebuild?(summary) || summary.steps_pending?
 
         [date, summary]
       end
     end
 
-    def build(pending)
-      prefetched = prefetch(pending.map(&:first))
+    def rebuild?(summary)
+      summary.new_record? || summary.stale?(current_tolerance: 0)
+    end
 
+    # A run of each step with something to do. A step runs on a rebuilt day,
+    # and on a day on which it waits.
+    def start_steps(pending)
+      Summary::Steps.enabled.filter_map do |step|
+        dates = pending.filter_map { |date, summary| date if rebuild?(summary) || summary.step_pending?(step) }
+        StepRun.new(step, dates) if dates.any?
+      end
+    end
+
+    def build(pending, prefetched)
       pending.map do |date, summary|
         data =
           Sensor::SummaryBuilder.new(
@@ -124,19 +143,31 @@ module Sensor
     # Everything a chunk writes goes into one transaction: on a spinning disk
     # each commit costs an fsync, which dominated the writes when every day
     # committed on its own.
-    def persist(built)
+    #
+    # The steps write in the same transaction (see StepRun#persist)
+    def persist(built, steps)
       ActiveRecord::Base.transaction do
         upsert_summaries(built)
         upsert_summary_values(built.flat_map { |entry| entry[:valid_records] })
         cleanup_empty_values(built)
+
+        steps.each(&:persist)
       end
     end
 
     def upsert_summaries(built)
+      return if built.empty?
+
       now = Time.current
 
       Summary.upsert_all(
-        built.map { |entry| { date: entry[:date], created_at: now, updated_at: now } },
+        built.map do |entry|
+          {
+            date: entry[:date],
+            created_at: now,
+            updated_at: now,
+          }
+        end,
         unique_by: :date,
         # A day that is already there only gets touched, and Rails must not add
         # a touch of its own - it would assign updated_at twice in one

@@ -21,6 +21,37 @@ describe 'Settings' do
         get '/settings/general'
         expect(response).to have_http_status(:success)
       end
+
+      context 'with summaries' do
+        let(:timeframe) { Timeframe.all }
+        let(:dates) { (timeframe.effective_beginning_date..timeframe.effective_ending_date).to_a }
+
+        before do
+          travel_to Time.zone.local(2020, 12, 6, 12)
+          allow(ChargingSession::Detection).to receive(:enabled?).and_return(true)
+          dates.each { Summary.create!(date: it, updated_at: it + 2.days, steps: Summary::Steps.versions) }
+        end
+
+        it 'counts a day on which a step waits' do
+          Summary.reset_step(ChargingSession::Detection::KEY, [dates.first])
+          get '/settings/general'
+
+          expect(response.body).to include(I18n.t('settings.general.summaries.fresh_percentage', value: 90))
+        end
+
+        it 'keeps the summaries when a step waits on each day' do
+          Summary.reset_step(ChargingSession::Detection::KEY, dates)
+          get '/settings/general'
+
+          expect(response.body).to include(I18n.t('settings.general.summaries.fresh_percentage', value: 0))
+          expect(response.body).not_to include(I18n.t('settings.general.summaries.zero'))
+        end
+      end
+
+      it 'tells that no summary exists' do
+        get '/settings/general'
+        expect(response.body).to include(I18n.t('settings.general.summaries.zero'))
+      end
     end
   end
 

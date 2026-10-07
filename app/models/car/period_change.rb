@@ -2,6 +2,9 @@
 # nothing outside its period, so the data of the days between the old and the
 # new bounds must follow:
 #
+# - A wallbox session of the car outside the new period loses the car, also
+#   a car that the user chose, and the next build runs the detection on
+#   these days again (see ChargingSession::Detection).
 # - A daily value of the car outside the new period goes (see
 #   Sensor::Summarizer).
 # - A day that the period gains has no value of the car, so its summary goes
@@ -15,8 +18,15 @@ class Car::PeriodChange
     days = changed_days
     return if days.empty?
 
+    car
+      .charging_sessions
+      .wallbox
+      .where.not(started_at: car.period_times)
+      .update_all(car_id: nil, assigned_manually: false) # rubocop:disable Rails/SkipsModelValidations
+
     SummaryValue.where(field: sensor_names).where.not(date: car.active_from..car.active_until).delete_all
     Summary.where(date: gained_days(days)).delete_all
+    Summary.reset_step(ChargingSession::Detection::KEY, days)
   end
 
   private

@@ -5,7 +5,7 @@ describe 'Summaries' do
 
   describe 'GET /show' do
     context 'when Summary exists' do
-      before { Summary.create!(date:) }
+      before { Summary.create!(steps: Summary::Steps.versions, date:) }
 
       it 'is successful' do
         request
@@ -26,6 +26,25 @@ describe 'Summaries' do
       it 'creates a new Summary' do
         expect { request }.to change(Summary, :count).by(1)
         expect(Summary.last.date).to eq(date)
+      end
+    end
+
+    context 'when the sessions of the day wait for the detection' do
+      before do
+        allow(ChargingSession::Detection).to receive(:enabled?).and_return(true)
+        Summary.create!(date:, steps: {})
+      end
+
+      it 'leaves the day to a page that reads the sessions' do
+        request
+
+        expect(Summary.find(date).steps).to eq({})
+      end
+
+      it 'runs the detection for a page that reads the sessions' do
+        get "/summaries/#{date}?steps=charging_sessions"
+
+        expect(Summary.find(date).steps).to eq('charging_sessions' => ChargingSession::Detection::VERSION)
       end
     end
 
@@ -69,7 +88,7 @@ describe 'Summaries' do
     context 'with fresh days between the missing ones' do
       subject(:request) { get "/summaries/#{date}?to=#{date + 20}" }
 
-      before { ((date + 1)..(date + 19)).each { |day| Summary.create!(date: day) } }
+      before { ((date + 1)..(date + 19)).each { |day| Summary.create!(steps: Summary::Steps.versions, date: day) } }
 
       it 'builds the missing days of the whole range' do
         expect { request }.to change(Summary, :count).by(2)
@@ -89,7 +108,7 @@ describe 'Summaries' do
   describe 'DELETE /summaries' do
     subject(:request) { delete '/summaries' }
 
-    before { Summary.create! date: Date.current }
+    before { Summary.create! steps: Summary::Steps.versions, date: Date.current }
 
     context 'when logged in as admin' do
       before { login_as_admin }

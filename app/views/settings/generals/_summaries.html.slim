@@ -9,12 +9,12 @@
         data-tooltip-touch-value="true"
         title= t('settings.general.summaries.description')
       ]
-        - if summary_completion_rate.zero?
+        - if summary_completion_rate.nil?
           = t('settings.general.summaries.zero')
         - else
-          = t('settings.general.summaries.fresh_percentage', value: summary_completion_rate.round)
+          = t('settings.general.summaries.fresh_percentage', value: summary_completion_rate.floor)
 
-    - if summary_completion_rate.nonzero?
+    - if summary_completion_rate
       = render Button::Component.new path: summaries_path,
                                     icon: 'rotate-left',
                                     title: t('settings.general.summaries.reset.title'),

@@ -3,6 +3,7 @@
 # Table name: summaries
 #
 #  date       :date             not null, primary key
+#  steps      :jsonb            not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
@@ -164,7 +165,7 @@ describe Summary do
     context 'when all summaries are present and fresh' do
       before do
         (timeframe.beginning.to_date..timeframe.ending.to_date).each do |date|
-          described_class.create!(date:, updated_at: date + 2.days)
+          described_class.create!(date:, updated_at: date + 2.days, steps: Summary::Steps.versions)
         end
       end
 
@@ -177,6 +178,7 @@ describe Summary do
           described_class.create!(
             date:,
             updated_at: date.day <= 7 ? date.middle_of_day : date + 2.days,
+            steps: Summary::Steps.versions,
           )
         end
       end
@@ -220,32 +222,101 @@ describe Summary do
     end
   end
 
-  describe 'dynamic current-day tolerance in .missing_or_stale_days' do
-    # Today's summary exists but was last calculated 30 minutes ago. This is
-    # stale for a day view (5 min tolerance) but acceptable for a long
-    # timeframe like the running year (capped at MAX_CURRENT_TOLERANCE).
+  describe 'a step in .missing_or_stale_days' do
+    let(:date) { Date.yesterday }
+
     before do
-      travel_to Time.new(2024, 7, 1, 12, 0, 0, '+02:00')
-      described_class.create!(date: Date.current, updated_at: 30.minutes.ago)
+      described_class.create!(date:, updated_at: 1.minute.ago, steps: version ? { 'charging_sessions' => version } : {})
     end
 
-    it 'marks today stale in a day view (tight tolerance)' do
-      expect(
-        described_class.missing_or_stale_days(
-          from: Date.current,
-          to: Date.current,
-        ),
-      ).to eq([Date.current])
+    context 'with a fresh summary without the detection' do
+      let(:version) { nil }
+
+      it 'counts the day as pending' do
+        expect(described_class.missing_or_stale_days(from: date, to: date, steps: [:charging_sessions])).to eq([date])
+      end
+
+      it 'counts nothing for a caller that waits for no step' do
+        expect(described_class.missing_or_stale_days(from: date, to: date)).to be_empty
+      end
     end
 
-    it 'accepts a slightly stale today in a long timeframe (scaled tolerance)' do
-      expect(
-        described_class.missing_or_stale_days(
-          from: Date.new(2024, 1, 1),
-          to: Date.current,
-        ),
-      ).not_to include(Date.current)
+    context 'with an older version of the detection' do
+      let(:version) { ChargingSession::Detection::VERSION - 1 }
+
+      it 'counts the day as pending' do
+        expect(described_class.missing_or_stale_days(from: date, to: date, steps: [:charging_sessions])).to eq([date])
+      end
     end
+
+    context 'with the current version' do
+      let(:version) { ChargingSession::Detection::VERSION }
+
+      it 'counts the day as fresh' do
+        expect(described_class.missing_or_stale_days(from: date, to: date, steps: [:charging_sessions])).to be_empty
+      end
+    end
+
+    context 'with a step in .fresh_percentage' do
+      let(:version) { nil }
+      let(:timeframe) { Timeframe.new(date.iso8601) }
+
+      it 'counts the day as not fresh' do
+        expect(described_class.fresh_percentage(timeframe, steps: [:charging_sessions])).to eq(0)
+        expect(described_class.fresh_percentage(timeframe)).to eq(100)
+      end
+    end
+  end
+
+  describe 'the marks of the steps' do
+    let(:date) { Date.yesterday }
+    let!(:summary) { described_class.create!(date:, steps: {}) }
+
+    before { allow(ChargingSession::Detection).to receive(:enabled?).and_return(true) }
+
+    it 'waits for a step that did not run' do
+      expect(summary).to be_step_pending(ChargingSession::Detection)
+    end
+
+    it 'marks a step and resets it' do
+      described_class.mark_step(ChargingSession::Detection, [date])
+      expect(summary.reload).not_to be_step_pending(ChargingSession::Detection)
+
+      described_class.reset_step(:charging_sessions, [date])
+      expect(described_class.without_step(:charging_sessions)).to eq([summary])
+    end
+  end
+
+  describe 'dynamic current-day tolerance in .missing_or_stale_days' do
+      # Today's summary exists but was last calculated 30 minutes ago. This is
+      # stale for a day view (5 min tolerance) but acceptable for a long
+      # timeframe like the running year (capped at MAX_CURRENT_TOLERANCE).
+      before do
+        travel_to Time.new(2024, 7, 1, 12, 0, 0, '+02:00')
+        described_class.create!(
+          date: Date.current,
+          updated_at: 30.minutes.ago,
+          steps: Summary::Steps.versions,
+        )
+      end
+
+      it 'marks today stale in a day view (tight tolerance)' do
+        expect(
+          described_class.missing_or_stale_days(
+            from: Date.current,
+            to: Date.current,
+          ),
+        ).to eq([Date.current])
+      end
+
+      it 'accepts a slightly stale today in a long timeframe (scaled tolerance)' do
+        expect(
+          described_class.missing_or_stale_days(
+            from: Date.new(2024, 1, 1),
+            to: Date.current,
+          ),
+        ).not_to include(Date.current)
+      end
   end
 
   describe '.reset!' do

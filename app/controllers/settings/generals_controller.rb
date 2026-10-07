@@ -4,7 +4,9 @@ class Settings::GeneralsController < ApplicationController
   before_action :admin_required!
 
   def edit
-    @summary_completion_rate = Summary.fresh_percentage(Timeframe.all)
+    # Each step counts, so a new version of a step lowers the rate, down to
+    # zero with the summaries still there. Without a summary, the rate is nil.
+    @summary_completion_rate = Summary.fresh_percentage(Timeframe.all, steps: Summary::Steps.keys) if Summary.exists?
   end
 
   def update

@@ -57,6 +57,7 @@ describe Sensor::Summarizer do
         expect(Summary).to have_received(:missing_or_stale_days).with(
           from: timeframe.effective_beginning_date,
           to: timeframe.effective_ending_date,
+          steps: [],
         )
       end
 
@@ -379,7 +380,7 @@ describe Sensor::Summarizer do
     context 'when fresh summary from today exists' do
       let(:date) { Date.current }
 
-      let!(:summary) { Summary.create!(date:, updated_at: 1.minute.ago) }
+      let!(:summary) { Summary.create!(steps: Summary::Steps.versions, date:, updated_at: 1.minute.ago) }
 
       it 'does not create Summary' do
         expect { call }.not_to change(Summary, :count)
@@ -393,7 +394,7 @@ describe Sensor::Summarizer do
     context 'when fresh summary from the past exists' do
       let(:date) { Date.yesterday }
 
-      let!(:summary) { Summary.create!(date:, updated_at: 1.minute.ago) }
+      let!(:summary) { Summary.create!(steps: Summary::Steps.versions, date:, updated_at: 1.minute.ago) }
 
       it 'does not create Summary' do
         expect { call }.not_to change(Summary, :count)
@@ -404,10 +405,28 @@ describe Sensor::Summarizer do
       end
     end
 
+    # The migration marks each existing day as pending for the detection
+    context 'when a fresh summary waits for the detection' do
+      let(:date) { Date.yesterday }
+
+      let!(:summary) { Summary.create!(steps: {}, date:, updated_at: 1.minute.ago) }
+
+      it 'runs the detection alone' do
+        allow(Sensor::SummaryBuilder).to receive(:new).and_call_original
+
+        expect { call }.not_to(change { summary.reload.updated_at })
+        expect(Sensor::SummaryBuilder).not_to have_received(:new)
+      end
+
+      it 'marks the day with the current version of each enabled step' do
+        expect { call }.to change { summary.reload.steps }.from({}).to('charging_sessions' => ChargingSession::Detection::VERSION)
+      end
+    end
+
     context 'when stale summary already exists' do
       let(:date) { Date.yesterday }
 
-      let!(:summary) { Summary.create!(date:, updated_at: date.middle_of_day) }
+      let!(:summary) { Summary.create!(steps: Summary::Steps.versions, date:, updated_at: date.middle_of_day) }
 
       it 'does not create Summary' do
         expect { call }.not_to change(Summary, :count)
@@ -473,7 +492,7 @@ describe Sensor::Summarizer do
       end
 
       context 'when one of them is already fresh' do
-        before { Summary.create!(date: dates.first, updated_at: Time.current) }
+        before { Summary.create!(steps: Summary::Steps.versions, date: dates.first, updated_at: Time.current) }
 
         it 'skips it' do
           expect(call).to eq(2)

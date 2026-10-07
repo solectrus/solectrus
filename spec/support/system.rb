@@ -57,7 +57,7 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
     summaries =
       (
         Rails.configuration.x.installation_date..base_time.to_date.yesterday
-      ).map { |date| { date: } }
+      ).map { |date| { date:, steps: Summary::Steps.versions } }
     Summary.insert_all(summaries) # rubocop:disable Rails/SkipsModelValidations
 
     create_summary(
@@ -275,7 +275,7 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
   end
 
   def create_summary(date:, updated_at: Time.current, values: [])
-    Summary.create!(date:, updated_at:)
+    Summary.create!(steps: Summary::Steps.versions, date:, updated_at:)
 
     SummaryValue.insert_all!(
       values.map do |v|

@@ -3,6 +3,7 @@
 # Table name: summaries
 #
 #  date       :date             not null, primary key
+#  steps      :jsonb            not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
@@ -46,14 +47,16 @@ class Summary < ApplicationRecord
   public_constant :MAX_CURRENT_TOLERANCE
 
   # How much of the timeframe is covered by an up-to-date summary, in percent.
-  def self.fresh_percentage(timeframe)
+  # A day on which one of the given steps waits is not up to date (see
+  # .missing_or_stale_days_for).
+  def self.fresh_percentage(timeframe, steps: [])
     return if timeframe.now?
 
     from = timeframe.effective_beginning_date
     to = timeframe.effective_ending_date
 
     total_count = (to - from).to_i + 1
-    fresh_count = total_count - missing_or_stale_days_for(timeframe).length
+    fresh_count = total_count - missing_or_stale_days_for(timeframe, steps:).length
 
     (fresh_count * 100.0 / total_count)
   end
@@ -61,16 +64,21 @@ class Summary < ApplicationRecord
   # The same question for a whole timeframe: which of its days have no summary
   # yet, or a stale one. "Now" and the hour-resolution timeframes are answered
   # from raw measurements, so they need no summaries at all.
-  def self.missing_or_stale_days_for(timeframe)
+  #
+  # `steps` also counts a day on which one of these steps waits (see
+  # Summary::Steps). Only a caller that reads the records of a step asks for
+  # it, so a new version of a step rebuilds no day for the other pages.
+  def self.missing_or_stale_days_for(timeframe, steps: [])
     return [] if timeframe.now? || timeframe.hours?
 
     missing_or_stale_days(
       from: timeframe.effective_beginning_date,
       to: timeframe.effective_ending_date,
+      steps:,
     )
   end
 
-  def self.missing_or_stale_days(from:, to:)
+  def self.missing_or_stale_days(from:, to:, steps: [])
     find_by_sql(
       [
         <<~SQL.squish,
@@ -93,6 +101,13 @@ class Summary < ApplicationRecord
             /* Today or a future day is considered STALE if the last update was beyond the allowed tolerance time */
             s.date >= :threshold_date
             AND s.updated_at < :current_tolerance_time
+
+          OR
+            /* A day is PENDING when one of the given steps did not run on it, or in an older version */
+            EXISTS (
+              SELECT 1 FROM jsonb_each_text(CAST(:versions AS jsonb)) AS v(key, version)
+              WHERE COALESCE((s.steps->>v.key)::integer, 0) < v.version::integer
+            )
         SQL
         {
           from:,
@@ -101,6 +116,7 @@ class Summary < ApplicationRecord
           threshold_date:,
           current_tolerance_time: current_tolerance_minutes(from:, to:).minutes.ago,
           required_distance: "#{1.day.in_minutes + REQUIRED_DISTANCE} minutes",
+          versions: Summary::Steps.versions(steps.map { Summary::Steps[it] }.select(&:enabled?)).to_json,
         },
       ],
     ).pluck(:date)
@@ -126,6 +142,28 @@ class Summary < ApplicationRecord
 
   def stale?(current_tolerance: CURRENT_TOLERANCE)
     !fresh?(current_tolerance:)
+  end
+
+  # Whether a step waits for the day: it did not run on it, or in an older
+  # version (see Summary::Steps)
+  def step_pending?(step)
+    step.enabled? && steps.fetch(step::KEY.to_s, 0) < step::VERSION
+  end
+
+  # Whether a step with something to do waits for the day
+  def steps_pending? = Summary::Steps.enabled.any? { step_pending?(it) }
+
+  # The next build runs the step on the given days again
+  def self.reset_step(key, days)
+    where(date: days).update_all(['steps = steps - ?', key.to_s]) # rubocop:disable Rails/SkipsModelValidations
+  end
+
+  # The days on which the step with the key never ran
+  scope :without_step, ->(key) { where('steps->>? IS NULL', key.to_s) }
+
+  # Marks the step as run on the given days, in its current version
+  def self.mark_step(step, days)
+    where(date: days).update_all(['steps = steps || ?::jsonb', { step::KEY.to_s => step::VERSION }.to_json]) # rubocop:disable Rails/SkipsModelValidations
   end
 
   def self.threshold_date
