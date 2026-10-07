@@ -10,4 +10,8 @@ class Sensor::Definitions::WallboxCosts < Sensor::Definitions::Base
   end
 
   aggregations stored: false, computed: [:sum], meta: [:sum]
+
+  chart { |timeframe| Sensor::Chart::WallboxCosts.new(timeframe:) }
+
+  requires_permission :car
 end

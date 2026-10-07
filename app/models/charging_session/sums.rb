@@ -43,6 +43,10 @@ class ChargingSession::Sums
   # day without a price.
   def costed? = uncosted.zero?
 
+  # Whether a session has a cost. Without a price for each of their days,
+  # the sessions have none, and their sum of 0 is no cost.
+  def cost? = uncosted < count
+
   # Whether each wallbox session has a grid share
   def split? = unsplit.zero?
 

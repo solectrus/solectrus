@@ -77,7 +77,8 @@ class Sensor::Chart::StackedCostBase < Sensor::Chart::FinanceBase
   end
 
   # Sensor::Chart::Base emits one dataset per chart sensor, in order. Only
-  # the items of the chart sensors become a segment.
+  # the items of the chart sensors become a segment, and the tooltip adds up
+  # the grid and the PV share.
   def datasets(chart_data_items)
     cost_items =
       chart_data_items.select do |item|
@@ -88,6 +89,7 @@ class Sensor::Chart::StackedCostBase < Sensor::Chart::FinanceBase
       dataset.merge(
         label: I18n.t(label_keys[cost_items[index][:sensor_name]]),
         stack: stack_id,
+        summed: true,
         noGradient: true,
       )
     end

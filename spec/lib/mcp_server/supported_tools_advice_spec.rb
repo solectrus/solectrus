@@ -79,6 +79,8 @@ describe McpServer::SupportedTools do
     expect(unanswerable.map(&:name)).to contain_exactly(
       :power_balance,
       :heatpump_cop_scatter,
+      :car_charging,
+      :car_charging_costs,
     )
 
     unanswerable.each do |sensor|

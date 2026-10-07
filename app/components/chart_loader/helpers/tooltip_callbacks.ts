@@ -20,8 +20,6 @@ type TooltipFlags = {
   isTotalConsumptionStack: boolean;
 };
 
-const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
-
 type TooltipHelpers = {
   locale: string;
   formattedNumber: (value: number, range?: Range) => string;
@@ -75,11 +73,12 @@ export const buildTooltipCallbacks = (
       if (sum) return { rows, sum };
     }
 
-    const costs = points.filter(
-      (item) => item.dataset.stack === HEATPUMP_COSTS_STACK,
+    // The parts of a stack that adds up to a total, by source or by car
+    const parts = points.filter(
+      (item) => (item.dataset as DatasetWithId).summed,
     );
-    if (costs.length > 1) {
-      const rows = costs.filter((item) => typeof item.parsed.y === 'number');
+    if (parts.length > 1) {
+      const rows = parts.filter((item) => typeof item.parsed.y === 'number');
       const sum = sumOf(rows);
       if (sum) return { rows, sum };
     }

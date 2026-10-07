@@ -13,6 +13,22 @@ describe Sensor::Cars do
     expect(Sensor::Registry[:car_battery_soc_1].category).to eq(:car)
   end
 
+  describe '.dependency' do
+    after { Sensor::Config.setup(ENV) }
+
+    it 'takes the sensors of the first car that has each role' do
+      Sensor::Config.setup(
+        ENV.to_h.merge('INFLUX_SENSOR_CAR_RANGE_2' => 'car2:range', 'INFLUX_SENSOR_CAR_BATTERY_SOC_2' => 'car2:soc'),
+      )
+
+      expect(described_class.dependency(:car_range, :car_battery_soc)).to eq(%i[car_range_2 car_battery_soc_2])
+    end
+
+    it 'takes car 1 without such a car' do
+      expect(described_class.dependency(:car_range)).to eq([:car_range_1])
+    end
+  end
+
   describe '.configured_numbers' do
     after { Sensor::Config.setup(ENV) }
 

@@ -25,6 +25,15 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   attr_reader :timeframe, :variant
   attr_accessor :interval
 
+  # Whether the chart can draw this timeframe. Most charts draw every
+  # timeframe. A page neither offers nor accepts a chart for a timeframe it
+  # cannot draw.
+  def self.supports?(_timeframe) = true
+
+  def supported?
+    self.class.supports?(timeframe)
+  end
+
   def type
     timeframe.short? ? 'line' : 'bar'
   end
@@ -34,8 +43,9 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     chart_sensors.first&.display_name
   end
 
+  # A chart that cannot draw the timeframe has no data
   def data
-    @data ||= build_data
+    @data ||= (build_data if supported?)
   end
 
   def blank?
@@ -47,6 +57,17 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
         Array(value).compact.present?
       end
     end
+  end
+
+  # Override in subclasses where an empty chart is a normal state, not a gap
+  # in the data. With an icon, the empty chart shows the icon crossed out as
+  # a watermark and keeps the message for screen readers and as a hover
+  # title.
+  def blank_message
+    I18n.t('data.blank')
+  end
+
+  def blank_icon
   end
 
   def permitted?
