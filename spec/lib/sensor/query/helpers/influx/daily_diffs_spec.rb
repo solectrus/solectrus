@@ -162,4 +162,32 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
       expect(Influx).not_to have_received(:query)
     end
   end
+
+  context 'with the cache' do
+    before do
+      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
+      allow(Influx).to receive(:query).and_call_original
+    end
+
+    def call_twice = Array.new(2) { described_class.new(dates, [:car_odometer_1], cache: true).call }
+
+    # The reading of March 12 follows the last date, so a later reading
+    # cannot change the diffs
+    it 'reads final points once' do
+      first, second = call_twice
+
+      expect(second).to eq(first)
+      expect(Influx).to have_received(:query).once
+    end
+
+    context 'without a reading after the last date' do
+      let(:dates) { [Date.new(2024, 3, 12)] }
+
+      it 'reads the points again, because a later reading changes the end' do
+        call_twice
+
+        expect(Influx).to have_received(:query).twice
+      end
+    end
+  end
 end

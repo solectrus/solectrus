@@ -4,6 +4,13 @@ describe Sensor::Cars do
     expect(Sensor::Registry.find(:car_odometer_6)).to be_nil
   end
 
+  # The car select of the car page selects the car, so its charts have no
+  # number
+  it 'makes a chart of each role without a number for the car page' do
+    expect(Sensor::Registry[:car_distance]).to be_chart_only
+    expect(Sensor::Registry[:car_odometer_1].home_pages).to be_empty
+  end
+
   it 'reads the number of a car sensor' do
     expect(described_class.number_of(:car_max_range_3)).to eq(3)
     expect(described_class.number_of(:wallbox_power)).to be_nil
