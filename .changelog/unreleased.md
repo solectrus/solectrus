@@ -31,5 +31,6 @@ Keep every section, an empty one included.
 - The live chart of the heat pump power now continues with the measured power. Before, it dropped to zero while the heat pump produced no heat
 - The charge level of the car battery now shows the same colors as the home battery and the autarky. Before, its green was too dark in dark mode (#5976)
 - The selection of the timeframe now opens also when the browser sends no referrer. Before, it failed with a server error
+- When you return to the browser tab, the stats and the chart now load again only once, and only for a period that can still change. Before, each return loaded them again, often twice
 
 ## Maintenance

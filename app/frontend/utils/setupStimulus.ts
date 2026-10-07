@@ -1,6 +1,9 @@
 import { Application } from '@hotwired/stimulus';
 import { registerControllers } from 'stimulus-vite-helpers';
-import type { TurboFrameMissingEvent } from '@hotwired/turbo';
+import type {
+  TurboBeforeFetchResponseEvent,
+  TurboFrameMissingEvent,
+} from '@hotwired/turbo';
 import * as Turbo from '@hotwired/turbo';
 
 // Start Stimulus application
@@ -99,6 +102,20 @@ const reloadStuckFrames = () => {
 };
 
 document.addEventListener('visibilitychange', reloadStuckFrames);
+
+// A frame that gets a stream (the stats and the charts) takes its content from
+// the stream, and Turbo never marks it `complete`. Mark it here, or each return
+// to the tab would reload it as stuck.
+document.addEventListener('turbo:before-fetch-response', (event) => {
+  const { fetchResponse } = (event as TurboBeforeFetchResponseEvent).detail;
+
+  if (
+    event.target instanceof Turbo.FrameElement &&
+    fetchResponse.succeeded &&
+    fetchResponse.contentType?.startsWith('text/vnd.turbo-stream.html')
+  )
+    event.target.setAttribute('complete', '');
+});
 
 // Turbo still has the frame marked busy at this point, so wait a moment - and
 // don't hammer a connection that is down. A burst of failures collapses into a

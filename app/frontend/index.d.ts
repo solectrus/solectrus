@@ -12,6 +12,10 @@ declare module '@hotwired/turbo' {
     response: Response;
   }>;
 
+  export type TurboBeforeFetchResponseEvent = CustomEvent<{
+    fetchResponse: { succeeded: boolean; contentType: string | null };
+  }>;
+
   interface StreamActionContext {
     hasAttribute(attributeName: string): boolean;
     templateContent: DocumentFragment;
