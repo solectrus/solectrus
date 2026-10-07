@@ -28,10 +28,10 @@ module McpServer
         # and how long ago that was.
         #
         # age_seconds accompanies a reported value too. "Fresh by construction"
-        # only means "within max_age", which is 15 minutes for most sensors and
-        # two hours for the sparse ones - wide enough that two live readings can
-        # describe states minutes apart, and a client comparing them has to know
-        # by how much. Deriving it from last_seen_at requires the client to know
+        # only means "within 15 minutes" (Sensor::Query::Latest::MAX_AGE), and a car sensor
+        # holds its state at any age - wide enough that two live readings can
+        # describe states minutes or days apart, and a client comparing them has
+        # to know by how much. Deriving it from last_seen_at requires the client to know
         # the server's clock, which is exactly what it does not have.
         def metadata(last_seen, now)
           { last_seen_at: last_seen&.iso8601, age_seconds: last_seen ? (now - last_seen).round : nil }

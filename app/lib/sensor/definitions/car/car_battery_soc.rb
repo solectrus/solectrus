@@ -1,9 +1,9 @@
 class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
   value unit: :percent, range: (0..100), category: :battery, nameable: true
 
-  # Car SOC is only updated while the car is connected/online, so gaps of
-  # multiple hours are normal and should not be treated as stale.
-  max_age 2.hours
+  # A car reports a change of its state, often only while it is online,
+  # so the value holds until the next reading
+  state
 
   color do |percent|
     # Battery color scheme: 0-4% red, 5-20% orange/yellow, 21-100% green

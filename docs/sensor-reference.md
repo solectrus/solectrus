@@ -191,15 +191,17 @@ value unit: :watt,              # Required: Unit type
 `#clamp_value`, so a declared bound holds without the block repeating it. A
 sensor with `unit: :percent` gets `(0..100)` even when it declares no range.
 
-### `max_age` - Staleness Limit
+### `state` - Value Holds Until the Next Reading
 
 ```ruby
-max_age 2.hours   # Default: Sensor::Definitions::Dsl::DEFAULT_MAX_AGE (15 minutes)
+state
 ```
 
-A "latest" reading older than `max_age` counts as stale. The current stats hide
-it. Override this for a sensor that reports rarely. `car_battery_soc` does,
-because a car only reports while it is awake.
+A "latest" reading older than 15 minutes (`Sensor::Query::Latest::MAX_AGE`)
+counts as stale, and the current stats hide it. A state never goes stale: its
+value holds until the next reading, at any age. A chart holds it between two
+readings. The car sensors are states, because a car reports only while it is
+awake, and some sources send only a change.
 
 ### `depends_on` - Dependencies
 
