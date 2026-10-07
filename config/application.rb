@@ -71,6 +71,8 @@ module Solectrus
         .presence
 
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
+    # Empty turns the geocoding off (see Place::Nominatim)
+    config.x.nominatim_url = ENV.fetch('NOMINATIM_URL', 'https://nominatim.openstreetmap.org').strip.presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
     config.x.rorvswild.api_key = ENV['RORVSWILD_API_KEY'].presence
     config.x.co2_emission_factor = ENV.fetch('CO2_EMISSION_FACTOR', 401).to_i # g / kWh

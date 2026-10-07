@@ -1,5 +1,8 @@
 # A place where a car stood (docs/cars.md). The user can give it a name of
-# its own, for example "Home", and labels (see LABELS).
+# its own, for example "Home", and labels (see LABELS). Its address comes
+# from Nominatim, but only when the user asks for the place, so each place
+# asks Nominatim once at most. The record keeps the full answer
+# (`geocoding`).
 # == Schema Information
 #
 # Table name: places
@@ -28,6 +31,16 @@ class Place < ApplicationRecord
   # Place::VisitDetection#limit).
   MIN_DURATION = 30.minutes
   public_constant :MIN_DURATION
+
+  # A failed request to Nominatim waits this long before the next one, from
+  # geocoded_at
+  RETRY_AFTER = 10.minutes
+  private_constant :RETRY_AFTER
+
+  # The town of a location without a place stays this long in the cache (see
+  # Place.name_at)
+  TOWN_TTL = 1.week
+  private_constant :TOWN_TTL
 
   # The labels that a place can have, each with its icon. A new label needs
   # no migration. `home` is the place of the wallbox (see
@@ -93,6 +106,67 @@ class Place < ApplicationRecord
     end
   end
 
+  # The name at a location without a request to Nominatim: the name of the
+  # nearest place, or else the town from the cache. Nil before the first
+  # answer of Nominatim (see Place.name_at).
+  def self.known_name_at(latitude, longitude)
+    place = near(latitude, longitude)
+    place ? place.display_name : Rails.cache.read(town_key(latitude, longitude))
+  end
+
+  # The name at a location, which asks Nominatim when necessary. A place
+  # keeps the answer (see #geocode!). A location without a place gets no new
+  # place, because a car on the road must not leave places behind (see
+  # Place.of). The cache keeps its town instead.
+  def self.name_at(latitude, longitude)
+    place = near(latitude, longitude)
+    return place.geocode!.display_name if place
+
+    Rails.cache.fetch(town_key(latitude, longitude), expires_in: TOWN_TTL, skip_nil: true) do
+      new(latitude:, longitude:, geocoding: Place::Nominatim.reverse(latitude, longitude)).town
+    end
+  end
+
+  # Two decimals are about one kilometer, so a car on the road asks Nominatim
+  # far less often than the live view refreshes. A town is larger, so its name
+  # stays correct except near its border. Nominatim answers in the locale.
+  def self.town_key(latitude, longitude) = ['place-town', I18n.locale, latitude.round(2), longitude.round(2)]
+  private_class_method :town_key
+
+  # The name of the user, or the locality
+  def display_name = name || locality
+
+  # The town of the address, or nil before an answer of Nominatim
+  def town
+    address_parts.values_at('city', 'town', 'village', 'municipality').compact.first
+  end
+
+  # The part of the town, for example the suburb of a city or the village of
+  # a small town, or nil. A village without a town is the town itself.
+  def district
+    district = address_parts.values_at('suburb', 'village', 'quarter', 'city_district').compact.first
+    district unless district == town
+  end
+
+  # The district and the town: "Braunsfeld, Cologne". A district that names the
+  # town stands alone, for example "Bonn-Zentrum".
+  def locality
+    return town unless district && town
+
+    district.include?(town) ? district : "#{district}, #{town}"
+  end
+
+  # The street and the town: "Main Street 15, 12345 Town"
+  def address
+    parts = address_parts
+    street = parts.values_at('road', 'house_number').compact.join(' ').presence
+    locality = [parts['postcode'], town].compact.join(' ').presence
+
+    [street, locality].compact.join(', ').presence
+  end
+
+  def geocoded? = geocoding.present?
+
   def distance_to(other_latitude, other_longitude)
     Geo.distance(latitude, longitude, other_latitude, other_longitude)
   end
@@ -100,7 +174,18 @@ class Place < ApplicationRecord
   # Whether the position is within RADIUS of the place
   def covers?(other_latitude, other_longitude) = distance_to(other_latitude, other_longitude) <= RADIUS
 
+  # Asks Nominatim for the address once. The answer stays in the record.
+  def geocode!
+    return self unless Place::Nominatim.enabled?
+    return self if geocoded? || geocoded_at&.after?(RETRY_AFTER.ago)
+
+    update!(geocoding: Place::Nominatim.reverse(latitude, longitude), geocoded_at: Time.current)
+    self
+  end
+
   private
+
+  def address_parts = geocoding&.dig('address') || {}
 
   def release_home
     Place.labeled('home').where.not(id:).update_all(['labels = array_remove(labels, ?)', 'home']) # rubocop:disable Rails/SkipsModelValidations
