@@ -143,6 +143,13 @@ module Sensor
           meta_data[:home_pages] = block || keys
         end
 
+        # A sensor with personal data, like the location of a car. Only the
+        # admin sees it: a guest gets no chart and no value of it, and the
+        # MCP server does not offer it.
+        def personal
+          meta_data[:personal] = true
+        end
+
         def requires_permission(permission)
           meta_data[:permitted] = lambda do |*|
             ApplicationPolicy.instance.feature_enabled?(permission)

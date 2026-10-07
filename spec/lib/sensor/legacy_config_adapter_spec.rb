@@ -408,7 +408,7 @@ describe Sensor::LegacyConfigAdapter do
     end
 
     context 'with the other car variables without a number' do
-      let(:roles) { %w[ODOMETER RANGE CONNECTED] }
+      let(:roles) { %w[ODOMETER RANGE CONNECTED LATITUDE LONGITUDE] }
       let(:env) do
         roles.to_h { ["INFLUX_SENSOR_CAR_#{it}", "car:#{it.downcase}"] }.merge('INFLUX_SENSOR_GRID_IMPORT_POWER' => 'pv:grid')
       end

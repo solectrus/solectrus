@@ -195,7 +195,7 @@ module McpServer
 
         # Resolve client-supplied sensor names to the corresponding Sensor
         # definitions, validated against the sensors actually configured and
-        # permitted on this instance (Sensor::Config.sensors). Names outside
+        # permitted on this instance (McpServer::Sensors). Names outside
         # that set - unknown, unconfigured, or not permitted by policy - never
         # yield data, so a tool cannot leak sensors that list_sensors never
         # advertised.
@@ -215,7 +215,7 @@ module McpServer
         # or `sensor`, and its schema can only mark both optional, so the error
         # is the one place a client learns that one of them is required.
         def resolve_sensors(names, allow_blank: false, max: nil, blank_message: nil)
-          available = Sensor::Config.sensors
+          available = McpServer::Sensors.all
 
           if names.blank?
             return [available, []] if allow_blank

@@ -10,7 +10,16 @@ module ParamsHandling
   private_constant :ALLOWED_INTERVALS
 
   included do
+    before_action :forbid_personal_sensor
+
     private
+
+    # Only the admin sees a personal sensor (see the `personal` DSL)
+    def forbid_personal_sensor
+      return unless sensor_name && Sensor::Registry.find(sensor_name)&.personal?
+
+      admin? || raise(ForbiddenError)
+    end
 
     helper_method def permitted_params
       @permitted_params ||=

@@ -70,6 +70,8 @@ de:
       car_range: Reichweite
       car_max_range: Max. Reichweite
       car_connected: Angeschlossen
+      car_latitude: Breitengrad
+      car_longitude: Längengrad
     car_sensor:
       named: '%{car} (%{role})'
       unnamed: 'Auto %{number}: %{role}'
@@ -467,6 +469,8 @@ de:
     car_max_range: 'Geschätzte Reichweite, hochgerechnet auf eine voll geladene Batterie (100%).'
     car_odometer: 'Kilometerstand des E-Autos. Ein aktueller Wert oder eine Kurve ist der Stand, eine Summe über einen Zeitraum die gefahrene Strecke.'
     car_connected: 'Ob das E-Auto aktuell an einer Wallbox angeschlossen ist.'
+    car_latitude: 'Breitengrad des aktuellen Standorts des E-Autos.'
+    car_longitude: 'Längengrad des aktuellen Standorts des E-Autos.'
     outdoor_temp: 'Außenlufttemperatur.'
     outdoor_temp_forecast: 'Prognostizierte Außentemperatur.'
     co2_reduction: 'Vermiedene CO₂-Emissionen durch die eigene PV-Erzeugung.'

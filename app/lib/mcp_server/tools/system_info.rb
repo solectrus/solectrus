@@ -78,7 +78,7 @@ module McpServer
       # An empty live window, and only that, is therefore worth the scan back
       # to the installation date. A delivering instance never reaches it.
       def self.last_delivery
-        live = Sensor::Config.sensors.select { McpServer::SupportedTools.supports?(it, :current) }
+        live = McpServer::Sensors.all.select { McpServer::SupportedTools.supports?(it, :current) }
         return if live.empty?
 
         names = live.map(&:name)
