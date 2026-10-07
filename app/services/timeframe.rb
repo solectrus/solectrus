@@ -340,6 +340,11 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     [ending.to_date, max_date].compact.min
   end
 
+  # The dates from the effective beginning to the effective ending
+  def effective_dates
+    effective_beginning_date..effective_ending_date
+  end
+
   # Whether the period starting on `date` stands on fewer days than the period
   # has. Two ways that happens. Either this timeframe cuts one of its edges --
   # measured against the dates the data really covers, not the nominal ones.

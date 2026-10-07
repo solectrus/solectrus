@@ -11,7 +11,7 @@ module ChargingSession::Repricing
       cost = ChargingSession::Cost.new
       rows =
         wallbox
-          .where(started_at: dates.begin.beginning_of_day..dates.end&.end_of_day)
+          .on_dates(dates)
           .pluck(:id, :origin, :started_at, :ended_at, :kwh, :kwh_grid)
           .map do |id, origin, started_at, ended_at, kwh, kwh_grid|
             session_cost, cost_grid = cost.call(started_at.in_time_zone.to_date, kwh.to_f, kwh_grid&.to_f)

@@ -216,4 +216,38 @@ describe ChargingSession do
       expect(described_class.wallbox.new(kwh: 3).pv_percent).to be_nil
     end
   end
+
+  describe '.daily_sums' do
+    def wallbox(start, kwh:, kwh_grid: nil, cost: nil, cost_grid: nil)
+      described_class.create!(kind: :wallbox, origin: :detection, car:, started_at: start, ended_at: start + 1.hour, kwh:, kwh_grid:, cost:, cost_grid:)
+    end
+
+    before do
+      wallbox(Time.zone.local(2026, 1, 15, 12), kwh: 10, kwh_grid: 2, cost: 1.4, cost_grid: 0.6)
+      wallbox(Time.zone.local(2026, 1, 15, 18), kwh: 3)
+      described_class.create!(kind: :offsite, origin: :user, car:, started_at: Time.zone.local(2026, 1, 15, 20), kwh: 5, cost: 3)
+    end
+
+    it 'sums the sessions of each car, guest mark, day and kind' do
+      day = Date.new(2026, 1, 15)
+
+      expect(described_class.daily_sums).to eq(
+        [car.id, false, day, 'wallbox'] =>
+          ChargingSession::Sums.new(count: 2, kwh: 13.0, kwh_grid: 2.0, cost: 1.4, cost_grid: 0.6, uncosted: 1, unsplit: 1),
+        [car.id, false, day, 'offsite'] =>
+          ChargingSession::Sums.new(count: 1, kwh: 5.0, kwh_grid: 0.0, cost: 3.0, cost_grid: 0.0, uncosted: 0, unsplit: 0),
+      )
+    end
+
+    # In UTC, this start is on the day before its local date
+    it 'groups by the local date of the start, like #date' do
+      session = wallbox(Time.zone.local(2026, 1, 16, 0, 30), kwh: 1)
+
+      expect(session.started_at.utc.to_date).to eq(Date.new(2026, 1, 15))
+      expect(described_class.wallbox.daily_sums.transform_keys { it[2] }.transform_values(&:kwh)).to eq(
+        Date.new(2026, 1, 15) => 13.0,
+        session.date => 1.0,
+      )
+    end
+  end
 end

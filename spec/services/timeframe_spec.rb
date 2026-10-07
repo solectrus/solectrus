@@ -95,6 +95,14 @@ describe Timeframe do
     end
   end
 
+  describe '#effective_dates' do
+    let(:string) { 'all' }
+
+    it 'reaches from the min date to today' do
+      expect(decoder.effective_dates).to eq(Date.new(2019, 5, 2)..today)
+    end
+  end
+
   context 'when string is "now"' do
     let(:string) { 'now' }
 
