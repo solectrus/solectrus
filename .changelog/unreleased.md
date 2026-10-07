@@ -35,5 +35,6 @@ Keep every section, an empty one included.
 - A round badge at 0 %, for example an empty battery, now shows an empty ring. Before, a dot stayed at its top
 - The selection of the timeframe now opens also when the browser sends no referrer. Before, it failed with a server error
 - When you return to the browser tab, the stats and the chart now load again only once, and only for a period that can still change. Before, each return loaded them again, often twice
+- A sensor that tells whether a car is connected now shows "No" for a text like "False" or "OFF" and for a negative number, which some collectors send for an error. Before, the live view showed such a value as connected
 
 ## Maintenance

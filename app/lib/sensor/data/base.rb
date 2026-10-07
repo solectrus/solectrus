@@ -42,20 +42,11 @@ class Sensor::Data::Base
     publish_sensor(sensor_name)
   end
 
+  # The unit of the sensor parses the raw value (see Sensor::Units)
   def convert_value(raw_value, sensor_name)
     return if raw_value.nil?
 
-    sensor = Sensor::Registry[sensor_name]
-    case sensor.unit
-    when :watt, :celsius, :unitless, :percent, :gram, :money, :money_per_kwh
-      to_float(raw_value)
-    when :boolean
-      to_boolean(raw_value)
-    when :string
-      to_string(raw_value)
-    else
-      raise ArgumentError, "Unknown unit type: #{sensor.unit}"
-    end
+    Sensor::Units[Sensor::Registry[sensor_name].unit].parse(raw_value)
   end
 
   private
@@ -88,26 +79,5 @@ class Sensor::Data::Base
     return if timeframe.is_a?(Timeframe)
 
     raise ArgumentError, "timeframe must be a Timeframe, got #{timeframe.class}"
-  end
-
-  def to_boolean(raw_value)
-    case raw_value
-    when TrueClass, FalseClass
-      raw_value
-    when 1, '1', 'true', 'on', 'yes'
-      true
-    when 0, '0', 'false', 'off', 'no', ''
-      false
-    else
-      !raw_value.nil?
-    end
-  end
-
-  def to_float(raw_value)
-    raw_value.to_f
-  end
-
-  def to_string(raw_value)
-    raw_value.to_s
   end
 end
