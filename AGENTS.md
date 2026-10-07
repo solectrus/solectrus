@@ -15,6 +15,7 @@ problem outside it, name it in one sentence and leave that code alone.
 - `docs/sensor-reference.md` — sensor DSL and technical details
 - `docs/sensor-sql-queries.md` — SQL query patterns for daily+ timeframes
 - `docs/MCP.md` — the built-in MCP server and the tools it exposes
+- `docs/cars.md` — car support: numbered cars, charging sessions, rates and costs
 
 Keep a document here to its substance: no filler sections, no repeated
 summaries.
