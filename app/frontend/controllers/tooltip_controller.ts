@@ -605,6 +605,14 @@ export default class TooltipController extends Controller {
     return window.matchMedia('(hover: hover)').matches;
   }
 
+  // Whether a tooltip stands on an element in the container. A reload of the
+  // container replaces the element under the pointer, which then shows no
+  // tooltip until the pointer enters it again, so a reload waits for it.
+  static isShownWithin(container: Element): boolean {
+    const active = TooltipController.activeTooltip;
+    return active !== null && container.contains(active.element);
+  }
+
   private static setActiveTooltip(controller: TooltipController): void {
     if (
       TooltipController.activeTooltip &&

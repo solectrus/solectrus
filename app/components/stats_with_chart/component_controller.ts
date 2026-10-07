@@ -2,6 +2,7 @@ import { Controller, type ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
 import { IntervalTimer } from '@/utils/intervalTimer';
+import TooltipController from '@/controllers/tooltip_controller';
 
 type LineDatasetWithId = ChartDataset<'line'> & {
   id: string;
@@ -123,6 +124,9 @@ export default class extends Controller {
   private createTimer() {
     this.timer = new IntervalTimer(() => {
       if (this.shouldStopRequests) return;
+      // A reload would take the tooltip away from under the pointer, so the
+      // next tick reloads instead
+      if (TooltipController.isShownWithin(this.statsTarget)) return;
 
       this.reload();
     }, this.intervalValue * 1000);
