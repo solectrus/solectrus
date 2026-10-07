@@ -110,7 +110,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   end
 
   # One point per configured raw sensor, timestamped just before `now` so it is
-  # inside every sensor's max_age and get_current_values reports a live value.
+  # inside 15 minutes and get_current_values reports a live value.
   def seed_live_values
     influx_batch do
       Sensor::Config.sensors.reject(&:calculated?).each_with_index do |sensor, index|

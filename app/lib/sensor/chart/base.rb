@@ -1,12 +1,16 @@
 class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # Floor for #gap_bridge_limit and the client-side Chart.js spanGaps. The
-  # actual server-side bridging widens automatically for sparse sensors
+  # actual server-side bridging widens automatically for slow sensors
   # (#effective_gap_bridge_limit), so this floor only sets how long a gap
   # in a *dense* sensor may be before it stays a visible break. 5 minutes
   # covers a single missed bucket at the typical 5-min cadence (and any
   # cadence-jitter for faster sensors) without hiding real outages.
   SPAN_GAPS_MS = 5.minutes.in_milliseconds
   private_constant :SPAN_GAPS_MS
+
+  # The bridge limit of a state: longer than any window (see #holds_value?)
+  HOLD_MS = 400.days.in_milliseconds
+  private_constant :HOLD_MS
 
   def initialize(timeframe:, variant: nil)
     unless timeframe.is_a?(Timeframe)
@@ -183,9 +187,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     return unless master
 
     align_to_master_grid!(master[:labels], items)
-    labels = drop_leading_lookback(master[:labels], items)
 
-    { labels:, datasets: datasets(items), overlapping: overlapping_datasets? }.compact
+    { labels: master[:labels], datasets: datasets(items), overlapping: overlapping_datasets? }.compact
   end
 
   # Whether the fills cover each other, which decides how opaque they have to
@@ -194,21 +197,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # answer false: stacked areas tile instead of covering each other, however
   # many there are, so they can keep the translucent look of a single series.
   def overlapping_datasets?
-  end
-
-  # Forward-fill seeding (#series_lookback) fetches buckets before the window
-  # start; they exist only to carry a value into the leading edge and are
-  # clipped from view. Drop them once the fill has run, so the payload holds
-  # exactly the requested window instead of the extended range.
-  def drop_leading_lookback(labels, items)
-    return labels unless series_lookback.positive? && labels.present?
-
-    cutoff = labels.first + series_lookback.in_milliseconds
-    drop = labels.index { |label| label >= cutoff } || 0
-    return labels if drop.zero?
-
-    items.each { |item| item[:data] = item[:data].drop(drop) }
-    labels.drop(drop)
   end
 
   def series
@@ -281,6 +269,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     past_values = values.take(cut)
     future_values = values.drop(cut)
 
+    past_values = seed_leading_edge(past_values, sensor_name) if holds_value?
+
     if bridge_gaps?(sensor_name)
       limit = effective_gap_bridge_limit(past_labels, past_values)
       past_values = bridge_short_gaps(past_labels, past_values, limit)
@@ -303,18 +293,35 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # trailing one has no right-hand anchor, so it may equally well mean the
   # measured thing stopped. Only override this where a trailing gap cannot
   # mean that -- a continuously measured quantity, never an idle phase.
-  # Sparse sensors are the built-in case: on the live view their newest
-  # sample can sit a few minutes before the window edge, leaving a visible
-  # gap between it and the point the live updater appends at "now".
+  # A state is the built-in case: it holds after its last reading up to now
+  # or to the end of the window (see #holds_value?).
   #
   # Only consulted where #bridge_gaps? holds (see #process_gaps): a sensor
   # whose nil means "no power" keeps its hard 0-fill either way.
   def fill_trailing_edge?
-    sparse? && timeframe.now?
+    holds_value?
+  end
+
+  # A state holds from its last reading before the window, so the leading
+  # empty buckets get this value (see #seed_values)
+  def seed_leading_edge(values, sensor_name)
+    first = values.index { !it.nil? } || values.size
+    return values if first.zero?
+
+    seed = seed_values[sensor_name]
+    return values if seed.nil?
+
+    values.dup.fill(seed, 0...first)
+  end
+
+  # { sensor_name => value } of the last reading before the window, at any
+  # age. The result of a past window cannot change, so it stays cached.
+  def seed_values
+    @seed_values ||= Sensor::Query::LastSeen.new(chart_sensor_names, before: series_timeframe.beginning).readings
   end
 
   # Carry the last value forward to the window edge, so a trailing null run
-  # doesn't render as a gap (sparse sensors) or as a drop to zero (charts
+  # doesn't render as a gap (a state) or as a drop to zero (charts
   # with #fill_gaps_with_zero?). Capped at the same cadence-adaptive limit
   # #bridge_short_gaps applies to interior gaps, so a collector that fell
   # silent long ago still ends in a gap rather than a value dragged to "now";
@@ -403,8 +410,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     span = (labels[stop] - labels[last]).to_f
     return if span > limit
 
-    if sparse?
-      # Persistent quantity: hold the last value as a flat step until the next
+    if holds_value?
+      # A state: hold the last value as a flat step until the next
       # sample, rather than ramping linearly between sparse readings.
       values.fill(values[last], start...stop)
     else
@@ -456,9 +463,9 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       noGradient: type == 'bar' || sensor.hatch_fill?,
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
-      # Sparse sensors carry their last value forward, so render crisp steps
-      # (vertical transitions), matching how a persistent quantity changes.
-      stepped: (true if sparse?),
+      # A state carries its last value forward, so render crisp steps
+      # (vertical transitions), matching how a state changes.
+      stepped: (true if holds_value?),
     }.compact
   end
 
@@ -817,11 +824,12 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   # Build InfluxDB-based series data
   def build_influx_series
-    Sensor::Query::Series.new(
-      chart_sensor_names,
-      timeframe.now? ? Timeframe.new('P1H') : timeframe,
-      interval:,
-    ).call(interpolate: interpolate?, lookback: series_lookback)
+    Sensor::Query::Series.new(chart_sensor_names, series_timeframe, interval:).call(interpolate: interpolate?)
+  end
+
+  # The live view reads the last hour
+  def series_timeframe
+    timeframe.now? ? Timeframe.new('P1H') : timeframe
   end
 
   # Override this in subclasses to enable interpolation
@@ -829,27 +837,17 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     false
   end
 
-  # A sensor counts as sparse/persistent when it deliberately raises its
-  # max_age above the default: its readings then arrive far apart (15+ min,
-  # often hours) while the measured quantity persists between them (battery
-  # SOC, fill levels, meter readings). Such sensors get leading-edge seeding,
-  # gap bridging up to max_age, flat-step holds and stepped rendering, so a
-  # value that legitimately persists between rare samples doesn't read as a
-  # gap. Dense sensors (the default) are unaffected.
-  def sparse?
-    return @sparse unless @sparse.nil?
+  # A state holds its value between two readings, at any age (see the DSL
+  # `state`), like the state of charge of a car that reports only a change.
+  # Such a sensor gets the last reading before the window as its start
+  # (#seed_leading_edge), gap bridging without a limit, a flat-step hold up
+  # to the window edge and stepped rendering, so a value that persists
+  # between rare readings doesn't read as a gap. Other sensors are
+  # unaffected.
+  def holds_value?
+    return @holds_value unless @holds_value.nil?
 
-    @sparse =
-      chart_sensors.first&.max_age.to_i >
-      Sensor::Definitions::Dsl::DEFAULT_MAX_AGE.to_i
-  end
-
-  # Extra history (a duration) fetched before the window start: a sparse
-  # sensor looks back one max_age so #bridge_short_gaps can connect its last
-  # pre-window sample to the first in-window one, filling the leading edge
-  # instead of opening with a gap.
-  def series_lookback
-    sparse? ? chart_sensors.first.max_age : 0
+    @holds_value = chart_sensors.first&.state? || false
   end
 
   # Override in subclasses whose sensors read 0 W while idle. Every nil left
@@ -867,11 +865,10 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # cadence-jitter scale for the live "now" view) or to disable bridging
   # entirely by returning 0.
   #
-  # A sparse sensor bridges up to its max_age, but no further: a real outage
-  # beyond it (e.g. a stopped collector) stays a visible break -- consistent
-  # with how Latest drops stale current values.
+  # A state bridges each gap of the window, because its value holds until the
+  # next reading.
   def gap_bridge_limit
-    sparse? ? chart_sensors.first.max_age.in_milliseconds : SPAN_GAPS_MS
+    holds_value? ? HOLD_MS : SPAN_GAPS_MS
   end
 
   # Chart.js spanGaps value for a specific dataset, mirroring the server-side

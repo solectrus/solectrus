@@ -136,46 +136,6 @@ describe Sensor::Query::Series do
     end
   end
 
-  describe '#call with lookback' do
-    subject(:series_query) { described_class.new([:house_power], timeframe) }
-
-    let(:timeframe) { Timeframe.new('P1H') }
-
-    before do
-      freeze_time
-
-      influx_batch do
-        # One sample before the 1h window, one inside it.
-        add_influx_point(
-          name: Sensor::Config.measurement(:house_power),
-          fields: {
-            Sensor::Config.field(:house_power) => 2000.0,
-          },
-          time: 80.minutes.ago,
-        )
-
-        add_influx_point(
-          name: Sensor::Config.measurement(:house_power),
-          fields: {
-            Sensor::Config.field(:house_power) => 2200.0,
-          },
-          time: 20.minutes.ago,
-        )
-      end
-    end
-
-    it 'excludes pre-window samples by default' do
-      values = series_query.call.house_power(:avg, :avg).values.compact
-      expect(values).to contain_exactly(2200.0)
-    end
-
-    it 'extends the range backwards to include a pre-window sample' do
-      values =
-        series_query.call(lookback: 1.hour).house_power(:avg, :avg).values.compact
-      expect(values).to include(2000.0, 2200.0)
-    end
-  end
-
   describe '#call with a non-default aggregation' do
     let(:base_day) { Date.current + 1.day }
     let(:timeframe) { Timeframe.new(base_day.to_s) }

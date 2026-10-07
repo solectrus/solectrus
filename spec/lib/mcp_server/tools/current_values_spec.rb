@@ -223,8 +223,8 @@ describe McpServer::Tools::CurrentValues do
         )
       end
 
-      # "Live" only means "within max_age" - 15 minutes for most sensors, two
-      # hours for the sparse ones - so two reported values can describe states
+      # "Live" only means "within 15 minutes", and a car sensor holds its state
+      # at any age, so two reported values can describe states
       # minutes apart. Without an age on a non-null value a client cannot tell,
       # and cannot derive it either: it does not know the server's clock.
       it 'reports the timestamp AND the age of a recent reading' do

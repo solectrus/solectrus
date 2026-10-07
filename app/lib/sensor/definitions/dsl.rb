@@ -9,12 +9,6 @@ module Sensor
       COLOR_DSL = Hash.new { |hash, key| hash[key] = Sensor::Definitions::Colors.new(META_DATA[key]) }
       private_constant :COLOR_DSL
 
-      # Default max age of a "latest" reading. Sensors with naturally sparse
-      # updates raise this; charts treat a sensor whose max_age exceeds the
-      # default as sparse/persistent (see Sensor::Chart::Base#sparse?).
-      DEFAULT_MAX_AGE = 15.minutes
-      public_constant :DEFAULT_MAX_AGE
-
       class_methods do # rubocop:disable Metrics/BlockLength
         def meta_data
           META_DATA[self]
@@ -54,15 +48,17 @@ module Sensor
           end
         end
 
-        # Maximum age a "latest" reading may have before it is treated as stale
-        # and hidden from the "current" stats. Defaults to 15 minutes; sensors
-        # with naturally sparse updates (e.g. car SOC) should override.
-        def max_age(value = nil)
-          if value.nil?
-            inherited_meta_data(:max_age) || DEFAULT_MAX_AGE
-          else
-            meta_data[:max_age] = value
-          end
+        # +state+ marks a sensor whose value holds until its next reading, at
+        # any age, like the state of charge of a car. Some sources send only
+        # a change, for example TeslaMate. So the latest value of a state
+        # never goes stale (see Sensor::Query::Latest::MAX_AGE), and a chart
+        # holds it between two readings.
+        def state
+          meta_data[:state] = true
+        end
+
+        def state?
+          inherited_meta_data(:state) || false
         end
 
         def color(background: nil, text: nil, border: nil, hatch_fill: nil, &)

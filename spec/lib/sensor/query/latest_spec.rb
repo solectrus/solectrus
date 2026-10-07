@@ -120,7 +120,7 @@ describe Sensor::Query::Latest do
       end
     end
 
-    context 'with stale data (older than max_age)' do
+    context 'with stale data (older than MAX_AGE)' do
       before do
         influx_batch do
           add_influx_point(
@@ -133,7 +133,7 @@ describe Sensor::Query::Latest do
         end
       end
 
-      it 'hides values older than the default max_age (15 minutes)' do
+      it 'hides values older than 15 minutes' do
         result = described_class.new(:heatpump_power).call
 
         expect(result.heatpump_power).to be_nil
@@ -148,7 +148,7 @@ describe Sensor::Query::Latest do
       end
     end
 
-    context 'with car_battery_soc (longer max_age)' do
+    context 'with car_battery_soc, which is a state' do
       before do
         influx_batch do
           add_influx_point(
@@ -162,7 +162,7 @@ describe Sensor::Query::Latest do
         stub_feature(:car)
       end
 
-      it 'keeps values within the 2 hour tolerance' do
+      it 'keeps an older value' do
         result = described_class.new(:car_battery_soc).call
         expect(result.car_battery_soc).to eq(60.0)
       end
