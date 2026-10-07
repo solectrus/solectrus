@@ -7,6 +7,8 @@
 #   these days again (see ChargingSession::Detection).
 # - A daily value of the car outside the new period goes (see
 #   Sensor::Summarizer).
+# - A visit of the car at a place outside the new period goes, and the next
+#   build finds the visits of these days again (see Place::VisitDetection).
 # - A day that the period gains has no value of the car, so its summary goes
 #   and the next build makes it again.
 class Car::PeriodChange
@@ -26,7 +28,9 @@ class Car::PeriodChange
 
     SummaryValue.where(field: sensor_names).where.not(date: car.active_from..car.active_until).delete_all
     Summary.where(date: gained_days(days)).delete_all
+    car.place_visits.where.not(date: car.active_from..car.active_until).delete_all
     Summary.reset_step(ChargingSession::Detection::KEY, days)
+    Summary.reset_step(Place::VisitDetection::KEY, days)
   end
 
   private

@@ -3,7 +3,18 @@ describe Summary::Steps do
     it 'gives the version of each step' do
       expect(described_class.versions).to eq(
         'charging_sessions' => ChargingSession::Detection::VERSION,
+        'place_visits' => Place::VisitDetection::VERSION,
       )
+    end
+
+    it 'gives the version of the given steps' do
+      expect(described_class.versions([Place::VisitDetection])).to eq('place_visits' => Place::VisitDetection::VERSION)
+    end
+  end
+
+  describe '.derived' do
+    it 'names the visits, but not the charging sessions with the changes of the user' do
+      expect(described_class.derived).to eq([PlaceVisit])
     end
   end
 

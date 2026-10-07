@@ -45,6 +45,11 @@ module Sensor::Cars
 
   def self.sensor_name(role, number) = :"#{role}_#{number}"
 
+  # Whether the car of the number has both coordinates, so it has places
+  def self.located?(number)
+    %i[car_latitude car_longitude].all? { Sensor::Config.exists?(sensor_name(it, number)) }
+  end
+
   # The number of a car sensor, or nil for any other sensor
   def self.number_of(sensor_name)
     sensor_name.to_s[NAME_PATTERN, 2]&.to_i

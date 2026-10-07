@@ -21,10 +21,19 @@ class Summary < ApplicationRecord
 
   # TRUNCATE creates new empty files instead of reading the old rows, so a
   # reset also works when a data page on disk is corrupted.
+  #
+  # The records of a step that come from the build alone go too (see
+  # Summary::Steps.derived). They have no foreign key to summaries, so each
+  # one gets a TRUNCATE of its own.
   def self.reset!
-    connection.execute(
-      "TRUNCATE #{SummaryValue.quoted_table_name}, #{quoted_table_name}",
-    )
+    transaction do
+      connection.execute(
+        "TRUNCATE #{SummaryValue.quoted_table_name}, #{quoted_table_name}",
+      )
+      Summary::Steps.derived.each do |model|
+        connection.execute("TRUNCATE #{model.quoted_table_name}")
+      end
+    end
     Rails.cache.clear
   end
 

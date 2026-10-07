@@ -332,5 +332,13 @@ describe Summary do
         1,
       ).to(0).and change(SummaryValue, :count).from(1).to(0)
     end
+
+    it 'deletes the visits at the places, but keeps the places' do
+      place = Place.create!(latitude: 50.92263, longitude: 6.40706, name: 'Home')
+      PlaceVisit.create!(date: Date.current, car: Car.configured.first, place:, started_at: Date.current.beginning_of_day, ended_at: Date.current.beginning_of_day + 60)
+
+      expect { described_class.reset! }.to change(PlaceVisit, :count).from(1).to(0)
+      expect(place.reload.name).to eq('Home')
+    end
   end
 end

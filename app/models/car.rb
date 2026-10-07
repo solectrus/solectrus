@@ -41,6 +41,7 @@ class Car < ApplicationRecord
   attribute :active_from, default: -> { Rails.configuration.x.installation_date }
 
   has_many :charging_sessions, dependent: :restrict_with_error
+  has_many :place_visits, dependent: :delete_all
 
   normalizes :name, :short_name, with: -> { it.strip.presence }
   normalizes :color, with: -> { it.strip.downcase.presence }
@@ -118,6 +119,10 @@ class Car < ApplicationRecord
 
   # The sensor of this car with the given role: car_odometer_2
   def sensor_name(role) = Sensor::Cars.sensor_name(role, id)
+
+  def sensor?(role) = Sensor::Config.exists?(sensor_name(role))
+
+  def located? = Sensor::Cars.located?(id)
 
   def active_on?(date)
     active_during?(date..date)
