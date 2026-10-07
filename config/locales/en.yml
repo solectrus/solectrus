@@ -70,6 +70,8 @@ en:
       car_range: Range
       car_max_range: Max. range
       car_connected: Connected
+      car_latitude: Latitude
+      car_longitude: Longitude
     car_sensor:
       named: '%{car} (%{role})'
       unnamed: 'Car %{number}: %{role}'
@@ -466,6 +468,8 @@ en:
     car_max_range: 'Estimated range extrapolated to a fully charged (100%) battery.'
     car_odometer: 'Odometer of the electric vehicle. A live value or a curve is the reading, a total over a period is the distance driven.'
     car_connected: 'Whether the electric vehicle is currently connected to a wallbox.'
+    car_latitude: 'Latitude of the current location of the electric vehicle.'
+    car_longitude: 'Longitude of the current location of the electric vehicle.'
     wallbox_car_connected: 'Whether an electric vehicle is currently connected to the wallbox.'
     outdoor_temp: 'Outdoor air temperature.'
     outdoor_temp_forecast: 'Forecasted outdoor air temperature.'

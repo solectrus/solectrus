@@ -375,6 +375,17 @@ requires_permission :car  # ApplicationPolicy.feature_enabled?(:car)
 permitted { ApplicationPolicy.custom_check? }
 ```
 
+### `personal` - Personal Data
+
+```ruby
+personal  # Only the admin sees the sensor
+```
+
+A personal sensor holds personal data, for example the location of a car. A guest gets no
+chart of it: a request with its name gets the status 403 (`ParamsHandling`). The MCP server
+does not offer it (`McpServer::Sensors`). A component that shows its value must ask
+`helpers.admin?` itself.
+
 ### `trend` - Trend Tracking
 
 ```ruby

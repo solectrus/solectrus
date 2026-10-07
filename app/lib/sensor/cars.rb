@@ -18,6 +18,8 @@ module Sensor::Cars
     car_odometer
     car_range
     car_connected
+    car_latitude
+    car_longitude
   ].freeze
   public_constant :CONFIGURABLE_ROLES
 

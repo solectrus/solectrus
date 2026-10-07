@@ -51,6 +51,7 @@ solid:
   - id-card
   - language
   - leaf
+  - location-dot
   - lock
   - message
   - pencil
