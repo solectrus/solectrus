@@ -77,7 +77,21 @@ class ChargingSession < ApplicationRecord
   # which skips this.
   before_destroy { throw(:abort) if wallbox? }
 
+  # The sessions that start on the given local dates, whose end can be open
+  scope :on_dates, ->(dates) { where(started_at: dates.begin.beginning_of_day..dates.end&.end_of_day) }
   scope :unassigned, -> { wallbox.where(car_id: nil, guest: false) }
+
+  # { [car id, guest, local date, kind] => Sums } of the sessions of the
+  # scope. The local date is the same day as #date. The rows grow with the
+  # days, not with the sessions.
+  def self.daily_sums
+    local_date = Arel.sql("(started_at AT TIME ZONE 'UTC' AT TIME ZONE #{connection.quote(Time.zone.tzinfo.name)})::date")
+    columns = [:car_id, :guest, local_date, :kind]
+
+    group(*columns).pluck(*columns, *ChargingSession::Sums.sql).to_h do |row|
+      [row.first(columns.size), ChargingSession::Sums.from_row(row.drop(columns.size))]
+    end
+  end
 
   # A session belongs to the local date of its start, so a charge at 23:30
   # stays on the day of the distance beside it.
