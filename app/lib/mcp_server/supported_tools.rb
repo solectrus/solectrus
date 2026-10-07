@@ -81,12 +81,17 @@ module McpServer
     # rejected for - which sent a client asking for power_balance to
     # get_totals, a tool that rejects it too.
     def rejection(sensor, tool)
-      case tool
-      when :series then series_rejection(sensor)
-      when :current then current_rejection(sensor)
-      when :totals, :periods then totals_rejection(sensor)
-      when :ranking then ranking_rejection(sensor)
-      end
+      reason =
+        case tool
+        when :series then series_rejection(sensor)
+        when :current then current_rejection(sensor)
+        when :totals, :periods then totals_rejection(sensor)
+        when :ranking then ranking_rejection(sensor)
+        end
+
+      # Other sensors can hold the data of a chart-only sensor, like the
+      # sensor of each car (see Sensor::Definitions::Base#data_sensors)
+      reason == :chart_only && sensor.data_sensors ? :data_sensors : reason
     end
 
     def series_rejection(sensor)

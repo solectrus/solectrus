@@ -146,6 +146,11 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.meta_data[:chart_only].present?
   end
 
+  # { sensor_name => label } of the sensors that hold the data of a
+  # chart-only sensor, so a client can ask them instead. Nil when no other
+  # sensor holds it (see Sensor::Definitions::CarRoleChart).
+  def data_sensors = nil
+
   # Whether the sensor records a value on the date. The daily build keeps no
   # value of another day (see Sensor::Summarizer).
   def recorded_on?(_date) = true

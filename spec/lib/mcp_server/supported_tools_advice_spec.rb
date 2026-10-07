@@ -81,14 +81,26 @@ describe McpServer::SupportedTools do
       :heatpump_cop_scatter,
       :car_charging,
       :car_charging_costs,
+      :car_battery_soc,
     )
 
-    unanswerable.each do |sensor|
+    unanswerable.reject { Sensor::Cars::ROLES.include?(it.name) }.each do |sensor|
       text = rejection_text(sensor, :current)
 
       expect(text).to include('No other tool answers for it')
       expect(tools_named_in(text, except: :current)).to be_empty
     end
+  end
+
+  # The chart of a car role reads the sensors of the selected cars, so the
+  # data of one car is in the sensor with its number
+  it 'sends a chart of a car role to the sensors of the cars' do
+    Car.create!(id: 1, name: 'Model Y')
+
+    text = rejection_text(Sensor::Registry[:car_battery_soc], :current)
+
+    expect(text).to include('car_battery_soc: ', 'Ask car_battery_soc_1 (Model Y) instead.')
+    expect(text).not_to include('No other tool answers for it')
   end
 
   it 'names the rejected sensor in every message' do

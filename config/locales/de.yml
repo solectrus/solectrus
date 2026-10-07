@@ -108,8 +108,13 @@ de:
     battery_soc: Ladestand Hausakku
     battery_soc_short: Ladestand
     car_battery_soc: Ladestand E-Auto
+    car_battery_soc_short: Ladestand
     car_distance: Fahrleistung
     car_distance_short: Fahrleistung
+    car_range: Reichweite
+    car_range_short: Reichweite
+    car_max_range: Maximale Reichweite
+    car_max_range_short: Max. Reichweite
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
