@@ -1,0 +1,31 @@
+= render Car::Card::Component.new(title: t('car_breakdown.charging')) do
+  - tag_name, options = charging_wrapper(class: 'block min-w-0 text-center focus:outline-none', link_class: 'click-animation')
+  = content_tag tag_name, **options do
+    .text-3xl.md:text-4xl.font-semibold.leading-none.text-slate-700.dark:text-slate-200.whitespace-nowrap
+      = render energy_value(total_kwh)
+
+    - if parts.any?
+      .hidden data-tooltip-target='html'
+        .space-y-1
+          - parts.each do |part|
+            = render TooltipRow::Component.new(label: t(part.style.label_key), color_class: part.style.color_class) do
+              = render energy_value(part.source.kwh)
+
+  / The sources as a ring, with the share of PV in the center. The tooltip
+    gives the shares and the costs and opens to the right, like the source
+    column of the power balance.
+  = render DonutChart::Component.new(segments: donut_segments.presence, url: donut_url, chart_url: donut_chart_url, tooltip_placement: 'right') do |chart|
+    - if (share = center_share)
+      - whole_percent, label = share
+      - chart.with_center do
+        div class="font-semibold tabular-nums leading-none text-slate-700 dark:text-slate-200 text-[clamp(1.25rem,18cqmin,3rem)]"
+          = "#{whole_percent} %"
+        div class="mt-1 leading-tight text-slate-500 dark:text-slate-400 text-[clamp(0.875rem,8cqmin,1.5rem)]"
+          = label
+    - elsif parts.none?
+      - chart.with_center do
+        div class="leading-tight text-slate-500 dark:text-slate-400 text-[clamp(0.875rem,8cqmin,1.5rem)]"
+          = t('car_breakdown.no_charging')
+    - if parts.any?
+      - chart.with_tooltip do
+        = render donut_tooltip

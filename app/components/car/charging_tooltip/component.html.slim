@@ -1,0 +1,30 @@
+table.border-separate.border-spacing-x-2.border-spacing-y-1
+  - sources.each do |source|
+    tr
+      td.align-middle
+        .size-3.rounded-sm.border.border-gray-500.dark:border-slate-400 class=color_class(source)
+      td.text-left.text-sm.opacity-75.align-middle = label(source)
+      td.text-right.font-semibold.align-middle.whitespace-nowrap.tabular-nums
+        = "#{source.whole_percent} %"
+      - if costs
+        td.text-right.font-semibold.align-middle.whitespace-nowrap
+          = render cost_value(costs.parts[source.key])
+  - if costs
+    tr
+      td colspan=4
+        hr.my-1.border-gray-400.dark:border-slate-500.opacity-50
+    tr
+      td
+      td.text-left.text-sm.opacity-75.align-middle colspan=2 = t('sensors.car_charging_costs')
+      td.text-right.font-semibold.align-middle.whitespace-nowrap
+        = render cost_value(costs.sum)
+    - if guest_cost
+      tr
+        td
+        td.text-left.text-sm.opacity-75.align-middle colspan=2 = t('car_breakdown.guest_additional')
+        td.text-right.font-semibold.align-middle.whitespace-nowrap.opacity-75
+          = render SensorValue::Component.new(guest_cost, :total_costs)
+- if costs.nil?
+  p.mt-2.max-w-72.text-sm = t('car_breakdown.cost_missing')
+- elsif !complete?
+  p.mt-2.max-w-72.text-sm = t('car_breakdown.cost_incomplete')

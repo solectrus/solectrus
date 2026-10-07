@@ -7,6 +7,12 @@ module Car::ChargingSource
     def color_class
       sensor_name ? Sensor::Registry[sensor_name].color_background : 'bg-sensor-offsite'
     end
+
+    # The CSS variable behind the color class, for a ring that paints with a
+    # gradient instead of a class (see DonutChart::Component)
+    def color_var
+      "--color-#{color_class.split.find { it.start_with?('bg-') }.delete_prefix('bg-')}"
+    end
   end
   private_constant :Style
 

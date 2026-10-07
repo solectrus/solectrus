@@ -121,6 +121,11 @@ en:
     car_range_short: Range
     car_max_range: Maximum range
     car_max_range_short: Max. range
+    car_km_per_day_unit: day
+    car_avg_max_range_short: Ø max. range
+    car_cost_per_100km_short: Ø driving cost/100 km
+    car_consumption_per_100km_short: Ø usage/100 km
+    car_charged_short: Charged
     case_temp: Case
     grid_export_limit: Limit
     heatpump_power: Heat pump
@@ -177,7 +182,26 @@ en:
   cars:
     default_name: Car %{number}
   car_breakdown:
+    home: Wallbox
+    guest_additional: Paid for guests
+    cost_incomplete: A charging session has no cost, because its day has no price. The charging cost is therefore too small.
+    cost_missing: The charging sessions have no cost, because their days have no price.
+    home_pv: Photovoltaics
+    share_pv: from PV
+    share_wallbox: at the wallbox
+    home_grid: Grid
+    offsite: Offsite charging
+    charging: Charging
+    driving: Driving
+    no_charging: No charging
+    costs: Costs
+    consumption: Ø Consumption
+    per_100km: per 100 km
+    in_total: in total
+    avg_per_100km: Ø per 100 km
+    range: Ø Range
     daily_rate: Each day at the rate of the %{days} days before and after it
+    total: Total
   balance_sheet:
     left: Source
     right: Usage
@@ -199,6 +223,7 @@ en:
     heatpump_cop_below_one: Power consumption exceeds heat generated
     heatpump_no_heating: No heating operation
     inverter_no_production: No production
+    car_none_in_use: No car was in use in the selected period.
     car_no_charging: Not charged in the selected period.
     car_no_charging_cost: The charging sessions in the selected period have no price.
   chart:

@@ -5,14 +5,19 @@ class Car::Select::Component < ViewComponent::Base
   # `cars` are the cars of the timeframe, `car` is the selected one, or nil
   # for "all". A page other than the car page gives the address of a choice
   # as `path`, which takes the car id, or nil for "all".
-  def initialize(cars:, car:, path: nil)
+  def initialize(cars:, car:, path: nil, button_class: Dropdown::Component::HEADER_BUTTON_CLASS)
     super()
     @cars = cars
     @car = car
     @path = path
+    @button_class = button_class
   end
 
-  attr_reader :cars, :car
+  attr_reader :cars, :car, :button_class
+
+  # The button of the select in the stats of a phone
+  STATS_BUTTON_CLASS = 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'.freeze
+  public_constant :STATS_BUTTON_CLASS
 
   # Each choice, "all" first
   def items

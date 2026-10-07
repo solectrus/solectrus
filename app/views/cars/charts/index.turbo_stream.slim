@@ -4,6 +4,8 @@
 - if car_selection.installed.many? && !timeframe.now?
   = turbo_stream.update frame_id('car-select') do
     = render car_select_component
+  = turbo_stream.update frame_id('car-select-stats') do
+    = render car_select_component(button_class: Car::Select::Component::STATS_BUTTON_CLASS)
 
 = turbo_stream.update frame_id('chart') do
   .flex.flex-col.flex-auto.min-h-20.sm:gap-2.relative
