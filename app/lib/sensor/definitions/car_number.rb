@@ -3,7 +3,8 @@ module Sensor
     # A sensor of one car. The registry makes a definition for each number up
     # to MAX, and the number becomes part of the name: car_odometer_2.
     # Sensor::Config prunes a number without a configuration. Such a sensor
-    # holds the data and has no chart.
+    # holds the data and has no chart: the car page shows the chart of a role
+    # for the selected cars (see CarBatterySocChart).
     module CarNumber
       MAX = Sensor::Cars::MAX
       public_constant :MAX

@@ -60,6 +60,12 @@ module Sensor::Cars
     %i[car_latitude car_longitude].all? { Sensor::Config.exists?(sensor_name(it, number)) }
   end
 
+  # The sensors of the configured cars with the given role, for example
+  # car_battery_soc_1 and car_battery_soc_2
+  def self.numbered(role)
+    configured_numbers.map { sensor_name(role, it) }.select { Sensor::Config.exists?(it) }
+  end
+
   # The number of a car sensor, or nil for any other sensor
   def self.number_of(sensor_name)
     sensor_name.to_s[NAME_PATTERN, 2]&.to_i
