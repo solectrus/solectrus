@@ -23,6 +23,21 @@ describe Sensor::Units do
     end
   end
 
+  describe '#parse' do
+    it 'reads a number for a unit of numbers' do
+      expect(described_class.names.excluding(:boolean, :string).map { described_class[it].parse('42.5') }.uniq).to eq([42.5])
+    end
+
+    it 'reads a boolean and a text' do
+      expect(described_class[:boolean].parse('on')).to be(true)
+      expect(described_class[:string].parse(42)).to eq('42')
+    end
+
+    it 'refuses a value without a unit' do
+      expect { described_class[nil].parse(1) }.to raise_error(ArgumentError)
+    end
+  end
+
   describe 'scaling' do
     it 'scales watt up to megawatts' do
       expect(described_class[:watt].scale_steps.last).to include(

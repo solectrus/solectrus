@@ -25,4 +25,6 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- A sensor that tells whether a car is connected now shows "No" for a text like "False" or "OFF" and for a negative number, which some collectors send for an error. Before, the live view showed such a value as connected
+
 ## Maintenance

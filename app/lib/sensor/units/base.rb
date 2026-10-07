@@ -8,6 +8,12 @@ class Sensor::Units::Base
     NO_STEPS
   end
 
+  # The value of a raw reading, for example from InfluxDB. Most units are a
+  # number.
+  def parse(raw_value)
+    raw_value.to_f
+  end
+
   def scalable?
     scale_steps.any?
   end
