@@ -134,6 +134,11 @@
   );
   --color-sensor-car-range: var(--palette-standard-light-car-range);
   --color-sensor-consumer-other: #d6dde7;
+  --color-sensor-offsite: color-mix(
+    in oklch,
+    var(--color-sensor-grid) 75%,
+    black
+  );
 
   /* Signal colors for positive/warning/negative indicators (autarky badge,
      trend arrows, signed values). Dark mode lightens them, so text/arc remain

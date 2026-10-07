@@ -45,6 +45,16 @@ module Sensor::Cars
 
   def self.sensor_name(role, number) = :"#{role}_#{number}"
 
+  # The static dependency of a chart of the car page that reads the sensors
+  # of the selected cars: the sensors with the given roles of the first car
+  # that has them all, or the ones of car 1 when there is none, so
+  # Sensor::Config#exists? answers false.
+  def self.dependency(*roles)
+    number = configured_numbers.find { |n| roles.all? { Sensor::Config.configured?(sensor_name(it, n)) } }
+
+    roles.map { sensor_name(it, number || 1) }
+  end
+
   # Whether the car of the number has both coordinates, so it has places
   def self.located?(number)
     %i[car_latitude car_longitude].all? { Sensor::Config.exists?(sensor_name(it, number)) }

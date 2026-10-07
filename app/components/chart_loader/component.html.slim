@@ -1,5 +1,10 @@
 - if !permitted?
   = render DemoLink::Component.new(feature: permitted_feature_name, url: demo_url)
+- elsif blank? && blank_icon
+  .flex-1.flex.items-center.justify-center
+    / The tooltip controller turns the title into the label of the image
+    span role='img' data-controller='tooltip' title=blank_message
+      = slashed_icon blank_icon, class: 'text-8xl md:text-9xl text-slate-200 dark:text-slate-800'
 - elsif blank?
   .flex-1.flex.items-center.justify-center
     p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
