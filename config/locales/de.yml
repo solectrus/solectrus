@@ -121,6 +121,11 @@ de:
     car_range_short: Reichweite
     car_max_range: Maximale Reichweite
     car_max_range_short: Max. Reichweite
+    car_km_per_day_unit: Tag
+    car_avg_max_range_short: Ø Max. Reichweite
+    car_cost_per_100km_short: Ø Fahrkosten/100 km
+    car_consumption_per_100km_short: Ø Verbrauch/100 km
+    car_charged_short: Geladen
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
@@ -177,7 +182,26 @@ de:
   cars:
     default_name: Auto %{number}
   car_breakdown:
+    home: Wallbox
+    guest_additional: Für Gäste bezahlt
+    cost_incomplete: Ein Ladevorgang hat keine Kosten, weil für seinen Tag kein Preis hinterlegt ist. Die Ladekosten sind deshalb zu klein.
+    cost_missing: Die Ladevorgänge haben keine Kosten, weil für ihre Tage kein Preis hinterlegt ist.
+    home_pv: Photovoltaik
+    share_pv: aus PV
+    share_wallbox: an der Wallbox
+    home_grid: Netzbezug
+    offsite: Auswärtsladung
+    charging: Laden
+    driving: Fahren
+    no_charging: Keine Ladung
+    costs: Kosten
+    consumption: Ø Verbrauch
+    per_100km: pro 100 km
+    in_total: insgesamt
+    avg_per_100km: Ø pro 100 km
+    range: Ø Reichweite
     daily_rate: Jeder Tag zur Rate der %{days} Tage davor und danach
+    total: Gesamt
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -199,6 +223,7 @@ de:
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
     heatpump_no_heating: Kein Heizbetrieb
     inverter_no_production: Keine Erzeugung
+    car_none_in_use: Im gewählten Zeitraum war kein Auto in Gebrauch.
     car_no_charging: Im gewählten Zeitraum nicht geladen.
     car_no_charging_cost: Für die Ladevorgänge im gewählten Zeitraum ist kein Preis hinterlegt.
   chart:
