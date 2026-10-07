@@ -307,6 +307,14 @@ describe Sensor::SummaryInvalidator do
           expect { validation }.not_to change(Summary, :count)
         end
       end
+
+      context 'when a step has nothing to do anymore' do
+        let(:stored_steps) { current_steps.merge('place_visits' => Place::VisitDetection::VERSION) }
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
     end
   end
 end

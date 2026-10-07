@@ -32,6 +32,10 @@ class ChargingSession::Detection
   VERSION = 1
   public_constant :VERSION
 
+  # The sessions keep the changes of the user, so a reset of the summaries
+  # keeps them (see Summary::Steps)
+  def self.derived = nil
+
   MIN_KWH = 0.1
   public_constant :MIN_KWH
 

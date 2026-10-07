@@ -5,6 +5,8 @@
 # - A wallbox session of the car outside the new period loses the car, also
 #   a car that the user chose, and the next build runs the detection on
 #   these days again (see ChargingSession::Detection).
+# - A visit of the car at a place outside the new period goes, and the next
+#   build finds the visits of these days again (see Place::VisitDetection).
 # - The summaries of the changed days go, so the next build makes them again
 #   with the values of the car and the records of each step (see
 #   Summary::Steps).
@@ -23,6 +25,7 @@ class Car::PeriodChange
       .where.not(started_at: car.period_times)
       .update_all(car_id: nil, assigned_manually: false) # rubocop:disable Rails/SkipsModelValidations
 
+    car.place_visits.where.not(date: car.active_from..car.active_until).delete_all
     days.each { Summary.where(date: it).delete_all }
   end
 

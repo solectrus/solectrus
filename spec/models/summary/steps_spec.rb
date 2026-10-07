@@ -19,6 +19,12 @@ describe Summary::Steps do
     end
   end
 
+  describe '.derived' do
+    it 'names the visits, but not the charging sessions with the changes of the user' do
+      expect(described_class.derived).to eq([PlaceVisit])
+    end
+  end
+
   describe '.[]' do
     it 'finds a step by its key' do
       expect(described_class[:charging_sessions]).to eq(ChargingSession::Detection)

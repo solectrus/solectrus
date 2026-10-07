@@ -22,18 +22,24 @@
 #   .sensor_names
 #               the sensors that the step reads, also the ones without a
 #               configuration
+#   .derived    the model whose records come from the build alone, which a
+#               reset of the summaries empties, or nil when the records
+#               keep changes of the user
 #   .new(dates) a step for the given days
 #   #call       reads InfluxDB and returns a result, without the database,
 #               so it can run in a thread of its own
 #   #persist    writes the result, inside the transaction of the build
 module Summary::Steps
   # The names of the step classes, so a step loads only when it is needed
-  CLASSES = %w[ChargingSession::Detection].freeze
+  CLASSES = %w[ChargingSession::Detection Place::VisitDetection].freeze
   private_constant :CLASSES
 
   def self.all = CLASSES.map(&:constantize)
 
   def self.[](key) = all.find { key.to_sym == it::KEY } || raise(ArgumentError, "Unknown step: #{key}")
+
+  # The models whose records come from the build alone (see Summary.reset!)
+  def self.derived = all.filter_map(&:derived)
 
   # The steps with something to do
   def self.enabled = all.select(&:enabled?)

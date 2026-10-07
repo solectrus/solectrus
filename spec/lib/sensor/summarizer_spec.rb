@@ -432,10 +432,12 @@ describe Sensor::Summarizer do
 
       it 'runs each step with something to do on the day' do
         allow(ChargingSession::Detection).to receive(:new).and_call_original
+        allow(Place::VisitDetection).to receive(:new).and_call_original
 
         call
 
         expect(ChargingSession::Detection).to have_received(:new).with([date])
+        expect(Place::VisitDetection).not_to have_received(:new)
       end
     end
 
