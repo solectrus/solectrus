@@ -1,0 +1,16 @@
+# The distance on the car page: a part for each selected car.
+# The values come from car_odometer_<n> (see CarOdometer). The sensor has no
+# number, because the car select above the chart selects the cars.
+class Sensor::Definitions::CarDistanceChart < Sensor::Definitions::Base
+  def name = :car_distance
+
+  value unit: :kilometer, category: :car
+
+  chart { |timeframe, cars: Car.configured, **| Sensor::Chart::CarDistance.new(timeframe:, cars:) }
+
+  chart_only
+
+  def static_dependencies = Sensor::Cars.dependency(:car_odometer)
+
+  requires_permission :car
+end

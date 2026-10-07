@@ -35,6 +35,8 @@
   --palette-contrast-light-heatpump-heating: #f97316; /* ecstasy */
   --palette-contrast-light-autarky-mid: #d97706; /* amber-600 */
   --palette-contrast-light-forecast-clearsky: #9ca3af; /* gray chateau */
+  --palette-contrast-light-car-consumption: #0891b2; /* bondi blue */
+  --palette-contrast-light-car-cost-rate: #ea580c; /* christine */
   --palette-contrast-light-car-range: #c026d3; /* purple pizzazz */
 
   /* Contrast palette (dark mode) — NTC color names */
@@ -55,6 +57,8 @@
   --palette-contrast-dark-heatpump-heating: #c2410c; /* tia maria */
   --palette-contrast-dark-autarky-mid: #e0af3b; /* oklch(0.78 0.14 85) */
   --palette-contrast-dark-forecast-clearsky: #4b5563; /* river bed */
+  --palette-contrast-dark-car-consumption: #155e75; /* blue lagoon */
+  --palette-contrast-dark-car-cost-rate: #9a3412; /* rust */
   --palette-contrast-dark-car-range: #86198f; /* seance */
 
   /* Standard palette (light mode) — NTC color names */
@@ -75,6 +79,8 @@
   --palette-standard-light-heatpump-heating: #f97316; /* ecstasy */
   --palette-standard-light-autarky-mid: #d97706; /* amber-600 */
   --palette-standard-light-forecast-clearsky: #9ca3af; /* gray chateau */
+  --palette-standard-light-car-consumption: #0e7490; /* blue lagoon */
+  --palette-standard-light-car-cost-rate: #b45309; /* golden brown */
   --palette-standard-light-car-range: #6b5b95; /* butterfly bush */
 
   /* Standard palette (dark mode) — NTC color names */
@@ -95,6 +101,8 @@
   --palette-standard-dark-heatpump-heating: #c2410c; /* tia maria */
   --palette-standard-dark-autarky-mid: #e0af3b; /* oklch(0.78 0.14 85) */
   --palette-standard-dark-forecast-clearsky: #4b5563; /* river bed */
+  --palette-standard-dark-car-consumption: #164e63; /* cyprus */
+  --palette-standard-dark-car-cost-rate: #78350f; /* cinnamon */
   --palette-standard-dark-car-range: #3f3566; /* martinique */
 
   /* Preview swatches — follow light/dark mode (overridden in .dark) */
@@ -132,6 +140,8 @@
   --color-sensor-forecast-clearsky: var(
     --palette-standard-light-forecast-clearsky
   );
+  --color-sensor-car-consumption: var(--palette-standard-light-car-consumption);
+  --color-sensor-car-cost-rate: var(--palette-standard-light-car-cost-rate);
   --color-sensor-car-range: var(--palette-standard-light-car-range);
   --color-sensor-consumer-other: #d6dde7;
   --color-sensor-offsite: color-mix(
@@ -204,6 +214,10 @@
     --color-sensor-forecast-clearsky: var(
       --palette-standard-dark-forecast-clearsky
     );
+    --color-sensor-car-consumption: var(
+      --palette-standard-dark-car-consumption
+    );
+    --color-sensor-car-cost-rate: var(--palette-standard-dark-car-cost-rate);
     --color-sensor-car-range: var(--palette-standard-dark-car-range);
 
     /* Signal colors: light-mode values, lightened further below */
@@ -273,6 +287,10 @@
     --color-sensor-forecast-clearsky: var(
       --palette-contrast-light-forecast-clearsky
     );
+    --color-sensor-car-consumption: var(
+      --palette-contrast-light-car-consumption
+    );
+    --color-sensor-car-cost-rate: var(--palette-contrast-light-car-cost-rate);
     --color-sensor-car-range: var(--palette-contrast-light-car-range);
 
     --color-signal-warning: var(--palette-contrast-light-autarky-mid);
@@ -321,6 +339,10 @@
     --color-sensor-forecast-clearsky: var(
       --palette-contrast-dark-forecast-clearsky
     );
+    --color-sensor-car-consumption: var(
+      --palette-contrast-dark-car-consumption
+    );
+    --color-sensor-car-cost-rate: var(--palette-contrast-dark-car-cost-rate);
     --color-sensor-car-range: var(--palette-contrast-dark-car-range);
 
     /* Signal colors: light-mode values, lightened further below */

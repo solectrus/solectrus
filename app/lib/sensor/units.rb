@@ -14,6 +14,8 @@ module Sensor
       money_per_kwh: MoneyPerKwh.new,
       celsius: Celsius.new,
       kilometer: Kilometer.new,
+      kwh_per_100km: KwhPer100km.new,
+      money_per_100km: MoneyPer100km.new,
       percent: Percent.new,
       unitless: Unitless.new,
       boolean: Boolean.new,
